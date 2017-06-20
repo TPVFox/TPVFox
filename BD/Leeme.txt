@@ -1,0 +1,3 @@
+Guardamos la BD sin datos.... 
+Me encontre con el problema que a la hora importar las mayusculas en tablas y bases datos no lo hace correctamente.
+Por eso el motivo del cambio de nombres de BD y tablas.

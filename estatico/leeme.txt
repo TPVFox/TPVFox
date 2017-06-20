@@ -1,0 +1,6 @@
+Hay que recordar que en el head
+controlamos si estamos en directorio principal
+sino entendemos que estamos en un modulo, por lo estatico debe tener 
+la misma estructura de directorios para encontralo
+./../../
+
