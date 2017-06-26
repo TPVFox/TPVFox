@@ -55,6 +55,7 @@ function LeerEstructuraDbf($fichero) {
 		foreach ($output as $linea) {
 			if ($i === 0) {
 				 $resultado['numeroReg'] = $linea;
+			 }
 			//~ $resultado[$i] = $linea;
 			$resultado[$i] = json_decode($linea,true);
 			$i++;
