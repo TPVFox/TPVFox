@@ -8,14 +8,15 @@
  * */
 
 //Funcion donde se lee Dbf y se obtine array *
-function LeerDbf($fichero) {
+function LeerDbf($fichero,$numFinal,$numInic) {
 	// El objetivo es leer DBF
 	// Metodo:
 	// A traves exec , obtenemos array.
 	// tratamos array $output para obtener los datos y los ponemos a nuestro gusto $resultado;
 	$resultado = array();
 	$output = array(); 
-	$instruccion = "python ./../../lib/py/leerDbf.py 2>&1 -f ".$fichero;
+	$instruccion = "python ./../../lib/py/leerDbf.py 2>&1 -f ".$fichero." -i ".$numInic." -e ".$numFinal;
+	
 	exec($instruccion, $output,$entero);
 	if ($entero === 0) {
 		$resultado['Estado'] = 'Correcto';

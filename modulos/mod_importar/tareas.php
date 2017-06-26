@@ -25,7 +25,11 @@ include_once ("./funciones.php");
         $respuesta = LeerEstructuraDbf($fichero);
         echo json_encode($respuesta) ;
         break;
-    
+    case 'obtenerDbf':
+		$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
+        $respuesta = LeerDbf($fichero,$numFinal,$numInicial);
+        echo json_encode($respuesta) ;
+        break;
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

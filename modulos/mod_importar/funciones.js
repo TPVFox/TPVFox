@@ -40,14 +40,14 @@ function Inicio (pulsado) {
 	switch(pulsado) {
 			case 'pulso_inicio':
 				// Acaba de cargar javascript, por lo que inicia proceso.
-				Importar();
+				EstrucTabla();
 				break;
 	} 
 	
 }
 
 
-function Importar (){
+function EstrucTabla (){
 	alert('algo');
 	//estructura articulos
 	var parametros = {
