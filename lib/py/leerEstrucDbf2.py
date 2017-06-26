@@ -26,7 +26,7 @@ for campo in campos:
 	tipocampo = tipo
 	longit = campo.length 
 	
-	jSON= '{"campo":"'+nombcampo+'","tipo ":"'+tipocampo+'","longitud ":"'+str(longit)+'}'
+	jSON= '{"campo":"'+nombcampo+'","tipo":"'+tipocampo+'","longitud":'+str(longit)+'}'
 	print jSON
 	
 
