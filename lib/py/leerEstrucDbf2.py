@@ -21,12 +21,14 @@ columnas = []
 campos = db.fields
 for campo in campos:
 	tipo = campo.type
-	
+	decimal = 0
 	nombcampo = campo.name
 	tipocampo = tipo
 	longit = campo.length 
+	if tipo = "N":
+        decimal = campo.decimal_count
 	
-	jSON= '{"campo":"'+nombcampo+'","tipo":"'+tipocampo+'","longitud":'+str(longit)+'}'
+	jSON= '{"campo":"'+nombcampo+'","tipo":"'+tipocampo+'","longitud":'+str(longit)+'","decimal":'+decimal+'}'
 	print jSON
 	
 
