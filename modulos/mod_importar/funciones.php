@@ -56,9 +56,12 @@ function LeerEstructuraDbf($fichero) {
 			if ($i === 0) {
 				 $resultado['numeroReg'] = $linea;
 			 }
+			 else{
 			//~ $resultado[$i] = $linea;
 			$resultado[$i] = json_decode($linea,true);
+			}
 			$i++;
+			
 		}
 	} else {
 		$resultado['Estado'] = 'Errores '. $entero;
