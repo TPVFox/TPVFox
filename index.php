@@ -32,7 +32,7 @@
 	<section>
 		<div class="container">
 			<div class="col-md-8">
-				<h1>Catalogo de recambios</h1>
+				<h1>TPVfox</h1>
 				<p></p>
 				<p></p>
 				
@@ -48,7 +48,7 @@
 					<p>Está aplicación es OPEN SOURCE, con ello queremos decir que puedes utilizar este código en otras aplicaciones y modificarlo sin problemas.</p>
 					</div>
 					<div class="alert alert-danger">
-					<p>Lo que no se puede es publicar son los datos de la base de datos, ya que no tenemos autorizacio de los fabricantes de recambios.</p>
+					<p>Lo que no se puede es publicar son los datos de BD (estructura SI)y documentacion de la empresa. </p>
 					</div>
 				</div>
 			</div>
