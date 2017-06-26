@@ -19,27 +19,29 @@ if args.inicio:
 if args.final:
 	num_final= args.final 
 	
-print num_final
-print num_inicio
+
 
 ord(u'\x03')  # Lo encontre para poner codigo ascii ( ñ)
 # fichero = '/home/solucion40/www/superoliva/datos/DBF71/albprol.dbf'
-#~ arch = Dbf(fichero)
+arch = Dbf(fichero)
 #~ rango = range(min(10000,len(arch)))
-#~ print rango
-#~ print len(arch)
-#~ for ver in rango:
-	#~ #muestro por terminal los datos segun 1 rango
-	#~ x = arch[ver]
-	#~ #datos que obtengo
-	#~ numalb = x['NNUMALB']
-	#~ ref = 	x['CREF']
-	#~ det = str(x['CDETALLE'])
-	#~ detalles = det
-	#~ # s = re.findall(detalles.encode('cp1250')
-	#~ precio =  x['NPREDIV']
-	#~ jSON= '{"numalb":'+str(numalb)+',"ref":"'+ref+'","detalles":"'+detalles+'","precio":'+str(precio)+'}'
-	#~ print jSON
+rango = num_final
+print rango
+print len(arch)
+if int(num_final) <= len(arch):
+	print 'Entro'
+	for ver in range(int(num_inicio),int(num_final)):
+		#muestro por terminal los datos segun 1 rango
+		x = arch[ver]
+		#datos que obtengo
+		numalb = x['NNUMALB']
+		ref = 	x['CREF']
+		det = str(x['CDETALLE'])
+		detalles = det
+		# s = re.findall(detalles.encode('cp1250')
+		precio =  x['NPREDIV']
+		jSON= '{"numalb":'+str(numalb)+',"ref":"'+ref+'","detalles":"'+detalles+'","precio":'+str(precio)+'}'
+		print jSON
 
 	
 	
