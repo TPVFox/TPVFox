@@ -53,8 +53,8 @@ function LeerEstructuraDbf($fichero) {
 		// pasamos array asociativo.
 		$i=0;
 		foreach ($output as $linea) {
-			//~ $resultado[$i] = $linea;
-			$resultado[$i] = json_decode($linea,true);
+			$resultado[$i] = $linea;
+			//~ $resultado[$i] = json_decode($linea,true);
 			$i++;
 		}
 	} else {
