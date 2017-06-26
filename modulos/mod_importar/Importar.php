@@ -19,6 +19,7 @@
 <?php
 	include './../../head.php';
 ?>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/funciones.js"></script>
 </head>
 <body>
 <?php 
