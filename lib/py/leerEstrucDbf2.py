@@ -28,7 +28,7 @@ for campo in campos:
 	if tipo == "N":
 		decimal = campo.decimal_count
 	
-	jSON= '{"campo":"'+nombcampo+'","tipo":"'+tipocampo+'","longitud":'+str(longit)+'","decimal":'+decimal+'}'
+	jSON= '{"campo":"'+nombcampo+'","tipo":"'+tipocampo+'","longitud":'+str(longit)+'","decimal":'+str(decimal)+'}'
 	print jSON
 	
 
