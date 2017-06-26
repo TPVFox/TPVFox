@@ -22,7 +22,7 @@ include_once ("./funciones.php");
  switch ($pulsado) {
     case 'Inicio':
 		$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
-        $respuesta = LeerDbf($fichero);
+        $respuesta = LeerEstructuraDbf($fichero);
         echo json_encode($respuesta) ;
         break;
     

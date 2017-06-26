@@ -19,6 +19,9 @@ if args.file:
 db = DBF(fichero)
 columnas = []
 campos = db.fields
+numregistro = len(db)
+jSON2= '{"Numeroregistros":'+numregistro+'}'
+print jSON2
 for campo in campos:
 	tipo = campo.type
 	decimal = 0
