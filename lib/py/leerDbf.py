@@ -26,10 +26,10 @@ ord(u'\x03')  # Lo encontre para poner codigo ascii ( ñ)
 arch = Dbf(fichero)
 #~ rango = range(min(10000,len(arch)))
 rango = num_final
-print rango
-print len(arch)
+#~ print rango
+#~ print len(arch)
 if int(num_final) <= len(arch):
-	print 'Entro'
+	#~ print 'Entro'
 	for ver in range(int(num_inicio),int(num_final)):
 		#muestro por terminal los datos segun 1 rango
 		x = arch[ver]
