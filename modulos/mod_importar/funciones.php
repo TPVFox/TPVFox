@@ -7,8 +7,15 @@
  * @Descripcion	Funciones para importar datos Dbf a Mysql
  * */
 
-//Funcion donde se lee Dbf y se obtine array *
-function LeerDbf($fichero,$numFinal,$numInic) {
+//Funcion donde se lee Dbf y se obtiene array *
+function LeerDbf($fichero,$numFinal,$numInic,$campos) {
+	// Parametros:
+	// $numFinal y $numInic son enteros.
+	// $campos es un array de los campos de la tabla.
+	//  [0] 
+	// 		[NombreCampo]
+	// 		[tipo]
+	
 	// El objetivo es leer DBF
 	// Metodo:
 	// A traves exec , obtenemos array.
@@ -23,11 +30,16 @@ function LeerDbf($fichero,$numFinal,$numInic) {
 		// pasamos array asociativo.
 		$i=0;
 		foreach ($output as $linea) {
-			$resultado[$i] = json_decode($linea,true);
-			// Para solucionar tema codificacion pagina de descripcion, lo hacermos 
-			$convertir = $resultado[$i]['detalles'];
-			$convertido = htmlentities($convertir, ENT_QUOTES | ENT_IGNORE, "CP1252");
-			$resultado[$i]['detalles'] = $convertido;
+			$resultado[$i] = json_decode($linea,true); // Obtenemos array con datos y campos.
+			// El problema es cuando el campo es Caracter y tenemos que convertir a codepage CP1252 para español.
+			foreach ($campos as $campo) {
+				if ($campo['tipo'] === 'C')
+					$nombreCampo = $campo['campo'];
+					$convertir = $resultado[$i][$nombreCampo];
+					$convertido = htmlentities($convertir, ENT_QUOTES | ENT_IGNORE, "CP1252");
+					$resultado[$i][$nombreCampo] = $convertido;
+				}
+			}
 			$i++;
 		}
 	} else {
@@ -71,6 +83,7 @@ function LeerEstructuraDbf($fichero) {
 		// No permitimos continuar.
 		
 	}
+	$resultado['NumCampos'] = $i;
 	return $resultado;
 
 	

@@ -5,7 +5,7 @@
  * @author      Ricardo Carpintero - SolucionesVigo
  * @Descripcion	Javascript necesarios para modulo importar DBF.
  * */
-var pulsado = 'Inicio'
+var pulsado = 'Inicio';
 var LimiteActual = 0;
 var LimiteFinal = 0;
 var icono = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
@@ -64,29 +64,77 @@ function EstrucTabla (){
 					$("#resultado").html('Obteniendo estructura de tabla <span><img src="./img/ajax-loader.gif"/></span>');
 			},
 			success:  function (response) {
+					
+					
 					// Cuando se recibe un array con JSON tenemos que parseJSON
-					//~ var resultado =  $.parseJSON(response)
-					//~ $("#resultado").html('Linea Inicio:'+resultado['Inicio']+'<br/>'
-									//~ +'Linea Final:'+resultado['Final']+'<br/>'
-									//~ );
-					//~ // Si hay un mal insert deberiamos contarlos y anotarlo aqui.
-					//~ if (resultado['Resultado'] != "Correcto el insert" ) {
-					//~ // Primero cambiamos la clase , para poner advertencia.
-					//~ $('#ErrorInsert').addClass('alert alert-danger');
-					//~ $("#ErrorInsert").html('<strong>Error INSERT </strong>'+'<br/>'+' Ver console de javascript, error fichero de msql_csv.php');
-					//~ console.log("Responde");
-					//~ console.log(response.toString());
-					//~ }
-					console.log(response.toString());
-
-
+					var resultado =  $.parseJSON(response)
+					if (resultado['Estado'] === 'Correcto') {
+						LimiteFinal = resultado['numeroReg'];
+						console.log('Numero de registros tabla: '+ LimiteFinal);
+						// Obtenemos numero campos
+						NumCampos = resultado['NumCampos'];
+						console.log(NumCampos);
+						campos = []
+						for (i = 1; i < NumCampos; i++){
+						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo']};	
+						}
+						//~ console.log(campos);
+						//~ console.log(response.toString());
+						ObtenerDatosTabla(campos);
+						return
+					} else {
+						alert(' Error al obtener estructura');
+						return
+					}
+					
 			}
 		});
 
 }
 
+function ObtenerDatosTabla(resultado){
+	// Intervalo minimo... 
+	if (LimiteActual < LimiteFinal) {
+		diferencia = LimiteFinal - LimiteActual;
+		if (diferencia >400 ) {
+			diferencia = 400;
+		}
+		alert( 'Obtener datos');
+		console.log(resultado)
+			var parametros = {
+		"lineaI" 	: LimiteActual,
+		"lineaF" 	: diferencia,
+		//~ "campos" 	: campos,
+		"pulsado" 	: 'Inicio'
+				};
+		$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+					$("#resultado").html('Obteniendo daatos de tabla <span><img src="./img/ajax-loader.gif"/></span>');
+			},
+			success:  function (response) {
+					
+					// Cuando se recibe un array con JSON tenemos que parseJSON
+					var resultado =  $.parseJSON(response)
+					if (resultado['Estado'] === 'Correcto') {
+						// Pendiente punto siguiente..
+					} else {
+						alert(' Error al obtener estructura');
+						return
+					}
+					
+			}
+		});
+		
+	}
+	
+	
+	
+	
 
-
+}
 function Ciclo(f) {
 	// El objetivo de esta funcion volver a ejectuar la funcion
 	// y intentarlo 20 veces, si fuera necesario.

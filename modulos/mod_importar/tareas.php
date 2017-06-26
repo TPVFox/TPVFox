@@ -26,8 +26,14 @@ include_once ("./funciones.php");
         echo json_encode($respuesta) ;
         break;
     case 'obtenerDbf':
+		$numInicial = $_POST['lineaI'];
+		$numFinal = $_POST['lineaF'];
+		//~ $pulsado = $_POST['campos'];
+
+		
+		
 		$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
-        $respuesta = LeerDbf($fichero,$numFinal,$numInicial);
+        $respuesta = LeerDbf($fichero,$numFinal,$numInicial,$campos);
         echo json_encode($respuesta) ;
         break;
 }
