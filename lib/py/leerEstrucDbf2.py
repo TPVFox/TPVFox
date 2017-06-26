@@ -40,7 +40,7 @@ for campo in campos:
 
 	nombcampo = campo.name
 	tipocampo = tipo
-	longit = campo.length
+	longit = campo.length + 1
 	
 	jSON= '{"nombre campo":'+nombcampo+',"tipo ":"'+tipocampo+'","longitud ":"'+str(longit)+'}'
 	print jSON
