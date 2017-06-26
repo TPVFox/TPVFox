@@ -37,12 +37,12 @@ for campo in campos:
 		#~ raise NotImplementedError("Tipo %s no implementado" % tipo)
 	#~ print tmp
 	
-
+	x = db[campo]
 	nombcampo = campo.name
 	tipocampo = tipo
-	longit = campo.length + 1
+	longit = campo.length 
 	
-	jSON= '{"nombre campo":'+nombcampo+',"tipo ":"'+tipocampo+'","longitud ":"'+str(longit)+'}'
+	jSON= '{"nombre campo":'+nombcampo+',"tipo ":"'+tipocampo+'","longitud ":"'+longit+'}'
 	print jSON
 	
 #~ for ver in rango:
