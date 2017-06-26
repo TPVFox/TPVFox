@@ -36,3 +36,5 @@ for campo in campos:
 	else:
 		raise NotImplementedError("Tipo %s no implementado" % tipo)
 	print tmp
+
+
