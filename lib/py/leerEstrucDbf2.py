@@ -37,7 +37,7 @@ for campo in campos:
 		#~ raise NotImplementedError("Tipo %s no implementado" % tipo)
 	#~ print tmp
 	
-	x = db[campo]
+
 	nombcampo = campo.name
 	tipocampo = tipo
 	longit = campo.length
