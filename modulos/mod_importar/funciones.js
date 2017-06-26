@@ -38,7 +38,7 @@ function Inicio (pulsado) {
 	// la variable que va controlar es pulsado.
 	alert('algo');
 	switch(pulsado) {
-			case 'Inicio':
+			case 'pulso_inicio':
 				// Acaba de cargar javascript, por lo que inicia proceso.
 				Importar();
 				break;

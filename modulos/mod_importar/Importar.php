@@ -85,7 +85,7 @@
 	
 </div>
 <script>
-	Inicio(pulsado)
+	Inicio('pulso_inicio')
 </script>
 </body>
 </html>
