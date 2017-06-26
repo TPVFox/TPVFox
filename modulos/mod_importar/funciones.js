@@ -33,9 +33,10 @@ function BarraProceso(lineaA,lineaF) {
 	return;
 	
 }
-function Inicio () {
+function Inicio (pulsado) {
 	// Lo que pretendo es tener un proceso que controle y cambio de proceso según sea necesarios.
 	// la variable que va controlar es pulsado.
+	alert('algo');
 	switch(pulsado) {
 			case 'Inicio':
 				// Acaba de cargar javascript, por lo que inicia proceso.
