@@ -45,7 +45,6 @@ for campo in campos:
 	jSON= '{"nombre campo":'+nombcampo+',"tipo ":"'+tipocampo+'","longitud ":"'+str(longit)+'}'
 	print jSON
 	
--------------------------
 #~ for ver in rango:
 	#~ #muestro por terminal los datos segun 1 rango
 	#~ x = arch[ver]
