@@ -20,7 +20,7 @@ db = DBF(fichero)
 columnas = []
 campos = db.fields
 numregistro = len(db)
-jSON2= '{"Numeroregistros":'+string(numregistro)+'}'
+jSON2= '{"Numeroregistros":'+str(numregistro)+'}'
 print jSON2
 for campo in campos:
 	tipo = campo.type
