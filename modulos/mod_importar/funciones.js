@@ -36,7 +36,7 @@ function BarraProceso(lineaA,lineaF) {
 function Inicio (pulsado) {
 	// Lo que pretendo es tener un proceso que controle y cambio de proceso según sea necesarios.
 	// la variable que va controlar es pulsado.
-	alert('algo');
+	
 	switch(pulsado) {
 			case 'pulso_inicio':
 				// Acaba de cargar javascript, por lo que inicia proceso.
@@ -48,7 +48,40 @@ function Inicio (pulsado) {
 
 
 function Importar (){
-	
+	alert('algo');
+	//estructura articulos
+	var parametros = {
+	//~ "lineaI" 	: linea,
+	//~ "lineaF" 	: lineaF,
+	//~ "Fichero" 	: fichero,
+	"pulsado" 	: 'Inicio'
+			};
+	$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+					$("#resultado").html('Obteniendo estructura de tabla <span><img src="./img/ajax-loader.gif"/></span>');
+			},
+			success:  function (response) {
+					// Cuando se recibe un array con JSON tenemos que parseJSON
+					//~ var resultado =  $.parseJSON(response)
+					//~ $("#resultado").html('Linea Inicio:'+resultado['Inicio']+'<br/>'
+									//~ +'Linea Final:'+resultado['Final']+'<br/>'
+									//~ );
+					//~ // Si hay un mal insert deberiamos contarlos y anotarlo aqui.
+					//~ if (resultado['Resultado'] != "Correcto el insert" ) {
+					//~ // Primero cambiamos la clase , para poner advertencia.
+					//~ $('#ErrorInsert').addClass('alert alert-danger');
+					//~ $("#ErrorInsert").html('<strong>Error INSERT </strong>'+'<br/>'+' Ver console de javascript, error fichero de msql_csv.php');
+					//~ console.log("Responde");
+					//~ console.log(response.toString());
+					//~ }
+					console.log(response.toString());
+
+
+			}
+		});
 
 }
 

@@ -79,9 +79,12 @@
 		<div>
 		Barra Procesos
 		</div>
+		<div id="resultado"></div>
+
 		<div>
 		<p> Tabla de procesos que se hacen....( No lo tengo claro)</p>
 		</div>
+		
 	</div>
 	
 </div>
