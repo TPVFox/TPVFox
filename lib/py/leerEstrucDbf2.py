@@ -25,8 +25,8 @@ for campo in campos:
 	nombcampo = campo.name
 	tipocampo = tipo
 	longit = campo.length 
-	if tipo = "N":
-        decimal = campo.decimal_count
+	if tipo == "N":
+		decimal = campo.decimal_count
 	
 	jSON= '{"campo":"'+nombcampo+'","tipo":"'+tipocampo+'","longitud":'+str(longit)+'","decimal":'+decimal+'}'
 	print jSON
