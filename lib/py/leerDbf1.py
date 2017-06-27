@@ -19,6 +19,7 @@ if args.inicio:
 if args.final:
     num_final= args.final
     
+  
 # Clase para poder obtener nombre campo y dato.    
 class MyFieldParser(FieldParser):
     def parse(self, field, data):

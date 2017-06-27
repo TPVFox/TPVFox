@@ -19,7 +19,9 @@ if args.file:
 db = DBF(fichero)
 columnas = []
 campos = db.fields
-numregistro = len(db)
+numregistroSinBorrad = len(db)
+numregistroBorrad = len(db.deleted)
+numregistro = numregistroSinBorrad+numregistroBorrad
 #~ jSON2= '{"Numeroregistros":'+str(numregistro)+'}'
 print numregistro
 for campo in campos:

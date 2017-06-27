@@ -35,6 +35,7 @@
 	//~ ($fichero,$numFinal,$numInic,$campos)
 	$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
 	$respuesta = LeerDbf($fichero);
+	//~ $respuesta = LeerDbf($fichero,$numFinal,$numInic,$campos);
 	//~ $respuesta = LeerEstructuraDbf($fichero);
 	echo '<pre>';
 	print_r($respuesta);

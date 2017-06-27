@@ -8,7 +8,10 @@
  * */
 
 //Funcion donde se lee Dbf y se obtiene array *
-function LeerDbf($fichero,$numFinal,$numInic,$campos) {
+//~ ,$numFinal,$numInic,$campos 
+
+//~ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
+function LeerDbf($fichero) {
 
 	// Parametros:
 	// $numFinal y $numInic son enteros.
@@ -28,8 +31,8 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 	exec($instruccion, $output,$entero);
 	
 	if ($entero === 0) {
-		$resultado['campos'] = $campos;
-		$resultado['Estado'] = 'Correcto';
+		//~ $resultado['campos'] = $campos;
+		//~ $resultado['Estado'] = 'Correcto';
 		// pasamos array asociativo.
 		$i=0;
 		foreach ($output as $linea) {
@@ -46,8 +49,8 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 			$i++;
 		}
 	} else {
-		$resultado['Estado'] = 'Errores '. $entero;
-		$resultado['Errores'] = $output;
+		//~ $resultado['Estado'] = 'Errores '. $entero;
+		//~ $resultado['Errores'] = $output;
 		// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
 		// No permitimos continuar.
 		

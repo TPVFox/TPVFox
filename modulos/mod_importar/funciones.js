@@ -10,7 +10,7 @@ var LimiteActual = 0;
 var LimiteFinal = 0;
 var icono = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
-
+var campos = []
 // Funcion para mostrar la barra de proceso..
 function BarraProceso(lineaA,lineaF) {
 	// Esta fucion debería ser una funcion comun , por lo que se debería cargar el javascript comun y ejecutar...
@@ -48,7 +48,7 @@ function Inicio (pulsado) {
 
 
 function EstrucTabla (){
-	alert('algo');
+	alert('estrucTabla funcion js');
 	console.log('estructura tabla');
 	//estructura articulos
 	var parametros = {
@@ -73,6 +73,7 @@ function EstrucTabla (){
 						// Obtenemos numero campos
 						NumCampos = resultado['NumCampos'];
 						console.log(NumCampos);
+						
 						campos = []
 						for (i = 1; i < NumCampos; i++){
 						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo']};	
@@ -93,14 +94,20 @@ function EstrucTabla (){
 
 function ObtenerDatosTabla(resultado){
 	// Intervalo minimo... 
+	// le paso objetos
 	if (LimiteActual < LimiteFinal) {
 		diferencia = LimiteFinal - LimiteActual;
 		if (diferencia >400 ) {
 			diferencia = 400;
 		}
-		alert( 'Obtener datos');
-		console.log('holaa');
+		//~ alert( 'Obtener datos funcion js');
+		console.log('Obtener datos funcion js');
 		console.log(resultado);
+		console.log('====== antes de ajax ====================');
+		console.log('limiteactual:'+LimiteActual);
+		console.log('limite final:'+LimiteFinal);
+		console.log('diferencia:'+diferencia);
+		
 		
 			var parametros = {
 		"lineaI" 	: LimiteActual,
@@ -117,10 +124,26 @@ function ObtenerDatosTabla(resultado){
 			},
 			success:  function (response) {
 					
-					// Cuando se recibe un array con JSON tenemos que parseJSON
-					var resultado =  $.parseJSON(response);
-					console.log(resultado);
+				// Cuando se recibe un array con JSON tenemos que parseJSON
+				var resultado =  $.parseJSON(response);
+				//muestra object Object
+				console.log(resultado);	
+				
+				//vuelvo a llamar para crear bucler 
+				LimiteActual = LimiteActual + diferencia;
+		console.log('====== DESPUES de ajax ====================');
+		console.log('limiteactual:'+LimiteActual);
+		console.log('limite final:'+LimiteFinal);
+		console.log('diferencia:'+diferencia);		
+				
+				ObtenerDatosTabla(campos);
+		
+				return
 					
+					
+					
+		
+		
 					if (resultado['Estado'] === 'Correcto') {
 						// Pendiente punto siguiente..
 					} else {
