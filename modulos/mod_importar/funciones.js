@@ -49,10 +49,9 @@ function Inicio (pulsado) {
 
 function EstrucTabla (){
 	alert('algo');
+	console.log('estructura tabla');
 	//estructura articulos
 	var parametros = {
-	//~ "lineaI" 	: linea,
-	//~ "lineaF" 	: lineaF,
 	//~ "Fichero" 	: fichero,
 	"pulsado" 	: 'Inicio'
 			};
@@ -100,12 +99,14 @@ function ObtenerDatosTabla(resultado){
 			diferencia = 400;
 		}
 		alert( 'Obtener datos');
-		console.log(resultado)
+		console.log('holaa');
+		console.log(resultado);
+		
 			var parametros = {
 		"lineaI" 	: LimiteActual,
 		"lineaF" 	: diferencia,
-		//~ "campos" 	: campos,
-		"pulsado" 	: 'Inicio'
+		"campos" 	: campos,
+		"pulsado" 	: 'obtenerDbf'
 				};
 		$.ajax({
 			data:  parametros,
@@ -117,7 +118,9 @@ function ObtenerDatosTabla(resultado){
 			success:  function (response) {
 					
 					// Cuando se recibe un array con JSON tenemos que parseJSON
-					var resultado =  $.parseJSON(response)
+					var resultado =  $.parseJSON(response);
+					console.log(resultado);
+					
 					if (resultado['Estado'] === 'Correcto') {
 						// Pendiente punto siguiente..
 					} else {

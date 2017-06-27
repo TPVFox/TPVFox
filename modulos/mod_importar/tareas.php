@@ -1,3 +1,4 @@
+
 <?php
 /* Fichero de tareas a realizar.
  * 
@@ -23,13 +24,17 @@ include_once ("./funciones.php");
     case 'Inicio':
 		$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
         $respuesta = LeerEstructuraDbf($fichero);
+	
+		
         echo json_encode($respuesta) ;
         break;
     case 'obtenerDbf':
 		$numInicial = $_POST['lineaI'];
 		$numFinal = $_POST['lineaF'];
 		//~ $pulsado = $_POST['campos'];
-
+		
+		$campos = $_POST['campos'];
+	
 		
 		
 		$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';

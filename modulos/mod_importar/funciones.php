@@ -9,6 +9,7 @@
 
 //Funcion donde se lee Dbf y se obtiene array *
 function LeerDbf($fichero,$numFinal,$numInic,$campos) {
+
 	// Parametros:
 	// $numFinal y $numInic son enteros.
 	// $campos es un array de los campos de la tabla.
@@ -22,24 +23,26 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 	// tratamos array $output para obtener los datos y los ponemos a nuestro gusto $resultado;
 	$resultado = array();
 	$output = array(); 
-	$instruccion = "python ./../../lib/py/leerDbf.py 2>&1 -f ".$fichero." -i ".$numInic." -e ".$numFinal;
-	
+	//~ $instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero." -i ".$numInic." -e ".$numFinal;
+	$instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero;
 	exec($instruccion, $output,$entero);
+	
 	if ($entero === 0) {
+		$resultado['campos'] = $campos;
 		$resultado['Estado'] = 'Correcto';
 		// pasamos array asociativo.
 		$i=0;
 		foreach ($output as $linea) {
 			$resultado[$i] = json_decode($linea,true); // Obtenemos array con datos y campos.
 			// El problema es cuando el campo es Caracter y tenemos que convertir a codepage CP1252 para español.
-			foreach ($campos as $campo) {
-				if ($campo['tipo'] === 'C'){
-					$nombreCampo = $campo['campo'];
-					$convertir = $resultado[$i][$nombreCampo];
-					$convertido = htmlentities($convertir, ENT_QUOTES | ENT_IGNORE, "CP1252");
-					$resultado[$i][$nombreCampo] = $convertido;
-				}
-			}
+			//~ foreach ($campos as $campo) {
+				//~ if ($campo['tipo'] === 'C'){
+					//~ $nombreCampo = $campo['campo'];
+					//~ $convertir = $resultado[$i][$nombreCampo];
+					//~ $convertido = htmlentities($convertir, ENT_QUOTES | ENT_IGNORE, "CP1252");
+					//~ $resultado[$i][$nombreCampo] = $convertido;
+				//~ }
+			//~ }
 			$i++;
 		}
 	} else {

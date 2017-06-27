@@ -31,12 +31,14 @@
 <?php
 	// Este código va para funciones...
 	// Ruta completa fichero : /home/solucion40/www/superoliva/datos/DBF71/albprol.dbf
-	//~ $fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
-	//~ $respuesta = LeerDbf($fichero);
+	
+	//~ ($fichero,$numFinal,$numInic,$campos)
+	$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
+	$respuesta = LeerDbf($fichero);
 	//~ $respuesta = LeerEstructuraDbf($fichero);
-	//~ echo '<pre>';
-	//~ print_r($respuesta);
-	//~ echo '</pre>';
+	echo '<pre>';
+	print_r($respuesta);
+	echo '</pre>';
 	
 	
 ?>

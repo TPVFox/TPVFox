@@ -32,7 +32,7 @@ class MyFieldParser(FieldParser):
 # por si tengo que hacer pruebas desde python.
 num_final =100
 num_inicio = 99
-fichero = '/home/solucion40/www/superoliva/datos/DBF71/albprol.dbf'
+#~ fichero = '/home/solucion40/www/superoliva/datos/DBF71/albprol.dbf'
 
 db = DBF(fichero, parserclass=MyFieldParser)
 l = 0
