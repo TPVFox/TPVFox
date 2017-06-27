@@ -33,7 +33,7 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 			$resultado[$i] = json_decode($linea,true); // Obtenemos array con datos y campos.
 			// El problema es cuando el campo es Caracter y tenemos que convertir a codepage CP1252 para español.
 			foreach ($campos as $campo) {
-				if ($campo['tipo'] === 'C')
+				if ($campo['tipo'] === 'C'){
 					$nombreCampo = $campo['campo'];
 					$convertir = $resultado[$i][$nombreCampo];
 					$convertido = htmlentities($convertir, ENT_QUOTES | ENT_IGNORE, "CP1252");
