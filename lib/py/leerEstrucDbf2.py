@@ -21,7 +21,7 @@ columnas = []
 campos = db.fields
 numregistroSinBorrad = len(db)
 numregistroBorrad = len(db.deleted)
-numregistro = numregistroSinBorrad+numregistroBorrad
+numregistro = numregistroSinBorrad #+numregistroBorrad
 #~ jSON2= '{"Numeroregistros":'+str(numregistro)+'}'
 print numregistro
 for campo in campos:

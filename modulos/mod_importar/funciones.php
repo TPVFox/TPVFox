@@ -93,7 +93,7 @@ function LeerEstructuraDbf($fichero) {
 		// No permitimos continuar.
 		
 	}
-	$resultado['NumCampos'] = $i;
+	$resultado['NumCampos'] = $i-1;
 	return $resultado;
 
 	

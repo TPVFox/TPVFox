@@ -93,8 +93,7 @@ function bucleFicheros(){
 
 //recibir nombre de la tabla
 function EstrucTabla (nombreTabla){
-	alert('estrucTabla funcion js '+LimiteActual+' '+LimiteFinal);
-	console.log('estructura tabla');
+	console.log('Iniciando fucion de EstruTabla');
 
 	//estructura articulos
 	var parametros = {
@@ -166,9 +165,9 @@ function ObtenerDatosTabla(){
 			var parametros = {
 		"lineaI" 	: LimiteActual,
 		"lineaF" 	: TopeRegistro,
-		"campos" 	: campos,
 		"pulsado" 	: 'obtenerDbf',
-		"Fichero" 	: ficheroActual
+		"Fichero" 	: ficheroActual,
+		"campos" 	: campos
 				};
 		$.ajax({
 			data:  parametros,

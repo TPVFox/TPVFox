@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Script para leer tablas en dbf
 # Con la libreria dbfread identifica los registros marcados como borrados.
-import os,argparse
+# Para ejecutar directamente en terminal python
+# python leerDbf1.py -f /home/solucion40/www/superoliva/datos/DBF71/albprol.dbf -i 1 -e 5000
+import os,argparse,sys
 from dbfread import DBF,FieldParser,InvalidValue
 import simplejson,json
 from collections import OrderedDict # Necesario para poder ordenar tal cual el JSON
@@ -34,7 +36,8 @@ class MyFieldParser(FieldParser):
 #~ num_final =100
 #~ num_inicio = 99
 #~ fichero = '/home/solucion40/www/superoliva/datos/DBF71/albprol.dbf'
-
+reload(sys)
+sys.setdefaultencoding('utf-8')
 db = DBF(fichero, parserclass=MyFieldParser)
 l = 0
 Numregistros = len(db)
@@ -53,8 +56,12 @@ if int(num_final) <= Numregistros:
                 y = y +2
                 Nombre = str(name)
                 V = str(value)
-                Valor =  unicode(V, "cp1252")
-                textoJson =[Nombre,Valor]
+                try:
+                     Valor =  unicode(V, "UTF8")
+                except UnicodeDecodeError:
+                     print 'Error entro execetp' 
+                     Valor = unicode(V, "cp1252")
+                textoJson =[Nombre,str(Valor)]
                 registro[y:2] = Nombre,Valor
                 Json.append(textoJson)
              #~ print Json
