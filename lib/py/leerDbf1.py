@@ -19,7 +19,7 @@ if args.inicio:
 if args.final:
     num_final= args.final
     
-  
+
 # Clase para poder obtener nombre campo y dato.    
 class MyFieldParser(FieldParser):
     def parse(self, field, data):
@@ -31,8 +31,8 @@ class MyFieldParser(FieldParser):
 
 # Dejo comentado valores variable fichero,num_final,num_inicio
 # por si tengo que hacer pruebas desde python.
-num_final =100
-num_inicio = 99
+#~ num_final =100
+#~ num_inicio = 99
 #~ fichero = '/home/solucion40/www/superoliva/datos/DBF71/albprol.dbf'
 
 db = DBF(fichero, parserclass=MyFieldParser)

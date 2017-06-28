@@ -10,8 +10,8 @@
 //Funcion donde se lee Dbf y se obtiene array *
 //~ ,$numFinal,$numInic,$campos 
 
-//~ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
-function LeerDbf($fichero) {
+function LeerDbf($fichero,$numFinal,$numInic,$campos) {
+//~ function LeerDbf($fichero) {
 
 	// Parametros:
 	// $numFinal y $numInic son enteros.
@@ -26,13 +26,17 @@ function LeerDbf($fichero) {
 	// tratamos array $output para obtener los datos y los ponemos a nuestro gusto $resultado;
 	$resultado = array();
 	$output = array(); 
-	//~ $instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero." -i ".$numInic." -e ".$numFinal;
-	$instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero;
+	$instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero." -i ".$numInic." -e ".$numFinal;
+	
+	//enviar al py limI, limF
+	//~ $instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero;
 	exec($instruccion, $output,$entero);
+	//~ print('func php leerDbf LIB py '.$instruccion.'<br/>instruccion python num final '.$numFinal.'  num Inicial '.$numInicial);
+
 	
 	if ($entero === 0) {
 		//~ $resultado['campos'] = $campos;
-		//~ $resultado['Estado'] = 'Correcto';
+		$resultado['Estado'] = 'Correcto';
 		// pasamos array asociativo.
 		$i=0;
 		foreach ($output as $linea) {
@@ -49,8 +53,8 @@ function LeerDbf($fichero) {
 			$i++;
 		}
 	} else {
-		//~ $resultado['Estado'] = 'Errores '. $entero;
-		//~ $resultado['Errores'] = $output;
+		$resultado['Estado'] = 'Errores '. $entero;
+		$resultado['Errores'] = $output;
 		// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
 		// No permitimos continuar.
 		

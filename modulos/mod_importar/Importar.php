@@ -33,8 +33,9 @@
 	// Ruta completa fichero : /home/solucion40/www/superoliva/datos/DBF71/albprol.dbf
 	
 	//~ ($fichero,$numFinal,$numInic,$campos)
-	$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
-	$respuesta = LeerDbf($fichero);
+	//~ $fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
+	
+	//~ $respuesta = LeerDbf($fichero);
 	//~ $respuesta = LeerDbf($fichero,$numFinal,$numInic,$campos);
 	//~ $respuesta = LeerEstructuraDbf($fichero);
 	echo '<pre>';
@@ -80,7 +81,13 @@
 		
 	<div class="col-md-6">
 		<div>
-		Barra Procesos
+		<div class="text-center" id="idCabeceraBarra"></div>
+
+	    <div class="progress" style="margin:0 100px">
+			<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                   0 % completado
+             </div>
+		</div>
 		</div>
 		<div id="resultado"></div>
 

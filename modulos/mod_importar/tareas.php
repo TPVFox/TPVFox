@@ -22,23 +22,20 @@ include_once ("./funciones.php");
  
  switch ($pulsado) {
     case 'Inicio':
-		$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
+		$nombreTabla = $_POST['Fichero'];
+		$fichero = $RutaServidor.$CopiaDBF.'/'.$nombreTabla;
         $respuesta = LeerEstructuraDbf($fichero);
-	
-		
-        echo json_encode($respuesta) ;
+	    echo json_encode($respuesta) ;
         break;
     case 'obtenerDbf':
 		$numInicial = $_POST['lineaI'];
 		$numFinal = $_POST['lineaF'];
-		//~ $pulsado = $_POST['campos'];
-		
 		$campos = $_POST['campos'];
-	
-		
-		
-		$fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
+		$nombreTabla = $_POST['Fichero'];
+		$fichero = $RutaServidor.$CopiaDBF.'/'.$nombreTabla;
         $respuesta = LeerDbf($fichero,$numFinal,$numInicial,$campos);
+        //ejecutar func 
+
         echo json_encode($respuesta) ;
         break;
 }
