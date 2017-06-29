@@ -92,7 +92,47 @@
 		<div id="resultado"></div>
 
 		<div>
-		<p> Tabla de procesos que se hacen....( No lo tengo claro)</p>
+		<h3 class="text-center"> Control de procesos de importacion</h3>
+		<table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th></th>
+				<th>LeerEstructura</th>
+				<th>LeerDbf</th>
+				<th>Imporar Mysql</th>
+
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr id="idproveedor">
+				<th>proveedo.dbf</th>
+				<td class="CLeerEsctructura"></td>
+				<td class="CLeerDbf"></td>
+				<td class="CInsertMsyq"></td>
+			  </tr>
+			  <tr id="idalbprot">
+				<th>albprot.dbf</th>
+				<td class="CLeerEsctructura"></td>
+				<td class="CLeerDbf"></td>
+				<td class="CInsertMsyq"></td>
+			  </tr>
+			   <tr id="idalbprol">
+				<th>albprol.dbf</th>
+				<td class="CLeerEsctructura"></td>
+				<td class="CLeerDbf"></td>
+				<td class="CInsertMsyq"></td>
+			  </tr>
+			 <tr id="idarticulo">
+				<th>articulo.dbf</th>
+				<td class="CLeerEsctructura"></td>
+				<td class="CLeerDbf"></td>
+				<td class="CInsertMsyq"></td>
+			  </tr>
+			</tbody>
+		 </table>
+		
+		
+		
 		</div>
 		
 	</div>
