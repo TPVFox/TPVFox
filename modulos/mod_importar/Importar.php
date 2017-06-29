@@ -99,8 +99,7 @@
 				<th></th>
 				<th>LeerEstructura</th>
 				<th>LeerDbf</th>
-				<th>Imporar Mysql</th>
-
+				<th>Importar Mysql</th>
 			  </tr>
 			</thead>
 			<tbody>
@@ -129,14 +128,9 @@
 				<td class="CInsertMsyq"></td>
 			  </tr>
 			</tbody>
-		 </table>
-		
-		
-		
-		</div>
-		
-	</div>
-	
+		 </table>		
+		</div>		
+	</div>	
 </div>
 <script>
 	Inicio('pulso_inicio')

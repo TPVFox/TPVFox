@@ -57,7 +57,7 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 		$resultado['Errores'] = $output;
 		// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
 		// No permitimos continuar.
-		
+		//nos imprime en pantalla (tabla) el error		
 	}
 	return $resultado;
 }

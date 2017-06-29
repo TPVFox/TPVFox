@@ -34,7 +34,7 @@ include_once ("./funciones.php");
 		$nombreTabla = $_POST['Fichero'];
 		$fichero = $RutaServidor.$CopiaDBF.'/'.$nombreTabla;
         $respuesta = LeerDbf($fichero,$numFinal,$numInicial,$campos);
-        //ejecutar func 
+        //ejecutar func para conectar/volcar con mysql bbdd 
 
         echo json_encode($respuesta) ;
         break;

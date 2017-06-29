@@ -56,6 +56,10 @@ if int(num_final) <= Numregistros:
                 y = y +2
                 Nombre = str(name)
                 V = str(value)
+               
+                #~ lin. valor para provocar error lectura
+                #~ Valor =  unicode(V, "UTF8")
+                
                 try:
                      Valor =  unicode(V, "UTF8")
                 except UnicodeDecodeError:

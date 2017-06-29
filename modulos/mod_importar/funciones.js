@@ -19,7 +19,7 @@ var fichero = [];
 fichero[0]='proveedo.dbf';
 fichero[1]='albprot.dbf'; 
 fichero[2]='albprol.dbf';
-fichero[3]='articulo.dbf';//error al leer
+fichero[3]='articulo.dbf';
 
 
 // Funcion para mostrar la barra de proceso..
@@ -65,7 +65,12 @@ function bucleFicheros(){
 	LimiteActual = 0;
 	LimiteFinal = 0;
 	campos = [];
+	//stop parar bucle de lectura de ficheros
 	stop = '';
+	//me indica el ultimo fichero de la matriz (articulo.dbf) y asi paro el bucle
+	ultimo = fichero[fichero.length-1];
+	//~ console.log('ultimo fichero '+ultimo);
+		
 	switch(ficheroActual){
 		case '':
 			ficheroActual=fichero[0];
@@ -79,21 +84,20 @@ function bucleFicheros(){
 		case 'albprol.dbf':
 			ficheroActual=fichero[3];
 			break;
-		case 'articulo.dbf':
+		case ultimo:
 			stop= 'parar';
 			break
 		}
 	$("#idCabeceraBarra").html('<b>Fichero: '+ficheroActual+'</b>');
 	if (stop !='parar') {
-	EstrucTabla (ficheroActual);
-	}
-	
+		EstrucTabla (ficheroActual);
+	}		
 }
 
 
 //recibir nombre de la tabla
 function EstrucTabla (nombreTabla){
-	console.log('Iniciando fucion de EstruTabla');
+	console.log('Iniciando funcion de EstruTabla');
 
 	//estructura articulos
 	var parametros = {
@@ -107,11 +111,10 @@ function EstrucTabla (nombreTabla){
 			beforeSend: function () {
 					$("#resultado").html('Obteniendo estructura de tabla <span><img src="./img/ajax-loader.gif"/></span>');
 			},
-			success:  function (response) {
-						
-	
+			success:  function (response) {			
 					// Cuando se recibe un array con JSON tenemos que parseJSON
 					var resultado =  $.parseJSON(response)
+										
 					if (resultado['Estado'] === 'Correcto') {
 						LimiteFinal = resultado['numeroReg'];
 						console.log('Numero de registros tabla: '+ LimiteFinal);
@@ -122,24 +125,25 @@ function EstrucTabla (nombreTabla){
 						campos = []
 						for (i = 1; i < NumCampos; i++){
 						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo']};	
-						}
-						
-						
-						//indefinidos
-						//tendria que enviar LimI, LimF
+						}					
+					
 						ObtenerDatosTabla();
 						return;
-					} else {
-						alert(' Error al obtener estructura');
+					} else {	
+						//tenemos que identificar en que fichero es el error 
+						//para mostrar en el fichero correcto el error de estructura usamos el id del array identificandolo
+						//array.indexOf("nombreFichero"); consigo el indice del fichero en el array
+						idMatrizFichero = fichero.indexOf(ficheroActual);
+						//nos imprime en pantalla (tabla) el error
+						var x = document.getElementsByClassName("CLeerEsctructura");
+						x[idMatrizFichero].innerHTML = "Error obtener estructura ";
 						return;
-					}
-					
+					}					
 			}
 		});
-
 }
 
-//tendria que recoger LimI, LimF
+
 function ObtenerDatosTabla(){
 	// Intervalo minimo... 
 	// le paso objetos
@@ -152,15 +156,7 @@ function ObtenerDatosTabla(){
 		} else {
 			TopeRegistro = LimiteFinal;
 		}
-		
-		//~ alert( 'Obtener datos funcion js');
 		console.log('Obtener datos funcion js');
-		
-		//~ console.log('====== antes de ajax ====================');
-		//~ console.log('limiteactual:'+LimiteActual);
-		//~ console.log('limite final provisional:'+TopeRegistro);
-		//~ console.log('diferencia:'+diferencia);
-		
 		
 			var parametros = {
 		"lineaI" 	: LimiteActual,
@@ -191,24 +187,32 @@ function ObtenerDatosTabla(){
 				ObtenerDatosTabla(campos);
 				
 				if (resultado['Estado'] === 'Correcto') {
-					console.log('entro en estado correcto'+LimiteActual);
+					console.log('entro en estado correcto '+LimiteActual);
 					return;
 						// Pendiente punto siguiente..
 				} else {
 					//~ alert('ERROR en la obtencion de datos de la tabla VER CONSOLA ');
 					console.log(response);
+					
+					//tenemos que identificar en que fichero es el error 
+					//para mostrar en el fichero correcto el error de estructura usamos el id del array identificandolo
+					//array.indexOf("nombreFichero"); consigo el indice del fichero en el array
+					idMatrizFichero = fichero.indexOf(ficheroActual);
+					//nos imprime en pantalla (tabla) el error
+					var x = document.getElementsByClassName("CLeerDbf");
+					x[idMatrizFichero].innerHTML = "Error obtener datos tabla ";
 					return;
 				}
-				
 			}
 		});		
 	} else {
+		//recorre el sig. fichero
 		bucleFicheros();
 		//alert('termine de obtener datos tabla');
 	}
 }
 
-function Ciclo(f) {
+function Ciclo(f){
 	// El objetivo de esta funcion volver a ejectuar la funcion
 	// y intentarlo 20 veces, si fuera necesario.
 	// Si fallara , mostraría un error diciendo que funcion no respondió.
@@ -229,8 +233,7 @@ function Ciclo(f) {
 				break;
 		} 
 	} else {
-		console.log(' Hubo un error porque lo intento 20 veces....')
+		console.log(' Hubo un error porque lo intento 20 veces....');
 		$("#resultado").html('Error lo intento 20 veces, funcion' +f);
-
 	}
 }
