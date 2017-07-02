@@ -53,7 +53,7 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 			$i++;
 		}
 	} else {
-		$resultado['Estado'] = 'Errores '. $entero;
+		$resultado['Estado'] = 'Error-obtener ';
 		$resultado['Errores'] = $output;
 		// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
 		// No permitimos continuar.

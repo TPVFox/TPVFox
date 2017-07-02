@@ -14,7 +14,7 @@ var campos = [];
 var ficheroActual = '';
 
 //variable matriz con los ficheros que vamos a obtener
-//ojo! cuando vayas al array modifica func 
+//ojo! cuando vayas al array modifica func tenemos que añadir fila a la tabla errores en importar html
 var fichero = [];
 fichero[0]='proveedo.dbf';
 fichero[1]='albprot.dbf'; 
@@ -44,6 +44,7 @@ function BarraProceso(lineaA,lineaF) {
 	return;
 	
 }
+
 function Inicio (pulsado) {
 	// Lo que pretendo es tener un proceso que controle y cambio de proceso según sea necesarios.
 	// la variable que va controlar es pulsado.
@@ -65,33 +66,21 @@ function bucleFicheros(){
 	LimiteActual = 0;
 	LimiteFinal = 0;
 	campos = [];
-	//stop parar bucle de lectura de ficheros
-	stop = '';
+	
 	//me indica el ultimo fichero de la matriz (articulo.dbf) y asi paro el bucle
 	ultimo = fichero[fichero.length-1];
-	//~ console.log('ultimo fichero '+ultimo);
+	
+	idFichero = fichero.indexOf(ficheroActual);
+	numFicheros = fichero.length;
+	//fichero actual indice -1
 		
-	switch(ficheroActual){
-		case '':
-			ficheroActual=fichero[0];
-			break;
-		case 'proveedo.dbf':
-			ficheroActual=fichero[1];
-			break;
-		case 'albprot.dbf':
-			ficheroActual=fichero[2];
-			break;
-		case 'albprol.dbf':
-			ficheroActual=fichero[3];
-			break;
-		case ultimo:
-			stop= 'parar';
-			break
-		}
-	$("#idCabeceraBarra").html('<b>Fichero: '+ficheroActual+'</b>');
-	if (stop !='parar') {
+	nuevoIndice = idFichero + 1;
+	if (idFichero < numFicheros ){
+		ficheroActual = fichero[nuevoIndice];
+		$("#idCabeceraBarra").html('<b>Fichero: '+ficheroActual+'</b>');
 		EstrucTabla (ficheroActual);
-	}		
+	}
+	
 }
 
 
@@ -109,7 +98,7 @@ function EstrucTabla (nombreTabla){
 			url:   'tareas.php',
 			type:  'post',
 			beforeSend: function () {
-					$("#resultado").html('Obteniendo estructura de tabla <span><img src="./img/ajax-loader.gif"/></span>');
+					$("#resultado").html('Obteniendo estructura de tabla');
 			},
 			success:  function (response) {			
 					// Cuando se recibe un array con JSON tenemos que parseJSON
@@ -183,11 +172,12 @@ function ObtenerDatosTabla(){
 				console.log('limiteactual:'+LimiteActual);
 				console.log('limite final:'+LimiteFinal);
 				console.log('diferencia:'+diferencia);	
-				//inicio bucle
-				ObtenerDatosTabla(campos);
+		
 				
 				if (resultado['Estado'] === 'Correcto') {
 					console.log('entro en estado correcto '+LimiteActual);
+					//inicio bucle
+					ObtenerDatosTabla(campos);
 					return;
 						// Pendiente punto siguiente..
 				} else {
@@ -200,7 +190,10 @@ function ObtenerDatosTabla(){
 					idMatrizFichero = fichero.indexOf(ficheroActual);
 					//nos imprime en pantalla (tabla) el error
 					var x = document.getElementsByClassName("CLeerDbf");
-					x[idMatrizFichero].innerHTML = "Error obtener datos tabla ";
+					//muestra errores 
+					x[idMatrizFichero].append("\n Error obtener datos tabla: ","limite actual "+LimiteActual+" limite final "+LimiteFinal);
+					
+					ObtenerDatosTabla(campos);
 					return;
 				}
 			}
@@ -211,6 +204,7 @@ function ObtenerDatosTabla(){
 		//alert('termine de obtener datos tabla');
 	}
 }
+
 
 function Ciclo(f){
 	// El objetivo de esta funcion volver a ejectuar la funcion

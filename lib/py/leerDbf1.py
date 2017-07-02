@@ -57,7 +57,7 @@ if int(num_final) <= Numregistros:
                 Nombre = str(name)
                 V = str(value)
                
-                #~ lin. valor para provocar error lectura
+                # lin. valor para provocar error lectura
                 #~ Valor =  unicode(V, "UTF8")
                 
                 try:
@@ -65,11 +65,12 @@ if int(num_final) <= Numregistros:
                 except UnicodeDecodeError:
                      print 'Error entro execetp' 
                      Valor = unicode(V, "cp1252")
+                     
                 textoJson =[Nombre,str(Valor)]
                 registro[y:2] = Nombre,Valor
                 Json.append(textoJson)
              #~ print Json
-             #
+             
              resultado = json.dumps(OrderedDict(Json))
              #~ resultado = simplejson.dumps(dict(Json)))
              print resultado
