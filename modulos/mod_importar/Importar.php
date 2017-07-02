@@ -38,9 +38,9 @@
 	//~ $respuesta = LeerDbf($fichero);
 	//~ $respuesta = LeerDbf($fichero,$numFinal,$numInic,$campos);
 	//~ $respuesta = LeerEstructuraDbf($fichero);
-	echo '<pre>';
-	print_r($respuesta);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($respuesta);
+	//~ echo '</pre>';
 	
 	
 ?>
