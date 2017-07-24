@@ -24,9 +24,17 @@ include_once ("./funciones.php");
     case 'Inicio':
 		$nombreTabla = $_POST['Fichero'];
 		$fichero = $RutaServidor.$CopiaDBF.'/'.$nombreTabla;
-        $respuesta = LeerEstructuraDbf($fichero);
-	    echo json_encode($respuesta) ;
-        break;
+		$respuesta = LeerEstructuraDbf($fichero);
+		echo json_encode($respuesta) ;
+		break;
+	case 'Comprobar-tabla':
+		$nombreTabla = $_POST['Fichero'];
+		$campos = $_POST['campos'];
+		// $Conexiones se obtiene en modulo de conexion.
+		$conexion = $Conexiones[1]['tablas'];
+		$respuesta = ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos);
+		echo json_encode($respuesta) ;
+		break;
     case 'obtenerDbf':
 		$numInicial = $_POST['lineaI'];
 		$numFinal = $_POST['lineaF'];

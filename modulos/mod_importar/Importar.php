@@ -29,6 +29,7 @@
 ?>
 
 <?php
+
 	// Este código va para funciones...
 	// Ruta completa fichero : /home/solucion40/www/superoliva/datos/DBF71/albprol.dbf
 	
@@ -105,25 +106,25 @@
 			<tbody>
 			  <tr id="idproveedor">
 				<th>proveedo.dbf</th>
-				<td class="CLeerEsctructura"></td>
+				<td class="CLeerEstructura"></td>
 				<td class="CLeerDbf"></td>
 				<td class="CInsertMsyq"></td>
 			  </tr>
 			  <tr id="idalbprot">
 				<th>albprot.dbf</th>
-				<td class="CLeerEsctructura"></td>
+				<td class="CLeerEstructura"></td>
 				<td class="CLeerDbf"></td>
 				<td class="CInsertMsyq"></td>
 			  </tr>
 			   <tr id="idalbprol">
 				<th>albprol.dbf</th>
-				<td class="CLeerEsctructura"></td>
+				<td class="CLeerEstructura"></td>
 				<td class="CLeerDbf"></td>
 				<td class="CInsertMsyq"></td>
 			  </tr>
 			 <tr id="idarticulo">
 				<th>articulo.dbf</th>
-				<td class="CLeerEsctructura"></td>
+				<td class="CLeerEstructura"></td>
 				<td class="CLeerDbf"></td>
 				<td class="CInsertMsyq"></td>
 			  </tr>

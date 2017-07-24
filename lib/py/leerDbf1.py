@@ -5,7 +5,7 @@
 # python leerDbf1.py -f /home/solucion40/www/superoliva/datos/DBF71/albprol.dbf -i 1 -e 5000
 import os,argparse,sys
 from dbfread import DBF,FieldParser,InvalidValue
-import simplejson,json
+import json
 from collections import OrderedDict # Necesario para poder ordenar tal cual el JSON
 # Inicio para poder recibir parametros.
 parser = argparse.ArgumentParser()

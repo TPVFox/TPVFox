@@ -26,7 +26,9 @@
 	<?php 
 	include 'header.php';
 	
-	
+	echo '<pre>';
+	print_r($Conexiones );
+	echo '</pre>';
 	
 	?>
 	<section>

@@ -13,13 +13,15 @@ var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var campos = [];
 var ficheroActual = '';
 
-//variable matriz con los ficheros que vamos a obtener
+//variable matriz con nombre tablas que vamos importar ( Bases Datos importar).
+//lo nombres de las tablas son los mismos de los ficheros que vamos a obtener
 //ojo! cuando vayas al array modifica func tenemos que añadir fila a la tabla errores en importar html
-var fichero = [];
-fichero[0]='proveedo.dbf';
-fichero[1]='albprot.dbf'; 
-fichero[2]='albprol.dbf';
-fichero[3]='articulo.dbf';
+var nombretabla = [];
+// No le pongo extension, ya utilizo este mismo array para saber si existe tabla en mysql o si la creamos.
+nombretabla[0]='proveedo';
+nombretabla[1]='albprot'; 
+nombretabla[2]='albprol';
+nombretabla[3]='articulo';
 
 
 // Funcion para mostrar la barra de proceso..
@@ -63,20 +65,22 @@ function Inicio (pulsado) {
 
 //matriz en variables
 function bucleFicheros(){
+	console.log( '========================== Entramos en bucle  =============================================');
+	console.log('Fichero Actual:'+ficheroActual);
+
 	LimiteActual = 0;
 	LimiteFinal = 0;
-	campos = [];
-	
-	//me indica el ultimo fichero de la matriz (articulo.dbf) y asi paro el bucle
-	ultimo = fichero[fichero.length-1];
-	
-	idFichero = fichero.indexOf(ficheroActual);
-	numFicheros = fichero.length;
-	//fichero actual indice -1
-		
+	campos = []; // Reiniciamos campos ya que es un bucle
+	ultimo = nombretabla[nombretabla.length-1]; // El numero de tablas que vamos analizar
+	tablaActual= '';
+	tablaActual = ficheroActual.slice(0, -4); // Quitamos los ultimos cuatro caracteres... (.dbf)
+	console.log('Tabla Actual sin extension:'+tablaActual);
+	idFichero = nombretabla.indexOf(tablaActual);
+	numFicheros = nombretabla.length;
 	nuevoIndice = idFichero + 1;
-	if (idFichero < numFicheros ){
-		ficheroActual = fichero[nuevoIndice];
+	if (nuevoIndice < numFicheros ){
+		ficheroActual = nombretabla[nuevoIndice]+'.dbf';
+		console.log ( 'Fichero Actual:'+ ficheroActual)
 		$("#idCabeceraBarra").html('<b>Fichero: '+ficheroActual+'</b>');
 		EstrucTabla (ficheroActual);
 	}
@@ -86,8 +90,8 @@ function bucleFicheros(){
 
 //recibir nombre de la tabla
 function EstrucTabla (nombreTabla){
-	console.log('Iniciando funcion de EstruTabla');
-
+	console.log('=============Iniciando funcion de EstruTabla=============');
+	console.log(nombreTabla);
 	//estructura articulos
 	var parametros = {
 	"Fichero" 	: nombreTabla,
@@ -116,21 +120,70 @@ function EstrucTabla (nombreTabla){
 						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo']};	
 						}					
 					
-						ObtenerDatosTabla();
+						comprobarTabla();
 						return;
 					} else {	
-						//tenemos que identificar en que fichero es el error 
-						//para mostrar en el fichero correcto el error de estructura usamos el id del array identificandolo
-						//array.indexOf("nombreFichero"); consigo el indice del fichero en el array
-						idMatrizFichero = fichero.indexOf(ficheroActual);
+						// Con la instruccion:
+						// document.getElementsByClassName("CLeerEstructura") 
+						// Es obtener un array con los objetos que tiene la clase que sel indica ( " CLeerEstructura
+						// Con la instruccion:
+						// idMatrizFichero = fichero.indexOf(ficheroActual);
+						// Lo que hace es obtener el numero index de array de fichero.
+						// Asi podemos insertar datos en la clase.
+						// NOTA: 
+						// Fundamental tener que el orden de los ID sea el mismo que la tabla en html
+						var x = document.getElementsByClassName("CLeerEstructura");
+						tablaActual = ficheroActual.slice(0, -4); // Quitamos los ultimos cuatro caracteres... (.dbf)
+						idMatrizFichero = nombretabla.indexOf(tablaActual);
 						//nos imprime en pantalla (tabla) el error
-						var x = document.getElementsByClassName("CLeerEsctructura");
 						x[idMatrizFichero].innerHTML = "Error obtener estructura ";
 						return;
 					}					
 			}
 		});
 }
+
+
+function comprobarTabla(){
+	// Comprobamos si existe tabla y los campos son correctos  en la BDImportar.
+	//     - Si existes y es correcto ejecutamos obtener datos
+	//     - No existe o esta mal los campos, pues advertimos del error con Alert y indicamos que se crea 
+	tablaActual = ficheroActual.slice(0, -4); // Quitamos los ultimos cuatro caracteres... (.dbf)
+	var parametros = {
+	"Fichero" 	: tablaActual,
+	"pulsado" 	: 'Comprobar-tabla',
+	'campos'	: campos
+			};
+	$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+					$("#resultado").html('Comprobamos la tabla si existe o es correcta.Nombre tabla:'+tablaActual);
+			},
+			success:  function (response) {			
+					// Cuando se recibe un array con JSON tenemos que parseJSON
+					var resultado =  $.parseJSON(response)
+					if (resultado['Estado'] === 'Correcto') {
+						// Respuesta correcta...		
+					
+						ObtenerDatosTabla();
+						return;
+					} else {	
+						// Error en respuesta.
+						console.log(' No existe tabla '+ tablaActual);
+						console.log(response);
+						return;
+					}					
+			}
+		});
+}
+	
+	
+
+
+
+
 
 
 function ObtenerDatosTabla(){
@@ -145,13 +198,13 @@ function ObtenerDatosTabla(){
 		} else {
 			TopeRegistro = LimiteFinal;
 		}
-		console.log('Obtener datos funcion js');
-		
+		console.log('Antes Ajax FicheroActual:' + ficheroActual);
+		nombrefichero = ficheroActual;
 			var parametros = {
 		"lineaI" 	: LimiteActual,
 		"lineaF" 	: TopeRegistro,
 		"pulsado" 	: 'obtenerDbf',
-		"Fichero" 	: ficheroActual,
+		"Fichero" 	: nombrefichero,
 		"campos" 	: campos
 				};
 		$.ajax({
@@ -187,13 +240,17 @@ function ObtenerDatosTabla(){
 					//tenemos que identificar en que fichero es el error 
 					//para mostrar en el fichero correcto el error de estructura usamos el id del array identificandolo
 					//array.indexOf("nombreFichero"); consigo el indice del fichero en el array
-					idMatrizFichero = fichero.indexOf(ficheroActual);
+					tablaActual = ficheroActual.slice(0, -4); // Quitamos los ultimos cuatro caracteres... (.dbf)
+					idMatrizFichero = nombretabla.indexOf(tablaActual);
+					console.log('tablaActual:'+ tablaActual);
+
 					//nos imprime en pantalla (tabla) el error
 					var x = document.getElementsByClassName("CLeerDbf");
 					//muestra errores 
+					console.log('IdMatrizFichero:'+ idMatrizFichero);
 					x[idMatrizFichero].append("\n Error obtener datos tabla: ","limite actual "+LimiteActual+" limite final "+LimiteFinal);
 					
-					ObtenerDatosTabla(campos);
+					ObtenerDatosTabla();
 					return;
 				}
 			}
@@ -206,28 +263,3 @@ function ObtenerDatosTabla(){
 }
 
 
-function Ciclo(f){
-	// El objetivo de esta funcion volver a ejectuar la funcion
-	// y intentarlo 20 veces, si fuera necesario.
-	// Si fallara , mostraría un error diciendo que funcion no respondió.
-	contador = contador +1;
-	$("#resultado").html('Esperando respuesta intento:'+ contador +' funcion:'+f);
-	// Solo hacemos 20 intentos ... 
-	if (contador<20){
-		// Ahora comprobamos la funcion que llamo al esta.
-		switch(f) {
-			case 'Contar':
-				ContarProductoVirtuemart();
-				break;
-			case 'BuscarError':
-				ComprobarRefVirtuemart(paso_actual);
-				break;
-			case 'Esperar':
-				ComprobarRefVirtuemart(paso_actual);
-				break;
-		} 
-	} else {
-		console.log(' Hubo un error porque lo intento 20 veces....');
-		$("#resultado").html('Error lo intento 20 veces, funcion' +f);
-	}
-}

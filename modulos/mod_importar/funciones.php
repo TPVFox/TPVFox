@@ -85,22 +85,42 @@ function LeerEstructuraDbf($fichero) {
 			}
 			$i++;
 			
+
 		}
+		$resultado['NumCampos'] = $i-1;
 	} else {
-		$resultado['Estado'] = 'Errores '. $entero;
+		$resultado['Estado'] = 'Errores ';
 		$resultado['Errores'] = $output;
 		// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
 		// No permitimos continuar.
 		
 	}
-	$resultado['NumCampos'] = $i-1;
 	return $resultado;
 
 	
 	
 }
 
+function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
+	// Lo que hacemos es comprobar que los $nombrestablas 
+	$resultado = array();
+	$i=0;
+	foreach ($conexion as $tabla){
+		if ($nombreTabla === $tabla) {
+			$resultado['Estado'] = 'Correcto';
+			break;
+		}
+	}	
+	if (!$resultado['Estado']){
+		// Quiere decir que no entro en correcto por lo que ponemos que está mal.
+		$resultado['Estado'] = 'Error no existe tabla';
+		$resultado['tablasconexion'] = $conexion;
+		$resultado['Nombretabla'] = $nombreTabla;
 
+	}
+	
+	return $resultado;
+}
 
 
 
