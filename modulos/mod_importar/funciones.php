@@ -19,7 +19,9 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 	//  [0] 
 	// 		[NombreCampo]
 	// 		[tipo]
-	
+	//		[longitud]
+	//		[decimal]	
+		
 	// El objetivo es leer DBF
 	// Metodo:
 	// A traves exec , obtenemos array.
@@ -100,9 +102,15 @@ function LeerEstructuraDbf($fichero) {
 	
 	
 }
-
+//
 function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	// Lo que hacemos es comprobar que los $nombrestablas 
+	// $campos es un array de los campos de la tabla.
+	//  [0] 
+	// 		[NombreCampo]
+	// 		[tipo]
+	//		[longitud]
+	//		[decimal]	
 	$resultado = array();
 	$i=0;
 	foreach ($conexion as $tabla){
@@ -116,12 +124,24 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 		$resultado['Estado'] = 'Error no existe tabla';
 		$resultado['tablasconexion'] = $conexion;
 		$resultado['Nombretabla'] = $nombreTabla;
-
+		//al no existir tabla se CREARIA aqui
+		$strCampos = array();
+		$i=0;
+		foreach ($campos as $campo){
+			$campo['NombreCampo']=$strCampos($i);
+			$i++;
+			}
+		$resultado['campos'] =$strCampos;
 	}
 	
 	return $resultado;
 }
 
-
+function CrearTabla($nombreTabla,$BDImportDbf){
+	//conexion BDImportDbf obtiene tablas para conexion bbdd
+	//$tabla nombre tabla y los campos que cogemos de estructura
+	$sql = "CREATE TABLE '.$nombreTabla.' ('..' CHAR(50), KEY (id) ) ";
+	
+}
 
 ?>

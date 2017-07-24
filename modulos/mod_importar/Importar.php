@@ -131,6 +131,16 @@
 			</tbody>
 		 </table>		
 		</div>		
+		<?php
+			//creo boton para crear tabla en mysql, 1º comprobar que no existe tabla, 2º conseguir estructura 
+			//recibircsv.php?subida=0
+		?>
+		<form role="form" enctype="multipart/form-data" action="Importar.php" method="POST">
+			<div class="form-group">
+				<label>Crear tablas:</label>
+				<input type="submit" value="Crear tabla" />
+			</div>
+		</form>
 	</div>	
 </div>
 <script>

@@ -17,6 +17,9 @@ $Conexiones = array();
 /************************************************************************************************/
 $Conexiones[1]['NombreBD'] = "importarDbf";
 
+
+
+
 // Obtenemos las tablas para conexion.
 $BDImportDbf = new mysqli("localhost", $usuarioMsyql, $passwordMysql, $Conexiones [1]['NombreBD']);
 // Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 

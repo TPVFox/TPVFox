@@ -109,6 +109,7 @@ function EstrucTabla (nombreTabla){
 					var resultado =  $.parseJSON(response)
 										
 					if (resultado['Estado'] === 'Correcto') {
+						console.log('tenemos estructura dbf para crear tabla');
 						LimiteFinal = resultado['numeroReg'];
 						console.log('Numero de registros tabla: '+ LimiteFinal);
 						// Obtenemos numero campos
@@ -117,7 +118,10 @@ function EstrucTabla (nombreTabla){
 						
 						campos = []
 						for (i = 1; i < NumCampos; i++){
-						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo']};	
+						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo'],longitud :resultado[i]['longitud'],decimal :resultado[i]['decimal']};	
+						 //consigo los campos de la tabla
+						 console.log('estructura '+campos[i]['campo']+' '+campos[i]['tipo']+' '+campos[i]['longitud']+' '+campos[i]['decimal'] );
+						 
 						}					
 					
 						comprobarTabla();
