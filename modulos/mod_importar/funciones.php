@@ -128,9 +128,11 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 		$strCampos = array();
 		$i=0;
 		foreach ($campos as $campo){
-			$campo['NombreCampo']=$strCampos($i);
+			if (isset($campo['campo'])){
+			$strCampos[$i]= $campo['campo'].$campo['tipo'].$campo['longitud'].$campo['decimal'];
 			$i++;
 			}
+		}
 		$resultado['campos'] =$strCampos;
 	}
 	
