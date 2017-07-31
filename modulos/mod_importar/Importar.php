@@ -98,9 +98,10 @@
 			<thead>
 			  <tr>
 				<th></th>
-				<th>LeerEstructura</th>
-				<th>LeerDbf</th>
-				<th>Importar Mysql</th>
+				<th>Creada</th>
+				<th>Borrada</th>
+				<th>ok Estruct</th>
+				<th>Importar</th>
 			  </tr>
 			</thead>
 			<tbody>
