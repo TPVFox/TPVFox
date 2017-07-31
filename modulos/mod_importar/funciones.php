@@ -98,9 +98,6 @@ function LeerEstructuraDbf($fichero) {
 		
 	}
 	return $resultado;
-
-	
-	
 }
 //
 function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
@@ -174,19 +171,13 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	
 	// estas son las respuestas que iran al final de la funcion con los result que quiero mostrar..
 	//estado,diferencia, nombre tabla.. al inspeccionar pag.
-	//por eso creo variable en el resto de funcion para mostrarlas despues aqui..
-	//if (!$resultado['Estado']){
-	// Quiere decir que no entro en correcto por lo que ponemos que está mal.
-	
+	//por eso creo variable en el resto de funcion para mostrarlas despues aqui..	
 	//estado correcto o incorrecto y
 	//acciones lo que vamos haciendo.. 
 
 	
 	$resultado['accion'] = $accion;
-		
-	//llamamos a RecogerCampos de la tabla a crear y luego a crearTabla
 	
-	//}
 	
 	return $resultado;
 }

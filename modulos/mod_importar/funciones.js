@@ -182,12 +182,6 @@ function comprobarTabla(){
 			}
 		});
 }
-	
-	
-
-
-
-
 
 
 function ObtenerDatosTabla(){
