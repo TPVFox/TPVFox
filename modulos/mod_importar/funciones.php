@@ -107,43 +107,137 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	// Lo que hacemos es comprobar que los $nombrestablas 
 	// $campos es un array de los campos de la tabla.
 	//  [0] 
-	// 		[NombreCampo]
+	// 		[campo]
 	// 		[tipo]
 	//		[longitud]
 	//		[decimal]	
 	$resultado = array();
-	$i=0;
+	$resultado['Estado']='Incorrecto';
+	$resultado['Tabla']='No existe';
+	$accion = '';
+	$i=0;	
+	$resp_crear='no';
+		
 	foreach ($conexion as $tabla){
 		if ($nombreTabla === $tabla) {
-			$resultado['Estado'] = 'Correcto';
-			break;
-		}
-	}	
-	if (!$resultado['Estado']){
-		// Quiere decir que no entro en correcto por lo que ponemos que está mal.
-		$resultado['Estado'] = 'Error no existe tabla';
-		$resultado['tablasconexion'] = $conexion;
-		$resultado['Nombretabla'] = $nombreTabla;
-		//al no existir tabla se CREARIA aqui
-		$strCampos = array();
-		$i=0;
-		foreach ($campos as $campo){
-			if (isset($campo['campo'])){
-			$strCampos[$i]= $campo['campo'].$campo['tipo'].$campo['longitud'].$campo['decimal'];
-			$i++;
+			$resultado['Estado']='Correcto';
+			$resultado['Tabla']='Existe';
+			//consulto estructura y luego comparo
+			
+			$sqlShow = 'SHOW COLUMNS FROM '.$nombreTabla;
+			$respuesta= $BDImportDbf->query($sqlShow);
+			//cogiendo la estructura de la bbdd de tal tabla
+			if (isset ($respuesta)){
+				$arr = array();
+				$i=0;
+				while ($fila = $respuesta->fetch_row()) {
+					$nombreCampo = $fila[0];
+					$tipo = $fila[1];
+					$arr[$i]= $nombreCampo.' '.$tipo;
+					$i++;
+				}
+				//monto la estructura de la tabla de la bbdd
+				$strEstruct= implode(",",$arr);	
+				
+				//muestra los campos de la tabla creada en mysql 
+				$resultado['debug_campos']=$strEstruct;
+				
+				//muestra los campos del dbf a importar , este es un OBJECTO
+				$res_dbf=RecogerCampos($nombreTabla, $campos);
+				$resultado['debug_dbf']=$res_dbf;
+				
+				//comparamos que la estructura de la bbdd sea igual que la estructura del dbf que intentamos importar
+				//si es igual importamos los datos del dbf
+				//si no es igual se borra tabla y se crea de nuevo.
+				 if ($strEstruct != $res_dbf){
+					$resultado['Estado'] = 'Incorrecto';
+					$sql = 'DROP TABLE '.$nombreTabla;
+					$respuesta= $BDImportDbf->query($sql);
+					$accion = 'Borramos tabla';
+				 }
 			}
-		}
-		$resultado['campos'] =$strCampos;
-	}
+			
+			break;
+		}	
+	} 
+	//si el estado es incorrecto se crea tabla
+	//si no hay tablas me crea la ESTRUCTURA de la primera tabla
+	//if (count($conexion) === 0){
+	
+	if ($resultado['Estado'] === 'Incorrecto'){
+		$res_dbf=RecogerCampos($nombreTabla, $campos);
+		//no existe tablas y la creamos la tabla con la estructura del dbf (res_dbf))
+ 		$resp_crear=CrearTabla($nombreTabla, $res_dbf,$BDImportDbf);
+ 		$accion = $accion+'Creada estructura tabla.';
+	}	
+	
+	
+	// estas son las respuestas que iran al final de la funcion con los result que quiero mostrar..
+	//estado,diferencia, nombre tabla.. al inspeccionar pag.
+	//por eso creo variable en el resto de funcion para mostrarlas despues aqui..
+	//if (!$resultado['Estado']){
+	// Quiere decir que no entro en correcto por lo que ponemos que está mal.
+	
+	//estado correcto o incorrecto y
+	//acciones lo que vamos haciendo.. 
+
+	
+	$resultado['accion'] = $accion;
+		
+	//llamamos a RecogerCampos de la tabla a crear y luego a crearTabla
+	
+	//}
 	
 	return $resultado;
 }
+//funcion para crear estructura de tabla segun nombreTabla
+function RecogerCampos ($nombreTabla, $campos){
+		
+		$strCampos = array();
+		$i=0;
+		$resultado = array();
+		foreach ($campos as $campo){
+			if (isset($campo['campo'])){
+				$tipo = '';
+				switch ($campo['tipo']){
+					  case 'C':
+						$tipo = 'varchar('.$campo[longitud].')';
+					  break;
+					  case 'N':
+						$tipo = 'decimal('.$campo[longitud].','.$campo[decimal].')';
+					  break;
+					  case 'D':
+						$tipo = 'date';
+					  break;
+					  case 'L':
+						$tipo = 'tinyint(1)';
+					  break;
+					}
+				
+			//$strCampos[$i]= $campo['campo'].$campo['tipo'].$campo['longitud'].$campo['decimal'];
+			$strCampos[$i]= $campo['campo'].' '.$tipo;
+			$i++;
+			}
+		}
+		
+		//implode (",",$v); une los datos separandolos en comas en un array.
+		$strSql=implode(",",$strCampos);
+		
 
-function CrearTabla($nombreTabla,$BDImportDbf){
-	//conexion BDImportDbf obtiene tablas para conexion bbdd
-	//$tabla nombre tabla y los campos que cogemos de estructura
-	$sql = "CREATE TABLE '.$nombreTabla.' ('..' CHAR(50), KEY (id) ) ";
+		
+		$resultado = $strSql;
+		
+		return $resultado;
 	
+}
+
+function CrearTabla ($nombreTabla,$strSql,$BDImportDbf){
+		
+		$sql = 'CREATE TABLE '.$nombreTabla.' ('.$strSql.')';
+		$resp_crear= $BDImportDbf->query($sql);
+		//implode y mysql
+		$resultado = $resp_crear;
+		return $resultado;
 }
 
 ?>

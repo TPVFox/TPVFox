@@ -50,8 +50,8 @@ include_once ("./funciones.php");
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/
 
-mysqli_close($BDImportRecambios);
-mysqli_close($BDRecambios);
+mysqli_close($BDImportDbf);
+
  
  
 ?>
