@@ -17,6 +17,14 @@ $Conexiones = array();
 /************************************************************************************************/
 $Conexiones[1]['NombreBD'] = "importarDbf";
 
+//~ $conexiones = array();
+//~ $conexiones['importar'] = array();
+//~ $conexiones['importar']['datos'] = array();
+//~ $conexiones['importar']['datos']['servidor'] = "localhost";
+//~ $conexiones['importar']['datos']['usuario'] = $usuarioMsyql;
+//~ $conexiones['importar']['datos']['password'] = $passwordMysql;
+//~ $conexiones['importar']['datos']['database'] = "importarDbf";
+//~ $conexiones['importar']['cursor'] = new mysqli($conexiones['importar']['datos']['servidor'], $conexiones['importar']['datos']['usuario'], $conexiones['importar']['datos']['password'], $conexiones['importar']['datos']['database']);
 
 
 

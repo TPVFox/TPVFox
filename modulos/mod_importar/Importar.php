@@ -98,36 +98,49 @@
 			<thead>
 			  <tr>
 				<th></th>
-				<th>Creada</th>
-				<th>Borrada</th>
 				<th>ok Estruct</th>
+				<th>Borrada</th>
+				<th>Creada</th>
+				<th>Vaciar</th>
 				<th>Importar</th>
 			  </tr>
 			</thead>
-			<tbody>
+<!--
+			column : creada - borrada - estruct - importar
+	filas :	idproveedo  CCrear  CBorrar CEstruct CImportar y poner una img tickado (iconoCorrecto)
+			idalbprot
+-->
 			  <tr id="idproveedor">
 				<th>proveedo.dbf</th>
-				<td class="CLeerEstructura"></td>
-				<td class="CLeerDbf"></td>
-				<td class="CInsertMsyq"></td>
+				<td class="CEstruct"></td>
+				<td class="CBorrar"></td>
+				<td class="CCrear"></td>
+				<td class="CVaciar"></td>
+				<td class="CImportar"></td>
 			  </tr>
 			  <tr id="idalbprot">
 				<th>albprot.dbf</th>
-				<td class="CLeerEstructura"></td>
-				<td class="CLeerDbf"></td>
-				<td class="CInsertMsyq"></td>
+				<td class="CEstruct"></td>
+				<td class="CBorrar"></td>
+				<td class="CCrear"></td>
+				<td class="CVaciar"></td>
+				<td class="CImportar"></td>
 			  </tr>
 			   <tr id="idalbprol">
 				<th>albprol.dbf</th>
-				<td class="CLeerEstructura"></td>
-				<td class="CLeerDbf"></td>
-				<td class="CInsertMsyq"></td>
+				<td class="CEstruct"></td>
+				<td class="CBorrar"></td>
+				<td class="CCrear"></td>
+				<td class="CVaciar"></td>
+				<td class="CImportar"></td>
 			  </tr>
 			 <tr id="idarticulo">
 				<th>articulo.dbf</th>
-				<td class="CLeerEstructura"></td>
-				<td class="CLeerDbf"></td>
-				<td class="CInsertMsyq"></td>
+				<td class="CEstruct"></td>
+				<td class="CBorrar"></td>
+				<td class="CCrear"></td>
+				<td class="CVaciar"></td>
+				<td class="CImportar"></td>
 			  </tr>
 			</tbody>
 		 </table>		

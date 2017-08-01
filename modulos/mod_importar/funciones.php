@@ -17,11 +17,11 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 	// $numFinal y $numInic son enteros.
 	// $campos es un array de los campos de la tabla.
 	//  [0] 
-	// 		[NombreCampo]
-	// 		[tipo]
+	//		[NombreCampo]
+	//		[tipo]
 	//		[longitud]
 	//		[decimal]	
-		
+
 	// El objetivo es leer DBF
 	// Metodo:
 	// A traves exec , obtenemos array.
@@ -29,29 +29,19 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 	$resultado = array();
 	$output = array(); 
 	$instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero." -i ".$numInic." -e ".$numFinal;
-	
+
 	//enviar al py limI, limF
 	//~ $instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero;
 	exec($instruccion, $output,$entero);
 	//~ print('func php leerDbf LIB py '.$instruccion.'<br/>instruccion python num final '.$numFinal.'  num Inicial '.$numInicial);
 
-	
 	if ($entero === 0) {
 		//~ $resultado['campos'] = $campos;
 		$resultado['Estado'] = 'Correcto';
 		// pasamos array asociativo.
-		$i=0;
+		$i = 0;
 		foreach ($output as $linea) {
 			$resultado[$i] = json_decode($linea,true); // Obtenemos array con datos y campos.
-			// El problema es cuando el campo es Caracter y tenemos que convertir a codepage CP1252 para español.
-			//~ foreach ($campos as $campo) {
-				//~ if ($campo['tipo'] === 'C'){
-					//~ $nombreCampo = $campo['campo'];
-					//~ $convertir = $resultado[$i][$nombreCampo];
-					//~ $convertido = htmlentities($convertir, ENT_QUOTES | ENT_IGNORE, "CP1252");
-					//~ $resultado[$i][$nombreCampo] = $convertido;
-				//~ }
-			//~ }
 			$i++;
 		}
 	} else {
@@ -59,7 +49,7 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 		$resultado['Errores'] = $output;
 		// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
 		// No permitimos continuar.
-		//nos imprime en pantalla (tabla) el error		
+		// nos imprime en pantalla (tabla) el error
 	}
 	return $resultado;
 }
@@ -69,34 +59,37 @@ function LeerEstructuraDbf($fichero) {
 	// Metodo:
 	// A traves exec , obtenemos array.
 	// tratamos array $output para obtener los datos y los ponemos a nuestro gusto $resultado;
+
+	$instruccion = "python ../../lib/py/leerEstrucDbf2.py 2>&1 -f ".$fichero;
+
 	$resultado = array();
 	$output = array(); 
-	$instruccion = "python ./../../lib/py/leerEstrucDbf2.py 2>&1 -f ".$fichero;
-	exec($instruccion, $output,$entero);
+
+	$resultado['Estado'] = 'Errores ';
+
+	// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
+	// No permitimos continuar.
+	exec($instruccion, $output, $entero);
+	$resultado['Errores'] = $output;
+
 	if ($entero === 0) {
 		$resultado['Estado'] = 'Correcto';
 		// pasamos array asociativo.
-		$i=0;
+		$i = 0;
 		foreach ($output as $linea) {
 			if ($i === 0) {
 				 $resultado['numeroReg'] = $linea;
-			 }
-			 else{
-			//~ $resultado[$i] = $linea;
-			$resultado[$i] = json_decode($linea,true);
+			 } else{
+				$resultado[$i] = json_decode($linea,true);
 			}
-			$i++;
-			
 
+			$i++;
 		}
+
 		$resultado['NumCampos'] = $i-1;
-	} else {
-		$resultado['Estado'] = 'Errores ';
-		$resultado['Errores'] = $output;
-		// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
-		// No permitimos continuar.
-		
+		unset($resultado['Errores']);
 	}
+
 	return $resultado;
 }
 //
@@ -108,127 +101,134 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	// 		[tipo]
 	//		[longitud]
 	//		[decimal]	
+
 	$resultado = array();
-	$resultado['Estado']='Incorrecto';
-	$resultado['Tabla']='No existe';
-	$accion = '';
-	$i=0;	
-	$resp_crear='no';
-		
+	$resultado['Estado'] = 'Incorrecto';
+	$resultado['Tabla'] = 'No existe';
+	$resultado['accion-borrado'] = '';
+	$resultado['accion-creado'] = '';
+	$resultado['dropear-tabla'] = false;
+
+	$i = 0;	
+	$resp_crear = 'no';
+
 	foreach ($conexion as $tabla){
 		if ($nombreTabla === $tabla) {
-			$resultado['Estado']='Correcto';
-			$resultado['Tabla']='Existe';
+			$resultado['Tabla'] = 'Existe';
 			//consulto estructura y luego comparo
-			
+			/** inicio comparacion de campos de la tabla de la bbdd y dbf, 
+			 ** 1º recojo estructura de tabla bbdd
+			***/
 			$sqlShow = 'SHOW COLUMNS FROM '.$nombreTabla;
-			$respuesta= $BDImportDbf->query($sqlShow);
+			$respuesta = $BDImportDbf->query($sqlShow);
 			//cogiendo la estructura de la bbdd de tal tabla
-			if (isset ($respuesta)){
-				$arr = array();
-				$i=0;
-				while ($fila = $respuesta->fetch_row()) {
-					$nombreCampo = $fila[0];
-					$tipo = $fila[1];
-					$arr[$i]= $nombreCampo.' '.$tipo;
-					$i++;
-				}
-				//monto la estructura de la tabla de la bbdd
-				$strEstruct= implode(",",$arr);	
-				
-				//muestra los campos de la tabla creada en mysql 
-				$resultado['debug_campos']=$strEstruct;
-				
-				//muestra los campos del dbf a importar , este es un OBJECTO
-				$res_dbf=RecogerCampos($nombreTabla, $campos);
-				$resultado['debug_dbf']=$res_dbf;
-				
-				//comparamos que la estructura de la bbdd sea igual que la estructura del dbf que intentamos importar
-				//si es igual importamos los datos del dbf
-				//si no es igual se borra tabla y se crea de nuevo.
-				 if ($strEstruct != $res_dbf){
-					$resultado['Estado'] = 'Incorrecto';
-					$sql = 'DROP TABLE '.$nombreTabla;
-					$respuesta= $BDImportDbf->query($sql);
-					$accion = 'Borramos tabla';
-				 }
+			if (! isset ($respuesta)){
+				$resultado['dropear-tabla'] = true;
+				$resultado['accion-borrado'] = 'Borramos tabla';
+				break;
 			}
-			
-			break;
-		}	
+
+
+			$arr = array();
+			$i = 0;
+			while ($fila = $respuesta->fetch_row()) {
+				$nombreCampo = $fila[0];
+				$tipo = $fila[1];
+				$arr[$i] = $nombreCampo.' '.$tipo;
+				$i++;
+			}
+			//monto la estructura de la tabla de la bbdd
+			$strEstruct = implode(",",$arr);
+			//muestra los campos de la tabla creada en mysql 
+			$resultado['debug_campos'] = $strEstruct;
+
+			//muestra los campos del dbf a importar , este es un OBJECTO
+			$res_dbf = RecogerCampos($nombreTabla, $campos);
+			//$resultado['debug_dbf'] = $res_dbf;
+			/** Fin recogida estructura tabla bbdd y dbf para comparar despues **/
+
+			//comparamos que la estructura de la bbdd sea igual que la estructura del dbf que intentamos importar
+			//si es igual importamos los datos del dbf
+			//si no es igual se borra tabla y se crea de nuevo.
+			 if ($strEstruct != $res_dbf){
+				$resultado['dropear-tabla'] = true;
+				$resultado['accion-borrado'] = 'Borramos tabla';
+				break;
+			 }
+
+			$resultado['Estado'] = 'Correcto';
+		}
 	} 
 	//si el estado es incorrecto se crea tabla
 	//si no hay tablas me crea la ESTRUCTURA de la primera tabla
 	//if (count($conexion) === 0){
 	
 	if ($resultado['Estado'] === 'Incorrecto'){
-		$res_dbf=RecogerCampos($nombreTabla, $campos);
+		$res_dbf = RecogerCampos($nombreTabla, $campos);
 		//no existe tablas y la creamos la tabla con la estructura del dbf (res_dbf))
- 		$resp_crear=CrearTabla($nombreTabla, $res_dbf,$BDImportDbf);
- 		$accion = $accion+'Creada estructura tabla.';
-	}	
-	
-	
+ 		$resp_crear = CrearTabla($nombreTabla, $res_dbf,$BDImportDbf, $resultado['dropear-tabla']);
+ 		$resultado['Estado'] = 'Correcto';
+ 		$resultado['accion-creado'] = 'Creada estructura tabla';
+	}
+
 	// estas son las respuestas que iran al final de la funcion con los result que quiero mostrar..
 	//estado,diferencia, nombre tabla.. al inspeccionar pag.
 	//por eso creo variable en el resto de funcion para mostrarlas despues aqui..	
 	//estado correcto o incorrecto y
 	//acciones lo que vamos haciendo.. 
 
-	
-	$resultado['accion'] = $accion;
-	
-	
+	//$resultado['accion'] = $accion;
+
 	return $resultado;
 }
-//funcion para crear estructura de tabla segun nombreTabla
+//funcion para recoge estructura de tabla segun nombreTabla y lo monta en un string formato array separado por comas
 function RecogerCampos ($nombreTabla, $campos){
-		
-		$strCampos = array();
-		$i=0;
-		$resultado = array();
-		foreach ($campos as $campo){
-			if (isset($campo['campo'])){
-				$tipo = '';
-				switch ($campo['tipo']){
-					  case 'C':
-						$tipo = 'varchar('.$campo[longitud].')';
-					  break;
-					  case 'N':
-						$tipo = 'decimal('.$campo[longitud].','.$campo[decimal].')';
-					  break;
-					  case 'D':
-						$tipo = 'date';
-					  break;
-					  case 'L':
-						$tipo = 'tinyint(1)';
-					  break;
-					}
-				
-			//$strCampos[$i]= $campo['campo'].$campo['tipo'].$campo['longitud'].$campo['decimal'];
-			$strCampos[$i]= $campo['campo'].' '.$tipo;
-			$i++;
+	$strCampos = array();
+	$i = 0;
+	$resultado = array();
+	foreach ($campos as $campo){
+		if (isset($campo['campo'])){
+			$tipo = '';
+			switch ($campo['tipo']){
+				case 'C':
+					$tipo = 'varchar('.$campo['longitud'].')';
+					break;
+				case 'N':
+					$tipo = 'decimal('.$campo['longitud'].','.$campo['decimal'].')';
+					break;
+				case 'D':
+					$tipo = 'date';
+					break;
+				case 'L':
+					$tipo = 'tinyint(1)';
+					break;
 			}
-		}
-		
-		//implode (",",$v); une los datos separandolos en comas en un array.
-		$strSql=implode(",",$strCampos);
-		
 
-		
-		$resultado = $strSql;
-		
-		return $resultado;
-	
+			//$strCampos[$i] = $campo['campo'].$campo['tipo'].$campo['longitud'].$campo['decimal'];
+			$strCampos[$i] = $campo['campo'].' '.$tipo;
+			$i++;
+		}
+	}
+
+	//implode (",",$v); une los datos separandolos en comas en un array.
+	$strSql = implode(",",$strCampos);
+
+	$resultado = $strSql;
+
+	return $resultado;
 }
 
-function CrearTabla ($nombreTabla,$strSql,$BDImportDbf){
-		
-		$sql = 'CREATE TABLE '.$nombreTabla.' ('.$strSql.')';
+function CrearTabla ($nombreTabla,$strSql,$BDImportDbf, $drop=true){
+	if ($drop) {
+		$sql = 'DROP TABLE IF EXISTS '.$nombreTabla;
 		$resp_crear= $BDImportDbf->query($sql);
-		//implode y mysql
-		$resultado = $resp_crear;
-		return $resultado;
+	}
+
+	$sql = 'CREATE TABLE '.$nombreTabla.' ('.$strSql.')';
+	$resp_crear = $BDImportDbf->query($sql);
+	//implode y mysql
+	$resultado = $resp_crear;
+	return $resultado;
 }
 
 ?>

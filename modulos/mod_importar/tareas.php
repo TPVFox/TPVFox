@@ -33,7 +33,8 @@ include_once ("./funciones.php");
 		// $Conexiones se obtiene en modulo de conexion.
 		$conexion = $Conexiones[1]['tablas'];
 		$respuesta = ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos);
-		echo json_encode($respuesta) ;
+		$respuesta['Vaciar'] = array("uno","dos");
+		echo json_encode($respuesta);
 		break;
     case 'obtenerDbf':
 		$numInicial = $_POST['lineaI'];

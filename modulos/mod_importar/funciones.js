@@ -10,6 +10,7 @@ var LimiteActual = 0;
 var LimiteFinal = 0;
 var icono = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
+var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var campos = [];
 var ficheroActual = '';
 
@@ -159,28 +160,43 @@ function comprobarTabla(){
 	'campos'	: campos
 			};
 	$.ajax({
-			data:  parametros,
-			url:   'tareas.php',
-			type:  'post',
-			beforeSend: function () {
-					$("#resultado").html('Comprobamos la tabla si existe o es correcta.Nombre tabla:'+tablaActual);
-			},
-			success:  function (response) {			
-					// Cuando se recibe un array con JSON tenemos que parseJSON
-					var resultado =  $.parseJSON(response)
-					if (resultado['Estado'] === 'Correcto') {
-						// Respuesta correcta...		
-						console.log( 'EXISTE tabla '+ tablaActual+' vamos a obtener datos');
-						ObtenerDatosTabla();
-						return;
-					} else {	
-						// Error en respuesta.
-						console.log(' No existe tabla '+ tablaActual);
-						console.log(response);
-						return;
-					}					
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			$("#resultado").html('Comprobamos la tabla si existe o es correcta.Nombre tabla:'+tablaActual);
+			console.log('******** estoy en comprobar tabla ****************');
+		},
+		success:  function (response) {
+			// Cuando se recibe un array con JSON tenemos que parseJSON
+			var resultado =  $.parseJSON(response);
+			console.log('comprobar accion despues de parse '+resultado['accion-creado']);
+
+			console.log('Dropear-table es ' + typeof(resultado['dropear-tabla']));
+			if (resultado['dropear-tabla']){
+				PintarIcono(tablaActual, "CEstruct", false);
+				PintarIcono(tablaActual, "CBorrar");
 			}
-		});
+
+			if (resultado['accion-creado'] === 'Creada estructura tabla'){
+				PintarIcono(tablaActual, "CCrear");
+			} else if (resultado['accion-creado'] === ''){
+				PintarIcono(tablaActual, "CEstruct");
+			}
+
+			if (resultado['Estado'] === 'Correcto') {
+				// Respuesta correcta...		
+				console.log( 'EXISTE tabla '+ tablaActual+' vamos a obtener datos');
+				ObtenerDatosTabla();
+				return;
+			} else {
+				// Error en respuesta.
+				console.log(' No existe tabla '+ tablaActual);
+				console.log(response);
+				return;
+			}
+		}
+	});
 }
 
 
@@ -198,19 +214,19 @@ function ObtenerDatosTabla(){
 		}
 		console.log('Antes Ajax FicheroActual:' + ficheroActual);
 		nombrefichero = ficheroActual;
-			var parametros = {
-		"lineaI" 	: LimiteActual,
-		"lineaF" 	: TopeRegistro,
-		"pulsado" 	: 'obtenerDbf',
-		"Fichero" 	: nombrefichero,
-		"campos" 	: campos
-				};
+		var parametros = {
+			"lineaI" 	: LimiteActual,
+			"lineaF" 	: TopeRegistro,
+			"pulsado" 	: 'obtenerDbf',
+			"Fichero" 	: nombrefichero,
+			"campos" 	: campos
+		};
 		$.ajax({
 			data:  parametros,
 			url:   'tareas.php',
 			type:  'post',
 			beforeSend: function () {
-					$("#resultado").html('Obteniendo daatos de tabla ');
+				$("#resultado").html('Obteniendo daatos de tabla ');
 			},
 			success:  function (response) {	
 				// Cuando se recibe un array con JSON tenemos que parseJSON
@@ -223,18 +239,17 @@ function ObtenerDatosTabla(){
 				console.log('limiteactual:'+LimiteActual);
 				console.log('limite final:'+LimiteFinal);
 				console.log('diferencia:'+diferencia);	
-		
-				
+
 				if (resultado['Estado'] === 'Correcto') {
 					console.log('entro en estado correcto '+LimiteActual);
 					//inicio bucle
 					ObtenerDatosTabla(campos);
 					return;
-						// Pendiente punto siguiente..
+					// Pendiente punto siguiente..
 				} else {
 					//~ alert('ERROR en la obtencion de datos de la tabla VER CONSOLA ');
 					console.log(response);
-					
+
 					//tenemos que identificar en que fichero es el error 
 					//para mostrar en el fichero correcto el error de estructura usamos el id del array identificandolo
 					//array.indexOf("nombreFichero"); consigo el indice del fichero en el array
@@ -260,4 +275,15 @@ function ObtenerDatosTabla(){
 	}
 }
 
-
+function PintarIcono(tablaActual, className, ok=true){
+	idMatrizFichero = nombretabla.indexOf(tablaActual);
+	console.log('idMatrizFichero: '+ idMatrizFichero);
+	console.log('idfichero '+idMatrizFichero+'*********');
+	var x = document.getElementsByClassName(className);
+	console.log('x:' + x[2]);
+	if (ok){
+		$(x[idMatrizFichero]).append(iconoCorrecto);
+	} else {
+		$(x[idMatrizFichero]).append(iconoIncorrecto);
+	}
+}
