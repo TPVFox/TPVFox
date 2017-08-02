@@ -118,7 +118,7 @@ function EstrucTabla (nombreTabla){
 						console.log(NumCampos);
 						
 						campos = []
-						for (i = 1; i < NumCampos; i++){
+						for (i = 1; i <= NumCampos; i++){
 						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo'],longitud :resultado[i]['longitud'],decimal :resultado[i]['decimal']};	
 						 //consigo los campos de la tabla
 						// console.log('estructura '+campos[i]['campo']+' '+campos[i]['tipo']+' '+campos[i]['longitud']+' '+campos[i]['decimal'] );
@@ -171,7 +171,7 @@ function comprobarTabla(){
 			// Cuando se recibe un array con JSON tenemos que parseJSON
 			var resultado =  $.parseJSON(response);
 			console.log('comprobar accion despues de parse '+resultado['accion-creado']);
-
+			//dropear tabla es boolean , cuando se borre tabla, el icono aparece en borrado. columna correspondiente
 			console.log('Dropear-table es ' + typeof(resultado['dropear-tabla']));
 			if (resultado['dropear-tabla']){
 				PintarIcono(tablaActual, "CEstruct", false);
@@ -182,6 +182,10 @@ function comprobarTabla(){
 				PintarIcono(tablaActual, "CCrear");
 			} else if (resultado['accion-creado'] === ''){
 				PintarIcono(tablaActual, "CEstruct");
+			}
+			
+			if (resultado['accion-deleteDatos'] === 'Datos borrados'){
+				PintarIcono(tablaActual, "CVaciar");
 			}
 
 			if (resultado['Estado'] === 'Correcto') {
@@ -213,6 +217,7 @@ function ObtenerDatosTabla(){
 			TopeRegistro = LimiteFinal;
 		}
 		console.log('Antes Ajax FicheroActual:' + ficheroActual);
+		//.slice(0, -4)
 		nombrefichero = ficheroActual;
 		var parametros = {
 			"lineaI" 	: LimiteActual,
@@ -230,42 +235,53 @@ function ObtenerDatosTabla(){
 			},
 			success:  function (response) {	
 				// Cuando se recibe un array con JSON tenemos que parseJSON
-				var resultado =  $.parseJSON(response);				
+				//~ var resultado =  $.parseJSON(response);
+				var resultado = response;
+				
 				//muestra object Object
-				console.log(resultado);	
+				console.log('*** obtener datos tabla 3º tarea '+resultado+'***********');	
 				//vuelvo a llamar para crear bucler 
 				LimiteActual = LimiteActual + diferencia + 1;
 				console.log('====== DESPUES de ajax ====================');
-				console.log('limiteactual:'+LimiteActual);
-				console.log('limite final:'+LimiteFinal);
-				console.log('diferencia:'+diferencia);	
-
+				console.log('limiteactual:'+LimiteActual+' limite final: '+LimiteFinal+' diferencia: '+diferencia);
+				console.log('xxxxxxxxx importado xxxxxxx------'+resultado['accion-datosInsertados']);
+				
+				if (resultado['accion-datosInsertados'] === 'Datos importados'){
+					tablaActual = ficheroActual.slice(0, -4); 
+					PintarIcono(tablaActual, "CImportar");
+				} else {
+					PintarIcono(tablaActual, "CImportar", false);
+				}
+				
 				if (resultado['Estado'] === 'Correcto') {
 					console.log('entro en estado correcto '+LimiteActual);
-					//inicio bucle
-					ObtenerDatosTabla(campos);
+					//inicio bucle Me llamo a mi misma para recoger mas datos. 
+					ObtenerDatosTabla(campos); 
+					
 					return;
-					// Pendiente punto siguiente..
 				} else {
+					ObtenerDatosTabla();
+					
+					return;
+				}
+				
 					//~ alert('ERROR en la obtencion de datos de la tabla VER CONSOLA ');
-					console.log(response);
+					//~ console.log(response);
 
 					//tenemos que identificar en que fichero es el error 
 					//para mostrar en el fichero correcto el error de estructura usamos el id del array identificandolo
 					//array.indexOf("nombreFichero"); consigo el indice del fichero en el array
-					tablaActual = ficheroActual.slice(0, -4); // Quitamos los ultimos cuatro caracteres... (.dbf)
-					idMatrizFichero = nombretabla.indexOf(tablaActual);
-					console.log('tablaActual:'+ tablaActual);
-
-					//nos imprime en pantalla (tabla) el error
-					var x = document.getElementsByClassName("CLeerDbf");
-					//muestra errores 
-					console.log('IdMatrizFichero:'+ idMatrizFichero);
-					x[idMatrizFichero].append("\n Error obtener datos tabla: ","limite actual "+LimiteActual+" limite final "+LimiteFinal);
+					//~ tablaActual = ficheroActual.slice(0, -4); // Quitamos los ultimos cuatro caracteres... (.dbf)
+					//~ idMatrizFichero = nombretabla.indexOf(tablaActual);
+					//~ console.log('tablaActual:'+ tablaActual);
+										//nos imprime en pantalla (tabla) el error
+					//~ var x = document.getElementsByClassName("CLeerDbf");
+					//~ //muestra errores 
+					//~ console.log('IdMatrizFichero:'+ idMatrizFichero);
+					//~ $(x[idMatrizFichero]).append("\n Error obtener datos tabla: ","limite actual "+LimiteActual+" limite final "+LimiteFinal);
 					
-					ObtenerDatosTabla();
-					return;
-				}
+				
+				
 			}
 		});		
 	} else {
@@ -275,10 +291,12 @@ function ObtenerDatosTabla(){
 	}
 }
 
+//icono que aparece tickado como ok estructura por pantalla
+//coje id de la tabla con la que esta trabajando para que se corresponda con el ok que queremos poner
+//usamos getELemnts..para usar class de html y añadir el ok(importarphp)
 function PintarIcono(tablaActual, className, ok=true){
 	idMatrizFichero = nombretabla.indexOf(tablaActual);
 	console.log('idMatrizFichero: '+ idMatrizFichero);
-	console.log('idfichero '+idMatrizFichero+'*********');
 	var x = document.getElementsByClassName(className);
 	console.log('x:' + x[2]);
 	if (ok){

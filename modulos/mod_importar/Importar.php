@@ -115,8 +115,12 @@
 				<td class="CEstruct"></td>
 				<td class="CBorrar"></td>
 				<td class="CCrear"></td>
-				<td class="CVaciar"></td>
+				<td class="CVaciar">
+<!--futuro seleccion borrado
+					<input type="checkbox" name="vaciar"> -->
+				</td>
 				<td class="CImportar"></td>
+				
 			  </tr>
 			  <tr id="idalbprot">
 				<th>albprot.dbf</th>
