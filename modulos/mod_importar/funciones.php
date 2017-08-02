@@ -248,7 +248,7 @@ function InsertarDatos($campos,$nombretabla,$datos,$BDImportDbf){
 	// $NombresCampo Ejemplo:
 	$resultado = array();
 	$resultado['Errores'] = array();
-	$resultado['accion-datosInsertados'] = '';
+	$resultado['Estado'] = '';
 	$NombresCampo = array_column($campos, 'campo');
 	// Preparamos array para con datos
 	// Quitamos estado... evitamos problemas de nulls en array a la hora de querer insertar
@@ -258,7 +258,7 @@ function InsertarDatos($campos,$nombretabla,$datos,$BDImportDbf){
 	foreach ($datos as $dato){
 		$ValoresDato = array_values($dato);	//coges datos de la tabla
 		if (count($ValoresDato) != count($NombresCampo)){
-			array_push($resultado['Errores'], $dato);
+			array_push($resultado['Errores'], $dato); //array_push inserta elementos al array
 			$resultado['numColError'] = count($dato);
 			continue; 
 		}
@@ -284,8 +284,13 @@ function InsertarDatos($campos,$nombretabla,$datos,$BDImportDbf){
 	$SqlInsert = implode(',' ,$SqlDato);
 	$consulta1 = 'INSERT INTO '.$nombretabla.' ('.$SqlNCampos.') VALUES '.$SqlInsert;
 	$resp_insertar = $BDImportDbf->query($consulta1);
-	$resultado['accion-datosInsertados'] = 'Datos importados';
-	//~ $resultado['insertar'] = $consulta1;
+	if (count($resultado['Errores']) > 0 ){
+		$resultado['Estado'] = 'Incorrecto';
+	} else {
+		//comprobar si el insert es correcto, la resp_insert
+		$resultado['Estado'] = 'Correcto';
+	}
+	 $resultado['numErrores'] = count($resultado['Errores']);
 	//~ $resultado['datosAinsertar'] = $SqlDato;
 	//$resultado['sqlINsertar'] = $SqlInsert;
 	//~ $resultado['valores'] = $datos;

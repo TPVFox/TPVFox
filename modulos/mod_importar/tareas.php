@@ -53,7 +53,7 @@ include_once ("./funciones.php");
         //~ $respuesta['sin dbf'] = $nombreTablaSin;
         //ejecutar func para conectar/volcar con mysql bbdd 
 		//$respuesta = $datosDbf;
-        echo json_encode($respuesta) ;
+        echo json_encode($respuesta);
         break;
 }
  

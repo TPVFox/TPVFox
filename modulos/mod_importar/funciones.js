@@ -13,6 +13,7 @@ var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var campos = [];
 var ficheroActual = '';
+var estadoImportacion = '';
 
 //variable matriz con nombre tablas que vamos importar ( Bases Datos importar).
 //lo nombres de las tablas son los mismos de los ficheros que vamos a obtener
@@ -208,6 +209,8 @@ function ObtenerDatosTabla(){
 	// Intervalo minimo... 
 	// le paso objetos
 	BarraProceso(LimiteActual,LimiteFinal);
+	
+	
 	if (LimiteActual < LimiteFinal) {
 		diferencia = LimiteFinal - LimiteActual;
 		if (diferencia >5000 ) {
@@ -235,33 +238,26 @@ function ObtenerDatosTabla(){
 			},
 			success:  function (response) {	
 				// Cuando se recibe un array con JSON tenemos que parseJSON
-				//~ var resultado =  $.parseJSON(response);
-				var resultado = response;
+				// se usa parseJSON para recoger el array asociativo (resultado['Estado']) estados entre php y js en respuestas web
+				var resultado =  $.parseJSON(response);
 				
 				//muestra object Object
 				console.log('*** obtener datos tabla 3º tarea '+resultado+'***********');	
 				//vuelvo a llamar para crear bucler 
 				LimiteActual = LimiteActual + diferencia + 1;
-				console.log('====== DESPUES de ajax ====================');
-				console.log('limiteactual:'+LimiteActual+' limite final: '+LimiteFinal+' diferencia: '+diferencia);
-				console.log('xxxxxxxxx importado xxxxxxx------'+resultado['accion-datosInsertados']);
+				console.log('====== DESPUES de ajax ===================='+resultado['Estado']);
+				//console.log('limiteactual:'+LimiteActual+' limite final: '+LimiteFinal+' diferencia: '+diferencia);
 				
-				if (resultado['accion-datosInsertados'] === 'Datos importados'){
-					tablaActual = ficheroActual.slice(0, -4); 
-					PintarIcono(tablaActual, "CImportar");
-				} else {
-					PintarIcono(tablaActual, "CImportar", false);
-				}
+				
 				
 				if (resultado['Estado'] === 'Correcto') {
 					console.log('entro en estado correcto '+LimiteActual);
-					//inicio bucle Me llamo a mi misma para recoger mas datos. 
-					ObtenerDatosTabla(campos); 
-					
-					return;
+					ObtenerDatosTabla();	
+					return;			
 				} else {
-					ObtenerDatosTabla();
-					
+					console.log('error en importacion '+resultado['Estado']);
+					estadoImportacion = 'Incorrecto';
+					//ObtenerDatosTabla();
 					return;
 				}
 				
@@ -286,6 +282,13 @@ function ObtenerDatosTabla(){
 		});		
 	} else {
 		//recorre el sig. fichero
+		
+		tablaActual = ficheroActual.slice(0, -4); 
+		if (estadoImportacion === 'Incorrecto'){
+			PintarIcono(tablaActual, "CImportar", false);
+		} else {
+			PintarIcono(tablaActual, "CImportar");
+		}
 		bucleFicheros();
 		//alert('termine de obtener datos tabla');
 	}

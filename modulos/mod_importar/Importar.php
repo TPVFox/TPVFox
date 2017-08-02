@@ -109,16 +109,14 @@
 			column : creada - borrada - estruct - importar
 	filas :	idproveedo  CCrear  CBorrar CEstruct CImportar y poner una img tickado (iconoCorrecto)
 			idalbprot
--->
+--><!--futuro seleccion borrado
+					<input type="checkbox" name="vaciar"> -->
 			  <tr id="idproveedor">
 				<th>proveedo.dbf</th>
 				<td class="CEstruct"></td>
 				<td class="CBorrar"></td>
 				<td class="CCrear"></td>
-				<td class="CVaciar">
-<!--futuro seleccion borrado
-					<input type="checkbox" name="vaciar"> -->
-				</td>
+				<td class="CVaciar"></td>
 				<td class="CImportar"></td>
 				
 			  </tr>
