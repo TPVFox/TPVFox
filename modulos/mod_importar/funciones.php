@@ -11,8 +11,6 @@
 //~ ,$numFinal,$numInic,$campos 
 
 function LeerDbf($fichero,$numFinal,$numInic,$campos) {
-//~ function LeerDbf($fichero) {
-
 	// Parametros:
 	// $numFinal y $numInic son enteros.
 	// $campos es un array de los campos de la tabla.
@@ -29,14 +27,16 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 	$resultado = array();
 	$output = array(); 
 	$instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero." -i ".$numInic." -e ".$numFinal;
+	// $instruccion = "python ./../../lib/py/leerDbf1.py 2>/dev/null -f ".$fichero." -i ".$numInic." -e ".$numFinal;
 
 	//enviar al py limI, limF
 	//~ $instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero;
 	exec($instruccion, $output,$entero);
 	//~ print('func php leerDbf LIB py '.$instruccion.'<br/>instruccion python num final '.$numFinal.'  num Inicial '.$numInicial);
 
+    //~ echo $output;
 	if ($entero === 0) {
-		//~ $resultado['campos'] = $campos;
+		//$resultado['campos'] = $campos;
 		$resultado['Estado'] = 'Correcto';
 		// pasamos array asociativo.
 		$i = 0;
@@ -176,9 +176,17 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	//por eso creo variable en el resto de funcion para mostrarlas despues aqui..	
 	//estado correcto o incorrecto y
 	//acciones lo que vamos haciendo.. 
-
 	//$resultado['accion'] = $accion;
 
+	//vaciar tabla comprobar si no da error al vaciar cuando no hay datos y checkear en pantalla
+	//necesitamos poner un checkbox en cada tabla para elegir cual queremos vaciar! 
+	// si recojo q esta checkado vaciar datos 
+	
+	//if ($vaciar === 'checked' ){
+		$sql = 'DELETE FROM TABLE '.$nombreTabla;
+		$resp_crear = $BDImportDbf->query($sql);
+		$resultado['accion-deleteDatos'] = 'Datos borrados';
+	//}
 	return $resultado;
 }
 //funcion para recoge estructura de tabla segun nombreTabla y lo monta en un string formato array separado por comas
@@ -217,7 +225,11 @@ function RecogerCampos ($nombreTabla, $campos){
 
 	return $resultado;
 }
-
+//se le pasan:
+//nombre de la tabla
+//strSql , estructura de la tabla dbf a importar seria array pero lo ponemos en formato string 
+//BDImportarDbf para poder conectarnos
+//drop por defecto siempre borrara la tabla, para crearla desde 0. si le mandamos false No la borrara.
 function CrearTabla ($nombreTabla,$strSql,$BDImportDbf, $drop=true){
 	if ($drop) {
 		$sql = 'DROP TABLE IF EXISTS '.$nombreTabla;
@@ -231,28 +243,67 @@ function CrearTabla ($nombreTabla,$strSql,$BDImportDbf, $drop=true){
 	return $resultado;
 }
 
-function InsertartDatos($campos,$nombretabla,$datos,$BDImportDbf){
-	// Obtenemos nombres de campos
+
+function InsertarDatos($campos,$nombretabla,$datos,$BDImportDbf){
+	// Obtenemos nombres de campos en array estructura 
 	// $NombresCampo Ejemplo:
-	
+	$resultado = array();
+	$resultado['Errores'] = array();
+	$resultado['Estado'] = '';
+	$NombresCampo = array_column($campos, 'campo');
 	// Preparamos array para con datos
+	// Quitamos estado... evitamos problemas de nulls en array a la hora de querer insertar
+	unset($datos['Estado']);
+	$resultado['numCampo'] = count($NombresCampo);
 	$i=0;
 	foreach ($datos as $dato){
-		$SqlDato[$i] = $dato;
-		// formato es:
-		//  
+		$ValoresDato = array_values($dato);	//coges datos de la tabla
+		if (count($ValoresDato) != count($NombresCampo)){
+			array_push($resultado['Errores'], $dato); //array_push inserta elementos al array
+			$resultado['numColError'] = count($dato);
+			continue; 
+		}
+		$SqlDato[$i] = '('; 	//montamos el sql para insertar luego
+		$contadorCampos = 0;
+		foreach ($ValoresDato as $valor){
+			 $contadorCampos++;
+			 //addslashes -> Escapa un string con barras invertidas. 
+			 //Para evitar problema con 1'5kg el \', a la hora de insertar datos en mysql. añadimos \ para leer '
+			 $SqlDato[$i] .= "'" . addslashes($valor) . "'"; 
+			if ($contadorCampos<count($ValoresDato)){
+				 $SqlDato[$i] .= ',';
+			}
+		}
+		$SqlDato[$i] .= ')';
+		$i++;  
 	}
 	
 	// preparamos sentencia insert
 	$SqlNCampos= implode(',',$NombresCampo);
-	$SqlInsert = implode(',' ,$SqlDato[$i]);
-	$consulta1 = 'INSERT INTO '.$nombretabla.' ('.$SlqNCampos.') VALUES '.$ConsultInsert;
+
+
+
 	
-	
+	//~ $resultado['sql'] = $SqlNCampos;
+	$SqlInsert = implode(',' ,$SqlDato);
+	$consulta1 = 'INSERT INTO '.$nombretabla.' ('.$SqlNCampos.') VALUES '.$SqlInsert;
+	$resp_insertar = $BDImportDbf->query($consulta1);
+	if (count($resultado['Errores']) > 0 ){
+		$resultado['Estado'] = 'Incorrecto';
+	} else {
+		//comprobar si el insert es correcto, la resp_insert
+		$resultado['Estado'] = 'Correcto';
+	}
+	 $resultado['numErrores'] = count($resultado['Errores']);
+	//~ $resultado['datosAinsertar'] = $SqlDato;
+	//$resultado['sqlINsertar'] = $SqlInsert;
+	//~ $resultado['valores'] = $datos;
 	// Ejecutamos sentencia insert
+	//$resultado['inserta'] = $consulta1;
+	//$resultado = $resp_insertar;
 	
-	
-	
+	return $resultado;
 }
+
 
 ?>

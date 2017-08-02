@@ -13,6 +13,7 @@ var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var campos = [];
 var ficheroActual = '';
+var estadoImportacion = '';
 
 //variable matriz con nombre tablas que vamos importar ( Bases Datos importar).
 //lo nombres de las tablas son los mismos de los ficheros que vamos a obtener
@@ -118,7 +119,7 @@ function EstrucTabla (nombreTabla){
 						console.log(NumCampos);
 						
 						campos = []
-						for (i = 1; i < NumCampos; i++){
+						for (i = 1; i <= NumCampos; i++){
 						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo'],longitud :resultado[i]['longitud'],decimal :resultado[i]['decimal']};	
 						 //consigo los campos de la tabla
 						// console.log('estructura '+campos[i]['campo']+' '+campos[i]['tipo']+' '+campos[i]['longitud']+' '+campos[i]['decimal'] );
@@ -171,7 +172,7 @@ function comprobarTabla(){
 			// Cuando se recibe un array con JSON tenemos que parseJSON
 			var resultado =  $.parseJSON(response);
 			console.log('comprobar accion despues de parse '+resultado['accion-creado']);
-
+			//dropear tabla es boolean , cuando se borre tabla, el icono aparece en borrado. columna correspondiente
 			console.log('Dropear-table es ' + typeof(resultado['dropear-tabla']));
 			if (resultado['dropear-tabla']){
 				PintarIcono(tablaActual, "CEstruct", false);
@@ -182,6 +183,10 @@ function comprobarTabla(){
 				PintarIcono(tablaActual, "CCrear");
 			} else if (resultado['accion-creado'] === ''){
 				PintarIcono(tablaActual, "CEstruct");
+			}
+			
+			if (resultado['accion-deleteDatos'] === 'Datos borrados'){
+				PintarIcono(tablaActual, "CVaciar");
 			}
 
 			if (resultado['Estado'] === 'Correcto') {
@@ -204,6 +209,8 @@ function ObtenerDatosTabla(){
 	// Intervalo minimo... 
 	// le paso objetos
 	BarraProceso(LimiteActual,LimiteFinal);
+	
+	
 	if (LimiteActual < LimiteFinal) {
 		diferencia = LimiteFinal - LimiteActual;
 		if (diferencia >5000 ) {
@@ -213,6 +220,7 @@ function ObtenerDatosTabla(){
 			TopeRegistro = LimiteFinal;
 		}
 		console.log('Antes Ajax FicheroActual:' + ficheroActual);
+		//.slice(0, -4)
 		nombrefichero = ficheroActual;
 		var parametros = {
 			"lineaI" 	: LimiteActual,
@@ -230,55 +238,68 @@ function ObtenerDatosTabla(){
 			},
 			success:  function (response) {	
 				// Cuando se recibe un array con JSON tenemos que parseJSON
-				var resultado =  $.parseJSON(response);				
+				// se usa parseJSON para recoger el array asociativo (resultado['Estado']) estados entre php y js en respuestas web
+				var resultado =  $.parseJSON(response);
+				
 				//muestra object Object
-				console.log(resultado);	
+				console.log('*** obtener datos tabla 3º tarea '+resultado+'***********');	
 				//vuelvo a llamar para crear bucler 
 				LimiteActual = LimiteActual + diferencia + 1;
-				console.log('====== DESPUES de ajax ====================');
-				console.log('limiteactual:'+LimiteActual);
-				console.log('limite final:'+LimiteFinal);
-				console.log('diferencia:'+diferencia);	
-
+				console.log('====== DESPUES de ajax ===================='+resultado['Estado']);
+				//console.log('limiteactual:'+LimiteActual+' limite final: '+LimiteFinal+' diferencia: '+diferencia);
+				
+				
+				
 				if (resultado['Estado'] === 'Correcto') {
 					console.log('entro en estado correcto '+LimiteActual);
-					//inicio bucle
-					ObtenerDatosTabla(campos);
-					return;
-					// Pendiente punto siguiente..
+					ObtenerDatosTabla();	
+					return;			
 				} else {
+					console.log('error en importacion '+resultado['Estado']);
+					estadoImportacion = 'Incorrecto';
+					//ObtenerDatosTabla();
+					return;
+				}
+				
 					//~ alert('ERROR en la obtencion de datos de la tabla VER CONSOLA ');
-					console.log(response);
+					//~ console.log(response);
 
 					//tenemos que identificar en que fichero es el error 
 					//para mostrar en el fichero correcto el error de estructura usamos el id del array identificandolo
 					//array.indexOf("nombreFichero"); consigo el indice del fichero en el array
-					tablaActual = ficheroActual.slice(0, -4); // Quitamos los ultimos cuatro caracteres... (.dbf)
-					idMatrizFichero = nombretabla.indexOf(tablaActual);
-					console.log('tablaActual:'+ tablaActual);
-
-					//nos imprime en pantalla (tabla) el error
-					var x = document.getElementsByClassName("CLeerDbf");
-					//muestra errores 
-					console.log('IdMatrizFichero:'+ idMatrizFichero);
-					x[idMatrizFichero].append("\n Error obtener datos tabla: ","limite actual "+LimiteActual+" limite final "+LimiteFinal);
+					//~ tablaActual = ficheroActual.slice(0, -4); // Quitamos los ultimos cuatro caracteres... (.dbf)
+					//~ idMatrizFichero = nombretabla.indexOf(tablaActual);
+					//~ console.log('tablaActual:'+ tablaActual);
+										//nos imprime en pantalla (tabla) el error
+					//~ var x = document.getElementsByClassName("CLeerDbf");
+					//~ //muestra errores 
+					//~ console.log('IdMatrizFichero:'+ idMatrizFichero);
+					//~ $(x[idMatrizFichero]).append("\n Error obtener datos tabla: ","limite actual "+LimiteActual+" limite final "+LimiteFinal);
 					
-					ObtenerDatosTabla();
-					return;
-				}
+				
+				
 			}
 		});		
 	} else {
 		//recorre el sig. fichero
+		
+		tablaActual = ficheroActual.slice(0, -4); 
+		if (estadoImportacion === 'Incorrecto'){
+			PintarIcono(tablaActual, "CImportar", false);
+		} else {
+			PintarIcono(tablaActual, "CImportar");
+		}
 		bucleFicheros();
 		//alert('termine de obtener datos tabla');
 	}
 }
 
+//icono que aparece tickado como ok estructura por pantalla
+//coje id de la tabla con la que esta trabajando para que se corresponda con el ok que queremos poner
+//usamos getELemnts..para usar class de html y añadir el ok(importarphp)
 function PintarIcono(tablaActual, className, ok=true){
 	idMatrizFichero = nombretabla.indexOf(tablaActual);
 	console.log('idMatrizFichero: '+ idMatrizFichero);
-	console.log('idfichero '+idMatrizFichero+'*********');
 	var x = document.getElementsByClassName(className);
 	console.log('x:' + x[2]);
 	if (ok){

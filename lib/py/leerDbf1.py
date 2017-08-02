@@ -45,32 +45,37 @@ Numregistros = len(db)
 registrosEliminado = len(db.deleted)
 #~ print registrosEliminado
 x = 0
-if int(num_final) <= Numregistros:
-    for i, record in enumerate(db):
-         if i<= int(num_final) and i>= int(num_inicio):
-             #~ print record.items['name']
-             registro = []  # Creamos una lista
-             Json = []
-             y=0 
-             for name, value in record.items():
-                y = y +2
-                Nombre = str(name)
-                V = str(value)
-               
-                # lin. valor para provocar error lectura
-                #~ Valor =  unicode(V, "UTF8")
-                
-                try:
-                     Valor =  unicode(V, "UTF8")
-                except UnicodeDecodeError:
-                     print 'Error entro execetp' 
-                     Valor = unicode(V, "cp1252")
-                     
-                textoJson =[Nombre,str(Valor)]
-                registro[y:2] = Nombre,Valor
-                Json.append(textoJson)
-             #~ print Json
-             
-             resultado = json.dumps(OrderedDict(Json))
-             #~ resultado = simplejson.dumps(dict(Json)))
-             print resultado
+if int(num_final) > Numregistros:
+    num_final = Numregistros
+
+for i, record in enumerate(db):
+    if i > int(num_final) or i < int(num_inicio):
+        continue
+
+    #~ print record.items['name']
+    registro = []  # Creamos una lista
+    Json = []
+    y=0 
+    for name, value in record.items():
+        y = y +2
+        Nombre = str(name)
+        V = str(value)
+ 
+        # lin. valor para provocar error lectura
+        #~ Valor =  unicode(V, "UTF8")
+ 
+        try:
+            Valor =  unicode(V, "UTF8")
+        except UnicodeDecodeError:
+            #~ print 'Error entro execetp' 
+            Valor = unicode(V, "cp1252")
+ 
+        textoJson =[Nombre,str(Valor)]
+        registro[y:2] = Nombre,Valor
+        Json.append(textoJson)
+ 
+    #~ print Json
+ 
+    resultado = json.dumps(OrderedDict(Json))
+    #~ resultado = simplejson.dumps(dict(Json)))
+    print resultado
