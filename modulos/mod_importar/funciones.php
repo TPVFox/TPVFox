@@ -231,4 +231,28 @@ function CrearTabla ($nombreTabla,$strSql,$BDImportDbf, $drop=true){
 	return $resultado;
 }
 
+function InsertartDatos($campos,$nombretabla,$datos,$BDImportDbf){
+	// Obtenemos nombres de campos
+	// $NombresCampo Ejemplo:
+	
+	// Preparamos array para con datos
+	$i=0;
+	foreach ($datos as $dato){
+		$SqlDato[$i] = $dato;
+		// formato es:
+		//  
+	}
+	
+	// preparamos sentencia insert
+	$SqlNCampos= implode(',',$NombresCampo);
+	$SqlInsert = implode(',' ,$SqlDato[$i]);
+	$consulta1 = 'INSERT INTO '.$nombretabla.' ('.$SlqNCampos.') VALUES '.$ConsultInsert;
+	
+	
+	// Ejecutamos sentencia insert
+	
+	
+	
+}
+
 ?>
