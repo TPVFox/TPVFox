@@ -108,7 +108,7 @@ movil
 			<label>Empleado:</label>
 			<input type="text" id="Usuario" name="Usuario" value="" size="40" readonly>	
 			<label>Cliente:</label>
-			<input type="text" id="Cliente" name="Cliente" value="" size="60" readonly>	
+			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="" size="60" readonly>	
 		</div>
 	</div>
 	<div class="fondoNegro col-md-4" style="background-color:black;height:150px;">
@@ -147,12 +147,13 @@ movil
 
 		  </tr>
 -->
-		   <tr id="Row0">
-			<td id="C0_Linea"><input type="submit" value="+" />
-</td>
+		<tr id="Row0">
+			<td id="C0_Linea"><a href="Ahandir"><span class="glyphicon glyphicon-plus-sign"></span></a>
+			</td>
 			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'C0_Codbarras')"></td>
 			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'C0_Referencia')"></td>
 			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'C0_Descripcion')"> </td>
+			<td><a href="Borrar"><span class="glyphicon glyphicon-trash"></span></a></td>
 			
 		  </tr>
 		 
