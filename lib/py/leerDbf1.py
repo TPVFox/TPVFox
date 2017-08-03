@@ -17,12 +17,12 @@ if args.file:
     fichero= args.file
 if args.inicio:
     num_inicio= args.inicio
-    
+
 if args.final:
     num_final= args.final
-    
 
-# Clase para poder obtener nombre campo y dato.    
+
+# Clase para poder obtener nombre campo y dato.
 class MyFieldParser(FieldParser):
     def parse(self, field, data):
         try:
@@ -55,27 +55,27 @@ for i, record in enumerate(db):
     #~ print record.items['name']
     registro = []  # Creamos una lista
     Json = []
-    y=0 
+    y=0
     for name, value in record.items():
         y = y +2
         Nombre = str(name)
         V = str(value)
- 
+
         # lin. valor para provocar error lectura
         #~ Valor =  unicode(V, "UTF8")
- 
+
         try:
             Valor =  unicode(V, "UTF8")
         except UnicodeDecodeError:
-            #~ print 'Error entro execetp' 
+            #~ print 'Error entro execetp'
             Valor = unicode(V, "cp1252")
- 
+
         textoJson =[Nombre,str(Valor)]
         registro[y:2] = Nombre,Valor
         Json.append(textoJson)
- 
+
     #~ print Json
- 
+
     resultado = json.dumps(OrderedDict(Json))
     #~ resultado = simplejson.dumps(dict(Json)))
     print resultado

@@ -8,7 +8,7 @@
 var pulsado = 'Inicio';
 var LimiteActual = 0;
 var LimiteFinal = 0;
-var icono = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
+var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var campos = [];
@@ -220,6 +220,8 @@ function ObtenerDatosTabla(){
 			TopeRegistro = LimiteFinal;
 		}
 		console.log('Antes Ajax FicheroActual:' + ficheroActual);
+		tablaActual = ficheroActual.slice(0, -4); 
+
 		//.slice(0, -4)
 		nombrefichero = ficheroActual;
 		var parametros = {
@@ -235,6 +237,8 @@ function ObtenerDatosTabla(){
 			type:  'post',
 			beforeSend: function () {
 				$("#resultado").html('Obteniendo daatos de tabla ');
+				PintarIcono(tablaActual, "CImportar",false,true);
+
 			},
 			success:  function (response) {	
 				// Cuando se recibe un array con JSON tenemos que parseJSON
@@ -283,7 +287,7 @@ function ObtenerDatosTabla(){
 	} else {
 		//recorre el sig. fichero
 		
-		tablaActual = ficheroActual.slice(0, -4); 
+		//~ tablaActual = ficheroActual.slice(0, -4); 
 		if (estadoImportacion === 'Incorrecto'){
 			PintarIcono(tablaActual, "CImportar", false);
 		} else {
@@ -297,14 +301,19 @@ function ObtenerDatosTabla(){
 //icono que aparece tickado como ok estructura por pantalla
 //coje id de la tabla con la que esta trabajando para que se corresponda con el ok que queremos poner
 //usamos getELemnts..para usar class de html y añadir el ok(importarphp)
-function PintarIcono(tablaActual, className, ok=true){
+function PintarIcono(tablaActual, className, ok=true,cargando=false){
 	idMatrizFichero = nombretabla.indexOf(tablaActual);
 	console.log('idMatrizFichero: '+ idMatrizFichero);
 	var x = document.getElementsByClassName(className);
 	console.log('x:' + x[2]);
+	// Cambiar append por htmlinsert (creo)
 	if (ok){
-		$(x[idMatrizFichero]).append(iconoCorrecto);
+		$(x[idMatrizFichero]).html(iconoCorrecto);
 	} else {
-		$(x[idMatrizFichero]).append(iconoIncorrecto);
+		$(x[idMatrizFichero]).html(iconoIncorrecto);
+	}
+	if (cargando){
+		$(x[idMatrizFichero]).html(iconoCargar);
+
 	}
 }
