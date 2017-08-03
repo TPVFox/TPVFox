@@ -21,7 +21,27 @@
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/calculador.js"></script>
-
+<script>
+	function teclaPulsada(event,id){
+		if(event.keyCode == 13){
+			ContadorPulsaciones= 0;
+			respuesta = obtenerdatos(id);
+			alert(respuesta);
+		} else {
+			if (id === 'C0_Descripcion'){
+				respuesta = obtenerdatos(id);
+				if (respuesta.length > 3){
+					alert('Pendiente select autocompletado:'+respuesta.length);
+				}
+			}
+		}
+	}
+	function obtenerdatos(id){
+		var aux = document.getElementById(id);
+		console.log('Ver id'+aux);
+		return aux.value;	
+	}
+</script>
 </head>
 <body>
 <?php 
@@ -128,10 +148,11 @@ movil
 		  </tr>
 -->
 		   <tr id="Row0">
-			<td id="C0_Linea">0</td>
-			<td id="C0_Codbarras"><input type="text" name="Codbarras" placeholder="Codbarras" size="13" value=""></td>
-			<td id="C0_Referencia"><input type="text" name="Referencia" placeholder="Referencia" size="13" value=""></td>
-			<td id="C0_Descripcion"><input type="text" name="Descripcion" placeholder="Descripcion" size="13" value=""></td>
+			<td id="C0_Linea"><input type="submit" value="+" />
+</td>
+			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'C0_Codbarras')"></td>
+			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'C0_Referencia')"></td>
+			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'C0_Descripcion')"> </td>
 			
 		  </tr>
 		 
