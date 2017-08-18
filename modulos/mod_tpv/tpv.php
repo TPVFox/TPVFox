@@ -21,31 +21,23 @@
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/calculador.js"></script>
-<script>
-	function teclaPulsada(event,id){
-		if(event.keyCode == 13){
-			ContadorPulsaciones= 0;
-			respuesta = obtenerdatos(id);
-			alert(respuesta);
-		} else {
-			if (id === 'C0_Descripcion'){
-				respuesta = obtenerdatos(id);
-				if (respuesta.length > 3){
-					alert('Pendiente select autocompletado:'+respuesta.length);
-				}
-			}
-		}
-	}
-	function obtenerdatos(id){
-		var aux = document.getElementById(id);
-		console.log('Ver id'+aux);
-		return aux.value;	
-	}
-</script>
+
+
 </head>
 <body>
 <?php 
 	include './../../header.php';
+	
+	include_once ("./funciones.php");
+
+?>
+<?php
+	$busqueda = '03012';
+	$campoAbuscar = 'CREF';
+	$respuesta =  BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
+	echo '<pre>';
+	print_r($respuesta);
+	echo '</pre>';
 
 ?>
 <div class="container">
@@ -162,8 +154,6 @@ movil
 	</div>	
 		
 </div>
-		
-
 
 
 </body>

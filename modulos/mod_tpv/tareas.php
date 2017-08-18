@@ -21,11 +21,12 @@ include_once ("./funciones.php");
 
  
  switch ($pulsado) {
-    case 'BuscarProducto':
-		//~ $nombreTabla = $_POST['Fichero'];
+    case 'buscarProducto':
+		$campoAbuscar = 'CREF';
+		$busqueda='03012'
 		//~ $fichero = $RutaServidor.$CopiaDBF.'/'.$nombreTabla;
-		$respuesta = BurcarProducto($buscar,$BDImportDbf);
-		//~ echo json_encode($respuesta) ;
+		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
+		 echo json_encode($respuesta) ;
 		break;
 	
 }
