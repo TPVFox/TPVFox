@@ -32,7 +32,7 @@
 
 ?>
 <?php
-	$busqueda = '03012';
+	$busqueda = '3012';
 	$campoAbuscar = 'CREF';
 	$respuesta =  BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
 	echo '<pre>';

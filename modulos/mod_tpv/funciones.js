@@ -80,23 +80,23 @@ function BuscarProducto($campoAbuscar,$busqueda, $BDImportDbf){
 
 
 //~ //funciones que tenia ricardo en html dentro de <script></script>
-//~ function teclaPulsada(event,id){
-	//~ if(event.keyCode == 13){
-		//~ ContadorPulsaciones= 0;
-		//~ respuesta = obtenerdatos(id);
-		//~ alert(respuesta);
-	//~ } else {
-		//~ if (id === 'C0_Descripcion'){
-			//~ respuesta = obtenerdatos(id);
-			//~ if (respuesta.length > 3){
-				//~ alert('Pendiente select autocompletado:'+respuesta.length);
-			//~ }
-		//~ }
-	//~ }
-//~ }
+function teclaPulsada(event,id){
+	if(event.keyCode == 13){
+		ContadorPulsaciones= 0;
+		respuesta = obtenerdatos(id);
+		alert(respuesta);
+	} else {
+		if (id === 'C0_Descripcion'){
+			respuesta = obtenerdatos(id);
+			if (respuesta.length > 3){
+				alert('Pendiente select autocompletado:'+respuesta.length);
+			}
+		}
+	}
+}
 
-//~ function obtenerdatos(id){
-	//~ var aux = document.getElementById(id);
-	//~ console.log('Ver id'+aux);
-	//~ return aux.value;	
-//~ }
+function obtenerdatos(id){
+	var aux = document.getElementById(id);
+	console.log('Ver id'+aux);
+	return aux.value;	
+}

@@ -26,25 +26,29 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 		// pvpSinIVA = NPVP
 	
 	//DETERMINAR si es una ref o un codigoBarras el dato que me pasan para buscar...
-	
-	if ($BDImportDbf->connect_errno) {
-		echo 'error al conectar';
-	} else {
-		$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.'='.$busqueda;
-		$res = $BDImportDbf->query($sql);
-		}
-//	$resultado = array();
-	
-	
+	$resultado = array();
+	$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.' LIKE "%'.$busqueda.'%"';
+	$res = $BDImportDbf->query($sql);
 	$arr = array();
 	$i = 0;
-	while ($fila = $res->fetch_row()) {
+	while ($fila = $res->fetch_assoc()) {
 		
 		$arr[$i] = $fila;
+		if (trim ($fila['CREF']) === trim($busqueda)){
+			$resultado['Estado'] = 'Correcto';
+			$resultado['datos'][0] = $fila;
+			break; 
+		}
+		
 		$i++;
 	}
+	if (!isset ($resultado['Estado'])){
+		$resultado['Estado'] = 'Listado';
+		$resultado['datos'] = $arr;
+	}
 	
-	return $arr;
+	
+	return $resultado;
 }
 
 
