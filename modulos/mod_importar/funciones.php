@@ -183,8 +183,8 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	// si recojo q esta checkado vaciar datos 
 	
 	//if ($vaciar === 'checked' ){
-		$sql = 'DELETE FROM TABLE '.$nombreTabla;
-		$resp_crear = $BDImportDbf->query($sql);
+		$sql = 'TRUNCATE TABLE '.$nombreTabla;
+		$resp_del = $BDImportDbf->query($sql);
 		$resultado['accion-deleteDatos'] = 'Datos borrados';
 	//}
 	return $resultado;
