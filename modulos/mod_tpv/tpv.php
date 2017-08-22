@@ -32,14 +32,38 @@
 
 ?>
 <?php
-	$busqueda = '3012';
-	$campoAbuscar = 'CREF';
-	$respuesta =  BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
-	echo '<pre>';
-	print_r($respuesta);
-	echo '</pre>';
+	//~ $busqueda = '3012';
+	//~ $campoAbuscar = 'CREF';
+	//~ $respuesta =  BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
+	//~ echo '<pre>';
+	//~ print_r($respuesta);
+	//~ echo '</pre>';
 
 ?>
+
+<script type="text/javascript">
+ 
+$(function(){
+	// Clona la fila oculta que tiene los campos base, y la agrega al final de la tabla
+	 $("#agregar").on("click", function(){
+		$("#tabla tbody tr:eq(0)").clone().removeClass('fila-base').appendTo("#tabla tbody");
+	 });
+ 
+	// Evento que selecciona la fila y la elimina 
+	$(document).on("click",".eliminar",function(){
+		var parent = $(this).parents().get(0);
+		$(parent).remove();
+	});
+});
+
+ 
+</script>
+<style type="text/css">
+	.fila-base{ display: none; } 
+	.eliminar{ cursor: pointer; }
+	.agregar{ cursor: pointer;}  //class para que aparezca cursor
+</style>
+
 <div class="container">
 <!--=================  Sidebar -- Menu y filtro =============== 
 Efecto de que permanezca fixo con Scroll , el problema es en
@@ -108,7 +132,7 @@ movil
 	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
-		<table class="table table-striped">
+		<table id="tabla" class="table-striped">
 		<thead>
 		  <tr>
 			<th>L</th>
@@ -139,16 +163,20 @@ movil
 
 		  </tr>
 -->
-		<tr id="Row0">
-			<td id="C0_Linea"><a href="Ahandir"><span class="glyphicon glyphicon-plus-sign"></span></a>
-			</td>
+		<tr class="fila-base">
+<!--	<td id="C0_Linea"><a href="Ahandir" id="agregar"><span class="glyphicon glyphicon-plus-sign"></span></a></td>	-->
+			<td id="C0_Linea" ><span class="glyphicon glyphicon-plus-sign agregar"></span></td>
 			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'C0_Codbarras')"></td>
 			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'C0_Referencia')"></td>
 			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'C0_Descripcion')"> </td>
-			<td><a href="Borrar"><span class="glyphicon glyphicon-trash"></span></a></td>
-			
-		  </tr>
-		 
+			<td class="eliminar"><span class="glyphicon glyphicon-trash"></span></td>
+		</tr>
+		<tr id="Row0">
+			<td id="C0_Linea" ><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></td>
+			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'C0_Codbarras')"></td>
+			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'C0_Referencia')"></td>
+			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'C0_Descripcion')"> </td>
+		</tr>
 		</tbody>
 	  </table>
 	</div>	
