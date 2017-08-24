@@ -19,8 +19,8 @@
 <?php
 	include './../../head.php';
 ?>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/calculador.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
 
 
 </head>
@@ -35,34 +35,47 @@
 	//~ $busqueda = '3012';
 	//~ $campoAbuscar = 'CREF';
 	//~ $respuesta =  BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
+	//$respuesta = teclaPulsada(event,id);
+	
 	//~ echo '<pre>';
 	//~ print_r($respuesta);
 	//~ echo '</pre>';
-
 ?>
+<style type="text/css">
+<!-- css necesario para agregar o eliminar filas -->
+.fila-base { 
+	display: none; <!-- fila base oculta -->
+} 
+.eliminar { 
+	cursor: pointer; 
+}
+.agregar {
+	cursor: pointer;  <!-- class para que aparezca cursor -->
+}  
+<!-- Fin css para agregar o eliminar filas -->
+</style>
 
 <script type="text/javascript">
+	
+ //Sera funcion que agrega o elimina linea.
+//~ $(function(){
+	//~ // Clona la fila oculta que tiene los campos base, y la agrega al final de la tabla
+	 //~ $("#agregar").on("click", function(){
+		//~ $("#tabla tbody tr:eq(0)").clone().removeClass('fila-base').appendTo("#tabla tbody");
+	 //~ });
  
-$(function(){
-	// Clona la fila oculta que tiene los campos base, y la agrega al final de la tabla
-	 $("#agregar").on("click", function(){
-		$("#tabla tbody tr:eq(0)").clone().removeClass('fila-base').appendTo("#tabla tbody");
-	 });
- 
-	// Evento que selecciona la fila y la elimina 
-	$(document).on("click",".eliminar",function(){
-		var parent = $(this).parents().get(0);
-		$(parent).remove();
-	});
-});
+	//~ // Evento que selecciona la fila y la elimina 
+	//~ $(document).on("click",".eliminar",function(){
+		//~ var parent = $(this).parents().get(0);
+		//~ $(parent).remove();
+	//~ });
+//~ });
+//fin funcion que agrega o elimina linea
 
- 
 </script>
-<style type="text/css">
-	.fila-base{ display: none; } 
-	.eliminar{ cursor: pointer; }
-	.agregar{ cursor: pointer;}  //class para que aparezca cursor
-</style>
+
+
+
 
 <div class="container">
 <!--=================  Sidebar -- Menu y filtro =============== 
@@ -171,7 +184,7 @@ movil
 			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'C0_Descripcion')"> </td>
 			<td class="eliminar"><span class="glyphicon glyphicon-trash"></span></td>
 		</tr>
-		<tr id="Row0">
+		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></td>
 			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'C0_Codbarras')"></td>
 			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'C0_Referencia')"></td>
