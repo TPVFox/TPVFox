@@ -29,6 +29,7 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 	
 	
 	$resultado = array();
+	
 	$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.' LIKE "%'.$busqueda.'%"';
 	$res = $BDImportDbf->query($sql);
 	//compruebo error en consulta
@@ -47,6 +48,7 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 		if (trim ($fila['CREF']) === trim($busqueda)){
 			$resultado['Estado'] = 'Correcto';
 			$resultado['datos'][0] = $fila;
+			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
 			break; 
 		}
 		

@@ -26,7 +26,7 @@ include_once ("./funciones.php");
 		$busqueda = $_POST['valorCampo'];
 		$campoAbuscar = $_POST['campo'];
 		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
-		//echo ($respuesta);
+		
 		echo json_encode($respuesta);  
 		
 		//en funcion utilizo assoc_fetch

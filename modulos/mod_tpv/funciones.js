@@ -9,7 +9,7 @@ var pulsado = '';
 var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
-
+var resultado = [] ;
 
 //funciones que tenia ricardo en html dentro de <script>
 function teclaPulsada(event,id){
@@ -18,7 +18,7 @@ function teclaPulsada(event,id){
 		datoInput = obtenerdatos(id);
 		campo = nombreCampo(id);
 		respuesta = buscarProducto(campo,datoInput);
-		alert('id '+campo+' datos: '+datoInput+' buscarProd '+respuesta);
+		alert('id '+campo+' datos: '+datoInput);
 	} else {
 		if (id === 'C0_Descripcion'){
 			respuesta = obtenerdatos(id);
@@ -84,13 +84,23 @@ function buscarProducto(campoAbuscar,busqueda){
 		},
 		success:  function (response) {
 			console.log('ajax success response '+response);
-			var resultado =  $.parseJSON(response);
-			console.log('response ajax '+response);
+			resultado =  $.parseJSON(response);
+			//~ console.log('parseJson '+resultado[datos]); //[object object]
+			//resultado es [object object]
+			//ponemos var global resultado = [], para acceder a datos
+			//creo array datos para leer cada dato del array resultado
+			var datos = [];
+			datos = resultado.datos[0];
 			
 			if (resultado['Estado'] === 'Correcto') {
+				//accedo a los datos que recojo con ayuda de 2 array, 1 global resultado, y otro datos.
+				console.log('DATOS: '+datos['CCODEBAR']+' '+datos['CREF']+' '+datos['CDETALLE']+' '+datos['NPCONIVA']+' '+datos['CTIPOIVA']); 
+				agregarFila(datos);
 				console.log('tenemos array datos de uno producto');
+				return;
 			} else {
 				console.log('NO HAY DATOS error buscarProducto');
+				return;
 			}
 		}
 	});
@@ -99,45 +109,44 @@ function buscarProducto(campoAbuscar,busqueda){
 
 //http://www.lawebdelprogramador.com/codigo/JQuery/2279-Anadir-y-eliminar-filas-de-una-tabla-con-jquery.html
  //~ //Sera funcion que agrega o elimina linea.
-$(function(){
-	// Clona la fila oculta que tiene los campos base, y la agrega al final de la tabla
-	 //~ $("#agregar").on("click", function(){
-		//~ $("#tabla tbody tr:eq(0)").clone().removeClass('fila-base').appendTo("#tabla tbody");
-	 //~ });
-	//~ $("#agregar").on("click", function(){
-		//~ //obtenemos num filas (td) que tiene la 1ª columna
-		//~ //tr del id "tabla"
-		//~ var numFilas = $("#tabla tr:first td").length;
-		//~ //obtenemos total de columns tr del id "tabla"
-		//~ var numColumna = $("#tabla tr").length;
-		//~ console.log('numFilas: '+numFilas+' numColumns: '+numColumna);
+//~ $(function(){
+	//~ //le paso un array datos
+	//~ $('#agregar').on('click', function(){
+function agregarFila(datos){
+	//var datos = 22;
+	var nuevaFila = '<tr>';
+	
+	var CCODEBAR = datos['CCODEBAR'];
+	var CREF = datos['CREF'];
+	var CDETALLE = datos['CDETALLE'];
+	var NPCONIVA = datos['NPCONIVA'];
+	var CTIPOIVA = datos['CTIPOIVA'];
 		
-		//~ var nuevaFila = '<tr>';
-		//~ var i = 0;
-		//~ for (i=0; i<numFilas; i++){
-			//~ //agregamos columnas
+		//campos: CCODEBAR	CREF	CDETALLE	UNID	CANT/KILO	NPCONIVA	CTIPOIVA	IMPORTE
 		
-			//~ nuevaFila += "<td><input id='id' type='text' name='CCODEBAR' value='$_POST['CCODEBAR'.i])' size='1'/></td>";
-			//~ nuevaFila += '<td> dentro </td>';
-		//~ }
-		//~ //agregamos columna con numTotal de columns
-		//~ // agregamos 1 al total, ya que cuando cargamos los valores
-		//~ //para la columna, todavia no esta agregada
-		//~ nuevaFila +='<td>'+(numColumna+1)+' columnas';
-		//~ nuevaFila +='</tr>';
-		//~ $("#tabla").append(nuevaFila);
+		//	nuevaFila += "<td><input id='id' type='text' name='CCODEBAR' value='$_POST['CCODEBAR'.i])' size='1'/></td>";
+		//nuevaFila += '<td>'+datos['CCODEBAR']+'</td>';
+	nuevaFila += '<td></td>'; //num linea
+	nuevaFila += '<td>'+CCODEBAR+'</td>';
+	nuevaFila += '<td>'+CREF+'</td>';
+	nuevaFila += '<td>'+CDETALLE+'</td>';
+	nuevaFila += '<td></td>'; //unidad
+	nuevaFila += '<td></td>'; //cant/kilo
+	nuevaFila += '<td>'+NPCONIVA+'</td>';
+	nuevaFila += '<td>'+CTIPOIVA+'</td>';
+	nuevaFila += '<td></td>'; //importe 
+		
+	nuevaFila +='</tr>';
+	$("#tabla").append(nuevaFila);
+};
+ 
+ 
+ 
+	//~ // Evento que selecciona la fila y la elimina 
+	//~ $(document).on("click",".eliminar",function(){
+		//~ var parent = $(this).parents().get(0);
+		//~ $(parent).remove();
 	//~ });
- 
- 
-		//~ //$('#tabla > tbody:last').append('<tr id="Row0"><td>Ultima</td></tr>');
-		
-	//~ }
- 
-	// Evento que selecciona la fila y la elimina 
-	$(document).on("click",".eliminar",function(){
-		var parent = $(this).parents().get(0);
-		$(parent).remove();
-	});
-});
+//~ });
 //~ //fin funcion que agrega o elimina linea
 //************************************************************

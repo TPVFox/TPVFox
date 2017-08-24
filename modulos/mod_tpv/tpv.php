@@ -141,7 +141,7 @@ movil
 	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
-		<table id="tabla" class="table-striped">
+		<table id="tabla" class="table table-striped">
 		<thead>
 		  <tr>
 			<th>L</th>
