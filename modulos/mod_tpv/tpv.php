@@ -20,7 +20,9 @@
 	include './../../head.php';
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
+<!--
+<script src="<?php //echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
+-->
 
 
 </head>

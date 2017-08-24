@@ -15,8 +15,9 @@ var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 function teclaPulsada(event,id){
 	if(event.keyCode == 13){
 		ContadorPulsaciones= 0;
-		respuesta = obtenerdatos(id);
-		alert('id '+id+' datos: '+respuesta);
+		datoInput = obtenerdatos(id);
+		respuesta = buscarProducto(id,datoInput);
+		alert('id '+id+' datos: '+datoInput+' buscarProd '+respuesta);
 	} else {
 		if (id === 'C0_Descripcion'){
 			respuesta = obtenerdatos(id);
@@ -53,47 +54,60 @@ function obtenerdatos(id){
 //DETERMINAR si es una ref o un codigoBarras el dato que me pasan para buscar... 
 //campoAbuscar = ref , codigoBarras o descripc
 //busqueda = dato en input correspondiente
-//~ function BuscarProducto($campoAbuscar,$busqueda, $BDImportDbf){
-	//~ // Objetivo:
-	//~ //parametros :
-	//~ //campo input 
-	//~ //valor campo 
-	//~ // los envio a tareas, alli llamo a la funcion de buscarProducto PHP
-	//~ // recibo array con datos y trabajo con ellos, seria enviarlos a agregarFila js.
-	
-	//~ var parametros = {
-			//~ "pulsado" 	: 'buscarProducto',
-			//~ "valor" : valor,
-			//~ "campos" 	: campos
-		//~ };
-	//~ $.ajax({
-		//~ data:  parametros,
-		//~ url:   'tareas.php',
-		//~ type:  'post',
-		//~ beforeSend: function () {
-			//~ $("#resultado").html('Comprobamos que el producto existe ');
-			//~ console.log('******** estoy en buscar producto por ref ****************');
-		//~ },
-		//~ success:  function (response) {
-		//~ var resultado = response;
+function buscarProducto($campoAbuscar,$busqueda){
+	// Objetivo:
+	//parametros :
+	//campo input 
+	//valor campo 
+	// los envio a tareas, alli llamo a la funcion de buscarProducto PHP
+	// recibo array con datos y trabajo con ellos, seria enviarlos a agregarFila js.
+	console.log('entramos en buscarProducto js');
+	var parametros = {
+			"pulsado" 	: 'buscarProducto',
+			"valorCampo" : valorCampo,
+			"campo" 	: campo
+		};
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			$("#resultado").html('Comprobamos que el producto existe ');
+			console.log('******** estoy en buscar producto por ref ****************');
+		},
+		success:  function (response) {
+		var resultado =  $.parseJSON(response);
+			console.log('response ajax '+resultado);
+			
+			if (resultado['Estado'] === 'Correcto') {
+				console.log('tenemos array datos de uno producto');
+			} else {
+				console.log('NO HAY DATOS error buscarProducto');
+			}
 		
-		
-		
-		//~ }
-	//~ }
+		}
+	}
 	
-	//~ }
+	}
 	
 	
-//~ }
+}
 
 //http://www.lawebdelprogramador.com/codigo/JQuery/2279-Anadir-y-eliminar-filas-de-una-tabla-con-jquery.html
  //~ //Sera funcion que agrega o elimina linea.
 $(function(){
 	// Clona la fila oculta que tiene los campos base, y la agrega al final de la tabla
-	 $("#agregar").on("click", function(){
-		$("#tabla tbody tr:eq(0)").clone().removeClass('fila-base').appendTo("#tabla tbody");
-	 });
+	 //~ $("#agregar").on("click", function(){
+		//~ $("#tabla tbody tr:eq(0)").clone().removeClass('fila-base').appendTo("#tabla tbody");
+	 //~ });
+	$("#agregar").click(function(){
+		//obtenemos num filas (td) que tiene la 1ª columna
+		//tr del id "tabla"
+	});
+ 
+ 
+ 
+ 
  
 	// Evento que selecciona la fila y la elimina 
 	$(document).on("click",".eliminar",function(){
