@@ -25,10 +25,12 @@ include_once ("./funciones.php");
     case 'buscarProducto':
 		$busqueda = $_POST['valorCampo'];
 		$campoAbuscar = $_POST['campo'];
-		//~ $campoAbuscar = 'CREF';
-		//~ $busqueda='03012'
 		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
-		 echo json_encode($respuesta) ;
+		//echo ($respuesta);
+		echo json_encode($respuesta);  
+		
+		//en funcion utilizo assoc_fetch
+		//en assoc Cuando es TRUE, los object devueltos serán convertidos a array asociativos.
 		break;
 	
 }

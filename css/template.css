@@ -4,11 +4,11 @@
     src: url('../fonts/glyphicons-halflings-regular.eot');
     src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') 
     format('embedded-opentype'),
-     url('../fonts/glyphicons-halflings-regular.woff') 
+    url('../fonts/glyphicons-halflings-regular.woff') 
     format('woff'),
-     url('../fonts/glyphicons-halflings-regular.ttf') 
+    url('../fonts/glyphicons-halflings-regular.ttf') 
     format('truetype'),
-     url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') 
+    url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') 
     format('svg');
 }
 label {
@@ -16,13 +16,13 @@ label {
     margin-bottom: 5px;
 }
 span.circulo {
-		padding: 5px;
-     width: 100%;
-     height: 100%;
-     -moz-border-radius: 50%;
-     -webkit-border-radius: 50%;
-     background-color:#F8F8F8;
-     border-radius: 50%;
-     border: solid 1px #DEDEDE;
+	padding: 5px;
+    width: 100%;
+    height: 100%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    background-color:#F8F8F8;
+    border-radius: 50%;
+    border: solid 1px #DEDEDE;
 
 }

@@ -16,8 +16,9 @@ function teclaPulsada(event,id){
 	if(event.keyCode == 13){
 		ContadorPulsaciones= 0;
 		datoInput = obtenerdatos(id);
-		respuesta = buscarProducto(id,datoInput);
-		alert('id '+id+' datos: '+datoInput+' buscarProd '+respuesta);
+		campo = nombreCampo(id);
+		respuesta = buscarProducto(campo,datoInput);
+		alert('id '+campo+' datos: '+datoInput+' buscarProd '+respuesta);
 	} else {
 		if (id === 'C0_Descripcion'){
 			respuesta = obtenerdatos(id);
@@ -34,63 +35,66 @@ function obtenerdatos(id){
 	return aux.value;
 }
 
-//script en tpv html 
-//~ function Inicio (pulsado) {
-	//~ // Objetivo:
-	//~ // Focus de input
-	//~ case 'nuevo':
-		//~ // Acaba de cargar javascript, por lo que inicia proceso.
-		//~ //llamar func 
-		//~ alert('case js');
-	
-		//~ break;
-	
-	
-	//~ return;
-//~ }
-
+//case de nombreCampo = mysql , = html, 
+//con el id='C0_Codbarras' recojo el valor del campo en funcion obtener datos
+// pero necesito  nombreCampo = 'CCODEBAR' para mysql
+function nombreCampo(campo){
+	switch(campo) {
+		case 'C0_Codbarras':
+			campo = 'CCODEBAR';
+			break;
+		case 'C0_Referencia':
+			campo = 'CREF';
+			break;
+		case 'C0_Descripcion':
+			campo = 'CDETALLE';
+			break;
+	}
+	return campo;
+}
 
 //EN FUNCIONES PHP 
 //DETERMINAR si es una ref o un codigoBarras el dato que me pasan para buscar... 
 //campoAbuscar = ref , codigoBarras o descripc
 //busqueda = dato en input correspondiente
-function buscarProducto($campoAbuscar,$busqueda){
+function buscarProducto(campoAbuscar,busqueda){
 	// Objetivo:
 	//parametros :
 	//campo input 
 	//valor campo 
 	// los envio a tareas, alli llamo a la funcion de buscarProducto PHP
 	// recibo array con datos y trabajo con ellos, seria enviarlos a agregarFila js.
-	console.log('entramos en buscarProducto js');
+	console.log('entramos en buscarProducto JS');
+	valorCampo = busqueda;
+	campo = campoAbuscar;
+	
+	
 	var parametros = {
 			"pulsado" 	: 'buscarProducto',
 			"valorCampo" : valorCampo,
 			"campo" 	: campo
-		};
+	};
 	$.ajax({
 		data:  parametros,
 		url:   'tareas.php',
 		type:  'post',
 		beforeSend: function () {
 			$("#resultado").html('Comprobamos que el producto existe ');
-			console.log('******** estoy en buscar producto por ref ****************');
+			console.log('******** estoy en buscar producto JS****************');
 		},
 		success:  function (response) {
-		var resultado =  $.parseJSON(response);
-			console.log('response ajax '+resultado);
+			console.log('ajax success response '+response);
+			var resultado =  $.parseJSON(response);
+			console.log('response ajax '+response);
 			
 			if (resultado['Estado'] === 'Correcto') {
 				console.log('tenemos array datos de uno producto');
 			} else {
 				console.log('NO HAY DATOS error buscarProducto');
 			}
-		
 		}
-	}
-	
-	}
-	
-	
+	});
+
 }
 
 //http://www.lawebdelprogramador.com/codigo/JQuery/2279-Anadir-y-eliminar-filas-de-una-tabla-con-jquery.html
@@ -100,14 +104,34 @@ $(function(){
 	 //~ $("#agregar").on("click", function(){
 		//~ $("#tabla tbody tr:eq(0)").clone().removeClass('fila-base').appendTo("#tabla tbody");
 	 //~ });
-	$("#agregar").click(function(){
-		//obtenemos num filas (td) que tiene la 1ª columna
-		//tr del id "tabla"
-	});
+	//~ $("#agregar").on("click", function(){
+		//~ //obtenemos num filas (td) que tiene la 1ª columna
+		//~ //tr del id "tabla"
+		//~ var numFilas = $("#tabla tr:first td").length;
+		//~ //obtenemos total de columns tr del id "tabla"
+		//~ var numColumna = $("#tabla tr").length;
+		//~ console.log('numFilas: '+numFilas+' numColumns: '+numColumna);
+		
+		//~ var nuevaFila = '<tr>';
+		//~ var i = 0;
+		//~ for (i=0; i<numFilas; i++){
+			//~ //agregamos columnas
+		
+			//~ nuevaFila += "<td><input id='id' type='text' name='CCODEBAR' value='$_POST['CCODEBAR'.i])' size='1'/></td>";
+			//~ nuevaFila += '<td> dentro </td>';
+		//~ }
+		//~ //agregamos columna con numTotal de columns
+		//~ // agregamos 1 al total, ya que cuando cargamos los valores
+		//~ //para la columna, todavia no esta agregada
+		//~ nuevaFila +='<td>'+(numColumna+1)+' columnas';
+		//~ nuevaFila +='</tr>';
+		//~ $("#tabla").append(nuevaFila);
+	//~ });
  
  
- 
- 
+		//~ //$('#tabla > tbody:last').append('<tr id="Row0"><td>Ultima</td></tr>');
+		
+	//~ }
  
 	// Evento que selecciona la fila y la elimina 
 	$(document).on("click",".eliminar",function(){

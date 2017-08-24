@@ -26,13 +26,23 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 		// pvpSinIVA = NPVP
 	
 	//DETERMINAR si es una ref o un codigoBarras el dato que me pasan para buscar...
+	
+	
 	$resultado = array();
 	$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.' LIKE "%'.$busqueda.'%"';
 	$res = $BDImportDbf->query($sql);
+	//compruebo error en consulta
+	if (mysqli_error($BDImportDbf)){
+		$resultado['consulta'] = $sql;
+		$resultado['error'] = $BDImportDbf->error_list;
+		return $resultado;
+	} 
+	
+	
 	$arr = array();
 	$i = 0;
+	//fetch_assoc es un boleano..
 	while ($fila = $res->fetch_assoc()) {
-		
 		$arr[$i] = $fila;
 		if (trim ($fila['CREF']) === trim($busqueda)){
 			$resultado['Estado'] = 'Correcto';
