@@ -31,7 +31,7 @@ function teclaPulsada(event,id){
 //quiero conseguir valor del campo
 function obtenerdatos(id){
 	var aux = document.getElementById(id);
-	console.log('Ver id '+aux); //Ver id [object HTMLInputElement]
+	//console.log('Ver id '+aux); //Ver id [object HTMLInputElement]
 	return aux.value;
 }
 
