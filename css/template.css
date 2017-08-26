@@ -26,3 +26,7 @@ span.circulo {
     border: solid 1px #DEDEDE;
 
 }
+.tachado{
+	color: lightgray;
+	text-decoration:line-through;
+}

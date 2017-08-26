@@ -172,16 +172,6 @@ movil
 
 		  </tr>
 -->
-<!--	<td id="C0_Linea"><a href="Ahandir" id="agregar"><span class="glyphicon glyphicon-plus-sign"></span></a></td>	-->
-<!-- FILA que usaba para clonar, fila ocultada.
-		<tr class="fila-base">
-			<td id="C0_Linea" ><span class="glyphicon glyphicon-plus-sign agregar"></span></td>
-			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'C0_Codbarras')"></td>
-			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'C0_Referencia')"></td>
-			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'C0_Descripcion')"> </td>
-			<td class="eliminar"><span class="glyphicon glyphicon-trash"></span></td>
-		</tr>
--->
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></td>
 			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'C0_Codbarras')"></td>

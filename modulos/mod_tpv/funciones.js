@@ -4,12 +4,25 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero - SolucionesVigo
  * @Descripcion	Javascript necesarios para modulo importar DBF.
- * */
+ *
+ * ej producto
+ * producto[0]
+ * 				['CCODEBAR']
+ * 				['CREF']
+ * 				['CDETALLE']
+ * 				['UNID']
+ * 				['CANT/KILO']
+ * 				['NPCONIVA']
+ * 				['CTIPOIVA']
+ * 				['IMPORTE']
+ * 				['ESTADO']
+ *  */
 var pulsado = '';
 var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
-var resultado = [] ;
+var producto =[];
+
 
 //funciones que tenia ricardo en html dentro de <script>
 function teclaPulsada(event,id){
@@ -18,7 +31,7 @@ function teclaPulsada(event,id){
 		datoInput = obtenerdatos(id);
 		campo = nombreCampo(id);
 		respuesta = buscarProducto(campo,datoInput);
-		alert('id '+campo+' datos: '+datoInput);
+		//~ alert('id '+campo+' datos: '+datoInput);
 	} else {
 		if (id === 'C0_Descripcion'){
 			respuesta = obtenerdatos(id);
@@ -84,7 +97,7 @@ function buscarProducto(campoAbuscar,busqueda){
 		},
 		success:  function (response) {
 			console.log('ajax success response '+response);
-			resultado =  $.parseJSON(response);
+			var resultado =  $.parseJSON(response);
 			//~ console.log('parseJson '+resultado[datos]); //[object object]
 			//resultado es [object object]
 			//ponemos var global resultado = [], para acceder a datos
@@ -113,8 +126,19 @@ function buscarProducto(campoAbuscar,busqueda){
 	//~ //le paso un array datos
 	//~ $('#agregar').on('click', function(){
 function agregarFila(datos){
-	//var datos = 22;
-	var nuevaFila = '<tr>';
+	
+	// Montamos array
+	 var nfila = producto.length;
+	 if (nfila === 0){
+		 nfila = 1;
+	 }
+	//~ producto[nfila]['CCODEBAR'] = datos['CCODEBAR'];
+	producto[nfila]=[];
+	producto[nfila]=datos;
+	producto[nfila]['Estado']='Activo';
+	
+	// montamos fila de html de tabla
+	var nuevaFila = '<tr id="Row'+(nfila)+'">';
 	
 	var CCODEBAR = datos['CCODEBAR'];
 	var CREF = datos['CREF'];
@@ -124,29 +148,55 @@ function agregarFila(datos){
 		
 		//campos: CCODEBAR	CREF	CDETALLE	UNID	CANT/KILO	NPCONIVA	CTIPOIVA	IMPORTE
 		
-		//	nuevaFila += "<td><input id='id' type='text' name='CCODEBAR' value='$_POST['CCODEBAR'.i])' size='1'/></td>";
-		//nuevaFila += '<td>'+datos['CCODEBAR']+'</td>';
-	nuevaFila += '<td></td>'; //num linea
+	
+	nuevaFila += '<td>'+nfila+'</td>'; //num linea
 	nuevaFila += '<td>'+CCODEBAR+'</td>';
 	nuevaFila += '<td>'+CREF+'</td>';
 	nuevaFila += '<td>'+CDETALLE+'</td>';
-	nuevaFila += '<td></td>'; //unidad
-	nuevaFila += '<td></td>'; //cant/kilo
+	nuevaFila += '<td><input id="unidad" type="text" name="unidad" size="3"  value="" ></td>'; //unidad
+	nuevaFila += '<td><input id="kilo" type="text" name="kilo" size="3"  value="" ></td>'; //cant/kilo
 	nuevaFila += '<td>'+NPCONIVA+'</td>';
 	nuevaFila += '<td>'+CTIPOIVA+'</td>';
 	nuevaFila += '<td></td>'; //importe 
+	nuevaFila += '<td class="eliminar"><span class="glyphicon glyphicon-trash"></span></td>';
+
 		
 	nuevaFila +='</tr>';
+	//$ signifca jQuery 
 	$("#tabla").append(nuevaFila);
+	
+//closest encuentra el elemnto mas cercano para q coincida con un selector
+	//$(this).closest('tr').after(nuevaFila);
+	//$("td").append(nuevaFila);
+	
+	//$(this).closest('tr').append(nuevaFila);
+	
+	
+	//~ var fila0 = document.getElementById('Row0');
+	//~ console.log('fila 0 '+fila0);
+	//~ fila0.insertBefore(nuevaFila, fila0.childNodes[0]);
+	//fila0.appendChild(nuevaFila);
 };
  
  
- 
-	//~ // Evento que selecciona la fila y la elimina 
-	//~ $(document).on("click",".eliminar",function(){
-		//~ var parent = $(this).parents().get(0);
-		//~ $(parent).remove();
-	//~ });
-//~ });
+//Sera funcion que agrega o elimina linea.
+$(function(){
+	// Evento que selecciona la fila y la elimina 
+	$(document).on("click",".eliminar",function(){
+		var parent = $(this).parents().get(0);
+		var nfila = parent.rowIndex;
+		
+		var countFila = producto.length;
+		producto[countFila]=[];
+		producto[countFila]['Estado']='Eliminado';
+		
+		//parent es la fila que voy a eliminar 
+		//rowIndex es el num de fila que quiero eliminar
+		console.log('eliminar '+parent.rowIndex);
+		//modificar remove a ocultar fila meter una clase tachado
+		$(parent).addClass('tachado'); //añado class al elemento a eliminar
+		//$(parent).remove();
+	});
+});
 //~ //fin funcion que agrega o elimina linea
 //************************************************************
