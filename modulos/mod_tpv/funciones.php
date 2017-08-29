@@ -29,9 +29,11 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 	
 	
 	$resultado = array();
+	//$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.'='.$busqueda;
 	
 	$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.' LIKE "%'.$busqueda.'%"';
 	$res = $BDImportDbf->query($sql);
+	
 	//compruebo error en consulta
 	if (mysqli_error($BDImportDbf)){
 		$resultado['consulta'] = $sql;
@@ -50,12 +52,16 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 			$resultado['datos'][0] = $fila;
 			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
 			break; 
+		} else {
+			$resultado['Estado'] = 'Listado';
+			
+			$resultado['datos'] = $arr;
 		}
 		
 		$i++;
 	}
 	if (!isset ($resultado['Estado'])){
-		$resultado['Estado'] = 'Listado';
+		$resultado['Estado'] = 'No existe producto';
 		$resultado['datos'] = $arr;
 	}
 	

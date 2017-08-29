@@ -19,10 +19,14 @@
 <?php
 	include './../../head.php';
 ?>
+<?php //declaramos parametro para poder configurar campoPeso y no mostrarlo o si a nuestro gusto.
+// lo hacemos aqui para cogerlo bien en todo el proyecto, parametro global. ?>
+<script type="text/javascript"> var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";</script> 
+
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
-<!--
-<script src="<?php //echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
--->
+
+<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
+
 
 
 </head>
@@ -149,12 +153,26 @@ movil
 			<th>Referencia</th>
 			<th>Descripcion</th>
 			<th>Unid</th>
-			<th>Cant/Kilo</th>
+			<?php  
+			if (CONF_campoPeso === 'si'){ ?>
+				<th>Cant/Kilo</th>
+			<?php 
+			} else { ?> 
+				<th style="display: none;">Cant/Kilo</th>
+			<?php 
+			}  ?>
+			
 			<th>PVP</th>
 			<th>Iva</th>
 			<th>Importe</th>
 			<th></th>
 		  </tr>
+		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
+			<td id="C0_Linea" ><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></td>
+			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'Codbarras',0)"></td>
+			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'Referencia',0)"></td>
+			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'Descripcion',0)"> </td>
+		</tr>
 		</thead>
 		<tbody>
 <!--
@@ -172,18 +190,26 @@ movil
 
 		  </tr>
 -->
-		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
-			<td id="C0_Linea" ><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></td>
-			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'C0_Codbarras')"></td>
-			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'C0_Referencia')"></td>
-			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'C0_Descripcion')"> </td>
-		</tr>
+		
+		
 		</tbody>
 	  </table>
-	</div>	
+	</div>
+	<?php //if (isset('#Row1')) {
 		
+		
+	//} ?>
+	<table id="tabla-pie" class="table table-striped">
+	<tr id="pie" >
+			<td id="bases">bases</td>
+			<td id="ivas">ivas</td>
+			<td id="totalImporte" >Total:  </td>
+		</tr>
+	</table>
+	
 </div>
 
 
 </body>
+	
 </html>

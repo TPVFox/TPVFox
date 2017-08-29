@@ -14,7 +14,6 @@
  * 				['CANT/KILO']
  * 				['NPCONIVA']
  * 				['CTIPOIVA']
- * 				['IMPORTE']
  * 				['ESTADO']
  *  */
 var pulsado = '';
@@ -25,42 +24,100 @@ var producto =[];
 
 
 //funciones que tenia ricardo en html dentro de <script>
-function teclaPulsada(event,id){
+//evento de tecla
+//nombreInput
+//nfila , idFila 
+
+function teclaPulsada(event,nombreInput,nfila){
 	if(event.keyCode == 13){
 		ContadorPulsaciones= 0;
-		datoInput = obtenerdatos(id);
-		campo = nombreCampo(id);
-		respuesta = buscarProducto(campo,datoInput);
-		//~ alert('id '+campo+' datos: '+datoInput);
-	} else {
-		if (id === 'C0_Descripcion'){
-			respuesta = obtenerdatos(id);
-			if (respuesta.length > 3){
-				alert('Pendiente select autocompletado:'+respuesta.length);
-			}
-		}
-	}
+		
+		campo = nombreCampo(nombreInput,nfila);
+		
+		
+				
+		//alert('nombreINput '+campo+' nfila: '+nfila);
+	} 
+	return;
 }
 //quiero conseguir valor del campo
 function obtenerdatos(id){
 	var aux = document.getElementById(id);
-	//console.log('Ver id '+aux); //Ver id [object HTMLInputElement]
+	console.log('Ver id obtenerDatos '+aux); //Ver id [object HTMLInputElement]
 	return aux.value;
 }
+
 
 //case de nombreCampo = mysql , = html, 
 //con el id='C0_Codbarras' recojo el valor del campo en funcion obtener datos
 // pero necesito  nombreCampo = 'CCODEBAR' para mysql
-function nombreCampo(campo){
-	switch(campo) {
-		case 'C0_Codbarras':
+//nfila, numero fila
+function nombreCampo(nombreInput,nfila){
+	var id;
+	var campo;
+	//alert('nombre input '+nombreInput);
+	switch(nombreInput) {
+		case 'Codbarras':
 			campo = 'CCODEBAR';
+			id= 'C'+nfila+'_'+nombreInput;
+			datoInput = obtenerdatos(id);
+			buscarProducto(campo,datoInput);
 			break;
-		case 'C0_Referencia':
+		case 'Referencia':
 			campo = 'CREF';
+			id= 'C'+nfila+'_'+nombreInput;
+			console.log(id);
+			datoInput = obtenerdatos(id);
+			buscarProducto(campo,datoInput);
 			break;
-		case 'C0_Descripcion':
+		case 'Descripcion':
 			campo = 'CDETALLE';
+			id= 'C'+nfila+'_'+nombreInput;
+			datoInput = obtenerdatos(id);
+			buscarProducto(campo,datoInput);
+			break;
+		case 'Unidad':
+			id= 'N'+nfila+'_'+nombreInput;
+			datoInput = obtenerdatos(id);
+			//recalcularImporte
+			pvp = producto[nfila]['NPCONIVA'];
+			//alert(pvp);
+			recalculoImporte(datoInput,pvp,nfila);
+		//	alert('dato input '+datoInput);
+			break;
+		
+	}
+	return campo;
+}
+//
+function resetCampo(campo){
+	switch(campo) {
+		case 'CREF':
+			campo = 'C0_Referencia';
+			document.getElementById(campo).value='';
+		break;
+		case 'CCODEBAR':
+			campo = 'C0_Codbarras';
+			document.getElementById(campo).value='';
+		break;
+		case 'CDETALLE':
+			campo = 'C0_Descripcion';
+			document.getElementById(campo).value='';
+		break;
+	}
+	return campo;
+}
+
+function tipoIva(campo){
+	switch(campo){
+		case 'S':
+			campo = '4%';
+			break;
+		case 'R':
+			campo = '10%';
+			break;
+		case 'G':
+			campo = '21%';
 			break;
 	}
 	return campo;
@@ -109,9 +166,22 @@ function buscarProducto(campoAbuscar,busqueda){
 				//accedo a los datos que recojo con ayuda de 2 array, 1 global resultado, y otro datos.
 				console.log('DATOS: '+datos['CCODEBAR']+' '+datos['CREF']+' '+datos['CDETALLE']+' '+datos['NPCONIVA']+' '+datos['CTIPOIVA']); 
 				agregarFila(datos);
+				
+				
+	
+				//limpiar formato de input referencia
+				resetCampo(campo);
 				console.log('tenemos array datos de uno producto');
 				return;
 			} else {
+				if (resultado['Estado'] === 'Listado'){
+					alert('Posibles opciones: ');
+					resetCampo(campo);
+				} else {
+					alert(resultado['Estado']);
+					resetCampo(campo);
+				}
+				
 				console.log('NO HAY DATOS error buscarProducto');
 				return;
 			}
@@ -132,63 +202,73 @@ function agregarFila(datos){
 	 if (nfila === 0){
 		 nfila = 1;
 	 }
-	//~ producto[nfila]['CCODEBAR'] = datos['CCODEBAR'];
-	producto[nfila]=[];
-	producto[nfila]=datos;
-	producto[nfila]['Estado']='Activo';
-	
-	// montamos fila de html de tabla
-	var nuevaFila = '<tr id="Row'+(nfila)+'">';
 	
 	var CCODEBAR = datos['CCODEBAR'];
 	var CREF = datos['CREF'];
 	var CDETALLE = datos['CDETALLE'];
-	var NPCONIVA = datos['NPCONIVA'];
+	
+	var pvp = parseFloat(datos['NPCONIVA']);
+	var NPCONIVA = pvp.toFixed(2);
+	
 	var CTIPOIVA = datos['CTIPOIVA'];
+	
+	//~ producto[nfila]['CCODEBAR'] = datos['CCODEBAR'];
+	producto[nfila]=[];
+	producto[nfila]=datos;
+	producto[nfila]['NPCONIVA']= NPCONIVA;
+	
+	producto[nfila]['UNIDAD']=1;
+	
+	producto[nfila]['Estado']='Activo';
+	
 		
 		//campos: CCODEBAR	CREF	CDETALLE	UNID	CANT/KILO	NPCONIVA	CTIPOIVA	IMPORTE
-		
 	
-	nuevaFila += '<td>'+nfila+'</td>'; //num linea
-	nuevaFila += '<td>'+CCODEBAR+'</td>';
-	nuevaFila += '<td>'+CREF+'</td>';
-	nuevaFila += '<td>'+CDETALLE+'</td>';
-	nuevaFila += '<td><input id="unidad" type="text" name="unidad" size="3"  value="" ></td>'; //unidad
-	nuevaFila += '<td><input id="kilo" type="text" name="kilo" size="3"  value="" ></td>'; //cant/kilo
-	nuevaFila += '<td>'+NPCONIVA+'</td>';
-	nuevaFila += '<td>'+CTIPOIVA+'</td>';
-	nuevaFila += '<td></td>'; //importe 
-	nuevaFila += '<td class="eliminar"><span class="glyphicon glyphicon-trash"></span></td>';
+	
+		// montamos fila de html de tabla
+	var nuevaFila = '<tr id="Row'+(nfila)+'">';
+	nuevaFila += '<td id="C'+nfila+'_Linea">'+nfila+'</td>'; //num linea
+	nuevaFila += '<td id="C'+nfila+'_Codbarras">'+CCODEBAR+'</td>';
+	nuevaFila += '<td id="C'+nfila+'_Referencia">'+CREF+'</td>';
+	nuevaFila += '<td id="C'+nfila+'_Detalle">'+CDETALLE+'</td>';
+	var campoUd = 'N'+nfila+'_Unidad';
+	nuevaFila += '<td><input id="'+campoUd+'" type="text" name="unidad"  placeholder="unidad" size="4"  value="1" onkeypress="teclaPulsada(event,'+"'Unidad'"+','+nfila+')" ></td>'; //unidad
+	
+	//si en config peso=si, mostramos columna peso
+	if (CONF_campoPeso === 'si'){
+		nuevaFila += '<td><input id="C'+nfila+'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
+	} else {
+		nuevaFila += '<td style="display:none"><input id="C'+nfila+'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
+	}
+	nuevaFila += '<td id="N'+nfila+'_Pvp">'+NPCONIVA+'</td>';
+	nuevaFila += '<td id="C'+nfila+'_TipoIva">'+tipoIva(CTIPOIVA)+'</td>';
+	nuevaFila += '<td id="N'+nfila+'_Importe" class="importe" >'+NPCONIVA+'</td>'; //importe 
+	nuevaFila += '<td class="eliminar"><a onclick="eliminarFila('+nfila+');"><span class="glyphicon glyphicon-trash"></span></a></td>';
 
 		
 	nuevaFila +='</tr>';
+	
+	
+	
+	
 	//$ signifca jQuery 
-	$("#tabla").append(nuevaFila);
+	//$("#tabla").append(nuevaFila);
+	$("#tabla").prepend(nuevaFila);
 	
-//closest encuentra el elemnto mas cercano para q coincida con un selector
-	//$(this).closest('tr').after(nuevaFila);
-	//$("td").append(nuevaFila);
+	return;
 	
-	//$(this).closest('tr').append(nuevaFila);
-	
-	
-	//~ var fila0 = document.getElementById('Row0');
-	//~ console.log('fila 0 '+fila0);
-	//~ fila0.insertBefore(nuevaFila, fila0.childNodes[0]);
-	//fila0.appendChild(nuevaFila);
+
 };
  
  
 //Sera funcion que agrega o elimina linea.
-$(function(){
+function eliminarFila(nfila){
+	//alert('funcion eliminar');
 	// Evento que selecciona la fila y la elimina 
 	$(document).on("click",".eliminar",function(){
 		var parent = $(this).parents().get(0);
-		var nfila = parent.rowIndex;
-		
-		var countFila = producto.length;
-		producto[countFila]=[];
-		producto[countFila]['Estado']='Eliminado';
+				
+		producto[nfila]['Estado']='Eliminado';
 		
 		//parent es la fila que voy a eliminar 
 		//rowIndex es el num de fila que quiero eliminar
@@ -197,6 +277,7 @@ $(function(){
 		$(parent).addClass('tachado'); //añado class al elemento a eliminar
 		//$(parent).remove();
 	});
-});
+	return;
+}
 //~ //fin funcion que agrega o elimina linea
 //************************************************************
