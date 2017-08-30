@@ -26,6 +26,7 @@
         <h4 class="modal-title">	Titulo Provisorio...</h4>
       </div>
       <div class="modal-body">
+		  
 		  <?php // Ahora dentro cargamos otro fichero , segun el titulo ?>
 		  
 		  

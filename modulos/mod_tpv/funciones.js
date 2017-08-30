@@ -43,11 +43,11 @@ total['total']['21'] = 0;
 //nombreInput
 //nfila , idFila 
 
-function teclaPulsada(event,nombreInput,nfila){
+function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 	if(event.keyCode == 13){
 		ContadorPulsaciones= 0;
 		
-		campo = nombreCampo(nombreInput,nfila);
+		campo = nombreCampo(nombreInput,nfila,nomcampo);
 		
 		
 				
@@ -67,7 +67,8 @@ function obtenerdatos(id){
 //con el id='C0_Codbarras' recojo el valor del campo en funcion obtener datos
 // pero necesito  nombreCampo = 'CCODEBAR' para mysql
 //nfila, numero fila
-function nombreCampo(nombreInput,nfila){
+function nombreCampo(nombreInput,nfila,nomcampo){
+	
 	var id;
 	var campo;
 	//alert('nombre input '+nombreInput);
@@ -76,20 +77,20 @@ function nombreCampo(nombreInput,nfila){
 			campo = 'CCODEBAR';
 			id= 'C'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
-			buscarProducto(campo,datoInput);
+			buscarProducto(campo,datoInput,'tpv');
 			break;
 		case 'Referencia':
 			campo = 'CREF';
 			id= 'C'+nfila+'_'+nombreInput;
 			console.log(id);
 			datoInput = obtenerdatos(id);
-			buscarProducto(campo,datoInput);
+			buscarProducto(campo,datoInput,'tpv');
 			break;
 		case 'Descripcion':
 			campo = 'CDETALLE';
 			id= 'C'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
-			buscarProducto(campo,datoInput);
+			buscarProducto(campo,datoInput,'tpv');
 			break;
 		case 'Unidad':
 			id= 'N'+nfila+'_'+nombreInput;
@@ -100,6 +101,12 @@ function nombreCampo(nombreInput,nfila){
 			recalculoImporte(datoInput,pvp,nfila);
 		//	alert('dato input '+datoInput);
 			break;
+			
+		case 'cajaBusqueda':
+			//alert('caja busqueda'+nomcampo);
+			datoInput = obtenerdatos(nombreInput);
+			viewsResultado(datoInput,nomcampo);
+		break;
 		
 	}
 	return campo;
@@ -142,7 +149,7 @@ function tipoIva(campo){
 //DETERMINAR si es una ref o un codigoBarras el dato que me pasan para buscar... 
 //campoAbuscar = ref , codigoBarras o descripc
 //busqueda = dato en input correspondiente
-function buscarProducto(campoAbuscar,busqueda){
+function buscarProducto(campoAbuscar,busqueda,dedonde){
 	// Objetivo:
 	//parametros :
 	//campo input 
@@ -157,7 +164,8 @@ function buscarProducto(campoAbuscar,busqueda){
 	var parametros = {
 			"pulsado" 	: 'buscarProducto',
 			"valorCampo" : valorCampo,
-			"campo" 	: campo
+			"campo" 	: campo,
+			"dedonde" : dedonde
 	};
 	$.ajax({
 		data:  parametros,
@@ -192,10 +200,11 @@ function buscarProducto(campoAbuscar,busqueda){
 				
 				if (resultado['Estado'] === 'Listado'){
 					
-					HtmlProductos = resultado.htmlProductos;
+					busqueda = resultado.listado;
+					HtmlProductos=busqueda.html;
 					var titulo = 'Listado productos encontrados';
-					var fichero ="opcion";
-					abrirModal(titulo,HtmlProductos,fichero);
+					
+					abrirModal(titulo,HtmlProductos);
 					//alert('Posibles opciones: ');
 					resetCampo(campo);
 				} else {
@@ -310,36 +319,23 @@ function retornarFila(nfila){
 
 //creamos funcion de abrir modal pasandole datos ej. titulo
 //para asi pintarlo con jquery en html
-function abrirModal(titulo,datos,opcion){
+function abrirModal(titulo,tabla){
 	// Recibimos titulo -> String.( podemos cambiarlos cuando queramos)
 	// datos -> Puede ser un array o puede ser vacio
 	//~ if (opcion === "htmlProductos"){
 		
 		
 	//~ }
-	$('.modal-body > p').html(datos);
+	$('.modal-body > p').html(tabla);
 	$('.modal-title').html(titulo);
 	$('#busquedaModal').modal('show');
 					
 }
 
-function viewsResultado(datos) {
-	var parametros = {
-			"pulsado" 	: 'htmlProductos',
-			"productos" : datos
-		};
-	
-	$.ajax({
-		data:  parametros,
-		url:   'tareas.php',
-		type:  'post',
-		beforeSend: function () {
-			$("#resultado").html('Comprobamos que el producto existe ');
-			console.log('******** estoy en buscar producto JS****************');
-		},
-		success:  function (response) {
-	
-		}
-	});
+
+//function futura cuando buscamos directamente en caja de busqueda
+function viewsResultado(datoInput,nomcampo) {
+	//alert('vista resultaod'+datoInput+' campo nombre '+nomcampo);
+	buscarProducto(nomcampo,datoInput,'popup');
 
 }

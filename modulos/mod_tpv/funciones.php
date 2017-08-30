@@ -84,17 +84,20 @@ function BuscarDescripcion($buscar,$BDImportDbf) {
 	return $resultado;
 }
 
-function htmlProductos($productos,$campoAbuscar){
-	//~ $resultado = '<table><thead>';
-	//~ $resultado = ' <th>CREF</th></ht>'
-	
-	
-	//~ </theader><tbody></tbody>
+function htmlProductos($productos,$campoAbuscar,$busqueda){
+	$resultado = array();
+	$resultado['html'] = '<label>Busqueda por '.$campoAbuscar.'</label>';
+	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" placeholder="Buscar"'.
+				 'size="13" value="'.$busqueda.'" onkeypress="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
+	$resultado['html'] .= '<table><thead>';
+	$resultado['html'] .= ' <th>CREF</th>';
+	$resultado['html'] .= '</thead><tbody>';
 	foreach ($productos as $producto){
-		$resultado .= $producto['CREF'].' ; ';
+		$resultado['html'] .= '<tr><td>'.$producto['CREF'].'</td></tr>';
 		
 	}
-	
+	$resultado['html'] .='</tbody></table>';
+	$resultado['campo'] = $campoAbuscar;
 	
 	return $resultado;
 	

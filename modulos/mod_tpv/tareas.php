@@ -25,10 +25,20 @@ include_once ("./funciones.php");
     case 'buscarProducto':
 		$busqueda = $_POST['valorCampo'];
 		$campoAbuscar = $_POST['campo'];
+		//cuando busco dsde el popup el estado me es indiferente
+		$deDonde = $_POST['dedonde'];
+		
+		
 		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
 		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
-		if ($respuesta['Estado'] !='Correcto'){
-			$respuesta['htmlProductos']= htmlProductos($respuesta['datos'],$campoAbuscar);
+		//si dedonde == 'popup' 
+		if ($respuesta['Estado'] !='Correcto' ){
+			$respuesta['listado']= htmlProductos($respuesta['datos'],$campoAbuscar,$busqueda);
+		}
+		
+		if ($respuesta['Estado'] === 'Correcto' && $deDonde === 'popup'){
+			alert(' estado popup y correcto');
+			$respuesta['listado']= htmlProductos($respuesta['datos'],$campoAbuscar,$busqueda);
 		}
 		echo json_encode($respuesta);  
 		
