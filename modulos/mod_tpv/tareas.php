@@ -26,7 +26,10 @@ include_once ("./funciones.php");
 		$busqueda = $_POST['valorCampo'];
 		$campoAbuscar = $_POST['campo'];
 		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
-		
+		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
+		if ($respuesta['Estado'] !='Correcto'){
+			$respuesta['htmlProductos']= htmlProductos($respuesta['datos'],$campoAbuscar);
+		}
 		echo json_encode($respuesta);  
 		
 		//en funcion utilizo assoc_fetch

@@ -15,13 +15,28 @@
  * 				['NPCONIVA']
  * 				['CTIPOIVA']
  * 				['ESTADO']
- *  */
+ *  
+ * ej total
+ * 
+ * total [total] = 12.00€
+ * total [iva]['4']=0.40€
+ * total [iva] ['21'] = 1.60€
+ * total [base]['4']=0.40€
+ * total [base] ['21'] = 1.60€
+ * 
+ * total [tbases] = sum(total [base])
+ * total [tiva] = sum(total [iva])
+ * */
 var pulsado = '';
 var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var producto =[];
-
+var total =[];
+total['total'] = [];
+total['total']['4'] = 0;
+total['total']['10'] = 0;
+total['total']['21'] = 0;
 
 //funciones que tenia ricardo en html dentro de <script>
 //evento de tecla
@@ -111,13 +126,13 @@ function resetCampo(campo){
 function tipoIva(campo){
 	switch(campo){
 		case 'S':
-			campo = '4%';
+			campo = '4';
 			break;
 		case 'R':
-			campo = '10%';
+			campo = '10';
 			break;
 		case 'G':
-			campo = '21%';
+			campo = '21';
 			break;
 	}
 	return campo;
@@ -159,10 +174,11 @@ function buscarProducto(campoAbuscar,busqueda){
 			//resultado es [object object]
 			//ponemos var global resultado = [], para acceder a datos
 			//creo array datos para leer cada dato del array resultado
-			var datos = [];
-			datos = resultado.datos[0];
+			
 			
 			if (resultado['Estado'] === 'Correcto') {
+				var datos = [];
+				datos = resultado.datos[0];
 				//accedo a los datos que recojo con ayuda de 2 array, 1 global resultado, y otro datos.
 				console.log('DATOS: '+datos['CCODEBAR']+' '+datos['CREF']+' '+datos['CDETALLE']+' '+datos['NPCONIVA']+' '+datos['CTIPOIVA']); 
 				agregarFila(datos);
@@ -172,10 +188,15 @@ function buscarProducto(campoAbuscar,busqueda){
 				//limpiar formato de input referencia
 				resetCampo(campo);
 				console.log('tenemos array datos de uno producto');
-				return;
 			} else {
+				
 				if (resultado['Estado'] === 'Listado'){
-					alert('Posibles opciones: ');
+					
+					HtmlProductos = resultado.htmlProductos;
+					var titulo = 'Listado productos encontrados';
+					var fichero ="opcion";
+					abrirModal(titulo,HtmlProductos,fichero);
+					//alert('Posibles opciones: ');
 					resetCampo(campo);
 				} else {
 					alert(resultado['Estado']);
@@ -183,7 +204,6 @@ function buscarProducto(campoAbuscar,busqueda){
 				}
 				
 				console.log('NO HAY DATOS error buscarProducto');
-				return;
 			}
 		}
 	});
@@ -232,7 +252,8 @@ function agregarFila(datos){
 	nuevaFila += '<td id="C'+nfila+'_Referencia">'+CREF+'</td>';
 	nuevaFila += '<td id="C'+nfila+'_Detalle">'+CDETALLE+'</td>';
 	var campoUd = 'N'+nfila+'_Unidad';
-	nuevaFila += '<td><input id="'+campoUd+'" type="text" name="unidad"  placeholder="unidad" size="4"  value="1" onkeypress="teclaPulsada(event,'+"'Unidad'"+','+nfila+')" ></td>'; //unidad
+	//
+	nuevaFila += '<td><input id="'+campoUd+'" type="text" pattern="[.0-9]" name="unidad"  placeholder="unidad" size="4"  value="1" onkeypress="teclaPulsada(event,'+"'Unidad'"+','+nfila+')" ></td>'; //unidad
 	
 	//si en config peso=si, mostramos columna peso
 	if (CONF_campoPeso === 'si'){
@@ -241,43 +262,84 @@ function agregarFila(datos){
 		nuevaFila += '<td style="display:none"><input id="C'+nfila+'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
 	}
 	nuevaFila += '<td id="N'+nfila+'_Pvp">'+NPCONIVA+'</td>';
-	nuevaFila += '<td id="C'+nfila+'_TipoIva">'+tipoIva(CTIPOIVA)+'</td>';
+	nuevaFila += '<td id="C'+nfila+'_TipoIva">'+tipoIva(CTIPOIVA)+'%</td>';
 	nuevaFila += '<td id="N'+nfila+'_Importe" class="importe" >'+NPCONIVA+'</td>'; //importe 
 	nuevaFila += '<td class="eliminar"><a onclick="eliminarFila('+nfila+');"><span class="glyphicon glyphicon-trash"></span></a></td>';
 
-		
 	nuevaFila +='</tr>';
-	
-	
-	
 	
 	//$ signifca jQuery 
 	//$("#tabla").append(nuevaFila);
 	$("#tabla").prepend(nuevaFila);
-	
-	return;
-	
 
+	sumaImportes();
 };
  
  
 //Sera funcion que agrega o elimina linea.
 function eliminarFila(nfila){
-	//alert('funcion eliminar');
-	// Evento que selecciona la fila y la elimina 
-	$(document).on("click",".eliminar",function(){
-		var parent = $(this).parents().get(0);
-				
-		producto[nfila]['Estado']='Eliminado';
-		
-		//parent es la fila que voy a eliminar 
-		//rowIndex es el num de fila que quiero eliminar
-		console.log('eliminar '+parent.rowIndex);
-		//modificar remove a ocultar fila meter una clase tachado
-		$(parent).addClass('tachado'); //añado class al elemento a eliminar
-		//$(parent).remove();
-	});
-	return;
+	var line;
+	line = "#Row" + nfila;
+	producto[nfila]['Estado'] = 'Eliminado';
+	$(line).addClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="retornarFila('+nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
+	$("#N" + nfila + "_Unidad").prop("disabled", true);
+	sumaImportes();
+}
+
+function retornarFila(nfila){
+	var line;
+	line = "#Row" + nfila;
+	producto[nfila]['Estado'] = 'Activo';
+	var pvp =producto[nfila]['NPCONIVA'];
+
+	$(line).removeClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="eliminarFila('+nfila+');"><span class="glyphicon glyphicon-trash"></span></a>');
+	if (producto[nfila]['UNIDAD'] == 0) {
+		producto[nfila]['UNIDAD'] = 1;
+		recalculoImporte(producto[nfila]['UNIDAD'],pvp,nfila);
+	}
+	$("#N" + nfila + "_Unidad").prop("disabled", false);
+	$("#N" + nfila + "_Unidad").val(producto[nfila]['UNIDAD']);
+	
+	sumaImportes();
 }
 //~ //fin funcion que agrega o elimina linea
 //************************************************************
+
+
+//creamos funcion de abrir modal pasandole datos ej. titulo
+//para asi pintarlo con jquery en html
+function abrirModal(titulo,datos,opcion){
+	// Recibimos titulo -> String.( podemos cambiarlos cuando queramos)
+	// datos -> Puede ser un array o puede ser vacio
+	//~ if (opcion === "htmlProductos"){
+		
+		
+	//~ }
+	$('.modal-body > p').html(datos);
+	$('.modal-title').html(titulo);
+	$('#busquedaModal').modal('show');
+					
+}
+
+function viewsResultado(datos) {
+	var parametros = {
+			"pulsado" 	: 'htmlProductos',
+			"productos" : datos
+		};
+	
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			$("#resultado").html('Comprobamos que el producto existe ');
+			console.log('******** estoy en buscar producto JS****************');
+		},
+		success:  function (response) {
+	
+		}
+	});
+
+}

@@ -200,16 +200,30 @@ movil
 		
 	//} ?>
 	<table id="tabla-pie" class="table table-striped">
-	<tr id="pie" >
-			<td id="bases">bases</td>
-			<td id="ivas">ivas</td>
-			<td id="totalImporte" >Total:  </td>
+	<tbody>
+		<tr id="titulo">
+			<td id="bases">Base
+				<div id="base4"></div>
+				<div id="base10"></div>
+				<div id="base21"></div>
+			</td>
+			<td id="ivas">IVA
+				<div id="iva4"></div>
+				<div id="iva10"></div>
+				<div id="iva21"></div>
+			</td>
+			<td id="total">Total
+				<div id="totalImporte"></div>
+			</td>
 		</tr>
+	</tbody>
 	</table>
 	
 </div>
+<?php // Incluimos paginas modales
+include 'busquedaModal.php';
 
-
+?>
 </body>
 	
 </html>

@@ -52,6 +52,11 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 			$resultado['datos'][0] = $fila;
 			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
 			break; 
+		} else if (trim ($fila['CCODEBAR']) === trim($busqueda)){
+			$resultado['Estado'] = 'Correcto';
+			$resultado['datos'][0] = $fila;
+			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
+			break; 
 		} else {
 			$resultado['Estado'] = 'Listado';
 			
@@ -79,7 +84,22 @@ function BuscarDescripcion($buscar,$BDImportDbf) {
 	return $resultado;
 }
 
-
+function htmlProductos($productos,$campoAbuscar){
+	//~ $resultado = '<table><thead>';
+	//~ $resultado = ' <th>CREF</th></ht>'
+	
+	
+	//~ </theader><tbody></tbody>
+	foreach ($productos as $producto){
+		$resultado .= $producto['CREF'].' ; ';
+		
+	}
+	
+	
+	return $resultado;
+	
+	
+}
 
 
 ?>
