@@ -23,7 +23,7 @@
     <div class="modal-content">
       <div class="modal-header btn-primary">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">	Titulo Provisorio...</h4>
+        <h3 class="modal-title text-center">	Titulo Provisorio...</h3>
       </div>
       <div class="modal-body">
 		  

@@ -30,6 +30,9 @@
 
 
 </head>
+<!--
+onBeforeUnload="return preguntarAntesDeSalir()"
+-->
 <body>
 <?php 
 	include './../../header.php';
@@ -55,23 +58,41 @@
 <!-- Fin css para agregar o eliminar filas -->
 </style>
 
-<script type="text/javascript">
+<script language="JavaScript">
 	
- //Sera funcion que agrega o elimina linea.
-//~ $(function(){
-	//~ // Clona la fila oculta que tiene los campos base, y la agrega al final de la tabla
-	 //~ $("#agregar").on("click", function(){
-		//~ $("#tabla tbody tr:eq(0)").clone().removeClass('fila-base').appendTo("#tabla tbody");
-	 //~ });
- 
-	//~ // Evento que selecciona la fila y la elimina 
-	//~ $(document).on("click",".eliminar",function(){
-		//~ var parent = $(this).parents().get(0);
-		//~ $(parent).remove();
-	//~ });
-//~ });
-//fin funcion que agrega o elimina linea
-
+    
+	//~ window.onbeforeunload = function(event) {
+		//~ event.returnValue = " Seguro?";
+		//~ //alert('kkk'); //no entra
+	//~ };
+	
+	//~ document.onbeforeunload=preguntarAntesDeSalir();
+	//~ function preguntarAntesDeSalir(){
+		
+		//~ alert('aki'+producto.length);
+		
+		//~ return 'saldras';
+	//~ }	
+	
+	
+	//***tengo que poner en el body  onbeforeunload
+	//~ var salir = true;
+    //~ function preguntarAntesDeSalir(){     
+		//~ if (salir === true){
+			//~ //alert('saldras');
+			//~ return 'saldras';
+		//~ }
+    //~ }
+   
+   //http://cursohacker.es/dom-y-javascript-controlando-una-p%C3%A1gina-web 
+    //~ var entrar = confirm ('Estas seguro de que quieres salir?');
+	
+	//~ if (entrar == 1){ //si
+		//~ window.location="http://localhost/superoliva/tpvolalla/index.php"
+	
+	//~ } else {
+		//~ alert ("El usuario ha dicho que no");
+	//~ }
 </script>
 
 
@@ -169,7 +190,7 @@ movil
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></td>
-			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeypress="teclaPulsada(event,'Codbarras',0)"></td>
+			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeypress="teclaPulsada(event,'Codbarras',0)"></td>
 			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'Referencia',0)"></td>
 			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'Descripcion',0)"> </td>
 		</tr>

@@ -16,22 +16,25 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 	// Objetivo:
 	// Es buscar por Referencia o Codbarras
 	//campos:
-	//CREF es referencia
-	//CCODEBAR es codigo de barras
-	//campos a mostrar en hmtl:
-		//CCODEBAR , CREF, CDETALLE, NPCONIVA, CTIPOIVA
-		//codigobarras, ref, descripc, pvpConIva, tipoIva
-		
-		//**CASE tipoIva , S=4, R=10, G=21 % 
-		// pvpSinIVA = NPVP
+	//campoAbuscar 
+	//busqueda -- string q puede tener varias palabras
 	
-	//DETERMINAR si es una ref o un codigoBarras el dato que me pasan para buscar...
-	
+	//creamos array de palabras, por si buscan por descripcion Leche larsa
+	// asi buscamos que contenga esas palabras en descripc
+	//explode junta strings e implode las separa para trabajar mejor con ellas.
+	$palabras = array();
+	$palabras = explode(' ',$busqueda);
+	$cont = 0;
+	foreach($palabras as $palabra){
+		$palabras[$cont] =  $campoAbuscar.' LIKE "%'.$palabra.'%"';
+		$cont++;
+	}
+	$buscar = implode(' and ',$palabras);
 	
 	$resultado = array();
 	//$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.'='.$busqueda;
 	
-	$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.' LIKE "%'.$busqueda.'%"';
+	$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$buscar;
 	$res = $BDImportDbf->query($sql);
 	
 	//compruebo error en consulta
@@ -75,25 +78,37 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 }
 
 
-function BuscarDescripcion($buscar,$BDImportDbf) {
-	// Objetivo:
-	// Es buscar por Referencia o Codbarras
-	// Campos:
-	//CDETALLE es descripcion
-	$resultado = array();
-	return $resultado;
-}
-
 function htmlProductos($productos,$campoAbuscar,$busqueda){
 	$resultado = array();
 	$resultado['html'] = '<label>Busqueda por '.$campoAbuscar.'</label>';
-	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" placeholder="Buscar"'.
+	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" autofocus placeholder="Buscar"'.
 				 'size="13" value="'.$busqueda.'" onkeypress="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
-	$resultado['html'] .= '<table><thead>';
-	$resultado['html'] .= ' <th>CREF</th>';
+	if (count($productos>20)){
+		$resultado['html'] .= '<span>20 productos de '.count($productos).'</span>';
+	}
+	$resultado['html'] .= '<table class="table table-striped"><thead>';
+	$resultado['html'] .= ' <th></th>';
 	$resultado['html'] .= '</thead><tbody>';
+	
+	$contad = 0;
 	foreach ($productos as $producto){
-		$resultado['html'] .= '<tr><td>'.$producto['CREF'].'</td></tr>';
+		
+		$resultado['html'] .= '<tr id="Fila_'.$contad.'">';
+		$datos = 	"'".$producto['CREF']."','".$producto['CDETALLE'].
+					"','".$producto['CTIPOIVA']."','".$producto['CCODEBAR']."',".number_format($producto['NPCONIVA'],2).
+					$producto['CCODEBAR'];
+		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><a onclick="cerrarModal('.$datos.');"><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></a></td>';
+		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';
+		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
+		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
+
+		$resultado['html'] .= '</tr>';
+		$contad = $contad +1;
+		if ($contad === 20){
+			
+
+			break;
+		}
 		
 	}
 	$resultado['html'] .='</tbody></table>';
@@ -102,6 +117,49 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 	return $resultado;
 	
 	
+}
+
+//mostrar TotalTicket
+function htmlCobrar($total){
+	
+	$resultado = array();
+	$resultado['entregado'] = 0;
+	$resultado['modoPago'] = 0;
+	$resultado['imprimir'] = 0;
+	//$resultado['html'] = '<label>COBRAR</label>';
+	$resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">';
+	$resultado['html'] .= '<h1>'.number_format($total,2).'<span class="small"> €</span></h1>';
+	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" value="" size="8" onkeypress="teclaPulsada(event,'."'entrega',0".')" autofocus></input></h4>';
+												
+	$resultado['html'] .= '<h4> Cambio &nbsp<input id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
+	
+	//$resultado['html'] .= '<h4> Cambio <div id="cambioText"></div></h4>';
+	
+	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
+	$resultado['html'] .= '<label><input type="checkbox" checked> Imprimir</label>';
+	$resultado['html'] .= '</div>';
+	
+
+	$resultado['html'] .= '<div>';
+	$resultado['html'] .= '<select multiple name="modoPago" >';
+	$resultado['html'] .= '<option value="contado">Contado</option>';
+	$resultado['html'] .= '<option value="tarjeta">Tarjeta</option>';
+	$resultado['html'] .= '</select>';
+	$resultado['html'] .= '<button>Aceptar</button>';
+	
+	$resultado['html'] .= '</div>';
+	
+
+	
+
+	$resultado['html'] .= '</div>';
+	
+//totalTicket texto
+//input Entrega Xdinero
+//cambio texto
+	
+	
+	return $resultado;
 }
 
 

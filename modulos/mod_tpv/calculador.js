@@ -39,19 +39,6 @@ function recalculoImporte(cantidad,pvp,nfila){
 }
 
 
-// http://www.forosdelweb.com/f13/mostrar-dos-decimales-con-javascript-122081/
-//redondeo y añade 00 como decimal 3.3 3.30
-//~ function redondeo(valor, nDec){
-    //~ var n = parseFloat(valor);
-    //~ var resultado = "0.00";
-    //~ if (!isNaN(n)){
-     //~ n = Math.round(n * Math.pow(10, nDec)) / Math.pow(10, nDec);
-     //~ resultado = String(n);
-     //~ resultado += (resultado.indexOf(".") == -1? ".": "") + String(Math.pow(10, nDec)).substr(1);
-     //~ resultado = resultado.substr(0, resultado.indexOf(".") + nDec + 1);
-    //~ }
-    //~ return resultado;
-//~ }
 
 
 //suma los importes de cada fila y devuelve Total Importe de compra.
@@ -108,31 +95,10 @@ function sumaImportes(){
 			
 			$('#base'+index).html(base); console.log('base '+iva_type+':'+base);
 			$('#iva'+index).html(index+'% &nbsp;'+(base*operador).toFixed(2));
-			
-			
-			
-			
-			//~ if (index === 4 ){
-				//~ console.log('operador 4: '+ operador);
-				//~ var base4 = (total_ivas['4']/1.04).toFixed(2);
-				//~ $('#base4').html(base4);
-				//~ $('#iva4').html('4% &nbsp;'+(base4*1.04).toFixed(2));
-			//~ }
-			//~ if (index === 10){
-				//~ console.log('operador: 10: '+ operador);
-				//~ var base10 =(total_ivas['10']/1.10).toFixed(2);
-				//~ $('#base10').html(base10);
-				//~ $('#iva10').html(' 10% &nbsp; '+(base10*1.10).toFixed(2));
-			//~ }
-			//~ if (index === 21){
-				//~ console.log('operador 21: '+ operador);
-				//~ var base21 = (total_ivas['21']/1.21).toFixed(2);
-				//~ $('#base21').html(base21);
-				//~ $('#iva21').html(' 21% &nbsp;'+(base21*1.21).toFixed(2));
-			//~ }
+
 		}
 	});
-
+	total = suma_total;
 	$('#totalImporte').html(suma_total.toFixed(2));
 	
 	

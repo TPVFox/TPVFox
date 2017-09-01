@@ -37,15 +37,24 @@ include_once ("./funciones.php");
 		}
 		
 		if ($respuesta['Estado'] === 'Correcto' && $deDonde === 'popup'){
-			alert(' estado popup y correcto');
 			$respuesta['listado']= htmlProductos($respuesta['datos'],$campoAbuscar,$busqueda);
+			$respuesta['Estado'] = 'Listado';
 		}
 		echo json_encode($respuesta);  
 		
 		//en funcion utilizo assoc_fetch
 		//en assoc Cuando es TRUE, los object devueltos serán convertidos a array asociativos.
 		break;
-	
+	case 'cobrar':
+		//~ echo 'cobrar';
+		$total = $_POST['total'];
+		//$deDonde = $_POST['dedonde'];
+		$respuesta = htmlCobrar($total);
+		
+		
+		echo json_encode($respuesta);		
+		
+		break;
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

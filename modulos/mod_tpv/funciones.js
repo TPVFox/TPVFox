@@ -32,11 +32,13 @@ var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var producto =[];
-var total =[];
-total['total'] = [];
-total['total']['4'] = 0;
-total['total']['10'] = 0;
-total['total']['21'] = 0;
+var total = 0;
+//~ total['total'] = [];
+//~ total['total']['4'] = 0;
+//~ total['total']['10'] = 0;
+//~ total['total']['21'] = 0;
+
+
 
 //funciones que tenia ricardo en html dentro de <script>
 //evento de tecla
@@ -45,29 +47,137 @@ total['total']['21'] = 0;
 
 function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 	if(event.keyCode == 13){
-		ContadorPulsaciones= 0;
-		
-		campo = nombreCampo(nombreInput,nfila,nomcampo);
-		
-		
-				
-		//alert('nombreINput '+campo+' nfila: '+nfila);
+		//ContadorPulsaciones= 0;
+		campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);		
 	} 
+	if ((nombreInput === 'Unidad') || (nombreInput === 'cajaBusqueda')){
+		if ((event.keyCode === 40) || (event.keyCode === 38)){
+			campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
+		}
+		
+	}
+	//tecla F5 116
+	if (event.keyCode === 39){
+		var numproduct = producto.length;
+		numproduct = numproduct -1;
+		if (numproduct > 0){
+			
+		//	alert('Tienes productos '+numproduct+' resp '+resp);
+			
+			console.log('f5 ');
+			cobrarF5();
+		
+		}
+	}
+	// si es popup de cobrar
+	 if (nombreInput === 'entrega'){
+		
+		var entrega = obtenerdatos(nombreInput);
+		var cambio = entrega - total;
+		if(event.keyCode == 13){
+			if (cambio < 0){
+				$('#cambio').css('color','red');
+		
+			}else {
+				$('#cambio').css('color','grey');
+			}
+		
+		//$('#cambioText').html(cambio);
+		$('#cambio').val(cambio);
+		}
+	 }
+	
+	
+//alert(event.keyCode);
+//dice numTecla 
 	return;
 }
+
+function cobrarF5(){
+			//abrir modal de cobrar htmlCobrar php
+			//~ var titulo = 'COBRAR';
+			//~ abrirModal(titulo,htmlCobrar(total));
+	
+	var parametros = {
+			"pulsado" 	: 'cobrar',
+			"total" : total
+			//"dedonde" : dedonde
+	};
+	$.ajax({ data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			$("#resultado").html('Comprobamos que el producto existe ');
+		},
+		success:  function (response) {
+			console.log('ajax success cobrarF5 '+response);
+			var resultado =  $.parseJSON(response);
+			
+			
+			
+			//HtmlCobrar = resultado;
+			//busqueda = resultado.cobrar;
+			
+			var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
+			var titulo = 'COBRAR ';
+				console.log(' cobrar '+HtmlCobrar);	
+			abrirModal(titulo,HtmlCobrar);
+			//alert('cobrar');
+			
+		}
+	});
+			
+	
+	return;
+}
+
 //quiero conseguir valor del campo
 function obtenerdatos(id){
 	var aux = document.getElementById(id);
 	console.log('Ver id obtenerDatos '+aux); //Ver id [object HTMLInputElement]
 	return aux.value;
 }
+function movimTecla(numTecla,nfila,nombreInput){
+
+	//tecla hacia abajo
+	if (numTecla === 40){
+		//alert(' moverse a nfila-1');
+		nfila=nfila-1;
+		$('#N'+nfila+'_'+nombreInput).focus();
+		
+		//quiero pintar en modal al bajar y poder agregar fila con enter
+		$('#C_'+nfila+'Lin').css("background-color", "red");
+		
+		
+	}
+	//tecla hacia arriba
+	if (numTecla === 38){
+		//alert(' moverse a nfila+1');
+		nfila=nfila+1;
+		$('#N'+nfila+'_'+nombreInput).focus();
+	}
+	
+	if (numTecla === 13){
+		$('#C0_Codbarras').focus();
+		return;
+	}
+	
+	
+	//tecla hacia la drecha
+	if (numTecla === 39){
+		//tecla izq 37
+	}
+	
+	
+}
+
 
 
 //case de nombreCampo = mysql , = html, 
 //con el id='C0_Codbarras' recojo el valor del campo en funcion obtener datos
 // pero necesito  nombreCampo = 'CCODEBAR' para mysql
 //nfila, numero fila
-function nombreCampo(nombreInput,nfila,nomcampo){
+function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 	
 	var id;
 	var campo;
@@ -77,6 +187,11 @@ function nombreCampo(nombreInput,nfila,nomcampo){
 			campo = 'CCODEBAR';
 			id= 'C'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
+			movimTecla(numTecla,nfila,nombreInput);
+			if (datoInput === ''){
+				$('#C0_Referencia').focus();
+				return;
+			}
 			buscarProducto(campo,datoInput,'tpv');
 			break;
 		case 'Referencia':
@@ -84,28 +199,41 @@ function nombreCampo(nombreInput,nfila,nomcampo){
 			id= 'C'+nfila+'_'+nombreInput;
 			console.log(id);
 			datoInput = obtenerdatos(id);
+			if (datoInput === ''){
+				$('#C0_Descripcion').focus();
+				return;
+			}
 			buscarProducto(campo,datoInput,'tpv');
 			break;
 		case 'Descripcion':
 			campo = 'CDETALLE';
 			id= 'C'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
+			if (datoInput === ''){
+				$('#C0_Codbarras').focus();
+				return;
+			}
 			buscarProducto(campo,datoInput,'tpv');
 			break;
 		case 'Unidad':
+			
 			id= 'N'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
 			//recalcularImporte
 			pvp = producto[nfila]['NPCONIVA'];
 			//alert(pvp);
 			recalculoImporte(datoInput,pvp,nfila);
-		//	alert('dato input '+datoInput);
+			movimTecla(numTecla,nfila,nombreInput);
+			
+			//alert('dato input '+datoInput);
 			break;
 			
 		case 'cajaBusqueda':
 			//alert('caja busqueda'+nomcampo);
 			datoInput = obtenerdatos(nombreInput);
+			movimTecla(numTecla,nfila,nombreInput);
 			viewsResultado(datoInput,nomcampo);
+			
 		break;
 		
 	}
@@ -200,9 +328,9 @@ function buscarProducto(campoAbuscar,busqueda,dedonde){
 				
 				if (resultado['Estado'] === 'Listado'){
 					
-					busqueda = resultado.listado;
-					HtmlProductos=busqueda.html;
-					var titulo = 'Listado productos encontrados';
+					var busqueda = resultado.listado;   //$respuesta['listado']= htmlProductos TAREAS  
+					var HtmlProductos=busqueda.html;   //$resultado['html'] de montaje html
+					var titulo = 'Listado productos encontrados ';
 					
 					abrirModal(titulo,HtmlProductos);
 					//alert('Posibles opciones: ');
@@ -212,18 +340,14 @@ function buscarProducto(campoAbuscar,busqueda,dedonde){
 					resetCampo(campo);
 				}
 				
-				console.log('NO HAY DATOS error buscarProducto');
+				//console.log('NO HAY DATOS error buscarProducto');
 			}
 		}
 	});
 
 }
 
-//http://www.lawebdelprogramador.com/codigo/JQuery/2279-Anadir-y-eliminar-filas-de-una-tabla-con-jquery.html
- //~ //Sera funcion que agrega o elimina linea.
-//~ $(function(){
-	//~ //le paso un array datos
-	//~ $('#agregar').on('click', function(){
+
 function agregarFila(datos){
 	
 	// Montamos array
@@ -262,7 +386,7 @@ function agregarFila(datos){
 	nuevaFila += '<td id="C'+nfila+'_Detalle">'+CDETALLE+'</td>';
 	var campoUd = 'N'+nfila+'_Unidad';
 	//
-	nuevaFila += '<td><input id="'+campoUd+'" type="text" pattern="[.0-9]" name="unidad"  placeholder="unidad" size="4"  value="1" onkeypress="teclaPulsada(event,'+"'Unidad'"+','+nfila+')" ></td>'; //unidad
+	nuevaFila += '<td><input id="'+campoUd+'" type="text" pattern="[.0-9]+" name="unidad"  placeholder="unidad" size="4"  value="1" onkeypress="teclaPulsada(event,'+"'Unidad'"+','+nfila+')" ></td>'; //unidad
 	
 	//si en config peso=si, mostramos columna peso
 	if (CONF_campoPeso === 'si'){
@@ -322,9 +446,7 @@ function retornarFila(nfila){
 function abrirModal(titulo,tabla){
 	// Recibimos titulo -> String.( podemos cambiarlos cuando queramos)
 	// datos -> Puede ser un array o puede ser vacio
-	//~ if (opcion === "htmlProductos"){
-		
-		
+	//~ if (opcion === "htmlProductos"){		
 	//~ }
 	$('.modal-body > p').html(tabla);
 	$('.modal-title').html(titulo);
@@ -337,5 +459,21 @@ function abrirModal(titulo,tabla){
 function viewsResultado(datoInput,nomcampo) {
 	//alert('vista resultaod'+datoInput+' campo nombre '+nomcampo);
 	buscarProducto(nomcampo,datoInput,'popup');
+
+}
+
+function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva){
+	var producto = [];
+	producto['CREF'] = cref;
+	producto['CDETALLE'] = cdetalle;
+	producto['NPCONIVA'] =npconiva;
+	producto['CCODEBAR'] =ccodebar;
+	producto['CTIPOIVA'] =ctipoIva;
+	
+	
+	//alert('CerrarModal producto'+npconiva);
+		
+	$('#busquedaModal').modal('hide');
+	agregarFila(producto);
 
 }
