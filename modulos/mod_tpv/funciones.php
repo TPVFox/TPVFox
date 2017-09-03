@@ -81,10 +81,10 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 function htmlProductos($productos,$campoAbuscar,$busqueda){
 	$resultado = array();
 	$resultado['html'] = '<label>Busqueda por '.$campoAbuscar.'</label>';
-	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" autofocus placeholder="Buscar"'.
-				 'size="13" value="'.$busqueda.'" onkeypress="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
-	if (count($productos>20)){
-		$resultado['html'] .= '<span>20 productos de '.count($productos).'</span>';
+	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" placeholder="Buscar"'.
+				 'size="13" value="'.$busqueda.'" onkeydown="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
+	if (count($productos>10)){
+		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>';
 	$resultado['html'] .= ' <th></th>';
@@ -92,21 +92,20 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 	
 	$contad = 0;
 	foreach ($productos as $producto){
-		
-		$resultado['html'] .= '<tr id="Fila_'.$contad.'">';
 		$datos = 	"'".$producto['CREF']."','".$producto['CDETALLE'].
 					"','".$producto['CTIPOIVA']."','".$producto['CCODEBAR']."',".number_format($producto['NPCONIVA'],2).
 					$producto['CCODEBAR'];
-		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><a onclick="cerrarModal('.$datos.');"><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></a></td>';
+		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('.$contad.')" .
+								onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModal('.$datos.');">';
+		
+		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';
 		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
 
 		$resultado['html'] .= '</tr>';
 		$contad = $contad +1;
-		if ($contad === 20){
-			
-
+		if ($contad === 10){
 			break;
 		}
 		
@@ -129,11 +128,10 @@ function htmlCobrar($total){
 	//$resultado['html'] = '<label>COBRAR</label>';
 	$resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">';
 	$resultado['html'] .= '<h1>'.number_format($total,2).'<span class="small"> €</span></h1>';
-	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" value="" size="8" onkeypress="teclaPulsada(event,'."'entrega',0".')" autofocus></input></h4>';
+	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" autofocus value="" size="8" onkeydown="teclaPulsada(event,'."'entrega',0".')" autofocus></input></h4>';
 												
 	$resultado['html'] .= '<h4> Cambio &nbsp<input id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
 	
-	//$resultado['html'] .= '<h4> Cambio <div id="cambioText"></div></h4>';
 	
 	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
 	$resultado['html'] .= '<label><input type="checkbox" checked> Imprimir</label>';
@@ -141,17 +139,14 @@ function htmlCobrar($total){
 	
 
 	$resultado['html'] .= '<div>';
-	$resultado['html'] .= '<select multiple name="modoPago" >';
+	$resultado['html'] .= '<select name="modoPago" >';
 	$resultado['html'] .= '<option value="contado">Contado</option>';
 	$resultado['html'] .= '<option value="tarjeta">Tarjeta</option>';
 	$resultado['html'] .= '</select>';
-	$resultado['html'] .= '<button>Aceptar</button>';
 	
+	$resultado['html'] .= ' <button type="button" class="btn">Aceptar</button>';// falta imprimir cerrar modal 
 	$resultado['html'] .= '</div>';
 	
-
-	
-
 	$resultado['html'] .= '</div>';
 	
 //totalTicket texto

@@ -190,9 +190,9 @@ movil
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></td>
-			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeypress="teclaPulsada(event,'Codbarras',0)"></td>
-			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeypress="teclaPulsada(event,'Referencia',0)"></td>
-			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeypress="teclaPulsada(event,'Descripcion',0)"> </td>
+			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeydown="teclaPulsada(event,'Codbarras',0)"></td>
+			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeydown="teclaPulsada(event,'Referencia',0)"></td>
+			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeydown="teclaPulsada(event,'Descripcion',0)"> </td>
 		</tr>
 		</thead>
 		<tbody>

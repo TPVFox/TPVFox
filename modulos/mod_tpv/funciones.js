@@ -44,26 +44,29 @@ var total = 0;
 //evento de tecla
 //nombreInput
 //nfila , idFila 
+//~ function disableF5(e) { 
+	//~ if ((e.which || e.keyCode) == 116) {
+		//~ e.preventDefault(); 
+	//~ }
+//~ };
 
 function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
+	//~ $(document).on("keydown", disableF5);
+	//~ $(document).off("keydown", disableF5);
 	if(event.keyCode == 13){
-		//ContadorPulsaciones= 0;
-		campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);		
+		campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
 	} 
-	if ((nombreInput === 'Unidad') || (nombreInput === 'cajaBusqueda')){
+	//if ((nombreInput === 'Unidad') || (nombreInput === 'cajaBusqueda')){
 		if ((event.keyCode === 40) || (event.keyCode === 38)){
 			campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
 		}
 		
-	}
+	//}
 	//tecla F5 116
 	if (event.keyCode === 39){
 		var numproduct = producto.length;
 		numproduct = numproduct -1;
 		if (numproduct > 0){
-			
-		//	alert('Tienes productos '+numproduct+' resp '+resp);
-			
 			console.log('f5 ');
 			cobrarF5();
 		
@@ -71,7 +74,7 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 	}
 	// si es popup de cobrar
 	 if (nombreInput === 'entrega'){
-		
+		 
 		var entrega = obtenerdatos(nombreInput);
 		var cambio = entrega - total;
 		if(event.keyCode == 13){
@@ -83,14 +86,23 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 			}
 		
 		//$('#cambioText').html(cambio);
-		$('#cambio').val(cambio);
+		$('#cambio').val(cambio.toFixed(2));
 		}
 	 }
-	
+	//idea 
+	if (event.keyCode === '40'){
+		nfila = producto.length;
+		
+		nfila = nfila-1;
+		alert(nfila);
+		if (nfila >= 0){
+			$('#N'+nfila+'_Unidad').select();
+		}
+		//alert(nfila);
+	}
 	
 //alert(event.keyCode);
 //dice numTecla 
-	return;
 }
 
 function cobrarF5(){
@@ -141,22 +153,32 @@ function movimTecla(numTecla,nfila,nombreInput){
 
 	//tecla hacia abajo
 	if (numTecla === 40){
-		//alert(' moverse a nfila-1');
+		//alert(' moverse a ' + nfila+' input '+nombreInput);
+			//~ alert(nfila + nombreInput);
 		nfila=nfila-1;
-		$('#N'+nfila+'_'+nombreInput).focus();
+		if (nombreInput !== 'Unidad') {
+			nfila = producto.length - 1;
+			nombreInput = 'Unidad';
+		}
+		$('#N' + nfila + '_' + nombreInput).select();
 		
 		//quiero pintar en modal al bajar y poder agregar fila con enter
-		$('#C_'+nfila+'Lin').css("background-color", "red");
 		
+		if (nombreInput === 'cajaBusqueda'){
+			nfila = 0;
+			//alert('modal '+nombreInput+nfila);
+			$('#Fila_'+nfila).css('background-color','red');
+		}
 		
 	}
 	//tecla hacia arriba
 	if (numTecla === 38){
 		//alert(' moverse a nfila+1');
+		
 		nfila=nfila+1;
-		$('#N'+nfila+'_'+nombreInput).focus();
+		$('#N'+nfila+'_'+nombreInput).select();
 	}
-	
+	//
 	if (numTecla === 13){
 		$('#C0_Codbarras').focus();
 		return;
@@ -187,9 +209,15 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 			campo = 'CCODEBAR';
 			id= 'C'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
+			
 			movimTecla(numTecla,nfila,nombreInput);
-			if (datoInput === ''){
+
+			if ((datoInput === '') && ((numTecla === 13) || (numTecla === 38) )){
 				$('#C0_Referencia').focus();
+				return;
+				
+			} else if (numTecla === 40){
+				$('#'+id).val('');
 				return;
 			}
 			buscarProducto(campo,datoInput,'tpv');
@@ -216,7 +244,6 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 			buscarProducto(campo,datoInput,'tpv');
 			break;
 		case 'Unidad':
-			
 			id= 'N'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
 			//recalcularImporte
@@ -224,53 +251,44 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 			//alert(pvp);
 			recalculoImporte(datoInput,pvp,nfila);
 			movimTecla(numTecla,nfila,nombreInput);
-			
+
 			//alert('dato input '+datoInput);
 			break;
-			
 		case 'cajaBusqueda':
 			//alert('caja busqueda'+nomcampo);
 			datoInput = obtenerdatos(nombreInput);
 			movimTecla(numTecla,nfila,nombreInput);
 			viewsResultado(datoInput,nomcampo);
-			
-		break;
-		
+			break;
 	}
 	return campo;
 }
-//
-function resetCampo(campo){
-	switch(campo) {
-		case 'CREF':
-			campo = 'C0_Referencia';
-			document.getElementById(campo).value='';
-		break;
-		case 'CCODEBAR':
-			campo = 'C0_Codbarras';
-			document.getElementById(campo).value='';
-		break;
-		case 'CDETALLE':
-			campo = 'C0_Descripcion';
-			document.getElementById(campo).value='';
-		break;
-	}
-	return campo;
+//html onmouseover 
+function sobreProducto(cont){
+	$('#Fila_'+cont).css('background-color','lightblue');
+}
+//html onmouseout
+function abandonProducto(cont){
+	$('#Fila_'+cont).css('background-color','white');
 }
 
-function tipoIva(campo){
-	switch(campo){
-		case 'S':
-			campo = '4';
-			break;
-		case 'R':
-			campo = '10';
-			break;
-		case 'G':
-			campo = '21';
-			break;
-	}
-	return campo;
+function resetCampo(campo){
+	var campos = [];
+	campos['CREF'] = 'C0_Referencia';
+	campos['CCODEBAR'] = 'C0_Codbarras';
+	campos['CDETALLE'] = 'C0_Descripcion';
+
+	document.getElementById(campos[campo]).value='';
+	return campos[campo];
+}
+
+function tipoIva(tipo){
+	var ivas = [];
+	ivas['S'] = '4';
+	ivas['R'] = '10';
+	ivas['G'] = '21';
+
+	return ivas[tipo];
 }
 
 //EN FUNCIONES PHP 
@@ -287,31 +305,29 @@ function buscarProducto(campoAbuscar,busqueda,dedonde){
 	console.log('entramos en buscarProducto JS');
 	valorCampo = busqueda;
 	campo = campoAbuscar;
-	
-	
+
 	var parametros = {
-			"pulsado" 	: 'buscarProducto',
-			"valorCampo" : valorCampo,
-			"campo" 	: campo,
-			"dedonde" : dedonde
+		"pulsado"    : 'buscarProducto',
+		"valorCampo" : valorCampo,
+		"campo"      : campo,
+		"dedonde"    : dedonde
 	};
 	$.ajax({
-		data:  parametros,
-		url:   'tareas.php',
-		type:  'post',
-		beforeSend: function () {
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
 			$("#resultado").html('Comprobamos que el producto existe ');
 			console.log('******** estoy en buscar producto JS****************');
 		},
-		success:  function (response) {
+		success    :  function (response) {
 			console.log('ajax success response '+response);
 			var resultado =  $.parseJSON(response);
 			//~ console.log('parseJson '+resultado[datos]); //[object object]
 			//resultado es [object object]
 			//ponemos var global resultado = [], para acceder a datos
 			//creo array datos para leer cada dato del array resultado
-			
-			
+
 			if (resultado['Estado'] === 'Correcto') {
 				var datos = [];
 				datos = resultado.datos[0];
@@ -320,74 +336,63 @@ function buscarProducto(campoAbuscar,busqueda,dedonde){
 				agregarFila(datos);
 				
 				
-	
+				
 				//limpiar formato de input referencia
 				resetCampo(campo);
 				console.log('tenemos array datos de uno producto');
+			} else if (resultado['Estado'] === 'Listado'){
+				var busqueda = resultado.listado;   //$respuesta['listado']= htmlProductos TAREAS  
+				var HtmlProductos=busqueda.html;   //$resultado['html'] de montaje html
+				var titulo = 'Listado productos encontrados ';
+
+				abrirModal(titulo,HtmlProductos);
+				//alert('Posibles opciones: ');
+				resetCampo(campo);
 			} else {
-				
-				if (resultado['Estado'] === 'Listado'){
-					
-					var busqueda = resultado.listado;   //$respuesta['listado']= htmlProductos TAREAS  
-					var HtmlProductos=busqueda.html;   //$resultado['html'] de montaje html
-					var titulo = 'Listado productos encontrados ';
-					
-					abrirModal(titulo,HtmlProductos);
-					//alert('Posibles opciones: ');
-					resetCampo(campo);
-				} else {
-					alert(resultado['Estado']);
-					resetCampo(campo);
-				}
-				
-				//console.log('NO HAY DATOS error buscarProducto');
+				alert(resultado['Estado']);
+				resetCampo(campo);
 			}
 		}
 	});
-
 }
 
-
 function agregarFila(datos){
-	
 	// Montamos array
 	 var nfila = producto.length;
 	 if (nfila === 0){
 		 nfila = 1;
 	 }
-	
+
 	var CCODEBAR = datos['CCODEBAR'];
 	var CREF = datos['CREF'];
 	var CDETALLE = datos['CDETALLE'];
-	
+
 	var pvp = parseFloat(datos['NPCONIVA']);
 	var NPCONIVA = pvp.toFixed(2);
-	
+
 	var CTIPOIVA = datos['CTIPOIVA'];
-	
+
 	//~ producto[nfila]['CCODEBAR'] = datos['CCODEBAR'];
 	producto[nfila]=[];
 	producto[nfila]=datos;
 	producto[nfila]['NPCONIVA']= NPCONIVA;
-	
+
 	producto[nfila]['UNIDAD']=1;
-	
+
 	producto[nfila]['Estado']='Activo';
-	
-		
-		//campos: CCODEBAR	CREF	CDETALLE	UNID	CANT/KILO	NPCONIVA	CTIPOIVA	IMPORTE
-	
-	
-		// montamos fila de html de tabla
+
+	//campos: CCODEBAR	CREF	CDETALLE	UNID	CANT/KILO	NPCONIVA	CTIPOIVA	IMPORTE
+
+	// montamos fila de html de tabla
 	var nuevaFila = '<tr id="Row'+(nfila)+'">';
 	nuevaFila += '<td id="C'+nfila+'_Linea">'+nfila+'</td>'; //num linea
-	nuevaFila += '<td id="C'+nfila+'_Codbarras">'+CCODEBAR+'</td>';
+	nuevaFila += '<td id="C'+nfila+'_Codbarras" autofocus>'+CCODEBAR+'</td>';
 	nuevaFila += '<td id="C'+nfila+'_Referencia">'+CREF+'</td>';
 	nuevaFila += '<td id="C'+nfila+'_Detalle">'+CDETALLE+'</td>';
 	var campoUd = 'N'+nfila+'_Unidad';
 	//
-	nuevaFila += '<td><input id="'+campoUd+'" type="text" pattern="[.0-9]+" name="unidad"  placeholder="unidad" size="4"  value="1" onkeypress="teclaPulsada(event,'+"'Unidad'"+','+nfila+')" ></td>'; //unidad
-	
+	nuevaFila += '<td><input id="'+campoUd+'" type="text" pattern="[.0-9]+" name="unidad"  placeholder="unidad" size="4"  value="1" onkeydown="teclaPulsada(event,'+"'Unidad'"+','+nfila+')" ></td>'; //unidad
+
 	//si en config peso=si, mostramos columna peso
 	if (CONF_campoPeso === 'si'){
 		nuevaFila += '<td><input id="C'+nfila+'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
@@ -400,11 +405,11 @@ function agregarFila(datos){
 	nuevaFila += '<td class="eliminar"><a onclick="eliminarFila('+nfila+');"><span class="glyphicon glyphicon-trash"></span></a></td>';
 
 	nuevaFila +='</tr>';
-	
+
 	//$ signifca jQuery 
 	//$("#tabla").append(nuevaFila);
 	$("#tabla").prepend(nuevaFila);
-
+	$('#C0_Codbarras').focus();  //al agregar fila el foco lo coje el input de codigobarras
 	sumaImportes();
 };
  
@@ -434,7 +439,7 @@ function retornarFila(nfila){
 	}
 	$("#N" + nfila + "_Unidad").prop("disabled", false);
 	$("#N" + nfila + "_Unidad").val(producto[nfila]['UNIDAD']);
-	
+
 	sumaImportes();
 }
 //~ //fin funcion que agrega o elimina linea
@@ -451,15 +456,20 @@ function abrirModal(titulo,tabla){
 	$('.modal-body > p').html(tabla);
 	$('.modal-title').html(titulo);
 	$('#busquedaModal').modal('show');
-					
+	$('#busquedaModal').on('shown.bs.modal', function() {
+		$('#cajaBusqueda').focus(); //foco en input cajaBusqueda MODAL listadoProductos
+		
+		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
+	});
+	
 }
 
-
 //function futura cuando buscamos directamente en caja de busqueda
+//vista htmlProductos listado
 function viewsResultado(datoInput,nomcampo) {
 	//alert('vista resultaod'+datoInput+' campo nombre '+nomcampo);
 	buscarProducto(nomcampo,datoInput,'popup');
-
+	//alert('vista result htmlprod');
 }
 
 function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva){
@@ -469,11 +479,25 @@ function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva){
 	producto['NPCONIVA'] =npconiva;
 	producto['CCODEBAR'] =ccodebar;
 	producto['CTIPOIVA'] =ctipoIva;
-	
-	
+
 	//alert('CerrarModal producto'+npconiva);
-		
+
 	$('#busquedaModal').modal('hide');
 	agregarFila(producto);
-
 }
+
+
+
+// slight update to account for browsers not supporting e.which
+// To disable f5
+    /* jQuery < 1.7 */
+//$(document).bind("keydown", disableF5);
+/* OR jQuery >= 1.7 */
+$(document).on("keydown", disableF5);
+$(document).off("keydown", disableF5);
+
+// To re-enable f5
+    /* jQuery < 1.7 */
+//$(document).unbind("keydown", disableF5);
+/* OR jQuery >= 1.7 */
+$(document).off("keydown", disableF5);
