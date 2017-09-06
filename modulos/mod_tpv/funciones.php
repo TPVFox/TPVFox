@@ -157,5 +157,25 @@ function htmlCobrar($total){
 	return $resultado;
 }
 
+//titulo = "iniciar sesion" abrirModal (titulo,HtmlSesion)
+//html sesion usuario
+function htmlSesion(){
+	$resultado = array();
+	$resultado['html']  = '<div style="margin:0 auto; display:table; text-align:right;">';
+	$resultado['html'] .= '<form action="index.php" method="POST"/>';  //valido en index home
+	$resultado['html'] .= '<tr><td>Nombre:</td>';
+	$resultado['html'] .= '<td><input type="text" name="nombre"/></td></tr>';
+	$resultado['html'] .= '<tr><td>Clave:</td>';
+	$resultado['html'] .= '<td><input type="password" name="clave"/></td></tr>';
+	$resultado['html'] .= '<tr><td></td>';
+    $resultado['html'] .= '<td><input type="submit" value="Acceder"/></td>';
+    $resultado['html'] .= '</tr>';
+    $resultado['html'] .= '</form>';
+    $resultado['html'] .= '</div>';
+	 
+	
+	
+	return $resultado;
+}
 
 ?>

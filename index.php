@@ -1,6 +1,9 @@
 <?php
 	// Directorio actual de index.php ( del proyecto) debe coincidir con $HostNombre.$RutaServidor
 	$DirectorioInicio = getcwd();
+	//session_start();
+
+		
 	
 ?>
 
@@ -8,26 +11,45 @@
 <html>
 <head>
 <?php
-	include 'head.php';
-?>
-<script>
-            
-            // Se ejecuta cuando termina de carga toda la pagina.
-            //~ $(document).ready(function () {
-				//~ texto = 'Hay un error en importar, en el PASO2 de Referencias curzadas, ya que se bloquea script \n';
-				//~ texto = texto + ' tengo revisar que sucede y como lo arreglo';
-				//~ alert( texto);
-              //~ 
-                //~ 
-            //~ });
-        </script>
+	include 'head.php';?>
+	<?php
+			//include 'plugins/controlUser/modalUsuario.php'; 
+		 
+			include_once ($RutaServidor . $HostNombre . "/plugins/controlUser/funcion.php");
+			$varSesion = new ComprobarSession;
+			$dato= $varSesion->recibir($BDTpv, $HostNombre);
+			
+			//print_r($BDTpv);
+		
+		 ?>
+	
+		
+	<?php 
+		echo '<pre>';
+		print_r($dato);
+		echo '</pre>';
+		 //~ print_r($_POST)
+			//~ $nombre = $_POST['usr'];
+			//~ $clave = $_POST['pwd'];
+			//~ echo $clave;
+			//~ if (isset($nombre) && isset($clave))
+			//~ { 
+				//~ $res = $varSesion->comprobarUser($nombre,$clave);
+				//~ echo $res;
+			//~ } 
+
+	?>
+	
+
+	
 </head>
 <body>
 	<?php 
 	include 'header.php';
 	
 	echo '<pre>';
-	print_r($Conexiones );
+	print_r($DirectorioInicio);
+	
 	echo '</pre>';
 	
 	?>
@@ -57,5 +79,10 @@
 			
 		</div>
 	</section>
+	
+	
+	
+	
+	
 </body>
 </html>

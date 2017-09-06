@@ -55,6 +55,8 @@ include_once ("./funciones.php");
 		echo json_encode($respuesta);		
 		
 		break;
+		
+		
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

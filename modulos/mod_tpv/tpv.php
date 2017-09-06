@@ -10,7 +10,6 @@
 		//	- Copiar DBF y guardar en directorio de copias de seguridad.
 		// 	- Importar los datos copiados a MYSQL.
 		
-
 ?>
 
 <!DOCTYPE html>
@@ -26,18 +25,20 @@
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
 
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
-
-
-
+<?php
+		include_once ($RutaServidor . $HostNombre . "/plugins/controlUser/funcion.php");
+		$varSesion = new ComprobarSession;
+		$dato= $varSesion->recibir($BDTpv, $HostNombre);
+?>
 </head>
 <!--
 onBeforeUnload="return preguntarAntesDeSalir()"
 -->
 <body>
 <?php 
-	include './../../header.php';
+	include '../../header.php';
 	
-	include_once ("./funciones.php");
+	include_once ("funciones.php");
 
 ?>
 <?php
