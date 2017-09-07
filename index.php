@@ -1,10 +1,7 @@
 <?php
 	// Directorio actual de index.php ( del proyecto) debe coincidir con $HostNombre.$RutaServidor
 	$DirectorioInicio = getcwd();
-	//session_start();
 
-		
-	
 ?>
 
 <!DOCTYPE html>
@@ -12,44 +9,23 @@
 <head>
 <?php
 	include 'head.php';?>
-	<?php
-			//include 'plugins/controlUser/modalUsuario.php'; 
-		 
-			include_once ($RutaServidor . $HostNombre . "/plugins/controlUser/funcion.php");
-			$varSesion = new ComprobarSession;
-			$dato= $varSesion->recibir($BDTpv, $HostNombre);
-			
-			//print_r($BDTpv);
-		
-		 ?>
 	
-		
 	<?php 
-		echo '<pre>';
-		print_r($dato);
-		echo '</pre>';
-		 //~ print_r($_POST)
-			//~ $nombre = $_POST['usr'];
-			//~ $clave = $_POST['pwd'];
-			//~ echo $clave;
-			//~ if (isset($nombre) && isset($clave))
-			//~ { 
-				//~ $res = $varSesion->comprobarUser($nombre,$clave);
-				//~ echo $res;
-			//~ } 
-
+		//~ echo '<pre>';
+			//~ //print_r($Usuario);
+		//~ echo '</pre>';
+		if ($Usuario['estado'] === "Incorrecto"){
+			return;	
+		}
 	?>
-	
 
-	
 </head>
 <body>
 	<?php 
 	include 'header.php';
 	
 	echo '<pre>';
-	print_r($DirectorioInicio);
-	
+		print_r($DirectorioInicio);
 	echo '</pre>';
 	
 	?>
@@ -79,10 +55,5 @@
 			
 		</div>
 	</section>
-	
-	
-	
-	
-	
 </body>
 </html>

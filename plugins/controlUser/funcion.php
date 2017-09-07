@@ -10,31 +10,33 @@ class ComprobarSession {
 	function recibir($BDTpv, $rootUrl) {
 		// La voy utilizar para recibir session y datos formulario.
 		$respuesta=array();
-		session_start();
-		if (!isset($_POST['pwd'])){
-			if (!isset($_SESSION['usuario'])){
-				
-				//include_once("./plugins/controlUser/modalUsuario.php");
-				header("location:". $rootUrl . "/plugins/controlUser/modalUsuario.php");
-				$respuesta['estado'] = 'Incorrecto';
-			}
-		} else {
-			//~ echo 'estado correcto';
-			//header("location:./index.php");
-			//~ print_r($BDTpv);
-		
-		
-			$respuesta['dato']= $this->comprobarUser($BDTpv,$_POST['usr'],$_POST['pwd']);
-			
-			// Comprobar si fue correcta contraseña
-			if ($respuesta['dato'] === 'invalidopsw'){
-				header("location:" . $rootUrl . "/plugins/controlUser/modalUsuario.php?respuesta=invalidopsw");
-				$respuesta['estado'] = 'Incorrecto';
-			}
-			
-			$respuesta['estado'] ='Correcto';
-			
+		//~ error_log('Entro1');
+		if (!isset($_SESSION)){
+			session_start();
+			//~ error_log('Entro2');
+
 		}
+		$_SESSION['estado']= 'sinactivo';
+		if (!isset($_SESSION['usuario'])){
+			if (!isset($_POST['pwd'])){
+				//~ error_log('Entro3');
+
+				include_once($rootUrl."/plugins/controlUser/modalUsuario.php");
+				$respuesta['estado'] = 'Incorrecto';
+			} else {
+				$this->comprobarUser($BDTpv,$_POST['usr'],$_POST['pwd']);
+				if ($_SESSION['estado'] === 'incorrecto'){
+					include_once($rootUrl."/plugins/controlUser/modalUsuario.php");
+					$respuesta['estado'] = 'Incorrecto';
+				}
+			}
+		} 
+		
+		if ($_SESSION['estado'] === 'activo'){
+			$respuesta['usuario'] = $_SESSION['usuario'];
+			$respuesta['estado'] ='Correcto';
+		}	
+		
 		return $respuesta;
 	}
 
@@ -63,12 +65,11 @@ class ComprobarSession {
 		$pwdBD = $res->fetch_row();
 			
 		if ($encriptada === $pwdBD[0]){
-			session_start();
-			$_SESSION['usuario']=$userBD;
-			$resultado ='correcto';
+			$_SESSION['usuario']=$usuario;
+			$_SESSION['estado']= 'activo';
 			
 		}else {
-			$resultado = 'invalidopsw';
+			$_SESSION['estado']= 'incorrecto';
 		}
 		//~ print_r($res->fetch_row());
 		return $resultado;

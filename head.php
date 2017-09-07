@@ -10,8 +10,13 @@
 	
 	include_once ($Ruta.'configuracion.php');
 	include_once ($RutaServidor.$HostNombre."/modulos/mod_conexion/conexionBaseDatos.php");
-	include_once ($RutaServidor.$HostNombre."/controllers/Controladores.php");
-    
+	//include_once ($RutaServidor.$HostNombre."/controllers/Controladores.php");
+	//incluyo ruta del controlador de sesion (funcion php)
+    include_once ($RutaServidor . $HostNombre . "/plugins/controlUser/funcion.php");
+	$URLCom = $RutaServidor . $HostNombre;
+	$varSesion = new ComprobarSession;			
+	$Usuario= $varSesion->recibir($BDTpv, $URLCom);
+
 
 ?>
 

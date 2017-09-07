@@ -32,14 +32,16 @@
       <div class="col-md-6 col-md-offset-3">
 		  <h1>Inicio de sesion </h1>
 		<?php 
-		if (isset($_GET['respuesta'])){ ?>
+		if ($_SESSION['estado']=== 'incorrecto'){ 
+			?>
 			<div class="alert alert-danger">
 				<strong>Error sesion!</strong> Contraseña o usuario incorrectos.
 			</div>
 		<?php } 
 			// Pasar ruta para poder devolver al mismo sitio.
+		//print_r('Usuario:'.$_SESSION['estado']);
 		?> 
-		<form action="./../../index.php" method="post" name="form">
+		<form action="" method="post" name="form">
 		<div class="form-group">
 			<label for="usr">Nombre:</label>
 			<input type="text" class="form-control" id="usr" name="usr">
