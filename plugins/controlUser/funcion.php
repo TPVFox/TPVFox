@@ -30,13 +30,13 @@ class ComprobarSession {
 					$respuesta['estado'] = 'Incorrecto';
 				}
 			}
-		} 
-		
-		if ($_SESSION['estado'] === 'activo'){
-			$respuesta['usuario'] = $_SESSION['usuario'];
-			$respuesta['estado'] ='Correcto';
-		}	
-		
+		} else { 		
+			if (isset($_SESSION['usuario'])){
+				//~ $respuesta['usuario'] = $_SESSION['usuario'];
+				$_SESSION['estado']= 'activo';
+				$respuesta['estado'] ='Correcto';
+			}	
+		}
 		return $respuesta;
 	}
 
