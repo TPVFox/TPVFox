@@ -6,6 +6,6 @@ $servidorMysql = 'localhost';
 
 
 
-
+$CONF_campoPeso = 'no';  //para ocultar columna peso
 
 ?>
