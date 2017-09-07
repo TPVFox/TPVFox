@@ -28,6 +28,12 @@
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_importar/Importar.php';?>">Importar</a></li>
 				</ul>
 			</div>
+			<div>
+				<?php if (isset($_SESSION)){
+					echo 'usuario: '$_SESSION['usr'];
+				}
+				?>
+			</div>
 		</div>
 	</nav>
 <!-- Fin de menu -->

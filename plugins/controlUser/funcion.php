@@ -28,7 +28,7 @@ class ComprobarSession {
 			
 			// Comprobar si fue correcta contraseña
 			if ($respuesta['dato'] === 'invalidopsw'){
-				header("location:" . $rootUrl . "plugins/controlUser/modalUsuario.php?respuesta=invalidopsw");
+				header("location:" . $rootUrl . "/plugins/controlUser/modalUsuario.php?respuesta=invalidopsw");
 				$respuesta['estado'] = 'Incorrecto';
 			}
 			
