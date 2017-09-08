@@ -40,9 +40,7 @@ class ComprobarSession {
 		return $respuesta;
 	}
 
-	function mostrarPopup(){
-		
-	}
+	
 
 	//comparar usuario y password con bbdd
 	function comprobarUser($BDTpv,$usuario,$pwd){

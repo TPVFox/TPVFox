@@ -16,6 +16,7 @@
 	$URLCom = $RutaServidor . $HostNombre;
 	$varSesion = new ComprobarSession;			
 	$Usuario= $varSesion->recibir($BDTpv, $URLCom);
+	
 
 
 ?>
@@ -30,4 +31,5 @@
 
 <script src="<?php echo $HostNombre;?>/jquery/jquery-2.2.5-pre.min.js"></script>
 <script src="<?php echo $HostNombre;?>/css/bootstrap.min.js"></script>
+
 
