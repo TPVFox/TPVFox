@@ -7,6 +7,9 @@
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
 		//include ("./ObjetoRecambio.php");
+		if ($Usuario['estado'] === "Incorrecto"){
+			return;	
+		}
 		// Obtenemos id
 		if ($_GET['id']) {
 			$id = $_GET['id'];
@@ -19,11 +22,11 @@
 		// ===========  datos usuario segun id enviado por url============= //
 			$tabla= 'usuarios';
 			$idBusqueda ='id='.$id;
-			$UsuarioUnico = verSelec($BDTpv,$id,$tabla);
+			$UsuarioUnico = verSelec($BDTpv,$idBusqueda,$tabla);
 			// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
 			
 			//~ echo '<pre>';
-			//~ print_r($UsuarioUnico);
+				//~ print_r($id);
 			//~ echo '</pre>';
 		?>
 		<!-- Cargamos libreria control de teclado -->
@@ -41,26 +44,43 @@
 		<?php
         include './../../header.php';
 			$atras = 1; // Variable que indica volver una atras.
+			
 			if(count($_POST)>0){
 				$atras = 2;
 				if (isset($id)){
 					// Comprobamos: 
 					//($dato['password']=== 'password') olvidarme de insertar psw
-						$datos = $_POST;
-						$resp = modificarUsuario($datos,$BDTpv,$tabla);
-						echo $resp['consulta'];
+					$datos = $_POST;
+					$resp = modificarUsuario($datos,$BDTpv,$tabla);
+					echo $resp['sql'];
+					if (isset($resp['error'])){
+						$tipomensaje= "danger";
+						$mensaje = "Nombre de usuario ya existe!";
+					} else {
+						// Mandas funcion a grabar.
+						//$tipomensaje= "danger";
 					
-					// Mandas funcion a grabar.
-					//$tipomensaje= "danger";
-					$tipomensaje= "info";
-
-					$mensaje = "Su registro de usuario fue editado.";
+						$tipomensaje= "info";
+						$mensaje = "Su registro de usuario fue editado.";
+					}
 				} else {
-					$mensaje = "Nuevo usuario creado.";
+					$datos = $_POST;
+					$resp = insertarDatos($datos,$BDTpv,$tabla);
+					echo $resp['consulta'];
+					//echo $resp['consulta1'];
+					if (isset($resp['error'])){
+						$tipomensaje= "danger";
+						$mensaje = "Nombre de usuario ya existe!";
+					} else {
+						$tipomensaje= "info";
+						$mensaje = "Nuevo usuario creado.";
+					}
+					
+					
 				}
-			echo '<pre>';
-			print_r($_POST);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($_POST);
+			//~ echo '</pre>';
 			};
 			
 			$estados = array(); // Por defecto
@@ -81,6 +101,8 @@
 			} else {
 				$titulo = "Modificar Usuario";
 				$passwrd= 'password';
+				//$UsuarioUnico['username'] = $UsuarioUnico['username'];
+				
 				$i = 0;
 				//~ echo 'Alfo:'.$UsuarioUnico['estado'];
 				foreach ($estados as $estado){
@@ -91,27 +113,7 @@
 				} 
 			}
 			
-			
-			
-			//~ $user = $UsuarioUnico['fecha'];
-			//~ $grupo = $UsuarioUnico['group_id'];
-			//~ $psw = $UsuarioUnico['password']; 
-			//~ if (!isset($id)){ ///nuevo
-				//~ $fecha = '<input type="date" id="fecha" name="fecha" 
-							//~ value="'.date("Y-m-d").'" readonly>';
-				//~ $grupoId = '<option value="0" selected>0</option>';
-				//~ $passwrd = '<input type="password" class="form-control" id="pwd" placeholder="contraseña" value="" required>';
-										
-						
-				
-			 //~ } else { //modificar
-				//~ $fecha = '<input type="date" id="fecha" name="fecha" 
-							//~ value="'.$user.'" >';
-							
-				//~ $grupoId = '<option value="'.$grupo.'" selected>'.$grupo.'</option>';
-				//~ $passwrd = '<input type="password" class="form-control" id="pass" placeholder="contraseña" value="'.$psw.'">';
-			//~ }
-			
+					
 			
 			?>
      
@@ -136,12 +138,12 @@
 					<div class="Datos">
 						<div class="col-md-6 form-group">
 							<label>Nombre Usuario/login:</label>
-							<input type="text" id="username" name="username" placeholder="usuario/login" value="<?php echo $UsuarioUnico['username'];?>"  required >
+							<input type="text" id="username" name="username" placeholder="usuario/login" value="<?php echo $UsuarioUnico['username'];?>"   >
 							
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Nombre empleado:</label>
-							<input type="text" id="nombreEmpleado" name="nombreEmpleado" placeholder="nombre empleado" value="<?php echo $UsuarioUnico['nombre'];?>"  required >
+							<input type="text" id="nombreEmpleado" name="nombreEmpleado" placeholder="nombre empleado" value="<?php echo $UsuarioUnico['nombre'];?>" required  >
 							
 						</div>
 						<div class="col-md-6 form-group">

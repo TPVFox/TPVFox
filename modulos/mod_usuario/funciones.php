@@ -48,22 +48,33 @@ function insertarDatos($datos,$BDTpv,$tabla){
 	$passwrd = md5($datos['password']); //encripto psw para crear
 	
 	$idUsuario =$datos['idUsuario'];
-	$grupoid=$datos['grupoid'];
+	$grupoid=$datos['grupo'];
 	$estado = $datos['estado'];
 	
-	//$consulta = 'INSERT INTO '.$tabla.'username,password,fecha,nombre  VALUES '.$SqlInsert;
-	//~ $resp_insertar = $BDImportDbf->query($consulta);
-	//~ if (count($resultado['Errores']) > 0 ){
-		//~ $resultado['Estado'] = 'Incorrecto';
-	//~ } else {
-		//~ //comprobar si el insert es correcto, la resp_insert
-		//~ $resultado['Estado'] = 'Correcto';
-	//~ }
+	//comprobar que username NO EXISTE al crear un nuevo usuario
+	$buscarUsuario = 'SELECT * FROM '.$tabla.' WHERE username= "'.$username.'"';
+	$res = $BDTpv->query($buscarUsuario);
+	$numUser = mysqli_num_rows($res); //num usuarios que existen con ese nombre
+	if (($numUser === 1) || ($username === '')){
+		$resultado['error'] = 'error';
+		
+	} else {
+			$consulta = 'INSERT INTO '.$tabla.'( username, password, fecha, group_id, estado, nombre ) VALUES ("'
+				.$username.'" , "'.$passwrd.'" , "'.$fecha.'" , '.$grupoid.' , "'.$estado.'" , "'.$nombreEmpleado.'")';
+		
+	}//fin de comprobar existe username
+	$result = $BDTpv->query($consulta);
 	
-	
+	$resultado['consulta'] =$result;
 	return $resultado;
 }
 
+
+//parametros: 
+//datos array de post 
+//BDTpv conexion bbdd tpv
+//tabla en la que trabajar usuarios
+//idSelecc , usuario concreto a modificar , check seleccionado en listaUsuarios
 function modificarUsuario($datos,$BDTpv,$tabla){
 	//~ echo 'modificar usuario';
 	$resultado = array();
@@ -78,14 +89,22 @@ function modificarUsuario($datos,$BDTpv,$tabla){
 	$estado = $datos['estado'];
 	$id =$datos['idUsuario'];
 	
-	if ($datos['password'] === 'password'){
-		//no actualizar contraseña
-		$sql ='UPDATE '.$tabla.' SET username = "'.$username.'", group_id ='
-				.$grupoid.' , estado = "'.$estado.'" , nombre ="'.$nombre.'" WHERE id='.$id;
 	
-	}
+	
+		if ($datos['password'] === 'password'){ //username NO se podra MODIFICAR
+			//no actualizar contraseña, actualizamos 3 campos : estado, nombre y grupo id. 
+			$sql ='UPDATE '.$tabla.' SET group_id ='.$grupoid.' , estado = "'
+				.$estado.'" , nombre ="'.$nombre.'" WHERE id='.$idUsuario;
+		
+		} else { //actualimos 4 campos, password, username, estado, nombre y grupo id.
+			$sql ='UPDATE '.$tabla.' SET group_id ='.$grupoid.' , estado = "'
+					.$estado.'" , password ="'.$passwrd.'" , nombre ="'.$nombre.'" WHERE id='.$idUsuario;
+		}
+	
+	$consulta = $BDTpv->query($sql);
+	
 	//$resultado['consulta'] =$sql;
-	$resultado['consulta'] =$sql;
+	$resultado['consulta'] =$consulta;
 
 	return $resultado;
 }

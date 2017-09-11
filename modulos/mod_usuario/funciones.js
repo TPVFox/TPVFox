@@ -16,7 +16,6 @@ function VerUsuariosSeleccionado (){
 				valor = '0';
 				valor = $('input[name=checkUsu'+i+']').val();
 				checkID.push( valor );
-				// Ahora tengo hacer array con id...
 			}
 			
 		});
@@ -26,26 +25,6 @@ function VerUsuariosSeleccionado (){
 
 
 }
-	
-//~ function BuscarRecambio (){
-	//~ $(document).ready(function()
-	//~ {
-		//~ // Lo ideal sería identificar palabras..
-		//~ // de momento solo una palabra..
-		//~ NuevoValorBuscar = $('input[name=Buscar').val();
-		//~ NuevoValorBuscar = $.trim(NuevoValorBuscar);
-		//~ if (NuevoValorBuscar !== ''){
-			//~ BRecambios= NuevoValorBuscar;
-			//~ console.log('Filtro:'+BRecambios);
-		//~ } else {
-			//~ alert (' Debes poner algun texto ');
-			//~ BRecambios = '';
-		//~ }
-		//~ return;
-	//~ });
- //}
-
-
 
 function metodoClick(pulsado){
 	console.log("Inicimos switch de control pulsar");
@@ -60,7 +39,10 @@ function metodoClick(pulsado){
 			}
 			// Ahora redireccionamos 
 			// recambi.php?id=id
+				
 			window.location.href = './usuario.php?id='+checkID[0];
+			
+			
 			break;
 		
 		case 'AgregarUsuario':
@@ -68,6 +50,8 @@ function metodoClick(pulsado){
 			window.location.href = './usuario.php';
 			
 			break;
+		
+		
 		
 	 }
 } 

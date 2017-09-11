@@ -60,10 +60,13 @@
 				<div data-spy="affix" data-offset-top="505">
 				<h4> Usuarios</h4>
 				<h5> Opciones para una selección</h5>
-				<ul class="nav nav-pills nav-stacked">
+				<ul class="nav nav-pills nav-stacked"> 
 					<li><a href="#section1" onclick="metodoClick('AgregarUsuario');";>Añadir</a></li>
 					<li><a href="#section2" onclick="metodoClick('VerUsuario');";>Modificar</a></li>
-
+									<?php //metodoClick js case pulsado 
+									//agregarUsuario nos lleva a formulario usuario
+									//verUsuario si esta checkado nos lleva vista usuario de ese id
+												//si NO nos indica que tenemos que elegir uno de la lista ?>
 				</ul>
 				</div>	
 			</nav>		
