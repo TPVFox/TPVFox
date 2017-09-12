@@ -286,14 +286,6 @@ function resetCampo(campo){
 	return campos[campo];
 }
 
-function tipoIva(tipo){
-	var ivas = [];
-	ivas['S'] = '4';
-	ivas['R'] = '10';
-	ivas['G'] = '21';
-
-	return ivas[tipo];
-}
 
 //EN FUNCIONES PHP 
 //DETERMINAR si es una ref o un codigoBarras el dato que me pasan para buscar... 
@@ -309,7 +301,7 @@ function buscarProducto(campoAbuscar,busqueda,dedonde){
 	console.log('entramos en buscarProducto JS');
 	valorCampo = busqueda;
 	campo = campoAbuscar;
-
+console.log('xxxxx '+campo);
 	var parametros = {
 		"pulsado"    : 'buscarProducto',
 		"valorCampo" : valorCampo,
@@ -366,15 +358,20 @@ function agregarFila(datos){
 	 if (nfila === 0){
 		 nfila = 1;
 	 }
-
+	 
 	var CCODEBAR = datos['CCODEBAR'];
 	var CREF = datos['CREF'];
 	var CDETALLE = datos['CDETALLE'];
-
 	var pvp = parseFloat(datos['NPCONIVA']);
 	var NPCONIVA = pvp.toFixed(2);
-
 	var CTIPOIVA = datos['CTIPOIVA'];
+
+			//~ datos['crefTienda'];
+			//~ datos['articulo_name'];
+			//~ datos['iva'];
+			//~ datos['codBarras'];
+			//~ datos['pvpCiva'];
+
 
 	//~ producto[nfila]['CCODEBAR'] = datos['CCODEBAR'];
 	producto[nfila]=[];
@@ -404,7 +401,7 @@ function agregarFila(datos){
 		nuevaFila += '<td style="display:none"><input id="C'+nfila+'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
 	}
 	nuevaFila += '<td id="N'+nfila+'_Pvp">'+NPCONIVA+'</td>';
-	nuevaFila += '<td id="C'+nfila+'_TipoIva">'+tipoIva(CTIPOIVA)+'%</td>';
+	nuevaFila += '<td id="C'+nfila+'_TipoIva">'+CTIPOIVA+'%</td>';
 	nuevaFila += '<td id="N'+nfila+'_Importe" class="importe" >'+NPCONIVA+'</td>'; //importe 
 	nuevaFila += '<td class="eliminar"><a onclick="eliminarFila('+nfila+');"><span class="glyphicon glyphicon-trash"></span></a></td>';
 

@@ -12,7 +12,7 @@
 
 //busqueda , lo que queremos buscar
 //campoAbuscar es codbarras, ref, o descripc campo a comparar
-function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
+function BuscarProducto($campoAbuscar,$busqueda,$BDTpv) {
 	// Objetivo:
 	// Es buscar por Referencia o Codbarras
 	//campos:
@@ -25,6 +25,19 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 	$palabras = array();
 	$palabras = explode(' ',$busqueda);
 	$cont = 0;
+	switch($campoAbuscar) {
+		case 'CCODEBAR':
+			$campoAbuscar = 'ac.`codBarras`';
+		break;
+		case 'CREF':
+			$campoAbuscar = 'at.`crefTienda`';
+		break;
+		case 'CDETALLE':
+			$campoAbuscar = 'a.`articulo_name`';
+		break;
+	return $campoAbuscar;
+	}
+	
 	foreach($palabras as $palabra){
 		$palabras[$cont] =  $campoAbuscar.' LIKE "%'.$palabra.'%"';
 		$cont++;
@@ -32,14 +45,21 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 	$buscar = implode(' and ',$palabras);
 	
 	$resultado = array();
+	//CCODEBAR -> ac.`codBarras`, CREF->at.crefTienda, CDETALLE->a.`articulo_name`, NPCONIVA->ap.pvpCiva
+	//CTIPOIVA-> a.iva (es numerico 4.00, 10.00,21.00)
+	//$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$buscar;
 	
-	$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$buscar;
-	$res = $BDImportDbf->query($sql);
+	$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
+			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
+			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
+			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
+			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
 	
+	$res = $BDTpv->query($sql);
 	//compruebo error en consulta
-	if (mysqli_error($BDImportDbf)){
+	if (mysqli_error($BDTpv)){
 		$resultado['consulta'] = $sql;
-		$resultado['error'] = $BDImportDbf->error_list;
+		$resultado['error'] = $BDTpv->error_list;
 		return $resultado;
 	} 
 	
@@ -49,6 +69,15 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 	//fetch_assoc es un boleano..
 	while ($fila = $res->fetch_assoc()) {
 		$arr[$i] = $fila;
+		$fila['CREF'] = $fila['crefTienda'];
+		$fila['CCODEBAR'] =$fila['codBarras'];
+		
+		
+		$fila['CDETALLE'] = $fila['articulo_name'];
+		$fila['CTIPOIVA'] = $fila['iva'];
+		$fila['NPCONIVA'] = $fila['pvpCiva'];
+		
+		
 		if (trim ($fila['CREF']) === trim($busqueda)){
 			$resultado['Estado'] = 'Correcto';
 			$resultado['datos'][0] = $fila;
@@ -79,6 +108,8 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 
 function htmlProductos($productos,$campoAbuscar,$busqueda){
 	$resultado = array();
+
+	
 	$resultado['html'] = '<label>Busqueda por '.$campoAbuscar.'</label>';
 	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" placeholder="Buscar" size="13" value="'
 					.$busqueda.'" onkeydown="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
@@ -91,8 +122,15 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 	
 	$contad = 0;
 	foreach ($productos as $producto){
+			$producto['CREF'] = $producto['crefTienda'];
+			$producto['CDETALLE'] = $producto['articulo_name'];
+			$producto['CTIPOIVA'] = $producto['iva'];
+			$producto['CCODEBAR'] = $producto['codBarras'];
+			$producto['NPCONIVA'] = $producto['pvpCiva'];
+			
+		
 		$datos = 	"'".$producto['CREF']."','".$producto['CDETALLE'].
-					"','".$producto['CTIPOIVA']."','".$producto['CCODEBAR']."',".number_format($producto['NPCONIVA'],2).
+					"','".number_format($producto['CTIPOIVA'])."','".$producto['CCODEBAR']."',".number_format($producto['NPCONIVA'],2).
 					$producto['CCODEBAR'];
 		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
 					.$contad.')" onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModal('.$datos.');">';

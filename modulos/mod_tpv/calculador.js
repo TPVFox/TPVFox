@@ -62,26 +62,26 @@ function sumaImportes(){
 	producto.forEach(function(product) {
 		if (product['Estado'] != 'Eliminado') {
 			var importe = product['UNIDAD'] * product['NPCONIVA'];
-			iva_type = tipoIva(product['CTIPOIVA']);
+			iva_type = parseFloat(product['CTIPOIVA']);
 			total_ivas[iva_type] += importe;
 			suma_total += importe;
+			
 		}
 	});
+	console.log('Suma: '+ suma_total+' TOTALIVAS ');
+	console.log(total_ivas);
 	
-	console.log('Suma:'+ suma_total);
 	var operador;
 	var civa;
 	//https://stackoverflow.com/a/9329476
 	total_ivas.forEach(function(tiva,index) {
-		//~ console.log('t iva valor'+tiva);
-		//~ console.log('index'+index);
+		 console.log('t iva valor'+tiva);
+		 console.log('index'+index);
 		//~ console.log('Numero caracteres de index'+index.length);
-		
-		
-		
 		
 		if (tiva >0){
 			iva_type = index.toString();
+			//console.log('ivatype ---- '+iva_type);
 			civa= iva_type.length;
 			if (civa === 1){
 				iva_type = '0'+iva_type;
@@ -91,10 +91,11 @@ function sumaImportes(){
 			console.log('operador '+typeof operador);
 			
 			var base = (total_ivas[index]/operador).toFixed(2);
-			console.log(total_ivas[index]);
+			console.log('TOTAL IVAS '+total_ivas[index]);
 			
-			$('#base'+index).html(base); console.log('base '+iva_type+':'+base);
-			$('#iva'+index).html(index+'% &nbsp;'+(base*operador).toFixed(2));
+			$('#base'+index).html(base); 
+			console.log('base '+iva_type+':'+base);
+			$('#iva'+index).html(index+'% &nbsp;'+((base*operador)-base).toFixed(2));
 
 		}
 	});

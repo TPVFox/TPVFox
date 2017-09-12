@@ -44,16 +44,6 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	include_once ("funciones.php");
 
 ?>
-<?php
-	//~ $busqueda = '3012';
-	//~ $campoAbuscar = 'CREF';
-	//~ $respuesta =  BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
-	//$respuesta = teclaPulsada(event,id);
-	
-	//~ echo '<pre>';
-	//~ print_r($Usuario);
-	//~ echo '</pre>';
-?>
 <style type="text/css">
 <!-- css necesario para agregar o eliminar filas -->
 .fila-base { display: none; }<!-- fila base oculta --> 

@@ -28,8 +28,8 @@ include_once ("./funciones.php");
 		//cuando busco dsde el popup el estado me es indiferente
 		$deDonde = $_POST['dedonde'];
 		
-		
-		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
+		//cambio conexion a tpv
+		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDTpv);
 		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
 		//si dedonde == 'popup' 
 		if ($respuesta['Estado'] !='Correcto' ){
