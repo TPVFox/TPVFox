@@ -260,6 +260,10 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 			movimTecla(numTecla,nfila,nombreInput);
 			viewsResultado(datoInput,nomcampo);
 			break;
+		case 'busquedaCliente':
+			var valor = $('#cajaBusquedacliente').val();
+			buscarClientes(valor); 
+		break;
 	}
 	return campo;
 }
@@ -460,6 +464,7 @@ function abrirModal(titulo,tabla){
 		$('#cajaBusqueda').focus(); //foco en input cajaBusqueda MODAL listadoProductos
 		
 		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
+		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
 	});
 	
 }
@@ -486,18 +491,66 @@ function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva){
 	agregarFila(producto);
 }
 
+/****************** cliente tpv *************/
+//datos que necesito guardar despues de cerrar modal
+//mostrarlos en tpv
+function cerrarModalClientes(id,nombre){
+	//alert('cerrar clientes '+id);
 
+	//cerrar modal busqueda
+	$('#busquedaModal').modal('hide');
+	
+	//agregar datos funcion js
+	$('#id').val(id);
+	$('#Cliente').val(nombre);
+}
+
+
+function buscarClientes(valor=''){
+	// Objetivo:
+	//parametros :
+	//campo input 
+	//valor campo 
+	// los envio a tareas, alli llamo a la funcion de buscarProducto PHP
+	// recibo array con datos y trabajo con ellos, seria enviarlos a agregarFila js.
+	console.log('entramos en buscarcliente JS');
+	
+	//alert('contenido valor '+valor);
+	var parametros = {
+		"pulsado"    : 'buscarClientes',
+		"busqueda" : valor
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en buscar clientes JS****************');
+		},
+		success    :  function (response) {
+			console.log('ajax success response '+response);
+			var resultado =  $.parseJSON(response); 
+			//alert (resultado); //html
+			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+			var titulo = 'Listado clientes ';
+
+				abrirModal(titulo,HtmlClientes);
+			
+		}
+	});
+}
+/*****************Fin cliente tpv********************/
 
 // slight update to account for browsers not supporting e.which
 // To disable f5
     /* jQuery < 1.7 */
 //$(document).bind("keydown", disableF5);
 /* OR jQuery >= 1.7 */
-$(document).on("keydown", disableF5);
-$(document).off("keydown", disableF5);
+//~ $(document).on("keydown", disableF5);
+//~ $(document).off("keydown", disableF5);
 
 // To re-enable f5
     /* jQuery < 1.7 */
 //$(document).unbind("keydown", disableF5);
 /* OR jQuery >= 1.7 */
-$(document).off("keydown", disableF5);
+//~ $(document).off("keydown", disableF5);

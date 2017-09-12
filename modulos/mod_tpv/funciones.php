@@ -32,7 +32,6 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 	$buscar = implode(' and ',$palabras);
 	
 	$resultado = array();
-	//$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$campoAbuscar.'='.$busqueda;
 	
 	$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$buscar;
 	$res = $BDImportDbf->query($sql);
@@ -81,9 +80,9 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf) {
 function htmlProductos($productos,$campoAbuscar,$busqueda){
 	$resultado = array();
 	$resultado['html'] = '<label>Busqueda por '.$campoAbuscar.'</label>';
-	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" placeholder="Buscar"'.
-				 'size="13" value="'.$busqueda.'" onkeydown="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
-	if (count($productos>10)){
+	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" placeholder="Buscar" size="13" value="'
+					.$busqueda.'" onkeydown="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
+	if (count($productos)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>';
@@ -95,10 +94,10 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 		$datos = 	"'".$producto['CREF']."','".$producto['CDETALLE'].
 					"','".$producto['CTIPOIVA']."','".$producto['CCODEBAR']."',".number_format($producto['NPCONIVA'],2).
 					$producto['CCODEBAR'];
-		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('.$contad.')" .
-								onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModal('.$datos.');">';
+		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
+					.$contad.')" onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
-		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><a href=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></a></td>';
 		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';
 		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
@@ -117,6 +116,80 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 	
 	
 }
+// funcion buscar Clientes y HTML clientes para vista modal
+//busqueda = valor que queremos buscar
+//tabla donde queremos buscar
+//BDTpv conexion
+//campoAbuscar , le pasamos campos a comparar : 
+	//nombre comercial
+	//razon social
+	//nif
+function BusquedaClientes($busqueda,$BDTpv,$tabla){
+	$resultado=array();
+	$buscar1= 'Nombre';
+	$buscar2='razonsocial';
+	$buscar3='nif';
+	$sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM '.$tabla.' WHERE '.$buscar1.' LIKE "%'.$busqueda.'%" OR '
+			.$buscar2.' LIKE "%'.$busqueda.'%" OR '.$buscar3.' LIKE "%'.$busqueda.'%"';
+	$res = $BDTpv->query($sql);
+	
+	 //compruebo error en consulta
+	if (mysqli_error($BDTpv)){
+		$resultado['consulta'] = $sql;
+		$resultado['error'] = $BDTpv->error_list;
+		return $resultado;
+	} 
+	
+	$arr = array();
+	$i = 0;
+	//fetch_assoc es un boleano..
+	while ($fila = $res->fetch_assoc()) {
+		$arr[$i] = $fila;
+		
+		$resultado['datos'][0] = $fila;
+		$resultado['datos'] = $arr;
+		$i++;
+	}
+	return $resultado;
+}
+
+function htmlClientes($busqueda,$clientes){
+	$resultado = array();
+	
+	$resultado['html'] = '<label>Busqueda Cliente</label>';
+	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
+				 'size="13" value="'.$busqueda.'" onkeydown="teclaPulsada(event,'."'".'busquedaCliente'."'".',0,'."'".'valorCliente'."'".')" type="text">';
+	if (count($clientes)>10){
+		$resultado['html'] .= '<span>10 productos de '.count($clientes).'</span>';
+	}
+	$resultado['html'] .= '<table class="table table-striped"><thead>';
+	$resultado['html'] .= ' <th>Nombre</th>';
+	$resultado['html'] .= ' <th>Razon social</th>';
+	$resultado['html'] .= ' <th>NIF</th>';
+	$resultado['html'] .= '</thead><tbody>';
+	if (count($clientes)>0){
+		$contad = 0;
+		foreach ($clientes as $cliente){  
+			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
+			$datos = 	"'".$cliente['idClientes']."','".$razonsocial_nombre."'";
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
+						.$contad.')" onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModalClientes('.$datos.');">';
+			$resultado['html'] .= '<td>'.$cliente['nombre'].'</td>';
+			$resultado['html'] .= '<td>'.$cliente['razonsocial'].'</td>';
+			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';
+			$resultado['html'] .= '</tr>';
+			$contad = $contad +1;
+			if ($contad === 10){
+				break;
+			}
+			
+		}
+	} 
+	$resultado['html'] .='</tbody></table>';
+	
+	return $resultado;
+}
+
 
 //mostrar TotalTicket
 function htmlCobrar($total){

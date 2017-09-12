@@ -43,8 +43,13 @@
 						<span><img src="<?php echo $Ruta; ?>" class="img-responsive"  width="30" height="30"/> </span>
 					<?php 
 						print_r($_SESSION['usuario']);
+						
 					}
 					?>
+					
+				</div>
+				<div class="nav navbar-nav navbar-right" style="margin-right:50px">
+					<div id="tienda"><?php echo ($Usuario['razonsocial']);?></div>
 					
 				</div>
 			</div>

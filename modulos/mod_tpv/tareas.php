@@ -50,12 +50,25 @@ include_once ("./funciones.php");
 		$total = $_POST['total'];
 		//$deDonde = $_POST['dedonde'];
 		$respuesta = htmlCobrar($total);
-		
-		
 		echo json_encode($respuesta);		
 		
 		break;
+	//modal buscar por clientes
+	case 'buscarClientes':
+		$busqueda = $_POST['busqueda'];
+		$tabla='clientes';
+		//funcion de buscar clientes
+		//luego html mostrar modal 
+		if ($busqueda != ''){
+			$res = array();
+			//$res = BusquedaClientes($busqueda);
+			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
+		} 
 		
+		$respuesta = htmlClientes($busqueda,$res['datos']);
+	
+		echo json_encode($respuesta);
+		break;
 		
 }
  

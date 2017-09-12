@@ -28,6 +28,7 @@ class ComprobarSession {
 				if ($_SESSION['estado'] === 'incorrecto'){
 					include_once($rootUrl."/plugins/controlUser/modalUsuario.php");
 					$respuesta['estado'] = 'Incorrecto';
+					$respuesta['error'] = 'usuario incorrecto';
 				}
 			}
 		} else { 		
@@ -35,8 +36,19 @@ class ComprobarSession {
 				//~ $respuesta['usuario'] = $_SESSION['usuario'];
 				$_SESSION['estado']= 'activo';
 				$respuesta['estado'] ='Correcto';
-			}	
+				$respuesta['nombre'] =$_SESSION['nombre'];
+				
+				$datos = $this->comprobarTienda($BDTpv);
+				if (!isset($datos)){
+					$respuesta['estado'] = 'Incorrecto';
+					$respuesta['error'] = 'Tienda activa no existe';
+				} else {				
+					$respuesta['idTienda'] = $datos['idTienda'];
+					$respuesta['razonsocial'] = $datos['razonsocial'];
+				}
+			}
 		}
+		
 		return $respuesta;
 	}
 
@@ -50,7 +62,7 @@ class ComprobarSession {
 		$resultado = array();
 		$encriptada = md5($pwd);
 		//echo $encriptada;
-		$sql = 'SELECT password FROM usuarios WHERE username="'.$usuario.'"';
+		$sql = 'SELECT password,nombre FROM usuarios WHERE username="'.$usuario.'"';
 		$res = $BDTpv->query($sql);
 		//echo $res;
 		
@@ -65,12 +77,32 @@ class ComprobarSession {
 		if ($encriptada === $pwdBD[0]){
 			$_SESSION['usuario']=$usuario;
 			$_SESSION['estado']= 'activo';
+			$_SESSION['nombre']= $pwdBD[1];
 			
-		}else {
+		} else {
 			$_SESSION['estado']= 'incorrecto';
 		}
 		//~ print_r($res->fetch_row());
 		return $resultado;
 	 } 
+	 
+	 function comprobarTienda($BDTpv){
+		$resultado = array();
+		$sql = 'SELECT idTienda,razonsocial FROM tiendas WHERE estado="activo"';
+		$res = $BDTpv->query($sql);
+		//compruebo error en consulta
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta'] = $sql;
+			$resultado['error'] = $BDTpv->error_list;
+			return $resultado;
+		} 
+		$datos = $res->fetch_row();
+		
+		//print_r($datos);
+		$resultado['idTienda']=$datos[0];
+		$resultado['razonsocial']=$datos[1];
+		 		 
+		return $resultado;
+	 }
 }
 ?>
