@@ -10,64 +10,72 @@
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
 		}
-		// Obtenemos id
-		if ($_GET['id']) {
-			$id = $_GET['id'];
-		} else {
-			// NO hay parametro .
-			$error = "No podemos continuar";
-		}
 		
-		
-		// ===========  datos usuario segun id enviado por url============= //
-			$tabla= 'usuarios';
-			$idBusqueda ='id='.$id;
-			$UsuarioUnico = verSelec($BDTpv,$idBusqueda,$tabla);
-			// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
-			
-			//~ echo '<pre>';
-				//~ print_r($id);
-			//~ echo '</pre>';
 		?>
 		<!-- Cargamos libreria control de teclado -->
-		<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
-		<!-- Añadimos atajo de teclado --> 
-		<script>
-			// Funciones para atajo de teclado.
-		shortcut.add("Shift+A",function() {
-			// Atajo de teclado para ver
-			history.back(1);
-		});    
-		</script>
+		
+		
 	</head>
 	<body>
 		<?php
         include './../../header.php';
-			$atras = 1; // Variable que indica volver una atras.
-			
-			if(count($_POST)>0){
-				$atras = 2;
-				if (isset($id)){
-					// Comprobamos: 
-					//($dato['password']=== 'password') olvidarme de insertar psw
-					$datos = $_POST;
-					$resp = modificarUsuario($datos,$BDTpv,$tabla);
-					echo $resp['sql'];
-					if (isset($resp['error'])){
-						$tipomensaje= "danger";
-						$mensaje = "Nombre de usuario ya existe!";
-					} else {
-						// Mandas funcion a grabar.
-						//$tipomensaje= "danger";
-					
-						$tipomensaje= "info";
-						$mensaje = "Su registro de usuario fue editado.";
+		// ===========  datos usuario segun id enviado por url============= //
+		$idTienda = $Usuario['idTienda'];
+		$tabla= 'usuarios'; // Tablas que voy utilizar.
+		$AtributoLogin = '';
+		$estados = array(); // Creo los estados de usuarios ( para select)
+		$estados[0]['valor'] = 'inactivo'; // Por defecto
+		$estados[1]['valor'] = 'activo';
+		// Obtenemos id
+		print_r($_GET);
+		
+		
+		if (isset($_GET['id'])) {
+			// Modificar Ficha Usuario
+			$id=$_GET['id']; // Obtenemos id para modificar.
+			$UsuarioUnico = verSelec($BDTpv,$id,$tabla);
+			$titulo = "Modificar Usuario";
+			$passwrd= 'password'; // Para mostrar ***** en password
+			if (isset($UsuarioUnico['error'])){
+				$error='NOCONTINUAR';
+				$tipomensaje= "danger";
+				$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$UsuarioUnico['consulta'];
+			} else {
+				// Cambiamos atributo de login para que no pueda modificarlo.
+				$AtributoLogin='readonly';
+				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
+				if (count($_POST) ===0){
+				echo 'Entoro';
+				$i = 0;
+					foreach ($estados as $estado){
+						if ($UsuarioUnico['estado'] == $estado['valor']){
+						$estados[$i]['porDefecto'] = "selected"; // Indicamos por defecto
+						}
+					$i++;
 					}
-				} else {
-					$datos = $_POST;
-					$resp = insertarDatos($datos,$BDTpv,$tabla);
-					echo $resp['consulta'];
-					//echo $resp['consulta1'];
+				} 
+			}
+		} else {
+			// Creamos ficha Usuario.
+			$titulo = "Crear Usuario";
+			$UsuarioUnico = array();
+			$UsuarioUnico['fecha'] = date("Y-m-d");
+			$UsuarioUnico['group_id'] = 0;
+			$UsuarioUnico['password'] = '';
+			$UsuarioUnico['username'] = '';
+			$UsuarioUnico['nombre'] = '';
+			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
+			$UsuarioUnico['id']= '';
+			$passwrd= '';
+		}
+		
+		if (!isset($error)){
+			if(count($_POST)>0){
+				// Ya enviamos el formulario y gestionamos lo enviado.
+				$datos = $_POST;
+				if($titulo === "Crear Usuario"){
+					// Quiere decir que ya cubrimos los datos del usuario nuevo.
+					$resp = insertarUsuario($datos,$BDTpv,$idTienda,$tabla);
 					if (isset($resp['error'])){
 						$tipomensaje= "danger";
 						$mensaje = "Nombre de usuario ya existe!";
@@ -75,54 +83,44 @@
 						$tipomensaje= "info";
 						$mensaje = "Nuevo usuario creado.";
 					}
+				} else {
+					// Quiere decir que ya modificamos los datos del ficha del usuario
+					$UsuarioUnico['nombre'] =$datos['nombreEmpleado'];
 					
-					
-				}
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
-			};
-			
-			$estados = array(); // Por defecto
-			$estados[0]['valor'] = 'inactivo'; // Por defecto
-			$estados[1]['valor'] = 'activo';
-			if (!isset($id)){ ///nuevo
-				$titulo = "Crear Usuario";
-				$UsuarioUnico = array();
-				$UsuarioUnico['fecha'] = date("Y-m-d");
-				$UsuarioUnico['group_id'] = 0;
-				$UsuarioUnico['password'] = '';
-				$UsuarioUnico['username'] = '';
-				$UsuarioUnico['nombre'] = '';
-				$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
-				$UsuarioUnico['id']= '';
-				$passwrd= '';
-				
-			} else {
-				$titulo = "Modificar Usuario";
-				$passwrd= 'password';
-				//$UsuarioUnico['username'] = $UsuarioUnico['username'];
-				
-				$i = 0;
-				//~ echo 'Alfo:'.$UsuarioUnico['estado'];
-				foreach ($estados as $estado){
-					if ($UsuarioUnico['estado'] == $estado['valor']){
-						$estados[$i]['porDefecto'] = "selected"; // Indicamos por defecto
+					$resp = modificarUsuario($datos,$BDTpv,$tabla);
+					if (isset($resp['error'])){
+						// Error de usuario repetido...
+						$tipomensaje= "danger";
+						$mensaje = "Nombre de usuario ya existe!";
+					} else {
+						$tipomensaje= "info";
+						$mensaje = "Su registro de usuario fue editado.";
 					}
-					$i++;
-				} 
+				};
 			}
-			
-					
-			
-			?>
+		}
+		
+		?>
      
 		<div class="container">
-			<?php if (isset($mensaje)){   ?> 
-			<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-			<?php }?>
+				
+			<?php 
+			echo '<pre>';
+			print_r($UsuarioUnico);
+			echo '</pre>';
+			if (isset($mensaje) || isset($error)){   ?> 
+				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
+				<?php 
+				if (isset($error)){
+				// No permito continuar, ya que hubo error grabe.
+				return;
+				}
+				?>
+			<?php
+			}
+			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
-			<a class="text-ritght" href="javascript:history.back(<?php echo $atras;?>)">Volver Atrás</a>
+			<a class="text-ritght" href="./ListaUsuarios.php">Volver Atrás</a>
 			<div class="col-md-12">
 				
 				<h3><?php echo $UsuarioUnico['nombre'];?></h3>
@@ -131,14 +129,14 @@
 					// UrlImagen
 					$img = './../../css/img/imgUsuario.png';
 					?>
-					<a href="<?php echo $img;?>"><img src="<?php echo $img;?>" style="width:100%;"></a>
+					<img src="<?php echo $img;?>" style="width:100%;">
 				</div>
 				<form action="" method="post" name="formUsuario">
 				<div class="col-md-9">
 					<div class="Datos">
 						<div class="col-md-6 form-group">
 							<label>Nombre Usuario/login:</label>
-							<input type="text" id="username" name="username" placeholder="usuario/login" value="<?php echo $UsuarioUnico['username'];?>"   >
+							<input type="text" id="username" name="username" <?php echo $AtributoLogin;?> placeholder="usuario/login" value="<?php echo $UsuarioUnico['username'];?>"   >
 							
 						</div>
 						<div class="col-md-6 form-group">

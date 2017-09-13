@@ -26,20 +26,26 @@ function obtenerUsuarios($BDTpv) {
 }
 //ver seleccionado en check listado
 function verSelec($BDTpv,$idUser,$tabla){
-	$consulta = 'SELECT * FROM '. $tabla.' WHERE '.$idUser;
+	// Obtener datos de un id de usuario.
+	$where = 'u.id = '.$idUser. ' and i.idUsuario ='.$idUser;
+	$consulta = 'SELECT u.*,i.numticket,i.tempticket FROM '. $tabla.' as u, indices as i WHERE '.$where;
 	$unaOpc = $BDTpv->query($consulta);
 	if (mysqli_error($BDTpv)) {
-		$fila = $unaOpc;
+		$fila['error'] = 'Error en la consultar'.$BDTpv->errno;
 	} else {
-		$fila = $unaOpc->fetch_assoc();
+		if ($unaOpc->num_rows > 0){
+			$fila = $unaOpc->fetch_assoc();
+		} else {
+			$fila['error']= ' No se a encontrado usuario';
+		}
 	}
+	$fila['Nrow']= $unaOpc->num_rows;
 	$fila['consulta'] = $consulta;
 	return $fila ;
 }
 
-function insertarDatos($datos,$BDTpv,$tabla){
+function insertarUsuario($datos,$BDTpv,$idTienda,$tabla){
 	$resultado = array();
-	$resultado['Estado'] = '';
 	//campos modificables : username, nombreEmpleado, contraseña
 	//
 	$username = $datos['username'];  //conseguir todos los nombres de la tabla, recorrerlos y comprobar q no existe
@@ -52,20 +58,25 @@ function insertarDatos($datos,$BDTpv,$tabla){
 	$estado = $datos['estado'];
 	
 	//comprobar que username NO EXISTE al crear un nuevo usuario
-	$buscarUsuario = 'SELECT * FROM '.$tabla.' WHERE username= "'.$username.'"';
+	$buscarUsuario = 'SELECT * FROM usuarios WHERE username= "'.$username.'"';
 	$res = $BDTpv->query($buscarUsuario);
 	$numUser = mysqli_num_rows($res); //num usuarios que existen con ese nombre
 	if (($numUser === 1) || ($username === '')){
 		$resultado['error'] = 'error';
 		
 	} else {
-			$consulta = 'INSERT INTO '.$tabla.'( username, password, fecha, group_id, estado, nombre ) VALUES ("'
-				.$username.'" , "'.$passwrd.'" , "'.$fecha.'" , '.$grupoid.' , "'.$estado.'" , "'.$nombreEmpleado.'")';
-		
-	}//fin de comprobar existe username
-	$result = $BDTpv->query($consulta);
-	
-	$resultado['consulta'] =$result;
+		$consulta = 'INSERT INTO '.$tabla.'( username, password, fecha, group_id, estado, nombre ) VALUES ("'
+			.$username.'" , "'.$passwrd.'" , "'.$fecha.'" , '.$grupoid.' , "'.$estado.'" , "'.$nombreEmpleado.'")';
+		$BDTpv->query($consulta);
+		$resultado['id'] = $BDTpv->insert_id;
+		// Ahora creamos las claves indices de este usuario para esta tienda.
+		$InsertSlq= 'INSERT INTO `indices`(`idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES ('.$idTienda.','.$resultado['id'].',0,0)';
+		$BDTpv->query($InsertSlq);
+		if (mysqli_error($BDTpv)) {
+		$resultado['error'] = 'Error que nunca debería suceder'.$BDTpv->errno;
+		} 
+	}
+	//~ $resultado['consulta'] =$InsertSlq;
 	return $resultado;
 }
 
@@ -89,17 +100,14 @@ function modificarUsuario($datos,$BDTpv,$tabla){
 	$estado = $datos['estado'];
 	$id =$datos['idUsuario'];
 	
-	
-	
-		if ($datos['password'] === 'password'){ //username NO se podra MODIFICAR
-			//no actualizar contraseña, actualizamos 3 campos : estado, nombre y grupo id. 
-			$sql ='UPDATE '.$tabla.' SET group_id ='.$grupoid.' , estado = "'
-				.$estado.'" , nombre ="'.$nombre.'" WHERE id='.$idUsuario;
-		
-		} else { //actualimos 4 campos, password, username, estado, nombre y grupo id.
-			$sql ='UPDATE '.$tabla.' SET group_id ='.$grupoid.' , estado = "'
-					.$estado.'" , password ="'.$passwrd.'" , nombre ="'.$nombre.'" WHERE id='.$idUsuario;
-		}
+	if ($datos['password'] === 'password'){ //username NO se podra MODIFICAR
+		//no actualizar contraseña, actualizamos 3 campos : estado, nombre y grupo id. 
+		$sql ='UPDATE '.$tabla.' SET group_id ='.$grupoid.' , estado = "'
+			.$estado.'" , nombre ="'.$nombre.'" WHERE id='.$idUsuario;
+	} else { //actualimos 4 campos, password, username, estado, nombre y grupo id.
+		$sql ='UPDATE '.$tabla.' SET group_id ='.$grupoid.' , estado = "'
+			.$estado.'" , password ="'.$passwrd.'" , nombre ="'.$nombre.'" WHERE id='.$idUsuario;
+	}
 	
 	$consulta = $BDTpv->query($sql);
 	
