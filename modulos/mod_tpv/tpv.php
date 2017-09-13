@@ -41,19 +41,8 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 <body>
 <?php 
 	include '../../header.php';
-	
 	include_once ("funciones.php");
 
-?>
-<?php
-	//~ $busqueda = '3012';
-	//~ $campoAbuscar = 'CREF';
-	//~ $respuesta =  BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
-	//$respuesta = teclaPulsada(event,id);
-	
-	//~ echo '<pre>';
-	//~ print_r($respuesta);
-	//~ echo '</pre>';
 ?>
 <style type="text/css">
 <!-- css necesario para agregar o eliminar filas -->
@@ -161,9 +150,11 @@ movil
 		</div>
 		<div class="form-group">
 			<label>Empleado:</label>
-			<input type="text" id="Usuario" name="Usuario" value="" size="40" readonly>	
+			<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="40" readonly>	
 			<label>Cliente:</label>
-			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="" size="60" readonly>	
+			<input type="text" id="id" name="id" value="1" size="2" readonly>
+			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="" size="60" readonly>
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="nombreCampo('busquedaCliente',0,'',0)"></a>
 		</div>
 	</div>
 	<div class="fondoNegro col-md-4" style="background-color:black;height:150px;">

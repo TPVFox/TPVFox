@@ -1,5 +1,6 @@
 // Funciones modulo de recambios vista lista recambios.
-function VerUsuariosSeleccionado (){
+//funcion usada en js case metodoclick para el check de la lista
+function VerTiendasSeleccionado (){
 	$(document).ready(function()
 	{
 		// Array para meter lo id de los checks
@@ -8,7 +9,7 @@ function VerUsuariosSeleccionado (){
 		checkID = [] ; // Reiniciamos varible global.
 		var i= 0;
 		// Con la funcion each hace bucle todos los que encuentra..
-		$(".rowUsuario").each(function(){ 
+		$(".rowTienda").each(function(){ 
 			i++;
 			//todos los que sean de la clase row1
 			if($('input[name=checkUsu'+i+']').is(':checked')){
@@ -19,7 +20,7 @@ function VerUsuariosSeleccionado (){
 			}
 			
 		});
-		console.log('ID de Usuarios seleccionado:'+checkID);
+		console.log('ID de Tienda seleccionado:'+checkID);
 		return;
 	});
 
@@ -29,10 +30,10 @@ function VerUsuariosSeleccionado (){
 function metodoClick(pulsado){
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
-		case 'VerUsuario':
+		case 'VerTienda':
 			console.log('Entro en VerUsuario');
 			// Cargamos variable global ar checkID = [];
-			VerUsuariosSeleccionado ();
+			VerTiendasSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
@@ -40,14 +41,14 @@ function metodoClick(pulsado){
 			// Ahora redireccionamos 
 			// recambi.php?id=id
 				
-			window.location.href = './usuario.php?id='+checkID[0];
+			window.location.href = './tienda.php?id='+checkID[0];
 			
 			
 			break;
 		
-		case 'AgregarUsuario':
+		case 'AgregarTienda':
 			console.log('entro en agregarUsuario');
-			window.location.href = './usuario.php';
+			window.location.href = './tienda.php';
 			
 			break;
 		

@@ -28,8 +28,8 @@ include_once ("./funciones.php");
 		//cuando busco dsde el popup el estado me es indiferente
 		$deDonde = $_POST['dedonde'];
 		
-		
-		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDImportDbf);
+		//cambio conexion a tpv
+		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDTpv);
 		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
 		//si dedonde == 'popup' 
 		if ($respuesta['Estado'] !='Correcto' ){
@@ -50,12 +50,25 @@ include_once ("./funciones.php");
 		$total = $_POST['total'];
 		//$deDonde = $_POST['dedonde'];
 		$respuesta = htmlCobrar($total);
-		
-		
 		echo json_encode($respuesta);		
 		
 		break;
+	//modal buscar por clientes
+	case 'buscarClientes':
+		$busqueda = $_POST['busqueda'];
+		$tabla='clientes';
+		//funcion de buscar clientes
+		//luego html mostrar modal 
+		if ($busqueda != ''){
+			$res = array();
+			//$res = BusquedaClientes($busqueda);
+			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
+		} 
 		
+		$respuesta = htmlClientes($busqueda,$res['datos']);
+	
+		echo json_encode($respuesta);
+		break;
 		
 }
  

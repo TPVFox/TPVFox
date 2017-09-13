@@ -12,7 +12,7 @@
 	
 	<?php 
 		//~ echo '<pre>';
-			//~ //print_r($Usuario);
+			//~ print_r($_SESSION);
 		//~ echo '</pre>';
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
@@ -24,9 +24,9 @@
 	<?php 
 	include 'header.php';
 	
-	echo '<pre>';
-		print_r($DirectorioInicio);
-	echo '</pre>';
+	//~ echo '<pre>';
+		//~ print_r($_SESSION);
+	//~ echo '</pre>';
 	
 	?>
 	<section>
