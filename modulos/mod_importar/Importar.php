@@ -18,66 +18,100 @@
 <head>
 <?php
 	include './../../head.php';
+	// Creamos variables de los ficheros para poder automatizar el añadir ficheros.
+	$nom_ficheros = array();
+	$nom_ficheros[] ='proveedo';// El que vamos utilizar al crear tb la tabla en BDimport
+	$nom_ficheros[] ='albprot';
+	$nom_ficheros[] ='albprol';
+	$nom_ficheros[] ='articulo';
+	$nom_ficheros[] ='clientes';
+	// [PENDIENTE]
+	// La idea es hacer un JSON que luego en funciones js, lo obtenga, para eliminar la variables globales que tenemos al principio
+	// del fichero funciones.js (nombretabla) , así se añadimos algun fichero, solo tengamos que hacer aquí.
+	
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/funciones.js"></script>
+	<?php
+	// Controlamos ( Controllers ... fuera de su sitio ... :-)
+	if (isset($Usuario['estado'])){
+		if ($Usuario === "Incorrecto"){
+			return;	
+		}
+	}
+	?>
+
 </head>
 <body>
 <?php 
 	include './../../header.php';
 	include_once ("./funciones.php");
-
+	// Ahora comprobamos si tenemos tablas en Mysql que tenga Estado
+	$actualizar = array();
+	foreach ($nom_ficheros as $nombreTabla){
+		$campos =ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla,'no');
+		foreach ($campos as $campo){
+			// Ahora comprobamos que si existe campo estado
+			if ($campo === 'estado'){
+				// ahora debería comprobar si estan todos cubiertos o no..
+				// de momento no lo hago..
+				$actualizar[$nombreTabla] = 'Existe Estado';
+			}
+		}
+	}
+	// Ahora tenemos un array con los campos de la tablas .
+	
+	echo '<pre>';
+	print_r($actualizar);
+	echo '</pre>';
 ?>
 
 <?php
-
-	// Este código va para funciones...
-	// Ruta completa fichero : /home/solucion40/www/superoliva/datos/DBF71/albprol.dbf
-	
-	//~ ($fichero,$numFinal,$numInic,$campos)
-	//~ $fichero = $RutaServidor.$CopiaDBF.'/albprol.dbf';
-	
-	//~ $respuesta = LeerDbf($fichero);
-	//~ $respuesta = LeerDbf($fichero,$numFinal,$numInic,$campos);
-	//~ $respuesta = LeerEstructuraDbf($fichero);
-	//~ echo '<pre>';
-	//~ print_r($respuesta);
-	//~ echo '</pre>';
-	
+	// Variables de template ( vista) 
+	$clases_td = array();
+	$clases_td[] ="CEstruct";
+	$clases_td[] ="CBorrar";
+	$clases_td[] ="CCrear";
+	$clases_td[] ="CVaciar";
+	$clases_td[] ="CImportar";
+	//~ $clases_td[] ="CActualizar"> // Esto no lo puedo montar... hay parametroc control en fichero.
+	// Montamos htmlClass , ya que siempre es el mismo... 
+	$html_clasetd = '';
+	foreach ($clases_td as $clasetd){
+		$html_clasetd .= '<td class="'.$clasetd.'"></td>';
+	}
 	
 ?>
-<style type="text/css">
-.listanumerada ol { counter-reset: item }
-.listanumerada li{ display: block }
-.listanumerada li:before { content: counters(item, ".") " "; counter-increment: item }
-</style>
+
 <div class="container">
 	<div class="col-md-6">
 		<h2>Importación de datos a DBF de TPV.</h2>
 		<p> La importación de DBF de SPPGTpv consiste en dos faxes:</p>
-		<div class="listanumerada">
+		<h3>1.-Importacion de DBF a MYSQL</h3>
+		<p>Esta faxe <b>inicia automaticamente</b> al entrar en esta pagina, consiste es añadir los datos DBF a BDImport de Mysql.<br/>Las tablas de DBF las obtenemos en configuracion (homer/solucion40/www/superoliva/datos/DBF71)<p>
+		<p><b>[PENDIENTE]</b> Crear un proceso para copiarlas automatizado o indicar donde optenerlar. <a title="De momento lo hacemos manual, ya que no podemos indicar fuera www porque generar un error">(*)</a></p>
+		<h4>Procesos que realizamos en importar</h4>
 		<ol>
-			<li> Copia DBF:<span class="label label-danger">Manual</span><br/>
-				 de :bart/tpv<br/>
-				 en :homer/solucion40/www/superoliva/datos/DBF71.<br/>
-				 Ya que fuera de www no me deja hacerlo... por lo menos por defecto.
-			</li>
-			<li> Realizar backup en Diario de copias.
-			</li>
-			<li> Luego se empieza importar Datos a Mysql
+			<li> Comprobamos podemos obtener estructura de BDF.
 				<ol>
-					<li>Articulos</li>
-					<li>Proveedores</li>
-					<li>Albaranes de Proveedores:
-						<ol>
-						<li>Albprovl.dbf</li>
-						<li>Albprovt.dbf</li>
-						</ol>
-					</li>
+					<li>NO-> Pasamos al siguiente fichero .</li>
+					<li>SI-> Pasamos al siguiente punto.</li>
+				</ol>
+			</li>
+			<li> Si la estructura es igual a la que tenemos en tablas mysql <a title="Si es distinta puede suceder que ya hubieramos actualizado">(*)</a>
+				<ol>
+					<li>NO-> Creamos nuevamente tabla .</li>
+					<li>SI-> Eliminamos tabla y añadimos contenido DBF</li>
 				</ol>
 			</li>
 		</ol>
-		</div>
-	<p><strong>Importar:</strong>Nos referimos a actualizar o sobreescribir</p>	
+		<p><strong>Nota:</strong>Si falla añadiendo datos, por lo entonces ... esa tabla puede estar corrupta.</p>	
+		<h3>2.-Actualizar BDImport con BDTpv</h3>
+		<p>La actualizacion es una sincronización en la que comprobamos y añadimos articulos, proveedores, clientes</p>
+		<h4>Procesos que realizamos en actualizar</h4>
+		<ol>
+			<li> <b>[PENDIENTE]</b> Comprobar si ya empezamos con actualizacion.</li>
+			<li> Añadimos campos a tablas que necesitamos para poder importar.</li>
+		</ol>
 	</div>
 		
 	<div class="col-md-6">
@@ -98,52 +132,47 @@
 			<thead>
 			  <tr>
 				<th></th>
-				<th>ok Estruct</th>
-				<th>Borrada</th>
-				<th>Creada</th>
-				<th>Vaciar</th>
+				<th><!-- Estruct -->
+					<a title="Indica dos cosas distintas, que puede obbtener estructura ( sino NO obtenter pasa al siguiente) y tambien comprueba que la estrucutra es la misma msyql,(sino continua borrando y creandola de nuevo)">
+						<span class="glyphicon glyphicon-th"></span>
+					</a>
+				</th>
+				<th><!-- Borrada -->
+					<a title="Si borro la tabla BDimportar">
+						<span class="glyphicon glyphicon-trash"></span>
+					</a>
+				</th>
+				<th><!-- Creada -->
+					<a title="Se creo la tabla en BDimportar">
+						<span class="glyphicon glyphicon-log-in"></span>
+					</a>
+				</th>
+				<th><!-- Vaciar -->
+					<a title="Se limpio la tabla, vacio">
+						<span class="glyphicon glyphicon-repeat"></span>
+					</a>
+				</th>
+				
+				
 				<th>Importar</th>
+				<th>Actualizar</th>
 			  </tr>
 			</thead>
-<!--
-			column : creada - borrada - estruct - importar
-	filas :	idproveedo  CCrear  CBorrar CEstruct CImportar y poner una img tickado (iconoCorrecto)
-			idalbprot
---><!--futuro seleccion borrado
-					<input type="checkbox" name="vaciar"> -->
-			  <tr id="idproveedor">
-				<th>proveedo.dbf</th>
-				<td class="CEstruct"></td>
-				<td class="CBorrar"></td>
-				<td class="CCrear"></td>
-				<td class="CVaciar"></td>
-				<td class="CImportar"></td>
-				
-			  </tr>
-			  <tr id="idalbprot">
-				<th>albprot.dbf</th>
-				<td class="CEstruct"></td>
-				<td class="CBorrar"></td>
-				<td class="CCrear"></td>
-				<td class="CVaciar"></td>
-				<td class="CImportar"></td>
-			  </tr>
-			   <tr id="idalbprol">
-				<th>albprol.dbf</th>
-				<td class="CEstruct"></td>
-				<td class="CBorrar"></td>
-				<td class="CCrear"></td>
-				<td class="CVaciar"></td>
-				<td class="CImportar"></td>
-			  </tr>
-			 <tr id="idarticulo">
-				<th>articulo.dbf</th>
-				<td class="CEstruct"></td>
-				<td class="CBorrar"></td>
-				<td class="CCrear"></td>
-				<td class="CVaciar"></td>
-				<td class="CImportar"></td>
-			  </tr>
+			
+			<?php 
+			foreach ($nom_ficheros as $nom_fichero){
+				echo '<tr id="id'.$nom_fichero.'">';
+				echo '		<th>'.$nom_fichero.'.dbf</th>';
+				echo $html_clasetd;
+				if (isset($actualizar[$nom_fichero])){
+					echo '<td class="CActualizar">Existe</td>';
+				} else {
+					echo '<td class="CActualizar"></td>';
+
+				}
+				echo '  </tr>';
+			}
+			?>
 			</tbody>
 		 </table>		
 		</div>		
@@ -151,16 +180,20 @@
 			//creo boton para crear tabla en mysql, 1º comprobar que no existe tabla, 2º conseguir estructura 
 			//recibircsv.php?subida=0
 		?>
-		<form role="form" enctype="multipart/form-data" action="Importar.php" method="POST">
-			<div class="form-group">
-				<label>Crear tablas:</label>
-				<input type="submit" value="Crear tabla" />
-			</div>
-		</form>
+		<div class="btn-actualizar" style="display:none;">
+			
+				<div class="form-group">
+					<label>Sincronizar tablas importadas con las que ya tenemos:</label>
+					<input onclick="ActualizarInicio()" type="submit" value="Sincronizar" />
+				</div>
+			
+		</div>
+
 	</div>	
 </div>
 <script>
-	Inicio('pulso_inicio')
+	//Iniciamos importacion.
+	ImportInicio('import_inicio')
 </script>
 </body>
 </html>

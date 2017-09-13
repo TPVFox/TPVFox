@@ -98,7 +98,7 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('.$contad.')" .
 								onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
-		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><a href=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></a></td>';
 		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';
 		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';

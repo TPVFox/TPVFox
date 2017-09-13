@@ -27,14 +27,9 @@ function LeerDbf($fichero,$numFinal,$numInic,$campos) {
 	$resultado = array();
 	$output = array(); 
 	$instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero." -i ".$numInic." -e ".$numFinal;
-	// $instruccion = "python ./../../lib/py/leerDbf1.py 2>/dev/null -f ".$fichero." -i ".$numInic." -e ".$numFinal;
-
-	//enviar al py limI, limF
-	//~ $instruccion = "python ./../../lib/py/leerDbf1.py 2>&1 -f ".$fichero;
 	exec($instruccion, $output,$entero);
-	//~ print('func php leerDbf LIB py '.$instruccion.'<br/>instruccion python num final '.$numFinal.'  num Inicial '.$numInicial);
-
-    //~ echo $output;
+	// Recuerda que $output es un array de todas las lineas obtenidad en .py
+	// tambien recuerad que si el $entero es distinto de 0 , es que hubo un error en la respuesta de  .py
 	if ($entero === 0) {
 		//$resultado['campos'] = $campos;
 		$resultado['Estado'] = 'Correcto';
@@ -94,13 +89,18 @@ function LeerEstructuraDbf($fichero) {
 }
 //
 function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
-	// Lo que hacemos es comprobar que los $nombrestablas 
-	// $campos es un array de los campos de la tabla.
+	// Lo que hacemos es comprobar que las tablas ( $nombrestablas ) existene DBFImportar y 
+	// ademas si la estructura es la correcta.
+	// Estructura de campos. 
+	//$campos es un array de los campos de la tabla.
 	//  [0] 
 	// 		[campo]
 	// 		[tipo]
 	//		[longitud]
 	//		[decimal]	
+	// Devolvemos resultado : 
+	//  [Estaod] 
+	//  [accion-xxxxx] ->  borrado(vaciar),creado, eliminar tabla.
 
 	$resultado = array();
 	$resultado['Estado'] = 'Incorrecto';
@@ -108,49 +108,30 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	$resultado['accion-borrado'] = '';
 	$resultado['accion-creado'] = '';
 	$resultado['dropear-tabla'] = false;
+	//Obtengo los muestra los campos de la tabla en dbf a importar , este es un OBJECTO
+	$Estructura_dbf = RecogerCampos($nombreTabla, $campos);
 
 	$i = 0;	
 	$resp_crear = 'no';
-
+	// Inicio comparacion de campos de la tabla de la bbdd y dbf, 
 	foreach ($conexion as $tabla){
 		if ($nombreTabla === $tabla) {
 			$resultado['Tabla'] = 'Existe';
-			//consulto estructura y luego comparo
-			/** inicio comparacion de campos de la tabla de la bbdd y dbf, 
-			 ** 1º recojo estructura de tabla bbdd
-			***/
-			$sqlShow = 'SHOW COLUMNS FROM '.$nombreTabla;
-			$respuesta = $BDImportDbf->query($sqlShow);
-			//cogiendo la estructura de la bbdd de tal tabla
-			if (! isset ($respuesta)){
+			// 1º Obtengo estructura  de  la tabla de BDImportar
+			$arr = ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla);
+			if (isset($arr['dropear-tabla'])){
+				// Si NO existe o sale mal la consulta
 				$resultado['dropear-tabla'] = true;
 				$resultado['accion-borrado'] = 'Borramos tabla';
 				break;
 			}
-
-
-			$arr = array();
-			$i = 0;
-			while ($fila = $respuesta->fetch_row()) {
-				$nombreCampo = $fila[0];
-				$tipo = $fila[1];
-				$arr[$i] = $nombreCampo.' '.$tipo;
-				$i++;
-			}
-			//monto la estructura de la tabla de la bbdd
 			$strEstruct = implode(",",$arr);
-			//muestra los campos de la tabla creada en mysql 
+			// Despues de montar la estructura en un array tambien lo muestro para debug.
 			$resultado['debug_campos'] = $strEstruct;
-
-			//muestra los campos del dbf a importar , este es un OBJECTO
-			$res_dbf = RecogerCampos($nombreTabla, $campos);
-			//$resultado['debug_dbf'] = $res_dbf;
-			/** Fin recogida estructura tabla bbdd y dbf para comparar despues **/
-
 			//comparamos que la estructura de la bbdd sea igual que la estructura del dbf que intentamos importar
 			//si es igual importamos los datos del dbf
 			//si no es igual se borra tabla y se crea de nuevo.
-			 if ($strEstruct != $res_dbf){
+			 if ($strEstruct != $Estructura_dbf){
 				$resultado['dropear-tabla'] = true;
 				$resultado['accion-borrado'] = 'Borramos tabla';
 				break;
@@ -159,38 +140,26 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 			$resultado['Estado'] = 'Correcto';
 		}
 	} 
-	//si el estado es incorrecto se crea tabla
-	//si no hay tablas me crea la ESTRUCTURA de la primera tabla
-	//if (count($conexion) === 0){
-	
+	//Aqui ya tenemos el Estado como correcto o incorrecto
+	//Si el estado es incorrecto me crea la ESTRUCTURA de tabla de dbf
 	if ($resultado['Estado'] === 'Incorrecto'){
-		$res_dbf = RecogerCampos($nombreTabla, $campos);
 		//no existe tablas y la creamos la tabla con la estructura del dbf (res_dbf))
- 		$resp_crear = CrearTabla($nombreTabla, $res_dbf,$BDImportDbf, $resultado['dropear-tabla']);
+ 		$resp_crear = CrearTabla($nombreTabla, $Estructura_dbf,$BDImportDbf, $resultado['dropear-tabla']);
  		$resultado['Estado'] = 'Correcto';
  		$resultado['accion-creado'] = 'Creada estructura tabla';
-	}
-
-	// estas son las respuestas que iran al final de la funcion con los result que quiero mostrar..
-	//estado,diferencia, nombre tabla.. al inspeccionar pag.
-	//por eso creo variable en el resto de funcion para mostrarlas despues aqui..	
-	//estado correcto o incorrecto y
-	//acciones lo que vamos haciendo.. 
-	//$resultado['accion'] = $accion;
-
-	//vaciar tabla comprobar si no da error al vaciar cuando no hay datos y checkear en pantalla
-	//necesitamos poner un checkbox en cada tabla para elegir cual queremos vaciar! 
-	// si recojo q esta checkado vaciar datos 
-	
-	//if ($vaciar === 'checked' ){
+	} else {
+		// Aquí tenemos estado correcto fijo.
+		// por lo que la vaciamos..
 		$sql = 'TRUNCATE TABLE '.$nombreTabla;
 		$resp_del = $BDImportDbf->query($sql);
 		$resultado['accion-deleteDatos'] = 'Datos borrados';
-	//}
+	}
 	return $resultado;
 }
 //funcion para recoge estructura de tabla segun nombreTabla y lo monta en un string formato array separado por comas
 function RecogerCampos ($nombreTabla, $campos){
+	// Esta funcion la utilizamos en:
+	// ComprobarTabla(); 
 	$strCampos = array();
 	$i = 0;
 	$resultado = array();
@@ -225,12 +194,13 @@ function RecogerCampos ($nombreTabla, $campos){
 
 	return $resultado;
 }
-//se le pasan:
-//nombre de la tabla
-//strSql , estructura de la tabla dbf a importar seria array pero lo ponemos en formato string 
-//BDImportarDbf para poder conectarnos
-//drop por defecto siempre borrara la tabla, para crearla desde 0. si le mandamos false No la borrara.
+
 function CrearTabla ($nombreTabla,$strSql,$BDImportDbf, $drop=true){
+	// @parametros
+	// $nombretabla -> nombre de la tabla queremos crear.
+	// $strSql -> Estructura de la tabla en string
+	// $BDImportarDbf -> Conexion 
+	// $drop -> por defectro es true, si queremos no eliminarla entonces enviamos false
 	if ($drop) {
 		$sql = 'DROP TABLE IF EXISTS '.$nombreTabla;
 		$resp_crear= $BDImportDbf->query($sql);
@@ -280,10 +250,6 @@ function InsertarDatos($campos,$nombretabla,$datos,$BDImportDbf){
 	
 	// preparamos sentencia insert
 	$SqlNCampos= implode(',',$NombresCampo);
-
-
-
-	
 	//~ $resultado['sql'] = $SqlNCampos;
 	$SqlInsert = implode(',' ,$SqlDato);
 	$consulta1 = 'INSERT INTO '.$nombretabla.' ('.$SqlNCampos.') VALUES '.$SqlInsert;
@@ -304,6 +270,51 @@ function InsertarDatos($campos,$nombretabla,$datos,$BDImportDbf){
 	
 	return $resultado;
 }
+function ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla,$string ='si'){
+	// Obtenemos array con los campos de la tabla.
+	$sqlShow = 'SHOW COLUMNS FROM '.$nombreTabla;
+	$res = $BDImportDbf->query($sqlShow);
+	$respuesta =  $res->fetch_row() ;
+	if (! isset ($respuesta)){
+		// Si NO existe o no sale mal la consulta
+		$resultado['dropear-tabla'] = true;
+		//~ $resultado['accion-borrado'] = 'Borramos tabla';
+	} else {
+		$resultado = array();
+		$i = 0;
+		// Recorro respuesta y monto array de campos .
+		while ($fila = $res->fetch_row()) {
+		if ($string ==='si'){
+			$nombreCampo = $fila[0];
+			$tipo = $fila[1];
+			$resultado[$i] = $nombreCampo.' '.$tipo;
+		} else {
+			$resultado[$i] = $fila[0];
+		}
+		$i++;
+		}
+	}
+	
+	
+	return $resultado;
+	
+}
 
+
+
+function ActuaAgregarCampos($nombrestablas,$BDImportDbf){
+	$resultado = array();
+		// Ahora deberíamos preparar DBImport para actualizar.
+		//ALTER TABLE `articulo` ADD `idArticulo` INT NOT NULL AUTO_INCREMENT , ADD PRIMARY KEY ( `idArticulo` ) ;
+	foreach ( $nombrestablas as $nombretabla){
+		$sql = 'ALTER TABLE '.$nombretabla.' ADD `id` INT NOT NULL AUTO_INCREMENT , ADD `estado` VARCHAR(11), ADD PRIMARY KEY ( `id` )';
+		$BDImportDbf->query($sql);
+	}
+	$resultado = $nombrestablas;
+	
+	
+	return $resultado ;
+	
+}
 
 ?>
