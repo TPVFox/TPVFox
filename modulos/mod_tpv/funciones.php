@@ -136,7 +136,7 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 					.$contad.')" onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
 		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input onfocusout="abandonProducto('
-					.$contad.')" onfocus="sobreProducto('.$contad.')" type="image"><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+					.$contad.')" onfocus="sobreProducto('.$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';
 		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
@@ -212,7 +212,9 @@ function htmlClientes($busqueda,$clientes){
 			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".$razonsocial_nombre."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
-						.$contad.')" onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModalClientes('.$datos.');">';
+						.$contad.')" onmouseover="sobreProducto('.$contad.')" onclick="cerrarModalClientes('.$datos.');">';
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input onfocusout="abandonProducto('
+					.$contad.')" onfocus="sobreProducto('.$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.$cliente['nombre'].'</td>';
 			$resultado['html'] .= '<td>'.$cliente['razonsocial'].'</td>';
 			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';
