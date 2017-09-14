@@ -1,88 +1,87 @@
 <?php
+// La  variable global va se:
+// $_SESSION 
+//			['estado']
+// 			['idUsuario']
+//			['Nombre_Usuario']
+//			['Razon_Social']
+// 			['idTienda']
 
-#include_once ("../../configuracion.php");
-
-// Crealizamos conexion a la BD Datos
-//~ include_once ("./../../mod_conexion/conexionBaseDatos.php");
-//include ("./plugins/controlUser/modalUsuario.php");
 
 class ComprobarSession {
-	function recibir($BDTpv, $rootUrl) {
-		// La voy utilizar para recibir session y datos formulario.
-		$respuesta=array();
-		//~ error_log('Entro1');
-		if (!isset($_SESSION)){
-			session_start();
-			//~ error_log('Entro2');
-
-		}
-		$_SESSION['estado']= 'sinactivo';
-		if (!isset($_SESSION['usuario'])){
-			if (!isset($_POST['pwd'])){
-				//~ error_log('Entro3');
-
-				include_once($rootUrl."/plugins/controlUser/modalUsuario.php");
-				$respuesta['estado'] = 'Incorrecto';
-			} else {
-				$this->comprobarUser($BDTpv,$_POST['usr'],$_POST['pwd']);
-				if ($_SESSION['estado'] === 'incorrecto'){
-					include_once($rootUrl."/plugins/controlUser/modalUsuario.php");
-					$respuesta['estado'] = 'Incorrecto';
-					$respuesta['error'] = 'usuario incorrecto';
-				}
-			}
-		} else { 		
-			if (isset($_SESSION['usuario'])){
-				//~ $respuesta['usuario'] = $_SESSION['usuario'];
-				$_SESSION['estado']= 'activo';
-				$respuesta['estado'] ='Correcto';
-				$respuesta['nombre'] =$_SESSION['nombre'];
-				
-				$datos = $this->comprobarTienda($BDTpv);
-				if (!isset($datos)){
-					$respuesta['estado'] = 'Incorrecto';
-					$respuesta['error'] = 'Tienda activa no existe';
-				} else {				
-					$respuesta['idTienda'] = $datos['idTienda'];
-					$respuesta['razonsocial'] = $datos['razonsocial'];
-				}
-			}
-		}
-		
-		return $respuesta;
-	}
-
 	
+	function comprobarEstado($BDTpv, $URLCo){
+		// La intención es comprobar si la session que hay es correcta y hay usuario.
+		// Comprobamos que la session tenga un usuario.
+		$resultado = array();
+		// Iniciamos session si no esta iniciada.
+		if (!isset($_SESSION)){
+			// Hay que tener en cuenta que la session no tenemos porque iniciar nosotros, 
+			// otra api del servidor la puede abrir, por eso no debemos reiniciarla nunca
+			// si no esta abierta.
+			session_start();
+		}
+		if (!isset($_SESSION['estadoTpv']) || $_SESSION['estadoTpv']=== 'SinActivar'){
+			// Entramos al iniciar sesion o esta SinActivar.			
+			$_SESSION['estadoTpv']= 'SinActivar'; // Ponemos por defecto sessión inactiva.
+			$resultado['SessionTpv']['estado'] = $_SESSION['estadoTpv'];
+			// Ahora comprobamos si es primera vez entra o no.
+			if (!isset($_SESSION['N_Pagina_Abiertas'])){
+				$_SESSION['N_Pagina_Abiertas'] = 0 ;
+			}
+		} 
+		$numeroPaginas = (isset($_SESSION['N_intentos_acceso']) ? $_SESSION['N_intentos_acceso'] : 0);
+		if ($_SESSION['estadoTpv'] != 'Correcto' || $numeroPaginas > 0 ){
+			// El estado de la session no es correcto y ya tenemos session (N_Pagina_Abiertas) + 1.
+			// Esto puede suceder cuando:
+			//    - Refrescamos formulario de Acceso de Usuario.
+			//    - Acaba de enviar el formulario.
+			//    - Hubo un error en la comprabación de datos.
+			if (isset($_POST['usr']) && isset($_POST['pwd'])){
+				// tenemos datos en post para comprobar.
+				$datos = $this->comprobarUser($BDTpv,$_POST['usr'],$_POST['pwd']);
+				$resultado['usuario'] = $datos;
+				// Ahora obtenemos datos tienda
+				$datos = $this->comprobarTienda($BDTpv);
+				$resultado['tienda'] = $datos;
+			}
+		}
+		// Comprobación si todo es correcto.. 
+		$comprobar = $this->controlSession($URLCo,$resultado); 
+		$resultado['SessionTpv']['estado'] = $comprobar;
+		if($numeroPaginas >0){
+			// Solo cambiamos estado si el numeroPaginas es superior a 0
+			$_SESSION['estadoTpv'] = $resultado['SessionTpv']['estado'];
+		}
+		return $resultado;
 
+	}
+	
 	//comparar usuario y password con bbdd
 	function comprobarUser($BDTpv,$usuario,$pwd){
-		//~ echo '<br/>Entre<br/>';
-		//~ echo $usuario;
-		//~ echo $pwd;
+		// Esto comprobamos que los datos metidos en el formulario son correctos.
 		$resultado = array();
-		$encriptada = md5($pwd);
-		//echo $encriptada;
-		$sql = 'SELECT password,nombre FROM usuarios WHERE username="'.$usuario.'"';
+		$encriptada = md5($pwd);// Encriptamos contraseña puesta en formulario.
+		$sql = 'SELECT password,nombre,id FROM usuarios WHERE username="'.$usuario.'"';
 		$res = $BDTpv->query($sql);
-		//echo $res;
-		
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)){
 			$resultado['consulta'] = $sql;
 			$resultado['error'] = $BDTpv->error_list;
+			$_SESSION['estadoTpv']= 'ErrorConsulta';
 			return $resultado;
 		} 
 		$pwdBD = $res->fetch_row();
 			
 		if ($encriptada === $pwdBD[0]){
-			$_SESSION['usuario']=$usuario;
-			$_SESSION['estado']= 'activo';
-			$_SESSION['nombre']= $pwdBD[1];
-			
+			$resultado['login']=$usuario;
+			$resultado['nombre']= $pwdBD[1];
+			$resultado['id']= $pwdBD[2];
+			$_SESSION['estadoTpv']= 'Correcto';
+			$_SESSION['usuarioTpv']= $resultado;
 		} else {
-			$_SESSION['estado']= 'incorrecto';
+			$_SESSION['estadoTpv']= 'ErrorLogin';
 		}
-		//~ print_r($res->fetch_row());
 		return $resultado;
 	 } 
 	 
@@ -97,12 +96,35 @@ class ComprobarSession {
 			return $resultado;
 		} 
 		$datos = $res->fetch_row();
-		
-		//print_r($datos);
 		$resultado['idTienda']=$datos[0];
 		$resultado['razonsocial']=$datos[1];
-		 		 
+		$_SESSION['tiendaTpv']= $resultado; 		 
 		return $resultado;
 	 }
+	 
+	 function controlSession($URLCo,$Estado){
+		// Aqui venimos simpre, no debemos hacer consultas, solo poner estado
+		// Al iniciar session, cuando estamos logueados.
+		// El objetivo es comprobar que los parametros session esten correctos.
+		if (count($Estado) === 0 ){
+			// Obtenemos datos de session
+			$Estado['tienda'] = $_SESSION['tiendaTpv'];
+			$Estado['usuario'] = $_SESSION['usuarioTpv'];
+		}
+		$control = 0;
+		// Comprobamos que exista los parametros de la session. 
+		// la variable control no puede sumar se mayor 0
+		$control = $control + (isset($Estado['usuario']['login']) ? 0 : 1);
+		$control = $control + (isset($Estado['usuario']['nombre']) ? 0 : 1);
+		$control = $control + (isset($Estado['tienda']['razonsocial']) ? 0 : 1);
+		$control = $control + (isset($Estado['tienda']['idTienda']) ? 0 : 1);
+		if ( $control > 0){
+			// Algo no esta bien
+			return 'Erroneo'; // Aunque se puede gestionar distintos errores o situaciones.
+		}
+		// Devolvemos string si es correo o no.
+		return 'Correcto';
+	}
+	 
 }
 ?>

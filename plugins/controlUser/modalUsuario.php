@@ -6,49 +6,48 @@
  * @author      Ricardo Carpintero
  * @Descripcion	
  *  */
-		// Objetivo de esta aplicacion es:
-		// ventana popup
-		//Buscador 
-		//listar productos encontrados
-		
-		
-//https://www.w3schools.com/bootstrap/bootstrap_modal.asp
+// Objetivo de esta aplicacion es:
+// Es crear un formulario de entrada usuario.
 ?>
 
-
-
-	<?php 
-	//~ include './../../header.php';?>
-<!-- Modal -->
-
-<!DOCTYPE html>
-<html>
-<head>
-	<?php
-	include_once('./../../head.php');?>
-</head>
-<body>
-<div class="container">
+<?php
+	// Incrementamos contador paaginas abiertas.
+	$_SESSION['N_Pagina_Abiertas'] = $_SESSION['N_Pagina_Abiertas'] +1;
+	echo '<pre>';
+		echo 'Session en formulario';
+		print_r($_SESSION);
+	echo '</pre>';
+	
+	?>
+	
+<div id="formularioUsuario">
       <div class="col-md-6 col-md-offset-3">
 		  <h1>Inicio de sesion </h1>
 		<?php 
-		if ($_SESSION['estado']=== 'incorrecto'){ 
+		if ($_SESSION['estadoTpv'] === 'Correcto'){ 
+			// Quiere decir que ya esta logueado correctamente.
+			echo 'Relamente quiere desloguearte '.$UsuarioLogin;
+			echo '</div></div>';
+			return;
+		
+		}
+		if ($_SESSION['estadoTpv'] !== 'SinActivar'){ 
+			// ya quiere decir quiere decir que no es la primera vez... de intento logueo.
 			?>
 			<div class="alert alert-danger">
 				<strong>Error sesion!</strong> Contraseña o usuario incorrectos.
 			</div>
 		<?php } 
-			// Pasar ruta para poder devolver al mismo sitio.
-		//print_r('Usuario:'.$_SESSION['estado']);
+		// Pasar ruta para poder devolver al mismo sitio.
 		?> 
 		<form action="" method="post" name="form">
 		<div class="form-group">
 			<label for="usr">Nombre:</label>
-			<input type="text" class="form-control" id="usr" name="usr">
+			<input type="text" class="form-control" id="usr" name="usr" required>
 		</div>
 		<div class="form-group">
 			<label for="pwd">Clave:</label>
-			<input type="password" class="form-control" id="pwd" name="pwd">
+			<input type="password" class="form-control" id="pwd" name="pwd" required>
 		</div> 
 		<input type="submit" value="Aceptar">
 		</form>
@@ -56,5 +55,4 @@
       </div>
     </div>
 </div>
-</body>
-</html>
+

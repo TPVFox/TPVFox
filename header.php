@@ -2,6 +2,8 @@
     //añadido
 	/* Deberíamos hacer un pequeño proceso comprobaciones.
 	 * */
+	$Usuario= $_SESSION['usuarioTpv'];
+	$Tienda = $_SESSION['tiendaTpv'];
 	
 ?>
 
@@ -30,26 +32,12 @@
 				</ul>
 				
 				<div class="nav navbar-nav navbar-right">
-					<?php 
-					if (isset($_SESSION)){
-						// la ruta getcwd() no es la misma siempre.
-						if (isset($DirectorioInicio)) {
-							$Ruta = 'css/img/imgUsuario.png';
-						} else {
-							$Ruta = './../../css/img/imgUsuario.png'; // Porque estoy en modulo...
-						}
-					?>
 					
-						<span><img src="<?php echo $Ruta; ?>" class="img-responsive"  width="30" height="30"/> </span>
-					<?php 
-						print_r($_SESSION['usuario']);
-						
-					}
-					?>
-					
+					<span class="glyphicon glyphicon-user"></span><?php echo $Usuario['login'];?>
+				
 				</div>
 				<div class="nav navbar-nav navbar-right" style="margin-right:50px">
-					<div id="tienda"><?php echo ($Usuario['razonsocial']);?></div>
+					<div id="tienda"><?php echo $Tienda['razonsocial'];?></div>
 					
 				</div>
 			</div>
@@ -58,3 +46,17 @@
 	</nav>
 <!-- Fin de menu -->
 </header>
+
+<?php 
+// Mostramos formulario si no tiene acceso.
+	// Bloqueamos si 	
+	if ($TPVsession['SessionTpv']['estado'] != "Correcto"){
+		// Mostramos modal de usuario.
+		include_once ($URLCom."/plugins/controlUser/modalUsuario.php");
+		?>
+		</body>
+		</html>
+		<?php
+		exit;	
+	}
+	?>

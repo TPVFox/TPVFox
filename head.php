@@ -9,15 +9,14 @@
 	}
 	
 	include_once ($Ruta.'configuracion.php');
-	include_once ($RutaServidor.$HostNombre."/modulos/mod_conexion/conexionBaseDatos.php");
-	//include_once ($RutaServidor.$HostNombre."/controllers/Controladores.php");
+   	$URLCom = $RutaServidor . $HostNombre;
+	include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
 	//incluyo ruta del controlador de sesion (funcion php)
-    include_once ($RutaServidor . $HostNombre . "/plugins/controlUser/funcion.php");
-	$URLCom = $RutaServidor . $HostNombre;
-	$varSesion = new ComprobarSession;			
-	$Usuario= $varSesion->recibir($BDTpv, $URLCom);
+    include_once ($URLCom. "/plugins/controlUser/funcion.php");
 	
-
+	// Solo creamos objeto si no existe.
+	$thisTpv = new ComprobarSession;			
+	$TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
 
 ?>
 

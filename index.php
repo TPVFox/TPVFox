@@ -9,26 +9,12 @@
 <head>
 <?php
 	include 'head.php';?>
-	
-	<?php 
-		//~ echo '<pre>';
-			//~ print_r($_SESSION);
-		//~ echo '</pre>';
-		if ($Usuario['estado'] === "Incorrecto"){
-			return;	
-		}
-	?>
-
 </head>
 <body>
 	<?php 
 	include 'header.php';
-	
-	//~ echo '<pre>';
-		//~ print_r($_SESSION);
-	//~ echo '</pre>';
-	
 	?>
+	
 	<section>
 		<div class="container">
 			<div class="col-md-8">
