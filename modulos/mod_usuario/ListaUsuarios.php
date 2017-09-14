@@ -3,11 +3,6 @@
     <head>
         <?php
 	include './../../head.php';
-		if ($Usuario['estado'] === "Incorrecto"){
-		return;	
-	}
-
-	
 	include './funciones.php';
 	$usuarios = obtenerUsuarios($BDTpv);
 	

@@ -6,10 +6,6 @@
         include './../../head.php';
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
-		//include ("./ObjetoRecambio.php");
-		if ($Usuario['estado'] === "Incorrecto"){
-			return;	
-		}
 		// Obtenemos id
 		if ($_GET['id']) {
 			$id = $_GET['id'];

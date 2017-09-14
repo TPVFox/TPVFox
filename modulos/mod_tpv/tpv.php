@@ -25,15 +25,7 @@
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
 
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
-<?php
-		//~ include_once ($RutaServidor . $HostNombre . "/plugins/controlUser/funcion.php");
-		//~ $varSesion = new ComprobarSession;
-		//~ $dato= $varSesion->recibir($BDTpv, $HostNombre);
-		if ($Usuario['estado'] === "Incorrecto"){
-			return;	
-		}
 
-?>
 </head>
 <!--
 onBeforeUnload="return preguntarAntesDeSalir()"
