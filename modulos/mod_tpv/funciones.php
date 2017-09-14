@@ -202,6 +202,7 @@ function htmlClientes($busqueda,$clientes){
 		$resultado['html'] .= '<span>10 productos de '.count($clientes).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>';
+	$resultado['html'] .= ' <th></th>'; //cabecera blanca para boton agregar
 	$resultado['html'] .= ' <th>Nombre</th>';
 	$resultado['html'] .= ' <th>Razon social</th>';
 	$resultado['html'] .= ' <th>NIF</th>';
