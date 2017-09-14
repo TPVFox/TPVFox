@@ -20,7 +20,6 @@
 ?>
 <?php //declaramos parametro para poder configurar campoPeso y no mostrarlo o si a nuestro gusto.
 // lo hacemos aqui para cogerlo bien en todo el proyecto, parametro global. ?>
-<script type="text/javascript"> var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";</script> 
 
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
 
@@ -44,42 +43,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 <!-- Fin css para agregar o eliminar filas -->
 </style>
 
-<script language="JavaScript">
-	
-    
-	//~ window.onbeforeunload = function(event) {
-		//~ event.returnValue = " Seguro?";
-		//~ //alert('kkk'); //no entra
-	//~ };
-	
-	//~ document.onbeforeunload=preguntarAntesDeSalir();
-	//~ function preguntarAntesDeSalir(){
-		
-		//~ alert('aki'+producto.length);
-		
-		//~ return 'saldras';
-	//~ }	
-	
-	
-	//***tengo que poner en el body  onbeforeunload
-	//~ var salir = true;
-    //~ function preguntarAntesDeSalir(){     
-		//~ if (salir === true){
-			//~ //alert('saldras');
-			//~ return 'saldras';
-		//~ }
-    //~ }
-   
-   //http://cursohacker.es/dom-y-javascript-controlando-una-p%C3%A1gina-web 
-    //~ var entrar = confirm ('Estas seguro de que quieres salir?');
-	
-	//~ if (entrar == 1){ //si
-		//~ window.location="http://localhost/superoliva/tpvolalla/index.php"
-	
-	//~ } else {
-		//~ alert ("El usuario ha dicho que no");
-	//~ }
-</script>
+
 
 
 
@@ -163,7 +127,7 @@ movil
 			<th>Descripcion</th>
 			<th>Unid</th>
 			<?php  
-			if (CONF_campoPeso === 'si'){ ?>
+			if ($CONF_campoPeso === 'si'){ ?>
 				<th>Cant/Kilo</th>
 			<?php 
 			} else { ?> 
@@ -184,30 +148,13 @@ movil
 		</tr>
 		</thead>
 		<tbody>
-<!--
-		  <tr id="Row1">
-			<td id="C1_Linea">1</td>
-			<td id="C1_Codbarras">8470002523128</td>
-			<td id="C1_Referencia">000-14525</td>
-			<td id="C1_Descripcion">Alcohol Sanitario VF 96% 250ml Peligro </td>
-			<td id="C1_Unid">10</td>
-			<td id="C1_Cant_Kilo"></td>
-			<td id="C1_Pvp">1.00</td>
-			<td id="C1_Iva">21%</td>
-			<td id="C1_Importe">10.22</td>
-			<td id="C1_Comentario"></td>
 
-		  </tr>
--->
 		
 		
 		</tbody>
 	  </table>
 	</div>
-	<?php //if (isset('#Row1')) {
-		
-		
-	//} ?>
+	
 	<table id="tabla-pie" class="table table-striped">
 	<tbody>
 		<tr id="titulo">
