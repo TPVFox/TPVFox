@@ -133,7 +133,7 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 					"','".number_format($producto['CTIPOIVA'])."','".$producto['CCODEBAR']."',".number_format($producto['NPCONIVA'],2).
 					$producto['CCODEBAR'];
 		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
-					.$contad.')" onmouseover="sobreProducto('.$contad.')"  onclick="cerrarModal('.$datos.');">';
+					.$contad.')" onmouseover="sobreProductoCraton('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
 		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input onfocusout="abandonProducto('
 					.$contad.')" onfocus="sobreProducto('.$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
@@ -197,7 +197,8 @@ function htmlClientes($busqueda,$clientes){
 	
 	$resultado['html'] = '<label>Busqueda Cliente</label>';
 	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
-				 'size="13" value="'.$busqueda.'" onkeydown="teclaPulsada(event,'."'".'busquedaCliente'."'".',0,'."'".'valorCliente'."'".')" type="text">';
+				'size="13" value="'.$busqueda.'" onkeydown="teclaPulsada(event,'."'".'busquedaCliente'."'".',0,'."'".'valorCliente'."'".')" type="text">';
+				
 	if (count($clientes)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($clientes).'</span>';
 	}
@@ -213,9 +214,11 @@ function htmlClientes($busqueda,$clientes){
 			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".$razonsocial_nombre."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
-						.$contad.')" onmouseover="sobreProducto('.$contad.')" onclick="cerrarModalClientes('.$datos.');">';
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input onfocusout="abandonProducto('
-					.$contad.')" onfocus="sobreProducto('.$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+						.$contad.')" onmouseover="sobreProductoCraton('.$contad.')" onclick="cerrarModalClientes('.$datos.');">';
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="flecha" onfocusout="abandonProducto('
+						.$contad.')" onfocus="sobreProducto('.$contad.')" type="image"  alt="">';
+			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.$cliente['nombre'].'</td>';
 			$resultado['html'] .= '<td>'.$cliente['razonsocial'].'</td>';
 			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';

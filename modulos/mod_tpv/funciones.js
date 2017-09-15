@@ -56,45 +56,44 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 	if(event.keyCode == 13){
 		campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
 	} 
-	//if ((nombreInput === 'Unidad') || (nombreInput === 'cajaBusqueda')){
-		if ((event.keyCode === 40) || (event.keyCode === 38)){
-			campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
-		}
+	
+	if ((event.keyCode === 40) || (event.keyCode === 38)){
+		campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
+	}
 		
 	//}
-	//tecla F5 116
-	if (event.keyCode === 39){
+	//tecla F5 116  -- tecla 39 flecha drcha    tecla 27 --> ESC
+	//tecla F1 --> 112  COBRAR popup
+	if (event.keyCode === 112){
 		var numproduct = producto.length;
 		numproduct = numproduct -1;
 		if (numproduct > 0){
-			console.log('f5 ');
+			console.log('F1 ');
 			cobrarF5();
-		
 		}
 	}
-	// si es popup de cobrar
+	// si es popup de cobrar 
 	 if (nombreInput === 'entrega'){
-		 
 		var entrega = obtenerdatos(nombreInput);
 		var cambio = entrega - total;
-		if(event.keyCode == 13){
+		console.log(entrega);
+		if(event.keyCode === 13){
 			if (cambio < 0){
 				$('#cambio').css('color','red');
-		
 			}else {
 				$('#cambio').css('color','grey');
 			}
-		
-		//$('#cambioText').html(cambio);
 		$('#cambio').val(cambio.toFixed(2));
 		}
 	 }
-	//idea 
+	 
+	 
+	//flecha hacia abajo se mueve por los inputs cantidad/unidad productos en ticket
 	if (event.keyCode === '40'){
 		nfila = producto.length;
 		
 		nfila = nfila-1;
-		alert(nfila);
+		//alert(nfila);
 		if (nfila >= 0){
 			$('#N'+nfila+'_Unidad').select();
 		}
@@ -103,6 +102,9 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 	
 //alert(event.keyCode);
 //dice numTecla 
+
+	
+	
 }
 
 function cobrarF5(){
@@ -146,7 +148,7 @@ function cobrarF5(){
 //quiero conseguir valor del campo
 function obtenerdatos(id){
 	var aux = document.getElementById(id);
-	console.log('Ver id obtenerDatos '+aux); //Ver id [object HTMLInputElement]
+	console.log('Ver id obtenerDatos '+aux.value+' '+id); //Ver id [object HTMLInputElement]
 	return aux.value;
 }
 function movimTecla(numTecla,nfila,nombreInput){
@@ -235,6 +237,10 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 			break;
 		case 'Descripcion':
 			campo = 'CDETALLE';
+			if(nomcampo==='buscar'){ //buscar con lupa click raton
+				$('cajaBusqueda').val();
+				buscarProducto(campo,'','tpv');
+			}
 			id= 'C'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
 			if (datoInput === ''){
@@ -242,6 +248,9 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 				return;
 			}
 			buscarProducto(campo,datoInput,'tpv');
+			
+		
+			
 			break;
 		case 'Unidad':
 			id= 'N'+nfila+'_'+nombreInput;
@@ -255,25 +264,30 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 			//alert('dato input '+datoInput);
 			break;
 		case 'cajaBusqueda':
-			//alert('caja busqueda'+nomcampo);
 			datoInput = obtenerdatos(nombreInput);
 			movimTecla(numTecla,nfila,nombreInput);
 			viewsResultado(datoInput,nomcampo);
 			break;
 		case 'busquedaCliente':
 			var valor = $('#cajaBusquedacliente').val();
-			buscarClientes(valor); 
+			buscarClientes(valor);
+			movimTecla(numTecla,nfila,nombreInput);
 		break;
+		
 	}
 	return campo;
 }
-//html onmouseover 
+//html onfocus 
 function sobreProducto(cont){
 	$('#Fila_'+cont).css('background-color','lightblue');
 }
-//html onmouseout
+//html onfocusout y onmouseout
 function abandonProducto(cont){
 	$('#Fila_'+cont).css('background-color','white');
+}
+
+function sobreProductoCraton(cont){
+	$('#Fila_'+cont).css('background-color','azure');
 }
 
 function resetCampo(campo){
@@ -342,7 +356,6 @@ console.log('xxxxx '+campo);
 				var titulo = 'Listado productos encontrados ';
 
 				abrirModal(titulo,HtmlProductos);
-				//alert('Posibles opciones: ');
 				resetCampo(campo);
 			} else {
 				alert(resultado['Estado']);
@@ -377,9 +390,7 @@ function agregarFila(datos){
 	producto[nfila]=[];
 	producto[nfila]=datos;
 	producto[nfila]['NPCONIVA']= NPCONIVA;
-
 	producto[nfila]['UNIDAD']=1;
-
 	producto[nfila]['Estado']='Activo';
 
 	//campos: CCODEBAR	CREF	CDETALLE	UNID	CANT/KILO	NPCONIVA	CTIPOIVA	IMPORTE
@@ -457,11 +468,15 @@ function abrirModal(titulo,tabla){
 	$('.modal-body > p').html(tabla);
 	$('.modal-title').html(titulo);
 	$('#busquedaModal').modal('show');
+	
+	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
 	$('#busquedaModal').on('shown.bs.modal', function() {
 		$('#cajaBusqueda').focus(); //foco en input cajaBusqueda MODAL listadoProductos
 		
 		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
+		
 		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
+		
 	});
 	
 }

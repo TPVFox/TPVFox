@@ -104,11 +104,9 @@ movil
 		</ul>
 		<h5>Opciones de ticket</h5>Generales</h5>
 		<ul class="nav nav-pills nav-stacked">
-			<li><a href="#section1">Nuevo Linea</a></li>
-			<li><a href="#section2">Eliminar Linea</a></li>
-			<li><a href="#section3">Añadir Cliente</a></li>
+			<li><a onclick="buscarClientes()">Añadir Cliente</a></li>
 			<li><a href="#section3">Abrir Cajon</a></li>
-			<li><a href="#section3">Cobrar</a></li>
+			<li><a onclick="cobrarF5()">Cobrar</a></li>
 			
 		</ul>
 	</div>
@@ -163,7 +161,7 @@ movil
 			<th>Descripcion</th>
 			<th>Unid</th>
 			<?php  
-			if (CONF_campoPeso === 'si'){ ?>
+			if ($CONF_campoPeso === 'si'){ ?>
 				<th>Cant/Kilo</th>
 			<?php 
 			} else { ?> 
@@ -177,10 +175,13 @@ movil
 			<th></th>
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
-			<td id="C0_Linea" ><span id="agregar" class="glyphicon glyphicon-plus-sign agregar"></span></td>
+			<td id="C0_Linea" ></td>
 			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeydown="teclaPulsada(event,'Codbarras',0)"></td>
 			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeydown="teclaPulsada(event,'Referencia',0)"></td>
-			<td><input id="C0_Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeydown="teclaPulsada(event,'Descripcion',0)"> </td>
+			<td><input id="C0_Descripcion" type="text" name="Descripcion" 
+				placeholder="Descripcion" size="20" value="" onkeydown="teclaPulsada(event,'Descripcion',0)">
+				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="nombreCampo('Descripcion',0,'buscar',0)"></a> 
+			</td>
 		</tr>
 		</thead>
 		<tbody>
