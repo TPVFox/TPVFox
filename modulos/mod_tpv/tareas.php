@@ -19,15 +19,12 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos funciones
 include_once ("./funciones.php");
 
- //recojo datos del ajax buscarProducto con parametros definidos
- //llamo a funcion php donde uso esos datos y me devuelve un array
- switch ($pulsado) {
+switch ($pulsado) {
     case 'buscarProducto':
 		$busqueda = $_POST['valorCampo'];
 		$campoAbuscar = $_POST['campo'];
 		//cuando busco dsde el popup el estado me es indiferente
 		$deDonde = $_POST['dedonde'];
-		
 		//cambio conexion a tpv
 		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDTpv);
 		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
@@ -67,6 +64,17 @@ include_once ("./funciones.php");
 		
 		$respuesta = htmlClientes($busqueda,$res['datos']);
 	
+		echo json_encode($respuesta);
+		break;
+	case 'grabarTickes';
+		$respuesta = array();
+		$productos 	= $_POST['productos'];
+		$cabecera = array();
+		$cabecera['idTienda'] =$_POST['idTienda'];
+		$cabecera['idCliente'] =$_POST['idCliente'];
+		$cabecera['idUsuario'] =$_POST['idUsuario'];
+		$res 	= grabarTicketsTemporales($productos,$cabecera);
+		$respuesta['resultado']=$res;
 		echo json_encode($respuesta);
 		break;
 		
