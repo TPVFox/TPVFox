@@ -17,9 +17,28 @@
 <head>
 <?php
 	include './../../head.php';
+	// Tengo que cargar antes el idTienda..
+	$Tienda = $_SESSION['tiendaTpv'];
+	$Usuario = $_SESSION['usuarioTpv'];
 ?>
-<?php //declaramos parametro para poder configurar campoPeso y no mostrarlo o si a nuestro gusto.
-// lo hacemos aqui para cogerlo bien en todo el proyecto, parametro global. ?>
+
+<script type="text/javascript"> 
+	// Esta variable global la necesita para montar la lineas.
+	// En configuracion podemos definir SI / NO 
+	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
+	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
+	cabecera['idCliente'] = 1; // Este dato puede cambiar
+	cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+	cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+	
+	
+	
+	
+	
+	
+	
+</script> 
+
 
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
 
@@ -31,9 +50,13 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 -->
 <body>
 <?php 
+
 	include '../../header.php';
 	include_once ("funciones.php");
-
+	//~ echo '<pre>';
+	//~ print_r($Usuario);
+	//~ echo '</pre>';
+	
 ?>
 <style type="text/css">
 <!-- css necesario para agregar o eliminar filas -->
@@ -85,13 +108,15 @@ movil
 			<span id="Fecha"><?php echo date("d/m/Y");?></span>
 			</div>
 			<div class="col-md-4">
-			<strong>Numero Ticket:</strong>
-			<span id="NTicket">0</span>
-			</div>
-			<div class="col-md-4">
-			<strong>Estado:</strong>
+			<strong>Estado/N:</strong>
 			<span id="Estado">NUEVO</span>
 			</div>
+			<div class="col-md-4">
+			<strong>Numero Ticket:</strong>
+			<span id="NTicket"></span>
+
+			</div>
+			
 			<div class="col-md-4">
 			<strong>Hora Inicio:</strong>
 			<span id="HoraInicio"><?php echo '00:00';//date("H:i");?></span>
