@@ -71,8 +71,6 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDTpv) {
 		$arr[$i] = $fila;
 		$fila['CREF'] = $fila['crefTienda'];
 		$fila['CCODEBAR'] =$fila['codBarras'];
-		
-		
 		$fila['CDETALLE'] = $fila['articulo_name'];
 		$fila['CTIPOIVA'] = $fila['iva'];
 		$fila['NPCONIVA'] = $fila['pvpCiva'];
@@ -129,9 +127,9 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 			$producto['NPCONIVA'] = $producto['pvpCiva'];
 			
 		
-		$datos = 	"'".$producto['CREF']."','".$producto['CDETALLE'].
-					"','".number_format($producto['CTIPOIVA'])."','".$producto['CCODEBAR']."',".number_format($producto['NPCONIVA'],2).
-					$producto['CCODEBAR'];
+		$datos = "'".$producto['CREF']."','".$producto['CDETALLE']."','"
+					.number_format($producto['CTIPOIVA'])."','".$producto['CCODEBAR']."',"
+					.number_format($producto['NPCONIVA'],2).",".$producto['idArticulo'];
 		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
 					.$contad.')" onmouseover="sobreProductoCraton('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
@@ -231,7 +229,6 @@ function htmlClientes($busqueda,$clientes){
 		}
 	} 
 	$resultado['html'] .='</tbody></table>';
-	
 	return $resultado;
 }
 
@@ -290,10 +287,37 @@ function htmlSesion(){
     $resultado['html'] .= '</tr>';
     $resultado['html'] .= '</form>';
     $resultado['html'] .= '</div>';
-	 
 	
 	
 	return $resultado;
 }
+
+function grabarTicketsTemporales($productos,$cabecera) {
+	// Objetivo guardar datos en tabla temporal de tickets.
+	$resultado = array();
+	$productos_json = array();
+	foreach ($productos as $product){
+		$productos_json[] = json_encode($product);
+	}
+	
+	$resul 	=json_encode($productos_json);
+	$resultado['productos'] = $productos_json;	
+	
+	$fecha		=  date("Y-m-d H:i:s");
+	$idTienda	= $cabecera['idTienda'];
+	$idCliente	= $cabecera['idCliente'];
+	$idUsuario	= $cabecera['idUsuario'];
+	$SQL = 'INSERT INTO `ticketstemporales`(`idTienda`, `idUsuario`, `fechaInicio`, `idClientes`, `total`, `total_ivas`, `Productos`) VALUES ('.$idTienda.','.$idUsuario.',"'.$fecha.'",'.$idCliente.','.$resul.'")';
+	
+	
+	
+	$resultado['consulta'] = $SQL;
+	$resultado['fechea'] = $fecha;
+	return $resultado;
+	
+	}
+
+
+
 
 ?>

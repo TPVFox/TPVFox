@@ -31,12 +31,10 @@ var pulsado = '';
 var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
-var producto =[];
+var producto; // Hay que eliminar.. 
 var total = 0;
-//~ total['total'] = [];
-//~ total['total']['4'] = 0;
-//~ total['total']['10'] = 0;
-//~ total['total']['21'] = 0;
+var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
+
 
 
 
@@ -250,13 +248,10 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 			campo = 'CCODEBAR';
 			id= 'C'+nfila+'_'+nombreInput;
 			datoInput = obtenerdatos(id);
-			
 			movimTecla(numTecla,nfila,nombreInput);
-
 			if ((datoInput === '') && ((numTecla === 13) || (numTecla === 38) )){
 				$('#C0_Referencia').focus();
 				return;
-				
 			} else if (numTecla === 40){
 				$('#'+id).val('');
 				return;
@@ -305,7 +300,8 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 		case 'cajaBusqueda':
 			datoInput = obtenerdatos(nombreInput);
 			movimTecla(numTecla,nfila,nombreInput);
-			viewsResultado(datoInput,nomcampo);
+			buscarProducto(nomcampo,datoInput,'popup');
+			//~ viewsResultado(datoInput,nomcampo);
 			break;
 		case 'busquedaCliente':
 			console.log('nomcampo '+nomcampo); // si estoy en buscar vine por lupa, sin datos en input
@@ -340,27 +336,25 @@ function resetCampo(campo){
 	campos['CREF'] = 'C0_Referencia';
 	campos['CCODEBAR'] = 'C0_Codbarras';
 	campos['CDETALLE'] = 'C0_Descripcion';
-
+	console.log('Entro en resetCampo '+campo);
 	document.getElementById(campos[campo]).value='';
 	return campos[campo];
 }
 
 
-//EN FUNCIONES PHP 
-//DETERMINAR si es una ref o un codigoBarras el dato que me pasan para buscar... 
-//campoAbuscar = ref , codigoBarras o descripc
-//busqueda = dato en input correspondiente
 function buscarProducto(campoAbuscar,busqueda,dedonde){
-	// Objetivo:
-	//parametros :
-	//campo input 
-	//valor campo 
-	// los envio a tareas, alli llamo a la funcion de buscarProducto PHP
-	// recibo array con datos y trabajo con ellos, seria enviarlos a agregarFila js.
-	console.log('entramos en buscarProducto JS');
+	// @parametros:
+	// 		campoAbuscar = ref,codigoBarras o descripc
+	// 		busqueda = valor del input que corresponde.
+	// 		dedonde  = [tpv] o [popup] 
+	// El Objetivo enviar dato y campo a buscar...
+	// Y obtener un respuesta , donde puede ser:
+	//  1.- Un producto unico.
+	//  2.- Un listado de productos.
+	//  3.- O nada un error.
 	valorCampo = busqueda;
 	campo = campoAbuscar;
-console.log('xxxxx '+campo);
+	console.log('Entramos en buscarProducto JS- Para buscar con el campo'+campo);
 	var parametros = {
 		"pulsado"    : 'buscarProducto',
 		"valorCampo" : valorCampo,
@@ -372,38 +366,34 @@ console.log('xxxxx '+campo);
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-			$("#resultado").html('Comprobamos que el producto existe ');
-			console.log('******** estoy en buscar producto JS****************');
+			console.log('*********  Envio datos para Buscar Producto  ****************');
 		},
 		success    :  function (response) {
-			console.log('ajax success response '+response);
+			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
-			//~ console.log('parseJson '+resultado[datos]); //[object object]
-			//resultado es [object object]
-			//ponemos var global resultado = [], para acceder a datos
-			//creo array datos para leer cada dato del array resultado
-
 			if (resultado['Estado'] === 'Correcto') {
 				var datos = [];
 				datos = resultado.datos[0];
-				//accedo a los datos que recojo con ayuda de 2 array, 1 global resultado, y otro datos.
-				console.log('DATOS: '+datos['CCODEBAR']+' '+datos['CREF']+' '+datos['CDETALLE']+' '+datos['NPCONIVA']+' '+datos['CTIPOIVA']); 
+				console.log('Entro en Estado Correcto funcion buscarProducto ->datos (producto)');
+				console.log(datos);
 				agregarFila(datos);
-				
-				
-				
 				//limpiar formato de input referencia
 				resetCampo(campo);
 				console.log('tenemos array datos de uno producto');
-			} else if (resultado['Estado'] === 'Listado'){
+			} else 
+				if (resultado['Estado'] === 'Listado'){
+				console.log('Entro en Estado Listado de funcion buscarProducto');
+				console.log(resultado);
 				var busqueda = resultado.listado;   //$respuesta['listado']= htmlProductos TAREAS  
 				var HtmlProductos=busqueda.html;   //$resultado['html'] de montaje html
 				var titulo = 'Listado productos encontrados ';
-
+				// Abrimos modal de productos.
 				abrirModal(titulo,HtmlProductos);
 				resetCampo(campo);
+
 			} else {
 				alert(resultado['Estado']);
+				// Limpiamos campos de caja de busqueda.
 				resetCampo(campo);
 			}
 		}
@@ -412,11 +402,13 @@ console.log('xxxxx '+campo);
 
 function agregarFila(datos){
 	// Montamos array
-	 var nfila = producto.length;
-	 if (nfila === 0){
+	var nfila = producto.length;
+	if (nfila === 0){
 		 nfila = 1;
-	 }
-	 
+	}
+	// Voy a crear objeto producto nuevo..
+	productos.push(new ObjProducto(datos,nfila));
+		 
 	var CCODEBAR = datos['CCODEBAR'];
 	var CREF = datos['CREF'];
 	var CDETALLE = datos['CDETALLE'];
@@ -429,15 +421,13 @@ function agregarFila(datos){
 			//~ datos['iva'];
 			//~ datos['codBarras'];
 			//~ datos['pvpCiva'];
-
-
 	//~ producto[nfila]['CCODEBAR'] = datos['CCODEBAR'];
-	producto[nfila]=[];
-	producto[nfila]=datos;
+	//~ producto[nfila]=[];
+	producto[nfila]= datos;
 	producto[nfila]['NPCONIVA']= NPCONIVA;
 	producto[nfila]['UNIDAD']=1;
 	producto[nfila]['Estado']='Activo';
-
+	
 	//campos: CCODEBAR	CREF	CDETALLE	UNID	CANT/KILO	NPCONIVA	CTIPOIVA	IMPORTE
 
 	// montamos fila de html de tabla
@@ -475,6 +465,9 @@ function agregarFila(datos){
 function eliminarFila(nfila){
 	var line;
 	line = "#Row" + nfila;
+	// Nueva Objeto de productos.
+	productos[nfila].estado= 'Eliminado';
+	// Antiguo array productos.
 	producto[nfila]['Estado'] = 'Eliminado';
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
@@ -485,12 +478,18 @@ function eliminarFila(nfila){
 function retornarFila(nfila){
 	var line;
 	line = "#Row" + nfila;
+	// Nueva Objeto de productos.
+	productos[nfila].estado= 'Activo';
+	// Antiguo array productos.
 	producto[nfila]['Estado'] = 'Activo';
 	var pvp =producto[nfila]['NPCONIVA'];
 
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarFila('+nfila+');"><span class="glyphicon glyphicon-trash"></span></a>');
 	if (producto[nfila]['UNIDAD'] == 0) {
+		// Nueva Objeto de productos.
+		productos[nfila].unidad= 1;
+		// Antiguo array productos.
 		producto[nfila]['UNIDAD'] = 1;
 		recalculoImporte(producto[nfila]['UNIDAD'],pvp,nfila);
 	}
@@ -534,40 +533,39 @@ function abrirModal(titulo,tabla){
 	});
 }
 
-
-//function futura cuando buscamos directamente en caja de busqueda
-//vista htmlProductos listado
-function viewsResultado(datoInput,nomcampo) {
-	//alert('vista resultaod'+datoInput+' campo nombre '+nomcampo);
-	buscarProducto(nomcampo,datoInput,'popup');
-	//alert('vista result htmlprod');
-}
-
-function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva){
-	var producto = [];
-	producto['CREF'] = cref;
-	producto['CDETALLE'] = cdetalle;
-	producto['NPCONIVA'] =npconiva;
-	producto['CCODEBAR'] =ccodebar;
-	producto['CTIPOIVA'] =ctipoIva;
-
-	//alert('CerrarModal producto'+npconiva);
-
+function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
+	// Nuevos datos tabla nueva... 
+	var datos = []
+	datos['idArticulo'] 	= id;
+	datos['crefTienda'] 	= cref;
+	datos['articulo_name'] 	= cdetalle;
+	datos['pvpCiva'] 		= npconiva;
+	datos['iva'] 			= ctipoIva;
+	// Antiguos datos, tablas BDF
+	datos['idArticulo'] = id;
+	datos['CREF'] = cref;
+	datos['CDETALLE'] = cdetalle;
+	datos['NPCONIVA'] =npconiva;
+	datos['CCODEBAR'] =ccodebar;
+	datos['CTIPOIVA'] =ctipoIva;
 	$('#busquedaModal').modal('hide');
-	agregarFila(producto);
+	agregarFila(datos);
 }
 
-/****************** cliente tpv *************/
-//datos que necesito guardar despues de cerrar modal
-//mostrarlos en tpv
-function cerrarModalClientes(id,nombre){
-	//alert('cerrar clientes '+id);
 
+function cerrarModalClientes(id,nombre){
+	// @ parametros recibidos.
+	// 	id -> Del cliente
+	//  nombre ->  Nombre cliente
+	// mostrarlos en tpv
+	
 	//cerrar modal busqueda
 	$('#busquedaModal').modal('hide');
 	
 	//agregar datos funcion js
 	$('#id').val(id);
+	cabecera['idCliente'] = id;
+	
 	$('#Cliente').val(nombre);
 }
 
@@ -605,18 +603,57 @@ function buscarClientes(valor=''){
 		}
 	});
 }
-/*****************Fin cliente tpv********************/
+function grabarTicketsTemporal(){
+	// Objetivo es enviar los datos necesarios para poder hacer un ticket temporal.
+	console.log('Grabamos en BD');
+	//~ alert('Grabar');
+	// Montamos array
+	//~ var UNproduct =[];
+	var i  =0;
+	console.log('Productos');
+	console.log(productos);
+	// Para poder mandar objectos de productos ...
+	var parametros = {
+		"pulsado"    : 'grabarTickes',
+		"productos"	 : productos,//
+		"idCliente"	 : cabecera.idCliente,
+		"idTienda" 	 : cabecera.idTienda,
+		"idUsuario"	 : cabecera.idUsuario
+		//~ "sumaTotal" : suma_total,
+		//~ "total_ivas": total_ivas
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** Voy a grabar****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta de grabar');
+			console.log(response);
+			var resultado =  $.parseJSON(response); 
+			
+		}
+	});
+}
 
-// slight update to account for browsers not supporting e.which
-// To disable f5
-    /* jQuery < 1.7 */
-//$(document).bind("keydown", disableF5);
-/* OR jQuery >= 1.7 */
-//~ $(document).on("keydown", disableF5);
-//~ $(document).off("keydown", disableF5);
+function ObjProducto(datos,nfila,valor=1,estado ='Activo')
+{
+    this.id = datos.idArticulo;
+    this.cref = datos.crefTienda
+    this.cdetalle = datos.articulo_name;
+    this.npconiva = datos.pvpCiva;
+    this.ccodebar = datos.codBarras;
+    this.ctipoiva = datos.iva;
+    this.unidad = valor;
+    this.estado = estado;
+    this.nfila = nfila;
 
-// To re-enable f5
-    /* jQuery < 1.7 */
-//$(document).unbind("keydown", disableF5);
-/* OR jQuery >= 1.7 */
-//~ $(document).off("keydown", disableF5);
+
+
+}
+	
+
+	
+
