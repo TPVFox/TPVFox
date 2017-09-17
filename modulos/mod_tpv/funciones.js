@@ -50,14 +50,46 @@ var total = 0;
 	//~ }
 //~ };
 
+
+
 function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 	//~ $(document).on("keydown", disableF5);
 	//~ $(document).off("keydown", disableF5);
 	if(event.keyCode == 13){
+		console.log('enter nombreINput '+nombreInput);
+	
 		campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
 	} 
 	
 	if ((event.keyCode === 40) || (event.keyCode === 38)){
+	console.log('dentro 0');
+			//muevo foco de caja busqueda a input inicial 0, estamos bajando
+			if ((event.keyCode === 40) && (nombreInput === 'cajaBusquedacliente') || (nombreInput === 'cajaBusqueda')){
+			console.log('dentro 2 flechas');
+				var datoinput = obtenerdatos(nombreInput);					//vemos si hay datos/valor en input
+				if ((datoinput === '') && (nombreInput === 'cajaBusqueda')){   //cajaBusqueda == modalProductos, en vacio tiene lista productos
+					tiempoEnfoqueInput(nfila);								//enfoque en el primer input de la lista
+				console.log('dentro campo vacio, busqueda producto');
+				} 
+				console.log('dentro 4datos input '+datoinput);
+				tiempoEnfoqueInput(nfila); //se mueve al primer input
+				return;
+			}
+			
+			//muevo foco de input inicial al sig input
+			if ((event.keyCode === 40) && (nombreInput === 'N_'+nfila)){
+				nfila++;  //se mueve hacia abajo
+				tiempoEnfoqueInput(nfila);
+			} else {  					//es que estas pulsando tecla arriba //flecha
+				nfila--; 				//se mueve hacia arriba
+				if (nfila === -1){ 		//pasamos al input del campo de busqueda el foque
+					$('#cajaBusqueda').select();
+					$('#cajaBusquedacliente').select();
+				}
+				tiempoEnfoqueInput(nfila);
+			}
+//PENDIENTE: si inputs estan vacios y pulso teclas
+		console.log('down nombreINput '+nombreInput+' fila '+nfila);
 		campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
 	}
 		
@@ -105,6 +137,13 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 
 	
 	
+}
+//en input llamo con onkeydown a teclaPulsada(event,nombreInput,nfila)
+//pongo un tiempo de focus en input ventana modal busqueda 
+function tiempoEnfoqueInput(nfila){
+	setTimeout(function() {   //pongo un tiempo de focus en input modal busqueda 
+		$('#N_'+nfila).focus(); 
+	}, 500); 
 }
 
 function cobrarF5(){
@@ -269,7 +308,13 @@ function nombreCampo(nombreInput,nfila,nomcampo,numTecla){
 			viewsResultado(datoInput,nomcampo);
 			break;
 		case 'busquedaCliente':
+			console.log('nomcampo '+nomcampo); // si estoy en buscar vine por lupa, sin datos en input
+			//deberia mostrar una lista opc clientes
+			//PENDIENTE
+			
 			var valor = $('#cajaBusquedacliente').val();
+			
+			console.log('valor input cliente '+valor);
 			buscarClientes(valor);
 			movimTecla(numTecla,nfila,nombreInput);
 		break;
@@ -476,10 +521,19 @@ function abrirModal(titulo,tabla){
 		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
 		
 		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
-		
-	});
 	
+	});
+
+	
+	//indico que en input de ventana modal buscar cliente PRESIONO tecla va a la funcion teclaPulsada
+	$('#cajaBusquedacliente').on('keydown', function ( e ) {
+		teclaPulsada(e,'cajaBusquedacliente');
+	});
+	$('#cajaBusqueda').on('keydown', function(e){
+		teclaPulsada(e,'cajaBusqueda');
+	});
 }
+
 
 //function futura cuando buscamos directamente en caja de busqueda
 //vista htmlProductos listado
