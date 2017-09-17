@@ -65,7 +65,6 @@ function sumaImportes(){
 			iva_type = parseFloat(product['CTIPOIVA']);
 			total_ivas[iva_type] += importe;
 			suma_total += importe;
-			
 		}
 	});
 	console.log('Suma: '+ suma_total+' TOTALIVAS ');
@@ -99,10 +98,10 @@ function sumaImportes(){
 
 		}
 	});
-	total = suma_total;
+	total = suma_total; // Damos valor a variable global, para poder cobrar.
 	$('#totalImporte').html(suma_total.toFixed(2));
-	
-	
+	// Llamamos funcion grabar en BD
+	grabarTicketsTemporal();
 	
 	//document.getElementById('total').innerHTML = total;
 }
