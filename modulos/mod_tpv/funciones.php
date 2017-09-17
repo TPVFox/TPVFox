@@ -135,8 +135,8 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
 					.$contad.')" onmouseover="sobreProductoCraton('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
-		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input onfocusout="abandonProducto('
-					.$contad.')" onfocus="sobreProducto('.$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="flecha" onfocusout="abandonProducto('
+					.$contad.')" onfocus="sobreProducto('.$contad.')" onkeydown="teclaPulsada(event,'."'".'N_'.$contad."'".",".$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';
 		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
@@ -217,7 +217,7 @@ function htmlClientes($busqueda,$clientes){
 						.$contad.')" onmouseover="sobreProductoCraton('.$contad.')" onclick="cerrarModalClientes('.$datos.');">';
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="flecha" onfocusout="abandonProducto('
-						.$contad.')" onfocus="sobreProducto('.$contad.')" type="image"  alt="">';
+						.$contad.')" onkeydown="teclaPulsada(event,'."'".'N_'.$contad."'".",".$contad.')" onfocus="sobreProducto('.$contad.')"   type="image"  alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.$cliente['nombre'].'</td>';
 			$resultado['html'] .= '<td>'.$cliente['razonsocial'].'</td>';
