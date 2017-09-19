@@ -72,33 +72,67 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 
 
 <div class="container">
-<!--=================  Sidebar -- Menu y filtro =============== 
-Efecto de que permanezca fixo con Scroll , el problema es en
-movil
--->
-<nav class="col-md-2" id="myScrollspy">
-	<div data-spy="affix" data-offset-top="505">
-		<h4> TpvFox</h4>
-		<h5>Menú Generales</h5>
+
+<nav class="col-md-3">
+	<div class="col-md-6">
+		<h3 class="text-center"> TpvFox</h3>
+		<h4>Otros opciones</h4>
 		<ul class="nav nav-pills nav-stacked">
 			<li><a href="#section1">Nuevo ticket</a></li>
-			<li><a href="#section2">Ver Cerrados</a></li>
 			<li><a href="#section3">Arqueo</a></li>
 			<li><a href="#section3">Imprimir Ticket</a></li>
-
-			
-			
 		</ul>
-		<h5>Opciones de ticket</h5>Generales</h5>
+	</div>
+	<div class="col-md-6">
+		<h3 class="text-center"> Tickets</h3>
+		<h4>Este ticket</h4>
 		<ul class="nav nav-pills nav-stacked">
-			<li><a onclick="buscarClientes()">Añadir Cliente</a></li>
+			<li><a onclick="buscarClientes()">Cliente</a></li>
 			<li><a href="#section3">Abrir Cajon</a></li>
 			<li><a onclick="cobrarF5()">Cobrar</a></li>
 			
 		</ul>
 	</div>
+	<div>
+	<?php if (isset($ticketsAbiertos['items'])){ 
+	?>
+	<h3 class="text-center"> Tickets Abiertos</h3>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Nº</th>
+				<th>Cliente</th>
+				<th>Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ($ticketsAbiertos['items'] as $item){?>
+			<tr>
+				<td><a href="tpv.php?tAbierto=<?php echo $item['numticket']; ?>">
+				<?php echo $item['numticket']; ?>
+				</a>
+				</td>
+				<td>
+				<?php echo $item['Nombre']; ?><br/>
+				<small><?php echo $item['razonsocial']; ?></small>
+				</td>
+				<td class="text-right">
+				<?php echo number_format ($item['total'],2); ?>
+				</td>
+			</tr>
+			<?php 
+			// Cerramos foreach
+			}
+			 ?>
+		</tbody>
+	</table>
+	</div>
+	<?php 
+	// Cerramos if de mostrar tickets abiertos o no.
+	}
+	?>
 </nav>
-<div class="col-md-10" >
+<div class="col-md-9" >
 	<div class="col-md-8">
 		<div class="col-md-12">
 			<div class="col-md-4">
@@ -106,12 +140,12 @@ movil
 			<span id="Fecha"><?php echo date("d/m/Y");?></span>
 			</div>
 			<div class="col-md-4">
-			<strong>Estado/N:</strong>
-			<span id="Estado">NUEVO</span>
+			<strong>Estado:</strong>
+			<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span>
 			</div>
 			<div class="col-md-4">
-			<strong>Numero Ticket:</strong>
-			<span id="NTicket"></span>
+			<strong>NºTicket:</strong>
+			<span id="NTicket"><?php echo $ticket_numero ;?></span>
 
 			</div>
 			
