@@ -11,6 +11,10 @@
     url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') 
     format('svg');
 }
+.container {
+	width:100%;
+}
+
 label {
     display: block;
     margin-bottom: 5px;
