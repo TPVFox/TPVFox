@@ -44,9 +44,15 @@ switch ($pulsado) {
 		break;
 	case 'cobrar':
 		//~ echo 'cobrar';
-		$total = $_POST['total'];
-		//$deDonde = $_POST['dedonde'];
-		$respuesta = htmlCobrar($total);
+		$totalJS = $_POST['total'];
+		$productos = $_POST['productos'];
+		// Recalcular totales.
+		$totales = recalculoTotales($productos);
+		
+		
+		$respuesta = htmlCobrar($totalJS);
+		$respuesta['recalculo'] = $totales;
+
 		echo json_encode($respuesta);		
 		
 		break;
@@ -68,13 +74,17 @@ switch ($pulsado) {
 		break;
 	case 'grabarTickes';
 		$respuesta = array();
-		$productos 	= $_POST['productos'];
-		$cabecera = array();
-		$cabecera['idTienda'] =$_POST['idTienda'];
-		$cabecera['idCliente'] =$_POST['idCliente'];
-		$cabecera['idUsuario'] =$_POST['idUsuario'];
-		$res 	= grabarTicketsTemporales($productos,$cabecera);
-		$respuesta['resultado']=$res;
+		$cabecera = array(); // Array que rellenamos de con POST
+		$productos 					=$_POST['productos'];
+		$total 						=$_POST['total'];
+		$cabecera['idTienda']		=$_POST['idTienda'];
+		$cabecera['idCliente']		=$_POST['idCliente'];
+		$cabecera['idUsuario'] 		=$_POST['idUsuario'];
+		$cabecera['estadoTicket'] 	=$_POST['estadoTicket'];
+		$cabecera['numTicket'] 		=$_POST['numTicket'];
+
+		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total);
+		$respuesta=$res;
 		echo json_encode($respuesta);
 		break;
 		

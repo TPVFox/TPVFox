@@ -240,7 +240,6 @@ function htmlCobrar($total){
 	$resultado['entregado'] = 0;
 	$resultado['modoPago'] = 0;
 	$resultado['imprimir'] = 0;
-	//$resultado['html'] = '<label>COBRAR</label>';
 	$resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">';
 	$resultado['html'] .= '<h1>'.number_format($total,2).'<span class="small"> €</span></h1>';
 	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" autofocus value="" size="8" onkeydown="teclaPulsada(event,'."'entrega',0".')" autofocus></input></h4>';
@@ -292,32 +291,189 @@ function htmlSesion(){
 	return $resultado;
 }
 
-function grabarTicketsTemporales($productos,$cabecera) {
+function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
+	// @ parametros:
+	// 	$BDTpv -> Conexion a base de datos.
+	// 	$productos -> Array de productos añadidos a ticket
+	// 	$cabecera _> Array con datos de la cabecera.	
 	// Objetivo guardar datos en tabla temporal de tickets.
 	$resultado = array();
+	// Tomamos el valor de la fecha actual.
+	$fecha		=  date("Y-m-d H:i:s");
+	// Ponemods datos de variables cabecera.
+	$idTienda	= $cabecera['idTienda'];
+	$idCliente	= $cabecera['idCliente'];
+	$idUsuario	= $cabecera['idUsuario'];
+	// Sabemos comprobamos estado ticket para saber si obtenemos numero.
+	if ($cabecera['estadoTicket'] === 'Nuevo'){
+		// Tenemos que obtener en que numero ticket temporal de tabla indices.
+		$sql = "SELECT `tempticket` FROM `indices` WHERE `idTienda` =1 AND `idUsuario` =1";
+		$resp = $BDTpv->query($sql);
+		$row = $resp->fetch_array(MYSQLI_NUM); 
+		if (count($row) === 1) {
+			$numTicket = $row[0] +1;
+		} else {
+			error_log('Algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
+			exit;
+		}
+	} else {
+		// Sino es nuevo , será abierto, por lo que ya exite numero.
+		$numTicket = $cabecera['numTicket'];
+	}
+	/*  ================ Montamos el json para guardar productos en un solo campo. ==== */
 	$productos_json = array();
 	foreach ($productos as $product){
 		$productos_json[] = json_encode($product);
 	}
-	
-	$resul 	=json_encode($productos_json);
-	$resultado['productos'] = $productos_json;	
-	
-	$fecha		=  date("Y-m-d H:i:s");
-	$idTienda	= $cabecera['idTienda'];
-	$idCliente	= $cabecera['idCliente'];
-	$idUsuario	= $cabecera['idUsuario'];
-	$SQL = 'INSERT INTO `ticketstemporales`(`idTienda`, `idUsuario`, `fechaInicio`, `idClientes`, `total`, `total_ivas`, `Productos`) VALUES ('.$idTienda.','.$idUsuario.',"'.$fecha.'",'.$idCliente.','.$resul.'")';
-	
-	
-	
-	$resultado['consulta'] = $SQL;
-	$resultado['fechea'] = $fecha;
+	$UnicoCampoProductos 	=json_encode($productos_json);
+	$PrepProductos = $BDTpv->real_escape_string($UnicoCampoProductos); //  Escapa los caracteres especiales de una cadena para usarla en una sentencia SQL, tomando en cuenta el conjunto de caracteres actual de la conexión
+	/*  ================ Montamos instrucción, según estado. ==== */
+
+	if ($cabecera['estadoTicket'] === 'Nuevo'){
+		// Variables cambiadas.
+		$resultado['estadoTicket'] = 'Actual'; 
+		$resultado['fechaInicial'] = $fecha;
+
+		// Insertamos el nuevo tickettemporal
+		$SQL = 'INSERT INTO `ticketstemporales`(`numticket`,`estadoTicket`, `idTienda`, `idUsuario`, `fechaInicio`, `idClientes`, `total`, `Productos`) VALUES ('.$numTicket.',"'.$resultado['estadoTicket'].'",'.$idTienda.','.$idUsuario.',"'.$fecha.'",'.$idCliente.','.$total.',"'.$PrepProductos.'")';
+		$BDTpv->query($SQL);
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta'] = $SQL;
+			$resultado['error'] = $BDTpv->error_list;
+		} 
+		// Ahora comprobamos los estado de los ticket,ya que solo podemos tener uno como actual y los ponemos abiertos.
+		
+		// Tambien cambiamos el numero ticket temporal por el que se acaba de crear.
+		$sql = "UPDATE `indices` SET `tempTicket`=".$numTicket." WHERE `idTienda` =".$idTienda." AND `idUsuario` =".$idUsuario;
+		$BDTpv->query($sql);
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta2'] = $sql;
+			$resultado['error2'] = $BDTpv->error_list;
+		} 
+
+	} else {
+		// Si NO es Nuevo entonces se hace UPDATE
+		$SQL = 'UPDATE `ticketstemporales` SET `idClientes`='.$idCliente.',`fechaFinal`="'.$fecha.'",`total`='.$total.',`Productos`='."'".$PrepProductos."'".' WHERE `idTienda`='.$idTienda.' and `idUsuario`='.$idUsuario.' and numticket ='.$numTicket;
+		$BDTpv->query($SQL);
+		if ($cabecera['estadoTicket'] != 'Abierto'){
+			// Quiere decir que no es el actual...
+			// aun no las tengo todas conmigo.. para decir esto.
+		}
+		
+		$resultado['estadoTicket'] = 'Actual';
+		$resultado['fechaFinal'] = $fecha;
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta3'] = $SQL;
+			$resultado['error3'] = $BDTpv->error_list;
+		} 
+	}
+	$resultado['NumeroTicket'] = $numTicket;
+	//~ $resultado['productos'] = $productos_json;	
+	$resultado['productos'] = $PrepProductos;
 	return $resultado;
 	
+}
+
+function recalculoTotales($productos) {
+	// @ Objetivo recalcular los totales y desglose del ticket
+	$respuesta = array();
+	$desglose = array();
+	$subtotal = 0;
+	// Creamos array de tipos de ivas hay en productos.
+	$ivas = array_unique(array_column($productos,'ctipoiva'));
+	sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
+	foreach ($productos as $product){
+		// Si la linea esta eliminada, no se pone.
+		if ($product['estado'] != 'Eliminado'){
+			$totalLinea = $product['unidad'] * $product['npconiva'];
+			$respuesta['lineatotal'][$product['nfila']] = $totalLinea;
+			$subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
+			// Ahora calculmos bases por ivas
+			foreach ($ivas as $key=>$iva){
+				if ($product['ctipoiva'] === $iva) {
+					$desglose[$key]['tipoIva'] = $iva;
+					$desglose[$key]['BaseYiva'] = (!isset($desglose[$key]['BaseYiva']) ? $totalLinea : $desglose[$key]['BaseYiva']+$totalLinea);
+				}
+			}
+		}
 	}
-
-
-
+	$respuesta['desglose'] = $desglose;
+	$respuesta['total'] = $subtotal;
+	return $respuesta;
+}
+function ControlEstadoTicketsAbierto($BDTpv,$idUsuario,$idTienda) {
+	// @ Objetivo:
+	// Es poner el estado Abierto todos los tickets temporales de ese usuario y tienda que tenga estado Actual.
+	// Se entiende que al entrar en ticket tpv , vamos hacer uno nuevo y abandonamos el que estuvieramos haciendo.
+	// por lo cual lo pasamos a abierto.
+	$respuesta = array();
+	// Montamos consulta
+	$sql = 'UPDATE `ticketstemporales` SET `estadoTicket` = "Abierto" WHERE `idTienda` ='.$idTienda.' AND `idUsuario` ='.$idUsuario.' AND estadoTicket ="Actual"';
+	$BDTpv->query($sql);
+	if (mysqli_error($BDTpv)){
+		$resultado['consulta'] = $sql;
+		$resultado['error'] = $BDTpv->error_list;
+	} 
+	// Si fue correcto comprobamos a cuantos afectos, que sería los tickets abiertos.
+	$respuesta['num_afectados'] = $BDTpv->affected_rows;
+	return $respuesta;
+	}
+function ObtenerCabeceraTicketAbierto($BDTpv,$idUsuario,$idTienda,$numTicket=0){
+	// @ Objetivo es obtener las cabeceras de los ticketAbiertos.
+	$respuesta = array();
+	// Montamos consulta
+	$sql = 'SELECT t.`numticket`,t.`idClientes`,t.`fechaInicio`,t.`fechaFinal`,t.`total`,t.`total_ivas`,c.Nombre, c.razonsocial FROM `ticketstemporales` as t LEFT JOIN clientes as c ON t.idClientes=c.idClientes WHERE t.idTienda ='.$idTienda.' AND t.idUsuario ='.$idUsuario.' AND estadoTicket="Abierto"';
+	if ($res = $BDTpv->query($sql)) {
+		/* obtener un array asociativo */
+			$i= 0;
+			while ( $fila = $res->fetch_assoc()){
+				if ($numTicket != $fila['numticket']){
+				// Añadimos fila a items si el numero ticket no es igual al que recibimos...
+				// Si es mismo, quiere decir que estamos modificando o viendo un ticket ( Abierto o Cerrado);
+					$respuesta['items'][$i]= $fila;
+				$i++;
+				}
+			}
+	} elseif (mysqli_error($BDTpv)){
+		$respuesta['consulta'] = $sql;
+		$respuesta['error'] = $BDTpv->error_list;
+	} 
+	
+	/* liberar el conjunto de resultados */
+    $res->free();
+	return $respuesta;
+}
+function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
+	// @ Objetivo
+	// Obtener los datos de un ticket ( ticketsTemporal ), con sus productos en un array.
+	// Hay que tener en cuenta que todos los productos del tickets esta en un campo unico, en un array JSON
+	$respuesta = array();
+	$productos = array();
+	$Sql  = 'SELECT * FROM `ticketstemporales` WHERE `idTienda` ='
+			.$idTienda.' AND `idUsuario` ='.$idUsuario.' AND `numticket` ='.$numero_ticket;
+	if ($resp = $BDTpv->query($Sql)){
+		// Quiere decir que hay resultados.
+		$respuesta['Numero_rows'] = $resp->num_rows;
+		if ( $respuesta['Numero_rows'] === 1) {
+			$row = $resp->fetch_assoc(); 
+			$productos_json= json_decode ($row['Productos']); // Obtenemos array de productos con campo unico que es un Json con los campos
+			foreach ( $productos_json as $product) {
+				$productos[] = json_decode($product);// Obtenemos campos del producto.
+			}
+		} else {
+			// Quiere decir que algo salio mal, ya que obtuvo mas o ninguno registro.
+			$respuesta['error'] = 'Algo salío mal ';
+			return $respuesta; // No continuamos.
+		}
+	} elseif (mysqli_error($BDTpv)){
+		$respuesta['consulta'] = $sql;
+		$respuesta['error'] = $BDTpv->error_list;
+		return $respuesta; // No continuamos si hay error en la consulta.
+	} 
+	/* liberar el conjunto de resultados */
+    $resp->free();
+	$respuesta['productos'] = $productos;
+	return $respuesta;
+}
 
 ?>

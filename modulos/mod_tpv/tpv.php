@@ -20,6 +20,16 @@
 	// Tengo que cargar antes el idTienda..
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
+	$ticket_estado = 'Nuevo';
+	$ticket_numero = 0;
+	// Si no hay $_GET entonces es nuevo.
+	if (isset($_GET['tAbierto'])) {
+		// Tenemos que abrir un tique ya abierto
+		$ticket_estado = 'Abierto';
+		$ticket_numero = $_GET['tAbierto'];
+	}
+	
+	
 ?>
 
 <script type="text/javascript"> 
@@ -27,11 +37,15 @@
 	// En configuracion podemos definir SI / NO 
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
+	
 	cabecera['idCliente'] = 1; // Este dato puede cambiar
 	cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 	cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; // Tuve que adelantar la carga, sino funcionaria js.
-	
-	
+	cabecera['estadoTicket'] ="<?php echo $ticket_estado ;?>"; // Si no hay datos GET es 'Nuevo';
+	cabecera['numTicket'] = <?php echo $ticket_numero ;?>; // Si no hay datos GET es 'Nuevo';
+
+	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
+
 	
 	
 	
@@ -53,9 +67,29 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 
 	include '../../header.php';
 	include_once ("funciones.php");
-	//~ echo '<pre>';
-	//~ print_r($Usuario);
-	//~ echo '</pre>';
+	// Ahora obtenemos los tickets abiertos.
+	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
+	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
+	// Si hay respuesta , es que hay ticket abiertos.
+	if (isset($cambiosEstadoTickets['error'])){
+		// Entonces obtenemos las caberas para mostrar.
+		echo '<pre>';
+		print ( 'Hubo error en la consulta de ticket abierto ');
+		print_r($cambiosEstadoTickets);
+		echo '</pre>';
+	}
+	// Ahora obtenemos la cabecera de los ticket abiertos de ese usuario.
+	$ticketsAbiertos = ObtenerCabeceraTicketAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda'],$ticket_numero);
+	if ($ticket_numero > 0){
+		//Entonces cargamos los productos.
+		$respuesta= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
+	}
+	
+
+	
+	echo '<pre>';
+	print_r($respuesta);
+	echo '</pre>';
 	
 ?>
 <style type="text/css">
@@ -165,12 +199,12 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			<label>Empleado:</label>
 			<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="40" readonly>	
 			<label>Cliente:</label>
-			<input type="text" id="id" name="id" value="1" size="2" readonly>
+			<input type="text" id="id_cliente" name="idCliente" value="1" size="2" readonly>
 			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="" size="60" readonly>
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="nombreCampo('busquedaCliente',0,'',0)"></a>
 		</div>
 	</div>
-	<div class="fondoNegro col-md-4" style="background-color:black;height:150px;">
+	<div class="visor fondoNegro col-md-4" style="background-color:black;height:150px;">
 	<span> Total: 0</span>
 	</div>
 	<!-- Tabla de lineas de productos -->

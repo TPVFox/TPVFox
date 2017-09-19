@@ -33,7 +33,6 @@ var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var producto; // Hay que eliminar.. 
 var total = 0;
-var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 
 
 
@@ -145,13 +144,14 @@ function tiempoEnfoqueInput(nfila){
 }
 
 function cobrarF5(){
-			//abrir modal de cobrar htmlCobrar php
-			//~ var titulo = 'COBRAR';
-			//~ abrirModal(titulo,htmlCobrar(total));
+	//@Objetivo:
+	// Recalcular en php los totales.( Si hay diferencia se informa)
+	// Abrir modal de htmlcobrar
 	
 	var parametros = {
 			"pulsado" 	: 'cobrar',
-			"total" : total
+			"total" : total,
+			"productos"	 	: productos
 			//"dedonde" : dedonde
 	};
 	$.ajax({ data:  parametros,
@@ -466,7 +466,7 @@ function eliminarFila(nfila){
 	var line;
 	line = "#Row" + nfila;
 	// Nueva Objeto de productos.
-	productos[nfila].estado= 'Eliminado';
+	productos[nfila-1].estado= 'Eliminado';
 	// Antiguo array productos.
 	producto[nfila]['Estado'] = 'Eliminado';
 	$(line).addClass('tachado');
@@ -479,7 +479,7 @@ function retornarFila(nfila){
 	var line;
 	line = "#Row" + nfila;
 	// Nueva Objeto de productos.
-	productos[nfila].estado= 'Activo';
+	productos[nfila-1].estado= 'Activo';
 	// Antiguo array productos.
 	producto[nfila]['Estado'] = 'Activo';
 	var pvp =producto[nfila]['NPCONIVA'];
@@ -563,7 +563,7 @@ function cerrarModalClientes(id,nombre){
 	$('#busquedaModal').modal('hide');
 	
 	//agregar datos funcion js
-	$('#id').val(id);
+	$('#id_cliente').val(id);
 	cabecera['idCliente'] = id;
 	
 	$('#Cliente').val(nombre);
@@ -614,13 +614,14 @@ function grabarTicketsTemporal(){
 	console.log(productos);
 	// Para poder mandar objectos de productos ...
 	var parametros = {
-		"pulsado"    : 'grabarTickes',
-		"productos"	 : productos,//
-		"idCliente"	 : cabecera.idCliente,
-		"idTienda" 	 : cabecera.idTienda,
-		"idUsuario"	 : cabecera.idUsuario
-		//~ "sumaTotal" : suma_total,
-		//~ "total_ivas": total_ivas
+		"pulsado"    	: 'grabarTickes',
+		"productos"	 	: productos,//
+		"idCliente"	 	: cabecera.idCliente,
+		"idTienda" 	 	: cabecera.idTienda,
+		"idUsuario"	 	: cabecera.idUsuario,
+		"estadoTicket" 	: cabecera.estadoTicket,
+		"numTicket"		: cabecera.numTicket,
+		"total"			: total
 	};
 	$.ajax({
 		data       : parametros,
@@ -633,7 +634,16 @@ function grabarTicketsTemporal(){
 			console.log('Respuesta de grabar');
 			console.log(response);
 			var resultado =  $.parseJSON(response); 
-			
+			console.log(resultado.estadoTicket);
+			// Cambiamos el estado :
+			cabecera.estadoTicket = resultado.estadoTicket;
+			cabecera.numTicket = resultado.NumeroTicket;
+			$('#EstadoTicket').html(resultado.estadoTicket);
+			$('#EstadoTicket').css('background-color','red')
+			$('#EstadoTicket').css('color','white')
+			$('#NTicket').html('0/'+resultado.NumeroTicket);
+
+
 		}
 	});
 }
