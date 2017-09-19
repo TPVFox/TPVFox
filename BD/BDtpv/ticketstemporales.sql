@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 19-09-2017 a las 18:41:35
+-- Tiempo de generación: 19-09-2017 a las 19:55:36
 -- Versión del servidor: 5.5.57-0ubuntu0.14.04.1
 -- Versión de PHP: 5.6.31-4+ubuntu14.04.1+deb.sury.org+4
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `ticketstemporales` (
   `total_ivas` varchar(250) NOT NULL,
   `Productos` varbinary(50000) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=70 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=71 ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

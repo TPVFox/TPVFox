@@ -20,6 +20,16 @@
 	// Tengo que cargar antes el idTienda..
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
+	$ticket_estado = 'Nuevo';
+	$ticket_numero = 0;
+	// Si no hay $_GET entonces es nuevo.
+	if (isset($_GET['tAbierto'])) {
+		// Tenemos que abrir un tique ya abierto
+		$ticket_estado = 'Abierto';
+		$ticket_numero = $_GET['tAbierto'];
+	}
+	
+	
 ?>
 
 <script type="text/javascript"> 
@@ -27,11 +37,15 @@
 	// En configuracion podemos definir SI / NO 
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
+	
 	cabecera['idCliente'] = 1; // Este dato puede cambiar
 	cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 	cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; // Tuve que adelantar la carga, sino funcionaria js.
-	
-	
+	cabecera['estadoTicket'] ="<?php echo $ticket_estado ;?>"; // Si no hay datos GET es 'Nuevo';
+	cabecera['numTicket'] = <?php echo $ticket_numero ;?>; // Si no hay datos GET es 'Nuevo';
+
+	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
+
 	
 	
 	
@@ -53,9 +67,29 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 
 	include '../../header.php';
 	include_once ("funciones.php");
-	//~ echo '<pre>';
-	//~ print_r($Usuario);
-	//~ echo '</pre>';
+	// Ahora obtenemos los tickets abiertos.
+	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
+	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
+	// Si hay respuesta , es que hay ticket abiertos.
+	if (isset($cambiosEstadoTickets['error'])){
+		// Entonces obtenemos las caberas para mostrar.
+		echo '<pre>';
+		print ( 'Hubo error en la consulta de ticket abierto ');
+		print_r($cambiosEstadoTickets);
+		echo '</pre>';
+	}
+	// Ahora obtenemos la cabecera de los ticket abiertos de ese usuario.
+	$ticketsAbiertos = ObtenerCabeceraTicketAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda'],$ticket_numero);
+	if ($ticket_numero > 0){
+		//Entonces cargamos los productos.
+		$respuesta= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
+	}
+	
+
+	
+	echo '<pre>';
+	print_r($respuesta);
+	echo '</pre>';
 	
 ?>
 <style type="text/css">
@@ -72,33 +106,67 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 
 
 <div class="container">
-<!--=================  Sidebar -- Menu y filtro =============== 
-Efecto de que permanezca fixo con Scroll , el problema es en
-movil
--->
-<nav class="col-md-2" id="myScrollspy">
-	<div data-spy="affix" data-offset-top="505">
-		<h4> TpvFox</h4>
-		<h5>Menú Generales</h5>
+
+<nav class="col-md-3">
+	<div class="col-md-6">
+		<h3 class="text-center"> TpvFox</h3>
+		<h4>Otros opciones</h4>
 		<ul class="nav nav-pills nav-stacked">
 			<li><a href="#section1">Nuevo ticket</a></li>
-			<li><a href="#section2">Ver Cerrados</a></li>
 			<li><a href="#section3">Arqueo</a></li>
 			<li><a href="#section3">Imprimir Ticket</a></li>
-
-			
-			
 		</ul>
-		<h5>Opciones de ticket</h5>Generales</h5>
+	</div>
+	<div class="col-md-6">
+		<h3 class="text-center"> Tickets</h3>
+		<h4>Este ticket</h4>
 		<ul class="nav nav-pills nav-stacked">
-			<li><a onclick="buscarClientes()">Añadir Cliente</a></li>
+			<li><a onclick="buscarClientes()">Cliente</a></li>
 			<li><a href="#section3">Abrir Cajon</a></li>
 			<li><a onclick="cobrarF5()">Cobrar</a></li>
 			
 		</ul>
 	</div>
+	<div>
+	<?php if (isset($ticketsAbiertos['items'])){ 
+	?>
+	<h3 class="text-center"> Tickets Abiertos</h3>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Nº</th>
+				<th>Cliente</th>
+				<th>Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ($ticketsAbiertos['items'] as $item){?>
+			<tr>
+				<td><a href="tpv.php?tAbierto=<?php echo $item['numticket']; ?>">
+				<?php echo $item['numticket']; ?>
+				</a>
+				</td>
+				<td>
+				<?php echo $item['Nombre']; ?><br/>
+				<small><?php echo $item['razonsocial']; ?></small>
+				</td>
+				<td class="text-right">
+				<?php echo number_format ($item['total'],2); ?>
+				</td>
+			</tr>
+			<?php 
+			// Cerramos foreach
+			}
+			 ?>
+		</tbody>
+	</table>
+	</div>
+	<?php 
+	// Cerramos if de mostrar tickets abiertos o no.
+	}
+	?>
 </nav>
-<div class="col-md-10" >
+<div class="col-md-9" >
 	<div class="col-md-8">
 		<div class="col-md-12">
 			<div class="col-md-4">
@@ -106,12 +174,12 @@ movil
 			<span id="Fecha"><?php echo date("d/m/Y");?></span>
 			</div>
 			<div class="col-md-4">
-			<strong>Estado/N:</strong>
-			<span id="Estado">NUEVO</span>
+			<strong>Estado:</strong>
+			<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span>
 			</div>
 			<div class="col-md-4">
-			<strong>Numero Ticket:</strong>
-			<span id="NTicket"></span>
+			<strong>NºTicket:</strong>
+			<span id="NTicket"><?php echo $ticket_numero ;?></span>
 
 			</div>
 			
@@ -131,12 +199,12 @@ movil
 			<label>Empleado:</label>
 			<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="40" readonly>	
 			<label>Cliente:</label>
-			<input type="text" id="id" name="id" value="1" size="2" readonly>
+			<input type="text" id="id_cliente" name="idCliente" value="1" size="2" readonly>
 			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="" size="60" readonly>
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="nombreCampo('busquedaCliente',0,'',0)"></a>
 		</div>
 	</div>
-	<div class="fondoNegro col-md-4" style="background-color:black;height:150px;">
+	<div class="visor fondoNegro col-md-4" style="background-color:black;height:150px;">
 	<span> Total: 0</span>
 	</div>
 	<!-- Tabla de lineas de productos -->
