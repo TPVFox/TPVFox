@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 19-09-2017 a las 19:55:36
+-- Tiempo de generación: 19-09-2017 a las 19:57:41
 -- Versión del servidor: 5.5.57-0ubuntu0.14.04.1
 -- Versión de PHP: 5.6.31-4+ubuntu14.04.1+deb.sury.org+4
 
@@ -23,23 +23,23 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ticketstemporales`
+-- Estructura de tabla para la tabla `indices`
 --
 
-CREATE TABLE IF NOT EXISTS `ticketstemporales` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `numticket` int(11) NOT NULL,
-  `estadoTicket` varchar(10) NOT NULL,
+CREATE TABLE IF NOT EXISTS `indices` (
   `idTienda` int(11) NOT NULL,
   `idUsuario` int(11) NOT NULL,
-  `fechaInicio` datetime NOT NULL,
-  `fechaFinal` datetime NOT NULL,
-  `idClientes` int(11) NOT NULL,
-  `total` decimal(17,6) NOT NULL,
-  `total_ivas` varchar(250) NOT NULL,
-  `Productos` varbinary(50000) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=71 ;
+  `numticket` int(11) NOT NULL,
+  `tempticket` int(11) NOT NULL COMMENT 'Es el numero con guardo temporal ticket'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `indices`
+--
+
+INSERT INTO `indices` (`idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES
+(1, 1, 0, 33),
+(1, 17, 0, 0);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
