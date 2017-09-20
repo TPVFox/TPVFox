@@ -20,28 +20,28 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 include_once ("./funciones.php");
 
 switch ($pulsado) {
-    case 'buscarProducto':
+    
+    case 'buscarProductos':
 		$busqueda = $_POST['valorCampo'];
 		$campoAbuscar = $_POST['campo'];
 		//cuando busco dsde el popup el estado me es indiferente
 		$deDonde = $_POST['dedonde'];
 		//cambio conexion a tpv
-		$respuesta = BuscarProducto($campoAbuscar,$busqueda,$BDTpv);
+		$respuesta = BuscarProductos($campoAbuscar,$busqueda,$BDTpv);
 		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
 		//si dedonde == 'popup' 
 		if ($respuesta['Estado'] !='Correcto' ){
+			// Entramos aquí tanto si es listado como si no se encontro articulos.
 			$respuesta['listado']= htmlProductos($respuesta['datos'],$campoAbuscar,$busqueda);
 		}
-		
 		if ($respuesta['Estado'] === 'Correcto' && $deDonde === 'popup'){
+			// Cambio estado para devolver que es listado.
 			$respuesta['listado']= htmlProductos($respuesta['datos'],$campoAbuscar,$busqueda);
 			$respuesta['Estado'] = 'Listado';
 		}
 		echo json_encode($respuesta);  
-		
-		//en funcion utilizo assoc_fetch
-		//en assoc Cuando es TRUE, los object devueltos serán convertidos a array asociativos.
 		break;
+	
 	case 'cobrar':
 		//~ echo 'cobrar';
 		$totalJS = $_POST['total'];

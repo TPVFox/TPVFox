@@ -18,20 +18,22 @@ var Niva;
 //ver si pasar parametros o recogerlos en propia funcion !!!! 
 //pvp puedo pasarlo PERO cantidad NO! esta puede variar
 //id es hmtl
-function recalculoImporte(cantidad,pvp,nfila){
+function recalculoImporte(cantidad,num_item){
 	//recoger cantidad, por defecto es un valor y luego puede variar
 	//cantidad es cogida de producto que es global 
 	//o del propio imput, donde usamos evento 
 						//keypress al pulsar enter recalcula precio
-	if (producto[nfila]['UNIDAD'] == 0 && cantidad != 0) {
-		retornarFila(nfila);
+	console.log('Estoy en recalculoImporte');
+	//~ console.log('cantidad:'+cantidad);
+	if (productos[num_item].unidad == 0 && cantidad != 0) {
+		retornarFila(productos[num_item].nfila);
 	} else if (cantidad == 0 ) {
-		eliminarFila(nfila);
+		eliminarFila(productos[num_item].nfila);
 	}
-	producto[nfila]['UNIDAD']=cantidad;
+	productos[num_item].unidad = cantidad;
 	//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
-	var importe = cantidad*pvp;
-	var id = '#N'+nfila+'_Importe';
+	var importe = cantidad*productos[num_item].pvpconiva;
+	var id = '#N'+productos[num_item].nfila+'_Importe';
 	//alert('recalcular'+id);
 	importe = importe.toFixed(2);
 	$(id).html(importe);
@@ -59,23 +61,23 @@ function sumaImportes(){
 	$('#iva21').html('');
 
 	//https://stackoverflow.com/a/9329476
-	producto.forEach(function(product) {
-		if (product['Estado'] != 'Eliminado') {
-			var importe = product['UNIDAD'] * product['NPCONIVA'];
-			iva_type = parseFloat(product['CTIPOIVA']);
+	productos.forEach(function(product) {
+		if (product.estado != 'Eliminado') {
+			var importe = product.unidad * product.pvpconiva;
+			iva_type = parseFloat(product.ctipoiva);
 			total_ivas[iva_type] += importe;
 			suma_total += importe;
 		}
 	});
-	console.log('Suma: '+ suma_total+' TOTALIVAS ');
-	console.log(total_ivas);
+	//~ console.log('Suma: '+ suma_total+' TOTALIVAS ');
+	//~ console.log(total_ivas);
 	
 	var operador;
 	var civa;
 	//https://stackoverflow.com/a/9329476
 	total_ivas.forEach(function(tiva,index) {
-		 console.log('t iva valor'+tiva);
-		 console.log('index'+index);
+		//~ console.log('t iva valor'+tiva);
+		//~ console.log('index'+index);
 		//~ console.log('Numero caracteres de index'+index.length);
 		
 		if (tiva >0){
@@ -87,13 +89,13 @@ function sumaImportes(){
 			}
 			operador = '1.'+iva_type;
 			operador = parseFloat(operador);
-			console.log('operador '+typeof operador);
+			//~ console.log('operador '+typeof operador);
 			
 			var base = (total_ivas[index]/operador).toFixed(2);
-			console.log('TOTAL IVAS '+total_ivas[index]);
+			//~ console.log('TOTAL IVAS '+total_ivas[index]);
 			
 			$('#base'+index).html(base); 
-			console.log('base '+iva_type+':'+base);
+			//~ console.log('base '+iva_type+':'+base);
 			$('#iva'+index).html(index+'% &nbsp;'+((base*operador)-base).toFixed(2));
 
 		}
