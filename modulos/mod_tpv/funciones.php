@@ -115,8 +115,8 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 					.$contad.')" onmouseover="sobreProductoCraton('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
 		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonProducto('
-					.$contad.')" onfocus="sobreProducto('.$contad.')" onkeyup="teclaPulsada(event,'."filaproducto".",".$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';
+					.$contad.')" onfocus="sobreProducto('.$contad.')" onkeyup="teclaPulsada(event,'."'filaproducto',".$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';				
 		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
 
