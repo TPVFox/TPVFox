@@ -70,7 +70,6 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	// Ahora obtenemos los tickets abiertos.
 	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
-	// Si hay respuesta , es que hay ticket abiertos.
 	if (isset($cambiosEstadoTickets['error'])){
 		// Entonces obtenemos las caberas para mostrar.
 		echo '<pre>';
@@ -201,7 +200,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			<label>Cliente:</label>
 			<input type="text" id="id_cliente" name="idCliente" value="1" size="2" readonly>
 			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="" size="60" readonly>
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="nombreCampo('busquedaCliente',0,'',0)"></a>
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes()"></a>
 		</div>
 	</div>
 	<div class="visor fondoNegro col-md-4" style="background-color:black;height:150px;">
@@ -233,11 +232,11 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ></td>
-			<td><input id="C0_Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeydown="teclaPulsada(event,'Codbarras',0)"></td>
-			<td><input id="C0_Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeydown="teclaPulsada(event,'Referencia',0)"></td>
-			<td><input id="C0_Descripcion" type="text" name="Descripcion" 
-				placeholder="Descripcion" size="20" value="" onkeydown="teclaPulsada(event,'Descripcion',0)">
-				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="nombreCampo('Descripcion',0,'buscar',0)"></a> 
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeyup="teclaPulsada(event,'Codbarras',0)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeyup="teclaPulsada(event,'Referencia',0)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" 
+				placeholder="Descripcion" size="20" value="" onkeyup="teclaPulsada(event,'Descripcion',0)">
+				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProductos('Descripcion','','tpv')"></a> 
 			</td>
 		</tr>
 		</thead>

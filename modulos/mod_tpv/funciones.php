@@ -7,54 +7,44 @@
  * @Descripcion	Funciones para importar datos Dbf a Mysql
  * */
 
-//Funcion donde se lee Dbf y se obtiene array *
-//~ ,$numFinal,$numInic,$campos 
 
-//busqueda , lo que queremos buscar
-//campoAbuscar es codbarras, ref, o descripc campo a comparar
-function BuscarProducto($campoAbuscar,$busqueda,$BDTpv) {
-	// Objetivo:
-	// Es buscar por Referencia o Codbarras
-	//campos:
-	//campoAbuscar 
-	//busqueda -- string q puede tener varias palabras
-	
-	//creamos array de palabras, por si buscan por descripcion Leche larsa
-	// asi buscamos que contenga esas palabras en descripc
-	//explode junta strings e implode las separa para trabajar mejor con ellas.
-	$palabras = array();
-	$palabras = explode(' ',$busqueda);
-	$cont = 0;
+function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
+	// @ Objetivo:
+	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
+	// @ Parametros:
+	//		campoAbuscar-> indicamos que campo estamos buscando.
+	//		busqueda -- string a buscar, puede contener varias palabras
+	//		BDTpv-> conexion a la base datos.
+	$resultado = array();
+	$palabras = array(); 
+	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
+	$resultado['palabras']= $palabras;
+
 	switch($campoAbuscar) {
-		case 'CCODEBAR':
+		case 'Codbarras':
 			$campoAbuscar = 'ac.`codBarras`';
 		break;
-		case 'CREF':
+		case 'Referencia':
 			$campoAbuscar = 'at.`crefTienda`';
 		break;
-		case 'CDETALLE':
+		case 'Descripcion':
 			$campoAbuscar = 'a.`articulo_name`';
 		break;
-	return $campoAbuscar;
 	}
-	
+	$likes = array();
 	foreach($palabras as $palabra){
-		$palabras[$cont] =  $campoAbuscar.' LIKE "%'.$palabra.'%"';
-		$cont++;
+		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%"';
 	}
-	$buscar = implode(' and ',$palabras);
-	
-	$resultado = array();
-	//CCODEBAR -> ac.`codBarras`, CREF->at.crefTienda, CDETALLE->a.`articulo_name`, NPCONIVA->ap.pvpCiva
-	//CTIPOIVA-> a.iva (es numerico 4.00, 10.00,21.00)
-	//$sql = 'SELECT CCODEBAR,CREF,CDETALLE,NPCONIVA,CTIPOIVA FROM articulo WHERE '.$buscar;
-	
+	$buscar = implode(' and ',$likes);
 	$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
 			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
 			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
-	
+			
+			
+				
+			
 	$res = $BDTpv->query($sql);
 	//compruebo error en consulta
 	if (mysqli_error($BDTpv)){
@@ -64,44 +54,35 @@ function BuscarProducto($campoAbuscar,$busqueda,$BDTpv) {
 	} 
 	
 	
-	$arr = array();
-	$i = 0;
+	$products = array();
 	//fetch_assoc es un boleano..
 	while ($fila = $res->fetch_assoc()) {
-		$arr[$i] = $fila;
-		$fila['CREF'] = $fila['crefTienda'];
-		$fila['CCODEBAR'] =$fila['codBarras'];
-		$fila['CDETALLE'] = $fila['articulo_name'];
-		$fila['CTIPOIVA'] = $fila['iva'];
-		$fila['NPCONIVA'] = $fila['pvpCiva'];
-		
-		
-		if (trim ($fila['CREF']) === trim($busqueda)){
+		$products[] = $fila;
+		if (trim($fila['crefTienda']) === trim($busqueda)){
 			$resultado['Estado'] = 'Correcto';
 			$resultado['datos'][0] = $fila;
 			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
 			break; 
-		} else if (trim ($fila['CCODEBAR']) === trim($busqueda)){
+		} else if (trim($fila['codBarras']) === trim($busqueda)){
 			$resultado['Estado'] = 'Correcto';
 			$resultado['datos'][0] = $fila;
 			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
 			break; 
 		} else {
 			$resultado['Estado'] = 'Listado';
-			
-			$resultado['datos'] = $arr;
+			$resultado['datos'] = $products;
 		}
-		
-		$i++;
 	}
 	if (!isset ($resultado['Estado'])){
 		$resultado['Estado'] = 'No existe producto';
-		$resultado['datos'] = $arr;
 	}
 	
 	
 	return $resultado;
 }
+
+
+
 
 
 function htmlProductos($productos,$campoAbuscar,$busqueda){
@@ -110,7 +91,7 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 	
 	$resultado['html'] = '<label>Busqueda por '.$campoAbuscar.'</label>';
 	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" placeholder="Buscar" size="13" value="'
-					.$busqueda.'" onkeydown="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
+					.$busqueda.'" onkeyup="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
 	if (count($productos)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
 	}
@@ -128,13 +109,13 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 			
 		
 		$datos = "'".$producto['CREF']."','".$producto['CDETALLE']."','"
-					.number_format($producto['CTIPOIVA'])."','".$producto['CCODEBAR']."',"
+					.number_format($producto['CTIPOIVA'],2)."','".$producto['CCODEBAR']."',"
 					.number_format($producto['NPCONIVA'],2).",".$producto['idArticulo'];
 		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
 					.$contad.')" onmouseover="sobreProductoCraton('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
-		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="flecha" onfocusout="abandonProducto('
-					.$contad.')" onfocus="sobreProducto('.$contad.')" onkeydown="teclaPulsada(event,'."'".'N_'.$contad."'".",".$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonProducto('
+					.$contad.')" onfocus="sobreProducto('.$contad.')" onkeyup="teclaPulsada(event,'."filaproducto".",".$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';
 		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
@@ -195,7 +176,7 @@ function htmlClientes($busqueda,$clientes){
 	
 	$resultado['html'] = '<label>Busqueda Cliente</label>';
 	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
-				'size="13" value="'.$busqueda.'" onkeydown="teclaPulsada(event,'."'".'busquedaCliente'."'".',0,'."'".'valorCliente'."'".')" type="text">';
+				'size="13" value="'.$busqueda.'" onkeyup="teclaPulsada(event,'."'".'cajaBusquedacliente'."'".')" type="text">';
 				
 	if (count($clientes)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($clientes).'</span>';
@@ -214,8 +195,8 @@ function htmlClientes($busqueda,$clientes){
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
 						.$contad.')" onmouseover="sobreProductoCraton('.$contad.')" onclick="cerrarModalClientes('.$datos.');">';
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="flecha" onfocusout="abandonProducto('
-						.$contad.')" onkeydown="teclaPulsada(event,'."'".'N_'.$contad."'".",".$contad.')" onfocus="sobreProducto('.$contad.')"   type="image"  alt="">';
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonProducto('
+						.$contad.')" onkeyup="teclaPulsada(event,'."'filacliente',".$contad.')" onfocus="sobreProducto('.$contad.')"   type="image"  alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.$cliente['nombre'].'</td>';
 			$resultado['html'] .= '<td>'.$cliente['razonsocial'].'</td>';
