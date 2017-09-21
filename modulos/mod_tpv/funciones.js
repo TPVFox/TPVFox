@@ -5,17 +5,6 @@
  * @author      Ricardo Carpintero - SolucionesVigo
  * @Descripcion	Javascript necesarios para modulo importar DBF.
  *
- * ej producto
- * producto[0]
- * 				['CCODEBAR']
- * 				['CREF']
- * 				['CDETALLE']
- * 				['UNID']
- * 				['CANT/KILO']
- * 				['NPCONIVA']
- * 				['CTIPOIVA']
- * 				['ESTADO']
- *  
  * ej total
  * 
  * total [total] = 12.00€
@@ -31,7 +20,6 @@ var pulsado = '';
 var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
 var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
-var producto; // Hay que eliminar.. 
 var total = 0;
 
 
@@ -283,7 +271,6 @@ function obtenerdatos(id,nfila=0){
 	return valorlimpio;
 }
 
-
 //case de nombreCampo = mysql , = html, 
 //con el id='C0_Codbarras' recojo el valor del campo en funcion obtener datos
 // pero necesito  nombreCampo = 'CCODEBAR' para mysql
@@ -354,55 +341,42 @@ function buscarProductos(nombreInput,busqueda,dedonde){
 	});
 }
 
-
-
-
-
-
 function agregarFila(datos){
+	// @ Objetivo
+	// 	Añadir producto a productos y ademas obtener htmlLinea para mostrar
 	// Voy a crear objeto producto nuevo..
 	productos.push(new ObjProducto(datos));
 	var num_item = productos.length -1; // Obtenemos cual es el ultimo ( recuerda que empieza contado 0)
-	 
-		//~ this.id = datos.idArticulo;
-		//~ this.cref = datos.crefTienda
-		//~ this.cdetalle = datos.articulo_name;
-		//~ this.npconiva = datos.pvpCiva;
-		//~ this.ccodebar = datos.codBarras;
-		//~ this.ctipoiva = datos.iva;
-		//~ this.unidad = valor;
-		//~ this.estado = estado;
-		//~ this.nfila = nfila;
+	// Ahora por Ajax montamos el html fila.
+	var parametros = {
+		"pulsado"    : 'HtmlLineaTicket',
+		"producto" : productos[num_item],
+		"num_item"      : num_item,
+		"CONF_campoPeso"    : CONF_campoPeso
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Obteniendo html de linea ticket  ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de Obtener HTML linea de FUNCION -> agregarFila');
+			
+			var resultado =  $.parseJSON(response);
+			var nuevafila = resultado['html'];
+			console.log(nuevafila);
+			
+			//$ signifca jQuery 
+			//$("#tabla").append(nuevaFila);
+			$("#tabla").prepend(nuevafila);
+			$('#Codbarras').focus();  //al agregar fila el foco lo coje el input de codigobarras
+			sumaImportes();
+		}
+	});
+
 	
-
-	// montamos fila de html de tabla
-	var nuevaFila = '<tr id="Row'+(productos[num_item].nfila)+'">';
-	nuevaFila += '<td class="linea">'+productos[num_item].nfila+'</td>'; //num linea
-	nuevaFila += '<td class="codbarras">'+productos[num_item].ccodebar+'</td>';
-	nuevaFila += '<td class="referencia">'+productos[num_item].cref+'</td>';
-	nuevaFila += '<td class="detalle">'+productos[num_item].cdetalle+'</td>';
-	nuevaFila += '<td><input id="N'+productos[num_item].nfila+'_Unidad" type="text" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="1" onkeyup="teclaPulsada(event,'+"'Unidad'"+','+productos[num_item].nfila+')" ></td>';
-	//si en config peso=si, mostramos columna peso
-	if (CONF_campoPeso === 'si'){
-		nuevaFila += '<td><input id="C'+productos[num_item].nfila+'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
-	} else {
-		nuevaFila += '<td style="display:none"><input id="C'+productos[num_item].nfila+'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; 
-	}
-	nuevaFila += '<td class="pvp">'+productos[num_item].pvpconiva+'</td>';
-	nuevaFila += '<td class="tipoiva">'+productos[num_item].ctipoiva+'%</td>';
-	// Creamos importe --> 
-	var importe = productos[num_item].pvpconiva*productos[num_item].unidad;
-	importe = importe.toFixed(2);
-	nuevaFila += '<td id="N'+productos[num_item].nfila+'_Importe" class="importe" >'+importe+'</td>'; //importe 
-	nuevaFila += '<td class="eliminar"><a onclick="eliminarFila('+num_item+');"><span class="glyphicon glyphicon-trash"></span></a></td>';
-
-	nuevaFila +='</tr>';
-
-	//$ signifca jQuery 
-	//$("#tabla").append(nuevaFila);
-	$("#tabla").prepend(nuevaFila);
-	$('#Codbarras').focus();  //al agregar fila el foco lo coje el input de codigobarras
-	sumaImportes();
 };
  
  

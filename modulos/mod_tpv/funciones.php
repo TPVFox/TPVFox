@@ -86,6 +86,8 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
 
 
 function htmlProductos($productos,$campoAbuscar,$busqueda){
+	// @ Objetivo 
+	// Obtener listado de produtos despues de busqueda.
 	$resultado = array();
 
 	
@@ -357,6 +359,8 @@ function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
 
 function recalculoTotales($productos) {
 	// @ Objetivo recalcular los totales y desglose del ticket
+	// @ Parametro:
+	// 	$productos (array) no objeto.
 	$respuesta = array();
 	$desglose = array();
 	$subtotal = 0;
@@ -365,21 +369,31 @@ function recalculoTotales($productos) {
 	sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
-		if ($product['estado'] != 'Eliminado'){
-			$totalLinea = $product['unidad'] * $product['npconiva'];
-			$respuesta['lineatotal'][$product['nfila']] = $totalLinea;
+		if ($product['estado'] === 'Activo'){
+			$totalLinea = $product['unidad'] * $product['pvpconiva'];
+			$respuesta['lineatotal'][$product['nfila']] = number_format($totalLinea,2);
 			$subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
 			// Ahora calculmos bases por ivas
 			foreach ($ivas as $key=>$iva){
 				if ($product['ctipoiva'] === $iva) {
-					$desglose[$key]['tipoIva'] = $iva;
 					$desglose[$key]['BaseYiva'] = (!isset($desglose[$key]['BaseYiva']) ? $totalLinea : $desglose[$key]['BaseYiva']+$totalLinea);
+					// Ahora calculamos base y iva 
+					if ($iva <10){
+						$operador = '1.0'.$iva;
+					} else {
+						$operador = '1.'.$iva;
+					}
+					$desglose[$key]['base'] = number_format(($desglose[$key]['BaseYiva']/$operador),2);
+					$desglose[$key]['iva'] = number_format($desglose[$key]['BaseYiva']-$desglose[$key]['base'],2);
+					$desglose[$key]['tipoIva'] =$iva;
+
 				}
 			}
 		}
 	}
+	$respuesta['ivas'] = $ivas;
 	$respuesta['desglose'] = $desglose;
-	$respuesta['total'] = $subtotal;
+	$respuesta['total'] = number_format($subtotal,2);
 	return $respuesta;
 }
 function ControlEstadoTicketsAbierto($BDTpv,$idUsuario,$idTienda) {
@@ -456,5 +470,67 @@ function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 	$respuesta['productos'] = $productos;
 	return $respuesta;
 }
+function anhadirLineasTicket($productos,$CONF_campoPeso){
+	//@ Objetivo:
+	// Obtener html de todas las lineas de productos.
+	$htmlLineas = array();
+	$num_item = 0;
+	foreach($productos as $product){
+		$unaLinea = htmlLineaTicket($product,$num_item,$CONF_campoPeso);
+		$htmlLineas[$num_item] = $unaLinea;
+		$num_item++;
+	}
+	return $htmlLineas;
+}
 
+function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
+	//@ Objetivo:
+	// Obtener html de una linea de productos.
+	//@ Parametros:
+	// $product -> Debería ser un objeto, pero por javascritp viene como un array por lo comprobamos y convertimos.
+	 if(!is_object($producto)) {
+		// Comprobamos si product no es objeto lo convertimos.
+		$product = (object)$producto;
+		
+	} else {
+		$product = $producto;
+	}
+	
+	
+	// Variables que vamos utilizar:
+	$classtr = '' ; // para clase en tr
+	$estadoInput = '' ; // estado input cantidad.
+	
+	// Si estado es eliminado tenemos añadir class y disabled input
+	if ($product->estado !=='Activo'){
+		$classtr = ' class="tachado" ';
+		$estadoInput = 'disabled';
+		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="retornarFila('.$num_item.');"><span class="glyphicon glyphicon-export"></span></a></td>';
+	} else {
+		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="eliminarFila('.$num_item.');"><span class="glyphicon glyphicon-trash"></span></a></td>';
+	}
+	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';
+	$nuevaFila .= '<td class="linea">'.$product->nfila.'</td>'; //num linea
+	$nuevaFila .= '<td class="codbarras">'.$product->ccodebar.'</td>';
+	$nuevaFila .= '<td class="referencia">'.$product->cref.'</td>';
+	$nuevaFila .= '<td class="detalle">'.$product->cdetalle.'</td>';
+	$nuevaFila .= '<td><input id="N'.$product->nfila.'_Unidad" type="text" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->unidad.'"  '.$estadoInput.' onkeyup="teclaPulsada(event,'."'Unidad'".','.$product->nfila.')" ></td>';
+	//si en config peso=si, mostramos columna peso
+	if ($CONF_campoPeso === 'si'){
+		$nuevaFila .= '<td><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
+	} else {
+		$nuevaFila .= '<td style="display:none"><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; 
+	}
+	$nuevaFila .= '<td class="pvp">'.$product->pvpconiva.'</td>';
+	$nuevaFila .= '<td class="tipoiva">'.$product->ctipoiva.'%</td>';
+	// Creamos importe --> 
+	$importe = $product->pvpconiva*$product->unidad;
+	$importe = number_format($importe);
+	$nuevaFila .= '<td id="N'.$product->nfila.'_Importe" class="importe" >'.$importe.'</td>'; //importe 
+	// Ahota tengo que controlar el estado del producto,para mostrar uno u otro
+	$nuevaFila .= $btnELiminar_Retornar;
+
+	$nuevaFila .='</tr>';
+	return $nuevaFila;
+}
 ?>

@@ -88,6 +88,16 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
+	case 'HtmlLineaTicket';
+		$respuesta = array();
+		$product 					=$_POST['producto'];
+		$num_item					=$_POST['num_item'];
+		$CONF_campoPeso		=$_POST['CONF_campoPeso'];
+		$res 	= htmlLineaTicket($product,$num_item,$CONF_campoPeso);
+		$respuesta['html'] =$res;
+		echo json_encode($respuesta);
+		break;
+		
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

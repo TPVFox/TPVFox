@@ -83,29 +83,49 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		//Entonces cargamos los productos.
 		$respuesta= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
 	}
+	if (isset($respuesta['error'])){
+		// Quiere decir que hubo en error al obtener el ticket , por lo que no se muestra nada.
+		echo '<pre>';
+		print_r($respuesta);
+		echo '</pre>';
+		exit(); // NO continuamos.
+	}
 	
+	//~ echo '<pre>';
+	//~ print_r($respuesta['productos']);
+	//~ echo '</pre>';
+?>	
+<?php if (isset($respuesta)){ ?>
+	<script type="text/javascript"> 
+	datos = [];
+	<?php 
+	$i= 0;
+	foreach($respuesta['productos'] as $product){
+	?>
+		// Añadimos datos de productos a variable productos Javascript
+		datos['idArticulo'] 	= <?php echo $product->id;?>;
+		datos['crefTienda'] 	= <?php echo '"'.$product->cref.'"';?>;
+		datos['articulo_name'] 	= <?php echo '"'.$product->cdetalle.'"';?>;
+		datos['pvpCiva'] 		= <?php echo $product->pvpconiva;?>;
+		datos['iva'] 			= <?php echo $product->ctipoiva;?>;
+		datos['codBarras']		= <?php echo '"'.$product->ccodebar.'"';?>;
+		productos.push(new ObjProducto(datos));
+		<?php
+		// cambiamos estado y cantidad de producto creado si fuera necesario.
+		if ($product->estado != 'Activo'){
+		?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product->estado.'"';?>;
+		<?php
+		}
+		if ($product->unidad != 1){
+		?>	productos[<?php echo $i;?>].unidad=<?php echo $product->unidad;?>;
+		<?php
+		}
+	}
+	?>
 
-	
-	echo '<pre>';
-	print_r($respuesta);
-	echo '</pre>';
-	
-?>
-<style type="text/css">
-<!-- css necesario para agregar o eliminar filas -->
-.fila-base { display: none; }<!-- fila base oculta --> 
-.eliminar { cursor: pointer; }
-.agregar {	cursor: pointer;  } <!-- class para que aparezca cursor --> 
-<!-- Fin css para agregar o eliminar filas -->
-</style>
-
-
-
-
-
-
+	</script>
+<?php } ?>
 <div class="container">
-
 <nav class="col-md-3">
 	<div class="col-md-6">
 		<h3 class="text-center"> TpvFox</h3>
@@ -241,28 +261,83 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		</tr>
 		</thead>
 		<tbody>
-
-		
-		
+		<?php 
+		// Si es un ticket abierto o que existe..
+		if (isset($respuesta['productos'])){
+			$htmllineas = anhadirLineasTicket($respuesta['productos'],$CONF_campoPeso);
+			//~ echo '<pre>';
+			//~ print_r($htmllineas[0]);
+			//~ echo '</pre>';
+			echo implode(' ',$htmllineas);
+			
+		}
+		?>
 		</tbody>
 	  </table>
 	</div>
+	<?php
+		// Inicializamos variables a 0
+
+		if (isset($respuesta['productos'])){
+			// convertimos el objeto productos en array
+			$productos = json_decode( json_encode( $respuesta['productos'] ), true );
+			$Datostotales = recalculoTotales($productos);
+			// Ahora montamos base y ivas 
+			
+			foreach ($Datostotales['desglose'] as $basesYivas){
+				switch ($basesYivas['tipoIva']){
+				case 4.00 :
+					$base4 = $basesYivas['base'];
+					$iva4 = $basesYivas['iva'];
+
+				break;
+				case 10.00 :
+					$base10 = $basesYivas['base'];
+					$iva10 = $basesYivas['iva'];
+				break;
+				case 21.00 :
+					$base21 = $basesYivas['base'];
+					$iva21 = $basesYivas['iva'];
+				break;
+				}	
+			} 
+			
+			//~ echo '<pre>';
+			//~ print_r($Datostotales );
+			//~ echo '</pre>';
+		}
+	?>
+	
 	
 	<table id="tabla-pie" class="table table-striped">
 	<tbody>
 		<tr id="titulo">
 			<td id="bases">Base
-				<div id="base4"></div>
-				<div id="base10"></div>
-				<div id="base21"></div>
+				<div id="base4">
+					<?php echo (isset($base4) ? $base4 : '');?>
+				</div>
+				<div id="base10">
+					<?php echo (isset($base10) ? $base10 : '');?>
+				</div>
+				<div id="base21">
+					<?php echo (isset($base21) ? $base21 : '');?>
+				</div>
 			</td>
 			<td id="ivas">IVA
-				<div id="iva4"></div>
-				<div id="iva10"></div>
-				<div id="iva21"></div>
+				<div id="iva4">
+					<?php echo (isset($iva4) ? $iva4 : '');?>
+				</div>
+				<div id="iva10">
+					<?php echo (isset($iva10) ? $iva10 : '');?>				
+				</div>
+				<div id="iva21">
+					<?php echo (isset($iva21) ? $iva21 : '');?>
+				</div>
 			</td>
 			<td id="total">Total
-				<div id="totalImporte"></div>
+				<div id="totalImporte">
+				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+				</div>
 			</td>
 		</tr>
 	</tbody>
