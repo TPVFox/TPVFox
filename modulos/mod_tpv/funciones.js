@@ -36,7 +36,7 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 	// 	nombreInput -> Nombre del id donde se ejecuto la funcion.
 	// 	nfila-> Es la fila en la que estamos.
 	// 	nomcampo -> Se utiliza modal productos para indicar en cajabusqueda  que campo vamos buscar. 
-	console.log ( ' ==== Pulsamos tecla ===== ');
+	console.log ( ' ==== Pulsamos tecla ===== '+nombreInput+' fila '+nfila+' eve '+event);
 	// Variables que voy utilizar aparte parametros.
 	var datoinput = '';
 	var pantalla = 'tpv';
@@ -58,7 +58,7 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 		// 3.- No se obtiene datos solo se mueve.
 		//		filaproducto
 		//		filacliente
-	if ((nombreInput !== 'filacliente') || (nombreInput !== 'filaproducto')) {
+	if ((nombreInput !== 'filacliente') && (nombreInput !== 'filaproducto')) {
 		datoinput = obtenerdatos(nombreInput,nfila); // String limpio espacios al principio y final.
 	}
 	
@@ -179,14 +179,15 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 		if ((nombreInput === 'filacliente') || (nombreInput === 'filaproducto')) {
 			// [ pulsamos flecha abajo o arriba  y estamos lista productos o clientes.(modal)] 
 			// Ahora subimos o bajamos según pulsado.
+			console.log(' fila cliente');
 			var nueva_fila = nfila;
 			if (event.keyCode === 40){
 				// Hay que recordad que UNIDAD ( filas productos están de mayor a menor)
-				nueva_fila = nueva_fila-1;
+				nueva_fila = nueva_fila+1;
 			}
 			if (event.keyCode === 38){
 				// Hay que recordad que UNIDAD ( filas productos están de mayor a menor)
-				nueva_fila = nueva_fila+1;
+				nueva_fila = nueva_fila-1;
 			}
 			// Si nfila es menor 0 entonces volvemos caja modal
 			if (nueva_fila < 0){
