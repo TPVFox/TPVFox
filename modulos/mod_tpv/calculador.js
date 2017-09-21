@@ -6,23 +6,13 @@
  * @Descripcion	Javascript necesarios para modulo importar DBF.
  *
  *  */
-var pulsado = '';
-var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
-var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
-var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
-var producto =[];
-var Niva;
 
-//multiplica unidad o kilo por pvp = importe de cada fila
-//se le pasa cantidad (unidad o kilo) y pvp
-//ver si pasar parametros o recogerlos en propia funcion !!!! 
-//pvp puedo pasarlo PERO cantidad NO! esta puede variar
-//id es hmtl
 function recalculoImporte(cantidad,num_item){
-	//recoger cantidad, por defecto es un valor y luego puede variar
-	//cantidad es cogida de producto que es global 
-	//o del propio imput, donde usamos evento 
-						//keypress al pulsar enter recalcula precio
+	// @ Objetivo:
+	// Recalcular el importe de la fila, si la cantidad cambia.
+	// @ Parametros:
+	//	cantidad -> Valor ( numerico) de input unidades.
+	//	num_item -> El numero que indica el producto que modificamos.
 	console.log('Estoy en recalculoImporte');
 	//~ console.log('cantidad:'+cantidad);
 	if (productos[num_item].unidad == 0 && cantidad != 0) {
@@ -40,11 +30,8 @@ function recalculoImporte(cantidad,num_item){
 	sumaImportes();
 }
 
-
-
-
-//suma los importes de cada fila y devuelve Total Importe de compra.
 function sumaImportes(){
+	//suma los importes de cada fila y devuelve Total Importe de compra.
 	var suma_total = 0;
 	var total_ivas = [];
 	var iva_type;
