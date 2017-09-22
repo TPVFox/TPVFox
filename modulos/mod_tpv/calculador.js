@@ -20,6 +20,7 @@ function recalculoImporte(cantidad,num_item){
 	} else if (cantidad == 0 ) {
 		eliminarFila(productos[num_item].nfila);
 	}
+	console.log('Valor de cantidad'+cantidad);
 	productos[num_item].unidad = cantidad;
 	//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
 	var importe = cantidad*productos[num_item].pvpconiva;
@@ -36,9 +37,9 @@ function sumaImportes(){
 	var total_ivas = [];
 	var iva_type;
 
-	total_ivas['4'] = 0;
-	total_ivas['10'] = 0;
-	total_ivas['21'] = 0;
+	total_ivas[4] = 0;
+	total_ivas[10] = 0;
+	total_ivas[21] = 0;
 	
 	$('#base4').html('');
 	$('#iva4').html('');
@@ -51,8 +52,8 @@ function sumaImportes(){
 	productos.forEach(function(product) {
 		if (product.estado != 'Eliminado') {
 			var importe = product.unidad * product.pvpconiva;
-			iva_type = parseFloat(product.ctipoiva);
-			total_ivas[iva_type] += importe;
+			iva_type = parseInt(product.ctipoiva);
+			total_ivas[parseInt(product.ctipoiva)] += importe;
 			suma_total += importe;
 		}
 	});
@@ -60,35 +61,29 @@ function sumaImportes(){
 	//~ console.log(total_ivas);
 	
 	var operador;
-	var civa;
 	//https://stackoverflow.com/a/9329476
-	total_ivas.forEach(function(tiva,index) {
+	total_ivas.forEach(function(total_importe, tipo_iva) {
 		//~ console.log('t iva valor'+tiva);
 		//~ console.log('index'+index);
 		//~ console.log('Numero caracteres de index'+index.length);
 		
-		if (tiva >0){
-			iva_type = index.toString();
-			//console.log('ivatype ---- '+iva_type);
-			civa= iva_type.length;
-			if (civa === 1){
-				iva_type = '0'+iva_type;
-			}
-			operador = '1.'+iva_type;
-			operador = parseFloat(operador);
-			//~ console.log('operador '+typeof operador);
-			
-			var base = (total_ivas[index]/operador).toFixed(2);
-			//~ console.log('TOTAL IVAS '+total_ivas[index]);
-			
-			$('#base'+index).html(base); 
-			//~ console.log('base '+iva_type+':'+base);
-			$('#iva'+index).html(index+'% &nbsp;'+((base*operador)-base).toFixed(2));
+		if (total_importe > 0){
+			operador = (100 + tipo_iva) / 100;
+			console.log('OPERADOR: ' + operador);
 
+			var base = (total_ivas[tipo_iva]/operador).toFixed(2);
+			//~ console.log('TOTAL IVAS '+total_ivas[index]);
+			$('#line'+tipo_iva).css('display','');
+			$('#tipo'+tipo_iva).html(tipo_iva+'%');
+			$('#base'+tipo_iva).html(base); 
+			//~ console.log('base '+iva_type+':'+base);
+			$('#iva'+tipo_iva).html((total_importe-base).toFixed(2));
+		} else {
+			$('#line'+tipo_iva).css('display','none');
 		}
 	});
 	total = suma_total; // Damos valor a variable global, para poder cobrar.
-	$('#totalImporte').html(suma_total.toFixed(2));
+	$('.totalImporte').html(suma_total.toFixed(2));
 	// Llamamos funcion grabar en BD
 	grabarTicketsTemporal();
 	
