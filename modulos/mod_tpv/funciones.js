@@ -85,6 +85,15 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 				buscarProductos(nombreInput,datoinput,pantalla)
 				//~ campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
 				return; // no continuanmos.. volvemos..
+			} else {
+				// Calculamos el index para obtener el nombre del input siguiente.
+				var index= SiInputProductos + 1;
+				if (index === nombresInputProductos.length) {
+					// Volvemos al primero
+					index = 0;
+				}
+				// Nos movemos.
+				$('#'+nombresInputProductos[index]).focus();
 			}
 			
 		}
