@@ -109,7 +109,25 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 				recalculoImporte(productos[nfila-1].unidad,nfila-1);
 			}
 		}
-		
+		if (nombreInput === 'entrega'){
+			var entrega = datoinput;
+			var cambio = entrega - total;
+			console.log(entrega);
+			if(event.keyCode === 13){
+				if (cambio < 0){
+					$('#cambio').css('color','red');
+				}else {
+					$('#cambio').css('color','grey');
+				}
+			$('#cambio').val(cambio.toFixed(2));
+			// Ponemos como focus el btn de aceptar
+			$('#CobrarAceptar').focus();
+			}
+		}
+
+
+
+
 	} 
 
 	//[PULSAMOS : tecla abajo y arriba]
@@ -527,6 +545,51 @@ function grabarTicketsTemporal(){
 		}
 	});
 }
+
+function CerrarTicket(){
+	//@ Objetivo:
+	// Enviar datos del ticket (cabecera y caja de cobrar)
+	// para guaardar como Cobrado en tablas ticket y temporal de ticket se cambia estado a COBRADO
+	 var entregado = obtenerdatos('entrega')
+	 var formaPago = $('#modoPago').val();
+	 alert( 'Modo pago:'+formaPago);
+	// Ahora ejecutamos ajax para guardar ticket
+	var parametros = {
+		"pulsado"	    	: 'CerrarTicket',
+		"idCliente"		 	: cabecera.idCliente,
+		"idTienda" 	 		: cabecera.idTienda,
+		"idUsuario"	 		: cabecera.idUsuario,
+		"estadoTicket" 		: cabecera.estadoTicket,
+		"numTickTemporal"	: cabecera.numTicket,
+		"total"				: total,
+		"entregado"			: entregado,
+		"formaPago"			: formaPago
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** Voy guardar ticket (CERRAdo) ****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta de Guardar ticket Cerrado');
+			console.log(response);
+			var resultado =  $.parseJSON(response); 
+			
+			alert(' Ahora debe cerrar y empezar otro.')
+			// Redireccion para volver a empezar un ticket
+			//~ window.location="tpv.php";
+		}
+	});
+	
+	
+	
+}
+
+
+
+
 // ===================  FUNCIONES DE PINTAR BONITO =========================
 //html onfocus 
 function sobreProducto(cont){
