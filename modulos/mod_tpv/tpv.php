@@ -98,7 +98,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		$idCliente =1;
 	}
 	
-	if($ticket['productos']){
+	if(isset($ticket['productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
 			$productos = json_decode( json_encode( $ticket['productos'] ), true );
@@ -108,7 +108,9 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	//~ echo '<pre>';
 	//~ print_r($Datostotales);
 	//~ echo '</pre>';
+
 ?>
+
 <?php if (isset($ticket)){
 	// Solo cargamos estas lineas javascript si es un ticket Abierto
  ?>

@@ -290,8 +290,9 @@ function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
 	// Sabemos comprobamos estado ticket para saber si obtenemos numero.
 	if ($cabecera['estadoTicket'] === 'Nuevo'){
 		// Tenemos que obtener en que numero ticket temporal de tabla indices.
-		$campo = "Numtempticket";
-		ObtenerNumIndices($campo,$idUsuario,$idTienda);
+		$campo = "tempticket";
+		$numTicket= ObtenerNumIndices($BDTpv,$campo,$idUsuario,$idTienda);
+		
 	} else {
 		// Sino es nuevo , será abierto, por lo que ya exite numero.
 		$numTicket = $cabecera['numTicket'];
@@ -551,7 +552,7 @@ function MaquetarFecha ($fecha,$tipo){
 	return $respuesta;
 }
 
-function ObtenerNumIndices($campo,$idUsuario,$idTienda){
+function ObtenerNumIndices($BDTpv,$campo,$idUsuario,$idTienda){
 	// @ Objetivo 
 	// Obtener el numero tickets a utilizar en las tablas tickets.
 	// @ Parametros
@@ -561,6 +562,7 @@ function ObtenerNumIndices($campo,$idUsuario,$idTienda){
 	// Hay que tener en cuenta que tenemos un registro por Usuario y Tienda para llevar un control numeros ticket. 
 	$sql = 'SELECT '.$campo.' FROM `indices` WHERE `idTienda` ='.$idTienda.' AND `idUsuario` ='.$idUsuario;
 	$resp = $BDTpv->query($sql);
+	
 	$row = $resp->fetch_array(MYSQLI_NUM); 
 	if (count($row) === 1) {
 		$numTicket = $row[0] +1;
@@ -568,7 +570,9 @@ function ObtenerNumIndices($campo,$idUsuario,$idTienda){
 		error_log('Algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
 		exit;
 	}	
-	$respuesta = $numTicket;
+	
+	
+	return $numTicket;
 }
 
 
