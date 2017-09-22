@@ -110,7 +110,7 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 			$producto['NPCONIVA'] = $producto['pvpCiva'];
 			
 		
-		$datos = "'".$producto['CREF']."','".$producto['CDETALLE']."','"
+		$datos = "'".htmlentities($producto['CREF'],ENT_QUOTES)."','".htmlentities($producto['CDETALLE'],ENT_QUOTES)."','"
 					.number_format($producto['CTIPOIVA'],2)."','".$producto['CCODEBAR']."',"
 					.number_format($producto['NPCONIVA'],2).",".$producto['idArticulo'];
 		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
@@ -118,8 +118,8 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 		
 		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonProducto('
 					.$contad.')" onfocus="sobreProducto('.$contad.')" onkeyup="teclaPulsada(event,'."'filaproducto',".$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-		$resultado['html'] .= '<td>'.$producto['CREF'].'</td>';				
-		$resultado['html'] .= '<td>'.$producto['CDETALLE'].'</td>';
+		$resultado['html'] .= '<td>'.htmlspecialchars($producto['CREF'], ENT_QUOTES).'</td>';				
+		$resultado['html'] .= '<td>'.htmlspecialchars($producto['CDETALLE'], ENT_QUOTES).'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
 
 		$resultado['html'] .= '</tr>';
@@ -193,15 +193,15 @@ function htmlClientes($busqueda,$clientes){
 		$contad = 0;
 		foreach ($clientes as $cliente){  
 			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
-			$datos = 	"'".$cliente['idClientes']."','".$razonsocial_nombre."'";
+			$datos = 	"'".$cliente['idClientes']."','".htmlentities($razonsocial_nombre,ENT_QUOTES)."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
 						.$contad.')" onmouseover="sobreProductoCraton('.$contad.')" onclick="cerrarModalClientes('.$datos.');">';
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonProducto('
 						.$contad.')" onkeyup="teclaPulsada(event,'."'filacliente',".$contad.')" onfocus="sobreProducto('.$contad.')"   type="image"  alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-			$resultado['html'] .= '<td>'.$cliente['nombre'].'</td>';
-			$resultado['html'] .= '<td>'.$cliente['razonsocial'].'</td>';
+			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>';
+			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';
 			$resultado['html'] .= '</tr>';
 			$contad = $contad +1;
@@ -225,9 +225,9 @@ function htmlCobrar($total){
 	$resultado['imprimir'] = 0;
 	$resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">';
 	$resultado['html'] .= '<h1>'.number_format($total,2).'<span class="small"> €</span></h1>';
-	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" autofocus value="" size="8" onkeydown="teclaPulsada(event,'."'entrega',0".')" autofocus></input></h4>';
+	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" size="8" onkeyup="teclaPulsada(event,'."'entrega',0".')" ></input></h4>';
 												
-	$resultado['html'] .= '<h4> Cambio &nbsp<input id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
+	$resultado['html'] .= '<h4> Cambio &nbsp<input class="text-right" id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
 	
 	
 	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
@@ -236,12 +236,12 @@ function htmlCobrar($total){
 	
 
 	$resultado['html'] .= '<div>';
-	$resultado['html'] .= '<select name="modoPago" >';
+	$resultado['html'] .= '<select name="modoPago" id="modoPago">';
 	$resultado['html'] .= '<option value="contado">Contado</option>';
 	$resultado['html'] .= '<option value="tarjeta">Tarjeta</option>';
 	$resultado['html'] .= '</select>';
 	
-	$resultado['html'] .= ' <button type="button" class="btn">Aceptar</button>';// falta imprimir cerrar modal 
+	$resultado['html'] .= ' <button id="CobrarAceptar" type="button" class="btn btn-primary" onclick="CerrarTicket()" >Aceptar</button>';
 	$resultado['html'] .= '</div>';
 	
 	$resultado['html'] .= '</div>';
@@ -290,15 +290,8 @@ function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
 	// Sabemos comprobamos estado ticket para saber si obtenemos numero.
 	if ($cabecera['estadoTicket'] === 'Nuevo'){
 		// Tenemos que obtener en que numero ticket temporal de tabla indices.
-		$sql = "SELECT `tempticket` FROM `indices` WHERE `idTienda` =1 AND `idUsuario` =1";
-		$resp = $BDTpv->query($sql);
-		$row = $resp->fetch_array(MYSQLI_NUM); 
-		if (count($row) === 1) {
-			$numTicket = $row[0] +1;
-		} else {
-			error_log('Algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
-			exit;
-		}
+		$campo = "Numtempticket";
+		ObtenerNumIndices($campo,$idUsuario,$idTienda);
 	} else {
 		// Sino es nuevo , será abierto, por lo que ya exite numero.
 		$numTicket = $cabecera['numTicket'];
@@ -363,35 +356,27 @@ function recalculoTotales($productos) {
 	// 	$productos (array) no objeto.
 	$respuesta = array();
 	$desglose = array();
+	$ivas = array();
 	$subtotal = 0;
 	// Creamos array de tipos de ivas hay en productos.
-	$ivas = array_unique(array_column($productos,'ctipoiva'));
-	sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
+	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
+	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
-		if ($product['estado'] === 'Activo'){
-			$totalLinea = $product['unidad'] * $product['pvpconiva'];
-			$respuesta['lineatotal'][$product['nfila']] = number_format($totalLinea,2);
+		if ($product->estado === 'Activo'){
+			$totalLinea = $product->unidad * $product->pvpconiva;
+			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
 			$subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
 			// Ahora calculmos bases por ivas
-			foreach ($ivas as $key=>$iva){
-				if ($product['ctipoiva'] === $iva) {
-					$desglose[$key]['BaseYiva'] = (!isset($desglose[$key]['BaseYiva']) ? $totalLinea : $desglose[$key]['BaseYiva']+$totalLinea);
-					// Ahora calculamos base y iva 
-					if ($iva <10){
-						$operador = '1.0'.$iva;
-					} else {
-						$operador = '1.'.$iva;
-					}
-					$desglose[$key]['base'] = number_format(($desglose[$key]['BaseYiva']/$operador),2);
-					$desglose[$key]['iva'] = number_format($desglose[$key]['BaseYiva']-$desglose[$key]['base'],2);
-					$desglose[$key]['tipoIva'] =$iva;
-
-				}
-			}
+			$desglose[$product->ctipoiva]['BaseYiva'] = (!isset($desglose[$product->ctipoiva]['BaseYiva']) ? $totalLinea : $desglose[$product->ctipoiva]['BaseYiva']+$totalLinea);
+			// Ahora calculamos base y iva 
+			$operador = (100 + $product->ctipoiva) / 100;
+			$desglose[$product->ctipoiva]['base'] = number_format(($desglose[$product->ctipoiva]['BaseYiva']/$operador),2);
+			$desglose[$product->ctipoiva]['iva'] = number_format($desglose[$product->ctipoiva]['BaseYiva']-$desglose[$product->ctipoiva]['base'],2);
+			//~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
 		}
 	}
-	$respuesta['ivas'] = $ivas;
+	//~ $respuesta['ivas'] = $ivas;
 	$respuesta['desglose'] = $desglose;
 	$respuesta['total'] = number_format($subtotal,2);
 	return $respuesta;
@@ -415,6 +400,10 @@ function ControlEstadoTicketsAbierto($BDTpv,$idUsuario,$idTienda) {
 	}
 function ObtenerCabeceraTicketAbierto($BDTpv,$idUsuario,$idTienda,$numTicket=0){
 	// @ Objetivo es obtener las cabeceras de los ticketAbiertos.
+	// @ Parametro
+	// 	$numticket -> Si recibimos uno, ese no lo devolvemos, para evitar mostrarlo, ya que no tiene sentido mostralo
+	// 				si lo estamos editando.
+	
 	$respuesta = array();
 	// Montamos consulta
 	$sql = 'SELECT t.`numticket`,t.`idClientes`,t.`fechaInicio`,t.`fechaFinal`,t.`total`,t.`total_ivas`,c.Nombre, c.razonsocial FROM `ticketstemporales` as t LEFT JOIN clientes as c ON t.idClientes=c.idClientes WHERE t.idTienda ='.$idTienda.' AND t.idUsuario ='.$idUsuario.' AND estadoTicket="Abierto"';
@@ -444,16 +433,28 @@ function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 	// Hay que tener en cuenta que todos los productos del tickets esta en un campo unico, en un array JSON
 	$respuesta = array();
 	$productos = array();
-	$Sql  = 'SELECT * FROM `ticketstemporales` WHERE `idTienda` ='
-			.$idTienda.' AND `idUsuario` ='.$idUsuario.' AND `numticket` ='.$numero_ticket;
+	$Sql  = 'SELECT t.`id` , t.`numticket` , t.`estadoTicket` , t.`idTienda` , t.`idUsuario` , t.`fechaInicio` , t.`fechaFinal` , t.`idClientes` , t.`total` , t.`total_ivas` , c.`Nombre` , c.`razonsocial`,t.`Productos` FROM `ticketstemporales` AS t LEFT JOIN `clientes` AS c ON c.`idClientes` = t.`idClientes` WHERE `idTienda` ='.$idTienda.' AND `idUsuario` ='.$idUsuario.' AND `numticket` ='.$numero_ticket;
+			
+			
 	if ($resp = $BDTpv->query($Sql)){
 		// Quiere decir que hay resultados.
 		$respuesta['Numero_rows'] = $resp->num_rows;
 		if ( $respuesta['Numero_rows'] === 1) {
 			$row = $resp->fetch_assoc(); 
-			$productos_json= json_decode ($row['Productos']); // Obtenemos array de productos con campo unico que es un Json con los campos
+			// Enviamos datos cabecera tambien.
+			$respuesta['numticket'] 	= $row['numticket'];
+			$respuesta['idClientes'] 	= $row['idClientes'];
+			$respuesta['fechaInicio'] 	= $row['fechaInicio'];
+			$respuesta['fechaFinal'] 	= $row['fechaFinal'];
+			$respuesta['Nombre']		= $row['Nombre'];
+			$respuesta['razonsocial']		= $row['razonsocial'];
+
+			// Obtenemos array de productos con campo unico que es un Json con los campos
+			$productos_json= json_decode ($row['Productos']); 
 			foreach ( $productos_json as $product) {
-				$productos[] = json_decode($product);// Obtenemos campos del producto.
+				$temp = json_decode($product);
+				$productos[$temp->nfila-1] = $temp;
+				//~ $productos[] = json_decode($product);// Obtenemos campos del producto.
 			}
 		} else {
 			// Quiere decir que algo salio mal, ya que obtuvo mas o ninguno registro.
@@ -461,7 +462,7 @@ function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 			return $respuesta; // No continuamos.
 		}
 	} elseif (mysqli_error($BDTpv)){
-		$respuesta['consulta'] = $sql;
+		$respuesta['consulta'] = $Sql;
 		$respuesta['error'] = $BDTpv->error_list;
 		return $respuesta; // No continuamos si hay error en la consulta.
 	} 
@@ -474,11 +475,10 @@ function anhadirLineasTicket($productos,$CONF_campoPeso){
 	//@ Objetivo:
 	// Obtener html de todas las lineas de productos.
 	$htmlLineas = array();
-	$num_item = 0;
 	foreach($productos as $product){
+		$num_item = $product->nfila - 1;
 		$unaLinea = htmlLineaTicket($product,$num_item,$CONF_campoPeso);
 		$htmlLineas[$num_item] = $unaLinea;
-		$num_item++;
 	}
 	return $htmlLineas;
 }
@@ -495,8 +495,6 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	} else {
 		$product = $producto;
 	}
-	
-	
 	// Variables que vamos utilizar:
 	$classtr = '' ; // para clase en tr
 	$estadoInput = '' ; // estado input cantidad.
@@ -525,7 +523,7 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	$nuevaFila .= '<td class="tipoiva">'.$product->ctipoiva.'%</td>';
 	// Creamos importe --> 
 	$importe = $product->pvpconiva*$product->unidad;
-	$importe = number_format($importe);
+	$importe = number_format($importe,2);
 	$nuevaFila .= '<td id="N'.$product->nfila.'_Importe" class="importe" >'.$importe.'</td>'; //importe 
 	// Ahota tengo que controlar el estado del producto,para mostrar uno u otro
 	$nuevaFila .= $btnELiminar_Retornar;
@@ -533,4 +531,45 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	$nuevaFila .='</tr>';
 	return $nuevaFila;
 }
+
+function MaquetarFecha ($fecha,$tipo){
+	// @ Objetivo formatear una una fecha y obtener al tipo indicado
+	// @ Parametros
+	// 	$fecha : Dato de fecha
+	//	$tipo : Pueder ser 
+	//				HM -> Hora Minuto
+	//				dmy -> Dia Mes Año
+	// Creamos array de fecha
+	$fechaArray = date_parse($fecha);
+	$horaMinuto = sprintf("%'.02d", $fechaArray['hour']).':'.sprintf("%'.02d", $fechaArray['minute']);
+	$DiaMesAnho = sprintf("%'.02d", $fechaArray['day']).'/'.sprintf("%'.02d", $fechaArray['month']).'/'.$fechaArray['year'];
+	if ($tipo === 'HM'){
+		$respuesta = $horaMinuto;
+	} else{
+		$respuesta = $DiaMesAnho;
+	}
+	return $respuesta;
+}
+
+function ObtenerNumIndices($campo,$idUsuario,$idTienda){
+	// @ Objetivo 
+	// Obtener el numero tickets a utilizar en las tablas tickets.
+	// @ Parametros
+	// 	 $campo: (String) `Numtempticket`,`Numticket` , segun se la tabla que utilicemos.
+	// 	 $idUsuario ->(int); 
+	// 	 $idTienda 	->(int);
+	// Hay que tener en cuenta que tenemos un registro por Usuario y Tienda para llevar un control numeros ticket. 
+	$sql = 'SELECT '.$campo.' FROM `indices` WHERE `idTienda` ='.$idTienda.' AND `idUsuario` ='.$idUsuario;
+	$resp = $BDTpv->query($sql);
+	$row = $resp->fetch_array(MYSQLI_NUM); 
+	if (count($row) === 1) {
+		$numTicket = $row[0] +1;
+	} else {
+		error_log('Algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
+		exit;
+	}	
+	$respuesta = $numTicket;
+}
+
+
 ?>

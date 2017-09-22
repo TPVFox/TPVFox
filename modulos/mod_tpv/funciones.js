@@ -36,7 +36,7 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 	// 	nombreInput -> Nombre del id donde se ejecuto la funcion.
 	// 	nfila-> Es la fila en la que estamos.
 	// 	nomcampo -> Se utiliza modal productos para indicar en cajabusqueda  que campo vamos buscar. 
-	console.log ( ' ==== Pulsamos tecla ===== '+nombreInput+' fila '+nfila+' eve '+event);
+	console.log ( ' ==== Pulsamos tecla ===== ');
 	// Variables que voy utilizar aparte parametros.
 	var datoinput = '';
 	var pantalla = 'tpv';
@@ -67,7 +67,7 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 		// [PENDIENTE] Antes de abrir popup deberíamos comprobar si viene Unidad entonces debe recalcular
 		var numproduct = productos.length;
 		if (numproduct > 0){
-			console.log('F1 ');
+			console.log('PULSO F1 - DENTRO CAJA ');
 			cobrarF5();
 		}
 	}
@@ -198,27 +198,13 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 		}
 	// Cerramos condicional de pulsar tecla abajo y arriba.
 	}
-		
-	if (nombreInput === 'entrega'){
-		var entrega = obtenerdatos(nombreInput);
-		var cambio = entrega - total;
-		console.log(entrega);
-		if(event.keyCode === 13){
-			if (cambio < 0){
-				$('#cambio').css('color','red');
-			}else {
-				$('#cambio').css('color','grey');
-			}
-		$('#cambio').val(cambio.toFixed(2));
-		}
-	 }
 }
 //en input llamo con onkeydown a teclaPulsada(event,nombreInput,nfila)
 //pongo un tiempo de focus en input ventana modal busqueda 
 function tiempoEnfoqueInput(nfila){
 	setTimeout(function() {   //pongo un tiempo de focus en input modal busqueda 
 		$('#N_'+nfila).focus(); 
-	}, 500); 
+	}, 300); 
 }
 
 function cobrarF5(){
@@ -239,17 +225,13 @@ function cobrarF5(){
 			$("#resultado").html('Comprobamos que el producto existe ');
 		},
 		success:  function (response) {
-			console.log('ajax success cobrarF5 '+response);
+			console.log('Respuesta ajax - CobrarF5 ');
 			var resultado =  $.parseJSON(response);
-			
-			
-			
 			//HtmlCobrar = resultado;
 			//busqueda = resultado.cobrar;
 			
 			var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
 			var titulo = 'COBRAR ';
-				console.log(' cobrar '+HtmlCobrar);	
 			abrirModal(titulo,HtmlCobrar);
 			//alert('cobrar');
 			
@@ -575,8 +557,7 @@ function ObjProducto(datos,valor=1,estado ='Activo')
     this.unidad = valor;
     this.estado = estado;
     this.nfila = productos.length+1;
-	// this.importe = this.unidad*this.npconiva; No me funciono al cambiar unidad.. no cambia... 
-
+    this.importe = parseFloat(this.pvpconiva) * this.unidad;
 }
 	
 

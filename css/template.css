@@ -34,3 +34,7 @@ span.circulo {
 	color: lightgray;
 	text-decoration:line-through;
 }
+.pie-ticket {
+	background-color: #ededed;
+	padding: 1%;
+}
