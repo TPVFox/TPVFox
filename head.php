@@ -1,5 +1,5 @@
 <?php
-	// Recuerda que este fichero se include en muchos ficheros, por lo que 
+	// Recuerda que este fichero se include en muchos ficheros, por lo que
 	// la ruta getcwd() no es la misma siempre.
 	if (isset($DirectorioInicio)) {
 		$Ruta = './';
@@ -7,17 +7,17 @@
 		$Ruta = './../../' ; // Porque estoy en modulo...
 		// Esto tiene porque ser así se podría asignar antes, desde el fichero que include.
 	}
-	
+
 	include_once ($Ruta.'configuracion.php');
    	$URLCom = $RutaServidor . $HostNombre;
 	include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
 	//incluyo ruta del controlador de sesion (funcion php)
     include_once ($URLCom. "/plugins/controlUser/funcion.php");
-	
-	// Solo creamos objeto si no existe.
-	$thisTpv = new ComprobarSession;			
-	$TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
 
+	// Solo creamos objeto si no existe.
+	$thisTpv = new ComprobarSession;
+	$TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
+//coment
 ?>
 
 
