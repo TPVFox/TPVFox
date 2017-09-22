@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * @version     0.1
  * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
@@ -9,7 +9,7 @@
 		// Objetivo de esta aplicacion es:
 		//	- Copiar DBF y guardar en directorio de copias de seguridad.
 		// 	- Importar los datos copiados a MYSQL.
-		
+
 ?>
 
 <!DOCTYPE html>
@@ -22,36 +22,28 @@
 	$Usuario = $_SESSION['usuarioTpv'];
 	$ticket_estado = 'Nuevo';
 	$ticket_numero = 0;
-	// Si no hay $_GET entonces es nuevo.
+	$fechaInicio = date("d/m/Y");
 	if (isset($_GET['tAbierto'])) {
-		// Tenemos que abrir un tique ya abierto
 		$ticket_estado = 'Abierto';
 		$ticket_numero = $_GET['tAbierto'];
+
 	}
-	
-	
+
 ?>
 
-<script type="text/javascript"> 
+<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
-	// En configuracion podemos definir SI / NO 
+	// En configuracion podemos definir SI / NO
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-	
-	cabecera['idCliente'] = 1; // Este dato puede cambiar
-	cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
-	cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; // Tuve que adelantar la carga, sino funcionaria js.
-	cabecera['estadoTicket'] ="<?php echo $ticket_estado ;?>"; // Si no hay datos GET es 'Nuevo';
-	cabecera['numTicket'] = <?php echo $ticket_numero ;?>; // Si no hay datos GET es 'Nuevo';
-
+		cabecera['idCliente'] = 1; // Este dato puede cambiar
+		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+		cabecera['estadoTicket'] ="<?php echo $ticket_estado ;?>"; // Si no hay datos GET es 'Nuevo';
+		cabecera['numTicket'] = <?php echo $ticket_numero ;?>; // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 
-	
-	
-	
-	
-	
-</script> 
+</script>
 
 
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
@@ -63,44 +55,69 @@
 onBeforeUnload="return preguntarAntesDeSalir()"
 -->
 <body>
-<?php 
+<?php
 
 	include '../../header.php';
 	include_once ("funciones.php");
 	// Ahora obtenemos los tickets abiertos.
 	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
-	if (isset($cambiosEstadoTickets['error'])){
-		// Entonces obtenemos las caberas para mostrar.
-		echo '<pre>';
-		print ( 'Hubo error en la consulta de ticket abierto ');
-		print_r($cambiosEstadoTickets);
-		echo '</pre>';
-	}
 	// Ahora obtenemos la cabecera de los ticket abiertos de ese usuario.
 	$ticketsAbiertos = ObtenerCabeceraTicketAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda'],$ticket_numero);
+	// Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
 	if ($ticket_numero > 0){
-		//Entonces cargamos los productos.
-		$respuesta= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
+		//Obtenemos datos del ticket 
+		$ticket= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
 	}
-	if (isset($respuesta['error'])){
-		// Quiere decir que hubo en error al obtener el ticket , por lo que no se muestra nada.
+	if ((isset($cambiosEstadoTickets['error'])) || (isset($ticket['error']))) {
+		// Entonces obtenemos las caberas para mostrar.
 		echo '<pre>';
-		print_r($respuesta);
+		print ( 'HUBO UN ERROR ');
+		if (isset($cambiosEstadoTickets['error'])) {
+			echo 'Error en cambio Estado'; print_r($cambiosEstadoTickets);
+		}
+		if (isset($ticket['error'])) { 
+			echo 'Error en al Obtener ticket'; print_r($ticket['error']);
+		}
 		echo '</pre>';
 		exit(); // NO continuamos.
 	}
 	
+	if ($ticket_numero > 0){
+		// Si estamos en un ticket abierto.
+		// Ahora ponemos fecha Inicio
+		$fechaInicio = MaquetarFecha ($ticket['fechaInicio'],'dmy');
+		$fechaFinal = MaquetarFecha ($ticket['fechaFinal'],'dmy');
+		$horaInicio= MaquetarFecha($ticket['fechaInicio'],'HM');
+		$horaFinal= MaquetarFecha($ticket['fechaFinal'],'HM');
+		$cliente = $ticket['Nombre'].'-'.$ticket['razonsocial'];
+		$idCliente =$ticket['idClientes'];
+	} else {
+		//~ $horaInicio= MaquetarFecha($fechaInicio,'HM'); // Falla no se porque... :-)
+		$cliente = '';
+		$idCliente =1;
+	}
+	
+	if($ticket['productos']){
+			// Obtenemos los datos totales ( fin de ticket);
+			// convertimos el objeto productos en array
+			$productos = json_decode( json_encode( $ticket['productos'] ), true );
+			$Datostotales = recalculoTotales($ticket['productos']);	
+	}
+	
 	//~ echo '<pre>';
-	//~ print_r($respuesta['productos']);
+	//~ print_r($Datostotales);
 	//~ echo '</pre>';
-?>	
-<?php if (isset($respuesta)){ ?>
-	<script type="text/javascript"> 
+?>
+<?php if (isset($ticket)){
+	// Solo cargamos estas lineas javascript si es un ticket Abierto
+ ?>
+	<script type="text/javascript">
+	cabecera['idCliente'] = <?php echo $idCliente;?>;
 	datos = [];
-	<?php 
+	<?php
 	$i= 0;
-	foreach($respuesta['productos'] as $product){
+	foreach($ticket['productos'] as $product){
 	?>
 		// Añadimos datos de productos a variable productos Javascript
 		datos['idArticulo'] 	= <?php echo $product->id;?>;
@@ -131,7 +148,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		<h3 class="text-center"> TpvFox</h3>
 		<h4>Otros opciones</h4>
 		<ul class="nav nav-pills nav-stacked">
-			<li><a href="#section1">Nuevo ticket</a></li>
+			<li><a href="tpv.php">Nuevo ticket</a></li>
 			<li><a href="#section3">Arqueo</a></li>
 			<li><a href="#section3">Imprimir Ticket</a></li>
 		</ul>
@@ -143,11 +160,11 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			<li><a onclick="buscarClientes()">Cliente</a></li>
 			<li><a href="#section3">Abrir Cajon</a></li>
 			<li><a onclick="cobrarF5()">Cobrar</a></li>
-			
+
 		</ul>
 	</div>
 	<div>
-	<?php if (isset($ticketsAbiertos['items'])){ 
+	<?php if (isset($ticketsAbiertos['items'])){
 	?>
 	<h3 class="text-center"> Tickets Abiertos</h3>
 	<table class="table table-striped">
@@ -173,14 +190,14 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 				<?php echo number_format ($item['total'],2); ?>
 				</td>
 			</tr>
-			<?php 
+			<?php
 			// Cerramos foreach
 			}
 			 ?>
 		</tbody>
 	</table>
 	</div>
-	<?php 
+	<?php
 	// Cerramos if de mostrar tickets abiertos o no.
 	}
 	?>
@@ -188,43 +205,52 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 <div class="col-md-9" >
 	<div class="col-md-8">
 		<div class="col-md-12">
-			<div class="col-md-4">
-			<strong>Fecha:</strong>
-			<span id="Fecha"><?php echo date("d/m/Y");?></span>
+			<div class="col-md-7">
+				<div class="col-md-6">
+					<strong>Fecha Inicio:</strong><br/>
+					<span id="Fecha"><?php echo $fechaInicio;?></span><br/>
+					<?php // NO se muestra si es un ticket nuevo
+					if ( $ticket_numero != 0){
+					?>
+					<div style="background-color:#f9f3f3;">
+					<strong>Hora Inicio:</strong>
+					<span id="HoraInicio"><?php echo $horaInicio;?></span><br/>
+					<strong>Fecha Final:</strong><br/>
+					<span id="FechaFinal"><?php echo $fechaFinal;?></span><br/>
+					<strong>Hora Inicio:</strong>
+					<span id="HoraFinal"><?php echo $horaFinal;?></span>
+					</div>
+					<?php 
+					}
+					?>
+				</div>
+				<div class="col-md-6">
+					<strong>Estado:</strong>
+					<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span><br/>
+					<strong>NºTicket:</strong>
+					<span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
+					<span id="EstadoImpresion">	SIN IMPRIMIR</span>
+				</div>
 			</div>
-			<div class="col-md-4">
-			<strong>Estado:</strong>
-			<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span>
-			</div>
-			<div class="col-md-4">
-			<strong>NºTicket:</strong>
-			<span id="NTicket"><?php echo $ticket_numero ;?></span>
-
-			</div>
-			
-			<div class="col-md-4">
-			<strong>Hora Inicio:</strong>
-			<span id="HoraInicio"><?php echo '00:00';//date("H:i");?></span>
-			</div>
-			<div class="col-md-4">
-			<strong>Hora Final:</strong>
-			<span id="HoraFinal"><?php echo '00:00';//date("H:i");?></span>
-			</div>
-			<div class="col-md-4">
-				<span id="EstadoImpresion">	SIN IMPRIMIR</span>
+			<div class="col-md-5">
+				<label>Empleado:</label>
+				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="25" readonly>
 			</div>
 		</div>
 		<div class="form-group">
-			<label>Empleado:</label>
-			<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="40" readonly>	
 			<label>Cliente:</label>
-			<input type="text" id="id_cliente" name="idCliente" value="1" size="2" readonly>
-			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="" size="60" readonly>
+			<input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
+			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $cliente; ?>" size="60" readonly>
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes()"></a>
 		</div>
 	</div>
-	<div class="visor fondoNegro col-md-4" style="background-color:black;height:150px;">
-	<span> Total: 0</span>
+	<div class="visor fondoNegro col-md-4" style="color:#0ade0a;background-color:black;height:150px;">
+		<div class="col-md-4">
+		<h3>TOTAL</h3>
+		</div>
+		<div class="col-md-8 totalImporte text-right" style="font-size: 3em;">
+		<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+		</div>
 	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
@@ -236,15 +262,15 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			<th>Referencia</th>
 			<th>Descripcion</th>
 			<th>Unid</th>
-			<?php  
+			<?php
 			if ($CONF_campoPeso === 'si'){ ?>
 				<th>Cant/Kilo</th>
-			<?php 
-			} else { ?> 
+			<?php
+			} else { ?>
 				<th style="display: none;">Cant/Kilo</th>
-			<?php 
+			<?php
 			}  ?>
-			
+
 			<th>PVP</th>
 			<th>Iva</th>
 			<th>Importe</th>
@@ -254,22 +280,24 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			<td id="C0_Linea" ></td>
 			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeyup="teclaPulsada(event,'Codbarras',0)"></td>
 			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeyup="teclaPulsada(event,'Referencia',0)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" 
+			<td><input id="Descripcion" type="text" name="Descripcion"
 				placeholder="Descripcion" size="20" value="" onkeyup="teclaPulsada(event,'Descripcion',0)">
-				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProductos('Descripcion','','tpv')"></a> 
+				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProductos('Descripcion','','tpv')"></a>
 			</td>
 		</tr>
 		</thead>
 		<tbody>
-		<?php 
+		<?php
 		// Si es un ticket abierto o que existe..
-		if (isset($respuesta['productos'])){
-			$htmllineas = anhadirLineasTicket($respuesta['productos'],$CONF_campoPeso);
+		if (isset($ticket['productos'])){
+			$htmllineas = anhadirLineasTicket(array_reverse($ticket['productos']),$CONF_campoPeso);
+			//~ $htmllineas = anhadirLineasTicket(array_reverse($ticket['productos'], TRUE),$CONF_campoPeso);
+			//~ $htmllineas = anhadirLineasTicket($ticket['productos'],$CONF_campoPeso);
 			//~ echo '<pre>';
 			//~ print_r($htmllineas[0]);
 			//~ echo '</pre>';
 			echo implode(' ',$htmllineas);
-			
+
 		}
 		?>
 		</tbody>
@@ -278,76 +306,101 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	<?php
 		// Inicializamos variables a 0
 
-		if (isset($respuesta['productos'])){
-			// convertimos el objeto productos en array
-			$productos = json_decode( json_encode( $respuesta['productos'] ), true );
-			$Datostotales = recalculoTotales($productos);
-			// Ahora montamos base y ivas 
-			
-			foreach ($Datostotales['desglose'] as $basesYivas){
-				switch ($basesYivas['tipoIva']){
-				case 4.00 :
+		if (isset($ticket['productos'])){
+			// Ahora montamos base y ivas
+
+			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
+				switch ($iva){
+				case 4 :
 					$base4 = $basesYivas['base'];
 					$iva4 = $basesYivas['iva'];
 
 				break;
-				case 10.00 :
+				case 10 :
 					$base10 = $basesYivas['base'];
 					$iva10 = $basesYivas['iva'];
 				break;
-				case 21.00 :
+				case 21 :
 					$base21 = $basesYivas['base'];
 					$iva21 = $basesYivas['iva'];
 				break;
-				}	
-			} 
-			
+				}
+			}
+			// Ahora cambiamos valor a variable global de javascritp total
+			?>
+			<script type="text/javascript">
+			total = <?php echo $Datostotales['total'];?>;
+			</script>
+			<?php
 			//~ echo '<pre>';
 			//~ print_r($Datostotales );
 			//~ echo '</pre>';
 		}
 	?>
-	
-	
-	<table id="tabla-pie" class="table table-striped">
-	<tbody>
-		<tr id="titulo">
-			<td id="bases">Base
-				<div id="base4">
+
+	<div class="col-md-10 col-md-offset-2 pie-ticket">
+		<table id="tabla-pie" class="col-md-6">
+		<thead>
+			<tr>
+				<th>Tipo</th>
+				<th>Base</th>
+				<th>IVA</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr id="line4">
+				<td id="tipo4">
+					<?php echo (isset($base4) ? " 4%" : '');?>
+				</td>
+				<td id="base4">
 					<?php echo (isset($base4) ? $base4 : '');?>
-				</div>
-				<div id="base10">
-					<?php echo (isset($base10) ? $base10 : '');?>
-				</div>
-				<div id="base21">
-					<?php echo (isset($base21) ? $base21 : '');?>
-				</div>
-			</td>
-			<td id="ivas">IVA
-				<div id="iva4">
+				</td>
+				<td id="iva4">
 					<?php echo (isset($iva4) ? $iva4 : '');?>
-				</div>
-				<div id="iva10">
-					<?php echo (isset($iva10) ? $iva10 : '');?>				
-				</div>
-				<div id="iva21">
+				</td>
+				
+			</tr>
+			<tr id="line10">
+				<td id="tipo10">
+					<?php echo (isset($base10) ? "10%" : '');?>
+				</td>
+				<td id="base10">
+					<?php echo (isset($base10) ? $base10 : '');?>
+				</td>
+				<td id="iva10">
+					<?php echo (isset($iva10) ? $iva10 : '');?>
+				</td>
+				
+			</tr>
+			<tr id="line21">
+				<td id="tipo21">
+					<?php echo (isset($base21) ? "21%" : '');?>
+				</td>
+				<td id="base21">
+					<?php echo (isset($base21) ? $base21 : '');?>
+				</td>
+				<td id="iva21">
 					<?php echo (isset($iva21) ? $iva21 : '');?>
-				</div>
-			</td>
-			<td id="total">Total
-				<div id="totalImporte">
-				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
-				</div>
-			</td>
-		</tr>
-	</tbody>
-	</table>
-	
+				</td>
+				
+			</tr>
+		</tbody>
+		</table>
+		<div class="col-md-6">
+			<div class="col-md-4">
+			<h3>TOTAL</h3>
+			</div>
+			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
+			<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+			</div>
+		</div>
+	</div>
+
 </div>
 <?php // Incluimos paginas modales
 include 'busquedaModal.php';
 
 ?>
 </body>
-	
+
 </html>
