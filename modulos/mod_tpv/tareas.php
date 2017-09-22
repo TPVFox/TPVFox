@@ -97,7 +97,39 @@ switch ($pulsado) {
 		$respuesta['html'] =$res;
 		echo json_encode($respuesta);
 		break;
-		
+	case 'CerrarTicket';
+		$respuesta = array();
+		$cabecera = array(); // Array que rellenamos de con POST
+		$total 							=$_POST['total'];
+		$entregado						=$_POST['entregado'];
+		$formaPago						=$_POST['formaPago'];
+		$cabecera['idTienda']			=$_POST['idTienda'];
+		$cabecera['idCliente']			=$_POST['idCliente'];
+		$cabecera['idUsuario'] 			=$_POST['idUsuario'];
+		$cabecera['estadoTicket'] 		=$_POST['estadoTicket'];
+		$cabecera['numTickTemporal'] 	=$_POST['numTickTemporal'];
+		// Obtenemos ticket
+		$ticket 	= ObtenerUnTicket($BDTpv,$cabecera['idTienda'],$cabecera['idUsuario'] ,$cabecera['numTickTemporal']);
+		// Comprobamos que el resultado es correcto y recalculamos totales
+		if (isset($ticket['error'])) { 
+			$respuesta['error-ticket']['mensaje'] ='Error en al Obtener ticket';
+			$respuesta['error-ticket']['datos'] = $ticket['error'];
+			echo json_encode($respuesta); // Convierto a JSON.
+			return $respuesta; // No continuamos,.
+		}
+		// Obtenermos los productos como array que con un JSOn por cada producto y este JSON contiene los campos de cada producto
+		if (isset($ticket['productos'])){
+			$productos = json_decode( json_encode( $ticket['productos'] ), true );
+			$Datostotales = recalculoTotales($ticket['productos']);	
+			if (number_format($Datostotales['total'],2) != number_format($total,2)){
+				$respuesta['error-ticket']['mensaje']  = ' No coincidente TOTAL:'.$total.' con el Total recalculado';
+				$respuesta['error-ticket']['datos'] = $Datostotales;
+			}
+		}
+		$respuesta['ticket'] =$ticket;
+		$respuesta['totales'] = $Datostotales;
+		echo json_encode($respuesta);
+		break;
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/
