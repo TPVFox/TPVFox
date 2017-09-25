@@ -30,7 +30,12 @@
 	}
 
 ?>
+<?php 
+	// [PENDIENTE ERROR EN SIGUIENTE <SCRIPT JAVASCRIPT>]
+	// Si no esta logueado genera un error console javascript ;
+	// ERROR -> SyntaxError: expected expression, got ';
 
+?>
 <script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
