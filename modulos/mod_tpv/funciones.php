@@ -520,27 +520,134 @@ function MaquetarFecha ($fecha,$tipo){
 	return $respuesta;
 }
 
-function ObtenerNumIndices($BDTpv,$campo,$idUsuario,$idTienda){
+function ObtenerNumIndices($BDTpv,$campo,$idUsuario,$idTienda,$incrementar = false){
 	// @ Objetivo 
-	// Obtener el numero tickets a utilizar en las tablas tickets.
+	// Obtener el numero tickets a utilizar en las tablas tickets y si lo indicamos a la funcion podemos incrementarlo.
 	// @ Parametros
 	// 	 $campo: (String) `Numtempticket`,`Numticket` , segun se la tabla que utilicemos.
 	// 	 $idUsuario ->(int); 
 	// 	 $idTienda 	->(int);
+	// 	 $incrementar ---> booleano ( lo utilizamos para indicar a la funcion que incremente el numeros de ticket en el registro y campo indicado.
+	
 	// Hay que tener en cuenta que tenemos un registro por Usuario y Tienda para llevar un control numeros ticket. 
 	$sql = 'SELECT '.$campo.' FROM `indices` WHERE `idTienda` ='.$idTienda.' AND `idUsuario` ='.$idUsuario;
 	$resp = $BDTpv->query($sql);
 	
 	$row = $resp->fetch_array(MYSQLI_NUM); 
 	if (count($row) === 1) {
-		$numTicket = $row[0] +1;
+		$numTicket = $row[0];
 	} else {
 		error_log('Algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
 		exit;
 	}	
-	
+	if ($incrementar === true) {
+	// Si trae parametro $incrementar , se añade uno al valor actual del campo indicado.
+		$numTicket  = $numTicket +1;
+		$sql = "UPDATE `indices` SET ".$campo." =".$numTicket." WHERE `idTienda` =".$idTienda." AND `idUsuario` =".$idUsuario;
+		$BDTpv->query($sql);
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta2'] = $sql;
+			$resultado['error2'] = $BDTpv->error_list;
+		} 
+	}
 	
 	return $numTicket;
+}
+
+
+function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
+	// @ Objetivo:
+	// Grabar el ticketCerrado (Cobrado) y cambiar el estado ticketTemporal.
+	// @ Parametros:
+	// 		$cabecera : Array que trae ->
+	// 				$cabecera['total']
+	//				$cabecera['entregado']
+	//				$cabecera['formaPago']
+	//				$cabecera['idTienda']
+	// 				$cabecera['idCliente']
+	//				$cabecera['idUsuario']
+	//				$cabecera['estadoTicket']
+	//				$cabecera['numTickTemporal'] 
+	// 		$productos . Array de Objetos que trae ->
+	//				[0] Indice producto.
+	// 					producto.id;
+	//					productos.cref;
+	//					productos.cdetalle;
+	//					productos.pvpconiva;
+	//					productos.ccodebar
+    //					productos.ctipoiva 
+    //					productos.unidad 
+    // 					productos.estado;
+    //					productos.nfila
+    // 		$desglose -> Arrayque trae ->
+	//				["10"]["BaseYiva"] -> Subtotal
+	//					  ["base"] -> Base
+	//					  ["iva"]: -> Importe Iva
+	//				["4"]...  El orden puede ser cualquiera de los ivas y no tiene que porquetodos.. 
+	//				["21"] ...
+	
+	
+	// Recuerda que tenemos que obtener el numticket en el que va el usuario.
+	// por logica solo podrá utilizar la aplicación un usuario en una sola tienda a la vez.:-)
+	// La fecha y hora ( timedate) la del momento de cobrar.
+	// Campo de tabla ticketst 
+	// id 	, Numticket , Numtempticket ,Fecha 	datetime, idUsuario, idCliente, estado, formaPago, entregado
+	$SqlTickets = array(); // Creamos array 
+	$fecha =  date("Y-m-d H:i:s");
+	$estado = 'Cobrado';
+	// Solo falta obtener el numticket que tiene en indice es usuario para esa tienda.
+	$campo = 'numticket';
+	// Obtenemos el numero ticket para grabar y ya cambiado en indice... por si somos muy rápidos.. :-)
+	$numticket = ObtenerNumIndices($BDTpv,$campo,$cabecera['idUsuario'],$cabecera['idTienda'],true) ; // Lo incrementamos 
+	// Creamos la consulta para graba en
+	// Preparamos SQl para Consulta en tickest
+	$SqlTickets[] = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`, `idUsuario`, `idTienda`, `idCliente`, `estado`, `formaPago`, `entregado`, `total`) VALUES ('.$numticket.','.$cabecera['numTickTemporal'].',"'.$fecha.'",'.$cabecera['idUsuario'].','.$cabecera['idTienda'].','.$cabecera['idCliente'].',"'.$estado.'","'.$cabecera['formaPago'].'",'.$cabecera['entregado'].','.$cabecera['total'].')';
+	// Preparamos SQl para Consulta para ticketLinea
+	// Aquí va ser insert de varios registros , la cantidad productos que tenga el ticket
+	$valor = array();
+	foreach ($productos as $producto) {
+		$cantidad = (float)$producto->unidad;
+		// De momento esto lo dejamos igual
+		$unidad = $cantidad; // En el momento que se gestione hay que cambiar la tabla.
+		$valor[] ='('.$numticket.','.$producto->id.',"'.$producto->cref.'","'.$producto->ccodebar.'","'
+					.$producto->cdetalle.'",'.$cantidad.','.$unidad.','
+					.$producto->pvpconiva.','.$producto->ctipoiva.','.$producto->nfila.',"'.$producto->estado.'")';
+		
+	}
+	$valores = implode(',',$valor);
+	$SqlTickets[] ='INSERT INTO `ticketslinea`(`Numticket`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `precioCiva`, `iva`,nfila,estadoLinea) VALUES '.$valores;
+	// Preparamos SQl para Consulta para ticketstiva	
+	$iva = array();
+	foreach ($desglose as $index=>$valor){
+		$iva []= '('.$numticket.','.$index.','.$valor['iva'].','.$valor['base'].')';
+		// $valor['iva'] -> Es el importe del iva.
+	}
+	$ivas = implode(',',$iva);
+	$SqlTickets[] = 'INSERT INTO `ticketstIva`(`Numticket`, `iva`, `importeIva`,`totalbase`) VALUES '.$ivas;
+	
+	// Preparamos SQL para cambiar estado de ticket temporal.
+	$SqlTickets[] = 'UPDATE `ticketstemporales` SET `fechaFinal`="'.$fecha.'",`estadoTicket`='."'".$estado."'".' WHERE `idTienda`='.$cabecera['idTienda'].' and `idUsuario`='.$cabecera['idUsuario'].' and numticket ='.$cabecera['numTickTemporal'];
+	
+	// Ejecutamos las cuatro consultas.
+	foreach ($SqlTickets as $sql){
+		$BDTpv->query($sql);
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta'] = $sql;
+			$resultado['error'] = $BDTpv->error_list;
+			error_log(' Rotura en funcion grabarTicketCobrado()');
+			error_log( $BDTpv->error_list);
+			// Rompemos programa..
+			//~ exit();
+		} else {
+			// Enviamos datos que cuantos registros fueron añadidos o modificados por cada consulta..
+			// aunque no lo utilizamos.
+			$resultado[]= $BDTpv->affected_rows;
+		}	
+	}
+	
+	
+	
+	return $resultado;
 }
 
 

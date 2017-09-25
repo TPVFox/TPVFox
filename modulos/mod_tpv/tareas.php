@@ -46,6 +46,9 @@ switch ($pulsado) {
 		//~ echo 'cobrar';
 		$totalJS = $_POST['total'];
 		$productos = $_POST['productos'];
+		// Convertimos productos que debería ser un objeto a array
+		$productos = json_decode( json_encode( $_POST['productos'] ));
+
 		// Recalcular totales.
 		$totales = recalculoTotales($productos);
 		
@@ -100,9 +103,9 @@ switch ($pulsado) {
 	case 'CerrarTicket';
 		$respuesta = array();
 		$cabecera = array(); // Array que rellenamos de con POST
-		$total 							=$_POST['total'];
-		$entregado						=$_POST['entregado'];
-		$formaPago						=$_POST['formaPago'];
+		$cabecera['total']				=$_POST['total'];
+		$cabecera['entregado']			=$_POST['entregado'];
+		$cabecera['formaPago']			=$_POST['formaPago'];
 		$cabecera['idTienda']			=$_POST['idTienda'];
 		$cabecera['idCliente']			=$_POST['idCliente'];
 		$cabecera['idUsuario'] 			=$_POST['idUsuario'];
@@ -119,14 +122,19 @@ switch ($pulsado) {
 		}
 		// Obtenermos los productos como array que con un JSOn por cada producto y este JSON contiene los campos de cada producto
 		if (isset($ticket['productos'])){
-			$productos = json_decode( json_encode( $ticket['productos'] ), true );
+			
+			$productos = json_decode( json_encode( $ticket['productos'] ));
 			$Datostotales = recalculoTotales($ticket['productos']);	
-			if (number_format($Datostotales['total'],2) != number_format($total,2)){
-				$respuesta['error-ticket']['mensaje']  = ' No coincidente TOTAL:'.$total.' con el Total recalculado';
+			if (number_format($Datostotales['total'],2) != number_format($cabecera['total'],2)){
+				$respuesta['error-ticket']['mensaje']  = ' No coincidente TOTAL:'.$cabecera['total'].' con el Total recalculado';
 				$respuesta['error-ticket']['datos'] = $Datostotales;
 			}
+			// grabamos ticket.
+			$grabar = grabarTicketCobrado($BDTpv,$productos,$cabecera,$Datostotales['desglose']);
+		
 		}
-		$respuesta['ticket'] =$ticket;
+		
+		$respuesta['grabar'] =$grabar;
 		$respuesta['totales'] = $Datostotales;
 		echo json_encode($respuesta);
 		break;
