@@ -136,15 +136,14 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 	
 	
 }
-// funcion buscar Clientes y HTML clientes para vista modal
-//busqueda = valor que queremos buscar
-//tabla donde queremos buscar
-//BDTpv conexion
-//campoAbuscar , le pasamos campos a comparar : 
-	//nombre comercial
-	//razon social
-	//nif
+
 function BusquedaClientes($busqueda,$BDTpv,$tabla){
+	// @ Objetivo es buscar los clientes 
+	// @ Parametros
+	// 	$busqueda --> Lo que vamos a buscar
+	// 	$BDTpv--> Conexion
+	//	$tabla--> tabla donde buscar.
+	// Buscamos en los tres campos... Nombre, razon social, nif
 	$resultado=array();
 	$buscar1= 'Nombre';
 	$buscar2='razonsocial';
@@ -216,9 +215,9 @@ function htmlClientes($busqueda,$clientes){
 }
 
 
-//mostrar TotalTicket
 function htmlCobrar($total){
-	
+	// @ Objetivo:
+	// Crear el html de ventana de cobrar, la cual mostramos en modo modal.
 	$resultado = array();
 	$resultado['entregado'] = 0;
 	$resultado['modoPago'] = 0;
@@ -228,58 +227,27 @@ function htmlCobrar($total){
 	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" size="8" onkeyup="teclaPulsada(event,'."'entrega',0".')" ></input></h4>';
 												
 	$resultado['html'] .= '<h4> Cambio &nbsp<input class="text-right" id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
-	
-	
 	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
 	$resultado['html'] .= '<label><input type="checkbox" checked> Imprimir</label>';
 	$resultado['html'] .= '</div>';
-	
-
 	$resultado['html'] .= '<div>';
 	$resultado['html'] .= '<select name="modoPago" id="modoPago">';
 	$resultado['html'] .= '<option value="contado">Contado</option>';
 	$resultado['html'] .= '<option value="tarjeta">Tarjeta</option>';
 	$resultado['html'] .= '</select>';
-	
 	$resultado['html'] .= ' <button id="CobrarAceptar" type="button" class="btn btn-primary" onclick="CerrarTicket()" >Aceptar</button>';
 	$resultado['html'] .= '</div>';
-	
 	$resultado['html'] .= '</div>';
-	
-//totalTicket texto
-//input Entrega Xdinero
-//cambio texto
-	
-	
-	return $resultado;
-}
-
-//titulo = "iniciar sesion" abrirModal (titulo,HtmlSesion)
-//html sesion usuario
-function htmlSesion(){
-	$resultado = array();
-	$resultado['html']  = '<div style="margin:0 auto; display:table; text-align:right;">';
-	$resultado['html'] .= '<form action="index.php" method="POST"/>';  //valido en index home
-	$resultado['html'] .= '<tr><td>Nombre:</td>';
-	$resultado['html'] .= '<td><input type="text" name="nombre"/></td></tr>';
-	$resultado['html'] .= '<tr><td>Clave:</td>';
-	$resultado['html'] .= '<td><input type="password" name="clave"/></td></tr>';
-	$resultado['html'] .= '<tr><td></td>';
-    $resultado['html'] .= '<td><input type="submit" value="Acceder"/></td>';
-    $resultado['html'] .= '</tr>';
-    $resultado['html'] .= '</form>';
-    $resultado['html'] .= '</div>';
-	
 	
 	return $resultado;
 }
 
 function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
-	// @ parametros:
+	// @ Objetivo: 	Guardar datos en tabla temporal de tickets.
+	// @ Parametros:
 	// 	$BDTpv -> Conexion a base de datos.
 	// 	$productos -> Array de productos añadidos a ticket
 	// 	$cabecera _> Array con datos de la cabecera.	
-	// Objetivo guardar datos en tabla temporal de tickets.
 	$resultado = array();
 	// Tomamos el valor de la fecha actual.
 	$fecha		=  date("Y-m-d H:i:s");
