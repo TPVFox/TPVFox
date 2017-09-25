@@ -259,7 +259,7 @@ function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
 	if ($cabecera['estadoTicket'] === 'Nuevo'){
 		// Tenemos que obtener en que numero ticket temporal de tabla indices.
 		$campo = "tempticket";
-		$numTicket= ObtenerNumIndices($BDTpv,$campo,$idUsuario,$idTienda);
+		$numTicket= ObtenerNumIndices($BDTpv,$campo,$idUsuario,$idTienda,true);
 		
 	} else {
 		// Sino es nuevo , será abierto, por lo que ya exite numero.
@@ -289,12 +289,12 @@ function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
 		// Ahora comprobamos los estado de los ticket,ya que solo podemos tener uno como actual y los ponemos abiertos.
 		
 		// Tambien cambiamos el numero ticket temporal por el que se acaba de crear.
-		$sql = "UPDATE `indices` SET `tempTicket`=".$numTicket." WHERE `idTienda` =".$idTienda." AND `idUsuario` =".$idUsuario;
-		$BDTpv->query($sql);
-		if (mysqli_error($BDTpv)){
-			$resultado['consulta2'] = $sql;
-			$resultado['error2'] = $BDTpv->error_list;
-		} 
+		//~ $sql = "UPDATE `indices` SET `tempTicket`=".$numTicket." WHERE `idTienda` =".$idTienda." AND `idUsuario` =".$idUsuario;
+		//~ $BDTpv->query($sql);
+		//~ if (mysqli_error($BDTpv)){
+			//~ $resultado['consulta2'] = $sql;
+			//~ $resultado['error2'] = $BDTpv->error_list;
+		//~ } 
 
 	} else {
 		// Si NO es Nuevo entonces se hace UPDATE
@@ -427,7 +427,7 @@ function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 			}
 		} else {
 			// Quiere decir que algo salio mal, ya que obtuvo mas o ninguno registro.
-			$respuesta['error'] = 'Algo salío mal ';
+			$respuesta['error'] = ' Numeros tickets obtenidos: '. $respuesta['Numero_rows'];
 			return $respuesta; // No continuamos.
 		}
 	} elseif (mysqli_error($BDTpv)){
