@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 08-09-2017 a las 01:21:50
+-- Tiempo de generación: 26-09-2017 a las 17:21:25
 -- Versión del servidor: 5.5.57-0ubuntu0.14.04.1
 -- Versión de PHP: 5.6.31-4+ubuntu14.04.1+deb.sury.org+4
 
@@ -28,11 +28,12 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `ticketstIva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nnumticket` int(11) NOT NULL,
+  `Numticket` int(11) NOT NULL,
   `iva` int(11) NOT NULL,
-  `totalbase` int(11) NOT NULL,
+  `importeIva` decimal(17,2) NOT NULL,
+  `totalbase` decimal(17,2) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=219 ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
