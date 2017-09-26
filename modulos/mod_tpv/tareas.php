@@ -138,7 +138,7 @@ switch ($pulsado) {
 		}
 		if (!isset($respuesta['error']) ){
 			//si esta marcado el check de imprimir al cobrar
-			if ($checkimprimir === true){
+			if ($checkimprimir === 'true'){
 				// Obtenemos y organizamos datos antes imprimir
 				$cabecera['fecha'] = $grabar['fecha'] ; // Fecha con la que grabamos el ticket.
 				$cabecera['NumTicket'] = $grabar['Numtickets']; // El numero con el grabamos el ticket.
