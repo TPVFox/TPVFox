@@ -561,7 +561,10 @@ function CerrarTicket(){
 	// para guaardar como Cobrado en tablas ticket y temporal de ticket se cambia estado a COBRADO
 	 var entregado = obtenerdatos('entrega')
 	 var formaPago = $('#modoPago').val();
-	 alert( 'Modo pago:'+formaPago);
+	 //podemos obtener el valor de la propiedad checked, true o false
+	 var checkimprimir = $('input[name=checkimprimir]').prop('checked'); 
+	 
+	 alert( 'Modo pago:'+formaPago+'check '+checkimprimir);
 	// Ahora ejecutamos ajax para guardar ticket
 	var parametros = {
 		"pulsado"	    	: 'CerrarTicket',
@@ -572,7 +575,8 @@ function CerrarTicket(){
 		"numTickTemporal"	: cabecera.numTicket,
 		"total"				: total,
 		"entregado"			: entregado,
-		"formaPago"			: formaPago
+		"formaPago"			: formaPago,
+		"checkimprimir"		: checkimprimir  //true o false
 	};
 	$.ajax({
 		data       : parametros,

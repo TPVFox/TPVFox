@@ -228,7 +228,7 @@ function htmlCobrar($total){
 												
 	$resultado['html'] .= '<h4> Cambio &nbsp<input class="text-right" id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
 	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
-	$resultado['html'] .= '<label><input type="checkbox" checked> Imprimir</label>';
+	$resultado['html'] .= '<label><input name="checkimprimir" type="checkbox" checked> Imprimir</label>';
 	$resultado['html'] .= '</div>';
 	$resultado['html'] .= '<div>';
 	$resultado['html'] .= '<select name="modoPago" id="modoPago">';
