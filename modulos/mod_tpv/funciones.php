@@ -502,7 +502,7 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	return $nuevaFila;
 }
 
-function MaquetarFecha ($fecha,$tipo){
+function MaquetarFecha ($fecha,$tipo='dmy'){
 	// @ Objetivo formatear una una fecha y obtener al tipo indicado
 	// @ Parametros
 	// 	$fecha : Dato de fecha
@@ -669,11 +669,12 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 	$respuesta['cabecera2-datos'] .=str_repeat("-",42)."\n";
 	// Preparamos el <<<  body   >>>  del ticket
 	$lineas = array();
+	$i = 0;
 	foreach ($productos as $product) {
 		// Solo montamos lineas para imprimir aquellos que estado es 'Activo';
 		if ( $product->estado === 'Activo'){
 			// No mostramos referencia, mostramos id producto
-			$lineas[]['1'] = substr($product->cdetalle, 0, 36).' (id:'.$product->id.') ';//.substr($product->cref,0,10);
+			$lineas[$i]['1'] = substr($product->cdetalle, 0, 36).' (id:'.$product->id.') ';//.substr($product->cref,0,10);
 			$importe = $product->unidad * $product->pvpconiva;
 			// Creamos un array con valores numericos para poder formatear correctamente los datos
 			$Numeros = array(
@@ -690,18 +691,18 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 								'decimales' => 2
 								)
 						);
-			$i= 0;
-			foreach ( $Numeros as $strNumero){
+			foreach ( $Numeros as  $indice => $strNumero){
 				$stringvalor = strval(number_format($strNumero['float'],$strNumero['decimales']));
-				$Numeros[$i]['string'] =( strlen($stringvalor)<10 ? str_repeat(" ", 10-strlen($stringvalor)).$stringvalor : $stringvalor );
-				$i ++;
+				$Numeros[$indice]['string'] =( strlen($stringvalor)<10 ? str_repeat(" ", 10-strlen($stringvalor)).$stringvalor : $stringvalor );
 			} 
-			$lineas[]['2'] = $Numeros[0]['string'].' X '.$Numeros[1]['string'].' = '.$Numeros[2]['string'].'$'.' ('.sprintf("%' 2d", $product->ctipoiva).')';
+			
+			$lineas[$i]['2'] = $Numeros[0]['string'].' X '.$Numeros[1]['string'].' = '.$Numeros[2]['string'].chr(128).' ('.sprintf("%' 2d", $product->ctipoiva).')';
+			$i++;
 			}
 		}
 	$body = '';
 	foreach ($lineas as $linea){
-		$body .=$linea['1'];
+		$body .=$linea['1']."\n";
 		$body .=$linea['2']."\n";
 	}
 	$respuesta['body'] = $body;
