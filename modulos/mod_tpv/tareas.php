@@ -163,6 +163,8 @@ switch ($pulsado) {
 			$printer -> text('Total:');
 			$printer -> setTextSize(2,2);
 			$printer -> text($datosImpresion['pie-total']."\n");
+			$printer -> selectPrintMode(); // Reset
+			$printer -> text($datosImpresion['pie-datos2']);
 			$printer -> cut();
 			$printer -> close();
 			// Conectamos con la impresora.

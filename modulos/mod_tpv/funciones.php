@@ -673,7 +673,7 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 		// Solo montamos lineas para imprimir aquellos que estado es 'Activo';
 		if ( $product->estado === 'Activo'){
 			// No mostramos referencia, mostramos id producto
-			$lineas[0]['1'] = substr($product->cdetalle, 0, 36).' (id:'.$product->id.') ';//.substr($product->cref,0,10);
+			$lineas[]['1'] = substr($product->cdetalle, 0, 36).' (id:'.$product->id.') ';//.substr($product->cref,0,10);
 			$importe = $product->unidad * $product->pvpconiva;
 			// Creamos un array con valores numericos para poder formatear correctamente los datos
 			$Numeros = array(
@@ -696,13 +696,13 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 				$Numeros[$i]['string'] =( strlen($stringvalor)<10 ? str_repeat(" ", 10-strlen($stringvalor)).$stringvalor : $stringvalor );
 				$i ++;
 			} 
-			$lineas[1]['2'] = $Numeros[0]['string'].' X '.$Numeros[1]['string'].' = '.$Numeros[2]['string'].'$'.' ('.sprintf("%' 2d", $product->ctipoiva).')';
+			$lineas[]['2'] = $Numeros[0]['string'].' X '.$Numeros[1]['string'].' = '.$Numeros[2]['string'].'$'.' ('.sprintf("%' 2d", $product->ctipoiva).')';
 			}
 		}
 	$body = '';
 	foreach ($lineas as $linea){
-		$body .=$linea[1];
-		$body .=$linea[2]."\n";
+		$body .=$linea['1'];
+		$body .=$linea['2']."\n";
 	}
 	$respuesta['body'] = $body;
 	// Fin del <<<  body   >>>  del ticket
@@ -716,7 +716,8 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 	}
 	$respuesta['pie-datos'] .=str_repeat("-",42)."\n";
 	$respuesta['pie-total'] =number_format($cabecera['total'],2);
-	
+	$respuesta['pie-datos2'] ="\n"."Alimentaria Longueicarp Sl - CIF: B36937100"."\n";
+
 
 
 	return $respuesta;
