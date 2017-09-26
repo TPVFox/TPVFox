@@ -24,9 +24,7 @@
 	$ticket_numero = 0;
 	$fechaInicio = date("d/m/Y");
 	if (isset($_GET['tAbierto'])) {
-		$ticket_estado = 'Abierto';
 		$ticket_numero = $_GET['tAbierto'];
-
 	}
 
 ?>
@@ -73,6 +71,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	if ($ticket_numero > 0){
 		//Obtenemos datos del ticket 
 		$ticket= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
+		$ticket_estado = $ticket['estadoTicket'];
 	}
 	if ((isset($cambiosEstadoTickets['error'])) || (isset($ticket['error']))) {
 		// Entonces obtenemos las caberas para mostrar.
@@ -111,7 +110,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	}
 	
 	//~ echo '<pre>';
-	//~ print_r($Datostotales);
+	//~ print_r($ticket);
 	//~ echo '</pre>';
 
 ?>

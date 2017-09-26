@@ -586,9 +586,13 @@ function CerrarTicket(){
 			console.log(response);
 			var resultado =  $.parseJSON(response); 
 			
-			alert(' Ahora debe cerrar y empezar otro.')
+			alert(' Grabado correcto')
 			// Redireccion para volver a empezar un ticket
 			//~ window.location="tpv.php";
+			document.location.href='tpv.php';
+			
+			
+			
 		}
 	});
 	

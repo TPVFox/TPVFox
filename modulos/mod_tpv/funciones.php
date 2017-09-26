@@ -417,6 +417,7 @@ function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 			$respuesta['fechaFinal'] 	= $row['fechaFinal'];
 			$respuesta['Nombre']		= $row['Nombre'];
 			$respuesta['razonsocial']		= $row['razonsocial'];
+			$respuesta['estadoTicket']		= $row['estadoTicket'];
 
 			// Obtenemos array de productos con campo unico que es un Json con los campos
 			$productos_json= json_decode ($row['Productos']); 
@@ -592,7 +593,8 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	// La fecha y hora ( timedate) la del momento de cobrar.
 	// Campo de tabla ticketst 
 	// id 	, Numticket , Numtempticket ,Fecha 	datetime, idUsuario, idCliente, estado, formaPago, entregado
-	$SqlTickets = array(); // Creamos array 
+	$SqlTickets = array(); // Creamos array para SQL
+	$Impresion = array(); // Creamos array para luego enviar imprimir
 	$fecha =  date("Y-m-d H:i:s");
 	$estado = 'Cobrado';
 	// Solo falta obtener el numticket que tiene en indice es usuario para esa tienda.
@@ -607,12 +609,11 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	$valor = array();
 	foreach ($productos as $producto) {
 		$cantidad = (float)$producto->unidad;
-		// De momento esto lo dejamos igual
+		// De momento esto lo dejamos igual pero lo deberíamos controlar con $CONF_campoPeso
 		$unidad = $cantidad; // En el momento que se gestione hay que cambiar la tabla.
 		$valor[] ='('.$numticket.','.$producto->id.',"'.$producto->cref.'","'.$producto->ccodebar.'","'
 					.$producto->cdetalle.'",'.$cantidad.','.$unidad.','
 					.$producto->pvpconiva.','.$producto->ctipoiva.','.$producto->nfila.',"'.$producto->estado.'")';
-		
 	}
 	$valores = implode(',',$valor);
 	$SqlTickets[] ='INSERT INTO `ticketslinea`(`Numticket`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `precioCiva`, `iva`,nfila,estadoLinea) VALUES '.$valores;
@@ -644,11 +645,83 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 			$resultado[]= $BDTpv->affected_rows;
 		}	
 	}
-	
-	
-	
+	// Devolvemos los numeros ticket , tanto temporal como real.
+	$resultado['Numtickets'] = $numticket;
+	$resultado['fecha'] = $fecha;
 	return $resultado;
 }
 
+function ImprimirTicket($productos,$cabecera,$desglose){
+	$respuesta = array();
+	// Obtenemos hora y fecha en el formato deseado a imprimir:
+	$hora = MaquetarFecha ($cabecera['fecha'],'HM');
+	$fecha = MaquetarFecha ($cabecera['fecha']);
+	// Preparamos la <<< cabecera1 del ticket  LETRA GRANDE  >>> 
+	$respuesta['cabecera1'] = "SUPER OLIVA\n"; // Este dato realmente lo deberíamos cojer de tabla tiendas.
+	$respuesta['cabecera1-datos'] = 'Emilia Pardo Bazan, 52';
+	// Preparamos la <<< cabecera2 del ticket  GRANDE  >>> 
+	$respuesta['cabecera2'] = "\n Teléfono: 986473447 \n";
+	$respuesta['cabecera2'] .= str_repeat("=",24)."\n";
+	$respuesta['cabecera2'] .="FACTURA  SIMPLIFICADA\n";
+	$respuesta['cabecera2'] .= str_repeat("=",24)."\n";
+	$respuesta['cabecera2-datos'] = 'Fecha:'.$fecha.' Hora: '.$hora."\n";
+	$respuesta['cabecera2-datos'] .=' Serie:'.$cabecera['Serie'].' Numero:'.$cabecera['NumTicket']. "\n";
+	$respuesta['cabecera2-datos'] .=str_repeat("-",42)."\n";
+	// Preparamos el <<<  body   >>>  del ticket
+	$lineas = array();
+	foreach ($productos as $product) {
+		// Solo montamos lineas para imprimir aquellos que estado es 'Activo';
+		if ( $product->estado === 'Activo'){
+			// No mostramos referencia, mostramos id producto
+			$lineas[0]['1'] = substr($product->cdetalle, 0, 36).' (id:'.$product->id.') ';//.substr($product->cref,0,10);
+			$importe = $product->unidad * $product->pvpconiva;
+			// Creamos un array con valores numericos para poder formatear correctamente los datos
+			$Numeros = array(
+							0 => array(
+								'float'		 => $product->unidad,
+								'decimales' => 3
+								),
+							1 => array(
+								'float' 	=> $product->pvpconiva,
+								'decimales' => 2
+								),
+							2 => array(
+								'float'		=> $importe,
+								'decimales' => 2
+								)
+						);
+			$i= 0;
+			foreach ( $Numeros as $strNumero){
+				$stringvalor = strval(number_format($strNumero['float'],$strNumero['decimales']));
+				$Numeros[$i]['string'] =( strlen($stringvalor)<10 ? str_repeat(" ", 10-strlen($stringvalor)).$stringvalor : $stringvalor );
+				$i ++;
+			} 
+			$lineas[1]['2'] = $Numeros[0]['string'].' X '.$Numeros[1]['string'].' = '.$Numeros[2]['string'].'$'.' ('.sprintf("%' 2d", $product->ctipoiva).')';
+			}
+		}
+	$body = '';
+	foreach ($lineas as $linea){
+		$body .=$linea[1];
+		$body .=$linea[2]."\n";
+	}
+	$respuesta['body'] = $body;
+	// Fin del <<<  body   >>>  del ticket
+	
+	// Preparamos el <<<  pie   >>>  del ticket
+	$respuesta['pie-datos'] =str_repeat("-",42)."\n";
+	foreach ($desglose as $index=>$valor){
+		//~ $iva []= '('.$numticket.','.$index.','.$valor['iva'].','.$valor['base'].')';
+		// $valor['iva'] -> Es el importe del iva.
+		$respuesta['pie-datos'] .= $valor['base'].'  -> '.$index. '%'.'  -> '.$valor['iva']."\n";
+	}
+	$respuesta['pie-datos'] .=str_repeat("-",42)."\n";
+	$respuesta['pie-total'] =number_format($cabecera['total'],2);
+	
 
+
+	return $respuesta;
+	
+
+	
+}
 ?>

@@ -101,6 +101,7 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 	case 'CerrarTicket';
+		$URLCom = $RutaServidor . $HostNombre;
 		$respuesta = array();
 		$cabecera = array(); // Array que rellenamos de con POST
 		$cabecera['total']				=$_POST['total'];
@@ -133,9 +134,56 @@ switch ($pulsado) {
 			$grabar = grabarTicketCobrado($BDTpv,$productos,$cabecera,$Datostotales['desglose']);
 		
 		}
-		
+		if (!isset($respuesta['error'])){
+			// Obtenemos y organizamos datos antes imprimir
+			$cabecera['fecha'] = $grabar['fecha'] ; // Fecha con la que grabamos el ticket.
+			$cabecera['NumTicket'] = $grabar['Numtickets']; // El numero con el grabamos el ticket.
+			$cabecera['Serie'] = $cabecera['idTienda'].'-'.$cabecera['idUsuario'];
+			$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose']);
+			// Nos conectamos a la impresora ya qme da un error si lo hago desde funcion.
+			include 'impresoraTicket.php';
+			/* Initialize */
+			$printer -> initialize();
+			// Imprimimos cabecera en letra mas grande
+			$printer -> setTextSize(4, 2);
+			$printer -> text($datosImpresion['cabecera1']);
+			$printer -> selectPrintMode(); // Reset
+			$printer -> text($datosImpresion['cabecera1-datos']);
+
+			$printer -> setTextSize(2,1);
+			$printer -> text($datosImpresion['cabecera2']);
+			$printer -> selectPrintMode(); // Reset
+			$printer -> text($datosImpresion['cabecera2-datos']);
+			
+			$printer -> selectPrintMode(); // Reset
+
+			$printer -> text($datosImpresion['body']);
+			$printer -> text($datosImpresion['pie-datos']);
+			//~ $printer -> setJustification(Printer::JUSTIFY_LEFT);
+			$printer -> text('Total:');
+			$printer -> setTextSize(2,2);
+			$printer -> text($datosImpresion['pie-total']."\n");
+			$printer -> cut();
+			$printer -> close();
+			// Conectamos con la impresora.
+			//~ require __DIR__ . './../../lib/escpos-php/autoload.php';
+			//~ use Mike42\Escpos\Printer;
+			//~ use Mike42\Escpos\PrintConnectors\FilePrintConnector;
+			//~ use Mike42\Escpos\CapabilityProfile;
+			//~ $profile = CapabilityProfile::load("simple",'CP437');
+			//~ $connector = new FilePrintConnector("/dev/usb/lp0");
+			//~ $printer = new Printer($connector,$profile);
+			//~ 
+			//~ // Quiere decir que hubo un error por lo que no entrará para imprimi
+			//~ // Ahora imprimimos....
+			
+			//~ include 'impresion.php';
+		} else {
+			//Deberíamos informar del error antes de salir... 
+			exit();
+		}
 		$respuesta['grabar'] =$grabar;
-		$respuesta['totales'] = $Datostotales;
+		$respuesta['ticket'] = $datosImpresion;
 		echo json_encode($respuesta);
 		break;
 }
