@@ -124,7 +124,7 @@ switch ($pulsado) {
 			return $respuesta; // No continuamos,.
 		}
 		// Obtenermos los productos como array que con un JSOn por cada producto y este JSON contiene los campos de cada producto
-		if (isset($ticket['productos'])){
+		if (isset($ticket['productos']) && ($ticket['estadoTicket']!='Cobrado')){
 			
 			$productos = json_decode( json_encode( $ticket['productos'] ));
 			$Datostotales = recalculoTotales($ticket['productos']);	

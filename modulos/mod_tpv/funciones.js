@@ -564,7 +564,10 @@ function CerrarTicket(){
 	 //podemos obtener el valor de la propiedad checked, true o false
 	 var checkimprimir = $('input[name=checkimprimir]').prop('checked'); 
 	 
-	 alert( 'Modo pago:'+formaPago+'check '+checkimprimir);
+	//parche desactivar boton aceptar, no hay impresora de tickets
+	$('button[id=CobrarAceptar]').prop('disabled',true);
+	 
+	 alert( 'Modo pago:'+formaPago);
 	// Ahora ejecutamos ajax para guardar ticket
 	var parametros = {
 		"pulsado"	    	: 'CerrarTicket',
