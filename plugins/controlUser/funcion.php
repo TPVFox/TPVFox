@@ -11,7 +11,12 @@
 class ComprobarSession {
 	
 	function comprobarEstado($BDTpv, $URLCo){
-		// La intención es comprobar si la session que hay es correcta y hay usuario.
+		// @ Objetivo :
+		// Comprobar si hay session para la aplicacion abierta y si el usuario es correcto.
+		// @ Parametros:
+		// 		$BDTpv -> Conexión
+		//		$URLCo -> Ruta completa.
+		
 		// Comprobamos que la session tenga un usuario.
 		$resultado = array();
 		// Iniciamos session si no esta iniciada.
@@ -62,7 +67,7 @@ class ComprobarSession {
 		// Esto comprobamos que los datos metidos en el formulario son correctos.
 		$resultado = array();
 		$encriptada = md5($pwd);// Encriptamos contraseña puesta en formulario.
-		$sql = 'SELECT password,nombre,id FROM usuarios WHERE username="'.$usuario.'"';
+		$sql = 'SELECT password,nombre,id,group_id FROM usuarios WHERE username="'.$usuario.'"';
 		$res = $BDTpv->query($sql);
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)){
@@ -77,6 +82,8 @@ class ComprobarSession {
 			$resultado['login']=$usuario;
 			$resultado['nombre']= $pwdBD[1];
 			$resultado['id']= $pwdBD[2];
+			$resultado['group_id']= $pwdBD[3];
+
 			$_SESSION['estadoTpv']= 'Correcto';
 			$_SESSION['usuarioTpv']= $resultado;
 		} else {
@@ -103,7 +110,7 @@ class ComprobarSession {
 	 }
 	 
 	 function controlSession($URLCo,$Estado){
-		// Aqui venimos simpre, no debemos hacer consultas, solo poner estado
+		// Aqui venimos siempre, no debemos hacer consultas, solo poner estado
 		// Al iniciar session, cuando estamos logueados.
 		// El objetivo es comprobar que los parametros session esten correctos.
 		if (count($Estado) === 0 ){
