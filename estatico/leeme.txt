@@ -1,6 +1,4 @@
-Hay que recordar que en el head
-controlamos si estamos en directorio principal
-sino entendemos que estamos en un modulo, por lo estatico debe tener 
-la misma estructura de directorios para encontralo
-./../../
+// HAY QUE TENER EN CUENTA QUE LO QUE SE PUBLICA AQUI ES PUBLICO, POR LO QUE :
+- Se tiene que tener los derechos a para publicar.
+- No publicar contraseñas y nada que pueda implicar temas de seguridad.
 
