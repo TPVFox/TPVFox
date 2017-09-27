@@ -2,19 +2,19 @@
     //añadido
 	/* Deberíamos hacer un pequeño proceso comprobaciones.
 	 * */
-	echo '<pre>';
-		print_r($TPVsession);
-	echo '</pre>';
-	echo '<pre>';
-		print_r($_SESSION);
-	echo '</pre>';
+	//~ echo '<pre>';
+		//~ print_r($TPVsession);
+	//~ echo '</pre>';
+	//~ echo '<pre>';
+		//~ print_r($_SESSION);
+	//~ echo '</pre>';
 	// Ponemos valor a variables control o reiniciamos.
 	// $usuario -> Datos usuario ( login, nombre,grupo_id,id);
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : '');
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: '');
 	
 	// NOTA:
-	// Aquellos links que por grupos tienes indicarle un valor al grupo
+	// Aquellos los links que quieres limitar el acceso , debemos poner un controlador.
 	
 ?>
 
