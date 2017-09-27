@@ -110,7 +110,8 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 			$producto['NPCONIVA'] = $producto['pvpCiva'];
 			
 		
-		$datos = "'".htmlentities($producto['CREF'],ENT_QUOTES)."','".htmlentities($producto['CDETALLE'],ENT_QUOTES)."','"
+		$datos = "'".addslashes(htmlspecialchars($producto['CREF'],ENT_COMPAT))."','"
+					.addslashes(htmlentities($producto['CDETALLE'],ENT_COMPAT))."','"
 					.number_format($producto['CTIPOIVA'],2)."','".$producto['CCODEBAR']."',"
 					.number_format($producto['NPCONIVA'],2).",".$producto['idArticulo'];
 		$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
@@ -192,7 +193,7 @@ function htmlClientes($busqueda,$clientes){
 		$contad = 0;
 		foreach ($clientes as $cliente){  
 			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
-			$datos = 	"'".$cliente['idClientes']."','".htmlentities($razonsocial_nombre,ENT_QUOTES)."'";
+			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonProducto('
 						.$contad.')" onmouseover="sobreProductoCraton('.$contad.')" onclick="cerrarModalClientes('.$datos.');">';
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
