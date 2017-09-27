@@ -10,6 +10,7 @@
 
 
 $pulsado = $_POST['pulsado'];
+use Mike42\Escpos\Printer;
 
 include_once ("./../../configuracion.php");
 
@@ -144,36 +145,15 @@ switch ($pulsado) {
 				$cabecera['NumTicket'] = $grabar['Numtickets']; // El numero con el grabamos el ticket.
 				$cabecera['Serie'] = $cabecera['idTienda'].'-'.$cabecera['idUsuario'];
 				$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose']);
-				// Nos conectamos a la impresora ya qme da un error si lo hago desde funcion.
+				// Incluimos fichero para imprimir ticket, con los datosImpresion.
 				include 'impresoraTicket.php';
-				/* Initialize */
-				$printer -> initialize();
-				// Imprimimos cabecera en letra mas grande
-				$printer -> setTextSize(4, 2);
-				$printer -> text($datosImpresion['cabecera1']);
-				$printer -> selectPrintMode(); // Reset
-				$printer -> text($datosImpresion['cabecera1-datos']);
-
-				$printer -> setTextSize(2,1);
-				$printer -> text($datosImpresion['cabecera2']);
-				$printer -> selectPrintMode(); // Reset
-				$printer -> text($datosImpresion['cabecera2-datos']);
 				
-				$printer -> selectPrintMode(); // Reset
-
-				$printer -> text($datosImpresion['body']);
-				$printer -> text($datosImpresion['pie-datos']);
-				//~ $printer -> setJustification(Printer::JUSTIFY_LEFT);
-				$printer -> text('Total:');
-				$printer -> setTextSize(2,2);
-				$printer -> text($datosImpresion['pie-total']."\n");
-				$printer -> selectPrintMode(); // Reset
-				$printer -> text($datosImpresion['pie-datos2']);
-				$printer -> cut();
-				$printer -> close();
 			}
 		} else {
-			//Deberíamos informar del error antes de salir... 
+			// Si llega aquí es que $resultado['error'] existe por lo que pudo haber un errror en:
+			// $grabar = grabarTicketCobrado($BDTpv,$productos,$cabecera,$Datostotales['desglose']); 
+			// ya que el oro 
+			error_log ("Error en tareas, en if !isset($respuesta[error]");
 			exit();
 		}
 		$respuesta['grabar'] =$grabar;

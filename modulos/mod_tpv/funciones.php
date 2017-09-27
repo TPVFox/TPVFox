@@ -652,6 +652,9 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 }
 
 function ImprimirTicket($productos,$cabecera,$desglose){
+	// @ Objetivo es montar un array con las distintas partes del ticket para luego mandar imprimir.
+	// Recuerda que € no imprime directamente hay que utilizar la code Page 1252, por ello en 
+	// body NO podemos €
 	$respuesta = array();
 	// Obtenemos hora y fecha en el formato deseado a imprimir:
 	$hora = MaquetarFecha ($cabecera['fecha'],'HM');
@@ -696,7 +699,7 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 				$Numeros[$indice]['string'] =( strlen($stringvalor)<10 ? str_repeat(" ", 10-strlen($stringvalor)).$stringvalor : $stringvalor );
 			} 
 			
-			$lineas[$i]['2'] = $Numeros[0]['string'].' X '.$Numeros[1]['string'].' = '.$Numeros[2]['string'].chr(128).' ('.sprintf("%' 2d", $product->ctipoiva).')';
+			$lineas[$i]['2'] = $Numeros[0]['string'].' X '.$Numeros[1]['string'].' = '.$Numeros[2]['string'].' ('.sprintf("%' 2d", $product->ctipoiva).')';
 			$i++;
 			}
 		}
