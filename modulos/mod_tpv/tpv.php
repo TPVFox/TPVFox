@@ -156,7 +156,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		<ul class="nav nav-pills nav-stacked">
 			<li><a href="tpv.php">Nuevo ticket</a></li>
 			<li><a href="#section3">Arqueo</a></li>
-			<li><a href="#section3">Imprimir Ticket</a></li>
+			<li><a href="ListaTickets.php">Tickets Cerrados</a></li>
 		</ul>
 	</div>
 	<div class="col-md-6">

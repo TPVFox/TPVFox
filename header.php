@@ -23,7 +23,7 @@
 			<div class="collapse navbar-collapse navbar-ex1-collapse">
 				<ul class="nav navbar-nav navbar-left ">
 					<li><a href="<?php echo $HostNombre.'/index.php'?>">Home</a></li>
-					<li><a href="<?php echo $HostNombre.'/modulos/mod_recambios/ListaArticulos.php';?>">Articulos</a></li>
+					<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
 					<li><a href="<?php echo $HostNombre.'/estatico';?>">Documentacion</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_usuario/ListaUsuarios.php';?>">Usuarios</a></li>

@@ -276,22 +276,21 @@ function ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla,$string ='si'){
 	$res = $BDImportDbf->query($sqlShow);
 	$respuesta =  $res->fetch_row() ;
 	if (! isset ($respuesta)){
-		// Si NO existe o no sale mal la consulta
+		// Si NO existe o no sale mal la consulta borramos tabla
 		$resultado['dropear-tabla'] = true;
-		//~ $resultado['accion-borrado'] = 'Borramos tabla';
 	} else {
 		$resultado = array();
 		$i = 0;
 		// Recorro respuesta y monto array de campos .
 		while ($fila = $res->fetch_row()) {
-		if ($string ==='si'){
-			$nombreCampo = $fila[0];
-			$tipo = $fila[1];
-			$resultado[$i] = $nombreCampo.' '.$tipo;
-		} else {
-			$resultado[$i] = $fila[0];
-		}
-		$i++;
+			if ($string ==='si'){
+				$nombreCampo = $fila[0];
+				$tipo = $fila[1];
+				$resultado[$i] = $nombreCampo.' '.$tipo;
+			} else {
+				$resultado[$i] = $fila[0];
+			}
+			$i++;
 		}
 	}
 	
