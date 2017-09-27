@@ -17,7 +17,6 @@ class ComprobarSession {
 		// 		$BDTpv -> Conexión
 		//		$URLCo -> Ruta completa.
 		
-		// Comprobamos que la session tenga un usuario.
 		$resultado = array();
 		// Iniciamos session si no esta iniciada.
 		if (!isset($_SESSION)){
@@ -27,7 +26,7 @@ class ComprobarSession {
 			session_start();
 		}
 		if (!isset($_SESSION['estadoTpv']) || $_SESSION['estadoTpv']=== 'SinActivar'){
-			// Entramos al iniciar sesion o esta SinActivar.			
+			// Entramos al iniciar sesion o si esta SinActivar.			
 			$_SESSION['estadoTpv']= 'SinActivar'; // Ponemos por defecto sessión inactiva.
 			$resultado['SessionTpv']['estado'] = $_SESSION['estadoTpv'];
 			// Ahora comprobamos si es primera vez entra o no.

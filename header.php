@@ -2,8 +2,19 @@
     //añadido
 	/* Deberíamos hacer un pequeño proceso comprobaciones.
 	 * */
-	$Usuario= $_SESSION['usuarioTpv'];
-	$Tienda = $_SESSION['tiendaTpv'];
+	echo '<pre>';
+		print_r($TPVsession);
+	echo '</pre>';
+	echo '<pre>';
+		print_r($_SESSION);
+	echo '</pre>';
+	// Ponemos valor a variables control o reiniciamos.
+	// $usuario -> Datos usuario ( login, nombre,grupo_id,id);
+	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : '');
+	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: '');
+	
+	// NOTA:
+	// Aquellos links que por grupos tienes indicarle un valor al grupo
 	
 ?>
 
@@ -26,9 +37,11 @@
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
 					<li><a href="<?php echo $HostNombre.'/estatico';?>">Documentacion</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
+					<?php if ($Usuario['grupo_id']){?>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_usuario/ListaUsuarios.php';?>">Usuarios</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_tienda/ListaTiendas.php';?>">Tiendas</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_importar/Importar.php';?>">Importar</a></li>
+					<?php } ;?>
 				</ul>
 				
 				<div class="nav navbar-nav navbar-right">

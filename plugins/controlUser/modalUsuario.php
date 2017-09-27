@@ -13,11 +13,6 @@
 <?php
 	// Incrementamos contador paaginas abiertas.
 	$_SESSION['N_Pagina_Abiertas'] = $_SESSION['N_Pagina_Abiertas'] +1;
-	echo '<pre>';
-		echo 'Session en formulario';
-		print_r($_SESSION);
-	echo '</pre>';
-	
 	?>
 	
 <div id="formularioUsuario">
@@ -36,6 +31,7 @@
 			?>
 			<div class="alert alert-danger">
 				<strong>Error sesion!</strong> Contraseña o usuario incorrectos.
+				<p> Tienes <?php echo $_SESSION['N_Pagina_Abiertas'];?> paginas del proyecto abierto.</p>
 			</div>
 		<?php } 
 		// Pasar ruta para poder devolver al mismo sitio.
