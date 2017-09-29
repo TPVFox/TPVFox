@@ -3,7 +3,7 @@
  * @copyright   Copyright (C) 2017 Catalogoproductos - Funciones sincronizar.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero - SolucionesVigo
- * @Descripcion	Javascript necesarios para modulo importar DBF.
+ * @Descripcion	Javascript necesarios para modulo tpv.
  *
  * ej total
  * 

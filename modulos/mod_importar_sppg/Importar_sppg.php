@@ -30,7 +30,7 @@
 	// del fichero funciones.js (nombretabla) , así se añadimos algun fichero, solo tengamos que hacer aquí.
 	
 ?>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_importar_sppg/funciones.js"></script>
 	<?php
 	// Controlamos ( Controllers ... fuera de su sitio ... :-)
 	if (isset($Usuario['estado'])){
