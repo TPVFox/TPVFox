@@ -1,3 +1,5 @@
 # Ignorar el contenido de las carpetas log y cache
 configuracion.php
 /nbproject/
+# Ignoramos el contenido de carpetas de empresas dentro estatico, pera evitar problema a la hora compartir.
+/estatico/carpintero/

@@ -2,9 +2,13 @@
     //añadido
 	/* Deberíamos hacer un pequeño proceso comprobaciones.
 	 * */
+
 	//~ echo '<pre>';
 		//~ print_r($TPVsession);
 	//~ echo '</pre>';
+
+	
+
 	//~ echo '<pre>';
 		//~ print_r($_SESSION);
 	//~ echo '</pre>';
@@ -13,8 +17,13 @@
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : '');
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: '');
 	
+	//~ echo '<pre>';
+		//~ print_r($Usuario);
+	//~ echo '</pre>';
+	
+	
 	// NOTA:
-	// Aquellos links que por grupos tienes indicarle un valor al grupo
+	// Aquellos los links que quieres limitar el acceso , debemos poner un controlador.
 	
 ?>
 
@@ -37,10 +46,12 @@
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
 					<li><a href="<?php echo $HostNombre.'/estatico';?>">Documentacion</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
-					<?php if ($Usuario['grupo_id']){?>
+					<?php if (isset($Usuario['group_id'])){?>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_usuario/ListaUsuarios.php';?>">Usuarios</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_tienda/ListaTiendas.php';?>">Tiendas</a></li>
-					<li><a href="<?php echo $HostNombre.'/modulos/mod_importar/Importar.php';?>">Importar</a></li>
+					<li><a href="<?php echo $HostNombre.'/modulos/mod_importar_sppg/Importar_sppg.php';?>">Importar SPPG</a></li>
+					<li><a href="<?php echo $HostNombre.'/modulos/mod_importar_virtuemart/Importar_virtuemart.php';?>">Importar Virtuemart</a></li>
+
 					<?php } ;?>
 				</ul>
 				

@@ -4,11 +4,8 @@
  * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero
- * @Descripcion	Importar ficheros de DBF
+ * @Descripcion	TPV para realizar la gestion de ticket
  *  */
-		// Objetivo de esta aplicacion es:
-		//	- Copiar DBF y guardar en directorio de copias de seguridad.
-		// 	- Importar los datos copiados a MYSQL.
 
 ?>
 

@@ -1,4 +1,5 @@
-// HAY QUE TENER EN CUENTA QUE LO QUE SE PUBLICA AQUI ES PUBLICO, POR LO QUE :
-- Se tiene que tener los derechos a para publicar.
-- No publicar contraseñas y nada que pueda implicar temas de seguridad.
+// HAY QUE TENER EN CUENTA QUE LO QUE SE PUBLICA NO TODO TIENE QUE SER PUBLICO, POR LO QUE :
+- En .gitignore controlamos al carpetas que vamos compartir en Git HUB o o no.
+- Lo compartamos tenemos que tener los derechos a para publicar.
+- No publicar contraseñas y nada que pueda implicar temas de seguridad y privacidad.
 
