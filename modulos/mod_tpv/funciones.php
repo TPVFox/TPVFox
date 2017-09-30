@@ -751,37 +751,63 @@ function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
 }
 
 
-function ticketsPorFecha($fecha,$BDTpv){
-	$nuevafecha = strtotime ( '+1 day' , strtotime ( $fecha ) ) ;
-	$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
+function ticketsPorFecha($fecha,$BDTpv,$nuevafecha){
+	//~ $nuevafecha = strtotime ( '+1 day' , strtotime ( $fecha ) ) ;
+	//~ $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
 	$sql = 'SELECT * FROM `ticketst` WHERE `fecha`>"'.$fecha.'" AND `fecha`<"'.$nuevafecha.'"';
-	$resp = $BDTpv->query($sql); 
+	$resp = $BDTpv->query($sql);
+	
 	$resultado = array();
-	while ($fila = $resp->fetch_assoc()) {
-		$resultado[] = $fila;
-		$resultado['idUsuario'] = $fila['idUsuario'];
+	if($resp->num_rows > 0){
+		$i=0;
+		while ($fila = $resp->fetch_assoc()) {
+			$resultado[] = $fila;
+			
+			$resultado['idUsuario'] = $fila['idUsuario'];
+			$resultado['formaPago'] = $fila['estado'];
+			$resultado['total'] = $fila['total'];
+			
+			$resultado['rangoTickets'][$i]= $fila['Numticket'];
+			$resultado['numTicket'] = $fila['Numticket'];
+			$i++;
+		}
 		
-		
+	}
+	return $resultado;
+}
+
+//contado o tarjeta
+function formaPago($pago,$BDTpv,$fecha,$nuevafecha){
+	$sql = 'SELECT SUM(`total`) AS sumaPago FROM `ticketst` WHERE `formaPago` = "'.$pago.'" AND `fecha`>"'.$fecha.'" AND `fecha`<"'.$nuevafecha.'"'; 
+	$resp = $BDTpv->query($sql);
+	$resultado = array();
+	if ($resp->num_rows > 0) {
+		while($fila = $resp->fetch_assoc()) {
+			$resultado=$fila['sumaPago'];
+		}
+	} else {
+		$resultado=0;
 	}
 	
 	return $resultado;
 }
 
+function baseIva($BDTpv,$numTicketFinal,$numTicketInicial,$iva){
+	$sql ='SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase FROM `ticketstIva` '
+		.'WHERE `Numticket` >= "'.$numTicketFinal.'" AND `Numticket` <= "'.$numTicketInicial.'" AND `iva` = "'.$iva.'" ';
+	$resp = $BDTpv->query($sql);
+	$resultado = array();
+	if ($resp->num_rows > 0) {
+		while($fila = $resp->fetch_assoc()) {
+			$resultado['iva']=$fila['importeIva'];
+			$resultado['base']=$fila['importeBase'];
+			$resultado['sql'] = $sql;
+		}
+	} else {
+		$resultado=0;
+	}
 
-//~ if ($resp = $BDTpv->query($Sql)){
-		//~ // Quiere decir que hay resultados.
-		//~ $respuesta['Numero_rows'] = $resp->num_rows;
-		//~ if ( $respuesta['Numero_rows'] === 1) {
-			//~ $row = $resp->fetch_assoc(); 
-			//~ // Enviamos datos cabecera tambien.
-			//~ $respuesta['numticket'] 	= $row['numticket'];
-			
-//~ function obtener baseIva ($BDTpv,$numticket){
-	//~ $respuesta = array();
-	//~ $consulta = 
-	
-	//~ return respuesta;
-//~ }
-//SELECT * FROM `ticketst` WHERE `estado` = 'cobrado' AND `idUsuario` = 1 AND `Fecha` = '2017-09-27' //HORA!!! problema
+	return $resultado;
+}
 
 ?>
