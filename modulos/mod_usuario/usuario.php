@@ -20,14 +20,14 @@
 		<?php
         include './../../header.php';
 		// ===========  datos usuario segun id enviado por url============= //
-		$idTienda = $Usuario['idTienda'];
+		$idTienda = $Tienda['idTienda'];
 		$tabla= 'usuarios'; // Tablas que voy utilizar.
 		$AtributoLogin = '';
 		$estados = array(); // Creo los estados de usuarios ( para select)
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
 		// Obtenemos id
-		print_r($_GET);
+		//~ print_r($_GET);
 		
 		
 		if (isset($_GET['id'])) {
@@ -105,9 +105,9 @@
 		<div class="container">
 				
 			<?php 
-			echo '<pre>';
-			print_r($UsuarioUnico);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($_POST);
+			//~ echo '</pre>';
 			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 

@@ -62,19 +62,30 @@ function insertarUsuario($datos,$BDTpv,$idTienda,$tabla){
 	$res = $BDTpv->query($buscarUsuario);
 	$numUser = mysqli_num_rows($res); //num usuarios que existen con ese nombre
 	if (($numUser === 1) || ($username === '')){
+		// Si entro es porque existe ya el usuario o no mando nombre usuario
 		$resultado['error'] = 'error';
-		
+		$resultado['sql'] = $buscarUsuario;		
 	} else {
 		$consulta = 'INSERT INTO '.$tabla.'( username, password, fecha, group_id, estado, nombre ) VALUES ("'
 			.$username.'" , "'.$passwrd.'" , "'.$fecha.'" , '.$grupoid.' , "'.$estado.'" , "'.$nombreEmpleado.'")';
-		$BDTpv->query($consulta);
-		$resultado['id'] = $BDTpv->insert_id;
-		// Ahora creamos las claves indices de este usuario para esta tienda.
-		$InsertSlq= 'INSERT INTO `indices`(`idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES ('.$idTienda.','.$resultado['id'].',0,0)';
-		$BDTpv->query($InsertSlq);
-		if (mysqli_error($BDTpv)) {
-		$resultado['error'] = 'Error que nunca debería suceder'.$BDTpv->errno;
-		} 
+		if ($BDTpv->query($consulta) === true){
+			$resultado['id'] = $BDTpv->insert_id;
+			// Entonces inserto en indice.
+			// Ahora creamos las claves indices de este usuario para esta tienda.
+			$InsertSlq= 'INSERT INTO `indices`(`idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES ('.$idTienda.','.$resultado['id'].',0,0)';
+			if ($BDTpv->query($InsertSlq) !== true) {
+				// Quiere decir que hubo error en insertar en indice
+				$resultado['error'] = 'Error en Insert en indice -1 Numero error'.$BDTpv->errno;
+				$resultado['consulta'] = $InsertSlq;
+			} 
+		
+		} else {
+			// Quiere decir que hubo error en insertar en usuarios
+			$resultado['error'] = 'Error en Insert de usuario-2 Numero error:'.$BDTpv->errno;
+			$resultado['consulta'] = $consulta;
+
+		}
+		
 	}
 	//~ $resultado['consulta'] =$InsertSlq;
 	return $resultado;
