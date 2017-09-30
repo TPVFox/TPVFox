@@ -32,7 +32,8 @@
 <?php 
 	include './../../header.php';
 	include_once ("./funciones.php");
-	
+	// Ahora creamos la tablas temporales 
+	$resp = crearTablaTempArticulosComp ($BDVirtuemart,$BDTpv)
 ?>
 
 <div class="container">

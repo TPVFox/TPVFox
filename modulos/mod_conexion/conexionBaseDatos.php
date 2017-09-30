@@ -1,65 +1,61 @@
 <?php 
-// Creamos Array $Conexiones para obtener datos de conexiones
-// teniendo en cuenta que le llamo a conexiones  a cada conexion a la Bases de Datos..
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogoproductos - Funciones sincronizar.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero - SolucionesVigo
+ * @Descripcion	Crear los arrya de las conexiones a BD que vamos utilizar.
+
 $Conexiones = array(); 
 
 // [Numero conexion]
 //		[NombreBD] = Nombre de la base datos..
 // 		[conexion] = Correcto o Error
-//		[respuesta] = " Respuesta de conexion de error o de Correcta"
-//		[VariableConf] = Nombre variable de configuracion
-
-
+//		[respuesta] =  Donde puede ser:
+* 						-" Respuesta de conexion de error o de Correcta"
+* 						- Info conexion ->host_info
+* 								[][tablas]-> Nombre tabla.
+*/
 
 
 /************************************************************************************************/
 /*************   Realizamos conexion de base de datos TPVFox.				         ************/
 /************************************************************************************************/
-$Conexiones[1]['NombreBD'] = "importarDbf";
-$Conexiones[2]['NombreBD'] = "tpv";
-//~ $conexiones = array();
-//~ $conexiones['importar'] = array();
-//~ $conexiones['importar']['datos'] = array();
-//~ $conexiones['importar']['datos']['servidor'] = "localhost";
-//~ $conexiones['importar']['datos']['usuario'] = $usuarioMsyql;
-//~ $conexiones['importar']['datos']['password'] = $passwordMysql;
-//~ $conexiones['importar']['datos']['database'] = "importarDbf";
-//~ $conexiones['importar']['cursor'] = new mysqli($conexiones['importar']['datos']['servidor'], $conexiones['importar']['datos']['usuario'], $conexiones['importar']['datos']['password'], $conexiones['importar']['datos']['database']);
+$Conexiones[1]['NombreBD'] = $nombrebdMysqlImpor;
+$Conexiones[2]['NombreBD'] = $nombrebdMysql;
+$Conexiones[3]['NombreBD'] = $nombre_onlineBD;
+// Lo ideal sería hacer un foreach y ejecutar leyendo array , el problem es el nombre conexión cambia.
 
-
-
-// conexion a importardbf
-$BDImportDbf = new mysqli("localhost", $usuarioMsyql, $passwordMysql, $Conexiones [1]['NombreBD']);
-// Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 
-// está vacía, si no se produce error.
-if ($BDImportDbf->connect_errno) {
-		$Conexiones[1]['conexion'] = 'Error';
-		$Conexiones[1]['respuesta']=$BDImportDbf->connect_errno.' '.$BDImportDbf->connect_error;
-		$BDImportDbf->controlError = $BDImportDbf->connect_errno.':'.$BDImportDbf->connect_error;
-} else {
-	$Conexiones[1]['conexion'] ='Correcto';
-	$Conexiones[1]['respuesta']= $BDImportDbf->host_info;
-	/** cambio del juego de caracteres a utf8 */
-	 mysqli_query ($BDImportDbf,"SET NAMES 'utf8'");
-	 $nameBD = $Conexiones [1]['NombreBD'];
-	 $sql = "SHOW TABLES FROM ".$nameBD;
-	 $resultado = $BDImportDbf->query($sql);
-	$tablas = array();
-	$i = 0;
-	while ($fila = $resultado->fetch_row()) {
-		$i++;
-		$tablas[$i] = $fila[0];
+// Evitamos errores si no tiene datos el parametro configuracion
+if ($nombrebdMysqlImpor !=''){
+	// conexion a importardbf
+	$BDImportDbf = new mysqli("localhost", $usuarioMysqlImpor, $passwordMysqlImpor, $Conexiones [1]['NombreBD']);
+	// Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 
+	// está vacía, si no se produce error.
+	if ($BDImportDbf->connect_errno) {
+			$Conexiones[1]['conexion'] = 'Error';
+			$Conexiones[1]['respuesta']=$BDImportDbf->connect_errno.' '.$BDImportDbf->connect_error;
+			$BDImportDbf->controlError = $BDImportDbf->connect_errno.':'.$BDImportDbf->connect_error;
+	} else {
+		$Conexiones[1]['conexion'] ='Correcto';
+		$Conexiones[1]['respuesta']= $BDImportDbf->host_info;
+		/** cambio del juego de caracteres a utf8 */
+		 mysqli_query ($BDImportDbf,"SET NAMES 'utf8'");
+		 $nameBD = $Conexiones [1]['NombreBD'];
+		 $sql = "SHOW TABLES FROM ".$nameBD;
+		 $resultado = $BDImportDbf->query($sql);
+		$tablas = array();
+		$i = 0;
+		while ($fila = $resultado->fetch_row()) {
+			$i++;
+			$tablas[$i] = $fila[0];
+		}
+		$Conexiones[1]['tablas'] =$tablas;
 	}
-	
-	
-	$Conexiones[1]['tablas'] =$tablas;
-	
 
 }
-
-
 //  conexion  a tpv
-$BDTpv = new mysqli("localhost", $usuarioMsyql, $passwordMysql, $Conexiones [2]['NombreBD']);
+$BDTpv = new mysqli("localhost", $usuarioMysql, $passwordMysql, $Conexiones [2]['NombreBD']);
 // Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 
 // está vacía, si no se produce error.
 if ($BDTpv->connect_errno) {
@@ -80,13 +76,35 @@ if ($BDTpv->connect_errno) {
 		$i++;
 		$tablas[$i] = $fila[0];
 	}
-	
-	
 	$Conexiones[2]['tablas'] =$tablas;
-	
-
 }
-
+// Evitamos errores si no tiene datos el parametro configuracion
+if ($nombre_onlineBD !=''){
+	//  conexion  a Virtuemart
+	$BDVirtuemart = new mysqli("localhost", $Usuario_onlineBD, $pass_onlineBD, $Conexiones [3]['NombreBD']);
+	// Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 
+	// está vacía, si no se produce error.
+	if ($BDVirtuemart->connect_errno) {
+			$Conexiones[3]['conexion'] = 'Error';
+			$Conexiones[3]['respuesta']=$BDVirtuemart->connect_errno.' '.$BDVirtuemart->connect_error;
+			$BDTpv->controlError = $BDVirtuemart->connect_errno.':'.$BDVirtuemart->connect_error;
+	} else {
+		$Conexiones[3]['conexion'] ='Correcto';
+		$Conexiones[3]['respuesta']= $BDVirtuemart->host_info;
+		/** cambio del juego de caracteres a utf8 */
+		 mysqli_query ($BDVirtuemart,"SET NAMES 'utf8'");
+		 $nameBD = $Conexiones [3]['NombreBD'];
+		 $sql = "SHOW TABLES FROM ".$nameBD;
+		 $resultado = $BDVirtuemart->query($sql);
+		$tablas = array();
+		$i = 0;
+		while ($fila = $resultado->fetch_row()) {
+			$i++;
+			$tablas[$i] = $fila[0];
+		}
+		$Conexiones[3]['tablas'] =$tablas;
+	}
+}
 
 
 ?>
