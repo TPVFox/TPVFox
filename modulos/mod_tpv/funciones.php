@@ -751,4 +751,37 @@ function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
 }
 
 
+function ticketsPorFecha($fecha,$BDTpv){
+	$nuevafecha = strtotime ( '+1 day' , strtotime ( $fecha ) ) ;
+	$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
+	$sql = 'SELECT * FROM `ticketst` WHERE `fecha`>"'.$fecha.'" AND `fecha`<"'.$nuevafecha.'"';
+	$resp = $BDTpv->query($sql); 
+	$resultado = array();
+	while ($fila = $resp->fetch_assoc()) {
+		$resultado[] = $fila;
+		$resultado['idUsuario'] = $fila['idUsuario'];
+		
+		
+	}
+	
+	return $resultado;
+}
+
+
+//~ if ($resp = $BDTpv->query($Sql)){
+		//~ // Quiere decir que hay resultados.
+		//~ $respuesta['Numero_rows'] = $resp->num_rows;
+		//~ if ( $respuesta['Numero_rows'] === 1) {
+			//~ $row = $resp->fetch_assoc(); 
+			//~ // Enviamos datos cabecera tambien.
+			//~ $respuesta['numticket'] 	= $row['numticket'];
+			
+//~ function obtener baseIva ($BDTpv,$numticket){
+	//~ $respuesta = array();
+	//~ $consulta = 
+	
+	//~ return respuesta;
+//~ }
+//SELECT * FROM `ticketst` WHERE `estado` = 'cobrado' AND `idUsuario` = 1 AND `Fecha` = '2017-09-27' //HORA!!! problema
+
 ?>

@@ -114,7 +114,7 @@
 	       
 			<nav class="col-sm-2" id="myScrollspy">
 				<div data-spy="affix" data-offset-top="505">
-				<h4> Usuarios</h4>
+				<h4> Tickets cerrados</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php 					

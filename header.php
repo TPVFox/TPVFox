@@ -2,12 +2,12 @@
     //añadido
 	/* Deberíamos hacer un pequeño proceso comprobaciones.
 	 * */
-	echo '<pre>';
-		print_r($TPVsession);
-	echo '</pre>';
-	echo '<pre>';
-		print_r($_SESSION);
-	echo '</pre>';
+	//~ echo '<pre>';
+		//~ print_r($TPVsession);
+	//~ echo '</pre>';
+	//~ echo '<pre>';
+		//~ print_r($_SESSION);
+	//~ echo '</pre>';
 	// Ponemos valor a variables control o reiniciamos.
 	// $usuario -> Datos usuario ( login, nombre,grupo_id,id);
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : '');
