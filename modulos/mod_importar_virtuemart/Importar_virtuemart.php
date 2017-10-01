@@ -33,15 +33,52 @@
 	include './../../header.php';
 	include_once ("./funciones.php");
 	// Ahora creamos la tablas temporales 
-	$resp = crearTablaTempArticulosComp ($BDVirtuemart,$BDTpv)
+	$resp = crearTablaTempArticulosComp($BDVirtuemart,$prefijoBD);
+	if (isset($resp['error'])) {
+		$arrayErrores = $resp['error'];
+		// Quiere decir que hubo un error al crear la tabla temporal.
+		echo '<pre>';
+		if (count($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos']) >0){
+			// Hay codbarras repetirdos con distintos articulos.
+			// Buscamos id y nombre 
+			$where = array();
+			foreach ($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos'] as $codbarrasRepetido){
+				$where[] = 'codbarras="'.$codbarrasRepetido.'"';
+			}
+			$stringwhere = implode(' OR ',$where);
+			$sql = "SELECT `idArticulo`,`crefTienda`,`articulo_name`,`codbarras` FROM `tmp_articulosCompleta` WHERE ".$stringwhere;
+			if ($registros = $BDVirtuemart->query($sql)) {
+				echo ' Registros que tiene duplicados los codbarras:<br/>';
+				while ($fila = $registros->fetch_assoc()) {
+					 printf ("%s	%s (%s)\n",$fila['codbarras'],$fila['crefTienda'],$fila['articulo_name']);
+					echo '<br/>';
+				}
+			}else {
+				print_r( 'Error en consulta:'.$sql.'<br/>');
+				echo $BDVirtuemart->error;
+			}
+		
+		}
+		
+			print_r($resp);
+		echo '</pre>';
+		exit(); // No continuamos
+	}
+	// Ahora añadimos datos a la tabla tempora creada en BDtpv
+	$productos= AnhadirRegistrosTablaTempTpv($BDVirtuemart,$BDTpv,$prefijoBD);
+	echo '<pre>';
+		print_r($productos);
+	echo '</pre>';
+	
+	
 ?>
 
 <div class="container">
 	<div class="col-md-6">
 		<h2>Importación de datos de Virtuemart a TPV.</h2>
 		<p> Recuerda que esto es un importación desde 0, todas las tpv tienen que estar vacias y los campos autoincremental en 0.La importación de Virtuemart en varias faxes:</p>
-		<h3>1.-Crear una tabla temporal `tmp_articulosCompleta` tanto en BDTpv compo BDVirtuemart</h3>
-		<p>Creamos una tabla temporal, la cual al cerrar la sessión ya no existe esa tabla.<p>
+		<h3>1.-Crear una tabla temporal `tmp_articulosCompleta` </h3>
+		<p>Creamos una tabla temporal, tano en BDTpv como BDVirtuemartla  la cual al cerrar la sessión ya no existe esa tabla.<p>
 		<h4>Campos de esta tabla</h4>
 		<ul>
 			<li>idArticulo int(11) AUTO_INCREMENT PRIMARY KEY</li>
