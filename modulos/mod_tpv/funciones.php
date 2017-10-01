@@ -661,10 +661,10 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 	$hora = MaquetarFecha ($cabecera['fecha'],'HM');
 	$fecha = MaquetarFecha ($cabecera['fecha']);
 	// Preparamos la <<< cabecera1 del ticket  LETRA GRANDE  >>> 
-	$respuesta['cabecera1'] = "SUPER OLIVA\n"; // Este dato realmente lo deberíamos cojer de tabla tiendas.
-	$respuesta['cabecera1-datos'] = 'Emilia Pardo Bazan, 52';
+	$respuesta['cabecera1'] = "VAPEAGROW\n"; // Este dato realmente lo deberíamos cojer de tabla tiendas.
+	$respuesta['cabecera1-datos'] = 'Rua Tranviarios, 3 (VIGO)';
 	// Preparamos la <<< cabecera2 del ticket  GRANDE  >>> 
-	$respuesta['cabecera2'] = "\n Teléfono: 986473447 \n";
+	$respuesta['cabecera2'] = "\n Teléfono: 665607239 \n";
 	$respuesta['cabecera2'] .= str_repeat("=",24)."\n";
 	$respuesta['cabecera2'] .="FACTURA  SIMPLIFICADA\n";
 	$respuesta['cabecera2'] .= str_repeat("=",24)."\n";
@@ -684,7 +684,7 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 			$Numeros = array(
 							0 => array(
 								'float'		 => $product->unidad,
-								'decimales' => 3
+								'decimales' => 0
 								),
 							1 => array(
 								'float' 	=> $product->pvpconiva,
@@ -721,7 +721,7 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 	}
 	$respuesta['pie-datos'] .=str_repeat("-",42)."\n";
 	$respuesta['pie-total'] =number_format($cabecera['total'],2);
-	$respuesta['pie-datos2'] ="\n"."Alimentaria Longueicarp Sl - CIF: B36937100"."\n";
+	$respuesta['pie-datos2'] ="\n"."Alejandro Grueiro Pazos - CIF: 32661089P"."\n";
 
 
 
