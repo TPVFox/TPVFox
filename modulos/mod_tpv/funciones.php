@@ -834,21 +834,27 @@ function ivas($BDTpv){
 	return $resultado;
 }
 
-function baseIva($BDTpv,$numTicket,$iva){
+function baseIva($BDTpv,$numTicket){
 	//se le pasa numTicket, e iva, para recoger sum(importeIva) y suma(totalbase)
 	
-	$sql ='SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva, NumTicket FROM `ticketstIva` '
-		.'WHERE `Numticket` = "'.$numTicket.'" AND `iva` = "'.$iva.'" ';
+	
+	
+	$sql ='SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva FROM `ticketstIva` '
+		.'WHERE `Numticket` IN ('.$numTicket.') GROUP BY `iva`';
 	$resp = $BDTpv->query($sql);
 	$resultado = array();
 	if ($resp->num_rows > 0) {
+		$i=0;
 		while($fila = $resp->fetch_assoc()) {		
+			$resultado['items'][$i]=$fila;
+			//~ $resultado['sumaiva']=$fila['importeIva'];			
+			//~ $resultado['base']=$fila['importeBase'];
+			//~ $resultado['iva']=$fila['iva'];
+			$i++;
 			
-			$resultado['ivas'][$iva]['sumaiva']=$fila['importeIva'];			
-			$resultado['bases'][$iva]['base']=$fila['importeBase'];
-			$resultado['iva']=$fila['iva'];
-			$resultado['sql'] = $sql;
 		}
+		$resultado['sql'] = $sql;
+
 	} else {
 		$resultado=0;
 	}
