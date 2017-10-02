@@ -46,7 +46,7 @@
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
 					<li><a href="<?php echo $HostNombre.'/estatico';?>">Documentacion</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
-					<?php if (isset($Usuario['group_id'])){?>
+					<?php if ($Usuario['group_id'] === 1){?>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_usuario/ListaUsuarios.php';?>">Usuarios</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_tienda/ListaTiendas.php';?>">Tiendas</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_importar_sppg/Importar_sppg.php';?>">Importar SPPG</a></li>
