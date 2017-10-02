@@ -144,7 +144,8 @@ switch ($pulsado) {
 				$cabecera['fecha'] = $grabar['fecha'] ; // Fecha con la que grabamos el ticket.
 				$cabecera['NumTicket'] = $grabar['Numtickets']; // El numero con el grabamos el ticket.
 				$cabecera['Serie'] = $cabecera['idTienda'].'-'.$cabecera['idUsuario'];
-				$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose']);
+				$DatosTienda = DatosTiendaID($BDTpv,$cabecera['idTienda']);
+				$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose'],$DatosTienda);
 				// Incluimos fichero para imprimir ticket, con los datosImpresion.
 				include 'impresoraTicket.php';
 				

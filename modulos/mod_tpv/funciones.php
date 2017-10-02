@@ -652,7 +652,7 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	return $resultado;
 }
 
-function ImprimirTicket($productos,$cabecera,$desglose){
+function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 	// @ Objetivo es montar un array con las distintas partes del ticket para luego mandar imprimir.
 	// Recuerda que € no imprime directamente hay que utilizar la code Page 1252, por ello en 
 	// body NO podemos €
@@ -661,10 +661,10 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 	$hora = MaquetarFecha ($cabecera['fecha'],'HM');
 	$fecha = MaquetarFecha ($cabecera['fecha']);
 	// Preparamos la <<< cabecera1 del ticket  LETRA GRANDE  >>> 
-	$respuesta['cabecera1'] = "VAPEAGROW\n"; // Este dato realmente lo deberíamos cojer de tabla tiendas.
-	$respuesta['cabecera1-datos'] = 'Rua Tranviarios, 3 (VIGO)';
+	$respuesta['cabecera1'] = $tienda['NombreComercial']."\n"; // Este dato realmente lo deberíamos cojer de tabla tiendas.
+	$respuesta['cabecera1-datos'] = $tienda['direccion'];
 	// Preparamos la <<< cabecera2 del ticket  GRANDE  >>> 
-	$respuesta['cabecera2'] = "\n Teléfono: 665607239 \n";
+	$respuesta['cabecera2'] = "\nTeléfono:".$tienda['telefono']."\n";
 	$respuesta['cabecera2'] .= str_repeat("=",24)."\n";
 	$respuesta['cabecera2'] .="FACTURA  SIMPLIFICADA\n";
 	$respuesta['cabecera2'] .= str_repeat("=",24)."\n";
@@ -721,7 +721,7 @@ function ImprimirTicket($productos,$cabecera,$desglose){
 	}
 	$respuesta['pie-datos'] .=str_repeat("-",42)."\n";
 	$respuesta['pie-total'] =number_format($cabecera['total'],2);
-	$respuesta['pie-datos2'] ="\n"."Alejandro Grueiro Pazos - CIF: 32661089P"."\n";
+	$respuesta['pie-datos2'] ="\n".$tienda['razonsocial']." - CIF: ".$tienda['nif']."\n";
 
 
 
@@ -809,5 +809,24 @@ function baseIva($BDTpv,$numTicketFinal,$numTicketInicial,$iva){
 
 	return $resultado;
 }
+
+function DatosTiendaID($BDTpv,$idTienda){
+	// @ Obtener datos de tienda
+	// Esta funcion pienso que no debería ser necesaria, pero no encontre otra forma pasar los datos ahora.
+		$resultado = array();
+		$sql = 'SELECT idTienda,razonsocial,telefono,direccion,NombreComercial,nif,ano,estado FROM tiendas WHERE idTienda = '.$idTienda;
+		$res = $BDTpv->query($sql);
+		//compruebo error en consulta
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta'] = $sql;
+			$resultado['error'] = $BDTpv->error_list;
+			return $resultado;
+		} 
+		$datos = $res->fetch_assoc();
+		$resultado = $datos;
+		return $resultado;
+	 }
+
+
 
 ?>
