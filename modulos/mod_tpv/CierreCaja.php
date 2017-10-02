@@ -7,62 +7,61 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
-	//fecha para obtener caja de ese dia
+	//fecha para obtener caja de ese dia , fecha que escribimos en vista
 	if ($_POST['fecha']){
 		$fecha=$_POST['fecha'];
+		//nuevafecha la calculamos, un dia mas de la fecha escrita
 		$nuevafecha = strtotime ( '+1 day' , strtotime ( $fecha ) ) ;
 		$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
-		$datos_tickets = ticketsPorFecha($fecha,$BDTpv,$nuevafecha);
-		$efectivo = formaPago('Contado',$BDTpv,$fecha,$nuevafecha); //mysql contado o tarjeta
-		$tarjeta = formaPago('tarjeta',$BDTpv,$fecha,$nuevafecha);
+		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada
+		$Users = ticketsPorFechaUsuario($fecha,$BDTpv,$nuevafecha);
+		// Saber que usuarios tienen ticket, key=idUsuario
+		foreach ( $Users['usuarios'] as $key => $user){
+			//print_r(' Usuario id'.$key. ' contiene:');
+			//cojemos nombre del usuario, 
+			$nombreUser=nombreUsuario($BDTpv,$key);
+			$Users['usuarios'][$key]['nombre'] = $nombreUser['datos']['nombre'];
+			
+			
+		}
+		//~ echo '<pre>';
+		//~ print_r($Users);
+		//~ echo '</pre>';
+		
+		
+		
+		
+		//~ $efectivo = formaPago('Contado',$BDTpv,$fecha,$nuevafecha); //mysql contado o tarjeta
+		//~ $tarjeta = formaPago('tarjeta',$BDTpv,$fecha,$nuevafecha);
 	}
 	
 	//recoger datos... variables del html
 	
 	
 	
-	$idUsuario = $datos_tickets['idUsuario'];
-	$nombreUsuario = 'admin';
+	//$idUsuario = $datos_tickets['idUsuario'];
+	//~ $usuar=nombreUsuario($BDTpv,$idUsuario);
+	//~ $nombreUsuario = $usuar['datos']['username'];
+	//~ echo '<pre>';
+	//~ print_r($tickets);
+	//~ echo '</pre>';
 	
 	//rango numticket en dicha fecha, ticket inicial el array[0], ticket final count[3] restar 1 porque empieza en 0.
-	$arrayNumTickets= $datos_tickets['rangoTickets'];
-	$numTicketInicial= $arrayNumTickets[0]; 
-	$numTicketFinal = $arrayNumTickets[count($arrayNumTickets)-1]; 
-	$totalTickets = $numTicketFinal - $numTicketInicial+1; 
-
-	$totalCaja = $efectivo+$tarjeta;
-	//~ $ivas=array(4,10,21);
-	//~ $i = 0;
-	//~ foreach ($ivas as $iva){
-
-		$datos = baseIva($BDTpv,$numTicketInicial,$numTicketFinal,4);
+	//~ $arrayNumTickets= $datos_tickets['rangoTickets'];
 	
-			$iva4 = $datos['iva'];
-			$base4 = $datos['base'];
-			
-			$datos10 = baseIva($BDTpv,$numTicketInicial,$numTicketFinal,10);
-			$iva10 = $datos10['iva'];
-			$base10 = $datos10['base'];
-			
-			$datos21 = baseIva($BDTpv,$numTicketInicial,$numTicketFinal,21);
-			$iva21 = $datos21['iva'];
-			$base21 = $datos21['base'];
-		
-	//	$i++;
-	//~ }
+	//~ $numTicketInicial= $arrayNumTickets[0]; 
+	//~ $numTicketFinal = $arrayNumTickets[count($arrayNumTickets)-1]; 
+	//~ $totalTickets = $numTicketFinal - $numTicketInicial+1; 
+
+	//
 		//recojo sumaIva, sumaBase de cada iva	
 		//$datos ['iva'];
 		//$datos ['base'];
 	
-	
-	$totalBase = $base4+$base10+$base21;
-	
-	$totalIva = $iva4+$iva10+$iva21;
-	$totalBasesEivas = $totalBase+$totalIva;
 
-	echo '<pre>';
-	print_r($datos_tickets);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($datos_tickets);
+	//~ echo '</pre>';
 	?>
 	
 	<script>
@@ -89,6 +88,21 @@
 				//~ echo '<pre>';
 					//~ print_r($tickets);
 				//~ echo '</pre>';
+		?>
+		
+	<?php 
+			echo '<pre>';
+				print_r($Users['rangoTickets']);
+			echo '</pre>';	
+			
+			
+			
+			//hacer array IVAS, recorrerlos segun haya ver el resultado
+			$ivas = ivas($BDTpv);
+			echo '<pre>';
+				print_r($ivas);
+			echo '</pre>';	
+			
 		?>
        
 	<div class="container">
@@ -138,34 +152,65 @@
 					<tr>
 						<th>ID</th>
 						<th>NOMBRE USUARIO</th>
-						<th>TOTAL TICKETS</th>
+						<th>SUMA TICKETS</th>
 						<th>Nº TICKET INICIAL</th>
 						<th>Nº TICKET FINAL</th>
 					</tr>
 				</thead>
+				<?php 
+				foreach ($Users['usuarios'] as $key =>$usuario){ ?>
 				<tr>
-					<td><?php echo $idUsuario; ?></td>
-					<td><?php echo $nombreUsuario; ?></td>
-					<td><?php echo $totalTickets; ?></td>
-					<td><?php echo $numTicketInicial; ?></td>
-					<td><?php echo $numTicketFinal; ?></td>
+					<td><?php echo $key; ?></td>
+					<td><?php echo $usuario['nombre']; ?></td>
+					<td><?php echo count($usuario['ticket']); ?></td>
+					<td><?php echo $usuario['NumInicial']; ?></td>
+					<td><?php echo $usuario['NumFinal']; ?></td>
 				</tr>
+				<?php 		
+					}
+					?>
 			</table>
 			<div class="row">
 				<!-- Cobrado por -->
 				<div class="col-md-4">
 					<h3 class="text-left"> Cobrado por: </h3>
-					<div class="form-group">
-						<label class="control-label col-sm-2" >Efectivo:</label>
+					<?php 
+				$totalFormaPago = array();
+				foreach ($Users['usuarios'] as $key =>$usuario){ 
+				?> <b>Nombre usuario: </b><?php	echo ' '.$usuario['nombre']; ?>
+					<div class="form-group">	
+							<?php   //el id es tarjeta o contado
+					foreach ($usuario['formasPago'] as $key =>$fPago){ 
+									?>					
+						<label class="control-label col-sm-2" ><?php echo $key; ?></label>
 						<div class="col-sm-10"> 
-							<input type="text" id="efectivo" name="efectivo" value="<?php echo $efectivo;?>" disabled>
+							<input type="text" value="<?php echo $fPago;?>" disabled>
+						
 						</div>
-						<label class="control-label col-sm-2">Tarjeta:</label>
-						<div class="col-sm-10"> 
-							<input type="text" id="tarjeta" name="tarjeta" value="<?php echo $tarjeta;?>" disabled>
-						</div>
+						
+						<?php 
+						//sumaremos el importe al array de formas de pago.
+						//~ $formasPago=$usuario['formasPago'];
+						//~ foreach ($formasPago as $formaPago){
+							//~ if ($formaPago === $key){
+								//~ if (!isset($totalFormaPago[$formaPago])){
+									//~ $totalFormaPago[$formaPago]=$fPago;
+								//~ } else {
+									//~ $totalFormaPago[$formaPago]+=$fPago;
+								//~ }
+							//~ }
+						//~ }		
+					}
+					?>
 					</div>
+					<?php //	echo 'suma tarjetas + contado: '.$totalFormaPago; ?></br><?php
+					
+					
+				}
+					?>
+						
 				</div>
+			
 					
 				
 					<!-- BASES -->
@@ -197,29 +242,55 @@
 					</div>
 				
 				</div>
+			
 				
 					<!-- IVAS -->
 				<div class="col-md-4">
 					<h3 class="text-left"> Ivas: </h3>
-					<div class=" form-group">
-						<label class="control-label col-sm-2" >4%:</label>
-						<div class="col-sm-10"> 
-							<input type="text" id="iva4" name="iva4" value="<?php echo $iva4;?>" disabled>
+					
+					<div class="form-group">
+					<?php //recorro ivas
+				
+					foreach($ivas as $key =>$iva){ 
+						$i=0;
+						foreach ($Users['rangoTickets'] as $key =>$numTicket){
+							//consigo sumabase y sumaIva de cada iva de cada ticket
+							//montar estructura de ivas
+							echo ' tickt '.$numTicket.' iva '.$iva.' </br>';
+							
+							$sumasIvaBase =	baseIva($BDTpv,$numTicket,$iva);
+							
+							if (!isset($sumasIvaBase['sumaiva'])){
+								$sumasIvaBase['sumaiva'][$iva]=$sumasIvaBase['ivas'][$iva]['sumaiva'];
+							} else {
+								$sumasIvaBase['sumaiva'][$iva] +=$sumasIvaBase['ivas'][$iva]['sumaiva'];
+							}
+							
+						$i++;
+						
+						
+						?>
+						<label><?php echo $iva.' %:';?></label>
+						<div> 
+							<input type="text" id="iva4" name="iva4" value="<?php echo 'xx ';?>" disabled>
 						</div>
-						<label class="control-label col-sm-2">10%:</label>
-						<div class="col-sm-10"> 
-							<input type="text" id="iva10" name="iva10" value="<?php echo $iva10;?>" disabled>
-						</div>
-						<label class="control-label col-sm-2">21%:</label>
-						<div class="col-sm-10"> 
-							<input type="text" id="iva21" name="iva21" value="<?php echo $iva21;?>" disabled>
-						</div>
+					<?php 
+						echo '<pre>';
+							print_r($sumasIvaBase['sumaiva']);
+						echo '</pre>';
+						}//cierro foreach de numTicket
+					} //se cierra foreach de ivas
+					?>	
+					</div>
+						
+						
+						
+						
 						<label class="control-label col-sm-2">Suma ivas:</label>
 						<div class="col-sm-10"> 
 							<input type="text" id="totalIva" name="totalIva" value="<?php echo $totalIva;?>" disabled>
-						</div>
-				
-					</div>
+						</div>				
+					
 				<div> 
 					
 					
@@ -231,7 +302,7 @@
 				<div class="col-md-8">
 				<label class="control-label col-sm-2">Total Caja:</label>
 					<div class="col-sm-10"> 
-						<input type="text" id="totalCaja" name="totalCaja" value="<?php echo $totalCaja;?>" disabled>
+						<input type="text"  value="<?php echo $Users['totalcaja'];?>" disabled>
 					</div>
 				</div>
 			</div>
