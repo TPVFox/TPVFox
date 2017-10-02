@@ -93,7 +93,7 @@ class ComprobarSession {
 	 
 	 function comprobarTienda($BDTpv){
 		$resultado = array();
-		$sql = 'SELECT idTienda,razonsocial FROM tiendas WHERE estado="activo"';
+		$sql = 'SELECT idTienda,razonsocial,telefono,direccion,NombreComercial,nif,ano,estado FROM tiendas WHERE estado="activo"';
 		$res = $BDTpv->query($sql);
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)){
@@ -101,10 +101,10 @@ class ComprobarSession {
 			$resultado['error'] = $BDTpv->error_list;
 			return $resultado;
 		} 
-		$datos = $res->fetch_row();
-		$resultado['idTienda']=$datos[0];
-		$resultado['razonsocial']=$datos[1];
-		$_SESSION['tiendaTpv']= $resultado; 		 
+		$datos = $res->fetch_assoc();
+		$resultado = $datos;
+		$_SESSION['tiendaTpv']= $resultado; 
+				 
 		return $resultado;
 	 }
 	 
