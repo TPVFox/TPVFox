@@ -2,29 +2,42 @@
 
 
 function obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro) {
-	// Function para obtener usuarios y listarlos
-
-	$respuesta = array();
+	// Function para obtener productos y listarlos
+	$resultado = array();
+	$buscar='';
 	$rango= '';
+	$filtroFinal='';
+	//si existe filtro, palabras a buscar
+	//con implode creo un array de palabras para buscarlas por like
+	if ($filtro !== ''){
+		$palabras=array();
+	
+		$palabras = explode(' ',$filtro); // array de varias palabras, si las hay..
+		//para buscar por palabras separadas
+		foreach($palabras as $palabra){
+			$likes[] =  'a.`articulo_name` LIKE "%'.$palabra.'%"';
+		}
+		$buscar = implode(' and ',$likes);
+		$filtroFinal = ' WHERE '.$buscar;
+	}
+	
 	if ($LimitePagina > 0 ){
 		$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	} 
-	
 	
 	$consulta = "SELECT a.*, c.`codBarras`, c.`idArticulo`, p.`idArticulo`, p.`pvpCiva` FROM `articulos` AS a "
 				."LEFT JOIN `articulosCodigoBarras` AS c " 
 				."ON c.`idArticulo` = a.`idArticulo` " 
 				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo`".$filtro.$rango; 
-	//~ $consulta = "Select * from articulos ".$filtro.$rango;
-	$ResConsulta = $BDTpv->query($consulta);
-
-	$resultado = array();
-	while ($fila = $ResConsulta->fetch_assoc()) {
-		$resultado[] = $fila;
+				."ON p.`idArticulo` = a.`idArticulo`".$filtroFinal.$rango; 
+	
+	if ($ResConsulta = $BDTpv->query($consulta)){			
+		while ($fila = $ResConsulta->fetch_assoc()) {
+			$resultado[] = $fila;
+		}
 	}
-
-	//$resultado ['consulta'] = $consulta;
+	
+	//$resultado['sql'] = $consulta;
 	return $resultado;
 }
 
