@@ -24,7 +24,7 @@
 	//		previo->
 	//			[id]
 	// 			
-function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros) {
+function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros='') {
 	// Asignar variables
 	$paginas = array();
 	$ArrayTPg = array();
