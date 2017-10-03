@@ -9,8 +9,6 @@
 		// Objetivo de esta aplicacion es:
 		//	- Copiar DBF y guardar en directorio de copias de seguridad.
 		// 	- Importar los datos copiados a MYSQL.
-		
-
 ?>
 
 <!DOCTYPE html>
@@ -19,17 +17,22 @@
 <?php
 	include './../../head.php';
 	// Creamos variables de los ficheros para poder automatizar el añadir ficheros.
-	$nom_ficheros = array();
-	$nom_ficheros[] ='proveedo';// El que vamos utilizar al crear tb la tabla en BDimport
-	$nom_ficheros[] ='albprot';
-	$nom_ficheros[] ='albprol';
-	$nom_ficheros[] ='articulo';
-	$nom_ficheros[] ='clientes';
-	// [PENDIENTE]
-	// La idea es hacer un JSON que luego en funciones js, lo obtenga, para eliminar la variables globales que tenemos al principio
-	// del fichero funciones.js (nombretabla) , así se añadimos algun fichero, solo tengamos que hacer aquí.
-	
-?>
+	// Si añadimos aquí, se añaden tambien a BDimportar
+	$nom_ficheros = array(
+					'proveedo','albprot','albprol','articulo','clientes','precprov','atipicas'
+					);
+	// [ANTES CARGAR FUNCIONES JS]
+	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
+	?>
+	<script type="application/javascript">
+	var nombretabla = [];
+	<?php
+	foreach ($nom_ficheros as $n_fichero){
+		// Llenamos array javascript con los nombres ficheros
+		echo "nombretabla.push('".$n_fichero."');";
+	}
+	?>
+	</script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar_sppg/funciones.js"></script>
 	<?php
 	// Controlamos ( Controllers ... fuera de su sitio ... :-)
@@ -57,6 +60,7 @@
 				$actualizar[$nombreTabla] = 'Existe Estado';
 			}
 		}
+		
 	}
 	// Ahora tenemos un array con los campos de la tablas .
 	
@@ -87,19 +91,15 @@
 		<h2>Importación de datos a DBF de TPV.</h2>
 		<p> La importación de DBF de SPPGTpv consiste en dos faxes:</p>
 		<h3>1.-Importacion de DBF a MYSQL</h3>
-		<p>Esta faxe <b>inicia automaticamente</b> al entrar en esta pagina, consiste es añadir los datos DBF a BDImport de Mysql.<br/>Las tablas de DBF las obtenemos en configuracion (homer/solucion40/www/superoliva/datos/DBF71)<p>
-		<p><b>[PENDIENTE]</b> Crear un proceso para copiarlas automatizado o indicar donde optenerlar. <a title="De momento lo hacemos manual, ya que no podemos indicar fuera www porque generar un error">(*)</a></p>
-		<h4>Procesos que realizamos en importar</h4>
+		<p> El objetivo es crear las tablas en Msql con los datos de las tablas BDF, que esta en la ruta que le indicamos en configuracion en <b>$CopiaDBF</b>.</p>
+		<p>Al pulsar en <b>botton de importar</b> hace:</p>
 		<ol>
-			<li> Comprobamos podemos obtener estructura de BDF.
-				<ol>
-					<li>NO-> Pasamos al siguiente fichero .</li>
-					<li>SI-> Pasamos al siguiente punto.</li>
-				</ol>
+			<li><span class="glyphicon glyphicon-th"></span> Obtenemos estructura de BDF y Msyql de la tabla. <br/>
+			 Si no puede obtener la estructura, pasa al siguiente fichero  y <span class="alert danger">pone rojo</span>
 			</li>
-			<li> Si la estructura es igual a la que tenemos en tablas mysql <a title="Si es distinta puede suceder que ya hubieramos actualizado">(*)</a>
+			<li> Al obtener la estructura de DBF la comparamos con MYSQL.
 				<ol>
-					<li>NO-> Creamos nuevamente tabla .</li>
+				<li>NO-> Creamos nuevamente tabla .</li>
 					<li>SI-> Eliminamos tabla y añadimos contenido DBF</li>
 				</ol>
 			</li>
@@ -115,19 +115,19 @@
 	</div>
 		
 	<div class="col-md-6">
-		<div>
-		<div class="text-center" id="idCabeceraBarra"></div>
+		<div class="barra-proceso">
+			<div class="text-center" id="idCabeceraBarra"></div>
 
-	    <div class="progress" style="margin:0 100px">
-			<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                   0 % completado
-             </div>
-		</div>
+			<div class="progress" style="margin:0 100px">
+				<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+					   0 % completado
+				 </div>
+			</div>
 		</div>
 		<div id="resultado"></div>
 
 		<div>
-		<h3 class="text-center"> Control de procesos de importacion</h3>
+		<h3 class="text-center"> Procesos para importar a BDImportar</h3>
 		<table class="table table-bordered">
 			<thead>
 			  <tr>
@@ -180,6 +180,12 @@
 			//creo boton para crear tabla en mysql, 1º comprobar que no existe tabla, 2º conseguir estructura 
 			//recibircsv.php?subida=0
 		?>
+		<div class="btn-Importarr">
+			<div class="form-group">
+				<label>Importar tablas de DBF a Mysql (BDImportar):</label>
+				<input onclick="ControlPulsado('import_inicio')" type="submit" value="1.- Importar" />
+			</div>
+		</div>
 		<div class="btn-actualizar" style="display:none;">
 			
 				<div class="form-group">
@@ -191,9 +197,5 @@
 
 	</div>	
 </div>
-<script>
-	//Iniciamos importacion.
-	ImportInicio('import_inicio')
-</script>
 </body>
 </html>

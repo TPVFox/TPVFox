@@ -14,7 +14,7 @@
 	
 	$resultado = array();
 	// En debug es mejor quitar TEMPORARY
-	$sqlBDImpor = 'CREATE TABLE tmp_articulosCompleta as
+	$sqlBDImpor = 'CREATE TEMPORARY TABLE tmp_articulosCompleta as
 					select 1 as idTienda,
 					CAST( c.virtuemart_product_id as CHAR(18))as crefTienda,
 					cr.product_name as articulo_name,
@@ -141,7 +141,6 @@ function  AnhadirRegistrosTablaTempTpv($BDVirtuemart,$BDTpv,$prefijoBD){
 		//~ $resultado['tabla'][$tabla]['aceptados'] = $gruposvaloresArticulos; 
 		//~ }
 		$resultado['tabla'][$tabla]['descartado'] = $agruparValores['Descartados'];
-		$resultado['tabla'][$tabla]['grup'] =$agruparValores['grup'];
 		$stringcampos = '('.implode(',',$campos).')';
 
 		$sql = 'INSERT INTO '.$tabla.' '.$stringcampos.' VALUES ';
@@ -235,9 +234,6 @@ function GrupoValoresResultado($registros,$obligatorios = array()){
 	}
 	
 	$respuesta['Descartados']= $descartado;
-	
-	$respuesta['grup'] ='$debug';
-
 	return $respuesta ;
 	
 	

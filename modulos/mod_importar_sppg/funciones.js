@@ -23,16 +23,8 @@ var campos = [];
 var ficheroActual = '';
 var estadoImportacion = [];
 
-//variable matriz con nombre tablas que vamos importar ( Bases Datos importar).
-//lo nombres de las tablas son los mismos de los ficheros que vamos a obtener
-//ojo! cuando vayas al array modifica func tenemos que añadir fila a la tabla errores en importar html
-var nombretabla = [];
-// No le pongo extension, ya utilizo este mismo array para saber si existe tabla en mysql o si la creamos.
-nombretabla[0]='proveedo';
-nombretabla[1]='albprot'; 
-nombretabla[2]='albprol';
-nombretabla[3]='articulo';
-nombretabla[4]= 'clientes';
+
+
 
 // Funcion para mostrar la barra de proceso..
 function BarraProceso(lineaA,lineaF) {
@@ -57,7 +49,7 @@ function BarraProceso(lineaA,lineaF) {
 	
 }
 
-function ImportInicio (pulsado) {
+function ControlPulsado (pulsado) {
 	// Lo que pretendo es tener un proceso que controle y cambio de proceso según sea necesarios.
 	// la variable que va controlar es pulsado.
 	
@@ -66,7 +58,6 @@ function ImportInicio (pulsado) {
 			case 'import_inicio':
 				// Acaba de cargar javascript, por lo que inicia proceso.
 				//llamar func que hace bucle de la matriz de nombres tabla (fichero)
-				
 				bucleFicheros();
 				break;
 	} 
@@ -88,6 +79,7 @@ function bucleFicheros(){
 	// Buscamos numero index que estamos.
 	idFichero = nombretabla.indexOf(tablaActual);
 	nuevoIndice = idFichero + 1; // Nuevo indice... 
+	console.log('Nombretabla');
 	numFicheros = nombretabla.length; // Obtenemos el indice mayor que puede ser...
 	if (nuevoIndice < numFicheros ){
 		ficheroActual = nombretabla[nuevoIndice]+'.dbf';

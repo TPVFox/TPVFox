@@ -271,30 +271,30 @@ function InsertarDatos($campos,$nombretabla,$datos,$BDImportDbf){
 	return $resultado;
 }
 function ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla,$string ='si'){
+	// @Objetivo : Obtener array con los campos de la tabla.
 	// Obtenemos array con los campos de la tabla.
+	$resultado = array();
 	$sqlShow = 'SHOW COLUMNS FROM '.$nombreTabla;
-	$res = $BDImportDbf->query($sqlShow);
-	$respuesta =  $res->fetch_row() ;
-	if (! isset ($respuesta)){
-		// Si NO existe o no sale mal la consulta borramos tabla
-		$resultado['dropear-tabla'] = true;
-	} else {
-		$resultado = array();
-		$i = 0;
-		// Recorro respuesta y monto array de campos .
-		while ($fila = $res->fetch_row()) {
-			if ($string ==='si'){
-				$nombreCampo = $fila[0];
-				$tipo = $fila[1];
-				$resultado[$i] = $nombreCampo.' '.$tipo;
-			} else {
-				$resultado[$i] = $fila[0];
+	if ($res=$BDImportDbf->query($sqlShow)) {
+		$respuesta =  $res->fetch_row() ;
+		if (! isset ($respuesta)){
+			// Si NO existe o no sale mal la consulta borramos tabla
+			$resultado['dropear-tabla'] = true;
+		} else {
+			$i = 0;
+			// Recorro respuesta y monto array de campos .
+			while ($fila = $res->fetch_row()) {
+				if ($string ==='si'){
+					$nombreCampo = $fila[0];
+					$tipo = $fila[1];
+					$resultado[$i] = $nombreCampo.' '.$tipo;
+				} else {
+					$resultado[$i] = $fila[0];
+				}
+				$i++;
 			}
-			$i++;
 		}
 	}
-	
-	
 	return $resultado;
 	
 }
