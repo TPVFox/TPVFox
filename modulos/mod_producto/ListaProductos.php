@@ -7,8 +7,7 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
-	
-	
+
 	//INICIALIZAMOS variables para el plugin de paginado:
 	//$PgActual = 1 por defecto
 	//$CantidadRegistros , usamos la funcion contarRegistro de la class controladorComun /controllers/Controladores  
@@ -22,9 +21,9 @@
 		if ($_GET['pagina']) {
 			$PgActual = $_GET['pagina'];
 		}
-		if ($_GET['buscar']) {
-			$palabraBuscar = $_GET['buscar'];
-			$filtro =  "WHERE a.`articulo_name` LIKE '%".$palabraBuscar."%'";
+		if ($_GET['Buscar']) {  
+			$palabraBuscar = $_GET['Buscar'];
+			$filtro = $palabraBuscar;
 		} 
 	}
 	
@@ -48,16 +47,18 @@
 		$desde = 0;
 	}
 	// Realizamos consulta 
-	if ($palabraBuscar !== '') {
-		$filtro =  "WHERE a.`articulo_name` LIKE '%".$palabraBuscar."%'";
+	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
+	if (isset($palabraBuscar)) {
+		$filtro =  "$palabraBuscar";
+		
 	} else {
+		
 		$filtro = '';
 	}
 
-	$OtrosParametros = $palabraBuscar;	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+	//~ $OtrosParametros = $palabraBuscar;	
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase);
 	$productos = obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro);
-	
 	?>
 	
 	<script>
@@ -68,16 +69,9 @@
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
     
-    <!-- Cargamos libreria control de teclado -->
-	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
   
 	
-	<script>
-	// Funciones para atajo de teclado.
-	//~ shortcut.add("Shift+V",function() {
-		//~ // Atajo de teclado para ver
-		//~ metodoClick('VerUsuario');
-	//~ });    
+	<script>  
 	    
 	</script> 
     </head>
@@ -87,9 +81,9 @@
         include './../../header.php';
         ?>
         <?php
-				//~ echo '<pre>';
-					//~ print_r($productos);
-				//~ echo '</pre>';
+		//~ echo '<pre>';
+			//~ print_r($productos);
+		//~ echo '</pre>';
 		?>
        
 	<div class="container">
@@ -110,7 +104,7 @@
 	        -->
 	       
 			<nav class="col-sm-2" id="myScrollspy">
-				<div data-spy="affix" data-offset-top="505">
+				<div data-offset-top="505">
 				<h4> Productos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -131,14 +125,15 @@
 					</p>
 					<?php 	// Mostramos paginacion 
 						echo $htmlPG;
+				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
 					?>
-				<div class="form-group ClaseBuscar">
-					<label>Buscar en descripcion </label>
-					<input type="text" name="Buscar" value="">
-										<?php // la idea es enviar parametro de donde para atacar a un mismo js mod_producto?>
-					<input type="submit" name="BtnBuscar" value="Buscar" onclick="metodoClick('NuevaBusqueda','ListaProductos');">
-				</div>
-				
+				<form action="./ListaProductos.php" method="GET" name="formBuscar">
+					<div class="form-group ClaseBuscar">
+						<label>Buscar en descripcion </label>
+						<input type="text" name="Buscar" value="">
+						<input type="submit" value="Buscar">
+					</div>
+				</form>
                  <!-- TABLA DE PRODUCTOS -->
 			<div>
 			<table class="table table-striped">
