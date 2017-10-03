@@ -604,7 +604,17 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	$numticket = ObtenerNumIndices($BDTpv,$campo,$cabecera['idUsuario'],$cabecera['idTienda'],true) ; // Lo incrementamos 
 	// Creamos la consulta para graba en
 	// Preparamos SQl para Consulta en tickest
-	$SqlTickets[] = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`, `idUsuario`, `idTienda`, `idCliente`, `estado`, `formaPago`, `entregado`, `total`) VALUES ('.$numticket.','.$cabecera['numTickTemporal'].',"'.$fecha.'",'.$cabecera['idUsuario'].','.$cabecera['idTienda'].','.$cabecera['idCliente'].',"'.$estado.'","'.$cabecera['formaPago'].'",'.$cabecera['entregado'].','.$cabecera['total'].')';
+	$SqlTicket = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`, `idUsuario`, `idTienda`, `idCliente`, `estado`, `formaPago`, `entregado`, `total`) VALUES ('.$numticket.','.$cabecera['numTickTemporal'].',"'.$fecha.'",'.$cabecera['idUsuario'].','.$cabecera['idTienda'].','.$cabecera['idCliente'].',"'.$estado.'","'.$cabecera['formaPago'].'",'.$cabecera['entregado'].','.$cabecera['total'].')';
+	// Ejecutamos consulta para obtener el id ( autoincremental) que el que va enlazar los tickets
+	$BDTpv->query($SqlTicket);
+	$numIdTicketT =$BDTpv->insert_id;
+	if (mysqli_error($BDTpv)){
+		$resultado['consulta'] = $SqlTicket;
+		$resultado['error'] = $BDTpv->error_list;
+		error_log(' Rotura en funcion grabarTicketCobrado()');
+		error_log( $BDTpv->error_list);
+	}
+	
 	// Preparamos SQl para Consulta para ticketLinea
 	// Aquí va ser insert de varios registros , la cantidad productos que tenga el ticket
 	$valor = array();
@@ -612,20 +622,20 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 		$cantidad = (float)$producto->unidad;
 		// De momento esto lo dejamos igual pero lo deberíamos controlar con $CONF_campoPeso
 		$unidad = $cantidad; // En el momento que se gestione hay que cambiar la tabla.
-		$valor[] ='('.$numticket.','.$producto->id.',"'.$producto->cref.'","'.$producto->ccodebar.'","'
+		$valor[] ='('.$numIdTicketT.','.$numticket.','.$producto->id.',"'.$producto->cref.'","'.$producto->ccodebar.'","'
 					.$producto->cdetalle.'",'.$cantidad.','.$unidad.','
 					.$producto->pvpconiva.','.$producto->ctipoiva.','.$producto->nfila.',"'.$producto->estado.'")';
 	}
 	$valores = implode(',',$valor);
-	$SqlTickets[] ='INSERT INTO `ticketslinea`(`Numticket`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `precioCiva`, `iva`,nfila,estadoLinea) VALUES '.$valores;
+	$SqlTickets[] ='INSERT INTO `ticketslinea`(`idticketst`,`Numticket`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `precioCiva`, `iva`,nfila,estadoLinea) VALUES '.$valores;
 	// Preparamos SQl para Consulta para ticketstiva	
 	$iva = array();
 	foreach ($desglose as $index=>$valor){
-		$iva []= '('.$numticket.','.$index.','.$valor['iva'].','.$valor['base'].')';
+		$iva []= '('.$numIdTicketT.','.$numticket.','.$index.','.$valor['iva'].','.$valor['base'].')';
 		// $valor['iva'] -> Es el importe del iva.
 	}
 	$ivas = implode(',',$iva);
-	$SqlTickets[] = 'INSERT INTO `ticketstIva`(`Numticket`, `iva`, `importeIva`,`totalbase`) VALUES '.$ivas;
+	$SqlTickets[] = 'INSERT INTO `ticketstIva`(`idticketst`,`Numticket`, `iva`, `importeIva`,`totalbase`) VALUES '.$ivas;
 	
 	// Preparamos SQL para cambiar estado de ticket temporal.
 	$SqlTickets[] = 'UPDATE `ticketstemporales` SET `fechaFinal`="'.$fecha.'",`estadoTicket`='."'".$estado."'".' WHERE `idTienda`='.$cabecera['idTienda'].' and `idUsuario`='.$cabecera['idUsuario'].' and numticket ='.$cabecera['numTickTemporal'];
