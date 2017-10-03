@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `tiendas` (
   `telefono` int(9) NOT NULL,
   `direccion` varchar(100) NOT NULL,
   `ano` varchar(4) DEFAULT NULL,
-  `estado` varchar(6) DEFAULT NULL,
+  `estado` varchar(12) DEFAULT NULL,
   PRIMARY KEY (`idTienda`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
