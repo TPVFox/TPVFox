@@ -22,6 +22,7 @@
 	$fechaInicio = date("d/m/Y");
 	if (isset($_GET['tAbierto'])) {
 		$ticket_numero = $_GET['tAbierto'];
+		$ticket_estado = 'Abierto';
 	}
 
 ?>
@@ -59,16 +60,18 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 
 	include '../../header.php';
 	include_once ("funciones.php");
-	// Ahora obtenemos los tickets abiertos.
 	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
-	// Ahora obtenemos la cabecera de los ticket abiertos de ese usuario.
-	$ticketsAbiertos = ObtenerCabeceraTicketAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda'],$ticket_numero);
+	// Obtenemos todos los tickets abiertos que hay para mostralos ( solo las cabeceras y total)
+	$ticketsAbiertos = ObtenerCabeceraTicketAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda'],$ticket_numero); 
+	
 	// Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
 	if ($ticket_numero > 0){
-		//Obtenemos datos del ticket 
+		//Obtenemos datos del ticket
+		// Ahora obtenemos el ticket abierto que estamos.
 		$ticket= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
 		$ticket_estado = $ticket['estadoTicket'];
+		// OJO !! Puede sucede que su estado no sea Abierto.. habría que tratarlo
 	}
 	if ((isset($cambiosEstadoTickets['error'])) || (isset($ticket['error']))) {
 		// Entonces obtenemos las caberas para mostrar.

@@ -366,6 +366,7 @@ function ControlEstadoTicketsAbierto($BDTpv,$idUsuario,$idTienda) {
 	} 
 	// Si fue correcto comprobamos a cuantos afectos, que sería los tickets abiertos.
 	$respuesta['num_afectados'] = $BDTpv->affected_rows;
+	//~ $respuesta['consulta'] = $sql;
 	return $respuesta;
 	}
 function ObtenerCabeceraTicketAbierto($BDTpv,$idUsuario,$idTienda,$numTicket=0){
