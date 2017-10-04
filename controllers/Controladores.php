@@ -86,6 +86,49 @@ class ControladorComun
 	}
 	
 	
+	function paginacionFiltroBuscar($BD,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD=''){
+	//HARIA funcion para no repetir codigo de paginacion y campo busqueeda
+	//le pasaria $campoBD para likes de palabras
+	//aqui se monta el limite de paginas y el explode de palabras 
+	//PARAMETROS:
+	//filtro == palabras a buscar
+	//limitePagina = 40 ejemplo
+	//desde = 0 inicialmente
+	//campoBD = campos de bbdd , ej. articulo_name
+	//campo2BD = segundo campo de bbdd a buscar
+	$resultado = array();
+	$buscar='';
+	$rango= '';
+	$filtroFinal='';
+	//si existe filtro, palabras a buscar
+	//con implode creo un array de palabras para buscarlas por like
+	if ($filtro !== ''){
+		$palabras=array();
+	
+		$palabras = explode(' ',$filtro); // array de varias palabras, si las hay..
+		//para buscar por palabras separadas			
+		foreach($palabras as $palabra){
+			if ($campo2BD !== ''){
+				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%"';
+			} else {
+				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%"';
+			}
+		}
+		$buscar = implode(' and ',$likes);
+		$filtroFinal = ' WHERE '.$buscar;
+		
+	}	
+	if ($LimitePagina > 0 ){
+		$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+	}
+	// datos a devolver serian string $rango, string $filtroFinal
+	//fin de paginacion parametros necesarios y de campo de busqueda
+	$resultado['rango']=$rango;
+	$resultado['filtro']=$filtroFinal;
+	
+	return $resultado;
+	}
+	
 }
 
 

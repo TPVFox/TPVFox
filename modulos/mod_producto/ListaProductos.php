@@ -17,15 +17,15 @@
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-	if ($_GET) {
-		if ($_GET['pagina']) {
-			$PgActual = $_GET['pagina'];
-		}
-		if ($_GET['Buscar']) {  
-			$palabraBuscar = $_GET['Buscar'];
-			$filtro = $palabraBuscar;
-		} 
+	
+	if (isset($_GET['pagina'])) {
+		$PgActual = $_GET['pagina'];
 	}
+	if (isset($_GET['Buscar'])) {  
+		$palabraBuscar = $_GET['Buscar'];
+		$filtro = $palabraBuscar;
+	} 
+	
 	
 	// Creamos objeto controlado comun, para obtener numero de registros. 
 	//parametro necesario para plugin de paginacion

@@ -3,28 +3,17 @@
 
 function obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro) {
 	// Function para obtener productos y listarlos
+	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
 	$resultado = array();
-	$buscar='';
-	$rango= '';
-	$filtroFinal='';
-	//si existe filtro, palabras a buscar
-	//con implode creo un array de palabras para buscarlas por like
-	if ($filtro !== ''){
-		$palabras=array();
-	
-		$palabras = explode(' ',$filtro); // array de varias palabras, si las hay..
-		//para buscar por palabras separadas
-		foreach($palabras as $palabra){
-			$likes[] =  'a.`articulo_name` LIKE "%'.$palabra.'%"';
-		}
-		$buscar = implode(' and ',$likes);
-		$filtroFinal = ' WHERE '.$buscar;
-	}
-	
-	if ($LimitePagina > 0 ){
-		$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
-	} 
-	
+	//inicio paginacion filtro
+	//para evitar repetir codigo
+	$Controler = new ControladorComun; 
+	$campoBD = 'articulo_name';
+	$rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD='');
+	$rango=$rangoFiltro['rango'];
+	$filtroFinal=$rangoFiltro['filtro'];
+	//fin paginacion y filtro de busqueda 
+
 	$consulta = "SELECT a.*, c.`codBarras`, c.`idArticulo`, p.`idArticulo`, p.`pvpCiva` FROM `articulos` AS a "
 				."LEFT JOIN `articulosCodigoBarras` AS c " 
 				."ON c.`idArticulo` = a.`idArticulo` " 
