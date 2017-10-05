@@ -32,9 +32,9 @@ CREATE TABLE IF NOT EXISTS `clientes` (
   `razonsocial` varchar(100) NOT NULL,
   `nif` varchar(10) NOT NULL,
   `direccion` varchar(100) CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
-  `telefono` int(6) NOT NULL,
-  `movil` int(6) NOT NULL,
-  `fax` int(6) NOT NULL,
+  `telefono` varchar(11) NOT NULL,
+  `movil` varchar(11) NOT NULL,
+  `fax` varchar(11) NOT NULL,
   `email` varchar(25) NOT NULL,
   `estado` varchar(6) NOT NULL,
   PRIMARY KEY (`idClientes`)

@@ -7,7 +7,7 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
-
+	
 	//INICIALIZAMOS variables para el plugin de paginado:
 	//$PgActual = 1 por defecto
 	//$CantidadRegistros , usamos la funcion contarRegistro de la class controladorComun /controllers/Controladores  
@@ -17,16 +17,14 @@
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-	
-	if (isset($_GET['pagina'])) {
-		$PgActual = $_GET['pagina'];
-	}
-	if (isset($_GET['Buscar'])) {  
-		$palabraBuscar = $_GET['Buscar'];
-		$filtro = $palabraBuscar;
-	} 
-	
-	
+		if (isset($_GET['pagina'])) {
+			$PgActual = $_GET['pagina'];
+		}
+		if (isset($_GET['Buscar'])) {  
+			$palabraBuscar = $_GET['Buscar'];
+			$filtro = $palabraBuscar;
+		} 
+
 	// Creamos objeto controlado comun, para obtener numero de registros. 
 	//parametro necesario para plugin de paginacion
 	//funcion contarRegistro necesita:
@@ -36,8 +34,8 @@
 	
 	$Controler = new ControladorComun; 
 	$filtro = ''; // por defecto
-	$vista = 'articulos';
-	$LinkBase = './ListaProductos.php?';
+	$vista = 'clientes';
+	$LinkBase = './ListaClientes.php?';
 	$OtrosParametros = '';
 	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 	$paginasMulti = $PgActual-1;
@@ -58,20 +56,29 @@
 
 	//~ $OtrosParametros = $palabraBuscar;	
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase);
-	$productos = obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro);
-	?>
+
 	
+	$clientes = obtenerClientes($BDTpv,$LimitePagina ,$desde,$filtro);
+	//~ echo '<pre>';
+	//~ print_r($clientes);
+	//~ echo '</pre>';
+	?>
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
 	var BRecambios ='';
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
     
   
 	
-	<script>  
+	<script>
+	// Funciones para atajo de teclado.
+	//~ shortcut.add("Shift+V",function() {
+		//~ // Atajo de teclado para ver
+		//~ metodoClick('VerUsuario');
+	//~ });    
 	    
 	</script> 
     </head>
@@ -80,16 +87,11 @@
         <?php
         include './../../header.php';
         ?>
-        <?php
-		//~ echo '<pre>';
-			//~ print_r($productos);
-		//~ echo '</pre>';
-		?>
        
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Productos: Editar y Añadir Productos </h2>
+					<h2> Clientes: Editar y Añadir Clientes </h2>
 					<?php 
 					//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
 					//~ echo '<pre class="text-left">';
@@ -105,31 +107,30 @@
 	       
 			<nav class="col-sm-2" id="myScrollspy">
 				<div data-offset-top="505">
-				<h4> Productos</h4>
+				<h4> Clientes</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
-				<?php 
-					//~ <li><a href="#section1" onclick="metodoClick('AgregarProducto','producto');";>Añadir</a></li>
-					//~ <li><a href="#section2" onclick="metodoClick('VerProducto','producto');";>Modificar</a></li>
-				?><?php		//metodoClick js case pulsado 
-								//agregarUsuario nos lleva a formulario usuario
-								//verUsuario si esta checkado nos lleva vista usuario de ese id
-											//si NO nos indica que tenemos que elegir uno de la lista ?>
+					<li><a href="#section1" onclick="metodoClick('AgregarCliente');";>Añadir</a></li>
+					<li><a href="#section2" onclick="metodoClick('VerCliente');";>Modificar</a></li>
+									<?php //metodoClick js case pulsado 
+									//agregarUsuario nos lleva a formulario usuario
+									//verUsuario si esta checkado nos lleva vista usuario de ese id
+												//si NO nos indica que tenemos que elegir uno de la lista ?>
 				</ul>
 				</div>	
-			</nav>
+			</nav>		
 			<div class="col-md-10">
 					<p>
-					 -Productos encontrados BD local filtrados:
+					 -Clientes encontrados BD local filtrados:
 						<?php echo $CantidadRegistros;?>
 					</p>
 					<?php 	// Mostramos paginacion 
 						echo $htmlPG;
 				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
 					?>
-				<form action="./ListaProductos.php" method="GET" name="formBuscar">
+				<form action="./ListaClientes.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en descripcion </label>
+						<label>Buscar en nombre </label>
 						<input type="text" name="Buscar" value="">
 						<input type="submit" value="Buscar">
 					</div>
@@ -141,31 +142,32 @@
 					<tr>
 						<th></th>
 						<th>ID</th>
-						<th>PRODUCTO</th>
-						<th>CODIGO BARRAS</th>
-						<th>COSTE</th>
-						<th>BENEFICIO</th>
-						<th>IVA</th>
-						<th>PRECIO VENTA</th>
+						<th>NOMBRE</th>
+						<th>RAZON SOCIAL</th>
+						<th>NIF</th>
+						<th>TELEFONO</th>
+						<th>EMAIL</th>
+						<th>ESTADO</th>
+
 					</tr>
 				</thead>
 	
 				<?php
 				$checkUser = 0;
-				foreach ($productos as $producto){ 
+				foreach ($clientes['items'] as $cliente){ 
 					$checkUser = $checkUser + 1; 
 				?>
 
 				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $producto['idArticulo'];?>">
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cliente['id'];?>">
 					</td>
-					<td><?php echo $producto['idArticulo']; ?></td>
-					<td><?php echo $producto['articulo_name']; ?></td>
-					<td><?php echo $producto['codBarras']; ?></td>
-					<td><?php echo $producto['costepromedio']; ?></td>
-					<td><?php echo $producto['beneficio']; ?></td>
-					<td><?php echo $producto['iva']; ?></td>
-					<td><?php echo $producto['pvpCiva']; ?></td>
+					<td><?php echo $cliente['id']; ?></td>
+					<td><?php echo $cliente['nombre']; ?></td>
+					<td><?php echo $cliente['razonsocial']; ?></td>
+					<td><?php echo $cliente['nif']; ?></td>
+					<td><?php echo $cliente['telefono']; ?></td>
+					<td><?php echo $cliente['email']; ?></td>
+					<td><?php echo $cliente['estado']; ?></td>
 					
 				</tr>
 
