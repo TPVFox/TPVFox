@@ -70,10 +70,7 @@
     caja de busqueda en listado 
      -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-    
-    <!-- Cargamos libreria control de teclado -->
-	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
-  
+      
 	
 	<script>
 	// Funciones para atajo de teclado.
@@ -113,6 +110,7 @@
 	        -->
 	       
 			<nav class="col-sm-2" id="myScrollspy">
+				<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
 				<div data-spy="affix" data-offset-top="505">
 				<h4> Tickets cerrados</h4>
 				<h5> Opciones para una selección</h5>

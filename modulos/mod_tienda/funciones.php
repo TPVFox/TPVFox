@@ -16,7 +16,8 @@ function obtenerTiendas($BDTpv) {
 			$tiendas['items'][$i]['NombreComercial'] = $tienda['NombreComercial'];
 			$tiendas['items'][$i]['razonsocial'] = $tienda['razonsocial'];
 			$tiendas['items'][$i]['nif'] = $tienda['nif'];
-			$tiendas['items'][$i]['direccion'] = $tienda['direccion'];
+			$tiendas['items'][$i]['direccion'] = $tienda['direccion'];			
+			$tiendas['items'][$i]['telefono'] = $tienda['telefono'];
 			$tiendas['items'][$i]['ano'] = $tienda['ano'];
 			$tiendas['items'][$i]['estado'] = $tienda['estado'];
 	$i = $i+1;
@@ -47,12 +48,13 @@ function insertarDatos($datos,$BDTpv,$tabla){
 	$razonsocial = $datos['razonsocial'];
 	$nif = $datos['nif'];
 	$direccion = $datos['direccion'];
+	$telefono = $datos['telefono'];
 	$ano = $datos['ano'];
 	$estado = $datos['estado'];
 	
 	
-	$consulta = 'INSERT INTO '.$tabla.'( NombreComercial, razonsocial, nif, direccion, ano, estado ) VALUES ("'
-				 .$nombrecomercial.'" , "'.$razonsocial.'" , "'.$nif.'" , "'.$direccion.'" , '.$ano.' , "'.$estado.'")';
+	$consulta = 'INSERT INTO '.$tabla.'( NombreComercial, razonsocial, nif, direccion, telefono, ano, estado ) VALUES ("'
+				 .$nombrecomercial.'" , "'.$razonsocial.'" , "'.$nif.'" , "'.$direccion.'" , "'.$telefono.'" , '.$ano.' , "'.$estado.'")';
 		
 	//fin de comprobar existe username
 	$result = $BDTpv->query($consulta);
@@ -80,13 +82,14 @@ function modificarDatos($datos,$BDTpv,$tabla){
 	$razonsocial = $datos['razonsocial'];
 	$nif = $datos['nif'];
 	$direccion = $datos['direccion'];
+	$telefono = $datos['telefono'];
 	$ano = $datos['ano'];
 	$estado = $datos['estado'];
 	$idTienda = $datos['idtienda'];
 	
 	 
 	 $sql ='UPDATE '.$tabla.' SET NombreComercial = "'.$nombrecomercial.'" , razonsocial = "'
-				 .$razonsocial.'" , nif = "'.$nif.'" , direccion = "'.$direccion.'" , ano = '
+				 .$razonsocial.'" , nif = "'.$nif.'" , direccion = "'.$direccion.'" , telefono = "'.$telefono.'" ,  ano = '
 				 .$ano.' , estado = "'.$estado.'" WHERE idTienda ='.$idTienda;
 
 	

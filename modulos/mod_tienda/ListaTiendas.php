@@ -82,6 +82,7 @@
 						<th>RAZON SOCIAL</th>
 						<th>NIF</th>
 						<th>DIRECCION</th>
+						<th>TELÉFONO</th>
 						<th>ANO</th>
 						<th>ESTADO</th>
 					</tr>
@@ -101,6 +102,7 @@
 					<td><?php echo $tienda['razonsocial']; ?></td>
 					<td><?php echo $tienda['nif']; ?></td>
 					<td><?php echo $tienda['direccion']; ?></td>
+					<td><?php echo $tienda['telefono']; ?></td>
 					<td><?php echo $tienda['ano']; ?></td>
 					<td><?php echo $tienda['estado']; ?></td>
 					

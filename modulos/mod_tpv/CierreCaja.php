@@ -37,8 +37,6 @@
      -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
     
-    <!-- Cargamos libreria control de teclado -->
-	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
 	</head>
 	<body>
 	<?php
@@ -47,7 +45,7 @@
 		//~ print_r($Users['rangoTickets']);
 	//~ echo '</pre>';
 	?>
-	<div class="container">
+	<div class="container">		
 		<div class="row">
 			<div class="col-md-12 text-center">
 				<h2> Cierre Caja </h2>
@@ -57,6 +55,8 @@
 				movil
 			-->
 			<nav class="col-sm-2" id="myScrollspy">
+				<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
+<!--
 				<div data-spy="affix" data-offset-top="505">
 					<h4> Cierre Caja</h4>
 					<h5> Opciones para una selección</h5>
@@ -64,13 +64,9 @@
 						<li><a href="#section2" >Aceptar</a></li>
 						<li><a href="#section2" >Cancelar</a></li>
 						<li><a href="#section2" >Fechas</a></li>
-						<?php //	 <li><a href="#section2" onclick="metodoClick('VerProducto','ticket');";>Aceptar</a></li>
-						?><?php		//metodoClick js case pulsado 
-									//agregarUsuario nos lleva a formulario usuario
-									//verUsuario si esta checkado nos lleva vista usuario de ese id
-												//si NO nos indica que tenemos que elegir uno de la lista ?>
 					</ul>
 				</div>	
+-->
 			</nav>
 			<div class="col-md-10">
 				<div class=" form-group">
@@ -118,7 +114,7 @@
 					foreach ($Users['usuarios'] as $key =>$usuario){ ?>
 						<table class="table table-striped">
 						<thead>
-							<tr>
+							<tr class="fondo">
 								<td><b><?php echo 'Nombre Empleado: ';?></b></td>
 								<td><?php echo $usuario['nombre'];?></td>
 							</tr>
@@ -133,7 +129,7 @@
 						foreach ($usuario['formasPago'] as $key =>$fPago){ 	?>
 							<tr>
 								<td><?php echo $key; ?></td>
-								<td><?php echo $fPago; ?></td>
+								<td><?php echo number_format($fPago,2); ?></td>
 							</tr>
 							<?php 	
 						
@@ -163,10 +159,11 @@
 						<?php
 						$total = 0;
 						foreach ($suma as $nombre=>$importe){
-							echo '<tr><td>'.$nombre.'</td><td>'.$importe.'</td></tr>';
+							echo '<tr><td>'.$nombre.'</td><td>'.number_format($importe,2).'</td></tr>';
 							$total += $importe;
 						}
-						echo '<tr><td><b>Total:</b></td><td>'.$total.'</td></tr>';
+						echo '<tr><td><b>Total:</b></td><td><b>'.number_format($total,2).'</b></td></tr>';
+					
 						?>
 						</table>
 				</div> 
@@ -209,25 +206,38 @@
 						$i++;
 						}//fin foreach 
 						?>
-						<tr>
+						<tr class="fondo">
 							<td><b><?php echo 'Subtotal: ';?></b></td>
-							<td><?php echo $sumaBase; ?></td>
-							<td><?php echo $sumaIvas;  ?></td>
+							<td><?php echo number_format($sumaBase,2); ?></td>
+							<td><?php echo number_format($sumaIvas,2);  ?></td>
 						</tr>
 						<tr>
 							<td></td>
 							<td><b><?php echo 'Total: '; ?></b></td>
-							<td><?php echo $sumaBase+$sumaIvas; ?></td>
+							<td><b><?php echo number_format($sumaBase+$sumaIvas,2); ?></b></td>
 						</tr>
 						</table>
+						
+
 					</div>
 				</div>
 				<!-- Fin IVAS -->
-
+			
 				
 			</div> 	
 			</div>
 			<!-- fin row -->
+			<!--Solo mostrar si hay datos 
+			si existe post fecha y tiene datos se muestra-->
+			<?php if ((isset($_POST['fecha'])) AND (($_POST['fecha']) !== '')){ ?>
+			<div style="text-align:right">
+				<form method="post" name="Aceptar" action="./CierreCaja.php">
+					<input type="submit" name="Cancelar" value="Cancelar">
+					<input type="button" name="Aceptar" value="Aceptar" onclick="guardarCaja()">
+				</form>
+			</div>
+			<?php 
+			} //fin de si existe post para mostrar botones?>
 		</div>
 	</div>
     </div>

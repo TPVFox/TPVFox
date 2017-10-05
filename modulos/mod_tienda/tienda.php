@@ -25,30 +25,18 @@
 				//~ print_r($id);
 			//~ echo '</pre>';
 		?>
-		<!-- Cargamos libreria control de teclado -->
-		<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
-		<!-- Añadimos atajo de teclado --> 
-		<script>
-			// Funciones para atajo de teclado.
-		shortcut.add("Shift+A",function() {
-			// Atajo de teclado para ver
-			history.back(1);
-		});    
-		</script>
+	
 	</head>
 	<body>
 		<?php
         include './../../header.php';
-			$atras = 1; // Variable que indica volver una atras.
-			
 			if(count($_POST)>0){
-				$atras = 2;
 				if (isset($id)){
 					// Comprobamos: 
 					//($dato['password']=== 'password') olvidarme de insertar psw
 					$datos = $_POST;
 					$resp = modificarDatos($datos,$BDTpv,$tabla);
-					echo $resp['consulta'];
+					//echo $resp['consulta'];
 					if (isset($resp['error'])){
 						$tipomensaje= "danger";
 						$mensaje = "Nombre de usuario ya existe!";
@@ -89,6 +77,7 @@
 				$TiendaUnica['razonsocial'] = '';
 				$TiendaUnica['nif'] = '';
 				$TiendaUnica['direccion'] = '';
+				$TiendaUnica['telefono'] = '';
 				$TiendaUnica['ano'] = '';
 				$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
 				$TiendaUnica['id']= '';
@@ -114,7 +103,8 @@
 			<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 			<?php }?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
-			<a class="text-ritght" href="javascript:history.back(<?php echo $atras;?>)">Volver Atrás</a>
+			<a class="text-ritght" href="./ListaTiendas.php">Volver Atrás</a>
+
 			<div class="col-md-12">
 				
 				<h3><?php echo $TiendaUnica['NombreComercial'];?></h3>
@@ -141,12 +131,15 @@
 						<div class="col-md-6 form-group">
 							<label>NIF:</label>
 							<input type="text" id="nif" name="nif" placeholder="B36332211"  
-							value="<?php echo $TiendaUnica['nif'];?>" required>							
+							value="<?php echo $TiendaUnica['nif'];?>" required>
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Dirección:</label>
 							<input type="text" id="direccion" name="direccion" placeholder="direccion"  value="<?php echo $TiendaUnica['direccion'];?>"  required >
-							
+						</div>
+						<div class="col-md-6 form-group">
+							<label>Teléfono:</label>
+							<input type="text" id="telefono" name="telefono" placeholder="986 22 22 22"  value="<?php echo $TiendaUnica['telefono'];?>"  required >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Año:</label>
