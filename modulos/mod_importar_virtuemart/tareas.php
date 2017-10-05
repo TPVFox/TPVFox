@@ -18,12 +18,33 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 
 // Incluimos funciones
 include_once ("./funciones.php");
-
+include ("./../../controllers/Controladores.php");
+// Cargamos el controlador.
+$TControlador = new ControladorComun; 
  
  switch ($pulsado) {
      
-    case 'import_inicio':
-		
+    case 'Preparar insert':
+    $Arraytablas = $_POST['tablasImpor'];
+    $respuesta= prepararInsertRegistroTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
+	header('Content-Type: application/json');
+	echo json_encode($respuesta);
+	break;
+	
+	case 'Vaciar tablas';
+	$tablas = $_POST['tablas'];
+	// Llamamos fuciones de vaciar.
+	$respuesta = EliminarArticulosTpv($BDTpv,$tablas,$TControlador);
+	echo json_encode($respuesta,true);
+	
+	break;	
+	
+	case 'Realizar insert';
+	$inserts = $_POST['InsertRealizar'];
+	// Llamamos fuciones de vaciar.
+	$respuesta= RealizarInsert($inserts,$BDTpv);
+	echo json_encode($respuesta,true);
+	break;	
 	
 }
  

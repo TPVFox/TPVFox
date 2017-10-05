@@ -63,7 +63,7 @@ class ControladorComun
 		return $NRegiEliminados;
 	}
 
-	function contarRegistro($BD,$nombretabla,$whereC) {
+	function contarRegistro($BD,$nombretabla,$whereC='') {
 		/* Esta funcio esta repetida en Consultas de modulo de importar
 		 * por lo que deberíamos eliminarla de consultas
 		 * y implementar está funcion, textear que funciona el modulo importar..... 

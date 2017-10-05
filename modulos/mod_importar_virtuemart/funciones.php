@@ -6,7 +6,7 @@
  * @author      Ricardo Carpintero ,
  * @Descripcion	Funciones para importar datos de Virtuemart a Tpv
  * */
- function crearTablaTempArticulosComp ($BDVirtuemart,$prefijoBD)
+ function prepararTablaTempArticulosComp ($BDVirtuemart,$prefijoBD)
  {
 	//@ Objetivo crear las tabla tmp_articulosCompleta temporale de las base datos (Virtuemart)
 	// Esta funcion solo se hará al inicializar, es decir al empezar de 0
@@ -40,7 +40,7 @@
 						on c.virtuemart_product_id = d.virtuemart_product_id';
 	if ($BDVirtuemart->query($sqlBDImpor) === TRUE) {
 		// Se creó con éxito la tabla articulosCompleta en
-		$resultado['BDVirtuemart']['creado'] = TRUE;
+		$resultado['BDVirtuemart']['tabla-creada'] = TRUE;
 	}else {
 		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
 		$resultado['error']['BDVirtuemart']['info_error'] =  $BDVirtuemart->error;
@@ -51,20 +51,20 @@
 	$sqlUpdate = "UPDATE `tmp_articulosCompleta` SET `pvpCiva`=`pvpSiva`*(100+`iva`)/100";
 	if ($BDVirtuemart->query($sqlUpdate) === TRUE) {
 		// Se creó con éxito la tabla articulosCompleta en
-		$resultado['BDVirtuemartr']['creado'] = TRUE;
+		$resultado['BDVirtuemart']['RecalculoPrecioConIva'] = TRUE;
 	}else {
 		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
 		$resultado['error']['BDVirtuemart']['consulta'] = $sqlUpdate;
 		$resultado['error']['BDVirtuemart']['info_error'] =  $BDVirtuemart->error;
 		//~ $resultado
 	}
-	// Ahora añadimos el campo idArticulo auto incremental, recuerda que esto empieza desde el numero que va
-	// como lo acabamos de crear empieza en 0, pero se podría indicar AUTO_INCREMENT= 1000 por ejemplo.
-	// entonces empezaría desde 1000...
+	// Ahora añadimos el campo idArticulo auto incremental, recuerda que esto empieza desde 0
 	$sqlAlter = "ALTER TABLE `tmp_articulosCompleta` ADD idArticulo INT( 11 ) AUTO_INCREMENT PRIMARY KEY FIRST";
 	if ($BDVirtuemart->query($sqlAlter) === TRUE) {
 		// Se creó con éxito la tabla articulosCompleta en
-		$resultado['BDVirtuemart']['creado'] = TRUE;
+		$resultado['BDVirtuemart']['IdArticulo_creado'] = TRUE;
+		$resultado['BDVirtuemart']['Num_articulos'] = $BDVirtuemart->affected_rows;
+
 	}else {
 		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
 		$resultado['error']['BDVirtuemart']['consulta'] = $sqlAlter;
@@ -82,46 +82,21 @@
 		// Quiere decir que algo salio mal.
 		$resultado['error']['ComprobarCodbarras'] = $repetidos;
 	}
-    /* liberar el conjunto de resultados */
-	//~ mysqli_free_result($resultado);
+    
+    
 	return $resultado;
 }
 
-function  AnhadirRegistrosTablaTempTpv($BDVirtuemart,$BDTpv,$prefijoBD){
-	// @ Objetivo es añadir los datos de tabla temporal Bdvirtuemart a las tablas BDTpv
+function  prepararInsertRegistroTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
+	// @ Objetivo es preparar un array con los insert que vamos realizar en BDTpv
+	// 	a parte eso, tambien devolvemos el numero articulos  y cuanto descartamos.
 	$resultado = array();
-	//~ $consultas = array(); // Donde tendremos string campos y tablas.
-	// Creamos arrays de los campos  y las tablas para cada consulta.
-	$tablas = 		array(
-						'0' => array(
-								'nombre'		=>'articulos',
-								'obligatorio'	=> array(),
-								'campos'		=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado')
-								),
-						'1' => array(
-								'nombre'		=>'articulosCodigoBarras',
-								'obligatorio'	=> array('codBarras'),
-								'campos'		=> array('idArticulo', 'codBarras')
-								),
-						'2' => array(
-								'nombre'		=>'articulosPrecios',
-								'obligatorio'	=> array(),
-								'campos'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda')
-								),
-						'3' => array(
-								'nombre'		=>'articulosTiendas',
-								'obligatorio'	=>array('crefTienda'),
-								'campos'		=>array('idArticulo','idTienda','crefTienda')
-								)
-						);
-	
-	
 	// Recorremos array para ejecutar las distintas consultas y insertar los datos .
 	$i = 0;					
 	foreach ($tablas as $Arraytabla) {
 		$tabla = $Arraytabla['nombre'];
 		$campos = $Arraytabla['campos'];
-		$camposObligatorios = $Arraytabla['obligatorio'];
+		$camposObligatorios = (isset($Arraytabla['obligatorio'])  ? $Arraytabla['obligatorio'] : array());
 		$stringcampos = implode(',',$campos);
 		$sql = 'SELECT '.$stringcampos.' FROM `tmp_articulosCompleta`';
 		$articulos = $BDVirtuemart->query($sql);
@@ -131,14 +106,14 @@ function  AnhadirRegistrosTablaTempTpv($BDVirtuemart,$BDTpv,$prefijoBD){
 			$resultado['BDVirtuemart']['error'] =  $BDVirtuemart->error;
 			return $resultado;
 		}
-		$resultado['tabla'][$tabla]['Num_articulos'] = $articulos->num_rows;;
 		$resultado['tabla'][$tabla]['Select'] = $sql; 
 		// Obtenemos lo valores de estaa consulta, pero en grupos de mil
-		$agruparValores = GrupoValoresResultado($articulos,$camposObligatorios);
+		$agruparValores = ObtenerGruposInsert($articulos,$camposObligatorios);
 		$gruposvaloresArticulos = $agruparValores['Aceptados'];
 		$resultado['tabla'][$tabla]['Num_Insert_hacer'] = count($gruposvaloresArticulos); 
-		//~ if ($tabla ==='articulosCodigoBarras'){
-		//~ $resultado['tabla'][$tabla]['aceptados'] = $gruposvaloresArticulos; 
+		//~ if (count( $agruparValores['NDescartes']) === 0){
+			//~ $resultado['tabla'][$tabla]['Ndescartado'] = 0;
+//~ 
 		//~ }
 		$resultado['tabla'][$tabla]['descartado'] = $agruparValores['Descartados'];
 		$stringcampos = '('.implode(',',$campos).')';
@@ -148,91 +123,66 @@ function  AnhadirRegistrosTablaTempTpv($BDVirtuemart,$BDTpv,$prefijoBD){
 		foreach ($gruposvaloresArticulos as $valoresArticulos){
 			$Nuevosql = $sql.implode(',',$valoresArticulos);
 			$resultado['tabla'][$tabla]['Insert'][] =$Nuevosql;
-			//~ $insert = $BDTpv->query($Nuevosql); 
-			//~ if ($BDTpv->affected_rows > 0 ){
-			//~ // Fue todo correcto,inserto
-			//~ $num_reg_insert = $num_reg_insert + $BDTpv->affected_rows;
-			//~ } else {
-				//~ // Algo fallo
-				//~ $resultado['error'] = ' Error al Inserta un grupo de valores. \n ¡¡¡ Ojo que pudo haber insertado '.$num_reg_insert. ' registros';
-				//~ $resultado['consulta'] = $Nuevosql;
-				//~ exit(); // no continuamos... 	
-			//~ }
 		}
-		
-
 		$i++;
 	}
 	
 	
-	//~ $resultado['RegistrosInsertados'] = $Nuevosql;
-	
-	
 	
 	return $resultado;
-	
-
 }
-function GrupoValoresResultado($registros,$obligatorios = array()){
+function EliminarArticulosTpv($BDtpv,$tablas,$controlador){
+	//@ Objetivo es eliminar los productos(articulos) que existen en TPV
+	// contenido de las tablas.
+	$respuesta = array();
+	$suma= 0;
+	foreach ($tablas  as $tabla){
+		$registrosEliminados = $controlador->EliminarTabla($tabla, $BDtpv);
+		$respuesta[$tabla] = $registrosEliminados;
+		$suma += (int)$registrosEliminados;
+
+	}
+	
+	$respuesta['TotalRegistroEliminados']= $suma;
+	return $respuesta;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+function ObtenerGruposInsert($registros,$obligatorios = array()){
 	// @Objetivo es conseguir un grupos array con los valores para insertar.
 	//  esto se hacer para no realizar un insert con mas 1000 registros a insertar.
+	// @ Parametros
+	// 		$registros 
+	// 		$obligatorios -> Es el campo de la tabla que obligatorio que exista.
 	$respuesta = array();
-	$stringValores = array(
-						'Aceptados' 	=> array(),
-						'Descartados' 	=> array()
-						);
-	$i= 0;
-	while ($registro = $registros->fetch_assoc()) {
-		// Montamos array para devolver array de arrays
-        $valores = array();
-		$error = '';
-        if (count($obligatorios) > 0){
-			//Quiere decir que hay campos que son obligatorios 
-			foreach ($obligatorios as $obligatorio){
-				// Recorremos y comprobamos los campos obligatorios
-				if (strlen($registro[$obligatorio]) === 0){
-				// Quiere decir que no tiene valor el campo, por lo que no continuamos
-				$error = 'Campo '.$obligatorio. ' no tiene dato';
-				break; // Salgo foreach obligatorio.
-				}
-			}
-		}
-		foreach ($registro as $valor){
-			// El insert funciona con "1" aunque el campo sea int o decimal,,por eso lo pongo y por los vacios
-			$valores[]= '"'. $valor.'"';
-		}
-		if ($error === ''){
-			$stringValores['Aceptados'][]= '('.implode(',',$valores).')';
-		} else{
-			$stringValores['Descartados'][] = '('.implode(',',$valores).')';
-		}
-    }
-
+	// Ahora obtenemos valores Descartados y Aceptados.
+	$stringValores = valoresComprobados($registros,$obligatorios);
     // Ahora tenemos insertar los valores pero lo tenemos hacer de 1000 registros, ya que sino puede generar un error.
+    //~ $debug = array();
     $gruposvalores = array(
 						'Aceptados' 	=> array(),
 						'Descartados' 	=> array()
 					);
-    foreach ( $stringValores as $stringValor){
-		foreach ($gruposvalores as $key => $grupo){
-			if (count($stringValores[$key]) > 1000){
-				// Dividimos array valores en bloques de 1000
-				$gruposvalores[$key] = array_chunk($stringValores[$key], 1000, true);
-			} else {
-				// Quiere decir que son de menos,por lo que solo hay grupovalores a insertar.
-				$gruposvalores[$key][0] = $stringValores[$key];
-			}
-		//~ $debug[] = $stringValores['Descartados'];
-		}
-	}
+ 	$gruposvalores['Aceptados'] = array_chunk($stringValores['Aceptados'], 1000, true);
+ 	$gruposvalores['Descartados'] = array_chunk($stringValores['Descartados'], 1000, true);
 	$respuesta = $gruposvalores;
 	// Formateamos los descartados.
 	$descartado = array();
 	foreach ($respuesta['Descartados'] as $valoresArticulos){
-			$Nuevosql = $sql.implode(',',$valoresArticulos);
+			$Nuevosql = implode(',',$valoresArticulos);
 			$descartado[] =$Nuevosql;
 	}
-	
 	$respuesta['Descartados']= $descartado;
 	return $respuesta ;
 	
@@ -264,4 +214,70 @@ function ComprobarCodbarras ($BDVirtuemart){
 	
 }
 
+
+
+
+
+function valoresComprobados($registros,$obligatorios = array()){
+	// @ Objetivos es limpiar los valores que no contienen datos en los campos obligatorios
+	// @ Parametros:
+	// 		//registros = Consulta ya realizada en $BD
+	// @ Devolvemos :
+	// 	array con Aceptados y descartados.
+	
+	$respuesta = array(
+			'Aceptados' 	=> array(),
+			'Descartados' 	=> array()
+			);
+	$i= 0;
+	while ($registro = $registros->fetch_assoc()) {
+		// Montamos array para devolver array de arrays
+		$error = '';
+        $valores = array();
+		foreach ($registro as $valor){
+			// El insert funciona con "1" aunque el campo sea int o decimal,,por eso lo pongo y por los vacios
+			$valores[]= '"'. $valor.'"';
+		}
+		if (count($obligatorios) > 0){
+			//Quiere decir que hay campos que son obligatorios 
+			foreach ($obligatorios as $obligatorio){
+				// Recorremos y comprobamos los campos obligatorios
+				if (strlen($registro[$obligatorio]) === 0){
+				// Quiere decir que no tiene valor el campo, por lo que no continuamos
+				$error = 'Campo '.$obligatorio. ' no tiene dato';
+				break; // Salgo foreach obligatorio.
+				}
+			}
+		}
+		if ($error === ''){
+			$respuesta['Aceptados'][]= '('.implode(',',$valores).')';
+		} else{
+			$respuesta['Descartados'][] = '('.implode(',',$valores).')';
+		}
+    }
+    return $respuesta;
+    
+	
+}
+
+function RealizarInsert($Inserts,$BDTpv){
+	//@ Objetivo ejecutar inserts de las tablas.
+	//@ Parametro:
+	//   $Inserts-> Es un array de inserts.
+	//	 $BDTpv ->  Conexion a base de datos.
+	$respuesta = array(
+					'Num_affecta' => array()
+				);
+	foreach ($Inserts as $insert){
+		$BDTpv->query($insert);
+		if ($BDTpv->errno){
+			$respuesta['error'] = 'Error en consulta:'.$BDTpv->errno;
+			$respuesta['consulta'] = $insert;
+		} else {
+			$respuesta['Num_affecta'][] =$BDTpv->affected_rows;
+		}
+	}
+	return $respuesta;
+	
+}
 ?>
