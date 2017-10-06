@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `proveedores` (
   `idProveedor` int(11) NOT NULL,
   `nombrecomercial` varchar(100) DEFAULT NULL,
-  `razonsocial` varchar(10) NOT NULL,
+  `razonsocial` varchar(100) NOT NULL,
   `nif` varchar(10) NOT NULL,
   `direccion` varchar(100) NOT NULL,
   `telefono` varchar(11) NOT NULL,
