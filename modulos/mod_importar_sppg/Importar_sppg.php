@@ -19,7 +19,7 @@
 	// Creamos variables de los ficheros para poder automatizar el añadir ficheros.
 	// Si añadimos aquí, se añaden tambien a BDimportar
 	$nom_ficheros = array(
-					'proveedo','albprot','albprol','articulo','clientes','precprov','atipicas'
+					'proveedo','articulo','clientes','precprov'
 					);
 	// [ANTES CARGAR FUNCIONES JS]
 	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
@@ -87,7 +87,7 @@
 ?>
 
 <div class="container">
-	<div class="col-md-6">
+	<div class="col-md-5">
 		<h2>Importación de datos a DBF de TPV.</h2>
 		<p> La importación de DBF de SPPGTpv consiste en dos faxes:</p>
 		<h3>1.-Importacion de DBF a MYSQL</h3>
@@ -114,7 +114,7 @@
 		</ol>
 	</div>
 		
-	<div class="col-md-6">
+	<div class="col-md-7">
 		<div class="barra-proceso">
 			<div class="text-center" id="idCabeceraBarra"></div>
 

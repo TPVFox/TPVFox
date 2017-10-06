@@ -304,11 +304,14 @@ function ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla,$string ='si'){
 function ActuaAgregarCampos($nombrestablas,$BDImportDbf){
 	$resultado = array();
 		// Ahora deberíamos preparar DBImport para actualizar.
-		//ALTER TABLE `articulo` ADD `idArticulo` INT NOT NULL AUTO_INCREMENT , ADD PRIMARY KEY ( `idArticulo` ) ;
 	foreach ( $nombrestablas as $nombretabla){
-		$sql = 'ALTER TABLE '.$nombretabla.' ADD `id` INT NOT NULL AUTO_INCREMENT , ADD `estado` VARCHAR(11), ADD PRIMARY KEY ( `id` )';
+		$sql = 'ALTER TABLE '.$nombretabla.' ADD `estado` VARCHAR(11)';
+		$BDImportDbf->query($sql);
+		// Ahora ponemos la fila de id de primera.
+		$sql ='ALTER TABLE '.$nombretabla.' ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY ( `id` )';
 		$BDImportDbf->query($sql);
 	}
+		
 	$resultado = $nombrestablas;
 	
 	
