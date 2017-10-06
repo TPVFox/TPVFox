@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha` date NOT NULL,
   `group_id` int(11) NOT NULL COMMENT 'id grupo permisos',
-  `estado` varchar(8) NOT NULL COMMENT 'estado',
+  `estado` varchar(12) NOT NULL COMMENT 'estado',
   `nombre` varchar(150) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2 ;

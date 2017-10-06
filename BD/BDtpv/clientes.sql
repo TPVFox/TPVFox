@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `clientes` (
   `telefono` varchar(11) NOT NULL,
   `movil` varchar(11) NOT NULL,
   `fax` varchar(11) NOT NULL,
-  `email` varchar(25) NOT NULL,
+  `email` varchar(100) NOT NULL,
   `estado` varchar(6) NOT NULL,
   PRIMARY KEY (`idClientes`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=101 ;
