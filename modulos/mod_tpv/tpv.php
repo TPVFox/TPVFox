@@ -150,26 +150,27 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 <?php } ?>
 <div class="container">
 <nav class="col-md-3">
-	<div class="col-md-6">
-		<h3 class="text-center"> TpvFox</h3>
-		<h4>Otros opciones</h4>
-		<ul class="nav nav-pills nav-stacked">
-			<li><a href="tpv.php">Nuevo ticket</a></li>
-			<li><a href="CierreCaja.php">Cierre Caja</a></li>
-			<li><a href="ListaTickets.php">Tickets Cerrados</a></li>
-		</ul>
-	</div>
-	<div class="col-md-6">
-		<h3 class="text-center"> Tickets</h3>
-		<h4>Este ticket</h4>
-		<ul class="nav nav-pills nav-stacked">
-			<li><a onclick="buscarClientes()">Cliente</a></li>
-			<li><a href="#section3">Abrir Cajon</a></li>
-			<li><a onclick="cobrarF5()">Cobrar</a></li>
-
-		</ul>
-	</div>
-	<div>
+	
+		<div class="col-md-6">
+			<h3 class="text-center"> TpvFox</h3>
+			<h4>Otros opciones</h4>
+			<ul class="nav nav-pills nav-stacked">
+				<li><a href="tpv.php">Nuevo ticket</a></li>
+				<li><a href="CierreCaja.php">Cierre Caja</a></li>
+				<li><a href="ListaTickets.php">Tickets Cerrados</a></li>
+			</ul>
+		</div>
+		<div class="col-md-6">
+			<h3 class="text-center"> Tickets</h3>
+			<h4>Este ticket</h4>
+			<ul class="nav nav-pills nav-stacked">
+				<li><a onclick="buscarClientes()">Cliente</a></li>
+				<li><a href="#section3">Abrir Cajon</a></li>
+				<li><a onclick="cobrarF5()">Cobrar</a></li>
+			</ul>
+		</div>
+		
+	<div class="col-md-12">
 	<?php if (isset($ticketsAbiertos['items'])){
 	?>
 	<h3 class="text-center"> Tickets Abiertos</h3>
