@@ -21,7 +21,7 @@
 		<?php 
 		if ($_SESSION['estadoTpv'] === 'Correcto'){ 
 			// Quiere decir que ya esta logueado correctamente.
-			echo 'Relamente quiere desloguearte '.$UsuarioLogin;
+			echo 'Relamente quiere desloguearte '.$UsuarioLogin.' datos sesion: '.$_SESSION;
 			echo '</div></div>';
 			return;
 		
