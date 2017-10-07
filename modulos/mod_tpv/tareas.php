@@ -161,6 +161,10 @@ switch ($pulsado) {
 		//~ $respuesta['ticket'] = $datosImpresion;
 		echo json_encode($respuesta);
 		break;
+		
+		case 'guardarCierreCaja':
+			echo 'tareas guardar cierre';
+		break;
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

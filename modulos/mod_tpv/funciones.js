@@ -607,6 +607,15 @@ function CerrarTicket(){
 	
 }
 
+function guardarCierreCaja(){
+	alert("guardar");
+	//Objetivo 
+	//enviar datos del cierre de caja
+	//para guardar en cierres
+	var fecha = $('input[name=fecha]').val();
+	
+	alert('fecha '+fecha+' ');
+}
 
 
 

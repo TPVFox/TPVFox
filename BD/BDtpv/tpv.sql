@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 06-10-2017 a las 21:12:41
+-- Tiempo de generación: 07-10-2017 a las 17:48:30
 -- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
 -- Versión de PHP: 7.0.19-1
 
@@ -33,6 +33,7 @@ CREATE TABLE `articulos` (
   `articulo_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `beneficio` decimal(5,2) DEFAULT NULL,
   `costepromedio` decimal(17,6) DEFAULT NULL,
+  `fechaalta` datetime NOT NULL,
   `estado` varchar(12) CHARACTER SET utf8 NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -177,7 +178,7 @@ CREATE TABLE `iva` (
 CREATE TABLE `proveedores` (
   `idProveedor` int(11) NOT NULL,
   `nombrecomercial` varchar(100) DEFAULT NULL,
-  `razonsocial` varchar(100) NOT NULL,
+  `razonsocial` varchar(10) NOT NULL,
   `nif` varchar(10) NOT NULL,
   `direccion` varchar(100) NOT NULL,
   `telefono` varchar(11) NOT NULL,
@@ -295,7 +296,7 @@ CREATE TABLE `usuarios` (
   `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha` date NOT NULL,
   `group_id` int(11) NOT NULL COMMENT 'id grupo permisos',
-  `estado` varchar(12) NOT NULL COMMENT 'estado',
+  `estado` varchar(8) NOT NULL COMMENT 'estado',
   `nombre` varchar(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

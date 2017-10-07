@@ -15,6 +15,9 @@
 		$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
 		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada
 		$Users = ticketsPorFechaUsuario($fecha,$BDTpv,$nuevafecha);
+		//~ echo '<pre>';
+		//~ print_r($Users);
+		//~ echo '</pre>';
 		// Saber que usuarios tienen ticket, key=idUsuario
 		foreach ( $Users['usuarios'] as $key => $user){
 			//print_r(' Usuario id'.$key. ' contiene:');
@@ -35,7 +38,7 @@
     Cargamos JS del modulo de productos para no repetir funciones: BuscarProducto, metodoClick (pulsado, adonde)
     caja de busqueda en listado 
      -->
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
     
 	</head>
 	<body>
@@ -55,29 +58,34 @@
 				movil
 			-->
 			<nav class="col-sm-2" id="myScrollspy">
-				<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
-<!--
-				<div data-spy="affix" data-offset-top="505">
-					<h4> Cierre Caja</h4>
-					<h5> Opciones para una selección</h5>
-					<ul class="nav nav-pills nav-stacked"> 
-						<li><a href="#section2" >Aceptar</a></li>
-						<li><a href="#section2" >Cancelar</a></li>
-						<li><a href="#section2" >Fechas</a></li>
-					</ul>
-				</div>	
--->
+			<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
+			<?php //si tengo tickets abiertos: muestro idUsuario y numTickets
+			if (isset($Users['abiertos'])){?>
+					<table class="table table-striped" style="border:2px solid black">
+					<thead>
+						<tr>
+							<th>ID Usuario</th>
+							<th>Tickets abiertos</th>
+						</tr>
+					</thead>
+					<tr style="border:4px solid red">
+						<td><?php echo $Users['abiertos']['idUsuario']; ?></td>
+						<td><?php echo $Users['abiertos']['numTickets']; ?></td>
+					</tr>
+					</table>
+			<?php } //fin de tickets abiertos?>
 			</nav>
 			<div class="col-md-10">
 				<div class=" form-group">
 					<form action="./CierreCaja.php" method="post"> <label class="control-label col-sm-2" > Fecha Caja:</label>
-						<div class="col-sm-10"> 
+						<div class="col-sm-4"> 
 							<input type="date" name="fecha" autofocus placeholder="2017-09-30" value=<?php echo (!isset($_POST['fecha']) ? $_POST['fecha'] : $_POST['fecha']); ?>>
 							<input type="submit" value="Consulta caja">
 						</div>
-					</form>
-				</div>
-			<div> 
+					</form>			
+				</div>				
+			<div>
+									
 				<!-- TABLA USUARIOS -->
 			<div class="col-md-8 text-center">
 				<h3> Usuario por Usuario </h3>
@@ -114,7 +122,7 @@
 					foreach ($Users['usuarios'] as $key =>$usuario){ ?>
 						<table class="table table-striped">
 						<thead>
-							<tr class="fondo">
+							<tr class="info">
 								<td><b><?php echo 'Nombre Empleado: ';?></b></td>
 								<td><?php echo $usuario['nombre'];?></td>
 							</tr>
@@ -174,7 +182,7 @@
 					<?php 				 
 						//monto string de numTickets para usar en funcion baseIva
 						$stringNumTicket = implode(',', $Users['rangoTickets']);
-						$sumasIvasBases =	baseIva($BDTpv,$stringNumTicket,$iva);
+						$sumasIvasBases =	baseIva($BDTpv,$stringNumTicket);
 						//TABLA DE BASES E IVAS
 						?>	
 						<table class="table table-striped">
@@ -206,7 +214,7 @@
 						$i++;
 						}//fin foreach 
 						?>
-						<tr class="fondo">
+						<tr class="info">
 							<td><b><?php echo 'Subtotal: ';?></b></td>
 							<td><?php echo number_format($sumaBase,2); ?></td>
 							<td><?php echo number_format($sumaIvas,2);  ?></td>
@@ -233,7 +241,8 @@
 			<div style="text-align:right">
 				<form method="post" name="Aceptar" action="./CierreCaja.php">
 					<input type="submit" name="Cancelar" value="Cancelar">
-					<input type="button" name="Aceptar" value="Aceptar" onclick="guardarCaja()">
+					
+					<button id="Aceptar" type="button" onclick="guardarCierreCaja()">Aceptar</button>
 				</form>
 			</div>
 			<?php 

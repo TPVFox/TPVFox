@@ -763,12 +763,25 @@ function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
 
 
 function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
-	//muestro datos del ticket donde fecha mayor fecha inicio y menor que nueva fecha (fecha+1)
-	$sql = 'SELECT * FROM `ticketst` WHERE `fecha`>"'.$fechaInicio.'" AND `fecha`<"'.$nuevafecha.'"';
-	$resp = $BDTpv->query($sql);
 	//creo array de formasPago
 	$formasPago = array();
 	$resultado = array();
+	
+	//muestro datos del ticket donde fecha mayor fecha inicio y menor que nueva fecha (fecha+1)
+	$sql = 'SELECT * FROM `ticketst` WHERE `fecha`>"'.$fechaInicio.'" AND `fecha`<"'.$nuevafecha.'"';
+	$resp = $BDTpv->query($sql);
+	 
+	//consulta ticketsAbiertos en tablaTemporal
+	$sqlAbiertos = 'SELECT * FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'"';  
+	$respAbiertos =$BDTpv->query($sqlAbiertos);
+	if($respAbiertos->num_rows > 0){
+		while ($row = $respAbiertos->fetch_assoc()){
+			$resultado['abiertos']=$row;
+			$resultado['abiertos']['numTickets']=$respAbiertos->num_rows;
+		}
+	}
+	
+	
 	if($resp->num_rows > 0){
 		$i=0; 
 		while ($fila = $resp->fetch_assoc()) {

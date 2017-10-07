@@ -1,3 +1,11 @@
+-- phpMyAdmin SQL Dump
+-- version 4.6.6deb4
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: localhost:3306
+-- Tiempo de generación: 07-10-2017 a las 17:46:29
+-- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
+-- Versión de PHP: 7.0.19-1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -25,7 +33,8 @@ CREATE TABLE `articulos` (
   `articulo_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `beneficio` decimal(5,2) DEFAULT NULL,
   `costepromedio` decimal(17,6) DEFAULT NULL,
-  `estado` varchar(8) CHARACTER SET utf8 NOT NULL
+  `fechaalta` datetime NOT NULL,
+  `estado` varchar(12) CHARACTER SET utf8 NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
