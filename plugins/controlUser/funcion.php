@@ -78,13 +78,32 @@ class ComprobarSession {
 		$pwdBD = $res->fetch_row();
 			
 		if ($encriptada === $pwdBD[0]){
+			// Quiere decir que usuario y password son correcto.
 			$resultado['login']=$usuario;
 			$resultado['nombre']= $pwdBD[1];
 			$resultado['id']= $pwdBD[2];
 			$resultado['group_id']= $pwdBD[3];
+			// Antes de continuar tenemos que saber si tiene registro indice, 
+			// ya que si no tiene indices error al cobrar pero no se ve.
+			$sql = 'SELECT * FROM indices WHERE idUsuario="'.$resultado['id'].'"';
+			$res = $BDTpv->query($sql);
+			if (mysqli_error($BDTpv)){
+				$resultado['consulta'] = $sql;
+				$resultado['error'] = $BDTpv->error_list;
+				$_SESSION['estadoTpv']= 'ErrorConsulta';
+				return $resultado;
+			} else {
+				// Ahora comprobamos que tenga registro
+				if ($res->num_rows === 1){
+					// Existe registro en tabla indice.
+					$_SESSION['estadoTpv']= 'Correcto';
+					$_SESSION['usuarioTpv']= $resultado;
+				} else {
+					$_SESSION['estadoTpv']= 'ErrorIndiceUsuario';
+					$_SESSION['indice'] = $res->num_rows;
 
-			$_SESSION['estadoTpv']= 'Correcto';
-			$_SESSION['usuarioTpv']= $resultado;
+				}
+			}
 		} else {
 			$_SESSION['estadoTpv']= 'ErrorLogin';
 		}

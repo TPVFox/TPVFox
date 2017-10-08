@@ -19,19 +19,29 @@
       <div class="col-md-6 col-md-offset-3">
 		  <h1>Inicio de sesion </h1>
 		<?php 
+		//~ echo '<pre>';
+		//~ print_r($_SESSION);
+		//~ echo '</pre>';
 		if ($_SESSION['estadoTpv'] === 'Correcto'){ 
 			// Quiere decir que ya esta logueado correctamente.
-			echo 'Relamente quiere desloguearte '.$UsuarioLogin.' datos sesion: '.$_SESSION;
+			echo 'Realmente quiere desloguearte '.$UsuarioLogin.' datos sesion: '.$_SESSION;
 			echo '</div></div>';
 			return;
 		
 		}
 		if ($_SESSION['estadoTpv'] !== 'SinActivar'){ 
 			// ya quiere decir quiere decir que no es la primera vez... de intento logueo.
+			if ($_SESSION['estadoTpv']==='ErrorIndiceUsuario'){
+				$mensaje = '<strong>Error tabla de indice!</strong> Avisa servicio tecnico.
+				<p> No se encuentra Indice del usuario o hay mas de un registros. <br/>Tienes '.$_SESSION['N_Pagina_Abiertas'].' paginas del proyecto abierto.</p>';
+			} else {
+				$mesaje= '<strong>Error sesion!</strong> Contraseña o usuario incorrectos.
+				<p> Tienes '.$_SESSION['N_Pagina_Abiertas'].'paginas del proyecto abierto.</p>';
+			}
+			
 			?>
 			<div class="alert alert-danger">
-				<strong>Error sesion!</strong> Contraseña o usuario incorrectos.
-				<p> Tienes <?php echo $_SESSION['N_Pagina_Abiertas'];?> paginas del proyecto abierto.</p>
+				<?php echo $mensaje;?>
 			</div>
 		<?php } 
 		// Pasar ruta para poder devolver al mismo sitio.

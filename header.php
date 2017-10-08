@@ -83,7 +83,7 @@
 <?php 
 // Mostramos formulario si no tiene acceso.
 	// Bloqueamos si 	
-	if ($TPVsession['SessionTpv']['estado'] != "Correcto"){
+	if ($_SESSION['estadoTpv'] != "Correcto"){
 		// Mostramos modal de usuario.
 		include_once ($URLCom."/plugins/controlUser/modalUsuario.php");
 		?>
