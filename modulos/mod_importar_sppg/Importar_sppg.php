@@ -16,8 +16,8 @@
 <head>
 <?php
 	include './../../head.php';
-	// Creamos variables de los ficheros para poder automatizar el añadir ficheros.
-	// Si añadimos aquí, se añaden tambien a BDimportar
+	// Creamos variables de los ficheros DBF que vamos añadir de forma automatizada a TPV.
+	// Inicialmente se añaden tambien a BDimportar
 	$nom_ficheros = array(
 					'proveedo','articulo','clientes','precprov'
 					);
