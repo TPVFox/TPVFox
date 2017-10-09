@@ -85,7 +85,7 @@
 				<div class=" form-group">
 					<form action="./CierreCaja.php" method="post"> <label class="control-label col-sm-2" > Fecha Caja:</label>
 						<div class="col-sm-4"> 
-							<input type="date" name="fecha" autofocus placeholder="2017-09-30" value=<?php echo (!isset($_POST['fecha']) ? $_POST['fecha'] : $_POST['fecha']); ?>>
+							<input type="date" name="fecha" autofocus value=<?php echo date('Y-m-j'); //cojo la fecha del actual del dia?> >
 							<input type="submit" value="Consulta caja">
 						</div>
 					</form>			

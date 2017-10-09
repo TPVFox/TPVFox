@@ -24,6 +24,13 @@
 		$ticket_numero = $_GET['tAbierto'];
 		$ticket_estado = 'Abierto';
 	}
+	//para bloquear F5 el refresco de la pagina
+	//cuando es tActual lo redirigimos a la misma pagina 
+	//con ?tActual=numTicket JS al grabarTickeTemporal
+	if (isset($_GET['tActual'])){
+		$ticket_numero = $_GET['tActual'];
+		$ticket_estado = 'Abierto';
+	}
 
 ?>
 <?php 
@@ -183,23 +190,32 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			</tr>
 		</thead>
 		<tbody>
-			<?php foreach ($ticketsAbiertos['items'] as $item){?>
+			<?php 
+			$i=0;
+			foreach ($ticketsAbiertos['items'] as $item){
+				//le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
+				$ordenInverso =array_reverse($ticketsAbiertos['items']); 
+					while ($i <= 4){
+						$item =$ordenInverso[$i];
+					$i++;
+			?>
 			<tr>
 				<td><a href="tpv.php?tAbierto=<?php echo $item['numticket']; ?>">
-				<?php echo $item['numticket']; ?>
-				</a>
+					<?php echo $item['numticket']; ?>
+					</a>
 				</td>
 				<td>
-				<?php echo $item['Nombre']; ?><br/>
-				<small><?php echo $item['razonsocial']; ?></small>
+					<?php echo $item['Nombre']; ?><br/>
+					<small><?php echo $item['razonsocial']; ?></small>
 				</td>
 				<td class="text-right">
-				<?php echo number_format ($item['total'],2); ?>
+					<?php echo number_format ($item['total'],2); ?>
 				</td>
 			</tr>
 			<?php
-			// Cerramos foreach
-			}
+				}//cerramos while
+			}// Cerramos foreach
+			
 			 ?>
 		</tbody>
 	</table>

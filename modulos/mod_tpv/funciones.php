@@ -279,7 +279,7 @@ function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
 		// Variables cambiadas.
 		$resultado['estadoTicket'] = 'Actual'; 
 		$resultado['fechaInicial'] = $fecha;
-
+		
 		// Insertamos el nuevo tickettemporal
 		$SQL = 'INSERT INTO `ticketstemporales`(`numticket`,`estadoTicket`, `idTienda`, `idUsuario`, `fechaInicio`, `idClientes`, `total`, `Productos`) VALUES ('.$numTicket.',"'.$resultado['estadoTicket'].'",'.$idTienda.','.$idUsuario.',"'.$fecha.'",'.$idCliente.','.$total.',"'.$PrepProductos.'")';
 		$BDTpv->query($SQL);
@@ -608,7 +608,6 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	// Obtenemos el numero ticket para grabar y ya cambiado en indice... por si somos muy rápidos.. :-)
 	$numticket = ObtenerNumIndices($BDTpv,$campo,$cabecera['idUsuario'],$cabecera['idTienda'],true) ; // Lo incrementamos 
 	
-	echo 'numTIcket negativo '.$numticket;
 	// Creamos la consulta para graba en
 	// Preparamos SQl para Consulta en tickest
 	$SqlTicket = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`, `idUsuario`, `idTienda`, `idCliente`, `estado`, `formaPago`, `entregado`, `total`) VALUES ('.$numticket.','.$cabecera['numTickTemporal'].',"'.$fecha.'",'.$cabecera['idUsuario'].','.$cabecera['idTienda'].','.$cabecera['idCliente'].',"'.$estado.'","'.$cabecera['formaPago'].'",'.$cabecera['entregado'].','.$cabecera['total'].')';

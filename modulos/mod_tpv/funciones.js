@@ -547,10 +547,14 @@ function grabarTicketsTemporal(){
 			// Cambiamos el estado :
 			cabecera.estadoTicket = resultado.estadoTicket;
 			cabecera.numTicket = resultado.NumeroTicket;
-			$('#EstadoTicket').html(resultado.estadoTicket);
+			$('#EstadoTicket').html(resultado.estadoTicket);			
 			$('#EstadoTicket').css('background-color','red')
 			$('#EstadoTicket').css('color','white')
 			$('#NTicket').html('0/'+resultado.NumeroTicket);
+			if (resultado.estadoTicket === 'Actual'){
+				//redirigimos a la misma pagina con ?tActual para no poder refrescar con F5
+				window.location.href = './tpv.php?tActual='+resultado.NumeroTicket;
+			}
 		}
 	});
 }
@@ -613,7 +617,6 @@ function guardarCierreCaja(){
 	//enviar datos del cierre de caja
 	//para guardar en cierres
 	var fecha = $('input[name=fecha]').val();
-	
 	alert('fecha '+fecha+' ');
 }
 
