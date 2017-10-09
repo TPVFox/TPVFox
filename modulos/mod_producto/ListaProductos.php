@@ -162,10 +162,10 @@
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>
 					<td><?php echo $producto['codBarras']; ?></td>
-					<td><?php echo $producto['costepromedio']; ?></td>
+					<td><?php echo number_format($producto['costepromedio'],2); ?></td>
 					<td><?php echo $producto['beneficio']; ?></td>
 					<td><?php echo $producto['iva']; ?></td>
-					<td><?php echo $producto['pvpCiva']; ?></td>
+					<td><?php echo number_format($producto['pvpCiva'],2); ?></td>
 					
 				</tr>
 
