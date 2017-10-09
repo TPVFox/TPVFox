@@ -85,7 +85,7 @@
 				<div class=" form-group">
 					<form action="./CierreCaja.php" method="post"> <label class="control-label col-sm-2" > Fecha Caja:</label>
 						<div class="col-sm-4"> 
-							<input type="date" name="fecha" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" autofocus value=<?php echo date('Y-m-j'); //cojo la fecha del actual del dia?> >
+							<input type="date" name="fecha" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[0-9]|1[0-9]|2[0-9]|3[01])" autofocus value=<?php echo date('Y-m-d'); //cojo la fecha del actual del dia?> >
 							<input type="submit" value="Consulta caja">
 						</div>
 					</form>			

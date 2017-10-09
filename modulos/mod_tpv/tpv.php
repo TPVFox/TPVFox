@@ -195,8 +195,8 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			foreach ($ticketsAbiertos['items'] as $item){
 				//le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
 				$ordenInverso =array_reverse($ticketsAbiertos['items']); 
-					while ($i <= 4){
-						$item =$ordenInverso[$i];
+				while ($i <= 4){
+					$item =$ordenInverso[$i];
 					$i++;
 			?>
 			<tr>
@@ -213,6 +213,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 				</td>
 			</tr>
 			<?php
+		
 				}//cerramos while
 			}// Cerramos foreach
 			

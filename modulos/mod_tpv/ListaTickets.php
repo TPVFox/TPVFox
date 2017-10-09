@@ -88,7 +88,7 @@
         ?>
         <?php
 				//~ echo '<pre>';
-					//~ print_r($tickets);
+					//~ print_r($_SESSION['usuarioTpv']['id']);
 				//~ echo '</pre>';
 		?>
        
@@ -160,15 +160,17 @@
 	
 				<?php
 				$checkUser = 0;
-				foreach ($tickets as $ticket){ 
+				foreach (array_reverse($tickets) as $ticket){ 
 					$checkUser = $checkUser + 1; 
+					
+					
 				?>
 
 				<tr>
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $ticket['id'];?>">
 					</td>
-					<td><?php echo $ticket['id']; ?></td>
-					<td><?php echo $ticket['Numticket']; ?></td>
+					<td><?php echo $ticket['id'];  ?></td>
+					<td><?php echo $ticket['Numticket'];  ?></td>
 					<td><?php echo $ticket['Fecha']; ?></td>
 					<td><?php echo $ticket['idTienda']; ?></td>
 					<td><?php echo $ticket['idUsuario']; ?></td>

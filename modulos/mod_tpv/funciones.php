@@ -747,14 +747,14 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 //obtenemos tickets cobrados / cerrados
 function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
 	// Function para obtener usuarios y listarlos
-
-	$respuesta = array();
+	$usuario = $_SESSION['usuarioTpv']['id']; //para consultar por usuario tickets cobrados
 	$rango= '';
 	if ($LimitePagina > 0 ){
 		$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	} 
 	$consulta = "SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t "
-			."LEFT JOIN `clientes` AS c ON c.`idClientes` = t.`idCliente`".$filtro.$rango; 
+			."LEFT JOIN `clientes` AS c ON c.`idClientes` = t.`idCliente` ".$filtro." AND `idUsuario`= ".$usuario.$rango; 
+		 
 	$ResConsulta = $BDTpv->query($consulta);
 
 	$resultado = array();
