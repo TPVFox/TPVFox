@@ -14,31 +14,53 @@
 <head>
 <?php
 	include './../../head.php';
-	// Creamos variables de los ficheros para poder automatizar el añadir articulos y categorias
+	// Creamos variables de los ficheros para poder automatizar el añadir articulos y otros
 	// @ Parametros de array $tablas
 	//		nombre		-> Nombre de la tabla tpv
-	//		obligatorio	-> Campos que tiene contener datos
+	//		obligatorio	-> Campos que tiene contener datos obligatoriamente
 	//		campos->	Los campos que obtenemos
-	$tablas = 		array(
+	$tablas_articulos = 		array(
 						'0' => array(
 								'nombre'		=>'articulos',
 								'obligatorio'	=> array(),
-								'campos'		=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado')
+								'campos'		=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
+								'origen' 		=>'tmp_articulosCompleta'
 								),
 						'1' => array(
 								'nombre'		=>'articulosCodigoBarras',
 								'obligatorio'	=> array('codBarras'),
-								'campos'		=> array('idArticulo', 'codBarras')
+								'campos'		=> array('idArticulo', 'codBarras'),
+								'origen' 		=>'tmp_articulosCompleta'
 								),
 						'2' => array(
 								'nombre'		=>'articulosPrecios',
 								'obligatorio'	=> array(),
-								'campos'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda')
+								'campos'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
+								'origen' 		=>'tmp_articulosCompleta'
 								),
 						'3' => array(
 								'nombre'		=>'articulosTiendas',
 								'obligatorio'	=>array('crefTienda'),
-								'campos'		=>array('idArticulo','idTienda','crefTienda')
+								'campos'		=>array('idArticulo','idTienda','crefTienda'),
+								'origen' 		=>'tmp_articulosCompleta'
+								),
+						'4' => array(
+								'nombre'		=>'articulosFamilias',
+								'obligatorio'	=>array(),
+								'campos'		=>array('idArticulo','idFamilia'),
+								'origen' 		=>'tmp_cruce_familias'
+								),
+						'5' => array(
+								'nombre'		=>'familias',
+								'obligatorio'	=>array(),
+								'campos'		=>array('idFamilia','familiaNombre','familiaPadre'),
+								'origen' 		=>'tmp_familias'
+								),
+						'6' => array(
+								'nombre'		=>'articulosImagenes',
+								'obligatorio'	=>array(),
+								'campos'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
+								'origen' 		=>'tmp_productos_img'
 								)
 						);
 
@@ -51,7 +73,7 @@
 	var tablaImpor = [];
 
 	<?php
-	foreach ($tablas as $tabla){
+	foreach ($tablas_articulos as $tabla){
 		// Llenamos array javascript con los nombres ficheros
 		echo "nombretabla.push('".$tabla['nombre']."');";
 		echo "tablaImpor.push(".json_encode($tabla).");";
@@ -75,18 +97,19 @@
 	include_once ("./funciones.php");
 	include ("./../../controllers/Controladores.php");
 	// Cargamos el controlador.
+	// Contamos cuantos si tienen registros las tabla BDTPV
 	$Controler = new ControladorComun; 
 	$Items_tabla = array();
 	$sum_Items = 0;
-	foreach ( $tablas as $tabla ) {
+	foreach ( $tablas_articulos as $tabla ) {
 		$n_tabla = $tabla['nombre'];
 		$Items_tabla[$n_tabla] = $Controler->contarRegistro($BDTpv,$n_tabla);
 		$sum_Items += (int)$Items_tabla[$n_tabla] ;
 	}
 	// Ahora creamos la tablas temporales 
-	$resp = prepararTablaTempArticulosComp($BDVirtuemart,$prefijoBD);
-	if (isset($resp['error'])) {
-		$arrayErrores = $resp['error'];
+	$temporalesArticulos = prepararTablaTempArticulosComp($BDVirtuemart,$prefijoBD);
+	if (isset($temporalesArticulos['error'])) {
+		$arrayErrores = $temporalseArticulos['error'];
 		// Quiere decir que hubo un error al crear la tabla temporal.
 		echo '<pre>';
 		if (count($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos']) >0){
@@ -111,25 +134,27 @@
 		
 		}
 		
-		print_r($resp);
+		print_r($temporalesArticulos);
 		echo '</pre>';
 		exit(); // No continuamos
 	}
-	$Num_articulos_virtuemart = $resp['BDVirtuemart']['Num_articulos'];
-	
+	// Para DEBUG
 	// Ahora añadimos datos a la tabla tempora creada en BDtpv
-	//~ $InsertTablas= prepararInsertRegistroTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas);
+	//~ $InsertTablas= prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas_articulos);
 	//~ echo '<pre>';
-		//~ print_r($InsertTablas);
+		//~ foreach ($InsertTablas['tabla'] as $key =>$inserttabla){
+		//~ echo $key.'<br/>';
+		//~ print_r($inserttabla);
+		//~ echo '<br/>';
+		//~ }
 	//~ echo '</pre>';
-	//~ 
+	
 	
 ?>
 
 <div class="container">
-	<div class="col-md-6">
+	<div class="col-md-5">
 		<h2>Importación de datos de Virtuemart a TPV.</h2>
-		<p> Encontramos en Virtuemart <?php echo $Num_articulos_virtuemart; ?></p>
 		<?php 
 		if ( $sum_Items > 0){
 			// Quiere decir que no puede ser una iniciacion.
@@ -157,7 +182,7 @@
 		
 	</div>
 		
-	<div class="col-md-6">
+	<div class="col-md-7">
 		<div>
 		<div class="text-center" id="idCabeceraBarra"></div>
 
@@ -170,58 +195,83 @@
 		<div id="resultado"></div>
 
 		<div>
-		<h3 class="text-center"> Control de procesos de importacion</h3>
-		<table class="table table-bordered">
-			<thead>
-			  <tr>
-				<th>Tabla temporal Preparada
-				<span class="glyphicon glyphicon-ok-sign"></span>
-				</th>
-				<th>NºReg <br/> BDTpv
-				</th>
-				<th><!-- Borrada -->
-					 <?php // Si no tiene articulos en tpv no ponemos link.
-					 if ($sum_Items >0){ ?>
-					<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="ControlPulsado('vaciar_tablas');">
-					<?php } ?>
-						<span class="glyphicon glyphicon-trash"></span>
-					<?php
-					if ($sum_Items >0){ ?>
-					</a>
-					<?php } ?>
-				</th>
-				<th id="PrepararInsert"><!-- Creada -->
-					<a href="#PrepararInsert" title="Preparar los insert, (N/n) (N)Inserts y (n)descartados en grupos 1000" onclick="ControlPulsado('preparar_insert');">
-						<span class="glyphicon glyphicon-log-in"></span>
-					</a>
-				</th>
-				<th><!-- Vaciar -->
-					<a title="Se limpio la tabla, vacio">
-						<span class="glyphicon glyphicon-repeat"></span>
-					</a>
-				</th>
-				
-				
-				<th>Importar</th>
-				<th>Actualizar</th>
-			  </tr>
-			</thead>
-			<tbody>
-				<?php 
-				foreach ( $tablas as $tabla ) {
-					$n_tabla = $tabla['nombre'];
-					echo '<tr id="'.$n_tabla.'">';
-					echo '<th>'.$n_tabla.'</th>';
-					echo '<td>'.$Items_tabla[$n_tabla] .'</td>';
-					echo '<td>'.'</td>';
-					echo '<td class="inserts">'.'</td>';
-					echo '<td>'.'</td>';
-					echo '<td>'.'</td>';
-					echo '</tr>';
+		<h3 class="text-center"> Control de procesos de importacion productos</h3>
+			<div class="col-md-7">
+			<table class="table table-bordered">
+				<thead>
+				  <tr>
+					<th colspan="4" class="text-center">
+						Base datos TPV
+					</th>
+				  </tr>
+				  <tr>
+					<td></td>
+					<th>NºReg
+					</th>
+					<th><!-- Borrada -->
+						 <?php // Si no tiene articulos en tpv no ponemos link.
+						 if ($sum_Items >0){ ?>
+						<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="ControlPulsado('vaciar_tablas');">
+						<?php } ?>
+							<span class="glyphicon glyphicon-trash"></span>
+						<?php
+						if ($sum_Items >0){ ?>
+						</a>
+						<?php } ?>
+					</th>
+					<th id="PrepararInsert"><!-- Creada -->
+						<a href="#PrepararInsert" title="Preparar los insert, (N/n) (N)Inserts y (n)descartados en grupos 1000" onclick="ControlPulsado('preparar_insert');">
+							<span class="glyphicon glyphicon-log-in"></span>
+						</a>
+					</th>
+				  </tr>
+				</thead>
+				<tbody>
+					<?php 
+					foreach ( $tablas_articulos as $tabla ) {
+						$n_tabla = $tabla['nombre'];
+						echo '<tr id="'.$n_tabla.'">';
+						echo '<th>'.$n_tabla.'</th>';
+						echo '<td>'.$Items_tabla[$n_tabla] .'</td>';
+						echo '<td>'.'</td>';
+						echo '<td class="inserts">'.'</td>';
+						echo '</tr>';
+					}
+					?>
+				</tbody>
+			</table>
+			</div>
+			<div class="col-md-5">
+			<table class="table table-bordered">
+				<thead>
+				<tr>
+					<th colspan="3" class="text-center">
+						Base datos virtuemart
+					</th>
+				</tr>
+				<tr>
+					<th>TABLAS TEMPORALES</th>
+					<th >
+						NºReg
+					</th>
+					<th>
+					</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php foreach ($temporalesArticulos as $key =>$temporal){
+				?>
+				<tr>
+					<th><?php echo $key;?></th>
+					<td><?php echo $temporal['Num_articulos'];?></td>
+					<td><span class="glyphicon glyphicon-ok"></span></td>
+				</tr>	
+				<?php	
 				}
 				?>
-			</tbody>
-		 </table>		
+				</tbody>
+			</table>
+			</div>		
 		</div>		
 	
 	</div>	
