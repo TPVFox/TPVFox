@@ -551,8 +551,10 @@ function grabarTicketsTemporal(){
 			$('#EstadoTicket').css('background-color','red')
 			$('#EstadoTicket').css('color','white')
 			$('#NTicket').html('0/'+resultado.NumeroTicket);
+			
+			//objetivo cuando esta en ticket actual , en el navegador ponga ?tActual para que no afecte F5 
 			if (resultado.estadoTicket === 'Actual'){
-				//redirigimos a la misma pagina con ?tActual para no poder refrescar con F5
+				//redirigimos a la misma pagina para no poder refrescar con F5
 				window.location.href = './tpv.php?tActual='+resultado.NumeroTicket;
 			}
 		}
