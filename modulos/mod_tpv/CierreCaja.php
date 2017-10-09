@@ -15,9 +15,9 @@
 		$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
 		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada
 		$Users = ticketsPorFechaUsuario($fecha,$BDTpv,$nuevafecha);
-		echo '<pre>';
-		print_r($Users);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($Users);
+		//~ echo '</pre>';
 		// Saber que usuarios tienen ticket, key=idUsuario
 		foreach ( $Users['usuarios'] as $key => $user){
 			//print_r(' Usuario id'.$key. ' contiene:');
@@ -25,9 +25,9 @@
 			$nombreUser=nombreUsuario($BDTpv,$key);
 			$Users['usuarios'][$key]['nombre'] = $nombreUser['datos']['nombre'];
 		}
-		echo '<pre>';
-		print_r($Users['abiertos']);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($Users['abiertos']);
+		//~ echo '</pre>';
 	}
 	?>
 	
@@ -85,7 +85,7 @@
 				<div class=" form-group">
 					<form action="./CierreCaja.php" method="post"> <label class="control-label col-sm-2" > Fecha Caja:</label>
 						<div class="col-sm-4"> 
-							<input type="date" name="fecha" autofocus value=<?php echo date('Y-m-j'); //cojo la fecha del actual del dia?> >
+							<input type="date" name="fecha" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" autofocus value=<?php echo date('Y-m-j'); //cojo la fecha del actual del dia?> >
 							<input type="submit" value="Consulta caja">
 						</div>
 					</form>			
