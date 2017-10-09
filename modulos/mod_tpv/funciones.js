@@ -572,8 +572,6 @@ function CerrarTicket(){
 	 
 	//parche desactivar boton aceptar, no hay impresora de tickets
 	$('button[id=CobrarAceptar]').prop('disabled',true);
-	 
-	 alert( 'Modo pago:'+formaPago);
 	// Ahora ejecutamos ajax para guardar ticket
 	var parametros = {
 		"pulsado"	    	: 'CerrarTicket',
