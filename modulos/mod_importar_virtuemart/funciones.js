@@ -57,6 +57,7 @@ function ControlPulsado(pulsado) {
 				// Llamamos funciones vaciar tablas de BDTpv
 
 				VaciarTablas();
+				
 				break;
 	} 
 	return;
@@ -80,7 +81,8 @@ function VaciarTablas(){
 		success:  function (response) {			
 			// Cuando se recibe un array con JSON tenemos que parseJSON
 			var resultado =  $.parseJSON(response)
-								
+			// Recargamos nuevamente pagina
+			document.location.href='Importar_virtuemart.php';					
 							
 		}
 	});

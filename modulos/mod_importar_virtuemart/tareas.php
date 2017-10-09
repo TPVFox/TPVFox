@@ -26,20 +26,19 @@ $TControlador = new ControladorComun;
      
     case 'Preparar insert':
     $Arraytablas = $_POST['tablasImpor'];
-    $respuesta= prepararInsertRegistroTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
+    $respuesta= prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
 	header('Content-Type: application/json');
 	echo json_encode($respuesta);
 	break;
 	
-	case 'Vaciar tablas';
+    case 'Vaciar tablas';
 	$tablas = $_POST['tablas'];
 	// Llamamos fuciones de vaciar.
 	$respuesta = EliminarArticulosTpv($BDTpv,$tablas,$TControlador);
 	echo json_encode($respuesta,true);
-	
 	break;	
 	
-	case 'Realizar insert';
+    case 'Realizar insert';
 	$inserts = $_POST['InsertRealizar'];
 	// Llamamos fuciones de vaciar.
 	$respuesta= RealizarInsert($inserts,$BDTpv);
