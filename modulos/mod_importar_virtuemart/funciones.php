@@ -6,78 +6,127 @@
  * @author      Ricardo Carpintero ,
  * @Descripcion	Funciones para importar datos de Virtuemart a Tpv
  * */
+  
  function prepararTablaTempArticulosComp ($BDVirtuemart,$prefijoBD)
  {
-	//@ Objetivo crear las tabla tmp_articulosCompleta temporale de las base datos (Virtuemart)
+	//@ Objetivo crear las tabla tmp_articulosCompleta temporales de las base datos (Virtuemart)
 	// Esta funcion solo se hará al inicializar, es decir al empezar de 0
-	// pero se puede aprovechar el código para cuando hagamos al actualizacion.
+	// RECUERDA que el nombre de los campos tiene que ser el mismo de los campos queremos hacer insert tpv.
 	
 	$resultado = array();
 	// En debug es mejor quitar TEMPORARY
-	$sqlBDImpor = 'CREATE TEMPORARY TABLE tmp_articulosCompleta as
-					select 1 as idTienda,
-					CAST( c.virtuemart_product_id as CHAR(18))as crefTienda,
-					cr.product_name as articulo_name,
-					coalesce((
-						select calc_value from '.$prefijoBD.'_virtuemart_calcs as e 
-						WHERE e.virtuemart_calc_id = d.product_tax_id),0) as iva,
-					c.product_gtin as codbarras,
-					0 as beneficio,
-					0 as costepromedio,
-					case c.published
-						when 0 then "NoPublicado"
-						when 1 then "Activo"
-						end as estado,
-					d.product_price as pvpCiva,
-					d.product_price as pvpSiva,
-					0 as idProveedor,
-					c.created_on as fecha_creado,
-					c.modified_on as fecha_modificado
-					from '.$prefijoBD.'_virtuemart_products as c
-					left join '.$prefijoBD.'_virtuemart_products_es_es as cr
-						on c.virtuemart_product_id = cr.virtuemart_product_id
-					left join '.$prefijoBD.'_virtuemart_product_prices as d
-						on c.virtuemart_product_id = d.virtuemart_product_id';
-	if ($BDVirtuemart->query($sqlBDImpor) === TRUE) {
-		// Se creó con éxito la tabla articulosCompleta en
-		$resultado['BDVirtuemart']['tabla-creada'] = TRUE;
-	}else {
-		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
-		$resultado['error']['BDVirtuemart']['info_error'] =  $BDVirtuemart->error;
-		$resultado['error']['BDVirtuemart']['consulta'] =  $sqlBDImpor;
-		//~ $resultado
-	}
+	$tablasTemporales = array(
+						'1' => array(
+									'nombre_tabla_temporal' =>'tmp_articulosCompleta',
+									'campo_id' 	=>'idArticulo',
+									'select'	=>'SELECT 1 as idTienda,
+													CAST( c.virtuemart_product_id as CHAR(18))as crefTienda,
+													cr.product_name as articulo_name,
+													coalesce((
+														select calc_value from '.$prefijoBD.'_virtuemart_calcs as e 
+														WHERE e.virtuemart_calc_id = d.product_tax_id),0) as iva,
+													c.product_gtin as codbarras,
+													0 as beneficio,
+													0 as costepromedio,
+													case c.published
+														when 0 then "NoPublicado"
+														when 1 then "Activo"
+														end as estado,
+													d.product_price as pvpCiva,
+													d.product_price as pvpSiva,
+													0 as idProveedor,
+													c.created_on as fecha_creado,
+													c.modified_on as fecha_modificado
+													from '.$prefijoBD.'_virtuemart_products as c
+													left join '.$prefijoBD.'_virtuemart_products_es_es as cr
+														on c.virtuemart_product_id = cr.virtuemart_product_id
+													left join '.$prefijoBD.'_virtuemart_product_prices as d
+														on c.virtuemart_product_id = d.virtuemart_product_id'
+									),
+							'2' => array(
+									'nombre_tabla_temporal' => 'tmp_familias',
+									'campo_id' 	=> 'idFamilia',
+									'select' 	=> 'SELECT c.`virtuemart_category_id` as ref_familia_tienda ,
+										 c.`category_name` as familiaNombre ,
+										 cr.`category_parent_id` as familiaPadre FROM `'.$prefijoBD.'_virtuemart_categories_es_es` AS c LEFT JOIN `'.$prefijoBD.'_virtuemart_category_categories` AS cr ON c.`virtuemart_category_id` = cr.`category_child_id` '
+									),
+							'3' => array(
+									'nombre_tabla_temporal' => 'tmp_productos_img',
+									'campo_id'	=> 'id',
+									'select'	=>'SELECT completa.idArticulo AS idArticulo,
+										 CAST( pro_img.`virtuemart_product_id` AS CHAR( 18 ) ) AS cref,
+										 pro_img.`virtuemart_media_id` , pro_img.`ordering` ,
+										 img.file_url
+										 FROM `'.$prefijoBD.'_virtuemart_product_medias` AS pro_img
+										 LEFT JOIN '.$prefijoBD.'_virtuemart_medias AS img 
+										 ON pro_img.virtuemart_media_id = img.virtuemart_media_id
+										 LEFT JOIN tmp_articulosCompleta AS completa 
+										 ON pro_img.`virtuemart_product_id` = completa.crefTienda'
+									),
+							'4' => array(
+									'nombre_tabla_temporal' => 'tmp_cruce_familias',
+									'campo_id' 	=> 'id',
+									'select'	=>'SELECT completa.idArticulo AS idArticulo, `virtuemart_category_id` AS idFamilia
+											FROM '.$prefijoBD.'_virtuemart_product_categories AS cr 
+											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.crefTienda'
+									)
+							);
+	// Creamos las tablas temporales ( TEMPORARY ) y añadimos campo de id
+	foreach($tablasTemporales as $tTemporal) {
+		$nombre_temporal = $tTemporal['nombre_tabla_temporal'];
+		$sqlBDImpor = 'CREATE TEMPORARY TABLE '.$nombre_temporal.' as '.$tTemporal['select'];
+		
+		if ($BDVirtuemart->query($sqlBDImpor) === TRUE) {
+			// Se creó con éxito la tabla articulosCompleta en
+			$resultado[$nombre_temporal]['tabla-creada'] = TRUE;
+		}else {
+			// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
+			$resultado['error'][$nombre_temporal]['info_error'] =  $BDVirtuemart->error;
+			$resultado['error'][$nombre_temporal]['consulta'] =  $sqlBDImpor;
+			//~ $resultado
+		}
+		// Ahora añadimos el campo idArticulo auto incremental, recuerda que esto empieza desde 0
+		//~ $sqlAlter = "ALTER TABLE `tmp_articulosCompleta` ADD idArticulo INT( 11 ) AUTO_INCREMENT PRIMARY KEY FIRST";
+		$sqlAlter = "ALTER TABLE ".$nombre_temporal." ADD ".$tTemporal['campo_id']." INT( 11 ) AUTO_INCREMENT PRIMARY KEY FIRST";
+
+		if ($BDVirtuemart->query($sqlAlter) === TRUE) {
+			// Se creó con éxito la tabla articulosCompleta en
+			$creado = $tTemporal['campo_id'].'_creado';
+			$resultado[$nombre_temporal][$creado] = TRUE;
+			// Obtenemos los registros afectados que serían los registros que hay virtuemart.
+			$resultado[$nombre_temporal]['Num_articulos'] = $BDVirtuemart->affected_rows;
+
+		}else {
+			// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
+			$resultado['error'][$nombre_temporal]['consulta'] = $sqlAlter;
+			$resultado['error'][$nombre_temporal]['info_error'] =  $BDVirtuemart->error;
+			//~ $resultado
+		}
+	} 
+	// Fin de creación tablas temporales
+	
+	
 	// Ahora calculamos el precio con iva, ya que virtuemart no nos lo facilita.
 	$sqlUpdate = "UPDATE `tmp_articulosCompleta` SET `pvpCiva`=`pvpSiva`*(100+`iva`)/100";
 	if ($BDVirtuemart->query($sqlUpdate) === TRUE) {
 		// Se creó con éxito la tabla articulosCompleta en
-		$resultado['BDVirtuemart']['RecalculoPrecioConIva'] = TRUE;
+		$resultado['tmp_articulosCompleta']['RecalculoPrecioConIva'] = TRUE;
 	}else {
 		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
-		$resultado['error']['BDVirtuemart']['consulta'] = $sqlUpdate;
-		$resultado['error']['BDVirtuemart']['info_error'] =  $BDVirtuemart->error;
+		$resultado['error']['tmp_articulosCompleta']['consulta'] = $sqlUpdate;
+		$resultado['error']['tmp_articulosCompleta']['info_error'] =  $BDVirtuemart->error;
 		//~ $resultado
 	}
-	// Ahora añadimos el campo idArticulo auto incremental, recuerda que esto empieza desde 0
-	$sqlAlter = "ALTER TABLE `tmp_articulosCompleta` ADD idArticulo INT( 11 ) AUTO_INCREMENT PRIMARY KEY FIRST";
-	if ($BDVirtuemart->query($sqlAlter) === TRUE) {
-		// Se creó con éxito la tabla articulosCompleta en
-		$resultado['BDVirtuemart']['IdArticulo_creado'] = TRUE;
-		$resultado['BDVirtuemart']['Num_articulos'] = $BDVirtuemart->affected_rows;
-
-	}else {
-		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
-		$resultado['error']['BDVirtuemart']['consulta'] = $sqlAlter;
-		$resultado['error']['BDVirtuemart']['info_error'] =  $BDVirtuemart->error;
-		//~ $resultado
-	}
-	// Ahora hacemos las comprobaciones para evitar errores.
-	// [COMPROBAR QUE NO HAY CODBARRAS REPETIDOS]
+	
+	// Ahora hacemos las comprobaciones:
+	// [CODBARRAS REPETIDOS]
+	// Si hay un error devolvemos error 
 	$repetidos = ComprobarCodbarras ($BDVirtuemart);
 	if ( isset($repetidos['Codbarras_repetidos'])){
 		if (count($repetidos['Codbarras_repetidos']) >0 ){
+			// Quiere decir que hay repetidos.
 			$resultado['error']['ComprobarCodbarras'] = $repetidos;
-		}
+		} 
 	} else {
 		// Quiere decir que algo salio mal.
 		$resultado['error']['ComprobarCodbarras'] = $repetidos;
@@ -87,7 +136,7 @@
 	return $resultado;
 }
 
-function  prepararInsertRegistroTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
+function  prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
 	// @ Objetivo es preparar un array con los insert que vamos realizar en BDTpv
 	// 	a parte eso, tambien devolvemos el numero articulos  y cuanto descartamos.
 	$resultado = array();
@@ -98,12 +147,14 @@ function  prepararInsertRegistroTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
 		$campos = $Arraytabla['campos'];
 		$camposObligatorios = (isset($Arraytabla['obligatorio'])  ? $Arraytabla['obligatorio'] : array());
 		$stringcampos = implode(',',$campos);
-		$sql = 'SELECT '.$stringcampos.' FROM `tmp_articulosCompleta`';
+		$sql = 'SELECT '.$stringcampos.' FROM '.$Arraytabla['origen'];//`tmp_articulosCompleta`';
+		$resultado['tabla'][$tabla]['consulta'] = $sql;
 		$articulos = $BDVirtuemart->query($sql);
+
 		if ( $articulos != true) {
 			// Algo salio mal, por lo que devolvemos error y consulta.
-			$resultado['BDVirtuemart']['consulta'] = $sql;
-			$resultado['BDVirtuemart']['error'] =  $BDVirtuemart->error;
+			$resultado['tabla'][$tabla]['consulta'] = $sql;
+			$resultado['tabla'][$tabla]['error'] =  $BDVirtuemart->error;
 			return $resultado;
 		}
 		$resultado['tabla'][$tabla]['Select'] = $sql; 
@@ -111,10 +162,6 @@ function  prepararInsertRegistroTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
 		$agruparValores = ObtenerGruposInsert($articulos,$camposObligatorios);
 		$gruposvaloresArticulos = $agruparValores['Aceptados'];
 		$resultado['tabla'][$tabla]['Num_Insert_hacer'] = count($gruposvaloresArticulos); 
-		//~ if (count( $agruparValores['NDescartes']) === 0){
-			//~ $resultado['tabla'][$tabla]['Ndescartado'] = 0;
-//~ 
-		//~ }
 		$resultado['tabla'][$tabla]['descartado'] = $agruparValores['Descartados'];
 		$stringcampos = '('.implode(',',$campos).')';
 
@@ -132,7 +179,7 @@ function  prepararInsertRegistroTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
 	return $resultado;
 }
 function EliminarArticulosTpv($BDtpv,$tablas,$controlador){
-	//@ Objetivo es eliminar los productos(articulos) que existen en TPV
+	//@ Objetivo es eliminar las tablas los productos(articulos) que existen en TPV
 	// contenido de las tablas.
 	$respuesta = array();
 	$suma= 0;
