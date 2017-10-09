@@ -135,6 +135,9 @@ switch ($pulsado) {
 			}
 			// grabamos ticket.
 			$grabar = grabarTicketCobrado($BDTpv,$productos,$cabecera,$Datostotales['desglose']);
+		//si numTickets = -1 , no existe indice usuario. = -2 es no se puede grabar en indices
+			//echo $grabar['Numtickets'];
+
 		
 		}
 		if (!isset($respuesta['error']) ){
@@ -142,6 +145,7 @@ switch ($pulsado) {
 			if ($checkimprimir === 'true'){
 				// Obtenemos y organizamos datos antes imprimir
 				$cabecera['fecha'] = $grabar['fecha'] ; // Fecha con la que grabamos el ticket.
+				
 				$cabecera['NumTicket'] = $grabar['Numtickets']; // El numero con el grabamos el ticket.
 				$cabecera['Serie'] = $cabecera['idTienda'].'-'.$cabecera['idUsuario'];
 				$DatosTienda = DatosTiendaID($BDTpv,$cabecera['idTienda']);

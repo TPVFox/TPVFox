@@ -15,9 +15,9 @@
 		$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
 		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada
 		$Users = ticketsPorFechaUsuario($fecha,$BDTpv,$nuevafecha);
-		//~ echo '<pre>';
-		//~ print_r($Users);
-		//~ echo '</pre>';
+		echo '<pre>';
+		print_r($Users);
+		echo '</pre>';
 		// Saber que usuarios tienen ticket, key=idUsuario
 		foreach ( $Users['usuarios'] as $key => $user){
 			//print_r(' Usuario id'.$key. ' contiene:');
@@ -25,9 +25,9 @@
 			$nombreUser=nombreUsuario($BDTpv,$key);
 			$Users['usuarios'][$key]['nombre'] = $nombreUser['datos']['nombre'];
 		}
-		//~ echo '<pre>';
-		//~ print_r($Users);
-		//~ echo '</pre>';
+		echo '<pre>';
+		print_r($Users['abiertos']);
+		echo '</pre>';
 	}
 	?>
 	
@@ -68,10 +68,16 @@
 							<th>Tickets abiertos</th>
 						</tr>
 					</thead>
+					<?php 
+					foreach($Users['abiertos'] as $abierto){
+					?>
 					<tr style="border:4px solid red">
-						<td><?php echo $Users['abiertos']['idUsuario']; ?></td>
-						<td><?php echo $Users['abiertos']['numTickets']; ?></td>
+						<td><?php echo $abierto['idUsuario']; ?></td>
+						<td><?php echo $abierto['suma']; ?></td>
 					</tr>
+					<?php 
+					}
+					?>
 					</table>
 			<?php } //fin de tickets abiertos?>
 			</nav>

@@ -539,8 +539,11 @@ function ObtenerNumIndices($BDTpv,$campo,$idUsuario,$idTienda,$incrementar = fal
 	$row = $resp->fetch_array(MYSQLI_NUM); 
 	if (count($row) === 1) {
 		$numTicket = $row[0];
+		
 	} else {
-		error_log('Algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
+		error_log('NO existe Indice de usuario, Algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
+		//devolvemos
+		$numTicket=-1;
 		exit;
 	}	
 	if ($incrementar === true) {
@@ -549,8 +552,9 @@ function ObtenerNumIndices($BDTpv,$campo,$idUsuario,$idTienda,$incrementar = fal
 		$sql = "UPDATE `indices` SET ".$campo." =".$numTicket." WHERE `idTienda` =".$idTienda." AND `idUsuario` =".$idUsuario;
 		$BDTpv->query($sql);
 		if (mysqli_error($BDTpv)){
-			$resultado['consulta2'] = $sql;
-			$resultado['error2'] = $BDTpv->error_list;
+			$numTicket =-2;
+			error_log('No se pudo grabar en indices, algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
+
 		} 
 	}
 	
@@ -603,6 +607,8 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	$campo = 'numticket';
 	// Obtenemos el numero ticket para grabar y ya cambiado en indice... por si somos muy rápidos.. :-)
 	$numticket = ObtenerNumIndices($BDTpv,$campo,$cabecera['idUsuario'],$cabecera['idTienda'],true) ; // Lo incrementamos 
+	
+	echo 'numTIcket negativo '.$numticket;
 	// Creamos la consulta para graba en
 	// Preparamos SQl para Consulta en tickest
 	$SqlTicket = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`, `idUsuario`, `idTienda`, `idCliente`, `estado`, `formaPago`, `entregado`, `total`) VALUES ('.$numticket.','.$cabecera['numTickTemporal'].',"'.$fecha.'",'.$cabecera['idUsuario'].','.$cabecera['idTienda'].','.$cabecera['idCliente'].',"'.$estado.'","'.$cabecera['formaPago'].'",'.$cabecera['entregado'].','.$cabecera['total'].')';
@@ -770,14 +776,15 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 	//muestro datos del ticket donde fecha mayor fecha inicio y menor que nueva fecha (fecha+1)
 	$sql = 'SELECT * FROM `ticketst` WHERE `fecha`>"'.$fechaInicio.'" AND `fecha`<"'.$nuevafecha.'"';
 	$resp = $BDTpv->query($sql);
-	 
+	 'SELECT COUNT(`numticket`) FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'" GROUP BY `idUsuario` ';
+	
 	//consulta ticketsAbiertos en tablaTemporal
-	$sqlAbiertos = 'SELECT * FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'"';  
+	//Obtenemos cuantos tickets tienen cada usuario.
+	$sqlAbiertos = 'SELECT COUNT(`numticket`) AS suma, `idUsuario` FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'" GROUP BY `idUsuario` ';
 	$respAbiertos =$BDTpv->query($sqlAbiertos);
 	if($respAbiertos->num_rows > 0){
 		while ($row = $respAbiertos->fetch_assoc()){
-			$resultado['abiertos']=$row;
-			$resultado['abiertos']['numTickets']=$respAbiertos->num_rows;
+			$resultado['abiertos'][]=$row;	
 		}
 	}
 	
@@ -925,7 +932,6 @@ function DatosTiendaID($BDTpv,$idTienda){
 		$resultado = $datos;
 		return $resultado;
 	 }
-
 
 
 ?>
