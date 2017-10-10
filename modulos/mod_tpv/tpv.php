@@ -163,7 +163,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			<h4>Otros opciones</h4>
 			<ul class="nav nav-pills nav-stacked">
 				<li><a href="tpv.php">Nuevo ticket</a></li>
-				<li><a href="CierreCaja.php">Cierre Caja</a></li>
+				<li><a href="../mod_cierres/CierreCaja.php">Cierre Caja</a></li>
 				<li><a href="ListaTickets.php">Tickets Cerrados</a></li>
 			</ul>
 		</div>

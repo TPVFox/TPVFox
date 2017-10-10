@@ -27,7 +27,6 @@
 		}
 		
 	}
-
 	$estadoInput =''; //inicializo variable para desactivar boton aceptar, si hay tickets abiertos
 	$suma = array();
 	
@@ -45,14 +44,15 @@
     Cargamos JS del modulo de productos para no repetir funciones: BuscarProducto, metodoClick (pulsado, adonde)
     caja de busqueda en listado 
      -->
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_cierres/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
     
 	</head>
 	<body>
 	<?php
 	include './../../header.php';
-
-	//echo 'de donde '.$_GET["dedonde"];
+	//~ echo '<pre>';
+		//~ print_r($Users['rangoTickets']);
+	//~ echo '</pre>';
 	?>
 	<div class="container">		
 		<div class="row">
@@ -64,8 +64,7 @@
 				movil
 			-->
 			<nav class="col-sm-2" id="myScrollspy">
-				
-			<a class="text-ritght" href="../tpv.php">Volver Atrás</a>
+			<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
 			<?php //si tengo tickets abiertos: muestro idUsuario y numTickets
 			if (isset($Users['abiertos'])){?>
 					<table class="table table-striped" style="border:2px solid black">
