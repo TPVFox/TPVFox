@@ -136,16 +136,36 @@
 	var nombretabla = [];
 	// Objeto tabla
 	var tablaImpor = [];
+	// Objeto tablaTemporales
 
+	var tablasTemporales = [];
+	
+	var tablatemporal_actual;
+	
 	<?php
 	foreach ($tablas_articulos as $tabla){
 		// Llenamos array javascript con los nombres ficheros
 		echo "nombretabla.push('".$tabla['nombre']."');";
+	?>
+	
+	<?php
 		echo "tablaImpor.push(".json_encode($tabla).");";
+	}
+	?>
+	<?php
+	foreach ($tablasTemporales as $tablaTemporal){
+		// Llenamos array javascript con los tablatemporales
+		echo "tablasTemporales.push(".json_encode($tablaTemporal).");";
+	?>
+	
+	<?php
 	}
 	?>
 	</script>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
+	<script type="application/javascript">
+	BucleTablaTemporal();
+	</script>
 	<?php
 	// Controlamos ( Controllers ... fuera de su sitio ... :-)
 	if (isset($Usuario['estado'])){
@@ -172,46 +192,46 @@
 		$sum_Items_articulos += (int)$Items_tabla[$n_tabla] ;
 	}
 	// Ahora creamos la tablas temporales 
-	$temporalesArticulos = array();
-	foreach ($tablasTemporales as $tablaTemporal){
-		$temporalesArticulos[] = prepararTablaTempArticulosComp($BDVirtuemart,$tablaTemporal);
-	}
+	//~ $temporalesArticulos = array();
+	//~ foreach ($tablasTemporales as $tablaTemporal){
+		//~ $temporalesArticulos[] = prepararTablaTempArticulosComp($BDVirtuemart,$tablaTemporal);
+	//~ }
 	
 	
 	// Ahora comprobamos tmp_articulosCompleta
-	$comprobarArticulosCompleta = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
-
-	
-	if (isset($comprobarArticulosCompleta['error'])) {
-		$arrayErrores = $comprobarArticulosCompleta['error'];
-		// Quiere decir que hubo un error al crear la tabla temporal.
-		echo '<pre>';
-		if (count($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos']) >0){
-			// Hay codbarras repetirdos con distintos articulos.
-			// Buscamos id y nombre 
-			$where = array();
-			foreach ($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos'] as $codbarrasRepetido){
-				$where[] = 'codbarras="'.$codbarrasRepetido.'"';
-			}
-			$stringwhere = implode(' OR ',$where);
-			$sql = "SELECT `idArticulo`,`crefTienda`,`articulo_name`,`codbarras` FROM `tmp_articulosCompleta` WHERE ".$stringwhere;
-			if ($registros = $BDVirtuemart->query($sql)) {
-				echo ' Registros que tiene duplicados los codbarras:<br/>';
-				while ($fila = $registros->fetch_assoc()) {
-					 printf ("%s	%s (%s)\n",$fila['codbarras'],$fila['crefTienda'],$fila['articulo_name']);
-					echo '<br/>';
-				}
-			}else {
-				print_r( 'Error en consulta:'.$sql.'<br/>');
-				echo $BDVirtuemart->error;
-			}
-		
-		}
-		
-		print_r($temporalesArticulos);
-		echo '</pre>';
-		exit(); // No continuamos
-	}
+	//~ $comprobarArticulosCompleta = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
+//~ 
+	//~ 
+	//~ if (isset($comprobarArticulosCompleta['error'])) {
+		//~ $arrayErrores = $comprobarArticulosCompleta['error'];
+		//~ // Quiere decir que hubo un error al crear la tabla temporal.
+		//~ echo '<pre>';
+		//~ if (count($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos']) >0){
+			//~ // Hay codbarras repetirdos con distintos articulos.
+			//~ // Buscamos id y nombre 
+			//~ $where = array();
+			//~ foreach ($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos'] as $codbarrasRepetido){
+				//~ $where[] = 'codbarras="'.$codbarrasRepetido.'"';
+			//~ }
+			//~ $stringwhere = implode(' OR ',$where);
+			//~ $sql = "SELECT `idArticulo`,`crefTienda`,`articulo_name`,`codbarras` FROM `tmp_articulosCompleta` WHERE ".$stringwhere;
+			//~ if ($registros = $BDVirtuemart->query($sql)) {
+				//~ echo ' Registros que tiene duplicados los codbarras:<br/>';
+				//~ while ($fila = $registros->fetch_assoc()) {
+					 //~ printf ("%s	%s (%s)\n",$fila['codbarras'],$fila['crefTienda'],$fila['articulo_name']);
+					//~ echo '<br/>';
+				//~ }
+			//~ }else {
+				//~ print_r( 'Error en consulta:'.$sql.'<br/>');
+				//~ echo $BDVirtuemart->error;
+			//~ }
+		//~ 
+		//~ }
+		//~ 
+		//~ print_r($temporalesArticulos);
+		//~ echo '</pre>';
+		//~ exit(); // No continuamos
+	//~ }
 	// Para DEBUG
 	// Ahora añadimos datos a la tabla tempora creada en BDtpv
 	//~ $InsertTablas= prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas_articulos);
@@ -261,12 +281,12 @@
 		<div class="text-center" id="idCabeceraBarra"></div>
 
 	    <div class="progress" style="margin:0 100px">
-			<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+			<div id="barra" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
                    0 % completado
              </div>
 		</div>
 		</div>
-		<div id="resultado"></div>
+		<div id="resultado" class="text-center"></div>
 
 		<div class="col-md-12">
 		<h3 class="text-center"> Control de procesos de importacion productos</h3>
@@ -282,7 +302,7 @@
 					<td></td>
 					<th>NºReg
 					</th>
-					<th><!-- Borrada -->
+					<th id="BDTpv_trash"><!-- Borrada -->
 						 <?php // Si no tiene articulos en tpv no ponemos link.
 						 if ($sum_Items_articulos >0){ ?>
 						<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="ControlPulsado('vaciar_tablas');">
@@ -333,16 +353,14 @@
 				</tr>
 				</thead>
 				<tbody>
-				<?php foreach ($temporalesArticulos as $temporal){
-						foreach ($temporal as $key => $tablat){
+				<?php foreach ($tablasTemporales as $temporal){
 				?>
-				<tr>
-					<th><?php echo $key;?></th>
-					<td><?php echo $tablat['Num_articulos'];?></td>
-					<td><span class="glyphicon glyphicon-ok"></span></td>
+				<tr id="<?php echo $temporal['nombre_tabla_temporal'];?>">
+					<th><?php echo $temporal['nombre_tabla_temporal'];?></th>
+					<td class="num_registros"></td>
+					<td class="check"></td>
 				</tr>	
 				<?php	
-					}
 				}
 				?>
 				</tbody>

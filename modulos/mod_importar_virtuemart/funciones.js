@@ -37,9 +37,9 @@ function BarraProceso(lineaA,lineaF) {
 	 return;
 	}
 	var progreso =  Math.round(( lineaA *100 )/lineaF);
-	$('#bar').css('width', progreso + '%');
+	$('#barra').css('width', progreso + '%');
 	// Añadimos numero linea en resultado.
-	document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
+	$("#barra").html(progreso + '%');
 	return;
 	
 }
@@ -205,11 +205,92 @@ function bucleInsert(insert_tablas){
 		$(".btn-actualizar").css("display", "block");
 	}
 	
-	
-	
-	
-
-
 }
+
+
+function BucleTablaTemporal(){
+	// Objetivo :
+	// Es recorrer el arrat de tablasTemporales 
+	
+	
+	
+	console.log(' tabla temporales a crear.'+tablasTemporales.length);
+	var i = 0;
+	var y = 0;
+	var termino = 'no';
+	tablasTemporales.forEach(function(tablatemporal) {
+	//~ // Recorremos tablas y creamos las tablas.
+	//~ console.log('tablatemporal_actual:'+ tablatemporal_actual['nombre_tabla_temporal']);
+	console.log('tablatemporal:'+ tablatemporal['nombre_tabla_temporal']);
+	if (typeof tablatemporal_actual === 'undefined'){
+			y = 0
+	} else if ( tablatemporal_actual['nombre_tabla_temporal'] === tablatemporal['nombre_tabla_temporal']){
+		y = i+ 1;
+		
+	}
+	i++;
+	});
+	// Rellenamos barra proceso.
+	lineaF = tablasTemporales.length;
+	lineaA = y+1;
+	BarraProceso(y,lineaF);
+	
+	if ( y <= tablasTemporales.length-1){
+		tablatemporal_actual = tablasTemporales[y];
+		CrearTablaTemporal(tablatemporal_actual,y);
+	} else {
+	BarraProceso(y,lineaF); 
+	//~ alert(' Terminamos de crear tablas temporales');
+	console.log('termino bucle');
+	// El proceso se termina y se vuelve en CrearTablaTemporal
+	}
+}
+
+function CrearTablaTemporal(tablatemporal,y){
+	// Objetivo: 
+	// Es crear la tablas temporales en virtuemart.
+	var nom_tabla_temporal = tablatemporal['nombre_tabla_temporal'];
+	console.log('Tabla temporal que vamos crear'+ nom_tabla_temporal);
+	var parametros = {
+		"TablaTemporal" 	: tablatemporal,
+		"pulsado" 	: 'Crear Tabla Temporal'
+				};
+		$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+					$("#resultado").html('Creamos tabla temporal:'+nom_tabla_temporal);
+			},
+			success:  function (response) {			
+				// Recorremos el objeto tabla.nombretabla.Insert para contar cuantos insert
+				var resultado =  $.parseJSON(response);
+				console.log(response);
+				var num_registro = resultado[nom_tabla_temporal]['Num_articulos'];
+				// Ahora metemos los datos en pantalla.
+				if (num_registro > 0 ){
+					$("#"+nom_tabla_temporal+"> td.num_registros").html(num_registro);
+					$("#"+nom_tabla_temporal+"> td.check").html('<span class="glyphicon glyphicon-ok"></span>');
+				} else {
+					$("#"+nom_tabla_temporal+"> td.check").html('<span class=".glyphicon glyphicon-remove"></span>');
+				}
+				// Volvemos ejecutar ... 
+				
+				BucleTablaTemporal();
+				
+			}
+		});
+		
+	console.log('Terminamos de crear la tabla temporal ' + tablatemporal['nombre_tabla_temporal']);
+	//~ BucleTablaTemporal();
+}
+	
+	
+	
+	
+	
+	
+	
+	
 
 

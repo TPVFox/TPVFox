@@ -45,6 +45,13 @@ $TControlador = new ControladorComun;
 	echo json_encode($respuesta,true);
 	break;	
 	
+	case 'Crear Tabla Temporal';
+	$tablaTemporal = $_POST['TablaTemporal'];
+	// Llamamos fuciones de vaciar.
+	$CrearTablaTemporal = prepararTablaTempArticulosComp($BDVirtuemart,$tablaTemporal);
+	echo json_encode($CrearTablaTemporal,true);
+	break;	
+	
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/
