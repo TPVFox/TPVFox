@@ -100,11 +100,11 @@
 	// Contamos cuantos si tienen registros las tabla BDTPV
 	$Controler = new ControladorComun; 
 	$Items_tabla = array();
-	$sum_Items = 0;
+	$sum_Items_articulos = 0;
 	foreach ( $tablas_articulos as $tabla ) {
 		$n_tabla = $tabla['nombre'];
 		$Items_tabla[$n_tabla] = $Controler->contarRegistro($BDTpv,$n_tabla);
-		$sum_Items += (int)$Items_tabla[$n_tabla] ;
+		$sum_Items_articulos += (int)$Items_tabla[$n_tabla] ;
 	}
 	// Ahora creamos la tablas temporales 
 	$temporalesArticulos = prepararTablaTempArticulosComp($BDVirtuemart,$prefijoBD);
@@ -194,7 +194,7 @@
 		</div>
 		<div id="resultado"></div>
 
-		<div>
+		<div class="col-md-12">
 		<h3 class="text-center"> Control de procesos de importacion productos</h3>
 			<div class="col-md-7">
 			<table class="table table-bordered">
@@ -210,12 +210,12 @@
 					</th>
 					<th><!-- Borrada -->
 						 <?php // Si no tiene articulos en tpv no ponemos link.
-						 if ($sum_Items >0){ ?>
+						 if ($sum_Items_articulos >0){ ?>
 						<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="ControlPulsado('vaciar_tablas');">
 						<?php } ?>
 							<span class="glyphicon glyphicon-trash"></span>
 						<?php
-						if ($sum_Items >0){ ?>
+						if ($sum_Items_articulos >0){ ?>
 						</a>
 						<?php } ?>
 					</th>
@@ -271,8 +271,46 @@
 				?>
 				</tbody>
 			</table>
-			</div>		
+			</div>
+					
 		</div>		
+		<div class="col-md-12">
+		<h3 class="text-center"> Control de procesos de importacion Clientes</h3>
+		<div class="col-md-7">
+			<table class="table table-bordered">
+				<thead>
+				  <tr>
+					<th colspan="4" class="text-center">
+						Base datos TPV
+					</th>
+				  </tr>
+				  <tr>
+					<td></td>
+					<th>NºReg
+					</th>
+					<th><!-- Borrada -->
+						 <?php // Si no tiene articulos en tpv no ponemos link.
+						 if ($sum_Items >0){ ?>
+						<a  href="#VaciarTablas" title="Vaciar tablas TPV">
+						<?php } ?>
+							<span class="glyphicon glyphicon-trash"></span>
+						<?php
+						if ($sum_Items >0){ ?>
+						</a>
+						<?php } ?>
+					</th>
+					<th id="PrepararInsert"><!-- Creada -->
+						<a href="#PrepararInsert" title="Preparar los insert, (N/n) (N)Inserts y (n)descartados en grupos 1000" onclick="ControlPulsado('preparar_insert');">
+							<span class="glyphicon glyphicon-log-in"></span>
+						</a>
+					</th>
+				  </tr>
+				</thead>
+				<tbody>
+				
+				</tbody>
+			</table>
+			</div>
 	
 	</div>	
 	<div>
