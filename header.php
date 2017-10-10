@@ -50,7 +50,8 @@
 						<li><a href="<?php echo $HostNombre.'/modulos/mod_usuario/ListaUsuarios.php';?>">Usuarios</a></li>
 						<li><a href="<?php echo $HostNombre.'/modulos/mod_tienda/ListaTiendas.php';?>">Tiendas</a></li>
 						<li><a href="<?php echo $HostNombre.'/modulos/mod_cliente/ListaClientes.php';?>">Clientes</a></li>
-						<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>
+						<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>						
+						<li><a href="<?php echo $HostNombre.'/modulos/mod_cierres/ListaCierres.php';?>">Cierres</a></li>
 						<?php //coloco dropdown importar, al pinchar tengo 2 opc en lista?>
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Importar
