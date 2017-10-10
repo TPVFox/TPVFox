@@ -15,6 +15,71 @@
 <?php
 	include './../../head.php';
 	// Creamos variables de los ficheros para poder automatizar el añadir articulos y otros
+	
+	// Array $tablasTemporales;
+	// @ Parametros de array
+	//		nombre_tabla_temporal	-> Nombre de la tabla temporal de Virtuemart
+	//		campo_id				-> Nombre del campo autonumerico que creamos automaticamentes.
+	//		select					-> Consulta que realizamos para crear tabal temporal
+	$tablasTemporales = array(
+						'1' => array(
+									'nombre_tabla_temporal' =>'tmp_articulosCompleta',
+									'campo_id' 	=>'idArticulo',
+									'select'	=>'SELECT 1 as idTienda,
+													CAST( c.virtuemart_product_id as CHAR(18))as crefTienda,
+													cr.product_name as articulo_name,
+													coalesce((
+														select calc_value from '.$prefijoBD.'_virtuemart_calcs as e 
+														WHERE e.virtuemart_calc_id = d.product_tax_id),0) as iva,
+													c.product_gtin as codbarras,
+													0 as beneficio,
+													0 as costepromedio,
+													case c.published
+														when 0 then "NoPublicado"
+														when 1 then "Activo"
+														end as estado,
+													d.product_price as pvpCiva,
+													d.product_price as pvpSiva,
+													0 as idProveedor,
+													c.created_on as fecha_creado,
+													c.modified_on as fecha_modificado
+													from '.$prefijoBD.'_virtuemart_products as c
+													left join '.$prefijoBD.'_virtuemart_products_es_es as cr
+														on c.virtuemart_product_id = cr.virtuemart_product_id
+													left join '.$prefijoBD.'_virtuemart_product_prices as d
+														on c.virtuemart_product_id = d.virtuemart_product_id'
+									),
+							'2' => array(
+									'nombre_tabla_temporal' => 'tmp_familias',
+									'campo_id' 	=> 'idFamilia',
+									'select' 	=> 'SELECT c.`virtuemart_category_id` as ref_familia_tienda ,
+										 c.`category_name` as familiaNombre ,
+										 cr.`category_parent_id` as familiaPadre FROM `'.$prefijoBD.'_virtuemart_categories_es_es` AS c LEFT JOIN `'.$prefijoBD.'_virtuemart_category_categories` AS cr ON c.`virtuemart_category_id` = cr.`category_child_id` '
+									),
+							'3' => array(
+									'nombre_tabla_temporal' => 'tmp_productos_img',
+									'campo_id'	=> 'id',
+									'select'	=>'SELECT completa.idArticulo AS idArticulo,
+										 CAST( pro_img.`virtuemart_product_id` AS CHAR( 18 ) ) AS cref,
+										 pro_img.`virtuemart_media_id` , pro_img.`ordering` ,
+										 img.file_url
+										 FROM `'.$prefijoBD.'_virtuemart_product_medias` AS pro_img
+										 LEFT JOIN '.$prefijoBD.'_virtuemart_medias AS img 
+										 ON pro_img.virtuemart_media_id = img.virtuemart_media_id
+										 LEFT JOIN tmp_articulosCompleta AS completa 
+										 ON pro_img.`virtuemart_product_id` = completa.crefTienda'
+									),
+							'4' => array(
+									'nombre_tabla_temporal' => 'tmp_cruce_familias',
+									'campo_id' 	=> 'id',
+									'select'	=>'SELECT completa.idArticulo AS idArticulo, `virtuemart_category_id` AS idFamilia
+											FROM '.$prefijoBD.'_virtuemart_product_categories AS cr 
+											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.crefTienda'
+									)
+							);
+	
+	
+	// Array $tablas_articulos;
 	// @ Parametros de array $tablas
 	//		nombre		-> Nombre de la tabla tpv
 	//		obligatorio	-> Campos que tiene contener datos obligatoriamente
@@ -107,9 +172,18 @@
 		$sum_Items_articulos += (int)$Items_tabla[$n_tabla] ;
 	}
 	// Ahora creamos la tablas temporales 
-	$temporalesArticulos = prepararTablaTempArticulosComp($BDVirtuemart,$prefijoBD);
-	if (isset($temporalesArticulos['error'])) {
-		$arrayErrores = $temporalseArticulos['error'];
+	$temporalesArticulos = array();
+	foreach ($tablasTemporales as $tablaTemporal){
+		$temporalesArticulos[] = prepararTablaTempArticulosComp($BDVirtuemart,$tablaTemporal);
+	}
+	
+	
+	// Ahora comprobamos tmp_articulosCompleta
+	$comprobarArticulosCompleta = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
+
+	
+	if (isset($comprobarArticulosCompleta['error'])) {
+		$arrayErrores = $comprobarArticulosCompleta['error'];
 		// Quiere decir que hubo un error al crear la tabla temporal.
 		echo '<pre>';
 		if (count($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos']) >0){
@@ -156,7 +230,7 @@
 	<div class="col-md-5">
 		<h2>Importación de datos de Virtuemart a TPV.</h2>
 		<?php 
-		if ( $sum_Items > 0){
+		if ( $sum_Items_articulos > 0){
 			// Quiere decir que no puede ser una iniciacion.
 			echo '<div class="alert alert-danger">Hay datos BDTpv , ten cuidado por se pueden eliminar el contenido (vaciar) los datos tpv.<br/>
 				 Si quieres actualizar no pulses en borra.
@@ -259,14 +333,16 @@
 				</tr>
 				</thead>
 				<tbody>
-				<?php foreach ($temporalesArticulos as $key =>$temporal){
+				<?php foreach ($temporalesArticulos as $temporal){
+						foreach ($temporal as $key => $tablat){
 				?>
 				<tr>
 					<th><?php echo $key;?></th>
-					<td><?php echo $temporal['Num_articulos'];?></td>
+					<td><?php echo $tablat['Num_articulos'];?></td>
 					<td><span class="glyphicon glyphicon-ok"></span></td>
 				</tr>	
 				<?php	
+					}
 				}
 				?>
 				</tbody>
