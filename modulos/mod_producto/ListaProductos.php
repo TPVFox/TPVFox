@@ -17,13 +17,13 @@
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-	
+	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
-	if (isset($_GET['Buscar'])) {  
-		$palabraBuscar = $_GET['Buscar'];
-		$filtro = $palabraBuscar;
+	if (isset($_GET['buscar'])) {  
+		$palabraBuscar = $_GET['buscar'];
+		$filtro = ' WHERE `articulo_name` LIKE "%'.$palabraBuscar.'%" ';
 	} 
 	
 	
@@ -35,7 +35,7 @@
 	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
 	
 	$Controler = new ControladorComun; 
-	$filtro = ''; // por defecto
+	
 	$vista = 'articulos';
 	$LinkBase = './ListaProductos.php?';
 	$OtrosParametros = '';
@@ -43,6 +43,7 @@
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
+		
 	} else {
 		$desde = 0;
 	}
@@ -55,10 +56,11 @@
 		
 		$filtro = '';
 	}
-
-	//~ $OtrosParametros = $palabraBuscar;	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase);
+	
+	$OtrosParametros = $palabraBuscar;	
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	$productos = obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro);
+	
 	?>
 	
 	<script>
@@ -130,8 +132,8 @@
 				<form action="./ListaProductos.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
 						<label>Buscar en descripcion </label>
-						<input type="text" name="Buscar" value="">
-						<input type="submit" value="Buscar">
+						<input type="text" name="buscar" value="">
+						<input type="submit" value="buscar">
 					</div>
 				</form>
                  <!-- TABLA DE PRODUCTOS -->

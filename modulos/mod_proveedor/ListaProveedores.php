@@ -14,15 +14,17 @@
 	//$LimitePagina = 40 o los que queramos
 	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
 	//$OtrosParametros
+	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
 		if (isset($_GET['pagina'])) {
 			$PgActual = $_GET['pagina'];
 		}
-		if (isset($_GET['Buscar'])) {  
-			$palabraBuscar = $_GET['Buscar'];
-			$filtro = $palabraBuscar;
+		if (isset($_GET['buscar'])) {  
+			$palabraBuscar = $_GET['buscar'];
+			$filtro = $palabraBuscar;			
+			$filtro = ' WHERE `razonsocial` LIKE "%'.$palabraBuscar.'%" ';
 		} 
 
 	// Creamos objeto controlado comun, para obtener numero de registros. 
@@ -33,7 +35,7 @@
 	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
 	
 	$Controler = new ControladorComun; 
-	$filtro = ''; // por defecto
+	
 	$vista = 'proveedores';
 	$LinkBase = './ListaProveedores.php?';
 	$OtrosParametros = '';
@@ -54,9 +56,8 @@
 		$filtro = '';
 	}
 
-	//~ $OtrosParametros = $palabraBuscar;	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase);
-
+	$OtrosParametros = $palabraBuscar;	
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	
 	$proveedores = obtenerProveedores($BDTpv,$LimitePagina ,$desde,$filtro);
 	//~ echo '<pre>';
@@ -123,8 +124,8 @@
 				<form action="./ListaProveedores.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
 						<label>Buscar en nombre comercial </label>
-						<input type="text" name="Buscar" value="">
-						<input type="submit" value="Buscar">
+						<input type="text" name="buscar" value="">
+						<input type="submit" value="buscar">
 					</div>
 				</form>
                  <!-- TABLA DE PRODUCTOS -->
