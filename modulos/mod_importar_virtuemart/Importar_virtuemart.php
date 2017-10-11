@@ -75,16 +75,55 @@
 									'select'	=>'SELECT completa.idArticulo AS idArticulo, `virtuemart_category_id` AS idFamilia
 											FROM '.$prefijoBD.'_virtuemart_product_categories AS cr 
 											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.crefTienda'
+									),
+							'5' => array(
+									'nombre_tabla_temporal' => 'tmp_clientes',
+									'campo_id' 	=> 'idClientes',
+									'select'	=>'SELECT c.`virtuemart_user_id` as idVirtuemart,
+									 CONCAT(c.`first_name`," ",c.`middle_name`," ", c.`last_name`) as Nombre,
+									 c.`company` as razonsocial ,
+									 c.DNICIF as nif, 
+									 CONCAT( c.`address_1`," ",c.`address_2`," ",c.`city`) as direccion,
+									 c.`zip` as codpostal,
+									 c.`phone_1` as telefono, c.`phone_2` as movil ,
+									 c.`fax` as fax ,u.`email` as email,"activo" as `estado`
+									 FROM  '.$prefijoBD.'_virtuemart_userinfos AS c 
+									 LEFT JOIN '.$prefijoBD.'_users AS u ON c.virtuemart_user_id=u.id'
 									)
 							);
 	
+	// Array $comprobaciones
+	// @ Parametros de array $comprobaciones.
+	// 		funcion						=> (String)Nombre funcion
+	// 		'link_collapse'				=> (String)El html LINK COLLAPSE para poder extender y encojer
+	// 		'subprocesos'				=> (Array)En una comprobación poder quere realizar varias cosas.
+	// 		'explicacion_subprocesos	=> (Array)Explicación de cada subproceso que se haga - Aunque se solo uno un proceso es array()
+	// 		'respuesta'					=> (Array)Para recojer el resultado de cada subproceso de la comprobación.
+	$comprobaciones  = 		array(
+							'0' => array(
+								'nom_funcion'				=>'ComprobarTablaTempArticulosCompleta',
+								'link_collapse'				=>'<a data-toggle="collapse" data-parent="#accordion" href="#ComprobarTablaTempArticulosCompleta" aria-expanded="false" class="collapsed">
+								Comprobar Tabla Temporal Articulos Completa
+								<span style="float:right;" class="icono-collapse">+</span>
+								</a>',
+								'subprocesos'				=>array('RecalculoPrecioConIva','ComprobarCodbarras'),
+								'explicacion_subprocesos'	=>array('Ponemos en tabla_tmp precion con Iva ya que estaba sin el (Recalculamos)','Comprobamos que no haya ningún codbarras repetetido en tmp_temporal ya que no tiene sentido añadirlo.[DUDAMOS EN AFIRMACION]') 
+								)//~ ),
+							//~ '1' => array(
+								//~ 'nom_funcion'		=>'CrearIdSinDeterminarClientes',
+								//~ 'titulo_html'	=>'<a title="Creamos el registro de 0 de clientes como cliente sin desterminar">Crear id 0 Clientes</a>'
+								//~ )
+							);
 	
-	// Array $tablas_articulos;
+	
+	
+	
+	// Array $tablas_importars;
 	// @ Parametros de array $tablas
 	//		nombre		-> Nombre de la tabla tpv
 	//		obligatorio	-> Campos que tiene contener datos obligatoriamente
 	//		campos->	Los campos que obtenemos
-	$tablas_articulos = 		array(
+	$tablas_importar = 		array(
 						'0' => array(
 								'nombre'		=>'articulos',
 								'obligatorio'	=> array(),
@@ -126,6 +165,12 @@
 								'obligatorio'	=>array(),
 								'campos'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
 								'origen' 		=>'tmp_productos_img'
+								),
+						'7' => array(
+								'nombre'		=>'clientes',
+								'obligatorio'	=>array(),
+								'campos'		=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
+								'origen' 		=>'tmp_clientes'
 								)
 						);
 
@@ -140,11 +185,16 @@
 
 	var tablasTemporales = [];
 	
-	var tablatemporal_actual;
+	var tablatemporal_actual; // GLOBAL: Variable que utilizamos para indicar en la que estamos haciendo bucle
 	
+	var comprobacionesTemporales = [] ; // Array GLOBAL para ejecturar funciones comprobaciones.
+	
+	var comprobacion_actual; // GLOBAL: Variable que utilizamos para indicar en la que estamos haciendo bucle
 	<?php
-	foreach ($tablas_articulos as $tabla){
-		// Llenamos array javascript con los nombres ficheros
+	// Añadimmos a variable global JS nombretabla 
+	// [PENDIENTE] -> Realmente esta variable ya no hacer falta JS 
+	// porque ya la podemos obtener tablasTemporales. 
+	foreach ($tablas_importar as $tabla){
 		echo "nombretabla.push('".$tabla['nombre']."');";
 	?>
 	
@@ -153,17 +203,30 @@
 	}
 	?>
 	<?php
+	// Añadimos a variable global JS tablatemporales
 	foreach ($tablasTemporales as $tablaTemporal){
-		// Llenamos array javascript con los tablatemporales
 		echo "tablasTemporales.push(".json_encode($tablaTemporal).");";
 	?>
 	
 	<?php
 	}
 	?>
+	<?php 
+	// Añadimos a variable global JS tablatemporales
+	foreach ($comprobaciones as $comprobacion){
+		echo "comprobacionesTemporales.push(".json_encode($comprobacion).");";
+	?>
+	
+	<?php
+	}
+	?>
+	
+	
+	
 	</script>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
 	<script type="application/javascript">
+	// Ejecutamos inicio creación tablas
 	BucleTablaTemporal();
 	</script>
 	<?php
@@ -186,63 +249,11 @@
 	$Controler = new ControladorComun; 
 	$Items_tabla = array();
 	$sum_Items_articulos = 0;
-	foreach ( $tablas_articulos as $tabla ) {
+	foreach ( $tablas_importar as $tabla ) {
 		$n_tabla = $tabla['nombre'];
 		$Items_tabla[$n_tabla] = $Controler->contarRegistro($BDTpv,$n_tabla);
 		$sum_Items_articulos += (int)$Items_tabla[$n_tabla] ;
 	}
-	// Ahora creamos la tablas temporales 
-	//~ $temporalesArticulos = array();
-	//~ foreach ($tablasTemporales as $tablaTemporal){
-		//~ $temporalesArticulos[] = prepararTablaTempArticulosComp($BDVirtuemart,$tablaTemporal);
-	//~ }
-	
-	
-	// Ahora comprobamos tmp_articulosCompleta
-	//~ $comprobarArticulosCompleta = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
-//~ 
-	//~ 
-	//~ if (isset($comprobarArticulosCompleta['error'])) {
-		//~ $arrayErrores = $comprobarArticulosCompleta['error'];
-		//~ // Quiere decir que hubo un error al crear la tabla temporal.
-		//~ echo '<pre>';
-		//~ if (count($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos']) >0){
-			//~ // Hay codbarras repetirdos con distintos articulos.
-			//~ // Buscamos id y nombre 
-			//~ $where = array();
-			//~ foreach ($arrayErrores['ComprobarCodbarras']['Codbarras_repetidos'] as $codbarrasRepetido){
-				//~ $where[] = 'codbarras="'.$codbarrasRepetido.'"';
-			//~ }
-			//~ $stringwhere = implode(' OR ',$where);
-			//~ $sql = "SELECT `idArticulo`,`crefTienda`,`articulo_name`,`codbarras` FROM `tmp_articulosCompleta` WHERE ".$stringwhere;
-			//~ if ($registros = $BDVirtuemart->query($sql)) {
-				//~ echo ' Registros que tiene duplicados los codbarras:<br/>';
-				//~ while ($fila = $registros->fetch_assoc()) {
-					 //~ printf ("%s	%s (%s)\n",$fila['codbarras'],$fila['crefTienda'],$fila['articulo_name']);
-					//~ echo '<br/>';
-				//~ }
-			//~ }else {
-				//~ print_r( 'Error en consulta:'.$sql.'<br/>');
-				//~ echo $BDVirtuemart->error;
-			//~ }
-		//~ 
-		//~ }
-		//~ 
-		//~ print_r($temporalesArticulos);
-		//~ echo '</pre>';
-		//~ exit(); // No continuamos
-	//~ }
-	// Para DEBUG
-	// Ahora añadimos datos a la tabla tempora creada en BDtpv
-	//~ $InsertTablas= prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas_articulos);
-	//~ echo '<pre>';
-		//~ foreach ($InsertTablas['tabla'] as $key =>$inserttabla){
-		//~ echo $key.'<br/>';
-		//~ print_r($inserttabla);
-		//~ echo '<br/>';
-		//~ }
-	//~ echo '</pre>';
-	
 	
 ?>
 
@@ -289,7 +300,7 @@
 		<div id="resultado" class="text-center"></div>
 
 		<div class="col-md-12">
-		<h3 class="text-center"> Control de procesos de importacion productos</h3>
+		<h3 class="text-center"> Control de procesos de importacion tablas</h3>
 			<div class="col-md-7">
 			<table class="table table-bordered">
 				<thead>
@@ -322,7 +333,7 @@
 				</thead>
 				<tbody>
 					<?php 
-					foreach ( $tablas_articulos as $tabla ) {
+					foreach ( $tablas_importar as $tabla ) {
 						$n_tabla = $tabla['nombre'];
 						echo '<tr id="'.$n_tabla.'">';
 						echo '<th>'.$n_tabla.'</th>';
@@ -343,12 +354,13 @@
 						Base datos virtuemart
 					</th>
 				</tr>
-				<tr>
-					<th>TABLAS TEMPORALES</th>
+				<tr class="info">
+					<th>CREACION TABLAS</th>
 					<th >
 						NºReg
 					</th>
 					<th>
+						<span class="glyphicon glyphicon-floppy-open"></span>
 					</th>
 				</tr>
 				</thead>
@@ -363,50 +375,41 @@
 				<?php	
 				}
 				?>
+				<tr class="info">
+					<th>COMPROBACIONES</th>
+					<th></th>
+					<th></th>
+				</tr>
+				<?php foreach ($comprobaciones as $comprobacion){?>
+				<tr>
+					<td><h5>
+						<?php echo $comprobacion['link_collapse'];?>
+						</h5>
+						<div id="<?php echo $comprobacion['nom_funcion'];?>" class="pepe collapse" style="height: 0px;" aria-expanded="false">
+							
+							<?php
+							$i = 1;
+							foreach($comprobacion['explicacion_subprocesos'] as $explicacion){
+								echo '<p><b>'.$i.'.-</b>'.$explicacion.'</p>';
+								$i++;
+							}
+							?>
+						</div>
+					</td>
+					<td></td>
+					<td></td>
+				</tr>
+				<?php	
+				}
+				?>
+				<tr>
+				</tr>
 				</tbody>
 			</table>
 			</div>
 					
 		</div>		
-		<div class="col-md-12">
-		<h3 class="text-center"> Control de procesos de importacion Clientes</h3>
-		<div class="col-md-7">
-			<table class="table table-bordered">
-				<thead>
-				  <tr>
-					<th colspan="4" class="text-center">
-						Base datos TPV
-					</th>
-				  </tr>
-				  <tr>
-					<td></td>
-					<th>NºReg
-					</th>
-					<th><!-- Borrada -->
-						 <?php // Si no tiene articulos en tpv no ponemos link.
-						 if ($sum_Items >0){ ?>
-						<a  href="#VaciarTablas" title="Vaciar tablas TPV">
-						<?php } ?>
-							<span class="glyphicon glyphicon-trash"></span>
-						<?php
-						if ($sum_Items >0){ ?>
-						</a>
-						<?php } ?>
-					</th>
-					<th id="PrepararInsert"><!-- Creada -->
-						<a href="#PrepararInsert" title="Preparar los insert, (N/n) (N)Inserts y (n)descartados en grupos 1000" onclick="ControlPulsado('preparar_insert');">
-							<span class="glyphicon glyphicon-log-in"></span>
-						</a>
-					</th>
-				  </tr>
-				</thead>
-				<tbody>
-				
-				</tbody>
-			</table>
-			</div>
-	
-	</div>	
+			
 	<div>
 	
 	</div>

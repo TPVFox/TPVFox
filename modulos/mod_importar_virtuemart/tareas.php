@@ -25,33 +25,45 @@ $TControlador = new ControladorComun;
  switch ($pulsado) {
      
     case 'Preparar insert':
-    $Arraytablas = $_POST['tablasImpor'];
-    $respuesta= prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
-	header('Content-Type: application/json');
-	echo json_encode($respuesta);
-	break;
+		$Arraytablas = $_POST['tablasImpor'];
+		$respuesta= prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
+		header('Content-Type: application/json');
+		echo json_encode($respuesta);
+		break;
 	
-    case 'Vaciar tablas';
-	$tablas = $_POST['tablas'];
-	// Llamamos fuciones de vaciar.
-	$respuesta = EliminarArticulosTpv($BDTpv,$tablas,$TControlador);
-	echo json_encode($respuesta,true);
-	break;	
+    case 'Vaciar tablas':
+		$tablas = $_POST['tablas'];
+		// Llamamos fuciones de vaciar.
+		$respuesta = EliminarArticulosTpv($BDTpv,$tablas,$TControlador);
+		echo json_encode($respuesta,true);
+		break;	
 	
-    case 'Realizar insert';
-	$inserts = $_POST['InsertRealizar'];
-	// Llamamos fuciones de vaciar.
-	$respuesta= RealizarInsert($inserts,$BDTpv);
-	echo json_encode($respuesta,true);
-	break;	
+    case 'Realizar insert':
+		$inserts = $_POST['InsertRealizar'];
+		// Llamamos fuciones de vaciar.
+		$respuesta= RealizarInsert($inserts,$BDTpv);
+		echo json_encode($respuesta,true);
+		break;	
 	
-	case 'Crear Tabla Temporal';
-	$tablaTemporal = $_POST['TablaTemporal'];
-	// Llamamos fuciones de vaciar.
-	$CrearTablaTemporal = prepararTablaTempArticulosComp($BDVirtuemart,$tablaTemporal);
-	echo json_encode($CrearTablaTemporal,true);
-	break;	
+	case 'Crear Tabla Temporal':
+		$tablaTemporal = $_POST['TablaTemporal'];
+		// Llamamos fuciones de vaciar.
+		$CrearTablaTemporal = prepararTablasTemporales($BDVirtuemart,$tablaTemporal);
+		echo json_encode($CrearTablaTemporal,true);
+		break;	
 	
+	case 'Comprobaciones' :
+		//@ Objetivo:
+		// Ejecutar la funcion que le recibimos para comprobar.
+		// [ resultado ] = El resultado de funcion, tenmos que tenerlo clasificado por subproceso si los hubiera.
+		
+		$respuesta = array();
+		$funcion = 	$_POST['funcion'];
+		if ($funcion['nom_funcion'] === 'ComprobarTablaTempArticulosCompleta'){
+			$respuesta = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
+		}
+		echo json_encode($respuesta,true);
+		break;	
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

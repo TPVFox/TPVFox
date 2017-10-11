@@ -7,18 +7,24 @@
  * @Descripcion	Funciones para importar datos de Virtuemart a Tpv
  * */
   
- function prepararTablaTempArticulosComp ($BDVirtuemart,$tTemporal)
+ function prepararTablasTemporales($BDVirtuemart,$tTemporal)
  {
 	//@ Objetivo : 
 	// Crear las tablas temporales que indiquemos en array $tablasTemporales en BDVirtuemart
 	// RECUERDA que el nombre de los campos tiene que ser el mismo de los campos queremos hacer insert tpv.
 	
 	$resultado = array();
-	// En debug es mejor quitar TEMPORARY
+	$nombre_temporal = $tTemporal['nombre_tabla_temporal'];
+	// En debug:
+	// Inicialmente haciamos CREATE TEMPORARY TABLE, pero no se cual fue el motivo, pero 
+	// en la tabal tmp_productos_img me generaba un error.
+	// Por lo que decido hacerlos con CREATE TABLE  permanente.
+	// para ello tenemos que hacer:
+	$sqlBDImpor = 'DROP TABLE IF EXISTS '.$nombre_temporal;
+	$BDVirtuemart->query($sqlBDImpor);
 	// Creamos las tablas temporales ( TEMPORARY ) y añadimos campo de id
 	//~ foreach($tablasTemporales as $tTemporal) {
-		$nombre_temporal = $tTemporal['nombre_tabla_temporal'];
-		$sqlBDImpor = 'CREATE TEMPORARY TABLE '.$nombre_temporal.' as '.$tTemporal['select'];
+		$sqlBDImpor = 'CREATE TABLE '.$nombre_temporal.' as '.$tTemporal['select'];
 		
 		if ($BDVirtuemart->query($sqlBDImpor) === TRUE) {
 			// Se creó con éxito la tabla articulosCompleta en

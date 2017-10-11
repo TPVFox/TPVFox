@@ -43,6 +43,11 @@ function BarraProceso(lineaA,lineaF) {
 	return;
 	
 }
+function inicioProcesos(){
+	// Objetivo es iniciar los procesos al terminar cargar pagina html Importar_virtuemart.php
+	
+	
+}
 
 function ControlPulsado(pulsado) {
 	// Lo que pretendo es tener un proceso que controle y cambio de proceso según sea necesarios.
@@ -209,40 +214,38 @@ function bucleInsert(insert_tablas){
 
 
 function BucleTablaTemporal(){
-	// Objetivo :
+	// @ Objetivo :
 	// Es recorrer el arrat de tablasTemporales 
-	
-	
-	
+	// @ Parametros:
+	// NO HAY , son variables globales (tablasTemporales y tablatemporal_actual)
 	console.log(' tabla temporales a crear.'+tablasTemporales.length);
 	var i = 0;
 	var y = 0;
-	var termino = 'no';
 	tablasTemporales.forEach(function(tablatemporal) {
-	//~ // Recorremos tablas y creamos las tablas.
-	//~ console.log('tablatemporal_actual:'+ tablatemporal_actual['nombre_tabla_temporal']);
-	console.log('tablatemporal:'+ tablatemporal['nombre_tabla_temporal']);
-	if (typeof tablatemporal_actual === 'undefined'){
-			y = 0
-	} else if ( tablatemporal_actual['nombre_tabla_temporal'] === tablatemporal['nombre_tabla_temporal']){
-		y = i+ 1;
-		
-	}
-	i++;
+		// Recorremos tablas y creamos las tablas.
+		//~ console.log('tablatemporal_actual:'+ tablatemporal_actual['nombre_tabla_temporal']);
+		console.log('tablatemporal:'+ tablatemporal['nombre_tabla_temporal']);
+		if (typeof tablatemporal_actual === 'undefined'){
+				y = 0
+		} else if ( tablatemporal_actual['nombre_tabla_temporal'] === tablatemporal['nombre_tabla_temporal']){
+			y = i+ 1;
+			
+		}
+		i++;
 	});
 	// Rellenamos barra proceso.
 	lineaF = tablasTemporales.length;
 	lineaA = y+1;
 	BarraProceso(y,lineaF);
-	
+	// Ejecutamos sino se pasa index de la tablatemporales
 	if ( y <= tablasTemporales.length-1){
 		tablatemporal_actual = tablasTemporales[y];
 		CrearTablaTemporal(tablatemporal_actual,y);
 	} else {
-	BarraProceso(y,lineaF); 
-	//~ alert(' Terminamos de crear tablas temporales');
-	console.log('termino bucle');
 	// El proceso se termina y se vuelve en CrearTablaTemporal
+	BarraProceso(y,lineaF); 
+	console.log('Ahora hacesmos las comprobaciones');
+	BucleComprobacionesTemporales();
 	}
 }
 
@@ -282,12 +285,85 @@ function CrearTablaTemporal(tablatemporal,y){
 		});
 		
 	console.log('Terminamos de crear la tabla temporal ' + tablatemporal['nombre_tabla_temporal']);
-	//~ BucleTablaTemporal();
 }
 	
 	
+function BucleComprobacionesTemporales() {
+	// @ Objetivo es hacer las comprobaciones en tablas temporales.
+	// @ Paramentros:
+	// No hay es la varible globar JS comprobaciones
+	console.log(' Entramos en Bucle de Comprobaciones Temporales');
+	var i = 0;
+	var y = 0;
+	comprobacionesTemporales.forEach(
+		function(comprobacion) {
+			//~ console.log(comprobacion['nom_funcion']);
+			if (typeof comprobacion_actual === 'undefined'){
+				y = 0
+			} else if ( comprobacion_actual['nom_funcion'] === comprobacion['nom_funcion']){
+				y = i+ 1;
+			}
+			i++
+		}
+	);
+	// Rellenamos barra proceso.
+	lineaF = comprobacionesTemporales.length;
+	lineaA = y +1;
+	BarraProceso(lineaA,lineaF);
+	
+
+	// Ejecutamos sino se pasa index de la tablatemporales recuerda array empieza 0
+	if ( y <= comprobacionesTemporales.length-1){
+		comprobacion_actual = comprobacionesTemporales[y];
+		console.log('Comprobacion a realizar:'+ comprobacion_actual['nom_funcion']);
+		console.log('valor LineaA :'+ lineaA);
+		console.log('valor LineaF :'+ lineaF);
+		ejecutarComprobaciones();
+	} else {
+	// El proceso se termina y se vuelve en CrearTablaTemporal
+	BarraProceso(y,lineaF); 
+	console.log('Terminamos comprobaciones.');
+	//~ BucleComprobacionesTemporales();
+	}
+	
+}
 	
 	
+function ejecutarComprobaciones(){
+	// @ Objetivo:
+	// Es ejecutar por AJAX las comprobaciones.
+	alert( comprobacion_actual['nom_funcion']);
+	//~ var funcion = comprobacion_actual['nom_funcion'];
+	var parametros = {
+		"funcion" 	:  comprobacion_actual,
+		"pulsado" 	: 'Comprobaciones'
+				};
+		$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+					$("#resultado").html('Realizando comprobacion:' + comprobacion_actual['nom_funcion']);
+			},
+			success:  function (response) {			
+				// Recorremos el objeto tabla.nombretabla.Insert para contar cuantos insert
+				var resultado =  $.parseJSON(response);
+				console.log(response);
+				//~ var num_registro = resultado[nom_tabla_temporal]['Num_articulos'];
+				//~ // Ahora metemos los datos en pantalla.
+				//~ if (num_registro > 0 ){
+					//~ $("#"+nom_tabla_temporal+"> td.num_registros").html(num_registro);
+					//~ $("#"+nom_tabla_temporal+"> td.check").html('<span class="glyphicon glyphicon-ok"></span>');
+				//~ } else {
+					//~ $("#"+nom_tabla_temporal+"> td.check").html('<span class=".glyphicon glyphicon-remove"></span>');
+				//~ }
+				// Volvemos ejecutar ... 
+				
+				BucleComprobacionesTemporales()				
+			}
+		});
+	
+}
 	
 	
 	
