@@ -443,41 +443,58 @@ function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 	$respuesta['productos'] = $productos;
 	return $respuesta;
 }
-function anhadirLineasTicket($productos,$CONF_campoPeso){
+function anhadirLineasTicket($productos,$CONF_campoPeso,$estadoTicket){
 	//@ Objetivo:
 	// Obtener html de todas las lineas de productos.
 	$htmlLineas = array();
 	foreach($productos as $product){
 		$num_item = $product->nfila - 1;
-		$unaLinea = htmlLineaTicket($product,$num_item,$CONF_campoPeso);
+		$unaLinea = htmlLineaTicket($product,$num_item,$CONF_campoPeso,$estadoTicket);
 		$htmlLineas[$num_item] = $unaLinea;
 	}
 	return $htmlLineas;
 }
 
-function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
+function htmlLineaTicket($producto,$num_item,$CONF_campoPeso,$estadoTicket){
 	//@ Objetivo:
 	// Obtener html de una linea de productos.
 	//@ Parametros:
 	// $product -> Debería ser un objeto, pero por javascritp viene como un array por lo comprobamos y convertimos.
-	 if(!is_object($producto)) {
+	// Variables que vamos utilizar:
+	$classtr = '' ; // para clase en tr
+	$estadoInput = '' ; // estado input cantidad.
+	
+	if(!is_object($producto)) {
 		// Comprobamos si product no es objeto lo convertimos.
 		$product = (object)$producto;
 		
 	} else {
 		$product = $producto;
 	}
-	// Variables que vamos utilizar:
-	$classtr = '' ; // para clase en tr
-	$estadoInput = '' ; // estado input cantidad.
+	//si estado ticket es cobrado los inputs se desactivan, iconoEliminar e input cantidad
+	if($estadoTicket === 'cobrado'){
+		$estadoInput='disabled';
+	}
+	
+	
 	
 	// Si estado es eliminado tenemos añadir class y disabled input
 	if ($product->estado !=='Activo'){
 		$classtr = ' class="tachado" ';
 		$estadoInput = 'disabled';
-		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="retornarFila('.$num_item.');"><span class="glyphicon glyphicon-export"></span></a></td>';
+		if ($estadoTicket  === 'cobrado'){
+			$funcOnclick ='';
+		} else {
+			$funcOnclick = ' retornarFila('.$num_item.');';
+		}
+		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 	} else {
-		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="eliminarFila('.$num_item.');"><span class="glyphicon glyphicon-trash"></span></a></td>';
+		if ($estadoTicket  === 'cobrado'){
+			$funcOnclick ='';
+		} else {
+			$funcOnclick = ' eliminarFila('.$num_item.');';
+		}
+		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 	}
 	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';
 	$nuevaFila .= '<td class="linea">'.$product->nfila.'</td>'; //num linea
@@ -746,6 +763,26 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 
 //obtenemos tickets cobrados / cerrados
 function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
+	
+	// Function para obtener productos y listarlos
+	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
+	$resultado = array();
+	//inicio paginacion filtro
+	//para evitar repetir codigo
+	$Controler = new ControladorComun; 
+	$campoBD = 'formaPago';
+	$campo2BD = 'NumTicket';
+	$rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD);
+	$rango=$rangoFiltro['rango'];
+	$filtroFinal=$rangoFiltro['filtro'];
+	//fin paginacion y filtro de busqueda 
+	//if filtro viene vacio solo vemos tickets con filtro usuario = idsession
+	if ($filtroFinal === '') {
+		$mostrarPorIdUser = ' WHERE `idUsuario` = ';
+	} else {
+		$mostrarPorIdUser = ' AND `idUsuario` = ';
+	}
+	
 	// Function para obtener usuarios y listarlos
 	$usuario = $_SESSION['usuarioTpv']['id']; //para consultar por usuario tickets cobrados
 	$rango= '';
@@ -753,7 +790,8 @@ function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
 		$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	} 
 	$consulta = "SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t "
-			."LEFT JOIN `clientes` AS c ON c.`idClientes` = t.`idCliente` ".$filtro." AND `idUsuario`= ".$usuario.$rango; 
+			."LEFT JOIN `clientes` AS c "
+			."ON c.`idClientes` = t.`idCliente` ".$filtroFinal.$mostrarPorIdUser.$usuario.$rango; 
 		 
 	$ResConsulta = $BDTpv->query($consulta);
 
@@ -762,7 +800,7 @@ function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
 		$resultado[] = $fila;
 	}
 
-	//$resultado ['consulta'] = $consulta;
+	//$resultado ['sql'] = $filtro;
 	return $resultado;
 }
 

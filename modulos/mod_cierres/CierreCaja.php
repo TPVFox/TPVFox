@@ -29,7 +29,15 @@
 	}
 	$estadoInput =''; //inicializo variable para desactivar boton aceptar, si hay tickets abiertos
 	$suma = array();
-	
+	if (isset($_GET['dedonde'])){
+		$dedonde = $_GET['dedonde'];
+		//dedonde = tpv o cierre 
+		if ($dedonde === 'tpv'){
+			$rutaVolver = '../mod_tpv/tpv.php';
+		} else { //doy por hecho que estoy en cierres y vuelvo al listado
+			$rutaVolver = './ListaCierres.php';
+		}
+	}
 		
 	//arrays cierre
 	$Cusuarios = array();
@@ -64,9 +72,14 @@
 				movil
 			-->
 			<nav class="col-sm-2" id="myScrollspy">
-			<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
-			<?php //si tengo tickets abiertos: muestro idUsuario y numTickets
+			<a class="text-ritght" href=<?php echo $rutaVolver;?>>Volver Atrás</a>
+			<?php 
+			//si tengo tickets abiertos: muestro idUsuario y numTickets
+		
 			if (isset($Users['abiertos'])){?>
+				<div class="alert alert-danger">
+					<strong>Tickets Abiertos!</strong></br> No se permite cerrar caja si hay tickets abiertos.
+				</div>
 					<table class="table table-striped" style="border:2px solid black">
 					<thead>
 						<tr>

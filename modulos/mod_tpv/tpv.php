@@ -44,7 +44,7 @@
 	// En configuracion podemos definir SI / NO
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idCliente'] = 1; // Este dato puede cambiar
+		cabecera['idCliente'] = 0; // Este dato puede cambiar
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['estadoTicket'] ="<?php echo $ticket_estado ;?>"; // Si no hay datos GET es 'Nuevo';
@@ -79,6 +79,12 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		$ticket= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
 		$ticket_estado = $ticket['estadoTicket'];
 		// OJO !! Puede sucede que su estado no sea Abierto.. habría que tratarlo
+		
+		//si vemos ticket y esta cobrado desactivamos INPUTS para evitar modificarlo
+		if (((isset($_GET['tAbierto'])) or (isset($_GET['tActual']))) AND ($ticket_estado === 'Cobrado')) {
+			$estadoTicket='cobrado';
+			$estadoInput = 'disabled';
+		}
 	}
 	if ((isset($cambiosEstadoTickets['error'])) || (isset($ticket['error']))) {
 		// Entonces obtenemos las caberas para mostrar.
@@ -106,7 +112,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	} else {
 		//~ $horaInicio= MaquetarFecha($fechaInicio,'HM'); // Falla no se porque... :-)
 		$cliente = '';
-		$idCliente =1;
+		$idCliente =0;
 	}
 	
 	if(isset($ticket['productos'])){
@@ -163,7 +169,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			<h4>Otros opciones</h4>
 			<ul class="nav nav-pills nav-stacked">
 				<li><a href="tpv.php">Nuevo ticket</a></li>
-				<li><a href="../mod_cierres/CierreCaja.php">Cierre Caja</a></li>
+				<li><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></li>
 				<li><a href="ListaTickets.php">Tickets Cerrados</a></li>
 			</ul>
 		</div>
@@ -302,9 +308,9 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeyup="teclaPulsada(event,'Codbarras',0)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeyup="teclaPulsada(event,'Referencia',0)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion"
+			<td><input id="Codbarras" type="text" name="Codbarras" <?php echo $estadoInput;?> placeholder="Codbarras" size="13" value="" autofocus  onkeyup="teclaPulsada(event,'Codbarras',0)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" <?php echo $estadoInput;?> placeholder="Referencia" size="13" value="" onkeyup="teclaPulsada(event,'Referencia',0)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" <?php echo $estadoInput;?>
 				placeholder="Descripcion" size="20" value="" onkeyup="teclaPulsada(event,'Descripcion',0)">
 				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProductos('Descripcion','','tpv')"></a>
 			</td>
@@ -314,7 +320,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		<?php
 		// Si es un ticket abierto o que existe..
 		if (isset($ticket['productos'])){
-			$htmllineas = anhadirLineasTicket(array_reverse($ticket['productos']),$CONF_campoPeso);
+			$htmllineas = anhadirLineasTicket(array_reverse($ticket['productos']),$CONF_campoPeso,$estadoTicket);
 			//~ $htmllineas = anhadirLineasTicket(array_reverse($ticket['productos'], TRUE),$CONF_campoPeso);
 			//~ $htmllineas = anhadirLineasTicket($ticket['productos'],$CONF_campoPeso);
 			//~ echo '<pre>';

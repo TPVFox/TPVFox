@@ -15,6 +15,7 @@
 	//$LimitePagina = 40 o los que queramos
 	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
 	//$OtrosParametros
+	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
@@ -24,7 +25,7 @@
 		}
 		if ($_GET['buscar']) {
 			$palabraBuscar = $_GET['buscar'];
-			$filtro =  "WHERE `Numticket` LIKE '%".$palabraBuscar."%'";
+			$filtro =  'WHERE `Numticket` LIKE "%'.$palabraBuscar.'%"';
 		} 
 	}
 	
@@ -36,7 +37,7 @@
 	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
 	
 	$Controler = new ControladorComun; 
-	$filtro = ''; // por defecto
+	
 	$vista = 'ticketst';
 	$LinkBase = './ListaTickets.php?';
 	$OtrosParametros = '';
@@ -48,8 +49,11 @@
 		$desde = 0;
 	}
 	// Realizamos consulta 
+	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
+
 	if ($palabraBuscar !== '') {
-		$filtro =  "WHERE `Numticket` LIKE '%".$palabraBuscar."%'";
+		$filtro = "$palabraBuscar";
+		//$filtro =  "AND `Numticket` LIKE '%".$palabraBuscar."%'";
 	} else {
 		$filtro = '';
 	}
@@ -57,7 +61,7 @@
 	$OtrosParametros = $palabraBuscar;	
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	$tickets = obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro);
-	
+
 	?>
 	
 	<script>
@@ -90,6 +94,9 @@
 				//~ echo '<pre>';
 					//~ print_r($_SESSION['usuarioTpv']['id']);
 				//~ echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($tickets['sql']);	
+	//~ echo '</pre>';
 		?>
        
 	<div class="container">
@@ -111,13 +118,13 @@
 	       
 			<nav class="col-sm-2" id="myScrollspy">
 				<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
-				<div data-spy="affix" data-offset-top="505">
+				<div data-offset-top="505">
 				<h4> Tickets cerrados</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
-				<?php 					
-					//~ <li><a href="#section2" onclick="metodoClick('VerProducto','ticket');";>Modificar</a></li>
-				?><?php		//metodoClick js case pulsado 
+				 	<li><a href="#section1" onclick="metodoClick('VerTicket','ticket');";>Modificar</a></li>
+				 	<li><a href="#section2">Imprimir</a></li>
+				<?php		//metodoClick js case pulsado 
 								//agregarUsuario nos lleva a formulario usuario
 								//verUsuario si esta checkado nos lleva vista usuario de ese id
 											//si NO nos indica que tenemos que elegir uno de la lista ?>
@@ -127,18 +134,18 @@
 			<div class="col-md-10">
 					<p>
 					 -Tickets cerrados encontrados BD local filtrados:
-						<?php echo $CantidadRegistros;?>
+						<?php echo count($tickets);?>
 					</p>
 					<?php 	// Mostramos paginacion 
 						echo $htmlPG;
 					?>
-				<div class="form-group ClaseBuscar">
-					<label>Buscar por Numero de ticket </label>
-					<input type="text" name="Buscar" value=""> 
-											<?php // la idea es enviar parametro de donde para atacar a un mismo js mod_producto?>
-					<input type="submit" name="BtnBuscar" value="Buscar" onclick="metodoClick('NuevaBusqueda','ListaTickets');">
-				</div>
-				
+					<form action="./ListaTickets.php" method="GET" name="formBuscar">
+						<div class="form-group ClaseBuscar">
+							<label>Buscar en Formas de pago y en Num Ticket </label>
+							<input type="text" name="buscar" value="">
+							<input type="submit" value="buscar">
+						</div>
+					</form>				
                  <!-- TABLA DE TICKETS -->
 			<div>
 			<table class="table table-striped">
@@ -162,8 +169,6 @@
 				$checkUser = 0;
 				foreach (array_reverse($tickets) as $ticket){ 
 					$checkUser = $checkUser + 1; 
-					
-					
 				?>
 
 				<tr>

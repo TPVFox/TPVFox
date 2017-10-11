@@ -59,7 +59,7 @@
 	
 	$OtrosParametros = $palabraBuscar;	
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	$productos = obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro);
+	$productos = obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
 	
 	?>
 	
@@ -84,7 +84,7 @@
         ?>
         <?php
 		//~ echo '<pre>';
-			//~ print_r($productos);
+			//~ print_r($CantidadRegistros);
 		//~ echo '</pre>';
 		?>
        
