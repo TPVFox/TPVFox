@@ -106,16 +106,16 @@ class ControladorComun
 		$palabras=array();
 	
 		$palabras = explode(' ',$filtro); // array de varias palabras, si las hay..
-		//para buscar por palabras separadas			
+		//para buscar por palabras separadas
 		foreach($palabras as $palabra){
 			if ($campo2BD !== ''){
-				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%"';
+				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" )';
 			} else {
-				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%"';
+				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" )';
 			}
 		}
 		$buscar = implode(' and ',$likes);
-		$filtroFinal = ' WHERE '.$buscar;
+		$filtroFinal = ' WHERE ('.$buscar;
 		
 	}	
 	if ($LimitePagina > 0 ){
