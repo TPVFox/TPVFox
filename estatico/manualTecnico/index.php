@@ -13,7 +13,7 @@
 					'1' => array(
 							'titulo_cuadro'	=> 'Generar Ayudas',
 							'introduccion'	=> 'Una plantilla que para como generar mas ayudas.',
-							'ruta'			=> '/help_import_virtuemart/',
+							'ruta'			=> '/help_plantilla/',
 							'fichero'		=> 'index.php'
 							),
 					'2' => array(
