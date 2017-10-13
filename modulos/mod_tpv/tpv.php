@@ -122,9 +122,9 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			$Datostotales = recalculoTotales($ticket['productos']);	
 	}
 	
-	//~ echo '<pre>';
-	//~ print_r($ticket);
-	//~ echo '</pre>';
+	echo '<pre>';
+	print_r($ticketsAbiertos['items']);
+	echo '</pre>';
 
 ?>
 
@@ -198,12 +198,11 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		<tbody>
 			<?php 
 			$i=0;
-			foreach ($ticketsAbiertos['items'] as $item){
-				//le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
-				$ordenInverso =array_reverse($ticketsAbiertos['items']); 
-				while ($i <= 4){
-					$item =$ordenInverso[$i];
-					$i++;
+			//le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
+			$ordenInverso =array_reverse($ticketsAbiertos['items']); 
+			foreach ($ordenInverso as $item){
+				
+				$i++;
 			?>
 			<tr>
 				<td><a href="tpv.php?tAbierto=<?php echo $item['numticket']; ?>">
@@ -219,8 +218,11 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 				</td>
 			</tr>
 			<?php
-		
-				}//cerramos while
+			// Solo mostramos 5 como maximo.
+			if ($i >5 ){
+				break;
+			}
+				
 			}// Cerramos foreach
 			
 			 ?>
