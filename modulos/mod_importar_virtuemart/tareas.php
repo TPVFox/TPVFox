@@ -56,12 +56,20 @@ $TControlador = new ControladorComun;
 		//@ Objetivo:
 		// Ejecutar la funcion que le recibimos para comprobar.
 		// [ resultado ] = El resultado de funcion, tenmos que tenerlo clasificado por subproceso si los hubiera.
-		
+		// Ejemplo:
+		// ComprobarTablaTempArticulosCompleta , donde hay dos subproceso.
+		// resultado ->
+		// 			[subproceso]
+		//				[estado] = true /false
+		//				[error] = Indicando error
+		//				... Si necesitamos mas datos...
+			
 		$respuesta = array();
 		$funcion = 	$_POST['funcion'];
 		if ($funcion['nom_funcion'] === 'ComprobarTablaTempArticulosCompleta'){
-			$respuesta = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
+			$resultado = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
 		}
+		$respuesta = $resultado;
 		echo json_encode($respuesta,true);
 		break;	
 }

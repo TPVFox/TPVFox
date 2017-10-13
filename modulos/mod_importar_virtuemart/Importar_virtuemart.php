@@ -106,7 +106,7 @@
 								Comprobar Tabla Temporal Articulos Completa
 								<span style="float:right;" class="icono-collapse">+</span>
 								</a>',
-								'subprocesos'				=>array('RecalculoPrecioConIva','ComprobarCodbarras'),
+								'subprocesos'				=>array('RecalculoPrecioConIva','CodbarrasRepetidos'),
 								'explicacion_subprocesos'	=>array('Ponemos en tabla_tmp precion con Iva ya que estaba sin el (Recalculamos)','Comprobamos que no haya ningún codbarras repetetido en tmp_temporal ya que no tiene sentido añadirlo.[DUDAMOS EN AFIRMACION]') 
 								)//~ ),
 							//~ '1' => array(
@@ -377,11 +377,11 @@
 				?>
 				<tr class="info">
 					<th>COMPROBACIONES</th>
-					<th></th>
+					<th><span title="Subprocesos dentro comprobacion">Sub(*)</span> / Errores</th>
 					<th></th>
 				</tr>
-				<?php foreach ($comprobaciones as $comprobacion){?>
-				<tr>
+				<?php foreach ($comprobaciones as $key =>$comprobacion){?>
+				<tr id="comprobacion_<?php echo $key;?>">
 					<td><h5>
 						<?php echo $comprobacion['link_collapse'];?>
 						</h5>
@@ -396,7 +396,7 @@
 							?>
 						</div>
 					</td>
-					<td></td>
+					<td class="errores"></td>
 					<td></td>
 				</tr>
 				<?php	

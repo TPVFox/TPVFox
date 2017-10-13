@@ -250,32 +250,37 @@ function RealizarInsert($Inserts,$BDTpv){
 
 function ComprobarTablaTempArticulosCompleta ($BDVirtuemart){
 	// Objetivo:
-	// Es tener un proceso que haga las comprobaciones que le indiquemos de la tabla temporal tmp_articulosCompleta.
-	// Comprobaciones nos referimos tanto a comprobar que esten bien registros, como a 
-	// calculos de campos no añadidos.
+	//  Comprobar en tabla tempora tmp_articulosCompleta.
+	//			subproceso: RecalculoPrecioConIvas
+	//			subproceso: CodbarrasRepetidos.
 	$resultado = array();
 	// [CALCULAMOS EL PRECIO CON IVA]  ya que virtuemart no nos lo facilita.
 	$sqlUpdate = "UPDATE `tmp_articulosCompleta` SET `pvpCiva`=`pvpSiva`*(100+`iva`)/100";
 	if ($BDVirtuemart->query($sqlUpdate) === TRUE) {
 		// Se creó con éxito la tabla articulosCompleta en
-		$resultado['RecalculoPrecioConIva'] = TRUE;
+		$resultado['RecalculoPrecioConIva']['estado'] = TRUE;
 	}else {
 		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
-		$resultado['error']['consulta'] = $sqlUpdate;
-		$resultado['error']['info_error'] =  $BDVirtuemart->error;
+		$resultado['RecalculoPrecioConIva']['error']['consulta'] = $sqlUpdate;
+		$resultado['RecalculoPrecioConIva']['error']['info_error'] =  $BDVirtuemart->error;
+		$resultado['RecalculoPrecioConIva']['estado'] = false;
 	}
 	// Ahora hacemos las comprobaciones:
 	// [CODBARRAS REPETIDOS]
-	// Si hay un error devolvemos error 
+	// Por defecto pongo 
+	$resultado['CodbarrasRepetidos']['estado'] = TRUE;
+	// Si hay un error devolvemos YA LOS CAMBIAMOS Y MANDAMOS error 
 	$repetidos = ComprobarCodbarras ($BDVirtuemart);
 	if ( isset($repetidos['Codbarras_repetidos'])){
 		if (count($repetidos['Codbarras_repetidos']) >0 ){
 			// Quiere decir que hay repetidos.
-			$resultado['error']['ComprobarCodbarras'] = $repetidos;
+			$resultado['CodbarrasRepetidos']['error']['items'] = $repetidos;
+			$resultado['CodbarrasRepetidos']['estado'] = false;
 		} 
 	} else {
 		// Quiere decir que algo salio mal.
-		$resultado['error']['ComprobarCodbarras'] = $repetidos;
+		$resultado['ComprobarCodbarras']['error'] = $repetidos;
+		$resultado['CodbarrasRepetidos']['estado'] = false;
 	}	
 	return $resultado;
 }

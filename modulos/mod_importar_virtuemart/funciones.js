@@ -21,6 +21,9 @@ var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
 var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var tabla_actual = '';
 var insert_tablas_global ;
+
+
+var Global1 = [];
 // Funcion para mostrar la barra de proceso..
 function BarraProceso(lineaA,lineaF) {
 	// Esta fucion debería ser una funcion comun , por lo que se debería cargar el javascript comun y ejecutar...
@@ -318,7 +321,7 @@ function BucleComprobacionesTemporales() {
 		console.log('Comprobacion a realizar:'+ comprobacion_actual['nom_funcion']);
 		console.log('valor LineaA :'+ lineaA);
 		console.log('valor LineaF :'+ lineaF);
-		ejecutarComprobaciones();
+		ejecutarComprobaciones(y);
 	} else {
 	// El proceso se termina y se vuelve en CrearTablaTemporal
 	BarraProceso(y,lineaF); 
@@ -329,11 +332,13 @@ function BucleComprobacionesTemporales() {
 }
 	
 	
-function ejecutarComprobaciones(){
+function ejecutarComprobaciones(index){
 	// @ Objetivo:
 	// Es ejecutar por AJAX las comprobaciones.
-	alert( comprobacion_actual['nom_funcion']);
-	//~ var funcion = comprobacion_actual['nom_funcion'];
+	// @ Paramentros:
+	// 		index = > Es el numero de indice en el que esta comprobacion_actual con respecto comprobaciones
+	//				Este parametro lo necesito para mostrar el resultado, saber que td
+	console.log('============ Realizando comprobacion:' + comprobacion_actual['nom_funcion']+ '====================');
 	var parametros = {
 		"funcion" 	:  comprobacion_actual,
 		"pulsado" 	: 'Comprobaciones'
@@ -346,19 +351,34 @@ function ejecutarComprobaciones(){
 					$("#resultado").html('Realizando comprobacion:' + comprobacion_actual['nom_funcion']);
 			},
 			success:  function (response) {			
-				// Recorremos el objeto tabla.nombretabla.Insert para contar cuantos insert
+				// Obtenemos los subprocesos que deberíamos obtener respuesta.
+				var subprocesos = comprobacion_actual['subprocesos'];
 				var resultado =  $.parseJSON(response);
+				var errores = 0;
 				console.log(response);
-				//~ var num_registro = resultado[nom_tabla_temporal]['Num_articulos'];
-				//~ // Ahora metemos los datos en pantalla.
-				//~ if (num_registro > 0 ){
-					//~ $("#"+nom_tabla_temporal+"> td.num_registros").html(num_registro);
-					//~ $("#"+nom_tabla_temporal+"> td.check").html('<span class="glyphicon glyphicon-ok"></span>');
-				//~ } else {
-					//~ $("#"+nom_tabla_temporal+"> td.check").html('<span class=".glyphicon glyphicon-remove"></span>');
-				//~ }
-				// Volvemos ejecutar ... 
-				
+				// Recorremos subproceso
+				var contador = 0;
+				// Recorremos los subproceso que tenemos asignados.(lo nombre tiene que coincidir con 
+				// los objetos de resultado, sino da un error.
+				subprocesos.forEach(
+					function(subproceso){
+						contador = contador +1
+						console.log(subproceso);
+						console.log(resultado);
+
+						if (resultado[subproceso]['estado'] !=  true){
+							console.log(' estado:'+ resultado[subproceso]['estado']);
+							errores ++;
+						}
+					}
+				);
+				var classError = '';
+				if (errores > 0 ){
+					classError = 'class="alert-danger"';
+				}
+				console.log('Errores encontrados:'+errores);
+				$("#comprobacion_"+index+"> td.errores").html(contador + ' / <span '+ classError +'>'+errores+'</span>');
+				// Ahora continuamos con el bucle
 				BucleComprobacionesTemporales()				
 			}
 		});
