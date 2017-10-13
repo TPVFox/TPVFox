@@ -21,6 +21,18 @@
 							'introduccion'	=> 'El modulo de importar desde Virtuemart, una ayuda tecnica como para ejecutarlos.',
 							'ruta'			=> '/help_import_virtuemart/',
 							'fichero'		=> 'index.php'
+							),
+					'3' => array(
+							'titulo_cuadro'	=> 'Testeo Productos',
+							'introduccion'	=> 'El modulo de productos, una ayuda tecnica como para ejecutar el testeo.',
+							'ruta'			=> '/help_productos/',
+							'fichero'		=> 'index.php'
+							),	
+					'4' => array(
+							'titulo_cuadro'	=> 'Ayuda Tickets',
+							'introduccion'	=> 'El modulo de tickets, una ayuda tecnica como para ejecutar el testeo.',
+							'ruta'			=> '/help_tickets/',
+							'fichero'		=> 'index.php'
 							)
 				);
 		

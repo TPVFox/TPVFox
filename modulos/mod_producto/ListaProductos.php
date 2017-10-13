@@ -14,16 +14,18 @@
 	//$LimitePagina = 40 o los que queramos
 	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
 	//$OtrosParametros
+	$palabraBuscar=array();
+	$stringPalabras='';
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
-	// Obtenemos datos si hay GET y cambiamos valores por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
 	if (isset($_GET['buscar'])) {  
-		$palabraBuscar = $_GET['buscar'];
-		$filtro = ' WHERE `articulo_name` LIKE "%'.$palabraBuscar.'%" ';
+		//recibo un string con 1 o mas palabras
+		$stringPalabras = $_GET['buscar'];
+		$palabraBuscar = explode(' ',$_GET['buscar']); 
 	} 
 	
 	
@@ -39,7 +41,6 @@
 	$vista = 'articulos';
 	$LinkBase = './ListaProductos.php?';
 	$OtrosParametros = '';
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
@@ -49,16 +50,24 @@
 	}
 	// Realizamos consulta 
 	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
-	if (isset($palabraBuscar)) {
-		$filtro =  "$palabraBuscar";
-		
+	
+	
+	if ($stringPalabras !== '' ){
+		$campoBD='articulo_name';
+		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD);
+		$filtro=$WhereLimite['filtro'];
+		$OtrosParametros=$stringPalabras;
+	}
+	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
+	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+	if ($stringPalabras !== '' ){
+		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
 	} else {
-		
-		$filtro = '';
+		$filtro= " LIMIT ".$LimitePagina." OFFSET 0";
 	}
 	
-	$OtrosParametros = $palabraBuscar;	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	$productos = obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
 	
 	?>
@@ -84,7 +93,7 @@
         ?>
         <?php
 		//~ echo '<pre>';
-			//~ print_r($CantidadRegistros);
+			//~ print_r($productos['sql']);
 		//~ echo '</pre>';
 		?>
        
@@ -123,7 +132,7 @@
 			<div class="col-md-10">
 					<p>
 					 -Productos encontrados BD local filtrados:
-						<?php echo $CantidadRegistros;?>
+						<?php echo $CantidadRegistros; ?>
 					</p>
 					<?php 	// Mostramos paginacion 
 						echo $htmlPG;

@@ -14,6 +14,8 @@
 	//$LimitePagina = 40 o los que queramos
 	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
 	//$OtrosParametros
+	$palabraBuscar=array();
+	$stringPalabras='';
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
@@ -22,9 +24,9 @@
 			$PgActual = $_GET['pagina'];
 		}
 		if (isset($_GET['buscar'])) {  
-			$palabraBuscar = $_GET['buscar'];
-			$filtro = $palabraBuscar;			
-			$filtro = ' WHERE `razonsocial` LIKE "%'.$palabraBuscar.'%" ';
+			//recibo un string con 1 o mas palabras
+			$stringPalabras = $_GET['buscar'];
+			$palabraBuscar = explode(' ',$_GET['buscar']);
 		} 
 
 	// Creamos objeto controlado comun, para obtener numero de registros. 
@@ -39,26 +41,32 @@
 	$vista = 'proveedores';
 	$LinkBase = './ListaProveedores.php?';
 	$OtrosParametros = '';
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
 	} else {
 		$desde = 0;
 	}
-	// Realizamos consulta 
-	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
-	if (isset($palabraBuscar)) {
-		$filtro =  "$palabraBuscar";
-		
-	} else {
-		
-		$filtro = '';
+	//si hay palabras para buscar
+	if ($stringPalabras !== '' ){
+		$campoBD='razonsocial';
+		$campo2BD='nombrecomercial';
+		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD);
+		$filtro=$WhereLimite['filtro'];
+		$OtrosParametros=$stringPalabras;
 	}
-
-	$OtrosParametros = $palabraBuscar;	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	
+	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
+	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+	
+		
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+	if ($stringPalabras !== '' ){
+		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+	} else {
+		$filtro= " LIMIT ".$LimitePagina." OFFSET 0";
+	}
+	$proveedores = obtenerProveedores($BDTpv,$LimitePagina ,$desde,$filtro);
 	$proveedores = obtenerProveedores($BDTpv,$LimitePagina ,$desde,$filtro);
 	//~ echo '<pre>';
 	//~ print_r($proveedores);

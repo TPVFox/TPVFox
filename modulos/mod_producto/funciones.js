@@ -31,7 +31,7 @@ function BuscarProducto (){
 	{
 		// Lo ideal sería identificar palabras..
 		// de momento solo una palabra..
-		NuevoValorBuscar = $('input[name=Buscar').val();
+		NuevoValorBuscar = $('input[name=buscar').val();
 		NuevoValorBuscar = $.trim(NuevoValorBuscar);
 		if (NuevoValorBuscar !== ''){
 			BProductos= NuevoValorBuscar;

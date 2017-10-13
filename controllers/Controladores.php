@@ -91,11 +91,14 @@ class ControladorComun
 	//le pasaria $campoBD para likes de palabras
 	//aqui se monta el limite de paginas y el explode de palabras 
 	//PARAMETROS:
-	//filtro == palabras a buscar
-	//limitePagina = 40 ejemplo
-	//desde = 0 inicialmente
-	//campoBD = campos de bbdd , ej. articulo_name
-	//campo2BD = segundo campo de bbdd a buscar
+		//filtro == palabras a buscar
+		//limitePagina = 40 ejemplo
+		//desde = 0 inicialmente
+		//campoBD = campos de bbdd , ej. articulo_name
+		//campo2BD = segundo campo de bbdd a buscar
+	//DEVUELVO: 
+		//un array['rango']=limit 40  
+				//['filtro'] =Where likes
 	$resultado = array();
 	$buscar='';
 	$rango= '';
@@ -109,12 +112,12 @@ class ControladorComun
 		//para buscar por palabras separadas
 		foreach($palabras as $palabra){
 			if ($campo2BD !== ''){
-				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" )';
+				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" ';
 			} else {
-				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" )';
+				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" ';
 			}
 		}
-		$buscar = implode(' and ',$likes);
+		$buscar = implode(' and ',$likes).')';
 		$filtroFinal = ' WHERE ('.$buscar;
 		
 	}	

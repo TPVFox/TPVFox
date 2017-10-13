@@ -9,16 +9,16 @@ function obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro) {
 	//para evitar repetir codigo
 	$Controler = new ControladorComun; 
 	$campoBD = 'articulo_name';
-	$rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD='');
-	$rango=$rangoFiltro['rango'];
-	$filtroFinal=$rangoFiltro['filtro'];
+	//~ $rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD='');
+	//~ $rango=$rangoFiltro['rango'];
+	//~ $filtroFinal=$rangoFiltro['filtro'];
 	//fin paginacion y filtro de busqueda 
 
 	$consulta = "SELECT a.*, c.`codBarras`, c.`idArticulo`, p.`idArticulo`, p.`pvpCiva` FROM `articulos` AS a "
 				."LEFT JOIN `articulosCodigoBarras` AS c " 
 				."ON c.`idArticulo` = a.`idArticulo` " 
 				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo`".$filtroFinal.$rango; 
+				."ON p.`idArticulo` = a.`idArticulo`".$filtro;//$filtroFinal.$rango; 
 	
 	if ($ResConsulta = $BDTpv->query($consulta)){			
 		while ($fila = $ResConsulta->fetch_assoc()) {

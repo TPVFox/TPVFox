@@ -14,6 +14,9 @@
 	//$LimitePagina = 40 o los que queramos
 	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
 	//$OtrosParametros
+	
+	$palabraBuscar=array();
+	$stringPalabras='';
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
@@ -22,9 +25,9 @@
 			$PgActual = $_GET['pagina'];
 		}
 		if (isset($_GET['buscar'])) {  
-			$palabraBuscar = $_GET['buscar'];
-			$filtro = $palabraBuscar;
-			$filtro = ' WHERE `razonsocial` LIKE "%'.$palabraBuscar.'%" ';
+			//recibo un string con 1 o mas palabras
+			$stringPalabras = $_GET['buscar'];
+			$palabraBuscar = explode(' ',$_GET['buscar']); 
 		} 
 
 	// Creamos objeto controlado comun, para obtener numero de registros. 
@@ -39,7 +42,7 @@
 	$vista = 'clientes';
 	$LinkBase = './ListaClientes.php?';
 	$OtrosParametros = '';
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+	//$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 	
 
 	$paginasMulti = $PgActual-1;
@@ -48,23 +51,28 @@
 	} else {
 		$desde = 0;
 	}
-	// Realizamos consulta 
-	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
-	if (isset($palabraBuscar)) {
-		$filtro =  "$palabraBuscar";
-		
-	} else {
-		
-		$filtro = '';
+	
+	if ($stringPalabras !== '' ){
+		$campoBD='razonsocial';
+		$campo2BD = 'Nombre';
+		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD);
+		$filtro=$WhereLimite['filtro'];
+		$OtrosParametros=$stringPalabras;
 	}
-
-	$OtrosParametros = $palabraBuscar;	
+	
+	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
+	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+	
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-
+	if ($stringPalabras !== '' ){
+		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+	} else {
+		$filtro= " LIMIT ".$LimitePagina." OFFSET 0";
+	}
 	
 	$clientes = obtenerClientes($BDTpv,$LimitePagina ,$desde,$filtro);
 	//~ echo '<pre>';
-	//~ print_r($clientes);
+		//~ print_r($clientes['consulta']);
 	//~ echo '</pre>';
 	?>
 	<script>
@@ -76,15 +84,6 @@
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
     
   
-	
-	<script>
-	// Funciones para atajo de teclado.
-	//~ shortcut.add("Shift+V",function() {
-		//~ // Atajo de teclado para ver
-		//~ metodoClick('VerUsuario');
-	//~ });    
-	    
-	</script> 
     </head>
 
 <body>
@@ -134,7 +133,7 @@
 					?>
 				<form action="./ListaClientes.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en nombre </label>
+						<label>Buscar en nombre o razon social: </label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>
@@ -158,15 +157,15 @@
 	
 				<?php
 				$checkUser = 0;
-				foreach ($clientes['items'] as $cliente){ 
+				foreach ($clientes as $cliente){ 
 					$checkUser = $checkUser + 1; 
 				?>
 
 				<tr>
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cliente['id'];?>">
 					</td>
-					<td><?php echo $cliente['id']; ?></td>
-					<td><?php echo $cliente['nombre']; ?></td>
+					<td><?php echo $cliente['idClientes']; ?></td>
+					<td><?php echo $cliente['Nombre']; ?></td>
 					<td><?php echo $cliente['razonsocial']; ?></td>
 					<td><?php echo $cliente['nif']; ?></td>
 					<td><?php echo $cliente['telefono']; ?></td>

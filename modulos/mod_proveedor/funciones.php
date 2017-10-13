@@ -5,18 +5,8 @@ function obtenerProveedores($BDTpv,$LimitePagina ,$desde,$filtro) {
 	// Function para obtener proveedores y listarlos
 	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
 
-//para evitar repetir codigo
-	$Controler = new ControladorComun; 
-	$campoBD = 'nombrecomercial';
-	$campo2BD = 'razonsocial';
-	$rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD);
-	$rango=$rangoFiltro['rango'];
-	$filtroFinal=$rangoFiltro['filtro'];
-//fin paginacion y filtro de busqueda 
-
-
 	$proveedores = array();
-	$consulta = "Select * from proveedores ".$filtroFinal.$rango; 
+	$consulta = "Select * from proveedores ".$filtro; 
 	$Resql = $BDTpv->query($consulta);
 	$proveedores['NItems'] = $Resql->num_rows;
 	$i = 0;

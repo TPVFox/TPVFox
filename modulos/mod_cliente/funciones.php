@@ -3,41 +3,18 @@
 
 function obtenerClientes($BDTpv,$LimitePagina ,$desde,$filtro) {
 	// Function para obtener clientes y listarlos
-	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
-
-//para evitar repetir codigo
-	$Controler = new ControladorComun; 
-	$campoBD = 'nombre';
-	$campo2BD = 'razonsocial';
-	$rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD);
-	$rango=$rangoFiltro['rango'];
-	$filtroFinal=$rangoFiltro['filtro'];
-//fin paginacion y filtro de busqueda 
-
 
 	$clientes = array();
-	$consulta = "Select * from clientes ".$filtroFinal.$rango; 
-	$Resql = $BDTpv->query($consulta);
-	$clientes['NItems'] = $Resql->num_rows;
+	$consulta = "Select * from clientes ".$filtro;//.$filtroFinal.$rango; 
+	//$clientes['NItems'] = $Resql->num_rows;
 	$i = 0;
-//~ echo '<pre>';
-//~ echo $consulta;
-//~ echo '</pre>';	
-	while ($cliente = $Resql->fetch_assoc()) {			
-			$clientes['items'][$i]['id'] = $cliente['idClientes'];
-			$clientes['items'][$i]['nombre'] = $cliente['Nombre'];
-			$clientes['items'][$i]['razonsocial'] = $cliente['razonsocial'];
-			$clientes['items'][$i]['nif'] = $cliente['nif'];
-			$clientes['items'][$i]['direccion'] = $cliente['direccion'];
-			$clientes['items'][$i]['telefono'] = $cliente['telefono'];
-			$clientes['items'][$i]['movil'] = $cliente['movil'];
-			$clientes['items'][$i]['fax'] = $cliente['fax'];
-			$clientes['items'][$i]['email'] = $cliente['email'];
-			$clientes['items'][$i]['estado'] = $cliente['estado'];
-	$i = $i+1;
+	if ($Resql = $BDTpv->query($consulta)){			
+		while ($fila = $Resql->fetch_assoc()) {
+			$clientes[] = $fila;
+		}
 	}
 
-	$clientes ['consulta'] = $consulta;
+	//$clientes ['consulta'] = $consulta;
 	return $clientes;
 }
 

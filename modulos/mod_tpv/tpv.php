@@ -122,9 +122,9 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			$Datostotales = recalculoTotales($ticket['productos']);	
 	}
 	
-	echo '<pre>';
-	print_r($ticketsAbiertos['items']);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($ticketsAbiertos['items']);
+	//~ echo '</pre>';
 
 ?>
 
