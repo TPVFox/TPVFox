@@ -53,8 +53,12 @@ $TControlador = new ControladorComun;
 		break;	
 	
 	case 'Comprobaciones' :
+		$funcion = 	$_POST['funcion'];
 		//@ Objetivo:
 		// Ejecutar la funcion que le recibimos para comprobar.
+		//@ Parametros: 
+		// 		funcion -> comprobacions ( array) que tenemos Importar_virtuemart
+		//@ Respuesta:
 		// [ resultado ] = El resultado de funcion, tenmos que tenerlo clasificado por subproceso si los hubiera.
 		// Ejemplo:
 		// ComprobarTablaTempArticulosCompleta , donde hay dos subproceso.
@@ -63,13 +67,28 @@ $TControlador = new ControladorComun;
 		//				[estado] = true /false
 		//				[error] = Indicando error
 		//				... Si necesitamos mas datos...
-			
 		$respuesta = array();
-		$funcion = 	$_POST['funcion'];
-		if ($funcion['nom_funcion'] === 'ComprobarTablaTempArticulosCompleta'){
-			$resultado = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
+		switch ($funcion['nom_funcion']) {
+			case 'ComprobarTablaTempArticulosCompleta':
+				$resultado = ComprobarTablaTempArticulosCompleta ($BDVirtuemart);
+				$respuesta = $resultado;
+				break;
+
+			case 'ComprobarTablaTempClientes':
+				$resultado = ComprobarTablaTempClientes($BDVirtuemart);
+				$respuesta = $resultado;
+				break;
+			
+			default:
+				// Creamos array respuesta error
+				$proceso = $funcion['nom_funcion'];
+				$subprocesos = $funcion['subprocesos'];
+				foreach ($subprocesos as $subproceso){
+					$respuesta[$subproceso]['estado']= false;
+					$respuesta[$subproceso]['error'] = ' No se encontro proceso a ejecutar ' .$proceso;
+				}
 		}
-		$respuesta = $resultado;
+		
 		echo json_encode($respuesta,true);
 		break;	
 }

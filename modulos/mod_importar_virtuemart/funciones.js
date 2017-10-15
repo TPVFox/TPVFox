@@ -23,7 +23,7 @@ var tabla_actual = '';
 var insert_tablas_global ;
 
 
-var Global1 = [];
+//~ var Global1 = [];
 // Funcion para mostrar la barra de proceso..
 function BarraProceso(lineaA,lineaF) {
 	// Esta fucion debería ser una funcion comun , por lo que se debería cargar el javascript comun y ejecutar...
@@ -365,7 +365,6 @@ function ejecutarComprobaciones(index){
 						contador = contador +1
 						console.log(subproceso);
 						console.log(resultado);
-
 						if (resultado[subproceso]['estado'] !=  true){
 							console.log(' estado:'+ resultado[subproceso]['estado']);
 							errores ++;

@@ -102,17 +102,17 @@
 	$comprobaciones  = 		array(
 							'0' => array(
 								'nom_funcion'				=>'ComprobarTablaTempArticulosCompleta',
-								'link_collapse'				=>'<a data-toggle="collapse" data-parent="#accordion" href="#ComprobarTablaTempArticulosCompleta" aria-expanded="false" class="collapsed">
-								Comprobar Tabla Temporal Articulos Completa
-								<span style="float:right;" class="icono-collapse">+</span>
-								</a>',
+								'link_collapse'				=>'Comprobar Tabla Temporal Articulos Completa',
 								'subprocesos'				=>array('RecalculoPrecioConIva','CodbarrasRepetidos'),
-								'explicacion_subprocesos'	=>array('Ponemos en tabla_tmp precion con Iva ya que estaba sin el (Recalculamos)','Comprobamos que no haya ningún codbarras repetetido en tmp_temporal ya que no tiene sentido añadirlo.[DUDAMOS EN AFIRMACION]') 
-								)//~ ),
-							//~ '1' => array(
-								//~ 'nom_funcion'		=>'CrearIdSinDeterminarClientes',
-								//~ 'titulo_html'	=>'<a title="Creamos el registro de 0 de clientes como cliente sin desterminar">Crear id 0 Clientes</a>'
-								//~ )
+								'explicacion_subprocesos'	=>array(
+															'Ponemos en tabla_tmp precion con Iva ya que estaba sin el (Recalculamos)','Comprobamos que no haya ningún codbarras repetetido en tmp_temporal ya que vemos advertir si hay codbarras repetidos.') 
+								),
+							'1' => array(
+								'nom_funcion'		=>'ComprobarTablaTempClientes',
+								'link_collapse'	=>'Comprobar tabla de Clientes temporal',
+								'subprocesos'				=>array('AnhadirIdCliente0'),
+								'explicacion_subprocesos'	=>array('Añadimos cliento con 0 que es Sin determinar') 
+								)
 							);
 	
 	
@@ -383,7 +383,10 @@
 				<?php foreach ($comprobaciones as $key =>$comprobacion){?>
 				<tr id="comprobacion_<?php echo $key;?>">
 					<td><h5>
+						<a data-toggle="collapse" data-parent="#accordion" href="#<?php echo $comprobacion['nom_funcion'];?>" aria-expanded="false" class="collapsed">
 						<?php echo $comprobacion['link_collapse'];?>
+						<span style="float:right;" class="icono-collapse">+</span>
+						</a>
 						</h5>
 						<div id="<?php echo $comprobacion['nom_funcion'];?>" class="pepe collapse" style="height: 0px;" aria-expanded="false">
 							

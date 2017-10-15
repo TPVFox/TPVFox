@@ -17,7 +17,7 @@
 	$nombre_temporal = $tTemporal['nombre_tabla_temporal'];
 	// En debug:
 	// Inicialmente haciamos CREATE TEMPORARY TABLE, pero no se cual fue el motivo, pero 
-	// en la tabal tmp_productos_img me generaba un error.
+	// en la tabla tmp_productos_img me generaba un error.
 	// Por lo que decido hacerlos con CREATE TABLE  permanente.
 	// para ello tenemos que hacer:
 	$sqlBDImpor = 'DROP TABLE IF EXISTS '.$nombre_temporal;
@@ -249,12 +249,12 @@ function RealizarInsert($Inserts,$BDTpv){
 }
 
 function ComprobarTablaTempArticulosCompleta ($BDVirtuemart){
-	// Objetivo:
-	//  Comprobar en tabla tempora tmp_articulosCompleta.
+	// @ Objetivo:
+	//   Comprobar en tabla tempora tmp_articulosCompleta.
 	//			subproceso: RecalculoPrecioConIvas
 	//			subproceso: CodbarrasRepetidos.
 	$resultado = array();
-	// [CALCULAMOS EL PRECIO CON IVA]  ya que virtuemart no nos lo facilita.
+	// [SUBPROCESO:RecalculoPrecioConIvas] Calculamos el precio con iva,  ya que virtuemart no nos lo facilita.
 	$sqlUpdate = "UPDATE `tmp_articulosCompleta` SET `pvpCiva`=`pvpSiva`*(100+`iva`)/100";
 	if ($BDVirtuemart->query($sqlUpdate) === TRUE) {
 		// Se creó con éxito la tabla articulosCompleta en
@@ -266,7 +266,7 @@ function ComprobarTablaTempArticulosCompleta ($BDVirtuemart){
 		$resultado['RecalculoPrecioConIva']['estado'] = false;
 	}
 	// Ahora hacemos las comprobaciones:
-	// [CODBARRAS REPETIDOS]
+	// [SUBPROCESO : CodbarrasRepetidos] Comprobamos codbarras repetidos.]
 	// Por defecto pongo 
 	$resultado['CodbarrasRepetidos']['estado'] = TRUE;
 	// Si hay un error devolvemos YA LOS CAMBIAMOS Y MANDAMOS error 
@@ -284,5 +284,30 @@ function ComprobarTablaTempArticulosCompleta ($BDVirtuemart){
 	}	
 	return $resultado;
 }
+
+
+function ComprobarTablaTempClientes ($BDVirtuemart){
+	// @ Objetivo 
+	// Comprobar la tabla temporal de Clientes.
+	//		subproceso: AnhadirIdCliente0
+	$sqlInsert = "INSERT INTO `clientes`(`idClientes`, `Nombre`, `razonsocial`) VALUES (0,'Sin identificar,Sin identificar";
+	if ($BDVirtuemart->query($sqlInsert) === TRUE) {
+		// Se creó con éxito la tabla articulosCompleta en
+		$resultado['AnhadirIdCliente0']['estado'] = TRUE;
+	}else {
+		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
+		$resultado['AnhadirIdCliente0']['error']['consulta'] = $sqlInsert;
+		$resultado['AnhadirIdCliente0']['error']['info_error'] =  $BDVirtuemart->error;
+		$resultado['AnhadirIdCliente0']['estado'] = false;
+	}
+	return $resultado;
+	
+}
+
+
+
+
+
+
 
 ?>
