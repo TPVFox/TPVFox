@@ -14,6 +14,14 @@
 <head>
 <?php
 	include './../../head.php';
+	// Controlamos ( Controllers ... fuera de su sitio ... :-)
+	if (isset($Usuario['estado'])){
+		if ($Usuario === "Incorrecto"){
+			return;	
+		}
+	}
+
+		
 	// Creamos variables de los ficheros para poder automatizar el añadir articulos y otros
 	
 	// Array $tablasTemporales;
@@ -79,7 +87,24 @@
 							'5' => array(
 									'nombre_tabla_temporal' => 'tmp_clientes',
 									'campo_id' 	=> 'idClientes',
-									'select'	=>'SELECT c.`virtuemart_user_id` as idVirtuemart,
+									'select'	=>'SELECT c.`virtuemart_user_id` AS idVirtuemart, 
+									CONCAT( c.`first_name` , " ", c.`middle_name` , " ", 
+									c.`last_name` ) AS Nombre, c.`company` AS razonsocial, 
+									c.DNICIF AS nif, CONCAT( c.`address_1`," ", c.`address_2` , " ", c.`city` ) AS direccion, 
+									c.`zip` AS codpostal, c.`phone_1` AS telefono, c.`phone_2` AS movil, 
+									c.`fax` AS fax, u.`email` AS email, "activo" AS `estado`, 
+									count( * ) AS NumDirecciones 
+									FROM '.$prefijoBD.'_users AS u 
+									INNER JOIN '.$prefijoBD.'_virtuemart_userinfos AS c ON u.id = c.virtuemart_user_id 
+									GROUP BY c.virtuemart_user_id 
+									HAVING COUNT( * ) ' 
+									)
+							);
+	
+	
+	/*
+	
+	SELECT c.`virtuemart_user_id` as idVirtuemart,
 									 CONCAT(c.`first_name`," ",c.`middle_name`," ", c.`last_name`) as Nombre,
 									 c.`company` as razonsocial ,
 									 c.DNICIF as nif, 
@@ -87,11 +112,11 @@
 									 c.`zip` as codpostal,
 									 c.`phone_1` as telefono, c.`phone_2` as movil ,
 									 c.`fax` as fax ,u.`email` as email,"activo" as `estado`
-									 FROM  '.$prefijoBD.'_virtuemart_userinfos AS c 
-									 LEFT JOIN '.$prefijoBD.'_users AS u ON c.virtuemart_user_id=u.id'
-									)
-							);
+									  FROM  '.$prefijoBD.'_users AS u 
+									 INNER JOIN '.$prefijoBD.'_virtuemart_userinfos AS c ON u.id=c.virtuemart_user_id
 	
+	
+	*/
 	// Array $comprobaciones
 	// @ Parametros de array $comprobaciones.
 	// 		funcion						=> (String)Nombre funcion
@@ -111,7 +136,7 @@
 								'nom_funcion'		=>'ComprobarTablaTempClientes',
 								'link_collapse'	=>'Comprobar tabla de Clientes temporal',
 								'subprocesos'				=>array('AnhadirIdCliente0'),
-								'explicacion_subprocesos'	=>array('Añadimos cliento con 0 que es Sin determinar') 
+								'explicacion_subprocesos'	=>array('Añadimos cliente con id 0 que es Sin determinar') 
 								)
 							);
 	
@@ -225,18 +250,8 @@
 	
 	</script>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
-	<script type="application/javascript">
-	// Ejecutamos inicio creación tablas
-	BucleTablaTemporal();
-	</script>
-	<?php
-	// Controlamos ( Controllers ... fuera de su sitio ... :-)
-	if (isset($Usuario['estado'])){
-		if ($Usuario === "Incorrecto"){
-			return;	
-		}
-	}
-	?>
+	
+	
 
 </head>
 <body>
@@ -244,6 +259,12 @@
 	include './../../header.php';
 	include_once ("./funciones.php");
 	include ("./../../controllers/Controladores.php");
+	?>
+	<script type="application/javascript">
+	// Ejecutamos inicio creación tablas
+	BucleTablaTemporal();
+	</script>
+	<?php
 	// Cargamos el controlador.
 	// Contamos cuantos si tienen registros las tabla BDTPV
 	$Controler = new ControladorComun; 

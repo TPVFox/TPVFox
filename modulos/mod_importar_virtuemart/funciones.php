@@ -288,8 +288,9 @@ function ComprobarTablaTempArticulosCompleta ($BDVirtuemart){
 
 function ComprobarTablaTempClientes ($BDVirtuemart){
 	// @ Objetivo 
-	// Comprobar la tabla temporal de Clientes.
-	//		subproceso: AnhadirIdCliente0
+	// Comprobar la tabla temporal de Clientes 
+	// 		subproceso: AnhadirIdClientes0
+	//	[SUBPROCESO : AnhadirIdCliente0] -> Donde añadimos el registro con id 0 que es cliente Sin identificar
 	$sqlInsert = "INSERT INTO `clientes`(`idClientes`, `Nombre`, `razonsocial`) VALUES (0,'Sin identificar,Sin identificar";
 	if ($BDVirtuemart->query($sqlInsert) === TRUE) {
 		// Se creó con éxito la tabla articulosCompleta en
@@ -300,6 +301,7 @@ function ComprobarTablaTempClientes ($BDVirtuemart){
 		$resultado['AnhadirIdCliente0']['error']['info_error'] =  $BDVirtuemart->error;
 		$resultado['AnhadirIdCliente0']['estado'] = false;
 	}
+	
 	return $resultado;
 	
 }
