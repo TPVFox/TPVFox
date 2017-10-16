@@ -7,4 +7,11 @@
 		<li>En input codigo de barras al pulsar ENTER, moverse por las cajas REF, DESCRIPCION, CODIGO BARRAS, siempre que este vacio. </li> 
 		<li>En inputs principales de buscar. Con datos pulsar ENTER: se vera ventana modal de productos filtrados por lo escrito.</li>
 	</ul>
+<h3>Estados de tickets:</h3>
+	<ul>
+		<li>estado = Cobrado (ticketst, ticketstemporales)</li>
+		<li>estado = Abierto (ticketstemporales)</li>
+		<li>estado = Cerrado  (una vez hecho el cierre, en ticketst cambiar estado)</li>
+	</ul>
+	
 </div>

@@ -184,54 +184,50 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		</div>
 		
 	<div class="col-md-12">
-	<?php if (isset($ticketsAbiertos['items'])){
-	?>
-	<h3 class="text-center"> Tickets Abiertos</h3>
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>Nº</th>
-				<th>Cliente</th>
-				<th>Total</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php 
-			$i=0;
-			//le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
-			$ordenInverso =array_reverse($ticketsAbiertos['items']); 
-			foreach ($ordenInverso as $item){
+	<?php //===== TICKETS ABIERTOS LATERAL
+	if (isset($ticketsAbiertos['items'])){ ?>
+		<h3 class="text-center"> Tickets Abiertos</h3>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Nº</th>
+					<th>Cliente</th>
+					<th>Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php 
+				$i=0;
+				//le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
+				$ordenInverso =array_reverse($ticketsAbiertos['items']); 
+				foreach ($ordenInverso as $item){
+					$i++;	?>
+					<tr>
+						<td><a href="tpv.php?tAbierto=<?php echo $item['numticket']; ?>">
+							<?php echo $item['numticket']; ?>
+							</a>
+						</td>
+						<td>
+							<?php echo $item['Nombre']; ?><br/>
+							<small><?php echo $item['razonsocial']; ?></small>
+						</td>
+						<td class="text-right">
+							<?php echo number_format ($item['total'],2); ?>
+						</td>
+					</tr>
+					<?php
+					// Solo mostramos 5 como maximo.
+					if ($i >5 ){
+						break;
+					}					
+				}// Cerramos foreach
 				
-				$i++;
-			?>
-			<tr>
-				<td><a href="tpv.php?tAbierto=<?php echo $item['numticket']; ?>">
-					<?php echo $item['numticket']; ?>
-					</a>
-				</td>
-				<td>
-					<?php echo $item['Nombre']; ?><br/>
-					<small><?php echo $item['razonsocial']; ?></small>
-				</td>
-				<td class="text-right">
-					<?php echo number_format ($item['total'],2); ?>
-				</td>
-			</tr>
-			<?php
-			// Solo mostramos 5 como maximo.
-			if ($i >5 ){
-				break;
-			}
-				
-			}// Cerramos foreach
-			
-			 ?>
-		</tbody>
-	</table>
-	</div>
-	<?php
-	// Cerramos if de mostrar tickets abiertos o no.
-	}
+				 ?>
+			</tbody>
+		</table>
+		</div>
+		<?php
+	}// Cerramos if de mostrar tickets abiertos o no.
 	?>
 </nav>
 <div class="col-md-9" >
@@ -243,16 +239,16 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 					<span id="Fecha"><?php echo $fechaInicio;?></span><br/>
 					<?php // NO se muestra si es un ticket nuevo
 					if ( $ticket_numero != 0){
-					?>
-					<div style="background-color:#f9f3f3;">
-					<strong>Hora Inicio:</strong>
-					<span id="HoraInicio"><?php echo $horaInicio;?></span><br/>
-					<strong>Fecha Final:</strong><br/>
-					<span id="FechaFinal"><?php echo $fechaFinal;?></span><br/>
-					<strong>Hora Inicio:</strong>
-					<span id="HoraFinal"><?php echo $horaFinal;?></span>
-					</div>
-					<?php 
+						?>
+						<div style="background-color:#f9f3f3;">
+						<strong>Hora Inicio:</strong>
+						<span id="HoraInicio"><?php echo $horaInicio;?></span><br/>
+						<strong>Fecha Final:</strong><br/>
+						<span id="FechaFinal"><?php echo $fechaFinal;?></span><br/>
+						<strong>Hora Inicio:</strong>
+						<span id="HoraFinal"><?php echo $horaFinal;?></span>
+						</div>
+						<?php 
 					}
 					?>
 				</div>

@@ -15,6 +15,8 @@
 	//$LimitePagina = 40 o los que queramos
 	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
 	//$OtrosParametros
+	$palabraBuscar=array();
+	$stringPalabras='';
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
@@ -24,8 +26,9 @@
 			$PgActual = $_GET['pagina'];
 		}
 		if ($_GET['buscar']) {
-			$palabraBuscar = $_GET['buscar'];
-			$filtro =  'WHERE `Numticket` LIKE "%'.$palabraBuscar.'%"';
+			//recibo un string con 1 o mas palabras
+			$stringPalabras = $_GET['buscar'];
+			$palabraBuscar = explode(' ',$_GET['buscar']); 
 		} 
 	}
 	
@@ -37,44 +40,71 @@
 	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
 	
 	$Controler = new ControladorComun; 
-	
+	$usuario = $_SESSION['usuarioTpv']['id']; //para consultar por usuario tickets cobrados
 	$vista = 'ticketst';
 	$LinkBase = './ListaTickets.php?';
 	$OtrosParametros = '';
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+	//~ $CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
 	} else {
 		$desde = 0;
 	}
-	// Realizamos consulta 
-	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
-
-	if ($palabraBuscar !== '') {
-		$filtro = "$palabraBuscar";
-		//$filtro =  "AND `Numticket` LIKE '%".$palabraBuscar."%'";
-	} else {
-		$filtro = '';
+	// Realizamos consulta MONTAMOS WHERE 
+	//si tiene palabras , busca por formaPago, por Numticket y por nombreCliente
+	if ($stringPalabras !== '' ){
+		$campoBD='formaPago';
+		$campo2BD = 'Numticket';
+		$campo3BD = 'Nombre'; //nombre cliente
+		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD,$campo3BD);
+		$filtro=$WhereLimite['filtro'];
+		
+		$OtrosParametros=$stringPalabras;
 	}
-
-	$OtrosParametros = $palabraBuscar;	
+	
+	//filtro necesario para contarRegistros , solo lee sobre una tabla
+	if ($filtro !== '') {
+		$mostrarPorIdUser = ' AND `idUsuario` = '.$usuario;
+		$filtro = $filtro.$mostrarPorIdUser;
+	} else {
+		$filtro = ' WHERE `idUsuario` = '.$usuario;
+	}
+	
+	
+	//OTRA BUSQUEDA para CONTAR Registros 
+	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
+	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+	echo 'filtro -> '.$filtro.'</br> registro '.$CantidadRegistros['sql'].'</br>';
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+	
+	//BUSQUEDA PARA OBTENER DATOS Y MOSTRARLOS
+	//si hay palabras se monta WHERE con idUser=usuario logueado
+	if ($stringPalabras !== '' ){
+		$filtro = $WhereLimite['filtro'].$mostrarPorIdUser.$WhereLimite['rango'];
+		
+	} else { //si no hay busqueda, se muestra por usuario logueado
+		$filtro= " WHERE `idUsuario`= ".$usuario." LIMIT ".$LimitePagina." OFFSET 0";
+	}
+	
 	$tickets = obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro);
-
+	
+	
+	$CantidadRegistros=count($tickets);
+	
+	
 	?>
 	
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
-	var BRecambios ='';
 	</script> 
     <!-- Cargamos fuciones de modulo.
     Cargamos JS del modulo de productos para no repetir funciones: BuscarProducto, metodoClick (pulsado, adonde)
     caja de busqueda en listado 
      -->
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-      
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 	
 	<script>
 	// Funciones para atajo de teclado.
@@ -94,15 +124,15 @@
 				//~ echo '<pre>';
 					//~ print_r($_SESSION['usuarioTpv']['id']);
 				//~ echo '</pre>';
-	//~ echo '<pre>';
-	//~ print_r($tickets['sql']);	
-	//~ echo '</pre>';
+	echo '<pre>';
+	print_r($tickets['sql']);	
+	echo '</pre>';
 		?>
        
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Tickets Cerrados: Tickets ya cobrados </h2>
+					<h2> Tickets Cerrados y Cobrados </h2>
 					<?php 
 					//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
 					//~ echo '<pre class="text-left">';
@@ -122,8 +152,8 @@
 				<h4> Tickets cerrados</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
-				 	<li><a href="#section1" onclick="metodoClick('VerTicket','ticket');";>Modificar</a></li>
-				 	<li><a href="#section2">Imprimir</a></li>
+				 	<li><a href="#section1" onclick="metodoClick('VerTicket');";>Ver Ticket</a></li>
+				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
 				<?php		//metodoClick js case pulsado 
 								//agregarUsuario nos lleva a formulario usuario
 								//verUsuario si esta checkado nos lleva vista usuario de ese id
@@ -134,7 +164,7 @@
 			<div class="col-md-10">
 					<p>
 					 -Tickets cerrados encontrados BD local filtrados:
-						<?php echo count($tickets);?>
+						<?php echo $CantidadRegistros;// count($tickets);?>
 					</p>
 					<?php 	// Mostramos paginacion 
 						echo $htmlPG;
@@ -151,9 +181,9 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th></th>
+						<th></th>						
 						<th>ID</th>
-						<th>NUM TICKET</th>
+						<th>Nº TICKET</th>
 						<th>FECHA</th>
 						<th>ID TIENDA</th>
 						<th>ID USUARIO</th>
@@ -162,6 +192,7 @@
 						<th>ESTADO</th>
 						<th>FORMA PAGO</th>
 						<th>TOTAL</th>
+						<th>ID CIERRE</th>
 					</tr>
 				</thead>
 	
@@ -185,6 +216,7 @@
 					<td><?php echo $ticket['estado']; ?></td>
 					<td><?php echo $ticket['formaPago']; ?></td>
 					<td><?php echo $ticket['total']; ?></td>
+					<td></td>
 					
 				</tr>
 

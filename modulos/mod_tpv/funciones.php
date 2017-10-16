@@ -767,31 +767,9 @@ function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
 	// Function para obtener productos y listarlos
 	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
 	$resultado = array();
-	//inicio paginacion filtro
-	//para evitar repetir codigo
-	$Controler = new ControladorComun; 
-	$campoBD = 'formaPago';
-	$campo2BD = 'NumTicket';
-	$rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD);
-	$rango=$rangoFiltro['rango'];
-	$filtroFinal=$rangoFiltro['filtro'];
-	//fin paginacion y filtro de busqueda 
-	//if filtro viene vacio solo vemos tickets con filtro usuario = idsession
-	if ($filtroFinal === '') {
-		$mostrarPorIdUser = ' WHERE `idUsuario` = ';
-	} else {
-		$mostrarPorIdUser = ' AND `idUsuario` = ';
-	}
-	
-	// Function para obtener usuarios y listarlos
-	$usuario = $_SESSION['usuarioTpv']['id']; //para consultar por usuario tickets cobrados
-	$rango= '';
-	if ($LimitePagina > 0 ){
-		$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
-	} 
 	$consulta = "SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t "
 			."LEFT JOIN `clientes` AS c "
-			."ON c.`idClientes` = t.`idCliente` ".$filtroFinal.$mostrarPorIdUser.$usuario.$rango; 
+			."ON c.`idClientes` = t.`idCliente`".$filtro; 
 		 
 	$ResConsulta = $BDTpv->query($consulta);
 
@@ -800,7 +778,7 @@ function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
 		$resultado[] = $fila;
 	}
 
-	//$resultado ['sql'] = $filtro;
+	//$resultado ['sql'] = $consulta;
 	return $resultado;
 }
 
@@ -840,7 +818,39 @@ function DatosTiendaID($BDTpv,$idTienda){
 		$datos = $res->fetch_assoc();
 		$resultado = $datos;
 		return $resultado;
-	 }
+}
+
+///////////VER TICKET CERRADO
+function verSelec($BDTpv,$idSelec,$tabla){
+	//ver seleccionado en check listado	
+	// Obtener datos de un id de usuario.
+	$consulta = ' SELECT l.* , t.*, c.`idClientes`, u.`username`, c.`razonsocial`, c.`Nombre` ' 
+				.'FROM '.$tabla.' AS t '
+				.'LEFT JOIN `ticketslinea` AS l ON l.`idticketst` = t.`id` '
+				.'LEFT JOIN `clientes` AS c '
+				.'ON c.`idClientes` = t.`idCliente` '
+				.'LEFT JOIN `usuarios` AS u '
+				.'ON u.`id` = t.`idUsuario` '
+				.'WHERE `idTienda` =1 AND `idUsuario` =1 AND t.`id` = '.$idSelec;
+
+	$resultsql = $BDTpv->query($consulta);
+	if (mysqli_error($BDTpv)) {
+		$fila['error'] = 'Error en la consulta '.$BDTpv->errno;
+	} else {
+		if (!$resultsql->num_rows > 0){
+			$fila['error']= ' No se a encontrado ticket cobrado';
+		}
+	}
+	if ($resultsql = $BDTpv->query($consulta)){			
+		while ($datos = $resultsql->fetch_assoc()) {
+			$fila[] = $datos;			
+		}
+	}
+	
+	//$fila['Nrow']= $resultsql->num_rows;
+	//$fila['sql'] = $consulta;
+	return $fila ;
+}
 
 
 ?>

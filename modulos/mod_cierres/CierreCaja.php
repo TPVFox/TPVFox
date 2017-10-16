@@ -7,17 +7,16 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
+	$dedonde='';
 	//fecha para obtener caja de ese dia , fecha que escribimos en vista
 	if ($_POST['fecha']){
-		$fecha=$_POST['fecha'];
+		$fecha=$_POST['fecha'];		
 		//nuevafecha la calculamos, un dia mas de la fecha escrita
 		$nuevafecha = strtotime ( '+1 day' , strtotime ( $fecha ) ) ;
 		$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
 		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada
 		$Users = ticketsPorFechaUsuario($fecha,$BDTpv,$nuevafecha);
-		//~ echo '<pre>';
-		//~ print_r($Users);
-		//~ echo '</pre>';
+
 		// Saber que usuarios tienen ticket, key=idUsuario
 		foreach ( $Users['usuarios'] as $key => $user){
 			//print_r(' Usuario id'.$key. ' contiene:');
@@ -25,10 +24,15 @@
 			$nombreUser=nombreUsuario($BDTpv,$key);
 			$Users['usuarios'][$key]['nombre'] = $nombreUser['datos']['nombre'];
 		}
+		//si existe de donde al cancelar volvemos a donde estabamos
+		if (isset($_GET['dedonde'])){
+			$dedonde = $_GET['dedonde'];
 		
+		}
 	}
 	$estadoInput =''; //inicializo variable para desactivar boton aceptar, si hay tickets abiertos
-	$suma = array();
+
+	//si existe de donde al cancelar volvemos a donde estabamos
 	if (isset($_GET['dedonde'])){
 		$dedonde = $_GET['dedonde'];
 		//dedonde = tpv o cierre 
@@ -38,10 +42,9 @@
 			$rutaVolver = './ListaCierres.php';
 		}
 	}
-		
-	//arrays cierre
-	$Cusuarios = array();
-	$Civas = array();
+
+	
+	//array cierre
 	$Ccierre= array();
 	?>
 	
@@ -102,7 +105,7 @@
 			</nav>
 			<div class="col-md-10">
 				<div class=" form-group">
-					<form action="./CierreCaja.php" method="post"> <label class="control-label col-sm-2" > Fecha Caja:</label>
+					<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> <label class="control-label col-sm-2" > Fecha Caja:</label>
 						<div class="col-sm-4"> 
 							<input type="date" name="fecha" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[0-9]|1[0-9]|2[0-9]|3[01])" autofocus value=<?php echo date('Y-m-d'); //cojo la fecha del actual del dia?> >
 							<input type="submit" value="Consulta caja">
@@ -150,7 +153,6 @@
 				<div class="col-md-4">
 					<h3 class="text-left"> Desglose Modo de Pago: </h3>
 					<?php 
-					//$suma = array();
 					foreach ($Users['usuarios'] as $key =>$usuario){ 
 						?>
 						<table class="table table-striped">
@@ -276,7 +278,7 @@
 			si existe post fecha y tiene datos se muestra-->
 			<?php if ((isset($_POST['fecha'])) AND (($_POST['fecha']) !== '')){ ?>
 			<div style="text-align:right">
-				<form method="post" name="Aceptar" action="./CierreCaja.php">
+				<form method="post" name="Aceptar" action="<?php echo $rutaVolver;?>" >
 					<input type="submit" name="Cancelar" value="Cancelar">
 					<?php  //desactivo boton de aceptar si HAY tickets abiertos 
 					if (isset($Users['abiertos'])) {

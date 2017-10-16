@@ -80,13 +80,13 @@ class ControladorComun
 			$array['consulta'] = $consulta;
 			$array['error'] = $BD->error;
 		}
-		
+		$array['sql']=$consulta;
 		return $array['NItems'];
-		//~ return $array;
+		// return $array;
 	}
 	
 	
-	function paginacionFiltroBuscar($BD,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD=''){
+	function paginacionFiltroBuscar($BD,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD='',$campo3BD=''){
 	//HARIA funcion para no repetir codigo de paginacion y campo busqueeda
 	//le pasaria $campoBD para likes de palabras
 	//aqui se monta el limite de paginas y el explode de palabras 
@@ -115,6 +115,10 @@ class ControladorComun
 				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" ';
 			} else {
 				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" ';
+			}
+			if ($campo3BD !== '') {
+				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" or `'.$campo3BD.'` LIKE "%'.$palabra.'%" ';
+				
 			}
 		}
 		$buscar = implode(' and ',$likes).')';

@@ -611,6 +611,38 @@ function CerrarTicket(){
 	
 }
 
+// ========== SWITCH ver Tickets Cerrados cobrados e IMPRIMIR ticket ========
+function metodoClick(pulsado){
+	console.log("Inicimos switch de control pulsar");
+	switch(pulsado) {
+		case 'VerTicket':
+			console.log('Entro en Ver Ticket Cobrado');
+			// Cargamos variable global ar checkID = [];
+			//Funcion global en jquery
+			VerUsuariosSeleccionado ();
+			if (checkID.length >1 || checkID.length=== 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return
+			}
+				
+			window.location.href = './ticketCerrado.php?id='+checkID[0];
+			break;
+		
+		case 'imprimirTicket':
+		//seleccionar para imprimir ticket elegido
+			console.log('entro en imprimir ticket');
+			VerUsuariosSeleccionado ();
+			if (checkID.length >1 || checkID.length=== 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return
+			}
+				
+			//window.location.href = './ticketCerrado.php?id='+checkID[0];
+			alert('Ticket cerrado, opc imprimir');
+			
+			break;		
+	 }
+} 
 
 
 

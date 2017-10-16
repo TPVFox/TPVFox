@@ -14,9 +14,10 @@
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_usuario/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     
     <!-- Cargamos libreria control de teclado -->
-	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
+	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script> 
   
 	
 	<script>

@@ -111,7 +111,7 @@
 	       
 			<nav class="col-sm-2" id="myScrollspy">
 				<div data-offset-top="505">
-				<h4> cierres</h4>
+				<h4> Cierres</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 					<li><a href="../mod_cierres/CierreCaja.php?dedonde=cierre">Cierre Caja</a></li>

@@ -1,30 +1,4 @@
-// Funciones modulo de recambios vista lista recambios.
-function VerUsuariosSeleccionado (){
-	$(document).ready(function()
-	{
-		// Array para meter lo id de los checks
-		
-		// Contamos check están activos.... 
-		checkID = [] ; // Reiniciamos varible global.
-		var i= 0;
-		// Con la funcion each hace bucle todos los que encuentra..
-		$(".rowUsuario").each(function(){ 
-			i++;
-			//todos los que sean de la clase row1
-			if($('input[name=checkUsu'+i+']').is(':checked')){
-				// cant cuenta los que está seleccionado.
-				valor = '0';
-				valor = $('input[name=checkUsu'+i+']').val();
-				checkID.push( valor );
-			}
-			
-		});
-		console.log('ID de Producto seleccionado:'+checkID);
-		return;
-	});
 
-
-}
 //recogemos valor de la caja de busqueda que tenemos en Listado tickets o productos
 function BuscarProducto (){
 	$(document).ready(function()
@@ -77,7 +51,6 @@ function metodoClick(pulsado,adonde){
 			// recambi.php?buscar = buquedaid=id
 			if (BProductos !== ''){
 				window.location.href = './'+adonde+'.php?buscar='+BProductos;
-//				window.location.href = './ListaProductos.php?buscar='+BProductos;
 			} else {
 				// volvemos sin mas..
 				return;
@@ -85,6 +58,7 @@ function metodoClick(pulsado,adonde){
 			}
 			console.log('Resultado Buscar:'+BProductos);
 			break;
+		
 		
 	 }
 } 

@@ -52,10 +52,10 @@
 	<body>
 		<?php
         include './../../header.php';
-        echo '<pre>';
-			echo '[PENDIENTE] Ver como controlar el tema usuarios... :-)';
-			print_r($Usuario);
-        echo '</pre>';
+        //~ echo '<pre>';
+			//~ echo '[PENDIENTE] Ver como controlar el tema usuarios... :-)';
+			//~ print_r($Usuario);
+        //~ echo '</pre>';
         $UrlActual = $HostNombre.'/estatico/manualTecnico';
 		$DirectorioActual = getcwd();
 		?>

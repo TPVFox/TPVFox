@@ -79,6 +79,7 @@
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     
   
 	

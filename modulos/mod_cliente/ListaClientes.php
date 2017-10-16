@@ -51,7 +51,7 @@
 	} else {
 		$desde = 0;
 	}
-	
+	//si hay palabras a buscar
 	if ($stringPalabras !== '' ){
 		$campoBD='razonsocial';
 		$campo2BD = 'Nombre';
@@ -78,11 +78,10 @@
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
-	var BRecambios ='';
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
-    
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
   
     </head>
 
@@ -153,31 +152,26 @@
 						<th>ESTADO</th>
 
 					</tr>
-				</thead>
-	
+				</thead>	
 				<?php
 				$checkUser = 0;
 				foreach ($clientes as $cliente){ 
 					$checkUser = $checkUser + 1; 
-				?>
-
-				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cliente['id'];?>">
-					</td>
-					<td><?php echo $cliente['idClientes']; ?></td>
-					<td><?php echo $cliente['Nombre']; ?></td>
-					<td><?php echo $cliente['razonsocial']; ?></td>
-					<td><?php echo $cliente['nif']; ?></td>
-					<td><?php echo $cliente['telefono']; ?></td>
-					<td><?php echo $cliente['email']; ?></td>
-					<td><?php echo $cliente['estado']; ?></td>
-					
-				</tr>
-
-				<?php 
-				}
-				?>
-				
+					?>
+					<tr>
+						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cliente['idClientes'];?>">
+						</td>
+						<td><?php echo $cliente['idClientes']; ?></td>
+						<td><?php echo $cliente['Nombre']; ?></td>
+						<td><?php echo $cliente['razonsocial']; ?></td>
+						<td><?php echo $cliente['nif']; ?></td>
+						<td><?php echo $cliente['telefono']; ?></td>
+						<td><?php echo $cliente['email']; ?></td>
+						<td><?php echo $cliente['estado']; ?></td>
+					</tr>
+					<?php 
+				} //fin de foreach ckeckUser
+				?>				
 			</table>
 			</div>
 		</div>
