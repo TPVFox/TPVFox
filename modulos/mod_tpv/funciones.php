@@ -33,7 +33,7 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
 	}
 	$likes = array();
 	foreach($palabras as $palabra){
-		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%"';
+		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
 	}
 	$buscar = implode(' and ',$likes);
 	$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
@@ -43,8 +43,6 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
 			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
 			
 			
-				
-			
 	$res = $BDTpv->query($sql);
 	//compruebo error en consulta
 	if (mysqli_error($BDTpv)){
@@ -52,22 +50,31 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
 		$resultado['error'] = $BDTpv->error_list;
 		return $resultado;
 	} 
-	
-	
+	$resultado['sql'] = $sql;
+	$resultado['Nitems']= $res->num_rows;
 	$products = array();
 	//fetch_assoc es un boleano..
 	while ($fila = $res->fetch_assoc()) {
+		
 		$products[] = $fila;
 		if (trim($fila['crefTienda']) === trim($busqueda)){
 			$resultado['Estado'] = 'Correcto';
 			$resultado['datos'][0] = $fila;
 			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
 			break; 
+			
 		} else if (trim($fila['codBarras']) === trim($busqueda)){
-			$resultado['Estado'] = 'Correcto';
-			$resultado['datos'][0] = $fila;
-			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
-			break; 
+			//if hay mas resultados
+			if ($res->num_rows > 0){  //aqui entra 
+				$resultado['Estado'] = 'Listado';
+				$resultado['datos'] = $products;
+			} else {
+				$resultado['Estado'] = 'Correcto';
+				$resultado['datos'][0] = $fila;
+				$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
+				break;
+			}
+			 
 		} else {
 			$resultado['Estado'] = 'Listado';
 			$resultado['datos'] = $products;
@@ -76,8 +83,6 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
 	if (!isset ($resultado['Estado'])){
 		$resultado['Estado'] = 'No existe producto';
 	}
-	
-	
 	return $resultado;
 }
 

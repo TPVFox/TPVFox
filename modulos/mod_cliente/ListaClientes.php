@@ -55,7 +55,8 @@
 	if ($stringPalabras !== '' ){
 		$campoBD='razonsocial';
 		$campo2BD = 'Nombre';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD);
+		$campo3BD = 'nif';
+		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD,$campo3BD);
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
 	}
@@ -132,7 +133,7 @@
 					?>
 				<form action="./ListaClientes.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en nombre o razon social: </label>
+						<label>Buscar en nombre, razon social o nif: </label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>

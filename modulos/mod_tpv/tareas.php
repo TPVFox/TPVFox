@@ -29,6 +29,7 @@ switch ($pulsado) {
 		$deDonde = $_POST['dedonde'];
 		//cambio conexion a tpv
 		$respuesta = BuscarProductos($campoAbuscar,$busqueda,$BDTpv);
+		
 		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
 		//si dedonde == 'popup' 
 		if ($respuesta['Estado'] !='Correcto' ){

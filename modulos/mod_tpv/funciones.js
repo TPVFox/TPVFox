@@ -331,12 +331,18 @@ function buscarProductos(nombreInput,busqueda,dedonde){
 				datos = resultado.datos[0];
 				console.log('Entro en Estado Correcto funcion buscarProducto ->datos (producto)');
 				console.log(datos);
+				console.log('consulta '+resultado.sql);
 				agregarFila(datos);
 				
 			} else {
 				// Se ejecuta tanto sea un listado como un error.
 				console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 				console.log(resultado);
+				console.log('consulta  listado '+resultado.sql);
+				console.log('datos--> '+response);
+				console.log('Nitems '+resultado.Nitems);
+				
+				
 				var busqueda = resultado.listado;   
 				var HtmlProductos=busqueda.html;   
 				var titulo = 'Listado productos encontrados ';

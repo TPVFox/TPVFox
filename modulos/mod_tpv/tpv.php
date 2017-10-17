@@ -44,7 +44,7 @@
 	// En configuracion podemos definir SI / NO
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idCliente'] = 0; // Este dato puede cambiar
+		cabecera['idCliente'] = 1; // Este dato puede cambiar
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['estadoTicket'] ="<?php echo $ticket_estado ;?>"; // Si no hay datos GET es 'Nuevo';
@@ -112,7 +112,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	} else {
 		//~ $horaInicio= MaquetarFecha($fechaInicio,'HM'); // Falla no se porque... :-)
 		$cliente = '';
-		$idCliente =0;
+		$idCliente = 1;
 	}
 	
 	if(isset($ticket['productos'])){

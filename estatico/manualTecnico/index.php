@@ -33,6 +33,12 @@
 							'introduccion'	=> 'El modulo de tickets, una ayuda tecnica como para ejecutar el testeo.',
 							'ruta'			=> '/help_tickets/',
 							'fichero'		=> 'index.php'
+							),
+					'5' => array(
+							'titulo_cuadro'	=> 'Ayuda Tickets Cerrados Cobrados',
+							'introduccion'	=> 'El listado de tickets cerrados, punto pendiente de revisar, paginacion y filtrado.',
+							'ruta'			=> '/help_tickets_cerrados_cobrados/',
+							'fichero'		=> 'index.php'
 							)
 				);
 		

@@ -1,4 +1,7 @@
 <div>
+<nav class="col-sm-2" id="myScrollspy">
+	<a class="text-ritght" href="./">Volver Atrás</a>
+</nav>
 <h2>Modulo de importar de virtuemart a tpv</h2>
 <p>Con este modulo que se encuentra en directorio modulos/mod_importar_virtuemart, podremos importar la información de una tienda on-line que tengamos con Joomla y virtuemart.</p>
 <p> El objetivo inicial es hacer una importación, es decir traernos para tpv los datos de las siguientes tablas de virtuemart.</p>

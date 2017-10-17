@@ -63,7 +63,7 @@
 		$OtrosParametros=$stringPalabras;
 	}
 	
-	//filtro necesario para contarRegistros , solo lee sobre una tabla
+	//filtro necesario para contarRegistros , solo lee sobre una tabla, ticketst 
 	if ($filtro !== '') {
 		$mostrarPorIdUser = ' AND `idUsuario` = '.$usuario;
 		$filtro = $filtro.$mostrarPorIdUser;
@@ -164,14 +164,14 @@
 			<div class="col-md-10">
 					<p>
 					 -Tickets cerrados encontrados BD local filtrados:
-						<?php echo $CantidadRegistros;// count($tickets);?>
+						<?php echo $CantidadRegistros;?>
 					</p>
 					<?php 	// Mostramos paginacion 
 						echo $htmlPG;
 					?>
 					<form action="./ListaTickets.php" method="GET" name="formBuscar">
 						<div class="form-group ClaseBuscar">
-							<label>Buscar en Formas de pago y en Num Ticket </label>
+							<label>Buscar en Formas de pago, en Num Ticket y por Nombre Cliente.</label>
 							<input type="text" name="buscar" value="">
 							<input type="submit" value="buscar">
 						</div>
