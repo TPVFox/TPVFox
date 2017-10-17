@@ -40,6 +40,7 @@
 							'ruta'			=> '/help_tickets_cerrados_cobrados/',
 							'fichero'		=> 'index.php'
 							)
+					
 				);
 		
 		// Ahora buscamos si tenemos $_GET con alguna de ayudas.
@@ -67,11 +68,18 @@
 		?>
      
 		<div class="container">
-				
 			<?php if ($id <= 0 ){ ?>
 			<h1 class="text-center">Manual de ayuda para soporte tecnico</h1>
-			<div class="col-md-12">
-				<?php foreach ( $ayudas as $key => $ayuda){ ?>
+			<?php 
+			$colu = 0;
+			$numColumnas= 4;
+			
+			foreach ( $ayudas as $key => $ayuda){ 
+				if ($colu > $numColumnas  || $colu === 0){
+					$colu = 1;
+				?>
+				<div class="col-md-12">
+				<?php }?>
 				<div class="col-md-3">
 					<div style="margin: 1%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
 						<h3><?php echo $ayuda['titulo_cuadro'];?></h3>
@@ -79,18 +87,21 @@
 						<p><a href="index.php?cargo_ayuda=<?php echo $key;?>">Mas info</a></p>
 					</div>
 				</div>	
-				<?php // fin foreach
+				<?php if ($colu <= $numColumnas ){
+					$colu++; 
+				}?>
+				<?php 
+				if ($colu > $numColumnas || $key === count($ayudas)){?>
+				</div>
+				<?php }
 				} 
-				?>
-			</div>
-			
-			<?php } else {
+			} else {
 				$DirectorioActual = $DirectorioActual.$ayudas[$id]['ruta'];
 				$UrlActual = $UrlActual.$ayudas[$id]['ruta'];
 				$fichero = $DirectorioActual.$ayudas[$id]['fichero'];
 				include $fichero;
-			 }
-			 ?>
+				}
+			?>
 			
 		</div>
 	</body>
