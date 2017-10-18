@@ -8,13 +8,14 @@
  * */
 
 
-function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
+function BuscarProductos($campoAbuscar,$busqueda,$BDTpv,$vuelta) {
 	// @ Objetivo:
 	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
 	// @ Parametros:
 	//		campoAbuscar-> indicamos que campo estamos buscando.
 	//		busqueda -- string a buscar, puede contener varias palabras
 	//		BDTpv-> conexion a la base datos.
+	//		vuelta = 1, para buscar algo identico, si viene con 2 busca con %like% segunda llamada
 	$resultado = array();
 	$palabras = array(); 
 	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
@@ -32,17 +33,26 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
 		break;
 	}
 	$likes = array();
+	$whereIdentico = array();
 	foreach($palabras as $palabra){
 		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
+		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
 	}
-	$buscar = implode(' and ',$likes);
+	
+	//$buscarIdentico = implode(' and ',$whereIdentico);
+	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
+	if ($vuelta === 1){
+		$buscar = implode(' and ',$whereIdentico);
+	} else {
+		$buscar = implode(' and ',$likes);
+	}	
+		
 	$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
 			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
 			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
-			
-			
+	
 	$res = $BDTpv->query($sql);
 	//compruebo error en consulta
 	if (mysqli_error($BDTpv)){
@@ -61,13 +71,14 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
 			$resultado['Estado'] = 'Correcto';
 			$resultado['datos'][0] = $fila;
 			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
-			break; 
+			break;			 
 			
 		} else if (trim($fila['codBarras']) === trim($busqueda)){
 			//if hay mas resultados
-			if ($res->num_rows > 0){  //aqui entra 
+			if ($res->num_rows > 1){  //aqui entra 
 				$resultado['Estado'] = 'Listado';
 				$resultado['datos'] = $products;
+				
 			} else {
 				$resultado['Estado'] = 'Correcto';
 				$resultado['datos'][0] = $fila;
@@ -82,6 +93,9 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv) {
 	}
 	if (!isset ($resultado['Estado'])){
 		$resultado['Estado'] = 'No existe producto';
+		$resultado= BuscarProductos($campoAbuscar,$busqueda,$BDTpv,2);
+		
+		
 	}
 	return $resultado;
 }

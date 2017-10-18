@@ -28,7 +28,10 @@ switch ($pulsado) {
 		//cuando busco dsde el popup el estado me es indiferente
 		$deDonde = $_POST['dedonde'];
 		//cambio conexion a tpv
-		$respuesta = BuscarProductos($campoAbuscar,$busqueda,$BDTpv);
+		
+		//vuelta indica que busque primero = al dato sino dentro se vuelve a llamar a si misma y busca %likes%
+		$vuelta = 1;
+		$respuesta = BuscarProductos($campoAbuscar,$busqueda,$BDTpv,$vuelta);
 		
 		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
 		//si dedonde == 'popup' 
