@@ -486,6 +486,7 @@ function cerrarModalClientes(id,nombre){
 	cabecera['idCliente'] = id;
 	
 	$('#Cliente').val(nombre);
+	$('#Descripcion').focus();
 }
 
 
