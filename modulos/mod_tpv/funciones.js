@@ -79,7 +79,7 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 			// Cambiamo valor pantalla si estamos en popup
 			pantalla= 'popup';
 		}
-		if (SiInputProductos >=0) {
+		if (SiInputProductos >= 0) {
 			if (datoinput !=='') {
 				// Si viene Descripcion,Referencia,Codbarras
 				buscarProductos(nombreInput,datoinput,pantalla)
@@ -468,7 +468,11 @@ function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
 	datos['iva'] 			= ctipoIva;
 	datos['codBarras']		= ccodebar;
 	$('#busquedaModal').modal('hide');
+	console.log('*******************************focus**************************');
+	$('#Codbarras').focus();	
 	agregarFila(datos);
+	
+	
 }
 
 
@@ -559,10 +563,12 @@ function grabarTicketsTemporal(){
 			$('#EstadoTicket').css('color','white')
 			$('#NTicket').html('0/'+resultado.NumeroTicket);
 			
-			//objetivo cuando esta en ticket actual , en el navegador ponga ?tActual para que no afecte F5 
-			if (resultado.estadoTicket === 'Actual'){
-				//redirigimos a la misma pagina para no poder refrescar con F5
-				window.location.href = './tpv.php?tActual='+resultado.NumeroTicket;
+			console.log(productos.length);
+				
+			//objetivo cuando esta en ticket actual , 
+			//en el navegador ponga ?tActual para que no afecte F5 SIN RECARGAR pagina
+			if (productos.length ===1 ){ 
+				history.pushState(null,'','?tActual='+resultado.NumeroTicket);
 			}
 		}
 	});
