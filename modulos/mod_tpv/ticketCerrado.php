@@ -37,7 +37,7 @@
 			//~ echo '<pre>';
 			//~ print_r($datos);
 			//~ echo '</pre>';
-			$titulo = "Ver o Modificar ticket cerrado";
+			$titulo = "Tickets Cerrados";
 			if (isset($datos['error'])){
 				$error='NOCONTINUAR';
 				$tipomensaje= "danger";

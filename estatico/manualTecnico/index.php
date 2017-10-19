@@ -39,8 +39,13 @@
 							'introduccion'	=> 'El listado de tickets cerrados, punto pendiente de revisar, paginacion y filtrado.',
 							'ruta'			=> '/help_tickets_cerrados_cobrados/',
 							'fichero'		=> 'index.php'
+							),
+					'6' => array(
+							'titulo_cuadro'	=> 'Fichero HEADER',
+							'introduccion'	=> 'En cargado mostrar menu y controlar que items mostrar según el usuario',
+							'ruta'			=> '/help_fichero_header/',
+							'fichero'		=> 'index.php'
 							)
-					
 				);
 		
 		// Ahora buscamos si tenemos $_GET con alguna de ayudas.
