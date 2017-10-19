@@ -35,7 +35,7 @@ $TControlador = new ControladorComun;
 		$tablas = $_POST['tablas'];
 		// Llamamos fuciones de vaciar.
 		$respuesta = EliminarArticulosTpv($BDTpv,$tablas,$TControlador);
-		echo json_encode($respuesta,true);
+		echo json_encode($respuesta,true); 
 		break;	
 	
     case 'Realizar insert':

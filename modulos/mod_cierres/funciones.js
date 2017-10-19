@@ -13,6 +13,29 @@ function guardarCierreCaja(){
 	//Objetivo 
 	//enviar datos del cierre de caja
 	//para guardar en cierres
-	var fecha = $('input[name=fecha]').val();
-	alert('fecha '+fecha+' ');
+	//Ccierre es global
+	
+	console.log(Ccierre.length);
+	
+	var parametros = {
+	"datos_cierre" 	: Ccierre,
+	"pulsado" 	: 'insertarCierre'
+			};
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+				console.log('enviando datos para cierre');
+		},
+		success:  function (response) {			
+			// Recorremos el objeto tabla.nombretabla.Insert para contar cuantos insert
+			var resultado =  $.parseJSON(response);
+			
+			console.log('recibiendo datos');
+		}
+	});
+	
+	
+	
 }

@@ -86,13 +86,16 @@
 						<label>Empleado:</label>
 						<span id="Usuario"><?php echo $datoTicket['username'];?></span><br/>
 					</div>
-				</div>
+				</div> 
+				<?php //Cliente  ?>
 				<div class="form-group">
 					<label>Cliente:</label>
 					<input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
 					<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $nombreCliente; ?>" size="60" readonly>
 					<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes()"></a>
+			
 				</div>
+			
 			</div>
 			<div class="col-md-10 col-md-offset-2 ">
 				<div class="col-md-12">	
@@ -140,5 +143,8 @@
 			</div>	
 			
 		</div>
+		<?php // Incluimos paginas modales
+			include 'busquedaModal.php';
+		?>
 	</body>
 </html>

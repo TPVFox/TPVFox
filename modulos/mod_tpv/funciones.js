@@ -487,9 +487,10 @@ function cerrarModalClientes(id,nombre){
 	
 	//agregar datos funcion js
 	$('#id_cliente').val(id);
-	cabecera['idCliente'] = id;
+
 	
-	$('#Cliente').val(nombre);
+	$('#Cliente').val(nombre);	
+	cabecera['idCliente'] = id;
 	$('#Descripcion').focus();
 }
 

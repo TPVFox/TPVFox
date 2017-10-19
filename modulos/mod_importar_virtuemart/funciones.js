@@ -247,7 +247,7 @@ function BucleTablaTemporal(){
 	} else {
 	// El proceso se termina y se vuelve en CrearTablaTemporal
 	BarraProceso(y,lineaF); 
-	console.log('Ahora hacesmos las comprobaciones');
+	console.log('Ahora hacemos las comprobaciones');
 	BucleComprobacionesTemporales();
 	}
 }

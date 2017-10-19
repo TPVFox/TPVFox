@@ -5,9 +5,10 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 	$resultado = array();
 	
 	//muestro datos del ticket donde fecha mayor fecha inicio y menor que nueva fecha (fecha+1)
-	$sql = 'SELECT * FROM `ticketst` WHERE `fecha`>"'.$fechaInicio.'" AND `fecha`<"'.$nuevafecha.'"';
+	$sql ='SELECT * FROM `ticketst` WHERE DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fechaInicio.'" AND "'.$nuevafecha.'"';
+	
 	$resp = $BDTpv->query($sql);
-	 'SELECT COUNT(`numticket`) FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'" GROUP BY `idUsuario` ';
+	// 'SELECT COUNT(`numticket`) FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'" GROUP BY `idUsuario` ';
 	
 	//consulta ticketsAbiertos en tablaTemporal
 	//Obtenemos cuantos tickets tienen cada usuario.
@@ -87,7 +88,6 @@ function nombreUsuario($BDTpv,$idUsuario){
 	$resp = $BDTpv->query($sql);
 	$resultado=array();
 	if ($resp->num_rows > 0) {
-		//~ $i=0;
 		while($fila = $resp->fetch_assoc()) {
 			$resultado['datos']=$fila;
 			//~ $resultado['rangoTickets'][$i]= $fila['Numticket'];
@@ -162,5 +162,20 @@ function obtenerCierres($BDTpv,$LimitePagina ,$desde,$filtro) {
 	$clientes ['consulta'] = $consulta;
 	return $clientes;
 }
+
+function fechaMaxMinTickets($BDTpv){
+	$respuesta=array();
+	$sql = 'SELECT UNIX_TIMESTAMP(min(`Fecha`)) as fechaMin, UNIX_TIMESTAMP(max(`Fecha`)) as fechaMax FROM `ticketst` WHERE 1 ';
+	$resp = $BDTpv->query($sql);
+	while($fila = $resp->fetch_assoc()) {
+		$respuesta=$fila;
+	}
+	
+	
+	return $respuesta;
+}
+
+
+
 
 ?>
