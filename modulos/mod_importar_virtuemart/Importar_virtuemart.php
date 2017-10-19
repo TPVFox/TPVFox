@@ -135,8 +135,8 @@
 							'1' => array(
 								'nom_funcion'		=>'ComprobarTablaTempClientes',
 								'link_collapse'	=>'Comprobar tabla de Clientes temporal',
-								'subprocesos'				=>array('AnhadirIdCliente0'),
-								'explicacion_subprocesos'	=>array('Añadimos cliente con id 0 que es Sin determinar') 
+								'subprocesos'				=>array('AnhadirIdCliente1'),
+								'explicacion_subprocesos'	=>array('Añadimos cliente con id 1 que es Sin determinar') 
 								)
 							);
 	
@@ -291,8 +291,8 @@
 			echo '<div class="alert alert-info"> No tienes datos en BDTpv puedes importar</div>';
 		}
 		?>
-		<h3>Las FAXES para la importación de Virtuemart a BDTPV:</h3>
-		<?php include_once 'faxesImportar.html';?>
+		<h3>Las FASES para la importación de Virtuemart a BDTPV:</h3>
+		<?php include_once 'fasesImportar.html';?>
 		<script>
 			// Cambien id por clase, pero no funciona correctamente
 			// ya que pone - a todos cuando uno esta desplegado.

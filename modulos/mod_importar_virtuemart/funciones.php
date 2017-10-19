@@ -29,21 +29,27 @@
 		if ($BDVirtuemart->query($sqlBDImpor) === TRUE) {
 			// Se creó con éxito la tabla articulosCompleta en
 			$resultado[$nombre_temporal]['tabla-creada'] = TRUE;
+			// Obtenemos los registros afectados que serían los registros que hay virtuemart.
+			$resultado[$nombre_temporal]['Num_articulos'] = $BDVirtuemart->affected_rows;
+
 		}else {
 			// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
 			$resultado['error'][$nombre_temporal]['info_error'] =  $BDVirtuemart->error;
 			$resultado['error'][$nombre_temporal]['consulta'] =  $sqlBDImpor;
 			//~ $resultado
 		}
-		// Ahora añadimos el campo id que indicamos en el array de cada tabla. 
-		// Recuerda que esto esl que hacer ID auto incremental, recuerda que esto empieza desde 0
-		$sqlAlter = "ALTER TABLE ".$nombre_temporal." ADD ".$tTemporal['campo_id']." INT( 11 ) AUTO_INCREMENT PRIMARY KEY FIRST";
+		// [PENDIENTE DECIDIR]
+		// Ahora añadimos el campo id, creo que esto se debería hacer en comprobaciones antes de insertar
+		// pero entonces deberíamos hacer el proceso comprobaciones en todas las tablas tmp, cosa que no hago.
+		// Recuerda que esto esl que hacer ID auto incremental, recuerda que esto empieza desde 1
+		$sqlAlter = "ALTER TABLE ".$nombre_temporal." ADD ".$tTemporal['campo_id']." INT AUTO_INCREMENT PRIMARY KEY FIRST";
+		
 		if ($BDVirtuemart->query($sqlAlter) === TRUE) {
 			// Se creó con éxito la tabla articulosCompleta en
 			$creado = $tTemporal['campo_id'].'_creado';
 			$resultado[$nombre_temporal][$creado] = TRUE;
-			// Obtenemos los registros afectados que serían los registros que hay virtuemart.
-			$resultado[$nombre_temporal]['Num_articulos'] = $BDVirtuemart->affected_rows;
+			$resultado[$nombre_temporal][$creado.'consula'] = $sqlAlter;
+
 
 		}else {
 			// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
@@ -289,19 +295,39 @@ function ComprobarTablaTempArticulosCompleta ($BDVirtuemart){
 function ComprobarTablaTempClientes ($BDVirtuemart){
 	// @ Objetivo 
 	// Comprobar la tabla temporal de Clientes 
-	// 		subproceso: AnhadirIdClientes0
-	//	[SUBPROCESO : AnhadirIdCliente0] -> Donde añadimos el registro con id 0 que es cliente Sin identificar
-	$sqlInsert = "INSERT INTO `clientes`(`idClientes`, `Nombre`, `razonsocial`) VALUES (0,'Sin identificar,Sin identificar";
+	// 		subproceso: AnhadirIdClientes1
+	//	[SUBPROCESO : AnhadirIdCliente1] -> Donde añadimos el registro con id 1 que es cliente Sin identificar
+	//  La complejidad de esto es que ya tenemos la tabla cubierta,
+	//  con el campo idClientes autoincremental creado por lo que :
+	//  Quitamos auto incremental : 
+	$sqlInsert ="ALTER TABLE `tmp_clientes` CHANGE `idClientes` `idClientes` INT(11) NOT NULL";
+	$BDVirtuemart->query($sqlInsert);
+	//  Eliminamos indice: 
+	$sqlInsert = " ALTER TABLE `tmp_clientes` DROP PRIMARY KEY";
+	$BDVirtuemart->query($sqlInsert);
+	// 	Ahora deberíamos cambiar idClientes y le incrementamos uno .
+	$sqlInsert = " UPDATE `tmp_clientes` SET `idClientes`= idClientes+1"; 
+	$BDVirtuemart->query($sqlInsert);
+	//  Ahora añadimos el primer regi;stro.
+    $sqlInsert = " INSERT INTO `tmp_clientes` (`idClientes`, `Nombre`, `razonsocial`) VALUES (1,'Sin identificar','Sin identificar') ";
+	$BDVirtuemart->query($sqlInsert);
+	//  Volvemos a crear el indice
+	$sqlInsert = " ALTER TABLE `tmp_clientes` ADD PRIMARY KEY(`idClientes`) ";
+	$BDVirtuemart->query($sqlInsert);
+	// 	Cambiamos denuevo el campo idCliente a autoincremental.
+	$sqlInsert = " ALTER TABLE `tmp_clientes` CHANGE `idClientes` `idClientes` INT(11) NOT NULL AUTO_INCREMENT" ;
 	if ($BDVirtuemart->query($sqlInsert) === TRUE) {
 		// Se creó con éxito la tabla articulosCompleta en
-		$resultado['AnhadirIdCliente0']['estado'] = TRUE;
+		$resultado['AnhadirIdCliente1']['estado'] = TRUE;
 	}else {
 		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
-		$resultado['AnhadirIdCliente0']['error']['consulta'] = $sqlInsert;
-		$resultado['AnhadirIdCliente0']['error']['info_error'] =  $BDVirtuemart->error;
-		$resultado['AnhadirIdCliente0']['estado'] = false;
+		$resultado['AnhadirIdCliente1']['error']['consulta'] = $sqlInsert;
+		$resultado['AnhadirIdCliente1']['error']['info_error'] =  $BDVirtuemart->error;
+		$resultado['AnhadirIdCliente1']['estado'] = false;
 	}
-	
+	//[NOTA] :
+	// Intente ejecutar todo con una mismo $BDVirtuemart->query($sqlInsert);
+	// pero me generaba un error por eso hago todas las consultas... :-)
 	return $resultado;
 	
 }
