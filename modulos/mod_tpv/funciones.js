@@ -469,7 +469,6 @@ function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
 	datos['iva'] 			= ctipoIva;
 	datos['codBarras']		= ccodebar;
 	$('#busquedaModal').modal('hide');
-	console.log('*******************************focus**************************');
 	$('#Codbarras').focus();	
 	agregarFila(datos);
 	
@@ -610,14 +609,10 @@ function CerrarTicket(){
 			console.log('Respuesta de Guardar ticket Cerrado');
 			console.log(response);
 			var resultado =  $.parseJSON(response); 
-			
-			alert(' Grabado correcto')
+			console.log(' ********  TERMIANOS DE GRABAR TICKET CERRADO *********** ')
 			// Redireccion para volver a empezar un ticket
 			//~ window.location="tpv.php";
 			document.location.href='tpv.php';
-			
-			
-			
 		}
 	});
 	
