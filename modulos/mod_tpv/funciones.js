@@ -68,7 +68,7 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 		var numproduct = productos.length;
 		if (numproduct > 0){
 			console.log('PULSO F1 - DENTRO CAJA ');
-			cobrarF5();
+			cobrarF1();
 		}
 	}
 	
@@ -234,7 +234,7 @@ function tiempoEnfoqueInput(nfila){
 	}, 300); 
 }
 
-function cobrarF5(){
+function cobrarF1(){
 	//@Objetivo:
 	// Recalcular en php los totales.( Si hay diferencia se informa)
 	// Abrir modal de htmlcobrar
@@ -252,7 +252,7 @@ function cobrarF5(){
 			$("#resultado").html('Comprobamos que el producto existe ');
 		},
 		success:  function (response) {
-			console.log('Respuesta ajax - CobrarF5 ');
+			console.log('Respuesta ajax - CobrarF1 ');
 			var resultado =  $.parseJSON(response);
 			//HtmlCobrar = resultado;
 			//busqueda = resultado.cobrar;
@@ -459,6 +459,7 @@ function abrirModal(titulo,tabla){
 }
 
 function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
+	// @ Llegamos aquí desde el modal de productos (funciones.php) en htmlProductos()
 	// Nuevos datos tabla nueva... 
 	var datos = []
 	datos['idArticulo'] 	= id;
