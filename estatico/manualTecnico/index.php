@@ -45,6 +45,12 @@
 							'introduccion'	=> 'En cargado mostrar menu y controlar que items mostrar según el usuario',
 							'ruta'			=> '/help_fichero_header/',
 							'fichero'		=> 'index.php'
+							),
+					'7' => array(
+							'titulo_cuadro'	=> 'Ayuda Cierres Caja',
+							'introduccion'	=> 'Cerrar caja',
+							'ruta'			=> '/help_cierresCaja/',
+							'fichero'		=> 'index.php'
 							)
 				);
 		

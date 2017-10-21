@@ -8,11 +8,16 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 	$sql ='SELECT * FROM `ticketst` WHERE DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fechaInicio.'" AND "'.$nuevafecha.'"';
 	
 	$resp = $BDTpv->query($sql);
-	// 'SELECT COUNT(`numticket`) FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'" GROUP BY `idUsuario` ';
+	//SELECT count(`numticket`), `idUsuario`, `fechaInicio`, `fechaFinal` FROM `ticketstemporales` WHERE `estadoTicket`='Abierto' GROUP BY `idUsuario` 
 	
 	//consulta ticketsAbiertos en tablaTemporal
 	//Obtenemos cuantos tickets tienen cada usuario.
-	$sqlAbiertos = 'SELECT COUNT(`numticket`) AS suma, `idUsuario` FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'" GROUP BY `idUsuario` ';
+	//$sqlAbiertos = 'SELECT COUNT(`numticket`) AS suma, `idUsuario` FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'" GROUP BY `idUsuario` ';
+	$sqlAbiertos = 'SELECT count(`numticket`) as suma, `idUsuario`, DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") as fechaInicio  FROM `ticketstemporales` WHERE `estadoTicket`="'.Abierto.'" GROUP BY `idUsuario` ';
+	
+	//$sqlAbiertos = 'SELECT count(`numticket`) as suma, `idUsuario`, DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") as fechaInicio  FROM `ticketstemporales` '
+		//		.'WHERE  DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") > "'.$fechaInicio.'" AND  DATE_FORMAT(`fechaFinal`,"%d-%m-%Y") > "'.$nuevafecha.'" and `estadoTicket`="'.Abierto.'" GROUP BY `idUsuario` ';
+	
 	$respAbiertos =$BDTpv->query($sqlAbiertos);
 	if($respAbiertos->num_rows > 0){
 		while ($row = $respAbiertos->fetch_assoc()){
@@ -38,6 +43,12 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 			//si no existe numInicial lo creamos y el final siempre lo grabamos
 			if (!isset($resultado['usuarios'][$usuario]['NumInicial'])){
 				$resultado['usuarios'][$usuario]['NumInicial'] = $fila['Numticket'];
+			} else {
+				$resultado['usuarios'][$usuario]['NumFinal'] = $fila['Numticket'];   
+			}
+			//si no existe el final siempre lo grabamos
+			if (!isset($resultado['usuarios'][$usuario]['NumFinal'])){
+				$resultado['usuarios'][$usuario]['NumFinal'] = $fila['Numticket'];
 			} else {
 				$resultado['usuarios'][$usuario]['NumFinal'] = $fila['Numticket'];   
 			}
@@ -75,6 +86,7 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 	}
 	$resultado['formasPago']=array_unique($formasPago);
 	$resultado['sql'] = $sql;
+	$resultado['sqlAbiertos']= $sqlAbiertos;
 	return $resultado;
 }
 

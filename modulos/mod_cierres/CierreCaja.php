@@ -9,31 +9,31 @@
 	
 	$dedonde='';
 	
+	//recojo la fecha min de los tickets cobrados sin cerrar y la fecha maxima.
 	$fechaMaxMin = fechaMaxMinTickets($BDTpv);
-	//array de fecha para atacar al dia o lo que queramos
-	
+	//array de fecha, date_parse --> para atacar al dia o lo que queramos	
 	$min = date_parse($fechaMaxMin['fechaMin']['day']);
 	$max = date_parse($fechaMaxMax['fechaMax']['day']);
 	$aviso='';
+	$desactivarInput='';
+	//si son fechas distintas es que se saltaron algun dia sin hacer cierre caja, toca avisar
 	if ($min !== $max){
 		$tipomensaje= "danger";
 		$mensaje = "<strong>Varios dias sin cerrar caja.</strong> Hacer cierre de varios dias?";
 		$aviso='aviso';
+	} else{ //si las fechas son iguales, es que van dia a dia con el cierre.
+		//desactivamos fechaFinal, porque no existe rango de fechas.
+		$desactivarInput = "disabled";
 	}
 	$stringFechaInicio = strftime('%d-%m-%Y',$fechaMaxMin['fechaMin']);
 	$stringFechaFinal = strftime('%d-%m-%Y',$fechaMaxMin['fechaMax']);
-	
+	$fechaCierre = strftime('%d-%m-%Y',time());
 	//fecha para obtener caja de ese dia , fecha que escribimos en vista
 	if ($_POST['fecha']){
-		$fecha=$_POST['fecha'];		
-		
-		//nuevafecha la calculamos, un dia mas de la fecha escrita
-		//~ $nuevafecha = strtotime ( '+1 day' , strtotime ( $fecha ) ) ;
-		//~ $nuevafecha = date ( 'Y-m-j H:i:s' , $nuevafecha );
-		
-		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada
+		$fechaCierre=$_POST['fecha'];		
 		$stringFechaFinal = $_POST['fechaFinal'];
 		
+		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada		
 		$Users = ticketsPorFechaUsuario($stringFechaInicio,$BDTpv,$stringFechaFinal);
 
 		// Saber que usuarios tienen ticket, key=idUsuario
@@ -65,9 +65,9 @@
 
 	
 	
-	echo '<pre>';
-	print_r($Users['sql']);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($Users['sql']);
+	//~ echo '</pre>';
 	//array cierre
 	$Ccierre= array();
 	?>
@@ -85,9 +85,9 @@
 	<body>
 	<?php
 	include './../../header.php';
-	//~ echo '<pre>';
-		//~ print_r($Users['rangoTickets']);
-	//~ echo '</pre>';
+	echo '<pre>';
+		print_r($Users['sqlAbiertos']);
+	echo '</pre>';
 	?>
 	<div class="container">		
 		<div class="row">
@@ -107,11 +107,12 @@
 				<div class="alert alert-danger">
 					<strong>Tickets Abiertos!</strong></br> No se permite cerrar caja si hay tickets abiertos.
 				</div>
-					<table class="table table-striped" style="border:2px solid black">
+					<table class="table table-striped" style="border:2px solid black; font-size:small">
 					<thead>
 						<tr>
 							<th>ID Usuario</th>
 							<th>Tickets abiertos</th>
+							<th>Fecha inicio</th>
 						</tr>
 					</thead>
 					<?php 
@@ -120,6 +121,7 @@
 					<tr style="border:4px solid red">
 						<td><?php echo $abierto['idUsuario']; ?></td>
 						<td><?php echo $abierto['suma']; ?></td>
+						<td><?php echo $abierto['fechaInicio']; ?></td>
 					</tr>
 					<?php 
 					}
@@ -130,9 +132,10 @@
 			
 			<div class="col-md-10">
 				<div class=" form-group">
-					<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> <label class="control-label col-sm-2" > Fecha Caja:</label>
+					<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> 
+						<label class="control-label col-sm-2" > Fecha Cierre Caja:</label>
 						<div class="col-sm-4"> 
-							<input type="date" name="fecha" pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4})" autofocus value=<?php  echo strftime('%d-%m-%Y',time()); //cojo la fecha del actual del dia?> >
+							<input type="date" name="fecha" pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
 							<input type="submit" value="Consulta caja">  
 						</div>
 						<!-- inicio de fechas max y min -->
@@ -145,7 +148,7 @@
 							</div>
 							<div class="col-sm-4"> 
 								<label>Fecha Final:</label>
-								<input type="date" name="fechaFinal" pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4})" autofocus value="<?php  echo $stringFechaFinal;?>" > 
+								<input type="date" name="fechaFinal" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4})" autofocus value="<?php  echo $stringFechaFinal;?>" > 
 				
 							</div>
 						</div>
@@ -178,8 +181,6 @@
 			</thead>
 			<?php 
 			foreach ($Users['usuarios'] as $key =>$usuario){ 
-			//~ $Cusuarios['NumInicUsuar'][$key]=$usuario['NumInicial'];
-			//~ $Cusuarios['NumFinalUsuar'][$key]=$usuario['NumFinal'];
 				?>
 			<tr>
 				<td><?php echo $key; ?></td>
@@ -324,7 +325,7 @@
 			<!-- fin row -->
 			<!--Solo mostrar si hay datos 
 			si existe post fecha y tiene datos se muestra-->
-			<?php if ((isset($_POST['fecha'])) AND (($_POST['fecha']) !== '')){ ?>
+			<?php //if ((isset($_POST['fecha'])) AND (($_POST['fecha']) !== '')){ ?>
 			<div style="text-align:right">
 				<form method="post" name="Aceptar" action="<?php echo $rutaVolver;?>" >
 					<input type="submit" name="Cancelar" value="Cancelar">
@@ -340,8 +341,9 @@
 					$Ccierre['totalFpago']=$total;
 					$Ccierre['sumaFpago']=$suma; //suma formas pago de todos los usuarios : contado, tarjeta
 					$Ccierre['idLogin'] = $_SESSION['usuarioTpv']['id'];
-					$Ccierre['fecha'] =$fecha;
-					$Ccierre['nuevaFecha'] = $nuevafecha;
+					$Ccierre['fechaInicio_tickets'] =$stringFechaInicio;
+					$Ccierre['fechaFinal_tickets'] = $stringFechaFinal;
+					$Ccierre['fechaCierre'] = $fechaCierre;
 					
 					//$Ccierre =  $Civas+$Cusuarios;
 					
@@ -359,7 +361,7 @@
 				</form>
 			</div>
 			<?php 
-			} //fin de si existe post para mostrar botones
+			//} //fin de si existe post para mostrar botones
 	echo '<pre>';
 		print_r($Ccierre);
 	echo '</pre>';
