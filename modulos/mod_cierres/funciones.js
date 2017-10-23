@@ -28,11 +28,19 @@ function guardarCierreCaja(){
 		beforeSend: function () {
 				console.log('enviando datos para cierre');
 		},
-		success:  function (response) {			
-			// Recorremos el objeto tabla.nombretabla.Insert para contar cuantos insert
+		success:  function (response) {
+			console.log('guardar cierre '+response);
 			var resultado =  $.parseJSON(response);
+			console.log('recibiendo datos id ');
 			
-			console.log('recibiendo datos');
+			if (resultado === true){
+				
+				alert('datos  '+resultado);
+			}
+			document.location.href='ListaCierres.php';
+			//~ console.log('consulta insert: '+resultado.sqlInsert);		
+			//~ console.log('consulta update :'+resultado.sqlUpdate);	
+			//~ console.log('num tickets afectados en update '+resultado.Nafectados);
 		}
 	});
 	

@@ -63,9 +63,9 @@
 
 	
 	$cierres = obtenerCierres($BDTpv,$LimitePagina ,$desde,$filtro);
-	//~ echo '<pre>';
-	//~ print_r($cierres);
-	//~ echo '</pre>';
+	echo '<pre>';
+	print_r($cierres['sql']);
+	echo '</pre>';
 	?>
 	<script>
 	// Declaramos variables globales
@@ -157,7 +157,7 @@
 	
 				<?php
 				$checkUser = 0;
-				foreach ($cierres['items'] as $cierre){ 
+				foreach (array_reverse($cierres) as $cierre){ 
 					$checkUser = $checkUser + 1; 
 				?>
 
@@ -167,7 +167,7 @@
 					<td><?php echo $cierre['idCierre']; ?></td>
 					<td><?php echo $cierre['nombreUsuario']; ?></td>
 					<td><?php echo $cierre['FechaFinal']; ?></td>
-					<td><?php echo $cierre['total']; ?></td>
+					<td><?php echo $cierre['Total']; ?></td>
 					
 				</tr>
 

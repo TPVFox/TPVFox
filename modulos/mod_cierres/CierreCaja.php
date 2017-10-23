@@ -8,30 +8,39 @@
 	include ("./../../controllers/Controladores.php");
 	
 	$dedonde='';
-	
-	//recojo la fecha min de los tickets cobrados sin cerrar y la fecha maxima.
-	$fechaMaxMin = fechaMaxMinTickets($BDTpv);
-	//array de fecha, date_parse --> para atacar al dia o lo que queramos	
-	$min = date_parse($fechaMaxMin['fechaMin']['day']);
-	$max = date_parse($fechaMaxMax['fechaMax']['day']);
 	$aviso='';
 	$desactivarInput='';
+	//recojo la fecha min de los tickets cobrados sin cerrar y la fecha maxima.
+	$fechaMaxMin = fechaMaxMinTickets($BDTpv);
+	
+	//array de fecha, date_parse --> para atacar al dia o lo que queramos	['year'],['day'],['month']
+	$ArrayFechaMin = date_parse(strftime('%d-%m-%Y',$fechaMaxMin['fechaMin']))['day'];
+	$ArrayFechaMax = date_parse(strftime('%d-%m-%Y',$fechaMaxMin['fechaMax']))['day'];
+	echo '<pre>';
+		print_r($ArrayFechaMin);
+	echo '</pre>';
+	
 	//si son fechas distintas es que se saltaron algun dia sin hacer cierre caja, toca avisar
-	if ($min !== $max){
+	if ($ArrayFechaMin !== $ArrayFechaMax){
 		$tipomensaje= "danger";
 		$mensaje = "<strong>Varios dias sin cerrar caja.</strong> Hacer cierre de varios dias?";
 		$aviso='aviso';
 	} else{ //si las fechas son iguales, es que van dia a dia con el cierre.
 		//desactivamos fechaFinal, porque no existe rango de fechas.
 		$desactivarInput = "disabled";
+		
 	}
-	$stringFechaInicio = strftime('%d-%m-%Y',$fechaMaxMin['fechaMin']);
+	$stringFechaInicio = strftime('%d-%m-%Y',$fechaMaxMin['fechaMin']); //indico fecha d-m-y
 	$stringFechaFinal = strftime('%d-%m-%Y',$fechaMaxMin['fechaMax']);
 	$fechaCierre = strftime('%d-%m-%Y',time());
 	//fecha para obtener caja de ese dia , fecha que escribimos en vista
+	
 	if ($_POST['fecha']){
-		$fechaCierre=$_POST['fecha'];		
-		$stringFechaFinal = $_POST['fechaFinal'];
+		$fechaCierre=$_POST['fecha'];
+		if(isset($_POST['fechaFinal'])){
+			$stringFechaFinal = $_POST['fechaFinal'];
+		}
+		
 		
 		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada		
 		$Users = ticketsPorFechaUsuario($stringFechaInicio,$BDTpv,$stringFechaFinal);
@@ -65,9 +74,9 @@
 
 	
 	
-	//~ echo '<pre>';
-	//~ print_r($Users['sql']);
-	//~ echo '</pre>';
+	echo '<pre>';
+	print_r($Users['sql']);
+	echo '</pre>';
 	//array cierre
 	$Ccierre= array();
 	?>
@@ -85,9 +94,9 @@
 	<body>
 	<?php
 	include './../../header.php';
-	echo '<pre>';
-		print_r($Users['sqlAbiertos']);
-	echo '</pre>';
+	//~ echo '<pre>';
+		//~ print_r($Users['sqlAbiertos']);
+	//~ echo '</pre>';
 	?>
 	<div class="container">		
 		<div class="row">
@@ -135,7 +144,7 @@
 					<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> 
 						<label class="control-label col-sm-2" > Fecha Cierre Caja:</label>
 						<div class="col-sm-4"> 
-							<input type="date" name="fecha" pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
+							<input type="date" name="fecha" pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
 							<input type="submit" value="Consulta caja">  
 						</div>
 						<!-- inicio de fechas max y min -->
@@ -148,8 +157,7 @@
 							</div>
 							<div class="col-sm-4"> 
 								<label>Fecha Final:</label>
-								<input type="date" name="fechaFinal" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-[0-9]{4})" autofocus value="<?php  echo $stringFechaFinal;?>" > 
-				
+								<input type="date" name="fechaFinal" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value="<?php  echo $stringFechaFinal;?>" > 
 							</div>
 						</div>
 				<?php if ($aviso === 'aviso' ){   ?> 
@@ -158,12 +166,8 @@
 					 <!-- fin de fechas max y min -->
 					</form>			
 				</div>
-				
-							
 			<div>
-				
-				
-				
+
 									
 				<!-- TABLA USUARIOS -->
 			<div class="col-md-8 text-center">
@@ -340,7 +344,7 @@
 					
 					$Ccierre['totalFpago']=$total;
 					$Ccierre['sumaFpago']=$suma; //suma formas pago de todos los usuarios : contado, tarjeta
-					$Ccierre['idLogin'] = $_SESSION['usuarioTpv']['id'];
+					$Ccierre['idUsuarioLogin'] = $_SESSION['usuarioTpv']['id'];
 					$Ccierre['fechaInicio_tickets'] =$stringFechaInicio;
 					$Ccierre['fechaFinal_tickets'] = $stringFechaFinal;
 					$Ccierre['fechaCierre'] = $fechaCierre;

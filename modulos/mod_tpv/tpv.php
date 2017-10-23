@@ -179,7 +179,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 			<ul class="nav nav-pills nav-stacked">
 				<li><a onclick="buscarClientes()">Cliente</a></li>
 				<li><a href="#section3">Abrir Cajon</a></li>
-				<li><a onclick="cobrarF5()">Cobrar</a></li>
+				<li><a onclick="cobrarF1()">Cobrar</a></li>
 			</ul>
 		</div>
 		

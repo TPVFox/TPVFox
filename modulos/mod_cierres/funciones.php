@@ -5,23 +5,23 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 	$resultado = array();
 	
 	//muestro datos del ticket donde fecha mayor fecha inicio y menor que nueva fecha (fecha+1)
-	$sql ='SELECT * FROM `ticketst` WHERE DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fechaInicio.'" AND "'.$nuevafecha.'"';
+	$sql ='SELECT * FROM `ticketst` WHERE DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fechaInicio.'"'
+		.' AND "'.$nuevafecha.'" and `estado`="'.Cobrado.'"';
 	
 	$resp = $BDTpv->query($sql);
 	//SELECT count(`numticket`), `idUsuario`, `fechaInicio`, `fechaFinal` FROM `ticketstemporales` WHERE `estadoTicket`='Abierto' GROUP BY `idUsuario` 
 	
 	//consulta ticketsAbiertos en tablaTemporal
 	//Obtenemos cuantos tickets tienen cada usuario.
-	//$sqlAbiertos = 'SELECT COUNT(`numticket`) AS suma, `idUsuario` FROM `ticketstemporales` WHERE `fechaInicio` > "'.$fechaInicio.'" AND `fechaInicio` < "'.$nuevafecha.'" AND `estadoTicket`= "'.Abierto.'" GROUP BY `idUsuario` ';
-	$sqlAbiertos = 'SELECT count(`numticket`) as suma, `idUsuario`, DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") as fechaInicio  FROM `ticketstemporales` WHERE `estadoTicket`="'.Abierto.'" GROUP BY `idUsuario` ';
-	
-	//$sqlAbiertos = 'SELECT count(`numticket`) as suma, `idUsuario`, DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") as fechaInicio  FROM `ticketstemporales` '
-		//		.'WHERE  DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") > "'.$fechaInicio.'" AND  DATE_FORMAT(`fechaFinal`,"%d-%m-%Y") > "'.$nuevafecha.'" and `estadoTicket`="'.Abierto.'" GROUP BY `idUsuario` ';
+	//DATE_FORMAT('fecha','dia-mes-anho'), le indicamos como es el formato de nuestras fechas.
+	$sqlAbiertos = 'SELECT count(`numticket`) as suma, `idUsuario`, DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") as fechaInicio  FROM `ticketstemporales` '
+				.'WHERE  DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") > "'.$fechaInicio.'" AND  '
+				. 'DATE_FORMAT(`fechaFinal`,"%d-%m-%Y") < "'.$nuevafecha.'" and `estadoTicket`="'.Abierto.'" GROUP BY `idUsuario` ';
 	
 	$respAbiertos =$BDTpv->query($sqlAbiertos);
 	if($respAbiertos->num_rows > 0){
 		while ($row = $respAbiertos->fetch_assoc()){
-			$resultado['abiertos'][]=$row;	
+			$resultado['abiertos'][]=$row;
 		}
 	}
 	
@@ -155,39 +155,75 @@ function obtenerCierres($BDTpv,$LimitePagina ,$desde,$filtro) {
 //fin paginacion y filtro de busqueda 
 
 
-	$clientes = array();
-	$consulta = "Select * from cierres ".$filtroFinal.$rango; 
+	$resultado = array();
+	$consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
+				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtroFinal.$rango; 
+	
 	$Resql = $BDTpv->query($consulta);
-	$clientes['NItems'] = $Resql->num_rows;
-	$i = 0;
-//~ echo '<pre>';
-//~ echo $consulta;
-//~ echo '</pre>';	
-	while ($cliente = $Resql->fetch_assoc()) {			
-			$clientes['items'][$i]['idCierre'] = $cliente['idCierre'];
-			$clientes['items'][$i]['nombreUsuario'] = $cliente['nombreUsuario'];
-			$clientes['items'][$i]['fechaFinal'] = $cliente['fechaFinal'];
-			$clientes['items'][$i]['total'] = $cliente['total'];
-	$i = $i+1;
+	//$cierres['NItems'] = $Resql->num_rows;
+	
+	while ($datos = $Resql->fetch_assoc()) {
+			$resultado[]=$datos;
 	}
 
-	$clientes ['consulta'] = $consulta;
-	return $clientes;
+	//$resultado ['sql'] = $consulta;
+	return $resultado;
 }
 
 function fechaMaxMinTickets($BDTpv){
 	$respuesta=array();
-	$sql = 'SELECT UNIX_TIMESTAMP(min(`Fecha`)) as fechaMin, UNIX_TIMESTAMP(max(`Fecha`)) as fechaMax FROM `ticketst` WHERE 1 ';
+	$sql = 'SELECT UNIX_TIMESTAMP(min(`Fecha`)) as fechaMin, UNIX_TIMESTAMP(max(`Fecha`)) as fechaMax '
+			.' FROM `ticketst` WHERE `estado` = "'.Cobrado.'" ';
 	$resp = $BDTpv->query($sql);
 	while($fila = $resp->fetch_assoc()) {
 		$respuesta=$fila;
 	}
 	
-	
+	$respuesta['sql']= $sql;
 	return $respuesta;
 }
 
-
-
+function insertarCierre($BDTpv,$datosCierre){
+	$resultado=array();
+	$tabla = 'cierres';
+	foreach ($datosCierre as $dato){
+		$idTienda = $dato['tienda'];
+		$idUsuario = $dato['idUsuarioLogin'];
+		$FechaInicio = $dato['fechaInicio_tickets'];
+		$FechaFinal = $dato['fechaFinal_tickets'];
+		$total = $dato['totalFpago'];
+		$fechaCierre = $dato['fechaCierre'];
+	}
+	
+	//convierto fecha a string para insertar en cierres
+	$formateoFechaInicio = ' STR_TO_DATE("'.$FechaInicio.'","%d-%m-%Y") ';
+	$formateoFechaFinal = ' STR_TO_DATE("'.$FechaFinal.'","%d-%m-%Y")  '; 
+	$formateoFechaCierre = ' STR_TO_DATE("'.$fechaCierre.'","%d-%m-%Y") ';
+	
+	$estadoCierre = 'Cerrado';
+	$insertCierre = 'INSERT INTO '.$tabla.'( idTienda, idUsuario, FechaInicio, FechaFinal, Total, fechaCierre ) VALUES ("'
+			.$idTienda.'" , "'.$idUsuario.'" ,  '.$formateoFechaInicio.' , '.$formateoFechaFinal.' , '
+			.' "'.$total.'" , '.$formateoFechaCierre.' )';
+	
+	//actualizar tickets estado = Cobrado a estado = Cerrado
+	$updateEstado = 'UPDATE ticketst SET `estado`= "'.$estadoCierre.'" WHERE `estado` = "'.Cobrado.'"'
+					.' AND DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$FechaInicio.'" AND "'.$FechaFinal.'"';
+	//insertamos datos para cierre, si es correcto se Actualiza estado de tickets a 'Cerrado'
+	if ($BDTpv->query($insertCierre) === true){
+		$resultado['idCierre'] = $BDTpv->insert_id; //crea id en bbddd 
+		//tengo que actualizar el estado de esos tickets a cerrados.
+		$resultado = $BDTpv->query($updateEstado);
+		$resultado['Nafectados'] = $BDTpv->affected_rows;
+		
+	} else {
+		// Quiere decir que hubo error en insertar en cierres
+		$resultado['error'] = 'Error en Insert de cliente Numero error:'.$BDTpv->errno;
+		$resultado['sqlInsert'] = $insertCierre;
+	}
+	$resultado['total']=$total;
+	$resultado['sqlUpdate'] = $updateEstado;
+	$resultado['sqlInsert'] = $insertCierre;
+	return $resultado;
+}
 
 ?>

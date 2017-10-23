@@ -19,16 +19,18 @@ include_once ("./funciones.php");
  switch ($pulsado) {
      
     case 'insertarCierre':
-		$datosCierre =$_POST['datos_cierre'];
+		$datosCierre = $_POST['datos_cierre'];
 		$respuesta =  array();
-		$respuesta['idCierre'] = 'sin hacer';
+		$insert = insertarCierre($BDTpv, $datosCierre);
+		$respuesta = $insert;
+		echo $respuesta['sqlInsert'];
 		echo json_encode($respuesta);
     break;
     
     
 }
 
-mysqli_close($BDImportDbf);
+
 
  
  
