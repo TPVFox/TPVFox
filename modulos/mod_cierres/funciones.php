@@ -14,8 +14,9 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 	//consulta ticketsAbiertos en tablaTemporal
 	//Obtenemos cuantos tickets tienen cada usuario.
 	//DATE_FORMAT('fecha','dia-mes-anho'), le indicamos como es el formato de nuestras fechas.
-	$sqlAbiertos = 'SELECT count(`numticket`) as suma, `idUsuario`, DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") as fechaInicio  FROM `ticketstemporales` '
-				.'WHERE  DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") > "'.$fechaInicio.'" AND  '
+	$sqlAbiertos = 'SELECT count(`numticket`) as suma, `idUsuario`, DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") as fechaInicio '
+				.' FROM `ticketstemporales` '
+				.' WHERE  DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") > "'.$fechaInicio.'" AND  '
 				. 'DATE_FORMAT(`fechaFinal`,"%d-%m-%Y") < "'.$nuevafecha.'" and `estadoTicket`="'.Abierto.'" GROUP BY `idUsuario` ';
 	
 	$respAbiertos =$BDTpv->query($sqlAbiertos);
@@ -76,8 +77,8 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 				$resultado['totalcaja'] += $fila['total'];
 			}
 						
-			$resultado['rangoTickets'][$i]= $fila['Numticket']; //necesito array numTickets para obtener sumaBasesIvas
-			//~ $resultado['numTicket'] = $fila['Numticket'];
+			//$resultado['rangoTickets'][$i]= $fila['Numticket']; //necesito array numTickets para obtener sumaBasesIvas
+			$resultado['rangoTickets'][$i]= $fila['id']; //cojo el id ticketst para luego relacionar con ticketstIva con idticketst
 			$i++;
 		}
 		
@@ -111,22 +112,25 @@ function nombreUsuario($BDTpv,$idUsuario){
 }
 
 
-function baseIva($BDTpv,$numTicket){
-	//se le pasa numTicket, e iva, para recoger sum(importeIva) y suma(totalbase)
+function baseIva($BDTpv,$idticketst){
+	//@ tabla : ticketstIva
+	//@ campo : idticketst
+	//@ Objetivo:
+	//Agrupamos por iva, para obtener sumIva, sumBase
+	
+	//se le pasa idtickets, e iva, para recoger sum(importeIva) y suma(totalbase)
+	//seria idtickets de ticketstIva es la relacion de id de ticketst, porque 2 usuarios pueden tener mismo NumTicket.
 	
 	
-	
-	$sql ='SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva FROM `ticketstIva` '
-		.'WHERE `Numticket` IN ('.$numTicket.') GROUP BY `iva`';
+	$sql ='SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
+		.' FROM `ticketstIva` '
+		.' WHERE `idticketst` IN ('.$idticketst.') GROUP BY `iva`';
 	$resp = $BDTpv->query($sql);
 	$resultado = array();
 	if ($resp->num_rows > 0) {
 		$i=0;
 		while($fila = $resp->fetch_assoc()) {		
 			$resultado['items'][$i]=$fila;
-			//~ $resultado['sumaiva']=$fila['importeIva'];			
-			//~ $resultado['base']=$fila['importeBase'];
-			//~ $resultado['iva']=$fila['iva'];
 			$i++;
 			
 		}
@@ -189,11 +193,16 @@ function insertarCierre($BDTpv,$datosCierre){
 	foreach ($datosCierre as $dato){
 		$idTienda = $dato['tienda'];
 		$idUsuario = $dato['idUsuarioLogin'];
-		$FechaInicio = $dato['fechaInicio_tickets'];
-		$FechaFinal = $dato['fechaFinal_tickets'];
+		$FechaInicio = $dato['fechaInicio_tickets'];	//('d-m-Y
+		$FechaFinal = $dato['fechaFinal_tickets'];	//('d-m-Y
 		$total = $dato['totalFpago'];
-		$fechaCierre = $dato['fechaCierre'];
+		$fechaCierre = $dato['fechaCierre'];	//('d-m-Y
+		$fechaCreacion =$dato['fechaCreacion']; //('d-m-Y H:i:s');
 	}
+	$ArrayFechaCierre = date_parse(strftime('%d-%m-%Y',$fechaCierre));
+	$ArrayCreacion2=  date_parse(strftime('%d-%m-%Y',$fechaCreacion));
+	$resultado['prueba1']= $ArrayFechaCierre;
+	$resultado['prueba4']= $ArrayCreacion2;
 	
 	//convierto fecha a string para insertar en cierres
 	$formateoFechaInicio = ' STR_TO_DATE("'.$FechaInicio.'","%d-%m-%Y") ';
@@ -201,9 +210,9 @@ function insertarCierre($BDTpv,$datosCierre){
 	$formateoFechaCierre = ' STR_TO_DATE("'.$fechaCierre.'","%d-%m-%Y") ';
 	
 	$estadoCierre = 'Cerrado';
-	$insertCierre = 'INSERT INTO '.$tabla.'( idTienda, idUsuario, FechaInicio, FechaFinal, Total, fechaCierre ) VALUES ("'
+	$insertCierre = 'INSERT INTO '.$tabla.'( idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion ) VALUES ("'
 			.$idTienda.'" , "'.$idUsuario.'" ,  '.$formateoFechaInicio.' , '.$formateoFechaFinal.' , '
-			.' "'.$total.'" , '.$formateoFechaCierre.' )';
+			.' "'.$total.'" , '.$formateoFechaCierre.' , "'.$fechaCreacion.'" )';
 	
 	//actualizar tickets estado = Cobrado a estado = Cerrado
 	$updateEstado = 'UPDATE ticketst SET `estado`= "'.$estadoCierre.'" WHERE `estado` = "'.Cobrado.'"'

@@ -151,6 +151,7 @@
 						<th>ID CIERRE</th>
 						<th>NOMBRE USUARIO</th>
 						<th>FECHA CIERRE</th>
+						<th>FECHA CREACION </th>
 						<th>TOTAL</th>
 					</tr>
 				</thead>
@@ -167,7 +168,8 @@
 					<td><?php echo $cierre['idCierre']; ?></td>
 					<td><?php echo $cierre['nombreUsuario']; ?></td>
 					<td><?php echo $cierre['FechaFinal']; ?></td>
-					<td><?php echo $cierre['Total']; ?></td>
+					<td><?php echo $cierre['FechaCreacion']; ?></td>
+					<td><?php echo number_format($cierre['Total'],2); ?></td>
 					
 				</tr>
 

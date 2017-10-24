@@ -181,8 +181,7 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th></th>						
-						<th>ID</th>
+						<th title='Este es el id de ticketst, el mismo que idticketst de ticketstIva'>ID</th>
 						<th>Nº TICKET</th>
 						<th>FECHA</th>
 						<th>ID TIENDA</th>
@@ -203,9 +202,9 @@
 				?>
 
 				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $ticket['id'];?>">
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" 
+							value="<?php echo $ticket['id'];?>">
 					</td>
-					<td><?php echo $ticket['id'];  ?></td>
 					<td><?php echo $ticket['Numticket'];  ?></td>
 					<td><?php echo $ticket['Fecha']; ?></td>
 					<td><?php echo $ticket['idTienda']; ?></td>

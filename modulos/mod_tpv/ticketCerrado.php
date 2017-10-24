@@ -5,6 +5,7 @@
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
+        include '../mod_cierres/funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
@@ -127,18 +128,98 @@
 								</tr>
 								<?php
 								
+								
 							}?>
 							
 						</tbody>
 					</table>
 				</div>
 			</div>
+			<?php 
+			
+			
+			$datosIvas = baseIva($BDTpv,$datoTicket['idticketst']);
+			
+			foreach ($datosIvas['items'] as $datoIBase){
+				switch ($datoIBase['iva']){
+				case 4 :
+					$base4 = $datoIBase['importeBase'];
+					$iva4 = $datoIBase['importeIva'];
+
+				break;
+				case 10 :
+					$base10 = $datoIBase['importeBase'];
+					$iva10 = $datoIBase['importeIva'];
+				break;
+				case 21 :
+					$base21 = $datoIBase['importeBase'];
+					$iva21 = $datoIBase['importeIva'];
+				break;
+				}
+			}
+			//~ echo '<pre>';
+			//~ print_r($datosIvas['items']);
+			//~ echo '</pre>';
+			
+			
+			
+			?>
 			<div class="col-md-10 col-md-offset-2 pie-ticket">
-				<div class="col-md-8">
+				<!-- TABLA IVAS BASES -->
+				<table id="tabla-pie" class="col-md-6">
+				<thead>
+					<tr>
+						<th>Tipo</th>
+						<th>Base</th>
+						<th>IVA</th>
+					</tr>
+				</thead>
+				<tbody>
+				<tr id="line4">
+					<td id="tipo4">
+						<?php echo (isset($base4) ? " 4%" : '');?>
+					</td>
+					<td id="base4">
+						<?php echo (isset($base4) ? $base4 : '');?>
+					</td>
+					<td id="iva4">
+						<?php echo (isset($iva4) ? $iva4 : '');?>
+					</td>
+					
+				</tr>
+				<tr id="line10">
+					<td id="tipo10">
+						<?php echo (isset($base10) ? "10%" : '');?>
+					</td>
+					<td id="base10">
+						<?php echo (isset($base10) ? $base10 : '');?>
+					</td>
+					<td id="iva10">
+						<?php echo (isset($iva10) ? $iva10 : '');?>
+					</td>
+					
+				</tr>
+				<tr id="line21">
+					<td id="tipo21">
+						<?php echo (isset($base21) ? "21%" : '');?>
+					</td>
+					<td id="base21">
+						<?php echo (isset($base21) ? $base21 : '');?>
+					</td>
+					<td id="iva21">
+						<?php echo (isset($iva21) ? $iva21 : '');?>
+					</td>
+					
+				</tr>
+			</tbody>
+			</table>
+			<!--Fin tabla bases ivas-->
+			<div class="col-md-6">
+				<div class="col-md-4">
 					<h3>TOTAL</h3>
 				</div>
-				<div class="col-md-2 text-rigth totalImporte" style="font-size: 3em;">
-					<?php echo $dato['total'];?>
+				<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
+					<?php echo  $dato['total'];?>
 				</div>
 			</div>	
 			
