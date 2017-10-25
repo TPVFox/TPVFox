@@ -32,8 +32,10 @@
 	}
 	$stringFechaInicio = strftime('%d-%m-%Y',$fechaMaxMin['fechaMin']); //indico fecha d-m-y
 	$stringFechaFinal = strftime('%d-%m-%Y',$fechaMaxMin['fechaMax']);
-	$fechaCierre = strftime('%d-%m-%Y',time());
+	$fechaCierre = strftime('%d-%m-%Y ',time());
 	//fecha para obtener caja de ese dia , fecha que escribimos en vista
+	//Asi le damos formato a la fecha
+	//date("d-m-Y H:i:s",strtotime($fechaCierre));
 	
 	if ($_POST['fecha']){
 		$fechaCierre=$_POST['fecha'];
@@ -59,7 +61,7 @@
 		}
 	}
 	$estadoInput =''; //inicializo variable para desactivar boton aceptar, si hay tickets abiertos
-
+	$classAlert = ' class= "" '; //inicializo la clase de fondo rojo para alertar distintos totales de Fpago y desgloseIvas
 	//si existe de donde al cancelar volvemos a donde estabamos
 	if (isset($_GET['dedonde'])){
 		$dedonde = $_GET['dedonde'];
@@ -77,6 +79,7 @@
 	echo '<pre>';
 	print_r($Users['sql']);
 	echo '</pre>';
+	
 	//array cierre
 	$Ccierre= array();
 	?>
@@ -95,7 +98,7 @@
 	<?php
 	include './../../header.php';
 	//~ echo '<pre>';
-		//~ print_r($Users['sqlAbiertos']);
+		//~ print_r($Users);
 	//~ echo '</pre>';
 	?>
 	<div class="container">		
@@ -240,6 +243,7 @@
 						
 					<?php
 					} //fin foreach Usuarios
+					
 					?>
 				</div>
 				<div class="col-md-4">
@@ -253,14 +257,12 @@
 							</tr>
 						</thead>
 						<?php
-						$total = 0;
-						
-						
+						$totalFpago = '0.00';
 						foreach ($suma as $nombre=>$importe){
 							echo '<tr><td>'.$nombre.'</td><td>'.number_format($importe,2).'</td></tr>';
-							$total += $importe;
+							$totalFpago += number_format($importe,2);
 						}
-						echo '<tr><td><b>Total:</b></td><td><b>'.number_format($total,2).'</b></td></tr>';
+						echo '<tr><td><b>Total:</b></td><td><b>'.number_format($totalFpago,2).'</b></td></tr>';
 						
 						?>
 						</table>
@@ -272,6 +274,8 @@
 					<?php 				 
 						//monto string de numTickets para usar en funcion baseIva
 						$stringNumTicket = implode(',', $Users['rangoTickets']);
+						
+						
 						$sumasIvasBases =	baseIva($BDTpv,$stringNumTicket);
 						//TABLA DE BASES E IVAS
 						?>	
@@ -285,8 +289,7 @@
 						</thead>
 						<?php 
 						//recorro lo obtenido en sumasIvasBases 
-						$i=0;
-						
+						$i=0;						
 						foreach($sumasIvasBases['items'] as $sumaBaseIva){
 							//~ $Civas['sumasIvas']=$sumasIvasBases['items'];
 						?>
@@ -303,18 +306,29 @@
 								$sumaBase += $sumasIvasBases['items'][$i]['importeBase'];
 								$sumaIvas += $sumasIvasBases['items'][$i]['importeIva'];
 							}
+							$totalBasesIvas = number_format(($sumaBase+$sumaIvas),2);
 						$i++;
 						}//fin foreach 
+						//desactivo boton de aceptar si HAY tickets abiertos O si los totales 
+						if (isset($Users['abiertos']) ) {
+							$estadoInput = 'disabled';
+							
+						} 
+						
+						if  (number_format($totalFpago,2) != number_format($totalBasesIvas,2)){
+							$classAlert = ' class="danger" ';
+							$estadoInput = 'disabled';
+						}
 						?>
 						<tr class="info">
 							<td><b><?php echo 'Subtotal: ';?></b></td>
 							<td><?php echo number_format($sumaBase,2); ?></td>
 							<td><?php echo number_format($sumaIvas,2);  ?></td>
 						</tr>
-						<tr>
+						<tr <?php echo $classAlert; ?>>
 							<td></td>
 							<td><b><?php echo 'Total: '; ?></b></td>
-							<td><b><?php echo number_format($sumaBase+$sumaIvas,2); ?></b></td>
+							<td><b><?php echo $totalBasesIvas; ?></b></td>
 						</tr>
 						</table>
 						
@@ -327,29 +341,22 @@
 			</div> 	
 			</div>
 			<!-- fin row -->
-			<!--Solo mostrar si hay datos 
-			si existe post fecha y tiene datos se muestra-->
-			<?php //if ((isset($_POST['fecha'])) AND (($_POST['fecha']) !== '')){ ?>
 			<div style="text-align:right">
 				<form method="post" name="Aceptar" action="<?php echo $rutaVolver;?>" >
 					<input type="submit" name="Cancelar" value="Cancelar">
-					<?php  //desactivo boton de aceptar si HAY tickets abiertos 
-					if (isset($Users['abiertos'])) {
-						$estadoInput = 'disabled';
-					} 
-					
+					<?php  					
 					//montaje arrays cierre
 					$Ccierre['tienda']= $_SESSION['tiendaTpv']['idTienda']; //recoger idTienda
 					$Ccierre['sumasIvas']=$sumasIvasBases['items']; //iva, importeIva, importeBase
 					
-					$Ccierre['totalFpago']=$total;
+					$Ccierre['totalFpago']=$totalFpago;
 					$Ccierre['sumaFpago']=$suma; //suma formas pago de todos los usuarios : contado, tarjeta
 					$Ccierre['idUsuarioLogin'] = $_SESSION['usuarioTpv']['id'];
 					$Ccierre['fechaInicio_tickets'] =$stringFechaInicio;
 					$Ccierre['fechaFinal_tickets'] = $stringFechaFinal;
-					$Ccierre['fechaCierre'] = $fechaCierre;
+					$Ccierre['fechaCierre'] = $fechaCierre; 
+					$Ccierre['fechaCreacion'] = date('Y-m-d H:i:s');
 					
-					//$Ccierre =  $Civas+$Cusuarios;
 					
 					?>
 					<script type="application/javascript">
@@ -365,7 +372,6 @@
 				</form>
 			</div>
 			<?php 
-			//} //fin de si existe post para mostrar botones
 	echo '<pre>';
 		print_r($Ccierre);
 	echo '</pre>';

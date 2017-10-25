@@ -38,7 +38,7 @@ function guardarCierreCaja(){
 				alert('datos  '+resultado);
 			}
 			document.location.href='ListaCierres.php';
-			//~ console.log('consulta insert: '+resultado.sqlInsert);		
+			// console.log('consulta insert: '+resultado.sqlInsert);		
 			//~ console.log('consulta update :'+resultado.sqlUpdate);	
 			//~ console.log('num tickets afectados en update '+resultado.Nafectados);
 		}

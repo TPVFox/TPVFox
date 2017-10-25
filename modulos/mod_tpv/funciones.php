@@ -828,7 +828,8 @@ function DatosTiendaID($BDTpv,$idTienda){
 	// @ Obtener datos de tienda
 	// Esta funcion pienso que no debería ser necesaria, pero no encontre otra forma pasar los datos ahora.
 		$resultado = array();
-		$sql = 'SELECT idTienda,razonsocial,telefono,direccion,NombreComercial,nif,ano,estado FROM tiendas WHERE idTienda = '.$idTienda;
+		$sql = 'SELECT idTienda,razonsocial,telefono,direccion,NombreComercial,nif,ano,estado '
+			.' FROM tiendas WHERE idTienda = '.$idTienda;
 		$res = $BDTpv->query($sql);
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)){
@@ -872,6 +873,7 @@ function verSelec($BDTpv,$idSelec,$tabla){
 	//$fila['sql'] = $consulta;
 	return $fila ;
 }
+
 
 
 ?>

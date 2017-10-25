@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.10deb1
--- http://www.phpmyadmin.net
+-- version 4.6.6deb4
+-- https://www.phpmyadmin.net/
 --
--- Servidor: localhost
--- Tiempo de generación: 07-10-2017 a las 16:32:49
--- Versión del servidor: 5.5.57-0ubuntu0.14.04.1
--- Versión de PHP: 5.6.31-4+ubuntu14.04.1+deb.sury.org+4
+-- Servidor: localhost:3306
+-- Tiempo de generación: 24-10-2017 a las 16:55:34
+-- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
+-- Versión de PHP: 7.0.19-1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -14,7 +14,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Base de datos: `tpv`
@@ -26,16 +26,36 @@ SET time_zone = "+00:00";
 -- Estructura de tabla para la tabla `cierres`
 --
 
-CREATE TABLE IF NOT EXISTS `cierres` (
-  `idCierre` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `cierres` (
+  `idCierre` int(11) NOT NULL,
+  `FechaCierre` datetime NOT NULL,
   `idTienda` int(11) NOT NULL,
   `idUsuario` int(11) NOT NULL,
-  `FechaInicio` int(11) NOT NULL,
-  `FechaFinal` int(11) NOT NULL,
-  `Total` int(11) NOT NULL,
-  PRIMARY KEY (`idCierre`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  `FechaInicio` datetime NOT NULL,
+  `FechaFinal` datetime NOT NULL,
+  `FechaCreacion` datetime NOT NULL,
+  `Total` decimal(17,4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `cierres`
+--
+ALTER TABLE `cierres`
+  ADD PRIMARY KEY (`idCierre`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `cierres`
+--
+ALTER TABLE `cierres`
+  MODIFY `idCierre` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
