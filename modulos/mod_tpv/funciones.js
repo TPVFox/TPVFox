@@ -141,9 +141,9 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 
 	//[PULSAMOS : tecla abajo y arriba]
 	if ((event.keyCode === 40) || (event.keyCode === 38)){
-		//~ console.log('Pulse tecla bajar o subir ,nombreInput:'+nombreInput);
-		
-		
+		console.log('Pulse tecla bajar o subir ,nombreInput:'+nombreInput);
+		console.log(' Este es valor nfila' +nfila + ' Antes de cambiar' );
+
 		// [ Se pulso flecha ABAJO en campos Codbarras/Referencia/Descripcion estan vacio]
 		
 		if ((datoinput === '') && (SiInputProductos >= 0) && (event.keyCode === 40)){
@@ -199,15 +199,16 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 				// [ pulsamos flecha abajo o arriba  y estamos cajaBusqueda de lista productos] 
 				console.log('[ pulsamos flecha abajo o arriba  y estamos cajaBusqueda de lista productos]');
 				tiempoEnfoqueInput(nfila); //enfoque en el primer input de la lista
-			return;// no continuanmos.. volvemos..
+				return;// no continuanmos.. volvemos..
 			//~ } 
 		}
 		// [ Se pulso fecha abajo y arriba en Modal de filaclientes o filaproductos]
 		if ((nombreInput === 'filacliente') || (nombreInput === 'filaproducto')) {
 			// [ pulsamos flecha abajo o arriba  y estamos lista productos o clientes.(modal)] 
 			// Ahora subimos o bajamos según pulsado.
-			console.log(' fila cliente');
+
 			var nueva_fila = nfila;
+
 			if (event.keyCode === 40){
 				// Hay que recordad que UNIDAD ( filas productos están de mayor a menor)
 				nueva_fila = nueva_fila+1;
@@ -216,12 +217,16 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 				// Hay que recordad que UNIDAD ( filas productos están de mayor a menor)
 				nueva_fila = nueva_fila-1;
 			}
+			console.log('Nueva fila:'+nueva_fila );
 			// Si nfila es menor 0 entonces volvemos caja modal
 			if (nueva_fila < 0){
-				$('#'+nombreInput).select();
-				return;
+				console.log('Entro nueva fila < 0 , ahora debemos enviar a :'+nomcampo );
+				$('#'+nomcampo).select();
+				
+			} else {
+				console.log('fila:'+nfila );
+				tiempoEnfoqueInput(nueva_fila);// no continuanmos.. volvemos..
 			}
-			tiempoEnfoqueInput(nueva_fila);// no continuanmos.. volvemos..
 		}
 	// Cerramos condicional de pulsar tecla abajo y arriba.
 	}
@@ -231,7 +236,7 @@ function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
 function tiempoEnfoqueInput(nfila){
 	setTimeout(function() {   //pongo un tiempo de focus en input modal busqueda 
 		$('#N_'+nfila).focus(); 
-	}, 300); 
+	}, 100); 
 }
 
 function cobrarF1(){

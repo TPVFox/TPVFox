@@ -111,8 +111,10 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 
 	
 	$resultado['html'] = '<label>Busqueda por '.$campoAbuscar.'</label>';
+	// Utilizo el metodo onkeydown ya que encuentro que onKeyup no funciona en igual con todas las teclas.
+	
 	$resultado['html'] .= '<input id="cajaBusqueda" name="cajaBusqueda" placeholder="Buscar" size="13" value="'
-					.$busqueda.'" onkeyup="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
+					.$busqueda.'" onkeydown="teclaPulsada(event,'."'cajaBusqueda',0,'".$campoAbuscar."'".')" type="text">';
 	if (count($productos)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
 	}
@@ -137,7 +139,7 @@ function htmlProductos($productos,$campoAbuscar,$busqueda){
 					.$contad.')" onmouseover="sobreProductoCraton('.$contad.')"  onclick="cerrarModal('.$datos.');">';
 		
 		$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonProducto('
-					.$contad.')" onfocus="sobreProducto('.$contad.')" onkeyup="teclaPulsada(event,'."'filaproducto',".$contad.')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+					.$contad.')" onfocus="sobreProducto('.$contad.')" onkeydown="teclaPulsada(event,'."'filaproducto',".$contad.','."'cajaBusqueda'".')" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$resultado['html'] .= '<td>'.htmlspecialchars($producto['CREF'], ENT_QUOTES).'</td>';				
 		$resultado['html'] .= '<td>'.htmlspecialchars($producto['CDETALLE'], ENT_QUOTES).'</td>';
 		$resultado['html'] .= '<td>'.number_format($producto['NPCONIVA'],2).'</td>';
