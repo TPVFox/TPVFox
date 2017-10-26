@@ -7,7 +7,7 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
-	
+	$fecha_dmYHora = 'd-m-Y H:m:s';
 	//INICIALIZAMOS variables para el plugin de paginado:
 	//$PgActual = 1 por defecto
 	//$CantidadRegistros , usamos la funcion contarRegistro de la class controladorComun /controllers/Controladores  
@@ -150,7 +150,8 @@
 						<th></th>
 						<th>ID CIERRE</th>
 						<th>NOMBRE USUARIO</th>
-						<th>FECHA CIERRE</th>
+						<th>FECHA INICIAL</th>
+						<th>FECHA FINAL</th>
 						<th>FECHA CREACION </th>
 						<th>TOTAL</th>
 					</tr>
@@ -163,12 +164,14 @@
 				?>
 
 				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cierre['id'];?>">
+					<td class="rowUsuario">
+						<input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cierre['id'];?>">
 					</td>
 					<td><?php echo $cierre['idCierre']; ?></td>
-					<td><?php echo $cierre['nombreUsuario']; ?></td>
-					<td><?php echo $cierre['FechaFinal']; ?></td>
-					<td><?php echo $cierre['FechaCreacion']; ?></td>
+					<td><?php echo $cierre['nombreUsuario']; ?></td>					
+					<td><?php echo date($fecha_dmYHora, strtotime($cierre['FechaInicio'])); ?></td>
+					<td><?php echo date($fecha_dmYHora, strtotime($cierre['FechaFinal'])); ?></td>
+					<td><?php echo date($fecha_dmYHora, strtotime($cierre['FechaCreacion'])); ?></td>
 					<td><?php echo number_format($cierre['Total'],2); ?></td>
 					
 				</tr>

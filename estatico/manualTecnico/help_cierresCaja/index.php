@@ -44,6 +44,50 @@
 		</ul>
 	</ul>
 	
+	<h3>Parametros que envio para guardar cierre:</h3>
+	<li>[tienda] => 1	</li>
+    <li>[sumasIvas] => </li>
+    <li>[totalFpago] => 0.00	</li>
+    <li>[sumaFpago] => </li>
+    <li>[idUsuarioLogin] => 1 </li>
+    <li>[fechaInicio_tickets] => 21-10-2017 20:52:12 </li>
+    <li>[FinicioSINhora] => 21-10-2017 *Necesario para <strong>actualizar estado</strong> de tickets</li>
+    <li>[FfinalSINhora] => 26-10-2017 *Necesario para <strong>actualizar estado</strong> de tickets</li>
+    <li>[fechaCierre] => 26-10-2017 </li>
+    <li>[fechaFinal_tickets] => 26-10-2017 23:59:59  // si vamos al dia con los cierres la hora será real. </li> 
+    <li>[fechaCreacion] => 2017-10-26 21:22:34 </li></br>
 	
+</div>
+
+</div>
+<div class="col-md-8">
+	<h3>Trabajar con <strong>Fechas</strong> tanto en <strong>php</strong> como en <strong>mysql</strong></h3>
+	<li>PHP:</li>
+	<ul>
+		<li><strong>Dar formato a una fecha:</strong> date('d-m-Y H:m:s', strtotime('2017-10-10'))</li>
+		<li><strong>Formato fechas en php:</strong></li>
+		<ul>
+			<li>$fecha_dmYHora = '%d-%m-%Y %H:%M:%S'; (string)</li>
+			<li>Para mostrar listado, dar formato diferente a una fecha de bbdd : 'd-m-Y H:m:s'; (string)</li>
+		</ul>
+		<li><strong>strftime(string,int)</strong> Formatea fecha+hora local codificada 1970. 
+			<ul>
+				<li><i>strftime(miformato,fecha_codificada1970),</i> entonces te mostrara la fecha como tu quieres.</li>
+				<li><i>strftime(miformato,fecha_normal),</i> te mostrara 01-01-1970.</li>
+			</ul>
+		<li><strong>strtotime(string,int): </strong> Convierte una descripción de fecha/hora textual en Inglés a una fecha Unix, codificada 1970.</li>
+		<li><strong>date(string,string):</strong>Dar formato a la fecha/hora local codificada.</li>
+		<li><strong>date_parse(string): </strong> Crea array sobre la fecha, date_parse(strftime($dmY,$fechaCodificada)), para atacar a ['hour']['day']</li>
+		<li><strong>gettype(variable): </strong> saber el tipo de una variable.</li>
+	</ul>
+	<li>Mysql:</li>
+	<ul>
+		<li><strong>Insertar fecha en tabla:</strong> sql tiene formato: Y-d-m y nosotros al reves m-d-Y : 
+			</br> <i> STR_TO_DATE("'.$Fecha.'","'.$formato_dmYHora.'")</i> ;</li>
+		<li><strong>Update, dar formato a una fecha: </strong> formateas a tu gusto para que coincida con la tabla. 
+			</br><i>DATE_FORMAT(`Fecha`,"%d-%m-%Y")</i> </li>
+		<li><strong>Formato fecha hora sql: </strong>$fecha_dmYHora = '%d-%m-%Y %H:%i:%s';</li>
+		<li></li>
+	</ul>
 </div>
 </div>

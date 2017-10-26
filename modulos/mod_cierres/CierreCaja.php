@@ -10,32 +10,34 @@
 	$dedonde='';
 	$aviso='';
 	$desactivarInput='';
-	//recojo la fecha min de los tickets cobrados sin cerrar y la fecha maxima.
+	$fecha_dmYHora = '%d-%m-%Y %H:%M:%S';
+	$fecha_dmY = '%d-%m-%Y';
+	//recojo la fecha min de los tickets cobrados sin cerrar y la fecha maxima. fecha local sobre 1970 , 443322102 fecha codificad
 	$fechaMaxMin = fechaMaxMinTickets($BDTpv);
 	
 	//array de fecha, date_parse --> para atacar al dia o lo que queramos	['year'],['day'],['month']
-	$ArrayFechaMin = date_parse(strftime('%d-%m-%Y',$fechaMaxMin['fechaMin']))['day'];
-	$ArrayFechaMax = date_parse(strftime('%d-%m-%Y',$fechaMaxMin['fechaMax']))['day'];
-	echo '<pre>';
-		print_r($ArrayFechaMin);
-	echo '</pre>';
+	$ArrayFechaMin = date_parse(strftime($fecha_dmY,$fechaMaxMin['fechaMin']))['day'];
+	$ArrayFechaMax = date_parse(strftime($fecha_dmY,$fechaMaxMin['fechaMax']))['day'];
 	
-	//si son fechas distintas es que se saltaron algun dia sin hacer cierre caja, toca avisar
+	
+	//si son dias distintas es que se saltaron algun dia sin hacer cierre caja, toca avisar
 	if ($ArrayFechaMin !== $ArrayFechaMax){
 		$tipomensaje= "danger";
 		$mensaje = "<strong>Varios dias sin cerrar caja.</strong> Hacer cierre de varios dias?";
 		$aviso='aviso';
-	} else{ //si las fechas son iguales, es que van dia a dia con el cierre.
+	} else{ 
+		//si las fechas son IGUALES, es que van dia a dia con el cierre.
 		//desactivamos fechaFinal, porque no existe rango de fechas.
 		$desactivarInput = "disabled";
-		
+		$fechaFinalHora = strftime($fecha_dmYHora,$fechaMaxMin['fechaMax']); //si el dia es igual , cogemos hora real del ultimo ticket.
 	}
-	$stringFechaInicio = strftime('%d-%m-%Y',$fechaMaxMin['fechaMin']); //indico fecha d-m-y
-	$stringFechaFinal = strftime('%d-%m-%Y',$fechaMaxMin['fechaMax']);
-	$fechaCierre = strftime('%d-%m-%Y ',time());
-	//fecha para obtener caja de ese dia , fecha que escribimos en vista
-	//Asi le damos formato a la fecha
-	//date("d-m-Y H:i:s",strtotime($fechaCierre));
+	//con HORAS
+	$fechaInicioHora = strftime($fecha_dmYHora,$fechaMaxMin['fechaMin']);
+	
+	//SIN horas
+	$stringFechaInicio = strftime($fecha_dmY,$fechaMaxMin['fechaMin']); //indico fecha d-m-y , para mostrar sin hora
+	$stringFechaFinal = strftime($fecha_dmY,$fechaMaxMin['fechaMax']);
+	$fechaCierre = strftime($fecha_dmY,time());
 	
 	if ($_POST['fecha']){
 		$fechaCierre=$_POST['fecha'];
@@ -62,6 +64,7 @@
 	}
 	$estadoInput =''; //inicializo variable para desactivar boton aceptar, si hay tickets abiertos
 	$classAlert = ' class= "" '; //inicializo la clase de fondo rojo para alertar distintos totales de Fpago y desgloseIvas
+	
 	//si existe de donde al cancelar volvemos a donde estabamos
 	if (isset($_GET['dedonde'])){
 		$dedonde = $_GET['dedonde'];
@@ -72,9 +75,6 @@
 			$rutaVolver = './ListaCierres.php';
 		}
 	}
-
-
-	
 	
 	echo '<pre>';
 	print_r($Users['sql']);
@@ -352,9 +352,19 @@
 					$Ccierre['totalFpago']=$totalFpago;
 					$Ccierre['sumaFpago']=$suma; //suma formas pago de todos los usuarios : contado, tarjeta
 					$Ccierre['idUsuarioLogin'] = $_SESSION['usuarioTpv']['id'];
-					$Ccierre['fechaInicio_tickets'] =$stringFechaInicio;
-					$Ccierre['fechaFinal_tickets'] = $stringFechaFinal;
-					$Ccierre['fechaCierre'] = $fechaCierre; 
+					$Ccierre['fechaInicio_tickets'] =$fechaInicioHora;
+					
+					//enviamos fechaInicio y fechaFinal sin hora para UPDATE tickets a Cerrado
+					$Ccierre['FinicioSINhora']= $stringFechaInicio;
+					$Ccierre['FfinalSINhora']= $stringFechaFinal;
+					$Ccierre['fechaCierre']=$fechaCierre;
+					
+					//no existe fechaFinalHOra ponemos nosotros hora.
+					if (!isset($fechaFinalHora)){
+						$Ccierre['fechaFinal_tickets'] = $stringFechaFinal.' 23:59:59'; 
+					} else{
+						$Ccierre['fechaFinal_tickets']= $fechaFinalHora;
+					}					
 					$Ccierre['fechaCreacion'] = date('Y-m-d H:i:s');
 					
 					

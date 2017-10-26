@@ -175,6 +175,9 @@ function obtenerCierres($BDTpv,$LimitePagina ,$desde,$filtro) {
 }
 
 function fechaMaxMinTickets($BDTpv){
+	//Objetivo:
+	//conseguir fecha min y max del primer y ultimo ticket cobrado
+	// 1447431666 devuelve el valor del argumento como segundos desde '1970-01-01 00:00:00'UTC. UNIX TIMESTAMP c/hora
 	$respuesta=array();
 	$sql = 'SELECT UNIX_TIMESTAMP(min(`Fecha`)) as fechaMin, UNIX_TIMESTAMP(max(`Fecha`)) as fechaMax '
 			.' FROM `ticketst` WHERE `estado` = "'.Cobrado.'" ';
@@ -190,24 +193,30 @@ function fechaMaxMinTickets($BDTpv){
 function insertarCierre($BDTpv,$datosCierre){
 	$resultado=array();
 	$tabla = 'cierres';
+	$fecha_dmYHora = '%d-%m-%Y %H:%i:%s';
+	$fecha_dmY = '%d-%m-%Y';
 	foreach ($datosCierre as $dato){
 		$idTienda = $dato['tienda'];
 		$idUsuario = $dato['idUsuarioLogin'];
-		$FechaInicio = $dato['fechaInicio_tickets'];	//('d-m-Y
-		$FechaFinal = $dato['fechaFinal_tickets'];	//('d-m-Y
+		$FechaInicio = $dato['fechaInicio_tickets'];	//('d-m-Y H:i:s');
+		$FechaFinal = $dato['fechaFinal_tickets'];	//('d-m-Y H:i:s');
 		$total = $dato['totalFpago'];
-		$fechaCierre = $dato['fechaCierre'];	//('d-m-Y
+		$fechaCierre = $dato['fechaCierre'];	//('d-m-Y ');
 		$fechaCreacion =$dato['fechaCreacion']; //('d-m-Y H:i:s');
+		$fInicSinHora = $dato['FinicioSINhora'];
+		$fFinalSinHora = $dato['FfinalSINhora'];
+		
 	}
-	$ArrayFechaCierre = date_parse(strftime('%d-%m-%Y',$fechaCierre));
-	$ArrayCreacion2=  date_parse(strftime('%d-%m-%Y',$fechaCreacion));
-	$resultado['prueba1']= $ArrayFechaCierre;
-	$resultado['prueba4']= $ArrayCreacion2;
+	//en mysql formato fecha es 'Y-m-d' y aqui trabajamos con 'd-m-Y'
+	//convierto fecha a string para insertar en cierres, formateo fecha para insertar sql
+	$formateoFechaInicio = ' STR_TO_DATE("'.$FechaInicio.'","'.$fecha_dmYHora.'") ';
+	$formateoFechaFinal = ' STR_TO_DATE("'.$FechaFinal.'","'.$fecha_dmYHora.'")  '; 
+	$formateoFechaCierre = ' STR_TO_DATE("'.$fechaCierre.'","'.$fecha_dmY.'") ';
+	//UPDATE fechas sin hora
 	
-	//convierto fecha a string para insertar en cierres
-	$formateoFechaInicio = ' STR_TO_DATE("'.$FechaInicio.'","%d-%m-%Y") ';
-	$formateoFechaFinal = ' STR_TO_DATE("'.$FechaFinal.'","%d-%m-%Y")  '; 
-	$formateoFechaCierre = ' STR_TO_DATE("'.$fechaCierre.'","%d-%m-%Y") ';
+	//~ echo '<pre>';
+	//~ print_r($fFechaInicioShora);
+	//~ echo '</pre>';
 	
 	$estadoCierre = 'Cerrado';
 	$insertCierre = 'INSERT INTO '.$tabla.'( idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion ) VALUES ("'
@@ -216,7 +225,7 @@ function insertarCierre($BDTpv,$datosCierre){
 	
 	//actualizar tickets estado = Cobrado a estado = Cerrado
 	$updateEstado = 'UPDATE ticketst SET `estado`= "'.$estadoCierre.'" WHERE `estado` = "'.Cobrado.'"'
-					.' AND DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$FechaInicio.'" AND "'.$FechaFinal.'"';
+					.' AND DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fInicSinHora.'" AND "'.$fFinalSinHora.'"';
 	//insertamos datos para cierre, si es correcto se Actualiza estado de tickets a 'Cerrado'
 	if ($BDTpv->query($insertCierre) === true){
 		$resultado['idCierre'] = $BDTpv->insert_id; //crea id en bbddd 
@@ -234,5 +243,17 @@ function insertarCierre($BDTpv,$datosCierre){
 	$resultado['sqlInsert'] = $insertCierre;
 	return $resultado;
 }
+
+function insertarCierre_IVAS($BDTpv,$datosCierre){
+	//Objetivo:
+	//insertar por cada iva, importe_base, importe_iva, idTienda, idCierre
+	$resultado= array();
+	
+	
+	
+	
+	return $resultado;
+}
+
 
 ?>
