@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 24-10-2017 a las 16:55:34
+-- Tiempo de generación: 26-10-2017 a las 20:47:29
 -- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
 -- Versión de PHP: 7.0.19-1
 
@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `cierres` (
   `idCierre` int(11) NOT NULL,
-  `FechaCierre` datetime NOT NULL,
+  `FechaCierre` date NOT NULL,
   `idTienda` int(11) NOT NULL,
   `idUsuario` int(11) NOT NULL,
   `FechaInicio` datetime NOT NULL,

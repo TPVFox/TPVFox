@@ -18,7 +18,9 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv,$vuelta) {
 	//		vuelta = 1, para buscar algo identico, si viene con 2 busca con %like% segunda llamada
 	$resultado = array();
 	$palabras = array(); 
+	
 	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
+	
 	$resultado['palabras']= $palabras;
 
 	switch($campoAbuscar) {
@@ -34,6 +36,9 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv,$vuelta) {
 	}
 	$likes = array();
 	$whereIdentico = array();
+	
+	
+	
 	foreach($palabras as $palabra){
 		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
 		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
@@ -42,7 +47,11 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv,$vuelta) {
 	//$buscarIdentico = implode(' and ',$whereIdentico);
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
 	if ($vuelta === 1){
-		$buscar = implode(' and ',$whereIdentico);
+		if ($palabra !== ''){ 
+			$buscar = implode(' and ',$whereIdentico);
+		} else{
+			$vuelta=2;		//si la busqueda esta en blanco hace la consulta de 2º vuelta
+		}
 	} else {
 		$buscar = implode(' and ',$likes);
 	}	
