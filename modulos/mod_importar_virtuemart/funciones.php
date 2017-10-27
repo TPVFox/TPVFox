@@ -34,8 +34,8 @@
 
 		}else {
 			// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
-			$resultado['error'][$nombre_temporal]['info_error'] =  $BDVirtuemart->error;
-			$resultado['error'][$nombre_temporal]['consulta'] =  $sqlBDImpor;
+			$resultado['error'][$nombre_temporal]['crearTmp']['info_error'] =  $BDVirtuemart->error;
+			$resultado['error'][$nombre_temporal]['crearTmp']['consulta'] =  $sqlBDImpor;
 			//~ $resultado
 		}
 		// [PENDIENTE DECIDIR]
@@ -53,8 +53,8 @@
 
 		}else {
 			// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
-			$resultado['error'][$nombre_temporal]['consulta'] = $sqlAlter;
-			$resultado['error'][$nombre_temporal]['info_error'] =  $BDVirtuemart->error;
+			$resultado['error'][$nombre_temporal]['alter']['consulta'] = $sqlAlter;
+			$resultado['error'][$nombre_temporal]['alter']['info_error'] =  $BDVirtuemart->error;
 			//~ $resultado
 		}
 	//~ } 
@@ -68,34 +68,32 @@ function  prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
 	$resultado = array();
 	// Recorremos array para ejecutar las distintas consultas y insertar los datos .
 	$i = 0;					
-	foreach ($tablas as $Arraytabla) {
+	foreach ($tablas as  $key => $Arraytabla) {
 		$tabla = $Arraytabla['nombre'];
 		$campos = $Arraytabla['campos'];
 		$camposObligatorios = (isset($Arraytabla['obligatorio'])  ? $Arraytabla['obligatorio'] : array());
 		$stringcampos = implode(',',$campos);
 		$sql = 'SELECT '.$stringcampos.' FROM '.$Arraytabla['origen'];//`tmp_articulosCompleta`';
-		$resultado['tabla'][$tabla]['consulta'] = $sql;
+		$resultado[$key][$tabla]['consulta'] = $sql;
 		$articulos = $BDVirtuemart->query($sql);
 
 		if ( $articulos != true) {
 			// Algo salio mal, por lo que devolvemos error y consulta.
-			$resultado['tabla'][$tabla]['consulta'] = $sql;
-			$resultado['tabla'][$tabla]['error'] =  $BDVirtuemart->error;
+			$resultado[$key][$tabla]['consulta'] = $sql;
+			$resultado[$key][$tabla]['error'] =  $BDVirtuemart->error;
 			return $resultado;
 		}
-		$resultado['tabla'][$tabla]['Select'] = $sql; 
 		// Obtenemos lo valores de estaa consulta, pero en grupos de mil
 		$agruparValores = ObtenerGruposInsert($articulos,$camposObligatorios);
 		$gruposvaloresArticulos = $agruparValores['Aceptados'];
-		$resultado['tabla'][$tabla]['Num_Insert_hacer'] = count($gruposvaloresArticulos); 
-		$resultado['tabla'][$tabla]['descartado'] = $agruparValores['Descartados'];
+		$resultado[$key][$tabla]['Num_Insert_hacer'] = count($gruposvaloresArticulos); 
+		$resultado[$key][$tabla]['descartado'] = $agruparValores['Descartados'];
 		$stringcampos = '('.implode(',',$campos).')';
 
 		$sql = 'INSERT INTO '.$tabla.' '.$stringcampos.' VALUES ';
-		$num_reg_insert = 0;
 		foreach ($gruposvaloresArticulos as $valoresArticulos){
 			$Nuevosql = $sql.implode(',',$valoresArticulos);
-			$resultado['tabla'][$tabla]['Insert'][] =$Nuevosql;
+			$resultado[$key][$tabla]['Insert'][] =$Nuevosql;
 		}
 		$i++;
 	}
@@ -332,7 +330,48 @@ function ComprobarTablaTempClientes ($BDVirtuemart){
 	
 }
 
+function ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas){
+	// @Objetivo: Es contrar los registros de un array de varias tablas
+	foreach ( $tablas as $key => $tabla ) {
+		$nombreTabla = $tabla['nombre'];
+		$Registros = $Controler->contarRegistro($BDTpv,$nombreTabla);
+		$tablas[$key]['NumRegistros'] = (int)$Registros ;
+	}
+	return $tablas;
+}
 
+function SumarNumRegistrrosVariasTablas($tablas){
+	// @Objetivo: Es sumar todos los registros que tenga array de tablas
+	$sum_registros = 0;
+	foreach ( $tablas as $key => $tabla ) {
+		$sum_registros = $sum_registros + $tablas[$key]['NumRegistros'];
+	}
+	return $sum_registros;
+
+}
+
+
+
+function htmlBDTpvTR($tablas){
+	// @Objetivo es obtener tbody de tabla de Base Datos Tpv
+	$html = '';
+	foreach ( $tablas as $key=>$tabla ) {
+		$n_tabla = $tabla['nombre'];
+		$html.='<tr id="'.$key.'">';
+		$html.='<th>'.$tabla['nombre'].'</th>';
+		$html.= '<td>'.$tabla['NumRegistros'] .'</td>';
+		$html.= '<td>';
+		if ($tabla['NumRegistros'] === 0){
+		$html.= '<span class="glyphicon glyphicon-ok"></span>';
+		}
+		$html.='</td>';
+		$html.= '<td class="inserts">'.'</td>';
+		$html.='</tr>';
+	}
+	return $html;
+
+
+}
 
 
 

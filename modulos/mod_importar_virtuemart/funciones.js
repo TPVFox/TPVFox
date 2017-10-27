@@ -22,7 +22,6 @@ var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var tabla_actual = '';
 var insert_tablas_global ;
 
-
 //~ var Global1 = [];
 // Funcion para mostrar la barra de proceso..
 function BarraProceso(lineaA,lineaF) {
@@ -52,25 +51,6 @@ function inicioProcesos(){
 	
 }
 
-function ControlPulsado(pulsado) {
-	// Lo que pretendo es tener un proceso que controle y cambio de proceso según sea necesarios.
-	// la variable que va controlar es pulsado.
-	switch(pulsado) {
-						
-			case 'preparar_insert':
-				// Llamamos a funcion para preparar insert
-				PrepararInsert();
-				break;
-			case 'vaciar_tablas':
-				// Llamamos funciones vaciar tablas de BDTpv
-
-				VaciarTablas();
-				
-				break;
-	} 
-	return;
-}
-
 function VaciarTablas(){
 	console.log ( ' ========================= ENTRAMOS EN VACIARTABLAS ===============================')
 	
@@ -91,7 +71,6 @@ function VaciarTablas(){
 			var resultado =  $.parseJSON(response)
 			// Recargamos nuevamente pagina
 			document.location.href='Importar_virtuemart.php';					
-							
 		}
 	});
 }
@@ -115,25 +94,29 @@ function PrepararInsert(){
 		},
 		success:  function (response) {			
 			// Recorremos el objeto tabla.nombretabla.Insert para contar cuantos insert
+			//~ var resultado =  $.parseJSON(response);
 			var i_tablas = [];
-			for (ntabla in response.tabla) {
-				//~ console.log("En el índice " + indice + " hay este valor: " + valor+'Este array');
-			//~ consolel.log(valor);
-			//~ insertObtenido = valor;
-			console.log(ntabla + ':' +response.tabla[ntabla].Insert);
-			i_tablas[ntabla] = response.tabla[ntabla].Insert
-			if (response.tabla[ntabla].descartado.length>0){
-				// Para meter clase de color cuando hay descartados.
-				var clase='class="alert-danger"';
-			} else {
-				clase ='';	
-			}
-			stringPresentar = response.tabla[ntabla].Insert.length +' / <span '+ clase + '>'+ response.tabla[ntabla].descartado.length+'</span>';
-			$("#"+ntabla+" > td.inserts").html(stringPresentar);
-			
-			
-			//~ variableGlobal = response.tabla.ntabla;
-			//~ console.log (ntabla);				
+			var tablaNombre = '';
+			for (ntabla in response) {
+				// Obtenemos el nombre tabla.
+				tablaNombre = tablaImpor[ntabla].nombre;
+				console.log('Tabla:'+tablaNombre+ ' ->indice :'+ ntabla);
+				i_tablas[tablaNombre] = response[ntabla][tablaNombre].Insert
+				if (response[ntabla][tablaNombre].descartado.length>0){
+					// Para meter clase de color cuando hay descartados.
+					var clase='class="alert-danger"';
+					console.log('Descartados:');
+					console.log(response[ntabla][tablaNombre].descartado);
+				} else {
+					clase ='';	
+				}
+				stringPresentar = response[ntabla][tablaNombre].Insert.length +' / <span '+ clase + '>'+ response[ntabla][tablaNombre].descartado.length+'</span>';
+				
+				$("#"+ntabla+" > td.inserts").html(stringPresentar);
+				
+				
+				//~ variableGlobal = response.tabla.ntabla;
+				//~ console.log (ntabla);				
 			};
 			// Guardamos comp variable global los inserts.
 			insert_tablas_global = i_tablas
@@ -218,7 +201,7 @@ function bucleInsert(insert_tablas){
 
 function BucleTablaTemporal(){
 	// @ Objetivo :
-	// Es recorrer el arrat de tablasTemporales 
+	// Es recorrer el array de tablasTemporales 
 	// @ Parametros:
 	// NO HAY , son variables globales (tablasTemporales y tablatemporal_actual)
 	console.log(' tabla temporales a crear.'+tablasTemporales.length);
@@ -326,7 +309,7 @@ function BucleComprobacionesTemporales() {
 	// El proceso se termina y se vuelve en CrearTablaTemporal
 	BarraProceso(y,lineaF); 
 	console.log('Terminamos comprobaciones.');
-	//~ BucleComprobacionesTemporales();
+	PrepararInsert();
 	}
 	
 }

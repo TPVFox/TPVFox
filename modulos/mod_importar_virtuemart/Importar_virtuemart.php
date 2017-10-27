@@ -20,185 +20,53 @@
 			return;	
 		}
 	}
+	//[COMPROBAMOS GET Y POST]
+	$optcrefs = array (
+				'0' => array(
+					'value' =>'default',
+					'descripcion' => 'No generar',
+					'EtiqueTitle' => 'No se crea CREF para nuevos articulos creados.',
+					),
+				'1' => array(
+					'value' => 'cref_id',
+					'descripcion' => 'Id de virtuemart como CREF',
+					'EtiqueTitle' =>'Ponemos como CREF el campo virtuemart_product_id',
+					),
+				'2' => array(
+					'value' => 'cref_SKU',
+					'descripcion' => 'El SKU de virtuemart como CREF',
+					'EtiqueTitle' => 'Ponemos como CREF el campo product_sku',
+					)
+			);
+	if (isset($_GET['configuracion'])){
+		// Quiere decir que obtenemos datos de $POST montar 
+		foreach ($optcrefs as $key => $optcref){
+			if ($_POST['optcref'] === $optcref['value']){
+				$optcrefs[$key]['checked'] = 'checked';
+			} else {
+				$optcrefs[$key]['checked'] = '';
+			}
+		}
+	} else {
+		// Quiere decir que no pulso en configuracion por lo que pongo valor por defecto.
+		$optcrefs['0']['checked'] = 'checked';
 
-		
-	// Creamos variables de los ficheros para poder automatizar el añadir articulos y otros
-	
-	// Array $tablasTemporales;
-	// @ Parametros de array
-	//		nombre_tabla_temporal	-> Nombre de la tabla temporal de Virtuemart
-	//		campo_id				-> Nombre del campo autonumerico que creamos automaticamentes.
-	//		select					-> Consulta que realizamos para crear tabal temporal
-	$tablasTemporales = array(
-						'1' => array(
-									'nombre_tabla_temporal' =>'tmp_articulosCompleta',
-									'campo_id' 	=>'idArticulo',
-									'select'	=>'SELECT 1 as idTienda,
-													CAST( c.virtuemart_product_id as CHAR(18))as crefTienda,
-													cr.product_name as articulo_name,
-													coalesce((
-														select calc_value from '.$prefijoBD.'_virtuemart_calcs as e 
-														WHERE e.virtuemart_calc_id = d.product_tax_id),0) as iva,
-													c.product_gtin as codbarras,
-													0 as beneficio,
-													0 as costepromedio,
-													case c.published
-														when 0 then "NoPublicado"
-														when 1 then "Activo"
-														end as estado,
-													d.product_price as pvpCiva,
-													d.product_price as pvpSiva,
-													0 as idProveedor,
-													c.created_on as fecha_creado,
-													c.modified_on as fecha_modificado
-													from '.$prefijoBD.'_virtuemart_products as c
-													left join '.$prefijoBD.'_virtuemart_products_es_es as cr
-														on c.virtuemart_product_id = cr.virtuemart_product_id
-													left join '.$prefijoBD.'_virtuemart_product_prices as d
-														on c.virtuemart_product_id = d.virtuemart_product_id'
-									),
-							'2' => array(
-									'nombre_tabla_temporal' => 'tmp_familias',
-									'campo_id' 	=> 'idFamilia',
-									'select' 	=> 'SELECT c.`virtuemart_category_id` as ref_familia_tienda ,
-										 c.`category_name` as familiaNombre ,
-										 cr.`category_parent_id` as familiaPadre FROM `'.$prefijoBD.'_virtuemart_categories_es_es` AS c LEFT JOIN `'.$prefijoBD.'_virtuemart_category_categories` AS cr ON c.`virtuemart_category_id` = cr.`category_child_id` '
-									),
-							'3' => array(
-									'nombre_tabla_temporal' => 'tmp_productos_img',
-									'campo_id'	=> 'id',
-									'select'	=>'SELECT completa.idArticulo AS idArticulo,
-										 CAST( pro_img.`virtuemart_product_id` AS CHAR( 18 ) ) AS cref,
-										 pro_img.`virtuemart_media_id` , pro_img.`ordering` ,
-										 img.file_url
-										 FROM `'.$prefijoBD.'_virtuemart_product_medias` AS pro_img
-										 LEFT JOIN '.$prefijoBD.'_virtuemart_medias AS img 
-										 ON pro_img.virtuemart_media_id = img.virtuemart_media_id
-										 LEFT JOIN tmp_articulosCompleta AS completa 
-										 ON pro_img.`virtuemart_product_id` = completa.crefTienda'
-									),
-							'4' => array(
-									'nombre_tabla_temporal' => 'tmp_cruce_familias',
-									'campo_id' 	=> 'id',
-									'select'	=>'SELECT completa.idArticulo AS idArticulo, `virtuemart_category_id` AS idFamilia
-											FROM '.$prefijoBD.'_virtuemart_product_categories AS cr 
-											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.crefTienda'
-									),
-							'5' => array(
-									'nombre_tabla_temporal' => 'tmp_clientes',
-									'campo_id' 	=> 'idClientes',
-									'select'	=>'SELECT c.`virtuemart_user_id` AS idVirtuemart, 
-									CONCAT( c.`first_name` , " ", c.`middle_name` , " ", 
-									c.`last_name` ) AS Nombre, c.`company` AS razonsocial, 
-									c.DNICIF AS nif, CONCAT( c.`address_1`," ", c.`address_2` , " ", c.`city` ) AS direccion, 
-									c.`zip` AS codpostal, c.`phone_1` AS telefono, c.`phone_2` AS movil, 
-									c.`fax` AS fax, u.`email` AS email, "activo" AS `estado`, 
-									count( * ) AS NumDirecciones 
-									FROM '.$prefijoBD.'_users AS u 
-									INNER JOIN '.$prefijoBD.'_virtuemart_userinfos AS c ON u.id = c.virtuemart_user_id 
-									GROUP BY c.virtuemart_user_id 
-									HAVING COUNT( * ) ' 
-									)
-							);
+	}
+	echo '<pre>';
+	print_r($_POST);
+	echo '</pre>';
+	echo '<pre>';
+	print_r($_GET);
+	echo '</pre>';
+	//[MONTAMOS ARRAY DE CONFIGURACION]
 	
 	
-	/*
+	//[CARGAMOS ARRAYS DE INICIO ]
+	// obtenemos arrays ($tablasTemporales,$comprobaciones ,$tablas_importar)
+	// Estos array necesita  $prefijoBD y $arrayConfiguracion 
 	
-	SELECT c.`virtuemart_user_id` as idVirtuemart,
-									 CONCAT(c.`first_name`," ",c.`middle_name`," ", c.`last_name`) as Nombre,
-									 c.`company` as razonsocial ,
-									 c.DNICIF as nif, 
-									 CONCAT( c.`address_1`," ",c.`address_2`," ",c.`city`) as direccion,
-									 c.`zip` as codpostal,
-									 c.`phone_1` as telefono, c.`phone_2` as movil ,
-									 c.`fax` as fax ,u.`email` as email,"activo" as `estado`
-									  FROM  '.$prefijoBD.'_users AS u 
-									 INNER JOIN '.$prefijoBD.'_virtuemart_userinfos AS c ON u.id=c.virtuemart_user_id
+	include_once ('./Arrays_inicio.php');
 	
-	
-	*/
-	// Array $comprobaciones
-	// @ Parametros de array $comprobaciones.
-	// 		funcion						=> (String)Nombre funcion
-	// 		'link_collapse'				=> (String)El html LINK COLLAPSE para poder extender y encojer
-	// 		'subprocesos'				=> (Array)En una comprobación poder quere realizar varias cosas.
-	// 		'explicacion_subprocesos	=> (Array)Explicación de cada subproceso que se haga - Aunque se solo uno un proceso es array()
-	// 		'respuesta'					=> (Array)Para recojer el resultado de cada subproceso de la comprobación.
-	$comprobaciones  = 		array(
-							'0' => array(
-								'nom_funcion'				=>'ComprobarTablaTempArticulosCompleta',
-								'link_collapse'				=>'Comprobar Tabla Temporal Articulos Completa',
-								'subprocesos'				=>array('RecalculoPrecioConIva','CodbarrasRepetidos'),
-								'explicacion_subprocesos'	=>array(
-															'Ponemos en tabla_tmp precion con Iva ya que estaba sin el (Recalculamos)','Comprobamos que no haya ningún codbarras repetetido en tmp_temporal ya que vemos advertir si hay codbarras repetidos.') 
-								),
-							'1' => array(
-								'nom_funcion'		=>'ComprobarTablaTempClientes',
-								'link_collapse'	=>'Comprobar tabla de Clientes temporal',
-								'subprocesos'				=>array('AnhadirIdCliente1'),
-								'explicacion_subprocesos'	=>array('Añadimos cliente con id 1 que es Sin determinar') 
-								)
-							);
-	
-	
-	
-	
-	// Array $tablas_importars;
-	// @ Parametros de array $tablas
-	//		nombre		-> Nombre de la tabla tpv
-	//		obligatorio	-> Campos que tiene contener datos obligatoriamente
-	//		campos->	Los campos que obtenemos
-	$tablas_importar = 		array(
-						'0' => array(
-								'nombre'		=>'articulos',
-								'obligatorio'	=> array(),
-								'campos'		=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
-								'origen' 		=>'tmp_articulosCompleta'
-								),
-						'1' => array(
-								'nombre'		=>'articulosCodigoBarras',
-								'obligatorio'	=> array('codBarras'),
-								'campos'		=> array('idArticulo', 'codBarras'),
-								'origen' 		=>'tmp_articulosCompleta'
-								),
-						'2' => array(
-								'nombre'		=>'articulosPrecios',
-								'obligatorio'	=> array(),
-								'campos'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
-								'origen' 		=>'tmp_articulosCompleta'
-								),
-						'3' => array(
-								'nombre'		=>'articulosTiendas',
-								'obligatorio'	=>array('crefTienda'),
-								'campos'		=>array('idArticulo','idTienda','crefTienda'),
-								'origen' 		=>'tmp_articulosCompleta'
-								),
-						'4' => array(
-								'nombre'		=>'articulosFamilias',
-								'obligatorio'	=>array(),
-								'campos'		=>array('idArticulo','idFamilia'),
-								'origen' 		=>'tmp_cruce_familias'
-								),
-						'5' => array(
-								'nombre'		=>'familias',
-								'obligatorio'	=>array(),
-								'campos'		=>array('idFamilia','familiaNombre','familiaPadre'),
-								'origen' 		=>'tmp_familias'
-								),
-						'6' => array(
-								'nombre'		=>'articulosImagenes',
-								'obligatorio'	=>array(),
-								'campos'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
-								'origen' 		=>'tmp_productos_img'
-								),
-						'7' => array(
-								'nombre'		=>'clientes',
-								'obligatorio'	=>array(),
-								'campos'		=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
-								'origen' 		=>'tmp_clientes'
-								)
-						);
-
 	// [ANTES CARGAR FUNCIONES JS]
 	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
 	?>
@@ -259,56 +127,79 @@
 	include './../../header.php';
 	include_once ("./funciones.php");
 	include ("./../../controllers/Controladores.php");
+	
+	
+	
+	
 	?>
-	<script type="application/javascript">
-	// Ejecutamos inicio creación tablas
-	BucleTablaTemporal();
-	</script>
 	<?php
 	// Cargamos el controlador.
 	// Contamos cuantos si tienen registros las tabla BDTPV
 	$Controler = new ControladorComun; 
-	$Items_tabla = array();
-	$sum_Items_articulos = 0;
-	foreach ( $tablas_importar as $tabla ) {
-		$n_tabla = $tabla['nombre'];
-		$Items_tabla[$n_tabla] = $Controler->contarRegistro($BDTpv,$n_tabla);
-		$sum_Items_articulos += (int)$Items_tabla[$n_tabla] ;
-	}
+	// Obtenemos los registros de las tablas
+	$tablas_importar= ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas_importar);
+	// Sumamos los registros de tolas tablas.	
+	$sum_Items_articulos = SumarNumRegistrrosVariasTablas($tablas_importar);
 	
 ?>
 
 <div class="container">
+			<h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
+
 	<div class="col-md-5">
-		<h2>Importación de datos de Virtuemart a TPV.</h2>
+		<h4>Parametros a configurar</h4>
+			<form action="Importar_virtuemart.php?configuracion=SI" method="POST">
+			<div class="form-group">
+			<label title="Podemos seleccionar si creamos CREF y con que campo de Virtuemart">En empresa actual : ¿Como generamos campo CREF?"</label>
+				<?php
+				foreach ($optcrefs as $optcref){
+					echo '<label class="radio-inline">';
+					echo '	<input type="radio" name="optcref" title="'.$optcref['EtiqueTitle'].'" value ="'.$optcref['value'].'" '.$optcref['checked'].'>'.$optcref['descripcion'].'</label>';
+				}
+				?>
+			</div>
+			<div class="form-group">
+			<label title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda On Line con la quieres importar/actualizar datos:</label>
+			</div>
+
+			<button type="submit" class="btn btn-default">Submit</button>
+
+			</form>
+	
+		
 		<?php 
 		if ( $sum_Items_articulos > 0){
-			// Quiere decir que no puede ser una iniciacion.
-			echo '<div class="alert alert-danger">Hay datos BDTpv , ten cuidado por se pueden eliminar el contenido (vaciar) los datos tpv.<br/>
-				 Si quieres actualizar no pulses en borra.
-				 </div>';
+			// Quiere decir que tiene datos BDTpv por lo que puede ser no puede ser una iniciacion.
+			echo '<div class="alert alert-warning"><strong>¡¡ Actua con producencia !!</strong>
+			<p>Ya que hay datos en BDTpv , puede iniciar la importacion, eliminando todo, o solo la actualización donde solo añade los datos nuevos.</p></div>';
+			echo '<div class ="col-md-12">
+				<h3>Importar datos de Virtuemart</h3>
+				<p>Eliminamos los datos de tpv y importamos datos de virtuemart</p>
+				  
+				<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="VaciarTablas();" class="btn btn-danger">
+				Borrar de Tpv y Importar datos de Virtuemart
+				</a>
+  
+				<div class="alert alert-danger">
+					Al pulsar en "Importar todo", elimina las tablas indicadad de BDTPV.
+				</div>
+				</div>';
+			// La opcion de actualizar solo mostramos cuando hay datos.
 		} else {
-			echo '<div class="alert alert-info"> No tienes datos en BDTpv puedes importar</div>';
+			echo '<div class="alert alert-info"> Vas importar los datos de Virtuemart</div>';
+			echo '<div>
+				   <a  href="#ImportarVirtuemart" title="Importar tablas de Virtuemart" onclick="BucleTablaTemporal();" class="btn btn-primary">
+				  Importar datos de Virtuemart
+				  </a>
+				</div>';
 		}
-		?>
-		<h3>Las FASES para la importación de Virtuemart a BDTPV:</h3>
-		<?php include_once 'fasesImportar.html';?>
-		<script>
-			// Cambien id por clase, pero no funciona correctamente
-			// ya que pone - a todos cuando uno esta desplegado.
-			$(document).ready(function(){
-			  $(".collapse.pepe").on("hide.bs.collapse", function(){
-				$(".icono-collapse").html('+');
-			  });
-			  $(".collapse.pepe").on("show.bs.collapse", function(){
-				$(".icono-collapse").html('-');
-			  });
-			});
-		</script>
 		
+		?>
 	</div>
 		
 	<div class="col-md-7">
+		<div class="col-md-12">
+		<h3 class="text-center"> Control de procesos de importacion tablas</h3>
 		<div>
 		<div class="text-center" id="idCabeceraBarra"></div>
 
@@ -319,9 +210,6 @@
 		</div>
 		</div>
 		<div id="resultado" class="text-center"></div>
-
-		<div class="col-md-12">
-		<h3 class="text-center"> Control de procesos de importacion tablas</h3>
 			<div class="col-md-7">
 			<table class="table table-bordered">
 				<thead>
@@ -335,34 +223,18 @@
 					<th>NºReg
 					</th>
 					<th id="BDTpv_trash"><!-- Borrada -->
-						 <?php // Si no tiene articulos en tpv no ponemos link.
-						 if ($sum_Items_articulos >0){ ?>
-						<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="ControlPulsado('vaciar_tablas');">
-						<?php } ?>
-							<span class="glyphicon glyphicon-trash"></span>
-						<?php
-						if ($sum_Items_articulos >0){ ?>
-						</a>
-						<?php } ?>
+						<span class="glyphicon glyphicon-trash"></span>
 					</th>
 					<th id="PrepararInsert"><!-- Creada -->
-						<a href="#PrepararInsert" title="Preparar los insert, (N/n) (N)Inserts y (n)descartados en grupos 1000" onclick="ControlPulsado('preparar_insert');">
-							<span class="glyphicon glyphicon-log-in"></span>
-						</a>
+						<span title="Preparar los insert, (N/n) (N)Inserts y (n)descartados en grupos 1000" class="glyphicon glyphicon-log-in"></span>
 					</th>
 				  </tr>
 				</thead>
 				<tbody>
 					<?php 
-					foreach ( $tablas_importar as $tabla ) {
-						$n_tabla = $tabla['nombre'];
-						echo '<tr id="'.$n_tabla.'">';
-						echo '<th>'.$n_tabla.'</th>';
-						echo '<td>'.$Items_tabla[$n_tabla] .'</td>';
-						echo '<td>'.'</td>';
-						echo '<td class="inserts">'.'</td>';
-						echo '</tr>';
-					}
+					// Ahora obtenemos html de tr datos tablas tpv
+					echo htmlBDTpvTR($tablas_importar)
+					
 					?>
 				</tbody>
 			</table>
@@ -433,10 +305,24 @@
 			</div>
 					
 		</div>		
-			
+	
+</div>
+		
 	<div>
+<?php
+//~ $respuesta = prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas_importar);
+//~ echo '<pre>';
+	//~ $respuesta = json_encode($respuesta);
+	//~ print_r($respuesta);
+//~ echo '</pre>';
+//~ echo '<pre>';
+	//~ print_r(json_decode($respuesta));
+//~ echo '</pre>';
+?>
+
+
+
 	
 	</div>
-</div>
 </body>
 </html>

@@ -28,7 +28,7 @@ $TControlador = new ControladorComun;
 		$Arraytablas = $_POST['tablasImpor'];
 		$respuesta= prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
 		header('Content-Type: application/json');
-		echo json_encode($respuesta);
+		echo json_encode($respuesta,true);
 		break;
 	
     case 'Vaciar tablas':
