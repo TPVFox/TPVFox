@@ -14,7 +14,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Base de datos: `tpv`
@@ -26,18 +26,36 @@ SET time_zone = "+00:00";
 -- Estructura de tabla para la tabla `tiendas`
 --
 
-CREATE TABLE IF NOT EXISTS `tiendas` (
-  `idTienda` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `tiendas` (
+  `idTienda` int(2) NOT NULL,
   `NombreComercial` varchar(100) DEFAULT NULL,
   `razonsocial` varchar(100) NOT NULL,
   `nif` varchar(10) NOT NULL,
-  `telefono` int(9) NOT NULL,
+  `telefono` varchar(11) NOT NULL,
   `direccion` varchar(100) NOT NULL,
   `ano` varchar(4) DEFAULT NULL,
-  `estado` varchar(12) DEFAULT NULL,
-  PRIMARY KEY (`idTienda`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+  `estado` varchar(12) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `tiendas`
+--
+ALTER TABLE `tiendas`
+  ADD PRIMARY KEY (`idTienda`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `tiendas`
+--
+ALTER TABLE `tiendas`
+  MODIFY `idTienda` int(2) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
