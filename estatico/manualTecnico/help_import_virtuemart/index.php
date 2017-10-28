@@ -54,6 +54,9 @@
 <li>$comprobaciones -> El array que utilizamos para generar procesos de comprobaciones por cada tabla creada en virtuemart, para saber si esta bien los datos.</li>
 <li>$tablas_importar -> Son las tabla tpv que tenemos que vamos importar los datos.</li>
 </ul>
+<h4>Diagrama flujo 1</h4>
+ <img src="<?php echo $UrlActual;?>Diagrama2.svg" width="90%" alt="Diagrama de flujo"> 
+
 <h4>Cosas a tener en cuenta</h4>
 <p>En virtuemart la tabla que registra los compradores es virtuemart_userinfos, por lo que es la que obtenemos los datos.</p>
 <p>En la <b>tabla tmp_clientes</b> que acabamos creamos, hay que tener en cuenta que solo <b>obtenemos un solo registro por usuario </b>, ya que en la tabla virtuemart_userinfos puede contener varios registros por cada uno e incluso contener usuarios que no existen en tabla virtuemart_user, estos ultimos pienso que si los obtenemos en la tabla tmp_clientes, los motivos de esto:</p>
