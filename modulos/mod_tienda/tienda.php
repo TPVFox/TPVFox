@@ -13,17 +13,15 @@
 			// NO hay parametro .
 			$error = "No podemos continuar";
 		}
-		
-		
 		// ===========  datos usuario segun id enviado por url============= //
 			$tabla= 'tiendas';
 			$idBusqueda ='idTienda='.$id;
 			$TiendaUnica = verSelec($BDTpv,$idBusqueda,$tabla);
 			// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
 			
-			//~ echo '<pre>';
-				//~ print_r($id);
-			//~ echo '</pre>';
+			echo '<pre>';
+				print_r($TiendaUnica);
+			echo '</pre>';
 		?>
 	
 	</head>
@@ -62,36 +60,77 @@
 					
 					
 				}
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
 			};
 			
-			$estados = array(); // Por defecto
-			$estados[0]['valor'] = 'cerrado'; // Por defecto
-			$estados[1]['valor'] = 'activo';
+			// Definimos posibles estados para Select.
+			$estados = array(
+					'0' => array( 
+							'valor' =>'cerrado',
+							'porDefecto' => 'selected' // Indicamos por defecto
+							),
+					'1' => array(
+							'valor' =>'abierto',
+							'porDefecto' =>  ''
+							)
+					);
+			// Definimos posibles tipos de tiendas.
+			$tiposTiendas = array(
+						'0' => array (
+								'value' => "fisica",
+								'title' => "Tienda en local",
+								'texto' => "Tienda fisica",
+								'checked'=> "checked", // Indicamos por defecto
+								'display'=> '' // Indicamos por defecto que se muestre
+
+								),
+						'1' =>  array (
+								'value' => "web",
+								'title' => "Tienda On-Line",
+								'texto' => "Web de la tienda",
+								'checked'=> "",
+								'display'=> 'style="display:none;"' // No se muestra por defecto.
+
+
+								)
+					);
 			if (!isset($id)){ ///nuevo
 				$titulo = "Crear Tienda";
-				$TiendaUnica = array();
-				$TiendaUnica['NombreComercial'] = '';
-				$TiendaUnica['razonsocial'] = '';
-				$TiendaUnica['nif'] = '';
-				$TiendaUnica['direccion'] = '';
-				$TiendaUnica['telefono'] = '';
-				$TiendaUnica['ano'] = '';
-				$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
-				$TiendaUnica['id']= '';
+				$TiendaUnica = array(
+							'NombreComercial'	=> '',
+							'razonsocial' 		=> '',
+							'nif'				=> '',
+							'direccion' 		=> '',
+							'telefono' 			=> '',
+							'ano' 				=> '',
+							'id'				=> ''
+							);
 				
 			} else {
 				$titulo = "Modificar Tienda";
-				
-				$i = 0;
-				//~ echo 'Alfo:'.$UsuarioUnico['estado'];
-				foreach ($estados as $estado){
-					if ($TiendaUnica['estado'] == $estado['valor']){
-						$estados[$i]['porDefecto'] = "selected"; // Indicamos por defecto
+				// Obtenemos el tipo de tieneda que es ..
+				foreach ($tiposTiendas as $key => $tipoTienda){
+					
+					if ($TiendaUnica['tipo_empresa'] === $tipoTienda['value']) {
+						$tiposTiendas[$key]['checked'] = "checked";
+						$tiposTiendas[$key]['display'] = ''; // Se muestra
+
+						
+					} else {
+						$tiposTiendas[$key]['checked'] = "";
+						$tiposTiendas[$key]['display'] = 'style="display:none;"'; // No se muestra por defecto
+
+
 					}
-					$i++;
+					
+				}
+				// Obtenemos el estado que tiene la tienda.
+				foreach ($estados as $key => $estado){
+					if ($TiendaUnica['estado'] == $estado['valor']){
+						$estados[$key]['porDefecto'] = "selected"; // Indicamos por defecto
+					} else {
+						$estados[$key]['porDefecto'] = ''; // Indicamos por defecto
+
+					}
 				} 
 			}
 			
@@ -119,16 +158,19 @@
 						<div class="col-md-12">
 							<div class="form-group">
 								<label>Tipo de tienda</label>
-								<label class="radio-inline">
-								<input type="radio" name="tipoTienda" value="fisica" title="Tienda en local">
-								Tienda Fisica</label>
-								<label class="radio-inline">
-								<input type="radio" name="tipoTienda" value="web" title="Tienda en la web">
-								Web de la tienda</label>
+								<?php 
+								foreach ($tiposTiendas as $tipoTienda){
+									echo '<label class="radio-inline">';
+									echo '<input type="radio" name="tipoTienda" value="'.$tipoTienda['value'].
+										'" title="'.$tipoTienda['title'].'"'.$tipoTienda['checked'].'>'.
+										$tipoTienda['texto'].'</label>';
+								}
+								?>
+								
 							</div>
 						</div>
 						
-						<div class="col-md-4">
+						<div class="col-md-6">
 							<h3>Datos Comunes</h3>
 							<div class="form-group">
 								<label class="col-md-5">Id(<span title="Id de Tienda">*</span>):
@@ -168,35 +210,43 @@
 							</div>
 						
 						</div>
-						<div class="col-md-4">
-							<h3>Datos Tienda Fisica</h3>
-							<div class="form-group">
-								<label>Nombre Comercial:</label>
-								<input type="text" id="nombrecomercial" name="nombrecomercial" placeholder="nombre comercial" value="<?php echo $TiendaUnica['NombreComercial'];?>" required  >
+						<div class="col-md-6">
+							<div <?php echo $tiposTiendas[0]['display'] ?>>
+							<!-- Solo debería mostrar uno según tipo tienda-->
+								<h3>Datos Tienda Fisica</h3>
+								<div class="form-group">
+									<label>Nombre Comercial:</label>
+									<input type="text" id="nombrecomercial" name="nombrecomercial" placeholder="nombre comercial" value="<?php echo $TiendaUnica['NombreComercial'];?>" required  >
+								</div>
+								<div class="form-group">
+									<label>Dirección:</label>
+									<input type="text" id="direccion" name="direccion" placeholder="direccion"  value="<?php echo $TiendaUnica['direccion'];?>"  required >
+								</div>
+								
+								<div class="form-group">
+									<label>Año Contable:</label>
+									<input type="text" id="ano" name="ano" placeholder="2014"  value="<?php echo $TiendaUnica['ano'];?>"  required >
+								</div>
 							</div>
-							<div class="form-group">
-								<label>Dirección:</label>
-								<input type="text" id="direccion" name="direccion" placeholder="direccion"  value="<?php echo $TiendaUnica['direccion'];?>"  required >
-							</div>
-							
-							<div class="form-group">
-								<label>Año Contable:</label>
-								<input type="text" id="ano" name="ano" placeholder="2014"  value="<?php echo $TiendaUnica['ano'];?>"  required >
-							</div>
-						</div>
-						<div class="col-md-4">
-							<h3>Datos Tienda Web</h3>
-							<div class="form-group">
-								<label>Dominio:(<span title="Sin http, ni www">*</span>)</label>
-								<input type="text"  name="dominio" placeholder="dominio.com" value="" required  >
-							</div>
-							<div class="form-group">
-								<label>Base Datos:(<span title="Nombre bases datos">*</span>)</label>
-								<input type="text" name="nom_bases_datos" placeholder="name_basedatos" value="" required  >
-							</div>
-							<div class="form-group">
-								<label>Usuario:(<span title="Nombre Usuario">*</span>)</label>
-								<input type="text" name="nom_usuario_base_datos" placeholder="user_name" value="" required  >
+							<div <?php echo $tiposTiendas[1]['display'] ?>>
+								<!-- Solo debería mostrar uno según tipo tienda-->
+								<h3>Datos Tienda Web</h3>
+								<div class="form-group">
+									<label>Dominio:(<span title="Sin http, ni www">*</span>)</label>
+									<input type="text"  name="dominio" placeholder="dominio.com" value="" >
+								</div>
+								<div class="form-group">
+									<label>Base Datos:(<span title="Nombre bases datos">*</span>)</label>
+									<input type="text" name="nom_bases_datos" placeholder="name_basedatos" value="" >
+								</div>
+								<div class="form-group">
+									<label>Usuario:(<span title="Nombre Usuario">*</span>)</label>
+									<input type="text" name="nom_usuario_base_datos" placeholder="user_name" value="" >
+								</div>
+								<div class="form-group">
+									<label>Prefijo:(<span title="Prefijo tablas Joomla">*</span>)</label>
+									<input type="text" name="prefijoBD" placeholder="_mxjrs" value="" >
+								</div>
 							</div>
 						</div>
 					
