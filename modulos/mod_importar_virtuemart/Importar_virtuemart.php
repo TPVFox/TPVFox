@@ -20,7 +20,13 @@
 			return;	
 		}
 	}
-	//[COMPROBAMOS GET Y POST]
+	// [DEFINICION Y OBTENCION DE VARIABLES]
+	//[Obtenemos variables, recuerda los array de inicio necesitar prefijoBD 
+	// Los arrays que obtenemos son : ($tablasTemporales,$comprobaciones ,$tablas_importar)
+
+	include_once ('./Arrays_inicio.php');
+
+	//[Array de opciones de como generar CREF en Tpv]
 	$optcrefs = array (
 				'0' => array(
 					'value' =>'default',
@@ -38,6 +44,7 @@
 					'EtiqueTitle' => 'Ponemos como CREF el campo product_sku',
 					)
 			);
+	//[COMPROBAMOS GET Y POST]
 	if (isset($_GET['configuracion'])){
 		// Quiere decir que obtenemos datos de $POST montar 
 		foreach ($optcrefs as $key => $optcref){
@@ -58,14 +65,6 @@
 	echo '<pre>';
 	print_r($_GET);
 	echo '</pre>';
-	//[MONTAMOS ARRAY DE CONFIGURACION]
-	
-	
-	//[CARGAMOS ARRAYS DE INICIO ]
-	// obtenemos arrays ($tablasTemporales,$comprobaciones ,$tablas_importar)
-	// Estos array necesita  $prefijoBD y $arrayConfiguracion 
-	
-	include_once ('./Arrays_inicio.php');
 	
 	// [ANTES CARGAR FUNCIONES JS]
 	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
@@ -99,18 +98,14 @@
 	// Añadimos a variable global JS tablatemporales
 	foreach ($tablasTemporales as $tablaTemporal){
 		echo "tablasTemporales.push(".json_encode($tablaTemporal).");";
-	?>
 	
-	<?php
 	}
 	?>
 	<?php 
 	// Añadimos a variable global JS tablatemporales
 	foreach ($comprobaciones as $comprobacion){
 		echo "comprobacionesTemporales.push(".json_encode($comprobacion).");";
-	?>
 	
-	<?php
 	}
 	?>
 	
