@@ -35,7 +35,7 @@ function verSelec($BDTpv,$comparador,$tabla){
 	} else {
 		$fila = $unaOpc->fetch_assoc();
 	}
-	$fila['sql'] = $unaOpc;
+	//~ $fila['sql'] = $unaOpc;
 	$fila['consulta'] = $consulta;
 	return $fila ;
 }
