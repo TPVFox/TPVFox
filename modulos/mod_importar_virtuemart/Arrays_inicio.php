@@ -1,5 +1,34 @@
 <?php
-// Recuerda que tienes que tener la variable $prefijoBD ya definida.
+//[Array $opyicrefs ] Opciones de como generar CREF en Tpv
+// @ Array indexado y asociativo
+//			value= Nombre option
+//			descripcion = label que se muestra usuario
+// 			EtiqueTitle = Descripcion que muestra poner encima label.
+//			checked  	= 'checked' -> Indicamos cual es por defecto, se cubre según el id en proceso toma datos.
+$optcrefs = array (
+			'0' => array(
+				'value' =>'No_cref',
+				'descripcion' => 'No generar',
+				'EtiqueTitle' => 'No se crea CREF para nuevos articulos creados.',
+				'checked'	  => ''
+				),
+			'1' => array(
+				'value' => 'cref_id',
+				'descripcion' => 'Id de virtuemart como CREF',
+				'EtiqueTitle' =>'Ponemos como CREF el campo virtuemart_product_id',
+				'checked'	  => ''
+				),
+			'2' => array(
+				'value' => 'cref_SKU',
+				'descripcion' => 'El SKU de virtuemart como CREF',
+				'EtiqueTitle' => 'Ponemos como CREF el campo product_sku',
+				'checked'	  => ''
+				)
+		);
+
+
+
+
 
 // Creamos variables de los ficheros para poder automatizar el añadir articulos y otros
 	// Array $tablasTemporales;
@@ -7,6 +36,7 @@
 	//		nombre_tabla_temporal	-> Nombre de la tabla temporal de Virtuemart
 	//		campo_id				-> Nombre del campo autonumerico que creamos automaticamentes.
 	//		select					-> Consulta que realizamos para crear tabal temporal
+// Recuerda que tienes que tener la variable $prefijoBD ya definida.
 	
 
 
@@ -82,22 +112,6 @@ $tablasTemporales = array(
 									)
 							);
 	
-	
-	/*
-	
-	SELECT c.`virtuemart_user_id` as idVirtuemart,
-									 CONCAT(c.`first_name`," ",c.`middle_name`," ", c.`last_name`) as Nombre,
-									 c.`company` as razonsocial ,
-									 c.DNICIF as nif, 
-									 CONCAT( c.`address_1`," ",c.`address_2`," ",c.`city`) as direccion,
-									 c.`zip` as codpostal,
-									 c.`phone_1` as telefono, c.`phone_2` as movil ,
-									 c.`fax` as fax ,u.`email` as email,"activo" as `estado`
-									  FROM  '.$prefijoBD.'_users AS u 
-									 INNER JOIN '.$prefijoBD.'_virtuemart_userinfos AS c ON u.id=c.virtuemart_user_id
-	
-	
-	*/
 	// Array $comprobaciones
 	// @ Parametros de array $comprobaciones.
 	// 		funcion						=> (String)Nombre funcion
@@ -124,8 +138,8 @@ $tablasTemporales = array(
 	
 	
 	
-	// Array $tablas_importars;
-	// @ Parametros de array $tablas
+	//[ Array $tablas_importars ] Tablas de BDTvp que vamos importar o actualizar.
+	// @ Array indexado y asociativo
 	//		nombre		-> Nombre de la tabla tpv
 	//		obligatorio	-> Campos que tiene contener datos obligatoriamente
 	//		campos->	Los campos que obtenemos
@@ -136,48 +150,59 @@ $tablasTemporales = array(
 								'obligatorio'	=> array(),
 								'campos'		=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
 								'origen' 		=>'tmp_articulosCompleta',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'1' => array(
 								'nombre'		=>'articulosCodigoBarras',
 								'obligatorio'	=> array('codBarras'),
 								'campos'		=> array('idArticulo', 'codBarras'),
-								'origen' 		=>'tmp_articulosCompleta'
+								'origen' 		=>'tmp_articulosCompleta',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'2' => array(
 								'nombre'		=>'articulosPrecios',
 								'obligatorio'	=> array(),
 								'campos'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
-								'origen' 		=>'tmp_articulosCompleta'
+								'origen' 		=>'tmp_articulosCompleta',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'3' => array(
 								'nombre'		=>'articulosTiendas',
 								'obligatorio'	=>array('crefTienda'),
 								'campos'		=>array('idArticulo','idTienda','crefTienda'),
-								'origen' 		=>'tmp_articulosCompleta'
+								'origen' 		=>'tmp_articulosCompleta',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'4' => array(
 								'nombre'		=>'articulosFamilias',
 								'obligatorio'	=>array(),
 								'campos'		=>array('idArticulo','idFamilia'),
-								'origen' 		=>'tmp_cruce_familias'
+								'origen' 		=>'tmp_cruce_familias',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'5' => array(
 								'nombre'		=>'familias',
 								'obligatorio'	=>array(),
 								'campos'		=>array('idFamilia','familiaNombre','familiaPadre'),
-								'origen' 		=>'tmp_familias'
+								'origen' 		=>'tmp_familias',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'6' => array(
 								'nombre'		=>'articulosImagenes',
 								'obligatorio'	=>array('file_url'),
 								'campos'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
-								'origen' 		=>'tmp_productos_img'
+								'origen' 		=>'tmp_productos_img',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'7' => array(
 								'nombre'		=>'clientes',
 								'obligatorio'	=>array(),
 								'campos'		=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
-								'origen' 		=>'tmp_clientes'
+								'origen' 		=>'tmp_clientes',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								)
 						);
+						
+						
+
 ?>

@@ -14,39 +14,22 @@
 <head>
 <?php
 	include './../../head.php';
-	// Controlamos ( Controllers ... fuera de su sitio ... :-)
-	if (isset($Usuario['estado'])){
-		if ($Usuario === "Incorrecto"){
-			return;	
-		}
-	}
 	// [DEFINICION Y OBTENCION DE VARIABLES]
 	//[Obtenemos variables, recuerda los array de inicio necesitar prefijoBD 
-	// Los arrays que obtenemos son : ($tablasTemporales,$comprobaciones ,$tablas_importar)
+	// Los arrays que obtenemos son : ($tablasTemporales,$comprobaciones ,$tablas_importar,$optcrefs)
 
 	include_once ('./Arrays_inicio.php');
 
-	//[Array de opciones de como generar CREF en Tpv]
-	$optcrefs = array (
-				'0' => array(
-					'value' =>'default',
-					'descripcion' => 'No generar',
-					'EtiqueTitle' => 'No se crea CREF para nuevos articulos creados.',
-					),
-				'1' => array(
-					'value' => 'cref_id',
-					'descripcion' => 'Id de virtuemart como CREF',
-					'EtiqueTitle' =>'Ponemos como CREF el campo virtuemart_product_id',
-					),
-				'2' => array(
-					'value' => 'cref_SKU',
-					'descripcion' => 'El SKU de virtuemart como CREF',
-					'EtiqueTitle' => 'Ponemos como CREF el campo product_sku',
-					)
-			);
+	// [ DEFINIMOS VARIABLES POR DEFECTO ]
+	$titulo_control_proceso = 'Control de procesos';
+	$optcrefs['0']['checked'] = 'checked'; 	// Se cambiaría si hay POST
+	$confirmación_cfg = '' ; 				// Solo tendrá valor si pulsa btn y por get viene variable.
 	//[COMPROBAMOS GET Y POST]
+	// Por defecto ponemos : 
+	// Vemos si se cambía según el id obtenido, si hay claro.
 	if (isset($_GET['configuracion'])){
-		// Quiere decir que obtenemos datos de $POST montar 
+		$confirmación_cfg =$_GET['configuracion'];
+		// Ahora comprobamos que configuración seleciono el usuario.
 		foreach ($optcrefs as $key => $optcref){
 			if ($_POST['optcref'] === $optcref['value']){
 				$optcrefs[$key]['checked'] = 'checked';
@@ -54,62 +37,73 @@
 				$optcrefs[$key]['checked'] = '';
 			}
 		}
-	} else {
-		// Quiere decir que no pulso en configuracion por lo que pongo valor por defecto.
-		$optcrefs['0']['checked'] = 'checked';
-
 	}
 	echo '<pre>';
 	print_r($_POST);
 	echo '</pre>';
-	echo '<pre>';
-	print_r($_GET);
-	echo '</pre>';
-	
-	// [ANTES CARGAR FUNCIONES JS]
-	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
-	?>
-	<script type="application/javascript">
-	var nombretabla = [];
-	// Objeto tabla
-	var tablaImpor = [];
-	// Objeto tablaTemporales
+	// Si NO pulso en configuración entonces no hacemos nada de esto.. ya no lo vamos mostrar.
 
-	var tablasTemporales = [];
+	if ($confirmación_cfg === 'SI'){
+		include ("./../../controllers/Controladores.php");
+		include_once ("./funciones.php");
+
+		// Cargamos el controlador.
+		// Contamos cuantos si tienen registros las tabla BDTPV
+		$Controler = new ControladorComun; 
+		// Obtenemos los registros de las tablas y se lo añadimos al array $tablas_importar
+		$tablas_importar= ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas_importar);
+		// Sumamos los registros de tolas tablas.	
+		$sum_Items_articulos = SumarNumRegistrrosVariasTablas($tablas_importar);
+			
 	
-	var tablatemporal_actual; // GLOBAL: Variable que utilizamos para indicar en la que estamos haciendo bucle
-	
-	var comprobacionesTemporales = [] ; // Array GLOBAL para ejecturar funciones comprobaciones.
-	
-	var comprobacion_actual; // GLOBAL: Variable que utilizamos para indicar en la que estamos haciendo bucle
-	<?php
-	// Añadimmos a variable global JS nombretabla 
-	// [PENDIENTE] -> Realmente esta variable ya no hacer falta JS 
-	// porque ya la podemos obtener tablasTemporales. 
-	foreach ($tablas_importar as $tabla){
-		echo "nombretabla.push('".$tabla['nombre']."');";
-	?>
-	
-	<?php
-		echo "tablaImpor.push(".json_encode($tabla).");";
+		// [AHORA MONTAMOS VARIABLES GLOBALES JS]
+		// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
+		// Recuerda que se debe hacer antes de cargar fichero funciones.js ya sino genera un error
+		// no carga variables correctamente.
+		?>
+		<script type="application/javascript">
+		var nombretabla = [];
+		// Objeto tabla
+		var tablaImpor = [];
+		// Objeto tablaTemporales
+
+		var tablasTemporales = [];
+		
+		var tablatemporal_actual; // GLOBAL: Variable que utilizamos para indicar en la que estamos haciendo bucle
+		
+		var comprobacionesTemporales = [] ; // Array GLOBAL para ejecturar funciones comprobaciones.
+		
+		var comprobacion_actual; // GLOBAL: Variable que utilizamos para indicar en la que estamos haciendo bucle
+		<?php
+		// Añadimmos a variable global JS nombretabla 
+		// [PENDIENTE] -> Realmente esta variable ya no hacer falta JS 
+		// porque ya la podemos obtener tablasTemporales. 
+		foreach ($tablas_importar as $tabla){
+			echo "nombretabla.push('".$tabla['nombre']."');";
+		?>
+		
+		<?php
+			echo "tablaImpor.push(".json_encode($tabla).");";
+		}
+		?>
+		<?php
+		// Añadimos a variable global JS tablatemporales
+		foreach ($tablasTemporales as $tablaTemporal){
+			echo "tablasTemporales.push(".json_encode($tablaTemporal).");";
+		
+		}
+		?>
+		<?php 
+		// Añadimos a variable global JS tablatemporales
+		foreach ($comprobaciones as $comprobacion){
+			echo "comprobacionesTemporales.push(".json_encode($comprobacion).");";
+		
+		}
+		
 	}
+	
+	
 	?>
-	<?php
-	// Añadimos a variable global JS tablatemporales
-	foreach ($tablasTemporales as $tablaTemporal){
-		echo "tablasTemporales.push(".json_encode($tablaTemporal).");";
-	
-	}
-	?>
-	<?php 
-	// Añadimos a variable global JS tablatemporales
-	foreach ($comprobaciones as $comprobacion){
-		echo "comprobacionesTemporales.push(".json_encode($comprobacion).");";
-	
-	}
-	?>
-	
-	
 	
 	</script>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
@@ -120,81 +114,89 @@
 <body>
 <?php 
 	include './../../header.php';
-	include_once ("./funciones.php");
-	include ("./../../controllers/Controladores.php");
-	
-	
-	
-	
-	?>
-	<?php
-	// Cargamos el controlador.
-	// Contamos cuantos si tienen registros las tabla BDTPV
-	$Controler = new ControladorComun; 
-	// Obtenemos los registros de las tablas
-	$tablas_importar= ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas_importar);
-	// Sumamos los registros de tolas tablas.	
-	$sum_Items_articulos = SumarNumRegistrrosVariasTablas($tablas_importar);
-	
 ?>
+	
 
 <div class="container">
-			<h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
+	<h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
 
 	<div class="col-md-5">
-		<h4>Parametros a configurar</h4>
-			<form action="Importar_virtuemart.php?configuracion=SI" method="POST">
-			<div class="form-group">
-			<label title="Podemos seleccionar si creamos CREF y con que campo de Virtuemart">En empresa actual : ¿Como generamos campo CREF?"</label>
-				<?php
-				foreach ($optcrefs as $optcref){
-					echo '<label class="radio-inline">';
-					echo '	<input type="radio" name="optcref" title="'.$optcref['EtiqueTitle'].'" value ="'.$optcref['value'].'" '.$optcref['checked'].'>'.$optcref['descripcion'].'</label>';
-				}
-				?>
-			</div>
-			<div class="form-group">
-			<label title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda On Line con la quieres importar/actualizar datos:</label>
-			</div>
-
-			<button type="submit" class="btn btn-default">Submit</button>
-
-			</form>
-	
-		
+		<!-- Solo mostramos parametros configuración si No pulso "Cambiar o confirmación de configuración -->
 		<?php 
-		if ( $sum_Items_articulos > 0){
-			// Quiere decir que tiene datos BDTpv por lo que puede ser no puede ser una iniciacion.
-			echo '<div class="alert alert-warning"><strong>¡¡ Actua con producencia !!</strong>
-			<p>Ya que hay datos en BDTpv , puede iniciar la importacion, eliminando todo, o solo la actualización donde solo añade los datos nuevos.</p></div>';
-			echo '<div class ="col-md-12">
-				<h3>Importar datos de Virtuemart</h3>
-				<p>Eliminamos los datos de tpv y importamos datos de virtuemart</p>
-				  
-				<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="VaciarTablas();" class="btn btn-danger">
-				Borrar de Tpv y Importar datos de Virtuemart
-				</a>
-  
-				<div class="alert alert-danger">
-					Al pulsar en "Importar todo", elimina las tablas indicadad de BDTPV.
-				</div>
-				</div>';
-			// La opcion de actualizar solo mostramos cuando hay datos.
+		if ($confirmación_cfg === 'SI'){
+			echo ' DEBERÍA BLOQUEAR CONFIRUGRACION O NO ';
+			$disable_conf = 'disabled';
 		} else {
-			echo '<div class="alert alert-info"> Vas importar los datos de Virtuemart</div>';
-			echo '<div>
-				   <a  href="#ImportarVirtuemart" title="Importar tablas de Virtuemart" onclick="BucleTablaTemporal();" class="btn btn-primary">
-				  Importar datos de Virtuemart
-				  </a>
-				</div>';
+			$disable_conf = '';
+
 		}
-		
 		?>
+		<h3>Parametros a configurar</h3>
+			<div style="padding:10px 0px;">
+				<form action="Importar_virtuemart.php?configuracion=SI" method="POST">
+				<div class="form-group">
+				<label title="Podemos seleccionar si creamos CREF y con que campo de Virtuemart">En empresa actual : ¿Como generamos campo CREF?"</label>
+					<?php
+					foreach ($optcrefs as $optcref){
+						echo '<label class="radio-inline">';
+						echo '	<input type="radio" name="optcref" title="'.$optcref['EtiqueTitle'].'" value ="'.$optcref['value'].'" '.$optcref['checked'].' '.$disable_conf.'>'.$optcref['descripcion'].'</label>';
+					}
+					?>
+				</div>
+				<div class="form-group">
+				<label title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda On Line con la quieres importar/actualizar datos:</label>
+				</div>
+
+				<button type="submit" class="btn btn-primary">Cambiar o confirma configuracion</button>
+
+				</form>
+			</div>
+	
+		<?php 
+		if ($confirmación_cfg === 'SI'){
+		?>
+			<!-- No mostramos nada mas si no hay confirmación de configuracion. -->
+			<div>
+			
+			<?php
+			 
+			if ( $sum_Items_articulos > 0){
+				// Quiere decir que tiene datos BDTpv por lo que puede ser no puede ser una iniciacion.
+				echo '<div class="alert alert-warning"><strong>¡¡ Actua con producencia !!</strong>
+				<p>Ya que hay datos en BDTpv , puede iniciar la importacion, eliminando todo, o solo la actualización donde solo añade los datos nuevos.</p></div>';
+				echo '<div style="padding:10px 0px;">
+					<h3>Importar datos de Virtuemart</h3>
+					<p>Eliminamos los datos de tpv y importamos datos de virtuemart</p>
+					  
+					<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="VaciarTablas();" class="btn btn-danger">
+					Borrar de Tpv y Importar datos de Virtuemart
+					</a>
+					</div>
+					<div class="alert alert-danger">
+						Al pulsar en "Importar todo", elimina las tablas indicadad de BDTPV.
+					</div>';
+				// La opcion de actualizar solo mostramos cuando hay datos.
+			} else {
+				echo '<div class="alert alert-info"> Vas importar los datos de Virtuemart</div>';
+				echo '<div>
+					   <a  href="#ImportarVirtuemart" title="Importar tablas de Virtuemart" onclick="BucleTablaTemporal();" class="btn btn-primary">
+					  Importar datos de Virtuemart
+					  </a>
+					</div>';
+			}
+			?>
+			</div>
+		<?php
+		}
+		?>
+	
 	</div>
-		
 	<div class="col-md-7">
+	<?php 
+	if ($confirmación_cfg === 'SI'){
+	?>	
 		<div class="col-md-12">
-		<h3 class="text-center"> Control de procesos de importacion tablas</h3>
+		<h3 class="text-center"> <?php echo $titulo_control_proceso.' de importacion tablas';?></h3>
 		<div>
 		<div class="text-center" id="idCabeceraBarra"></div>
 
@@ -301,7 +303,14 @@
 					
 		</div>		
 	
-</div>
+	<?php 
+	// fin de mostrar CONTROL DE PROCESOS DE IMPORTACION O ACTUALIZACION DE DATOS
+	} else {
+		echo '<h3 class="text-center">'.$titulo_control_proceso.'</h3>';
+		echo '<div class="alert alert-info"> Pulsa confirmacion de configuracion para mostrar cuadro de '.$titulo_control_proceso.'</div>';
+	}
+	?>
+	</div>
 		
 	<div>
 <?php
@@ -313,6 +322,9 @@
 //~ echo '<pre>';
 	//~ print_r(json_decode($respuesta));
 //~ echo '</pre>';
+echo '<pre>';
+print_r($tablas_importar);
+echo '</pre>';
 ?>
 
 
