@@ -5,24 +5,110 @@
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
-        include ("./../mod_conexion/conexionBaseDatos.php");
-		// Obtenemos id
-		if ($_GET['id']) {
-			$id = $_GET['id'];
-		} else {
-			// NO hay parametro .
-			$error = "No podemos continuar";
-		}
-		// ===========  datos usuario segun id enviado por url============= //
-			$tabla= 'tiendas';
-			$idBusqueda ='idTienda='.$id;
-			$TiendaUnica = verSelec($BDTpv,$idBusqueda,$tabla);
-			// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
+		// Variables por defecto:
+		$titulo = "Crear Tienda";
+		$img = './../../css/img/tienda.svg'; // Url imagen por defecto.
+		$TiendaUnica = array(
+					'NombreComercial'	=> '',
+					'razonsocial' 		=> '',
+					'nif'				=> '',
+					'direccion' 		=> '',
+					'telefono' 			=> '',
+					'ano' 				=> '',
+					'id'				=> ''
+					);
+		$id = '' ; // Por defecto.
+		// Definimos posibles estados para Select.
+		$estados = array(
+			'0' => array( 
+					'valor' =>'cerrado',
+					'porDefecto' => 'selected' // Indicamos por defecto
+					),
+			'1' => array(
+					'valor' =>'abierto',
+					'porDefecto' =>  ''
+					)
+		);
+		// Definimos posibles tipos de tiendas.
+		$tiposTiendas = array(
+			'0' => array (
+					'value' 	=> "fisica",
+					'title' 	=> "Tienda en local",
+					'texto' 	=> "Tienda fisica",
+					'checked'	=> "checked", // Indicamos por defecto
+					'display'	=> '' ,// Indicamos por defecto que si muestra campos tienda fisica
+					'disabled' 	=> 'disabled' // por defecto esta activo el cambio tipo tienda.
+
+					),
+			'1' =>  array (
+					'value' 	=> "web",
+					'title' 	=> "Tienda On-Line",
+					'texto' 	=> "Web de la tienda",
+					'checked'	=> "",
+					'display'	=> 'style="display:none;"', // Indicamos NO se campos tienda web por defecto
+					'disabled' 	=> 'disabled' // por defecto esta desactivado el cambio tipo tienda.
+					)
+		);
 			
-			echo '<pre>';
-				print_r($TiendaUnica);
-			echo '</pre>';
+		// Obtenemos id
+		if (isset($_GET['id'])) {
+			
+			//  Ahora obtenemos los datos de esa tienda según id si es distinto 0
+			
+			$tabla= 'tiendas';
+			$idBusqueda ='idTienda='. $_GET['id'];
+			$TiendaUnica = verSelec($BDTpv,$idBusqueda,$tabla);
+			// Solo deberíamos obtener un resultado, si obtenemos mas es que hay algo mal.
+			if ( $TiendaUnica['idTienda'] = $_GET['id']){
+				$id=  $_GET['id']; // es un String
+				$titulo = "Modificar Tienda:".$TiendaUnica['NombreComercial'];
+				// Obtenemos el tipo de tieneda que es ..
+				foreach ($tiposTiendas as $key => $tipoTienda){
+					
+					if ($TiendaUnica['tipo_empresa'] === $tipoTienda['value']) {
+						$tiposTiendas[$key]['checked'] = "checked";
+					} else {
+						$tiposTiendas[$key]['checked'] = "";
+					}
+					
+				}
+				// Obtenemos el estado que tiene la tienda.
+				foreach ($estados as $key => $estado){
+					if ($TiendaUnica['estado'] == $estado['valor']){
+						$estados[$key]['porDefecto'] = "selected"; // Indicamos por defecto
+					} else {
+						$estados[$key]['porDefecto'] = ''; // Indicamos por defecto
+
+					}
+				} 	
+					
+			} 
+		} 
+		// Cambiamos valores por defecto si es nuevo.
+		if ($id === ''){
+			$tiposTiendas['0']['disabled'] = ''; // No se muestra por defecto
+			$tiposTiendas['1']['disabled'] = ''; // No se muestra por defecto
+		}
 		?>
+		<script type="text/javascript">
+		$(document).ready(function()
+		{
+			$("input:radio[name=tipoTienda]").change(function () {	
+				// Si cambiamos valor
+				// debemos cambiar el display de uno u otro campo. 
+				var clase = 'mostrar_'+$('input:radio[name=tipoTienda]:checked').val();
+				if ( clase === 'mostrar_web'){
+					$('.'+clase).css("display","block");
+					$('.mostrar_fisica').css("display","none");
+
+				} else {
+				  $('.'+clase).css("display","block");
+					$('.mostrar_web').css("display","none");
+				}
+			})
+		 });
+		</script>
+		
 	
 	</head>
 	<body>
@@ -62,79 +148,6 @@
 				}
 			};
 			
-			// Definimos posibles estados para Select.
-			$estados = array(
-					'0' => array( 
-							'valor' =>'cerrado',
-							'porDefecto' => 'selected' // Indicamos por defecto
-							),
-					'1' => array(
-							'valor' =>'abierto',
-							'porDefecto' =>  ''
-							)
-					);
-			// Definimos posibles tipos de tiendas.
-			$tiposTiendas = array(
-						'0' => array (
-								'value' => "fisica",
-								'title' => "Tienda en local",
-								'texto' => "Tienda fisica",
-								'checked'=> "checked", // Indicamos por defecto
-								'display'=> '' // Indicamos por defecto que se muestre
-
-								),
-						'1' =>  array (
-								'value' => "web",
-								'title' => "Tienda On-Line",
-								'texto' => "Web de la tienda",
-								'checked'=> "",
-								'display'=> 'style="display:none;"' // No se muestra por defecto.
-
-
-								)
-					);
-			if (!isset($id)){ ///nuevo
-				$titulo = "Crear Tienda";
-				$TiendaUnica = array(
-							'NombreComercial'	=> '',
-							'razonsocial' 		=> '',
-							'nif'				=> '',
-							'direccion' 		=> '',
-							'telefono' 			=> '',
-							'ano' 				=> '',
-							'id'				=> ''
-							);
-				
-			} else {
-				$titulo = "Modificar Tienda";
-				// Obtenemos el tipo de tieneda que es ..
-				foreach ($tiposTiendas as $key => $tipoTienda){
-					
-					if ($TiendaUnica['tipo_empresa'] === $tipoTienda['value']) {
-						$tiposTiendas[$key]['checked'] = "checked";
-						$tiposTiendas[$key]['display'] = ''; // Se muestra
-
-						
-					} else {
-						$tiposTiendas[$key]['checked'] = "";
-						$tiposTiendas[$key]['display'] = 'style="display:none;"'; // No se muestra por defecto
-
-
-					}
-					
-				}
-				// Obtenemos el estado que tiene la tienda.
-				foreach ($estados as $key => $estado){
-					if ($TiendaUnica['estado'] == $estado['valor']){
-						$estados[$key]['porDefecto'] = "selected"; // Indicamos por defecto
-					} else {
-						$estados[$key]['porDefecto'] = ''; // Indicamos por defecto
-
-					}
-				} 
-			}
-			
-			
 			?>
      
 		<div class="container">
@@ -146,10 +159,6 @@
 
 			<div class="col-md-12">
 				<div class="col-md-3">
-					<?php 
-					// UrlImagen
-					$img = './../../css/img/tienda.svg';
-					?>
 					<a href="<?php echo $img;?>"><img src="<?php echo $img;?>" style="width:100%;"></a>
 				</div>
 				<form action="" method="post" name="formUsuario">
@@ -162,7 +171,7 @@
 								foreach ($tiposTiendas as $tipoTienda){
 									echo '<label class="radio-inline">';
 									echo '<input type="radio" name="tipoTienda" value="'.$tipoTienda['value'].
-										'" title="'.$tipoTienda['title'].'"'.$tipoTienda['checked'].'>'.
+										'" title="'.$tipoTienda['title'].'"'.$tipoTienda['checked'].'  '.$tipoTienda['disabled'].'>'.
 										$tipoTienda['texto'].'</label>';
 								}
 								?>
@@ -211,7 +220,7 @@
 						
 						</div>
 						<div class="col-md-6">
-							<div <?php echo $tiposTiendas[0]['display'] ?>>
+							<div class="mostrar_fisica" <?php echo $tiposTiendas[0]['display'] ?>>
 							<!-- Solo debería mostrar uno según tipo tienda-->
 								<h3>Datos Tienda Fisica</h3>
 								<div class="form-group">
@@ -228,7 +237,7 @@
 									<input type="text" id="ano" name="ano" placeholder="2014"  value="<?php echo $TiendaUnica['ano'];?>"  required >
 								</div>
 							</div>
-							<div <?php echo $tiposTiendas[1]['display'] ?>>
+							<div class="mostrar_web" <?php echo $tiposTiendas[1]['display'] ?>>
 								<!-- Solo debería mostrar uno según tipo tienda-->
 								<h3>Datos Tienda Web</h3>
 								<div class="form-group">
