@@ -15,6 +15,8 @@
 	</div>
 	<div>
 		<h2>Diagrama de programa de tienda.php</h2>
+		<p> <img width ="100%" src="<?php echo $UrlActual;?>diagrama_flujo_tienda.svg" alt="Vista tienda">
+		</p>
 	</div>
 	
 

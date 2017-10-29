@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="66cm"
+   height="75cm"
+   viewBox="-93 -210 1305 1488"
+   version="1.1"
+   id="svg271"
+   sodipodi:docname="diagrama_flujo_tienda.svg"
+   inkscape:version="0.92.1 r15371">
+  <metadata
+     id="metadata277">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs275" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview273"
+     showgrid="false"
+     inkscape:zoom="0.083255556"
+     inkscape:cx="1247.2441"
+     inkscape:cy="1417.3228"
+     inkscape:window-x="0"
+     inkscape:window-y="26"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg271" />
+  <g
+     id="Fondo">
+    <g
+       id="g6">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="307.154"
+         y1="-115"
+         x2="304.999"
+         y2="-52.7332"
+         id="line2" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="304.739,-45.2377 300.088,-55.4047 304.999,-52.7332 310.082,-55.0587 "
+         id="polygon4" />
+    </g>
+    <g
+       id="g16">
+      <polygon
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="389.999,95.7434 470.512,136 389.999,176.257 309.486,136 "
+         id="polygon8" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="389.999"
+         y="131.9"
+         id="text14">
+        <tspan
+           x="389.999"
+           y="131.9"
+           id="tspan10">control</tspan>
+        <tspan
+           x="389.999"
+           y="147.9"
+           id="tspan12">Usuario</tspan>
+      </text>
+    </g>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="209"
+       y="114"
+       id="text20">
+      <tspan
+         x="209"
+         y="114"
+         id="tspan18">no</tspan>
+    </text>
+    <g
+       id="g32">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="-30.3"
+         y="95"
+         width="147.9"
+         height="89"
+         rx="0"
+         ry="0"
+         id="rect22" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="43.65"
+         y="127.4"
+         id="text30">
+        <tspan
+           x="43.65"
+           y="127.4"
+           id="tspan24">fin</tspan>
+        <tspan
+           x="43.65"
+           y="143.4"
+           id="tspan26">Muestra formulario </tspan>
+        <tspan
+           x="43.65"
+           y="159.4"
+           id="tspan28">acceso.</tspan>
+      </text>
+    </g>
+    <g
+       id="g38">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="390"
+         y1="176.257"
+         x2="332.488"
+         y2="277.538"
+         id="line34" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="328.785,284.06 329.374,272.895 332.488,277.538 338.07,277.833 "
+         id="polygon36" />
+    </g>
+    <g
+       id="g44">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="309.486"
+         y1="136"
+         x2="127.334"
+         y2="139.322"
+         id="line40" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="119.836,139.459 129.743,134.278 127.334,139.322 129.925,144.276 "
+         id="polygon42" />
+    </g>
+    <g
+       id="g50">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="-31.85,143 -31.85,-208 307.154,-208 307.154,-170.736 "
+         id="polyline46" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="307.154,-163.236 302.154,-173.236 307.154,-170.736 312.154,-173.236 "
+         id="polygon48" />
+    </g>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="3.15"
+       y="-173"
+       id="text54">
+      <tspan
+         x="3.15"
+         y="-173"
+         id="tspan52">LOGUEO CORRECTO</tspan>
+    </text>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="409.284"
+       y="226"
+       id="text58">
+      <tspan
+         x="409.284"
+         y="226"
+         id="tspan56">SI</tspan>
+    </text>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="137.925"
+       y="881.5"
+       id="text62">
+      <tspan
+         x="137.925"
+         y="881.5"
+         id="tspan60" />
+    </text>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="674.426"
+       y="773"
+       id="text66">
+      <tspan
+         x="674.426"
+         y="773"
+         id="tspan64" />
+    </text>
+    <g
+       id="g82">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #0d0b0b"
+         x="170"
+         y="-42"
+         width="266"
+         height="94"
+         rx="0"
+         ry="0"
+         id="rect68" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="303"
+         y="-23.1"
+         id="text80">
+        <tspan
+           xml:space="preserve"
+           x="303"
+           y="-23.1"
+           id="tspan70">	include './../../head.php';</tspan>        <tspan
+           x="303"
+           y="-7.1"
+           id="tspan72">ver diagrama head... Sin crear.. :-)</tspan>
+        <tspan
+           x="303"
+           y="8.9"
+           id="tspan74">pero aquí ya controlamos</tspan>
+        <tspan
+           x="303"
+           y="24.9"
+           id="tspan76">usuario</tspan>
+        <tspan
+           x="303"
+           y="40.9"
+           id="tspan78" />
+      </text>
+    </g>
+    <g
+       id="g88">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="349.017"
+         y1="52.997"
+         x2="383.262"
+         y2="88.7155"
+         id="line84" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="388.453,94.1293 377.923,90.3712 383.262,88.7155 385.141,83.4506 "
+         id="polygon86" />
+    </g>
+    <g
+       id="g94">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="312.366"
+         y1="341.949"
+         x2="314.081"
+         y2="424.266"
+         id="line90" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="314.237,431.764 309.03,421.871 314.081,424.266 319.028,421.662 "
+         id="polygon92" />
+    </g>
+    <g
+       id="g100">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="366.761"
+         y1="645.174"
+         x2="472.41"
+         y2="646.219"
+         id="line96" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="479.909,646.293 469.86,651.194 472.41,646.219 469.959,641.195 "
+         id="polygon98" />
+    </g>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="1010.5"
+       y="669.5"
+       id="text104">
+      <tspan
+         x="1010.5"
+         y="669.5"
+         id="tspan102" />
+    </text>
+    <g
+       id="g112">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 237.821 -161 L 376.487,-161 C 395.633,-161 411.154,-150.703 411.154,-138 C 411.154,-125.297 395.633,-115 376.487,-115 L 237.821,-115 C 218.675,-115 203.154,-125.297 203.154,-138 C 203.154,-150.703 218.675,-161 237.821,-161z"
+         id="path106" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="307.154"
+         y="-134"
+         id="text110">
+        <tspan
+           x="307.154"
+           y="-134"
+           id="tspan108">INICIO</tspan>
+      </text>
+    </g>
+    <g
+       id="g120">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 245.154 1209 L 393.154,1209 C 413.589,1209 430.154,1224.22 430.154,1243 C 430.154,1261.78 413.589,1277 393.154,1277 L 245.154,1277 C 224.719,1277 208.154,1261.78 208.154,1243 C 208.154,1224.22 224.719,1209 245.154,1209z"
+         id="path114" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="319.154"
+         y="1247"
+         id="text118">
+        <tspan
+           x="319.154"
+           y="1247"
+           id="tspan116">FIN</tspan>
+      </text>
+    </g>
+    <g
+       id="g130">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="204.408"
+         y="287"
+         width="214.75"
+         height="54"
+         rx="0"
+         ry="0"
+         id="rect122" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="311.783"
+         y="309.9"
+         id="text128">
+        <tspan
+           xml:space="preserve"
+           x="311.783"
+           y="309.9"
+           id="tspan124">        include './funciones.php';</tspan>        <tspan
+           x="311.783"
+           y="325.9"
+           id="tspan126" />
+      </text>
+    </g>
+    <g
+       id="g142">
+      <polygon
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="300.343,588.42 366.352,644.517 300.343,700.614 234.334,644.517 "
+         id="polygon132" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="300.343"
+         y="632.417"
+         id="text140">
+        <tspan
+           x="300.343"
+           y="632.417"
+           id="tspan134">$_GET</tspan>
+        <tspan
+           x="300.343"
+           y="648.417"
+           id="tspan136">id</tspan>
+        <tspan
+           x="300.343"
+           y="664.417"
+           id="tspan138" />
+      </text>
+    </g>
+    <g
+       id="g148">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="234.048"
+         y1="645.153"
+         x2="81.1739"
+         y2="646.621"
+         id="line144" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="73.6742,646.693 83.6257,641.597 81.1739,646.621 83.7218,651.597 "
+         id="polygon146" />
+    </g>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="97.2832"
+       y="633"
+       id="text152">
+      <tspan
+         x="97.2832"
+         y="633"
+         id="tspan150">No hay GET o id es 0</tspan>
+    </text>
+    <g
+       id="g160">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="198.025"
+         y="434"
+         width="199.95"
+         height="38"
+         rx="0"
+         ry="0"
+         id="rect154" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="298"
+         y="456.9"
+         id="text158">
+        <tspan
+           x="298"
+           y="456.9"
+           id="tspan156">Cargo variables por defecto</tspan>
+      </text>
+    </g>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="403.15"
+       y="621"
+       id="text164">
+      <tspan
+         x="403.15"
+         y="621"
+         id="tspan162">SI HAY GET</tspan>
+    </text>
+    <g
+       id="g176">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="483.15"
+         y="613"
+         width="338.6"
+         height="70"
+         rx="0"
+         ry="0"
+         id="rect166" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="652.45"
+         y="635.9"
+         id="text174">
+        <tspan
+           xml:space="preserve"
+           x="652.45"
+           y="635.9"
+           id="tspan168">		$TiendaUnica </tspan>        <tspan
+           x="652.45"
+           y="651.9"
+           id="tspan170">verSelec($BDTpv,$idBusqueda,$tabla);</tspan>
+        <tspan
+           x="652.45"
+           y="667.9"
+           id="tspan172" />
+      </text>
+    </g>
+    <g
+       id="g186">
+      <polygon
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="783.149,740.318 892.512,795 783.149,849.681 673.786,795 "
+         id="polygon178" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="783.149"
+         y="790.9"
+         id="text184">
+        <tspan
+           x="783.149"
+           y="790.9"
+           id="tspan180">id =</tspan>
+        <tspan
+           x="783.149"
+           y="806.9"
+           id="tspan182">$tiendaUnica[id]</tspan>
+      </text>
+    </g>
+    <g
+       id="g192">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="703.409"
+         y1="683.994"
+         x2="775.198"
+         y2="734.701"
+         id="line188" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="781.324,739.028 770.271,737.343 775.198,734.701 776.04,729.175 "
+         id="polygon190" />
+    </g>
+    <g
+       id="g198">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="891.15"
+         y1="791"
+         x2="1033.24"
+         y2="794.905"
+         id="line194" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="1040.74,795.111 1030.61,799.835 1033.24,794.905 1030.88,789.839 "
+         id="polygon196" />
+    </g>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="937.15"
+       y="762"
+       id="text202">
+      <tspan
+         x="937.15"
+         y="762"
+         id="tspan200">SI</tspan>
+    </text>
+    <g
+       id="g214">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="1043.95"
+         y="757"
+         width="167.4"
+         height="81"
+         rx="0"
+         ry="0"
+         id="rect204" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="1127.65"
+         y="785.4"
+         id="text212">
+        <tspan
+           x="1127.65"
+           y="785.4"
+           id="tspan206">Ponemos valor</tspan>
+        <tspan
+           x="1127.65"
+           y="801.4"
+           id="tspan208">$tipoTiendas[checked)</tspan>
+        <tspan
+           x="1127.65"
+           y="817.4"
+           id="tspan210">$estado['porDefecto']</tspan>
+      </text>
+    </g>
+    <g
+       id="g226">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="-91.15"
+         y="612.5"
+         width="161.6"
+         height="70"
+         rx="0"
+         ry="0"
+         id="rect216" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="-10.35"
+         y="635.4"
+         id="text224">
+        <tspan
+           x="-10.35"
+           y="635.4"
+           id="tspan218">$tipoTienda[disabled]</tspan>
+        <tspan
+           x="-10.35"
+           y="651.4"
+           id="tspan220">No se muestra</tspan>
+        <tspan
+           x="-10.35"
+           y="667.4"
+           id="tspan222">campos web o fisica.</tspan>
+      </text>
+    </g>
+    <g
+       id="g232">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="298"
+         y1="472"
+         x2="299.444"
+         y2="578.333"
+         id="line228" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="299.546,585.832 294.411,575.901 299.444,578.333 304.41,575.765 "
+         id="polygon230" />
+    </g>
+    <g
+       id="g244">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 73.354 809 L 259.354,809 L 259.354,882.778 C 222.154,870.481 203.554,870.481 166.354,882.778 C 129.154,895.074 110.554,895.074 73.354,882.778 L 73.354,809z"
+         id="path234" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="166.354"
+         y="827.741"
+         id="text242">
+        <tspan
+           x="166.354"
+           y="827.741"
+           id="tspan236">MOSTRAMOS </tspan>
+        <tspan
+           x="166.354"
+           y="843.741"
+           id="tspan238">CAMPOS COMUNES</tspan>
+        <tspan
+           x="166.354"
+           y="859.741"
+           id="tspan240" />
+      </text>
+    </g>
+    <g
+       id="g256">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 402.554 951.8 L 588.554,951.8 L 588.554,1025.58 C 551.354,1013.28 532.754,1013.28 495.554,1025.58 C 458.354,1037.87 439.754,1037.87 402.554,1025.58 L 402.554,951.8z"
+         id="path246" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="495.554"
+         y="970.541"
+         id="text254">
+        <tspan
+           x="495.554"
+           y="970.541"
+           id="tspan248">MOSTRAMOS </tspan>
+        <tspan
+           x="495.554"
+           y="986.541"
+           id="tspan250">CAMPOS Tienda FɪSɪCɑ</tspan>
+        <tspan
+           x="495.554"
+           y="1002.54"
+           id="tspan252" />
+      </text>
+    </g>
+    <g
+       id="g268">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 788.054 955.6 L 997.454,955.6 L 997.454,1029.38 C 955.574,1017.08 934.634,1017.08 892.754,1029.38 C 850.874,1041.67 829.934,1041.67 788.054,1029.38 L 788.054,955.6z"
+         id="path258" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="892.754"
+         y="974.341"
+         id="text266">
+        <tspan
+           x="892.754"
+           y="974.341"
+           id="tspan260">MOSTRAMOS </tspan>
+        <tspan
+           x="892.754"
+           y="990.341"
+           id="tspan262">CAMPOS TɪɛNDɑ WɛB</tspan>
+        <tspan
+           x="892.754"
+           y="1006.34"
+           id="tspan264" />
+      </text>
+    </g>
+  </g>
+</svg>
