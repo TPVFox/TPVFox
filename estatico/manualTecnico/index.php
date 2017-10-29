@@ -7,61 +7,18 @@
         <?php
         include './../../head.php';
         include ("./../../modulos/mod_conexion/conexionBaseDatos.php");
-		
-		// No utilizar el registro 0 
-		$ayudas = array(
-					'1' => array(
-							'titulo_cuadro'	=> 'Generar Ayudas',
-							'introduccion'	=> 'Una plantilla que para como generar mas ayudas.',
-							'ruta'			=> '/help_plantilla/',
-							'fichero'		=> 'index.php'
-							),
-					'2' => array(
-							'titulo_cuadro'	=> 'Ayuda Importar Virtuemart',
-							'introduccion'	=> 'El modulo de importar desde Virtuemart, una ayuda tecnica como para ejecutarlos.',
-							'ruta'			=> '/help_import_virtuemart/',
-							'fichero'		=> 'index.php'
-							),
-					'3' => array(
-							'titulo_cuadro'	=> 'Testeo Productos',
-							'introduccion'	=> 'El modulo de productos, una ayuda tecnica como para ejecutar el testeo.',
-							'ruta'			=> '/help_productos/',
-							'fichero'		=> 'index.php'
-							),	
-					'4' => array(
-							'titulo_cuadro'	=> 'Ayuda Tickets',
-							'introduccion'	=> 'El modulo de tickets, una ayuda tecnica como para ejecutar el testeo.',
-							'ruta'			=> '/help_tickets/',
-							'fichero'		=> 'index.php'
-							),
-					'5' => array(
-							'titulo_cuadro'	=> 'Ayuda Tickets Cerrados Cobrados',
-							'introduccion'	=> 'El listado de tickets cerrados, punto pendiente de revisar, paginacion y filtrado.',
-							'ruta'			=> '/help_tickets_cerrados_cobrados/',
-							'fichero'		=> 'index.php'
-							),
-					'6' => array(
-							'titulo_cuadro'	=> 'Fichero HEADER',
-							'introduccion'	=> 'En cargado mostrar menu y controlar que items mostrar según el usuario',
-							'ruta'			=> '/help_fichero_header/',
-							'fichero'		=> 'index.php'
-							),
-					'7' => array(
-							'titulo_cuadro'	=> 'Ayuda Cierres Caja',
-							'introduccion'	=> 'Cerrar caja',
-							'ruta'			=> '/help_cierresCaja/',
-							'fichero'		=> 'index.php'
-							)
-				);
-		
-		// Ahora buscamos si tenemos $_GET con alguna de ayudas.
+		// Incluimos el fichero arrayAyudas donde obtenemos los cuadros de ayuda que hay.
+		// Recuerda que no se puede utilizar el registro 0 
+		// Si quieres añadir una ayuda, recuerda que debes añadirla en ese fichero.
+		include ("./arrayAyudas.php");
+		// Ahora buscamos si tenemos $_GET 
+		// ya que si tiene Get [cargo_ayuda] > 0 es que va mostrar la ayuda.
 		$id = 0;
 		if (count($_GET)>0){
 			if ($_GET['cargo_ayuda']){
 			// Quiere decir que hay url de cargar ayuda.
 			$id = 	$_GET['cargo_ayuda'];
 			}
-			
 		}
 		?>
 		
@@ -77,7 +34,6 @@
         $UrlActual = $HostNombre.'/estatico/manualTecnico';
 		$DirectorioActual = getcwd();
 		?>
-     
 		<div class="container">
 			<?php if ($id <= 0 ){ ?>
 			<h1 class="text-center">Manual de ayuda para soporte tecnico</h1>

@@ -7,15 +7,15 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="81cm"
-   height="93cm"
-   viewBox="-69 -210 1603 1851"
+   width="83cm"
+   height="98cm"
+   viewBox="-33 -226 1647 1951"
    version="1.1"
-   id="svg361"
+   id="svg495"
    sodipodi:docname="Diagrama2.svg"
    inkscape:version="0.92.1 r15371">
   <metadata
-     id="metadata367">
+     id="metadata501">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -27,7 +27,7 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs365" />
+     id="defs499" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -39,76 +39,53 @@
      inkscape:pageshadow="2"
      inkscape:window-width="640"
      inkscape:window-height="480"
-     id="namedview363"
+     id="namedview497"
      showgrid="false"
-     inkscape:zoom="0.067141577"
-     inkscape:cx="1530.7087"
-     inkscape:cy="1757.4803"
+     inkscape:zoom="0.063715986"
+     inkscape:cx="1568.5039"
+     inkscape:cy="1851.9685"
      inkscape:window-x="0"
      inkscape:window-y="26"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg361" />
+     inkscape:current-layer="svg495" />
   <g
      id="Fondo">
     <g
-       id="g8">
-      <rect
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="258"
-         y="-142"
-         width="254.825"
-         height="38"
-         rx="0"
-         ry="0"
-         id="rect2" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="385.412"
-         y="-119.1"
-         id="text6">
-        <tspan
-           x="385.412"
-           y="-119.1"
-           id="tspan4">inicio</tspan>
-      </text>
-    </g>
-    <g
-       id="g14">
+       id="g6">
       <line
          style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="385.412"
-         y1="-104"
-         x2="382.717"
-         y2="86.299"
-         id="line10" />
+         x1="385.689"
+         y1="-144.994"
+         x2="387.37"
+         y2="-93.7174"
+         id="line2" />
       <polygon
          style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
          fill-rule="evenodd"
-         points="382.611,93.7983 377.753,83.7285 382.717,86.299 387.752,83.8701 "
-         id="polygon12" />
+         points="387.616,-86.2214 382.291,-96.0522 387.37,-93.7174 392.285,-96.3799 "
+         id="polygon4" />
     </g>
     <g
-       id="g24">
+       id="g16">
       <polygon
          style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
          fill-rule="evenodd"
-         points="381.999,96.7434 462.512,137 381.999,177.257 301.486,137 "
-         id="polygon16" />
+         points="389.999,95.7434 470.512,136 389.999,176.257 309.486,136 "
+         id="polygon8" />
       <text
          font-size="12.8"
          style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="381.999"
-         y="132.9"
-         id="text22">
+         x="389.999"
+         y="131.9"
+         id="text14">
         <tspan
-           x="381.999"
-           y="132.9"
-           id="tspan18">control</tspan>
+           x="389.999"
+           y="131.9"
+           id="tspan10">control</tspan>
         <tspan
-           x="381.999"
-           y="148.9"
-           id="tspan20">Usuario</tspan>
+           x="389.999"
+           y="147.9"
+           id="tspan12">Usuario</tspan>
       </text>
     </g>
     <text
@@ -116,14 +93,14 @@
        style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
        x="209"
        y="114"
-       id="text28">
+       id="text20">
       <tspan
          x="209"
          y="114"
-         id="tspan26">no</tspan>
+         id="tspan18">no</tspan>
     </text>
     <g
-       id="g40">
+       id="g32">
       <rect
          style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
          x="-30.3"
@@ -132,654 +109,181 @@
          height="89"
          rx="0"
          ry="0"
-         id="rect30" />
+         id="rect22" />
       <text
          font-size="12.8"
          style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
          x="43.65"
          y="127.4"
-         id="text38">
+         id="text30">
         <tspan
            x="43.65"
            y="127.4"
-           id="tspan32">fin</tspan>
+           id="tspan24">fin</tspan>
         <tspan
            x="43.65"
            y="143.4"
-           id="tspan34">Muestra formulario </tspan>
+           id="tspan26">Muestra formulario </tspan>
         <tspan
            x="43.65"
            y="159.4"
-           id="tspan36">acceso.</tspan>
+           id="tspan28">acceso.</tspan>
       </text>
     </g>
     <g
-       id="g46">
+       id="g38">
       <line
          style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="462.514"
-         y1="137"
-         x2="815.119"
-         y2="135.876"
-         id="line42" />
+         x1="470.512"
+         y1="136"
+         x2="594.308"
+         y2="81.6927"
+         id="line34" />
       <polygon
          style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
          fill-rule="evenodd"
-         points="822.619,135.852 812.635,140.884 815.119,135.876 812.604,130.884 "
-         id="polygon44" />
+         points="601.176,78.6797 594.027,87.2758 594.308,81.6927 590.01,78.1182 "
+         id="polygon36" />
     </g>
     <g
-       id="g56">
-      <rect
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="190.15"
-         y="599"
-         width="195"
-         height="54"
-         rx="0"
-         ry="0"
-         id="rect48" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="287.65"
-         y="621.9"
-         id="text54">
-        <tspan
-           x="287.65"
-           y="621.9"
-           id="tspan50">COMPRUEBA QUE TENGA</tspan>
-        <tspan
-           x="287.65"
-           y="637.9"
-           id="tspan52">DATOS EN BDTPV</tspan>
-      </text>
-    </g>
-    <g
-       id="g66">
-      <polygon
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="111.15,704.668 209.813,754 111.15,803.331 12.4868,754 "
-         id="polygon58" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="111.15"
-         y="749.9"
-         id="text64">
-        <tspan
-           x="111.15"
-           y="749.9"
-           id="tspan60">TIENE DATOS</tspan>
-        <tspan
-           x="111.15"
-           y="765.9"
-           id="tspan62">BDTPV</tspan>
-      </text>
-    </g>
-    <g
-       id="g72">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="287.65"
-         y1="653"
-         x2="166.537"
-         y2="722.305"
-         id="line68" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="160.027,726.03 166.224,716.724 166.537,722.305 171.19,725.403 "
-         id="polygon70" />
-    </g>
-    <g
-       id="g90">
-      <rect
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="688.15"
-         y="601"
-         width="212"
-         height="118"
-         rx="0"
-         ry="0"
-         id="rect74" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="794.15"
-         y="623.9"
-         id="text88">
-        <tspan
-           x="794.15"
-           y="623.9"
-           id="tspan76">SI HAY DATOS BD TPV</tspan>
-        <tspan
-           x="794.15"
-           y="639.9"
-           id="tspan78">OPCION DE:</tspan>
-        <tspan
-           x="794.15"
-           y="655.9"
-           id="tspan80">IMPORTAR</tspan>
-        <tspan
-           x="794.15"
-           y="671.9"
-           id="tspan82">O </tspan>
-        <tspan
-           x="794.15"
-           y="687.9"
-           id="tspan84">ACTUALIZAR</tspan>
-        <tspan
-           x="794.15"
-           y="703.9"
-           id="tspan86" />
-      </text>
-    </g>
-    <g
-       id="g96">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="209.814"
-         y1="754"
-         x2="677.533"
-         y2="678.76"
-         id="line92" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="684.938,677.568 675.859,684.093 677.533,678.76 674.271,674.22 "
-         id="polygon94" />
-    </g>
-    <g
-       id="g104">
-      <rect
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="73.425"
-         y="859"
-         width="129"
-         height="45"
-         rx="0"
-         ry="0"
-         id="rect98" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="137.925"
-         y="885.4"
-         id="text102">
-        <tspan
-           x="137.925"
-           y="885.4"
-           id="tspan100">IMPORTAR</tspan>
-      </text>
-    </g>
-    <g
-       id="g110">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="120.715"
-         y1="799.548"
-         x2="130.992"
-         y2="848.486"
-         id="line106" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="132.533,855.826 125.585,847.067 130.992,848.486 135.371,845.011 "
-         id="polygon108" />
-    </g>
-    <g
-       id="g118">
-      <rect
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="844.626"
-         y="877"
-         width="87.05"
-         height="38"
-         rx="0"
-         ry="0"
-         id="rect112" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="888.151"
-         y="899.9"
-         id="text116">
-        <tspan
-           x="888.151"
-           y="899.9"
-           id="tspan114">IMPORTAR</tspan>
-      </text>
-    </g>
-    <g
-       id="g126">
-      <rect
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="619.024"
-         y="872.8"
-         width="102.75"
-         height="38"
-         rx="0"
-         ry="0"
-         id="rect120" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="670.399"
-         y="895.7"
-         id="text124">
-        <tspan
-           x="670.399"
-           y="895.7"
-           id="tspan122">ACTUALIZAR</tspan>
-      </text>
-    </g>
-    <g
-       id="g132">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="818.046"
-         y1="719.994"
-         x2="876.582"
-         y2="866.955"
-         id="line128" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="879.357,873.922 871.012,866.482 876.582,866.955 880.302,862.782 "
-         id="polygon130" />
-    </g>
-    <g
-       id="g138">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="741.15"
-         y1="719"
-         x2="682.28"
-         y2="862.782"
-         id="line134" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="679.438,869.723 678.6,858.574 682.28,862.782 687.854,862.363 "
-         id="polygon136" />
-    </g>
-    <g
-       id="g148">
+       id="g48">
       <path
          style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
          fill-rule="evenodd"
-         d="M 1304.28 908 L 1453.96,908 C 1431.51,916 1424.03,920 1424.03,928 C 1424.03,936 1431.51,940 1453.96,948 L 1304.28,948 C 1281.82,940 1274.34,936 1274.34,928 C 1274.34,920 1281.82,916 1304.28,908z"
-         id="path140" />
+         d="M 1448.28 652 L 1597.96,652 C 1575.51,660 1568.03,664 1568.03,672 C 1568.03,680 1575.51,684 1597.96,692 L 1448.28,692 C 1425.82,684 1418.34,680 1418.34,672 C 1418.34,664 1425.82,660 1448.28,652z"
+         id="path40" />
       <text
          font-size="12.8"
          style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="1364.15"
-         y="924"
-         id="text146">
+         x="1508.15"
+         y="668"
+         id="text46">
         <tspan
-           x="1364.15"
-           y="924"
-           id="tspan142">FUNCION VACIAR </tspan>
+           x="1508.15"
+           y="668"
+           id="tspan42">FUNCION VACIAR </tspan>
         <tspan
-           x="1364.15"
-           y="940"
-           id="tspan144">TABLAS BDTPV</tspan>
+           x="1508.15"
+           y="684"
+           id="tspan44">TABLAS BDTPV</tspan>
       </text>
     </g>
     <g
-       id="g154">
+       id="g54">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="309.486"
+         y1="136"
+         x2="127.334"
+         y2="139.322"
+         id="line50" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="119.836,139.459 129.743,134.278 127.334,139.322 129.925,144.276 "
+         id="polygon52" />
+    </g>
+    <g
+       id="g60">
       <polyline
          style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         points="1425.03,928 1533.15,928 1533.15,-123 523.563,-123 "
-         id="polyline150" />
+         points="-31.85,143 -31.85,-208 329.334,-208 329.334,-195.736 "
+         id="polyline56" />
       <polygon
          style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
          fill-rule="evenodd"
-         points="516.063,-123 526.063,-128 523.563,-123 526.063,-118 "
-         id="polygon152" />
-    </g>
-    <g
-       id="g160">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="888.152"
-         y1="915"
-         x2="1264.2"
-         y2="924.385"
-         id="line156" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="1271.7,924.572 1261.58,929.321 1264.2,924.385 1261.83,919.324 "
-         id="polygon158" />
-    </g>
-    <g
-       id="g166">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="172.686"
-         y1="904.978"
-         x2="276.511"
-         y2="975.101"
-         id="line162" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="282.726,979.299 271.64,977.845 276.511,975.101 277.237,969.558 "
-         id="polygon164" />
-    </g>
-    <g
-       id="g172">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="301.486"
-         y1="137"
-         x2="127.335"
-         y2="139.368"
-         id="line168" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="119.836,139.47 129.767,134.334 127.335,139.368 129.903,144.333 "
-         id="polygon170" />
-    </g>
-    <g
-       id="g178">
-      <polyline
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         points="-31.85,143 -31.85,-208 385.412,-208 385.412,-152.699 "
-         id="polyline174" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="385.412,-145.199 380.412,-155.199 385.412,-152.699 390.412,-155.199 "
-         id="polygon176" />
+         points="329.334,-188.236 324.334,-198.236 329.334,-195.736 334.334,-198.236 "
+         id="polygon58" />
     </g>
     <text
        font-size="12.8"
        style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
        x="47.15"
        y="-23"
-       id="text182">
+       id="text64">
       <tspan
          x="47.15"
          y="-23"
-         id="tspan180">LOGUEO CORRECTO</tspan>
+         id="tspan62">LOGUEO CORRECTO</tspan>
     </text>
     <g
-       id="g210">
+       id="g76">
       <rect
          style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="825.8"
-         y="36.5"
+         x="860.8"
+         y="103.5"
          width="214.7"
-         height="198"
+         height="70"
          rx="0"
          ry="0"
-         id="rect184" />
+         id="rect66" />
       <text
          font-size="12.8"
          style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="933.15"
-         y="59.4"
-         id="text208">
+         x="968.15"
+         y="126.4"
+         id="text74">
         <tspan
-           x="933.15"
-           y="59.4"
-           id="tspan186">&lt;head&gt;</tspan>
+           x="968.15"
+           y="126.4"
+           id="tspan68">Creamos variables globales JS</tspan>
         <tspan
-           x="933.15"
-           y="75.4"
-           id="tspan188">Carga variables</tspan>
+           x="968.15"
+           y="142.4"
+           id="tspan70">cargamos funciones.js</tspan>
         <tspan
-           x="933.15"
-           y="91.4"
-           id="tspan190">Variables opciones </tspan>
-        <tspan
-           x="933.15"
-           y="107.4"
-           id="tspan192">Variables POST y GET </tspan>
-        <tspan
-           x="933.15"
-           y="123.4"
-           id="tspan194">fichero Array Inicio</tspan>
-        <tspan
-           x="933.15"
-           y="139.4"
-           id="tspan196">$tablasTemporales, </tspan>
-        <tspan
-           x="933.15"
-           y="155.4"
-           id="tspan198">$comprobaciones,</tspan>
-        <tspan
-           x="933.15"
-           y="171.4"
-           id="tspan200">$tablas_importar</tspan>
-        <tspan
-           x="933.15"
-           y="187.4"
-           id="tspan202">Creamos variables globales JS</tspan>
-        <tspan
-           x="933.15"
-           y="203.4"
-           id="tspan204">cargamos funciones.js</tspan>
-        <tspan
-           x="933.15"
-           y="219.4"
-           id="tspan206">&lt;/head&gt;</tspan>
+           x="968.15"
+           y="158.4"
+           id="tspan72">&lt;/head&gt;</tspan>
       </text>
     </g>
     <text
        font-size="12.8"
        style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
-       x="517.15"
-       y="117"
-       id="text214">
+       x="507.15"
+       y="98"
+       id="text80">
       <tspan
-         x="517.15"
-         y="117"
-         id="tspan212">SI</tspan>
+         x="507.15"
+         y="98"
+         id="tspan78">SI</tspan>
     </text>
     <g
-       id="g236">
-      <rect
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="33.05"
-         y="249"
-         width="385.2"
-         height="150"
-         rx="0"
-         ry="0"
-         id="rect216" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="225.65"
-         y="271.9"
-         id="text234">
-        <tspan
-           x="225.65"
-           y="271.9"
-           id="tspan218">&lt;body&gt;</tspan>
-        <tspan
-           x="225.65"
-           y="287.9"
-           id="tspan220">include &lt;header&gt;</tspan>
-        <tspan
-           x="225.65"
-           y="303.9"
-           id="tspan222">include funciones.php</tspan>
-        <tspan
-           x="225.65"
-           y="319.9"
-           id="tspan224">include controllers/Controladores.php</tspan>
-        <tspan
-           x="225.65"
-           y="335.9"
-           id="tspan226">new $Controler</tspan>
-        <tspan
-           x="225.65"
-           y="351.9"
-           id="tspan228">Obtenemos Num pregistros tablas $BDTPV</tspan>
-        <tspan
-           x="225.65"
-           y="367.9"
-           id="tspan230">Sumamos cuantos regisrtros hay en tota en todas tablas</tspan>
-        <tspan
-           x="225.65"
-           y="383.9"
-           id="tspan232" />
-      </text>
-    </g>
-    <g
-       id="g242">
-      <polyline
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         points="825.8,185 614.15,185 614.15,324 427.986,324 "
-         id="polyline238" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="420.486,324 430.486,319 427.986,324 430.486,329 "
-         id="polygon240" />
-    </g>
-    <g
-       id="g256">
-      <rect
-         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="28.35"
-         y="445"
-         width="405.6"
-         height="117"
-         rx="0"
-         ry="0"
-         id="rect244" />
-      <text
-         font-size="12.8"
-         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="231.15"
-         y="483.4"
-         id="text254">
-        <tspan
-           x="231.15"
-           y="483.4"
-           id="tspan246">MOSTRAMOS OPCIONES :</tspan>
-        <tspan
-           x="231.15"
-           y="499.4"
-           id="tspan248">¿Como crear CREF?</tspan>
-        <tspan
-           x="231.15"
-           y="515.4"
-           id="tspan250">¿Seleccionar en Tienda web a importar o actualizar ?</tspan>
-        <tspan
-           x="231.15"
-           y="531.4"
-           id="tspan252">PULSAR CAMBIAR OPCIONES o ya las que tiene por defecto.</tspan>
-      </text>
-    </g>
-    <g
-       id="g262">
+       id="g86">
       <line
          style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="225.65"
-         y1="399"
-         x2="227.507"
-         y2="434.275"
-         id="line258" />
+         x1="532.583"
+         y1="1282.25"
+         x2="359.345"
+         y2="1276.74"
+         id="line82" />
       <polygon
          style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
          fill-rule="evenodd"
-         points="227.901,441.765 222.382,432.042 227.507,434.275 232.368,431.516 "
-         id="polygon260" />
-    </g>
-    <text
-       font-size="12.8"
-       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
-       x="-68.575"
-       y="601"
-       id="text266">
-      <tspan
-         x="-68.575"
-         y="601"
-         id="tspan264">cambios en configurarcion</tspan>
-    </text>
-    <g
-       id="g272">
-      <polyline
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         points="129.75,562 129.75,583 -64.575,583 -64.575,-163 321.706,-163 321.706,-151.736 "
-         id="polyline268" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="321.706,-144.236 316.706,-154.236 321.706,-151.736 326.706,-154.236 "
-         id="polygon270" />
-    </g>
-    <text
-       font-size="12.8"
-       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
-       x="-67.575"
-       y="620"
-       id="text276">
-      <tspan
-         x="-67.575"
-         y="620"
-         id="tspan274">enviamos por POST y get</tspan>
-    </text>
-    <g
-       id="g282">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="267.409"
-         y1="562.997"
-         x2="285.957"
-         y2="593.432"
-         id="line278" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="289.86,599.837 280.387,593.899 285.957,593.432 288.926,588.695 "
-         id="polygon280" />
+         points="351.848,1276.5 362.002,1271.82 359.345,1276.74 361.685,1281.82 "
+         id="polygon84" />
     </g>
     <g
-       id="g288">
-      <line
-         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="481.424"
-         y1="1259"
-         x2="483.81"
-         y2="1518.27"
-         id="line284" />
-      <polygon
-         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         fill-rule="evenodd"
-         points="483.879,1525.77 478.787,1515.81 483.81,1518.27 488.787,1515.72 "
-         id="polygon286" />
-    </g>
-    <g
-       id="g296">
+       id="g94">
       <rect
          style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="322.424"
-         y="1529"
+         x="109.424"
+         y="1612"
          width="324"
          height="112"
          rx="0"
          ry="0"
-         id="rect290" />
+         id="rect88" />
       <text
          font-size="12.8"
          style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="484.424"
-         y="1588.9"
-         id="text294">
+         x="271.424"
+         y="1671.9"
+         id="text92">
         <tspan
-           x="484.424"
-           y="1588.9"
-           id="tspan292">FIN , BDTPV CON LOS DATOS WEB</tspan>
+           x="271.424"
+           y="1671.9"
+           id="tspan90">FIN , BDTPV CON LOS DATOS WEB</tspan>
       </text>
     </g>
     <text
@@ -787,149 +291,957 @@
        style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
        x="137.925"
        y="881.5"
-       id="text300">
+       id="text98">
       <tspan
          x="137.925"
          y="881.5"
-         id="tspan298" />
+         id="tspan96" />
     </text>
     <text
        font-size="12.8"
        style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
-       x="140.425"
-       y="825"
-       id="text306">
+       x="540.426"
+       y="561"
+       id="text104">
       <tspan
-         x="140.425"
-         y="825"
-         id="tspan302">NO TIENE DATOS EN TABLAS DE</tspan>
+         x="540.426"
+         y="561"
+         id="tspan100">NO TIENE DATOS EN TABLAS DE</tspan>
       <tspan
-         x="140.425"
-         y="841"
-         id="tspan304">BDTPV</tspan>
+         x="540.426"
+         y="577"
+         id="tspan102">BDTPV</tspan>
     </text>
     <text
        font-size="12.8"
        style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
        x="674.426"
        y="773"
-       id="text310">
+       id="text108">
       <tspan
          x="674.426"
          y="773"
-         id="tspan308" />
+         id="tspan106" />
     </text>
     <text
        font-size="12.8"
        style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
-       x="319.426"
-       y="947"
-       id="text314">
+       x="576.426"
+       y="1126"
+       id="text112">
       <tspan
-         x="319.426"
-         y="947"
-         id="tspan312">AHORA ESTOS PROCESOS SON SERVIDOR WEB</tspan>
+         x="576.426"
+         y="1126"
+         id="tspan110">AHORA ESTOS PROCESOS SON SERVIDOR WEB</tspan>
     </text>
     <g
-       id="g344">
+       id="g142">
       <rect
          style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x="285.574"
-         y="968"
+         x="533.574"
+         y="1143"
          width="391.7"
          height="291"
          rx="0"
          ry="0"
-         id="rect316" />
+         id="rect114" />
       <text
          font-size="12.8"
          style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
-         x="481.424"
-         y="1029.4"
-         id="text342">
+         x="729.424"
+         y="1204.4"
+         id="text140">
         <tspan
-           x="481.424"
-           y="1029.4"
-           id="tspan318">FICHERO SERVIDOR:</tspan>
+           x="729.424"
+           y="1204.4"
+           id="tspan116">FICHERO SERVIDOR:</tspan>
         <tspan
-           x="481.424"
-           y="1045.4"
-           id="tspan320">- RECIBE ORDEN INICIO:</tspan>
+           x="729.424"
+           y="1220.4"
+           id="tspan118">- RECIBE ORDEN INICIO:</tspan>
         <tspan
-           x="481.424"
-           y="1061.4"
-           id="tspan322">-Comprueba si es usuario autorizado.</tspan>
+           x="729.424"
+           y="1236.4"
+           id="tspan120">-Comprueba si es usuario autorizado.</tspan>
         <tspan
-           x="481.424"
-           y="1077.4"
-           id="tspan324">-Si es una actualizacion o importacion.</tspan>
+           x="729.424"
+           y="1252.4"
+           id="tspan122">-Si es una actualizacion o importacion.</tspan>
         <tspan
-           x="481.424"
-           y="1093.4"
-           id="tspan326">-Recibe array $tablasTemporales</tspan>
+           x="729.424"
+           y="1268.4"
+           id="tspan124">-Recibe array $tablasTemporales</tspan>
         <tspan
-           x="481.424"
-           y="1109.4"
-           id="tspan328">-Recibe array $comprobaciones.</tspan>
+           x="729.424"
+           y="1284.4"
+           id="tspan126">-Recibe array $comprobaciones.</tspan>
         <tspan
-           x="481.424"
-           y="1125.4"
-           id="tspan330">y  empieza con:</tspan>
+           x="729.424"
+           y="1300.4"
+           id="tspan128">y  empieza con:</tspan>
         <tspan
-           x="481.424"
-           y="1141.4"
-           id="tspan332">1.-CREACION DE TABLAS TEMPORALES EN VIRTUEMART</tspan>
+           x="729.424"
+           y="1316.4"
+           id="tspan130">1.-CREACION DE TABLAS TEMPORALES EN VIRTUEMART</tspan>
         <tspan
-           x="481.424"
-           y="1157.4"
-           id="tspan334">2.- COMPROBACIONES</tspan>
+           x="729.424"
+           y="1332.4"
+           id="tspan132">2.- COMPROBACIONES</tspan>
         <tspan
-           x="481.424"
-           y="1173.4"
-           id="tspan336">3.- PREPARA INSERT</tspan>
+           x="729.424"
+           y="1348.4"
+           id="tspan134">3.- PREPARA INSERT</tspan>
         <tspan
-           x="481.424"
-           y="1189.4"
-           id="tspan338">4.- Envia a servidor local:</tspan>
+           x="729.424"
+           y="1364.4"
+           id="tspan136">4.- Envia a servidor local:</tspan>
         <tspan
-           x="481.424"
-           y="1205.4"
-           id="tspan340">INSERTES.</tspan>
+           x="729.424"
+           y="1380.4"
+           id="tspan138">INSERTES.</tspan>
+      </text>
+    </g>
+    <g
+       id="g156">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #0d0b0b"
+         x="256"
+         y="-83"
+         width="266"
+         height="78"
+         rx="0"
+         ry="0"
+         id="rect144" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="389"
+         y="-64.1"
+         id="text154">
+        <tspan
+           xml:space="preserve"
+           x="389"
+           y="-64.1"
+           id="tspan146">	include './../../head.php';</tspan>        <tspan
+           x="389"
+           y="-48.1"
+           id="tspan148">Aquí ya controlamos si esta logueado</tspan>
+        <tspan
+           x="389"
+           y="-32.1"
+           id="tspan150">el usuario</tspan>
+        <tspan
+           x="389"
+           y="-16.1"
+           id="tspan152" />
+      </text>
+    </g>
+    <g
+       id="g162">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="389.286"
+         y1="-3.99777"
+         x2="389.93"
+         y2="86.0076"
+         id="line158" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="389.984,93.5074 384.913,83.5434 389.93,86.0076 394.912,83.4719 "
+         id="polygon160" />
+    </g>
+    <g
+       id="g182">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 606.889 -46 L 796.331,-46 L 834.22,18 L 796.331,82 L 606.889,82 L 569,18 L 606.889,-46z"
+         id="path164" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="701.61"
+         y="-26"
+         id="text180">
+        <tspan
+           xml:space="preserve"
+           x="701.61"
+           y="-26"
+           id="tspan166">	include_once :</tspan>        <tspan
+           x="701.61"
+           y="-10"
+           id="tspan168">('./Arrays_inicio.php');</tspan>
+        <tspan
+           x="701.61"
+           y="6"
+           id="tspan170">Obtenemos array de:</tspan>
+        <tspan
+           x="701.61"
+           y="22"
+           id="tspan172">$tablasTemporales</tspan>
+        <tspan
+           x="701.61"
+           y="38"
+           id="tspan174">$comprobaciones</tspan>
+        <tspan
+           xml:space="preserve"
+           x="701.61"
+           y="54"
+           id="tspan176"> $tablas_importar</tspan>        <tspan
+           x="701.61"
+           y="70"
+           id="tspan178">$optcrefs</tspan>
+      </text>
+    </g>
+    <g
+       id="g196">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="887"
+         y="-22.5"
+         width="156"
+         height="86"
+         rx="0"
+         ry="0"
+         id="rect184" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="965"
+         y="0.4"
+         id="text194">
+        <tspan
+           x="965"
+           y="0.4"
+           id="tspan186">Comprobamos:</tspan>
+        <tspan
+           x="965"
+           y="16.4"
+           id="tspan188">$_GET y $_POST</tspan>
+        <tspan
+           x="965"
+           y="32.4"
+           id="tspan190">por si hubo </tspan>
+        <tspan
+           x="965"
+           y="48.4"
+           id="tspan192">configuracion</tspan>
+      </text>
+    </g>
+    <g
+       id="g202">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="834.22"
+         y1="18"
+         x2="876.266"
+         y2="18.8038"
+         id="line198" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="883.765,18.9471 873.671,23.7551 876.266,18.8038 873.862,13.7569 "
+         id="polygon200" />
+    </g>
+    <g
+       id="g208">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="965"
+         y1="63.5"
+         x2="966.229"
+         y2="92.7648"
+         id="line204" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="966.544,100.258 961.129,90.4768 966.229,92.7648 971.12,90.0572 "
+         id="polygon206" />
+    </g>
+    <g
+       id="g220">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 1110.15 367 L 1260.57,367 L 1260.57,431.8 C 1230.49,421 1215.45,421 1185.36,431.8 C 1155.28,442.6 1140.24,442.6 1110.15,431.8 L 1110.15,367z"
+         id="path210" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="1185.36"
+         y="382"
+         id="text218">
+        <tspan
+           x="1185.36"
+           y="382"
+           id="tspan212">Mostramos:</tspan>
+        <tspan
+           x="1185.36"
+           y="398"
+           id="tspan214">Cuadro opciones.</tspan>
+        <tspan
+           x="1185.36"
+           y="414"
+           id="tspan216" />
+      </text>
+    </g>
+    <g
+       id="g226">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="968.15"
+         y1="173.5"
+         x2="969.614"
+         y2="223.779"
+         id="line222" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="969.832,231.276 964.543,221.425 969.614,223.779 974.539,221.134 "
+         id="polygon224" />
+    </g>
+    <g
+       id="g236">
+      <polygon
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="1212.23,494 1498.29,494 1478.63,548 1192.57,548 "
+         id="polygon228" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="1345.43"
+         y="516.9"
+         id="text234">
+        <tspan
+           x="1345.43"
+           y="516.9"
+           id="tspan230">Btn Opciones</tspan>
+        <tspan
+           x="1345.43"
+           y="532.9"
+           id="tspan232">Cambiar configuracion predeterminada</tspan>
+      </text>
+    </g>
+    <g
+       id="g242">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="1219.19"
+         y1="430.762"
+         x2="1298.35"
+         y2="487.348"
+         id="line238" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="1304.45,491.71 1293.41,489.962 1298.35,487.348 1299.23,481.827 "
+         id="polygon240" />
+    </g>
+    <g
+       id="g248">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #e01717"
+         points="1488.46,521 1502.15,521 1502.15,-225 385,-225 385,-196.723 "
+         id="polyline244" />
+      <polygon
+         style="fill: #e01717; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #e01717"
+         fill-rule="evenodd"
+         points="385,-189.223 380,-199.223 385,-196.723 390,-199.223 "
+         id="polygon246" />
+    </g>
+    <g
+       id="g258">
+      <polygon
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="1055.83,783 1264.93,783 1245.28,837 1036.18,837 "
+         id="polygon250" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="1150.56"
+         y="805.9"
+         id="text256">
+        <tspan
+           x="1150.56"
+           y="805.9"
+           id="tspan252">btn </tspan>
+        <tspan
+           x="1150.56"
+           y="821.9"
+           id="tspan254">Borrar tpv y importar datos</tspan>
+      </text>
+    </g>
+    <g
+       id="g272">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="774.278"
+         y="234.5"
+         width="393.8"
+         height="86"
+         rx="0"
+         ry="0"
+         id="rect260" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="971.178"
+         y="257.4"
+         id="text270">
+        <tspan
+           x="971.178"
+           y="257.4"
+           id="tspan262">// Contamos cuantos si tienen registros las tabla BDTpv</tspan>
+        <tspan
+           xml:space="preserve"
+           x="971.178"
+           y="273.4"
+           id="tspan264">	// Sumamos los registros de tolas tablas.	</tspan>        <tspan
+           xml:space="preserve"
+           x="971.178"
+           y="289.4"
+           id="tspan266">	$sum_Items_articulos ;</tspan>        <tspan
+           xml:space="preserve"
+           x="971.178"
+           y="305.4"
+           id="tspan268" />      </text>
+    </g>
+    <g
+       id="g278">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="1045.01"
+         y1="321.384"
+         x2="1111.71"
+         y2="361.023"
+         id="line274" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="1118.16,364.855 1107,364.044 1111.71,361.023 1112.11,355.448 "
+         id="polygon276" />
+    </g>
+    <g
+       id="g292">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 779.152 362.2 L 958.963,362.2 L 958.963,446.2 C 923.001,432.2 905.02,432.2 869.058,446.2 C 833.095,460.2 815.114,460.2 779.152,446.2 L 779.152,362.2z"
+         id="path280" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="869.058"
+         y="377.2"
+         id="text290">
+        <tspan
+           x="869.058"
+           y="377.2"
+           id="tspan282">Mostramos:</tspan>
+        <tspan
+           x="869.058"
+           y="393.2"
+           id="tspan284">Cuadro tablas de BDTPV y</tspan>
+        <tspan
+           x="869.058"
+           y="409.2"
+           id="tspan286">BDVirtuemart.</tspan>
+        <tspan
+           x="869.058"
+           y="425.2"
+           id="tspan288" />
+      </text>
+    </g>
+    <g
+       id="g304">
+      <polygon
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="869.151,473.218 980.714,529 869.151,584.781 757.588,529 "
+         id="polygon294" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="869.151"
+         y="516.9"
+         id="text302">
+        <tspan
+           x="869.151"
+           y="516.9"
+           id="tspan296">Si hay</tspan>
+        <tspan
+           x="869.151"
+           y="532.9"
+           id="tspan298">registros</tspan>
+        <tspan
+           x="869.151"
+           y="548.9"
+           id="tspan300">en BDTpv</tspan>
       </text>
     </g>
     <text
        font-size="12.8"
        style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
-       x="309.424"
-       y="1377"
-       id="text352">
+       x="1020.15"
+       y="540"
+       id="text310">
       <tspan
-         x="309.424"
-         y="1377"
-         id="tspan346">RECIBIMOS JSON</tspan>
+         x="1020.15"
+         y="540"
+         id="tspan306">SI hay registros en</tspan>
       <tspan
-         x="309.424"
-         y="1393"
-         id="tspan348">CON INSERT A </tspan>
-      <tspan
-         x="309.424"
-         y="1409"
-         id="tspan350">REALIZAR BDTPV</tspan>
+         x="1020.15"
+         y="556"
+         id="tspan308">BDTpv</tspan>
     </text>
     <g
-       id="g358">
+       id="g316">
       <line
          style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
-         x1="670.4"
-         y1="910.8"
-         x2="624.639"
-         y2="959.884"
-         id="line354" />
+         x1="964.152"
+         y1="323"
+         x2="921.68"
+         y2="356.204"
+         id="line312" />
       <polygon
          style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
          fill-rule="evenodd"
-         points="619.525,965.37 622.687,954.646 624.639,959.884 630.001,961.465 "
-         id="polygon356" />
+         points="915.772,360.823 920.57,350.725 921.68,356.204 926.729,358.603 "
+         id="polygon314" />
     </g>
+    <g
+       id="g322">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="869.086"
+         y1="447.236"
+         x2="869.098"
+         y2="462.521"
+         id="line318" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="869.104,470.021 864.096,460.025 869.098,462.521 874.096,460.017 "
+         id="polygon320" />
+    </g>
+    <g
+       id="g328">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="757.588"
+         y1="529"
+         x2="306.736"
+         y2="530.958"
+         id="line324" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="299.236,530.99 309.214,525.947 306.736,530.958 309.258,535.947 "
+         id="polygon326" />
+    </g>
+    <g
+       id="g338">
+      <polygon
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="64.6144,505 293.151,505 273.497,559 44.96,559 "
+         id="polygon330" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="169.056"
+         y="527.9"
+         id="text336">
+        <tspan
+           x="169.056"
+           y="527.9"
+           id="tspan332">btn</tspan>
+        <tspan
+           x="169.056"
+           y="543.9"
+           id="tspan334">Importar</tspan>
+      </text>
+    </g>
+    <g
+       id="g348">
+      <polygon
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="790.67,783 998.207,783 978.553,837 771.016,837 "
+         id="polygon340" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="884.612"
+         y="805.9"
+         id="text346">
+        <tspan
+           x="884.612"
+           y="805.9"
+           id="tspan342">btn</tspan>
+        <tspan
+           x="884.612"
+           y="821.9"
+           id="tspan344">Actualizar</tspan>
+      </text>
+    </g>
+    <g
+       id="g354">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="1255.1"
+         y1="810"
+         x2="1498.89"
+         y2="697.09"
+         id="line350" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="1505.69,693.938 1498.72,702.678 1498.89,697.09 1494.52,693.604 "
+         id="polygon352" />
+    </g>
+    <g
+       id="g360">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="1574.57,662 1612.15,662 1612.15,-166 561.734,-166 "
+         id="polyline356" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="554.234,-166 564.234,-171 561.734,-166 564.234,-161 "
+         id="polygon358" />
+    </g>
+    <g
+       id="g376">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="316.152"
+         y="796"
+         width="304"
+         height="129"
+         rx="0"
+         ry="0"
+         id="rect362" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="468.152"
+         y="832.4"
+         id="text374">
+        <tspan
+           x="468.152"
+           y="832.4"
+           id="tspan364">Comprobamos :</tspan>
+        <tspan
+           x="468.152"
+           y="848.4"
+           id="tspan366">Si vamos Actualizar o Importar.</tspan>
+        <tspan
+           x="468.152"
+           y="864.4"
+           id="tspan368">Montamos Información necesaria </tspan>
+        <tspan
+           x="468.152"
+           y="880.4"
+           id="tspan370">para enviar por POST o GET </tspan>
+        <tspan
+           x="468.152"
+           y="896.4"
+           id="tspan372">a servidor.</tspan>
+      </text>
+    </g>
+    <g
+       id="g382">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="194.549"
+         y1="560"
+         x2="401.966"
+         y2="787.807"
+         id="line378" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="407.015,793.353 396.586,789.325 401.966,787.807 403.98,782.593 "
+         id="polygon380" />
+    </g>
+    <g
+       id="g388">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="775.381"
+         y1="823.245"
+         x2="630.819"
+         y2="840.775"
+         id="line384" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="623.373,841.678 632.699,835.51 630.819,840.775 633.902,845.438 "
+         id="polygon386" />
+    </g>
+    <g
+       id="g402">
+      <ellipse
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         cx="777.152"
+         cy="1004"
+         rx="91.958"
+         ry="45.979"
+         id="ellipse390" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="777.152"
+         y="983.901"
+         id="text400">
+        <tspan
+           x="777.152"
+           y="983.901"
+           id="tspan392">enviamos </tspan>
+        <tspan
+           x="777.152"
+           y="999.901"
+           id="tspan394">informacion</tspan>
+        <tspan
+           x="777.152"
+           y="1015.9"
+           id="tspan396">servidor </tspan>
+        <tspan
+           x="777.152"
+           y="1031.9"
+           id="tspan398" />
+      </text>
+    </g>
+    <g
+       id="g408">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="468.152"
+         y1="925"
+         x2="684.877"
+         y2="980.409"
+         id="line404" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="692.144,982.267 681.217,984.634 684.877,980.409 683.694,974.946 "
+         id="polygon406" />
+    </g>
+    <g
+       id="g414">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="769.31"
+         y1="1050.75"
+         x2="755.611"
+         y2="1132.4"
+         id="line410" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="754.37,1139.8 751.094,1129.11 755.611,1132.4 760.956,1130.76 "
+         id="polygon412" />
+    </g>
+    <g
+       id="g426">
+      <ellipse
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         cx="273.038"
+         cy="1274"
+         rx="75.7535"
+         ry="37.8767"
+         id="ellipse416" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="273.038"
+         y="1261.9"
+         id="text424">
+        <tspan
+           x="273.038"
+           y="1261.9"
+           id="tspan418">Enviamos </tspan>
+        <tspan
+           x="273.038"
+           y="1277.9"
+           id="tspan420">a</tspan>
+        <tspan
+           x="273.038"
+           y="1293.9"
+           id="tspan422">local JSON</tspan>
+      </text>
+    </g>
+    <g
+       id="g434">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="135.039"
+         y="1407"
+         width="277"
+         height="55"
+         rx="0"
+         ry="0"
+         id="rect428" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="273.539"
+         y="1438.4"
+         id="text432">
+        <tspan
+           x="273.539"
+           y="1438.4"
+           id="tspan430">Realiza Insert y Updates recibidos.</tspan>
+      </text>
+    </g>
+    <g
+       id="g440">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="273.16"
+         y1="1312.88"
+         x2="273.419"
+         y2="1396.27"
+         id="line436" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="273.443,1403.77 268.412,1393.78 273.419,1396.27 278.412,1393.75 "
+         id="polygon438" />
+    </g>
+    <g
+       id="g446">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="273.282"
+         y1="1462.89"
+         x2="272.026"
+         y2="1601.49"
+         id="line442" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="271.958,1608.99 267.049,1598.94 272.026,1601.49 277.049,1599.03 "
+         id="polygon444" />
+    </g>
+    <g
+       id="g458">
+      <rect
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x="920.074"
+         y="634.5"
+         width="180.85"
+         height="70"
+         rx="0"
+         ry="0"
+         id="rect448" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="1010.5"
+         y="657.4"
+         id="text456">
+        <tspan
+           x="1010.5"
+           y="657.4"
+           id="tspan450">Mostramos advertencias</tspan>
+        <tspan
+           x="1010.5"
+           y="673.4"
+           id="tspan452">y puede hacer:</tspan>
+        <tspan
+           x="1010.5"
+           y="689.4"
+           id="tspan454">Importar o actualizar.</tspan>
+      </text>
+    </g>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="1010.5"
+       y="669.5"
+       id="text462">
+      <tspan
+         x="1010.5"
+         y="669.5"
+         id="tspan460" />
+    </text>
+    <g
+       id="g468">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="1046.37"
+         y1="705.483"
+         x2="1115.77"
+         y2="775.106"
+         id="line464" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="1121.07,780.418 1110.47,776.865 1115.77,775.106 1117.55,769.805 "
+         id="polygon466" />
+    </g>
+    <g
+       id="g474">
+      <line
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         x1="978.259"
+         y1="705.483"
+         x2="916.195"
+         y2="774.75"
+         id="line470" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="911.191,780.336 914.14,769.551 916.195,774.75 921.588,776.225 "
+         id="polygon472" />
+    </g>
+    <g
+       id="g480">
+      <polyline
+         style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         points="980.714,529 1010.5,529 1010.5,623.755 "
+         id="polyline476" />
+      <polygon
+         style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         points="1010.5,631.255 1005.5,621.255 1010.5,623.755 1015.5,621.255 "
+         id="polygon478" />
+    </g>
+    <g
+       id="g488">
+      <path
+         style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000"
+         fill-rule="evenodd"
+         d="M 273.667 -186 L 496.333,-186 C 527.077,-186 552,-177.046 552,-166 C 552,-154.954 527.077,-146 496.333,-146 L 273.667,-146 C 242.923,-146 218,-154.954 218,-166 C 218,-177.046 242.923,-186 273.667,-186z"
+         id="path482" />
+      <text
+         font-size="12.8"
+         style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal"
+         x="385"
+         y="-162"
+         id="text486">
+        <tspan
+           x="385"
+           y="-162"
+           id="tspan484">INICIO</tspan>
+      </text>
+    </g>
+    <text
+       font-size="12.8"
+       style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal"
+       x="143"
+       y="-146"
+       id="text492">
+      <tspan
+         x="143"
+         y="-146"
+         id="tspan490" />
+    </text>
   </g>
 </svg>
