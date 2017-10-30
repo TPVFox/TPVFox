@@ -15,7 +15,7 @@ function guardarCierreCaja(){
 	//para guardar en cierres
 	//Ccierre es global
 	
-	console.log(Ccierre.length);
+	console.log('longitud Ccierre: '+Ccierre.length);
 	
 	var parametros = {
 	"datos_cierre" 	: Ccierre,
@@ -29,18 +29,32 @@ function guardarCierreCaja(){
 				console.log('enviando datos para cierre');
 		},
 		success:  function (response) {
-			console.log('guardar cierre '+response);
+			console.log('guardar cierre response js');
 			var resultado =  $.parseJSON(response);
-			console.log('recibiendo datos id ');
+			console.log('recibiendo datos id '+resultado['insertarCierre']);
 			
-			if (resultado === true){
+			//si hay error nos mostrara un mensaje, sino es que todo va bien.
+			//if (typeof(resultado['error']) === 'undefined') { //mejorar, no vale ultima tabla falla y no me entero
+			var tabla1 = resultado['insertarCierre'];
+			var tabla2 = resultado['update_estado'];
+			var tabla3 = resultado['insertarIvas']['insertar_ivas_cierre'];
+			var tabla4 = resultado['insertarUsuarios']['insertar_FpagoCierres'];
+			var tabla5 = resultado['insertarUsuarios']['insertarTickets_usuarios'];
+			
+			if ((tabla1 === 'Correcto') && (tabla2 === 'Correcto') &&  (tabla3 === 'Correcto') ){
+				if ( (tabla4 === 'Correcto') &&  (tabla5 === 'Correcto')){
+				console.log('Inserte de cierres correcto.');
 				
-				alert('datos  '+resultado);
-			}
 			document.location.href='ListaCierres.php';
-			// console.log('consulta insert: '+resultado.sqlInsert);		
-			//~ console.log('consulta update :'+resultado.sqlUpdate);	
-			//~ console.log('num tickets afectados en update '+resultado.Nafectados);
+				} else{
+					console.log('resultado '+resultado['sql']);
+					console.log('ERROR en alguna insercion de Cierres.'+response);
+				}
+				
+			} else {				
+				console.log('ERROR en insercion '+response);
+			}
+			
 		}
 	});
 	

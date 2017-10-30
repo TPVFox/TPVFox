@@ -21,13 +21,8 @@ include_once ("./funciones.php");
     case 'insertarCierre':
 		$datosCierre = $_POST['datos_cierre'];
 		$respuesta =  array();
-		$insert = insertarCierre($BDTpv, $datosCierre);
+		$respuesta = insertarCierre($BDTpv, $datosCierre);
 		
-		//insertar cierre de ivas?
-		
-		$respuesta = $insert;
-		echo $respuesta['sqlInsert'];
-		echo $respuesta['prueba1'];
 		echo json_encode($respuesta);
     break;
     

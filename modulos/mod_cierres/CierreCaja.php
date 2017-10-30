@@ -19,6 +19,13 @@
 	$ArrayFechaMin = date_parse(strftime($fecha_dmY,$fechaMaxMin['fechaMin']))['day'];
 	$ArrayFechaMax = date_parse(strftime($fecha_dmY,$fechaMaxMin['fechaMax']))['day'];
 	
+	//con HORAS
+	$fechaInicioHora = strftime($fecha_dmYHora,$fechaMaxMin['fechaMin']);
+	
+	//SIN horas
+	$stringFechaInicio = strftime($fecha_dmY,$fechaMaxMin['fechaMin']); //indico fecha d-m-y , para mostrar sin hora
+	$stringFechaFinal = strftime($fecha_dmY,$fechaMaxMin['fechaMax']);
+	$fechaCierre = strftime($fecha_dmY,time());
 	
 	//si son dias distintas es que se saltaron algun dia sin hacer cierre caja, toca avisar
 	if ($ArrayFechaMin !== $ArrayFechaMax){
@@ -30,14 +37,18 @@
 		//desactivamos fechaFinal, porque no existe rango de fechas.
 		$desactivarInput = "disabled";
 		$fechaFinalHora = strftime($fecha_dmYHora,$fechaMaxMin['fechaMax']); //si el dia es igual , cogemos hora real del ultimo ticket.
+		$fechaCierre = $stringFechaFinal;
 	}
-	//con HORAS
-	$fechaInicioHora = strftime($fecha_dmYHora,$fechaMaxMin['fechaMin']);
-	
-	//SIN horas
-	$stringFechaInicio = strftime($fecha_dmY,$fechaMaxMin['fechaMin']); //indico fecha d-m-y , para mostrar sin hora
-	$stringFechaFinal = strftime($fecha_dmY,$fechaMaxMin['fechaMax']);
-	$fechaCierre = strftime($fecha_dmY,time());
+	//si no existe fecha inicio de tickets
+	if (($stringFechaInicio) === '01-01-1970'){
+		$fechaCierre = strftime($fecha_dmY,time());
+		$stringFechaFinal =  $fechaCierre;
+		$stringFechaInicio = $fechaCierre;
+		$desactivarInput = "disabled";
+		$tipomensaje= "info";
+		$mensaje = "<strong>No hay tickets para cerrar.</strong>";
+		$aviso='aviso';
+	}
 	
 	if ($_POST['fecha']){
 		$fechaCierre=$_POST['fecha'];
@@ -76,9 +87,9 @@
 		}
 	}
 	
-	echo '<pre>';
-	print_r($Users['sql']);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($Users['sql']);
+	//~ echo '</pre>';
 	
 	//array cierre
 	$Ccierre= array();
@@ -147,8 +158,8 @@
 					<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> 
 						<label class="control-label col-sm-2" > Fecha Cierre Caja:</label>
 						<div class="col-sm-4"> 
-							<input type="date" name="fecha" pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
-							<input type="submit" value="Consulta caja">  
+							<input type="date" name="fecha" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
+							<input type="submit" <?php echo $desactivarInput; ?> value="Consulta caja">  
 						</div>
 						<!-- inicio de fechas max y min -->
 			
@@ -209,7 +220,8 @@
 				<div class="col-md-4">
 					<h3 class="text-left"> Desglose Modo de Pago: </h3>
 					<?php 
-					foreach ($Users['usuarios'] as $key =>$usuario){ 
+					foreach ($Users['usuarios'] as $keyUsuario =>$usuario){ 
+						$Ccierre['modoPago'][$keyUsuario]['nombre']=$usuario['nombre'];
 						?>
 						<table class="table table-striped">
 						<thead>
@@ -225,7 +237,10 @@
 						
 						<?php //key id forma de pago, tarjeta o contado
 						
-						foreach ($usuario['formasPago'] as $key =>$fPago){ 	?>
+						foreach ($usuario['formasPago'] as $key =>$fPago){ 
+							$Ccierre['modoPago'][$keyUsuario]['formasPago'][$key]['importe']=number_format($fPago,2);
+
+								?>
 							<tr>
 								<td><?php echo $key; ?></td>
 								<td><?php echo number_format($fPago,2); ?></td>
@@ -237,9 +252,15 @@
 								$suma[$key] += $fPago;
 							}
 							
+							
+							//idUsuario, fPagoTarjeta, fPagoContado
+							//$Ccierre['usuarios'][$keyUsuario]['id']=$keyUsuario;
+							
 						} //fin foreach formasPago	
 						?>
 						</table>
+						
+						
 						
 					<?php
 					} //fin foreach Usuarios
@@ -382,10 +403,10 @@
 				</form>
 			</div>
 			<?php 
-	echo '<pre>';
-		print_r($Ccierre);
-	echo '</pre>';
-	?>
+				echo '<pre>';
+					print_r($Ccierre);
+				echo '</pre>';
+			?>
 		</div>
 	</div>
     </div>

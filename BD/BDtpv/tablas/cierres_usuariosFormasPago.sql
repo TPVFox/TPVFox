@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 26-10-2017 a las 23:19:23
+-- Tiempo de generación: 27-10-2017 a las 20:31:26
 -- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
 -- Versión de PHP: 7.0.19-1
 
@@ -35,6 +35,25 @@ CREATE TABLE `cierres_usuariosFormasPago` (
   `importe` decimal(17,4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `cierres_usuariosFormasPago`
+--
+ALTER TABLE `cierres_usuariosFormasPago`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `cierres_usuariosFormasPago`
+--
+ALTER TABLE `cierres_usuariosFormasPago`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

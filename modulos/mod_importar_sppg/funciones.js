@@ -129,7 +129,7 @@ function ImportEstrucTabla (){
 						
 						campos = []
 						for (i = 1; i <= NumCampos; i++){
-						 campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo'],longitud :resultado[i]['longitud'],decimal :resultado[i]['decimal']};	
+							campos[i]= {campo :resultado[i]['campo'],tipo :resultado[i]['tipo'],longitud :resultado[i]['longitud'],decimal :resultado[i]['decimal']};	
 						 //consigo los campos de la tabla
 						// console.log('estructura '+campos[i]['campo']+' '+campos[i]['tipo']+' '+campos[i]['longitud']+' '+campos[i]['decimal'] );
 						 

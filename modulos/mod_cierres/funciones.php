@@ -214,10 +214,6 @@ function insertarCierre($BDTpv,$datosCierre){
 	$formateoFechaCierre = ' STR_TO_DATE("'.$fechaCierre.'","'.$fecha_dmY.'") ';
 	//UPDATE fechas sin hora
 	
-	//~ echo '<pre>';
-	//~ print_r($fFechaInicioShora);
-	//~ echo '</pre>';
-	
 	$estadoCierre = 'Cerrado';
 	$insertCierre = 'INSERT INTO '.$tabla.'( idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion ) VALUES ("'
 			.$idTienda.'" , "'.$idUsuario.'" ,  '.$formateoFechaInicio.' , '.$formateoFechaFinal.' , '
@@ -228,32 +224,161 @@ function insertarCierre($BDTpv,$datosCierre){
 					.' AND DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fInicSinHora.'" AND "'.$fFinalSinHora.'"';
 	//insertamos datos para cierre, si es correcto se Actualiza estado de tickets a 'Cerrado'
 	if ($BDTpv->query($insertCierre) === true){
-		$resultado['idCierre'] = $BDTpv->insert_id; //crea id en bbddd 
+		$idCierre = $BDTpv->insert_id; //crea id en bbddd 
+		$resultado['insertarCierre']='Correcto';
+		$resultado['idCierre']=$idCierre;
+		
 		//tengo que actualizar el estado de esos tickets a cerrados.
-		$resultado = $BDTpv->query($updateEstado);
-		$resultado['Nafectados'] = $BDTpv->affected_rows;
+		if ($BDTpv->query($updateEstado) === true){
+			//actualizacion hecha
+			$resultado['Nafectados_CambioEstado_tickets'] = $BDTpv->affected_rows;
+			$resultado['update_estado']='Correcto';
+			//insertamos en las demas tablas: cierres_ivas y cierres_usuarios_tickets
+			$insertarIvas = insertarCierre_IVAS($BDTpv,$datosCierre,$idCierre);
+			$insertarUsuarios = insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre,$idTienda);
+			
+		}
+		
 		
 	} else {
 		// Quiere decir que hubo error en insertar en cierres
-		$resultado['error'] = 'Error en Insert de cliente Numero error:'.$BDTpv->errno;
-		$resultado['sqlInsert'] = $insertCierre;
+		$resultado['error'] = 'Error en Insert de CIERRES Numero error:'.$BDTpv->errno;
+		$resultado['sql'] = $insertCierre;
 	}
-	$resultado['total']=$total;
-	$resultado['sqlUpdate'] = $updateEstado;
-	$resultado['sqlInsert'] = $insertCierre;
+	
+	
+	
+	//echo ' Funciones insertar ivas : '.$insertarIvas;
+	$resultado['insertarUsuarios']=$insertarUsuarios;
+	$resultado['insertarIvas'] = $insertarIvas;
 	return $resultado;
 }
 
-function insertarCierre_IVAS($BDTpv,$datosCierre){
+function insertarCierre_IVAS($BDTpv,$datosCierre,$idCierre){
 	//Objetivo:
 	//insertar por cada iva, importe_base, importe_iva, idTienda, idCierre
 	$resultado= array();
+	foreach ($datosCierre as $dato){
+		$idTienda = $dato['tienda'];
+		$idUsuario = $dato['idUsuarioLogin'];
+		$sumasIvasBases = $dato['sumasIvas'];
+
+	}
+	$i = 0;
+	foreach($sumasIvasBases as $key=>$sumaBaseIva){
+		$iva[$key]= $sumaBaseIva['iva'];
+		$sumaBase[$key] = $sumaBaseIva['importeBase'];
+		$sumaIva[$key] = $sumaBaseIva['importeIva'];
+		
+		//~ //inserto por cada iva, su sumaBase y su sumaIva
+		$sql[$i] = 'INSERT INTO `cierres_ivas`(`idCierre`, `idTienda`, `tipo_iva`, `importe_base`, `importe_iva`) '
+			.' VALUES ('.$idCierre.' , '.$idTienda.' , '.$iva[$key].' , '.$sumaBase[$key].' , '.$sumaIva[$key].')';
+		if ($BDTpv->query($sql[$i]) === true){
+			$resultado['idCierreIvas'] = $BDTpv->insert_id; //crea id en bbddd
+			$resultado['insertar_ivas_cierre'] = 'Correcto';
+		} else {
+			// Quiere decir que hubo error en insertar en cierresIvas
+			$resultado['error'] = 'Error en Insert de cierres IVAS Numero error:'.$BDTpv->errno;
+			$resultado['sql'] = $sql[$i];
+		}
+		$i++;
+	}
 	
+	
+	return $resultado;
+}
+
+function insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre,$idTienda){
+	//necesitamos: idCierre, idUsuario, idTienda, Importe, Num_ticket_inicial, Num_ticket_final 
+	//Insertamos datos por cada usuario
+	$resultado= array();
+	foreach ($datosCierre as $dato){
+		$usuarios = $dato['usuarios'];
+		$modoPago =$dato['modoPago'];
+	}
+	
+	
+	$x = 0;
+	foreach ($usuarios as $idUsuario =>$usuario){ 
+		$num_ticket_inicial =	$usuario['NumInicial']; 
+		$num_ticket_final = $usuario['NumFinal'];
+		$usuarioFpago= $modoPago[$idUsuario];
+		$formasPago= $usuarioFpago['formasPago']; //array 
+		
+		
+		$insert_cabecera_usuarios_tickets = 'INSERT INTO `cierres_usuarios_tickets` '
+			.' ( `idCierre`, `idUsuario`, `idTienda`, `Importe`, `Num_ticket_inicial`, `Num_ticket_final`) '
+			.' VALUES ';
+	
+		
+		//******** Inicio insertar por usuario FormasPago ***********//
+		//si es correcto insertamos formas de pago en otra tabla
+		
+		foreach ($formasPago as $nombre=>$importe){
+			$importe= $formasPago[$nombre]['importe']; 
+			
+			
+			//inserto en FormasPago
+			//x es contador por cada usuario, nombre= nombreFpago
+			$sqlFpagoCierres[$x][$nombre]='INSERT INTO `cierres_usuariosFormasPago` '
+				.' ( `idCierre`, `idTienda`, `idUsuario`, `FormasPago`, `importe`) '
+				.' VALUES ('.$idCierre.','.$idTienda.','.$idUsuario.',"'.$nombre.'",'.$importe.')';
+				
+			if ($BDTpv->query($sqlFpagoCierres[$x][$nombre]) === true){
+				$resultado['idCierreFormasPago'] = $BDTpv->insert_id; //crea id en bbddd
+				$resultado['insertar_FpagoCierres']='Correcto';
+			} else {
+				// Quiere decir que hubo error en insertar en cierresIvas
+					$resultado['sql'] = $sqlFpagoCierres[$x][$nombre];
+					$resultado['error'] = 'Error en Insert de Formas pago error:'.$BDTpv->errno;
+			
+			}
+			//cogemos sumaImportes por usuario para insertar en cierres_usuarios_tickets
+			if (!isset($sumaImporte[$idUsuario])){
+				$sumaImporte[$idUsuario]=$importe;
+			} else{				
+				$sumaImporte[$idUsuario]+=$importe;
+			}
+		}
+		
+		//$resultado['pr']=$sumaImporte[$idUsuario];
+		$insert_datos_usuarios_tickets[$x]= '('.$idCierre.' ,  '.$idUsuario.', '.$idTienda.' , '.$sumaImporte[$idUsuario].' ,'.$num_ticket_inicial.','.$num_ticket_final.')';
+		
+		$sqlUsuariosCierre[$x]=$insert_cabecera_usuarios_tickets.$insert_datos_usuarios_tickets[$x];
+		if ($BDTpv->query($sqlUsuariosCierre[$x]) === true){
+				$idCierreUsuarios = $BDTpv->insert_id; //crea id en bbddd
+				$resultado['insertarTickets_usuarios']='Correcto';
+		} else {
+			// Quiere decir que hubo error en insertar en cierresIvas
+			$resultado['error'] = 'Error en Insert de cierres USUARIOS tickets Numero error:'.$BDTpv->errno;
+			$resultado['sql'] = $sqlUsuariosCierre[$x];
+		}
+				
+				
+				
+		//******** fin insertar por usuario FormasPago ***********//
+		$x++;
+	}
 	
 	
 	
 	return $resultado;
 }
 
+//~ function borrarDatos_tablasCierres(){
+//~ //cambia estado tickets de cerrados a Cobrados, seria indicarle fecha campo=Fecha
+//~ UPDATE ticketst SET `estado`= "Cobrado" WHERE `estado` = "Cerrado";
 
+ //~ //Borramos datos de las 4 tablas de cierres, poniendo un rango de id
+//~ DELETE FROM `cierres` WHERE `idCierre` BETWEEN "0" AND "150";
+//~ DELETE FROM `cierres_ivas` WHERE `idCierre` BETWEEN "0" AND "150";
+//~ DELETE FROM `cierres_usuarios_tickets` WHERE `idCierre` BETWEEN "0" AND "150";
+//~ DELETE FROM `cierres_usuariosFormasPago` WHERE `idCierre` BETWEEN "0" AND "150";
+
+//~ //inicializamos el id =1 . auto incremental
+//~ ALTER TABLE `cierres_usuariosFormasPago` auto_increment = 1; 
+//~ ALTER TABLE `cierres_usuarios_tickets` auto_increment = 1; 
+//~ ALTER TABLE `cierres_ivas` auto_increment = 1; 
+//~ ALTER TABLE `cierres` auto_increment = 1; 
+//~ }
 ?>
