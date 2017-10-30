@@ -154,12 +154,15 @@
 			</nav>
 			
 			<div class="col-md-10">
+				<?php if ($aviso === 'aviso' ){   ?> 
+					<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje;?></div>
+				<?php } ?>
 				<div class=" form-group">
 					<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> 
-						<label class="control-label col-sm-2" > Fecha Cierre Caja:</label>
-						<div class="col-sm-4"> 
-							<input type="date" name="fecha" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
-							<input type="submit" <?php echo $desactivarInput; ?> value="Consulta caja">  
+						<div class="col-sm-6 ">	
+							<label class="control-label " > Fecha Cierre Caja:</label>
+ 							<input type="date" name="fecha" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
+							<input class="btn btn-primary" type="submit" <?php echo $desactivarInput; ?> value="Consulta caja">  
 						</div>
 						<!-- inicio de fechas max y min -->
 			
@@ -174,18 +177,18 @@
 								<input type="date" name="fechaFinal" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value="<?php  echo $stringFechaFinal;?>" > 
 							</div>
 						</div>
-				<?php if ($aviso === 'aviso' ){   ?> 
-						<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje;?></div>
-					<?php } ?>
+						
 					 <!-- fin de fechas max y min -->
-					</form>			
+					</form>	
+							
 				</div>
+				
 			<div>
 
 									
 				<!-- TABLA USUARIOS -->
 			<div class="col-md-8 text-center">
-				<h3> Usuario por Usuario </h3>
+				<h3> Cierre por Usuarios </h3>
 			</div>
 			<table class="table table-striped">
 			<thead>
@@ -218,7 +221,7 @@
 			<div class="row">
 				<!-- FORMAS DE PAGO -->
 				<div class="col-md-4">
-					<h3 class="text-left"> Desglose Modo de Pago: </h3>
+					<h3 class="text-left"> Formas de Pago por Usuarios: </h3>
 					<?php 
 					foreach ($Users['usuarios'] as $keyUsuario =>$usuario){ 
 						$Ccierre['modoPago'][$keyUsuario]['nombre']=$usuario['nombre'];
@@ -269,7 +272,7 @@
 				</div>
 				<div class="col-md-4">
 					<!--Todos los usuarios total de tarjetas y contado-->
-					<h3 class="text-left"> Todos los usuarios: </h3>
+					<h3 class="text-left"> Totales: </h3>
 					<table class="table table-striped">
 						<thead>
 							<tr>
@@ -403,9 +406,9 @@
 				</form>
 			</div>
 			<?php 
-				echo '<pre>';
-					print_r($Ccierre);
-				echo '</pre>';
+				//~ echo '<pre>';
+					//~ print_r($Ccierre);
+				//~ echo '</pre>';
 			?>
 		</div>
 	</div>
