@@ -40,31 +40,29 @@ function verSelec($BDTpv,$comparador,$tabla){
 	return $fila ;
 }
 
-function insertarDatos($datos,$BDTpv,$tabla){
+function insertarDatos($datos,$BDTpv,$tabla,$campos){
 	$resultado = array();
-	$resultado['Estado'] = '';
-	//campos a insertar : NombreComercial, razonsocial, nif, direccion, ano, estado
-	$nombrecomercial = $datos['NombreComercial'];
-	$razonsocial = $datos['razonsocial'];
-	$nif = $datos['nif'];
-	$direccion = $datos['direccion'];
-	$telefono = $datos['telefono'];
-	$ano = $datos['ano'];
-	$estado = $datos['estado'];
-	
-	
-	$consulta = 'INSERT INTO '.$tabla.'( NombreComercial, razonsocial, nif, direccion, telefono, ano, estado ) VALUES ("'
-				 .$nombrecomercial.'" , "'.$razonsocial.'" , "'.$nif.'" , "'.$direccion.'" , "'.$telefono.'" , '.$ano.' , "'.$estado.'")';
+	// Obtenemos valores comunes: razonsocial, nif, telefono, estado
+	$valores = '"'.$datos['razonsocial'].'" , "'.$datos['nif'].'" , "'.$datos['telefono']
+				.'" , "'.$datos['tipoTienda'].'","'.$datos['estado'].'"';
+	// Recuerda que los campos es una array indexado [id].
+	if ($datos['tipoTienda'] === 'web'){
+		$valores .= ',"'.$datos['dominio'].'","'.$datos['nom_bases_datos'].'","'.$datos['nom_usuario_base_datos'].'","'.$datos['prefijoBD'].'"';
 		
-	//fin de comprobar existe username
+	} else {
+		$valores .=	',"'.$datos['nombrecomercial'].'","'.$datos['direccion'].'","'.$datos['ano'].'"';	
+	}
+	
+	// Ahora montamos consulta.
+	
+	$consulta = 'INSERT INTO '.$tabla.'('.implode(',',$campos).') VALUES ('.$valores.')';
+		
 	$result = $BDTpv->query($consulta);
 	if (mysqli_error($BDTpv)){
-		$resultado['consulta'] = $result;
 		$resultado['error'] = $BDTpv->error_list;
-		return $resultado;
 	} 
 	
-	$resultado['consulta'] =$result;
+	$resultado['consulta'] =$consulta;
 	return $resultado;
 }
 
@@ -74,29 +72,42 @@ function insertarDatos($datos,$BDTpv,$tabla){
 //BDTpv conexion bbdd tpv
 //tabla en la que trabajar usuarios
 //idSelecc , usuario concreto a modificar , check seleccionado en listaUsuarios
-function modificarDatos($datos,$BDTpv,$tabla){
-	//~ echo 'modificar usuario';
+function modificarDatos($datos,$BDTpv,$tabla,$idTienda){
+	// @ Parametros:
+	//    $datos= Array con datos de tabla que vamos a guarda.
+	//    $tabla= nombre de la tabla.
 	$resultado = array();
 	
-	$nombrecomercial = $datos['nombrecomercial'];
-	$razonsocial = $datos['razonsocial'];
-	$nif = $datos['nif'];
-	$direccion = $datos['direccion'];
-	$telefono = $datos['telefono'];
-	$ano = $datos['ano'];
-	$estado = $datos['estado'];
-	$idTienda = $datos['idtienda'];
+	
+	// [PENDIENTE VER COMO HACER UPDATE AUTOMATICO, SEGUN TIPO DE TIENDA...
+
+	$resultado['Rdatos']= $datos;
+	$updateSet = array();
+	foreach ($datos as $key => $dato){
+		$updateSet[]= $key.'="'.$dato.'"';
+	}
+	$envioUpdate = implode(',',$updateSet);
+	
 	
 	 
-	 $sql ='UPDATE '.$tabla.' SET NombreComercial = "'.$nombrecomercial.'" , razonsocial = "'
-				 .$razonsocial.'" , nif = "'.$nif.'" , direccion = "'.$direccion.'" , telefono = "'.$telefono.'" ,  ano = '
-				 .$ano.' , estado = "'.$estado.'" WHERE idTienda ='.$idTienda;
+	$sql ='UPDATE '.$tabla.' SET '.$envioUpdate.' WHERE idTienda ='.$idTienda;
 
+	$resultado['consulta']= $sql;
+	if ($consulta = $BDTpv-> query($sql)){
+		// Ya modificamos.
+		// Comprobamos que solo modifique un registro, si son mas hubo error grave.
+		$resultado['Num_registros'] = $BDTpv->affected_rows;
+		if ($resultado['Num_registros'] > 1){
+			// Quiere decir que el resultado esta mal, ya que cambio dos registros.
+			$resultado['error'] = 'Error, modifico dos registros';
+		}
+	} else {
+		// Quiere decir que hubo un error en la consulta.
+		$resultado['error'] = 'Error en consulta';
+		$resultado['numero_error_Mysql']= $BDTpv->errno;
 	
-	$consulta = $BDTpv->query($sql);
+	}
 	
-	//$resultado['consulta'] =$sql;
-	$resultado['consulta'] =$consulta;
 
 	return $resultado;
 }

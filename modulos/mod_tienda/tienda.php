@@ -8,6 +8,42 @@
 		// Variables por defecto:
 		$titulo = "Crear Tienda";
 		$img = './../../css/img/tienda.svg'; // Url imagen por defecto.
+		// Nombre tabla que vamos utilizar.
+		$tabla= 'tiendas';
+		// Array por defecto.
+		// Definicion de campos 
+		$Campos = array('fisica' => array(
+									'0' => array( 
+										'id' => 'NombreComercial'
+									),
+									'1' => array( 
+										'id' => 'direccion'
+									),
+									'2' => array( 
+										'id' => 'ano'
+									)
+								),
+						'web' => array(
+									'0' => array( 
+										'id' => 'dominio'
+									),
+									'1' => array( 
+										'id' => 'nom_bases_datos'
+									),
+									'2' => array( 
+										'id' => 'nom_usuario_base_datos'
+									),
+									'3' => array( 
+										'id' => 'prefijoBD'
+									)
+								)
+						);
+
+		
+		
+		
+		
+		
 		$TiendaUnica = array(
 					'NombreComercial'	=> '',
 					'razonsocial' 		=> '',
@@ -25,7 +61,7 @@
 					'porDefecto' => 'selected' // Indicamos por defecto
 					),
 			'1' => array(
-					'valor' =>'abierto',
+					'valor' =>'activo',
 					'porDefecto' =>  ''
 					)
 		);
@@ -49,71 +85,48 @@
 					'disabled' 	=> 'disabled' // por defecto esta desactivado el cambio tipo tienda.
 					)
 		);
-		// Nombre tabla que vamos utilizar.
-		$tabla= 'tiendas';
-		// Definicion de campos
-		$Campos = array( 'fisica' => array(
-									'0' => array( 
-										'id' => 'nombrecomercial'
-									),
-									'1' => array( 
-										'id' => 'direccion'
-									),
-									'2' => array( 
-										'id' => 'ano'
-									),
-									'3' => array( 
-										'id' => 'nombrecomercial'
-									)
-								),
-						'web' => array(
-									'0' => array( 
-										'id' => 'dominio'
-									),
-									'1' => array( 
-										'id' => 'nom_bases_datos'
-									),
-									'2' => array( 
-										'id' => 'nom_usuario_base_datos'
-									),
-									'3' => array( 
-										'id' => 'prefijoBD'
-									)
-								)
-						);
-
-		// Ahora comprobamos si tenemos POST. Es decir se envio  o no formulario ya.
+		
+		// Ahora comprobamos si tenemos POST. Es decir se envio ya el formulario
 		if(count($_POST)>0){
 			// Si ya venimos de vuelta de mandar el formulario.
-			echo '<pre>';
-			print_r($_POST);
-			echo '</pre>';
-			
-			$datos = $_POST;
-			$campos_enviar = $Campos[$datos['tipoTienda']]; 
-			if (intval($datos['idtienda']) > 0){
+			// [CREAMOS LOS CAMPOS OBLICATORIOS];
+			$campos_obligatorios= array('razonsocial','nif','telefono','tipoTienda','estado');
+			// [OBTENEMOS LOS CAMPOS PARA EL TIPO TIENDA]
+			// Recuerda que los campos es una array indexado [id].
+			foreach ($Campos[$_POST['tipoTienda']] as $campo) {
+				$camposExtra[] = $campo['id'];
+			}
+			// Montamos array de campos a enviar.
+			$campos_enviar = array_merge($campos_obligatorios,$camposExtra);
+			$datos= array();
+			foreach ($campos_enviar as $key => $campo){
+				$datos[$campo] = $_POST[$campo];
+			}
+			if (intval($_POST['idtienda']) > 0){
 				// Entramos si ya existe tienda, porque tiene id, por lo que modificamos.
 				
 				// Comprobamos: 
-				$resp = modificarDatos($datos,$BDTpv,$tabla,$campos_enviar);
+				$resp = modificarDatos($datos,$BDTpv,$tabla,$_POST['idtienda']);
 				if (isset($resp['error'])){
-					//~ echo '<pre>';
-					//~ print_r($resp);
-					//~ echo '</pre>';
+					echo '<pre>';
+					print_r($resp);
+					echo '</pre>';
 					$tipomensaje= "danger";
 					$mensaje = "Error a la hora modificar datos de la tienda!";
 				} else {
+					echo '<pre>';
+					echo ' Despues de consulta';
+					print_r($resp);
+					echo '</pre>';
 					$tipomensaje= "info";
 					$mensaje = "Modificada correctamente la tienda.";
 				}
 			} else {
 				// Entramos si es uno nuevo y se va añadir
 				$resp = insertarDatos($datos,$BDTpv,$tabla,$campos_enviar);
-				echo '<pre>';
-				print_r($resp);
-				echo '</pre>';
-				//echo $resp['consulta'];
-				//echo $resp['consulta1'];
+				//~ echo '<pre>';
+				//~ print_r($resp);
+				//~ echo '</pre>';
 				if (isset($resp['error'])){
 					$tipomensaje= "danger";
 					$mensaje = $resp['error'];
@@ -129,22 +142,26 @@
 
 		// Obtenemos id
 		if (isset($_GET['id'])) {
-			
 			//  Ahora obtenemos los datos de esa tienda según id si es distinto 0
-			
 			$idBusqueda ='idTienda='. $_GET['id'];
 			$TiendaUnica = verSelec($BDTpv,$idBusqueda,$tabla);
+			//~ echo '<pre>';
+			//~ print_r($TiendaUnica);
+			//~ echo '</pre>';
 			// Solo deberíamos obtener un resultado, si obtenemos mas es que hay algo mal.
 			if ( $TiendaUnica['idTienda'] = $_GET['id']){
 				$id=  $_GET['id']; // es un String
 				$titulo = "Modificar Tienda:".$TiendaUnica['NombreComercial'];
 				// Obtenemos el tipo de tieneda que es ..
 				foreach ($tiposTiendas as $key => $tipoTienda){
-					
-					if ($TiendaUnica['tipo_empresa'] === $tipoTienda['value']) {
-						$tiposTiendas[$key]['checked'] = "checked";
+					if ($TiendaUnica['tipoTienda'] === $tipoTienda['value']) {
+						$tiposTiendas[$key]['checked'] = "checked"; // Marcamos check que tipo empresa es.
+						$tiposTiendas[$key]['display'] = 'style="display:block;"'; //Ponemo para se muestre
+
 					} else {
 						$tiposTiendas[$key]['checked'] = "";
+						$tiposTiendas[$key]['display'] = 'style="display:none;"'; //Ponemo para se muestre
+
 					}
 					
 				}
@@ -187,7 +204,7 @@
 		
 		
 		<script type="text/javascript">
-								
+		// Javascript para controlar los cambios de valor ...						
 		$(document).ready(function()
 		{
 			$("input:radio[name=tipoTienda]").change(function () {	
@@ -257,12 +274,19 @@
 							<div class="form-group">
 								<label>Tipo de tienda</label>
 								<?php 
+								$inputHidden = '';
 								foreach ($tiposTiendas as $tipoTienda){
 									echo '<label class="radio-inline">';
 									echo '<input type="radio" name="tipoTienda" value="'.$tipoTienda['value'].
 										'" title="'.$tipoTienda['title'].'"'.$tipoTienda['checked'].'  '.$tipoTienda['disabled'].'>'.
 										$tipoTienda['texto'].'</label>';
+									// Si lo tenemos disabled, debemos crear input oculto para enviarlo, ya que al esta disabled no envia los campos y en la carga, no el lado del cliente.
+									if (($tipoTienda['disabled'] === 'disabled') && ($tipoTienda['checked'] === 'checked')){
+										$inputHidden= '<input type="hidden" name ="tipoTienda" value="'.$tipoTienda['value'].'">';
+									}
 								}
+								// Si es disabled los inputs radios, entonces el que esta marcado lo mandamos oculto...
+								echo $inputHidden;
 								?>
 								
 							</div>
@@ -314,7 +338,7 @@
 								<h3>Datos Tienda Fisica</h3>
 								<div class="form-group">
 									<label>Nombre Comercial:</label>
-									<input type="text" id="nombrecomercial" name="nombrecomercial" placeholder="nombre comercial" value="<?php echo $TiendaUnica['NombreComercial'];?>" >
+									<input type="text" id="NombreComercial" name="NombreComercial" placeholder="nombre comercial" value="<?php echo $TiendaUnica['NombreComercial']?>" >
 								</div>
 								<div class="form-group">
 									<label>Dirección:</label>
@@ -331,19 +355,19 @@
 								<h3>Datos Tienda Web</h3>
 								<div class="form-group">
 									<label>Dominio:(<span title="Sin http, ni www">*</span>)</label>
-									<input type="text"  id="dominio" name="dominio" placeholder="dominio.com" value="" >
+									<input type="text"  id="dominio" name="dominio" placeholder="dominio.com" value="<?php echo $TiendaUnica['dominio'];?>" >
 								</div>
 								<div class="form-group">
 									<label>Base Datos:(<span title="Nombre bases datos">*</span>)</label>
-									<input type="text" id="nom_bases_datos" name="nom_bases_datos" placeholder="name_basedatos" value="" >
+									<input type="text" id="nom_bases_datos" name="nom_bases_datos" placeholder="name_basedatos" value="<?php echo $TiendaUnica['nom_bases_datos'];?>" >
 								</div>
 								<div class="form-group">
 									<label>Usuario:(<span title="Nombre Usuario">*</span>)</label>
-									<input type="text" id ="nom_usuario_base_datos" name="nom_usuario_base_datos" placeholder="user_name" value="" >
+									<input type="text" id ="nom_usuario_base_datos" name="nom_usuario_base_datos" placeholder="user_name" value="<?php echo $TiendaUnica['nom_usuario_base_datos'];?>" >
 								</div>
 								<div class="form-group">
 									<label>Prefijo:(<span title="Prefijo tablas Joomla">*</span>)</label>
-									<input type="text" id="prefijoBD" name="prefijoBD" placeholder="_mxjrs" value="" >
+									<input type="text" id="prefijoBD" name="prefijoBD" placeholder="_mxjrs" value="<?php echo $TiendaUnica['prefijoBD'];?>" >
 								</div>
 							</div>
 						</div>
@@ -362,13 +386,14 @@
 			
 		</div>
 	<!-- Ahora ponemos lo campos requeridos -->
+
 	<script type="text/javascript">
 	<?php
-		if ($tiposTiendas['web']['checked'] === "checked") {
-			 
+		if ($tiposTiendas['1']['checked'] === "checked") {
+			 // Si web tiene checked
 			 echo "camposFormRequired(idsCampos['web']);";
 		} else {
-
+			// Si fisica tiene checked
 			 echo "camposFormRequired(idsCampos['fisica']);";
 
 		}
