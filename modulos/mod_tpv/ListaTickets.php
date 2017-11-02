@@ -21,16 +21,16 @@
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-	if ($_GET) {
-		if ($_GET['pagina']) {
-			$PgActual = $_GET['pagina'];
-		}
-		if ($_GET['buscar']) {
-			//recibo un string con 1 o mas palabras
-			$stringPalabras = $_GET['buscar'];
-			$palabraBuscar = explode(' ',$_GET['buscar']); 
-		} 
+	
+	if (isset($_GET['pagina'])) {
+		$PgActual = $_GET['pagina'];
 	}
+	if (isset($_GET['buscar'])) {
+		//recibo un string con 1 o mas palabras
+		$stringPalabras = $_GET['buscar'];
+		$palabraBuscar = explode(' ',$_GET['buscar']); 
+	} 
+	
 	
 	// Creamos objeto controlado comun, para obtener numero de registros. 
 	//parametro necesario para plugin de paginacion
@@ -44,7 +44,7 @@
 	$vista = 'ticketst';
 	$LinkBase = './ListaTickets.php?';
 	$OtrosParametros = '';
-	//~ $CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+	
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
@@ -72,26 +72,33 @@
 	}
 	
 	
+	
 	//OTRA BUSQUEDA para CONTAR Registros 
 	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
 	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	echo 'filtro -> '.$filtro.'</br> registro '.$CantidadRegistros['sql'].'</br>';
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	
+	//echo $CantidadRegistros;
+	//si buscamos 'meson' , cantidadRegistros sera NULL, porque contarRegistros consulta 1 tabla,
+	// y nosotros para obtener los datos consultamos 3 tablas.
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+
 	//BUSQUEDA PARA OBTENER DATOS Y MOSTRARLOS
 	//si hay palabras se monta WHERE con idUser=usuario logueado
 	if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro'].$mostrarPorIdUser.$WhereLimite['rango'];
 		
 	} else { //si no hay busqueda, se muestra por usuario logueado
-		$filtro= " WHERE `idUsuario`= ".$usuario." LIMIT ".$LimitePagina." OFFSET 0";
+		$filtro= " WHERE `idUsuario`= ".$usuario." LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
+	$tickets = obtenerTickets($BDTpv,$filtro);
+	//~ echo '<pre>';
+	//~ print_r($tickets);
+	//~ echo '</pre>';
 	
-	$tickets = obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro);
-	
-	
-	$CantidadRegistros=count($tickets);
-	
+	//esta MAL // si la busqueda es menos de 40 lo siguiente es un apaño..
+	if (!isset($CantidadRegistros)){
+		$CantidadRegistros = count($tickets);
+	}
 	
 	?>
 	
@@ -106,14 +113,7 @@
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 	
-	<script>
-	// Funciones para atajo de teclado.
-	//~ shortcut.add("Shift+V",function() {
-		//~ // Atajo de teclado para ver
-		//~ metodoClick('VerUsuario');
-	//~ });    
-	    
-	</script> 
+ 
     </head>
 
 <body>
@@ -124,22 +124,15 @@
 				//~ echo '<pre>';
 					//~ print_r($_SESSION['usuarioTpv']['id']);
 				//~ echo '</pre>';
-	echo '<pre>';
-	print_r($tickets['sql']);	
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($tickets);	
+	//~ echo '</pre>';
 		?>
        
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
 					<h2> Tickets Cerrados y Cobrados </h2>
-					<?php 
-					//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
-					//~ echo '<pre class="text-left">';
-					//~ print_r($Familias);
-					//~ 
-					//~ echo '</pre>';
-					?>
 				</div>
 	        <!--=================  Sidebar -- Menu y filtro =============== 
 				Efecto de que permanezca fixo con Scroll , el problema es en
@@ -197,6 +190,7 @@
 	
 				<?php
 				$checkUser = 0;
+				//
 				foreach (array_reverse($tickets) as $ticket){ 
 					$checkUser = $checkUser + 1; 
 				?>
@@ -215,7 +209,7 @@
 					<td><?php echo $ticket['estado']; ?></td>
 					<td><?php echo $ticket['formaPago']; ?></td>
 					<td><?php echo $ticket['total']; ?></td>
-					<td></td>
+					<td><?php echo $ticket['idCierre']['idCierre']; ?></td>
 					
 				</tr>
 

@@ -71,7 +71,7 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
 	// Obtenemos todos los tickets abiertos que hay para mostralos ( solo las cabeceras y total)
 	$ticketsAbiertos = ObtenerCabeceraTicketAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda'],$ticket_numero); 
-	
+	$estadoInput='';
 	// Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
 	if ($ticket_numero > 0){
 		//Obtenemos datos del ticket

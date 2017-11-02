@@ -778,8 +778,6 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 	// Preparamos el <<<  pie   >>>  del ticket
 	$respuesta['pie-datos'] =str_repeat("-",42)."\n";
 	foreach ($desglose as $index=>$valor){
-		//~ $iva []= '('.$numticket.','.$index.','.$valor['iva'].','.$valor['base'].')';
-		// $valor['iva'] -> Es el importe del iva.
 		$respuesta['pie-datos'] .= $valor['base'].'  -> '.$index. '%'.'  -> '.$valor['iva']."\n";
 	}
 	$respuesta['pie-datos'] .=str_repeat("-",42)."\n";
@@ -791,24 +789,46 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 	return $respuesta;	
 }
 
-//obtenemos tickets cobrados / cerrados
-function obtenerTickets($BDTpv,$LimitePagina ,$desde,$filtro) {
+
+
+function obtenerTickets($BDTpv,$filtro) {
+	//obtenemos tickets cobrados / cerrados
 	
 	// Function para obtener productos y listarlos
-	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
+	//tener en cuenta el  paginado con parametros: $desde,$filtro
+	//varias tablas:	ticketst
+				//		clientes
+				//		cierres_usuarios_tickets --> para conseguir el idCierre de cada ticket cerrado
 	$resultado = array();
 	$consulta = "SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t "
 			."LEFT JOIN `clientes` AS c "
 			."ON c.`idClientes` = t.`idCliente`".$filtro; 
-		 
+	
+	
 	$ResConsulta = $BDTpv->query($consulta);
 
 	$resultado = array();
+	$i = 0;
 	while ($fila = $ResConsulta->fetch_assoc()) {
+		$numTicket = $fila['Numticket'];
 		$resultado[] = $fila;
+		
+		$sqlIdCierre[$i]='SELECT c.`idCierre` FROM `cierres_usuarios_tickets` AS c '
+				.'LEFT JOIN `ticketst` as t ON t.Numticket = c.Num_ticket_final ' 
+				.'where "'.$numTicket.'" >= c.Num_ticket_inicial and "'.$numTicket.'"<= c.Num_ticket_final ';
+		$resSql = $BDTpv->query($sqlIdCierre[$i]);
+		
+		while($id = $resSql->fetch_assoc()) {
+			
+			$idCierre=$id;
+		}
+		$resultado[$i]['idCierre'] =$idCierre;
+		$i++;
 	}
-
-	//$resultado ['sql'] = $consulta;
+	
+	
+	//$resultado['sql']=$consulta;
+	//$resultado['sql']=$sqlIdCierre;
 	return $resultado;
 }
 
