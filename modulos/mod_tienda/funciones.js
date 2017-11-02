@@ -57,7 +57,28 @@ function metodoClick(pulsado){
 	 }
 } 
 
-
+function camposFormRequired(idscampos){
+	// El objetivo es poner requerido campos que le indicamos en parametro.
+	// @Parametro:
+	// idscampos = array con idscampos ( identificador campos input).
+	console.log(idscampos);
+	idscampos.forEach(function(idcampo) {
+		console.log(idcampo);
+		$('#'+idcampo).prop('required',true);
+	});
+	return;
+}
+function camposFormQuitarRequired(idscampos){
+	// El objetivo es poner requerido campos que le indicamos en parametro.
+	// @Parametro:
+	// idscampos = array con idscampos ( identificador campos input).
+	console.log(idscampos);
+	idscampos.forEach(function(idcampo) {
+		console.log(idcampo);
+		$('#'+idcampo).prop('required',false);
+	});
+	return;
+}
 
 
 
