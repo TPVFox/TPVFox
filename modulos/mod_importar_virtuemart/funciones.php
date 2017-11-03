@@ -373,6 +373,39 @@ function htmlBDTpvTR($tablas){
 
 }
 
+function ObtenerTiendaWeb($BDTpv){
+	// Objetivo obtener datos de una tabla
+	$resultado = array();
+	$sql = "SELECT * FROM `tiendas` WHERE `tipoTienda`='web'";
+	$resultado['consulta'] = $sql;
+	if ($consulta = $BDTpv->query($sql)){
+		// Ahora debemos comprobar que cuantos registros obtenemos , si no hay ninguno
+		// hay que indicar el error.
+		if ($consulta->num_rows > 0) {
+				while ($fila = $consulta->fetch_assoc()) {
+				$resultado['items'][]= $fila;
+				}
+			
+		} else {
+			// Quiere decir que no hay tienda on-line (web) dada de alta.
+			$resultado['error'] = 'No hay tienda on-line';
+		}
+		
+		
+				
+	} else {
+		// Quiere decir que hubo un error en la consulta.
+		$resultado['error'] = 'Error en consulta';
+		$resultado['numero_error_Mysql']= $BDTpv->errno;
+	
+	}
+	
+	return $resultado;
+	
+	
+	
+	
+}
 
 
 

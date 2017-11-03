@@ -17,19 +17,26 @@
 	// [DEFINICION Y OBTENCION DE VARIABLES]
 	//[Obtenemos variables, recuerda los array de inicio necesitar prefijoBD 
 	// Los arrays que obtenemos son : ($tablasTemporales,$comprobaciones ,$tablas_importar,$optcrefs)
+	include ("./../../controllers/Controladores.php");
+	include_once ("./funciones.php");
 
+		// Cargamos el controlador.
 	include_once ('./Arrays_inicio.php');
 
 	// [ DEFINIMOS VARIABLES POR DEFECTO ]
 	$titulo_control_proceso = 'Control de procesos';
 	$optcrefs['0']['checked'] = 'checked'; 	// Se cambiaría si hay POST
 	$confirmación_cfg = '' ; 				// Solo tendrá valor si pulsa btn y por get viene variable.
+	$tienda_on_line_seleccionada = ''; // Tienda On Line seleccionad.. 
+	//[OBTENEMOS LAS TIENDAS ON LINE QUE HAY]
+	$tiendasOnLine = ObtenerTiendaWeb($BDTpv);
 	//[COMPROBAMOS GET Y POST]
 	// Por defecto ponemos : 
 	// Vemos si se cambía según el id obtenido, si hay claro.
 	if (isset($_GET['configuracion'])){
 		$confirmación_cfg =$_GET['configuracion'];
 		// Ahora comprobamos que configuración seleciono el usuario.
+		//  [OPCION CREF] Seleccionada.
 		foreach ($optcrefs as $key => $optcref){
 			if ($_POST['optcref'] === $optcref['value']){
 				$optcrefs[$key]['checked'] = 'checked';
@@ -37,18 +44,15 @@
 				$optcrefs[$key]['checked'] = '';
 			}
 		}
-	}
-	echo '<pre>';
-	print_r($_POST);
-	echo '</pre>';
+		// [TIENDA ONLINE] Seleccionada.
+		$tienda_on_line_seleccionada = $_POST['tiendaOnLine'];
+		$tiendasOnLine[$_POST['tiendaOnLine']]['porDefecto']= 'select'; 
+	} 
 	// Si NO pulso en configuración entonces no hacemos nada de esto.. ya no lo vamos mostrar.
 
 	if ($confirmación_cfg === 'SI'){
-		include ("./../../controllers/Controladores.php");
-		include_once ("./funciones.php");
-
-		// Cargamos el controlador.
-		// Contamos cuantos si tienen registros las tabla BDTPV
+		
+		// Contamos cuantos si tienen registros las tabla BDTPV utilizando controlador general.
 		$Controler = new ControladorComun; 
 		// Obtenemos los registros de las tablas y se lo añadimos al array $tablas_importar
 		$tablas_importar= ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas_importar);
@@ -124,7 +128,6 @@
 		<!-- Solo mostramos parametros configuración si No pulso "Cambiar o confirmación de configuración -->
 		<?php 
 		if ($confirmación_cfg === 'SI'){
-			echo ' DEBERÍA BLOQUEAR CONFIRUGRACION O NO ';
 			$disable_conf = 'disabled';
 		} else {
 			$disable_conf = '';
@@ -144,10 +147,27 @@
 					?>
 				</div>
 				<div class="form-group">
-				<label title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda On Line con la quieres importar/actualizar datos:</label>
+					<label for="sel1" title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda On Line con la quieres importar o actualizar datos:</label>
+						<select <?php echo $disable_conf;?>  class="form-control" name="tiendaOnLine" id="sel1">
+							<?php
+							$porDefecto = ''; 
+							foreach ($tiendasOnLine['items'] as $tiendaOnLine){
+								if (isset($tiendaOnLine['porDefecto'])){
+									$porDefecto = 'selected';
+								}
+							?>
+								<option <?php echo $porDefecto;?> value="<?php echo $tiendaOnLine['idTienda'];?>" >
+								<?php echo $tiendaOnLine['idTienda'].'-'.$tiendaOnLine['dominio'];?>
+								</option>
+							<?php
+							}
+							?>
+						</select>
+					</label>
+							
 				</div>
 
-				<button type="submit" class="btn btn-primary">Cambiar o confirma configuracion</button>
+				<button <?php echo $disable_conf;?> type="submit" class="btn btn-primary">Cambiar o confirma configuracion</button>
 
 				</form>
 			</div>
