@@ -61,3 +61,28 @@ function guardarCierreCaja(){
 	
 	
 }
+
+
+function metodoClick(pulsado){
+	console.log("Inicimos switch de control pulsar");
+	switch(pulsado) {
+		case 'VerCierre':
+			console.log('ver cierre caja ');
+		//	console.log('id'+id);
+			var id	=	VerIdSeleccionado ();
+			if (checkID.length >1 || checkID.length === 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return
+			}
+			
+			window.location.href = './VistaCierre.php?id='+checkID[0];
+			
+			
+			
+			
+		break;
+	}
+} 
+
+
+

@@ -372,45 +372,66 @@ function obtenerCierreUnico($BDTpv, $idCierre){
 	// consulta sql join para obtener los datos de un cierre concreto
 	// montar bien array para mostrarlos luego en html
 	$resultado = array();
-	//funcion php
-	$consulta3='	SELECT cierre.*, ivas.* , fpago.* , usuarioTicket.*, nombreUsu.username '
-			.'FROM `cierres`  as cierre '
-			.'left JOIN `cierres_ivas` as ivas ON cierre.idCierre = ivas.idCierre '
-			.'LEFT JOIN cierres_usuariosFormasPago as fpago ON fpago.idCierre = ivas.idCierre '
-			.'LEFT JOIN cierres_usuarios_tickets as usuarioTicket ON usuarioTicket.idCierre = fpago.idCierre '
-			.'LEFT JOIN usuarios as nombreUsu ON nombreUsu.id = usuarioTicket.idUsuario '
-			.'WHERE cierre.idCierre = "'.$idCierre.'"';
 	
-	$consulta2 = 'SELECT fpago.* , usuarioTicket.*, nombreUsu.username '
+	//consultamos cierres_usuarios_tickets y usuarios para poder mostrar nombre del usuario
+	$sqlUsuarioTickets = 'SELECT usuarioTicket.*, nombreUsu.username '
 				.' FROM cierres_usuarios_tickets as usuarioTicket '
 				.' LEFT JOIN usuarios as nombreUsu ON nombreUsu.id = usuarioTicket.idUsuario '
-				.'WHERE cierre.idCierre = "'.$idCierre.'"';
-	
+				.'WHERE usuarioTicket.idCierre = "'.$idCierre.'"';
+				
+				
+	//consultamos cierres_usuariosFormasPago
+	$consultaFpago=' SELECT fpago.* FROM cierres_usuariosFormasPago as fpago '
+				.' WHERE fpago.idCierre = "'.$idCierre.'"';
+				
+
 	//ataco cierres y cierres_ivas
 	$consulta =	' SELECT cierre.*, ivas.* '
 				.' FROM `cierres` as cierre '
 				.' INNER JOIN `cierres_ivas` as ivas ON cierre.idCierre = ivas.idCierre '
 				.' WHERE cierre.idCierre =  "'.$idCierre.'"';
+	//montaje de cierres segun el idCierre y los ivas segun idCierre y tipos de ivas
 	$Resql = $BDTpv->query($consulta);
-	//$cierres['NItems'] = $Resql->num_rows;
 	$i = 0;
 	while ($datos = $Resql->fetch_assoc()) {
-			$resultado['cierres'][$idCierre]['FechaCierre']= $datos['FechaCierre'];
-			$resultado['cierres'][$idCierre]['idTienda']= $datos['idTienda'];
-			$resultado['cierres'][$idCierre]['idUsuario']= $datos['idUsuario'];		
-			$resultado['cierres'][$idCierre]['FechaInicio']= $datos['FechaInicio'];			
-			$resultado['cierres'][$idCierre]['FechaFinal']= $datos['FechaFinal'];			
-			$resultado['cierres'][$idCierre]['FechaCreacion']= $datos['FechaCreacion'];			
-			$resultado['cierres'][$idCierre]['Total']= $datos['Total'];	
+		$resultado['cierres'][$idCierre]['FechaCierre']= $datos['FechaCierre'];
+		$resultado['cierres'][$idCierre]['idTienda']= $datos['idTienda'];
+		$resultado['cierres'][$idCierre]['idUsuario']= $datos['idUsuario'];		
+		$resultado['cierres'][$idCierre]['FechaInicio']= $datos['FechaInicio'];			
+		$resultado['cierres'][$idCierre]['FechaFinal']= $datos['FechaFinal'];			
+		$resultado['cierres'][$idCierre]['FechaCreacion']= $datos['FechaCreacion'];			
+		$resultado['cierres'][$idCierre]['Total']= $datos['Total'];	
+	
+		$resultado['ivas'][$idCierre][$i]['tipo_iva'] = $datos['tipo_iva'];
+		$resultado['ivas'][$idCierre][$i]['importe_base'] = $datos['importe_base'];		
+		$resultado['ivas'][$idCierre][$i]['importe_iva'] = $datos['importe_iva'];
 		
-			$resultado['ivas'][$idCierre][$i]['tipo_iva'] = $datos['tipo_iva'];
-			$resultado['ivas'][$idCierre][$i]['importe_base'] = $datos['importe_base'];		
-			$resultado['ivas'][$idCierre][$i]['importe_iva'] = $datos['importe_iva'];
-			
 		$i++;		
 	}
 	
-	$resultado ['sql'] = $consulta2;
+	//montaje de array fpago, por usuarios
+	$sqlFpago = $BDTpv->query($consultaFpago);
+	$x = 0;
+	while ($fpago = $sqlFpago->fetch_assoc()) {
+		
+		$resultado['fpago'][$x]['idUsuario']=$fpago['idUsuario'];
+		$resultado['fpago'][$x]['FormasPago']=$fpago['FormasPago'];
+		$resultado['fpago'][$x]['importe']=$fpago['importe'];
+		$x++;
+	}
+	
+	//montaje de array de usuarios tickets cierres
+	$sqlUsuario = $BDTpv->query($sqlUsuarioTickets);
+	$z=0;
+	while ($usuarios =$sqlUsuario->fetch_assoc()){
+		$resultado['usuario'][$z]['idUsuario']=$usuarios['idUsuario'];
+		$resultado['usuario'][$z]['Importe']=$usuarios['Importe'];
+		$resultado['usuario'][$z]['Num_ticket_inicial']=$usuarios['Num_ticket_inicial'];
+		$resultado['usuario'][$z]['Num_ticket_final']=$usuarios['Num_ticket_final'];
+		$z++;
+	}
+	
+	//$resultado ['sql'] = $sqlUsuarioTickets;
 	return $resultado;
 	
 }
