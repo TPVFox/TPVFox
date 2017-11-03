@@ -9,9 +9,14 @@
 	
 	$dedonde='';
 	$aviso='';
-	$desactivarInput='';
+	$desactivarInput=''; //si FechaInicio = FechaFinal, desactivamos fechaFinal para evitar modificar.
 	$fecha_dmYHora = '%d-%m-%Y %H:%M:%S';
 	$fecha_dmY = '%d-%m-%Y';
+	$estadoInput =''; //inicializo variable para desactivar boton aceptar, 
+					  //si hay tickets abiertos, si Fpago y totalBases son distintas y 
+					  //si no hay tickets para cerrar, desactivamos input FechaCierreCaja y boton aceptar.
+	$classAlert = ' class= "" '; //inicializo la clase de fondo rojo para alertar distintos totales de Fpago y desgloseIvas
+	
 	//recojo la fecha min de los tickets cobrados sin cerrar y la fecha maxima. fecha local sobre 1970 , 443322102 fecha codificad
 	$fechaMaxMin = fechaMaxMinTickets($BDTpv);
 	
@@ -44,12 +49,11 @@
 		$fechaCierre = strftime($fecha_dmY,time());
 		$stringFechaFinal =  $fechaCierre;
 		$stringFechaInicio = $fechaCierre;
-		$desactivarInput = "disabled";
-		$tipomensaje= "info";
+		$estadoInput = "disabled";
+		$tipomensaje= "danger";
 		$mensaje = "<strong>No hay tickets para cerrar.</strong>";
 		$aviso='aviso';
 	}
-	
 	if ($_POST['fecha']){
 		$fechaCierre=$_POST['fecha'];
 		if(isset($_POST['fechaFinal'])){
@@ -73,8 +77,7 @@
 		
 		}
 	}
-	$estadoInput =''; //inicializo variable para desactivar boton aceptar, si hay tickets abiertos
-	$classAlert = ' class= "" '; //inicializo la clase de fondo rojo para alertar distintos totales de Fpago y desgloseIvas
+	
 	
 	//si existe de donde al cancelar volvemos a donde estabamos
 	if (isset($_GET['dedonde'])){
@@ -154,15 +157,15 @@
 			</nav>
 			
 			<div class="col-md-10">
-				<?php if ($aviso === 'aviso' ){   ?> 
+				<?php if ($aviso === 'aviso' ){  	 ?> 
 					<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje;?></div>
 				<?php } ?>
 				<div class=" form-group">
 					<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> 
 						<div class="col-sm-6 ">	
 							<label class="control-label " > Fecha Cierre Caja:</label>
- 							<input type="date" name="fecha" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
-							<input class="btn btn-primary" type="submit" <?php echo $desactivarInput; ?> value="Consulta caja">  
+ 							<input type="date" name="fecha"  <?php echo $estadoInput;?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
+							<input class="btn btn-primary" type="submit" value="Consulta caja">  
 						</div>
 						<!-- inicio de fechas max y min -->
 			
@@ -407,7 +410,7 @@
 			</div>
 			<?php 
 				//~ echo '<pre>';
-					//~ print_r($Ccierre);
+					//~ print_r($estadoInput);
 				//~ echo '</pre>';
 			?>
 		</div>
