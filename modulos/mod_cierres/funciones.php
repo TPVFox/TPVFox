@@ -16,8 +16,8 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$nuevafecha){
 	//DATE_FORMAT('fecha','dia-mes-anho'), le indicamos como es el formato de nuestras fechas.
 	$sqlAbiertos = 'SELECT count(`numticket`) as suma, `idUsuario`, DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") as fechaInicio '
 				.' FROM `ticketstemporales` '
-				.' WHERE  DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") > "'.$fechaInicio.'" AND  '
-				. 'DATE_FORMAT(`fechaFinal`,"%d-%m-%Y") < "'.$nuevafecha.'" and `estadoTicket`="'.Abierto.'" GROUP BY `idUsuario` ';
+				.' WHERE  DATE_FORMAT(`fechaInicio`,"%d-%m-%Y") >= "'.$fechaInicio.'" AND  '
+				. 'DATE_FORMAT(`fechaFinal`,"%d-%m-%Y") <= "'.$nuevafecha.'" and `estadoTicket`="'.Abierto.'" GROUP BY `idUsuario` ';
 	
 	$respAbiertos =$BDTpv->query($sqlAbiertos);
 	if($respAbiertos->num_rows > 0){
@@ -146,8 +146,11 @@ function baseIva($BDTpv,$idticketst){
 }
 
 function obtenerCierres($BDTpv,$LimitePagina ,$desde,$filtro) {
-	// Function para obtener clientes y listarlos
+	// Function para obtener cierres y listarlos
 	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
+	//tablas usadas: - cierres
+				//	 - usuarios
+				 
 
 //para evitar repetir codigo
 	$Controler = new ControladorComun; 
@@ -365,6 +368,52 @@ function insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre,$idTienda){
 	return $resultado;
 }
 
+function obtenerCierreUnico($BDTpv, $idCierre){
+	// consulta sql join para obtener los datos de un cierre concreto
+	// montar bien array para mostrarlos luego en html
+	$resultado = array();
+	//funcion php
+	$consulta3='	SELECT cierre.*, ivas.* , fpago.* , usuarioTicket.*, nombreUsu.username '
+			.'FROM `cierres`  as cierre '
+			.'left JOIN `cierres_ivas` as ivas ON cierre.idCierre = ivas.idCierre '
+			.'LEFT JOIN cierres_usuariosFormasPago as fpago ON fpago.idCierre = ivas.idCierre '
+			.'LEFT JOIN cierres_usuarios_tickets as usuarioTicket ON usuarioTicket.idCierre = fpago.idCierre '
+			.'LEFT JOIN usuarios as nombreUsu ON nombreUsu.id = usuarioTicket.idUsuario '
+			.'WHERE cierre.idCierre = "'.$idCierre.'"';
+	
+	$consulta2 = 'SELECT fpago.* , usuarioTicket.*, nombreUsu.username '
+				.' FROM cierres_usuarios_tickets as usuarioTicket '
+				.' LEFT JOIN usuarios as nombreUsu ON nombreUsu.id = usuarioTicket.idUsuario '
+				.'WHERE cierre.idCierre = "'.$idCierre.'"';
+	
+	//ataco cierres y cierres_ivas
+	$consulta =	' SELECT cierre.*, ivas.* '
+				.' FROM `cierres` as cierre '
+				.' INNER JOIN `cierres_ivas` as ivas ON cierre.idCierre = ivas.idCierre '
+				.' WHERE cierre.idCierre =  "'.$idCierre.'"';
+	$Resql = $BDTpv->query($consulta);
+	//$cierres['NItems'] = $Resql->num_rows;
+	$i = 0;
+	while ($datos = $Resql->fetch_assoc()) {
+			$resultado['cierres'][$idCierre]['FechaCierre']= $datos['FechaCierre'];
+			$resultado['cierres'][$idCierre]['idTienda']= $datos['idTienda'];
+			$resultado['cierres'][$idCierre]['idUsuario']= $datos['idUsuario'];		
+			$resultado['cierres'][$idCierre]['FechaInicio']= $datos['FechaInicio'];			
+			$resultado['cierres'][$idCierre]['FechaFinal']= $datos['FechaFinal'];			
+			$resultado['cierres'][$idCierre]['FechaCreacion']= $datos['FechaCreacion'];			
+			$resultado['cierres'][$idCierre]['Total']= $datos['Total'];	
+		
+			$resultado['ivas'][$idCierre][$i]['tipo_iva'] = $datos['tipo_iva'];
+			$resultado['ivas'][$idCierre][$i]['importe_base'] = $datos['importe_base'];		
+			$resultado['ivas'][$idCierre][$i]['importe_iva'] = $datos['importe_iva'];
+			
+		$i++;		
+	}
+	
+	$resultado ['sql'] = $consulta2;
+	return $resultado;
+	
+}
 //~ function borrarDatos_tablasCierres(){
 //~ //cambia estado tickets de cerrados a Cobrados, seria indicarle fecha campo=Fecha
 //~ UPDATE ticketst SET `estado`= "Cobrado" WHERE `estado` = "Cerrado";
