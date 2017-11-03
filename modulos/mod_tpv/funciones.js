@@ -634,7 +634,7 @@ function metodoClick(pulsado){
 			console.log('Entro en Ver Ticket Cobrado');
 			// Cargamos variable global ar checkID = [];
 			//Funcion global en jquery
-			VerUsuariosSeleccionado ();
+			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
@@ -646,7 +646,7 @@ function metodoClick(pulsado){
 		case 'imprimirTicket':
 		//seleccionar para imprimir ticket elegido
 			console.log('entro en imprimir ticket');
-			VerUsuariosSeleccionado ();
+			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return

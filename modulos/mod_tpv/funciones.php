@@ -419,13 +419,14 @@ function ObtenerCabeceraTicketAbierto($BDTpv,$idUsuario,$idTienda,$numTicket=0){
 				$i++;
 				}
 			}
+		/* liberar el conjunto de resultados */
+		$res->free();
 	} elseif (mysqli_error($BDTpv)){
-		$respuesta['consulta'] = $sql;
+		
 		$respuesta['error'] = $BDTpv->error_list;
 	} 
 	
-	/* liberar el conjunto de resultados */
-    $res->free();
+	$respuesta['consulta'] = $sql;
 	return $respuesta;
 }
 function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){

@@ -1,7 +1,7 @@
 <?php 
 
 
-function obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro) {
+function obtenerProductos($BDTpv,$filtro) {
 	// Function para obtener productos y listarlos
 	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
 	$resultado = array();
@@ -9,10 +9,6 @@ function obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro) {
 	//para evitar repetir codigo
 	$Controler = new ControladorComun; 
 	$campoBD = 'articulo_name';
-	//~ $rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD='');
-	//~ $rango=$rangoFiltro['rango'];
-	//~ $filtroFinal=$rangoFiltro['filtro'];
-	//fin paginacion y filtro de busqueda 
 
 	$consulta = "SELECT a.*, c.`codBarras`, c.`idArticulo`, p.`idArticulo`, p.`pvpCiva` FROM `articulos` AS a "
 				."LEFT JOIN `articulosCodigoBarras` AS c " 

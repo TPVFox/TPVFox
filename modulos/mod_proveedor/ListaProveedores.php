@@ -64,10 +64,9 @@
 	if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
 	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET 0";
+		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
-	$proveedores = obtenerProveedores($BDTpv,$LimitePagina ,$desde,$filtro);
-	$proveedores = obtenerProveedores($BDTpv,$LimitePagina ,$desde,$filtro);
+	$proveedores = obtenerProveedores($BDTpv,$filtro);
 	//~ echo '<pre>';
 	//~ print_r($proveedores);
 	//~ echo '</pre>';

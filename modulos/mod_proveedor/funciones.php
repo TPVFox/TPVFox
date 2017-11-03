@@ -1,9 +1,9 @@
 <?php 
 
 
-function obtenerProveedores($BDTpv,$LimitePagina ,$desde,$filtro) {
+function obtenerProveedores($BDTpv,$filtro) {
 	// Function para obtener proveedores y listarlos
-	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
+	//tener en cuenta el  paginado con parametros:  ,$filtro
 
 	$proveedores = array();
 	$consulta = "Select * from proveedores ".$filtro; 

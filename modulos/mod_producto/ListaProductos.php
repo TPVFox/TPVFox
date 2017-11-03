@@ -65,10 +65,10 @@
 	if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
 	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET 0";
+		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
 	
-	$productos = obtenerProductos($BDTpv,$LimitePagina ,$desde,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
+	$productos = obtenerProductos($BDTpv,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
 	
 	?>
 	

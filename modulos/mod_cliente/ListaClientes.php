@@ -63,18 +63,17 @@
 	
 	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
 	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	
+	//echo 'pgactual: '.$PgActual.' cantidadReg : '.$CantidadRegistros.' lmtPag :'.$LimitePagina.' linkBase :'.$LinkBase.' OtrosParametros: '.$OtrosParametros;
+
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
 	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET 0";
+		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
-	
+
+	//echo '</br>'.$filtro.' ';
 	$clientes = obtenerClientes($BDTpv,$LimitePagina ,$desde,$filtro);
-	//~ echo '<pre>';
-		//~ print_r($clientes['consulta']);
-	//~ echo '</pre>';
 	?>
 	<script>
 	// Declaramos variables globales
@@ -160,7 +159,8 @@
 					$checkUser = $checkUser + 1; 
 					?>
 					<tr>
-						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cliente['idClientes'];?>">
+						<td class="rowUsuario">
+							<input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cliente['idClientes'];?>">
 						</td>
 						<td><?php echo $cliente['idClientes']; ?></td>
 						<td><?php echo $cliente['Nombre']; ?></td>
