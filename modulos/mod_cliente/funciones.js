@@ -5,7 +5,7 @@ function metodoClick(pulsado){
 			console.log('Entro en VerCliente');
 			// Cargamos variable global ar checkID = [];
 			//Funcion global en jquery
-			VerUsuariosSeleccionado ();
+			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return

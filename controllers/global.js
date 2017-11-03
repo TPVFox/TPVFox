@@ -1,5 +1,5 @@
 // Funciones modulo de clientes lista clientes. para chekckear y modificar 1 en concreto
-function VerUsuariosSeleccionado (){
+function VerIdSeleccionado (){
 	$(document).ready(function()
 	{
 		// Array para meter lo id de los checks

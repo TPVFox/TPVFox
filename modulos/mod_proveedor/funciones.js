@@ -5,7 +5,7 @@ function metodoClick(pulsado){
 		case 'VerProveedor':
 			console.log('Entro en proveedor ver');
 			// Cargamos variable global ar checkID = [];
-			VerUsuariosSeleccionado ();
+			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
