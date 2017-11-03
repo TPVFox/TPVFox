@@ -36,6 +36,17 @@
 									'3' => array( 
 										'id' => 'prefijoBD'
 									)
+								),
+						'principal' => array( // Tienda que utilizamos.
+									'0' => array( 
+										'id' => 'NombreComercial'
+									),
+									'1' => array( 
+										'id' => 'direccion'
+									),
+									'2' => array( 
+										'id' => 'ano'
+									)
 								)
 						);
 
@@ -65,7 +76,7 @@
 					'porDefecto' =>  ''
 					)
 		);
-		// Definimos posibles tipos de tiendas.
+		// Definimos posibles tipos de tiendas y estado por defecto.
 		$tiposTiendas = array(
 			'0' => array (
 					'value' 	=> "fisica",
@@ -82,6 +93,14 @@
 					'texto' 	=> "Web de la tienda",
 					'checked'	=> "",
 					'display'	=> 'style="display:none;"', // Indicamos NO se campos tienda web por defecto
+					'disabled' 	=> 'disabled' // por defecto esta desactivado el cambio tipo tienda.
+					),
+			'2' =>  array (
+					'value' 	=> "principal",
+					'title' 	=> "Tienda Actual",
+					'texto' 	=> "tienda que estás",
+					'checked'	=> "",
+					'display'	=> 'style="display:none;"', // Indicamos por defecto que si muestra campos tienda fisica
 					'disabled' 	=> 'disabled' // por defecto esta desactivado el cambio tipo tienda.
 					)
 		);
@@ -189,6 +208,8 @@
 		var idsCampos = [] ;
 		idsCampos['web'] = [];
 		idsCampos['fisica'] = [];
+		idsCampos['principal'] = [];
+
 		<?php
 		foreach ($Campos as $key => $tipocampo){
 			foreach ( $tipocampo as  $campo ){
@@ -221,6 +242,8 @@
 					// Mostramos y ocultamos campos
 					$('.'+clase).css("display","block");
 					$('.mostrar_fisica').css("display","none");
+					$('.mostrar_principal').css("display","none");
+
 					
 				} else {
 					// Selecciono tipo fisica
@@ -232,6 +255,8 @@
 					// Mostramos y ocultamos.
 					$('.'+clase).css("display","block");
 					$('.mostrar_web').css("display","none");
+					$('.mostrar_principal').css("display","none");
+
 					
 				}
 			})
@@ -246,7 +271,8 @@
 			// Es nuevo
 			$tiposTiendas['0']['disabled'] = ''; // No se muestra por defecto
 			$tiposTiendas['1']['disabled'] = ''; // No se muestra por defecto
-			
+			$tiposTiendas['2']['disabled'] = 'disabled'; // No permitimos esta opcion nunca.
+
 		}
 		?>
 
@@ -370,6 +396,26 @@
 									<input type="text" id="prefijoBD" name="prefijoBD" placeholder="_mxjrs" value="<?php echo $TiendaUnica['prefijoBD'];?>" >
 								</div>
 							</div>
+							<div class="mostrar_principal" <?php echo $tiposTiendas[2]['display'] ?>>
+							<!-- Solo debería mostrar uno según tipo tienda-->
+								<h3>Datos Tienda Fisica</h3>
+								<div class="form-group">
+									<label>Nombre Comercial:</label>
+									<input type="text" id="NombreComercial" name="NombreComercial" placeholder="nombre comercial" value="<?php echo $TiendaUnica['NombreComercial']?>" >
+								</div>
+								<div class="form-group">
+									<label>Dirección:</label>
+									<input type="text" id="direccion" name="direccion" placeholder="direccion"  value="<?php echo $TiendaUnica['direccion'];?>"  >
+								</div>
+								
+								<div class="form-group">
+									<label>Año Contable:</label>
+									<input type="text" id="ano" name="ano" placeholder="2014"  value="<?php echo $TiendaUnica['ano'];?>"  >
+								</div>
+							</div>
+							
+							
+							
 						</div>
 					
 						

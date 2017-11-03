@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost:3306
--- Tiempo de generación: 07-10-2017 a las 17:48:30
--- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
--- Versión de PHP: 7.0.19-1
+-- Host: localhost:3306
+-- Generation Time: Nov 03, 2017 at 11:22 AM
+-- Server version: 10.1.26-MariaDB-0+deb9u1
+-- PHP Version: 7.0.19-1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `tpv`
+-- Database: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulos`
+-- Table structure for table `articulos`
 --
 
 CREATE TABLE `articulos` (
@@ -33,14 +33,15 @@ CREATE TABLE `articulos` (
   `articulo_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `beneficio` decimal(5,2) DEFAULT NULL,
   `costepromedio` decimal(17,6) DEFAULT NULL,
-  `fechaalta` datetime NOT NULL,
-  `estado` varchar(12) CHARACTER SET utf8 NOT NULL
+  `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
+  `fecha_creado` datetime NOT NULL,
+  `fecha_modificado` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulosCodigoBarras`
+-- Table structure for table `articulosCodigoBarras`
 --
 
 CREATE TABLE `articulosCodigoBarras` (
@@ -51,10 +52,10 @@ CREATE TABLE `articulosCodigoBarras` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulosFamilia`
+-- Table structure for table `articulosFamilias`
 --
 
-CREATE TABLE `articulosFamilia` (
+CREATE TABLE `articulosFamilias` (
   `idArticulo` int(11) NOT NULL,
   `idFamilia` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -62,13 +63,13 @@ CREATE TABLE `articulosFamilia` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulosImagenes`
+-- Table structure for table `articulosImagenes`
 --
 
 CREATE TABLE `articulosImagenes` (
   `id` int(11) NOT NULL,
   `idArticulo` int(11) NOT NULL,
-  `virtuemart_product_id` int(11) NOT NULL,
+  `cref` varchar(18) NOT NULL,
   `file_url` varchar(900) NOT NULL,
   `virtuemart_media_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -76,7 +77,7 @@ CREATE TABLE `articulosImagenes` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulosPrecios`
+-- Table structure for table `articulosPrecios`
 --
 
 CREATE TABLE `articulosPrecios` (
@@ -89,7 +90,7 @@ CREATE TABLE `articulosPrecios` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulosProveedores`
+-- Table structure for table `articulosProveedores`
 --
 
 CREATE TABLE `articulosProveedores` (
@@ -103,7 +104,7 @@ CREATE TABLE `articulosProveedores` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulosTiendas`
+-- Table structure for table `articulosTiendas`
 --
 
 CREATE TABLE `articulosTiendas` (
@@ -115,19 +116,70 @@ CREATE TABLE `articulosTiendas` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `categorias`
+-- Table structure for table `cierres`
 --
 
-CREATE TABLE `categorias` (
-  `idCategoria` int(11) NOT NULL,
-  `categoriaNombre` varchar(100) NOT NULL DEFAULT '',
-  `categoriaPadre` int(11) NOT NULL
+CREATE TABLE `cierres` (
+  `idCierre` int(11) NOT NULL,
+  `FechaCierre` date NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `FechaInicio` datetime NOT NULL,
+  `FechaFinal` datetime NOT NULL,
+  `FechaCreacion` datetime NOT NULL,
+  `Total` decimal(17,4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `clientes`
+-- Table structure for table `cierres_ivas`
+--
+
+CREATE TABLE `cierres_ivas` (
+  `id` int(11) NOT NULL,
+  `idCierre` int(11) NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `tipo_iva` int(11) NOT NULL,
+  `importe_base` decimal(17,4) NOT NULL,
+  `importe_iva` decimal(17,4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cierres_usuariosFormasPago`
+--
+
+CREATE TABLE `cierres_usuariosFormasPago` (
+  `id` int(11) NOT NULL,
+  `idCierre` int(11) NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `FormasPago` varchar(100) NOT NULL,
+  `importe` decimal(17,4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cierres_usuarios_tickets`
+--
+
+CREATE TABLE `cierres_usuarios_tickets` (
+  `id` int(11) NOT NULL,
+  `idCierre` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `Importe` decimal(17,4) NOT NULL,
+  `Num_ticket_inicial` int(11) NOT NULL,
+  `Num_ticket_final` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `clientes`
 --
 
 CREATE TABLE `clientes` (
@@ -136,6 +188,7 @@ CREATE TABLE `clientes` (
   `razonsocial` varchar(100) CHARACTER SET utf8 NOT NULL,
   `nif` varchar(10) CHARACTER SET utf8 NOT NULL,
   `direccion` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `codpostal` varchar(32) NOT NULL,
   `telefono` varchar(11) NOT NULL,
   `movil` varchar(11) NOT NULL,
   `fax` varchar(11) NOT NULL,
@@ -146,20 +199,52 @@ CREATE TABLE `clientes` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `indices`
+-- Table structure for table `familias`
+--
+
+CREATE TABLE `familias` (
+  `idFamilia` int(11) NOT NULL,
+  `familiaNombre` varchar(100) NOT NULL DEFAULT '',
+  `familiaPadre` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `familiasTienda`
+--
+
+CREATE TABLE `familiasTienda` (
+  `idFamilia` int(11) NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `ref_familia_tienda` varchar(18) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `indices`
 --
 
 CREATE TABLE `indices` (
+  `id` int(11) NOT NULL,
   `idTienda` int(11) NOT NULL,
   `idUsuario` int(11) NOT NULL,
   `numticket` int(11) NOT NULL,
   `tempticket` int(11) NOT NULL COMMENT 'Es el numero con guardo temporal ticket'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `indices`
+--
+
+INSERT INTO `indices` (`id`, `idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES
+(1, 1, 1, 0, 0);
+
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `iva`
+-- Table structure for table `iva`
 --
 
 CREATE TABLE `iva` (
@@ -172,13 +257,13 @@ CREATE TABLE `iva` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `proveedores`
+-- Table structure for table `proveedores`
 --
 
 CREATE TABLE `proveedores` (
   `idProveedor` int(11) NOT NULL,
   `nombrecomercial` varchar(100) DEFAULT NULL,
-  `razonsocial` varchar(10) NOT NULL,
+  `razonsocial` varchar(100) NOT NULL,
   `nif` varchar(10) NOT NULL,
   `direccion` varchar(100) NOT NULL,
   `telefono` varchar(11) NOT NULL,
@@ -193,7 +278,7 @@ CREATE TABLE `proveedores` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ticketslinea`
+-- Table structure for table `ticketslinea`
 --
 
 CREATE TABLE `ticketslinea` (
@@ -215,7 +300,7 @@ CREATE TABLE `ticketslinea` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ticketst`
+-- Table structure for table `ticketst`
 --
 
 CREATE TABLE `ticketst` (
@@ -235,7 +320,7 @@ CREATE TABLE `ticketst` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ticketstemporales`
+-- Table structure for table `ticketstemporales`
 --
 
 CREATE TABLE `ticketstemporales` (
@@ -255,7 +340,7 @@ CREATE TABLE `ticketstemporales` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ticketstIva`
+-- Table structure for table `ticketstIva`
 --
 
 CREATE TABLE `ticketstIva` (
@@ -270,7 +355,7 @@ CREATE TABLE `ticketstIva` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tiendas`
+-- Table structure for table `tiendas`
 --
 
 CREATE TABLE `tiendas` (
@@ -284,10 +369,17 @@ CREATE TABLE `tiendas` (
   `estado` varchar(12) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `tiendas`
+--
+
+INSERT INTO `tiendas` (`idTienda`, `NombreComercial`, `razonsocial`, `nif`, `telefono`, `direccion`, `ano`, `estado`) VALUES
+(1, 'Nombre Comercial tienda', 'Razon Social tienda', 'A36361361', '66666666', 'Direccion sin poner de empresa', '2017', 'activo');
+
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios`
+-- Table structure for table `usuarios`
 --
 
 CREATE TABLE `usuarios` (
@@ -296,157 +388,224 @@ CREATE TABLE `usuarios` (
   `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha` date NOT NULL,
   `group_id` int(11) NOT NULL COMMENT 'id grupo permisos',
-  `estado` varchar(8) NOT NULL COMMENT 'estado',
+  `estado` varchar(12) NOT NULL COMMENT 'estado',
   `nombre` varchar(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Índices para tablas volcadas
+-- Dumping data for table `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `username`, `password`, `fecha`, `group_id`, `estado`, `nombre`) VALUES
+(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', '2017-09-06', 1, 'activo', 'admin');
+
+--
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `articulos`
+-- Indexes for table `articulos`
 --
 ALTER TABLE `articulos`
   ADD PRIMARY KEY (`idArticulo`),
   ADD KEY `idProveedor` (`idProveedor`);
 
 --
--- Indices de la tabla `articulosCodigoBarras`
+-- Indexes for table `articulosFamilias`
 --
-ALTER TABLE `articulosCodigoBarras`
-  ADD UNIQUE KEY `codBarras` (`codBarras`);
-
---
--- Indices de la tabla `articulosFamilia`
---
-ALTER TABLE `articulosFamilia`
+ALTER TABLE `articulosFamilias`
   ADD PRIMARY KEY (`idArticulo`,`idFamilia`),
   ADD KEY `fk_categoriaFamilias` (`idFamilia`),
   ADD KEY `fk_articulos` (`idArticulo`);
 
 --
--- Indices de la tabla `articulosProveedores`
+-- Indexes for table `articulosImagenes`
+--
+ALTER TABLE `articulosImagenes`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `articulosProveedores`
 --
 ALTER TABLE `articulosProveedores`
   ADD PRIMARY KEY (`idArticulo`,`idProveedor`);
 
 --
--- Indices de la tabla `articulosTiendas`
+-- Indexes for table `articulosTiendas`
 --
 ALTER TABLE `articulosTiendas`
   ADD PRIMARY KEY (`idArticulo`,`idTienda`),
   ADD KEY `idTienda` (`idTienda`);
 
 --
--- Indices de la tabla `categorias`
+-- Indexes for table `cierres`
 --
-ALTER TABLE `categorias`
-  ADD PRIMARY KEY (`idCategoria`);
+ALTER TABLE `cierres`
+  ADD PRIMARY KEY (`idCierre`);
 
 --
--- Indices de la tabla `clientes`
+-- Indexes for table `cierres_ivas`
+--
+ALTER TABLE `cierres_ivas`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `cierres_usuariosFormasPago`
+--
+ALTER TABLE `cierres_usuariosFormasPago`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `cierres_usuarios_tickets`
+--
+ALTER TABLE `cierres_usuarios_tickets`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `clientes`
 --
 ALTER TABLE `clientes`
   ADD PRIMARY KEY (`idClientes`);
 
 --
--- Indices de la tabla `iva`
+-- Indexes for table `familias`
+--
+ALTER TABLE `familias`
+  ADD PRIMARY KEY (`idFamilia`);
+
+--
+-- Indexes for table `indices`
+--
+ALTER TABLE `indices`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `iva`
 --
 ALTER TABLE `iva`
   ADD PRIMARY KEY (`idIva`);
 
 --
--- Indices de la tabla `proveedores`
+-- Indexes for table `proveedores`
 --
 ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`idProveedor`);
 
 --
--- Indices de la tabla `ticketslinea`
+-- Indexes for table `ticketslinea`
 --
 ALTER TABLE `ticketslinea`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `ticketst`
+-- Indexes for table `ticketst`
 --
 ALTER TABLE `ticketst`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `ticketstemporales`
+-- Indexes for table `ticketstemporales`
 --
 ALTER TABLE `ticketstemporales`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `ticketstIva`
+-- Indexes for table `ticketstIva`
 --
 ALTER TABLE `ticketstIva`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `tiendas`
+-- Indexes for table `tiendas`
 --
 ALTER TABLE `tiendas`
   ADD PRIMARY KEY (`idTienda`);
 
 --
--- Indices de la tabla `usuarios`
+-- Indexes for table `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `articulos`
+-- AUTO_INCREMENT for table `articulos`
 --
 ALTER TABLE `articulos`
-  MODIFY `idArticulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10507;
+  MODIFY `idArticulo` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT de la tabla `clientes`
+-- AUTO_INCREMENT for table `articulosImagenes`
+--
+ALTER TABLE `articulosImagenes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `cierres`
+--
+ALTER TABLE `cierres`
+  MODIFY `idCierre` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `cierres_ivas`
+--
+ALTER TABLE `cierres_ivas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `cierres_usuariosFormasPago`
+--
+ALTER TABLE `cierres_usuariosFormasPago`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `cierres_usuarios_tickets`
+--
+ALTER TABLE `cierres_usuarios_tickets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `idClientes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
+  MODIFY `idClientes` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT de la tabla `iva`
+-- AUTO_INCREMENT for table `indices`
+--
+ALTER TABLE `indices`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `iva`
 --
 ALTER TABLE `iva`
-  MODIFY `idIva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `idIva` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT de la tabla `ticketslinea`
+-- AUTO_INCREMENT for table `ticketslinea`
 --
 ALTER TABLE `ticketslinea`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=587;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT de la tabla `ticketst`
+-- AUTO_INCREMENT for table `ticketst`
 --
 ALTER TABLE `ticketst`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT de la tabla `ticketstemporales`
+-- AUTO_INCREMENT for table `ticketstemporales`
 --
 ALTER TABLE `ticketstemporales`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=367;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT de la tabla `ticketstIva`
+-- AUTO_INCREMENT for table `ticketstIva`
 --
 ALTER TABLE `ticketstIva`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=291;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT de la tabla `tiendas`
+-- AUTO_INCREMENT for table `tiendas`
 --
 ALTER TABLE `tiendas`
-  MODIFY `idTienda` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idTienda` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
--- AUTO_INCREMENT de la tabla `usuarios`
+-- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
