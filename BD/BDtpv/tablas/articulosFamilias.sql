@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.10deb1
--- http://www.phpmyadmin.net
+-- version 4.6.6deb4
+-- https://www.phpmyadmin.net/
 --
--- Servidor: localhost
--- Tiempo de generación: 02-10-2017 a las 00:50:01
--- Versión del servidor: 5.5.57-0ubuntu0.14.04.1
--- Versión de PHP: 5.6.31-4+ubuntu14.04.1+deb.sury.org+4
+-- Host: localhost:3306
+-- Generation Time: Nov 03, 2017 at 10:47 AM
+-- Server version: 10.1.26-MariaDB-0+deb9u1
+-- PHP Version: 7.0.19-1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -14,25 +14,34 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `tpv`
+-- Database: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulosFamilia`
+-- Table structure for table `articulosFamilias`
 --
 
-CREATE TABLE IF NOT EXISTS `articulosFamilia` (
+CREATE TABLE `articulosFamilias` (
   `idArticulo` int(11) NOT NULL,
-  `idFamilia` int(11) NOT NULL,
-  PRIMARY KEY (`idArticulo`,`idFamilia`),
-  KEY `fk_categoriaFamilias` (`idFamilia`),
-  KEY `fk_articulos` (`idArticulo`)
+  `idFamilia` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `articulosFamilias`
+--
+ALTER TABLE `articulosFamilias`
+  ADD PRIMARY KEY (`idArticulo`,`idFamilia`),
+  ADD KEY `fk_categoriaFamilias` (`idFamilia`),
+  ADD KEY `fk_articulos` (`idArticulo`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
