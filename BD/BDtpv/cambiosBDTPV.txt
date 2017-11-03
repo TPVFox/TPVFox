@@ -1,0 +1,21 @@
+
+20171103 - Cambios
+
+Elimino tablas:
+- categorias
+
+-Cambio Nombre:
+articulosFamilia  a articulosFamilias
+
+
+- Nuevas tablas:
+BD/BDtpv/tablas/familias.sql
+BD/BDtpv/tablas/familiasTienda.sql
+
+
+
+- Tipo codificacion para toda las tablas:
+utf8mb4
+
+
+La mayoria de los cambios son cambios insignificantes

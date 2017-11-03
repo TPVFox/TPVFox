@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 03, 2017 at 09:44 AM
+-- Generation Time: Nov 03, 2017 at 09:41 AM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.19-1
 
@@ -23,16 +23,13 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ticketstIva`
+-- Table structure for table `familias`
 --
 
-CREATE TABLE `ticketstIva` (
-  `id` int(11) NOT NULL,
-  `idticketst` int(11) NOT NULL,
-  `Numticket` int(11) NOT NULL,
-  `iva` int(11) NOT NULL,
-  `importeIva` decimal(17,2) NOT NULL,
-  `totalbase` decimal(17,2) NOT NULL
+CREATE TABLE `familias` (
+  `idFamilia` int(11) NOT NULL,
+  `familiaNombre` varchar(100) NOT NULL DEFAULT '',
+  `familiaPadre` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -40,20 +37,11 @@ CREATE TABLE `ticketstIva` (
 --
 
 --
--- Indexes for table `ticketstIva`
+-- Indexes for table `familias`
 --
-ALTER TABLE `ticketstIva`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE `familias`
+  ADD PRIMARY KEY (`idFamilia`);
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `ticketstIva`
---
-ALTER TABLE `ticketstIva`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

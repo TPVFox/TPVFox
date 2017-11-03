@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.10deb1
--- http://www.phpmyadmin.net
+-- version 4.6.6deb4
+-- https://www.phpmyadmin.net/
 --
--- Servidor: localhost
--- Tiempo de generación: 02-10-2017 a las 00:50:33
--- Versión del servidor: 5.5.57-0ubuntu0.14.04.1
--- Versión de PHP: 5.6.31-4+ubuntu14.04.1+deb.sury.org+4
+-- Host: localhost:3306
+-- Generation Time: Nov 03, 2017 at 09:39 AM
+-- Server version: 10.1.26-MariaDB-0+deb9u1
+-- PHP Version: 7.0.19-1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -14,19 +14,19 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `tpv`
+-- Database: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulosPrecios`
+-- Table structure for table `articulosPrecios`
 --
 
-CREATE TABLE IF NOT EXISTS `articulosPrecios` (
+CREATE TABLE `articulosPrecios` (
   `idArticulo` int(11) NOT NULL,
   `pvpCiva` decimal(17,6) NOT NULL,
   `pvpSiva` decimal(17,6) NOT NULL,

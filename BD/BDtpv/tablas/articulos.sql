@@ -33,8 +33,9 @@ CREATE TABLE `articulos` (
   `articulo_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `beneficio` decimal(5,2) DEFAULT NULL,
   `costepromedio` decimal(17,6) DEFAULT NULL,
-  `fechaalta` datetime NOT NULL,
-  `estado` varchar(12) CHARACTER SET utf8 NOT NULL
+  `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
+  `fecha_creado` datetime NOT NULL,
+  `fecha_modificado` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
