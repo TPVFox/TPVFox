@@ -159,16 +159,29 @@
 					 -Tickets cerrados encontrados BD local filtrados:
 						<?php echo $CantidadRegistros;?>
 					</p>
-					<?php 	// Mostramos paginacion 
-						echo $htmlPG;
-					?>
-					<form action="./ListaTickets.php" method="GET" name="formBuscar">
-						<div class="form-group ClaseBuscar">
-							<label>Buscar en Formas de pago, en Num Ticket y por Nombre Cliente.</label>
-							<input type="text" name="buscar" value="">
-							<input type="submit" value="buscar">
+					<div>
+						<div class="alert-info" style="width:30%" >
+						<?php 	// Mostramos paginacion 
+							$mensaje='Pulsar <strong>Ultima</strong> para ver <strong>ultimos tickets</strong> cobrados.';
+							echo $mensaje; 
+						?>
 						</div>
-					</form>				
+						<div>
+							<?php
+								echo $htmlPG;
+							?>	
+						</div>
+						
+					</div>
+					<div>
+						<form action="./ListaTickets.php" method="GET" name="formBuscar">
+							<div class="form-group ClaseBuscar">
+								<label>Buscar en Formas de pago, en Num Ticket y por Nombre Cliente.</label>
+								<input type="text" name="buscar" value="">
+								<input type="submit" value="buscar">
+							</div>
+						</form>		
+					</div>		
                  <!-- TABLA DE TICKETS -->
 			<div>
 			<table class="table table-striped">
