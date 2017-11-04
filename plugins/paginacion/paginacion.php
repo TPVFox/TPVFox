@@ -31,6 +31,7 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 	
 	// Array para texto de paginas.
 	$ArrayTPg = array('inicio'=>'Inicio','actual'=>'Actual','ultima'=>'Ultima');
+	$TotalPaginas = 1 ; // Valor por defecto.
 	$resto= 0;
 	if ($CantidadRegistros > $LimitePagina ) {
 	// Si hay mas 50 , realizamos paginación.
