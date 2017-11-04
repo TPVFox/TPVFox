@@ -7,9 +7,10 @@
         include './funciones.php';
         include '../mod_cierres/funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
-		if ($Usuario['estado'] === "Incorrecto"){
-			return;	
-		}
+		// Ya no hace falta, ya que lo contralomos head.
+		//~ if ($Usuario['estado'] === "Incorrecto"){
+			//~ return;	
+		//~ }
 		
 		?>
 		<!-- Cargamos libreria control de teclado -->
