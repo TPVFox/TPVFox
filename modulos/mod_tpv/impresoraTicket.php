@@ -65,7 +65,8 @@ foreach ($codes as $table => $name){
 				$printer -> text($datosImpresion['pie-total'].chr(128)."\n");
 				$printer -> selectPrintMode(); // Reset
 				$printer -> setJustification(Printer::JUSTIFY_CENTER);
-				$printer -> text($datosImpresion['pie-datos2']);
+				$printer -> text($datosImpresion['pie-datos2']."\n");
+				$printer -> text(' '."\n"."\n");
 				$printer -> cut();
 				$printer -> close();
 				
