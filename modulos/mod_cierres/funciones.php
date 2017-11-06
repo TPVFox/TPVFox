@@ -381,9 +381,9 @@ function obtenerCierreUnico($BDTpv, $idCierre){
 				
 				
 	//consultamos cierres_usuariosFormasPago
-	$consultaFpago=' SELECT fpago.* FROM cierres_usuariosFormasPago as fpago '
+	$consultaFpago=' SELECT fpago.*, u.username FROM cierres_usuariosFormasPago as fpago '
+				.' LEFT JOIN usuarios AS u ON fpago.idUsuario = u.id '
 				.' WHERE fpago.idCierre = "'.$idCierre.'"';
-				
 
 	//ataco cierres y cierres_ivas
 	$consulta =	' SELECT cierre.*, ivas.* '
@@ -411,19 +411,22 @@ function obtenerCierreUnico($BDTpv, $idCierre){
 	
 	//montaje de array fpago, por usuarios
 	$sqlFpago = $BDTpv->query($consultaFpago);
-	$x = 0;
+	
 	while ($fpago = $sqlFpago->fetch_assoc()) {
+		 $idUsuario= $fpago['idUsuario'];		
+		$resultado['fpago'][$idUsuario]['nombre']=$fpago['username'];
+		$resultado['fpago'][$idUsuario]['idUsuario']=$fpago['idUsuario'];
+		$formaPago = $fpago['FormasPago'];
+		$formasPago[]=$formaPago;
+		$resultado['fpago'][$idUsuario]['formas'][$formaPago] = $fpago['importe'];
 		
-		$resultado['fpago'][$x]['idUsuario']=$fpago['idUsuario'];
-		$resultado['fpago'][$x]['FormasPago']=$fpago['FormasPago'];
-		$resultado['fpago'][$x]['importe']=$fpago['importe'];
-		$x++;
 	}
 	
 	//montaje de array de usuarios tickets cierres
 	$sqlUsuario = $BDTpv->query($sqlUsuarioTickets);
 	$z=0;
 	while ($usuarios =$sqlUsuario->fetch_assoc()){
+		$resultado['usuario'][$z]['nombreUsuario']= $usuarios['username'];
 		$resultado['usuario'][$z]['idUsuario']=$usuarios['idUsuario'];
 		$resultado['usuario'][$z]['Importe']=$usuarios['Importe'];
 		$resultado['usuario'][$z]['Num_ticket_inicial']=$usuarios['Num_ticket_inicial'];
