@@ -204,6 +204,7 @@
 				<?php
 				$checkUser = 0;
 				//
+				$i=0;
 				foreach (array_reverse($tickets) as $ticket){ 
 					$checkUser = $checkUser + 1; 
 				?>
@@ -222,11 +223,16 @@
 					<td><?php echo $ticket['estado']; ?></td>
 					<td><?php echo $ticket['formaPago']; ?></td>
 					<td><?php echo $ticket['total']; ?></td>
-					<td><?php echo $ticket['idCierre']['idCierre']; ?></td>
+					<td><?php 
+					if ($ticket['idCierre']['idCierre'] === 'NULL'){
+						$ticket['idCierre']['idCierre'] = 0;
+					} 
+				echo $ticket['idCierre']['idCierre']; ?></td>
 					
 				</tr>
 
 				<?php 
+				$i++;
 				}
 				?>
 				

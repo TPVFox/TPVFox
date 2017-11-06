@@ -67,6 +67,7 @@
 	}
 	
 	$cierres = obtenerCierres($BDTpv,$filtro);
+	
 	?>
 	<script>
 	// Declaramos variables globales
@@ -173,6 +174,7 @@
 
 				<?php 
 				}
+				
 				?>
 				
 			</table>

@@ -814,20 +814,19 @@ function obtenerTickets($BDTpv,$filtro) {
 	while ($fila = $ResConsulta->fetch_assoc()) {
 		$numTicket = $fila['Numticket'];
 		$resultado[] = $fila;
-		
-		$sqlIdCierre[$i]='SELECT c.`idCierre` FROM `cierres_usuarios_tickets` AS c '
-				.'LEFT JOIN `ticketst` as t ON t.Numticket = c.Num_ticket_final ' 
-				.'where "'.$numTicket.'" >= c.Num_ticket_inicial and "'.$numTicket.'"<= c.Num_ticket_final ';
-		$resSql = $BDTpv->query($sqlIdCierre[$i]);
-		
-		while($id = $resSql->fetch_assoc()) {
-			
-			$idCierre=$id;
-		}
-		$resultado[$i]['idCierre'] =$idCierre;
-		$i++;
+			if ($fila['estado'] == 'Cerrado'){
+				$sqlIdCierre[$i]='SELECT c.`idCierre` FROM `cierres_usuarios_tickets` AS c '
+						.'LEFT JOIN `ticketst` as t ON t.Numticket = c.Num_ticket_final ' 
+						.'where "'.$numTicket.'" >= c.Num_ticket_inicial and "'.$numTicket.'"<= c.Num_ticket_final ';
+				$resSql = $BDTpv->query($sqlIdCierre[$i]);
+				
+				while($id = $resSql->fetch_assoc()) {
+					$idCierre=$id;
+				}
+			$resultado[$i]['idCierre'] =$idCierre;
+			$i++;
+			}
 	}
-	
 	
 	//$resultado['sql']=$consulta;
 	//$resultado['sql']=$sqlIdCierre;
