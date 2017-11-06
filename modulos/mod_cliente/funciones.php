@@ -1,7 +1,7 @@
 <?php 
 
 
-function obtenerClientes($BDTpv,$LimitePagina ,$desde,$filtro) {
+function obtenerClientes($BDTpv,$filtro) {
 	// Function para obtener clientes y listarlos
 
 	$clientes = array();

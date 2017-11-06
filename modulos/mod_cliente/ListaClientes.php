@@ -73,7 +73,7 @@
 	}
 
 	//echo '</br>'.$filtro.' ';
-	$clientes = obtenerClientes($BDTpv,$LimitePagina ,$desde,$filtro);
+	$clientes = obtenerClientes($BDTpv,$filtro);
 	?>
 	<script>
 	// Declaramos variables globales

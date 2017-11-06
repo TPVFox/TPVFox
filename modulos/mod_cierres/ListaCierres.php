@@ -15,6 +15,7 @@
 	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
 	//$OtrosParametros
 	$palabraBuscar=array();
+	$stringPalabras='';	
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
@@ -23,9 +24,8 @@
 		$PgActual = $_GET['pagina'];
 	}
 	if (isset($_GET['buscar'])) {  
-		$palabraBuscar = $_GET['buscar'];
-		$filtro = $palabraBuscar;
-		$filtro = ' WHERE `FechaFinal` LIKE "%'.$palabraBuscar.'%" ';
+		$stringPalabras = $_GET['buscar'];
+		$palabraBuscar = explode(' ',$_GET['buscar']); 		
 	} 
 
 	// Creamos objeto controlado comun, para obtener numero de registros. 
@@ -39,9 +39,7 @@
 	
 	$vista = 'cierres';
 	$LinkBase = './ListaCierres.php?';
-	$OtrosParametros = '';
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	
+	$OtrosParametros = '';	
 
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
@@ -49,23 +47,26 @@
 	} else {
 		$desde = 0;
 	}
-	// Realizamos consulta 
-	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
-	if (isset($palabraBuscar)) {
-		$filtro =  "$palabraBuscar";
-		
-	} else {		
-		$filtro = '';
+
+	//si hay palabras a buscar
+	if ($stringPalabras !== '' ){
+		$campoBD='idCierre';
+		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD='',$campo3BD='');
+		$filtro=$WhereLimite['filtro'];
+		$OtrosParametros=$stringPalabras;
 	}
 
-	$OtrosParametros = $palabraBuscar;	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
+	//$OtrosParametros = $palabraBuscar;	
+	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+	if ($stringPalabras !== '' ){
+		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+	} else {
+		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+	}
 	
-	$cierres = obtenerCierres($BDTpv,$LimitePagina ,$desde,$filtro);
-	//~ echo '<pre>';
-	//~ print_r($cierres);
-	//~ echo '</pre>';
+	$cierres = obtenerCierres($BDTpv,$filtro);
 	?>
 	<script>
 	// Declaramos variables globales
@@ -130,7 +131,7 @@
 					?>
 				<form action="./ListaCierres.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en nombre </label>
+						<label>Buscar en idCierre </label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>

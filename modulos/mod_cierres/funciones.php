@@ -145,34 +145,18 @@ function baseIva($BDTpv,$idticketst){
 	return $resultado;
 }
 
-function obtenerCierres($BDTpv,$LimitePagina ,$desde,$filtro) {
+function obtenerCierres($BDTpv ,$filtro) {
 	// Function para obtener cierres y listarlos
-	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
 	//tablas usadas: - cierres
 				//	 - usuarios
-				 
-
-//para evitar repetir codigo
-	$Controler = new ControladorComun; 
-	$campoBD = 'fecha';
-	$campo2BD = '';
-	$rangoFiltro = $Controler->paginacionFiltroBuscar($BDTpv,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD);
-	$rango=$rangoFiltro['rango'];
-	$filtroFinal=$rangoFiltro['filtro'];
-//fin paginacion y filtro de busqueda 
-
-
 	$resultado = array();
 	$consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
-				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtroFinal.$rango; 
+				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro; 
 	
-	$Resql = $BDTpv->query($consulta);
-	//$cierres['NItems'] = $Resql->num_rows;
-	
+	$Resql = $BDTpv->query($consulta);	
 	while ($datos = $Resql->fetch_assoc()) {
 			$resultado[]=$datos;
 	}
-
 	//$resultado ['sql'] = $consulta;
 	return $resultado;
 }
