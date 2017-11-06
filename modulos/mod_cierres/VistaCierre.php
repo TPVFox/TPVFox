@@ -188,7 +188,7 @@
 									<td><?php echo number_format($sumaBase,2); ?></td>
 									<td><?php echo number_format($sumaIvas,2);  ?></td>
 								</tr>
-								<tr <?php echo $classAlert; ?>>
+								<tr>
 									<td></td>
 									<td><b><?php echo 'Total: '; ?></b></td>
 									<td><b><?php echo $totalBasesIvas; ?></b></td>

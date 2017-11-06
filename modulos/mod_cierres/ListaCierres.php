@@ -14,6 +14,7 @@
 	//$LimitePagina = 40 o los que queramos
 	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
 	//$OtrosParametros
+	$palabraBuscar=array();
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
@@ -53,8 +54,7 @@
 	if (isset($palabraBuscar)) {
 		$filtro =  "$palabraBuscar";
 		
-	} else {
-		
+	} else {		
 		$filtro = '';
 	}
 
