@@ -257,7 +257,7 @@ function htmlCobrar($total){
 	$resultado['html'] .= '<h1>'.number_format($total,2).'<span class="small"> €</span></h1>';
 	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" size="8" onkeyup="teclaPulsada(event,'."'entrega',0".')" ></input></h4>';
 												
-	$resultado['html'] .= '<h4> Cambio &nbsp<input class="text-right" id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
+	$resultado['html'] .= '<h4> Cambio &nbsp<input class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
 	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
 	$resultado['html'] .= '<label><input name="checkimprimir" type="checkbox" checked> Imprimir</label>';
 	$resultado['html'] .= '</div>';
