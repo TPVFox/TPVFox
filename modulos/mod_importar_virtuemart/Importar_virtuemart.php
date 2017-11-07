@@ -20,7 +20,11 @@
 	include ("./../../controllers/Controladores.php");
 	include_once ("./funciones.php");
 
-		// Cargamos el controlador.
+	//~ echo '<pre>';
+	//~ $arr = get_defined_vars();
+	//~ print_r($arr);
+	//~ echo '</pre>';
+	// Cargamos el controlador.
 	include_once ('./Arrays_inicio.php');
 
 	// [ DEFINIMOS VARIABLES POR DEFECTO ]

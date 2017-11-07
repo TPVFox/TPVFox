@@ -1,4 +1,7 @@
 <?php
+// Recuerda que tienes que tener la variable $prefijoBD ya definida.
+
+
 //[Array $opyicrefs ] Opciones de como generar CREF en Tpv
 // @ Array indexado y asociativo
 //			value= Nombre option
@@ -36,7 +39,6 @@ $optcrefs = array (
 	//		nombre_tabla_temporal	-> Nombre de la tabla temporal de Virtuemart
 	//		campo_id				-> Nombre del campo autonumerico que creamos automaticamentes.
 	//		select					-> Consulta que realizamos para crear tabal temporal
-// Recuerda que tienes que tener la variable $prefijoBD ya definida.
 	
 
 
