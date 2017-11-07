@@ -115,8 +115,7 @@
 				movil
 	        -->
 	       
-			<nav class="col-sm-2" id="myScrollspy">
-				<div data-offset-top="505">
+			<nav class="col-sm-2">
 				<h4> Productos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -127,8 +126,7 @@
 								//agregarUsuario nos lleva a formulario usuario
 								//verUsuario si esta checkado nos lleva vista usuario de ese id
 											//si NO nos indica que tenemos que elegir uno de la lista ?>
-				</ul>
-				</div>	
+				</ul>	
 			</nav>
 			<div class="col-md-10">
 					<p>
@@ -148,7 +146,7 @@
 				</form>
                  <!-- TABLA DE PRODUCTOS -->
 			<div>
-			<table class="table table-striped">
+			<table class="table table-bordered table-hover">
 				<thead>
 					<tr>
 						<th></th>
@@ -158,7 +156,9 @@
 						<th>COSTE</th>
 						<th>BENEFICIO</th>
 						<th>IVA</th>
-						<th>PRECIO VENTA</th>
+						<th>P.V.P</th>
+						<th>Estado</th>
+
 					</tr>
 				</thead>
 	
@@ -177,8 +177,9 @@
 					<td><?php echo number_format($producto['costepromedio'],2); ?></td>
 					<td><?php echo $producto['beneficio']; ?></td>
 					<td><?php echo $producto['iva']; ?></td>
-					<td><?php echo number_format($producto['pvpCiva'],2); ?></td>
-					
+					<td style="text-align:right;"><?php echo number_format($producto['pvpCiva'],2); ?><small>€</small></td>
+					<td><?php echo $producto['estado']; ?></td>
+
 				</tr>
 
 				<?php 
