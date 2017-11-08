@@ -26,24 +26,22 @@
 	// Creo variables de  IdTIenda_exportar si ya pulso configuracion:
 	if (isset($_POST['tiendaOnLine'])){
 		$idTienda_export = $_POST['tiendaOnLine'];
+	} else {
+		// Por defecto no hay empresa seleccionada.
+		$idTienda_export = 0;
 	}
 	
-
-	echo '<pre>';
-	//~ $arr = get_defined_vars();
-	echo 'idTienda:'.$idTienda;
-	echo 'idTienda_exporta:'.$idTienda_export;
-
-	echo '</pre>';
-	// Cargamos variables inicio , estas necesitana la variables idTienda,idTienda_export,PrefijoBD...
+	// Cargamos variables inicio , estas necesitana la variables idTienda, idTienda_export, PrefijoBD...
 	// Lo ideal sería hacer una clase configuración donde obtener esos Arrays_inicio de forma independiente, 
-	// es decir, antes pulsar opciones , obtenemos solo el arrar select, y luego a la vuelta, con POST
-	// obtenemos los demas variables.
+	// es decir:
+	//  - Antes pulsar opciones configurarion , obtenemos solo el array de los selects
+	//	- Al haber seleccionado y pulsado botton de configuaracion carga los demas arrays.
 	include_once ('./Arrays_inicio.php');
 
 	// [ DEFINIMOS VARIABLES POR DEFECTO ]
 	$titulo_control_proceso = 'Control de procesos';
-	$optcrefs['0']['checked'] = 'checked'; 	// Se cambiaría si hay POST
+	$optcrefs['1']['checked'] = 'checked'; 	// Se cambiaría si hay POST
+	$optprecios['1']['checked'] = 'checked'; 	// Se cambiaría si hay POST
 	$confirmación_cfg = '' ; 				// Solo tendrá valor si pulsa btn y por get viene variable.
 	$tienda_on_line_seleccionada = ''; // Tienda On Line seleccionad.. 
 	//[OBTENEMOS LAS TIENDAS ON LINE QUE HAY]
@@ -158,17 +156,9 @@
 			<div style="padding:10px 0px;">
 				<form action="Importar_virtuemart.php?configuracion=SI" method="POST">
 				<div class="form-group">
-				<label title="Podemos seleccionar si creamos CREF y con que campo de Virtuemart">En empresa actual : ¿Como generamos campo CREF?"</label>
-					<?php
-					foreach ($optcrefs as $optcref){
-						echo '<label class="radio-inline">';
-						echo '	<input type="radio" name="optcref" title="'.$optcref['EtiqueTitle'].'" value ="'.$optcref['value'].'" '.$optcref['checked'].' '.$disable_conf.'>'.$optcref['descripcion'].'</label>';
-					}
-					?>
-				</div>
-				<div class="form-group">
 					<label for="sel1" title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda On Line con la quieres importar o actualizar datos:</label>
 						<select <?php echo $disable_conf;?>  class="form-control" name="tiendaOnLine" id="sel1">
+							<option value="0">Sin selecciona tienda on-line</option>
 							<?php
 							$porDefecto = ''; 
 							foreach ($tiendasOnLine['items'] as $tiendaOnLine){
@@ -186,6 +176,33 @@
 					</label>
 							
 				</div>
+				
+				<div class="form-group">
+				<h4>En la tabla ArticulosTiendas generamos el campo CREF</h4>
+				<p>Esta tabla se añade por defecto registros con CREF para tienda exportada con idVirtuemart por defecto, pero debes indicar como quieres para tienda principal</p>
+				<label><small>¿Creamos CREF para empresa principal?</small></label>
+	
+					<?php
+					foreach ($optcrefs as $optcref){
+						echo '<label class="radio-inline">';
+						echo '	<input type="radio" name="optcref" title="'.$optcref['EtiqueTitle'].'" value ="'.$optcref['value'].'" '.$optcref['checked'].' '.$disable_conf.'>'.$optcref['descripcion'].'</label>';
+					}
+					?>
+				</div>
+				<div class="form-group">
+				<h4>En la tabla ArticulosPrecios</h4>
+				<p>Por defecto tipo insert es añadir el precio para tienda_exportada, pero puede generar tambien los precios para la tienda principal.</p>
+				<label><small>¿Quieres los precios web en el tpv?</small></label>
+	
+					<?php
+					foreach ($optprecios as $optprecio){
+						echo '<label class="radio-inline">';
+						echo '	<input type="radio" name="optprecio" title="'.$optprecio['EtiqueTitle'].'" value ="'.$optprecio['value'].'" '.$optprecio['checked'].' '.$disable_conf.'>'.$optprecio['descripcion'].'</label>';
+					}
+					?>
+				</div>
+				
+				
 
 				<button <?php echo $disable_conf;?> type="submit" class="btn btn-primary">Cambiar o confirma configuracion</button>
 
@@ -354,7 +371,7 @@
 		
 	<div>
 <?php
-//~ $respuesta = prepararInsertTablasBDTpv($BDVirtuemart,$tablas_importar);
+$respuesta = prepararInsertTablasBDTpv($BDVirtuemart,$tablas_importar);
 //~ echo '<pre>';
 	//~ $respuesta = json_encode($respuesta);
 	//~ print_r($respuesta);
@@ -362,9 +379,9 @@
 //~ echo '<pre>';
 	//~ print_r(json_decode($respuesta));
 //~ echo '</pre>';
-echo '<pre>';
-print_r($tablas_importar);
-echo '</pre>';
+//~ echo '<pre>';
+//~ print_r($tablas_importar);
+//~ echo '</pre>';
 ?>
 
 

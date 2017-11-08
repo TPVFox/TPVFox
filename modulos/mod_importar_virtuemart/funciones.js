@@ -90,33 +90,53 @@ function PrepararInsert(){
 		url:   'tareas.php',
 		type:  'post',
 		beforeSend: function () {
-				$("#resultado").html('Vaciando tablas de TPV');
+				$("#resultado").html('Preparando inserts de todas tablas');
 		},
 		success:  function (response) {			
-			// Recorremos el objeto tabla.nombretabla.Insert para contar cuantos insert
-			//~ var resultado =  $.parseJSON(response);
+			// Obtenemos una array de la tablas con array con los datos insert y descartados.
 			var i_tablas = [];
 			var tablaNombre = '';
 			for (ntabla in response) {
-				// Obtenemos el nombre tabla.
-				tablaNombre = tablaImpor[ntabla].nombre;
+				// Recorremos las tablas
+				tablaNombre = tablaImpor[ntabla].nombre; // Obtenemos nombre de tabla.
 				console.log('Tabla:'+tablaNombre+ ' ->indice :'+ ntabla);
-				i_tablas[tablaNombre] = response[ntabla][tablaNombre].Insert
-				if (response[ntabla][tablaNombre].descartado.length>0){
-					// Para meter clase de color cuando hay descartados.
-					var clase='class="alert-danger"';
-					console.log('Descartados:');
-					console.log(response[ntabla][tablaNombre].descartado);
-				} else {
-					clase ='';	
-				}
-				stringPresentar = response[ntabla][tablaNombre].Insert.length +' / <span '+ clase + '>'+ response[ntabla][tablaNombre].descartado.length+'</span>';
+				tabla = response[ntabla][tablaNombre] ;
+				// Recorremos los distinto tipos_inserts que pueda tener la tabla.
+				i = 0 ;
+				tabla.forEach(function(datos){
+					if (typeof datos.error !== 'undefined'){
+						// Hubo error..
+						console.log ( 'Error en ese tipo insert para la tabla'+tablaNombre);
+						stringPresentar = ' Error en este tipo insert';
+						$("#"+ntabla+" > td.inserts").html(stringPresentar);
+
+					} else {
+						// Ahora añadimos las consultas insert que tenemos que realizar esa tabla de tipo insert
+						if ( i === 0 ){
+						i_tablas[tablaNombre] = datos.Insert;
+						console.log(i_tablas[tablaNombre] );
+						} else {
+						i_tablas[tablaNombre].push.apply(i_tablas[tablaNombre],datos.Insert);
+						console.log('Deberia hacer un añadir...con push');
+						console.log(i_tablas[tablaNombre] );
+						}
+						// Ahora contamos los descartados para este tipo_Insert
+						if (datos.descartado.length>0){
+							// Para meter clase de color cuando hay descartados.
+							var clase='class="alert-danger"';
+							console.log('Descartados:');
+							console.log(datos.descartado);
+						} else {
+							clase ='';	
+						}
+						stringPresentar = datos.Insert.length +' / <span '+ clase + '>'+ datos.descartado.length+'</span>';
+						$("#"+ntabla+" > td.inserts").html(stringPresentar);
+
+					}
+					i = i +1;
+					console.log(datos);
+				});
 				
-				$("#"+ntabla+" > td.inserts").html(stringPresentar);
-				
-				
-				//~ variableGlobal = response.tabla.ntabla;
-				//~ console.log (ntabla);				
 			};
 			// Guardamos comp variable global los inserts.
 			insert_tablas_global = i_tablas
@@ -189,7 +209,7 @@ function bucleInsert(insert_tablas){
 		tabla_actual = nombretabla[nuevoIndice];
 		// Obtenemos los inserts de la tabla que vamos ejecutar.
 		Nuevo_insert = insert_tablas[tabla_actual];
-		console.log ( insert_tablas[tabla_actual]);
+		//~ console.log ( insert_tablas[tabla_actual]);
 		EjecutarInserts(Nuevo_insert,tabla_actual)
 	} else {
 		// termino...
@@ -227,7 +247,7 @@ function BucleTablaTemporal(){
 	// Ejecutamos sino se pasa index de la tablatemporales
 	if ( y <= tablasTemporales.length-1){
 		tablatemporal_actual = tablasTemporales[y];
-		CrearTablaTemporal(tablatemporal_actual,y);
+		CrearTablaTemporal(tablatemporal_actual);
 	} else {
 	// El proceso se termina y se vuelve en CrearTablaTemporal
 	BarraProceso(y,lineaF); 
@@ -236,7 +256,7 @@ function BucleTablaTemporal(){
 	}
 }
 
-function CrearTablaTemporal(tablatemporal,y){
+function CrearTablaTemporal(tablatemporal){
 	// Objetivo: 
 	// Es crear la tablas temporales en virtuemart.
 	var nom_tabla_temporal = tablatemporal['nombre_tabla_temporal'];

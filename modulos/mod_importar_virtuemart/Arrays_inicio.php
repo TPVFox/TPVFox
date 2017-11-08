@@ -5,7 +5,7 @@
 // 	$idTienda_export -> Id de tienda virtuemart donde exportamos.
 
 
-//[Array $opyicrefs ] Opciones de como generar CREF en Tpv
+//[Array $optcrefs ] Opciones de como generar CREF en Tpv
 // @ Array indexado y asociativo
 //			value= Nombre option
 //			descripcion = label que se muestra usuario
@@ -31,7 +31,26 @@ $optcrefs = array (
 				'checked'	  => ''
 				)
 		);
-
+//[Array $optprecios ] Opciones de como generar Precios en tienda principal de tpv
+// @ Array indexado y asociativo
+//			value= Nombre option
+//			descripcion = label que se muestra usuario
+// 			EtiqueTitle = Descripcion que muestra poner encima label.
+//			checked  	= 'checked' -> Indicamos cual es por defecto, se cubre según el id en proceso toma datos.
+$optprecios = array (
+			'0' => array(
+				'value' =>'No_pvp',
+				'descripcion' => 'No generar',
+				'EtiqueTitle' => 'No genera Precio en Tpv.',
+				'checked'	  => ''
+				),
+			'1' => array(
+				'value' => 'Pvp_principal',
+				'descripcion' => 'Genera Precio en tpv',
+				'EtiqueTitle' =>'Genera el mismo precio en tpv en la tienda web',
+				'checked'	  => ''
+				)
+		);
 
 
 
@@ -155,20 +174,30 @@ $tablasTemporales = array(
 	// 		NRegistros-> No se poner, pero recuerda va existir ya que esto se rellena al inicio o con javascript
 	$tablas_importar = 		array(
 						'0' => array(
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert'=> 'Insert Básico',
+													'campos_origen'		=> array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
+													'campos_destino'	=> array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
+													'Num_registros_insert' => '',
+													'obligatorio'	=> array()
+												)
+											),
 								'nombre'		=>'articulos',
-								'obligatorio'	=> array(),
-								'campos_origen'		=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
-								'campos_destino'	=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
-
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'1' => array(
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert'=> 'Insert Báscio',
+													'campos_origen'		=> array('idArticulo', 'codBarras'),
+													'campos_destino'	=> array('idArticulo', 'codBarras'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=> array('codBarras')
+												)
+											),
 								'nombre'		=>'articulosCodigoBarras',
-								'obligatorio'	=> array('codBarras'),
-								'campos_origen'		=> array('idArticulo', 'codBarras'),
-								'campos_destino'	=> array('idArticulo', 'codBarras'),
-
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
@@ -176,50 +205,102 @@ $tablasTemporales = array(
 						// Los precios en tienda principal , se mantinen igual, aunque
 						// en configuracion inicial del proceso se le puede indicar los que los insert.
 						'2' => array( 
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert' => 'Insert Báscio',
+													'campos_origen'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda_export'),
+													'campos_destino'	=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=> array()
+												),
+												'1' => array(
+													'descripcion_insert' => 'Insert Precio web en tpv',
+													'campos_origen'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
+													'campos_destino'	=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=> array()
+												)
+											),
+								
 								'nombre'		=>'articulosPrecios',
-								'obligatorio'	=> array(),
-								'campos_origen'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda_export'),
-								'campos_destino'	=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'3' => array(
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert' => 'Insert Báscio',
+													'campos_origen'		=>array('idArticulo','idTienda_export','idVirtuemartChar','estado'),
+													'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=>array('idVirtuemartChar')
+												),
+												'1' => array(
+													'descripcion_insert' => 'Insert CREF en principal',
+													'campos_origen'		=>array('idArticulo','idTienda','idVirtuemartChar','estado'),
+													'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=>array('idVirtuemartChar')
+												)
+											),
+								
 								'nombre'		=>'articulosTiendas',
-								'obligatorio'	=>array('idVirtuemartChar'),
-								'campos_origen'		=>array('idArticulo','idTienda_export','idVirtuemartChar','estado'),
-								'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'4' => array(
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert' => 'Insert Báscio',
+													'campos_origen'		=>array('idArticulo','idFamilia'),
+													'campos_destino'	=>array('idArticulo','idFamilia'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=>array()
+												)
+											),
 								'nombre'		=>'articulosFamilias',
-								'obligatorio'	=>array(),
-								'campos_origen'		=>array('idArticulo','idFamilia'),
-								'campos_destino'	=>array('idArticulo','idFamilia'),
 								'origen' 		=>'tmp_cruce_familias',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'5' => array(
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert' => 'Insert Báscio',
+													'campos_origen'		=>array('idFamilia','familiaNombre','familiaPadre'),
+													'campos_destino'	=>array('idFamilia','familiaNombre','familiaPadre'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=>array()
+												)
+											),
 								'nombre'		=>'familias',
-								'obligatorio'	=>array(),
-								'campos_origen'		=>array('idFamilia','familiaNombre','familiaPadre'),
-								'campos_destino'	=>array('idFamilia','familiaNombre','familiaPadre'),
 								'origen' 		=>'tmp_familias',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'6' => array(
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert' => 'Insert Báscio',
+													'campos_origen'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
+													'campos_destino'	=>array('idArticulo','cref','virtuemart_media_id','file_url'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=>array('file_url')
+												)
+											),
 								'nombre'		=>'articulosImagenes',
-								'obligatorio'	=>array('file_url'),
-								'campos_origen'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
-								'campos_destino'	=>array('idArticulo','cref','virtuemart_media_id','file_url'),
 								'origen' 		=>'tmp_productos_img',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'7' => array(
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert' => 'Insert Báscio',
+													'campos_origen'		=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
+													'campos_destino'	=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=>array()
+												)
+											),
 								'nombre'		=>'clientes',
-								'obligatorio'	=>array(),
-								'campos_origen'		=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
-								'campos_destino'	=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
 								'origen' 		=>'tmp_clientes',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								)

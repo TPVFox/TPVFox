@@ -72,19 +72,20 @@ function  prepararInsertTablasBDTpv($BDVirtuemart,$tablas){
 	// 	a parte eso, tambien devolvemos el numero inserts y cuanto descartamos.
 	$resultado = array();
 	// Recorremos array para ejecutar las distintas consultas y insertar los datos .
-	$i = 0;					
-	foreach ($tablas as  $key => $Arraytabla) {
-		$tabla_destino = $Arraytabla['nombre'];
-		$tabla_origen = $Arraytabla['origen'];
-		$campos_origen = implode(',',$Arraytabla['campos_origen']);
-		$campos_destino = '('.implode(',',$Arraytabla['campos_destino']).')';
-		$camposObligatorios = (isset($Arraytabla['obligatorio'])  ? $Arraytabla['obligatorio'] : array());
+	foreach ($tablas as  $key => $tabla) {
+		$tabla_destino = $tabla['nombre'];
+		$tabla_origen = $tabla['origen'];
+		// Ahora recorremos array $tablas['tipos_inserts'] por si ha mas de un proceso.
+		$i = 0;					
+		foreach ($tabla['tipos_inserts'] as $Arraytabla){
+			$campos_origen = implode(',',$Arraytabla['campos_origen']);
+			$campos_destino = '('.implode(',',$Arraytabla['campos_destino']).')';
+			$camposObligatorios = (isset($Arraytabla['obligatorio'])  ? $Arraytabla['obligatorio'] : array());
+			$insertUnaTabla = prepararInsertUnaTabla($BDVirtuemart,$campos_destino,$campos_origen,$tabla_origen,$tabla_destino,$camposObligatorios);
+			$resultado[$key][$tabla_destino][$i]= $insertUnaTabla;
+			$i++;
 
-
-		$insertUnaTabla = prepararInsertUnaTabla($BDVirtuemart,$campos_destino,$campos_origen,$tabla_origen,$tabla_destino,$camposObligatorios);
-		$resultado[$key] = $insertUnaTabla;
-		
-		$i++;
+		}
 	}
 	return $resultado;
 }
@@ -98,7 +99,7 @@ function prepararInsertUnaTabla($BDVirtuemart,$campos_destino,$campos_origen,$ta
 		$articulos = $BDVirtuemart->query($sql);
 		if ( $articulos != true) {
 			// Algo salio mal, por lo que devolvemos error y consulta.
-			$resultado[$tabla_destino]['error'] =  $BDVirtuemart->error;
+			$resultado['error'] =  $BDVirtuemart->error;
 		} else {
 			// Obtenemos lo valores de estas consulta, pero en grupos de mil
 			$agruparValores = ObtenerGruposInsert($articulos,$camposObligatorios);
@@ -106,12 +107,12 @@ function prepararInsertUnaTabla($BDVirtuemart,$campos_destino,$campos_origen,$ta
 
 			$sql = 'INSERT INTO '.$tabla_destino.' '.$campos_destino.' VALUES ';
 			foreach ($agruparValores['Aceptados'] as $valoresArticulos){
-				$resultado[$tabla_destino]['Insert'][] = $sql.implode(',',$valoresArticulos);
+				$resultado['Insert'][] = $sql.implode(',',$valoresArticulos);
 			}
 		}	
-		$resultado[$tabla_destino]['Num_Insert_hacer'] = count($agruparValores['Aceptados']); 
-		$resultado[$tabla_destino]['descartado'] = $agruparValores['Descartados'];
-		$resultado[$tabla_destino]['consulta'] = $sql;
+		$resultado['Num_Insert_hacer'] = count($agruparValores['Aceptados']); 
+		$resultado['descartado'] = $agruparValores['Descartados'];
+		$resultado['consulta'] = $sql;
 
 	return $resultado;
 	
