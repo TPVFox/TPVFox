@@ -5,9 +5,14 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero ,
  * @Descripcion	Funciones para importar datos de Virtuemart a Tpv
+ * 
+ *  // Utilizamos sufijos en los nombres de las funciones:
+ * 	// Crear_  -> Proceso crear tablas temporales.( Realmente este no es un sufijo).. ya que solo utilizamos en una funcion.
+ *  // Comprobar_  -> Proceso que hacermos despues de crear las tablas temporales.
+ *  // preparar
  * */
   
- function prepararTablasTemporales($BDVirtuemart,$tTemporal)
+ function CrearTablasTemporales($BDVirtuemart,$tTemporal)
  {
 	//@ Objetivo : 
 	// Crear las tablas temporales que indiquemos en array $tablasTemporales en BDVirtuemart
@@ -62,47 +67,63 @@
 	return $resultado;
 }
 
-function  prepararInsertTablasBDTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
-	// @ Objetivo es preparar un array con los insert que vamos realizar en BDTpv
+function  prepararInsertTablasBDTpv($BDVirtuemart,$tablas){
+	// @ Objetivo es preparar un array con los insert que vamos realizar en varias tablas de BDTpv
 	// 	a parte eso, tambien devolvemos el numero inserts y cuanto descartamos.
 	$resultado = array();
 	// Recorremos array para ejecutar las distintas consultas y insertar los datos .
 	$i = 0;					
 	foreach ($tablas as  $key => $Arraytabla) {
-		$tabla = $Arraytabla['nombre'];
+		$tabla_destino = $Arraytabla['nombre'];
+		$tabla_origen = $Arraytabla['origen'];
 		$campos_origen = implode(',',$Arraytabla['campos_origen']);
 		$campos_destino = '('.implode(',',$Arraytabla['campos_destino']).')';
 		$camposObligatorios = (isset($Arraytabla['obligatorio'])  ? $Arraytabla['obligatorio'] : array());
 
-		$sql = 'SELECT '.$campos_origen.' FROM '.$Arraytabla['origen'];//`tmp_articulosCompleta`';
+
+		$insertUnaTabla = prepararInsertUnaTabla($BDVirtuemart,$campos_destino,$campos_origen,$tabla_origen,$tabla_destino,$camposObligatorios);
+		$resultado[$key] = $insertUnaTabla;
+		
+		$i++;
+	}
+	return $resultado;
+}
+
+
+function prepararInsertUnaTabla($BDVirtuemart,$campos_destino,$campos_origen,$tabla_origen,$tabla_destino,$camposObligatorios){
+	// @ Objetivo es preparar un array con los insert que vamos realizar en UNA TABLA de BDTpv
+	// 	a parte eso, tambien devolvemos el numero inserts y cuanto descartamos.
+	$resultado = array();
+	$sql = 'SELECT '.$campos_origen.' FROM '.$tabla_origen;
 		$articulos = $BDVirtuemart->query($sql);
 		if ( $articulos != true) {
 			// Algo salio mal, por lo que devolvemos error y consulta.
-			$resultado[$key][$tabla]['error'] =  $BDVirtuemart->error;
+			$resultado[$tabla_destino]['error'] =  $BDVirtuemart->error;
 		} else {
 			// Obtenemos lo valores de estas consulta, pero en grupos de mil
 			$agruparValores = ObtenerGruposInsert($articulos,$camposObligatorios);
 			//~ $gruposvaloresArticulos = $agruparValores['Aceptados'];
 
-			$sql = 'INSERT INTO '.$tabla.' '.$campos_destino.' VALUES ';
+			$sql = 'INSERT INTO '.$tabla_destino.' '.$campos_destino.' VALUES ';
 			foreach ($agruparValores['Aceptados'] as $valoresArticulos){
-				$Nuevosql = $sql.implode(',',$valoresArticulos);
-				$resultado[$key][$tabla]['Insert'][] =$Nuevosql;
+				$resultado[$tabla_destino]['Insert'][] = $sql.implode(',',$valoresArticulos);
 			}
-		}
-		
-		
-		$resultado[$key][$tabla]['Num_Insert_hacer'] = count($agruparValores['Aceptados']); 
-		$resultado[$key][$tabla]['descartado'] = $agruparValores['Descartados'];
-		$resultado[$key][$tabla]['consulta'] = $sql;
+		}	
+		$resultado[$tabla_destino]['Num_Insert_hacer'] = count($agruparValores['Aceptados']); 
+		$resultado[$tabla_destino]['descartado'] = $agruparValores['Descartados'];
+		$resultado[$tabla_destino]['consulta'] = $sql;
 
-		$i++;
-	}
-	
-	
-	
 	return $resultado;
+	
 }
+
+
+
+
+
+
+
+
 function EliminarArticulosTpv($BDtpv,$tablas,$controlador){
 	//@ Objetivo es eliminar las tablas los productos(articulos) que existen en TPV
 	// contenido de las tablas.
@@ -162,8 +183,8 @@ function ObtenerGruposInsert($registros,$obligatorios = array()){
 }
 
 function ComprobarCodbarras ($BDVirtuemart){
-	// No permitimos que dos productos distintos tenga el mismo código de barras, si es así antes de hacer la iniciación debemos 
-	// informar, y ademas la tabla articulosCodbarras no lo permite.
+	// Comprobamos que si dos productos tienen mismo código de barras,
+	// deberíamos guardar estos datos en un informe de importacion.
 	$respuesta= array();
 	$sql = "SELECT `codbarras` , COUNT( * ) Total FROM tmp_articulosCompleta GROUP BY codbarras HAVING COUNT( * ) >1";
 	$registros = $BDVirtuemart->query($sql); 
@@ -375,7 +396,7 @@ function htmlBDTpvTR($tablas){
 }
 
 function ObtenerTiendaWeb($BDTpv){
-	// Objetivo obtener datos de una tabla
+	// Objetivo obtener datos de la tabla tienda para poder cargar el select de tienda On Line.
 	$resultado = array();
 	$sql = "SELECT * FROM `tiendas` WHERE `tipoTienda`='web'";
 	$resultado['consulta'] = $sql;
@@ -391,9 +412,7 @@ function ObtenerTiendaWeb($BDTpv){
 			// Quiere decir que no hay tienda on-line (web) dada de alta.
 			$resultado['error'] = 'No hay tienda on-line';
 		}
-		
-		
-				
+
 	} else {
 		// Quiere decir que hubo un error en la consulta.
 		$resultado['error'] = 'Error en consulta';

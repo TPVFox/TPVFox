@@ -146,10 +146,11 @@ function EjecutarInserts(insert_t,n_tabla) {
 		success:  function (response) {			
 			// Recorremos el objeto tabla.nombretabla.Insert para contar cuantos insert
 			var resultado =  $.parseJSON(response);
-			
+			console.log('Respuesta de insert en tablas'+n_tabla);
+
 			if (typeof resultado['error'] !== 'undefined') {
 				// Hubo un error
-				alert('tipo error definida');
+				alert('tipo error en '+n_tabla);
 			} 
 			bucleInsert(insert_tablas_global)
 		}

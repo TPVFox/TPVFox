@@ -26,7 +26,7 @@ $TControlador = new ControladorComun;
      
     case 'Preparar insert':
 		$Arraytablas = $_POST['tablasImpor'];
-		$respuesta= prepararInsertTablasBDTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
+		$respuesta= prepararInsertTablasBDTpv($BDVirtuemart,$Arraytablas);
 		header('Content-Type: application/json');
 		echo json_encode($respuesta,true);
 		break;
@@ -48,7 +48,7 @@ $TControlador = new ControladorComun;
 	case 'Crear Tabla Temporal':
 		$tablaTemporal = $_POST['TablaTemporal'];
 		// Llamamos fuciones de vaciar.
-		$CrearTablaTemporal = prepararTablasTemporales($BDVirtuemart,$tablaTemporal);
+		$CrearTablaTemporal = CrearTablasTemporales($BDVirtuemart,$tablaTemporal);
 		echo json_encode($CrearTablaTemporal,true);
 		break;	
 	

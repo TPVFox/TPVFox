@@ -38,7 +38,7 @@ $optcrefs = array (
 
 // Creamos variables de los ficheros para poder automatizar el añadir articulos y otros
 	// Array $tablasTemporales;
-	// @ Parametros de array
+	// @ Elementos del array ( matriz )
 	//		nombre_tabla_temporal	-> Nombre de la tabla temporal de Virtuemart
 	//		campo_id				-> Nombre del campo autonumerico que creamos automaticamentes.
 	//		select					-> Consulta que realizamos para crear tabal temporal
@@ -51,7 +51,8 @@ $tablasTemporales = array(
 									'campo_id' 	=>'idArticulo',
 									'select'	=>'SELECT '.$idTienda.' as idTienda,'
 													.$idTienda_export.' as idTienda_export,
-													CAST( c.virtuemart_product_id as CHAR(18))as crefTienda,
+													CAST( c.virtuemart_product_id as CHAR(18))as idVirtuemartChar,
+													CAST( c.product_sku as CHAR(18))as product_sku,
 													cr.product_name as articulo_name,
 													coalesce((
 														select calc_value from '.$prefijoBD.'_virtuemart_calcs as e 
@@ -92,14 +93,14 @@ $tablasTemporales = array(
 										 LEFT JOIN '.$prefijoBD.'_virtuemart_medias AS img 
 										 ON pro_img.virtuemart_media_id = img.virtuemart_media_id
 										 LEFT JOIN tmp_articulosCompleta AS completa 
-										 ON pro_img.`virtuemart_product_id` = completa.crefTienda'
+										 ON pro_img.`virtuemart_product_id` = completa.idVirtuemartChar'
 									),
 							'4' => array(
 									'nombre_tabla_temporal' => 'tmp_cruce_familias',
 									'campo_id' 	=> 'id',
 									'select'	=>'SELECT completa.idArticulo AS idArticulo, `virtuemart_category_id` AS idFamilia
 											FROM '.$prefijoBD.'_virtuemart_product_categories AS cr 
-											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.crefTienda'
+											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.idVirtuemartChar'
 									),
 							'5' => array(
 									'nombre_tabla_temporal' => 'tmp_clientes',
@@ -171,7 +172,10 @@ $tablasTemporales = array(
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
-						'2' => array(
+						// En la articulosPrecios se importa los precios de tienda_exportada
+						// Los precios en tienda principal , se mantinen igual, aunque
+						// en configuracion inicial del proceso se le puede indicar los que los insert.
+						'2' => array( 
 								'nombre'		=>'articulosPrecios',
 								'obligatorio'	=> array(),
 								'campos_origen'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda_export'),
@@ -181,8 +185,8 @@ $tablasTemporales = array(
 								),
 						'3' => array(
 								'nombre'		=>'articulosTiendas',
-								'obligatorio'	=>array('crefTienda'),
-								'campos_origen'		=>array('idArticulo','idTienda_export','crefTienda','estado'),
+								'obligatorio'	=>array('idVirtuemartChar'),
+								'campos_origen'		=>array('idArticulo','idTienda_export','idVirtuemartChar','estado'),
 								'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
