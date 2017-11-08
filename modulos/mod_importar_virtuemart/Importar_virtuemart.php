@@ -20,11 +20,25 @@
 	include ("./../../controllers/Controladores.php");
 	include_once ("./funciones.php");
 
-	//~ echo '<pre>';
+	// Creo variable de IdTienda -> principal 
+	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
+	$idTienda = $Tienda['idTienda']; // Id de la tienda actual , no hace falta antes de la carga ArraysInicio
+	// Creo variables de  IdTIenda_exportar si ya pulso configuracion:
+	if (isset($_POST['tiendaOnLine'])){
+		$idTienda_export = $_POST['tiendaOnLine'];
+	}
+	
+
+	echo '<pre>';
 	//~ $arr = get_defined_vars();
-	//~ print_r($arr);
-	//~ echo '</pre>';
-	// Cargamos el controlador.
+	echo 'idTienda:'.$idTienda;
+	echo 'idTienda_exporta:'.$idTienda_export;
+
+	echo '</pre>';
+	// Cargamos variables inicio , estas necesitana la variables idTienda,idTienda_export,PrefijoBD...
+	// Lo ideal sería hacer una clase configuración donde obtener esos Arrays_inicio de forma independiente, 
+	// es decir, antes pulsar opciones , obtenemos solo el arrar select, y luego a la vuelta, con POST
+	// obtenemos los demas variables.
 	include_once ('./Arrays_inicio.php');
 
 	// [ DEFINIMOS VARIABLES POR DEFECTO ]
@@ -70,6 +84,8 @@
 		// no carga variables correctamente.
 		?>
 		<script type="application/javascript">
+
+		
 		var nombretabla = [];
 		// Objeto tabla
 		var tablaImpor = [];
@@ -338,7 +354,7 @@
 		
 	<div>
 <?php
-//~ $respuesta = prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas_importar);
+//~ $respuesta = prepararInsertTablasBDTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas_importar);
 //~ echo '<pre>';
 	//~ $respuesta = json_encode($respuesta);
 	//~ print_r($respuesta);
