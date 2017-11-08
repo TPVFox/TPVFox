@@ -1,5 +1,8 @@
 <?php
-// Recuerda que tienes que tener la variable $prefijoBD ya definida.
+// Recuerda que tienes que tener estas VARIABLES ANTES CARGAR ESTE FICHERO:
+//  $prefijoBD -> prefijo de la base de datos virtuemart.
+//  $idTienda -> Tienda principal ( actual).
+// 	$idTienda_export -> Id de tienda virtuemart donde exportamos.
 
 
 //[Array $opyicrefs ] Opciones de como generar CREF en Tpv
@@ -46,7 +49,8 @@ $tablasTemporales = array(
 						'1' => array(
 									'nombre_tabla_temporal' =>'tmp_articulosCompleta',
 									'campo_id' 	=>'idArticulo',
-									'select'	=>'SELECT 1 as idTienda,
+									'select'	=>'SELECT '.$idTienda.' as idTienda,'
+													.$idTienda_export.' as idTienda_export,
 													CAST( c.virtuemart_product_id as CHAR(18))as crefTienda,
 													cr.product_name as articulo_name,
 													coalesce((
@@ -143,63 +147,75 @@ $tablasTemporales = array(
 	//[ Array $tablas_importars ] Tablas de BDTvp que vamos importar o actualizar.
 	// @ Array indexado y asociativo
 	//		nombre		-> Nombre de la tabla tpv
-	//		obligatorio	-> Campos que tiene contener datos obligatoriamente
-	//		campos->	Los campos que obtenemos
+	//		obligatorio	-> Campos que tiene contener datos obligatoriamente, el nombre campo destino.
+	//		campos_origen->	Los campos que obtenemos
+	// 		campos_destino-> Campos de la tabla destino BDTPV
+	// 		origen-> 'Tabla de donde ejecutamos select para obtener datos.
 	// 		NRegistros-> No se poner, pero recuerda va existir ya que esto se rellena al inicio o con javascript
 	$tablas_importar = 		array(
 						'0' => array(
 								'nombre'		=>'articulos',
 								'obligatorio'	=> array(),
-								'campos'		=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
+								'campos_origen'		=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
+								'campos_destino'	=>array('idArticulo','iva','idProveedor','articulo_name', 'beneficio','costepromedio', 'estado', 'fecha_creado', 'fecha_modificado'),
+
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'1' => array(
 								'nombre'		=>'articulosCodigoBarras',
 								'obligatorio'	=> array('codBarras'),
-								'campos'		=> array('idArticulo', 'codBarras'),
+								'campos_origen'		=> array('idArticulo', 'codBarras'),
+								'campos_destino'	=> array('idArticulo', 'codBarras'),
+
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'2' => array(
 								'nombre'		=>'articulosPrecios',
 								'obligatorio'	=> array(),
-								'campos'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
+								'campos_origen'		=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda_export'),
+								'campos_destino'	=> array('idArticulo','pvpCiva', 'pvpSiva', 'idTienda'),
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'3' => array(
 								'nombre'		=>'articulosTiendas',
 								'obligatorio'	=>array('crefTienda'),
-								'campos'		=>array('idArticulo','idTienda','crefTienda'),
+								'campos_origen'		=>array('idArticulo','idTienda_export','crefTienda','estado'),
+								'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
 								'origen' 		=>'tmp_articulosCompleta',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'4' => array(
 								'nombre'		=>'articulosFamilias',
 								'obligatorio'	=>array(),
-								'campos'		=>array('idArticulo','idFamilia'),
+								'campos_origen'		=>array('idArticulo','idFamilia'),
+								'campos_destino'	=>array('idArticulo','idFamilia'),
 								'origen' 		=>'tmp_cruce_familias',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'5' => array(
 								'nombre'		=>'familias',
 								'obligatorio'	=>array(),
-								'campos'		=>array('idFamilia','familiaNombre','familiaPadre'),
+								'campos_origen'		=>array('idFamilia','familiaNombre','familiaPadre'),
+								'campos_destino'	=>array('idFamilia','familiaNombre','familiaPadre'),
 								'origen' 		=>'tmp_familias',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'6' => array(
 								'nombre'		=>'articulosImagenes',
 								'obligatorio'	=>array('file_url'),
-								'campos'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
+								'campos_origen'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
+								'campos_destino'	=>array('idArticulo','cref','virtuemart_media_id','file_url'),
 								'origen' 		=>'tmp_productos_img',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
 						'7' => array(
 								'nombre'		=>'clientes',
 								'obligatorio'	=>array(),
-								'campos'		=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
+								'campos_origen'		=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
+								'campos_destino'	=>array('idClientes', 'Nombre', 'razonsocial', 'nif', 'direccion', 'codpostal','telefono', 'movil', 'fax', 'email', 'estado'),
 								'origen' 		=>'tmp_clientes',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								)
