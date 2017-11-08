@@ -26,7 +26,7 @@ $TControlador = new ControladorComun;
      
     case 'Preparar insert':
 		$Arraytablas = $_POST['tablasImpor'];
-		$respuesta= prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
+		$respuesta= prepararInsertTablasBDTpv($BDVirtuemart,$BDTpv,$prefijoBD,$Arraytablas);
 		header('Content-Type: application/json');
 		echo json_encode($respuesta,true);
 		break;

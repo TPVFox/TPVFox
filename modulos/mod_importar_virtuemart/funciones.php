@@ -62,39 +62,40 @@
 	return $resultado;
 }
 
-function  prepararInsertArticulosTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
+function  prepararInsertTablasBDTpv($BDVirtuemart,$BDTpv,$prefijoBD,$tablas){
 	// @ Objetivo es preparar un array con los insert que vamos realizar en BDTpv
-	// 	a parte eso, tambien devolvemos el numero articulos  y cuanto descartamos.
+	// 	a parte eso, tambien devolvemos el numero inserts y cuanto descartamos.
 	$resultado = array();
 	// Recorremos array para ejecutar las distintas consultas y insertar los datos .
 	$i = 0;					
 	foreach ($tablas as  $key => $Arraytabla) {
 		$tabla = $Arraytabla['nombre'];
-		$campos = $Arraytabla['campos'];
+		$campos_origen = implode(',',$Arraytabla['campos_origen']);
+		$campos_destino = '('.implode(',',$Arraytabla['campos_destino']).')';
 		$camposObligatorios = (isset($Arraytabla['obligatorio'])  ? $Arraytabla['obligatorio'] : array());
-		$stringcampos = implode(',',$campos);
-		$sql = 'SELECT '.$stringcampos.' FROM '.$Arraytabla['origen'];//`tmp_articulosCompleta`';
-		$resultado[$key][$tabla]['consulta'] = $sql;
-		$articulos = $BDVirtuemart->query($sql);
 
+		$sql = 'SELECT '.$campos_origen.' FROM '.$Arraytabla['origen'];//`tmp_articulosCompleta`';
+		$articulos = $BDVirtuemart->query($sql);
 		if ( $articulos != true) {
 			// Algo salio mal, por lo que devolvemos error y consulta.
-			$resultado[$key][$tabla]['consulta'] = $sql;
 			$resultado[$key][$tabla]['error'] =  $BDVirtuemart->error;
-			return $resultado;
-		}
-		// Obtenemos lo valores de estaa consulta, pero en grupos de mil
-		$agruparValores = ObtenerGruposInsert($articulos,$camposObligatorios);
-		$gruposvaloresArticulos = $agruparValores['Aceptados'];
-		$resultado[$key][$tabla]['Num_Insert_hacer'] = count($gruposvaloresArticulos); 
-		$resultado[$key][$tabla]['descartado'] = $agruparValores['Descartados'];
-		$stringcampos = '('.implode(',',$campos).')';
+		} else {
+			// Obtenemos lo valores de estas consulta, pero en grupos de mil
+			$agruparValores = ObtenerGruposInsert($articulos,$camposObligatorios);
+			//~ $gruposvaloresArticulos = $agruparValores['Aceptados'];
 
-		$sql = 'INSERT INTO '.$tabla.' '.$stringcampos.' VALUES ';
-		foreach ($gruposvaloresArticulos as $valoresArticulos){
-			$Nuevosql = $sql.implode(',',$valoresArticulos);
-			$resultado[$key][$tabla]['Insert'][] =$Nuevosql;
+			$sql = 'INSERT INTO '.$tabla.' '.$campos_destino.' VALUES ';
+			foreach ($agruparValores['Aceptados'] as $valoresArticulos){
+				$Nuevosql = $sql.implode(',',$valoresArticulos);
+				$resultado[$key][$tabla]['Insert'][] =$Nuevosql;
+			}
 		}
+		
+		
+		$resultado[$key][$tabla]['Num_Insert_hacer'] = count($agruparValores['Aceptados']); 
+		$resultado[$key][$tabla]['descartado'] = $agruparValores['Descartados'];
+		$resultado[$key][$tabla]['consulta'] = $sql;
+
 		$i++;
 	}
 	
