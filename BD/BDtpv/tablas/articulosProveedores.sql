@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Nov 03, 2017 at 09:39 AM
--- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- Servidor: localhost:3306
+-- Tiempo de generación: 08-11-2017 a las 13:41:27
+-- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
+-- Versión de PHP: 7.0.19-1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tpv`
+-- Base de datos: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `articulosProveedores`
+-- Estructura de tabla para la tabla `articulosProveedores`
 --
 
 CREATE TABLE `articulosProveedores` (
@@ -31,15 +31,16 @@ CREATE TABLE `articulosProveedores` (
   `idProveedor` int(11) NOT NULL,
   `crefProveedor` varchar(24) DEFAULT NULL,
   `coste` decimal(17,6) NOT NULL,
-  `fechaActualizacion` date NOT NULL
+  `fechaActualizacion` date NOT NULL,
+  `estado` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Indexes for dumped tables
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `articulosProveedores`
+-- Indices de la tabla `articulosProveedores`
 --
 ALTER TABLE `articulosProveedores`
   ADD PRIMARY KEY (`idArticulo`,`idProveedor`);
