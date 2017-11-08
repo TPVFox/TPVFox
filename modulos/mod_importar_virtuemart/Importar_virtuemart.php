@@ -153,9 +153,9 @@
 		}
 		?>
 		<h3>Parametros a configurar</h3>
-			<div style="padding:10px 0px;">
+			<div class="col-md-12">
 				<form action="Importar_virtuemart.php?configuracion=SI" method="POST">
-				<div class="form-group">
+				<div class="col-md-12">
 					<label for="sel1" title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda On Line con la quieres importar o actualizar datos:</label>
 						<select <?php echo $disable_conf;?>  class="form-control" name="tiendaOnLine" id="sel1">
 							<option value="0">Sin selecciona tienda on-line</option>
@@ -177,35 +177,39 @@
 							
 				</div>
 				
-				<div class="form-group">
-				<h4>En la tabla ArticulosTiendas generamos el campo CREF</h4>
-				<p>Esta tabla se añade por defecto registros con CREF para tienda exportada con idVirtuemart por defecto, pero debes indicar como quieres para tienda principal</p>
+				<div class="col-md-6">
+				<h4>Tabla ArticulosTiendas</h4>
+				<p>Se añade por defecto registros con CREF para tienda exportada con idVirtuemart, puede indicar si como quieres para tienda principal</p>
 				<label><small>¿Creamos CREF para empresa principal?</small></label>
 	
 					<?php
 					foreach ($optcrefs as $optcref){
-						echo '<label class="radio-inline">';
+						echo '<div class="radio">';
+						echo '<label class="radio">';
 						echo '	<input type="radio" name="optcref" title="'.$optcref['EtiqueTitle'].'" value ="'.$optcref['value'].'" '.$optcref['checked'].' '.$disable_conf.'>'.$optcref['descripcion'].'</label>';
+						echo '</div>';
+
 					}
 					?>
 				</div>
-				<div class="form-group">
-				<h4>En la tabla ArticulosPrecios</h4>
+				<div class="col-md-6">
+				<h4>Tabla ArticulosPrecios</h4>
 				<p>Por defecto tipo insert es añadir el precio para tienda_exportada, pero puede generar tambien los precios para la tienda principal.</p>
 				<label><small>¿Quieres los precios web en el tpv?</small></label>
 	
 					<?php
 					foreach ($optprecios as $optprecio){
-						echo '<label class="radio-inline">';
+						echo '<div class="radio">';
+						echo '<label class="radio">';
 						echo '	<input type="radio" name="optprecio" title="'.$optprecio['EtiqueTitle'].'" value ="'.$optprecio['value'].'" '.$optprecio['checked'].' '.$disable_conf.'>'.$optprecio['descripcion'].'</label>';
+						echo '</div>';
 					}
 					?>
 				</div>
 				
-				
-
+				<div class="col-md-12">
 				<button <?php echo $disable_conf;?> type="submit" class="btn btn-primary">Cambiar o confirma configuracion</button>
-
+				</div>
 				</form>
 			</div>
 	
