@@ -140,7 +140,8 @@
 				// mostramos ya el btn de Aceptar
 				$estados['Aceptar'] = '';
 		}
-		if (isset($mensajes['dander'])){
+		
+		if (isset($mensajes['danger'])){
 			// Quiere decir que hay error grave que no se puede hacer cierra.
 			$estados = array(
 					 'fechaFinal' 		=> 'disabled', // Input
@@ -152,7 +153,7 @@
 		
 		//debug
 		//~ echo '<pre>';
-		//~ print_r($_POST);
+		//~ print_r($mensajes);
 		//~ echo '</pre>';
 		//~ echo json_encode($Ccierre,true);
 	?>
