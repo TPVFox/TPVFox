@@ -21,7 +21,8 @@ include_once ("./funciones.php");
     case 'insertarCierre':
 		$datosCierre = $_POST['datos_cierre'];
 		$respuesta =  array();
-		$respuesta = insertarCierre($BDTpv, $datosCierre);
+		$respuesta = InsertarProceso1Cierres($BDTpv, $datosCierre);
+		
 		
 		echo json_encode($respuesta);
     break;
