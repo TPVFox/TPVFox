@@ -17,9 +17,11 @@
 		
 	<?php
 		include './../../header.php';
+		// debug
 		//~ echo '<pre>';
 			//~ print_r($cierreUnico);
 		//~ echo '</pre>';
+		
 		$rutaVolver = '../mod_cierres/ListaCierres.php';
 		
 	?>
@@ -30,7 +32,7 @@
 			</nav>
 			<!-- CIERRE POR USUARIOS-->
 			<div class="col-md-8 text-center">
-				<h3> Cierre de caja </h3>
+				<h1> Cierre de caja </h1>
 			</div>
 			<div class="col-md-10" style="float:right">
 			<table class="table table-striped">
