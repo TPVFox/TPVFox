@@ -7,100 +7,163 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
-	$dedonde='';
-	$aviso='';
-	$desactivarInput=''; //si FechaInicio = FechaFinal, desactivamos fechaFinal para evitar modificar.
-	$fecha_dmYHora = '%d-%m-%Y %H:%M:%S';
-	$fecha_dmY = '%d-%m-%Y';
-	$estadoInput =''; //inicializo variable para desactivar boton aceptar, 
-					  //si hay tickets abiertos, si Fpago y totalBases son distintas y 
-					  //si no hay tickets para cerrar, desactivamos input FechaCierreCaja y boton aceptar.
-	$classAlert = ' class= "" '; //inicializo la clase de fondo rojo para alertar distintos totales de Fpago y desgloseIvas
+	// Variables de control:
+		$mensajes = array(); // Lo utilizo para los mensajes de advertencias,errores..
+		$dedonde='';  // Indica de donde viene, ya que puede venir lista cierres y de tickets, por defecto viene de Lista Cierres
+		$pattern = ' pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})"';// Para control entrada input
+		$estados = array(
+					 'fechaFinal' 	=> '', // Input
+					 'Aceptar' 		=> '', // Btn
+					 'Recalcular' 	=> '', // Btn
+					 'fecha'		=> '' // Input
+					);
 	
-	//recojo la fecha min de los tickets cobrados sin cerrar y la fecha maxima. fecha local sobre 1970 , 443322102 fecha codificad
-	$fechaMaxMin = fechaMaxMinTickets($BDTpv);
-	
-	//array de fecha, date_parse --> para atacar al dia o lo que queramos	['year'],['day'],['month']
-	$ArrayFechaMin = date_parse(strftime($fecha_dmY,$fechaMaxMin['fechaMin']))['day'];
-	$ArrayFechaMax = date_parse(strftime($fecha_dmY,$fechaMaxMin['fechaMax']))['day'];
-	
-	//con HORAS
-	$fechaInicioHora = strftime($fecha_dmYHora,$fechaMaxMin['fechaMin']);
-	
-	//SIN horas
-	$stringFechaInicio = strftime($fecha_dmY,$fechaMaxMin['fechaMin']); //indico fecha d-m-y , para mostrar sin hora
-	$stringFechaFinal = strftime($fecha_dmY,$fechaMaxMin['fechaMax']);
-	$fechaCierre = strftime($fecha_dmY,time());
-	
-	//si son dias distintas es que se saltaron algun dia sin hacer cierre caja, toca avisar
-	if ($ArrayFechaMin !== $ArrayFechaMax){
-		$tipomensaje= "danger";
-		$mensaje = "<strong>Varios dias sin cerrar caja.</strong> Hacer cierre de varios dias?";
-		$aviso='aviso';
-	} else{ 
-		//si las fechas son IGUALES, es que van dia a dia con el cierre.
-		//desactivamos fechaFinal, porque no existe rango de fechas.
-		$desactivarInput = "disabled";
-		$fechaFinalHora = strftime($fecha_dmYHora,$fechaMaxMin['fechaMax']); //si el dia es igual , cogemos hora real del ultimo ticket.
-		$fechaCierre = $stringFechaFinal;
-	}
-	//si no existe fecha inicio de tickets
-	if (($stringFechaInicio) === '01-01-1970'){
-		$fechaCierre = strftime($fecha_dmY,time());
-		$stringFechaFinal =  $fechaCierre;
-		$stringFechaInicio = $fechaCierre;
-		$estadoInput = "disabled";
-		$tipomensaje= "danger";
-		$mensaje = "<strong>No hay tickets para cerrar.</strong>";
-		$aviso='aviso';
-	}
-	if ($_POST['fecha']){
-		$fechaCierre=$_POST['fecha'];
-		if(isset($_POST['fechaFinal'])){
-			$stringFechaFinal = $_POST['fechaFinal'];
-		}
+	// Varibles de fechas:
+		$fechas = array();
+		$MaxMin = fechaMaxMinTickets($BDTpv); 	//Obtenemos Fecha Max y Minima de tickets cobrados sin cerrar
+												//Si no hay fecha, obtiene 01-01-1970
 		
+		$MaxMin['fechas']['Creacion'] = time(); // Fecha de creacion.
+		$MaxMin['fechas']['Cierre'] = time(); // Por defecto , pongo la actual.
 		
-		//recogemos usuarios, numTicket inicial, final de cada usuario,y formasPago segun la fecha indicada		
-		$Users = ticketsPorFechaUsuario($stringFechaInicio,$BDTpv,$stringFechaFinal);
+	//  ======   Comprobamos si venimos devuelta, es decir pulsamos Recalcular =================== 
+			
+			if (isset($_POST['fecha'])){
+				// Cambiamos las fechas Cierres y Max al venir de vuelta, pulsamos Recalcular
+				
+				// Convertimos fecha a Epoch (Unix)
+				$fechaNueva = $_POST['fecha'].' 23:59:59';
+				$MaxMin['fechas']['Cierre']=strtotime($fechaNueva);
 
-		// Saber que usuarios tienen ticket, key=idUsuario
-		foreach ( $Users['usuarios'] as $key => $user){
-			//print_r(' Usuario id'.$key. ' contiene:');
-			//cojemos nombre del usuario, 
-			$nombreUser=nombreUsuario($BDTpv,$key);
-			$Users['usuarios'][$key]['nombre'] = $nombreUser['datos']['nombre'];
+				// Convertimos fecha a Epoch (Unix)
+				$fechaNueva = $_POST['fechaFinal'].' 23:59:59';
+				$MaxMin['fechas']['fechaMax']= strtotime($fechaNueva);
+				
+			}
+
+		// ====== Obtenemos array de fechas ===============================//.
+		foreach ($MaxMin['fechas'] as $nombre => $Unix){
+			$fecha = ArrayFechaUnix ($Unix,$nombre);
+			$fechas = $fechas+$fecha;
 		}
+		
+		
+		// debug
+		//~ echo '<pre>';
+		//~ print_r($fechas);
+		//~ echo '</pre>';
+		// ========= Obtenemos tickets usuarios Cobrados y Abiertos ======================== //.
+		
+		$ResumenTicketsCierre = ticketsPorFechaUsuario($fechas['fechaMin']['String_d-m-y'],$BDTpv,$fechas['fechaMax']['String_d-m-y']);
+		
+		// Añadimos nombre usuarios a ResumenTicketsCierre
+		foreach ($ResumenTicketsCierre['usuarios'] as $key => $user){
+			$nombreUser=nombreUsuario($BDTpv,$key); 	//Obtenemos nombre del usuario, 
+			$ResumenTicketsCierre['usuarios'][$key]['nombre'] = $nombreUser['datos']['nombre'];
+		}
+		
+		// debug
+		//~ echo '<pre>';
+		//~ print_r($ResumenTicketsCierre);
+		//~ echo '</pre>';
+		
+		
+		// =================  COMPROBACIONES 	=============================== //
+		
+		// Comprobamos de donde venimos.
 		//si existe de donde al cancelar volvemos a donde estabamos
 		if (isset($_GET['dedonde'])){
 			$dedonde = $_GET['dedonde'];
+			//dedonde = tpv o cierre 
+			if ($dedonde === 'tpv'){
+				$rutaVolver = '../mod_tpv/tpv.php';
+			} else { //doy por hecho que estoy en cierres y vuelvo al listado
+				$rutaVolver = './ListaCierres.php';
+			}
+		}
 		
+		// Comprobamos que haya tickets
+		//si no existe fecha inicio de tickets
+		if ($fechas['fechaMin']['String_d-m-y']  === '01-01-1970'){
+			// Debemos deactivar todo, ya que no hay nada que hacer...
+			// Añadimos mensaje
+			$mensajes['danger'][] = "<strong>No hay tickets para cerrar.</strong>";
 		}
-	}
+		
+		// Comprobamos que haya RANGO
+		if ($fechas['fechaMin']['String_d-m-y'] !== $fechas['fechaMax']['String_d-m-y']){
+			// Hay varios dias para hacer cierre, ya que fecha inicia y final son distintos dias
+			// Añadimos mensaje
+			$mensajes['warning'][] = "<strong>Varios dias sin cerrar caja.</strong> Hacer cierre de varios dias?";
+			$estados['Aceptar'] = "disabled";
+		}  else{ 
+			//Es el mismo dia la fecha inicial de la final,
+			$estados['fechaFinal'] = "disabled";
 	
-	
-	//si existe de donde al cancelar volvemos a donde estabamos
-	if (isset($_GET['dedonde'])){
-		$dedonde = $_GET['dedonde'];
-		//dedonde = tpv o cierre 
-		if ($dedonde === 'tpv'){
-			$rutaVolver = '../mod_tpv/tpv.php';
-		} else { //doy por hecho que estoy en cierres y vuelvo al listado
-			$rutaVolver = './ListaCierres.php';
 		}
-	}
+		
+		// Comprobamos que no haya ticket abiertos.
+		if (count($ResumenTicketsCierre['tickets_abiertos']) >0 ) {
+			// Añadimos mensaje
+			$mensajes['danger'][] = "<strong>Hay tickets abiertos.</strong> Debes cobrarlos primero.";
+		} 
+		
+	//  ======   Montamos Array con los datos que tenemos =================== 
+		//monto string de numTickets para usar en funcion baseIva
+		$sumasIvasBases =	baseIva($BDTpv,implode(',', $ResumenTicketsCierre['rangoTickets']));
 	
-	//~ echo '<pre>';
-	//~ print_r($Users);
-	//~ echo '</pre>';
-	
-	//array cierre
-	$Ccierre= array();
+		$Ccierre= array();
+		$Ccierre['tienda']						= $_SESSION['tiendaTpv']['idTienda']; //recoger idTienda
+		$Ccierre['idUsuarioLogin'] 				= $_SESSION['usuarioTpv']['id']; // Quien realiza el cierre
+		$Ccierre['fechaInicio_tickets'] 		= $fechas['fechaMin']['String_d-m-y_hora'];
+		$Ccierre['fechaFinal_tickets'] 			= $fechas['fechaMax']['String_d-m-y_hora'];
+		$Ccierre['FinicioSINhora']				= $fechas['fechaMin']['String_d-m-y'];
+		$Ccierre['FfinalSINhora']				= $fechas['fechaMax']['String_d-m-y'];
+		$Ccierre['fechaCierre']					= $fechas['Cierre']['String_d-m-y'];
+		$Ccierre['fechaCreacion'] 				= $fechas['Creacion']['String_d-m-y_hora'];
+		$Ccierre['sumasIvas']					= $sumasIvasBases['items']; //iva, importeIva, importeBase
+		$Ccierre['totalcaja']	 				= $ResumenTicketsCierre['totalcaja'];
+		$Ccierre['rangoTickets']				= $ResumenTicketsCierre['rangoTickets'];
+		
+		foreach ($ResumenTicketsCierre['usuarios'] as $keyId => $usuario){
+			$Ccierre['usuarios'][$keyId]['nombre']		=$usuario['nombre'];
+			$Ccierre['usuarios'][$keyId]['NumInicial']	=$usuario['NumInicial'];
+			$Ccierre['usuarios'][$keyId]['NumFinal']	=$usuario['NumFinal'];
+			$Ccierre['usuarios'][$keyId]['subtotal']	= $usuario['total'];
+			
+			foreach ($usuario['formasPago'] as $key =>$fPago){ 
+				$Ccierre['modoPago'][$keyId]['formasPago'][$key]=number_format($fPago,2); 
+			}
+		}
+		if (isset($_POST['fecha'])){
+				// Al venir de vuelta , pulsamos Recalcular
+				// mostramos ya el btn de Aceptar
+				$estados['Aceptar'] = '';
+		}
+		if (isset($mensajes['dander'])){
+			// Quiere decir que hay error grave que no se puede hacer cierra.
+			$estados = array(
+					 'fechaFinal' 		=> 'disabled', // Input
+					 'Aceptar' 			=> 'disabled', // Btn
+					 'Recalcular' 	=> 'disabled', // Btn
+					 'fecha'			=> 'disabled'  // Input
+					);
+		}
+		
+		//debug
+		//~ echo '<pre>';
+		//~ print_r($_POST);
+		//~ echo '</pre>';
+		//~ echo json_encode($Ccierre,true);
 	?>
-	
-	<script>
-	// Declaramos variables globales
-	</script> 
+	<script type="application/javascript">
+	// var Ccierre = {};
+	<?php //asi montamos array y lo convertimos en variable publica, en consola se coje
+		echo "var Ccierre=".json_encode($Ccierre,true).";";
+
+	 ?>
+	</script>
+
     <!-- Cargamos fuciones de modulo.
     Cargamos JS del modulo de productos para no repetir funciones: BuscarProducto, metodoClick (pulsado, adonde)
     caja de busqueda en listado 
@@ -111,281 +174,216 @@
 	<body>
 	<?php
 	include './../../header.php';
-	//~ echo '<pre>';
-		//~ print_r($Users);
-	//~ echo '</pre>';
+	
 	?>
-	<div class="container">		
-		<div class="row">
-			<div class="col-md-12 text-center">
-				<h2> Cierre Caja </h2>
-			</div>
-	        <!--=================  Sidebar -- Menu y filtro =============== 
-				Efecto de que permanezca fixo con Scroll , el problema es en
-				movil
-			-->
-			<nav class="col-sm-2" id="myScrollspy">
-				<a class="text-ritght" href=<?php echo $rutaVolver;?>>Volver Atrás</a>
-				<?php 
-				//si tengo tickets abiertos: muestro idUsuario y numTickets
-				if (isset($Users['abiertos']))
-				{ ?>
-				<div class="alert alert-danger">
-					<strong>Tickets Abiertos!</strong></br> No se permite cerrar caja si hay tickets abiertos.
-				</div>
-				<table class="table table-striped" style="border:2px solid black; font-size:small">
-					<thead>
-						<tr>
-							<th>ID Usuario</th>
-							<th>Tickets abiertos</th>
-							<th>Fecha inicio</th>
-						</tr>
-					</thead>
-					<?php 
-					foreach($Users['abiertos'] as $abierto){
-					?>
-					<tr style="border:4px solid red">
-						<td><?php echo $abierto['idUsuario']; ?></td>
-						<td><?php echo $abierto['suma']; ?></td>
-						<td><?php echo $abierto['fechaInicio']; ?></td>
-					</tr>
-					<?php 
-					} //fin foreach
-					?>
-				</table>
-				<?php 
-				} //fin de tickets abiertos?>
-			</nav>
-			
-			<div class="col-md-10">
-				<?php if ($aviso === 'aviso' ){  	 ?> 
-					<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje;?></div>
-				<?php } ?>
-				<div class=" form-group">
-					<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> 
-						<div class="col-sm-6 ">	
-							<label class="control-label " > Fecha Cierre Caja:</label>
- 							<input type="date" name="fecha"  <?php echo $estadoInput;?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value=<?php  echo $fechaCierre; //cojo la fecha del actual del dia?> >
-							<input class="btn btn-primary" type="submit" value="Consulta caja">  
-						</div>
-						<!-- inicio de fechas max y min -->			
-						<div class="col-sm-6">
-							<div class="col-sm-4"> 
-								<label>Fecha Inicial:</label>
-								<input type="date" name="fechaInicial"  disabled autofocus value="<?php  echo $stringFechaInicio;?>" >								
-							</div>
-							<div class="col-sm-4"> 
-								<label>Fecha Final:</label>
-								<input type="date" name="fechaFinal" <?php echo $desactivarInput; ?> pattern="([012][0-9]|3[01])-(0[1-9]|1[012])-([0-9]{4})" autofocus value="<?php  echo $stringFechaFinal;?>" > 
-							</div>
-						</div>
-						<!-- fin de fechas max y min -->
-					</form>	
-				</div>
-			<div>
-									
-				<!-- TABLA USUARIOS -->
-			<div class="col-md-8 text-center">
-				<h3> Cierre por Usuarios </h3>
-			</div>
-			<table class="table table-striped">
+<div class="container">		
+	<div class="row">
+		<div class="col-sm-2" style="padding:3em 10px;">
+				
+			<a class="text-ritght" href=<?php echo $rutaVolver;?>>Volver Atrás</a>
+			<?php 
+			//si tengo tickets abiertos: muestro idUsuario y numTickets
+			if (count($ResumenTicketsCierre['tickets_abiertos'])>0)
+			{ ?>
+			<h2>Tickets Abiertos</h2>
+			<table class="table table-striped" style="border:2px solid black; font-size:small">
 				<thead>
 					<tr>
-						<th>ID</th>
-						<th>NOMBRE USUARIO</th>
-						<th>SUMA TICKETS</th>
-						<th>Nº TICKET INICIAL</th>
-						<th>Nº TICKET FINAL</th>
+						<th>ID Usuario</th>
+						<th>Usuario</th>
+						<th>Cantidad tickets</th>
 					</tr>
 				</thead>
 				<?php 
-				foreach ($Users['usuarios'] as $key =>$usuario){ ?>
-				<tr>
-					<td><?php echo $key; ?></td>
-					<td><?php echo $usuario['nombre'];  ?></td>
-					<td><?php echo count($usuario['ticket']); ?></td>
-					<td><?php echo $usuario['NumInicial']; ?></td>
-					<td><?php echo $usuario['NumFinal']; ?></td>
+				foreach($ResumenTicketsCierre['tickets_abiertos'] as $abierto){
+				?>
+				<tr style="border:4px solid red">
+					<td><?php echo $abierto['idUsuario']; ?></td>
+					<td><?php echo $abierto['username']; ?></td>
+					<td><?php echo $abierto['suma']; ?></td>
 				</tr>
-				<?php
-					$Ccierre['usuarios'][$key]['nombre']=$usuario['nombre'];
-					$Ccierre['usuarios'][$key]['NumInicial']=$usuario['NumInicial'];
-					$Ccierre['usuarios'][$key]['NumFinal']=$usuario['NumFinal'];
-					
+				<?php 
+				} //fin foreach
+				?>
+			</table>
+			
+			<?php 
+			} //fin de tickets abiertos?>
+		</div>
+		<div class="col-md-10">
+			<h2 class="text-center"> Cierre Caja </h2>
+			<?php 
+			if (count($mensajes)>0){  	 
+				foreach($mensajes as $tipo => $mensaje){
+					echo '<div class="alert alert-'.$tipo.'">';
+					echo implode('<br/>',$mensaje);
+					echo '</div>';
+				}
+				
+			 } 
+			 ?>
+			<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> 
+				<div class="col-md-3 ">	
+					<label class="control-label " > Fecha Cierre Caja:</label>
+					<input type="date" name="fecha" <?php echo $estados['fecha'].$pattern;?> value=<?php  echo $fechas['Cierre']['String_d-m-y']; //cojo la fecha del actual del dia?> >
+				</div>
+				<!-- inicio de fechas max y min -->			
+				<div class="col-md-3"> 
+					<label>Fecha Inicial:</label>
+					<input type="date" name="fechaInicial"  disabled value="<?php  echo $fechas['fechaMin']['String_d-m-y'];?>" >								
+				</div>
+				<div class="col-md-3"> 
+					<label>Fecha Final:</label>
+					<input type="date" name="fechaFinal" <?php echo $estados['fechaFinal'].$pattern;?> value="<?php  echo $fechas['fechaMax']['String_d-m-y'];?>" > 
+				</div>
+				<div class="col-md-3">
+					<label>(*) Si cambiaste algún dato.</label>
+					<input class="btn btn-primary" name="Recalcular" <?php echo $estados['Recalcular'];?> type="submit" value="Recalcular">  
+				</div>
+			</form>	
+			<div class="col-md-12">
+				<!-- TABLA USUARIOS -->
+				<h3 class="text-center"> Cierre por Usuarios </h3>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>NOMBRE USUARIO</th>
+							<th>Nº TICKET INICIAL</th>
+							<th>Nº TICKET FINAL</th>
+							<th>CANT. TICKETS</th>
+							<th>SUBTOTAL USUARIO</th>
+						</tr>
+					</thead>
+					<?php 
+					foreach ($ResumenTicketsCierre['usuarios'] as $key =>$usuario){ ?>
+					<tr>
+						<td><?php echo $key; ?></td>
+						<td><?php echo $usuario['nombre'];  ?></td>
+						<td><?php echo $usuario['NumInicial']; ?></td>
+						<td><?php echo $usuario['NumFinal']; ?></td>
+						<td><?php echo count($usuario['ticket']); ?></td>
+						<th><?php echo number_format($usuario['total'],2);?><small>€</small></th>
+					</tr>
+					<?php
 					}
 					?>
-			</table>
-			<div class="row">
-				<!-- FORMAS DE PAGO -->
-				<div class="col-md-4">
-					<h3 class="text-left"> Formas de Pago por Usuarios: </h3>
-					<?php 
-					foreach ($Users['usuarios'] as $keyUsuario =>$usuario){ 
-						$Ccierre['modoPago'][$keyUsuario]['nombre']=$usuario['nombre'];
-						?>
-						<table class="table table-striped">
-							<thead>
-								<tr class="info">
-									<td><b><?php echo 'Nombre Empleado: ';?></b></td>
-									<td><?php echo $usuario['nombre'];?></td>
-								</tr>
-								<tr>
-									<th>Forma de Pago</th>	
-									<th>Importe</th>
-								</tr>
-							</thead>						
-							<?php //key id forma de pago, tarjeta o contado						
-							foreach ($usuario['formasPago'] as $key =>$fPago){ 
-								$Ccierre['modoPago'][$keyUsuario]['formasPago'][$key]['importe']=number_format($fPago,2); ?>
-								<tr>
-									<td><?php echo $key; ?></td>
-									<td><?php echo number_format($fPago,2); ?></td>
-								</tr>
-								<?php 	
-								if (!isset($suma[$key])){
-									$suma[$key] = $fPago;
-								} else {
-									$suma[$key] += $fPago;
-								}
-							} //fin foreach formasPago	
-							?>
-						</table>						
-					<?php
-					} //fin foreach Usuarios					
+				</table>
+			</div>
+			<!-- FORMAS DE PAGO -->
+			<div class="col-md-4">
+				<h3 class="text-left"> Formas de Pago por Usuarios: </h3>
+				<?php 
+				foreach ($ResumenTicketsCierre['usuarios'] as $keyUsuario =>$usuario){ 
+					$Ccierre['modoPago'][$keyUsuario]['nombre']=$usuario['nombre'];
 					?>
-				</div>
-				<div class="col-md-4">
-					<!--Todos los usuarios total de tarjetas y contado-->
-					<h3 class="text-left"> Totales: </h3>
+					<table class="table table-striped">
+						<thead>
+							<th>Nombre Empleado</th>
+							<th>Forma de Pago</th>	
+							<th>Importe</th>
+						</thead>						
+						<tbody>
+						<tr><td rowspan="0"><?php echo $usuario['nombre'];?></td></tr>
+						<?php //key id forma de pago, tarjeta o contado						
+						foreach ($usuario['formasPago'] as $key =>$fPago){ ?>
+							<tr>
+								<td><?php echo $key; ?></td>
+								<td><?php echo number_format($fPago,2); ?></td>
+							</tr>
+							<?php 	
+							if (!isset($suma[$key])){
+								$suma[$key] = $fPago;
+							} else {
+								$suma[$key] += $fPago;
+							}
+						} //fin foreach formasPago	
+						?>
+						</tbody>
+					</table>						
+				<?php
+				} //fin foreach Usuarios					
+				?>
+			</div>
+			<div class="col-md-4">
+				<!--Todos los usuarios total de tarjetas y contado-->
+				<h3 class="text-left"> Totales: </h3>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<td><?php echo 'Forma de Pago ';?></td>
+							<td><?php echo 'Importe';?></td>
+						</tr>
+					</thead>
+					<?php
+				$totalFpago = '0.00';
+				foreach ($suma as $nombre=>$importe){
+					echo '<tr><td>'.$nombre.'</td><td>'.number_format($importe,2).'</td></tr>';
+					$totalFpago += number_format($importe,2);
+				}
+					echo '<tr><td><b>Total:</b></td><td><b>'.number_format($totalFpago,2).'</b></td></tr>'; ?>
+				</table>
+			</div> 
+				<!-- IVAS -->
+			<div class="col-md-4">
+				<h3> Desglose de Ivas: </h3>
+				<div class="form-group">
+				<?php 				 
+					
+					//TABLA DE BASES E IVAS
+					?>	
 					<table class="table table-striped">
 						<thead>
 							<tr>
-								<td><?php echo 'Forma de Pago ';?></td>
-								<td><?php echo 'Importe';?></td>
+								<th></th>
+								<th>Importe BASE</th>	
+								<th>Importe IVA</th>
 							</tr>
 						</thead>
-						<?php
-						$totalFpago = '0.00';
-						foreach ($suma as $nombre=>$importe){
-							echo '<tr><td>'.$nombre.'</td><td>'.number_format($importe,2).'</td></tr>';
-							$totalFpago += number_format($importe,2);
-						}
-						echo '<tr><td><b>Total:</b></td><td><b>'.number_format($totalFpago,2).'</b></td></tr>'; ?>
-					</table>
-				</div> 
-					<!-- IVAS -->
-				<div class="col-md-4">
-					<h3> Desglose de Ivas: </h3>
-					<div class="form-group">
-					<?php 				 
-						//monto string de numTickets para usar en funcion baseIva
-						$stringNumTicket = implode(',', $Users['rangoTickets']);						
-						$sumasIvasBases =	baseIva($BDTpv,$stringNumTicket);
-						//TABLA DE BASES E IVAS
-						?>	
-						<table class="table table-striped">
-							<thead>
-								<tr>
-									<th></th>
-									<th>Importe BASE</th>	
-									<th>Importe IVA</th>
-								</tr>
-							</thead>
-							<?php 
-							//recorro lo obtenido en sumasIvasBases 
-							$i=0;						
-							foreach($sumasIvasBases['items'] as $sumaBaseIva){	?>
-							<tr>
-								<td><?php echo $sumaBaseIva['iva'].' %:';?></td>
-								<td><?php echo $sumaBaseIva['importeBase'];?></td>
-								<td><?php echo $sumaBaseIva['importeIva'];?></td>
-							</tr>
-							<?php //si no existe sumaBase o sumaIva, la creo y luego voy sumando importes encontrados
-								if (!isset($sumaBase) || (!isset($sumaIvas))){
-									$sumaBase = $sumasIvasBases['items'][$i]['importeBase'];
-									$sumaIvas = $sumasIvasBases['items'][$i]['importeIva'];
-								} else {
-									$sumaBase += $sumasIvasBases['items'][$i]['importeBase'];
-									$sumaIvas += $sumasIvasBases['items'][$i]['importeIva'];
-								}
-								$totalBasesIvas = number_format(($sumaBase+$sumaIvas),2);
-							$i++;
-							}//fin foreach 
-							//desactivo boton de aceptar si HAY tickets abiertos O si los totales 
-							if (isset($Users['abiertos']) ) {
-								$estadoInput = 'disabled';
-							} 
-							
-							if  (number_format($totalFpago,2) != number_format($totalBasesIvas,2)){
-								$classAlert = ' class="danger" ';
-								$estadoInput = 'disabled';
+						<?php 
+						//recorro lo obtenido en sumasIvasBases 
+						$i=0;						
+						foreach($sumasIvasBases['items'] as $sumaBaseIva){	?>
+						<tr>
+							<td><?php echo $sumaBaseIva['iva'].' %:';?></td>
+							<td><?php echo $sumaBaseIva['importeBase'];?></td>
+							<td><?php echo $sumaBaseIva['importeIva'];?></td>
+						</tr>
+						<?php //si no existe sumaBase o sumaIva, la creo y luego voy sumando importes encontrados
+							if (!isset($sumaBase) || (!isset($sumaIvas))){
+								$sumaBase = $sumasIvasBases['items'][$i]['importeBase'];
+								$sumaIvas = $sumasIvasBases['items'][$i]['importeIva'];
+							} else {
+								$sumaBase += $sumasIvasBases['items'][$i]['importeBase'];
+								$sumaIvas += $sumasIvasBases['items'][$i]['importeIva'];
 							}
-							?>
-							<tr class="info">
-								<td><b><?php echo 'Subtotal: ';?></b></td>
-								<td><?php echo number_format($sumaBase,2); ?></td>
-								<td><?php echo number_format($sumaIvas,2);  ?></td>
-							</tr>
-							<tr <?php echo $classAlert; ?>>
-								<td></td>
-								<td><b><?php echo 'Total: '; ?></b></td>
-								<td><b><?php echo $totalBasesIvas; ?></b></td>
-							</tr>
-						</table>
-					</div> <!-- Fin form-group  -->
-				</div> <!-- Fin col-4  --> 
-				<!-- Fin IVAS -->
-			</div> 	<!-- Fin row  -->
-			</div>
-			<!-- fin row -->
-			<div style="text-align:right">
+							$totalBasesIvas = number_format(($sumaBase+$sumaIvas),2);
+						$i++;
+						}//fin foreach 
+						
+						?>
+						<tr class="info">
+							<td><b><?php echo 'Subtotal: ';?></b></td>
+							<td><?php echo number_format($sumaBase,2); ?></td>
+							<td><?php echo number_format($sumaIvas,2);  ?></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td><b><?php echo 'Total: '; ?></b></td>
+							<td><b><?php echo $totalBasesIvas; ?></b></td>
+						</tr>
+					</table>
+				</div> <!-- Fin form-group  -->
+			</div> <!-- Fin col-4  --> 
+			<div class="col-md-12" style="text-align:right">
 				<form method="post" name="Aceptar" action="<?php echo $rutaVolver;?>" >
 					<input type="submit" name="Cancelar" value="Cancelar">
-					<?php  					
-					//montaje arrays cierre
-					$Ccierre['tienda']= $_SESSION['tiendaTpv']['idTienda']; //recoger idTienda
-					$Ccierre['sumasIvas']=$sumasIvasBases['items']; //iva, importeIva, importeBase
-					
-					$Ccierre['totalFpago']=$totalFpago;
-					$Ccierre['sumaFpago']=$suma; //suma formas pago de todos los usuarios : contado, tarjeta
-					$Ccierre['idUsuarioLogin'] = $_SESSION['usuarioTpv']['id'];
-					$Ccierre['fechaInicio_tickets'] =$fechaInicioHora;
-					
-					//enviamos fechaInicio y fechaFinal sin hora para UPDATE tickets a Cerrado
-					$Ccierre['FinicioSINhora']= $stringFechaInicio;
-					$Ccierre['FfinalSINhora']= $stringFechaFinal;
-					$Ccierre['fechaCierre']=$fechaCierre;
-					
-					//no existe fechaFinalHOra ponemos nosotros hora.
-					if (!isset($fechaFinalHora)){
-						$Ccierre['fechaFinal_tickets'] = $stringFechaFinal.' 23:59:59'; 
-					} else{
-						$Ccierre['fechaFinal_tickets']= $fechaFinalHora;
-					}					
-					$Ccierre['fechaCreacion'] = date('Y-m-d H:i:s');
-					
-					
-					?>
-					<script type="application/javascript">
-					var Ccierre = [];
-					<?php //asi montamos array y lo convertimos en variable publica, en consola se coje
-						echo "Ccierre.push(".json_encode($Ccierre).");";
-
-					 ?>
-					</script>
-
-					<input id="Aceptar" type="button" <?php echo $estadoInput;?> onclick="guardarCierreCaja()" value="Aceptar"></input>
+					<input id="Aceptar" name = "Aceptar" type="button" <?php echo $estados['Aceptar']?> onclick="guardarCierreCaja()" value="Aceptar">
 				
 				</form>
 			</div>
-			<?php 
-				//~ echo '<pre>';
-					//~ print_r($estadoInput);
-				//~ echo '</pre>';
-			?>
 		</div>
-	</div>
     </div>
-		
+</div>		
 </body>
 </html>
