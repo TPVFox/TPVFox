@@ -13,15 +13,17 @@
 <?php
 	// Incrementamos contador paaginas abiertas.
 	$_SESSION['N_Pagina_Abiertas'] = $_SESSION['N_Pagina_Abiertas'] +1;
+	// debug
+	//~ echo '<pre>';
+	//~ print_r($_SESSION);
+	//~ echo '</pre>';
 	?>
 	
 <div id="formularioUsuario">
       <div class="col-md-6 col-md-offset-3">
 		  <h1>Inicio de sesion </h1>
 		<?php 
-		//~ echo '<pre>';
-		//~ print_r($_SESSION);
-		//~ echo '</pre>';
+		
 		if ($_SESSION['estadoTpv'] === 'Correcto'){ 
 			// Quiere decir que ya esta logueado correctamente.
 			echo 'Realmente quiere desloguearte '.$UsuarioLogin.' datos sesion: '.$_SESSION;
@@ -35,17 +37,17 @@
 				$mensaje = '<strong>Error tabla de indice!</strong> Avisa servicio tecnico.
 				<p> No se encuentra Indice del usuario o hay mas de un registros. <br/>Tienes '.$_SESSION['N_Pagina_Abiertas'].' paginas del proyecto abierto.</p>';
 			} else {
-				$mesaje= '<strong>Error sesion!</strong> Contraseña o usuario incorrectos.
+				$mensaje= '<strong>Error sesion!</strong> Contraseña o usuario incorrectos.
 				<p> Tienes '.$_SESSION['N_Pagina_Abiertas'].'paginas del proyecto abierto.</p>';
 			}
 			
-			?>
-			<div class="alert alert-danger">
-				<?php echo $mensaje;?>
-			</div>
-		<?php } 
-		// Pasar ruta para poder devolver al mismo sitio.
-		?> 
+		} 
+		?>
+		<?php if (isset($mensaje)) { ?> 
+		<div class="alert alert-danger">
+			<?php echo $mensaje;?>
+		</div>
+		<?php } ?> 
 		<form action="" method="post" name="form">
 		<div class="form-group">
 			<label for="usr">Nombre:</label>
