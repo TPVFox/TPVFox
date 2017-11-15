@@ -30,15 +30,20 @@
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
 			$datos = verSelec($BDTpv,$id,$tabla);
-			foreach($datos as $dato){
+			foreach($datos as $key => $dato){
+				
 				$idCliente=$dato['idClientes'];
 				$nombreCliente =$dato['Nombre'];
 				$datoTicket=$dato;
+				// Ahora añadimos html para estado y clase row
+				$datos[$key]['htmlEstado'] = '';
+				$datos[$key]['classRow'] = '';
+				if ($dato['estadoLinea'] === 'Eliminado'){
+					$datos[$key]['htmlEstado'] = '<span class="glyphicon glyphicon-trash"></span>';
+					$datos[$key]['classRow'] = 'class="tachado"';
+				}
 			}
 			
-			//~ echo '<pre>';
-			//~ print_r($datos);
-			//~ echo '</pre>';
 			$titulo = "Tickets Cerrados";
 			if (isset($datos['error'])){
 				$error='NOCONTINUAR';
@@ -46,17 +51,18 @@
 				$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$datos['consulta'];
 			}
 		}
-		
-		
+		// debug
+		//~ echo '<pre>';
+		//~ print_r($datos);
+		//~ echo '</pre>';
+	
 		
 		?>
      
 		<div class="container">
 				
 			<?php 
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
+			
 			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
@@ -112,12 +118,13 @@
 								<th>PVP</th>
 								<th>Iva</th>
 								<th>Importe</th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php
 							foreach ($datos as $key =>$dato) {?>
-								<tr>
+								<tr <?php echo $dato['classRow']?>>
 									<td><?php echo $key+1; ?></td>
 									<td><?php echo $dato['ccodbar'];  ?></td>
 									<td><?php echo $dato['cref']; ?></td>
@@ -126,6 +133,7 @@
 									<td><?php echo number_format($dato['precioCiva'],2); ?></td>
 									<td><?php echo $dato['iva']; ?></td>
 									<td><?php echo number_format($dato['nunidades'],2)*number_format($dato['precioCiva'],2); ?></td>
+									<td> <?php echo $dato['htmlEstado']; ?>	</td>
 								</tr>
 								<?php
 								
