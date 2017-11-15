@@ -24,12 +24,12 @@
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$tabla= 'ticketst'; // Tablas que voy utilizar.
-		
+		$idUsuario = $Usuario['id'];
 		
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
-			$datos = verSelec($BDTpv,$id,$tabla);
+			$datos = verSelec($BDTpv,$id,$tabla,$idTienda);
 			foreach($datos as $key => $dato){
 				
 				$idCliente=$dato['idClientes'];

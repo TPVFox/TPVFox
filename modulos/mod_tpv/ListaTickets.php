@@ -63,13 +63,13 @@
 		$OtrosParametros=$stringPalabras;
 	}
 	
-	//filtro necesario para contarRegistros , solo lee sobre una tabla, ticketst 
-	if ($filtro !== '') {
-		$mostrarPorIdUser = ' AND `idUsuario` = '.$usuario;
-		$filtro = $filtro.$mostrarPorIdUser;
-	} else {
-		$filtro = ' WHERE `idUsuario` = '.$usuario;
-	}
+	//~ //filtro necesario para contarRegistros , solo lee sobre una tabla, ticketst 
+	//~ if ($filtro !== '') {
+		//~ $mostrarPorIdUser = ' AND `idUsuario` = '.$usuario;
+		//~ $filtro = $filtro.$mostrarPorIdUser;
+	//~ } else {
+		//~ $filtro = ' WHERE `idUsuario` = '.$usuario;
+	//~ }
 	
 	
 	
@@ -88,7 +88,9 @@
 		$filtro = $WhereLimite['filtro'].$mostrarPorIdUser.$WhereLimite['rango'];
 		
 	} else { //si no hay busqueda, se muestra por usuario logueado
-		$filtro= " WHERE `idUsuario`= ".$usuario." LIMIT ".$LimitePagina." OFFSET ".$desde;
+		//~ $filtro= " WHERE `idUsuario`= ".$usuario." LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+
 	}
 	$tickets = obtenerTickets($BDTpv,$filtro);
 	//~ echo '<pre>';

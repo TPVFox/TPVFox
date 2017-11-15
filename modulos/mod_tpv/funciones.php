@@ -873,7 +873,7 @@ function DatosTiendaID($BDTpv,$idTienda){
 }
 
 ///////////VER TICKET CERRADO
-function verSelec($BDTpv,$idSelec,$tabla){
+function verSelec($BDTpv,$idSelec,$tabla,$idTienda){
 	//ver seleccionado en check listado	
 	// Obtener datos de un id de usuario.
 	$consulta = ' SELECT l.* , t.*, c.`idClientes`, u.`username`, c.`razonsocial`, c.`Nombre` ' 
@@ -883,7 +883,7 @@ function verSelec($BDTpv,$idSelec,$tabla){
 				.'ON c.`idClientes` = t.`idCliente` '
 				.'LEFT JOIN `usuarios` AS u '
 				.'ON u.`id` = t.`idUsuario` '
-				.'WHERE `idTienda` =1 AND `idUsuario` =1 AND t.`id` = '.$idSelec;
+				.'WHERE `idTienda` ='.$idTienda.' AND t.`id` = '.$idSelec;
 
 	$resultsql = $BDTpv->query($consulta);
 	if (mysqli_error($BDTpv)) {
