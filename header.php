@@ -38,13 +38,13 @@
 				<ul class="nav navbar-nav navbar-left ">
 					<li><a href="<?php echo $HostNombre.'/index.php'?>">Home</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
+					<li><a href="<?php echo $HostNombre.'/modulos/mod_cliente/ListaClientes.php';?>">Clientes</a></li>
+					<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>
+					<li><a href="<?php echo $HostNombre.'/modulos/mod_cierres/ListaCierres.php';?>">Cierres</a></li>
 					<li><a href="<?php echo $HostNombre.'/estatico';?>">Documentacion</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
 					<?php 
 					if ($Usuario['group_id'] === '1'){?>
-						<li><a href="<?php echo $HostNombre.'/modulos/mod_cliente/ListaClientes.php';?>">Clientes</a></li>
-						<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>
-						<li><a href="<?php echo $HostNombre.'/modulos/mod_cierres/ListaCierres.php';?>">Cierres</a></li>
 						<?php //coloco dropdown importar, al pinchar tengo 2 opc en lista?>
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Sistema
