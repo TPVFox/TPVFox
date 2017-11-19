@@ -510,8 +510,10 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	if ($product->estado !=='Activo'){
 		$classtr = ' class="tachado" ';
 		$estadoInput = 'disabled';
+			$funcOnclick = ' retornarFila('.$num_item.');';
 		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 	} else {
+			$funcOnclick = ' eliminarFila('.$num_item.');';
 		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 	}
 	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';

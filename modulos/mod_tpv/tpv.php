@@ -24,7 +24,7 @@
 	$error = '';
 	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
-	if ((isset($cambiosEstadoTickets['error'])){
+	if (isset($cambiosEstadoTickets['error'])){
 		$error = 'Error en cambio Estado de ticket.'.$cambiosEstadoTickets['error'];
 	}
 	
@@ -86,11 +86,14 @@
 		// Ahora obtenemos el ticket abierto que estamos.
 		$ticket= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
 		// Si carga correctamente el ticket
+		//~ echo '<pre>';
+		//~ print_r($ticket);
+		//~ echo '</pre>';
 		if (isset($ticket['estadoTicket'])){
 			$ticket_estado = $ticket['estadoTicket'];
-			if ($ticket_estado = 'cobrado'){
+			if ($ticket_estado === 'Cobrado'){
 				$error .= ' El ticket '.$ticket_numero.' es ticket con el estado '.$ticket_estado.'<br/>'.
-						 'Desde aquí no puede modificarlo'.
+						 'Desde aquí no puede modificarlo';
 			}
 		}
 	}
@@ -257,7 +260,7 @@
 				<div class="col-md-6">
 					<strong>Estado:</strong>
 					<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span><br/>
-					<strong>NºTicket:</strong>
+					<strong>NºT_temp:</strong>
 					<span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
 					<span id="EstadoImpresion">	SIN IMPRIMIR</span>
 				</div>
