@@ -14,12 +14,24 @@
 <head>
 <?php
 	include './../../head.php';
-	// Tengo que cargar antes el idTienda..
+	include_once ("funciones.php");
+	// Inicializo varibles por defecto.
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
-	$ticket_estado = 'Nuevo';
+	$ticket_estado = 'Nuevo'; 
 	$ticket_numero = 0;
 	$fechaInicio = date("d/m/Y");
+	$error = '';
+	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
+	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
+	if ((isset($cambiosEstadoTickets['error'])){
+		$error = 'Error en cambio Estado de ticket.'.$cambiosEstadoTickets['error'];
+	}
+	
+	
+	
+	
+	// Cambio datos si es un tiche Abierto
 	if (isset($_GET['tAbierto'])) {
 		$ticket_numero = $_GET['tAbierto'];
 		$ticket_estado = 'Abierto';
@@ -59,43 +71,33 @@
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
 
 </head>
-<!--
-onBeforeUnload="return preguntarAntesDeSalir()"
--->
+
 <body>
 <?php
 
 	include '../../header.php';
-	include_once ("funciones.php");
-	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
-	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
 	// Obtenemos todos los tickets abiertos que hay para mostralos ( solo las cabeceras y total)
+	// Se envia el ticket_numero para que ese no lo traiga, ya que no tiene sentido traer el ticket que estamos viendo.
 	$ticketsAbiertos = ObtenerCabeceraTicketAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda'],$ticket_numero); 
-	$estadoInput='';
+	
 	// Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
 	if ($ticket_numero > 0){
 		//Obtenemos datos del ticket
 		// Ahora obtenemos el ticket abierto que estamos.
 		$ticket= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
-		$ticket_estado = $ticket['estadoTicket'];
-		// OJO !! Puede sucede que su estado no sea Abierto.. habría que tratarlo
-		
-		//si vemos ticket y esta cobrado desactivamos INPUTS para evitar modificarlo
-		if (((isset($_GET['tAbierto'])) or (isset($_GET['tActual']))) AND ($ticket_estado === 'Cobrado')) {
-			$estadoTicket='cobrado';
-			$estadoInput = 'disabled';
+		// Si carga correctamente el ticket
+		if (isset($ticket['estadoTicket'])){
+			$ticket_estado = $ticket['estadoTicket'];
+			if ($ticket_estado = 'cobrado'){
+				$error .= ' El ticket '.$ticket_numero.' es ticket con el estado '.$ticket_estado.'<br/>'.
+						 'Desde aquí no puede modificarlo'.
+			}
 		}
 	}
-	if ((isset($cambiosEstadoTickets['error'])) || (isset($ticket['error']))) {
+	if ( $error !== '') {
 		// Entonces obtenemos las caberas para mostrar.
 		echo '<pre>';
-		print ( 'HUBO UN ERROR ');
-		if (isset($cambiosEstadoTickets['error'])) {
-			echo 'Error en cambio Estado'; print_r($cambiosEstadoTickets);
-		}
-		if (isset($ticket['error'])) { 
-			echo 'Error en al Obtener ticket'; print_r($ticket['error']);
-		}
+		echo $error;
 		echo '</pre>';
 		exit(); // NO continuamos.
 	}
@@ -306,10 +308,9 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" <?php echo $estadoInput;?> placeholder="Codbarras" size="13" value="" autofocus  onkeyup="teclaPulsada(event,'Codbarras',0)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" <?php echo $estadoInput;?> placeholder="Referencia" size="13" value="" onkeyup="teclaPulsada(event,'Referencia',0)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" <?php echo $estadoInput;?>
-				placeholder="Descripcion" size="20" value="" onkeyup="teclaPulsada(event,'Descripcion',0)">
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeyup="teclaPulsada(event,'Codbarras',0)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeyup="teclaPulsada(event,'Referencia',0)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeyup="teclaPulsada(event,'Descripcion',0)">
 				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProductos('Descripcion','','tpv')"></a>
 			</td>
 		</tr>
@@ -318,9 +319,8 @@ onBeforeUnload="return preguntarAntesDeSalir()"
 		<?php
 		// Si es un ticket abierto o que existe..
 		if (isset($ticket['productos'])){
-			$htmllineas = anhadirLineasTicket(array_reverse($ticket['productos']),$CONF_campoPeso,$estadoTicket);
-			//~ $htmllineas = anhadirLineasTicket(array_reverse($ticket['productos'], TRUE),$CONF_campoPeso);
-			//~ $htmllineas = anhadirLineasTicket($ticket['productos'],$CONF_campoPeso);
+			$htmllineas = anhadirLineasTicket(array_reverse($ticket['productos']),$CONF_campoPeso);
+			
 			//~ echo '<pre>';
 			//~ print_r($htmllineas[0]);
 			//~ echo '</pre>';

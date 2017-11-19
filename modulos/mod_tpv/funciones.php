@@ -474,19 +474,19 @@ function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 	$respuesta['productos'] = $productos;
 	return $respuesta;
 }
-function anhadirLineasTicket($productos,$CONF_campoPeso,$estadoTicket){
+function anhadirLineasTicket($productos,$CONF_campoPeso){
 	//@ Objetivo:
 	// Obtener html de todas las lineas de productos.
 	$htmlLineas = array();
 	foreach($productos as $product){
 		$num_item = $product->nfila - 1;
-		$unaLinea = htmlLineaTicket($product,$num_item,$CONF_campoPeso,$estadoTicket);
+		$unaLinea = htmlLineaTicket($product,$num_item,$CONF_campoPeso);
 		$htmlLineas[$num_item] = $unaLinea;
 	}
 	return $htmlLineas;
 }
 
-function htmlLineaTicket($producto,$num_item,$CONF_campoPeso,$estadoTicket){
+function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	//@ Objetivo:
 	// Obtener html de una linea de productos.
 	//@ Parametros:
@@ -502,10 +502,7 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso,$estadoTicket){
 	} else {
 		$product = $producto;
 	}
-	//si estado ticket es cobrado los inputs se desactivan, iconoEliminar e input cantidad
-	if($estadoTicket === 'cobrado'){
-		$estadoInput='disabled';
-	}
+	
 	
 	
 	
@@ -513,18 +510,8 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso,$estadoTicket){
 	if ($product->estado !=='Activo'){
 		$classtr = ' class="tachado" ';
 		$estadoInput = 'disabled';
-		if ($estadoTicket  === 'cobrado'){
-			$funcOnclick ='';
-		} else {
-			$funcOnclick = ' retornarFila('.$num_item.');';
-		}
 		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 	} else {
-		if ($estadoTicket  === 'cobrado'){
-			$funcOnclick ='';
-		} else {
-			$funcOnclick = ' eliminarFila('.$num_item.');';
-		}
 		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 	}
 	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';
