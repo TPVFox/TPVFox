@@ -226,10 +226,10 @@
 					<td><?php echo $ticket['formaPago']; ?></td>
 					<td><?php echo $ticket['total']; ?></td>
 					<td><?php 
-					if ($ticket['idCierre']['idCierre'] === 'NULL'){
-						$ticket['idCierre']['idCierre'] = 0;
-					} 
-				echo $ticket['idCierre']['idCierre']; ?></td>
+					//~ if (isset($ticket['idCierre']['idCierre']) === false){
+						//~ $ticket['idCierre']['idCierre'] = 0;
+					//~ } 
+					echo (isset($ticket['idCierre']) ? $ticket['idCierre']['idCierre']:''); ?></td>
 					
 				</tr>
 
