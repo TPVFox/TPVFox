@@ -90,9 +90,20 @@ switch ($pulsado) {
 		$cabecera['idUsuario'] 		=$_POST['idUsuario'];
 		$cabecera['estadoTicket'] 	=$_POST['estadoTicket'];
 		$cabecera['numTicket'] 		=$_POST['numTicket'];
+		
+		//~ $CalculoTotales = gettype($productos);
 
 		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total);
 		$respuesta=$res;
+		// Ahora recalculamos nuevamente
+		$productos = json_decode( json_encode( $_POST['productos'] ));
+		$CalculoTotales = recalculoTotales($productos);
+		
+		$nuevoArray = array(
+						'desglose'=> $CalculoTotales['desglose'],
+						'total' => $CalculoTotales['total']
+							);
+		$respuesta = array_merge($respuesta,$nuevoArray);
 		echo json_encode($respuesta);
 		break;
 		
@@ -170,7 +181,7 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
-		case 'guardarCierreCaja':
+	case 'guardarCierreCaja':
 			echo 'tareas guardar cierre';
 		break;
 }

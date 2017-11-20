@@ -5,21 +5,9 @@
  * @author      Ricardo Carpintero - SolucionesVigo
  * @Descripcion	Javascript necesarios para modulo tpv.
  *
- * ej total
  * 
- * total [total] = 12.00€
- * total [iva]['4']=0.40€
- * total [iva] ['21'] = 1.60€
- * total [base]['4']=0.40€
- * total [base] ['21'] = 1.60€
- * 
- * total [tbases] = sum(total [base])
- * total [tiva] = sum(total [iva])
  * */
 var pulsado = '';
-var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
-var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
-var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
 var total = 0;
 
 
@@ -335,17 +323,17 @@ function buscarProductos(nombreInput,busqueda,dedonde){
 				var datos = [];
 				datos = resultado.datos[0];
 				console.log('Entro en Estado Correcto funcion buscarProducto ->datos (producto)');
-				console.log(datos);
-				console.log('consulta '+resultado.sql);
+				//~ console.log(datos);
+				//~ console.log('consulta '+resultado.sql);
 				agregarFila(datos);
 				
 			} else {
 				// Se ejecuta tanto sea un listado como un error.
 				console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-				console.log(resultado);
-				console.log('consulta  listado '+resultado.sql);
-				console.log('datos--> '+response);
-				console.log('Nitems '+resultado.Nitems);
+				//~ console.log(resultado);
+				//~ console.log('consulta  listado '+resultado.sql);
+				//~ console.log('datos--> '+response);
+				//~ console.log('Nitems '+resultado.Nitems);
 				
 				
 				var busqueda = resultado.listado;   
@@ -420,20 +408,20 @@ function retornarFila(num_item){
 	line = "#Row" +productos[num_item].nfila;
 	// Nueva Objeto de productos.
 	productos[num_item].estado= 'Activo';
-	var pvp =productos[num_item].pvpconiva;
+	//~ var pvp =productos[num_item].pvpconiva;
 
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+');"><span class="glyphicon glyphicon-trash"></span></a>');
 	if (productos[num_item].unidad == 0) {
 		// Nueva Objeto de productos.
-		productos[nfila].unidad= 1;
+		//~ productos[nfila].unidad= 1;
 		// Antiguo array productos.
 		productos[num_item].unidad = 1;
 		recalculoImporte(productos[num_item].unidad,num_item);
 	}
 	$("#N" + productos[num_item].nfila + "_Unidad").prop("disabled", false);
 	$("#N" + productos[num_item].nfila + "_Unidad").val(productos[num_item].unidad);
-
+	console.log(productos);
 	sumaImportes();
 }
 //~ //fin funcion que agrega o elimina linea
@@ -576,6 +564,43 @@ function grabarTicketsTemporal(){
 			if (productos.length ===1 ){ 
 				history.pushState(null,'','?tActual='+resultado.NumeroTicket);
 			}
+			// Ahora pintamos pie de ticket.
+			if (resultado.total > 0 ){
+				// Quiere decir que hay datos a mostrar en pie.
+				total = parseInt(resultado.total) // varible global.
+				$('.totalImporte').html(total.toFixed(2));
+				// Ahora tengo que pintar los ivas.
+				// Eliminamos los que hay..
+				
+				$('#tipo4').html('');
+				$('#tipo10').html('');
+				$('#tipo21').html('');
+				$('#base4').html('');
+				$('#base10').html('');
+				$('#base21').html
+				$('#iva4').html('');
+				$('#iva10').html('');
+				$('#iva21').html('');
+				var desgloseIvas = [];
+				desgloseIvas.push(resultado.desglose);
+				// Ahora recorremos array desglose
+				desgloseIvas.forEach(function(desglose){
+					// mostramos los tipos ivas , bases y importes.
+					var tipos = Object.keys(desglose);
+					for (index in tipos){
+						var tipo = tipos[index];
+						$('#line'+tipo).css('display','');
+						$('#tipo'+tipo).html(tipo+'%');
+						$('#base'+tipo).html(desglose[tipo].base); 
+						$('#iva'+tipo).html(desglose[tipo].iva);
+					}
+				});
+				
+				
+				//~ console.log(desgloseIvas.toString()); 
+				
+			}
+			
 		}
 	});
 }
