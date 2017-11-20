@@ -153,7 +153,7 @@
 		productos.push(new ObjProducto(datos));
 		<?php
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
-		if ($product->estado != 'Activo'){
+		if ($product->estado !== 'Activo'){
 		?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product->estado.'"';?>;
 		<?php
 		}
@@ -161,6 +161,7 @@
 		?>	productos[<?php echo $i;?>].unidad=<?php echo $product->unidad;?>;
 		<?php
 		}
+		$i++;
 	}
 	?>
 
