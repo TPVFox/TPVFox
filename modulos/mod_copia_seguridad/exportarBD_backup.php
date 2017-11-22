@@ -40,7 +40,7 @@
 		define("DB_HOST", 'localhost');
 		define("BACKUP_DIR", '../../../datos/backup/backup-archivos'); // Comenta esta línea para usar el mismo directorio de scripts ('.')
 		//~ define("TABLES", '*'); // copia de seguridad completa
-		define("TABLES", 'indices,usuarios,tiendas,ticketslinea,ticketst,ticketstIva,ticketstemporales,		cierres,cierres_ivas,cierres_usuariosFormasPago,cierres_usuarios_tickets'); // Copia de seguridad parcial
+		define("TABLES", 'indices,usuarios,tiendas,ticketslinea,ticketst,ticketstIva,ticketstemporales,cierres,cierres_ivas,cierres_usuariosFormasPago,cierres_usuarios_tickets'); // Copia de seguridad parcial
 		define("CHARSET", 'utf8');
 		define("GZIP_BACKUP_FILE", false);  // Establecer en falso si quieres archivos de copia de seguridad de SQL simple (no gzip)
 
