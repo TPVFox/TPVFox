@@ -62,7 +62,9 @@
 		}
 		// [TIENDA ONLINE] Seleccionada.
 		$tienda_on_line_seleccionada = $_POST['tiendaOnLine'];
-		$tiendasOnLine[$_POST['tiendaOnLine']]['porDefecto']= 'select'; 
+		
+		//~ echo $tienda_on_line_seleccionada;
+		//~ $tiendasOnLine[$tienda_on_line_seleccionada]['porDefecto']= 'select'; 
 	} 
 	// Si NO pulso en configuración entonces no hacemos nada de esto.. ya no lo vamos mostrar.
 
@@ -77,7 +79,7 @@
 			
 	
 		// [AHORA MONTAMOS VARIABLES GLOBALES JS]
-		// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
+		// Montamos los objectos en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
 		// Recuerda que se debe hacer antes de cargar fichero funciones.js ya sino genera un error
 		// no carga variables correctamente.
 		?>
@@ -136,6 +138,13 @@
 <body>
 <?php 
 	include './../../header.php';
+	// Debug
+	//~ echo '<pre>';
+	//~ print_r($tiendasOnLine);
+	//~ echo '</pre>';
+	
+	
+	
 ?>
 	
 
@@ -162,7 +171,7 @@
 							<?php
 							$porDefecto = ''; 
 							foreach ($tiendasOnLine['items'] as $tiendaOnLine){
-								if (isset($tiendaOnLine['porDefecto'])){
+								if ($tienda_on_line_seleccionada===$tiendaOnLine['idTienda']){
 									$porDefecto = 'selected';
 								}
 							?>
@@ -216,27 +225,46 @@
 		<?php 
 		if ($confirmación_cfg === 'SI'){
 		?>
-			<!-- No mostramos nada mas si no hay confirmación de configuracion. -->
-			<div>
+			<!-- Lo que mostramos si ya configuracion. -->
+			<div class="col-md-12" style="padding: 10px 0 0">
 			
 			<?php
 			 
 			if ( $sum_Items_articulos > 0){
 				// Quiere decir que tiene datos BDTpv por lo que puede ser no puede ser una iniciacion.
-				echo '<div class="alert alert-warning"><strong>¡¡ Actua con producencia !!</strong>
-				<p>Ya que hay datos en BDTpv , puede iniciar la importacion, eliminando todo, o solo la actualización donde solo añade los datos nuevos.</p></div>';
-				echo '<div style="padding:10px 0px;">
-					<h3>Importar datos de Virtuemart</h3>
-					<p>Eliminamos los datos de tpv y importamos datos de virtuemart</p>
-					  
+				?>
+				<div class="alert alert-warning"><strong>¡¡ Actua con producencia !!</strong>
+				<p>Ya que hay datos en BDTpv , puede iniciar la importacion, eliminando todo, o solo la actualización donde solo añade los datos nuevos.</p>
+				</div>
+				
+				<div class="col-md-12">
+					<h3>¿ Que deseas hacer ?</h3>
+					<div class="col-md-6">
+						<h4>Eliminar y reiniciar.</h4>
+						<p>Puedes eliminar todo, importar todos los productos de virtuemart y reiniciar todo.</p>
+						<div class="alert alert-danger">
+							Vas eliminar todo, piensa si necesitas copia de seguridad de BDTPV, va borrar.
+						</div>
 					<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="VaciarTablas();" class="btn btn-danger">
-					Borrar de Tpv y Importar datos de Virtuemart
+					Eliminar y Importar
 					</a>
 					</div>
-					<div class="alert alert-danger">
-						Al pulsar en "Importar todo", elimina las tablas indicadad de BDTPV.
-					</div>';
+					<div class="col-md-6">
+						<h4>Actualizar.</h4>
+						<p>Los productos con fecha creacion y modificacion superior a XXXX_XX_XX se van añadir o van ser modificados.</p>
+						<div class="alert alert-warning">
+							No se puede deshacer, por lo que recomendable tener una copia de seguridad de BDTPV antes continuar.
+						</div>
+					<a  href="#ActualizarTablas" title="Actualizar tablas TPV" onclick="ActualizarTablas();" class="btn btn-warning">
+					Actualizar tablas
+					</a>
+					</div>
+
+					
+				</div>
+				<?php 
 				// La opcion de actualizar solo mostramos cuando hay datos.
+
 			} else {
 				echo '<div class="alert alert-info"> Vas importar los datos de Virtuemart</div>';
 				echo '<div>
