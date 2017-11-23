@@ -3,7 +3,7 @@
     <head>
         <?php
 	include './../../head.php';
-	include './funciones.php';
+	//~ include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
@@ -29,11 +29,6 @@
         <?php
         include './../../header.php';
         include './ClaseBackup.php';
-		$a= get_defined_vars ();
-		//~ echo '<pre>';
-		//~ print_r($a);
-		//~ echo '</pre>';
-		
 		define("DB_USER", $usuarioMysql);
 		define("DB_PASSWORD", $passwordMysql);
 		define("DB_NAME", $nombrebdMysql);
