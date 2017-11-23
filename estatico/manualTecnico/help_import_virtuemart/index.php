@@ -9,8 +9,13 @@
 	<div class="col-md-4">
 		<h3>Fases proceso importación</h3>
 		<p>Por lo complejo que es esté proceso, se realiza por fases</p>
-		<p>El usuario ( administrador ) va indicar que proceso va realizar y cuales no. Ya que podrá decidir lo que quiere:</p>
 		<ul>
+			<li><b>Configuracion:</b> El usuario selecciona como quiere realizar importacion o actualizacion:</li>
+			<ul>
+				<li>Seleccionar web</li>
+				<li>Como generamos CREF</li>
+				<li>Los precios tpv</li>
+			</ul>
 			<li><b>Importación total:</b> Limpia las tablas BDTPV y importa todos los datos de virtuemart.</li>
 			<li><b>Actualizar:</b> No elimina los datos que tengamos en BDTPV y solo obtiene los datos nuevos de virtuemart</li>
 		</ul>
@@ -18,7 +23,7 @@
 	</div>
 	<div class="col-md-4">
 		<h3>Tablas de virtuemart</h3>
-		<p>Las tablas de las que vamos importar datos</p>
+		<p>Las tablas de las que vamos utilizar tanto importar, como actualizar</p>
 		<ul>
 		<li>prefijo_virtuemart_products</li>
 		<li>prefijo_virtuemart_products_es_es</li>
@@ -47,27 +52,34 @@
 		</ul>
 		<p> Esto se puede añadir facilmente en ese array.</p>
 	</div>
-	
-<p> Al principio del fichero Importar_virtuemart.php creamos varios array tanto en php como javascript que son los que utilizamos tanto para crear tablas temporales, como para crear comprobaciones y insertar en las tablas tpv. </p>
-<ul>
-<li>$tablasTemporales -> Donde indicamos las que creamos en virtuemart, con la consulta. </li>
-<li>$comprobaciones -> El array que utilizamos para generar procesos de comprobaciones por cada tabla creada en virtuemart, para saber si esta bien los datos.</li>
-<li>$tablas_importar -> Son las tabla tpv que tenemos que vamos importar los datos.</li>
-</ul>
-<h4>Diagrama flujo 1</h4>
- <img src="<?php echo $UrlActual;?>Diagrama2.svg" width="90%" alt="Diagrama de flujo"> 
-
-<h4>Cosas a tener en cuenta</h4>
-<p>En virtuemart la tabla que registra los compradores es virtuemart_userinfos, por lo que es la que obtenemos los datos.</p>
-<p>En la <b>tabla tmp_clientes</b> que acabamos creamos, hay que tener en cuenta que solo <b>obtenemos un solo registro por usuario </b>, ya que en la tabla virtuemart_userinfos puede contener varios registros por cada uno e incluso contener usuarios que no existen en tabla virtuemart_user, estos ultimos pienso que si los obtenemos en la tabla tmp_clientes, los motivos de esto:</p>
-<ul>
-<li>Usuarios que tienen varias direcciones les aparece varios registros </li>
-<li>Los usuarios que eliminamos de usuarios de joomla,por los motivos que sean, en la tabla virtuemart_userinfos siguen existiendo.</li>
-</ul>
-<?php include $DirectorioActual.'./errores.php' ;?>
-<h4>Diagrama de funciones</h4>
-<p>Intento mostrar de alguna manera todos los errores que se pueden producir en la importacion de virtuemart.</p>
- <img src="<?php echo $UrlActual;?>Diagrama1.dia" alt="Errores"> 
+</div>	
+<div class="col-md-12">
+	<h4>Diagrama flujo local -1</h4>
+	<p>En el siguiente diagrama intento explicar los que hacemos antes de enviar datos al servidor</p>
+	<img src="<?php echo $UrlActual;?>Diagrama2.svg" width="90%" alt="Diagrama de flujo"> 
+</div>
+<div class="col-md-12">
+	<p> Al principio del fichero Importar_virtuemart.php creamos varios array tanto en php como javascript que son los que utilizamos tanto para crear tablas temporales, como para crear comprobaciones y insertar en las tablas tpv. </p>
+	<ul>
+	<li>$tablasTemporales -> Donde indicamos las que creamos en virtuemart, con la consulta. </li>
+	<li>$comprobaciones -> El array que utilizamos para generar procesos de comprobaciones por cada tabla creada en virtuemart, para saber si esta bien los datos.</li>
+	<li>$tablas_importar -> Son las tabla tpv que tenemos que vamos importar los datos.</li>
+	</ul>
+</div>
+<div class="col-md-12">
+	<h4>Cosas a tener en cuenta</h4>
+	<p>En virtuemart la tabla que registra los compradores es virtuemart_userinfos, por lo que es la que obtenemos los datos.</p>
+	<p>En la <b>tabla tmp_clientes</b> que acabamos creamos, hay que tener en cuenta que solo <b>obtenemos un solo registro por usuario </b>, ya que en la tabla virtuemart_userinfos puede contener varios registros por cada uno e incluso contener usuarios que no existen en tabla virtuemart_user, estos ultimos pienso que si los obtenemos en la tabla tmp_clientes, los motivos de esto:</p>
+	<ul>
+	<li>Usuarios que tienen varias direcciones les aparece varios registros </li>
+	<li>Los usuarios que eliminamos de usuarios de joomla,por los motivos que sean, en la tabla virtuemart_userinfos siguen existiendo.</li>
+	</ul>
+</div>
+<div class="col-md-12">
+	<?php include $DirectorioActual.'./errores.php' ;?>
+	<h4>Diagrama de funciones</h4>
+	<p>Intento mostrar de alguna manera todos los errores que se pueden producir en la importacion de virtuemart.</p>
+	 <img src="<?php echo $UrlActual;?>Diagrama1.dia" alt="Errores"> 
 </div>
 
 </div>
