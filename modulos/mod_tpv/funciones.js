@@ -535,7 +535,6 @@ function grabarTicketsTemporal(){
 		"idUsuario"	 	: cabecera.idUsuario,
 		"estadoTicket" 	: cabecera.estadoTicket,
 		"numTicket"		: cabecera.numTicket,
-		"total"			: total
 	};
 	$.ajax({
 		data       : parametros,
@@ -567,7 +566,7 @@ function grabarTicketsTemporal(){
 			// Ahora pintamos pie de ticket.
 			if (resultado.total > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
-				total = parseInt(resultado.total) // varible global.
+				total = parseFloat(resultado.total) // varible global.
 				$('.totalImporte').html(total.toFixed(2));
 				// Ahora tengo que pintar los ivas.
 				// Eliminamos los que hay..
@@ -583,16 +582,19 @@ function grabarTicketsTemporal(){
 				$('#iva21').html('');
 				var desgloseIvas = [];
 				desgloseIvas.push(resultado.desglose);
+				console.log(desgloseIvas);
 				// Ahora recorremos array desglose
 				desgloseIvas.forEach(function(desglose){
+					console.log('Entro foreah');
 					// mostramos los tipos ivas , bases y importes.
 					var tipos = Object.keys(desglose);
+					console.log(desglose);
 					for (index in tipos){
 						var tipo = tipos[index];
-						$('#line'+tipo).css('display','');
-						$('#tipo'+tipo).html(tipo+'%');
-						$('#base'+tipo).html(desglose[tipo].base); 
-						$('#iva'+tipo).html(desglose[tipo].iva);
+						$('#line'+parseInt(tipo)).css('display','');
+						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
 					}
 				});
 				

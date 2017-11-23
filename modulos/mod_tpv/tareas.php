@@ -84,25 +84,26 @@ switch ($pulsado) {
 		$respuesta = array();
 		$cabecera = array(); // Array que rellenamos de con POST
 		$productos 					=$_POST['productos'];
-		$total 						=$_POST['total'];
 		$cabecera['idTienda']		=$_POST['idTienda'];
 		$cabecera['idCliente']		=$_POST['idCliente'];
 		$cabecera['idUsuario'] 		=$_POST['idUsuario'];
 		$cabecera['estadoTicket'] 	=$_POST['estadoTicket'];
 		$cabecera['numTicket'] 		=$_POST['numTicket'];
 		
-		//~ $CalculoTotales = gettype($productos);
-
-		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total);
-		$respuesta=$res;
 		// Ahora recalculamos nuevamente
-		$productos = json_decode( json_encode( $_POST['productos'] ));
-		$CalculoTotales = recalculoTotales($productos);
+		$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+		$CalculoTotales = recalculoTotales($productos_para_recalculo);
 		
 		$nuevoArray = array(
 						'desglose'=> $CalculoTotales['desglose'],
 						'total' => $CalculoTotales['total']
 							);
+		
+		//~ $CalculoTotales = gettype($productos);
+
+		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
+		$respuesta=$res;
+		
 		$respuesta = array_merge($respuesta,$nuevoArray);
 		echo json_encode($respuesta);
 		break;
