@@ -117,7 +117,7 @@ class Backup_Database {
 						$sql .= 'INSERT INTO `'.$table.'` VALUES '.implode(' ,',$value).";\n";
 
 					}
-                    $sql .=$valuesString;
+                    //~ $sql .=$valuesString;
                     $this->saveFile($sql);
                     $sql = '';
                 }
