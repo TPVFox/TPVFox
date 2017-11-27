@@ -68,8 +68,9 @@
 </div>
 <div class="col-md-12">
 	<h4>Cosas a tener en cuenta</h4>
-	<p>En virtuemart la tabla que registra los compradores es virtuemart_userinfos, por lo que es la que obtenemos los datos.</p>
-	<p>En la <b>tabla tmp_clientes</b> que acabamos creamos, hay que tener en cuenta que solo <b>obtenemos un solo registro por usuario </b>, ya que en la tabla virtuemart_userinfos puede contener varios registros por cada uno e incluso contener usuarios que no existen en tabla virtuemart_user, estos ultimos pienso que si los obtenemos en la tabla tmp_clientes, los motivos de esto:</p>
+	<p>En virtuemart la tabla que registra los compradores es <b>virtuemart_userinfos</b>.</p>
+	<p>En la <b>tabla tmp_clientes</b> que acabamos creamos, hay que tener en cuenta que solo <b>obtenemos un solo registro por usuario </b>, en la tabla virtuemart_userinfos un mismo usuarios puede tener varios registros, si tiene varias direcciones.</p>
+	<p>Ademas debemos tener en cuenta que puede tener usuarios que se no existan en la tabal de joomla de usuarios, los cuales obtenemos igualmente.</p>
 	<ul>
 	<li>Usuarios que tienen varias direcciones les aparece varios registros </li>
 	<li>Los usuarios que eliminamos de usuarios de joomla,por los motivos que sean, en la tabla virtuemart_userinfos siguen existiendo.</li>
