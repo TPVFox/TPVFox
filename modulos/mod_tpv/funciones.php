@@ -18,17 +18,17 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv,$vuelta) {
 	//		vuelta = 1, para buscar algo identico, si viene con 2 busca con %like% segunda llamada
 	$resultado = array();
 	$palabras = array(); 
-	
+	$products = array();
 	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
 	
 	$resultado['palabras']= $palabras;
 
 	switch($campoAbuscar) {
 		case 'Codbarras':
-			$campoAbuscar = 'ac.`codBarras`';
+			$campoAbuscar = 'trim(ac.`codBarras`)'; // trim quita posibles espacios en blanco
 		break;
 		case 'Referencia':
-			$campoAbuscar = 'at.`crefTienda`';
+			$campoAbuscar = 'trim(at.`crefTienda`)';
 		break;
 		case 'Descripcion':
 			$campoAbuscar = 'a.`articulo_name`';
@@ -37,75 +37,62 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv,$vuelta) {
 	$likes = array();
 	$whereIdentico = array();
 	
-	
-	
 	foreach($palabras as $palabra){
 		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
 		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
 	}
 	
-	//$buscarIdentico = implode(' and ',$whereIdentico);
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
-	if ($vuelta === 1){
-		if ($palabra !== ''){ 
-			$buscar = implode(' and ',$whereIdentico);
-		} else{
-			$vuelta=2;		//si la busqueda esta en blanco hace la consulta de 2º vuelta
-		}
-	} else {
-		$buscar = implode(' and ',$likes);
-	}	
-		
-	$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
+	$busquedas = array();
+	
+	if ($palabra !== ''){ 
+		$busquedas[] = implode(' and ',$whereIdentico);
+	
+		$busquedas[] = implode(' and ',$likes);
+	}
+	$i = 0;
+	foreach ($busquedas as $buscar){
+		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
 			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
 			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
-	
-	$res = $BDTpv->query($sql);
-	//compruebo error en consulta
-	if (mysqli_error($BDTpv)){
-		$resultado['consulta'] = $sql;
-		$resultado['error'] = $BDTpv->error_list;
-		return $resultado;
-	} 
-	$resultado['sql'] = $sql;
-	$resultado['Nitems']= $res->num_rows;
-	$products = array();
-	//fetch_assoc es un boleano..
-	while ($fila = $res->fetch_assoc()) {
-		
-		$products[] = $fila;
-		if (trim($fila['crefTienda']) === trim($busqueda)){
-			$resultado['Estado'] = 'Correcto';
-			$resultado['datos'][0] = $fila;
-			$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
-			break;			 
-			
-		} else if (trim($fila['codBarras']) === trim($busqueda)){
-			//if hay mas resultados
-			if ($res->num_rows > 1){  //aqui entra 
-				$resultado['Estado'] = 'Listado';
-				$resultado['datos'] = $products;
-				
-			} else {
+		$resultado['sql'] = $sql;
+		$res = $BDTpv->query($sql);
+		$resultado['Nitems']= $res->num_rows;
+		//si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
+		if ($i === 0){
+			if ($res->num_rows >0){
 				$resultado['Estado'] = 'Correcto';
-				$resultado['datos'][0] = $fila;
-				$resultado['numCampos'] = count($fila); //cuento numCampos para recorrerlos en js y mostrarlos
 				break;
 			}
-			 
-		} else {
-			$resultado['Estado'] = 'Listado';
-			$resultado['datos'] = $products;
 		}
+		//compruebo error en consulta
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta'] = $sql;
+			$resultado['error'] = $BDTpv->error_list;
+			return $resultado;
+		} 
+		$i++;
+	}	
+	//si hay muchos resultados y si es mas de 1, mostrara un listado
+	if ($res->num_rows > 0){
+		if ($res->num_rows > 1){
+			$resultado['Estado'] = 'Listado';
+		}
+	} else { 
+		$resultado['Estado'] = 'Noexiste';
 	}
-	if (!isset ($resultado['Estado'])){
-		$resultado['Estado'] = 'No existe producto';
-		$resultado= BuscarProductos($campoAbuscar,$busqueda,$BDTpv,2);
-		
-		
-	}
+	
+	//si hay muchos resultados, recogera los datos para mostrarlos
+	if ($res->num_rows > 0){
+		//fetch_assoc es un boleano..
+		while ($fila = $res->fetch_assoc()) {
+			$products[] = $fila;
+			$resultado['datos']=$products;
+		}
+	} 
+	
 	return $resultado;
 }
 
