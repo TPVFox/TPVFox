@@ -28,7 +28,6 @@
 	$sqlBDImpor = 'DROP TABLE IF EXISTS '.$nombre_temporal;
 	$BDVirtuemart->query($sqlBDImpor);
 	// Creamos las tablas temporales ( TEMPORARY ) y añadimos campo de id
-	//~ foreach($tablasTemporales as $tTemporal) {
 		$sqlBDImpor = 'CREATE TABLE '.$nombre_temporal.' as '.$tTemporal['select'];
 		
 		if ($BDVirtuemart->query($sqlBDImpor) === TRUE) {
@@ -62,8 +61,7 @@
 			$resultado['error'][$nombre_temporal]['alter']['info_error'] =  $BDVirtuemart->error;
 			//~ $resultado
 		}
-	//~ } 
-	// Fin de creación tablas temporales
+	// Fin de creación tabla temporal
 	return $resultado;
 }
 
@@ -352,6 +350,43 @@ function ComprobarTablaTempClientes ($BDVirtuemart){
 	return $resultado;
 	
 }
+
+function BeforeTabla_tmp_familias($BDVirtuemart){
+	// @Objetivo es modificar el id_padre por id correcto, ya que el id que ponemos es virtuemart.
+	$resultado = array();
+	$Updates = array();
+	$Sql = "SELECT * FROM tmp_familias";
+	
+	
+	if ($ItemFamilias = $BDVirtuemart->query($Sql)) {
+		foreach ($ItemFamilias as $item){
+		// Obtenemos el id familia de la tienda: ref_familia_tienda
+		// Montamos el update que vamos realizar.
+			if ($item['familiaPadre']>0){
+			$Updates[]= 'UPDATE tmp_familias SET familiaPadre = (SELECT idFamilia FROM tmp_familias WHERE ref_familia_tienda="'.$item['familiaPadre'].'") WHERE idFamilia='.$item['idFamilia'];
+			}
+		}
+		
+	}else {
+		// Algo paso  al crear temporal tabla en BDimportar.. no salio bien. Prueba quitando temporal viendo la tabla;
+		$resultado['error']['consulta'] = $Sql;
+		$resultado['error']['info_error'] =  $BDVirtuemart->error;
+	}
+	// Si no hubo error entonces ejecutamos los update que preparamos.
+	if ( count($resultado) === 0  &&  count( $Updates) >0) {
+		// Esto lo hago separado del otro foreach, ya que hay se que hay una forma de montar un update unico
+		foreach ( $Updates as $Update) {
+			$BDVirtuemart->query($Update);
+		}
+		array_push($resultado,array('Update' => $Updates));
+
+	}
+	
+	
+	
+	return $resultado;
+}
+
 
 function ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas){
 	// @Objetivo: Es contrar los registros de un array de varias tablas

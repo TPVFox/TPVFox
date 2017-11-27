@@ -49,6 +49,13 @@ $TControlador = new ControladorComun;
 		$tablaTemporal = $_POST['TablaTemporal'];
 		// Llamamos fuciones de vaciar.
 		$CrearTablaTemporal = CrearTablasTemporales($BDVirtuemart,$tablaTemporal);
+		// Comprobamos si existe funcion Before de tabla
+		$func = 'BeforeTabla_'.$tablaTemporal['nombre_tabla_temporal'];
+
+		if (function_exists($func)){
+			// llamamos a funcion:
+			$CrearTablaTemporal['Funcion_before']=$func($BDVirtuemart);
+		}
 		echo json_encode($CrearTablaTemporal,true);
 		break;	
 	

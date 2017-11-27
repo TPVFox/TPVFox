@@ -119,22 +119,22 @@ $tablasTemporales = array(
 									'campo_id' 	=> 'id',
 									'select'	=>'SELECT completa.idArticulo AS idArticulo, `virtuemart_category_id` AS idFamilia
 											FROM '.$prefijoBD.'_virtuemart_product_categories AS cr 
-											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.idVirtuemartChar'
+											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.idVirtuemartChar LEFT JOIN tmp_familias as f ON f.ref_familia_tienda = cr.virtuemart_category_id'
 									),
 							'5' => array(
 									'nombre_tabla_temporal' => 'tmp_clientes',
 									'campo_id' 	=> 'idClientes',
 									'select'	=>'SELECT c.`virtuemart_user_id` AS idVirtuemart, 
-									CONCAT( c.`first_name` , " ", c.`middle_name` , " ", 
-									c.`last_name` ) AS Nombre, c.`company` AS razonsocial, 
-									c.DNICIF AS nif, CONCAT( c.`address_1`," ", c.`address_2` , " ", c.`city` ) AS direccion, 
-									c.`zip` AS codpostal, c.`phone_1` AS telefono, c.`phone_2` AS movil, 
-									c.`fax` AS fax, u.`email` AS email, "activo" AS `estado`, 
-									count( * ) AS NumDirecciones 
-									FROM '.$prefijoBD.'_users AS u 
-									INNER JOIN '.$prefijoBD.'_virtuemart_userinfos AS c ON u.id = c.virtuemart_user_id 
-									GROUP BY c.virtuemart_user_id 
-									HAVING COUNT( * ) ' 
+										CONCAT( c.`first_name` , " ", c.`middle_name` , " ", 
+										c.`last_name` ) AS Nombre, c.`company` AS razonsocial, 
+										c.DNICIF AS nif, CONCAT( c.`address_1`," ", c.`address_2` , " ", c.`city` ) AS direccion, 
+										c.`zip` AS codpostal, c.`phone_1` AS telefono, c.`phone_2` AS movil, 
+										c.`fax` AS fax, u.`email` AS email, "activo" AS `estado`, 
+										count( * ) AS NumDirecciones 
+										FROM '.$prefijoBD.'_users AS u 
+										INNER JOIN '.$prefijoBD.'_virtuemart_userinfos AS c ON u.id = c.virtuemart_user_id 
+										GROUP BY c.virtuemart_user_id 
+										HAVING COUNT( * ) ' 
 									)
 							);
 	
