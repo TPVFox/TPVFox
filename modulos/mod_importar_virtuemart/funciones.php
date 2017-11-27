@@ -363,7 +363,11 @@ function BeforeTabla_tmp_familias($BDVirtuemart){
 		// Obtenemos el id familia de la tienda: ref_familia_tienda
 		// Montamos el update que vamos realizar.
 			if ($item['familiaPadre']>0){
-			$Updates[]= 'UPDATE tmp_familias SET familiaPadre = (SELECT idFamilia FROM tmp_familias WHERE ref_familia_tienda="'.$item['familiaPadre'].'") WHERE idFamilia='.$item['idFamilia'];
+				// Buscamos el idFamilia del padre.
+				$SqlPadre = 'SELECT idFamilia FROM tmp_familias WHERE ref_familia_tienda="'.$item['familiaPadre'].'"';
+				$Consulta = $BDVirtuemart->query($SqlPadre);
+				$idNuevoFamilia = $Consulta->fetch_row();
+				$Updates[]= 'UPDATE tmp_familias SET familiaPadre = '.$idNuevoFamilia[0].' WHERE idFamilia='.$item['idFamilia'];
 			}
 		}
 		
