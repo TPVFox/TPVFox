@@ -97,9 +97,7 @@ $tablasTemporales = array(
 							'2' => array(
 									'nombre_tabla_temporal' => 'tmp_familias',
 									'campo_id' 	=> 'idFamilia',
-									'select' 	=> 'SELECT c.`virtuemart_category_id` as ref_familia_tienda ,
-										 c.`category_name` as familiaNombre ,
-										 cr.`category_parent_id` as familiaPadre FROM `'.$prefijoBD.'_virtuemart_categories_es_es` AS c LEFT JOIN `'.$prefijoBD.'_virtuemart_category_categories` AS cr ON c.`virtuemart_category_id` = cr.`category_child_id` '
+									'select' 	=> 'SELECT '.$idTienda_export.' as idTienda_export, c.`virtuemart_category_id` as ref_familia_tienda , c.`category_name` as familiaNombre , cr.`category_parent_id` as familiaPadre FROM `'.$prefijoBD.'_virtuemart_categories_es_es` AS c LEFT JOIN `'.$prefijoBD.'_virtuemart_category_categories` AS cr ON c.`virtuemart_category_id` = cr.`category_child_id` '
 									),
 							'3' => array(
 									'nombre_tabla_temporal' => 'tmp_productos_img',
@@ -117,7 +115,7 @@ $tablasTemporales = array(
 							'4' => array(
 									'nombre_tabla_temporal' => 'tmp_cruce_familias',
 									'campo_id' 	=> 'id',
-									'select'	=>'SELECT completa.idArticulo AS idArticulo, `virtuemart_category_id` AS idFamilia
+									'select'	=>'SELECT completa.idArticulo AS idArticulo, f.idFamilia AS idFamilia
 											FROM '.$prefijoBD.'_virtuemart_product_categories AS cr 
 											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.idVirtuemartChar LEFT JOIN tmp_familias as f ON f.ref_familia_tienda = cr.virtuemart_category_id'
 									),
@@ -280,6 +278,20 @@ $tablasTemporales = array(
 								'tipos_inserts' 		=> array(
 												'0' => array(
 													'descripcion_insert' => 'Insert Báscio',
+													'campos_origen'		=>array('idFamilia','ref_familia_tienda','idTienda_export'),
+													'campos_destino'	=>array('idFamilia','ref_familia_tienda','idTienda'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=>array()
+												)
+											),
+								'nombre'		=>'familiasTienda',
+								'origen' 		=>'tmp_familias',
+								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
+								),
+						'7' => array(
+								'tipos_inserts' 		=> array(
+												'0' => array(
+													'descripcion_insert' => 'Insert Báscio',
 													'campos_origen'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
 													'campos_destino'	=>array('idArticulo','cref','virtuemart_media_id','file_url'),
 													'Num_registros_insert' =>'',
@@ -290,7 +302,7 @@ $tablasTemporales = array(
 								'origen' 		=>'tmp_productos_img',
 								'NumRegistros'	=> '?' // No le pongo valor ya lo obtenemos...
 								),
-						'7' => array(
+						'8' => array(
 								'tipos_inserts' 		=> array(
 												'0' => array(
 													'descripcion_insert' => 'Insert Báscio',

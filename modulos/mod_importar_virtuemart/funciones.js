@@ -225,13 +225,12 @@ function BucleTablaTemporal(){
 	// Es recorrer el array de tablasTemporales 
 	// @ Parametros:
 	// NO HAY , son variables globales (tablasTemporales y tablatemporal_actual)
-	console.log(' tabla temporales a crear.'+tablasTemporales.length);
+	console.log(' Bucle');
 	var i = 0;
 	var y = 0;
 	tablasTemporales.forEach(function(tablatemporal) {
 		// Recorremos tablas y creamos las tablas.
 		//~ console.log('tablatemporal_actual:'+ tablatemporal_actual['nombre_tabla_temporal']);
-		console.log('tablatemporal:'+ tablatemporal['nombre_tabla_temporal']);
 		if (typeof tablatemporal_actual === 'undefined'){
 				y = 0
 		} else if ( tablatemporal_actual['nombre_tabla_temporal'] === tablatemporal['nombre_tabla_temporal']){
