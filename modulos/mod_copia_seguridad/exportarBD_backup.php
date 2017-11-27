@@ -33,6 +33,9 @@
 		define("DB_PASSWORD", $passwordMysql);
 		define("DB_NAME", $nombrebdMysql);
 		define("DB_HOST", 'localhost');
+		//para identificar copia Parcial o Completa y modificar nombre de la copia backup 
+		//seria.. BACKUP_DIR y TABLES , como tabla_parcial y tabla_completa con su nombre de copia correspondiente
+		
 		define("BACKUP_DIR", '../../../datos/backup/backup-archivos'); // Comenta esta línea para usar el mismo directorio de scripts ('.')
 		//~ define("TABLES", '*'); // copia de seguridad completa
 		define("TABLES", 'indices,usuarios,tiendas,ticketslinea,ticketst,ticketstIva,ticketstemporales,cierres,cierres_ivas,cierres_usuariosFormasPago,cierres_usuarios_tickets'); // Copia de seguridad parcial
@@ -53,6 +56,7 @@
 			echo '<div style="font-family: monospace;">';
 		}
 		$backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+		
 		$result = $backupDatabase->backupTables(TABLES, BACKUP_DIR) ? 'OK' : 'KO';
 		$backupDatabase->obfPrint('Backup result: ' . $result, 1);
 		if (php_sapi_name() != "cli") {

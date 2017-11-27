@@ -59,8 +59,8 @@ class Backup_Database {
                 $tables = is_array($tables) ? $tables : explode(',',$tables);
 				
             }
-            $sql = 'CREATE DATABASE IF NOT EXISTS `'.$this->dbName."`;\n\n";
-            $sql .= 'USE '.$this->dbName.";\n\n";
+           // $sql = 'CREATE DATABASE IF NOT EXISTS `'.$this->dbName."`;\n\n";
+          //  $sql = 'USE '.$this->dbName.";\n\n";
             /**
             * Iterate tables
             */

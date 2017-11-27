@@ -3,7 +3,6 @@
     <head>
         <?php
 	include './../../head.php';
-	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
@@ -51,21 +50,16 @@
 				</div>	
 			</nav>
 			<div class="col-md-10">
-					<div>
-						<div class="alert-info" style="width:30%" >
-						<?php 	// Mostramos paginacion 
-							$mensaje='Para restaurar <strong>indicar/pasar tabla</strong>.';
-							echo $mensaje; 
-						?>
-						</div>
-						
-						
+				<div>
+					<div class="alert-info" style="width:30%" >
+					<?php 	// Mostramos paginacion 
+						$mensaje='Para restaurar <strong>indicar/pasar tabla</strong>.';
+						echo $mensaje; 
+					?>
 					</div>
-					
-                
+				</div>
 		</div>
 	</div>
-    </div>
-		
+    </div>		
 </body>
 </html>

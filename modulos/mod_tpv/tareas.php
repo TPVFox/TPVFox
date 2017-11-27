@@ -42,8 +42,10 @@ switch ($pulsado) {
 		if ($respuesta['Estado'] === 'Correcto' && $deDonde === 'popup'){
 			// Cambio estado para devolver que es listado.
 			$respuesta['listado']= htmlProductos($respuesta['datos'],$campoAbuscar,$busqueda);
-			$respuesta['Estado'] = 'Listado';
+			//$respuesta['Estado'] = 'Listado';
 		}
+		
+		
 		echo json_encode($respuesta);  
 		break;
 	
