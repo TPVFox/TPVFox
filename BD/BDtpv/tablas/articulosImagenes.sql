@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 03, 2017 at 09:38 AM
+-- Generation Time: Nov 28, 2017 at 11:36 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.19-1
 
@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `articulosImagenes` (
   `id` int(11) NOT NULL,
   `idArticulo` int(11) NOT NULL,
-  `cref` varchar(18) NOT NULL,
+  `idVirtuemart` int(11) NOT NULL,
   `file_url` varchar(900) NOT NULL,
   `virtuemart_media_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

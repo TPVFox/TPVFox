@@ -70,7 +70,7 @@ $tablasTemporales = array(
 									'campo_id' 	=>'idArticulo',
 									'select'	=>'SELECT '.$idTienda.' as idTienda,'
 													.$idTienda_export.' as idTienda_export,
-													CAST( c.virtuemart_product_id as CHAR(18))as idVirtuemartChar,
+													c.virtuemart_product_id as idVirtuemart,
 													CAST( c.product_sku as CHAR(18))as product_sku,
 													cr.product_name as articulo_name,
 													coalesce((
@@ -103,21 +103,21 @@ $tablasTemporales = array(
 									'nombre_tabla_temporal' => 'tmp_productos_img',
 									'campo_id'	=> 'id',
 									'select'	=>'SELECT completa.idArticulo AS idArticulo,
-										 CAST( pro_img.`virtuemart_product_id` AS CHAR( 18 ) ) AS cref,
+										 pro_img.`virtuemart_product_id`  AS idVirtuemart,
 										 pro_img.`virtuemart_media_id` , pro_img.`ordering` ,
 										 img.file_url
 										 FROM `'.$prefijoBD.'_virtuemart_product_medias` AS pro_img
 										 LEFT JOIN '.$prefijoBD.'_virtuemart_medias AS img 
 										 ON pro_img.virtuemart_media_id = img.virtuemart_media_id
 										 LEFT JOIN tmp_articulosCompleta AS completa 
-										 ON pro_img.`virtuemart_product_id` = completa.idVirtuemartChar'
+										 ON pro_img.`virtuemart_product_id` = completa.idVirtuemart'
 									),
 							'4' => array(
 									'nombre_tabla_temporal' => 'tmp_cruce_familias',
 									'campo_id' 	=> 'id',
 									'select'	=>'SELECT completa.idArticulo AS idArticulo, f.idFamilia AS idFamilia
 											FROM '.$prefijoBD.'_virtuemart_product_categories AS cr 
-											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.idVirtuemartChar LEFT JOIN tmp_familias as f ON f.ref_familia_tienda = cr.virtuemart_category_id'
+											LEFT JOIN tmp_articulosCompleta AS completa ON cr.`virtuemart_product_id` = completa.idVirtuemart LEFT JOIN tmp_familias as f ON f.ref_familia_tienda = cr.virtuemart_category_id'
 									),
 							'5' => array(
 									'nombre_tabla_temporal' => 'tmp_clientes',
@@ -228,17 +228,17 @@ $tablasTemporales = array(
 								'tipos_inserts' 		=> array(
 												'0' => array(
 													'descripcion_insert' => 'Insert Báscio',
-													'campos_origen'		=>array('idArticulo','idTienda_export','idVirtuemartChar','estado'),
-													'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
+													'campos_origen'		=>array('idArticulo','idTienda_export','idVirtuemart','estado'),
+													'campos_destino'	=>array('idArticulo','idTienda','idVirtuemart','estado'),
 													'Num_registros_insert' =>'',
-													'obligatorio'	=>array('idVirtuemartChar')
+													'obligatorio'	=>array('idVirtuemart')
 												),
 												'1' => array(
 													'descripcion_insert' => 'Insert CREF en principal',
-													'campos_origen'		=>array('idArticulo','idTienda','idVirtuemartChar','estado'),
+													'campos_origen'		=>array('idArticulo','idTienda','idVirtuemart','estado'),
 													'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
 													'Num_registros_insert' =>'',
-													'obligatorio'	=>array('idVirtuemartChar')
+													'obligatorio'	=>array('idVirtuemart')
 												)
 											),
 								
@@ -292,8 +292,8 @@ $tablasTemporales = array(
 								'tipos_inserts' 		=> array(
 												'0' => array(
 													'descripcion_insert' => 'Insert Báscio',
-													'campos_origen'		=>array('idArticulo','cref','virtuemart_media_id','file_url'),
-													'campos_destino'	=>array('idArticulo','cref','virtuemart_media_id','file_url'),
+													'campos_origen'		=>array('idArticulo','idVirtuemart','virtuemart_media_id','file_url'),
+													'campos_destino'	=>array('idArticulo','idVirtuemart','virtuemart_media_id','file_url'),
 													'Num_registros_insert' =>'',
 													'obligatorio'	=>array('file_url')
 												)
