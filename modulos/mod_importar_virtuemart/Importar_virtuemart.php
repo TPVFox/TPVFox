@@ -188,8 +188,8 @@
 				
 				<div class="col-md-6">
 				<h4>Tabla ArticulosTiendas</h4>
-				<p>Se añade por defecto registros con CREF para tienda exportada con idVirtuemart, puede indicar si como quieres para tienda principal</p>
-				<label><small>¿Creamos CREF para empresa principal?</small></label>
+				<p>En tabla se añade un registros con idVirtuemart y idTienda exportada.</p>
+				<label><small>¿Que CREF quieres poner en empresa principal?</small></label>
 	
 					<?php
 					foreach ($optcrefs as $optcref){
@@ -203,8 +203,8 @@
 				</div>
 				<div class="col-md-6">
 				<h4>Tabla ArticulosPrecios</h4>
-				<p>Por defecto tipo insert es añadir el precio para tienda_exportada, pero puede generar tambien los precios para la tienda principal.</p>
-				<label><small>¿Quieres los precios web en el tpv?</small></label>
+				<p>En está tabla se añade por defecto los precios virtuemart relacionad con idTienda exportada.</p>
+				<label><small>¿Quieres los precios de la web en el tpv?</small></label>
 	
 					<?php
 					foreach ($optprecios as $optprecio){
