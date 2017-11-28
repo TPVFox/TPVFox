@@ -1,0 +1,3129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="297mm"
+   height="420mm"
+   viewBox="-42 -830 590.52162 836.01724"
+   version="1.1"
+   id="svg1141"
+   sodipodi:docname="flujo_funciones.svg"
+   inkscape:version="0.92.1 r15371">
+  <metadata
+     id="metadata1147">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs1145" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1440"
+     inkscape:window-height="826"
+     id="namedview1143"
+     showgrid="false"
+     units="mm"
+     inkscape:zoom="0.053829023"
+     inkscape:cx="2097.6378"
+     inkscape:cy="2192.126"
+     inkscape:window-x="0"
+     inkscape:window-y="26"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1141" />
+  <g
+     id="Fondo"
+     transform="matrix(0.25063422,0,0,0.25063422,-11.219299,-510.71023)">
+    <g
+       id="g28">
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1036"
+         y="-142.444"
+         width="240.10001"
+         height="156"
+         id="rect2" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-126.444"
+         id="text4">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-107.444"
+         id="text6">BeforeTabla_tmp_familias</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-91.944397"
+         id="text8">($BDVirtuemart)</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-77.944397"
+         id="text10">// @Objetivo es modificar el</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-63.944401"
+         id="text12">id_padre por id correcto, ya que el</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-49.944401"
+         id="text14">id que ponemos es virtuemart.</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-35.944401"
+         id="text16">// Esta funcion es llamada desde</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-21.944401"
+         id="text18">tareas,</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="-7.9443998"
+         id="text20">$tablaTemporal['nombre_tabla_temporal</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1156.05"
+         y="6.0556002"
+         id="text22">']</text>
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1036"
+         y="13.5556"
+         width="240.10001"
+         height="8"
+         id="rect24" />
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1036"
+         y="21.555599"
+         width="240.10001"
+         height="8"
+         id="rect26" />
+    </g>
+    <g
+       id="g50">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1649.8101"
+         y="-373"
+         width="224.14999"
+         height="114"
+         id="rect30" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1761.89"
+         y="-357"
+         id="text32">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1761.89"
+         y="-338"
+         id="text34">ComprobarCodbarras</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1761.89"
+         y="-322.5"
+         id="text36">($BDVirtuemart)</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1761.89"
+         y="-308.5"
+         id="text38">// Comprobamos que si dos productos</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1761.89"
+         y="-294.5"
+         id="text40">tienen mismo código de barras,</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1761.89"
+         y="-280.5"
+         id="text42">// deberíamos guardar estos datos en</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1761.89"
+         y="-266.5"
+         id="text44">un informe de importacion.</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1649.8101"
+         y="-259"
+         width="224.14999"
+         height="8"
+         id="rect46" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1649.8101"
+         y="-251"
+         width="224.14999"
+         height="8"
+         id="rect48" />
+    </g>
+    <g
+       id="g70">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1531"
+         y="-151"
+         width="386.25"
+         height="100"
+         id="rect52" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1724.12"
+         y="-135"
+         id="text54">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1724.12"
+         y="-116"
+         id="text56">ComprobarTablaTempArticulosCompleta</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1724.12"
+         y="-100.5"
+         id="text58">($BDVirtuemart){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1724.12"
+         y="-86.5"
+         id="text60">@ Objetivo: Comprobar en tabla tempora tmp_articulosCompleta.</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1724.12"
+         y="-72.5"
+         id="text62">subproceso: RecalculoPrecioConIvas</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1724.12"
+         y="-58.5"
+         id="text64">subproceso: CodbarrasRepetidos.</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1531"
+         y="-51"
+         width="386.25"
+         height="8"
+         id="rect66" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1531"
+         y="-43"
+         width="386.25"
+         height="8"
+         id="rect68" />
+    </g>
+    <g
+       id="g102">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1545.33"
+         y="62.5186"
+         width="322.45001"
+         height="184"
+         id="rect72" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="78.5186"
+         id="text74">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="97.5186"
+         id="text76">ComprobarTablaTempClientes</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="113.019"
+         id="text78">($BDVirtuemart){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="127.019"
+         id="text80">@ Objetivo -Comprobar la tabla temporal de Clientes</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="141.019"
+         id="text82">subprocesos:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="155.019"
+         id="text84">AnhadirIdClientes1</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="169.019"
+         id="text86">[SUBPROCESO : AnhadirIdCliente1] -&gt; Donde añadimos</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="183.019"
+         id="text88">el registro con id 1 que es cliente Sin identificar</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="197.019"
+         id="text90">La complejidad de esto es que ya tenemos la tabla</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="211.019"
+         id="text92">cubierta, con el campo idClientes autoincremental</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="225.019"
+         id="text94">creado por lo que :</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1706.5601"
+         y="239.019"
+         id="text96">// Quitamos auto incremental :</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1545.33"
+         y="246.519"
+         width="322.45001"
+         height="8"
+         id="rect98" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1545.33"
+         y="254.519"
+         width="322.45001"
+         height="8"
+         id="rect100" />
+    </g>
+    <g
+       id="g126">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1129.89"
+         y="-371"
+         width="332.20001"
+         height="128"
+         id="rect104" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1295.99"
+         y="-355"
+         id="text106">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1295.99"
+         y="-336"
+         id="text108">CrearTablasTemporales</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1295.99"
+         y="-320.5"
+         id="text110">($BDVirtuemart,$tTemporal)</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1295.99"
+         y="-306.5"
+         id="text112">//@ Objetivo :</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1295.99"
+         y="-292.5"
+         id="text114">// Crear las tablas temporales que indiquemos en</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1295.99"
+         y="-278.5"
+         id="text116">array $tablasTemporales en BDVirtuemart</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1295.99"
+         y="-264.5"
+         id="text118">// RECUERDA que el nombre de los campos tiene que ser</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1295.99"
+         y="-250.5"
+         id="text120">el mismo de los campos queremos hacer insert tpv.</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1129.89"
+         y="-243"
+         width="332.20001"
+         height="8"
+         id="rect122" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1129.89"
+         y="-235"
+         width="332.20001"
+         height="8"
+         id="rect124" />
+    </g>
+    <g
+       id="g146">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="829.48199"
+         y="-632.63"
+         width="235.75"
+         height="100"
+         id="rect128" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="947.35699"
+         y="-616.63"
+         id="text130">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="947.35699"
+         y="-597.63"
+         id="text132">EliminarArticulosTpv</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="947.35699"
+         y="-582.13"
+         id="text134">($BDtpv,$tablas,$controlador){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="947.35699"
+         y="-568.13"
+         id="text136">//@ Objetivo es eliminar las tablas los</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="947.35699"
+         y="-554.13"
+         id="text138">productos(articulos) que existen en TPV</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="947.35699"
+         y="-540.13"
+         id="text140">// contenido de las tablas.</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="829.48199"
+         y="-532.63"
+         width="235.75"
+         height="8"
+         id="rect142" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="829.48199"
+         y="-524.63"
+         width="235.75"
+         height="8"
+         id="rect144" />
+    </g>
+    <g
+       id="g176">
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1819.5601"
+         y="534.70398"
+         width="291.14999"
+         height="170"
+         id="rect148" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="550.70398"
+         id="text150">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="569.70398"
+         id="text152">ObtenerGruposInsert</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="585.20398"
+         id="text154">($registros,$obligatorios = array()){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="599.20398"
+         id="text156">// @Objetivo es conseguir un grupos array con los</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="613.20398"
+         id="text158">valores para insertar. esto se hacer para no</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="627.20398"
+         id="text160">realizar un insert con mas 1000 registros a</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="641.20398"
+         id="text162">insertar.</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="655.20398"
+         id="text164">// @ Parametros</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="669.20398"
+         id="text166">$registros</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="683.20398"
+         id="text168">$obligatorios -&gt; Es el campo de la tabla que</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1965.13"
+         y="697.20398"
+         id="text170">obligatorio que exista.</text>
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1819.5601"
+         y="704.70398"
+         width="291.14999"
+         height="8"
+         id="rect172" />
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1819.5601"
+         y="712.70398"
+         width="291.14999"
+         height="8"
+         id="rect174" />
+    </g>
+    <g
+       id="g196">
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="288"
+         y="-655"
+         width="323.75"
+         height="100"
+         id="rect178" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="449.875"
+         y="-639"
+         id="text180">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="449.875"
+         y="-620"
+         id="text182">ObtenerNumRegistrosVariasTablas</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="449.875"
+         y="-604.5"
+         id="text184">($Controler,$BDTpv,$tablas){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="449.875"
+         y="-590.5"
+         id="text186">// @Objetivo: Es contrar los</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="449.875"
+         y="-576.5"
+         id="text188">registros de un array de varias</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="449.875"
+         y="-562.5"
+         id="text190">tablas</text>
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="288"
+         y="-555"
+         width="323.75"
+         height="8"
+         id="rect192" />
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="288"
+         y="-547"
+         width="323.75"
+         height="8"
+         id="rect194" />
+    </g>
+    <g
+       id="g216">
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="230"
+         y="-498"
+         width="252.75"
+         height="100"
+         id="rect198" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="356.375"
+         y="-482"
+         id="text200">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="356.375"
+         y="-463"
+         id="text202">ObtenerTiendaWeb</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="356.375"
+         y="-447.5"
+         id="text204">($BDTpv){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="356.375"
+         y="-433.5"
+         id="text206">// Objetivo obtener datos de la tabla tienda</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="356.375"
+         y="-419.5"
+         id="text208">para poder cargar el select de tienda On</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="356.375"
+         y="-405.5"
+         id="text210">Line.</text>
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="230"
+         y="-398"
+         width="252.75"
+         height="8"
+         id="rect212" />
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="230"
+         y="-390"
+         width="252.75"
+         height="8"
+         id="rect214" />
+    </g>
+    <g
+       id="g240">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1295.22"
+         y="674.55603"
+         width="259"
+         height="128"
+         id="rect218" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1424.72"
+         y="690.55603"
+         id="text220">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1424.72"
+         y="709.55603"
+         id="text222">RealizarInsert</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1424.72"
+         y="725.05603"
+         id="text224">($Inserts,$BDTpv){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1424.72"
+         y="739.05603"
+         id="text226">//@ Objetivo ejecutar inserts de las</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1424.72"
+         y="753.05603"
+         id="text228">tablas.</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1424.72"
+         y="767.05603"
+         id="text230">//@ Parametro:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1424.72"
+         y="781.05603"
+         id="text232">// $Inserts-&gt; Es un array de inserts.</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1424.72"
+         y="795.05603"
+         id="text234">// $BDTpv -&gt; Conexion a base de datos.</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1295.22"
+         y="802.55603"
+         width="259"
+         height="8"
+         id="rect236" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1295.22"
+         y="810.55603"
+         width="259"
+         height="8"
+         id="rect238" />
+    </g>
+    <g
+       id="g260">
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="480"
+         y="-806"
+         width="308.29999"
+         height="100"
+         id="rect242" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="634.15002"
+         y="-790"
+         id="text244">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="634.15002"
+         y="-771"
+         id="text246">SumarNumRegistrosVariasTablas</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="634.15002"
+         y="-755.5"
+         id="text248">($tablas){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="634.15002"
+         y="-741.5"
+         id="text250">// @Objetivo: Es sumar todos los</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="634.15002"
+         y="-727.5"
+         id="text252">registros que tenga array de</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="634.15002"
+         y="-713.5"
+         id="text254">tablas</text>
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="480"
+         y="-706"
+         width="308.29999"
+         height="8"
+         id="rect256" />
+      <rect
+         style="fill:#f2f609;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="480"
+         y="-698"
+         width="308.29999"
+         height="8"
+         id="rect258" />
+    </g>
+    <g
+       id="g278">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1172.74"
+         y="-622.14801"
+         width="197.2"
+         height="86"
+         id="rect262" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1271.34"
+         y="-606.14801"
+         id="text264">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1271.34"
+         y="-587.14801"
+         id="text266">htmlBDTpvTR</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1271.34"
+         y="-571.64801"
+         id="text268">($tablas){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1271.34"
+         y="-557.64801"
+         id="text270">// @Objetivo es obtener tbody de</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1271.34"
+         y="-543.64801"
+         id="text272">tabla de Base Datos Tpv</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1172.74"
+         y="-536.14801"
+         width="197.2"
+         height="8"
+         id="rect274" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1172.74"
+         y="-528.14801"
+         width="197.2"
+         height="8"
+         id="rect276" />
+    </g>
+    <g
+       id="g300">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1460"
+         y="347.96201"
+         width="288.20001"
+         height="114"
+         id="rect280" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1604.1"
+         y="363.96201"
+         id="text282">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1604.1"
+         y="382.96201"
+         id="text284">prepararInsertTablasBDTpv</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1604.1"
+         y="398.46201"
+         id="text286">($BDVirtuemart,$tablas){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1604.1"
+         y="412.46201"
+         id="text288">// @ Objetivo es preparar un array con los insert</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1604.1"
+         y="426.46201"
+         id="text290">que vamos realizar en varias tablas de BDTpv</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1604.1"
+         y="440.46201"
+         id="text292">// a parte eso, tambien devolvemos el numero</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1604.1"
+         y="454.46201"
+         id="text294">inserts y cuanto descartamos.</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1460"
+         y="461.96201"
+         width="288.20001"
+         height="8"
+         id="rect296" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1460"
+         y="469.96201"
+         width="288.20001"
+         height="8"
+         id="rect298" />
+    </g>
+    <g
+       id="g324">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1782.67"
+         y="338"
+         width="381.75"
+         height="128"
+         id="rect302" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1973.54"
+         y="354"
+         id="text304">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1973.54"
+         y="373"
+         id="text306">prepararInsertUnaTabla</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1973.54"
+         y="388.5"
+         id="text308">($BDVirtuemart,$campos_destino,$campos_origen,$tabla_origen,</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1973.54"
+         y="402.5"
+         id="text310">$tabla_destino,$camposObligatorios)</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1973.54"
+         y="416.5"
+         id="text312">// @ Objetivo es preparar un array con los insert que vamos</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1973.54"
+         y="430.5"
+         id="text314">realizar en UNA TABLA de BDTpv</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1973.54"
+         y="444.5"
+         id="text316">// a parte eso, tambien devolvemos el numero inserts y cuanto</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1973.54"
+         y="458.5"
+         id="text318">descartamos.</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1782.67"
+         y="466"
+         width="381.75"
+         height="8"
+         id="rect320" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1782.67"
+         y="474"
+         width="381.75"
+         height="8"
+         id="rect322" />
+    </g>
+    <g
+       id="g350">
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1821.52"
+         y="822.51801"
+         width="313.04999"
+         height="142"
+         id="rect326" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="838.51801"
+         id="text328">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="857.51801"
+         id="text330">valoresComprobados</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="873.01801"
+         id="text332">($registros,$obligatorios = array()){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="887.01801"
+         id="text334">// @ Objetivos es limpiar los valores que no contienen</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="901.01801"
+         id="text336">datos en los campos obligatorios</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="915.01801"
+         id="text338">// @ Parametros:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="929.01801"
+         id="text340">// //registros = Consulta ya realizada en $BD</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="943.01801"
+         id="text342">// @ Devolvemos :</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1978.04"
+         y="957.01801"
+         id="text344">// array con Aceptados y descartados.</text>
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1821.52"
+         y="964.51801"
+         width="313.04999"
+         height="8"
+         id="rect346" />
+      <rect
+         style="fill:#ffff00;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1821.52"
+         y="972.51801"
+         width="313.04999"
+         height="8"
+         id="rect348" />
+    </g>
+    <g
+       id="g366">
+      <polygon
+         style="fill:#0000ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="119.2,-245 129.2,-255 307.6,-255 307.6,-28 297.6,-18 119.2,-18 "
+         id="polygon352" />
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="119.2"
+         y1="-245"
+         x2="297.60001"
+         y2="-245"
+         id="line354" />
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="297.60001"
+         y1="-245"
+         x2="307.60001"
+         y2="-255"
+         id="line356" />
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="297.60001"
+         y1="-245"
+         x2="297.60001"
+         y2="-18"
+         id="line358" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="129.2"
+         y="-223.10001"
+         id="text362">
+        <tspan
+           x="129.2"
+           y="-223.10001"
+           id="tspan360">Importar_virtuemart.php</tspan>
+      </text>
+      <line
+         style="fill:none;stroke:#ffffff;stroke-width:1;stroke-opacity:1"
+         x1="129.2"
+         y1="-220.10001"
+         x2="287.60001"
+         y2="-220.10001"
+         id="line364" />
+    </g>
+    <g
+       id="g382">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="113.766,-131.5 40,-131.5 40,-748 474.531,-748 "
+         id="polyline368" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="100.003,-123.5 116.003,-131.5 100.003,-139.5 "
+         id="polyline370" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="460.767,-740 476.767,-748 460.767,-756 "
+         id="polyline372" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="42"
+         y="-442.95001"
+         id="text374" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="44,-442.95 44,-450.95 52,-446.95 "
+         id="polygon376" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="98.238602"
+         y="-134.7"
+         id="text378" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="459.00299"
+         y="-751.20001"
+         id="text380" />
+    </g>
+    <g
+       id="g398">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="108.528,-184 81,-184 81,-597 282.523,-597 "
+         id="polyline384" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="94.7639,-176 110.764,-184 94.7639,-192 "
+         id="polyline386" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="268.759,-589 284.759,-597 268.759,-605 "
+         id="polyline388" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="83"
+         y="-393.70001"
+         id="text390" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="85,-393.7 85,-401.7 93,-397.7 "
+         id="polygon392" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="93"
+         y="-187.2"
+         id="text394" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="266.995"
+         y="-600.20001"
+         id="text396" />
+    </g>
+    <g
+       id="g414">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="208.4,-249.472 208.4,-312.996 356.375,-312.996 356.375,-376.521 "
+         id="polyline400" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="200.4,-263.236 208.4,-247.236 216.4,-263.236 "
+         id="polyline402" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="364.375,-362.757 356.375,-378.757 348.375,-362.757 "
+         id="polyline404" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="282.388"
+         y="-316.19601"
+         id="text406" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="284.388,-316.196 284.388,-324.196 292.388,-320.196 "
+         id="polygon408" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="219.39999"
+         y="-249"
+         id="text410" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="367.375"
+         y="-368.99301"
+         id="text412" />
+    </g>
+    <g
+       id="g422">
+      <ellipse
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         cx="231.799"
+         cy="-346"
+         rx="20.201099"
+         ry="20.5324"
+         id="ellipse416" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="231.799"
+         y="-342.10001"
+         id="text420">
+        <tspan
+           x="231.799"
+           y="-342.10001"
+           id="tspan418">1</tspan>
+      </text>
+    </g>
+    <g
+       id="g430">
+      <ellipse
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         cx="169.401"
+         cy="-637.66803"
+         rx="20.201099"
+         ry="20.5324"
+         id="ellipse424" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="169.401"
+         y="-633.76801"
+         id="text428">
+        <tspan
+           x="169.401"
+           y="-633.76801"
+           id="tspan426">2</tspan>
+      </text>
+    </g>
+    <g
+       id="g438">
+      <ellipse
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         cx="172.601"
+         cy="-807.86798"
+         rx="20.201099"
+         ry="20.5324"
+         id="ellipse432" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="172.601"
+         y="-803.96802"
+         id="text436">
+        <tspan
+           x="172.601"
+           y="-803.96802"
+           id="tspan434">3</tspan>
+      </text>
+    </g>
+    <g
+       id="g446">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="209"
+         y="-201"
+         width="156"
+         height="38"
+         rx="0"
+         ry="0"
+         id="rect440" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="287"
+         y="-178.10001"
+         id="text444">
+        <tspan
+           x="287"
+           y="-178.10001"
+           id="tspan442">Configuracion</tspan>
+      </text>
+    </g>
+    <g
+       id="g454">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="202.974"
+         y="-147.2"
+         width="165.02499"
+         height="38"
+         rx="0"
+         ry="0"
+         id="rect448" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="285.48599"
+         y="-124.3"
+         id="text452">
+        <tspan
+           x="285.48599"
+           y="-124.3"
+           id="tspan450">Importar</tspan>
+      </text>
+    </g>
+    <g
+       id="g462">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="209.39999"
+         y="-82.400002"
+         width="156"
+         height="38"
+         rx="0"
+         ry="0"
+         id="rect456" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="287.39999"
+         y="-59.5"
+         id="text460">
+        <tspan
+           x="287.39999"
+           y="-59.5"
+           id="tspan458">Actualizar</tspan>
+      </text>
+    </g>
+    <g
+       id="g478">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="326,-205.472 326,-282.51 208.4,-282.51 208.4,-260.456 "
+         id="polyline464" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="318,-219.236 326,-203.236 334,-219.236 "
+         id="polyline466" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="200.4,-274.22 208.4,-258.22 216.4,-274.22 "
+         id="polyline468" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="267.20001"
+         y="-285.70999"
+         id="text470" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="269.2,-285.71 269.2,-293.71 277.2,-289.71 "
+         id="polygon472" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="337"
+         y="-205"
+         id="text474" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="219.39999"
+         y="-259.98401"
+         id="text476" />
+    </g>
+    <g
+       id="g500">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="186"
+         y="37"
+         width="252.7"
+         height="114"
+         id="rect480" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="312.35001"
+         y="53"
+         id="text482">&lt;&lt;js&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="312.35001"
+         y="72"
+         id="text484">BucleTablaTemporal(){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="312.35001"
+         y="87.5"
+         id="text486">// @ Objetivo :</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="312.35001"
+         y="101.5"
+         id="text488">// Es recorrer el array de tablasTemporales</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="312.35001"
+         y="115.5"
+         id="text490">// @ Parametros:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="312.35001"
+         y="129.5"
+         id="text492">// NO HAY , son variables globales</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="312.35001"
+         y="143.5"
+         id="text494">(tablasTemporales y tablatemporal_actual)</text>
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="186"
+         y="151"
+         width="252.7"
+         height="8"
+         id="rect496" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="186"
+         y="159"
+         width="252.7"
+         height="8"
+         id="rect498" />
+    </g>
+    <g
+       id="g528">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="500"
+         y="-383"
+         width="282.35001"
+         height="156"
+         id="rect502" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-367"
+         id="text504">&lt;&lt;js&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-348"
+         id="text506">BarraProceso</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-332.5"
+         id="text508">(lineaA,lineaF)</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-318.5"
+         id="text510">// Esta fucion debería ser una funcion comun ,</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-304.5"
+         id="text512">por lo que se debería cargar el javascript comun</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-290.5"
+         id="text514">y ejecutar...</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-276.5"
+         id="text516">// Script para generar la barra de proceso.</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-262.5"
+         id="text518">// Esta barra proceso se crea con el total de</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-248.5"
+         id="text520">lineas y empieza mostrando la lineas</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="641.17499"
+         y="-234.5"
+         id="text522">// que ya estan añadidas.</text>
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="500"
+         y="-227"
+         width="282.35001"
+         height="8"
+         id="rect524" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="500"
+         y="-219"
+         width="282.35001"
+         height="8"
+         id="rect526" />
+    </g>
+    <g
+       id="g542">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="439.708,102 461.85,102 461.85,-297 494.519,-297 "
+         id="polyline530" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="480.755,-289 496.755,-297 480.755,-305 "
+         id="polyline532" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="463.85001"
+         y="-100.7"
+         id="text534" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="465.85,-100.7 465.85,-108.7 473.85,-104.7 "
+         id="polygon536" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="443.70801"
+         y="98.800003"
+         id="text538" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="478.991"
+         y="-300.20001"
+         id="text540" />
+    </g>
+    <g
+       id="g560">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="656"
+         y="-118"
+         width="269.20001"
+         height="86"
+         id="rect544" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="790.59998"
+         y="-102"
+         id="text546">&lt;&lt;js&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="790.59998"
+         y="-83"
+         id="text548">CrearTablaTemporal</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="790.59998"
+         y="-67.5"
+         id="text550">(tablatemporal){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="790.59998"
+         y="-53.5"
+         id="text552">// Objetivo:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="790.59998"
+         y="-39.5"
+         id="text554">// Es crear la tablas temporales en virtuemart.</text>
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="656"
+         y="-32"
+         width="269.20001"
+         height="8"
+         id="rect556" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="656"
+         y="-24"
+         width="269.20001"
+         height="8"
+         id="rect558" />
+    </g>
+    <g
+       id="g584">
+      <rect
+         style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1077.74"
+         y="180.037"
+         width="287.20001"
+         height="58"
+         id="rect562" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="1221.34"
+         y="196.037"
+         id="text564">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="1221.34"
+         y="215.037"
+         id="text566">tareas</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="1221.34"
+         y="230.537"
+         id="text568">Controlador</text>
+      <rect
+         style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1077.74"
+         y="238.037"
+         width="287.20001"
+         height="84"
+         id="rect570" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="1080.74"
+         y="252.037"
+         id="text572">+Crear Tabla temporal</text>
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="1080.74"
+         y="268.03699"
+         id="text574">+ComprobarTablaTempArticulosCompleta</text>
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="1080.74"
+         y="284.03699"
+         id="text576">+ComprobarTablaTempClientes</text>
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="1080.74"
+         y="300.03699"
+         id="text578">+Preparar insert</text>
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="1080.74"
+         y="316.03699"
+         id="text580">+Realizar insert</text>
+      <rect
+         style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1077.74"
+         y="322.03699"
+         width="287.20001"
+         height="8"
+         id="rect582" />
+    </g>
+    <g
+       id="g598">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1364.94,248.037 1385.94,248.037 1385.94,19.023 1295.99,19.023 1295.99,-221.519 "
+         id="polyline586" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1303.99,-207.755 1295.99,-223.755 1287.99,-207.755 "
+         id="polyline588" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1340.96"
+         y="15.823"
+         id="text590" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1342.96,15.823 1342.96,7.82296 1350.96,11.823 "
+         id="polygon592" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1368.9399"
+         y="244.83701"
+         id="text594" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1306.99"
+         y="-213.991"
+         id="text596" />
+    </g>
+    <g
+       id="g606">
+      <ellipse
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         cx="602.73499"
+         cy="-80.000099"
+         rx="23.5334"
+         ry="18.7495"
+         id="ellipse600" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="602.73499"
+         y="-76.100098"
+         id="text604">
+        <tspan
+           x="602.73499"
+           y="-76.100098"
+           id="tspan602">1</tspan>
+      </text>
+    </g>
+    <g
+       id="g622">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="443.172,94 546.846,94 546.846,-67 650.52,-67 "
+         id="polyline608" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="456.936,86 440.936,94 456.936,102 "
+         id="polyline610" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="636.756,-59 652.756,-67 636.756,-75 "
+         id="polyline612" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="548.84601"
+         y="10.3"
+         id="text614" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="550.846,10.3 550.846,2.3 558.846,6.3 "
+         id="polygon616" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="458.70001"
+         y="90.800003"
+         id="text618" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="634.992"
+         y="-70.199997"
+         id="text620" />
+    </g>
+    <text
+       font-size="12.8"
+       style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="454.202"
+       y="-49"
+       id="text626">
+      <tspan
+         x="454.202"
+         y="-49"
+         id="tspan624">Si es la primera tabla</tspan>
+    </text>
+    <g
+       id="g636">
+      <polygon
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="60.3931,417.927 2.42106,362 60.3931,306.072 118.365,362 "
+         id="polygon628" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="60.393101"
+         y="357.89999"
+         id="text634">
+        <tspan
+           x="60.393101"
+           y="357.89999"
+           id="tspan630">termino</tspan>
+        <tspan
+           x="60.393101"
+           y="373.89999"
+           id="tspan632">tablas</tspan>
+      </text>
+    </g>
+    <g
+       id="g642">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="312.35,167 312.35,236.036 60.3931,236.036 60.3931,295.336 "
+         id="polyline638" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="60.3931,295.336 65.3931,292.836 60.3931,302.836 55.3931,292.836 "
+         id="polygon640" />
+    </g>
+    <g
+       id="g648">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="118.365"
+         y1="362"
+         x2="204.50301"
+         y2="360.979"
+         id="line644" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="204.503,360.979 201.944,356.009 212.003,360.89 202.063,366.008 "
+         id="polygon646" />
+    </g>
+    <text
+       font-size="12.8"
+       style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="-25.6768"
+       y="683"
+       id="text652">
+      <tspan
+         x="-25.6768"
+         y="683"
+         id="tspan650">SI</tspan>
+    </text>
+    <g
+       id="g658">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="2.4210601"
+         y1="362"
+         x2="-0.016375801"
+         y2="1392.8"
+         id="line654" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="-0.0163758,1392.8 4.98952,1390.31 -0.0341103,1400.3 -5.01045,1390.29 "
+         id="polygon656" />
+    </g>
+    <text
+       font-size="12.8"
+       style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="156.202"
+       y="336"
+       id="text662">
+      <tspan
+         x="156.202"
+         y="336"
+         id="tspan660">NO</tspan>
+    </text>
+    <g
+       id="g670">
+      <rect
+         style="fill:#db2424;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="-40.084202"
+         y="1403.48"
+         width="80"
+         height="36"
+         rx="79.797562"
+         ry="79.797562"
+         id="rect664" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none"
+         x="-0.084200002"
+         y="1425.38"
+         id="text668">
+        <tspan
+           x="-0.084200002"
+           y="1425.38"
+           id="tspan666">FIN</tspan>
+      </text>
+    </g>
+    <g
+       id="g692">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="215.224"
+         y="294"
+         width="312.5"
+         height="114"
+         id="rect672" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="371.474"
+         y="310"
+         id="text674">&lt;&lt;js&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="371.474"
+         y="329"
+         id="text676">BucleComprobacionesTemporales</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="371.474"
+         y="344.5"
+         id="text678">// @ Objetivo es hacer las</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="371.474"
+         y="358.5"
+         id="text680">comprobaciones en tablas temporales.</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="371.474"
+         y="372.5"
+         id="text682">// @ Paramentros:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="371.474"
+         y="386.5"
+         id="text684">// No hay es la varible globar JS</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="371.474"
+         y="400.5"
+         id="text686">comprobaciones</text>
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="215.224"
+         y="408"
+         width="312.5"
+         height="8"
+         id="rect688" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="215.224"
+         y="416"
+         width="312.5"
+         height="8"
+         id="rect690" />
+    </g>
+    <g
+       id="g708">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="929.672,-75 1001.47,-75 1001.47,248.037 1073.27,248.037 "
+         id="polyline694" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="943.436,-83 927.436,-75 943.436,-67 "
+         id="polyline696" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1059.51,256.037 1075.51,248.037 1059.51,240.037 "
+         id="polyline698" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1003.47"
+         y="83.318497"
+         id="text700" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1005.47,83.3185 1005.47,75.3185 1013.47,79.3185 "
+         id="polygon702" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="945.20001"
+         y="-78.199997"
+         id="text704" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="1057.74"
+         y="244.83701"
+         id="text706" />
+    </g>
+    <g
+       id="g738">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="558.33398"
+         y="205.814"
+         width="353.54999"
+         height="170"
+         id="rect710" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="221.814"
+         id="text712">&lt;&lt;js&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="240.814"
+         id="text714">EjecutarComprobaciones</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="256.314"
+         id="text716">(index){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="270.314"
+         id="text718">// @ Objetivo:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="284.314"
+         id="text720">// Es ejecutar por AJAX las comprobaciones.</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="298.314"
+         id="text722">// @ Paramentros:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="312.314"
+         id="text724">// index = &gt; Es el numero de indice en el</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="326.314"
+         id="text726">que esta comprobacion_actual con respecto</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="340.314"
+         id="text728">comprobaciones</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="354.314"
+         id="text730">// Este parametro lo necesito para mostrar</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="735.10901"
+         y="368.314"
+         id="text732">el resultado, saber que td</text>
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="558.33398"
+         y="375.814"
+         width="353.54999"
+         height="8"
+         id="rect734" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="558.33398"
+         y="383.814"
+         width="353.54999"
+         height="8"
+         id="rect736" />
+    </g>
+    <g
+       id="g748">
+      <polygon
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="372.052,620.655 314.08,564.728 372.052,508.8 430.024,564.728 "
+         id="polygon740" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="372.052"
+         y="560.62799"
+         id="text746">
+        <tspan
+           x="372.052"
+           y="560.62799"
+           id="tspan742">termino</tspan>
+        <tspan
+           x="372.052"
+           y="576.62799"
+           id="tspan744">tablas</tspan>
+      </text>
+    </g>
+    <g
+       id="g754">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="371.729"
+         y1="424.995"
+         x2="372.01401"
+         y2="499.064"
+         id="line750" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="372.014,499.064 377.005,496.545 372.043,506.564 367.005,496.583 "
+         id="polygon752" />
+    </g>
+    <text
+       font-size="12.8"
+       style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="322.17599"
+       y="648.77802"
+       id="text758">
+      <tspan
+         x="322.17599"
+         y="648.77802"
+         id="tspan756">SI</tspan>
+    </text>
+    <g
+       id="g764">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="430.02399"
+         y1="564.72803"
+         x2="620.21503"
+         y2="398.95599"
+         id="line760" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="620.215,398.956 615.045,396.83 625.869,394.028 621.616,404.368 "
+         id="polygon762" />
+    </g>
+    <g
+       id="g770">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="558.33398"
+         y1="205.814"
+         x2="459.5"
+         y2="286.83701"
+         id="line766" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="459.5,286.837 464.603,289.119 453.7,291.592 458.264,281.385 "
+         id="polygon768" />
+    </g>
+    <text
+       font-size="12.8"
+       style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="604.26001"
+       y="346"
+       id="text774">
+      <tspan
+         x="604.26001"
+         y="346"
+         id="tspan772">Vuelve de tareas</tspan>
+    </text>
+    <g
+       id="g782">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="793.497,116.48 1069.1,259.552 "
+         id="polyline776" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="793.497,116.48 793.412,122.07 786.84,113.025 798.019,113.195 "
+         id="polygon778" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1069.1,259.552 1069.19,253.963 1075.76,263.008 1064.58,262.838 "
+         id="polygon780" />
+    </g>
+    <g
+       id="g792">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="629.51001"
+         y="48"
+         width="185.5"
+         height="63"
+         rx="0"
+         ry="0"
+         id="rect784" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="722.26001"
+         y="75.400002"
+         id="text790">
+        <tspan
+           x="722.26001"
+           y="75.400002"
+           id="tspan786">Segun comprobacion que</tspan>
+        <tspan
+           x="722.26001"
+           y="91.400002"
+           id="tspan788">vayamos hacer</tspan>
+      </text>
+    </g>
+    <g
+       id="g800">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="788.02,116.597 1069.26,275.254 "
+         id="polyline794" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="788.02,116.597 787.74,122.18 781.487,112.912 792.654,113.47 "
+         id="polygon796" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1069.26,275.254 1069.54,269.671 1075.79,278.939 1064.63,278.381 "
+         id="polygon798" />
+    </g>
+    <g
+       id="g816">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1369.41,264.038 1465.25,264.038 1465.25,-93 1525.52,-93 "
+         id="polyline802" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1376.41,259.424 1367.18,264.038 1376.41,268.652 "
+         id="polyline804" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1518.53,-88.3857 1527.76,-93 1518.53,-97.6143 "
+         id="polyline806" />
+      <text
+         font-size="7.38293"
+         style="font-style:normal;font-weight:normal;font-size:7.3829298px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1467.25"
+         y="83.673302"
+         id="text808" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1469.25,83.6733 1469.25,79.0589 1473.87,81.3661 "
+         id="polygon810" />
+      <text
+         font-size="7.38293"
+         style="font-style:normal;font-weight:normal;font-size:7.3829298px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1376.48"
+         y="262.19199"
+         id="text812" />
+      <text
+         font-size="7.38293"
+         style="font-style:normal;font-weight:normal;font-size:7.3829298px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="1518.46"
+         y="-94.845703"
+         id="text814" />
+    </g>
+    <g
+       id="g832">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1369.41,280.038 1453.73,280.038 1453.73,162.519 1539.86,162.519 "
+         id="polyline818" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1376.41,275.424 1367.18,280.038 1376.41,284.652 "
+         id="polyline820" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1532.87,167.133 1542.1,162.519 1532.87,157.904 "
+         id="polyline822" />
+      <text
+         font-size="7.38293"
+         style="font-style:normal;font-weight:normal;font-size:7.3829298px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1455.73"
+         y="219.433"
+         id="text824" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1457.73,219.433 1457.73,214.818 1462.34,217.125 "
+         id="polygon826" />
+      <text
+         font-size="7.38293"
+         style="font-style:normal;font-weight:normal;font-size:7.3829298px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1376.48"
+         y="278.19199"
+         id="text828" />
+      <text
+         font-size="7.38293"
+         style="font-style:normal;font-weight:normal;font-size:7.3829298px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="1532.8"
+         y="160.673"
+         id="text830" />
+    </g>
+    <g
+       id="g848">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="372.472,-128.2 389,-128.2 389,-12.8796 312.35,-12.8796 312.35,31.5268 "
+         id="polyline834" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="386.236,-136.2 370.236,-128.2 386.236,-120.2 "
+         id="polyline836" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="304.35,17.7628 312.35,33.7628 320.35,17.7628 "
+         id="polyline838" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="350.67499"
+         y="-16.079599"
+         id="text840" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="352.675,-16.0796 352.675,-24.0796 360.675,-20.0796 "
+         id="polygon842" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="388"
+         y="-131.39999"
+         id="text844" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="323.35001"
+         y="31.998899"
+         id="text846" />
+    </g>
+    <g
+       id="g864">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1761.89,-238.528 1761.89,-197.504 1724.12,-197.504 1724.12,-156.472 "
+         id="polyline850" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1769.89,-224.764 1761.89,-240.764 1753.89,-224.764 "
+         id="polyline852" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1716.12,-170.236 1724.12,-154.236 1732.12,-170.236 "
+         id="polyline854" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1743.01"
+         y="-200.70399"
+         id="text856" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1745.01,-200.704 1745.01,-208.704 1753.01,-204.704 "
+         id="polygon858" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1772.89"
+         y="-231"
+         id="text860" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1735.12"
+         y="-156"
+         id="text862" />
+    </g>
+    <g
+       id="g886">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="234.472"
+         y="677.48999"
+         width="279.25"
+         height="114"
+         id="rect866" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="374.09698"
+         y="693.48999"
+         id="text868">&lt;&lt;js&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="374.09698"
+         y="712.48999"
+         id="text870">PrepararInsert()</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="374.09698"
+         y="727.98999"
+         id="text872">PrepararInsert(){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="374.09698"
+         y="741.98999"
+         id="text874">// Ajax 'Preparar Insert'</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="374.09698"
+         y="755.98999"
+         id="text876">// @ Objetivo es ejecutar funcion php</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="374.09698"
+         y="769.98999"
+         id="text878">prepararInsertTablasBDTpv</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="374.09698"
+         y="783.98999"
+         id="text880">// para obtener array de inserts de todas tablas.</text>
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="234.472"
+         y="791.48999"
+         width="279.25"
+         height="8"
+         id="rect882" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="234.472"
+         y="799.48999"
+         width="279.25"
+         height="8"
+         id="rect884" />
+    </g>
+    <g
+       id="g892">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="372.052"
+         y1="620.65601"
+         x2="372.82599"
+         y2="666.76703"
+         id="line888" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="372.826,666.767 377.783,664.183 372.952,674.266 367.785,664.351 "
+         id="polygon890" />
+    </g>
+    <text
+       font-size="12.8"
+       style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="1009.29"
+       y="-672.138"
+       id="text898">
+      <tspan
+         x="1009.29"
+         y="-672.138"
+         id="tspan894">SOLO SE LLAMA SI PULSAMOS</tspan>
+      <tspan
+         x="1009.29"
+         y="-656.138"
+         id="tspan896">IMPORTAR Y TIENE DATOS</tspan>
+    </text>
+    <g
+       id="g914">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="518.194,734.49 973.73,734.49 973.73,296.038 1073.27,296.038 "
+         id="polyline900" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="531.958,726.49 515.958,734.49 531.958,742.49 "
+         id="polyline902" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1059.51,304.038 1075.51,296.038 1059.51,288.038 "
+         id="polyline904" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="975.72998"
+         y="512.06403"
+         id="text906" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="977.73,512.064 977.73,504.064 985.73,508.064 "
+         id="polygon908" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="533.72198"
+         y="731.28998"
+         id="text910" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="1057.74"
+         y="292.83801"
+         id="text912" />
+    </g>
+    <g
+       id="g922">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="732.81097"
+         y1="190.761"
+         x2="726.26099"
+         y2="121.69"
+         id="line916" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="732.811,190.761 737.553,187.801 733.519,198.228 727.597,188.745 "
+         id="polygon918" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="726.261,121.69 721.519,124.651 725.553,114.224 731.475,123.707 "
+         id="polygon920" />
+    </g>
+    <g
+       id="g938">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1369.41,296.038 1509.49,296.038 1509.49,327.49 1604.1,327.49 1604.1,343.49 "
+         id="polyline924" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1383.18,288.038 1367.18,296.038 1383.18,304.038 "
+         id="polyline926" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1596.1,329.726 1604.1,345.726 1612.1,329.726 "
+         id="polyline928" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1556.8"
+         y="324.29001"
+         id="text930" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1558.8,324.29 1558.8,316.29 1566.8,320.29 "
+         id="polygon932" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1384.9399"
+         y="292.83801"
+         id="text934" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1615.1"
+         y="343.96201"
+         id="text936" />
+    </g>
+    <g
+       id="g946">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="1757.9301"
+         y1="405.17999"
+         x2="1772.8"
+         y2="405.51199"
+         id="line940" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1757.93,405.18 1760.32,410.234 1750.44,405.012 1760.54,400.237 "
+         id="polygon942" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1772.8,405.512 1770.41,400.457 1780.29,405.68 1770.18,410.455 "
+         id="polygon944" />
+    </g>
+    <g
+       id="g954">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="1970.35"
+         y1="492.71799"
+         x2="1969.14"
+         y2="523.97198"
+         id="line948" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1970.35,492.718 1965.25,495.023 1970.64,485.223 1975.25,495.409 "
+         id="polygon950" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1969.14,523.972 1974.23,521.667 1968.85,531.466 1964.24,521.281 "
+         id="polygon952" />
+    </g>
+    <g
+       id="g998">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="343.108"
+         y="899.71198"
+         width="605.29999"
+         height="268"
+         id="rect956" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="915.71198"
+         id="text958">&lt;&lt;php&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="934.71198"
+         id="text960">BucleInsert</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="950.21198"
+         id="text962">(insert_tablas){</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="964.21198"
+         id="text964">// @ Objetivo es hacer los inserts obtenidos .</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="978.21198"
+         id="text966">// @ insert_tablas</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="992.21198"
+         id="text968">// Es un array ejemplo:</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1006.21"
+         id="text970">// [NOMBRETABLA] =&gt; Array</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1020.21"
+         id="text972">// (</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1034.21"
+         id="text974">// [Select] =&gt; SELECT idArticulo,idTienda,crefTienda FROM `tmp_articulosCompleta`</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1048.21"
+         id="text976">// [Num_Insert_hacer] =&gt; 3</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1062.21"
+         id="text978">// [descartado] =&gt; Array</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1076.21"
+         id="text980">// (</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1090.21"
+         id="text982">// )</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1104.21"
+         id="text984">// [Insert] =&gt; Array</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1118.21"
+         id="text986">// (</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1132.21"
+         id="text988">// [0] =&gt; INSERT INTO articulosTiendas (idArticulo,idTienda,crefTienda) VALUES ....</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1146.21"
+         id="text990">// [1] =&gt; INSERT INTO articulosTiendas (idArticulo,idTienda,crefTienda) VALUES (&quot;</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="645.758"
+         y="1160.21"
+         id="text992">// )</text>
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="343.108"
+         y="1167.71"
+         width="605.29999"
+         height="8"
+         id="rect994" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="343.108"
+         y="1175.71"
+         width="605.29999"
+         height="8"
+         id="rect996" />
+    </g>
+    <g
+       id="g1012">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="374.097,807.49 374.097,845.597 645.758,845.597 645.758,894.231 "
+         id="polyline1000" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="637.758,880.467 645.758,896.467 653.758,880.467 "
+         id="polyline1002" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="509.92801"
+         y="842.39697"
+         id="text1004" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="511.928,842.397 511.928,834.397 519.928,838.397 "
+         id="polygon1006" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="378.09698"
+         y="819.48999"
+         id="text1008" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="656.758"
+         y="894.703"
+         id="text1010" />
+    </g>
+    <g
+       id="g1032">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1094.3101"
+         y="691.56403"
+         width="177.7"
+         height="100"
+         id="rect1014" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1183.16"
+         y="707.56403"
+         id="text1016">&lt;&lt;js&gt;&gt;</text>
+      <text
+         font-size="16"
+         style="font-style:normal;font-weight:700;font-size:16px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1183.16"
+         y="726.56403"
+         id="text1018">EjecutarInserts</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1183.16"
+         y="742.06403"
+         id="text1020">(insert_t,n_tabla) {</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1183.16"
+         y="756.06403"
+         id="text1022">// @ Ajax</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1183.16"
+         y="770.06403"
+         id="text1024">// @ Objetivo hacer insert por</text>
+      <text
+         font-size="11.2"
+         style="font-style:italic;font-weight:normal;font-size:11.19999981px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1183.16"
+         y="784.06403"
+         id="text1026">tabla</text>
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1094.3101"
+         y="791.56403"
+         width="177.7"
+         height="8"
+         id="rect1028" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x="1094.3101"
+         y="799.56403"
+         width="177.7"
+         height="8"
+         id="rect1030" />
+    </g>
+    <g
+       id="g1042">
+      <polygon
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="835.962,1478.57 777.99,1422.64 835.962,1366.71 893.934,1422.64 "
+         id="polygon1034" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="835.96198"
+         y="1418.54"
+         id="text1040">
+        <tspan
+           x="835.96198"
+           y="1418.54"
+           id="tspan1036">termino</tspan>
+        <tspan
+           x="835.96198"
+           y="1434.54"
+           id="tspan1038">tablas</tspan>
+      </text>
+    </g>
+    <g
+       id="g1048">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="834.47198"
+         y1="1188.23"
+         x2="835.88098"
+         y2="1356.98"
+         id="line1044" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="835.881,1356.98 840.86,1354.43 835.943,1364.48 830.86,1354.52 "
+         id="polygon1046" />
+    </g>
+    <g
+       id="g1064">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="898.406,1422.64 1025.58,1422.64 1025.58,749.564 1089.43,749.564 "
+         id="polyline1050" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="912.17,1414.64 896.17,1422.64 912.17,1430.64 "
+         id="polyline1052" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1075.67,757.564 1091.67,749.564 1075.67,741.564 "
+         id="polyline1054" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1027.58"
+         y="1082.9"
+         id="text1056" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1029.58,1082.9 1029.58,1074.9 1037.58,1078.9 "
+         id="polygon1058" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="913.93402"
+         y="1419.4399"
+         id="text1060" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="1073.91"
+         y="746.36401"
+         id="text1062" />
+    </g>
+    <text
+       font-size="12.8"
+       style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="981.138"
+       y="1355.64"
+       id="text1068">
+      <tspan
+         x="981.138"
+         y="1355.64"
+         id="tspan1066">NO</tspan>
+    </text>
+    <g
+       id="g1084">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1183.16,687.092 1183.16,663.158 1013.73,663.158 1013.73,312.038 1073.27,312.038 "
+         id="polyline1070" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1175.16,673.328 1183.16,689.328 1191.16,673.328 "
+         id="polyline1072" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1059.51,320.038 1075.51,312.038 1059.51,304.038 "
+         id="polyline1074" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1098.4399"
+         y="659.95801"
+         id="text1076" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1100.44,659.958 1100.44,651.958 1108.44,655.958 "
+         id="polygon1078" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1194.16"
+         y="687.56403"
+         id="text1080" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none"
+         x="1057.74"
+         y="308.83801"
+         id="text1082" />
+    </g>
+    <g
+       id="g1100">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1424.72,669.075 1424.72,312.037 1369.41,312.037 "
+         id="polyline1086" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1416.72,655.311 1424.72,671.311 1432.72,655.311 "
+         id="polyline1088" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1383.18,304.037 1367.18,312.037 1383.18,320.037 "
+         id="polyline1090" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1394.83"
+         y="308.83701"
+         id="text1092" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1396.83,308.837 1396.83,300.837 1404.83,304.837 "
+         id="polygon1094" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1435.72"
+         y="669.547"
+         id="text1096" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1384.9399"
+         y="308.83701"
+         id="text1098" />
+    </g>
+    <g
+       id="g1108">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="1966.36"
+         y1="730.36298"
+         x2="1976.8199"
+         y2="812.85901"
+         id="line1102" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1966.36,730.363 1961.71,733.472 1965.41,722.922 1971.63,732.214 "
+         id="polygon1104" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1976.82,812.859 1981.46,809.75 1977.76,820.3 1971.54,811.008 "
+         id="polygon1106" />
+    </g>
+    <g
+       id="g1114">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="1253.88"
+         y1="-226.01401"
+         x2="1211.11"
+         y2="-151.87601"
+         id="line1110" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1211.11,-151.876 1216.69,-151.543 1207.36,-145.379 1208.03,-156.54 "
+         id="polygon1112" />
+    </g>
+    <g
+       id="g1128">
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1156.05,29.5556 1156.05,50.5556 1385.94,50.5556 1385.94,264.038 1369.41,264.038 "
+         id="polyline1116" />
+      <polyline
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="1383.18,256.038 1367.18,264.038 1383.18,272.038 "
+         id="polyline1118" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+         x="1271"
+         y="47.355598"
+         id="text1120" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         points="1273,47.3556 1273,39.3556 1281,43.3556 "
+         id="polygon1122" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1160.05"
+         y="41.555599"
+         id="text1124" />
+      <text
+         font-size="12.8"
+         style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:monospace;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         x="1384.9399"
+         y="260.83801"
+         id="text1126" />
+    </g>
+    <g
+       id="g1134">
+      <line
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         x1="777.98999"
+         y1="1422.64"
+         x2="50.647499"
+         y2="1421.5601"
+         id="line1130" />
+      <polygon
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         points="50.6475,1421.56 53.1401,1426.56 43.1475,1421.55 53.1549,1416.56 "
+         id="polygon1132" />
+    </g>
+    <text
+       font-size="12.8"
+       style="font-style:normal;font-weight:normal;font-size:12.80000019px;font-family:sans-serif;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="381.138"
+       y="1366.01"
+       id="text1138">
+      <tspan
+         x="381.138"
+         y="1366.01"
+         id="tspan1136">SI</tspan>
+    </text>
+  </g>
+</svg>

@@ -75,7 +75,7 @@
 		// Obtenemos los registros de las tablas y se lo añadimos al array $tablas_importar
 		$tablas_importar= ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas_importar);
 		// Sumamos los registros de tolas tablas.	
-		$sum_Items_articulos = SumarNumRegistrrosVariasTablas($tablas_importar);
+		$sum_Items_articulos = SumarNumRegistrosVariasTablas($tablas_importar);
 			
 	
 		// [AHORA MONTAMOS VARIABLES GLOBALES JS]

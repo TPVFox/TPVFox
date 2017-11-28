@@ -76,11 +76,11 @@ function VaciarTablas(){
 }
 
 function PrepararInsert(){
+	// Ajax 'Preparar Insert'
+	// @ Objetivo es ejecutar funcion php prepararInsertTablasBDTpv
+	// para obtener array de inserts de todas tablas.
 	console.log ( ' ========================= ENTRAMOS EN PREPARAR INSERT ===============================')
-	// Quitamos link a icono de PrepararInsert evitamos que vuelva pulsar.
-	$("#PrepararInsert").html('<span class="glyphicon glyphicon-log-in"></span>');
-
-	
+		
 	var parametros = {
 	"tablasImpor" 	: tablaImpor,
 	"pulsado" 	: 'Preparar insert'
@@ -142,14 +142,15 @@ function PrepararInsert(){
 			insert_tablas_global = i_tablas
 			// Ahora enviamos insert para ejecutarlo.
 			
-			bucleInsert(insert_tablas_global);
+			BucleInsert(insert_tablas_global);
 		}
 	});
 	
 }
 
 function EjecutarInserts(insert_t,n_tabla) {
-	
+	// @ Ajax
+	// @ Objetivo hacer insert por tabla
 	console.log(' ========================= EJECUTAMOS INSERT ===============================');
 	
 	var parametros = {
@@ -172,13 +173,13 @@ function EjecutarInserts(insert_t,n_tabla) {
 				// Hubo un error
 				alert('tipo error en '+n_tabla);
 			} 
-			bucleInsert(insert_tablas_global)
+			BucleInsert(insert_tablas_global)
 		}
 	});
 	
 }
 
-function bucleInsert(insert_tablas){
+function BucleInsert(insert_tablas){
 	// @ Objetivo es hacer los inserts obtenidos .
 	// @ insert_tablas 
 	//   Es un array ejemplo:
@@ -324,7 +325,7 @@ function BucleComprobacionesTemporales() {
 		console.log('Comprobacion a realizar:'+ comprobacion_actual['nom_funcion']);
 		console.log('valor LineaA :'+ lineaA);
 		console.log('valor LineaF :'+ lineaF);
-		ejecutarComprobaciones(y);
+		EjecutarComprobaciones(y);
 	} else {
 	// El proceso se termina y se vuelve en CrearTablaTemporal
 	BarraProceso(y,lineaF); 
@@ -335,7 +336,7 @@ function BucleComprobacionesTemporales() {
 }
 	
 	
-function ejecutarComprobaciones(index){
+function EjecutarComprobaciones(index){
 	// @ Objetivo:
 	// Es ejecutar por AJAX las comprobaciones.
 	// @ Paramentros:

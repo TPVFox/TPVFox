@@ -353,6 +353,7 @@ function ComprobarTablaTempClientes ($BDVirtuemart){
 
 function BeforeTabla_tmp_familias($BDVirtuemart){
 	// @Objetivo es modificar el id_padre por id correcto, ya que el id que ponemos es virtuemart.
+	// Esta funcion es llamada desde tareas, $tablaTemporal['nombre_tabla_temporal']
 	$resultado = array();
 	$Updates = array();
 	$Sql = "SELECT * FROM tmp_familias";
@@ -402,7 +403,7 @@ function ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas){
 	return $tablas;
 }
 
-function SumarNumRegistrrosVariasTablas($tablas){
+function SumarNumRegistrosVariasTablas($tablas){
 	// @Objetivo: Es sumar todos los registros que tenga array de tablas
 	$sum_registros = 0;
 	foreach ( $tablas as $key => $tabla ) {
