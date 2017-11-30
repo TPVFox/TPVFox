@@ -227,14 +227,21 @@ $tablasTemporales = array(
 						'3' => array(
 								'tipos_inserts' 		=> array(
 												'0' => array(
-													'descripcion_insert' => 'Insert Báscio',
+													'descripcion_insert' => 'Insert Basico',
 													'campos_origen'		=>array('idArticulo','idTienda_export','idVirtuemart','estado'),
 													'campos_destino'	=>array('idArticulo','idTienda','idVirtuemart','estado'),
 													'Num_registros_insert' =>'',
 													'obligatorio'	=>array('idVirtuemart')
 												),
 												'1' => array(
-													'descripcion_insert' => 'Insert CREF en principal',
+													'descripcion_insert' => 'Insert idVirtuemart como CREF en principal',
+													'campos_origen'		=>array('idArticulo','idTienda','idVirtuemart','estado'),
+													'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
+													'Num_registros_insert' =>'',
+													'obligatorio'	=>array('idVirtuemart')
+												),
+												'2' => array(
+													'descripcion_insert' => 'Insert SKU como CREF en principal',
 													'campos_origen'		=>array('idArticulo','idTienda','idVirtuemart','estado'),
 													'campos_destino'	=>array('idArticulo','idTienda','crefTienda','estado'),
 													'Num_registros_insert' =>'',
