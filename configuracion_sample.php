@@ -1,7 +1,9 @@
 <?php
-// Configuracion de rutas
-$HostNombre = '/superoliva/tpvolalla';	// ruta instalacion de proyecto
-$RutaServidor= '/home/olalla/www';		// ruta servidor
+// Configuracion de rutas ( Sin barra final)
+$HostNombre = '/ruta/tpvfox';	// ruta instalacion de proyecto
+$RutaServidor= '/var/www';		// ruta servidor
+$RutaDatos = '/ruta/datos'; // ruta donde guardamos de empresa, como copias,log_tpvFox(guardamos errores)
+
 
 // Datos de conexion a mysql de local, donde tenemos el tpv
 $servidorMysql = 'localhost';
@@ -17,7 +19,6 @@ $pass_onlineBD = ''; // Password para tienda on line -> local
 $prefijoBD = '';  // Prefijo que utiliza joomla para sus tablas
 
 // Datos para importacion de DBF ( Para inicializacion )
-$CopiaDBF = '/superoliva/datos/DBF71';	// Ruta donde tenemos los DBF, dentro ruta public de apache y con permiso para funcione
 $nombrebdMysqlImpor = ''; // Base de datos temporal que utilizamos para importar DBF
 $usuarioMysqlImpor = ''; 
 $passwordMysqlImpor = '';
