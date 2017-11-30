@@ -467,7 +467,88 @@ function ObtenerTiendaWeb($BDTpv){
 	
 	
 }
+function ComprobarExisteLogTpv($ruta,$mensaje_log){
+	// @Objetivo: 
+	// Es comprobar existe la ruta donde vamos guardar log mod_impor_virtuemart ( uno por dia)
+	// @ Parametro: ruta directorio de datos ( sin el ultima barra)
+	$respuesta = array();
+	// Comprobamos si existe el directorio log de tpvfox
+	if (!is_dir($ruta)){
+		// Quiere decir que no existe la ruta log. 
+		// la creo , aunque no se si debería.
+		mkdir($ruta);
+		$respuesta['error'][] = ' No existia ruta datos/log_tpvFox, se creo';
+	}
+	$nombreDir = $ruta.'/mod_impor_virtuemart/';
+	// Comprobamos si existe el directorio del modulo dentro log
+	if (!is_dir($nombreDir)){
+		// Si no exite lo crea
+		mkdir($nombreDir);
+		$respuesta['error'][] = ' No existia ruta datos/log_tpvFox/mod_impor_virtuemart, se creo';
+	}
+	// Ahora creamos el fichero log_mod_impor_virtuemart_fecha.log
+	$nombre_fic_log = $nombreDir.date("Ymd").'.log';
+	$mensaje = '';
+	// Comprobamo si existe el fichero, para poner mensaje inicio
+	if (!file_exists($nombre_fic_log)){
+		$mensaje .=  '======== Se crea fichero log para Importacion o Actualizacion de virtuemart. =========='."\n";
+	}
+	// Comprobamos si hubo errores en los directorios lo indicamos.
+	if (isset($respuesta['error'])){
+		$mensaje .= implode("\n",$respuesta['error'])."\n";
+	}
+	$mensaje .= $mensaje_log;
+	// Escribimos mensaje.
+	if($archivo = fopen($nombre_fic_log, "a")) {
+		if(fwrite($archivo, date("d m Y H:m:s"). " ". $mensaje. "\n"))
+			{
+				$respuesta['correcto'] = "Grabado";
+			}
+			else
+			{
+				$respuesta['error'][] = 'No se podido crear el archivo'.$nombre_fic_log;
+			}
+	 
+			fclose($archivo);
+	}
+	$respuesta['fichero'] = $nombre_fic_log;
+	return $respuesta;
+	
+}
+function GrabarRegistro ($BDTpv,$configuracion,$tipo){
+	// @ Objetivo es grabar en la BDTpv de mod_importar_virt_reg
+	// @ Paramentro: 
+	//    configuracion: Json de configuracion.
+	// 	  tipo : String no mas 10 caracteres... ( importar/actualizar )
+	// Convertimos $configuracion a JSon preparado para grabar en msyql
+	$resultado = array();
+	$conf_escapa_sql = $BDTpv->real_escape_string($configuracion); 
+	$Sql = 'INSERT INTO `mod_importar_virtuemart_reg`(`fecha`, `tipo`, `configuracion`) VALUES ("'.date("Y-m-d H:m:s").'","'.$tipo.'","'.$conf_escapa_sql.'")';
+	$BDTpv->query($Sql);
+	$resultado['consulta'] = $Sql;
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta'] = $Sql;
+			$resultado['error'] = $BDTpv->error_list;
+		} 
+	return $resultado;
+}
+function ObtenerUltimoRegistroMod($BDTpv){
+	// @Objetivo : Obtener el ultimo registro de la tabla mod_importar_virtuemart_reg.
+	// Recuerda que debe obtenerlo ante hacer el nuevo registros, ya que no tendría sentido hacerlo 
+	// despues de guarda la actualizacion que estamos realizando, la fecha te daría la actual.
+	$resultado = array();
+	$Sql = "SELECT *  FROM mod_importar_virtuemart_reg ORDER BY id DESC LIMIT 1";
+	$res = $BDTpv->query($Sql);
+	if (mysqli_error($BDTpv) || $res->num_rows != 1){
+		$resultado['consulta'] = $Sql;
+		$resultado['error'] = $BDTpv->error_list;
+		return $resultado; // Devolvemos array
+	} 
+	// No hubo error en consulta.
+	$resultado = $res->fetch_assoc();
 
+	return $resultado['fecha']; // Devolvemos String
+}
 
 
 

@@ -7,6 +7,10 @@
  * @Descripcion	Importar ficheros de web con Virtuemart
  * */	
 
+ // Gestion de errores
+ // error = [String] No permito continuar.
+ // error_warning =  Array() - Si permito continuar pero con restrinciones.
+
 ?>
 
 <!DOCTYPE html>
@@ -67,17 +71,100 @@
 		//~ $tiendasOnLine[$tienda_on_line_seleccionada]['porDefecto']= 'select'; 
 	} 
 	// Si NO pulso en configuración entonces no hacemos nada de esto.. ya no lo vamos mostrar.
-
+	$error_warning =  Array() ; // Para advertencias y puede restrinciones de uso.
+	$error = ''; // Reiniciamos variable error, no permitimos continuar.
 	if ($confirmación_cfg === 'SI'){
-		
+		// Compramos que exista tienda selecciona , sino marcamos error
+		if ($tienda_on_line_seleccionada <= 0) {
+			$error = ' No tiene selecciona tienda de la quieres importar';
+		} 
 		// Contamos cuantos si tienen registros las tabla BDTPV utilizando controlador general.
 		$Controler = new ControladorComun; 
 		// Obtenemos los registros de las tablas y se lo añadimos al array $tablas_importar
 		$tablas_importar= ObtenerNumRegistrosVariasTablas($Controler,$BDTpv,$tablas_importar);
 		// Sumamos los registros de tolas tablas.	
 		$sum_Items_articulos = SumarNumRegistrosVariasTablas($tablas_importar);
-			
-	
+		// Si hay datos entonces
+		if ($sum_Items_articulos > 0){
+			// Quiere decir que va se actualizacion
+			$tipo = 'actualizar';
+			// [OBTENEMOS FECHA DE LA ULTIMA IMPORTACION O ACTUALIZACION]
+			$Ultima_actualizacion_fecha= ObtenerUltimoRegistroMod($BDTpv);
+				if (gettype($Ultima_actualizacion_fecha) === "array") {
+					// hubo un error
+					$error_warning['ultimoRegistro']['mensaje']=  'Hubo error consulta registro tabla mod_importar';
+					$error_warning['ultimoRegistro']['errores']=  $Ultima_actualizacion_fecha;
+				} 
+			} else {
+			// Quiere decir que es una importacion.
+			$tipo = 'importar';
+		}
+
+		// [ELIMINAMOS TIPO INSERTS EN ARRAY tablas_importar]
+		// Comprobamos [optcref]  que selecciono para crear en la tabla articulosTiendas:
+		switch ($_POST['optcref']) {
+			case 'cref_id':
+				// Creamos solo en tienda principal registro CREF con idVirtuemart
+				foreach ($tablas_importar as  $key => $t){
+					if ($t['nombre'] === 'articulosTiendas') {
+						// Eliminamos los tipos de insert que no vamos hacer.
+						unset($tablas_importar[$key]['tipos_inserts'][2]);
+					}
+				}
+				break;
+			case 'cref_SKU':
+				// Creamos solo en tienda principal registro CREF con idVirtuemart
+				foreach ($tablas_importar as  $key => $t){
+					if ($t['nombre'] === 'articulosTiendas') {
+						// Eliminamos los tipos de insert que no vamos hacer.
+						unset($tablas_importar[$key]['tipos_inserts'][1]);
+					}
+				}
+				break;
+			case 'No_cref':
+				// Creamos solo en tienda principal registro CREF con idVirtuemart
+				foreach ($tablas_importar as  $key => $t){
+					if ($t['nombre'] === 'articulosTiendas') {
+						// Eliminamos los tipos de insert que no vamos hacer.
+						unset($tablas_importar[$key]['tipos_inserts'][1]);
+						unset($tablas_importar[$key]['tipos_inserts'][2]);
+
+					}
+				}
+				break;
+				
+			default:
+				$error = 'No tiene definido forma crear CREF.';
+				break;
+		}
+		// Comprobamos [optcref]  que selecciono para crear en la tabla articulosPrecios:
+		switch ($_POST['optprecio']) {
+			case 'No_pvp':
+				// Creamos solo registros precio de la tienda_exportada, no creamos precio en tienda principal.
+				foreach ($tablas_importar as  $key => $t){
+					if ($t['nombre'] === 'articulosPrecios') {
+						// Eliminamos los tipos de insert que no vamos hacer.
+						unset($tablas_importar[$key]['tipos_inserts'][1]);
+					}
+				}
+				break;
+			case 'Pvp_principal':
+				// Creamos en tienda principal registro Precio igual al de idVirtuemart
+				// Aquí no eliminamos ninguno.. hacemos los dos.
+				break;
+				
+			default:
+				$error = 'No tiene definido forma crear precios.';
+				break;
+		}
+		// [MONTAMOS OBJETO CONFIGURACION]
+		$configuracion = array( 
+								'tienda'	=>$tienda_on_line_seleccionada,
+								'optCref'	=>$_POST['optcref'],
+								'optPrecio' =>$_POST['optprecio'],
+								'tipo'		=>$tipo
+							);
+		
 		// [AHORA MONTAMOS VARIABLES GLOBALES JS]
 		// Montamos los objectos en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
 		// Recuerda que se debe hacer antes de cargar fichero funciones.js ya sino genera un error
@@ -85,7 +172,12 @@
 		?>
 		<script type="application/javascript">
 
-		
+		// Objeto configuracion
+		var configuracion = []; 
+		<?php
+		echo "configuracion.push(".json_encode($configuracion).");";
+		?>
+		// Objeto nombretabla
 		var nombretabla = [];
 		// Objeto tabla
 		var tablaImpor = [];
@@ -138,11 +230,15 @@
 <body>
 <?php 
 	include './../../header.php';
-	// Debug
-	//~ echo '<pre>';
-	//~ print_r($tiendasOnLine);
-	//~ echo '</pre>';
+		// Debug
 	
+	
+	if ($error !==''){
+	echo '<div>'.$error.'</div>';
+	exit;		
+	
+	}
+		
 	
 	
 ?>
@@ -241,23 +337,34 @@
 					<h3>¿ Que deseas hacer ?</h3>
 					<div class="col-md-6">
 						<h4>Eliminar y reiniciar.</h4>
-						<p>Puedes eliminar todo, importar todos los productos de virtuemart y reiniciar todo.</p>
+						<p>Puedes eliminar los datos BDTVP para luego importar todos los productos de virtuemart y reiniciar todo.</p>
 						<div class="alert alert-danger">
 							Vas eliminar todo, piensa si necesitas copia de seguridad de BDTPV, va borrar.
 						</div>
 					<a  href="#VaciarTablas" title="Vaciar tablas TPV" onclick="VaciarTablas();" class="btn btn-danger">
-					Eliminar y Importar
+					Eliminar datos TPV
 					</a>
 					</div>
 					<div class="col-md-6">
+						<?php
+						
+						if (isset($error_warning['ultimoRegistro'])){
+							echo '<div class="alert alert-warning">'.
+								$error_warning['ultimoRegistro']['mensaje'].
+								'</div>';
+						} else {
+						?>
 						<h4>Actualizar.</h4>
-						<p>Los productos con fecha creacion y modificacion superior a XXXX_XX_XX se van añadir o van ser modificados.</p>
+						<p>Los productos con fecha <?php echo $Ultima_actualizacion_fecha;?> en creacion o modificacion, se van añadir o van ser modificados respectivamente.</p>
 						<div class="alert alert-warning">
 							No se puede deshacer, por lo que recomendable tener una copia de seguridad de BDTPV antes continuar.
 						</div>
-					<a  href="#ActualizarTablas" title="Actualizar tablas TPV" onclick="ActualizarTablas();" class="btn btn-warning">
-					Actualizar tablas
-					</a>
+						<a  href="#ActualizarTablas" title="Actualizar tablas TPV" onclick="InicioActualizar();" class="btn btn-warning">
+						Actualizar tablas
+						</a>
+						<?php
+						}
+						?>
 					</div>
 
 					
@@ -268,7 +375,7 @@
 			} else {
 				echo '<div class="alert alert-info"> Vas importar los datos de Virtuemart</div>';
 				echo '<div>
-					   <a  href="#ImportarVirtuemart" title="Importar tablas de Virtuemart" onclick="BucleTablaTemporal();" class="btn btn-primary">
+					   <a  href="#ImportarVirtuemart" title="Importar tablas de Virtuemart" onclick="InicioImportar();" class="btn btn-primary">
 					  Importar datos de Virtuemart
 					  </a>
 					</div>';

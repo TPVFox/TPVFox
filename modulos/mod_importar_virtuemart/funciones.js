@@ -45,19 +45,61 @@ function BarraProceso(lineaA,lineaF) {
 	return;
 	
 }
-function inicioProcesos(){
-	// Objetivo es iniciar los procesos al terminar cargar pagina html Importar_virtuemart.php
+function InicioImportar(){
+	// Objetivo es iniciar el proceso de importar
+	var parametros = {
+	"configuracion" 		: configuracion,
+	"pulsado" 		: 'Inicio Importar',
+	"mensaje_log" 	: 'Se inicio IMPORTACION'
+			};
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+				$("#resultado").html('Iniciando Importacion de TPV');
+		},
+		success:  function (response) {			
+			// Ya grabamos inici de importacion de log mod_impor_virtuemart
+            BucleTablaTemporal();
+		}
+	});
+	
+	
+}
+
+function InicioActualizar(){
+	// Objetivo es iniciar el proceso de importar
+    var parametros = {
+	"configuracion" 		: configuracion,
+	"pulsado" 		: 'Inicio Actualizar',
+	"mensaje_log" 	: 'Se inicio ACTUALIZACION'
+			};
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+				$("#resultado").html('Iniciando Actualizacion de TPV');
+		},
+		success:  function (response) {			
+			// Ya grabamos inici de importacion de log mod_impor_virtuemart       
+            BucleTablaTemporal();
+		}
+	});
 	
 	
 }
 
 function VaciarTablas(){
-	console.log ( ' ========================= ENTRAMOS EN VACIARTABLAS ===============================')
+	//@ Objetico es eliminar las tablas de TPV
+	console.log ( ' ========================= ENTRAMOS EN VACIARTABLAS ===============================');
 	
 	
 	var parametros = {
-	"tablas" 	: nombretabla,
-	"pulsado" 	: 'Vaciar tablas'
+	"tablas" 		: nombretabla,
+	"pulsado" 		: 'Vaciar tablas',
+	"mensaje_log" 	: 'Se borra tablas de TPV'
 			};
 	$.ajax({
 		data:  parametros,
@@ -79,7 +121,7 @@ function PrepararInsert(){
 	// Ajax 'Preparar Insert'
 	// @ Objetivo es ejecutar funcion php prepararInsertTablasBDTpv
 	// para obtener array de inserts de todas tablas.
-	console.log ( ' ========================= ENTRAMOS EN PREPARAR INSERT ===============================')
+	console.log ( ' ENTRAMOS EN PREPARAR INSERT ');
 		
 	var parametros = {
 	"tablasImpor" 	: tablaImpor,
@@ -225,8 +267,9 @@ function BucleTablaTemporal(){
 	// @ Objetivo :
 	// Es recorrer el array de tablasTemporales 
 	// @ Parametros:
-	// NO HAY , son variables globales (tablasTemporales y tablatemporal_actual)
+	//   tipo: String -> importar / actualizar, indica que vamos hacer despues de hacer al termina crear.
 	console.log(' Bucle');
+	var tipo = configuracion['0'].tipo;
 	var i = 0;
 	var y = 0;
 	tablasTemporales.forEach(function(tablatemporal) {
@@ -249,11 +292,20 @@ function BucleTablaTemporal(){
 		tablatemporal_actual = tablasTemporales[y];
 		CrearTablaTemporal(tablatemporal_actual);
 	} else {
-	// El proceso se termina y se vuelve en CrearTablaTemporal
-	BarraProceso(y,lineaF); 
-	console.log('Ahora hacemos las comprobaciones');
-	BucleComprobacionesTemporales();
+		// El proceso se termina y se vuelve en CrearTablaTemporal
+		BarraProceso(y,lineaF); 
+		// Ahora debemos indicar que vamos hacer 
+		console.log('Tipo es '+tipo);
+		if (tipo === 'importar'){
+			console.log('Estamos en importar, ahora vamos a comprobaciones');
+			BucleComprobacionesTemporales();
+		}
+		if (tipo === 'actualizar'){
+			alert(' Ahora deberíamos continuar con actualizar');
+			
+		}
 	}
+	
 }
 
 function CrearTablaTemporal(tablatemporal){
@@ -387,9 +439,3 @@ function EjecutarComprobaciones(index){
 		});
 	
 }
-	
-	
-	
-	
-
-

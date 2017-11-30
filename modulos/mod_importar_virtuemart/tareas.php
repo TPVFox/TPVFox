@@ -19,11 +19,51 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos funciones
 include_once ("./funciones.php");
 include ("./../../controllers/Controladores.php");
+$mensaje_log= '';
+if (isset($_POST['mensaje_log'])){
+	// Si mandamos por post, mensaje_log lo grabamos.
+	$mensaje_log= $_POST['mensaje_log'];
+	// Cargamos la ruta log del modulo para poder guardar ...
+	// Obtenemos nombre log mod_importar_virtuemart.
+	$ruta =  $RutaServidor.$RutaDatos.'/log_tpvFox';
+	$fichero_log = ComprobarExisteLogTpv($ruta,$mensaje_log);
+	
+}
 // Cargamos el controlador.
 $TControlador = new ControladorComun; 
  
  switch ($pulsado) {
-     
+    case 'Inicio Actualizar':
+		// Grabamos la configuracion en log,
+		$configuracion  =json_encode($_POST['configuracion'][0]);
+		$mensaje_log = "Configuracion:\n".$configuracion."\n";
+		$ruta =  $RutaServidor.$RutaDatos.'/log_tpvFox';
+		$fichero_log = ComprobarExisteLogTpv($ruta,$mensaje_log);
+		$respuesta['log'] = $fichero_log;
+		$respuesta['mensaje']= $mensaje_log;
+		// Grabamos configuracion en BDTpv 
+		$tipo = 'Actualizar';
+		$respuesta['Grabar'] = GrabarRegistro ($BDTpv,$configuracion,$tipo);
+        header('Content-Type: application/json');
+		echo json_encode($respuesta,true);
+		break; 
+ 
+    
+    case 'Inicio Importar':
+		// Grabamos la configuracion en log,
+		$configuracion  =json_encode($_POST['configuracion'][0]);
+		$mensaje_log = "Configuracion:\n".$configuracion."\n";
+		$ruta =  $RutaServidor.$RutaDatos.'/log_tpvFox';
+		$fichero_log = ComprobarExisteLogTpv($ruta,$mensaje_log);
+		$respuesta['log'] = $fichero_log;
+		$respuesta['mensaje']= $mensaje_log;
+		// Grabamos configuracion en BDTpv 
+		$tipo = 'Importar';
+		$respuesta['Grabar'] = GrabarRegistro ($BDTpv,$configuracion,$tipo);
+        header('Content-Type: application/json');
+		echo json_encode($respuesta,true);
+		break;
+	
     case 'Preparar insert':
 		$Arraytablas = $_POST['tablasImpor'];
 		$respuesta= prepararInsertTablasBDTpv($BDVirtuemart,$Arraytablas);
