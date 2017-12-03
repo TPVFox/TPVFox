@@ -493,3 +493,31 @@ function AnhadirProducto(fila,tienda_export,tienda,datos){
 			}
 		});
 }
+function ModificadoProducto(fila,tienda_export,tienda,producto_web,producto_tpv,diferencias){
+	// Ahora añadimos a log
+	console.log('Grabo log pero no debo ya que no tengo datos differencias que voy cambiar');
+	AnhadirLog(diferencias,'Modificamos produto fila:'+fila);
+	$('#fila'+fila).css('display','none');
+	var parametros = {
+		"producto_web" 	:  producto_web,
+		"producto_tpv" 	:  producto_tpv,
+		"diferencias" 	:  diferencias,
+		"tienda_export" : tienda_export,
+		"tienda_actual": tienda,
+		"pulsado" 	: 'UpdateUnProductoTpv'
+				};
+		$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+				console.log('Iniciamos insert de articulo');
+			},
+			success:  function (response) {			
+				// Obtenemos resultado de grabaslos subprocesos que deberíamos obtener respuesta.
+				console.log ( ' Resultado insert de un articulo '),
+				console.log(response)	
+			}
+		});
+}
+

@@ -91,9 +91,13 @@ $idVirtuemart_web = array_column($tmp_articulos,'idVirtuemart');// $idVirtuemart
 ?>
 <title>Solicitud de datos por php curl</title>
 <script type="application/javascript">
-	// Objeto configuracion
+	// Variable globales javascritp
 	var configuracion = []; 
 	var ProductosNuevosWeb = []; 
+	var ProductosModificadosWeb = []; 
+	var ProductosTpv = [];
+	var Diferencias = [];
+
 </script>
 </head>
  <body>
@@ -118,7 +122,9 @@ $idVirtuemart_web = array_column($tmp_articulos,'idVirtuemart');// $idVirtuemart
 		echo '<h1>Diferencias encontradas en Web</h1>';
 		$i = 0;
 		$Cont_Nuevo = 0;
+		$Cont_Modificado = 0;
 		$Nuevo = array();
+		$Modificado = array();
 		foreach ($tmp_articulos as $tmp_articulo){
 			$diff = array();
 			$bottones = array();
@@ -137,11 +143,9 @@ $idVirtuemart_web = array_column($tmp_articulos,'idVirtuemart');// $idVirtuemart
 				echo "ProductosNuevosWeb.push(".json_encode($tmp_articulo,true).");";
 				echo '</script>';
 				
-				$bottones = array(
-						'Nuevo' =>'<a onclick="AnhadirProducto('.$i.','.$tienda_importar['idTienda'].','.'1'.',ProductosNuevosWeb['.$Cont_Nuevo.'])"'.' href="#Nuevo" class="btn btn-primary">Crear en Tpv</a>'
-						);
+				$bottones['Nuevo'] ='<a onclick="AnhadirProducto('.$i.','.$tienda_importar['idTienda'].','.'1'.',ProductosNuevosWeb['.$Cont_Nuevo.'])"'.' href="#Nuevo" class="btn btn-primary">Crear en Tpv</a>';
 				$Cont_Nuevo++;
-				}else{
+			} else {
 				// Ahora creamos un array para comparar sin idArticulo, ya que sino siempre no daría diferencia.
 				$item_tpv_sin_idVirtuemart = $articulos['items'][$array_search];
 				unset($item_tpv_sin_idVirtuemart['idArticulo']);
@@ -150,15 +154,36 @@ $idVirtuemart_web = array_column($tmp_articulos,'idVirtuemart');// $idVirtuemart
 				if (isset($diff['fecha_modificado']) && count($diff)===1){
 					// Lo elimino ya que solo hay diferencia de modificacion.
 					unset($diff['fecha_modificado']);
-				} 
+				}
+				 
 			
 			}
 			if (count($diff)>0){
 			// quiere decir que hay differencias.
+				// Ahora comprobamos que no es nuevo
+				if (!isset($bottones['Nuevo'])){
+					// Hay diferencias pero no es nuevo, por lo que esta modificado.
+					$Modificado[$Cont_Modificado] = $tmp_articulo;
+					$ProductosTpv[$Cont_Modificado] = $articulos['items'][$array_search];
+					// Ahora añadimos a Javascript datos ProductosNuevosWeb
+					echo '<script type="application/javascript">';
+					echo "ProductosModificadosWeb.push(".json_encode($tmp_articulo,true).");";
+					echo "ProductosTpv.push(".json_encode($ProductosTpv[$Cont_Modificado],true).");";
+					echo "Diferencias.push(".json_encode($diff,true).");";
+
+					echo '</script>';
+				
+					$bottones['Modificado'] ='<a onclick="ModificadoProducto('.$i.','.$tienda_importar['idTienda'].','.'1'.',ProductosModificadosWeb['.$Cont_Modificado.'],ProductosTpv['.$Cont_Modificado.'],Diferencias['.$Cont_Modificado.'])"'.' href="#Modificado" class="btn btn-success">Modificar en Tpv</a>';
+				$Cont_Modificado++;
+
+				}
+				
 				echo '<div id="fila'.$i.'" class="col-md-12" style="border-top:1px solid;">';
 				echo 	'<div><h3>Diferencia encontrada</h3>Accion'.$i;
-				if (isset($bottones['Nuevo'])){
-					echo $bottones['Nuevo'];
+				if (count($bottones>0)){
+					foreach ($bottones as $botton){
+						echo $botton;
+					}
 				}
 				echo'</div>';
 					echo '<div class="col-md-4">';
@@ -187,6 +212,8 @@ $idVirtuemart_web = array_column($tmp_articulos,'idVirtuemart');// $idVirtuemart
 		}
 
 		echo ' Productos Nuevos son: ' .$Cont_Nuevo;
+		echo ' Productos Modificados son: ' .$Cont_Modificado;
+
 		echo '</div>';
 		
 		echo '<div class="row">';

@@ -33,6 +33,19 @@ if (isset($_POST['mensaje_log'])){
 $TControlador = new ControladorComun; 
  
  switch ($pulsado) {
+	case 'UpdateUnProductoTpv':
+		$producto_web  =$_POST['producto_web'];
+		$producto_tpv  =$_POST['producto_tpv'];
+		$diferencias  =$_POST['diferencias'];
+		$tienda = $_POST['tienda_actual'];
+		$tienda_export = $_POST['tienda_export'];
+		// OJO queda pendiente obtener la tienda actual de una forma correcta...
+		//~ $respuesta = UpdateUnProductoTpv($BDTpv,$productoNuevo,$tienda_export,$tienda);
+		header('Content-Type: application/json');
+		echo json_encode($respuesta,true);
+		break;
+		
+	
 	case 'InsertUnProductoTpv':
 		$productoNuevo  =$_POST['producto'];
 		$tienda = $_POST['tienda_actual'];
