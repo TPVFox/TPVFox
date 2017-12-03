@@ -49,7 +49,7 @@
 	$confirmación_cfg = '' ; 				// Solo tendrá valor si pulsa btn y por get viene variable.
 	$tienda_on_line_seleccionada = ''; // Tienda On Line seleccionad.. 
 	//[OBTENEMOS LAS TIENDAS ON LINE QUE HAY]
-	$tiendasOnLine = ObtenerTiendaWeb($BDTpv);
+	$tiendasOnLine = ObtenerTiendasWeb($BDTpv);
 	//[COMPROBAMOS GET Y POST]
 	// Por defecto ponemos : 
 	// Vemos si se cambía según el id obtenido, si hay claro.
@@ -66,7 +66,7 @@
 		}
 		// [TIENDA ONLINE] Seleccionada.
 		$tienda_on_line_seleccionada = $_POST['tiendaOnLine'];
-		
+		$tienda_importar = ObtenerTiendaImport($BDTpv,$tienda_on_line_seleccionada);
 		//~ echo $tienda_on_line_seleccionada;
 		//~ $tiendasOnLine[$tienda_on_line_seleccionada]['porDefecto']= 'select'; 
 	} 
@@ -86,15 +86,9 @@
 		$sum_Items_articulos = SumarNumRegistrosVariasTablas($tablas_importar);
 		// Si hay datos entonces
 		if ($sum_Items_articulos > 0){
-			// Quiere decir que va se actualizacion
+			// Por defecto el tipo ponemos este, ya que tiene registros
 			$tipo = 'actualizar';
-			// [OBTENEMOS FECHA DE LA ULTIMA IMPORTACION O ACTUALIZACION]
-			$Ultima_actualizacion_fecha= ObtenerUltimoRegistroMod($BDTpv);
-				if (gettype($Ultima_actualizacion_fecha) === "array") {
-					// hubo un error
-					$error_warning['ultimoRegistro']['mensaje']=  'Hubo error consulta registro tabla mod_importar';
-					$error_warning['ultimoRegistro']['errores']=  $Ultima_actualizacion_fecha;
-				} 
+			
 			} else {
 			// Quiere decir que es una importacion.
 			$tipo = 'importar';
@@ -330,7 +324,7 @@
 				// Quiere decir que tiene datos BDTpv por lo que puede ser no puede ser una iniciacion.
 				?>
 				<div class="alert alert-warning"><strong>¡¡ Actua con producencia !!</strong>
-				<p>Ya que hay datos en BDTpv , puede iniciar la importacion, eliminando todo, o solo la actualización donde solo añade los datos nuevos.</p>
+				<p>Ya que hay datos en BDTpv y los cambios que realices no se pueden deshacer, tanto en importacion como si actualizas.</p>
 				</div>
 				
 				<div class="col-md-12">
@@ -346,25 +340,12 @@
 					</a>
 					</div>
 					<div class="col-md-6">
-						<?php
 						
-						if (isset($error_warning['ultimoRegistro'])){
-							echo '<div class="alert alert-warning">'.
-								$error_warning['ultimoRegistro']['mensaje'].
-								'</div>';
-						} else {
-						?>
 						<h4>Actualizar.</h4>
-						<p>Los productos con fecha <?php echo $Ultima_actualizacion_fecha;?> en creacion o modificacion, se van añadir o van ser modificados respectivamente.</p>
-						<div class="alert alert-warning">
-							No se puede deshacer, por lo que recomendable tener una copia de seguridad de BDTPV antes continuar.
-						</div>
+						<p>Se buscan los productos nuevos y los modificados, solo se tiene en cuenta como modificados, los campos: nombre, precios,estado.</p>
 						<a  href="#ActualizarTablas" title="Actualizar tablas TPV" onclick="InicioActualizar();" class="btn btn-warning">
 						Actualizar tablas
 						</a>
-						<?php
-						}
-						?>
 					</div>
 
 					

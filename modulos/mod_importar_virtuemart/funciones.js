@@ -69,8 +69,10 @@ function InicioImportar(){
 }
 
 function InicioActualizar(){
+	// Objetivo es iniciar el proceso de Actualizar.
+	// De momento lo hacemos en proceso aparte. 
 	// Objetivo es iniciar el proceso de importar
-    var parametros = {
+	var parametros = {
 	"configuracion" 		: configuracion,
 	"pulsado" 		: 'Inicio Actualizar',
 	"mensaje_log" 	: 'Se inicio ACTUALIZACION'
@@ -83,12 +85,11 @@ function InicioActualizar(){
 				$("#resultado").html('Iniciando Actualizacion de TPV');
 		},
 		success:  function (response) {			
-			// Ya grabamos inici de importacion de log mod_impor_virtuemart       
-            BucleTablaTemporal();
+			// Es un proceso en el servidor que lo hacer todo seguido, asi no hacemos tanta peticiones al servidor.
+			var ruta= 'conexion_curl.php?tienda_importar='+configuracion[0].tienda;
+			document.location.href=ruta;			
 		}
 	});
-	
-	
 }
 
 function VaciarTablas(){
@@ -166,11 +167,12 @@ function PrepararInsert(){
 						if (datos.descartado.length>0){
 							// Para meter clase de color cuando hay descartados.
 							var clase='class="alert-danger"';
-							console.log('Descartados:');
-							console.log(datos.descartado);
+							console.log('Escribimos fichero log aquellos que Descartados:');
+							AnhadirLog(datos.descartado,'Descartados de Tabla:'+tablaNombre);
 						} else {
 							clase ='';	
 						}
+
 						stringPresentar = datos.Insert.length +' / <span '+ clase + '>'+ datos.descartado.length+'</span>';
 						$("#"+ntabla+" > td.inserts").html(stringPresentar);
 
@@ -269,7 +271,6 @@ function BucleTablaTemporal(){
 	// @ Parametros:
 	//   tipo: String -> importar / actualizar, indica que vamos hacer despues de hacer al termina crear.
 	console.log(' Bucle');
-	var tipo = configuracion['0'].tipo;
 	var i = 0;
 	var y = 0;
 	tablasTemporales.forEach(function(tablatemporal) {
@@ -295,15 +296,9 @@ function BucleTablaTemporal(){
 		// El proceso se termina y se vuelve en CrearTablaTemporal
 		BarraProceso(y,lineaF); 
 		// Ahora debemos indicar que vamos hacer 
-		console.log('Tipo es '+tipo);
-		if (tipo === 'importar'){
-			console.log('Estamos en importar, ahora vamos a comprobaciones');
-			BucleComprobacionesTemporales();
-		}
-		if (tipo === 'actualizar'){
-			alert(' Ahora deberíamos continuar con actualizar');
-			
-		}
+		console.log('Estamos en importar, ahora vamos a comprobaciones');
+		BucleComprobacionesTemporales();
+		
 	}
 	
 }
@@ -352,6 +347,7 @@ function BucleComprobacionesTemporales() {
 	// @ Paramentros:
 	// No hay es la varible globar JS comprobaciones
 	console.log(' Entramos en Bucle de Comprobaciones Temporales');
+	var tipo = configuracion['0'].tipo;
 	var i = 0;
 	var y = 0;
 	comprobacionesTemporales.forEach(
@@ -379,10 +375,16 @@ function BucleComprobacionesTemporales() {
 		console.log('valor LineaF :'+ lineaF);
 		EjecutarComprobaciones(y);
 	} else {
-	// El proceso se termina y se vuelve en CrearTablaTemporal
-	BarraProceso(y,lineaF); 
-	console.log('Terminamos comprobaciones.');
-	PrepararInsert();
+		// El proceso se termina y se vuelve en CrearTablaTemporal
+		BarraProceso(y,lineaF); 
+		console.log('Terminamos comprobaciones.');
+		// Ahora debemos indicar que vamos hacer segun si es import o actualizar.
+		// Aunque no utilizo actualizar, puede que lo necesite.. por eso lo dejo. 
+		console.log('Tipo es '+tipo);
+		if (tipo === 'importar'){
+			console.log('Estamos en importar, ahora vamos a comprobaciones');
+			PrepararInsert();
+		}
 	}
 	
 }
@@ -423,6 +425,8 @@ function EjecutarComprobaciones(index){
 						console.log(resultado);
 						if (resultado[subproceso]['estado'] !=  true){
 							console.log(' estado:'+ resultado[subproceso]['estado']);
+							// Si hubo errores entonces guardamos en fichero log los errores.
+							AnhadirLog(resultado[subproceso]['error']);
 							errores ++;
 						}
 					}
@@ -438,4 +442,54 @@ function EjecutarComprobaciones(index){
 			}
 		});
 	
+}
+function AnhadirLog(datos,mensaje='') {
+	// @Objetivo: Añadir Array a log de mod_import_virtuemart
+	var parametros = {
+		"datos" 	:  datos,
+		"pulsado" 	: 'AnhadirLog'
+				};
+	if (mensaje !=''){
+		// Añadimos a parametros mensaje.
+		parametros['mensaje_log'] = mensaje;
+	}
+		$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+					$("#resultado").html('Registramos resultado en log mod_importar_virtuemart');
+			},
+			success:  function (response) {			
+				// Obtenemos resultado de grabaslos subprocesos que deberíamos obtener respuesta.
+				console.log ( ' Resultado registro en log '),
+				console.log(response)	
+			}
+		});
+}
+
+function AnhadirProducto(fila,tienda_export,tienda,datos){
+	// Ahora añadimos a log
+	console.log(datos);
+	AnhadirLog(datos,'Creamos producto fila:'+fila);
+	$('#fila'+fila).css('display','none');
+	var parametros = {
+		"producto" 	:  datos,
+		"tienda_export" : tienda_export,
+		"tienda_actual": tienda,
+		"pulsado" 	: 'InsertUnProductoTpv'
+				};
+		$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+				console.log('Iniciamos insert de articulo');
+			},
+			success:  function (response) {			
+				// Obtenemos resultado de grabaslos subprocesos que deberíamos obtener respuesta.
+				console.log ( ' Resultado insert de un articulo '),
+				console.log(response)	
+			}
+		});
 }

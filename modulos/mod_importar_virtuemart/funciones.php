@@ -141,16 +141,6 @@ function EliminarArticulosTpv($BDtpv,$tablas,$controlador){
 
 
 
-
-
-
-
-
-
-
-
-
-
 function ObtenerGruposInsert($registros,$obligatorios = array()){
 	// @Objetivo es conseguir un grupos array con los valores para insertar.
 	//  esto se hacer para no realizar un insert con mas 1000 registros a insertar.
@@ -436,7 +426,7 @@ function htmlBDTpvTR($tablas){
 
 }
 
-function ObtenerTiendaWeb($BDTpv){
+function ObtenerTiendasWeb($BDTpv){
 	// Objetivo obtener datos de la tabla tienda para poder cargar el select de tienda On Line.
 	$resultado = array();
 	$sql = "SELECT * FROM `tiendas` WHERE `tipoTienda`='web'";
@@ -500,7 +490,7 @@ function ComprobarExisteLogTpv($ruta,$mensaje_log){
 	$mensaje .= $mensaje_log;
 	// Escribimos mensaje.
 	if($archivo = fopen($nombre_fic_log, "a")) {
-		if(fwrite($archivo, date("d m Y H:m:s"). " ". $mensaje. "\n"))
+		if(fwrite($archivo, date("d m Y H:i:s"). " ". $mensaje. "\n"))
 			{
 				$respuesta['correcto'] = "Grabado";
 			}
@@ -515,41 +505,111 @@ function ComprobarExisteLogTpv($ruta,$mensaje_log){
 	return $respuesta;
 	
 }
-function GrabarRegistro ($BDTpv,$configuracion,$tipo){
-	// @ Objetivo es grabar en la BDTpv de mod_importar_virt_reg
-	// @ Paramentro: 
-	//    configuracion: Json de configuracion.
-	// 	  tipo : String no mas 10 caracteres... ( importar/actualizar )
-	// Convertimos $configuracion a JSon preparado para grabar en msyql
+
+
+function ObtenerTiendaImport($BDTpv,$id){
+	// Objetivo obtener datos de la tabla tienda para poder cargar el select de tienda On Line.
 	$resultado = array();
-	$conf_escapa_sql = $BDTpv->real_escape_string($configuracion); 
-	$Sql = 'INSERT INTO `mod_importar_virtuemart_reg`(`fecha`, `tipo`, `configuracion`) VALUES ("'.date("Y-m-d H:m:s").'","'.$tipo.'","'.$conf_escapa_sql.'")';
-	$BDTpv->query($Sql);
-	$resultado['consulta'] = $Sql;
-		if (mysqli_error($BDTpv)){
-			$resultado['consulta'] = $Sql;
-			$resultado['error'] = $BDTpv->error_list;
-		} 
+	$sql = "SELECT * FROM `tiendas` WHERE `tipoTienda`='web' AND `idTienda` =".$id;
+	$resultado['consulta'] = $sql;
+	if ($consulta = $BDTpv->query($sql)){
+		// Ahora debemos comprobar que cuantos registros obtenemos , si no hay ninguno
+		// hay que indicar el error.
+		if ($consulta->num_rows === 1) {
+				while ($fila = $consulta->fetch_assoc()) {
+				$resultado['items'][]= $fila;
+				}
+			
+		} else {
+			// Quiere decir que no hay tienda on-line (web) dada de alta o hay mas de una con el mis id..
+			$resultado['error'] = 'Error a la hora obtener datos de la tienda Importar';
+		}
+
+	} else {
+		// Quiere decir que hubo un error en la consulta.
+		$resultado['error'] = 'Error en consulta';
+		$resultado['numero_error_Mysql']= $BDTpv->errno;
+	
+	}
+	
 	return $resultado;
 }
-function ObtenerUltimoRegistroMod($BDTpv){
-	// @Objetivo : Obtener el ultimo registro de la tabla mod_importar_virtuemart_reg.
-	// Recuerda que debe obtenerlo ante hacer el nuevo registros, ya que no tendría sentido hacerlo 
-	// despues de guarda la actualizacion que estamos realizando, la fecha te daría la actual.
+function ListadoProductosCompletoTPV($BDTpv){
 	$resultado = array();
-	$Sql = "SELECT *  FROM mod_importar_virtuemart_reg ORDER BY id DESC LIMIT 1";
-	$res = $BDTpv->query($Sql);
-	if (mysqli_error($BDTpv) || $res->num_rows != 1){
-		$resultado['consulta'] = $Sql;
-		$resultado['error'] = $BDTpv->error_list;
-		return $resultado; // Devolvemos array
-	} 
-	// No hubo error en consulta.
-	$resultado = $res->fetch_assoc();
+	$sql = "SELECT at.idArticulo,at.idVirtuemart,a.articulo_name,a.`iva`,at.estado,ap.pvpCiva,ap.pvpSiva,a.`fecha_creado`,a.`fecha_modificado` FROM `articulos` AS a LEFT JOIN articulosTiendas AS at ON at.idArticulo =a.idArticulo and at.idTienda = 2 LEFT JOIN articulosPrecios AS ap ON ap.idArticulo=a.idArticulo and at.idTienda = 2 GROUP BY at.idVirtuemart";
+	
+	$resultado['consulta'] = $sql;
+	if ($consulta = $BDTpv->query($sql)){
+		// Ahora debemos comprobar que cuantos registros obtenemos , si no hay ninguno
+		// hay que indicar el error.
+		if ($consulta->num_rows >0) {
+				while ($fila = $consulta->fetch_assoc()) {
+				$resultado['items'][]= $fila;
+				}
+			
+		} else {
+			// Quiere decir que no hay tienda on-line (web) dada de alta o hay mas de una con el mis id..
+			$resultado['error'] = 'Error a la hora obtener datos de la tienda Importar';
+		}
 
-	return $resultado['fecha']; // Devolvemos String
+	} else {
+		// Quiere decir que hubo un error en la consulta.
+		$resultado['error'] = 'Error en consulta';
+		$resultado['numero_error_Mysql']= $BDTpv->errno;
+	
+	}
+	
+	return $resultado;
+	
+	
 }
 
-
+function InsertUnProductoTpv($BDTpv,$productoNuevo,$tienda_export,$tienda){
+	// @Objetivo :
+	// Es añadir un producto nuevo, que recojemos en una actualizacion.
+	// Se inserta en las tablas:
+	//  - articulos
+	// 	- articulosPrecios
+	//  - articulosTiendas
+	// Faltaría por añadir tambien en codbarras, familias, pero de momento lo dejo pendiente.
+	// idArticulo: Recuerda que es un autonumerico.
+	
+	$resultado = array();
+	$sqlArticulo = 'INSERT INTO `articulos`(`iva`, `articulo_name`, `estado`, `fecha_creado`, `fecha_modificado`) VALUES ("'.$productoNuevo['iva'].'","'.$productoNuevo['articulo_name'].'","'.$productoNuevo['estado'].'","'.$productoNuevo['fecha_creado'].'","'.$productoNuevo['fecha_modificado'].'")';
+	
+	$resultado['consulta'][] = $sqlArticulo;
+	if ($consulta = $BDTpv->query($sqlArticulo)){
+		// Ahora obtener el idArticulo obtenido, para poder montar el resto de insert
+		$Num_idArticulo = $BDTpv->insert_id;
+		if ($Num_idArticulo > 0 ) {
+			// Quiere decir que fue correcto el insert..
+	
+			$sqlArticuloPrecios = 'INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) VALUES ("'.$Num_idArticulo.'","'.$productoNuevo['pvpCiva'].'","'.$productoNuevo['pvpSiva'].'","'.$tienda_export.'")';
+			$resultado['consulta'][] = $sqlArticuloPrecios;
+			$consultaPrecio = $BDTpv->query($sqlArticuloPrecios);
+	
+			$sqlArticuloPrecios = 'INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) VALUES ("'.$Num_idArticulo.'","'.$productoNuevo['pvpCiva'].'","'.$productoNuevo['pvpSiva'].'","'.$tienda.'")';
+			$resultado['consulta'][] = $sqlArticuloPrecios;
+			$consultaPrecio = $BDTpv->query($sqlArticuloPrecios);
+			// Ahora preparamos el insert para tienda.
+			// Recuerda que el idTienda actual de momento no lo obtengo... :-)
+			$sqlArticuloTiendas = 'INSERT INTO `articulosTiendas`(`idArticulo`,`idVirtuemart`, `estado`,`idTienda`) VALUES ("'.$Num_idArticulo.'","'.$productoNuevo['idVirtuemart'].'","'.$productoNuevo['estado'].'","'.$tienda_export.'")';
+			$resultado['consulta'][] = $sqlArticuloTiendas;
+			$consultaTienda = $BDTpv->query($sqlArticuloTiendas);
+			// Recordar que el campo CREF depende de la configuracion.. por lo que demomento lo dejo asi, pero depende...no?
+			$sqlArticuloTiendas = 'INSERT INTO `articulosTiendas`(`idArticulo`,`crefTienda`, `estado`,`idTienda`) VALUES ("'.$Num_idArticulo.'","'.$productoNuevo['idVirtuemart'].'","'.$productoNuevo['estado'].'","'.$tienda.'")';
+			$resultado['consulta'][] = $sqlArticuloTiendas;
+			$consultaTienda = $BDTpv->query($sqlArticuloTiendas);
+		}
+	} else {
+		// Quiere decir que hubo un error en la consulta.
+		$resultado['error'] = 'Error en consulta';
+		$resultado['numero_error_Mysql']= $BDTpv->errno;
+	
+	}
+	
+	return $resultado;
+	
+}
 
 ?>

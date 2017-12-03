@@ -33,7 +33,31 @@ if (isset($_POST['mensaje_log'])){
 $TControlador = new ControladorComun; 
  
  switch ($pulsado) {
-    case 'Inicio Actualizar':
+	case 'InsertUnProductoTpv':
+		$productoNuevo  =$_POST['producto'];
+		$tienda = $_POST['tienda_actual'];
+		$tienda_export = $_POST['tienda_export'];
+		// OJO queda pendiente obtener la tienda actual de una forma correcta...
+		$respuesta = InsertUnProductoTpv($BDTpv,$productoNuevo,$tienda_export,$tienda);
+		header('Content-Type: application/json');
+		echo json_encode($respuesta,true);
+		break;
+		
+	
+	case 'AnhadirLog':
+		// Añadimos a LogGrabamos la configuracion en log,
+		$datos  =json_encode($_POST['datos']);
+		$mensaje_log = "\n".$datos."\n";
+		$ruta =  $RutaServidor.$RutaDatos.'/log_tpvFox';
+		$fichero_log = ComprobarExisteLogTpv($ruta,$mensaje_log);
+		$respuesta['log'] = $fichero_log;
+		$respuesta['mensaje']= $mensaje_log;
+		header('Content-Type: application/json');
+		echo json_encode($respuesta,true);
+		break;
+	
+	
+	case 'Inicio Actualizar':
 		// Grabamos la configuracion en log,
 		$configuracion  =json_encode($_POST['configuracion'][0]);
 		$mensaje_log = "Configuracion:\n".$configuracion."\n";
@@ -41,9 +65,6 @@ $TControlador = new ControladorComun;
 		$fichero_log = ComprobarExisteLogTpv($ruta,$mensaje_log);
 		$respuesta['log'] = $fichero_log;
 		$respuesta['mensaje']= $mensaje_log;
-		// Grabamos configuracion en BDTpv 
-		$tipo = 'Actualizar';
-		$respuesta['Grabar'] = GrabarRegistro ($BDTpv,$configuracion,$tipo);
         header('Content-Type: application/json');
 		echo json_encode($respuesta,true);
 		break; 
@@ -58,9 +79,7 @@ $TControlador = new ControladorComun;
 		$respuesta['log'] = $fichero_log;
 		$respuesta['mensaje']= $mensaje_log;
 		// Grabamos configuracion en BDTpv 
-		$tipo = 'Importar';
-		$respuesta['Grabar'] = GrabarRegistro ($BDTpv,$configuracion,$tipo);
-        header('Content-Type: application/json');
+		 header('Content-Type: application/json');
 		echo json_encode($respuesta,true);
 		break;
 	
