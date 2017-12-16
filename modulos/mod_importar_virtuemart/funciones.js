@@ -86,7 +86,7 @@ function InicioActualizar(){
 		},
 		success:  function (response) {			
 			// Es un proceso en el servidor que lo hacer todo seguido, asi no hacemos tanta peticiones al servidor.
-			var ruta= 'conexion_curl.php?tienda_importar='+configuracion[0].tienda;
+			var ruta= 'actualizacion.php?tienda_importar='+configuracion[0].tienda;
 			document.location.href=ruta;			
 		}
 	});
@@ -468,10 +468,10 @@ function AnhadirLog(datos,mensaje='') {
 		});
 }
 
-function AnhadirProducto(fila,tienda_export,tienda,datos){
+function AnhadirProductoTpv(fila,tienda_export,tienda,datos){
 	// Ahora añadimos a log
 	console.log(datos);
-	AnhadirLog(datos,'Creamos producto fila:'+fila);
+	AnhadirLog(datos,'Creamos producto en Tpv fila:'+fila);
 	$('#fila'+fila).css('display','none');
 	var parametros = {
 		"producto" 	:  datos,
@@ -493,10 +493,66 @@ function AnhadirProducto(fila,tienda_export,tienda,datos){
 			}
 		});
 }
-function ModificadoProducto(fila,tienda_export,tienda,producto_web,producto_tpv,diferencias){
+
+function AnhadirProductoWeb(fila,tienda_export,tienda,datos){
+	// Ahora añadimos a log
+	console.log(datos);
+	AnhadirLog(datos,'[PENDIENTE] Crear producto en WEB fila:'+fila);
+	alert('[PENDIENTE TERMINAR PROCESO CREAR PRODUCTO EN WEB]');
+	$('#fila'+fila).css('display','none');
+	var parametros = {
+		"producto" 	:  datos,
+		"tienda_export" : tienda_export,
+		"tienda_actual": tienda,
+		"pulsado" 	: 'CrearProductoWeb'
+				};
+		$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+				console.log('[PENDIENTE TERMINAR FUNCION] Crear producto en Web');
+			},
+			success:  function (response) {			
+				// Obtenemos resultado de grabaslos subprocesos que deberíamos obtener respuesta.
+				console.log ( ' Resultado insert de un articulo '),
+				console.log(response)	
+			}
+		});
+}
+
+function EliminadoProductoWeb(fila,tienda_export,tienda,datos){
+	// Ahora añadimos a log
+	console.log(datos);
+	AnhadirLog(datos,'[PENDIENTE] Eliminar relacion de producto idVirtuemart en BDTPV, fila:'+fila);
+	alert('[PENDIENTE] Eliminar relacion de producto idVirtuemart en BDTPV');
+	$('#fila'+fila).css('display','none');
+	var parametros = {
+		"producto" 	:  datos,
+		"tienda_export" : tienda_export,
+		"tienda_actual": tienda,
+		"pulsado" 	: 'EliminarRelacionBDtpv'
+				};
+		$.ajax({
+			data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+				console.log('[PENDIENTE TERMINAR FUNCION] Crear producto en Web');
+			},
+			success:  function (response) {			
+				// Obtenemos resultado de grabaslos subprocesos que deberíamos obtener respuesta.
+				console.log ( ' Resultado insert de un articulo '),
+				console.log(response)	
+			}
+		});
+}
+
+
+function ModificadoProductoTpv(fila,tienda_export,tienda,producto_web,producto_tpv,diferencias){
 	// Ahora añadimos a log
 	console.log('Grabo log pero no debo ya que no tengo datos differencias que voy cambiar');
-	AnhadirLog(diferencias,'Modificamos produto fila:'+fila);
+	AnhadirLog(diferencias,'Modificamos produto en Tpv fila:'+fila);
 	$('#fila'+fila).css('display','none');
 	var parametros = {
 		"producto_web" 	:  producto_web,

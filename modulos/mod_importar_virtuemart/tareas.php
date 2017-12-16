@@ -33,14 +33,48 @@ if (isset($_POST['mensaje_log'])){
 $TControlador = new ControladorComun; 
  
  switch ($pulsado) {
-	case 'UpdateUnProductoTpv':
+	case 'EliminarRelacionBDtpv':
 		$producto_web  =$_POST['producto_web'];
 		$producto_tpv  =$_POST['producto_tpv'];
 		$diferencias  =$_POST['diferencias'];
 		$tienda = $_POST['tienda_actual'];
 		$tienda_export = $_POST['tienda_export'];
 		// OJO queda pendiente obtener la tienda actual de una forma correcta...
-		//~ $respuesta = UpdateUnProductoTpv($BDTpv,$productoNuevo,$tienda_export,$tienda);
+		//~ $respuesta = funcion que lo haga,, pero esto debería ser curl... :-) 
+		$respuesta['error'] = ' Pendiente de crear funcion de eliminar relacion idVirtuemart en BDTvp';
+		header('Content-Type: application/json');
+		echo json_encode($respuesta,true);
+		break;
+	
+	case 'CrearProductoWeb':
+		$producto_web  =$_POST['producto_web'];
+		$producto_tpv  =$_POST['producto_tpv'];
+		$diferencias  =$_POST['diferencias'];
+		$tienda = $_POST['tienda_actual'];
+		$tienda_export = $_POST['tienda_export'];
+		// OJO queda pendiente obtener la tienda actual de una forma correcta...
+		//~ $respuesta = funcion que lo haga,, pero esto debería ser curl... :-) 
+		$respuesta['error'] = ' Pendiente de llamar funcion en servidor para Crear Producto en la web';
+		header('Content-Type: application/json');
+		echo json_encode($respuesta,true);
+		break;
+		
+	case 'UpdateUnProductoTpv':
+		// Objetivo es modificar los datos en BDTPV
+		// Hay que tener en cuenta que este proceso se va modificar según el tipo de diferencia.
+		$producto_web  =$_POST['producto_web'];
+		$producto_tpv  =$_POST['producto_tpv'];
+		$diferencias  =$_POST['diferencias'];
+		$tienda = $_POST['tienda_actual'];
+		$tienda_export = $_POST['tienda_export'];
+		$respuesta = array();
+		$DiferenciasComprobadas = ComprobarDiferencias($diferencias,$producto_web,$producto_tpv);
+		// OJO queda pendiente obtener la tienda actual de una forma correcta y configuracion...
+		if ($DiferenciasComprobadas['dedonde'] === 'web'){
+			// Actualizamos datos web en tpv
+			$respuesta = UpdateUnProductoTpv($BDTpv,$DiferenciasComprobadas,$tienda_export,$tienda);
+		}
+		//~ $respuesta = $DiferenciasComprobadas;
 		header('Content-Type: application/json');
 		echo json_encode($respuesta,true);
 		break;

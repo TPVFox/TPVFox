@@ -536,7 +536,7 @@ function ObtenerTiendaImport($BDTpv,$id){
 }
 function ListadoProductosCompletoTPV($BDTpv){
 	$resultado = array();
-	$sql = "SELECT at.idArticulo,at.idVirtuemart,a.articulo_name,a.`iva`,at.estado,ap.pvpCiva,ap.pvpSiva,a.`fecha_creado`,a.`fecha_modificado` FROM `articulos` AS a LEFT JOIN articulosTiendas AS at ON at.idArticulo =a.idArticulo and at.idTienda = 2 LEFT JOIN articulosPrecios AS ap ON ap.idArticulo=a.idArticulo and at.idTienda = 2 GROUP BY at.idVirtuemart";
+	$sql = "SELECT a.idArticulo,at.idVirtuemart,a.articulo_name,a.`iva`,at.estado,ap.pvpCiva,ap.pvpSiva,a.`fecha_creado`,a.`fecha_modificado` FROM `articulos` AS a LEFT JOIN articulosTiendas AS at ON at.idArticulo =a.idArticulo and at.idTienda = 2 LEFT JOIN articulosPrecios AS ap ON ap.idArticulo=a.idArticulo and at.idTienda = 2 GROUP BY at.idVirtuemart";
 	
 	$resultado['consulta'] = $sql;
 	if ($consulta = $BDTpv->query($sql)){
@@ -564,9 +564,89 @@ function ListadoProductosCompletoTPV($BDTpv){
 	
 }
 
+
+function ObtenerDiferencias($Productos,$IdVirt){
+	// Objetivo obtener array de diferencias.
+	$diferencia = array();
+	$i = 0;
+	foreach ($Productos['Servidor'] as $producto){
+		// Busco idVirtuemart de tabla Web en array columna de tpv,$IdVirt['Tpv']-> Array columna de idVirtuemart de tpv)
+		$diff = array();
+		$array_search = array_search($producto['idVirtuemart'],$IdVirt['Tpv']);
+		if (gettype($array_search) === 'boolean'){
+			// Quiere decir que no encontro, lo mas probable es que se un producto nuevo
+			// ya que en tvp de momento no permitimos eliminar. :-)
+				$diferencia[$i]['Diferencia'] = array('idVirtuemart' => $producto['idVirtuemart'],
+							  'error' => 'Eliminado en tpv o creado en la web'
+						);
+				// Añadimos a array Nuevos el articulo nuevo encontrado.
+				$diferencia[$i]['Servidor'] = $producto;
+				// Ahora añadimos a Javascript datos ProductosNuevosWeb
+				$diferencia[$i]['tipo'] = 'Nuevo_web';
+				$i++;
+				
+			} else {
+				// Ahora preparamos array para comparar.
+				// En tpv quitamos idArticulo
+				// Los campos de precios los redondeamos ( ya que no porque, pero hay milesimas diferencias).
+				$Producto_tpv = $Productos['Tpv'][$array_search];
+				$Producto_web = $producto;
+				unset($Producto_tpv['idArticulo']);
+				$campos_precios = array('pvpCiva','pvpSiva');
+				foreach ($campos_precios as $precio){
+					$Producto_tpv[$precio]= number_format($Producto_tpv[$precio],2);
+					$Producto_web[$precio] = number_format($Producto_web[$precio],2);
+				}
+				// Obtenemos solo las claves de las diferencias.
+				$diff = array_diff($Producto_tpv, $Producto_web);
+				// [ DESCARTAMOS LO INNECESARIOS]
+				if (isset($diff['fecha_modificado']) && count($diff)===1){
+					// Lo elimino ya que solo hay diferencia de modificacion.
+					unset($diff['fecha_modificado']);
+				}
+				
+				// [ MONTAMOS ARRAY DIFERENCIAS]
+				if (count($diff) >0){
+				 $diferencia[$i]['Diferencia'] = $diff;
+				 $diferencia[$i]['Servidor'] = $producto;
+				 $diferencia[$i]['Tpv'] = $Productos['Tpv'][$array_search];
+				 $diferencia[$i]['tipo'] = 'Modificado';
+				 $i++;
+				}
+			
+			}
+	}
+	// Ahora buscamos de momento solo los productos que existan en Web y no existan en TPV 
+	// Es decir que se eliminaron en la web, ya que en tpv , no lo permitimos ( de momento).
+	foreach ($Productos['Tpv'] as $producto){
+		$array_search = array_search($producto['idVirtuemart'],$IdVirt['Web']);
+		if (gettype($array_search) === 'boolean'){
+			// Quiere decir que no encontro en tpv el idVirtuemart
+			$diferencia[$i]['Diferencia']=	 array( 'idArticulo' 	=> $producto['idArticulo'],
+													'idVirtuemart' 	=> $producto['idVirtuemart']
+													);
+			// Ahora identificamos si es nuevo en tpv o es eliminado.
+			if ($producto['idVirtuemart']> 0 ){
+				// Quiere decir que en algún momento si hubo idVirtuemart, por lo que entonces si se elimino
+				$diferencia[$i]['Diferencia']['error']= 'Eliminado en la web';
+				$diferencia[$i]['tipo'] = 'Eliminado_web';
+			} else {
+				// Quiere decir que es nuevo en tpv, ya que no tiene idVirtuemart, se tuvo crear en tpv
+				$diferencia[$i]['Diferencia']['error']= 'Nuevo en tvp';
+				$diferencia[$i]['tipo'] = 'Nuevo_tpv';
+			}
+			$diferencia[$i]['Tpv'] = $producto;
+			$i++;	
+		} 
+	}
+return $diferencia;
+	
+}
+
+
 function InsertUnProductoTpv($BDTpv,$productoNuevo,$tienda_export,$tienda){
 	// @Objetivo :
-	// Es añadir un producto nuevo, que recojemos en una actualizacion.
+	// Es añadir un producto nuevo en BDTpv, que recojemos en una actualizacion.
 	// Se inserta en las tablas:
 	//  - articulos
 	// 	- articulosPrecios
@@ -611,5 +691,118 @@ function InsertUnProductoTpv($BDTpv,$productoNuevo,$tienda_export,$tienda){
 	return $resultado;
 	
 }
+function ComprobarDiferencias($diferencias,$producto_web,$producto_tpv){
+	// @ Objetivo: Identificamos cual es la diferencia y comprobamos de los dos array es el mas actualizados.
+	// 			   y añadimos array 'datos_coger' , indicando si tpv o servidor.
+	//			   También si solo hay diferencia estado, sin fecha , se la añadimos.
+	// @ $diferencias ( es un array arrays con las campos diferentes.
+	$resultado = array();
+	$dedonde = ''; // Indicamos de donde cogemos los datos.
+	// Lo primero contamos cuantos 
+	if (isset($diferencias['estado'])){
+		// Si el cambio es estado, quiere decir que se cambio estado ( publicado o despublicado) sin entrar en producto, 
+		// desde la lista productos de la web, ya que no hay diferencias en fecha_modificado
+		if (count($diferencias) === 1){
+			// Quiere decir que el cambio lo hizo dentro del listado de productos de la web, no entro en detalles producto.
+			// Ponemos la fecha del producto modificacion de web, aunque daría igual, son iguales.
+			$diferencias['fecha_modificado'] = $producto_web['fecha_modificado'];
+		}
+	}
+	// Ahora comprobamos que datos son los buenos.
+	if (isset($producto_tpv) && isset($producto_web)){
+		// Ahora comprobamos cual es el mas actual.
+		$fechaWeb = date_create($producto_web['fecha_modificado']);
+		$fechaTpv = date_create($producto_tpv['fecha_modificado']);
+		$interval = date_diff($fechaWeb,$fechaTpv);
+		if ($interval->invert === 0 ){
+			// Quiere decir que los datos mas actualizados son los tpv o son iguales..
+			// de momento esta opción no hacemos nada.
+			if ($producto_web['fecha_modificado'] === $producto_tpv['fecha_modificado']){
+				// Son iguales ...
+				$dedonde = 'web';
+			} else {
+			    // Son distinta.
+			    $dedonde = 'tpv';
+			}
+		
+		} else {
+			// Quiere decir que la datos mas actualizados son los de la web.
+			// en este caso si actualizamos en la tpv.
+			// HAY RECORDAR QUE ESTO DEPENDE DE LA CONFIGURACIÓN POR DEFECTO DE LA TIENDA ( TPV) Y DE LA 
+			// CONFIGURACION DE LA ACTUALIZACION QUE SI DEFINIMOS, PERO NO APLICAMOS ..
+			$dedonde = 'web';
+		}
+	}
+	// Ahora ponemos los datos de las diferencias que son mas actualizados.
+	$nueva_diferencia = $diferencias;
+	if ($dedonde === 'tpv'){
+		$producto = $producto_tpv;
+	}elseif ( $dedonde === 'web'){
+		$producto = $producto_web;
+	}
+	foreach ($nueva_diferencia as $nombre => $valor){
+		$diferencias[$nombre] =$producto[$nombre];
+	}
+	$diferencias['idArticulo'] = $producto_tpv['idArticulo'];
+	$diferencias['idVirtuemart'] = $producto_web['idVirtuemart'];
+	$diferencias['dedonde'] = $dedonde;
+	// Ahora añadimos tipo diferencias
+	$resultado = $diferencias;
+	return $resultado;
+	
+}
+
+function UpdateUnProductoTpv($BDTpv,$DiferenciasComprobadas,$tienda_export,$tienda){
+	//@Objetivo es actualizar los datos en BDTpv
+	$Sql = array();
+	$campos = array();
+	
+	// Creamos UPDATE para cambiar estado y articulo_name en tabla Articulos
+	// Esto habría que tener en cuenta la configuración, ya que a lo no siempre se querra cambiar el estado.
+	if (isset($DiferenciasComprobadas['estado']) || isset($DiferenciasComprobadas['articulo_name'])){
+		$Sql['0'] = 'UPDATE `articulos` SET ';
+		if (isset($DiferenciasComprobadas['estado'])){
+			$campo = 'estado = "'.$DiferenciasComprobadas['estado'].'"';
+			array_push($campos,$campo);
+		}
+		if (isset($DiferenciasComprobadas['articulo_name'])){
+			$campo = 'articulo_name = "'.$DiferenciasComprobadas['articulo_name'].'"';
+			array_push($campos,$campo);
+		}
+		$Sql['0'] .= implode(',',$campos).' WHERE idArticulo='.$DiferenciasComprobadas['idArticulo'];
+	}
+	
+	// Creamos UPDATE para cambiar estado en tabla articulosTiendas.
+	// Esto habría que tener en cuenta la configuración, ya que a lo no siempre se querra cambiar el estado en las dos tiendas.
+	// Ademas encuentro un error estructura en la BD ya que tenemos estado en en tabla articulos y articulosTienda que no tiene sentido.
+	if (isset($DiferenciasComprobadas['estado'])){
+		$Sql['1'] = 'UPDATE `articulosTiendas` SET estado = "'.$DiferenciasComprobadas['estado'].'"'.
+					' WHERE idArticulo='.$DiferenciasComprobadas['idArticulo'];
+	}
+	// Creamos UPDATE para cambiar estado en tabla precios.
+	// Lo mismo que los anteriores punto habría que tener en cuenta tema configuraciones... 
+	if (isset($DiferenciasComprobadas['pvpCiva'])){
+		$Sql['2'] = 'UPDATE `articulosPrecios` SET pvpCiva = "'.$DiferenciasComprobadas['pvpCiva'].'",'.
+					'pvpSiva="'.$DiferenciasComprobadas['pvpSiva'].'" WHERE idArticulo='.$DiferenciasComprobadas['idArticulo'];
+		
+	}
+	// Ahora ejecutamos sentencias Sql
+	foreach ($Sql as $consulta){
+		$Modificar = $BDTpv->query($consulta);
+		
+	}
+	
+	
+	
+	return $Sql;		
+		
+}
+		
+		
+		
+		
+		
+	
+
 
 ?>

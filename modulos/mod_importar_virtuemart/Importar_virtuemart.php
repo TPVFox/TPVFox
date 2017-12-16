@@ -491,7 +491,7 @@
 		
 	<div>
 <?php
-$respuesta = prepararInsertTablasBDTpv($BDVirtuemart,$tablas_importar);
+//~ $respuesta = prepararInsertTablasBDTpv($BDVirtuemart,$tablas_importar);
 //~ echo '<pre>';
 	//~ $respuesta = json_encode($respuesta);
 	//~ print_r($respuesta);
