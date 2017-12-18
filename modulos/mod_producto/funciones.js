@@ -31,7 +31,6 @@ function metodoClick(pulsado,adonde){
 				return
 			}
 			// Ahora redireccionamos 
-			// recambi.php?id=id
 			window.location.href = './'+adonde+'.php?id='+checkID[0];
 			//window.location.href = './producto.php?id='+checkID[0];
 			
@@ -48,13 +47,11 @@ function metodoClick(pulsado,adonde){
 			// Obtenemos puesto en input de Buscar
 			BuscarProducto ();
 			// Ahora redireccionamos 
-			// recambi.php?buscar = buquedaid=id
 			if (BProductos !== ''){
 				window.location.href = './'+adonde+'.php?buscar='+BProductos;
 			} else {
 				// volvemos sin mas..
 				return;
-				//~ window.location.href = './ListaRecambios.php';	
 			}
 			console.log('Resultado Buscar:'+BProductos);
 			break;
@@ -63,7 +60,37 @@ function metodoClick(pulsado,adonde){
 	 }
 } 
 
-
+function agregoCodBarrasVacio(contNuevo){
+	//ajax
+	// @ Objetivo
+	//agrego campo codigo barras vacio en html
+	
+	var parametros = {
+		"pulsado"    : 'HtmlCodigoBarrasVacio'
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Obteniendo html de codBarras vacio  ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de Obtener HTML linea de FUNCION -> agregoCodBarrasVacio');
+			
+			var resultado =  $.parseJSON(response);
+			var nuevafila = resultado['html'];
+			console.log(nuevafila);
+			
+			//$ signifca jQuery 
+			//$("#tabla").prepend(nuevafila);
+			
+			$("#tcodigo").prepend(nuevafila);
+			
+		}
+	});
+	
+}
 
 
 

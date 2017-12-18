@@ -6,107 +6,97 @@
         include './../../head.php';
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
-		if ($Usuario['estado'] === "Incorrecto"){
-			return;	
-		}
+		
 		
 		?>
 		<!-- Cargamos libreria control de teclado -->
-		
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		
 	</head>
 	<body>
 		<?php
         include './../../header.php';
-		// ===========  datos usuario segun id enviado por url============= //
-		$idTienda = $Usuario['idTienda'];
-		$tabla= 'usuarios'; // Tablas que voy utilizar.
-		$AtributoLogin = '';
-		$estados = array(); // Creo los estados de usuarios ( para select)
-		$estados[0]['valor'] = 'inactivo'; // Por defecto
-		$estados[1]['valor'] = 'activo';
-		// Obtenemos id
-		print_r($_GET);
+		// ===========  datos producto segun id enviado por url============= //
 		
+		$tabla= 'articulos'; // Tablas que voy utilizar.
+		$estadoInput = 'disabled'; //desactivado input de entrada 
 		
+		//idTienda, para ver producto de esa tienda.
+		$idTienda = $_SESSION['tiendaTpv']['idTienda'];
+		$contNuevoCodBarras=0; //nuevo contador codigo barras
+		//	print_r($_GET);
+		//	print_r($_SESSION['tiendaTpv']);
+			
 		if (isset($_GET['id'])) {
-			// Modificar Ficha Usuario
-			$id=$_GET['id']; // Obtenemos id para modificar.
-			$UsuarioUnico = verSelec($BDTpv,$id,$tabla);
-			$titulo = "Modificar Usuario";
-			$passwrd= 'password'; // Para mostrar ***** en password
-			if (isset($UsuarioUnico['error'])){
+			// Modificar Ficha Producto
+			$id=$_GET['id']; // Obtenemos id producto para modificar.
+			$idArticulo = $id;
+			$Producto = verSelec($BDTpv,$id,$tabla,$idTienda);	
+			$refTiendas = referenciasTiendas($BDTpv,$id);
+			$codigosBarras = codigosBarras($BDTpv,$id);
+			$familias = nombreFamilias($BDTpv,$idArticulo);
+			$titulo = "Modificar Producto";
+			
+			$tablas = array ('articulos' => array(
+								'idProveedor'	=> $Producto['idProveedor'],
+								'nombre' 		=> $Producto['articulo_name'],	
+								'beneficio' 	=>  $Producto['beneficio'],
+								'costepromedio' => $Producto['costepromedio'],
+								'iva'			=> $Producto['iva'] // tengo que obtener array IVAS varios y uno SELECCIONADO
+								),
+							'artPrecios' => array (
+								'pvpCiva'		=> $Producto['pvpCiva'],
+								'pvpSiva'		=> $Producto['pvpSiva']
+								),
+							'artFamilias' => array(
+									'idFamilia'		=> $familias['idFamilia'],
+									'nombreFamilia' => $familias['familiaNombre']
+								),
+							'artCodBarras'	=> array(
+									'codigo' => $codigosBarras['codigos'][0]['codBarras']
+								)
+							//falta proveedor nombres e idproveedor
+							);
+			
+			
+		
+			$nombreproveedor = $Producto['razonsocial'];
+			
+		
+			
+			echo '<pre>';
+			print_r($tablas);
+			echo '</pre>';
+			
+			
+			
+			if (isset($Producto['error'])){
 				$error='NOCONTINUAR';
 				$tipomensaje= "danger";
-				$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$UsuarioUnico['consulta'];
+				$mensaje = "Id de producto incorrecto ( ver get) <br/>".$Producto['consulta'];
 			} else {
 				// Cambiamos atributo de login para que no pueda modificarlo.
 				$AtributoLogin='readonly';
 				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
 				if (count($_POST) ===0){
-				echo 'Entoro';
-				$i = 0;
-					foreach ($estados as $estado){
-						if ($UsuarioUnico['estado'] == $estado['valor']){
-						$estados[$i]['porDefecto'] = "selected"; // Indicamos por defecto
-						}
-					$i++;
-					}
+					
+				
 				} 
 			}
 		} else {
-			// Creamos ficha Usuario.
-			$titulo = "Crear Usuario";
-			$UsuarioUnico = array();
-			$UsuarioUnico['fecha'] = date("Y-m-d");
-			$UsuarioUnico['group_id'] = 0;
-			$UsuarioUnico['password'] = '';
-			$UsuarioUnico['username'] = '';
-			$UsuarioUnico['nombre'] = '';
-			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
-			$UsuarioUnico['id']= '';
-			$passwrd= '';
+			// Creamos ficha Producto.
+			$titulo = "Crear Producto";
+			
 		}
 		
-		if (!isset($error)){
-			if(count($_POST)>0){
-				// Ya enviamos el formulario y gestionamos lo enviado.
-				$datos = $_POST;
-				if($titulo === "Crear Usuario"){
-					// Quiere decir que ya cubrimos los datos del usuario nuevo.
-					$resp = insertarUsuario($datos,$BDTpv,$idTienda,$tabla);
-					if (isset($resp['error'])){
-						$tipomensaje= "danger";
-						$mensaje = "Nombre de usuario ya existe!";
-					} else {
-						$tipomensaje= "info";
-						$mensaje = "Nuevo usuario creado.";
-					}
-				} else {
-					// Quiere decir que ya modificamos los datos del ficha del usuario
-					$UsuarioUnico['nombre'] =$datos['nombreEmpleado'];
-					
-					$resp = modificarUsuario($datos,$BDTpv,$tabla);
-					if (isset($resp['error'])){
-						// Error de usuario repetido...
-						$tipomensaje= "danger";
-						$mensaje = "Nombre de usuario ya existe!";
-					} else {
-						$tipomensaje= "info";
-						$mensaje = "Su registro de usuario fue editado.";
-					}
-				};
-			}
-		}
+		
 		
 		?>
      
 		<div class="container">
 				
 			<?php 
-			//~ echo '<pre>';
-			//~ print_r($UsuarioUnico);
-			//~ echo '</pre>';
+			
 			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
@@ -118,79 +108,151 @@
 			<?php
 			}
 			?>
-			<h1 class="text-center"> <?php echo $titulo;?></h1>
-			<a class="text-ritght" href="./ListaUsuarios.php">Volver Atrás</a>
+			<h2 class="text-center"> <?php echo $titulo;?></h2>
+			<a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
+			
 			<div class="col-md-12">
-				
-				<h3><?php echo $UsuarioUnico['nombre'];?></h3>
-				<div class="col-md-3">
-					<?php 
-					// UrlImagen
-					$img = './../../css/img/imgUsuario.png';
-					?>
-					<img src="<?php echo $img;?>" style="width:100%;">
-				</div>
-				<form action="" method="post" name="formUsuario">
-				<div class="col-md-9">
+				<div class="col-md-12">
 					<div class="Datos">
-						<div class="col-md-6 form-group">
-							<label>Nombre Usuario/login:</label>
-							<input type="text" id="username" name="username" <?php echo $AtributoLogin;?> placeholder="usuario/login" value="<?php echo $UsuarioUnico['username'];?>"   >
-							
+						<h3>Datos generales:</h3>
+						<div class="col-md-2 ">	
+							<label class="control-label " > Id:</label>
+							<input type="text" id="idProducto" name="idProducto" <?php echo $estadoInput;?> placeholder="id producto" value="<?php echo $idArticulo;?>"   >
 						</div>
-						<div class="col-md-6 form-group">
-							<label>Nombre empleado:</label>
-							<input type="text" id="nombreEmpleado" name="nombreEmpleado" placeholder="nombre empleado" value="<?php echo $UsuarioUnico['nombre'];?>" required  >
-							
+						<div class="col-md-4 ">	
+							<label class="control-label " > Nombre producto:</label>
+							<input type="text" id="nombre" name="nombre" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>"   >
 						</div>
-						<div class="col-md-6 form-group">
-							<label>Fecha creación:</label>
-							<input type="date" id="fecha" name="fecha" 
-							value="<?php echo $UsuarioUnico['fecha'];?>" readonly>							
+					
+						<div class="col-md-2 ">	
+							<label class="control-label " > Id proveedor:</label>
+							<input type="text" id="idproveedor" name="idproveedor" <?php echo $estadoInput;?> placeholder="idproveedor" value="<?php echo $Producto['idProveedor'];?>"   >
 						</div>
-						<div class="col-md-6 form-group">
-							<label>Id del usuario:</label>
-							<input type="text" id="idUsuario" name="idUsuario" value="<?php echo $UsuarioUnico['id'];?>"   readonly>
-							
-						</div>
-						<div class="col-md-6 form-group">
-							<label for="sel1">Grupo permisos:</label>
-							<select class="form-control" name="grupo" id="sel1">
-								<option value="<?php echo $UsuarioUnico['group_id'];?>" selected><?php echo $UsuarioUnico['group_id'];?></option>
-							</select>
-							
-						</div>
-						<div class="col-md-6 form-group">
-							<label for="sel1">Estado:</label>
-							<select class="form-control" name="estado" id="sel1">
-								<?php 
-								foreach ($estados as $estado){
-								?>
-									<option value="<?php echo $estado['valor'];?>" <?php echo (isset($estado['porDefecto']) ? $estado['porDefecto'] : '');?> >
-									<?php echo $estado['valor'];?>
-									</option>
-								<?php
-								}
-								?>
-								
-							</select>
-						</div>
-						<div class="col-md-6 form-group">
-							<label for="pwd">Contraseña:</label>
-							<input type="password" class="form-control" id="pwd" name="password" placeholder="contraseña" value="<?php echo $passwrd ;?>" required>
+						<div class="col-md-3 ">	
+							<label class="control-label " > Nombre proveedor:</label>
+							<input type="text" id="nombreproveedor" name="nombreproveedor" <?php echo $estadoInput;?> placeholder="nombreproveedor" value="<?php echo $nombreproveedor;?>"   >
 						</div>
 						
-						
+						<div class="col-md-2 ">	
+							<label class="control-label " > Coste:</label>
+							<input type="text" id="coste" name="coste" placeholder="coste" value="<?php echo round($Producto['costepromedio'],2).'€';?>"   >
+						</div>
+						<div class="col-md-2 ">	
+							<label class="control-label " > Beneficio:</label>
+							<input type="text" id="beneficio" name="beneficio" placeholder="beneficio" value="<?php echo $Producto['beneficio'].'%';?>"   >
+						</div>
+						<div class="col-md-2 ">	
+							<label class="control-label " > Iva:</label>
+							<input type="text" id="iva" name="iva" placeholder="iva" value="<?php echo  $Producto['iva'].'%';?>"   >
+						</div>
 					</div>
 					
 				</div>
-				<div class="col-md-12">
-					<input type="submit" value="Guardar">
-				
-				<div class="col-md-9">
-				</form>
-			</div>
+				<div class="col-md-6"> <!--precios-->
+					<h3>Precios:</h3>
+					<div class="col-sm-6 ">	
+						<label class="control-label " > Precio con Iva:</label>
+						<input type="text" id="pvpCiva" name="pvpCiva"   value="<?php echo round($Producto['pvpCiva'],2).'€';?>"   >
+					</div>
+					<div class="col-sm-6 ">	
+						<label class="control-label " > Precio con Iva:</label>
+						<input type="text" id="pvpSiva" name="pvpSiva"  value="<?php echo round($Producto['pvpSiva'],2).'€';?>"   >
+					</div>
+							
+				</div>
+				<div class="col-md-6"> <!--Familias-->
+					<h3>Familias:</h3>
+						<ol class="breadcrumb">
+						<?php 
+							$i=0;
+							foreach ($familias['familias'] as $familia){
+							?>
+							  <li><a><?php echo $familia['nombreFam'];?></a></li>
+							<?php
+								$i++;
+							}
+						?>
+						</ol>
+				</div>
+			</div> <!-- div 12-->
+			<div class="col-md-10"> <!--Tiendas--><!-- referencias por tiendas-->
+					<div class="col-md-8 ">
+						<h3>Referencias en las distintas tiendas:</h3>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>referencia</th>
+								<th>id virtuemart</th>
+								<th>id tienda</th>
+								<th>nombre tienda</th>
+								<th>precio con iva</th>
+								<th>estado</th>
+							</tr>
+						</thead>
+						<?php 
+						$icono ='';
+						foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
+							if ($refeTienda['tipoTienda'] === 'web'){
+								$icono = '<span class="glyphicon glyphicon-globe"></span>';
+							}
+						?>
+						<tr>
+							<td><?php echo $refeTienda['cref']; ?></td>
+							<td><?php echo $refeTienda['idVirtu']; ?></td>
+							<td><?php echo $refeTienda['idTienda']; ?></td>
+							<td><?php echo $refeTienda['nombreTienda']; echo ' '.$icono; ?></td>
+							<td><?php echo $refeTienda['pvpCiva']; ?></td>
+							<td><?php echo $refeTienda['estado']; ?></td>
+						</tr>
+						<?php
+						}
+						?>
+					</table>
+					</div> <!-- div contiene tabla-->
+					
+					<div class="col-md-3 text-center">
+						<h3>Codigos de Barras:</h3>
+						<?php 
+						$contNuevo = $contNuevoCodBarras+1;
+						?>
+					<table id="tcodigo" class="table table-striped">
+						<thead>
+							<tr>
+								<th>Codigos Barras</th> 
+								<th><a id="agregar" class="glyphicon glyphicon-plus" onclick="agregoCodBarrasVacio(<?php echo $contNuevo; ?>)"></a></th>								
+							</tr>
+							
+						</thead>
+						
+						<?php 
+						
+						//si  no hay codigoBarras no hay nada que recorrer
+						if ($codigosBarras['codigos']===''){
+							$codBarras='No hay codigos'; ?>
+							<tr>
+								<td><input type="text" id="codBarras" name="codBarras" <?php echo $estadoInput;?> value="<?php echo $codBarras;?>"   ></td>
+							</tr>
+						<?php	
+						} else {
+							$contExiste=0;
 			
-		</div>
+							foreach ($codigosBarras['codigos'] as $key =>$codigo){ 
+							
+							?>
+							<tr id="Existe<?php echo $contExiste+1;?>">
+								<td><input type="text" id="codBarras" name="codBarras" <?php echo $estadoInput;?> value="<?php echo $codigo['codBarras'];?>"   ></td>
+								<td><span class="glyphicon glyphicon-trash"></span></td>
+							</tr>
+							<?php
+							$contExiste++;
+							}
+						}
+						?>
+						
+					</table>
+					
+				</div>
+				
+		</div> <!-- container-->
 	</body>
 </html>

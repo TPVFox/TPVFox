@@ -27,96 +27,173 @@ function obtenerProductos($BDTpv,$filtro) {
 }
 
 //ver seleccionado en check listado en vista producto
-//~ function verSelec($BDTpv,$idUser,$tabla){
-	//~ // Obtener datos de un id de usuario.
-	//~ $where = 'u.id = '.$idUser. ' and i.idUsuario ='.$idUser;
-	//~ $consulta = 'SELECT u.*,i.numticket,i.tempticket FROM '. $tabla.' as u, indices as i WHERE '.$where;
-	//~ $unaOpc = $BDTpv->query($consulta);
-	//~ if (mysqli_error($BDTpv)) {
-		//~ $fila['error'] = 'Error en la consultar'.$BDTpv->errno;
-	//~ } else {
-		//~ if ($unaOpc->num_rows > 0){
-			//~ $fila = $unaOpc->fetch_assoc();
-		//~ } else {
-			//~ $fila['error']= ' No se a encontrado usuario';
-		//~ }
-	//~ }
-	//~ $fila['Nrow']= $unaOpc->num_rows;
-	//~ $fila['consulta'] = $consulta;
-	//~ return $fila ;
-//~ }
+function verSelec($BDTpv,$idProducto,$tabla,$idTienda){
+	// Obtener datos de un id de producto.
+	//PARAMETROS:
+	//idProducto , id seleccionado en listaProductos es idArticulo en bbdd
+	//tabla es articulos,	articulosPrecios
+	//devolvemos :
+	//todos los datos de las 2 tablas: articulos y articulosPrecios
+	//razonsocial del proveedor de ese producto, 
+		//si no existe proveedor le indicamos que 'No existe'
+	$sqlProveedor=array();
+	$consulta = 'SELECT a.*, prec.* FROM '. $tabla.' as a '
+			.'  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
+			.'  WHERE a.idArticulo ='.$idProducto.' AND '
+			.'  prec.idArticulo='.$idProducto.' AND prec.idTienda= '.$idTienda;
+	$fila= array();
+	$unaOpc = $BDTpv->query($consulta);
+	if (mysqli_error($BDTpv)) {
+		$fila['error'] = 'Error en la consultar'.$BDTpv->errno;
+	} else {
+		if ($unaOpc->num_rows > 0){
+			$fila = $unaOpc->fetch_assoc();
+			if ($fila['idProveedor'] == 0){
+				$fila['razonsocial'] = 'No existe';	
+			} else { //coger razonsocial proveedor
+				$sqlProveedor = 'SELECT razonsocial FROM proveedores WHERE idProveedor='.$fila['idProveedor'];
+				$res = $BDTpv->query($sqlProveedor);
+				if (mysqli_error($BDTpv)) {
+					$fila['error2'] = 'Error en la consulta nombre proveedor'.$BDTpv->errno;
+				} else {
+					if ($res->num_rows > 0){
+						$fila['razonsocial'] = $res->fetch_assoc();
+					}					
+				}
+			}
+		} else {
+			$fila['error']= ' No se a encontrado producto';
+		}
+	}
+	$fila['Nrow']= $unaOpc->num_rows;
+	$fila['sql']=$sqlProveedor;
+	$fila['consulta'] = $consulta;
+	return $fila ;
+	
+}
 
-//~ function insertarUsuario($datos,$BDTpv,$idTienda,$tabla){
-	//~ $resultado = array();
-	//~ //campos modificables : username, nombreEmpleado, contraseña
-	//~ //
-	//~ $username = $datos['username'];  //conseguir todos los nombres de la tabla, recorrerlos y comprobar q no existe
-	//~ $nombreEmpleado =$datos['nombreEmpleado'];
-	//~ $fecha = $datos['fecha'];
-	//~ $passwrd = md5($datos['password']); //encripto psw para crear
+
+function referenciasTiendas($BDTpv,$idArticulo){
+	//idArticulo
+	//tablas a consultar
+	// articulosTiendas, 	articulosPrecios,	tiendas
+	//Objetivo:
+		//devolver array con datos ['ref']
+		//idTienda,		crefTienda,		idVirtuemart,	estado
+		//razonsocial de la tienda
+		//pvpCiva, 		y 	tipoTienda
 	
-	//~ $idUsuario =$datos['idUsuario'];
-	//~ $grupoid=$datos['grupo'];
-	//~ $estado = $datos['estado'];
 	
-	//~ //comprobar que username NO EXISTE al crear un nuevo usuario
-	//~ $buscarUsuario = 'SELECT * FROM usuarios WHERE username= "'.$username.'"';
-	//~ $res = $BDTpv->query($buscarUsuario);
-	//~ $numUser = mysqli_num_rows($res); //num usuarios que existen con ese nombre
-	//~ if (($numUser === 1) || ($username === '')){
-		//~ $resultado['error'] = 'error';
+	$resultado=array();
+	$consulta = 'SELECT ati.*, prec.pvpCiva,  t.tipoTienda FROM `articulosTiendas` as ati '
+			.' LEFT JOIN articulosPrecios as prec ON prec.idTienda = ati.idTienda '
+			.' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
+			.' WHERE  ati.idArticulo= '.$idArticulo.' GROUP BY prec.idTienda';
+	
+	
+	//consulta de articulosTiendas, referencias
+	$resp = $BDTpv->query($consulta);
+	if ($resp->num_rows > 0) {
+		$i= 0;
+		while($filaReferencias = $resp->fetch_assoc()) {
+			$resultado['ref'][$i]['idTienda']=$filaReferencias['idTienda'];
+			$resultado['ref'][$i]['cref']=$filaReferencias['crefTienda'];
+			$resultado['ref'][$i]['idVirtu']=$filaReferencias['idVirtuemart'];			
+			$resultado['ref'][$i]['estado']=$filaReferencias['estado'];
 		
-	//~ } else {
-		//~ $consulta = 'INSERT INTO '.$tabla.'( username, password, fecha, group_id, estado, nombre ) VALUES ("'
-			//~ .$username.'" , "'.$passwrd.'" , "'.$fecha.'" , '.$grupoid.' , "'.$estado.'" , "'.$nombreEmpleado.'")';
-		//~ $BDTpv->query($consulta);
-		//~ $resultado['id'] = $BDTpv->insert_id;
-		//~ // Ahora creamos las claves indices de este usuario para esta tienda.
-		//~ $InsertSlq= 'INSERT INTO `indices`(`idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES ('.$idTienda.','.$resultado['id'].',0,0)';
-		//~ $BDTpv->query($InsertSlq);
-		//~ if (mysqli_error($BDTpv)) {
-		//~ $resultado['error'] = 'Error que nunca debería suceder'.$BDTpv->errno;
-		//~ } 
-	//~ }
-	//$resultado['consulta'] =$InsertSlq;
-	//~ return $resultado;
-//~ }
+			$nombretienda=NombreTienda($BDTpv,$filaReferencias['idTienda']);
+			$resultado['ref'][$i]['nombreTienda']= $nombretienda['razonsocial'];
+			$resultado['ref'][$i]['pvpCiva']=$filaReferencias['pvpCiva'];
+			$resultado['ref'][$i]['tipoTienda']= $filaReferencias['tipoTienda'];
+			$i++;
+		}
+	}
+	
+	$resultado['consulta']=$consulta;
+	return $resultado ;
+}
+
+function codigosBarras($BDTpv,$idArticulo){
+	//idArticulo
+	//tablas a consultar
+	//articulosCodigoBarras
+	//por ultimo tambien devolvemos:
+		//codBarras de ese articulo
+	$resultado=array();
+	$sqlCodBarras = 'SELECT * FROM articulosCodigoBarras WHERE idArticulo='.$idArticulo;
+	$resBarras= $BDTpv->query($sqlCodBarras);
+	if ($resBarras->num_rows>0){
+		$x=0;
+		while($fila =$resBarras->fetch_assoc()){
+			$resultado['codigos'][$x]['codBarras'] = $fila['codBarras'];
+			$x++;
+		}
+	} else{
+		//no hay codigos de barras
+		$resultado['codigos']='';
+	}
+	$resultado['sqlBarras']=$sqlCodBarras;
+	return $resultado ;
+}
 
 
-//parametros: 
-//datos array de post 
-//BDTpv conexion bbdd tpv
-//tabla en la que trabajar usuarios
-//idSelecc , usuario concreto a modificar , check seleccionado en listaUsuarios
-//~ function modificarUsuario($datos,$BDTpv,$tabla){
-	//echo 'modificar usuario';
-	//~ $resultado = array();
-	//~ $username = $datos['username'];  //conseguir todos los nombres de la tabla, recorrerlos y comprobar q no existe
-	//~ $nombre =$datos['nombreEmpleado'];
-	//~ $fecha = $datos['fecha'];		//NO SE MODIFICA es la de alta
-	
-	//~ $passwrd = md5($datos['password']); //encripto psw para crear
-	
-	//~ $idUsuario =$datos['idUsuario']; //NO SE MODIFICA autonumerica
-	//~ $grupoid=$datos['grupo'];
-	//~ $estado = $datos['estado'];
-	//~ $id =$datos['idUsuario'];
-	
-	//~ if ($datos['password'] === 'password'){ //username NO se podra MODIFICAR
-		//~ //no actualizar contraseña, actualizamos 3 campos : estado, nombre y grupo id. 
-		//~ $sql ='UPDATE '.$tabla.' SET group_id ='.$grupoid.' , estado = "'
-			//~ .$estado.'" , nombre ="'.$nombre.'" WHERE id='.$idUsuario;
-	//~ } else { //actualimos 4 campos, password, username, estado, nombre y grupo id.
-		//~ $sql ='UPDATE '.$tabla.' SET group_id ='.$grupoid.' , estado = "'
-			//~ .$estado.'" , password ="'.$passwrd.'" , nombre ="'.$nombre.'" WHERE id='.$idUsuario;
-	//~ }
-	
-	//~ $consulta = $BDTpv->query($sql);
-	
-	//~ //$resultado['consulta'] =$sql;
-	//~ $resultado['consulta'] =$consulta;
+function NombreTienda($BDTpv,$idTienda){
+	//idTienda 
+	//objetivo:
+		//devolver nombre de la tienda del idTienda.
+	$consulta = 'SELECT * FROM tiendas WHERE idTienda = '.$idTienda;
+	$unaOpc = $BDTpv->query($consulta);
+	if (mysqli_error($BDTpv)) {
+		$fila['error'] = 'Error en la consultar'.$BDTpv->errno;
+	} else {
+		if ($unaOpc->num_rows > 0){
+			$fila = $unaOpc->fetch_assoc();
+		} else {
+			$fila['error']= ' No se a encontrado nombre de tienda';
+		}
+	}
+	$fila['Nrow']= $unaOpc->num_rows;
+	$fila['consulta'] = $consulta;
+	return $fila ;
+}
 
-	//~ return $resultado;
-//~ }
+function nombreFamilias($BDTpv,$idArticulo){
+	//idArticulo  
+	// tablas a consultar: familias y articulosFamilias
+	//objetivo
+		//conseguir el nombre de las familias de ese articulo.
+	$consulta= 'SELECT f.*, artfam.* FROM `familias` as f '
+			.' LEFT JOIN articulosFamilias as artfam ON f.idFamilia = artfam.idFamilia '
+			.' WHERE artfam.idArticulo= '.$idArticulo;
+			
+	$unaOpc = $BDTpv->query($consulta);
+	if (mysqli_error($BDTpv)) {
+		$fila['error'] = 'Error en la consultar'.$BDTpv->errno;
+	} else {
+		if ($unaOpc->num_rows > 0){
+			$i=0;
+			while($res = $unaOpc->fetch_assoc()){
+				$fila['familias'][$i]['nombreFam']=$res['familiaNombre'];
+				$i++;
+			}
+		} else {
+			$fila['error']= ' No se a encontrado nombre de familia';
+		}
+	}
+	$fila['Nrow']= $unaOpc->num_rows;
+	$fila['consulta'] = $consulta;
+	return $fila ;
+}
+
+function htmlCodigoBarrasVacio(){
+	//creo caja de codigo de barras vacia
+	$nuevaFila = '<tr>';
+	$nuevaFila .= '<td><input type="text" id="codBarras" name="codBarras" value=""></td>';
+	$nuevaFila .= '<td><span class="glyphicon glyphicon-trash"></span></td>'; 		
+	$nuevaFila .= '</tr>';
+	
+	return $nuevaFila;
+}
+
 
 ?>

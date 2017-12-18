@@ -120,9 +120,10 @@
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php 
-					//~ <li><a href="#section1" onclick="metodoClick('AgregarProducto','producto');";>Añadir</a></li>
-					//~ <li><a href="#section2" onclick="metodoClick('VerProducto','producto');";>Modificar</a></li>
-				?><?php		//metodoClick js case pulsado 
+					//<li><a href="#section1" onclick="metodoClick('AgregarProducto','producto');";>Añadir</a></li>
+				?>
+					<li><a href="#section2" onclick="metodoClick('VerProducto','producto');";>Modificar</a></li>
+				<?php		//metodoClick js case pulsado 
 								//agregarUsuario nos lleva a formulario usuario
 								//verUsuario si esta checkado nos lleva vista usuario de ese id
 											//si NO nos indica que tenemos que elegir uno de la lista ?>
