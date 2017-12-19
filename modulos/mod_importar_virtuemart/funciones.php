@@ -598,7 +598,7 @@ function ObtenerDiferencias($Productos,$IdVirt){
 					$Producto_web[$precio] = number_format($Producto_web[$precio],2);
 				}
 				// Obtenemos solo las claves de las diferencias.
-				$diff = array_diff($Producto_tpv, $Producto_web);
+				$diff = array_diff_assoc($Producto_tpv, $Producto_web);
 				// [ DESCARTAMOS LO INNECESARIOS]
 				if (isset($diff['fecha_modificado']) && count($diff)===1){
 					// Lo elimino ya que solo hay diferencia de modificacion.
@@ -611,6 +611,8 @@ function ObtenerDiferencias($Productos,$IdVirt){
 				 $diferencia[$i]['Servidor'] = $producto;
 				 $diferencia[$i]['Tpv'] = $Productos['Tpv'][$array_search];
 				 $diferencia[$i]['tipo'] = 'Modificado';
+				 //~ $diferencia[$i]['NuevoDiferencia'] = array_diff_assoc($Producto_tpv,$Producto_web);
+
 				 $i++;
 				}
 			
@@ -740,6 +742,7 @@ function ComprobarDiferencias($diferencias,$producto_web,$producto_tpv){
 	}elseif ( $dedonde === 'web'){
 		$producto = $producto_web;
 	}
+	// Recorremos los campos que tenemos diferencias y ponemos el valor mas actualizado
 	foreach ($nueva_diferencia as $nombre => $valor){
 		$diferencias[$nombre] =$producto[$nombre];
 	}
@@ -781,7 +784,7 @@ function UpdateUnProductoTpv($BDTpv,$DiferenciasComprobadas,$tienda_export,$tien
 	}
 	// Creamos UPDATE para cambiar estado en tabla precios.
 	// Lo mismo que los anteriores punto habría que tener en cuenta tema configuraciones... 
-	if (isset($DiferenciasComprobadas['pvpCiva'])){
+	if (isset($DiferenciasComprobadas['pvpCiva']) || isset($DiferenciasComprobadas['pvpSiva'])){
 		$Sql['2'] = 'UPDATE `articulosPrecios` SET pvpCiva = "'.$DiferenciasComprobadas['pvpCiva'].'",'.
 					'pvpSiva="'.$DiferenciasComprobadas['pvpSiva'].'" WHERE idArticulo='.$DiferenciasComprobadas['idArticulo'];
 		

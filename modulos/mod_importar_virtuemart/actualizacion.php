@@ -81,6 +81,10 @@ $Cont_Nuevo = 0; // Nuevo en web
 $Cont_Modificado = 0; // Modificado
 $Cont_Eliminado_web =0 ; // Eliminado en web
 $Cont_Nuevo_tpv = 0; // Nuevo en la web
+//~ echo '<pre>';
+//~ print_r($diferencias);
+//~ echo '</pre>';
+
 echo '<script type="application/javascript">';
 ?>
 	// Variable globales javascritp
