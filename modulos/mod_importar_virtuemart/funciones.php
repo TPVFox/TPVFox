@@ -785,9 +785,17 @@ function UpdateUnProductoTpv($BDTpv,$DiferenciasComprobadas,$tienda_export,$tien
 	// Creamos UPDATE para cambiar estado en tabla precios.
 	// Lo mismo que los anteriores punto habría que tener en cuenta tema configuraciones... 
 	if (isset($DiferenciasComprobadas['pvpCiva']) || isset($DiferenciasComprobadas['pvpSiva'])){
-		$Sql['2'] = 'UPDATE `articulosPrecios` SET pvpCiva = "'.$DiferenciasComprobadas['pvpCiva'].'",'.
-					'pvpSiva="'.$DiferenciasComprobadas['pvpSiva'].'" WHERE idArticulo='.$DiferenciasComprobadas['idArticulo'];
-		
+		$Sql['2'] = 'UPDATE `articulosPrecios` SET ';
+		$coma = '';
+		if (isset($DiferenciasComprobadas['pvpCiva'])){
+			// Quiere decir que existe diferencia por lo añadimos 
+			$Sql['2'] .= 'pvpCiva = "'.$DiferenciasComprobadas['pvpCiva'].'"';
+			$coma =',';
+		}
+		if (isset($DiferenciasComprobadas['pvpSiva'])){
+			$Sql['2'] .= $coma.' pvpSiva="'.$DiferenciasComprobadas['pvpSiva'].'"';
+		}
+		$Sql['2'] .=  ' WHERE idArticulo='.$DiferenciasComprobadas['idArticulo'];
 	}
 	// Ahora ejecutamos sentencias Sql
 	foreach ($Sql as $consulta){
