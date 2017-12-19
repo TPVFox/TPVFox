@@ -28,13 +28,7 @@
 										'id' => 'dominio'
 									),
 									'1' => array( 
-										'id' => 'nom_bases_datos'
-									),
-									'2' => array( 
-										'id' => 'nom_usuario_base_datos'
-									),
-									'3' => array( 
-										'id' => 'prefijoBD'
+										'id' => 'key_api'
 									)
 								),
 						'principal' => array( // Tienda que utilizamos.
@@ -135,7 +129,7 @@
 				} else {
 					echo '<pre>';
 					echo ' Despues de consulta';
-					print_r($resp);
+					print_r($datos);
 					echo '</pre>';
 					$tipomensaje= "info";
 					$mensaje = "Modificada correctamente la tienda.";
@@ -384,16 +378,8 @@
 									<input type="text"  id="dominio" name="dominio" placeholder="dominio.com" value="<?php echo $TiendaUnica['dominio'];?>" >
 								</div>
 								<div class="form-group">
-									<label>Base Datos:(<span title="Nombre bases datos">*</span>)</label>
-									<input type="text" id="nom_bases_datos" name="nom_bases_datos" placeholder="name_basedatos" value="<?php echo $TiendaUnica['nom_bases_datos'];?>" >
-								</div>
-								<div class="form-group">
-									<label>Usuario:(<span title="Nombre Usuario">*</span>)</label>
-									<input type="text" id ="nom_usuario_base_datos" name="nom_usuario_base_datos" placeholder="user_name" value="<?php echo $TiendaUnica['nom_usuario_base_datos'];?>" >
-								</div>
-								<div class="form-group">
-									<label>Prefijo:(<span title="Prefijo tablas Joomla">*</span>)</label>
-									<input type="text" id="prefijoBD" name="prefijoBD" placeholder="_mxjrs" value="<?php echo $TiendaUnica['prefijoBD'];?>" >
+									<label>Key Api:(<span title="Key Api Plugin Joomla">*</span>)</label>
+									<input type="text" id="key_api" name="key_api" value="<?php echo $TiendaUnica['key_api'];?>" >
 								</div>
 							</div>
 							<div class="mostrar_principal" <?php echo $tiposTiendas[2]['display'] ?>>
