@@ -667,7 +667,7 @@ function metodoClick(pulsado){
 				return
 			}
 				
-			window.location.href = './ticketCerrado.php?id='+checkID[0];
+			window.location.href = './ticketCobrado.php?id='+checkID[0];
 			break;
 		
 		case 'imprimirTicket':

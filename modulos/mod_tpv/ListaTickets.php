@@ -1,3 +1,15 @@
+<?php 
+/*
+ * @Objetivo es mostrar listado de ticket.
+ * Pueden ser cobrados o cerrados según de donde se ejecute.
+ * Get 
+ * 		'tickets->
+ * 				Cerrados -> Estos son los ticket ya se hizo cierre.
+ * 				Cobrados -> Estos son los tickets cobrados.
+ * */
+?>
+
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -6,96 +18,102 @@
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
-	
-	
-	
+	// Creamos objeto controlado comun, para obtener numero de registros. 
+	$Controler = new ControladorComun; 
+			
 	//INICIALIZAMOS variables para el plugin de paginado:
-	//$PgActual = 1 por defecto
-	//$CantidadRegistros , usamos la funcion contarRegistro de la class controladorComun /controllers/Controladores  
-	//$LimitePagina = 40 o los que queramos
-	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
-	//$OtrosParametros
+	$mensaje_error = array();
+	$campos = array();
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
-	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-	
-	if (isset($_GET['pagina'])) {
-		$PgActual = $_GET['pagina'];
-	}
-	if (isset($_GET['buscar'])) {
-		//recibo un string con 1 o mas palabras
-		$stringPalabras = $_GET['buscar'];
-		$palabraBuscar = explode(' ',$_GET['buscar']); 
-	} 
-	
-	
-	// Creamos objeto controlado comun, para obtener numero de registros. 
-	//parametro necesario para plugin de paginacion
-	//funcion contarRegistro necesita:
-	//$BDTpv 
-	//$vista --> es la tabla en la que trabajamos
-	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
-	
-	$Controler = new ControladorComun; 
-	$usuario = $_SESSION['usuarioTpv']['id']; //para consultar por usuario tickets cobrados
 	$vista = 'ticketst';
 	$LinkBase = './ListaTickets.php?';
 	$OtrosParametros = '';
-	
-	$paginasMulti = $PgActual-1;
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
-	} else {
-		$desde = 0;
-	}
-	// Realizamos consulta MONTAMOS WHERE 
-	//si tiene palabras , busca por formaPago, por Numticket y por nombreCliente
-	if ($stringPalabras !== '' ){
-		$campoBD='formaPago';
-		$campo2BD = 'Numticket';
-		$campo3BD = 'Nombre'; //nombre cliente
-		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD,$campo3BD);
-		$filtro=$WhereLimite['filtro'];
+	$desde = 0;
+	$sufijo = '';
+	$prefijo = '';
+	$estado_ticket  = '';
+	$htmlPG = '';
+	// Obtenemos datos si hay GET y cambiamos valores por defecto.
+	if (count($_GET)>0 ){
+		// Quiere decir que hay algún get
+		if (isset($_GET['estado'])){
+			$estado_ticket = $_GET['estado']; // Este va indicar si filtramos por algun estado.
+		}
+		if (isset($_GET['pagina'])) {
+			// En que pagina estamos.
+			$PgActual = $_GET['pagina'];
+		}
+		if (isset($_GET['buscar'])) {
+			//recibo un string con 1 o mas palabras
+			$stringPalabras = $_GET['buscar'];
+			$palabraBuscar = explode(' ',$_GET['buscar']); 
+			// Montamos array de campos
+			$campos = array (
+				'0' => array(
+					'nombre_campo'		=> 'formaPago',
+					'tipo_comparador'	=> 'LIKE'
+				),
+				'1' => array(
+					'nombre_campo'		=> 'Numticket',
+					'tipo_comparador'	=> 'LIKE'
+				),
+				'2' => array(
+					'nombre_campo'		=> 'Nombre',//nombre cliente
+					'tipo_comparador'	=> 'LIKE'
+				)
+			);
+			// Enviamos desde donde buscamos.
+			$desde = (($PgActual-1) * $LimitePagina); 
+		}
 		
-		$OtrosParametros=$stringPalabras;
 	}
 	
-	//~ //filtro necesario para contarRegistros , solo lee sobre una tabla, ticketst 
-	//~ if ($filtro !== '') {
-		//~ $mostrarPorIdUser = ' AND `idUsuario` = '.$usuario;
-		//~ $filtro = $filtro.$mostrarPorIdUser;
-	//~ } else {
-		//~ $filtro = ' WHERE `idUsuario` = '.$usuario;
-	//~ }
-	
-	
-	
-	//OTRA BUSQUEDA para CONTAR Registros 
-	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	
-	//echo $CantidadRegistros;
-	//si buscamos 'meson' , cantidadRegistros sera NULL, porque contarRegistros consulta 1 tabla,
-	// y nosotros para obtener los datos consultamos 3 tablas.
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-
-	//BUSQUEDA PARA OBTENER DATOS Y MOSTRARLOS
-	//si hay palabras se monta WHERE con idUser=usuario logueado
-	if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$mostrarPorIdUser.$WhereLimite['rango'];
-		
-	} else { //si no hay busqueda, se muestra por usuario logueado
-		//~ $filtro= " WHERE `idUsuario`= ".$usuario." LIMIT ".$LimitePagina." OFFSET ".$desde;
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+	$OtrosParametros=$stringPalabras;	// Lo necesitamos en paginacion.
+			
+	if ($estado_ticket !== ''){
+		$prefijo = 'estado="'.$estado_ticket.'" ';
+		$OtrosParametros .= '&estado='.$estado_ticket; // Lo necesitamos en paginado.
 
 	}
-	$tickets = obtenerTickets($BDTpv,$filtro);
+	if ($stringPalabras != ''){
+		$prefijo .= ' AND  '; 
+	}
+	// Creamos filtro para contar.	
+	$filtroContar = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
+	// Contamos Registros.	
+	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtroContar);
 	//~ echo '<pre>';
-	//~ print_r($tickets);
+	//~ print_r($CantidadRegistros);
 	//~ echo '</pre>';
+	if (gettype($CantidadRegistros) !== 'integer'){
+		// Quiere decir que hubo un error en la consulta.
+		$mensaje_error = ' Algo salio mal en la primera consulta... ';
+	}
+	
+	// Obtenemos paginación si $CantidadRegistros es mayo al Limite
+	if ( $CantidadRegistros > $LimitePagina){
+		$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+	}
+	if ($desde > 0 ){
+		// Montamos $sufijo...
+		$sufijo = ' LIMIT '.$LimitePagina.' OFFSET '.$desde;
+	}
+	if ($estado_ticket !== ''){
+		$prefijo = 't.estado ="'.$estado_ticket.'" ';
+	}
+	if ($stringPalabras != ''){
+		$prefijo .= ' AND  '; 
+	}
+	
+	// Creamos filtro pero con sufijo para mostrar solo los registros de la pagina.
+	$filtro = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
+	
+	$tickets = obtenerTickets($BDTpv,$filtro);
+	
 	
 	//esta MAL // si la busqueda es menos de 40 lo siguiente es un apaño..
 	if (!isset($CantidadRegistros)){
@@ -123,9 +141,6 @@
         include './../../header.php';
         ?>
         <?php
-				//~ echo '<pre>';
-					//~ print_r($_SESSION['usuarioTpv']['id']);
-				//~ echo '</pre>';
 	//~ echo '<pre>';
 	//~ print_r($tickets);	
 	//~ echo '</pre>';
@@ -134,7 +149,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Tickets Cerrados y Cobrados </h2>
+					<h2> Tickets <?php echo $estado_ticket;?>s</h2>
 				</div>
 	        <!--=================  Sidebar -- Menu y filtro =============== 
 				Efecto de que permanezca fixo con Scroll , el problema es en
@@ -144,15 +159,11 @@
 			<nav class="col-sm-2" id="myScrollspy">
 				<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
 				<div data-offset-top="505">
-				<h4> Tickets cerrados</h4>
+				<h4> Tickets <?php echo $estado_ticket;?>s</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				 	<li><a href="#section1" onclick="metodoClick('VerTicket');";>Ver Ticket</a></li>
 				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
-				<?php		//metodoClick js case pulsado 
-								//agregarUsuario nos lleva a formulario usuario
-								//verUsuario si esta checkado nos lleva vista usuario de ese id
-											//si NO nos indica que tenemos que elegir uno de la lista ?>
 				</ul>
 				</div>	
 			</nav>
@@ -179,8 +190,10 @@
 						<form action="./ListaTickets.php" method="GET" name="formBuscar">
 							<div class="form-group ClaseBuscar">
 								<label>Buscar en Formas de pago, en Num Ticket y por Nombre Cliente.</label>
-								<input type="text" name="buscar" value="">
+								<input type="text" name="buscar" value="<?php echo $stringPalabras;?>">
+								<input type="hidden" name ="estado" value="<?php echo $estado_ticket;?>">
 								<input type="submit" value="buscar">
+								
 							</div>
 						</form>		
 					</div>		
@@ -190,10 +203,8 @@
 				<thead>
 					<tr>
 						<th title='Este es el id de ticketst, el mismo que idticketst de ticketstIva'>ID</th>
-						<th>Nº TICKET</th>
 						<th>FECHA</th>
-						<th>ID TIENDA</th>
-						<th>ID USUARIO</th>
+						<th>Nº TICKET (<a title="Recuerda que el numero ticket es IdTienda-IdUsuario-NºTicket">*</a>)</th>
 						<th>ID CLIENTE</th>
 						<th>NOMBRE CLIENTE</th>
 						<th>ESTADO</th>
@@ -207,7 +218,7 @@
 				$checkUser = 0;
 				//
 				$i=0;
-				foreach (array_reverse($tickets) as $ticket){ 
+				foreach ($tickets as $ticket){ 
 					$checkUser = $checkUser + 1; 
 				?>
 
@@ -215,21 +226,16 @@
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" 
 							value="<?php echo $ticket['id'];?>">
 					</td>
-					<td><?php echo $ticket['Numticket'];  ?></td>
 					<td><?php echo $ticket['Fecha']; ?></td>
-					<td><?php echo $ticket['idTienda']; ?></td>
-					<td><?php echo $ticket['idUsuario']; ?></td>
+					<td><?php echo $ticket['idTienda'].'-'.$ticket['idUsuario'].'-'.$ticket['Numticket']; ?></td>
 					<td><?php echo $ticket['idCliente']; ?></td>
 					<td><?php echo $ticket['Nombre']; ?></td>
-					
 					<td><?php echo $ticket['estado']; ?></td>
 					<td><?php echo $ticket['formaPago']; ?></td>
 					<td><?php echo $ticket['total']; ?></td>
 					<td><?php 
-					//~ if (isset($ticket['idCierre']['idCierre']) === false){
-						//~ $ticket['idCierre']['idCierre'] = 0;
-					//~ } 
-					echo (isset($ticket['idCierre']) ? $ticket['idCierre']['idCierre']:''); ?></td>
+						echo (isset($ticket['idCierre']) ? $ticket['idCierre']['idCierre']:''); ?>
+					</td>
 					
 				</tr>
 

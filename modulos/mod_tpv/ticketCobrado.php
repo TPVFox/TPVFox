@@ -44,7 +44,7 @@
 				}
 			}
 			
-			$titulo = "Tickets Cerrados";
+			$titulo = "Ticket Cobrado";
 			if (isset($datos['error'])){
 				$error='NOCONTINUAR';
 				$tipomensaje= "danger";

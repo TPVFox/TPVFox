@@ -86,9 +86,7 @@
 		// Ahora obtenemos el ticket abierto que estamos.
 		$ticket= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
 		// Si carga correctamente el ticket
-		//~ echo '<pre>';
-		//~ print_r($ticket);
-		//~ echo '</pre>';
+		
 		if (isset($ticket['estadoTicket'])){
 			$ticket_estado = $ticket['estadoTicket'];
 			if ($ticket_estado === 'Cobrado'){
@@ -176,7 +174,7 @@
 			<ul class="nav nav-pills nav-stacked">
 				<li><a href="tpv.php">Nuevo ticket</a></li>
 				<li><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></li>
-				<li><a href="ListaTickets.php">Tickets Cerrados</a></li>
+				<li><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></li>
 			</ul>
 		</div>
 		<div class="col-md-6">

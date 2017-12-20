@@ -51,7 +51,7 @@
 	//si hay palabras a buscar
 	if ($stringPalabras !== '' ){
 		$campoBD='idCierre';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD='',$campo3BD='');
+		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD='',$campo3BD='');
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
 	}
@@ -144,10 +144,9 @@
 					<tr>
 						<th></th>
 						<th>ID CIERRE</th>
-						<th>NOMBRE USUARIO</th>
-						<th>FECHA INICIAL</th>
-						<th>FECHA FINAL</th>
-						<th>FECHA CREACION </th>
+						<th>HIZO CIERRE</th>
+						<th>FECHA: INICIAL->FINAL</th>
+						<th>FECHA CIERRE </th>
 						<th>TOTAL</th>
 					</tr>
 				</thead>
@@ -165,9 +164,8 @@
 					</td>
 					<td><?php echo $cierre['idCierre']; ?></td>
 					<td><?php echo $cierre['nombreUsuario']; ?></td>					
-					<td><?php echo date($fecha_dmYHora, strtotime($cierre['FechaInicio'])); ?></td>
-					<td><?php echo date($fecha_dmYHora, strtotime($cierre['FechaFinal'])); ?></td>
-					<td><?php echo date($fecha_dmYHora, strtotime($cierre['FechaCreacion'])); ?></td>
+					<td><?php echo '<small>'.date($fecha_dmYHora, strtotime($cierre['FechaInicio'])).'</small><b>//</b><small>'.date($fecha_dmYHora, strtotime($cierre['FechaFinal'])).'</small>'; ?></td>
+					<td><?php echo $cierre['FechaCierre']; ?></td>
 					<td><?php echo number_format($cierre['Total'],2); ?></td>
 					
 				</tr>
@@ -178,6 +176,11 @@
 				?>
 				
 			</table>
+			<?php 
+			//~ echo '<pre>';
+			//~ print_r($cierres);
+			//~ echo '</pre>';
+			?>
 			</div>
 		</div>
 	</div>

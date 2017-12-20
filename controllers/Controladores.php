@@ -71,7 +71,7 @@ class ControladorComun
 		 * */
 		// Funcion para contar registros de una tabla.
 		$array = array();
-		$consulta = "SELECT * FROM ". $nombretabla.$whereC;
+		$consulta = "SELECT * FROM ". $nombretabla.' '.$whereC;
 		$consultaContador = $BD->query($consulta);
 		if ($BD->query($consulta)) {
 			$array['NItems'] = $consultaContador->num_rows;
@@ -82,61 +82,113 @@ class ControladorComun
 		}
 		$array['sql']=$consulta;
 		return $array['NItems'];
-		// return $array;
+		//~ return $array;
 	}
 	
 	
-	function paginacionFiltroBuscar($BD,$filtro,$LimitePagina,$desde,$campoBD,$campo2BD='',$campo3BD=''){
-	//HARIA funcion para no repetir codigo de paginacion y campo busqueeda
-	//le pasaria $campoBD para likes de palabras
-	//aqui se monta el limite de paginas y el explode de palabras 
-	//PARAMETROS:
-		//filtro == palabras a buscar
-		//limitePagina = 40 ejemplo
-		//desde = 0 inicialmente
-		//campoBD = campos de bbdd , ej. articulo_name
-		//campo2BD = segundo campo de bbdd a buscar
-	//DEVUELVO: 
-		//un array['rango']=limit 40  
-				//['filtro'] =Where likes
-	$resultado = array();
-	$buscar='';
-	$rango= '';
-	$filtroFinal='';
-	//si existe filtro, palabras a buscar
-	//con implode creo un array de palabras para buscarlas por like
-	if ($filtro !== ''){
-		$palabras=array();
-	
-		$palabras = explode(' ',$filtro); // array de varias palabras, si las hay..
-		//para buscar por palabras separadas
-		foreach($palabras as $palabra){
-			if ($campo2BD !== ''){
-				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" ';
-			} else {
-				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" ';
+	function paginacionFiltroBuscar($filtro,$LimitePagina,$desde,$campoBD,$campo2BD='',$campo3BD=''){
+		//HARIA funcion para no repetir codigo de paginacion y campo busqueeda
+		//le pasaria $campoBD para likes de palabras
+		//aqui se monta el limite de paginas y el explode de palabras 
+		//PARAMETROS:
+			//filtro == palabras a buscar
+			//limitePagina = 40 ejemplo
+			//desde = 0 inicialmente
+			//campoBD = campos de bbdd , ej. articulo_name
+			//campo2BD = segundo campo de bbdd a buscar
+		//DEVUELVO: 
+			//un array['rango']=limit 40  
+					//['filtro'] =Where likes
+		$resultado = array();
+		$buscar='';
+		$rango= '';
+		$filtroFinal='';
+		//si existe filtro, palabras a buscar
+		//con implode creo un array de palabras para buscarlas por like
+		if ($filtro !== ''){
+			$palabras=array();
+		
+			$palabras = explode(' ',$filtro); // array de varias palabras, si las hay..
+			//para buscar por palabras separadas
+			foreach($palabras as $palabra){
+				if ($campo2BD !== ''){
+					$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" ';
+				} else {
+					$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" ';
+				}
+				if ($campo3BD !== '') {
+					$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" or `'.$campo3BD.'` LIKE "%'.$palabra.'%" ';
+					
+				}
 			}
-			if ($campo3BD !== '') {
-				$likes[] =  '`'.$campoBD.'` LIKE "%'.$palabra.'%" or `'.$campo2BD.'` LIKE "%'.$palabra.'%" or `'.$campo3BD.'` LIKE "%'.$palabra.'%" ';
-				
+			$buscar = implode(' and ',$likes).')';
+			$filtroFinal = ' WHERE ('.$buscar;
+			
+		}	
+		if ($LimitePagina > 0 ){
+			$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		}
+		// datos a devolver serian string $rango, string $filtroFinal
+		//fin de paginacion parametros necesarios y de campo de busqueda
+		$resultado['rango']=$rango;
+		$resultado['filtro']=$filtroFinal;
+		
+		return $resultado;
+	}
+	function paginacionFiltro($Array_campos,$filtro,$prefijo,$sufijo){
+		/* @ Objetivo:
+		 * Montar le where para hacer consultas y utilizar paginacion.
+		 * Este where puede montarse con likes o con = , depende de los que necesitemos
+		 * aparte tambien devolvemos el rango si fuera necesarios.
+		 * @ Parametros:
+		 * 		$Array_campos : Arrays de Array
+		 * 					[0] (
+		 * 						'nombre_campo' 		=> nombre del campo...
+		 * 						'tipo_comparador' 	=> '=' Valor ( puede ser 'LIKE' o '=' 
+		 * 					)
+		 * 					[1] (
+		 * 						'nombre_campo'=> 
+		 * 						'tipo_comparador' => 
+		 * 						)
+		 * 		$filtro  : String , que puede contener varias palabras separadas por espacio.
+		 * 		$prefijo : String que ponemos en justo despues de where.
+		 * 		$sufijo  : String que ponermos al final del string que devolvemos.
+ 		 * NOTA IMPORTANTES: Es obligatorio todos los parametros, si no quiere enviar nada envia vacio '', array().
+		 * @ Devolvemos:
+		 * Devolvemos string.
+		 * 
+		 * */
+		// INICIALIZO VARIABLES QUE VOY UTILIZAR. 
+		$resultado = '';
+		$buscar='';
+		$wheres = array();
+		$palabras=array();
+
+		if ($filtro !==''){
+			//Quiere decir que tenemos palabras a buscar.
+			$palabras = explode(' ',$filtro); // Crear array de una o varias palabras.
+		}
+		foreach ($Array_campos as $key =>$campo){
+			foreach ($palabras as $palabra){
+				$wheres[$key] = '('.$campo['nombre_campo'].' '.$campo['tipo_comparador'].' ';
+				if ($campo['tipo_comparador'] === 'LIKE'){
+					$palabra = '%'.$palabra.'%';
+				}
+				$wheres[$key] .= '"'.$palabra.'")';
 			}
 		}
-		$buscar = implode(' and ',$likes).')';
-		$filtroFinal = ' WHERE ('.$buscar;
-		
-	}	
-	if ($LimitePagina > 0 ){
-		$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		if ($prefijo !='' || count($wheres)>0 ) {
+			// Si hay prefijo o campos , para evitar devolver un WHERE solo...
+			$resultado ='WHERE '.$prefijo.implode(' OR ',$wheres); 
+		}
+			$resultado .= ' '.$sufijo;
+		return $resultado;
 	}
-	// datos a devolver serian string $rango, string $filtroFinal
-	//fin de paginacion parametros necesarios y de campo de busqueda
-	$resultado['rango']=$rango;
-	$resultado['filtro']=$filtroFinal;
 	
-	return $resultado;
-	}
+
+	
+	
 	
 }
-
-
+	
 ?>

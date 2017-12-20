@@ -54,7 +54,7 @@
 	
 	if ($stringPalabras !== '' ){
 		$campoBD='articulo_name';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD);
+		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
 	}

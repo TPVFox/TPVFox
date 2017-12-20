@@ -56,7 +56,7 @@
 		$campoBD='razonsocial';
 		$campo2BD = 'Nombre';
 		$campo3BD = 'nif';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD,$campo3BD);
+		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD,$campo3BD);
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
 	}

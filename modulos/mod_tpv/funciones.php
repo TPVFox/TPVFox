@@ -778,9 +778,9 @@ function obtenerTickets($BDTpv,$filtro) {
 				//		cierres_usuarios_tickets --> para conseguir el idCierre de cada ticket cerrado
 	$resultado = array();
 	$idCierre = 0 ; // Valor por defecto para evitar advertencia en log.
-	$consulta = "SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t "
-			."LEFT JOIN `clientes` AS c "
-			."ON c.`idClientes` = t.`idCliente`".$filtro; 
+	$consulta = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
+			.'LEFT JOIN `clientes` AS c '
+			.'ON c.`idClientes` = t.`idCliente`'.$filtro; 
 	
 	
 	$ResConsulta = $BDTpv->query($consulta);

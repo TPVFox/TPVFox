@@ -51,7 +51,7 @@
 	if ($stringPalabras !== '' ){
 		$campoBD='razonsocial';
 		$campo2BD='nombrecomercial';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($BDTpv,$stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD);
+		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD);
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
 	}
