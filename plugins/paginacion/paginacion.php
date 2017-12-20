@@ -108,9 +108,11 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 		
 		// Ahora añadimos next intermedios si la diferencias entre el ultimo next y pagina ultima es mayor 10
 		$PrevBloques = 0;
-		if ($paginas['next'][$x]){
-			$PrevBloques= round((($paginas['Ultima']- $paginas['next'][$x]) /4),0, PHP_ROUND_HALF_UP);
-			$paginas['PrevBloquesNext'] = $PrevBloques;
+		if (isset($paginas['next'])){
+			if ($paginas['next'][$x]){
+				$PrevBloques= round((($paginas['Ultima']- $paginas['next'][$x]) /4),0, PHP_ROUND_HALF_UP);
+				$paginas['PrevBloquesNext'] = $PrevBloques;
+			}
 		}
 		$i= 1;
 		if (($PrevBloques) > 3 ){
@@ -128,7 +130,11 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 
 	// Montamos HTML para mostrar...
 	$htmlPG =  '<ul class="pagination">';
-	$Linkpg = '<li><a href="'.$LinkBase.'buscar='.$OtrosParametros.'&pagina=';
+	$Linkpg = '<li><a href="'.$LinkBase;
+	if ($OtrosParametros !== ''){
+		$Linkpg	.= 'buscar='.$OtrosParametros.'&';
+	}
+	$Linkpg	.='pagina=';
 	// Pagina inicio 
 	if ($paginas['Actual'] == $paginas['inicio']){
 		$htmlPG = $htmlPG.'<li class="active"><a>'.$ArrayTPg['inicio'].'</a></li>';

@@ -179,7 +179,10 @@ class ControladorComun
 		}
 		if ($prefijo !='' || count($wheres)>0 ) {
 			// Si hay prefijo o campos , para evitar devolver un WHERE solo...
-			$resultado ='WHERE '.$prefijo.implode(' OR ',$wheres); 
+			$resultado ='WHERE '.$prefijo;
+			if (count($wheres)> 0) {
+				$resultado .=' ('.implode(' OR ',$wheres).')'; 
+			}
 		}
 			$resultado .= ' '.$sufijo;
 		return $resultado;
