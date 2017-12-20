@@ -29,7 +29,6 @@
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
-	$vista = 'ticketst';
 	$LinkBase = './ListaTickets.php?';
 	$OtrosParametros = '';
 	$desde = 0;
@@ -85,7 +84,7 @@
 	// Creamos filtro para contar.	
 	$filtroContar = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
 	// Contamos Registros.	
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtroContar);
+	$CantidadRegistros = $Controler->contarRegistro($BDTpv,'ticketst',$filtroContar);
 	//~ echo '<pre>';
 	//~ print_r($CantidadRegistros);
 	//~ echo '</pre>';
@@ -111,9 +110,9 @@
 	
 	// Creamos filtro pero con sufijo para mostrar solo los registros de la pagina.
 	$filtro = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
-	
+	//~ echo $filtro;
 	$tickets = obtenerTickets($BDTpv,$filtro);
-	
+	//~ echo $tickets['sql'];
 	
 	//esta MAL // si la busqueda es menos de 40 lo siguiente es un apaño..
 	if (!isset($CantidadRegistros)){

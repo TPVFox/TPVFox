@@ -75,7 +75,7 @@
 			}
 			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
-			<a class="text-ritght" href="./ListaTickets.php">Volver Atrás</a>
+			<a class="text-ritght" href="./ListaTickets.php?estado=Cobrado">Volver Atrás</a>
 			<div class="col-md-10 col-md-offset-2 ">
 				<div class="col-md-12">
 					<div class="col-md-7">

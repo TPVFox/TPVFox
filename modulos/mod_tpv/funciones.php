@@ -780,7 +780,7 @@ function obtenerTickets($BDTpv,$filtro) {
 	$idCierre = 0 ; // Valor por defecto para evitar advertencia en log.
 	$consulta = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
 			.'LEFT JOIN `clientes` AS c '
-			.'ON c.`idClientes` = t.`idCliente`'.$filtro; 
+			.'ON c.`idClientes` = t.`idCliente` '.$filtro; 
 	
 	
 	$ResConsulta = $BDTpv->query($consulta);
@@ -804,7 +804,7 @@ function obtenerTickets($BDTpv,$filtro) {
 			}
 	}
 	
-	//$resultado['sql']=$consulta;
+	//~ $resultado['sql']=$consulta;
 	//$resultado['sql']=$sqlIdCierre;
 	return $resultado;
 }
