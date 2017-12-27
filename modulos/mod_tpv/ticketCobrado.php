@@ -15,33 +15,35 @@
 		?>
 	<script type="text/javascript">
 		var cajaBusquedacliente = {
-			id_input : 'cajaBusquedacliente',
-			acciones : { 
-				13 : 'buscarClientes', // pulso intro
-				40 : 'buscarClientes', // pulso abajo
-				9 : 'buscarClientes', // tabulador
+		id_input : 'cajaBusquedacliente',
+		acciones : { 
+			13 : 'buscarClientes', // pulso intro
+			40 : 'buscarClientes', // pulso abajo
+			 9 : 'buscarClientes', // tabulador
 			},
-			parametros : {
-				dedonde : 'tpv' 
+		parametros : {
+		dedonde : 'tpv' 
 			}
 		}
+
 		var idN = {
-			id_input : 'N_',
-			acciones : {
-				40 : 'mover_down', // pulso abajo
-				38 : 'mover_up' // fecha arriba
-				},
-			parametros : {
-				dedonde : 'cerrados',
-				prefijo : 'N_'
-			}
-}
-		
+		after_constructor: 'Si',
+		id_input : 'N_',
+		acciones : {
+			40 : 'mover_down', // pulso abajo
+			38 : 'mover_up' // fecha arriba
+			},
+		parametros : {
+			dedonde : 'cerrados',
+			prefijo : 'N_'
+			},
+		before_constructor : 'Si' // Ejecutamos funcion before_constructor justo después crear objeto caja.
+		}	
 	</script>
 		
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/teclado.js"></script>
+		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 
 		
 	</head>

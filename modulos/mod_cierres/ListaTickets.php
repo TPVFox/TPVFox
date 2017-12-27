@@ -121,7 +121,7 @@
     Cargamos JS del modulo de productos para no repetir funciones: BuscarProducto, metodoClick (pulsado, adonde)
     caja de busqueda en listado 
      -->
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_cierres/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 	
  

@@ -78,12 +78,229 @@ function metodoClick(pulsado){
 			
 			window.location.href = './VistaCierre.php?id='+checkID[0];
 			
-			
-			
-			
 		break;
+		case 'VerTicket':
+			console.log('Entro en Ver Ticket Cobrado');
+			// Cargamos variable global ar checkID = [];
+			//Funcion global en jquery
+			VerIdSeleccionado ();
+			if (checkID.length >1 || checkID.length=== 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return
+			}
+				
+			window.location.href = './ticketCerrado.php?id='+checkID[0];
+			break;
+		
 	}
 } 
 
+function after_constructor(padre_caja,event){
+	// @ Objetivo:
+	// Ejecuta procesos antes construir el obj. caja.
+	// Traemos 
+	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
+	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
+	if (padre_caja.id_input.indexOf('N_') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+	
+	return padre_caja;
+}
 
 
+function before_constructor(caja){
+	// @ Objetivo :
+	//  Ejecutar procesos para obtener datos despues del construtor de caja.
+	//  Estos procesos los indicamos en parametro before_constructor, si hay
+	if (caja.id_input ==='cajaBusqueda'){
+		caja.parametros.dedonde = 'popup';
+		if (caja.name_cja ==='Codbarras'){
+			caja.parametros.campo = cajaCodBarras.parametros.campo;
+		}
+		if (caja.name_cja ==='Referencia'){
+			caja.parametros.campo = cajaReferencia.parametros.campo;
+		}
+		if (caja.name_cja ==='Descripcion'){
+			caja.parametros.campo = cajaDescripcion.parametros.campo;
+		}
+	}
+	
+	if (caja.id_input.indexOf('N_') >-1){
+		caja.fila = caja.id_input.slice(2);
+	}
+	
+	if (caja.id_input.indexOf('Unidad_Fila') >-1){
+		caja.parametros.item_max = productos.length;
+		caja.fila = caja.id_input.slice(12);
+	}
+	
+	return caja;	
+}
+
+function controladorAcciones(caja,accion){
+	// @ Objetivo es obtener datos si fuera necesario y ejecutar accion despues de pulsar una tecla.
+	//  Es Controlador de acciones a pulsar una tecla que llamamos desde teclado.js
+	// @ Parametros:
+	//  	caja -> Objeto que aparte de los datos que le ponemos en variables globales de cada input
+	//				tiene funciones que podemos necesitar como:
+	//						darValor -> donde obtiene el valor input
+	switch(accion) {
+		case 'buscarClientes':
+			// Esta funcion necesita el valor.
+			buscarClientes(caja.darParametro('dedonde'),caja.darValor());
+			break;
+		
+		case 'mover_down':
+			// Controlamos si numero fila es correcto.
+			if ( isNaN(caja.fila) === false){
+				var nueva_fila = parseInt(caja.fila)+1;
+			} else {
+				// quiere decir que no tiene valor.
+				var nueva_fila = 0;
+			}
+			mover_down(nueva_fila,caja.darParametro('prefijo'));
+			break;
+		case 'mover_up':
+			if ( isNaN(caja.fila) === false){
+				var nueva_fila = parseInt(caja.fila)-1;
+			} else {
+				// quiere decir que no tiene valor.
+				var nueva_fila = 0;
+			}
+			mover_up(nueva_fila,caja.darParametro('prefijo'));
+			break;
+		
+		default :
+			console.log ( 'Accion no encontrada '+ accion);
+	} 
+}
+
+
+
+// =========================  FUNCIONES COMUNES EN MODULOS TPV Y CIERRES ===================== //
+function buscarClientes(deDonde,valor=''){
+	// @ Objetivo:
+	// 	Abrir modal con lista clientes, que permitar buscar en caja modal.
+	// 	Ejecutamos Ajax para obtener el html que vamos mostrar.
+	// @ parametros :
+	//	valor -> Sería el valor caja del propio modal
+	console.log('FUNCION buscarClientes JS-AJAX');
+	console.log('deDonde'+deDonde);
+	var parametros = {
+		"pulsado"    : 'buscarClientes',
+		"busqueda" : valor,
+		"dedonde"  : deDonde
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en buscar clientes JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de buscar clientes');
+			var resultado =  $.parseJSON(response); 
+			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+			var encontrados = resultado.encontrados;
+			var titulo = 'Listado clientes ';
+			
+			abrirModal(titulo,HtmlClientes);
+			// Asignamos focus
+			if (encontrados >0 ){
+				// Enfocamos el primer item.
+				mover_down(0);
+				$('#N_0').focus();
+			}else {
+				// No hay datos focus a caja buscar cliente.
+				$('#cajaBusquedacliente').focus();
+			}
+		}
+	});
+}
+
+
+function abrirModal(titulo,tabla){
+	// Recibimos titulo -> String.( podemos cambiarlos cuando queramos)
+	// datos -> Puede ser un array o puede ser vacio
+	console.log(' ========  ABRIMOS MODAL ==============');
+	$('.modal-body > p').html(tabla);
+	$('.modal-title').html(titulo);
+	$('#busquedaModal').modal('show');
+	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
+	$('#busquedaModal').on('shown.bs.modal', function() {
+	$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
+	});
+
+}
+
+
+function cerrarModalClientes(id,nombre,dedonde=''){
+	// @ parametros recibidos.
+	// 	id -> Del cliente
+	//  nombre ->  Nombre cliente
+	// 	dedonde -> 	1 (viene ticket cerrados)
+	//				2 (viene ticket cobrados)
+	// mostrarlos en tpv
+	
+	//cerrar modal busqueda
+	$('#busquedaModal').modal('hide');
+	
+	//agregar datos funcion js
+	$('#id_cliente').val(id);
+
+	
+	$('#Cliente').val(nombre);
+	
+}
+
+function controladorAcciones(caja,accion){
+	// Controlador de acciones a realizar de teclado.js
+	switch(accion) {
+		case 'buscarClientes':
+			// Esta funcion necesita el valor.
+			buscarClientes(caja.darParametro('dedonde'),caja.darValor());
+			break;
+		case 'mover_down':
+			mover_down(parseInt(caja.fila)+1);
+			break;
+		case 'mover_up':
+			mover_down(parseInt(caja.fila)-1);
+			break;
+	} 
+}
+
+
+
+
+
+// ===================  FUNCIONES DE PINTAR BONITO y MOVIMIENTOS =========================
+//html onfocus 
+function sobreFila(cont){
+	$('#Fila_'+cont).css('background-color','lightblue');
+}
+//html onfocusout y onmouseout
+function abandonFila(cont){
+	$('#Fila_'+cont).css('background-color','white');
+}
+
+function sobreFilaCraton(cont){
+	$('#Fila_'+cont).css('background-color','azure');
+}
+
+function mover_down(fila){
+	sobreFilaCraton(fila);
+	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		$('#N_'+fila).focus(); 
+	}, 50); 
+	
+}
+
+function mover_up(fila){
+	sobreFilaCraton(fila);
+	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		$('#N_'+fila).focus(); 
+	}, 50); 
+	
+}

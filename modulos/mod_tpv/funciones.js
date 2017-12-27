@@ -613,6 +613,55 @@ function controladorAcciones(caja,accion){
 			console.log ( 'Accion no encontrada '+ accion);
 	} 
 }
+
+function before_constructor(caja){
+	// @ Objetivo :
+	//  Ejecutar procesos para obtener datos despues del construtor de caja.
+	//  Estos procesos los indicamos en parametro before_constructor, si hay
+	console.log( 'Entro en before');
+	if (caja.id_input ==='cajaBusqueda'){
+		caja.parametros.dedonde = 'popup';
+		if (caja.name_cja ==='Codbarras'){
+			caja.parametros.campo = cajaCodBarras.parametros.campo;
+		}
+		if (caja.name_cja ==='Referencia'){
+			caja.parametros.campo = cajaReferencia.parametros.campo;
+		}
+		if (caja.name_cja ==='Descripcion'){
+			caja.parametros.campo = cajaDescripcion.parametros.campo;
+		}
+	}
+	
+	if (caja.id_input.indexOf('N_') >-1){
+		console.log(' Entro en Before de '+caja.id_input)
+		caja.fila = caja.id_input.slice(2);
+		console.log(caja.fila);
+	}
+	
+	if (caja.id_input.indexOf('Unidad_Fila') >-1){
+		caja.parametros.item_max = productos.length;
+		caja.fila = caja.id_input.slice(12);
+	}
+	
+	return caja;	
+}
+
+function after_constructor(padre_caja,event){
+	// @ Objetivo:
+	// Ejecuta procesos antes construir el obj. caja.
+	// Traemos 
+	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
+	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
+	if (padre_caja.id_input.indexOf('N_') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+	
+	return padre_caja;
+}
+
 // ===================  FUNCIONES DE PINTAR BONITO y MOVIMIENTOS =========================
 //html onfocus 
 function sobreFila(cont){

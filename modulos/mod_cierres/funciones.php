@@ -97,38 +97,7 @@ function nombreUsuario($BDTpv,$idUsuario){
 }
 
 
-function baseIva($BDTpv,$idticketst){
-	//@ tabla : ticketstIva
-	//@ campo : idticketst
-	//@ Objetivo:
-	//Agrupamos por iva, para obtener sumIva, sumBase
-	
-	//se le pasa idtickets, e iva, para recoger sum(importeIva) y suma(totalbase)
-	//seria idtickets de ticketstIva es la relacion de id de ticketst, porque 2 usuarios pueden tener mismo NumTicket.
-	
-	
-	$sql ='SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
-		.' FROM `ticketstIva` '
-		.' WHERE `idticketst` IN ('.$idticketst.') GROUP BY `iva`';
-	$resp = $BDTpv->query($sql);
-	$resultado = array();
-	if ($resp->num_rows > 0) {
-		$i=0;
-		while($fila = $resp->fetch_assoc()) {		
-			$resultado['items'][$i]=$fila;
-			$i++;
-			
-		}
-		$resultado['sql'] = $sql;
 
-	} else {
-		$resultado=0;
-	}
-	
-	
-
-	return $resultado;
-}
 
 function obtenerCierres($BDTpv ,$filtro) {
 	// Function para obtener cierres y listarlos
@@ -471,8 +440,7 @@ function obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$fil
 		// Obtenemos los ticket para ese usuario y ese cierre.
 		$tickets = $BDTpv->query($sqlTickets);
 		if ($BDTpv->error !== true){
-			//~ $resultado['consulta2'] = $sqlTickets;
-			error_log($sqlTickets);
+			//~ error_log($sqlTickets);
 			while ($ticket = $tickets->fetch_assoc()){
 				$resultado[] = $ticket;
 			}
@@ -484,7 +452,6 @@ function obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$fil
 		// Quiere decir que hubo un error.
 		$resultado = $rango; // 'La consulta o conexion dio un error';
 	}
-	//~ $resultado['consulta2'] = $sqlTickets;
 
 	return $resultado;
 	
@@ -496,10 +463,9 @@ function obtenerRangoTicketsUsuarioCierre($BDTpv,$idUsuario,$idCierre,$idTienda)
 	$resultado = array();
 	$sqlUsuarioTickets = 'SELECT Num_ticket_inicial,Num_ticket_final FROM `cierres_usuarios_tickets` WHERE idCierre = '.$idCierre.' AND `idUsuario`= '.$idUsuario.' AND idTienda = '.$idTienda;
 	
-	error_log('esto-'.$sqlUsuarioTickets);
+	//~ error_log($sqlUsuarioTickets);
 
 	$rangoTickets = $BDTpv->query($sqlUsuarioTickets);
-	//~ error_log(implode($rangoTickets->error));
 	
 	if ($BDTpv->error !== true){
 		if ($rangoTickets->num_rows === 1){
@@ -515,6 +481,167 @@ function obtenerRangoTicketsUsuarioCierre($BDTpv,$idUsuario,$idCierre,$idTienda)
 		$resultado['error'] = 'La consulta o conexion dio un error';
 		$resultado['consulta'] = $sqlUsuarioTickets;
 	}
+	return $resultado;
+}
+
+
+
+function verSelec($BDTpv,$idSelec,$tabla,$idTienda){
+	//ver seleccionado en check listado	
+	// Obtener datos de un id de usuario.
+	$consulta = ' SELECT l.* , t.*, c.`idClientes`, u.`username`, c.`razonsocial`, c.`Nombre` ' 
+				.'FROM '.$tabla.' AS t '
+				.'LEFT JOIN `ticketslinea` AS l ON l.`idticketst` = t.`id` '
+				.'LEFT JOIN `clientes` AS c '
+				.'ON c.`idClientes` = t.`idCliente` '
+				.'LEFT JOIN `usuarios` AS u '
+				.'ON u.`id` = t.`idUsuario` '
+				.'WHERE `idTienda` ='.$idTienda.' AND t.`id` = '.$idSelec;
+
+	$resultsql = $BDTpv->query($consulta);
+	if (mysqli_error($BDTpv)) {
+		$fila['error'] = 'Error en la consulta '.$BDTpv->errno;
+	} else {
+		if (!$resultsql->num_rows > 0){
+			$fila['error']= ' No se a encontrado ticket cobrado';
+		}
+	}
+	if ($resultsql = $BDTpv->query($consulta)){			
+		while ($datos = $resultsql->fetch_assoc()) {
+			$fila[] = $datos;			
+		}
+	}
+	
+	//$fila['Nrow']= $resultsql->num_rows;
+	//$fila['sql'] = $consulta;
+	return $fila ;
+}
+
+/* ******************************************************************************	
+ *  			FUNCIONES REPETIDAS Y COMUNES EN MODULOS CIERRES Y TPV	 		*
+ * ****************************************************************************** */
+ 
+ function baseIva($BDTpv,$idticketst){
+	//@ tabla : ticketstIva
+	//@ campo : idticketst
+	//@ Objetivo:
+	//Agrupamos por iva, para obtener sumIva, sumBase
+	
+	//se le pasa idtickets, e iva, para recoger sum(importeIva) y suma(totalbase)
+	//seria idtickets de ticketstIva es la relacion de id de ticketst, porque 2 usuarios pueden tener mismo NumTicket.
+	
+	
+	$sql ='SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
+		.' FROM `ticketstIva` '
+		.' WHERE `idticketst` IN ('.$idticketst.') GROUP BY `iva`';
+	$resp = $BDTpv->query($sql);
+	$resultado = array();
+	if ($resp->num_rows > 0) {
+		$i=0;
+		while($fila = $resp->fetch_assoc()) {		
+			$resultado['items'][$i]=$fila;
+			$i++;
+			
+		}
+		$resultado['sql'] = $sql;
+
+	} else {
+		$resultado=0;
+	}
+	
+	return $resultado;
+}
+
+
+function BusquedaClientes($busqueda,$BDTpv,$tabla){
+	// @ Objetivo es buscar los clientes 
+	// @ Parametros
+	// 	$busqueda --> Lo que vamos a buscar
+	// 	$BDTpv--> Conexion
+	//	$tabla--> tabla donde buscar.
+	// Buscamos en los tres campos... Nombre, razon social, nif
+	$resultado=array();
+	$buscar1= 'Nombre';
+	$buscar2='razonsocial';
+	$buscar3='nif';
+	$sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM '.$tabla.' WHERE '.$buscar1.' LIKE "%'.$busqueda.'%" OR '
+			.$buscar2.' LIKE "%'.$busqueda.'%" OR '.$buscar3.' LIKE "%'.$busqueda.'%"';
+	$res = $BDTpv->query($sql);
+	
+	 //compruebo error en consulta
+	if (mysqli_error($BDTpv)){
+		$resultado['consulta'] = $sql;
+		$resultado['error'] = $BDTpv->error_list;
+		return $resultado;
+	} 
+	
+	$arr = array();
+	$i = 0;
+	//fetch_assoc es un boleano..
+	while ($fila = $res->fetch_assoc()) {
+		$arr[$i] = $fila;
+		
+		$resultado['datos'][0] = $fila;
+		$resultado['datos'] = $arr;
+		$i++;
+	}
+	return $resultado;
+}
+
+function htmlClientes($busqueda,$dedonde,$clientes = array()){
+	// @ Objetivo:
+	// Montar el hmtl para mostrar con los clientes si los hubiera.
+	// @ parametros:
+	// 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
+	//		$dedonde  -> Nos indica de donde viene. (tpv,cerrados,cobrados)
+	$resultado = array();
+	$n_dedonde = 0 ; 
+	if ($dedonde === 'cerrados') {
+		$n_dedonde = 1 ; 
+	}
+	if ($dedonde === 'cobrados') {
+		$n_dedonde = 2 ; 
+	}
+	$resultado['encontrados'] = count($clientes);
+	// Creamos objeto en javascript de caja busqeuda.
+	
+	$resultado['html'] = '<label>Busqueda Cliente</label>';
+	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
+				'size="13" data-obj="cajaBusquedacliente" value="'.$busqueda.'" onkeydown="controlEventos(event,'."'".'cajaBusquedacliente'."'".')" type="text">';
+				
+	if (count($clientes)>10){
+		$resultado['html'] .= '<span>10 productos de '.count($clientes).'</span>';
+	}
+	$resultado['html'] .= '<table class="table table-striped"><thead>';
+	$resultado['html'] .= ' <th></th>'; //cabecera blanca para boton agregar
+	$resultado['html'] .= ' <th>Nombre</th>';
+	$resultado['html'] .= ' <th>Razon social</th>';
+	$resultado['html'] .= ' <th>NIF</th>';
+	$resultado['html'] .= '</thead><tbody>';
+	if (count($clientes)>0){
+		$contad = 0;
+		foreach ($clientes as $cliente){  
+			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
+			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
+			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="cerrarModalClientes('.$datos.','.$n_dedonde.');">';
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN" onfocusout="abandonFila('
+						.$contad.')" onkeydown="controlEventos(event,'."'".'N_'.$contad."'".')" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
+			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>';
+			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
+			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';
+			$resultado['html'] .= '</tr>';
+			$contad = $contad +1;
+			if ($contad === 10){
+				break;
+			}
+			
+		}
+	} 
+	$resultado['html'] .='</tbody></table>';
+	
 	return $resultado;
 }
 

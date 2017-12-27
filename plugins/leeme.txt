@@ -1,3 +1,2 @@
-La idea plugin, es que se pueda utilizar en todos los modulos.
+Llamamos plugin aquello que se puede utilizar en varios modulos.
 
-El Plugin paginacion , aun no esta activo, tengo que probarlo.

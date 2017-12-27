@@ -99,7 +99,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 	$resultado['html'] .= '<label>Busqueda por '.$id_input.'</label>';
 	// Utilizo el metodo onkeydown ya que encuentro que onKeyup no funciona en igual con todas las teclas.
 	
-	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" size="13" value="'
+	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" data-obj="cajaBusquedaproductos" size="13" value="'
 					.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 	if (count($productos)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
@@ -132,7 +132,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
 			
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-						.$contad.')" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';				
 			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.number_format($producto['pvpCiva'],2).'</td>';
@@ -165,7 +165,7 @@ function htmlCobrar($total){
 	$resultado['imprimir'] = 0;
 	$resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">';
 	$resultado['html'] .= '<h1>'.number_format($total,2).'<span class="small"> €</span></h1>';
-	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" size="8" onkeydown="controlEventos(event)" ></input></h4>';
+	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>';
 												
 	$resultado['html'] .= '<h4> Cambio &nbsp<input class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
 	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
@@ -176,7 +176,7 @@ function htmlCobrar($total){
 	$resultado['html'] .= '<option value="contado">Contado</option>';
 	$resultado['html'] .= '<option value="tarjeta">Tarjeta</option>';
 	$resultado['html'] .= '</select>';
-	$resultado['html'] .= ' <button id="CobrarAceptar" type="button" onkeydown="controlEventos(event)" class="btn btn-primary" onclick="tcontrolEventos(event)" >Aceptar</button>';
+	$resultado['html'] .= ' <button id="CobrarAceptar" type="button" data-obj="CobrarAceptar" onkeydown="controlEventos(event)" class="btn btn-primary" onclick="tcontrolEventos(event)" >Aceptar</button>';
 	$resultado['html'] .= '</div>';
 	$resultado['html'] .= '</div>';
 	
@@ -413,9 +413,6 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 		$product = $producto;
 	}
 	
-	
-	
-	
 	// Si estado es eliminado tenemos añadir class y disabled input
 	if ($product->estado !=='Activo'){
 		$classtr = ' class="tachado" ';
@@ -431,7 +428,7 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	$nuevaFila .= '<td class="codbarras">'.$product->ccodebar.'</td>';
 	$nuevaFila .= '<td class="referencia">'.$product->cref.'</td>';
 	$nuevaFila .= '<td class="detalle">'.$product->cdetalle.'</td>';
-	$nuevaFila .= '<td><input id="Unidad_Fila_'.$product->nfila.'" type="text" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->unidad.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
+	$nuevaFila .= '<td><input id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->unidad.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
 	//si en config peso=si, mostramos columna peso
 	if ($CONF_campoPeso === 'si'){
 		$nuevaFila .= '<td><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
@@ -886,7 +883,7 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 	
 	$resultado['html'] = '<label>Busqueda Cliente en '.$dedonde.'</label>';
 	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
-				'size="13" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
+				'size="13" data-obj="cajaBusquedacliente" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($clientes)>10){
 		$resultado['html'] .= '<span>10 clientes de '.count($clientes).'</span>';
@@ -906,7 +903,7 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
+						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';

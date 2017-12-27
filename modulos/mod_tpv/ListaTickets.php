@@ -130,7 +130,6 @@
     caja de busqueda en listado 
      -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/controlteclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 	
  

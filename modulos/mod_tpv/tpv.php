@@ -128,10 +128,13 @@ var cajaBusquedaproductos = {
 	parametros  : {
 		dedonde : 'popup',
 		campo   :'' // Este campo tendremos llenarlo al cargar el modal
-		}
+					// ya que puede variar si venimos de Referencia,Codbarras,Descripcion. 
+		},
+	before_constructor : 'Si' // Ejecutamos funcion before_constructor justo después crear objeto caja.
 }
 
 var idN = {
+	after_constructor: 'Si',
 	id_input : 'N_',
 	acciones : {
 		40 : 'mover_down', // pulso abajo
@@ -141,9 +144,12 @@ var idN = {
 		dedonde : 'cerrados',
 		campo   : '', // Este campo tendremos llenarlo al cargar el modal
 		prefijo : 'N_'
-		}
+		},
+	before_constructor : 'Si' // Ejecutamos funcion before_constructor justo después crear objeto caja.
 }
+
 var Unidad_Fila = {
+	after_constructor: 'Si', // Ejecutamos funcion after_constructor antes de crear objeto caja.
 	id_input : 'Unidad_Fila', // Este se añade ante construir ya que el id input es Unidad_Fila_1
 	acciones : {
 		 13 : 'recalcular_ticket', // Pulso intro
@@ -155,7 +161,8 @@ var Unidad_Fila = {
 		dedonde : 'tpv',
 		campo   : '' ,// Este campo tendremos llenarlo al cargar el modal
 		prefijo : 'Unidad_Fila_'
-		}
+		},
+			before_constructor : 'Si' // Ejecutamos funcion before_constructor justo después crear objeto caja.
 }
 
 var entrega = {
@@ -195,11 +202,8 @@ var cajaBusquedacliente = {
 	
 </script>
 
-<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 
-<!--
-<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
--->
 
 </head>
 
@@ -441,9 +445,9 @@ var cajaBusquedacliente = {
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeydown="controlEventos(event)">
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)">
 <!--
 				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProductos('Descripcion','','tpv')"></a>
 -->

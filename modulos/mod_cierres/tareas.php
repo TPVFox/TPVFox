@@ -28,6 +28,28 @@ include_once ("./funciones.php");
     break;
     
     
+    
+    /* **************************************************************	*
+     * 			LLAMADAS FUNCIONES COMUNES MODULO CIERRES Y TPV			*
+     * **************************************************************	* 	*/
+     case 'buscarClientes':
+		// Abrimos modal de clientes.
+		$busqueda = $_POST['busqueda'];
+		$tabla='clientes';
+		$res = array( 'datos' => array());
+		//funcion de buscar clientes
+		//luego html mostrar modal 
+		if ($busqueda != ''){
+			//$res = BusquedaClientes($busqueda);
+			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
+		} 
+		
+		$respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
+	
+		echo json_encode($respuesta);
+		break;
+    
+    
 }
 
 
