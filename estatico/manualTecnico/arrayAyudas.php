@@ -48,7 +48,14 @@
 							'introduccion'	=> 'Dar de alta o modificar datos de tiendas, tanto tiendas fisicas , como  webs',
 							'ruta'			=> '/help_tiendas/',
 							'fichero'		=> 'index.php'
+							),
+					'9' => array(
+							'titulo_cuadro'	=> 'Ayuda Control Eventos',
+							'introduccion'	=> 'Controls de eventos de teclado y raton, lo utilizamos en tpv',
+							'ruta'			=> '/help_control_events/',
+							'fichero'		=> 'index.php'
 							)
+							
 				);
 
 
