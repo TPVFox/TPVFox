@@ -25,24 +25,21 @@ switch ($pulsado) {
     case 'buscarProductos':
 		$busqueda = $_POST['valorCampo'];
 		$campoAbuscar = $_POST['campo'];
-		//cuando busco dsde el popup el estado me es indiferente
-		$deDonde = $_POST['dedonde'];
-		//cambio conexion a tpv
-		
-		//vuelta indica que busque primero = al dato sino dentro se vuelve a llamar a si misma y busca %likes%
-		$vuelta = 1;
-		$respuesta = BuscarProductos($campoAbuscar,$busqueda,$BDTpv,$vuelta);
-		
-		// Si respuesta es incorrecta, entonces devuelvo html de respuesta
-		//si dedonde == 'popup' 
+		$id_input = $_POST['cajaInput'];
+		$deDonde = $_POST['dedonde']; // Obtenemos de donde viene
+		$respuesta = BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv);
 		if ($respuesta['Estado'] !='Correcto' ){
-			// Entramos aquí tanto si es listado como si no se encontro articulos.
-			$respuesta['listado']= htmlProductos($respuesta['datos'],$campoAbuscar,$busqueda);
+			// Al ser incorrecta entramos aquí.
+			// Mostramos popUp tanto si encontro varios como si no encontro ninguno.
+			if (!isset($respuesta)){
+				$respuesta = array('datos'=>array());
+			}
+			$respuesta['listado']= htmlProductos($respuesta['datos'],$id_input,$campoAbuscar,$busqueda);
 		}
 		if ($respuesta['Estado'] === 'Correcto' && $deDonde === 'popup'){
 			// Cambio estado para devolver que es listado.
-			$respuesta['listado']= htmlProductos($respuesta['datos'],$campoAbuscar,$busqueda);
-			//$respuesta['Estado'] = 'Listado';
+			$respuesta['listado']= htmlProductos($respuesta['datos'],$id_input,$campoAbuscar,$busqueda);
+			$respuesta['Estado'] = 'Listado';
 		}
 		
 		
@@ -66,23 +63,10 @@ switch ($pulsado) {
 		echo json_encode($respuesta);		
 		
 		break;
-	//modal buscar por clientes
-	case 'buscarClientes':
-		$busqueda = $_POST['busqueda'];
-		$tabla='clientes';
-		//funcion de buscar clientes
-		//luego html mostrar modal 
-		if ($busqueda != ''){
-			$res = array();
-			//$res = BusquedaClientes($busqueda);
-			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
-		} 
-		
-		$respuesta = htmlClientes($busqueda,$res['datos']);
 	
-		echo json_encode($respuesta);
-		break;
 	case 'grabarTickes';
+		// @ Objetivo :
+		// Grabar tickets temporales.
 		$respuesta = array();
 		$cabecera = array(); // Array que rellenamos de con POST
 		$productos 					=$_POST['productos'];
@@ -186,6 +170,29 @@ switch ($pulsado) {
 		
 	case 'guardarCierreCaja':
 			echo 'tareas guardar cierre';
+		break;
+		
+		
+		
+	/* **************************************************************	*
+     * 			LLAMADAS FUNCIONES COMUNES MODULO CIERRES Y TPV			*
+     * **************************************************************	* 	*/
+     case 'buscarClientes':
+		// Abrimos modal de clientes
+		$busqueda = $_POST['busqueda'];
+		$dedonde = $_POST['dedonde'];
+		$tabla='clientes';
+		$res = array( 'datos' => array());
+		//funcion de buscar clientes
+		//luego html mostrar modal 
+		if ($busqueda != ''){
+			//$res = BusquedaClientes($busqueda);
+			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
+		} 
+		
+		$respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
+	
+		echo json_encode($respuesta);
 		break;
 }
  

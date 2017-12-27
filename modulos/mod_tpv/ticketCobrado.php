@@ -5,7 +5,7 @@
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
-        include '../mod_cierres/funciones.php';
+        //~ include '../mod_cierres/funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
 		// Ya no hace falta, ya que lo contralomos head.
 		//~ if ($Usuario['estado'] === "Incorrecto"){
@@ -13,8 +13,35 @@
 		//~ }
 		
 		?>
+	<script type="text/javascript">
+		var cajaBusquedacliente = {
+			id_input : 'cajaBusquedacliente',
+			acciones : { 
+				13 : 'buscarClientes', // pulso intro
+				40 : 'buscarClientes', // pulso abajo
+				9 : 'buscarClientes', // tabulador
+			},
+			parametros : {
+				dedonde : 'tpv' 
+			}
+		}
+		var idN = {
+			id_input : 'N_',
+			acciones : {
+				40 : 'mover_down', // pulso abajo
+				38 : 'mover_up' // fecha arriba
+				},
+			parametros : {
+				dedonde : 'cerrados',
+				prefijo : 'N_'
+			}
+}
+		
+	</script>
+		
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/teclado.js"></script>
 
 		
 	</head>
@@ -100,7 +127,7 @@
 					<label>Cliente:</label>
 					<input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
 					<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $nombreCliente; ?>" size="60" readonly>
-					<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes()"></a>
+					<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('cobrados')"></a>
 			
 				</div>
 			
@@ -234,7 +261,7 @@
 			
 		</div>
 		<?php // Incluimos paginas modales
-			include 'busquedaModal.php';
+			include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		?>
 	</body>
 </html>

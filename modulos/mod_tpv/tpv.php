@@ -67,8 +67,139 @@
 
 
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
+<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 
+<script type="text/javascript">
+// Objetos cajas de tpv
+var cajaCodBarras = {
+	id_input : 'Codbarras',
+	acciones : { 
+		 13 : 'buscarProductos', // pulso intro
+		 40 : 'saltar_productos', // pulso abajo
+		  9 : 'saltar_Referencia', // tabulador
+		 39 : 'saltar_Referencia', // pulso flecha derecha
+		112 : 'cobrar' // Pulso F1
+		},
+	parametros : {
+		dedonde : 'tpv',
+		campo: 'ac.codBarras' 
+		}
+}
+
+var cajaReferencia = {
+	id_input : 'Referencia',
+	acciones : { 
+		 13 : 'buscarProductos', // pulso intro
+		 40 : 'saltar_productos', // pulso abajo
+		  9 : 'saltar_Descripcion', // tabulador
+		 37 : 'saltar_CodBarras',  // pulso flecha izquierda. 
+		 39 : 'saltar_Descripcion', // pulso flecha derecha
+		112 : 'cobrar' // Pulso F1
+
+		},
+	parametros : {
+		dedonde : 'tpv',
+		campo: 'at.crefTienda' 
+		}
+}
+var cajaDescripcion = {
+	id_input : 'Descripcion',
+	acciones : { 
+		 13 : 'buscarProductos', // pulso intro
+		 40 : 'saltar_productos', // pulso abajo
+		  9 : 'saltar_CodBarras', // tabulador
+		 37 : 'saltar_Referencia',  // pulso flecha izquierda. 
+		 39 : 'saltar_CodBarras', // pulso flecha derecha
+		112 : 'cobrar' // Pulso F1
+		},
+	parametros : {
+		dedonde : 'tpv',
+		campo : 'a.articulo_name' 
+		}
+}
+// Objetos para popUp de Productos
+var cajaBusquedaproductos = {
+	id_input : 'cajaBusqueda',
+	acciones : { 
+		13 : 'buscarProductos', // pulso intro
+		40 : 'mover_down', // pulso abajo
+		 9 : 'mover_down', // tabulador
+		},
+	parametros  : {
+		dedonde : 'popup',
+		campo   :'' // Este campo tendremos llenarlo al cargar el modal
+		}
+}
+
+var idN = {
+	id_input : 'N_',
+	acciones : {
+		40 : 'mover_down', // pulso abajo
+		38 : 'mover_up' // fecha arriba
+		},
+	parametros : {
+		dedonde : 'cerrados',
+		campo   : '', // Este campo tendremos llenarlo al cargar el modal
+		prefijo : 'N_'
+		}
+}
+var Unidad_Fila = {
+	id_input : 'Unidad_Fila', // Este se añade ante construir ya que el id input es Unidad_Fila_1
+	acciones : {
+		 13 : 'recalcular_ticket', // Pulso intro
+		 40 : 'mover_up', // Pulso abajo pero va para arriba. 
+		 38 : 'mover_down', // Pulso arriba pero va para abajo.
+		112 : 'cobrar' // Pulso F1
+		},
+	parametros : {
+		dedonde : 'tpv',
+		campo   : '' ,// Este campo tendremos llenarlo al cargar el modal
+		prefijo : 'Unidad_Fila_'
+		}
+}
+
+var entrega = {
+	id_input : 'entrega', // Este se añade ante construir ya que el id input es Unidad_Fila_1
+	acciones : {
+		 13 : 'poner_entrega', // Pulso intro
+		 40 : 'poner_entrega' // Pulso abajo pero va para arriba. 
+		},
+	parametros : {
+		dedonde : 'popUp'
+		}
+}
+
+var CobrarAceptar = {
+	id_input : 'CobrarAceptar', // Este se añade ante construir ya que el id input es Unidad_Fila_1
+	acciones : {
+		 13 : 'cerrar_ticket', // Pulso intro
+		 40 : 'focus_entrega', // Pulso abajo pero va para arriba.
+		 37 : 'focus_modoPago' // Pulso izquierda. 
+		},
+	parametros : {
+		dedonde : 'popUp'
+		}
+}
+	
+var cajaBusquedacliente = {
+	id_input : 'cajaBusquedacliente',
+	acciones : { 
+		13 : 'buscarClientes', // pulso intro
+		40 : 'buscarClientes', // pulso abajo
+		 9 : 'buscarClientes', // tabulador
+		},
+	parametros : {
+	dedonde : 'tpv' 
+		}
+}
+	
+</script>
+
+<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/teclado.js"></script>
+
+<!--
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/calculador.js"></script>
+-->
 
 </head>
 
@@ -146,7 +277,7 @@
 		datos['crefTienda'] 	= <?php echo '"'.$product->cref.'"';?>;
 		datos['articulo_name'] 	= <?php echo '"'.$product->cdetalle.'"';?>;
 		datos['pvpCiva'] 		= <?php echo $product->pvpconiva;?>;
-		datos['iva'] 			= <?php echo $product->ctipoiva;?>;
+		datos['iva'] 			= <?php echo '"'.$product->ctipoiva.'"';?>;
 		datos['codBarras']		= <?php echo '"'.$product->ccodebar.'"';?>;
 		productos.push(new ObjProducto(datos));
 		<?php
@@ -186,10 +317,10 @@
 				<li><a onclick="cobrarF1()">Cobrar</a></li>
 			</ul>
 		</div>
-		
-	<div class="col-md-12">
+
 	<?php //===== TICKETS ABIERTOS LATERAL
 	if (isset($ticketsAbiertos['items'])){ ?>
+	<div class="col-md-12">
 		<h3 class="text-center"> Tickets Abiertos</h3>
 		<table class="table table-striped">
 			<thead>
@@ -273,7 +404,7 @@
 			<label>Cliente:</label>
 			<input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
 			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $cliente; ?>" size="60" readonly>
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes()"></a>
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('tpv')"></a>
 		</div>
 	</div>
 	<div class="visor fondoNegro col-md-4" style="color:#0ade0a;background-color:black;height:150px;">
@@ -310,10 +441,12 @@
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" autofocus  onkeyup="teclaPulsada(event,'Codbarras',0)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeyup="teclaPulsada(event,'Referencia',0)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeyup="teclaPulsada(event,'Descripcion',0)">
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" size="20" value="" onkeydown="controlEventos(event)">
+<!--
 				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProductos('Descripcion','','tpv')"></a>
+-->
 			</td>
 		</tr>
 		</thead>
@@ -431,6 +564,10 @@
 include 'busquedaModal.php';
 
 ?>
+<script type="text/javascript">
+
+$('#Codbarras').focus();
+</script>
 </body>
 
 </html>

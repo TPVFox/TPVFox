@@ -12,221 +12,6 @@ var total = 0;
 
 
 
-
-function teclaPulsada(event,nombreInput,nfila=0,nomcampo=''){
-	// @ Objetivo 
-	// La intencion es controlar la tecla pulsada según input y dato  
-	// Informacion de event:
-	// onkeydown, onkeypress  y onkeyup, pero el valor del input correcto, solo obtenemos en onkeyup ( al soltar)
-	// mas info en: http://librosweb.es/libro/javascript/capitulo_6/obteniendo_informacion_del_evento_objeto_event.html
-	// @ parametros que recibimos.
-	// 	event -> Objeto, donde podemos obtener el numero tecla, typo de evento ( mouse o key).
-	// 	nombreInput -> Nombre del id donde se ejecuto la funcion.
-	// 	nfila-> Es la fila en la que estamos.
-	// 	nomcampo -> Se utiliza modal productos para indicar en cajabusqueda  que campo vamos buscar. 
-	console.log ( ' ==== Pulsamos tecla ===== ');
-	// Variables que voy utilizar aparte parametros.
-	var datoinput = '';
-	var pantalla = 'tpv';
-	//Creo array con nombresInput de caja entrada de productos
-	// Y con la variable SiInputProductos controlo los campos.
-	// si esta variable es mayor o igual 0 quiere decir nombInput es uno de esos campo.
-	var nombresInputProductos = ["Codbarras","Referencia","Descripcion"];
-	var SiInputProductos = nombresInputProductos.indexOf(nombreInput); // Resultado numero index si lo encuentra , sino es -1
-
-	// Obtenemos datoinput menos de filacliente o filaproducto.
-		// 1.- Tienen que estar vacios.
-		// 		Codbarras 
-		// 		Referencia
-		// 		Descripcion
-		// 2.- Tiene que tener datos para poder buscarlos primero.
-		// 		cajaBusquedacliente
-		// 		cajaBusqueda
-		// 		Unidad
-		// 3.- No se obtiene datos solo se mueve.
-		//		filaproducto
-		//		filacliente
-	if ((nombreInput !== 'filacliente') && (nombreInput !== 'filaproducto')) {
-		datoinput = obtenerdatos(nombreInput,nfila); // String limpio espacios al principio y final.
-	}
-	
-	//[PULSAMOS : tecla F1 --> 112  Abrimos popup COBRAR]
-	if (event.keyCode === 112){
-		// [PENDIENTE] Antes de abrir popup deberíamos comprobar si viene Unidad entonces debe recalcular
-		var numproduct = productos.length;
-		if (numproduct > 0){
-			console.log('PULSO F1 - DENTRO CAJA ');
-			cobrarF1();
-		}
-	}
-	
-	//[PULSAMOS :tecla Enter]
-	if(event.keyCode == 13){
-		//~ console.log('Pulsamos ENTER -> vamos nomCampo y enviamos->nombreINput:'+nombreInput);
-		if ((nombreInput === 'cajaBusqueda') || (nombreInput === 'cajaBusquedacliente')){
-			// Cambiamo valor pantalla si estamos en popup
-			pantalla= 'popup';
-		}
-		if (SiInputProductos >= 0) {
-			if (datoinput !=='') {
-				// Si viene Descripcion,Referencia,Codbarras
-				buscarProductos(nombreInput,datoinput,pantalla)
-				//~ campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
-				return; // no continuanmos.. volvemos..
-			} else {
-				// Calculamos el index para obtener el nombre del input siguiente.
-				var index= SiInputProductos + 1;
-				if (index === nombresInputProductos.length) {
-					// Volvemos al primero
-					index = 0;
-				}
-				// Nos movemos.
-				$('#'+nombresInputProductos[index]).focus();
-			}
-			
-		}
-		if (nombreInput === 'cajaBusqueda'){
-			if (datoinput !=='') {
-				// Si viene de caja busqueda de productos.
-				//~ console.log('Nombre Campo:'+nomcampo);
-				buscarProductos(nomcampo,datoinput,pantalla)
-				//~ campo = nombreCampo(nombreInput,nfila,nomcampo,event.keyCode);
-				return; // no continuanmos.. volvemos..
-			}
-			
-		}
-		if (nombreInput === 'cajaBusquedacliente') {
-			buscarClientes(datoinput);
-			return;// no continuanmos.. volvemos..
-		}
-		if (nombreInput === 'Unidad'){
-			if (parseFloat(datoinput) != productos[nfila-1].unidad){
-				// Solo lo ejecutamos si el datos es distinto a lo que teníamos.
-				productos[nfila-1].unidad = parseFloat(datoinput);  // Lo pasamos como numero
-				recalculoImporte(productos[nfila-1].unidad,nfila-1);
-			}
-		}
-		if (nombreInput === 'entrega'){
-			var entrega = datoinput;
-			var cambio = entrega - total;
-			console.log(entrega);
-			if(event.keyCode === 13){
-				if (cambio < 0){
-					$('#cambio').css('color','red');
-				}else {
-					$('#cambio').css('color','grey');
-				}
-			$('#cambio').val(cambio.toFixed(2));
-			// Ponemos como focus el btn de aceptar
-			$('#CobrarAceptar').focus();
-			}
-		}
-
-
-
-
-	} 
-
-	//[PULSAMOS : tecla abajo y arriba]
-	if ((event.keyCode === 40) || (event.keyCode === 38)){
-		console.log('Pulse tecla bajar o subir ,nombreInput:'+nombreInput);
-		console.log(' Este es valor nfila' +nfila + ' Antes de cambiar' );
-
-		// [ Se pulso flecha ABAJO en campos Codbarras/Referencia/Descripcion estan vacio]
-		
-		if ((datoinput === '') && (SiInputProductos >= 0) && (event.keyCode === 40)){
-			console.log('Entro en vacio');
-			// Antes de enviar a focus, tenemos saber si hay productos.
-			if (productos.length>0){
-				console.log('Envio focus a nfila'+nfila);
-				$('#N' + productos.length + '_Unidad').select();
-				return; // no continuanmos.. volvemos..
-			}
-		}
-		// [ Se pulso fecha abajo y arriba en UNIDAD]
-		if (nombreInput === 'Unidad'){
-			console.log('Estoy en nombreInput->Unidad'+nfila);
-			// Recuerdad productos empieza 0 y fila en 1
-			if (parseFloat(datoinput) != productos[nfila-1].unidad){
-				// Solo lo ejecutamos si el datos es distinto a lo que teníamos.
-				productos[nfila-1].unidad = parseFloat(datoinput);  // Lo pasamos como numero
-				recalculoImporte(productos[nfila-1].unidad,nfila-1);
-			}
-			 // recalculo importe 
-			if ((nfila === productos.length) && (event.keyCode === 38)){
-				// Estoy en fila ultima de productos y pulse arriba ,por lo el focus es codbarras
-				$('#Codbarras').focus();
-				return; // no continuanmos.. volvemos..
-			}
-			if ((nfila === 1) &&(event.keyCode === 40)){
-				// Estoy en la FILA UNO (ULTIMA) de productos y pulse abajo ..por lo que volvemos codbarras
-				//~ console.log('Debería ir CodBarras, ya que pulso abajo y esta en primera fila');
-				$('#Codbarras').focus();
-				return; // no continuanmos.. volvemos..
-			}
-			// Ahora subimos o bajamos según pulsado.
-			var nueva_fila = nfila;
-			if (event.keyCode === 40){
-				// Hay que recordad que UNIDAD ( filas productos están de mayor a menor)
-				nueva_fila = nueva_fila-1;
-			}
-			if (event.keyCode === 38){
-				// Hay que recordad que UNIDAD ( filas productos están de mayor a menor)
-				nueva_fila = nueva_fila+1;
-			}
-			// Seleccionamos input siguiente o anterior segun tecla.
-			$('#N' + nueva_fila + '_Unidad').select();
-			return; // no continuanmos.. volvemos..
-		}	
-		
-		// [ Se pulso fecha abajo y arriba en Modal]
-		if ((nombreInput === 'cajaBusquedacliente') || (nombreInput === 'cajaBusqueda')){
-			// Si estoy modales.
-			console.log('Entro en modales ');
-			//~ if (nombreInput === 'cajaBusqueda'){  
-				// [ pulsamos flecha abajo o arriba  y estamos cajaBusqueda de lista productos] 
-				console.log('[ pulsamos flecha abajo o arriba  y estamos cajaBusqueda de lista productos]');
-				tiempoEnfoqueInput(nfila); //enfoque en el primer input de la lista
-				return;// no continuanmos.. volvemos..
-			//~ } 
-		}
-		// [ Se pulso fecha abajo y arriba en Modal de filaclientes o filaproductos]
-		if ((nombreInput === 'filacliente') || (nombreInput === 'filaproducto')) {
-			// [ pulsamos flecha abajo o arriba  y estamos lista productos o clientes.(modal)] 
-			// Ahora subimos o bajamos según pulsado.
-
-			var nueva_fila = nfila;
-
-			if (event.keyCode === 40){
-				// Hay que recordad que UNIDAD ( filas productos están de mayor a menor)
-				nueva_fila = nueva_fila+1;
-			}
-			if (event.keyCode === 38){
-				// Hay que recordad que UNIDAD ( filas productos están de mayor a menor)
-				nueva_fila = nueva_fila-1;
-			}
-			console.log('Nueva fila:'+nueva_fila );
-			// Si nfila es menor 0 entonces volvemos caja modal
-			if (nueva_fila < 0){
-				console.log('Entro nueva fila < 0 , ahora debemos enviar a :'+nomcampo );
-				$('#'+nomcampo).select();
-				
-			} else {
-				console.log('fila:'+nfila );
-				tiempoEnfoqueInput(nueva_fila);// no continuanmos.. volvemos..
-			}
-		}
-	// Cerramos condicional de pulsar tecla abajo y arriba.
-	}
-}
-//en input llamo con onkeydown a teclaPulsada(event,nombreInput,nfila)
-//pongo un tiempo de focus en input ventana modal busqueda 
-function tiempoEnfoqueInput(nfila){
-	setTimeout(function() {   //pongo un tiempo de focus en input modal busqueda 
-		$('#N_'+nfila).focus(); 
-	}, 100); 
-}
-
 function cobrarF1(){
 	//@Objetivo:
 	// Recalcular en php los totales.( Si hay diferencia se informa)
@@ -259,20 +44,6 @@ function cobrarF1(){
 	});
 }
 
-//quiero conseguir valor del campo
-function obtenerdatos(id,nfila=0){
-	// @Objetivo es obtener el valor del input
-	// @Parametros  id-> Identificador id , nfila -> Si el id es usuario necesito el nfila para obtener valor fila
-	console.log('ObtenerDatos del id:'+id);
-	if (id === 'Unidad'){
-		
-		id = 'N'+nfila+'_Unidad';
-	}
-	var aux = document.getElementById(id);
-	valorlimpio = aux.value;
-	valorlimpio = valorlimpio.trim(); // valor limpio de espacios.
-	return valorlimpio;
-}
 
 //case de nombreCampo = mysql , = html, 
 //con el id='C0_Codbarras' recojo el valor del campo en funcion obtener datos
@@ -281,20 +52,17 @@ function obtenerdatos(id,nfila=0){
 
 function resetCampo(campo){
 	console.log('Entro en resetCampo '+campo);
-	var campos = [];
-	campos['CREF'] = 'Referencia';
-	campos['CCODEBAR'] = 'Codbarras';
-	campos['CDETALLE'] = 'Descripcion';
-	document.getElementById(campos[campo]).value='';
+	document.getElementById(campo).value='';
 	return;
 }
 
 
-function buscarProductos(nombreInput,busqueda,dedonde){
+function buscarProductos(id_input,campo,busqueda,dedonde){
 	// @ Objetivo:
 	//  Buscar productos donde el dato exista en el campo que se busca...
 	// @ Parametros:
-	// 		nombreinput = ref,codigoBarras o descripc
+	// 		nombreinput = id caja de donde viene
+	//		campo =  campo a buscar
 	// 		busqueda = valor del input que corresponde.
 	// 		dedonde  = [tpv] o [popup] 
 	// @ Respuesta:
@@ -305,8 +73,9 @@ function buscarProductos(nombreInput,busqueda,dedonde){
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
+		"cajaInput"	 : id_input,
 		"valorCampo" : busqueda,
-		"campo"      : nombreInput,
+		"campo"      : campo,
 		"dedonde"    : dedonde
 	};
 	$.ajax({
@@ -319,40 +88,45 @@ function buscarProductos(nombreInput,busqueda,dedonde){
 		success    :  function (response) {
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
+			console.log('Estado'+resultado['Estado']);
 			if (resultado['Estado'] === 'Correcto') {
 				var datos = [];
 				datos = resultado.datos[0];
 				console.log('Entro en Estado Correcto funcion buscarProducto ->datos (producto)');
 				//~ console.log(datos);
 				//~ console.log('consulta '+resultado.sql);
+				resetCampo(id_input);
 				agregarFila(datos);
 				
 			} else {
 				// Se ejecuta tanto sea un listado como un error.
 				console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-				//~ console.log(resultado);
-				//~ console.log('consulta  listado '+resultado.sql);
-				//~ console.log('datos--> '+response);
-				//~ console.log('Nitems '+resultado.Nitems);
-				
-				
 				var busqueda = resultado.listado;   
 				var HtmlProductos=busqueda.html;   
 				var titulo = 'Listado productos encontrados ';
 				// Abrimos modal de productos.
 				abrirModal(titulo,HtmlProductos);
+				if (resultado.Nitems >0 ){
+					// Quiere decir que hay resultados por eso apuntamos al primero
+					// focus a primer producto.
+						var d_focus = 'N_0';
+						ponerFocus(d_focus);
+				} else {
+					// No hay resultado pero apuntamos a caj
+					ponerFocus(id_input);
+				}
 			}
 		// Al no poner return , esto se va ejecutar siempre.
-		document.getElementById(nombreInput).value='';
+		//~ document.getElementById(id_input).value='';
 		}
 		
 
 	});
 }
 
-function agregarFila(datos){
+function agregarFila(datos,campo=''){
 	// @ Objetivo
-	// 	Añadir producto a productos y ademas obtener htmlLinea para mostrar
+	// 	Añadir producto a productos (JS) y ademas obtener htmlLinea para mostrar
 	// Voy a crear objeto producto nuevo..
 	productos.push(new ObjProducto(datos));
 	var num_item = productos.length -1; // Obtenemos cual es el ultimo ( recuerda que empieza contado 0)
@@ -375,13 +149,19 @@ function agregarFila(datos){
 			
 			var resultado =  $.parseJSON(response);
 			var nuevafila = resultado['html'];
-			console.log(nuevafila);
+			//~ console.log(nuevafila);
 			
 			//$ signifca jQuery 
 			//$("#tabla").append(nuevaFila);
 			$("#tabla").prepend(nuevafila);
-			$('#Codbarras').focus();  //al agregar fila el foco lo coje el input de codigobarras
-			sumaImportes();
+			if ('campo' ==='') {
+				// Si no viene dato campo, por lo que focus por defectoe es Codbarras
+				$('#Codbarras').focus();  
+			} else {
+				// Ponemos focus el campo que le indicamos en parametro campo.
+				$(campo).focus();
+			}
+			grabarTicketsTemporal();
 		}
 	});
 
@@ -398,7 +178,7 @@ function eliminarFila(num_item){
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num_item].nfila + "_Unidad").prop("disabled", true);
-	sumaImportes();
+	grabarTicketsTemporal();
 }
 
 function retornarFila(num_item){
@@ -422,38 +202,19 @@ function retornarFila(num_item){
 	$("#N" + productos[num_item].nfila + "_Unidad").prop("disabled", false);
 	$("#N" + productos[num_item].nfila + "_Unidad").val(productos[num_item].unidad);
 	console.log(productos);
-	sumaImportes();
+	grabarTicketsTemporal();
 }
 //~ //fin funcion que agrega o elimina linea
 //************************************************************
 
 
-//creamos funcion de abrir modal pasandole datos ej. titulo
-//para asi pintarlo con jquery en html
-function abrirModal(titulo,tabla){
-	// Recibimos titulo -> String.( podemos cambiarlos cuando queramos)
-	// datos -> Puede ser un array o puede ser vacio
-	//~ if (opcion === "htmlProductos"){		
-	//~ }
-	$('.modal-body > p').html(tabla);
-	$('.modal-title').html(titulo);
-	$('#busquedaModal').modal('show');
-	
-	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	$('#busquedaModal').on('shown.bs.modal', function() {
-		$('#cajaBusqueda').focus(); //foco en input cajaBusqueda MODAL listadoProductos
-		//~ 
-		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
-		
-		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
-	//~ 
-	});
-
-}
-
-function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
-	// @ Llegamos aquí desde el modal de productos (funciones.php) en htmlProductos()
-	// Nuevos datos tabla nueva... 
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
+	// @ Objetivo:
+	//   Realizamos cuando venimos popUp de Productos.
+	// @ Parametros:
+	// 	 Caja -> Indica la caja queremos que ponga focus
+	//   datos -> Es el array que vamos enviar para añadir fila.
+	console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
 	var datos = []
 	datos['idArticulo'] 	= id;
 	datos['crefTienda'] 	= cref;
@@ -461,68 +222,19 @@ function cerrarModal(cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
 	datos['pvpCiva'] 		= npconiva;
 	datos['iva'] 			= ctipoIva;
 	datos['codBarras']		= ccodebar;
-	$('#busquedaModal').modal('hide');
-	$('#Codbarras').focus();	
 	agregarFila(datos);
-	
+	// Eliminamos contenido de cja destino y ponemos focus.
+	resetCampo(campo);
+	cerrarPopUp(campo);
+
 	
 }
 
 
-function cerrarModalClientes(id,nombre){
-	// @ parametros recibidos.
-	// 	id -> Del cliente
-	//  nombre ->  Nombre cliente
-	// mostrarlos en tpv
-	
-	//cerrar modal busqueda
-	$('#busquedaModal').modal('hide');
-	
-	//agregar datos funcion js
-	$('#id_cliente').val(id);
-
-	
-	$('#Cliente').val(nombre);	
-	cabecera['idCliente'] = id;
-	$('#Descripcion').focus();
-}
-
-
-function buscarClientes(valor=''){
-	// @ Objetivo:
-	// 	Abrir modal con lista clientes, que permitar buscar en caja modal.
-	// 	Ejecutamos Ajax para obtener el html que vamos mostrar.
-	// @ parametros :
-	//	valor -> Sería el valor caja del propio modal
-	console.log('FUNCION buscarClientes JS-AJAX');
-	var parametros = {
-		"pulsado"    : 'buscarClientes',
-		"busqueda" : valor
-	};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en buscar clientes JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de buscar clientes');
-			var resultado =  $.parseJSON(response); 
-			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-			var titulo = 'Listado clientes ';
-			abrirModal(titulo,HtmlClientes);
-			// Asignamos focus a caja buscar cliente.
-			$('#cajaBusquedacliente').focus();
-		}
-	});
-}
 function grabarTicketsTemporal(){
-	// Objetivo es enviar los datos necesarios para poder hacer un ticket temporal.
+	// @ Objetivo
+	// Grabar cabeceras y productos, amabas variables globales en tabla de ticket temporal.
 	console.log('Grabamos en BD');
-	//~ alert('Grabar');
-	// Montamos array
-	//~ var UNproduct =[];
 	var i  =0;
 	console.log('Productos');
 	console.log(productos);
@@ -563,23 +275,24 @@ function grabarTicketsTemporal(){
 			if (productos.length ===1 ){ 
 				history.pushState(null,'','?tActual='+resultado.NumeroTicket);
 			}
+			// Limpiamos los valores ivas y bases.
+			$('#tipo4').html('');
+			$('#tipo10').html('');
+			$('#tipo21').html('');
+			$('#base4').html('');
+			$('#base10').html('');
+			$('#base21').html('');
+			$('#iva4').html('');
+			$('#iva10').html('');
+			$('#iva21').html('');
+			$('.totalImporte').html('');
+			
 			// Ahora pintamos pie de ticket.
 			if (resultado.total > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
 				total = parseFloat(resultado.total) // varible global.
 				$('.totalImporte').html(total.toFixed(2));
 				// Ahora tengo que pintar los ivas.
-				// Eliminamos los que hay..
-				
-				$('#tipo4').html('');
-				$('#tipo10').html('');
-				$('#tipo21').html('');
-				$('#base4').html('');
-				$('#base10').html('');
-				$('#base21').html
-				$('#iva4').html('');
-				$('#iva10').html('');
-				$('#iva21').html('');
 				var desgloseIvas = [];
 				desgloseIvas.push(resultado.desglose);
 				console.log(desgloseIvas);
@@ -598,20 +311,17 @@ function grabarTicketsTemporal(){
 					}
 				});
 				
-				
-				//~ console.log(desgloseIvas.toString()); 
-				
 			}
 			
 		}
 	});
 }
 
-function CerrarTicket(){
+function cerrarTicket(){
 	//@ Objetivo:
 	// Enviar datos del ticket (cabecera y caja de cobrar)
 	// para guaardar como Cobrado en tablas ticket y temporal de ticket se cambia estado a COBRADO
-	 var entregado = obtenerdatos('entrega')
+	 var entregado = $('#entrega').val();
 	 var formaPago = $('#modoPago').val();
 	 //podemos obtener el valor de la propiedad checked, true o false
 	 var checkimprimir = $('input[name=checkimprimir]').prop('checked'); 
@@ -689,21 +399,6 @@ function metodoClick(pulsado){
 
 
 
-// ===================  FUNCIONES DE PINTAR BONITO =========================
-//html onfocus 
-function sobreProducto(cont){
-	$('#Fila_'+cont).css('background-color','lightblue');
-}
-//html onfocusout y onmouseout
-function abandonProducto(cont){
-	$('#Fila_'+cont).css('background-color','white');
-}
-
-function sobreProductoCraton(cont){
-	$('#Fila_'+cont).css('background-color','azure');
-}
-
-
 
 
 // =========================== OBJETOS  ===================================
@@ -722,6 +417,270 @@ function ObjProducto(datos,valor=1,estado ='Activo')
     this.importe = parseFloat(this.pvpconiva) * this.unidad;
 }
 	
-
+// =========================  FUNCIONES COMUNES EN MODULOS TPV Y CIERRES ===================== //
+function buscarClientes(pantalla,valor=''){
+	// @ Objetivo:
+	// 	Abrir modal con lista clientes, que permitar buscar en caja modal.
+	// 	Ejecutamos Ajax para obtener el html que vamos mostrar.
+	// @ parametros :
+	//	valor -> Sería el valor caja del propio modal
+	console.log('FUNCION buscarClientes JS-AJAX');
+	var parametros = {
+		"pulsado"    : 'buscarClientes',
+		"busqueda" : valor,
+		"dedonde"  : pantalla
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en buscar clientes JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de buscar clientes');
+			var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+			var titulo = 'Listado clientes ';
+			abrirModal(titulo,HtmlClientes);
+			// Asignamos focus a caja buscar cliente.
+			// Asignamos focus
+			if (encontrados >0 ){
+				// Enfocamos el primer item.
+				mover_down(0);
+				$('#N_0').focus();
+			}else {
+				// No hay datos focus a caja buscar cliente.
+				$('#cajaBusquedacliente').focus();
+			}
+		}
+	});
+}
 	
+
+function abrirModal(titulo,tabla){
+	// @ Objetivo :
+	// Abril modal con texto buscado y con titulo que le indiquemos.
+	console.log('Estamos en abrir modal');
+	$('.modal-body > p').html(tabla);
+	$('.modal-title').html(titulo);
+	$('#busquedaModal').modal('show');
+	
+	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
+	$('#busquedaModal').on('shown.bs.modal', function() {
+		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
+		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
+		$('#cajaBusqueda').focus(); //foco en input caja busqueda del cliente
+		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
+	});
+}
+
+
+
+function escribirClienteSeleccionado(id,nombre,dedonde=''){
+	// @ Objetivo:
+	// 	 Escribir el nombre y id cliente en pantalla principal.
+	// 	id -> Del cliente
+	//  nombre ->  Nombre cliente
+	// 	dedonde -> tpv
+	//			   cobrados
+	// mostrarlos en cajas se son las mismas para las dos.
+	$('#id_cliente').val(id);
+	$('#Cliente').val(nombre);
+	// Cerramos modal  y le indicamos destino focus.
+	cerrarPopUp(); // Destino no indicamo ya que no sabes...
+	if (dedonde ='tpv'){
+		// Ponemos focus por defecto.
+		ponerFocus('Codbarras');
+	} 
+	
+}
+
+function controladorAcciones(caja,accion){
+	// @ Objetivo es obtener datos si fuera necesario y ejecutar accion despues de pulsar una tecla.
+	//  Es Controlador de acciones a pulsar una tecla que llamamos desde teclado.js
+	// @ Parametros:
+	//  	caja -> Objeto que aparte de los datos que le ponemos en variables globales de cada input
+	//				tiene funciones que podemos necesitar como:
+	//						darValor -> donde obtiene el valor input
+	switch(accion) {
+		case 'buscarClientes':
+			// Esta funcion necesita el valor.
+			buscarClientes(caja.darParametro('dedonde'),caja.darValor());
+			break;
+		case 'buscarProductos':
+			// Esta funcion necesita el valor.
+			console.log('Entro en acciones buscar Productos');
+			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.darValor(),caja.darParametro('dedonde'));
+			break;
+		case 'recalcular_ticket':
+			// recuerda que lo productos empizan 0 y las filas 1
+			var nfila = parseInt(caja.fila)-1;
+			// Comprobamos si cambio valor , sino no hacemos nada.
+			//~ productos.[nfila].unidad = caja.darValor();
+			console.log ( caja);
+			productos[nfila].unidad = caja.darValor();
+			recalculoImporte(productos[nfila].unidad,nfila);
+			
+			break;
+		case 'mover_down':
+			// Controlamos si numero fila es correcto.
+			if ( isNaN(caja.fila) === false){
+				var nueva_fila = parseInt(caja.fila)+1;
+			} else {
+				// quiere decir que no tiene valor.
+				var nueva_fila = 0;
+			}
+			mover_down(nueva_fila,caja.darParametro('prefijo'));
+			break;
+		case 'mover_up':
+			console.log( 'Accion subir 1 desde fila'+caja.fila);
+			if ( isNaN(caja.fila) === false){
+				var nueva_fila = parseInt(caja.fila)-1;
+			} else {
+				// quiere decir que no tiene valor.
+				var nueva_fila = 0;
+			}
+			mover_up(nueva_fila,caja.darParametro('prefijo'));
+			break;
+		case 'saltar_Referencia':
+			var dato = caja.darValor();
+			if ( dato.length === 0){
+				// Si esta vacio, sino permitimos saltar.
+				var d_focus = 'Referencia';
+				ponerFocus(d_focus);
+			}
+			break;
+		case 'saltar_Descripcion':
+			var dato = caja.darValor();
+			if ( dato.length === 0){
+				// Si esta vacio, sino permitimos saltar.
+				var d_focus = 'Descripcion';
+				ponerFocus(d_focus);
+			}
+			break;
+		case 'saltar_CodBarras':
+			var dato = caja.darValor();
+			if ( dato.length === 0){
+				// Si esta vacio, sino permitimos saltar.
+				var d_focus = 'Codbarras';
+				ponerFocus(d_focus);
+			}
+			break;
+		case  'saltar_productos':
+			if (productos.length >0){
+			// Debería añadir al caja N cuantos hay
+				console.log ( 'Entro en saltar a producto que hay '+ productos.length);
+				ponerFocus('Unidad_Fila_'+productos.length);
+			} else {
+			   console.log( ' No nos movemos ya que no hay productos');
+			}
+			break
+		case 'cobrar':
+			console.log( ' Entro en accion buscarProducto');
+			cobrarF1();
+			break
+			
+		case 'poner_entrega':
+			var cambio = parseFloat(caja.darValor()) - total;
+			console.log(cambio);
+			if (cambio < 0){
+				$('#cambio').css('color','red');
+			}else {
+				$('#cambio').css('color','grey');
+			}
+			$('#cambio').val(cambio.toFixed(2));
+			// Ponemos como focus el btn de aceptar
+			ponerFocus('CobrarAceptar');
+			break;
+		
+		case 'cerrar_ticket':
+			console.log(' Entro en contralador de acciones, cerrar ticket');
+			CobrarAceptar.parametros.pulsado_intro = 'Si';
+			// Ahora grabamos y cerramos ticket
+			cerrarTicket()
+			break;
+		case 'focus_entrega':
+			ponerFocus('entrega');
+			break;
+			
+		case 'focus_modoPago':
+			ponerFocus('modoPago');
+			break;
+		
+		default :
+			console.log ( 'Accion no encontrada '+ accion);
+	} 
+}
+// ===================  FUNCIONES DE PINTAR BONITO y MOVIMIENTOS =========================
+//html onfocus 
+function sobreFila(cont){
+	$('#Fila_'+cont).css('background-color','lightblue');
+}
+//html onfocusout y onmouseout
+function abandonFila(cont){
+	$('#Fila_'+cont).css('background-color','white');
+}
+
+function sobreFilaCraton(cont){
+	$('#Fila_'+cont).css('background-color','azure');
+}
+
+function mover_down(fila,prefijo){
+	sobreFilaCraton(fila);
+	var d_focus = prefijo+fila;
+	ponerFocus(d_focus);
+	
+}
+
+function mover_up(fila,prefijo){
+	sobreFilaCraton(fila);
+	var d_focus = prefijo+fila;
+	ponerFocus(d_focus);
+}
+function cerrarPopUp(destino_focus=''){
+	// @ Objetivo :
+	// Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
+	//cerrar modal busqueda
+	$('#busquedaModal').modal('hide');
+	if (destino_focus !== ''){
+		ponerFocus(destino_focus);
+	}
+	
+}
+
+function ponerFocus (destino_focus){
+	// @ Objetivo:
+	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
+	console.log('Entro en enviar focus de :'+destino_focus);
+	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		jQuery('#'+destino_focus.toString()).focus(); 
+	}, 50); 
+
+}
+
+function recalculoImporte(cantidad,num_item){
+	// @ Objetivo:
+	// Recalcular el importe de la fila, si la cantidad cambia.
+	// @ Parametros:
+	//	cantidad -> Valor ( numerico) de input unidades.
+	//	num_item -> El numero que indica el producto que modificamos.
+	console.log('Estoy en recalculoImporte');
+	//~ console.log('cantidad:'+cantidad);
+	if (productos[num_item].unidad == 0 && cantidad != 0) {
+		retornarFila(num_item);
+	} else if (cantidad == 0 ) {
+		eliminarFila(num_item);
+	}
+	console.log('Valor de cantidad'+cantidad);
+	productos[num_item].unidad = cantidad;
+	//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
+	var importe = cantidad*productos[num_item].pvpconiva;
+	var id = '#N'+productos[num_item].nfila+'_Importe';
+	//alert('recalcular'+id);
+	importe = importe.toFixed(2);
+	$(id).html(importe);
+	grabarTicketsTemporal();
+}
 
