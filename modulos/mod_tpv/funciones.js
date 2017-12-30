@@ -128,6 +128,8 @@ function agregarFila(datos,campo=''){
 	// @ Objetivo
 	// 	Añadir producto a productos (JS) y ademas obtener htmlLinea para mostrar
 	// Voy a crear objeto producto nuevo..
+	console.log('Voy agregar producto');
+	console.log(datos);
 	productos.push(new ObjProducto(datos));
 	var num_item = productos.length -1; // Obtenemos cual es el ultimo ( recuerda que empieza contado 0)
 	// Ahora por Ajax montamos el html fila.
@@ -392,7 +394,17 @@ function metodoClick(pulsado){
 			//window.location.href = './ticketCerrado.php?id='+checkID[0];
 			alert('Ticket cerrado, opc imprimir');
 			
-			break;		
+			break;	
+		case 'descontarStockWeb':
+			//seleccionar para enviar stock web
+			//~ VerIdSeleccionado (); // de momento solo hacemos dentro un ticket cerrado
+			//~ if (checkID.length >1 || checkID.length=== 0) {
+				//~ alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				//~ return
+			//~ }
+			alert('Ticket cerrado enviar Sctok a Web');
+			
+			break;			
 	 }
 } 
 
@@ -733,3 +745,81 @@ function recalculoImporte(cantidad,num_item){
 	grabarTicketsTemporal();
 }
 
+function PrepararEnviarStockWeb(){
+	// @ Objetivo:
+	//  Enviar URl de servidor productos para cambiar stock
+	//  Esta es funcion provisional, ya que deberíamos saber con configuracion a que web queremos cambiar el stock
+	//  o con una seleccion de webs... 
+	//  Inicializamos Variables:
+	var tienda_web = [];	
+	console.log('PREPARAMOS DATOS PARA ENVIAR');
+	var parametros = {
+		"pulsado" : 'ObtenerRefTiendaWeb',
+		"productos"    : productos,
+		"web"		 : '2'
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			// Debería tener un sitio para meter barra proceso, ya que puede tardar..
+			// Este proceso no,pero el siguiente si..
+			// De momento utilizo alert
+			console.log('*********  Preparando datos para enviar... ****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta de envio de datos');
+			var resultado =  $.parseJSON(response); 
+			// Ponemos datos de tienda_web en variable
+			tienda_web = resultado.tienda;
+			console.log(response);
+			// Recuerda que el repción de los datos no es el mismo que envio, por debemos asociar key con valor.
+			if (typeof resultado.idVirtuemart !== 'undefined'){;
+				// Hubo resultado, recorremos para añadir a productos.
+				var idsVirtuemart = resultado.idVirtuemart;
+				var Key;
+				for (i = 0; i < idsVirtuemart.length ; i ++){
+					key = Object.keys(idsVirtuemart[i]);	
+					// Buscamos key en producto
+					for ( x=0; x < productos.length ; x ++){
+						if (productos[x].id == key){
+							productos[x].idVirtuemart = parseInt(idsVirtuemart[i][key]);
+						}
+					}
+				}
+				
+			// Ahora aquellos productos que tiene idVirtuemart
+			EnviarStockWeb(tienda_web,productos);
+				
+			} else {
+				alert( 'No hay idVirtuemart para los productos, o hubo un error');
+				return;
+			}
+		}
+	});
+	
+}
+
+function EnviarStockWeb(tienda_web,productos){
+	var url_ruta = tienda_web.dominio + '/administrator/apisv/tareas.php';
+	var parametros = {
+		"key" :  tienda_web.key_api,
+		"action"    : 'RestarStock',
+		"productos"	: productos
+	};
+	$.ajax({
+		data       : parametros,
+		url        : url_ruta,
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Envio datos para Buscar Producto  ****************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de envio de datos');
+				var resultado =  response;
+				console.log(resultado);
+			}
+			
+	});
+}  

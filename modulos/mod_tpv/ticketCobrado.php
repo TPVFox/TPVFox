@@ -52,37 +52,52 @@
         include './../../header.php';
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
-		$tabla= 'ticketst'; // Tablas que voy utilizar.
 		$idUsuario = $Usuario['id'];
 		
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
-			$datos = verSelec($BDTpv,$id,$tabla,$idTienda);
-			foreach($datos as $key => $dato){
-				
-				$idCliente=$dato['idClientes'];
-				$nombreCliente =$dato['Nombre'];
-				$datoTicket=$dato;
+			$datos = ObtenerUnTicket($BDTpv,$id,$idTienda);
+			$idCliente=$datos['cabecera']['idClientes'];
+			$nombreCliente =$datos['cabecera']['DatosCliente'];
+			$datoTicket=$datos['cabecera'];
 				// Ahora añadimos html para estado y clase row
-				$datos[$key]['htmlEstado'] = '';
-				$datos[$key]['classRow'] = '';
-				if ($dato['estadoLinea'] === 'Eliminado'){
-					$datos[$key]['htmlEstado'] = '<span class="glyphicon glyphicon-trash"></span>';
-					$datos[$key]['classRow'] = 'class="tachado"';
-				}
-			}
-			
-			$titulo = "Ticket Cobrado";
-			if (isset($datos['error'])){
-				$error='NOCONTINUAR';
-				$tipomensaje= "danger";
-				$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$datos['consulta'];
-			}
+
 		}
+			
+		$titulo = "Ticket Cobrado";
+		if (isset($datos['error'])){
+			$error='NOCONTINUAR';
+			$tipomensaje= "danger";
+			$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$datos['consulta'];
+		}
+		// Añadimos productos a JS
+		?>
+		<script type="text/javascript">
+			var productos = [];
+			var datos_producto = [];
+			<?php 
+			$i = 0;
+			foreach($datos['lineas'] as $product){
+				echo "datos_producto['idArticulo']	=".$product['idArticulo'].';';
+				echo "datos_producto['codBarras'] 	='".$product['ccodbar']."';";
+				echo "datos_producto['crefTienda'] 	='".$product['cref']."';";
+				echo "datos_producto['articulo_name'] 	='".$product['cdetalle']."';";
+				echo "datos_producto['iva']	='".$product['iva']."';";
+				echo "datos_producto['pvpCiva']	=".$product['precioCiva'].';';
+			// Ahora añadimos datos_productos a productos... creando objeto.
+			echo 'productos.push(new ObjProducto(datos_producto,'.$product['nunidades'].'));';
+			echo "productos[".$i."].estado	='".$product['estadoLinea']."';";
+
+			$i++;
+			}
+			?>
+		
+		</script>
+		<?php
 		// debug
 		//~ echo '<pre>';
-		//~ print_r($datos);
+		//~ print_r($datos['lineas']);
 		//~ echo '</pre>';
 	
 		
@@ -104,8 +119,20 @@
 			}
 			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
-			<a class="text-ritght" href="./ListaTickets.php?estado=Cobrado">Volver Atrás</a>
-			<div class="col-md-10 col-md-offset-2 ">
+			 
+			<nav class="col-sm-2">
+				<a href="./ListaTickets.php?estado=Cobrado">Volver Atrás</a>
+				<div class="col-md-12">
+				<h4> Opciones de Ticket</h4>
+				<ul class="nav nav-pills nav-stacked"> 
+				 	<li><a onclick="PrepararEnviarStockWeb();";>Descontar Stock en Web</a></li>
+				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
+				</ul>
+				</div>	
+			</nav>
+			
+			
+			<div class="col-md-10">
 				<div class="col-md-12">
 					<div class="col-md-7">
 						<div class="col-md-6">
@@ -152,8 +179,17 @@
 						</thead>
 						<tbody>
 							<?php
-							foreach ($datos as $key =>$dato) {?>
-								<tr <?php echo $dato['classRow']?>>
+							foreach ($datos['lineas'] as $key =>$dato) {?>
+								<?php 
+								if ($dato['estadoLinea'] === 'Eliminado'){
+									$htmlEstado = '<span class="glyphicon glyphicon-trash"></span>';
+									$classRow = 'class="tachado"';
+								} else {
+									$htmlEstado='';
+									$classRow ='';
+								}
+								?> 
+								<tr <?php echo $classRow?>>
 									<td><?php echo $key+1; ?></td>
 									<td><?php echo $dato['ccodbar'];  ?></td>
 									<td><?php echo $dato['cref']; ?></td>
@@ -162,7 +198,7 @@
 									<td><?php echo number_format($dato['precioCiva'],2); ?></td>
 									<td><?php echo $dato['iva']; ?></td>
 									<td><?php echo number_format($dato['nunidades'],2)*number_format($dato['precioCiva'],2); ?></td>
-									<td> <?php echo $dato['htmlEstado']; ?>	</td>
+									<td> <?php echo $htmlEstado; ?>	</td>
 								</tr>
 								<?php
 								
@@ -173,35 +209,6 @@
 					</table>
 				</div>
 			</div>
-			<?php 
-			
-			
-			$datosIvas = baseIva($BDTpv,$datoTicket['idticketst']);
-			
-			foreach ($datosIvas['items'] as $datoIBase){
-				switch ($datoIBase['iva']){
-				case 4 :
-					$base4 = $datoIBase['importeBase'];
-					$iva4 = $datoIBase['importeIva'];
-
-				break;
-				case 10 :
-					$base10 = $datoIBase['importeBase'];
-					$iva10 = $datoIBase['importeIva'];
-				break;
-				case 21 :
-					$base21 = $datoIBase['importeBase'];
-					$iva21 = $datoIBase['importeIva'];
-				break;
-				}
-			}
-			//~ echo '<pre>';
-			//~ print_r($datosIvas['items']);
-			//~ echo '</pre>';
-			
-			
-			
-			?>
 			<div class="col-md-10 col-md-offset-2 pie-ticket">
 				<!-- TABLA IVAS BASES -->
 				<table id="tabla-pie" class="col-md-6">
@@ -213,52 +220,41 @@
 					</tr>
 				</thead>
 				<tbody>
-				<tr id="line4">
-					<td id="tipo4">
-						<?php echo (isset($base4) ? " 4%" : '');?>
+				<?php 
+			
+				foreach ( $datos['basesYivas'] as $baseYiva){
+				?>
+				<tr>
+					<td  class="tipo_iva">
+						<?php echo $baseYiva['iva']."%";?>
 					</td>
-					<td id="base4">
-						<?php echo (isset($base4) ? $base4 : '');?>
+					<td class="base">
+						<?php echo $baseYiva['importeBase'];?>
 					</td>
-					<td id="iva4">
-						<?php echo (isset($iva4) ? $iva4 : '');?>
-					</td>
-					
-				</tr>
-				<tr id="line10">
-					<td id="tipo10">
-						<?php echo (isset($base10) ? "10%" : '');?>
-					</td>
-					<td id="base10">
-						<?php echo (isset($base10) ? $base10 : '');?>
-					</td>
-					<td id="iva10">
-						<?php echo (isset($iva10) ? $iva10 : '');?>
+					<td class="importe_iva">
+						<?php echo $baseYiva['importeIva'];?>
 					</td>
 					
 				</tr>
-				<tr id="line21">
-					<td id="tipo21">
-						<?php echo (isset($base21) ? "21%" : '');?>
-					</td>
-					<td id="base21">
-						<?php echo (isset($base21) ? $base21 : '');?>
-					</td>
-					<td id="iva21">
-						<?php echo (isset($iva21) ? $iva21 : '');?>
-					</td>
-					
-				</tr>
+				<?php
+				}
+				?>
+				
 			</tbody>
 			</table>
 			<!--Fin tabla bases ivas-->
 			<div class="col-md-6">
-				<div class="col-md-4">
+				<div class="col-md-4 text-right">
 					<h3>TOTAL</h3>
+					<p>Forma pago</p>
+					<p>Entregado</p>
 				</div>
-				<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-					<?php echo  $dato['total'];?>
+				<div class="col-md-8 text-right totalImporte" >
+					<div style="font-size: 3em;"><?php echo  $datos['totales']['total'];?></div>
+					<p><?php echo  $datos['totales']['formaPago'];?></p>
+					<p><?php echo  $datos['totales']['entregado'];?></p>
 				</div>
+				
 			</div>	
 			
 		</div>

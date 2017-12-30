@@ -118,7 +118,7 @@ switch ($pulsado) {
 		$checkimprimir 					=$_POST['checkimprimir'];
 		
 		// Obtenemos ticket
-		$ticket 	= ObtenerUnTicket($BDTpv,$cabecera['idTienda'],$cabecera['idUsuario'] ,$cabecera['numTickTemporal']);
+		$ticket 	= ObtenerUnTicketTemporal($BDTpv,$cabecera['idTienda'],$cabecera['idUsuario'] ,$cabecera['numTickTemporal']);
 		// Comprobamos que el resultado es correcto y recalculamos totales
 		if (isset($ticket['error'])) { 
 			$respuesta['error-ticket']['mensaje'] ='Error en al Obtener ticket';
@@ -173,6 +173,17 @@ switch ($pulsado) {
 		break;
 		
 		
+	case 'ObtenerRefTiendaWeb';
+		$respuesta = array();
+		$productos =$_POST['productos'];
+		$idweb	 = $_POST['web'];
+		//Ahora obtenemos datos tienda web.
+		$tienda = BuscarTienda($BDTpv,$idweb);
+		$respuesta = ObtenerRefWebProductos($BDTpv,$productos,$idweb);
+		$respuesta['tienda'] = $tienda;
+		echo json_encode($respuesta);
+		break;
+		
 		
 	/* **************************************************************	*
      * 			LLAMADAS FUNCIONES COMUNES MODULO CIERRES Y TPV			*
@@ -189,11 +200,10 @@ switch ($pulsado) {
 			//$res = BusquedaClientes($busqueda);
 			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
 		} 
-		
 		$respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
-	
 		echo json_encode($respuesta);
 		break;
+		
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

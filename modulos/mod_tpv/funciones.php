@@ -339,7 +339,7 @@ function ObtenerCabeceraTicketAbierto($BDTpv,$idUsuario,$idTienda,$numTicket=0){
 	$respuesta['consulta'] = $sql;
 	return $respuesta;
 }
-function ObtenerUnTicket($BDTpv,$idTienda,$idUsuario,$numero_ticket){
+function ObtenerUnTicketTemporal($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 	// @ Objetivo
 	// Obtener los datos de un ticket ( ticketsTemporal ), con sus productos en un array.
 	// Hay que tener en cuenta que todos los productos del tickets esta en un campo unico, en un array JSON
@@ -768,43 +768,138 @@ function DatosTiendaID($BDTpv,$idTienda){
 		return $resultado;
 }
 
-///////////VER TICKET CERRADO
-function verSelec($BDTpv,$idSelec,$tabla,$idTienda){
-	//ver seleccionado en check listado	
-	// Obtener datos de un id de usuario.
-	$consulta = ' SELECT l.* , t.*, c.`idClientes`, u.`username`, c.`razonsocial`, c.`Nombre` ' 
-				.'FROM '.$tabla.' AS t '
-				.'LEFT JOIN `ticketslinea` AS l ON l.`idticketst` = t.`id` '
+function ObtenerUnTicket($BDTpv,$idSelec,$idTienda){
+	// @ Objetivo obtener un ticket.
+	// @ Parametro
+	// 		$idSelec -> id del ticket , que no es el numero ticket.... :-)
+	// 		$idTienda -> id de la tienda que estas.
+	$resultado = array();
+	// Realizamos la consulta de ticket dos consultas.
+	
+	// Primera consulta para obtener cabecera y totales.
+	$consulta = ' SELECT t.*, c.`idClientes`, u.`username`, c.`razonsocial`, c.`Nombre` ' 
+				.'FROM ticketst AS t '
 				.'LEFT JOIN `clientes` AS c '
 				.'ON c.`idClientes` = t.`idCliente` '
 				.'LEFT JOIN `usuarios` AS u '
 				.'ON u.`id` = t.`idUsuario` '
 				.'WHERE `idTienda` ='.$idTienda.' AND t.`id` = '.$idSelec;
 
-	$resultsql = $BDTpv->query($consulta);
-	if (mysqli_error($BDTpv)) {
-		$fila['error'] = 'Error en la consulta '.$BDTpv->errno;
+	$query = $BDTpv->query($consulta);
+	if ($query = $BDTpv->query($consulta)){
+		if (!$query->num_rows === 1){
+			// Quiere decir que se encontro mas o ningún ticket.
+			$resultado['error']= ' Se encontrado '.$query->num_rows.' tickets';
+		return $resultado;
+		}
+		
+		while ($datos = $query->fetch_assoc()) {
+			$resultado['cabecera'] = array(	'idClientes'	=>$datos['idClientes'],
+											'DatosCliente' 	=>$datos['Nombre'].'-'.$datos['razonsocial'],
+											'Numticket' 	=>$datos['idTienda'].'-'.$datos['idUsuario'].'-'.$datos['Numticket'],
+											'Fecha'			=>$datos['Fecha'],
+											'estado'		=>$datos['estado'],
+											'username'		=>$datos['username'],
+											'idticketst'	=>$idSelec
+										);			
+			$resultado['totales'] = array( 	'formaPago'		=>$datos['formaPago'],
+											'entregado'			=>$datos['entregado'],
+											'total'				=>$datos['total']
+											);
+		}
 	} else {
-		if (!$resultsql->num_rows > 0){
-			$fila['error']= ' No se a encontrado ticket cobrado';
-		}
-	}
-	if ($resultsql = $BDTpv->query($consulta)){			
-		while ($datos = $resultsql->fetch_assoc()) {
-			$fila[] = $datos;			
-		}
+		$resultado['error']= ' Error en la consulta';
+		$resultado['consulta'] = $consulta;
+		return $resultado;
 	}
 	
-	//$fila['Nrow']= $resultsql->num_rows;
-	//$fila['sql'] = $consulta;
+	//  Consultamos los bases y ivas.
+	$datosIvas = baseIva($BDTpv,$resultado['cabecera']['idticketst']);
+	if (count($datosIvas['items']) > 0){
+		// obtuvo datos de ivas y bases..
+		$resultado['basesYivas'] = $datosIvas['items'];
+	}
+	// Ahora consultamos las lineas.
+	$consulta = 'SELECT * FROM `ticketslinea` WHERE idticketst='.$idSelec;
+	$query = $BDTpv->query($consulta);
+	if ($query = $BDTpv->query($consulta)){
+		while ($datos = $query->fetch_assoc()) {
+			$resultado['lineas'][] = $datos;
+		}
+	} else {
+		$resultado['error']= ' Error en la consulta';
+		$resultado['consulta'] = $consulta;
+		return $resultado;
+	}
+	
+	
+	return $resultado ;
+}
+
+
+
+
+
+function ObtenerRefWebProductos($BDTpv,$productos,$idWeb){
+	// @ Objetivo 
+	// Obtener el idVirtuemart del producto que utilizamos en virtuemart
+	// @ Parametros
+	// 	 $productos-> Array de objetos.
+	
+	// Montamos where para buscar los id de los productos.
+	$resultado = array();
+	$wheres = array();
+	foreach ($productos as $producto){
+		$wheres[] = $producto['id'];
+	}
+	$where = '('.implode(',',$wheres).')';
+	
+	$consulta = 'SELECT idArticulo,idVirtuemart FROM articulosTiendas WHERE `idTienda` ='.$idWeb.' AND idArticulo IN '.$where;
+	if ($query = $BDTpv->query($consulta)){
+		while ($dato = $query->fetch_assoc()) {
+			$resultado['idVirtuemart'][] = array ($dato['idArticulo'] => $dato['idVirtuemart']);
+		}
+	} else {
+		$resultado['error']= ' Error en la consulta';
+		$resultado['consulta'] = $consulta;
+		return $resultado;
+	}
+	
+	return $resultado;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ******************************************************************************	
+ *  			FUNCIONES REPETIDAS Y COMUNES EN OTROS MODULOS: CIERRES Y TPV	 		*
+ * ****************************************************************************** */
+ 
+function BuscarTienda($BDTpv,$idWeb){
+	$consulta = 'SELECT * FROM tiendas WHERE  idTienda ='.$idWeb;
+	$unaOpc = $BDTpv->query($consulta);
+	if (mysqli_error($BDTpv)) {
+		$fila = $unaOpc;
+	} else {
+		$fila = $unaOpc->fetch_assoc();
+	}
+	//~ $fila['sql'] = $unaOpc;
+	$fila['consulta'] = $consulta;
 	return $fila ;
 }
 
-/* ******************************************************************************	
- *  			FUNCIONES REPETIDAS Y COMUNES EN MODULOS CIERRES Y TPV	 		*
- * ****************************************************************************** */
- 
- function baseIva($BDTpv,$idticketst){
+
+
+function baseIva($BDTpv,$idticketst){
 	//@ tabla : ticketstIva
 	//@ campo : idticketst
 	//@ Objetivo:
