@@ -1,10 +1,10 @@
 <?php 
 /*
  * @version     0.1
- * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
+ * @copyright   Copyright (C) 2017 TpvFox Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero
- * @Descripcion	Importar ficheros de web Joomla
+ * @Descripcion	Importar o exportar ficheros de web Joomla
  * */	
 
  // Gestion de errores

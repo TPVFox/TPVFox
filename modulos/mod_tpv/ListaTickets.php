@@ -209,7 +209,7 @@
 						<th>ESTADO</th>
 						<th>FORMA PAGO</th>
 						<th>TOTAL</th>
-						<th>ID CIERRE</th>
+						<th>DESCONTAR WEB</th>
 					</tr>
 				</thead>
 	

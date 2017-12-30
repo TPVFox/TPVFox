@@ -219,7 +219,7 @@ var cajaBusquedacliente = {
 	if ($ticket_numero > 0){
 		//Obtenemos datos del ticket
 		// Ahora obtenemos el ticket abierto que estamos.
-		$ticket= ObtenerUnTicket($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
+		$ticket= ObtenerUnTicketTemporal($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
 		// Si carga correctamente el ticket
 		
 		if (isset($ticket['estadoTicket'])){
