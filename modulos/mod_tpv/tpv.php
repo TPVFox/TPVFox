@@ -565,7 +565,7 @@ var cajaBusquedacliente = {
 
 </div>
 <?php // Incluimos paginas modales
-include 'busquedaModal.php';
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 
 ?>
 <script type="text/javascript">
