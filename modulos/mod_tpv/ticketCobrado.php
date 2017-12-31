@@ -74,6 +74,7 @@
 		// Añadimos productos a JS
 		?>
 		<script type="text/javascript">
+			var id_ticketst = <?php echo $id; ?>;
 			var productos = [];
 			var datos_producto = [];
 			<?php 
@@ -125,7 +126,7 @@
 				<div class="col-md-12">
 				<h4> Opciones de Ticket</h4>
 				<ul class="nav nav-pills nav-stacked"> 
-				 	<li><a onclick="PrepararEnviarStockWeb();";>Descontar Stock en Web</a></li>
+				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb();" >Descontar Stock en Web</button
 				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
 				</ul>
 				</div>	

@@ -802,6 +802,10 @@ function PrepararEnviarStockWeb(){
 }
 
 function EnviarStockWeb(tienda_web,productos){
+	// @Objetivo :
+	// Ejecutar en servidor de web funcion que reste stock de productos
+	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
+	$("#DescontarStock").prop("disabled", true);
 	var url_ruta = tienda_web.dominio + '/administrator/apisv/tareas.php';
 	var parametros = {
 		"key" :  tienda_web.key_api,
@@ -817,9 +821,43 @@ function EnviarStockWeb(tienda_web,productos){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de envio de datos');
-				var resultado =  response;
-				console.log(resultado);
+				//~ var resultado = $.parseJSON(response);
+				var resultado = response;
+	
+				if (resultado['Datos'].estado !== 'Correcto'){
+					// Quiere decir que algo salio mal.. por lo que debemos guardalo en registro como error.
+					alert(' Error, algo salio mal.');
+				}
+				// Ahora registramos en tpv ( importar_virtuemart_ticketst el resultado)
+				console.log(resultado['Datos']);
+
+				RegistrarRestarStockTicket(resultado['Datos']);
 			}
 			
 	});
 }  
+
+function RegistrarRestarStockTicket(respuesta){
+	// Ejecutar en servidor local (tpv) registro de que ya se resto stock.
+	var parametros = {
+		"pulsado"    		: 'RegistrarRestaStock',
+		"id_ticketst"		: id_ticketst,
+		"respuesta_servidor": respuesta
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Registros de stock en tpv de aquellos tickests que se resto en servidor **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de registro resta de stock en tpv');
+				//~ var resultado = $.parseJSON(response);
+				var resultado = response;
+			}
+			
+	});
+	
+	
+}

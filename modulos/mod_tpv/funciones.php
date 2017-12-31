@@ -176,7 +176,7 @@ function htmlCobrar($total){
 	$resultado['html'] .= '<option value="contado">Contado</option>';
 	$resultado['html'] .= '<option value="tarjeta">Tarjeta</option>';
 	$resultado['html'] .= '</select>';
-	$resultado['html'] .= ' <button id="CobrarAceptar" type="button" data-obj="CobrarAceptar" onkeydown="controlEventos(event)" class="btn btn-primary" onclick="tcontrolEventos(event)" >Aceptar</button>';
+	$resultado['html'] .= ' <button id="CobrarAceptar" type="button" data-obj="CobrarAceptar" onkeydown="controlEventos(event)" class="btn btn-primary" onclick="controlEventos(event)" >Aceptar</button>';
 	$resultado['html'] .= '</div>';
 	$resultado['html'] .= '</div>';
 	
@@ -1014,6 +1014,33 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 	$resultado['html'] .='</tbody></table>';
 	// Ahora generamos objetos de filas.
 	// Objetos queremos controlar.
+	return $resultado;
+}
+
+
+function RegistrarRestaStock($BDTpv,$id,$respuesta_servidor){
+	// @ Objetivo:
+	// Registrar aquellos tickets que hemos ya descontado stock en la web.
+	$resultado = array();
+	if ($respuesta_servidor['estado']=== 'Correcto'){
+		$respuesta_servidor['registro_cambiados'] = 'Registros cambiados '.$respuesta_servidor['registro_cambiados'];
+	} 
+	$sql = 'INSERT INTO `importar_virtuemart_tickets`(`idTicketst`, `Fecha`, `estado`, `respuesta`) VALUES ('.$id.',now(),"'.$respuesta_servidor['estado'].'","'.$respuesta_servidor['registro_cambiados'].'")';
+
+	$BDTpv->query($sql);
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta'] = $sql;
+			$resultado['error'] = $BDTpv->error_list;
+			error_log(' Rotura en funcion RegistrarRestaSoctk funcion.php de mod_tpv linea 1034');
+			error_log( $BDTpv->error_list);
+			// Rompemos programa..
+			//exit();
+		} else {
+			// Enviamos datos que cuantos registros fueron añadidos o modificados por cada consulta..
+			// aunque no lo utilizamos.
+			$resultado['estado']= 'Correcto';
+			$resultado['mensaje']= 'Registrado correctamente en tabla importar_virtuemart_tickets';
+		}		
 	return $resultado;
 }
 ?>

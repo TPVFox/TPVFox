@@ -184,7 +184,15 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
+	case 'RegistrarRestaStock':
+		$respuesta = array();
+		$id_ticketst =$_POST['id_ticketst'];
+		$respuesta_servidor = $_POST['respuesta_servidor'];
+		$respuesta = RegistrarRestaStock($BDTpv,$id_ticketst,$respuesta_servidor);
 		
+	
+		echo json_encode($respuesta);
+		break;
 	/* **************************************************************	*
      * 			LLAMADAS FUNCIONES COMUNES MODULO CIERRES Y TPV			*
      * **************************************************************	* 	*/
