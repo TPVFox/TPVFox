@@ -1,0 +1,1 @@
+El directorio sql dentro de un modulo, es donde pondremos las tablas que creamos al tener es modulo.
