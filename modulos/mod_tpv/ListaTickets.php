@@ -111,7 +111,8 @@
 	// Creamos filtro pero con sufijo para mostrar solo los registros de la pagina.
 	$filtro = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
 	//~ echo $filtro;
-	$tickets = obtenerTickets($BDTpv,$filtro);
+	$Obtenertickets = ObtenerTickets($BDTpv,$filtro);
+	$tickets = $Obtenertickets['tickets'];
 	//~ echo $tickets['sql'];
 	
 	//esta MAL // si la busqueda es menos de 40 lo siguiente es un apaño..
@@ -141,7 +142,7 @@
         ?>
         <?php
 	//~ echo '<pre>';
-	//~ print_r($tickets);	
+	//~ print_r($Obtenertickets);	
 	//~ echo '</pre>';
 		?>
        
@@ -234,6 +235,13 @@
 					<td><?php echo $ticket['total']; ?></td>
 					<td><?php 
 						echo (isset($ticket['idCierre']) ? $ticket['idCierre']['idCierre']:''); ?>
+					</td>
+					<td>
+						<?php 
+							if ($ticket['respuesta_envio_rows'] !== 0){
+								// Quiere decir que se encontro registro
+								echo '<span title="'.$ticket['respuesta_envio'].'">'.$ticket['enviado_stock'].'</span>';
+							}  ;?>
 					</td>
 					
 				</tr>

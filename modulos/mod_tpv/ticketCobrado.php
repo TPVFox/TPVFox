@@ -61,8 +61,16 @@
 			$idCliente=$datos['cabecera']['idClientes'];
 			$nombreCliente =$datos['cabecera']['DatosCliente'];
 			$datoTicket=$datos['cabecera'];
-				// Ahora añadimos html para estado y clase row
-
+			// Ahora comprobamos si envio datos
+			$enviado_stock = ObtenerEnvioIdTickets( $BDTpv,$id);
+			$permitir_envio = 'Si';
+			if (isset($enviado_stock['tickets'])){
+				// Hay resultado consulta.
+				if ($enviado_stock['tickets']['respuesta_envio_rows'] >= 1){
+					// Quiere decir que se envio ...
+					$permitir_envio = 'No';
+				}
+			}
 		}
 			
 		$titulo = "Ticket Cobrado";
@@ -96,9 +104,9 @@
 		
 		</script>
 		<?php
-		// debug
+		//~ // debug
 		//~ echo '<pre>';
-		//~ print_r($datos['lineas']);
+		//~ print_r($enviado_stock);
 		//~ echo '</pre>';
 	
 		
@@ -126,7 +134,10 @@
 				<div class="col-md-12">
 				<h4> Opciones de Ticket</h4>
 				<ul class="nav nav-pills nav-stacked"> 
+				 <?php
+				 if ($permitir_envio === 'Si'){?>
 				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb();" >Descontar Stock en Web</button
+				 <?php } ?>
 				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
 				</ul>
 				</div>	

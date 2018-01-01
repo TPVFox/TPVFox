@@ -688,7 +688,7 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 
 
 
-function obtenerTickets($BDTpv,$filtro) {
+function ObtenerTickets($BDTpv,$filtro) {
 	//obtenemos tickets cobrados / cerrados
 	
 	// Function para obtener productos y listarlos
@@ -709,23 +709,37 @@ function obtenerTickets($BDTpv,$filtro) {
 	$i = 0;
 	while ($fila = $ResConsulta->fetch_assoc()) {
 		$numTicket = $fila['Numticket'];
-		$resultado[] = $fila;
-			if ($fila['estado'] == 'Cerrado'){
-				$sqlIdCierre[$i]='SELECT c.`idCierre` FROM `cierres_usuarios_tickets` AS c '
-						.'LEFT JOIN `ticketst` as t ON t.Numticket = c.Num_ticket_final ' 
-						.'where "'.$numTicket.'" >= c.Num_ticket_inicial and "'.$numTicket.'"<= c.Num_ticket_final ';
-				$resSql = $BDTpv->query($sqlIdCierre[$i]);
-				
-				while($id = $resSql->fetch_assoc()) {
-					$idCierre=$id;
+		$resultado['tickets'][] = $fila;
+		// Ahora consultamos si esta o no enviado stock a la web.
+		$sql_envio_stock='SELECT * FROM `importar_virtuemart_tickets` WHERE `idTicketst`='.$fila['id'];
+		$Consulta_envio_stock = $BDTpv->query($sql_envio_stock);
+		if (mysqli_error($BDTpv)){
+			$resultado['consulta'] = $sql;
+			$resultado['error'] = $BDTpv->error_list;
+			error_log(' Rotura en funcion ObtenerTickets funcion.php de mod_tpv linea 720');
+			error_log( $BDTpv->error_list);
+			// Rompemos programa..
+			//exit();
+		} else {
+			// Quiere decir que la consulta fue correcta.
+			// Ahora comprobamos cuantos registros, ya que solo debería haber uno.
+			if ($Consulta_envio_stock->num_rows === 1){
+				while ($fila_envio_stock= $Consulta_envio_stock->fetch_assoc()){
+					$resultado['tickets'][$i]['enviado_stock']=  $fila_envio_stock['estado'];
+					$resultado['tickets'][$i]['respuesta_envio'] = $fila_envio_stock['Fecha'].'('.$Consulta_envio_stock->num_rows.')';
 				}
-			$resultado[$i]['idCierre'] =$idCierre;
-			$i++;
+			} else {
+				// Quiere decir que hubo 0 a mas 1 resultado.
+				$resultado['tickets'][$i]['enviado_stock'] = 'Erroneo';
+				$resultado['tickets'][$i]['respuesta_envio'] = '('.$Consulta_envio_stock->num_rows.')';
+				$resultado['tickets'][$i]['respuesta_envio_rows'] = $Consulta_envio_stock->num_rows;
+
 			}
+		}		
+	$i ++;
 	}
 	
-	//~ $resultado['sql']=$consulta;
-	//$resultado['sql']=$sqlIdCierre;
+	$resultado['sql1']=$consulta;
 	return $resultado;
 }
 
@@ -869,7 +883,39 @@ function ObtenerRefWebProductos($BDTpv,$productos,$idWeb){
 }
 
 
+function ObtenerEnvioIdTickets( $BDTpv,$idTicketst) {
+	// @Objetivo :
+	// Es obtener si se envio el stock de ese ticket
+	$resultado = array();
+	$sql_envio_stock='SELECT * FROM `importar_virtuemart_tickets` WHERE `idTicketst`='.$idTicketst;
+	$Consulta_envio_stock = $BDTpv->query($sql_envio_stock);
+	if (mysqli_error($BDTpv)){
+		$resultado['consulta'] = $sql;
+		$resultado['error'] = $BDTpv->error_list;
+		error_log(' Rotura en funcion ObtenerTickets funcion.php de mod_tpv linea 720');
+		error_log( $BDTpv->error_list);
+		// Rompemos programa..
+		//exit();
+	} else {
+		// Quiere decir que la consulta fue correcta.
+		// Ahora comprobamos cuantos registros, ya que solo debería haber uno.
+		if ($Consulta_envio_stock->num_rows === 1){
+			while ($fila_envio_stock= $Consulta_envio_stock->fetch_assoc()){
+				$resultado['tickets']['enviado_stock']=  $fila_envio_stock['estado'];
+				$resultado['tickets']['respuesta_envio'] = $fila_envio_stock['Fecha'].'('.$Consulta_envio_stock->num_rows.')';
+				$resultado['tickets']['respuesta_envio_rows'] = $Consulta_envio_stock->num_rows;
 
+			}
+		} else {
+			// Quiere decir que hubo 0 a mas 1 resultado.
+			$resultado['tickets']['enviado_stock'] = 'Erroneo';
+			$resultado['tickets']['respuesta_envio'] = '('.$Consulta_envio_stock->num_rows.')';
+			$resultado['tickets']['respuesta_envio_rows'] = $Consulta_envio_stock->num_rows;
+		}
+	}
+	
+	return $resultado;
+}
 
 
 
