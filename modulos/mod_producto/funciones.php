@@ -196,4 +196,14 @@ function htmlCodigoBarrasVacio(){
 }
 
 
+function ivasNoPrincipal($BDTpv, $iva){
+	$consulta = 'SELECT * FROM iva WHERE iva <> '.$iva;
+	if ($ResConsulta = $BDTpv->query($consulta)){			
+		while ($fila = $ResConsulta->fetch_assoc()) {
+			$resultado[] = $fila;
+		}
+	}
+	return $resultado;
+}
+
 ?>

@@ -97,6 +97,8 @@
 					} else {
 						$tipomensaje= "info";
 						$mensaje = "Su registro de cliente fue editado.";
+						$i=$_GET['id'];
+						header('Location: cliente.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
 					}
 				};
 			}
@@ -110,6 +112,8 @@
 			//~ echo '<pre>';
 			//~ print_r($_POST);
 			//~ echo '</pre>';
+			$mensaje=$_GET['mensaje'];
+			$tipomensaje=$_GET['tipo'];
 			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 

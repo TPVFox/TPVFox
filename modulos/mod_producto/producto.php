@@ -11,7 +11,6 @@
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-		
 	</head>
 	<body>
 		<?php
@@ -74,15 +73,7 @@
 				$error='NOCONTINUAR';
 				$tipomensaje= "danger";
 				$mensaje = "Id de producto incorrecto ( ver get) <br/>".$Producto['consulta'];
-			} else {
-				// Cambiamos atributo de login para que no pueda modificarlo.
-				$AtributoLogin='readonly';
-				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
-				if (count($_POST) ===0){
-					
-				
-				} 
-			}
+			} 
 		} else {
 			// Creamos ficha Producto.
 			$titulo = "Crear Producto";
@@ -143,10 +134,21 @@
 						</div>
 						<div class="col-md-2 ">	
 							<label class="control-label " > Iva:</label>
-							<input type="text" id="iva" name="iva" placeholder="iva" value="<?php echo  $Producto['iva'].'%';?>"   >
+							<!--<input type="text" id="iva" name="iva" placeholder="iva" value="<?php /*echo  $Producto['iva'].'%';*/?>"   >-->
+							<select name="iva">
+								<option value=<?php echo  $Producto['iva'].'%';?>><?php echo  $Producto['iva'].'%';?></option>
+								<?php 
+								$ivas=ivasNoPrincipal($BDTpv, $Producto['iva']);
+								foreach ($ivas as $iva){
+									echo '<option value='.$iva['iva'].'>'.$iva['iva'].'%'.'</option>';
+								}
+								
+								
+								?>
+								</select>
 						</div>
 					</div>
-					
+				
 				</div>
 				<div class="col-md-6"> <!--precios-->
 					<h3>Precios:</h3>
@@ -155,7 +157,7 @@
 						<input type="text" id="pvpCiva" name="pvpCiva"   value="<?php echo round($Producto['pvpCiva'],2).'€';?>"   >
 					</div>
 					<div class="col-sm-6 ">	
-						<label class="control-label " > Precio con Iva:</label>
+						<label class="control-label " > Precio sin Iva:</label>
 						<input type="text" id="pvpSiva" name="pvpSiva"  value="<?php echo round($Producto['pvpSiva'],2).'€';?>"   >
 					</div>
 							
