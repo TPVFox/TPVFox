@@ -65,7 +65,12 @@
 				<div class="nav navbar-nav navbar-right">
 					
 					<span class="glyphicon glyphicon-user"></span><?php echo $Usuario['login'];?>
-				<a href="http://marge.superoliva.es/superoliva/tpvolalla/cerrarSesion.php">Cerrar</a>
+					<?php
+					if ($_SESSION['estadoTpv'] == "Correcto"){
+					echo "<a href='http://marge.superoliva.es/superoliva/tpvolalla/cerrarSesion.php'>Cerrar</a>";
+			}
+				
+				?>
 				</div>
 				<div class="nav navbar-nav navbar-right" style="margin-right:50px">
 					<div id="tienda"><?php echo $Tienda['razonsocial'];?></div>
