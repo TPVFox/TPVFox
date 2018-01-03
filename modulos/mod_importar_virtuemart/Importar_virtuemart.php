@@ -490,21 +490,6 @@
 	</div>
 		
 	<div>
-<?php
-//~ $respuesta = prepararInsertTablasBDTpv($BDVirtuemart,$tablas_importar);
-//~ echo '<pre>';
-	//~ $respuesta = json_encode($respuesta);
-	//~ print_r($respuesta);
-//~ echo '</pre>';
-//~ echo '<pre>';
-	//~ print_r(json_decode($respuesta));
-//~ echo '</pre>';
-//~ echo '<pre>';
-//~ print_r($tablas_importar);
-//~ echo '</pre>';
-?>
-
-
 
 	
 	</div>
