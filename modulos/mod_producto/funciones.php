@@ -185,10 +185,11 @@ function nombreFamilias($BDTpv,$idArticulo){
 	return $fila ;
 }
 
-function htmlCodigoBarrasVacio(){
+function htmlCodigoBarrasVacio($cont){
 	//creo caja de codigo de barras vacia
+	$cont=$cont+1;
 	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input type="text" id="codBarras" name="codBarras" value=""></td>';
+	$nuevaFila .= '<td><input type="text" id="codBarras" name="codBarras_'.$cont.'" value=""></td>';
 	$nuevaFila .= '<td><span class="glyphicon glyphicon-trash"></span></td>'; 		
 	$nuevaFila .= '</tr>';
 	
@@ -206,4 +207,43 @@ function ivasNoPrincipal($BDTpv, $iva){
 	return $resultado;
 }
 
+
+function modificarProducto($BDTpv, $datos, $tabla){
+	$resultado = array();
+	$id=$datos['idProducto'];
+	$nombre=$datos['nombre'];
+	$coste=$datos['coste'];
+	$beneficio=$datos['beneficio'];
+	$iva=$datos['iva'];
+	$pvpCiva=$datos['pvpCiva'];
+	$pvpSiva=$datos['pvpSiva'];
+	$keys=array_keys($datos);
+	$codBarras = [];
+	foreach($keys as $key){
+		$nombre1="cod";
+		if (strpos($key, $nombre1)>-1){
+			if ($datos[$key]<>""){
+				$codBarras[] = '('.$id.',"'.$datos[$key].'")';
+			}
+		}
+	}
+	$stringCodbarras = implode(',',$codBarras);
+	$sql='UPDATE '.$tabla.' SET articulo_name="'.$nombre.'", costepromedio='.$coste.', beneficio='.$beneficio.' , iva ='.$iva.' WHERE idArticulo='.$id  ;
+	$sql2='UPDATE articulosPrecios SET pvpCiva='.$pvpCiva.', pvpSiva='.$pvpSiva.' WHERE idArticulo='.$id  ;
+	$sql3='DELETE FROM articulosCodigoBarras where idArticulo='.$id;
+	$sql4='INSERT INTO articulosCodigoBarras (idArticulo, codBarras) VALUES '.$stringCodbarras;
+	$consulta = $BDTpv->query($sql);
+	$consulta = $BDTpv->query($sql2);
+	$consulta = $BDTpv->query($sql3);
+	$consulta = $BDTpv->query($sql4);
+	
+	$resultado['sql'] =$sql;
+	$resultado['sql2'] =$sql2;
+	$resultado['sql3'] =$sql3;
+	$resultado['sql4'] =$sql4;
+	$resultado['sql5']=$keys;
+	return $resultado;
+	
+	
+}
 ?>
