@@ -64,9 +64,12 @@ function agregoCodBarrasVacio(contNuevo){
 	//ajax
 	// @ Objetivo
 	//agrego campo codigo barras vacio en html
+	var tablaC=document.getElementById("tcodigo");
+	var cont=tablaC.childElementCount;
 	
 	var parametros = {
-		"pulsado"    : 'HtmlCodigoBarrasVacio'
+		"pulsado"    : 'HtmlCodigoBarrasVacio',
+		"filas": cont
 	};
 	$.ajax({
 		data       : parametros,
@@ -91,6 +94,14 @@ function agregoCodBarrasVacio(contNuevo){
 	});
 	
 }
+function comprobarVacio(valor){
+				var value=$.trim($("#codBarras").val());
+				if(value.length>0)
+				{
+					
+					agregoCodBarrasVacio(valor);
+				} 
+			}
 
 
 

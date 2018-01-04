@@ -21,8 +21,9 @@ include_once ("./funciones.php");
 switch ($pulsado) {
 
 	case 'HtmlCodigoBarrasVacio';
+	$filas=$_POST['filas'];
 		$respuesta = array();
-		$res 	= htmlCodigoBarrasVacio();
+		$res 	= htmlCodigoBarrasVacio($filas);
 		$respuesta['html'] =$res;
 		echo json_encode($respuesta);
 		break;
