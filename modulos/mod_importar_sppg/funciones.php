@@ -147,13 +147,7 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
  		$resp_crear = CrearTabla($nombreTabla, $Estructura_dbf,$BDImportDbf, $resultado['dropear-tabla']);
  		$resultado['Estado'] = 'Correcto';
  		$resultado['accion-creado'] = 'Creada estructura tabla';
-	} else {
-		// Aquí tenemos estado correcto fijo.
-		// por lo que la vaciamos..
-		$sql = 'TRUNCATE TABLE '.$nombreTabla;
-		$resp_del = $BDImportDbf->query($sql);
-		$resultado['accion-deleteDatos'] = 'Datos borrados';
-	}
+	} 
 	return $resultado;
 }
 //funcion para recoge estructura de tabla segun nombreTabla y lo monta en un string formato array separado por comas
@@ -301,7 +295,11 @@ function ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla,$string ='si'){
 
 
 
-function ActuaAgregarCampos($nombrestablas,$BDImportDbf){
+function ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf){
+	// Objetivo:
+	// Agregar el campo estado a al BDImportar, para saber que productos añadimos, modificamos o descartamos.
+	// Parametro:
+	//  $nombretablas ( Array con los nombres de la tabla)
 	$resultado = array();
 		// Ahora deberíamos preparar DBImport para actualizar.
 	foreach ( $nombrestablas as $nombretabla){
@@ -310,11 +308,13 @@ function ActuaAgregarCampos($nombrestablas,$BDImportDbf){
 		// Ahora ponemos la fila de id de primera.
 		$sql ='ALTER TABLE '.$nombretabla.' ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY ( `id` )';
 		$BDImportDbf->query($sql);
+		if ($mysqli->errno){
+			$resultado[$nombretabla]['estado'] ='Error';
+			$resultado[$nombretabla]['error'] =$mysqli->errno; 
+		} else {
+			$resultado[$nombretabla]['estado'] ='Correcto';
+		}
 	}
-		
-	$resultado = $nombrestablas;
-	
-	
 	return $resultado ;
 	
 }

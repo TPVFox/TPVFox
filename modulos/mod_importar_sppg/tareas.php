@@ -8,8 +8,8 @@
  *  */
 /* ===============  REALIZAMOS CONEXIONES  ===============*/
 
-
 $pulsado = $_POST['pulsado'];
+
 
 include_once ("./../../configuracion.php");
 
@@ -19,12 +19,14 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos funciones
 include_once ("./funciones.php");
 
+// DBF71 debería ser una varible que pueda modificar el usuario
+$rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
  
  switch ($pulsado) {
      
     case 'import_inicio':
 		$nombreTabla = $_POST['Fichero'];
-		$fichero = $RutaServidor.$CopiaDBF.'/'.$nombreTabla;
+		$fichero = $rutaFicheroImportar.$nombreTabla;
 		$respuesta = LeerEstructuraDbf($fichero);
 		echo json_encode($respuesta) ;
 		break;
@@ -41,7 +43,8 @@ include_once ("./funciones.php");
 		$campos = $_POST['campos']; 
 		$nombreTabla = $_POST['Fichero'];	//nombre fichero con extension)
 		// Necesito la ruta completa del fichero con extension para ejecutar LeerDbf.
-		$fichero = $RutaServidor.$CopiaDBF.'/'.$nombreTabla;
+		
+		$fichero = $rutaFicheroImportar.$nombreTabla;
 		$datosDbf = LeerDbf($fichero,$numFinal,$numInicial,$campos);
 		// Necesito el valor nombreTabla sin extension para ejecutar InsertarDatos.
 		$nombreTablaSin = substr($nombreTabla,0,-4);  //Tengo enviar en nombretabla que es fichero sin extension (.dbf )
@@ -50,7 +53,7 @@ include_once ("./funciones.php");
         break;
     case 'actualizar_agregar':
 		$nombrestablas = $_POST['Ficheros'];
-		$respuesta = ActuaAgregarCampos($nombrestablas,$BDImportDbf);
+		$respuesta = ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf);
 
 		echo json_encode($respuesta);
 

@@ -13,15 +13,6 @@
  * 	- Eliminando algún dbf ¿que no existe?.. 
  * 	- Si cambiamos la estructura de BDFImportar de alguna de las tablas.
  * */
-var pulsado = 'Inicio';
-var LimiteActual = 0;
-var LimiteFinal = 0;
-var iconoCargar = '<span><img src="../../css/img/ajax-loader.gif"/></span>';
-var iconoCorrecto = '<span class="glyphicon glyphicon-ok-sign"></span>';
-var iconoIncorrecto = '<span class="glyphicon glyphicon-remove-sign"></span>';
-var campos = [];
-var ficheroActual = '';
-var estadoImportacion = [];
 
 
 
@@ -199,10 +190,6 @@ function ImportcomprobarTabla(){
 			} else if (resultado['accion-creado'] === ''){
 				PintarIcono(tablaActual, "CEstruct");
 			}
-			
-			if (resultado['accion-deleteDatos'] === 'Datos borrados'){
-				PintarIcono(tablaActual, "CVaciar");
-			}
 
 			if (resultado['Estado'] === 'Correcto') {
 				// Respuesta correcta...		
@@ -318,27 +305,22 @@ function PintarIcono(tablaActual, className, ok=true,cargando=false){
 function ActualizarInicio(actualizar){
 	alert('Pendiente comprobar si empezo con actualizacion...');
 	// Si no empezo entonces... empezamos con añadir campoNecesarios a BDImportar para hacer actualizacion
-	ActualizarAgregarCanmpo();
+	ActualizarAgregarCampoEstado();
 	console.log(actualizar);
 	};
-function ActualizarAgregarCanmpo(){
+function ActualizarAgregarCampoEstado(){
 	// Antes de enviar el array nombretabla
 	// tengo eliminar aquellos que están mal.
 	var tablasErroneas= Object.keys(estadoImportacion); 
 	// fuente de código anterior: https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/keys
 	tablasErroneas.forEach(function(element) {
-		// Lo que hacemos dentro de esta funcion es enviar array nombretabla y element( que es el nombre tabla eliminar de array)
-		//~ console.log('Nombre tabla a eliminar:')
-		//~ console.log(element);
+		// Elimno las tablas que dio un error.
 		removeItemFromArr ( nombretabla,element )
 	});
-		//eliminamos nombre tabla que esten erroneas.
-		//~ removeItemFromArr ( nombretabla,erronea )
-		//~ console.log('Nombre tabla a eliminar:'+erronea)
-
+		
 	var parametros = {
 		"pulsado"	: "actualizar_agregar",
-		"Ficheros" 	: nombretabla
+		"Ficheros" 	: nombretabla // Enviamos todos los ficheros.
 		};
 	
 	$.ajax({
@@ -351,8 +333,11 @@ function ActualizarAgregarCanmpo(){
 			
 		},
 		success:  function (response) {
-			$("#resultado").html('Termino de agregando campos DBDImportar para actualizar ');
+			$("#resultado").html('Termino de agregando campo de estado a  DBDImportar ');
 			console.log('================  Termino campos DBDImportar para actualizar   ====================');
+			var respuesta = parseJSON(response);
+			console.log(resultado);
+		
 		}
 	});
 
