@@ -6,8 +6,6 @@
         include './../../head.php';
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
-		
-		
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -89,23 +87,33 @@
 		} else {
 			// Creamos ficha Producto.
 			$titulo = "Crear Producto";
+			$bandera=1;
+			$Producto['articulo_name']="";
+			$Producto['costePromedio']=0;
+			$Producto['beneficio']=0;
+			$Producto['iva']=21;
+			$Producto['pvpCiva']=0;
+			$Producto['pvpSiva']=0;
+			$Producto['idProveedor']=0;
+			
 			
 		}
 		
 		if ($_POST){
-			
-			$keys=array_keys($_POST);
-	foreach($keys as $key){
-			echo $key;	
-	}
-			
-			
 			$datos=$_POST;
-			
-			$res=modificarProducto($BDTpv, $datos, $tabla);
-			echo "<pre>";
+			if ($bandera == 1){
+				echo "<pre>";
+			echo "Entra en el If";
+			echo "</pre>";
+				$res=añadirProducto($BDTpv, $datos, $tabla);
+				echo "<pre>";
 			print_r($res);
 			echo "</pre>";
+				header('Location:ListaProductos.php');
+				
+			}else{
+			$res=modificarProducto($BDTpv, $datos, $tabla);
+			
 			if (isset($resp['error'])){
 						$tipomensaje= "danger";
 						$mensaje = "Razon social de producto ya existe!";
@@ -113,10 +121,14 @@
 						$tipomensaje= "info";
 						$mensaje = "Su registro de producto fue editado.";
 						$i=$datos['idProducto'];
-						/*header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);*/
+						
 					}
+					header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
+					//~ echo '<pre>';
+					//~ print_r($res['sql']);
+					//~ echo '</pre>';
 			
-			
+		}
 		}
 		
 		
@@ -141,7 +153,7 @@
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
-				<form action="" method="post" name="formProducto">
+				<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<div class="col-md-12">
 				<div class="col-md-12">
 					<div class="Datos">
@@ -161,7 +173,7 @@
 						</div>
 					<div class="col-md-2 ">	
 							<label class="control-label " > Beneficio:</label>
-							<input type="text" id="beneficio" size="10" name="beneficio" placeholder="beneficio" value="<?php echo $Producto['beneficio'];?>"   > %
+							<input type="text" id="beneficio" size="10" name="beneficio" placeholder="beneficio" value="<?php echo number_format($Producto['beneficio'],2,'.','');?>"   > %
 						</div>
 						<div class="col-md-2 ">	
 							<label class="control-label " > Iva:</label>
@@ -209,7 +221,7 @@
 					</div>
 					<div class="col-sm-6 ">	
 						<label class="control-label " > Precio sin Iva:</label>
-						<input type="text" id="pvpSiva" name="pvpSiva"  onchange="modifPrecioCiva();" value="<?php echo round($Producto['pvpSiva'],2);?>"   >
+						<input type="text" id="pvpSiva" name="pvpSiva"  onchange="modifPrecioCiva();" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
 					</div>
 							
 				</div>
@@ -288,6 +300,8 @@
 							?>
 							<tr>
 								<td><input type="text" id="codBarras" name="codBarras_0"  value="<?php echo $codBarras;?>"   ></td>
+							<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>
+
 							</tr>
 						<?php	
 						} else {
@@ -298,7 +312,8 @@
 							?>
 							<tr id="Existe<?php echo $contExiste+1;?>">
 								<td><input type="text" id="codBarras" name="codBarras_<?php echo $contExiste+1;?>"  value="<?php echo $codigo['codBarras'];?>"   ></td>
-								<td><span class="glyphicon glyphicon-trash"></span></td>
+								<!-- <td><span class="glyphicon glyphicon-trash"></span></td>-->
+								<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>
 							</tr>
 							<?php
 							$contExiste++;

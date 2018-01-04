@@ -27,6 +27,8 @@ switch ($pulsado) {
 		$respuesta['html'] =$res;
 		echo json_encode($respuesta);
 		break;
+	
+	
 }
 
 

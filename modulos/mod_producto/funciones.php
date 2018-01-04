@@ -10,19 +10,15 @@ function obtenerProductos($BDTpv,$filtro) {
 	$Controler = new ControladorComun; 
 	$campoBD = 'articulo_name';
 
-	$consulta = "SELECT a.*, c.`codBarras`, c.`idArticulo`, p.`idArticulo`, p.`pvpCiva` FROM `articulos` AS a "
-				."LEFT JOIN `articulosCodigoBarras` AS c " 
-				."ON c.`idArticulo` = a.`idArticulo` " 
+	$consulta = "SELECT a.*,  a.`idArticulo`, p.`pvpCiva` FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo`".$filtro;//$filtroFinal.$rango; 
-	
+				."ON p.`idArticulo` = a.`idArticulo`  ".$filtro;//$filtroFinal.$rango; 
 	if ($ResConsulta = $BDTpv->query($consulta)){			
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado[] = $fila;
 		}
 	}
-	
-	//$resultado['sql'] = $consulta;
+	$resultado['sql'] = $consulta;
 	return $resultado;
 }
 
@@ -190,13 +186,14 @@ function htmlCodigoBarrasVacio($cont){
 	$cont=$cont+1;
 	$nuevaFila = '<tr>';
 	$nuevaFila .= '<td><input type="text" id="codBarras" name="codBarras_'.$cont.'" value=""></td>';
-	$nuevaFila .= '<td><span class="glyphicon glyphicon-trash"></span></td>'; 		
+	$nuevaFila .= '<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
 	$nuevaFila .= '</tr>';
 	
 	return $nuevaFila;
 }
 
-
+// Función que selecciona los ivas que no son el iva principal
+// Por un lado recibe el IVA que tiene por defecto un producto y busca los que no coincidan
 function ivasNoPrincipal($BDTpv, $iva){
 	$consulta = 'SELECT * FROM iva WHERE iva <> '.$iva;
 	if ($ResConsulta = $BDTpv->query($consulta)){			
@@ -207,7 +204,7 @@ function ivasNoPrincipal($BDTpv, $iva){
 	return $resultado;
 }
 
-
+// Modificar un producto, recoge los datos del formulario post y los va actualizando segun las tablas que corresponda
 function modificarProducto($BDTpv, $datos, $tabla){
 	$resultado = array();
 	$id=$datos['idProducto'];
@@ -217,9 +214,12 @@ function modificarProducto($BDTpv, $datos, $tabla){
 	$iva=$datos['iva'];
 	$pvpCiva=$datos['pvpCiva'];
 	$pvpSiva=$datos['pvpSiva'];
+	// Montar un array con los las claves del array datos
 	$keys=array_keys($datos);
 	$codBarras = [];
+	// Se va recorriendo  
 	foreach($keys as $key){
+		// Los que coincidan con el campo cod quiere decir que es un codigo de barras y se añaden al array codBarras[]
 		$nombre1="cod";
 		if (strpos($key, $nombre1)>-1){
 			if ($datos[$key]<>""){
@@ -228,7 +228,7 @@ function modificarProducto($BDTpv, $datos, $tabla){
 		}
 	}
 	$stringCodbarras = implode(',',$codBarras);
-	$sql='UPDATE '.$tabla.' SET articulo_name="'.$nombre.'", costepromedio='.$coste.', beneficio='.$beneficio.' , iva ='.$iva.' WHERE idArticulo='.$id  ;
+	$sql='UPDATE '.$tabla.' SET articulo_name="'.$nombre.'", costepromedio='.$coste.', beneficio='.$beneficio.' , iva ='.$iva.' WHERE idArticulo='.$id;
 	$sql2='UPDATE articulosPrecios SET pvpCiva='.$pvpCiva.', pvpSiva='.$pvpSiva.' WHERE idArticulo='.$id  ;
 	$sql3='DELETE FROM articulosCodigoBarras where idArticulo='.$id;
 	$sql4='INSERT INTO articulosCodigoBarras (idArticulo, codBarras) VALUES '.$stringCodbarras;
@@ -236,14 +236,43 @@ function modificarProducto($BDTpv, $datos, $tabla){
 	$consulta = $BDTpv->query($sql2);
 	$consulta = $BDTpv->query($sql3);
 	$consulta = $BDTpv->query($sql4);
-	
 	$resultado['sql'] =$sql;
 	$resultado['sql2'] =$sql2;
 	$resultado['sql3'] =$sql3;
 	$resultado['sql4'] =$sql4;
 	$resultado['sql5']=$keys;
+	return $resultado;	
+}
+/*Función para añadir un producto nuevo*/
+function añadirProducto($BDTpv, $datos, $tabla){
+	$nombre=$datos['nombre'];
+	$coste=$datos['coste'];
+	$beneficio=$datos['beneficio'];
+	$iva=$datos['iva'];
+	$pvpCiva=$datos['pvpCiva'];
+	$pvpSiva=$datos['pvpSiva'];
+	$idProovedor=$datos['idProveedor'];
+	$sql='INSERT INTO '.$tabla.' (iva, idProveedor , articulo_name, beneficio, costepromedio) VALUES ("'.$iva.'" , "'.$idProovedor.'" , "'.$nombre.'", "'.$beneficio.'", "'.$coste.'")';
+	$consulta = $BDTpv->query($sql);
+	$resultado['sql'] =$sql;
 	return $resultado;
-	
-	
+}
+/*Función que cuenta cuantos codigos de barras tiene un articulo*/
+function ContarCodBarras($BDTpv, $idArticulo){
+	$sql='SELECT count(*) from articulosCodigoBarras where idArticulo='.$idArticulo;
+	$res = $BDTpv->query($sql);
+	$items=$res->fetch_row();
+	$resultado=$items[0];
+	return $resultado;
+}
+
+function codBarrasProducto($BDTpv, $idArticulo){
+	$sql='SELECT * from  articulosCodigoBarras where idArticulo='.$idArticulo;
+	if ($ResConsulta = $BDTpv->query($sql)){			
+		while ($fila = $ResConsulta->fetch_assoc()) {
+			$resultado[] = $fila;
+		}
+	}
+	return $resultado;
 }
 ?>

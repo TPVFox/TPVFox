@@ -69,7 +69,6 @@
 	}
 	
 	$productos = obtenerProductos($BDTpv,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
-	
 	?>
 	
 	<script>
@@ -122,6 +121,7 @@
 				<?php 
 					//<li><a href="#section1" onclick="metodoClick('AgregarProducto','producto');";>Añadir</a></li>
 				?>
+					<li><a href="#section2" onclick="metodoClick('AgregarProducto');";>Añadir</a></li>
 					<li><a href="#section2" onclick="metodoClick('VerProducto','producto');";>Modificar</a></li>
 				<?php		//metodoClick js case pulsado 
 								//agregarUsuario nos lleva a formulario usuario
@@ -174,7 +174,18 @@
 					</td>
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>
-					<td><?php echo $producto['codBarras']; ?></td>
+					<?php
+					/*$totalCodBarras=ContarCodBarras($BDTpv, $producto['idArticulo']);*/
+					$codBarrasProd=codBarrasProducto($BDTpv, $producto['idArticulo']);
+					?>
+					<td><?php 
+					if ($codBarrasProd){
+						foreach ($codBarrasProd as $cod){
+							echo '<small>'.$cod['codBarras'].'</small><br>';
+						}
+					}
+					?>
+					</td>
 					<td><?php echo number_format($producto['costepromedio'],2); ?></td>
 					<td><?php echo $producto['beneficio']; ?></td>
 					<td><?php echo $producto['iva']; ?></td>

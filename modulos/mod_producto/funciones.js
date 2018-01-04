@@ -39,7 +39,7 @@ function metodoClick(pulsado,adonde){
 		
 		case 'AgregarProducto':
 			console.log('entro en agregar producto');
-			window.location.href = './'+adonde+'.php';
+			window.location.href = './producto.php';
 			
 			break;
 		
@@ -94,14 +94,29 @@ function agregoCodBarrasVacio(contNuevo){
 	});
 	
 }
+//Función para controlar que no genere un nuevo input de codigo de barras mientras tengamos uno vacio 
 function comprobarVacio(valor){
 				var value=$.trim($("#codBarras").val());
-				if(value.length>0)
+				if(value.length>0 || value=="")
 				{
-					
 					agregoCodBarrasVacio(valor);
 				} 
 			}
-
+			
+			
+//Función para anular el enter en el formulario 
+//Se puso para cuando se lea un código de barras que al hacer enter no cargue todo el formulario
+function anular(e) {
+  tecla = (document.all) ? e.keyCode : e.which;
+   return (tecla != 13);
+}
+//Función para eliminar el código de barras . Busca los elementos a eliminar mediante DOM
+//Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
+     function eliminarCodBarras(e){
+	var padre=e.parentNode; 
+	var abuelo=padre.parentNode; 
+	var bisa=abuelo.parentNode; 
+	bisa.removeChild(abuelo);
+	 }
 
 
