@@ -93,7 +93,7 @@
         ?>
         <?php
 		//~ echo '<pre>';
-			//~ print_r($productos['sql']);
+			//~ print_r($productos);
 		//~ echo '</pre>';
 		?>
        
@@ -119,9 +119,12 @@
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php 
-					//<li><a href="#section1" onclick="metodoClick('AgregarProducto','producto');";>Añadir</a></li>
+					if ($Usuario['group_id'] === '1'){
 				?>
 					<li><a href="#section2" onclick="metodoClick('AgregarProducto');";>Añadir</a></li>
+					<?php 
+				}
+					?>
 					<li><a href="#section2" onclick="metodoClick('VerProducto','producto');";>Modificar</a></li>
 				<?php		//metodoClick js case pulsado 
 								//agregarUsuario nos lleva a formulario usuario
@@ -154,7 +157,7 @@
 						<th>ID</th>
 						<th>PRODUCTO</th>
 						<th>CODIGO BARRAS</th>
-						<th>COSTE</th>
+						<th>PROMEDIO</th>
 						<th>BENEFICIO</th>
 						<th>IVA</th>
 						<th>P.V.P</th>

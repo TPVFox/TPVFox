@@ -9,18 +9,6 @@
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-		<!-- Función que modifica dependiendo de cual sea el iva seleccionado o el precio sin iva el precio con IVA-->
-		<script type="text/javascript">
-			function modifPrecioCiva(){
-				var iva=parseFloat($( "#iva option:selected" ).val());
-				var SinIva=parseFloat($( "#pvpSiva" ).val());
-				var res=(iva*SinIva)/100;
-				var total=SinIva+res;
-				total=parseFloat(total).toFixed(2);
-				document.getElementById('pvpCiva').value = total;
-			}
-			
-			</script>
 	</head>
 	<body>
 		<?php
@@ -44,7 +32,16 @@
 			$refTiendas = referenciasTiendas($BDTpv,$id);
 			$codigosBarras = codigosBarras($BDTpv,$id);
 			$familias = nombreFamilias($BDTpv,$idArticulo);
+			$ivas=ivasNoPrincipal($BDTpv, $Producto['iva']);
 			$titulo = "Modificar Producto";
+			
+			foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
+							if ($refeTienda['tipoTienda'] === 'principal'){
+								$referencia=$refeTienda['cref'];
+							}else{
+								$referencia=0;
+							}
+							}
 			
 			$tablas = array ('articulos' => array(
 								'idProveedor'	=> $Producto['idProveedor'],
@@ -71,14 +68,6 @@
 		
 			$nombreproveedor = $Producto['razonsocial'];
 			
-		
-			
-		/*	echo '<pre>';
-			print_r($tablas);
-			echo '</pre>';
-			*/
-			
-			
 			if (isset($Producto['error'])){
 				$error='NOCONTINUAR';
 				$tipomensaje= "danger";
@@ -101,17 +90,19 @@
 		
 		if ($_POST){
 			$datos=$_POST;
+			$datos['idTienda']=$idTienda;
+			//Si el producto no esta creado
 			if ($bandera == 1){
-				echo "<pre>";
-			echo "Entra en el If";
-			echo "</pre>";
+			$datos['estado']="Activo";
+			$datos['idTienda']=$idTienda;
+			//Se añade un producto y nos retorna al listado de productos
 				$res=añadirProducto($BDTpv, $datos, $tabla);
-				echo "<pre>";
-			print_r($res);
-			echo "</pre>";
 				header('Location:ListaProductos.php');
-				
+			//~ echo '<pre>';
+			//~ print_r($res);
+			//~ echo '</pre>';
 			}else{
+				//De lo contrario se modifica y nos retorna a las especificaciones del producto con un mensaje
 			$res=modificarProducto($BDTpv, $datos, $tabla);
 			
 			if (isset($resp['error'])){
@@ -123,10 +114,11 @@
 						$i=$datos['idProducto'];
 						
 					}
-					header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
 					//~ echo '<pre>';
-					//~ print_r($res['sql']);
-					//~ echo '</pre>';
+			//~ print_r($res);
+			//~ echo '</pre>';
+					header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
+					
 			
 		}
 		}
@@ -138,8 +130,10 @@
 		<div class="container">
 				
 			<?php 
+			if (isset($_GET)){
 			$mensaje=$_GET['mensaje'];
 			$tipomensaje=$_GET['tipo'];
+		}
 			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
@@ -159,16 +153,20 @@
 					<div class="Datos">
 					<input type="submit" value="Guardar">
 						<h3>Datos generales:</h3>
-						<div class="col-md-2 ">	
+						<div class="col-md-2">	
 							<label class="control-label " > Id:</label>
-							<input type="text" id="idProducto" name="idProducto"   placeholder="id producto" value="<?php echo $idArticulo;?>" readonly>
+							<input type="text" id="idProducto" name="idProducto"  size="10"  placeholder="id producto" value="<?php echo $idArticulo;?>" readonly>
+						</div>
+							<div class="col-md-2 ">	
+							<label class="control-label " > Referencia:</label>
+							<input type="text" id="referencia" name="referencia" size="10" placeholder="referencia producto" value="<?php echo $referencia;?>"   >
 						</div>
 						<div class="col-md-2 ">	
 							<label class="control-label " > Nombre producto:</label>
 							<input type="text" id="nombre" name="nombre" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>"   >
 						</div>
 					<div class="col-md-2 ">	
-							<label class="control-label " > Coste:</label>
+							<label class="control-label " > Promedio:</label>
 							<input type="text" id="coste" size="10" name="coste" placeholder="coste" value="<?php echo number_format($Producto['costepromedio'],2, '.', '');?>"   readonly> € 
 						</div>
 					<div class="col-md-2 ">	
@@ -177,16 +175,13 @@
 						</div>
 						<div class="col-md-2 ">	
 							<label class="control-label " > Iva:</label>
-							<!--<input type="text" id="iva" name="iva" placeholder="iva" value="<?php /*echo  $Producto['iva'].'%';*/?>"   >-->
 							<select id="iva" name="iva" onchange="modifPrecioCiva();">
 								<option value=<?php echo  $Producto['iva'];?>><?php echo  $Producto['iva'].'%';?></option>
 								<?php 
-								$ivas=ivasNoPrincipal($BDTpv, $Producto['iva']);
+								//foreach que recorre los tipos de ivas que no son el principal
 								foreach ($ivas as $iva){
 									echo '<option value='.$iva['iva'].'>'.$iva['iva'].'%'.'</option>';
 								}
-								
-								
 								?>
 								</select>
 						</div>
@@ -204,6 +199,7 @@
 							<label class="control-label " > Nombre proveedor:</label>
 							<input type="text" id="nombreproveedor" name="nombreproveedor" <?php echo $estadoInput;?> placeholder="nombreproveedor" value="<?php echo $nombreproveedor;?>"   >
 						</div>
+<!--
 						<div class="col-md-2 ">	
 							<label class="control-label " > Referencia:</label>
 							<input type="text" id="referencia" name="referencia"  placeholder="referencia" value="0"   >
@@ -212,12 +208,13 @@
 							<label class="control-label " > Fecha actualización:</label>
 							<input type="text" id="fechaAc" name="fechaAc"  placeholder="fecha actuañización" value="0"   >
 						</div>
+-->
 						</div>
 				<div class="col-md-6"> <!--precios-->
 					<h3>Precios:</h3>
 					<div class="col-sm-6 ">	
 						<label class="control-label " > Precio con Iva:</label>
-						<input type="text" id="pvpCiva" name="pvpCiva"   value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
+						<input type="text" id="pvpCiva" name="pvpCiva"  onchange="modifPrecioSiva();" value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
 					</div>
 					<div class="col-sm-6 ">	
 						<label class="control-label " > Precio sin Iva:</label>
@@ -246,7 +243,9 @@
 					<table class="table table-striped">
 						<thead>
 							<tr>
+<!--
 								<th>referencia</th>
+-->
 								<th>id virtuemart</th>
 								<th>id tienda</th>
 								<th>nombre tienda</th>
@@ -257,19 +256,24 @@
 						<?php 
 						$icono ='';
 						foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
+							/*Si el tipo de tienda es web entonces se añade un icono con un enlace al producto de virtalmark*/
 							if ($refeTienda['tipoTienda'] === 'web'){
-								$icono = '<span class="glyphicon glyphicon-globe"></span>';
+								$icono = '<a href=http://'.$refeTienda['dominio'].'/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$refeTienda['idVirtu'].'><span class="glyphicon glyphicon-globe"></span></a>';
 							}
+							if ($refeTienda['tipoTienda'] <> 'principal'){
 						?>
 						<tr>
-							<td><?php echo $refeTienda['cref']; ?></td>
-							<td><?php echo $refeTienda['idVirtu']; ?></td>
+<!--
+							<td><?php /*echo $refeTienda['cref'];*/ ?></td>
+-->
+							<td><?php echo $refeTienda['idVirtu'];?></td>
 							<td><?php echo $refeTienda['idTienda']; ?></td>
 							<td><?php echo $refeTienda['nombreTienda']; echo ' '.$icono; ?></td>
 							<td><?php echo $refeTienda['pvpCiva']; ?></td>
 							<td><?php echo $refeTienda['estado']; ?></td>
 						</tr>
 						<?php
+					}
 						}
 						?>
 					</table>

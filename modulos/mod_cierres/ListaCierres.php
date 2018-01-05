@@ -27,7 +27,11 @@
 		$stringPalabras = $_GET['buscar'];
 		$palabraBuscar = explode(' ',$_GET['buscar']); 		
 	} 
-
+	if (isset ($_GET['fecha1']) & isset($_GET['fecha2'])){
+		echo "Entro en el if";
+		$fecha1=$_GET['fecha1'];
+		$fecha2=$_GET['fecha2'];
+	}
 	// Creamos objeto controlado comun, para obtener numero de registros. 
 	//parametro necesario para plugin de paginacion
 	//funcion contarRegistro necesita:
@@ -66,8 +70,13 @@
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
 	
-	$cierres = obtenerCierres($BDTpv,$filtro);
 	
+	if (isset($_GET['fecha1']) & isset($_GET['fecha2'])){
+		$filtro='where FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
+	}
+	
+	$cierres = obtenerCierres($BDTpv,$filtro);
+	print_r($cierres);
 	?>
 	<script>
 	// Declaramos variables globales
@@ -111,8 +120,6 @@
 					<ul class="nav nav-pills nav-stacked"> 
 						<li><a href="#section2" onclick="metodoClick('VerCierre');";>Ver Cierre</a></li>
 					</ul>
-				
-					
 				</div>
 				<div style="position: fixed" >
 					<h4>Opciones administrador:</h4>
@@ -130,13 +137,28 @@
 						echo $htmlPG;
 				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
 					?>
+					<br>
+					<div class="col-md-10">
+						<div class="col-md-5">
 				<form action="./ListaCierres.php" method="GET" name="formBuscar">
-					<div class="form-group ClaseBuscar">
+					<div class=" ClaseBuscar">
 						<label>Buscar en idCierre </label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>
 				</form>
+				</div>
+				<div class="col-md-7">
+				<form action="./ListaCierres.php" method="GET" name="formBuscar">
+					<div class=" ClaseBuscar">
+						<label>Buscar por fechas</label>
+						<input type="date" name="fecha1" >
+						<input type="date" name="fecha2" >
+						<input type="submit" value="buscar">
+					</div>
+				</form>
+				</div>
+				</div>
                  <!-- TABLA DE Cierres -->
 			<div>
 			<table class="table table-striped">
