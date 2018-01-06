@@ -43,7 +43,6 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
 		$campos = $_POST['campos']; 
 		$nombreTabla = $_POST['Fichero'];	//nombre fichero con extension)
 		// Necesito la ruta completa del fichero con extension para ejecutar LeerDbf.
-		
 		$fichero = $rutaFicheroImportar.$nombreTabla;
 		$datosDbf = LeerDbf($fichero,$numFinal,$numInicial,$campos);
 		// Necesito el valor nombreTabla sin extension para ejecutar InsertarDatos.
@@ -54,9 +53,7 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
     case 'actualizar_agregar':
 		$nombrestablas = $_POST['Ficheros'];
 		$respuesta = ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf);
-
 		echo json_encode($respuesta);
-
 		break;
 }
  

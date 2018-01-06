@@ -135,6 +135,36 @@ class ControladorComun
 		
 		return $resultado;
 	}
+	
+	function consultaRegistro($BD,$nombretabla,$whereC='') {
+		/* Objetivo:
+		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.
+		 * */
+		// Funcion para contar registros de una tabla.
+		$array = array();
+		$consulta = "SELECT * FROM ". $nombretabla.' '.$whereC;
+		$resultadoConsulta = $BD->query($consulta);
+		if ($BD->query($consulta)) {
+			$array['NItems'] = $resultadoConsulta->num_rows;
+		} else {
+			// Quiere decir que hubo error en la consulta.
+			$array['consulta'] = $consulta;
+			$array['error'] = $BD->error;
+		}
+		if ($array['NItems'] > 0){
+			// Hubo resultados
+			while ($fila = $resultadoConsulta->fetch_assoc()){
+				$array['Items'][] = $fila;
+			}
+		}
+		//~ $array['sql']=$consulta;
+		return $array;
+	}
+	
+	
+	
+	
+	
 	function paginacionFiltro($Array_campos,$filtro,$prefijo,$sufijo){
 		/* @ Objetivo:
 		 * Montar le where para hacer consultas y utilizar paginacion.

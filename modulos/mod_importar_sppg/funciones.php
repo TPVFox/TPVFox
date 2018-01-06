@@ -306,7 +306,7 @@ function ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf){
 		$sql = 'ALTER TABLE '.$nombretabla.' ADD `estado` VARCHAR(11)';
 		$BDImportDbf->query($sql);
 		// Ahora ponemos la fila de id de primera.
-		$sql ='ALTER TABLE '.$nombretabla.' ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY ( `id` )';
+		$sql ='ALTER TABLE '.$nombretabla.' ADD `id` INT';
 		$BDImportDbf->query($sql);
 		if ($mysqli->errno){
 			$resultado[$nombretabla]['estado'] ='Error';
@@ -319,4 +319,131 @@ function ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf){
 	
 }
 
+
+function obtenerUnRegistro($BD,$nombretabla,$whereC='') {
+		/* Objetivo:
+		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.
+		 * */
+		// Funcion para contar registros de una tabla.
+		$array = array();
+		$consulta = "SELECT * FROM ". $nombretabla.' '.$whereC;
+		$resultadoConsulta = $BD->query($consulta);
+		if ($BD->query($consulta)) {
+			$array['NItems'] = $resultadoConsulta->num_rows;
+			if ($array['NItems'] === 1){
+				// Hubo resultados
+				while ($fila = $resultadoConsulta->fetch_assoc()){
+					$array['Items'][] = $fila;
+				}
+			} 
+		} else {
+			// Quiere decir que hubo error en la consulta.
+			$array['consulta'] = $consulta;
+			$array['error'] = $BD->error;
+		}
+		
+		//~ $array['sql']=$consulta;
+		return $array;
+	}
+	
+function VariosRegistros($BD,$nombretabla,$whereC='') {
+		/* Objetivo:
+		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.
+		 * */
+		// Funcion para contar registros de una tabla.
+		$array = array();
+		$consulta = "SELECT * FROM ". $nombretabla.' '.$whereC;
+		$resultadoConsulta = $BD->query($consulta);
+		if ($BD->query($consulta)) {
+			$array['NItems'] = $resultadoConsulta->num_rows;
+		} else {
+			// Quiere decir que hubo error en la consulta.
+			$array['consulta'] = $consulta;
+			$array['error'] = $BD->error;
+		}
+		if ($array['NItems'] > 0){
+			// Hubo resultados
+			while ($fila = $resultadoConsulta->fetch_assoc()){
+				$array['Items'][] = $fila;
+			}
+		}
+		//~ $array['sql']=$consulta;
+		return $array;
+	}
+	
+	
+	
+	
+function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
+	// Objetivo devolver comprobacion si existe igual o similares.
+	$respuesta = array();
+	foreach ($campos as $key=>$datos){
+			$campo = $key;
+			// Ahora recorremos las acciones queremos que haga
+			foreach ($datos['acciones_buscar'] as $num_accion=>$accion){
+				if ($accion['funcion'] === 'mismo'){
+					//Buscamos si es mismo registro.
+					if (isset($registro[$campo]) && trim($registro[$campo]) !== '' ){
+						$whereC =' WHERE '.$accion['campo_cruce'].'="'.$registro[$campo].'"';
+						$tabla = $accion['tabla_cruce'];
+						$UnRegistro = obtenerUnRegistro($BDTpv,$tabla,$whereC);
+						// Ahora registramos lo que hicimos.
+						// Montamos Accion para saber resultado ->CAMPO+Num_Accion+funcion+Descripcion
+						$respuesta['comprobacion'][$campo][$num_accion]['accion'] =$accion['funcion'].' -> '.$accion['description'];
+						$respuesta['comprobacion'][$campo][$num_accion]['respuesta'] = $UnRegistro;
+						// Registramos resultado si hay item
+						if ($UnRegistro['NItems'] === 1){
+							$respuesta['comprobacion']['encontrado_tipo'] = 'Mismo';
+							$respuesta['tpv'] = $UnRegistro;
+							// Salimos bucles de campo_acciones y campos, no tiene sentido seguir realizando acciones, ya encontro
+							// uno  igual.
+							break 2;
+						} 
+						
+						
+					}
+
+				} 
+				//Si encontro alguno ya no llega aquí
+				if ($accion['funcion']=== 'comparar'){
+					// Ejecutamos funcion de comparar
+					if(isset($registro[$campo])){
+						$tabla = $accion['tabla_cruce'];
+						$palabras = explode(' ',trim($registro[$campo]));
+						$likes = array();
+						foreach($palabras as $palabra){
+							if (trim($palabra) !== '' && strlen(trim($palabra))>3){
+								$likes[] =  $accion['campo_cruce'].' LIKE "%'.$palabra.'%" ';
+							}
+						}
+						$busqueda = implode(' and ',$likes);
+						$whereC =' WHERE '.$busqueda;
+						//~ echo '<br/>'.$item.'----> '.$whereC.'<br/>';
+						$Registros= VariosRegistros($BDTpv,$tabla,$whereC);
+																	
+						if ($Registros['NItems'] >0){
+							$respuesta['tpv'] = $Registros;
+							$respuesta['comprobacion']['encontrado_tipo'] = 'Similar';
+
+						} 
+						// Ahora registramos lo que hicimos
+						// Montamos Accion para saber resultado ->CAMPO+Num_Accion+funcion+Descripcion
+						$respuesta['comprobacion'][$campo][$num_accion]['accion'] = $accion['funcion'].' -> '.$accion['description'];
+						$respuesta['comprobacion'][$campo][$num_accion]['control'] = 'Entro';
+						$respuesta['comprobacion'][$campo][$num_accion]['respuesta'] = $Registros;
+						
+					}
+
+				}
+				
+			}
+			
+		}
+	// Si no encontro igual o similar
+	if (!isset($respuesta['comprobacion']['encontrado_tipo'])){
+			// Quiere decir que no encontro ninguno igual o similar
+			$respuesta['comprobacion']['encontrado_tipo'] = 'No existe mismo-Ni similar';
+	}
+	return $respuesta;
+}
 ?>
