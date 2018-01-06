@@ -111,7 +111,7 @@ function obtenerCierres($BDTpv ,$filtro) {
 	while ($datos = $Resql->fetch_assoc()) {
 			$resultado[]=$datos;
 	}
-	//$resultado ['sql'] = $consulta;
+	$resultado ['sql'] = $consulta;
 	return $resultado;
 }
 

@@ -18,7 +18,7 @@ function obtenerProductos($BDTpv,$filtro) {
 			$resultado[] = $fila;
 		}
 	}
-	$resultado['sql'] = $consulta;
+	//~ $resultado['sql'] = $consulta;
 	return $resultado;
 }
 
@@ -81,7 +81,12 @@ function referenciasTiendas($BDTpv,$idArticulo){
 	
 	
 	$resultado=array();
-	$consulta = 'SELECT ati.*, prec.pvpCiva,  t.tipoTienda FROM `articulosTiendas` as ati '
+	//~ $consulta = 'SELECT ati.*, prec.pvpCiva,  t.tipoTienda FROM `articulosTiendas` as ati '
+			//~ .' LEFT JOIN articulosPrecios as prec ON prec.idTienda = ati.idTienda '
+			//~ .' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
+			//~ .' WHERE  ati.idArticulo= '.$idArticulo.' GROUP BY prec.idTienda';
+			
+			$consulta = 'SELECT ati.*, prec.pvpCiva,  t.tipoTienda , t.dominio FROM `articulosTiendas` as ati '
 			.' LEFT JOIN articulosPrecios as prec ON prec.idTienda = ati.idTienda '
 			.' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
 			.' WHERE  ati.idArticulo= '.$idArticulo.' GROUP BY prec.idTienda';
@@ -101,6 +106,7 @@ function referenciasTiendas($BDTpv,$idArticulo){
 			$resultado['ref'][$i]['nombreTienda']= $nombretienda['razonsocial'];
 			$resultado['ref'][$i]['pvpCiva']=$filaReferencias['pvpCiva'];
 			$resultado['ref'][$i]['tipoTienda']= $filaReferencias['tipoTienda'];
+			$resultado['ref'][$i]['dominio']=$filaReferencias['dominio'];
 			$i++;
 		}
 	}
@@ -214,6 +220,8 @@ function modificarProducto($BDTpv, $datos, $tabla){
 	$iva=$datos['iva'];
 	$pvpCiva=$datos['pvpCiva'];
 	$pvpSiva=$datos['pvpSiva'];
+	$referencia=$datos['referencia'];
+	$tienda=$datos['idTienda'];
 	// Montar un array con los las claves del array datos
 	$keys=array_keys($datos);
 	$codBarras = [];
@@ -228,18 +236,23 @@ function modificarProducto($BDTpv, $datos, $tabla){
 		}
 	}
 	$stringCodbarras = implode(',',$codBarras);
-	$sql='UPDATE '.$tabla.' SET articulo_name="'.$nombre.'", costepromedio='.$coste.', beneficio='.$beneficio.' , iva ='.$iva.' WHERE idArticulo='.$id;
+	//Fecha y hora del sistema
+	$fechaMod=date("Y-m-d H:i:s");
+	$sql='UPDATE '.$tabla.' SET articulo_name="'.$nombre.'", costepromedio='.$coste.', beneficio='.$beneficio.' , iva ='.$iva.', fecha_modificado="'.$fechaMod.'" WHERE idArticulo='.$id;
 	$sql2='UPDATE articulosPrecios SET pvpCiva='.$pvpCiva.', pvpSiva='.$pvpSiva.' WHERE idArticulo='.$id  ;
 	$sql3='DELETE FROM articulosCodigoBarras where idArticulo='.$id;
+	$sql5='UPDATE articulosTiendas set crefTienda ="'.$referencia.'" WHERE  idArticulo='.$id.' and idTienda='.$tienda;
 	$sql4='INSERT INTO articulosCodigoBarras (idArticulo, codBarras) VALUES '.$stringCodbarras;
 	$consulta = $BDTpv->query($sql);
 	$consulta = $BDTpv->query($sql2);
 	$consulta = $BDTpv->query($sql3);
 	$consulta = $BDTpv->query($sql4);
+	$consulta = $BDTpv->query($sql5);
 	$resultado['sql'] =$sql;
 	$resultado['sql2'] =$sql2;
 	$resultado['sql3'] =$sql3;
 	$resultado['sql4'] =$sql4;
+	$resultado['sql6'] =$sql5;
 	$resultado['sql5']=$keys;
 	return $resultado;	
 }
@@ -252,9 +265,43 @@ function añadirProducto($BDTpv, $datos, $tabla){
 	$pvpCiva=$datos['pvpCiva'];
 	$pvpSiva=$datos['pvpSiva'];
 	$idProovedor=$datos['idProveedor'];
-	$sql='INSERT INTO '.$tabla.' (iva, idProveedor , articulo_name, beneficio, costepromedio) VALUES ("'.$iva.'" , "'.$idProovedor.'" , "'.$nombre.'", "'.$beneficio.'", "'.$coste.'")';
+	$estado=$datos['estado'];
+	$pvpCiva=$datos['pvpCiva'];
+	$pvpSiva=$datos['pvpSiva'];
+	$idTienda=$datos['idTienda'];
+	$referencia=$datos['referencia'];
+	
+	//Fecha y hora del sistema 
+	$fechaAdd=date("Y-m-d H:i:s");
+	$keys=array_keys($datos);
+	$codBarras = [];
+	$sql='INSERT INTO '.$tabla.' (iva, idProveedor , articulo_name, beneficio, costepromedio, estado, fecha_creado) VALUES ("'.$iva.'" , "'.$idProovedor.'" , "'.$nombre.'", "'.$beneficio.'", "'.$coste.'", "'. $estado .'", "'.$fechaAdd.'")';
 	$consulta = $BDTpv->query($sql);
+	//Id del inster anterior 
+	$idGenerado=$BDTpv->insert_id;
+	foreach($keys as $key){
+		// Los que coincidan con el campo cod quiere decir que es un codigo de barras y se añaden al array codBarras[]
+		$nombre1="cod";
+		if (strpos($key, $nombre1)>-1){
+			if ($datos[$key]<>""){
+				$codBarras[] = '('.$idGenerado.',"'.$datos[$key].'")';
+			}
+		}
+	}
+	$stringCodbarras = implode(',',$codBarras);
+	$sql2='INSERT INTO articulosPrecios (idArticulo, pvpCiva , pvpSiva, idTienda ) VALUES ('.$idGenerado.', '.$pvpCiva.', '.$pvpSiva.' , '.$idTienda.')';
+	if ($referencia == 0){
+		$referencia="Sin ref";
+	}
+	$sql4='INSERT INTO articulosTiendas (idArticulo, idTienda, crefTienda) VALUES ('.$idGenerado.', '.$idTienda.', "'.$referencia.'")';
+	$sql3='INSERT INTO articulosCodigoBarras (idArticulo, codBarras) VALUES '.$stringCodbarras;
+	$consulta = $BDTpv->query($sql2);
+	$consulta = $BDTpv->query($sql3);
+		$consulta = $BDTpv->query($sql4);
 	$resultado['sql'] =$sql;
+		$resultado['sql1'] =$sql2;
+			$resultado['sql2'] =$sql3;
+			$resultado['sql4'] =$sql4;
 	return $resultado;
 }
 /*Función que cuenta cuantos codigos de barras tiene un articulo*/
@@ -265,7 +312,7 @@ function ContarCodBarras($BDTpv, $idArticulo){
 	$resultado=$items[0];
 	return $resultado;
 }
-
+/*Seleccionar los codigos de barras de un producto*/
 function codBarrasProducto($BDTpv, $idArticulo){
 	$sql='SELECT * from  articulosCodigoBarras where idArticulo='.$idArticulo;
 	if ($ResConsulta = $BDTpv->query($sql)){			
