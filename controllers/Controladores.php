@@ -218,8 +218,55 @@ class ControladorComun
 		return $resultado;
 	}
 	
+	function ObtenerCajasInputParametros($parametros){
+		$VarJS = array();
+		foreach ($parametros->cajas_input->caja_input as $caja_input){
+			// Montamos acciones de teclas
+			$JSTeclas = array();
+			$JSParametros = array(); // Posibles parametros que necesitemos en caja.
 
-	
+			// Obtenemos teclas y acciones. Recuerda que para ello debes tener funcion controladoracciones
+			if (isset($caja_input->teclas->action)){
+				foreach ($caja_input->teclas->action as $accion){
+					$JSTeclas[] =  (string) $accion['tecla'].':'."'".$accion."'";
+				}
+				$JSaccionesTeclas = ', acciones:{'.implode(',',$JSTeclas).'}';
+			} else {
+				$JSaccionesTeclas = '';
+			}
+			// Obtenemos parametros si existe.
+			if (isset($caja_input->parametros->parametro)){
+				foreach ($caja_input->parametros->parametro as $parametro){
+					$JSParametros [] = (string) $parametro['nombre'].':'."'".$parametro."'";
+				}
+				$JSstringParametros = ', parametros:{'.implode(',',$JSParametros).'}';
+			} else {
+				$JSstringParametros = '';
+			}
+			// Obtenemos acciones despues de crear caja
+			// De momento solo obtengo estado , ya este puede variar.
+			if (isset($caja_input->before)){
+				$JSstringBefore = ', before_constructor: '."'".(string)$caja_input->before->estado."'";
+			} else {
+				$JSstringBefore ='';
+			}
+			// Obtenemos acciones antes de crear caja
+			// De momento solo obtengo estado , ya este puede variar.
+			if (isset($caja_input->after)){
+				$JSstringAfter = 'after_constructor: '."'".(string)$caja_input->after->estado."',";
+			} else {
+				$JSstringAfter ='';
+			}
+			//~ echo '<pre>';
+			//~ echo $JSstringBefore;
+			//~ echo '</pre>';
+			$VarJS[] = 'var '.(string) $caja_input->nombre.' = {'.$JSstringAfter.
+					"id_input :'".$caja_input->nombre['id_input']."'".$JSaccionesTeclas.$JSstringParametros.$JSstringBefore.'};
+					';
+		}
+		$htmlVarJS = implode(' \\n ',$VarJS);
+		return $htmlVarJS;
+	}
 	
 	
 }
