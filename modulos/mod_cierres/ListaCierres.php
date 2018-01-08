@@ -28,9 +28,10 @@
 		$palabraBuscar = explode(' ',$_GET['buscar']); 		
 	} 
 	if (isset ($_GET['fecha1']) & isset($_GET['fecha2'])){
-		echo "Entro en el if";
 		$fecha1=$_GET['fecha1'];
 		$fecha2=$_GET['fecha2'];
+		$banderaCierres=1;
+		
 	}
 	// Creamos objeto controlado comun, para obtener numero de registros. 
 	//parametro necesario para plugin de paginacion
@@ -72,11 +73,12 @@
 	
 	
 	if (isset($_GET['fecha1']) & isset($_GET['fecha2'])){
+		// SI recibe por get las fechas añade el filtro a la consulta
 		$filtro='where FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
 	}
 	
 	$cierres = obtenerCierres($BDTpv,$filtro);
-	print_r($cierres);
+	//~ print_r($cierres);
 	?>
 	<script>
 	// Declaramos variables globales
@@ -119,6 +121,13 @@
 					<h5> Opciones para una selección</h5>
 					<ul class="nav nav-pills nav-stacked"> 
 						<li><a href="#section2" onclick="metodoClick('VerCierre');";>Ver Cierre</a></li>
+						<?php 
+						if ($banderaCierres===1){
+						?>
+						<li><a href="ResumenFechas.php?fecha1=<?php echo $fecha1;?>&fecha2=<?php echo $fecha2;?>">Resumen Cierres</a></li>
+						<?php 
+					}
+						?>
 					</ul>
 				</div>
 				<div style="position: fixed" >
@@ -152,8 +161,8 @@
 				<form action="./ListaCierres.php" method="GET" name="formBuscar">
 					<div class=" ClaseBuscar">
 						<label>Buscar por fechas</label>
-						<input type="date" name="fecha1" >
-						<input type="date" name="fecha2" >
+						<input type="date" name="fecha1" placeholder='yyyy-mm-dd'>
+						<input type="date" name="fecha2" placeholder='yyyy-mm-dd'>
 						<input type="submit" value="buscar">
 					</div>
 				</form>

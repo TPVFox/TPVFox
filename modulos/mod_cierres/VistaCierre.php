@@ -32,7 +32,7 @@
 			</nav>
 			<!-- CIERRE POR USUARIOS-->
 			<div class="col-md-8 text-center">
-				<h1> Cierre de caja </h1>
+				<h1> Cierre de caja <?php echo $idCierre; ?></h1>
 			</div>
 			<div class="col-md-10" style="float:right">
 			<table class="table table-striped">

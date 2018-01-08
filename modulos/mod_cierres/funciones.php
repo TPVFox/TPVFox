@@ -111,7 +111,7 @@ function obtenerCierres($BDTpv ,$filtro) {
 	while ($datos = $Resql->fetch_assoc()) {
 			$resultado[]=$datos;
 	}
-	$resultado ['sql'] = $consulta;
+	//$resultado ['sql'] = $consulta;
 	return $resultado;
 }
 
@@ -643,6 +643,62 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 	$resultado['html'] .='</tbody></table>';
 	
 	return $resultado;
+}
+// Busca los tipos de iva 
+function tiposIva($BDTpv,$tabla) {
+	$sql='SELECT iva FROM '.$tabla;
+	if ($ResConsulta = $BDTpv->query($sql)){			
+		while ($fila = $ResConsulta->fetch_assoc()) {
+			$resultado[] = $fila;
+		}
+	}
+	return $resultado;
+	
+}
+//Suma el importe base y el importe iva de un determinado iva
+function sumDatosIva($BDTpv, $iva){
+	$sql='SELECT SUM(importe_base) AS base , SUM(importe_iva) AS iva from cierres_ivas where tipo_iva='.$iva;
+	if ($ResConsulta = $BDTpv->query($sql)){			
+		while ($fila = $ResConsulta->fetch_assoc()) {
+			$resultado = $fila;
+		}
+	}
+	return $resultado;
+}
+// Devuelve la cantidad que facturo cada usuario en total entre uno cierres
+
+
+function UsuariosCierre($BDTpv, $fecha1, $fecha2){
+	$sql='select idUsuario, sum(importe) AS importe from cierres_usuarios_tickets where idUsuario in (select id from usuarios) and idCierre in (select idCierre from cierres where FechaCierre BETWEEN "'.$fecha1.'" and "'.$fecha2.'") group by idUsuario ';
+	if ($ResConsulta = $BDTpv->query($sql)){			
+		while ($fila = $ResConsulta->fetch_assoc()) {
+			$resultado[] = $fila;
+		}
+	}
+	
+	return $resultado;
+
+}
+//Según el id del usuario mostrar todos sus datos
+function datosUsuario($BDTpv, $idUsuario){
+	$sql='Select nombre from usuarios where id='.$idUsuario;
+	$ResConsulta=$BDTpv->query($sql);
+	$fila = $ResConsulta->fetch_assoc();
+	$resultado=$fila;
+	return $resultado;
+	
+}
+//MUestra todos las formasd de pago y el total de veces que se cobro con esa forma de pago en un intervalo de fechas
+function cantMOdPago($BDTpv, $fecha1, $fecha2){
+	$sql='select FormasPago, COUNT(FormasPago) as total from cierres_usuariosFormasPago where idCierre in (select idCierre from cierres where FechaCierre BETWEEN "'.$fecha1.'" and "'.$fecha2.'") group by FormasPago';
+	if ($ResConsulta = $BDTpv->query($sql)){			
+		while ($fila = $ResConsulta->fetch_assoc()) {
+			$resultado[] = $fila;
+		}
+	}
+	
+	return $resultado;
+
 }
 
 //~ function borrarDatos_tablasCierres(){

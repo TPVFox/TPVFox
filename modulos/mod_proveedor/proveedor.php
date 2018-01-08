@@ -75,14 +75,15 @@
 				if($titulo === "Crear Proveedor"){
 					// Quiere decir que ya cubrimos los datos del usuario nuevo.
 					$resp = insertarProveedor($datos,$BDTpv,$tabla);
-					echo $resp['sql'];
 					if (isset($resp['error'])){
 						$tipomensaje= "danger";
 						$mensaje = "Nombre comercial de proveedor ya existe!";
+						header('Location:proveedor.php?mensaje='.$mensaje.'&tipomensaje='.$tipomensaje);
 						
 					} else {
 						$tipomensaje= "info";
 						$mensaje = "Nuevo proveedor creado.";
+						header('Location:ListaProveedores.php');
 					}
 				} else {
 					// Quiere decir que ya modificamos los datos del ficha del cliente
@@ -99,9 +100,12 @@
 					} else {
 						$tipomensaje= "info";
 						$mensaje = "Su registro de proveedor fue editado.";
+						
 					}
+					header('Location:proveedor.php?id='.$_GET['id'].'&mensaje='.$mensaje.'&tipomensaje='.$tipomensaje);
 				};
 			}
+			
 		}
 		
 		?>
@@ -112,6 +116,8 @@
 			//~ echo '<pre>';
 			//~ print_r($_POST);
 			//~ echo '</pre>';
+			$mensaje=$_GET['mensaje'];
+			$tipomensaje=$_GET['tipomensaje'];
 			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 

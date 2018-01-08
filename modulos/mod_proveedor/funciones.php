@@ -59,7 +59,6 @@ function insertarProveedor($datos,$BDTpv,$tabla){
 	$razonsocial =$datos['razonsocial'];
 	$nif = $datos['nif'];
 	$direccion = $datos['direccion']; 
-	
 	$telefono=$datos['telefono'];
 	$movil = $datos['movil'];
 	$fax = $datos['fax'];
