@@ -18,7 +18,7 @@
 	// Creamos variables de los ficheros DBF que vamos añadir de forma automatizada a TPV.
 	// Inicialmente se añaden tambien a BDimportar
 	$nom_ficheros = array(
-					'proveedo','articulo','clientes','precprov'
+					'proveedo','articulo','clientes','precprov','codbarc'
 					);
 	// [ANTES CARGAR FUNCIONES JS]
 	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js

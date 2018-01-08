@@ -3,49 +3,93 @@
 Recuerda en poner acciones mismo al principio de cada campo.
 Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si consideramos que es mismo.
 -->
-<tablas>
-	<tabla>
-		<nombre>proveedo</nombre>
-			<campos>
-				<campo nombre="CNIFDNI">
-					<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="nif" description="Numeros iguales y letra puede ser mayusculas o minusculas, delante o detras" />
-				</campo>
-				<campo nombre="CTFO1PRO">
-					<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Numeros mismoes sin espacios" />
-					<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Numeros iguales sin espacios" />
-				</campo>
-				<campo nombre="CTFO2PRO">
-					<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Numeros iguales sin espacios" />
-					<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Numeros iguales sin espacios" />
-				</campo>
-				<campo nombre="CFAX">
-					<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="fax" description="Numeros iguales sin espacios"/>
-				</campo>
-				<campo nombre="CNOMPRO">
-					<action funcion="comparar" tabla_cruce="proveedores" campo_cruce="nombrecomercial" description="Compara cuales son lo mas aproximados" />
-					<action funcion="comparar" tabla_cruce="proveedores" campo_cruce="razonsocial" description="Compara cuales son lo mas aproximados" />
-				</campo>
-				
-			</campos>
-			<consultas>
-				<consulta tabla="importar">
-					SELECT CNOMPRO,CDIRPRO,CTFO1PRO,CTFO2PRO,CFAX,CNIFDNI,EMAIL FROM proveedo
-				</consulta>
-			</consultas>
-	</tabla>
-	<tabla>
-		<nombre>articulo</nombre>
-			<campos>
-				<campo nombre="CCODEBAR">
-					<action funcion="mismo" tabla_cruce="articulosCodigoBarras" campo_cruce="codBarras" description="Comparar para buscar las mas similares."/>
-				</campo>
-				<campo nombre="CCREF">
-					<action funcion="mismo" tabla_cruce="articulosTiendas" campo_cruce="crefTienda" description="Iguales sin espacios"/>
-				</campo>
-				<campo nombre="CDETALLE">
-					<action funcion="comparar" tabla_cruce="articulos" campo_cruce="articulo_funcion" description="Comparar para buscar las mas similares."/>
-				</campo>
-				
-			</campos>
-	</tabla>
-</tablas>
+<parametros>
+	<tablas>
+		<tabla>
+			<nombre>proveedo</nombre>
+				<campos>
+					<campo nombre="CCODPRO">
+						<tipo>Unico</tipo>
+					</campo>
+					<campo nombre="CNIFDNI">
+						<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="nif" description="Numeros iguales y letra puede ser mayusculas o minusculas, delante o detras" />
+						<tipo>Unico</tipo>
+					</campo>
+					<campo nombre="CTFO1PRO">
+						<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Numeros mismoes sin espacios" />
+						<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Numeros iguales sin espacios" />
+					</campo>
+					<campo nombre="CTFO2PRO">
+						<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Numeros iguales sin espacios" />
+						<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Numeros iguales sin espacios" />
+					</campo>
+					<campo nombre="CFAX">
+						<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="fax" description="Numeros iguales sin espacios"/>
+					</campo>
+					<campo nombre="CNOMPRO">
+						<action funcion="comparar" tabla_cruce="proveedores" campo_cruce="nombrecomercial" description="Compara cuales son lo mas aproximados" />
+						<action funcion="comparar" tabla_cruce="proveedores" campo_cruce="razonsocial" description="Compara cuales son lo mas aproximados" />
+					</campo>
+					
+				</campos>
+				<tpv>
+					<campo nombre="idProveedor">
+						<tipo>Unico</tipo>
+					</campo>
+				</tpv>
+		</tabla>
+		<tabla>
+			<nombre>articulo</nombre>
+				<campos>
+					<campo nombre="CCODEBAR">
+						<action funcion="mismo" tabla_cruce="articulosCodigoBarras" campo_cruce="codBarras" description="Comparar para buscar las mas similares."/>
+					</campo>
+					<campo nombre="CCREF">
+						<action funcion="mismo" tabla_cruce="articulosTiendas" campo_cruce="crefTienda" description="Iguales sin espacios"/>
+					</campo>
+					<campo nombre="CDETALLE">
+						<action funcion="comparar" tabla_cruce="articulos" campo_cruce="articulo_funcion" description="Comparar para buscar las mas similares."/>
+					</campo>
+					
+				</campos>
+		</tabla>
+	</tablas>
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="Ejecutar">botonEjecutar</nombre>
+			<teclas>
+				<action tecla="13">InicioEjecutar</action>
+			</teclas>
+			<before>
+				<estado>Si</estado>
+			</before>
+			<after>
+				<estado>Si</estado>
+			</after>
+		</caja_input>
+	</cajas_input>
+	<configuracion>
+		<tipos_registros>
+			<tipo clase="todos">
+				<texto>Todos</texto>
+				<consulta></consulta>
+			</tipo>
+			<tipo clase="sin">
+				<texto>Sin tratar</texto>
+				<consulta>WHERE estado is null</consulta>
+			</tipo>
+			<tipo clase="nuevo">
+				<texto>Nuevos</texto>
+				<consulta>WHERE estado= "Nuevo"</consulta>
+			</tipo>
+			<tipo clase="modificado">
+				<texto>Modificados</texto>
+				<consulta>WHERE estado="Modificado"</consulta>
+			</tipo>
+			<tipo clase="descartado">
+				<texto>Descartados</texto>
+				<consulta>WHERE estado="Descartado"</consulta>
+			</tipo>
+		</tipos_registros>
+	</configuracion>
+</parametros>

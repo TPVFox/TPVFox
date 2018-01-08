@@ -357,3 +357,122 @@ function removeItemFromArr ( arr, item ) {
         arr.splice( i, 1 );
     }
 }
+
+
+function controladorAcciones(caja,accion){
+	// @ Objetivo es obtener datos si fuera necesario y ejecutar accion despues de pulsar una tecla.
+	//  Es Controlador de acciones a pulsar una tecla que llamamos desde teclado.js
+	// @ Parametros:
+	//  	caja -> Objeto que aparte de los datos que le ponemos en variables globales de cada input
+	//				tiene funciones que podemos necesitar como:
+	//						darValor -> donde obtiene el valor input
+	switch(accion) {
+		case 'InicioEjecutar':
+				accion_general =$('#accion_general_'+caja.fila).val();
+				var continuar = confirm("Vamos a "+accion_general);
+				if (continuar == true) {
+					// Pulso Si.
+					if (accion_general === 'Descartado'){
+						// Ocultamos fila.
+						$('#fila'+caja.fila).css("display", "none");
+						DescartarRegistroTratar(caja.fila);
+					}
+					if (accion_general === 'Nuevo'){
+						$('#fila'+caja.fila).css("display", "none");
+						DescartarRegistroTratar(caja.fila);
+					}
+					
+					
+				} 
+				
+				
+
+				
+				break; // Recuerda que debe poner break.. sino continua ejecutando default
+		default :
+				alert( 'Accion no encontrada '+ accion);
+	}
+}
+
+
+function after_constructor(padre_caja,event){
+	// @ Objetivo:
+	// Ejecuta procesos antes construir el obj. caja.
+	// Traemos 
+	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
+	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
+	if (padre_caja.id_input.indexOf('Ejecutar') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+	
+	return padre_caja;
+}
+
+function before_constructor(caja){
+	// @ Objetivo :
+	//  Ejecutar procesos para obtener datos despues del construtor de caja.
+	//  Estos procesos los indicamos en parametro before_constructor, si hay
+	if (caja.id_input.indexOf('Ejecutar') >-1){
+		caja.fila = caja.id_input.slice(9);
+		console.log('Fila:'+caja.fila);
+	}
+	
+	return caja;
+}
+
+
+function DescartarRegistroTratar(fila){
+	// @Objetivo:
+	// Grabar en BDImport en estado ="Descartado"
+	datos = registros.importar[fila];
+	var parametros = {
+		"pulsado"	: "DescartarRegistro",
+		"tabla" 	: tabla, // Enviamos todos los ficheros.
+		"datos" 	: datos[0]
+		};
+	
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			console.log('================  Descartando registro en DBDImportar en '+tabla+ '   ====================');
+			
+		},
+		success:  function (response) {
+			console.log('================  Termino de descartar registro en DBDImportar en '+tabla+ '   ====================');
+			var respuesta = parseJSON(response);
+			console.log(resultado);
+		
+		}
+	});
+	
+}
+
+function AnhadirRegistroTpv(fila){
+	// @Objetivo:
+	// Grabar en BDImport en estado ="Descartado"
+	datos = registros.importar[fila];
+	var parametros = {
+		"pulsado"	: "AnhadirRegistro",
+		"tabla" 	: tabla, // Enviamos todos los ficheros.
+		"datos" 	: datos[0]
+		};
+	
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			console.log('================  Añadir registro de DBDImportar a tpv en '+tabla+ '   ====================');
+			
+		},
+		success:  function (response) {
+			console.log('================  Termino de añadir registro de DBDImportar en tpv de '+tabla+ '   ====================');
+			var respuesta = parseJSON(response);
+			console.log(resultado);
+		
+		}
+	});
+	
+}

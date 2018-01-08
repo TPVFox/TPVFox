@@ -10,18 +10,39 @@
 		//	- Copiar DBF y guardar en directorio de copias de seguridad.
 		// 	- Importar los datos copiados a MYSQL.
 
-
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <?php
-		include './../../head.php';
-	// Creamos variables de los ficheros DBF que vamos añadir de forma automatizada a TPV.
-	// [ANTES CARGAR FUNCIONES JS]
-	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
+	include './../../head.php';
+	include ("./../../controllers/Controladores.php");
+	$Controler = new ControladorComun; 
+// ---------   Obtenemos la tabla que vamos gestionar y tratar   ------------ //
+	if ($_GET['tabla']){
+		$tabla =$_GET['tabla'];
+		// Comprobamos si existe tabla.
+		if (!in_array($tabla,$Conexiones['1']['tablas'])){
+			print 'No existe la tabla';
+			// Si no existe no continuamos.
+			return;
+		}
+	}
+	// Cargamos XML donde tenemos parametros necesarios de ejecucion
+	// https://diego.com.es/tutorial-de-simplexml
+	$parametros = simplexml_load_file('parametros.xml');
+// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	?>
 	
+	<script type="text/javascript">
+		<?php echo $VarJS;?>
+		var registros = { 'tpv' : [] ,'importar' : [] };
+		var tabla = '<?php echo $tabla;?>'; 
+		
+	</script>
+
+<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar_sppg/funciones.js"></script>
 	<?php
 	// Controlamos ( Controllers ... fuera de su sitio ... :-)
@@ -38,30 +59,24 @@
 	include './../../header.php';
 	include_once ("./funciones.php");
 	include_once ("./classTabla.php");
-	include ("./../../controllers/Controladores.php");
-	$Controler = new ControladorComun; 
-	// Ahora obtenemos nombre tabla
-	if ($_GET['tabla']){
-		$tabla =$_GET['tabla'];
-		// Comprobamos si existe tabla.
-		if (!in_array($tabla,$Conexiones['1']['tablas'])){
-			print 'No existe la tabla';
-			// Si no existe no continuamos.
-			return;
-		}
-	}
 	
-	// ---------------  Montamos array campos que obtenemos XML parametros   ------------- //
-	// Cargamos XML donde tenemos parametros de las tabla
-	// https://diego.com.es/tutorial-de-simplexml
-	$tablas_importar = simplexml_load_file('parametros.xml');
-	//~ $campos = array();
-	foreach ($tablas_importar as $tabla_importar){
+	
+		
+// ---------------  Montamos array campos que obtenemos XML parametros   ------------- //
+	$campos = array();
+	$tipos_campos = array(); // Un array sencillo donde tenemos los campos los que podemos generar variables JS
+							 // para reallizar la busqueda del registro la tabla importar.
+	foreach ($parametros->tablas->tabla as $tabla_importar){
 		echo $tabla_importar->nombre.'=='.$tabla;
 		if (htmlentities((string)$tabla_importar->nombre) === $tabla){
-			// Solo obtenemos los datos de tabla que estamos
+			// --- Obtenemos los campos de la tabla importar --- //
 			foreach ($tabla_importar->campos->children() as $campo){;
 				$nombre_campo =(string) $campo['nombre'];
+				if (isset($campo->tipo)){
+					if ((string) $campo->tipo === 'Unico'){
+						$tipos_campos['importar'][]=$nombre_campo;
+					}
+				}
 				$x = 0;
 				foreach ($campo->action as $action) {
 					// obtenemos las acciones para encontrar
@@ -72,31 +87,31 @@
 					$x++;
 				}
 			}
+			// --- Obtenemos los datos tpv que necesitamos de tpv --- //
+			if (isset ($tabla_importar->tpv->campo)){
+				foreach ($tabla_importar->tpv->campo as $campo){
+					$nombre_campo =(string) $campo['nombre'];
+					if (isset($campo->tipo)){
+						if ((string) $campo->tipo === 'Unico'){
+							$tipos_campos['tpv'][]=$nombre_campo;
+						}
+					}
+				}
+			}
 		}
 	}
-	echo '<pre>';
-	print_r($campos);
-	echo '</pre>';
 	
-	// Realizamos resumen registros por el estado la tabla.
 	
-	$tiposRegistros = array('todos'	=>array('consulta' => '',
-										'texto' => 'Todos'
-									),
-					'sin'		=>array('consulta' => 'WHERE estado is null',
-										'texto' => 'Sin tratar'
-									),
-					'nuevo'		=>array('consulta' => 'WHERE estado= "Nuevo"',
-										'texto' => 'Nuevos'
-									),
-					'modificado'=>array('consulta' => ' WHERE estado="Modificado"',
-										'texto' => 'Modificados'
-									),
-					'descartado'=>array('consulta' => ' WHERE estado="Descartado"',
-										'texto' => 'Descartados'
-										)
-					);
-	// ------------- Obtenemos registros sin tratar. ------------------ //
+// ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
+	$tiposRegistros = array();
+	foreach ($parametros->configuracion->tipos_registros as $tipos){
+		foreach ($tipos as $tipo){
+			$clase = (string) $tipo['clase'];
+			$tiposRegistros[$clase]['texto']= (string) $tipo->texto;
+			$tiposRegistros[$clase]['consulta']= (string) $tipo->consulta;
+		}
+	}
+// ----------- Obtenemos registros sin tratar y hacemos resumen registros por su estado -------------- //
 	$Registros_sin = array();
 	foreach ( $tiposRegistros as $key => $tipo){
 		$resultado = $Controler->contarRegistro($BDImportDbf,$tabla,$tipo['consulta']);
@@ -113,10 +128,12 @@
 			
 		}
 	}
-	// ---  Comprobamos si los registros sin tratar existe y son iguales o similares en tpv. --- //
+// ---  Comprobamos si los registros sin tratar existe y son iguales o similares en tpv. --- //
 	$registros_tpv = array();
 	$comprobaciones = array();
 	foreach ($Registros_sin['importar'] as $item=>$registro){
+		// Montamos variable JS que enviaremos para identificar el registro importar
+
 		// Ahora buscamos un registro similar o igual en Tpv
 		$respuesta = BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro);
 		// Añadimos array las repuestas.
@@ -132,9 +149,6 @@
 			
 		}
 	}
-	
-	
-	
 	//~ echo '<pre>';
 		//~ print_r($comprobaciones);
 	//~ echo '</pre>';
@@ -148,9 +162,10 @@
 		<h2>Preparamos para actualizar tabla <?php echo $tabla;?>.</h2>
 	</div>	
 	<div class="col-md-12">
-		<p><strong>Resumen</strong></p>
+		<p><strong>Resumen el estado actual BDImportar</strong></p>
 	<p>
 	<?php
+	// Mostramos resumen en etiquetas
 	foreach ($tiposRegistros as  $key => $tipo){
 		echo ' <span class="label label-default">'.$tipo['texto'].' registros:'.$tipo['Num_items'].'</span> ';
 		
@@ -162,9 +177,43 @@
 		<?php 
 		foreach ($Registros_sin['importar'] as $item =>$registro_sin){
 		?>
-		<div class="row">
+		<div class="row" id="fila<?php echo $item;?>" >
 			<div class="col-md-12">
 				<h3>Registro: <?php echo $item;?></h3>
+				<div class="text-right">
+					<select id="accion_general_<?php echo $item?>">
+						<option value="Nuevo">Crear nuevo</option>
+						<?php 
+						if ($comprobaciones[$item]['encontrado_tipo'] !== 'No existe mismo-Ni similar'){?>
+								<option value="Modificado">Aplicar cambios - Modificar</option>
+						<?php } ?>
+						<option value="Descartado" selected="true">Descartar</option>
+					</select> 
+					<?php 
+					// Montamos variables JS para poder buscar el registro de la tabla import
+					$datos = array();
+					foreach ($tipos_campos['importar'] as $campo){
+						if (isset($registro_sin[$campo])){ 
+							$datos['importar'][] = array ( $campo =>$registro_sin[$campo]);
+						}
+					}
+					if (isset($tipos_campos['tpv'])){
+						foreach ($tipos_campos['tpv'] as $campo){
+							if (isset($registros_tpv[$campo])){ 
+								$datos['tpv'][] = array ( $campo =>$registro_sin[$campo]);
+							}
+						}
+					}
+					echo '<script>';
+					echo "registros.tpv[".$item."] = [];";
+					echo "registros.importar[".$item."] = [];";
+					foreach ($datos as $tipo =>$dato){
+						echo "registros.".$tipo."[".$item."].push(".json_encode($dato).");";
+					}
+					echo '</script>';
+					?>
+					<button id="Ejecutar_<?php echo $item?>" class="btn btn-primary" data-datos="<?php //echo implode(',',$JSdatos);?>" data-obj="botonEjecutar" onclick="controlEventos(event)">Ejecutar</button>
+				</div>
 			</div>
 			<div class="col-md-4">
 				<h4>Registro de importarDBF</h4>
@@ -185,7 +234,8 @@
 				
 			</div>
 			<div class="col-md-4">
-				<h4>Accion a realizar</h4>
+				<h4>Que encontramos</h4>
+				
 				<?php
 					echo '<pre>';
 						print_r($comprobaciones[$item]['encontrado_tipo']);

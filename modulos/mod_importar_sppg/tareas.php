@@ -55,6 +55,20 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
 		$respuesta = ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf);
 		echo json_encode($respuesta);
 		break;
+		
+	case 'DescartarRegistro' :
+		$datos = $_POST['datos'];
+		$tabla = $_POST['tabla'];
+		$respuesta = DescartarRegistrosImportDbf($BDImportDbf,$tabla,$datos);
+		echo json_encode($respuesta);
+		break;
+	case 'AnhadirRegistro':
+		$datos = $_POST['datos'];
+		$tabla = $_POST['tabla'];
+		$respuesta = AnhadirRegistro($BDImportDbf,$tabla,$datos);
+		echo json_encode($respuesta);
+		break;
+		break;
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

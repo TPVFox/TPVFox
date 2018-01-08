@@ -379,7 +379,8 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 	$respuesta = array();
 	foreach ($campos as $key=>$datos){
 			$campo = $key;
-			// Ahora recorremos las acciones queremos que haga
+			// Ahora recorremos las acciones queremos que haga - si hay claro.
+		if (isset($datos['acciones_buscar'])){
 			foreach ($datos['acciones_buscar'] as $num_accion=>$accion){
 				if ($accion['funcion'] === 'mismo'){
 					//Buscamos si es mismo registro.
@@ -402,7 +403,6 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 						
 						
 					}
-
 				} 
 				//Si encontro alguno ya no llega aquí
 				if ($accion['funcion']=== 'comparar'){
@@ -433,12 +433,10 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 						$respuesta['comprobacion'][$campo][$num_accion]['respuesta'] = $Registros;
 						
 					}
-
 				}
-				
 			}
-			
 		}
+	}
 	// Si no encontro igual o similar
 	if (!isset($respuesta['comprobacion']['encontrado_tipo'])){
 			// Quiere decir que no encontro ninguno igual o similar
@@ -446,4 +444,48 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 	}
 	return $respuesta;
 }
+
+
+function DescartarRegistrosImportDbf($BDImportDbf,$tabla,$datos){
+	// @ Objetivo:
+	// Cambiar el estado de los registros que nos indica datos a DESCARTADOS.
+	$respuesta = array();
+	$wheres = array ();
+	foreach ($datos as $dato){
+		foreach ($dato as $nombre_campo => $valor){
+			if (strlen($valor) >0 ){
+				$wheres[] = '('.$nombre_campo.'="'.$valor.'")';
+			}
+		}
+	}
+	$Sql ='UPDATE '.$tabla.' SET estado="Descartado" WHERE '.implode(' AND ',$wheres);
+	if (($BDImportDbf->query($Sql)) === true){
+		$respuesta['estado'] = 'Correcto';
+	} else {
+		$respuesta['estado'] = 'Incorrecto';
+		$respuesta['Sql'] = $Sql;
+	}
+	return $respuesta;
+}
+
+
+function AnhadirRegistro($BDImportDbf,$tabla,$datos){
+	// @ Objetivo 
+	// Añadir registro de las tablas importar a tpv
+	// Segun la tabla que recibimos serán funciones independientes
+	// @ Parametros.
+	// $tabla : String con nombre tabla.
+	// $datos: Array (	importar => array( campos unicos...)
+	//					tpv => array ( campos unicos... )
+	$respuesta = array();
+	
+	
+	
+	
+	
+	
+	return $respuesta;
+}
+
+
 ?>
