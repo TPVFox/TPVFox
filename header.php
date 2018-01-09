@@ -42,7 +42,26 @@
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_cierres/ListaCierres.php';?>">Cierres</a></li>
 					<li><a href="<?php echo $HostNombre.'/estatico';?>">Documentacion</a></li>
-					<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
+				<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Compras
+							<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_comprasClientes/pedidosListado.php';?>">Pedidos</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_comprasClientes/albaranesListado.php';?>">Albaranes</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_comprasClientes/facturasListado.php';?>">Facturas</a></li>
+							</ul>
+						</li>
+							<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Ventas
+							<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_ventaClientes/pedidosListado.php';?>">Pedidos</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_ventaClientes/albaranesListado.php';?>">Albaranes</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_ventaClientes/facturasListado.php';?>">Facturas Proveedores</a></li>
+							</ul>
+						</li>
 					<?php 
 					if ($Usuario['group_id'] === '1'){?>
 						<?php //coloco dropdown importar, al pinchar tengo 2 opc en lista?>
