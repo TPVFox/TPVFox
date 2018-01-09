@@ -1,5 +1,8 @@
 <?php 
+include "./../configuracion.php";
+
 require_once "BD.php";
+//~ include "./../configuracion.php";
 class iva{
 	private $id;
 	private $descripcion;
@@ -7,10 +10,12 @@ class iva{
 	private $recargo;
 	
 	public function __construct($datos){
+		
 		$this->id=$datos['idIva'];
 		$this->descripcion=$datos['descripcionIva'];
 		$this->iva=$datos['iva'];
 		$this->recargo=$datos['recargo'];
+		
 	}
 	
 	public function getId(){
@@ -54,7 +59,7 @@ class iva{
 	}
 	static public function ivasNoPrincipal($ivaPrincipal){
 		try{
-			$db = BD::conectar ();
+			$db = BD::conectar ($servidorMysql, $nombrebdMysql, $usuarioMysq, $passwordMysql);
 			$smt = $db->query ( 'SELECT * FROM iva where iva <>'.$ivaPrincipal );
 		$ivasPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
@@ -65,6 +70,10 @@ class iva{
 		}catch ( PDOException $e ) {
 			echo 'Error: ' . $e->getMessage ();
 		}
+	}
+	public static function cargar($servidorMysql, $nombrebdMysql, $usuarioMysq, $passwordMysql){
+		$result=array($servidorMysql, $nombrebdMysql, $usuarioMysq, $passwordMysql);
+		return $result;
 	}
 }
 
