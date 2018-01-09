@@ -47,9 +47,9 @@
 							<span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								
-								<li><a href="<?php echo $HostNombre.'/modulos/mod_comprasClientes/pedidosListado.php';?>">Pedidos</a></li>
-								<li><a href="<?php echo $HostNombre.'/modulos/mod_comprasClientes/albaranesListado.php';?>">Albaranes</a></li>
-								<li><a href="<?php echo $HostNombre.'/modulos/mod_comprasClientes/facturasListado.php';?>">Facturas</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_compras/pedidosListado.php';?>">Pedidos</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_compras/albaranesListado.php';?>">Albaranes</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_compras/facturasListado.php';?>">Facturas</a></li>
 							</ul>
 						</li>
 							<li class="dropdown">
@@ -57,9 +57,9 @@
 							<span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
-								<li><a href="<?php echo $HostNombre.'/modulos/mod_ventaClientes/pedidosListado.php';?>">Pedidos</a></li>
-								<li><a href="<?php echo $HostNombre.'/modulos/mod_ventaClientes/albaranesListado.php';?>">Albaranes</a></li>
-								<li><a href="<?php echo $HostNombre.'/modulos/mod_ventaClientes/facturasListado.php';?>">Facturas Proveedores</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_venta/pedidosListado.php';?>">Pedidos</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_venta/albaranesListado.php';?>">Albaranes</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_venta/facturasListado.php';?>">Facturas Proveedores</a></li>
 							</ul>
 						</li>
 					<?php 
