@@ -163,8 +163,11 @@
 						</div>
 						<div class="col-md-2 ">	
 							<label class="control-label " > Nombre producto:</label>
-							<input type="text" id="nombre" name="nombre" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>"   >
+							<input type="text" id="nombre" name="nombre" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>"    size="50" >
 						</div>
+						</div>
+						</div>
+					<div class="col-md-12">
 					<div class="col-md-2 ">	
 							<label class="control-label " > Promedio:</label>
 							<input type="text" id="coste" size="10" name="coste" placeholder="coste" value="<?php echo number_format($Producto['costepromedio'],2, '.', '');?>"   readonly> € 
