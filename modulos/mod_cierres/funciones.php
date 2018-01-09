@@ -690,7 +690,7 @@ function datosUsuario($BDTpv, $idUsuario){
 }
 //MUestra todos las formasd de pago y el total de veces que se cobro con esa forma de pago en un intervalo de fechas
 function cantMOdPago($BDTpv, $fecha1, $fecha2){
-	$sql='select FormasPago, COUNT(FormasPago) as total from cierres_usuariosFormasPago where idCierre in (select idCierre from cierres where FechaCierre BETWEEN "'.$fecha1.'" and "'.$fecha2.'") group by FormasPago';
+	$sql='select FormasPago, COUNT(FormasPago) as total, sum(importe) as importe from cierres_usuariosFormasPago where idCierre in (select idCierre from cierres where FechaCierre BETWEEN "'.$fecha1.'" and "'.$fecha2.'") group by FormasPago';
 	if ($ResConsulta = $BDTpv->query($sql)){			
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado[] = $fila;
