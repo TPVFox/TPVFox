@@ -43,7 +43,7 @@ class iva{
 		$db = BD::conectar ();
 		$smt = $db->query ( 'SELECT * FROM iva' );
 		$ivasPrincipal=array();
-		while ( $result = $smt->fetch () ) {
+		while ( $result = $smt->fetch_assoc () ) {
 			$iva=new iva($result);
 			array_push($ivasPrincipal, $iva);
 		}
