@@ -15,6 +15,8 @@
 <?php
 	include './../../head.php';
 	include_once ("funciones.php");
+	include ("./../../controllers/Controladores.php");
+	$Controler = new ControladorComun; 
 	// Inicializo varibles por defecto.
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
@@ -68,138 +70,23 @@
 
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
 <!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
+<?php 
+// Cargamos XML donde tenemos parametros necesarios de ejecucion
+	// https://diego.com.es/tutorial-de-simplexml
+	$parametros = simplexml_load_file('parametros.xml');
+// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+//~ echo '<pre>';
+//~ print_r($VarJS);
+//~ echo '</pre>';
+
+
+
+?>
 
 <script type="text/javascript">
 // Objetos cajas de tpv
-var cajaCodBarras = {
-	id_input : 'Codbarras',
-	acciones : { 
-		 13 : 'buscarProductos', // pulso intro
-		 40 : 'saltar_productos', // pulso abajo
-		  9 : 'saltar_Referencia', // tabulador
-		 39 : 'saltar_Referencia', // pulso flecha derecha
-		112 : 'cobrar' // Pulso F1
-		},
-	parametros : {
-		dedonde : 'tpv',
-		campo: 'ac.codBarras' 
-		}
-}
-
-var cajaReferencia = {
-	id_input : 'Referencia',
-	acciones : { 
-		 13 : 'buscarProductos', // pulso intro
-		 40 : 'saltar_productos', // pulso abajo
-		  9 : 'saltar_Descripcion', // tabulador
-		 37 : 'saltar_CodBarras',  // pulso flecha izquierda. 
-		 39 : 'saltar_Descripcion', // pulso flecha derecha
-		112 : 'cobrar' // Pulso F1
-
-		},
-	parametros : {
-		dedonde : 'tpv',
-		campo: 'at.crefTienda' 
-		}
-}
-var cajaDescripcion = {
-	id_input : 'Descripcion',
-	acciones : { 
-		 13 : 'buscarProductos', // pulso intro
-		 40 : 'saltar_productos', // pulso abajo
-		  9 : 'saltar_CodBarras', // tabulador
-		 37 : 'saltar_Referencia',  // pulso flecha izquierda. 
-		 39 : 'saltar_CodBarras', // pulso flecha derecha
-		112 : 'cobrar' // Pulso F1
-		},
-	parametros : {
-		dedonde : 'tpv',
-		campo : 'a.articulo_name' 
-		}
-}
-// Objetos para popUp de Productos
-var cajaBusquedaproductos = {
-	id_input : 'cajaBusqueda',
-	acciones : { 
-		13 : 'buscarProductos', // pulso intro
-		40 : 'mover_down', // pulso abajo
-		 9 : 'mover_down', // tabulador
-		},
-	parametros  : {
-		dedonde : 'popup',
-		campo   :'' // Este campo tendremos llenarlo al cargar el modal
-					// ya que puede variar si venimos de Referencia,Codbarras,Descripcion. 
-		},
-	before_constructor : 'Si' // Ejecutamos funcion before_constructor justo después crear objeto caja.
-}
-
-var idN = {
-	after_constructor: 'Si',
-	id_input : 'N_',
-	acciones : {
-		40 : 'mover_down', // pulso abajo
-		38 : 'mover_up' // fecha arriba
-		},
-	parametros : {
-		dedonde : 'cerrados',
-		campo   : '', // Este campo tendremos llenarlo al cargar el modal
-		prefijo : 'N_'
-		},
-	before_constructor : 'Si' // Ejecutamos funcion before_constructor justo después crear objeto caja.
-}
-
-var Unidad_Fila = {
-	after_constructor: 'Si', // Ejecutamos funcion after_constructor antes de crear objeto caja.
-	id_input : 'Unidad_Fila', // Este se añade ante construir ya que el id input es Unidad_Fila_1
-	acciones : {
-		 13 : 'recalcular_ticket', // Pulso intro
-		 40 : 'mover_up', // Pulso abajo pero va para arriba. 
-		 38 : 'mover_down', // Pulso arriba pero va para abajo.
-		112 : 'cobrar' // Pulso F1
-		},
-	parametros : {
-		dedonde : 'tpv',
-		campo   : '' ,// Este campo tendremos llenarlo al cargar el modal
-		prefijo : 'Unidad_Fila_'
-		},
-			before_constructor : 'Si' // Ejecutamos funcion before_constructor justo después crear objeto caja.
-}
-
-var entrega = {
-	id_input : 'entrega', // Este se añade ante construir ya que el id input es Unidad_Fila_1
-	acciones : {
-		 13 : 'poner_entrega', // Pulso intro
-		 40 : 'poner_entrega' // Pulso abajo pero va para arriba. 
-		},
-	parametros : {
-		dedonde : 'popUp'
-		}
-}
-
-var CobrarAceptar = {
-	id_input : 'CobrarAceptar', // Este se añade ante construir ya que el id input es Unidad_Fila_1
-	acciones : {
-		 13 : 'cerrar_ticket', // Pulso intro
-		 40 : 'focus_entrega', // Pulso abajo pero va para arriba.
-		 37 : 'focus_modoPago' // Pulso izquierda. 
-		},
-	parametros : {
-		dedonde : 'popUp'
-		}
-}
-	
-var cajaBusquedacliente = {
-	id_input : 'cajaBusquedacliente',
-	acciones : { 
-		13 : 'buscarClientes', // pulso intro
-		40 : 'buscarClientes', // pulso abajo
-		 9 : 'buscarClientes', // tabulador
-		},
-	parametros : {
-	dedonde : 'tpv' 
-		}
-}
-	
+<?php echo $VarJS;?>
 </script>
 
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>

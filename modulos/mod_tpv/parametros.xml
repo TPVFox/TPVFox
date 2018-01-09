@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="Codbarras">cajaCodBarras</nombre>
+			<teclas>
+				<action tecla="13">buscarProductos</action>
+				<action tecla="40">saltar_productos</action>
+				<action tecla=" 9">saltar_Referencia</action>
+				<action tecla="39">saltar_Referencia</action>
+				<action tecla="112">cobrar</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">tpv</parametro>
+				<parametro nombre="campo">ac.codBarras</parametro>  
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Referencia">cajaReferencia</nombre>
+			<teclas>
+				<action tecla="13">buscarProductos</action>
+				<action tecla="40">saltar_productos</action>
+				<action tecla=" 9">saltar_Descripcion</action>
+				<action tecla="37">saltar_CodBarras</action>
+				<action tecla="39">saltar_Descripcion</action>
+				<action tecla="112">cobrar</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">tpv</parametro>
+				<parametro nombre="campo">at.crefTienda</parametro>  
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Descripcion">cajaDescripcion</nombre>
+			<teclas>
+				<action tecla="13">buscarProductos</action>
+				<action tecla="40">saltar_productos</action>
+				<action tecla=" 9">saltar_CodBarras</action>
+				<action tecla="37">saltar_Referencia</action>
+				<action tecla="39">saltar_CodBarras</action>
+				<action tecla="112">cobrar</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">tpv</parametro>
+				<parametro nombre="campo">a.articulo_name</parametro>  
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="cajaBusqueda">cajaBusquedaproductos</nombre>
+			<teclas>
+				<action tecla="13">buscarProductos</action>
+				<action tecla="40">mover_down</action>
+				<action tecla=" 9">mover_down</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">popup</parametro>
+				<parametro nombre="campo"></parametro>  
+			</parametros>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="N_">idN</nombre>
+			<teclas>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">cerrados</parametro>
+				<parametro nombre="campo"></parametro>
+				<parametro nombre="prefijo">N_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Unidad_Fila">Unidad_Fila</nombre>
+			<teclas>
+				<action tecla="13">recalcular_ticket</action>
+				<action tecla="40">mover_up</action>
+				<action tecla="38">mover_down</action>
+				<action tecla="112">cobrar</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">tpv</parametro>
+				<parametro nombre="campo"></parametro>
+				<parametro nombre="prefijo">Unidad_Fila_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="entrega">entrega</nombre>
+			<teclas>
+				<action tecla="13">poner_entrega</action>
+				<action tecla="40">poner_entrega</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">popup</parametro>
+			</parametros>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="CobrarAceptar">CobrarAceptar</nombre>
+			<teclas>
+				<action tecla="13">cerrar_ticket</action>
+				<action tecla="40">focus_entrega</action>
+				<action tecla="37">focus_modoPago</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">tpv</parametro>
+			</parametros>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="cajaBusquedacliente">cajaBusquedacliente</nombre>
+			<teclas>
+				<action tecla=" 9">buscarClientes</action>
+				<action tecla="13">buscarClientes</action>
+				<action tecla="40">buscarClientes</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">tpv</parametro>
+			</parametros>
+		</caja_input>
+		
+	</cajas_input>
+</parametros>

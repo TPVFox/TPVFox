@@ -264,7 +264,8 @@ class ControladorComun
 					"id_input :'".$caja_input->nombre['id_input']."'".$JSaccionesTeclas.$JSstringParametros.$JSstringBefore.'};
 					';
 		}
-		$htmlVarJS = implode(' \\n ',$VarJS);
+		$htmlVarJS = implode(' 
+								',$VarJS);
 		return $htmlVarJS;
 	}
 	
