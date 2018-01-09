@@ -6,10 +6,10 @@ class BD{
 	//~ public $contraseña='renaido';
 	public static function conectar(){
 		try{
-			/*$db= new mysqli("localhost", "usertpv","prueba", "tpv")  ;*/
-			$db= new PDO('mysql:dbname=tpv;host=localhost', 'usertpv', 'prueba')  ;
+			$db= new mysqli("localhost", "usertpv","prueba", "tpv")  ;
+			//~ $db= new PDO('mysql:dbname=tpv;host=localhost', 'usertpv', 'prueba')  ;
 		//~ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);*/
-			$acentos = $db->query("SET NAMES 'utf8'");
+			//~ $acentos = $db->query("SET NAMES 'utf8'");
 			return $db;
 		}  catch (PDOException $e){
 			
