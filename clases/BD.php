@@ -1,13 +1,15 @@
 <?php
 class BD{
-	//~ public $dbserver = 'mysql:host=localhost';
-	//~ public $dbname='mydblocal';
-	//~ public $nombreusuario='root';
-	//~ public $contraseña='renaido';
+	private $server;
+	private $base;
+	private $usuario;
+	private $contraseña;
+	
+	
 	public static function conectar(){
 		try{
 			$db= new mysqli("localhost", "usertpv","prueba", "tpv")  ;
-			//~ $db= new PDO('mysql:dbname=tpv;host=localhost', 'usertpv', 'prueba')  ;
+			//~ $db= new PDO('mysql:dbname=;host=', '', '')  ;
 		//~ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);*/
 			//~ $acentos = $db->query("SET NAMES 'utf8'");
 			return $db;

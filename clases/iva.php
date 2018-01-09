@@ -52,6 +52,20 @@ class iva{
 			echo 'Error: ' . $e->getMessage ();
 		}
 	}
+	static public function ivasNoPrincipal($ivaPrincipal){
+		try{
+			$db = BD::conectar ();
+			$smt = $db->query ( 'SELECT * FROM iva where iva <>'.$ivaPrincipal );
+		$ivasPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			$iva=new iva($result);
+			array_push($ivasPrincipal, $iva);
+		}
+		return $ivasPrincipal;
+		}catch ( PDOException $e ) {
+			echo 'Error: ' . $e->getMessage ();
+		}
+	}
 }
 
 ?>
