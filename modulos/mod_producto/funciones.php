@@ -200,15 +200,15 @@ function htmlCodigoBarrasVacio($cont){
 
 // Función que selecciona los ivas que no son el iva principal
 // Por un lado recibe el IVA que tiene por defecto un producto y busca los que no coincidan
-function ivasNoPrincipal($BDTpv, $iva){
-	$consulta = 'SELECT * FROM iva WHERE iva <> '.$iva;
-	if ($ResConsulta = $BDTpv->query($consulta)){			
-		while ($fila = $ResConsulta->fetch_assoc()) {
-			$resultado[] = $fila;
-		}
-	}
-	return $resultado;
-}
+//~ function ivasNoPrincipal($BDTpv, $iva){
+	//~ $consulta = 'SELECT * FROM iva WHERE iva <> '.$iva;
+	//~ if ($ResConsulta = $BDTpv->query($consulta)){			
+		//~ while ($fila = $ResConsulta->fetch_assoc()) {
+			//~ $resultado[] = $fila;
+		//~ }
+	//~ }
+	//~ return $resultado;
+//~ }
 
 // Modificar un producto, recoge los datos del formulario post y los va actualizando segun las tablas que corresponda
 function modificarProducto($BDTpv, $datos, $tabla){

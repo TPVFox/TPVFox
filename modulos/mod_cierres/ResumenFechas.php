@@ -78,9 +78,7 @@
 						$consultaResIva=sumDatosIva($BDTpv, $iva->getIva());
 					if ($consultaResIva['base']){
 						$importeBase=$consultaResIva['base'];
-					}else{
-						$importeBase=0;
-					}
+					
 					if ($consultaResIva['iva']){
 						$importeIva=$consultaResIva['iva'];
 					}else{
@@ -88,15 +86,13 @@
 					}
 					?>
 				<tr>
-<!--
-				<td><?php //echo $iva['iva'].'%';?></td>
--->
 					<td><?php echo $iva->getIva().'%';?></td>
 				<td><?php echo number_format($importeBase,2);?></td>
 				<td ><?php echo number_format($importeIva, 2);?></td>
 				
 				</tr>
 				<?php 
+			}
 			}
 				?>
 			</table>
@@ -133,6 +129,7 @@
 					<tr>
 						<th>TIPO</th>
 						<th>CANTIDAD</th>
+						<th>IMPORTE</th>
 					</tr>
 				</thead>
 				<?php 
@@ -141,6 +138,7 @@
 				<tr>
 				<td><?php echo $forma['FormasPago'];?></td>
 				<td><?php echo $forma['total'];?></td>
+				<td><?php echo number_format($forma['importe'],2);?></td>
 				</tr>
 				<?php 
 			}

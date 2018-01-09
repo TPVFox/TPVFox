@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 09, 2018 at 12:45 AM
+-- Generation Time: Jan 09, 2018 at 08:55 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.19-1
 
@@ -30,14 +30,16 @@ CREATE TABLE `pedclit` (
   `id` int(11) NOT NULL,
   `Numpedcli` int(11) NOT NULL,
   `Numtemp_pedcli` int(11) NOT NULL,
-  `Fecha` datetime NOT NULL,
+  `FechaPedido` date NOT NULL,
   `idTienda` int(11) NOT NULL,
   `idUsuario` int(11) NOT NULL,
   `idCliente` int(11) NOT NULL,
   `estado` varchar(12) NOT NULL,
   `formaPago` varchar(12) NOT NULL,
   `entregado` decimal(17,2) NOT NULL,
-  `total` decimal(17,2) NOT NULL
+  `total` decimal(17,2) NOT NULL,
+  `fechaCreacion` datetime DEFAULT NULL,
+  `fechaModificacion` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
