@@ -1,37 +1,46 @@
 <?php 
 
 class iva{
-	private $id;
-	private $descripcion;
-	private $iva;
-	private $recargo;
+	private $id = 0;
+	private $descripcion = '';
+	private $iva= 0;
+	private $recargo= 0;
 	private $db;
 	private $num_rows;
 	
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
-		$tabla = $conexion->query('DESCRIBE iva');
-		$this->num_rows = $tabla->num_rows;
+		$sql = 'SELECT count(*) as num_reg FROM iva';
+		$respuesta = $this->consulta($sql);
+		$this->num_rows = $respuesta->fetch_object()->num_reg
+		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	public function datos($datos){
+	public function ArrayDatos($datos){
 		$this->id 			= $datos['idIva'];
 		$this->descripcion 	= $datos['descripcionIva'];
 		$this->iva 			= $datos['iva'];
 		$this->recargo 		= $datos['recargo'];
-		$respuesta = $this->arrayDatos();
-		
-		return $respuesta;
-	}
-	
-	public function arrayDatos(){
+		//~ $respuesta = $this->arrayDatos();
 		$respuesta = array (	'id' => $this->id,
 								'descripcion' => $this->descripcion,
 								'iva'=> $this->iva,
 								'recargo' => $this->recargo
 							);
-		return $respuesta ;
+		
+		return $respuesta;
 	}
+	
+	
+	
+	//~ public function arrayDatos(){
+		//~ $respuesta = array (	'id' => $this->id,
+								//~ 'descripcion' => $this->descripcion,
+								//~ 'iva'=> $this->iva,
+								//~ 'recargo' => $this->recargo
+							//~ );
+		//~ return $respuesta ;
+	//~ }
 	public function getNumRows(){
 		return $this->num_rows;
 	}
@@ -67,7 +76,7 @@ class iva{
 		$smt = $db->query('SELECT * FROM iva');
 		$ivasPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
-			$iva = $this->datos($result);
+			$iva = $this->arrayDatos($result);
 			array_push($ivasPrincipal,$result);
 		}
 		//~ array_push($ivasPrincipal,$smt );
@@ -81,7 +90,7 @@ class iva{
 			$smt = $db->query ( 'SELECT * FROM iva where iva <>'.$ivaPrincipal );
 			$ivasPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
-			$iva = $this->datos($result);
+			$iva = $this->arrayDatos($result);
 			array_push($ivasPrincipal,$iva);
 		}
 		return $ivasPrincipal;
@@ -90,6 +99,11 @@ class iva{
 		}
 	}
 	
-}
+	public function consulta($sql){
+		$db = $this->db;
+		$smt = $db->query($sql);
+		return $smt;
+	}
 
+}
 ?>
