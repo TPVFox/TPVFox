@@ -5,6 +5,7 @@
 			include './../../head.php';
 			include './funciones.php';
 			include '../../clases/iva.php';
+			$Civas = new iva($BDTpv);
 			//LLega mediente get las dos fechas  
 		if (isset($_GET['fecha1'])& isset($_GET['fecha2'])) {
 			$fecha1=$_GET['fecha1'];
@@ -22,7 +23,8 @@
 		//llamar a la función que devuelve los tipos de iva
 		//$tablaIVA="iva";
 		//$ivas=tiposIva($BDTpv, $tablaIVA);
-		$ivas=iva::todoIvas();
+		$ivas=$Civas->todoIvas();
+		
 		//llamar a la función que devuelve el total de las formas de pago utilizadas entre los cierres indicados
 		$formasPago=cantMOdPago($BDTpv, $fecha1, $fecha2);
 		?>
@@ -75,7 +77,7 @@
 				foreach ($ivas  as $iva){
 				
 					//$consultaResIva=sumDatosIva($BDTpv, $iva['iva']);
-						$consultaResIva=sumDatosIva($BDTpv, $iva->getIva());
+						$consultaResIva=sumDatosIva($BDTpv, $iva['iva']);
 					if ($consultaResIva['base']){
 						$importeBase=$consultaResIva['base'];
 					
@@ -86,7 +88,7 @@
 					}
 					?>
 				<tr>
-					<td><?php echo $iva->getIva().'%';?></td>
+					<td><?php echo $iva['iva'].'%';?></td>
 				<td><?php echo number_format($importeBase,2);?></td>
 				<td ><?php echo number_format($importeIva, 2);?></td>
 				
