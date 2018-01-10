@@ -63,7 +63,7 @@ if ($stringPalabras !== '' ){
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Pedidos Compras: Editar y Añadir pedidos </h2>
+					<h2> Pedidos de clientes: Editar y Añadir pedidos </h2>
 				</div>
 					<nav class="col-sm-2">
 				<h4> Pedidos</h4>
@@ -79,7 +79,22 @@ if ($stringPalabras !== '' ){
 					<li><a href="#section2" onclick="metodoClick('Ver','pedido');";>Modificar</a></li>
 				
 				</ul>	
+					<div class="col-md-12">
+		<h4 class="text-center"> Pedidos Abiertos</h4>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Nº</th>
+					<th>Cliente</th>
+					<th>Total</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+		</div>
 			</nav>
+			
 			<div class="col-md-10">
 					<p>
 					 -Pedidos encontrados BD local filtrados:

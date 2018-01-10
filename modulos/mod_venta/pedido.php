@@ -7,15 +7,174 @@ include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include 'clases/pedidosVentas.php';
+	 $Cpedido=new PedidosVentas($BDTpv);
+	$Tienda = $_SESSION['tiendaTpv'];
+	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
+	if ($_GET['id']){
+		
+		
+	}else{
+		$titulo="Crear Pedido De Cliente";
+		$bandera=1;
+	}
 	?>
 	</head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     <?php
 
 	include '../../header.php';
-	?>
+?>
+<script>
+	var titulo="prueba";
+	var tabla="prueba";
+	</script>
+<div class="container">
+			
+			<?php 
+			if (isset($_GET)){
+			$mensaje=$_GET['mensaje'];
+			$tipomensaje=$_GET['tipo'];
+		}
+			if (isset($mensaje) || isset($error)){   ?> 
+				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
+				<?php 
+				if (isset($error)){
+				// No permito continuar, ya que hubo error grabe.
+				return;
+				}
+				?>
+			<?php
+			}
+			?>
+			<h2 class="text-center"> <?php echo $titulo;?></h2>
+			<a  href="./pedidosListado.php">Volver Atrás</a>
+			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+<div class="col-md-12" >
+	<div class="col-md-8">
+		<div class="col-md-12">
+			<div class="col-md-7">
+				<div class="col-md-6">
+					<strong>Fecha Pedido:</strong><br/>
+					<input type="date" name="fecha" id="fecha" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+				</div>
+				<div class="col-md-6">
+					<strong>Estado:</strong>
+					<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span><br/>
+					<?php if ($bandera<>1){?>
+					<strong>NºT_temp:</strong>
+					<span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
+					<?php 
+					}
+					
+					?>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<label>Empleado:</label>
+				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="25" readonly>
+			</div>
+		</div>
+		<div class="form-group">
+			<label>Cliente:</label>
+			<input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
+			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $cliente; ?>" size="60" readonly>
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="abrirModal(titulo,tabla)"></a>
+		</div>
+	</div>
+	<!-- Tabla de lineas de productos -->
+	<div>
+		<table id="tabla" class="table table-striped">
+		<thead>
+		  <tr>
+			<th>L</th>
+			<th>Id Articulo</th>
+			<th>Cod Barras</th>
+			<th>Referencia</th>
+			<th>Descripcion</th>
+			<th>Unid</th>
+			<th>PVP</th>
+			<th>Iva</th>
+			<th>Importe</th>
+			<th></th>
+		  </tr>
+		<tr id="Row0">  
+			<td id="C0_Linea" ></td>
+			<td id="idArticulo" ></td>
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)">
+		</td>
+		</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	  </table>
+	</div>
+	<div class="col-md-10 col-md-offset-2 pie-ticket">
+		<table id="tabla-pie" class="col-md-6">
+		<thead>
+			<tr>
+				<th>Tipo</th>
+				<th>Base</th>
+				<th>IVA</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr id="line4">
+				<td id="tipo4">
+					
+				</td>
+				<td id="base4">
+					
+				</td>
+				<td id="iva4">
+					
+				</td>
+				
+			</tr>
+			<tr id="line10">
+				<td id="tipo10">
+					
+				</td>
+				<td id="base10">
+					
+				</td>
+				<td id="iva10">
+					
+				</td>
+				
+			</tr>
+			<tr id="line21">
+				<td id="tipo21">
+					
+				</td>
+				<td id="base21">
+					
+				</td>
+				<td id="iva21">
+					
+				</td>
+				
+			</tr>
+		</tbody>
+		</table>
+		<div class="col-md-6">
+			<div class="col-md-4">
+			<h3>TOTAL</h3>
+			</div>
+			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
+			</div>
+		</div>
+	</div>
+</form>
+</div>
+
+<?php // Incluimos paginas modales
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+?>
 	</body>
 </html>

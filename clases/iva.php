@@ -13,7 +13,7 @@ class iva{
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM iva';
 		$respuesta = $this->consulta($sql);
-		$this->num_rows = $respuesta->fetch_object()->num_reg
+		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
 	public function ArrayDatos($datos){
@@ -85,8 +85,9 @@ class iva{
 			//~ echo 'Error: ' . $e->getMessage ();
 		//~ }
 	}
-	static public function ivasNoPrincipal($ivaPrincipal){
+	 public function ivasNoPrincipal($ivaPrincipal){
 		try{
+		$db = $this->db;
 			$smt = $db->query ( 'SELECT * FROM iva where iva <>'.$ivaPrincipal );
 			$ivasPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {

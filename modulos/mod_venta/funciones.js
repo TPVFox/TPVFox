@@ -68,3 +68,59 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
+function buscarClientes(pantalla,valor=''){
+	// @ Objetivo:
+	// 	Abrir modal con lista clientes, que permitar buscar en caja modal.
+	// 	Ejecutamos Ajax para obtener el html que vamos mostrar.
+	// @ parametros :
+	//	valor -> Sería el valor caja del propio modal
+	console.log('FUNCION buscarClientes JS-AJAX');
+	var parametros = {
+		"pulsado"    : 'buscarClientes',
+		"busqueda" : valor,
+		"dedonde"  : pantalla
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en buscar clientes JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de buscar clientes');
+			var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+			var titulo = 'Listado clientes ';
+			abrirModal(titulo,HtmlClientes);
+			// Asignamos focus a caja buscar cliente.
+			// Asignamos focus
+			if (encontrados >0 ){
+				// Enfocamos el primer item.
+				mover_down(0);
+				$('#N_0').focus();
+			}else {
+				// No hay datos focus a caja buscar cliente.
+				$('#cajaBusquedacliente').focus();
+			}
+		}
+	});
+}
+function abrirModal(titulo,tabla){
+	// @ Objetivo :
+	// Abril modal con texto buscado y con titulo que le indiquemos.
+	console.log('Estamos en abrir modal');
+	$('.modal-body > p').html(tabla);
+	$('.modal-title').html(titulo);
+	$('#busquedaModal').modal('show');
+	
+	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
+	$('#busquedaModal').on('shown.bs.modal', function() {
+		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
+		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
+		$('#cajaBusqueda').focus(); //foco en input caja busqueda del cliente
+		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
+	});
+}
+	

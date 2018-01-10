@@ -7,6 +7,8 @@
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
         include '../../clases/iva.php';
+        			$Civas = new iva($BDTpv);
+
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -34,7 +36,11 @@
 			$codigosBarras = codigosBarras($BDTpv,$id);
 			$familias = nombreFamilias($BDTpv,$idArticulo);
 			//~ $ivas=ivasNoPrincipal($BDTpv, $Producto['iva']);
-			$ivas=iva::ivasNoPrincipal($Producto['iva']);
+			
+			//~ $ivas=iva::ivasNoPrincipal($Producto['iva']);
+			$Civas = new iva($BDTpv);
+			
+			$ivas=$Civas->ivasNoPrincipal($Producto['iva']);
 			$titulo = "Modificar Producto";
 			
 			foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
@@ -185,7 +191,7 @@
 								<?php 
 								//foreach que recorre los tipos de ivas que no son el principal
 								foreach ($ivas as $iva){
-									echo '<option value='.$iva->getId().'>'.$iva->getIva().'%'.'</option>';
+									echo '<option value='.$iva['id'].'>'.$iva['iva'].'%'.'</option>';
 								}
 								?>
 								</select>
