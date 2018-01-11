@@ -87,7 +87,6 @@ class PedidosVentas{
 	
 	public function datosPedidoTemporal($datos){
 		$this->idTemporal=$datos['idTemporal'];
-		$this->numeroPedido=$datos['numpedcli'];
 		$this->estadoPedido=$datos['estadopedcli'];
 		$this->idTienda=$datos['idTienda'];
 		$this->idUsuario=$datos['idUsuario'];
@@ -103,6 +102,11 @@ class PedidosVentas{
 		$db = $this->db;
 		$smt = $db->query($sql);
 		return $smt;
+	}
+	
+	public function AddClienteTemp($idCliente){
+		$db = $this->db;
+		$smt = $db->query ();
 	}
 }
 
