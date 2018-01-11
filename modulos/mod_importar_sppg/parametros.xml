@@ -32,10 +32,42 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 					</campo>
 					
 				</campos>
+				<consultas>
+					<consulta tipo="anhadir">
+								INSERT INTO `proveedores`( `nombrecomercial`, `razonsocial`, `nif`, `direccion`, `telefono`, `fax`, `movil`, `email` ) SELECT `CNOMPRO`, `CNOMPRO`, `CNIFDNI`, CONCAT(`CDIRPRO`,' ', `CPOBPRO`,' ', `CPTLPRO`), `CTFO1PRO`, `CFAX`, `CTFO2PRO`, `EMAIL` FROM importarDbf.proveedo 
+					</consulta>
+				</consultas>				
 				<tpv>
-					<campo nombre="idProveedor">
-						<tipo>Unico</tipo>
-					</campo>
+					<tabla>
+						<nombre>proveedores</nombre>
+						<campo nombre="idProveedor">
+							<tipo>Unico</tipo>
+						</campo>
+						<campo nombre="nombrecomercial">
+							<cruce>CNOMPRO</cruce>
+						</campo>
+						<campo nombre="razonsocial">
+							<cruce>CNOMPRO</cruce>
+						</campo>
+						<campo nombre="nif">
+							<cruce>CNIFDNI</cruce>
+						</campo>
+						<campo nombre="direccion">
+							<cruce tipo="concat">CDIRPRO,CPOBPRO,CPTLPRO</cruce>
+						</campo>
+						<campo nombre="telefono">
+							<cruce>CTFO1PRO</cruce>
+						</campo>
+						<campo nombre="fax">
+							<cruce>CFAX</cruce>
+						</campo>
+						<campo nombre="movil">
+							<cruce>CTFO2PRO</cruce>
+						</campo>
+						<campo nombre="email">
+							<cruce>EMAIL</cruce>
+						</campo>
+					</tabla>
 				</tpv>
 		</tabla>
 		<tabla>

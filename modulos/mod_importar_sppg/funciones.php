@@ -469,7 +469,7 @@ function DescartarRegistrosImportDbf($BDImportDbf,$tabla,$datos){
 }
 
 
-function AnhadirRegistro($BDImportDbf,$tabla,$datos){
+function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$tabla,$datos){
 	// @ Objetivo 
 	// Añadir registro de las tablas importar a tpv
 	// Segun la tabla que recibimos serán funciones independientes
@@ -478,14 +478,103 @@ function AnhadirRegistro($BDImportDbf,$tabla,$datos){
 	// $datos: Array (	importar => array( campos unicos...)
 	//					tpv => array ( campos unicos... )
 	$respuesta = array();
-	
-	
-	
-	
+	// --- Obtenemos los datos del registro de la Base de Datos BDimport --- //
+	$wheres = array();
+	foreach ($datos as $dato){
+		foreach ($dato as $campo => $valor){
+			$wheres[]= $campo.' = "'.$valor.'"';
+		}
+	}
+	$whereImportar = 'WHERE '.implode(' AND ',$wheres);
+	$registro_importar = obtenerUnRegistro($BDImportDbf,$tabla,$whereImportar);
+	$registro = $registro_importar['Items'][0];
+	// ----- Obtenemos parametros tpv para poder añadir ------- //
+	$parametros = simplexml_load_file('parametros.xml');
+	$datos = TpvXMLtablaImportar($parametros,$tabla);
+	$parametros_tpv = TpvXMLtablaTpv($datos);
+	// -------------- Montamos SQL para Insert ------------------- //
+	// Obtengo nombre tabla
+	$tabla_tpv = $parametros_tpv['tablas']['tpv'];
+	// Obtengo campos y valores que nos indica cruces de parametros
+	$cruces = $parametros_tpv['tpv']['cruce'];
+	$valores = array ();
+	$concat = array();
+	$into = array();
+	foreach ($cruces as $campo_tpv => $array){
+		$into[] = $campo_tpv;
+		if (isset($array['tipo'])){
+			// Quiere decir, que no se trata normal, el tipo concat es unico trato ahora.
+			// Por eso no hago if... comparando. Campos separador por , siempre.
+			$campos = explode(',',$array[0]);
+			$concat = array();
+			foreach ($campos as $campo){
+				if (strlen(trim($registro[$campo])) >0){
+				$concat[] = addslashes(htmlentities($registro[$campo],ENT_COMPAT));
+				}
+			}
+			$valores[] ='"'.implode(' ',$concat).'"';
+		} else {
+			$campo =$array[0];
+			$valores[] = '"'.addslashes(htmlentities($registro[$campo],ENT_COMPAT)).'"';
+			
+		}
+	}
+	$sql = 	'INSERT INTO '.$tabla_tpv.' ('.implode(',',$into).') VALUES ('.implode(',',$valores).')';
+	$BDTpv->query($sql);
+	// -- Obtenemos id que se acaba de crear con insert.
+	$idTpv = $BDTpv->insert_id;
+	// -- Cambiamos el estado de importar y le ponemos el id.
+	$sqlImportar = 'UPDATE '.$tabla.' SET estado = "Nuevo", id = "'.$idTpv.'" '.$whereImportar;
+	$BDImportDbf->query($sqlImportar);
+	$respuesta['AfectadoImportar'] = $BDImportDbf->affected_rows;
+	$respuesta['sqlImportar'] =$sqlImportar;
+	$respuesta['sql'] = $sql;
+	$respuesta['IdInsertTpv'] = $BDTpv->insert_id;
 	
 	
 	return $respuesta;
 }
 
+function TpvXMLtablaImportar($parametros,$tabla){
+	// @Objetivo.
+	// Obtener objeto SimpleXML dentro de parametros
+	$respuesta = array();
+	foreach ($parametros->tablas->tabla as $tabla_importar){
+		if (htmlentities((string)$tabla_importar->nombre) === $tabla){
+			$respuesta = $tabla_importar;
+		}
+	}
+	
+	return $respuesta;
+}
 
+function TpvXMLtablaTpv($tabla_importar){
+	//@Objetivo
+	// Obtener los datos necesarios de parametros de las tablas para modificar tpv
+	$datos_tablas = array();
+	if (isset ($tabla_importar->tpv->tabla)){
+		foreach ($tabla_importar->tpv as $tablas_tpv){
+			foreach ($tablas_tpv as $tabla_tpv){
+				$nombre_tabla_tpv = (string) $tabla_tpv->nombre;
+				foreach ($tabla_tpv->campo as $campo){
+					$nombre_campo =(string) $campo['nombre'];
+					if (isset($campo->cruce)){
+						$cruce = $campo->cruce;
+						$datos_tablas['tpv']['cruce'][$nombre_campo][] = (string)$campo->cruce;
+						if (isset($cruce['tipo'])){
+							$datos_tablas['tpv']['cruce'][$nombre_campo]['tipo'] = (string)$cruce['tipo'];
+						}
+					}
+					if (isset($campo->tipo)){
+						if ((string) $campo->tipo === 'Unico'){
+							$datos_tablas['tpv']['campos'][]=$nombre_campo;
+						}
+					}
+				}
+			}
+		}
+	}
+	$datos_tablas['tablas']['tpv']= $nombre_tabla_tpv ;
+	return $datos_tablas;
+}
 ?>

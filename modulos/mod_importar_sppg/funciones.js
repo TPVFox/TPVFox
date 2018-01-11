@@ -370,6 +370,7 @@ function controladorAcciones(caja,accion){
 		case 'InicioEjecutar':
 				accion_general =$('#accion_general_'+caja.fila).val();
 				var continuar = confirm("Vamos a "+accion_general);
+				console.log(accion_general);
 				if (continuar == true) {
 					// Pulso Si.
 					if (accion_general === 'Descartado'){
@@ -379,7 +380,7 @@ function controladorAcciones(caja,accion){
 					}
 					if (accion_general === 'Nuevo'){
 						$('#fila'+caja.fila).css("display", "none");
-						DescartarRegistroTratar(caja.fila);
+						AnhadirRegistroTpv(caja.fila);
 					}
 					
 					
@@ -454,7 +455,7 @@ function AnhadirRegistroTpv(fila){
 	// Grabar en BDImport en estado ="Descartado"
 	datos = registros.importar[fila];
 	var parametros = {
-		"pulsado"	: "AnhadirRegistro",
+		"pulsado"	: "AnhadirRegistroTpv",
 		"tabla" 	: tabla, // Enviamos todos los ficheros.
 		"datos" 	: datos[0]
 		};

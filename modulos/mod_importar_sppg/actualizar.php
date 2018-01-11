@@ -58,50 +58,43 @@
 <?php 
 	include './../../header.php';
 	include_once ("./funciones.php");
-	include_once ("./classTabla.php");
-	
-	
-		
+	//~ include_once ("./classTabla.php");
+
 // ---------------  Montamos array campos que obtenemos XML parametros   ------------- //
 	$campos = array();
-	$tipos_campos = array(); // Un array sencillo donde tenemos los campos los que podemos generar variables JS
+	$datos_tablas = array(); // Un array sencillo donde tenemos los campos los que podemos generar variables JS
 							 // para reallizar la busqueda del registro la tabla importar.
-	foreach ($parametros->tablas->tabla as $tabla_importar){
-		echo $tabla_importar->nombre.'=='.$tabla;
-		if (htmlentities((string)$tabla_importar->nombre) === $tabla){
-			// --- Obtenemos los campos de la tabla importar --- //
-			foreach ($tabla_importar->campos->children() as $campo){;
-				$nombre_campo =(string) $campo['nombre'];
-				if (isset($campo->tipo)){
-					if ((string) $campo->tipo === 'Unico'){
-						$tipos_campos['importar'][]=$nombre_campo;
-					}
-				}
-				$x = 0;
-				foreach ($campo->action as $action) {
-					// obtenemos las acciones para encontrar
-					$campos[$nombre_campo]['acciones_buscar'][$x]['funcion'] = (string) $action['funcion'];
-					$campos[$nombre_campo]['acciones_buscar'][$x]['tabla_cruce'] =(string) $action['tabla_cruce'];
-					$campos[$nombre_campo]['acciones_buscar'][$x]['campo_cruce'] =(string) $action['campo_cruce'];
-					$campos[$nombre_campo]['acciones_buscar'][$x]['description'] =(string) $action['description'];
-					$x++;
-				}
-			}
-			// --- Obtenemos los datos tpv que necesitamos de tpv --- //
-			if (isset ($tabla_importar->tpv->campo)){
-				foreach ($tabla_importar->tpv->campo as $campo){
-					$nombre_campo =(string) $campo['nombre'];
-					if (isset($campo->tipo)){
-						if ((string) $campo->tipo === 'Unico'){
-							$tipos_campos['tpv'][]=$nombre_campo;
-						}
-					}
-				}
+	$datos_tablas['tablas']['importar'] = $tabla;
+	$tabla_importar = TpvXMLtablaImportar($parametros,$tabla);
+// -------- Obtenemos los campos de la tabla importar ----------- //
+	foreach ($tabla_importar->campos->children() as $campo){;
+		$nombre_campo =(string) $campo['nombre'];
+		if (isset($campo->tipo)){
+			if ((string) $campo->tipo === 'Unico'){
+				$datos_tablas['importar']['campos'][]=$nombre_campo;
 			}
 		}
+		$x = 0;
+		foreach ($campo->action as $action) {
+			// obtenemos las acciones para encontrar
+			$campos[$nombre_campo]['acciones_buscar'][$x]['funcion'] = (string) $action['funcion'];
+			$campos[$nombre_campo]['acciones_buscar'][$x]['tabla_cruce'] =(string) $action['tabla_cruce'];
+			$campos[$nombre_campo]['acciones_buscar'][$x]['campo_cruce'] =(string) $action['campo_cruce'];
+			$campos[$nombre_campo]['acciones_buscar'][$x]['description'] =(string) $action['description'];
+			$x++;
+		}
 	}
-	
-	
+// --------- Obtenemos los parametross tpv que para inserta,modificar datos en tpv --------- //
+	$parametros_tpv = TpvXMLtablaTpv($tabla_importar);
+	//~ echo '<pre>';
+	//~ print_r($parametros_tpv['tpv']);
+	//~ echo '</pre>';
+	$datos_tablas['tpv'] =$parametros_tpv['tpv'];
+	$datos_tablas['tablas']['tpv'] =$parametros_tpv['tablas']['tpv'];
+
+echo '<pre>';
+print_r($datos_tablas);
+echo '</pre>';
 // ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
 	$tiposRegistros = array();
 	foreach ($parametros->configuracion->tipos_registros as $tipos){
@@ -192,19 +185,20 @@
 					<?php 
 					// Montamos variables JS para poder buscar el registro de la tabla import
 					$datos = array();
-					foreach ($tipos_campos['importar'] as $campo){
+					foreach ($datos_tablas['importar']['campos'] as $campo){
 						if (isset($registro_sin[$campo])){ 
 							$datos['importar'][] = array ( $campo =>$registro_sin[$campo]);
 						}
 					}
-					if (isset($tipos_campos['tpv'])){
-						foreach ($tipos_campos['tpv'] as $campo){
+					if (isset($datos_tablas['tpv']['campos'])){
+						foreach ($datos_tablas['tpv']['campos'] as $campo){
 							if (isset($registros_tpv[$campo])){ 
 								$datos['tpv'][] = array ( $campo =>$registro_sin[$campo]);
 							}
 						}
 					}
 					echo '<script>';
+					// Añadimos registros datos a variable global.
 					echo "registros.tpv[".$item."] = [];";
 					echo "registros.importar[".$item."] = [];";
 					foreach ($datos as $tipo =>$dato){
@@ -212,7 +206,7 @@
 					}
 					echo '</script>';
 					?>
-					<button id="Ejecutar_<?php echo $item?>" class="btn btn-primary" data-datos="<?php //echo implode(',',$JSdatos);?>" data-obj="botonEjecutar" onclick="controlEventos(event)">Ejecutar</button>
+					<button id="Ejecutar_<?php echo $item?>" class="btn btn-primary" data-obj="botonEjecutar" onclick="controlEventos(event)">Ejecutar</button>
 				</div>
 			</div>
 			<div class="col-md-4">

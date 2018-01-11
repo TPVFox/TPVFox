@@ -62,10 +62,10 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
 		$respuesta = DescartarRegistrosImportDbf($BDImportDbf,$tabla,$datos);
 		echo json_encode($respuesta);
 		break;
-	case 'AnhadirRegistro':
+	case 'AnhadirRegistroTpv':
 		$datos = $_POST['datos'];
 		$tabla = $_POST['tabla'];
-		$respuesta = AnhadirRegistro($BDImportDbf,$tabla,$datos);
+		$respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$tabla,$datos);
 		echo json_encode($respuesta);
 		break;
 		break;
