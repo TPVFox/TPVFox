@@ -33,6 +33,9 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 					
 				</campos>
 				<consultas>
+					<consulta tipo="obtener">
+						SELECT `CNOMPRO`, `CNOMPRO`, `CNIFDNI`, CONCAT(`CDIRPRO`,' ', `CPOBPRO`,' ', `CPTLPRO`) AS DIRECCION, `CTFO1PRO`, `CFAX`, `CTFO2PRO`, `EMAIL
+					</consulta>
 					<consulta tipo="anhadir">
 								INSERT INTO `proveedores`( `nombrecomercial`, `razonsocial`, `nif`, `direccion`, `telefono`, `fax`, `movil`, `email` ) SELECT `CNOMPRO`, `CNOMPRO`, `CNIFDNI`, CONCAT(`CDIRPRO`,' ', `CPOBPRO`,' ', `CPTLPRO`), `CTFO1PRO`, `CFAX`, `CTFO2PRO`, `EMAIL` FROM importarDbf.proveedo 
 					</consulta>
@@ -53,7 +56,8 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 							<cruce>CNIFDNI</cruce>
 						</campo>
 						<campo nombre="direccion">
-							<cruce tipo="concat">CDIRPRO,CPOBPRO,CPTLPRO</cruce>
+							<cruce>DIRECCION</cruce>
+							<!-- <cruce tipo="concat">CDIRPRO,CPOBPRO,CPTLPRO</cruce> -->
 						</campo>
 						<campo nombre="telefono">
 							<cruce>CTFO1PRO</cruce>
@@ -84,6 +88,22 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 					</campo>
 					
 				</campos>
+				<consultas>
+					<consulta tipo="obtener">
+					
+					</consulta>
+					
+					<consulta tipo="anhadir">
+								INSERT INTO `articulos`( `iva`, `idProveedor`, `articulo_name`, `beneficio`, `costepromedio`, `estado`, `fecha_creado`, `fecha_modificado`) SELECT `CREF`, `CDETALLE`, `CCODFAM`, `CFORMATO`, `NPZOREP`, `NCOSTEPROM`, `NCOSTEDIV`, `NSTOCKMIN`, `NSTOCKMAX`, `CTIPOIVA`, `CGRPCONTA`, `NPVP`, `NPREMAYOR`, `NDTO1`, `NDTO2`, `NDTO3`, `NDTO4`, `NDTO5`, `NDTO6`, `NPENDSER`, `NPENDREC`, `CCODDIV`, `NENTACU`, `CCODPRO`, `CREFPROV`, `LSELECT`, `NUNIDADES`, `NETIQUETAS`, `CIMAGEN`, `CPREDEF1`, `CPREDEF2`, `CPREDEF3`, `CPREDEF4`, `CPREDEF5`, `CPREDEF6`, `CPREDEF7`, `CPREDEF8`, `CPREDEF9`, `CPREDEF10`, `LINTERNET`, `LUNIDADES`, `CCODEBAR`, `NTIPOCODE`, `LKIT`, `LPESO`, `NTARA`, `NBENEFPVP`, `NBENEFMAY`, `LPRECPROP1`, `LPRECPROP2`, `NPCONIVA`, `NPMCONIVA`, `LCTRLSTOCK`, `NPREPV`, 
+					</consulta>
+				</consultas>
+				<tpv>
+				<campo nombre="CTIPOIVA">
+					<cruce tipo="obtener"></cruce>
+				</campo>
+				</tpv>
+				
+				
 		</tabla>
 	</tablas>
 	<cajas_input data-obj="id_input">

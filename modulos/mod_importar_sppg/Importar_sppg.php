@@ -75,9 +75,9 @@
 	}
 	// Ahora tenemos un array con los campos de la tablas .
 	
-	echo '<pre>';
-	print_r($actualizar);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($actualizar);
+	//~ echo '</pre>';
 ?>
 
 <?php

@@ -18,6 +18,10 @@
 	include './../../head.php';
 	include ("./../../controllers/Controladores.php");
 	$Controler = new ControladorComun; 
+	// Cargamos parametros de XML donde tenemos parametros generales y los modulo.
+	include_once ('parametros.php');
+	$Newparametros = new ClaseParametros('parametros.xml');
+	$parametros = $Newparametros->getRoot();
 // ---------   Obtenemos la tabla que vamos gestionar y tratar   ------------ //
 	if ($_GET['tabla']){
 		$tabla =$_GET['tabla'];
@@ -28,9 +32,6 @@
 			return;
 		}
 	}
-	// Cargamos XML donde tenemos parametros necesarios de ejecucion
-	// https://diego.com.es/tutorial-de-simplexml
-	$parametros = simplexml_load_file('parametros.xml');
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	?>
@@ -86,15 +87,10 @@
 	}
 // --------- Obtenemos los parametross tpv que para inserta,modificar datos en tpv --------- //
 	$parametros_tpv = TpvXMLtablaTpv($tabla_importar);
-	//~ echo '<pre>';
-	//~ print_r($parametros_tpv['tpv']);
-	//~ echo '</pre>';
 	$datos_tablas['tpv'] =$parametros_tpv['tpv'];
 	$datos_tablas['tablas']['tpv'] =$parametros_tpv['tablas']['tpv'];
 
-echo '<pre>';
-print_r($datos_tablas);
-echo '</pre>';
+
 // ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
 	$tiposRegistros = array();
 	foreach ($parametros->configuracion->tipos_registros as $tipos){
@@ -104,6 +100,10 @@ echo '</pre>';
 			$tiposRegistros[$clase]['consulta']= (string) $tipo->consulta;
 		}
 	}
+//~ echo '<pre>';
+//~ print_r($tiposRegistros);
+//~ echo '</pre>';
+
 // ----------- Obtenemos registros sin tratar y hacemos resumen registros por su estado -------------- //
 	$Registros_sin = array();
 	foreach ( $tiposRegistros as $key => $tipo){
