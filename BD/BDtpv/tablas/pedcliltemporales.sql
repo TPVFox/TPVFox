@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 09, 2018 at 12:45 AM
+-- Generation Time: Jan 11, 2018 at 10:34 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -28,16 +28,15 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `pedcliltemporales` (
   `id` int(11) NOT NULL,
-  `numpedcli` int(11) NOT NULL,
-  `estadoPedCli` varchar(12) NOT NULL,
-  `idTienda` int(11) NOT NULL,
-  `idUsuario` int(11) NOT NULL,
-  `fechaInicio` datetime NOT NULL,
-  `fechaFinal` datetime NOT NULL,
-  `idClientes` int(11) NOT NULL,
-  `total` decimal(17,6) NOT NULL,
-  `total_ivas` varchar(250) NOT NULL,
-  `Productos` varbinary(50000) NOT NULL
+  `estadoPedCli` varchar(12) DEFAULT NULL,
+  `idTienda` int(11) DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `fechaInicio` datetime DEFAULT NULL,
+  `fechaFinal` datetime DEFAULT NULL,
+  `idClientes` int(11) DEFAULT NULL,
+  `total` decimal(17,6) DEFAULT NULL,
+  `total_ivas` varchar(250) DEFAULT NULL,
+  `Productos` varbinary(50000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
