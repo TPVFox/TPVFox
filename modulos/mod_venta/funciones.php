@@ -132,8 +132,6 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes = array()){
 	$n_dedonde = 0 ; 
 	$resultado['encontrados'] = count($clientes);
 	$idcaja;
-	
-	
 	$resultado['html'] = '<label>Busqueda Cliente en '.$dedonde.'</label>';
 	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
 				'size="13" data-obj="cajaBusquedacliente" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
@@ -174,7 +172,15 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes = array()){
 	// Objetos queremos controlar.
 	return $resultado;
 }
-
+function  htmlClientesCajas($clientes){
+	$resultado = array();
+	$cliente=$clientes[0]['nombre'];
+	$resultado['script']="<script type='text/javascript'>
+							var cliente=".$cliente.";
+							document.getElementById('Cliente').innerHTML=cliente;
+						</script>";
+	return $resultado['script'];
+}
 
 function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 	// @ Objetivo 

@@ -104,9 +104,28 @@ class PedidosVentas{
 		return $smt;
 	}
 	
-	public function AddClienteTemp($idCliente){
+	public function AddClienteTemp($idCliente, $idTienda, $idUsuario, $estadoPedido){
 		$db = $this->db;
-		$smt = $db->query ();
+		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'")');
+		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'")';
+		$id=$db->insert_id;
+		
+		
+		return $id;
+	}
+	public function ModClienteTemp($idCLiente, $numPedido, $idTienda, $idUsuario, $estadoPedido){
+		$db = $this->db;
+		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedido);
+		$sql='UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedido;
+		return $sql;
+	}
+	public function BuscarIdTemporal($idTemporal){
+		$db = $this->db;
+		$smt = $db->query ('SELECT * from pedcliltemporales WHERE id='.$idTemporal);
+		if ($result = $smt->fetch_assoc () ){
+			$pedido=$result;
+		}
+		return $pedido;
 	}
 }
 

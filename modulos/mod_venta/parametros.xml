@@ -4,7 +4,7 @@
 		<caja_input>
 			<nombre id_input="fecha">cajaFecha</nombre>
 			<teclas>
-				<action tecla="40">saltar_idCliente</action>
+				<action tecla="40">saltar_idClienteFlechaAbajo</action>
 				<action tecla="39">saltar_idCliente</action>
 				<action tecla="13">saltar_idCliente</action>
 				<action tecla="9">saltar_idCliente</action>

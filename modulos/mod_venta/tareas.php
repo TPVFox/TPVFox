@@ -47,28 +47,79 @@ switch ($pulsado) {
 		
 		echo json_encode($respuesta);  
 		break;
+		
+		
+		
 	    case 'buscarClientes':
 		// Abrimos modal de clientes
 		$busqueda = $_POST['busqueda'];
 		$dedonde = $_POST['dedonde'];
 		$idcaja=$_POST['idcaja'];
 		$tabla='clientes';
+		$numPedido=$_POST['numPedido'];
+		$idTienda=$_POST['idTienda'];
+		$idUsuario=$_POST['idUsuario'];
+		$estadoPedido=$_POST['estadoPedido'];
+		
 		$res = array( 'datos' => array());
 		//funcion de buscar clientes
 		//luego html mostrar modal 
 			//$res = BusquedaClientes($busqueda);
 		$res = BusquedaClientes($busqueda,$BDTpv,$tabla, $idcaja);
 		if ($res['Nitems']===1){
-			$addCliente=$CcliPed->AddClienteTemp($res['idClientes']);
+			if ($numPedido>0){
+				//Si el número de busquedas es uno quiere decir que la busqueda fue por id
+			$modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedido, $idTienda, $idUsuario, $estadoPedido);
+			$respuesta['sql']=$modCliente;
+			$respuesta['busqueda']=$busqueda;
+			$respuesta['numPedido']=$numPedido;
+			}else{
+			$addCliente=$CcliPed->AddClienteTemp($busqueda, $idTienda, $idUsuario, $estadoPedido);
+			$respuesta['numPedido']=$addCliente;
+		
+		}
+			//~ $respuesta=htmlClientesCajas($res['datos']);
+			$respuesta['nombre']=$res['datos'][0]['nombre'];
 			
-			//~ $respuesta=cargarClienteTemporal($BDTpv, $res);
+			
+		}elseif($res['Nitems']>1){
+			$respuesta = htmlClientes($busqueda,$dedonde, $idcaja, $res['datos']);
+		
 		}else{
 		$respuesta = htmlClientes($busqueda,$dedonde, $idcaja, $res['datos']);
+		
+		}
+		
+		//~ echo $respuesta;
+		echo json_encode($respuesta);
+		break;
+		
+		
+		
+		case 'escribirCliente':
+		// Cuando la busqueda viene a traves de  la ventana modal
+		$id=$_POST['idcliente'];
+		$tabla='clientes';
+		$numPedido=$_POST['numPedido'];
+		$idTienda=$_POST['idTienda'];
+		$idUsuario=$_POST['idUsuario'];
+		$estadoPedido=$_POST['estadoPedido'];
+		if ($numPedido>0){
+			$modCliente=$CcliPed->ModClienteTemp($id, $numPedido, $idTienda, $idUsuario, $estadoPedido);
+			$respuesta['sql']=$modCliente;
+			$respuesta['busqueda']=$id;
+			$respuesta['numPedido']=$numPedido;
+			}else{
+			$addCliente=$CcliPed->AddClienteTemp($id, $idTienda, $idUsuario, $estadoPedido);
+			$respuesta['numPedido']=$addCliente;
 		}
 		echo json_encode($respuesta);
 		break;
 		
-			case 'HtmlLineaLinea';
+		
+		
+		
+			case 'HtmlLineaLinea':
 		$respuesta = array();
 		$product 					=$_POST['producto'];
 		$num_item					=$_POST['num_item'];

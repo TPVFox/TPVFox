@@ -8,34 +8,64 @@ include './../../head.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosVentas.php';
+	include '../../clases/cliente.php';
+	
 	 $Cpedido=new PedidosVentas($BDTpv);
+	 $Ccliente=new Cliente($BDTpv);
 	 $Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
+	
 	if ($_GET['id']){
 		
 		
 	}else{
 		$titulo="Crear Pedido De Cliente";
 		$bandera=1;
-		$estado="Pendiente";
-		$ticket_numero = 0;
+		$estado='Pendiente';
+		$estadoCab="'".'Pendiente'."'";
+		$fecha=date('Y-m-d ');
+		//~ $pedido_numero = 0;
+		
+			
+		
 	}
+	if ($_GET['tActual']){
+		
+		// Si recibe el número de pedido temporal cubre los campos 
+			$pedido_numero=$_GET['tActual'];
+			$pedidoTemporal= $Cpedido->BuscarIdTemporal($pedido_numero);
+			$estadoCab="'".$pedidoTemporal['estadoPedCli']."'";
+			$estado=$pedidoTemporal['estadoPedCli'];
+			$idCliente=$pedidoTemporal['idClientes'];
+		
+			if ($idCliente){
+				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
+				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
+				$nombreCliente=$datosCliente['Nombre'];
+				
+			}
+		}else{
+			$pedido_numero = 0;
+		}
+	echo $pedido_numero;	
 	$parametros = simplexml_load_file('parametros.xml');
+	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
+		
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $Usuario;?>; // Tuve que adelantar la carga, sino funcionaria js.
-		cabecera['idTienda'] = <?php echo $Tienda;?>; // Tuve que adelantar la carga, sino funcionaria js.
-		cabecera['estadoPedido'] =<?php echo $estado ;?>; // Si no hay datos GET es 'Nuevo';
-		cabecera['numPedido'] = <?php echo $ticket_numero ;?>; // Si no hay datos GET es 'Nuevo';
+		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
+		cabecera['estadoPedido'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['numPedido'] = <?php echo $pedido_numero ;?>;
+		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
-
 </script>
 	</head>
 
@@ -44,11 +74,7 @@ include './../../head.php';
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     <?php
-
 	include '../../header.php';
-	//~ echo '<pre>';
-//~ print_r($VarJS);
-//~ echo '</pre>';
 ?>
 <script type="text/javascript">
 // Objetos cajas de tpv
@@ -76,13 +102,23 @@ include './../../head.php';
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="./pedidosListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto">
+				<?php if ($_GET['id']){
+					?>
+					<input type="submit" value="Guardar">
+					<?php
+				}else{?>
+					<input type="submit" value="Nuevo">
+					<?php 
+				}
+					?>
+					
 <div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">
 			<div class="col-md-7">
 				<div class="col-md-6">
 					<strong>Fecha Pedido:</strong><br/>
-					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  onkeydown="controlEventos(event)" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value=<?php echo $fecha;?> onkeydown="controlEventos(event)" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
 				<div class="col-md-6">
 					<strong>Estado:</strong>
@@ -103,7 +139,7 @@ include './../../head.php';
 		<div class="form-group">
 			<label>Cliente:</label>
 			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $cliente; ?>" size="60">
+			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')"></a>
 		</div>
 	</div>

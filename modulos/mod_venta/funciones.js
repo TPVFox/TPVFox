@@ -76,13 +76,20 @@ function buscarClientes(dedonde, idcaja, valor=''){
 	//	valor -> Sería el valor caja del propio modal
 
 	console.log('FUNCION buscarClientes JS-AJAX');
+	console.log(idcaja);
 	var parametros = {
 		"pulsado"    : 'buscarClientes',
 		"busqueda" : valor,
 		"dedonde":dedonde,
-		"idcaja":idcaja
+		"idcaja":idcaja,
+		"numPedido":cabecera.numPedido,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estadoPedido":cabecera.estadoPedido
 		
 	};
+	
+	console.log (parametros);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -95,6 +102,8 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+		
+	if (valor==""){
 			var titulo = 'Listado clientes ';
 			abrirModal(titulo,HtmlClientes);
 			// Asignamos focus a caja buscar cliente.
@@ -107,6 +116,44 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				// No hay datos focus a caja buscar cliente.
 				$('#cajaBusquedacliente').focus();
 			}
+		}else if(idcaja==="Cliente"){
+			console.log('entre en cliente');
+			console.log(resultado);
+			var titulo = 'Listado clientes ';
+			abrirModal(titulo,HtmlClientes);
+			if (encontrados >0 ){
+				// Enfocamos el primer item.
+				mover_down(0);
+				$('#N_0').focus();
+			}else {
+				// No hay datos focus a caja buscar cliente.
+				$('#cajaBusquedacliente').focus();
+			}
+		}else if(idcaja==="cajaBusquedacliente"){
+			console.log('entre en caja buqueda');
+			console.log(resultado);
+			var titulo = 'Listado clientes ';
+			abrirModal(titulo,HtmlClientes);
+			if (encontrados >0 ){
+				// Enfocamos el primer item.
+				mover_down(0);
+				$('#N_0').focus();
+			}else {
+				// No hay datos focus a caja buscar cliente.
+				$('#cajaBusquedacliente').focus();
+			}
+		
+		}else{
+			console.log('no muestro modal');
+			console.log(resultado.numPedido);
+			$('#Cliente').val(resultado.nombre);
+			if (resultado.numPedido>0){
+				console.log("entre");
+				history.pushState(null,'','?tActual='+resultado.numPedido);
+				cabecera.numPedido=parseInt(resultado.numPedido);
+			}
+		}
+			
 		}
 	});
 }
@@ -148,7 +195,12 @@ function controladorAcciones(caja,accion){
 				var d_focus = 'id_cliente';
 				ponerFocus(d_focus);
 			}
-			break
+			break;
+		case 'saltar_idClienteFlechaAbajo':
+		console.log('Entro en acciones saltar_idClienteFlechaAbajo');
+		var d_focus = 'id_cliente';
+				ponerFocus(d_focus);
+		break;
 		
 		case 'saltar_nombreCliente':
 		console.log('Entro en acciones saltar_nombreCliente');
@@ -161,10 +213,9 @@ function controladorAcciones(caja,accion){
 		case 'saltar_Fecha':
 		console.log('Entro en acciones saltar_fecha');
 		var dato = caja.darValor();
-			if ( dato.length === 0){
 				var d_focus = 'fecha';
 				ponerFocus(d_focus);
-			}
+			
 			break
 		case 'saltar_idArticulo':
 		console.log('Entro en acciones saltar_idArticulo');
@@ -552,3 +603,75 @@ function grabarPedidoTemporal(){
 		}
 	});
 }
+
+
+function escribirClienteSeleccionado(id,nombre,dedonde=''){
+	// @ Objetivo:
+	// 	 Escribir el nombre y id cliente en pantalla principal.
+	// 	id -> Del cliente
+	//  nombre ->  Nombre cliente
+	// 	dedonde -> tpv
+	//			   cobrados
+	// mostrarlos en cajas se son las mismas para las dos.
+	$('#id_cliente').val(id);
+	$('#Cliente').val(nombre);
+	var parametros = {
+		"pulsado"    : 'escribirCliente',
+		"idcliente":id,
+		"numPedido":cabecera.numPedido,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estadoPedido":cabecera.estadoPedido
+		
+	};
+	console.log(cabecera.numPedido);
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en añadir cliente JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir cliente');
+			 var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlClientes=resultado.html; 
+			history.pushState(null,'','?tActual='+resultado.numPedido);
+			cabecera.numPedido=parseInt(resultado.numPedido);
+			
+	cerrarPopUp(); // Destino no indicamo ya que no sabes...
+	if (dedonde ='pedido'){
+		// Ponemos focus por defecto.
+		ponerFocus('idArticulo');
+	} 
+}
+		});
+}
+
+function abandonFila(cont){
+	$('#Fila_'+cont).css('background-color','white');
+}
+function sobreFilaCraton(cont){
+	$('#Fila_'+cont).css('background-color','azure');
+}
+function cerrarPopUp(destino_focus=''){
+	// @ Objetivo :
+	// Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
+	//cerrar modal busqueda
+	$('#busquedaModal').modal('hide');
+	if (destino_focus !== ''){
+		ponerFocus(destino_focus);
+	}
+	
+}
+function mover_down(fila,prefijo){
+	sobreFilaCraton(fila);
+	var d_focus = prefijo+fila;
+	ponerFocus(d_focus);
+	
+}
+function sobreFilaCraton(cont){
+	$('#Fila_'+cont).css('background-color','azure');
+}
+
