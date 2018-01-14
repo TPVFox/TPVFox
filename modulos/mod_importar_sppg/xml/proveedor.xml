@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+Recuerda en poner acciones mismo al principio de cada campo.
+Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si consideramos que es mismo.
+-->
+<tablas>
+	<tabla>
+		<nombre>proveedo</nombre>
+		<campos>
+			<campo nombre="CCODPRO">
+				<tipo>Unico</tipo>
+			</campo>
+			<campo nombre="CNIFDNI">
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="nif" description="Numeros iguales y letra puede ser mayusculas o minusculas, delante o detras" />
+				<tipo>Unico</tipo>
+			</campo>
+			<campo nombre="CTFO1PRO">
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Numeros mismoes sin espacios" />
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Numeros iguales sin espacios" />
+			</campo>
+			<campo nombre="CTFO2PRO">
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Numeros iguales sin espacios" />
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Numeros iguales sin espacios" />
+			</campo>
+			<campo nombre="CFAX">
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="fax" description="Numeros iguales sin espacios"/>
+			</campo>
+			<campo nombre="CNOMPRO">
+				<action funcion="comparar" tabla_cruce="proveedores" campo_cruce="nombrecomercial" description="Compara cuales son lo mas aproximados" />
+				<action funcion="comparar" tabla_cruce="proveedores" campo_cruce="razonsocial" description="Compara cuales son lo mas aproximados" />
+			</campo>
+			
+		</campos>
+		<consultas>
+			<!-- String con los campos queremos obtener de la tabla importar. -->
+			<consulta tipo="obtener">
+			 `CNOMPRO`, `CNOMPRO`, `CNIFDNI`, CONCAT(`CDIRPRO`,' ', `CPOBPRO`,' ', `CPTLPRO`) AS DIRECCION, `CTFO1PRO`, `CFAX`, `CTFO2PRO`, `EMAIL`
+			</consulta>
+			<consulta tipo="anhadir">
+			 `nombrecomercial`, `razonsocial`, `nif`, `direccion`, `telefono`, `fax`, `movil`, `email` 
+			</consulta>
+			<!-- Proceso despues de insertar -->
+			<after>
+			Anhadir estado y fecha alta.
+			</after>
+		</consultas>				
+		<tpv>
+			<tabla>
+				<nombre>proveedores</nombre>
+				<campo nombre="idProveedor">
+					<tipo>Unico</tipo>
+				</campo>
+				<campo nombre="nombrecomercial">
+					<cruce>CNOMPRO</cruce>
+				</campo>
+				<campo nombre="razonsocial">
+					<cruce>CNOMPRO</cruce>
+				</campo>
+				<campo nombre="nif">
+					<cruce>CNIFDNI</cruce>
+				</campo>
+				<campo nombre="direccion">
+					<!-- Este campo tiene que obtener de distinta forma.. -->				
+					<cruce>DIRECCION</cruce>
+				</campo>
+				<campo nombre="telefono">
+					<cruce>CTFO1PRO</cruce>
+				</campo>
+				<campo nombre="fax">
+					<cruce>CFAX</cruce>
+				</campo>
+				<campo nombre="movil">
+					<cruce>CTFO2PRO</cruce>
+				</campo>
+				<campo nombre="email">
+					<cruce>EMAIL</cruce>
+				</campo>
+			</tabla>
+		</tpv>
+	</tabla>
+</tablas>

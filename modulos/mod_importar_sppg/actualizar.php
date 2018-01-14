@@ -67,6 +67,10 @@
 							 // para reallizar la busqueda del registro la tabla importar.
 	$datos_tablas['tablas']['importar'] = $tabla;
 	$tabla_importar = TpvXMLtablaImportar($parametros,$tabla);
+	$objConsultas = $Newparametros->setRoot($tabla_importar);
+	$consultas = $Newparametros->Xpath('consultas//consulta[@tipo="obtener"]','Valores');
+	
+	
 // -------- Obtenemos los campos de la tabla importar ----------- //
 	foreach ($tabla_importar->campos->children() as $campo){;
 		$nombre_campo =(string) $campo['nombre'];
@@ -90,6 +94,11 @@
 	$datos_tablas['tpv'] =$parametros_tpv['tpv'];
 	$datos_tablas['tablas']['tpv'] =$parametros_tpv['tablas']['tpv'];
 
+	//~ echo '<pre>';
+		//~ print_r($datos_tablas);
+	//~ echo '</pre>';
+
+
 
 // ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
 	$tiposRegistros = array();
@@ -100,9 +109,7 @@
 			$tiposRegistros[$clase]['consulta']= (string) $tipo->consulta;
 		}
 	}
-//~ echo '<pre>';
-//~ print_r($tiposRegistros);
-//~ echo '</pre>';
+
 
 // ----------- Obtenemos registros sin tratar y hacemos resumen registros por su estado -------------- //
 	$Registros_sin = array();
@@ -111,14 +118,13 @@
 		$tiposRegistros[$key]['Num_items'] = $resultado;
 		if ($key ==='sin'){
 			// Obtenemos los registros que vamos tratar
-			if ($tiposRegistros['sin']['Num_items'] < 500){
+			if ($tiposRegistros['sin']['Num_items'] > 100){
 				// Para evitar exceso de memoria... Solo obtenemos 100 primero registros que están sin tratar
 				$tipo['consulta'] .= '  LIMIT 100';
-				$resultado = $Controler->consultaRegistro($BDImportDbf,$tabla,$tipo['consulta']);
-				// Asocio array a 'imporar' por si mas adelante queremos ver los nuevos o modificados.
-				$Registros_sin['importar'] = $resultado['Items'];
 			}
-			
+			$resultado = $Controler->consultaRegistro($BDImportDbf,$tabla,$tipo['consulta']);
+			// Asocio array a 'imporar' por si mas adelante queremos ver los nuevos o modificados.
+			$Registros_sin['importar'] = $resultado['Items'];
 		}
 	}
 // ---  Comprobamos si los registros sin tratar existe y son iguales o similares en tpv. --- //
@@ -143,7 +149,7 @@
 		}
 	}
 	//~ echo '<pre>';
-		//~ print_r($comprobaciones);
+	//~ print_r($Registros_sin);
 	//~ echo '</pre>';
 	
 ?>
@@ -197,6 +203,7 @@
 							}
 						}
 					}
+					
 					echo '<script>';
 					// Añadimos registros datos a variable global.
 					echo "registros.tpv[".$item."] = [];";
@@ -205,8 +212,15 @@
 						echo "registros.".$tipo."[".$item."].push(".json_encode($dato).");";
 					}
 					echo '</script>';
+					// Ahora controlamos si hubo campos import por lo menos, sino muestro un error
+					if (count($datos['importar']>0)){
 					?>
 					<button id="Ejecutar_<?php echo $item?>" class="btn btn-primary" data-obj="botonEjecutar" onclick="controlEventos(event)">Ejecutar</button>
+					<?php 
+					} else {
+						echo '<pre>Error !, no hay campos tabla importar identificativos unicos</pre>';
+					}
+					?>
 				</div>
 			</div>
 			<div class="col-md-4">

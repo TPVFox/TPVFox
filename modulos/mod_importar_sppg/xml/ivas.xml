@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+Recuerda en poner acciones mismo al principio de cada campo.
+Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si consideramos que es mismo.
+-->
+<tablas>
+	<tabla>
+		<nombre>ivas</nombre>
+		<tpv>
+			<tabla>
+				<nombre>iva</nombre>
+			</tabla>
+		</tpv>
+	</tabla>
+</tablas>

@@ -442,8 +442,8 @@ function DescartarRegistroTratar(fila){
 		},
 		success:  function (response) {
 			console.log('================  Termino de descartar registro en DBDImportar en '+tabla+ '   ====================');
-			var respuesta = parseJSON(response);
-			console.log(resultado);
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
 		
 		}
 	});
@@ -470,8 +470,8 @@ function AnhadirRegistroTpv(fila){
 		},
 		success:  function (response) {
 			console.log('================  Termino de añadir registro de DBDImportar en tpv de '+tabla+ '   ====================');
-			var respuesta = parseJSON(response);
-			console.log(resultado);
+			var respuesta = $.parseJSON(response);
+			alert(' Se ha creado el id: ' + respuesta.IdInsertTpv.toString());
 		
 		}
 	});

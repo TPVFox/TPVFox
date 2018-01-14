@@ -19,6 +19,11 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos funciones
 include_once ("./funciones.php");
 
+// Incluimos y creamos objeto parametros para poder obtener datos.
+include_once ('parametros.php');
+$Newparametros = new ClaseParametros('parametros.xml');
+$parametros = $Newparametros->getRoot();
+
 // DBF71 debería ser una varible que pueda modificar el usuario
 $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
  
@@ -65,7 +70,16 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
 	case 'AnhadirRegistroTpv':
 		$datos = $_POST['datos'];
 		$tabla = $_POST['tabla'];
-		$respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$tabla,$datos);
+		// Montamos array consulta con datos necesarios para enviar funcion Anhadir
+		$consulta = array();
+		$parametros_tabla = TpvXMLtablaImportar($parametros,$tabla);
+			$consulta['tabla'] = (string)$parametros_tabla->nombre[0];
+		$objConsultas = $Newparametros->setRoot($parametros_tabla);
+		$consultas = $Newparametros->Xpath('consultas//consulta[@tipo="obtener"]','Valores');
+			$consulta['obtener'] = $consultas;
+			$consulta['parametros'] = $parametros_tabla;
+			
+		$respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$consulta,$datos);
 		echo json_encode($respuesta);
 		break;
 		break;

@@ -320,13 +320,12 @@ function ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf){
 }
 
 
-function obtenerUnRegistro($BD,$nombretabla,$whereC='') {
+function obtenerUnRegistro($BD,$consulta) {
 		/* Objetivo:
 		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.
 		 * */
 		// Funcion para contar registros de una tabla.
 		$array = array();
-		$consulta = "SELECT * FROM ". $nombretabla.' '.$whereC;
 		$resultadoConsulta = $BD->query($consulta);
 		if ($BD->query($consulta)) {
 			$array['NItems'] = $resultadoConsulta->num_rows;
@@ -346,27 +345,29 @@ function obtenerUnRegistro($BD,$nombretabla,$whereC='') {
 		return $array;
 	}
 	
-function VariosRegistros($BD,$nombretabla,$whereC='') {
+function VariosRegistros($BD,$consulta) {
 		/* Objetivo:
 		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.
 		 * */
 		// Funcion para contar registros de una tabla.
 		$array = array();
-		$consulta = "SELECT * FROM ". $nombretabla.' '.$whereC;
+		$array['NItems'] = 0 ; // valor por defecto.	
 		$resultadoConsulta = $BD->query($consulta);
 		if ($BD->query($consulta)) {
 			$array['NItems'] = $resultadoConsulta->num_rows;
+			if ($array['NItems'] > 0){
+				// Hubo resultados
+				while ($fila = $resultadoConsulta->fetch_assoc()){
+					$array['Items'][] = $fila;
+				}
+			}
+
 		} else {
 			// Quiere decir que hubo error en la consulta.
 			$array['consulta'] = $consulta;
 			$array['error'] = $BD->error;
 		}
-		if ($array['NItems'] > 0){
-			// Hubo resultados
-			while ($fila = $resultadoConsulta->fetch_assoc()){
-				$array['Items'][] = $fila;
-			}
-		}
+		
 		//~ $array['sql']=$consulta;
 		return $array;
 	}
@@ -387,7 +388,8 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 					if (isset($registro[$campo]) && trim($registro[$campo]) !== '' ){
 						$whereC =' WHERE '.$accion['campo_cruce'].'="'.$registro[$campo].'"';
 						$tabla = $accion['tabla_cruce'];
-						$UnRegistro = obtenerUnRegistro($BDTpv,$tabla,$whereC);
+						$consulta = "SELECT * FROM ". $tabla.' '.$whereC;
+						$UnRegistro = obtenerUnRegistro($BDTpv,$consulta);
 						// Ahora registramos lo que hicimos.
 						// Montamos Accion para saber resultado ->CAMPO+Num_Accion+funcion+Descripcion
 						$respuesta['comprobacion'][$campo][$num_accion]['accion'] =$accion['funcion'].' -> '.$accion['description'];
@@ -419,8 +421,8 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 						$busqueda = implode(' and ',$likes);
 						$whereC =' WHERE '.$busqueda;
 						//~ echo '<br/>'.$item.'----> '.$whereC.'<br/>';
-						$Registros= VariosRegistros($BDTpv,$tabla,$whereC);
-																	
+						$consulta = "SELECT * FROM ". $tabla.' '.$whereC;
+						$Registros= VariosRegistros($BDTpv,$consulta);
 						if ($Registros['NItems'] >0){
 							$respuesta['tpv'] = $Registros;
 							$respuesta['comprobacion']['encontrado_tipo'] = 'Similar';
@@ -469,7 +471,7 @@ function DescartarRegistrosImportDbf($BDImportDbf,$tabla,$datos){
 }
 
 
-function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$tabla,$datos){
+function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
 	// @ Objetivo 
 	// Añadir registro de las tablas importar a tpv
 	// Segun la tabla que recibimos serán funciones independientes
@@ -478,6 +480,7 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$tabla,$datos){
 	// $datos: Array (	importar => array( campos unicos...)
 	//					tpv => array ( campos unicos... )
 	$respuesta = array();
+	$tabla = $parametros_tabla['tabla'];
 	// --- Obtenemos los datos del registro de la Base de Datos BDimport --- //
 	$wheres = array();
 	foreach ($datos as $dato){
@@ -486,39 +489,32 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$tabla,$datos){
 		}
 	}
 	$whereImportar = 'WHERE '.implode(' AND ',$wheres);
-	$registro_importar = obtenerUnRegistro($BDImportDbf,$tabla,$whereImportar);
+	// Obtenemos las consulta->obtener de parametros
+	// Ahora interpreto que hay una sola, pero es un array que puede contener varias consultas. 
+	$consulta = "SELECT ".$parametros_tabla['obtener'][0]." FROM ". $tabla.' '.$whereImportar;
+	//~ $consulta = "SELECT * FROM ". $tabla.' '.$whereImportar;
+	$registro_importar = obtenerUnRegistro($BDImportDbf,$consulta);
 	$registro = $registro_importar['Items'][0];
 	// ----- Obtenemos parametros tpv para poder añadir ------- //
-	$parametros = simplexml_load_file('parametros.xml');
-	$datos = TpvXMLtablaImportar($parametros,$tabla);
-	$parametros_tpv = TpvXMLtablaTpv($datos);
+	$parametros_tpv = TpvXMLtablaTpv($parametros_tabla['parametros']);
 	// -------------- Montamos SQL para Insert ------------------- //
 	// Obtengo nombre tabla
 	$tabla_tpv = $parametros_tpv['tablas']['tpv'];
 	// Obtengo campos y valores que nos indica cruces de parametros
 	$cruces = $parametros_tpv['tpv']['cruce'];
 	$valores = array ();
-	$concat = array();
 	$into = array();
 	foreach ($cruces as $campo_tpv => $array){
 		$into[] = $campo_tpv;
-		if (isset($array['tipo'])){
-			// Quiere decir, que no se trata normal, el tipo concat es unico trato ahora.
-			// Por eso no hago if... comparando. Campos separador por , siempre.
-			$campos = explode(',',$array[0]);
-			$concat = array();
-			foreach ($campos as $campo){
-				if (strlen(trim($registro[$campo])) >0){
-				$concat[] = addslashes(htmlentities($registro[$campo],ENT_COMPAT));
-				}
-			}
-			$valores[] ='"'.implode(' ',$concat).'"';
-		} else {
-			$campo =$array[0];
-			$valores[] = '"'.addslashes(htmlentities($registro[$campo],ENT_COMPAT)).'"';
-			
-		}
+		$campo =$array[0];
+		$valores[] = '"'.addslashes(htmlentities($registro[$campo],ENT_COMPAT)).'"';
 	}
+	// Faltaria añadir estado y fecha alta;
+	//~ $into [] = 'estado';
+	//~ $into [] = 'fechaalta';
+	//~ $valores[] = '"importar"';
+	//~ $valores[] = 'NOW()';
+	
 	$sql = 	'INSERT INTO '.$tabla_tpv.' ('.implode(',',$into).') VALUES ('.implode(',',$valores).')';
 	$BDTpv->query($sql);
 	// -- Obtenemos id que se acaba de crear con insert.
@@ -530,7 +526,6 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$tabla,$datos){
 	$respuesta['sqlImportar'] =$sqlImportar;
 	$respuesta['sql'] = $sql;
 	$respuesta['IdInsertTpv'] = $BDTpv->insert_id;
-	
 	
 	return $respuesta;
 }
@@ -577,4 +572,5 @@ function TpvXMLtablaTpv($tabla_importar){
 	$datos_tablas['tablas']['tpv']= $nombre_tabla_tpv ;
 	return $datos_tablas;
 }
+
 ?>

@@ -15,11 +15,20 @@
 <head>
 <?php
 		include './../../head.php';
-	// Creamos variables de los ficheros DBF que vamos añadir de forma automatizada a TPV.
-	// Inicialmente se añaden tambien a BDimportar
-	$nom_ficheros = array(
-					'proveedo','articulo','clientes','precprov','pedclil','pedclit','albclil','albclit','facclit','facclil'
-					);
+	// Obtenemos parametros con los nombres de las tablas que vamos importar, recuerda que el orden es importante para 
+	// un a importancion correcta.
+	// Ya que hay tablas de para obtener datos depende de otras, por ello deben tener la tabla que independiente primero
+	// y luego las otras, para una correcta importacion.
+	include_once ('parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	$parametros = $ClasesParametros->getRoot();
+	$nom_ficheros = $ClasesParametros->Xpath("tablas/tabla/nombre",'Valores');
+
+	//~ echo '<pre>';
+	//~ print_r($parametros);
+	//~ echo '</pre>';
+
+
 	// [ANTES CARGAR FUNCIONES JS]
 	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
 	?>
