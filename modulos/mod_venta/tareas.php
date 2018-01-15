@@ -21,6 +21,9 @@ include_once ("./funciones.php");
 
 include_once("clases/pedidosVentas.php");
 $CcliPed=new PedidosVentas($BDTpv);
+
+include_once("../../clases/producto.php");
+$Cprod=new Producto($BDTpv);
 switch ($pulsado) {
     
     case 'buscarProductos':
@@ -29,27 +32,43 @@ switch ($pulsado) {
 		$id_input = $_POST['cajaInput'];
 		$idcaja=$_POST['idcaja'];
 		$deDonde = $_POST['dedonde']; // Obtenemos de donde viene
-		$respuesta = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv);
-		if ($respuesta['Estado'] !='Correcto' ){
-			// Al ser incorrecta entramos aquí.
-			// Mostramos popUp tanto si encontro varios como si no encontro ninguno.
-			if (!isset($respuesta)){
-				$respuesta = array('datos'=>array());
-			}
-			$respuesta['listado']= htmlProductos($respuesta['datos'],$id_input,$campoAbuscar,$busqueda);
-		}
-		if ($respuesta['Estado'] === 'Correcto' && $deDonde === 'popup'){
+		$idPedidoTemporal=$_POST['idTemporal'];
+		$productos=$_POST['productos'];
+		$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv);
+		if ($res['Nitems']===1){
+			$respuesta=$res;
+			$respuesta['Nitems']=$res['Nitems'];	
+		}else{
+			
 			// Cambio estado para devolver que es listado.
-			$respuesta['listado']= htmlProductos($respuesta['datos'],$id_input,$campoAbuscar,$busqueda);
+			$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda);
 			$respuesta['Estado'] = 'Listado';
+			$respuesta['sql']=$res['sql'];
+			$respuesta['datos']=$res['datos'];
+		
 		}
 		
 		
 		echo json_encode($respuesta);  
 		break;
 		
-		
-		
+		case 'añadirProductos';
+		$datos=$_POST['productos'];
+		$idTemporal=$_POST['idTemporal'];
+		$modProducto=$CcliPed->AddProducto($idTemporal,$datos );
+		$respuesta['estadoCon']=$modProducto;
+		return $respuesta;
+		break;
+			case 'HtmlLineaTicket';
+		$respuesta = array();
+		$product 					=$_POST['producto'];
+		$num_item					=$_POST['num_item'];
+		$CONF_campoPeso		=$_POST['CONF_campoPeso'];
+		$res 	= htmlLineaPedido($product,$num_item,$CONF_campoPeso);
+		$respuesta['html'] =$res;
+		$respuesta['producto']=$product;
+		echo json_encode($respuesta);
+		break;
 	    case 'buscarClientes':
 		// Abrimos modal de clientes
 		$busqueda = $_POST['busqueda'];
@@ -119,7 +138,7 @@ switch ($pulsado) {
 		
 		
 		
-			case 'HtmlLineaLinea':
+		case 'HtmlLineaLinea':
 		$respuesta = array();
 		$product 					=$_POST['producto'];
 		$num_item					=$_POST['num_item'];
@@ -142,21 +161,16 @@ switch ($pulsado) {
 		$cabecera['idUsuario'] 		=$_POST['idUsuario'];
 		$cabecera['estadoTicket'] 	=$_POST['estadoTicket'];
 		$cabecera['numTicket'] 		=$_POST['numTicket'];
-		
 		// Ahora recalculamos nuevamente
 		$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 		$CalculoTotales = recalculoTotales($productos_para_recalculo);
-		
 		$nuevoArray = array(
 						'desglose'=> $CalculoTotales['desglose'],
 						'total' => $CalculoTotales['total']
 							);
-		
 		//~ $CalculoTotales = gettype($productos);
-
 		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
 		$respuesta=$res;
-		
 		$respuesta = array_merge($respuesta,$nuevoArray);
 		echo json_encode($respuesta);
 		break;

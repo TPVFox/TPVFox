@@ -109,8 +109,6 @@ class PedidosVentas{
 		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'")');
 		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'")';
 		$id=$db->insert_id;
-		
-		
 		return $id;
 	}
 	public function ModClienteTemp($idCLiente, $numPedido, $idTienda, $idUsuario, $estadoPedido){
@@ -126,6 +124,16 @@ class PedidosVentas{
 			$pedido=$result;
 		}
 		return $pedido;
+	}
+	
+	public function AddProducto($idTemporal, $productos){
+		$UnicoCampoProductos 	=json_encode($productos);
+		$db = $this->db;
+		$PrepProductos=$db->real_escape_string($UnicoCampoProductos);
+		$smt = $db->query ('UPDATE pedcliltemporales set Productos ='."'".$PrepProductos ."'".' WHERE id='.$idTemporal);
+		$sql='UPDATE pedcliltemporales set Productos ='.$PrepProductos.'  WHERE id='.$idTemporal;
+		$resultado="Correcto Add Id";
+		return $return;
 	}
 }
 

@@ -56,7 +56,7 @@
 			<teclas>
 				<action tecla="13">buscarProductos</action>
 				<action tecla="39">saltar_Referencia</action>
-				<action tecla="38">saltar_nombreCliente</action>
+				<action tecla="38">saltar_nombreClienteArticulo</action>
 				<action tecla=" 9">saltar_idArticulo</action>
 				<action tecla="40">saltar_productos</action>
 				<action tecla="37">saltar_idCliente</action>

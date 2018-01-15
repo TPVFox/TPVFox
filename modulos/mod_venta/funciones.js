@@ -209,7 +209,14 @@ function controladorAcciones(caja,accion){
 				var d_focus = 'Cliente';
 				ponerFocus(d_focus);
 			}
-			break
+			break;
+			case 'saltar_nombreClienteArticulo':
+		console.log('Entro en acciones saltar_nombreCliente');
+		var dato = caja.darValor();
+				var d_focus = 'Cliente';
+				ponerFocus(d_focus);
+			
+			break;
 		case 'saltar_Fecha':
 		console.log('Entro en acciones saltar_fecha');
 		var dato = caja.darValor();
@@ -220,16 +227,18 @@ function controladorAcciones(caja,accion){
 		case 'saltar_idArticulo':
 		console.log('Entro en acciones saltar_idArticulo');
 		var dato = caja.darValor();
-			if ( dato.length === 0){
+		
 				var d_focus = 'idArticulo';
 				ponerFocus(d_focus);
-			}
+			
 			break
 		case 'buscarProductos':
 			// Esta funcion necesita el valor.
 			console.log('Entro en acciones buscar Productos');
 			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.id_input , caja.darValor(),caja.darParametro('dedonde'));
 			break;
+			
+			
 		case 'saltar_CodBarras':
 		console.log('Entro en acciones codigo de barras');
 			var dato = caja.darValor();
@@ -398,7 +407,7 @@ function after_constructor(padre_caja,event){
 	
 	return padre_caja;
 }
-	
+
 function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	// @ Objetivo:
 	//  Buscar productos donde el dato exista en el campo que se busca...
@@ -411,7 +420,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	//  1.- Un producto unico.
 	//  2.- Un listado de productos.
 	//  3.- O nada un error.
-	
+	console.log(idcaja);
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
@@ -419,7 +428,9 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		"valorCampo" : busqueda,
 		"campo"      : campo,
 		"dedonde"    : dedonde,
-		"idcaja"	 :idcaja
+		"idcaja"	 :idcaja,
+		"idTemporal":cabecera.numPedido,
+		"productos":productos
 	};
 	$.ajax({
 		data       : parametros,
@@ -431,25 +442,28 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		success    :  function (response) {
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
-			console.log('Estado'+resultado['Estado']);
-			if (resultado['Estado'] === 'Correcto') {
-				var datos = [];
-				datos = resultado.datos[0];
-				console.log('Entro en Estado Correcto funcion buscarProducto ->datos (producto)');
-				//~ console.log(datos);
-				//~ console.log('consulta '+resultado.sql);
-				resetCampo(id_input);
-				agregarFila(datos);
-				
-			} else {
-				// Se ejecuta tanto sea un listado como un error.
-				console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-				var busqueda = resultado.listado;   
-				var HtmlProductos=busqueda.html;   
-				var titulo = 'Listado productos encontrados ';
-				// Abrimos modal de productos.
-				abrirModal(titulo,HtmlProductos);
-				if (resultado.Nitems >0 ){
+					console.log(resultado);
+				if (resultado['Nitems']===1){
+					console.log('Estado'+resultado['Estado']);
+					var datos = [];
+					datos = resultado['datos'][0];
+					datos['nfila']=productos.length+1;
+					datos['estado']="Activo";
+					datos['cant']=1;
+					console.log(datos);
+					productos.push(datos);
+					var num_item=datos['nfila'];
+					addProductoTemp();
+					console.log(num_item);
+					agregarFilaProducto(num_item);
+				}else{
+					console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
+			
+							var busqueda = resultado.listado;   
+							var HtmlProductos=busqueda.html;   
+							var titulo = 'Listado productos encontrados ';
+							abrirModal(titulo,HtmlProductos);
+								if (resultado.Nitems >0 ){
 					// Quiere decir que hay resultados por eso apuntamos al primero
 					// focus a primer producto.
 						var d_focus = 'N_0';
@@ -458,12 +472,71 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					// No hay resultado pero apuntamos a caj
 					ponerFocus(id_input);
 				}
-			}
-		// Al no poner return , esto se va ejecutar siempre.
-		//~ document.getElementById(id_input).value='';
+					
+				}
 		}
 		
 
+	});
+}
+function addProductoTemp(){
+	console.log('Entro en añadir productos');
+	var parametros = {
+		"pulsado"    : 'añadirProductos',
+		"idTemporal":cabecera.numPedido,
+		"productos":productos
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Envio datos para Añadir productos  ****************');
+		},
+		success    :  function (response) {
+			var resultado =  $.parseJSON(response);
+			console.log('Estado'+resultado['Estado']);
+			console.log(resultado);
+		}
+		
+
+	});
+}
+function agregarFilaProducto(num_item){
+	console.log(num_item);
+	
+	var parametros = {
+		"pulsado"    : 'HtmlLineaTicket',
+		"producto" : productos[num_item-1],
+		"num_item"      : num_item,
+		"CONF_campoPeso"    : CONF_campoPeso
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Obteniendo html de linea ticket  ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de Obtener HTML linea de FUNCION -> agregarFila');
+			var resultado =  $.parseJSON(response);
+			console.log(resultado['html']);
+			console.log(resultado['producto']);
+			var nuevafila = resultado['html'];
+			$("#tabla").prepend(nuevafila);
+			//~ if ('campo' ==='') {
+				// Si no viene dato campo, por lo que focus por defectoe es Codbarras
+				//~ $('#Codbarras').focus();  
+			//~ } else {
+				// Ponemos focus el campo que le indicamos en parametro campo.
+				//~ $(campo).focus();
+			//~ }
+			var campo='#Unidad_Fila_'+num_item;
+			console.log(campo);
+			$(campo).focus();
+			return $resultado;
+		}
 	});
 }
 function resetCampo(campo){
@@ -673,5 +746,9 @@ function mover_down(fila,prefijo){
 }
 function sobreFilaCraton(cont){
 	$('#Fila_'+cont).css('background-color','azure');
+}
+
+function añadirHTMLproducto(datos){
+	
 }
 
