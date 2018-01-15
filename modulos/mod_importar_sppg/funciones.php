@@ -534,9 +534,9 @@ function TpvXMLtablaImportar($parametros,$tabla){
 	// @Objetivo.
 	// Obtener objeto SimpleXML dentro de parametros
 	$respuesta = array();
-	foreach ($parametros->tablas->tabla as $tabla_importar){
-		if (htmlentities((string)$tabla_importar->nombre) === $tabla){
-			$respuesta = $tabla_importar;
+	foreach ($parametros->tablas as $tabla_importar){
+		if (htmlentities((string)$tabla_importar->tabla->nombre) === $tabla){
+			$respuesta = $tabla_importar->tabla;
 		}
 	}
 	

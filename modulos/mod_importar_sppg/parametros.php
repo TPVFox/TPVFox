@@ -18,7 +18,7 @@ class ClaseParametros
 			// Quiere decir que encontro includes.
 			// Ejecutamos de nuevos crearXml pero añadiendo esos ficheros.
 			foreach ($includes as $num_ficher =>$Nuevo_fichero){
-				error_log(' Anhadimos a parametros el fichero '.$fichero. ' tipo '.gettype($Nuevo_fichero));
+				//~ error_log(' Anhadimos a parametros el fichero '.$fichero. ' tipo '.gettype($Nuevo_fichero));
 				$this->root = $this->crearXml($Nuevo_fichero);
 
 			}
@@ -60,7 +60,7 @@ class ClaseParametros
 					$domXml = $objetoDOM[0]->ownerDocument->importNode($objetoDOM[$Num_fichero], TRUE);
 					$objetoDOM[0]->appendChild($domXml);
 
-					error_log('Acabamos de añadir XML de parametros el fichero '.$fichero);
+					//~ error_log('Acabamos de añadir XML de parametros el fichero '.$fichero);
 				}
 			}
 		} 

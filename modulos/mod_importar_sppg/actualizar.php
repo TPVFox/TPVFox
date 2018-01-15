@@ -66,8 +66,19 @@
 	$datos_tablas = array(); // Un array sencillo donde tenemos los campos los que podemos generar variables JS
 							 // para reallizar la busqueda del registro la tabla importar.
 	$datos_tablas['tablas']['importar'] = $tabla;
+	
+	
+	//~ echo '<pre>';
+	//~ print_r($parametros->tablas->tabla);
+	//~ echo '</pre>';
+	
+	
 	$tabla_importar = TpvXMLtablaImportar($parametros,$tabla);
 	$objConsultas = $Newparametros->setRoot($tabla_importar);
+	//~ echo '<pre>';
+	//~ print_r($parametros);
+	//~ echo '</pre>';
+	
 	$consultas = $Newparametros->Xpath('consultas//consulta[@tipo="obtener"]','Valores');
 	
 	
@@ -89,14 +100,15 @@
 			$x++;
 		}
 	}
+
 // --------- Obtenemos los parametross tpv que para inserta,modificar datos en tpv --------- //
 	$parametros_tpv = TpvXMLtablaTpv($tabla_importar);
 	$datos_tablas['tpv'] =$parametros_tpv['tpv'];
 	$datos_tablas['tablas']['tpv'] =$parametros_tpv['tablas']['tpv'];
 
-	//~ echo '<pre>';
-		//~ print_r($datos_tablas);
-	//~ echo '</pre>';
+	echo '<pre>';
+		print_r($datos_tablas);
+	echo '</pre>';
 
 
 
