@@ -126,14 +126,24 @@ class PedidosVentas{
 		return $pedido;
 	}
 	
-	public function AddProducto($idTemporal, $productos){
-		$UnicoCampoProductos 	=json_encode($productos);
+	public function AddProducto($idTemporal, $productos, $total){
+		$total=round($total, 2);
+		$UnicoCampoProductos=json_encode($productos);
 		$db = $this->db;
 		$PrepProductos=$db->real_escape_string($UnicoCampoProductos);
-		$smt = $db->query ('UPDATE pedcliltemporales set Productos ='."'".$PrepProductos ."'".' WHERE id='.$idTemporal);
-		$sql='UPDATE pedcliltemporales set Productos ='.$PrepProductos.'  WHERE id='.$idTemporal;
+		$smt = $db->query ('UPDATE pedcliltemporales set total='.$total.' ,  Productos ='."'".$PrepProductos ."'".' WHERE id='.$idTemporal);
 		$resultado="Correcto Add Id";
-		return $return;
+		return $resultado;
+	}
+	public function TodosTemporal(){
+			$db = $this->db;
+			$smt = $db->query ('SELECT * from pedcliltemporales');
+			$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
+		
 	}
 }
 

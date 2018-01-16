@@ -1,3 +1,21 @@
+// =========================== OBJETOS  ===================================
+function ObjProducto(datos,valor=1,estado ='Activo')
+{
+    console.log('Estoy creando objeto producto');
+    this.id = datos.idArticulo;
+    this.cref = datos.crefTienda
+    this.cdetalle = datos.articulo_name;
+    this.pvpconiva = parseFloat(datos.pvpCiva).toFixed(2);
+    this.ccodebar = datos.codBarras;
+    this.ctipoiva = datos.iva;
+    this.unidad = valor;
+    this.estado = estado;
+    this.nfila = productos.length+1;
+    this.importe = parseFloat(this.pvpconiva) * this.unidad;
+}
+
+
+
 function Buscar (){
 	$(document).ready(function()
 	{
@@ -112,6 +130,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				// Enfocamos el primer item.
 				mover_down(0);
 				$('#N_0').focus();
+				
 			}else {
 				// No hay datos focus a caja buscar cliente.
 				$('#cajaBusquedacliente').focus();
@@ -125,6 +144,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				// Enfocamos el primer item.
 				mover_down(0);
 				$('#N_0').focus();
+				
 			}else {
 				// No hay datos focus a caja buscar cliente.
 				$('#cajaBusquedacliente').focus();
@@ -136,6 +156,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			abrirModal(titulo,HtmlClientes);
 			if (encontrados >0 ){
 				// Enfocamos el primer item.
+				
 				mover_down(0);
 				$('#N_0').focus();
 			}else {
@@ -149,6 +170,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			$('#Cliente').val(resultado.nombre);
 			if (resultado.numPedido>0){
 				console.log("entre");
+				mostrarFila();
 				history.pushState(null,'','?tActual='+resultado.numPedido);
 				cabecera.numPedido=parseInt(resultado.numPedido);
 			}
@@ -248,17 +270,15 @@ function controladorAcciones(caja,accion){
 				ponerFocus(d_focus);
 			}
 			break;
-		
-		
-		
-		
-		case 'recalcular_ticket':
+		case 'recalcular_totalProducto':
+		console.log("entre en recalcular precio producto");
 			// recuerda que lo productos empizan 0 y las filas 1
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
 			//~ productos.[nfila].unidad = caja.darValor();
 			console.log ( caja);
 			productos[nfila].unidad = caja.darValor();
+			console.log(productos[nfila].unidad);
 			recalculoImporte(productos[nfila].unidad,nfila);
 			
 			break;
@@ -282,6 +302,10 @@ function controladorAcciones(caja,accion){
 			}
 			mover_up(nueva_fila,caja.darParametro('prefijo'));
 			break;
+			
+			
+			
+			
 		case 'saltar_Referencia':
 			var dato = caja.darValor();
 			if ( dato.length === 0){
@@ -443,6 +467,10 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
 					console.log(resultado);
+					
+			
+			
+					
 				if (resultado['Nitems']===1){
 					console.log('Estado'+resultado['Estado']);
 					var datos = [];
@@ -450,12 +478,22 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					datos['nfila']=productos.length+1;
 					datos['estado']="Activo";
 					datos['cant']=1;
+					var importe =datos['pvpCiva']*datos['cant'];
+					datos['importe']=importe.toFixed(2);
+					console.log("estoy aquí");
+					console.log(datos);
+					console.log(typeof datos['pvpCiva']);
+					var pvpCiva= parseFloat(datos['pvpCiva']);
+					datos['pvpCiva']=pvpCiva.toFixed(2);
 					console.log(datos);
 					productos.push(datos);
 					var num_item=datos['nfila'];
+					
 					addProductoTemp();
-					console.log(num_item);
 					agregarFilaProducto(num_item);
+					
+					
+					
 				}else{
 					console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 			
@@ -486,6 +524,7 @@ function addProductoTemp(){
 		"idTemporal":cabecera.numPedido,
 		"productos":productos
 	};
+	console.log(productos);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -495,10 +534,51 @@ function addProductoTemp(){
 		},
 		success    :  function (response) {
 			var resultado =  $.parseJSON(response);
-			console.log('Estado'+resultado['Estado']);
-			console.log(resultado);
+		console.log(resultado);
+			
+			$('#tipo4').html('');
+			$('#tipo10').html('');
+			$('#tipo21').html('');
+			$('#base4').html('');
+			$('#base10').html('');
+			$('#base21').html('');
+			$('#iva4').html('');
+			$('#iva10').html('');
+			$('#iva21').html('');
+			$('.totalImporte').html('');
+			
+			// Ahora pintamos pie de ticket.
+			if (resultado['totales']['total'] > 0 ){
+				// Quiere decir que hay datos a mostrar en pie.
+				total = parseFloat(resultado['totales']['total']) // varible global.
+				$('.totalImporte').html(total.toFixed(2));
+				// Ahora tengo que pintar los ivas.
+				var desgloseIvas = [];
+				
+				console.log("estoy aqui");
+				console.log(resultado['totales']['desglose']);
+				
+				desgloseIvas.push(resultado['totales']['desglose']);
+				console.log(desgloseIvas);
+				// Ahora recorremos array desglose
+				desgloseIvas.forEach(function(desglose){
+					console.log('Entro foreah');
+					// mostramos los tipos ivas , bases y importes.
+					var tipos = Object.keys(desglose);
+					console.log(desglose);
+					for (index in tipos){
+						var tipo = tipos[index];
+						$('#line'+parseInt(tipo)).css('display','');
+						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+					}
+				});
+				
+			}
+			
+			
 		}
-		
 
 	});
 }
@@ -525,17 +605,10 @@ function agregarFilaProducto(num_item){
 			console.log(resultado['producto']);
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
-			//~ if ('campo' ==='') {
-				// Si no viene dato campo, por lo que focus por defectoe es Codbarras
-				//~ $('#Codbarras').focus();  
-			//~ } else {
-				// Ponemos focus el campo que le indicamos en parametro campo.
-				//~ $(campo).focus();
-			//~ }
 			var campo='#Unidad_Fila_'+num_item;
 			console.log(campo);
 			$(campo).focus();
-			return $resultado;
+			return resultado;
 		}
 	});
 }
@@ -712,6 +785,7 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 			var HtmlClientes=resultado.html; 
 			history.pushState(null,'','?tActual='+resultado.numPedido);
 			cabecera.numPedido=parseInt(resultado.numPedido);
+			mostrarFila();
 			
 	cerrarPopUp(); // Destino no indicamo ya que no sabes...
 	if (dedonde ='pedido'){
@@ -747,8 +821,133 @@ function mover_down(fila,prefijo){
 function sobreFilaCraton(cont){
 	$('#Fila_'+cont).css('background-color','azure');
 }
-
-function añadirHTMLproducto(datos){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
+	// @ Objetivo:
+	//   Realizamos cuando venimos popUp de Productos.
+	// @ Parametros:
+	// 	 Caja -> Indica la caja queremos que ponga focus
+	//   datos -> Es el array que vamos enviar para añadir fila.
+	console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
+	var datos = new Object();
+	datos['idArticulo'] 	= id;
+	datos['crefTienda'] 	= cref;
+	datos['articulo_name'] 	= cdetalle;
+	datos['pvpCiva'] 		= npconiva;
+	datos['iva'] 			= ctipoIva;
+	datos['codBarras']		= ccodebar;
+	datos['nfila']=productos.length+1;
+	datos['estado']="Activo";
+	datos['cant']=1;
+	var importe =datos['pvpCiva']*datos['cant'];			
+	datos['importe']=importe.toFixed(2);
+	var pvpCiva= parseFloat(datos['pvpCiva']);
+	datos['pvpCiva']=pvpCiva.toFixed(2);
+	console.log(datos);
+	productos.push(datos);
+	console.log("dentro de productos");
+	console.log(productos);
+	var num_item=datos['nfila'];
+	addProductoTemp();
+	console.log(num_item);
+	agregarFilaProducto(num_item);
+	//~ agregarFila(datos);
+	// Eliminamos contenido de cja destino y ponemos focus.
 	
+	resetCampo(campo);
+	var campo='#Unidad_Fila_'+num_item;
+	cerrarPopUp(campo);
+
+	
+}
+
+function eliminarFila(num_item){
+	console.log("entre en eliminar Fila");
+	var line;
+	num=num_item-1;
+	console.log(num);
+	line = "#Row" + productos[num].nfila;
+	// Nueva Objeto de productos.
+	productos[num].estado= 'Eliminado';
+	$(line).addClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+');"><span class="glyphicon glyphicon-export"></span></a>');
+	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
+	addProductoTemp();
+}
+function retornarFila(num_item){
+	// @Objetivo :
+	// Es pasar un producto eliminado a activo.
+	console.log("entre en retornar fila");
+	var line;
+	console.log("llegue hasta aqui ");
+	console.log(num_item);
+	num=num_item-1;
+	console.log(productos[num]);
+	line = "#Row" +productos[num].nfila;
+	console.log(line);
+	// Nueva Objeto de productos.
+	productos[num].estado= 'Activo';
+	console.log(productos[num].estado);
+	console.log(productos);
+	//~ var pvp =productos[num_item].pvpconiva;
+
+	$(line).removeClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+');"><span class="glyphicon glyphicon-trash"></span></a>');
+	if (productos[num].unidad == 0) {
+		// Nueva Objeto de productos.
+		//~ productos[nfila].unidad= 1;
+		// Antiguo array productos.
+		productos[num].unidad = 1;
+	//	recalculoImporte(productos[num].unidad,num_item);
+	}
+	$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
+	$("#N" + productos[num].nfila + "_Unidad").val(productos[num].unidad);
+	console.log(productos);
+	addProductoTemp();
+}
+function recalculoImporte(cantidad,num_item){
+	// @ Objetivo:
+	// Recalcular el importe de la fila, si la cantidad cambia.
+	// @ Parametros:
+	//	cantidad -> Valor ( numerico) de input unidades.
+	//	num_item -> El numero que indica el producto que modificamos.
+	console.log('Estoy en recalculoImporte');
+	console.log(num_item);
+	//~ console.log('cantidad:'+cantidad);
+	if (productos[num_item].cant == 0 && cantidad != 0) {
+		retornarFila(num_item+1);
+	} else if (cantidad == 0 ) {
+		eliminarFila(num_item+1);
+	}
+	console.log('Valor de cantidad'+cantidad);
+	productos[num_item].cant = cantidad;
+	//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
+	var importe = cantidad*productos[num_item].pvpCiva;
+	var id = '#N'+productos[num_item].nfila+'_Importe';
+	//alert('recalcular'+id);
+	importe = importe.toFixed(2);
+	$(id).html(importe);
+		addProductoTemp();
+}
+function sobreFilaCraton(cont){
+	$('#Fila_'+cont).css('background-color','azure');
+}
+
+function mover_down(fila,prefijo){
+	sobreFilaCraton(fila);
+	var d_focus = prefijo+fila;
+	ponerFocus(d_focus);
+	
+}
+
+function mover_up(fila,prefijo){
+	sobreFilaCraton(fila);
+	var d_focus = prefijo+fila;
+	ponerFocus(d_focus);
+}
+
+function mostrarFila(){
+	console.log("mostrar fila");
+	$("#Row0").removeAttr("style") ;
+	console.log("realizo funcion");
 }
 

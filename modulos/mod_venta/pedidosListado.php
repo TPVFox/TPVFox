@@ -7,9 +7,19 @@ include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include 'clases/pedidosVentas.php';
+	include '../../clases/cliente.php';
+	$Cpedido=new PedidosVentas($BDTpv);
+	$Ccliente=new Cliente($BDTpv);
+	
+	
+	$todoTemporal=$Cpedido->TodosTemporal();
+	//~ echo '<pre>';
+	//~ print_r($todoTemporal);
+	//~ echo '</pre>';
 	$palabraBuscar=array();
-$stringPalabras='';
-$PgActual = 1; // por defecto.
+	$stringPalabras='';
+	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
@@ -88,8 +98,24 @@ if ($stringPalabras !== '' ){
 					<th>Cliente</th>
 					<th>Total</th>
 				</tr>
+				
 			</thead>
 			<tbody>
+				<?php 
+				if (isset ($todoTemporal)){
+					foreach ($todoTemporal as $pedidoTemp){
+				//		$cliente=$Ccliente->DatosClientePorId($pedidoTemp['idClientes']);
+					?>
+						<tr>
+						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
+						<td><?php echo $pedidoTemp['idClientes'];?></td>
+						<td><?php echo number_format($pedidoTemp['total'],2);?></td>
+						</tr>
+						<?php
+					}
+				}
+				
+				?>
 			</tbody>
 		</table>
 		</div>

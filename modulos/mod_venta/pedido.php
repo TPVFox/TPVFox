@@ -38,8 +38,8 @@ include './../../head.php';
 			$estadoCab="'".$pedidoTemporal['estadoPedCli']."'";
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
-	
-		$productos = json_decode( $pedidoTemporal['Productos'] , true );
+			$pedido=$pedidoTemporal;
+		$productos = json_decode( $pedidoTemporal['Productos'] ); // Array de objetos
 		//~ print_r($pedidoTemporal['Productos']);
 		//~ print_r($productos);
 		
@@ -53,12 +53,38 @@ include './../../head.php';
 		}else{
 			$pedido_numero = 0;
 		}
-	echo $pedido_numero;	
+		
+		//~ print_r($pedido);
+	
+		if(isset($pedido['Productos'])){
+		
+			// Obtenemos los datos totales ( fin de ticket);
+			// convertimos el objeto productos en array
+			//~ echo '<pre>';
+			//~ print_r($productos);
+			//~ echo '</pre>';
+			//~ $productos = json_decode( $pedido['Productos']);
+			$Datostotales = recalculoTotales($productos);
+			//~ echo $productos1;
+			$productos = json_decode(json_encode($productos), true); // Array de arrays
+			//~ echo gettype($pedidoTemporal['Productos']);
+			
+	}
+	if (isset ($pedido)){
+		$style="";
+	}else{
+		$style="display:none;";
+	}
+	//~ echo $pedido_numero;	
 	$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-	?>
+	
+	//~ echo '<pre>';
+			//~ print_r($productos);
+			//~ echo '</pre>';
+		?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
@@ -78,10 +104,11 @@ include './../../head.php';
 		console.log("entre en el javascript");
 		<?php
 	$i= 0;
-	
 	foreach($productos as $product){
 	?>
-	datos=<?php echo json_encode($product); ?>;
+	//~ datos=<?php echo json_decode(json_encode($product), true); ?>;
+		datos=<?php echo json_encode($product); ?>;
+
 	//~ console.log (datos);
 	productos.push(datos);
 	//~ console.log(productos);
@@ -98,9 +125,14 @@ include './../../head.php';
 		?>
 </script>
 <?php 
+//~ foreach($productos as $product){
+
+	//~ $datos= json_encode($product); 
+
 //~ echo '<pre>';
-//~ print_r(array_reverse($productos));
+//~ print_r($datos);
 //~ echo '</pre>';
+//~ }
 ?>
 	</head>
 
@@ -158,7 +190,7 @@ include './../../head.php';
 			<div class="col-md-7">
 				<div class="col-md-6">
 					<strong>Fecha Pedido:</strong><br/>
-					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value=<?php echo $fecha;?> onkeydown="controlEventos(event)" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
 				<div class="col-md-6">
 					<strong>Estado:</strong>
@@ -199,7 +231,7 @@ include './../../head.php';
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		<tr id="Row0">  
+		<tr id="Row0" style=<?php echo $style;?>>  
 			<td id="C0_Linea" ></td>
 			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="13" value=""  onkeydown="controlEventos(event)"></td>
 			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
@@ -219,6 +251,38 @@ include './../../head.php';
 		</tbody>
 	  </table>
 	</div>
+	<?php 
+	if (isset($pedido['Productos'])){
+			// Ahora montamos base y ivas
+
+			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
+				switch ($iva){
+				case 4 :
+					$base4 = $basesYivas['base'];
+					$iva4 = $basesYivas['iva'];
+
+				break;
+				case 10 :
+					$base10 = $basesYivas['base'];
+					$iva10 = $basesYivas['iva'];
+				break;
+				case 21 :
+					$base21 = $basesYivas['base'];
+					$iva21 = $basesYivas['iva'];
+				break;
+				}
+			}
+	
+	?>
+		<script type="text/javascript">
+			total = <?php echo $Datostotales['total'];?>;
+			</script>
+			<?php
+			//~ echo '<pre>';
+			//~ print_r($Datostotales );
+			//~ echo '</pre>';
+		}
+	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
 		<thead>
@@ -231,37 +295,37 @@ include './../../head.php';
 		<tbody>
 			<tr id="line4">
 				<td id="tipo4">
-					
+					<?php echo (isset($base4) ? " 4%" : '');?>
 				</td>
 				<td id="base4">
-					
+					<?php echo (isset($base4) ? $base4 : '');?>
 				</td>
 				<td id="iva4">
-					
+					<?php echo (isset($iva4) ? $iva4 : '');?>
 				</td>
 				
 			</tr>
 			<tr id="line10">
 				<td id="tipo10">
-					
+					<?php echo (isset($base10) ? "10%" : '');?>
 				</td>
 				<td id="base10">
-					
+					<?php echo (isset($base10) ? $base10 : '');?>
 				</td>
 				<td id="iva10">
-					
+					<?php echo (isset($iva10) ? $iva10 : '');?>
 				</td>
 				
 			</tr>
 			<tr id="line21">
 				<td id="tipo21">
-					
+					<?php echo (isset($base21) ? "21%" : '');?>
 				</td>
 				<td id="base21">
-					
+					<?php echo (isset($base21) ? $base21 : '');?>
 				</td>
 				<td id="iva21">
-					
+					<?php echo (isset($iva21) ? $iva21 : '');?>
 				</td>
 				
 			</tr>
@@ -272,6 +336,7 @@ include './../../head.php';
 			<h3>TOTAL</h3>
 			</div>
 			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
+				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
 			</div>
 		</div>
 	</div>
@@ -283,7 +348,8 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
 
-$('#Codbarras').focus();
+$('#id_cliente').focus();
+
 </script>
 	</body>
 </html>

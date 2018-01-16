@@ -9,7 +9,6 @@
 
 
 $pulsado = $_POST['pulsado'];
-use Mike42\Escpos\Printer;
 
 include_once ("./../../configuracion.php");
 
@@ -55,10 +54,26 @@ switch ($pulsado) {
 		case 'añadirProductos';
 		$datos=$_POST['productos'];
 		$idTemporal=$_POST['idTemporal'];
-		$modProducto=$CcliPed->AddProducto($idTemporal,$datos );
-		$respuesta['estadoCon']=$modProducto;
+		//$respuesta['datos']=$datos;		
+		
+		$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+		$CalculoTotales = recalculoTotales($productos_para_recalculo);
+		$total=round($CalculoTotales['total'],2);
+		$respuesta['total']=$total;
+		$modProducto=$CcliPed->AddProducto($idTemporal,$datos , $total);
+		
+		$nuevoArray = array(
+						'desglose'=> $CalculoTotales['desglose'],
+						'total' => $CalculoTotales['total']
+							);
+		$respuesta['totales']=$nuevoArray;
+	//	$respuesta['estadoCon']=$modProducto;
+	//	$respuesta ['sql']=$modProducto['sql'];
+		echo json_encode($respuesta);
+
 		return $respuesta;
 		break;
+		
 			case 'HtmlLineaTicket';
 		$respuesta = array();
 		$product 					=$_POST['producto'];
