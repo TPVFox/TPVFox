@@ -2,6 +2,7 @@
 <html>
     <head>
         <?php
+		//cambio desde casa 
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
