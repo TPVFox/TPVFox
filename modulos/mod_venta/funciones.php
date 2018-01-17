@@ -345,7 +345,7 @@ function recalculoTotales($productos) {
 	$ivas = array();
 	$subtotal = 0;
 	$productosTipo=gettype($productos);
-	$respuesta['tipo']=$productosTipo;
+	//~ $respuesta['tipo']=$productosTipo;
 	// Creamos array de tipos de ivas hay en productos.
 	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
 	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.

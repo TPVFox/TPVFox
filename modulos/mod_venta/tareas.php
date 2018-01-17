@@ -59,6 +59,7 @@ switch ($pulsado) {
 		$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 		$CalculoTotales = recalculoTotales($productos_para_recalculo);
 		$total=round($CalculoTotales['total'],2);
+		
 		$respuesta['total']=$total;
 		$modProducto=$CcliPed->AddProducto($idTemporal,$datos , $total);
 		
@@ -67,8 +68,7 @@ switch ($pulsado) {
 						'total' => $CalculoTotales['total']
 							);
 		$respuesta['totales']=$nuevoArray;
-	//	$respuesta['estadoCon']=$modProducto;
-	//	$respuesta ['sql']=$modProducto['sql'];
+		
 		echo json_encode($respuesta);
 
 		return $respuesta;
@@ -90,7 +90,7 @@ switch ($pulsado) {
 		$dedonde = $_POST['dedonde'];
 		$idcaja=$_POST['idcaja'];
 		$tabla='clientes';
-		$numPedido=$_POST['numPedido'];
+		$numPedidoTemp=$_POST['numPedidoTemp'];
 		$idTienda=$_POST['idTienda'];
 		$idUsuario=$_POST['idUsuario'];
 		$estadoPedido=$_POST['estadoPedido'];
@@ -101,15 +101,15 @@ switch ($pulsado) {
 			//$res = BusquedaClientes($busqueda);
 		$res = BusquedaClientes($busqueda,$BDTpv,$tabla, $idcaja);
 		if ($res['Nitems']===1){
-			if ($numPedido>0){
+			if ($numPedidoTemp>0){
 				//Si el número de busquedas es uno quiere decir que la busqueda fue por id
-			$modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedido, $idTienda, $idUsuario, $estadoPedido);
+			$modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
 			$respuesta['sql']=$modCliente;
 			$respuesta['busqueda']=$busqueda;
-			$respuesta['numPedido']=$numPedido;
+			$respuesta['numPedidoTemp']=$numPedidoTemp;
 			}else{
 			$addCliente=$CcliPed->AddClienteTemp($busqueda, $idTienda, $idUsuario, $estadoPedido);
-			$respuesta['numPedido']=$addCliente;
+			$respuesta['numPedidoTemp']=$addCliente;
 		
 		}
 			//~ $respuesta=htmlClientesCajas($res['datos']);
@@ -134,18 +134,18 @@ switch ($pulsado) {
 		// Cuando la busqueda viene a traves de  la ventana modal
 		$id=$_POST['idcliente'];
 		$tabla='clientes';
-		$numPedido=$_POST['numPedido'];
+		$numPedidoTemp=$_POST['numPedidoTemp'];
 		$idTienda=$_POST['idTienda'];
 		$idUsuario=$_POST['idUsuario'];
 		$estadoPedido=$_POST['estadoPedido'];
-		if ($numPedido>0){
-			$modCliente=$CcliPed->ModClienteTemp($id, $numPedido, $idTienda, $idUsuario, $estadoPedido);
+		if ($numPedidoTemp>0){
+			$modCliente=$CcliPed->ModClienteTemp($id, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
 			$respuesta['sql']=$modCliente;
 			$respuesta['busqueda']=$id;
-			$respuesta['numPedido']=$numPedido;
+			$respuesta['numPedidoTemp']=$numPedidoTemp;
 			}else{
 			$addCliente=$CcliPed->AddClienteTemp($id, $idTienda, $idUsuario, $estadoPedido);
-			$respuesta['numPedido']=$addCliente;
+			$respuesta['numPedidoTemp']=$addCliente;
 		}
 		echo json_encode($respuesta);
 		break;

@@ -3,7 +3,7 @@
 <html>
 <head>
 <?php
-include './../../head.php';
+	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
@@ -11,12 +11,8 @@ include './../../head.php';
 	include '../../clases/cliente.php';
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
-	
-	
 	$todoTemporal=$Cpedido->TodosTemporal();
-	//~ echo '<pre>';
-	//~ print_r($todoTemporal);
-	//~ echo '</pre>';
+	$pedidosDef=$Cpedido->TodosPedidos();
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -30,9 +26,7 @@ include './../../head.php';
 		$stringPalabras = $_GET['buscar'];
 		$palabraBuscar = explode(' ',$_GET['buscar']); 
 	} 
-	
 	$Controler = new ControladorComun; 
-	
 	$vista = 'pedclit';
 	$LinkBase = './pedidosListado.php?';
 	$OtrosParametros = '';
@@ -48,7 +42,7 @@ if ($stringPalabras !== '' ){
 		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
-	}
+}
 $CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
@@ -64,12 +58,10 @@ if ($stringPalabras !== '' ){
 
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-    
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
 <?php
-
-	include '../../header.php';
-	?>
+include '../../header.php';
+?>
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
@@ -104,7 +96,6 @@ if ($stringPalabras !== '' ){
 				<?php 
 				if (isset ($todoTemporal)){
 					foreach ($todoTemporal as $pedidoTemp){
-				//		$cliente=$Ccliente->DatosClientePorId($pedidoTemp['idClientes']);
 					?>
 						<tr>
 						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
@@ -114,13 +105,11 @@ if ($stringPalabras !== '' ){
 						<?php
 					}
 				}
-				
 				?>
 			</tbody>
 		</table>
 		</div>
 			</nav>
-			
 			<div class="col-md-10">
 					<p>
 					 -Pedidos encontrados BD local filtrados:
@@ -136,8 +125,8 @@ if ($stringPalabras !== '' ){
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>
-				</form>
-						<div>
+					</form>
+					<div>
 			<table class="table table-bordered table-hover">
 				<thead>
 					<tr>
@@ -150,9 +139,31 @@ if ($stringPalabras !== '' ){
 						<th>IVA</th>
 						<th>TOTAL</th>
 						<th>ESTADO</th>
-
 					</tr>
 				</thead>
+				<tbody>
+					<?php 
+					$checkUser = 0;
+					foreach($pedidosDef as $pedido){
+						$checkUser = $checkUser + 1; 
+						?>
+						<tr>
+						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">
+						<td><?php echo $pedido['id'];?></td>
+						<td><?php echo $pedido['Numpedcli'];?></td>
+						<td><?php echo $pedido['FechaPedido'];?></td>
+						<td><?php echo $pedido['Nombre'];?></td>
+						<td></td>
+						<td></td>
+						<td><?php echo $pedido['total'];?></td>
+						<td><?php echo $pedido['estado'];?></td>
+						</tr>
+						<?php
+					}
+					?>
+				
+				
+				</tbody>
 				</table>
 			</div>
 		</div>

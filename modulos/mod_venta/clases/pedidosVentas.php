@@ -111,10 +111,10 @@ class PedidosVentas{
 		$id=$db->insert_id;
 		return $id;
 	}
-	public function ModClienteTemp($idCLiente, $numPedido, $idTienda, $idUsuario, $estadoPedido){
+	public function ModClienteTemp($idCLiente, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido){
 		$db = $this->db;
-		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedido);
-		$sql='UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedido;
+		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedidoTemp);
+		//$sql='UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedido;
 		return $sql;
 	}
 	public function BuscarIdTemporal($idTemporal){
@@ -145,6 +145,68 @@ class PedidosVentas{
 		return $pedidosPrincipal;
 		
 	}
+	
+	public function AddPedidoGuardado($datos){
+		$db = $this->db;
+		$smt = $db->query ('INSERT INTO pedclit (Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
+		$id=$db->insert_id;
+		$smt = $db->query('UPDATE pedclit SET Numpedcli  = '.$id.' WHERE id ='.$id);
+		$productos = json_decode($datos['productos'], true); 
+		foreach ( $productos as $prod){
+			if ($prod['codBarras']){
+				$codBarras=$prod['codBarras'];
+			}else{
+				$codBarras=0;
+			}
+			$smt=$db->query('INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '.$prod['crefTienda'].', '.$codBarras.', "'.$prod['articulo_name'].'", '.$prod['cant'].' , '.$prod['cant'].', '.$prod['pvpCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" )' );
+		}
+		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
+			$smt=$db->query('INSERT INTO pedcliIva (idpedcli ,  Numpedcli , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+		}
+		
+		return $resultado;
+	}
+	public function TodosPedidos(){
+		$db=$this->db;
+		$smt=$db->query('SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
+		$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
+	}
+	
+	public function EliminarRegistroTemporal($idTemporal){
+		$db=$this->db;
+		$smt=$db->query('DELETE FROM pedcliltemporales WHERE id='.$idTemporal);
+	}
+	public function datosPedidos($idPedido){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM pedclit WHERE id= '.$idPedido );
+		if ($result = $smt->fetch_assoc () ){
+			$pedido=$result;
+		}
+		return $pedido;
+	}
+	public function ProductosPedidos($idPedido){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM pedclilinea WHERE idpedcli= '.$idPedido );
+		$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
+	}
+	public function IvasPedidos($idPedido){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM pedcliIva WHERE idpedcli= '.$idPedido );
+		$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
+	}
+	
 }
 
 ?>

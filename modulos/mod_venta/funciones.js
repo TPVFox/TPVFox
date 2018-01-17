@@ -39,7 +39,7 @@ function metodoClick(pulsado,adonde){
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
 		case 'Ver':
-			console.log('Entro en Ver producto');
+			console.log('Entro en Ver pedido');
 			// Cargamos variable global ar checkID = [];
 			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
@@ -100,7 +100,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		"busqueda" : valor,
 		"dedonde":dedonde,
 		"idcaja":idcaja,
-		"numPedido":cabecera.numPedido,
+		"numPedidoTemp":cabecera.numPedidoTemp,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
 		"estadoPedido":cabecera.estadoPedido
@@ -166,13 +166,13 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		
 		}else{
 			console.log('no muestro modal');
-			console.log(resultado.numPedido);
+			console.log(resultado.numPedidoTemp);
 			$('#Cliente').val(resultado.nombre);
-			if (resultado.numPedido>0){
+			if (resultado.numPedidoTemp>0){
 				console.log("entre");
 				mostrarFila();
-				history.pushState(null,'','?tActual='+resultado.numPedido);
-				cabecera.numPedido=parseInt(resultado.numPedido);
+				history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
+				cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
 			}
 		}
 			
@@ -453,7 +453,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		"campo"      : campo,
 		"dedonde"    : dedonde,
 		"idcaja"	 :idcaja,
-		"idTemporal":cabecera.numPedido,
+		"idTemporal":cabecera.numPedidoTemp,
 		"productos":productos
 	};
 	$.ajax({
@@ -521,7 +521,7 @@ function addProductoTemp(){
 	console.log('Entro en añadir productos');
 	var parametros = {
 		"pulsado"    : 'añadirProductos',
-		"idTemporal":cabecera.numPedido,
+		"idTemporal":cabecera.numPedidoTemp,
 		"productos":productos
 	};
 	console.log(productos);
@@ -764,13 +764,13 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 	var parametros = {
 		"pulsado"    : 'escribirCliente',
 		"idcliente":id,
-		"numPedido":cabecera.numPedido,
+		"numPedidoTemp":cabecera.numPedidoTemp,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
 		"estadoPedido":cabecera.estadoPedido
 		
 	};
-	console.log(cabecera.numPedido);
+	console.log(cabecera.numPedidoTemp);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -783,8 +783,8 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 			 var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html; 
-			history.pushState(null,'','?tActual='+resultado.numPedido);
-			cabecera.numPedido=parseInt(resultado.numPedido);
+			history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
+			cabecera.numPedido=parseInt(resultado.numPedidoTemp);
 			mostrarFila();
 			
 	cerrarPopUp(); // Destino no indicamo ya que no sabes...
@@ -933,13 +933,23 @@ function sobreFilaCraton(cont){
 }
 
 function mover_down(fila,prefijo){
+	console.log("entro en mover down");
+	console.log(fila);
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
-	ponerFocus(d_focus);
+	if ( document.getElementById(d_focus) ) {
+		ponerFocus(d_focus);
+	}else{
+		ponerFocus("idArticulo");
+	}	
+	
 	
 }
 
 function mover_up(fila,prefijo){
+	console.log("entro en mover up");
+	console.log(fila);
+	
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 	ponerFocus(d_focus);
