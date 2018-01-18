@@ -67,7 +67,7 @@ include '../../header.php';
 			<div class="col-md-12 text-center">
 					<h2> Pedidos de clientes: Editar y Añadir pedidos </h2>
 				</div>
-					<nav class="col-sm-2">
+					<nav class="col-sm-3">
 				<h4> Pedidos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -86,7 +86,8 @@ include '../../header.php';
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>Nº</th>
+					<th>Nº Temp</th>
+					<th>Nº Ped</th>
 					<th>Cliente</th>
 					<th>Total</th>
 				</tr>
@@ -96,9 +97,16 @@ include '../../header.php';
 				<?php 
 				if (isset ($todoTemporal)){
 					foreach ($todoTemporal as $pedidoTemp){
+						if ($pedidoTemp['idPedcli']){
+							$numPedido=$Cpedido->buscarNumPedido($pedidoTemp['idPedcli']);
+							$numPed=$numPedido['Numpedcli'];
+					}else{
+						$numPed="";
+					}
 					?>
 						<tr>
 						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
+						<td><?php echo $numPed;?></td>
 						<td><?php echo $pedidoTemp['idClientes'];?></td>
 						<td><?php echo number_format($pedidoTemp['total'],2);?></td>
 						</tr>
@@ -110,7 +118,7 @@ include '../../header.php';
 		</table>
 		</div>
 			</nav>
-			<div class="col-md-10">
+			<div class="col-md-9">
 					<p>
 					 -Pedidos encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>
@@ -131,7 +139,7 @@ include '../../header.php';
 				<thead>
 					<tr>
 						<th></th>
-						<th>ID</th>
+						
 						<th>Nª PEDIDO</th>
 						<th>FECHA</th>
 						<th>CLIENTE</th>
@@ -139,24 +147,33 @@ include '../../header.php';
 						<th>IVA</th>
 						<th>TOTAL</th>
 						<th>ESTADO</th>
+						<th>TEMPORALES</th>
 					</tr>
 				</thead>
 				<tbody>
 					<?php 
 					$checkUser = 0;
 					foreach($pedidosDef as $pedido){
-						$checkUser = $checkUser + 1; 
+						$checkUser = $checkUser + 1;
+						$cantTemporal=$Cpedido->contarPedidosTemporal($pedido['id']);
+						if ($cantTemporal['numPedTemp']>0){
+							$cantTemp=$cantTemporal['numPedTemp'];
+						}else{
+							$cantTemp="";
+						}
+						$totaliva=$Cpedido->sumarIva($pedido['Numpedcli']);
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">
-						<td><?php echo $pedido['id'];?></td>
+					
 						<td><?php echo $pedido['Numpedcli'];?></td>
 						<td><?php echo $pedido['FechaPedido'];?></td>
 						<td><?php echo $pedido['Nombre'];?></td>
-						<td></td>
-						<td></td>
+						<td><?php echo $totaliva['totalbase'];?></td>
+						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $pedido['total'];?></td>
 						<td><?php echo $pedido['estado'];?></td>
+						<td><?php echo $cantTemp;?></td>
 						</tr>
 						<?php
 					}

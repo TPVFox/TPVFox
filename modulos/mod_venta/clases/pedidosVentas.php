@@ -2,7 +2,6 @@
 class PedidosVentas{
 	private $db;
 	private $num_rows;
-	
 	private $idPedido;
 	private $numeroPedido;
 	private $numTempPedido;
@@ -96,6 +95,7 @@ class PedidosVentas{
 		$this->totalPedido=$datos['total'];
 		$this->totalIvasTemp=$datos['total_ivas'];
 		$this->productosTemp=$datos['Productos'];
+		$this->idPedido=$datos['idPedcli'];
 	}
 	
 		public function consulta($sql){
@@ -103,20 +103,41 @@ class PedidosVentas{
 		$smt = $db->query($sql);
 		return $smt;
 	}
-	
+	//Añade un nuevo registro a la tabla temporal
 	public function AddClienteTemp($idCliente, $idTienda, $idUsuario, $estadoPedido){
 		$db = $this->db;
 		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'")');
 		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'")';
 		$id=$db->insert_id;
-		return $id;
+		$respuesta['id']=$id;
+		$respuesta['sql']=$sql;
+		return $respuesta;
+		
 	}
+	//Añade un nuevo regustro a la tabla temporal de un pedido que ya esta guardado
+	public function AddClienteTempPedidoGuardado($idCliente, $idTienda, $idUsuario, $estadoPedido, $idPedido){
+		$db = $this->db;
+		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'", '.$idPedido.')');
+		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'", '.$idPedido.')';
+		$id=$db->insert_id;
+		$respuesta['id']=$id;
+		$respuesta['sql']=$sql;
+		return $respuesta;
+	}
+	//Modifica los datos bases de un registro en la tabla temporal
 	public function ModClienteTemp($idCLiente, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido){
 		$db = $this->db;
-		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedidoTemp);
-		//$sql='UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedido;
+		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedidoTemp);		
 		return $sql;
 	}
+	//Modifica los el numero de pedido guardado en la tabla temporal
+	public function ModNumPedidoTtemporal($idTemporal, $idPedido){
+		$db = $this->db;
+		$smt = $db->query ('UPDATE pedcliltemporales set idPedcli ='.$idPedido.' WHERE id='.$idTemporal);
+		$sql='UPDATE pedcliltemporales set idPedcli ='.$idPedido.' WHERE id='.$idTemporal;
+		return $sql;
+	}
+	//Busca todos los campos de un registro en la tabla temporal
 	public function BuscarIdTemporal($idTemporal){
 		$db = $this->db;
 		$smt = $db->query ('SELECT * from pedcliltemporales WHERE id='.$idTemporal);
@@ -124,8 +145,9 @@ class PedidosVentas{
 			$pedido=$result;
 		}
 		return $pedido;
-	}
 	
+	}
+	//Añade a la tabla temporal los productos en json
 	public function AddProducto($idTemporal, $productos, $total){
 		$total=round($total, 2);
 		$UnicoCampoProductos=json_encode($productos);
@@ -135,6 +157,7 @@ class PedidosVentas{
 		$resultado="Correcto Add Id";
 		return $resultado;
 	}
+	//Muestra todos los temporales
 	public function TodosTemporal(){
 			$db = $this->db;
 			$smt = $db->query ('SELECT * from pedcliltemporales');
@@ -145,12 +168,18 @@ class PedidosVentas{
 		return $pedidosPrincipal;
 		
 	}
-	
-	public function AddPedidoGuardado($datos){
+	//Añade un registro de un pedido ya guardado en pedidos . Si el numero del pedido es mayor  de 0 o sea que hay un registro en pedidos 
+	//lo añade a la tabla temporal si no añade un registro normal a la tabla pedido
+	public function AddPedidoGuardado($datos, $idPedido){
 		$db = $this->db;
+		if ($idPedido>0){
+		$smt = $db->query ('INSERT INTO pedclit (Numpedcli , Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
+		$id=$db->insert_id;
+		}else{
 		$smt = $db->query ('INSERT INTO pedclit (Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
 		$id=$db->insert_id;
 		$smt = $db->query('UPDATE pedclit SET Numpedcli  = '.$id.' WHERE id ='.$id);
+		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
 			if ($prod['codBarras']){
@@ -158,14 +187,26 @@ class PedidosVentas{
 			}else{
 				$codBarras=0;
 			}
+			if ($idPedido>0){
+			$smt=$db->query('INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$idPedido.' , '.$prod['idArticulo'].', '.$prod['crefTienda'].', '.$codBarras.', "'.$prod['articulo_name'].'", '.$prod['cant'].' , '.$prod['cant'].', '.$prod['pvpCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" )' );
+
+			}else{
 			$smt=$db->query('INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '.$prod['crefTienda'].', '.$codBarras.', "'.$prod['articulo_name'].'", '.$prod['cant'].' , '.$prod['cant'].', '.$prod['pvpCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" )' );
 		}
+		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
+			if($idPedido>0){
+			$smt=$db->query('INSERT INTO pedcliIva (idpedcli ,  Numpedcli , iva , importeIva, totalbase) VALUES ('.$id.', '.$idPedido.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+
+			}else{
 			$smt=$db->query('INSERT INTO pedcliIva (idpedcli ,  Numpedcli , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+
+			}
 		}
 		
 		return $resultado;
 	}
+	//Todos los pedidos guardados
 	public function TodosPedidos(){
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
@@ -175,11 +216,16 @@ class PedidosVentas{
 		}
 		return $pedidosPrincipal;
 	}
-	
-	public function EliminarRegistroTemporal($idTemporal){
+	// Cuando un pedido pasa de temporal a pedidos se borran los registros temporales
+	public function EliminarRegistroTemporal($idTemporal, $idPedido){
 		$db=$this->db;
-		$smt=$db->query('DELETE FROM pedcliltemporales WHERE id='.$idTemporal);
+		if ($idPedido>0){
+			$smt=$db->query('DELETE FROM pedcliltemporales WHERE idPedcli='.$idPedido);
+		}else{
+			$smt=$db->query('DELETE FROM pedcliltemporales WHERE id='.$idTemporal);
+		}
 	}
+	//Mostrar todos los datos de un pedido
 	public function datosPedidos($idPedido){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedclit WHERE id= '.$idPedido );
@@ -188,6 +234,7 @@ class PedidosVentas{
 		}
 		return $pedido;
 	}
+	//Busca los articulos de un pedido
 	public function ProductosPedidos($idPedido){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedclilinea WHERE idpedcli= '.$idPedido );
@@ -197,6 +244,7 @@ class PedidosVentas{
 		}
 		return $pedidosPrincipal;
 	}
+	//Busca de la tabla pedcliIva todos los registros de un pedido
 	public function IvasPedidos($idPedido){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedcliIva WHERE idpedcli= '.$idPedido );
@@ -205,6 +253,39 @@ class PedidosVentas{
 			array_push($pedidosPrincipal,$result);
 		}
 		return $pedidosPrincipal;
+	}
+	//
+	public function eliminarPedidoTablas($idPedido){
+		$db=$this->db;
+		$smt=$db->query('DELETE FROM pedclit where id='.$idPedido );
+		$smt=$db->query('DELETE FROM pedclilinea where idpedcli='.$idPedido );
+		$smt=$db->query('DELETE FROM pedcliIva where idpedcli='.$idPedido );
+		
+	}
+	public function contarPedidosTemporal($idPedido){
+		$db=$this->db;
+		$smt=$db->query('Select count(id) as numPedTemp FROM pedcliltemporales where idPedcli='.$idPedido );
+
+		if ($result = $smt->fetch_assoc () ){
+			$pedido=$result;
+		}
+		return $pedido;
+		}
+	public function sumarIva($numPedido){
+		$db=$this->db;
+		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from pedcliIva where Numpedcli ='.$numPedido);
+		if ($result = $smt->fetch_assoc () ){
+			$pedido=$result;
+		}
+		return $pedido;
+	}
+	public function buscarNumPedido($idPedidoTemporal){
+		$db=$this->db;
+		$smt=$db->query('select  Numpedcli from pedclit where id='.$idPedidoTemporal);
+		if ($result = $smt->fetch_assoc () ){
+			$pedido=$result;
+		}
+		return $pedido;
 	}
 	
 }

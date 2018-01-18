@@ -94,7 +94,8 @@ function buscarClientes(dedonde, idcaja, valor=''){
 	//	valor -> Sería el valor caja del propio modal
 
 	console.log('FUNCION buscarClientes JS-AJAX');
-	console.log(idcaja);
+	console.log(cabecera);
+	
 	var parametros = {
 		"pulsado"    : 'buscarClientes',
 		"busqueda" : valor,
@@ -103,7 +104,8 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		"numPedidoTemp":cabecera.numPedidoTemp,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estadoPedido
+		"estadoPedido":cabecera.estadoPedido,
+		"idPedido":cabecera.idPedido
 		
 	};
 	
@@ -120,7 +122,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-		
 	if (valor==""){
 			var titulo = 'Listado clientes ';
 			abrirModal(titulo,HtmlClientes);
@@ -166,7 +167,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		
 		}else{
 			console.log('no muestro modal');
-			console.log(resultado.numPedidoTemp);
 			$('#Cliente').val(resultado.nombre);
 			if (resultado.numPedidoTemp>0){
 				console.log("entre");
@@ -174,6 +174,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
 				cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
 			}
+			console.log(resultado.numPedidoTemp);
 		}
 			
 		}
@@ -402,13 +403,11 @@ function before_constructor(caja){
 			caja.parametros.campo = cajaDescripcion.parametros.campo;
 		}
 	}
-	
 	if (caja.id_input.indexOf('N_') >-1){
 		console.log(' Entro en Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(2);
 		console.log(caja.fila);
 	}
-	
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
 		caja.parametros.item_max = productos.length;
 		caja.fila = caja.id_input.slice(12);
@@ -467,9 +466,12 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
 					console.log(resultado);
-					
-			
-			
+					if (cabecera.numPedidoTemp==0){
+						var idCliente=$('#id_cliente').val();
+						console.log(idCliente);
+						console.log('----- voy a escribir aaaaaaaaaaaaaa cliente seleccionado -----');
+						AddTemp(idCliente);
+					}
 					
 				if (resultado['Nitems']===1){
 					console.log('Estado'+resultado['Estado']);
@@ -488,6 +490,8 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					console.log(datos);
 					productos.push(datos);
 					var num_item=datos['nfila'];
+					$
+					
 					
 					addProductoTemp();
 					agregarFilaProducto(num_item);
@@ -533,7 +537,7 @@ function addProductoTemp(){
 			console.log('*********  Envio datos para Añadir productos  ****************');
 		},
 		success    :  function (response) {
-			var resultado =  $.parseJSON(response);
+		var resultado =  $.parseJSON(response);
 		console.log(resultado);
 			
 			$('#tipo4').html('');
@@ -767,10 +771,10 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 		"numPedidoTemp":cabecera.numPedidoTemp,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estadoPedido
+		"estadoPedido":cabecera.estadoPedido,
+		"idPedido":cabecera.idPedido
 		
 	};
-	console.log(cabecera.numPedidoTemp);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -780,11 +784,11 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de añadir cliente');
-			 var resultado =  $.parseJSON(response); 
+			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html; 
 			history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
-			cabecera.numPedido=parseInt(resultado.numPedidoTemp);
+			cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
 			mostrarFila();
 			
 	cerrarPopUp(); // Destino no indicamo ya que no sabes...
@@ -847,6 +851,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	console.log("dentro de productos");
 	console.log(productos);
 	var num_item=datos['nfila'];
+	
 	addProductoTemp();
 	console.log(num_item);
 	agregarFilaProducto(num_item);
@@ -959,5 +964,33 @@ function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 	console.log("realizo funcion");
+}
+function AddTemp(id){
+	console.log("-------------- estoy en add temp -----------");
+	var parametros = {
+		"pulsado"    : 'escribirCliente',
+		"idcliente":id,
+		"numPedidoTemp":cabecera.numPedidoTemp,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estadoPedido":cabecera.estadoPedido,
+		"idPedido":cabecera.idPedido
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en añadir cliente JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir cliente');
+			var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlClientes=resultado.html; 
+			history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
+			cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
+		}
+	});
 }
 
