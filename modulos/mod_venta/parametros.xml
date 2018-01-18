@@ -57,7 +57,7 @@
 				<action tecla="13">buscarProductos</action>
 				<action tecla="39">saltar_Referencia</action>
 				<action tecla="38">saltar_nombreClienteArticulo</action>
-				<action tecla=" 9">saltar_idArticulo</action>
+				<action tecla=" 9">saltar_Referencia</action>
 				<action tecla="40">saltar_productos</action>
 				<action tecla="37">saltar_idCliente</action>
 			</teclas>
@@ -70,7 +70,7 @@
 			<nombre id_input="Referencia">cajaReferencia</nombre>
 			<teclas>
 				<action tecla="13">buscarProductos</action>
-				<action tecla="40">saltar_productos</action>
+				<action tecla="38">saltar_nombreClienteArticulo</action>
 				<action tecla=" 9">saltar_CodBarras</action>
 				<action tecla="37">saltar_idArticulo</action>
 				<action tecla="39">saltar_CodBarras</action>
@@ -89,10 +89,10 @@
 			<nombre id_input="Codbarras">cajaCodBarras</nombre>
 			<teclas>
 				<action tecla="13">buscarProductos</action>
-				<action tecla="40">saltar_productos</action>
-				<action tecla=" 9">saltar_Referencia</action>
-				<action tecla="39">saltar_Referencia</action>
-				<action tecla="112">cobrar</action>
+				<action tecla="38">saltar_nombreClienteArticulo</action>
+				<action tecla=" 9">saltar_Descripcion</action>
+				<action tecla="39">saltar_Descripcion</action>
+				<action tecla="37">saltar_Referencia</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
@@ -100,29 +100,11 @@
 			</parametros> 
 		</caja_input>
 		<caja_input>
-			<nombre id_input="Referencia">cajaReferencia</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="40">saltar_productos</action>
-				<action tecla=" 9">saltar_Descripcion</action>
-				<action tecla="37">saltar_CodBarras</action>
-				<action tecla="39">saltar_Descripcion</action>
-				<action tecla="112">cobrar</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
-				<parametro nombre="campo">at.crefTienda</parametro>  
-			</parametros> 
-		</caja_input>
-		<caja_input>
 			<nombre id_input="Descripcion">cajaDescripcion</nombre>
 			<teclas>
 				<action tecla="13">buscarProductos</action>
-				<action tecla="40">saltar_productos</action>
-				<action tecla=" 9">saltar_CodBarras</action>
-				<action tecla="37">saltar_Referencia</action>
-				<action tecla="39">saltar_CodBarras</action>
-				<action tecla="112">cobrar</action>
+				<action tecla="37">saltar_CodBarras</action>
+				<action tecla="38">saltar_nombreClienteArticulo</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
@@ -165,10 +147,9 @@
 		<caja_input>
 			<nombre id_input="Unidad_Fila">Unidad_Fila</nombre>
 			<teclas>
-				<action tecla="13">recalcular_ticket</action>
+				<action tecla="13">recalcular_totalProducto</action>
 				<action tecla="40">mover_up</action>
 				<action tecla="38">mover_down</action>
-				<action tecla="112">cobrar</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
@@ -182,6 +163,11 @@
 				<estado>Si</estado>
 			</before>
 		</caja_input>
+
+
+
+
+
 		<caja_input>
 			<nombre id_input="entrega">entrega</nombre>
 			<teclas>

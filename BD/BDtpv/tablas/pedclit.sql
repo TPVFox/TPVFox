@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 09, 2018 at 08:55 PM
+-- Generation Time: Jan 17, 2018 at 10:38 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -28,16 +28,16 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `pedclit` (
   `id` int(11) NOT NULL,
-  `Numpedcli` int(11) NOT NULL,
+  `Numpedcli` int(11) DEFAULT NULL,
   `Numtemp_pedcli` int(11) NOT NULL,
   `FechaPedido` date NOT NULL,
   `idTienda` int(11) NOT NULL,
   `idUsuario` int(11) NOT NULL,
   `idCliente` int(11) NOT NULL,
-  `estado` varchar(12) NOT NULL,
-  `formaPago` varchar(12) NOT NULL,
-  `entregado` decimal(17,2) NOT NULL,
-  `total` decimal(17,2) NOT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `formaPago` varchar(12) DEFAULT NULL,
+  `entregado` decimal(17,2) DEFAULT NULL,
+  `total` decimal(17,2) DEFAULT NULL,
   `fechaCreacion` datetime DEFAULT NULL,
   `fechaModificacion` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

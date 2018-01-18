@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 09, 2018 at 12:45 AM
+-- Generation Time: Jan 17, 2018 at 10:38 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -31,11 +31,11 @@ CREATE TABLE `pedclilinea` (
   `idpedcli` int(11) NOT NULL,
   `Numpedcli` int(11) NOT NULL,
   `idArticulo` int(11) NOT NULL,
-  `cref` varchar(18) NOT NULL,
-  `ccodbar` varchar(18) NOT NULL,
+  `cref` varchar(18) DEFAULT NULL,
+  `ccodbar` varchar(18) DEFAULT NULL,
   `cdetalle` varchar(100) NOT NULL,
-  `ncant` decimal(17,6) NOT NULL,
-  `nunidades` decimal(17,6) NOT NULL,
+  `ncant` decimal(17,6) DEFAULT NULL,
+  `nunidades` decimal(17,6) DEFAULT NULL,
   `precioCiva` decimal(17,2) NOT NULL,
   `iva` decimal(4,2) NOT NULL,
   `nfila` int(11) NOT NULL,
