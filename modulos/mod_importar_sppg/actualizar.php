@@ -59,7 +59,6 @@
 <?php 
 	include './../../header.php';
 	include_once ("./funciones.php");
-	//~ include_once ("./classTabla.php");
 
 // ---------------  Montamos array campos que obtenemos XML parametros   ------------- //
 	$campos = array();
@@ -71,46 +70,46 @@
 	//~ echo '<pre>';
 	//~ print_r($parametros->tablas->tabla);
 	//~ echo '</pre>';
-	
-	
-	$tabla_importar = TpvXMLtablaImportar($parametros,$tabla);
-	$objConsultas = $Newparametros->setRoot($tabla_importar);
+	$parametros_importar = TpvXMLtablaImportar($parametros,$tabla);
+	$objConsultas = $Newparametros->setRoot($parametros_importar);
 	//~ echo '<pre>';
 	//~ print_r($parametros);
 	//~ echo '</pre>';
-	
-	$consultas = $Newparametros->Xpath('consultas//consulta[@tipo="obtener"]','Valores');
-	
+	// Montamos Array parametros de comprobaciones.
+	$parametros__comprobaciones = array();
+	$parametros_comprobaciones['Mismo'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Mismo"]');
+	$parametros_comprobaciones['Similar'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Similar"]');
+	$parametros_comprobaciones['NoEncontrado'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="NoEncontrado"]');
+
+	//~ $parametros_comprobaciones['Mismo'] = $Xml_comprobaciones
 	
 // -------- Obtenemos los campos de la tabla importar ----------- //
-	foreach ($tabla_importar->campos->children() as $campo){;
+// Recuerda que en el Xml tabla debe tener algun campo como tipo= Unico para poder identificarlo correctamente
+	$campos = array();
+	foreach ($parametros_importar->campos->children() as $campo){;
 		$nombre_campo =(string) $campo['nombre'];
 		if (isset($campo->tipo)){
 			if ((string) $campo->tipo === 'Unico'){
 				$datos_tablas['importar']['campos'][]=$nombre_campo;
 			}
 		}
-		$x = 0;
-		foreach ($campo->action as $action) {
-			// obtenemos las acciones para encontrar
-			$campos[$nombre_campo]['acciones_buscar'][$x]['funcion'] = (string) $action['funcion'];
-			$campos[$nombre_campo]['acciones_buscar'][$x]['tabla_cruce'] =(string) $action['tabla_cruce'];
-			$campos[$nombre_campo]['acciones_buscar'][$x]['campo_cruce'] =(string) $action['campo_cruce'];
-			$campos[$nombre_campo]['acciones_buscar'][$x]['description'] =(string) $action['description'];
-			$x++;
-		}
+		// Creamos array campos que utilizamos para BuscarIgualSimilar
+		$campos[$nombre_campo] = CamposAccionesImportar($campo);
 	}
-
+	//~ echo '<pre>';
+		//~ print_r($campos);
+	//~ echo '</pre>';
 // --------- Obtenemos los parametross tpv que para inserta,modificar datos en tpv --------- //
-	$parametros_tpv = TpvXMLtablaTpv($tabla_importar);
+
+	$parametros_tpv = TpvXMLtablaTpv($parametros_importar);
 	$datos_tablas['tpv'] =$parametros_tpv['tpv'];
-	$datos_tablas['tablas']['tpv'] =$parametros_tpv['tablas']['tpv'];
+// -----------  Obtenemos el nombre de las tablas que tenemos en elemento tpv ------------ //
+// Pueden ser varias....
+	$datos_tablas['tablas']['tpv'] = $Newparametros->Xpath('tpv/tabla/nombre','Valores');
 
-	echo '<pre>';
-		print_r($datos_tablas);
-	echo '</pre>';
-
-
+	//~ echo '<pre>';
+		//~ print_r($datos_tablas['tpv']);
+	//~ echo '</pre>';
 
 // ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
 	$tiposRegistros = array();
@@ -121,9 +120,9 @@
 			$tiposRegistros[$clase]['consulta']= (string) $tipo->consulta;
 		}
 	}
-
-
-// ----------- Obtenemos registros sin tratar y hacemos resumen registros por su estado -------------- //
+	
+	
+// ----------- Obtenemos registros sin tratar y hacemos resumen resto de registros por su estado -------------- //
 	$Registros_sin = array();
 	foreach ( $tiposRegistros as $key => $tipo){
 		$resultado = $Controler->contarRegistro($BDImportDbf,$tabla,$tipo['consulta']);
@@ -139,26 +138,72 @@
 			$Registros_sin['importar'] = $resultado['Items'];
 		}
 	}
-// ---  Comprobamos si los registros sin tratar existe y son iguales o similares en tpv. --- //
+// ---  Obtenemos los parametros de comprobaciones de cada fichero --- //
+	
+// ---  Realizamos comprobaciones y montamos parametros para cada registro.  -------------- //
 	$registros_tpv = array();
+	
+	echo '<pre>';
+	print_r($parametros_comprobaciones['Mismo'][0]->procesos->before->action);
+	echo '</pre>';
+		
 	$comprobaciones = array();
 	foreach ($Registros_sin['importar'] as $item=>$registro){
-		// Montamos variable JS que enviaremos para identificar el registro importar
-
-		// Ahora buscamos un registro similar o igual en Tpv
-		$respuesta = BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro);
+		// Comprobamos si los registros sin tratar existe ( mismo) o similar en tpv. --- //
+		$respuesta = BuscarIgualSimilar($BDTpv,$campos,$registro);
 		// Añadimos array las repuestas.
-		$comprobaciones[$item] = $respuesta['comprobacion'];
+		$comprobaciones[$item]['resultado'] = $respuesta['comprobacion'];
+		$resultado_b = $comprobaciones[$item]['resultado']['encontrado_tipo'];
+		// Montamos botonera de opciones generales con JS
+		$comprobaciones[$item]['opt_generales'] = MontarHtmlOpcionesGenerales($parametros_comprobaciones,$resultado_b,$item);
+		$Xmlfunciones = $parametros_comprobaciones[$resultado_b][0]->procesos->before->action;
+		if (count($Xmlfunciones)){
+			$comprobaciones[$item]['proceso_before'] = BeforeProcesosOpcionesGeneralesComprobaciones($Xmlfunciones,$item);
+		}
 		if (isset($respuesta['tpv'])){
 			//Quiere decir que encontro uno igual o similares
+			// Comprobamos que solo tengamos una respuesta ya que sino será similar.
+			if (count($respuesta['tpv']['NItems'] >1)){
+				if ($comprobaciones[$item]['resultado']['encontrado_tipo'] = "Mismo"){
+					// Cambiamos dato a similar y marcamos registro comprobaciones como error.
+					$comprobaciones[$item]['resultado']['encontrado_tipo'] ="Similar";
+					$comprobaciones[$item]['estado'] = 'Error - Cambio tipo encontrado Similar';
+				}
+			}
 			// Hay que tener que igual es igual en campo que consideramos que es suficientemente 
-			// identificador para decir que es mismo, pero no sabemos que si se modifico algún campo.
-			$registros_tpv[$item]=$respuesta['tpv'];
-			// Ahora comprobamos si hay alguno igual de 
-			// -- Si encontro similar o igual --
-			// Comprobamos que los datos sean iguales 
-			
+			// identificador para decir que es el mismo, pero no sabemos que si se modifico algún campo.
+			$procesos = 'Si' ; // De momento entiendo que siempre 
+			if ($comprobaciones[$item]['resultado']['encontrado_tipo']= "Mismo"){
+				// Debería:
+				//  - procesos de comprobaciones = Mismo
+				
+				$procesos = 'Si' ; // Mientras no hago las diferencias.
+			}
+			if ($procesos === 'Si'){
+				$registros_tpv[$item]=$respuesta['tpv'];
+			}
 		}
+		// Montamos Variables JS para cada Item
+		$datos = array();
+		foreach ($datos_tablas['importar']['campos'] as $campo){
+			if (isset($registro[$campo])){ 
+				$datos['importar'][] = array ( $campo =>$registro[$campo]);
+			}
+		}
+		if (isset($datos_tablas['tpv']['campos'])){
+			foreach ($datos_tablas['tpv']['campos'] as $campo){
+				if (isset($registros_tpv[$item])){
+					// Quiere decir que hemos encontrado datos..
+					// Si Nitems encontrado es uno.
+					if ($registros_tpv[$item]['NItems'] === 1){ 
+						$datos['tpv'][] = array ( $campo =>$registros_tpv[$item]['Items'][0][$campo]);
+					}
+				}
+			}
+		}
+		$comprobaciones[$item]['JS'] = $datos;
+		
+		
 	}
 	//~ echo '<pre>';
 	//~ print_r($Registros_sin);
@@ -192,40 +237,19 @@
 			<div class="col-md-12">
 				<h3>Registro: <?php echo $item;?></h3>
 				<div class="text-right">
-					<select id="accion_general_<?php echo $item?>">
-						<option value="Nuevo">Crear nuevo</option>
-						<?php 
-						if ($comprobaciones[$item]['encontrado_tipo'] !== 'No existe mismo-Ni similar'){?>
-								<option value="Modificado">Aplicar cambios - Modificar</option>
-						<?php } ?>
-						<option value="Descartado" selected="true">Descartar</option>
-					</select> 
 					<?php 
+					echo $comprobaciones[$item]['opt_generales'];
 					// Montamos variables JS para poder buscar el registro de la tabla import
-					$datos = array();
-					foreach ($datos_tablas['importar']['campos'] as $campo){
-						if (isset($registro_sin[$campo])){ 
-							$datos['importar'][] = array ( $campo =>$registro_sin[$campo]);
-						}
-					}
-					if (isset($datos_tablas['tpv']['campos'])){
-						foreach ($datos_tablas['tpv']['campos'] as $campo){
-							if (isset($registros_tpv[$campo])){ 
-								$datos['tpv'][] = array ( $campo =>$registro_sin[$campo]);
-							}
-						}
-					}
-					
-					echo '<script>';
+					echo '<script type="text/javascript">';
 					// Añadimos registros datos a variable global.
 					echo "registros.tpv[".$item."] = [];";
 					echo "registros.importar[".$item."] = [];";
-					foreach ($datos as $tipo =>$dato){
+					foreach ($comprobaciones[$item]['JS'] as $tipo=>$dato){
 						echo "registros.".$tipo."[".$item."].push(".json_encode($dato).");";
 					}
 					echo '</script>';
 					// Ahora controlamos si hubo campos import por lo menos, sino muestro un error
-					if (count($datos['importar']>0)){
+					if (count($comprobaciones[$item]['JS']['importar']>0)){
 					?>
 					<button id="Ejecutar_<?php echo $item?>" class="btn btn-primary" data-obj="botonEjecutar" onclick="controlEventos(event)">Ejecutar</button>
 					<?php 
@@ -254,11 +278,18 @@
 				
 			</div>
 			<div class="col-md-4">
-				<h4>Que encontramos</h4>
+				<h4>Resultado Busqueda</h4>
 				
 				<?php
 					echo '<pre>';
-						print_r($comprobaciones[$item]['encontrado_tipo']);
+						print_r($comprobaciones[$item]['resultado']['encontrado_tipo']);
+					echo '</pre>';
+					foreach ( $comprobaciones[$item]['proceso_before'] as $htmlBefore){
+					echo $htmlBefore;
+					}
+					
+					echo '<pre>';
+						print_r($comprobaciones[$item]);
 					echo '</pre>';
 				?>
 			</div>

@@ -15,7 +15,7 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 				<tipo>Unico</tipo>
 			</campo>
 			<campo nombre="CDETALLE">
-				<action funcion="comparar" tabla_cruce="articulos" campo_cruce="articulo_funcion" description="Comparar para buscar las mas similares."/>
+				<action funcion="comparar" tabla_cruce="articulos" campo_cruce="articulo_name" description="Comparar para buscar las mas similares."/>
 			</campo>
 			
 		</campos>

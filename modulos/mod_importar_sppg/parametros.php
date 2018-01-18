@@ -24,7 +24,7 @@ class ClaseParametros
 			}
 		}
 		
-		error_log('Fin de inicializar instancia de objeto');
+		//~ error_log('Fin de inicializar instancia de objeto');
 
 	}
 	

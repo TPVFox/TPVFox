@@ -373,7 +373,7 @@ function controladorAcciones(caja,accion){
 				console.log(accion_general);
 				if (continuar == true) {
 					// Pulso Si.
-					if (accion_general === 'Descartado'){
+					if (accion_general === 'Descartar'){
 						// Ocultamos fila.
 						$('#fila'+caja.fila).css("display", "none");
 						DescartarRegistroTratar(caja.fila);

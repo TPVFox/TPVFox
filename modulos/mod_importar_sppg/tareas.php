@@ -73,15 +73,9 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
 		// Montamos array consulta con datos necesarios para enviar funcion Anhadir
 		$consulta = array();
 		$parametros_tabla = TpvXMLtablaImportar($parametros,$tabla);
-			$consulta['tabla'] = (string)$parametros_tabla->nombre[0];
-		$objConsultas = $Newparametros->setRoot($parametros_tabla);
-		$consultas = $Newparametros->Xpath('consultas//consulta[@tipo="obtener"]','Valores');
-			$consulta['obtener'] = $consultas;
-			$consulta['parametros'] = $parametros_tabla;
-			
-		$respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$consulta,$datos);
+		//~ $respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos);
+		$respuesta = $parametros_tabla;
 		echo json_encode($respuesta);
-		break;
 		break;
 }
  

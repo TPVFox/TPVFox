@@ -1,36 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
-Recuerda en poner acciones mismo al principio de cada campo.
-Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si consideramos que es mismo.
+Recuerda en poner acciones = mismo al principio de cada campo.
+Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si consideramos que es mismo
+
+RECUERDA:
+El objetivo en familias es añadir registros en tabla familiasTienda que relacione las referencias DBF con las familias
+creadas en TPV, no es crear familias nuevas
+Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.familias que indique id BD de tpv.familias
+-->
+<!-- Campos -> Estos campos y acciones se monta en la funcion CamposAccionesImportar
+	 Elementos :
+		tipo: Unico -> Se utilizar para identificar el registro.
+	 Atributos de action:
+			funcion:( Obligatorio) Tipo de busqueda que vamos a realizar.
+			tabla_cruce: ( Obligatorio si no existe atributo vista) Indicamos la tabla donde buscar ese campo
+			vista: ( Obligatorio sino existe atributo tabla) Indicamos la consulta que vamos realizar para realizar accion.
+			campo_cruce : ( Obligatorio) Indica el campo el se va comparar.
 -->
 <tablas>
 	<tabla>
 		<nombre>familias</nombre>
+		
 		<campos>
 			<campo nombre="CCODFAM">
 				<tipo>Unico</tipo>
-				<action funcion="mismo" tabla="familiasTienda" campo_cruce="ref_familia_tienda" description="Referencias iguales"/>
+				<action funcion="mismo" tabla_cruce="familiasTienda" campo_cruce="ref_familia_tienda" description="Referencias iguales"/>
 			</campo>
 			<campo nombre="CNOMFAM">
-				<action funcion="similar" tabla="familias" campo_crucer="familiaNombre" description="Buscar palabras similares"/>
+				<action funcion="similar" tabla_cruce="familias" campo_crucer="familiaNombre" description="Buscar palabras similares"/>
 			</campo>
 		</campos>
-		<consultas>
-			<consulta tipo="obtener">
-				 CCDODFAM,CNOMFAM 
-			</consulta>
-			
-			<consulta tipo="anhadir">
-						INSERT INTO `articulos`( `articulo_name`, `beneficio`, `costepromedio`, `estado`, `fecha_creado`, `fecha_modificado`) SELECT 
-			</consulta>
-			<after>
-			Anhadir estado y fecha creado y modificado..
-			</after>
-		</consultas>
 		<tpv>
 			<tabla>
+				<nombre>familiasTienda</nombre>
+				<campo nombre="idFamilia">
+					<action fuction="consulta" tabla="familias" campo="idFamilia"/>
+				</campo>
+				<campo nombre="idTienda">
+					<action function="parametro" parametro="idTienda"/>
+				</campo>
+				<campo nombre="ref_familia_tienda">
+					<cruce>CCODFAM</cruce>
+				</campo>
+			</tabla>
+			<tabla>
 				<nombre>familias</nombre>
+				<campo nombre="idFamilia">
+					<tipo>UNICO</tipo>
+				</campo>
+				
 			</tabla>
 		</tpv>
+		<comprobaciones>
+			<comprobacion nombre="Mismo">
+				<procesos>
+					<before>
+						<action funcion="AnhadirFuncionIDFamilias"/>
+						<action funcion="Diferencias"/>
+					</before>
+				</procesos>
+				<options tipo="general">
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+					<option tipo="Modificar">
+						<texto>Modificar Tpv con Importar</texto>
+					</option>
+				</options>
+				
+			</comprobacion>
+			<comprobacion nombre="NoEncontrado">
+				<procesos>
+					<before>
+						<action funcion="SeleccionarRegistroFamilias"/>
+					</before>
+				</procesos>
+				<options tipo="general">
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+				</options>
+			</comprobacion>
+			<comprobacion nombre="Similar">
+				<options tipo="general">
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+				</options>
+			</comprobacion>
+		</comprobaciones>
+			
+		
+		
+		
 	</tabla>
 </tablas>

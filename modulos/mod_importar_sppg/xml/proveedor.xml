@@ -77,5 +77,42 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 				</campo>
 			</tabla>
 		</tpv>
+		<comprobaciones>
+			<comprobacion nombre="Mismo">
+				<options tipo="general">
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+					<option tipo="Modificar">
+						<texto>Modificar Tpv con Importar</texto>
+					</option>
+				</options>
+				
+			</comprobacion>
+			<comprobacion nombre="NoEncontrado">
+				<options tipo="general">
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+				</options>
+			</comprobacion>
+			<comprobacion nombre="Similar">
+				<options tipo="general">
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+				</options>
+			</comprobacion>
+		</comprobaciones>
+			
+		
+		
+		
 	</tabla>
 </tablas>

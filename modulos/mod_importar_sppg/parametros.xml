@@ -4,9 +4,10 @@
 		<fichero>./xml/proveedor.xml</fichero>
 		<fichero>./xml/familias.xml</fichero>
 		<fichero>./xml/ivas.xml</fichero>
-		<fichero>./xml/precprov.xml</fichero>
 		<fichero>./xml/clientes.xml</fichero>
 		<fichero>./xml/articulo.xml</fichero>
+		<fichero>./xml/precprov.xml</fichero>
+
 	</includes>
 	
 	<cajas_input data-obj="id_input">
@@ -14,6 +15,18 @@
 			<nombre id_input="Ejecutar">botonEjecutar</nombre>
 			<teclas>
 				<action tecla="13">InicioEjecutar</action>
+			</teclas>
+			<before>
+				<estado>Si</estado>
+			</before>
+			<after>
+				<estado>Si</estado>
+			</after>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="AnadirID">botonID</nombre>
+			<teclas>
+				<action tecla="13">InsertarIdEnRegistro</action>
 			</teclas>
 			<before>
 				<estado>Si</estado>

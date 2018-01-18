@@ -2,6 +2,10 @@
 <!-- 
 Recuerda en poner acciones mismo al principio de cada campo.
 Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si consideramos que es mismo.
+RECUERDA:
+Que se debe limpiar antes la tabla de aquellos proveedores que no existan, para evitar meter registros innecesarios.
+Ejemplo consulta:
+SELECT pro.CNOMPRO,p.* FROM `precprov` as p LEFT JOIN proveedo as pro ON p.CCODPRO=pro.CCODPRO WHERE 1 ORDER BY `pro`.`CNOMPRO` ASC 
 -->
 <tablas>
 	<tabla>

@@ -375,7 +375,7 @@ function VariosRegistros($BD,$consulta) {
 	
 	
 	
-function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
+function BuscarIgualSimilar($BDTpv,$campos,$registro){
 	// Objetivo devolver comprobacion si existe igual o similares.
 	$respuesta = array();
 	foreach ($campos as $key=>$datos){
@@ -387,6 +387,7 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 					//Buscamos si es mismo registro.
 					if (isset($registro[$campo]) && trim($registro[$campo]) !== '' ){
 						$whereC =' WHERE '.$accion['campo_cruce'].'="'.$registro[$campo].'"';
+						// Obtenemos tabla... debería comprobar si es o no tabla o si existe.
 						$tabla = $accion['tabla_cruce'];
 						$consulta = "SELECT * FROM ". $tabla.' '.$whereC;
 						$UnRegistro = obtenerUnRegistro($BDTpv,$consulta);
@@ -410,6 +411,7 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 				if ($accion['funcion']=== 'comparar'){
 					// Ejecutamos funcion de comparar
 					if(isset($registro[$campo])){
+						// Obtenemos tabla... debería comprobar si es o no tabla o si existe.
 						$tabla = $accion['tabla_cruce'];
 						$palabras = explode(' ',trim($registro[$campo]));
 						$likes = array();
@@ -442,7 +444,7 @@ function BuscarIgualSimilar($BDTpv,$tabla,$campos,$registro){
 	// Si no encontro igual o similar
 	if (!isset($respuesta['comprobacion']['encontrado_tipo'])){
 			// Quiere decir que no encontro ninguno igual o similar
-			$respuesta['comprobacion']['encontrado_tipo'] = 'No existe mismo-Ni similar';
+			$respuesta['comprobacion']['encontrado_tipo'] = 'NoEncontrado';
 	}
 	return $respuesta;
 }
@@ -474,14 +476,14 @@ function DescartarRegistrosImportDbf($BDImportDbf,$tabla,$datos){
 function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
 	// @ Objetivo 
 	// Añadir registro de las tablas importar a tpv
-	// Segun la tabla que recibimos serán funciones independientes
 	// @ Parametros.
-	// $tabla : String con nombre tabla.
-	// $datos: Array (	importar => array( campos unicos...)
-	//					tpv => array ( campos unicos... )
+	// $tabla : Array con String de nombre tablas.
+	// $datos: Array (	importar => array( campos unicos y valores de esos campos...)
+	//					tpv => array ( campos unicos y valores de esos campos... )
 	$respuesta = array();
+	// --- Obtenemos los parametros de la tabla encuestion --- //
 	$tabla = $parametros_tabla['tabla'];
-	// --- Obtenemos los datos del registro de la Base de Datos BDimport --- //
+	// --- Obtenemos los valores de los campos del registro de la Base de Datos BDimport --- //
 	$wheres = array();
 	foreach ($datos as $dato){
 		foreach ($dato as $campo => $valor){
@@ -492,7 +494,6 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
 	// Obtenemos las consulta->obtener de parametros
 	// Ahora interpreto que hay una sola, pero es un array que puede contener varias consultas. 
 	$consulta = "SELECT ".$parametros_tabla['obtener'][0]." FROM ". $tabla.' '.$whereImportar;
-	//~ $consulta = "SELECT * FROM ". $tabla.' '.$whereImportar;
 	$registro_importar = obtenerUnRegistro($BDImportDbf,$consulta);
 	$registro = $registro_importar['Items'][0];
 	// ----- Obtenemos parametros tpv para poder añadir ------- //
@@ -543,12 +544,12 @@ function TpvXMLtablaImportar($parametros,$tabla){
 	return $respuesta;
 }
 
-function TpvXMLtablaTpv($tabla_importar){
+function TpvXMLtablaTpv($parametros_importar){
 	//@Objetivo
-	// Obtener los datos necesarios de parametros de las tablas para modificar tpv
+	// Obtener los datos necesarios de parametros de las tablas tpv para modificar,buscar o añadir
 	$datos_tablas = array();
-	if (isset ($tabla_importar->tpv->tabla)){
-		foreach ($tabla_importar->tpv as $tablas_tpv){
+	if (isset ($parametros_importar->tpv->tabla)){
+		foreach ($parametros_importar->tpv as $tablas_tpv){
 			foreach ($tablas_tpv as $tabla_tpv){
 				$nombre_tabla_tpv = (string) $tabla_tpv->nombre;
 				foreach ($tabla_tpv->campo as $campo){
@@ -567,10 +568,63 @@ function TpvXMLtablaTpv($tabla_importar){
 					}
 				}
 			}
+		$datos_tablas['tablas']['tpv'][]= $nombre_tabla_tpv ;
 		}
 	}
-	$datos_tablas['tablas']['tpv']= $nombre_tabla_tpv ;
 	return $datos_tablas;
 }
+
+
+function CamposAccionesImportar($campo){
+	$campos = array();
+	$x = 0;
+	foreach ($campo->action as $action) {
+			// obtenemos las acciones para encontrar
+			$campos['acciones_buscar'][$x]['funcion'] = (string) $action['funcion'];
+			$campos['acciones_buscar'][$x]['tabla_cruce'] =(string) $action['tabla_cruce'];
+			$campos['acciones_buscar'][$x]['campo_cruce'] =(string) $action['campo_cruce'];
+			$campos['acciones_buscar'][$x]['description'] =(string) $action['description'];
+			$x++;
+		}
+	return $campos;
+}
+function MontarHtmlOpcionesGenerales($parametros_comprobaciones,$resultado_b,$item) {
+	$html = '<select id="accion_general_'.$item.'">';
+	foreach ($parametros_comprobaciones as $tipo => $parametros){
+		if ($tipo === $resultado_b){
+		$Options = $parametros[0]->options->option;
+			foreach ($Options as $parametro){
+				$valor =(string)$parametro['tipo'];
+				$texto = (string)$parametro->texto;
+				$html .= '<option value="'.$valor.'">'.$texto.'</option>';
+			}
+		}
+	}
+	$html .= '</select> ';
+	
+	return $html;
+}
+function BeforeProcesosOpcionesGeneralesComprobaciones($Xmlfunciones,$item){
+	$respuesta = array();
+	foreach ($Xmlfunciones as $Xmlfuncion){
+		$funcion = (string) $Xmlfuncion['funcion'];
+		$respuesta[] = $funcion($item);
+	}
+	return $respuesta;
+} 
+function SeleccionarRegistroFamilias($item){
+	$respuesta = '<div>
+				<p>Debes añadirle un id en tabla de BDImportar de la tabla Tpv para poder relacionarlo</p>
+				<div class="form-group">
+				<input id="anhado_id_'.$item.'" type="number " name="id">
+				</div>
+				<div class="form-group">
+				<button id="AnadirID_'.$item.'" class="btn btn-primary" data-obj="botonID" onclick="controlEventos(event)">Añadir ID</button></div>	';
+	return $respuesta;
+	
+}
+
+
+
 
 ?>
