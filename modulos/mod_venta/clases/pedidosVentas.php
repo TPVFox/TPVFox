@@ -244,6 +244,7 @@ class PedidosVentas{
 		}
 		return $pedidosPrincipal;
 	}
+
 	//Busca de la tabla pedcliIva todos los registros de un pedido
 	public function IvasPedidos($idPedido){
 		$db=$this->db;
@@ -288,6 +289,15 @@ class PedidosVentas{
 		return $pedido;
 	}
 	
+	public function buscarNumPedidoId($idPedidoTemporal){
+		$db=$this->db;
+		$smt=$db->query('select  Numpedcli, id from pedclit where id='.$idPedidoTemporal);
+		if ($result = $smt->fetch_assoc () ){
+			$pedido=$result;
+		}
+		$pedido['Nitems']= $smt->num_rows;
+		return $pedido;
+	}
 }
 
 ?>
