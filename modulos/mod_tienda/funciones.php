@@ -47,7 +47,7 @@ function insertarDatos($datos,$BDTpv,$tabla,$campos){
 				.'" , "'.$datos['tipoTienda'].'","'.$datos['estado'].'"';
 	// Recuerda que los campos es una array indexado [id].
 	if ($datos['tipoTienda'] === 'web'){
-		$valores .= ',"'.$datos['dominio'].'","'.$datos['nom_bases_datos'].'","'.$datos['nom_usuario_base_datos'].'","'.$datos['prefijoBD'].'"';
+		$valores .= ',"'.$datos['dominio'].'","'.$datos['key_api'].'"';
 		
 	} else {
 		$valores .=	',"'.$datos['nombrecomercial'].'","'.$datos['direccion'].'","'.$datos['ano'].'"';	

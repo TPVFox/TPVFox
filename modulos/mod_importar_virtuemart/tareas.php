@@ -208,7 +208,7 @@ $TControlador = new ControladorComun;
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/
 
-mysqli_close($BDImportDbf);
+mysqli_close($BDTpv);
 
  
  

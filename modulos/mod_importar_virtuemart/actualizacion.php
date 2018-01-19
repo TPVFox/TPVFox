@@ -46,6 +46,14 @@ $parametros = array('key' 		=>$tienda_importar['key_api'],
 					//~ 'tablaTemporal' =>json_encode($tablasTemporales)
 				);
 // [CONEXION CON SERVIDOR REMOTO] 
+// Primero comprobamos si existe curl en nuestro servidor.
+$existe_curl =function_exists('curl_version');
+if ($existe_curl === FALSE){
+	echo '<pre>';
+	print_r(' No exite curl');
+	echo '</pre>';
+	exit();
+}
 include './conexion_curl.php';
 // Obtenemos arrays ( $repuestas , $error si lo hubiera.. )
 
