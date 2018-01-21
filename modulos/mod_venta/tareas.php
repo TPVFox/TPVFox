@@ -7,7 +7,6 @@
  *  */
 /* ===============  REALIZAMOS CONEXIONES  ===============*/
 
-
 $pulsado = $_POST['pulsado'];
 
 include_once ("./../../configuracion.php");
@@ -23,6 +22,10 @@ $CcliPed=new PedidosVentas($BDTpv);
 
 include_once("../../clases/producto.php");
 $Cprod=new Producto($BDTpv);
+
+include_once ("clases/albaranesVentas.php");
+$CalbAl=new AlbaranesVentas($BDTpv);
+
 switch ($pulsado) {
     
     case 'buscarProductos':
@@ -38,7 +41,6 @@ switch ($pulsado) {
 			$respuesta=$res;
 			$respuesta['Nitems']=$res['Nitems'];	
 		}else{
-			
 			// Cambio estado para devolver que es listado.
 			$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda);
 			$respuesta['Estado'] = 'Listado';
@@ -74,7 +76,7 @@ switch ($pulsado) {
 		return $respuesta;
 		break;
 		
-			case 'HtmlLineaTicket';
+		case 'HtmlLineaTicket';
 		$respuesta = array();
 		$product 					=$_POST['producto'];
 		$num_item					=$_POST['num_item'];
@@ -94,36 +96,47 @@ switch ($pulsado) {
 		$idTienda=$_POST['idTienda'];
 		$idUsuario=$_POST['idUsuario'];
 		$estadoPedido=$_POST['estadoPedido'];
-		
+		$idPedido=$_POST['idPedido'];		
 		$res = array( 'datos' => array());
 		//funcion de buscar clientes
 		//luego html mostrar modal 
-			//$res = BusquedaClientes($busqueda);
 		$res = BusquedaClientes($busqueda,$BDTpv,$tabla, $idcaja);
-		if ($res['Nitems']===1){
+		$respuesta['items']=$res['Nitems'];
+		if ($res['Nitems']===1 & $idPedido==0){
 			if ($numPedidoTemp>0){
 				//Si el número de busquedas es uno quiere decir que la busqueda fue por id
 			$modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
 			$respuesta['sql']=$modCliente;
 			$respuesta['busqueda']=$busqueda;
 			$respuesta['numPedidoTemp']=$numPedidoTemp;
+			$respuesta['idPedido']=$idPedido;
 			}else{
 			$addCliente=$CcliPed->AddClienteTemp($busqueda, $idTienda, $idUsuario, $estadoPedido);
-			$respuesta['numPedidoTemp']=$addCliente;
-		
-		}
-			//~ $respuesta=htmlClientesCajas($res['datos']);
+			$respuesta['numPedidoTemp']=$addCliente['id'];
+			$respuesta['sql']=$sql;
+			$respuesta['idPedido']=$idPedido;
+			}
 			$respuesta['nombre']=$res['datos'][0]['nombre'];
-			
-			
-		}elseif($res['Nitems']>1){
+		}elseif($res['Nitems']>1 & $idPedido===0){
+			$respuesta = htmlClientes($busqueda,$dedonde, $idcaja, $res['datos']);
+		}else if($res['Nitems']===1 & $idPedido>0){
+		if ($numPedidoTemp>0){
+			$modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
+			$respuesta['busqueda']=$busqueda;
+			$respuesta['numPedidoTemp']=$numPedidoTemp;
+			$respuesta['idPedido']=$idPedido;
+			}else{
+			$addCliente=$CcliPed->AddClienteTempPedidoGuardado($busqueda, $idTienda, $idUsuario, $estadoPedido, $idPedido);
+			$respuesta['numPedidoTemp']=$addCliente['id'];
+			$respuesta['sql']=$addCliente['sql'];
+			$respuesta['idPedido']=$idPedido;
+			}
+			$respuesta['nombre']=$res['datos'][0]['nombre'];
+		}else{
 			$respuesta = htmlClientes($busqueda,$dedonde, $idcaja, $res['datos']);
 		
-		}else{
-		$respuesta = htmlClientes($busqueda,$dedonde, $idcaja, $res['datos']);
-		
-		}
-		
+	}
+	
 		//~ echo $respuesta;
 		echo json_encode($respuesta);
 		break;
@@ -138,14 +151,20 @@ switch ($pulsado) {
 		$idTienda=$_POST['idTienda'];
 		$idUsuario=$_POST['idUsuario'];
 		$estadoPedido=$_POST['estadoPedido'];
+		$idPedido=$_POST['idPedido'];
 		if ($numPedidoTemp>0){
 			$modCliente=$CcliPed->ModClienteTemp($id, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
 			$respuesta['sql']=$modCliente;
 			$respuesta['busqueda']=$id;
 			$respuesta['numPedidoTemp']=$numPedidoTemp;
-			}else{
+		}else{
 			$addCliente=$CcliPed->AddClienteTemp($id, $idTienda, $idUsuario, $estadoPedido);
-			$respuesta['numPedidoTemp']=$addCliente;
+			$respuesta['numPedidoTemp']=$addCliente['id'];
+			$numPedidoTemp=$addCliente['id'];
+		}
+		if ($idPedido>0){
+			$modIdPedido=$CcliPed->ModNumPedidoTtemporal($numPedidoTemp, $idPedido);
+			$respuesta['sqlMod']=$modIdPedido;
 		}
 		echo json_encode($respuesta);
 		break;
@@ -165,28 +184,82 @@ switch ($pulsado) {
 		
 		
 			
-	case 'grabarTickes';
-		// @ Objetivo :
-		// Grabar tickets temporales.
-		$respuesta = array();
-		$cabecera = array(); // Array que rellenamos de con POST
-		$productos 					=$_POST['productos'];
-		$cabecera['idTienda']		=$_POST['idTienda'];
-		$cabecera['idCliente']		=$_POST['idCliente'];
-		$cabecera['idUsuario'] 		=$_POST['idUsuario'];
-		$cabecera['estadoTicket'] 	=$_POST['estadoTicket'];
-		$cabecera['numTicket'] 		=$_POST['numTicket'];
-		// Ahora recalculamos nuevamente
-		$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-		$CalculoTotales = recalculoTotales($productos_para_recalculo);
-		$nuevoArray = array(
-						'desglose'=> $CalculoTotales['desglose'],
-						'total' => $CalculoTotales['total']
-							);
+	//~ case 'grabarTickes';
+		//~ // @ Objetivo :
+		//~ // Grabar tickets temporales.
+		//~ $respuesta = array();
+		//~ $cabecera = array(); // Array que rellenamos de con POST
+		//~ $productos 					=$_POST['productos'];
+		//~ $cabecera['idTienda']		=$_POST['idTienda'];
+		//~ $cabecera['idCliente']		=$_POST['idCliente'];
+		//~ $cabecera['idUsuario'] 		=$_POST['idUsuario'];
+		//~ $cabecera['estadoTicket'] 	=$_POST['estadoTicket'];
+		//~ $cabecera['numTicket'] 		=$_POST['numTicket'];
+		//~ // Ahora recalculamos nuevamente
+		//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+		//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
+		//~ $nuevoArray = array(
+						//~ 'desglose'=> $CalculoTotales['desglose'],
+						//~ 'total' => $CalculoTotales['total']
+							//~ );
 		//~ $CalculoTotales = gettype($productos);
-		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
-		$respuesta=$res;
-		$respuesta = array_merge($respuesta,$nuevoArray);
+		//~ $res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
+		//~ $respuesta=$res;
+		//~ $respuesta = array_merge($respuesta,$nuevoArray);
+		//~ echo json_encode($respuesta);
+		//~ break;
+		
+		
+		
+		
+	case 'buscarPedido':
+		$busqueda=$_POST['busqueda'];
+		$dedonde=$_POST['dedonde'];
+		$idCaja=$_POST['idCaja'];
+		$idAlbaranTemp=$_POST['idAlbaranTemp'];
+		$idUsuario=$_POST['idUsuario'];
+		$idTienda=$_POST['idTienda'];
+		$estadoAlbaran=$_POST['estadoAlbaran'];
+		$idAlbaran=$_POST['idAlbaran'];
+		$numAlbaran=$_POST['numAlbaran'];
+		$fecha=$_POST['fecha'];
+		$res=$CcliPed->buscarNumPedidoId($busqueda);
+		if ($res){
+			
+			$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
+			$respuesta['datos']['idPedCli']=$res['id'];
+			$respuesta['Nitems']=$res['Nitems'];
+			
+			$productosPedido=$CcliPed->ProductosPedidos($res['id']);
+			$respuesta['productos']=$productosPedido;
+			
+		}
 		echo json_encode($respuesta);
 		break;
+		
+	break;
+	
+	case 'añadirAlbaranTemporal':
+		$idAlbaranTemp=$_POST['idAlbaranTemp'];
+		$idUsuario=$_POST['idUsuario'];
+		$idTienda=$_POST['idTienda'];
+		$estadoAlbaran=$_POST['estadoAlbaran'];
+		$idAlbaran=$_POST['idAlbaran'];
+		$numAlbaran=$_POST['numAlbaran'];
+		$fecha=$_POST['fecha'];
+		$pedidos=$_POST['pedidos'];
+		$productos=$_POST['productos'];
+		if ($idAlbaranTemp>0){
+			$res=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
+		}else{
+			$res=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos);
+		}
+		if ($numAlbaran===0){
+			$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
+		}
+		$respuesta['id']=$res;
+		
+		echo json_encode($respuesta);
+		break;
+		
 }

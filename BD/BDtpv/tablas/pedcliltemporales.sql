@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 11, 2018 at 10:34 PM
+-- Generation Time: Jan 18, 2018 at 10:42 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -36,7 +36,8 @@ CREATE TABLE `pedcliltemporales` (
   `idClientes` int(11) DEFAULT NULL,
   `total` decimal(17,6) DEFAULT NULL,
   `total_ivas` varchar(250) DEFAULT NULL,
-  `Productos` varbinary(50000) DEFAULT NULL
+  `Productos` varbinary(50000) DEFAULT NULL,
+  `idPedcli` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

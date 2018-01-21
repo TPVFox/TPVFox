@@ -344,7 +344,7 @@ function recalculoTotales($productos) {
 	$desglose = array();
 	$ivas = array();
 	$subtotal = 0;
-	$productosTipo=gettype($productos);
+	//~ $productosTipo=gettype($productos);
 	//~ $respuesta['tipo']=$productosTipo;
 	// Creamos array de tipos de ivas hay en productos.
 	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
@@ -369,6 +369,26 @@ function recalculoTotales($productos) {
 	//~ $respuesta['ivas'] = $ivas;
 	$respuesta['desglose'] = $desglose;
 	$respuesta['total'] = number_format($subtotal,2);
+	return $respuesta;
+}
+
+function modificarArrayProductos($productos){
+	$respuesta=array();
+	foreach ($productos as $producto){
+		$product['idArticulo']=$producto['idArticulo'];
+		$product['crefTienda']=$producto['cref'];
+		$product['articulo_name']=$producto['cdetalle'];
+		$product['pvpCiva']=$producto['precioCiva'];
+		$product['iva']=$producto['iva'];
+		$product['codBarras']=$producto['ccodbar'];
+		$product['nfila']=$producto['nfila'];
+		$product['estado']=$producto['estadoLinea'];
+		$product['cant']=number_format($producto['ncant'],0);
+		$product['importe']=$producto['precioCiva'];
+		$product['unidad']=$producto['nunidades'];
+		array_push($respuesta,$product);
+		
+	}
 	return $respuesta;
 }
 ?>

@@ -165,30 +165,32 @@
 		</caja_input>
 
 
-
-
-
 		<caja_input>
-			<nombre id_input="entrega">entrega</nombre>
+			<nombre id_input="fechaAl">fechaAl</nombre>
 			<teclas>
-				<action tecla="13">poner_entrega</action>
-				<action tecla="40">poner_entrega</action>
+				<action tecla="13">saltarNumPedido</action>
+				<action tecla="39">saltarNumPedido</action>
+				<action tecla="9">saltarNumPedido</action>
+				<action tecla="40">saltar_idClienteFlechaAbajo</action>
 			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">popup</parametro>
-			</parametros>
 		</caja_input>
 		<caja_input>
-			<nombre id_input="CobrarAceptar">CobrarAceptar</nombre>
+			<nombre id_input="numPedido">numPedido</nombre>
 			<teclas>
-				<action tecla="13">cerrar_ticket</action>
-				<action tecla="40">focus_entrega</action>
-				<action tecla="37">focus_modoPago</action>
+				<action tecla="39">saltar_idCliente</action>
+				<action tecla="37">saltarFechaAl</action>
+				<action tecla="9">saltar_idCliente</action>
+				<action tecla="13">buscarPedido</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
-			</parametros>
+				<parametro nombre="dedonde">albaran</parametro>
+			</parametros> 
 		</caja_input>
+
+
+
+		
+		
 	
 		
 	</cajas_input>

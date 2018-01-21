@@ -58,6 +58,11 @@ function metodoClick(pulsado,adonde){
 			window.location.href = './pedido.php';
 			
 			break;
+		case 'AgregarAlbaran':
+			console.log('entro en agregar producto');
+			window.location.href = './albaran.php';
+			
+			break;
 		
 		case 'NuevaBusquedaPedido':
 			// Obtenemos puesto en input de Buscar
@@ -94,7 +99,8 @@ function buscarClientes(dedonde, idcaja, valor=''){
 	//	valor -> Sería el valor caja del propio modal
 
 	console.log('FUNCION buscarClientes JS-AJAX');
-	console.log(idcaja);
+	console.log(cabecera);
+	
 	var parametros = {
 		"pulsado"    : 'buscarClientes',
 		"busqueda" : valor,
@@ -103,7 +109,9 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		"numPedidoTemp":cabecera.numPedidoTemp,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estadoPedido
+		"estadoPedido":cabecera.estadoPedido,
+		"idPedido":cabecera.idPedido,
+		
 		
 	};
 	
@@ -120,7 +128,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-		
 	if (valor==""){
 			var titulo = 'Listado clientes ';
 			abrirModal(titulo,HtmlClientes);
@@ -166,7 +173,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		
 		}else{
 			console.log('no muestro modal');
-			console.log(resultado.numPedidoTemp);
 			$('#Cliente').val(resultado.nombre);
 			if (resultado.numPedidoTemp>0){
 				console.log("entre");
@@ -174,6 +180,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
 				cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
 			}
+			console.log(resultado.numPedidoTemp);
 		}
 			
 		}
@@ -338,38 +345,64 @@ function controladorAcciones(caja,accion){
 			} else {
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
-			break
-		case 'cobrar':
-			console.log( ' Entro en accion buscarProducto');
-			cobrarF1();
-			break
+			break;
 			
-		case 'poner_entrega':
-			var cambio = parseFloat(caja.darValor()) - total;
-			console.log(cambio);
-			if (cambio < 0){
-				$('#cambio').css('color','red');
-			}else {
-				$('#cambio').css('color','grey');
+	//Acciones de albarán
+	
+	
+		case 'saltarNumPedido':
+				console.log("Ente en fecha Al");
+				var dato = caja.darValor();
+				cabecera.fecha=dato;
+				var d_focus = 'numPedido';
+				
+				ponerFocus(d_focus);
+				
+		break;
+		case 'saltarFechaAl':
+				console.log("Entre en saltarFechaAl");
+				var dato=caja.darValor();
+				if ( dato.length === 0){
+				var d_focus = 'fechaAl';
+				ponerFocus(d_focus);
 			}
-			$('#cambio').val(cambio.toFixed(2));
-			// Ponemos como focus el btn de aceptar
-			ponerFocus('CobrarAceptar');
-			break;
+		break;
+		case 'buscarPedido':
+		console.log("Entre en buscar pedido");
+		buscarPedido(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		
-		case 'cerrar_ticket':
-			console.log(' Entro en contralador de acciones, cerrar ticket');
-			CobrarAceptar.parametros.pulsado_intro = 'Si';
-			// Ahora grabamos y cerramos ticket
-			cerrarTicket()
-			break;
-		case 'focus_entrega':
-			ponerFocus('entrega');
-			break;
+		break;
+		//~ case 'cobrar':
+			//~ console.log( ' Entro en accion buscarProducto');
+			//~ cobrarF1();
+			//~ break
 			
-		case 'focus_modoPago':
-			ponerFocus('modoPago');
-			break;
+		//~ case 'poner_entrega':
+			//~ var cambio = parseFloat(caja.darValor()) - total;
+			//~ console.log(cambio);
+			//~ if (cambio < 0){
+				//~ $('#cambio').css('color','red');
+			//~ }else {
+				//~ $('#cambio').css('color','grey');
+			//~ }
+			//~ $('#cambio').val(cambio.toFixed(2));
+			//~ // Ponemos como focus el btn de aceptar
+			//~ ponerFocus('CobrarAceptar');
+			//~ break;
+		
+		//~ case 'cerrar_ticket':
+			//~ console.log(' Entro en contralador de acciones, cerrar ticket');
+			//~ CobrarAceptar.parametros.pulsado_intro = 'Si';
+			//~ // Ahora grabamos y cerramos ticket
+			//~ cerrarTicket()
+			//~ break;
+		//~ case 'focus_entrega':
+			//~ ponerFocus('entrega');
+			//~ break;
+			
+		//~ case 'focus_modoPago':
+			//~ ponerFocus('modoPago');
+			//~ break;
 		
 		default :
 			console.log ( 'Accion no encontrada '+ accion);
@@ -402,13 +435,11 @@ function before_constructor(caja){
 			caja.parametros.campo = cajaDescripcion.parametros.campo;
 		}
 	}
-	
 	if (caja.id_input.indexOf('N_') >-1){
 		console.log(' Entro en Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(2);
 		console.log(caja.fila);
 	}
-	
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
 		caja.parametros.item_max = productos.length;
 		caja.fila = caja.id_input.slice(12);
@@ -467,9 +498,12 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
 					console.log(resultado);
-					
-			
-			
+					if (cabecera.numPedidoTemp==0){
+						var idCliente=$('#id_cliente').val();
+						console.log(idCliente);
+						console.log('----- voy a escribir aaaaaaaaaaaaaa cliente seleccionado -----');
+						AddTemp(idCliente);
+					}
 					
 				if (resultado['Nitems']===1){
 					console.log('Estado'+resultado['Estado']);
@@ -488,6 +522,8 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					console.log(datos);
 					productos.push(datos);
 					var num_item=datos['nfila'];
+					
+					
 					
 					addProductoTemp();
 					agregarFilaProducto(num_item);
@@ -533,7 +569,7 @@ function addProductoTemp(){
 			console.log('*********  Envio datos para Añadir productos  ****************');
 		},
 		success    :  function (response) {
-			var resultado =  $.parseJSON(response);
+		var resultado =  $.parseJSON(response);
 		console.log(resultado);
 			
 			$('#tipo4').html('');
@@ -767,10 +803,10 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 		"numPedidoTemp":cabecera.numPedidoTemp,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estadoPedido
+		"estadoPedido":cabecera.estadoPedido,
+		"idPedido":cabecera.idPedido
 		
 	};
-	console.log(cabecera.numPedidoTemp);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -780,11 +816,11 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de añadir cliente');
-			 var resultado =  $.parseJSON(response); 
+			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html; 
 			history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
-			cabecera.numPedido=parseInt(resultado.numPedidoTemp);
+			cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
 			mostrarFila();
 			
 	cerrarPopUp(); // Destino no indicamo ya que no sabes...
@@ -847,6 +883,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	console.log("dentro de productos");
 	console.log(productos);
 	var num_item=datos['nfila'];
+	
 	addProductoTemp();
 	console.log(num_item);
 	agregarFilaProducto(num_item);
@@ -959,5 +996,127 @@ function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 	console.log("realizo funcion");
+}
+function AddTemp(id){
+	console.log("-------------- estoy en add temp -----------");
+	var parametros = {
+		"pulsado"    : 'escribirCliente',
+		"idcliente":id,
+		"numPedidoTemp":cabecera.numPedidoTemp,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estadoPedido":cabecera.estadoPedido,
+		"idPedido":cabecera.idPedido
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en añadir cliente JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir cliente');
+			var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlClientes=resultado.html; 
+			history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
+			cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
+		}
+	});
+}
+
+function buscarPedido(dedonde, idcaja, valor=''){
+	console.log('FUNCION buscarPedido JS-AJAX');
+	console.log(cabecera);
+	
+	var parametros = {
+		"pulsado"    : 'buscarPedido',
+		"busqueda" : valor,
+		"dedonde":dedonde,
+		"idcaja":idcaja,
+		"idAlbaranTemp":cabecera.idAlbaranTemp,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estadoAlbaran":cabecera.estadoAlbaran,
+		"idAlbaran":cabecera.idAlbaran,
+		"numAlbaran":cabecera.numAlbaran,
+		"fecha":cabecera.fecha
+		
+	};
+	
+	console.log (parametros);
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en buscar clientes JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de buscar clientes');
+			var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+			console.log(resultado);
+			if (resultado.Nitems>0){
+				console.log("Hay un resultado");
+				var datos = [];
+				datos = resultado['datos'];
+				pedidos.push(datos);
+				productosAdd=resultado.productos;
+				for (i=0; i<productosAdd.length; i++){
+					productos.push(resultado.productos[i]);
+				}
+				console.log(productos);
+				
+				addAlbaranTemp();
+				
+				
+				
+			}else{
+				alert("No hay resultado");
+			}
+			
+		}
+	});
+}
+function addAlbaranTemp(){
+	console.log('FUNCION Añadir albaran temporal JS-AJAX');
+	console.log(cabecera);
+	
+	var parametros = {
+		"pulsado"    : 'añadirAlbaranTemporal',
+		"idAlbaranTemp":cabecera.idAlbaranTemp,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estadoAlbaran":cabecera.estadoAlbaran,
+		"idAlbaran":cabecera.idAlbaran,
+		"numAlbaran":cabecera.numAlbaran,
+		"fecha":cabecera.fecha,
+		"pedidos":pedidos,
+		"productos":productos
+	};
+	console.log(parametros);
+	
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en añadir albaran temporal JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir albaran temporal');
+			var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+			console.log(resultado);
+			
+			history.pushState(null,'','?tActual='+resultado.id);
+			cabecera.idAlbaranTemp=resultado.id;
+			
+		}
+	});
 }
 

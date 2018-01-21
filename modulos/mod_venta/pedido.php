@@ -30,28 +30,34 @@ include './../../head.php';
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
 		}
-	
-		$productos=json_decode(json_encode($productosPedido));
+		$productosMod=modificarArrayProductos($productosPedido);
+		$productos=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos);
+		$productos=json_decode(json_encode($productosMod), true);
+		//~ echo '<pre>';
+		//~ print_r($Datostotales);
+		//~ echo '</pre>';
+		echo $idPedido;
+		$total=$Datostotales['total'];
+		$pedido_numero=0;
 		
-		echo '<pre>';
-		print_r($productos);
-		echo '</pre>';
 	}else{
 		$titulo="Crear Pedido De Cliente";
 		$bandera=1;
 		$estado='Abierto';
 		$estadoCab="'".'Abierto'."'";
 		$fecha=date('Y-m-d');
-		
-	}
-	if ($_GET['tActual']){
-		// Si recibe el número de pedido temporal cubre los campos 
+			if ($_GET['tActual']){
 			$pedido_numero=$_GET['tActual'];
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($pedido_numero);
 			$estadoCab="'".$pedidoTemporal['estadoPedCli']."'";
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
+			if ($pedidoTemporal['idPedcli']){
+				$idPedido=$pedidoTemporal['idPedcli'];
+			}else{
+				$idPedido=0;
+			}
 			$pedido=$pedidoTemporal;
 			$productos = json_decode( $pedidoTemporal['Productos'] ); // Array de objetos
 			if ($idCliente){
@@ -61,21 +67,33 @@ include './../../head.php';
 			}
 		}else{
 			$pedido_numero = 0;
+			$idPedido=0;
+			$total=0;
 		}
+		
+	}
 		if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
 			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
-		if (isset($_POST['Nuevo'])){
-			$idTemporal=$_POST['idTemporal'];
+		if (isset($_POST['Guardar'])){
+			if ($_POST['idTemporal']){
+				$idTemporal=$_POST['idTemporal'];
+			}else{
+				$idTemporal=$_GET['tActual'];
+			}
+			echo $idTemporal;
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
 			if($pedidoTemporal['total']){
 				$total=$pedidoTemporal['total'];
 			}else{
 				$total=0;
 			}
+			echo '<pre>';
+			print_r($pedidoTemporal);
+			echo '</pre>';
 			$fechaCreacion=date("Y-m-d H:i:s");
 			$datosPedido=array(
 			'NPedidoTemporal'=>$idTemporal,
@@ -91,24 +109,25 @@ include './../../head.php';
 			'productos'=>$pedidoTemporal['Productos'],
 			'DatosTotales'=>$Datostotales
 			);
-			//~ echo '<pre>';
-			//~ print_r($datosPedido);
-			//~ echo '</pre>';
-			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido);
-			$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal);
+			if ($pedidoTemporal['idPedcli']){
+				$idPedido=$pedidoTemporal['idPedcli'];
+				$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
+				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
+			}else{
+				$idPedido=0;
+				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
+			}
+			
 			header('Location: pedidosListado.php');
-				//~ echo '<pre>';
-			//~ print_r($addNuevo);
-			//~ echo '</pre>';
-		}else{
-		//	echo "else de post nuevo";
 		}
-		if (isset ($pedido)){
+		
+		if (isset ($pedido)| $_GET['id']){
 			$style="";
 		}else{
 			$style="display:none;";
 		}
-	//~ echo $pedido_numero;	
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -124,11 +143,12 @@ include './../../head.php';
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estadoPedido'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
 		cabecera['numPedidoTemp'] = <?php echo $pedido_numero ;?>;
+		cabecera['idPedido'] = <?php echo $idPedido ;?>;
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 
 <?php 
-	if (isset($pedidoTemporal)){ 
+	if (isset($pedidoTemporal)| isset($idPedido)){ 
 ?>
 	console.log("entre en el javascript");
 <?php
@@ -149,6 +169,8 @@ include './../../head.php';
 		}
 	
 	}	
+	
+	
 ?>
 </script>
 </head>
@@ -187,14 +209,8 @@ include './../../head.php';
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="./pedidosListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-				<?php 
-				if ($_GET['id']){	?>
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php
-				}else{?>
-					<input type="submit" value="Nuevo" name="Nuevo">
-					<?php 
-				}
 				if ($_GET['tActual']){
 					?>
 					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
@@ -267,7 +283,7 @@ include './../../head.php';
 	  </table>
 	</div>
 	<?php 
-	if (isset($pedido['Productos'])){
+	if (isset($pedido['Productos']) | isset ($idPedido)){
 			// Ahora montamos base y ivas
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
