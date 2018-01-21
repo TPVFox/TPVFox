@@ -19,6 +19,9 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos funciones
 include_once ("./funciones.php");
 
+// Incluimos el controlador comun
+include ("./../../controllers/Controladores.php");
+$TControlador = new ControladorComun; 
 // Incluimos y creamos objeto parametros para poder obtener datos.
 include_once ('parametros.php');
 $Newparametros = new ClaseParametros('parametros.xml');
@@ -38,8 +41,8 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
 	case 'Comprobar-tabla':
 		$nombreTabla = $_POST['Fichero'];
 		$campos = $_POST['campos'];
-		$conexion = $Conexiones[1]['tablas']; // En esta variable obtenemos las tablas que tiene la conexion
-		$respuesta = ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos);
+		$tablas = $Conexiones[1]['tablas']; // En esta variable obtenemos las tablas que tiene la conexion
+		$respuesta = ComprobarTabla($nombreTabla,$tablas,$BDImportDbf,$campos,$TControlador);
 		echo json_encode($respuesta);
 		break;
     case 'obtenerDbf':

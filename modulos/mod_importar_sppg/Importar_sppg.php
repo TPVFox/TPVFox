@@ -14,20 +14,79 @@
 <html>
 <head>
 <?php
-		include './../../head.php';
-	// Obtenemos parametros con los nombres de las tablas que vamos importar, recuerda que el orden es importante para 
-	// un a importancion correcta.
-	// Ya que hay tablas de para obtener datos depende de otras, por ello deben tener la tabla que independiente primero
-	// y luego las otras, para una correcta importacion.
+	include './../../head.php';
+	
+		
+	// Obtenemos parametros con los nombres de las tablas que vamos importar
+	// [RECUERDA]
+	// El orden carga de las tablas es importatne ya algunas depende de otras, por ello deben tener 
+	// la tabla que independiente primero y luego las otras, para una correcta importacion.
 	include_once ('parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
 	$nom_ficheros = $ClasesParametros->Xpath("tablas/tabla/nombre",'Valores');
+	// ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
+	$tiposRegistros = array();
+	foreach ($parametros->configuracion->tipos_registros as $tipos){
+		foreach ($tipos as $tipo){
+			$clase = (string) $tipo['clase'];
+			$tiposRegistros[$clase]['texto']= (string) $tipo->texto;
+			$tiposRegistros[$clase]['consulta']= (string) $tipo->consulta;
+		}
+	}
+	// -- Incluimos funciones y controlador general. --//
+	include_once ("./funciones.php");
+	include ("./../../controllers/Controladores.php");
+	$Controler = new ControladorComun; 
+	// ----------- Creamos objeto fichero -----------------//
+	// 1.- Comprobamos que las tablas obtenidad si tienen ya el campo Estado, por lo que ya actualizamos
+	// 2.- Creamos html fila del fichero.
+	// [RECUERDA]
+	// Que si tiene estado ya se trato,por lo que deberíamos indicalos .
+	$clases_td = array("CEstruct","CBorrar","CCrear","CImportar");
+	$ficheros = array();
+	$cont_tablas_estado = 0; // Contador que utilizo para saber y las tablas que vamos analizar ya pulsaron actualizar.
+	foreach ($nom_ficheros as $nombreTabla){
+		$ficheros[$nombreTabla] = $Controler->InfoTabla($BDImportDbf,$nombreTabla,'no');
+		// Montamos html para crear la fila de la tabla de ese fichero.
+		$html_tr = '<tr id="id'.$nombreTabla.'"><th>'.$nombreTabla.'.dbf</th>';
+		foreach ($clases_td as $clasetd){
+			$html_tr .= '<td class="'.$clasetd.'"></td>';
+		};
+		$html_registros = '';
+		if (in_array('estado',$ficheros[$nombreTabla]['campos'])){
+			$cont_tablas_estado++;
+			foreach ($tiposRegistros as $key=>$tipo){
+					echo 'Entro';
+					$contar_registro_tipo = $Controler->contarRegistro($BDImportDbf,$nombreTabla,$tipo['consulta']);
+					$tiposRegistros[$key]['Num_items'] = $contar_registro_tipo;
+					// Montamos el html queremos mostrar en columna de registros
+					
+				}
+				$html_registros =$tiposRegistros['todos']['Num_items'].'/'.$tiposRegistros['sin']['Num_items'];
+				$ficheros[$nombreTabla]['Estado']['tipos'] = $tiposRegistros;
+		}
+		if ($html_registros !== ''){
+			$html_tr .= '<td class="CActualizar">'.$html_registros.
+						'</td><td class="LinkActualizar"><a href="actualizar.php?tabla='.
+						$nombreTabla.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
+		} else {
+			$html_tr .= '<td class="CActualizar"></td><td class="LinkActualizar"></td>';
+		}
+		$ficheros[$nombreTabla]['html_tr'] = $html_tr.'</tr>';
+	}	
+	$ficheros['_tablas_actualizadas']= $cont_tablas_estado;	
 
-	//~ echo '<pre>';
-	//~ print_r($parametros);
-	//~ echo '</pre>';
+	
 
+	// Control de GET ya que:
+	// Si existen datos en la tabla importar, hay que indicar que empresa selecciono en su caso.
+	if (count($_GET)>0){
+		// Quiere decir hubo enviod de datos...
+	}
+	
+	
+	
 
 	// [ANTES CARGAR FUNCIONES JS]
 	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
@@ -63,51 +122,49 @@
 <body>
 <?php 
 	include './../../header.php';
-	include_once ("./funciones.php");
-	include ("./../../controllers/Controladores.php");
-	$Controler = new ControladorComun; 
-	// Ahora comprobamos si tenemos tablas en Mysql que tenga Estado
-	$actualizar = array();
-	foreach ($nom_ficheros as $nombreTabla){
-		$campos =ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla,'no');
-		foreach ($campos as $campo){
-			// Ahora comprobamos que si existe campo estado
-			if ($campo === 'estado'){
-				// Ahora contamos cuantos tienen el campo estado y no tienen cubierto nada.
-				$filtro = ' WHERE estado is null';
-				$num_reg_sin_cubrir = $Controler->contarRegistro($BDImportDbf,$nombreTabla,$filtro);
-				$actualizar[$nombreTabla]['Sin_Cubrir_Estado'] = $num_reg_sin_cubrir;
-				$actualizar[$nombreTabla]['Estado'] = 'Existe Estado';
-			}
-		}
-		
-	}
+	
 	// Ahora tenemos un array con los campos de la tablas .
 	
-	//~ echo '<pre>';
-	//~ print_r($actualizar);
-	//~ echo '</pre>';
+	echo '<pre>';
+	print_r($ficheros);
+	echo '</pre>';
 ?>
 
-<?php
-	// Variables de template ( vista) 
-	$clases_td = array();
-	$clases_td[] ="CEstruct";
-	$clases_td[] ="CBorrar";
-	$clases_td[] ="CCrear";
-	$clases_td[] ="CImportar";
-	//~ $clases_td[] ="CActualizar"> // Esto no lo puedo montar... hay parametroc control en fichero.
-	// Montamos htmlClass , ya que siempre es el mismo... 
-	$html_clasetd = '';
-	foreach ($clases_td as $clasetd){
-		$html_clasetd .= '<td class="'.$clasetd.'"></td>';
-	}
-	
-?>
+
 
 <div class="container">
+	<div class="col-md-12">
+	<h2>Importación de datos a DBF de TPV.</h2>
+	</div>
 	<div class="col-md-5">
-		<h2>Importación de datos a DBF de TPV.</h2>
+		<div class="col-md-12">
+			<div class="col-md-6">
+				<!--Selector de empresa -->
+				<label for="sel1" title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda:</label>
+				<small>Recuerda que debe informar donde tiene los datos en parametros.xml</small>
+				<select <?php echo $disable_conf;?>  class="form-control" name="tiendaOnLine" id="sel1">
+					<option value="0">Sin selecciona tienda fisica</option>
+					<?php
+					$porDefecto = ''; 
+					foreach ($tiendasOnLine['items'] as $tiendaOnLine){
+						if ($tienda_on_line_seleccionada===$tiendaOnLine['idTienda']){
+							$porDefecto = 'selected';
+						}
+					?>
+					<option <?php echo $porDefecto;?> value="<?php echo $tiendaOnLine['idTienda'];?>" >
+					<?php echo $tiendaOnLine['idTienda'].'-'.$tiendaOnLine['dominio'];?>
+					</option>
+					<?php
+					}
+					?>
+				</select>
+			</div>
+			<div class="col-md-6">
+				<!-- Caja muestra ruta de parametro para esa empresas -->
+				<!-- Se debe carja con JSON al cambiar valor de select-->
+				<input type="text" name="directorioRuta" value="<?php echo $rutaEmpresa ;?>">
+			</div>
+		</div>
 		<p>La importación de DBF de SPPGTpv consiste en dos faxes:</p>
 		<h3>1.-Importacion de DBF a MYSQL</h3>
 		<p> El objetivo es crear las tablas en Msql con los datos de las tablas BDF, que esta en la ruta que indicamos en configuracion en <b>$RutaServidor.$RutaDatos.'/'.'DBF71'.'/'</b>, que utilizamos en tareas.php</p>
@@ -170,31 +227,18 @@
 					</a>
 				</th>
 				<th>
-						<span title="Existe tabla en importarDBF con datos" class="glyphicon glyphicon-repeat"></span>
+					<span title="Existe tabla en importarDBF con datos" class="glyphicon glyphicon-repeat"></span>
 				</th>
-				
-				
-				<th>Num.Registros <br/>pendientes preparar<br/> para Actualizar</th>
+				<th>
+					<span title="Numero Registos que BDImportar (total/Sin tratar)" class="glyphicon glyphicon-th-list"></span>
+				</th>
 				<th>Continuar</th>
 			  </tr>
 			</thead>
 			
 			<?php 
-			foreach ($nom_ficheros as $nom_fichero){
-				echo '<tr id="id'.$nom_fichero.'">';
-				echo '		<th>'.$nom_fichero.'.dbf</th>';
-				echo $html_clasetd;
-				if (isset($actualizar[$nom_fichero]['Estado'])){
-					// Mostramos cuanto registros faltan por preparar para actualizar.
-					echo '<td class="CActualizar">'.$actualizar[$nom_fichero]['Sin_Cubrir_Estado'].'</td>';
-					echo '<td class="LinkActualizar"><a href="actualizar.php?tabla='.$nom_fichero.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
-
-				} else {
-					echo '<td class="CActualizar"></td>';
-					echo '<td class="LinkActualizar"></td>';
-				}
-				
-				echo '  </tr>';
+			foreach ($ficheros as $nom_fichero =>$fichero){
+				echo $fichero['html_tr'];
 			}
 			?>
 			</tbody>
@@ -208,7 +252,7 @@
 			<div class="form-group">
 				<label>Importar tablas de DBF a Mysql (BDImportar):</label>
 				<?php 
-				if (count($actualizar)>0){
+				if (count($ficheros['_tablas_actualizadas'])>0){
 					// Quiere decir que realmente ya se pulso actualizar , por lo que si pulsa importar perdera lo preparado.
 					echo '<div class="alert alert-warning">
 							<strong>Warning!</strong> Te encuenta que si pulsas Importar, lo que tengas preparado para actualizar lo pierdes.

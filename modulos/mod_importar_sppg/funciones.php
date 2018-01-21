@@ -88,7 +88,7 @@ function LeerEstructuraDbf($fichero) {
 	return $resultado;
 }
 //
-function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
+function ComprobarTabla($nombreTabla,$tablas,$BDImportDbf,$campos,$TControlador) {
 	// Lo que hacemos es comprobar que las tablas ( $nombrestablas ) existene DBFImportar y 
 	// ademas si la estructura es la correcta.
 	// Estructura de campos. 
@@ -99,7 +99,7 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	//		[longitud]
 	//		[decimal]	
 	// Devolvemos resultado : 
-	//  [Estaod] 
+	//  [Estado] 
 	//  [accion-xxxxx] ->  borrado(vaciar),creado, eliminar tabla.
 
 	$resultado = array();
@@ -114,18 +114,19 @@ function ComprobarTabla($nombreTabla,$conexion,$BDImportDbf,$campos) {
 	$i = 0;	
 	$resp_crear = 'no';
 	// Inicio comparacion de campos de la tabla de la bbdd y dbf, 
-	foreach ($conexion as $tabla){
+	foreach ($tablas as $tabla){
 		if ($nombreTabla === $tabla) {
 			$resultado['Tabla'] = 'Existe';
 			// 1º Obtengo estructura  de  la tabla de BDImportar
-			$arr = ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla);
-			if (isset($arr['dropear-tabla'])){
+			$infoTabla= $TControlador->InfoTabla($BDImportDbf,$nombretabla,'si');
+			$campos = $infoTabla['campos'];
+			if (isset($infoTabla['error'])){
 				// Si NO existe o sale mal la consulta
 				$resultado['dropear-tabla'] = true;
 				$resultado['accion-borrado'] = 'Borramos tabla';
 				break;
 			}
-			$strEstruct = implode(",",$arr);
+			$strEstruct = implode(",",$campos);
 			// Despues de montar la estructura en un array tambien lo muestro para debug.
 			$resultado['debug_campos'] = $strEstruct;
 			//comparamos que la estructura de la bbdd sea igual que la estructura del dbf que intentamos importar
@@ -175,13 +176,11 @@ function RecogerCampos ($nombreTabla, $campos){
 					break;
 			}
 
-			//$strCampos[$i] = $campo['campo'].$campo['tipo'].$campo['longitud'].$campo['decimal'];
 			$strCampos[$i] = $campo['campo'].' '.$tipo;
 			$i++;
 		}
 	}
 
-	//implode (",",$v); une los datos separandolos en comas en un array.
 	$strSql = implode(",",$strCampos);
 
 	$resultado = $strSql;
@@ -255,42 +254,9 @@ function InsertarDatos($campos,$nombretabla,$datos,$BDImportDbf){
 		$resultado['Estado'] = 'Correcto';
 	}
 	 $resultado['numErrores'] = count($resultado['Errores']);
-	//~ $resultado['datosAinsertar'] = $SqlDato;
-	//$resultado['sqlINsertar'] = $SqlInsert;
-	//~ $resultado['valores'] = $datos;
-	// Ejecutamos sentencia insert
-	//$resultado['inserta'] = $consulta1;
-	//$resultado = $resp_insertar;
+	
 	
 	return $resultado;
-}
-function ObtenerEstructuraTablaMysq($BDImportDbf,$nombreTabla,$string ='si'){
-	// @Objetivo : Obtener array con los campos de la tabla.
-	// Obtenemos array con los campos de la tabla.
-	$resultado = array();
-	$sqlShow = 'SHOW COLUMNS FROM '.$nombreTabla;
-	if ($res=$BDImportDbf->query($sqlShow)) {
-		$respuesta =  $res->fetch_row() ;
-		if (! isset ($respuesta)){
-			// Si NO existe o no sale mal la consulta borramos tabla
-			$resultado['dropear-tabla'] = true;
-		} else {
-			$i = 0;
-			// Recorro respuesta y monto array de campos .
-			while ($fila = $res->fetch_row()) {
-				if ($string ==='si'){
-					$nombreCampo = $fila[0];
-					$tipo = $fila[1];
-					$resultado[$i] = $nombreCampo.' '.$tipo;
-				} else {
-					$resultado[$i] = $fila[0];
-				}
-				$i++;
-			}
-		}
-	}
-	return $resultado;
-	
 }
 
 
