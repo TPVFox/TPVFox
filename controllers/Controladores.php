@@ -6,7 +6,7 @@
 
 class ControladorComun 
 {
-     function InfoTabla ($Bd,$tabla){
+     function InfoTabla ($Bd,$tabla,$tipo_campo = 'si'){
 		// Funcion que nos proporciona informacion de la tabla que le indicamos
 		/* Nos proporciona informacion como nombre tabla, filas, cuando fue creada, ultima actualizacion .. y mas campos interesantes:
 		 * Ejemplo de print_r de virtuemart_products 
@@ -16,23 +16,39 @@ class ControladorComun
 		 *    	[Update_time] => 2016-10-31 20:46:35 // Lo recomendable que la hora Update ser superior en nuestra BD , pero no siempre será
 		*/
 		$fila = array();
-		if ($tabla != ''){
-			// Quiere decir que queremos consultar informa todas las tablas.
-				$tablas = 'WHERE `name`="'.$tabla.'"';
-		} else {
-			// Quiere decir que queremos consultar informa un tabla
-				$tablas = '';
-		}
-		$consulta = 'SHOW TABLE STATUS '. $tablas;
+		$consulta = 'SHOW TABLE STATUS WHERE `name`="'.$tabla.'"';
 		$Queryinfo = $Bd->query($consulta);
 		// Hay que tener en cuenta que no produce ningún error... 
 		$Ntablas = $Bd->affected_rows   ;
 		if ($Ntablas == 0) {
 			$fila ['error'] = 'Error tabla no encontrada - '.$tablas;
 		} else {
-			$fila = $Queryinfo->fetch_assoc();
+			$fila['info'] = $Queryinfo->fetch_assoc();
 		}
-		$fila['consulta'] = $consulta;
+		if (!isset($fila['error'])){
+			$campos = array();
+			$sqlShow = 'SHOW COLUMNS FROM '.$tabla;
+			if ($res=$Bd->query($sqlShow)) {
+				while ($dato_campo = $res->fetch_row()) {
+					if ($tipo_campo ==='si'){
+						// Obtenemos nombre campo y tipo de campo.
+						$campos[] = $dato_campo[0].' '.$dato_campo[1];
+					} else {
+						$campos[] = $dato_campo[0];
+					}
+				}
+				$fila['campos'] = $campos;
+			} else{
+				// Si NO existe o no sale mal enviamos un error.
+				$fila['campos'] = $Bd->error;
+			} 
+		}
+		$fila['consulta_info'] = $consulta;
+		$fila['consulta_campos'] = $sqlShow;
+
+		
+		
+		
 		return $fila ;
 		
 	}
