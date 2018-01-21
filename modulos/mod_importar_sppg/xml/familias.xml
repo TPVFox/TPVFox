@@ -27,7 +27,7 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 				<action funcion="mismo" tabla_cruce="familiasTienda" campo_cruce="ref_familia_tienda" description="Referencias iguales"/>
 			</campo>
 			<campo nombre="CNOMFAM">
-				<action funcion="similar" tabla_cruce="familias" campo_crucer="familiaNombre" description="Buscar palabras similares"/>
+				<action funcion="comparar" tabla_cruce="familias" campo_cruce="familiaNombre" description="Buscar palabras similares"/>
 			</campo>
 		</campos>
 		<tpv>
@@ -60,14 +60,8 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 					</before>
 				</procesos>
 				<options tipo="general">
-					<option tipo="Crear">
-						<texto>Crear Nuevo</texto>
-					</option>
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
-					</option>
-					<option tipo="Modificar">
-						<texto>Modificar Tpv con Importar</texto>
 					</option>
 				</options>
 				
@@ -85,6 +79,12 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 				</options>
 			</comprobacion>
 			<comprobacion nombre="Similar">
+				<procesos>
+					<before>
+						<action funcion="SeleccionarRegistroFamilias"/>
+					</before>
+				</procesos>
+				
 				<options tipo="general">
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
@@ -92,8 +92,6 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 				</options>
 			</comprobacion>
 		</comprobaciones>
-			
-		
 		
 		
 	</tabla>

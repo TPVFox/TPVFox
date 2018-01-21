@@ -26,7 +26,7 @@
 		<caja_input>
 			<nombre id_input="AnadirID">botonID</nombre>
 			<teclas>
-				<action tecla="13">InsertarIdEnRegistro</action>
+				<action tecla="13">InsertarIdEnRegistroFamilia</action>
 			</teclas>
 			<before>
 				<estado>Si</estado>
@@ -37,6 +37,11 @@
 		</caja_input>
 	</cajas_input>
 	<configuracion>
+		<empresas>
+			<datos_empresa id="3" nombre="Logueicarp 2017">
+				/home/solucion40/www/superoliva/datos/DBF71
+			</datos_empresa>
+		</empresas>
 		<tipos_registros>
 			<tipo clase="todos">
 				<texto>Todos</texto>

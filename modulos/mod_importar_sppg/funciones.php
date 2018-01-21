@@ -413,14 +413,26 @@ function BuscarIgualSimilar($BDTpv,$campos,$registro){
 					if(isset($registro[$campo])){
 						// Obtenemos tabla... debería comprobar si es o no tabla o si existe.
 						$tabla = $accion['tabla_cruce'];
-						$palabras = explode(' ',trim($registro[$campo]));
+						// Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
+						$buscar = array(',',';','(',')','-');
+						$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ');
+						$string  = str_replace($buscar, $sustituir, trim($registro[$campo]));
+						
+						$palabras = explode(' ',$string);
 						$likes = array();
+						// La palabras queremos descartar , la ponemos en mayusculas
+						$descartar = array('PARA','COMO','CUAL');
 						foreach($palabras as $palabra){
 							if (trim($palabra) !== '' && strlen(trim($palabra))>3){
-								$likes[] =  $accion['campo_cruce'].' LIKE "%'.$palabra.'%" ';
+								// Entra si la palabra tiene mas 3 caracteres.
+								// Aplicamos filtro de palabras descartadas
+								if (!in_array(strtoupper($palabra),$descartar)){
+									$likes[] =  $accion['campo_cruce'].' LIKE "%'.$palabra.'%" ';
+								}
 							}
 						}
-						$busqueda = implode(' and ',$likes);
+						// De momento pogo OR, pero creo que tendríamos que poner parametros de cada fichero lo queremos.
+						$busqueda = implode(' OR ',$likes);
 						$whereC =' WHERE '.$busqueda;
 						//~ echo '<br/>'.$item.'----> '.$whereC.'<br/>';
 						$consulta = "SELECT * FROM ". $tabla.' '.$whereC;
@@ -428,12 +440,12 @@ function BuscarIgualSimilar($BDTpv,$campos,$registro){
 						if ($Registros['NItems'] >0){
 							$respuesta['tpv'] = $Registros;
 							$respuesta['comprobacion']['encontrado_tipo'] = 'Similar';
-
 						} 
 						// Ahora registramos lo que hicimos
 						// Montamos Accion para saber resultado ->CAMPO+Num_Accion+funcion+Descripcion
 						$respuesta['comprobacion'][$campo][$num_accion]['accion'] = $accion['funcion'].' -> '.$accion['description'];
-						$respuesta['comprobacion'][$campo][$num_accion]['control'] = 'Entro';
+						
+						$respuesta['comprobacion'][$campo][$num_accion]['consulta'] = $consulta;
 						$respuesta['comprobacion'][$campo][$num_accion]['respuesta'] = $Registros;
 						
 					}
@@ -614,17 +626,36 @@ function BeforeProcesosOpcionesGeneralesComprobaciones($Xmlfunciones,$item){
 } 
 function SeleccionarRegistroFamilias($item){
 	$respuesta = '<div>
-				<p>Debes añadirle un id en tabla de BDImportar de la tabla Tpv para poder relacionarlo</p>
+				<p>Debes añadirle un id en tabla de BDImportar de la tabla Tpv para poder crear el cruce y relacionarlo</p>
 				<div class="form-group">
 				<input id="anhado_id_'.$item.'" type="number " name="id">
 				</div>
 				<div class="form-group">
-				<button id="AnadirID_'.$item.'" class="btn btn-primary" data-obj="botonID" onclick="controlEventos(event)">Añadir ID</button></div>	';
+				<button id="AnadirID_'.$item.'" class="btn btn-primary" data-obj="botonID" onclick="controlEventos(event)">Añadir ID</button>
+				</div>
+				</div>	';
 	return $respuesta;
 	
 }
 
-
+function FamiliaIdInsert($BDImportDbf,$BDTpv,$datos,$idvalor){
+	// Objetivo:
+	// Es añadir el cruce de la familia de DBF con TPV y quitarlo del registro.
+	$respuesta = array();
+	//~ $consultaImportar = 
+	
+	$respuesta = $datos;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	return $respuesta;
+}
 
 
 ?>

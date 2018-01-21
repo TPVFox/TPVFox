@@ -143,9 +143,9 @@
 // ---  Realizamos comprobaciones y montamos parametros para cada registro.  -------------- //
 	$registros_tpv = array();
 	
-	echo '<pre>';
-	print_r($parametros_comprobaciones['Mismo'][0]->procesos->before->action);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($parametros_comprobaciones['Mismo'][0]->procesos->before->action);
+	//~ echo '</pre>';
 		
 	$comprobaciones = array();
 	foreach ($Registros_sin['importar'] as $item=>$registro){
@@ -156,24 +156,29 @@
 		$resultado_b = $comprobaciones[$item]['resultado']['encontrado_tipo'];
 		// Montamos botonera de opciones generales con JS
 		$comprobaciones[$item]['opt_generales'] = MontarHtmlOpcionesGenerales($parametros_comprobaciones,$resultado_b,$item);
-		$Xmlfunciones = $parametros_comprobaciones[$resultado_b][0]->procesos->before->action;
+		if (isset($parametros_comprobaciones[$resultado_b][0]->procesos->before->action)){
+			$Xmlfunciones = $parametros_comprobaciones[$resultado_b][0]->procesos->before->action;
+		} else {
+			$Xmlfunciones = array();
+		}
 		if (count($Xmlfunciones)){
 			$comprobaciones[$item]['proceso_before'] = BeforeProcesosOpcionesGeneralesComprobaciones($Xmlfunciones,$item);
 		}
 		if (isset($respuesta['tpv'])){
 			//Quiere decir que encontro uno igual o similares
 			// Comprobamos que solo tengamos una respuesta ya que sino será similar.
-			if (count($respuesta['tpv']['NItems'] >1)){
-				if ($comprobaciones[$item]['resultado']['encontrado_tipo'] = "Mismo"){
+			if ($respuesta['tpv']['NItems'] >0){
+				if ($comprobaciones[$item]['resultado']['encontrado_tipo'] === "Mismo" && $respuesta['tpv']['NItems'] > 1){
 					// Cambiamos dato a similar y marcamos registro comprobaciones como error.
 					$comprobaciones[$item]['resultado']['encontrado_tipo'] ="Similar";
 					$comprobaciones[$item]['estado'] = 'Error - Cambio tipo encontrado Similar';
 				}
 			}
+			
 			// Hay que tener que igual es igual en campo que consideramos que es suficientemente 
 			// identificador para decir que es el mismo, pero no sabemos que si se modifico algún campo.
 			$procesos = 'Si' ; // De momento entiendo que siempre 
-			if ($comprobaciones[$item]['resultado']['encontrado_tipo']= "Mismo"){
+			if ($comprobaciones[$item]['resultado']['encontrado_tipo']=== "Mismo"){
 				// Debería:
 				//  - procesos de comprobaciones = Mismo
 				
@@ -270,8 +275,9 @@
 				<h4>Registro de Tpv</h4>
 				<?php 	
 					if (isset($registros_tpv[$item])){
+						echo 'Numero Items encontrados:'.$registros_tpv[$item]['NItems'];
 						echo '<pre>';
-						print_r($registros_tpv[$item]);
+						print_r($registros_tpv[$item]['Items']);
 						echo '</pre>';
 					}
 				?>
@@ -284,13 +290,14 @@
 					echo '<pre>';
 						print_r($comprobaciones[$item]['resultado']['encontrado_tipo']);
 					echo '</pre>';
-					foreach ( $comprobaciones[$item]['proceso_before'] as $htmlBefore){
-					echo $htmlBefore;
+					if (isset($comprobaciones[$item]['proceso_before'])){
+						foreach ( $comprobaciones[$item]['proceso_before'] as $htmlBefore){
+							echo $htmlBefore;
+						}
 					}
-					
-					echo '<pre>';
-						print_r($comprobaciones[$item]);
-					echo '</pre>';
+					//~ echo '<pre>';
+						//~ print_r($comprobaciones[$item]);
+					//~ echo '</pre>';
 				?>
 			</div>
 		</div>

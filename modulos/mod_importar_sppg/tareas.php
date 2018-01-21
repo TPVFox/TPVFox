@@ -77,6 +77,16 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
 		$respuesta = $parametros_tabla;
 		echo json_encode($respuesta);
 		break;
+		
+	case 'FamiliaAnhadirIdRegistro':
+		$respuesta 	= array();
+		$datos 		= $_POST['datos'];
+		$tabla 		= $_POST['tabla'];
+		$idvalor 	= $_POST['idValor'];
+		$respuesta = FamiliaIdInsert($BDImportDbf,$datos,$idvalor);
+		echo json_encode($respuesta);
+		break;
+	
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

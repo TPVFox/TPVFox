@@ -368,28 +368,33 @@ function controladorAcciones(caja,accion){
 	//						darValor -> donde obtiene el valor input
 	switch(accion) {
 		case 'InicioEjecutar':
-				accion_general =$('#accion_general_'+caja.fila).val();
-				var continuar = confirm("Vamos a "+accion_general);
-				console.log(accion_general);
-				if (continuar == true) {
-					// Pulso Si.
-					if (accion_general === 'Descartar'){
-						// Ocultamos fila.
-						$('#fila'+caja.fila).css("display", "none");
-						DescartarRegistroTratar(caja.fila);
-					}
-					if (accion_general === 'Nuevo'){
-						$('#fila'+caja.fila).css("display", "none");
-						AnhadirRegistroTpv(caja.fila);
-					}
-					
-					
-				} 
-				
-				
-
-				
-				break; // Recuerda que debe poner break.. sino continua ejecutando default
+			accion_general =$('#accion_general_'+caja.fila).val();
+			var continuar = confirm("Vamos a "+accion_general);
+			console.log(accion_general);
+			if (continuar == true) {
+				// Pulso Si.
+				if (accion_general === 'Descartar'){
+					// Ocultamos fila.
+					$('#fila'+caja.fila).css("display", "none");
+					DescartarRegistroTratar(caja.fila);
+				}
+				if (accion_general === 'Nuevo'){
+					$('#fila'+caja.fila).css("display", "none");
+					AnhadirRegistroTpv(caja.fila);
+				}
+			} 
+			break; // Recuerda que debe poner break.. sino continua ejecutando default
+		case 'InsertarIdEnRegistroFamilia':
+			// Entro cuando pulsamos en Añadir ID en tabla familias
+			// Obtengo dato de la caja texto id para enviar
+			var id =$('#anhado_id_'+caja.fila).val();
+			console.log(parseInt(id));
+			InsertarIdRegistroFamilia(caja.fila,id);
+			
+		
+		
+		break;
+		
 		default :
 				alert( 'Accion no encontrada '+ accion);
 	}
@@ -405,7 +410,10 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('Ejecutar') >-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
-	
+	if (padre_caja.id_input.indexOf('AnadirID') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+
 	return padre_caja;
 }
 
@@ -413,9 +421,14 @@ function before_constructor(caja){
 	// @ Objetivo :
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
+	console.log(caja.id_input);
 	if (caja.id_input.indexOf('Ejecutar') >-1){
 		caja.fila = caja.id_input.slice(9);
 		console.log('Fila:'+caja.fila);
+	}
+	if (caja.id_input.indexOf('AnadirID_') >-1){
+		caja.fila = caja.id_input.slice(9);
+		console.log('Fila de AnadirID:'+caja.fila);
 	}
 	
 	return caja;
@@ -457,7 +470,7 @@ function AnhadirRegistroTpv(fila){
 	var parametros = {
 		"pulsado"	: "AnhadirRegistroTpv",
 		"tabla" 	: tabla, // Enviamos todos los ficheros.
-		"datos" 	: datos[0]
+		"datos" 	: datos[0],
 		};
 	
 	$.ajax({
@@ -476,4 +489,35 @@ function AnhadirRegistroTpv(fila){
 		}
 	});
 	
+}
+
+
+function InsertarIdRegistroFamilia(fila,id){
+	// @Objetivo:
+	// Grabar en BDImport en estado ="Descartado"
+	datos = registros.importar[fila];
+	var parametros = {
+		"pulsado"	: "FamiliaAnhadirIdRegistro",
+		"tabla" 	: tabla, // Enviamos todos los ficheros.
+		"datos" 	: datos[0],
+		"idValor"	: id
+		};
+	
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			console.log('=======  Añadiendo ID de tpv en campo id de BDImportar de la tabla '+tabla+ '   ==========');
+			
+		},
+		success:  function (response) {
+			console.log('================  Termino de añadir ID en registro en DBDImportar en '+tabla+ '   ====================');
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
+		
+		}
+	});
+
+
 }
