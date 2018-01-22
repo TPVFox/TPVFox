@@ -91,7 +91,8 @@ function BusquedaClientes($busqueda,$BDTpv,$tabla, $idcaja){
 	$buscar1= 'Nombre';
 	$buscar2='razonsocial';
 	$buscar3='nif';
-	if ($idcaja==='id_cliente'){
+	$resultado['caja']=$idcaja;
+	if ($idcaja==='id_cliente' || $idcaja ==='id_clienteAl'){
 		$sql='SELECT idClientes, nombre, razonsocial, nif FROM '.$tabla.' WHERE idClientes='.$busqueda; 
 	}else{
 	$sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM '.$tabla.' WHERE '.$buscar1.' LIKE "%'.$busqueda.'%" OR '
@@ -106,13 +107,12 @@ $resultado['Nitems']= $res->num_rows;
 		$resultado['error'] = $BDTpv->error_list;
 		return $resultado;
 	} 
-	
+	$resultado['consulta']=$sql;
 	$arr = array();
 	$i = 0;
 	//fetch_assoc es un boleano..
 	while ($fila = $res->fetch_assoc()) {
 		$arr[$i] = $fila;
-		
 		$resultado['datos'][0] = $fila;
 		$resultado['datos'] = $arr;
 		$i++;

@@ -291,7 +291,7 @@ class PedidosVentas{
 	
 	public function buscarNumPedidoId($idPedidoTemporal){
 		$db=$this->db;
-		$smt=$db->query('select  Numpedcli, id from pedclit where id='.$idPedidoTemporal);
+		$smt=$db->query('select  Numpedcli, id from pedclit where Numpedcli='.$idPedidoTemporal);
 		if ($result = $smt->fetch_assoc () ){
 			$pedido=$result;
 		}

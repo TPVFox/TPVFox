@@ -115,7 +115,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		
 	};
 	
-	console.log (parametros);
+	console.log (dedonde);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -128,60 +128,61 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-	if (valor==""){
-			var titulo = 'Listado clientes ';
-			abrirModal(titulo,HtmlClientes);
-			// Asignamos focus a caja buscar cliente.
-			// Asignamos focus
-			if (encontrados >0 ){
-				// Enfocamos el primer item.
-				mover_down(0);
-				$('#N_0').focus();
+			
+				if (valor==""){
+					var titulo = 'Listado clientes ';
+					abrirModal(titulo,HtmlClientes);
+					// Asignamos focus a caja buscar cliente.
+					// Asignamos focus
+					if (encontrados >0 ){
+						// Enfocamos el primer item.
+						mover_down(0);
+						$('#N_0').focus();
 				
-			}else {
-				// No hay datos focus a caja buscar cliente.
-				$('#cajaBusquedacliente').focus();
-			}
-		}else if(idcaja==="Cliente"){
-			console.log('entre en cliente');
-			console.log(resultado);
-			var titulo = 'Listado clientes ';
-			abrirModal(titulo,HtmlClientes);
-			if (encontrados >0 ){
-				// Enfocamos el primer item.
-				mover_down(0);
-				$('#N_0').focus();
+					}else {
+						// No hay datos focus a caja buscar cliente.
+						$('#cajaBusquedacliente').focus();
+					}
+				}else if(idcaja==="Cliente"){
+					console.log('entre en cliente');
+					console.log(resultado);
+					var titulo = 'Listado clientes ';
+					abrirModal(titulo,HtmlClientes);
+					if (encontrados >0 ){
+						// Enfocamos el primer item.
+						mover_down(0);
+						$('#N_0').focus();
 				
-			}else {
-				// No hay datos focus a caja buscar cliente.
-				$('#cajaBusquedacliente').focus();
-			}
-		}else if(idcaja==="cajaBusquedacliente"){
-			console.log('entre en caja buqueda');
-			console.log(resultado);
-			var titulo = 'Listado clientes ';
-			abrirModal(titulo,HtmlClientes);
-			if (encontrados >0 ){
-				// Enfocamos el primer item.
+					}else {
+						// No hay datos focus a caja buscar cliente.
+						$('#cajaBusquedacliente').focus();
+					}
+				}else if(idcaja==="cajaBusquedacliente"){
+					console.log('entre en caja buqueda');
+					console.log(resultado);
+					var titulo = 'Listado clientes ';
+					abrirModal(titulo,HtmlClientes);
+					if (encontrados >0 ){
+						// Enfocamos el primer item.
 				
-				mover_down(0);
-				$('#N_0').focus();
-			}else {
-				// No hay datos focus a caja buscar cliente.
-				$('#cajaBusquedacliente').focus();
-			}
+						mover_down(0);
+						$('#N_0').focus();
+					}else {
+						// No hay datos focus a caja buscar cliente.
+						$('#cajaBusquedacliente').focus();
+					}
 		
-		}else{
-			console.log('no muestro modal');
-			$('#Cliente').val(resultado.nombre);
-			if (resultado.numPedidoTemp>0){
-				console.log("entre");
-				mostrarFila();
-				history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
-				cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
-			}
-			console.log(resultado.numPedidoTemp);
-		}
+				}else{
+					console.log('no muestro modal');
+					$('#Cliente').val(resultado.nombre);
+					if (resultado.numPedidoTemp>0){
+						console.log("entre");
+						mostrarFila();
+						history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
+						cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
+					}
+					console.log(resultado.numPedidoTemp);
+				}
 			
 		}
 	});
@@ -216,7 +217,8 @@ function controladorAcciones(caja,accion){
 			console.log(caja);
 			buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			break;
-			
+		
+		
 		case 'saltar_idCliente':
 		console.log('Entro en acciones saltar_idCliente');
 		var dato = caja.darValor();
@@ -372,37 +374,9 @@ function controladorAcciones(caja,accion){
 		buscarPedido(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		
 		break;
-		//~ case 'cobrar':
-			//~ console.log( ' Entro en accion buscarProducto');
-			//~ cobrarF1();
-			//~ break
-			
-		//~ case 'poner_entrega':
-			//~ var cambio = parseFloat(caja.darValor()) - total;
-			//~ console.log(cambio);
-			//~ if (cambio < 0){
-				//~ $('#cambio').css('color','red');
-			//~ }else {
-				//~ $('#cambio').css('color','grey');
-			//~ }
-			//~ $('#cambio').val(cambio.toFixed(2));
-			//~ // Ponemos como focus el btn de aceptar
-			//~ ponerFocus('CobrarAceptar');
-			//~ break;
-		
-		//~ case 'cerrar_ticket':
-			//~ console.log(' Entro en contralador de acciones, cerrar ticket');
-			//~ CobrarAceptar.parametros.pulsado_intro = 'Si';
-			//~ // Ahora grabamos y cerramos ticket
-			//~ cerrarTicket()
-			//~ break;
-		//~ case 'focus_entrega':
-			//~ ponerFocus('entrega');
-			//~ break;
-			
-		//~ case 'focus_modoPago':
-			//~ ponerFocus('modoPago');
-			//~ break;
+		case 'buscarClientesAlbaran':
+		console.log("Entre en buscarCliente albaran");
+		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		
 		default :
 			console.log ( 'Accion no encontrada '+ accion);
@@ -1112,11 +1086,61 @@ function addAlbaranTemp(){
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 			console.log(resultado);
-			
 			history.pushState(null,'','?tActual='+resultado.id);
 			cabecera.idAlbaranTemp=resultado.id;
+			
 			
 		}
 	});
 }
 
+
+function buscarClienteAl(dedonde, idcaja, valor=''){
+	console.log('FUNCION Añadir albaran temporal JS-AJAX');
+	console.log(cabecera);
+	
+	console.log('FUNCION buscarPedido JS-AJAX');
+	console.log(cabecera);
+	
+	var parametros = {
+		"pulsado"    : 'buscarClienteAl',
+		"busqueda" : valor,
+		"dedonde":dedonde,
+		"idcaja":idcaja,
+		"idAlbaranTemp":cabecera.idAlbaranTemp,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estadoAlbaran":cabecera.estadoAlbaran,
+		"idAlbaran":cabecera.idAlbaran,
+		"numAlbaran":cabecera.numAlbaran,
+		"fecha":cabecera.fecha
+		
+	};
+	console.log(idcaja);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en buscar clientes JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de buscar clientes');
+			var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+			console.log('no muestro modal');
+			console.log(resultado);
+			if (resultado.items['Nitems']==1){
+				
+				$('#ClienteAl').val(resultado.items.datos[0]['nombre']);
+				$('#ClienteAl').prop('disabled', true);
+				$('#id_clienteAl').prop('disabled', true);
+				 $("#buscar").css("display", "none");
+				
+				
+			}
+			
+		}
+	});
+}

@@ -46,13 +46,18 @@ class AlbaranesVentas{
 		$smt = $db->query($sql);
 		return $smt;
 	}
-	public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos){
+	public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $idCliente){
 		$db = $this->db;
-		$UnicoCampoPedidos=json_encode($pedidos);
-		$UnicoCampoProductos=json_encode($productos);
-		$smt = $db->query ('INSERT INTO albcliltemporales ( idUsuario , idTienda , estadoAlbCli , fechaInicio, Pedidos , Productos) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoAlbaran.'" , "'.$fecha.'", '."'".$UnicoCampoPedidos."'".', '."'".$UnicoCampoProductos."'".')');
+		//~ $UnicoCampoPedidos=json_encode($pedidos);
+		//~ $UnicoCampoProductos=json_encode($productos);
+		$smt = $db->query ('INSERT INTO albcliltemporales ( idUsuario , idTienda , estadoAlbCli , fechaInicio, idClientes) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoAlbaran.'" , "'.$fecha.'", '.$idCliente.' )');
+		$sql='INSERT INTO albcliltemporales ( idUsuario , idTienda , estadoAlbCli , fechaInicio, idClientes) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoAlbaran.'" , "'.$fecha.'", '.$idCliente.' )';
+
 		$id=$db->insert_id;
-		return $id;
+		$respuesta['id']=$id;
+		$respuesta['sql']=$sql;
+		
+		return $respuesta;
 	}
 	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idTemporal){
 		$db = $this->db;
@@ -75,6 +80,7 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
+
 	
 	
 }

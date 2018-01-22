@@ -13,7 +13,7 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	if ($_GET['id']){
+	if (isset($_GET['id'])){
 		$idAlbaranTemporal=0;
 		$idAlbaran=$_GET['id'];
 		$numAlbaran="Lo busca si no es igual al id";
@@ -27,7 +27,7 @@ include './../../head.php';
 		$estadoCab="'".'Abierto'."'";
 		$fecha=date('Y-m-d');
 		$fechaCab="'".$fecha."'";
-			if ($_GET['tActual']){
+			if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
 				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
 				if ($datosAlbaran['numalbcli ']){
@@ -41,6 +41,9 @@ include './../../head.php';
 				$idAlbaranTemporal=0;
 				$idAlbaran=0;
 				$numAlbaran=0;
+				$idCliente="";
+				$nombreCliente="";
+			
 			}
 		
 	}
@@ -49,11 +52,11 @@ include './../../head.php';
 			
 		}
 		
-		//~ if (isset ($pedido)| $_GET['id']){
-			//~ $style="";
-		//~ }else{
-			//~ $style="display:none;";
-		//~ }
+		if (isset ($pedido)| isset($_GET['id'])){
+			$style="";
+		}else{
+			$style="display:none;";
+		}
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -90,10 +93,10 @@ include './../../head.php';
 	
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
-			if ($product->estado !== 'Activo'){
-			?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
+			//if ($product->estado !== 'Activo'){
+			?>	//productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 			<?php
-			}
+		//	}
 			$i++;
 		}
 	
@@ -120,7 +123,7 @@ include './../../head.php';
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<?php 
-			if (isset($_GET)){
+			if (isset($_GET['mensaje'])){
 				$mensaje=$_GET['mensaje'];
 				$tipomensaje=$_GET['tipo'];
 			}
@@ -136,13 +139,13 @@ include './../../head.php';
 			}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./pedidosListado.php">Volver Atrás</a>
+			<a  href="./albaranesListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php
-				if ($_GET['tActual']){
+				if ($idAlbaranTemporal>0){
 					?>
-					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
+					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $idAlbaranTemporal;?>>
 					<?php
 				}
 					?>
@@ -167,8 +170,8 @@ include './../../head.php';
 		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
-			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
+			<input type="text" id="id_clienteAl" name="id_clienteAl" data-obj= "cajaIdClienteAl" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+			<input type="text" id="ClienteAl" name="ClienteAl" data-obj= "cajaClienteAl" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')"></a>
 		</div>
 	</div>
@@ -176,9 +179,9 @@ include './../../head.php';
 	
 		<div>
 			<div style="margin-top:-50px;">
-			<label>Número del pedido:</label>
-			<input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')"></a>
+			<label style="display:none;">Número del pedido:</label>
+			<input style="display:none;" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
+			<a style="display:none;" id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')"></a>
 			</div>
 		</div>
 	</div>

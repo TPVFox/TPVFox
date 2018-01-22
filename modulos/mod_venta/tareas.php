@@ -183,35 +183,6 @@ switch ($pulsado) {
 		break;
 		
 		
-			
-	//~ case 'grabarTickes';
-		//~ // @ Objetivo :
-		//~ // Grabar tickets temporales.
-		//~ $respuesta = array();
-		//~ $cabecera = array(); // Array que rellenamos de con POST
-		//~ $productos 					=$_POST['productos'];
-		//~ $cabecera['idTienda']		=$_POST['idTienda'];
-		//~ $cabecera['idCliente']		=$_POST['idCliente'];
-		//~ $cabecera['idUsuario'] 		=$_POST['idUsuario'];
-		//~ $cabecera['estadoTicket'] 	=$_POST['estadoTicket'];
-		//~ $cabecera['numTicket'] 		=$_POST['numTicket'];
-		//~ // Ahora recalculamos nuevamente
-		//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-		//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
-		//~ $nuevoArray = array(
-						//~ 'desglose'=> $CalculoTotales['desglose'],
-						//~ 'total' => $CalculoTotales['total']
-							//~ );
-		//~ $CalculoTotales = gettype($productos);
-		//~ $res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
-		//~ $respuesta=$res;
-		//~ $respuesta = array_merge($respuesta,$nuevoArray);
-		//~ echo json_encode($respuesta);
-		//~ break;
-		
-		
-		
-		
 	case 'buscarPedido':
 		$busqueda=$_POST['busqueda'];
 		$dedonde=$_POST['dedonde'];
@@ -258,8 +229,40 @@ switch ($pulsado) {
 			$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
 		}
 		$respuesta['id']=$res;
+		if ($pedidos){
+			//$respuesta['html']->
+		}
 		
 		echo json_encode($respuesta);
 		break;
+		
+	case 'buscarClienteAl':
+		$busqueda=$_POST['busqueda'];
+		$dedonde=$_POST['dedonde'];
+		$idCaja=$_POST['idcaja'];
+		$idAlbaranTemp=$_POST['idAlbaranTemp'];
+		$idUsuario=$_POST['idUsuario'];
+		$idTienda=$_POST['idTienda'];
+		$estadoAlbaran=$_POST['estadoAlbaran'];
+		$idAlbaran=$_POST['idAlbaran'];
+		$numAlbaran=$_POST['numAlbaran'];
+		$fecha=$_POST['fecha'];
+		$tabla='clientes';
+		$res = array( 'datos' => array());
+		$res = BusquedaClientes($busqueda,$BDTpv,$tabla, $idCaja);
+		$respuesta['items']=$res;
+		$respuesta['idCliente']=$res['datos'][0]['idClientes'];
+		$idCliente=(integer)$respuesta['idCliente'];
+		if ($res['Nitems']===1 & $idAlbaranTemp===0){
+			$addTemp=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha, $idCliente);
+			$respuesta['nombre']=$res['datos'][0]['nombre'];
+			$respuesta['idCliente']=$res['datos'][0]['idClientes'];
+			$respuesta['idTemporal']=$addTemp['id'];
+			$respuesta['sql']=$addTemp['sql'];
+			$respuesta['en']=$addTemp['en'];
+		}
+		echo json_encode($respuesta);
+		break;
+	break;
 		
 }
