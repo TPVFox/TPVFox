@@ -86,7 +86,9 @@
 					<span class="glyphicon glyphicon-user"></span><?php echo $Usuario['login'];?>
 					<?php
 					if ($_SESSION['estadoTpv'] == "Correcto"){
-					echo "<a href='http://marge.superoliva.es/superoliva/tpvolalla/cerrarSesion.php'>Cerrar</a>";
+					?>
+					<a href="<?php echo $HostNombre.'/cerrarSesion.php';?>">Cerrar</a>;
+					<?php
 			}
 				
 				?>
