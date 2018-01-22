@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 03, 2017 at 11:53 AM
+-- Generation Time: Jan 22, 2018 at 11:25 AM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -36,18 +36,16 @@ CREATE TABLE `tiendas` (
   `NombreComercial` varchar(100) DEFAULT NULL,
   `direccion` varchar(100) NOT NULL,
   `ano` varchar(4) DEFAULT NULL,
-  `dominio` varchar(50) NOT NULL,
-  `nom_bases_datos` varchar(30) NOT NULL,
-  `nom_usuario_base_datos` varchar(30) NOT NULL,
-  `prefijoBD` varchar(15) NOT NULL
+  `dominio` varchar(100) NOT NULL,
+  `key_api` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `tiendas`
 --
 
-INSERT INTO `tiendas` (`idTienda`, `tipoTienda`, `razonsocial`, `nif`, `telefono`, `estado`, `NombreComercial`, `direccion`, `ano`, `dominio`, `nom_bases_datos`, `nom_usuario_base_datos`, `prefijoBD`) VALUES
-(1, 'principal', 'Razon Social tienda', 'A36361361', '66666666', 'activo', 'Nombre Comercial tienda', 'Direccion sin poner de empresa', '2017', '', '', '', '');
+INSERT INTO `tiendas` (`idTienda`, `tipoTienda`, `razonsocial`, `nif`, `telefono`, `estado`, `NombreComercial`, `direccion`, `ano`, `dominio`, `key_api`) VALUES
+(1, 'principal', 'Razon Social Administrador', '333333333P', '666999999 ', 'activo', 'Nombre Comercial', 'Direccion, Vigo  ( Pontevedra - España )', '2017', '', '');
 
 --
 -- Indexes for dumped tables
