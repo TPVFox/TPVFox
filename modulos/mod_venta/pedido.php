@@ -15,6 +15,7 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
+	if ($_GET){
 	if ($_GET['id']){
 		$idPedido=$_GET['id'];
 		$titulo="Modificar Pedido De Cliente";
@@ -69,9 +70,18 @@ include './../../head.php';
 			$pedido_numero = 0;
 			$idPedido=0;
 			$total=0;
+			$idCliente=0;
 		}
 		
 	}
+}else{
+	$fecha=date('Y-m-d');
+	$estadoCab="'".'Abierto'."'";
+	$pedido_numero = 0;
+	$idPedido=0;
+	$total=0;
+	$idCliente=0;
+}
 		if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
@@ -122,7 +132,7 @@ include './../../head.php';
 			
 			header('Location: pedidosListado.php');
 		}
-		
+		$fechaCab="'".$fecha."'";
 		if (isset ($pedido)| $_GET['id']){
 			$style="";
 		}else{
@@ -144,6 +154,8 @@ include './../../head.php';
 		cabecera['estadoPedido'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
 		cabecera['numPedidoTemp'] = <?php echo $pedido_numero ;?>;
 		cabecera['idPedido'] = <?php echo $idPedido ;?>;
+		cabecera['idCliente']=<?php echo $idCliente ;?>;
+		cabecera['fecha']=<?php echo $fechaCab;?>;
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 
@@ -173,6 +185,11 @@ include './../../head.php';
 	
 ?>
 </script>
+<?php 
+if ($idCliente===0){
+	$idCliente="";
+}
+?>
 </head>
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
@@ -192,10 +209,12 @@ include './../../head.php';
 <div class="container">
 			<?php 
 			if (isset($_GET)){
+				if(isset($_GET['mensaje']) & isset($_GET['tipo'])){
 				$mensaje=$_GET['mensaje'];
 				$tipomensaje=$_GET['tipo'];
-			}
-			if (isset($mensaje) || isset($error)){   ?> 
+				if (isset($mensaje) || isset($error)){
+			
+			   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
 				if (isset($error)){
@@ -204,10 +223,12 @@ include './../../head.php';
 				}
 				?>
 			<?php
+		}
 			}
+		}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./pedidosListado.php">Volver Atrás</a>
+			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido();">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php

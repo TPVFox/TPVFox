@@ -266,7 +266,6 @@ class PedidosVentas{
 	public function contarPedidosTemporal($idPedido){
 		$db=$this->db;
 		$smt=$db->query('Select count(id) as numPedTemp FROM pedcliltemporales where idPedcli='.$idPedido );
-
 		if ($result = $smt->fetch_assoc () ){
 			$pedido=$result;
 		}
@@ -297,6 +296,38 @@ class PedidosVentas{
 		}
 		$pedido['Nitems']= $smt->num_rows;
 		return $pedido;
+	}
+	public function PedidosClienteGuardado($busqueda, $idCliente){
+		$db=$this->db;
+		$pedido['busqueda']=$busqueda;
+		if ($busqueda>0){
+		$smt=$db->query('select  Numpedcli, id , FechaPedido , total from pedclit where Numpedcli='.$busqueda.' and  idCliente='. $idCliente);
+		if ($smt){
+			if ($result = $smt->fetch_assoc () ){
+				$pedido=$result;
+			}
+			$pedido['Nitem']=1;
+		}
+		}else{
+			$smt=$db->query('SELECT  Numpedcli, FechaPedido , total , id from pedclit where idCliente='.$idCliente .' and estado="Guardado"');
+			$sql='SELECT  Numpedcli, FechaPedido , total from pedclit where idCliente='.$idCliente;
+			$pedido['sql']=$sql;
+			$pedidosPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($pedidosPrincipal,$result);	
+					
+				}
+			$pedido['datos']=$pedidosPrincipal;
+			
+		}
+		return $pedido;
+	}
+	public function ModificarEstadoPedido($idPedido, $estado){
+		$db=$this->db;
+		$smt=$db->query('UPDATE pedclit SET estado="'.$estado.'" WHERE id='.$idPedido);
+		$sql='UPDATE pedclit SET estado='.$estado.' WHERE id='.$idPedido;
+		$resultado['sql']=$sql;
+		return $resultado;
 	}
 }
 

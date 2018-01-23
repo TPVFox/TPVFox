@@ -41,8 +41,8 @@ include './../../head.php';
 				$idAlbaranTemporal=0;
 				$idAlbaran=0;
 				$numAlbaran=0;
-				$idCliente="";
-				$nombreCliente="";
+				$idCliente=0;
+				$nombreCliente=0;
 			
 			}
 		
@@ -75,6 +75,8 @@ include './../../head.php';
 		cabecera['idAlbaran'] = <?php echo $idAlbaran ;?>;
 		cabecera['numAlbaran'] = <?php echo $numAlbaran ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
+		cabecera['idCliente'] = <?php echo $idCliente ;?>;
+		cabecera['nombreCliente'] = <?php echo $nombreCliente ;?>;
 		
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
@@ -105,6 +107,12 @@ include './../../head.php';
 	
 ?>
 </script>
+<?php 
+if ($idCliente===0){
+	$idCliente="";
+	$nombreCliente="";
+}
+?>
 </head>
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
@@ -179,9 +187,19 @@ include './../../head.php';
 	
 		<div>
 			<div style="margin-top:-50px;">
-			<label style="display:none;">Número del pedido:</label>
+			<label style="display:none;" id="numPedidoT">Número del pedido:</label>
 			<input style="display:none;" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="display:none;" id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')"></a>
+			<a style="display:none;" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
+			<table  class="col-md-12" style="display:none" id="tablaPedidos"> 
+				<thead>
+				<th>
+				<td><b>Número</b></td>
+				<td><b>Fecha</b></td>
+				<td><b>Total</b></td>
+				<td></td>
+				</th>
+				</thead>
+			</table>
 			</div>
 		</div>
 	</div>

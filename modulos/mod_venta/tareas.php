@@ -26,6 +26,9 @@ $Cprod=new Producto($BDTpv);
 include_once ("clases/albaranesVentas.php");
 $CalbAl=new AlbaranesVentas($BDTpv);
 
+include_once("../../clases/cliente.php");
+$Ccliente=new Cliente($BDTpv);
+
 switch ($pulsado) {
     
     case 'buscarProductos':
@@ -103,46 +106,44 @@ switch ($pulsado) {
 		$res = BusquedaClientes($busqueda,$BDTpv,$tabla, $idcaja);
 		$respuesta['items']=$res['Nitems'];
 		if ($res['Nitems']===1 & $idPedido==0){
-			if ($numPedidoTemp>0){
-				//Si el número de busquedas es uno quiere decir que la busqueda fue por id
-			$modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
-			$respuesta['sql']=$modCliente;
-			$respuesta['busqueda']=$busqueda;
-			$respuesta['numPedidoTemp']=$numPedidoTemp;
-			$respuesta['idPedido']=$idPedido;
-			}else{
-			$addCliente=$CcliPed->AddClienteTemp($busqueda, $idTienda, $idUsuario, $estadoPedido);
-			$respuesta['numPedidoTemp']=$addCliente['id'];
-			$respuesta['sql']=$sql;
-			$respuesta['idPedido']=$idPedido;
-			}
+			//~ if ($numPedidoTemp>0){
+				//~ //Si el número de busquedas es uno quiere decir que la busqueda fue por id
+			//~ $modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
+			//~ $respuesta['sql']=$modCliente;
+			//~ $respuesta['busqueda']=$busqueda;
+			//~ $respuesta['numPedidoTemp']=$numPedidoTemp;
+			//~ $respuesta['idPedido']=$idPedido;
+			//~ }else{
+			//~ $addCliente=$CcliPed->AddClienteTemp($busqueda, $idTienda, $idUsuario, $estadoPedido);
+			//~ $respuesta['numPedidoTemp']=$addCliente['id'];
+			//~ $respuesta['sql']=$sql;
+			//~ $respuesta['idPedido']=$idPedido;
+			//~ }
 			$respuesta['nombre']=$res['datos'][0]['nombre'];
+			$respuesta['idCliente']=$res['datos'][0]['idClientes'];
 		}elseif($res['Nitems']>1 & $idPedido===0){
 			$respuesta = htmlClientes($busqueda,$dedonde, $idcaja, $res['datos']);
 		}else if($res['Nitems']===1 & $idPedido>0){
-		if ($numPedidoTemp>0){
-			$modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
-			$respuesta['busqueda']=$busqueda;
-			$respuesta['numPedidoTemp']=$numPedidoTemp;
-			$respuesta['idPedido']=$idPedido;
-			}else{
-			$addCliente=$CcliPed->AddClienteTempPedidoGuardado($busqueda, $idTienda, $idUsuario, $estadoPedido, $idPedido);
-			$respuesta['numPedidoTemp']=$addCliente['id'];
-			$respuesta['sql']=$addCliente['sql'];
-			$respuesta['idPedido']=$idPedido;
-			}
+		//if ($numPedidoTemp>0){
+			//~ $modCliente=$CcliPed->ModClienteTemp($busqueda, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
+			//~ $respuesta['busqueda']=$busqueda;
+			//~ $respuesta['numPedidoTemp']=$numPedidoTemp;
+			//~ $respuesta['idPedido']=$idPedido;
+			//~ }else{
+			//~ $addCliente=$CcliPed->AddClienteTempPedidoGuardado($busqueda, $idTienda, $idUsuario, $estadoPedido, $idPedido);
+			//~ $respuesta['numPedidoTemp']=$addCliente['id'];
+			//~ $respuesta['sql']=$addCliente['sql'];
+			//~ $respuesta['idPedido']=$idPedido;
+			//~ }
 			$respuesta['nombre']=$res['datos'][0]['nombre'];
+			$respuesta['idCliente']=$res['datos'][0]['idClientes'];
 		}else{
 			$respuesta = htmlClientes($busqueda,$dedonde, $idcaja, $res['datos']);
 		
-	}
+		}
 	
-		//~ echo $respuesta;
 		echo json_encode($respuesta);
-		break;
-		
-		
-		
+		break;	
 		case 'escribirCliente':
 		// Cuando la busqueda viene a traves de  la ventana modal
 		$id=$_POST['idcliente'];
@@ -152,6 +153,7 @@ switch ($pulsado) {
 		$idUsuario=$_POST['idUsuario'];
 		$estadoPedido=$_POST['estadoPedido'];
 		$idPedido=$_POST['idPedido'];
+		$respuesta['idCliente']=$id;
 		if ($numPedidoTemp>0){
 			$modCliente=$CcliPed->ModClienteTemp($id, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
 			$respuesta['sql']=$modCliente;
@@ -186,7 +188,7 @@ switch ($pulsado) {
 	case 'buscarPedido':
 		$busqueda=$_POST['busqueda'];
 		$dedonde=$_POST['dedonde'];
-		$idCaja=$_POST['idCaja'];
+		$idCaja=$_POST['idcaja'];
 		$idAlbaranTemp=$_POST['idAlbaranTemp'];
 		$idUsuario=$_POST['idUsuario'];
 		$idTienda=$_POST['idTienda'];
@@ -194,19 +196,54 @@ switch ($pulsado) {
 		$idAlbaran=$_POST['idAlbaran'];
 		$numAlbaran=$_POST['numAlbaran'];
 		$fecha=$_POST['fecha'];
-		$res=$CcliPed->buscarNumPedidoId($busqueda);
-		if ($res){
+		$idCliente=$_POST['idCliente'];
+		//~ $respuesta['busqueda']=$_POST['busqueda'];
+		$res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
+	//	$respuesta['datos']=$res;
+		if ($res['Nitem']==1){
+			$temporales=$CcliPed->contarPedidosTemporal($res['id']);
+			if ($temporales['numPedTemp']==0){
+				$respuesta['temporales']=$temporales;
+				$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
+				$respuesta['datos']['idPedCli']=$res['id'];
+				$respuesta['datos']['fecha']=$res['FechaPedido'];
+				$respuesta['datos']['total']=$res['total'];
+				$respuesta['Nitems']=$res['Nitem'];
+				$productosPedido=$CcliPed->ProductosPedidos($res['id']);
+				$respuesta['productos']=$productosPedido;
+			}
+		}else{
+			$respuesta=$res;
+			$contad = 0;
+			$respuesta['html'] .= '<table class="table table-striped"><thead>';
+			$respuesta['html'] .= '<th>';
+			$respuesta['html'] .='<td>Número </td>';
+			$respuesta['html'] .='<td>Fecha</td>';
+			$respuesta['html'] .='<td>Total</td>';
+			$respuesta['html'] .='</th>';
+			$respuesta['html'] .= '</thead><tbody>';
+			foreach ($res['datos'] as $pedido){
 			
-			$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
-			$respuesta['datos']['idPedCli']=$res['id'];
-			$respuesta['Nitems']=$res['Nitems'];
+				 $respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
+						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirPedidoSeleccionado('.$pedido['id'].');">';
 			
-			$productosPedido=$CcliPed->ProductosPedidos($res['id']);
-			$respuesta['productos']=$productosPedido;
+			$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
+								.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+
+					$respuesta['html'].='<td>'.$pedido['Numpedcli'].'</td>';
+					$respuesta['html'].='<td>'.$pedido['FechaPedido'].'</td>';
+					$respuesta['html'].='<td>'.$pedido['total'].'</td>';
+					$respuesta['html'].='</tr>';
+					$contad = $contad +1;
+					if ($contad === 10){
+						break;
+					}
 			
+			}
+			$respuesta['html'].='</tbody></table>';
 		}
 		echo json_encode($respuesta);
-		break;
+	
 		
 	break;
 	
@@ -220,10 +257,12 @@ switch ($pulsado) {
 		$fecha=$_POST['fecha'];
 		$pedidos=$_POST['pedidos'];
 		$productos=$_POST['productos'];
+		$idCliente=$_POST['idCliente'];
+		$nombreCliente=$_POST['nombreCliente'];
 		if ($idAlbaranTemp>0){
 			$res=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
 		}else{
-			$res=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos);
+			$res=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente);
 		}
 		if ($numAlbaran===0){
 			$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
@@ -248,21 +287,37 @@ switch ($pulsado) {
 		$numAlbaran=$_POST['numAlbaran'];
 		$fecha=$_POST['fecha'];
 		$tabla='clientes';
-		$res = array( 'datos' => array());
-		$res = BusquedaClientes($busqueda,$BDTpv,$tabla, $idCaja);
-		$respuesta['items']=$res;
-		$respuesta['idCliente']=$res['datos'][0]['idClientes'];
-		$idCliente=(integer)$respuesta['idCliente'];
-		if ($res['Nitems']===1 & $idAlbaranTemp===0){
-			$addTemp=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha, $idCliente);
-			$respuesta['nombre']=$res['datos'][0]['nombre'];
-			$respuesta['idCliente']=$res['datos'][0]['idClientes'];
-			$respuesta['idTemporal']=$addTemp['id'];
-			$respuesta['sql']=$addTemp['sql'];
-			$respuesta['en']=$addTemp['en'];
+		//$res = array( 'datos' => array());
+		//$res = BusquedaClientes($busqueda,$BDTpv,$tabla, $idCaja);
+		if ($idCaja==="id_clienteAl"){
+		$res=$Ccliente->DatosClientePorId($busqueda);
+			if ($res){
+				$respuesta['idCliente']=$res['idClientes'];
+				$respuesta['nombre']=$res['Nombre'];
+				$respuesta['Nitems']=1;
+			}
+		
 		}
+		//~ if ($res['Nitems']===1 & $idAlbaranTemp===0){
+			
+		
+		//~ }
 		echo json_encode($respuesta);
 		break;
+	
+	
+	
+	
+	case 'modificarEstadoPedido':
+	$idPedido=$_POST['idPedido'];
+	$idTemporal=$_POST['numPedidoTemp'];
+	if ($idPedido>0 & $idTemporal>0){
+		$estado="Pendiende";
+		$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
+		$respuesta['sql']=$modEstado;
+	}
+	echo json_encode($respuesta);
+	
 	break;
 		
 }
