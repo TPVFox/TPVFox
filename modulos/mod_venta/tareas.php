@@ -241,6 +241,7 @@ switch ($pulsado) {
 			
 			}
 			$respuesta['html'].='</tbody></table>';
+			
 		}
 		echo json_encode($respuesta);
 	
@@ -319,5 +320,21 @@ switch ($pulsado) {
 	echo json_encode($respuesta);
 	
 	break;
+	case 'comprobarPedidos':
+	$idCliente=$_POST['idCliente'];
+	$estado="Guardado";
+	if ($idCliente>0){
+		$comprobar=$CcliPed->ComprobarPedidos($idCliente, $estado);
+		$respuesta=$comprobar;
+		if ($comprobar==1){
+			$respuesta['ped']=1;
+			$respuesta['sql']=$comprobar['sql'];
+		}else{
+			$respuesta['ped']=0;
+		}
+	}
+	echo json_encode($respuesta);
+	break;
+	
 		
 }

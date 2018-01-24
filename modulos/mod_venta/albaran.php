@@ -85,8 +85,11 @@ include './../../head.php';
 	if (isset($albaranTemporal)| isset($idAlbaran)){ 
 ?>
 	console.log("entre en el javascript");
+	</script>
+	<script type="text/javascript">
 <?php
 	$i= 0;
+	if ($productos){
 		foreach($productos as $product){
 ?>
 			datos=<?php echo json_encode($product); ?>;
@@ -96,12 +99,13 @@ include './../../head.php';
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
 			//if ($product->estado !== 'Activo'){
-			?>	//productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
+			//?>	//productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 			<?php
 		//	}
 			$i++;
 		}
 	
+	}
 	}	
 	
 	
@@ -153,7 +157,7 @@ if ($idCliente===0){
 					<?php
 				if ($idAlbaranTemporal>0){
 					?>
-					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $idAlbaranTemporal;?>>
+					<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
 					<?php
 				}
 					?>
@@ -167,7 +171,7 @@ if ($idCliente===0){
 				</div>
 				<div class="col-md-3">
 					<strong>Estado:</strong><br>
-					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br/>
+					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
 				</div>
 			
 				<div class="col-md-4">

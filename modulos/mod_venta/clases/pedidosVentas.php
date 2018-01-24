@@ -310,13 +310,13 @@ class PedidosVentas{
 		}
 		}else{
 			$smt=$db->query('SELECT  Numpedcli, FechaPedido , total , id from pedclit where idCliente='.$idCliente .' and estado="Guardado"');
-			$sql='SELECT  Numpedcli, FechaPedido , total from pedclit where idCliente='.$idCliente;
-			$pedido['sql']=$sql;
+			//$sql='SELECT  Numpedcli, FechaPedido , total from pedclit where idCliente='.$idCliente;
+			//$pedido['sql']=$sql;
 			$pedidosPrincipal=array();
-				while ( $result = $smt->fetch_assoc () ) {
-					array_push($pedidosPrincipal,$result);	
-					
-				}
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($pedidosPrincipal,$result);	
+			}
+			
 			$pedido['datos']=$pedidosPrincipal;
 			
 		}
@@ -328,6 +328,17 @@ class PedidosVentas{
 		$sql='UPDATE pedclit SET estado='.$estado.' WHERE id='.$idPedido;
 		$resultado['sql']=$sql;
 		return $resultado;
+	}
+	public function ComprobarPedidos($idCliente, $estado){
+		$db=$this->db;
+		$estado='"'.'Guardado'.'"';
+		$smt=$db->query('SELECT  id from pedclit where idCliente='.$idCliente .' and estado='.$estado);
+		$sql='SELECT  id from pedclit where idCliente='.$idCliente .' and estado='.$estado;
+		$pedidos['sql']=$smt;
+		if ($smt>0){
+			$pedidos['ped']=1;
+		}
+		return $pedidos;
 	}
 }
 

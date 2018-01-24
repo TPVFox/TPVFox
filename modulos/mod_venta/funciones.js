@@ -1147,16 +1147,18 @@ function buscarClienteAl(dedonde, idcaja, valor=''){
 			if (resultado.Nitems==1){
 				cabecera.idCliente=resultado.idCliente;
 				cabecera.nombreCliente=resultado.nombre;
-				$('#ClienteAl').val(resultado.nombre);
-				$('#ClienteAl').prop('disabled', true);
-				$('#id_clienteAl').prop('disabled', true);
-				$("#buscar").css("display", "none");
-				$("#numPedidoT").show();
-				$("#numPedido").show();
-				$("#buscarPedido").show();
-				$("#tablaPedidos").show();
 				
 				
+				//$('#ClienteAl').val(resultado.nombre);
+				//$('#ClienteAl').prop('disabled', true);
+				//$('#id_clienteAl').prop('disabled', true);
+				//$("#buscar").css("display", "none");
+				//$("#numPedidoT").show();
+				//$("#numPedido").show();
+				//$("#buscarPedido").show();
+				//$("#tablaPedidos").show();
+				
+				comprobarPedidosExis();
 			}
 			
 		}
@@ -1183,6 +1185,42 @@ function ModificarEstadoPedido(){
 		//	var encontrados = resultado.encontrados;
 		//	var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 			console.log(resultado);
+			
+		}
+	});
+}
+
+function comprobarPedidosExis(){
+	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
+	var parametros = {
+		"pulsado"    : 'comprobarPedidos',
+		"idCliente":cabecera.idCliente
+		
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en comprobar pedidos existentes JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de comprobar pedidos');
+			var resultado =  $.parseJSON(response); 
+		//	var encontrados = resultado.encontrados;
+		//	var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+		console.log(resultado);
+			if (resultado.ped==1){
+				$('#ClienteAl').val(resultado.nombre);
+				$('#ClienteAl').prop('disabled', true);
+				$('#id_clienteAl').prop('disabled', true);
+				$("#buscar").css("display", "none");
+				$("#numPedidoT").show();
+				$("#numPedido").show();
+				$("#buscarPedido").show();
+				$("#tablaPedidos").show();
+			}
 			
 		}
 	});

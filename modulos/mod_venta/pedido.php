@@ -163,8 +163,11 @@ include './../../head.php';
 	if (isset($pedidoTemporal)| isset($idPedido)){ 
 ?>
 	console.log("entre en el javascript");
+	</script>
+	<script type="text/javascript">
 <?php
 	$i= 0;
+	if ($productos){
 		foreach($productos as $product){
 ?>
 			datos=<?php echo json_encode($product); ?>;
@@ -181,6 +184,7 @@ include './../../head.php';
 		}
 	
 	}	
+	}
 	
 	
 ?>
@@ -208,6 +212,7 @@ if ($idCliente===0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<?php 
+			echo $HostNombre;
 			if (isset($_GET)){
 				if(isset($_GET['mensaje']) & isset($_GET['tipo'])){
 				$mensaje=$_GET['mensaje'];
@@ -295,9 +300,11 @@ if ($idCliente===0){
 		</thead>
 		<tbody>
 			<?php 
+			if ($productos){
 			foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedido($producto, $producto['nfila'], $CONF_campoPeso);
 				echo $html;
+			}
 			}
 		?>
 		</tbody>
@@ -306,6 +313,7 @@ if ($idCliente===0){
 	<?php 
 	if (isset($pedido['Productos']) | isset ($idPedido)){
 			// Ahora montamos base y ivas
+			if ($Datostotales){
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
 					case 4 :
@@ -322,12 +330,14 @@ if ($idCliente===0){
 					break;
 				}
 			}
-	
+			}
+	if ($DatosTotales){
 	?>
 		<script type="text/javascript">
 			total = <?php echo $Datostotales['total'];?>;
 			</script>
 			<?php
+	}
 	}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
