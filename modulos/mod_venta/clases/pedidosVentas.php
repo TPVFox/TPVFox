@@ -334,8 +334,8 @@ class PedidosVentas{
 		$estado='"'.'Guardado'.'"';
 		$smt=$db->query('SELECT  id from pedclit where idCliente='.$idCliente .' and estado='.$estado);
 		$sql='SELECT  id from pedclit where idCliente='.$idCliente .' and estado='.$estado;
-		$pedidos['sql']=$smt;
-		if ($smt>0){
+		$pedidos['sql']=$sql;
+		while ( $result = $smt->fetch_assoc () ) {
 			$pedidos['ped']=1;
 		}
 		return $pedidos;

@@ -391,4 +391,55 @@ function modificarArrayProductos($productos){
 	}
 	return $respuesta;
 }
+
+function htmlLineaPedidoAlbaran($productos){
+	$respuesta=0;
+	$i=0;
+	 foreach($productos as $producto){
+		 	if ($producto[$i]['estadoLinea'] !=='Activo'){
+				$classtr = ' class="tachado" ';
+				$estadoInput = 'disabled';
+				$funcOnclick = ' retornarFila('.$producto[$i]['filaAl'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+			} else {
+				$funcOnclick = ' eliminarFila('.$producto[$i]['filaAl'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+			}
+		 $respuesta['html'] .='<tr id="Row'.$producto[$i]['filaAl'].'" '.$classtr.'>';
+		 $respuesta['html'] .='<td class="linea">'.$producto[$i]['filaAl'].'</td>';
+		 $respuesta['html']	.= '<td class="idArticulo">'.$producto[$i]['idArticulo'].'</td>';
+		 $respuesta['html'] .='<td class="referencia">'.$producto[$i]['cref'].'</td>';
+		 $respuesta['html'] .='<td class="codbarras">'.$producto[$i]['ccodbar'].'</td>';
+		 $respuesta['html'] .= '<td class="detalle">'.$producto[$i]['cdetalle'].'</td>';
+		 $cant=number_format($producto[$i]['ncant'],0);
+		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto[$i]['filaAl'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$producto[$i]['filaAl']."'".')" onBlur="controlEventos(event)"></td>';
+		 $respuesta['html'] .='<td class="pvp">'.$producto[$i]['precioCiva'].'</td>';
+		 $respuesta['html'] .= '<td class="tipoiva">'.$producto[$i]['iva'].'%</td>';
+		 $importe = $producto['precioCiva']*$producto[$i]['ncant'];
+		 $importe = number_format($importe,2);
+		 $respuesta['html'] .='<td id="N'.$producto[$i]['filaAl'].'_Importe" class="importe" >'.$importe.'</td>';
+		 $respuesta['html'] .= $btnELiminar_Retornar;
+		 $respuesta['html'] .='</tr>';
+		 $i++;
+	 
+ }
+	 return $respuesta;
+}
+
+function htmlPedidoAlbaran($pedidos){
+	$respuesta="";
+	$respuesta['html']="";
+	if(isset($pedidos)){
+	foreach($pedidos as $pedido){
+		$respuesta['html'] .='<tr>';
+		$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
+		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
+		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		$respuesta['html'] .='</tr>';
+	}
+	}
+	return $respuesta;
+}
+
+
 ?>

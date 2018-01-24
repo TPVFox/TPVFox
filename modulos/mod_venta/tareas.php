@@ -260,15 +260,21 @@ switch ($pulsado) {
 		$productos=$_POST['productos'];
 		$idCliente=$_POST['idCliente'];
 		$nombreCliente=$_POST['nombreCliente'];
+		$existe=0;
 		if ($idAlbaranTemp>0){
-			$res=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
+			$rest=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
+			$existe=1;
+			$respuesta['sql']=$rest['sql'];
+			$res=$rest['idTemporal'];
 		}else{
 			$res=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente);
+			$existe=0;
 		}
 		if ($numAlbaran===0){
 			$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
 		}
 		$respuesta['id']=$res;
+		$respuesta['existe']=$existe;
 		if ($pedidos){
 			//$respuesta['html']->
 		}
@@ -325,8 +331,8 @@ switch ($pulsado) {
 	$estado="Guardado";
 	if ($idCliente>0){
 		$comprobar=$CcliPed->ComprobarPedidos($idCliente, $estado);
-		$respuesta=$comprobar;
-		if ($comprobar==1){
+		//$respuesta=$comprobar;
+		if ($comprobar['ped']==1){
 			$respuesta['ped']=1;
 			$respuesta['sql']=$comprobar['sql'];
 		}else{
@@ -335,6 +341,51 @@ switch ($pulsado) {
 	}
 	echo json_encode($respuesta);
 	break;
+	case 'htmlAgregarFilaPedido':
+	$datos=$_POST['datos'];
+	$respuesta['datos']=$datos;
+	$respuesta['html'] ='<tr>';
+	$respuesta['html'] .='<td>'.$datos['Numpedcli'].'</td>';
+	$respuesta['html'] .='<td>'.$datos['fecha'].'</td>';
+	$respuesta['html'] .='<td>'.$datos['total'].'</td>';
+	$respuesta['html'] .='</tr>';
+	
+	
+	
+	echo json_encode($respuesta);
+	break;
+	 
+	 case 'htmlAgregarFilasProductos':
+	 $productos=$_POST['productos'];
+	 foreach($productos as $producto){
+		 	if ($producto['estadoLinea'] !=='Activo'){
+				$classtr = ' class="tachado" ';
+				$estadoInput = 'disabled';
+				$funcOnclick = ' retornarFila('.$producto['filaAl'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+			} else {
+				$funcOnclick = ' eliminarFila('.$producto['filaAl'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+			}
+		 $respuesta['html'] .='<tr id="Row'.$producto['filaAl'].'" '.$classtr.'>';
+		 $respuesta['html'] .='<td class="linea">'.$producto['filaAl'].'</td>';
+		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
+		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
+		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
+		 $respuesta['html'] .= '<td class="detalle">'.$producto['ccodbar'].'</td>';
+		 $cant=number_format($producto['ncant'],0);
+		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['filaAl'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$producto['filaAl']."'".')" onBlur="controlEventos(event)"></td>';
+		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
+		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
+		 $importe = $producto['precioCiva']*$producto['ncant'];
+		 $importe = number_format($importe,2);
+		 $respuesta['html'] .='<td id="N'.$producto['filaAl'].'_Importe" class="importe" >'.$importe.'</td>';
+		 $respuesta['html'] .= $btnELiminar_Retornar;
+		 $respuesta['html'] .='</tr>';
+		 
+	 }
+	 	echo json_encode($respuesta);
+		 break;
 	
 		
 }

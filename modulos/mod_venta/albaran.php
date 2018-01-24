@@ -30,13 +30,29 @@ include './../../head.php';
 			if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
 				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-				if ($datosAlbaran['numalbcli ']){
-					
+				if (isset($datosAlbaran['numalbcli '])){
+					$numAlbaran=$datosAlbaran['numalbcli'];
 				}else{
 					$numAlbaran=0;
 				}
-				$idAlbaran=$datosAlbaran['id '];
-				//si tiene fecha registrada cambiarla 
+				$fecha1=date_create($datosAlbaran['fechaInicio']);
+				$fecha =date_format($fecha1, 'Y-m-d');
+				$idCliente=$datosAlbaran['idClientes'];
+				$cliente=$Ccliente->DatosClientePorId($idCliente);
+				$nombreCliente="'".$cliente['Nombre']."'";
+				
+				$fechaCab="'".$fecha."'";
+				$idAlbaran=0;
+				$estadoCab="'".'Abierto'."'";
+				$albaran=$datosAlbaran;
+				$productos =  json_decode($datosAlbaran['Productos']) ;
+				$pedidos=json_decode($datosAlbaran['Pedidos']);
+				
+				//~ echo '<pre>';
+				//~ print_r($pedidos );
+				//~ echo '</pre>';
+				
+				
 			}else{
 				$idAlbaranTemporal=0;
 				$idAlbaran=0;
@@ -47,16 +63,26 @@ include './../../head.php';
 			}
 		
 	}
+		if(isset($albaran['Productos'])){
+			// Obtenemos los datos totales ( fin de ticket);
+			// convertimos el objeto productos en array
+		//	$Datostotales = recalculoTotales($productos);
+			$productos = json_decode(json_encode($productos), true); // Array de arrays	
+		}
+		if (isset($albaran['Pedidos'])){
+			$pedidos=json_decode(json_encode($pedidos), true);
+		}
 		
 		if (isset($_POST['Guardar'])){
 			
 		}
 		
-		if (isset ($pedido)| isset($_GET['id'])){
+		if (isset ($pedidos)){
 			$style="";
 		}else{
 			$style="display:none;";
 		}
+		echo $style;
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -84,37 +110,47 @@ include './../../head.php';
 <?php 
 	if (isset($albaranTemporal)| isset($idAlbaran)){ 
 ?>
-	console.log("entre en el javascript");
+//	console.log("entre en el javascript");
 	</script>
 	<script type="text/javascript">
 <?php
 	$i= 0;
-	if ($productos){
-		foreach($productos as $product){
-?>
-			datos=<?php echo json_encode($product); ?>;
-
-			productos.push(datos);
+		if (isset($productos)){
+			foreach($productos as $product){
+?>	
+				datos=<?php echo json_encode($product); ?>;
+				productos.push(datos);
 	
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
-			//if ($product->estado !== 'Activo'){
-			//?>	//productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
+	//		if ($product->estado !== 'Activo'){
+		//	?>	//productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 			<?php
 		//	}
 			$i++;
-		}
+			}
 	
-	}
+		}
+		if (isset($pedidos)){
+			foreach ($pedidos as $pedi){
+				?>
+				datos=<?php echo json_encode($pedi);?>;
+				pedidos.push(datos);
+				<?php
+			}
+		}
 	}	
 	
 	
 ?>
 </script>
 <?php 
-if ($idCliente===0){
+if ($idCliente==0){
 	$idCliente="";
 	$nombreCliente="";
+}
+if (isset($_GET['tActual'])){
+	$nombreCliente=$cliente['Nombre'];
 }
 ?>
 </head>
@@ -191,18 +227,24 @@ if ($idCliente===0){
 	
 		<div>
 			<div style="margin-top:-50px;">
-			<label style="display:none;" id="numPedidoT">Número del pedido:</label>
-			<input style="display:none;" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="display:none;" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
-			<table  class="col-md-12" style="display:none" id="tablaPedidos"> 
+			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
+			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
+			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
+			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
 				<thead>
-				<th>
+				
 				<td><b>Número</b></td>
 				<td><b>Fecha</b></td>
 				<td><b>Total</b></td>
-				<td></td>
-				</th>
+				
 				</thead>
+				
+				<?php 
+				if (isset($pedidos)){
+					$html=htmlPedidoAlbaran($pedidos);
+					echo $html['html'];
+				}
+				?>
 			</table>
 			</div>
 		</div>
@@ -233,11 +275,14 @@ if ($idCliente===0){
 		</thead>
 		<tbody>
 			<?php 
-			//~ foreach (array_reverse($productos) as $producto){
-				//~ $html=htmlLineaPedido($producto, $producto['nfila'], $CONF_campoPeso);
-				//~ echo $html;
-			//~ }
-		?>
+			echo '<pre>';
+			echo print_r($productos);
+			echo '</pre>';
+			if (isset($productos)){
+				$html=htmlLineaPedidoAlbaran(array_reverse($productos));
+				echo $html['html'];
+			}
+			?>
 		</tbody>
 	  </table>
 	</div>
@@ -334,6 +379,15 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
 	$('#id_cliente').focus();
+	<?php
+	if ($idCliente>0){
+		?>
+		$('#ClienteAl').prop('disabled', true);
+		$('#id_clienteAl').prop('disabled', true);
+		$("#buscar").css("display", "none");
+		<?php
+	}
+	?>
 </script>
 	</body>
 </html>

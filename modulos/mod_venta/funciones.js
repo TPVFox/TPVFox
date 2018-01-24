@@ -484,15 +484,11 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					datos['cant']=1;
 					var importe =datos['pvpCiva']*datos['cant'];
 					datos['importe']=importe.toFixed(2);
-					//~ console.log("estoy aquí");
-					//~ console.log(datos);
-					//~ console.log(typeof datos['pvpCiva']);
 					var pvpCiva= parseFloat(datos['pvpCiva']);
 					datos['pvpCiva']=pvpCiva.toFixed(2);
-					//console.log(datos);
 					productos.push(datos);
 					var num_item=datos['nfila'];
-					
+
 					if (cabecera.numPedidoTemp==0){
 						var idCliente=$('#id_cliente').val();
 						console.log(idCliente);
@@ -1049,17 +1045,37 @@ function buscarPedido(dedonde, idcaja, valor=''){
 				abrirModal(titulo, HtmlPedidos);
 			}else{
 				if (resultado.Nitems>0){
-					console.log("Hay un resultado");
-					var datos = [];
-					datos = resultado['datos'];
-					pedidos.push(datos);
-					productosAdd=resultado.productos;
-					for (i=0; i<productosAdd.length; i++){
-						productos.push(resultado.productos[i]);
+					var bandera=0;
+					for(i=0; i<pedidos.length; i++){
+						var numeroPedido=pedidos[i].Numpedcli;
+						var numeroNuevo=resultado['datos'].Numpedcli;
+						if (numeroPedido == numeroNuevo){
+							bandera=bandera+1;
+						}
 					}
-					console.log(productos);
-					addAlbaranTemp();
-					
+					if (bandera==0){
+						console.log("Hay un resultado");
+						var datos = [];
+						datos = resultado['datos'];
+						pedidos.push(datos);
+						productosAdd=resultado.productos;
+						console.log("cuento los productos");
+						console.log(productos.length);
+						var numFila=productos.length+1;
+						for (i=0; i<productosAdd.length; i++){
+							resultado.productos[i]['filaAl']=numFila;
+							productos.push(resultado.productos[i]);
+							numFila++;
+						}
+						
+						addAlbaranTemp();
+						AgregarFilaPedido(datos);
+						//~ console.log("MOSTRAR RESULTADO PRODUCTOS");
+						//~ console.log(resultado.productos);
+						AgregarFilaProductosAl(resultado.productos);
+					}else{
+						alert("Ya has introducido ese pedido");
+					}
 				}else{
 					alert("No hay resultado");
 				}
@@ -1101,8 +1117,10 @@ function addAlbaranTemp(){
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 			console.log(resultado);
-			history.pushState(null,'','?tActual='+resultado.id.id);
-			cabecera.idAlbaranTemp=resultado.id.id;
+			if (resultado.existe == 0){
+				history.pushState(null,'','?tActual='+resultado.id.id);
+				cabecera.idAlbaranTemp=resultado.id.id;
+			}
 			
 			
 		}
@@ -1148,15 +1166,10 @@ function buscarClienteAl(dedonde, idcaja, valor=''){
 				cabecera.idCliente=resultado.idCliente;
 				cabecera.nombreCliente=resultado.nombre;
 				
-				
-				//$('#ClienteAl').val(resultado.nombre);
-				//$('#ClienteAl').prop('disabled', true);
-				//$('#id_clienteAl').prop('disabled', true);
-				//$("#buscar").css("display", "none");
-				//$("#numPedidoT").show();
-				//$("#numPedido").show();
-				//$("#buscarPedido").show();
-				//$("#tablaPedidos").show();
+				$('#ClienteAl').val(resultado.nombre);
+				$('#ClienteAl').prop('disabled', true);
+				$('#id_clienteAl').prop('disabled', true);
+				$("#buscar").css("display", "none");
 				
 				comprobarPedidosExis();
 			}
@@ -1194,7 +1207,7 @@ function comprobarPedidosExis(){
 	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'comprobarPedidos',
-		"idCliente":cabecera.idCliente
+		"idCliente" : cabecera.idCliente
 		
 	};
 	console.log(parametros);
@@ -1212,10 +1225,6 @@ function comprobarPedidosExis(){
 		//	var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 		console.log(resultado);
 			if (resultado.ped==1){
-				$('#ClienteAl').val(resultado.nombre);
-				$('#ClienteAl').prop('disabled', true);
-				$('#id_clienteAl').prop('disabled', true);
-				$("#buscar").css("display", "none");
 				$("#numPedidoT").show();
 				$("#numPedido").show();
 				$("#buscarPedido").show();
@@ -1226,3 +1235,58 @@ function comprobarPedidosExis(){
 	});
 }
 
+
+function AgregarFilaPedido(datos){
+	console.log("Estoy en agregar fila Pedido");
+	var parametros = {
+		"pulsado"    : 'htmlAgregarFilaPedido',
+		"datos" : datos
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en escribir html fila pedidos JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de html fila pedidos');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+			var nuevafila = resultado['html'];
+			$("#tablaPedidos").prepend(nuevafila);
+			$('#numPedido').focus(); 
+			$('#numPedido').val(""); 
+			
+		}
+	});
+}
+function AgregarFilaProductosAl(productosAl){
+	console.log("Estoy en agregar fila productos albaran");
+	productosAl=productosAl.reverse();
+	console.log(productosAl);
+	var parametros = {
+		"pulsado"    : 'htmlAgregarFilasProductos',
+		"productos" : productosAl
+	};
+	console.log("PARAMETROS");
+	console.log(parametros);
+	
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en escribir html fila pedidos JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de html fila pedidos');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+			var nuevafila = resultado['html'];
+			$("#tabla").prepend(nuevafila);
+			
+		}
+	});
+}
