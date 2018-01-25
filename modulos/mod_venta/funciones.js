@@ -13,9 +13,6 @@ function ObjProducto(datos,valor=1,estado ='Activo')
     this.nfila = productos.length+1;
     this.importe = parseFloat(this.pvpconiva) * this.unidad;
 }
-
-
-
 function Buscar (){
 	$(document).ready(function()
 	{
@@ -33,8 +30,6 @@ function Buscar (){
 		return;
 	});
 }
-
-
 function metodoClick(pulsado,adonde){
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
@@ -49,10 +44,7 @@ function metodoClick(pulsado,adonde){
 			// Ahora redireccionamos 
 			window.location.href = './'+adonde+'.php?id='+checkID[0];
 			//window.location.href = './producto.php?id='+checkID[0];
-			
-			
 			break;
-		
 		case 'AgregarPedido':
 			console.log('entro en agregar producto');
 			window.location.href = './pedido.php';
@@ -61,7 +53,6 @@ function metodoClick(pulsado,adonde){
 		case 'AgregarAlbaran':
 			console.log('entro en agregar producto');
 			window.location.href = './albaran.php';
-			
 			break;
 		
 		case 'NuevaBusquedaPedido':
@@ -81,8 +72,6 @@ function metodoClick(pulsado,adonde){
 			window.location.href = './albaran.php';
 			
 			break;
-			
-	
 	case 'AgregarFactura':
 			console.log('entro en agregar producto');
 			window.location.href = './factura.php';
@@ -100,21 +89,12 @@ function buscarClientes(dedonde, idcaja, valor=''){
 
 	console.log('FUNCION buscarClientes JS-AJAX');
 	console.log(cabecera);
-	
 	var parametros = {
 		"pulsado"    : 'buscarClientes',
 		"busqueda" : valor,
 		"dedonde":dedonde,
-		"idcaja":idcaja,
-		"numPedidoTemp":cabecera.numPedidoTemp,
-		"idUsuario":cabecera.idUsuario,
-		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estadoPedido,
-		"idPedido":cabecera.idPedido,
-		
-		
+		"idcaja":idcaja
 	};
-	
 	console.log (dedonde);
 	$.ajax({
 		data       : parametros,
@@ -127,18 +107,28 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			console.log('Llegue devuelta respuesta de buscar clientes');
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
-			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+			if (dedonde=="albaran"){
+				if (resultado.Nitems==1){
+					cabecera.idCliente=resultado.idCliente;
+					cabecera.nombreCliente=resultado.nombre;
+					$('#ClienteAl').val(resultado.nombre);
+					$('#ClienteAl').prop('disabled', true);
+					$('#id_clienteAl').prop('disabled', true);
+					$("#buscar").css("display", "none");
+					mostrarFila();
+					comprobarPedidosExis();
+				}
+			}else if (dedonde="pedidos"){
 			
+				var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 				if (valor==""){
 					var titulo = 'Listado clientes ';
 					abrirModal(titulo,HtmlClientes);
 					// Asignamos focus a caja buscar cliente.
-					// Asignamos focus
 					if (encontrados >0 ){
 						// Enfocamos el primer item.
 						mover_down(0);
 						$('#N_0').focus();
-				
 					}else {
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
@@ -152,7 +142,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						// Enfocamos el primer item.
 						mover_down(0);
 						$('#N_0').focus();
-				
 					}else {
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
@@ -164,28 +153,20 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					abrirModal(titulo,HtmlClientes);
 					if (encontrados >0 ){
 						// Enfocamos el primer item.
-				
 						mover_down(0);
 						$('#N_0').focus();
 					}else {
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
 					}
-		
 				}else{
 					console.log('no muestro modal');
 					$('#Cliente').val(resultado.nombre);
 					console.log(resultado.idCliente);
-				//	if (resultado.numPedidoTemp>0){
-						
 						cabecera.idCliente=resultado.idCliente;
 						mostrarFila();
-						//~ history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
-						//~ cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
-				//	}
-					//console.log(resultado.numPedidoTemp);
 				}
-			
+		}
 		}
 	});
 }
@@ -205,8 +186,6 @@ function abrirModal(titulo,tabla){
 		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
 	});
 }
-
-
 function controladorAcciones(caja,accion){
 	// @ Objetivo es obtener datos si fuera necesario y ejecutar accion despues de pulsar una tecla.
 	//  Es Controlador de acciones a pulsar una tecla que llamamos desde teclado.js
@@ -217,11 +196,9 @@ function controladorAcciones(caja,accion){
 	switch(accion) {
 		case 'buscarClientes':
 			// Esta funcion necesita el valor.
-			console.log(caja);
+			console.log("Estoy en buscarClientes");
 			buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			break;
-		
-		
 		case 'saltar_idCliente':
 		console.log('Entro en acciones saltar_idCliente');
 		var dato = caja.darValor();
@@ -315,9 +292,6 @@ function controladorAcciones(caja,accion){
 			mover_up(nueva_fila,caja.darParametro('prefijo'));
 			break;
 			
-			
-			
-			
 		case 'saltar_Referencia':
 			var dato = caja.darValor();
 			if ( dato.length === 0){
@@ -354,7 +328,6 @@ function controladorAcciones(caja,accion){
 			
 	//Acciones de albarán
 	
-	
 		case 'saltarNumPedido':
 				console.log("Ente en fecha Al");
 				var dato = caja.darValor();
@@ -380,7 +353,13 @@ function controladorAcciones(caja,accion){
 		case 'buscarClientesAlbaran':
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+		break;
 		
+		case 'buscarProductosAl':
+		console.log("Entre en buscarPedroductos albaran");
+		buscarProductosAl(caja.name_cja,caja.darParametro('campo'),caja.id_input , caja.darValor(),caja.darParametro('dedonde'));
+
+		break;
 		default :
 			console.log ( 'Accion no encontrada '+ accion);
 	} 
@@ -394,7 +373,6 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
-
 function before_constructor(caja){
 	// @ Objetivo :
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
@@ -439,7 +417,6 @@ function after_constructor(padre_caja,event){
 	
 	return padre_caja;
 }
-
 function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	// @ Objetivo:
 	//  Buscar productos donde el dato exista en el campo que se busca...
@@ -459,10 +436,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		"cajaInput"	 : id_input,
 		"valorCampo" : busqueda,
 		"campo"      : campo,
-		"dedonde"    : dedonde,
-		"idcaja"	 :idcaja,
-		"idTemporal":cabecera.numPedidoTemp,
-		"productos":productos
+		"idcaja"	 :idcaja
 	};
 	$.ajax({
 		data       : parametros,
@@ -488,7 +462,6 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					datos['pvpCiva']=pvpCiva.toFixed(2);
 					productos.push(datos);
 					var num_item=datos['nfila'];
-
 					if (cabecera.numPedidoTemp==0){
 						var idCliente=$('#id_cliente').val();
 						console.log(idCliente);
@@ -497,12 +470,8 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 						cabecera.idCliente=idCliente;
 					}
 					
-					
 					addProductoTemp();
 					agregarFilaProducto(num_item);
-					
-					
-					
 				}else{
 					console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 			
@@ -674,138 +643,105 @@ function agregarFila(datos,campo=''){
 	
 };
  
-function grabarPedidoTemporal(){
-	// @ Objetivo
-	// Grabar cabeceras y productos, amabas variables globales en tabla de ticket temporal.
-	console.log('Grabamos en BD');
-	var i  =0;
-	console.log('Productos');
-	console.log(productos);
-	// Para poder mandar objectos de productos ...
-	var parametros = {
-		"pulsado"    	: 'grabarPedidos',
-		"productos"	 	: productos,//
-		"idCliente"	 	: cabecera.idCliente,
-		"idTienda" 	 	: cabecera.idTienda,
-		"idUsuario"	 	: cabecera.idUsuario,
-		"estadoTicket" 	: cabecera.estadoTicket,
-		"numTicket"		: cabecera.numTicket,
-	};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** Voy a grabar****************');
-		},
-		success    :  function (response) {
-			console.log('Respuesta de grabar');
-			//~ console.log(response);
-			var resultado =  $.parseJSON(response); 
-			console.log(resultado.estadoTicket);
-			// Cambiamos el estado :
-			cabecera.estadoTicket = resultado.estadoTicket;
-			cabecera.numTicket = resultado.NumeroTicket;
-			$('#EstadoTicket').html(resultado.estadoTicket);			
-			$('#EstadoTicket').css('background-color','red')
-			$('#EstadoTicket').css('color','white')
-			$('#NTicket').html('0/'+resultado.NumeroTicket);
+//~ function grabarPedidoTemporal(){
+	//~ // @ Objetivo
+	//~ // Grabar cabeceras y productos, amabas variables globales en tabla de ticket temporal.
+	//~ console.log('Grabamos en BD');
+	//~ var i  =0;
+	//~ console.log('Productos');
+	//~ console.log(productos);
+	//~ // Para poder mandar objectos de productos ...
+	//~ var parametros = {
+		//~ "pulsado"    	: 'grabarPedidos',
+		//~ "productos"	 	: productos,//
+		//~ "idCliente"	 	: cabecera.idCliente,
+		//~ "idTienda" 	 	: cabecera.idTienda,
+		//~ "idUsuario"	 	: cabecera.idUsuario,
+		//~ "estadoTicket" 	: cabecera.estadoTicket,
+		//~ "numTicket"		: cabecera.numTicket,
+	//~ };
+	//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : 'tareas.php',
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+			//~ console.log('******** Voy a grabar****************');
+		//~ },
+		//~ success    :  function (response) {
+			//~ console.log('Respuesta de grabar');
+			//console.log(response);
+			//~ var resultado =  $.parseJSON(response); 
+			//~ console.log(resultado.estadoTicket);
+			//~ // Cambiamos el estado :
+			//~ cabecera.estadoTicket = resultado.estadoTicket;
+			//~ cabecera.numTicket = resultado.NumeroTicket;
+			//~ $('#EstadoTicket').html(resultado.estadoTicket);			
+			//~ $('#EstadoTicket').css('background-color','red')
+			//~ $('#EstadoTicket').css('color','white')
+			//~ $('#NTicket').html('0/'+resultado.NumeroTicket);
 			
-			console.log(productos.length);
+			//~ console.log(productos.length);
 				
-			//objetivo cuando esta en ticket actual , 
-			//en el navegador ponga ?tActual para que no afecte F5 SIN RECARGAR pagina
-			if (productos.length ===1 ){ 
-				history.pushState(null,'','?tActual='+resultado.NumeroTicket);
-			}
-			// Limpiamos los valores ivas y bases.
-			$('#tipo4').html('');
-			$('#tipo10').html('');
-			$('#tipo21').html('');
-			$('#base4').html('');
-			$('#base10').html('');
-			$('#base21').html('');
-			$('#iva4').html('');
-			$('#iva10').html('');
-			$('#iva21').html('');
-			$('.totalImporte').html('');
+			//~ //objetivo cuando esta en ticket actual , 
+			//~ //en el navegador ponga ?tActual para que no afecte F5 SIN RECARGAR pagina
+			//~ if (productos.length ===1 ){ 
+				//~ history.pushState(null,'','?tActual='+resultado.NumeroTicket);
+			//~ }
+			//~ // Limpiamos los valores ivas y bases.
+			//~ $('#tipo4').html('');
+			//~ $('#tipo10').html('');
+			//~ $('#tipo21').html('');
+			//~ $('#base4').html('');
+			//~ $('#base10').html('');
+			//~ $('#base21').html('');
+			//~ $('#iva4').html('');
+			//~ $('#iva10').html('');
+			//~ $('#iva21').html('');
+			//~ $('.totalImporte').html('');
 			
-			// Ahora pintamos pie de ticket.
-			if (resultado.total > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				total = parseFloat(resultado.total) // varible global.
-				$('.totalImporte').html(total.toFixed(2));
-				// Ahora tengo que pintar los ivas.
-				var desgloseIvas = [];
-				desgloseIvas.push(resultado.desglose);
-				console.log(desgloseIvas);
-				// Ahora recorremos array desglose
-				desgloseIvas.forEach(function(desglose){
-					console.log('Entro foreah');
-					// mostramos los tipos ivas , bases y importes.
-					var tipos = Object.keys(desglose);
-					console.log(desglose);
-					for (index in tipos){
-						var tipo = tipos[index];
-						$('#line'+parseInt(tipo)).css('display','');
-						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
-					}
-				});
+			//~ // Ahora pintamos pie de ticket.
+			//~ if (resultado.total > 0 ){
+				//~ // Quiere decir que hay datos a mostrar en pie.
+				//~ total = parseFloat(resultado.total) // varible global.
+				//~ $('.totalImporte').html(total.toFixed(2));
+				//~ // Ahora tengo que pintar los ivas.
+				//~ var desgloseIvas = [];
+				//~ desgloseIvas.push(resultado.desglose);
+				//~ console.log(desgloseIvas);
+				//~ // Ahora recorremos array desglose
+				//~ desgloseIvas.forEach(function(desglose){
+					//~ console.log('Entro foreah');
+					//~ // mostramos los tipos ivas , bases y importes.
+					//~ var tipos = Object.keys(desglose);
+					//~ console.log(desglose);
+					//~ for (index in tipos){
+						//~ var tipo = tipos[index];
+						//~ $('#line'+parseInt(tipo)).css('display','');
+						//~ $('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						//~ $('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						//~ $('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+					//~ }
+				//~ });
 				
-			}
+			//~ }
 			
-		}
-	});
-}
+		//~ }
+	//~ });
+//~ }
 
 
-function escribirClienteSeleccionado(id,nombre,dedonde=''){
-	// @ Objetivo:
-	// 	 Escribir el nombre y id cliente en pantalla principal.
-	// 	id -> Del cliente
-	//  nombre ->  Nombre cliente
-	// 	dedonde -> tpv
-	//			   cobrados
-	// mostrarlos en cajas se son las mismas para las dos.
+function escribirClienteSeleccionado(id, nombre ,dedonde=''){
 	$('#id_cliente').val(id);
 	$('#Cliente').val(nombre);
-	var parametros = {
-		"pulsado"    : 'escribirCliente',
-		"idcliente":id,
-		"numPedidoTemp":cabecera.numPedidoTemp,
-		"idUsuario":cabecera.idUsuario,
-		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estadoPedido,
-		"idPedido":cabecera.idPedido
+	if (dedonde == "pedidos"){
+		idInput="id_cliente";
+	}else if(dedonde == albaran){
+		idInput="id_clienteAl";
 		
-	};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en añadir cliente JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir cliente');
-			var resultado =  $.parseJSON(response); 
-			var encontrados = resultado.encontrados;
-			var HtmlClientes=resultado.html; 
-			cabecera.idCliente=resultado.idCliente;
-			//~ history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
-			//~ cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
-			
-			mostrarFila();
-			
-	cerrarPopUp(); // Destino no indicamo ya que no sabes...
-	if (dedonde ='pedido'){
-		// Ponemos focus por defecto.
-		ponerFocus('idArticulo');
-	} 
-}
-		});
+	}
+	buscarClientes(dedonde, idInput, id);
+	cerrarPopUp();
+	mostrarFila();
 }
 
 function abandonFila(cont){
@@ -869,7 +805,6 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	addProductoTemp();
 	console.log(num_item);
 	agregarFilaProducto(num_item);
-	//~ agregarFila(datos);
 	// Eliminamos contenido de cja destino y ponemos focus.
 	
 	resetCampo(campo);
@@ -878,7 +813,6 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 
 	
 }
-
 function eliminarFila(num_item){
 	console.log("entre en eliminar Fila");
 	var line;
@@ -1010,22 +944,11 @@ function AddTemp(id){
 
 function buscarPedido(dedonde, idcaja, valor=''){
 	console.log('FUNCION buscarPedido JS-AJAX');
-	
 	var parametros = {
 		"pulsado"    : 'buscarPedido',
 		"busqueda" : valor,
-		"dedonde":dedonde,
-		"idcaja":idcaja,
-		"idAlbaranTemp":cabecera.idAlbaranTemp,
-		"idUsuario":cabecera.idUsuario,
-		"idTienda":cabecera.idTienda,
-		"estadoAlbaran":cabecera.estadoAlbaran,
-		"idAlbaran":cabecera.idAlbaran,
-		"numAlbaran":cabecera.numAlbaran,
-		"fecha":cabecera.fecha,
 		"idCliente":cabecera.idCliente
 	};
-	
 	console.log (valor);
 	$.ajax({
 		data       : parametros,
@@ -1063,15 +986,13 @@ function buscarPedido(dedonde, idcaja, valor=''){
 						console.log(productos.length);
 						var numFila=productos.length+1;
 						for (i=0; i<productosAdd.length; i++){
-							resultado.productos[i]['filaAl']=numFila;
+							resultado.productos[i]['nfila']=numFila;
 							productos.push(resultado.productos[i]);
 							numFila++;
 						}
-						
 						addAlbaranTemp();
+						ModificarEstadoPedido("Albaran", "Facturado", resultado['datos'].Numpedcli, resultado['datos'].idPedCli);
 						AgregarFilaPedido(datos);
-						//~ console.log("MOSTRAR RESULTADO PRODUCTOS");
-						//~ console.log(resultado.productos);
 						AgregarFilaProductosAl(resultado.productos);
 					}else{
 						alert("Ya has introducido ese pedido");
@@ -1080,14 +1001,12 @@ function buscarPedido(dedonde, idcaja, valor=''){
 					alert("No hay resultado");
 				}
 			}
-			
 		}
 	});
 }
 function addAlbaranTemp(){
 	console.log('FUNCION Añadir albaran temporal JS-AJAX');
 	console.log(cabecera);
-	
 	var parametros = {
 		"pulsado"    : 'añadirAlbaranTemporal',
 		"idAlbaranTemp":cabecera.idAlbaranTemp,
@@ -1126,65 +1045,26 @@ function addAlbaranTemp(){
 		}
 	});
 }
-
-
-function buscarClienteAl(dedonde, idcaja, valor=''){
-	console.log('FUNCION Añadir albaran temporal JS-AJAX');
-	console.log(cabecera);
-	
-	console.log('FUNCION buscarPedido JS-AJAX');
-	console.log(cabecera);
-	
-	var parametros = {
-		"pulsado"    : 'buscarClienteAl',
-		"busqueda" : valor,
-		"dedonde":dedonde,
-		"idcaja":idcaja,
-		"idAlbaranTemp":cabecera.idAlbaranTemp,
-		"idUsuario":cabecera.idUsuario,
-		"idTienda":cabecera.idTienda,
-		"estadoAlbaran":cabecera.estadoAlbaran,
-		"idAlbaran":cabecera.idAlbaran,
-		"numAlbaran":cabecera.numAlbaran,
-		"fecha":cabecera.fecha
-		
-	};
-	console.log(idcaja);
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en buscar clientes JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de buscar clientes');
-			var resultado =  $.parseJSON(response); 
-			var encontrados = resultado.encontrados;
-			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-			if (resultado.Nitems==1){
-				cabecera.idCliente=resultado.idCliente;
-				cabecera.nombreCliente=resultado.nombre;
-				
-				$('#ClienteAl').val(resultado.nombre);
-				$('#ClienteAl').prop('disabled', true);
-				$('#id_clienteAl').prop('disabled', true);
-				$("#buscar").css("display", "none");
-				
-				comprobarPedidosExis();
-			}
-			
-		}
-	});
-}
-function ModificarEstadoPedido(){
+function ModificarEstadoPedido(dedonde, estado, numPedido="", idPedido=""){
 	console.log("Entre en modificar estado pedido");
-	var parametros = {
-		"pulsado"    : 'modificarEstadoPedido',
-		"idPedido":cabecera.idPedido,
-		"numPedidoTemp":cabecera.numPedidoTemp
-	};
-	
+	if (dedonde=="pedido"){
+		var parametros = {
+			"pulsado"    : 'modificarEstadoPedido',
+			"idPedido":cabecera.idPedido,
+			"numPedidoTemp":cabecera.numPedidoTemp,
+			"estado" : estado,
+			"dedonde": dedonde
+		};
+	}
+	if (dedonde=="Albaran"){
+		var parametros = {
+			"pulsado"    : 'modificarEstadoPedido',
+			"idPedido":idPedido,
+			"numPedidoTemp":numPedido,
+			"estado" : estado,
+			"dedonde" : dedonde
+		};
+	}
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -1195,10 +1075,7 @@ function ModificarEstadoPedido(){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de estado pedido js');
 			var resultado =  $.parseJSON(response); 
-		//	var encontrados = resultado.encontrados;
-		//	var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 			console.log(resultado);
-			
 		}
 	});
 }
@@ -1289,4 +1166,10 @@ function AgregarFilaProductosAl(productosAl){
 			
 		}
 	});
+}
+
+function buscarDatosPedido(NumPedido){
+	console.log("Estoy en buscarDatosPedido");
+	buscarPedido("Albaran", "numPedido", NumPedido);
+	cerrarPopUp();
 }

@@ -149,6 +149,7 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes = array()){
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
 			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
+		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
 						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
@@ -393,38 +394,41 @@ function modificarArrayProductos($productos){
 }
 
 function htmlLineaPedidoAlbaran($productos){
-	$respuesta=0;
-	$i=0;
-	 foreach($productos as $producto){
-		 	if ($producto[$i]['estadoLinea'] !=='Activo'){
+	if(!is_array($productos)) {
+		// Comprobamos si product no es objeto lo convertimos.
+		$producto = (array)$productos;
+		
+	} else {
+		$producto = $productos;
+	}
+		 	if ($producto['estadoLinea'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarFila('.$producto[$i]['filaAl'].');';
+				$funcOnclick = ' retornarFila('.$producto['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 			} else {
-				$funcOnclick = ' eliminarFila('.$producto[$i]['filaAl'].');';
+				$funcOnclick = ' eliminarFila('.$producto['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 			}
-		 $respuesta['html'] .='<tr id="Row'.$producto[$i]['filaAl'].'" '.$classtr.'>';
-		 $respuesta['html'] .='<td class="linea">'.$producto[$i]['filaAl'].'</td>';
-		 $respuesta['html']	.= '<td class="idArticulo">'.$producto[$i]['idArticulo'].'</td>';
-		 $respuesta['html'] .='<td class="referencia">'.$producto[$i]['cref'].'</td>';
-		 $respuesta['html'] .='<td class="codbarras">'.$producto[$i]['ccodbar'].'</td>';
-		 $respuesta['html'] .= '<td class="detalle">'.$producto[$i]['cdetalle'].'</td>';
-		 $cant=number_format($producto[$i]['ncant'],0);
-		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto[$i]['filaAl'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$producto[$i]['filaAl']."'".')" onBlur="controlEventos(event)"></td>';
-		 $respuesta['html'] .='<td class="pvp">'.$producto[$i]['precioCiva'].'</td>';
-		 $respuesta['html'] .= '<td class="tipoiva">'.$producto[$i]['iva'].'%</td>';
-		 $importe = $producto['precioCiva']*$producto[$i]['ncant'];
+		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
+		
+		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
+		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
+		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
+		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
+		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
+		 $cant=number_format($producto['ncant'],0);
+		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$producto['nfila']."'".')" onBlur="controlEventos(event)"></td>';
+		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
+		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
+		 $importe = $producto->precioCiva*$producto['ncant'];
 		 $importe = number_format($importe,2);
-		 $respuesta['html'] .='<td id="N'.$producto[$i]['filaAl'].'_Importe" class="importe" >'.$importe.'</td>';
+		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;
 		 $respuesta['html'] .='</tr>';
-		 $i++;
-	 
- }
 	 return $respuesta;
 }
+
 
 function htmlPedidoAlbaran($pedidos){
 	$respuesta="";
@@ -440,6 +444,46 @@ function htmlPedidoAlbaran($pedidos){
 	}
 	return $respuesta;
 }
+function lineaPedidoAlbaran($pedido){
+		$respuesta['html']="";
+	if(isset($pedido)){
 
+		$respuesta['html'] .='<tr>';
+		$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
+		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
+		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		$respuesta['html'] .='</tr>';
+	}
+	return $respuesta;
+}
+
+function modalPedidos($pedidos){
+	$contad = 0;
+	$respuesta['html'] .= '<table class="table table-striped"><thead>';
+	$respuesta['html'] .= '<th>';
+	$respuesta['html'] .='<td>Número </td>';
+	$respuesta['html'] .='<td>Fecha</td>';
+	$respuesta['html'] .='<td>Total</td>';
+	$respuesta['html'] .='</th>';
+	$respuesta['html'] .= '</thead><tbody>';
+	foreach ($pedidos as $pedido){
+	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
+	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosPedido('.$pedido['Numpedcli'].');">';
+	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
+	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+
+	$respuesta['html'].='<td>'.$pedido['Numpedcli'].'</td>';
+	$respuesta['html'].='<td>'.$pedido['FechaPedido'].'</td>';
+	$respuesta['html'].='<td>'.$pedido['total'].'</td>';
+	$respuesta['html'].='</tr>';
+	$contad = $contad +1;
+	if ($contad === 10){
+		break;
+	}
+				
+	}
+	$respuesta['html'].='</tbody></table>';
+	return $respuesta;
+}
 
 ?>

@@ -233,7 +233,7 @@ if ($idCliente===0){
 		}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido();">Volver Atrás</a>
+			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php

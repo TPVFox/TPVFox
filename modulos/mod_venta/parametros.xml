@@ -189,7 +189,7 @@
 		<caja_input>
 			<nombre id_input="id_clienteAl">cajaIdClienteAl</nombre>
 			<teclas>
-				<action tecla="13">buscarClientesAlbaran</action>
+				<action tecla="13">buscarClientes</action>
 				<action tecla="39">saltar_nombreCliente</action>
 				<action tecla="38">saltar_Fecha</action>
 				<action tecla=" 9">saltar_nombreCliente</action>
@@ -199,7 +199,21 @@
 				<parametro nombre="dedonde">albaran</parametro>
 			</parametros> 
 		</caja_input>
-
+<caja_input>
+			<nombre id_input="idArticuloAl">cajaidArticuloAl</nombre>
+			<teclas>
+				<action tecla="13">buscarProductosAl</action>
+				<action tecla="39">saltar_Referencia</action>
+				<action tecla="38">saltar_nombreClienteArticulo</action>
+				<action tecla=" 9">saltar_Referencia</action>
+				<action tecla="40">saltar_productos</action>
+				<action tecla="37">saltar_idCliente</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">albaran</parametro>
+				<parametro nombre="campo">a.idArticulo</parametro>  
+			</parametros> 
+		</caja_input>
 
 
 		
