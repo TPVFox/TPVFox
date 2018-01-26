@@ -107,21 +107,27 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			console.log('Llegue devuelta respuesta de buscar clientes');
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
+			// Si el archivo de donde viene la consulta es  albaran con lo que devuelve la consulta
+			//de buscarCliente se registra en los input y se bloquean posteriormente
 			if (dedonde=="albaran"){
 				if (resultado.Nitems==1){
+					//Se registra en la cabecera tanto el id del clinete como el nombre
 					cabecera.idCliente=resultado.idCliente;
 					cabecera.nombreCliente=resultado.nombre;
+					//Los imput de cliente quedan desactivados y se oculta el botón de buscar
 					$('#ClienteAl').val(resultado.nombre);
 					$('#ClienteAl').prop('disabled', true);
 					$('#id_clienteAl').prop('disabled', true);
 					$("#buscar").css("display", "none");
+					//Mostrar fila muestra los nombre del cliente en los input
 					mostrarFila();
+					//Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
 					comprobarPedidosExis();
 				}
+				//Si el archivo de donde viene es de pedidos 
 			}else if (dedonde="pedidos"){
-			
 				var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-				if (valor==""){
+				if (valor==""){ //Si el valor viene vacio quiere decir que la persona pulsó el icono de buscar
 					var titulo = 'Listado clientes ';
 					abrirModal(titulo,HtmlClientes);
 					// Asignamos focus a caja buscar cliente.
@@ -133,10 +139,10 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
 					}
-				}else if(idcaja==="Cliente"){
+				}else if(idcaja==="Cliente"){// Si el cliente escribio en el input del nombre de cliente 
 					console.log('entre en cliente');
 					console.log(resultado);
-					var titulo = 'Listado clientes ';
+					var titulo = 'Listado clientes '; //Muestra los resultados de la consulta en una ventana modal
 					abrirModal(titulo,HtmlClientes);
 					if (encontrados >0 ){
 						// Enfocamos el primer item.
@@ -146,7 +152,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
 					}
-				}else if(idcaja==="cajaBusquedacliente"){
+				}else if(idcaja==="cajaBusquedacliente"){ // si la consulta viene de la caja input del modal
 					console.log('entre en caja buqueda');
 					console.log(resultado);
 					var titulo = 'Listado clientes ';
@@ -159,7 +165,8 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
 					}
-				}else{
+				}else{ //  Si recibión un id se escribe el nombre en el input , en la cabecera se guarda el id 
+				// y la función de mostrar fila cubre los campos de cliente
 					console.log('no muestro modal');
 					$('#Cliente').val(resultado.nombre);
 					console.log(resultado.idCliente);
@@ -563,7 +570,7 @@ function addProductoTemp(){
 }
 function agregarFilaProducto(num_item){
 	console.log(num_item);
-	
+	//Recibe el número del productos (el número de la fila)
 	var parametros = {
 		"pulsado"    : 'HtmlLineaTicket',
 		"producto" : productos[num_item-1],
@@ -582,6 +589,7 @@ function agregarFilaProducto(num_item){
 			var resultado =  $.parseJSON(response);
 			console.log(resultado['html']);
 			console.log(resultado['producto']);
+			//Escribe la fila del producto
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			var campo='#Unidad_Fila_'+num_item;
@@ -591,6 +599,7 @@ function agregarFilaProducto(num_item){
 		}
 	});
 }
+//Borra los datos del input
 function resetCampo(campo){
 	console.log('Entro en resetCampo '+campo);
 	document.getElementById(campo).value='';
@@ -731,6 +740,10 @@ function agregarFila(datos,campo=''){
 
 
 function escribirClienteSeleccionado(id, nombre ,dedonde=''){
+	//Escribe en los input de cliente los datos 
+	//Esta funcon la utilizo para cuando se pulsa un cliente de la ventana modal 
+	//transforma los datos para reutilizar la funcion de buscar cliente como si se introduciera un id de cliente 
+	//De esta forma no hace falta ninguna función más
 	$('#id_cliente').val(id);
 	$('#Cliente').val(nombre);
 	if (dedonde == "pedidos"){
@@ -814,6 +827,8 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	
 }
 function eliminarFila(num_item){
+	
+	//Función para cambiar el estado del producto
 	console.log("entre en eliminar Fila");
 	var line;
 	num=num_item-1;
@@ -895,8 +910,6 @@ function mover_down(fila,prefijo){
 	}else{
 		ponerFocus("idArticulo");
 	}	
-	
-	
 }
 
 function mover_up(fila,prefijo){
@@ -907,7 +920,7 @@ function mover_up(fila,prefijo){
 	var d_focus = prefijo+fila;
 	ponerFocus(d_focus);
 }
-
+//Muestra la fila de inputs para añadir un producto nuevo 
 function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
@@ -943,6 +956,7 @@ function AddTemp(id){
 }
 
 function buscarPedido(dedonde, idcaja, valor=''){
+	//Buscar los pedidos de un cliente que tenga el estado guardado
 	console.log('FUNCION buscarPedido JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'buscarPedido',
@@ -963,36 +977,44 @@ function buscarPedido(dedonde, idcaja, valor=''){
 			var encontrados = resultado.encontrados;
 			var HtmlPedidos=resultado.html;   //$resultado['html'] de montaje html
 			console.log(resultado);
-			if (valor==""){
+			if (valor==""){ //Si el usuario selecciona el icono de buscar pedido abre un modal 
+			//con los pedidos del cliente
 				var titulo = 'Listado Pedidos ';
 				abrirModal(titulo, HtmlPedidos);
 			}else{
-				if (resultado.Nitems>0){
+				if (resultado.Nitems>0){//Si tiene un resultado comprobamos que el pedido no este en ya en la lista 
+				// de pedidos introducidos . Si la bandera es 0 quiere decir que no esta en la lista de los arrays de pedidos introducidos
 					var bandera=0;
-					for(i=0; i<pedidos.length; i++){
+					for(i=0; i<pedidos.length; i++){//recorre todo el array de arrays de pedidos
 						var numeroPedido=pedidos[i].Numpedcli;
 						var numeroNuevo=resultado['datos'].Numpedcli;
-						if (numeroPedido == numeroNuevo){
+						if (numeroPedido == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
+						//del array pedidos entonces la bandera es igual a 1
 							bandera=bandera+1;
 						}
 					}
-					if (bandera==0){
+					if (bandera==0){// si no hay repetidos
 						console.log("Hay un resultado");
 						var datos = [];
 						datos = resultado['datos'];
-						pedidos.push(datos);
+						pedidos.push(datos);// En el array de arrays  de pedidos de la cabecera metemos el array de pedido nuevo 
 						productosAdd=resultado.productos;
 						console.log("cuento los productos");
 						console.log(productos.length);
 						var numFila=productos.length+1;
-						for (i=0; i<productosAdd.length; i++){
+						for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 							resultado.productos[i]['nfila']=numFila;
 							productos.push(resultado.productos[i]);
 							numFila++;
 						}
-						addAlbaranTemp();
+						addAlbaranTemp();//Añade un albaran temporal o lo modifica
+						//Modifica el estado del pedido a Facturado.
+						//Quiere decir que cuando se mete un pedido en un albaran ya no se puede volver a meter el pedido en otro albarán
+						//Ni se puede modificar  en pedidos
 						ModificarEstadoPedido("Albaran", "Facturado", resultado['datos'].Numpedcli, resultado['datos'].idPedCli);
+						//Añade el html de la fila del pedido
 						AgregarFilaPedido(datos);
+						//Agrega los productos de ese pedido
 						AgregarFilaProductosAl(resultado.productos);
 					}else{
 						alert("Ya has introducido ese pedido");
