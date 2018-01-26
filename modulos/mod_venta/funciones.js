@@ -455,7 +455,12 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		success    :  function (response) {
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
-					console.log(resultado);
+					//console.log(resultado);
+					if(dedonde =="albaran"){
+						console.log(resultado);
+						
+					} 
+					if (dedonde == "pedido"){
 				if (resultado['Nitems']===1){
 					//~ console.log('Estado'+resultado['Estado']);
 					var datos = [];
@@ -469,6 +474,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					datos['pvpCiva']=pvpCiva.toFixed(2);
 					productos.push(datos);
 					var num_item=datos['nfila'];
+					//Al inserta un producto se registra en la cabecera el id del cliente 
 					if (cabecera.numPedidoTemp==0){
 						var idCliente=$('#id_cliente').val();
 						console.log(idCliente);
@@ -497,11 +503,13 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					}
 					
 				}
+			}
 				
 		}
 		
 
 	});
+	
 }
 function addProductoTemp(){
 	console.log('Entro en añadir productos');
@@ -591,6 +599,7 @@ function agregarFilaProducto(num_item){
 			console.log(resultado['producto']);
 			//Escribe la fila del producto
 			var nuevafila = resultado['html'];
+			// devuelve el html de la fila del producto
 			$("#tabla").prepend(nuevafila);
 			var campo='#Unidad_Fila_'+num_item;
 			console.log(campo);
@@ -1067,6 +1076,7 @@ function addAlbaranTemp(){
 		}
 	});
 }
+//Modifica el estado de un pedido, dependiendo de donde venga la función carga unos parametro u otros
 function ModificarEstadoPedido(dedonde, estado, numPedido="", idPedido=""){
 	console.log("Entre en modificar estado pedido");
 	if (dedonde=="pedido"){
@@ -1101,7 +1111,7 @@ function ModificarEstadoPedido(dedonde, estado, numPedido="", idPedido=""){
 		}
 	});
 }
-
+//Comprueba los pedidos de un cliente que esten en estado guardado 
 function comprobarPedidosExis(){
 	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
 	var parametros = {
@@ -1134,7 +1144,7 @@ function comprobarPedidosExis(){
 	});
 }
 
-
+//Agregar un html con el pedido 
 function AgregarFilaPedido(datos){
 	console.log("Estoy en agregar fila Pedido");
 	var parametros = {

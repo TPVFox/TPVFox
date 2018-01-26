@@ -202,7 +202,7 @@
 <caja_input>
 			<nombre id_input="idArticuloAl">cajaidArticuloAl</nombre>
 			<teclas>
-				<action tecla="13">buscarProductosAl</action>
+				<action tecla="13">buscarProductos</action>
 				<action tecla="39">saltar_Referencia</action>
 				<action tecla="38">saltar_nombreClienteArticulo</action>
 				<action tecla=" 9">saltar_Referencia</action>
