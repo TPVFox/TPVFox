@@ -25,6 +25,14 @@
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
 	$nom_ficheros = $ClasesParametros->Xpath("tablas/tabla/nombre",'Valores');
+	$ObjTiendasImportar = $ClasesParametros->Xpath("configuracion/empresas/datos_empresa");
+	$Tiendas_importar = array();
+	foreach ($ObjTiendasImportar as $TImportar){
+			$id_tienda_importar = (string) $TImportar['id'];
+			$Tiendas_importar[$id_tienda_importar]['nombre'] = (string) $TImportar['nombre'];
+			$Tiendas_importar[$id_tienda_importar]['ruta'] = trim((string) $TImportar);	
+		
+	}
 	// ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
 	$tiposRegistros = array();
 	foreach ($parametros->configuracion->tipos_registros as $tipos){
@@ -57,7 +65,6 @@
 		if (in_array('estado',$ficheros[$nombreTabla]['campos'])){
 			$cont_tablas_estado++;
 			foreach ($tiposRegistros as $key=>$tipo){
-					echo 'Entro';
 					$contar_registro_tipo = $Controler->contarRegistro($BDImportDbf,$nombreTabla,$tipo['consulta']);
 					$tiposRegistros[$key]['Num_items'] = $contar_registro_tipo;
 					// Montamos el html queremos mostrar en columna de registros
@@ -77,8 +84,19 @@
 	}	
 	$ficheros['_tablas_actualizadas']= $cont_tablas_estado;	
 
-	
-
+	// --- Ahora vamos obtenemos todas las tiendas dadas de alta en BD Tpv --- //
+	$en_tabla = 'tiendas';
+	$ObtenerTiendas = $Controler->consultaRegistro($BDTpv,$en_tabla);
+	// Ahora debería comprobar tiendas, es decir:
+	//   - Comprobar que exista tienda principal.
+	// 	 - Comprobar que la empresas que pusimos en parametros existan como tiendas en TPV.
+	// Si fallara, por cualquiera de las dos cosas no deberíamos permitir continuar.
+	if (isset( $ObtenerTiendas['NItems']) AND $ObtenerTiendas['NItems']>0){
+		$ListaTiendas = $ObtenerTiendas['Items'];
+	} else {
+		echo 'Error en tiendas';
+		exit();
+	}
 	// Control de GET ya que:
 	// Si existen datos en la tabla importar, hay que indicar que empresa selecciono en su caso.
 	if (count($_GET)>0){
@@ -116,12 +134,45 @@
 			return;	
 		}
 	}
+	
 	?>
 
 </head>
 <body>
 <?php 
 	include './../../header.php';
+	//-- Montamos html para select de empresas -- //
+	// [RECUERDA]: Que en header generamos una variable llamada tienda que es la tienda principal
+	// Añadimos a $Tiendas el registro de Sin seleccionar.
+	$ListaTiendas[0]['idTienda'] = 0;
+	$ListaTiendas[0]['tipoTienda'] = 'No existe';
+	$ListaTiendas[0]['ruta'] = 'No ruta de donde importar selecciona tienda fisica';
+	$ListaTiendas[0]['razonsocial'] = 'Sin seleccionar';
+	$html_option_tienda = '';
+	foreach ($ListaTiendas as $key=>$dato_tienda){
+		if ($dato_tienda['idTienda'] === $Tienda['idTienda']){
+			// Quiere decir que es la tienda principal,
+			// por lo que la eliminamos del array
+			unset($ListaTiendas[$key]);
+		} else {
+			// Solo compruebo y monto option de select con las tiendas que no sea la principal y las 
+			// que encontremos en tabla tienda y parametros.
+			if (array_key_exists($dato_tienda['idTienda'],$Tiendas_importar)){
+				$i = $dato_tienda['idTienda'];
+				// Quiere decir que es correcto existe el id de parametros de empresa en BD tabla tienda
+				if ($dato_tienda['tipoTienda'] === 'fisica'){
+					$ListaTiendas[$key]['ruta']= $Tiendas_importar[$i]['ruta'];
+					$html_option_tienda .= '<option value="'.$dato_tienda['idTienda'].'" >'.$dato_tienda['idTienda'].'-'.$dato_tienda['razonsocial'].'<-- Parametro empresa:'.$Tiendas_importar[$i]['nombre'].'</option>';
+				}
+			}
+		
+		}
+	}
+	// -- Ahora acabamos de montar el select de tiendas  ---- //
+	$html_tienda_select = '<select class="form-control" name="tiendaImportar" id="sel1">';
+	$html_tienda_select .= '<option value="'.$ListaTiendas[0]['idTienda'].'" >'.$ListaTiendas[0]['idTienda'].'-'.$ListaTiendas[0]['razonsocial'].'</option>';
+	$html_tienda_select .= $html_option_tienda.'</select>';
+	$html_tienda_select .= '<input type="text" name="directorioRuta" disabled value="'.$ListaTiendas[0]['ruta'].'">';
 	
 	// Ahora tenemos un array con los campos de la tablas .
 	
@@ -138,32 +189,14 @@
 	</div>
 	<div class="col-md-5">
 		<div class="col-md-12">
-			<div class="col-md-6">
 				<!--Selector de empresa -->
 				<label for="sel1" title="El cruce con la tienda on-line es con virtuemart_id y en tabla tpv articulosTienda">Selecciona la tienda:</label>
 				<small>Recuerda que debe informar donde tiene los datos en parametros.xml</small>
-				<select <?php echo $disable_conf;?>  class="form-control" name="tiendaOnLine" id="sel1">
-					<option value="0">Sin selecciona tienda fisica</option>
-					<?php
-					$porDefecto = ''; 
-					foreach ($tiendasOnLine['items'] as $tiendaOnLine){
-						if ($tienda_on_line_seleccionada===$tiendaOnLine['idTienda']){
-							$porDefecto = 'selected';
-						}
-					?>
-					<option <?php echo $porDefecto;?> value="<?php echo $tiendaOnLine['idTienda'];?>" >
-					<?php echo $tiendaOnLine['idTienda'].'-'.$tiendaOnLine['dominio'];?>
-					</option>
-					<?php
-					}
-					?>
-				</select>
-			</div>
-			<div class="col-md-6">
+				<?php 
+				echo $html_tienda_select;
+				?>
 				<!-- Caja muestra ruta de parametro para esa empresas -->
-				<!-- Se debe carja con JSON al cambiar valor de select-->
-				<input type="text" name="directorioRuta" value="<?php echo $rutaEmpresa ;?>">
-			</div>
+				
 		</div>
 		<p>La importación de DBF de SPPGTpv consiste en dos faxes:</p>
 		<h3>1.-Importacion de DBF a MYSQL</h3>
