@@ -2,6 +2,7 @@
 <html>
 <head>
 <?php
+//prueba de casa
 include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
