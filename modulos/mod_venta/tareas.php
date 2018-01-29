@@ -56,7 +56,9 @@ switch ($pulsado) {
 			$CalculoTotales = recalculoTotales($productos_para_recalculo);
 			$total=round($CalculoTotales['total'],2);
 			$respuesta['total']=$total;
+			if($idTemporal){
 			$modProducto=$CcliPed->AddProducto($idTemporal,$datos , $total);
+			}
 			$nuevoArray = array(
 							'desglose'=> $CalculoTotales['desglose'],
 							'total' => $CalculoTotales['total']
@@ -185,15 +187,37 @@ switch ($pulsado) {
 				$existe=1;
 				$respuesta['sql']=$rest['sql'];
 				$res=$rest['idTemporal'];
+				$pro=$rest['productos'];
 			}else{
 				$res=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente);
 				$existe=0;
+				$pro=$res['productos'];
 			}
 			if ($numAlbaran===0){
 				$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
 			}
+			if ($productos){
+				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				$respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$total=round($CalculoTotales['total'],2);
+				$respuesta['total']=$total;
+				$nuevoArray = array(
+							'desglose'=> $CalculoTotales['desglose'],
+							'total' => $CalculoTotales['total']
+								);
+				$respuesta['totales']=$nuevoArray;
+				$totalivas=0;
+				foreach($nuevoArray['desglose'] as $nuevo){
+					$totalivas=$totalivas+$nuevo['iva'];
+				}
+			
+				$modTotal=$CalbAl->modTotales($res, $total, $totalivas);
+				$respuesta['sqlmodtotal']=$modTotal['sql'];
+			}
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
+			$respuesta['productos']=$_POST['productos'];
 			
 			echo json_encode($respuesta);
 		break;
@@ -239,10 +263,22 @@ switch ($pulsado) {
 	 
 		case 'htmlAgregarFilasProductos':
 		$productos=$_POST['productos'];
-		foreach($productos as $producto){
-			$res=htmlLineaPedidoAlbaran($producto);
-			$respuesta['html'].=$res['html'];
-		}
+		
+			 foreach($productos as $producto){
+				if (!is_array($producto)){
+					$bandera=1;
+				}else{
+				$res=htmlLineaPedidoAlbaran($producto);
+				 $respuesta['html'].=$res['html'];
+				}
+		 }
+		 if ($bandera==1){
+			 $res=htmlLineaPedidoAlbaran($productos);
+				 $respuesta['html'].=$res['html'];
+		 }
+		
+			
+	
 		echo json_encode($respuesta);
 		break;
 		 
@@ -252,4 +288,5 @@ switch ($pulsado) {
 			$respuesta['NumPedido']=$res['Numpedcli'];
 			echo json_encode($respuesta);
 		break;
+		
 }

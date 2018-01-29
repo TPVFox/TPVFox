@@ -373,6 +373,45 @@ function recalculoTotales($productos) {
 	return $respuesta;
 }
 
+function recalculoTotalesAl($productos) {
+	// @ Objetivo recalcular los totales y desglose del ticket
+	// @ Parametro:
+	// 	$productos (array) de objetos.
+	$respuesta = array();
+	$desglose = array();
+	$ivas = array();
+	$subtotal = 0;
+	//~ $productosTipo=gettype($productos);
+	//~ $respuesta['tipo']=$productosTipo;
+	// Creamos array de tipos de ivas hay en productos.
+	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
+	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
+	foreach ($productos as $product){
+		// Si la linea esta eliminada, no se pone.
+		if ($product->estadoLinea === 'Activo'){
+			$totalLinea = $product->ncant * $product->precioCiva;
+			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
+			$subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
+			// Ahora calculmos bases por ivas
+			$desglose[$product->iva]['BaseYiva'] = (!isset($desglose[$product->iva]['BaseYiva']) ? $totalLinea : $desglose[$product->iva]['BaseYiva']+$totalLinea);
+			// Ahora calculamos base y iva 
+			$operador = (100 + $product->iva) / 100;
+			$desglose[$product->iva]['base'] = number_format(($desglose[$product->iva]['BaseYiva']/$operador),2);
+			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['BaseYiva']-$desglose[$product->iva]['base'],2);
+			//~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
+		}
+	
+	}
+	
+	//~ $respuesta['ivas'] = $ivas;
+	$respuesta['desglose'] = $desglose;
+	$respuesta['total'] = number_format($subtotal,2);
+	return $respuesta;
+}
+
+
+
+
 function modificarArrayProductos($productos){
 	$respuesta=array();
 	foreach ($productos as $producto){
@@ -394,6 +433,7 @@ function modificarArrayProductos($productos){
 }
 
 function htmlLineaPedidoAlbaran($productos){
+	
 	if(!is_array($productos)) {
 		// Comprobamos si product no es objeto lo convertimos.
 		$producto = (array)$productos;
@@ -401,13 +441,14 @@ function htmlLineaPedidoAlbaran($productos){
 	} else {
 		$producto = $productos;
 	}
+	
 		 	if ($producto['estadoLinea'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarFila('.$producto['nfila'].');';
+				$funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".'albaran'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 			} else {
-				$funcOnclick = ' eliminarFila('.$producto['nfila'].');';
+				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".'albaran'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 			}
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
@@ -418,14 +459,15 @@ function htmlLineaPedidoAlbaran($productos){
 		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['ncant'],0);
-		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$producto['nfila']."'".')" onBlur="controlEventos(event)"></td>';
+		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
-		 $importe = $producto->precioCiva*$producto['ncant'];
+		 $importe = $producto['precioCiva']*$producto['ncant'];
 		 $importe = number_format($importe,2);
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;
 		 $respuesta['html'] .='</tr>';
+		 $respuesta['productos']=$producto;
 	 return $respuesta;
 }
 

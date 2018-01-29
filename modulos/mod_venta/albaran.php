@@ -2,7 +2,6 @@
 <html>
 <head>
 <?php
-//prueba de casa
 include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
@@ -49,25 +48,19 @@ include './../../head.php';
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
 				
-				//~ echo '<pre>';
-				//~ print_r($pedidos );
-				//~ echo '</pre>';
-				
-				
 			}else{
 				$idAlbaranTemporal=0;
 				$idAlbaran=0;
 				$numAlbaran=0;
 				$idCliente=0;
 				$nombreCliente=0;
-			
 			}
 		
 	}
 		if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
-		//	$Datostotales = recalculoTotales($productos);
+			$Datostotales = recalculoTotalesAl($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
 		if (isset($albaran['Pedidos'])){
@@ -75,10 +68,46 @@ include './../../head.php';
 		}
 		
 		if (isset($_POST['Guardar'])){
+			if ($_POST['idTemporal']){
+				$idTemporal=$_POST['idTemporal'];
+			}else{
+				$idTemporal=$_GET['tActual'];
+			}
+			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
+			if($datosAlbaran['total']){
+				$total=$datosAlbaran['total'];
+			}else{
+				$total=0;
+			}
+			
+			$datos=array(
+			'Numtemp_albcli'=>$idTemporal,
+			'Fecha'=>$_POST['fechaAl'],
+			'idTienda'=>$Tienda['idTienda'],
+			'idUsuario'=>$Usuario['id'],
+			'idCliente'=>$datosAlbaran['idClientes'],
+			'estado'=>"Guardado",
+			'total'=>$total,
+			'DatosTotales'=>$Datostotales,
+			'productos'=>$datosAlbaran['Productos'],
+			'pedidos'=>$datosAlbaran['Pedidos']
+			);
+			
+			if($datosAlbaran['id']){
+				$idAlbaran=$datosAlbaran['id'];
+				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
+				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
+				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+			}else{
+				$idPedido=0;
+				$addNuevo=$Calbcli->AddAlbaranGuardado($datosPedido, $idAlbaran);
+				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+			}
+			echo $addNuevo;
 			
 		}
 		
-		if (isset ($pedidos)){
+		if (isset ($pedidos) | $_GET['tActual']){
 			$style="";
 		}else{
 			$style="display:none;";
@@ -87,7 +116,11 @@ include './../../head.php';
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+//Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
+		$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
+		
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -289,33 +322,33 @@ if (isset($_GET['tActual'])){
 	  </table>
 	</div>
 	<?php 
-	//~ if (isset($pedido['Productos']) | isset ($idPedido)){
-			//~ // Ahora montamos base y ivas
-			//~ foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				//~ switch ($iva){
-					//~ case 4 :
-						//~ $base4 = $basesYivas['base'];
-						//~ $iva4 = $basesYivas['iva'];
-					//~ break;
-					//~ case 10 :
-						//~ $base10 = $basesYivas['base'];
-						//~ $iva10 = $basesYivas['iva'];
-					//~ break;
-					//~ case 21 :
-						//~ $base21 = $basesYivas['base'];
-						//~ $iva21 = $basesYivas['iva'];
-					//~ break;
-				//~ }
-			//~ }
+	if ($albaran['Productos']){
+			// Ahora montamos base y ivas
+			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
+				switch ($iva){
+					case 4 :
+						$base4 = $basesYivas['base'];
+						$iva4 = $basesYivas['iva'];
+					break;
+					case 10 :
+						$base10 = $basesYivas['base'];
+						$iva10 = $basesYivas['iva'];
+					break;
+					case 21 :
+						$base21 = $basesYivas['base'];
+						$iva21 = $basesYivas['iva'];
+					break;
+				}
+			}
 	
 	?>
-<!--
+
 		<script type="text/javascript">
-			total = <?php //echo $Datostotales['total'];?>;
+			total = <?php echo $Datostotales['total'];?>;
 			</script>
--->
+
 			<?php
-//	}
+	}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -329,37 +362,37 @@ if (isset($_GET['tActual'])){
 		<tbody>
 			<tr id="line4">
 				<td id="tipo4">
-					<?php //echo (isset($base4) ? " 4%" : '');?>
+					<?php echo (isset($base4) ? " 4%" : '');?>
 				</td>
 				<td id="base4">
-					<?php //echo (isset($base4) ? $base4 : '');?>
+					<?php echo (isset($base4) ? $base4 : '');?>
 				</td>
 				<td id="iva4">
-					<?php //echo (isset($iva4) ? $iva4 : '');?>
+					<?php echo (isset($iva4) ? $iva4 : '');?>
 				</td>
 				
 			</tr>
 			<tr id="line10">
 				<td id="tipo10">
-					<?php //echo (isset($base10) ? "10%" : '');?>
+					<?php echo (isset($base10) ? "10%" : '');?>
 				</td>
 				<td id="base10">
-					<?php //echo (isset($base10) ? $base10 : '');?>
+					<?php echo (isset($base10) ? $base10 : '');?>
 				</td>
 				<td id="iva10">
-					<?php //echo (isset($iva10) ? $iva10 : '');?>
+					<?php echo (isset($iva10) ? $iva10 : '');?>
 				</td>
 				
 			</tr>
 			<tr id="line21">
 				<td id="tipo21">
-					<?php //echo (isset($base21) ? "21%" : '');?>
+					<?php echo (isset($base21) ? "21%" : '');?>
 				</td>
 				<td id="base21">
-					<?php //echo (isset($base21) ? $base21 : '');?>
+					<?php echo (isset($base21) ? $base21 : '');?>
 				</td>
 				<td id="iva21">
-					<?php //echo (isset($iva21) ? $iva21 : '');?>
+					<?php echo (isset($iva21) ? $iva21 : '');?>
 				</td>
 				
 			</tr>
@@ -370,7 +403,7 @@ if (isset($_GET['tActual'])){
 			<h3>TOTAL</h3>
 			</div>
 			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-				<?php //echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
 			</div>
 		</div>
 	</div>

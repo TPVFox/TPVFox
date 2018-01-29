@@ -275,7 +275,7 @@ function controladorAcciones(caja,accion){
 			console.log ( caja);
 			productos[nfila].unidad = caja.darValor();
 			console.log(productos[nfila].unidad);
-			recalculoImporte(productos[nfila].unidad,nfila);
+			recalculoImporte(productos[nfila].unidad,nfila, caja.darParametro('dedonde'));
 			
 			break;
 		case 'mover_down':
@@ -445,6 +445,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		"campo"      : campo,
 		"idcaja"	 :idcaja
 	};
+	console.log(dedonde);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -457,10 +458,32 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 			var resultado =  $.parseJSON(response);
 					//console.log(resultado);
 					if(dedonde =="albaran"){
-						console.log(resultado);
+						var datos = new Object();
+						datos.Numpedcli=0;
+						datos.ccodbar=resultado['datos'][0]['codBarras'];
+						datos.cdetalle=resultado['datos'][0]['articulo_name'];
+						datos.cref=resultado['datos'][0]['crefTienda'];
+						datos.estadoLinea="Activo";
+						datos.idArticulo=resultado['datos'][0]['idArticulo'];
+						datos.idpedcli=0;
+						datos.iva=resultado['datos'][0]['iva'];
+						datos.ncant=1;
+						datos.nfila=productos.length+1;
+						datos.nunidades=1;
+						var importe =resultado['datos'][0]['pvpCiva']*1;
+						datos.importe=importe.toFixed(2);
+						var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
+						datos.precioCiva=pvpCiva.toFixed(2);
+						
+						productos.push(datos);
+					
+						addAlbaranTemp();
+					 	AgregarFilaProductosAl(datos);
+					 	
 						
 					} 
-					if (dedonde == "pedido"){
+					if (dedonde == "pedidos"){
+					console.log(resultado);	
 				if (resultado['Nitems']===1){
 					//~ console.log('Estado'+resultado['Estado']);
 					var datos = [];
@@ -635,7 +658,7 @@ function agregarFila(datos,campo=''){
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-			console.log('*********  Obteniendo html de linea ticket  ****************');
+			console.log('*********  Obteniendo html de productos albaran  ****************');
 		},
 		success    :  function (response) {
 			console.log('Repuesta de Obtener HTML linea de FUNCION -> agregarFila');
@@ -835,8 +858,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 
 	
 }
-function eliminarFila(num_item){
-	
+function eliminarFila(num_item, valor=""){
 	//Función para cambiar el estado del producto
 	console.log("entre en eliminar Fila");
 	var line;
@@ -844,44 +866,84 @@ function eliminarFila(num_item){
 	console.log(num);
 	line = "#Row" + productos[num].nfila;
 	// Nueva Objeto de productos.
-	productos[num].estado= 'Eliminado';
+	if(valor="albaran"){
+		productos[num].estadoLinea='Eliminado';
+	}else{
+		productos[num].estado= 'Eliminado';
+	}
 	$(line).addClass('tachado');
-	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+');"><span class="glyphicon glyphicon-export"></span></a>');
+		if(valor="albaran"){
+	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+'albaran'+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
-	addProductoTemp();
+
+		addAlbaranTemp();
+	}else{
+		$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+');"><span class="glyphicon glyphicon-export"></span></a>');
+	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
+
+		addProductoTemp();
+	}
+	
 }
-function retornarFila(num_item){
+function retornarFila(num_item, valor=""){
 	// @Objetivo :
 	// Es pasar un producto eliminado a activo.
 	console.log("entre en retornar fila");
 	var line;
-	console.log("llegue hasta aqui ");
 	console.log(num_item);
 	num=num_item-1;
 	console.log(productos[num]);
 	line = "#Row" +productos[num].nfila;
 	console.log(line);
 	// Nueva Objeto de productos.
-	productos[num].estado= 'Activo';
-	console.log(productos[num].estado);
+	if(valor=="albaran"){
+		productos[num].estadoLinea= 'Activo';
+	}else{
+		productos[num].estado= 'Activo';
+	}
+	//~ console.log(productos[num].estado);
 	console.log(productos);
 	//~ var pvp =productos[num_item].pvpconiva;
 
+	
+	if(valor=="albaran"){
+	$(line).removeClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+' , '+"'"+'albaran'+"'"+');"><span class="glyphicon glyphicon-trash"></span></a>');
+
+	console.log(productos[num].nunidades);
+			if (productos[num].nunidades == 0) {
+				// Nueva Objeto de productos.
+				// Antiguo array productos.
+				productos[num].nunidades = 1;
+				//	recalculoImporte(productos[num].unidad,num_item);
+				
+			}
+				$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
+				$("#N" + productos[num].nfila + "_Unidad").val(productos[num].nunidades);
+			
+				addAlbaranTemp();
+	}else{
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+');"><span class="glyphicon glyphicon-trash"></span></a>');
-	if (productos[num].unidad == 0) {
-		// Nueva Objeto de productos.
-		//~ productos[nfila].unidad= 1;
-		// Antiguo array productos.
-		productos[num].unidad = 1;
-	//	recalculoImporte(productos[num].unidad,num_item);
+
+			if (productos[num].unidad == 0) {
+				// Nueva Objeto de productos.
+				//~ productos[nfila].unidad= 1;
+				// Antiguo array productos.
+				productos[num].unidad = 1;
+				//	recalculoImporte(productos[num].unidad,num_item);
+				
+			}
+			$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
+			$("#N" + productos[num].nfila + "_Unidad").val(productos[num].unidad);
+			console.log(productos);
+			addProductoTemp();
 	}
-	$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
-	$("#N" + productos[num].nfila + "_Unidad").val(productos[num].unidad);
-	console.log(productos);
-	addProductoTemp();
+
+	
 }
-function recalculoImporte(cantidad,num_item){
+function recalculoImporte(cantidad,num_item, dedonde=""){
+	
 	// @ Objetivo:
 	// Recalcular el importe de la fila, si la cantidad cambia.
 	// @ Parametros:
@@ -889,6 +951,21 @@ function recalculoImporte(cantidad,num_item){
 	//	num_item -> El numero que indica el producto que modificamos.
 	console.log('Estoy en recalculoImporte');
 	console.log(num_item);
+	if (dedonde=="albaran"){
+		if (productos[num_item].ncant == 0 && cantidad != 0) {
+			retornarFila(num_item+1, dedonde);
+		} else if (cantidad == 0 ) {
+			eliminarFila(num_item+1, dedonde);
+		}
+		productos[num_item].ncant = cantidad;
+		//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
+		var importe = cantidad*productos[num_item].precioCiva;
+		var id = '#N'+productos[num_item].nfila+'_Importe';
+		importe = importe.toFixed(2);
+		$(id).html(importe);
+	
+		addAlbaranTemp();
+	}else{
 	//~ console.log('cantidad:'+cantidad);
 	if (productos[num_item].cant == 0 && cantidad != 0) {
 		retornarFila(num_item+1);
@@ -904,6 +981,7 @@ function recalculoImporte(cantidad,num_item){
 	importe = importe.toFixed(2);
 	$(id).html(importe);
 		addProductoTemp();
+	}
 }
 function sobreFilaCraton(cont){
 	$('#Fila_'+cont).css('background-color','azure');
@@ -1037,7 +1115,7 @@ function buscarPedido(dedonde, idcaja, valor=''){
 }
 function addAlbaranTemp(){
 	console.log('FUNCION Añadir albaran temporal JS-AJAX');
-	console.log(cabecera);
+	console.log(productos);
 	var parametros = {
 		"pulsado"    : 'añadirAlbaranTemporal',
 		"idAlbaranTemp":cabecera.idAlbaranTemp,
@@ -1047,10 +1125,9 @@ function addAlbaranTemp(){
 		"idAlbaran":cabecera.idAlbaran,
 		"numAlbaran":cabecera.numAlbaran,
 		"fecha":cabecera.fecha,
-		"pedidos":pedidos,
 		"productos":productos,
-		"idCliente":cabecera.idCliente,
-		"nombreCliente":cabecera.nombreCliente
+		"pedidos":pedidos,
+		"idCliente":cabecera.idCliente
 	};
 	console.log(parametros);
 	
@@ -1070,6 +1147,47 @@ function addAlbaranTemp(){
 			if (resultado.existe == 0){
 				history.pushState(null,'','?tActual='+resultado.id.id);
 				cabecera.idAlbaranTemp=resultado.id.id;
+			}
+				
+			$('#tipo4').html('');
+			$('#tipo10').html('');
+			$('#tipo21').html('');
+			$('#base4').html('');
+			$('#base10').html('');
+			$('#base21').html('');
+			$('#iva4').html('');
+			$('#iva10').html('');
+			$('#iva21').html('');
+			$('.totalImporte').html('');
+			
+			// Ahora pintamos pie de ticket.
+			if (resultado['totales']['total'] > 0 ){
+				// Quiere decir que hay datos a mostrar en pie.
+				total = parseFloat(resultado['totales']['total']) // varible global.
+				$('.totalImporte').html(total.toFixed(2));
+				// Ahora tengo que pintar los ivas.
+				var desgloseIvas = [];
+				
+				console.log("estoy aqui");
+				console.log(resultado['totales']['desglose']);
+				
+				desgloseIvas.push(resultado['totales']['desglose']);
+				console.log(desgloseIvas);
+				// Ahora recorremos array desglose
+				desgloseIvas.forEach(function(desglose){
+					console.log('Entro foreah');
+					// mostramos los tipos ivas , bases y importes.
+					var tipos = Object.keys(desglose);
+					console.log(desglose);
+					for (index in tipos){
+						var tipo = tipos[index];
+						$('#line'+parseInt(tipo)).css('display','');
+						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+					}
+				});
+				
 			}
 			
 			
@@ -1173,7 +1291,10 @@ function AgregarFilaPedido(datos){
 }
 function AgregarFilaProductosAl(productosAl){
 	console.log("Estoy en agregar fila productos albaran");
-	productosAl=productosAl.reverse();
+	
+	if (productosAl.length>1){
+		productosAl=productosAl.reverse();
+	}
 	console.log(productosAl);
 	var parametros = {
 		"pulsado"    : 'htmlAgregarFilasProductos',
@@ -1195,6 +1316,7 @@ function AgregarFilaProductosAl(productosAl){
 			console.log(resultado);
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
+			
 			
 		}
 	});
