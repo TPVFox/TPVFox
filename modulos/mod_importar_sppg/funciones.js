@@ -52,9 +52,7 @@ function ControlPulsado (pulsado) {
 				$("#btnImportar").prop('disabled', true);
 				// Bloque el select empresas, para que no pueda cambiarla.
 				$("#sel1").prop('disabled', true);
-
-				// Acaba de cargar javascript, por lo que inicia proceso.
-				//llamar func que hace bucle de la matriz de nombres tabla (fichero)
+				// Inicio bucle de ficheros de la variable (array) Global nombretabla.
 				bucleFicheros();
 				break;
 	} 
@@ -87,8 +85,8 @@ function bucleFicheros(){
 		ImportEstrucTabla();
 	} else {
 		// termino...
-		alert('termino de importar fichero');
-		$(".btn-actualizar").css("display", "block");
+		console.log('termino de importar fichero');
+		ActualizarAgregarCampoEstado();
 	}
 	
 }
@@ -132,7 +130,6 @@ function ImportEstrucTabla (){
 						// console.log('estructura '+campos[i]['campo']+' '+campos[i]['tipo']+' '+campos[i]['longitud']+' '+campos[i]['decimal'] );
 						 
 						}					
-					
 						ImportcomprobarTabla();
 						return;
 					} else {	
@@ -309,13 +306,9 @@ function PintarIcono(tablaActual, className, ok=true,cargando=false){
 
 	}
 }
-function ActualizarInicio(actualizar){
-	alert('Pendiente comprobar si empezo con actualizacion...');
-	// Si no empezo entonces... empezamos con añadir campoNecesarios a BDImportar para hacer actualizacion
-	ActualizarAgregarCampoEstado();
-	console.log(actualizar);
-	};
+
 function ActualizarAgregarCampoEstado(){
+	console.log( '------------ Estroy funcion ActualizarAgregarCampoEstado --------------');
 	// Antes de enviar el array nombretabla
 	// tengo eliminar aquellos que están mal.
 	var tablasErroneas= Object.keys(estadoImportacion); 
@@ -342,8 +335,9 @@ function ActualizarAgregarCampoEstado(){
 		success:  function (response) {
 			$("#resultado").html('Termino de agregando campo de estado a  DBDImportar ');
 			console.log('================  Termino campos DBDImportar para actualizar   ====================');
-			var respuesta = parseJSON(response);
-			console.log(resultado);
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
+			alert( 'Termine de importar y añadir campo Estado');
 		
 		}
 	});
@@ -529,10 +523,23 @@ function InsertarIdRegistroFamilia(fila,id){
 
 }
 
+
 function getvalsel(event){
-	    alert('Entro');
+		// Objetivo cambiar el valor input ruta segun empresa seleccionada.
+		console.log('Estoy en funcion de getvalsel');
 		var id =  parseInt(event.target.value);
-		// Ruta es una variable global que creo en Importar_sppg
-	    $("#directorioRuta").val(ruta[id]);
-	    console.log(ruta[id]);
+		
+		if ( id >0 ){
+			// Si selecciono una empresa 
+			$("#btnImportar").prop('disabled', false);
+			console.log('id='+id);
+			// Ruta es una variable global que creo en Importar_sppg
+			$("#directorioRuta").val(empresa[id].ruta);
+		} else {
+			// No permito importar mientras no seleccione una empresa.
+			$("#btnImportar").prop('disabled', true);
+
+		}
 }
+
+

@@ -118,7 +118,7 @@ function ComprobarTabla($nombreTabla,$tablas,$BDImportDbf,$campos,$TControlador)
 		if ($nombreTabla === $tabla) {
 			$resultado['Tabla'] = 'Existe';
 			// 1º Obtengo estructura  de  la tabla de BDImportar
-			$infoTabla= $TControlador->InfoTabla($BDImportDbf,$nombretabla,'si');
+			$infoTabla= $TControlador->InfoTabla($BDImportDbf,$nombreTabla,'si');
 			$campos = $infoTabla['campos'];
 			if (isset($infoTabla['error'])){
 				// Si NO existe o sale mal la consulta
@@ -274,9 +274,9 @@ function ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf){
 		// Ahora ponemos la fila de id de primera.
 		$sql ='ALTER TABLE '.$nombretabla.' ADD `id` INT';
 		$BDImportDbf->query($sql);
-		if ($mysqli->errno){
+		if ($BDImportDbf->errno){
 			$resultado[$nombretabla]['estado'] ='Error';
-			$resultado[$nombretabla]['error'] =$mysqli->errno; 
+			$resultado[$nombretabla]['error'] =$BDImportDbf->errno; 
 		} else {
 			$resultado[$nombretabla]['estado'] ='Correcto';
 		}

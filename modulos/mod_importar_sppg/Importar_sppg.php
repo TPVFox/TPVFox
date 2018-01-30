@@ -46,14 +46,22 @@
 	include_once ("./funciones.php");
 	include ("./../../controllers/Controladores.php");
 	$Controler = new ControladorComun; 
-	// ----------- Creamos objeto fichero -----------------//
-	// 1.- Comprobamos que las tablas obtenidad si tienen ya el campo Estado, por lo que ya actualizamos
+	// Ahora comprobamos si existe la tabla registro_importacion en la BDimportar
+	$ExisteRegistroImportar = $Controler->InfoTabla($BDImportDbf,'registro_importacion');
+	if (isset($ExisteRegistroImportar['error'])){
+		echo ' Importa la SQL de tabla registro_importacion que hay en el modulo';
+		// No permito continuar.
+		exit();
+		
+	}
+	// ----------- Creamos objeto ficheros -----------------//
+	// 1.- Comprobamos que las tablas obtenidas si tienen ya el campo Estado, por lo que ya actualizamos
 	// 2.- Creamos html fila del fichero.
 	// [RECUERDA]
 	// Que si tiene estado ya se trato,por lo que ya no los cargamos.
 	$clases_td = array("CEstruct","CBorrar","CCrear","CImportar");
 	$ficheros = array();
-	$cont_tablas_estado = 0; // Contador que utilizo para saber y las tablas que vamos analizar ya pulsaron actualizar.
+	$cont_estado_registros = 0; // Contador que utilizo para saber las tablas que tienen campo estado y registros,pulso actualizar.
 	foreach ($nom_ficheros as $nombreTabla){
 		$ficheros[$nombreTabla] = $Controler->InfoTabla($BDImportDbf,$nombreTabla,'no');
 		// Montamos html para crear la fila de la tabla de ese fichero.
@@ -63,15 +71,18 @@
 		};
 		$html_registros = '';
 		if (in_array('estado',$ficheros[$nombreTabla]['campos'])){
-			$cont_tablas_estado++;
+			
 			foreach ($tiposRegistros as $key=>$tipo){
 					$contar_registro_tipo = $Controler->contarRegistro($BDImportDbf,$nombreTabla,$tipo['consulta']);
 					$tiposRegistros[$key]['Num_items'] = $contar_registro_tipo;
 					// Montamos el html queremos mostrar en columna de registros
 					
-				}
-				$html_registros =$tiposRegistros['todos']['Num_items'].'/'.$tiposRegistros['sin']['Num_items'];
-				$ficheros[$nombreTabla]['Estado']['tipos'] = $tiposRegistros;
+			}
+			$html_registros =$tiposRegistros['todos']['Num_items'].'/'.$tiposRegistros['sin']['Num_items'];
+			$ficheros[$nombreTabla]['Estado']['tipos'] = $tiposRegistros;
+			if ($tiposRegistros['todos']['Num_items'] > 0 ){
+				$cont_estado_registros++;
+			}
 		}
 		if ($html_registros !== ''){
 			$html_tr .= '<td class="CActualizar">'.$html_registros.
@@ -82,30 +93,27 @@
 		}
 		$ficheros[$nombreTabla]['html_tr'] = $html_tr.'</tr>';
 	}	
-	$ficheros['_tablas_actualizadas']= $cont_tablas_estado;	
+	$ficheros['_tablas_actualizadas']= $cont_estado_registros;	// utilizamos para hacer advertencia.
+			//~ echo '<pre>';
+			//~ print_r($ficheros);
+			//~ echo '</pre>';	
 
-	// --- Ahora vamos obtenemos todas las tiendas dadas de alta en BD Tpv --- //
-	$en_tabla = 'tiendas';
-	$ObtenerTiendas = $Controler->consultaRegistro($BDTpv,$en_tabla);
-	// Ahora debería comprobar tiendas, es decir:
-	//   - Comprobar que exista tienda principal.
-	// 	 - Comprobar que la empresas que pusimos en parametros existan como tiendas en TPV.
-	// Si fallara, por cualquiera de las dos cosas no deberíamos permitir continuar.
-	if (isset( $ObtenerTiendas['NItems']) AND $ObtenerTiendas['NItems']>0){
-		$ListaTiendas = $ObtenerTiendas['Items'];
-	} else {
-		echo 'Error en tiendas';
-		exit();
-	}
-	// Control de GET ya que:
-	// Si existen datos en la tabla importar, hay que indicar que empresa selecciono en su caso.
-	if (count($_GET)>0){
-		// Quiere decir hubo enviod de datos...
+	if ($ficheros['_tablas_actualizadas'] > 0){
+		// -- Si ya existen tablas con registros y estado tomamos de ruta -- //
+		// Tengo crear la funcion de obtener el ultimo registros de la tabla registro_importa	
+		$RegistrosImportar = $Controler->consultaRegistro($BDImportDbf,'registro_importacion');
+		if ( $RegistrosImportar['NItems']>0){
+			// Tomamos el ultimos registro.
+			$n = $RegistrosImportar['NItems']-1; // ya empieza en 0
+			$registro_ultimo_importar = $RegistrosImportar['Items'][$n];
+		} else {
+			// No hay registros por lo que considero que es un error
+			echo ' La tabla registro_importacion no tiene registros y existen tablas con estado';
+			// No permito continuar.
+			exit();
+		}
 	}
 	
-	
-	
-
 	// [ANTES CARGAR FUNCIONES JS]
 	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
 	?>
@@ -144,47 +152,66 @@
 	//-- Montamos html para select de empresas -- //
 	// [RECUERDA]: Que en header generamos una variable llamada tienda que es la tienda principal
 	// 			  la eliminamos...
-	
-	// Añadimos a $Tiendas el registro de Sin seleccionar.
-	$ListaTiendas[0]['idTienda'] = 0;
-	$ListaTiendas[0]['tipoTienda'] = 'No existe';
-	$ListaTiendas[0]['ruta'] = 'No ruta de donde importar selecciona tienda fisica';
-	$ListaTiendas[0]['razonsocial'] = 'Sin seleccionar';
-	$html_option_tienda = '';
-	foreach ($ListaTiendas as $key=>$dato_tienda){
-		if ($dato_tienda['idTienda'] === $Tienda['idTienda']){
-			// Quiere decir que es la tienda principal,
-			// por lo que la eliminamos del array
-			unset($ListaTiendas[$key]);
-		} else {
-			// Solo compruebo y monto option de select con las tiendas que no sea la principal y las 
-			// que encontremos en tabla tienda y parametros.
-			if (array_key_exists($dato_tienda['idTienda'],$Tiendas_importar)){
-				$i = $dato_tienda['idTienda'];
-				// Quiere decir que es correcto existe el id de parametros de empresa en BD tabla tienda
-				if ($dato_tienda['tipoTienda'] === 'fisica'){
-					$ListaTiendas[$key]['ruta']= $Tiendas_importar[$i]['ruta'];
-					$html_option_tienda .= '<option value="'.$dato_tienda['idTienda'].'" >'.$dato_tienda['idTienda'].'-'.$dato_tienda['razonsocial'].'<-- Parametro empresa:'.$Tiendas_importar[$i]['nombre'].'</option>';
+	// --- Ahora vamos obtenemos todas las tiendas dadas de alta en BD Tpv --- //
+	$en_tabla = 'tiendas';
+	$ObtenerTiendas = $Controler->consultaRegistro($BDTpv,$en_tabla);
+	// --- Creamos la lista tiendas para seleccionar de donde importamos. --- //
+	$ListaTiendas = array(
+				0 => array(
+						'idTienda' 		=> 0,
+						'tipoTienda'	=> 'No existe',
+						'ruta'			=> 'No ruta de donde importar selecciona tienda fisica',
+						'razonsocial'	=> 'Sin seleccionar',
+						'nombre_import' => 'No existe',
+						'porDefecto'	=> 'Si'
+					)
+				);
+	if (isset( $ObtenerTiendas['NItems']) AND $ObtenerTiendas['NItems']>0){
+		$html_option_tienda = ''; // Variable que utilizamos para montar el select de empresa importar.
+		$i = 1;
+		foreach ($ObtenerTiendas['Items'] as $tienda){
+			if ($tienda['idTienda'] !== $Tienda['idTienda']){
+			// No añadimos la tienda principal , ya que no tiene sentido.
+				if (array_key_exists($tienda['idTienda'],$Tiendas_importar)){
+				// Si existe en parametros el id de la empresa en idTienda.
+					if ($tienda['tipoTienda'] === 'fisica'){
+					// Si la tienda es fisica entonces la añadimos ListaTiendas
+					// [RECUERDA]
+					// Que si el id empresa que tenemos en parametros no existen en tabla tiendas o es la principal no la añade
+						$id_tienda = $tienda['idTienda'];
+						$ListaTiendas[$i] = array(
+										'idTienda' 		=> $tienda['idTienda'],
+										'tipoTienda'	=> $tienda['tipoTienda'],
+										'ruta'			=> $Tiendas_importar[$id_tienda]['ruta'],
+										'razonsocial'	=> $tienda['razonsocial'],
+										'nombre_import' => $Tiendas_importar[$id_tienda]['nombre']
+										);
+						$html_option_tienda .= '<option value="'.$i.'" >'.$tienda['idTienda'].'-'.$tienda['razonsocial'].'<-- Parametro empresa:'.$ListaTiendas[$i]['nombre_import'].'</option>';
+						$i++;
+					}
 				}
 			}
-		
 		}
+	} else {
+		// Si no obtiene tiendas por lo tando genera un error
+		echo 'Error no se encontro tiendas en la BD datos.';
+		exit();
 	}
 	// -- Ahora acabamos de montar el select de tiendas  ---- //
 	$html_tienda_select = '<div class="form-group"><select class="form-control" onchange="getvalsel(event);" name="SelectTiendaImportar" id="sel1">';
-	$html_tienda_select .= '<option value="'.$ListaTiendas[0]['idTienda'].'" >'.$ListaTiendas[0]['idTienda'].'-'.$ListaTiendas[0]['razonsocial'].'</option>';
+	$html_tienda_select .= '<option value="0" >'.$ListaTiendas[0]['idTienda'].'-'.$ListaTiendas[0]['razonsocial'].'</option>';
 	$html_tienda_select .= $html_option_tienda.'</select></div>';
 	$html_tienda_select .= '<div class="form-group">
 	<label>Ruta</label>
 	<input class="form-control" size="100%" type="text" id ="directorioRuta" name="directorioRuta" disabled value="'.$ListaTiendas[0]['ruta'].'"></div>';
 	// Ahora creamos array JS con las rutas :
-	echo '<script type=""application/javascript"> '
-		. 'var ruta = [];';
-	foreach ($ListaTiendas as $dato_tienda){
-		if (isset($dato_tienda['ruta'])){
-			echo 'ruta['.$dato_tienda['idTienda'].'] = "'.$dato_tienda['ruta'].'";';
-		}
-	}
+	
+	echo '<pre>';
+	print_r($ListaTiendas);
+	echo '</pre>';
+	echo '<script type="application/javascript"> '
+		. 'var empresa = '. json_encode($ListaTiendas);
+	
 	echo '</script>';
 	
 ?>
@@ -300,17 +327,10 @@
 						</div>';
 				}
 				?>
-				<input id="btnImportar" onclick="ControlPulsado('import_inicio')" type="submit" value="1.- Importar" />
+				<input id="btnImportar" disabled='true' onclick="ControlPulsado('import_inicio')" type="submit" value="1.- Importar" />
 			</div>
 		</div>
-		<div class="btn-actualizar" style="display:none;">
-			
-				<div class="form-group">
-					<label>Sincronizar tablas importadas con las que ya tenemos:</label>
-					<input onclick="ActualizarInicio()" type="submit" value="Sincronizar" />
-				</div>
-			
-		</div>
+		
 
 	</div>	
 </div>
