@@ -28,6 +28,7 @@ class ControladorComun
 		if (!isset($fila['error'])){
 			$campos = array();
 			$sqlShow = 'SHOW COLUMNS FROM '.$tabla;
+			$fila['consulta_campos'] = $sqlShow;
 			if ($res=$Bd->query($sqlShow)) {
 				while ($dato_campo = $res->fetch_row()) {
 					if ($tipo_campo ==='si'){
@@ -44,11 +45,7 @@ class ControladorComun
 			} 
 		}
 		$fila['consulta_info'] = $consulta;
-		$fila['consulta_campos'] = $sqlShow;
-
-		
-		
-		
+			
 		return $fila ;
 		
 	}
