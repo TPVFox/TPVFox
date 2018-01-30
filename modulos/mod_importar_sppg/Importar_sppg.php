@@ -50,7 +50,7 @@
 	// 1.- Comprobamos que las tablas obtenidad si tienen ya el campo Estado, por lo que ya actualizamos
 	// 2.- Creamos html fila del fichero.
 	// [RECUERDA]
-	// Que si tiene estado ya se trato,por lo que deberíamos indicalos .
+	// Que si tiene estado ya se trato,por lo que ya no los cargamos.
 	$clases_td = array("CEstruct","CBorrar","CCrear","CImportar");
 	$ficheros = array();
 	$cont_tablas_estado = 0; // Contador que utilizo para saber y las tablas que vamos analizar ya pulsaron actualizar.
@@ -143,6 +143,8 @@
 	include './../../header.php';
 	//-- Montamos html para select de empresas -- //
 	// [RECUERDA]: Que en header generamos una variable llamada tienda que es la tienda principal
+	// 			  la eliminamos...
+	
 	// Añadimos a $Tiendas el registro de Sin seleccionar.
 	$ListaTiendas[0]['idTienda'] = 0;
 	$ListaTiendas[0]['tipoTienda'] = 'No existe';
@@ -169,16 +171,22 @@
 		}
 	}
 	// -- Ahora acabamos de montar el select de tiendas  ---- //
-	$html_tienda_select = '<select class="form-control" name="tiendaImportar" id="sel1">';
+	$html_tienda_select = '<div class="form-group"><select class="form-control" onchange="getvalsel(event);" name="SelectTiendaImportar" id="sel1">';
 	$html_tienda_select .= '<option value="'.$ListaTiendas[0]['idTienda'].'" >'.$ListaTiendas[0]['idTienda'].'-'.$ListaTiendas[0]['razonsocial'].'</option>';
-	$html_tienda_select .= $html_option_tienda.'</select>';
-	$html_tienda_select .= '<input type="text" name="directorioRuta" disabled value="'.$ListaTiendas[0]['ruta'].'">';
+	$html_tienda_select .= $html_option_tienda.'</select></div>';
+	$html_tienda_select .= '<div class="form-group">
+	<label>Ruta</label>
+	<input class="form-control" size="100%" type="text" id ="directorioRuta" name="directorioRuta" disabled value="'.$ListaTiendas[0]['ruta'].'"></div>';
+	// Ahora creamos array JS con las rutas :
+	echo '<script type=""application/javascript"> '
+		. 'var ruta = [];';
+	foreach ($ListaTiendas as $dato_tienda){
+		if (isset($dato_tienda['ruta'])){
+			echo 'ruta['.$dato_tienda['idTienda'].'] = "'.$dato_tienda['ruta'].'";';
+		}
+	}
+	echo '</script>';
 	
-	// Ahora tenemos un array con los campos de la tablas .
-	
-	echo '<pre>';
-	print_r($ficheros);
-	echo '</pre>';
 ?>
 
 
@@ -292,7 +300,7 @@
 						</div>';
 				}
 				?>
-				<input onclick="ControlPulsado('import_inicio')" type="submit" value="1.- Importar" />
+				<input id="btnImportar" onclick="ControlPulsado('import_inicio')" type="submit" value="1.- Importar" />
 			</div>
 		</div>
 		<div class="btn-actualizar" style="display:none;">

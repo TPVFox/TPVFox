@@ -47,6 +47,12 @@ function ControlPulsado (pulsado) {
 	switch(pulsado) {
 						
 			case 'import_inicio':
+				// Pulso importar
+				// Bloqueo botton importar , para que no pulse otra vez
+				$("#btnImportar").prop('disabled', true);
+				// Bloque el select empresas, para que no pueda cambiarla.
+				$("#sel1").prop('disabled', true);
+
 				// Acaba de cargar javascript, por lo que inicia proceso.
 				//llamar func que hace bucle de la matriz de nombres tabla (fichero)
 				bucleFicheros();
@@ -56,8 +62,9 @@ function ControlPulsado (pulsado) {
 }
 
 
-//matriz en variables
 function bucleFicheros(){
+	// Objetivo:
+	// Es crea un funcion que recorrar array nombretabla (variable Global) cree la Estructura y obtenga los datos.
 	console.log( '========================== Entramos en bucle  =============================================');
 	// Reiniciamos Barra proceso 
 	LimiteActual = 0;
@@ -520,4 +527,12 @@ function InsertarIdRegistroFamilia(fila,id){
 	});
 
 
+}
+
+function getvalsel(event){
+	    alert('Entro');
+		var id =  parseInt(event.target.value);
+		// Ruta es una variable global que creo en Importar_sppg
+	    $("#directorioRuta").val(ruta[id]);
+	    console.log(ruta[id]);
 }
