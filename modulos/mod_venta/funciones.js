@@ -458,6 +458,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 			var resultado =  $.parseJSON(response);
 					//console.log(resultado);
 					if(dedonde =="albaran"){
+						if (resultado['Nitems']===1){
 						var datos = new Object();
 						datos.Numpedcli=0;
 						datos.ccodbar=resultado['datos'][0]['codBarras'];
@@ -479,7 +480,23 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					
 						addAlbaranTemp();
 					 	AgregarFilaProductosAl(datos);
-					 	
+					}else{
+						console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
+			
+						var busqueda = resultado.listado;   
+						var HtmlProductos=busqueda.html;   
+						var titulo = 'Listado productos encontrados ';
+						abrirModal(titulo,HtmlProductos);
+						if (resultado.Nitems >0 ){
+							// Quiere decir que hay resultados por eso apuntamos al primero
+							// focus a primer producto.
+							var d_focus = 'N_0';
+							ponerFocus(d_focus);
+						} else {
+						// No hay resultado pero apuntamos a caj
+						ponerFocus(id_input);
+						}
+					}
 						
 					} 
 					if (dedonde == "pedidos"){
@@ -821,40 +838,68 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	// 	 Caja -> Indica la caja queremos que ponga focus
 	//   datos -> Es el array que vamos enviar para añadir fila.
 	console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
-	var datos = new Object();
-	datos['idArticulo'] 	= id;
-	datos['crefTienda'] 	= cref;
-	datos['articulo_name'] 	= cdetalle;
-	datos['pvpCiva'] 		= npconiva;
-	datos['iva'] 			= ctipoIva;
-	datos['codBarras']		= ccodebar;
-	datos['nfila']=productos.length+1;
-	datos['estado']="Activo";
-	datos['cant']=1;
-	var importe =datos['pvpCiva']*datos['cant'];			
-	datos['importe']=importe.toFixed(2);
-	var pvpCiva= parseFloat(datos['pvpCiva']);
-	datos['pvpCiva']=pvpCiva.toFixed(2);
-	console.log(datos);
-	productos.push(datos);
-	console.log("dentro de productos");
-	console.log(productos);
-	var num_item=datos['nfila'];
-	if (cabecera.numPedidoTemp==0){
-						var idCliente=$('#id_cliente').val();
-						console.log(idCliente);
-						console.log('----- voy a escribir aaaaaaaaaaaaaa cliente seleccionado -----');
-						AddTemp(idCliente);
-						cabecera.idCliente=idCliente;
+	if (campo=="CodbarrasAl"){
+		var datos = new Object();
+		datos.Numpedcli=0;
+		datos.ccodbar=ccodebar;
+		datos.cdetalle=cdetalle;
+		datos.cref=cref;
+		datos.estadoLinea="Activo";
+		datos.idArticulo=id;
+		datos.idpedcli=0;
+		datos.iva=ctipoIva;
+		datos.ncant=1;
+		datos.nfila=productos.length+1;
+		datos.nunidades=1;
+		var importe =npconiva*1;
+		datos.importe=importe.toFixed(2);
+		var pvpCiva= parseFloat(npconiva);
+		datos.precioCiva=pvpCiva.toFixed(2);
+		productos.push(datos);
+					
+		addAlbaranTemp();
+		AgregarFilaProductosAl(datos);
+		resetCampo(campo);
+		cerrarPopUp(campo);
+	}else{
+		var datos = new Object();
+		datos['idArticulo'] 	= id;
+		datos['crefTienda'] 	= cref;
+		datos['articulo_name'] 	= cdetalle;
+		datos['pvpCiva'] 		= npconiva;
+		datos['iva'] 			= ctipoIva;
+		datos['codBarras']		= ccodebar;
+		datos['nfila']=productos.length+1;
+		datos['estado']="Activo";
+		datos['cant']=1;
+		var importe =datos['pvpCiva']*datos['cant'];			
+		datos['importe']=importe.toFixed(2);
+		var pvpCiva= parseFloat(datos['pvpCiva']);
+		datos['pvpCiva']=pvpCiva.toFixed(2);
+		console.log(datos);
+		productos.push(datos);
+		console.log("dentro de productos");
+		console.log(productos);
+		var num_item=datos['nfila'];
+		if (cabecera.numPedidoTemp==0){
+							var idCliente=$('#id_cliente').val();
+							console.log(idCliente);
+							console.log('----- voy a escribir aaaaaaaaaaaaaa cliente seleccionado -----');
+							AddTemp(idCliente);
+							cabecera.idCliente=idCliente;
+		}
+		addProductoTemp();
+		console.log(num_item);
+		agregarFilaProducto(num_item);
+		// Eliminamos contenido de cja destino y ponemos focus.
+		
+		resetCampo(campo);
+		var campo='#Unidad_Fila_'+num_item;
+		cerrarPopUp(campo);
 	}
-	addProductoTemp();
-	console.log(num_item);
-	agregarFilaProducto(num_item);
-	// Eliminamos contenido de cja destino y ponemos focus.
 	
-	resetCampo(campo);
-	var campo='#Unidad_Fila_'+num_item;
-	cerrarPopUp(campo);
+	
+	
 
 	
 }
@@ -1130,7 +1175,7 @@ function addAlbaranTemp(){
 		"idCliente":cabecera.idCliente
 	};
 	console.log(parametros);
-	
+	console.log("ESTOY EN AÑADIR ALBARAN");
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -1141,12 +1186,13 @@ function addAlbaranTemp(){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de añadir albaran temporal');
 			var resultado =  $.parseJSON(response); 
-			var encontrados = resultado.encontrados;
-			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-			console.log(resultado);
+		
+			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
+
+			console.log(resultado.id.id);
 			if (resultado.existe == 0){
-				history.pushState(null,'','?tActual='+resultado.id.id);
-				cabecera.idAlbaranTemp=resultado.id.id;
+				history.pushState(null,'','?tActual='+resultado.id);
+				cabecera.idAlbaranTemp=resultado.id;
 			}
 				
 			$('#tipo4').html('');

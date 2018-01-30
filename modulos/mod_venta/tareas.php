@@ -73,7 +73,9 @@ switch ($pulsado) {
 			$product=$_POST['producto'];
 			$num_item=$_POST['num_item'];
 			$CONF_campoPeso=$_POST['CONF_campoPeso'];
-			$res 	= htmlLineaPedido($product,$num_item,$CONF_campoPeso);
+			$disable="";
+			$style="";
+			$res 	= htmlLineaPedido($product,$num_item,$CONF_campoPeso, $disable, $style);
 			$respuesta['html'] =$res;
 			$respuesta['producto']=$product;
 			echo json_encode($respuesta);
@@ -182,6 +184,10 @@ switch ($pulsado) {
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
 			$existe=0;
+			if ($numAlbaran>0){
+				$albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
+				$idAlbaranTemp=$albaran['id'];
+			}
 			if ($idAlbaranTemp>0){
 				$rest=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
 				$existe=1;
@@ -189,12 +195,16 @@ switch ($pulsado) {
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{
-				$res=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente);
+				$rest=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente);
 				$existe=0;
-				$pro=$res['productos'];
+				$pro=$rest['productos'];
+				$res=$rest['id'];
+				$idAlbaranTemp=$res;
 			}
-			if ($numAlbaran===0){
+			$respuesta['numalbaran']=$numAlbaran;
+			if ($numAlbaran>0){
 				$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
+				$respuesta['sqlmodnum']=$modId;
 			}
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
@@ -214,6 +224,7 @@ switch ($pulsado) {
 			
 				$modTotal=$CalbAl->modTotales($res, $total, $totalivas);
 				$respuesta['sqlmodtotal']=$modTotal['sql'];
+				$respuesta['total']=$total;
 			}
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;

@@ -9,9 +9,15 @@
 	include ("./../../controllers/Controladores.php");
 
 	include '../../clases/cliente.php';
-
+	include 'clases/albaranesVentas.php';
 	$Ccliente=new Cliente($BDTpv);
-
+	$Calbaran=new AlbaranesVentas($BDTpv);
+	
+	$todosTemporal=$Calbaran->TodosTemporal();
+	$albaranesDef=$Calbaran->TodosAlbaranes();
+	//~ echo '<pre>';
+	//~ print_r($albaranesDef);
+	//~ echo '</pre>';
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -26,8 +32,8 @@
 		$palabraBuscar = explode(' ',$_GET['buscar']); 
 	} 
 	$Controler = new ControladorComun; 
-	$vista = 'pedclit';
-	$LinkBase = './pedidosListado.php?';
+	$vista = 'albclit';
+	$LinkBase = './albaranesListado.php?';
 	$OtrosParametros = '';
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
@@ -37,7 +43,7 @@
 		$desde = 0;
 	}
 if ($stringPalabras !== '' ){
-		$campoBD='Numpedcli';
+		$campoBD='Numalbcli ';
 		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
@@ -86,14 +92,36 @@ include '../../header.php';
 			<thead>
 				<tr>
 					<th>Nº Temp</th>
-					<th>Nº Ped</th>
+					<th>Nº Alb</th>
 					<th>Cliente</th>
 					<th>Total</th>
 				</tr>
 				
 			</thead>
 			<tbody>
+				<?php
+			if (isset($todosTemporal)){
+				foreach ($todosTemporal as $temporal){
+					if ($temporal['numalbcli']){
+						$numTemporal=$temporal['numalbcli'];
+					}else{
+						$numTemporal="";
+					}
+					?>
+					<tr>
+						<td><a href="albaran.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
+						<td><?php echo $numTemporal;?></td>
+						<td><?php echo $temporal['idClientes'];?></td>
+						<td><?php echo number_format($temporal['total'],2);?></td>
+						</tr>
+					
+					<?php
+				}
 				
+				
+			}
+				
+				?>
 			</tbody>
 		</table>
 		</div>
@@ -127,10 +155,31 @@ include '../../header.php';
 						<th>IVA</th>
 						<th>TOTAL</th>
 						<th>ESTADO</th>
-						<th>TEMPORALES</th>
 					</tr>
 				</thead>
 				<tbody>
+					<?php 
+						$checkUser = 0;
+						foreach ($albaranesDef as $albaran){
+						
+							$checkUser = $checkUser + 1;
+							$totaliva=$Calbaran->sumarIva($albaran['Numalbcli']);
+							$date=date_create($albaran['Fecha']);
+						?>
+						<tr>
+						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $albaran['id'];?>">
+					
+						<td><?php echo $albaran['Numalbcli'];?></td>
+						<td><?php echo date_format($date,'Y-m-d');?></td>
+						<td><?php echo $albaran['Nombre'];?></td>
+						<td><?php echo $totaliva['totalbase'];?></td>
+						<td><?php echo $totaliva['importeIva'];?></td>
+						<td><?php echo $albaran['total'];?></td>
+						<td><?php echo $albaran['estado'];?></td>
+						</tr>
+						<?php
+					}
+					?>
 				</tbody>
 				</table>
 			</div>

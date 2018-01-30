@@ -15,13 +15,24 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	if ($_GET){
+if ($_GET){
 	if ($_GET['id']){
 		$idPedido=$_GET['id'];
-		$titulo="Modificar Pedido De Cliente";
-		$estado='Modificado';
-		$estadoCab="'".'Modificado'."'";
 		$datosPedido=$Cpedido->datosPedidos($idPedido);
+		//~ echo '<pre>';
+		//~ print_r($datosPedido);
+		//~ echo '</pre>';
+		if ($datosPedido['estado']=='Facturado'){
+			$titulo="Pedidos De Cliente Facturado";
+			$estado='Facturado';
+			$estadoCab="'".'Facturado'."'";
+		}else{
+			$titulo="Modificar Pedido De Cliente";
+			$estado='Modificado';
+			$estadoCab="'".'Modificado'."'";
+		}
+		
+		
 		$productosPedido=$Cpedido->ProductosPedidos($idPedido);
 		$ivasPedido=$Cpedido->IvasPedidos($idPedido);
 		$fecha=$datosPedido['FechaPedido'];
@@ -35,10 +46,8 @@ include './../../head.php';
 		$productos=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosMod), true);
-		//~ echo '<pre>';
-		//~ print_r($Datostotales);
-		//~ echo '</pre>';
-		echo $idPedido;
+		
+		
 		$total=$Datostotales['total'];
 		$pedido_numero=0;
 		
@@ -133,10 +142,15 @@ include './../../head.php';
 			header('Location: pedidosListado.php');
 		}
 		$fechaCab="'".$fecha."'";
-		if (isset ($pedido)| $_GET['id']){
+		if($datosPedido['estado']=="Facturado"){
+			$style="display:none;";
+			$disabled = 'disabled';
+		}else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
 			$style="";
+			$disabled = '';
 		}else{
 			$style="display:none;";
+			$disabled = '';
 		}
 		$parametros = simplexml_load_file('parametros.xml');
 	
@@ -212,7 +226,7 @@ if ($idCliente===0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<?php 
-			echo $HostNombre;
+		
 			if (isset($_GET)){
 				if(isset($_GET['mensaje']) & isset($_GET['tipo'])){
 				$mensaje=$_GET['mensaje'];
@@ -235,8 +249,12 @@ if ($idCliente===0){
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+				<?php 
+				if($datosPedido['estado']<>"Facturado"){
+				?>
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php
+				}
 				if ($_GET['tActual']){
 					?>
 					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
@@ -249,7 +267,7 @@ if ($idCliente===0){
 			<div class="col-md-7">
 				<div class="col-md-6">
 					<strong>Fecha Pedido:</strong><br/>
-					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" <?php echo $disabled;?>>
 				</div>
 				<div class="col-md-6">
 					<strong>Estado:</strong>
@@ -269,14 +287,14 @@ if ($idCliente===0){
 		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
-			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')"></a>
+			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id' <?php echo $disabled;?>>
+			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60" <?php echo $disabled;?>>
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')" style="<?php echo $style;?>"></a>
 		</div>
 	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
-		<table id="tabla" class="table table-striped">
+		<table id="tabla" class="table table-striped" >
 		<thead>
 		  <tr>
 			<th>L</th>
@@ -302,7 +320,7 @@ if ($idCliente===0){
 			<?php 
 			if ($productos){
 			foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedido($producto, $producto['nfila'], $CONF_campoPeso);
+				$html=htmlLineaPedido($producto, $producto['nfila'], $CONF_campoPeso, $disabled, $style);
 				echo $html;
 			}
 			}

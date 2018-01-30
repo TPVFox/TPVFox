@@ -10,15 +10,42 @@ include './../../head.php';
 	$Ccliente=new Cliente($BDTpv);
 	include 'clases/albaranesVentas.php';
 	$Calbcli=new AlbaranesVentas($BDTpv);
+	include_once 'clases/pedidosVentas.php';
+	$Cped = new PedidosVentas($BDTpv);
+	
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	if (isset($_GET['id'])){
-		$idAlbaranTemporal=0;
 		$idAlbaran=$_GET['id'];
-		$numAlbaran="Lo busca si no es igual al id";
-		$fecha="si tiene fecha pues la fecha si no la del dia";
+		$titulo="Modificar Albarán De Cliente";
+		$estado='Modificado';
+		$estadoCab="'".'Modificado'."'";
+		$datosAlbaran=$Calbcli->datosAlbaran($idAlbaran);
+		$productosAlbaran=$Calbcli->ProductosAlbaran($idAlbaran);
+		$ivasAlbaran=$Calbcli->IvasAlbaran($idAlbaran);
+		$pedidosAlbaran=$Calbcli->PedidosAlbaranes($idAlbaran);
+		
+		$date=date_create($datosAlbaran['Fecha']);
+		$fecha=date_format($date,'Y-m-d');
 		$fechaCab="'".$fecha."'";
+		$idAlbaranTemporal=0;
+		$numAlbaran=$datosAlbaran['Numalbcli'];
+		$idCliente=$datosAlbaran['idCliente'];
+		if ($idCliente){
+				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
+				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
+				$nombreCliente="'".$datosCliente['Nombre']."'";
+		}
+		$productos=json_decode(json_encode($productosAlbaran));
+		$Datostotales = recalculoTotalesAl($productos);
+		$productos=json_decode(json_encode($productosAlbaran), true);
+		if ($pedidosAlbaran){
+			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
+			 $pedidos=json_decode(json_encode($modificarPedido), true);
+		}
+		$total=$Datostotales['total'];
+		
 		
 	}else{
 		$titulo="Crear Albarán De Cliente";
@@ -40,7 +67,6 @@ include './../../head.php';
 				$idCliente=$datosAlbaran['idClientes'];
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$cliente['Nombre']."'";
-				print_r( $fecha1);
 				$fechaCab="'".$fecha."'";
 				$idAlbaran=0;
 				$estadoCab="'".'Abierto'."'";
@@ -92,27 +118,44 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
+		
+			if($datosAlbaran['numalbcli']>0){
+				$idAlbaran=$datosAlbaran['numalbcli'];
 			
-			if($datosAlbaran['id']){
-				$idAlbaran=$datosAlbaran['id'];
 				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
+				 $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
+				 $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+			 }else{
+				$idAlbaran=0;
 				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
 				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-			}else{
-				$idPedido=0;
-				$addNuevo=$Calbcli->AddAlbaranGuardado($datosPedido, $idAlbaran);
-				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
 			}
-			echo $addNuevo;
+		header('Location: albaranesListado.php');
 			
 		}
+		if (isset($_POST['Cancelar'])){
+			if ($_POST['idTemporal']){
+				$idTemporal=$_POST['idTemporal'];
+			}else{
+				$idTemporal=$_GET['tActual'];
+			}
+			echo "entre en cancelar";
+			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
+			$pedidos=json_decode($datosAlbaran['Pedidos'], true);
+			foreach ($pedidos as $pedido){
+				$mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
+			}
+			$idAlbaran=0;
+			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+				header('Location: albaranesListado.php');
+		}
 		
-		if (isset ($pedidos) | $_GET['tActual']){
+		if (isset ($pedidos) | $_GET['tActual']| $_GET['id']){
 			$style="";
 		}else{
 			$style="display:none;";
 		}
-		echo $style;
+	
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -224,6 +267,7 @@ if (isset($_GET['tActual'])){
 			<a  href="./albaranesListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<input type="submit" value="Guardar" name="Guardar">
+					<input type="submit" value="Cancelar" name="Cancelar">
 					<?php
 				if ($idAlbaranTemporal>0){
 					?>
@@ -289,6 +333,7 @@ if (isset($_GET['tActual'])){
 		<thead>
 		  <tr>
 			<th>L</th>
+			<th>Num Pedido</th>
 			<th>Id Articulo</th>
 			<th>Referencia</th>
 			<th>Cod Barras</th>
@@ -301,15 +346,18 @@ if (isset($_GET['tActual'])){
 		  </tr>
 		  <tr id="Row0" style=<?php echo $style;?>>  
 			<td id="C0_Linea" ></td>
+			<td></td>
 			<td><input id="idArticuloAl" type="text" name="idArticuloAl" placeholder="idArticulo" data-obj= "cajaidArticuloAl" size="13" value=""  onkeydown="controlEventos(event)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="ReferenciaAl" type="text" name="ReferenciaAl" placeholder="Referencia" data-obj="cajaReferenciaAl" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="CodbarrasAl" type="text" name="CodbarrasAl" placeholder="Codbarras" data-obj= "cajaCodBarrasAl" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="DescripcionAl" type="text" name="DescripcionAl" placeholder="Descripcion" data-obj="cajaDescripcionAl" size="20" value="" onkeydown="controlEventos(event)"></td>
 		  </tr>
 		</thead>
 		<tbody>
 			<?php 
-			
+			//~ echo '<pre>';
+			//~ print_r($productos);
+			//~ echo '</pre>';
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedidoAlbaran($producto);

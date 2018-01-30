@@ -147,7 +147,7 @@ include '../../header.php';
 						<th>IVA</th>
 						<th>TOTAL</th>
 						<th>ESTADO</th>
-						<th>TEMPORALES</th>
+						
 					</tr>
 				</thead>
 				<tbody>
@@ -155,12 +155,12 @@ include '../../header.php';
 					$checkUser = 0;
 					foreach($pedidosDef as $pedido){
 						$checkUser = $checkUser + 1;
-						$cantTemporal=$Cpedido->contarPedidosTemporal($pedido['id']);
-						if ($cantTemporal['numPedTemp']>0){
-							$cantTemp=$cantTemporal['numPedTemp'];
-						}else{
-							$cantTemp="";
-						}
+						//~ $cantTemporal=$Cpedido->contarPedidosTemporal($pedido['id']);
+						//~ if ($cantTemporal['numPedTemp']>0){
+							//~ $cantTemp=$cantTemporal['numPedTemp'];
+						//~ }else{
+							//~ $cantTemp="";
+						//~ }
 						$totaliva=$Cpedido->sumarIva($pedido['Numpedcli']);
 						?>
 						<tr>
@@ -173,7 +173,7 @@ include '../../header.php';
 						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $pedido['total'];?></td>
 						<td><?php echo $pedido['estado'];?></td>
-						<td><?php echo $cantTemp;?></td>
+						
 						</tr>
 						<?php
 					}

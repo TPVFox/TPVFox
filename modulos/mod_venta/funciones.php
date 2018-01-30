@@ -6,7 +6,6 @@
  * @author      Ricardo Carpintero ,
  * @Descripcion	Funciones en php para modulo TPV
  * */
-
 function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
 	// @ Objetivo:
 	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
@@ -299,7 +298,7 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	return $nuevaFila;
 }
 
-function htmlLineaPedido($producto,$num_item,$CONF_campoPeso){
+function htmlLineaPedido($producto,$num_item,$CONF_campoPeso, $disable, $style){
 	$classtr = '' ; // para clase en tr
 	$estadoInput = '' ; // estado input cantidad.
 	
@@ -316,10 +315,10 @@ function htmlLineaPedido($producto,$num_item,$CONF_campoPeso){
 		$classtr = ' class="tachado" ';
 		$estadoInput = 'disabled';
 			$funcOnclick = ' retornarFila('.$num_item.');';
-		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export" style='.$style.'></span></a></td>';
 	} else {
 			$funcOnclick = ' eliminarFila('.$num_item.');';
-		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash" style='.$style.'></span></a></td>';
 	}
 	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';
 	$nuevaFila .= '<td class="linea">'.$product->nfila.'</td>';
@@ -327,7 +326,7 @@ function htmlLineaPedido($producto,$num_item,$CONF_campoPeso){
 	$nuevaFila .= '<td class="referencia">'.$product->crefTienda.'</td>';
 	$nuevaFila .= '<td class="codbarras">'.$product->codBarras.'</td>';
 	$nuevaFila .= '<td class="detalle">'.$product->articulo_name.'</td>';
-	$nuevaFila .= '<td><input id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->cant.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
+	$nuevaFila .= '<td><input id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->cant.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)" '.$disable.'></td>';
 	$nuevaFila .= '<td class="pvp">'.$product->pvpCiva.'</td>';
 	$nuevaFila .= '<td class="tipoiva">'.$product->iva.'%</td>';
 	$importe = $product->pvpCiva*$product->cant;
@@ -451,9 +450,15 @@ function htmlLineaPedidoAlbaran($productos){
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".'albaran'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 			}
+			if ($producto['NumpedCli']==0){
+				$numeroPed="";
+			}else{
+				$numeroPed=$producto['NumpedCli'];
+			}
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
-		
+		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
+		 $respuesta['html'] .='<td>'.$numeroPed.'</td>';
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
 		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
@@ -525,6 +530,23 @@ function modalPedidos($pedidos){
 				
 	}
 	$respuesta['html'].='</tbody></table>';
+	return $respuesta;
+}
+
+function modificarArrayPedidos($pedidos, $BDTpv){
+	$respuesta=array();
+	foreach ($pedidos as $pedido){
+			$datosPedido=$BDTpv->query('SELECT * FROM pedclit WHERE id= '.$pedido['idPedido'] );
+			while ($fila = $datosPedido->fetch_assoc()) {
+				$ped[] = $fila;
+			}
+			$res['Numpedcli']=$pedido['numPedido'];
+			$res['fecha']=$ped[0]['FechaPedido'];
+			$res['idPedCli']=$ped[0]['idCliente'];
+			$res['total']=$ped[0]['total'];
+			array_push($respuesta,$res);
+		
+	}
 	return $respuesta;
 }
 
