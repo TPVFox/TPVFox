@@ -57,7 +57,7 @@ include './../../head.php';
 		$fechaCab="'".$fecha."'";
 			if (isset($_GET['tActual'])){
 				$idFacturaTemporal=$_GET['tActual'];
-				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idAlbaranTemporal);
+				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
 				if (isset($datosFactura['Numfaccli '])){
 					$numFactura=$datosFactura['Numfaccli'];
 				}else{
@@ -72,8 +72,12 @@ include './../../head.php';
 				$idFactura=0;
 				$estadoCab="'".'Abierto'."'";
 				$factura=$datosFactura;
+				
 				$productos =  json_decode($datosFactura['Productos']) ;
-				$pedidos=json_decode($datosFactura['Albaranes']);
+				//~ echo '<pre>';
+				//~ print_r($productos);
+				//~ echo '</pre>';
+				$albaranes=json_decode($datosFactura['Albaranes']);
 				
 			}else{
 				$idFacturaTemporal=0;
@@ -151,7 +155,7 @@ include './../../head.php';
 				header('Location: albaranesListado.php');
 		}
 		
-		if (isset ($pedidos) | $_GET['tActual']| $_GET['id']){
+		if (isset ($albaranes) | $_GET['tActual']| $_GET['id']){
 			$style="";
 		}else{
 			$style="display:none;";
@@ -213,7 +217,7 @@ include './../../head.php';
 			foreach ($albaranes as $alb){
 				?>
 				datos=<?php echo json_encode($alb);?>;
-				pedidos.push(datos);
+				albaranes.push(datos);
 				<?php
 			}
 		}
@@ -299,7 +303,7 @@ if (isset($_GET['tActual'])){
 			<label>Cliente:</label>
 			<input type="text" id="id_clienteFac" name="id_clienteFac" data-obj= "cajaIdClienteFac" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
 			<input type="text" id="ClienteFac" name="ClienteFac" data-obj= "cajaClienteFac" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')"></a>
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('factura')"></a>
 		</div>
 	</div>
 	<div class="col-md-4" >
@@ -319,10 +323,11 @@ if (isset($_GET['tActual'])){
 				</thead>
 				
 				<?php 
-				//if (isset($pedidos)){
-				//	$html=htmlPedidoAlbaran($pedidos);
-				//	echo $html['html'];
-				//}
+				
+				if (isset($albaranes)){
+					$html=htmlAlbaranFactura($albaranes);
+					echo $html['html'];
+				}
 				?>
 			</table>
 			</div>
@@ -345,7 +350,7 @@ if (isset($_GET['tActual'])){
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		  <tr id="Row0">  
+		  <tr id="Row0" style=<?php echo $style;?>>  
 			<td id="C0_Linea" ></td>
 			<td></td>
 			<td><input id="idArticuloFac" type="text" name="idArticuloFac" placeholder="idArticulo" data-obj= "cajaidArticuloFac" size="13" value=""  onkeydown="controlEventos(event)"></td>
@@ -359,36 +364,36 @@ if (isset($_GET['tActual'])){
 			//~ echo '<pre>';
 			//~ print_r($productos);
 			//~ echo '</pre>';
-			//if (isset($productos)){
-			//	foreach (array_reverse($productos) as $producto){
-			//	$html=htmlLineaPedidoAlbaran($producto);
-			//	echo $html['html'];
-			//}
+			if (isset($productos)){
+				foreach (array_reverse($productos) as $producto){
+				$html=htmlLineaPedidoAlbaran($producto);
+				echo $html['html'];
+			}
 		
-			//}
+			}
 			?>
 		</tbody>
 	  </table>
 	</div>
 	<?php 
-	//if ($albaran['Productos']){
+	if ($factura['Productos']){
 			// Ahora montamos base y ivas
-		//	foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-		//		switch ($iva){
-			//		case 4 :
-			///			$base4 = $basesYivas['base'];
-			//			$iva4 = $basesYivas['iva'];
-			//		break;
-			//		case 10 :
-			//			$base10 = $basesYivas['base'];
-			//			$iva10 = $basesYivas['iva'];
-			//		break;
-			//		case 21 :
-			//			$base21 = $basesYivas['base'];
-			//			$iva21 = $basesYivas['iva'];
-			//		break;
-			//	}
-			//}
+			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
+				switch ($iva){
+					case 4 :
+						$base4 = $basesYivas['base'];
+						$iva4 = $basesYivas['iva'];
+					break;
+					case 10 :
+						$base10 = $basesYivas['base'];
+					$iva10 = $basesYivas['iva'];
+				break;
+				case 21 :
+						$base21 = $basesYivas['base'];
+						$iva21 = $basesYivas['iva'];
+					break;
+				}
+			}
 	
 	?>
 
@@ -397,7 +402,7 @@ if (isset($_GET['tActual'])){
 			</script>
 
 			<?php
-	//}
+	}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -411,37 +416,37 @@ if (isset($_GET['tActual'])){
 		<tbody>
 			<tr id="line4">
 				<td id="tipo4">
-					<?php// echo (isset($base4) ? " 4%" : '');?>
+					<?php echo (isset($base4) ? " 4%" : '');?>
 				</td>
 				<td id="base4">
-					<?php //echo (isset($base4) ? $base4 : '');?>
+					<?php echo (isset($base4) ? $base4 : '');?>
 				</td>
 				<td id="iva4">
-					<?php //echo (isset($iva4) ? $iva4 : '');?>
+					<?php echo (isset($iva4) ? $iva4 : '');?>
 				</td>
 				
 			</tr>
 			<tr id="line10">
 				<td id="tipo10">
-					<?php //echo (isset($base10) ? "10%" : '');?>
+					<?php echo (isset($base10) ? "10%" : '');?>
 				</td>
 				<td id="base10">
-					<?php //echo (isset($base10) ? $base10 : '');?>
+					<?php echo (isset($base10) ? $base10 : '');?>
 				</td>
 				<td id="iva10">
-					<?php //echo (isset($iva10) ? $iva10 : '');?>
+					<?php echo (isset($iva10) ? $iva10 : '');?>
 				</td>
 				
 			</tr>
 			<tr id="line21">
 				<td id="tipo21">
-					<?php //echo (isset($base21) ? "21%" : '');?>
+					<?php echo (isset($base21) ? "21%" : '');?>
 				</td>
 				<td id="base21">
-					<?php //echo (isset($base21) ? $base21 : '');?>
+					<?php echo (isset($base21) ? $base21 : '');?>
 				</td>
 				<td id="iva21">
-					<?php// echo (isset($iva21) ? $iva21 : '');?>
+					<?php echo (isset($iva21) ? $iva21 : '');?>
 				</td>
 				
 			</tr>

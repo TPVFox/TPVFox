@@ -36,7 +36,7 @@ class AlbaranesVentas{
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
-		$sql = 'SELECT count(*) as num_reg FROM pedclit';
+		$sql = 'SELECT count(*) as num_reg FROM albclit';
 		$respuesta = $this->consulta($sql);
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
@@ -257,6 +257,32 @@ class AlbaranesVentas{
 			$albaranes['alb']=1;
 		}
 		return $albaranes;
+	}
+	
+	
+		public function AlbaranClienteGuardado($busqueda, $idCliente){
+		$db=$this->db;
+		$pedido['busqueda']=$busqueda;
+		if ($busqueda>0){
+		$smt=$db->query('select  Numalbcli , id , Fecha  , total from albclit where Numalbcli ='.$busqueda.' and  idCliente='. $idCliente);
+		if ($smt){
+			if ($result = $smt->fetch_assoc () ){
+				$pedido=$result;
+			}
+			$pedido['Nitem']=1;
+		}
+		}else{
+			$smt=$db->query('SELECT  Numalbcli , Fecha  , total , id from albclit where idCliente='.$idCliente .' and estado="Guardado"');
+		
+			$pedidosPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($pedidosPrincipal,$result);	
+			}
+			
+			$pedido['datos']=$pedidosPrincipal;
+			
+		}
+		return $pedido;
 	}
 
 	

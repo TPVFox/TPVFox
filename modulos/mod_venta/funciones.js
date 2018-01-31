@@ -113,7 +113,10 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			var encontrados = resultado.encontrados;
 			// Si el archivo de donde viene la consulta es  albaran con lo que devuelve la consulta
 			//de buscarCliente se registra en los input y se bloquean posteriormente
-			if (dedonde=="albaran"){
+			
+			
+			switch(dedonde){
+				case 'albaran':
 				if (resultado.Nitems==1){
 					//Se registra en la cabecera tanto el id del clinete como el nombre
 					cabecera.idCliente=resultado.idCliente;
@@ -127,9 +130,15 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					mostrarFila();
 					//Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
 					comprobarPedidosExis();
+				}else{
+					var titulo = 'Listado clientes ';
+					var HtmlClientes=resultado.html; 
+					abrirModal(titulo,HtmlClientes);
 				}
-				//Si el archivo de donde viene es de pedidos 
-			}else if (dedonde="pedidos"){
+				
+				
+				break;
+				case 'pedidos':
 				var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 				if (valor==""){ //Si el valor viene vacio quiere decir que la persona pulsó el icono de buscar
 					var titulo = 'Listado clientes ';
@@ -177,22 +186,119 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						cabecera.idCliente=resultado.idCliente;
 						mostrarFila();
 				}
-			}else if (dedonde="factura"){
-				if (resultado.Nitems==1){
-					//Se registra en la cabecera tanto el id del clinete como el nombre
-					cabecera.idCliente=resultado.idCliente;
-					cabecera.nombreCliente=resultado.nombre;
-					//Los imput de cliente quedan desactivados y se oculta el botón de buscar
-					$('#ClienteFac').val(resultado.nombre);
-					$('#ClienteFac').prop('disabled', true);
-					$('#id_clienteFac').prop('disabled', true);
-					$("#buscar").css("display", "none");
-					//Mostrar fila muestra los nombre del cliente en los input
-					mostrarFila();
-					//Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
-					comprobarPedidosExis();
-				}
+				
+				break;
+				case 'factura':
+				console.log("entre en facturas");
+				console.log(resultado);
+					if (resultado.Nitems==1){
+						console.log("entre  en el if");
+						//Se registra en la cabecera tanto el id del clinete como el nombre
+						cabecera.idCliente=resultado.idCliente;
+						cabecera.nombreCliente=resultado.nombre;
+						//Los imput de cliente quedan desactivados y se oculta el botón de buscar
+						$('#ClienteFac').val(resultado.nombre);
+						$('#ClienteFac').prop('disabled', true);
+						$('#id_clienteFac').prop('disabled', true);
+						$("#buscar").css("display", "none");
+						//Mostrar fila muestra los nombre del cliente en los input
+						mostrarFila();
+						//Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
+						comprobarAlbaranesExis();
+					}else{
+						var titulo = 'Listado clientes ';
+						var HtmlClientes=resultado.html; 
+						abrirModal(titulo,HtmlClientes);
+					}
+					
+				
+				
+				break;
+				
+				
+				
 			}
+			//~ if (dedonde=="albaran"){
+				//~ if (resultado.Nitems==1){
+					//~ //Se registra en la cabecera tanto el id del clinete como el nombre
+					//~ cabecera.idCliente=resultado.idCliente;
+					//~ cabecera.nombreCliente=resultado.nombre;
+					//~ //Los imput de cliente quedan desactivados y se oculta el botón de buscar
+					//~ $('#ClienteAl').val(resultado.nombre);
+					//~ $('#ClienteAl').prop('disabled', true);
+					//~ $('#id_clienteAl').prop('disabled', true);
+					//~ $("#buscar").css("display", "none");
+					//~ //Mostrar fila muestra los nombre del cliente en los input
+					//~ mostrarFila();
+					//~ //Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
+					//~ comprobarPedidosExis();
+				//~ }
+				//~ //Si el archivo de donde viene es de pedidos 
+			//~ }else if (dedonde="pedidos"){
+				//~ var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+				//~ if (valor==""){ //Si el valor viene vacio quiere decir que la persona pulsó el icono de buscar
+					//~ var titulo = 'Listado clientes ';
+					//~ abrirModal(titulo,HtmlClientes);
+					//~ // Asignamos focus a caja buscar cliente.
+					//~ if (encontrados >0 ){
+						//~ // Enfocamos el primer item.
+						//~ mover_down(0);
+						//~ $('#N_0').focus();
+					//~ }else {
+						//~ // No hay datos focus a caja buscar cliente.
+						//~ $('#cajaBusquedacliente').focus();
+					//~ }
+				//~ }else if(idcaja==="Cliente"){// Si el cliente escribio en el input del nombre de cliente 
+					//~ console.log('entre en cliente');
+					//~ console.log(resultado);
+					//~ var titulo = 'Listado clientes '; //Muestra los resultados de la consulta en una ventana modal
+					//~ abrirModal(titulo,HtmlClientes);
+					//~ if (encontrados >0 ){
+						//~ // Enfocamos el primer item.
+						//~ mover_down(0);
+						//~ $('#N_0').focus();
+					//~ }else {
+						//~ // No hay datos focus a caja buscar cliente.
+						//~ $('#cajaBusquedacliente').focus();
+					//~ }
+				//~ }else if(idcaja==="cajaBusquedacliente"){ // si la consulta viene de la caja input del modal
+					//~ console.log('entre en caja buqueda');
+					//~ console.log(resultado);
+					//~ var titulo = 'Listado clientes ';
+					//~ abrirModal(titulo,HtmlClientes);
+					//~ if (encontrados >0 ){
+						//~ // Enfocamos el primer item.
+						//~ mover_down(0);
+						//~ $('#N_0').focus();
+					//~ }else {
+						//~ // No hay datos focus a caja buscar cliente.
+						//~ $('#cajaBusquedacliente').focus();
+					//~ }
+				//~ }else{ //  Si recibión un id se escribe el nombre en el input , en la cabecera se guarda el id 
+				//~ // y la función de mostrar fila cubre los campos de cliente
+					//~ console.log('no muestro modal');
+					//~ $('#Cliente').val(resultado.nombre);
+					//~ console.log(resultado.idCliente);
+						//~ cabecera.idCliente=resultado.idCliente;
+						//~ mostrarFila();
+				//~ }
+			//~ }else if (dedonde = "factura"){
+				//~ console.log("entre en facturas");
+				//~ if (resultado.Nitems==1){
+					//~ //Se registra en la cabecera tanto el id del clinete como el nombre
+					//~ cabecera.idCliente=resultado.idCliente;
+					//~ cabecera.nombreCliente=resultado.nombre;
+					//~ //Los imput de cliente quedan desactivados y se oculta el botón de buscar
+					//~ $('#ClienteFac').val(resultado.nombre);
+					//~ $('#ClienteFac').prop('disabled', true);
+					//~ $('#id_clienteFac').prop('disabled', true);
+					//~ $("#buscar").css("display", "none");
+					//~ //Mostrar fila muestra los nombre del cliente en los input
+					//~ mostrarFila();
+					//~ //Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
+					//~ //comprobarPedidosExis();
+				//~ }
+			//}
 		}
 	});
 }
@@ -376,6 +482,11 @@ function controladorAcciones(caja,accion){
 		buscarPedido(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		
 		break;
+		case 'buscarAlbaran':
+		console.log("Entre en buscar pedido");
+		buscarAlbaran(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+		
+		break;
 		case 'buscarClientesAlbaran':
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
@@ -476,6 +587,48 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
 					//console.log(resultado);
+					if (dedonde == "factura"){
+						if (resultado['Nitems']===1){
+						var datos = new Object();
+						datos.Numpedcli=0;
+						datos.ccodbar=resultado['datos'][0]['codBarras'];
+						datos.cdetalle=resultado['datos'][0]['articulo_name'];
+						datos.cref=resultado['datos'][0]['crefTienda'];
+						datos.estadoLinea="Activo";
+						datos.idArticulo=resultado['datos'][0]['idArticulo'];
+						datos.idpedcli=0;
+						datos.iva=resultado['datos'][0]['iva'];
+						datos.ncant=1;
+						datos.nfila=productos.length+1;
+						datos.nunidades=1;
+						var importe =resultado['datos'][0]['pvpCiva']*1;
+						datos.importe=importe.toFixed(2);
+						var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
+						datos.precioCiva=pvpCiva.toFixed(2);
+						
+						productos.push(datos);
+					
+						addFacturaTemp();
+					 	AgregarFilaProductosAl(datos);
+						}
+						else{
+							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
+				
+							var busqueda = resultado.listado;   
+							var HtmlProductos=busqueda.html;   
+							var titulo = 'Listado productos encontrados ';
+							abrirModal(titulo,HtmlProductos);
+							if (resultado.Nitems >0 ){
+								// Quiere decir que hay resultados por eso apuntamos al primero
+								// focus a primer producto.
+								var d_focus = 'N_0';
+								ponerFocus(d_focus);
+							} else {
+							// No hay resultado pero apuntamos a caj
+							ponerFocus(id_input);
+							}
+						}
+					}
 					if(dedonde =="albaran"){
 						if (resultado['Nitems']===1){
 						var datos = new Object();
@@ -499,23 +652,23 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					
 						addAlbaranTemp();
 					 	AgregarFilaProductosAl(datos);
-					}else{
-						console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-			
-						var busqueda = resultado.listado;   
-						var HtmlProductos=busqueda.html;   
-						var titulo = 'Listado productos encontrados ';
-						abrirModal(titulo,HtmlProductos);
-						if (resultado.Nitems >0 ){
-							// Quiere decir que hay resultados por eso apuntamos al primero
-							// focus a primer producto.
-							var d_focus = 'N_0';
-							ponerFocus(d_focus);
-						} else {
-						// No hay resultado pero apuntamos a caj
-						ponerFocus(id_input);
+						}else{
+							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
+				
+							var busqueda = resultado.listado;   
+							var HtmlProductos=busqueda.html;   
+							var titulo = 'Listado productos encontrados ';
+							abrirModal(titulo,HtmlProductos);
+							if (resultado.Nitems >0 ){
+								// Quiere decir que hay resultados por eso apuntamos al primero
+								// focus a primer producto.
+								var d_focus = 'N_0';
+								ponerFocus(d_focus);
+							} else {
+							// No hay resultado pero apuntamos a caj
+							ponerFocus(id_input);
+							}
 						}
-					}
 						
 					} 
 					if (dedonde == "pedidos"){
@@ -812,17 +965,33 @@ function escribirClienteSeleccionado(id, nombre ,dedonde=''){
 	//Esta funcon la utilizo para cuando se pulsa un cliente de la ventana modal 
 	//transforma los datos para reutilizar la funcion de buscar cliente como si se introduciera un id de cliente 
 	//De esta forma no hace falta ninguna función más
-	$('#id_cliente').val(id);
-	$('#Cliente').val(nombre);
-	if (dedonde == "pedidos"){
-		idInput="id_cliente";
-	}else if(dedonde == albaran){
-		idInput="id_clienteAl";
-		
+	console.log("estamos en escribirClienteSeleccionado");
+	if (dedonde=="factura"){
+		var idCliente="id_clienteFac";
+		$('#id_clienteFac').val(id);
+		$('#ClienteFac').val(nombre);
+		buscarClientes(dedonde, idCliente, id);
+		cerrarPopUp();
 	}
-	buscarClientes(dedonde, idInput, id);
-	cerrarPopUp();
-	mostrarFila();
+	if (dedonde =="albaran" ){
+		var idCliente="id_clienteAl";
+		$('#id_clienteAl').val(id);
+		$('#Cliente').val(nombre);
+		buscarClientes(dedonde, idCliente, id);
+		cerrarPopUp();
+	}else{
+		$('#id_cliente').val(id);
+		$('#Cliente').val(nombre);
+		if (dedonde == "pedidos"){
+			idInput="id_cliente";
+		}else if(dedonde == albaran){
+			idInput="id_clienteAl";
+			
+		}
+		buscarClientes(dedonde, idInput, id);
+		cerrarPopUp();
+		mostrarFila();
+	}
 }
 
 function abandonFila(cont){
@@ -857,7 +1026,30 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	// 	 Caja -> Indica la caja queremos que ponga focus
 	//   datos -> Es el array que vamos enviar para añadir fila.
 	console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
-	if (campo=="CodbarrasAl"){
+	if (campo=="ReferenciaFac" || campo=="CodbarrasFac" || campo=="DescripcionFac"){
+		var datos = new Object();
+		datos.Numalbcli=0;
+		datos.ccodbar=ccodebar;
+		datos.cdetalle=cdetalle;
+		datos.cref=cref;
+		datos.estadoLinea="Activo";
+		datos.idArticulo=id;
+		datos.idalbcli=0;
+		datos.iva=ctipoIva;
+		datos.ncant=1;
+		datos.nfila=productos.length+1;
+		datos.nunidades=1;
+		var importe =npconiva*1;
+		datos.importe=importe.toFixed(2);
+		var pvpCiva= parseFloat(npconiva);
+		datos.precioCiva=pvpCiva.toFixed(2);
+		productos.push(datos);
+		addFacturaTemp();
+		AgregarFilaProductosAl(datos);
+		resetCampo(campo);
+		cerrarPopUp(campo);
+	}
+	if (campo=="CodbarrasAl" || campo=="ReferenciaAl" || campo=="DescripcionAl"){
 		var datos = new Object();
 		datos.Numpedcli=0;
 		datos.ccodbar=ccodebar;
@@ -1177,6 +1369,84 @@ function buscarPedido(dedonde, idcaja, valor=''){
 		}
 	});
 }
+
+
+function buscarAlbaran(dedonde, idcaja, valor=''){
+	//Buscar los pedidos de un cliente que tenga el estado guardado
+	console.log('FUNCION buscar albaran JS-AJAX');
+	var parametros = {
+		"pulsado"    : 'buscarAlbaran',
+		"busqueda" : valor,
+		"idCliente":cabecera.idCliente
+	};
+	console.log (valor);
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en buscar Albaran JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de buscar albaran');
+			var resultado =  $.parseJSON(response); 
+			var encontrados = resultado.encontrados;
+			var HtmlAlbaranes=resultado.html;   //$resultado['html'] de montaje html
+			console.log(resultado);
+			if (valor==""){ //Si el usuario selecciona el icono de buscar pedido abre un modal 
+			//con los pedidos del cliente
+				var titulo = 'Listado Albaranes ';
+				abrirModal(titulo, HtmlAlbaranes);
+			}else{
+				if (resultado.Nitems>0){//Si tiene un resultado comprobamos que el pedido no este en ya en la lista 
+				// de pedidos introducidos . Si la bandera es 0 quiere decir que no esta en la lista de los arrays de pedidos introducidos
+					var bandera=0;
+					for(i=0; i<albaranes.length; i++){//recorre todo el array de arrays de pedidos
+						var numeroAlbaran=albaranes[i].Numalbcli;
+						var numeroNuevo=resultado['datos'].Numalbcli;
+						if (numeroAlbaran == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
+						//del array pedidos entonces la bandera es igual a 1
+							bandera=bandera+1;
+						}
+					}
+					if (bandera==0){// si no hay repetidos
+						console.log("Hay un resultado");
+						var datos = [];
+						datos = resultado['datos'];
+						albaranes.push(datos);// En el array de arrays  de pedidos de la cabecera metemos el array de pedido nuevo 
+						productosAdd=resultado.productos;
+						console.log("cuento los productos");
+						console.log(productos.length);
+						var numFila=productos.length+1;
+						for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
+							resultado.productos[i]['nfila']=numFila;
+							productos.push(resultado.productos[i]);
+							numFila++;
+						}
+						console.log("llegue hasta aqui en albaranes buscar");
+						addFacturaTemp();//Añade un albaran temporal o lo modifica
+						//Modifica el estado del pedido a Facturado.
+						//Quiere decir que cuando se mete un pedido en un albaran ya no se puede volver a meter el pedido en otro albarán
+						//Ni se puede modificar  en pedidos
+					  ModificarEstadoPedido("factura", "Facturado", resultado['datos'].Numalbcli, resultado['datos'].idalbcli);
+						//Añade el html de la fila del pedido
+						 AgregarFilaAlbaran(datos);
+						//Agrega los productos de ese pedido
+						 AgregarFilaProductosAl(resultado.productos);
+					}else{
+						alert("Ya has introducido ese pedido");
+					}
+				}else{
+					alert("No hay resultado");
+				}
+			}
+		}
+	});
+}
+
+
+
+
 function addAlbaranTemp(){
 	console.log('FUNCION Añadir albaran temporal JS-AJAX');
 	console.log(productos);
@@ -1259,8 +1529,97 @@ function addAlbaranTemp(){
 		}
 	});
 }
+
+function addFacturaTemp(){
+	console.log('FUNCION Añadir factura temporal JS-AJAX');
+	console.log(productos);
+	var parametros = {
+		"pulsado"    : 'añadirfacturaTemporal',
+		"idFacturaTemp":cabecera.idFacturaTemp,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estadoFactura":cabecera.estadoFactura,
+		"idFactura":cabecera.idFactura,
+		"numFactura":cabecera.numFactura,
+		"fecha":cabecera.fecha,
+		"productos":productos,
+		"albaranes":albaranes,
+		"idCliente":cabecera.idCliente
+	};
+	console.log(parametros);
+	console.log("ESTOY EN AÑADIR FACTURA");
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en añadir factura temporal JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir factura temporal');
+			console.log(response);
+			var resultado =$.parseJSON(response); 
+		
+			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
+
+			console.log(resultado.id.id);
+			if (resultado.existe == 0){
+				history.pushState(null,'','?tActual='+resultado.id);
+				cabecera.idFacturaTemp=resultado.id;
+			}
+				
+			$('#tipo4').html('');
+			$('#tipo10').html('');
+			$('#tipo21').html('');
+			$('#base4').html('');
+			$('#base10').html('');
+			$('#base21').html('');
+			$('#iva4').html('');
+			$('#iva10').html('');
+			$('#iva21').html('');
+			$('.totalImporte').html('');
+			
+			// Ahora pintamos pie de ticket.
+			if (resultado['totales']['total'] > 0 ){
+				// Quiere decir que hay datos a mostrar en pie.
+				total = parseFloat(resultado['totales']['total']) // varible global.
+				$('.totalImporte').html(total.toFixed(2));
+				// Ahora tengo que pintar los ivas.
+				var desgloseIvas = [];
+				
+				console.log("estoy aqui");
+				console.log(resultado['totales']['desglose']);
+				
+				desgloseIvas.push(resultado['totales']['desglose']);
+				console.log(desgloseIvas);
+				// Ahora recorremos array desglose
+				desgloseIvas.forEach(function(desglose){
+					console.log('Entro foreah');
+					// mostramos los tipos ivas , bases y importes.
+					var tipos = Object.keys(desglose);
+					console.log(desglose);
+					for (index in tipos){
+						var tipo = tipos[index];
+						$('#line'+parseInt(tipo)).css('display','');
+						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+					}
+				});
+				
+			}
+			
+			
+		}
+	});
+}
+
+
+
+
+
 //Modifica el estado de un pedido, dependiendo de donde venga la función carga unos parametro u otros
-function ModificarEstadoPedido(dedonde, estado, numPedido="", idPedido=""){
+function ModificarEstadoPedido(dedonde, estado, num="", id=""){
 	console.log("Entre en modificar estado pedido");
 	if (dedonde=="pedido"){
 		var parametros = {
@@ -1274,11 +1633,21 @@ function ModificarEstadoPedido(dedonde, estado, numPedido="", idPedido=""){
 	if (dedonde=="Albaran"){
 		var parametros = {
 			"pulsado"    : 'modificarEstadoPedido',
-			"idPedido":idPedido,
-			"numPedidoTemp":numPedido,
+			"idPedido":id,
+			"numPedidoTemp":num,
 			"estado" : estado,
 			"dedonde" : dedonde
 		};
+	}
+	if (dedonde == "factura"){
+		var parametros = {
+			"pulsado"    : 'modificarEstadoPedido',
+			"idAlbaran":id,
+			"numAlbaranTemporal":num,
+			"estado" : estado,
+			"dedonde" : dedonde
+		};
+		
 	}
 		$.ajax({
 		data       : parametros,
@@ -1294,6 +1663,9 @@ function ModificarEstadoPedido(dedonde, estado, numPedido="", idPedido=""){
 		}
 	});
 }
+
+
+
 //Comprueba los pedidos de un cliente que esten en estado guardado 
 function comprobarPedidosExis(){
 	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
@@ -1349,7 +1721,7 @@ function comprobarAlbaranesExis(){
 		//	var encontrados = resultado.encontrados;
 		//	var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 		console.log(resultado);
-			if (resultado.ped==1){
+			if (resultado.alb==1){
 				$("#numAlbaranT").show();
 				$("#numAlbaran").show();
 				$("#buscarAlbaran").show();
@@ -1385,6 +1757,32 @@ function AgregarFilaPedido(datos){
 			$("#tablaPedidos").prepend(nuevafila);
 			$('#numPedido').focus(); 
 			$('#numPedido').val(""); 
+			
+		}
+	});
+}
+function AgregarFilaAlbaran(datos){
+	console.log("Estoy en agregar fila albaran");
+	var parametros = {
+		"pulsado"    : 'htmlAgregarFilaAlbaran',
+		"datos" : datos
+	};
+	console.log(datos);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en escribir html fila pedidos JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de html fila pedidos');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+			var nuevafila = resultado['html'];
+			$("#tablaAlbaran").prepend(nuevafila);
+			$('#numAlbaran').focus(); 
+			$('#numAlbaran').val(""); 
 			
 		}
 	});
@@ -1425,5 +1823,10 @@ function AgregarFilaProductosAl(productosAl){
 function buscarDatosPedido(NumPedido){
 	console.log("Estoy en buscarDatosPedido");
 	buscarPedido("Albaran", "numPedido", NumPedido);
+	cerrarPopUp();
+}
+function buscarDatosAlbaran(NumAlbaran){
+	console.log("Estoy en buscar datos albaran");
+	buscarAlbaran("Factura", "numAlbaran", NumAlbaran);
 	cerrarPopUp();
 }

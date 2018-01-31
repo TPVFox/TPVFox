@@ -30,7 +30,7 @@ class FacturasVentas{
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
-		$sql = 'SELECT count(*) as num_reg FROM pedclit';
+		$sql = 'SELECT count(*) as num_reg FROM facclit';
 		$respuesta = $this->consulta($sql);
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
@@ -117,6 +117,69 @@ class FacturasVentas{
 		}
 		return $sql;
 	}
+	
+	
+	
+	public function buscarTemporalNumReal($idFactura){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM faccliltemporales WHERE 	numfaccli ='.$idAlbaran);
+		if ($result = $smt->fetch_assoc () ){
+			$factura=$result;
+		}
+		return $factura;
+	}
+	
+	
+	
+	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idTemporal, $productos){
+		$db = $this->db;
+		$UnicoCampoAlbaranes=json_encode($albaranes);
+		$UnicoCampoProductos=json_encode($productos);
+		$smt=$db->query('UPDATE faccliltemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio='.$fecha.' , Albaranes ='."'".$UnicoCampoAlbaranes."'". ' ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$idTemporal);
+		$sql='UPDATE faccliltemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacCli='.$estadoFactura.' , fechaInicio='.$fecha.' , Albaranes ='."'".$UnicoCampoAlbaranes."'". ' ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$idTemporal;
+		$respuesta['sql']=$sql;
+		$respuesta['idTemporal']=$idTemporal;
+		$respuesta['productos']=$UnicoCampoProductos;
+	
+		return $respuesta;
+	}
+	
+	
+	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $productos, $idCliente){
+		$db = $this->db;
+		$UnicoCampoAlbaranes=json_encode($albaranes);
+		$UnicoCampoProductos=json_encode($productos);
+		$smt = $db->query ('INSERT INTO faccliltemporales ( idUsuario , idTienda , estadoFacCli , fechaInicio, idClientes, Albaranes, Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '.$idCliente.' , '."'".$UnicoCampoAlbaranes."'".', '."'".$UnicoCampoProductos."'".')');
+		$sql='INSERT INTO faccliltemporales ( idUsuario , idTienda , estadoFacCli , fechaInicio, idClientes, Productos, Albaranes) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '.$idCliente.' , '."'".$UnicoCampoProductos."'".', '."'".$UnicoCampoAlbaranes."'".')';
+
+		$id=$db->insert_id;
+		$respuesta['id']=$id;
+		$respuesta['sql']=$sql;
+		$respuesta['productos']=$productos;
+		
+		return $respuesta;
+	}
+	
+	
+		public function addNumRealTemporal($idTemporal,  $numFactura){
+		$db = $this->db;
+		//$UnicoCampoPedidos=json_encode($albaranes);
+		$smt=$db->query('UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal);
+		$sql='UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal;
+		return $sql;
+	}
+	
+	public function modTotales($res, $total, $totalivas){
+		$db=$this->db;
+		$smt=$db->query('UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
+		$sql='UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
+	
+	
+	
+
 }
 
 

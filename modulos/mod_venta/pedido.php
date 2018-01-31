@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,13 +14,12 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
+	$titulo="Crear Pedido De Cliente";
+	$estado='Abierto';
 if ($_GET){
 	if ($_GET['id']){
 		$idPedido=$_GET['id'];
 		$datosPedido=$Cpedido->datosPedidos($idPedido);
-		//~ echo '<pre>';
-		//~ print_r($datosPedido);
-		//~ echo '</pre>';
 		if ($datosPedido['estado']=='Facturado'){
 			$titulo="Pedidos De Cliente Facturado";
 			$estado='Facturado';
@@ -142,15 +140,17 @@ if ($_GET){
 			header('Location: pedidosListado.php');
 		}
 		$fechaCab="'".$fecha."'";
-		if($datosPedido['estado']=="Facturado"){
-			$style="display:none;";
-			$disabled = 'disabled';
-		}else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
-			$style="";
-			$disabled = '';
-		}else{
-			$style="display:none;";
-			$disabled = '';
+		if (isset($datosPedido)){
+			if($datosPedido['estado']=="Facturado"){
+				$style="display:none;";
+				$disabled = 'disabled';
+			}else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
+				$style="";
+				$disabled = '';
+			}else{
+				$style="display:none;";
+				$disabled = '';
+			}
 		}
 		$parametros = simplexml_load_file('parametros.xml');
 	
@@ -181,6 +181,7 @@ if ($_GET){
 	<script type="text/javascript">
 <?php
 	$i= 0;
+	if (isset($productos)){
 	if ($productos){
 		foreach($productos as $product){
 ?>
@@ -198,6 +199,7 @@ if ($_GET){
 		}
 	
 	}	
+}
 	}
 	
 	
@@ -250,12 +252,15 @@ if ($idCliente===0){
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<?php 
-				if($datosPedido['estado']<>"Facturado"){
+				if (isset ($datosPedido)){
+					if($datosPedido['estado']<>"Facturado"){
 				?>
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php
+					}
 				}
-				if ($_GET['tActual']){
+				
+				if (isset($_GET['tActual'])){
 					?>
 					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
 					<?php
@@ -318,7 +323,7 @@ if ($idCliente===0){
 		</thead>
 		<tbody>
 			<?php 
-			if ($productos){
+			if (isset($productos)){
 			foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedido($producto, $producto['nfila'], $CONF_campoPeso, $disabled, $style);
 				echo $html;
@@ -331,7 +336,7 @@ if ($idCliente===0){
 	<?php 
 	if (isset($pedido['Productos']) | isset ($idPedido)){
 			// Ahora montamos base y ivas
-			if ($Datostotales){
+			if (isset($Datostotales)){
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
 					case 4 :

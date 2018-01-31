@@ -491,6 +491,23 @@ function htmlPedidoAlbaran($pedidos){
 	}
 	return $respuesta;
 }
+
+
+function htmlAlbaranFactura($albaranes){
+	$respuesta="";
+	$respuesta['html']="";
+	if(isset($albaranes)){
+	foreach($albaranes as $albaran){
+		$respuesta['html'] .='<tr>';
+		$respuesta['html'] .='<td>'.$albaran['Numalbcli'].'</td>';
+		$respuesta['html'] .='<td>'.$albaran['fecha'].'</td>';
+		$respuesta['html'] .='<td>'.$albaran['total'].'</td>';
+		$respuesta['html'] .='</tr>';
+	}
+	}
+	return $respuesta;
+}
+
 function lineaPedidoAlbaran($pedido){
 		$respuesta['html']="";
 	if(isset($pedido)){
@@ -499,6 +516,18 @@ function lineaPedidoAlbaran($pedido){
 		$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		$respuesta['html'] .='</tr>';
+	}
+	return $respuesta;
+}
+
+function lineaAlbaranFactura($albaran){
+	$respuesta['html']="";
+	if(isset($albaran)){
+		$respuesta['html'] .='<tr>';
+		$respuesta['html'] .='<td>'.$albaran['Numalbcli'].'</td>';
+		$respuesta['html'] .='<td>'.$albaran['fecha'].'</td>';
+		$respuesta['html'] .='<td>'.$albaran['total'].'</td>';
 		$respuesta['html'] .='</tr>';
 	}
 	return $respuesta;
@@ -532,6 +561,40 @@ function modalPedidos($pedidos){
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
 }
+
+
+function modalAlbaranes($albaranes){
+	$contad = 0;
+	$respuesta['html'] .= '<table class="table table-striped"><thead>';
+	$respuesta['html'] .= '<th>';
+	$respuesta['html'] .='<td>Número </td>';
+	$respuesta['html'] .='<td>Fecha</td>';
+	$respuesta['html'] .='<td>Total</td>';
+	$respuesta['html'] .='</th>';
+	$respuesta['html'] .= '</thead><tbody>';
+	foreach ($albaranes as $albaran){
+	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
+	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosAlbaran('.$albaran['Numalbcli'].');">';
+	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
+	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+
+	$respuesta['html'].='<td>'.$albaran['Numalbcli'].'</td>';
+	$respuesta['html'].='<td>'.$albaran['Fecha'].'</td>';
+	$respuesta['html'].='<td>'.$albaran['total'].'</td>';
+	$respuesta['html'].='</tr>';
+	$contad = $contad +1;
+	if ($contad === 10){
+		break;
+	}
+				
+	}
+	$respuesta['html'].='</tbody></table>';
+	return $respuesta;
+}
+
+
+
+
 
 function modificarArrayPedidos($pedidos, $BDTpv){
 	$respuesta=array();

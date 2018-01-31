@@ -91,9 +91,10 @@ switch ($pulsado) {
 			$idcaja=$_POST['idcaja'];
 			$tabla='clientes';
 			
-			if ($idcaja=="id_clienteAl"){
+			if ($idcaja=="id_clienteAl" || $idcaja=="id_clienteFac"){
 				$res=$Ccliente->DatosClientePorId($busqueda);
 				if ($res){
+					$respuesta['res']=$res;
 					$respuesta['idCliente']=$res['idClientes'];
 					$respuesta['nombre']=$res['Nombre'];
 					$respuesta['Nitems']=1;
@@ -175,6 +176,29 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
+		case 'buscarAlbaran':
+			$busqueda=$_POST['busqueda'];
+			$idCliente=$_POST['idCliente'];
+			$res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
+			if ($res['Nitem']==1){
+					
+					$respuesta['temporales']=1;
+					$respuesta['datos']['Numalbcli']=$res['Numalbcli'];
+					$respuesta['datos']['idalbcli']=$res['id'];
+					$respuesta['datos']['fecha']=$res['Fecha'];
+					$respuesta['datos']['total']=$res['total'];
+					$respuesta['Nitems']=$res['Nitem'];
+					$productosAlbaran=$CalbAl->ProductosAlbaran($res['id']);
+					$respuesta['productos']=$productosAlbaran;
+				
+			}else{
+				$respuesta=$res;
+				$modal=modalAlbaranes($res['datos']);
+				$respuesta['html']=$modal['html'];
+				
+			}
+			echo json_encode($respuesta);
+		break;
 	
 		case 'añadirAlbaranTemporal':
 			$idAlbaranTemp=$_POST['idAlbaranTemp'];
@@ -236,6 +260,75 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
+		
+		case 'añadirfacturaTemporal':
+			$idFacturaTemp=$_POST['idFacturaTemp'];
+			$idUsuario=$_POST['idUsuario'];
+			$idTienda=$_POST['idTienda'];
+			$estadoFactura=$_POST['estadoFactura'];
+			$numFactura=$_POST['numFactura'];
+			$fecha=$_POST['fecha'];
+			$albaranes=$_POST['albaranes'];
+			$productos=$_POST['productos'];
+			$idCliente=$_POST['idCliente'];
+			$existe=0;
+			if ($numFactura>0){
+				$factura=$CFac->buscarTemporalNumReal($numAlbaran);
+				$idFacturaTemp=$albaran['id'];
+			}
+			if ($idFacturaTemp>0){
+				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idFacturaTemp, $productos);
+				$existe=1;
+				$respuesta['sql']=$rest['sql'];
+				$res=$rest['idTemporal'];
+				$pro=$rest['productos'];
+			}else{
+				$rest=$CFac->insertarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $productos, $idCliente);
+				$existe=0;
+				$pro=$rest['productos'];
+				$res=$rest['id'];
+				$idFacturaTemp=$res;
+			}
+			$respuesta['numFactura']=$numFactura;
+			if ($numFactura>0){
+				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
+				$respuesta['sqlmodnum']=$modId;
+			}
+			if ($productos){
+				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				$respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$total=round($CalculoTotales['total'],2);
+				$respuesta['total']=$total;
+				$nuevoArray = array(
+							'desglose'=> $CalculoTotales['desglose'],
+							'total' => $CalculoTotales['total']
+								);
+				$respuesta['totales']=$nuevoArray;
+				$totalivas=0;
+				foreach($nuevoArray['desglose'] as $nuevo){
+					$totalivas=$totalivas+$nuevo['iva'];
+				}
+			
+				$modTotal=$CFac->modTotales($res, $total, $totalivas);
+				$respuesta['sqlmodtotal']=$modTotal['sql'];
+				$respuesta['total']=$total;
+			}
+			$respuesta['id']=$res;
+			$respuesta['existe']=$existe;
+			$respuesta['productos']=$_POST['productos'];
+			
+			echo json_encode($respuesta);
+		break;
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		case 'modificarEstadoPedido':
 			if ($_POST['dedonde']=="Pedido"){
 				$idPedido=$_POST['idPedido'];
@@ -250,6 +343,11 @@ switch ($pulsado) {
 				$estado="Facturado";
 				$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
 				$respuesta['sql']=$modEstado;
+			}else if($_POST['dedonde']=="factura"){
+				$idAlbaran=$_POST['idAlbaran'];
+				$estado="Facturado";
+				$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
+				
 			}
 		
 			echo json_encode($respuesta);
@@ -280,6 +378,7 @@ switch ($pulsado) {
 					$respuesta['sql']=$comprobar['sql'];
 				}else{
 					$respuesta['alb']=0;
+					$respuesta['sql']=$comprobar['sql'];
 				}
 			}
 			echo json_encode($respuesta);
@@ -288,6 +387,11 @@ switch ($pulsado) {
 		
 		case 'htmlAgregarFilaPedido':
 			$res=lineaPedidoAlbaran($_POST['datos']);
+			$respuesta['html']=$res['html'];
+			echo json_encode($respuesta);
+		break;
+		case 'htmlAgregarFilaAlbaran':
+			$res=lineaAlbaranFactura($_POST['datos']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
