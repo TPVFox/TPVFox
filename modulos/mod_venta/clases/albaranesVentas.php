@@ -238,6 +238,26 @@ class AlbaranesVentas{
 		}
 		return $albaranPrincipal;
 	}
+	
+	public function ModificarEstadoAlbaran($idAlbaran, $estado){
+		$db=$this->db;
+		$smt=$db->query('UPDATE albclit SET estado="'.$estado.'" WHERE id='.$idAlbaran);
+		$sql='UPDATE albclit SET estado='.$estado.' WHERE id='.$idAlbaran;
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
+	
+		public function ComprobarAlbaranes($idCliente, $estado){
+		$db=$this->db;
+		$estado='"'.'Guardado'.'"';
+		$smt=$db->query('SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado);
+		$sql='SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado;
+		$albaranes['sql']=$sql;
+		while ( $result = $smt->fetch_assoc () ) {
+			$albaranes['alb']=1;
+		}
+		return $albaranes;
+	}
 
 	
 	
