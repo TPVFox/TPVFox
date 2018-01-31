@@ -29,6 +29,9 @@ $CalbAl=new AlbaranesVentas($BDTpv);
 include_once("../../clases/cliente.php");
 $Ccliente=new Cliente($BDTpv);
 
+include_once("clases/facturasVentas.php");
+$CFac=new FacturasVentas($BDTpv);
+
 switch ($pulsado) {
     
 		case 'buscarProductos':
@@ -266,6 +269,23 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
+		
+		case 'comprobarAlbaran':
+		$idCliente=$_POST['idCliente'];
+			$estado="Guardado";
+			if ($idCliente>0){
+				$comprobar=$CalbAl->ComprobarAlbaranes($idCliente, $estado);
+				if ($comprobar['alb']==1){
+					$respuesta['alb']=1;
+					$respuesta['sql']=$comprobar['sql'];
+				}else{
+					$respuesta['alb']=0;
+				}
+			}
+			echo json_encode($respuesta);
+		break;
+		
+		
 		case 'htmlAgregarFilaPedido':
 			$res=lineaPedidoAlbaran($_POST['datos']);
 			$respuesta['html']=$res['html'];

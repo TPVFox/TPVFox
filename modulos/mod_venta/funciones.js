@@ -54,6 +54,10 @@ function metodoClick(pulsado,adonde){
 			console.log('entro en agregar producto');
 			window.location.href = './albaran.php';
 			break;
+		case 'AgregarFactura':
+			console.log('entro en agregar producto');
+			window.location.href = './factura.php';
+			break;
 		
 		case 'NuevaBusquedaPedido':
 			// Obtenemos puesto en input de Buscar
@@ -173,7 +177,22 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						cabecera.idCliente=resultado.idCliente;
 						mostrarFila();
 				}
-		}
+			}else if (dedonde="factura"){
+				if (resultado.Nitems==1){
+					//Se registra en la cabecera tanto el id del clinete como el nombre
+					cabecera.idCliente=resultado.idCliente;
+					cabecera.nombreCliente=resultado.nombre;
+					//Los imput de cliente quedan desactivados y se oculta el botón de buscar
+					$('#ClienteFac').val(resultado.nombre);
+					$('#ClienteFac').prop('disabled', true);
+					$('#id_clienteFac').prop('disabled', true);
+					$("#buscar").css("display", "none");
+					//Mostrar fila muestra los nombre del cliente en los input
+					mostrarFila();
+					//Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
+					comprobarPedidosExis();
+				}
+			}
 		}
 	});
 }
@@ -1307,6 +1326,41 @@ function comprobarPedidosExis(){
 		}
 	});
 }
+
+
+function comprobarAlbaranesExis(){
+	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
+	var parametros = {
+		"pulsado"    : 'comprobarAlbaran',
+		"idCliente" : cabecera.idCliente
+		
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en comprobar pedidos existentes JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de comprobar pedidos');
+			var resultado =  $.parseJSON(response); 
+		//	var encontrados = resultado.encontrados;
+		//	var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+		console.log(resultado);
+			if (resultado.ped==1){
+				$("#numAlbaranT").show();
+				$("#numAlbaran").show();
+				$("#buscarAlbaran").show();
+				$("#tablaAlbaran").show();
+			}
+			
+		}
+	});
+}
+
+
 
 //Agregar un html con el pedido 
 function AgregarFilaPedido(datos){
