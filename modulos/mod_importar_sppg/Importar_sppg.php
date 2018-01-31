@@ -70,18 +70,21 @@
 			$html_tr .= '<td class="'.$clasetd.'"></td>';
 		};
 		$html_registros = '';
-		if (in_array('estado',$ficheros[$nombreTabla]['campos'])){
-			
-			foreach ($tiposRegistros as $key=>$tipo){
-					$contar_registro_tipo = $Controler->contarRegistro($BDImportDbf,$nombreTabla,$tipo['consulta']);
-					$tiposRegistros[$key]['Num_items'] = $contar_registro_tipo;
-					// Montamos el html queremos mostrar en columna de registros
-					
-			}
-			$html_registros =$tiposRegistros['todos']['Num_items'].'/'.$tiposRegistros['sin']['Num_items'];
-			$ficheros[$nombreTabla]['Estado']['tipos'] = $tiposRegistros;
-			if ($tiposRegistros['todos']['Num_items'] > 0 ){
-				$cont_estado_registros++;
+		if (!isset($ficheros[$nombreTabla]['error'])){
+			// Si no hubo ningún error
+			$array = $ficheros[$nombreTabla]['campos'];
+			if (in_array('estado',$array)){
+				foreach ($tiposRegistros as $key=>$tipo){
+						$contar_registro_tipo = $Controler->contarRegistro($BDImportDbf,$nombreTabla,$tipo['consulta']);
+						$tiposRegistros[$key]['Num_items'] = $contar_registro_tipo;
+						// Montamos el html queremos mostrar en columna de registros
+						
+				}
+				$html_registros =$tiposRegistros['todos']['Num_items'].'/'.$tiposRegistros['sin']['Num_items'];
+				$ficheros[$nombreTabla]['Estado']['tipos'] = $tiposRegistros;
+				if ($tiposRegistros['todos']['Num_items'] > 0 ){
+					$cont_estado_registros++;
+				}
 			}
 		}
 		if ($html_registros !== ''){
@@ -94,9 +97,9 @@
 		$ficheros[$nombreTabla]['html_tr'] = $html_tr.'</tr>';
 	}	
 	$ficheros['_tablas_actualizadas']= $cont_estado_registros;	// utilizamos para hacer advertencia.
-			//~ echo '<pre>';
-			//~ print_r($ficheros);
-			//~ echo '</pre>';	
+			echo '<pre>';
+			print_r($ficheros);
+			echo '</pre>';	
 
 	if ($ficheros['_tablas_actualizadas'] > 0){
 		// -- Si ya existen tablas con registros y estado tomamos de ruta -- //
@@ -127,6 +130,7 @@
 	var ficheroActual = '';
 	var estadoImportacion = [];
 	var nombretabla = [];
+	var id_empresa = 0; // id de empresa seleccionada, por defecto es 0
 	<?php
 	foreach ($nom_ficheros as $n_fichero){
 		// Llenamos array javascript con los nombres ficheros

@@ -9,8 +9,6 @@
 /* ===============  REALIZAMOS CONEXIONES  ===============*/
 
 $pulsado = $_POST['pulsado'];
-
-
 include_once ("./../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos
@@ -26,15 +24,11 @@ $TControlador = new ControladorComun;
 include_once ('parametros.php');
 $Newparametros = new ClaseParametros('parametros.xml');
 $parametros = $Newparametros->getRoot();
-
-// DBF71 debería ser una varible que pueda modificar el usuario
-$rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
  
  switch ($pulsado) {
      
     case 'import_inicio':
-		$nombreTabla = $_POST['Fichero'];
-		$fichero = $rutaFicheroImportar.$nombreTabla;
+		$fichero = $_POST['Fichero'];
 		$respuesta = LeerEstructuraDbf($fichero);
 		echo json_encode($respuesta) ;
 		break;
@@ -50,8 +44,9 @@ $rutaFicheroImportar = $RutaServidor.$RutaDatos.'/'.'DBF71'.'/';
 		$numFinal = $_POST['lineaF'];
 		$campos = $_POST['campos']; 
 		$nombreTabla = $_POST['Fichero'];	//nombre fichero con extension)
+		$ruta = $_POST['ruta'];
 		// Necesito la ruta completa del fichero con extension para ejecutar LeerDbf.
-		$fichero = $rutaFicheroImportar.$nombreTabla;
+		$fichero = $ruta.'/'.$nombreTabla;
 		$datosDbf = LeerDbf($fichero,$numFinal,$numInicial,$campos);
 		// Necesito el valor nombreTabla sin extension para ejecutar InsertarDatos.
 		$nombreTablaSin = substr($nombreTabla,0,-4);  //Tengo enviar en nombretabla que es fichero sin extension (.dbf )

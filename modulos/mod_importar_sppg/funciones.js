@@ -97,12 +97,13 @@ function ImportEstrucTabla (){
 	console.log('=============Iniciando funcion de EstruTabla=============');
 	//~ console.log('Nombre fichero:'+ nombrefichero);
 	console.log(' Variable global ficheroActual:'+ficheroActual);
-	console.log(' ficheroActual lo actualizamos en bucleficheros...');
-
+	// Obtenemos ruta de objeto (variable global) indicando de donde obtenemos los datos importacion
+	ruta = empresa[id_empresa].ruta;
+	console.log('Ruta obtenida:'+ruta);
 	//estructura articulos
 	var parametros = {
-	"Fichero" 	: ficheroActual,
-	"pulsado" 	: 'import_inicio'
+	"Fichero" 	: ruta+"/"+ficheroActual,
+	"pulsado" 	: 'import_inicio',
 			};
 	$.ajax({
 			data:  parametros,
@@ -225,16 +226,18 @@ function ImportObtenerDatosDbf(){
 			TopeRegistro = LimiteFinal;
 		}
 		console.log('Antes Ajax FicheroActual:' + ficheroActual);
-		tablaActual = ficheroActual.slice(0, -4); 
-
-		//.slice(0, -4)
+		tablaActual = ficheroActual.slice(0, -4); // Le quitamos extension
+		// Obtenemos ruta de objeto (variable global) indicando de donde obtenemos los datos importacion
+		ruta = empresa[id_empresa].ruta;
+		console.log('Ruta obtenida:'+ruta);
 		nombrefichero = ficheroActual;
 		var parametros = {
 			"lineaI" 	: LimiteActual,
 			"lineaF" 	: TopeRegistro,
 			"pulsado" 	: 'obtenerDbf',
 			"Fichero" 	: nombrefichero,
-			"campos" 	: campos
+			"campos" 	: campos,
+			"ruta"		: ruta
 		};
 		$.ajax({
 			data:  parametros,
@@ -533,12 +536,13 @@ function getvalsel(event){
 			// Si selecciono una empresa 
 			$("#btnImportar").prop('disabled', false);
 			console.log('id='+id);
-			// Ruta es una variable global que creo en Importar_sppg
+			// Ponemos id en variable gloabl.
+			id_empresa = id;
+			// Obtenemos ruta de objeto (variable global) indicando de donde obtenemos los datos importacion
 			$("#directorioRuta").val(empresa[id].ruta);
 		} else {
 			// No permito importar mientras no seleccione una empresa.
 			$("#btnImportar").prop('disabled', true);
-
 		}
 }
 
