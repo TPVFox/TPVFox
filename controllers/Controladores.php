@@ -21,7 +21,7 @@ class ControladorComun
 		// Hay que tener en cuenta que no produce ningún error... 
 		$Ntablas = $Bd->affected_rows   ;
 		if ($Ntablas == 0) {
-			$fila ['error'] = 'Error tabla no encontrada - '.$tablas;
+			$fila ['error'] = 'Error tabla no encontrada - '.$tabla;
 		} else {
 			$fila['info'] = $Queryinfo->fetch_assoc();
 		}
