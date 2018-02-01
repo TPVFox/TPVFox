@@ -17,6 +17,32 @@ class FormasPago{
 		$smt = $db->query($sql);
 		return $smt;
 	}
+	public function todas(){
+		$db = $this->db;
+		$smt = $db->query ('SELECT * from formasPago');
+		$formasPagoPrincipal=array();
+		while ($result = $smt->fetch_assoc () ){
+			array_push($formasPagoPrincipal,$result);
+		}
+		return $formasPagoPrincipal;
+	}
+	public function formadePagoSinPrincipal($idforma){
+		$db = $this->db;
+		$smt = $db->query ('SELECT * from formasPago where id<>'.$idforma);
+		$formasPagoPrincipal=array();
+		while ($result = $smt->fetch_assoc () ){
+			array_push($formasPagoPrincipal,$result);
+		}
+		return $formasPagoPrincipal;
+	}
+	public function datosPrincipal($idPrincipal){
+		$db = $this->db;
+		$smt = $db->query ('SELECT * from formasPago where id='.$idPrincipal);
+		if ($result = $smt->fetch_assoc () ){
+			$resultado=$result;
+		}
+		return $resultado;
+	}
 }
 
 ?>

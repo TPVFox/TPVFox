@@ -16,7 +16,33 @@ class TiposVencimientos{
 		$db = $this->db;
 		$smt = $db->query($sql);
 		return $smt;
-	} 		
+	} 
+	public function todos(){
+		$db = $this->db;
+		$smt = $db->query ('SELECT * from tiposVencimiento');
+		$tiposPrincipal=array();
+		while ($result = $smt->fetch_assoc () ){
+			array_push($tiposPrincipal,$result);
+		}
+		return $tiposPrincipal;
+	}	
+	public function MenosPrincipal($idPrincipal){
+		$db = $this->db;
+		$smt = $db->query ('SELECT * from tiposVencimiento WHERE id<>'.$idPrincipal);
+		$tiposPrincipal=array();
+		while ($result = $smt->fetch_assoc () ){
+			array_push($tiposPrincipal,$result);
+		}
+		return $tiposPrincipal;
+	}	
+	public function datosPrincipal($idPrincipal){
+			$db = $this->db;
+		$smt = $db->query ('SELECT * from tiposVencimiento where id='.$idPrincipal);
+		if ($result = $smt->fetch_assoc () ){
+			$resultado=$result;
+		}
+		return $resultado;
+	}	
 }
 
 
