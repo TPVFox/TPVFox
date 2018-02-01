@@ -98,7 +98,9 @@ switch ($pulsado) {
 					$respuesta['idCliente']=$res['idClientes'];
 					$respuesta['nombre']=$res['Nombre'];
 					$respuesta['Nitems']=1;
+					$respuesta['formasVenci']=$res['fomasVenci'];
 				}
+				
 			}else{
 				$res = array( 'datos' => array());
 				//funcion de buscar clientes
@@ -398,17 +400,17 @@ switch ($pulsado) {
 	 
 		case 'htmlAgregarFilasProductos':
 		$productos=$_POST['productos'];
-		
+		$dedonde=$_POST['dedonde'];
 			 foreach($productos as $producto){
 				if (!is_array($producto)){
 					$bandera=1;
 				}else{
-				$res=htmlLineaPedidoAlbaran($producto);
+				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
 				 $respuesta['html'].=$res['html'];
 				}
 		 }
 		 if ($bandera==1){
-			 $res=htmlLineaPedidoAlbaran($productos);
+			 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
 				 $respuesta['html'].=$res['html'];
 		 }
 		
@@ -421,6 +423,26 @@ switch ($pulsado) {
 			$idPedido=$_POST['idPedido'];
 			$res=$CcliPed->datosPedidos($idPedido);
 			$respuesta['NumPedido']=$res['Numpedcli'];
+			echo json_encode($respuesta);
+		break;
+		
+		case 'htmlFomasVenci':
+			$formasVenci=$_POST['formasVenci'];
+			if ($formasVenci){
+				$formaPago=json_decode($formasVenci, true);
+				$forma=$formaPago['formapago'];
+				$venci=$formaPago['vencimiento'];
+				
+			}else{
+				$forma=0;
+			}
+			$for=htmlFormasVenci($forma, $BDTpv);
+			$respuesta['html1']=$for['html'];
+			
+			$ven=htmlVencimiento($venci, $BDTpv);
+			$respuesta['html2']=$ven['html'];
+			
+			$respuesta['formas']=$html['formas'];
 			echo json_encode($respuesta);
 		break;
 		

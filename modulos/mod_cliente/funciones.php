@@ -1,5 +1,7 @@
 <?php 
 
+include_once "../../clases/FormasPago.php";
+$CFormasPago=new FormasPago($BDTpv);
 
 function obtenerClientes($BDTpv,$filtro) {
 	// Function para obtener clientes y listarlos
@@ -111,5 +113,6 @@ function modificarCliente($datos,$BDTpv,$tabla){
 
 	return $resultado;
 }
+
 
 ?>

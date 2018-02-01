@@ -6,6 +6,9 @@
  * @author      Ricardo Carpintero ,
  * @Descripcion	Funciones en php para modulo TPV
  * */
+	include_once '../../clases/FormasPago.php';
+	include_once '../../clases/TiposVencimiento.php';
+ 
 function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
 	// @ Objetivo:
 	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
@@ -431,7 +434,7 @@ function modificarArrayProductos($productos){
 	return $respuesta;
 }
 
-function htmlLineaPedidoAlbaran($productos){
+function htmlLineaPedidoAlbaran($productos, $dedonde){
 	
 	if(!is_array($productos)) {
 		// Comprobamos si product no es objeto lo convertimos.
@@ -444,10 +447,10 @@ function htmlLineaPedidoAlbaran($productos){
 		 	if ($producto['estadoLinea'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".'albaran'."'".');';
+				$funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".$dedonde."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 			} else {
-				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".'albaran'."'".');';
+				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 			}
 			if ($producto['NumpedCli']==0){
@@ -611,6 +614,37 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 		
 	}
 	return $respuesta;
+}
+
+function htmlFormasVenci($formaVenci, $BDTpv){
+	$formasPago=new FormasPago($BDTpv);
+	$html="<select name='formaVenci'>";
+	$principal=$formasPago->datosPrincipal($formaVenci);
+	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
+	$otras=$formasPago->formadePagoSinPrincipal($formaVenci);
+	foreach ($otras as $otra){
+		$html.='<option value "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
+	}
+	$html.='</select>';
+	
+	
+	$respuesta['formas']=$formaVenci;
+	$respuesta['html']=$html;
+	return $respuesta;
+}
+
+function htmlVencimiento($venci, $BDTpv){
+	$vencimiento=new TiposVencimientos($BDTpv);
+	$principal=$vencimiento->datosPrincipal($venci);
+	$dias=$principal['dias'];
+	$string="' +".$dias." day '";
+	$fecha = date('Y-m-j');
+    $nuevafecha = strtotime ( $string , strtotime ( $fecha ) ) ;
+    $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
+    $html='<input type="date" name="fechaVenci" id="fechaVenci" value='.$nuevafecha.' >';
+    $respuesta['html']=$html;
+    return $respuesta;
+    
 }
 
 ?>

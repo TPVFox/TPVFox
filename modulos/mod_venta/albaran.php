@@ -319,7 +319,7 @@ if (isset($_GET['tActual'])){
 				
 				<?php 
 				if (isset($pedidos)){
-					$html=htmlPedidoAlbaran($pedidos);
+					$html=htmlPedidoAlbaran($pedidos, "albaran");
 					echo $html['html'];
 				}
 				?>

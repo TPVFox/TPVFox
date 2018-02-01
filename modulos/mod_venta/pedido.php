@@ -252,13 +252,13 @@ if ($idCliente===0){
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<?php 
-				if (isset ($datosPedido)){
+				
 					if($datosPedido['estado']<>"Facturado"){
 				?>
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php
 					}
-				}
+				
 				
 				if (isset($_GET['tActual'])){
 					?>

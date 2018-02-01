@@ -14,6 +14,8 @@ include './../../head.php';
 	$Cped = new PedidosVentas($BDTpv);
 	include_once 'clases/facturasVentas.php';
 	$Cfaccli=new FacturasVentas($BDTpv);
+	include_once '../../clases/FormasPago.php';
+	$CforPago=new FormasPago($BDTpv);
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
@@ -31,7 +33,7 @@ include './../../head.php';
 		$fecha=date_format($date,'Y-m-d');
 		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;
-		$numFactura=$datosFactura['	Numfaccli'];
+		$numFactura=$datosFactura['Numfaccli'];
 		$idCliente=$datosFactura['idCliente'];
 		if ($idCliente){
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
@@ -366,7 +368,7 @@ if (isset($_GET['tActual'])){
 			//~ echo '</pre>';
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedidoAlbaran($producto);
+				$html=htmlLineaPedidoAlbaran($producto, "factura");
 				echo $html['html'];
 			}
 		
@@ -458,6 +460,25 @@ if (isset($_GET['tActual'])){
 			</div>
 			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
 				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+			</div>
+		</div>
+	</div>
+	
+	
+	<div class="col-md-6">
+		<h3>Formas de pago</h3>
+			
+			<div class="col-md-4">
+					<strong>Forma de pago:</strong><br>
+					<p id="formaspago">
+					
+					</p>
+			</div>
+			<div class="col-md-4">
+					<strong>Fecha vencimiento:</strong><br>
+					<p id="fechaVencimiento">
+						
+						</p>
 			</div>
 		</div>
 	</div>

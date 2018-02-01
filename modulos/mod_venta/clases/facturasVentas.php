@@ -25,6 +25,9 @@ class FacturasVentas{
 	private $idfaccliiva;
 	private $importeiva;
 	private $totalbase;
+	private $fechaCreacion;
+	private $fechaModificacion;
+	private $fechaVencimiento;
 	
 	
 	public function __construct($conexion){
