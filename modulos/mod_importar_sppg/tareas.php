@@ -84,6 +84,15 @@ $parametros = $Newparametros->getRoot();
 		$respuesta = FamiliaIdInsert($BDImportDbf,$datos,$idvalor);
 		echo json_encode($respuesta);
 		break;
+		
+	
+	case 'grabarRegistroImportar':
+		$respuesta 	= array();
+		$datos 		= $_POST['datos'];
+		$respuesta = grabarRegistroImportar($BDImportDbf,$datos);
+		echo json_encode($respuesta);
+		break;
+		
 	
 }
  

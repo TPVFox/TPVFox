@@ -97,10 +97,8 @@
 		$ficheros[$nombreTabla]['html_tr'] = $html_tr.'</tr>';
 	}	
 	$ficheros['_tablas_actualizadas']= $cont_estado_registros;	// utilizamos para hacer advertencia.
-			echo '<pre>';
-			print_r($ficheros);
-			echo '</pre>';	
-
+	
+	// -- Creamos array con los datos de ultimo registro de la tabla registro_importacion -- //
 	if ($ficheros['_tablas_actualizadas'] > 0){
 		// -- Si ya existen tablas con registros y estado tomamos de ruta -- //
 		// Tengo crear la funcion de obtener el ultimo registros de la tabla registro_importa	
@@ -116,6 +114,10 @@
 			exit();
 		}
 	}
+	echo '<pre>';
+	print_r($registro_ultimo_importar);
+	echo '</pre>';
+	
 	
 	// [ANTES CARGAR FUNCIONES JS]
 	// Montamos la variables en JAVASCRIPT de nombre_tabla que lo vamos utilizar .js
@@ -160,20 +162,28 @@
 	$en_tabla = 'tiendas';
 	$ObtenerTiendas = $Controler->consultaRegistro($BDTpv,$en_tabla);
 	// --- Creamos la lista tiendas para seleccionar de donde importamos. --- //
+	
 	$ListaTiendas = array(
 				0 => array(
 						'idTienda' 		=> 0,
 						'tipoTienda'	=> 'No existe',
 						'ruta'			=> 'No ruta de donde importar selecciona tienda fisica',
 						'razonsocial'	=> 'Sin seleccionar',
-						'nombre_import' => 'No existe',
-						'porDefecto'	=> 'Si'
+						'nombre_import' => 'No existe'
 					)
 				);
 	if (isset( $ObtenerTiendas['NItems']) AND $ObtenerTiendas['NItems']>0){
 		$html_option_tienda = ''; // Variable que utilizamos para montar el select de empresa importar.
+		// Ahora si existe registro.
+		if (isset($registro_ultimo_importar)){
+			$id_tienda_ultimo_registro = $registro_ultimo_importar['id'];
+		 } else {
+			// Quiere decir que no hay ultimo registro o tablas con registros.
+			$id_tienda_ultimo_registro = 0; 
+		};
 		$i = 1;
 		foreach ($ObtenerTiendas['Items'] as $tienda){
+			$porDefecto = ''; // Lo utilizo para indicar que opcion es por defecto
 			if ($tienda['idTienda'] !== $Tienda['idTienda']){
 			// No añadimos la tienda principal , ya que no tiene sentido.
 				if (array_key_exists($tienda['idTienda'],$Tiendas_importar)){
@@ -190,7 +200,12 @@
 										'razonsocial'	=> $tienda['razonsocial'],
 										'nombre_import' => $Tiendas_importar[$id_tienda]['nombre']
 										);
-						$html_option_tienda .= '<option value="'.$i.'" >'.$tienda['idTienda'].'-'.$tienda['razonsocial'].'<-- Parametro empresa:'.$ListaTiendas[$i]['nombre_import'].'</option>';
+						// Ahora comprobamos ponemos alguno por defecto.
+						if ($id_tienda_ultimo_registro === $tienda['idTienda']){
+							$porDefecto = 'selected';
+						}
+						
+						$html_option_tienda .= '<option value="'.$i.'" '.$porDefecto.' >'.$tienda['idTienda'].'-'.$tienda['razonsocial'].'<-- Parametro empresa:'.$ListaTiendas[$i]['nombre_import'].'</option>';
 						$i++;
 					}
 				}
@@ -202,7 +217,11 @@
 		exit();
 	}
 	// -- Ahora acabamos de montar el select de tiendas  ---- //
-	$html_tienda_select = '<div class="form-group"><select class="form-control" onchange="getvalsel(event);" name="SelectTiendaImportar" id="sel1">';
+	$disabledSel1 = '';
+	if ($id_tienda_ultimo_registro > 0){
+		$disabledSel1 = 'disabled';
+	}
+	$html_tienda_select = '<div class="form-group"><select class="form-control" onchange="getvalsel(event);" name="SelectTiendaImportar" id="sel1" '.$disabledSel1.'>';
 	$html_tienda_select .= '<option value="0" >'.$ListaTiendas[0]['idTienda'].'-'.$ListaTiendas[0]['razonsocial'].'</option>';
 	$html_tienda_select .= $html_option_tienda.'</select></div>';
 	$html_tienda_select .= '<div class="form-group">

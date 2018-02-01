@@ -7,6 +7,11 @@
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
+--
+-- Database: `importarDbf`
+--
+-- NO LA GESTIONAMOS EN BDTPV por ello si eliminamos BDimportarDBF eliminamos los registros importar.
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -16,9 +21,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `importarDbf`
---
+
 
 -- --------------------------------------------------------
 
@@ -29,7 +32,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `registro_importacion` (
   `id` int(11) NOT NULL,
   `empresa` int(11) NOT NULL,
-  `ruta` varchar(12) NOT NULL,
+  `ruta` varchar(500) NOT NULL,
   `ficheros` varbinary(50000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

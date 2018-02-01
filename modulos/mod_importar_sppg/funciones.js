@@ -312,7 +312,7 @@ function PintarIcono(tablaActual, className, ok=true,cargando=false){
 
 function ActualizarAgregarCampoEstado(){
 	console.log( '------------ Estroy funcion ActualizarAgregarCampoEstado --------------');
-	// Antes de enviar el array nombretabla
+	// Antes de enviar el array nombretabla ( todas las tablas)
 	// tengo eliminar aquellos que están mal.
 	var tablasErroneas= Object.keys(estadoImportacion); 
 	// fuente de código anterior: https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/keys
@@ -340,13 +340,47 @@ function ActualizarAgregarCampoEstado(){
 			console.log('================  Termino campos DBDImportar para actualizar   ====================');
 			var respuesta = $.parseJSON(response);
 			console.log(respuesta);
-			alert( 'Termine de importar y añadir campo Estado');
-		
+			console.log( 'Termine de importar y añadir campo Estado');
+			// Debería comprobar si existen registros sin tratar, ya que si no existen debería cambiar 
+			// el objeto respuesta.nombretabla.estado por completado y marcalos en tabla de html. :-)
+			
+			// Ahora añadimos registro a tabla registro_importacion.
+			grabarRegistroImportar(respuesta);
+				
 		}
 	});
-
 }
-
+function grabarRegistroImportar(ficheros){
+	// Objetivo:
+	// Montar los datos necesarios para crear registro para grarbar en tabla registros Importar.
+	// @ Parametros:
+	//  ficheros: Objectos con nombre tabla y estado correcto o incorrecto.
+	var datos = {};
+	datos['empresa'] = empresa[id_empresa];
+	datos['ficheros'] =ficheros;
+	console.log('Entro grabar');
+	console.log(datos);
+	var parametros = {
+		"pulsado"	: "grabarRegistroImportar",
+		"datos" 	: datos // Enviamos respuesta de ficheros.
+		};
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			$("#resultado").html('Grabando registro en tabla registros_importar ');
+			console.log('================  Grabando registro en tabla registros_importar   ====================');
+		},
+		success:  function (response) {
+			$("#resultado").html('Termine de  grabar registro en tabla registros_importar ');
+			console.log('================  Termino campos DBDImportar para actualizar   ====================');
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
+			console.log( 'Termine de importar y añadir campo Estado');
+		}
+	});
+}
 
 
 
@@ -483,7 +517,6 @@ function AnhadirRegistroTpv(fila){
 		type:  'post',
 		beforeSend: function () {
 			console.log('================  Añadir registro de DBDImportar a tpv en '+tabla+ '   ====================');
-			
 		},
 		success:  function (response) {
 			console.log('================  Termino de añadir registro de DBDImportar en tpv de '+tabla+ '   ====================');

@@ -285,6 +285,37 @@ function ActualizarAgregarCampoEstado($nombrestablas,$BDImportDbf){
 	
 }
 
+function grabarRegistroImportar($BD,$datos){
+	// @ Objetivo :
+	// Grabar en tabla de registro de importar los datos .
+	// @ Parametro:
+	// 		$datos -> array 
+	//				 empresas-> array(
+	//							idTienda -> (Numero) de id empresa que importamos que es id tienda fisica tb...
+	//							tipoTienda-> 'fisica' (String) siempre debería ser
+	//							nombre_import -> (String) Es nombre que ponemos en parametros , no tiene que ser el mismo de la 
+	//											tienda fisica.
+	//							razonsocial-> (String) Es campo tpv de tienda
+	// 							ruta -> (String) Es la ruta que ponemos en parametros
+	//							)
+	//				ficheros-> array (
+	//							nombretabla -> Object
+	//										Estado = Correcto o error.
+	//								)
+	
+	$respuesta = array();
+	$ficheros = json_encode($datos['ficheros']);
+	$PrepFicheros = $BD->real_escape_string($ficheros); //  Escapa los caracteres especiales de una cadena para usarla en una sentencia SQL, tomando en cuenta el conjunto de caracteres actual de la conexión
+	$ruta = $datos['empresa']['ruta'];
+	$consulta = 'INSERT INTO `registro_importacion`(`id`, `empresa`, `ruta`, `ficheros`) VALUES ('.$datos['empresa']['idTienda'].',"'.$datos['empresa']['nombre_import'].'","'.$ruta.'","'.$PrepFicheros.'")';
+	$respuesta['consulta'] = $consulta;
+	if (!$BD->query($consulta)) {
+		// Quiere decir que hubo error en la consulta.
+		$respuesta['error'] = $BD->error;
+	}
+	return $respuesta;
+	
+}
 
 function obtenerUnRegistro($BD,$consulta) {
 		/* Objetivo:
@@ -611,14 +642,6 @@ function FamiliaIdInsert($BDImportDbf,$BDTpv,$datos,$idvalor){
 	//~ $consultaImportar = 
 	
 	$respuesta = $datos;
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	return $respuesta;
 }
