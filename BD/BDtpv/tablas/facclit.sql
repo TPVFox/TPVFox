@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 30, 2018 at 09:15 PM
+-- Generation Time: Feb 01, 2018 at 10:45 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -37,7 +37,10 @@ CREATE TABLE `facclit` (
   `estado` varchar(12) DEFAULT NULL,
   `formaPago` varchar(12) DEFAULT NULL,
   `entregado` decimal(17,2) DEFAULT NULL,
-  `total` decimal(17,2) DEFAULT NULL
+  `total` decimal(17,2) DEFAULT NULL,
+  `fechaCreacion` datetime DEFAULT NULL,
+  `fechaModificacion` datetime DEFAULT NULL,
+  `FechaVencimiento` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
