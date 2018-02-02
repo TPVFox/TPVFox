@@ -26,10 +26,10 @@ include './../../head.php';
 		$estadoCab="'".'Modificado'."'";
 		$datosFactura=$Cfaccli->datosFactura($idFactura);
 		$productosFactura=$Cfaccli->ProductosFactura($idFactura);
-		$ivasFactura=$Cfaccli->IvasFactura($idAlbaran);
-		$albaranFactura=$Cfaccli->AlbaranesFactura($idAlbaran);
+		$ivasFactura=$Cfaccli->IvasFactura($idFactura);
+		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);
 		
-		$date=date_create($datosAlbaran['Fecha']);
+		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
 		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;
@@ -39,14 +39,31 @@ include './../../head.php';
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$datosCliente['Nombre']."'";
+				//$formasVenci=$datosCliente['formasVenci'];
 		}
+		if ($datosFactura['formaPago']){
+			$formaPago=$datosFactura['formaPago'];
+		}else{
+			$formaPago=0;
+		}
+		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
+		if ($datosFactura['FechaVencimiento']){
+			$date=date_create($datosFactura['FechaVencimiento']);
+			$fechave=date_format($date,'Y-m-d');
+		}else{
+			$fec=date('Y-m-d');
+			$fechave=fechaVencimiento($fechave, $BDTpv);
+		}
+		$textoFecha=htmlVencimiento($fechave, $BDTpv);
+
+
 		$productos=json_decode(json_encode($productosFactura));
 		$Datostotales = recalculoTotalesAl($productos);
-		//$productos=json_decode(json_encode($productosFactura), true);
-		//if ($albaranFactura){
-		//	 $modificarPedido=modificarArrayPedidos($albaranFactura, $BDTpv);
-		//	 $pedidos=json_decode(json_encode($modificarPedido), true);
-		//}
+		$productos=json_decode(json_encode($productosFactura), true);
+		if ($albaranFactura){
+			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
+			 $albaranes=json_decode(json_encode($modificarPedido), true);
+		}
 		$total=$Datostotales['total'];
 		
 		
@@ -68,19 +85,36 @@ include './../../head.php';
 				$fecha1=date_create($datosFactura['fechaInicio']);
 				$fecha =date_format($fecha1, 'Y-m-d');
 				$idCliente=$datosFactura['idClientes'];
+				
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$cliente['Nombre']."'";
+				$formasVenci=$cliente['formasVenci'];
 				$fechaCab="'".$fecha."'";
 				$idFactura=0;
 				$estadoCab="'".'Abierto'."'";
 				$factura=$datosFactura;
 				
 				$productos =  json_decode($datosFactura['Productos']) ;
-				//~ echo '<pre>';
-				//~ print_r($productos);
-				//~ echo '</pre>';
+				
 				$albaranes=json_decode($datosFactura['Albaranes']);
 				
+				$datoVenci=json_decode($datosFactura['FacCobros'], true);
+				
+				if ($datoVenci['forma']){
+					$formaPago=$datoVenci['forma'];
+				}else{
+					$formaPago=0;
+				}
+				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
+				if ($datoVenci['fechaVencimiento']){
+					$date=date_create($datoVenci['fechaVencimiento']);
+					$fechave=date_format($date,'Y-m-d');
+				}else{
+					$fec=date('Y-m-d');
+					$fechave=fechaVencimiento($fechave, $BDTpv);
+				}
+				
+				$textoFecha=htmlVencimiento($fechave, $BDTpv);
 			}else{
 				$idFacturaTemporal=0;
 				$idFactura=0;
@@ -101,6 +135,7 @@ include './../../head.php';
 		}
 		
 		if (isset($_POST['Guardar'])){
+		
 			if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
 			}else{
@@ -112,7 +147,12 @@ include './../../head.php';
 			}else{
 				$total=0;
 			}
-			
+			$fechaActual=date('Y-m-d');
+			if ($_POST['formaVenci']){
+				$formaVenci=$_POST['formaVenci'];
+			}else{
+				$formaVenci=0;
+			}
 			$datos=array(
 			'Numtemp_faccli'=>$idTemporal,
 			'Fecha'=>$_POST['fechaFac'],
@@ -123,21 +163,27 @@ include './../../head.php';
 			'total'=>$total,
 			'DatosTotales'=>$Datostotales,
 			'productos'=>$datosFactura['Productos'],
-			'albaranes'=>$datosFactura['Albaranes']
+			'albaranes'=>$datosFactura['Albaranes'],
+			'fechaCreacion'=>$fechaActual,
+			'formapago'=>$formaVenci,
+			'fechaVencimiento'=>$_POST['fechaVenci']
 			);
-		
+	
 			if($datosFactura['numfaccli']>0){
 				$idFactura=$datosFactura['numfaccli'];
-			
-				//$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idFactura);
-				// $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idFactura);
-				// $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idFactura);
+			echo $idFactura;
+				$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
+				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
+				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				
 			 }else{
-				//$idFactura=0;
-				//$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idFactura);
-				//$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				$idFactura=0;
+			
+				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
+				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
-		//header('Location: albaranesListado.php');
+		
+		header('Location: facturasListado.php');
 			
 		}
 		if (isset($_POST['Cancelar'])){
@@ -146,7 +192,7 @@ include './../../head.php';
 			}else{
 				$idTemporal=$_GET['tActual'];
 			}
-			//echo "entre en cancelar";
+		
 			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idAlbaranTemporal);
 			$albaranes=json_decode($datosFactura['Albaranes'], true);
 			foreach ($albaranes as $albaran){
@@ -162,7 +208,15 @@ include './../../head.php';
 		}else{
 			$style="display:none;";
 		}
-	
+		if (isset($albaranes)){
+			$stylea="";
+		}else{
+			$stylea="display:none;";
+		}
+		if (isset($_GET['mensaje'])){
+				$mensaje=$_GET['mensaje'];
+				$tipomensaje=$_GET['tipo'];
+			}
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -255,10 +309,7 @@ if (isset($_GET['tActual'])){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<?php 
-			if (isset($_GET['mensaje'])){
-				$mensaje=$_GET['mensaje'];
-				$tipomensaje=$_GET['tipo'];
-			}
+			
 			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
@@ -312,10 +363,10 @@ if (isset($_GET['tActual'])){
 	
 		<div>
 			<div style="margin-top:-50px;">
-			<label style="<?php echo $style;?>" id="numAlbaranT">Número del albaran:</label>
-			<input style="<?php echo $style;?>" type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
-			<a style="<?php echo $style;?>" id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>
-			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaAlbaran"> 
+			<label style="<?php echo $stylea;?>" id="numAlbaranT">Número del albaran:</label>
+			<input style="<?php echo $stylea;?>" type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
+			<a style="<?php echo $stylea;?>" id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>
+			<table  class="col-md-12" style="<?php echo $stylea;?>" id="tablaAlbaran"> 
 				<thead>
 				
 				<td><b>Número</b></td>
@@ -378,7 +429,7 @@ if (isset($_GET['tActual'])){
 	  </table>
 	</div>
 	<?php 
-	if ($factura['Productos']){
+	if($Datostotales){
 			// Ahora montamos base y ivas
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
@@ -471,13 +522,33 @@ if (isset($_GET['tActual'])){
 			<div class="col-md-4">
 					<strong>Forma de pago:</strong><br>
 					<p id="formaspago">
-					
+					<?php 
+					//if ($_GET['id']|| $_GET['tActual']){
+					//~ if ($formasVenci){
+						//~ $formaPago=json_decode($formasVenci, true);
+						//~ $forma=$formaPago['formapago'];
+						//~ $venci=$formaPago['vencimiento'];
+						
+					//~ }else{
+						//~ $forma=0;
+						//~ $venci=0;
+					//~ }
+					//$for=htmlFormasVenci($forma, $BDTpv);
+					echo $textoFormaPago['html'];
+				//}
+					?>
 					</p>
 			</div>
 			<div class="col-md-4">
 					<strong>Fecha vencimiento:</strong><br>
 					<p id="fechaVencimiento">
+						<?php
 						
+							//$textoFecha=htmlVencimiento($venci, $BDTpv);
+							echo $textoFecha['html'];
+					
+					
+					?>
 						</p>
 			</div>
 		</div>

@@ -375,6 +375,12 @@
 				<parametro nombre="campo">a.articulo_name</parametro>  
 			</parametros> 
 		</caja_input>
+<caja_input>
+			<nombre id_input="fechaVenci">fechaVenci</nombre>
+			<teclas>
+				<action tecla="13">selectFormas</action>	
+			</teclas>
+		</caja_input>
 	
 		
 	</cajas_input>

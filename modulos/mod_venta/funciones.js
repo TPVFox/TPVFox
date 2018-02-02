@@ -515,6 +515,10 @@ function controladorAcciones(caja,accion){
 		buscarAlbaran(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		
 		break;
+		case 'selectFormas':
+		console.log("Entre en la funcion select formas");
+		selectFormas();
+		break;
 		case 'buscarClientesAlbaran':
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
@@ -618,6 +622,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					if (dedonde == "factura"){
 						if (resultado['Nitems']===1){
 						var datos = new Object();
+						datos.Numalbcli=0;
 						datos.Numpedcli=0;
 						datos.ccodbar=resultado['datos'][0]['codBarras'];
 						datos.cdetalle=resultado['datos'][0]['articulo_name'];
@@ -637,6 +642,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 						productos.push(datos);
 					
 						addFacturaTemp();
+						
 					 	AgregarFilaProductosAl(datos, dedonde);
 						}
 						else{
@@ -1614,6 +1620,7 @@ function addFacturaTemp(){
 			if (resultado.existe == 0){
 				history.pushState(null,'','?tActual='+resultado.id);
 				cabecera.idFacturaTemp=resultado.id;
+				selectFormas();
 			}
 				
 			$('#tipo4').html('');
@@ -1879,4 +1886,35 @@ function buscarDatosAlbaran(NumAlbaran){
 	console.log("Estoy en buscar datos albaran");
 	buscarAlbaran("factura", "numAlbaran", NumAlbaran);
 	cerrarPopUp();
+}
+function selectFormas(){
+	console.log("Esto en selectFormas");
+	var option = document.getElementById("formaVenci").value;
+	var fecha = document.getElementById("fechaVenci").value;
+	console.log(fecha);
+	
+
+	var parametros = {
+		"pulsado"    : 'ModificarFormasVencimiento',
+		"opcion" : option,
+		"fechaVenci": fecha,
+		"idFacTem":cabecera.idFacturaTemp
+	};
+	console.log("PARAMETROS");
+	console.log(parametros);
+	
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en escribir html fila pedidos JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de html fila pedidos');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+			
+		}
+	});	
 }

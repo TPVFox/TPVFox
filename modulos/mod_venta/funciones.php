@@ -616,14 +616,34 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 	return $respuesta;
 }
 
+function modificarArrayAlbaranes($albaranes, $BDTpv){
+	$respuesta=array();
+	foreach ($albaranes as $albaran){
+			$datosPedido=$BDTpv->query('SELECT * FROM albclit WHERE id= '.$albaran['idAlbaran'] );
+			while ($fila = $datosPedido->fetch_assoc()) {
+				$ped[] = $fila;
+			}
+			$res['Numalbcli']=$albaran['numPedido'];
+			$res['fecha']=$ped[0]['Fecha'];
+			//$res['idalbCli']=$ped[0]['idCliente'];
+			$res['total']=$ped[0]['total'];
+			array_push($respuesta,$res);
+		
+	}
+	return $respuesta;
+}
+
+
 function htmlFormasVenci($formaVenci, $BDTpv){
+	
 	$formasPago=new FormasPago($BDTpv);
-	$html="<select name='formaVenci'>";
+	$html="<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>";
+	
 	$principal=$formasPago->datosPrincipal($formaVenci);
 	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
 	$otras=$formasPago->formadePagoSinPrincipal($formaVenci);
 	foreach ($otras as $otra){
-		$html.='<option value "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
+		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
 	}
 	$html.='</select>';
 	
@@ -633,18 +653,38 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 	return $respuesta;
 }
 
-function htmlVencimiento($venci, $BDTpv){
+function htmlVencimiento($nuevafecha, $BDTpv){
 	$vencimiento=new TiposVencimientos($BDTpv);
-	$principal=$vencimiento->datosPrincipal($venci);
-	$dias=$principal['dias'];
-	$string="' +".$dias." day '";
-	$fecha = date('Y-m-j');
-    $nuevafecha = strtotime ( $string , strtotime ( $fecha ) ) ;
-    $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
-    $html='<input type="date" name="fechaVenci" id="fechaVenci" value='.$nuevafecha.' >';
-    $respuesta['html']=$html;
-    return $respuesta;
+	//~ if ($venci>0){
+		//~ $principal=$vencimiento->datosPrincipal($venci);
+		//~ $dias=$principal['dias'];
+		//~ $string=" +".$dias." day ";
+		//~ $fecha = date('Y-m-j');
+		//~ $nuevafecha = strtotime($fecha.$string);
+		//~ $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
+	//~ }else{
+		//~ $nuevafecha = date('Y-m-j');
+	//~ }
+		
+		$html='<input type="date" name="fechaVenci" id="fechaVenci" data-obj= "fechaVenci" onBlur="selectFormas()" value='.$nuevafecha.' >';
+		$respuesta['html']=$html;
+		return $respuesta;
     
+}
+function fechaVencimiento($fecha, $BDTpv){
+	if ($fecha>0){
+	$vencimiento=new TiposVencimientos($BDTpv);
+	$principal=$vencimiento->datosPrincipal($fecha);
+	$dias=$principal['dias'];
+	$string=" +".$dias." day ";
+	$fecha = date('Y-m-j');
+	$nuevafecha = strtotime($fecha.$string);
+	$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
+	}else{
+		 $nuevafecha = date('Y-m-j');
+	}
+	return $nuevafecha;
+	
 }
 
 ?>

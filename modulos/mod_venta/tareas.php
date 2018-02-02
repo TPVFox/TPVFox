@@ -275,8 +275,8 @@ switch ($pulsado) {
 			$idCliente=$_POST['idCliente'];
 			$existe=0;
 			if ($numFactura>0){
-				$factura=$CFac->buscarTemporalNumReal($numAlbaran);
-				$idFacturaTemp=$albaran['id'];
+				$factura=$CFac->buscarTemporalNumReal($numFactura);
+				$idFacturaTemp=$factura['id'];
 			}
 			if ($idFacturaTemp>0){
 				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idFacturaTemp, $productos);
@@ -428,22 +428,45 @@ switch ($pulsado) {
 		
 		case 'htmlFomasVenci':
 			$formasVenci=$_POST['formasVenci'];
-			if ($formasVenci){
+			if ($_POST['formasVenci']){
 				$formaPago=json_decode($formasVenci, true);
 				$forma=$formaPago['formapago'];
 				$venci=$formaPago['vencimiento'];
-				
 			}else{
 				$forma=0;
+				$venci=0;
 			}
+			
 			$for=htmlFormasVenci($forma, $BDTpv);
 			$respuesta['html1']=$for['html'];
+			$fun=fechaVencimiento($venci, $BDTpv);
+			$ven=htmlVencimiento($fun, $BDTpv);
 			
-			$ven=htmlVencimiento($venci, $BDTpv);
 			$respuesta['html2']=$ven['html'];
-			
+			$respuesta['fecha']=$fun;
 			$respuesta['formas']=$html['formas'];
+			
+			
 			echo json_encode($respuesta);
 		break;
+		
+		
+		case 'ModificarFormasVencimiento':
+		$opcion=$_POST['opcion'];
+		$fechaVenci=$_POST['fechaVenci'];
+		$idTemporal=$_POST['idFacTem'];
+		$formasVenci=array();
+		$formasVenci['forma']=$opcion;
+		$formasVenci['fechaVencimiento']=$fechaVenci;
+		
+		$json=json_encode($formasVenci);
+		
+		if ($idTemporal>0){
+			$modTemporal=$CFac->formasVencimientoTemporal($idTemporal, $json);
+		}
+		$respuesta=$json;
+		echo json_encode($modTemporal);
+		break;
+		
 		
 }
