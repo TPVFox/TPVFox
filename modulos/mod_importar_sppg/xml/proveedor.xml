@@ -80,14 +80,8 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 		<comprobaciones>
 			<comprobacion nombre="Mismo">
 				<options tipo="general">
-					<option tipo="Crear">
-						<texto>Crear Nuevo</texto>
-					</option>
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
-					</option>
-					<option tipo="Modificar">
-						<texto>Modificar Tpv con Importar</texto>
 					</option>
 				</options>
 				
@@ -104,6 +98,9 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 			</comprobacion>
 			<comprobacion nombre="Similar">
 				<options tipo="general">
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
 					</option>

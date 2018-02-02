@@ -75,8 +75,8 @@
 							 // para reallizar la busqueda del registro la tabla importar.
 	$datos_tablas['tablas']['importar'] = $tabla;
 	// Recuerda que en el Xml tabla debe tener algun campo como tipo= Unico para poder identificarlo correctamente
-	$parametros_importar = TpvXMLtablaImportar($parametros,$tabla); // Obtenemos parametros tabla
-	foreach ($parametros_importar->campos->children() as $campo){;
+	$p = TpvXMLtablaImportar($parametros,$tabla); // Obtenemos parametros tabla
+	foreach ($p->campos->children() as $campo){;
 		$n =(string) $campo['nombre'];
 		if (isset($campo->tipo)){
 			if ((string) $campo->tipo === 'Unico'){
@@ -87,12 +87,12 @@
 		$datos_tablas['acciones'][$n] = CamposAccionesImportar($campo); // Los campos (BDImport) y las acciones de la tabla
 	}
 	// ------ Obtenemos los parametross para inserta,modificar datos en tpv ----- //
-	$datos_tablas['tpv'] =TpvXMLtablaTpv($parametros_importar);
+	$datos_tablas['tpv'] =TpvXMLtablaTpv($p);
 	// --------- Obtenemos el nombre de las tablas que elementos tpv ------------ //
 	// Pueden ser varias....
 	$datos_tablas['tablas']['tpv'] = $Newparametros->Xpath('tpv/tabla/nombre','Valores');
 	// Ahora obtenemos comprobaciones a realizar.
-	$Newparametros->setRoot($parametros_importar); // // Cambio objeto XML que tengo por defecto ahora es parametros_importar.
+	$Newparametros->setRoot($p); // // Cambio objeto XML que tengo por defecto ahora es parametros_importar.
 	
 	// Montamos Array parametros de comprobaciones.
 	$datos_tablas['comprobaciones']['Mismo'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Mismo"]');
@@ -102,9 +102,6 @@
 	
 	
 // ||------------------------- Terminamos montar el array de $datos_tablas  ----------|| //
-	echo '<pre>';
-	print_r($datos_tablas);
-	echo '</pre>';
 	
 	
 // ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
@@ -145,12 +142,12 @@
 		$respuesta = BuscarIgualSimilar($BDTpv,$c,$registro);
 		// Añadimos array las repuestas.
 		$comprobaciones[$item]['resultado'] = $respuesta['comprobacion'];
-		$resultado_b = $comprobaciones[$item]['resultado']['encontrado_tipo'];
+		$e_tipo = $comprobaciones[$item]['resultado']['encontrado_tipo'];
 		// Montamos botonera de opciones generales con JS
 		$p = $datos_tablas['comprobaciones'];
-		$comprobaciones[$item]['opt_generales'] = MontarHtmlOpcionesGenerales($p,$resultado_b,$item);
-		if (isset($p[$resultado_b][0]->procesos->before->action)){
-			$X = $p[$resultado_b][0]->procesos->before->action; // funciones
+		$comprobaciones[$item]['opt_generales'] = MontarHtmlOpcionesGenerales($p,$e_tipo,$item);
+		if (isset($p[$e_tipo][0]->procesos->before->action)){
+			$X = $p[$e_tipo][0]->procesos->before->action; // funciones
 		} else {
 			$X = array(); // funciones
 		}
