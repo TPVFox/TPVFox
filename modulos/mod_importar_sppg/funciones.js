@@ -408,7 +408,7 @@ function controladorAcciones(caja,accion){
 		case 'InicioEjecutar':
 			accion_general =$('#accion_general_'+caja.fila).val();
 			var continuar = confirm("Vamos a "+accion_general);
-			console.log(accion_general);
+			console.log('Accion'+accion_general);
 			if (continuar == true) {
 				// Pulso Si.
 				if (accion_general === 'Descartar'){
@@ -416,7 +416,7 @@ function controladorAcciones(caja,accion){
 					$('#fila'+caja.fila).css("display", "none");
 					DescartarRegistroTratar(caja.fila);
 				}
-				if (accion_general === 'Nuevo'){
+				if (accion_general === 'Crear'){
 					$('#fila'+caja.fila).css("display", "none");
 					AnhadirRegistroTpv(caja.fila);
 				}

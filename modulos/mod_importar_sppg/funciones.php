@@ -342,7 +342,7 @@ function obtenerUnRegistro($BD,$consulta) {
 		return $array;
 	}
 	
-function VariosRegistros($BD,$consulta) {
+function VariosRegistros($BD,$consulta,$a_buscar,$campo) {
 		/* Objetivo:
 		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.
 		 * */
@@ -350,12 +350,20 @@ function VariosRegistros($BD,$consulta) {
 		$array = array();
 		$array['NItems'] = 0 ; // valor por defecto.	
 		$resultadoConsulta = $BD->query($consulta);
+		$cont = 0;
 		if ($BD->query($consulta)) {
-			$array['NItems'] = $resultadoConsulta->num_rows;
+			$array['NItems'] = $resultadoConsulta->num_rows; //No vale ya podemos descarta alguno.
 			if ($array['NItems'] > 0){
 				// Hubo resultados
 				while ($fila = $resultadoConsulta->fetch_assoc()){
-					$array['Items'][] = $fila;
+					$respuesta = '';
+					// Solo metemos aquellos que cumplan condicion
+					$respuesta =DescartarRegistroPalabras($a_buscar,$fila,$campo);
+					//~ error_log('fila:'.json_encode($fila).'buscar:'.$a_buscar.' campo:'.$campo.'Respuesta:'.$respuesta);
+					if ($respuesta ==='Si'){
+						$array['Items'][] = $fila;
+						$cont ++;
+					}
 				}
 			}
 
@@ -364,7 +372,7 @@ function VariosRegistros($BD,$consulta) {
 			$array['consulta'] = $consulta;
 			$array['error'] = $BD->error;
 		}
-		
+		 $array['NItems'] = $cont;
 		//~ $array['sql']=$consulta;
 		return $array;
 	}
@@ -373,11 +381,12 @@ function VariosRegistros($BD,$consulta) {
 	
 	
 function BuscarIgualSimilar($BDTpv,$campos,$registro){
-	// Objetivo devolver comprobacion si existe igual o similares.
+	// Objetivo devolver comprobacion si existe igual o similares ( con lo registros obtenidos).
 	$respuesta = array();
 	foreach ($campos as $key=>$datos){
-			$campo = $key;
-			// Ahora recorremos las acciones queremos que haga - si hay claro.
+		// Recorremos los campos que tenemos en parametros de cada tabla xml.
+		$campo = $key;
+		// Ahora recorremos las acciones queremos que haga - si hay claro.
 		if (isset($datos['acciones_buscar'])){
 			foreach ($datos['acciones_buscar'] as $num_accion=>$accion){
 				if ($accion['funcion'] === 'mismo'){
@@ -400,40 +409,23 @@ function BuscarIgualSimilar($BDTpv,$campos,$registro){
 							// uno  igual.
 							break 2;
 						} 
-						
-						
 					}
 				} 
 				//Si encontro alguno ya no llega aquí
 				if ($accion['funcion']=== 'comparar'){
 					// Ejecutamos funcion de comparar
 					if(isset($registro[$campo])){
-						// Obtenemos tabla... debería comprobar si es o no tabla o si existe.
+						// Obtenemos where de la tabla, de las palabras indicadas.
 						$tabla = $accion['tabla_cruce'];
-						// Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
-						$buscar = array(',',';','(',')','-');
-						$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ');
-						$string  = str_replace($buscar, $sustituir, trim($registro[$campo]));
-						
-						$palabras = explode(' ',$string);
-						$likes = array();
-						// La palabras queremos descartar , la ponemos en mayusculas
-						$descartar = array('PARA','COMO','CUAL');
-						foreach($palabras as $palabra){
-							if (trim($palabra) !== '' && strlen(trim($palabra))>3){
-								// Entra si la palabra tiene mas 3 caracteres.
-								// Aplicamos filtro de palabras descartadas
-								if (!in_array(strtoupper($palabra),$descartar)){
-									$likes[] =  $accion['campo_cruce'].' LIKE "%'.$palabra.'%" ';
-								}
-							}
-						}
-						// De momento pogo OR, pero creo que tendríamos que poner parametros de cada fichero lo queremos.
-						$busqueda = implode(' OR ',$likes);
+						$nombre_campo = $accion['campo_cruce'];
+						$a_buscar = $registro[$campo];
+						// OR ó AND son los posibles operadores.
+						$busqueda = ConstructorLike($nombre_campo,$a_buscar,'OR');
 						$whereC =' WHERE '.$busqueda;
-						//~ echo '<br/>'.$item.'----> '.$whereC.'<br/>';
 						$consulta = "SELECT * FROM ". $tabla.' '.$whereC;
-						$Registros= VariosRegistros($BDTpv,$consulta);
+						$Registros= VariosRegistros($BDTpv,$consulta,$a_buscar,$nombre_campo);
+						$respuesta['tpv'] = $Registros;
+
 						if ($Registros['NItems'] >0){
 							$respuesta['tpv'] = $Registros;
 							$respuesta['comprobacion']['encontrado_tipo'] = 'Similar';
@@ -441,7 +433,6 @@ function BuscarIgualSimilar($BDTpv,$campos,$registro){
 						// Ahora registramos lo que hicimos
 						// Montamos Accion para saber resultado ->CAMPO+Num_Accion+funcion+Descripcion
 						$respuesta['comprobacion'][$campo][$num_accion]['accion'] = $accion['funcion'].' -> '.$accion['description'];
-						
 						$respuesta['comprobacion'][$campo][$num_accion]['consulta'] = $consulta;
 						$respuesta['comprobacion'][$campo][$num_accion]['respuesta'] = $Registros;
 						
@@ -646,5 +637,71 @@ function FamiliaIdInsert($BDImportDbf,$BDTpv,$datos,$idvalor){
 	return $respuesta;
 }
 
+
+function ConstructorLike($campo,$a_buscar,$operador='AND'){
+	// @ Objetivo:
+	// Construir un where con like de palabras y el campo indicado
+	// Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
+	// @ Parametros:
+	// 	$operador -> (String) puede ser OR o AND.. no mas...
+	$buscar = array(',',';','(',')','-');
+	$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ');
+	$string  = str_replace($buscar, $sustituir, trim($a_buscar));
+	$palabras = explode(' ',$string);
+	$likes = array();
+	// La palabras queremos descartar , la ponemos en mayusculas
+	$descartar = array('PARA','COMO','CUAL');
+	foreach($palabras as $palabra){
+		if (trim($palabra) !== '' && strlen(trim($palabra))>3){
+			// Entra si la palabra tiene mas 3 caracteres.
+			// Aplicamos filtro de palabras descartadas
+			if (!in_array(strtoupper($palabra),$descartar)){
+				$likes[] =  $campo.' LIKE "%'.$palabra.'%" ';
+			}
+		}
+	}
+	// Montamos busqueda con el operador indicado o el por defecto
+	$operador = ' '.$operador.' ';
+	$busqueda = implode($operador,$likes);
+	return $busqueda;
+}
+function DescartarRegistroPalabras($a_buscar,$registro,$campo){
+	// Objetivo:
+	// Comprobar que el resultado contiene mas de la mitad de la palabras.
+	$respuesta = 'SinComprobar:';
+	$buscar = array('.',',',';','(',')','-');
+	$sustituir = array(' . ',' , ',' ; ',' ( ',' ) ',' - ');
+	$string  = str_replace($buscar, $sustituir, trim($a_buscar));
+	$palabras = explode(' ',$string);
+	$likes = array();
+	// La palabras queremos descartar , la ponemos en mayusculas
+		$cont_palabras= 0;
+		$contador_aciertos = 0;
+		foreach($palabras as $palabra){
+			if (trim($palabra) !== '' && strlen(trim($palabra))>3){
+				$respuesta .= $palabra.'--';
+				$cont_palabras ++;
+				// Entra si la palabra tiene mas 3 caracteres.
+				// Aplicamos filtro de palabras descartadas
+				$pos =stripos($registro[$campo],$palabra); 
+				$respuesta .= $pos.'->';	
+				if ($pos !== FALSE){
+					$contador_aciertos++;
+				}
+			}
+		}
+		// Ahora comprobamos si la division entre palabras y aciertos es mayor 2 quiere decir que es mas 50%
+		
+		if ($cont_palabras >0 && $contador_aciertos>0){
+			if (($cont_palabras/$contador_aciertos)<=2){
+				// Indicamos que el registro coincide en mas 50% de las palabras que enviamos.
+				$respuesta = 'Si';
+			} else {
+				$respuesta = 'No'.$cont_palabras.'/'.$contador_aciertos;
+			}
+		}
+		//~ $respuesta .=' contador palabras:'.$cont_palabras.' aciertos :'.$contador_aciertos;
+	return $respuesta;
+}
 
 ?>

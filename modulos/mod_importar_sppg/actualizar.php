@@ -7,8 +7,7 @@
  * @Descripcion	Importar ficheros de DBF
  *  */
 		// Objetivo de esta aplicacion es:
-		//	- Copiar DBF y guardar en directorio de copias de seguridad.
-		// 	- Importar los datos copiados a MYSQL.
+		//	- Comparar los datos de DBF y realizar las acciones que le indicamos Xml de cada tabla
 
 ?>
 <!DOCTYPE html>
@@ -60,64 +59,61 @@
 	include './../../header.php';
 	include_once ("./funciones.php");
 
-// ---------------  Montamos array campos que obtenemos XML parametros   ------------- //
-	$campos = array();
+
+// ||-------------------------------- Obtenemos  los arrays de Xml ----------------------------------------------||	// 
+//				1.- datos_tablas:  Obtenemos datos parametros y montamos array 								 		//
+// 					Ejemplo estructura:																				//
+//					Array(																							//
+// 						tablas = array(...)	Nombres tablas implicadas en importacion y tpv.							//
+//						importar = array(...)																		//
+//						tpv = array(...)																			//
+// 						acciones = array (...)	Campos y acciones de BDFImportar									//
+// 						comprobaciones = array (...)																//
+// Esto debería se un objecto en el cual se controlara que obtenemos correctamente los datos.						//
+// ||------------------------------------------------------------------------------------------------------------||	//
 	$datos_tablas = array(); // Un array sencillo donde tenemos los campos los que podemos generar variables JS
 							 // para reallizar la busqueda del registro la tabla importar.
 	$datos_tablas['tablas']['importar'] = $tabla;
-	
-	
-	//~ echo '<pre>';
-	//~ print_r($parametros->tablas->tabla);
-	//~ echo '</pre>';
-	$parametros_importar = TpvXMLtablaImportar($parametros,$tabla);
-	$objConsultas = $Newparametros->setRoot($parametros_importar);
-	//~ echo '<pre>';
-	//~ print_r($parametros);
-	//~ echo '</pre>';
-	// Montamos Array parametros de comprobaciones.
-	$parametros__comprobaciones = array();
-	$parametros_comprobaciones['Mismo'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Mismo"]');
-	$parametros_comprobaciones['Similar'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Similar"]');
-	$parametros_comprobaciones['NoEncontrado'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="NoEncontrado"]');
-
-	//~ $parametros_comprobaciones['Mismo'] = $Xml_comprobaciones
-	
-// -------- Obtenemos los campos de la tabla importar ----------- //
-// Recuerda que en el Xml tabla debe tener algun campo como tipo= Unico para poder identificarlo correctamente
-	$campos = array();
+	// Recuerda que en el Xml tabla debe tener algun campo como tipo= Unico para poder identificarlo correctamente
+	$parametros_importar = TpvXMLtablaImportar($parametros,$tabla); // Obtenemos parametros tabla
 	foreach ($parametros_importar->campos->children() as $campo){;
-		$nombre_campo =(string) $campo['nombre'];
+		$n =(string) $campo['nombre'];
 		if (isset($campo->tipo)){
 			if ((string) $campo->tipo === 'Unico'){
-				$datos_tablas['importar']['campos'][]=$nombre_campo;
+				$datos_tablas['importar']['campos'][]=$n;
 			}
 		}
 		// Creamos array campos que utilizamos para BuscarIgualSimilar
-		$campos[$nombre_campo] = CamposAccionesImportar($campo);
+		$datos_tablas['acciones'][$n] = CamposAccionesImportar($campo); // Los campos (BDImport) y las acciones de la tabla
 	}
-	//~ echo '<pre>';
-		//~ print_r($campos);
-	//~ echo '</pre>';
-// --------- Obtenemos los parametross tpv que para inserta,modificar datos en tpv --------- //
-
-	$parametros_tpv = TpvXMLtablaTpv($parametros_importar);
-	$datos_tablas['tpv'] =$parametros_tpv['tpv'];
-// -----------  Obtenemos el nombre de las tablas que tenemos en elemento tpv ------------ //
-// Pueden ser varias....
+	// ------ Obtenemos los parametross para inserta,modificar datos en tpv ----- //
+	$datos_tablas['tpv'] =TpvXMLtablaTpv($parametros_importar);
+	// --------- Obtenemos el nombre de las tablas que elementos tpv ------------ //
+	// Pueden ser varias....
 	$datos_tablas['tablas']['tpv'] = $Newparametros->Xpath('tpv/tabla/nombre','Valores');
-
-	//~ echo '<pre>';
-		//~ print_r($datos_tablas['tpv']);
-	//~ echo '</pre>';
-
+	// Ahora obtenemos comprobaciones a realizar.
+	$Newparametros->setRoot($parametros_importar); // // Cambio objeto XML que tengo por defecto ahora es parametros_importar.
+	
+	// Montamos Array parametros de comprobaciones.
+	$datos_tablas['comprobaciones']['Mismo'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Mismo"]');
+	$datos_tablas['comprobaciones']['Similar'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Similar"]');
+	$datos_tablas['comprobaciones']['NoEncontrado'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="NoEncontrado"]');
+	
+	
+	
+// ||------------------------- Terminamos montar el array de $datos_tablas  ----------|| //
+	echo '<pre>';
+	print_r($datos_tablas);
+	echo '</pre>';
+	
+	
 // ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
 	$tiposRegistros = array();
 	foreach ($parametros->configuracion->tipos_registros as $tipos){
 		foreach ($tipos as $tipo){
-			$clase = (string) $tipo['clase'];
-			$tiposRegistros[$clase]['texto']= (string) $tipo->texto;
-			$tiposRegistros[$clase]['consulta']= (string) $tipo->consulta;
+			$c = (string) $tipo['clase'];
+			$tiposRegistros[$c]['texto']= (string) $tipo->texto;
+			$tiposRegistros[$c]['consulta']= (string) $tipo->consulta;
 		}
 	}
 	
@@ -138,31 +134,29 @@
 			$Registros_sin['importar'] = $resultado['Items'];
 		}
 	}
-// ---  Obtenemos los parametros de comprobaciones de cada fichero --- //
 	
 // ---  Realizamos comprobaciones y montamos parametros para cada registro.  -------------- //
 	$registros_tpv = array();
-	
-	//~ echo '<pre>';
-	//~ print_r($parametros_comprobaciones['Mismo'][0]->procesos->before->action);
-	//~ echo '</pre>';
-		
+			
 	$comprobaciones = array();
 	foreach ($Registros_sin['importar'] as $item=>$registro){
 		// Comprobamos si los registros sin tratar existe ( mismo) o similar en tpv. --- //
-		$respuesta = BuscarIgualSimilar($BDTpv,$campos,$registro);
+		$c = $datos_tablas['acciones'];
+		$respuesta = BuscarIgualSimilar($BDTpv,$c,$registro);
 		// Añadimos array las repuestas.
 		$comprobaciones[$item]['resultado'] = $respuesta['comprobacion'];
 		$resultado_b = $comprobaciones[$item]['resultado']['encontrado_tipo'];
 		// Montamos botonera de opciones generales con JS
-		$comprobaciones[$item]['opt_generales'] = MontarHtmlOpcionesGenerales($parametros_comprobaciones,$resultado_b,$item);
-		if (isset($parametros_comprobaciones[$resultado_b][0]->procesos->before->action)){
-			$Xmlfunciones = $parametros_comprobaciones[$resultado_b][0]->procesos->before->action;
+		$p = $datos_tablas['comprobaciones'];
+		$comprobaciones[$item]['opt_generales'] = MontarHtmlOpcionesGenerales($p,$resultado_b,$item);
+		if (isset($p[$resultado_b][0]->procesos->before->action)){
+			$X = $p[$resultado_b][0]->procesos->before->action; // funciones
 		} else {
-			$Xmlfunciones = array();
+			$X = array(); // funciones
 		}
-		if (count($Xmlfunciones)){
-			$comprobaciones[$item]['proceso_before'] = BeforeProcesosOpcionesGeneralesComprobaciones($Xmlfunciones,$item);
+		if (count($X)){
+			// Obtenermos funciones antes (before)
+			$comprobaciones[$item]['proceso_before'] = BeforeProcesosOpcionesGeneralesComprobaciones($X,$item);
 		}
 		if (isset($respuesta['tpv'])){
 			//Quiere decir que encontro uno igual o similares
@@ -189,10 +183,10 @@
 			}
 		}
 		// Montamos Variables JS para cada Item
-		$datos = array();
+		$d = array();
 		foreach ($datos_tablas['importar']['campos'] as $campo){
 			if (isset($registro[$campo])){ 
-				$datos['importar'][] = array ( $campo =>$registro[$campo]);
+				$d['importar'][] = array ( $campo =>$registro[$campo]);
 			}
 		}
 		if (isset($datos_tablas['tpv']['campos'])){
@@ -201,12 +195,12 @@
 					// Quiere decir que hemos encontrado datos..
 					// Si Nitems encontrado es uno.
 					if ($registros_tpv[$item]['NItems'] === 1){ 
-						$datos['tpv'][] = array ( $campo =>$registros_tpv[$item]['Items'][0][$campo]);
+						$d['tpv'][] = array ( $campo =>$registros_tpv[$item]['Items'][0][$campo]);
 					}
 				}
 			}
 		}
-		$comprobaciones[$item]['JS'] = $datos;
+		$comprobaciones[$item]['JS'] = $d;
 		
 		
 	}
@@ -226,7 +220,7 @@
 		<p><strong>Resumen el estado actual BDImportar</strong></p>
 	<p>
 	<?php
-	// Mostramos resumen en etiquetas
+	// Mostramos resumen registros encontrado segun su estado.
 	foreach ($tiposRegistros as  $key => $tipo){
 		echo ' <span class="label label-default">'.$tipo['texto'].' registros:'.$tipo['Num_items'].'</span> ';
 		
@@ -276,9 +270,12 @@
 				<?php 	
 					if (isset($registros_tpv[$item])){
 						echo 'Numero Items encontrados:'.$registros_tpv[$item]['NItems'];
-						echo '<pre>';
-						print_r($registros_tpv[$item]['Items']);
-						echo '</pre>';
+						// Ahora mostramos los items si los hay
+						if ($registros_tpv[$item]['NItems'] >0 ){
+							echo '<pre>';
+							print_r($registros_tpv[$item]['Items']);
+							echo '</pre>';
+						}
 					}
 				?>
 				

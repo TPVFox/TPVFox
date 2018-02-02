@@ -81,7 +81,7 @@ $parametros = $Newparametros->getRoot();
 		$datos 		= $_POST['datos'];
 		$tabla 		= $_POST['tabla'];
 		$idvalor 	= $_POST['idValor'];
-		$respuesta = FamiliaIdInsert($BDImportDbf,$datos,$idvalor);
+		$respuesta = FamiliaIdInsert($BDImportDbf,$BDTpv,$datos,$idvalor);
 		echo json_encode($respuesta);
 		break;
 		

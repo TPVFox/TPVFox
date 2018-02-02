@@ -114,9 +114,9 @@
 			exit();
 		}
 	}
-	echo '<pre>';
-	print_r($registro_ultimo_importar);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($registro_ultimo_importar);
+	//~ echo '</pre>';
 	
 	
 	// [ANTES CARGAR FUNCIONES JS]
@@ -229,9 +229,9 @@
 	<input class="form-control" size="100%" type="text" id ="directorioRuta" name="directorioRuta" disabled value="'.$ListaTiendas[0]['ruta'].'"></div>';
 	// Ahora creamos array JS con las rutas :
 	
-	echo '<pre>';
-	print_r($ListaTiendas);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($ListaTiendas);
+	//~ echo '</pre>';
 	echo '<script type="application/javascript"> '
 		. 'var empresa = '. json_encode($ListaTiendas);
 	
