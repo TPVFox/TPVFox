@@ -381,6 +381,14 @@
 				<action tecla="13">selectFormas</action>	
 			</teclas>
 		</caja_input>
+		
+		
+		<caja_input>
+			<nombre id_input="Eimporte">cajaEimporte</nombre>
+			<teclas>
+				<action tecla="13">insertarImporte</action>	
+			</teclas>
+		</caja_input>
 	
 		
 	</cajas_input>

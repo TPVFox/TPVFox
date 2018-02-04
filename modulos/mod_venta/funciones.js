@@ -246,87 +246,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				
 				
 			}
-			//~ if (dedonde=="albaran"){
-				//~ if (resultado.Nitems==1){
-					//~ //Se registra en la cabecera tanto el id del clinete como el nombre
-					//~ cabecera.idCliente=resultado.idCliente;
-					//~ cabecera.nombreCliente=resultado.nombre;
-					//~ //Los imput de cliente quedan desactivados y se oculta el botón de buscar
-					//~ $('#ClienteAl').val(resultado.nombre);
-					//~ $('#ClienteAl').prop('disabled', true);
-					//~ $('#id_clienteAl').prop('disabled', true);
-					//~ $("#buscar").css("display", "none");
-					//~ //Mostrar fila muestra los nombre del cliente en los input
-					//~ mostrarFila();
-					//~ //Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
-					//~ comprobarPedidosExis();
-				//~ }
-				//~ //Si el archivo de donde viene es de pedidos 
-			//~ }else if (dedonde="pedidos"){
-				//~ var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-				//~ if (valor==""){ //Si el valor viene vacio quiere decir que la persona pulsó el icono de buscar
-					//~ var titulo = 'Listado clientes ';
-					//~ abrirModal(titulo,HtmlClientes);
-					//~ // Asignamos focus a caja buscar cliente.
-					//~ if (encontrados >0 ){
-						//~ // Enfocamos el primer item.
-						//~ mover_down(0);
-						//~ $('#N_0').focus();
-					//~ }else {
-						//~ // No hay datos focus a caja buscar cliente.
-						//~ $('#cajaBusquedacliente').focus();
-					//~ }
-				//~ }else if(idcaja==="Cliente"){// Si el cliente escribio en el input del nombre de cliente 
-					//~ console.log('entre en cliente');
-					//~ console.log(resultado);
-					//~ var titulo = 'Listado clientes '; //Muestra los resultados de la consulta en una ventana modal
-					//~ abrirModal(titulo,HtmlClientes);
-					//~ if (encontrados >0 ){
-						//~ // Enfocamos el primer item.
-						//~ mover_down(0);
-						//~ $('#N_0').focus();
-					//~ }else {
-						//~ // No hay datos focus a caja buscar cliente.
-						//~ $('#cajaBusquedacliente').focus();
-					//~ }
-				//~ }else if(idcaja==="cajaBusquedacliente"){ // si la consulta viene de la caja input del modal
-					//~ console.log('entre en caja buqueda');
-					//~ console.log(resultado);
-					//~ var titulo = 'Listado clientes ';
-					//~ abrirModal(titulo,HtmlClientes);
-					//~ if (encontrados >0 ){
-						//~ // Enfocamos el primer item.
-						//~ mover_down(0);
-						//~ $('#N_0').focus();
-					//~ }else {
-						//~ // No hay datos focus a caja buscar cliente.
-						//~ $('#cajaBusquedacliente').focus();
-					//~ }
-				//~ }else{ //  Si recibión un id se escribe el nombre en el input , en la cabecera se guarda el id 
-				//~ // y la función de mostrar fila cubre los campos de cliente
-					//~ console.log('no muestro modal');
-					//~ $('#Cliente').val(resultado.nombre);
-					//~ console.log(resultado.idCliente);
-						//~ cabecera.idCliente=resultado.idCliente;
-						//~ mostrarFila();
-				//~ }
-			//~ }else if (dedonde = "factura"){
-				//~ console.log("entre en facturas");
-				//~ if (resultado.Nitems==1){
-					//~ //Se registra en la cabecera tanto el id del clinete como el nombre
-					//~ cabecera.idCliente=resultado.idCliente;
-					//~ cabecera.nombreCliente=resultado.nombre;
-					//~ //Los imput de cliente quedan desactivados y se oculta el botón de buscar
-					//~ $('#ClienteFac').val(resultado.nombre);
-					//~ $('#ClienteFac').prop('disabled', true);
-					//~ $('#id_clienteFac').prop('disabled', true);
-					//~ $("#buscar").css("display", "none");
-					//~ //Mostrar fila muestra los nombre del cliente en los input
-					//~ mostrarFila();
-					//~ //Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
-					//~ //comprobarPedidosExis();
-				//~ }
-			//}
 		}
 	});
 }
@@ -529,9 +448,49 @@ function controladorAcciones(caja,accion){
 		buscarProductosAl(caja.name_cja,caja.darParametro('campo'),caja.id_input , caja.darValor(),caja.darParametro('dedonde'));
 
 		break;
+		
+		case 'insertarImporte':
+		console.log("Entre en insertarImporte de factura");
+		insertarImporte();
+		break;
 		default :
 			console.log ( 'Accion no encontrada '+ accion);
 	} 
+}
+
+function insertarImporte(valor){
+var importe= document.getElementById("Eimporte").value;
+var fecha=document.getElementById("Efecha").value;
+var parametros = {
+		"pulsado"    : 'insertarImporte',
+		"importe" : importe,
+		"fecha"      : fecha,
+		"idFactura": cabecera.idFactura
+	};
+	
+	
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Modificando los importes de la factura  ****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta de la modificación de los importes');
+			var resultado =  $.parseJSON(response);
+			console.log(resultado);
+			if (resultado.mensaje==1){
+				alert("El importe introducido no es correcto");
+				
+			}else{
+				$("#tablaImporte").prepend(resultado.html);
+			}
+			
+		}
+	});
+	
+	
 }
 function ponerFocus (destino_focus){
 	// @ Objetivo:
@@ -906,92 +865,6 @@ function agregarFila(datos,campo=''){
 
 	
 };
- 
-//~ function grabarPedidoTemporal(){
-	//~ // @ Objetivo
-	//~ // Grabar cabeceras y productos, amabas variables globales en tabla de ticket temporal.
-	//~ console.log('Grabamos en BD');
-	//~ var i  =0;
-	//~ console.log('Productos');
-	//~ console.log(productos);
-	//~ // Para poder mandar objectos de productos ...
-	//~ var parametros = {
-		//~ "pulsado"    	: 'grabarPedidos',
-		//~ "productos"	 	: productos,//
-		//~ "idCliente"	 	: cabecera.idCliente,
-		//~ "idTienda" 	 	: cabecera.idTienda,
-		//~ "idUsuario"	 	: cabecera.idUsuario,
-		//~ "estadoTicket" 	: cabecera.estadoTicket,
-		//~ "numTicket"		: cabecera.numTicket,
-	//~ };
-	//~ $.ajax({
-		//~ data       : parametros,
-		//~ url        : 'tareas.php',
-		//~ type       : 'post',
-		//~ beforeSend : function () {
-			//~ console.log('******** Voy a grabar****************');
-		//~ },
-		//~ success    :  function (response) {
-			//~ console.log('Respuesta de grabar');
-			//console.log(response);
-			//~ var resultado =  $.parseJSON(response); 
-			//~ console.log(resultado.estadoTicket);
-			//~ // Cambiamos el estado :
-			//~ cabecera.estadoTicket = resultado.estadoTicket;
-			//~ cabecera.numTicket = resultado.NumeroTicket;
-			//~ $('#EstadoTicket').html(resultado.estadoTicket);			
-			//~ $('#EstadoTicket').css('background-color','red')
-			//~ $('#EstadoTicket').css('color','white')
-			//~ $('#NTicket').html('0/'+resultado.NumeroTicket);
-			
-			//~ console.log(productos.length);
-				
-			//~ //objetivo cuando esta en ticket actual , 
-			//~ //en el navegador ponga ?tActual para que no afecte F5 SIN RECARGAR pagina
-			//~ if (productos.length ===1 ){ 
-				//~ history.pushState(null,'','?tActual='+resultado.NumeroTicket);
-			//~ }
-			//~ // Limpiamos los valores ivas y bases.
-			//~ $('#tipo4').html('');
-			//~ $('#tipo10').html('');
-			//~ $('#tipo21').html('');
-			//~ $('#base4').html('');
-			//~ $('#base10').html('');
-			//~ $('#base21').html('');
-			//~ $('#iva4').html('');
-			//~ $('#iva10').html('');
-			//~ $('#iva21').html('');
-			//~ $('.totalImporte').html('');
-			
-			//~ // Ahora pintamos pie de ticket.
-			//~ if (resultado.total > 0 ){
-				//~ // Quiere decir que hay datos a mostrar en pie.
-				//~ total = parseFloat(resultado.total) // varible global.
-				//~ $('.totalImporte').html(total.toFixed(2));
-				//~ // Ahora tengo que pintar los ivas.
-				//~ var desgloseIvas = [];
-				//~ desgloseIvas.push(resultado.desglose);
-				//~ console.log(desgloseIvas);
-				//~ // Ahora recorremos array desglose
-				//~ desgloseIvas.forEach(function(desglose){
-					//~ console.log('Entro foreah');
-					//~ // mostramos los tipos ivas , bases y importes.
-					//~ var tipos = Object.keys(desglose);
-					//~ console.log(desglose);
-					//~ for (index in tipos){
-						//~ var tipo = tipos[index];
-						//~ $('#line'+parseInt(tipo)).css('display','');
-						//~ $('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-						//~ $('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-						//~ $('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
-					//~ }
-				//~ });
-				
-			//~ }
-			
-		//~ }
-	//~ });
-//~ }
 
 
 function escribirClienteSeleccionado(id, nombre ,dedonde=''){
@@ -1663,14 +1536,37 @@ function addFacturaTemp(){
 				});
 				
 			}
+			if (cabecera.idFactura>0){
+				var estado="Sin guardar";
+				modificarEstadoFactura(cabecera.idFactura, estado);
+			}
 			
 			
 		}
 	});
 }
+// Modificar el estado de la factura para controlar que tiene temporales
 
-
-
+function modificarEstadoFactura(idFactura, estado){
+	var parametros = {
+			"pulsado": 'modificarEstadoFactura',
+			"idFactura":idFactura,
+			"estado":estado
+		};
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en Modificar estado factura js****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de estado pedido js');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+		}
+	});
+}
 
 
 //Modifica el estado de un pedido, dependiendo de donde venga la función carga unos parametro u otros

@@ -181,12 +181,19 @@ class FacturasVentas{
 		return $resultado;
 	}
 	
+	public function modificarEstado($idFactura, $estado){
+		$db=$this->db;
+		$smt=$db->query('UPDATE facclit set estado="'.$estado .'" where id='.$idFactura);
+		$sql='UPDATE facclit set estado='.$estado .' where id='.$idFactura;
+		return $sql;
+	}
+	
 	public function eliminarFacturasTablas($idFactura){
 		$db=$this->db;
-		$smt=$db->query('DELETE FROM  facclit where id='.$idAlbaran );
-		$smt=$db->query('DELETE FROM  facclilinea where idfaccli ='.$idAlbaran );
-		$smt=$db->query('DELETE FROM faccliIva where idfaccli ='.$idAlbaran );
-		$smt=$db->query('DELETE FROM albfaccli where idFactura  ='.$idAlbaran );
+		$smt=$db->query('DELETE FROM  facclit where id='.$idFactura );
+		$smt=$db->query('DELETE FROM  facclilinea where idfaccli ='.$idFactura );
+		$smt=$db->query('DELETE FROM faccliIva where idfaccli ='.$idFactura );
+		$smt=$db->query('DELETE FROM albfaccli where idFactura  ='.$idFactura );
 		
 	}
 	
@@ -232,6 +239,7 @@ class FacturasVentas{
 			}
 		}
 		$albaranes = json_decode($datos['albaranes'], true); 
+		if ($albaranes){
 		foreach ($albaranes as $albaran){
 			if($idFactura>0){
 				$smt=$db->query('INSERT INTO albfaccli (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')');
@@ -240,6 +248,7 @@ class FacturasVentas{
 				$smt=$db->query('INSERT INTO albfaccli (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')');
 				$resultado='INSERT INTO albfaccli (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')';
 				}
+		}
 		}
 		return $resultado;
 	}
@@ -257,6 +266,22 @@ class FacturasVentas{
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal);
 		$sql='UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal;
+		return $sql;
+	}
+	
+	public function importesFacturaDatos($idFactura){
+		$db=$this->db;
+		$smt=$db->query ('SELECT total , entregado, importes FROM facclit where id='.$idFactura );
+			if ($result = $smt->fetch_assoc () ){
+			$factura=$result;
+		}
+		return $factura;
+	}
+	
+	public function modificarImportesFactura($idFactura, $jsonImporte, $entregado, $estado){
+		$db=$this->db;
+		$smt=$db->query('UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura);
+		$sql='UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura;
 		return $sql;
 	}
 	

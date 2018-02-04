@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html>
 <head>
 <?php
@@ -168,22 +168,23 @@ include './../../head.php';
 			'formapago'=>$formaVenci,
 			'fechaVencimiento'=>$_POST['fechaVenci']
 			);
-	
+	echo '<pre>';
+	print_r($datos);
+	echo '</pre>';
 			if($datosFactura['numfaccli']>0){
 				$idFactura=$datosFactura['numfaccli'];
-			echo $idFactura;
+		
 				$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 				
 			 }else{
 				$idFactura=0;
-			
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
 		
-		header('Location: facturasListado.php');
+	header('Location: facturasListado.php');
 			
 		}
 		if (isset($_POST['Cancelar'])){
@@ -322,7 +323,7 @@ if (isset($_GET['tActual'])){
 			}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./facturasListado.php">Volver Atrás</a>
+			<a  href="./facturasListado.php">Volver AtrÃ¡s</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<input type="submit" value="Guardar" name="Guardar">
 					<input type="submit" value="Cancelar" name="Cancelar">
@@ -363,13 +364,13 @@ if (isset($_GET['tActual'])){
 	
 		<div>
 			<div style="margin-top:-50px;">
-			<label style="<?php echo $stylea;?>" id="numAlbaranT">Número del albaran:</label>
+			<label style="<?php echo $stylea;?>" id="numAlbaranT">NÃºmero del albaran:</label>
 			<input style="<?php echo $stylea;?>" type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
 			<a style="<?php echo $stylea;?>" id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>
 			<table  class="col-md-12" style="<?php echo $stylea;?>" id="tablaAlbaran"> 
 				<thead>
 				
-				<td><b>Número</b></td>
+				<td><b>NÃºmero</b></td>
 				<td><b>Fecha</b></td>
 				<td><b>Total</b></td>
 				
@@ -414,9 +415,6 @@ if (isset($_GET['tActual'])){
 		</thead>
 		<tbody>
 			<?php 
-			//~ echo '<pre>';
-			//~ print_r($productos);
-			//~ echo '</pre>';
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedidoAlbaran($producto, "factura");
@@ -523,19 +521,7 @@ if (isset($_GET['tActual'])){
 					<strong>Forma de pago:</strong><br>
 					<p id="formaspago">
 					<?php 
-					//if ($_GET['id']|| $_GET['tActual']){
-					//~ if ($formasVenci){
-						//~ $formaPago=json_decode($formasVenci, true);
-						//~ $forma=$formaPago['formapago'];
-						//~ $venci=$formaPago['vencimiento'];
-						
-					//~ }else{
-						//~ $forma=0;
-						//~ $venci=0;
-					//~ }
-					//$for=htmlFormasVenci($forma, $BDTpv);
 					echo $textoFormaPago['html'];
-				//}
 					?>
 					</p>
 			</div>
@@ -543,14 +529,32 @@ if (isset($_GET['tActual'])){
 					<strong>Fecha vencimiento:</strong><br>
 					<p id="fechaVencimiento">
 						<?php
-						
-							//$textoFecha=htmlVencimiento($venci, $BDTpv);
 							echo $textoFecha['html'];
-					
-					
 					?>
+					
 						</p>
 			</div>
+		</div>
+		<div class ="col-md-6">
+			<h3 style="<?php echo $Simporte;?>">Entregas</h3>
+			<table  id="tablaImporte" class="table table-striped">
+			<thead>
+			<tr>
+			<td>Importe</td>
+			<td>Fecha</td>
+			<td>Pendiente</td>
+			</tr>
+			</thead>
+			<tbody>
+			 <tr id="fila0" style=<?php echo $Simporte;?>>  
+				<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
+				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha" value=""  onkeydown="controlEventos(event)"></td>
+				<td></td>
+			</tr>
+			
+			</tbody>
+			
+			</table>
 		</div>
 	</div>
 </form>
