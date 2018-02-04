@@ -28,6 +28,8 @@ include './../../head.php';
 		$productosFactura=$Cfaccli->ProductosFactura($idFactura);
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);
+		$estado=$datosFactura['estado'];
+		$estadoCab="'".$datosFactura['estado']."'";
 		
 		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
@@ -66,7 +68,11 @@ include './../../head.php';
 		}
 		$total=$Datostotales['total'];
 		
-		
+		if ($estado="Guardado" || $estado="Pagado parcial"){
+			$Simporte="";
+		}else{
+			$Simporte="display:none;";
+		}
 	}else{
 		$titulo="Crear Factura De Cliente";
 		$bandera=1;
