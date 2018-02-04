@@ -20,11 +20,14 @@ include_once ("./funciones.php");
 // Incluimos el controlador comun
 include ("./../../controllers/Controladores.php");
 $TControlador = new ControladorComun; 
-// Incluimos y creamos objeto parametros para poder obtener datos.
-include_once ('parametros.php');
-$Newparametros = new ClaseParametros('parametros.xml');
-$parametros = $Newparametros->getRoot();
- 
+// El post tabla solo debemos utilizarlo si existe el fichero en parametros sino genera un error.
+if (isset($_POST['tabla'])){
+	// Incluimos y creamos objeto parametros poder tratar los ficheros Mysql.
+	$tabla = $_POST['tabla'];
+	include_once('parametrostablas.php');
+	$NewParametrosTabla = new ClaseArrayParametrosTabla($tabla,'parametros.xml');
+	$parametros = $NewParametrosTabla->getParametros();
+}
  switch ($pulsado) {
      
     case 'import_inicio':
@@ -61,25 +64,22 @@ $parametros = $Newparametros->getRoot();
 		
 	case 'DescartarRegistro' :
 		$datos = $_POST['datos'];
-		$tabla = $_POST['tabla'];
+		// $tabla ya cargo al inicio tarea.
 		$respuesta = DescartarRegistrosImportDbf($BDImportDbf,$tabla,$datos);
 		echo json_encode($respuesta);
 		break;
 	case 'AnhadirRegistroTpv':
 		$datos = $_POST['datos'];
-		$tabla = $_POST['tabla'];
 		// Montamos array consulta con datos necesarios para enviar funcion Anhadir
 		$consulta = array();
-		$parametros_tabla = TpvXMLtablaImportar($parametros,$tabla);
-		//~ $respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos);
-		$respuesta = $parametros_tabla;
+		$parametros_tabla = $NewParametrosTabla->getParametrosTabla();
+		$respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos);
 		echo json_encode($respuesta);
 		break;
 		
 	case 'FamiliaAnhadirIdRegistro':
 		$respuesta 	= array();
 		$datos 		= $_POST['datos'];
-		$tabla 		= $_POST['tabla'];
 		$idvalor 	= $_POST['idValor'];
 		$respuesta = FamiliaIdInsert($BDImportDbf,$BDTpv,$datos,$idvalor);
 		echo json_encode($respuesta);

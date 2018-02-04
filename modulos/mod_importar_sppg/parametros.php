@@ -6,7 +6,7 @@ class ClaseParametros
 	private $ficheros; // array de ficheros, con rutaruta fichero de parametros del modulo
 	private $root; // Por defecto contiene el objeto XMl de  los ficheros enviados, aunque podríamos mandarle uno.
 				   // Esto implica que cambiaría el valor de raiz = No
-	private $raiz = 'Si';
+	private $raiz = 'Si'; // Ver explicacion $root
 	private $Array_Elementos;  // 
 	
 	public function __construct($fichero){

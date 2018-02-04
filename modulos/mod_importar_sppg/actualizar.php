@@ -19,8 +19,10 @@
 	$Controler = new ControladorComun; 
 	// Cargamos parametros de XML donde tenemos parametros generales y los modulo.
 	include_once ('parametros.php');
-	$Newparametros = new ClaseParametros('parametros.xml');
-	$parametros = $Newparametros->getRoot();
+	//~ $Newparametros = new ClaseParametros('parametros.xml');
+	//~ $parametros = $Newparametros->getRoot();
+
+
 // ---------   Obtenemos la tabla que vamos gestionar y tratar   ------------ //
 	if ($_GET['tabla']){
 		$tabla =$_GET['tabla'];
@@ -31,7 +33,19 @@
 			return;
 		}
 	}
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+	
+// ---------   Mosmandamos Arrya datos_tablas con el obejto ParametrsoTabl -------------------  //
+	include_once('parametrostablas.php');
+	$NewParametrosTabla = new ClaseArrayParametrosTabla($tabla,'parametros.xml');
+	$parametros = $NewParametrosTabla->getParametros();
+	$datos_tablas = array(); 
+	$datos_tablas['tablas']['importar'] = $tabla;
+	$datos_tablas['importar'] = $NewParametrosTabla->getCamposImportar();
+	$datos_tablas['acciones']=$NewParametrosTabla->getAccionesImportar();
+	$datos_tablas['tablas']['tpv'] = $NewParametrosTabla->getTablas('tpv');
+	$datos_tablas['comprobaciones'] = $NewParametrosTabla->getComprobaciones();
+	
+	// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	?>
 	
@@ -60,48 +74,7 @@
 	include_once ("./funciones.php");
 
 
-// ||-------------------------------- Obtenemos  los arrays de Xml ----------------------------------------------||	// 
-//				1.- datos_tablas:  Obtenemos datos parametros y montamos array 								 		//
-// 					Ejemplo estructura:																				//
-//					Array(																							//
-// 						tablas = array(...)	Nombres tablas implicadas en importacion y tpv.							//
-//						importar = array(...)																		//
-//						tpv = array(...)																			//
-// 						acciones = array (...)	Campos y acciones de BDFImportar									//
-// 						comprobaciones = array (...)																//
-// Esto debería se un objecto en el cual se controlara que obtenemos correctamente los datos.						//
-// ||------------------------------------------------------------------------------------------------------------||	//
-	$datos_tablas = array(); // Un array sencillo donde tenemos los campos los que podemos generar variables JS
-							 // para reallizar la busqueda del registro la tabla importar.
-	$datos_tablas['tablas']['importar'] = $tabla;
-	// Recuerda que en el Xml tabla debe tener algun campo como tipo= Unico para poder identificarlo correctamente
-	$p = TpvXMLtablaImportar($parametros,$tabla); // Obtenemos parametros tabla
-	foreach ($p->campos->children() as $campo){;
-		$n =(string) $campo['nombre'];
-		if (isset($campo->tipo)){
-			if ((string) $campo->tipo === 'Unico'){
-				$datos_tablas['importar']['campos'][]=$n;
-			}
-		}
-		// Creamos array campos que utilizamos para BuscarIgualSimilar
-		$datos_tablas['acciones'][$n] = CamposAccionesImportar($campo); // Los campos (BDImport) y las acciones de la tabla
-	}
-	// ------ Obtenemos los parametross para inserta,modificar datos en tpv ----- //
-	$datos_tablas['tpv'] =TpvXMLtablaTpv($p);
-	// --------- Obtenemos el nombre de las tablas que elementos tpv ------------ //
-	// Pueden ser varias....
-	$datos_tablas['tablas']['tpv'] = $Newparametros->Xpath('tpv/tabla/nombre','Valores');
-	// Ahora obtenemos comprobaciones a realizar.
-	$Newparametros->setRoot($p); // // Cambio objeto XML que tengo por defecto ahora es parametros_importar.
-	
-	// Montamos Array parametros de comprobaciones.
-	$datos_tablas['comprobaciones']['Mismo'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Mismo"]');
-	$datos_tablas['comprobaciones']['Similar'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="Similar"]');
-	$datos_tablas['comprobaciones']['NoEncontrado'] = $Newparametros->Xpath('comprobaciones//comprobacion[@nombre="NoEncontrado"]');
-	
-	
-	
-// ||------------------------- Terminamos montar el array de $datos_tablas  ----------|| //
+
 	
 	
 // ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
@@ -134,7 +107,6 @@
 	
 // ---  Realizamos comprobaciones y montamos parametros para cada registro.  -------------- //
 	$registros_tpv = array();
-			
 	$comprobaciones = array();
 	foreach ($Registros_sin['importar'] as $item=>$registro){
 		// Comprobamos si los registros sin tratar existe ( mismo) o similar en tpv. --- //
@@ -184,6 +156,7 @@
 		foreach ($datos_tablas['importar']['campos'] as $campo){
 			if (isset($registro[$campo])){ 
 				$d['importar'][] = array ( $campo =>$registro[$campo]);
+				
 			}
 		}
 		if (isset($datos_tablas['tpv']['campos'])){
@@ -201,9 +174,6 @@
 		
 		
 	}
-	//~ echo '<pre>';
-	//~ print_r($Registros_sin);
-	//~ echo '</pre>';
 	
 ?>
 

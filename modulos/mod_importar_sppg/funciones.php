@@ -482,7 +482,7 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
 	//					tpv => array ( campos unicos y valores de esos campos... )
 	$respuesta = array();
 	// --- Obtenemos los parametros de la tabla encuestion --- //
-	$tabla = $parametros_tabla['tabla'];
+	$tabla = $parametros_tabla->nombre;
 	// --- Obtenemos los valores de los campos del registro de la Base de Datos BDimport --- //
 	$wheres = array();
 	foreach ($datos as $dato){
@@ -493,14 +493,14 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
 	$whereImportar = 'WHERE '.implode(' AND ',$wheres);
 	// Obtenemos las consulta->obtener de parametros
 	// Ahora interpreto que hay una sola, pero es un array que puede contener varias consultas. 
-	$consulta = "SELECT ".$parametros_tabla['obtener'][0]." FROM ". $tabla.' '.$whereImportar;
+	$consulta = "SELECT ".$parametros_tabla->consulta[0]." FROM ". $tabla.' '.$whereImportar;
 	$registro_importar = obtenerUnRegistro($BDImportDbf,$consulta);
 	$registro = $registro_importar['Items'][0];
 	// ----- Obtenemos parametros tpv para poder añadir ------- //
 	$parametros_tpv = TpvXMLtablaTpv($parametros_tabla['parametros']);
 	// -------------- Montamos SQL para Insert ------------------- //
 	// Obtengo nombre tabla
-	$tabla_tpv = $parametros_tpv['tablas']['tpv'];
+	$tabla_tpv = $parametros_tpv['tablas']['tpv']['tabla'];
 	// Obtengo campos y valores que nos indica cruces de parametros
 	$cruces = $parametros_tpv['tpv']['cruce'];
 	$valores = array ();
@@ -510,6 +510,9 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
 		$campo =$array[0];
 		$valores[] = '"'.addslashes(htmlentities($registro[$campo],ENT_COMPAT)).'"';
 	}
+	
+	
+	
 	// Faltaria añadir estado y fecha alta;
 	//~ $into [] = 'estado';
 	//~ $into [] = 'fechaalta';
@@ -517,32 +520,27 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
 	//~ $valores[] = 'NOW()';
 	
 	$sql = 	'INSERT INTO '.$tabla_tpv.' ('.implode(',',$into).') VALUES ('.implode(',',$valores).')';
-	$BDTpv->query($sql);
+	//~ $BDTpv->query($sql);
 	// -- Obtenemos id que se acaba de crear con insert.
-	$idTpv = $BDTpv->insert_id;
+	//~ $idTpv = $BDTpv->insert_id;
+	//-- Ahora buscamos si tiene funciones a realizar after_insert
+	$respuesta['funcionAfterInsert'] = $parametros_tabla['after'];
+	
 	// -- Cambiamos el estado de importar y le ponemos el id.
 	$sqlImportar = 'UPDATE '.$tabla.' SET estado = "Nuevo", id = "'.$idTpv.'" '.$whereImportar;
-	$BDImportDbf->query($sqlImportar);
-	$respuesta['AfectadoImportar'] = $BDImportDbf->affected_rows;
+	//~ $BDImportDbf->query($sqlImportar);
+	
+	
+	
+	//~ $respuesta['AfectadoImportar'] = $BDImportDbf->affected_rows;
+	$respuesta['consulta_obtener'] = $consulta;
 	$respuesta['sqlImportar'] =$sqlImportar;
 	$respuesta['sql'] = $sql;
-	$respuesta['IdInsertTpv'] = $BDTpv->insert_id;
-	
+	//~ $respuesta['IdInsertTpv'] = $BDTpv->insert_id;
+	$respuesta['parametros'] = $parametros_tabla;
 	return $respuesta;
 }
 
-function TpvXMLtablaImportar($parametros,$tabla){
-	// @Objetivo.
-	// Obtener objeto SimpleXML dentro de parametros
-	$respuesta = array();
-	foreach ($parametros->tablas as $tabla_importar){
-		if (htmlentities((string)$tabla_importar->tabla->nombre) === $tabla){
-			$respuesta = $tabla_importar->tabla;
-		}
-	}
-	
-	return $respuesta;
-}
 
 function TpvXMLtablaTpv($parametros_importar){
 	//@Objetivo
@@ -575,19 +573,7 @@ function TpvXMLtablaTpv($parametros_importar){
 }
 
 
-function CamposAccionesImportar($campo){
-	$campos = array();
-	$x = 0;
-	foreach ($campo->action as $action) {
-			// obtenemos las acciones para encontrar
-			$campos['acciones_buscar'][$x]['funcion'] = (string) $action['funcion'];
-			$campos['acciones_buscar'][$x]['tabla_cruce'] =(string) $action['tabla_cruce'];
-			$campos['acciones_buscar'][$x]['campo_cruce'] =(string) $action['campo_cruce'];
-			$campos['acciones_buscar'][$x]['description'] =(string) $action['description'];
-			$x++;
-		}
-	return $campos;
-}
+
 function MontarHtmlOpcionesGenerales($parametros_comprobaciones,$resultado_b,$item) {
 	$html = '<select id="accion_general_'.$item.'">';
 	foreach ($parametros_comprobaciones as $tipo => $parametros){

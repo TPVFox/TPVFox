@@ -39,9 +39,9 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 			<consulta tipo="anhadir">
 			 `nombrecomercial`, `razonsocial`, `nif`, `direccion`, `telefono`, `fax`, `movil`, `email` 
 			</consulta>
-			<!-- Proceso despues de insertar -->
-			<after>
-			Anhadir estado y fecha alta.
+			<!-- Funcion a realizar despues de lo que indique tipo -->
+			<after tipo="obtener">
+			AnhadirEstadoFechaID
 			</after>
 		</consultas>				
 		<tpv>
