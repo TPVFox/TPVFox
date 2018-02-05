@@ -33,53 +33,59 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 		</campos>
 		<consultas>
 			<!-- String con los campos queremos obtener de la tabla importar. -->
-			<consulta tipo="obtener">
+			<campos tipo="obtener">
 			 `CNOMPRO`, `CNOMPRO`, `CNIFDNI`, CONCAT(`CDIRPRO`,' ', `CPOBPRO`,' ', `CPTLPRO`) AS DIRECCION, `CTFO1PRO`, `CFAX`, `CTFO2PRO`, `EMAIL`
-			</consulta>
-			<consulta tipo="anhadir">
+			</campos>
+			<campos tipo="anhadir" tabla="proveedores">
 			 `nombrecomercial`, `razonsocial`, `nif`, `direccion`, `telefono`, `fax`, `movil`, `email` 
-			</consulta>
+			</campos>
 			<!-- Funcion a realizar despues de lo que indique tipo -->
-			<after tipo="obtener">
-			AnhadirEstadoFechaID
-			</after>
+			<before tipo="anhadir" tabla="proveedores">
+			AnhadirEstadoFecha
+			</before>
 		</consultas>				
 		<tpv>
 			<tabla>
 				<nombre>proveedores</nombre>
-				<campo nombre="idProveedor">
-					<tipo>Unico</tipo>
-				</campo>
-				<campo nombre="nombrecomercial">
-					<cruce>CNOMPRO</cruce>
-				</campo>
-				<campo nombre="razonsocial">
-					<cruce>CNOMPRO</cruce>
-				</campo>
-				<campo nombre="nif">
-					<cruce>CNIFDNI</cruce>
-				</campo>
-				<campo nombre="direccion">
-					<!-- Este campo tiene que obtener de distinta forma.. -->				
-					<cruce>DIRECCION</cruce>
-				</campo>
-				<campo nombre="telefono">
-					<cruce>CTFO1PRO</cruce>
-				</campo>
-				<campo nombre="fax">
-					<cruce>CFAX</cruce>
-				</campo>
-				<campo nombre="movil">
-					<cruce>CTFO2PRO</cruce>
-				</campo>
-				<campo nombre="email">
-					<cruce>EMAIL</cruce>
-				</campo>
+				<cruces>
+					<campo nombre="idProveedor">
+						<tipo>Unico</tipo>
+					</campo>
+					<campo nombre="nombrecomercial">
+						<cruce>CNOMPRO</cruce>
+					</campo>
+					<campo nombre="razonsocial">
+						<cruce>CNOMPRO</cruce>
+					</campo>
+					<campo nombre="nif">
+						<cruce>CNIFDNI</cruce>
+					</campo>
+					<campo nombre="direccion">
+						<!-- Este campo tiene que obtener de distinta forma.. -->				
+						<cruce>DIRECCION</cruce>
+					</campo>
+					<campo nombre="telefono">
+						<cruce>CTFO1PRO</cruce>
+					</campo>
+					<campo nombre="fax">
+						<cruce>CFAX</cruce>
+					</campo>
+					<campo nombre="movil">
+						<cruce>CTFO2PRO</cruce>
+					</campo>
+					<campo nombre="email">
+						<cruce>EMAIL</cruce>
+					</campo>
+				</cruces>
 			</tabla>
 		</tpv>
 		<comprobaciones>
 			<comprobacion nombre="Mismo">
 				<options tipo="general">
+					<!-- tengo que crear en el mismo ya que proveedores franquiciados pueden tener el telefono ekoama -->
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
 					</option>

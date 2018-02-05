@@ -473,16 +473,19 @@ function DescartarRegistrosImportDbf($BDImportDbf,$tabla,$datos){
 }
 
 
-function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
+function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$CParametros,$datos){
 	// @ Objetivo 
 	// Añadir registro de las tablas importar a tpv
 	// @ Parametros.
 	// $tabla : Array con String de nombre tablas.
+	// $parametros: Objeto ClaseArrayParametrosTabla
 	// $datos: Array (	importar => array( campos unicos y valores de esos campos...)
 	//					tpv => array ( campos unicos y valores de esos campos... )
 	$respuesta = array();
-	// --- Obtenemos los parametros de la tabla encuestion --- //
-	$tabla = $parametros_tabla->nombre;
+	// --- Obtenemos las tablas que vamos utilizar tanto tpv, como BDImportarDBF --- //
+	$tablas = $CParametros->getTablas();
+	// --- Obtenemos el nombre de tabla de importar , que de momento siempre es uno... --- //
+	$tabla = $tablas['importar'][0];
 	// --- Obtenemos los valores de los campos del registro de la Base de Datos BDimport --- //
 	$wheres = array();
 	foreach ($datos as $dato){
@@ -493,51 +496,52 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos){
 	$whereImportar = 'WHERE '.implode(' AND ',$wheres);
 	// Obtenemos las consulta->obtener de parametros
 	// Ahora interpreto que hay una sola, pero es un array que puede contener varias consultas. 
-	$consulta = "SELECT ".$parametros_tabla->consulta[0]." FROM ". $tabla.' '.$whereImportar;
+	$a = $CParametros->getConsultas('Obtener');
+	$campos_obtener = $a[0]; // Entiendo que 0 es obtener, que no mas de uno...
+	$consulta = "SELECT ".$campos_obtener." FROM ". $tabla.' '.$whereImportar;
 	$registro_importar = obtenerUnRegistro($BDImportDbf,$consulta);
 	$registro = $registro_importar['Items'][0];
-	// ----- Obtenemos parametros tpv para poder añadir ------- //
-	$parametros_tpv = TpvXMLtablaTpv($parametros_tabla['parametros']);
-	// -------------- Montamos SQL para Insert ------------------- //
-	// Obtengo nombre tabla
-	$tabla_tpv = $parametros_tpv['tablas']['tpv']['tabla'];
-	// Obtengo campos y valores que nos indica cruces de parametros
-	$cruces = $parametros_tpv['tpv']['cruce'];
-	$valores = array ();
-	$into = array();
-	foreach ($cruces as $campo_tpv => $array){
-		$into[] = $campo_tpv;
-		$campo =$array[0];
-		$valores[] = '"'.addslashes(htmlentities($registro[$campo],ENT_COMPAT)).'"';
+	// Hago bluce tablas de tpv, ya que puede haber mas que uno.
+	foreach ($tablas['tpv'] as $t){
+		// -------------- Montamos SQL para Insert ------------------- //
+		// Obtengo nombre tabla ( Si solo tengo una .. claro... )
+		$tabla_tpv = $t;
+		$valores = array ();
+		$into = array();
+		// Antes de nada comprobamos si hay funciones a realizar despues de obtener
+		$funcBefore = $CParametros->getBeforeAnhadir();
+		if (count($funcBefore) >0){
+			// Esta funciones obtenemos campos y valores necesaios para hacer Insert
+			$funcion = $funcBefore[$tabla_tpv];
+			$r = $funcion();
+			if ( count($r) >0 ){
+				$into = $r['into'];
+				$valores =  $r['valores'];
+			}
+		}
+		// Obtengo campos y valores que nos indica cruces de parametros
+		$cruces = $CParametros->ObtenerCrucesTpv($tabla_tpv);
+	
+		foreach ($cruces as $campo_tpv => $cruce){
+			$into[] = $campo_tpv;
+			$valores[] = '"'.addslashes(htmlentities($registro[$cruce],ENT_COMPAT)).'"';
+		}
+
+		$sql = 	'INSERT INTO '.$tabla_tpv.' ('.implode(',',$into).') VALUES ('.implode(',',$valores).')';
+		$BDTpv->query($sql);
+		// -- Obtenemos id que se acaba de crear con insert.
+		$idTpv = $BDTpv->insert_id;
+		//-- Ahora buscamos si tiene funciones a realizar after_insert
 	}
-	
-	
-	
-	// Faltaria añadir estado y fecha alta;
-	//~ $into [] = 'estado';
-	//~ $into [] = 'fechaalta';
-	//~ $valores[] = '"importar"';
-	//~ $valores[] = 'NOW()';
-	
-	$sql = 	'INSERT INTO '.$tabla_tpv.' ('.implode(',',$into).') VALUES ('.implode(',',$valores).')';
-	//~ $BDTpv->query($sql);
-	// -- Obtenemos id que se acaba de crear con insert.
-	//~ $idTpv = $BDTpv->insert_id;
-	//-- Ahora buscamos si tiene funciones a realizar after_insert
-	$respuesta['funcionAfterInsert'] = $parametros_tabla['after'];
-	
 	// -- Cambiamos el estado de importar y le ponemos el id.
 	$sqlImportar = 'UPDATE '.$tabla.' SET estado = "Nuevo", id = "'.$idTpv.'" '.$whereImportar;
-	//~ $BDImportDbf->query($sqlImportar);
+	$BDImportDbf->query($sqlImportar);
 	
-	
-	
-	//~ $respuesta['AfectadoImportar'] = $BDImportDbf->affected_rows;
+	$respuesta['AfectadoImportar'] = $BDImportDbf->affected_rows;
 	$respuesta['consulta_obtener'] = $consulta;
 	$respuesta['sqlImportar'] =$sqlImportar;
 	$respuesta['sql'] = $sql;
-	//~ $respuesta['IdInsertTpv'] = $BDTpv->insert_id;
-	$respuesta['parametros'] = $parametros_tabla;
+	$respuesta['IdInsertTpv'] = $BDTpv->insert_id;
 	return $respuesta;
 }
 
@@ -689,5 +693,21 @@ function DescartarRegistroPalabras($a_buscar,$registro,$campo){
 		//~ $respuesta .=' contador palabras:'.$cont_palabras.' aciertos :'.$contador_aciertos;
 	return $respuesta;
 }
+
+function AnhadirEstadoFecha(){
+	// @ Objetivo
+	// Es actualizar el Estado, Fecha
+	$respuesta = array();
+	$respuesta['into'][] ='estado'; 
+	$respuesta['valores'][] = '"'.'importar'.'"';
+	$respuesta['into'][] ='fecha_creado';
+
+	$respuesta['valores'][] = '"'.date("Y-m-d H:i:s").'"';
+	
+	return $respuesta;
+	
+}
+
+
 
 ?>

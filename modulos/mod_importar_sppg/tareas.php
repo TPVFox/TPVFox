@@ -70,10 +70,16 @@ if (isset($_POST['tabla'])){
 		break;
 	case 'AnhadirRegistroTpv':
 		$datos = $_POST['datos'];
-		// Montamos array consulta con datos necesarios para enviar funcion Anhadir
-		$consulta = array();
-		$parametros_tabla = $NewParametrosTabla->getParametrosTabla();
-		$respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$parametros_tabla,$datos);
+		// -- Montamos los parametros que necesitamos para realizar -- //
+		//~ $p = array();
+		//~ $p['tablas'] = $NewParametrosTabla->getParametrosTabla(); // Nombres de tablas tanto importar como tpv
+		
+		$respuesta = AnhadirRegistroTpv($BDTpv,$BDImportDbf,$NewParametrosTabla,$datos);
+		//~ $parametros =$parametros->tpv;
+		//[PENDIENTE]
+		// Añadir metodos en clase parametrostabla para obtener de mejor :
+		// campos, cruces , funcione antess ... 
+	
 		echo json_encode($respuesta);
 		break;
 		

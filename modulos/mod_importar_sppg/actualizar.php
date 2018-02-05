@@ -44,7 +44,13 @@
 	$datos_tablas['acciones']=$NewParametrosTabla->getAccionesImportar();
 	$datos_tablas['tablas']['tpv'] = $NewParametrosTabla->getTablas('tpv');
 	$datos_tablas['comprobaciones'] = $NewParametrosTabla->getComprobaciones();
-	
+	$datos_tablas['parametros_tabla'] = $NewParametrosTabla->getParametrosTabla();
+	echo '<pre>';
+		print_r( $NewParametrosTabla->getBeforeAnhadir());
+		
+		//~ print_r($NewParametrosTabla->getConsultas());
+
+	echo '</pre>';
 	// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	?>
