@@ -70,9 +70,15 @@ include './../../head.php';
 		
 		if ($estado="Guardado" || $estado="Pagado parcial"){
 			$Simporte="";
+			$importes=$datosFactura['importes'];
+			$importes=json_decode($importes, true);
+			
 		}else{
 			$Simporte="display:none;";
 		}
+		
+		
+		
 	}else{
 		$titulo="Crear Factura De Cliente";
 		$bandera=1;
@@ -80,6 +86,8 @@ include './../../head.php';
 		$estadoCab="'".'Abierto'."'";
 		$fecha=date('Y-m-d');
 		$fechaCab="'".$fecha."'";
+		$Simporte="display:none;";
+	
 			if (isset($_GET['tActual'])){
 				$idFacturaTemporal=$_GET['tActual'];
 				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
@@ -88,8 +96,13 @@ include './../../head.php';
 				}else{
 					$numFactura=0;
 				}
-				$fecha1=date_create($datosFactura['fechaInicio']);
-				$fecha =date_format($fecha1, 'Y-m-d');
+				
+				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
+					$fecha=date('Y-m-d');
+				}else{
+					$fecha1=date_create($datosFactura['fechaInicio']);
+					$fecha =date_format($fecha1, 'Y-m-d');
+				}
 				$idCliente=$datosFactura['idClientes'];
 				
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
@@ -144,8 +157,10 @@ include './../../head.php';
 		
 			if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
-			}else{
+			}else if($_GET['tActual']){
 				$idTemporal=$_GET['tActual'];
+			}else{
+				$idTemporal=0;
 			}
 			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
 			if($datosFactura['total']){
@@ -159,24 +174,46 @@ include './../../head.php';
 			}else{
 				$formaVenci=0;
 			}
+			
+			if ($datosFactura['importes']){
+				$importes=$datosFactura['importes'];
+			}else{
+				$importes=null;
+			}
+			if ($datosFactura['entregado']){
+				$entregado=$datosFactura['entregado'];
+			}else{
+				$entregado=0;
+			}
+			if ($total==$entregado){
+				$estado="Pagado total";
+			}else{
+				if ($datosFactura['estado']){
+					$estado=$datosFactura['estado'];
+				}else{
+					$estado="Guardado";
+				}
+				
+			}
 			$datos=array(
 			'Numtemp_faccli'=>$idTemporal,
 			'Fecha'=>$_POST['fechaFac'],
 			'idTienda'=>$Tienda['idTienda'],
 			'idUsuario'=>$Usuario['id'],
-			'idCliente'=>$datosFactura['idClientes'],
-			'estado'=>"Guardado",
+			'idCliente'=>$idCliente,
+			'estado'=>$estado,
 			'total'=>$total,
 			'DatosTotales'=>$Datostotales,
 			'productos'=>$datosFactura['Productos'],
 			'albaranes'=>$datosFactura['Albaranes'],
 			'fechaCreacion'=>$fechaActual,
 			'formapago'=>$formaVenci,
-			'fechaVencimiento'=>$_POST['fechaVenci']
+			'fechaVencimiento'=>$_POST['fechaVenci'],
+			'importes'=>$importes,
+			'entregado'=>$entregado,
+			'fechaModificacion'=>$fechaActual
 			);
-	echo '<pre>';
-	print_r($datos);
-	echo '</pre>';
+			
 			if($datosFactura['numfaccli']>0){
 				$idFactura=$datosFactura['numfaccli'];
 		
@@ -189,8 +226,10 @@ include './../../head.php';
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
+			
+			print_r( $addNuevo);
 		
-	header('Location: facturasListado.php');
+	//header('Location: facturasListado.php');
 			
 		}
 		if (isset($_POST['Cancelar'])){
@@ -210,7 +249,7 @@ include './../../head.php';
 				header('Location: albaranesListado.php');
 		}
 		
-		if (isset ($albaranes) | $_GET['tActual']| $_GET['id']){
+		if (isset ($albaranes) | isset($_GET['tActual'])| isset($_GET['id'])){
 			$style="";
 		}else{
 			$style="display:none;";
@@ -224,6 +263,7 @@ include './../../head.php';
 				$mensaje=$_GET['mensaje'];
 				$tipomensaje=$_GET['tipo'];
 			}
+			
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -286,6 +326,7 @@ include './../../head.php';
 		}
 	}	
 	
+	$es=str_replace("'",'',$estadoCab);  
 	
 ?>
 </script>
@@ -296,7 +337,9 @@ if ($idCliente==0){
 }
 if (isset($_GET['tActual'])){
 	$nombreCliente=$cliente['Nombre'];
+	
 }
+
 ?>
 </head>
 <body>
@@ -350,7 +393,8 @@ if (isset($_GET['tActual'])){
 				</div>
 				<div class="col-md-3">
 					<strong>Estado:</strong><br>
-					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
+				
+					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $es;?>" size="10" readonly></span><br>
 				</div>
 			
 				<div class="col-md-4">
@@ -370,7 +414,7 @@ if (isset($_GET['tActual'])){
 	
 		<div>
 			<div style="margin-top:-50px;">
-			<label style="<?php echo $stylea;?>" id="numAlbaranT">NÃºmero del albaran:</label>
+			<label style="<?php echo $stylea;?>" id="numAlbaranT">Número del albaran:</label>
 			<input style="<?php echo $stylea;?>" type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
 			<a style="<?php echo $stylea;?>" id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>
 			<table  class="col-md-12" style="<?php echo $stylea;?>" id="tablaAlbaran"> 
@@ -395,7 +439,7 @@ if (isset($_GET['tActual'])){
 	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
-		<table id="tabla" class="table table-striped">
+		<table id="tabla" class="table table-striped" >
 		<thead>
 		  <tr>
 			<th>L</th>
@@ -433,7 +477,7 @@ if (isset($_GET['tActual'])){
 	  </table>
 	</div>
 	<?php 
-	if($Datostotales){
+	if(isset($Datostotales)){
 			// Ahora montamos base y ivas
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
@@ -527,7 +571,10 @@ if (isset($_GET['tActual'])){
 					<strong>Forma de pago:</strong><br>
 					<p id="formaspago">
 					<?php 
-					echo $textoFormaPago['html'];
+					if(isset ($textoFormaPago)){
+							echo $textoFormaPago['html'];
+					}
+				
 					?>
 					</p>
 			</div>
@@ -543,7 +590,7 @@ if (isset($_GET['tActual'])){
 		</div>
 		<div class ="col-md-6">
 			<h3 style="<?php echo $Simporte;?>">Entregas</h3>
-			<table  id="tablaImporte" class="table table-striped">
+			<table  id="tablaImporte" class="table table-striped" style="<?php echo $Simporte;?>">
 			<thead>
 			<tr>
 			<td>Importe</td>
@@ -552,11 +599,21 @@ if (isset($_GET['tActual'])){
 			</tr>
 			</thead>
 			<tbody>
-			 <tr id="fila0" style=<?php echo $Simporte;?>>  
+			 <tr id="fila0" style="<?php echo $Simporte;?>">  
 				<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
-				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha" value=""  onkeydown="controlEventos(event)"></td>
+				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
 				<td></td>
 			</tr>
+			<?php 
+			if (isset ($importes)){
+			
+				foreach ($importes as $importe){
+					$html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
+					echo $html['html'];
+				}
+				
+			}
+			?>
 			
 			</tbody>
 			
@@ -576,6 +633,12 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#ClienteFac').prop('disabled', true);
 		$('#id_clienteFac').prop('disabled', true);
 		$("#buscar").css("display", "none");
+		<?php
+	}
+	if ($datosFactura['importes']){
+		?>
+		$("#tabla").find('input').attr("disabled", "disabled");
+		$("#tabla").find('a').css("display", "none");
 		<?php
 	}
 	?>

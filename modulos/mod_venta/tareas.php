@@ -22,6 +22,7 @@ include_once("../../clases/cliente.php");
 $Ccliente=new Cliente($BDTpv);
 include_once("clases/facturasVentas.php");
 $CFac=new FacturasVentas($BDTpv);
+error_log($pulsado);
 switch ($pulsado) {
     
 		case 'buscarProductos':
@@ -42,7 +43,7 @@ switch ($pulsado) {
 			echo json_encode($respuesta);  
 		break;
 		
-		case 'añadirProductos';
+		case 'anhadirProductos';
 			$datos=$_POST['productos'];
 			$idTemporal=$_POST['idTemporal'];
 			$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
@@ -192,7 +193,7 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 	
-		case 'añadirAlbaranTemporal':
+		case 'anhadirAlbaranTemporal':
 			$idAlbaranTemp=$_POST['idAlbaranTemp'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
@@ -253,7 +254,7 @@ switch ($pulsado) {
 		break;
 		
 		
-		case 'añadirfacturaTemporal':
+		case 'anhadirfacturaTemporal':
 			$idFacturaTemp=$_POST['idFacturaTemp'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
@@ -263,6 +264,7 @@ switch ($pulsado) {
 			$albaranes=$_POST['albaranes'];
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
+			
 			$existe=0;
 			if ($numFactura>0){
 				$factura=$CFac->buscarTemporalNumReal($numFactura);
@@ -280,6 +282,7 @@ switch ($pulsado) {
 				$pro=$rest['productos'];
 				$res=$rest['id'];
 				$idFacturaTemp=$res;
+				$respuesta['sql']=$rest['sql'];
 			}
 			$respuesta['numFactura']=$numFactura;
 			if ($numFactura>0){
@@ -313,20 +316,12 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		
-		
-		
-		
-		
-		
-		
-		
 		case 'modificarEstadoPedido':
 			if ($_POST['dedonde']=="Pedido"){
 				$idPedido=$_POST['idPedido'];
 				$idTemporal=$_POST['numPedidoTemp'];
 				if ($idPedido>0 & $idTemporal>0){
-					$estado="Pendiende";
+					$estado="Sin Guardar";
 					$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
 					$respuesta['sql']=$modEstado;
 				}
@@ -401,11 +396,8 @@ switch ($pulsado) {
 		 }
 		 if ($bandera==1){
 			 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
-				 $respuesta['html'].=$res['html'];
+				 $respuesta['html']=$res['html'];
 		 }
-		
-			
-	
 		echo json_encode($respuesta);
 		break;
 		 
@@ -465,6 +457,14 @@ switch ($pulsado) {
 		echo json_encode($modEstado);
 		break;
 		
+		
+		case 'modificarEstadoAlbaran':
+		$idAlbaran=$_POST['idAlbaran'];
+		$estado=$_POST['estado'];
+		$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
+		echo json_encode($modEstado);
+		break;
+		
 		case 'insertarImporte':
 		$importe=$_POST['importe'];
 		$fecha=$_POST['fecha'];
@@ -481,19 +481,26 @@ switch ($pulsado) {
 				$nuevo['importe']=$importe;
 				$nuevo['fecha']=$fecha;
 				$nuevo['pendiente']=$diferencia;
-				if ($diferencia > $datosFactura['total']){
+				if ($entregado > $datosFactura['total']){
 					$respuesta['mensaje']=1;
 				}else{
+					$bandera=array();
 					if ($datosFactura['importes']){
+							
 							$datosImporte=json_decode($datosFactura['importes'], true);
+								
 							array_push($datosImporte, $nuevo);
+								
+							$respuesta['array']=$datosImporte;
+							
 							$jsonImporte=json_encode($datosImporte);
 					}else{
-						$jsonImporte=json_encode($nuevo);
+						array_push($bandera, $nuevo);
+						$jsonImporte=json_encode($bandera);
 					}
 					$modFactura=$CFac->modificarImportesFactura($idFactura ,$jsonImporte , $entregado, $estado);
-					$html=htmlImporteFactura($importe, $fecha, $entregado);
-					$respuesta['hml']=$html['html'];
+					$html=htmlImporteFactura($importe, $fecha, $diferencia);
+					$respuesta['html']=$html['html'];
 					$respuesta['mensaje']=2;
 				}
 			}

@@ -480,11 +480,13 @@ var parametros = {
 			console.log('Respuesta de la modificación de los importes');
 			var resultado =  $.parseJSON(response);
 			console.log(resultado);
+			console.log(resultado['html']);
 			if (resultado.mensaje==1){
 				alert("El importe introducido no es correcto");
-				
 			}else{
-				$("#tablaImporte").prepend(resultado.html);
+				$("#tablaImporte").append(resultado.html);
+				$("#tabla").find('input').attr("disabled", "disabled");
+				$("#tabla").find('a').css("display", "none");
 			}
 			
 		}
@@ -580,29 +582,29 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					//console.log(resultado);
 					if (dedonde == "factura"){
 						if (resultado['Nitems']===1){
-						var datos = new Object();
-						datos.Numalbcli=0;
-						datos.Numpedcli=0;
-						datos.ccodbar=resultado['datos'][0]['codBarras'];
-						datos.cdetalle=resultado['datos'][0]['articulo_name'];
-						datos.cref=resultado['datos'][0]['crefTienda'];
-						datos.estadoLinea="Activo";
-						datos.idArticulo=resultado['datos'][0]['idArticulo'];
-						datos.idpedcli=0;
-						datos.iva=resultado['datos'][0]['iva'];
-						datos.ncant=1;
-						datos.nfila=productos.length+1;
-						datos.nunidades=1;
-						var importe =resultado['datos'][0]['pvpCiva']*1;
-						datos.importe=importe.toFixed(2);
-						var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
-						datos.precioCiva=pvpCiva.toFixed(2);
+							var datos = new Object();
+							datos.Numalbcli=0;
+							datos.Numpedcli=0;
+							datos.ccodbar=resultado['datos'][0]['codBarras'];
+							datos.cdetalle=resultado['datos'][0]['articulo_name'];
+							datos.cref=resultado['datos'][0]['crefTienda'];
+							datos.estadoLinea="Activo";
+							datos.idArticulo=resultado['datos'][0]['idArticulo'];
+							datos.idpedcli=0;
+							datos.iva=resultado['datos'][0]['iva'];
+							datos.ncant=1;
+							datos.nfila=productos.length+1;
+							datos.nunidades=1;
+							var importe =resultado['datos'][0]['pvpCiva']*1;
+							datos.importe=importe.toFixed(2);
+							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
+							datos.precioCiva=pvpCiva.toFixed(2);
+							
+							productos.push(datos);
 						
-						productos.push(datos);
-					
-						addFacturaTemp();
-						
-					 	AgregarFilaProductosAl(datos, dedonde);
+							addFacturaTemp();
+							
+							AgregarFilaProductosAl(datos, dedonde);
 						}
 						else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
@@ -624,27 +626,27 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					}
 					if(dedonde =="albaran"){
 						if (resultado['Nitems']===1){
-						var datos = new Object();
-						datos.Numpedcli=0;
-						datos.ccodbar=resultado['datos'][0]['codBarras'];
-						datos.cdetalle=resultado['datos'][0]['articulo_name'];
-						datos.cref=resultado['datos'][0]['crefTienda'];
-						datos.estadoLinea="Activo";
-						datos.idArticulo=resultado['datos'][0]['idArticulo'];
-						datos.idpedcli=0;
-						datos.iva=resultado['datos'][0]['iva'];
-						datos.ncant=1;
-						datos.nfila=productos.length+1;
-						datos.nunidades=1;
-						var importe =resultado['datos'][0]['pvpCiva']*1;
-						datos.importe=importe.toFixed(2);
-						var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
-						datos.precioCiva=pvpCiva.toFixed(2);
+							var datos = new Object();
+							datos.Numpedcli=0;
+							datos.ccodbar=resultado['datos'][0]['codBarras'];
+							datos.cdetalle=resultado['datos'][0]['articulo_name'];
+							datos.cref=resultado['datos'][0]['crefTienda'];
+							datos.estadoLinea="Activo";
+							datos.idArticulo=resultado['datos'][0]['idArticulo'];
+							datos.idpedcli=0;
+							datos.iva=resultado['datos'][0]['iva'];
+							datos.ncant=1;
+							datos.nfila=productos.length+1;
+							datos.nunidades=1;
+							var importe =resultado['datos'][0]['pvpCiva']*1;
+							datos.importe=importe.toFixed(2);
+							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
+							datos.precioCiva=pvpCiva.toFixed(2);
+							
+							productos.push(datos);
 						
-						productos.push(datos);
-					
-						addAlbaranTemp();
-					 	AgregarFilaProductosAl(datos, dedonde);
+							addAlbaranTemp();
+							AgregarFilaProductosAl(datos, dedonde);
 						}else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 				
@@ -687,7 +689,9 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 						AddTemp(idCliente);
 						cabecera.idCliente=idCliente;
 					}
-					
+					if (cabecera.idPedido>0){
+						ModificarEstadoPedido("pedidos", "Sin Guardar");
+					}
 					addProductoTemp();
 					agregarFilaProducto(num_item);
 				}else{
@@ -719,7 +723,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 function addProductoTemp(){
 	console.log('Entro en añadir productos');
 	var parametros = {
-		"pulsado"    : 'añadirProductos',
+		"pulsado"    : 'anhadirProductos',
 		"idTemporal":cabecera.numPedidoTemp,
 		"productos":productos
 	};
@@ -1377,7 +1381,7 @@ function addAlbaranTemp(){
 	console.log('FUNCION Añadir albaran temporal JS-AJAX');
 	console.log(productos);
 	var parametros = {
-		"pulsado"    : 'añadirAlbaranTemporal',
+		"pulsado"    : 'anhadirAlbaranTemporal',
 		"idAlbaranTemp":cabecera.idAlbaranTemp,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
@@ -1450,6 +1454,12 @@ function addAlbaranTemp(){
 				});
 				
 			}
+			if (cabecera.idAlbaran>0){
+			console.log("entre en modificar albaran");
+				var estado="Sin guardar";
+				modificarEstadoAlbaran(cabecera.idAlbaran, estado);
+				
+			}
 			
 			
 		}
@@ -1458,10 +1468,8 @@ function addAlbaranTemp(){
 
 function addFacturaTemp(){
 	console.log('FUNCION Añadir factura temporal JS-AJAX');
-	console.log(productos);
-	
 	var parametros = {
-		"pulsado"    : 'añadirfacturaTemporal',
+		"pulsado"    : 'anhadirfacturaTemporal',
 		"idFacturaTemp":cabecera.idFacturaTemp,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
@@ -1486,9 +1494,8 @@ function addFacturaTemp(){
 			console.log('Llegue devuelta respuesta de añadir factura temporal');
 			console.log(response);
 			var resultado =$.parseJSON(response); 
-		
+			
 			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-
 			console.log(resultado.id.id);
 			if (resultado.existe == 0){
 				history.pushState(null,'','?tActual='+resultado.id);
@@ -1541,8 +1548,8 @@ function addFacturaTemp(){
 				modificarEstadoFactura(cabecera.idFactura, estado);
 			}
 			
-			
 		}
+		
 	});
 }
 // Modificar el estado de la factura para controlar que tiene temporales
@@ -1551,6 +1558,27 @@ function modificarEstadoFactura(idFactura, estado){
 	var parametros = {
 			"pulsado": 'modificarEstadoFactura',
 			"idFactura":idFactura,
+			"estado":estado
+		};
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en Modificar estado factura js****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de estado pedido js');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+		}
+	});
+}
+function modificarEstadoAlbaran(idAlbaran, estado){
+	console.log("Entre en modificar Estado albaran");
+	var parametros = {
+			"pulsado": 'modificarEstadoAlbaran',
+			"idAlbaran":idAlbaran,
 			"estado":estado
 		};
 		$.ajax({

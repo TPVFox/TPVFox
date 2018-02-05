@@ -12,19 +12,18 @@ include './../../head.php';
 	$Calbcli=new AlbaranesVentas($BDTpv);
 	include_once 'clases/pedidosVentas.php';
 	$Cped = new PedidosVentas($BDTpv);
-	
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	if (isset($_GET['id'])){
 		$idAlbaran=$_GET['id'];
 		$titulo="Modificar Albarán De Cliente";
-		$estado='Modificado';
-		$estadoCab="'".'Modificado'."'";
 		$datosAlbaran=$Calbcli->datosAlbaran($idAlbaran);
 		$productosAlbaran=$Calbcli->ProductosAlbaran($idAlbaran);
 		$ivasAlbaran=$Calbcli->IvasAlbaran($idAlbaran);
 		$pedidosAlbaran=$Calbcli->PedidosAlbaranes($idAlbaran);
+		$estado=$datosAlbaran['estado'];
+		$estadoCab="'".$datosAlbaran['estado']."'";
 		
 		$date=date_create($datosAlbaran['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
@@ -57,18 +56,28 @@ include './../../head.php';
 			if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
 				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-				if (isset($datosAlbaran['numalbcli '])){
+				if (isset($datosAlbaran['numalbcli'])){
 					$numAlbaran=$datosAlbaran['numalbcli'];
+					$id=$Calbcli->datosAlbaranNum($numAlbaran);
+					$idAlbaran=$id['id'];
 				}else{
 					$numAlbaran=0;
+					$idAlbaran=0;
 				}
-				$fecha1=date_create($datosAlbaran['fechaInicio']);
-				$fecha =date_format($fecha1, 'Y-m-d');
+				echo $numAlbaran;
+					if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
+					$fecha=date('Y-m-d');
+				}else{
+					$fecha1=date_create($datosAlbaran['fechaInicio']);
+					$fecha =date_format($fecha1, 'Y-m-d');
+				}
+			
 				$idCliente=$datosAlbaran['idClientes'];
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$cliente['Nombre']."'";
 				$fechaCab="'".$fecha."'";
-				$idAlbaran=0;
+				
+				
 				$estadoCab="'".'Abierto'."'";
 				$albaran=$datosAlbaran;
 				$productos =  json_decode($datosAlbaran['Productos']) ;
@@ -120,8 +129,9 @@ include './../../head.php';
 			);
 		
 			if($datosAlbaran['numalbcli']>0){
-				$idAlbaran=$datosAlbaran['numalbcli'];
-			
+				$id=$Calbcli->datosAlbaranNum($numAlbaran);
+				$idAlbaran=$id['id'];
+				
 				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
 				 $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
 				 $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
@@ -266,8 +276,8 @@ if (isset($_GET['tActual'])){
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="./albaranesListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-					<input type="submit" value="Guardar" name="Guardar">
-					<input type="submit" value="Cancelar" name="Cancelar">
+					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
+					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 					<?php
 				if ($idAlbaranTemporal>0){
 					?>
@@ -370,7 +380,6 @@ if (isset($_GET['tActual'])){
 	  </table>
 	</div>
 	<?php 
-	if ($albaran['Productos']){
 			// Ahora montamos base y ivas
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
@@ -396,7 +405,7 @@ if (isset($_GET['tActual'])){
 			</script>
 
 			<?php
-	}
+
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -468,6 +477,18 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#ClienteAl').prop('disabled', true);
 		$('#id_clienteAl').prop('disabled', true);
 		$("#buscar").css("display", "none");
+		<?php
+	}
+	if ($datosAlbaran['estado']=="Facturado"){
+		?>
+		$("#tabla").find('input').attr("disabled", "disabled");
+		$("#tabla").find('a').css("display", "none");
+		$("#tablaPedidos").css("display", "none");
+		$("#numPedidoT").css("display", "none");
+		$("#numPedido").css("display", "none");
+		$("#buscarPedido").css("display", "none");
+		$("#bGuardar").css("display", "none");
+		$("#bCancelar").css("display", "none");
 		<?php
 	}
 	?>

@@ -211,6 +211,14 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
+	public function datosAlbaranNum($numAlbaran){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM albclit WHERE numalbcli = '.$numAlbaran );
+		if ($result = $smt->fetch_assoc () ){
+			$albaran=$result;
+		}
+		return $albaran;
+	}
 	public function ProductosAlbaran($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclilinea WHERE idalbcli= '.$idAlbaran );
