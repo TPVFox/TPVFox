@@ -67,7 +67,7 @@ if ($_GET){
 				$idPedido=0;
 			}
 			$pedido=$pedidoTemporal;
-			$productos = json_decode( $pedidoTemporal['Productos'] ); // Array de objetos
+			$productos = json_decode( $pedidoTemporal['Productos']); // Array de objetos
 			if ($idCliente){
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);

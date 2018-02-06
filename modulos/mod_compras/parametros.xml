@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="fecha">cajaFecha</nombre>
+			<teclas>
+				<action tecla="40"></action>
+				<action tecla="39"></action>
+				<action tecla="13"></action>
+				<action tecla="9"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedidos</parametro>
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="id_proveedor">cajaIdProveedor</nombre>
+			<teclas>
+				<action tecla="13">buscarProveedor</action>
+				<action tecla="39"></action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="40"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedidos</parametro>
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Proveedor">cajaProveedor</nombre>
+			<teclas>
+				<action tecla="13">buscarProveedor</action>
+				<action tecla="39"></action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="40"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedidos</parametro>
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="cajaBusquedaproveedor">cajaBusquedaproveedor</nombre>
+			<teclas>
+				<action tecla="13">buscarProveedor</action>
+				<action tecla="39"></action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="40"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedidos</parametro>
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="idArticulo">cajaidArticulo</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+				<action tecla="39"></action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="40"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="campo">a.idArticulo</parametro>  
+			</parametros> 
+		</caja_input>	
+		<caja_input>
+			<nombre id_input="N_">idN</nombre>
+			<teclas>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">cerrados</parametro>
+				<parametro nombre="campo"></parametro>
+				<parametro nombre="prefijo">N_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Referencia">cajaReferencia</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="37"></action>
+				<action tecla="39"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="campo">at.crefTienda</parametro>  
+			</parametros> 
+		</caja_input>	
+		<caja_input>
+			<nombre id_input="ReferenciaPro">cajaReferenciaPro</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="37"></action>
+				<action tecla="39"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="campo">at.crefTienda</parametro>  
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Codbarras">cajaCodBarras</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="37"></action>
+				<action tecla="39"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="campo">ac.codBarras</parametro>  
+			</parametros> 
+		</caja_input>	
+		<caja_input>
+			<nombre id_input="Descripcion">cajaDescripcion</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="37"></action>
+				<action tecla="39"></action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="campo">a.articulo_name</parametro>  
+			</parametros> 
+		</caja_input>						
+	
+		
+	</cajas_input>
+</parametros>
