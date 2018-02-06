@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 06, 2018 at 07:33 PM
+-- Generation Time: Feb 06, 2018 at 07:25 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -23,20 +23,15 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `proveedores`
+-- Table structure for table `articulosClientes`
 --
 
-CREATE TABLE `proveedores` (
-  `idProveedor` int(11) NOT NULL,
-  `nombrecomercial` varchar(100) DEFAULT NULL,
-  `razonsocial` varchar(100) NOT NULL,
-  `nif` varchar(10) NOT NULL,
-  `direccion` varchar(100) NOT NULL,
-  `telefono` varchar(11) NOT NULL,
-  `fax` varchar(11) NOT NULL,
-  `movil` varchar(11) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `fecha_creado` datetime NOT NULL,
+CREATE TABLE `articulosClientes` (
+  `idArticulo` int(11) NOT NULL,
+  `idClientes` int(11) NOT NULL,
+  `pvpSiva` decimal(17,6) NOT NULL,
+  `pvpCiva` decimal(17,6) NOT NULL,
+  `fechaActualizacion` date NOT NULL,
   `estado` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -45,21 +40,11 @@ CREATE TABLE `proveedores` (
 --
 
 --
--- Indexes for table `proveedores`
+-- Indexes for table `articulosClientes`
 --
-ALTER TABLE `proveedores`
-  ADD PRIMARY KEY (`idProveedor`);
-ALTER TABLE `proveedores` ADD FULLTEXT KEY `nombrecomercial` (`nombrecomercial`);
+ALTER TABLE `articulosClientes`
+  ADD PRIMARY KEY (`idArticulo`,`idClientes`);
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `proveedores`
---
-ALTER TABLE `proveedores`
-  MODIFY `idProveedor` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
