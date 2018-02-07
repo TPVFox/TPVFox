@@ -83,11 +83,17 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
 	}
 	$i = 0;
 	foreach ($busquedas as $buscar){
-		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
+
+			$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste, at.crefTienda ,p.`crefProveedor`,  a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
 			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
-			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
+			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` WHERE '.$buscar.' LIMIT 0 , 30 ';
+			//~ $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste, at.crefTienda , a.`iva` '
+			//~ .' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
+			//~ .' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
+			//~ .' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
+			//~ .' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
@@ -167,7 +173,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 						"'".addslashes(htmlspecialchars($producto['crefTienda'],ENT_COMPAT))."','"
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
-						.number_format($producto['pvpCiva'],2).",".$producto['idArticulo'];
+						.number_format($producto['ultimoCoste'],2).",".$producto['idArticulo'];
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
 						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
 			
@@ -175,7 +181,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';				
 			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.number_format($producto['pvpCiva'],2).'</td>';
+			$resultado['html'] .= '<td>'.number_format($producto['ultimoCoste'],2).'</td>';
 
 			$resultado['html'] .= '</tr>';
 			$contad = $contad +1;
@@ -208,7 +214,9 @@ function recalculoTotalesAl($productos) {
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estado === 'Activo'){
-			$totalLinea = $product->ncant * $product->precioCiva;
+			$bandera=$product->iva/100;
+			$totalLinea=($bandera+$product->ultimoCoste)*$product->ncant;
+			//$totalLinea = $product->ncant * $product->precioCiva;
 			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
 			$subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
 			// Ahora calculmos bases por ivas
@@ -251,20 +259,27 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}else{
 				$numeroPed=$producto['NumpedCli'];
 			}
+			if ($producto['crefProveedor']){
+				$filaProveedor='<td class="referencia">'.$producto['crefProveedor'].'</td>';
+			}else{
+				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor" pattern="[.0-9]+" name="Proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
+			}
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
 		 //$respuesta['html'] .='<td>'.$numeroPed.'</td>';
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
-		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
+		 $respuesta['html'] .=$filaProveedor;
 		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['ncant'],0);
 		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
-		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
+		 $respuesta['html'] .='<td class="pvp">'.$producto['ultimoCoste'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
-		 $importe = $producto['precioCiva']*$producto['ncant'];
+		 $bandera=$producto['iva']/100;
+		 $importe=($bandera+$producto['ultimoCoste'])*$producto['ncant'];
+		// $importe = $producto['ultimoCoste']*$producto['ncant'];
 		 $importe = number_format($importe,2);
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;

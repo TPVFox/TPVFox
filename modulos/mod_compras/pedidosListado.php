@@ -7,9 +7,15 @@ include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include 'clases/pedidosCompras.php';
+	$Cpedido=new PedidosCompras($BDTpv);
+	include '../../clases/Proveedores.php';
+	$Cproveedor=new Proveedores($BDTpv);
+	$todoTemporal=$Cpedido->TodosTemporal();
+	$pedidosDef=$Cpedido->TodosPedidos();
 	$palabraBuscar=array();
-$stringPalabras='';
-$PgActual = 1; // por defecto.
+	$stringPalabras='';
+	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
@@ -23,7 +29,7 @@ $PgActual = 1; // por defecto.
 	
 	$Controler = new ControladorComun; 
 	
-	$vista = 'pedclit';
+	$vista = 'pedprot';
 	$LinkBase = './pedidosListado.php?';
 	$OtrosParametros = '';
 	$paginasMulti = $PgActual-1;
@@ -34,7 +40,7 @@ $PgActual = 1; // por defecto.
 		$desde = 0;
 	}
 if ($stringPalabras !== '' ){
-		$campoBD='Numpedcli';
+		$campoBD='Numpedpro';
 		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
@@ -78,9 +84,45 @@ if ($stringPalabras !== '' ){
 					?>
 					<li><a href="#section2" onclick="metodoClick('Ver','pedido');";>Modificar</a></li>
 				
-				</ul>	
+				</ul>
+				<div class="col-md-12">
+				<h4 class="text-center"> Pedidos Abiertos</h4>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Nº Temp</th>
+					<th>Nº Ped</th>
+					<th>Pro.</th>
+					<th>Total</th>
+				</tr>
+				
+			</thead>
+			<tbody>
+				<?php 
+				if (isset ($todoTemporal)){
+					foreach ($todoTemporal as $pedidoTemp){
+						if ($pedidoTemp['idPedpro']){
+							$numPedido=$Cpedido->datosPedidos($pedidoTemp['idPedpro']);
+							$numPed=$numPedido['Numpedpro'];
+					}else{
+						$numPed="";
+					}
+					?>
+						<tr>
+						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
+						<td><?php echo $numPed;?></td>
+						<td><?php echo $pedidoTemp['idProveedor'];?></td>
+						<td><?php echo number_format($pedidoTemp['total'],2);?></td>
+						</tr>
+						<?php
+					}
+				}
+				?>
+			</tbody>
+		</table>
+		</div>	
 			</nav>
-			<div class="col-md-10">
+			<div class="col-md-9">
 					<p>
 					 -Pedidos encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>
@@ -101,15 +143,34 @@ if ($stringPalabras !== '' ){
 				<thead>
 					<tr>
 						<th></th>
-						<th>ID</th>
+						
 						<th>Nª PEDIDO</th>
 						<th>FECHA</th>
-						<th>CLIENTE</th>
+						<th>PROVEEDOR</th>
 						<th>BASE</th>
 						<th>IVA</th>
 						<th>TOTAL</th>
 						<th>ESTADO</th>
-
+					<?php
+							$checkUser = 0;
+							foreach($pedidosDef as $pedido){
+								$checkUser = $checkUser + 1;
+							$totaliva=$Cpedido->sumarIva($pedido['Numpedpro']);
+						?>
+						<tr>
+						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">
+						<td><?php echo $pedido['Numpedpro'];?></td>
+						<td><?php echo $pedido['FechaPedido'];?></td>
+						<td><?php echo $pedido['Nombre'];?></td>
+						<td><?php echo $totaliva['totalbase'];?></td>
+						<td><?php echo $totaliva['importeIva'];?></td>
+						<td><?php echo $pedido['total'];?></td>
+						<td><?php echo $pedido['estado'];?></td>
+						
+						</tr>
+						<?php
+					}
+					?>
 					</tr>
 				</thead>
 				</table>

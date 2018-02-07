@@ -38,14 +38,7 @@ class Producto{
 		$this->idArticulo=$datos['idArticulo'];
 		$this->codBarras=$datos['codBarras'];
 	}
-	public function __construct($conexion){
-		$this->db = $conexion;
-		// Obtenemos el numero registros.
-		$sql = 'SELECT count(*) as num_reg FROM articulos';
-		$respuesta = $this->consulta($sql);
-		$this->num_rows = $respuesta->fetch_object()->num_reg;
-		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
-	}
+	
 	
 	
 	

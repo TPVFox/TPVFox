@@ -40,6 +40,7 @@ switch ($pulsado) {
 			$id_input = $_POST['cajaInput'];
 			$idcaja=$_POST['idcaja'];
 			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv);
+			$respuesta['sql']=$res['sql'];
 			if ($res['Nitems']===1){
 				$respuesta=$res;
 				$respuesta['Nitems']=$res['Nitems'];	

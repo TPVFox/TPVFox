@@ -8,6 +8,38 @@ function controladorAcciones(caja,accion){
 			console.log("Pulse buscar Producto");
 			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.id_input , caja.darValor(),caja.darParametro('dedonde'));
 		break;
+		case 'recalcular_totalProducto':
+			console.log("entre en recalcular precio producto");
+			// recuerda que lo productos empizan 0 y las filas 1
+			var nfila = parseInt(caja.fila)-1;
+			// Comprobamos si cambio valor , sino no hacemos nada.
+			//~ productos.[nfila].unidad = caja.darValor();
+			console.log ( caja);
+			productos[nfila].unidad = caja.darValor();
+			console.log(productos[nfila].unidad);
+			recalculoImporte(productos[nfila].unidad,nfila, caja.darParametro('dedonde'));
+			
+		break;
+		case 'mover_down':
+			// Controlamos si numero fila es correcto.
+			if ( isNaN(caja.fila) === false){
+				var nueva_fila = parseInt(caja.fila)+1;
+			} else {
+				// quiere decir que no tiene valor.
+				var nueva_fila = 0;
+			}
+			mover_down(nueva_fila,caja.darParametro('prefijo'));
+		break;
+		case 'mover_up':
+			console.log( 'Accion subir 1 desde fila'+caja.fila);
+			if ( isNaN(caja.fila) === false){
+				var nueva_fila = parseInt(caja.fila)-1;
+			} else {
+				// quiere decir que no tiene valor.
+				var nueva_fila = 0;
+			}
+			mover_up(nueva_fila,caja.darParametro('prefijo'));
+		break;
 	}
 }
 
@@ -43,6 +75,7 @@ function metodoClick(pulsado,adonde){
 			}
 			console.log('Resultado Buscar:'+BPedido);
 			break;
+		
 	 }
 } 
 
@@ -156,6 +189,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.ccodbar=resultado['datos'][0]['codBarras'];
 			datos.cdetalle=resultado['datos'][0]['articulo_name'];
 			datos.cref=resultado['datos'][0]['crefTienda'];
+			datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
 			datos.estado="Activo";
 			datos.idArticulo=resultado['datos'][0]['idArticulo'];
 			datos.idpedcli=0;
@@ -163,10 +197,14 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.ncant=1;
 			datos.nfila=productos.length+1;
 			datos.nunidades=1;
-			var importe =resultado['datos'][0]['pvpCiva']*1;
+			var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
+			datos.ultimoCoste=ultimoCoste.toFixed(2);
+			var ivares =(resultado['datos'][0]['iva']/100);
+			var importe =(ivares+ultimoCoste)*1;
+			console.log(importe);
+			//~ var importe =resultado['datos'][0]['ultimoCoste']*1;
 			datos.importe=importe.toFixed(2);
-			var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
-			datos.precioCiva=pvpCiva.toFixed(2);
+			
 			productos.push(datos);
 			addPedidoTemporal();
 			AgregarFilaProductosAl(datos, dedonde);
@@ -405,4 +443,76 @@ function retornarFila(num_item, valor=""){
 	
 	addPedidoTemporal();
 	
+}
+function recalculoImporte(cantidad,num_item, dedonde=""){
+	
+	// @ Objetivo:
+	// Recalcular el importe de la fila, si la cantidad cambia.
+	// @ Parametros:
+	//	cantidad -> Valor ( numerico) de input unidades.
+	//	num_item -> El numero que indica el producto que modificamos.
+	console.log('Estoy en recalculoImporte');
+	console.log(num_item);
+	
+		if (productos[num_item].ncant == 0 && cantidad != 0) {
+			retornarFila(num_item+1, dedonde);
+		} else if (cantidad == 0 ) {
+			eliminarFila(num_item+1, dedonde);
+		}
+		productos[num_item].ncant = cantidad;
+		//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
+		var importe = cantidad*productos[num_item].precioCiva;
+		var id = '#N'+productos[num_item].nfila+'_Importe';
+		importe = importe.toFixed(2);
+		$(id).html(importe);
+		addPedidoTemporal()
+		
+	
+	
+}
+function after_constructor(padre_caja,event){
+	// @ Objetivo:
+	// Ejecuta procesos antes construir el obj. caja.
+	// Traemos 
+	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
+	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
+	if (padre_caja.id_input.indexOf('N_') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+	
+	return padre_caja;
+}
+function before_constructor(caja){
+	// @ Objetivo :
+	//  Ejecutar procesos para obtener datos despues del construtor de caja.
+	//  Estos procesos los indicamos en parametro before_constructor, si hay
+	console.log( 'Entro en before');
+	if (caja.id_input ==='cajaBusqueda'){
+		caja.parametros.dedonde = 'popup';
+		if (caja.name_cja ==='Codbarras'){
+			caja.parametros.campo = cajaCodBarras.parametros.campo;
+		}
+		if (caja.name_cja ==='Referencia'){
+			caja.parametros.campo = cajaReferencia.parametros.campo;
+		}
+		if (caja.name_cja ==='Descripcion'){
+			caja.parametros.campo = cajaDescripcion.parametros.campo;
+		}
+	}
+	if (caja.id_input.indexOf('N_') >-1){
+		console.log(' Entro en Before de '+caja.id_input)
+		caja.fila = caja.id_input.slice(2);
+		console.log(caja.fila);
+	}
+	if (caja.id_input.indexOf('Unidad_Fila') >-1){
+		console.log("entro en unidad fila");
+		
+		caja.parametros.item_max = productos.length;
+		caja.fila = caja.id_input.slice(12);
+	}
+	
+	return caja;	
 }
