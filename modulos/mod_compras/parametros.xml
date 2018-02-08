@@ -109,7 +109,7 @@
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
-				<parametro nombre="campo">at.crefTienda</parametro>  
+				<parametro nombre="campo">p.crefProveedor</parametro>  
 			</parametros> 
 		</caja_input>
 		<caja_input>

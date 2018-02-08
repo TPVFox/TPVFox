@@ -52,7 +52,7 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// Objetos queremos controlar.
 	return $resultado;
 }
-function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
+function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idProveedor) {
 	// @ Objetivo:
 	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
 	// @ Parametros:
@@ -88,7 +88,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
 			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
-			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` WHERE '.$buscar.' LIMIT 0 , 30 ';
+			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '.$buscar.' LIMIT 0 , 30 ';
 			//~ $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste, at.crefTienda , a.`iva` '
 			//~ .' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			//~ .' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
@@ -260,7 +260,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				$numeroPed=$producto['NumpedCli'];
 			}
 			if ($producto['crefProveedor']>0){
-				$filaProveedor='<td class="referencia">'.$producto['crefProveedor'].'</td>';
+				$filaProveedor='<td class="referencia"><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+"  value="'.$producto['crefProveedor'].'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)" disabled><a onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="text-align: right"><span class="glyphicon glyphicon-cog"></span></a></td>';
 			}else{
 				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 			}
@@ -314,5 +314,11 @@ function modificarArrayProductos($productos){
 		array_push($respuesta,$pro);
 	}
 	return $respuesta;
+}
+
+
+function htmlCambioRefProveedor($datos, $fila){
+	$resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'">';
+	return $resultado;
 }
 ?>

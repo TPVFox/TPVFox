@@ -41,7 +41,8 @@ switch ($pulsado) {
 			$campoAbuscar = $_POST['campo'];
 			$id_input = $_POST['cajaInput'];
 			$idcaja=$_POST['idcaja'];
-			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv);
+			$idProveedor=$_POST['idProveedor'];
+			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idProveedor);
 			$respuesta['sql']=$res['sql'];
 			if ($res['Nitems']===1){
 				$respuesta=$res;
@@ -145,7 +146,19 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		
 		break;
-	
+		case 'buscarReferencia':
+				$idArticulo=$_POST['idArticulo'];
+				$idProveedor=$_POST['idProveedor'];
+				$fila=$_POST['fila'];
+				$datosArticulo=$CArticulos->buscarReferencia($idArticulo, $idProveedor);
+				$articulo=$CAritulos->buscarNombreArticulo($idArticulo);
+				
+				$html=htmlCambioRefProveedor($datosArticulo, $fila);
+				 $respuesta['html']=$html['html'];
+				
+				echo json_encode($respuesta);
+		
+		break;
 	
 	
 }

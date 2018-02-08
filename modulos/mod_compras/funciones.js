@@ -82,8 +82,12 @@ function addProveedorProducto(idArticulo, nfila, valor, coste){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
-				
+				abrirModal(resultado.html);
 				productos[nfila].crefProveedor=valor;
+				fila=nfila+1;
+				var id="#Proveedor_Fila_"+fila;
+				$(id).prop('disabled', true);
+				console.log(id);
 				addPedidoTemporal();
 	
 		}
@@ -218,7 +222,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 		"cajaInput"	 : id_input,
 		"valorCampo" : busqueda,
 		"campo"      : campo,
-		"idcaja"	 :idcaja
+		"idcaja"	 :idcaja,
+		"idProveedor": cabecera.idProveedor
 	};
 	console.log(id_input);
 	$.ajax({
@@ -577,4 +582,34 @@ function before_constructor(caja){
 	}
 	
 	return caja;	
+}
+
+function buscarReferencia(idArticulo, nfila){
+	console.log("Entre en buscar referencia");
+	fila=nfila-1;
+	var parametros = {
+		"pulsado"    : 'buscarReferencia',
+		"idArticulo":idArticulo,
+		"idProveedor":cabecera.idProveedor,
+		"fila":fila
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en buscarReferencia****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta respuesta de buscarReferencia');
+				var resultado =  $.parseJSON(response); 
+				titulo="Modificar referencia";
+				html=resultado.html;
+				abrirModal(titulo, html);
+				
+		}
+	});
+	
+	
+	
 }
