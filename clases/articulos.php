@@ -16,7 +16,9 @@ class Articulos{
 	
 	public function addArticulosProveedores($datos){
 		$db=$this->db;
-		$smt=$db->query('INSERT INTO articulosProveedores (	idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '.$datos['crefProveedor'].', '.$datos['coste'].', '.$datos['fecha'].', '.$datos['estado'].')');
+		$smt=$db->query('INSERT INTO articulosProveedores (	idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '.$datos['refProveedor'].', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")');
+		$sql='INSERT INTO articulosProveedores (	idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '.$datos['refProveedor'].', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")';
+		return $sql;
 	}
 	
 	
