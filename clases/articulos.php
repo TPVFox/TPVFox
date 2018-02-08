@@ -20,6 +20,24 @@ class Articulos{
 		$sql='INSERT INTO articulosProveedores (	idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '.$datos['refProveedor'].', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")';
 		return $sql;
 	}
+	public function buscarReferencia($idArticulo, $idProveedor){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM articulosProveedores WHERE idArticulo='.$idArticulo.' and idProveedor='.$idProveedor);
+		
+		if ($result = $smt->fetch_assoc () ){
+			$referencia=$result;
+		}
+		return $referencia;
+	}
+	
+	public function buscarNombreArticulo($idArticulo){
+		$db=$this->db;
+		$smt=$db->query('SELECT articulo_name FROM articulos WHERE idArticulo='$idArticulo);
+		if ($result = $smt->fetch_assoc () ){
+			$referencia=$result;
+		}
+		return $referencia;
+	}
 	
 	
 }
