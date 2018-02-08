@@ -19,7 +19,38 @@ include './../../head.php';
 	
 	if ($_GET){
 		if (isset($_GET['id'])){
+			$idPedido=$_GET['id'];
+			$datosPedido=$Cpedido->datosPedidos($idPedido);
+			if ($datosPedido['estado']=='Facturado'){
+				$titulo="Pedidos De Cliente Facturado";
+				$estado='Facturado';
+				$estadoCab="'".'Facturado'."'";
+			}else{
+				$titulo="Modificar Pedido De Cliente";
+				$estado='Modificado';
+				$estadoCab="'".'Modificado'."'";
+			}
+			$productosPedido=$Cpedido->ProductosPedidos($idPedido);
+			$ivasPedido=$Cpedido->IvasPedidos($idPedido);
+			$fecha=$datosPedido['FechaPedido'];
+			$idProveedor=$datosPedido['idProveedor'];
+			if ($idProveedor){
+				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
+				$datosProveedor=$Cprveedor->buscarProveedorId($idProveedor);
+				$nombreProveedor=$datosProveedor['nombrecomercial'];
+			}
+		
+			$productosMod=modificarArrayProductos($productosPedido);
 			
+			$productos=json_decode(json_encode($productosMod));
+			$Datostotales = recalculoTotalesAl($productos);
+			$productos=json_decode(json_encode($productosMod), true);
+			
+		
+			$total=$Datostotales['total'];
+			$numPedido=$datosPedido['Numpedpro'];
+			$numPedidoTemp=0;
+			$fechaCab="'".$datosPedido['FechaPedido']."'";
 		}else{
 			$titulo="Crear Pedido De Proveedor";
 			$bandera=1;
@@ -33,7 +64,9 @@ include './../../head.php';
 				$estado=$pedidoTemporal['estadoPedPro'];
 				$idProveedor=$pedidoTemporal['idProveedor'];
 				if ($pedidoTemporal['idPedpro']){
+					
 					$idPedido=$pedidoTemporal['idPedpro'];
+					
 					$datos=$Cpedido->DatosPedido($idPedido);
 					$numPedido=$datos['Numpedpro'];
 				}else{
@@ -54,6 +87,7 @@ include './../../head.php';
 					$datosProveedor=$Cprveedor->buscarProveedorId($idProveedor);
 					$nombreProveedor=$datosProveedor['nombrecomercial'];
 				}
+				
 			}
 		}
 		
@@ -90,12 +124,18 @@ if ($_POST['Guardar']){
 		$total=0;
 	}
 	if ($pedidoTemporal['fechaInicio']){
-		$fecha=$pedidoTemporal['fechaInicio'];
+		$bandera=new DateTime($pedidoTemporal['fechaInicio']);
+		$fecha=$bandera->format('Y-m-d');
 	}else{
-		$fecha=date('Y-m-d');
-				
+		$fecha=date('Y-m-d');		
 	}
-	
+	if ($pedidoTemporal['idPedpro']){
+		$datosPedidoReal=$Cpedido->datosPedidos($pedidoTemporal['idPedpro']);
+		$numPedido=$datosPedidoReal['Numpedpro'];
+	}else{
+		$numPedido=0;
+	}
+	echo $numPedido;
 	$fechaCreacion=date("Y-m-d H:i:s");
 	$datosPedido=array(
 		'Numtemp_pedpro'=>$numPedidoTemp,
@@ -105,10 +145,12 @@ if ($_POST['Guardar']){
 		'idProveedor'=>$pedidoTemporal['idProveedor'],
 		'estado'=>"Guardado",
 		'total'=>$total,
+		'numPedido'=>$numPedido,
 		'fechaCreacion'=>$fechaCreacion,
 		'Productos'=>$pedidoTemporal['Productos'],
 		'DatosTotales'=>$Datostotales
 	);
+
 	if ($pedidoTemporal['idPedpro']){
 		$idPedido=$pedidoTemporal['idPedpro'];
 		$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
@@ -120,12 +162,12 @@ if ($_POST['Guardar']){
 		$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
 	}
 	
+	
 	header('Location: pedidosListado.php');
 	
 }
-		
 
-echo $numPedidoTemp;
+
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -158,6 +200,7 @@ echo $numPedidoTemp;
 	$i= 0;
 	if (isset($productos)){
 	if ($productos){
+		
 		foreach($productos as $product){
 ?>
 			datos=<?php echo json_encode($product); ?>;
@@ -167,7 +210,7 @@ echo $numPedidoTemp;
 
 <?php 
 
-		// cambiamos estado y cantidad de producto creado si fuera necesario.
+		//cambiamos estado y cantidad de producto creado si fuera necesario.
 			 if ($product->estado !== 'Activo'){
 			 ?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 			 <?php
@@ -232,7 +275,7 @@ echo $numPedidoTemp;
 				
 					if($datosPedido['estado']<>"Facturado"){
 				?>
-					<input type="submit" value="Guardar" name="Guardar">
+					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
 					<?php
 				}
 				
@@ -249,7 +292,7 @@ echo $numPedidoTemp;
 			<div class="col-md-7">
 				<div class="col-md-6">
 					<strong>Fecha Pedido:</strong><br/>
-					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fechaCab;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" <?php echo $disabled;?>>
+					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" <?php echo $disabled;?>>
 				</div>
 				<div class="col-md-6">
 					<strong>Estado:</strong>
@@ -411,7 +454,23 @@ echo $numPedidoTemp;
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
-	//~ $('#id_cliente').focus();
+	 $('#id_proveedor').focus();
+	 <?php
+	if ($idProveedor>0){
+		?>
+		$('#id_proveedor').prop('disabled', true);
+		$('#Proveedor').prop('disabled', true);
+		$("#buscar").css("display", "none");
+		<?php
+	}
+	if ($estado=="Facturado"){
+		?>
+		$("#tabla").find('input').attr("disabled", "disabled");
+		$("#tabla").find('a').css("display", "none");
+		$("#bGuardar").css("display", "none");
+		<?php
+	}
+	?>
 </script>
 	</body>
 </html>

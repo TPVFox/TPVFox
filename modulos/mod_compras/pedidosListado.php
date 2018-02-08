@@ -153,15 +153,17 @@ if ($stringPalabras !== '' ){
 						<th>ESTADO</th>
 					<?php
 							$checkUser = 0;
+							
 							foreach($pedidosDef as $pedido){
 								$checkUser = $checkUser + 1;
 							$totaliva=$Cpedido->sumarIva($pedido['Numpedpro']);
+							
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">
 						<td><?php echo $pedido['Numpedpro'];?></td>
 						<td><?php echo $pedido['FechaPedido'];?></td>
-						<td><?php echo $pedido['Nombre'];?></td>
+						<td><?php echo $pedido['nombrecomercial'];?></td>
 						<td><?php echo $totaliva['totalbase'];?></td>
 						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $pedido['total'];?></td>

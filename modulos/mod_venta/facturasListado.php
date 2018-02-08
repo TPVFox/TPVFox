@@ -58,7 +58,7 @@ if ($stringPalabras !== '' ){
 </head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
 <?php
 include '../../header.php';

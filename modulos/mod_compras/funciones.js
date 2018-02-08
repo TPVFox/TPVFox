@@ -14,10 +14,12 @@ function controladorAcciones(caja,accion){
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
 			//~ productos.[nfila].unidad = caja.darValor();
-			console.log ( caja);
+			
+			
 			productos[nfila].unidad = caja.darValor();
-			console.log(productos[nfila].unidad);
-			recalculoImporte(productos[nfila].unidad,nfila, caja.darParametro('dedonde'));
+		
+			console.log(caja.fila);
+			recalculoImporte(productos[nfila].unidad, nfila, caja.darParametro('dedonde'));
 			
 		break;
 		case 'mover_down':
@@ -40,7 +42,54 @@ function controladorAcciones(caja,accion){
 			}
 			mover_up(nueva_fila,caja.darParametro('prefijo'));
 		break;
+		case 'addProveedorProducto':
+			console.log("estoy en add proveedor fila");
+			console.log(caja.fila);
+			var nfila = parseInt(caja.fila)-1;
+			var idArticulo=productos[nfila].idArticulo;
+			productos[nfila].crefProveedor = caja.darValor();
+			var coste =productos[nfila].ultimoCoste
+			addProveedorProducto(productos[nfila].idArticulo, nfila , productos[nfila].crefProveedor, coste);
+		break;
+		case 'Saltar_idProveedor':
+			var dato = caja.darValor();
+			if ( dato.length === 0){
+				var d_focus = 'id_proveedor';
+				ponerFocus(d_focus);
+			}
+		break;
 	}
+}
+
+
+function addProveedorProducto(idArticulo, nfila, valor, coste){
+	console.log("ESTOY EN LA FUNCION ADD PROVEEDOR PRODUCTO");
+	
+	var parametros = {
+		"pulsado"    : 'addProveedorArticulo',
+		"idArticulo" : idArticulo,
+		"refProveedor":valor,
+		"idProveedor":cabecera.idProveedor,
+		"coste":coste
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en buscar clientes JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta respuesta de buscar clientes');
+				var resultado =  $.parseJSON(response); 
+				
+				productos[nfila].crefProveedor=valor;
+				addPedidoTemporal();
+	
+		}
+	});
+	console.log(parametros);
+	
 }
 
 function metodoClick(pulsado,adonde){
@@ -284,6 +333,7 @@ function addPedidoTemporal(){
 	
 		
 	console.log("ESTOY EN AÑADIR PEDIDO");
+	console.log(cabecera.fecha);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -444,7 +494,7 @@ function retornarFila(num_item, valor=""){
 	addPedidoTemporal();
 	
 }
-function recalculoImporte(cantidad,num_item, dedonde=""){
+function recalculoImporte(cantidad, num_item, dedonde=""){
 	
 	// @ Objetivo:
 	// Recalcular el importe de la fila, si la cantidad cambia.
@@ -460,8 +510,11 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 			eliminarFila(num_item+1, dedonde);
 		}
 		productos[num_item].ncant = cantidad;
+		var bandera=productos[num_item].iva/100;
+		var importe=(parseFloat(productos[num_item].ultimoCoste)+parseFloat(bandera))*cantidad;
+		console.log(productos[num_item].ultimoCoste+bandera);
 		//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
-		var importe = cantidad*productos[num_item].precioCiva;
+		//var importe = cantidad*productos[num_item].precioCiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
 		$(id).html(importe);
@@ -482,7 +535,9 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
-	
+	if (padre_caja.id_input.indexOf('Proveedor_Fila') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
 	return padre_caja;
 }
 function before_constructor(caja){
@@ -490,6 +545,7 @@ function before_constructor(caja){
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
+	console.log(caja);
 	if (caja.id_input ==='cajaBusqueda'){
 		caja.parametros.dedonde = 'popup';
 		if (caja.name_cja ==='Codbarras'){
@@ -512,6 +568,12 @@ function before_constructor(caja){
 		
 		caja.parametros.item_max = productos.length;
 		caja.fila = caja.id_input.slice(12);
+	}
+	if (caja.id_input.indexOf('Proveedor_Fila') >-1){
+		console.log("entro en Proveedor_Fila_");
+		
+		caja.parametros.item_max = productos.length;
+		caja.fila = caja.id_input.slice(15);
 	}
 	
 	return caja;	

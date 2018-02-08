@@ -4,7 +4,7 @@
 		<caja_input>
 			<nombre id_input="fecha">cajaFecha</nombre>
 			<teclas>
-				<action tecla="40"></action>
+				<action tecla="40">Saltar_idProveedor</action>
 				<action tecla="39"></action>
 				<action tecla="13"></action>
 				<action tecla="9"></action>
@@ -159,7 +159,26 @@
 				<estado>Si</estado>
 			</before>
 		</caja_input>					
-	
+		
+		<caja_input>
+			<nombre id_input="Proveedor_Fila">Proveedor_Fila</nombre>
+			<teclas>
+				<action tecla="13">addProveedorProducto</action>
+				<action tecla="40">mover_up</action>
+				<action tecla="38">mover_down</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="campo"></parametro>
+				<parametro nombre="prefijo">Proveedor_Fila_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>		
 		
 	</cajas_input>
 </parametros>

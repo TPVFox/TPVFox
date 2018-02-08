@@ -259,10 +259,15 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}else{
 				$numeroPed=$producto['NumpedCli'];
 			}
-			if ($producto['crefProveedor']){
+			if ($producto['crefProveedor']>0){
 				$filaProveedor='<td class="referencia">'.$producto['crefProveedor'].'</td>';
 			}else{
-				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor" pattern="[.0-9]+" name="Proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
+				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
+			}
+			if ($producto['ccodbar']>0){
+				$codBarra=$producto['ccodbar'];
+			}else{
+				$codBarra="";
 			}
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 
@@ -271,7 +276,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
 		 $respuesta['html'] .=$filaProveedor;
-		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
+		 $respuesta['html'] .='<td class="codbarras">'.$codBarra.'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['ncant'],0);
 		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
@@ -286,5 +291,28 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='</tr>';
 		 $respuesta['productos']=$producto;
 	 return $respuesta;
+}
+
+function modificarArrayProductos($productos){
+	$respuesta=array();
+	foreach ($productos as $producto){
+		$pro['ccodbar']=$producto['ccodbar'];
+		$pro['cdetalle']=$producto['cdetalle'];
+		$pro['cref']=$producto['cref'];
+		$pro['crefProveedor']=$producto['ref_prov'];
+		$pro['estado']=$producto['estadoLinea'];
+		$pro['idArticulo']=$producto['idArticulo'];
+		$pro['idpedcli']=$producto['idpedpro'];
+		$bandera=$producto['iva']/100;
+		$importe=($bandera+$producto['costeSiva'])*$producto['ncant'];
+		$pro['importe']=$importe;
+		$pro['iva']=$producto['iva'];
+		$pro['ncant']=$producto['ncant'];
+		$pro['nfila']=$producto['nfila'];
+		$pro['nunidades']=$producto['nunidades'];
+		$pro['ultimoCoste']=$producto['costeSiva'];
+		array_push($respuesta,$pro);
+	}
+	return $respuesta;
 }
 ?>

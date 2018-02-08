@@ -18,7 +18,7 @@ class PedidosCompras{
 	public function modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos){
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
-		$smt=$db->query('UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio='.$fecha.'  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp);
+		$smt=$db->query('UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp);
 		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro='.$estadoPedido.' , fechaInicio='.$fecha.'  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
 		$respuesta['sql']=$sql;
 		$respuesta['idTemporal']=$numPedidoTemp;
@@ -46,6 +46,20 @@ class PedidosCompras{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
+	public function addNumRealTemporal($idTemporal, $idReal){
+		$db=$this->db;
+		$smt=$db->query('UPDATE pedprotemporales set idPedpro='.$idReal .'  where id='.$idTemporal);
+		
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
+	public function modEstadoPedido($idPedido, $estado){
+		$db=$this->db;
+		$smt=$db->query('UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido);
+		
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
 	public function DatosTemporal($idTemporal){
 		$db=$this->db;
 		$smt=$db->query('SELECT * from pedprotemporales where id='.$idTemporal);
@@ -56,7 +70,7 @@ class PedidosCompras{
 	}
 	public function DatosPedido($idPedido){
 		$db=$this->db;
-		$smt=$db->query('SELECT * from pedprot where id='.$idTemporal);
+		$smt=$db->query('SELECT * from pedprot where id='.$idPedido);
 		if ($result = $smt->fetch_assoc () ){
 			$pedido=$result;
 		}
@@ -72,7 +86,7 @@ class PedidosCompras{
 	public function AddPedidoGuardado($datos, $idPedido){
 		$db = $this->db;
 		if ($idPedido>0){
-			$smt = $db->query('INSERT INTO pedprot (Numpedpro, Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion) VALUES ('.$idPedido.', '.$datos['Numtemp_pedpro'].', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
+			$smt = $db->query('INSERT INTO pedprot (Numpedpro, Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion) VALUES ('.$datos['numPedido'].', '.$datos['Numtemp_pedpro'].', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
 			$id=$db->insert_id;
 		}else{
 			$smt=$db->query('INSERT INTO pedprot ( Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion) VALUES ('.$datos['Numtemp_pedpro'].', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
@@ -86,15 +100,20 @@ class PedidosCompras{
 			}else{
 				$codBarras=0;
 			}
-			if ($idPedido>0){
-				$smt=$db->query('INSERT INTO pedprolinea (idpedpro, Numpedpro, idArticulo, cref, ref_prov , ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea) values ('.$id.', '.$idPedido.', '.$prod['idArticulo'].', '.$prod['cref'].', '.$prod['cref'].', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].', '.$prod['nunidades'].', '.$prod['precioCiva'].', '.$prod['iva'].', '.$prod['nfila'].', "'.$prod['estado'].'")');
+			if ($prod['crefProveedor']){
+				$refProveedor=$prod['crefProveedor'];
 			}else{
-				$smt=$db->query('INSERT INTO pedprolinea (idpedpro, Numpedpro, idArticulo, cref, ref_prov , ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea) values ('.$id.', '.$id.', '.$prod['idArticulo'].', '.$prod['cref'].', '.$prod['cref'].', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].', '.$prod['nunidades'].', '.$prod['precioCiva'].', '.$prod['iva'].', '.$prod['nfila'].', "'.$prod['estado'].'")');
+				$refProveedor=0;
+			}
+			if ($idPedido>0){
+				$smt=$db->query('INSERT INTO pedprolinea (idpedpro, Numpedpro, idArticulo, cref, ref_prov , ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea) values ('.$id.', '.$datos['numPedido'].', '.$prod['idArticulo'].', '.$prod['cref'].', '.$refProveedor.', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].', '.$prod['nunidades'].', '.$prod['ultimoCoste'].', '.$prod['iva'].', '.$prod['nfila'].', "'.$prod['estado'].'")');
+			}else{
+				$smt=$db->query('INSERT INTO pedprolinea (idpedpro, Numpedpro, idArticulo, cref, ref_prov , ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea) values ('.$id.', '.$id.', '.$prod['idArticulo'].', '.$prod['cref'].', '.$refProveedor.', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].', '.$prod['nunidades'].', '.$prod['ultimoCoste'].', '.$prod['iva'].', '.$prod['nfila'].', "'.$prod['estado'].'")');
 			}
 		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idPedido>0){
-				$smt=$db->query('INSERT INTO pedproIva (idpedpro, Numpedpro, iva, importeIva, totalbase) values ('.$id.', '.$idPedido.', '.$iva.', '.$basesYivas['iva'].', '.$basesYivas['base'].')');
+				$smt=$db->query('INSERT INTO pedproIva (idpedpro, Numpedpro, iva, importeIva, totalbase) values ('.$id.', '.$datos['numPedido'].', '.$iva.', '.$basesYivas['iva'].', '.$basesYivas['base'].')');
 			}else{
 				$smt=$db->query('INSERT INTO pedproIva (idpedpro, Numpedpro, iva, importeIva, totalbase) values ('.$id.', '.$id.', '.$iva.', '.$basesYivas['iva'].', '.$basesYivas['base'].')');
 				$sql='INSERT INTO pedproIva (idpedpro, Numpedpro, iva, importeIva, totalbase) values ('.$id.', '.$id.', '.$iva.', '.$basesYivas['iva'].', '.$basesYivas['base'].')';
@@ -146,6 +165,24 @@ class PedidosCompras{
 			$pedido=$result;
 		}
 		return $pedido;
+	}
+	public function ProductosPedidos($idPedido){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM pedprolinea WHERE idpedpro= '.$idPedido );
+		$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
+	}
+	public function IvasPedidos($idPedido){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM pedproIva WHERE idpedpro= '.$idPedido );
+		$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
 	}
 	
 }

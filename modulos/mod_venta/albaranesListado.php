@@ -62,7 +62,7 @@ if ($stringPalabras !== '' ){
 </head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
 <?php
 include '../../header.php';
@@ -79,7 +79,7 @@ include '../../header.php';
 				<?php 
 					if ($Usuario['group_id'] === '1'){
 				?>
-					<li><a href="#section2" onclick="metodoClick('AgregarAlbaran');";>Añadir</a></li>
+					<li><a href="#section2" onclick="metodoClick('AgregarAlbaran', 'albaran');";>Añadir</a></li>
 					<?php 
 				}
 					?>

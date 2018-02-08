@@ -14,6 +14,8 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 include_once ("./funciones.php");
 include_once '../../clases/Proveedores.php';
 $CProveedores=new Proveedores($BDTpv);
+include_once "../../clases/articulos.php";
+$CArticulos=new Articulos($BDTpv);
 include_once "clases/pedidosCompras.php";
 $CPed=new PedidosCompras($BDTpv);
 switch ($pulsado) {
@@ -77,10 +79,11 @@ switch ($pulsado) {
 				$numPedidoTemp=$res;
 		}
 		$respuesta['numPedido']=$numPedido;
-		//~ if ($numPedido>0){
-			//~ $modId=$CPed->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
-			//~ $respuesta['sqlmodnum']=$modId;
-		//~ }
+		 if ($idPedido>0){
+			 $modId=$CPed->addNumRealTemporal($numPedidoTemp, $idPedido);
+			 $estado="Sin Guardar";
+			 $modEstado=$CPed->modEstadoPedido($idPedido, $estado);
+		 }
 		if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
@@ -123,6 +126,24 @@ switch ($pulsado) {
 				 $respuesta['html']=$res['html'];
 		 }
 		echo json_encode($respuesta);
+		break;
+		case 'addProveedorArticulo':
+			$fechaActualizacion=date('Y-m-d');
+			$estado="activo";
+			$datos=array(
+				'idArticulo'=>$_POST['idArticulo'],
+				'refProveedor'=>$_POST['refProveedor'],
+				'idProveedor'=>$_POST['idProveedor'],
+				'coste'=>$_POST['coste'],
+				'fecha'=>$fechaActualizacion,
+				'estado'=>$estado
+			);
+			$addNuevo=$CArticulos->addArticulosProveedores($datos);
+		$respuesta['sql']=$addNuevo;
+		
+		
+		echo json_encode($respuesta);
+		
 		break;
 	
 	
