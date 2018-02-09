@@ -184,6 +184,18 @@ class PedidosCompras{
 		}
 		return $pedidosPrincipal;
 	}
+	public function pedidosProveedorGuardado($idProveedor, $estado){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'");
+		
+		
+		 $pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		
+		return $pedidosPrincipal;
+	}
 	
 }
 

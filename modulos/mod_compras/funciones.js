@@ -1,6 +1,8 @@
 //Función que controla las acciones que llegan del xml
 function controladorAcciones(caja,accion){
+	
 	switch(accion) {
+		
 		case 'buscarProveedor':
 			console.log("Estoy en buscar proveedor");
 			buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
@@ -177,6 +179,10 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					$('#Proveedor').prop('disabled', true);
 					$('#id_proveedor').prop('disabled', true);
 					$("#buscar").css("display", "none");
+					if (dedonde="albaran"){
+						comprobarPedidos();
+						
+					}
 				}else{
 					//Si no mostramos un modal con los proveedores según la busqueda
 					var titulo = 'Listado Proveedores ';
@@ -187,6 +193,37 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 	
 		}
 	});
+	
+}
+
+function comprobarPedidos(){
+	var parametros = {
+		"pulsado"    : 'comprobarPedido',
+		"idProveedor": cabecera.idProveedor
+	};
+		$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en buscar clientes JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta respuesta de buscar clientes');
+				var resultado =  $.parseJSON(response); 
+				if (resultado==1){
+					$('#numPedidoT').css("display", "block");
+					$('#numPedido').css("display", "block");
+					$('#buscarPedido').css("display", "block");
+					$('#tablaPedidos').css("display", "block");
+				}
+				console.log(resultado);
+				
+	
+		}
+	});
+	
+	
 	
 }
 //Esta funcion se activa cuando en el modal de proveedor pinchamos encima de uno de los proveedores

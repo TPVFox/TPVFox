@@ -17,11 +17,18 @@ include './../../head.php';
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Crear Albarán De Proveedor";
 	$estado='Abierto';
+	$estadoCab="'".'Abierto'."'";
+	
 	if (isset($_GET['id'])){
 		
 		
 	}else{
-		
+	$fecha=date('Y-m-d');
+	$fechaCab="'".$fecha."'";
+	$idAlbaranTemporal=0;
+	$idAlbaran=0;
+	$numAlbaran=0;
+	$idProveedor=0;
 		
 	}
 		//~ if(isset($albaran['Productos'])){
@@ -45,8 +52,13 @@ include './../../head.php';
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 //Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
-		$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
 		
+	foreach($parametros->cajas_input->caja_input as $caja){
+		$caja->parametros->parametro[0]="albaran";
+	}
+	//~ echo '<pre>';
+	//~ print_r($parametros);
+	//~ echo '</pre>';
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
 ?>
@@ -58,13 +70,13 @@ include './../../head.php';
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estadoAlbaran'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
 		cabecera['idAlbaranTemp'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idAlbaran'] = <?php echo $idAlbaran ;?>;
 		cabecera['numAlbaran'] = <?php echo $numAlbaran ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
-		cabecera['idCliente'] = <?php echo $idCliente ;?>;
-		cabecera['nombreCliente'] = <?php echo $nombreCliente ;?>;
+		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
+		
 		
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
@@ -85,8 +97,8 @@ include './../../head.php';
 	
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
-			if ($product['estadoLinea'] !== 'Activo'){
-			?>	productos[<?php echo $i;?>].estadoLinea=<?php echo'"'.$product['estadoLinea'].'"';?>;
+			if ($product['estado'] !== 'Activo'){
+			?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 			<?php
 			}
 			$i++;
@@ -107,17 +119,14 @@ include './../../head.php';
 ?>
 </script>
 <?php 
-//~ if ($idCliente==0){
-	//~ $idCliente="";
-	//~ $nombreCliente="";
-//~ }
-//~ if (isset($_GET['tActual'])){
-	//~ $nombreCliente=$cliente['Nombre'];
-//~ }
+if ($idProveedor==0){
+	$idProveedor="";
+	
+}
 ?>
 </head>
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
 	include '../../header.php';
@@ -166,7 +175,7 @@ include './../../head.php';
 			
 				<div class="col-md-4">
 					<strong>Fecha albarán:</strong><br>
-					<input type="date" name="fechaAl" id="fechaAl" size="10" data-obj= "fechaAl"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
 				<div class="col-md-3">
 					<strong>Estado:</strong><br>
@@ -180,14 +189,14 @@ include './../../head.php';
 			
 		</div>
 		<div class="form-group">
-			<label>Cliente:</label>
-			<input type="text" id="id_clienteAl" name="id_clienteAl" data-obj= "cajaIdClienteAl" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="ClienteAl" name="ClienteAl" data-obj= "cajaClienteAl" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('albaran')"></a>
+			<label>Proveedor:</label>
+			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+			<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" placeholder="Nombre del Proveedor" onkeydown="controlEventos(event)" value="<?php echo $nombreProveedor; ?>" size="60">
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('albaran')"></a>
 		</div>
 	</div>
 	<div class="col-md-4" >
-	
+	<div>
 		<div>
 			<div style="margin-top:-50px;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
@@ -212,6 +221,7 @@ include './../../head.php';
 			</div>
 		</div>
 	</div>
+	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
 		<table id="tabla" class="table table-striped">
@@ -221,10 +231,11 @@ include './../../head.php';
 			<th>Num Pedido</th>
 			<th>Id Articulo</th>
 			<th>Referencia</th>
+			<th>Referencia Proveedor</th>
 			<th>Cod Barras</th>
 			<th>Descripcion</th>
 			<th>Unid</th>
-			<th>PVP</th>
+			<th>Coste</th>
 			<th>Iva</th>
 			<th>Importe</th>
 			<th></th>
@@ -232,11 +243,13 @@ include './../../head.php';
 		  <tr id="Row0" style=<?php echo $style;?>>  
 			<td id="C0_Linea" ></td>
 			<td></td>
-			<td><input id="idArticuloAl" type="text" name="idArticuloAl" placeholder="idArticulo" data-obj= "cajaidArticuloAl" size="13" value=""  onkeydown="controlEventos(event)"></td>
-			<td><input id="ReferenciaAl" type="text" name="ReferenciaAl" placeholder="Referencia" data-obj="cajaReferenciaAl" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="CodbarrasAl" type="text" name="CodbarrasAl" placeholder="Codbarras" data-obj= "cajaCodBarrasAl" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="DescripcionAl" type="text" name="DescripcionAl" placeholder="Descripcion" data-obj="cajaDescripcionAl" size="20" value="" onkeydown="controlEventos(event)"></td>
-		  </tr>
+			<td id="C0_Linea" ></td>
+			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="13" value=""  onkeydown="controlEventos(event)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)"></td>
+		</tr>
 		</thead>
 		<tbody>
 			<?php 

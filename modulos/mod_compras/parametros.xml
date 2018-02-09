@@ -189,6 +189,16 @@
 				<parametro nombre="campo"></parametro>
 			</parametros>
 		</caja_input>	
+		<caja_input>
+			<nombre id_input="numPedido">numPedido</nombre>
+			<teclas>
+				<action tecla="13">addPedidoAlbaran</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">albaran</parametro>
+				<parametro nombre="campo"></parametro>
+			</parametros>
+		</caja_input>	
 		
 	</cajas_input>
 </parametros>

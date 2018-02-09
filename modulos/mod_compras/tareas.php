@@ -166,6 +166,18 @@ switch ($pulsado) {
 				echo json_encode($respuesta);
 		
 		break;
+		case 'comprobarPedido':
+			$estado="Guardado";
+			$idProveedor=$_POST['idProveedor'];
+			$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
+			if (count($buscar)>0){
+				$bandera=1;
+			}else{
+				$bandera=2;
+			}
+			
+			echo json_encode($bandera);
+		break;
 	
 	
 }
