@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 06, 2018 at 02:18 PM
+-- Generation Time: Feb 09, 2018 at 05:13 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -23,25 +23,25 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pedAlbPro`
+-- Table structure for table `albclifac`
 --
 
-CREATE TABLE `pedAlbPro` (
+CREATE TABLE `albclifac` (
   `id` int(11) NOT NULL,
+  `idFactura` int(11) DEFAULT NULL,
+  `numFactura` int(11) DEFAULT NULL,
   `idAlbaran` int(11) DEFAULT NULL,
-  `numAlbaran` int(11) DEFAULT NULL,
-  `idPedido` int(11) DEFAULT NULL,
-  `numPedido` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `numAlbaran` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `pedAlbPro`
+-- Indexes for table `albclifac`
 --
-ALTER TABLE `pedAlbPro`
+ALTER TABLE `albclifac`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -49,9 +49,9 @@ ALTER TABLE `pedAlbPro`
 --
 
 --
--- AUTO_INCREMENT for table `pedAlbPro`
+-- AUTO_INCREMENT for table `albclifac`
 --
-ALTER TABLE `pedAlbPro`
+ALTER TABLE `albclifac`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
