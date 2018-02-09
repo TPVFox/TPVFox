@@ -235,6 +235,7 @@ function recalculoTotalesAl($productos) {
 	$respuesta['total'] = number_format($subtotal,2);
 	return $respuesta;
 }
+// html de la linea de los productos tanto para pedido, albaran y factura
 function htmlLineaPedidoAlbaran($productos, $dedonde){
 	
 	if(!is_array($productos)) {
@@ -244,7 +245,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 	} else {
 		$producto = $productos;
 	}
-	
+	// Si el estado es activo lo muestra normal con el boton de eleminar producto si no la linea esta desactivada con el botón de retornar
 		 	if ($producto['estado'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
@@ -259,6 +260,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}else{
 				$numeroPed=$producto['NumpedCli'];
 			}
+			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
 			if ($producto['crefProveedor']>0){
 				$filaProveedor='<td class="referencia"><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+"  value="'.$producto['crefProveedor'].'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)" disabled><a onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="text-align: right"><span class="glyphicon glyphicon-cog"></span></a></td>';
 			}else{
@@ -292,7 +294,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['productos']=$producto;
 	 return $respuesta;
 }
-
+// Modificar el array de productos para poder trabajar con el en pedidos
 function modificarArrayProductos($productos){
 	$respuesta=array();
 	foreach ($productos as $producto){
@@ -316,7 +318,7 @@ function modificarArrayProductos($productos){
 	return $respuesta;
 }
 
-
+// html para cambio de referencia de proveedor
 function htmlCambioRefProveedor($datos, $fila){
 	$resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'">';
 	return $resultado;

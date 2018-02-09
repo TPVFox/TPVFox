@@ -1,3 +1,4 @@
+//Función que controla las acciones que llegan del xml
 function controladorAcciones(caja,accion){
 	switch(accion) {
 		case 'buscarProveedor':
@@ -14,8 +15,6 @@ function controladorAcciones(caja,accion){
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
 			//~ productos.[nfila].unidad = caja.darValor();
-			
-			
 			productos[nfila].unidad = caja.darValor();
 		
 			console.log(caja.fila);
@@ -44,9 +43,9 @@ function controladorAcciones(caja,accion){
 		break;
 		case 'addProveedorProducto':
 			console.log("estoy en add proveedor fila");
-			console.log(caja.fila);
+			//Recibe el número de la fila. para poder manipular la referencia de la fila
 			var nfila = parseInt(caja.fila)-1;
-			var idArticulo=productos[nfila].idArticulo;
+			var idArticulo=productos[nfila].idArticulo;//Guardamos en una variable el id del articulo
 			productos[nfila].crefProveedor = caja.darValor();
 			var coste =productos[nfila].ultimoCoste
 			addProveedorProducto(productos[nfila].idArticulo, nfila , productos[nfila].crefProveedor, coste);
@@ -61,7 +60,7 @@ function controladorAcciones(caja,accion){
 	}
 }
 
-
+// add una referencia de un proveedor a un articulo
 function addProveedorProducto(idArticulo, nfila, valor, coste){
 	console.log("ESTOY EN LA FUNCION ADD PROVEEDOR PRODUCTO");
 	
@@ -81,14 +80,14 @@ function addProveedorProducto(idArticulo, nfila, valor, coste){
 			},
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
-				var resultado =  $.parseJSON(response); 
+				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
 				abrirModal(resultado.html);
-				productos[nfila].crefProveedor=valor;
-				fila=nfila+1;
+				productos[nfila].crefProveedor=valor;// pone le valor en el input 
+				fila=nfila+1;//sumamos uno a la fila
 				var id="#Proveedor_Fila_"+fila;
-				$(id).prop('disabled', true);
+				$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
 				console.log(id);
-				addPedidoTemporal();
+				addPedidoTemporal();//Modificamos los productos del pedido
 	
 		}
 	});
@@ -132,7 +131,7 @@ function metodoClick(pulsado,adonde){
 	 }
 } 
 
-
+// Función para buscar un proveedor 
 function buscarProveedor(dedonde, idcaja, valor=''){
 	console.log('FUNCION buscarProveedores JS-AJAX');
 	var parametros = {
@@ -155,6 +154,9 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 				var encontrados = resultado.encontrados;
 				console.log(resultado);
 				if (resultado.Nitems==1){
+					// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
+					//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
+					//Se oculta el botón del botón buscar
 					cabecera.idProveedor=resultado.id;
 					
 					$('#Proveedor').val(resultado.nombre);
@@ -162,6 +164,7 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					$('#id_proveedor').prop('disabled', true);
 					$("#buscar").css("display", "none");
 				}else{
+					//Si no mostramos un modal con los proveedores según la busqueda
 					var titulo = 'Listado Proveedores ';
 					var HtmlProveedores=resultado.html['html']; 
 					abrirModal(titulo,HtmlProveedores);
@@ -172,7 +175,9 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 	});
 	
 }
-
+//Esta funcion se activa cuando en el modal de proveedor pinchamos encima de uno de los proveedores
+//Lo que hacemos es volver a la función buscar proveedor pero mandado de busqueda el id del nombre que hemos seleccionado
+// De esta manera nos ahorramos procedimientos
 function escribirProveedorSeleccionado(id, nombre, dedonde){
 	idcaja="id_proveedor";
 	valor=id;
@@ -214,6 +219,9 @@ function cerrarPopUp(destino_focus=''){
 	}
 	
 }
+// Buscar producto es una función que llamamos desde las distintas cajas de busquedas de los productos
+//Entra en la función de tareas de buscar productos y le envia los parametros
+//Esta función devuelve el número de busquedas
 function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 	console.log(idcaja);
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
@@ -239,6 +247,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			console.log(resultado);
 		
 		if (resultado['Nitems']===1){
+			// Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
+			//Llamamos a la función de add pedido temporal y agregar la fila de producto
 			var datos = new Object();
 			datos.ccodbar=resultado['datos'][0]['codBarras'];
 			datos.cdetalle=resultado['datos'][0]['articulo_name'];
@@ -263,6 +273,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			addPedidoTemporal();
 			AgregarFilaProductosAl(datos, dedonde);
 		}else{
+			// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
 			console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 				
 			var busqueda = resultado.listado;   
@@ -286,6 +297,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 
 	});
 }
+
+//Funcion que agrega una fila a la tabla productos 
 function AgregarFilaProductosAl(productosAl, dedonde=''){
 	console.log("Estoy en agregar fila productos albaran");
 	
@@ -314,12 +327,13 @@ function AgregarFilaProductosAl(productosAl, dedonde=''){
 			var resultado =  $.parseJSON(response); 
 			console.log(resultado);
 			var nuevafila = resultado['html'];
-			$("#tabla").prepend(nuevafila);
+			$("#tabla").prepend(nuevafila);// añadir la fila como primera de la tabla
 			
 			
 		}
 	});
 }
+// Añadir un pedido temporal
 function addPedidoTemporal(){
 	console.log('FUNCION Añadir pedido temporal JS-AJAX');
 	console.log(productos);
