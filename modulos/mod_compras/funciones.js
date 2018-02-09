@@ -57,13 +57,21 @@ function controladorAcciones(caja,accion){
 				ponerFocus(d_focus);
 			}
 		break;
+		case 'addRefProveedor':
+			var idArticulo=$('#idArticuloRef').val();
+			var fila=$('#numFila').val();
+			var coste =productos[fila].ultimoCoste
+			console.log(fila);
+			nfila=parseInt(fila);
+			addProveedorProducto(idArticulo, nfila, caja.darValor(), coste);
+			cerrarPopUp()
+		break;
 	}
 }
-
 // add una referencia de un proveedor a un articulo
 function addProveedorProducto(idArticulo, nfila, valor, coste){
 	console.log("ESTOY EN LA FUNCION ADD PROVEEDOR PRODUCTO");
-	
+	console.log(nfila);
 	var parametros = {
 		"pulsado"    : 'addProveedorArticulo',
 		"idArticulo" : idArticulo,
@@ -71,6 +79,7 @@ function addProveedorProducto(idArticulo, nfila, valor, coste){
 		"idProveedor":cabecera.idProveedor,
 		"coste":coste
 	};
+	console.log(parametros);
 	$.ajax({
 			data       : parametros,
 			url        : 'tareas.php',
@@ -81,11 +90,13 @@ function addProveedorProducto(idArticulo, nfila, valor, coste){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
-				abrirModal(resultado.html);
+				//abrirModal(resultado.html);
 				productos[nfila].crefProveedor=valor;// pone le valor en el input 
 				fila=nfila+1;//sumamos uno a la fila
 				var id="#Proveedor_Fila_"+fila;
 				$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
+				$(id).val(valor);
+				$('#enlaceCambio').css("display", "block");
 				console.log(id);
 				addPedidoTemporal();//Modificamos los productos del pedido
 	
@@ -114,6 +125,9 @@ function metodoClick(pulsado,adonde){
 			console.log('entro en agregar producto');
 			window.location.href = './pedido.php';
 			
+			break;
+		case 'AgregarAlbaran':
+			window.location.href = './albaran.php';
 			break;
 		case 'NuevaBusquedaPedido':
 			// Obtenemos puesto en input de Buscar
@@ -432,7 +446,7 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id){
 		var datos = new Object();
 		datos.ccodbar=ccodebar;
 		datos.cdetalle=cdetalle;
@@ -443,10 +457,11 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 		datos.ncant=1;
 		datos.nfila=productos.length+1;
 		datos.nunidades=1;
-		var importe =npconiva*1;
+		var bandera=ctipoIva/100;
+		var importe =(bandera+ultimoCoste)*1;
 		datos.importe=importe.toFixed(2);
-		var pvpCiva= parseFloat(npconiva);
-		datos.precioCiva=pvpCiva.toFixed(2);
+		var ultimoCoste= parseFloat(ultimoCoste);
+		datos.ultimoCoste=ultimoCoste.toFixed(2);
 		productos.push(datos);
 		dedonde="pedido";
 		addPedidoTemporal();
@@ -601,11 +616,13 @@ function before_constructor(caja){
 function buscarReferencia(idArticulo, nfila){
 	console.log("Entre en buscar referencia");
 	fila=nfila-1;
+	var coste=productos[fila].ultimoCoste;
 	var parametros = {
 		"pulsado"    : 'buscarReferencia',
 		"idArticulo":idArticulo,
 		"idProveedor":cabecera.idProveedor,
-		"fila":fila
+		"fila":fila,
+		"coste":coste
 	};
 	$.ajax({
 			data       : parametros,

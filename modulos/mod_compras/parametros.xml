@@ -178,7 +178,17 @@
 			<before>
 				<estado>Si</estado>
 			</before>
-		</caja_input>		
+		</caja_input>	
+		<caja_input>
+			<nombre id_input="inputCambioRef">inputCambioRef</nombre>
+			<teclas>
+				<action tecla="13">addRefProveedor</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="campo"></parametro>
+			</parametros>
+		</caja_input>	
 		
 	</cajas_input>
 </parametros>

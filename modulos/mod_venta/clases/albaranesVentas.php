@@ -108,7 +108,7 @@ class AlbaranesVentas{
 		$smt=$db->query('DELETE FROM albclit where id='.$idAlbaran );
 		$smt=$db->query('DELETE FROM albclilinea where idalbcli ='.$idAlbaran );
 		$smt=$db->query('DELETE FROM albcliIva where idalbcli ='.$idAlbaran );
-		$smt=$db->query('DELETE FROM pedAlbCli where idAlbaran ='.$idAlbaran );
+		$smt=$db->query('DELETE FROM pedcliAlb where idAlbaran ='.$idAlbaran );
 		
 	}
 		public function AddAlbaranGuardado($datos, $idAlbaran){
@@ -154,11 +154,11 @@ class AlbaranesVentas{
 		$pedidos = json_decode($datos['pedidos'], true); 
 		foreach ($pedidos as $pedido){
 			if($idAlbaran>0){
-				$smt=$db->query('INSERT INTO pedAlbCli (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')');
+				$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')');
 
 				}else{
-				$smt=$db->query('INSERT INTO pedAlbCli (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')');
-				$resultado='INSERT INTO pedAlbCli (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')';
+				$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')');
+				$resultado='INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')';
 				}
 		}
 		return $resultado;
@@ -239,7 +239,7 @@ class AlbaranesVentas{
 	}
 	public function PedidosAlbaranes($idAlbaran){
 		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedAlbCli WHERE idAlbaran= '.$idAlbaran );
+		$smt=$db->query('SELECT * FROM pedcliAlb WHERE idAlbaran= '.$idAlbaran );
 		$albaranPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($albaranPrincipal,$result);

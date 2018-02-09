@@ -262,9 +262,9 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
 			if ($producto['crefProveedor']>0){
-				$filaProveedor='<td class="referencia"><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+"  value="'.$producto['crefProveedor'].'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)" disabled><a onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="text-align: right"><span class="glyphicon glyphicon-cog"></span></a></td>';
+				$filaProveedor='<td class="referencia"><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+"  value="'.$producto['crefProveedor'].'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)" disabled><a id="enlaceCambio" onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="text-align: right"><span class="glyphicon glyphicon-cog"></span></a></td>';
 			}else{
-				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
+				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"><a onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="display:none" id="enlaceCambio"><span class="glyphicon glyphicon-cog"></span></a></td>';
 			}
 			if ($producto['ccodbar']>0){
 				$codBarra=$producto['ccodbar'];
@@ -319,8 +319,12 @@ function modificarArrayProductos($productos){
 }
 
 // html para cambio de referencia de proveedor
-function htmlCambioRefProveedor($datos, $fila){
-	$resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'">';
+function htmlCambioRefProveedor($datos, $fila, $articulo, $coste){
+	$resultado['html'] .='<label>Modificación de '.$articulo['articulo_name'].'</label>';
+	$resultado['html'] .='<input type=text value="'.$fila.'" id="numFila" style="display:none">';
+	$resultado['html'] .='<input type=text value="'.$datos['idArticulo'].'" id="idArticuloRef" style="display:none">';
+	$resultado['html'] .='<input type=text value="'.$coste.'" id="coste" style="display:none">';
+	$resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'" data-obj="inputCambioRef" name ="cambioRef" onkeydown="controlEventos(event)" onBlur="controlEventos(event)" id ="inputCambioRef">';
 	return $resultado;
 }
 ?>

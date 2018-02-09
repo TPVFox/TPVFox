@@ -96,7 +96,7 @@ class FacturasVentas{
 	}
 	public function AlbaranesFactura($idFactura){
 		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albfaccli WHERE idFactura= '.$idFactura );
+		$smt=$db->query('SELECT * FROM albclifac WHERE idFactura= '.$idFactura );
 		$facturaPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($facturaPrincipal,$result);
@@ -193,7 +193,7 @@ class FacturasVentas{
 		$smt=$db->query('DELETE FROM  facclit where id='.$idFactura );
 		$smt=$db->query('DELETE FROM  facclilinea where idfaccli ='.$idFactura );
 		$smt=$db->query('DELETE FROM faccliIva where idfaccli ='.$idFactura );
-		$smt=$db->query('DELETE FROM albfaccli where idFactura  ='.$idFactura );
+		$smt=$db->query('DELETE FROM albclifac where idFactura  ='.$idFactura );
 		
 	}
 	
@@ -242,11 +242,11 @@ class FacturasVentas{
 		if ($albaranes){
 		foreach ($albaranes as $albaran){
 			if($idFactura>0){
-				$smt=$db->query('INSERT INTO albfaccli (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')');
+				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')');
 
 				}else{
-				$smt=$db->query('INSERT INTO albfaccli (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')');
-				$resultado='INSERT INTO albfaccli (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')';
+				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')');
+				$resultado='INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')';
 				}
 		}
 		}

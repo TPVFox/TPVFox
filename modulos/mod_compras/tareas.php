@@ -139,7 +139,13 @@ switch ($pulsado) {
 				'fecha'=>$fechaActualizacion,
 				'estado'=>$estado
 			);
-			$addNuevo=$CArticulos->addArticulosProveedores($datos);
+			$datosArticulo=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
+			if ($datosArticulo){
+				$modArt=$CArticulos->modificarProveedorArticulo($datos);
+			}else{
+				$addNuevo=$CArticulos->addArticulosProveedores($datos);
+			}
+			
 		$respuesta['sql']=$addNuevo;
 		
 		
@@ -149,12 +155,13 @@ switch ($pulsado) {
 		case 'buscarReferencia':
 				$idArticulo=$_POST['idArticulo'];
 				$idProveedor=$_POST['idProveedor'];
+				$coste=$_POST['coste'];
 				$fila=$_POST['fila'];
 				$datosArticulo=$CArticulos->buscarReferencia($idArticulo, $idProveedor);
-				$articulo=$CAritulos->buscarNombreArticulo($idArticulo);
+				$articulo=$CArticulos->buscarNombreArticulo($idArticulo);
 				
-				$html=htmlCambioRefProveedor($datosArticulo, $fila);
-				 $respuesta['html']=$html['html'];
+				$html=htmlCambioRefProveedor($datosArticulo, $fila, $articulo, $coste);
+				$respuesta['html']=$html['html'];
 				
 				echo json_encode($respuesta);
 		

@@ -32,11 +32,15 @@ class Articulos{
 	
 	public function buscarNombreArticulo($idArticulo){
 		$db=$this->db;
-		$smt=$db->query('SELECT articulo_name FROM articulos WHERE idArticulo='$idArticulo);
+		$smt=$db->query('SELECT articulo_name FROM articulos WHERE idArticulo='.$idArticulo);
 		if ($result = $smt->fetch_assoc () ){
 			$referencia=$result;
 		}
 		return $referencia;
+	}
+	public function modificarProveedorArticulo($datos){
+		$db=$this->db;
+		$smt=$db->query('UPDATE articulosProveedores SET crefProveedor='.$datos['refProveedor'].' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
 	}
 	
 	
