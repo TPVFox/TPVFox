@@ -68,7 +68,31 @@ function controladorAcciones(caja,accion){
 			addProveedorProducto(idArticulo, nfila, caja.darValor(), coste);
 			cerrarPopUp()
 		break;
+		case 'addPedidoAlbaran':
+		buscarPedido(caja.darValor());
+		
+		break;
 	}
+}
+
+function buscarPedido(valor){
+	var parametros ={
+		'pulsado'="BuscarPedido"
+		'idPedido':valor
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en buscar clientes JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta respuesta de buscar clientes');
+				
+	
+		}
+	});
 }
 // add una referencia de un proveedor a un articulo
 function addProveedorProducto(idArticulo, nfila, valor, coste){

@@ -178,6 +178,12 @@ switch ($pulsado) {
 			
 			echo json_encode($bandera);
 		break;
+		case 'BuscarPedido':
+		$idPedido=$_POST['idPedido'];
+		$datosPedido=$CPed->DatosPedido($idPedido);
+		
+		
+		break;
 	
 	
 }
