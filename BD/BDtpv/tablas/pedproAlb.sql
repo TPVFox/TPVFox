@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 19, 2018 at 10:43 PM
+-- Generation Time: Feb 09, 2018 at 04:43 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -23,10 +23,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pedAlbCli`
+-- Table structure for table `pedproAlb`
 --
 
-CREATE TABLE `pedAlbCli` (
+CREATE TABLE `pedproAlb` (
   `id` int(11) NOT NULL,
   `idAlbaran` int(11) DEFAULT NULL,
   `numAlbaran` int(11) DEFAULT NULL,
@@ -39,9 +39,9 @@ CREATE TABLE `pedAlbCli` (
 --
 
 --
--- Indexes for table `pedAlbCli`
+-- Indexes for table `pedproAlb`
 --
-ALTER TABLE `pedAlbCli`
+ALTER TABLE `pedproAlb`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -49,9 +49,9 @@ ALTER TABLE `pedAlbCli`
 --
 
 --
--- AUTO_INCREMENT for table `pedAlbCli`
+-- AUTO_INCREMENT for table `pedproAlb`
 --
-ALTER TABLE `pedAlbCli`
+ALTER TABLE `pedproAlb`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
