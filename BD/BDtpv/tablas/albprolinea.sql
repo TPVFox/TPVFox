@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 09, 2018 at 05:45 PM
+-- Generation Time: Feb 12, 2018 at 10:45 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -40,7 +40,8 @@ CREATE TABLE `albprolinea` (
   `iva` decimal(4,2) DEFAULT NULL,
   `nfila` int(11) DEFAULT NULL,
   `estadoLinea` varchar(12) DEFAULT NULL,
-  `ref_prov` varchar(18) NOT NULL
+  `ref_prov` varchar(18) NOT NULL,
+  `Numpedpro` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
