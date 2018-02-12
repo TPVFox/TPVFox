@@ -55,6 +55,7 @@ include './../../head.php';
 		$fechaCab="'".$fecha."'";
 			if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
+			
 				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
 				if (isset($datosAlbaran['numalbcli'])){
 					$numAlbaran=$datosAlbaran['numalbcli'];
@@ -134,7 +135,7 @@ include './../../head.php';
 				
 				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
 				 $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
-				 $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+				 $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
 			 }else{
 				$idAlbaran=0;
 				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);

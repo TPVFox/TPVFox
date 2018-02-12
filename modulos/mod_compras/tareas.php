@@ -18,6 +18,8 @@ include_once "../../clases/articulos.php";
 $CArticulos=new Articulos($BDTpv);
 include_once "clases/pedidosCompras.php";
 $CPed=new PedidosCompras($BDTpv);
+include_once "clases/albaranesCompras.php";
+$CAlb=new AlbaranesCompras($BDTpv);
 switch ($pulsado) {
 	case 'buscarProveedor':
 		$busqueda=$_POST['busqueda'];
@@ -42,6 +44,7 @@ switch ($pulsado) {
 			$id_input = $_POST['cajaInput'];
 			$idcaja=$_POST['idcaja'];
 			$idProveedor=$_POST['idProveedor'];
+			$dedonde=$_POST['dedonde'];
 			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idProveedor);
 			$respuesta['sql']=$res['sql'];
 			if ($res['Nitems']===1){
@@ -49,7 +52,7 @@ switch ($pulsado) {
 				$respuesta['Nitems']=$res['Nitems'];	
 			}else{
 				// Cambio estado para devolver que es listado.
-				$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda);
+				$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
 				$respuesta['Estado'] = 'Listado';
 				$respuesta['datos']=$res['datos'];
 			}
@@ -179,12 +182,95 @@ switch ($pulsado) {
 			echo json_encode($bandera);
 		break;
 		case 'BuscarPedido':
-		$idPedido=$_POST['idPedido'];
-		$datosPedido=$CPed->DatosPedido($idPedido);
-		
-		
+		$numPedido=$_POST['numPedido'];
+		$idProveedor=$_POST['idProveedor'];
+		$estado="Guardado";
+		$datosPedido=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado);
+		if ($datosPedido['Nitem']==1){
+			$respuesta['temporales']=1;
+			$respuesta['datos']['Numpedpro']=$datosPedido['Numpedpro'];
+			$respuesta['datos']['idPedido']=$datosPedido['id'];
+			$respuesta['datos']['fecha']=$datosPedido['FechaPedido'];
+			$respuesta['datos']['total']=$datosPedido['total'];
+			$respuesta['Nitems']=$datosPedido['Nitem'];
+			$productosPedido=$CPed->ProductosPedidos($datosPedido['id']);
+			$respuesta['productos']=$productosPedido;
+		}else{
+			$respuesta=$datosPedido;
+			$modal=modalPedidos($datosPedido['datos']);
+			$respuesta['html']=$modal['html'];
+		}
+		echo json_encode($respuesta);
 		break;
-	
+		case 'addAlbaranTemporal':
+			$idAlbaranTemporal=$_POST['idAlbaranTemp'];
+			$idUsuario=$_POST['idUsuario'];
+			$idTienda=$_POST['idTienda'];
+			$estado=$_POST['estado'];
+			$idAlbaran=$_POST['idAlbaran'];
+			$numAlbaran=$_POST['numAlbaran'];
+			$fecha=$_POST['fecha'];
+			$productos=$_POST['productos'];
+			$pedidos=$_POST['pedidos'];
+			$idProveedor=$_POST['idProveedor'];
+			$existe=0;
+			if ($idAlbaranTemporal>0){
+				$rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos);
+				$existe=1;
+				$respuesta['sql']=$rest['sql'];
+				$res=$rest['idTemporal'];
+				$pro=$rest['productos'];
+			}else{
+				$rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos);
+				$existe=0;
+				$pro=$rest['productos'];
+				$res=$rest['id'];
+				$idAlbaranTemporal=$res;
+			}
+			if ($idAlbaran>0){
+				$modId=$CAlb->addNumRealTemporal($numPedidoTemp, $idPedido);
+				$estado="Sin Guardar";
+				$modEstado=$CAlb->modEstadoPedido($idPedido, $estado);
+			}
+			if ($productos){
+				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				$respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$total=round($CalculoTotales['total'],2);
+				$respuesta['total']=$total;
+				$nuevoArray = array(
+							'desglose'=> $CalculoTotales['desglose'],
+							'total' => $CalculoTotales['total']
+								);
+				$respuesta['totales']=$nuevoArray;
+				$totalivas=0;
+				foreach($nuevoArray['desglose'] as $nuevo){
+					$totalivas=$totalivas+$nuevo['iva'];
+				}
+				$modTotal=$CAlb->modTotales($res, $total, $totalivas);
+				$respuesta['sqlmodtotal']=$modTotal['sql'];
+				$respuesta['total']=$total;
+			}
+			$respuesta['id']=$res;
+			$respuesta['existe']=$existe;
+			$respuesta['productos']=$_POST['productos'];
+		echo json_encode($respuesta);
+		break;
+		
+		case 'modificarEstadoPedido':
+		if ($_POST['dedonde']="Albaran"){
+			$idPedido=$_POST['idPedido'];
+			$estado="Facturado";
+			$modEstado=$CPed->modEstadoPedido($idPedido, $estado);
+		}
+		echo json_encode($respuesta);
+		break;
+		case 'htmlAgregarFilaPedido':
+			$res=lineaPedidoAlbaran($_POST['datos']);
+			$respuesta['html']=$res['html'];
+			echo json_encode($respuesta);
+		break;
+		
 	
 }
 

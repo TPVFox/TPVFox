@@ -187,8 +187,6 @@ class PedidosCompras{
 	public function pedidosProveedorGuardado($idProveedor, $estado){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'");
-		
-		
 		 $pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($pedidosPrincipal,$result);
@@ -196,6 +194,28 @@ class PedidosCompras{
 		
 		return $pedidosPrincipal;
 	}
+	public function buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado){
+		$db=$this->db;
+		if ($numPedido>0){
+			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numpedpro='.$numPedido);
+			$pedidosPrincipal=array();
+			if ($result = $smt->fetch_assoc () ){
+				$pedido=$result;
+			}
+			$pedido['Nitem']=1;
+		}else{
+			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
+			$pedidosPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($pedidosPrincipal,$result);	
+			}
+			$pedido['datos']=$pedidosPrincipal;
+		}
+		
+		
+		return $pedido;
+	}
+	
 	
 }
 

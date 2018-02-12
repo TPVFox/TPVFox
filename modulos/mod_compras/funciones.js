@@ -9,6 +9,7 @@ function controladorAcciones(caja,accion){
 		break;
 		case 'buscarProducto':
 			console.log("Pulse buscar Producto");
+			console.log(caja.darParametro('dedonde'));
 			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.id_input , caja.darValor(),caja.darParametro('dedonde'));
 		break;
 		case 'recalcular_totalProducto':
@@ -50,7 +51,7 @@ function controladorAcciones(caja,accion){
 			var idArticulo=productos[nfila].idArticulo;//Guardamos en una variable el id del articulo
 			productos[nfila].crefProveedor = caja.darValor();
 			var coste =productos[nfila].ultimoCoste
-			addProveedorProducto(productos[nfila].idArticulo, nfila , productos[nfila].crefProveedor, coste);
+			addProveedorProducto(productos[nfila].idArticulo, nfila , productos[nfila].crefProveedor, coste, caja.darParametro('dedonde'));
 		break;
 		case 'Saltar_idProveedor':
 			var dato = caja.darValor();
@@ -65,37 +66,149 @@ function controladorAcciones(caja,accion){
 			var coste =productos[fila].ultimoCoste
 			console.log(fila);
 			nfila=parseInt(fila);
-			addProveedorProducto(idArticulo, nfila, caja.darValor(), coste);
+			addProveedorProducto(idArticulo, nfila, caja.darValor(), coste, caja.darParametro('dedonde'));
 			cerrarPopUp()
 		break;
 		case 'addPedidoAlbaran':
-		buscarPedido(caja.darValor());
+			buscarPedido(caja.darValor());
 		
 		break;
 	}
 }
 
-function buscarPedido(valor){
+function buscarPedido(valor=""){
 	var parametros ={
-		'pulsado'="BuscarPedido"
-		'idPedido':valor
+		'pulsado':"BuscarPedido",
+		'numPedido':valor,
+		'idProveedor':cabecera.idProveedor
 	};
+	console.log("Entre en buscarPedido");
+	console.log(parametros);
 	$.ajax({
 			data       : parametros,
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** estoy en buscar clientes JS****************');
+				console.log('******** estoy en buscar pedido JS****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar clientes');
+				console.log('Llegue devuelta respuesta de buscar pedido');
+			var resultado =  $.parseJSON(response); 
+			var HtmlPedidos=resultado.html;
+			if (valor==""){
+				var titulo = 'Listado Pedidos ';
+				abrirModal(titulo, HtmlPedidos);
 				
+			}else{
+				console.log(resultado.datos);
+				if (resultado.Nitems>0){
+					console.log("entre en resultados numero de items");
+					
+					var bandera=0;
+					for(i=0; i<pedidos.length; i++){//recorre todo el array de arrays de pedidos
+						console.log("entre en el for");
+						var numeroPedido=pedidos[i].Numpedpro;
+						var numeroNuevo=resultado['datos'].Numpedpro;
+						if (numeroPedido == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
+						//del array pedidos entonces la bandera es igual a 1
+							bandera=bandera+1;
+						}
+					}
+						console.log(bandera);
+						if (bandera==0){
+							console.log("Hay un resultado");
+							var datos = [];
+							datos = resultado['datos'];
+							console.log(datos);
+							var datos = [];
+							datos = resultado['datos'];
+							pedidos.push(datos);
+							productosAdd=resultado.productos;
+							var prodArray=new Array();
+							var numFila=productos.length+1;
+							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
+								//~ resultado.productos[i]['nfila']=numFila;
+								var prod = new Object();
+								prod.ccodbar=resultado.productos[i]['ccodbar'];
+								prod.cdetalle=resultado.productos[i]['cdetalle'];
+								prod.cref=resultado.productos[i]['cref'];
+								prod.crefProveedor=resultado.productos[i]['ref_prov'];
+								prod.estado=resultado.productos[i]['estadoLinea'];
+								prod.idArticulo=resultado.productos[i]['idArticulo'];
+								prod.idpedpro=resultado.productos[i]['idpedpro'];
+								prod.iva=resultado.productos[i]['iva'];
+								prod.ncant=resultado.productos[i]['ncant'];
+								prod.nfila=numFila;
+								prod.numPedido=resultado.productos[i]['Numpedpro'];
+								prod.nunidades=resultado.productos[i]['nunidades'];
+								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
+								var bandera2=resultado.productos[i]['iva']/100;
+								prod.importe=(bandera2+resultado.productos[i]['costeSiva'])*resultado.productos[i]['nunidades'];
+								productos.push(prod);
+								prodArray.push(prod);
+								numFila++;
+							}
+							addAlbaranTemp();
+							modificarEstadoPedido("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
+							AgregarFilaPedido(datos);
+							AgregarFilaProductosAl(prodArray, "albaran");
+						}
+					
+				}
+			}
 	
+		}
+	});
+	
+
+}
+
+function modificarEstadoPedido(dedonde, estado, num="", id=""){
+		console.log("Entre en modificar estado pedido");
+	//~ if (dedonde=="pedido"){
+		//~ var parametros = {
+			//~ "pulsado"    : 'modificarEstadoPedido',
+			//~ "idPedido":cabecera.idPedido,
+			//~ "numPedidoTemp":cabecera.numPedidoTemp,
+			//~ "estado" : estado,
+			//~ "dedonde": dedonde
+		//~ };
+	//~ }
+	if (dedonde=="albaran"){
+		var parametros = {
+			"pulsado"    : 'modificarEstadoPedido',
+			"idPedido":id,
+			//~ "idPedidoTemp":num,
+			"estado" : estado,
+			"dedonde" : dedonde
+		};
+	}
+	//~ if (dedonde == "factura"){
+		//~ var parametros = {
+			//~ "pulsado"    : 'modificarEstadoPedido',
+			//~ "idAlbaran":id,
+			//~ "numAlbaranTemporal":num,
+			//~ "estado" : estado,
+			//~ "dedonde" : dedonde
+		//~ };
+		
+	//~ }
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en Modificar estado pedido js****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de estado pedido js');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
 		}
 	});
 }
 // add una referencia de un proveedor a un articulo
-function addProveedorProducto(idArticulo, nfila, valor, coste){
+function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 	console.log("ESTOY EN LA FUNCION ADD PROVEEDOR PRODUCTO");
 	console.log(nfila);
 	var parametros = {
@@ -124,7 +237,13 @@ function addProveedorProducto(idArticulo, nfila, valor, coste){
 				$(id).val(valor);
 				$('#enlaceCambio').css("display", "block");
 				console.log(id);
-				addPedidoTemporal();//Modificamos los productos del pedido
+				if (dedonde=="pedidos"){
+					addPedidoTemporal();//Modificamos los productos del pedido
+				}
+				if(dedonde=="albaran"){
+					addAlbaranTemp();
+				}
+				
 	
 		}
 	});
@@ -207,6 +326,7 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 						comprobarPedidos();
 						
 					}
+					mostrarFila()
 				}else{
 					//Si no mostramos un modal con los proveedores según la busqueda
 					var titulo = 'Listado Proveedores ';
@@ -298,7 +418,7 @@ function cerrarPopUp(destino_focus=''){
 //Entra en la función de tareas de buscar productos y le envia los parametros
 //Esta función devuelve el número de busquedas
 function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
-	console.log(idcaja);
+	console.log(dedonde);
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
@@ -306,7 +426,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 		"valorCampo" : busqueda,
 		"campo"      : campo,
 		"idcaja"	 :idcaja,
-		"idProveedor": cabecera.idProveedor
+		"idProveedor": cabecera.idProveedor,
+		"dedonde":dedonde
 	};
 	console.log(id_input);
 	$.ajax({
@@ -320,6 +441,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
 			console.log(resultado);
+			console.log("A DONDE");
+			console.log(dedonde);
 		
 		if (resultado['Nitems']===1){
 			// Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
@@ -331,7 +454,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
 			datos.estado="Activo";
 			datos.idArticulo=resultado['datos'][0]['idArticulo'];
-			datos.idpedcli=0;
+			datos.idpedpro=0;
 			datos.iva=resultado['datos'][0]['iva'];
 			datos.ncant=1;
 			datos.nfila=productos.length+1;
@@ -345,7 +468,14 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.importe=importe.toFixed(2);
 			
 			productos.push(datos);
-			addPedidoTemporal();
+			
+			if (dedonde=="pedidos"){
+				addPedidoTemporal();
+			}
+			if (dedonde=="albaran"){
+				addAlbaranTemp();
+			}
+			
 			AgregarFilaProductosAl(datos, dedonde);
 		}else{
 			// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
@@ -408,6 +538,94 @@ function AgregarFilaProductosAl(productosAl, dedonde=''){
 		}
 	});
 }
+function addAlbaranTemp(){
+	console.log('FUNCION Añadir albaran temporal JS-AJAX');
+	var parametros = {
+		"pulsado"    : 'addAlbaranTemporal',
+		"idAlbaranTemp": cabecera.idAlbaranTemp,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estado":cabecera.estado,
+		"idAlbaran":cabecera.idAlbaran,
+		"numAlbaran":cabecera.numAlbaran,
+		"fecha":cabecera.fecha,
+		"productos":productos,
+		"pedidos":pedidos,
+		"idProveedor":cabecera.idProveedor
+	};
+	console.log("ESTOY EN AÑADIR ALBARAN");
+	console.log(cabecera.fecha);
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en añadir albaran temporal JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir albaran temporal');
+			var resultado =  $.parseJSON(response); 
+		
+			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
+
+			
+			if (resultado.existe == 0){
+				history.pushState(null,'','?tActual='+resultado.id);
+				cabecera.idAlbaranTemp=resultado.id;
+			}
+				
+			$('#tipo4').html('');
+			$('#tipo10').html('');
+			$('#tipo21').html('');
+			$('#base4').html('');
+			$('#base10').html('');
+			$('#base21').html('');
+			$('#iva4').html('');
+			$('#iva10').html('');
+			$('#iva21').html('');
+			$('.totalImporte').html('');
+			
+			// Ahora pintamos pie de ticket.
+			if (resultado['totales']['total'] > 0 ){
+				// Quiere decir que hay datos a mostrar en pie.
+				total = parseFloat(resultado['totales']['total']) // varible global.
+				$('.totalImporte').html(total.toFixed(2));
+				// Ahora tengo que pintar los ivas.
+				var desgloseIvas = [];
+				
+				
+				console.log(resultado['totales']['desglose']);
+				
+				desgloseIvas.push(resultado['totales']['desglose']);
+				console.log(desgloseIvas);
+				// Ahora recorremos array desglose
+				desgloseIvas.forEach(function(desglose){
+					console.log('Entro foreah');
+					// mostramos los tipos ivas , bases y importes.
+					var tipos = Object.keys(desglose);
+					console.log(desglose);
+					for (index in tipos){
+						var tipo = tipos[index];
+						$('#line'+parseInt(tipo)).css('display','');
+						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+					}
+				});
+				
+			}
+			//~ if (cabecera.idAlbaran>0){
+			//~ console.log("entre en modificar albaran");
+				//~ var estado="Sin guardar";
+				//~ modificarEstadoAlbaran(cabecera.idAlbaran, estado);
+				
+			//~ }
+			
+			
+		}
+	});
+	
+}
 // Añadir un pedido temporal
 function addPedidoTemporal(){
 	console.log('FUNCION Añadir pedido temporal JS-AJAX');
@@ -433,10 +651,10 @@ function addPedidoTemporal(){
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-			console.log('******** estoy en añadir albaran temporal JS****************');
+			console.log('******** estoy en añadir PEDIDO temporal JS****************');
 		},
 		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir albaran temporal');
+			console.log('Llegue devuelta respuesta de añadir PEDIDO temporal');
 			var resultado =  $.parseJSON(response); 
 		
 			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
@@ -507,7 +725,7 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde){
 		var datos = new Object();
 		datos.ccodbar=ccodebar;
 		datos.cdetalle=cdetalle;
@@ -524,8 +742,13 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		var ultimoCoste= parseFloat(ultimoCoste);
 		datos.ultimoCoste=ultimoCoste.toFixed(2);
 		productos.push(datos);
-		dedonde="pedido";
-		addPedidoTemporal();
+		if(dedonde=="pedidos"){
+			addPedidoTemporal();
+		}
+		if (dedonde=="albaran"){
+			addAlbaranTemp();
+		}
+		
 		AgregarFilaProductosAl(datos, dedonde);
 		var num_item=datos.nfila;
 		resetCampo(campo);
@@ -553,8 +776,13 @@ function eliminarFila(num_item, valor=""){
 	
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
-		
-	addPedidoTemporal()
+		if (valor=="pedidos"){
+			addPedidoTemporal();
+		}
+		if (valor=="albaran"){
+			addAlbaranTemp();
+		}
+	
 }
 
 function retornarFila(num_item, valor=""){
@@ -585,8 +813,13 @@ function retornarFila(num_item, valor=""){
 				$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
 				$("#N" + productos[num].nfila + "_Unidad").val(productos[num].nunidades);
 			
+	if (valor=="pedidos"){
+		addPedidoTemporal();
+	}
+	if (valor=="albaran"){
+		addAlbaranTemp();
+	}
 	
-	addPedidoTemporal();
 	
 }
 function recalculoImporte(cantidad, num_item, dedonde=""){
@@ -613,7 +846,13 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
 		$(id).html(importe);
-		addPedidoTemporal()
+		if (dedonde=="pedidos"){
+			addPedidoTemporal();
+		}
+		if (dedonde=="albaran"){
+			addAlbaranTemp();
+		}
+		
 		
 	
 	
@@ -704,4 +943,35 @@ function buscarReferencia(idArticulo, nfila){
 	
 	
 	
+}
+function AgregarFilaPedido(datos){
+	console.log("Estoy en agregar fila Pedido");
+	var parametros = {
+		"pulsado"    : 'htmlAgregarFilaPedido',
+		"datos" : datos
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en escribir html fila pedidos JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de html fila pedidos');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+			var nuevafila = resultado['html'];
+			$("#tablaPedidos").prepend(nuevafila);
+			$('#numPedido').focus(); 
+			$('#numPedido').val(""); 
+			
+		}
+	});
+}
+function mostrarFila(){
+	console.log("mostrar fila");
+	$("#Row0").removeAttr("style") ;
+	console.log("realizo funcion");
 }

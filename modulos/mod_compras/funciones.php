@@ -10,7 +10,7 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	$n_dedonde = 0 ; 
 	$resultado['encontrados'] = count($proveedores);
 	$idcaja;
-	$resultado['html'] = '<label>Busqueda Cliente en '.$dedonde.'</label>';
+	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
 	$resultado['html'] .= '<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'.
 				'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 				
@@ -131,7 +131,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	} 
 	return $resultado;
 }
-function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
+function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
 	$resultado = array();
@@ -173,7 +173,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 						"'".addslashes(htmlspecialchars($producto['crefTienda'],ENT_COMPAT))."','"
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
-						.number_format($producto['ultimoCoste'],2).",".$producto['idArticulo'];
+						.number_format($producto['ultimoCoste'],2).",".$producto['idArticulo'].", '".$dedonde."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
 						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
 			
@@ -255,10 +255,10 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 			}
-			if ($producto['NumpedCli']==0){
+			if ($producto['numPedido']==0){
 				$numeroPed="";
 			}else{
-				$numeroPed=$producto['NumpedCli'];
+				$numeroPed=$producto['numPedido'];
 			}
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
 			if ($producto['crefProveedor']>0){
@@ -274,6 +274,12 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
+		 if ($dedonde="albaran"){
+			
+			$respuesta['html']	.= '<td class="idArticulo">'.$numeroPed.'</td>';
+		
+		 }
+		
 		 //$respuesta['html'] .='<td>'.$numeroPed.'</td>';
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
@@ -304,7 +310,7 @@ function modificarArrayProductos($productos){
 		$pro['crefProveedor']=$producto['ref_prov'];
 		$pro['estado']=$producto['estadoLinea'];
 		$pro['idArticulo']=$producto['idArticulo'];
-		$pro['idpedcli']=$producto['idpedpro'];
+		$pro['idpedpro']=$producto['idpedpro'];
 		$bandera=$producto['iva']/100;
 		$importe=($bandera+$producto['costeSiva'])*$producto['ncant'];
 		$pro['importe']=$importe;
@@ -326,5 +332,46 @@ function htmlCambioRefProveedor($datos, $fila, $articulo, $coste){
 	$resultado['html'] .='<input type=text value="'.$coste.'" id="coste" style="display:none">';
 	$resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'" data-obj="inputCambioRef" name ="cambioRef" onkeydown="controlEventos(event)" onBlur="controlEventos(event)" id ="inputCambioRef">';
 	return $resultado;
+}
+function modalPedidos($pedidos){
+		$contad = 0;
+	$respuesta['html'] .= '<table class="table table-striped"><thead>';
+	$respuesta['html'] .= '<th>';
+	$respuesta['html'] .='<td>Número </td>';
+	$respuesta['html'] .='<td>Fecha</td>';
+	$respuesta['html'] .='<td>Total</td>';
+	$respuesta['html'] .='</th>';
+	$respuesta['html'] .= '</thead><tbody>';
+	foreach ($pedidos as $pedido){
+	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
+	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarPedido('.$pedido['Numpedpro'].');">';
+	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
+	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+
+	$respuesta['html'].='<td>'.$pedido['Numpedpro'].'</td>';
+	$respuesta['html'].='<td>'.$pedido['FechaPedido'].'</td>';
+	$respuesta['html'].='<td>'.$pedido['total'].'</td>';
+	$respuesta['html'].='</tr>';
+	$contad = $contad +1;
+	if ($contad === 10){
+		break;
+	}
+				
+	}
+	$respuesta['html'].='</tbody></table>';
+	return $respuesta;
+}
+
+function lineaPedidoAlbaran($pedido){
+		$respuesta['html']="";
+	if(isset($pedido)){
+
+		$respuesta['html'] .='<tr>';
+		$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
+		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
+		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		$respuesta['html'] .='</tr>';
+	}
+	return $respuesta;
 }
 ?>

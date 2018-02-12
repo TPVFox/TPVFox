@@ -9,7 +9,7 @@ include './../../head.php';
 	include '../../clases/Proveedores.php';
 	$Cprveedor=new Proveedores($BDTpv);
 	include 'clases/albaranesCompras.php';
-	$Calbcli=new AlbaranesCompras($BDTpv);
+	$CAlb=new AlbaranesCompras($BDTpv);
 	include_once 'clases/pedidosCompras.php';
 	$Cped = new PedidosCompras($BDTpv);
 	$Controler = new ControladorComun; 
@@ -29,17 +29,94 @@ include './../../head.php';
 	$idAlbaran=0;
 	$numAlbaran=0;
 	$idProveedor=0;
+		if (isset($_GET['tActual'])){
+				$idAlbaranTemporal=$_GET['tActual'];
+				$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+				if (isset ($datosAlbaran['numalbpro'])){
+					$numAlbaran=$datosAlbaran['numalbpro'];
+					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
+					$idAlbaran=$datosReal['id'];
+				}else{
+					$numAlbaran=0;
+					$idAlbaran=0;
+				}
+				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
+					$fecha=date('Y-m-d');
+				}else{
+					$fecha1=date_create($datosAlbaran['fechaInicio']);
+					$fecha =date_format($fecha1, 'Y-m-d');
+				}
+				$idProveedor=$datosAlbaran['idProveedor'];
+				echo $idProveedor;
+				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+				$nombreProveedor=$proveedor['nombrecomercial'];
+				$fechaCab="'".$fecha."'";
+				
+				
+				$estadoCab="'".'Abierto'."'";
+				$albaran=$datosAlbaran;
+				$productos =  json_decode($datosAlbaran['Productos']) ;
+				$pedidos=json_decode($datosAlbaran['Pedidos']);
+		}
 		
 	}
-		//~ if(isset($albaran['Productos'])){
-			//~ // Obtenemos los datos totales ( fin de ticket);
-			//~ // convertimos el objeto productos en array
-			//~ $Datostotales = recalculoTotalesAl($productos);
-			//~ $productos = json_decode(json_encode($productos), true); // Array de arrays	
-		//~ }
-		//~ if (isset($albaran['Pedidos'])){
-			//~ $pedidos=json_decode(json_encode($pedidos), true);
-		//~ }
+	if(isset($albaran['Productos'])){
+			// Obtenemos los datos totales ( fin de ticket);
+			// convertimos el objeto productos en array
+			$Datostotales = recalculoTotalesAl($productos);
+			$productos = json_decode(json_encode($productos), true); // Array de arrays	
+		}
+	if (isset($_POST['Guardar'])){
+		if ($_POST['idTemporal']){
+				$idAlbaranTemporal=$_POST['idTemporal'];
+			}else{
+				$idAlbaranTemporal=$_GET['tActual'];
+			}
+		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+		if(['total']){
+				$total=$datosAlbaran['total'];
+		}else{
+				$total=0;
+		}
+		$datos=array(
+			'Numtemp_albpro'=>$idAlbaranTemporal,
+			'fecha'=>$datosAlbaran['fechaInicio'],
+			'idTienda'=>$Tienda['idTienda'],
+			'idUsuario'=>$Usuario['id'],
+			'idProveedor'=>$datosAlbaran['idProveedor'],
+			'estado'=>"Guardado",
+			'total'=>$total,
+			'DatosTotales'=>$Datostotales,
+			'productos'=>$datosAlbaran['Productos'],
+			'pedidos'=>$datosAlbaran['Pedidos']
+		);
+		print_r($datos);
+		if ($datosAlbaran['numalbpro']){
+				$numAlbaran=$datosAlbaran['numalbpro'];
+				$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
+				$idAlbaran=$datosReal['id'];
+				$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
+				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+		}else{
+				$idAlbaran=0;
+				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+				print_r($addNuevo);
+		}
+	}
+	
+	
+	
+		if(isset($albaran['Productos'])){
+			// Obtenemos los datos totales ( fin de ticket);
+			// convertimos el objeto productos en array
+			$Datostotales = recalculoTotalesAl($productos);
+			$productos = json_decode(json_encode($productos), true); // Array de arrays	
+		}
+		if (isset($albaran['Pedidos'])){
+			$pedidos=json_decode(json_encode($pedidos), true);
+		}
 		
 		
 		if (isset ($pedidos) | $_GET['tActual']| $_GET['id']){
@@ -201,7 +278,7 @@ if ($idProveedor==0){
 			<div style="margin-top:-50px;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
+			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido()"></a>
 			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
 				<thead>
 				
@@ -212,10 +289,10 @@ if ($idProveedor==0){
 				</thead>
 				
 				<?php 
-				//~ if (isset($pedidos)){
-					//~ $html=htmlPedidoAlbaran($pedidos, "albaran");
-					//~ echo $html['html'];
-				//~ }
+				if (isset($pedidos)){
+					$html=lineaPedidoAlbaran($pedidos, "albaran");
+					echo $html['html'];
+				}
 				?>
 			</table>
 			</div>
@@ -242,7 +319,7 @@ if ($idProveedor==0){
 		  </tr>
 		  <tr id="Row0" style=<?php echo $style;?>>  
 			<td id="C0_Linea" ></td>
-			<td></td>
+			
 			<td id="C0_Linea" ></td>
 			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="13" value=""  onkeydown="controlEventos(event)"></td>
 			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
@@ -253,38 +330,36 @@ if ($idProveedor==0){
 		</thead>
 		<tbody>
 			<?php 
-			//~ echo '<pre>';
-			//~ print_r($productos);
-			//~ echo '</pre>';
-			//~ if (isset($productos)){
-				//~ foreach (array_reverse($productos) as $producto){
-				//~ $html=htmlLineaPedidoAlbaran($producto);
-				//~ echo $html['html'];
-			//~ }
+			
+			if (isset($productos)){
+				foreach (array_reverse($productos) as $producto){
+				$html=htmlLineaPedidoAlbaran($producto);
+				echo $html['html'];
+			}
 		
-			//~ }
+			}
 			?>
 		</tbody>
 	  </table>
 	</div>
 	<?php 
-			// Ahora montamos base y ivas
-			//~ foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				//~ switch ($iva){
-					//~ case 4 :
-						//~ $base4 = $basesYivas['base'];
-						//~ $iva4 = $basesYivas['iva'];
-					//~ break;
-					//~ case 10 :
-						//~ $base10 = $basesYivas['base'];
-						//~ $iva10 = $basesYivas['iva'];
-					//~ break;
-					//~ case 21 :
-						//~ $base21 = $basesYivas['base'];
-						//~ $iva21 = $basesYivas['iva'];
-					//~ break;
-				//~ }
-			//~ }
+			//~ // Ahora montamos base y ivas
+			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
+				switch ($iva){
+					case 4 :
+						$base4 = $basesYivas['base'];
+						$iva4 = $basesYivas['iva'];
+					break;
+					case 10 :
+						$base10 = $basesYivas['base'];
+						$iva10 = $basesYivas['iva'];
+					break;
+					case 21 :
+						$base21 = $basesYivas['base'];
+						$iva21 = $basesYivas['iva'];
+					break;
+				}
+			}
 	
 	?>
 
@@ -307,39 +382,39 @@ if ($idProveedor==0){
 		<tbody>
 			<tr id="line4">
 				<td id="tipo4">
-					<?php //echo (isset($base4) ? " 4%" : '');?>
+					<?php echo (isset($base4) ? " 4%" : '');?>
 				</td>
 				<td id="base4">
-					<?php //echo (isset($base4) ? $base4 : '');?>
+					<?php echo (isset($base4) ? $base4 : '');?>
 				</td>
 				<td id="iva4">
 
-					<?php //echo (isset($iva4) ? $iva4 : '');?>
+					<?php echo (isset($iva4) ? $iva4 : '');?>
 
 				</td>
 				
 			</tr>
 			<tr id="line10">
 				<td id="tipo10">
-					<?php //echo (isset($base10) ? "10%" : '');?>
+					<?php echo (isset($base10) ? "10%" : '');?>
 				</td>
 				<td id="base10">
-					<?php //echo (isset($base10) ? $base10 : '');?>
+					<?php echo (isset($base10) ? $base10 : '');?>
 				</td>
 				<td id="iva10">
-					<?php //echo (isset($iva10) ? $iva10 : '');?>
+					<?php echo (isset($iva10) ? $iva10 : '');?>
 				</td>
 				
 			</tr>
 			<tr id="line21">
 				<td id="tipo21">
-					<?php// echo (isset($base21) ? "21%" : '');?>
+					<?php echo (isset($base21) ? "21%" : '');?>
 				</td>
 				<td id="base21">
-					<?php //echo (isset($base21) ? $base21 : '');?>
+					<?php echo (isset($base21) ? $base21 : '');?>
 				</td>
 				<td id="iva21">
-					<?php //echo (isset($iva21) ? $iva21 : '');?>
+					<?php echo (isset($iva21) ? $iva21 : '');?>
 				</td>
 				
 			</tr>
@@ -362,28 +437,28 @@ if ($idProveedor==0){
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
-	//~ $('#id_cliente').focus();
-	//~ <?php
-	//~ if ($idCliente>0){
-		//~ ?>
-		//~ $('#ClienteAl').prop('disabled', true);
-		//~ $('#id_clienteAl').prop('disabled', true);
-		//~ $("#buscar").css("display", "none");
-		//~ <?php
-	//~ }
-	//~ if ($datosAlbaran['estado']=="Facturado"){
-		//~ ?>
-		//~ $("#tabla").find('input').attr("disabled", "disabled");
-		//~ $("#tabla").find('a').css("display", "none");
-		//~ $("#tablaPedidos").css("display", "none");
-		//~ $("#numPedidoT").css("display", "none");
-		//~ $("#numPedido").css("display", "none");
-		//~ $("#buscarPedido").css("display", "none");
-		//~ $("#bGuardar").css("display", "none");
-		//~ $("#bCancelar").css("display", "none");
-		//~ <?php
-	//~ }
-	//~ ?>
+	$('#id_proveedor').focus();
+	<?php
+	if ($idProveedor>0){
+		?>
+		$('#Proveedor').prop('disabled', true);
+		$('#id_proveedor').prop('disabled', true);
+		$("#buscar").css("display", "none");
+		<?php
+	}
+	if ($datosAlbaran['estado']=="Facturado"){
+		?>
+		$("#tabla").find('input').attr("disabled", "disabled");
+		$("#tabla").find('a').css("display", "none");
+		$("#tablaPedidos").css("display", "none");
+		$("#numPedidoT").css("display", "none");
+		$("#numPedido").css("display", "none");
+		$("#buscarPedido").css("display", "none");
+		$("#bGuardar").css("display", "none");
+		$("#bCancelar").css("display", "none");
+		<?php
+	}
+	?>
 </script>
 	</body>
 </html>
