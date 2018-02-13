@@ -55,10 +55,45 @@ function controladorAcciones(caja,accion){
 		break;
 		case 'Saltar_idProveedor':
 			var dato = caja.darValor();
-			if ( dato.length === 0){
-				var d_focus = 'id_proveedor';
+			if (caja.id_input="suNumero"){
+				cabecera.suNumero=caja.darValor();
+			}
+			var d_focus = 'id_proveedor';
+			ponerFocus(d_focus);
+			
+		break;
+		case 'Saltar_Proveedor':
+			var dato = caja.darValor();
+			var d_focus = 'Proveedor';
+			ponerFocus(d_focus);
+			
+		break;
+		case 'Saltar_idArticulo':
+			var dato = caja.darValor();
+			if ( dato.length > 0){
+				var d_focus = 'idArticulo';
 				ponerFocus(d_focus);
 			}
+		break;
+		case 'Saltar_fecha':
+			var dato = caja.darValor();
+			var d_focus = 'fecha';
+			ponerFocus(d_focus);
+		break;
+		case 'Saltar_Referencia':
+			var dato = caja.darValor();
+			var d_focus = 'Referencia';
+			ponerFocus(d_focus);
+		break;
+		case 'Saltar_ReferenciaPro':
+			var dato = caja.darValor();
+			var d_focus = 'ReferenciaPro';
+			ponerFocus(d_focus);
+		break;
+		case 'Saltar_CodBarras':
+			var dato = caja.darValor();
+			var d_focus = 'Codbarras';
+			ponerFocus(d_focus);
 		break;
 		case 'addRefProveedor':
 			var idArticulo=$('#idArticuloRef').val();
@@ -71,14 +106,46 @@ function controladorAcciones(caja,accion){
 		break;
 		case 'addPedidoAlbaran':
 			buscarPedido(caja.darValor());
+		break;
+		case 'buscarUltimoCoste':
+			var nfila = parseInt(caja.fila)-1;
+			console.log(nfila);
+			var idArticulo=productos[nfila].idArticulo;
+			if(valor=""){
+				alert("NO HAS INTRODUCIDO NINGÚN COSTE");
+			}else{
+				addCosteProveedor(idArticulo, caja.darValor());
+			}
+			
+		break;
 		
-		break;
-		case 'addSuNumero':
-		cabecera.suNumero=caja.darValor();
-		break;
 	}
 }
-
+function addCosteProveedor(idArticulo, valor){
+	console.log("Entre en addCosteProveedor");
+	console.log(idArticulo);
+	var parametros ={
+		'pulsado':"AddCosteProveedor",
+		'idArticulo':idArticulo,
+		'valor':valor,
+		'idProveedor':cabecera.idProveedor,
+		'fecha':cabecera.fecha
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en buscar clientes JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta respuesta de buscar clientes');
+				var resultado =  $.parseJSON(response); 
+				
+	
+		}
+	});
+}
 function buscarPedido(valor=""){
 	var parametros ={
 		'pulsado':"BuscarPedido",
@@ -725,7 +792,7 @@ function ponerFocus (destino_focus){
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	console.log('Entro en enviar focus de :'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
-		jQuery(destino_focus.toString()).focus(); 
+		jQuery('#'+destino_focus.toString()).focus(); 
 	}, 50); 
 
 }
@@ -876,6 +943,9 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('Proveedor_Fila') >-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
+	if (padre_caja.id_input.indexOf('ultimo_coste') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
 	return padre_caja;
 }
 function before_constructor(caja){
@@ -912,6 +982,12 @@ function before_constructor(caja){
 		
 		caja.parametros.item_max = productos.length;
 		caja.fila = caja.id_input.slice(15);
+	}
+	if (caja.id_input.indexOf('ultimo_coste') >-1){
+		console.log("entro en ultimo_coste_");
+		caja.parametros.item_max = productos.length;
+		caja.fila = caja.id_input.slice(13);
+		
 	}
 	
 	return caja;	

@@ -255,6 +255,11 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 			}
+			if ($dedonde =="albaran"){
+				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'.$producto['ultimoCoste'].'" size="6">';
+			}else{
+				$coste= $producto['ultimoCoste'];
+			}
 			
 			if ($producto['numPedido']==0){
 				$numeroPed="";
@@ -275,9 +280,9 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
-		 if ($dedonde="albaran"){
+		 if ($dedonde=="albaran"){
 			
-			$respuesta['html']	.= '<td class="idArticulo">'.$numeroPed.'</td>';
+			$respuesta['html'].= '<td class="idArticulo">'.$numeroPed.'</td>';
 		
 		 }
 		
@@ -290,7 +295,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['ncant'],0);
 		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
-		 $respuesta['html'] .='<td class="pvp">'.$producto['ultimoCoste'].'</td>';
+		 $respuesta['html'] .='<td class="pvp">'.$coste.'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
 		 $bandera=$producto['iva']/100;
 		 $importe=($bandera+$producto['ultimoCoste'])*$producto['ncant'];

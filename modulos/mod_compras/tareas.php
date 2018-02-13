@@ -271,6 +271,29 @@ switch ($pulsado) {
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
+		case 'AddCosteProveedor':
+			$idArticulo=$_POST['idArticulo'];
+			$valor=$_POST['valor'];
+			$idProveedor=$_POST['idProveedor'];
+			$fecha=$_POST['fecha'];
+			$buscar=$CArticulos->buscarReferencia($idArticulo, $idProveedor);
+			$datos=array(
+				'coste'=>$valor,
+				'idArticulo'=>$idArticulo,
+				'idProveedor'=>$idProveedor,
+				'fecha'=>$fecha
+			);
+			if ($buscar){
+				if ($buscar['fechaActualizacion']>$fecha){
+					$respuesta['error']=1;
+				}else{
+					$mod=$CArticulos->modificarCosteProveedorArticulo($datos);
+				}
+				
+			}else{
+				//Si no existe se cre igual
+			}
+		break;
 		
 	
 }

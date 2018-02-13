@@ -5,9 +5,9 @@
 			<nombre id_input="fecha">cajaFecha</nombre>
 			<teclas>
 				<action tecla="40">Saltar_idProveedor</action>
-				<action tecla="39"></action>
-				<action tecla="13"></action>
-				<action tecla="9"></action>
+				<action tecla="39">Saltar_idProveedor</action>
+				<action tecla="13">Saltar_idProveedor</action>
+				<action tecla="9">Saltar_idProveedor</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -17,9 +17,9 @@
 			<nombre id_input="suNumero">CajaSuNumero</nombre>
 			<teclas>
 				<action tecla="40">Saltar_idProveedor</action>
-				<action tecla="39"></action>
-				<action tecla="13">addSuNumero</action>
-				<action tecla="9"></action>
+				<action tecla="39">Saltar_idProveedor</action>
+				<action tecla="13">Saltar_idProveedor</action>
+				<action tecla="9">Saltar_idProveedor</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -29,10 +29,10 @@
 			<nombre id_input="id_proveedor">cajaIdProveedor</nombre>
 			<teclas>
 				<action tecla="13">buscarProveedor</action>
-				<action tecla="39"></action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="40"></action>
+				<action tecla="39">Saltar_Proveedor</action>
+				<action tecla="38">Saltar_fecha</action>
+				<action tecla=" 9">Saltar_Proveedor</action>
+				<action tecla="40">Saltar_idArticulo</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -42,10 +42,10 @@
 			<nombre id_input="Proveedor">cajaProveedor</nombre>
 			<teclas>
 				<action tecla="13">buscarProveedor</action>
-				<action tecla="39"></action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="40"></action>
+				<action tecla="39">Saltar_idArticulo</action>
+				<action tecla="38">Saltar_fecha</action>
+				<action tecla=" 9">Saltar_idArticulo</action>
+				<action tecla="40">Saltar_idArticulo</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -55,10 +55,6 @@
 			<nombre id_input="cajaBusquedaproveedor">cajaBusquedaproveedor</nombre>
 			<teclas>
 				<action tecla="13">buscarProveedor</action>
-				<action tecla="39"></action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="40"></action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -68,10 +64,9 @@
 			<nombre id_input="idArticulo">cajaidArticulo</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
-				<action tecla="39"></action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="40"></action>
+				<action tecla="39">Saltar_Referencia</action>
+				<action tecla="38">Saltar_idProveedor</action>
+				<action tecla=" 9">Saltar_Referencia</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -100,10 +95,10 @@
 			<nombre id_input="Referencia">cajaReferencia</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="37"></action>
-				<action tecla="39"></action>
+				<action tecla="38">Saltar_Proveedor</action>
+				<action tecla=" 9">Saltar_ReferenciaPro</action>
+				<action tecla="37">Saltar_idArticulo</action>
+				<action tecla="39">Saltar_ReferenciaPro</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
@@ -114,10 +109,10 @@
 			<nombre id_input="ReferenciaPro">cajaReferenciaPro</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="37"></action>
-				<action tecla="39"></action>
+				<action tecla="38">Saltar_Proveedor</action>
+				<action tecla=" 9">Saltar_CodBarras</action>
+				<action tecla="37">Saltar_Referencia</action>
+				<action tecla="39">Saltar_CodBarras</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
@@ -210,6 +205,25 @@
 				<parametro nombre="dedonde">albaran</parametro>
 				<parametro nombre="campo"></parametro>
 			</parametros>
+		</caja_input>	
+		<caja_input>
+			<nombre id_input="ultimo_coste">ultimo_coste</nombre>
+			<teclas>
+				<action tecla="13">buscarUltimoCoste</action>
+				<action tecla="40">mover_up</action>
+				<action tecla="38">mover_down</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">albaran</parametro>
+				<parametro nombre="campo"></parametro>
+				<parametro nombre="prefijo">ultimo_coste_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
 		</caja_input>	
 		
 	</cajas_input>
