@@ -73,6 +73,9 @@ function controladorAcciones(caja,accion){
 			buscarPedido(caja.darValor());
 		
 		break;
+		case 'addSuNumero':
+		cabecera.suNumero=caja.darValor();
+		break;
 	}
 }
 
@@ -551,10 +554,11 @@ function addAlbaranTemp(){
 		"fecha":cabecera.fecha,
 		"productos":productos,
 		"pedidos":pedidos,
-		"idProveedor":cabecera.idProveedor
+		"idProveedor":cabecera.idProveedor,
+		"suNumero":cabecera.suNumero
 	};
 	console.log("ESTOY EN AÑADIR ALBARAN");
-	console.log(cabecera.fecha);
+	console.log(parametros);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',

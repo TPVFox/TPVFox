@@ -213,24 +213,25 @@ switch ($pulsado) {
 			$productos=$_POST['productos'];
 			$pedidos=$_POST['pedidos'];
 			$idProveedor=$_POST['idProveedor'];
+			$suNumero=$_POST['suNumero'];
 			$existe=0;
 			if ($idAlbaranTemporal>0){
-				$rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos);
+				$rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero);
 				$existe=1;
 				$respuesta['sql']=$rest['sql'];
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{
-				$rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos);
+				$rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero);
 				$existe=0;
 				$pro=$rest['productos'];
 				$res=$rest['id'];
 				$idAlbaranTemporal=$res;
 			}
 			if ($idAlbaran>0){
-				$modId=$CAlb->addNumRealTemporal($numPedidoTemp, $idPedido);
+				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $numAlbaran);
 				$estado="Sin Guardar";
-				$modEstado=$CAlb->modEstadoPedido($idPedido, $estado);
+				$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
 			}
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));

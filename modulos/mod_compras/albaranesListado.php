@@ -7,7 +7,13 @@ include './../../head.php';
 include './funciones.php';
 include ("./../../plugins/paginacion/paginacion.php");
 include ("./../../controllers/Controladores.php");
+include '../../clases/Proveedores.php';
+$CProv= new Proveedores($BDTpv);
+include 'clases/albaranesCompras.php';
+$CAlb=new AlbaranesCompras($BDTpv);
 
+$todosTemporal=$CAlb->TodosTemporal();
+$albaranesDef=$CAlb->TodosAlbaranes();
 
 $palabraBuscar=array();
 	$stringPalabras='';
@@ -77,7 +83,106 @@ if ($stringPalabras !== '' ){
 					?>
 					<li><a href="#section2" onclick="metodoClick('Ver','albaran');";>Modificar</a></li>
 				
-				</ul>	
+				</ul>
+				<div class="col-md-12">
+		<h4 class="text-center"> Albaranes Abiertos</h4>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Nº Temp</th>
+					<th>Nº Alb</th>
+					<th>Cliente</th>
+					<th>Total</th>
+				</tr>
+				
+			</thead>
+			<tbody>
+				<?php
+			if (isset($todosTemporal)){
+				foreach ($todosTemporal as $temporal){
+					if ($temporal['numalbpro']){
+						$numTemporal=$temporal['numalbpro'];
+					}else{
+						$numTemporal="";
+					}
+					?>
+					<tr>
+						<td><a href="albaran.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
+						<td><?php echo $numTemporal;?></td>
+						<td><?php echo $temporal['idProveedor'];?></td>
+						<td><?php echo number_format($temporal['total'],2);?></td>
+						</tr>
+					
+					<?php
+				}
+				
+				
+			}
+				
+				?>
+			</tbody>
+		</table>
+		</div>	
 			</nav>
+			<div class="col-md-9">
+					<p>
+					 -Albaranes encontrados BD local filtrados:
+						<?php echo $CantidadRegistros; ?>
+					</p>
+					<?php 	// Mostramos paginacion 
+						echo $htmlPG;
+				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
+					?>
+					<form action="./ListaProductos.php" method="GET" name="formBuscar">
+					<div class="form-group ClaseBuscar">
+						<label>Buscar en número de albarán </label>
+						<input type="text" name="buscar" value="">
+						<input type="submit" value="buscar">
+					</div>
+					</form>
+					<div>
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th></th>
+						
+						<th>Nª ALBARÁN</th>
+						<th>FECHA</th>
+						<th>CLIENTE</th>
+						<th>BASE</th>
+						<th>IVA</th>
+						<th>TOTAL</th>
+						<th>ESTADO</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php 
+						$checkUser = 0;
+						foreach ($albaranesDef as $albaran){
+						
+							$checkUser = $checkUser + 1;
+							$totaliva=$CAlb->sumarIva($albaran['Numalbpro']);
+							$date=date_create($albaran['Fecha']);
+						?>
+						<tr>
+						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $albaran['id'];?>">
+					
+						<td><?php echo $albaran['Numalbpro'];?></td>
+						<td><?php echo date_format($date,'Y-m-d');?></td>
+						<td><?php echo $albaran['nombrecomercial'];?></td>
+						<td><?php echo $totaliva['totalbase'];?></td>
+						<td><?php echo $totaliva['importeIva'];?></td>
+						<td><?php echo $albaran['total'];?></td>
+						<td><?php echo $albaran['estado'];?></td>
+						</tr>
+						<?php
+					}
+					?>
+				</tbody>
+				</table>
+			</div>
+		</div>
+		</div>
+    </div>
 	</body>
 </html>

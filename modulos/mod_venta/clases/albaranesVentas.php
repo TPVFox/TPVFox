@@ -197,12 +197,12 @@ class AlbaranesVentas{
 			$db = $this->db;
 			$smt = $db->query ('SELECT * from albcliltemporales');
 			$albaranPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranPrincipal,$result);
-		}
-		return $albaranPrincipal;
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($albaranPrincipal,$result);
+			}
+			return $albaranPrincipal;
 		
-	}
+		}
 	public function datosAlbaran($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclit WHERE id= '.$idAlbaran );

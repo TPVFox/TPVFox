@@ -20,8 +20,45 @@ include './../../head.php';
 	$estadoCab="'".'Abierto'."'";
 	
 	if (isset($_GET['id'])){
-		
-		
+		$idAlbaran=$_GET['id'];
+		echo $idAlbaran;
+		$titulo="Modificar Albarán De Cliente";
+		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
+		//~ echo '<pre>';
+		//~ print_r($datosAlbaran);
+		//~ echo '</pre>';
+		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
+		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
+		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
+		$estado=$datosAlbaran['estado'];
+		$estadoCab="'".$datosAlbaran['estado']."'";
+		$date=date_create($datosAlbaran['Fecha']);
+		$fecha=date_format($date,'Y-m-d');
+		$fechaCab="'".$fecha."'";
+		$idAlbaranTemporal=0;
+		$numAlbaran=$datosAlbaran['Numalbpro'];
+		$idProveedor=$datosAlbaran['idProveedor'];
+		if ($datosAlbaran['Su_numero']>0){
+			$suNumero=$datosAlbaran['Su_numero'];
+		}else{
+			$suNumero=0;
+		}
+		if ($idProveedor){
+			$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+			$nombreProveedor=$proveedor['nombrecomercial'];
+		}
+		$productosAlbaran=modificarArrayProductos($productosAlbaran);
+		$productos=json_decode(json_encode($productosAlbaran));
+		$Datostotales = recalculoTotalesAl($productos);
+		$productos=json_decode(json_encode($productosAlbaran), true);
+		if ($pedidosAlbaran){
+			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
+			 $pedidos=json_decode(json_encode($modificarPedido), true);
+		}
+		//~ echo '<pre>';
+		//~ print_r($pedidos);
+		//~ echo '</pre>';
+		$total=$Datostotales['total'];
 	}else{
 	$fecha=date('Y-m-d');
 	$fechaCab="'".$fecha."'";
@@ -29,6 +66,7 @@ include './../../head.php';
 	$idAlbaran=0;
 	$numAlbaran=0;
 	$idProveedor=0;
+	$suNumero=0;
 		if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
 				$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
@@ -45,6 +83,11 @@ include './../../head.php';
 				}else{
 					$fecha1=date_create($datosAlbaran['fechaInicio']);
 					$fecha =date_format($fecha1, 'Y-m-d');
+				}
+				if ($datosAlbaran['Su_numero']>0){
+					$suNumero=$datosAlbaran['Su_numero'];
+				}else{
+					$suNumero=0;
 				}
 				$idProveedor=$datosAlbaran['idProveedor'];
 				echo $idProveedor;
@@ -78,6 +121,7 @@ include './../../head.php';
 		}else{
 				$total=0;
 		}
+		$suNumero=$_POST['suNumero'];
 		$datos=array(
 			'Numtemp_albpro'=>$idAlbaranTemporal,
 			'fecha'=>$datosAlbaran['fechaInicio'],
@@ -88,7 +132,8 @@ include './../../head.php';
 			'total'=>$total,
 			'DatosTotales'=>$Datostotales,
 			'productos'=>$datosAlbaran['Productos'],
-			'pedidos'=>$datosAlbaran['Pedidos']
+			'pedidos'=>$datosAlbaran['Pedidos'],
+			'suNumero'=>$suNumero
 		);
 		print_r($datos);
 		if ($datosAlbaran['numalbpro']){
@@ -153,6 +198,7 @@ include './../../head.php';
 		cabecera['numAlbaran'] = <?php echo $numAlbaran ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
+		cabecera['suNumero']=<?php echo $suNumero; ?>;
 		
 		
 		 // Si no hay datos GET es 'Nuevo';
@@ -199,6 +245,9 @@ include './../../head.php';
 if ($idProveedor==0){
 	$idProveedor="";
 	
+}
+if ($suNumero==0){
+	$suNumero="";
 }
 ?>
 </head>
@@ -250,18 +299,22 @@ if ($idProveedor==0){
 	<div class="col-md-8">
 		<div class="col-md-12">
 			
-				<div class="col-md-4">
+				<div class="col-md-2">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
-				<div class="col-md-3">
+				<div class="col-md-2">
 					<strong>Estado:</strong><br>
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
 				</div>
 			
-				<div class="col-md-4">
+				<div class="col-md-2">
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
+				</div>
+				<div class="col-md-3">
+					<strong>Su número:</strong><br>
+					<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
 				</div>
 			
 		</div>
@@ -290,8 +343,11 @@ if ($idProveedor==0){
 				
 				<?php 
 				if (isset($pedidos)){
-					$html=lineaPedidoAlbaran($pedidos, "albaran");
+					foreach ($pedidos as $pedido){
+						$html=lineaPedidoAlbaran($pedido, "albaran");
 					echo $html['html'];
+					}
+					
 				}
 				?>
 			</table>

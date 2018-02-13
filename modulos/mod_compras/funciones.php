@@ -255,6 +255,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 			}
+			
 			if ($producto['numPedido']==0){
 				$numeroPed="";
 			}else{
@@ -279,6 +280,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			$respuesta['html']	.= '<td class="idArticulo">'.$numeroPed.'</td>';
 		
 		 }
+		
 		
 		 //$respuesta['html'] .='<td>'.$numeroPed.'</td>';
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
@@ -371,6 +373,24 @@ function lineaPedidoAlbaran($pedido){
 		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
 		$respuesta['html'] .='</tr>';
+	}
+	return $respuesta;
+}
+
+
+function modificarArrayPedidos($pedidos, $BDTpv){
+	$respuesta=array();
+	foreach ($pedidos as $pedido){
+			$datosPedido=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$pedido['idPedido'] );
+			while ($fila = $datosPedido->fetch_assoc()) {
+				$ped[] = $fila;
+			}
+			$res['Numpedpro']=$pedido['numPedido'];
+			$res['fecha']=$ped[0]['FechaPedido'];
+			$res['idPePro']=$ped[0]['idProveedor'];
+			$res['total']=$ped[0]['total'];
+			array_push($respuesta,$res);
+		
 	}
 	return $respuesta;
 }

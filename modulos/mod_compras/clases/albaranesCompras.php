@@ -14,22 +14,22 @@ class AlbaranesCompras{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $idAlbaranTemporal, $productos, $pedidos){
+	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero){
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
-		$smt=$db->query('UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".'  WHERE id='.$idAlbaranTemporal);
+		$smt=$db->query('UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal);
 		$respuesta['sql']=$sql;
 		$respuesta['idTemporal']=$numPedidoTemp;
 		$respuesta['productos']=$UnicoCampoProductos;
 		$respuesta['pedidos']=$UnicoCampoPedidos;
 		return $respuesta;
 	}
-	public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor, $pedidos){
+	public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero){
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
-		$smt = $db->query ('INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".')');
+		$smt = $db->query ('INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')');
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
 		$respuesta['sql']=$sql;
@@ -87,11 +87,11 @@ class AlbaranesCompras{
 	public function AddAlbaranGuardado($datos, $idAlbaran){
 		$db = $this->db;
 		if ($idAlbaran>0){
-			$smt = $db->query ('INSERT INTO albprot (Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total) VALUES ('.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].')');
+			$smt = $db->query ('INSERT INTO albprot (Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero) VALUES ('.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].'])');
 			$id=$db->insert_id;
 		
 		}else{
-			$smt = $db->query ('INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].')');
+			$smt = $db->query ('INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')');
 			$id=$db->insert_id;
 			$smt = $db->query('UPDATE albprot SET Numalbpro  = '.$id.' WHERE id ='.$id);
 			$sql='INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].')';
@@ -152,6 +152,68 @@ class AlbaranesCompras{
 			$smt=$db->query('DELETE FROM albproltemporales WHERE id='.$idTemporal);
 		}
 		return $sql;
+	}
+	public function TodosTemporal(){
+			$db = $this->db;
+			$smt = $db->query ('SELECT * from albproltemporales');
+			$albaranPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($albaranPrincipal,$result);
+			}
+			return $albaranPrincipal;
+		
+	}
+	public function TodosAlbaranes(){
+		$db=$this->db;
+		$smt=$db->query('SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `albprot` as a LEFT JOIN proveedores as b on a.idProveedor =b.idProveedor ');
+		$albaranesPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($albaranesPrincipal,$result);
+		}
+		return $albaranesPrincipal;
+	}
+	public function sumarIva($numAlbaran){
+		$db=$this->db;
+		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from albproIva where  Numalbpro  ='.$numAlbaran);
+		if ($result = $smt->fetch_assoc () ){
+			$albaran=$result;
+		}
+		return $albaran;
+	}
+	public function datosAlbaran($idAlbaran){
+		$db=$this->db;
+		$smt = $db->query ('SELECT * from albprot where id='.$idAlbaran);
+			if ($result = $smt->fetch_assoc () ){
+			$albaran=$result;
+		}
+		return $albaran;
+	}
+	public function ProductosAlbaran($idAlbaran){
+		$db=$this->db;
+		$smt=$db->query('SELECT * from  albprolinea where idalbpro='.$idAlbaran);
+		$albaranesPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($albaranesPrincipal,$result);
+		}
+		return $albaranesPrincipal;
+	}
+	public function IvasAlbaran($idAlbaran){
+		$db=$this->db;
+		$smt=$db->query('SELECT * from  albproIva where idalbpro='.$idAlbaran);
+		$albaranesPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($albaranesPrincipal,$result);
+		}
+		return $albaranesPrincipal;
+	}
+	public function PedidosAlbaranes($idAlbaran){
+		$db=$this->db;
+		$smt=$db->query('SELECT * from  pedproAlb where idAlbaran='.$idAlbaran);
+		$albaranesPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($albaranesPrincipal,$result);
+		}
+		return $albaranesPrincipal;
 	}
 		
 	
