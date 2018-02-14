@@ -695,6 +695,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			if (dedonde=="albaran"){
 				addAlbaranTemp();
 			}
+			if (dedonde=="factura"){
+				addFacturaTemporal();
+			}
 			
 			AgregarFilaProductosAl(datos, dedonde);
 			

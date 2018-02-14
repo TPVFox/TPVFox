@@ -138,6 +138,95 @@ class FacturasCompras{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
+	//~ public function buscarFacturaNumero($numFactura){
+		//~ $db=$this->db;
+		//~ $smt=$db->query('SELECT * FROM facprot WHERE Numalbpro='.$numFactura);
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $factura=$result;
+		//~ }
+		//~ return $factura;
+	//~ }
+	
+	public function eliminarFacturasTablas($idFactura){
+		$db=$this->db;
+		$smt=$db->query('DELETE FROM facprot where id='.$idFactura );
+		$smt=$db->query('DELETE FROM facprolinea where 	idfacpro ='.$idFactura );
+		$smt=$db->query('DELETE FROM facproIva where idfacpro ='.$idFactura );
+		$smt=$db->query('DELETE FROM albprofac where idFactura ='.$idFactura );
+		
+	}
+	
+		public function AddFacturaGuardado($datos, $idFactura){
+		$db = $this->db;
+		if ($idFactura>0){
+			$smt = $db->query ('INSERT INTO facprot (Numfacpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_num_factura ) VALUES ('.$idFactura.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')');
+			$id=$db->insert_id;
+		
+		}else{
+			$smt = $db->query ('INSERT INTO facprot (Numtemp_facpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_num_factura ) VALUES ('.$datos['Numtemp_facpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')');
+			$id=$db->insert_id;
+			$resultado['id']=$id;
+			$smt = $db->query('UPDATE facprot SET Numfacpro  = '.$id.' WHERE id ='.$id);
+			$sql='INSERT INTO facprot (Numtemp_facpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_num_factura) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')';
+			$resultado['sql']=$sql;
+		}
+		$productos = json_decode($datos['productos'], true);
+		foreach ( $productos as $prod){
+			if ($prod['ccodbar']){
+				$codBarras=$prod['ccodbar'];
+			}else{
+				$codBarras=0;
+			}
+			if ($prod['numAlbaran']){
+				$numPed=$prod['numAlbaran'];
+			}else{
+				$numPed=0;
+			}
+			if ($prod['crefProveedor']){
+				$refProveedor=$prod['crefProveedor'];
+			}else{
+				$refProveedor=0;
+			}
+			if ($idFactura>0){
+			$smt=$db->query('INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numalbpro ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '.$prod['cref'].', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '.$refProveedor.', '.$numPed.')' );
+			$resultado['sqlPro']='INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numalbpro ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '.$prod['cref'].', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '.$refProveedor.', '.$numPed.')' ;
+			}else{
+			$smt=$db->query('INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numalbpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '.$prod['cref'].', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '.$refProveedor.', '.$numPed.')' );
+			$resultado['sqlPro']='INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numalbpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '.$prod['cref'].', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '.$refProveedor.', '.$numPed.')';
+			}
+			
+		} 
+		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
+			if($idFactura>0){
+			$smt=$db->query('INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$idFactura.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+			$resultado['sqlto']='INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$idFactura.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
+			}else{
+			$smt=$db->query('INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+			$resultado['sqlto']='INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
+			}
+		}
+		$pedidos = json_decode($datos['pedidos'], true); 
+		foreach ($pedidos as $pedido){
+			if($idAlbaran>0){
+				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')');
+				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')';
+				}else{
+				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')');
+				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')';
+				}
+		}
+		return $resultado;
+	}
+	public function EliminarRegistroTemporal($idTemporal, $idFactura){
+		$db=$this->db;
+		if ($idFactura>0){
+			$smt=$db->query('DELETE FROM facproltemporales WHERE numfacpro ='.$idFactura);
+			$sql='DELETE FROM facproltemporales WHERE numfacpro ='.$idFactura;
+		}else{
+			$smt=$db->query('DELETE FROM facproltemporales WHERE id='.$idTemporal);
+		}
+		return $sql;
+	}
 }
 
 ?>

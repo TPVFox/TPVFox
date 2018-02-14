@@ -97,13 +97,13 @@ include './../../head.php';
 				
 				
 				$estadoCab="'".'Abierto'."'";
-				$albaran=$datosFactura;
+				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
-				$pedidos=json_decode($datosFactura['Albaranes']);
+				$albaranes=json_decode($datosFactura['Albaranes']);
 		}
 		
 	}
-	if(isset($albaran['Productos'])){
+	if(isset($factura['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
 			$Datostotales = recalculoTotalesAl($productos);
@@ -111,51 +111,51 @@ include './../../head.php';
 		}
 		
 	if (isset($_POST['Guardar'])){
-		//~ if ($_POST['idTemporal']){
-				//~ $idAlbaranTemporal=$_POST['idTemporal'];
-			//~ }else{
-				//~ $idAlbaranTemporal=$_GET['tActual'];
-			//~ }
-		//~ $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-		//~ if(['total']){
-				//~ $total=$datosAlbaran['total'];
-		//~ }else{
-				//~ $total=0;
-		//~ }
+		if ($_POST['idTemporal']){
+				$idFacturaTemporal=$_POST['idTemporal'];
+			}else{
+				$idFacturaTemporal=$_GET['tActual'];
+			}
+		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+		if(['total']){
+				$total=$datosFactura['total'];
+		}else{
+				$total=0;
+		}
 	
-		//~ if ($_POST['suNumero']>0){
-				//~ $suNumero=$_POST['suNumero'];
-		//~ }else{
-			//~ $suNumero=0;
-		//~ }
-		//~ $datos=array(
-			//~ 'Numtemp_albpro'=>$idAlbaranTemporal,
-			//~ 'fecha'=>$datosAlbaran['fechaInicio'],
-			//~ 'idTienda'=>$Tienda['idTienda'],
-			//~ 'idUsuario'=>$Usuario['id'],
-			//~ 'idProveedor'=>$datosAlbaran['idProveedor'],
-			//~ 'estado'=>"Guardado",
-			//~ 'total'=>$total,
-			//~ 'DatosTotales'=>$Datostotales,
-			//~ 'productos'=>$datosAlbaran['Productos'],
-			//~ 'pedidos'=>$datosAlbaran['Pedidos'],
-			//~ 'suNumero'=>$suNumero
-		//~ );
+		if ($_POST['suNumero']>0){
+				$suNumero=$_POST['suNumero'];
+		}else{
+			$suNumero=0;
+		}
+		$datos=array(
+			'Numtemp_facpro'=>$idFacturaTemporal,
+			'fecha'=>$datosFactura['fechaInicio'],
+			'idTienda'=>$Tienda['idTienda'],
+			'idUsuario'=>$Usuario['id'],
+			'idProveedor'=>$datosFactura['idProveedor'],
+			'estado'=>"Guardado",
+			'total'=>$total,
+			'DatosTotales'=>$Datostotales,
+			'productos'=>$datosFactura['Productos'],
+			'pedidos'=>$datosFactura['Pedidos'],
+			'suNumero'=>$suNumero
+		);
 		
-		//~ if ($datosFactura['numfacpro']){
-				//~ $numAlbaran=$datosAlbaran['numalbpro'];
-				//~ $datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
-				//~ $idAlbaran=$datosReal['id'];
-				//~ $eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
-				//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
-				//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-		//~ }else{
-				//~ $idAlbaran=0;
-				//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
-				//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-				//print_r($addNuevo);
-			//header('Location: albaranesListado.php');
-		//~ }
+		if ($datosFactura['numfacpro']){
+				$numFactura=$datosFactura['numfacpro'];
+				$datosReal=$CFac->buscarFacturaNumero($numFactura);
+				$idFactura=$datosReal['id'];
+				$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
+				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura);
+				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+		}else{
+				$idFactura=0;
+				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura);
+				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+				//~ //print_r($addNuevo);
+			//~ //header('Location: albaranesListado.php');
+		}
 	}
 	
 		if (isset($factura['Albaranes'])){

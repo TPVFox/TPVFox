@@ -288,7 +288,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
-		 if ($dedonde=="albaran"){
+		 if ($dedonde=="albaran" || $dedonde=="factura"){
 			
 			$respuesta['html'].= '<td class="idArticulo">'.$numeroPed.'</td>';
 		
