@@ -329,7 +329,7 @@ function  buscarAlbaran(valor=""){
 								prodArray.push(prod);
 								numFila++;
 							}
-							//addAlbaranTemp();
+							addFacturaTemporal();
 							//modificarEstadoPedido("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
 							AgregarFilaPedido(datos);
 							AgregarFilaProductosAl(prodArray, "factura");
@@ -850,6 +850,95 @@ function addAlbaranTemp(){
 		}
 	});
 	
+}
+
+function addFacturaTemporal(){
+	console.log('FUNCION Añadir albaran temporal JS-AJAX');
+	var parametros = {
+		"pulsado"    : 'addFacturaTemporal',
+		"idFacturaTemp": cabecera.idFacturaTemp,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estado":cabecera.estado,
+		"idFactura":cabecera.idFactura,
+		"numFactura":cabecera.numFactura,
+		"fecha":cabecera.fecha,
+		"productos":productos,
+		"albaranes":albaranes,
+		"idProveedor":cabecera.idProveedor,
+		"suNumero":cabecera.suNumero
+	};
+	console.log("ESTOY EN AÑADIR FACTURA");
+	console.log(parametros);
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en añadir albaran temporal JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir albaran temporal');
+			var resultado =  $.parseJSON(response); 
+		
+			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
+
+			
+			if (resultado.existe == 0){
+				history.pushState(null,'','?tActual='+resultado.id);
+				cabecera.idFacturaTemp=resultado.id;
+			}
+				
+			$('#tipo4').html('');
+			$('#tipo10').html('');
+			$('#tipo21').html('');
+			$('#base4').html('');
+			$('#base10').html('');
+			$('#base21').html('');
+			$('#iva4').html('');
+			$('#iva10').html('');
+			$('#iva21').html('');
+			$('.totalImporte').html('');
+			
+			// Ahora pintamos pie de ticket.
+			if (resultado['totales']['total'] > 0 ){
+				// Quiere decir que hay datos a mostrar en pie.
+				total = parseFloat(resultado['totales']['total']) // varible global.
+				$('.totalImporte').html(total.toFixed(2));
+				// Ahora tengo que pintar los ivas.
+				var desgloseIvas = [];
+				
+				
+				console.log(resultado['totales']['desglose']);
+				
+				desgloseIvas.push(resultado['totales']['desglose']);
+				console.log(desgloseIvas);
+				// Ahora recorremos array desglose
+				desgloseIvas.forEach(function(desglose){
+					console.log('Entro foreah');
+					// mostramos los tipos ivas , bases y importes.
+					var tipos = Object.keys(desglose);
+					console.log(desglose);
+					for (index in tipos){
+						var tipo = tipos[index];
+						$('#line'+parseInt(tipo)).css('display','');
+						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+					}
+				});
+				
+			}
+			//~ if (cabecera.idAlbaran>0){
+			//~ console.log("entre en modificar albaran");
+				//~ var estado="Sin guardar";
+				//~ modificarEstadoAlbaran(cabecera.idAlbaran, estado);
+				
+			//~ }
+			
+			
+		}
+	});
 }
 // Añadir un pedido temporal
 function addPedidoTemporal(){

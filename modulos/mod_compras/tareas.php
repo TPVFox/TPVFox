@@ -20,6 +20,8 @@ include_once "clases/pedidosCompras.php";
 $CPed=new PedidosCompras($BDTpv);
 include_once "clases/albaranesCompras.php";
 $CAlb=new AlbaranesCompras($BDTpv);
+include_once "clases/facturasCompras.php";
+$CFac= new FacturasCompras($BDTpv);
 switch ($pulsado) {
 	case 'buscarProveedor':
 		$busqueda=$_POST['busqueda'];
@@ -294,6 +296,67 @@ switch ($pulsado) {
 			$respuesta['productos']=$_POST['productos'];
 		echo json_encode($respuesta);
 		break;
+		
+		
+		case 'addFacturaTemporal':
+			$idFacturaTemp=$_POST['idFacturaTemp'];
+			$idUsuario=$_POST['idUsuario'];
+			$idTienda=$_POST['idTienda'];
+			$estado=$_POST['estado'];
+			$idFactura=$_POST['idFactura'];
+			$numFactura=$_POST['numFactura'];
+			$fecha=$_POST['fecha'];
+			$productos=$_POST['productos'];
+			$albaranes=$_POST['albaranes'];
+			$idProveedor=$_POST['idProveedor'];
+			$suNumero=$_POST['suNumero'];
+			if ($idFacturaTemp>0){
+				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idFacturaTemp, $productos, $albaranes, $suNumero);
+				$existe=1;
+				$respuesta['sql']=$rest['sql'];
+				$res=$rest['idTemporal'];
+				$pro=$rest['productos'];
+			}else{
+				$rest=$CFac->insertarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $albaranes, $suNumero);
+				$existe=0;
+				$pro=$rest['productos'];
+				$res=$rest['id'];
+				$idAlbaranTemporal=$res;
+				$respuesta['sql1']=$rest['sql'];
+			}
+			if ($idFactura>0){
+				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
+				$estado="Sin Guardar";
+				$modEstado=$CFac->modEstadoFactura($idFactura, $estado);
+			}
+			if ($productos){
+				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				$respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$total=round($CalculoTotales['total'],2);
+				$respuesta['total']=$total;
+				$nuevoArray = array(
+							'desglose'=> $CalculoTotales['desglose'],
+							'total' => $CalculoTotales['total']
+								);
+				$respuesta['totales']=$nuevoArray;
+				$totalivas=0;
+				foreach($nuevoArray['desglose'] as $nuevo){
+					$totalivas=$totalivas+$nuevo['iva'];
+				}
+				$modTotal=$CFac->modTotales($res, $total, $totalivas);
+				$respuesta['sqlmodtotal']=$modTotal['sql'];
+				$respuesta['total']=$total;
+			}
+			$respuesta['id']=$res;
+			$respuesta['existe']=$existe;
+			$respuesta['productos']=$_POST['productos'];
+		echo json_encode($respuesta);
+		break;
+		
+		
+		
+		
 		
 		case 'modificarEstadoPedido':
 		if ($_POST['dedonde']="Albaran"){

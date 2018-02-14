@@ -92,6 +92,52 @@ class FacturasCompras{
 		}
 		return $factura;
 	}
+	
+	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idFacturaTemp, $productos, $albaranes, $suNumero){
+		$db = $this->db;
+		$UnicoCampoProductos=json_encode($productos);
+		$UnicoCampoAlbaranes=json_encode($albaranes);
+		$smt=$db->query('UPDATE facproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacPro="'.$estado.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Albaranes='."'".$UnicoCampoAlbaranes."'".' , Su_numero='.$suNumero.' WHERE id='.$idFacturaTemp);
+		$respuesta['sql']=$sql;
+		$respuesta['idTemporal']=$numPedidoTemp;
+		$respuesta['productos']=$UnicoCampoProductos;
+		$respuesta['pedidos']=$UnicoCampoAlbaranes;
+		return $respuesta;
+	}
+	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $albaranes, $suNumero){
+		$db = $this->db;
+		$UnicoCampoProductos=json_encode($productos);
+		$UnicoCampoAlbaranes=json_encode($albaranes);
+		$smt = $db->query ('INSERT INTO facproltemporales ( idUsuario , idTienda , estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoAlbaranes."'".', '.$suNumero.')');
+		$id=$db->insert_id;
+		$sql='INSERT INTO facproltemporales ( idUsuario , idTienda , estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoAlbaranes."'".', '.$suNumero.')';
+		$respuesta['id']=$id;
+		$respuesta['sql']=$sql;
+		$respuesta['productos']=$productos;
+		
+		return $respuesta;
+	}
+	public function addNumRealTemporal($idTemporal, $idReal){
+		$db=$this->db;
+		$smt=$db->query('UPDATE facproltemporales set numfacpro ='.$idReal .'  where id='.$idTemporal);
+		
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
+	public function modEstadoFactura($idFactura, $estado){
+		$db=$this->db;
+		$smt=$db->query('UPDATE facprot set estado="'.$estado .'"  where id='.$idFactura);
+		
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
+	public function modTotales($res, $total, $totalivas){
+		$db=$this->db;
+		$smt=$db->query('UPDATE facproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
+		$sql='UPDATE facproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
 }
 
 ?>
