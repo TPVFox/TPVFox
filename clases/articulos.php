@@ -18,7 +18,8 @@ class Articulos{
 		$db=$this->db;
 		$smt=$db->query('INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '.$datos['refProveedor'].', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")');
 		$sql='INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '.$datos['refProveedor'].', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")';
-		return $sql;
+		$respuesta['sql']=$sql;
+		return $respuesta;
 	}
 	public function buscarReferencia($idArticulo, $idProveedor){
 		$db=$this->db;
@@ -44,8 +45,10 @@ class Articulos{
 	}
 	public function modificarCosteProveedorArticulo($datos){
 		$db=$this->db;
-		$smt=$db->query('UPDATE articulosProveedores SET coste='.$datos['coste'].' fechaActualizacion="'.$datos['fecha'].'" WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
-	
+		$smt=$db->query('UPDATE articulosProveedores SET coste='.$datos['coste'].',  fechaActualizacion="'.$datos['fecha'].'" WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
+		$sql='UPDATE articulosProveedores SET coste='.$datos['coste'].' fechaActualizacion="'.$datos['fecha'].'" WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor'];
+		$respuesta['sql']=$sql;
+		return $respuesta;
 	}
 	
 	

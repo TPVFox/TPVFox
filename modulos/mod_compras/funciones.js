@@ -114,14 +114,14 @@ function controladorAcciones(caja,accion){
 			if(valor=""){
 				alert("NO HAS INTRODUCIDO NINGÚN COSTE");
 			}else{
-				addCosteProveedor(idArticulo, caja.darValor());
+				addCosteProveedor(idArticulo, caja.darValor(), nfila);
 			}
 			
 		break;
 		
 	}
 }
-function addCosteProveedor(idArticulo, valor){
+function addCosteProveedor(idArticulo, valor, nfila){
 	console.log("Entre en addCosteProveedor");
 	console.log(idArticulo);
 	var parametros ={
@@ -141,7 +141,21 @@ function addCosteProveedor(idArticulo, valor){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
-				
+				console.log(resultado);
+				if (resultado.error==1){
+					alert("NO PUEDES CAMBIAR EL COSTE DE ESTE PRODUCTO POR SU FECHA");
+				}else{
+					productos[nfila].ultimoCoste=valor;
+					var bandera=productos[nfila].iva/100;
+					productos[nfila].importe=(bandera + parseInt (valor))*productos[nfila].ncant;
+					console.log(valor);
+					var id = '#N'+productos[nfila].nfila+'_Importe';
+					importe = productos[nfila].importe.toFixed(2);
+					$(id).html(importe);
+					
+					
+					addAlbaranTemp();
+				}
 	
 		}
 	});
@@ -529,7 +543,12 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.ncant=1;
 			datos.nfila=productos.length+1;
 			datos.nunidades=1;
-			var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
+			if (resultado['datos'][0]['coste']>0){
+				var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
+			}else{
+				var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
+			}
+			
 			datos.ultimoCoste=ultimoCoste.toFixed(2);
 			var ivares =(resultado['datos'][0]['iva']/100);
 			var importe =(ivares+ultimoCoste)*1;
@@ -547,6 +566,10 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			}
 			
 			AgregarFilaProductosAl(datos, dedonde);
+			
+			if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
+				alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
+			}
 		}else{
 			// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
 			console.log('=== Entro en Estado Listado de funcion buscarProducto =====');

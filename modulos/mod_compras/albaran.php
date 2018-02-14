@@ -55,9 +55,7 @@ include './../../head.php';
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 			 $pedidos=json_decode(json_encode($modificarPedido), true);
 		}
-		//~ echo '<pre>';
-		//~ print_r($pedidos);
-		//~ echo '</pre>';
+		
 		$total=$Datostotales['total'];
 	}else{
 	$fecha=date('Y-m-d');
@@ -109,6 +107,7 @@ include './../../head.php';
 			$Datostotales = recalculoTotalesAl($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
+		
 	if (isset($_POST['Guardar'])){
 		if ($_POST['idTemporal']){
 				$idAlbaranTemporal=$_POST['idTemporal'];
@@ -121,7 +120,12 @@ include './../../head.php';
 		}else{
 				$total=0;
 		}
-		$suNumero=$_POST['suNumero'];
+	
+		if ($_POST['suNumero']>0){
+				$suNumero=$_POST['suNumero'];
+		}else{
+			$suNumero=0;
+		}
 		$datos=array(
 			'Numtemp_albpro'=>$idAlbaranTemporal,
 			'fecha'=>$datosAlbaran['fechaInicio'],
@@ -135,7 +139,7 @@ include './../../head.php';
 			'pedidos'=>$datosAlbaran['Pedidos'],
 			'suNumero'=>$suNumero
 		);
-		print_r($datos);
+		
 		if ($datosAlbaran['numalbpro']){
 				$numAlbaran=$datosAlbaran['numalbpro'];
 				$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
@@ -147,18 +151,22 @@ include './../../head.php';
 				$idAlbaran=0;
 				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
 				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-				print_r($addNuevo);
+				//print_r($addNuevo);
+				header('Location: albaranesListado.php');
 		}
 	}
 	
 	
 	
-		if(isset($albaran['Productos'])){
-			// Obtenemos los datos totales ( fin de ticket);
-			// convertimos el objeto productos en array
-			$Datostotales = recalculoTotalesAl($productos);
-			$productos = json_decode(json_encode($productos), true); // Array de arrays	
-		}
+		//~ if(isset($albaran['Productos'])){
+			//~ // Obtenemos los datos totales ( fin de ticket);
+			//~ // convertimos el objeto productos en array
+			//~ $Datostotales = recalculoTotalesAl($productos);
+			//~ $productos = json_decode(json_encode($productos), true); // Array de arrays	
+		//~ }
+		//~ echo '<pre>';
+		//~ print_r($Datostotales);
+		//~ echo '</pre>';
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
 		}

@@ -49,6 +49,8 @@ switch ($pulsado) {
 			$respuesta['sql']=$res['sql'];
 			if ($res['Nitems']===1){
 				$respuesta=$res;
+				$idArticulo=$res['datos'][0]['idArticulo'];
+				
 				$respuesta['Nitems']=$res['Nitems'];	
 			}else{
 				// Cambio estado para devolver que es listado.
@@ -281,18 +283,24 @@ switch ($pulsado) {
 				'coste'=>$valor,
 				'idArticulo'=>$idArticulo,
 				'idProveedor'=>$idProveedor,
-				'fecha'=>$fecha
+				'fecha'=>$fecha,
+				'estado'=>"activo"
 			);
 			if ($buscar){
 				if ($buscar['fechaActualizacion']>$fecha){
 					$respuesta['error']=1;
 				}else{
 					$mod=$CArticulos->modificarCosteProveedorArticulo($datos);
+					$respuesta=$mod['sql'];
 				}
 				
 			}else{
-				//Si no existe se cre igual
+				$datos['refProveedor']=0;
+				$add=$CArticulos->addArticulosProveedores($datos);
+				$respuesta['sql']=$add['sql'];
+				$respuesta['array']=$datos;
 			}
+			echo json_encode($respuesta);
 		break;
 		
 	
