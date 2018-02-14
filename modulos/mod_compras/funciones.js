@@ -358,6 +358,9 @@ function metodoClick(pulsado,adonde){
 		case 'AgregarAlbaran':
 			window.location.href = './albaran.php';
 			break;
+		case 'AgregarFactura':
+			window.location.href = './factura.php';
+			break;
 		case 'NuevaBusquedaPedido':
 			// Obtenemos puesto en input de Buscar
 			Buscar();

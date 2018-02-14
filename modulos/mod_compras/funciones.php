@@ -399,4 +399,20 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 	}
 	return $respuesta;
 }
+function modificarArrayAlbaranes($alabaranes, $BDTpv){
+	$respuesta=array();
+	foreach ($alabaranes as $albaran){
+			$datosAlbaran=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$albaran['idAlbaran'] );
+			while ($fila = $datosAlbaran->fetch_assoc()) {
+				$alb[] = $fila;
+			}
+			$res['Numalbpro']=$albaran['numAlbaran'];
+			$res['fecha']=$alb[0]['Fecha'];
+			$res['idPePro']=$alb[0]['idProveedor'];
+			$res['total']=$alb[0]['total'];
+			array_push($respuesta,$res);
+		
+	}
+	return $respuesta;
+}
 ?>
