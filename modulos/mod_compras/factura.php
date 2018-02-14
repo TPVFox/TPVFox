@@ -202,7 +202,7 @@ include './../../head.php';
 		
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
-	var pedidos =[];
+	var albaranes =[];
 <?php 
 	if (isset($facturaTemporal)| isset($idFactura)){ 
 ?>
@@ -283,7 +283,7 @@ if ($suNumero==0){
 			}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./albaranesListado.php">Volver Atrás</a>
+			<a  href="./facturasListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
 					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
@@ -321,7 +321,7 @@ if ($suNumero==0){
 			<label>Proveedor:</label>
 			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
 			<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" placeholder="Nombre del Proveedor" onkeydown="controlEventos(event)" value="<?php echo $nombreProveedor; ?>" size="60">
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('albaran')"></a>
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('factura')"></a>
 		</div>
 	</div>
 	<div class="col-md-4" >
@@ -330,7 +330,7 @@ if ($suNumero==0){
 			<div style="margin-top:-50px;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del albarán:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido()"></a>
+			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran()"></a>
 			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
 				<thead>
 				
@@ -419,7 +419,7 @@ if ($suNumero==0){
 	?>
 
 		<script type="text/javascript">
-			total = <?php echo $Datostotales['total'];?>;
+			//total = <?php echo $Datostotales['total'];?>;
 			</script>
 
 			<?php

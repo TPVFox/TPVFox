@@ -428,7 +428,7 @@ if ($suNumero==0){
 	?>
 
 		<script type="text/javascript">
-			total = <?php echo $Datostotales['total'];?>;
+			//total = <?php echo $Datostotales['total'];?>;
 			</script>
 
 			<?php

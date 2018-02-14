@@ -105,7 +105,13 @@ function controladorAcciones(caja,accion){
 			cerrarPopUp()
 		break;
 		case 'addPedidoAlbaran':
+		if (caja.darParametro('dedonde')=="albaran"){
 			buscarPedido(caja.darValor());
+		}
+		if (caja.darParametro('dedonde')=="factura"){
+			buscarAlbaran(caja.darValor());
+		}
+			
 		break;
 		case 'buscarUltimoCoste':
 			var nfila = parseInt(caja.fila)-1;
@@ -245,6 +251,96 @@ function buscarPedido(valor=""){
 	});
 	
 
+}
+
+function  buscarAlbaran(valor=""){
+	console.log("Entre en buscar ALBARAN");
+	var parametros ={
+		'pulsado':"BuscarAlbaran",
+		'numAlbaran':valor,
+		'idProveedor':cabecera.idProveedor
+	};
+	console.log(parametros);
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en buscar pedido JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta respuesta de buscar pedido');
+			var resultado =  $.parseJSON(response); 
+			var HtmlAlbaranes=resultado.html;
+			if (valor==""){
+				var titulo = 'Listado Albaranes ';
+				abrirModal(titulo, HtmlAlbaranes);
+				
+			}else{
+				console.log(resultado.datos);
+				console.log(resultado);
+				if (resultado.Nitems>0){
+					console.log("entre en resultados numero de items");
+					
+					var bandera=0;
+					for(i=0; i<albaranes.length; i++){
+						console.log("entre en el for");
+						var numeroAlbaran=albaranes[i].Numalbpro;
+						var numeroNuevo=resultado['datos'].Numalbpro;
+						if (numeroAlbaran == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
+						//del array pedidos entonces la bandera es igual a 1
+							bandera=bandera+1;
+						}
+					}
+						console.log(bandera);
+						if (bandera==0){
+							console.log("Hay un resultado");
+							var datos = [];
+							datos = resultado['datos'];
+							console.log(datos);
+							var datos = [];
+							datos = resultado['datos'];
+							albaranes.push(datos);
+							productosAdd=resultado.productos;
+							var prodArray=new Array();
+							var numFila=productos.length+1;
+							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
+								//~ resultado.productos[i]['nfila']=numFila;
+								var prod = new Object();
+								prod.ccodbar=resultado.productos[i]['ccodbar'];
+								prod.cdetalle=resultado.productos[i]['cdetalle'];
+								prod.cref=resultado.productos[i]['cref'];
+								prod.crefProveedor=resultado.productos[i]['ref_prov'];
+								prod.estado=resultado.productos[i]['estadoLinea'];
+								prod.idArticulo=resultado.productos[i]['idArticulo'];
+								prod.idalbpro=resultado.productos[i]['idalbpro'];
+								prod.iva=resultado.productos[i]['iva'];
+								prod.ncant=resultado.productos[i]['ncant'];
+								prod.nfila=numFila;
+								prod.numAlbaran=resultado.productos[i]['Numalbpro'];
+								prod.nunidades=resultado.productos[i]['nunidades'];
+								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
+								var ultimoCoste= parseInt(resultado.productos[i]['costeSiva']);
+								var bandera2=parseInt(resultado.productos[i]['iva'])/100;
+								var cantidad=parseInt(resultado.productos[i]['nunidades']);
+								prod.importe=(bandera2+ultimoCoste)*cantidad;
+								
+								productos.push(prod);
+								prodArray.push(prod);
+								numFila++;
+							}
+							//addAlbaranTemp();
+							//modificarEstadoPedido("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
+							AgregarFilaPedido(datos);
+							AgregarFilaProductosAl(prodArray, "factura");
+						}
+					
+				}
+			}
+	
+		}
+	});
+	
 }
 
 function modificarEstadoPedido(dedonde, estado, num="", id=""){
@@ -409,9 +505,13 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					$('#Proveedor').prop('disabled', true);
 					$('#id_proveedor').prop('disabled', true);
 					$("#buscar").css("display", "none");
+					console.log(dedonde);
 					if (dedonde="albaran"){
 						comprobarPedidos();
 						
+					}
+					if (dedonde="factura"){
+						comprobarAlbaranes();
 					}
 					mostrarFila()
 				}else{
@@ -456,6 +556,34 @@ function comprobarPedidos(){
 	
 	
 	
+}
+function comprobarAlbaranes(){
+	console.log("Entre en comprobar albaranes");
+	var parametros = {
+		"pulsado"    : 'comprobarAlbaranes',
+		"idProveedor": cabecera.idProveedor
+	};
+		$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en buscar clientes JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta respuesta de buscar clientes');
+				var resultado =  $.parseJSON(response); 
+				if (resultado==1){
+					$('#numPedidoT').css("display", "block");
+					$('#numPedido').css("display", "block");
+					$('#buscarPedido').css("display", "block");
+					$('#tablaPedidos').css("display", "block");
+				}
+				console.log(resultado);
+				
+	
+		}
+	});
 }
 //Esta funcion se activa cuando en el modal de proveedor pinchamos encima de uno de los proveedores
 //Lo que hacemos es volver a la función buscar proveedor pero mandado de busqueda el id del nombre que hemos seleccionado

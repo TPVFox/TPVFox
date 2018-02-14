@@ -217,7 +217,35 @@ class AlbaranesCompras{
 		}
 		return $albaranesPrincipal;
 	}
+	public function albaranesProveedorGuardado($idProveedor, $estado){
+		$db=$this->db;
+		$smt=$db->query('SELECT * FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'");
+		 $albaranesPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($albaranesPrincipal,$result);
+		}
 		
+		return $albaranesPrincipal;
+	}
+	public function buscarAlbaranProveedorGuardado($idProveedor, $numAlbaran, $estado){
+		$db=$this->db;
+		if ($numAlbaran>0){
+			$smt=$db->query('SELECT Numalbpro , Fecha , total, id FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numalbpro='.$numAlbaran);
+			$albaranesPrincipal=array();
+			if ($result = $smt->fetch_assoc () ){
+				$albaran=$result;
+			}
+			$albaran['Nitem']=1;
+		}else{
+			$smt=$db->query('SELECT Numalbpro, Fecha, total, id FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
+			$albaranesPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($albaranesPrincipal,$result);	
+			}
+			$albaran['datos']=$albaranesPrincipal;
+		}
+		return $albaran;
+	}
 	
 	
 }

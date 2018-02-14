@@ -255,7 +255,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 			}
-			if ($dedonde =="albaran"){
+			if ($dedonde =="albaran" || $dedonde="factura"){
 				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'.$producto['ultimoCoste'].'" size="6">';
 			}else{
 				$coste= $producto['ultimoCoste'];
@@ -265,6 +265,14 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				$numeroPed="";
 			}else{
 				$numeroPed=$producto['numPedido'];
+			}
+			if ($dedonde=="factura"){
+				if ($producto['numAlbaran']>0){
+					$numeroPed=$producto['numAlbaran'];
+				}else{
+					$numeroPed="";
+				}
+				
 			}
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
 			if ($producto['crefProveedor']>0){
@@ -368,13 +376,45 @@ function modalPedidos($pedidos){
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
 }
+function modalAlbaranes($albaranes){
+		$contad = 0;
+	$respuesta['html'] .= '<table class="table table-striped"><thead>';
+	$respuesta['html'] .= '<th>';
+	$respuesta['html'] .='<td>Número </td>';
+	$respuesta['html'] .='<td>Fecha</td>';
+	$respuesta['html'] .='<td>Total</td>';
+	$respuesta['html'] .='</th>';
+	$respuesta['html'] .= '</thead><tbody>';
+	foreach ($albaranes as $albaran){
+	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
+	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAlbaran('.$albaran['Numalbpro'].');">';
+	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
+	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
+	$respuesta['html'].='<td>'.$albaran['Numalbpro'].'</td>';
+	$respuesta['html'].='<td>'.$albaran['Fecha'].'</td>';
+	$respuesta['html'].='<td>'.$albaran['total'].'</td>';
+	$respuesta['html'].='</tr>';
+	$contad = $contad +1;
+	if ($contad === 10){
+		break;
+	}
+				
+	}
+	$respuesta['html'].='</tbody></table>';
+	return $respuesta;
+}
 function lineaPedidoAlbaran($pedido){
 		$respuesta['html']="";
 	if(isset($pedido)){
 
 		$respuesta['html'] .='<tr>';
-		$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
+		if ($pedido['Numpedpro']){
+			$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
+		}else{
+			$respuesta['html'] .='<td>'.$pedido['Numalbpro'].'</td>';
+		}
+		
 		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
 		$respuesta['html'] .='</tr>';

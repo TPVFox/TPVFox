@@ -183,6 +183,18 @@ switch ($pulsado) {
 			
 			echo json_encode($bandera);
 		break;
+		case 'comprobarAlbaranes':
+			$estado="Guardado";
+			$idProveedor=$_POST['idProveedor'];
+			$buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
+			if (count($buscar)>0){
+				$bandera=1;
+			}else{
+				$bandera=2;
+			}
+			
+			echo json_encode($bandera);
+		break;
 		case 'BuscarPedido':
 		$numPedido=$_POST['numPedido'];
 		$idProveedor=$_POST['idProveedor'];
@@ -200,6 +212,29 @@ switch ($pulsado) {
 		}else{
 			$respuesta=$datosPedido;
 			$modal=modalPedidos($datosPedido['datos']);
+			$respuesta['html']=$modal['html'];
+		}
+		echo json_encode($respuesta);
+		break;
+		case 'BuscarAlbaran':
+		$numAlbaran=$_POST['numAlbaran'];
+		$idProveedor=$_POST['idProveedor'];
+		$estado="Guardado";
+		$datosAlbaran=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAlbaran, $estado);
+		
+		if ($datosAlbaran['Nitem']==1){
+			$respuesta['temporales']=1;
+			$respuesta['datos']['Numalbpro']=$datosAlbaran['Numalbpro'];
+			$respuesta['datos']['idAlbaran']=$datosAlbaran['id'];
+			$date = new DateTime($datosAlbaran['Fecha']);
+			$respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
+			$respuesta['datos']['total']=$datosAlbaran['total'];
+			$respuesta['Nitems']=$datosAlbaran['Nitem'];
+			$productosAlbaran=$CAlb->ProductosAlbaran($datosAlbaran['id']);
+			$respuesta['productos']=$productosAlbaran;
+		}else{
+			$respuesta['datos']=$datosAlbaran;
+			$modal=modalAlbaranes($datosAlbaran['datos']);
 			$respuesta['html']=$modal['html'];
 		}
 		echo json_encode($respuesta);
