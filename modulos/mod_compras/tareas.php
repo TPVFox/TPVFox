@@ -321,11 +321,12 @@ switch ($pulsado) {
 				$existe=0;
 				$pro=$rest['productos'];
 				$res=$rest['id'];
-				$idAlbaranTemporal=$res;
+				$idFacturaTemp=$res;
 				$respuesta['sql1']=$rest['sql'];
 			}
 			if ($idFactura>0){
 				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
+				$respuesta['sql2']=$modId['sql'];
 				$estado="Sin Guardar";
 				$modEstado=$CFac->modEstadoFactura($idFactura, $estado);
 			}

@@ -13,6 +13,8 @@
 	$CFac=new FacturasCompras($BDTpv);
 	$todosTemporal=$CFac->TodosTemporal();
 	$facturasDef=$CFac->TodosFactura();
+	
+	
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -96,6 +98,7 @@ if ($stringPalabras !== '' ){
 			</thead>
 			<tbody>
 				<?php
+				
 			if (isset($todosTemporal)){
 				foreach ($todosTemporal as $temporal){
 					if ($temporal['numfacpro']){
@@ -154,9 +157,10 @@ if ($stringPalabras !== '' ){
 					
 						$checkUser = 0;
 						foreach ($facturasDef as $factura){
-						
+					
 							$checkUser = $checkUser + 1;
-							$totaliva=$Cfactura->sumarIva($factura['Numfacpro']);
+							$totaliva=$CFac->sumarIva($factura['Numfacpro']);
+						
 							$date=date_create($factura['Fecha']);
 						?>
 						<tr>

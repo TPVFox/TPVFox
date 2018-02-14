@@ -120,14 +120,14 @@ function controladorAcciones(caja,accion){
 			if(valor=""){
 				alert("NO HAS INTRODUCIDO NINGÚN COSTE");
 			}else{
-				addCosteProveedor(idArticulo, caja.darValor(), nfila);
+				addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
 			}
 			
 		break;
 		
 	}
 }
-function addCosteProveedor(idArticulo, valor, nfila){
+function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	console.log("Entre en addCosteProveedor");
 	console.log(idArticulo);
 	var parametros ={
@@ -159,8 +159,13 @@ function addCosteProveedor(idArticulo, valor, nfila){
 					importe = productos[nfila].importe.toFixed(2);
 					$(id).html(importe);
 					
+					if (dedonde=="albaran"){
+						addAlbaranTemp();
+					}
+					if (dedonde=="factura"){
+						addFacturaTemporal();
+					}
 					
-					addAlbaranTemp();
 				}
 	
 		}
@@ -422,6 +427,9 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 				}
 				if(dedonde=="albaran"){
 					addAlbaranTemp();
+				}
+				if (dedonde=="factura"){
+					addFacturaTemporal();
 				}
 				
 	
@@ -1065,11 +1073,14 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		if (dedonde=="albaran"){
 			addAlbaranTemp();
 		}
+		if (dedonde=="factura"){
+			addFacturaTemporal();
+		}
 		
 		AgregarFilaProductosAl(datos, dedonde);
 		var num_item=datos.nfila;
 		resetCampo(campo);
-		var campo='#Unidad_Fila_'+num_item;
+		var campo='Unidad_Fila_'+num_item;
 		cerrarPopUp(campo);
 }
 function resetCampo(campo){
@@ -1098,6 +1109,9 @@ function eliminarFila(num_item, valor=""){
 		}
 		if (valor=="albaran"){
 			addAlbaranTemp();
+		}
+		if (valor=="factura"){
+			addFacturaTemporal();
 		}
 	
 }
@@ -1136,6 +1150,9 @@ function retornarFila(num_item, valor=""){
 	if (valor=="albaran"){
 		addAlbaranTemp();
 	}
+	if (valor="factura"){
+		addFacturaTemporal();
+	}
 	
 	
 }
@@ -1168,6 +1185,9 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 		}
 		if (dedonde=="albaran"){
 			addAlbaranTemp();
+		}
+		if (dedonde=="factura"){
+			addFacturaTemporal();
 		}
 		
 		

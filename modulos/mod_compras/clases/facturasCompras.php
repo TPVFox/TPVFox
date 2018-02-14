@@ -120,7 +120,7 @@ class FacturasCompras{
 	public function addNumRealTemporal($idTemporal, $idReal){
 		$db=$this->db;
 		$smt=$db->query('UPDATE facproltemporales set numfacpro ='.$idReal .'  where id='.$idTemporal);
-		
+		$sql='UPDATE facproltemporales set numfacpro ='.$idReal .'  where id='.$idTemporal;
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
