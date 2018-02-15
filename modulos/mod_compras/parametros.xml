@@ -42,6 +42,7 @@
 			<nombre id_input="Proveedor">cajaProveedor</nombre>
 			<teclas>
 				<action tecla="13">buscarProveedor</action>
+				<action tecla="37">Saltar_idProveedor</action>
 				<action tecla="39">Saltar_idArticulo</action>
 				<action tecla="38">Saltar_fecha</action>
 				<action tecla=" 9">Saltar_idArticulo</action>

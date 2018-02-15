@@ -114,7 +114,7 @@ class AlbaranesCompras{
 			}else{
 				$numPed=0;
 			}
-			if (isset $prod['crefProveedor']){
+			if (isset ($prod['crefProveedor'])){
 				if ($prod['crefProveedor']){
 					$refProveedor=$prod['crefProveedor'];
 				}else{

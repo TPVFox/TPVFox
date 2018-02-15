@@ -55,11 +55,18 @@ function controladorAcciones(caja,accion){
 		break;
 		case 'Saltar_idProveedor':
 			var dato = caja.darValor();
-			if (caja.id_input="suNumero"){
+			var d_focus = 'idArticulo';
+			if (caja.id_input=="suNumero"){
 				cabecera.suNumero=caja.darValor();
 			}
-			var d_focus = 'id_proveedor';
-			ponerFocus(d_focus);
+			if (caja.id_input=="Proveedor"){
+				if ( dato.length < 0){
+					ponerFocus(d_focus);
+				}
+			}else{
+				 ponerFocus(d_focus);
+			}
+			
 			
 		break;
 		case 'Saltar_Proveedor':
@@ -1049,6 +1056,7 @@ function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	console.log('Entro en enviar focus de :'+destino_focus);
+	console.log(destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
 	}, 50); 
