@@ -516,11 +516,11 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					$('#id_proveedor').prop('disabled', true);
 					$("#buscar").css("display", "none");
 					console.log(dedonde);
-					if (dedonde="albaran"){
+					if (dedonde=="albaran"){
 						comprobarPedidos();
 						
 					}
-					if (dedonde="factura"){
+					if (dedonde=="factura"){
 						comprobarAlbaranes();
 					}
 					mostrarFila()
@@ -583,7 +583,9 @@ function comprobarAlbaranes(){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
-				if (resultado==1){
+				console.log(resultado);
+				if (resultado == 1){
+					console.log("entre en las opciones");
 					$('#numPedidoT').css("display", "block");
 					$('#numPedido').css("display", "block");
 					$('#buscarPedido').css("display", "block");

@@ -468,6 +468,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");
 		$("#bGuardar").css("display", "none");
+		$("#fecha").prop('disabled', true);
 		<?php
 	}
 	?>

@@ -535,6 +535,8 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscarPedido").css("display", "none");
 		$("#bGuardar").css("display", "none");
 		$("#bCancelar").css("display", "none");
+		$("#suNumero").prop('disabled', true);
+		$("#fecha").prop('disabled', true);
 		<?php
 	}
 	?>
