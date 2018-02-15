@@ -155,6 +155,21 @@ include './../../head.php';
 				header('Location: albaranesListado.php');
 		}
 	}
+	if (isset ($_POST['Cancelar'])){
+		if ($_POST['idTemporal']){
+				$idTemporal=$_POST['idTemporal'];
+		}else{
+				$idTemporal=$_GET['tActual'];
+		}
+		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+		$pedidos=json_decode($pedidos['Pedidos'], true);
+		foreach ($pedidos as $pedido){
+			$mod=$Cped->modEstadoPedido($pedido['idPedido'], "Guardado");
+		}
+		$idAlbaran=0;
+		$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+		header('Location: facturasListado.php');
+	}
 	
 	
 	

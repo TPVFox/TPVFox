@@ -158,6 +158,21 @@ include './../../head.php';
 		}
 		header('Location: facturasListado.php');
 	}
+	if (isset($_POST['Cancelar'])){
+		if ($_POST['idTemporal']){
+				$idTemporal=$_POST['idTemporal'];
+		}else{
+				$idTemporal=$_GET['tActual'];
+		}
+		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+		$albaranes=json_decode($datosFactura['Albaranes'], true);
+		foreach ($albaranes as $albaran){
+			$mod=$CAlb->modEstadoAlbaran($albaran['idAlbaran'], "Guardado");
+		}
+		$idFactura=0;
+		$eliminarTemporal=$CFac->EliminarRegistroTemporal($idTemporal, $idFactura);
+		header('Location: facturasListado.php');
+	}
 	
 		if (isset($factura['Albaranes'])){
 			$albaranes=json_decode(json_encode($albaranes), true);
