@@ -247,6 +247,7 @@ function buscarPedido(valor=""){
 							modificarEstadoPedido("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
 							AgregarFilaPedido(datos);
 							AgregarFilaProductosAl(prodArray, "albaran");
+							cerrarPopUp();
 						}
 					
 				}
@@ -335,9 +336,10 @@ function  buscarAlbaran(valor=""){
 								numFila++;
 							}
 							addFacturaTemporal();
-							//modificarEstadoPedido("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
+							modificarEstadoPedido("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
 							AgregarFilaPedido(datos);
 							AgregarFilaProductosAl(prodArray, "factura");
+							cerrarPopUp();
 						}
 					
 				}
@@ -368,16 +370,16 @@ function modificarEstadoPedido(dedonde, estado, num="", id=""){
 			"dedonde" : dedonde
 		};
 	}
-	//~ if (dedonde == "factura"){
-		//~ var parametros = {
-			//~ "pulsado"    : 'modificarEstadoPedido',
-			//~ "idAlbaran":id,
-			//~ "numAlbaranTemporal":num,
-			//~ "estado" : estado,
-			//~ "dedonde" : dedonde
-		//~ };
+	if (dedonde == "factura"){
+		var parametros = {
+			"pulsado"    : 'modificarEstadoPedido',
+			"idAlbaran":id,
+			"numAlbaranTemporal":num,
+			"estado" : estado,
+			"dedonde" : dedonde
+		};
 		
-	//~ }
+	}
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',

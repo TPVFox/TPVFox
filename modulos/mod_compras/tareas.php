@@ -360,10 +360,15 @@ switch ($pulsado) {
 		
 		
 		case 'modificarEstadoPedido':
-		if ($_POST['dedonde']="Albaran"){
+		if ($_POST['dedonde']=="albaran"){
 			$idPedido=$_POST['idPedido'];
 			$estado="Facturado";
 			$modEstado=$CPed->modEstadoPedido($idPedido, $estado);
+		}
+		if ($_POST['dedonde']=="factura"){
+			$idAlbaran=$_POST['idAlbaran'];
+			$estado="Facturado";
+			$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
 		}
 		echo json_encode($respuesta);
 		break;

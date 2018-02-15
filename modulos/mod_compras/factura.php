@@ -39,8 +39,8 @@ include './../../head.php';
 		$idFacturaTemporal=0;
 		$numFactura=$datosFactura['Numfacpro'];
 		$idProveedor=$datosFactura['idProveedor'];
-		if ($datosFactura['Su_numero']>0){
-			$suNumero=$datosFactura['Su_numero'];
+		if ($datosFactura['Su_num_factura']>0){
+			$suNumero=$datosFactura['Su_num_factura'];
 		}else{
 			$suNumero=0;
 		}
@@ -154,8 +154,9 @@ include './../../head.php';
 				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura);
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
 				//~ //print_r($addNuevo);
-			//~ //header('Location: albaranesListado.php');
+			
 		}
+		header('Location: facturasListado.php');
 	}
 	
 		if (isset($factura['Albaranes'])){
