@@ -65,6 +65,7 @@ include './../../head.php';
 	$numAlbaran=0;
 	$idProveedor=0;
 	$suNumero=0;
+	$nombreProveedor="";
 		if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
 				$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
@@ -151,9 +152,10 @@ include './../../head.php';
 				$idAlbaran=0;
 				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
 				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-				//print_r($addNuevo);
-				header('Location: albaranesListado.php');
+				
+				
 		}
+		header('Location: albaranesListado.php');
 	}
 	if (isset ($_POST['Cancelar'])){
 		if ($_POST['idTemporal']){
@@ -187,7 +189,7 @@ include './../../head.php';
 		}
 		
 		
-		if (isset ($pedidos) | $_GET['tActual']| $_GET['id']){
+		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
 			$style="";
 		}else{
 			$style="display:none;";
@@ -251,7 +253,7 @@ include './../../head.php';
 			}
 	
 		}
-		if (isset($pedidos)){
+		if (is_array($pedidos)){
 			foreach ($pedidos as $pedi){
 				?>
 				datos=<?php echo json_encode($pedi);?>;
@@ -290,22 +292,6 @@ if ($suNumero==0){
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			<?php 
-			if (isset($_GET['mensaje'])){
-				$mensaje=$_GET['mensaje'];
-				$tipomensaje=$_GET['tipo'];
-			}
-			if (isset($mensaje) || isset($error)){   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
-				}
-				?>
-			<?php
-			}
-			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="./albaranesListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
@@ -365,7 +351,7 @@ if ($suNumero==0){
 				</thead>
 				
 				<?php 
-				if (isset($pedidos)){
+				if (is_array($pedidos)){
 					foreach ($pedidos as $pedido){
 						$html=lineaPedidoAlbaran($pedido, "albaran");
 					echo $html['html'];
@@ -422,6 +408,7 @@ if ($suNumero==0){
 	  </table>
 	</div>
 	<?php 
+	if (isset($Datostotales)){
 			//~ // Ahora montamos base y ivas
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
@@ -443,11 +430,11 @@ if ($suNumero==0){
 	?>
 
 		<script type="text/javascript">
-			//total = <?php echo $Datostotales['total'];?>;
+			total = <?php echo $Datostotales['total'];?>;
 			</script>
 
 			<?php
-
+}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -525,6 +512,9 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
+	if (isset($datosAlbaran['estado'])){
+		
+	
 	if ($datosAlbaran['estado']=="Facturado"){
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
@@ -539,6 +529,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#fecha").prop('disabled', true);
 		<?php
 	}
+}
 	?>
 </script>
 	</body>

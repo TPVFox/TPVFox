@@ -281,11 +281,18 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				
 			}
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
-			if ($producto['crefProveedor']>0){
+			if (isset($producto['crefProveedor'])){
+				if ($producto['crefProveedor']>0){
 				$filaProveedor='<td class="referencia"><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+"  value="'.$producto['crefProveedor'].'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)" disabled><a id="enlaceCambio" onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="text-align: right"><span class="glyphicon glyphicon-cog"></span></a></td>';
+				}else{
+				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"><a onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="display:none" id="enlaceCambio"><span class="glyphicon glyphicon-cog"></span></a></td>';
+				}
 			}else{
 				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"><a onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="display:none" id="enlaceCambio"><span class="glyphicon glyphicon-cog"></span></a></td>';
 			}
+			
+			
+			
 			if (isset ($producto['ccodbar'])){
 				if ($producto['ccodbar']>0){
 					$codBarra=$producto['ccodbar'];
@@ -332,7 +339,9 @@ function modificarArrayProductos($productos){
 		$pro['crefProveedor']=$producto['ref_prov'];
 		$pro['estado']=$producto['estadoLinea'];
 		$pro['idArticulo']=$producto['idArticulo'];
-		$pro['idpedpro']=$producto['idpedpro'];
+		if (isset($producto['idpedpro'])){
+			$pro['idpedpro']=$producto['idpedpro'];
+		}
 		$bandera=$producto['iva']/100;
 		$importe=($bandera+$producto['costeSiva'])*$producto['ncant'];
 		$pro['importe']=$importe;
@@ -356,6 +365,7 @@ function htmlCambioRefProveedor($datos, $fila, $articulo, $coste){
 	return $resultado;
 }
 function modalPedidos($pedidos){
+	$respuesta=array('html'=>'');
 		$contad = 0;
 	$respuesta['html'] .= '<table class="table table-striped"><thead>';
 	$respuesta['html'] .= '<th>';

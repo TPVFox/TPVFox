@@ -19,8 +19,8 @@ class AlbaranesCompras{
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$smt=$db->query('UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal);
-		$respuesta['sql']=$sql;
-		$respuesta['idTemporal']=$numPedidoTemp;
+		
+		$respuesta['idTemporal']=$idAlbaranTemporal;
 		$respuesta['productos']=$UnicoCampoProductos;
 		$respuesta['pedidos']=$UnicoCampoPedidos;
 		return $respuesta;
@@ -32,7 +32,7 @@ class AlbaranesCompras{
 		$smt = $db->query ('INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')');
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
-		$respuesta['sql']=$sql;
+		
 		$respuesta['productos']=$productos;
 		
 		return $respuesta;
@@ -41,14 +41,14 @@ class AlbaranesCompras{
 		$db=$this->db;
 		$smt=$db->query('UPDATE albproltemporales set numalbpro ='.$idReal .'  where id='.$idTemporal);
 		
-		$resultado['sql']=$sql;
+		
 		return $resultado;
 	}
 	public function modEstadoAlbaran($idAlbaran, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE albprot set estado="'.$estado .'"  where id='.$idAlbaran);
 		
-		$resultado['sql']=$sql;
+		
 		return $resultado;
 	}
 	public function modTotales($res, $total, $totalivas){
@@ -105,16 +105,25 @@ class AlbaranesCompras{
 			}else{
 				$codBarras=0;
 			}
-			if ($prod['Numpedpro']){
-				$numPed=$prod['Numpedpro'];
+			if (isset($prod['Numpedpro'])){
+				if ($prod['Numpedpro']){
+					$numPed=$prod['Numpedpro'];
+				}else{
+					
+				}
 			}else{
 				$numPed=0;
 			}
-			if ($prod['crefProveedor']){
-				$refProveedor=$prod['crefProveedor'];
+			if (isset $prod['crefProveedor']){
+				if ($prod['crefProveedor']){
+					$refProveedor=$prod['crefProveedor'];
+				}else{
+					$refProveedor=0;
+				}
 			}else{
 				$refProveedor=0;
 			}
+			
 			if ($idAlbaran>0){
 			$smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '.$prod['cref'].', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '.$refProveedor.', '.$numPed.')' );
 			$resultado['sqlPro']='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '.$prod['cref'].', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '.$refProveedor.', '.$numPed.')' ;
@@ -134,15 +143,18 @@ class AlbaranesCompras{
 			}
 		}
 		$pedidos = json_decode($datos['pedidos'], true); 
-		foreach ($pedidos as $pedido){
+		if (is_array($pedidos)){
+			foreach ($pedidos as $pedido){
 			if($idAlbaran>0){
 				$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
 				$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
 				}else{
 				$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
 				$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
-				}
+			}
 		}
+		}
+	
 		return $resultado;
 	}
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){
@@ -152,6 +164,7 @@ class AlbaranesCompras{
 			$sql='DELETE FROM albproltemporales WHERE numalbpro ='.$idAlbaran;
 		}else{
 			$smt=$db->query('DELETE FROM albproltemporales WHERE id='.$idTemporal);
+			$sql='DELETE FROM albproltemporales WHERE id='.$idTemporal;
 		}
 		return $sql;
 	}

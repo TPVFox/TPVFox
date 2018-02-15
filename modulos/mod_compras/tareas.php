@@ -121,14 +121,18 @@ switch ($pulsado) {
 		case 'htmlAgregarFilasProductos':
 		$productos=$_POST['productos'];
 		$dedonde=$_POST['dedonde'];
+		$respuesta=array('html'=>"");
+		$bandera=0;
+		if (isset($productos)){
 			 foreach($productos as $producto){
 				if (!is_array($producto)){
 					$bandera=1;
 				}else{
 				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
-				 $respuesta['html'].=$res['html'];
+				$respuesta['html'].=$res['html'];
 				}
 		 }
+	 }
 		 if ($bandera==1){
 			 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
 				 $respuesta['html']=$res['html'];
@@ -202,19 +206,21 @@ switch ($pulsado) {
 		$idProveedor=$_POST['idProveedor'];
 		$estado="Guardado";
 		$datosPedido=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado);
-		if ($datosPedido['Nitem']==1){
-			$respuesta['temporales']=1;
-			$respuesta['datos']['Numpedpro']=$datosPedido['Numpedpro'];
-			$respuesta['datos']['idPedido']=$datosPedido['id'];
-			$respuesta['datos']['fecha']=$datosPedido['FechaPedido'];
-			$respuesta['datos']['total']=$datosPedido['total'];
-			$respuesta['Nitems']=$datosPedido['Nitem'];
-			$productosPedido=$CPed->ProductosPedidos($datosPedido['id']);
-			$respuesta['productos']=$productosPedido;
-		}else{
-			$respuesta=$datosPedido;
-			$modal=modalPedidos($datosPedido['datos']);
-			$respuesta['html']=$modal['html'];
+		if (isset($datosPedido)){
+			if ($datosPedido['Nitem']==1){
+				$respuesta['temporales']=1;
+				$respuesta['datos']['Numpedpro']=$datosPedido['Numpedpro'];
+				$respuesta['datos']['idPedido']=$datosPedido['id'];
+				$respuesta['datos']['fecha']=$datosPedido['FechaPedido'];
+				$respuesta['datos']['total']=$datosPedido['total'];
+				$respuesta['Nitems']=$datosPedido['Nitem'];
+				$productosPedido=$CPed->ProductosPedidos($datosPedido['id']);
+				$respuesta['productos']=$productosPedido;
+			}else{
+				$respuesta=$datosPedido;
+				$modal=modalPedidos($datosPedido['datos']);
+				$respuesta['html']=$modal['html'];
+			}
 		}
 		echo json_encode($respuesta);
 		break;
@@ -250,14 +256,19 @@ switch ($pulsado) {
 			$numAlbaran=$_POST['numAlbaran'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
-			$pedidos=$_POST['pedidos'];
+			if (isset($_POST['pedidos'])){
+				$pedidos=$_POST['pedidos'];
+			}else{
+				$pedidos="";
+			}
+			
 			$idProveedor=$_POST['idProveedor'];
 			$suNumero=$_POST['suNumero'];
 			$existe=0;
 			if ($idAlbaranTemporal>0){
 				$rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero);
 				$existe=1;
-				$respuesta['sql']=$rest['sql'];
+		
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{
@@ -360,6 +371,7 @@ switch ($pulsado) {
 		
 		
 		case 'modificarEstadoPedido':
+		$respuesta="";
 		if ($_POST['dedonde']=="albaran"){
 			$idPedido=$_POST['idPedido'];
 			$estado="Facturado";
