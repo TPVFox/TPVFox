@@ -135,7 +135,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
 	$resultado = array();
-	
+	$resultado['html']=" ";
 	$resultado['encontrados'] = count($productos);
 	$resultado['html'] = "<script type='text/javascript'>
 					// Ahora debemos añadir parametro campo a objeto de cajaBusquedaProductos".
@@ -237,7 +237,7 @@ function recalculoTotalesAl($productos) {
 }
 // html de la linea de los productos tanto para pedido, albaran y factura
 function htmlLineaPedidoAlbaran($productos, $dedonde){
-	
+	 $respuesta=array('html'=>'');
 	if(!is_array($productos)) {
 		// Comprobamos si product no es objeto lo convertimos.
 		$producto = (array)$productos;
@@ -254,18 +254,24 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			} else {
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$classtr = '';
+				$estadoInput = '';
 			}
-			if ($dedonde =="albaran" || $dedonde="factura"){
+			if ($dedonde =="albaran" || $dedonde=="factura"){
 				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'.$producto['ultimoCoste'].'" size="6">';
 			}else{
 				$coste= $producto['ultimoCoste'];
 			}
-			
-			if ($producto['numPedido']==0){
-				$numeroPed="";
+			if (isset($producto['numPedido'])){
+				if ($producto['numPedido']==0){
+					$numeroPed="";
+				}else{
+					$numeroPed=$producto['numPedido'];
+				}
 			}else{
-				$numeroPed=$producto['numPedido'];
+				$numeroPed="";
 			}
+			
 			if ($dedonde=="factura"){
 				if ($producto['numAlbaran']>0){
 					$numeroPed=$producto['numAlbaran'];
@@ -280,22 +286,23 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}else{
 				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"><a onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="display:none" id="enlaceCambio"><span class="glyphicon glyphicon-cog"></span></a></td>';
 			}
-			if ($producto['ccodbar']>0){
-				$codBarra=$producto['ccodbar'];
-			}else{
-				$codBarra="";
+			if (isset ($producto['ccodbar'])){
+				if ($producto['ccodbar']>0){
+					$codBarra=$producto['ccodbar'];
+				}else{
+					$codBarra="";
+				}
 			}
+			
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
 		 if ($dedonde=="albaran" || $dedonde=="factura"){
-			
 			$respuesta['html'].= '<td class="idArticulo">'.$numeroPed.'</td>';
 		
 		 }
 		
-		
-		 //$respuesta['html'] .='<td>'.$numeroPed.'</td>';
+		 
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
 		 $respuesta['html'] .=$filaProveedor;

@@ -16,6 +16,7 @@ include './../../head.php';
 	$titulo="Crear Pedido De Proveedor";
 	$estado='Abierto';
 	
+
 	
 	if ($_GET){
 		if (isset($_GET['id'])){
@@ -104,14 +105,15 @@ include './../../head.php';
 	$idProveedor=0;
 	$numPedidoTemp=0;
 	$numPedido=0;
+	$nombreProveedor="";
 }
-if($pedido['Productos']){
+if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
 			$Datostotales = recalculoTotalesAl($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
-if ($_POST['Guardar']){
+if (isset($_POST['Guardar'])){
 	if ($_POST['idTemporal']){
 		$numPedidoTemp=$_POST['idTemporal'];
 	}else{
@@ -211,10 +213,12 @@ if ($_POST['Guardar']){
 <?php 
 
 		//cambiamos estado y cantidad de producto creado si fuera necesario.
+		if (isset ($product->estado)){
 			 if ($product->estado !== 'Activo'){
 			 ?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 			 <?php
 			 }
+		 }
 			 $i++;
 		 }
 	
@@ -249,40 +253,35 @@ if ($_POST['Guardar']){
 <div class="container">
 			<?php 
 		
-			if (isset($_GET)){
-				if(isset($_GET['mensaje']) & isset($_GET['tipo'])){
-				$mensaje=$_GET['mensaje'];
-				$tipomensaje=$_GET['tipo'];
-				if (isset($mensaje) || isset($error)){
+			//~ if (isset($_GET)){
+				//~ if(isset($_GET['mensaje']) & isset($_GET['tipo'])){
+				//~ $mensaje=$_GET['mensaje'];
+				//~ $tipomensaje=$_GET['tipo'];
+				//~ if (isset($mensaje) || isset($error)){
 			
 			   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
+<!--
+				<div class="alert alert-<?php //echo $tipomensaje; ?>"><?php //echo $mensaje ;?></div>
+-->
 				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
-				}
+				//~ if (isset($error)){
+				//~ // No permito continuar, ya que hubo error grabe.
+				//~ return;
+				//~ }
 				?>
 			<?php
-		}
-			}
-		}
+		//~ }
+			//~ }
+		//~ }
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-				<?php 
-				
-					if($datosPedido['estado']<>"Facturado"){
-				?>
-					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
+			<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
 					<?php
-				}
-				
-				
-				if (isset($_GET['tActual'])){
+				if (isset($numPedidoTemp)){
 					?>
-					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
+					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $numPedidoTemp;?>>
 					<?php
 				}
 					?>
@@ -292,19 +291,11 @@ if ($_POST['Guardar']){
 			<div class="col-md-7">
 				<div class="col-md-6">
 					<strong>Fecha Pedido:</strong><br/>
-					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" <?php echo $disabled;?>>
+					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
 				<div class="col-md-6">
 					<strong>Estado:</strong>
-					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly></span><br/>
-					<?php if ($bandera<>1){?>
-<!--
-					<strong>NºT_temp:</strong>
-					<span id="NTicket"><?php //echo $ticket_numero ;?></span><br/>
--->
-					<?php 
-					}
-					?>
+					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly></span><br/>	
 				</div>
 			</div>
 			<div class="col-md-3">
@@ -314,9 +305,9 @@ if ($_POST['Guardar']){
 		</div>
 		<div class="form-group">
 			<label>Proveedor:</label>
-			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id' <?php echo $disabled;?>>
-			<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="<?php echo $nombreProveedor; ?>" size="60" <?php echo $disabled;?>>
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('pedidos')" style="<?php echo $style;?>"></a>
+			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+			<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="<?php echo $nombreProveedor; ?>" size="60" >
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('pedidos')"></a>
 		</div>
 	</div>
 	<!-- Tabla de lineas de productos -->
@@ -336,7 +327,7 @@ if ($_POST['Guardar']){
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		  <tr id="Row0" style=<?php echo $style;?>>  
+		  <tr id="Row0">  
 			<td id="C0_Linea" ></td>
 			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="13" value=""  onkeydown="controlEventos(event)"></td>
 			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
@@ -378,7 +369,7 @@ if ($_POST['Guardar']){
 				}
 			}
 			
-	if ($DatosTotales){
+	if (isset($DatosTotales)){
 	?>
 		<script type="text/javascript">
 			total = <?php echo $Datostotales['total'];?>;
@@ -461,6 +452,10 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#id_proveedor').prop('disabled', true);
 		$('#Proveedor').prop('disabled', true);
 		$("#buscar").css("display", "none");
+		<?php
+	}else{
+		?>
+		$("#Row0").css("display", "none");
 		<?php
 	}
 	if ($estado=="Facturado"){

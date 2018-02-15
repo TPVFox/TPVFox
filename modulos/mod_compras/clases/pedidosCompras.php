@@ -50,14 +50,14 @@ class PedidosCompras{
 		$db=$this->db;
 		$smt=$db->query('UPDATE pedprotemporales set idPedpro='.$idReal .'  where id='.$idTemporal);
 		
-		$resultado['sql']=$sql;
+		
 		return $resultado;
 	}
 	public function modEstadoPedido($idPedido, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido);
 		
-		$resultado['sql']=$sql;
+	
 		return $resultado;
 	}
 	public function DatosTemporal($idTemporal){
