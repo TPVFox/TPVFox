@@ -23,6 +23,9 @@ $CAlb=new AlbaranesCompras($BDTpv);
 include_once "clases/facturasCompras.php";
 $CFac= new FacturasCompras($BDTpv);
 switch ($pulsado) {
+	//Busca el proveedor según el dato insertado , si el dato viene de la caja idProveedor entonces busca por id
+	//Si no busca por nombre del proveedor y muestra un modal con las coincidencias ,
+	//Si no recibe busqueda muestra un modal con todos los nombres de los proveedores 
 	case 'buscarProveedor':
 		$busqueda=$_POST['busqueda'];
 		$dedonde=$_POST['dedonde'];
@@ -40,6 +43,7 @@ switch ($pulsado) {
 		}
 		echo json_encode($respuesta);
 	break;
+	//Busqueda de productos: Recive el valor a buscar el campo por el que tiene que buscar 
 	case 'buscarProductos':
 			$busqueda = $_POST['valorCampo'];
 			$campoAbuscar = $_POST['campo'];
@@ -62,6 +66,8 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);  
 	break;	
+	//Añadir un pedido temporal, recibe los campos necesarios para añadir el pedido
+	//Si ya existe modifica el registro si no lo crea, devuelve siempre el id del temporal
 	case 'addPedidoTemporal';
 		$numPedidoTemp=$_POST['numPedidoTemp'];
 		$idUsuario=$_POST['idUsuario'];
@@ -87,12 +93,15 @@ switch ($pulsado) {
 				$numPedidoTemp=$res;
 		}
 		$respuesta['numPedido']=$numPedido;
+		//Si tiene id de pedido , o sea que estamos en una modificacion de un pedido que ya existe, añadimos el número del pedido real al registro temporal
+		//y modificamos el estado del pedido real a sin guardar.
 		 if ($idPedido>0){
 			 $modId=$CPed->addNumRealTemporal($numPedidoTemp, $idPedido);
 			 $estado="Sin Guardar";
 			 $modEstado=$CPed->modEstadoPedido($idPedido, $estado);
 		 }
 		if ($productos){
+			//Recalcula el valor de los productos
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
@@ -117,7 +126,7 @@ switch ($pulsado) {
 			$respuesta['productos']=$_POST['productos'];
 		echo json_encode($respuesta);
 		break;
-		
+		//Agrega la fila de productos : crea las filas de los productos para posteriormente insertar en la tabla 
 		case 'htmlAgregarFilasProductos':
 		$productos=$_POST['productos'];
 		$dedonde=$_POST['dedonde'];
@@ -125,7 +134,7 @@ switch ($pulsado) {
 		$bandera=0;
 		if (isset($productos)){
 			 foreach($productos as $producto){
-				if (!is_array($producto)){
+				if (!is_array($producto)){ 
 					$bandera=1;
 				}else{
 				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
@@ -139,6 +148,7 @@ switch ($pulsado) {
 		 }
 		echo json_encode($respuesta);
 		break;
+		//Añadir un registro a la tabla articuloproveedor
 		case 'addProveedorArticulo':
 			$fechaActualizacion=date('Y-m-d');
 			$estado="activo";
@@ -163,6 +173,7 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		
 		break;
+		//Busca si un articulo tiene referencia de proveedor
 		case 'buscarReferencia':
 				$idArticulo=$_POST['idArticulo'];
 				$idProveedor=$_POST['idProveedor'];
@@ -177,6 +188,7 @@ switch ($pulsado) {
 				echo json_encode($respuesta);
 		
 		break;
+		//Comprueba los pedidos con el estado guardado
 		case 'comprobarPedido':
 			$estado="Guardado";
 			$idProveedor=$_POST['idProveedor'];
@@ -189,6 +201,7 @@ switch ($pulsado) {
 			
 			echo json_encode($bandera);
 		break;
+		//Comprueba los albaranes con el estado guardado
 		case 'comprobarAlbaranes':
 			$estado="Guardado";
 			$idProveedor=$_POST['idProveedor'];
@@ -201,6 +214,8 @@ switch ($pulsado) {
 			
 			echo json_encode($bandera);
 		break;
+		//Buscar los pedidos con el estado guardado de un proveedor determinado 
+		//Si solo resicibe un resultado monta el array si no muestra un modal con los pedidos de ese proveedor 
 		case 'BuscarPedido':
 		$numPedido=$_POST['numPedido'];
 		$idProveedor=$_POST['idProveedor'];
@@ -224,6 +239,9 @@ switch ($pulsado) {
 		}
 		echo json_encode($respuesta);
 		break;
+		//Busca los albaranes con el estado guardado 
+		//Si obtiene un resultado crea el arra con los datos necesarios 
+		// si no muestra un modal
 		case 'BuscarAlbaran':
 		$numAlbaran=$_POST['numAlbaran'];
 		$idProveedor=$_POST['idProveedor'];
@@ -247,6 +265,7 @@ switch ($pulsado) {
 		}
 		echo json_encode($respuesta);
 		break;
+		//Añade un albaran temporal es igual que la de pedidos pero esta vez en la tabla temporal de albaranes
 		case 'addAlbaranTemporal':
 			$idAlbaranTemporal=$_POST['idAlbaranTemp'];
 			$idUsuario=$_POST['idUsuario'];
@@ -308,7 +327,7 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
-		
+		//Añadir una factura temporal es igual que añadir pedido temporal con la diferencia de que es en la tabla temporal de facturas
 		case 'addFacturaTemporal':
 			$idFacturaTemp=$_POST['idFacturaTemp'];
 			$idUsuario=$_POST['idUsuario'];
@@ -368,30 +387,27 @@ switch ($pulsado) {
 			$respuesta['productos']=$_POST['productos'];
 		echo json_encode($respuesta);
 		break;
-		
-		
-		
-		
-		
+		//Modifica el estado tanto de un pedido como de un albaran a facturado dependiendo de donde venga
 		case 'modificarEstadoPedido':
 		$respuesta="";
+		$estado="Facturado";
 		if ($_POST['dedonde']=="albaran"){
 			$idPedido=$_POST['idPedido'];
-			$estado="Facturado";
 			$modEstado=$CPed->modEstadoPedido($idPedido, $estado);
 		}
 		if ($_POST['dedonde']=="factura"){
 			$idAlbaran=$_POST['idAlbaran'];
-			$estado="Facturado";
 			$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
 		}
 		echo json_encode($respuesta);
 		break;
+		//Agrega tanto la fila de pedido como la de alabaranes
 		case 'htmlAgregarFilaPedido':
 			$res=lineaPedidoAlbaran($_POST['datos']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
+		//Añade un nuevo registro a la tabla articulos proveedores si ya existe solo lo modifica
 		case 'AddCosteProveedor':
 			$idArticulo=$_POST['idArticulo'];
 			$valor=$_POST['valor'];
