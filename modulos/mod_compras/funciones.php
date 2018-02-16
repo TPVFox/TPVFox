@@ -369,6 +369,7 @@ function htmlCambioRefProveedor($datos, $fila, $articulo, $coste){
 	$resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'" data-obj="inputCambioRef" name ="cambioRef" onkeydown="controlEventos(event)" onBlur="controlEventos(event)" id ="inputCambioRef">';
 	return $resultado;
 }
+//Modal para cuando buscamos un pedido de un proveedor en albaranes
 function modalPedidos($pedidos){
 	$respuesta=array('html'=>'');
 		$contad = 0;
@@ -398,6 +399,7 @@ function modalPedidos($pedidos){
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
 }
+//Modal para cuando buscamos un albaran en facturas
 function modalAlbaranes($albaranes){
 		$contad = 0;
 	$respuesta['html'] .= '<table class="table table-striped"><thead>';
@@ -426,6 +428,7 @@ function modalAlbaranes($albaranes){
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
 }
+//Agrega la linea de pedidos a un alabaran con los datos necesarios
 function lineaPedidoAlbaran($pedido){
 		$respuesta['html']="";
 	if(isset($pedido)){
@@ -444,7 +447,7 @@ function lineaPedidoAlbaran($pedido){
 	return $respuesta;
 }
 
-
+//Modifica el array de pedidos . Esta función se carga en albaranes.php
 function modificarArrayPedidos($pedidos, $BDTpv){
 	$respuesta=array();
 	foreach ($pedidos as $pedido){
@@ -461,6 +464,7 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 	}
 	return $respuesta;
 }
+//MOdifica el array de albaranes , esta función se carga en facturas.php
 function modificarArrayAlbaranes($alabaranes, $BDTpv){
 	$respuesta=array();
 	foreach ($alabaranes as $albaran){
