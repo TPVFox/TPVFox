@@ -15,7 +15,7 @@ include './../../head.php';
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 5; // por defecto.
+	$LimitePagina = 10; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
@@ -29,7 +29,7 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	
 	$vista = 'pedprot';
-	$LinkBase = '../pedidosListado.php?';
+	$LinkBase = './pedidosListado.php?';
 	$OtrosParametros = '';
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {

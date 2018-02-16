@@ -12,7 +12,7 @@
 	include 'clases/facturasCompras.php';
 	$CFac=new FacturasCompras($BDTpv);
 	$todosTemporal=$CFac->TodosTemporal();
-	$facturasDef=$CFac->TodosFactura();
+	
 	
 	
 	$palabraBuscar=array();
@@ -54,6 +54,7 @@ if ($stringPalabras !== '' ){
 	} else {
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
+	$facturasDef=$CFac->TodosFacturaLimite($filtro);
 ?>
 
 </head>
