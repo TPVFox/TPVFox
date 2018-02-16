@@ -12,11 +12,10 @@ include './../../head.php';
 	include '../../clases/Proveedores.php';
 	$Cproveedor=new Proveedores($BDTpv);
 	$todoTemporal=$Cpedido->TodosTemporal();
-	$pedidosDef=$Cpedido->TodosPedidos();
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
+	$LimitePagina = 5; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
@@ -30,7 +29,7 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	
 	$vista = 'pedprot';
-	$LinkBase = './pedidosListado.php?';
+	$LinkBase = '../pedidosListado.php?';
 	$OtrosParametros = '';
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
@@ -54,6 +53,7 @@ if ($stringPalabras !== '' ){
 	} else {
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
+	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
 ?>
 
 </head>

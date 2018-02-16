@@ -16,8 +16,6 @@ include './../../head.php';
 	$titulo="Crear Pedido De Proveedor";
 	$estado='Abierto';
 	
-
-	
 	if ($_GET){
 		if (isset($_GET['id'])){
 			$idPedido=$_GET['id'];

@@ -88,7 +88,6 @@ include './../../head.php';
 					$suNumero=0;
 				}
 				$idProveedor=$datosFactura['idProveedor'];
-				echo $idProveedor;
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
 				$fechaCab="'".$fecha."'";
@@ -191,9 +190,7 @@ include './../../head.php';
 	foreach($parametros->cajas_input->caja_input as $caja){
 		$caja->parametros->parametro[0]="factura";
 	}
-	//~ echo '<pre>';
-	//~ print_r($parametros);
-	//~ echo '</pre>';
+	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
 ?>

@@ -147,6 +147,15 @@ class PedidosCompras{
 		}
 		return $pedidosPrincipal;
 	}
+	public function TodosPedidosLimite($limite){
+		$db=$this->db;
+		$smt=$db->query('SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite);
+		$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
+	}
 	public function datosPedidos($idPedido){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedprot WHERE id= '.$idPedido );
