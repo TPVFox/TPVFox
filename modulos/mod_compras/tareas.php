@@ -318,13 +318,16 @@ switch ($pulsado) {
 			$numFactura=$_POST['numFactura'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
-			$albaranes=$_POST['albaranes'];
+			if(isset ($_POST['albaranes'])){
+				$albaranes=$_POST['albaranes'];
+			}else{
+				$albaranes='';
+			}
 			$idProveedor=$_POST['idProveedor'];
 			$suNumero=$_POST['suNumero'];
 			if ($idFacturaTemp>0){
 				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idFacturaTemp, $productos, $albaranes, $suNumero);
 				$existe=1;
-				$respuesta['sql']=$rest['sql'];
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{

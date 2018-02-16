@@ -273,11 +273,16 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}
 			
 			if ($dedonde=="factura"){
-				if ($producto['numAlbaran']>0){
-					$numeroPed=$producto['numAlbaran'];
+				if (isset($producto['numAlbaran'])){
+					if ($producto['numAlbaran']>0){
+						$numeroPed=$producto['numAlbaran'];
+					}else{
+						$numeroPed="";
+					}
 				}else{
 					$numeroPed="";
 				}
+				
 				
 			}
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia

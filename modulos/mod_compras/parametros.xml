@@ -17,6 +17,7 @@
 			<nombre id_input="suNumero">CajaSuNumero</nombre>
 			<teclas>
 				<action tecla="40">Saltar_idProveedor</action>
+				<action tecla="37">Saltar_fecha</action>
 				<action tecla="39">Saltar_idProveedor</action>
 				<action tecla="13">Saltar_idProveedor</action>
 				<action tecla="9">Saltar_idProveedor</action>
@@ -124,10 +125,10 @@
 			<nombre id_input="Codbarras">cajaCodBarras</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="37"></action>
-				<action tecla="39"></action>
+				<action tecla="38">Saltar_idProveedor</action>
+				<action tecla=" 9">Saltar_Descripcion</action>
+				<action tecla="37">Saltar_ReferenciaPro</action>
+				<action tecla="39">Saltar_Descripcion</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
@@ -138,10 +139,9 @@
 			<nombre id_input="Descripcion">cajaDescripcion</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="37"></action>
-				<action tecla="39"></action>
+				<action tecla="38">Saltar_idProveedor</action>
+				<action tecla="37">Saltar_CodBarras</action>
+				
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>

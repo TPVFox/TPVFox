@@ -1,5 +1,5 @@
 //Función que controla las acciones que llegan del xml
-function controladorAcciones(caja,accion){
+function controladorAcciones(caja,accion, tecla){
 	
 	switch(accion) {
 		
@@ -54,17 +54,29 @@ function controladorAcciones(caja,accion){
 			addProveedorProducto(productos[nfila].idArticulo, nfila , productos[nfila].crefProveedor, coste, caja.darParametro('dedonde'));
 		break;
 		case 'Saltar_idProveedor':
+		console.log(tecla);
 			var dato = caja.darValor();
-			var d_focus = 'idArticulo';
+			var d_focus = 'id_proveedor';
 			if (caja.id_input=="suNumero"){
 				cabecera.suNumero=caja.darValor();
 			}
 			if (caja.id_input=="Proveedor"){
-				if ( dato.length < 0){
+				console.log(dato.length);
+				if ( dato.length <= 0){
 					ponerFocus(d_focus);
 				}
 			}else{
-				 ponerFocus(d_focus);
+				if (caja.darParametro('dedonde')=="albaran" || caja.darParametro('dedonde')=="factura"){
+					if (caja.id_input=="fecha" & tecla==39 || caja.id_input=="fecha" & tecla==9 ){
+						var nuevofocus="suNumero";
+						ponerFocus(nuevofocus);
+					}else{
+						ponerFocus(d_focus);
+					}
+				}else{
+					 ponerFocus(d_focus);
+				}
+				
 			}
 			
 			
@@ -77,10 +89,10 @@ function controladorAcciones(caja,accion){
 		break;
 		case 'Saltar_idArticulo':
 			var dato = caja.darValor();
-			if ( dato.length > 0){
-				var d_focus = 'idArticulo';
-				ponerFocus(d_focus);
-			}
+			
+			var d_focus = 'idArticulo';
+			ponerFocus(d_focus);
+			
 		break;
 		case 'Saltar_fecha':
 			var dato = caja.darValor();
@@ -100,6 +112,11 @@ function controladorAcciones(caja,accion){
 		case 'Saltar_CodBarras':
 			var dato = caja.darValor();
 			var d_focus = 'Codbarras';
+			ponerFocus(d_focus);
+		break;
+		case 'Saltar_Descripcion':
+			var dato = caja.darValor();
+			var d_focus = 'Descripcion';
 			ponerFocus(d_focus);
 		break;
 		case 'addRefProveedor':
@@ -134,6 +151,7 @@ function controladorAcciones(caja,accion){
 		
 	}
 }
+//Funció que añade coste en la tabla articulo proveedor
 function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	console.log("Entre en addCosteProveedor");
 	console.log(idArticulo);
@@ -427,9 +445,12 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 				productos[nfila].crefProveedor=valor;// pone le valor en el input 
 				fila=nfila+1;//sumamos uno a la fila
 				var id="#Proveedor_Fila_"+fila;
-				$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
-				$(id).val(valor);
-				$('#enlaceCambio').css("display", "block");
+				if (valor>0){
+					$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
+					$(id).val(valor);
+					$('#enlaceCambio').css("display", "block");
+				
+				}
 				console.log(id);
 				if (dedonde=="pedidos"){
 					addPedidoTemporal();//Modificamos los productos del pedido
@@ -530,7 +551,11 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					if (dedonde=="factura"){
 						comprobarAlbaranes();
 					}
-					mostrarFila()
+					if (dedonde=="pedido"){
+						ponerFocus("idArticulo");
+					}
+					mostrarFila();
+					
 				}else{
 					//Si no mostramos un modal con los proveedores según la busqueda
 					var titulo = 'Listado Proveedores ';
@@ -564,6 +589,9 @@ function comprobarPedidos(){
 					$('#numPedido').css("display", "block");
 					$('#buscarPedido').css("display", "block");
 					$('#tablaPedidos').css("display", "block");
+					ponerFocus('numPedido');
+				}else{
+					ponerFocus('idArticulo');
 				}
 				console.log(resultado);
 				
@@ -597,6 +625,9 @@ function comprobarAlbaranes(){
 					$('#numPedido').css("display", "block");
 					$('#buscarPedido').css("display", "block");
 					$('#tablaPedidos').css("display", "block");
+					ponerFocus('numPedido');
+				}else{
+					ponerFocus('idArticulo');
 				}
 				console.log(resultado);
 				
@@ -692,6 +723,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.iva=resultado['datos'][0]['iva'];
 			datos.ncant=1;
 			datos.nfila=productos.length+1;
+			n_item=parseInt(productos.length)+1;
 			datos.nunidades=1;
 			if (resultado['datos'][0]['coste']>0){
 				var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
@@ -705,7 +737,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			console.log(importe);
 			//~ var importe =resultado['datos'][0]['ultimoCoste']*1;
 			datos.importe=importe.toFixed(2);
-			
+			var campo='Unidad_Fila_'+n_item;
+			ponerFocus(campo);
 			productos.push(datos);
 			
 			if (dedonde=="pedidos"){
@@ -717,12 +750,15 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			if (dedonde=="factura"){
 				addFacturaTemporal();
 			}
-			
+			resetCampo(id_input);
+		
 			AgregarFilaProductosAl(datos, dedonde);
+		
 			
 			if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
 				alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
 			}
+			
 		}else{
 			// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
 			console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
@@ -1056,7 +1092,7 @@ function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	console.log('Entro en enviar focus de :'+destino_focus);
-	console.log(destino_focus);
+	console.log(destino_focus.toString());
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
 	}, 50); 
@@ -1104,6 +1140,7 @@ function eliminarFila(num_item, valor=""){
 	//Función para cambiar el estado del producto
 	console.log("entre en eliminar Fila");
 	console.log(valor);
+	
 	var line;
 	num=num_item-1;
 	console.log(num);
@@ -1116,7 +1153,7 @@ function eliminarFila(num_item, valor=""){
 	
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
-		if (valor=="pedidos"){
+		if (valor=="pedido"){
 			addPedidoTemporal();
 		}
 		if (valor=="albaran"){
@@ -1132,8 +1169,9 @@ function retornarFila(num_item, valor=""){
 	// @Objetivo :
 	// Es pasar un producto eliminado a activo.
 	console.log("entre en retornar fila");
-	var line;
+	console.log(valor);
 	console.log(num_item);
+	var line;
 	num=num_item-1;
 	console.log(productos[num]);
 	line = "#Row" +productos[num].nfila;
@@ -1156,13 +1194,13 @@ function retornarFila(num_item, valor=""){
 				$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
 				$("#N" + productos[num].nfila + "_Unidad").val(productos[num].nunidades);
 			
-	if (valor=="pedidos"){
+	if (valor=="pedido"){
 		addPedidoTemporal();
 	}
 	if (valor=="albaran"){
 		addAlbaranTemp();
 	}
-	if (valor="factura"){
+	if (valor=="factura"){
 		addFacturaTemporal();
 	}
 	
@@ -1332,4 +1370,19 @@ function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 	console.log("realizo funcion");
+}
+function mover_up(fila,prefijo){
+	console.log("entro en mover up");
+	console.log(fila);
+	
+	sobreFilaCraton(fila);
+	var d_focus = prefijo+fila;
+	console.log(d_focus);
+	ponerFocus(d_focus);
+}
+function mover_down(fila,prefijo){
+	sobreFilaCraton(fila);
+	var d_focus = prefijo+fila;
+	ponerFocus(d_focus);
+	
 }

@@ -98,8 +98,8 @@ class FacturasCompras{
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$smt=$db->query('UPDATE facproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacPro="'.$estado.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Albaranes='."'".$UnicoCampoAlbaranes."'".' , Su_numero='.$suNumero.' WHERE id='.$idFacturaTemp);
-		$respuesta['sql']=$sql;
-		$respuesta['idTemporal']=$numPedidoTemp;
+		
+		$respuesta['idTemporal']=$idFacturaTemp;
 		$respuesta['productos']=$UnicoCampoProductos;
 		$respuesta['pedidos']=$UnicoCampoAlbaranes;
 		return $respuesta;

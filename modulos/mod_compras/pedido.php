@@ -452,6 +452,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#id_proveedor').prop('disabled', true);
 		$('#Proveedor').prop('disabled', true);
 		$("#buscar").css("display", "none");
+		$('#idArticulo').focus();
 		<?php
 	}else{
 		?>

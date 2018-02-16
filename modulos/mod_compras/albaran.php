@@ -531,6 +531,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 	}
 }
 	?>
+	
 </script>
 	</body>
 </html>

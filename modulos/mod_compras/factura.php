@@ -28,9 +28,6 @@ include './../../head.php';
 		$productosFactura=$CFac->ProductosFactura($idFactura);
 		$ivasFactura=$CFac->IvasFactura($idFactura);
 		$abaranesFactura=$CFac->albaranesFactura($idFactura);
-		
-		
-		
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
@@ -66,6 +63,7 @@ include './../../head.php';
 	$numFactura=0;
 	$idProveedor=0;
 	$suNumero=0;
+	$nombreProveedor="";
 		if (isset($_GET['tActual'])){
 				$idFacturaTemporal=$_GET['tActual'];
 				
@@ -179,7 +177,7 @@ include './../../head.php';
 		}
 		
 		
-		if (isset ($pedidos) | $_GET['tActual']| $_GET['id']){
+		if (strlen($albaranes)>0){
 			$style="";
 		}else{
 			$style="display:none;";
@@ -243,7 +241,7 @@ include './../../head.php';
 			}
 	
 		}
-		if (isset($albaranes)){
+		if (is_array($albaranes)){
 			foreach ($albaranes as $alb){
 				?>
 				datos=<?php echo json_encode($alb);?>;
@@ -357,7 +355,7 @@ if ($suNumero==0){
 				</thead>
 				
 				<?php 
-				if (isset($albaranes)){
+				if (is_array($albaranes)){
 					foreach ($albaranes as $albaran){
 						$html=lineaPedidoAlbaran($albaran, "factura");
 					echo $html['html'];
@@ -402,7 +400,7 @@ if ($suNumero==0){
 		<tbody>
 			<?php 
 			
-			if (isset($productos)){
+			if (is_array($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedidoAlbaran($producto, "factura");
 				echo $html['html'];
@@ -414,6 +412,7 @@ if ($suNumero==0){
 	  </table>
 	</div>
 	<?php 
+	if (isset($Datostotales)){
 			//~ // Ahora montamos base y ivas
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
@@ -435,11 +434,11 @@ if ($suNumero==0){
 	?>
 
 		<script type="text/javascript">
-			//total = <?php echo $Datostotales['total'];?>;
+			total = <?php echo $Datostotales['total'];?>;
 			</script>
 
 			<?php
-
+}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
