@@ -149,6 +149,65 @@ class ControladorComun
 		return $resultado;
 	}
 	
+	function ConstructorLimitOffset($inicio,$final){
+		// @Objetivo: 
+		// Obtener String de limit inicio offset final..
+		$respuesta ='';
+		if ($inicio >0){
+			$respuesta = " LIMIT ".$inicio." OFFSET ".$final;
+		}
+		return $respuesta;
+	}
+	
+	
+	
+	
+	function ConstructorLike($campos,$a_buscar,$operador='AND'){
+	// @ Objetivo:
+	// Construir un where con like de palabras y el campo indicado
+	// Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
+	// @ Parametros:
+	// 	$operador -> (String) puede ser OR o AND.. no mas...
+	$buscar = array(',',';','(',')','-');
+	$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ');
+	$string  = str_replace($buscar, $sustituir, trim($a_buscar));
+	$palabras = explode(' ',$string);
+	$likes = array();
+	// La palabras queremos descartar , la ponemos en mayusculas
+	foreach($palabras as $palabra){
+		if (trim($palabra) !== '' && strlen(trim($palabra))){
+			// Entra si la palabra tiene mas 3 caracteres.
+			// Aplicamos filtro de palabras descartadas
+			
+				foreach ($campos as $campo){
+					$likes[] =  $campo.' LIKE "%'.$palabra.'%" ';
+				}
+				
+			
+		}
+	}
+	// Montamos busqueda con el operador indicado o el por defecto
+	$operador = ' '.$operador.' ';
+	$busqueda = implode($operador,$likes);
+	return $busqueda;
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	function consultaRegistro($BD,$nombretabla,$whereC='') {
 		/* Objetivo:
 		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.

@@ -13,8 +13,6 @@ include 'clases/albaranesCompras.php';
 $CAlb=new AlbaranesCompras($BDTpv);
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
-
-
 $palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -35,18 +33,26 @@ $palabraBuscar=array();
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
-		
 	} else {
 		$desde = 0;
 	}
+//~ if ($stringPalabras !== '' ){
+		//~ $campoBD='Numalbcli ';
+		//~ $WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
+		//~ $filtro=$WhereLimite['filtro'];
+		//~ $OtrosParametros=$stringPalabras;
+//~ }
 if ($stringPalabras !== '' ){
-		$campoBD='Numalbcli ';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		$filtro=$WhereLimite['filtro'];
+	//	$campoBD='Numpedpro';
+		$campo = array( 'a.Numalbpro','b.nombrecomercial');
+		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
+		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
 		$OtrosParametros=$stringPalabras;
-}
-$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-
+		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
+	}
+//$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+$CantidadRegistros=count($CAlb->TodosAlbaranesLimite($WhereLimite['filtro']));
+$WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
 if ($stringPalabras !== '' ){
@@ -135,7 +141,7 @@ $albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
 						echo $htmlPG;
 				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
 					?>
-					<form action="./ListaProductos.php" method="GET" name="formBuscar">
+					<form action="./albaranesListado.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
 						<label>Buscar en número de albarán </label>
 						<input type="text" name="buscar" value="">

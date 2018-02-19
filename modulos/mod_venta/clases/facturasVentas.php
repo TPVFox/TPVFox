@@ -67,7 +67,15 @@ class FacturasVentas{
 		}
 		return $facturaPrincipal;
 	}
-	
+	public function TodosFacturaFiltro($filtro){
+		$db=$this->db;
+		$smt=$db->query('SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
+		$facturaPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($facturaPrincipal,$result);
+		}
+		return $facturaPrincipal;
+	}
 	public function datosFactura($idFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM facclit WHERE id= '.$idFactura );

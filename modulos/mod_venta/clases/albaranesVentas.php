@@ -185,6 +185,15 @@ class AlbaranesVentas{
 		}
 		return $albaranesPrincipal;
 	}
+	public function TodosAlbaranesFiltro($filtro){
+		$db=$this->db;
+		$smt=$db->query('SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total, a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
+		$albaranesPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($albaranesPrincipal,$result);
+		}
+		return $albaranesPrincipal;
+	}
 		public function sumarIva($numAlbaran){
 		$db=$this->db;
 		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from albcliIva where  Numalbcli  ='.$numAlbaran);

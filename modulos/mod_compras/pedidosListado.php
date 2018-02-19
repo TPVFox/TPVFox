@@ -41,19 +41,26 @@ include './../../head.php';
 	}
 if ($stringPalabras !== '' ){
 		$campoBD='Numpedpro';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		$filtro=$WhereLimite['filtro'];
+		
+		$campo = array( 'a.Numpedpro','b.nombrecomercial');
+		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
+		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
+		
+		//~ $WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
+		//~ $filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
+		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
 	}
-$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-
+//~ $CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+$CantidadRegistros=count($Cpedido->TodosPedidosLimite($WhereLimite['filtro']));
+$WhereLimite['rango']=$NuevoRango;
+//$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$NuevoWhere);
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-
 if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
-	} else {
+} else {
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}
+}
 	//MUestra un array con un número determinado de registros
 	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
 ?>
@@ -133,7 +140,7 @@ if ($stringPalabras !== '' ){
 						echo $htmlPG;
 				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
 					?>
-					<form action="./ListaProductos.php" method="GET" name="formBuscar">
+					<form action="./pedidosListado.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
 						<label>Buscar en número de pedido </label>
 						<input type="text" name="buscar" value="">

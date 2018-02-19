@@ -216,6 +216,15 @@ class PedidosVentas{
 		}
 		return $pedidosPrincipal;
 	}
+	public function TodosPedidosFiltro($filtro){
+		$db=$this->db;
+		$smt=$db->query('SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
+		$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
+	}
 	// Cuando un pedido pasa de temporal a pedidos se borran los registros temporales
 	public function EliminarRegistroTemporal($idTemporal, $idPedido){
 		$db=$this->db;
