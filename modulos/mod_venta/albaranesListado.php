@@ -21,7 +21,7 @@
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
+	$LimitePagina = 10; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
