@@ -31,6 +31,7 @@
 	$LinkBase = './pedidosListado.php?';
 	$OtrosParametros = '';
 	$paginasMulti = $PgActual-1;
+	
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
 		

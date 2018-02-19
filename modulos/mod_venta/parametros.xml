@@ -48,7 +48,7 @@
 				<action tecla="40">buscarClientes</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 			</parametros>
 		</caja_input>
 			<caja_input>
@@ -76,7 +76,7 @@
 				<action tecla="39">saltar_CodBarras</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo">at.crefTienda</parametro>  
 			</parametros> 
 		</caja_input>
@@ -95,7 +95,7 @@
 				<action tecla="37">saltar_Referencia</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo">ac.codBarras</parametro>  
 			</parametros> 
 		</caja_input>
@@ -107,7 +107,7 @@
 				<action tecla="38">saltar_nombreClienteArticulo</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo">a.articulo_name</parametro>  
 			</parametros> 
 		</caja_input>
@@ -152,7 +152,7 @@
 				<action tecla="38">mover_down</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>
 				<parametro nombre="prefijo">Unidad_Fila_</parametro>
 			</parametros>

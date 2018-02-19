@@ -16,8 +16,9 @@ include './../../head.php';
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Crear Pedido De Cliente";
 	$estado='Abierto';
+	$bandera=0;
 if ($_GET){
-	if ($_GET['id']){
+	if (isset($_GET['id'])){
 		$idPedido=$_GET['id'];
 		$datosPedido=$Cpedido->datosPedidos($idPedido);
 		if ($datosPedido['estado']=='Facturado'){
@@ -88,6 +89,7 @@ if ($_GET){
 	$idPedido=0;
 	$total=0;
 	$idCliente=0;
+	$nombreCliente=0;
 }
 		if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
@@ -108,9 +110,6 @@ if ($_GET){
 			}else{
 				$total=0;
 			}
-			echo '<pre>';
-			print_r($pedidoTemporal);
-			echo '</pre>';
 			$fechaCreacion=date("Y-m-d H:i:s");
 			$datosPedido=array(
 			'NPedidoTemporal'=>$idTemporal,
@@ -140,22 +139,22 @@ if ($_GET){
 			header('Location: pedidosListado.php');
 		}
 		$fechaCab="'".$fecha."'";
-		//~ if (isset($datosPedido)){
-			//~ if($datosPedido['estado']=="Facturado"){
-				//~ $style="display:none;";
-				//~ $disabled = 'disabled';
-			//~ }else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
-				//~ $style="";
-				//~ $disabled = '';
-			//~ }else{
-				//~ $style="display:none;";
-				//~ $disabled = '';
-			//~ }
-		//~ }
-		if (isset($_GET['tActual'])| isset($_GET['id'])){
-			$style="display:none;";
+		if (isset($datosPedido)){
+			if($datosPedido['estado']=="Facturado"){
+				$style="display:none;";
+				$disabled = 'disabled';
+			}else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
+				$style="";
+				$disabled = '';
+			}else{
+				$style="display:none;";
+				$disabled = '';
+			}
 		}else{
-			
+			$disabled = '';
+			$style="display:none;";
+		}
+		if (isset ($_GET['tActual'])|| isset ($_GET['id'])){
 			$style="";
 		}
 		$parametros = simplexml_load_file('parametros.xml');
@@ -188,7 +187,7 @@ if ($_GET){
 <?php
 	$i= 0;
 	if (isset($productos)){
-	if ($productos){
+	
 		foreach($productos as $product){
 ?>
 			datos=<?php echo json_encode($product); ?>;
@@ -197,15 +196,17 @@ if ($_GET){
 	
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
+		if (isset ($product->estado)){
 			if ($product->estado !== 'Activo'){
 			?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 			<?php
 			}
 			$i++;
 		}
+	}
 	
-	}	
-}
+		
+	}
 	}
 	
 	
@@ -214,6 +215,7 @@ if ($_GET){
 <?php 
 if ($idCliente===0){
 	$idCliente="";
+	$nombreCliente="";
 }
 ?>
 </head>
@@ -224,7 +226,6 @@ if ($idCliente===0){
 	include '../../header.php';
 ?>
 <script type="text/javascript">
-// Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -265,7 +266,7 @@ if ($idCliente===0){
 					<?php
 					}
 				
-				
+			
 				if (isset($_GET['tActual'])){
 					?>
 					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
@@ -283,12 +284,6 @@ if ($idCliente===0){
 				<div class="col-md-6">
 					<strong>Estado:</strong>
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly></span><br/>
-					<?php if ($bandera<>1){?>
-					<strong>NºT_temp:</strong>
-					<span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
-					<?php 
-					}
-					?>
 				</div>
 			</div>
 			<div class="col-md-3">
@@ -360,7 +355,7 @@ if ($idCliente===0){
 				}
 			}
 			}
-	if ($DatosTotales){
+	if (isset($DatosTotales)){
 	?>
 		<script type="text/javascript">
 			total = <?php echo $Datostotales['total'];?>;

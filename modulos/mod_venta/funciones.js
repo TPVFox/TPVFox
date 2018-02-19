@@ -592,6 +592,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		success    :  function (response) {
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
+			console.log(dedonde);
 					//console.log(resultado);
 					if (dedonde == "factura"){
 						if (resultado['Nitems']===1){
@@ -682,7 +683,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					if (dedonde == "pedidos"){
 					console.log(resultado);	
 				if (resultado['Nitems']===1){
-					//~ console.log('Estado'+resultado['Estado']);
+					console.log("entre aqui");
 					var datos = [];
 					datos = resultado['datos'][0];
 					datos['nfila']=productos.length+1;
@@ -707,9 +708,10 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					}
 					addProductoTemp();
 					agregarFilaProducto(num_item);
+					resetCampo(id_input);
 				}else{
 					console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-			
+					console.log(resultado);
 					var busqueda = resultado.listado;   
 					var HtmlProductos=busqueda.html;   
 					var titulo = 'Listado productos encontrados ';
@@ -1613,7 +1615,7 @@ function modificarEstadoAlbaran(idAlbaran, estado){
 //Modifica el estado de un pedido, dependiendo de donde venga la función carga unos parametro u otros
 function ModificarEstadoPedido(dedonde, estado, num="", id=""){
 	console.log("Entre en modificar estado pedido");
-	if (dedonde=="pedido"){
+	if (dedonde=="pedidos"){
 		var parametros = {
 			"pulsado"    : 'modificarEstadoPedido',
 			"idPedido":cabecera.idPedido,

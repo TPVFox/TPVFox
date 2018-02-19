@@ -22,7 +22,6 @@ include_once("../../clases/cliente.php");
 $Ccliente=new Cliente($BDTpv);
 include_once("clases/facturasVentas.php");
 $CFac=new FacturasVentas($BDTpv);
-error_log($pulsado);
 switch ($pulsado) {
     
 		case 'buscarProductos':
@@ -317,7 +316,7 @@ switch ($pulsado) {
 		break;
 		
 		case 'modificarEstadoPedido':
-			if ($_POST['dedonde']=="Pedido"){
+			if ($_POST['dedonde']=="Pedidos"){
 				$idPedido=$_POST['idPedido'];
 				$idTemporal=$_POST['numPedidoTemp'];
 				if ($idPedido>0 & $idTemporal>0){
