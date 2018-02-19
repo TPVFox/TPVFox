@@ -443,6 +443,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 	} else {
 		$producto = $productos;
 	}
+	$respuesta=array('html'=>'');
 	
 		 	if ($producto['estadoLinea'] !=='Activo'){
 				$classtr = ' class="tachado" ';
@@ -452,12 +453,19 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			} else {
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$classtr = ' ';
+				$estadoInput = ' ';
 			}
-			if ($producto['NumpedCli']==0){
-				$numeroPed="";
+			if (isset ($producto['NumpedCli'])){
+				if ($producto['NumpedCli']==0){
+					$numeroPed="";
+				}else{
+					$numeroPed=$producto['NumpedCli'];
+				}
 			}else{
-				$numeroPed=$producto['NumpedCli'];
+				$numeroPed="";
 			}
+			
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';

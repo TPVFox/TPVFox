@@ -161,7 +161,7 @@ include './../../head.php';
 				header('Location: albaranesListado.php');
 		}
 		
-		if (isset ($pedidos) | $_GET['tActual']| $_GET['id']){
+		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
 			$style="";
 		}else{
 			$style="display:none;";
@@ -280,11 +280,13 @@ if (isset($_GET['tActual'])){
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
 					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 					<?php
+					if (isset($idAlbaranTemporal)){
 				if ($idAlbaranTemporal>0){
 					?>
 					<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
 					<?php
 				}
+			}
 					?>
 <div class="col-md-12" >
 	<div class="col-md-8">
@@ -370,8 +372,9 @@ if (isset($_GET['tActual'])){
 			//~ print_r($productos);
 			//~ echo '</pre>';
 			if (isset($productos)){
-				foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedidoAlbaran($producto);
+				$productos=array_reverse($productos);
+				foreach ( $productos as $producto){
+				$html=htmlLineaPedidoAlbaran($producto, "albaran");
 				echo $html['html'];
 			}
 		
@@ -381,6 +384,7 @@ if (isset($_GET['tActual'])){
 	  </table>
 	</div>
 	<?php 
+	if (isset ($Datostotales)){
 			// Ahora montamos base y ivas
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
@@ -406,7 +410,7 @@ if (isset($_GET['tActual'])){
 			</script>
 
 			<?php
-
+}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -480,17 +484,19 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	if ($datosAlbaran['estado']=="Facturado"){
-		?>
-		$("#tabla").find('input').attr("disabled", "disabled");
-		$("#tabla").find('a').css("display", "none");
-		$("#tablaPedidos").css("display", "none");
-		$("#numPedidoT").css("display", "none");
-		$("#numPedido").css("display", "none");
-		$("#buscarPedido").css("display", "none");
-		$("#bGuardar").css("display", "none");
-		$("#bCancelar").css("display", "none");
-		<?php
+	if (isset ($datosAlbaran['estado'])){
+		if ($datosAlbaran['estado']=="Facturado"){
+			?>
+			$("#tabla").find('input').attr("disabled", "disabled");
+			$("#tabla").find('a').css("display", "none");
+			$("#tablaPedidos").css("display", "none");
+			$("#numPedidoT").css("display", "none");
+			$("#numPedido").css("display", "none");
+			$("#buscarPedido").css("display", "none");
+			$("#bGuardar").css("display", "none");
+			$("#bCancelar").css("display", "none");
+			<?php
+		}
 	}
 	?>
 </script>

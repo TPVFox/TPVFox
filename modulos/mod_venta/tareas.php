@@ -148,6 +148,7 @@ switch ($pulsado) {
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
 			$res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
+			$respuesta['res']=$res;
 			if ($res['Nitem']==1){
 				$temporales=$CcliPed->contarPedidosTemporal($res['id']);
 				if ($temporales['numPedTemp']==0){
@@ -344,12 +345,17 @@ switch ($pulsado) {
 			$estado="Guardado";
 			if ($idCliente>0){
 				$comprobar=$CcliPed->ComprobarPedidos($idCliente, $estado);
-				if ($comprobar['ped']==1){
-					$respuesta['ped']=1;
-					$respuesta['sql']=$comprobar['sql'];
+				if (isset ($comprobar['ped'])){
+					if ($comprobar['ped']==1){
+						$respuesta['ped']=1;
+						$respuesta['sql']=$comprobar['sql'];
+					}else{
+						$respuesta['ped']=0;
+					}
 				}else{
 					$respuesta['ped']=0;
 				}
+				
 			}
 			echo json_encode($respuesta);
 		break;

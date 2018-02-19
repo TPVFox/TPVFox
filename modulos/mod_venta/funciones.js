@@ -1262,6 +1262,7 @@ function buscarPedido(dedonde, idcaja, valor=''){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de buscar pedidos');
 			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
 			var encontrados = resultado.encontrados;
 			var HtmlPedidos=resultado.html;   //$resultado['html'] de montaje html
 			console.log(resultado);
