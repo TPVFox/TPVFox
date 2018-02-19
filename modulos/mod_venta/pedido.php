@@ -140,17 +140,23 @@ if ($_GET){
 			header('Location: pedidosListado.php');
 		}
 		$fechaCab="'".$fecha."'";
-		if (isset($datosPedido)){
-			if($datosPedido['estado']=="Facturado"){
-				$style="display:none;";
-				$disabled = 'disabled';
-			}else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
-				$style="";
-				$disabled = '';
-			}else{
-				$style="display:none;";
-				$disabled = '';
-			}
+		//~ if (isset($datosPedido)){
+			//~ if($datosPedido['estado']=="Facturado"){
+				//~ $style="display:none;";
+				//~ $disabled = 'disabled';
+			//~ }else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
+				//~ $style="";
+				//~ $disabled = '';
+			//~ }else{
+				//~ $style="display:none;";
+				//~ $disabled = '';
+			//~ }
+		//~ }
+		if (isset($_GET['tActual'])| isset($_GET['id'])){
+			$style="display:none;";
+		}else{
+			
+			$style="";
 		}
 		$parametros = simplexml_load_file('parametros.xml');
 	
@@ -427,6 +433,15 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
 	$('#id_cliente').focus();
+		<?php
+	if ($idCliente>0){
+		?>
+		$('#Cliente').prop('disabled', true);
+		$('#id_cliente').prop('disabled', true);
+		$("#buscar").css("display", "none");
+		<?php
+	}
+	?>
 </script>
 	</body>
 </html>

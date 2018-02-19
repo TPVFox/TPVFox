@@ -174,6 +174,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						// Enfocamos el primer item.
 						mover_down(0);
 						$('#N_0').focus();
+						
 					}else {
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
@@ -187,6 +188,10 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						// Enfocamos el primer item.
 						mover_down(0);
 						$('#N_0').focus();
+						$('#Cliente').val(resultado.nombre);
+						$('#Cliente').prop('disabled', true);
+						$('#id_cliente').prop('disabled', true);
+						$("#buscar").css("display", "none");
 					}else {
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
@@ -200,6 +205,10 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						// Enfocamos el primer item.
 						mover_down(0);
 						$('#N_0').focus();
+						$('#Cliente').val(resultado.nombre);
+						$('#Cliente').prop('disabled', true);
+						$('#id_cliente').prop('disabled', true);
+						$("#buscar").css("display", "none");
 					}else {
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
@@ -211,6 +220,10 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					console.log(resultado.idCliente);
 						cabecera.idCliente=resultado.idCliente;
 						mostrarFila();
+						$('#Cliente').val(resultado.nombre);
+						$('#Cliente').prop('disabled', true);
+						$('#id_cliente').prop('disabled', true);
+						$("#buscar").css("display", "none");
 				}
 				
 				break;
