@@ -18,15 +18,13 @@ include './../../head.php';
 	$titulo="Crear Albarán De Proveedor";
 	$estado='Abierto';
 	$estadoCab="'".'Abierto'."'";
-	
+	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
+	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){
 		$idAlbaran=$_GET['id'];
 		echo $idAlbaran;
 		$titulo="Modificar Albarán De Cliente";
 		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
-		//~ echo '<pre>';
-		//~ print_r($datosAlbaran);
-		//~ echo '</pre>';
 		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
 		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
 		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
@@ -47,8 +45,11 @@ include './../../head.php';
 			$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 			$nombreProveedor=$proveedor['nombrecomercial'];
 		}
+		//Modificamos el array de productos para que sea lo mismo que en facturas y pedidos de esta manera siempre podemos
+		//Utilizar siempre las mismas funciones 
 		$productosAlbaran=modificarArrayProductos($productosAlbaran);
 		$productos=json_decode(json_encode($productosAlbaran));
+		//Calciular el total con los productos que estn registrados
 		$Datostotales = recalculoTotalesAl($productos);
 		$productos=json_decode(json_encode($productosAlbaran), true);
 		if ($pedidosAlbaran){
@@ -66,6 +67,8 @@ include './../../head.php';
 	$idProveedor=0;
 	$suNumero=0;
 	$nombreProveedor="";
+	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
+	// o recargamos uno extraemos sus datos de la misma manera que el if de id
 		if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
 				$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
@@ -108,6 +111,7 @@ include './../../head.php';
 			$Datostotales = recalculoTotalesAl($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
+		//Guardar el albarán para ello buscamos los datos en el albarán temporal, los almacenamos todos en un array
 		
 	if (isset($_POST['Guardar'])){
 		if ($_POST['idTemporal']){
@@ -140,7 +144,9 @@ include './../../head.php';
 			'pedidos'=>$datosAlbaran['Pedidos'],
 			'suNumero'=>$suNumero
 		);
-		
+		//Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
+		//original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
+		//Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
 		if ($datosAlbaran['numalbpro']){
 				$numAlbaran=$datosAlbaran['numalbpro'];
 				$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
@@ -157,6 +163,8 @@ include './../../head.php';
 		}
 		header('Location: albaranesListado.php');
 	}
+	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
+	// y cambiamos el estado del original a guardado
 	if (isset ($_POST['Cancelar'])){
 		if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
@@ -175,15 +183,7 @@ include './../../head.php';
 	
 	
 	
-		//~ if(isset($albaran['Productos'])){
-			//~ // Obtenemos los datos totales ( fin de ticket);
-			//~ // convertimos el objeto productos en array
-			//~ $Datostotales = recalculoTotalesAl($productos);
-			//~ $productos = json_decode(json_encode($productos), true); // Array de arrays	
-		//~ }
-		//~ echo '<pre>';
-		//~ print_r($Datostotales);
-		//~ echo '</pre>';
+		
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
 		}
@@ -203,9 +203,7 @@ include './../../head.php';
 	foreach($parametros->cajas_input->caja_input as $caja){
 		$caja->parametros->parametro[0]="albaran";
 	}
-	//~ echo '<pre>';
-	//~ print_r($parametros);
-	//~ echo '</pre>';
+
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
 ?>
@@ -395,7 +393,7 @@ if ($suNumero==0){
 		</thead>
 		<tbody>
 			<?php 
-			
+			//Recorremos los productos y vamos escribiendo las lineas.
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedidoAlbaran($producto, "albaran");
@@ -501,6 +499,7 @@ if ($suNumero==0){
 </div>
 <?php // Incluimos paginas modales
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+// hacemos comprobaciones de estilos 
 ?>
 <script type="text/javascript">
 	$('#id_proveedor').focus();

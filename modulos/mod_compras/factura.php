@@ -18,7 +18,7 @@ include './../../head.php';
 	$titulo="Crear Factura De Proveedor";
 	$estado='Abierto';
 	$estadoCab="'".'Abierto'."'";
-	
+	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
 		
@@ -64,6 +64,7 @@ include './../../head.php';
 	$idProveedor=0;
 	$suNumero=0;
 	$nombreProveedor="";
+	//Si recibe los datos de un temporal
 		if (isset($_GET['tActual'])){
 				$idFacturaTemporal=$_GET['tActual'];
 				
@@ -106,7 +107,9 @@ include './../../head.php';
 			$Datostotales = recalculoTotalesAl($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
-		
+		//Para guardar cargamos todos los datos en un array , luego comprobamos que si el pedido existe si es así lo borramos
+		// y cargamos los datos nuevos y por último eliminamos el temporal. Si no existe el pedido solo cargamos los datos nuevos
+		//Y eliminamos el temporal
 	if (isset($_POST['Guardar'])){
 		if ($_POST['idTemporal']){
 				$idFacturaTemporal=$_POST['idTemporal'];
@@ -155,6 +158,8 @@ include './../../head.php';
 		}
 		header('Location: facturasListado.php');
 	}
+	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
+	// le cambiamos el estado a guardado
 	if (isset($_POST['Cancelar'])){
 		if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];

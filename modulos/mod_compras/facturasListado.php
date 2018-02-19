@@ -11,10 +11,8 @@
 	$CProv= new Proveedores($BDTpv);
 	include 'clases/facturasCompras.php';
 	$CFac=new FacturasCompras($BDTpv);
+	//Guardamos en un array todos los datos de las facturas temporales
 	$todosTemporal=$CFac->TodosTemporal();
-	
-	
-	
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -53,8 +51,9 @@ if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
 	} else {
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}
-	$facturasDef=$CFac->TodosFacturaLimite($filtro);
+}
+	//array de facturas guardadas pero solo la cantidad anteriormente indicada
+$facturasDef=$CFac->TodosFacturaLimite($filtro);
 ?>
 
 </head>

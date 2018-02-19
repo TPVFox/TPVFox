@@ -11,7 +11,7 @@ include '../../clases/Proveedores.php';
 $CProv= new Proveedores($BDTpv);
 include 'clases/albaranesCompras.php';
 $CAlb=new AlbaranesCompras($BDTpv);
-
+//Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
 
 
@@ -54,7 +54,8 @@ if ($stringPalabras !== '' ){
 	} else {
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
-	$albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
+	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
+$albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
 ?>
 
 </head>

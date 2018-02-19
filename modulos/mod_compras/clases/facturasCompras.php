@@ -14,6 +14,7 @@ class FacturasCompras{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
+	//MUestra todos los temporales para el listado principal de factura
 	public function TodosTemporal(){
 			$db = $this->db;
 			$smt = $db->query ('SELECT * from facproltemporales');
@@ -24,6 +25,7 @@ class FacturasCompras{
 		return $facturaPrincipal;
 		
 	}
+	//Muestra todas las facturas , muestra solo los datos principales
 	public function TodosFactura(){
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor ');
@@ -33,6 +35,7 @@ class FacturasCompras{
 		}
 		return $facturaPrincipal;
 	}
+	//MUestra los datos principales de una factura con un límite de registros
 	public function TodosFacturaLimite($limite){
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '.$limite);
@@ -42,6 +45,7 @@ class FacturasCompras{
 		}
 		return $pedidosPrincipal;
 	}
+	//Suma los resultado de importe iva y total base de una factura determinada
 	public function sumarIva($numFactura){
 		$db=$this->db;
 		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from facproIva where Numfacpro ='.$numFactura);
@@ -50,6 +54,7 @@ class FacturasCompras{
 		}
 		return $factura;
 	}
+	//MUestra los datos de una factura determinada buscada por id
 	public function datosFactura($idFactura){
 		$db=$this->db;
 		$smt = $db->query ('SELECT * from facprot where id='.$idFactura);
@@ -58,6 +63,7 @@ class FacturasCompras{
 		}
 		return $factura;
 	}
+	//Buscar los productos de una factura determinada
 	public function ProductosFactura($idFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * from  facprolinea where idfacpro='.$idFactura);
@@ -67,6 +73,7 @@ class FacturasCompras{
 		}
 		return $facturaPrincipal;
 	}
+	//Busca los ivas de una factura determinada
 	public function IvasFactura($idFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * from  facproIva where idfacpro='.$idFactura);
@@ -76,6 +83,7 @@ class FacturasCompras{
 		}
 		return $facturaPrincipal;
 	}
+	//Busca todos los albaranes de un id de factura determinado 
 	public function albaranesFactura($idFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * from  albprofac where idFactura='.$idFactura);
@@ -85,6 +93,7 @@ class FacturasCompras{
 		}
 		return $facturaPrincipal;
 	}
+	//Busca los datos de una factura temporal
 	public function buscarFacturaTemporal($idFacturaTemporal){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM facproltemporales WHERE id='.$idFacturaTemporal);
@@ -93,6 +102,7 @@ class FacturasCompras{
 		}
 		return $factura;
 	}
+	//Busca los datos de un número de factura
 	public function buscarFacturaNumero($numFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM facprot WHERE Numfacpro='.$numFactura);
@@ -101,7 +111,7 @@ class FacturasCompras{
 		}
 		return $factura;
 	}
-	
+	//MOdfica los datos de una factura temporal
 	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idFacturaTemp, $productos, $albaranes, $suNumero){
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
@@ -113,6 +123,7 @@ class FacturasCompras{
 		$respuesta['pedidos']=$UnicoCampoAlbaranes;
 		return $respuesta;
 	}
+	//Inserta los datos de una factura temporal nueva
 	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $albaranes, $suNumero){
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
@@ -126,6 +137,7 @@ class FacturasCompras{
 		
 		return $respuesta;
 	}
+	//Añade a una factura temporal el número de la factura real en el caso de que exista factura real
 	public function addNumRealTemporal($idTemporal, $idReal){
 		$db=$this->db;
 		$smt=$db->query('UPDATE facproltemporales set numfacpro ='.$idReal .'  where id='.$idTemporal);
@@ -133,6 +145,7 @@ class FacturasCompras{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
+	//Modificar el estado de una factura
 	public function modEstadoFactura($idFactura, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE facprot set estado="'.$estado .'"  where id='.$idFactura);
@@ -140,6 +153,7 @@ class FacturasCompras{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
+	//Modificar el total de una factura temporal, lo hacemos cada vez que añadimos un producto nuevo
 	public function modTotales($res, $total, $totalivas){
 		$db=$this->db;
 		$smt=$db->query('UPDATE facproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
@@ -147,15 +161,7 @@ class FacturasCompras{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
-	//~ public function buscarFacturaNumero($numFactura){
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * FROM facprot WHERE Numalbpro='.$numFactura);
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $factura=$result;
-		//~ }
-		//~ return $factura;
-	//~ }
-	
+	//Eliminamos todos los datos de una determinada factura
 	public function eliminarFacturasTablas($idFactura){
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM facprot where id='.$idFactura );
@@ -164,8 +170,8 @@ class FacturasCompras{
 		$smt=$db->query('DELETE FROM albprofac where idFactura ='.$idFactura );
 		
 	}
-	
-		public function AddFacturaGuardado($datos, $idFactura){
+	//Añadimos todos los datos de una factura nueva en las diferentes tablas
+	public function AddFacturaGuardado($datos, $idFactura){
 		$db = $this->db;
 		if ($idFactura>0){
 			$smt = $db->query ('INSERT INTO facprot (Numfacpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_num_factura ) VALUES ('.$idFactura.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')');
@@ -226,6 +232,7 @@ class FacturasCompras{
 		}
 		return $resultado;
 	}
+	//CAda vez que guardamos una factura nueva o ya existente eliminamos su temporal
 	public function EliminarRegistroTemporal($idTemporal, $idFactura){
 		$db=$this->db;
 		if ($idFactura>0){

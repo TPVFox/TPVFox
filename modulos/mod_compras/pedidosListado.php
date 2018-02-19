@@ -11,6 +11,7 @@ include './../../head.php';
 	$Cpedido=new PedidosCompras($BDTpv);
 	include '../../clases/Proveedores.php';
 	$Cproveedor=new Proveedores($BDTpv);
+	//MUestra un array con todos los temporales
 	$todoTemporal=$Cpedido->TodosTemporal();
 	$palabraBuscar=array();
 	$stringPalabras='';
@@ -53,6 +54,7 @@ if ($stringPalabras !== '' ){
 	} else {
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
+	//MUestra un array con un número determinado de registros
 	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
 ?>
 
