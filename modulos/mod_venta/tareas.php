@@ -23,7 +23,7 @@ $Ccliente=new Cliente($BDTpv);
 include_once("clases/facturasVentas.php");
 $CFac=new FacturasVentas($BDTpv);
 switch ($pulsado) {
-    
+    //Busqueda de productos si devuelve mas de uno llama a la función que muestra e modal
 		case 'buscarProductos':
 			$busqueda = $_POST['valorCampo'];
 			$campoAbuscar = $_POST['campo'];
@@ -41,7 +41,7 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);  
 		break;
-		
+		//Añadir un producto, crea un json con todos los productos y modifica el temporal, vuelve a recalcular los totales 
 		case 'anhadirProductos';
 			$datos=$_POST['productos'];
 			$idTemporal=$_POST['idTemporal'];
@@ -73,7 +73,7 @@ switch ($pulsado) {
 			$respuesta['producto']=$product;
 			echo json_encode($respuesta);
 		break;
-		
+		//BUsqueda de clientes , si recibe de una caja id lo busca directamente si no crea el modal de clientes 
 	    case 'buscarClientes':
 			// Abrimos modal de clientes
 			$busqueda = $_POST['busqueda'];
@@ -106,7 +106,7 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;	
-		
+		//Cuando el rresultado viene a traves de una ventana modal 
 		case 'escribirCliente':
 			// Cuando la busqueda viene a traves de  la ventana modal
 			$id=$_POST['idcliente'];
@@ -133,17 +133,18 @@ switch ($pulsado) {
 		break;
 		
 		
-		case 'HtmlLineaLinea':
-			$respuesta = array();
-			$product=$_POST['producto'];
-			$num_item=$_POST['num_item'];
-			$CONF_campoPeso=$_POST['CONF_campoPeso'];
-			$res = htmlLineaTicket($product,$num_item,$CONF_campoPeso);
-			$respuesta['html'] =$res;
-			echo json_encode($respuesta);
-		break;
+		//~ case 'HtmlLineaLinea':
+			//~ $respuesta = array();
+			//~ $product=$_POST['producto'];
+			//~ $num_item=$_POST['num_item'];
+			//~ $CONF_campoPeso=$_POST['CONF_campoPeso'];
+			//~ $res = htmlLineaTicket($product,$num_item,$CONF_campoPeso);
+			//~ $respuesta['html'] =$res;
+			//~ echo json_encode($respuesta);
+		//~ break;
 		
-		
+		//BUscar los pedidos guardado de un cliente para el apartado albaranes, si el pedido que inserto existe guarda los datos de este
+		//Si no muestra un modal con los pedidos guardados de ese cliente
 		case 'buscarPedido':
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
@@ -169,6 +170,8 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
+		//Busca el albarán indicado, si recibe resultado guarda el albaran y muestra los productos de este 
+		//Si no muestra un albarán
 		case 'buscarAlbaran':
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
@@ -192,7 +195,7 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
-	
+	//Función para añadir albarán temporal, hace las comprobaciones necesarias.
 		case 'anhadirAlbaranTemporal':
 			$idAlbaranTemp=$_POST['idAlbaranTemp'];
 			$idUsuario=$_POST['idUsuario'];
@@ -204,10 +207,12 @@ switch ($pulsado) {
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
 			$existe=0;
+			//Si el número del albarán real existe lo guardamos
 			if ($numAlbaran>0){
 				$albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
 				$idAlbaranTemp=$albaran['id'];
 			}
+			//Si el albarán temporal existe lo modifica
 			if ($idAlbaranTemp>0){
 				$rest=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
 				$existe=1;
@@ -215,6 +220,7 @@ switch ($pulsado) {
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{
+				//Si no lo inserta
 				$rest=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente);
 				$existe=0;
 				$pro=$rest['productos'];
@@ -226,6 +232,7 @@ switch ($pulsado) {
 				$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
 				$respuesta['sqlmodnum']=$modId;
 			}
+			//recalcula los totales de los productos y modifica el total en albarán temporal
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
@@ -253,7 +260,7 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		
+		//Añadir factura temporal hace exactamente lo mismo que el añadir albarán temporal pero esta vez con facturas
 		case 'anhadirfacturaTemporal':
 			$idFacturaTemp=$_POST['idFacturaTemp'];
 			$idUsuario=$_POST['idUsuario'];
@@ -315,7 +322,8 @@ switch ($pulsado) {
 			
 			echo json_encode($respuesta);
 		break;
-		
+		//Modificar el estado de un pedido a Sin Guardar si viene de pedidos , si viene de albarán a facturado
+		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
 		case 'modificarEstadoPedido':
 			if ($_POST['dedonde']=="Pedidos"){
 				$idPedido=$_POST['idPedido'];
@@ -341,7 +349,7 @@ switch ($pulsado) {
 			}
 		
 		break;
-		
+		//Comprobar los pedidos en estado guardado que son de un cliente
 		case 'comprobarPedidos':
 			$idCliente=$_POST['idCliente'];
 			$estado="Guardado";
@@ -361,7 +369,7 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
-		
+		//Comprobar los albaranes con estado guardado que son del cliente seleccionado
 		case 'comprobarAlbaran':
 		$idCliente=$_POST['idCliente'];
 			$estado="Guardado";
@@ -384,18 +392,19 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		
+		//Devuelve el html de la fila del pedido 
 		case 'htmlAgregarFilaPedido':
 			$res=lineaPedidoAlbaran($_POST['datos']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
+		//Devuelve el html de la fila albarán
 		case 'htmlAgregarFilaAlbaran':
 			$res=lineaAlbaranFactura($_POST['datos']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
-	 
+		//
 		case 'htmlAgregarFilasProductos':
 		$productos=$_POST['productos'];
 		$dedonde=$_POST['dedonde'];
@@ -405,7 +414,7 @@ switch ($pulsado) {
 					$bandera=1;
 				}else{
 				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
-				 $respuesta['html'].=$res['html'];
+				$respuesta['html'].=$res['html'];
 				}
 		 }
 		 if ($bandera==1){
