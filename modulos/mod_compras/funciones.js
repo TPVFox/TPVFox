@@ -802,8 +802,15 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				ponerFocus(d_focus);
 			} else {
 				// No hay resultado pero apuntamos a caj
-				ponerFocus(id_input);
+				//~ console.log(id_input);
+				//~ if (dedonde=="popup"){
+					$('#cajaBusqueda').focus();
+				//~ }else{
+					//~ ponerFocus(id_input);
+				//~ }
+				
 			}
+			
 			
 		}
 	}
@@ -1419,4 +1426,7 @@ function mover_down(fila,prefijo){
 	var d_focus = prefijo+fila;
 	ponerFocus(d_focus);
 	
+}
+function sobreFila(cont){
+	$('#Fila_'+cont).css('background-color','lightblue');
 }

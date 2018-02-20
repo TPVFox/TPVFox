@@ -103,7 +103,7 @@
 				<action tecla="39">Saltar_ReferenciaPro</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo">at.crefTienda</parametro>  
 			</parametros> 
 		</caja_input>	
@@ -117,7 +117,7 @@
 				<action tecla="39">Saltar_CodBarras</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo">p.crefProveedor</parametro>  
 			</parametros> 
 		</caja_input>
@@ -131,7 +131,7 @@
 				<action tecla="39">Saltar_Descripcion</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo">ac.codBarras</parametro>  
 			</parametros> 
 		</caja_input>	
@@ -144,7 +144,7 @@
 				
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo">a.articulo_name</parametro>  
 			</parametros> 
 		</caja_input>	
@@ -156,7 +156,7 @@
 				<action tecla="38">mover_down</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>
 				<parametro nombre="prefijo">Unidad_Fila_</parametro>
 			</parametros>
@@ -176,7 +176,7 @@
 				<action tecla="38">mover_down</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>
 				<parametro nombre="prefijo">Proveedor_Fila_</parametro>
 			</parametros>
@@ -193,7 +193,7 @@
 				<action tecla="13">addRefProveedor</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedido</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>
 			</parametros>
 		</caja_input>	
@@ -226,6 +226,21 @@
 				<estado>Si</estado>
 			</before>
 		</caja_input>	
+		<caja_input>
+			<nombre id_input="cajaBusqueda">cajaBusquedaproductos</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+				<action tecla="40">mover_down</action>
+				<action tecla=" 9">mover_down</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="campo"></parametro>  
+			</parametros>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
 		
 	</cajas_input>
 </parametros>
