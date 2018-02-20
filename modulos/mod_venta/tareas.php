@@ -336,8 +336,10 @@ switch ($pulsado) {
 				$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
 				
 			}
+			if (isset ($respuesta)){
+				echo json_encode($respuesta);
+			}
 		
-			echo json_encode($respuesta);
 		break;
 		
 		case 'comprobarPedidos':
@@ -365,13 +367,19 @@ switch ($pulsado) {
 			$estado="Guardado";
 			if ($idCliente>0){
 				$comprobar=$CalbAl->ComprobarAlbaranes($idCliente, $estado);
-				if ($comprobar['alb']==1){
-					$respuesta['alb']=1;
-					$respuesta['sql']=$comprobar['sql'];
+				if (isset ($comprobar['alb'])){
+					if ($comprobar['alb']==1){
+						$respuesta['alb']=1;
+						$respuesta['sql']=$comprobar['sql'];
+					}else{
+						$respuesta['alb']=0;
+						$respuesta['sql']=$comprobar['sql'];
+					}	
 				}else{
 					$respuesta['alb']=0;
 					$respuesta['sql']=$comprobar['sql'];
 				}
+				
 			}
 			echo json_encode($respuesta);
 		break;
@@ -391,6 +399,7 @@ switch ($pulsado) {
 		case 'htmlAgregarFilasProductos':
 		$productos=$_POST['productos'];
 		$dedonde=$_POST['dedonde'];
+		$respuesta =array('html'=>'');
 			 foreach($productos as $producto){
 				if (!is_array($producto)){
 					$bandera=1;
@@ -431,7 +440,7 @@ switch ($pulsado) {
 			
 			$respuesta['html2']=$ven['html'];
 			$respuesta['fecha']=$fun;
-			$respuesta['formas']=$html['formas'];
+		//	$respuesta['formas']=$html['formas'];
 			
 			
 			echo json_encode($respuesta);

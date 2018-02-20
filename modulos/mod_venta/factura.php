@@ -107,7 +107,11 @@ include './../../head.php';
 				
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$cliente['Nombre']."'";
-				$formasVenci=$cliente['formasVenci'];
+				if (isset ($cliente['formasVenci'])){
+					$formasVenci=$cliente['formasVenci'];
+				}else{
+					$formasVenci='';
+				}
 				$fechaCab="'".$fecha."'";
 				$idFactura=0;
 				$estadoCab="'".'Abierto'."'";
@@ -178,7 +182,7 @@ include './../../head.php';
 			if ($datosFactura['importes']){
 				$importes=$datosFactura['importes'];
 			}else{
-				$importes=null;
+				$importes=0;
 			}
 			if ($datosFactura['entregado']){
 				$entregado=$datosFactura['entregado'];
@@ -582,7 +586,9 @@ if (isset($_GET['tActual'])){
 					<strong>Fecha vencimiento:</strong><br>
 					<p id="fechaVencimiento">
 						<?php
+						if (isset ($textoFecha)){
 							echo $textoFecha['html'];
+						}
 					?>
 					
 						</p>
@@ -635,12 +641,14 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
+	if (isset ($datosFactura['importes'])){
 	if ($datosFactura['importes']){
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");
 		<?php
 	}
+}
 	?>
 </script>
 	</body>

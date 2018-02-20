@@ -121,13 +121,13 @@ class FacturasVentas{
 	}
 	public function EliminarRegistroTemporal($idTemporal, $idFactura){
 		$db=$this->db;
-		if ($idAlbaran>0){
+		if ($idFactura>0){
 			$smt=$db->query('DELETE FROM faccliltemporales WHERE numfaccli ='.$idFactura);
 			$sql='DELETE FROM faccliltemporales WHERE numfaccli ='.$idFactura;
 		}else{
 			$smt=$db->query('DELETE FROM faccliltemporales WHERE id='.$idTemporal);
 		}
-		return $sql;
+		
 	}
 	
 	
@@ -250,11 +250,11 @@ class FacturasVentas{
 		if ($albaranes){
 		foreach ($albaranes as $albaran){
 			if($idFactura>0){
-				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')');
+				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')');
 
 				}else{
-				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')');
-				$resultado='INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idalbcli'].' , '.$pedido['Numalbcli'].')';
+				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')');
+				$resultado='INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')';
 				}
 		}
 		}

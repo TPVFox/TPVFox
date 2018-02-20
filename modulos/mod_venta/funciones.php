@@ -576,6 +576,7 @@ function modalPedidos($pedidos){
 
 function modalAlbaranes($albaranes){
 	$contad = 0;
+	$respuesta=array('html'=>'');
 	$respuesta['html'] .= '<table class="table table-striped"><thead>';
 	$respuesta['html'] .= '<th>';
 	$respuesta['html'] .='<td>Número </td>';

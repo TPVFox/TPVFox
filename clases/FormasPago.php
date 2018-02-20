@@ -37,11 +37,15 @@ class FormasPago{
 	}
 	public function datosPrincipal($idPrincipal){
 		$db = $this->db;
+
 		$smt = $db->query ('SELECT * from formasPago where id='.$idPrincipal);
 		if ($result = $smt->fetch_assoc () ){
 			$resultado=$result;
 		}
-		return $resultado;
+		if (isset ($resultado)){
+			return $resultado;
+		}
+		
 	}
 }
 

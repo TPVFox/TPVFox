@@ -1024,7 +1024,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	// 	 Caja -> Indica la caja queremos que ponga focus
 	//   datos -> Es el array que vamos enviar para añadir fila.
 	console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
-	if (campo=="ReferenciaFac" || campo=="CodbarrasFac" || campo=="DescripcionFac"){
+	if (campo=="ReferenciaFac" || campo=="CodbarrasFac" || campo=="DescripcionFac" || campo=='idArticuloFac'){
 		console.log("entre en el if de referencia");
 		var datos = new Object();
 		datos.Numalbcli=0;
@@ -1050,7 +1050,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 		resetCampo(campo);
 		cerrarPopUp(campo);
 	}
-	if (campo=="CodbarrasAl" || campo=="ReferenciaAl" || campo=="DescripcionAl"){
+	if (campo=="CodbarrasAl" || campo=="ReferenciaAl" || campo=="DescripcionAl" || campo=='idArticuloAl'){
 		console.log("entre en el if de albaran producto seleccionado");
 		var datos = new Object();
 		datos.Numpedcli=0;
