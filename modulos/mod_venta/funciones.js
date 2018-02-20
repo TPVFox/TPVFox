@@ -314,7 +314,9 @@ function controladorAcciones(caja,accion){
 		if (caja.darParametro('dedonde')=="albaran"){
 			var d_focus = 'id_clienteAl';
 		}
-		
+		if (caja.darParametro('dedonde')=="factura"){
+			var d_focus = 'id_clienteFac';
+		}
 		ponerFocus(d_focus);
 		break;
 		
@@ -327,6 +329,9 @@ function controladorAcciones(caja,accion){
 				}
 				if (caja.darParametro('dedonde')=="albaran"){
 					var d_focus = 'ClienteAl';
+				}
+				if (caja.darParametro('dedonde')=="factura"){
+					var d_focus = 'ClienteFac';
 				}
 				ponerFocus(d_focus);
 			}
@@ -346,6 +351,9 @@ function controladorAcciones(caja,accion){
 			if (caja.darParametro('dedonde')=="pedidos"){
 				var d_focus = 'fecha';
 			}
+			if (caja.darParametro('dedonde')=="factura"){
+				var d_focus = 'fechaFac';
+			}
 				ponerFocus(d_focus);
 			
 			break
@@ -357,6 +365,9 @@ function controladorAcciones(caja,accion){
 			}
 			if (caja.darParametro('dedonde')=="pedidos"){
 				var d_focus = 'idArticulo';
+			}
+			if (caja.darParametro('dedonde')=="factura"){
+				var d_focus = 'idArticuloFac';
 			}
 			ponerFocus(d_focus);
 			
@@ -379,7 +390,9 @@ function controladorAcciones(caja,accion){
 				if (caja.darParametro('dedonde')=="pedidos"){
 					var d_focus = 'Codbarras';
 				}
-				
+				if (caja.darParametro('dedonde')=="factura"){
+					var d_focus = 'CodbarrasFac';
+				}
 				ponerFocus(d_focus);
 			}
 			break;
@@ -426,7 +439,9 @@ function controladorAcciones(caja,accion){
 				if (caja.darParametro('dedonde')=="pedidos"){
 					var d_focus = 'Referencia';
 				}
-			
+				if (caja.darParametro('dedonde')=="factura"){
+					var d_focus = 'ReferenciaFac';
+				}
 				ponerFocus(d_focus);
 			}
 			break;
@@ -440,7 +455,9 @@ function controladorAcciones(caja,accion){
 				if (caja.darParametro('dedonde')=="pedidos"){
 					var d_focus = 'Descripcion';
 				}
-				
+				if (caja.darParametro('dedonde')=="factura"){
+					var d_focus = 'DescripcionFac';
+				}
 				ponerFocus(d_focus);
 			}
 			break;
@@ -455,7 +472,9 @@ function controladorAcciones(caja,accion){
 					var d_focus = 'Codbarras';
 				}
 				
-			
+				if (caja.darParametro('dedonde')=="pedidos"){
+					var d_focus = 'CodbarrasFac';
+				}
 				ponerFocus(d_focus);
 			}
 			break;
@@ -670,6 +689,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							addFacturaTemp();
 							
 							AgregarFilaProductosAl(datos, dedonde);
+							resetCampo(id_input);
 						}
 						else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
@@ -712,6 +732,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 						
 							addAlbaranTemp();
 							AgregarFilaProductosAl(datos, dedonde);
+							resetCampo(id_input);
 						}else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 				

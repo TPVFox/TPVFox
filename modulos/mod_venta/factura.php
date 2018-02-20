@@ -239,7 +239,7 @@ include './../../head.php';
 				$idTemporal=$_GET['tActual'];
 			}
 		
-			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idAlbaranTemporal);
+			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
 			$albaranes=json_decode($datosFactura['Albaranes'], true);
 			foreach ($albaranes as $albaran){
 				$mod=$Cped->ModificarEstadoAlbaran($albaran['idAlCli'], "Guardado");
