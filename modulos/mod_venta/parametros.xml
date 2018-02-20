@@ -119,7 +119,7 @@
 				<action tecla=" 9">mover_down</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">popup</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>  
 			</parametros>
 			<before>
