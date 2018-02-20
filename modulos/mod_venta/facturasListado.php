@@ -57,9 +57,9 @@ $WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
 if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+		$filtro = $WhereLimite['filtro']." ORDER BY Fecha desc ".$WhereLimite['rango'];
 } else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$filtro= "ORDER BY Fecha desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 }
 	
 $facturasDef=$Cfactura->TodosFacturaFiltro($filtro);

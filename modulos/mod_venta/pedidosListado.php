@@ -57,9 +57,9 @@ $WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
 if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+		$filtro = $WhereLimite['filtro']." ORDER BY  FechaPedido desc ".$WhereLimite['rango'];
 	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$filtro= "ORDER BY  FechaPedido LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
 	
 	$pedidosDef=$Cpedido->TodosPedidosFiltro($filtro);

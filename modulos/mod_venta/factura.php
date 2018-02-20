@@ -233,7 +233,7 @@ include './../../head.php';
 			
 			print_r( $addNuevo);
 		
-	//header('Location: facturasListado.php');
+	header('Location: facturasListado.php');
 			
 		}
 		if (isset($_POST['Cancelar'])){
