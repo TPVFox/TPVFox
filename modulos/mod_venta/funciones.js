@@ -84,7 +84,7 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-
+// Monta el html de formas de vencimiento del cliente
 function formasVenciCliente(formasVenci){
 	console.log("Estoy en formas pago vencimiento factura");
 
@@ -110,6 +110,7 @@ function formasVenciCliente(formasVenci){
 		}
 	});
 }
+/
 function buscarClientes(dedonde, idcaja, valor=''){
 	// @ Objetivo:
 	// 	Abrir modal con lista clientes, que permitar buscar en caja modal.
@@ -540,7 +541,7 @@ function controladorAcciones(caja,accion){
 			console.log ( 'Accion no encontrada '+ accion);
 	} 
 }
-
+//Función que inserta los importes que se van añadiendo a una factura 
 function insertarImporte(valor){
 var importe= document.getElementById("Eimporte").value;
 var fecha=document.getElementById("Efecha").value;
@@ -565,8 +566,10 @@ var parametros = {
 			console.log(resultado);
 			console.log(resultado['html']);
 			if (resultado.mensaje==1){
+				//Se muestra el mensaje cuando el importe es superior al de la factura
 				alert("El importe introducido no es correcto");
 			}else{
+				
 				$("#tablaImporte").append(resultado.html);
 				$("#tabla").find('input').attr("disabled", "disabled");
 				$("#tabla").find('a').css("display", "none");
@@ -807,6 +810,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	});
 	
 }
+//Añadir un producto y modificar el importe del total e iva
 function addProductoTemp(){
 	console.log('Entro en añadir productos');
 	var parametros = {
@@ -872,6 +876,7 @@ function addProductoTemp(){
 
 	});
 }
+//html que se muestra cuando añadimos un producto nuevo
 function agregarFilaProducto(num_item){
 	console.log(num_item);
 	//Recibe el número del productos (el número de la fila)
@@ -1463,6 +1468,8 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 }
 
 
+//Añadir un albaran temporal, si recibe un idAlbaran se modifica el estado del albarán original a Sin Guardar 
+//Y pintamos el pie del albarán
 
 
 function addAlbaranTemp(){
@@ -1513,7 +1520,7 @@ function addAlbaranTemp(){
 			$('#iva21').html('');
 			$('.totalImporte').html('');
 			
-			// Ahora pintamos pie de ticket.
+			// Ahora pintamos pie de albarán.
 			if (resultado['totales']['total'] > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
 				total = parseFloat(resultado['totales']['total']) // varible global.
@@ -1553,7 +1560,7 @@ function addAlbaranTemp(){
 		}
 	});
 }
-
+//Añadir un afactura temporal de la misma manera que un albarán pero en factura
 function addFacturaTemp(){
 	console.log('FUNCION Añadir factura temporal JS-AJAX');
 	var parametros = {
@@ -1662,6 +1669,7 @@ function modificarEstadoFactura(idFactura, estado){
 		}
 	});
 }
+//Modificar el estado del albarán, se utiliza principalmente cuando en facturas escogemos un albarán
 function modificarEstadoAlbaran(idAlbaran, estado){
 	console.log("Entre en modificar Estado albaran");
 	var parametros = {
@@ -1766,7 +1774,7 @@ function comprobarPedidosExis(){
 	});
 }
 
-
+//Busca los albaranes de el cliente seleccionado y muestra la tabla oculta
 function comprobarAlbaranesExis(){
 	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
 	var parametros = {
@@ -1785,8 +1793,6 @@ function comprobarAlbaranesExis(){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de comprobar pedidos');
 			var resultado =  $.parseJSON(response); 
-		//	var encontrados = resultado.encontrados;
-		//	var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 		console.log(resultado);
 			if (resultado.alb==1){
 				$("#numAlbaranT").show();
@@ -1828,6 +1834,7 @@ function AgregarFilaPedido(datos){
 		}
 	});
 }
+//Agrega el html de el albarán seleccionado en factura
 function AgregarFilaAlbaran(datos){
 	console.log("Estoy en agregar fila albaran");
 	var parametros = {
@@ -1854,6 +1861,7 @@ function AgregarFilaAlbaran(datos){
 		}
 	});
 }
+// Agrega el nuevo html de un producto al principio de la tabla productos
 function AgregarFilaProductosAl(productosAl, dedonde=''){
 	console.log("Estoy en agregar fila productos albaran");
 	
@@ -1888,7 +1896,9 @@ function AgregarFilaProductosAl(productosAl, dedonde=''){
 		}
 	});
 }
-
+// Cuando seleccionamos un pedido o un albarán llamamos a la funciones correspondiente enviandole el número.
+//Estas funciones se llama en el modal tando de añadir un pedido como un albarán para no hacer mas grande la funcion 
+//lo que hacemos es llamar a la función que llamamos cuando ponemos directamente el número
 function buscarDatosPedido(NumPedido){
 	console.log("Estoy en buscarDatosPedido");
 	buscarPedido("Albaran", "numPedido", NumPedido);
@@ -1899,6 +1909,7 @@ function buscarDatosAlbaran(NumAlbaran){
 	buscarAlbaran("factura", "numAlbaran", NumAlbaran);
 	cerrarPopUp();
 }
+//Seleccionar un forma de vencimiento 
 function selectFormas(){
 	console.log("Esto en selectFormas");
 	var option = document.getElementById("formaVenci").value;
