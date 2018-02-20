@@ -295,21 +295,39 @@ function controladorAcciones(caja,accion){
 		console.log('Entro en acciones saltar_idCliente');
 		var dato = caja.darValor();
 			if ( dato.length === 0){
-				var d_focus = 'id_cliente';
+				if (caja.darParametro('dedonde')=="albaran"){
+					var d_focus = 'id_clienteAl';
+				}
+				if (caja.darParametro('dedonde')=="pedidos"){
+					var d_focus = 'id_cliente';
+				}
+				
 				ponerFocus(d_focus);
 			}
 			break;
 		case 'saltar_idClienteFlechaAbajo':
 		console.log('Entro en acciones saltar_idClienteFlechaAbajo');
-		var d_focus = 'id_cliente';
-				ponerFocus(d_focus);
+		console.log(caja.darParametro('dedonde'));
+		if(caja.darParametro('dedonde')=="pedidos"){
+			var d_focus = 'id_cliente';
+		}
+		if (caja.darParametro('dedonde')=="albaran"){
+			var d_focus = 'id_clienteAl';
+		}
+		
+		ponerFocus(d_focus);
 		break;
 		
 		case 'saltar_nombreCliente':
 		console.log('Entro en acciones saltar_nombreCliente');
 		var dato = caja.darValor();
 			if ( dato.length === 0){
-				var d_focus = 'Cliente';
+				if(caja.darParametro('dedonde')=="pedidos"){
+					var d_focus = 'Cliente';
+				}
+				if (caja.darParametro('dedonde')=="albaran"){
+					var d_focus = 'ClienteAl';
+				}
 				ponerFocus(d_focus);
 			}
 			break;
@@ -322,17 +340,25 @@ function controladorAcciones(caja,accion){
 			break;
 		case 'saltar_Fecha':
 		console.log('Entro en acciones saltar_fecha');
-		var dato = caja.darValor();
+			if (caja.darParametro('dedonde')=="albaran"){
+				var d_focus = 'fechaAl';
+			}
+			if (caja.darParametro('dedonde')=="pedidos"){
 				var d_focus = 'fecha';
+			}
 				ponerFocus(d_focus);
 			
 			break
 		case 'saltar_idArticulo':
 		console.log('Entro en acciones saltar_idArticulo');
 		var dato = caja.darValor();
-		
+			if (caja.darParametro('dedonde')=="albaran"){
+				var d_focus = 'idArticuloAl';
+			}
+			if (caja.darParametro('dedonde')=="pedidos"){
 				var d_focus = 'idArticulo';
-				ponerFocus(d_focus);
+			}
+			ponerFocus(d_focus);
 			
 			break
 		case 'buscarProductos':
@@ -347,7 +373,13 @@ function controladorAcciones(caja,accion){
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
-				var d_focus = 'Codbarras';
+				if (caja.darParametro('dedonde')=="albaran"){
+					var d_focus = 'CodbarrasAl';
+				}
+				if (caja.darParametro('dedonde')=="pedidos"){
+					var d_focus = 'Codbarras';
+				}
+				
 				ponerFocus(d_focus);
 			}
 			break;
@@ -388,7 +420,13 @@ function controladorAcciones(caja,accion){
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
-				var d_focus = 'Referencia';
+				if (caja.darParametro('dedonde')=="albaran"){
+					var d_focus = 'ReferenciaAl';
+				}
+				if (caja.darParametro('dedonde')=="pedidos"){
+					var d_focus = 'Referencia';
+				}
+			
 				ponerFocus(d_focus);
 			}
 			break;
@@ -396,7 +434,13 @@ function controladorAcciones(caja,accion){
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
-				var d_focus = 'Descripcion';
+				if (caja.darParametro('dedonde')=="albaran"){
+					var d_focus = 'DescripcionAl';
+				}
+				if (caja.darParametro('dedonde')=="pedidos"){
+					var d_focus = 'Descripcion';
+				}
+				
 				ponerFocus(d_focus);
 			}
 			break;
@@ -404,7 +448,14 @@ function controladorAcciones(caja,accion){
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
-				var d_focus = 'Codbarras';
+				if (caja.darParametro('dedonde')=="albaran"){
+					var d_focus = 'CodbarrasAl';
+				}
+				if (caja.darParametro('dedonde')=="pedidos"){
+					var d_focus = 'Codbarras';
+				}
+				
+			
 				ponerFocus(d_focus);
 			}
 			break;

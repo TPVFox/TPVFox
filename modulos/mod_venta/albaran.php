@@ -475,7 +475,7 @@ if (isset($_GET['tActual'])){
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
-	$('#id_cliente').focus();
+	$('#id_clienteAl').focus();
 	<?php
 	if ($idCliente>0){
 		?>
