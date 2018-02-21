@@ -404,7 +404,7 @@ switch ($pulsado) {
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
-		//
+		//HTML que va mostrando las filas de los pedidos en un albarán
 		case 'htmlAgregarFilasProductos':
 		$productos=$_POST['productos'];
 		$dedonde=$_POST['dedonde'];
@@ -423,14 +423,14 @@ switch ($pulsado) {
 		 }
 		echo json_encode($respuesta);
 		break;
-		 
+		 //Busca los datos de un pedido en concreto
 		case 'buscarDatosPedido':
 			$idPedido=$_POST['idPedido'];
 			$res=$CcliPed->datosPedidos($idPedido);
 			$respuesta['NumPedido']=$res['Numpedcli'];
 			echo json_encode($respuesta);
 		break;
-		
+		//MUestra las formas de vencimiento de esa factura
 		case 'htmlFomasVenci':
 			$formasVenci=$_POST['formasVenci'];
 			if ($_POST['formasVenci']){
@@ -455,7 +455,7 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		
+		//MOdificar la forma de vencimiento de esa factura en concreto
 		case 'ModificarFormasVencimiento':
 		$opcion=$_POST['opcion'];
 		$fechaVenci=$_POST['fechaVenci'];
@@ -472,7 +472,7 @@ switch ($pulsado) {
 		$respuesta=$json;
 		echo json_encode($modTemporal);
 		break;
-		
+		//Modificar el estado de una factura 
 		case 'modificarEstadoFactura':
 		$idFactura=$_POST['idFactura'];
 		$estado=$_POST['estado'];
@@ -480,14 +480,14 @@ switch ($pulsado) {
 		echo json_encode($modEstado);
 		break;
 		
-		
+		//modificar el estado de un alabrán
 		case 'modificarEstadoAlbaran':
 		$idAlbaran=$_POST['idAlbaran'];
 		$estado=$_POST['estado'];
 		$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
 		echo json_encode($modEstado);
 		break;
-		
+		//Insertar un nuevo importe a una factura
 		case 'insertarImporte':
 		$importe=$_POST['importe'];
 		$fecha=$_POST['fecha'];
