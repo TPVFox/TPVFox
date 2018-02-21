@@ -62,6 +62,10 @@
 				<texto>Modificados</texto>
 				<consulta>WHERE estado="Modificado"</consulta>
 			</tipo>
+			<tipo clase="existe">
+				<texto>Existe</texto>
+				<consulta>WHERE estado="Existe"</consulta>
+			</tipo>
 			<tipo clase="descartado">
 				<texto>Descartados</texto>
 				<consulta>WHERE estado="Descartado"</consulta>

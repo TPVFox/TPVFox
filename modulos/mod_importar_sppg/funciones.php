@@ -326,10 +326,9 @@ function obtenerUnRegistro($BD,$consulta) {
 		$resultadoConsulta = $BD->query($consulta);
 		if ($BD->query($consulta)) {
 			$array['NItems'] = $resultadoConsulta->num_rows;
-			if ($array['NItems'] === 1){
-				// Hubo resultados
+			if ($array['NItems']>0){
 				while ($fila = $resultadoConsulta->fetch_assoc()){
-					$array['Items'][] = $fila;
+				$array['Items'][] = $fila;
 				}
 			} 
 		} else {
@@ -381,7 +380,8 @@ function VariosRegistros($BD,$consulta,$a_buscar,$campo) {
 	
 	
 function BuscarIgualSimilar($BDTpv,$campos,$registro){
-	// Objetivo devolver comprobacion si existe igual o similares ( con lo registros obtenidos).
+	// Objetivo
+	//  Devolver comprobacion si existe igual o similares ( con lo registros obtenidos).
 	$respuesta = array();
 	foreach ($campos as $key=>$datos){
 		// Recorremos los campos que tenemos en parametros de cada tabla xml.
@@ -402,9 +402,10 @@ function BuscarIgualSimilar($BDTpv,$campos,$registro){
 						$respuesta['comprobacion'][$campo][$num_accion]['accion'] =$accion['funcion'].' -> '.$accion['description'];
 						$respuesta['comprobacion'][$campo][$num_accion]['respuesta'] = $UnRegistro;
 						// Registramos resultado si hay item
-						if ($UnRegistro['NItems'] === 1){
+						$respuesta['tpv'] = $UnRegistro;
+
+						if ($UnRegistro['NItems'] > 0){
 							$respuesta['comprobacion']['encontrado_tipo'] = 'Mismo';
-							$respuesta['tpv'] = $UnRegistro;
 							// Salimos bucles de campo_acciones y campos, no tiene sentido seguir realizando acciones, ya encontro
 							// uno  igual.
 							break 2;
@@ -501,47 +502,49 @@ function AnhadirRegistroTpv($BDTpv,$BDImportDbf,$CParametros,$datos){
 	$consulta = "SELECT ".$campos_obtener." FROM ". $tabla.' '.$whereImportar;
 	$registro_importar = obtenerUnRegistro($BDImportDbf,$consulta);
 	$registro = $registro_importar['Items'][0];
-	// Hago bluce tablas de tpv, ya que puede haber mas que uno.
-	foreach ($tablas['tpv'] as $t){
-		// -------------- Montamos SQL para Insert ------------------- //
-		// Obtengo nombre tabla ( Si solo tengo una .. claro... )
-		$tabla_tpv = $t;
-		$valores = array ();
-		$into = array();
-		// Antes de nada comprobamos si hay funciones a realizar despues de obtener
-		$funcBefore = $CParametros->getBeforeAnhadir();
-		if (count($funcBefore) >0){
-			// Esta funciones obtenemos campos y valores necesaios para hacer Insert
-			$funcion = $funcBefore[$tabla_tpv];
-			$r = $funcion();
-			if ( count($r) >0 ){
-				$into = $r['into'];
-				$valores =  $r['valores'];
+	// Compruebo que haya solo un resultado , para evitar errores
+	if ( count($registro_importar['Items']) === 1){
+		// Hago bluce tablas de tpv, ya que puede haber mas que uno.
+		foreach ($tablas['tpv'] as $t){
+			// -------------- Montamos SQL para Insert ------------------- //
+			// Obtengo nombre tabla ( Si solo tengo una .. claro... )
+			$tabla_tpv = $t;
+			$valores = array ();
+			$into = array();
+			// Antes de nada comprobamos si hay funciones a realizar despues de obtener
+			$funcBefore = $CParametros->getBeforeAnhadir();
+			if (count($funcBefore) >0){
+				// Esta funciones obtenemos campos y valores necesaios para hacer Insert
+				$funcion = $funcBefore[$tabla_tpv];
+				$r = $funcion();
+				if ( count($r) >0 ){
+					$into = $r['into'];
+					$valores =  $r['valores'];
+				}
 			}
-		}
-		// Obtengo campos y valores que nos indica cruces de parametros
-		$cruces = $CParametros->ObtenerCrucesTpv($tabla_tpv);
-	
-		foreach ($cruces as $campo_tpv => $cruce){
-			$into[] = $campo_tpv;
-			$valores[] = '"'.addslashes(htmlentities($registro[$cruce],ENT_COMPAT)).'"';
-		}
+			// Obtengo campos y valores que nos indica cruces de parametros
+			$cruces = $CParametros->ObtenerCrucesTpv($tabla_tpv);
+		
+			foreach ($cruces as $campo_tpv => $cruce){
+				$into[] = $campo_tpv;
+				$valores[] = '"'.addslashes(htmlentities($registro[$cruce],ENT_COMPAT)).'"';
+			}
 
-		$sql = 	'INSERT INTO '.$tabla_tpv.' ('.implode(',',$into).') VALUES ('.implode(',',$valores).')';
-		$BDTpv->query($sql);
-		// -- Obtenemos id que se acaba de crear con insert.
-		$idTpv = $BDTpv->insert_id;
-		//-- Ahora buscamos si tiene funciones a realizar after_insert
+			$sql = 	'INSERT INTO '.$tabla_tpv.' ('.implode(',',$into).') VALUES ('.implode(',',$valores).')';
+			$BDTpv->query($sql);
+			// -- Obtenemos id que se acaba de crear con insert.
+			$idTpv = $BDTpv->insert_id;
+			//-- Ahora buscamos si tiene funciones a realizar after_insert
+		}
+		// -- Cambiamos el estado de importar y le ponemos el id.
+		$sqlImportar = 'UPDATE '.$tabla.' SET estado = "Nuevo", id = "'.$idTpv.'" '.$whereImportar;
+		$BDImportDbf->query($sqlImportar);
+		$respuesta['AfectadoImportar'] = $BDImportDbf->affected_rows;
+		$respuesta['sqlImportar'] =$sqlImportar;
+		$respuesta['sql'] = $sql;
+		$respuesta['IdInsertTpv'] = $BDTpv->insert_id;
 	}
-	// -- Cambiamos el estado de importar y le ponemos el id.
-	$sqlImportar = 'UPDATE '.$tabla.' SET estado = "Nuevo", id = "'.$idTpv.'" '.$whereImportar;
-	$BDImportDbf->query($sqlImportar);
-	
-	$respuesta['AfectadoImportar'] = $BDImportDbf->affected_rows;
 	$respuesta['consulta_obtener'] = $consulta;
-	$respuesta['sqlImportar'] =$sqlImportar;
-	$respuesta['sql'] = $sql;
-	$respuesta['IdInsertTpv'] = $BDTpv->insert_id;
 	return $respuesta;
 }
 
@@ -622,7 +625,7 @@ function FamiliaIdInsert($BDImportDbf,$BDTpv,$datos,$idvalor){
 	$respuesta = array();
 	//~ $consultaImportar = 
 	
-	$respuesta = $datos;
+	$respuesta = count($datos);
 	
 	return $respuesta;
 }
@@ -634,8 +637,8 @@ function ConstructorLike($campo,$a_buscar,$operador='AND'){
 	// Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
 	// @ Parametros:
 	// 	$operador -> (String) puede ser OR o AND.. no mas...
-	$buscar = array(',',';','(',')','-');
-	$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ');
+	$buscar = array(',',';','(',')','-','"');
+	$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ',' ');
 	$string  = str_replace($buscar, $sustituir, trim($a_buscar));
 	$palabras = explode(' ',$string);
 	$likes = array();
@@ -659,8 +662,8 @@ function DescartarRegistroPalabras($a_buscar,$registro,$campo){
 	// Objetivo:
 	// Comprobar que el resultado contiene mas de la mitad de la palabras.
 	$respuesta = 'SinComprobar:';
-	$buscar = array('.',',',';','(',')','-');
-	$sustituir = array(' . ',' , ',' ; ',' ( ',' ) ',' - ');
+	$buscar = array('.',',',';','(',')','-','"');
+	$sustituir = array(' . ',' , ',' ; ',' ( ',' ) ',' - ',' '); // Doble comilla genera errro la quitamos
 	$string  = str_replace($buscar, $sustituir, trim($a_buscar));
 	$palabras = explode(' ',$string);
 	$likes = array();
@@ -696,7 +699,7 @@ function DescartarRegistroPalabras($a_buscar,$registro,$campo){
 
 function AnhadirEstadoFecha(){
 	// @ Objetivo
-	// Es actualizar el Estado, Fecha
+	// Es actualizar el Estado, Fecha en tpv.
 	$respuesta = array();
 	$respuesta['into'][] ='estado'; 
 	$respuesta['valores'][] = '"'.'importar'.'"';
@@ -708,6 +711,39 @@ function AnhadirEstadoFecha(){
 	
 }
 
-
+function AnhadirID_DbfImportar($BDImportar,$datos_importar,$datos_tpv,$tabla){
+	// Objetivo :
+	// Es añadir el id de tpv en BDFimportar con estado 'existe'
+	$respuesta = array();
+	// Monstamos las consulta.
+	$datos=array();
+	
+	foreach ($datos_tpv as $campos){
+		$campo = key($campos);
+		$valor = $campos[$campo];
+		// Esto es valido para proveedores, pero se si sera para todas las tablas...
+		$datos[] = 'id="'.$valor.'",estado="existe"';
+	}
+	$camposYvalor =implode(',',$datos);  
+	
+	$datos=array();
+	foreach ($datos_importar as $campos){
+		$campo = key($campos);
+		$valor = $campos[$campo];
+		$datos[] = $campo.'="'.$valor.'"';
+	}
+	
+	
+	$comparadorYvalor =implode(' AND ',$datos);  
+	
+	$consulta= 'UPDATE '.$tabla.' SET '.$camposYvalor.' WHERE '.$comparadorYvalor;
+	
+	$BDImportar->query($consulta);
+	
+	$respuesta['AfectadoImportar'] = $BDImportDbf->affected_rows;
+	$respuesta['consulta'] = $consulta;
+	
+	return $respuesta;
+}
 
 ?>

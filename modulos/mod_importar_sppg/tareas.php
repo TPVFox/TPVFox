@@ -98,7 +98,16 @@ if (isset($_POST['tabla'])){
 		$respuesta = grabarRegistroImportar($BDImportDbf,$datos);
 		echo json_encode($respuesta);
 		break;
-		
+	
+	case 'AnhadirID_DbfImportar':
+		$respuesta = array();
+		$datos_importar = $_POST['datos_importar'];
+		$datos_tpv = $_POST['datos_tpv'];
+		$tabla = $_POST['tabla'];
+		$respuesta = AnhadirID_DbfImportar($BDImportDbf,$datos_importar,$datos_tpv,$tabla);
+		$respuesta['algo'] = 'Entro';
+		echo json_encode($respuesta);
+
 	
 }
  

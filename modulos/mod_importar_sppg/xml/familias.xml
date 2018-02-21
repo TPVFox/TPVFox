@@ -33,21 +33,25 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 		<tpv>
 			<tabla>
 				<nombre>familiasTienda</nombre>
-				<campo nombre="idFamilia">
-					<action fuction="consulta" tabla="familias" campo="idFamilia"/>
-				</campo>
-				<campo nombre="idTienda">
-					<action function="parametro" parametro="idTienda"/>
-				</campo>
-				<campo nombre="ref_familia_tienda">
-					<cruce>CCODFAM</cruce>
-				</campo>
+				<cruces>
+					<campo nombre="idFamilia">
+						<action fuction="consulta" tabla="familias" campo="idFamilia"/>
+					</campo>
+					<campo nombre="idTienda">
+						<action function="parametro" parametro="idTienda"/>
+					</campo>
+					<campo nombre="ref_familia_tienda">
+						<cruce>CCODFAM</cruce>
+					</campo>
+				</cruces>
 			</tabla>
 			<tabla>
 				<nombre>familias</nombre>
-				<campo nombre="idFamilia">
-					<tipo>UNICO</tipo>
-				</campo>
+				<cruces>
+					<campo nombre="idFamilia">
+						<tipo>Unico</tipo>
+					</campo>
+				</cruces>
 				
 			</tabla>
 		</tpv>
@@ -56,7 +60,6 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 				<procesos>
 					<before>
 						<action funcion="AnhadirFuncionIDFamilias"/>
-						<action funcion="Diferencias"/>
 					</before>
 				</procesos>
 				<options tipo="general">
@@ -67,12 +70,10 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 				
 			</comprobacion>
 			<comprobacion nombre="NoEncontrado">
-				<procesos>
-					<before>
-						<action funcion="SeleccionarRegistroFamilias"/>
-					</before>
-				</procesos>
 				<options tipo="general">
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
 					</option>

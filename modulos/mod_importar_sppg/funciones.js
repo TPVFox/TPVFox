@@ -420,6 +420,10 @@ function controladorAcciones(caja,accion){
 					$('#fila'+caja.fila).css("display", "none");
 					AnhadirRegistroTpv(caja.fila);
 				}
+				if (accion_general === 'AnhadirIdImportar'){
+					$('#fila'+caja.fila).css("display", "none");
+					AnhadirID_DbfImportar(caja.fila);
+					}
 			} 
 			break; // Recuerda que debe poner break.. sino continua ejecutando default
 		case 'InsertarIdEnRegistroFamilia':
@@ -577,6 +581,38 @@ function getvalsel(event){
 			// No permito importar mientras no seleccione una empresa.
 			$("#btnImportar").prop('disabled', true);
 		}
+}
+
+function AnhadirID_DbfImportar(fila){
+	// Objetivo es añadir el ID y estado a la tabla de DBFImportar
+	datos_importar = registros.importar[fila];
+	datos_tpv = registros.tpv[fila];
+	var parametros = {
+		"pulsado"	: "AnhadirID_DbfImportar",
+		"tabla" 	: tabla, // Enviamos todos los ficheros.
+		"datos_importar" 	: datos_importar[0],
+		"datos_tpv"			: datos_tpv[0]
+		};
+	
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			console.log('================  Cambiando ID y estado de registro en DBDImportar en '+tabla+ '   ====================');
+			
+		},
+		success:  function (response) {
+			console.log('================  Termino de Cambiar ID y estado de registro en DBDImportar en '+tabla+ '   ====================');
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
+		
+		}
+	});
+	
+	
+	
+	
 }
 
 

@@ -7,7 +7,8 @@
  * @Descripcion	Importar ficheros de DBF
  *  */
 		// Objetivo de esta aplicacion es:
-		//	- Comparar los datos de DBF y realizar las acciones que le indicamos Xml de cada tabla
+		//	- Comparar los datos de DBF que tenemos importado BD importarDBF con las que tenemos BD tpv
+		//  - Realizar las acciones que le indicamos Xml de cada tabla
 
 ?>
 <!DOCTYPE html>
@@ -19,10 +20,7 @@
 	$Controler = new ControladorComun; 
 	// Cargamos parametros de XML donde tenemos parametros generales y los modulo.
 	include_once ('parametros.php');
-	//~ $Newparametros = new ClaseParametros('parametros.xml');
-	//~ $parametros = $Newparametros->getRoot();
-
-
+	
 // ---------   Obtenemos la tabla que vamos gestionar y tratar   ------------ //
 	if ($_GET['tabla']){
 		$tabla =$_GET['tabla'];
@@ -43,13 +41,13 @@
 	$datos_tablas['importar'] = $NewParametrosTabla->getCamposImportar();
 	$datos_tablas['acciones']=$NewParametrosTabla->getAccionesImportar();
 	$datos_tablas['tablas']['tpv'] = $NewParametrosTabla->getTablas('tpv');
+	// Ahora si hay tablas tpv , obtenemos los campos unicos de esas tablas.
+	$datos_tablas['tpv'] = $NewParametrosTabla->getCamposTpv();
 	$datos_tablas['comprobaciones'] = $NewParametrosTabla->getComprobaciones();
 	$datos_tablas['parametros_tabla'] = $NewParametrosTabla->getParametrosTabla();
 	echo '<pre>';
-		print_r( $NewParametrosTabla->getBeforeAnhadir());
-		
-		//~ print_r($NewParametrosTabla->getConsultas());
-
+		print_r($datos_tablas['tpv']);
+		//~ // print_r($NewParametrosTabla->getConsultas());
 	echo '</pre>';
 	// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -84,6 +82,7 @@
 	
 	
 // ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
+// Tipos de registros , les llamo a los registros de BDImporta según el estado que tenga 
 	$tiposRegistros = array();
 	foreach ($parametros->configuracion->tipos_registros as $tipos){
 		foreach ($tipos as $tipo){
@@ -144,38 +143,52 @@
 				}
 			}
 			
-			// Hay que tener que igual es igual en campo que consideramos que es suficientemente 
-			// identificador para decir que es el mismo, pero no sabemos que si se modifico algún campo.
-			$procesos = 'Si' ; // De momento entiendo que siempre 
+			// Analizamos los campos que son iguales y vemos que campos son significativos para considerar que el mismo registros.
+			// Tb faltaría comprobar que si se modifico algún campo.
+			// -- De momento no comprobamos si hay modificaciones. -- //
+			$procesos = 'Si' ; 
 			if ($comprobaciones[$item]['resultado']['encontrado_tipo']=== "Mismo"){
 				// Debería:
 				//  - procesos de comprobaciones = Mismo
-				
 				$procesos = 'Si' ; // Mientras no hago las diferencias.
 			}
+			//~ echo '<pre>';
+			//~ echo $item.'<br/>';
+			//~ print_r($respuesta['tpv']);
+			//~ echo '</pre>';
 			if ($procesos === 'Si'){
 				$registros_tpv[$item]=$respuesta['tpv'];
 			}
 		}
-		// Montamos Variables JS para cada Item
+		// ------------- Montamos Variables JS para cada Item ------------------------------ //
 		$d = array();
+		// Variables JS de importar.
 		foreach ($datos_tablas['importar']['campos'] as $campo){
 			if (isset($registro[$campo])){ 
 				$d['importar'][] = array ( $campo =>$registro[$campo]);
 				
 			}
 		}
-		if (isset($datos_tablas['tpv']['campos'])){
-			foreach ($datos_tablas['tpv']['campos'] as $campo){
-				if (isset($registros_tpv[$item])){
-					// Quiere decir que hemos encontrado datos..
-					// Si Nitems encontrado es uno.
-					if ($registros_tpv[$item]['NItems'] === 1){ 
-						$d['tpv'][] = array ( $campo =>$registros_tpv[$item]['Items'][0][$campo]);
+		// Variables JS de tpv ( ten encuenta que puede haber varias tablas en tpv... no una sola)
+		// Si la consulta 
+		if (isset($registros_tpv[$item])){
+			// Recorremos array de nombres de tablas de tpv
+			foreach ($datos_tablas['tablas']['tpv'] as $n_tabla){
+				// Recorremos array tablas con los campos unico de tpv
+				foreach ($datos_tablas['tpv'] as $campos_tabla){
+					// Comprobamos que el nombre tabla tpv se mismo array campos unico..  
+					if (isset($campos_tabla[$n_tabla])){
+						foreach ($campos_tabla[$n_tabla] as $campo){
+							// Si Nitems encontrado es uno.
+							if ($registros_tpv[$item]['NItems'] === 1){ 
+								$d['tpv'][] = array ( $campo =>$registros_tpv[$item]['Items'][0][$campo]);
+							}
+						}
 					}
 				}
 			}
 		}
+		
 		$comprobaciones[$item]['JS'] = $d;
 		
 		

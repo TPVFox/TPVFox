@@ -15,15 +15,15 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 				<tipo>Unico</tipo>
 			</campo>
 			<campo nombre="CTFO1PRO">
-				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Numeros mismoes sin espacios" />
-				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Numeros iguales sin espacios" />
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Lo mismos numeros sin espacios" />
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Lo mismos numeros sin espacios" />
 			</campo>
 			<campo nombre="CTFO2PRO">
-				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Numeros iguales sin espacios" />
-				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Numeros iguales sin espacios" />
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="telefono" description="Lo mismos numeros sin espacios" />
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="movil" description="Lo mismos numeros sin espacios" />
 			</campo>
 			<campo nombre="CFAX">
-				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="fax" description="Numeros iguales sin espacios"/>
+				<action funcion="mismo" tabla_cruce="proveedores" campo_cruce="fax" description="Lo mismos numeros sin espacios"/>
 			</campo>
 			<campo nombre="CNOMPRO">
 				<action funcion="comparar" tabla_cruce="proveedores" campo_cruce="nombrecomercial" description="Compara cuales son lo mas aproximados" />
@@ -39,7 +39,7 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 			<campos tipo="anhadir" tabla="proveedores">
 			 `nombrecomercial`, `razonsocial`, `nif`, `direccion`, `telefono`, `fax`, `movil`, `email` 
 			</campos>
-			<!-- Funcion a realizar despues de lo que indique tipo -->
+			<!-- Funcion a realizar despues de lo que indique tipo  y tabla-->
 			<before tipo="anhadir" tabla="proveedores">
 			AnhadirEstadoFecha
 			</before>
@@ -83,13 +83,17 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 			<comprobacion nombre="Mismo">
 				<options tipo="general">
 					<!-- tengo que crear en el mismo ya que proveedores franquiciados pueden tener el telefono ekoama -->
+					<option tipo="AnhadirIdImportar">
+						<texto>Añadir Id en DBFImportar</texto>
+					</option>
 					<option tipo="Crear">
 						<texto>Crear Nuevo</texto>
 					</option>
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
 					</option>
-				</options>
+					
+				</options>		
 				
 			</comprobacion>
 			<comprobacion nombre="NoEncontrado">
@@ -113,8 +117,16 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 				</options>
 			</comprobacion>
 		</comprobaciones>
-			
-		
+		<acciones_varios>
+			<!-- Acciones que podemos realizar para varios registros -->
+			<registros tipo ="Mismo">
+				<!-- funciones que realizamos despues buscar registros por su estado. -->
+				<!-- Funciones que pueden ser estandares para varias tablas ,los atributos nos indica si se hacen -->
+				<funcion tipo="check" estado="OK" texto="Mismo registro">
+					UpdateEstadoID
+				</funcion>
+			</registros>
+		</acciones_varios>
 		
 		
 	</tabla>

@@ -19,6 +19,7 @@ class ClaseArrayParametrosTabla extends ClaseParametros
 	private $parametros_tabla;
 	private $campos_importar;  // Array que contiene campos de las tablas importar.
 	private $acciones_importar;  // Array que contiene las acciones  de cada campo de tablas importar.
+	private $campos_tpv = array(); // Array de campos unicos de las tablas tpv
 	private $tablas = array(); // Array que guardo nombre tablas de importar y tpv
 	private $comprobaciones = array(); // Array de guardo comprobaciones de la tabla.
 	private $consultas;
@@ -29,11 +30,20 @@ class ClaseArrayParametrosTabla extends ClaseParametros
 		$this->parametros = $this->getRoot();
 		$this->parametros_tabla = $this->TpvXMLtablaImportar();
 		$parametros_tabla = $this->getParametrosTabla();
-		$this->ObtenerCamposAcciones($parametros_tabla); // Crea metodos campos_importar, acciones_importar
+		// Crea metodos para crear las propiedades campos_importar, acciones_importar, campos_tpv y acciones tpv
+		$this->ObtenerCamposAcciones($parametros_tabla); 
 		// Ahora obtenemos los datos clasificados.
 		parent::setRoot($parametros_tabla); // Cambios root de clase parametros padre.
 		$this->tablas['importar']			= parent::Xpath('nombre','Valores');
 		$this->tablas['tpv'] 				= parent::Xpath('tpv/tabla/nombre','Valores');// Obtengo array de tablas de tpv
+		// Obtenemos las propiedades de campos_tpv para cada tabla tpv.
+		if (count($this->tablas['tpv'])>0){
+			foreach ($this->tablas['tpv'] as $t){
+				$this->ObtenerCamposTpv($t);
+				
+			}
+		}
+		// Obtenemos mas propiedades...
 		$this->comprobaciones['Mismo'] 		= parent::Xpath('comprobaciones//comprobacion[@nombre="Mismo"]');
 		$this->comprobaciones['Similar'] 	= parent::Xpath('comprobaciones//comprobacion[@nombre="Similar"]');
 		$this->comprobaciones['NoEncontrado'] = parent::Xpath('comprobaciones//comprobacion[@nombre="NoEncontrado"]');
@@ -61,12 +71,12 @@ class ClaseArrayParametrosTabla extends ClaseParametros
 			}
 		}
 		
-		//~ echo  $this->parametros;
-		
 		return $respuesta;
 	}
 
 	public function ObtenerCamposAcciones($p){
+		// Objetivo: 
+		// Obtenemos propiedades campos_importar y acciones_importar
 		$respuesta = array();
 		foreach ($p->campos->children() as $campo){;
 			$n =(string) $campo['nombre'];
@@ -79,8 +89,32 @@ class ClaseArrayParametrosTabla extends ClaseParametros
 			$respuesta['acciones'][$n] = $this->CamposAccionesImportar($campo); // Los campos (BDImport) y las acciones de la tabla
 		}
 		$this->campos_importar = $respuesta['importar'];
-		$this->acciones_importar = $respuesta['acciones'];			
+		$this->acciones_importar = $respuesta['acciones'];
+				
 	}
+	
+	
+	public function ObtenerCamposTpv($t){
+		//Objetivo:
+		//Obtener propiedade campos_tpv para tabla t ( ya que en tpv puede haber varias tablas
+		$parametros = $this->getParametrosTabla();
+		$respuesta = array();
+		$x = 'tpv//tabla[nombre="'.$t.'"]';
+		$XmlTpvTabla = parent::Xpath($x);
+		foreach ($XmlTpvTabla[0]->cruces as $campos){;
+			foreach ( $campos as $campo){
+				$n =(string) $campo['nombre'];
+				if (isset($campo->tipo)){
+					if ((string) $campo->tipo === 'Unico'){
+						$respuesta[$t][]=$n;
+					}
+				}
+			}
+		}
+		// Añadimos los campos unicos de la tabla tpv a la propiedad campos_tpv.
+		array_push($this->campos_tpv,$respuesta);
+	}
+	
 	
 	
 	public function ObtenerCrucesTpv($nombre_tabla){
@@ -121,6 +155,7 @@ class ClaseArrayParametrosTabla extends ClaseParametros
 	public function ObtenerBefore(){
 		// Recuerda que tiene que tener root de xml en parametros_tabla para funcionamiento correcto.
 		// Tambien entiendo que hay una funcion por tabla despues de obtener.
+		$resultado = array();
 		$c = parent::Xpath('consultas//before[@tipo="anhadir"]');
 		foreach ($c as $anhadir){
 			$t = (string) $anhadir['tabla'];
@@ -163,6 +198,9 @@ class ClaseArrayParametrosTabla extends ClaseParametros
 	public function getAccionesImportar(){
 		return $this->acciones_importar;
 	}
+	public function getCamposTpv(){
+		return $this->campos_tpv;
+	}
 	public function getTablas($elemento =''){
 		if ($elemento === ''){
 			return $this->tablas;
@@ -178,7 +216,7 @@ class ClaseArrayParametrosTabla extends ClaseParametros
 		}
 	}
 	public function getConsultas($tipo =''){
-		if ($elemento === ''){
+		if ($tipo === ''){
 			return $this->consultas;
 		} else {
 			return $this->consultas[$tipo];
