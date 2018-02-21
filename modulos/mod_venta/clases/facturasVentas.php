@@ -44,7 +44,7 @@ class FacturasVentas{
 		$smt = $db->query($sql);
 		return $smt;
 	}
-	
+	//Muestra los datos de todos los temporales
 	public function TodosTemporal(){
 			$db = $this->db;
 			$smt = $db->query ('SELECT * from faccliltemporales');
@@ -57,7 +57,7 @@ class FacturasVentas{
 	}
 
 	
-	
+	//Muestra algunos datos de todos las facturas reales
 	public function TodosFactura(){
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
@@ -67,6 +67,7 @@ class FacturasVentas{
 		}
 		return $facturaPrincipal;
 	}
+		//Muestra algunos datos de todos las facturas con un filtro
 	public function TodosFacturaFiltro($filtro){
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
@@ -76,6 +77,7 @@ class FacturasVentas{
 		}
 		return $facturaPrincipal;
 	}
+	//Muestra los datos de una factura real
 	public function datosFactura($idFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM facclit WHERE id= '.$idFactura );
@@ -84,6 +86,7 @@ class FacturasVentas{
 		}
 		return $factura;
 	}
+	//Busca los productos de un número de factura
 	public function ProductosFactura($idFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM facclilinea WHERE idfaccli= '.$idFactura );
@@ -93,6 +96,7 @@ class FacturasVentas{
 		}
 		return $facturaPrincipal;
 	}
+	//Busca los ivas de una factura real
 	public function IvasFactura($idFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM faccliIva WHERE idfaccli= '.$idFactura );
@@ -102,6 +106,7 @@ class FacturasVentas{
 		}
 		return $facturaPrincipal;
 	}
+	//MUestra los albaranes que estan ligados a una determinada factura
 	public function AlbaranesFactura($idFactura){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclifac WHERE idFactura= '.$idFactura );
@@ -111,6 +116,7 @@ class FacturasVentas{
 		}
 		return $facturaPrincipal;
 	}
+	//Busca los datos de una factura temporal
 	public function buscarDatosFacturasTemporal($idFacturaTemporal) {
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM faccliltemporales WHERE id='.$idFacturaTemporal);
@@ -119,6 +125,7 @@ class FacturasVentas{
 		}
 		return $factura;
 	}
+	//Elimina el resgistro de un temporal indicado
 	public function EliminarRegistroTemporal($idTemporal, $idFactura){
 		$db=$this->db;
 		if ($idFactura>0){
@@ -130,7 +137,7 @@ class FacturasVentas{
 		
 	}
 	
-	
+	//Busca un temporal por número de factura real
 	
 	public function buscarTemporalNumReal($idFactura){
 		$db=$this->db;
@@ -142,7 +149,7 @@ class FacturasVentas{
 	}
 	
 	
-	
+	//Modificar los datos de una factura temporal
 	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idTemporal, $productos){
 		$db = $this->db;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
@@ -155,7 +162,7 @@ class FacturasVentas{
 	
 		return $respuesta;
 	}
-	
+	//Insertar nuevo registro de factura 
 	
 	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $productos, $idCliente){
 		$db = $this->db;
@@ -172,7 +179,7 @@ class FacturasVentas{
 		return $respuesta;
 	}
 	
-	
+	//Añade a una factura temporal el número real de la factura en el caso de que exista 
 		public function addNumRealTemporal($idTemporal,  $numFactura){
 		$db = $this->db;
 		//$UnicoCampoPedidos=json_encode($albaranes);
@@ -180,7 +187,7 @@ class FacturasVentas{
 		$sql='UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal;
 		return $sql;
 	}
-	
+	//Modifica el total de una factura temporal
 	public function modTotales($res, $total, $totalivas){
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
@@ -188,14 +195,14 @@ class FacturasVentas{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
-	
+	//Modificar el estado de una factura real
 	public function modificarEstado($idFactura, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE facclit set estado="'.$estado .'" where id='.$idFactura);
 		$sql='UPDATE facclit set estado='.$estado .' where id='.$idFactura;
 		return $sql;
 	}
-	
+	//Eliminar todos los registros de un id de factura real
 	public function eliminarFacturasTablas($idFactura){
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM  facclit where id='.$idFactura );
@@ -205,7 +212,7 @@ class FacturasVentas{
 		
 	}
 	
-	
+	//Añadir todos los registros de las diferentes tablas de una factura real
 		public function AddFacturaGuardado($datos, $idFactura){
 		$db = $this->db;
 		if ($idFactura>0){
@@ -260,7 +267,7 @@ class FacturasVentas{
 		}
 		return $resultado;
 	}
-	
+	//Selecciona el importe iva y total base de una factura real
 	public function sumarIva($numFactura){
 		$db=$this->db;
 		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from faccliIva where  Numfaccli  ='.$numFactura);
@@ -269,14 +276,14 @@ class FacturasVentas{
 		}
 		return $factura;
 	}
-	
+	//Modifica la forma de vencimiento de una factura temporal
 	public function formasVencimientoTemporal($idTemporal, $json){
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal);
 		$sql='UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal;
 		return $sql;
 	}
-	
+	//BUscamos los importes añadidos a una factura 
 	public function importesFacturaDatos($idFactura){
 		$db=$this->db;
 		$smt=$db->query ('SELECT total , entregado, importes FROM facclit where id='.$idFactura );
@@ -285,7 +292,7 @@ class FacturasVentas{
 		}
 		return $factura;
 	}
-	
+	//Modifica los importes de una factura
 	public function modificarImportesFactura($idFactura, $jsonImporte, $entregado, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura);

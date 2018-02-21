@@ -46,6 +46,7 @@ class AlbaranesVentas{
 		$smt = $db->query($sql);
 		return $smt;
 	}
+	//Insertar un nuevo registro de albaranes temporales
 	public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente){
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
@@ -60,6 +61,7 @@ class AlbaranesVentas{
 		
 		return $respuesta;
 	}
+	//Modificar un registro de albaranes temporales
 	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idTemporal, $productos){
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
@@ -72,6 +74,7 @@ class AlbaranesVentas{
 	
 		return $respuesta;
 	}
+	//SI tenemos un número de albarán real lo metemos en el albarán temporal
 	public function addNumRealTemporal($idTemporal,  $numAlbaran){
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
@@ -79,6 +82,7 @@ class AlbaranesVentas{
 		$sql='UPDATE albcliltemporales SET numalbcli ='.$numAlbaran.' WHERE id='.$idTemporal;
 		return $sql;
 	}
+	//Buscar todos los datos de un albarán temporal
 	public function buscarDatosAlabaranTemporal($idAlbaranTemporal) {
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albcliltemporales WHERE id='.$idAlbaranTemporal);
@@ -87,6 +91,7 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
+	//Buscar todos los datos de un albarán temporal por numero real de albarán cliente
 	public function buscarTemporalNumReal($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albcliltemporales WHERE numalbcli ='.$idAlbaran);
@@ -95,7 +100,7 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
-	
+	//Modificar el total de un albarán temporal
 	public function modTotales($res, $total, $totalivas){
 		$db=$this->db;
 		$smt=$db->query('UPDATE albcliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
@@ -103,6 +108,7 @@ class AlbaranesVentas{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
+	//Eliminar todas los registros de un id de albarán real 
 	public function eliminarAlbaranTablas($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM albclit where id='.$idAlbaran );
@@ -111,6 +117,7 @@ class AlbaranesVentas{
 		$smt=$db->query('DELETE FROM pedcliAlb where idAlbaran ='.$idAlbaran );
 		
 	}
+	//Añadir nuevos registros de un albaran real 
 		public function AddAlbaranGuardado($datos, $idAlbaran){
 		$db = $this->db;
 		if ($idAlbaran>0){
@@ -164,7 +171,7 @@ class AlbaranesVentas{
 		return $resultado;
 	}
 	
-	
+	//Elimina el albarán temporal indicado
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){
 		$db=$this->db;
 		if ($idAlbaran>0){
@@ -175,7 +182,7 @@ class AlbaranesVentas{
 		}
 		return $sql;
 	}
-	
+	//Muestra algunos datos de todos los albaranes reales
 	public function TodosAlbaranes(){
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total, a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
@@ -185,6 +192,7 @@ class AlbaranesVentas{
 		}
 		return $albaranesPrincipal;
 	}
+		//Muestra algunos datos de todos los albaranes reales con un filtro
 	public function TodosAlbaranesFiltro($filtro){
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total, a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
@@ -194,6 +202,7 @@ class AlbaranesVentas{
 		}
 		return $albaranesPrincipal;
 	}
+	//Muestra los suma de los impirtes ivas y total base   de un albaran real
 		public function sumarIva($numAlbaran){
 		$db=$this->db;
 		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from albcliIva where  Numalbcli  ='.$numAlbaran);
@@ -202,6 +211,7 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
+	//MUestra todos los datos temporales
 		public function TodosTemporal(){
 			$db = $this->db;
 			$smt = $db->query ('SELECT * from albcliltemporales');
@@ -212,6 +222,7 @@ class AlbaranesVentas{
 			return $albaranPrincipal;
 		
 		}
+		//Datos de un albarán real según id
 	public function datosAlbaran($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclit WHERE id= '.$idAlbaran );
@@ -220,6 +231,7 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
+		//Datos de un albarán real según numero de cliente
 	public function datosAlbaranNum($numAlbaran){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclit WHERE numalbcli = '.$numAlbaran );
@@ -228,6 +240,7 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
+	//Muestros los productos de un id de cliente real 
 	public function ProductosAlbaran($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclilinea WHERE idalbcli= '.$idAlbaran );
@@ -237,6 +250,7 @@ class AlbaranesVentas{
 		}
 		return $albaranPrincipal;
 	}
+	//BUsca en la tabla ivas cliente los datos de un albarán real
 	public function IvasAlbaran($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albcliIva WHERE idalbcli= '.$idAlbaran );
@@ -246,6 +260,7 @@ class AlbaranesVentas{
 		}
 		return $albaranPrincipal;
 	}
+	//Busca los pedidos de un albarán real
 	public function PedidosAlbaranes($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedcliAlb WHERE idAlbaran= '.$idAlbaran );
@@ -255,7 +270,7 @@ class AlbaranesVentas{
 		}
 		return $albaranPrincipal;
 	}
-	
+	//Modificar estado de un albarán real
 	public function ModificarEstadoAlbaran($idAlbaran, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE albclit SET estado="'.$estado.'" WHERE id='.$idAlbaran);
@@ -263,7 +278,7 @@ class AlbaranesVentas{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
-	
+	//Comprobar los albaranes de un determinado estado
 		public function ComprobarAlbaranes($idCliente, $estado){
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';

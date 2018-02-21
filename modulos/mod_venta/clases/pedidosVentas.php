@@ -264,7 +264,7 @@ class PedidosVentas{
 		}
 		return $pedidosPrincipal;
 	}
-	//
+	//Eliminar los registros de in id de pedido real
 	public function eliminarPedidoTablas($idPedido){
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM pedclit where id='.$idPedido );
@@ -272,6 +272,7 @@ class PedidosVentas{
 		$smt=$db->query('DELETE FROM pedcliIva where idpedcli='.$idPedido );
 		
 	}
+	//Contar los registros temporales que tiene un id real
 	public function contarPedidosTemporal($idPedido){
 		$db=$this->db;
 		$smt=$db->query('Select count(id) as numPedTemp FROM pedcliltemporales where idPedcli='.$idPedido );
@@ -280,6 +281,7 @@ class PedidosVentas{
 		}
 		return $pedido;
 		}
+		//Suma importe iva y totoal base de todos los registro de un pedido determinado
 	public function sumarIva($numPedido){
 		$db=$this->db;
 		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from pedcliIva where Numpedcli ='.$numPedido);
@@ -288,6 +290,7 @@ class PedidosVentas{
 		}
 		return $pedido;
 	}
+	//Busca el número de pedido de un pedido temporal
 	public function buscarNumPedido($idPedidoTemporal){
 		$db=$this->db;
 		$smt=$db->query('select  Numpedcli from pedclit where id='.$idPedidoTemporal);
@@ -331,6 +334,7 @@ class PedidosVentas{
 		}
 		return $pedido;
 	}
+	//MOdificar el estado de un pedido real indicado
 	public function ModificarEstadoPedido($idPedido, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE pedclit SET estado="'.$estado.'" WHERE id='.$idPedido);
@@ -338,6 +342,7 @@ class PedidosVentas{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
+	//Comprobar los pedidos de un cliente determinado con el estado guardado
 	public function ComprobarPedidos($idCliente, $estado){
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';
