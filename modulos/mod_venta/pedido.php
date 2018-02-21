@@ -18,10 +18,10 @@ include './../../head.php';
 	$estado='Abierto';
 	$bandera=0;
 if ($_GET){
-	if (isset($_GET['id'])){
+	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
-		$datosPedido=$Cpedido->datosPedidos($idPedido);
-		if ($datosPedido['estado']=='Facturado'){
+		$datosPedido=$Cpedido->datosPedidos($idPedido);//Buscar los datos de pedido 
+		if ($datosPedido['estado']=='Facturado'){//Dependiendo del estado mostramos unos titulo u otro
 			$titulo="Pedidos De Cliente Facturado";
 			$estado='Facturado';
 			$estadoCab="'".'Facturado'."'";
@@ -32,8 +32,8 @@ if ($_GET){
 		}
 		
 		
-		$productosPedido=$Cpedido->ProductosPedidos($idPedido);
-		$ivasPedido=$Cpedido->IvasPedidos($idPedido);
+		$productosPedido=$Cpedido->ProductosPedidos($idPedido);//Buscamos los productos de ese pedido en su respectiva tabla
+		$ivasPedido=$Cpedido->IvasPedidos($idPedido);//Buscamos los datos del iva 
 		$fecha=$datosPedido['FechaPedido'];
 		$idCliente=$datosPedido['idCliente'];
 		if ($idCliente){
@@ -41,7 +41,7 @@ if ($_GET){
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
 		}
-		$productosMod=modificarArrayProductos($productosPedido);
+		$productosMod=modificarArrayProductos($productosPedido);//MOdificar el array de productos según lo que necesitamos
 		$productos=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosMod), true);
@@ -56,9 +56,9 @@ if ($_GET){
 		$estado='Abierto';
 		$estadoCab="'".'Abierto'."'";
 		$fecha=date('Y-m-d');
-			if ($_GET['tActual']){
+			if ($_GET['tActual']){//Si recibe un id de un temporal 
 			$pedido_numero=$_GET['tActual'];
-			$pedidoTemporal= $Cpedido->BuscarIdTemporal($pedido_numero);
+			$pedidoTemporal= $Cpedido->BuscarIdTemporal($pedido_numero);//Buscamos los datos del temporal
 			$estadoCab="'".$pedidoTemporal['estadoPedCli']."'";
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
@@ -97,6 +97,7 @@ if ($_GET){
 			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
+		//Pasar un pedido temporal a real
 		if (isset($_POST['Guardar'])){
 			if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
@@ -104,13 +105,14 @@ if ($_GET){
 				$idTemporal=$_GET['tActual'];
 			}
 			echo $idTemporal;
-			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
+			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscar los datos del temporal
 			if($pedidoTemporal['total']){
 				$total=$pedidoTemporal['total'];
 			}else{
 				$total=0;
 			}
 			$fechaCreacion=date("Y-m-d H:i:s");
+			//Crear un array con todos los datos nuevos
 			$datosPedido=array(
 			'NPedidoTemporal'=>$idTemporal,
 			'fecha'=>$_POST['fecha'],
@@ -125,12 +127,16 @@ if ($_GET){
 			'productos'=>$pedidoTemporal['Productos'],
 			'DatosTotales'=>$Datostotales
 			);
+			
 			if ($pedidoTemporal['idPedcli']){
+				//Elimina los registros reales de pedidos  , añadir nuevos registros y eliminar el temporal , cuando se añaden nuevos registros
+				//si tiene número de pedido se mantiene 
 				$idPedido=$pedidoTemporal['idPedcli'];
 				$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
 				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
 				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
 			}else{
+				//Como no tenemos número de pedido solo añadimos registros nuevos y eliminamos el temporal
 				$idPedido=0;
 				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
 				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
