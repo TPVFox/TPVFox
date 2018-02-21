@@ -19,15 +19,15 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	if (isset($_GET['id'])){
+	if (isset($_GET['id'])){//Si rebie un id quiere decir que ya existe la factura
 		$idFactura=$_GET['id'];
 		$titulo="Modificar Factura De Cliente";
 		$estado='Modificado';
 		$estadoCab="'".'Modificado'."'";
-		$datosFactura=$Cfaccli->datosFactura($idFactura);
-		$productosFactura=$Cfaccli->ProductosFactura($idFactura);
-		$ivasFactura=$Cfaccli->IvasFactura($idFactura);
-		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);
+		$datosFactura=$Cfaccli->datosFactura($idFactura);//Extraemos los datos de la factura 
+		$productosFactura=$Cfaccli->ProductosFactura($idFactura);//De los productos
+		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
+		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		
@@ -67,7 +67,7 @@ include './../../head.php';
 			 $albaranes=json_decode(json_encode($modificarPedido), true);
 		}
 		$total=$Datostotales['total'];
-		
+		//Si esta en estado guardado o pagado parcial se puede modificar los importes si no no
 		if ($estado="Guardado" || $estado="Pagado parcial"){
 			$Simporte="";
 			$importes=$datosFactura['importes'];
@@ -79,7 +79,8 @@ include './../../head.php';
 		
 		
 		
-	}else{
+	}else{// si no recibe un id de una factura ya creada ponemos los datos de la temporal en caso de que tenga 
+		//Si no dejamos todo en blanco para poder cubrir
 		$titulo="Crear Factura De Cliente";
 		$bandera=1;
 		$estado='Abierto';
@@ -156,7 +157,7 @@ include './../../head.php';
 		if (isset($factura['Albaranes'])){
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
-		
+		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
 		
 			if ($_POST['idTemporal']){
@@ -217,7 +218,8 @@ include './../../head.php';
 			'entregado'=>$entregado,
 			'fechaModificacion'=>$fechaActual
 			);
-			
+			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
+			//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
 			if($datosFactura['numfaccli']>0){
 				$idFactura=$datosFactura['numfaccli'];
 		
@@ -226,6 +228,7 @@ include './../../head.php';
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 				
 			 }else{
+				 //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
 				$idFactura=0;
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
@@ -236,6 +239,7 @@ include './../../head.php';
 	header('Location: facturasListado.php');
 			
 		}
+		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
 		if (isset($_POST['Cancelar'])){
 			if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
@@ -267,11 +271,11 @@ include './../../head.php';
 				$mensaje=$_GET['mensaje'];
 				$tipomensaje=$_GET['tipo'];
 			}
-			
+		
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-//Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
+//Como estamos el albaranes la caja de input num fila cambia el de donde a factura
 		$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="factura";
 		
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -304,6 +308,7 @@ include './../../head.php';
 	<script type="text/javascript">
 <?php
 	$i= 0;
+	//Introducimos los productos a la cabecera productos 
 		if (isset($productos)){
 			foreach($productos as $product){
 ?>	
@@ -418,7 +423,7 @@ if (isset($_GET['tActual'])){
 	
 		<div>
 			<div style="margin-top:-50px;">
-			<label style="<?php echo $stylea;?>" id="numAlbaranT">N�mero del albaran:</label>
+			<label style="<?php echo $stylea;?>" id="numAlbaranT">Número del albaran:</label>
 			<input style="<?php echo $stylea;?>" type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
 			<a style="<?php echo $stylea;?>" id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>
 			<table  class="col-md-12" style="<?php echo $stylea;?>" id="tablaAlbaran"> 
@@ -610,7 +615,7 @@ if (isset($_GET['tActual'])){
 				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
 				<td></td>
 			</tr>
-			<?php 
+			<?php //Si esa factura ya tiene importes los mostramos 
 			if (isset ($importes)){
 			
 				foreach ($importes as $importe){
