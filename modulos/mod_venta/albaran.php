@@ -15,7 +15,7 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	if (isset($_GET['id'])){
+	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
 		$titulo="Modificar Albarán De Cliente";
 		$datosAlbaran=$Calbcli->datosAlbaran($idAlbaran);
@@ -53,10 +53,10 @@ include './../../head.php';
 		$estadoCab="'".'Abierto'."'";
 		$fecha=date('Y-m-d');
 		$fechaCab="'".$fecha."'";
-			if (isset($_GET['tActual'])){
+			if (isset($_GET['tActual'])){//Recibido un albarán temporal
 				$idAlbaranTemporal=$_GET['tActual'];
 			
-				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
+				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);//Recogemos todos los datos del albarán temporal 
 				if (isset($datosAlbaran['numalbcli'])){
 					$numAlbaran=$datosAlbaran['numalbcli'];
 					$id=$Calbcli->datosAlbaranNum($numAlbaran);
@@ -102,7 +102,11 @@ include './../../head.php';
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
 		}
-		
+		//Para guardar un albarán creamos un array con todos los datos 
+		//Comprobamos que la existencia del albarán real si existe eliminamos todas las tablas que tengan que ver con el albarán real
+		//Una vez eliminados creamos los registros con los datos nuevos y por último eliminamos el temporal
+		//Si no existe un número de albarán real solo hay que crear un los registros nuevos de los albaranes en las diferentes tablas
+		//Y eliminar el temporal
 		if (isset($_POST['Guardar'])){
 			if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
@@ -115,7 +119,7 @@ include './../../head.php';
 			}else{
 				$total=0;
 			}
-			
+			//Creamos el array con todos los datos 
 			$datos=array(
 			'Numtemp_albcli'=>$idTemporal,
 			'Fecha'=>$_POST['fechaAl'],
@@ -144,6 +148,7 @@ include './../../head.php';
 		header('Location: albaranesListado.php');
 			
 		}
+		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
 		if (isset($_POST['Cancelar'])){
 			if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
@@ -331,6 +336,7 @@ if (isset($_GET['tActual'])){
 				</thead>
 				
 				<?php 
+				//Si existen pedidos en el albarán los escribimos
 				if (isset($pedidos)){
 					$html=htmlPedidoAlbaran($pedidos, "albaran");
 					echo $html['html'];
@@ -368,9 +374,7 @@ if (isset($_GET['tActual'])){
 		</thead>
 		<tbody>
 			<?php 
-			//~ echo '<pre>';
-			//~ print_r($productos);
-			//~ echo '</pre>';
+			//Si el albarán ya tiene productos 
 			if (isset($productos)){
 				$productos=array_reverse($productos);
 				foreach ( $productos as $producto){

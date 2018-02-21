@@ -110,7 +110,7 @@ function formasVenciCliente(formasVenci){
 		}
 	});
 }
-/
+
 function buscarClientes(dedonde, idcaja, valor=''){
 	// @ Objetivo:
 	// 	Abrir modal con lista clientes, que permitar buscar en caja modal.
