@@ -15,9 +15,7 @@
 	
 	$todosTemporal=$Calbaran->TodosTemporal();
 
-	//~ echo '<pre>';
-	//~ print_r($albaranesDef);
-	//~ echo '</pre>';
+	
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -42,12 +40,6 @@
 	} else {
 		$desde = 0;
 	}
-//~ if ($stringPalabras !== '' ){
-		//~ $campoBD='Numalbcli ';
-		//~ $WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		//~ $filtro=$WhereLimite['filtro'];
-		//~ $OtrosParametros=$stringPalabras;
-//~ }
 if ($stringPalabras !== '' ){
 		$campo = array( 'a.Numalbcli','b.Nombre');
 		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
