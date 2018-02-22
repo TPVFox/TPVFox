@@ -1,4 +1,8 @@
 <?php 
+
+//~ include '../../clases/Proveedores.php';
+//~ include 'clases/facturasCompras.php';
+
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los clientes si los hubiera.
@@ -480,5 +484,57 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 		
 	}
 	return $respuesta;
+}
+
+function mostarHTMLFactura($idFactura , $BDTpv){
+	$CProv= new Proveedores($BDTpv);
+	$CFac=new FacturasCompras($BDTpv);
+	$Tienda=$_SESSION['tiendaTpv'];
+	$datosFactura=$CFac->datosFactura($idFactura);
+	$datosProveedor=$CProv->buscarProveedorId($datosFactura['idProveedor']);
+	
+	//Datos del proveedor
+	$html.='<table>';
+	$html.='<tr>';
+	$html.='<td>';
+			$html.= '<div>';
+			$html.='<p>Proveedor: '.$datosProveedor['idProveedor'].'</p>';
+			$html .='<p>'.$datosProveedor['nombrecomercial'].'</p>';
+			if (isset ($datosProveedor['direccion '])){
+				$html .='<p>'.$datosProveedor['direccion '].'</p>';
+			}
+			if (isset($datosFactura['su_num_factura'])){
+				$html .='<p>SU FAC:'.$datosFactura['su_num_factura'].'</p>';
+			}
+			$html .= '<p> NIF: '.$datosProveedor['nif'].'</p>';
+			$html .='</div>';
+	$html.='</td>';
+	$html .='<td>';
+			$html .='<div>';
+			$html .= '<p> Factura Proveedor</p>';
+			$html .= '<p> Nº: '.$datosFactura['Numfacpro'].'</p>';
+			$html .= '<p>Fecha: '.$datosFactura['Fecha'].'</p>';
+			$html .= '<p> '.$Tienda['direccion'].'</p>';
+			$html .='</div>';
+	$html.='</td>';
+	$html.='</tr>';
+	$html.='<table>';
+	
+	$html .='<table>';
+	$html .='<tr>';
+	$html .='<td>REF</td>';
+	$html .='<td>DESCRIPCIÓN</td>';
+	$html .='<td>CANT</td>';
+	$html .='<td>PRECIO</td>';
+	$html .='<td>IMPORTE</td>';
+	$html .='</tr>';
+	$html .='</table>';
+	
+	
+	
+	
+	
+	
+	return $html;
 }
 ?>

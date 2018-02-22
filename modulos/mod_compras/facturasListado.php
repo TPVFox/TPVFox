@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,12 +36,6 @@
 	} else {
 		$desde = 0;
 	}
-//~ if ($stringPalabras !== '' ){
-		//~ $campoBD='Numalbcli ';
-		//~ $WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		//~ $filtro=$WhereLimite['filtro'];
-		//~ $OtrosParametros=$stringPalabras;
-//~ }
 if ($stringPalabras !== '' ){
 		$campo = array( 'a.Numfacpro','b.nombrecomercial');
 		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
@@ -50,7 +43,6 @@ if ($stringPalabras !== '' ){
 		$OtrosParametros=$stringPalabras;
 		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
 	}
-//$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 $CantidadRegistros=count($CFac->TodosFacturaLimite($WhereLimite['filtro']));
 $WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
@@ -170,6 +162,8 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 							$totaliva=$CFac->sumarIva($factura['Numfacpro']);
 						
 							$date=date_create($factura['Fecha']);
+							$htmlImpirmir=mostarHTMLFactura($factura['id'], $BDTpv);
+							
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $factura['id'];?>">
@@ -180,7 +174,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 						<td><?php echo $totaliva['totalbase'];?></td>
 						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $factura['total'];?></td>
-						<td><?php echo $factura['estado'];?></td>
+						<td><?php echo $factura['estado'];?>  <a href='../../controllers/planImprimir.php?datos=<?php echo $htmlImpirmir;?>' target=”_blank”>imprimir</a></td>
 						</tr>
 						<?php
 					}
