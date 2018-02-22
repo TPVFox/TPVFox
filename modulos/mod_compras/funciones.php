@@ -492,6 +492,7 @@ function mostarHTMLFactura($idFactura , $BDTpv){
 	$Tienda=$_SESSION['tiendaTpv'];
 	$datosFactura=$CFac->datosFactura($idFactura);
 	$datosProveedor=$CProv->buscarProveedorId($datosFactura['idProveedor']);
+	$productosFAc=$Cfac->ProductosFactura($idFactura);
 	
 	//Datos del proveedor
 	$html.='<table>';
@@ -528,6 +529,15 @@ function mostarHTMLFactura($idFactura , $BDTpv){
 	$html .='<td>PRECIO</td>';
 	$html .='<td>IMPORTE</td>';
 	$html .='</tr>';
+	foreach($productosFAc as $producto){
+		$html .='<tr>';
+		$html .='<td>'.$producto['ref_prov'].'</td>';
+		$html .='<td>'.$producto[''].'</td>';
+		$html .='<td>CANT</td>';
+		$html .='<td>PRECIO</td>';
+		$html .='<td>IMPORTE</td>';
+		$html .='</tr>';
+	}
 	$html .='</table>';
 	
 	
