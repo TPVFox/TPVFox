@@ -492,8 +492,8 @@ function mostarHTMLFactura($idFactura , $BDTpv){
 	$Tienda=$_SESSION['tiendaTpv'];
 	$datosFactura=$CFac->datosFactura($idFactura);
 	$datosProveedor=$CProv->buscarProveedorId($datosFactura['idProveedor']);
-	$productosFAc=$Cfac->ProductosFactura($idFactura);
-	
+	$productosFAc=$CFac->ProductosFactura($idFactura);
+	$Datostotales=recalculoTotalesAl($productosFAc);
 	//Datos del proveedor
 	$html.='<table>';
 	$html.='<tr>';
@@ -519,29 +519,123 @@ function mostarHTMLFactura($idFactura , $BDTpv){
 			$html .='</div>';
 	$html.='</td>';
 	$html.='</tr>';
-	$html.='<table>';
+	$html.='</table>';
 	
-	$html .='<table>';
+	$html .='<table  WIDTH="100%"  border="1">';
 	$html .='<tr>';
-	$html .='<td>REF</td>';
-	$html .='<td>DESCRIPCIÓN</td>';
-	$html .='<td>CANT</td>';
-	$html .='<td>PRECIO</td>';
-	$html .='<td>IMPORTE</td>';
+	$html .='<td WIDTH="10%">ALB</td>';
+	$html .='<td WIDTH="10%">REF</td>';
+	$html .='<td WIDTH="50%" >DESCRIPCIÓN</td>';
+	$html .='<td WIDTH="10%">CANT</td>';
+	$html .='<td WIDTH="10%">PRECIO</td>';
+	$html .='<td WIDTH="12%">IMPORTE</td>';
 	$html .='</tr>';
 	foreach($productosFAc as $producto){
 		$html .='<tr>';
+		if ($producto['Numalbpro']==0){
+			$albaran="";
+		}else{
+			$albaran=$producto['Numalbpro'];
+		}
+		$html .='<td>'.$albaran.'</td>';
 		$html .='<td>'.$producto['ref_prov'].'</td>';
-		$html .='<td>'.$producto[''].'</td>';
-		$html .='<td>CANT</td>';
-		$html .='<td>PRECIO</td>';
-		$html .='<td>IMPORTE</td>';
+		$html .='<td>'.$producto['cdetalle'].'</td>';
+		$html .='<td>'.number_format($producto['nunidades'],0).'</td>';
+		$iva=$producto['iva']/100;
+		$importe=($iva+$producto['costeSiva'])*$producto['nunidades'];
+		$html .='<td>'.number_format($producto['costeSiva'],2).'</td>';
+		$html .='<td>'.number_format($importe,2).'</td>';
 		$html .='</tr>';
 	}
 	$html .='</table>';
 	
+	if (isset($Datostotales)){
+		foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
+				switch ($iva){
+					case 4 :
+						$base4 = $basesYivas['base'];
+						$iva4 = $basesYivas['iva'];
+					break;
+					case 10 :
+						$base10 = $basesYivas['base'];
+						$iva10 = $basesYivas['iva'];
+					break;
+					case 21 :
+						$base21 = $basesYivas['base'];
+						$iva21 = $basesYivas['iva'];
+					break;
+				}
+			}
+	}
+	$html .='<table>';
+	$html .='<thead>
+			<tr>
+				<th>Tipo</th>
+				<th>Base</th>
+				<th>IVA</th>
+			</tr>
+		</thead>';
+	$html.='<tbody>';
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($base4) ? " 4%" : '');
+	$html.='</td>';
+	$html.='</tr>';
 	
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($base4) ? $base4 : '');
+	$html.='</td>';
+	$html.='</tr>';
 	
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($iva4) ? $iva4 : '');
+	$html.='</td>';
+	$html.='</tr>';
+	
+	$html.='<tbody>';
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($base10) ? "10%" : '');
+	$html.='</td>';
+	$html.='</tr>';
+	
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($base10) ? $base10 : '');
+	$html.='</td>';
+	$html.='</tr>';
+	
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($iva10) ? $iva10 : '');
+	$html.='</td>';
+	$html.='</tr>';
+	
+	$html.='<tbody>';
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($base21) ? "21%" : '');
+	$html.='</td>';
+	$html.='</tr>';
+	
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($base21) ? $base21 : '');
+	$html.='</td>';
+	$html.='</tr>';
+	
+	$html.='<tr>';
+	$html.='<td>';
+	$html.= (isset($iva21) ? $iva21 : '');
+	$html.='</td>';
+	$html.='</tr>';
+	$html.='</tbody>';
+	$html .='</table>';
+	$html .='<p>';
+	$html .=(isset($Datostotales['total']) ? $Datostotales['total'] : '');
+	$html .='</p>';
 	
 	
 	
