@@ -166,7 +166,8 @@ if ($stringPalabras !== '' ){
 							foreach($pedidosDef as $pedido){
 								$checkUser = $checkUser + 1;
 								$totaliva=$Cpedido->sumarIva($pedido['Numpedpro']);
-								$htmlImpirmir=montarHTMLimprimir($pedido['id'], $BDTpv, "pedido");
+								$htmlImprimir=montarHTMLimprimir($pedido['id'], $BDTpv, "pedido");
+								
 							
 						?>
 						<tr>
@@ -184,7 +185,7 @@ if ($stringPalabras !== '' ){
 							<?php
 						}else{
 							?>
-						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" href='../../controllers/planImprimir.php?datos=<?php echo $htmlImpirmir;?>' target=”_blank”></a></td>
+						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" href='../../controllers/planImprimir.php?datos=<?php echo $htmlImprimir['html'];?>&cabecera=<?php echo $htmlImprimir['cabecera']?>' target=”_blank”></a></td>
 							<?php
 						}
 						

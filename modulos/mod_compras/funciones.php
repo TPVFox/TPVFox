@@ -533,45 +533,52 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 	
 	$date=date_create($datos['Fecha']);
 	$fecha=date_format($date,'Y-m-d');
+	$imprimir=array('cabecera'=>'',
+	'html'=>''
 	
+	);
 	//Datos del proveedor
-	$html.='<table>';
-	$html.='<tr>';
-	$html.='<td>';
-			$html.= '<div>';
-			$html.='<p>Proveedor: '.$datosProveedor['idProveedor'].'</p>';
-			$html .='<p>'.$datosProveedor['nombrecomercial'].'</p>';
+	
+	$imprimir['cabecera'].='<table margin>';
+	$imprimir['cabecera'].='<tr>';
+	$imprimir['cabecera'].='<td>';
+	$imprimir['cabecera'].= '<div>';
+	$imprimir['cabecera'].='<p>Proveedor: '.$datosProveedor['idProveedor'].'</p>';
+	$imprimir['cabecera'] .='<p>'.$datosProveedor['nombrecomercial'].'</p>';
 			if (isset ($datosProveedor['direccion '])){
-				$html .='<p>'.$datosProveedor['direccion '].'</p>';
+				$imprimir['cabecera'] .='<p>'.$datosProveedor['direccion '].'</p>';
 			}
 			if (isset($suNumero)){
-				$html .='<p>'.$textoSuNumero.'</p>';
+				$imprimir['cabecera'] .='<p>'.$textoSuNumero.'</p>';
 			}
-			$html .= '<p> NIF: '.$datosProveedor['nif'].'</p>';
-			$html .='</div>';
-	$html.='</td>';
-	$html .='<td>';
-			$html .='<div>';
-			$html .= '<p>'.$texto.'</p>';
-			$html .= '<p> Nº: '.$numero.'</p>';
-			$html .= '<p>Fecha: '.$fecha.'</p>';
-			$html .= '<p> '.$Tienda['direccion'].'</p>';
-			$html .='</div>';
-	$html.='</td>';
-	$html.='</tr>';
-	$html.='</table>';
+			$imprimir['cabecera'] .= '<p> NIF: '.$datosProveedor['nif'].'</p>';
+			$imprimir['cabecera'] .='</div>';
+	$imprimir['cabecera'].='</td>';
+	$imprimir['cabecera'] .='<td>';
+			$imprimir['cabecera'] .='<div>';
+			$imprimir['cabecera'] .= '<p>'.$texto.'</p>';
+			$imprimir['cabecera'] .= '<p> Nº: '.$numero.'</p>';
+			$imprimir['cabecera'] .= '<p>Fecha: '.$fecha.'</p>';
+			$imprimir['cabecera'] .= '<p> '.$Tienda['direccion'].'</p>';
+			$imprimir['cabecera'] .='</div>';
+	$imprimir['cabecera'].='</td>';
+	$imprimir['cabecera'].='</tr>';
+	$imprimir['cabecera'].='</table>';
 	
-	$html .='<table  WIDTH="100%">';
-	$html .='<tr>';
-	$html .='<td WIDTH="10%">ALB</td>';
-	$html .='<td WIDTH="10%">REF</td>';
-	$html .='<td WIDTH="50%">DESCRIPCIÓN</td>';
-	$html .='<td WIDTH="10%">CANT</td>';
-	$html .='<td WIDTH="10%">PRECIO</td>';
-	$html .='<td WIDTH="12%">IMPORTE</td>';
-	$html .='</tr>';
+	
+	$imprimir['html'] .='<table  WIDTH="100%">';
+	$imprimir['html'] .='<tr>';
+	if ($dedonde <> "pedido"){
+		$imprimir['html'] .='<td WIDTH="10%">ALB</td>';
+	}
+	$imprimir['html'] .='<td WIDTH="10%">REF</td>';
+	$imprimir['html'] .='<td WIDTH="50%">DESCRIPCIÓN</td>';
+	$imprimir['html'] .='<td WIDTH="10%">CANT</td>';
+	$imprimir['html'] .='<td WIDTH="10%">PRECIO</td>';
+	$imprimir['html'] .='<td WIDTH="12%">IMPORTE</td>';
+	$imprimir['html'] .='</tr>';
 	foreach($productosDEF as $producto){
-		$html .='<tr>';
+		$imprimir['html'] .='<tr>';
 		if ($producto['idalbpro']==0){
 			$bandera="";
 		}else{
@@ -582,18 +589,21 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 		}else{
 			$bandera=$producto['idpedpro'];
 		}
-		$html .='<td>'.$bandera.'</td>';
-		$html .='<td>'.$producto['crefProveedor'].'</td>';
-		$html .='<td>'.$producto['cdetalle'].'</td>';
-		$html .='<td>'.number_format($producto['nunidades'],0).'</td>';
+		if ($dedonde <> "pedido"){
+			$imprimir['html'] .='<td>'.$bandera.'</td>';
+		}
+		
+		$imprimir['html'] .='<td>'.$producto['crefProveedor'].'</td>';
+		$imprimir['html'] .='<td>'.$producto['cdetalle'].'</td>';
+		$imprimir['html'] .='<td>'.number_format($producto['nunidades'],0).'</td>';
 		$iva=$producto['iva']/100;
-		$html .='<td>'.number_format($producto['ultimoCoste'],2).'</td>';
-		$html .='<td>'.number_format($producto['importe'],2).'</td>';
-		$html .='</tr>';
+		$imprimir['html'] .='<td>'.number_format($producto['ultimoCoste'],2).'</td>';
+		$imprimir['html'] .='<td>'.number_format($producto['importe'],2).'</td>';
+		$imprimir['html'] .='</tr>';
 	}
-	$html .='</table>';
-	$html .='<br>';
-	$html .='<br>';
+	$imprimir['html'] .='</table>';
+	$imprimir['html'] .='<br>';
+	$imprimir['html'] .='<br>';
 	if (isset($Datostotales)){
 		foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
@@ -613,69 +623,69 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 			}
 	}
 	
-	$html .='<table>';
-	$html .='<thead>
+	$imprimir['html'] .='<table>';
+	$imprimir['html'] .='<thead>
 			<tr>
 				<th>Tipo</th>
 				<th>Base</th>
 				<th>IVA</th>
 			</tr>
 		</thead>';
-	$html.='<tbody>';
+	$imprimir['html'].='<tbody>';
 	if (isset ($base4)){
-		$html.='<tr>';
-		$html.='<td>';
-		$html.= (isset($base4) ? " 4%" : '');
-		$html.='</td>';
+		$imprimir['html'].='<tr>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($base4) ? " 4%" : '');
+		$imprimir['html'].='</td>';
 		
-		$html.='<td>';
-		$html.= (isset($base4) ? $base4 : '');
-		$html.='</td>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($base4) ? $base4 : '');
+		$imprimir['html'].='</td>';
 	
-		$html.='<td>';
-		$html.= (isset($iva4) ? $iva4 : '');
-		$html.='</td>';
-		$html.='</tr>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($iva4) ? $iva4 : '');
+		$imprimir['html'].='</td>';
+		$imprimir['html'].='</tr>';
 	}
 	if (isset ($base10)){
-		$html.='<tbody>';
-		$html.='<tr>';
-		$html.='<td>';
-		$html.= (isset($base10) ? "10%" : '');
-		$html.='</td>';
+		$imprimir['html'].='<tbody>';
+		$imprimir['html'].='<tr>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($base10) ? "10%" : '');
+		$imprimir['html'].='</td>';
 		
-		$html.='<td>';
-		$html.= (isset($base10) ? $base10 : '');
-		$html.='</td>';
-		$html.='</tr>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($base10) ? $base10 : '');
+		$imprimir['html'].='</td>';
+		$imprimir['html'].='</tr>';
 		
-		$html.='<td>';
-		$html.= (isset($iva10) ? $iva10 : '');
-		$html.='</td>';
-		$html.='</tr>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($iva10) ? $iva10 : '');
+		$imprimir['html'].='</td>';
+		$imprimir['html'].='</tr>';
 	}
 	if (isset ($base21)){
-		$html.='<tbody>';
-		$html.='<tr>';
-		$html.='<td>';
-		$html.= (isset($base21) ? "21%" : '');
-		$html.='</td>';
+		$imprimir['html'].='<tbody>';
+		$imprimir['html'].='<tr>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($base21) ? "21%" : '');
+		$imprimir['html'].='</td>';
 		
-		$html.='<td>';
-		$html.= (isset($base21) ? $base21 : '');
-		$html.='</td>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($base21) ? $base21 : '');
+		$imprimir['html'].='</td>';
 	
-		$html.='<td>';
-		$html.= (isset($iva21) ? $iva21 : '');
-		$html.='</td>';
-		$html.='</tr>';
+		$imprimir['html'].='<td>';
+		$imprimir['html'].= (isset($iva21) ? $iva21 : '');
+		$imprimir['html'].='</td>';
+		$imprimir['html'].='</tr>';
 	}
-	$html.='</tbody>';
-	$html .='</table>';
-	$html .='<p align="right"> TOTAL: ';
-	$html .=(isset($Datostotales['total']) ? $Datostotales['total'] : '');
-	$html .='</p>';
+	$imprimir['html'].='</tbody>';
+	$imprimir['html'] .='</table>';
+	$imprimir['html'] .='<p align="right"> TOTAL: ';
+	$imprimir['html'] .=(isset($Datostotales['total']) ? $Datostotales['total'] : '');
+	$imprimir['html'] .='</p>';
 	
-	return $html;
+	return $imprimir;
 }
 ?>
