@@ -136,6 +136,7 @@
 			//Quiere decir que encontro uno igual o similares
 			// Comprobamos que solo tengamos una respuesta ya que sino será similar.
 			if ($respuesta['tpv']['NItems'] >0){
+				// En caso de haya mas de un resgistro , entonces  tipo es Similar
 				if ($comprobaciones[$item]['resultado']['encontrado_tipo'] === "Mismo" && $respuesta['tpv']['NItems'] > 1){
 					// Cambiamos dato a similar y marcamos registro comprobaciones como error.
 					$comprobaciones[$item]['resultado']['encontrado_tipo'] ="Similar";
@@ -159,6 +160,9 @@
 			if ($procesos === 'Si'){
 				$registros_tpv[$item]=$respuesta['tpv'];
 			}
+			//~ echo '<pre>';
+			//~ print_r($respuesta);
+			//~ echo '</pre>';
 		}
 		// ------------- Montamos Variables JS para cada Item ------------------------------ //
 		$d = array();

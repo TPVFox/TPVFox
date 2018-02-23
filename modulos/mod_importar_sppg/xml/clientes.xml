@@ -111,6 +111,9 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 			</comprobacion>
 			<comprobacion nombre="Similar">
 				<options tipo="general">
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
 					</option>
