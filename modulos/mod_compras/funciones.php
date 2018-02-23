@@ -519,8 +519,19 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 		$suNumero=$datos['su_numero'];
 		$textoSuNumero='SU ALB: '.$suNumero;
 	}
+	if ($dedonde=="pedido"){
+		$Cpedido=new PedidosCompras($BDTpv);
+		$datos=$Cpedido->datosPedidos($id);
+		$productosPedido=$Cpedido->ProductosPedidos($id);
+		$productosDEF=modificarArrayProductos($productosPedido);
+		$productos=json_decode(json_encode($productosDEF));
+		$Datostotales = recalculoTotalesAl($productos);
+		$datosProveedor=$CProv->buscarProveedorId($id);
+		$texto="Pedido Proveedor";
+		$numero=$datos['Numpedpro'];
+	}
 	
-	$date=date_create($datosFactura['Fecha']);
+	$date=date_create($datos['Fecha']);
 	$fecha=date_format($date,'Y-m-d');
 	
 	//Datos del proveedor
@@ -562,11 +573,16 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 	foreach($productosDEF as $producto){
 		$html .='<tr>';
 		if ($producto['idalbpro']==0){
-			$albaran="";
+			$bandera="";
 		}else{
-			$albaran=$producto['idalbpro'];
+			$bandera=$producto['idalbpro'];
 		}
-		$html .='<td>'.$albaran.'</td>';
+		if ($producto['idpedpro']==0){
+			$bandera="";
+		}else{
+			$bandera=$producto['idpedpro'];
+		}
+		$html .='<td>'.$bandera.'</td>';
 		$html .='<td>'.$producto['crefProveedor'].'</td>';
 		$html .='<td>'.$producto['cdetalle'].'</td>';
 		$html .='<td>'.number_format($producto['nunidades'],0).'</td>';

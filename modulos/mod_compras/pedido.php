@@ -40,7 +40,6 @@ include './../../head.php';
 			}
 		
 			$productosMod=modificarArrayProductos($productosPedido);
-			
 			$productos=json_decode(json_encode($productosMod));
 			$Datostotales = recalculoTotalesAl($productos);
 			$productos=json_decode(json_encode($productosMod), true);
