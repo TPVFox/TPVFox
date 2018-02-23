@@ -107,6 +107,11 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 				</options>
 			</comprobacion>
 			<comprobacion nombre="Similar">
+				<procesos>
+					<before>
+						<action funcion="SeleccionarRegistroFamilias"/>
+					</before>
+				</procesos>
 				<options tipo="general">
 					<option tipo="Crear">
 						<texto>Crear Nuevo</texto>
