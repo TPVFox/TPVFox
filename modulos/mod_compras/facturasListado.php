@@ -162,7 +162,8 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 							$totaliva=$CFac->sumarIva($factura['Numfacpro']);
 						
 							$date=date_create($factura['Fecha']);
-							$htmlImpirmir=mostarHTMLFactura($factura['id'], $BDTpv);
+							
+							$htmlImpirmir=montarHTMLimprimir($factura['id'], $BDTpv, "factura");
 							
 						?>
 						<tr>
@@ -174,7 +175,17 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 						<td><?php echo $totaliva['totalbase'];?></td>
 						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $factura['total'];?></td>
-						<td><?php echo $factura['estado'];?>  <a href='../../controllers/planImprimir.php?datos=<?php echo $htmlImpirmir;?>' target=”_blank”>imprimir</a></td>
+						<?php 
+						if ($factura['estado']=="Sin Guardar"){
+							?>
+							<td><?php echo $factura['estado'];?></td>
+							<?php
+						}else{
+						?>
+						<td><?php echo $factura['estado'];?>  <a class="glyphicon glyphicon-print" href='../../controllers/planImprimir.php?datos=<?php echo $htmlImpirmir;?>' target=”_blank”></a></td>
+						<?php 
+						}
+						?>
 						</tr>
 						<?php
 					}

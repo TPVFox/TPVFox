@@ -351,6 +351,9 @@ function modificarArrayProductos($productos){
 		if (isset($producto['idpedpro'])){
 			$pro['idpedpro']=$producto['idpedpro'];
 		}
+		if (isset ($producto['Numfacpro'])){
+			$pro['idalbpro']=$producto['Numfacpro'];
+		}
 		$bandera=$producto['iva']/100;
 		$importe=($bandera+$producto['costeSiva'])*$producto['ncant'];
 		$pro['importe']=$importe;
@@ -486,14 +489,40 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 	return $respuesta;
 }
 
-function mostarHTMLFactura($idFactura , $BDTpv){
+function montarHTMLimprimir($id , $BDTpv, $dedonde){
 	$CProv= new Proveedores($BDTpv);
-	$CFac=new FacturasCompras($BDTpv);
+	
 	$Tienda=$_SESSION['tiendaTpv'];
-	$datosFactura=$CFac->datosFactura($idFactura);
-	$datosProveedor=$CProv->buscarProveedorId($datosFactura['idProveedor']);
-	$productosFAc=$CFac->ProductosFactura($idFactura);
-	$Datostotales=recalculoTotalesAl($productosFAc);
+	if ($dedonde=="factura"){
+		$CFac=new FacturasCompras($BDTpv);
+		$datos=$CFac->datosFactura($id);
+		$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
+		$productosFAc=$CFac->ProductosFactura($id);
+		$productosDEF=modificarArrayProductos($productosFAc);
+		$productos=json_decode(json_encode($productosDEF));
+		$Datostotales = recalculoTotalesAl($productos);
+		$texto="Factura Proveedor";
+		$numero=$datos['Numfacpro'];
+		$suNumero=$datos['su_num_factura'];
+		$textoSuNumero='SU FAC: '.$suNumero;
+	}
+	if ($dedonde=="albaran"){
+		$CAlb=new AlbaranesCompras($BDTpv);
+		$datos=$CAlb->datosAlbaran($id);
+		$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
+		$productosAlbaran=$CAlb->ProductosAlbaran($id);
+		$productosDEF=modificarArrayProductos($productosAlbaran);
+		$productos=json_decode(json_encode($productosDEF));
+		$Datostotales = recalculoTotalesAl($productos);
+		$texto="Albarán Proveedor";
+		$numero=$datos['Numalbpro'];
+		$suNumero=$datos['su_numero'];
+		$textoSuNumero='SU ALB: '.$suNumero;
+	}
+	
+	$date=date_create($datosFactura['Fecha']);
+	$fecha=date_format($date,'Y-m-d');
+	
 	//Datos del proveedor
 	$html.='<table>';
 	$html.='<tr>';
@@ -504,51 +533,51 @@ function mostarHTMLFactura($idFactura , $BDTpv){
 			if (isset ($datosProveedor['direccion '])){
 				$html .='<p>'.$datosProveedor['direccion '].'</p>';
 			}
-			if (isset($datosFactura['su_num_factura'])){
-				$html .='<p>SU FAC:'.$datosFactura['su_num_factura'].'</p>';
+			if (isset($suNumero)){
+				$html .='<p>'.$textoSuNumero.'</p>';
 			}
 			$html .= '<p> NIF: '.$datosProveedor['nif'].'</p>';
 			$html .='</div>';
 	$html.='</td>';
 	$html .='<td>';
 			$html .='<div>';
-			$html .= '<p> Factura Proveedor</p>';
-			$html .= '<p> Nº: '.$datosFactura['Numfacpro'].'</p>';
-			$html .= '<p>Fecha: '.$datosFactura['Fecha'].'</p>';
+			$html .= '<p>'.$texto.'</p>';
+			$html .= '<p> Nº: '.$numero.'</p>';
+			$html .= '<p>Fecha: '.$fecha.'</p>';
 			$html .= '<p> '.$Tienda['direccion'].'</p>';
 			$html .='</div>';
 	$html.='</td>';
 	$html.='</tr>';
 	$html.='</table>';
 	
-	$html .='<table  WIDTH="100%"  border="1">';
+	$html .='<table  WIDTH="100%">';
 	$html .='<tr>';
 	$html .='<td WIDTH="10%">ALB</td>';
 	$html .='<td WIDTH="10%">REF</td>';
-	$html .='<td WIDTH="50%" >DESCRIPCIÓN</td>';
+	$html .='<td WIDTH="50%">DESCRIPCIÓN</td>';
 	$html .='<td WIDTH="10%">CANT</td>';
 	$html .='<td WIDTH="10%">PRECIO</td>';
 	$html .='<td WIDTH="12%">IMPORTE</td>';
 	$html .='</tr>';
-	foreach($productosFAc as $producto){
+	foreach($productosDEF as $producto){
 		$html .='<tr>';
-		if ($producto['Numalbpro']==0){
+		if ($producto['idalbpro']==0){
 			$albaran="";
 		}else{
-			$albaran=$producto['Numalbpro'];
+			$albaran=$producto['idalbpro'];
 		}
 		$html .='<td>'.$albaran.'</td>';
-		$html .='<td>'.$producto['ref_prov'].'</td>';
+		$html .='<td>'.$producto['crefProveedor'].'</td>';
 		$html .='<td>'.$producto['cdetalle'].'</td>';
 		$html .='<td>'.number_format($producto['nunidades'],0).'</td>';
 		$iva=$producto['iva']/100;
-		$importe=($iva+$producto['costeSiva'])*$producto['nunidades'];
-		$html .='<td>'.number_format($producto['costeSiva'],2).'</td>';
-		$html .='<td>'.number_format($importe,2).'</td>';
+		$html .='<td>'.number_format($producto['ultimoCoste'],2).'</td>';
+		$html .='<td>'.number_format($producto['importe'],2).'</td>';
 		$html .='</tr>';
 	}
 	$html .='</table>';
-	
+	$html .='<br>';
+	$html .='<br>';
 	if (isset($Datostotales)){
 		foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
@@ -567,6 +596,7 @@ function mostarHTMLFactura($idFactura , $BDTpv){
 				}
 			}
 	}
+	
 	$html .='<table>';
 	$html .='<thead>
 			<tr>
@@ -576,68 +606,59 @@ function mostarHTMLFactura($idFactura , $BDTpv){
 			</tr>
 		</thead>';
 	$html.='<tbody>';
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($base4) ? " 4%" : '');
-	$html.='</td>';
-	$html.='</tr>';
+	if (isset ($base4)){
+		$html.='<tr>';
+		$html.='<td>';
+		$html.= (isset($base4) ? " 4%" : '');
+		$html.='</td>';
+		
+		$html.='<td>';
+		$html.= (isset($base4) ? $base4 : '');
+		$html.='</td>';
 	
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($base4) ? $base4 : '');
-	$html.='</td>';
-	$html.='</tr>';
+		$html.='<td>';
+		$html.= (isset($iva4) ? $iva4 : '');
+		$html.='</td>';
+		$html.='</tr>';
+	}
+	if (isset ($base10)){
+		$html.='<tbody>';
+		$html.='<tr>';
+		$html.='<td>';
+		$html.= (isset($base10) ? "10%" : '');
+		$html.='</td>';
+		
+		$html.='<td>';
+		$html.= (isset($base10) ? $base10 : '');
+		$html.='</td>';
+		$html.='</tr>';
+		
+		$html.='<td>';
+		$html.= (isset($iva10) ? $iva10 : '');
+		$html.='</td>';
+		$html.='</tr>';
+	}
+	if (isset ($base21)){
+		$html.='<tbody>';
+		$html.='<tr>';
+		$html.='<td>';
+		$html.= (isset($base21) ? "21%" : '');
+		$html.='</td>';
+		
+		$html.='<td>';
+		$html.= (isset($base21) ? $base21 : '');
+		$html.='</td>';
 	
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($iva4) ? $iva4 : '');
-	$html.='</td>';
-	$html.='</tr>';
-	
-	$html.='<tbody>';
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($base10) ? "10%" : '');
-	$html.='</td>';
-	$html.='</tr>';
-	
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($base10) ? $base10 : '');
-	$html.='</td>';
-	$html.='</tr>';
-	
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($iva10) ? $iva10 : '');
-	$html.='</td>';
-	$html.='</tr>';
-	
-	$html.='<tbody>';
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($base21) ? "21%" : '');
-	$html.='</td>';
-	$html.='</tr>';
-	
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($base21) ? $base21 : '');
-	$html.='</td>';
-	$html.='</tr>';
-	
-	$html.='<tr>';
-	$html.='<td>';
-	$html.= (isset($iva21) ? $iva21 : '');
-	$html.='</td>';
-	$html.='</tr>';
+		$html.='<td>';
+		$html.= (isset($iva21) ? $iva21 : '');
+		$html.='</td>';
+		$html.='</tr>';
+	}
 	$html.='</tbody>';
 	$html .='</table>';
-	$html .='<p>';
+	$html .='<p align="right"> TOTAL: ';
 	$html .=(isset($Datostotales['total']) ? $Datostotales['total'] : '');
 	$html .='</p>';
-	
-	
 	
 	return $html;
 }
