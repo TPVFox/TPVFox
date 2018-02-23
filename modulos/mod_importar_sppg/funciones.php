@@ -351,8 +351,8 @@ function VariosRegistros($BD,$consulta,$a_buscar,$campo) {
 		$resultadoConsulta = $BD->query($consulta);
 		$cont = 0;
 		if ($BD->query($consulta)) {
-			$array['NItems'] = $resultadoConsulta->num_rows; //No vale ya podemos descarta alguno.
-			if ($array['NItems'] > 0){
+			 //No vale ya podemos descarta alguno.
+			if ($resultadoConsulta->num_rows > 0){
 				// Hubo resultados
 				while ($fila = $resultadoConsulta->fetch_assoc()){
 					$respuesta = '';
@@ -365,7 +365,7 @@ function VariosRegistros($BD,$consulta,$a_buscar,$campo) {
 					}
 				}
 			}
-
+		$array['NItems'] = $cont;	
 		} else {
 			// Quiere decir que hubo error en la consulta.
 			$array['consulta'] = $consulta;
@@ -383,6 +383,7 @@ function BuscarIgualSimilar($BDTpv,$campos,$registro){
 	// Objetivo
 	//  Devolver comprobacion si existe igual o similares ( con lo registros obtenidos).
 	$respuesta = array();
+	$respuesta['tpv'] = array();
 	foreach ($campos as $key=>$datos){
 		// Recorremos los campos que tenemos en parametros de cada tabla xml.
 		$campo = $key;
@@ -417,6 +418,7 @@ function BuscarIgualSimilar($BDTpv,$campos,$registro){
 					// Ejecutamos funcion de comparar
 					if(isset($registro[$campo])){
 						// Obtenemos where de la tabla, de las palabras indicadas.
+
 						$tabla = $accion['tabla_cruce'];
 						$nombre_campo = $accion['campo_cruce'];
 						$a_buscar = $registro[$campo];
@@ -425,9 +427,9 @@ function BuscarIgualSimilar($BDTpv,$campos,$registro){
 						$whereC =' WHERE '.$busqueda;
 						$consulta = "SELECT * FROM ". $tabla.' '.$whereC;
 						$Registros= VariosRegistros($BDTpv,$consulta,$a_buscar,$nombre_campo);
-						$respuesta['tpv'] = $Registros;
 
 						if ($Registros['NItems'] >0){
+							// Lo ideal sería añadir los registros tpv, pero el problema es que van repetir.
 							$respuesta['tpv'] = $Registros;
 							$respuesta['comprobacion']['encontrado_tipo'] = 'Similar';
 						} 
