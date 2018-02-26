@@ -489,10 +489,8 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 	return $respuesta;
 }
 
-function montarHTMLimprimir($id , $BDTpv, $dedonde){
+function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$CProv= new Proveedores($BDTpv);
-	
-	$Tienda=1;
 	if ($dedonde=="factura"){
 		$CFac=new FacturasCompras($BDTpv);
 		$datos=$CFac->datosFactura($id);
@@ -563,7 +561,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 			$imprimir['cabecera'] .= '<p>'.$texto.'</p>';
 			$imprimir['cabecera'] .= '<p> Nº: '.$numero.'</p>';
 			$imprimir['cabecera'] .= '<p>Fecha: '.$fecha.'</p>';
-			$imprimir['cabecera'] .= '<p> 1</p>';
+			$imprimir['cabecera'] .= '<p>'.$idTienda.'</p>';
 			$imprimir['cabecera'] .='</div>';
 	$imprimir['cabecera'].='</td>';
 	$imprimir['cabecera'].='</tr>';

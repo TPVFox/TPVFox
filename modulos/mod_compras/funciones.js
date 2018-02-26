@@ -533,7 +533,8 @@ function imprimir(id, dedonde){
 	var parametros = {
 		"pulsado"    : 'datosImprimir',
 		"dedonde":dedonde,
-		"id":id
+		"id":id,
+		"idTienda":cabecera.idTienda
 	};
 	$.ajax({
 			data       : parametros,
