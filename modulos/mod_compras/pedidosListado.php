@@ -8,9 +8,6 @@ include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
-	echo '<pre>';
-print_r($_SESSION);
-echo '</pre>';
 	include 'clases/pedidosCompras.php';
 	$Cpedido=new PedidosCompras($BDTpv);
 	include '../../clases/Proveedores.php';
@@ -169,7 +166,7 @@ if ($stringPalabras !== '' ){
 							foreach($pedidosDef as $pedido){
 								$checkUser = $checkUser + 1;
 								$totaliva=$Cpedido->sumarIva($pedido['Numpedpro']);
-								$htmlImprimir=montarHTMLimprimir($pedido['id'], $BDTpv, "pedido");
+							//	$htmlImprimir=montarHTMLimprimir($pedido['id'], $BDTpv, "pedido");
 								
 							
 						?>

@@ -544,32 +544,7 @@ function imprimir(id, dedonde){
 			},
 			success    :  function (response) {
 				var resultado =  $.parseJSON(response); 
-
 				console.log(resultado);
-				
-				//~ var parametros = {
-				//~ "cabecera":resultado['cabecera'],
-				//~ "html":resultado['html']
-				//~ };
-				//~ $.ajax({
-			//~ data       : parametros,
-			//~ url        : '../../controllers/planImprimir.php',
-			//~ type       : 'post',
-			//~ dataType: 'JSON',
-			//~ success    :  function (response) {
-				 //~ var resultado = response; 
-				 
-					//~ var nombreLogico = "archivoImprimir.pdf";
-					//~ var parametros1 = "dependent=yes,locationbar=no,scrollbars=yes,menubar=yes,resizable,screenX=50,screenY=50,width=850,height=1050";
-					//~ var htmlText = "<embed width=100% height=100% type='application/pdf' src='data:application/pdf,"+escape(resultado)+"'></embed>";
-					//~ var detailWindow = window.open ("", nombreLogico, parametros1);
-					//~ detailWindow.document.write(htmlText);
-					//~ detailWindow.document.close();
-					
-				  
-			//~ }
-		
-	//~ });
 		}
 		
 	});
