@@ -437,6 +437,14 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
+		case 'datosImprimir':
+		$id=$_POST['id'];
+		$dedonde=$_POST['dedonde'];
+		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde);
+		$respuesta['cabecera']=$htmlImprimir['cabecera'];
+		$respuesta['html']=$htmlImprimir['html'];
+		echo json_encode($respuesta);
+		break;
 		
 	
 }

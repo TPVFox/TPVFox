@@ -530,9 +530,13 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 		$texto="Pedido Proveedor";
 		$numero=$datos['Numpedpro'];
 	}
+	if (isset ($datos['Fecha'])){
+		$date=date_create($datos['Fecha']);
+		$fecha=date_format($date,'Y-m-d');
+	}else{
+		$fecha="";
+	}
 	
-	$date=date_create($datos['Fecha']);
-	$fecha=date_format($date,'Y-m-d');
 	$imprimir=array('cabecera'=>'',
 	'html'=>''
 	
@@ -566,23 +570,31 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 	$imprimir['cabecera'].='</table>';
 	
 	
-	$imprimir['html'] .='<table  WIDTH="100%">';
-	$imprimir['html'] .='<tr>';
+	$imprimir['cabecera'] .='<table  WIDTH="100%">';
+	$imprimir['cabecera'] .='<tr>';
 	if ($dedonde <> "pedido"){
-		$imprimir['html'] .='<td WIDTH="10%">ALB</td>';
+		$imprimir['cabecera'] .='<td WIDTH="10%">ALB</td>';
 	}
-	$imprimir['html'] .='<td WIDTH="10%">REF</td>';
-	$imprimir['html'] .='<td WIDTH="50%">DESCRIPCIÓN</td>';
-	$imprimir['html'] .='<td WIDTH="10%">CANT</td>';
-	$imprimir['html'] .='<td WIDTH="10%">PRECIO</td>';
-	$imprimir['html'] .='<td WIDTH="12%">IMPORTE</td>';
-	$imprimir['html'] .='</tr>';
+	$imprimir['cabecera'] .='<td WIDTH="10%">REF</td>';
+	$imprimir['cabecera'] .='<td WIDTH="50%">DESCRIPCIÓN</td>';
+	$imprimir['cabecera'] .='<td WIDTH="10%">CANT</td>';
+	$imprimir['cabecera'] .='<td WIDTH="10%">PRECIO</td>';
+	$imprimir['cabecera'] .='<td WIDTH="12%">IMPORTE</td>';
+	$imprimir['cabecera'] .='</tr>';
+	$imprimir['cabecera'] .='</table>';
+	$imprimir['html'] .='<table  WIDTH="100%">';
+	
 	foreach($productosDEF as $producto){
 		$imprimir['html'] .='<tr>';
-		if ($producto['idalbpro']==0){
-			$bandera="";
+		if (isset($producto['idalbpro'])){
+			if ($producto['idalbpro']==0){
+				$bandera="";
+			}else{
+			$bandera=$producto['idalbpro'];	
+			}
+			
 		}else{
-			$bandera=$producto['idalbpro'];
+			$bandera="";
 		}
 		if ($producto['idpedpro']==0){
 			$bandera="";
@@ -590,15 +602,15 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 			$bandera=$producto['idpedpro'];
 		}
 		if ($dedonde <> "pedido"){
-			$imprimir['html'] .='<td>'.$bandera.'</td>';
+			$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
 		}
 		
-		$imprimir['html'] .='<td>'.$producto['crefProveedor'].'</td>';
-		$imprimir['html'] .='<td>'.$producto['cdetalle'].'</td>';
-		$imprimir['html'] .='<td>'.number_format($producto['nunidades'],0).'</td>';
+		$imprimir['html'] .='<td WIDTH="10%">'.$producto['crefProveedor'].'</td>';
+		$imprimir['html'] .='<td WIDTH="50%">'.$producto['cdetalle'].'</td>';
+		$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['nunidades'],0).'</td>';
 		$iva=$producto['iva']/100;
-		$imprimir['html'] .='<td>'.number_format($producto['ultimoCoste'],2).'</td>';
-		$imprimir['html'] .='<td>'.number_format($producto['importe'],2).'</td>';
+		$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['ultimoCoste'],2).'</td>';
+		$imprimir['html'] .='<td WIDTH="12%">'.number_format($producto['importe'],2).'</td>';
 		$imprimir['html'] .='</tr>';
 	}
 	$imprimir['html'] .='</table>';

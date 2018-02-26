@@ -70,7 +70,6 @@ if ($stringPalabras !== '' ){
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-    
 <?php
 
 	include '../../header.php';
@@ -185,7 +184,9 @@ if ($stringPalabras !== '' ){
 							<?php
 						}else{
 							?>
-						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" href='../../controllers/planImprimir.php?datos=<?php echo $htmlImprimir['html'];?>&cabecera=<?php echo $htmlImprimir['cabecera']?>' target=”_blank”></a></td>
+						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido")'></a></td>
+
+							
 							<?php
 						}
 						

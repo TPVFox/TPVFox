@@ -528,7 +528,46 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-
+function imprimir(id, dedonde){
+	alert(dedonde);
+	var parametros = {
+		"pulsado"    : 'datosImprimir',
+		"dedonde":dedonde,
+		"id":id
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en datos Imprimir JS****************');
+			},
+			success    :  function (response) {
+				var resultado =  $.parseJSON(response); 
+				console.log(resultado);
+				
+				var parametros = {
+				"cabecera":resultado['cabecera'],
+				"html":resultado['html']
+				};
+				$.ajax({
+			data       : parametros,
+			url        : '../../controllers/planImprimir.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en datos Imprimir JS****************');
+			},
+			success    :  function (response) {
+				var resultado =  $.parseJSON(response); 
+		}
+		
+	});
+		}
+		
+	});
+	
+		
+}
 // Función para buscar un proveedor 
 function buscarProveedor(dedonde, idcaja, valor=''){
 	console.log('FUNCION buscarProveedores JS-AJAX');
