@@ -8,7 +8,7 @@ $pdf->SetMargins(10, 70,10);
 $pdf->setHtmlHeader($cabecera);
 $pdf->AddPage();
 $pdf->writeHTML($html);
-$pdf->Output('/home/olalla/www/prueba.pdf', 'F');
+$pdf->Output($RutaServidor.$rutatmp.'/prueba.pdf', 'F');
 
 
 ?>
