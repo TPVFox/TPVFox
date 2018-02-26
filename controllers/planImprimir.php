@@ -10,5 +10,4 @@ $pdf->AddPage();
 $pdf->writeHTML($html);
 $pdf->Output($RutaServidor.$rutatmp.$nombreTmp, 'F');
 
-
 ?>
