@@ -441,9 +441,16 @@ switch ($pulsado) {
 		$id=$_POST['id'];
 		$dedonde=$_POST['dedonde'];
 		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde);
-		$respuesta['cabecera']=$htmlImprimir['cabecera'];
-		$respuesta['html']=$htmlImprimir['html'];
-		echo json_encode($respuesta);
+		$cabecera=$htmlImprimir['cabecera'];
+		$html=$htmlImprimir['html'];
+		require_once('../../lib/tcpdf/tcpdf.php');
+		include ('../../clases/imprimir.php');
+		
+		include('../../controllers/planImprimir.php');
+		//~ $respuesta=get_declared_classes();
+		$res=array(0=>'algo');
+		error_log("llegue");
+		echo json_encode($res);
 		break;
 		
 	

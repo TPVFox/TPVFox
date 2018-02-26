@@ -1,12 +1,14 @@
 <?php 
-include_once '../clases/imprimir.php';
-//~ $html=$_POST['html'];
-//~ $htmlCabecera=$_POST'cabecera'];
+//include_once '../clases/imprimir.php';
+//~ $cabecera='<p>HOLA MUNDO</p>';
+//~ $html='<p>HOLA MUNDO HTML</p>';
 $pdf = new imprimir(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-$pdf->SetMargins(10, 70,10);
-$pdf->setHtmlHeader($_POST['cabecera']);
-$pdf->AddPage();
-$pdf->writeHTML($_POST['html']);
 
-$pdf->Output('example_006.pdf', 'I');
+$pdf->SetMargins(10, 70,10);
+$pdf->setHtmlHeader($cabecera);
+$pdf->AddPage();
+$pdf->writeHTML($html);
+$pdf->Output('/home/olalla/www/prueba.pdf', 'F');
+
+
 ?>
