@@ -529,7 +529,7 @@ function metodoClick(pulsado,adonde){
 	 }
 } 
 function imprimir(id, dedonde){
-	alert(dedonde);
+	alert(id);
 	var parametros = {
 		"pulsado"    : 'datosImprimir',
 		"dedonde":dedonde,

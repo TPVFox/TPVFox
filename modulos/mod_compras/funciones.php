@@ -526,7 +526,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde){
 		$productosDEF=modificarArrayProductos($productosPedido);
 		$productos=json_decode(json_encode($productosDEF));
 		$Datostotales = recalculoTotalesAl($productos);
-		$datosProveedor=$CProv->buscarProveedorId($id);
+		$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
 		$texto="Pedido Proveedor";
 		$numero=$datos['Numpedpro'];
 	}
