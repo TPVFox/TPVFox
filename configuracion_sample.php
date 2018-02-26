@@ -18,7 +18,7 @@ $Usuario_onlineBD = ''; // Nombre usuario de BDtienda -> Local
 $pass_onlineBD = ''; // Password para tienda on line -> local
 $prefijoBD = '';  // Prefijo que utiliza joomla para sus tablas
 //Carpeta con los archivos temporales que se generan
-$tmp='';
+$rutatmp='';
 // Datos para importacion de DBF ( Para inicializacion )
 $nombrebdMysqlImpor = ''; // Base de datos temporal que utilizamos para importar DBF
 $usuarioMysqlImpor = ''; 

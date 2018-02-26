@@ -528,13 +528,14 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-function imprimir(id, dedonde){
+function imprimir(id, dedonde, idTienda){
 	alert(id);
+	
 	var parametros = {
 		"pulsado"    : 'datosImprimir',
 		"dedonde":dedonde,
 		"id":id,
-		"idTienda":cabecera.idTienda
+		"idTienda":idTienda
 	};
 	$.ajax({
 			data       : parametros,

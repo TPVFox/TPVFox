@@ -185,7 +185,7 @@ if ($stringPalabras !== '' ){
 							<?php
 						}else{
 							?>
-						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido")'></a></td>
+						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $idTienda['idTienda']?>)'></a></td>
 
 							
 							<?php
