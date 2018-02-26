@@ -2,7 +2,7 @@
 
 //~ include '../../clases/Proveedores.php';
 //~ include 'clases/facturasCompras.php';
-
+include '../../configuracion.php';
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los clientes si los hubiera.
