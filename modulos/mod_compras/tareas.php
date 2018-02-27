@@ -448,6 +448,8 @@ switch ($pulsado) {
 		require_once('../../lib/tcpdf/tcpdf.php');
 		include ('../../clases/imprimir.php');
 		include('../../controllers/planImprimir.php');
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+		echo json_encode($ficheroCompleto);
 		break;
 		
 	

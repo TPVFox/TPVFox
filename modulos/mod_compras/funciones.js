@@ -545,8 +545,8 @@ function imprimir(id, dedonde, idTienda){
 				console.log('******** estoy en datos Imprimir JS****************');
 			},
 			success    :  function (response) {
-				var resultado =  $.parseJSON(response); 
-				console.log(resultado);
+				 var resultado =  $.parseJSON(response); 
+				 window.open(resultado);
 		}
 		
 	});
