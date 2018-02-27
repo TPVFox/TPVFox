@@ -387,7 +387,7 @@ if ($suNumero==0){
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		  <tr id="Row0" style=<?php echo $style;?>>  
+		  <tr id="Row0" style=<?php echo $style2;?>>  
 			<td id="C0_Linea" ></td>
 			
 			<td id="C0_Linea" ></td>
