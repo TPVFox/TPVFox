@@ -26,6 +26,7 @@ include './../../head.php';
 		$titulo="Modificar Albarán De Proveedor";
 		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
 		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
+		
 		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
 		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
 		$estado=$datosAlbaran['estado'];
@@ -56,7 +57,9 @@ include './../../head.php';
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 			 $pedidos=json_decode(json_encode($modificarPedido), true);
 		}
-		
+		//~ echo '<pre>';
+		//~ print_r($productos);
+		//~ echo '</pre>';
 		$total=$Datostotales['total'];
 	}else{
 	$fecha=date('Y-m-d');
@@ -149,7 +152,9 @@ include './../../head.php';
 			'pedidos'=>$datosAlbaran['Pedidos'],
 			'suNumero'=>$suNumero
 		);
-		
+		echo '<pre>';
+		print_r($datosAlbaran['Productos']);
+		echo '</pre>';
 		//Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
 		//original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
 		//Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
@@ -422,6 +427,9 @@ if ($suNumero==0){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedidoAlbaran($producto, "albaran");
 				echo $html['html'];
+				//~ echo '<pre>';
+				//~ print_r($producto);
+				//~ echo '</pre>';
 			}
 		
 			}

@@ -107,11 +107,11 @@ class AlbaranesCompras{
 			}else{
 				$codBarras=0;
 			}
-			if (isset($prod['Numpedpro'])){
-				if ($prod['Numpedpro']){
-					$numPed=$prod['Numpedpro'];
+			if (isset($prod['numPedido'])){
+				if ($prod['numPedido']){
+					$numPed=$prod['numPedido'];
 				}else{
-					
+					$numPed=0;
 				}
 			}else{
 				$numPed=0;

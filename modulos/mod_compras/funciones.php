@@ -273,6 +273,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 					$numeroPed=$producto['numPedido'];
 				}
 			}else{
+			
 				$numeroPed="";
 			}
 			
@@ -348,8 +349,8 @@ function modificarArrayProductos($productos){
 		$pro['crefProveedor']=$producto['ref_prov'];
 		$pro['estado']=$producto['estadoLinea'];
 		$pro['idArticulo']=$producto['idArticulo'];
-		if (isset($producto['idpedpro'])){
-			$pro['idpedpro']=$producto['idpedpro'];
+		if (isset($producto['Numpedpro'])){
+			$pro['numPedido']=$producto['Numpedpro'];
 		}
 		if (isset ($producto['Numfacpro'])){
 			$pro['idalbpro']=$producto['Numfacpro'];
