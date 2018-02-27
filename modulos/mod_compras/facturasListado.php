@@ -182,7 +182,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 							<?php
 						}else{
 						?>
-						<td><?php echo $factura['estado'];?>  <a class="glyphicon glyphicon-print" href='../../controllers/planImprimir.php?datos=<?php echo $htmlImpirmir;?>' target=”_blank”></a></td>
+						<td><?php echo $factura['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $factura['id'];?>, "factura", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a></td>
 						<?php 
 						}
 						?>

@@ -38,11 +38,9 @@
 	</cajas_input>
 	<configuracion>
 		<empresas>
-			<datos_empresa id="3" nombre="Logueicarp 2017">
-				/home/solucion40/www/superoliva/datos/DBF71
-			</datos_empresa>
-			<datos_empresa id="4" nombre="Logueicarp 2018">
-				/home/solucion40/www/superoliva/datos/DBF81
+			
+			<datos_empresa id="3" nombre="Logueicarp 2018">
+				/home/olalla/www/superoliva/datos/DBF81
 			</datos_empresa>
 		</empresas>
 		<tipos_registros>

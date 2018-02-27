@@ -171,7 +171,7 @@ $albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
 							$checkUser = $checkUser + 1;
 							$totaliva=$CAlb->sumarIva($albaran['Numalbpro']);
 							$date=date_create($albaran['Fecha']);
-							$htmlImpirmir=montarHTMLimprimir($albaran['id'], $BDTpv, "albaran");
+						//	$htmlImpirmir=montarHTMLimprimir($albaran['id'], $BDTpv, "albaran");
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $albaran['id'];?>">
@@ -189,7 +189,7 @@ $albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
 							<?php
 						}else{
 							?>
-						<td><?php echo $albaran['estado'];?>  <a class="glyphicon glyphicon-print" href='../../controllers/planImprimir.php?datos=<?php echo $htmlImpirmir;?>' target=”_blank”></a></td>
+						<td><?php echo $albaran['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $albaran['id'];?>, "albaran", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a></td>
 
 							<?php
 						}

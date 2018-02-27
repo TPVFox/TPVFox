@@ -529,8 +529,6 @@ function metodoClick(pulsado,adonde){
 	 }
 } 
 function imprimir(id, dedonde, idTienda){
-	alert(id);
-	
 	var parametros = {
 		"pulsado"    : 'datosImprimir',
 		"dedonde":dedonde,
