@@ -158,7 +158,9 @@ include './../../head.php';
 				$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
 				$idAlbaran=$datosReal['id'];
 				$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
-				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+				//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
+				
 				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
 		}else{
 				$idAlbaran=0;
