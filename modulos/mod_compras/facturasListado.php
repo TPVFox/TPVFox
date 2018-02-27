@@ -68,7 +68,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Facturas Compras: Editar y Añadir albaranes </h2>
+					<h2> Facturas Compras: Editar y Añadir facturas </h2>
 				</div>
 					<nav class="col-sm-2">
 				<h4> Facturas</h4>
