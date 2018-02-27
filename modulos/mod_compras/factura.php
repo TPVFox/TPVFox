@@ -147,7 +147,7 @@ include './../../head.php';
 				$datosReal=$CFac->buscarFacturaNumero($numFactura);
 				$idFactura=$datosReal['id'];
 				$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
-				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura);
+				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
 		}else{
 				$idFactura=0;
