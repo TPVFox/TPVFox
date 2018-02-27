@@ -131,9 +131,14 @@ include './../../head.php';
 		}else{
 			$suNumero=0;
 		}
+		if (isset ($_POST['fecha'])){
+			$fecha=$_POST['fecha'];
+		}else{
+			$fecha=$datosAlbaran['fechaInicio'];
+		}
 		$datos=array(
 			'Numtemp_albpro'=>$idAlbaranTemporal,
-			'fecha'=>$datosAlbaran['fechaInicio'],
+			'fecha'=>$fecha,
 			'idTienda'=>$Tienda['idTienda'],
 			'idUsuario'=>$Usuario['id'],
 			'idProveedor'=>$datosAlbaran['idProveedor'],
