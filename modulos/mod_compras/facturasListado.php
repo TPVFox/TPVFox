@@ -48,9 +48,9 @@ $WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
 if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro']." ORDER BY Fecha desc ".$WhereLimite['rango'];
+		$filtro = $WhereLimite['filtro']." ORDER BY Numfacpro desc ".$WhereLimite['rango'];
 	} else {
-		$filtro= " ORDER BY Fecha desc LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$filtro= " ORDER BY Numfacpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 }
 	//array de facturas guardadas pero solo la cantidad anteriormente indicada
 $facturasDef=$CFac->TodosFacturaLimite($filtro);
