@@ -657,14 +657,14 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	}
 	
 	$imprimir['html'] .='<table>';
-	$imprimir['html'] .='<thead>
+	$imprimir['html'] .='
 			<tr>
 				<th>Tipo</th>
 				<th>Base</th>
 				<th>IVA</th>
 			</tr>
-		</thead>';
-	$imprimir['html'].='<tbody>';
+		';
+
 	if (isset ($base4)){
 		$imprimir['html'].='<tr>';
 		$imprimir['html'].='<td>';
@@ -681,7 +681,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$imprimir['html'].='</tr>';
 	}
 	if (isset ($base10)){
-		$imprimir['html'].='<tbody>';
+		
 		$imprimir['html'].='<tr>';
 		$imprimir['html'].='<td>';
 		$imprimir['html'].= (isset($base10) ? "10%" : '');
@@ -690,7 +690,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$imprimir['html'].='<td>';
 		$imprimir['html'].= (isset($base10) ? $base10 : '');
 		$imprimir['html'].='</td>';
-		$imprimir['html'].='</tr>';
 		
 		$imprimir['html'].='<td>';
 		$imprimir['html'].= (isset($iva10) ? $iva10 : '');
@@ -698,7 +697,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$imprimir['html'].='</tr>';
 	}
 	if (isset ($base21)){
-		$imprimir['html'].='<tbody>';
+	
 		$imprimir['html'].='<tr>';
 		$imprimir['html'].='<td>';
 		$imprimir['html'].= (isset($base21) ? "21%" : '');
@@ -713,7 +712,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$imprimir['html'].='</td>';
 		$imprimir['html'].='</tr>';
 	}
-	$imprimir['html'].='</tbody>';
 	$imprimir['html'] .='</table>';
 	$imprimir['html'] .='<p align="right"> TOTAL: ';
 	$imprimir['html'] .=(isset($Datostotales['total']) ? $Datostotales['total'] : '');
