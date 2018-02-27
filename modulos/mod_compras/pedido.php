@@ -122,11 +122,22 @@ if (isset($_POST['Guardar'])){
 	}else{
 		$total=0;
 	}
-	if ($pedidoTemporal['fechaInicio']){
-		$bandera=new DateTime($pedidoTemporal['fechaInicio']);
+	//~ if ($pedidoTemporal['fechaInicio']){
+		//~ $bandera=new DateTime($pedidoTemporal['fechaInicio']);
+		//~ $fecha=$bandera->format('Y-m-d');
+	//~ }else{
+		//~ $fecha=date('Y-m-d');		
+	//~ }
+	if (isset($_POST['fecha'])){
+		$bandera=new DateTime($_POST['fecha']);
 		$fecha=$bandera->format('Y-m-d');
 	}else{
-		$fecha=date('Y-m-d');		
+		if ($pedidoTemporal['fechaInicio']){
+			$bandera=new DateTime($pedidoTemporal['fechaInicio']);
+			$fecha=$bandera->format('Y-m-d');
+		}else{
+			$fecha=date('Y-m-d');		
+		}
 	}
 	if ($pedidoTemporal['idPedpro']){
 		$datosPedidoReal=$Cpedido->datosPedidos($pedidoTemporal['idPedpro']);
