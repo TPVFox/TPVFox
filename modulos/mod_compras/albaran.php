@@ -206,6 +206,15 @@ include './../../head.php';
 			
 			echo $comprobarPedidos;
 		}
+		
+		if (isset ($_GET['id']) ||isset ($_GET['tActual']) ){
+			$estiloTablaProductos="";
+		}else{
+			
+				$estiloTablaProductos="display:none;";
+			
+			
+		}
 	
 		$parametros = simplexml_load_file('parametros.xml');
 	
@@ -392,7 +401,7 @@ if ($suNumero==0){
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		  <tr id="Row0" style=<?php echo $style2;?>>  
+		  <tr id="Row0" style=<?php echo $estiloTablaProductos;?>>  
 			<td id="C0_Linea" ></td>
 			
 			<td id="C0_Linea" ></td>
