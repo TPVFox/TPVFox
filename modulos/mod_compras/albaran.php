@@ -149,6 +149,7 @@ include './../../head.php';
 			'pedidos'=>$datosAlbaran['Pedidos'],
 			'suNumero'=>$suNumero
 		);
+		
 		//Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
 		//original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
 		//Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
