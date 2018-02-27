@@ -23,7 +23,7 @@ include './../../head.php';
 	if (isset($_GET['id'])){
 		$idAlbaran=$_GET['id'];
 		echo $idAlbaran;
-		$titulo="Modificar Albarán De Cliente";
+		$titulo="Modificar Albarán De Proveedor";
 		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
 		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
 		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);

@@ -56,9 +56,9 @@ $WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
 if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro']." ORDER BY Fecha desc ".$WhereLimite['rango'];
+		$filtro = $WhereLimite['filtro']." ORDER BY Numalbpro desc ".$WhereLimite['rango'];
 	} else {
-		$filtro= " ORDER BY Fecha desc LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$filtro= " ORDER BY Numalbpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
