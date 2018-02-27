@@ -61,9 +61,9 @@ $WhereLimite['rango']=$NuevoRango;
 //$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$NuevoWhere);
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro']." ORDER BY  FechaPedido desc ".$WhereLimite['rango'];
+		$filtro = $WhereLimite['filtro']." ORDER BY  Numpedpro desc ".$WhereLimite['rango'];
 } else {
-		$filtro= "ORDER BY  FechaPedido desc LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$filtro= "ORDER BY  Numpedpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 }
 	//MUestra un array con un número determinado de registros
 	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
