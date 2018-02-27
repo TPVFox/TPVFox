@@ -441,7 +441,7 @@ switch ($pulsado) {
 		$id=$_POST['id'];
 		$dedonde=$_POST['dedonde'];
 		$idTienda=$_POST['idTienda'];
-		$nombreTmp='/'.$dedonde."compras.pdf";
+		$nombreTmp=$dedonde."compras.pdf";
 		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
 		$cabecera=$htmlImprimir['cabecera'];
 		$html=$htmlImprimir['html'];

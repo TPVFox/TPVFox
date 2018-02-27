@@ -9,6 +9,9 @@ include './../../head.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosCompras.php';
+	//~ echo '<pre>';
+	//~ print_r($_SESSION);
+	//~ echo '</pre>';
 	$Cpedido=new PedidosCompras($BDTpv);
 	include '../../clases/Proveedores.php';
 	$Cproveedor=new Proveedores($BDTpv);
@@ -185,7 +188,7 @@ if ($stringPalabras !== '' ){
 							<?php
 						}else{
 							?>
-						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $idTienda['idTienda']?>)'></a></td>
+						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a></td>
 
 							
 							<?php
