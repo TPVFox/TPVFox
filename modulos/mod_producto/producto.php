@@ -123,9 +123,6 @@
 						$i=$datos['idProducto'];
 						
 					}
-					//~ echo '<pre>';
-			//~ print_r($res);
-			//~ echo '</pre>';
 					header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
 					
 			
@@ -155,37 +152,36 @@
 			}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
-				<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<div class="col-md-12">
-				<div class="col-md-12">
-					<div class="Datos">
+				<div class="col-md-12 btn-toolbar">
+					<a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
 					<input type="submit" value="Guardar">
-						<h3>Datos generales:</h3>
-						<div class="col-md-2">	
-							<label class="control-label " > Id:</label>
-							<input type="text" id="idProducto" name="idProducto"  size="10"  placeholder="id producto" value="<?php echo $idArticulo;?>" readonly>
-						</div>
-							<div class="col-md-2 ">	
+				</div>
+				<div class="col-md-7 Datos">
+					<?php // si es nuevo mostramos Nuevo ?>
+					<h3>Datos generales de producto <?php echo $idArticulo?>:</h3>
+					<div class="col-md-12">
+						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
 							<input type="text" id="referencia" name="referencia" size="10" placeholder="referencia producto" value="<?php echo $referencia;?>"   >
 						</div>
-						<div class="col-md-2 ">	
+						<div class="form-group col-md-9 ">	
 							<label class="control-label " > Nombre producto:</label>
 							<input type="text" id="nombre" name="nombre" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>"    size="50" >
 						</div>
-						</div>
-						</div>
+					</div>
 					<div class="col-md-12">
-					<div class="col-md-2 ">	
-							<label class="control-label " > Promedio:</label>
-							<input type="text" id="coste" size="10" name="coste" placeholder="coste" value="<?php echo number_format($Producto['costepromedio'],2, '.', '');?>"   readonly> € 
+						<h4> Costes del Producto</h4>
+						<div class="form-group col-md-4">
+							<?php // Si es nuevo solo se utiliza para calcular precio, no se graba ?>
+							<label class="control-label " > Coste Ultimo:</label>
+							<div>
+								<input type="text" id="coste" size="8" name="coste" placeholder="coste" value="<?php echo number_format($Producto['costepromedio'],2, '.', '');?>"   readonly> 
+								<span class="Euro_grande">€</span> 
+							</div>
 						</div>
-					<div class="col-md-2 ">	
-							<label class="control-label " > Beneficio:</label>
-							<input type="text" id="beneficio" size="10" name="beneficio" placeholder="beneficio" value="<?php echo number_format($Producto['beneficio'],2,'.','');?>"   > %
-						</div>
-						<div class="col-md-2 ">	
+						<div class="form-group col-md-4 ">	
 							<label class="control-label " > Iva:</label>
 							<select id="iva" name="iva" onchange="modifPrecioCiva();">
 								<option value=<?php echo  $Producto['iva'];?>><?php echo  $Producto['iva'].'%';?></option>
@@ -195,61 +191,162 @@
 									echo '<option value='.$iva['id'].'>'.$iva['iva'].'%'.'</option>';
 								}
 								?>
-								</select>
+							</select>
 						</div>
-						
+						<div class="form-group">
+							<?php // Si es nuevo no se muestra ?>
+							<label class="control-label " >Coste Promedio:</label>
+							<div>
+								<input type="text" id="coste" size="8" name="coste" placeholder="coste" value="<?php echo number_format($Producto['costepromedio'],2, '.', '');?>"   readonly> 
+								<span class="Euro_grande">€</span> 
+							</div>
+						</div>
 					</div>
-				
-				</div>
 					<div class="col-md-12">
-						<h3>Proveedores:</h3>
-						<div class="col-md-2 ">	
-							<label class="control-label " > Id proveedor:</label>
-							<input type="text" id="idproveedor" name="idproveedor" <?php echo $estadoInput;?> placeholder="idproveedor" value="<?php echo $Producto['idProveedor'];?>"   >
+						<h4> Precios de venta</h4>
+						<div class="col-md-4 ">	
+								<?php // beneficio solo 2 enteros ?>
+								<label class="control-label-inline " > Beneficio:</label>
+								<input type="text" id="beneficio" size="5" name="beneficio" placeholder="beneficio" value="<?php echo number_format($Producto['beneficio'],2,'.','');?>"   > %
 						</div>
-						<div class="col-md-2 ">	
-							<label class="control-label " > Nombre proveedor:</label>
-							<input type="text" id="nombreproveedor" name="nombreproveedor" <?php echo $estadoInput;?> placeholder="nombreproveedor" value="<?php echo $nombreproveedor;?>"   >
+						<div class="col-md-4 ">	
+							<label class="control-label " > Precio sin Iva:</label>
+							<input type="text" id="pvpSiva" name="pvpSiva"  onchange="modifPrecioCiva();" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
 						</div>
-<!--
-						<div class="col-md-2 ">	
-							<label class="control-label " > Referencia:</label>
-							<input type="text" id="referencia" name="referencia"  placeholder="referencia" value="0"   >
+						<div class="col-md-4 ">	
+							<label class="control-label " > Precio con Iva:</label>
+							<input type="text" id="pvpCiva" name="pvpCiva"  onchange="modifPrecioSiva();" value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
 						</div>
-						<div class="col-md-2 ">	
-							<label class="control-label " > Fecha actualización:</label>
-							<input type="text" id="fechaAc" name="fechaAc"  placeholder="fecha actuañización" value="0"   >
-						</div>
--->
-						</div>
-				<div class="col-md-6"> <!--precios-->
-					<h3>Precios:</h3>
-					<div class="col-sm-6 ">	
-						<label class="control-label " > Precio con Iva:</label>
-						<input type="text" id="pvpCiva" name="pvpCiva"  onchange="modifPrecioSiva();" value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
 					</div>
-					<div class="col-sm-6 ">	
-						<label class="control-label " > Precio sin Iva:</label>
-						<input type="text" id="pvpSiva" name="pvpSiva"  onchange="modifPrecioCiva();" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
-					</div>
-							
 				</div>
-				<div class="col-md-6"> <!--Familias-->
-					<h3>Familias:</h3>
-						<ol class="breadcrumb">
-						<?php 
-							$i=0;
-							foreach ($familias['familias'] as $familia){
-							?>
-							  <li><a><?php echo $familia['nombreFam'];?></a></li>
-							<?php
-								$i++;
-							}
+				<div class="col-md-5 text-center">
+					 <div class="panel-group">
+						<?php //ejemplo panel collapse : https://www.w3schools.com/bootstrap/tryit.asp?filename=trybs_collapsible_panel&stacked=h 
+						// Ojo con el id collapseX que tiene que se distinto... 
 						?>
-						</ol>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<?php $contNuevo = $contNuevoCodBarras+1;	?>
+								<h2 class="panel-title">
+								<a data-toggle="collapse" href="#collapse1">Codigos de Barras</a>
+								</h2>
+							</div>
+							<div id="collapse1" class="panel-collapse collapse">
+								<div class="panel-body">
+									<table id="tcodigo" class="table table-striped">
+									<thead>
+										<tr>
+											<th>Codigos Barras</th> 						
+											<th>
+												<?php echo '<a id="agregar" onclick="comprobarVacio('. $contNuevo.')">
+												Añadir
+												<span class="glyphicon glyphicon-plus"></span>
+												</a>'; ?>
+											</th>								
+										</tr>
+									</thead>
+									<?php 
+									//si  no hay codigoBarras no hay nada que recorrer
+									if ($codigosBarras['codigos']===''){
+										/*$codBarras='No hay codigos';*/
+										$codBarras='';
+										?>
+										<tr>
+											<td><input type="text" id="codBarras" name="codBarras_0"  value="<?php echo $codBarras;?>"   ></td>
+										<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>
+
+										</tr>
+									<?php	
+									} else {
+										$contExiste=0;
+						
+										foreach ($codigosBarras['codigos'] as $key =>$codigo){ 
+										
+										?>
+										<tr id="Existe<?php echo $contExiste+1;?>">
+											<td><input type="text" id="codBarras" name="codBarras_<?php echo $contExiste+1;?>"  value="<?php echo $codigo['codBarras'];?>"   ></td>
+											<!-- <td><span class="glyphicon glyphicon-trash"></span></td>-->
+											<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>
+										</tr>
+										<?php
+										$contExiste++;
+										}
+									}
+									?>
+									</table>	
+								</div>
+							</div>
+						</div> 
+						<!-- Inicio collapse de Familias --> 
+						<div class="panel panel-default">
+							<div class="panel-heading">
+							  <h4 class="panel-title">
+								<a data-toggle="collapse" href="#collapse2">Familias</a>
+							  </h4>
+							</div>
+							<div id="collapse2" class="panel-collapse collapse">
+								<div class="panel-body">
+									<ol class="breadcrumb">
+									<?php 
+										$i=0;
+										foreach ($familias['familias'] as $familia){
+										?>
+										  <li><a><?php echo $familia['nombreFam'];?></a></li>
+										<?php
+											$i++;
+										}
+									?>
+									</ol>
+								</div>
+							</div>
+						</div>
+					
+						<div class="panel panel-default">
+							<div class="panel-heading">
+							  <h4 class="panel-title">
+								<a data-toggle="collapse" href="#collapse3">Proveedores</a>
+							  </h4>
+							</div>
+							<div id="collapse3" class="panel-collapse collapse">
+								<div class="panel-body">
+									<div class="col-md-2 ">	
+									<label class="control-label " > Id proveedor:</label>
+									<input type="text" id="idproveedor" name="idproveedor" <?php echo $estadoInput;?> placeholder="idproveedor" value="<?php echo $Producto['idProveedor'];?>"   >
+								</div>
+								<div class="col-md-2 ">	
+									<label class="control-label " > Nombre proveedor:</label>
+									<input type="text" id="nombreproveedor" name="nombreproveedor" <?php echo $estadoInput;?> placeholder="nombreproveedor" value="<?php echo $nombreproveedor;?>"   >
+								</div>
+									<!--
+									<div class="col-md-2 ">	
+										<label class="control-label " > Referencia:</label>
+										<input type="text" id="referencia" name="referencia"  placeholder="referencia" value="0"   >
+									</div>
+									<div class="col-md-2 ">	
+										<label class="control-label " > Fecha actualización:</label>
+										<input type="text" id="fechaAc" name="fechaAc"  placeholder="fecha actuañización" value="0"   >
+									</div>
+									-->
+								</div>
+							</div>
+						</div>
+
+					
+					<!-- Fin de panel-group -->
+					</div> 
+
+					
+				<!-- Fin div col-md-5 -->
 				</div>
-			</div> <!-- div 12-->
-			<div class="col-md-10"> <!--Tiendas--><!-- referencias por tiendas-->
+				
+			</div>
+					
+						
+						
+				
+						
+				
+			<div class="col-md-12"> <!--Tiendas--><!-- referencias por tiendas-->
 					<div class="col-md-8 ">
 						<h3>Referencias en las distintas tiendas:</h3>
 					<table class="table table-striped">
@@ -291,55 +388,7 @@
 					</table>
 					</div> <!-- div contiene tabla-->
 					
-					<div class="col-md-3 text-center">
-						<h3>Codigos de Barras:</h3>
-						<?php 
-						$contNuevo = $contNuevoCodBarras+1;
-						?>
-					<table id="tcodigo" class="table table-striped">
-						<thead>
-							<tr>
-								<th>Codigos Barras</th> 
-							<!--<th><a id="agregar" class="glyphicon glyphicon-plus" onclick="agregoCodBarrasVacio(<?php /*echo $contNuevo; */?>); comprobarVacio(<?php /*echo $contNuevo; */?>)"></a></th>	-->							
-						<th><a id="agregar" class="glyphicon glyphicon-plus" onclick="comprobarVacio(<?php echo $contNuevo; ?>)"></a></th>								
 					
-							</tr>
-							
-						</thead>
-						
-						<?php 
-						
-						//si  no hay codigoBarras no hay nada que recorrer
-						if ($codigosBarras['codigos']===''){
-							/*$codBarras='No hay codigos';*/
-							$codBarras='';
-							?>
-							<tr>
-								<td><input type="text" id="codBarras" name="codBarras_0"  value="<?php echo $codBarras;?>"   ></td>
-							<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>
-
-							</tr>
-						<?php	
-						} else {
-							$contExiste=0;
-			
-							foreach ($codigosBarras['codigos'] as $key =>$codigo){ 
-							
-							?>
-							<tr id="Existe<?php echo $contExiste+1;?>">
-								<td><input type="text" id="codBarras" name="codBarras_<?php echo $contExiste+1;?>"  value="<?php echo $codigo['codBarras'];?>"   ></td>
-								<!-- <td><span class="glyphicon glyphicon-trash"></span></td>-->
-								<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>
-							</tr>
-							<?php
-							$contExiste++;
-							}
-						}
-						?>
-						
-					</table>
-					
-				</div>
 				
 				</form>
 				
