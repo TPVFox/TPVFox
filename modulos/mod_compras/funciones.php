@@ -587,6 +587,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$imprimir['html'] .='<table  WIDTH="100%">';
 	
 	foreach($productosDEF as $producto){
+		if ($producto['estado']=='Activo'){
 		$imprimir['html'] .='<tr>';
 		if (isset($producto['idalbpro'])){
 			if ($producto['idalbpro']==0){
@@ -598,20 +599,26 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		}else{
 			$bandera="";
 		}
-		if ($producto['numPedido']==0 & $dedonde=="albaran"){
-			$bandera="";
-			$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
-		}else{
-			$bandera=$producto['numPedido'];
-			$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
+		if ($dedonde=="albaran"){
+			if ($producto['numPedido']==0){
+				$bandera="";
+				$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
+			}else{
+				$bandera=$producto['numPedido'];
+				$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
 		}
-		if ($producto['idalbpro']==0 & $dedonde=="factura"){
-			$bandera2="";
-			$imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
-		}else{
-			$bandera2=$producto['idalbpro'];
-			$imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
 		}
+		if ($dedonde=="factura"){
+			if ($producto['idalbpro']==0){
+				$bandera2="";
+				$imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
+			}else{
+				$bandera2=$producto['idalbpro'];
+				$imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
+			}
+		}
+		
+		
 		
 		if ($producto['crefProveedor']>0){
 			$refPro=$producto['crefProveedor'];
@@ -626,6 +633,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$imprimir['html'] .='<td WIDTH="12%">'.number_format($producto['importe'],2).'</td>';
 		$imprimir['html'] .='</tr>';
 	}
+ }
 	$imprimir['html'] .='</table>';
 	$imprimir['html'] .='<br>';
 	$imprimir['html'] .='<br>';
