@@ -602,8 +602,12 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		if ($dedonde <> "pedido"){
 			$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
 		}
-		
-		$imprimir['html'] .='<td WIDTH="10%">'.$producto['crefProveedor'].'</td>';
+		if ($producto['crefProveedor']>0){
+			$refPro=$producto['crefProveedor'];
+		}else{
+			$refPro="";
+		}
+		$imprimir['html'] .='<td WIDTH="10%">'.$refPro.'</td>';
 		$imprimir['html'] .='<td WIDTH="50%">'.$producto['cdetalle'].'</td>';
 		$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['nunidades'],0).'</td>';
 		$iva=$producto['iva']/100;
