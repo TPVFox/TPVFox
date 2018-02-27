@@ -160,11 +160,10 @@ if (isset($_POST['Guardar'])){
 		'Productos'=>$pedidoTemporal['Productos'],
 		'DatosTotales'=>$Datostotales
 	);
-
 	if ($pedidoTemporal['idPedpro']){
 		$idPedido=$pedidoTemporal['idPedpro'];
 		$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-		$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+		$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
 		$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
 	}else{
 		$idPedido=0;
