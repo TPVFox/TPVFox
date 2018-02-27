@@ -186,13 +186,20 @@ include './../../head.php';
 		
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
-		}
-		
-		
-		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
-			$style="";
+			$style1="";
 		}else{
 			$style="display:none;";
+		}
+		if (isset($idProveedor)){
+			$comprobarPedidos=comprobarPedidos($idProveedor, $BDTpv);
+			if ($comprobarPedidos==1){
+				$style="";
+	
+			}else{
+				$style="display:none;";
+			}
+			
+			echo $comprobarPedidos;
 		}
 	
 		$parametros = simplexml_load_file('parametros.xml');
@@ -339,7 +346,7 @@ if ($suNumero==0){
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
 			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido()"></a>
-			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
+			<table  class="col-md-12" style="<?php echo $style1;?>" id="tablaPedidos"> 
 				<thead>
 				
 				<td><b>Número</b></td>

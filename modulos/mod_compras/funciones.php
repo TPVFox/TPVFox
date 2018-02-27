@@ -702,4 +702,18 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	
 	return $imprimir;
 }
+
+
+function comprobarPedidos($idProveedor, $BDTpv ){
+	$Cped=new PedidosCompras($BDTpv);
+	$estado="Guardado";
+	$con=$Cped->pedidosProveedorGuardado($idProveedor, $estado);
+	if(count($cont)>0){
+		$bandera=1;
+	}else{
+		$bandera=2;
+	}
+	return $bandera;
+	
+}
 ?>
