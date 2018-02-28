@@ -23,6 +23,8 @@ function controladorAcciones(caja,accion, tecla){
 			console.log(caja.fila);
 			recalculoImporte(productos[nfila].unidad, nfila, caja.darParametro('dedonde'));
 			
+			d_focus='ultimo_coste_'+parseInt(caja.fila);
+			ponerFocus(d_focus);
 		break;
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
