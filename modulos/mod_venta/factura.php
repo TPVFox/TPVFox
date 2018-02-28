@@ -221,16 +221,18 @@ include './../../head.php';
 			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
 			//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
 			if($datosFactura['numfaccli']>0){
-				$idFactura=$datosFactura['numfaccli'];
-		
+				$numFactura=$datosFactura['numfaccli'];
+				$buscarId=$Cfaccli->buscarIdFactura($numFactura);
+				$idFactura=$buscarId['id'];
 				$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
-				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
+				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 				
 			 }else{
 				 //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
 				$idFactura=0;
-				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
+				$numFactura=0;
+				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
 			

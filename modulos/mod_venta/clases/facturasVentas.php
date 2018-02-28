@@ -86,6 +86,15 @@ class FacturasVentas{
 		}
 		return $factura;
 	}
+	
+	public function buscarIdFactura($numFactura){
+		$db=$this->db;
+		$smt=$db->query('SELECT id FROM facclit WHERE Numfaccli= '.$numFactura );
+		if ($result = $smt->fetch_assoc () ){
+			$factura=$result;
+		}
+		return $factura;
+	}
 	//Busca los productos de un número de factura
 	public function ProductosFactura($idFactura){
 		$db=$this->db;
@@ -213,11 +222,11 @@ class FacturasVentas{
 	}
 	
 	//Añadir todos los registros de las diferentes tablas de una factura real
-		public function AddFacturaGuardado($datos, $idFactura){
+		public function AddFacturaGuardado($datos, $idFactura, $numFactura){
 		$db = $this->db;
 		if ($idFactura>0){
-			$smt = $db->query ('INSERT INTO facclit (Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$idFactura.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".', '.$datos['entregado'].', "'.$datos['fechaModificacion'].'")');
-			$id=$db->insert_id;
+			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".', '.$datos['entregado'].', "'.$datos['fechaModificacion'].'")');
+			$id=$idFactura;
 			$resultado['insert']='INSERT INTO facclit (Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$idFactura.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".', '.$datos['entregado'].', "'.$datos['fechaModificacion'].'")';
 		}else{
 			$smt = $db->query ('INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".' , '.$datos['entregado'].' , "'.$datos['fechaModificacion'].'")');
@@ -227,7 +236,7 @@ class FacturasVentas{
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
-			if ($prod['estado']=="Activo"){
+			if ($prod['estadoLinea']=="Activo"){
 			if ($prod['ccodbar']){
 				$codBarras=$prod['ccodbar'];
 			}else{
