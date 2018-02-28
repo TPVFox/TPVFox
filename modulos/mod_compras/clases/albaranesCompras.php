@@ -102,6 +102,7 @@ class AlbaranesCompras{
 		}
 		$productos = json_decode($datos['productos'], true);
 		foreach ( $productos as $prod){
+			if($prod['estado']=='Activo'){
 			if ($prod['ccodbar']){
 				$codBarras=$prod['ccodbar'];
 			}else{
@@ -134,7 +135,7 @@ class AlbaranesCompras{
 			$smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
 			$resultado['sqlPro']='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')';
 			}
-			
+		}
 		} 
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idAlbaran>0){
