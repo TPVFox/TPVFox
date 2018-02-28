@@ -227,6 +227,7 @@ class FacturasVentas{
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
+			if ($prod['estado']=="Activo"){
 			if ($prod['ccodbar']){
 				$codBarras=$prod['ccodbar'];
 			}else{
@@ -243,6 +244,7 @@ class FacturasVentas{
 			}else{
 			$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numAl.')' );
 			}
+		}
 		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idFactura>0){

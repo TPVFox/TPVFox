@@ -132,6 +132,7 @@ class AlbaranesVentas{
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
+			if ($prod['estado']== 'Activo'){
 			if ($prod['ccodbar']){
 				$codBarras=$prod['ccodbar'];
 			}else{
@@ -148,6 +149,7 @@ class AlbaranesVentas{
 			}else{
 			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
 			}
+		}
 		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idAlbaran>0){
