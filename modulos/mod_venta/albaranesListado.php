@@ -54,9 +54,9 @@ $WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
 if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro']." ORDER BY Fecha desc ".$WhereLimite['rango'];
+		$filtro = $WhereLimite['filtro']." ORDER BY Numalbcli desc ".$WhereLimite['rango'];
 	} else {
-		$filtro= "ORDER BY Fecha desc LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$filtro= "ORDER BY Numalbcli desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
 	
 	$albaranesDef=$Calbaran->TodosAlbaranesFiltro($filtro);
