@@ -448,6 +448,11 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
+	if($estado=="Facturado"){
+		?>
+		$("#Row0").css("display", "none");
+		<?php
+	}
 	?>
 </script>
 	</body>
