@@ -783,11 +783,16 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.ultimoCoste=ultimoCoste.toFixed(2);
 			var ivares =(resultado['datos'][0]['iva']/100);
 			var importe =(ivares+ultimoCoste)*1;
-			console.log(importe);
+			
 			//~ var importe =resultado['datos'][0]['ultimoCoste']*1;
 			datos.importe=importe.toFixed(2);
+			
 			var campo='Unidad_Fila_'+n_item;
-			ponerFocus(campo);
+			
+			//ponerFocus(campo);
+			
+			
+			
 			productos.push(datos);
 			
 			if (dedonde=="pedidos"){
@@ -801,13 +806,13 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			}
 			resetCampo(id_input);
 		
-			AgregarFilaProductosAl(datos, dedonde);
-		
+			AgregarFilaProductosAl(datos, dedonde, campo);
+			
 			
 			if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
 				alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
 			}
-			
+			ponerSelect(campo);
 		}else{
 			// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
 			console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
@@ -842,7 +847,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 }
 
 //Funcion que agrega una fila a la tabla productos 
-function AgregarFilaProductosAl(productosAl, dedonde=''){
+function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
 	console.log("Estoy en agregar fila productos albaran");
 	
 	if (productosAl.length>1){
@@ -871,7 +876,7 @@ function AgregarFilaProductosAl(productosAl, dedonde=''){
 			console.log(resultado);
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);// añadir la fila como primera de la tabla
-			
+			ponerSelect(campo);
 			
 		}
 	});
@@ -1151,9 +1156,18 @@ function ponerFocus (destino_focus){
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	console.log('Entro en enviar focus de :'+destino_focus);
 	console.log(destino_focus.toString());
+	
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
+		
 	}, 50); 
+	
+}
+function ponerSelect(destino_focus){
+	console.log('Entro en enviar select de :'+destino_focus);
+	console.log(destino_focus.toString());
+	jQuery('#'+destino_focus.toString()).select(); 
+	
 
 }
 //Función para escribir el producto seleccionado del modal
