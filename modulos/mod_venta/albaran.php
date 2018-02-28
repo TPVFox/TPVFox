@@ -134,7 +134,8 @@ include './../../head.php';
 			);
 		
 			if($datosAlbaran['numalbcli']>0){
-				$id=$Calbcli->datosAlbaranNum($numAlbaran);
+				$id=$Calbcli->datosAlbaranNum($datosAlbaran['numalbcli']);
+				$numAlbaran=$datosAlbaran['numalbcli'];
 				$idAlbaran=$id['id'];
 				
 				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);

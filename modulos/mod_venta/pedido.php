@@ -144,7 +144,7 @@ if ($_GET){
 			}else{
 				//Como no tenemos número de pedido solo añadimos registros nuevos y eliminamos el temporal
 				$idPedido=0;
-				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
 				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
 			}
 			
