@@ -38,13 +38,6 @@
 	} else {
 		$desde = 0;
 	}
-//~ if ($stringPalabras !== '' ){
-		//~ $campoBD='Numpedcli';
-		//~ $WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		//~ $filtro=$WhereLimite['filtro'];
-		//~ $OtrosParametros=$stringPalabras;
-//~ }
-//~ $CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 if ($stringPalabras !== '' ){
 		$campo = array( 'a.Numpedcli','b.Nombre');
 		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');

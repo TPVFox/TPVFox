@@ -105,12 +105,15 @@ if ($_GET){
 				$idTemporal=$_GET['tActual'];
 			}
 			echo $idTemporal;
+			echo '<br>';
+			echo $_POST['fecha'];
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscar los datos del temporal
 			if($pedidoTemporal['total']){
 				$total=$pedidoTemporal['total'];
 			}else{
 				$total=0;
 			}
+			
 			$fechaCreacion=date("Y-m-d H:i:s");
 			//Crear un array con todos los datos nuevos
 			$datosPedido=array(
@@ -132,8 +135,11 @@ if ($_GET){
 				//Elimina los registros reales de pedidos  , añadir nuevos registros y eliminar el temporal , cuando se añaden nuevos registros
 				//si tiene número de pedido se mantiene 
 				$idPedido=$pedidoTemporal['idPedcli'];
+				$datosPedidoReal=$Cpedido->datosPedidos($idPedido);
+				$numPedido=$datosPedidoReal['Numpedcli'];
+				
 				$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
 				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
 			}else{
 				//Como no tenemos número de pedido solo añadimos registros nuevos y eliminamos el temporal

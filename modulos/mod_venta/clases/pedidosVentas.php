@@ -170,11 +170,12 @@ class PedidosVentas{
 	}
 	//Añade un registro de un pedido ya guardado en pedidos . Si el numero del pedido es mayor  de 0 o sea que hay un registro en pedidos 
 	//lo añade a la tabla temporal si no añade un registro normal a la tabla pedido
-	public function AddPedidoGuardado($datos, $idPedido){
+	public function AddPedidoGuardado($datos, $idPedido, $numPedido){
 		$db = $this->db;
 		if ($idPedido>0){
-		$smt = $db->query ('INSERT INTO pedclit (Numpedcli , Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
-		$id=$db->insert_id;
+		$smt = $db->query ('INSERT INTO pedclit (id, Numpedcli , Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$numPedido.' , '.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
+		$resultado['sql']='INSERT INTO pedclit (id, Numpedcli , Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$numPedido.' , '.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")';
+		$id=$idPedido;
 		}else{
 		$smt = $db->query ('INSERT INTO pedclit (Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
 		$id=$db->insert_id;
