@@ -215,13 +215,10 @@ include './../../head.php';
 			echo $comprobarPedidos;
 		}
 		
-		if (isset ($_GET['id']) ||isset ($_GET['tActual']) ){
+		if($_GET['id'] >0 ||$_GET['tActual']>0){
 			$estiloTablaProductos="";
 		}else{
-			
-				$estiloTablaProductos="display:none;";
-			
-			
+			$estiloTablaProductos="display:none;";
 		}
 	
 		$parametros = simplexml_load_file('parametros.xml');

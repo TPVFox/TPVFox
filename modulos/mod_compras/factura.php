@@ -186,7 +186,11 @@ include './../../head.php';
 		}else{
 			$style="display:none;";
 		}
-	
+		if($_GET['id'] >0 ||$_GET['tActual']>0){
+			$estiloTablaProductos="";
+		}else{
+			$estiloTablaProductos="display:none;";
+		}
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -388,7 +392,7 @@ if ($suNumero==0){
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		  <tr id="Row0" style=<?php echo $style;?>>  
+		  <tr id="Row0" style=<?php echo $estiloTablaProductos;?>>  
 			<td id="C0_Linea" ></td>
 			
 			<td id="C0_Linea" ></td>
