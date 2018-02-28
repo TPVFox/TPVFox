@@ -331,7 +331,51 @@
 							</div>
 						</div>
 
-					
+						<div class="panel panel-default">
+							<div class="panel-heading">
+							  <h4 class="panel-title">
+								<a data-toggle="collapse" href="#collapse4">Referencias en otras tiendas</a>
+							  </h4>
+							</div>
+							<div id="collapse4" class="panel-collapse collapse">
+								<div class="panel-body">
+									<table class="table table-striped">
+										<thead>
+											<tr>
+												<th>id virtuemart</th>
+												<th>id tienda</th>
+												<th>nombre tienda</th>
+												<th>precio con iva</th>
+												<th>estado</th>
+											</tr>
+										</thead>
+									<?php 
+								$icono ='';
+								foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
+										/*Si el tipo de tienda es web entonces se añade un icono con un enlace al producto de virtalmark*/
+										if ($refeTienda['tipoTienda'] === 'web'){
+											$icono = '<a href=http://'.$refeTienda['dominio'].'/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$refeTienda['idVirtu'].'><span class="glyphicon glyphicon-globe"></span></a>';
+										}
+									if ($refeTienda['tipoTienda'] <> 'principal'){
+									?>
+									<tr>
+										<td><?php echo $refeTienda['idVirtu'];?></td>
+										<td><?php echo $refeTienda['idTienda']; ?></td>
+										<td><?php echo $refeTienda['nombreTienda']; echo ' '.$icono; ?></td>
+										<td><?php echo $refeTienda['pvpCiva']; ?></td>
+										<td><?php echo $refeTienda['estado']; ?></td>
+									</tr>
+									<?php
+									}
+								}
+								?>
+									</table>
+								</div>
+							</div>
+						</div>
+
+
+
 					<!-- Fin de panel-group -->
 					</div> 
 
@@ -341,57 +385,6 @@
 				
 			</div>
 					
-						
-						
-				
-						
-				
-			<div class="col-md-12"> <!--Tiendas--><!-- referencias por tiendas-->
-					<div class="col-md-8 ">
-						<h3>Referencias en las distintas tiendas:</h3>
-					<table class="table table-striped">
-						<thead>
-							<tr>
-<!--
-								<th>referencia</th>
--->
-								<th>id virtuemart</th>
-								<th>id tienda</th>
-								<th>nombre tienda</th>
-								<th>precio con iva</th>
-								<th>estado</th>
-							</tr>
-						</thead>
-						<?php 
-						$icono ='';
-						foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
-							/*Si el tipo de tienda es web entonces se añade un icono con un enlace al producto de virtalmark*/
-							if ($refeTienda['tipoTienda'] === 'web'){
-								$icono = '<a href=http://'.$refeTienda['dominio'].'/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$refeTienda['idVirtu'].'><span class="glyphicon glyphicon-globe"></span></a>';
-							}
-							if ($refeTienda['tipoTienda'] <> 'principal'){
-						?>
-						<tr>
-<!--
-							<td><?php /*echo $refeTienda['cref'];*/ ?></td>
--->
-							<td><?php echo $refeTienda['idVirtu'];?></td>
-							<td><?php echo $refeTienda['idTienda']; ?></td>
-							<td><?php echo $refeTienda['nombreTienda']; echo ' '.$icono; ?></td>
-							<td><?php echo $refeTienda['pvpCiva']; ?></td>
-							<td><?php echo $refeTienda['estado']; ?></td>
-						</tr>
-						<?php
-					}
-						}
-						?>
-					</table>
-					</div> <!-- div contiene tabla-->
-					
-					
-				
-				</form>
-				
 		</div> <!-- container-->
 	</body>
 </html>
