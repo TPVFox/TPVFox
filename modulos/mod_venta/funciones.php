@@ -456,14 +456,24 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				$classtr = ' ';
 				$estadoInput = ' ';
 			}
-			if (isset ($producto['NumpedCli'])){
-				if ($producto['NumpedCli']==0){
+			if (isset ($producto['Numpedcli'])){
+				if ($producto['Numpedcli']==0){
 					$numeroPed="";
 				}else{
-					$numeroPed=$producto['NumpedCli'];
+					$numeroPed=$producto['Numpedcli'];
 				}
 			}else{
-				$numeroPed="";
+				if (isset ($producto['NumpedCli'])){
+					if ($producto['NumpedCli']==0){
+						$numeroPed="";
+					}else{
+						$numeroPed=$producto['NumpedCli'];
+					}
+				}else{
+					$numeroPed="";
+				}
+				
+				
 			}
 			
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
@@ -615,7 +625,7 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 			while ($fila = $datosPedido->fetch_assoc()) {
 				$ped[] = $fila;
 			}
-			$res['Numpedcli']=$pedido['numPedido'];
+			$res['Numpedcli']=$pedido['numPedido '];
 			$res['fecha']=$ped[0]['FechaPedido'];
 			$res['idPedCli']=$ped[0]['idCliente'];
 			$res['total']=$ped[0]['total'];

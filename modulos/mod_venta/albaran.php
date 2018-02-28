@@ -39,10 +39,12 @@ include './../../head.php';
 		$productos=json_decode(json_encode($productosAlbaran));
 		$Datostotales = recalculoTotalesAl($productos);
 		$productos=json_decode(json_encode($productosAlbaran), true);
+	
 		if ($pedidosAlbaran){
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 			 $pedidos=json_decode(json_encode($modificarPedido), true);
 		}
+			
 		$total=$Datostotales['total'];
 		
 		
@@ -379,6 +381,7 @@ if (isset($_GET['tActual'])){
 		<tbody>
 			<?php 
 			//Si el albarán ya tiene productos 
+		
 			if (isset($productos)){
 				$productos=array_reverse($productos);
 				foreach ( $productos as $producto){
