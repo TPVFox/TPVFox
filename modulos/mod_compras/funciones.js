@@ -76,6 +76,10 @@ function controladorAcciones(caja,accion, tecla){
 						var nuevofocus="suNumero";
 						ponerFocus(nuevofocus);
 					}else{
+						 if ($('#id_proveedor').prop("disabled") == true) {
+							 var nuevofocus="idArticulo";
+							 ponerFocus(nuevofocus);
+						 }
 						ponerFocus(d_focus);
 					}
 				}else{
