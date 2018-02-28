@@ -589,6 +589,13 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
+function ponerSelect(destino_focus){
+	console.log('Entro en enviar select de :'+destino_focus);
+	console.log(destino_focus.toString());
+	jQuery('#'+destino_focus.toString()).select(); 
+	
+
+}
 function before_constructor(caja){
 	// @ Objetivo :
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
@@ -687,11 +694,13 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
 							datos.precioCiva=pvpCiva.toFixed(2);
 							
+							n_item=parseInt(productos.length);
+							var campo='Unidad_Fila_'+n_item;
 							productos.push(datos);
 						
 							addFacturaTemp();
 							
-							AgregarFilaProductosAl(datos, dedonde);
+							AgregarFilaProductosAl(datos, dedonde, campo);
 							resetCampo(id_input);
 						}
 						else{
@@ -725,6 +734,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							datos.iva=resultado['datos'][0]['iva'];
 							datos.ncant=1;
 							datos.nfila=productos.length+1;
+							
 							datos.nunidades=1;
 							var importe =resultado['datos'][0]['pvpCiva']*1;
 							datos.importe=importe.toFixed(2);
@@ -732,10 +742,13 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							datos.precioCiva=pvpCiva.toFixed(2);
 							
 							productos.push(datos);
-						
+							
+							n_item=parseInt(productos.length);
+							var campo='Unidad_Fila_'+n_item;
 							addAlbaranTemp();
-							AgregarFilaProductosAl(datos, dedonde);
+							AgregarFilaProductosAl(datos, dedonde, campo);
 							resetCampo(id_input);
+						
 						}else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 				
@@ -781,8 +794,12 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					if (cabecera.idPedido>0){
 						ModificarEstadoPedido("pedidos", "Sin Guardar");
 					}
+					
+					num=parseInt(productos.length);
+					var campo='Unidad_Fila_'+num;
+					
 					addProductoTemp();
-					agregarFilaProducto(num_item);
+					agregarFilaProducto(num_item, campo);
 					resetCampo(id_input);
 				}else{
 					console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
@@ -877,7 +894,7 @@ function addProductoTemp(){
 	});
 }
 //html que se muestra cuando añadimos un producto nuevo
-function agregarFilaProducto(num_item){
+function agregarFilaProducto(num_item, campo){
 	console.log(num_item);
 	//Recibe el número del productos (el número de la fila)
 	var parametros = {
@@ -902,9 +919,9 @@ function agregarFilaProducto(num_item){
 			var nuevafila = resultado['html'];
 			// devuelve el html de la fila del producto
 			$("#tabla").prepend(nuevafila);
-			var campo='#Unidad_Fila_'+num_item;
+			//~ var campo='#Unidad_Fila_'+num_item;
 			console.log(campo);
-			$(campo).focus();
+			ponerSelect(campo);
 			return resultado;
 		}
 	});
@@ -1862,7 +1879,7 @@ function AgregarFilaAlbaran(datos){
 	});
 }
 // Agrega el nuevo html de un producto al principio de la tabla productos
-function AgregarFilaProductosAl(productosAl, dedonde=''){
+function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
 	console.log("Estoy en agregar fila productos albaran");
 	
 	if (productosAl.length>1){
@@ -1892,7 +1909,7 @@ function AgregarFilaProductosAl(productosAl, dedonde=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			
-			
+				ponerSelect(campo);
 		}
 	});
 }
