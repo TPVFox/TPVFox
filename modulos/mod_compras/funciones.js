@@ -190,11 +190,13 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 				}else{
 					productos[nfila].ultimoCoste=valor;
 					var bandera=productos[nfila].iva/100;
-					productos[nfila].importe=(bandera + parseInt (valor))*productos[nfila].ncant;
-					console.log(valor);
+					productos[nfila].importe=(bandera + parseFloat(valor))*productos[nfila].ncant;
+					
 					var id = '#N'+productos[nfila].nfila+'_Importe';
 					importe = productos[nfila].importe.toFixed(2);
 					$(id).html(importe);
+					console.log("estamos modificando el importe");
+					console.log(valor);
 					// Dependiendo de donde venga se ejecuta una función distinta
 					if (dedonde=="albaran"){
 						addAlbaranTemp();
