@@ -118,12 +118,11 @@ class AlbaranesVentas{
 		
 	}
 	//Añadir nuevos registros de un albaran real 
-		public function AddAlbaranGuardado($datos, $idAlbaran){
+		public function AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran){
 		$db = $this->db;
 		if ($idAlbaran>0){
-		$smt = $db->query ('INSERT INTO albclit (Numalbcli, Fecha, idTienda , idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].')');
-		$id=$db->insert_id;
-		$resultado='INSERT INTO albclit (Numalbcli, Fecha, idTienda , idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].')';
+		$smt = $db->query ('INSERT INTO albclit (id, Numalbcli, Fecha, idTienda , idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.' , '.$numAlbaran.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].')');
+		$id=$idAlbaran;
 		}else{
 		$smt = $db->query ('INSERT INTO albclit (Numtemp_albcli, Fecha, idTienda , idUsuario , idCliente , estado , total) VALUES ('.$datos['Numtemp_albcli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].')');
 		$id=$db->insert_id;
@@ -132,7 +131,7 @@ class AlbaranesVentas{
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
-			if ($prod['estado']== 'Activo'){
+			if ($prod['estadoLinea']== 'Activo'){
 			if ($prod['ccodbar']){
 				$codBarras=$prod['ccodbar'];
 			}else{
