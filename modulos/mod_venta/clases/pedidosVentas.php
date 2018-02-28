@@ -183,6 +183,7 @@ class PedidosVentas{
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
+			if($prod['estado']=='Activo'){
 			if ($prod['codBarras']){
 				$codBarras=$prod['codBarras'];
 			}else{
@@ -195,6 +196,7 @@ class PedidosVentas{
 			$smt=$db->query('INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '.$prod['crefTienda'].', '.$codBarras.', "'.$prod['articulo_name'].'", '.$prod['cant'].' , '.$prod['cant'].', '.$prod['pvpCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" )' );
 		}
 		}
+	}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idPedido>0){
 			$smt=$db->query('INSERT INTO pedcliIva (idpedcli ,  Numpedcli , iva , importeIva, totalbase) VALUES ('.$id.', '.$idPedido.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
