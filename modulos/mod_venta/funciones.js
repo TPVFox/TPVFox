@@ -407,7 +407,17 @@ function controladorAcciones(caja,accion){
 			productos[nfila].unidad = caja.darValor();
 			console.log(productos[nfila].unidad);
 			recalculoImporte(productos[nfila].unidad,nfila, caja.darParametro('dedonde'));
+			if (caja.darParametro('dedonde')=="albaran"){
+					var d_focus = 'idArticuloAl';
+				}
+				if (caja.darParametro('dedonde')=="pedidos"){
+					var d_focus = 'idArticulo';
+				}
+				if (caja.darParametro('dedonde')=="factura"){
+					var d_focus = 'idArticuloFac';
+				}
 			
+			ponerFocus(d_focus);
 			break;
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
