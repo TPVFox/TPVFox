@@ -704,7 +704,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
 							datos.precioCiva=pvpCiva.toFixed(2);
 							
-							n_item=parseInt(productos.length);
+							n_item=parseInt(productos.length)+1;
 							var campo='Unidad_Fila_'+n_item;
 							productos.push(datos);
 						
