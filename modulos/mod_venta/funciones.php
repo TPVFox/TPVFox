@@ -743,6 +743,18 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$Datostotales = recalculoTotalesAl($productos1);
 		
 	}
+	if ($dedonde=='factura'){
+		$Cfaccli=new FacturasVentas($BDTpv);
+		$datos=$Cfaccli->datosFactura($id);
+		$idCliente=$datos['idCliente'];
+		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
+		$textoCabecera="Factura de Cliente";
+		$numero=$datos['Numfaccli'];
+		$fecha=$datos['Fecha'];
+		$productos=$Cfaccli->ProductosFactura($id);
+		$productos1=json_decode(json_encode($productos));
+		$Datostotales = recalculoTotalesAl($productos1);
+	}
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
 		$imprimir['cabecera'].='<td>'.$tienda['NombreComercial'].'</td>';
@@ -788,7 +800,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 			$imprimir['cabecera'].='<td WIDTH="5%" align="center">PED</td>';
 		}
 		if ($dedonde=="factura"){
-			$imprimir['cabecera'].='<td WIDTH="5%">ALB</td>';
+			$imprimir['cabecera'].='<td WIDTH="5%" align="center">ALB</td>';
 		}
 		$imprimir['cabecera'].='<td WIDTH="15%" >REF</td>';
 		$imprimir['cabecera'].='<td WIDTH="40%">DESCRIPCIÓN</td>';
@@ -808,6 +820,14 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 					$numPed="";
 				}
 				$imprimir['html'].='<td WIDTH="5%">'.$numPed.'</td>';
+			}
+			if ($dedonde=="factura"){
+				if ($producto['NumalbCli']){
+					$numAlb=$producto['NumalbCli'];
+				}else{
+					$numAlb="";
+				}
+				$imprimir['html'].='<td WIDTH="5%">'.$numAlb.'</td>';
 			}
 			$imprimir['html'].='<td WIDTH="15%" >'.$producto['cref'].'</td>';
 			$imprimir['html'].='<td WIDTH="40%" >'.$producto['cdetalle'].'</td>';

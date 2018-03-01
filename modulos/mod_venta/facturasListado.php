@@ -178,7 +178,22 @@ include '../../header.php';
 						<td><?php echo $totaliva['totalbase'];?></td>
 						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $factura['total'];?></td>
-						<td><?php echo $factura['estado'];?></td>
+						<?php 
+						if ($factura['estado']=="Sin Guardar"){
+							?>
+							<td><?php echo $factura['estado'];?></td>
+							<?php
+						}else{
+							$tienda=json_encode($_SESSION['tiendaTpv']);
+							
+							?>
+						<td><?php echo $factura['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $factura['id'];?>, "factura", <?php echo $tienda;?>)'></a></td>
+
+							
+							<?php
+						}
+						
+						?>
 						</tr>
 						<?php
 					}
