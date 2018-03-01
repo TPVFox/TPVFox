@@ -1186,7 +1186,7 @@ function ponerSelect(destino_focus){
 //Y dependiendo de donde venga el modal llamamos a una función u otra de esta manera utilizamos esta función estemos donde estemos
 
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, crefProveedor){
-	console.log(crefProveedor);
+	console.log(datos);
 		var datos = new Object();
 		datos.ccodbar=ccodebar;
 		datos.cdetalle=cdetalle;

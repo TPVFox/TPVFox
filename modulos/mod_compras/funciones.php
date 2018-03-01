@@ -184,7 +184,12 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-			$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';				
+			if ($id_input=="ReferenciaPro"){
+				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
+			}else{
+				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';	
+			}
+						
 			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.number_format($producto['ultimoCoste'],2).'</td>';
 
