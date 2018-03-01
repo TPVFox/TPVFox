@@ -1185,7 +1185,8 @@ function ponerSelect(destino_focus){
 //En el que vamos metiendo los campos (algunos como importe hay que calcularlos)
 //Y dependiendo de donde venga el modal llamamos a una función u otra de esta manera utilizamos esta función estemos donde estemos
 
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, crefProveedor){
+	console.log(crefProveedor);
 		var datos = new Object();
 		datos.ccodbar=ccodebar;
 		datos.cdetalle=cdetalle;
@@ -1196,6 +1197,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		datos.ncant=1;
 		datos.nfila=productos.length+1;
 		datos.nunidades=1;
+		datos.crefProveedor=crefProveedor;
 		var bandera=ctipoIva/100;
 		var importe =(bandera+ultimoCoste)*1;
 		datos.importe=importe.toFixed(2);
@@ -1211,8 +1213,10 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		if (dedonde=="factura"){
 			addFacturaTemporal();
 		}
-		AgregarFilaProductosAl(datos, dedonde);
 		var num_item=datos.nfila;
+		var campo1='Unidad_Fila_'+num_item;
+		AgregarFilaProductosAl(datos, dedonde,  campo1);
+		
 		resetCampo(campo);
 		var campo='Unidad_Fila_'+num_item;
 		cerrarPopUp(campo);
