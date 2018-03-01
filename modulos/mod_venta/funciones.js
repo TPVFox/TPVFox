@@ -671,6 +671,9 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		"campo"      : campo,
 		"idcaja"	 :idcaja
 	};
+	if (busqueda==""){
+		alert("ERROR NO HAS ESCRITO NADA");
+	}else{
 	console.log(dedonde);
 	$.ajax({
 		data       : parametros,
@@ -835,7 +838,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		
 
 	});
-	
+}
 }
 //Añadir un producto y modificar el importe del total e iva
 function addProductoTemp(){
