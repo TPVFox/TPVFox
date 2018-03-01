@@ -85,9 +85,6 @@ function agregoCodBarrasVacio(contNuevo){
 			var nuevafila = resultado['html'];
 			console.log(nuevafila);
 			
-			//$ signifca jQuery 
-			//$("#tabla").prepend(nuevafila);
-			
 			$("#tcodigo").prepend(nuevafila);
 			
 		}

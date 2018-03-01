@@ -33,6 +33,7 @@
 			$id=$_GET['id']; // Obtenemos id producto para modificar.
 			$idArticulo = $id;
 			$Producto = verSelec($BDTpv,$id,$tabla,$idTienda);	
+			
 			$refTiendas = referenciasTiendas($BDTpv,$id);
 			$codigosBarras = codigosBarras($BDTpv,$id);
 			$familias = nombreFamilias($BDTpv,$idArticulo);
@@ -100,16 +101,16 @@
 		if ($_POST){
 			$datos=$_POST;
 			$datos['idTienda']=$idTienda;
+			$datos['idProducto']=$_POST['id'];
 			//Si el producto no esta creado
 			if ($bandera == 1){
 			$datos['estado']="Activo";
 			$datos['idTienda']=$idTienda;
+			
 			//Se añade un producto y nos retorna al listado de productos
 				$res=añadirProducto($BDTpv, $datos, $tabla);
 				header('Location:ListaProductos.php');
-			//~ echo '<pre>';
-			//~ print_r($res);
-			//~ echo '</pre>';
+			
 			}else{
 				//De lo contrario se modifica y nos retorna a las especificaciones del producto con un mensaje
 			$res=modificarProducto($BDTpv, $datos, $tabla);
@@ -161,6 +162,7 @@
 				<div class="col-md-7 Datos">
 					<?php // si es nuevo mostramos Nuevo ?>
 					<h3>Datos generales de producto <?php echo $idArticulo?>:</h3>
+					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $idArticulo?>"   >
 					<div class="col-md-12">
 						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
