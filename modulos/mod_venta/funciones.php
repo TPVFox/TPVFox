@@ -715,5 +715,19 @@ function htmlImporteFactura($importe, $fecha, $pendiente){
 	return $respuesta;
 	
 }
-
+function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
+	$Ccliente=new Cliente($BDTpv);
+	if ($dedonde=='pedido'){
+		$datosPedido=$Cpedido->datosPedidos($idPedido);
+		$idCliente=$datosPedido['idCliente'];
+		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
+		
+	}
+		$imprimir['cabecera'].='<table margin>';
+		$imprimir['cabecera'].='<tr>';
+		
+		$imprimir['cabecera'].='</tr>';
+		$impimir['cabecera'].='</table>';
+		return $imprimir;
+}
 ?>

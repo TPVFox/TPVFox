@@ -1958,3 +1958,27 @@ function selectFormas(){
 		}
 	});	
 }
+function imprimir(id, dedonde, tienda){
+	var parametros = {
+		"pulsado"    : 'datosImprimir',
+		"dedonde":dedonde,
+		"id":id,
+		"tienda":tienda
+	};
+	console.log(parametros);
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en datos Imprimir JS****************');
+			},
+			success    :  function (response) {
+				 var resultado =  $.parseJSON(response); 
+				 window.open(resultado);
+		}
+		
+	});
+	
+		
+}

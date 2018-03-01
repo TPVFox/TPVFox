@@ -12,7 +12,6 @@
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
 	$todoTemporal=$Cpedido->TodosTemporal();
-	
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -61,7 +60,7 @@ if ($stringPalabras !== '' ){
 </head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
 <?php
 include '../../header.php';
@@ -177,8 +176,10 @@ include '../../header.php';
 							<td><?php echo $pedido['estado'];?></td>
 							<?php
 						}else{
+							$tienda=json_encode($_SESSION['tiendaTpv']);
+							
 							?>
-						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a></td>
+						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $tienda;?>)'></a></td>
 
 							
 							<?php

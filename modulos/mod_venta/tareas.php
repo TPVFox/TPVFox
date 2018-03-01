@@ -522,6 +522,20 @@ switch ($pulsado) {
 		}
 			echo json_encode($respuesta);
 		break;
+		case 'datosImprimir':
+		$id=$_POST['id'];
+		$dedonde=$_POST['dedonde'];
+		$tienda=$_POST['tienda'];
+		$nombreTmp=$dedonde."ventas.pdf";
+		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $tienda);
+		$cabecera=$htmlImprimir['cabecera'];
+		$html=$htmlImprimir['html'];
+		require_once('../../lib/tcpdf/tcpdf.php');
+		include ('../../clases/imprimir.php');
+		include('../../controllers/planImprimir.php');
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+		echo json_encode($ficheroCompleto);
+		break;
 		
 		
 		
