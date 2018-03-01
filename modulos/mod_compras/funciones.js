@@ -753,7 +753,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 		"idProveedor": cabecera.idProveedor,
 		"dedonde":dedonde
 	};
-	console.log(id_input);
+	if (busqueda==""){
+		alert("ERROR NO HAS ESCRITO NADA");
+	}else{
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -854,6 +856,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 		
 
 	});
+}
 }
 
 //Funcion que agrega una fila a la tabla productos 
