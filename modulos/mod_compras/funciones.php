@@ -495,7 +495,11 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 	}
 	return $respuesta;
 }
-
+//Función que monta el html del pdf, primero se carga los datos dependiendo de donde venga 
+//A continuación se va montando el html pero en dos partes :
+//				- UNa la cabecera : son los datos que queremos fijos en todas las páginas 
+//				- otro es el cuerpo 
+//No hayq eu preocuparse si es mucho contenido ya que la librería pasa automaticamente a la siguiente hoja
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$CProv= new Proveedores($BDTpv);
 	if ($dedonde=="factura"){

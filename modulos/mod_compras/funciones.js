@@ -554,7 +554,7 @@ function imprimir(id, dedonde, idTienda){
 			},
 			success    :  function (response) {
 				 var resultado =  $.parseJSON(response); 
-				 window.open(resultado);
+				 window.open(resultado);// Abre una nuvea pestaña con el documento pdf que se generó anteriormente
 		}
 		
 	});
