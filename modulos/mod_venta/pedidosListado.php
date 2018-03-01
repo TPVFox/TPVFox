@@ -176,7 +176,20 @@ include '../../header.php';
 						<td><?php echo $totaliva['totalbase'];?></td>
 						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $pedido['total'];?></td>
-						<td><?php echo $pedido['estado'];?></td>
+						<?php 
+						if ($pedido['estado']=="Sin Guardar"){
+							?>
+							<td><?php echo $pedido['estado'];?></td>
+							<?php
+						}else{
+							?>
+						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a></td>
+
+							
+							<?php
+						}
+						
+						?>
 						
 						</tr>
 						<?php
