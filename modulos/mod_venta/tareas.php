@@ -133,15 +133,7 @@ switch ($pulsado) {
 		break;
 		
 		
-		//~ case 'HtmlLineaLinea':
-			//~ $respuesta = array();
-			//~ $product=$_POST['producto'];
-			//~ $num_item=$_POST['num_item'];
-			//~ $CONF_campoPeso=$_POST['CONF_campoPeso'];
-			//~ $res = htmlLineaTicket($product,$num_item,$CONF_campoPeso);
-			//~ $respuesta['html'] =$res;
-			//~ echo json_encode($respuesta);
-		//~ break;
+	
 		
 		//BUscar los pedidos guardado de un cliente para el apartado albaranes, si el pedido que inserto existe guarda los datos de este
 		//Si no muestra un modal con los pedidos guardados de ese cliente
@@ -325,10 +317,10 @@ switch ($pulsado) {
 		//Modificar el estado de un pedido a Sin Guardar si viene de pedidos , si viene de albarán a facturado
 		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
 		case 'modificarEstadoPedido':
-			if ($_POST['dedonde']=="Pedidos"){
+			if ($_POST['dedonde']=="pedidos"){
 				$idPedido=$_POST['idPedido'];
 				$idTemporal=$_POST['numPedidoTemp'];
-				if ($idPedido>0 & $idTemporal>0){
+				if ($idPedido>0){
 					$estado="Sin Guardar";
 					$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
 					$respuesta['sql']=$modEstado;

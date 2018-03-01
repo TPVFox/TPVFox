@@ -159,12 +159,7 @@ include '../../header.php';
 					$checkUser = 0;
 					foreach($pedidosDef as $pedido){
 						$checkUser = $checkUser + 1;
-						//~ $cantTemporal=$Cpedido->contarPedidosTemporal($pedido['id']);
-						//~ if ($cantTemporal['numPedTemp']>0){
-							//~ $cantTemp=$cantTemporal['numPedTemp'];
-						//~ }else{
-							//~ $cantTemp="";
-						//~ }
+						
 						$totaliva=$Cpedido->sumarIva($pedido['Numpedcli']);
 						?>
 						<tr>
