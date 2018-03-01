@@ -726,9 +726,22 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$numero=$datos['Numpedcli'];
 		$fecha=$datos['FechaPedido'];
 		$productos=$Cpedido->ProductosPedidos($id);
-		$productosMod=modificarArrayProductos($productos);//MOdificar el array de productos según lo que necesitamos
+		$productosMod=modificarArrayProductos($productos);
 		$productos1=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos1);
+	}
+	if ($dedonde =='albaran'){
+		$Calbaran=new AlbaranesVentas($BDTpv);
+		$datos=$Calbaran->datosAlbaran($id);
+		$idCliente=$datos['idCliente'];
+		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
+		$textoCabecera="Albarán de Cliente";
+		$numero=$datos['Numalbcli'];
+		$fecha=$datos['Fecha'];
+		$productos=$Calbaran->ProductosAlbaran($id);
+		$productos1=json_decode(json_encode($productos));
+		$Datostotales = recalculoTotalesAl($productos1);
+		
 	}
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
@@ -771,22 +784,36 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 			$imprimie['cabecera'].='</br></br>';
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
-		$imprimir['cabecera'].='<td WIDTH="15%" align="center">REF</td>';
-		$imprimir['cabecera'].='<td WIDTH="50%">DESCRIPCIÓN</td>';
-		$imprimir['cabecera'].='<td WIDTH="7%" align="center">CANT</td>';
-		$imprimir['cabecera'].='<td WIDTH="10%" align="center">PRECIO</td>';
-		$imprimir['cabecera'].='<td WIDTH="7%" align="center">IVA</td>';
-		$imprimir['cabecera'].='<td WIDTH="20%" align="center">IMPORTE</td>';
+		if ($dedonde=="albaran"){
+			$imprimir['cabecera'].='<td WIDTH="5%" align="center">PED</td>';
+		}
+		if ($dedonde=="factura"){
+			$imprimir['cabecera'].='<td WIDTH="5%">ALB</td>';
+		}
+		$imprimir['cabecera'].='<td WIDTH="15%" >REF</td>';
+		$imprimir['cabecera'].='<td WIDTH="40%">DESCRIPCIÓN</td>';
+		$imprimir['cabecera'].='<td WIDTH="7%" >CANT</td>';
+		$imprimir['cabecera'].='<td WIDTH="10%" >PRECIO</td>';
+		$imprimir['cabecera'].='<td WIDTH="7%" >IVA</td>';
+		$imprimir['cabecera'].='<td WIDTH="20%" >IMPORTE</td>';
 		$imprimir['cabecera'].='</tr>';
 		$imprimir['cabecera'].='</table>';
 		$imprimir['html'].='<table>';
 		foreach ($productos as $producto){
 			$imprimir['html'].='<tr>';
-			$imprimir['html'].='<td WIDTH="15%" align="center">'.$producto['cref'].'</td>';
-			$imprimir['html'].='<td WIDTH="50%" >'.$producto['cdetalle'].'</td>';
-			$imprimir['html'].='<td WIDTH="7%" align="center">'.number_format($producto['ncant'],0).'</td>';
-			$imprimir['html'].='<td WIDTH="10%" align="center">'.number_format($producto['precioCiva'],2).'</td>';
-			$imprimir['html'].='<td WIDTH="7%" align="center">'.$producto['iva'].'</td>';
+			if ( $dedonde=="albaran"){
+				if ($producto['NumpedCli'] ){
+					$numPed=$producto['NumpedCli'];
+				}else{
+					$numPed="";
+				}
+				$imprimir['html'].='<td WIDTH="5%">'.$numPed.'</td>';
+			}
+			$imprimir['html'].='<td WIDTH="15%" >'.$producto['cref'].'</td>';
+			$imprimir['html'].='<td WIDTH="40%" >'.$producto['cdetalle'].'</td>';
+			$imprimir['html'].='<td WIDTH="7%" aling="center">'.number_format($producto['ncant'],0).'</td>';
+			$imprimir['html'].='<td WIDTH="10%" >'.number_format($producto['precioCiva'],2).'</td>';
+			$imprimir['html'].='<td WIDTH="7%" >'.$producto['iva'].'</td>';
 			$importe = $producto['precioCiva']*$producto['ncant'];
 			$importe = number_format($importe,2);
 			$imprimir['html'].='<td WIDTH="20%" align="center">'.$importe.'</td>';

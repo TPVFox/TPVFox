@@ -178,7 +178,22 @@ include '../../header.php';
 						<td><?php echo $totaliva['totalbase'];?></td>
 						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $albaran['total'];?></td>
-						<td><?php echo $albaran['estado'];?></td>
+						<?php 
+						if ($albaran['estado']=="Sin Guardar"){
+							?>
+							<td><?php echo $albaran['estado'];?></td>
+							<?php
+						}else{
+							$tienda=json_encode($_SESSION['tiendaTpv']);
+							
+							?>
+						<td><?php echo $albaran['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $albaran['id'];?>, "albaran", <?php echo $tienda;?>)'></a></td>
+
+							
+							<?php
+						}
+						
+						?>
 						</tr>
 						<?php
 					}
