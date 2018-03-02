@@ -358,8 +358,8 @@ function modificarArrayProductos($productos){
 		if (isset($producto['Numpedpro'])){
 			$pro['numPedido']=$producto['Numpedpro'];
 		}
-		if (isset ($producto['Numfacpro'])){
-			$pro['idalbpro']=$producto['Numfacpro'];
+		if (isset ($producto['Numalbpro'])){
+			$pro['numAlbaran']=$producto['Numalbpro'];
 		}
 		$bandera=$producto['iva']/100;
 		$importe=($bandera+$producto['costeSiva'])*$producto['ncant'];

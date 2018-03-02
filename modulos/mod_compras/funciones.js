@@ -1266,7 +1266,7 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 	num=nfila-1;
 	
 	line = "#lineaP" + albaranes[num].nfila;
-	console.log(line);
+	console.log(num);
 	albaranes[num].estado= 'Eliminado';
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');

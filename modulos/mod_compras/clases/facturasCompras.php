@@ -187,7 +187,7 @@ class FacturasCompras{
 		}
 		$productos = json_decode($datos['productos'], true);
 		foreach ( $productos as $prod){
-			if ($prod['estado']=='Activo'){
+			if ($prod['estado']=='Activo' || $prod['estado']=='activo'){
 			if ($prod['ccodbar']){
 				$codBarras=$prod['ccodbar'];
 			}else{
@@ -225,12 +225,14 @@ class FacturasCompras{
 		$pedidos = json_decode($datos['albaranes'], true); 
 		foreach ($pedidos as $pedido){
 			if($idAlbaran>0){
+				if ($pedido['estado']=="activo"){
 				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')');
 				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')';
 				}else{
 				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')');
 				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')';
 				}
+			}
 		}
 		return $resultado;
 	}

@@ -26,6 +26,7 @@ include './../../head.php';
 		$datosFactura=$CFac->datosFactura($idFactura);
 		
 		$productosFactura=$CFac->ProductosFactura($idFactura);
+	
 		$ivasFactura=$CFac->IvasFactura($idFactura);
 		$abaranesFactura=$CFac->albaranesFactura($idFactura);
 		$estado=$datosFactura['estado'];
@@ -49,6 +50,9 @@ include './../../head.php';
 		$productos=json_decode(json_encode($productosFactura));
 		$Datostotales = recalculoTotalesAl($productos);
 		$productos=json_decode(json_encode($productosFactura), true);
+			//~ echo '<pre>';
+			//~ print_r($abaranesFactura);
+			//~ echo '</pre>';
 		if ($abaranesFactura){
 			 $modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
