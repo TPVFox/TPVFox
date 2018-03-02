@@ -531,7 +531,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 // hacemos comprobaciones de estilos 
 ?>
 <script type="text/javascript">
-	$('#id_proveedor').focus();
+	$('#fecha').focus();
 	<?php
 	if ($idProveedor>0){
 		?>
