@@ -513,7 +513,7 @@ if ($suNumero==0){
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
-	$('#id_proveedor').focus();
+	$('#fecha').focus();
 	<?php
 	if ($idProveedor>0){
 		?>
