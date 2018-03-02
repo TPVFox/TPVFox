@@ -149,14 +149,16 @@ class AlbaranesCompras{
 		$pedidos = json_decode($datos['pedidos'], true); 
 		if (is_array($pedidos)){
 			foreach ($pedidos as $pedido){
-			if($idAlbaran>0){
-				$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
-				$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
-				}else{
-				$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
-				$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
+				if ($pedido['estado']=="activo"){
+					if($idAlbaran>0){
+						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
+						$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
+						}else{
+						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
+						$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
+					}
+				}
 			}
-		}
 		}
 	
 		return $resultado;
