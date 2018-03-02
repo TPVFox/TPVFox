@@ -97,7 +97,10 @@ include './../../head.php';
 				$estadoCab="'".'Abierto'."'";
 				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
+				
+			
 				$albaranes=json_decode($datosFactura['Albaranes']);
+				
 		}
 		
 	}
@@ -151,9 +154,10 @@ include './../../head.php';
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
 		}else{
 				$idFactura=0;
-				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura);
+				$numFactura=0;
+				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
-				//~ //print_r($addNuevo);
+				 //print_r($addNuevo);
 			
 		}
 		header('Location: facturasListado.php');
@@ -361,14 +365,16 @@ if ($suNumero==0){
 				</thead>
 				
 				<?php 
-				echo '<pre>';
-				print_r($albaranes);
-				echo '</pre>';
+				$i=1;
 				if (is_array($albaranes)){
 					foreach ($albaranes as $albaran){
+						if (isset ($albaran['nfila'])){
+						}else{
+							$albaran['nfila']=$i;
+						}
 						$html=lineaPedidoAlbaran($albaran, "factura");
 					echo $html['html'];
-					
+					$i++;
 					}
 					
 				}

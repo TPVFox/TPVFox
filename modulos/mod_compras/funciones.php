@@ -460,7 +460,7 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 	
 			}
 		}
-		$respuesta['html'] .='<tr id="Row'.($pedido['nfila']).'" '.$classtr.'>';
+		$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
 		if (isset($pedido['Numpedpro'])){
 			$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
 		}else{
@@ -497,6 +497,7 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 //MOdifica el array de albaranes , esta función se carga en facturas.php
 function modificarArrayAlbaranes($alabaranes, $BDTpv){
 	$respuesta=array();
+	$i=1;
 	foreach ($alabaranes as $albaran){
 			$datosAlbaran=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$albaran['idAlbaran'] );
 			while ($fila = $datosAlbaran->fetch_assoc()) {
@@ -507,8 +508,9 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 			$res['idPePro']=$alb[0]['idProveedor'];
 			$res['total']=$alb[0]['total'];
 			$res['estado']="activo";
+			$res['nfila']=$i;
 			array_push($respuesta,$res);
-		
+		$i++;
 	}
 	return $respuesta;
 }
