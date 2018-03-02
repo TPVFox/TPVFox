@@ -141,7 +141,7 @@ include './../../head.php';
 			'total'=>$total,
 			'DatosTotales'=>$Datostotales,
 			'productos'=>$datosFactura['Productos'],
-			'pedidos'=>$datosFactura['Pedidos'],
+			'albaranes'=>$datosFactura['Albaranes'],
 			'suNumero'=>$suNumero
 		);
 		
@@ -157,10 +157,13 @@ include './../../head.php';
 				$numFactura=0;
 				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
-				 //print_r($addNuevo);
+				echo '<pre>';
+				print_r($datosFactura['Albaranes']);
+				echo '</pre>';
+				 print_r($addNuevo);
 			
 		}
-		header('Location: facturasListado.php');
+		//header('Location: facturasListado.php');
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
@@ -190,6 +193,9 @@ include './../../head.php';
 		}else{
 			$style="display:none;";
 		}
+		echo '<pre>';
+		print_r($albaranes);
+		echo '</pre>';
 		if($_GET['id'] >0 ||$_GET['tActual']>0){
 			$estiloTablaProductos="";
 		}else{
