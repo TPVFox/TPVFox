@@ -443,19 +443,35 @@ function modalAlbaranes($albaranes){
 	return $respuesta;
 }
 //Agrega la linea de pedidos a un alabaran con los datos necesarios
-function lineaPedidoAlbaran($pedido){
+function lineaPedidoAlbaran($pedido, $dedonde){
 		$respuesta['html']="";
 	if(isset($pedido)){
-
-		$respuesta['html'] .='<tr>';
-		if ($pedido['Numpedpro']){
+		if ($pedido['estado']){
+			if ($pedido['estado']=="activo"){
+				$funcOnclick = ' eliminarAdjunto('.$pedido['Numalbpro'].' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$classtr = '';
+				$estadoInput = '';
+			}else{
+				$classtr = ' class="tachado" ';
+				$estadoInput = 'disabled';
+				$funcOnclick = ' retornarAdjunto('.$pedido['Numalbpro'].', '."'".$dedonde."'".', '.$pedido['nfila'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+	
+			}
+		}
+		$respuesta['html'] .='<tr id="Row'.($pedido['nfila']).'" '.$classtr.'>';
+		if (isset($pedido['Numpedpro'])){
 			$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
 		}else{
 			$respuesta['html'] .='<td>'.$pedido['Numalbpro'].'</td>';
 		}
 		
+		
 		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		
+		$respuesta['html'].=$btnELiminar_Retornar;
 		$respuesta['html'] .='</tr>';
 	}
 	return $respuesta;

@@ -255,6 +255,7 @@ switch ($pulsado) {
 			$date = new DateTime($datosAlbaran['Fecha']);
 			$respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
 			$respuesta['datos']['total']=$datosAlbaran['total'];
+			$respuesta['datos']['estado']="activo";
 			$respuesta['Nitems']=$datosAlbaran['Nitem'];
 			$productosAlbaran=$CAlb->ProductosAlbaran($datosAlbaran['id']);
 			$respuesta['productos']=$productosAlbaran;
@@ -390,7 +391,8 @@ switch ($pulsado) {
 		//Modifica el estado tanto de un pedido como de un albaran a facturado dependiendo de donde venga
 		case 'modificarEstadoPedido':
 		$respuesta="";
-		$estado="Facturado";
+		//$estado="Facturado";
+		$estado=$_POST['estado'];
 		if ($_POST['dedonde']=="albaran"){
 			$idPedido=$_POST['idPedido'];
 			$modEstado=$CPed->modEstadoPedido($idPedido, $estado);

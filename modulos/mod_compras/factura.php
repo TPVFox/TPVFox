@@ -181,7 +181,7 @@ include './../../head.php';
 		}
 		
 		
-		if (strlen($albaranes)>0){
+		if ($albaranes){
 			$style="";
 		}else{
 			$style="display:none;";
@@ -357,14 +357,18 @@ if ($suNumero==0){
 				<td><b>Número</b></td>
 				<td><b>Fecha</b></td>
 				<td><b>Total</b></td>
-				
+				<td></td>
 				</thead>
 				
 				<?php 
+				echo '<pre>';
+				print_r($albaranes);
+				echo '</pre>';
 				if (is_array($albaranes)){
 					foreach ($albaranes as $albaran){
 						$html=lineaPedidoAlbaran($albaran, "factura");
 					echo $html['html'];
+					
 					}
 					
 				}

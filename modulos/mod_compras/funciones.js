@@ -358,6 +358,8 @@ function  buscarAlbaran(valor=""){
 							console.log(datos);
 							var datos = [];
 							datos = resultado['datos'];
+							n_item=parseInt(albaranes.length)+1;
+							datos.nfila=n_item;
 							albaranes.push(datos);
 							productosAdd=resultado.productos;
 							var prodArray=new Array();
@@ -1258,7 +1260,26 @@ function eliminarFila(num_item, valor=""){
 		}
 	
 }
-
+function eliminarAdjunto(numRegistro, dedonde, nfila){
+	console.log("entre en eliminar Fila");
+	var line;
+	num=nfila-1;
+	console.log(num);
+	line = "#Row" + albaranes[num].nfila;
+	albaranes[num].estado= 'Eliminado';
+	$(line).addClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
+	if (dedonde=="pedido"){
+			addPedidoTemporal();
+		}
+		if (dedonde=="albaran"){
+			addAlbaranTemp();
+		}
+		if (dedonde=="factura"){
+			modificarEstadoPedido(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
+			addFacturaTemporal();
+		}
+}
 function retornarFila(num_item, valor=""){
 	// @Objetivo :
 	// Es pasar un producto eliminado a activo.
@@ -1299,6 +1320,28 @@ function retornarFila(num_item, valor=""){
 	}
 	
 	
+}
+
+function retornarAdjunto(numRegistro, dedonde, nfila){
+	console.log("entre en retornar fila adjunto");
+	var estado="Guardado";
+	var line;
+	num=nfila-1;
+	console.log(num);
+	line = "#Row" + albaranes[num].nfila;
+	albaranes[num].estado= 'activo';
+	$(line).removeClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="eliminarAdjunto('+numRegistro+' , '+"'"+dedonde+"'"+nfila+');"><span class="glyphicon glyphicon-trash"></span></a>');
+	if (dedonde=="pedido"){
+		addPedidoTemporal();
+	}
+	if (dedonde=="albaran"){
+		addAlbaranTemp();
+	}
+	if (dedonde=="factura"){
+		modificarEstadoPedido(dedonde, "Facturado", numRegistro, albaranes[num].idAlbaran);
+		addFacturaTemporal();
+	}
 }
 function recalculoImporte(cantidad, num_item, dedonde=""){
 	
@@ -1435,6 +1478,7 @@ function buscarReferencia(idArticulo, nfila){
 //Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
 function AgregarFilaPedido(datos){
 	console.log("Estoy en agregar fila Pedido");
+	console.log(datos);
 	var parametros = {
 		"pulsado"    : 'htmlAgregarFilaPedido',
 		"datos" : datos
