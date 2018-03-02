@@ -222,15 +222,16 @@ class FacturasCompras{
 			$resultado['sqlto']='INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 			}
 		}
-		$pedidos = json_decode($datos['albaranes'], true); 
-		foreach ($pedidos as $pedido){
-			if($idAlbaran>0){
-				if ($pedido['estado']=="activo"){
-				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')');
-				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')';
+		$albaranes = json_decode($datos['albaranes'], true); 
+		foreach ($albaranes as $albaran){
+			if ($albaran['estado']=='activo'){
+				if($idAlbaran>0){
+				
+				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')');
+				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')';
 				}else{
-				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')');
-				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$pedido['idAlbaran'].' , '.$pedido['Numalbpro'].')';
+				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')');
+				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')';
 				}
 			}
 		}

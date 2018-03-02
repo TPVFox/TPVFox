@@ -161,13 +161,13 @@ include './../../head.php';
 				$numFactura=0;
 				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
-				echo '<pre>';
-				print_r($datosFactura['Albaranes']);
-				echo '</pre>';
-				 print_r($addNuevo);
+				//~ echo '<pre>';
+				//~ print_r($datos['Albaranes']);
+				//~ echo '</pre>';
+				 //~ print_r($addNuevo);
 			
 		}
-		//header('Location: facturasListado.php');
+		header('Location: facturasListado.php');
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
