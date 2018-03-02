@@ -506,6 +506,7 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 			$res['fecha']=$alb[0]['Fecha'];
 			$res['idPePro']=$alb[0]['idProveedor'];
 			$res['total']=$alb[0]['total'];
+			$res['estado']="activo";
 			array_push($respuesta,$res);
 		
 	}
