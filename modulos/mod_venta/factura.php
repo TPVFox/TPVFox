@@ -639,7 +639,7 @@ if (isset($_GET['tActual'])){
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
-	$('#id_cliente').focus();
+	$('#fechaFac').focus();
 	<?php
 	if ($idCliente>0){
 		?>
