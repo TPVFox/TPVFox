@@ -261,12 +261,15 @@ include './../../head.php';
 			}
 	
 		}
+		$i= 0;
 		if (is_array($albaranes)){
 			foreach ($albaranes as $alb){
 				?>
 				datos=<?php echo json_encode($alb);?>;
 				albaranes.push(datos);
+				albaranes[<?php echo $i;?>],estado="activo";
 				<?php
+				$i++;
 			}
 		}
 	}	

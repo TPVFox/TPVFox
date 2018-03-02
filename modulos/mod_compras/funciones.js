@@ -396,7 +396,7 @@ function  buscarAlbaran(valor=""){
 							//Modificamos el albaran con estado facturado para que no se pueda volver a añadir productos ni modificar
 							modificarEstadoPedido("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
 							//llamamos a agregar fila pedidos aunque sea albaranes por que realiza lo mismo
-							AgregarFilaPedido(datos);
+							AgregarFilaPedido(datos, "factura");
 							//Agregamos los productos
 							AgregarFilaProductosAl(prodArray, "factura");
 							//llamamos a la función cerrarPopUp por que cuando estamos en el modal y seleccionamos un albaran
@@ -1516,12 +1516,13 @@ function buscarReferencia(idArticulo, nfila){
 }
 //Esta función la utilizamos desde albarán o desde factura 
 //Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
-function AgregarFilaPedido(datos){
+function AgregarFilaPedido(datos, dedonde){
 	console.log("Estoy en agregar fila Pedido");
 	console.log(datos);
 	var parametros = {
 		"pulsado"    : 'htmlAgregarFilaPedido',
-		"datos" : datos
+		"datos" : datos,
+		"dedonde":dedonde
 	};
 	console.log(parametros);
 		$.ajax({

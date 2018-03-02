@@ -405,7 +405,7 @@ switch ($pulsado) {
 		break;
 		//Agrega tanto la fila de pedido como la de alabaranes
 		case 'htmlAgregarFilaPedido':
-			$res=lineaPedidoAlbaran($_POST['datos']);
+			$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
