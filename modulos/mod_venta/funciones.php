@@ -225,7 +225,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
 						.number_format($producto['pvpCiva'],2).",".$producto['idArticulo'];
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" data-obj= "idN" onmouseout="abandonFila('
 						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
 			
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('

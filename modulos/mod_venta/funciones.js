@@ -430,6 +430,8 @@ function controladorAcciones(caja,accion, tecla , event){
 			break;
 		case 'mover_down':
 		console.log("entro en mover down");
+		console.log(caja.id_input);
+		console.log(caja.fila);
 			// Controlamos si numero fila es correcto.
 			if ( isNaN(caja.fila) === false){
 				var nueva_fila = parseInt(caja.fila)+1;
@@ -437,6 +439,11 @@ function controladorAcciones(caja,accion, tecla , event){
 				// quiere decir que no tiene valor.
 				var nueva_fila = 0;
 			}
+			if (caja.id_input === 'cajaBusqueda'){
+				var nueva_fila = 0;
+			}
+			console.log(caja.darParametro('prefijo'));
+			console.log(nueva_fila);
 			mover_down(nueva_fila,caja.darParametro('prefijo'), caja.darParametro('dedonde'));
 			break;
 		case 'mover_up':
@@ -646,6 +653,7 @@ function before_constructor(caja){
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
+	console.log(caja);
 	if (caja.id_input ==='cajaBusqueda'){
 		caja.parametros.dedonde = 'popup';
 		if (caja.name_cja ==='Codbarras'){
@@ -659,7 +667,7 @@ function before_constructor(caja){
 		}
 	}
 	if (caja.id_input.indexOf('N_') >-1){
-		console.log(' Entro en Before de '+caja.id_input)
+		console.log(' Entro en Before de '+ caja.id_input)
 		caja.fila = caja.id_input.slice(2);
 		console.log(caja.fila);
 	}
@@ -1064,10 +1072,11 @@ function escribirClienteSeleccionado(id, nombre ,dedonde=''){
 }
 
 function abandonFila(cont){
-	$('#Fila_'+cont).css('background-color','white');
+	$('#N_'+cont).css('background-color','white');
 }
 function sobreFilaCraton(cont){
-	$('#Fila_'+cont).css('background-color','azure');
+	console.log("Estoy en fila carton");
+	$('#N_'+cont).css('background-color','azure');
 }
 function cerrarPopUp(destino_focus=''){
 	// @ Objetivo :
@@ -1086,9 +1095,9 @@ function cerrarPopUp(destino_focus=''){
 	//~ ponerFocus(d_focus);
 	
 //~ }
-function sobreFilaCraton(cont){
-	$('#Fila_'+cont).css('background-color','azure');
-}
+//~ function sobreFilaCraton(cont){
+	//~ $('#Fila_'+cont).css('background-color','azure');
+//~ }
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
 	// @ Objetivo:
 	//   Realizamos cuando venimos popUp de Productos.
@@ -1336,31 +1345,38 @@ function mover_down(fila,prefijo, dedonde=""){
 	console.log("entro en mover down");
 	console.log(fila);
 	sobreFilaCraton(fila);
+	var ant=fila-1;
+	abandonFila(ant);
 	var d_focus = prefijo+fila;
-	if ( document.getElementById(d_focus) ) {
-		console.log("entre en document.getElement");
-		ponerSelect(d_focus);
-	}else{
-		if (dedonde=="albaran"){
-				var d_focus = 'idArticuloAl';
-		}
-		if (dedonde=="pedidos"){
-				var d_focus = 'idArticulo';
-		}
-		if (dedonde=="factura"){
-				var d_focus = 'idArticuloFac';
-		}
-		ponerSelect(d_focus);
+	if (prefijo !== 'N_'){
+			if ( document.getElementById(d_focus) ) {
+				console.log("entre en document.getElement");
+				ponerSelect(d_focus);
+			}else{
+				if (dedonde=="albaran"){
+						var d_focus = 'idArticuloAl';
+				}
+				if (dedonde=="pedidos"){
+						var d_focus = 'idArticulo';
+				}
+				if (dedonde=="factura"){
+						var d_focus = 'idArticuloFac';
+				}
+				ponerSelect(d_focus);
+			}
 	}	
 }
 
 function mover_up(fila,prefijo, dedonde=""){
 	console.log("entro en mover up");
 	console.log(fila);
-	
 	sobreFilaCraton(fila);
-	var d_focus = prefijo+fila;
-	ponerSelect(d_focus);
+	console.log(dedonde);
+	if (dedonde !== "cerrados"){
+		var d_focus = prefijo+fila;
+		ponerSelect(d_focus);
+	}
+	
 }
 //Muestra la fila de inputs para añadir un producto nuevo 
 function mostrarFila(){
@@ -2044,4 +2060,7 @@ function imprimir(id, dedonde, tienda){
 	});
 	
 		
+}
+function sobreFila(cont){
+	$('#Fila_'+cont).css('background-color','lightblue');
 }

@@ -121,6 +121,7 @@
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>  
+				<parametro nombre="prefijo">Fila_</parametro>
 			</parametros>
 			<before>
 				<estado>Si</estado>
@@ -130,6 +131,7 @@
 			<nombre id_input="N_">idN</nombre>
 			<teclas>
 				<action tecla="40">mover_down</action>
+				<action tecla="9">mover_down</action>
 				<action tecla="38">mover_up</action>
 			</teclas>
 			<parametros>
