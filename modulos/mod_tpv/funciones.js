@@ -861,3 +861,31 @@ function RegistrarRestarStockTicket(respuesta){
 	
 	
 }
+
+function GuardarConfiguracion(event){
+	alert('Grabar configuracion');
+	console.log(event);
+	var parametros = {
+		"pulsado"    		: 'Grabar_configuracion',
+		"param_cambiado"		: event,
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Grabando configuracion **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de grabar configuracion');
+				//~ var resultado = $.parseJSON(response);
+				var resultado = response;
+			}
+			
+	});
+	
+	
+	
+	
+	
+}

@@ -20,6 +20,12 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos funciones
 include_once ("./funciones.php");
 
+// Incluimos controlador.
+include ("./../../controllers/Controladores.php");
+$Controler = new ControladorComun; 
+// Añado la conexion a controlador.
+$Controler->loadDbtpv($BDTpv);
+
 switch ($pulsado) {
     
     case 'buscarProductos':
@@ -196,7 +202,7 @@ switch ($pulsado) {
 	/* **************************************************************	*
      * 			LLAMADAS FUNCIONES COMUNES MODULO CIERRES Y TPV			*
      * **************************************************************	* 	*/
-     case 'buscarClientes':
+	case 'buscarClientes':
 		// Abrimos modal de clientes
 		$busqueda = $_POST['busqueda'];
 		$dedonde = $_POST['dedonde'];
@@ -211,6 +217,10 @@ switch ($pulsado) {
 		$respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
 		echo json_encode($respuesta);
 		break;
+		
+	case 'Grabar_configuracion':
+		// Grabamos configuracion
+		
 		
 }
  
