@@ -6,6 +6,9 @@
 
 class ControladorComun 
 {
+     private $BDTpv; // Conexion Base Datos
+     
+     
      function InfoTabla ($Bd,$tabla,$tipo_campo = 'si'){
 		// Funcion que nos proporciona informacion de la tabla que le indicamos
 		/* Nos proporciona informacion como nombre tabla, filas, cuando fue creada, ultima actualizacion .. y mas campos interesantes:
@@ -193,21 +196,6 @@ class ControladorComun
 }
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	function consultaRegistro($BD,$nombretabla,$whereC='') {
 		/* Objetivo:
 		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.
@@ -341,6 +329,23 @@ class ControladorComun
 		return $htmlVarJS;
 	}
 	
+	function GrabarConfiguracionModulo($nombre_modulo,$param_defecto,$param_selec){
+		
+		
+		
+	}
+	function obtenerConfiguracionModulo($nombre_modulo,$idUsuario){
+		// Objetivo :
+		// Obtener la configuracion si la hay de un modulo en cuestion.
+		$BDTpv = $this->BDTpv;
+		$where_conf= ' WHERE idusuario='.$idUsuario.' AND nombre_modulo="'.$nombre_modulo.'"';
+		$respuesta = $this->consultaRegistro($BDTpv,'modulos_configuracion',$where_conf);
+		return $respuesta;
+	}
+	
+	function loadDbtpv($BD){
+		$this->BDTpv = $BD;
+	}
 	
 }
 	
