@@ -38,9 +38,9 @@
 	</cajas_input>
 	<configuracion>
 		<empresas>
-			
+			<!-- La carpeta de los datos de la empresa debe estar dentro directorio datos que pusimos en configuracion -->
 			<datos_empresa id="3" nombre="Logueicarp 2018">
-				/home/olalla/www/superoliva/datos/DBF81
+				/DBF81
 			</datos_empresa>
 		</empresas>
 		<tipos_registros>

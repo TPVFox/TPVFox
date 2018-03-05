@@ -30,7 +30,7 @@
 	foreach ($ObjTiendasImportar as $TImportar){
 			$id_tienda_importar = (string) $TImportar['id'];
 			$Tiendas_importar[$id_tienda_importar]['nombre'] = (string) $TImportar['nombre'];
-			$Tiendas_importar[$id_tienda_importar]['ruta'] = trim((string) $TImportar);	
+			$Tiendas_importar[$id_tienda_importar]['ruta'] = $RutaServidor.$RutaDatos.trim((string) $TImportar);	
 		
 	}
 	// ---------- Obtenemos de parametros/configuracion tipos de Registros -------- //
