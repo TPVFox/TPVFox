@@ -166,6 +166,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				
 				break;
 				case 'pedidos':
+				console.log(dedonde);
 				var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 				if (valor==""){ //Si el valor viene vacio quiere decir que la persona pulsó el icono de buscar
 					var titulo = 'Listado clientes ';
@@ -193,6 +194,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						$('#Cliente').prop('disabled', true);
 						$('#id_cliente').prop('disabled', true);
 						$("#buscar").css("display", "none");
+						$('#idArticulo').focus();
 					}else {
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
@@ -210,6 +212,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						$('#Cliente').prop('disabled', true);
 						$('#id_cliente').prop('disabled', true);
 						$("#buscar").css("display", "none");
+						$('#idArticulo').focus();
 					}else {
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
@@ -225,6 +228,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						$('#Cliente').prop('disabled', true);
 						$('#id_cliente').prop('disabled', true);
 						$("#buscar").css("display", "none");
+						$('#idArticulo').focus();
 				}
 				
 				break;
