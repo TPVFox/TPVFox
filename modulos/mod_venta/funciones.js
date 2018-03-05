@@ -404,7 +404,7 @@ function controladorAcciones(caja,accion, tecla , event){
 			break;
 		case 'recalcular_totalProducto':
 		console.log("entre en recalcular precio producto");
-		console.log(event);
+		console.log(caja);
 			// recuerda que lo productos empizan 0 y las filas 1
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
@@ -413,6 +413,7 @@ function controladorAcciones(caja,accion, tecla , event){
 			productos[nfila].unidad = caja.darValor();
 			console.log(productos[nfila].unidad);
 			recalculoImporte(productos[nfila].unidad,nfila, caja.darParametro('dedonde'));
+			if (caja.tipo_event !== "blur"){
 			if (caja.darParametro('dedonde')=="albaran"){
 					var d_focus = 'idArticuloAl';
 				}
@@ -422,8 +423,10 @@ function controladorAcciones(caja,accion, tecla , event){
 				if (caja.darParametro('dedonde')=="factura"){
 					var d_focus = 'idArticuloFac';
 				}
+				ponerFocus(d_focus);
+			}
 			
-			ponerFocus(d_focus);
+			
 			break;
 		case 'mover_down':
 		console.log("entro en mover down");
@@ -434,7 +437,7 @@ function controladorAcciones(caja,accion, tecla , event){
 				// quiere decir que no tiene valor.
 				var nueva_fila = 0;
 			}
-			mover_down(nueva_fila,caja.darParametro('prefijo'));
+			mover_down(nueva_fila,caja.darParametro('prefijo'), caja.darParametro('dedonde'));
 			break;
 		case 'mover_up':
 		console.log("Entro en mover up");
@@ -445,7 +448,7 @@ function controladorAcciones(caja,accion, tecla , event){
 				// quiere decir que no tiene valor.
 				var nueva_fila = 0;
 			}
-			mover_up(nueva_fila,caja.darParametro('prefijo'));
+			mover_up(nueva_fila,caja.darParametro('prefijo'), caja.darParametro('dedonde'));
 			break;
 			
 		case 'saltar_Referencia':
@@ -1075,13 +1078,13 @@ function cerrarPopUp(destino_focus=''){
 	}
 	
 }
-function mover_down(fila,prefijo){
-	console.log("Estoy en mover down ");
-	sobreFilaCraton(fila);
-	var d_focus = prefijo+fila;
-	ponerFocus(d_focus);
+//~ function mover_down(fila,prefijo, dedonde=""){
+	//~ console.log("Estoy en mover down ");
+	//~ sobreFilaCraton(fila);
+	//~ var d_focus = prefijo+fila;
+	//~ ponerFocus(d_focus);
 	
-}
+//~ }
 function sobreFilaCraton(cont){
 	$('#Fila_'+cont).css('background-color','azure');
 }
@@ -1328,7 +1331,7 @@ function sobreFilaCraton(cont){
 	$('#Fila_'+cont).css('background-color','azure');
 }
 
-function mover_down(fila,prefijo){
+function mover_down(fila,prefijo, dedonde=""){
 	console.log("entro en mover down");
 	console.log(fila);
 	sobreFilaCraton(fila);
@@ -1336,11 +1339,20 @@ function mover_down(fila,prefijo){
 	if ( document.getElementById(d_focus) ) {
 		ponerFocus(d_focus);
 	}else{
-		ponerFocus("idArticulo");
+		if (dedonde=="albaran"){
+				var d_focus = 'idArticuloAl';
+		}
+		if (dedonde=="pedidos"){
+				var d_focus = 'idArticulo';
+		}
+		if (dedonde=="factura"){
+				var d_focus = 'idArticuloFac';
+		}
+		ponerFocus(d_focus);
 	}	
 }
 
-function mover_up(fila,prefijo){
+function mover_up(fila,prefijo, dedonde=""){
 	console.log("entro en mover up");
 	console.log(fila);
 	
