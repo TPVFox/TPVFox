@@ -169,7 +169,7 @@
 			<nombre id_input="fechaAl">fechaAl</nombre>
 			<teclas>
 				<action tecla="13">saltarNumPedido</action>
-				<action tecla="39">saltarNumPedido</action>
+				<action tecla="39">saltarNumPedidoCon</action>
 				<action tecla="9">saltarNumPedido</action>
 				<action tecla="40">saltar_idClienteFlechaAbajo</action>
 			</teclas>

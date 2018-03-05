@@ -509,7 +509,31 @@ function controladorAcciones(caja,accion){
 				console.log("Ente en fecha Al");
 				var dato = caja.darValor();
 				cabecera.fecha=dato;
-				var d_focus = 'numPedido';
+				if  ( $('#numPedido').css('display') == 'none' ) {
+						var d_focus='id_clienteAl';
+				}else{
+					
+					var d_focus = 'numPedido';
+				}
+				
+				
+				ponerFocus(d_focus);
+				
+		break;
+		case 'saltarNumPedidoCon':
+				console.log("Ente en fecha Al");
+				var dato = caja.darValor();
+				cabecera.fecha=dato;
+				if ( dato.length === 0){
+					if  ( $('#numPedido').css('display') == 'none' ) {
+						var d_focus='id_clienteAl';
+					}else{
+						var d_focus = 'numPedido';
+						
+					}
+				}
+				
+				
 				
 				ponerFocus(d_focus);
 				
