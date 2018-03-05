@@ -504,7 +504,7 @@ function controladorAcciones(caja,accion, tecla , event){
 			if (productos.length >0){
 			// Debería añadir al caja N cuantos hay
 				console.log ( 'Entro en saltar a producto que hay '+ productos.length);
-				ponerFocus('Unidad_Fila_'+productos.length);
+				ponerSelect('Unidad_Fila_'+productos.length);
 			} else {
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
@@ -664,6 +664,7 @@ function before_constructor(caja){
 		console.log(caja.fila);
 	}
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
+		console.log("input de caja");
 		caja.parametros.item_max = productos.length;
 		caja.fila = caja.id_input.slice(12);
 	}
@@ -1337,7 +1338,8 @@ function mover_down(fila,prefijo, dedonde=""){
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 	if ( document.getElementById(d_focus) ) {
-		ponerFocus(d_focus);
+		console.log("entre en document.getElement");
+		ponerSelect(d_focus);
 	}else{
 		if (dedonde=="albaran"){
 				var d_focus = 'idArticuloAl';
@@ -1348,7 +1350,7 @@ function mover_down(fila,prefijo, dedonde=""){
 		if (dedonde=="factura"){
 				var d_focus = 'idArticuloFac';
 		}
-		ponerFocus(d_focus);
+		ponerSelect(d_focus);
 	}	
 }
 
@@ -1358,7 +1360,7 @@ function mover_up(fila,prefijo, dedonde=""){
 	
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
-	ponerFocus(d_focus);
+	ponerSelect(d_focus);
 }
 //Muestra la fila de inputs para añadir un producto nuevo 
 function mostrarFila(){
