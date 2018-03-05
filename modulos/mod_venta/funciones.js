@@ -153,6 +153,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					$('#ClienteAl').prop('disabled', true);
 					$('#id_clienteAl').prop('disabled', true);
 					$("#buscar").css("display", "none");
+					$('#idArticuloAl').focus();
 					//Mostrar fila muestra los nombre del cliente en los input
 					mostrarFila();
 					//Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
@@ -1826,6 +1827,9 @@ function comprobarPedidosExis(){
 				$("#numPedido").show();
 				$("#buscarPedido").show();
 				$("#tablaPedidos").show();
+				$("#numPedido").focus();
+			}else{
+				$('#idArticuloAl').focus();
 			}
 			
 		}
