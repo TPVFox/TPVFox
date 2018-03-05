@@ -284,7 +284,7 @@ function abrirModal(titulo,tabla){
 		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
 	});
 }
-function controladorAcciones(caja,accion){
+function controladorAcciones(caja,accion, tecla , event){
 	// @ Objetivo es obtener datos si fuera necesario y ejecutar accion despues de pulsar una tecla.
 	//  Es Controlador de acciones a pulsar una tecla que llamamos desde teclado.js
 	// @ Parametros:
@@ -404,6 +404,7 @@ function controladorAcciones(caja,accion){
 			break;
 		case 'recalcular_totalProducto':
 		console.log("entre en recalcular precio producto");
+		console.log(event);
 			// recuerda que lo productos empizan 0 y las filas 1
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
@@ -425,6 +426,7 @@ function controladorAcciones(caja,accion){
 			ponerFocus(d_focus);
 			break;
 		case 'mover_down':
+		console.log("entro en mover down");
 			// Controlamos si numero fila es correcto.
 			if ( isNaN(caja.fila) === false){
 				var nueva_fila = parseInt(caja.fila)+1;
@@ -435,6 +437,7 @@ function controladorAcciones(caja,accion){
 			mover_down(nueva_fila,caja.darParametro('prefijo'));
 			break;
 		case 'mover_up':
+		console.log("Entro en mover up");
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
 			if ( isNaN(caja.fila) === false){
 				var nueva_fila = parseInt(caja.fila)-1;
@@ -1073,6 +1076,7 @@ function cerrarPopUp(destino_focus=''){
 	
 }
 function mover_down(fila,prefijo){
+	console.log("Estoy en mover down ");
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 	ponerFocus(d_focus);
