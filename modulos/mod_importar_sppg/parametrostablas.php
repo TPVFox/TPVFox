@@ -9,7 +9,7 @@
 // 						acciones = array (...)	Campos y acciones de BDFImportar									//
 // 						comprobaciones = array (...)																//
 // ||------------------------------------------------------------------------------------------------------------||	//
-include_once ('parametros.php');
+include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 
 
 class ClaseArrayParametrosTabla extends ClaseParametros

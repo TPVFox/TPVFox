@@ -21,7 +21,7 @@
 	// [RECUERDA]
 	// El orden carga de las tablas es importatne ya algunas depende de otras, por ello deben tener 
 	// la tabla que independiente primero y luego las otras, para una correcta importacion.
-	include_once ('parametros.php');
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
 	$nom_ficheros = $ClasesParametros->Xpath("tablas/tabla/nombre",'Valores');
