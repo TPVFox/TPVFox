@@ -108,6 +108,7 @@ switch ($pulsado) {
 		$CONF_campoPeso		=$_POST['CONF_campoPeso'];
 		$res 	= htmlLineaTicket($product,$num_item,$CONF_campoPeso);
 		$respuesta['html'] =$res;
+		$respuesta['conf_peso'] =$CONF_campoPeso;
 		echo json_encode($respuesta);
 		break;
 	case 'CerrarTicket';

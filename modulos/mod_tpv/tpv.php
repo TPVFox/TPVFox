@@ -54,7 +54,9 @@
 		$checkin[1] = 'name="impresion_ticket" value="No" onchange="GuardarConfiguracion()"';
 
 	}
-	
+	echo '<pre>';
+	print_r($configuracion);
+	echo '</pre>';
 	
 	
 	// Cambio datos si es un tiche Abierto
@@ -332,7 +334,7 @@
 			<th>Descripcion</th>
 			<th>Unid</th>
 			<?php
-			if ($CONF_campoPeso === 'si'){ ?>
+			if ($configuracion['campo_peso'] === 'si'){ ?>
 				<th>Cant/Kilo</th>
 			<?php
 			} else { ?>

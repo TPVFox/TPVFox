@@ -134,7 +134,7 @@ function agregarFila(datos,campo=''){
 		"pulsado"    : 'HtmlLineaTicket',
 		"producto" : productos[num_item],
 		"num_item"      : num_item,
-		"CONF_campoPeso"    : CONF_campoPeso
+		"CONF_campoPeso"    : configuracion.campo_peso
 	};
 	$.ajax({
 		data       : parametros,
