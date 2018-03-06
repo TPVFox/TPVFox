@@ -608,6 +608,10 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 				var resultado =  $.parseJSON(response); 
 				var encontrados = resultado.encontrados;
 				console.log(resultado);
+				if (resultado.Nitems==2){
+					alert("El id del proveedor no existe");
+					resetCampo(idcaja);
+				}
 				if (resultado.Nitems==1){
 					// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
 					//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor

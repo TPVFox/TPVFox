@@ -32,9 +32,14 @@ switch ($pulsado) {
 		$idCaja=$_POST['idcaja'];
 		if ($idCaja=="id_proveedor"){
 			$buscarId=$CProveedores->buscarProveedorId($busqueda);
-			$respuesta['id']=$buscarId['idProveedor'];
-			$respuesta['nombre']=$buscarId['nombrecomercial'];
-			$respuesta['Nitems']=1;
+			if ($buscarId){
+				$respuesta['id']=$buscarId['idProveedor'];
+				$respuesta['nombre']=$buscarId['nombrecomercial'];
+				$respuesta['Nitems']=1;
+			}else{
+				$respuesta['Nitems']=2;
+			}
+			
 		}else{
 			$buscarTodo=$CProveedores->buscarProveedorNombre($busqueda);
 			$respuesta['html']=htmlProveedores($busqueda,$dedonde, $idCaja, $buscarTodo['datos']);
