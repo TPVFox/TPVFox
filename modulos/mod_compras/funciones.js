@@ -823,7 +823,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			
 			datos.ultimoCoste=ultimoCoste.toFixed(2);
 			var ivares =(resultado['datos'][0]['iva']/100);
-			var importe =(ivares+ultimoCoste)*1;
+			
+			var importe =(ivares*ultimoCoste)+ultimoCoste;
 			
 			//~ var importe =resultado['datos'][0]['ultimoCoste']*1;
 			datos.importe=importe.toFixed(2);
