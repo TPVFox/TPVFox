@@ -172,8 +172,11 @@ function controladorAcciones(caja,accion, tecla){
 				alert("NO HAS INTRODUCIDO NINGÚN COSTE");
 			}else{
 				addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
-				var d_focus = 'idArticulo';
-				ponerFocus(d_focus);
+					if (caja.tipo_event !== "blur"){
+						var d_focus = 'idArticulo';
+						ponerFocus(d_focus);
+					}
+				
 			}
 			
 		break;
