@@ -343,10 +343,14 @@ if (isset($_GET['tActual'])){
 				<td><b>Número</b></td>
 				<td><b>Fecha</b></td>
 				<td><b>Total</b></td>
+				<td></td>
 				
 				</thead>
 				
 				<?php 
+				echo '<pre>';
+				print_r($pedidos);
+				echo '</pre>';
 				//Si existen pedidos en el albarán los escribimos
 				if (isset($pedidos)){
 					$html=htmlPedidoAlbaran($pedidos, "albaran");

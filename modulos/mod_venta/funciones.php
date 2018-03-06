@@ -498,7 +498,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 }
 
 
-function htmlPedidoAlbaran($pedidos){
+function htmlPedidoAlbaran($pedidos, $dedonde){
 	$respuesta="";
 	$respuesta['html']="";
 	if(isset($pedidos)){
@@ -507,6 +507,7 @@ function htmlPedidoAlbaran($pedidos){
 		$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		$respuesta['html'] .='<td><a onclick="eliminarAdjunto('.$pedido['idPedCli'].')">Eliminar</a></td>';
 		$respuesta['html'] .='</tr>';
 	}
 	}
@@ -632,7 +633,7 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 			}
 			$res['Numpedcli']=$numPedido;
 			$res['fecha']=$ped[0]['FechaPedido'];
-			$res['idPedCli']=$ped[0]['idCliente'];
+			$res['idPedCli']=$ped[0]['id'];
 			$res['total']=$ped[0]['total'];
 			array_push($respuesta,$res);
 		

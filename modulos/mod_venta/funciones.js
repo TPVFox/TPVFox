@@ -2076,3 +2076,7 @@ function imprimir(id, dedonde, tienda){
 function sobreFila(cont){
 	$('#N_'+cont).css('background-color','lightblue');
 }
+
+function eliminarAdjunto(id){
+	console.log("entre en eliminar adjunto");
+}
