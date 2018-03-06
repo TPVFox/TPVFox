@@ -38,25 +38,23 @@
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
-	// Cargamos parametros si existen en modulo_configuracion 
-	$configuracion = $Controler->obtenerConfiguracionModulo('mod_tpv',$Usuario['id']);
-	if ($configuracion['NItems'] === 0){
-		// Como no encontro configuracion del modulo, cargamos la que tiene por defecto.
-		$a = $ClasesParametros->ArrayElementos('configuracion');
-		$configuracion['defecto']=$a;
-	}
+	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	//~ $configuracion = $Controler->obtenerConfiguracionModulo('mod_tpv',$Usuario['id']);
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
 	// Creamos checkin de configuracion
 	$checkin = array();
-	echo '<pre>';
-	print_r($configuracion);
-	echo '</pre>';
-	if ($configuracion['defecto']['impresion_ticket'] ==='Si'){
+	// Añadimos a JS la configuracion
+		echo '<script type="application/javascript"> '
+		. 'var configuracion = '. json_encode($configuracion);
+		echo '</script>';
+	if ($configuracion['impresion_ticket'] ==='Si'){
 		$checkin[1] = 'name="impresion_ticket" value="Si" checked onchange="GuardarConfiguracion()"';
+	} else {
+		$checkin[1] = 'name="impresion_ticket" value="No" onchange="GuardarConfiguracion()"';
+
 	}
 	
-	//~ echo '<pre>';
-	//~ print_r($configuracion);
-	//~ echo '</pre>';
 	
 	
 	// Cambio datos si es un tiche Abierto
@@ -203,7 +201,6 @@
 <?php } ?>
 <div class="container">
 <nav class="col-md-3">
-	
 		<div class="col-md-6">
 			<h3 class="text-center"> TpvFox</h3>
 			<h4>Otros opciones</h4>

@@ -20,7 +20,8 @@ function cobrarF1(){
 	var parametros = {
 			"pulsado" 	: 'cobrar',
 			"total" : total,
-			"productos"	 	: productos
+			"productos"	 	: productos,
+			"configuracion"	: configuracion
 			//"dedonde" : dedonde
 	};
 	$.ajax({ data:  parametros,
@@ -45,10 +46,6 @@ function cobrarF1(){
 }
 
 
-//case de nombreCampo = mysql , = html, 
-//con el id='C0_Codbarras' recojo el valor del campo en funcion obtener datos
-// pero necesito  nombreCampo = 'CCODEBAR' para mysql
-//nfila, numero fila
 
 function resetCampo(campo){
 	console.log('Entro en resetCampo '+campo);
@@ -862,12 +859,22 @@ function RegistrarRestarStockTicket(respuesta){
 	
 }
 
-function GuardarConfiguracion(event){
+function GuardarConfiguracion(){
+	// Si llega aquí es porque cambio el valor de check impresion...
+	// por lo que cambiamos el valor en configuracion.
 	alert('Grabar configuracion');
-	console.log(event);
+	console.log(configuracion);
+	if (configuracion.impresion_ticket==='Si'){
+		configuracion.impresion_ticket = 'No'
+	} else {
+		configuracion.impresion_ticket = 'Si'
+	}
+	console.log ('Despues de cambio');
+	console.log(configuracion);
+	
 	var parametros = {
 		"pulsado"    		: 'Grabar_configuracion',
-		"param_cambiado"		: event,
+		"configuracion"		: configuracion,
 	};
 	$.ajax({
 		data       : parametros,

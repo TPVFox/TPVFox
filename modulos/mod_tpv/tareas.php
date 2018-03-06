@@ -56,6 +56,7 @@ switch ($pulsado) {
 		//~ echo 'cobrar';
 		$totalJS = $_POST['total'];
 		$productos = $_POST['productos'];
+		$configuracion = $_POST['configuracion'];
 		// Convertimos productos que debería ser un objeto a array
 		$productos = json_decode( json_encode( $_POST['productos'] ));
 
@@ -220,6 +221,17 @@ switch ($pulsado) {
 		
 	case 'Grabar_configuracion':
 		// Grabamos configuracion
+		$configuracion = $_POST['configuracion'];
+		// Ahora obtenemos nombre_modulo y usuario , lo ponermos en variable y quitamos array configuracion.
+		$nombre_modulo = $configuracion['nombre_modulo'];
+		$idUsuario = $configuracion['idUsuario'];
+		unset($configuracion['nombre_modulo'],$configuracion['idUsuario']);
+		
+		$respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
+		$respuesta['configuracion'] = $configuracion ; 
+		
+		echo json_encode($respuesta);
+		break;
 		
 		
 }
