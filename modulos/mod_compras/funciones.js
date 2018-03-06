@@ -22,8 +22,13 @@ function controladorAcciones(caja,accion, tecla){
 		
 			console.log(caja.fila);
 			recalculoImporte(productos[nfila].unidad, nfila, caja.darParametro('dedonde'));
+			console.log(caja.darParametro('dedonde'));
+			if (caja.darParametro('dedonde') == "pedidos"){
+				d_focus="idArticulo"
+			}else{
+				d_focus='ultimo_coste_'+parseInt(caja.fila);
+			}
 			
-			d_focus='ultimo_coste_'+parseInt(caja.fila);
 			ponerFocus(d_focus);
 		break;
 		case 'mover_down':
