@@ -197,6 +197,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						$("#buscar").css("display", "none");
 						$('#idArticulo').focus();
 					}else {
+						
 						// No hay datos focus a caja buscar cliente.
 						$('#cajaBusquedacliente').focus();
 					}
@@ -220,6 +221,10 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					}
 				}else{ //  Si recibión un id se escribe el nombre en el input , en la cabecera se guarda el id 
 				// y la función de mostrar fila cubre los campos de cliente
+				if (encontrados==0){
+					alert("El id del cliente no es correcto");
+					resetCampo(idcaja);
+				}else{
 					console.log('no muestro modal');
 					$('#Cliente').val(resultado.nombre);
 					console.log(resultado.idCliente);
@@ -230,6 +235,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						$('#id_cliente').prop('disabled', true);
 						$("#buscar").css("display", "none");
 						$('#idArticulo').focus();
+					}
 				}
 				
 				break;
