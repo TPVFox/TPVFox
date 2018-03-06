@@ -329,12 +329,41 @@ class ControladorComun
 		return $htmlVarJS;
 	}
 	
-	function GrabarConfiguracionModulo($nombre_modulo,$param_defecto,$param_selec){
-		
-		
+	function GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion){
+		// Objetivo:
+		// Grabar la configuracion de modulo para un usuario.
+		$BDTpv = $this->BDTpv;
+		$Set_conf= " SET idusuario=".$idUsuario." ,nombre_modulo='".$nombre_modulo."' ,configuracion=".
+		"'".json_encode($configuracion)."'";
+		$Sql= 'UPDATE `modulos_configuracion` '.$Set_conf;
+		$BDTpv->query($Sql);
+		$respuesta['Sql']= $Sql;
+		return $respuesta;
 		
 	}
-	function obtenerConfiguracionModulo($nombre_modulo,$idUsuario){
+	function obtenerConfiguracion($conf_defecto,$nombre_modulo,$idUsuario){
+		//Objetivo:
+		//Obtener la configuracion del modulo.
+		//Tenienedo encuenta la configuracion por defecto del modulo y la configuracion que hay en la tabla modulo.
+		//nos quedamos con la de la tabla, pero tenemos comparar con la configuracion por defecto, para saber si 
+		//falta algun parametro.
+		$respuesta = $conf_defecto;
+		$res = $this->obtenerConfiguracionModuloTabla($nombre_modulo,$idUsuario);
+		if ($res['NItems'] === 1){
+			// Si obtiene configuracion, entonce NItems debe ser 1, no puede ser mayor , ni menor..
+			$conf_tabla = json_decode($res['Items'][0]['configuracion']);
+			foreach ($conf_tabla as $key=>$valor){
+				$respuesta[$key] = $valor;
+			}
+		}
+		// Añadimos $nombre_modulo, $idUsuario, asi podemos moverlo junto.
+		$respuesta['nombre_modulo']= $nombre_modulo;
+		$respuesta['idUsuario'] = $idUsuario;
+		return $respuesta;
+		
+	}
+	
+	function obtenerConfiguracionModuloTabla($nombre_modulo,$idUsuario){
 		// Objetivo :
 		// Obtener la configuracion si la hay de un modulo en cuestion.
 		$BDTpv = $this->BDTpv;
