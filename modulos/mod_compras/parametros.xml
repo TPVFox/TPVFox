@@ -69,6 +69,7 @@
 				<action tecla="39">Saltar_Referencia</action>
 				<action tecla="38">Saltar_idProveedor</action>
 				<action tecla=" 9">Saltar_Referencia</action>
+				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -101,6 +102,7 @@
 				<action tecla=" 9">Saltar_ReferenciaPro</action>
 				<action tecla="37">Saltar_idArticulo</action>
 				<action tecla="39">Saltar_ReferenciaPro</action>
+				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -115,6 +117,7 @@
 				<action tecla=" 9">Saltar_CodBarras</action>
 				<action tecla="37">Saltar_Referencia</action>
 				<action tecla="39">Saltar_CodBarras</action>
+				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -129,6 +132,7 @@
 				<action tecla=" 9">Saltar_Descripcion</action>
 				<action tecla="37">Saltar_ReferenciaPro</action>
 				<action tecla="39">Saltar_Descripcion</action>
+				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -141,6 +145,7 @@
 				<action tecla="13">buscarProducto</action>
 				<action tecla="38">Saltar_idProveedor</action>
 				<action tecla="37">Saltar_CodBarras</action>
+				<action tecla="40">saltar_productos</action>
 				
 			</teclas>
 			<parametros>

@@ -23,14 +23,26 @@ function controladorAcciones(caja,accion, tecla){
 			console.log(caja.fila);
 			recalculoImporte(productos[nfila].unidad, nfila, caja.darParametro('dedonde'));
 			console.log(caja.darParametro('dedonde'));
-			if (caja.darParametro('dedonde') == "pedidos"){
-				d_focus="idArticulo"
-			}else{
-				d_focus='ultimo_coste_'+parseInt(caja.fila);
+			if (caja.tipo_event !== "blur"){
+				if (caja.darParametro('dedonde') == "pedidos"){
+					d_focus="idArticulo"
+				}else{
+					d_focus='ultimo_coste_'+parseInt(caja.fila);
+				}
 			}
+			
 			
 			ponerFocus(d_focus);
 		break;
+		case  'saltar_productos':
+			if (productos.length >0){
+			// Debería añadir al caja N cuantos hay
+				console.log ( 'Entro en saltar a producto que hay '+ productos.length);
+				ponerSelect('Unidad_Fila_'+productos.length);
+			} else {
+			   console.log( ' No nos movemos ya que no hay productos');
+			}
+			break;
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
 			if ( isNaN(caja.fila) === false){
@@ -1562,13 +1574,20 @@ function mover_up(fila,prefijo){
 	
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
+	
 	console.log(d_focus);
-	ponerFocus(d_focus);
+	ponerSelect(d_focus);
 }
 function mover_down(fila,prefijo){
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
-	ponerFocus(d_focus);
+		if ( document.getElementById(d_focus) ) {
+			ponerSelect(d_focus);
+		}else{
+			var d_focus = 'idArticulo';
+			ponerFocus(d_focus);
+		}
+	
 	
 }
 function sobreFila(cont){
