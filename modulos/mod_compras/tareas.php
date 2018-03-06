@@ -228,6 +228,7 @@ switch ($pulsado) {
 				$respuesta['datos']['idPedido']=$datosPedido['id'];
 				$respuesta['datos']['fecha']=$datosPedido['FechaPedido'];
 				$respuesta['datos']['total']=$datosPedido['total'];
+				$respuesta['datos']['estado']="activo";
 				$respuesta['Nitems']=$datosPedido['Nitem'];
 				$productosPedido=$CPed->ProductosPedidos($datosPedido['id']);
 				$respuesta['productos']=$productosPedido;
@@ -396,6 +397,7 @@ switch ($pulsado) {
 		if ($_POST['dedonde']=="albaran"){
 			$idPedido=$_POST['idPedido'];
 			$modEstado=$CPed->modEstadoPedido($idPedido, $estado);
+			$respuesta['res']=$modEstado;
 		}
 		if ($_POST['dedonde']=="factura"){
 			$idAlbaran=$_POST['idAlbaran'];

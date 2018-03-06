@@ -165,16 +165,22 @@ include './../../head.php';
 				$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
 				//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
 				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
-				
+				//~ echo '<pre>';
+				//~ print_r($addNuevo);
+				//~ echo '</pre>';
 				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
 		}else{
 				$idAlbaran=0;
-				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+				$numAlbaran=0;
+				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
 				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-				
+				//~ echo '<pre>';
+				//~ print_r($addNuevo);
+				//~ echo '</pre>';
 				
 		}
-		header('Location: albaranesListado.php');
+		
+		 header('Location: albaranesListado.php');
 	}
 	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado

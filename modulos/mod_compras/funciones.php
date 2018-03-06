@@ -447,15 +447,21 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 		$respuesta['html']="";
 	if(isset($pedido)){
 		if ($pedido['estado']){
+			if ($pedido['Numalbpro']){
+				$num=$pedido['Numalbpro'];
+			}
+			if ($pedido['Numpedpro']){
+				$num=$pedido['Numpedpro'];
+			}
 			if ($pedido['estado']=="activo"){
-				$funcOnclick = ' eliminarAdjunto('.$pedido['Numalbpro'].' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
+				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
 				$estadoInput = '';
 			}else{
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarAdjunto('.$pedido['Numalbpro'].', '."'".$dedonde."'".', '.$pedido['nfila'].');';
+				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 	
 			}
@@ -480,17 +486,21 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 //Modifica el array de pedidos . Esta función se carga en albaranes.php
 function modificarArrayPedidos($pedidos, $BDTpv){
 	$respuesta=array();
+		$i=1;
 	foreach ($pedidos as $pedido){
 			$datosPedido=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$pedido['idPedido'] );
 			while ($fila = $datosPedido->fetch_assoc()) {
 				$ped[] = $fila;
 			}
 			$res['Numpedpro']=$pedido['numPedido'];
+			$res['idPedido']=$ped[0]['id'];
 			$res['fecha']=$ped[0]['FechaPedido'];
 			$res['idPePro']=$ped[0]['idProveedor'];
 			$res['total']=$ped[0]['total'];
+			$res['estado']="activo";
+			$res['nfila']=$i;
 			array_push($respuesta,$res);
-		
+		$i++;
 	}
 	return $respuesta;
 }

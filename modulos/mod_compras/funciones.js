@@ -277,6 +277,8 @@ function buscarPedido(valor=""){
 							console.log(datos);
 							var datos = [];
 							datos = resultado['datos'];
+							n_item=parseInt(pedidos.length)+1;
+							datos.nfila=n_item;
 							pedidos.push(datos);
 							productosAdd=resultado.productos;
 							var prodArray=new Array();
@@ -310,7 +312,7 @@ function buscarPedido(valor=""){
 							// que ya estan metidos en el albaran
 							modificarEstadoPedido("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
 							//Agregamos una nueva fila con los datos principales de pedidos
-							AgregarFilaPedido(datos);
+							AgregarFilaPedido(datos, "albaran");
 							//Agregamos los productos de el pedido seleccionado
 							AgregarFilaProductosAl(prodArray, "albaran");
 							//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
@@ -1285,16 +1287,32 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 	console.log("entre en eliminar Fila");
 	var line;
 	num=nfila-1;
+	if (dedonde=="factura"){
+		line = "#lineaP" + albaranes[num].nfila;
+		console.log(num);
+		albaranes[num].estado= 'Eliminado';
+	}
+	if (dedonde=="albaran"){
+		line = "#lineaP" + pedidos[num].nfila;
+		console.log(num);
+		pedidos[num].estado= 'Eliminado';
+	}
 	
-	line = "#lineaP" + albaranes[num].nfila;
-	console.log(num);
-	albaranes[num].estado= 'Eliminado';
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
 	if (dedonde=="pedido"){
 			addPedidoTemporal();
 		}
 		if (dedonde=="albaran"){
+			for(i=0;i<productos.length; i++){
+				var numProducto=productos[i].numPedido;
+				if (numRegistro == numProducto){
+					eliminarFila(productos[i].nfila, "bandera");
+					
+				}
+			}
+			num=nfila-1;
+			modificarEstadoPedido(dedonde, "Guardado", numRegistro, pedidos[num].idPedido);
 			addAlbaranTemp();
 		}
 		if (dedonde=="factura"){
@@ -1360,35 +1378,37 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 	var line;
 	num=nfila-1;
 	console.log(num);
-	line = "#lineaP" + albaranes[num].nfila;
-	console.log(line);
-	albaranes[num].estado= 'activo';
+	if (dedonde=="factura"){
+		line = "#lineaP" + albaranes[num].nfila;
+		console.log(line);
+		albaranes[num].estado= 'activo';
+	}
+	if (dedonde=="albaran"){
+		line = "#lineaP" + pedidos[num].nfila;
+		console.log(line);
+		pedidos[num].estado= 'activo';
+	}
+	
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarAdjunto('+numRegistro+' , '+"'"+dedonde+"', "+nfila+');"><span class="glyphicon glyphicon-trash"></span></a>');
 	if (dedonde=="pedido"){
 		addPedidoTemporal();
 	}
 	if (dedonde=="albaran"){
+		for(i=0;i<productos.length; i++){
+				var numProducto=productos[i].numPedido;
+				if (numRegistro==numProducto){
+					retornarFila(productos[i].nfila, "bandera");
+				}
+			}
+		num=nfila-1;
+		modificarEstadoPedido(dedonde, "Facturado", numRegistro, pedidos[num].idPedido);
 		addAlbaranTemp();
 	}
 	if (dedonde=="factura"){
 		for(i=0;i<productos.length; i++){
 				var numProducto=productos[i].numAlbaran;
 				if (numRegistro==numProducto){
-					//~ console.log("Numero de albaran de producto "+productos[i].numAlbaran);
-					//~ line1 = "#Row" +productos[i].nfila;
-					//~ productos[i].estado= 'Activo';
-					//~ $(line1).removeClass('tachado');
-					//~ $(line1 + "> .eliminar").html('<a onclick="eliminarFila('+productos[i].nfila+' , '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-trash"></span></a>');
-					//~ if (productos[i].nunidades == 0) {
-						//~ // Nueva Objeto de productos.
-						//~ // Antiguo array productos.
-						//~ productos[i].nunidades = 1;
-					//~ }
-					//~ $("#Unidad_Fila_" + productos[i].nfila).prop("disabled", false);
-					//~ $("#N" + productos[i].nfila + "_Unidad").prop("disabled", false);
-					//~ $("#N" + productos[i].nfila + "_Unidad").val(productos[i].nunidades);
-	
 					retornarFila(productos[i].nfila, "bandera");
 				}
 			}

@@ -79,8 +79,8 @@ class AlbaranesCompras{
 	public function eliminarAlbaranTablas($idAlbaran){
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM albprot where id='.$idAlbaran );
-		$smt=$db->query('DELETE FROM albprolinea where idalbcli ='.$idAlbaran );
-		$smt=$db->query('DELETE FROM albproIva where idalbcli ='.$idAlbaran );
+		$smt=$db->query('DELETE FROM albprolinea where idalbpro ='.$idAlbaran );
+		$smt=$db->query('DELETE FROM albproIva where idalbpro ='.$idAlbaran );
 		$smt=$db->query('DELETE FROM pedproAlb where idAlbaran ='.$idAlbaran );
 		
 	}
@@ -104,7 +104,7 @@ class AlbaranesCompras{
 		}
 		$productos = json_decode($datos['productos'], true);
 		foreach ( $productos as $prod){
-			if($prod['estado']=='Activo'){
+			if($prod['estado']=='Activo' || $prod['estado']=='activo'){
 			if ($prod['ccodbar']){
 				$codBarras=$prod['ccodbar'];
 			}else{
@@ -151,7 +151,7 @@ class AlbaranesCompras{
 		$pedidos = json_decode($datos['pedidos'], true); 
 		if (is_array($pedidos)){
 			foreach ($pedidos as $pedido){
-				
+				if ($pedido['estado']=='activo'){
 					if($idAlbaran>0){
 						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
 						$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
@@ -159,6 +159,7 @@ class AlbaranesCompras{
 						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
 						$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
 					}
+				}
 				
 			}
 		}

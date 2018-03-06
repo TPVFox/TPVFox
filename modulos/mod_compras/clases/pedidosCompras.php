@@ -58,6 +58,8 @@ class PedidosCompras{
 	public function modEstadoPedido($idPedido, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido);
+		$sql='UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido;
+		return $sql;
 	}
 	//Muestra todos los datos de un temporal
 	public function DatosTemporal($idTemporal){
