@@ -1548,6 +1548,7 @@ function AgregarFilaPedido(datos, dedonde){
 function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
+	$('#idArticulo').focus();
 	console.log("realizo funcion");
 }
 function mover_up(fila,prefijo){
