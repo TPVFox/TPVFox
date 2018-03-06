@@ -64,7 +64,7 @@ switch ($pulsado) {
 		$totales = recalculoTotales($productos);
 		
 		
-		$respuesta = htmlCobrar($totalJS);
+		$respuesta = htmlCobrar($totalJS,$configuracion);
 		$respuesta['recalculo'] = $totales;
 
 		echo json_encode($respuesta);		
