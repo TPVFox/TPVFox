@@ -1076,6 +1076,7 @@ function abandonFila(cont){
 }
 function sobreFilaCraton(cont){
 	console.log("Estoy en fila carton");
+	console.log(cont);
 	$('#N_'+cont).css('background-color','azure');
 }
 function cerrarPopUp(destino_focus=''){
@@ -1337,16 +1338,15 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		addProductoTemp();
 	}
 }
-function sobreFilaCraton(cont){
-	$('#Fila_'+cont).css('background-color','azure');
-}
+//~ function sobreFilaCraton(cont){
+	//~ $('#N_'+cont).css('background-color','azure');
+//~ }
 
 function mover_down(fila,prefijo, dedonde=""){
 	console.log("entro en mover down");
 	console.log(fila);
-	sobreFilaCraton(fila);
-	var ant=fila-1;
-	abandonFila(ant);
+//sobreFilaCraton(fila);
+sobreFila(fila);
 	var d_focus = prefijo+fila;
 	if (prefijo !== 'N_'){
 			if ( document.getElementById(d_focus) ) {
@@ -1364,17 +1364,29 @@ function mover_down(fila,prefijo, dedonde=""){
 				}
 				ponerSelect(d_focus);
 			}
-	}	
+	}	else{
+		var ant=fila-1;
+		abandonFila(ant);
+		ponerFocus(d_focus);
+		
+	}
 }
 
 function mover_up(fila,prefijo, dedonde=""){
 	console.log("entro en mover up");
 	console.log(fila);
-	sobreFilaCraton(fila);
+	//sobreFilaCraton(fila);
+	sobreFila(fila);
 	console.log(dedonde);
 	if (dedonde !== "cerrados"){
 		var d_focus = prefijo+fila;
 		ponerSelect(d_focus);
+	}else{
+		var ant=fila-1;
+		abandonFila(ant);
+		var d_focus = prefijo+fila;
+		ponerFocus(d_focus);
+		
 	}
 	
 }
@@ -2062,5 +2074,5 @@ function imprimir(id, dedonde, tienda){
 		
 }
 function sobreFila(cont){
-	$('#Fila_'+cont).css('background-color','lightblue');
+	$('#N_'+cont).css('background-color','lightblue');
 }
