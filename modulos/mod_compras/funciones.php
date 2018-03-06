@@ -504,6 +504,7 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 				$alb[] = $fila;
 			}
 			$res['Numalbpro']=$albaran['numAlbaran'];
+			$res['idAlbaran']=$alb[0]['id'];
 			$res['fecha']=$alb[0]['Fecha'];
 			$res['idPePro']=$alb[0]['idProveedor'];
 			$res['total']=$alb[0]['total'];
@@ -754,12 +755,23 @@ function comprobarPedidos($idProveedor, $BDTpv ){
 	$Cped=new PedidosCompras($BDTpv);
 	$estado="Guardado";
 	$con=$Cped->pedidosProveedorGuardado($idProveedor, $estado);
-	if(count($cont)>0){
+	if(count($con)>0){
 		$bandera=1;
 	}else{
 		$bandera=2;
 	}
 	return $bandera;
 	
+}
+function comprobarAlbaran($idProveedor, $BDTpv){
+	$Calb=new AlbaranesCompras($BDTpv);
+	$estado="Guardado";
+	$con=$Calb->albaranesProveedorGuardado($idProveedor, $estado);
+	if (count($con)>0){
+		$bandera=1;
+	}else{
+		$bandera=2;
+	}
+	return $bandera;
 }
 ?>

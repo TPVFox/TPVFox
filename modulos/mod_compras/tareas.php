@@ -400,6 +400,7 @@ switch ($pulsado) {
 		if ($_POST['dedonde']=="factura"){
 			$idAlbaran=$_POST['idAlbaran'];
 			$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
+			$respuesta['res']=$modEstado;
 		}
 		echo json_encode($respuesta);
 		break;

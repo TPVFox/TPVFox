@@ -455,6 +455,7 @@ function modificarEstadoPedido(dedonde, estado, num="", id=""){
 		};
 		
 	}
+	console.log(parametros);
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -1300,20 +1301,13 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 			for(i=0;i<productos.length; i++){
 				var numProducto=productos[i].numAlbaran;
 				if (numRegistro == numProducto){
-					//~ console.log("Numero de albaran de producto "+productos[i].numAlbaran);
-					//~ var line1 = "#Row"+productos[i].nfila;
-					//~ productos[i].estado= 'Eliminado';
-					//~ $(line1).addClass('tachado');
-					//~ console.log(line1);
-					//~ $(line1 + "> .eliminar").html('<a onclick="retornarFila('+productos[i].nfila+', '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
-					//~ $("#N" +productos[i].nfila + "_Unidad").prop("disabled", true);
-
 					eliminarFila(productos[i].nfila, "bandera");
 					
 				}
 			}
 			num=nfila-1;
 			console.log(albaranes[num].idAlbaran);
+			console.log("Voy a entrar en modificar albaran");
 			modificarEstadoPedido(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
 			addFacturaTemporal();
 		}

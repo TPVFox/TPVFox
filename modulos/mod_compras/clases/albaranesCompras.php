@@ -46,6 +46,8 @@ class AlbaranesCompras{
 	public function modEstadoAlbaran($idAlbaran, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE albprot set estado="'.$estado .'"  where id='.$idAlbaran);
+		$sql='UPDATE albprot set estado="'.$estado .'"  where id='.$idAlbaran;
+		return $sql;
 	}
 	//Cada vez que añadimos un producto tenemos que modificar el total del resgitro temporal
 	public function modTotales($res, $total, $totalivas){

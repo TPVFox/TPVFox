@@ -22,7 +22,7 @@ include './../../head.php';
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
 		
-		$titulo="Modificar Albarán De Cliente";
+		$titulo="Modificar factura De Cliente";
 		$datosFactura=$CFac->datosFactura($idFactura);
 		
 		$productosFactura=$CFac->ProductosFactura($idFactura);
@@ -57,8 +57,12 @@ include './../../head.php';
 			 $modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
-		
+		//~ echo '<pre>';
+			//~ print_r($albaranes);
+			//~ echo '</pre>';
 		$total=$Datostotales['total'];
+		
+		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
 	$fecha=date('Y-m-d');
 	$fechaCab="'".$fecha."'";
@@ -191,8 +195,10 @@ include './../../head.php';
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
 		
-		
-		if ($albaranes){
+		//~ echo '<pre>';
+		//~ print_r($albaranes);
+		//~ echo '</pre>';
+		if ($albaranes || $comprobarAlbaran==1){
 			$style="";
 		}else{
 			$style="display:none;";
