@@ -83,7 +83,7 @@ if ($stringPalabras !== '' ){
 			<div class="col-md-12 text-center">
 					<h2> Pedidos Compras: Editar y Añadir pedidos </h2>
 				</div>
-					<nav class="col-sm-2">
+					<nav class="col-sm-4">
 				<h4> Pedidos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -102,10 +102,10 @@ if ($stringPalabras !== '' ){
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>Nº Temp</th>
-					<th>Nº Ped</th>
-					<th>Pro.</th>
-					<th>Total</th>
+					<th WIDTH="4" >Nº Temp</th>
+					<th WIDTH="4" >Nº Ped</th>
+					<th WIDTH="110" >Pro.</th>
+					<th WIDTH="4" >Total</th>
 				</tr>
 				
 			</thead>
@@ -114,8 +114,8 @@ if ($stringPalabras !== '' ){
 				if (isset ($todoTemporal)){
 					foreach ($todoTemporal as $pedidoTemp){
 						if ($pedidoTemp['idPedpro']){
-							$numPedido=$Cpedido->datosPedidos($pedidoTemp['idPedpro']);
-							$numPed=$numPedido['Numpedpro'];
+							//$numPedido=$Cpedido->datosPedidos($pedidoTemp['idPedpro']);
+							$numPed=$pedidoTemp['Numpedpro'];
 					}else{
 						$numPed="";
 					}
@@ -123,7 +123,7 @@ if ($stringPalabras !== '' ){
 						<tr>
 						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
 						<td><?php echo $numPed;?></td>
-						<td><?php echo $pedidoTemp['idProveedor'];?></td>
+						<td><?php echo $pedidoTemp['nombrecomercial'];?></td>
 						<td><?php echo number_format($pedidoTemp['total'],2);?></td>
 						</tr>
 						<?php
@@ -134,7 +134,7 @@ if ($stringPalabras !== '' ){
 		</table>
 		</div>	
 			</nav>
-			<div class="col-md-9">
+			<div class="col-md-8">
 					<p>
 					 -Pedidos encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>

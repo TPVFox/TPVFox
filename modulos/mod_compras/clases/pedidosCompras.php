@@ -141,7 +141,8 @@ class PedidosCompras{
 	//Muestra todos los temporales, esta función la utilizamos en el listado de pedidos
 	public function TodosTemporal(){
 			$db = $this->db;
-			$smt = $db->query ('SELECT * from pedprotemporales');
+		//	$smt = $db->query ('SELECT * from pedprotemporales');
+		$smt=$db->query('SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id');
 			$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($pedidosPrincipal,$result);
