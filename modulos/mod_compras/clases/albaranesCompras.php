@@ -178,7 +178,8 @@ class AlbaranesCompras{
 	//Mostramos todos los albaranes temporales
 	public function TodosTemporal(){
 			$db = $this->db;
-			$smt = $db->query ('SELECT * from albproltemporales');
+		//	$smt = $db->query ('SELECT * from albproltemporales');
+			$smt=$db->query('SELECT tem.numalbpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial from albproltemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor');
 			$albaranPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($albaranPrincipal,$result);
