@@ -99,7 +99,7 @@ $albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
 				<tr>
 					<th>Nº Temp</th>
 					<th>Nº Alb</th>
-					<th>Cliente</th>
+					<th>Pro.</th>
 					<th>Total</th>
 				</tr>
 				

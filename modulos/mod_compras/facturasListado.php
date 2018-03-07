@@ -91,7 +91,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 				<tr>
 					<th>Nº Temp</th>
 					<th>Nº Fac</th>
-					<th>Cliente</th>
+					<th>Pro.</th>
 					<th>Total</th>
 				</tr>
 				
