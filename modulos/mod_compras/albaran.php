@@ -197,7 +197,7 @@ include './../../head.php';
 		}
 		$idAlbaran=0;
 		$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-		header('Location: facturasListado.php');
+		 header('Location: albaranesListado.php');
 	}
 	
 	
