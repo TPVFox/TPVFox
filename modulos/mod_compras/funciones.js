@@ -5,7 +5,14 @@ function controladorAcciones(caja,accion, tecla){
 		
 		case 'buscarProveedor':
 			console.log("Estoy en buscar proveedor");
-			buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+			if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
+				var d_focus="Proveedor";
+				ponerFocus(d_focus);
+				
+			}else{
+				buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+			}
+			
 		break;
 		case 'buscarProducto':
 			console.log("Pulse buscar Producto");
