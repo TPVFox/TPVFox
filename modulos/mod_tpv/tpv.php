@@ -38,6 +38,13 @@
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
+	echo '<pre>';
+	$cja_inputs = $ClasesParametros->Xpath('cajas_input//caja_input[nombre="cajaReferencia"]//parametros//parametro[@nombre="campo"]');
+	print_r((string)$cja_inputs[0]);
+
+	echo '</pre>';
+	
+	
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	//~ $configuracion = $Controler->obtenerConfiguracionModulo('mod_tpv',$Usuario['id']);
@@ -57,7 +64,6 @@
 	echo '<pre>';
 	print_r($configuracion);
 	echo '</pre>';
-	
 	
 	// Cambio datos si es un tiche Abierto
 	if (isset($_GET['tAbierto'])) {
@@ -99,6 +105,7 @@
 <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 ?>
+
 
 <script type="text/javascript">
 // Objetos cajas de tpv
@@ -169,12 +176,15 @@
 
 <?php if (isset($ticket)){
 	// Solo cargamos estas lineas javascript si es un ticket Abierto
+	echo '<pre>';
+	print_r($ticket['productos']);
+	echo '</pre>';
  ?>
 	<script type="text/javascript">
 	cabecera['idCliente'] = <?php echo $idCliente;?>;
 	datos = [];
 	<?php
-	$i= 0;
+	//~ $i= 0;
 	foreach($ticket['productos'] as $product){
 	?>
 		// Añadimos datos de productos a variable productos Javascript
@@ -184,18 +194,10 @@
 		datos['pvpCiva'] 		= <?php echo $product->pvpconiva;?>;
 		datos['iva'] 			= <?php echo '"'.$product->ctipoiva.'"';?>;
 		datos['codBarras']		= <?php echo '"'.$product->ccodebar.'"';?>;
+		datos['unidad']		= <?php echo $product->unidad;?>;
+		datos['estado']		= <?php echo '"'.$product->estado.'"';?>;
 		productos.push(new ObjProducto(datos));
-		<?php
-		// cambiamos estado y cantidad de producto creado si fuera necesario.
-		if ($product->estado !== 'Activo'){
-		?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product->estado.'"';?>;
-		<?php
-		}
-		if ($product->unidad != 1){
-		?>	productos[<?php echo $i;?>].unidad=<?php echo $product->unidad;?>;
-		<?php
-		}
-		$i++;
+	<?php	
 	}
 	?>
 

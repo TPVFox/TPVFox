@@ -68,6 +68,8 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 	//  3.- O nada un error.
 	
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
+	console.log('De donde:'+dedonde);
+
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
 		"cajaInput"	 : id_input,
@@ -75,6 +77,10 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 		"campo"      : campo,
 		"dedonde"    : dedonde
 	};
+	console.log('Parametros:');
+	console.log(parametros);
+
+
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -90,7 +96,7 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 				var datos = [];
 				datos = resultado.datos[0];
 				console.log('Entro en Estado Correcto funcion buscarProducto ->datos (producto)');
-				//~ console.log(datos);
+				console.log(datos);
 				//~ console.log('consulta '+resultado.sql);
 				resetCampo(id_input);
 				agregarFila(datos);
@@ -125,6 +131,8 @@ function agregarFila(datos,campo=''){
 	// @ Objetivo
 	// 	Añadir producto a productos (JS) y ademas obtener htmlLinea para mostrar
 	// Voy a crear objeto producto nuevo..
+	// @ parametro 
+	//  campo ->  String que indica al campo donde enfocar.
 	console.log('Voy agregar producto');
 	console.log(datos);
 	productos.push(new ObjProducto(datos));
@@ -411,7 +419,7 @@ function metodoClick(pulsado){
 
 
 // =========================== OBJETOS  ===================================
-function ObjProducto(datos,valor=1,estado ='Activo')
+function ObjProducto(datos)
 {
     console.log('Estoy creando objeto producto');
     this.id = datos.idArticulo;
@@ -420,8 +428,16 @@ function ObjProducto(datos,valor=1,estado ='Activo')
     this.pvpconiva = parseFloat(datos.pvpCiva).toFixed(2);
     this.ccodebar = datos.codBarras;
     this.ctipoiva = datos.iva;
-    this.unidad = valor;
-    this.estado = estado;
+    if (datos.unidad === undefined){
+		this.unidad = 1; // Valor por defecto.
+	} else {
+		this.unidad = datos.unidad;
+	}
+    if (datos.estado === undefined){
+		this.estado= 'Activo'; // Valor por defecto.
+	} else {
+		this.estado = datos.estado;
+	}
     this.nfila = productos.length+1;
     this.importe = parseFloat(this.pvpconiva) * this.unidad;
 }
