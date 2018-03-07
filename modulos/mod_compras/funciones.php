@@ -336,8 +336,10 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<td class="pvp">'.$coste.'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
 		 $bandera=$producto['iva']/100;
-		 $importe=($bandera+$producto['ultimoCoste'])*$producto['ncant'];
+		 $bandera2=($bandera*$producto['ultimoCoste'])+$producto['ultimoCoste'];
+		 $importe=$bandera2*$producto['ncant'];
 		// $importe = $producto['ultimoCoste']*$producto['ncant'];
+		
 		 $importe = number_format($importe,2);
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;
