@@ -160,7 +160,8 @@ class PedidosVentas{
 	//Muestra todos los temporales
 	public function TodosTemporal(){
 			$db = $this->db;
-			$smt = $db->query ('SELECT * from pedcliltemporales');
+		//	$smt = $db->query ('SELECT * from pedcliltemporales');
+			$smt=$db->query('SELECT tem.idPedcli, tem.id , tem.idClientes, tem.total, b.Nombre, c.Numpedcli from pedcliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes LEFT JOIN pedclit as c on tem.idPedcli=c.id');
 			$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($pedidosPrincipal,$result);

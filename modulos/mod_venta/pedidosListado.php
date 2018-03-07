@@ -70,7 +70,7 @@ include '../../header.php';
 			<div class="col-md-12 text-center">
 					<h2> Pedidos de clientes: Editar y Añadir pedidos </h2>
 				</div>
-					<nav class="col-sm-3">
+					<nav class="col-sm-4">
 				<h4> Pedidos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -89,10 +89,10 @@ include '../../header.php';
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>Nº Temp</th>
-					<th>Nº Ped</th>
-					<th>Cliente</th>
-					<th>Total</th>
+					<th WIDTH="4">Nº Temp</th>
+					<th WIDTH="4">Nº Ped</th>
+					<th WIDTH="100">Cliente</th>
+					<th WIDTH="4">Total</th>
 				</tr>
 				
 			</thead>
@@ -101,8 +101,8 @@ include '../../header.php';
 				if (isset ($todoTemporal)){
 					foreach ($todoTemporal as $pedidoTemp){
 						if ($pedidoTemp['idPedcli']){
-							$numPedido=$Cpedido->buscarNumPedido($pedidoTemp['idPedcli']);
-							$numPed=$numPedido['Numpedcli'];
+							//$numPedido=$Cpedido->buscarNumPedido($pedidoTemp['idPedcli']);
+							$numPed=$pedidoTemp['Numpedcli'];
 					}else{
 						$numPed="";
 					}
@@ -110,7 +110,7 @@ include '../../header.php';
 						<tr>
 						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
 						<td><?php echo $numPed;?></td>
-						<td><?php echo $pedidoTemp['idClientes'];?></td>
+						<td><?php echo $pedidoTemp['Nombre'];?></td>
 						<td><?php echo number_format($pedidoTemp['total'],2);?></td>
 						</tr>
 						<?php
@@ -121,7 +121,7 @@ include '../../header.php';
 		</table>
 		</div>
 			</nav>
-			<div class="col-md-9">
+			<div class="col-md-8">
 					<p>
 					 -Pedidos encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>
