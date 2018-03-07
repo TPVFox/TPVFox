@@ -208,9 +208,10 @@
 			<nombre id_input="ClienteAl">cajaClienteAl</nombre>
 			<teclas>
 				<action tecla="13">buscarClientes</action>
-				<action tecla="39">saltar_nombreCliente</action>
+				<action tecla="39">saltar_idCliente</action>
+				<action tecla="37">saltar_idCliente</action>
 				<action tecla="38">saltar_Fecha</action>
-				<action tecla=" 9">saltar_nombreCliente</action>
+				<action tecla=" 9">saltar_idArticulo</action>
 				<action tecla="40">saltar_idArticulo</action>
 			</teclas>
 			<parametros>
@@ -292,9 +293,13 @@
 			<teclas>
 				<action tecla="13">saltarNumPedido</action>
 				<action tecla="39">saltarNumPedido</action>
+				<action tecla="40">saltar_idClienteFlechaAbajo</action>
 				<action tecla="9">saltarNumPedido</action>
 				<action tecla="40">saltar_idClienteFlechaAbajo</action>
 			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">factura</parametro>
+			</parametros> 
 		</caja_input>
 		<caja_input>
 			<nombre id_input="id_clienteFac">cajaIdClienteFac</nombre>
@@ -303,6 +308,20 @@
 				<action tecla="39">saltar_nombreCliente</action>
 				<action tecla="38">saltar_Fecha</action>
 				<action tecla=" 9">saltar_nombreCliente</action>
+				<action tecla="40">saltar_idArticulo</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">factura</parametro>
+			</parametros> 
+		</caja_input>
+		<caja_input>
+			<nombre id_input="ClienteFac">cajaClienteFac</nombre>
+			<teclas>
+				<action tecla="13">buscarClientes</action>
+				<action tecla="39">saltar_idArticulo</action>
+				<action tecla="37">saltar_idCliente</action>
+				<action tecla="38">saltar_Fecha</action>
+				<action tecla=" 9">saltar_idArticulo</action>
 				<action tecla="40">saltar_idArticulo</action>
 			</teclas>
 			<parametros>

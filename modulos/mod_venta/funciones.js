@@ -330,6 +330,9 @@ function controladorAcciones(caja,accion, tecla , event){
 				if (caja.darParametro('dedonde')=="albaran"){
 					var d_focus = 'id_clienteAl';
 				}
+				if (caja.darParametro('dedonde')=="factura"){
+					var d_focus = 'id_clienteFac';
+				}
 				if (caja.darParametro('dedonde')=="pedidos"){
 					var d_focus = 'id_cliente';
 				}
