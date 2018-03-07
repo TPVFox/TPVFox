@@ -218,7 +218,7 @@ class AlbaranesVentas{
 	//MUestra todos los datos temporales
 		public function TodosTemporal(){
 			$db = $this->db;
-			$smt = $db->query ('SELECT * from albcliltemporales');
+			$smt = $db->query ('SELECT tem.numalbcli, tem.id , tem.idClientes, tem.total, b.Nombre from albcliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes');
 			$albaranPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($albaranPrincipal,$result);
