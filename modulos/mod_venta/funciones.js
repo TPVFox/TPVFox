@@ -1214,20 +1214,21 @@ function eliminarFila(num_item, valor=""){
 	console.log(num);
 	line = "#Row" + productos[num].nfila;
 	// Nueva Objeto de productos.
-	if(valor=="albaran" || valor=="factura"){
+	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
 		productos[num].estadoLinea='Eliminado';
 	}else{
 		productos[num].estado= 'Eliminado';
 	}
 	$(line).addClass('tachado');
-	if(valor=="albaran" || valor=="factura"){
+	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
 		
 		console.log("estoy eliminar fila factura");
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
 		if (valor=="albaran"){
 			addAlbaranTemp();
-		}else{
+		}
+		if (valor=="factura"){
 			addFacturaTemp();
 		}
 		
@@ -1250,7 +1251,7 @@ function retornarFila(num_item, valor=""){
 	line = "#Row" +productos[num].nfila;
 	console.log(line);
 	// Nueva Objeto de productos.
-	if(valor=="albaran" || valor=="factura"){
+	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
 		productos[num].estadoLinea= 'Activo';
 	}else{
 		productos[num].estado= 'Activo';
@@ -1260,7 +1261,7 @@ function retornarFila(num_item, valor=""){
 	//~ var pvp =productos[num_item].pvpconiva;
 
 	
-	if(valor=="albaran" || valor=="factura"){
+	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+' , '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-trash"></span></a>');
 
@@ -1277,7 +1278,8 @@ function retornarFila(num_item, valor=""){
 				$("#N" + productos[num].nfila + "_Unidad").val(productos[num].nunidades);
 			if (valor=="albaran"){
 				addAlbaranTemp();
-			}else{
+			}
+			if(valor=="factura"){
 				addFacturaTemp();
 			}
 	}else{
@@ -1437,7 +1439,8 @@ function buscarPedido(dedonde, idcaja, valor=''){
 	var parametros = {
 		"pulsado"    : 'buscarPedido',
 		"busqueda" : valor,
-		"idCliente":cabecera.idCliente
+		"idCliente":cabecera.idCliente,
+		"dedonde":dedonde
 	};
 	console.log (valor);
 	$.ajax({
@@ -1474,6 +1477,8 @@ function buscarPedido(dedonde, idcaja, valor=''){
 						console.log("Hay un resultado");
 						var datos = [];
 						datos = resultado['datos'];
+						n_item=parseInt(pedidos.length)+1;
+						datos.nfila=n_item;
 						pedidos.push(datos);// En el array de arrays  de pedidos de la cabecera metemos el array de pedido nuevo 
 						productosAdd=resultado.productos;
 						console.log("cuento los productos");
@@ -1490,7 +1495,8 @@ function buscarPedido(dedonde, idcaja, valor=''){
 						//Ni se puede modificar  en pedidos
 						ModificarEstadoPedido("Albaran", "Facturado", resultado['datos'].Numpedcli, resultado['datos'].idPedCli);
 						//Añade el html de la fila del pedido
-						AgregarFilaPedido(datos);
+						
+						AgregarFilaPedido(datos, "albaran");
 						//Agrega los productos de ese pedido
 						AgregarFilaProductosAl(resultado.productos, dedonde);
 					}else{
@@ -1825,6 +1831,7 @@ function ModificarEstadoPedido(dedonde, estado, num="", id=""){
 			"dedonde" : dedonde
 		};
 	}
+	console.log(parametros);
 	if (dedonde == "factura"){
 		var parametros = {
 			"pulsado"    : 'modificarEstadoPedido',
@@ -1922,12 +1929,14 @@ function comprobarAlbaranesExis(){
 
 
 //Agregar un html con el pedido 
-function AgregarFilaPedido(datos){
+function AgregarFilaPedido(datos , dedonde=""){
 	console.log("Estoy en agregar fila Pedido");
 	var parametros = {
 		"pulsado"    : 'htmlAgregarFilaPedido',
-		"datos" : datos
+		"datos" : datos,
+		"dedonde":dedonde
 	};
+	
 	console.log(parametros);
 		$.ajax({
 		data       : parametros,
@@ -2083,6 +2092,98 @@ function sobreFila(cont){
 	$('#N_'+cont).css('background-color','lightblue');
 }
 
-function eliminarAdjunto(id){
-	console.log("entre en eliminar adjunto");
+function eliminarAdjunto(numRegistro, dedonde, nfila){
+	
+	console.log("entre en eliminar Fila");
+	console.log(dedonde);
+	var line;
+	num=nfila-1;
+	//~ if (dedonde=="factura"){
+		//~ line = "#lineaP" + albaranes[num].nfila;
+		//~ console.log(num);
+		//~ albaranes[num].estado= 'Eliminado';
+	//~ }
+	if (dedonde=="albaran"){
+		line = "#lineaP" + pedidos[num].nfila;
+		console.log(num);
+		pedidos[num].estado= 'Eliminado';
+	}
+	
+	$(line).addClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
+	if (dedonde=="pedido"){
+			addPedidoTemporal();
+		}
+		if (dedonde=="albaran"){
+			for(i=0;i<productos.length; i++){
+				var numProducto=productos[i].Numpedcli;
+				if (numRegistro == numProducto){
+					eliminarFila(productos[i].nfila, "bandera");
+					
+				}
+			}
+			num=nfila-1;
+			ModificarEstadoPedido("Albaran", "Guardado", numRegistro, pedidos[num].idPedido);
+			addAlbaranTemp();
+		}
+		if (dedonde=="factura"){
+			for(i=0;i<productos.length; i++){
+				var numProducto=productos[i].numAlbaran;
+				if (numRegistro == numProducto){
+					eliminarFila(productos[i].nfila, "bandera");
+					
+				}
+			}
+			num=nfila-1;
+			console.log(albaranes[num].idAlbaran);
+			console.log("Voy a entrar en modificar albaran");
+			modificarEstadoPedido(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
+			addFacturaTemporal();
+		}
+}
+function retornarAdjunto(numRegistro, dedonde, nfila){
+	console.log("entre en retornar fila adjunto");
+	var estado="Guardado";
+	var line;
+	num=nfila-1;
+	console.log(num);
+	//~ if (dedonde=="factura"){
+		//~ line = "#lineaP" + albaranes[num].nfila;
+		//~ console.log(line);
+		//~ albaranes[num].estado= 'activo';
+	//~ }
+	if (dedonde=="albaran"){
+		line = "#lineaP" + pedidos[num].nfila;
+		console.log(line);
+		pedidos[num].estado= 'Activo';
+	}
+	
+	$(line).removeClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="eliminarAdjunto('+numRegistro+' , '+"'"+dedonde+"', "+nfila+');"><span class="glyphicon glyphicon-trash"></span></a>');
+	if (dedonde=="pedido"){
+		addPedidoTemporal();
+	}
+	if (dedonde=="albaran"){
+		for(i=0;i<productos.length; i++){
+				var numProducto=productos[i].Numpedcli;
+				if (numRegistro==numProducto){
+					retornarFila(productos[i].nfila, "bandera");
+				}
+			}
+		num=nfila-1;
+		ModificarEstadoPedido("Albaran", "Facturado", numRegistro, pedidos[num].idPedido);
+		
+		addAlbaranTemp();
+	}
+	if (dedonde=="factura"){
+		for(i=0;i<productos.length; i++){
+				var numProducto=productos[i].numAlbaran;
+				if (numRegistro==numProducto){
+					retornarFila(productos[i].nfila, "bandera");
+				}
+			}
+		num=nfila-1;
+		modificarEstadoPedido(dedonde, "Facturado", numRegistro, albaranes[num].idAlbaran);
+		addFacturaTemporal();
+	}
 }

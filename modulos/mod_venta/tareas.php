@@ -148,8 +148,10 @@ switch ($pulsado) {
 					$respuesta['temporales']=$temporales;
 					$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
 					$respuesta['datos']['idPedCli']=$res['id'];
+					$respuesta['datos']['idPedido']=$res['id'];
 					$respuesta['datos']['fecha']=$res['FechaPedido'];
 					$respuesta['datos']['total']=$res['total'];
+					$respuesta['datos']['estado']="activo";
 					$respuesta['Nitems']=$res['Nitem'];
 					$productosPedido=$CcliPed->ProductosPedidos($res['id']);
 					$respuesta['productos']=$productosPedido;
@@ -327,7 +329,12 @@ switch ($pulsado) {
 				}
 			}else if ($_POST['dedonde']=="Albaran"){
 				$idPedido=$_POST['idPedido'];
-				$estado="Facturado";
+				if ($_POST['estado']){
+					$estado=$_POST['estado'];
+				}else{
+					$estado="Facturado";
+				}
+				
 				$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
 				$respuesta['sql']=$modEstado;
 			}else if($_POST['dedonde']=="factura"){
@@ -386,7 +393,7 @@ switch ($pulsado) {
 		
 		//Devuelve el html de la fila del pedido 
 		case 'htmlAgregarFilaPedido':
-			$res=lineaPedidoAlbaran($_POST['datos']);
+			$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;

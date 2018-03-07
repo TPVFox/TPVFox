@@ -145,14 +145,17 @@ include './../../head.php';
 				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
 				 $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran);
 				 $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
-				 //~ echo '<pre>';
-				 //~ print_r($addNuevo);
-				 //~ echo '</pre>';
+				 echo '<pre>';
+				 print_r($addNuevo);
+				 echo '</pre>';
 			 }else{
 				$idAlbaran=0;
 				$numAlbaran=0;
 				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran);
 				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+				echo '<pre>';
+				 print_r($addNuevo);
+				 echo '</pre>';
 			}
 		// header('Location: albaranesListado.php');
 			
