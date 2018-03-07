@@ -300,8 +300,28 @@ function controladorAcciones(caja,accion, tecla , event){
 	switch(accion) {
 		case 'buscarClientes':
 			// Esta funcion necesita el valor.
+			
 			console.log("Estoy en buscarClientes");
-			buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+			
+			if(caja.darValor()=="" && caja.id_input=="id_cliente"){
+				var d_focus="Cliente";
+				ponerFocus(d_focus);
+			}else {
+				if (caja.darValor()=="" && caja.id_input=="id_clienteAl"){
+				var d_focus="ClienteAl";
+				ponerFocus(d_focus);
+				}else{
+					if(caja.darValor()=="" && caja.id_input=="id_clienteFac"){
+					var d_focus="ClienteFac";
+					ponerFocus(d_focus);
+				}else{
+					buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+				}
+			}
+		}
+			
+			
+			
 			break;
 		case 'saltar_idCliente':
 		console.log('Entro en acciones saltar_idCliente');
