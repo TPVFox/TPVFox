@@ -2116,11 +2116,20 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 		}
 		if (dedonde=="albaran"){
 			for(i=0;i<productos.length; i++){
-				var numProducto=productos[i].Numpedcli;
-				if (numRegistro == numProducto){
-					eliminarFila(productos[i].nfila, "bandera");
-					
+				if (productos[i].Numpedcli){
+					var numProducto=productos[i].Numpedcli;
+					if (numRegistro == numProducto){
+						eliminarFila(productos[i].nfila, "bandera");
+						
+					}
+				}else{
+					var numProducto=productos[i].NumpedCli;
+					if (numRegistro == numProducto){
+						eliminarFila(productos[i].nfila, "bandera");
+						
+					}
 				}
+				
 			}
 			num=nfila-1;
 			ModificarEstadoPedido("Albaran", "Guardado", numRegistro, pedidos[num].idPedido);
@@ -2165,11 +2174,19 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 	}
 	if (dedonde=="albaran"){
 		for(i=0;i<productos.length; i++){
+			if (productos[i].Numpedcli){
 				var numProducto=productos[i].Numpedcli;
 				if (numRegistro==numProducto){
 					retornarFila(productos[i].nfila, "bandera");
 				}
+			}else{
+				var numProducto=productos[i].NumpedCli;
+				if (numRegistro==numProducto){
+					retornarFila(productos[i].nfila, "bandera");
+				}
+				
 			}
+		}
 		num=nfila-1;
 		ModificarEstadoPedido("Albaran", "Facturado", numRegistro, pedidos[num].idPedido);
 		
