@@ -463,14 +463,18 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 					$numeroPed=$producto['Numpedcli'];
 				}
 			}else{
-				if (isset ($producto['NumpedCli'])){
-					if ($producto['NumpedCli']==0){
-						$numeroPed="";
-					}else{
-						$numeroPed=$producto['NumpedCli'];
-					}
+				if (isset ($producto['Numalbcli'])){
+				 if ($producto['Numalbcli']>0){
+					 $numeroPed=$producto['Numalbcli'];
+				 }else{
+					 $numeroPed="";
+				 }
 				}else{
-					$numeroPed="";
+					if ($producto['NumalbCli']>0){
+						$numeroPed=$producto['NumalbCli'];
+					}else{
+						$numeroPed="";
+					}
 				}
 				
 				
@@ -532,15 +536,33 @@ function htmlPedidoAlbaran($pedidos, $dedonde){
 }
 
 
-function htmlAlbaranFactura($albaranes){
+function htmlAlbaranFactura($albaranes, $dedonde){
 	$respuesta="";
 	$respuesta['html']="";
 	if(isset($albaranes)){
 	foreach($albaranes as $albaran){
-		$respuesta['html'] .='<tr>';
+		if ($albaran['estado']){
+			if ($albaran['Numalbcli']){
+				$num=$albaran['Numalbcli'];
+			}
+			if ($albaran['estado']=="activo"){
+				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$albaran['nfila'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$classtr = '';
+				$estadoInput = '';
+			}else{
+				$classtr = ' class="tachado" ';
+				$estadoInput = 'disabled';
+				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$albaran['nfila'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+	
+			}
+		}
+		$respuesta['html'] .='<tr id="lineaP'.($albaran['nfila']).'" '.$classtr.'>';
 		$respuesta['html'] .='<td>'.$albaran['Numalbcli'].'</td>';
 		$respuesta['html'] .='<td>'.$albaran['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$albaran['total'].'</td>';
+		$respuesta['html'].=$btnELiminar_Retornar;
 		$respuesta['html'] .='</tr>';
 	}
 	}
@@ -577,13 +599,31 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 	return $respuesta;
 }
 
-function lineaAlbaranFactura($albaran){
+function lineaAlbaranFactura($albaran, $dedonde){
 	$respuesta['html']="";
 	if(isset($albaran)){
-		$respuesta['html'] .='<tr>';
+			if ($albaran['estado']){
+			if ($albaran['Numalbcli']){
+				$num=$albaran['Numalbcli'];
+			}
+			if ($albaran['estado']=="activo"){
+				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$albaran['nfila'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$classtr = '';
+				$estadoInput = '';
+			}else{
+				$classtr = ' class="tachado" ';
+				$estadoInput = 'disabled';
+				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$albaran['nfila'].');';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+	
+			}
+		}
+		$respuesta['html'] .='<tr id="lineaP'.($albaran['nfila']).'" '.$classtr.'>';
 		$respuesta['html'] .='<td>'.$albaran['Numalbcli'].'</td>';
 		$respuesta['html'] .='<td>'.$albaran['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$albaran['total'].'</td>';
+		$respuesta['html'].=$btnELiminar_Retornar;
 		$respuesta['html'] .='</tr>';
 	}
 	return $respuesta;
@@ -681,17 +721,21 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 
 function modificarArrayAlbaranes($albaranes, $BDTpv){
 	$respuesta=array();
+	$i=1;
 	foreach ($albaranes as $albaran){
 			$datosPedido=$BDTpv->query('SELECT * FROM albclit WHERE id= '.$albaran['idAlbaran'] );
 			while ($fila = $datosPedido->fetch_assoc()) {
 				$ped[] = $fila;
 			}
-			$res['Numalbcli']=$albaran['numPedido'];
+			$res['Numalbcli']=$ped[0]['Numalbcli'];
 			$res['fecha']=$ped[0]['Fecha'];
+			$res['idAlbaran']=$ped[0]['id'];
 			//$res['idalbCli']=$ped[0]['idCliente'];
 			$res['total']=$ped[0]['total'];
+			$res['estado']="activo";
+			$res['nfila']=$i;
 			array_push($respuesta,$res);
-		
+		$i++;
 	}
 	return $respuesta;
 }

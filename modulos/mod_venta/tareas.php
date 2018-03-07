@@ -177,6 +177,8 @@ switch ($pulsado) {
 					$respuesta['datos']['idalbcli']=$res['id'];
 					$respuesta['datos']['fecha']=$res['Fecha'];
 					$respuesta['datos']['total']=$res['total'];
+					$respuesta['datos']['idAlbaran']=$res['id'];
+					$respuesta['datos']['estado']="activo";
 					$respuesta['Nitems']=$res['Nitem'];
 					$productosAlbaran=$CalbAl->ProductosAlbaran($res['id']);
 					$respuesta['productos']=$productosAlbaran;
@@ -399,7 +401,7 @@ switch ($pulsado) {
 		break;
 		//Devuelve el html de la fila albarán
 		case 'htmlAgregarFilaAlbaran':
-			$res=lineaAlbaranFactura($_POST['datos']);
+			$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;

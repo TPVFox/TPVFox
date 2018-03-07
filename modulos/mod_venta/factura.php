@@ -61,11 +61,15 @@ include './../../head.php';
 
 		$productos=json_decode(json_encode($productosFactura));
 		$Datostotales = recalculoTotalesAl($productos);
+		
 		$productos=json_decode(json_encode($productosFactura), true);
 		if ($albaranFactura){
 			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
-			 $albaranes=json_decode(json_encode($modificarPedido), true);
+			 $albaranes=json_decode(json_encode($modificaralbaran), true);
 		}
+		echo '<pre>';
+		print_r($albaranes);
+		echo '</pre>';
 		$total=$Datostotales['total'];
 		//Si esta en estado guardado o pagado parcial se puede modificar los importes si no no
 		if ($estado="Guardado" || $estado="Pagado parcial"){
@@ -235,10 +239,10 @@ include './../../head.php';
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
-			
+			echo '<pre>';
 			print_r( $addNuevo);
-		
-	header('Location: facturasListado.php');
+			echo '</pre>';
+//	header('Location: facturasListado.php');
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
@@ -440,7 +444,7 @@ if (isset($_GET['tActual'])){
 				<?php 
 				
 				if (isset($albaranes)){
-					$html=htmlAlbaranFactura($albaranes);
+					$html=htmlAlbaranFactura($albaranes, "factura");
 					echo $html['html'];
 				}
 				?>
