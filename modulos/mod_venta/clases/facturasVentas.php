@@ -47,7 +47,7 @@ class FacturasVentas{
 	//Muestra los datos de todos los temporales
 	public function TodosTemporal(){
 			$db = $this->db;
-			$smt = $db->query ('SELECT * from faccliltemporales');
+			$smt = $db->query ('SELECT tem.numfaccli, tem.id , tem.idClientes, tem.total, b.Nombre from faccliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes');
 			$facturaPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($facturaPrincipal,$result);

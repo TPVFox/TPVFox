@@ -78,7 +78,7 @@ include '../../header.php';
 			<div class="col-md-12 text-center">
 					<h2> Facturas de clientes: Editar y Añadir facturas </h2>
 				</div>
-					<nav class="col-sm-3">
+					<nav class="col-sm-4">
 				<h4> Facturas </h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -117,7 +117,7 @@ include '../../header.php';
 					<tr>
 						<td><a href="factura.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
 						<td><?php echo $numTemporal;?></td>
-						<td><?php echo $temporal['idClientes'];?></td>
+						<td><?php echo $temporal['Nombre'];?></td>
 						<td><?php echo number_format($temporal['total'],2);?></td>
 						</tr>
 					<?php
@@ -128,7 +128,7 @@ include '../../header.php';
 		</table>
 		</div>
 			</nav>
-			<div class="col-md-9">
+			<div class="col-md-8">
 					<p>
 					 -Facturas encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>
