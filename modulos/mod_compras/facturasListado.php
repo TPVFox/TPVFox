@@ -70,7 +70,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 			<div class="col-md-12 text-center">
 					<h2> Facturas Compras: Editar y Añadir facturas </h2>
 				</div>
-					<nav class="col-sm-2">
+					<nav class="col-sm-4">
 				<h4> Facturas</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -89,10 +89,10 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>Nº Temp</th>
-					<th>Nº Fac</th>
-					<th>Pro.</th>
-					<th>Total</th>
+					<th WIDTH="4">Nº Temp</th>
+					<th WIDTH="4">Nº Fac</th>
+					<th WIDTH="100">Pro.</th>
+					<th WIDTH="4">Total</th>
 				</tr>
 				
 			</thead>
@@ -110,7 +110,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 					<tr>
 						<td><a href="factura.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
 						<td><?php echo $numTemporal;?></td>
-						<td><?php echo $temporal['idProveedor'];?></td>
+						<td><?php echo $temporal['nombrecomercial'];?></td>
 						<td><?php echo number_format($temporal['total'],2);?></td>
 						</tr>
 					<?php
@@ -121,7 +121,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 		</table>
 		</div>
 			</nav>
-			<div class="col-md-9">
+			<div class="col-md-8">
 					<p>
 					 -Facturas encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>

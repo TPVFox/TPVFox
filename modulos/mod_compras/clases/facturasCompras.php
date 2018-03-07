@@ -17,7 +17,8 @@ class FacturasCompras{
 	//MUestra todos los temporales para el listado principal de factura
 	public function TodosTemporal(){
 			$db = $this->db;
-			$smt = $db->query ('SELECT * from facproltemporales');
+		//	$smt = $db->query ('SELECT * from facproltemporales');
+		$smt=$db->query('SELECT tem.numfacpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial from facproltemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor ');
 			$facturaPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($facturaPrincipal,$result);
