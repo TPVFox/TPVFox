@@ -781,7 +781,8 @@ function cerrarPopUp(destino_focus=''){
 //Entra en la función de tareas de buscar productos y le envia los parametros
 //Esta función devuelve el número de busquedas
 function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
-	console.log(dedonde);
+	console.log(idcaja);
+	//~ console.log(dedonde);
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
@@ -805,9 +806,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 		success    :  function (response) {
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
-			console.log(resultado);
-			console.log("A DONDE");
-			console.log(dedonde);
+			//~ console.log(resultado);
+			//~ console.log("A DONDE");
+			//~ console.log(dedonde);
 		
 		if (resultado['Nitems']===1){
 			

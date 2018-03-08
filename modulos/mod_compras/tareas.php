@@ -57,6 +57,7 @@ switch ($pulsado) {
 			$idProveedor=$_POST['idProveedor'];
 			$dedonde=$_POST['dedonde'];
 			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idProveedor);
+			
 			$respuesta['sql']=$res['sql'];
 			if ($res['Nitems']===1){
 				$respuesta=$res;
