@@ -224,38 +224,27 @@ function recalculoTotalesAl($productos) {
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estado === 'Activo'){
-			error_log(json_encode($product));
-			
-			
+			//error_log(json_encode($product));
 			$bandera=$product->iva/100;
-			$importe=$product->ultimoCoste*$product->nunidades;
-			//$totalLinea=($bandera+$product->ultimoCoste)*$product->ncant;
-			//$totalLinea = $product->ncant * $product->precioCiva;
-			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
-			//$subtotal = $subtotal + $product->importe; // Subtotal sumamos importes de lineas.
 			// Ahora calculmos bases por ivas
-			//$desglose[$product->iva]['BaseYiva'] = (!isset($desglose[$product->iva]['BaseYiva']) ? $totalLinea : $desglose[$product->iva]['BaseYiva']+$totalLinea);
 			// Ahora calculamos base y iva 
-		//	$operador = (100 + $product->iva) / 100;
-		//	$desglose[$product->iva]['base'] = number_format(($desglose[$product->iva]['BaseYiva']/$operador),2);
 			if (isset($desglose[$product->iva])){
-			$desglose[$product->iva]['base'] = $desglose[$product->iva]['base'] + number_format(($importe),2);
-			$desglose[$product->iva]['iva'] = $desglose[$product->iva]['iva']+ number_format($importe * $bandera,2);
-		
+			$desglose[$product->iva]['base'] = $desglose[$product->iva]['base'] + number_format(($product->importe),2);
+			$desglose[$product->iva]['iva'] = $desglose[$product->iva]['iva']+ number_format($product->importe * $bandera,2);
 			}else{
-			$desglose[$product->iva]['base'] = number_format($importe,2);
-			$desglose[$product->iva]['iva'] = number_format($importe*$bandera,2);
-			//~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
-			
+			$desglose[$product->iva]['base'] = number_format($product->importe,2);
+			$desglose[$product->iva]['iva'] = number_format($product->importe*$bandera,2);
 			}
 			$desglose[$product->iva]['BaseYiva'] =$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'];
-			$subivas= $subivas+$desglose[$product->iva]['iva'];
-			$subtotal= $subtotal +$desglose[$product->iva]['BaseYiva'];
+			
 		}
 		
 	
 	}
-	
+	foreach($desglose as $tipoIva=>$des){
+		$subivas= $subivas+$desglose[$tipoIva]['iva'];
+		$subtotal= $subtotal +$desglose[$tipoIva]['BaseYiva'];
+	}
 	//~ $respuesta['ivas'] = $ivas;
 	$respuesta['desglose'] = $desglose;
 	$respuesta['subivas']=$subivas;
@@ -382,8 +371,9 @@ function modificarArrayProductos($productos){
 		if (isset ($producto['Numalbpro'])){
 			$pro['numAlbaran']=$producto['Numalbpro'];
 		}
-		$bandera=$producto['iva']/100;
-		$importe=($bandera+$producto['costeSiva'])*$producto['nunidades'];
+		//$bandera=$producto['iva']/100;
+		//$importe=($bandera+$producto['costeSiva'])*$producto['nunidades'];
+		$importe=$producto['costeSiva']*$producto['nunidades'];
 		$pro['importe']=$importe;
 		$pro['iva']=$producto['iva'];
 		$pro['ncant']=$producto['ncant'];
