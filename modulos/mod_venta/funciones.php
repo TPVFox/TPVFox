@@ -707,10 +707,10 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 				$numPedido=$pedido['Numpedcli'];
 			}
 			$res['Numpedcli']=$numPedido;
-			$res['idPedido']=$ped[0]['id'];
-			$res['fecha']=$ped[0]['FechaPedido'];
-			$res['idPedCli']=$ped[0]['id'];
-			$res['total']=$ped[0]['total'];
+			$res['idPedido']=$ped['id'];
+			$res['fecha']=$ped['FechaPedido'];
+			$res['idPedCli']=$ped['id'];
+			$res['total']=$ped['total'];
 			$res['estado']="activo";
 			$res['nfila']=$i;
 			array_push($respuesta,$res);
