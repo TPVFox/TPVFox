@@ -82,8 +82,20 @@ switch ($pulsado) {
 			if (count($codBarrasPropio)>0){
 				// Si hay datos , nos enviamos referencia y (precio o peso) obtenidos.
 				$respuesta['codBarrasPropio'] = $codBarrasPropio;
+				if (count($respuesta['datos']=== 1)){
+					// Solo permito cambiar datos si hay un solo resultado.
+					$respuesta['datos'][0]['codBarras'] = $codBarrasPropio['codbarras_leido'];
+					$respuesta['datos'][0]['crefTienda'] = $codBarrasPropio['referencia'];
+					if (isset($codBarrasPropio['peso'])){
+						// [OJO] aquí cambiaría si tuvieramos activado campo de cantidad/peso, ya que es donde lo podríamos.
+						$respuesta['datos'][0]['unidad'] = $codBarrasPropio['peso'];
+					}
+					if (isset($codBarrasPropio['precio'])){
+						$respuesta['datos'][0]['pvpCiva'] = $codBarrasPropio['precio'];
+					}
 				// Ahora cambiamos $respuesta['datos'] , el peso o precio para referencia
 				
+				}
 			}
 		}
 		
