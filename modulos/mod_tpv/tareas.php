@@ -55,6 +55,7 @@ switch ($pulsado) {
 					$xml_campo_cref = $ClasesParametros->Xpath('cajas_input//caja_input[nombre="cajaReferencia"]//parametros//parametro[@nombre="campo"]');
 					$campoAbuscar =(string)$xml_campo_cref[0];
 					$id_input='Referencia';
+					$codBarrasPropio['codbarras_leido'] = $busqueda; // Guardamos en array el codbarras leido
 					$busqueda= $codBarrasPropio['referencia'];
 				}
 			}
@@ -81,6 +82,8 @@ switch ($pulsado) {
 			if (count($codBarrasPropio)>0){
 				// Si hay datos , nos enviamos referencia y (precio o peso) obtenidos.
 				$respuesta['codBarrasPropio'] = $codBarrasPropio;
+				// Ahora cambiamos $respuesta['datos'] , el peso o precio para referencia
+				
 			}
 		}
 		
