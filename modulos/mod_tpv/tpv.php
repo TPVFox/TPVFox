@@ -38,11 +38,6 @@
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
-	echo '<pre>';
-	$cja_inputs = $ClasesParametros->Xpath('cajas_input//caja_input[nombre="cajaReferencia"]//parametros//parametro[@nombre="campo"]');
-	print_r((string)$cja_inputs[0]);
-
-	echo '</pre>';
 	
 	
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
@@ -61,9 +56,9 @@
 		$checkin[1] = 'name="impresion_ticket" value="No" onchange="GuardarConfiguracion()"';
 
 	}
-	echo '<pre>';
-	print_r($configuracion);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($configuracion);
+	//~ echo '</pre>';
 	
 	// Cambio datos si es un tiche Abierto
 	if (isset($_GET['tAbierto'])) {
@@ -176,9 +171,6 @@
 
 <?php if (isset($ticket)){
 	// Solo cargamos estas lineas javascript si es un ticket Abierto
-	echo '<pre>';
-	print_r($ticket['productos']);
-	echo '</pre>';
  ?>
 	<script type="text/javascript">
 	cabecera['idCliente'] = <?php echo $idCliente;?>;
