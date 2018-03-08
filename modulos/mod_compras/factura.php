@@ -22,7 +22,7 @@ include './../../head.php';
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
 		
-		$titulo="Modificar factura De Cliente";
+		$titulo="Modificar factura De Proveedor";
 		$datosFactura=$CFac->datosFactura($idFactura);
 		
 		$productosFactura=$CFac->ProductosFactura($idFactura);
@@ -58,7 +58,7 @@ include './../../head.php';
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
 		//~ echo '<pre>';
-			//~ print_r($albaranes);
+			//~ print_r($modificarAlbaran);
 			//~ echo '</pre>';
 		$total=$Datostotales['total'];
 		
@@ -203,9 +203,9 @@ include './../../head.php';
 		}else{
 			$style="display:none;";
 		}
-		echo '<pre>';
-		print_r($albaranes);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($albaranes);
+		//~ echo '</pre>';
 		if($_GET['id'] >0 ||$_GET['tActual']>0){
 			$estiloTablaProductos="";
 		}else{

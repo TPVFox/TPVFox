@@ -18,8 +18,8 @@ class PedidosCompras{
 	public function modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos){
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
-		$smt=$db->query('UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp);
-		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro='.$estadoPedido.' , fechaInicio='.$fecha.'  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
+		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
+		$smt=$db->query($sql);
 		$respuesta['sql']=$sql;
 		$respuesta['idTemporal']=$numPedidoTemp;
 		$respuesta['productos']=$UnicoCampoProductos;
@@ -30,41 +30,41 @@ class PedidosCompras{
 	public function insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor){
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
-		$smt = $db->query ('INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".')');
-		$sql='INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , fechaInicio, idProveedor, Productos) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' )';
-
+		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".')';
+		$smt = $db->query ($sql);
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
 		$respuesta['sql']=$sql;
 		$respuesta['productos']=$productos;
-		
 		return $respuesta;
 	}
 	//Cada vez que se añade un  nuevo producto tenemos que modificar el total en pedidos temporales
 	public function modTotales($res, $total, $totalivas){
 		$db=$this->db;
-		$smt=$db->query('UPDATE pedprotemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
 		$sql='UPDATE pedprotemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
+		$smt=$db->query($sql);
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
 	//Si el pedido ya existia como guardado y lo modificamos tenemos que guardar en el temporal el numero del pedido real
 	public function addNumRealTemporal($idTemporal, $idReal){
 		$db=$this->db;
-		$smt=$db->query('UPDATE pedprotemporales set idPedpro='.$idReal .'  where id='.$idTemporal);
+		$sql='UPDATE pedprotemporales set idPedpro='.$idReal .'  where id='.$idTemporal;
+		$smt=$db->query($sql);
 		return $resultado;
 	}
 	//Esta función la vamos a llamar en varios momentos del proceso 
 	public function modEstadoPedido($idPedido, $estado){
 		$db=$this->db;
-		$smt=$db->query('UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido);
 		$sql='UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido;
+		$smt=$db->query($sql);
 		return $sql;
 	}
 	//Muestra todos los datos de un temporal
 	public function DatosTemporal($idTemporal){
 		$db=$this->db;
-		$smt=$db->query('SELECT * from pedprotemporales where id='.$idTemporal);
+		$sql='SELECT * from pedprotemporales where id='.$idTemporal;
+		$smt=$db->query($sql);
 		if ($result = $smt->fetch_assoc () ){
 			$pedido=$result;
 		}
@@ -73,7 +73,8 @@ class PedidosCompras{
 	//Muestra todos los datos de un pedido real
 	public function DatosPedido($idPedido){
 		$db=$this->db;
-		$smt=$db->query('SELECT * from pedprot where id='.$idPedido);
+		$sql='SELECT * from pedprot where id='.$idPedido;
+		$smt=$db->query($sql);
 		if ($result = $smt->fetch_assoc () ){
 			$pedido=$result;
 		}
@@ -91,10 +92,12 @@ class PedidosCompras{
 	public function AddPedidoGuardado($datos, $idPedido, $numPedido){
 		$db = $this->db;
 		if ($idPedido>0){
-			$smt = $db->query('INSERT INTO pedprot (id, Numpedpro, Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$datos['numPedido'].', '.$datos['Numtemp_pedpro'].', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
+			$sql='INSERT INTO pedprot (id, Numpedpro, Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$datos['numPedido'].', '.$datos['Numtemp_pedpro'].', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")';
+			$smt = $db->query($sql);
 			$id=$idPedido;
 		}else{
-			$smt=$db->query('INSERT INTO pedprot ( Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion) VALUES ('.$datos['Numtemp_pedpro'].', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
+			$sql='INSERT INTO pedprot ( Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion) VALUES ('.$datos['Numtemp_pedpro'].', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")';
+			$smt=$db->query($sql);
 			$id=$db->insert_id;
 			$smt=$db->query('UPDATE pedprot set Numpedpro='.$id.' WHERE id='.$id);
 		}
@@ -140,8 +143,7 @@ class PedidosCompras{
 	}
 	//Muestra todos los temporales, esta función la utilizamos en el listado de pedidos
 	public function TodosTemporal(){
-			$db = $this->db;
-		//	$smt = $db->query ('SELECT * from pedprotemporales');
+		$db = $this->db;
 		$smt=$db->query('SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id');
 			$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
@@ -244,7 +246,5 @@ class PedidosCompras{
 	
 	
 }
-
-
 
 ?>

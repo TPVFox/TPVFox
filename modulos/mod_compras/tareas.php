@@ -57,6 +57,7 @@ switch ($pulsado) {
 			$idProveedor=$_POST['idProveedor'];
 			$dedonde=$_POST['dedonde'];
 			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idProveedor);
+			
 			$respuesta['sql']=$res['sql'];
 			if ($res['Nitems']===1){
 				$respuesta=$res;
@@ -111,20 +112,20 @@ switch ($pulsado) {
 				$respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
 				$total=round($CalculoTotales['total'],2);
-				$respuesta['total']=$total;
-				$nuevoArray = array(
-							'desglose'=> $CalculoTotales['desglose'],
-							'total' => $CalculoTotales['total']
-								);
-				$respuesta['totales']=$nuevoArray;
-				$totalivas=0;
-				foreach($nuevoArray['desglose'] as $nuevo){
-					$totalivas=$totalivas+$nuevo['iva'];
-				}
+				$respuesta['total']=round($CalculoTotales['total'],2);
+				//~ $nuevoArray = array(
+							//~ 'desglose'=> $CalculoTotales['desglose'],
+							//~ 'total' => $CalculoTotales['total']
+								//~ );
+				$respuesta['totales']=$CalculoTotales;
+				//$totalivas=0;
+				//~ foreach($nuevoArray['desglose'] as $nuevo){
+					//~ $totalivas=$totalivas+$nuevo['iva'];
+				//~ }
 			
-				$modTotal=$CPed->modTotales($res, $total, $totalivas);
+				$modTotal=$CPed->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
 				$respuesta['sqlmodtotal']=$modTotal['sql'];
-				$respuesta['total']=$total;
+				//~ $respuesta['total']=$total;
 			}
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
@@ -146,7 +147,7 @@ switch ($pulsado) {
 				$respuesta['html'].=$res['html'];
 				}
 		 }
-	 }
+		}
 		 if ($bandera==1){
 			 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
 				 $respuesta['html']=$res['html'];
