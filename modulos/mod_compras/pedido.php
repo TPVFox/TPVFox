@@ -21,11 +21,11 @@ include './../../head.php';
 			$idPedido=$_GET['id'];
 			$datosPedido=$Cpedido->datosPedidos($idPedido);
 			if ($datosPedido['estado']=='Facturado'){
-				$titulo="Pedidos De Cliente Facturado";
+				$titulo="Pedidos De Proveedor Facturado";
 				$estado='Facturado';
 				$estadoCab="'".'Facturado'."'";
 			}else{
-				$titulo="Modificar Pedido De Cliente";
+				$titulo="Modificar Pedido De Proveedor";
 				$estado='Modificado';
 				$estadoCab="'".'Modificado'."'";
 			}
