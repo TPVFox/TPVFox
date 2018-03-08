@@ -13,8 +13,24 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	$titulo="Crear Pedido De Proveedor";
+	$titulo="Pedido De Proveedor";
 	$estado='Abierto';
+	$fecha=date('Y-m-d');
+	$fechaCab="'".$fecha."'";
+	$pedido_numero = 0;
+	$idPedido=0;
+	$total=0;
+	$idProveedor=0;
+	$numPedidoTemp=0;
+	$numPedido=0;
+	$nombreProveedor="";
+	
+	
+	
+	
+	
+	
+	
 	
 	if ($_GET){
 		if (isset($_GET['id'])){
@@ -23,11 +39,9 @@ include './../../head.php';
 			if ($datosPedido['estado']=='Facturado'){
 				$titulo="Pedidos De Proveedor Facturado";
 				$estado='Facturado';
-				$estadoCab="'".'Facturado'."'";
 			}else{
 				$titulo="Modificar Pedido De Proveedor";
 				$estado='Modificado';
-				$estadoCab="'".'Modificado'."'";
 			}
 			$productosPedido=$Cpedido->ProductosPedidos($idPedido);
 			$ivasPedido=$Cpedido->IvasPedidos($idPedido);
@@ -88,22 +102,11 @@ include './../../head.php';
 				
 			}
 		}
-		
-		
-		
-		
-	}else{
-	$fecha=date('Y-m-d');
-	$fechaCab="'".$fecha."'";
-	$estadoCab="'".'Abierto'."'";
-	$pedido_numero = 0;
-	$idPedido=0;
-	$total=0;
-	$idProveedor=0;
-	$numPedidoTemp=0;
-	$numPedido=0;
-	$nombreProveedor="";
-}
+	}
+	// No se para que utilizas la variable pero mejor asi.
+	$estadoCab="'".$estado."'";
+
+	
 if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
@@ -190,12 +193,12 @@ if (isset($_POST['Guardar'])){
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estadoPedido'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['estadoPedido'] ='.<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
 		cabecera['numPedidoTemp'] = <?php echo $numPedidoTemp ;?>;
 		cabecera['idPedido'] = <?php echo $idPedido ;?>;
 		cabecera['numPedido']=<?php echo $numPedido;?>;
 		cabecera['idProveedor']=<?php echo $idProveedor ;?>;
-		cabecera['fecha']=<?php echo $fechaCab;?>;
+		cabecera['fecha']='<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 
