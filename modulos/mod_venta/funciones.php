@@ -725,13 +725,13 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 	foreach ($albaranes as $albaran){
 			$datosPedido=$BDTpv->query('SELECT * FROM albclit WHERE id= '.$albaran['idAlbaran'] );
 			while ($fila = $datosPedido->fetch_assoc()) {
-				$ped[] = $fila;
+				$ped = $fila;
 			}
-			$res['Numalbcli']=$ped[0]['Numalbcli'];
-			$res['fecha']=$ped[0]['Fecha'];
-			$res['idAlbaran']=$ped[0]['id'];
+			$res['Numalbcli']=$ped['Numalbcli'];
+			$res['fecha']=$ped['Fecha'];
+			$res['idAlbaran']=$ped['id'];
 			//$res['idalbCli']=$ped[0]['idCliente'];
-			$res['total']=$ped[0]['total'];
+			$res['total']=$ped['total'];
 			$res['estado']="activo";
 			$res['nfila']=$i;
 			array_push($respuesta,$res);
