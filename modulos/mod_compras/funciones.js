@@ -1499,7 +1499,7 @@ function before_constructor(caja){
 	console.log( 'Entro en before');
 	console.log(caja);
 	if (caja.id_input ==='cajaBusqueda'){
-		caja.parametros.dedonde = 'popup';
+		//caja.parametros.dedonde = 'popup';
 		if (caja.name_cja ==='Codbarras'){
 			caja.parametros.campo = cajaCodBarras.parametros.campo;
 		}

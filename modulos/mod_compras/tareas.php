@@ -146,7 +146,7 @@ switch ($pulsado) {
 				$respuesta['html'].=$res['html'];
 				}
 		 }
-	 }
+		}
 		 if ($bandera==1){
 			 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
 				 $respuesta['html']=$res['html'];
