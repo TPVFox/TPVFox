@@ -50,9 +50,9 @@ include './../../head.php';
 		$productos=json_decode(json_encode($productosFactura));
 		$Datostotales = recalculoTotalesAl($productos);
 		$productos=json_decode(json_encode($productosFactura), true);
-			echo '<pre>';
-			print_r($abaranesFactura);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($abaranesFactura);
+			//~ echo '</pre>';
 		if ($abaranesFactura){
 			 $modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
@@ -203,9 +203,9 @@ include './../../head.php';
 		}else{
 			$style="display:none;";
 		}
-		echo '<pre>';
-		print_r($albaranes);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($albaranes);
+		//~ echo '</pre>';
 		if($_GET['id'] >0 ||$_GET['tActual']>0){
 			$estiloTablaProductos="";
 		}else{

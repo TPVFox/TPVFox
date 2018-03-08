@@ -1534,33 +1534,34 @@ function before_constructor(caja){
 	return caja;	
 }
 //Función para la busqueda de referencia , comprobamos que ese articulo tenga o no una referencia del proveedor
-function buscarReferencia(idArticulo, nfila){
+function buscarReferencia(idinput){
 	console.log("Entre en buscar referencia");
-	fila=nfila-1;
-	var coste=productos[fila].ultimoCoste;
-	var parametros = {
-		"pulsado"    : 'buscarReferencia',
-		"idArticulo":idArticulo,
-		"idProveedor":cabecera.idProveedor,
-		"fila":fila,
-		"coste":coste
-	};
-	$.ajax({
-			data       : parametros,
-			url        : 'tareas.php',
-			type       : 'post',
-			beforeSend : function () {
-				console.log('******** estoy en buscarReferencia****************');
-			},
-			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscarReferencia');
-				var resultado =  $.parseJSON(response); 
-				titulo="Modificar referencia";
-				html=resultado.html;
-				abrirModal(titulo, html);
+	$("#"+idinput).prop('disabled', false);
+	//fila=nfila-1;
+	//var coste=productos[fila].ultimoCoste;
+	//~ var parametros = {
+		//~ "pulsado"    : 'buscarReferencia',
+		//~ "idArticulo":idArticulo,
+		//~ "idProveedor":cabecera.idProveedor,
+		//~ "fila":fila,
+		//~ "coste":coste
+	//~ };
+	//~ $.ajax({
+			//~ data       : parametros,
+			//~ url        : 'tareas.php',
+			//~ type       : 'post',
+			//~ beforeSend : function () {
+				//~ console.log('******** estoy en buscarReferencia****************');
+			//~ },
+			//~ success    :  function (response) {
+				//~ console.log('Llegue devuelta respuesta de buscarReferencia');
+				//~ var resultado =  $.parseJSON(response); 
+				//~ titulo="Modificar referencia";
+				//~ html=resultado.html;
+				//~ abrirModal(titulo, html);
 				
-		}
-	});	
+		//~ }
+	//~ });
 }
 //Esta función la utilizamos desde albarán o desde factura 
 //Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
