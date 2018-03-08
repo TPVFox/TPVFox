@@ -347,7 +347,7 @@ if (isset($_POST['Guardar'])){
 			<?php 
 			if (isset($productos)){
 			foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedidoAlbaran($producto, "pedido");
+				$html=htmlLineaPedidoAlbaran($producto, "pedidos");
 				echo $html['html'];
 			}
 			}

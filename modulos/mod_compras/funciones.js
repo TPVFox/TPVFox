@@ -641,7 +641,7 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					if (dedonde=="factura"){
 						comprobarAlbaranes();
 					}
-					if (dedonde=="pedido"){
+					if (dedonde=="pedidos"){
 						// Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
 						//Para poder empezar a meter articulos
 						ponerFocus("idArticulo");
@@ -1287,7 +1287,7 @@ function eliminarFila(num_item, valor=""){
 	
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
-		if (valor=="pedido"){
+		if (valor=="pedidos"){
 			addPedidoTemporal();
 		}
 		if (valor=="albaran"){
