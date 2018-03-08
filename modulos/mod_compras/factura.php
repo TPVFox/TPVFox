@@ -22,7 +22,7 @@ include './../../head.php';
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
 		
-		$titulo="Modificar factura De Cliente";
+		$titulo="Modificar factura De Proveedor";
 		$datosFactura=$CFac->datosFactura($idFactura);
 		
 		$productosFactura=$CFac->ProductosFactura($idFactura);
