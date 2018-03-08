@@ -492,13 +492,13 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 	foreach ($pedidos as $pedido){
 			$datosPedido=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$pedido['idPedido'] );
 			while ($fila = $datosPedido->fetch_assoc()) {
-				$ped[] = $fila;
+				$ped = $fila;
 			}
 			$res['Numpedpro']=$pedido['numPedido'];
-			$res['idPedido']=$ped[0]['id'];
-			$res['fecha']=$ped[0]['FechaPedido'];
-			$res['idPePro']=$ped[0]['idProveedor'];
-			$res['total']=$ped[0]['total'];
+			$res['idPedido']=$ped['id'];
+			$res['fecha']=$ped['FechaPedido'];
+			$res['idPePro']=$ped['idProveedor'];
+			$res['total']=$ped['total'];
 			$res['estado']="activo";
 			$res['nfila']=$i;
 			array_push($respuesta,$res);
