@@ -330,14 +330,33 @@ class ControladorComun
 	}
 	
 	function GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion){
-		// Objetivo:
+		// @ Objetivo:
 		// Grabar la configuracion de modulo para un usuario.
+		// @ Parametros:
+		// $nombre_modulo -> (String) 
+		// $idUsuario-> (String) Aunque es un numero... :-)
+		// $configuracion -> Array que traer parametros y ademas trae 
+		//			$configuracion['tipo_configuracion'] -> (String) que puede ser Usuario o Modulo
+		// [NOTA] -> Tiene que existir para poder reescribir.
 		$BDTpv = $this->BDTpv;
-		$Set_conf= " SET idusuario=".$idUsuario." ,nombre_modulo='".$nombre_modulo."' ,configuracion=".
-		"'".json_encode($configuracion)."'";
-		$Sql= 'UPDATE `modulos_configuracion` '.$Set_conf;
-		$BDTpv->query($Sql);
+		// Ahora comprobamos el tipo de configuracion que es, ya que uno inserta y otro update
+		$tipo_configuracion = $configuracion['tipo_configuracion'];
+		unset($configuracion['tipo_configuracion']); // Elimino para no meterlo como parametro en campo
+		if ( $tipo_configuracion === 'Usuario'){
+			// Existe registro por lo que hacemos udate.
+			$Set_conf= " SET idusuario=".$idUsuario." ,nombre_modulo='".$nombre_modulo."' ,configuracion=".
+				"'".json_encode($configuracion)."',fecha= NOW()";
+			$Sql= 'UPDATE `modulos_configuracion` '.$Set_conf;
+		} else {
+			// No existe registro por lo que creamos registro.
+			$values = "VALUES ('".$idUsuario."','".$nombre_modulo."','".json_encode($configuracion)."',NOW())";
+			$Sql= 'INSERT INTO `modulos_configuracion`(`idusuario`, `nombre_modulo`, `configuracion`, `fecha`) '.$values;
+		}
+		if ($BDTpv->query($Sql)){
+			$respuesta['affectado'] = $BDTpv->affected_rows ;
+		} 
 		$respuesta['Sql']= $Sql;
+	
 		return $respuesta;
 		
 	}
@@ -355,6 +374,11 @@ class ControladorComun
 			foreach ($conf_tabla as $key=>$valor){
 				$respuesta[$key] = $valor;
 			}
+			$respuesta['tipo_configuracion'] = 'Usuario';
+		}
+		if (!isset($respuesta['tipo_configuracion'])){
+			// Si  NO existe $respuesta['tipo_configuracion'] ponemos por defecto
+			$respuesta['tipo_configuracion'] = 'Modulo';
 		}
 		// Añadimos $nombre_modulo, $idUsuario, asi podemos moverlo junto.
 		$respuesta['nombre_modulo']= $nombre_modulo;
