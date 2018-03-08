@@ -25,10 +25,10 @@ function controladorAcciones(caja,accion, tecla){
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
 			//~ productos.[nfila].unidad = caja.darValor();
-			productos[nfila].unidad = caja.darValor();
+			productos[nfila].nunidades = caja.darValor();
 		
 			console.log(caja.fila);
-			recalculoImporte(productos[nfila].unidad, nfila, caja.darParametro('dedonde'));
+			recalculoImporte(productos[nfila].nunidades, nfila, caja.darParametro('dedonde'));
 			console.log(caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
 				if (caja.darParametro('dedonde') == "pedidos"){
@@ -810,10 +810,13 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			console.log(dedonde);
 		
 		if (resultado['Nitems']===1){
+			
 			// Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
 			//Llamamos a la función de add pedido temporal y agregar la fila de producto
 			var datos = new Object();
+			
 			datos.ccodbar=resultado['datos'][0]['codBarras'];
+			
 			datos.cdetalle=resultado['datos'][0]['articulo_name'];
 			datos.cref=resultado['datos'][0]['crefTienda'];
 			datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
@@ -821,32 +824,28 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.idArticulo=resultado['datos'][0]['idArticulo'];
 			datos.idpedpro=0;
 			datos.iva=resultado['datos'][0]['iva'];
+			
 			datos.ncant=1;
 			datos.nfila=productos.length+1;
+			
 			n_item=parseInt(productos.length)+1;
+		
 			datos.nunidades=1;
+			
 			if (resultado['datos'][0]['coste']>0){
 				var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
 			}else{
 				var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
 			}
-			
 			datos.ultimoCoste=ultimoCoste.toFixed(2);
-			//var ivares =(resultado['datos'][0]['iva']/100);
-			//var bandera=ivares*ultimoCoste;
-			
-			//var importe =bandera+ultimoCoste;
 			var importe =ultimoCoste*1;
-			//~ var importe =resultado['datos'][0]['ultimoCoste']*1;
+			console.log(datos);
 			datos.importe=importe.toFixed(2);
+			productos.push(datos);
 			
 			var campo='Unidad_Fila_'+n_item;
 			
-			//ponerFocus(campo);
 			
-			
-			
-			productos.push(datos);
 			
 			if (dedonde=="pedidos"){
 				addPedidoTemporal();
@@ -1209,7 +1208,7 @@ function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	console.log('Entro en enviar focus de :'+destino_focus);
-	console.log(destino_focus.toString());
+	//console.log(destino_focus.toString());
 	
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
@@ -1443,12 +1442,12 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 	console.log('Estoy en recalculoImporte');
 	console.log(num_item);
 	
-		if (productos[num_item].ncant == 0 && cantidad != 0) {
+		if (productos[num_item].nunidades == 0 && cantidad != 0) {
 			retornarFila(num_item+1, dedonde);
 		} else if (cantidad == 0 ) {
 			eliminarFila(num_item+1, dedonde);
 		}
-		productos[num_item].ncant = cantidad;
+		productos[num_item].nunidades = cantidad;
 		var bandera=productos[num_item].iva/100;
 	//	var importe=(parseFloat(productos[num_item].ultimoCoste)+parseFloat(bandera))*cantidad;
 	var importe=parseFloat(productos[num_item].ultimoCoste)*cantidad;
@@ -1457,6 +1456,7 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 		//var importe = cantidad*productos[num_item].precioCiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
+		productos[num_item].importe=importe;
 		$(id).html(importe);
 		if (dedonde=="pedidos"){
 			addPedidoTemporal();

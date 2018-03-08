@@ -214,7 +214,7 @@ function recalculoTotalesAl($productos) {
 	// 	$productos (array) de objetos.
 	$respuesta = array();
 	$desglose = array();
-	$ivas = array();
+	$subivas = 0;
 	$subtotal = 0;
 	//~ $productosTipo=gettype($productos);
 	//~ $respuesta['tipo']=$productosTipo;
@@ -224,24 +224,41 @@ function recalculoTotalesAl($productos) {
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estado === 'Activo'){
+			error_log(json_encode($product));
+			
+			
 			$bandera=$product->iva/100;
-			$totalLinea=($bandera+$product->ultimoCoste)*$product->ncant;
+			$importe=$product->ultimoCoste*$product->nunidades;
+			//$totalLinea=($bandera+$product->ultimoCoste)*$product->ncant;
 			//$totalLinea = $product->ncant * $product->precioCiva;
 			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
-			$subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
+			//$subtotal = $subtotal + $product->importe; // Subtotal sumamos importes de lineas.
 			// Ahora calculmos bases por ivas
-			$desglose[$product->iva]['BaseYiva'] = (!isset($desglose[$product->iva]['BaseYiva']) ? $totalLinea : $desglose[$product->iva]['BaseYiva']+$totalLinea);
+			//$desglose[$product->iva]['BaseYiva'] = (!isset($desglose[$product->iva]['BaseYiva']) ? $totalLinea : $desglose[$product->iva]['BaseYiva']+$totalLinea);
 			// Ahora calculamos base y iva 
-			$operador = (100 + $product->iva) / 100;
-			$desglose[$product->iva]['base'] = number_format(($desglose[$product->iva]['BaseYiva']/$operador),2);
-			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['BaseYiva']-$desglose[$product->iva]['base'],2);
+		//	$operador = (100 + $product->iva) / 100;
+		//	$desglose[$product->iva]['base'] = number_format(($desglose[$product->iva]['BaseYiva']/$operador),2);
+			if (isset($desglose[$product->iva])){
+			$desglose[$product->iva]['base'] = $desglose[$product->iva]['base'] + number_format(($importe),2);
+			$desglose[$product->iva]['iva'] = $desglose[$product->iva]['iva']+ number_format($importe * $bandera,2);
+		
+			}else{
+			$desglose[$product->iva]['base'] = number_format($importe,2);
+			$desglose[$product->iva]['iva'] = number_format($importe*$bandera,2);
 			//~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
+			
+			}
+			$desglose[$product->iva]['BaseYiva'] =$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'];
+			$subivas= $subivas+$desglose[$product->iva]['iva'];
+			$subtotal= $subtotal +$desglose[$product->iva]['BaseYiva'];
 		}
+		
 	
 	}
 	
 	//~ $respuesta['ivas'] = $ivas;
 	$respuesta['desglose'] = $desglose;
+	$respuesta['subivas']=$subivas;
 	$respuesta['total'] = number_format($subtotal,2);
 	return $respuesta;
 }
@@ -333,13 +350,13 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .=$filaProveedor;
 		 $respuesta['html'] .='<td class="codbarras">'.$codBarra.'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
-		 $cant=number_format($producto['ncant'],0);
+		 $cant=number_format($producto['nunidades'],0);
 		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$coste.'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
 		// $bandera=$producto['iva']/100;
 	//	 $bandera2=($bandera*$producto['ultimoCoste'])+$producto['ultimoCoste'];
-		 $importe=$producto['ultimoCoste']*$producto['ncant'];
+		 $importe=$producto['ultimoCoste']*$producto['nunidades'];
 		// $importe = $producto['ultimoCoste']*$producto['ncant'];
 		
 		 $importe = number_format($importe,2);
@@ -366,7 +383,7 @@ function modificarArrayProductos($productos){
 			$pro['numAlbaran']=$producto['Numalbpro'];
 		}
 		$bandera=$producto['iva']/100;
-		$importe=($bandera+$producto['costeSiva'])*$producto['ncant'];
+		$importe=($bandera+$producto['costeSiva'])*$producto['nunidades'];
 		$pro['importe']=$importe;
 		$pro['iva']=$producto['iva'];
 		$pro['ncant']=$producto['ncant'];
