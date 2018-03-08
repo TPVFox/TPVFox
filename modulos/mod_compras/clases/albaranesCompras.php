@@ -46,16 +46,11 @@ class AlbaranesCompras{
 	public function modEstadoAlbaran($idAlbaran, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE albprot set estado="'.$estado .'"  where id='.$idAlbaran);
-		$sql='UPDATE albprot set estado="'.$estado .'"  where id='.$idAlbaran;
-		return $sql;
 	}
 	//Cada vez que añadimos un producto tenemos que modificar el total del resgitro temporal
 	public function modTotales($res, $total, $totalivas){
 		$db=$this->db;
 		$smt=$db->query('UPDATE albproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
-		$sql='UPDATE albproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
-		$resultado['sql']=$sql;
-		return $resultado;
 	}
 	//Buscamos los datos de un albaran temporal según su id. Solo puede ser un registro por eso es if
 	public function buscarAlbaranTemporal($idAlbaranTemporal){
@@ -99,8 +94,6 @@ class AlbaranesCompras{
 			$id=$db->insert_id;
 			$resultado['id']=$id;
 			$smt = $db->query('UPDATE albprot SET Numalbpro  = '.$id.' WHERE id ='.$id);
-			$sql='INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')';
-			$resultado['sql']=$sql;
 		}
 		$productos = json_decode($datos['productos'], true);
 		foreach ( $productos as $prod){
@@ -132,20 +125,16 @@ class AlbaranesCompras{
 			
 			if ($idAlbaran>0){
 			$smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
-			$resultado['sqlPro']='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' ;
 			}else{
 			$smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
-			$resultado['sqlPro']='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')';
 			}
 		}
 		} 
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idAlbaran>0){
 			$smt=$db->query('INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$idAlbaran.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
-			$resultado['sqlto']='INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$idAlbaran.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 			}else{
 			$smt=$db->query('INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
-			$resultado['sqlto']='INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 			}
 		}
 		$pedidos = json_decode($datos['pedidos'], true); 
@@ -154,17 +143,13 @@ class AlbaranesCompras{
 				if ($pedido['estado']=='activo'){
 					if($idAlbaran>0){
 						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
-						$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
-						}else{
+							}else{
 						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
-						$resultado['sqlPed']='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')';
 					}
 				}
 				
 			}
 		}
-	
-		return $resultado;
 	}
 	//Cadas vez que añadimos un albarán como guardado tenemos que eliminar el registro temporal
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){
@@ -287,9 +272,5 @@ class AlbaranesCompras{
 		}
 		return $albaran;
 	}
-	
-	
 }
-
-
 ?>
