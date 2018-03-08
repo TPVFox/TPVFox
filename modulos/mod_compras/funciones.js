@@ -829,11 +829,11 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			}
 			
 			datos.ultimoCoste=ultimoCoste.toFixed(2);
-			var ivares =(resultado['datos'][0]['iva']/100);
-			var bandera=ivares*ultimoCoste;
+			//var ivares =(resultado['datos'][0]['iva']/100);
+			//var bandera=ivares*ultimoCoste;
 			
-			var importe =bandera+ultimoCoste;
-			
+			//var importe =bandera+ultimoCoste;
+			var importe =ultimoCoste*1;
 			//~ var importe =resultado['datos'][0]['ultimoCoste']*1;
 			datos.importe=importe.toFixed(2);
 			
@@ -1447,7 +1447,8 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 		}
 		productos[num_item].ncant = cantidad;
 		var bandera=productos[num_item].iva/100;
-		var importe=(parseFloat(productos[num_item].ultimoCoste)+parseFloat(bandera))*cantidad;
+	//	var importe=(parseFloat(productos[num_item].ultimoCoste)+parseFloat(bandera))*cantidad;
+	var importe=parseFloat(productos[num_item].ultimoCoste)*cantidad;
 		console.log(productos[num_item].ultimoCoste+bandera);
 		//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
 		//var importe = cantidad*productos[num_item].precioCiva;

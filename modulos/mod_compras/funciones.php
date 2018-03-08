@@ -335,9 +335,9 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$coste.'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
-		 $bandera=$producto['iva']/100;
-		 $bandera2=($bandera*$producto['ultimoCoste'])+$producto['ultimoCoste'];
-		 $importe=$bandera2*$producto['ncant'];
+		// $bandera=$producto['iva']/100;
+	//	 $bandera2=($bandera*$producto['ultimoCoste'])+$producto['ultimoCoste'];
+		 $importe=$producto['ultimoCoste']*$producto['ncant'];
 		// $importe = $producto['ultimoCoste']*$producto['ncant'];
 		
 		 $importe = number_format($importe,2);
