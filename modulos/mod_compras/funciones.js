@@ -508,7 +508,8 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 				if (valor>0){
 					$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
 					$(id).val(valor);
-					$('#enlaceCambio'+fila).css("display", "block");
+					//$("#enlaceCambio"+fila).prop('disabled', true);
+					$('#enlaceCambio'+fila).css("display", "inline");
 					var d_focus='idArticulo';
 					ponerFocus(d_focus);
 				
