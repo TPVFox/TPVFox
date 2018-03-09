@@ -284,17 +284,28 @@ class PedidosCompras extends ClaseCompras{
 	}
 	//Muestra los pedidos de un proveedor con el estado guardado
 	public function pedidosProveedorGuardado($idProveedor, $estado){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'");
-		 $pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
-		}
+		//@Objetivo:
+		//Mostrar datos de los pedidos de un proveedor según el estado para mostrar en albaranes
+		//@parametros:
+		//idProveedor: id del proveedor
+		//estado: estado del que queremos buscar los datos 
+		$tabla='pedprot';
+		$where='idProveedor= '.$idProveedor.' and estado='."'".$estado."'";
+		$pedido = parent::SelectVariosResult($tabla, $where);
 		
-		return $pedidosPrincipal;
+		//~ $db=$this->db;
+		//~ $smt=$db->query('SELECT * FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'");
+		 //~ $pedidosPrincipal=array();
+		//~ while ( $result = $smt->fetch_assoc () ) {
+			//~ array_push($pedidosPrincipal,$result);
+		//~ }
+		
+		//~ return $pedidosPrincipal;
+		return $pedido;
 	}
 	
 	public function buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado){
+		
 		$db=$this->db;
 		if ($numPedido>0){
 			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numpedpro='.$numPedido);
