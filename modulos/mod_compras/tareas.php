@@ -48,26 +48,21 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 	break;
 	case 'buscarProductos':
+			//@Objetivo;
 			//Busqueda de productos: Recive el valor a buscar el campo por el que tiene que buscar 
 			$busqueda = $_POST['valorCampo'];
 			$campoAbuscar = $_POST['campo'];
-			$id_input = $_POST['cajaInput'];
+			$id_input = $_POST['id_input'];
 			$idcaja=$_POST['idcaja'];
 			$idProveedor=$_POST['idProveedor'];
 			$dedonde=$_POST['dedonde'];
 			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idProveedor);
-			
-			$respuesta['sql']=$res['sql'];
 			if ($res['Nitems']===1){
 				$respuesta=$res;
-				$idArticulo=$res['datos'][0]['idArticulo'];
-				
 				$respuesta['Nitems']=$res['Nitems'];	
 			}else{
-				// Cambio estado para devolver que es listado.
 				$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
 				$respuesta['Estado'] = 'Listado';
-				$respuesta['datos']=$res['datos'];
 			}
 			echo json_encode($respuesta);  
 	break;	

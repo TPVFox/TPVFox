@@ -320,7 +320,7 @@ function buscarPedido(valor=""){
 							//Agregamos una nueva fila con los datos principales de pedidos
 							AgregarFilaPedido(datos, "albaran");
 							//Agregamos los productos de el pedido seleccionado
-							AgregarFilaProductosAl(prodArray, "albaran");
+							AgregarFilaProductos(prodArray, "albaran");
 							//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
 							//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
 							// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
@@ -426,7 +426,7 @@ function  buscarAlbaran(valor=""){
 							//llamamos a agregar fila pedidos aunque sea albaranes por que realiza lo mismo
 							AgregarFilaPedido(datos, "factura");
 							//Agregamos los productos
-							AgregarFilaProductosAl(prodArray, "factura");
+							AgregarFilaProductos(prodArray, "factura");
 							//llamamos a la función cerrarPopUp por que cuando estamos en el modal y seleccionamos un albaran
 							//Lo que realmente hacemos es volver a llamar a esta función pero con el parametro de busqueda
 							//cubierto por el número del albaran de esta manera solo necesitamos una función para todo
@@ -670,11 +670,12 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 
 
 
+
+function comprobarPedidos(){
 //Comprobar pedidos, comprueba los pedidos que tiene en estado guardado el proveedor seleccionado
 //Si el proveedor tiene pedidos entonces activamos la tabla oculta para seleccionar los pedidos 
 // Y ponemos el foco en numero de pedido
 //Si no tiene solo ponemos el foco en IdArticulo para que se empiece a poner articulos al albarán
-function comprobarPedidos(){
 	var parametros = {
 		"pulsado"    : 'comprobarPedido',
 		"idProveedor": cabecera.idProveedor
@@ -708,9 +709,10 @@ function comprobarPedidos(){
 	
 	
 }
+function comprobarAlbaranes(){
 //Esta función hace lo mismo que la anterior pero en vez de buscar pedidos busca albaranes ya que la llamamos desde facturas
 //Si obtiene un resultado muestra la tabla oculta y si no es asi pone el foco en idArticulo
-function comprobarAlbaranes(){
+
 	console.log("Entre en comprobar albaranes");
 	var parametros = {
 		"pulsado"    : 'comprobarAlbaranes',
@@ -781,12 +783,10 @@ function cerrarPopUp(destino_focus=''){
 //Entra en la función de tareas de buscar productos y le envia los parametros
 //Esta función devuelve el número de busquedas
 function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
-	console.log(idcaja);
-	//~ console.log(dedonde);
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
-		"cajaInput"	 : id_input,
+		"id_input"	 : id_input,
 		"valorCampo" : busqueda,
 		"campo"      : campo,
 		"idcaja"	 :idcaja,
@@ -806,31 +806,21 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 		success    :  function (response) {
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
-			//~ console.log(resultado);
-			//~ console.log("A DONDE");
-			//~ console.log(dedonde);
-		
 		if (resultado['Nitems']===1){
-			
 			// Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
 			//Llamamos a la función de add pedido temporal y agregar la fila de producto
-			var datos = new Object();
-			
+			var datos = new Object();			
 			datos.ccodbar=resultado['datos'][0]['codBarras'];
-			
 			datos.cdetalle=resultado['datos'][0]['articulo_name'];
 			datos.cref=resultado['datos'][0]['crefTienda'];
 			datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
 			datos.estado="Activo";
 			datos.idArticulo=resultado['datos'][0]['idArticulo'];
-			datos.idpedpro=0;
+			//datos.idpedpro=0;
 			datos.iva=resultado['datos'][0]['iva'];
-			
 			datos.ncant=1;
 			datos.nfila=productos.length+1;
-			
 			n_item=parseInt(productos.length)+1;
-		
 			datos.nunidades=1;
 			
 			if (resultado['datos'][0]['coste']>0){
@@ -839,15 +829,11 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
 			}
 			datos.ultimoCoste=ultimoCoste.toFixed(2);
-			var importe =ultimoCoste*1;
-			console.log(datos);
-			datos.importe=importe.toFixed(2);
+			//var importe =ultimoCoste;
+			//datos.importe=importe.toFixed(2);
+			datos.importe=ultimoCoste.toFixed(2);
 			productos.push(datos);
-			
 			var campo='Unidad_Fila_'+n_item;
-			
-			
-			
 			if (dedonde=="pedidos"){
 				addPedidoTemporal();
 			}
@@ -858,10 +844,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				addFacturaTemporal();
 			}
 			resetCampo(id_input);
-		
-			AgregarFilaProductosAl(datos, dedonde, campo);
-			
-			
+			AgregarFilaProductos(datos, dedonde, campo);
 			if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
 				alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
 			}
@@ -882,26 +865,16 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				ponerFocus(d_focus);
 			} else {
 				// No hay resultado pero apuntamos a caj
-				//~ console.log(id_input);
-				//~ if (dedonde=="popup"){
 					$('#cajaBusqueda').focus();
-				//~ }else{
-					//~ ponerFocus(id_input);
-				//~ }
-				
 			}
-			
-			
 		}
 	}
-		
-
 	});
 }
 }
 
 //Funcion que agrega una fila a la tabla productos 
-function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
+function AgregarFilaProductos(productosAl, dedonde='', campo=''){
 	console.log("Estoy en agregar fila productos albaran");
 	
 	if (productosAl.length>1){
@@ -1145,7 +1118,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		}
 		var num_item=datos.nfila;
 		var campo1='Unidad_Fila_'+num_item;
-		AgregarFilaProductosAl(datos, dedonde,  campo1);
+		AgregarFilaProductos(datos, dedonde,  campo1);
 		
 		resetCampo(campo);
 		var campo='Unidad_Fila_'+num_item;
