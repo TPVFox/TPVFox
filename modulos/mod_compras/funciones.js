@@ -1104,12 +1104,6 @@ function addFacturaTemporal(){
 				});
 				
 			}
-			//~ if (cabecera.idAlbaran>0){
-			//~ console.log("entre en modificar albaran");
-				//~ var estado="Sin guardar";
-				//~ modificarEstadoAlbaran(cabecera.idAlbaran, estado);
-				
-			//~ }
 			
 			
 		}
