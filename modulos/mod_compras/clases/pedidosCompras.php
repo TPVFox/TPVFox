@@ -24,7 +24,6 @@ class PedidosCompras extends ClaseCompras{
 	}
 	
 	
-	//Modifica los datos del pedido temporal. Llamamos a esta función cuando el pedido temporal ya existe y seguimos añadiendo elementos
 	public function modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos){
 		// @ Objetivo:
 		//Modificar los datos de pedidos temporal cada vez que hacemos agregamos un producto, modificamos una candidad ...
@@ -40,7 +39,6 @@ class PedidosCompras extends ClaseCompras{
 	
 		return $respuesta;
 	}
-	//INsertar un nuevo pedido temporal
 	public function insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor){
 		//@Objetivo:
 		// Insertar un pedido temporal , cuando el pedido temporal no exste lo insertamos
@@ -56,7 +54,6 @@ class PedidosCompras extends ClaseCompras{
 		$respuesta['productos']=$productos;
 		return $respuesta;
 	}
-	//Cada vez que se añade un  nuevo producto tenemos que modificar el total en pedidos temporales
 	public function modTotales($res, $total, $totalivas){
 		//@ Objetivo:
 		// El objetico principal es que cada vez que modificamos una cantidad o añadimos un producto nuevo , modificar en el pedido temporal los datos de total
@@ -70,7 +67,6 @@ class PedidosCompras extends ClaseCompras{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
-	//Si el pedido ya existia como guardado y lo modificamos tenemos que guardar en el temporal el numero del pedido real
 	public function addNumRealTemporal($idTemporal, $idReal){
 		// @Objetivo: Si el pedido es modificado en el temporal tenemos que registrar el id del pedido real 
 		// @Parametros:
@@ -81,7 +77,6 @@ class PedidosCompras extends ClaseCompras{
 		$smt=$db->query($sql);
 		return $resultado;
 	}
-	//Esta función la vamos a llamar en varios momentos del proceso 
 	public function modEstadoPedido($idPedido, $estado){
 		//@Objetivo: Mofificar el estado del pedido real 
 		// @estado :
@@ -112,7 +107,6 @@ class PedidosCompras extends ClaseCompras{
 		//~ }
 		return $pedido;
 	}
-	//Muestra todos los datos de un pedido real
 	public function DatosPedido($idPedido){
 		//@Objetivo : Mostrar todo los datos de un pedido de la tabla pedprot
 		//@Parametros:
@@ -120,16 +114,8 @@ class PedidosCompras extends ClaseCompras{
 		$tabla='pedprot';
 		$where='id='.$idPedido;
 		$pedido = parent::SelectUnResult($tabla, $where);
-		
-		//~ $db=$this->db;
-		//~ $sql='SELECT * from pedprot where id='.$idPedido;
-		//~ $smt=$db->query($sql);
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $pedido=$result;
-		//~ }
 		return $pedido;
 	}
-	//Cuando añadimos un pedido nuevo tenemos que borrar los registros de ese pedido en las tablas reales para poder crearlos con los datos modificados
 	public function eliminarPedidoTablas($idPedido){
 		//@Objetivo: Eliminar todo los datos de un id de pedido completo
 		//@Parametros:
@@ -139,8 +125,7 @@ class PedidosCompras extends ClaseCompras{
 		$smt=$db->query('DELETE FROM pedprolinea where idpedpro ='.$idPedido );
 		$smt=$db->query('DELETE FROM pedproIva where idpedpro ='.$idPedido );
 	}
-	//Esta función se ejecuta cuando añadimos un pedido nuevo o estamos modificando y seleccionamos guardar
-	//Añade de nuevo todos los registros . 
+	
 	public function AddPedidoGuardado($datos, $idPedido, $numPedido){
 		//@Objetivo: GUardar todos los datos de un pedido real nuevo , los datos se guardan en tres tablas 
 		//@tablas:
@@ -189,9 +174,9 @@ class PedidosCompras extends ClaseCompras{
 		}
 		return $sql;
 	}
-	// Cuando guardamos un registro en las tablas reales lo tenemos que elimminar de temporal
+
 	public function eliminarTemporal($idTemporal, $idPedido){
-		
+		//@Objetivo : eliminar el registro temporal a la hora de guardar un pedido real
 		$db=$this->db;
 		if ($idPedido>0){
 			$smt=$db->query('DELETE FROM pedprotemporales WHERE idPedpro='.$idPedido);
@@ -212,8 +197,9 @@ class PedidosCompras extends ClaseCompras{
 		
 	}
 	
-	//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
+	
 	public function TodosPedidosLimite($limite = ''){
+		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
 		$db	=$this->db;
 		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite ;
 		$smt=$db->query($Sql);
@@ -224,27 +210,14 @@ class PedidosCompras extends ClaseCompras{
 		}
 		return $respuesta;
 	}
-	//MUestra los datos de un pedido real
-	//~ public function datosPedidos($idPedido){
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * FROM pedprot WHERE id= '.$idPedido );
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $pedido=$result;
-		//~ }
-		//~ return $pedido;
-	//~ }
+	
 	public function sumarIva($numPedido){
 		//Función para sumar los ivas de un pedido
 		$from_where= 'from pedproIva where Numpedpro ='.$numPedido;
 		$pedido = parent::sumarIvaBases($from_where);
-		//~ $db=$this->db;
-		//~ $smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from pedproIva where Numpedpro ='.$numPedido);
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $pedido=$result;
-		//~ }
 		return $pedido;
 	}
-	//Extraer todos los productos de un pedido
+	
 	public function ProductosPedidos($idPedido){
 	//@Objetivo:
 	//Buscar todos los productos que tenga un id de pedido real
@@ -253,14 +226,6 @@ class PedidosCompras extends ClaseCompras{
 		$tabla='pedprolinea';
 		$where='idpedpro= '.$idPedido;
 		$pedido = parent::SelectVariosResult($tabla, $where);
-		
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * FROM pedprolinea WHERE idpedpro= '.$idPedido );
-		//~ $pedidosPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($pedidosPrincipal,$result);
-		//~ }
-		//~ return $pedidosPrincipal;
 		return $pedido;
 	}
 	//Muestra los ivas de un pedido
@@ -272,17 +237,9 @@ class PedidosCompras extends ClaseCompras{
 		$tabla='pedproIva';
 		$where='idpedpro= '.$idPedido;
 		$pedido = parent::SelectVariosResult($tabla, $where);
-		
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * FROM pedproIva WHERE idpedpro= '.$idPedido );
-		//~ $pedidosPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($pedidosPrincipal,$result);
-		//~ }
-		//~ return $pedidosPrincipal;
 		return $pedido;
 	}
-	//Muestra los pedidos de un proveedor con el estado guardado
+	
 	public function pedidosProveedorGuardado($idProveedor, $estado){
 		//@Objetivo:
 		//Mostrar datos de los pedidos de un proveedor según el estado para mostrar en albaranes
@@ -292,15 +249,6 @@ class PedidosCompras extends ClaseCompras{
 		$tabla='pedprot';
 		$where='idProveedor= '.$idProveedor.' and estado='."'".$estado."'";
 		$pedido = parent::SelectVariosResult($tabla, $where);
-		
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'");
-		 //~ $pedidosPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($pedidosPrincipal,$result);
-		//~ }
-		
-		//~ return $pedidosPrincipal;
 		return $pedido;
 	}
 	
