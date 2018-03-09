@@ -69,24 +69,20 @@ switch ($pulsado) {
 	
 	
 	case 'htmlAgregarFilasProductos':
-			//Agrega la fila de productos : crea las filas de los productos para posteriormente insertar en la tabla 
+	//@objetivo:
+	//Agrega la fila de productos : crea las filas de los productos para posteriormente insertar en la tabla 
 			$productos=$_POST['productos'];
 			$dedonde=$_POST['dedonde'];
 			$respuesta=array('html'=>"");
-			$bandera=0;
-			if (isset($productos)){
-				 foreach($productos as $producto){
-					if (!is_array($producto)){ 
-						$bandera=1;
-					}else{
+			foreach($productos as $producto){
+					 if (!is_array($producto)){ 
+						 $res=htmlLineaProducto($productos, $dedonde);
+						 $respuesta['html'].=$res['html'];
+						 break;
+					 }else{
 					$res=htmlLineaProducto($producto, $dedonde);
 					$respuesta['html'].=$res['html'];
 					}
-			 }
-			}
-			 if ($bandera==1){
-				 $res=htmlLineaProducto($productos, $dedonde);
-					 $respuesta['html']=$res['html'];
 			 }
 			echo json_encode($respuesta);
 		break;

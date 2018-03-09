@@ -872,9 +872,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 	});
 }
 }
-
-//Funcion que agrega una fila a la tabla productos 
 function AgregarFilaProductos(productos, dedonde='', campo=''){
+	//@objetivo: 
+	//Agregar la fila de productos y poner select al campo que corresponde en la fila
 	console.log("Estoy en agregar fila productos albaran");
 	if (productos.length>1){
 		producto=productos.reverse();
@@ -899,7 +899,7 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 			var resultado =  $.parseJSON(response); 
 			console.log(resultado);
 			var nuevafila = resultado['html'];
-			$("#tabla").prepend(nuevafila);// añadir la fila como primera de la tabla
+			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
 		}
 	});
