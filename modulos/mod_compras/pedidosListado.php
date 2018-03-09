@@ -85,7 +85,7 @@
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-				<h2> Pedidos Compras: Editar y Añadir pedidos </h2>
+				<h2> Pedidos Proveedores: Añadir y modificar</h2>
 			</div>
 			<nav class="col-sm-4">
 				<h4> Pedidos</h4>
