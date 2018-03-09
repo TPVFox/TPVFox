@@ -19,14 +19,14 @@ include './../../head.php';
 
 	$idPedido=0;
 	$numPedidoTemp=0;
-	$numPedido=0;
+	//$numPedido=0;
 
 	$estado='Abierto';
 	
 	$idProveedor=0;
 	$nombreProveedor="";
 
-	$total=0;
+	//$total=0;
 
 		
 	if ($_GET){
@@ -48,27 +48,27 @@ include './../../head.php';
 			$productos=json_decode(json_encode($productosMod));
 			$Datostotales = recalculoTotalesAl($productos);
 			$productos=json_decode(json_encode($productosMod), true);
-			$total=$Datostotales['total'];
-			$numPedido=$datosPedido['Numpedpro'];
+			//$total=$Datostotales['total'];
+			//$numPedido=$datosPedido['Numpedpro'];
 		}else{
 			$bandera=1;
 			//$fecha=date('Y-m-d');
 			if ($_GET['tActual']){
 				$numPedidoTemp=$_GET['tActual'];
-				$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
-				$estado=$pedidoTemporal['estadoPedPro'];
-				$idProveedor=$pedidoTemporal['idProveedor'];
-				if ($pedidoTemporal['idPedpro']){				
-					$idPedido=$pedidoTemporal['idPedpro'];					
-					$datos=$Cpedido->DatosPedido($idPedido);
-					$numPedido=$datos['Numpedpro'];
+				$pedido=$Cpedido->DatosTemporal($numPedidoTemp);
+				$estado=$pedido['estadoPedPro'];
+				$idProveedor=$pedido['idProveedor'];
+				if ($pedido['idPedpro']){				
+					$idPedido=$pedido['idPedpro'];					
+					//$datos=$Cpedido->DatosPedido($idPedido);
+					//$numPedido=$datos['Numpedpro'];
 				}
-				if ($pedidoTemporal['fechaInicio']){
-					$bandera=new DateTime($pedidoTemporal['fechaInicio']);
+				if ($pedido['fechaInicio']){
+					$bandera=new DateTime($pedido['fechaInicio']);
 					$fecha=$bandera->format('Y-m-d');
 				}
-				$pedido=$pedidoTemporal;
-				$productos = json_decode( $pedidoTemporal['Productos']); // Array de objetos
+				//$pedido=$pedidoTemporal;
+				$productos = json_decode( $pedido['Productos']); // Array de objetos
 				if ($idProveedor){
 					$datosProveedor=$Cprveedor->buscarProveedorId($idProveedor);
 					$nombreProveedor=$datosProveedor['nombrecomercial'];
@@ -179,7 +179,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		cabecera['estadoPedido'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
 		cabecera['numPedidoTemp'] = <?php echo $numPedidoTemp ;?>;
 		cabecera['idPedido'] = <?php echo $idPedido ;?>;
-		cabecera['numPedido']=<?php echo $numPedido;?>;
+	//	cabecera['numPedido']=<?php echo $numPedido;?>;
 		cabecera['idProveedor']=<?php echo $idProveedor ;?>;
 		cabecera['fecha']='<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';

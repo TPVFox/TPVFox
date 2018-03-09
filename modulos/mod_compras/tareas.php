@@ -224,7 +224,7 @@ switch ($pulsado) {
 			$idTienda=$_POST['idTienda'];
 			$estadoPedido=$_POST['estadoPedido'];
 			$idPedido=$_POST['idPedido'];
-			$numPedido=$_POST['numPedido'];
+			//$numPedido=$_POST['numPedido'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
 			$idProveedor=$_POST['idProveedor'];
@@ -241,7 +241,7 @@ switch ($pulsado) {
 				$numPedidoTemp=$res;
 			}
 			$pro=$rest['productos'];
-			$respuesta['numPedido']=$numPedido;
+		//	$respuesta['numPedido']=$numPedido;
 			
 			 if ($idPedido>0){
 				//Existe idPedido, estamos modificacion de un pedido,añadimos el número del pedido real al registro temporal
