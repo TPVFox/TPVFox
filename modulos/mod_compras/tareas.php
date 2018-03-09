@@ -404,21 +404,20 @@ switch ($pulsado) {
 		break;
 		
 		case 'modificarEstado':
-			//Modifica el estado tanto de un pedido como de un albaran a facturado dependiendo de donde venga
-			//~ $respuesta="";
-			//$estado="Facturado";
+		//@Objetivo: 
+		//Modificar el estado dependiento de donde venga 
+		//@Parámetros que recibe: 
+		//id -> id que recibimos , puede ser id de pedido o id de albaran
+		//dedonde->Para poder filtrar que función tenemos que ejecutar	
+			
 			$estado=$_POST['estado'];
 			if ($_POST['dedonde']=="albaran"){
-				$idPedido=$_POST['id'];
-				$modEstado=$CPed->modEstadoPedido($idPedido, $estado);
-				//~ $respuesta['res']=$modEstado;
+				$modEstado=$CPed->modEstadoPedido($_POST['id'], $estado);
 			}
 			if ($_POST['dedonde']=="factura"){
-				$idAlbaran=$_POST['id'];
-				$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
-				//~ $respuesta['res']=$modEstado;
+				$modEstado=$CAlb->modEstadoAlbaran($_POST['id'], $estado);
 			}
-			//~ echo json_encode($respuesta);
+			
 		break;
 		case 'htmlAgregarFilaPedido':
 			//Agrega tanto la fila de pedido como la de alabaranes

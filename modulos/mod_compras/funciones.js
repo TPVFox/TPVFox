@@ -440,36 +440,16 @@ function  buscarAlbaran(valor=""){
 	});
 	
 }
-// Modificar estado pedido en realidad seria mostrar estado en general ya que dependiendo de donde esteamos carga unos 
-//parametros u otros
-//Lo que hace esta funcion es cambiar el estado tanto de pedido como albaran al estado facturado
 function modificarEstado(dedonde, estado, num="", id=""){
+	//~ @Objetivo: Modificar el estado según el id que llegue y de donde para poder filtrar
+	//~ @Parametros : el estado se envia en la función
 		console.log("Entre en modificar estado pedido");
-		
 		var parametros = {
 			"pulsado"    : 'modificarEstado',
 			"id":id,
 			"estado" : estado,
 			"dedonde" : dedonde
 		};
-	//~ if (dedonde=="albaran"){
-		//~ var parametros = {
-			//~ "pulsado"    : 'modificarEstadoPedido',
-			//~ "idPedido":id,
-			//~ "estado" : estado,
-			//~ "dedonde" : dedonde
-		//~ };
-	//~ }
-	//~ if (dedonde == "factura"){
-		//~ var parametros = {
-			//~ "pulsado"    : 'modificarEstadoPedido',
-			//~ "idAlbaran":id,
-			//~ "numAlbaranTemporal":num,
-			//~ "estado" : estado,
-			//~ "dedonde" : dedonde
-		//~ };
-		
-	//~ }
 	console.log(parametros);
 		$.ajax({
 		data       : parametros,
@@ -480,8 +460,6 @@ function modificarEstado(dedonde, estado, num="", id=""){
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de estado pedido js');
-			//~ var resultado =  $.parseJSON(response); 
-			//~ console.log(resultado);
 		}
 	});
 }
@@ -580,6 +558,11 @@ function metodoClick(pulsado,adonde){
 	 }
 } 
 function imprimir(id, dedonde, idTienda){
+	//~ @Objetivo: Imprimir el documento que se ha seleccionado
+	//~ @parametros: 
+		//~ id: id del documento
+		//~ dedonde: de donde es para poder filtrar
+		//~ idTienda : id de la tienda 
 	var parametros = {
 		"pulsado"    : 'datosImprimir',
 		"dedonde":dedonde,
