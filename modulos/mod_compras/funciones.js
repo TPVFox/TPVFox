@@ -972,54 +972,13 @@ function addAlbaranTemp(){
 				cabecera.idAlbaranTemp=resultado.id;
 			}
 				
-			$('#tipo4').html('');
-			$('#tipo10').html('');
-			$('#tipo21').html('');
-			$('#base4').html('');
-			$('#base10').html('');
-			$('#base21').html('');
-			$('#iva4').html('');
-			$('#iva10').html('');
-			$('#iva21').html('');
-			$('.totalImporte').html('');
+			resetearTotales();
 			
 			// Ahora pintamos pie de ticket.
 			if (resultado['totales']['total'] > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
-				total = parseFloat(resultado['totales']['total']) // varible global.
-				$('.totalImporte').html(total.toFixed(2));
-				// Ahora tengo que pintar los ivas.
-				var desgloseIvas = [];
-				
-				
-				console.log(resultado['totales']['desglose']);
-				
-				desgloseIvas.push(resultado['totales']['desglose']);
-				console.log(desgloseIvas);
-				// Ahora recorremos array desglose
-				desgloseIvas.forEach(function(desglose){
-					console.log('Entro foreah');
-					// mostramos los tipos ivas , bases y importes.
-					var tipos = Object.keys(desglose);
-					console.log(desglose);
-					for (index in tipos){
-						var tipo = tipos[index];
-						$('#line'+parseInt(tipo)).css('display','');
-						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
-					}
-				});
-				
+				pintamosTotales(resultado);
 			}
-			//~ if (cabecera.idAlbaran>0){
-			//~ console.log("entre en modificar albaran");
-				//~ var estado="Sin guardar";
-				//~ modificarEstadoAlbaran(cabecera.idAlbaran, estado);
-				
-			//~ }
-			
-			
 		}
 	});
 	
@@ -1064,44 +1023,12 @@ function addFacturaTemporal(){
 				cabecera.idFacturaTemp=resultado.id;
 			}
 				//Borramos los datos del calculo
-			$('#tipo4').html('');
-			$('#tipo10').html('');
-			$('#tipo21').html('');
-			$('#base4').html('');
-			$('#base10').html('');
-			$('#base21').html('');
-			$('#iva4').html('');
-			$('#iva10').html('');
-			$('#iva21').html('');
-			$('.totalImporte').html('');
+			resetearTotales();
 			
 			// Ahora pintamos pie de ticket.
 			if (resultado['totales']['total'] > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
-				total = parseFloat(resultado['totales']['total']) // varible global.
-				$('.totalImporte').html(total.toFixed(2));
-				// Ahora tengo que pintar los ivas.
-				var desgloseIvas = [];
-				
-				
-				console.log(resultado['totales']['desglose']);
-				
-				desgloseIvas.push(resultado['totales']['desglose']);
-				console.log(desgloseIvas);
-				// Ahora recorremos array desglose
-				desgloseIvas.forEach(function(desglose){
-					console.log('Entro foreah');
-					// mostramos los tipos ivas , bases y importes.
-					var tipos = Object.keys(desglose);
-					console.log(desglose);
-					for (index in tipos){
-						var tipo = tipos[index];
-						$('#line'+parseInt(tipo)).css('display','');
-						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
-					}
-				});
+				pintamosTotales(resultado);
 				
 			}
 			
@@ -1147,53 +1074,16 @@ function addPedidoTemporal(){
 				history.pushState(null,'','?tActual='+resultado.id);
 				cabecera.numPedidoTemp=resultado.id;
 			}
-				
-			$('#tipo4').html('');
-			$('#tipo10').html('');
-			$('#tipo21').html('');
-			$('#base4').html('');
-			$('#base10').html('');
-			$('#base21').html('');
-			$('#iva4').html('');
-			$('#iva10').html('');
-			$('#iva21').html('');
-			$('.totalImporte').html('');
+			// Creo funcion para restear totales.	
+			
+			resetearTotales();
 			
 			// Ahora pintamos pie de ticket.
 			if (resultado['totales']['total'] > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
-				total = parseFloat(resultado['totales']['total']) // varible global.
-				$('.totalImporte').html(total.toFixed(2));
-				// Ahora tengo que pintar los ivas.
-				var desgloseIvas = [];
-				
-				
-				console.log(resultado['totales']['desglose']);
-				
-				desgloseIvas.push(resultado['totales']['desglose']);
-				console.log(desgloseIvas);
-				// Ahora recorremos array desglose
-				desgloseIvas.forEach(function(desglose){
-					console.log('Entro foreah');
-					// mostramos los tipos ivas , bases y importes.
-					var tipos = Object.keys(desglose);
-					console.log(desglose);
-					for (index in tipos){
-						var tipo = tipos[index];
-						$('#line'+parseInt(tipo)).css('display','');
-						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
-					}
-				});
+				pintamosTotales(resultado);
 				
 			}
-			//~ if (cabecera.idAlbaran>0){
-			//~ console.log("entre en modificar albaran");
-				//~ var estado="Sin guardar";
-				//~ modificarEstadoAlbaran(cabecera.idAlbaran, estado);
-				
-			//~ }
 			
 			
 		}
@@ -1218,12 +1108,14 @@ function ponerSelect(destino_focus){
 	
 
 }
-//Función para escribir el producto seleccionado del modal
-//LO que hacemos en la función es que recibimos los campos del producto que hemos seleccionado y creamos un objeto
-//En el que vamos metiendo los campos (algunos como importe hay que calcularlos)
-//Y dependiendo de donde venga el modal llamamos a una función u otra de esta manera utilizamos esta función estemos donde estemos
+
 
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, crefProveedor){
+	//Función para escribir el producto seleccionado del modal
+	//LO que hacemos en la función es que recibimos los campos del producto que hemos seleccionado y creamos un objeto
+	//En el que vamos metiendo los campos (algunos como importe hay que calcularlos)
+	//Y dependiendo de donde venga el modal llamamos a una función u otra de esta manera utilizamos esta función estemos donde estemo
+	
 	console.log(datos);
 		var datos = new Object();
 		datos.ccodbar=ccodebar;
@@ -1622,4 +1514,45 @@ function mover_down(fila,prefijo){
 }
 function sobreFila(cont){
 	$('#Fila_'+cont).css('background-color','lightblue');
+}
+
+function resetearTotales(){
+	// Funcion para resetear totales.
+	$('#tipo4').html('');
+	$('#tipo10').html('');
+	$('#tipo21').html('');
+	$('#base4').html('');
+	$('#base10').html('');
+	$('#base21').html('');
+	$('#iva4').html('');
+	$('#iva10').html('');
+	$('#iva21').html('');
+	$('.totalImporte').html('');
+	
+}
+
+
+function pintamosTotales (DesgloseTotal) {
+	// Quiere decir que hay datos a mostrar en pie.
+	total = parseFloat(DesgloseTotal['totales']['total']) // varible global.
+	$('.totalImporte').html(total.toFixed(2));
+	// Ahora tengo que pintar los ivas.
+	var desgloseIvas = [];
+	desgloseIvas.push(DesgloseTotal['totales']['desglose']);
+	console.log(desgloseIvas);
+	// Ahora recorremos array desglose
+	desgloseIvas.forEach(function(desglose){
+		console.log('Entro foreah');
+		// mostramos los tipos ivas , bases y importes.
+		var tipos = Object.keys(desglose);
+		console.log(desglose);
+		for (index in tipos){
+			var tipo = tipos[index];
+			$('#line'+parseInt(tipo)).css('display','');
+			$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+			$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+			$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+		}
+	});
+	
 }
