@@ -25,8 +25,13 @@ class ClaseCompras
 		}
 		return $sumaIvasBases;
 	}
-	public function datosGeneral($idPedido, $tabla){
-		
+	public function SelectUnResult($tabla, $where){
+		$db=$this->db;
+		$smt=$db->query('SELECT * from '.$tabla.' where '.$where);
+		if ($result = $smt->fetch_assoc () ){
+			$pedido=$result;
+		}
+		return $pedido;
 	}
 }
 ?>

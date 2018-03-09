@@ -101,25 +101,32 @@ class PedidosCompras extends ClaseCompras{
 		// Obtener todos los datos de temporal
 		// @ Parametros:
 		// $idTemporal -> (string) Numero de idTemporal
-		$db=$this->db;
-		$sql='SELECT * from pedprotemporales where id='.$idTemporal;
-		$smt=$db->query($sql);
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
+		$tabla='pedprotemporales';
+		$where='id='.$idTemporal;
+		$pedido = parent::SelectUnResult($tabla, $where);
+		//~ $db=$this->db;
+		//~ $sql='SELECT * from pedprotemporales where id='.$idTemporal;
+		//~ $smt=$db->query($sql);
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $pedido=$result;
+		//~ }
 		return $pedido;
 	}
 	//Muestra todos los datos de un pedido real
 	public function DatosPedido($idPedido){
 		//@Objetivo : Mostrar todo los datos de un pedido de la tabla pedprot
 		//@Parametros:
-			//idPedido: id del pedido
-		$db=$this->db;
-		$sql='SELECT * from pedprot where id='.$idPedido;
-		$smt=$db->query($sql);
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
+		//idPedido: id del pedido
+		$tabla='pedprot';
+		$where='id='.$idPedido;
+		$pedido = parent::SelectUnResult($tabla, $where);
+		
+		//~ $db=$this->db;
+		//~ $sql='SELECT * from pedprot where id='.$idPedido;
+		//~ $smt=$db->query($sql);
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $pedido=$result;
+		//~ }
 		return $pedido;
 	}
 	//Cuando añadimos un pedido nuevo tenemos que borrar los registros de ese pedido en las tablas reales para poder crearlos con los datos modificados
