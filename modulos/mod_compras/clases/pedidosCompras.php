@@ -26,6 +26,10 @@ class PedidosCompras extends ClaseCompras{
 	
 	//Modifica los datos del pedido temporal. Llamamos a esta función cuando el pedido temporal ya existe y seguimos añadiendo elementos
 	public function modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos){
+		// @ Objetivo:
+		//Modificar los datos de pedidos temporal cada vez que hacemos agregamos un producto, modificamos una candidad ...
+		// @ Parametros:
+		//Todos los datos del pedido temporal
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
@@ -38,6 +42,10 @@ class PedidosCompras extends ClaseCompras{
 	}
 	//INsertar un nuevo pedido temporal
 	public function insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor){
+		//@Objetivo:
+		// Insertar un pedido temporal , cuando el pedido temporal no exste lo insertamos
+		//@ Parametros:
+		// Todos los parametros que tenemos incialmente cuando creamos el pedido temporal
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".')';
@@ -50,6 +58,12 @@ class PedidosCompras extends ClaseCompras{
 	}
 	//Cada vez que se añade un  nuevo producto tenemos que modificar el total en pedidos temporales
 	public function modTotales($res, $total, $totalivas){
+		//@ Objetivo:
+		// El objetico principal es que cada vez que modificamos una cantidad o añadimos un producto nuevo , modificar en el pedido temporal los datos de total
+		//@ Parametros:
+		// $res-> id del pedido temporal
+		//$total->El total del pedido
+		//$total_ivas->la suma de todos los ivas 
 		$db=$this->db;
 		$sql='UPDATE pedprotemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
 		$smt=$db->query($sql);
@@ -58,6 +72,10 @@ class PedidosCompras extends ClaseCompras{
 	}
 	//Si el pedido ya existia como guardado y lo modificamos tenemos que guardar en el temporal el numero del pedido real
 	public function addNumRealTemporal($idTemporal, $idReal){
+		// @Objetivo: Si el pedido es modificado en el temporal tenemos que registrar el id del pedido real 
+		// @Parametros:
+		// $idTemporal-> id del pedido temporal que hemos creado anteriormente
+		// $idReal-> id del pedido real que estamos modificando
 		$db=$this->db;
 		$sql='UPDATE pedprotemporales set idPedpro='.$idReal .'  where id='.$idTemporal;
 		$smt=$db->query($sql);
@@ -65,6 +83,14 @@ class PedidosCompras extends ClaseCompras{
 	}
 	//Esta función la vamos a llamar en varios momentos del proceso 
 	public function modEstadoPedido($idPedido, $estado){
+		//@Objetivo: Mofificar el estado del pedido real 
+		// @estado :
+			//-Facturado: que ese pedido ya está en el albarán
+			//-Guardado: que el pedido no tiene ninguna modificación pendiente
+			//- Sin guardar : que el pedido tiene un pedido temporal
+		//@Parametros : 
+		// $idPedido-> id del pedio real
+		// $estado-> string del estado
 		$db=$this->db;
 		$sql='UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido;
 		$smt=$db->query($sql);
@@ -85,6 +111,9 @@ class PedidosCompras extends ClaseCompras{
 	}
 	//Muestra todos los datos de un pedido real
 	public function DatosPedido($idPedido){
+		//@Objetivo : Mostrar todo los datos de un pedido de la tabla pedprot
+		//@Parametros:
+			//idPedido: id del pedido
 		$db=$this->db;
 		$sql='SELECT * from pedprot where id='.$idPedido;
 		$smt=$db->query($sql);
@@ -95,6 +124,9 @@ class PedidosCompras extends ClaseCompras{
 	}
 	//Cuando añadimos un pedido nuevo tenemos que borrar los registros de ese pedido en las tablas reales para poder crearlos con los datos modificados
 	public function eliminarPedidoTablas($idPedido){
+		//@Objetivo: Eliminar todo los datos de un id de pedido completo
+		//@Parametros:
+			//idPedido->id del pedido real
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM pedprot where id='.$idPedido );
 		$smt=$db->query('DELETE FROM pedprolinea where idpedpro ='.$idPedido );
@@ -147,6 +179,7 @@ class PedidosCompras extends ClaseCompras{
 	}
 	// Cuando guardamos un registro en las tablas reales lo tenemos que elimminar de temporal
 	public function eliminarTemporal($idTemporal, $idPedido){
+		
 		$db=$this->db;
 		if ($idPedido>0){
 			$smt=$db->query('DELETE FROM pedprotemporales WHERE idPedpro='.$idPedido);
