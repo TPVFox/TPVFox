@@ -4,19 +4,31 @@
 <head>
 <?php
 
-include './../../head.php';
+	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosCompras.php';
-	//~ echo '<pre>';
-	//~ print_r($_SESSION);
-	//~ echo '</pre>';
-	$Cpedido=new PedidosCompras($BDTpv);
 	include '../../clases/Proveedores.php';
+
+	// Creamos el objeto de controlador.
+	$Controler = new ControladorComun; 
+
+	// Creamos el objeto de pedido
+	$Cpedido=new PedidosCompras($BDTpv);
+
+	// Creamos el objeto de proveedor
 	$Cproveedor=new Proveedores($BDTpv);
-	//MUestra un array con todos los temporales
+	
+	//Obtenemos los registros temporarles
 	$todoTemporal=$Cpedido->TodosTemporal();
+	
+	
+	// --- Preparamos el Paginado --- //
+	$vista = 'pedprot';
+	$Total_pedidos = $Controler->contarRegistro($BDTpv,$vista); // Cantidad de pedidos totales sin filtrar.
+	$LinkBase = './pedidosListado.php?';
+	$OtrosParametros = '';
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -30,44 +42,36 @@ include './../../head.php';
 		$stringPalabras = $_GET['buscar'];
 		$palabraBuscar = explode(' ',$_GET['buscar']); 
 	} 
-	
-	$Controler = new ControladorComun; 
-	
-	$vista = 'pedprot';
-	$LinkBase = './pedidosListado.php?';
-	$OtrosParametros = '';
+	// Obtenemos "desde" numero que indicamos en OFFSET  
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
-		
 	} else {
 		$desde = 0;
 	}
-if ($stringPalabras !== '' ){
-		$campoBD='Numpedpro';
-		
-		$campo = array( 'a.Numpedpro','b.nombrecomercial');
-		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
-		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
-		
-		//~ $WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		//~ $filtro=$WhereLimite['filtro'];
-		$OtrosParametros=$stringPalabras;
-		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
+	// Inicializo $WhereLimite
+	$WhereLimite = array	( 'filtro' => '', 
+							  'rango'  => '');
+	if ($stringPalabras !== '' ){
+			$campoBD='Numpedpro';
+			$campo = array( 'a.Numpedpro','b.nombrecomercial');
+			$N = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
+			$WhereLimite['rango'] =$Controler->ConstructorLimitOffset($LimitePagina, $desde);
+			$OtrosParametros=$stringPalabras;
+			$WhereLimite['filtro']='WHERE '.$N;
+		}
+	// Contamos registros con filtro si lo hay claro, sono va en blanco.
+	$CantidadRegistros=count($Cpedido->TodosPedidosLimite($WhereLimite['filtro']));
+	// Solo mostramos paginado si hay mas que limitePagina, debo hacerlo en paginado.
+	$htmlPG = paginado($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+	if ($stringPalabras !== '' ){
+			$filtro = $WhereLimite['filtro']." ORDER BY  Numpedpro desc ".$WhereLimite['rango'];
+	} else {
+			$filtro= "ORDER BY  Numpedpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
-//~ $CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-$CantidadRegistros=count($Cpedido->TodosPedidosLimite($WhereLimite['filtro']));
-$WhereLimite['rango']=$NuevoRango;
-//$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$NuevoWhere);
-$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro']." ORDER BY  Numpedpro desc ".$WhereLimite['rango'];
-} else {
-		$filtro= "ORDER BY  Numpedpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
-}
 	//MUestra un array con un número determinado de registros
 	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
-?>
+	?>
 
 </head>
 
@@ -81,9 +85,9 @@ if ($stringPalabras !== '' ){
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Pedidos Compras: Editar y Añadir pedidos </h2>
-				</div>
-					<nav class="col-sm-4">
+				<h2> Pedidos Compras: Editar y Añadir pedidos </h2>
+			</div>
+			<nav class="col-sm-4">
 				<h4> Pedidos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -98,41 +102,41 @@ if ($stringPalabras !== '' ){
 				
 				</ul>
 				<div class="col-md-12">
-				<h4 class="text-center"> Pedidos Abiertos</h4>
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th WIDTH="4" >Nº Temp</th>
-					<th WIDTH="4" >Nº Ped</th>
-					<th WIDTH="110" >Pro.</th>
-					<th WIDTH="4" >Total</th>
-				</tr>
-				
-			</thead>
-			<tbody>
-				<?php 
-				if (isset ($todoTemporal)){
-					foreach ($todoTemporal as $pedidoTemp){
-						if ($pedidoTemp['idPedpro']){
-							//$numPedido=$Cpedido->datosPedidos($pedidoTemp['idPedpro']);
-							$numPed=$pedidoTemp['Numpedpro'];
-					}else{
-						$numPed="";
-					}
-					?>
-						<tr>
-						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
-						<td><?php echo $numPed;?></td>
-						<td><?php echo $pedidoTemp['nombrecomercial'];?></td>
-						<td><?php echo number_format($pedidoTemp['total'],2);?></td>
-						</tr>
-						<?php
-					}
-				}
-				?>
-			</tbody>
-		</table>
-		</div>	
+					<h4 class="text-center"> Pedidos Abiertos</h4>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th WIDTH="4" >Nº Temp</th>
+								<th WIDTH="4" >Nº Ped</th>
+								<th WIDTH="110" >Pro.</th>
+								<th WIDTH="4" >Total</th>
+							</tr>
+							
+						</thead>
+						<tbody>
+							<?php 
+							if (isset ($todoTemporal)){
+								foreach ($todoTemporal as $pedidoTemp){
+									if ($pedidoTemp['idPedpro']){
+										//$numPedido=$Cpedido->datosPedidos($pedidoTemp['idPedpro']);
+										$numPed=$pedidoTemp['Numpedpro'];
+								}else{
+									$numPed="";
+								}
+								?>
+									<tr>
+									<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
+									<td><?php echo $numPed;?></td>
+									<td><?php echo $pedidoTemp['nombrecomercial'];?></td>
+									<td><?php echo number_format($pedidoTemp['total'],2);?></td>
+									</tr>
+									<?php
+								}
+							}
+							?>
+						</tbody>
+					</table>
+				</div>	
 			</nav>
 			<div class="col-md-8">
 					<p>

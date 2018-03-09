@@ -153,24 +153,26 @@ class PedidosCompras{
 		
 	}
 	//Muestra todos los pedidos
-	public function TodosPedidos(){
-		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor ');
-		$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
-		}
-		return $pedidosPrincipal;
-	}
+	//~ public function TodosPedidos(){
+		//~ $db=$this->db;
+		//~ $smt=$db->query('SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor ');
+		//~ $pedidosPrincipal=array();
+		//~ while ( $result = $smt->fetch_assoc () ) {
+			//~ array_push($pedidosPrincipal,$result);
+		//~ }
+		//~ return $pedidosPrincipal;
+	//~ }
 	//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
-	public function TodosPedidosLimite($limite){
-		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite);
-		$pedidosPrincipal=array();
+	public function TodosPedidosLimite($limite = ''){
+		$db	=$this->db;
+		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite ;
+		$smt=$db->query($Sql);
+		$respuesta=array();
+		
 		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
+			array_push($respuesta,$result);
 		}
-		return $pedidosPrincipal;
+		return $respuesta;
 	}
 	//MUestra los datos de un pedido real
 	public function datosPedidos($idPedido){
