@@ -779,10 +779,12 @@ function cerrarPopUp(destino_focus=''){
 	}
 	
 }
-// Buscar producto es una función que llamamos desde las distintas cajas de busquedas de los productos
-//Entra en la función de tareas de buscar productos y le envia los parametros
-//Esta función devuelve el número de busquedas
+
 function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
+	//@Objetivo: 
+	// Buscar producto es una función que llamamos desde las distintas cajas de busquedas de los productos
+	//Entra en la función de tareas de buscar productos y le envia los parametros
+	//Esta función devuelve el número de busquedas
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
@@ -829,8 +831,6 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
 			}
 			datos.ultimoCoste=ultimoCoste.toFixed(2);
-			//var importe =ultimoCoste;
-			//datos.importe=importe.toFixed(2);
 			datos.importe=ultimoCoste.toFixed(2);
 			productos.push(datos);
 			var campo='Unidad_Fila_'+n_item;
@@ -1075,6 +1075,8 @@ function ponerFocus (destino_focus){
 	
 }
 function ponerSelect(destino_focus){
+	//@objetivo:
+	//seleccionar la cantidad 
 	console.log('Entro en enviar select de :'+destino_focus);
 	console.log(destino_focus.toString());
 	jQuery('#'+destino_focus.toString()).select(); 
@@ -1082,8 +1084,8 @@ function ponerSelect(destino_focus){
 
 }
 
-
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, crefProveedor){
+	//@Objetivo:
 	//Función para escribir el producto seleccionado del modal
 	//LO que hacemos en la función es que recibimos los campos del producto que hemos seleccionado y creamos un objeto
 	//En el que vamos metiendo los campos (algunos como importe hay que calcularlos)

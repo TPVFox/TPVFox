@@ -391,14 +391,14 @@ function modificarArrayProductos($productos){
 }
 
 // html para cambio de referencia de proveedor
-function htmlCambioRefProveedor($datos, $fila, $articulo, $coste){
-	$resultado['html'] .='<label>Modificación de '.$articulo['articulo_name'].'</label>';
-	$resultado['html'] .='<input type=text value="'.$fila.'" id="numFila" style="display:none">';
-	$resultado['html'] .='<input type=text value="'.$datos['idArticulo'].'" id="idArticuloRef" style="display:none">';
-	$resultado['html'] .='<input type=text value="'.$coste.'" id="coste" style="display:none">';
-	$resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'" data-obj="inputCambioRef" name ="cambioRef" onkeydown="controlEventos(event)" onBlur="controlEventos(event)" id ="inputCambioRef">';
-	return $resultado;
-}
+//~ function htmlCambioRefProveedor($datos, $fila, $articulo, $coste){
+	//~ $resultado['html'] .='<label>Modificación de '.$articulo['articulo_name'].'</label>';
+	//~ $resultado['html'] .='<input type=text value="'.$fila.'" id="numFila" style="display:none">';
+	//~ $resultado['html'] .='<input type=text value="'.$datos['idArticulo'].'" id="idArticuloRef" style="display:none">';
+	//~ $resultado['html'] .='<input type=text value="'.$coste.'" id="coste" style="display:none">';
+	//~ $resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'" data-obj="inputCambioRef" name ="cambioRef" onkeydown="controlEventos(event)" onBlur="controlEventos(event)" id ="inputCambioRef">';
+	//~ return $resultado;
+//~ }
 //Modal para cuando buscamos un pedido de un proveedor en albaranes
 function modalPedidos($pedidos){
 	$respuesta=array('html'=>'');
