@@ -403,22 +403,22 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
-		case 'modificarEstadoPedido':
+		case 'modificarEstado':
 			//Modifica el estado tanto de un pedido como de un albaran a facturado dependiendo de donde venga
-			$respuesta="";
+			//~ $respuesta="";
 			//$estado="Facturado";
 			$estado=$_POST['estado'];
 			if ($_POST['dedonde']=="albaran"){
-				$idPedido=$_POST['idPedido'];
+				$idPedido=$_POST['id'];
 				$modEstado=$CPed->modEstadoPedido($idPedido, $estado);
-				$respuesta['res']=$modEstado;
+				//~ $respuesta['res']=$modEstado;
 			}
 			if ($_POST['dedonde']=="factura"){
-				$idAlbaran=$_POST['idAlbaran'];
+				$idAlbaran=$_POST['id'];
 				$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
-				$respuesta['res']=$modEstado;
+				//~ $respuesta['res']=$modEstado;
 			}
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		case 'htmlAgregarFilaPedido':
 			//Agrega tanto la fila de pedido como la de alabaranes
@@ -428,32 +428,31 @@ switch ($pulsado) {
 		break;
 		
 		case 'AddCosteProveedor':
-			//Añade un nuevo registro a la tabla articulos proveedores si ya existe solo lo modifica
-			$idArticulo=$_POST['idArticulo'];
-			$valor=$_POST['valor'];
-			$idProveedor=$_POST['idProveedor'];
-			$fecha=$_POST['fecha'];
-			$buscar=$CArticulos->buscarReferencia($idArticulo, $idProveedor);
+		//@objetivo: Añadir o modificar los registros de referencia
+		//@Parametros :
+		//idProveedor: El id del proveedor 
+		//idArticulo: id del articulo
+		//Valor: valor que hemos colocado en el input
+		//fecha: la fecha que la necesitamos para compararla con la del registro, si la fecha nuestra es menor que la del registro muestra un error
+		
+			$buscar=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
 			$datos=array(
-				'coste'=>$valor,
-				'idArticulo'=>$idArticulo,
-				'idProveedor'=>$idProveedor,
-				'fecha'=>$fecha,
+				'coste'=>$_POST['valor'],
+				'idArticulo'=>$_POST['idArticulo'],
+				'idProveedor'=>$_POST['idProveedor'],
+				'fecha'=>$_POST['fecha'],
 				'estado'=>"activo"
 			);
 			if ($buscar){
-				if ($buscar['fechaActualizacion']>$fecha){
+				if ($buscar['fechaActualizacion']>$_POST['fecha']){
 					$respuesta['error']=1;
 				}else{
 					$mod=$CArticulos->modificarCosteProveedorArticulo($datos);
-					$respuesta=$mod['sql'];
 				}
 				
 			}else{
 				$datos['refProveedor']=0;
 				$add=$CArticulos->addArticulosProveedores($datos);
-				$respuesta['sql']=$add['sql'];
-				$respuesta['array']=$datos;
 			}
 			echo json_encode($respuesta);
 		break;

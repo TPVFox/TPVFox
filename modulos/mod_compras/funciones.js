@@ -190,10 +190,15 @@ function controladorAcciones(caja,accion, tecla){
 		
 	}
 }
-//Funció que añade coste en la tabla articulo proveedor
 function addCosteProveedor(idArticulo, valor, nfila, dedonde){
+	//~ @Objetivo: Añadir o modificar el coste de un producto
+	//~ @Parametros: 
+	//~ idArticulo: el id del articulo del producto
+	//~ idProveedor: el id del proveedor
+	//~ valor: valor nuevo 
+	//~ dedonde: donde estamos, si en albaranes o facturas 
+	//~ nfila: número de la fila que estamos cambiando
 	console.log("Entre en addCosteProveedor");
-	console.log(idArticulo);
 	var parametros ={
 		'pulsado':"AddCosteProveedor",
 		'idArticulo':idArticulo,
@@ -216,24 +221,18 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 					alert("NO PUEDES CAMBIAR EL COSTE DE ESTE PRODUCTO POR SU FECHA");
 				}else{
 					productos[nfila].ultimoCoste=valor;
-					var bandera=productos[nfila].iva/100;
-					productos[nfila].importe=(bandera + parseFloat(valor))*productos[nfila].ncant;
-					
+					//var bandera=productos[nfila].iva/100;
+					productos[nfila].importe=parseFloat(valor)*productos[nfila].ncant;
 					var id = '#N'+productos[nfila].nfila+'_Importe';
 					importe = productos[nfila].importe.toFixed(2);
 					$(id).html(importe);
-					console.log("estamos modificando el importe");
-					console.log(valor);
-					// Dependiendo de donde venga se ejecuta una función distinta
 					if (dedonde=="albaran"){
 						addAlbaranTemp();
 					}
 					if (dedonde=="factura"){
 						addFacturaTemporal();
 					}
-					
 				}
-	
 		}
 	});
 }
@@ -317,7 +316,7 @@ function buscarPedido(valor=""){
 							addAlbaranTemp();
 							//Modificamos los pedidos introducimos a facturados para que no se puedan modificar una vez
 							// que ya estan metidos en el albaran
-							modificarEstadoPedido("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
+							modificarEstado("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
 							//Agregamos una nueva fila con los datos principales de pedidos
 							AgregarFilaPedido(datos, "albaran");
 							//Agregamos los productos de el pedido seleccionado
@@ -423,7 +422,7 @@ function  buscarAlbaran(valor=""){
 							//de añadir una factura temporal, si no fuera el caso tenemos que hace un if con el parametro dedonde
 							addFacturaTemporal();
 							//Modificamos el albaran con estado facturado para que no se pueda volver a añadir productos ni modificar
-							modificarEstadoPedido("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
+							modificarEstado("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
 							//llamamos a agregar fila pedidos aunque sea albaranes por que realiza lo mismo
 							AgregarFilaPedido(datos, "factura");
 							//Agregamos los productos
@@ -444,26 +443,33 @@ function  buscarAlbaran(valor=""){
 // Modificar estado pedido en realidad seria mostrar estado en general ya que dependiendo de donde esteamos carga unos 
 //parametros u otros
 //Lo que hace esta funcion es cambiar el estado tanto de pedido como albaran al estado facturado
-function modificarEstadoPedido(dedonde, estado, num="", id=""){
+function modificarEstado(dedonde, estado, num="", id=""){
 		console.log("Entre en modificar estado pedido");
-	if (dedonde=="albaran"){
-		var parametros = {
-			"pulsado"    : 'modificarEstadoPedido',
-			"idPedido":id,
-			"estado" : estado,
-			"dedonde" : dedonde
-		};
-	}
-	if (dedonde == "factura"){
-		var parametros = {
-			"pulsado"    : 'modificarEstadoPedido',
-			"idAlbaran":id,
-			"numAlbaranTemporal":num,
-			"estado" : estado,
-			"dedonde" : dedonde
-		};
 		
-	}
+		var parametros = {
+			"pulsado"    : 'modificarEstado',
+			"id":id,
+			"estado" : estado,
+			"dedonde" : dedonde
+		};
+	//~ if (dedonde=="albaran"){
+		//~ var parametros = {
+			//~ "pulsado"    : 'modificarEstadoPedido',
+			//~ "idPedido":id,
+			//~ "estado" : estado,
+			//~ "dedonde" : dedonde
+		//~ };
+	//~ }
+	//~ if (dedonde == "factura"){
+		//~ var parametros = {
+			//~ "pulsado"    : 'modificarEstadoPedido',
+			//~ "idAlbaran":id,
+			//~ "numAlbaranTemporal":num,
+			//~ "estado" : estado,
+			//~ "dedonde" : dedonde
+		//~ };
+		
+	//~ }
 	console.log(parametros);
 		$.ajax({
 		data       : parametros,
@@ -474,8 +480,8 @@ function modificarEstadoPedido(dedonde, estado, num="", id=""){
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de estado pedido js');
-			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
+			//~ var resultado =  $.parseJSON(response); 
+			//~ console.log(resultado);
 		}
 	});
 }
@@ -1214,7 +1220,7 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 				}
 			}
 			num=nfila-1;
-			modificarEstadoPedido(dedonde, "Guardado", numRegistro, pedidos[num].idPedido);
+			modificarEstado(dedonde, "Guardado", numRegistro, pedidos[num].idPedido);
 			addAlbaranTemp();
 		}
 		if (dedonde=="factura"){
@@ -1228,7 +1234,7 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 			num=nfila-1;
 			console.log(albaranes[num].idAlbaran);
 			console.log("Voy a entrar en modificar albaran");
-			modificarEstadoPedido(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
+			modificarEstado(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
 			addFacturaTemporal();
 		}
 }
@@ -1304,7 +1310,7 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 				}
 			}
 		num=nfila-1;
-		modificarEstadoPedido(dedonde, "Facturado", numRegistro, pedidos[num].idPedido);
+		modificarEstado(dedonde, "Facturado", numRegistro, pedidos[num].idPedido);
 		addAlbaranTemp();
 	}
 	if (dedonde=="factura"){
@@ -1315,7 +1321,7 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 				}
 			}
 		num=nfila-1;
-		modificarEstadoPedido(dedonde, "Facturado", numRegistro, albaranes[num].idAlbaran);
+		modificarEstado(dedonde, "Facturado", numRegistro, albaranes[num].idAlbaran);
 		addFacturaTemporal();
 	}
 }
