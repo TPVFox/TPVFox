@@ -33,8 +33,13 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 			
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
+			//~ $resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
+			//~ .')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirProveedorSeleccionado('.$datos.",'".$dedonde."'".');">';
+		
+		
+		
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirProveedorSeleccionado('.$datos.",'".$dedonde."'".');">';
+			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('

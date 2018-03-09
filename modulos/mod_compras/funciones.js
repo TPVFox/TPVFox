@@ -585,12 +585,13 @@ function imprimir(id, dedonde, idTienda){
 	
 		
 }
-function buscarProveedor(dedonde, idcaja, valor=''){
+function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 	//~ @Objetivo: Buscar y comprobar que la busqueda de proveedor es correcta 
 	//~ @parametros: 
 	//~ dedonde->De donde venimos 
 	//~ idCaja->LAutilizamos en tareas para comprobaciones
 	//~ valor-> valor que vamos a buscar
+	// popup-> si viene de popup cerramos la ventana modal
 	console.log('FUNCION buscarProveedores JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'buscarProveedor',
@@ -614,11 +615,15 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					alert("El id del proveedor no existe");
 					resetCampo(idcaja);
 				}
+				if (popup=="popup"){
+					cerrarPopUp();
+				}
 				if (resultado.Nitems==1){
 					// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
 					//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
 					//Se oculta el botón del botón buscar
 					cabecera.idProveedor=resultado.id;
+					$('#id_proveedor').val(resultado.id);
 					$('#Proveedor').val(resultado.nombre);
 					$('#Proveedor').prop('disabled', true);
 					$('#id_proveedor').prop('disabled', true);
@@ -650,6 +655,21 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 	});
 	
 }
+//Esta funcion se activa cuando en el modal de proveedor pinchamos encima de uno de los proveedores
+//Lo que hacemos es volver a la función buscar proveedor pero mandado de busqueda el id del nombre que hemos seleccionado
+// De esta manera nos ahorramos procedimientos
+//~ function escribirProveedorSeleccionado(id, nombre, dedonde){
+	//~ idcaja="id_proveedor";
+	//~ valor=id;
+	//~ $('#id_proveedor').val(id);
+	//~ $('#Proveedor').val(nombre);
+	//~ buscarProveedor(dedonde, idcaja, valor);
+	//~ cerrarPopUp();
+//~ }
+
+
+
+
 //Comprobar pedidos, comprueba los pedidos que tiene en estado guardado el proveedor seleccionado
 //Si el proveedor tiene pedidos entonces activamos la tabla oculta para seleccionar los pedidos 
 // Y ponemos el foco en numero de pedido
@@ -723,17 +743,7 @@ function comprobarAlbaranes(){
 		}
 	});
 }
-//Esta funcion se activa cuando en el modal de proveedor pinchamos encima de uno de los proveedores
-//Lo que hacemos es volver a la función buscar proveedor pero mandado de busqueda el id del nombre que hemos seleccionado
-// De esta manera nos ahorramos procedimientos
-function escribirProveedorSeleccionado(id, nombre, dedonde){
-	idcaja="id_proveedor";
-	valor=id;
-	$('#id_proveedor').val(id);
-	$('#Proveedor').val(nombre);
-	buscarProveedor(dedonde, idcaja, valor);
-	cerrarPopUp();
-}
+
 
 function abrirModal(titulo,tabla){
 	// @ Objetivo :
