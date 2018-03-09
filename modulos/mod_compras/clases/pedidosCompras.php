@@ -3,11 +3,11 @@
 include_once ('./clases/ClaseCompras.php');
 
 class PedidosCompras extends ClaseCompras{
-	private $db; //(Objeto) Es la conexion;
 	private $num_rows; // (array) El numero registros qure tiene la tabal pedprot
 	
 	public function __construct($conexion){
-		$this->db = $conexion;
+		parent::__construct($conexion);
+		//~ $this->db = $conexion;
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM pedprot';
 		$respuesta = $this->consulta($sql);
@@ -188,13 +188,15 @@ class PedidosCompras extends ClaseCompras{
 		}
 		return $pedido;
 	}
-	//Función para sumar los ivas de un pedido
 	public function sumarIva($numPedido){
-		$db=$this->db;
-		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from pedproIva where Numpedpro ='.$numPedido);
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
+		//Función para sumar los ivas de un pedido
+		$from_where= 'from pedproIva where Numpedpro ='.$numPedido;
+		$pedido = parent::sumarIvaBases($from_where);
+		//~ $db=$this->db;
+		//~ $smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from pedproIva where Numpedpro ='.$numPedido);
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $pedido=$result;
+		//~ }
 		return $pedido;
 	}
 	//Extraer todos los productos de un pedido
