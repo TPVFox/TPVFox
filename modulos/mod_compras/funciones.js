@@ -585,8 +585,12 @@ function imprimir(id, dedonde, idTienda){
 	
 		
 }
-// Función para buscar un proveedor 
 function buscarProveedor(dedonde, idcaja, valor=''){
+	//~ @Objetivo: Buscar y comprobar que la busqueda de proveedor es correcta 
+	//~ @parametros: 
+	//~ dedonde->De donde venimos 
+	//~ idCaja->LAutilizamos en tareas para comprobaciones
+	//~ valor-> valor que vamos a buscar
 	console.log('FUNCION buscarProveedores JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'buscarProveedor',
@@ -605,7 +609,6 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
-				var encontrados = resultado.encontrados;
 				console.log(resultado);
 				if (resultado.Nitems==2){
 					alert("El id del proveedor no existe");
@@ -616,16 +619,14 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
 					//Se oculta el botón del botón buscar
 					cabecera.idProveedor=resultado.id;
-					
 					$('#Proveedor').val(resultado.nombre);
 					$('#Proveedor').prop('disabled', true);
 					$('#id_proveedor').prop('disabled', true);
 					$("#buscar").css("display", "none");
-					console.log(dedonde);
+					
 					//Dendiendo de donde venga realizamos unas funciones u otras
 					if (dedonde=="albaran"){
 						comprobarPedidos();
-						
 					}
 					if (dedonde=="factura"){
 						comprobarAlbaranes();
@@ -643,7 +644,7 @@ function buscarProveedor(dedonde, idcaja, valor=''){
 					var HtmlProveedores=resultado.html['html']; 
 					abrirModal(titulo,HtmlProveedores);
 				}
-				console.log(resultado);
+				
 	
 		}
 	});

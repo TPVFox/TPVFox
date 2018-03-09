@@ -24,14 +24,13 @@ include_once "clases/facturasCompras.php";
 $CFac= new FacturasCompras($BDTpv);
 switch ($pulsado) {
 	case 'buscarProveedor':
-		//Busca el proveedor según el dato insertado , si el dato viene de la caja idProveedor entonces busca por id
-		//Si no busca por nombre del proveedor y muestra un modal con las coincidencias ,
-		//Si no recibe busqueda muestra un modal con todos los nombres de los proveedores 
-		$busqueda=$_POST['busqueda'];
-		$dedonde=$_POST['dedonde'];
-		$idCaja=$_POST['idcaja'];
-		if ($idCaja=="id_proveedor"){
-			$buscarId=$CProveedores->buscarProveedorId($busqueda);
+	//@Objetivo:
+	//Busca el proveedor según el dato insertado , si el dato viene de la caja idProveedor entonces busca por id
+	//Si no busca por nombre del proveedor y muestra un modal con las coincidencias ,
+	//Si no recibe busqueda muestra un modal con todos los nombres de los proveedores 
+		
+		if ($_POST['idcaja']=="id_proveedor"){
+			$buscarId=$CProveedores->buscarProveedorId($_POST['busqueda']);
 			if ($buscarId){
 				$respuesta['id']=$buscarId['idProveedor'];
 				$respuesta['nombre']=$buscarId['nombrecomercial'];
@@ -41,8 +40,8 @@ switch ($pulsado) {
 			}
 			
 		}else{
-			$buscarTodo=$CProveedores->buscarProveedorNombre($busqueda);
-			$respuesta['html']=htmlProveedores($busqueda,$dedonde, $idCaja, $buscarTodo['datos']);
+			$buscarTodo=$CProveedores->buscarProveedorNombre($_POST['busqueda']);
+			$respuesta['html']=htmlProveedores($_POST['busqueda'],$_POST['dedonde'], $_POST['idcaja'], $buscarTodo['datos']);
 			$respuesta['datos']=$buscarTodo['datos'];
 			
 		}
