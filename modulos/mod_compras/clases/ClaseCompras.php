@@ -33,5 +33,14 @@ class ClaseCompras
 		}
 		return $pedido;
 	}
+	public function SelectVariosResult($tabla, $where){
+		$db=$this->db;
+		$smt=$db->query('SELECT * from '.$tabla.' where '.$where);
+		$pedidosPrincipal=array();
+		while ( $result = $smt->fetch_assoc () ) {
+			array_push($pedidosPrincipal,$result);
+		}
+		return $pedidosPrincipal;
+	}
 }
 ?>

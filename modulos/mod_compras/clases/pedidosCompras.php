@@ -142,6 +142,11 @@ class PedidosCompras extends ClaseCompras{
 	//Esta función se ejecuta cuando añadimos un pedido nuevo o estamos modificando y seleccionamos guardar
 	//Añade de nuevo todos los registros . 
 	public function AddPedidoGuardado($datos, $idPedido, $numPedido){
+		//@Objetivo: GUardar todos los datos de un pedido real nuevo , los datos se guardan en tres tablas 
+		//@tablas:
+		//pedprot->tabla donde se almacenan los pedidos guardados
+		//pedprolinea->tabla que contiene las lineas de los productos
+		//pedproIva->tabla que contiene los registros de los distintos ivas de los productos
 		$db = $this->db;
 		if ($idPedido>0){
 			$sql='INSERT INTO pedprot (id, Numpedpro, Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$datos['numPedido'].', '.$datos['Numtemp_pedpro'].', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")';
@@ -241,23 +246,41 @@ class PedidosCompras extends ClaseCompras{
 	}
 	//Extraer todos los productos de un pedido
 	public function ProductosPedidos($idPedido){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedprolinea WHERE idpedpro= '.$idPedido );
-		$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
-		}
-		return $pedidosPrincipal;
+	//@Objetivo:
+	//Buscar todos los productos que tenga un id de pedido real
+	//@Parametros :
+	//idPedido-> id del pedido real
+		$tabla='pedprolinea';
+		$where='idpedpro= '.$idPedido;
+		$pedido = parent::SelectVariosResult($tabla, $where);
+		
+		//~ $db=$this->db;
+		//~ $smt=$db->query('SELECT * FROM pedprolinea WHERE idpedpro= '.$idPedido );
+		//~ $pedidosPrincipal=array();
+		//~ while ( $result = $smt->fetch_assoc () ) {
+			//~ array_push($pedidosPrincipal,$result);
+		//~ }
+		//~ return $pedidosPrincipal;
+		return $pedido;
 	}
 	//Muestra los ivas de un pedido
 	public function IvasPedidos($idPedido){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedproIva WHERE idpedpro= '.$idPedido );
-		$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
-		}
-		return $pedidosPrincipal;
+		//@Objetivo:
+		//Extraer todos los ivas que tengamos de un pedido ya guardado
+		//@Parametros: 
+		//idPedido->id del pedido guardado
+		$tabla='pedproIva';
+		$where='idpedpro= '.$idPedido;
+		$pedido = parent::SelectVariosResult($tabla, $where);
+		
+		//~ $db=$this->db;
+		//~ $smt=$db->query('SELECT * FROM pedproIva WHERE idpedpro= '.$idPedido );
+		//~ $pedidosPrincipal=array();
+		//~ while ( $result = $smt->fetch_assoc () ) {
+			//~ array_push($pedidosPrincipal,$result);
+		//~ }
+		//~ return $pedidosPrincipal;
+		return $pedido;
 	}
 	//Muestra los pedidos de un proveedor con el estado guardado
 	public function pedidosProveedorGuardado($idProveedor, $estado){
