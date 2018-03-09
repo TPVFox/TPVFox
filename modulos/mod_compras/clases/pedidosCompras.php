@@ -213,14 +213,14 @@ class PedidosCompras extends ClaseCompras{
 		return $respuesta;
 	}
 	//MUestra los datos de un pedido real
-	public function datosPedidos($idPedido){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedprot WHERE id= '.$idPedido );
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
-		return $pedido;
-	}
+	//~ public function datosPedidos($idPedido){
+		//~ $db=$this->db;
+		//~ $smt=$db->query('SELECT * FROM pedprot WHERE id= '.$idPedido );
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $pedido=$result;
+		//~ }
+		//~ return $pedido;
+	//~ }
 	public function sumarIva($numPedido){
 		//Función para sumar los ivas de un pedido
 		$from_where= 'from pedproIva where Numpedpro ='.$numPedido;

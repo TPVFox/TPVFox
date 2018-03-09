@@ -25,5 +25,8 @@ class ClaseCompras
 		}
 		return $sumaIvasBases;
 	}
+	public function datosGeneral($idPedido, $tabla){
+		
+	}
 }
 ?>

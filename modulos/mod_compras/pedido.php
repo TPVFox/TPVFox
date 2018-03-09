@@ -32,7 +32,7 @@ include './../../head.php';
 	if ($_GET){
 		if (isset($_GET['id'])){
 			$idPedido=$_GET['id'];
-			$datosPedido=$Cpedido->datosPedidos($idPedido);
+			$datosPedido=$Cpedido->DatosPedido($idPedido);
 			if ($datosPedido['estado']=='Facturado'){
 				$estado='Facturado';
 			}else{
@@ -123,7 +123,7 @@ if (isset($_POST['Guardar'])){
 		}
 	}
 	if ($pedidoTemporal['idPedpro']){
-		$datosPedidoReal=$Cpedido->datosPedidos($pedidoTemporal['idPedpro']);
+		$datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
 		$numPedido=$datosPedidoReal['Numpedpro'];
 	}else{
 		$numPedido=0;
