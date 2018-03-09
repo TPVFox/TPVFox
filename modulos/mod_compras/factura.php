@@ -437,7 +437,7 @@ if ($suNumero==0){
 			
 			if (is_array($productos)){
 				foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedidoAlbaran($producto, "factura");
+				$html=htmlLineaProducto($producto, "factura");
 				echo $html['html'];
 			}
 		

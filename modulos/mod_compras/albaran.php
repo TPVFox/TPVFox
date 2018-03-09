@@ -428,7 +428,7 @@ if ($suNumero==0){
 			//Recorremos los productos y vamos escribiendo las lineas.
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedidoAlbaran($producto, "albaran");
+				$html=htmlLineaProducto($producto, "albaran");
 				echo $html['html'];
 				//~ echo '<pre>';
 				//~ print_r($producto);

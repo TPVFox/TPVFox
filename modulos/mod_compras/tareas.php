@@ -68,7 +68,7 @@ switch ($pulsado) {
 	break;	
 	
 	
-		case 'htmlAgregarFilasProductos':
+	case 'htmlAgregarFilasProductos':
 			//Agrega la fila de productos : crea las filas de los productos para posteriormente insertar en la tabla 
 			$productos=$_POST['productos'];
 			$dedonde=$_POST['dedonde'];
@@ -79,13 +79,13 @@ switch ($pulsado) {
 					if (!is_array($producto)){ 
 						$bandera=1;
 					}else{
-					$res=htmlLineaPedidoAlbaran($producto, $dedonde);
+					$res=htmlLineaProducto($producto, $dedonde);
 					$respuesta['html'].=$res['html'];
 					}
 			 }
 			}
 			 if ($bandera==1){
-				 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
+				 $res=htmlLineaProducto($productos, $dedonde);
 					 $respuesta['html']=$res['html'];
 			 }
 			echo json_encode($respuesta);

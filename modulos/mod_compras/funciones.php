@@ -257,7 +257,7 @@ function recalculoTotalesAl($productos) {
 	return $respuesta;
 }
 // html de la linea de los productos tanto para pedido, albaran y factura
-function htmlLineaPedidoAlbaran($productos, $dedonde){
+function htmlLineaProducto($productos, $dedonde){
 	 $respuesta=array('html'=>'');
 	if(!is_array($productos)) {
 		// Comprobamos si product no es objeto lo convertimos.
@@ -310,9 +310,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
 			if (isset($producto['crefProveedor'])){
 				if ($producto['crefProveedor']){
-				//$filaProveedor='<td class="referencia"><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+"  value="'.$producto['crefProveedor'].'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)" disabled><a id="enlaceCambio" onclick="buscarReferencia('.$producto['idArticulo'].', '.$producto['nfila'].')" style="text-align: right"><span class="glyphicon glyphicon-cog"></span></a></td>';
 				$filaProveedor='<td class="referencia"><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+"  value="'.$producto['crefProveedor'].'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)" disabled><a id="enlaceCambio'.$producto['nfila'].'" onclick=buscarReferencia("Proveedor_Fila_'.$producto['nfila'].'") style="text-align: right"><span class="glyphicon glyphicon-cog"></span></a></td>';
-
 				}else{
 				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"><a onclick=buscarReferencia("Proveedor_Fila_'.$producto['nfila'].'") style="display:none" id="enlaceCambio'.$producto['nfila'].'"><span class="glyphicon glyphicon-cog"></span></a></td>';
 				}
@@ -331,14 +329,11 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}
 			
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
-		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
 		 if ($dedonde=="albaran" || $dedonde=="factura"){
 			$respuesta['html'].= '<td class="idArticulo">'.$numeroPed.'</td>';
 		
-		 }
-		
-		 
+		 } 
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
 		 $respuesta['html'] .=$filaProveedor;
@@ -348,11 +343,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$coste.'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
-		// $bandera=$producto['iva']/100;
-	//	 $bandera2=($bandera*$producto['ultimoCoste'])+$producto['ultimoCoste'];
-		 $importe=$producto['ultimoCoste']*$producto['nunidades'];
-		// $importe = $producto['ultimoCoste']*$producto['ncant'];
-		
+		 $importe=$producto['ultimoCoste']*$producto['nunidades'];	
 		 $importe = number_format($importe,2);
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;

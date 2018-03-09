@@ -874,22 +874,19 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 }
 
 //Funcion que agrega una fila a la tabla productos 
-function AgregarFilaProductos(productosAl, dedonde='', campo=''){
+function AgregarFilaProductos(productos, dedonde='', campo=''){
 	console.log("Estoy en agregar fila productos albaran");
-	
-	if (productosAl.length>1){
-		productosAl=productosAl.reverse();
+	if (productos.length>1){
+		producto=productos.reverse();
 	}
-	
 	console.log(dedonde);
 	var parametros = {
 		"pulsado"    : 'htmlAgregarFilasProductos',
-		"productos" : productosAl,
+		"productos" : productos,
 		"dedonde": dedonde
 	};
 	console.log("PARAMETROS");
 	console.log(parametros);
-	
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -904,7 +901,6 @@ function AgregarFilaProductos(productosAl, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);// añadir la fila como primera de la tabla
 			ponerSelect(campo);
-			
 		}
 	});
 }

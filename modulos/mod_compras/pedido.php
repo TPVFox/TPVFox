@@ -287,7 +287,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 			<?php 
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
-					$h=htmlLineaPedidoAlbaran($producto, "pedidos");
+					$h=htmlLineaProducto($producto, "pedidos");
 					echo $h['html'];
 				}
 			}
