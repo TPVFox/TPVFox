@@ -1,10 +1,11 @@
 <?php 
-class PedidosCompras{
-	public function consulta($sql){
-		$db = $this->db;
-		$smt = $db->query($sql);
-		return $smt;
-	}
+
+include_once ('./clases/ClaseCompras.php');
+
+class PedidosCompras extends ClaseCompras{
+	private $db; //(Objeto) Es la conexion;
+	private $num_rows; // (array) El numero registros qure tiene la tabal pedprot
+	
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
@@ -13,6 +14,15 @@ class PedidosCompras{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
+	
+	
+	public function consulta($sql){
+		// Realizamos la consulta.
+		$db = $this->db;
+		$smt = $db->query($sql);
+		return $smt;
+	}
+	
 	
 	//Modifica los datos del pedido temporal. Llamamos a esta función cuando el pedido temporal ya existe y seguimos añadiendo elementos
 	public function modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos){
@@ -60,8 +70,11 @@ class PedidosCompras{
 		$smt=$db->query($sql);
 		return $sql;
 	}
-	//Muestra todos los datos de un temporal
 	public function DatosTemporal($idTemporal){
+		// @ Objetivo:
+		// Obtener todos los datos de temporal
+		// @ Parametros:
+		// $idTemporal -> (string) Numero de idTemporal
 		$db=$this->db;
 		$sql='SELECT * from pedprotemporales where id='.$idTemporal;
 		$smt=$db->query($sql);
@@ -141,10 +154,11 @@ class PedidosCompras{
 			$smt=$db->query('DELETE FROM pedprotemporales WHERE id='.$idTemporal);
 		}
 	}
-	//Muestra todos los temporales, esta función la utilizamos en el listado de pedidos
 	public function TodosTemporal(){
+		//Muestra todos los temporales, esta función la utilizamos en el listado de pedidos
 		$db = $this->db;
-		$smt=$db->query('SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id');
+		$Sql= 'SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id';
+		$smt=$db->query($Sql);
 			$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($pedidosPrincipal,$result);
@@ -152,16 +166,7 @@ class PedidosCompras{
 		return $pedidosPrincipal;
 		
 	}
-	//Muestra todos los pedidos
-	//~ public function TodosPedidos(){
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor ');
-		//~ $pedidosPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($pedidosPrincipal,$result);
-		//~ }
-		//~ return $pedidosPrincipal;
-	//~ }
+	
 	//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
 	public function TodosPedidosLimite($limite = ''){
 		$db	=$this->db;
