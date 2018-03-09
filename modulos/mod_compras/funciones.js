@@ -908,12 +908,12 @@ function addAlbaranTemp(){
 	console.log('FUNCION Añadir albaran temporal JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'addAlbaranTemporal',
-		"idAlbaranTemp": cabecera.idAlbaranTemp,
+		"idAlbaranTemp": cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
 		"estado":cabecera.estado,
-		"idAlbaran":cabecera.idAlbaran,
-		"numAlbaran":cabecera.numAlbaran,
+		"idAlbaran":cabecera.idReal,
+		"numAlbaran":cabecera.numReal,
 		"fecha":cabecera.fecha,
 		"productos":productos,
 		"pedidos":pedidos,
@@ -938,7 +938,7 @@ function addAlbaranTemp(){
 			
 			if (resultado.existe == 0){
 				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idAlbaranTemp=resultado.id;
+				cabecera.idTemporal=resultado.id;
 			}
 				
 			resetearTotales();
@@ -952,18 +952,19 @@ function addAlbaranTemp(){
 	});
 	
 }
-//Función para añadir o modificar una factura temporal
+
+function addFacturaTemporal(){
+	//Función para añadir o modificar una factura temporal
 //Metemos en parametros todo lo necesario para crear un temporal y lo único que hacemos es comprobar si existe lo modificamos
 //y si no lo creamos
-function addFacturaTemporal(){
 	console.log('FUNCION Añadir albaran temporal JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'addFacturaTemporal',
-		"idFacturaTemp": cabecera.idFacturaTemp,
+		"idFacturaTemp": cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
 		"estado":cabecera.estado,
-		"idFactura":cabecera.idFactura,
+		"idFactura":cabecera.idReal,
 		"numFactura":cabecera.numFactura,
 		"fecha":cabecera.fecha,
 		"productos":productos,
@@ -989,7 +990,7 @@ function addFacturaTemporal(){
 			// Añadimos en la cabecera un el id que nos devuelve la funcion para tener control del temporal
 			if (resultado.existe == 0){
 				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idFacturaTemp=resultado.id;
+				cabecera.idTemporal=resultado.id;
 			}
 				//Borramos los datos del calculo
 			resetearTotales();
@@ -1005,26 +1006,23 @@ function addFacturaTemporal(){
 		}
 	});
 }
-// Añadir un pedido temporal
+
 function addPedidoTemporal(){
+	// Añadir un pedido temporal
 	console.log('FUNCION Añadir pedido temporal JS-AJAX');
 	console.log(productos);
 	var parametros = {
 		"pulsado"    : 'addPedidoTemporal',
-		"numPedidoTemp": cabecera.numPedidoTemp,
+		"numPedidoTemp": cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
 		"estadoPedido":cabecera.estadoPedido,
-		"idPedido":cabecera.idPedido,
-		"numPedido":cabecera.numPedido,
+		"idPedido":cabecera.idReal,
 		"fecha":cabecera.fecha,
 		"productos":productos,
 		"idProveedor":cabecera.idProveedor
 	};
-	
-		
 	console.log("ESTOY EN AÑADIR PEDIDO");
-	console.log(cabecera.fecha);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -1035,29 +1033,78 @@ function addPedidoTemporal(){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de añadir PEDIDO temporal');
 			var resultado =  $.parseJSON(response); 
-		
 			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-
 			console.log(resultado.id.id);
 			if (resultado.existe == 0){
 				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.numPedidoTemp=resultado.id;
+				cabecera.idTemporal=resultado.id;
 			}
 			// Creo funcion para restear totales.	
-			
 			resetearTotales();
-			
 			// Ahora pintamos pie de ticket.
 			if (resultado['totales']['total'] > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
 				pintamosTotales(resultado);
-				
 			}
-			
-			
 		}
 	});
 }
+
+function addTemporal(dedonde=""){
+	console.log('FUNCION Añadir temporal JS-AJAX');
+	//~ console.log(cabecera);
+	//~ var cab = [];
+	//~ cab[0]=cabecera;
+	//~ console.log(typeof productos);
+	var cab=JSON.stringify(cabecera)
+	console.log( cab);
+	//~ var parametros = {
+		//~ "pulsado"    : 'addPedidoTemporal',
+		//~ "numPedidoTemp": cabecera.idTemporal,
+		//~ "idUsuario":cabecera.idUsuario,
+		//~ "idTienda":cabecera.idTienda,
+		//~ "estadoPedido":cabecera.estadoPedido,
+		//~ "idPedido":cabecera.Real,
+		//~ "numPedido":cabecera.numReal,
+		//~ "fecha":cabecera.fecha,
+		//~ "productos":productos,
+		//~ "idProveedor":cabecera.idProveedor
+	//~ };
+	var parametros={
+		"pulsado" :'addPedidoTemporal',
+		"productos":productos,
+		'cab':cabecera
+	}
+	
+	console.log(parametros);
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		
+		beforeSend : function () {
+			console.log('******** estoy en añadir PEDIDO temporal JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir PEDIDO temporal');
+			var resultado =  $.parseJSON(response); 
+			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
+			console.log(resultado.id.id);
+			if (resultado.existe == 0){
+				history.pushState(null,'','?tActual='+resultado.id);
+				cabecera.idTemporal=resultado.id;
+			}
+			// Creo funcion para restear totales.	
+			resetearTotales();
+			// Ahora pintamos pie de ticket.
+			if (resultado['totales']['total'] > 0 ){
+				// Quiere decir que hay datos a mostrar en pie.
+				pintamosTotales(resultado);
+			}
+		}
+	});
+}
+
 function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.

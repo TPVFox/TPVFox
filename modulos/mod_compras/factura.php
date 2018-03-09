@@ -232,8 +232,8 @@ include './../../head.php';
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
-		cabecera['idFacturaTemp'] = <?php echo $idFacturaTemporal ;?>;
-		cabecera['idFactura'] = <?php echo $idFactura ;?>;
+		cabecera['idTemporal'] = <?php echo $idFacturaTemporal ;?>;
+		cabecera['idReal'] = <?php echo $idFactura ;?>;
 		cabecera['numFactura'] = <?php echo $numFactura ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;

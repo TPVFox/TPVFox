@@ -218,6 +218,15 @@ switch ($pulsado) {
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
 			$idProveedor=$_POST['idProveedor'];
+			//~ $cabecera=$_POST['cabecera'];
+			//~ $numPedidoTemp=$_POST['cabecera']['idTemporal'];
+			//~ $idUsuario=$_POST['cabecera']['idUsuario'];
+			//~ $idTienda=$_POST['cabecera']['idTienda'];
+			//~ $estadoPedido=$_POST['cabecera']['estadoPedido'];
+			//~ $idPedido=$_POST['cabecera']['idReal'];
+			//~ $fecha=$_POST['cabecera']['fecha'];
+			//~ $idProveedor=$_POST['cabecera']['idProveedor'];
+			//~ $productos=$_POST['productos'];
 			$existe=0; // Variable para devolver y saber si modifico o insert.
 			if ($numPedidoTemp>0){
 				$rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos);
