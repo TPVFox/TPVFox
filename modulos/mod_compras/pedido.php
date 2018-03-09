@@ -34,7 +34,7 @@ include './../../head.php';
 			$idPedido=$_GET['id'];
 			$datosPedido=$Cpedido->DatosPedido($idPedido);
 			if ($datosPedido['estado']=='Facturado'){
-				$estado='Facturado';
+				$estado=$datosPedido['estado'];
 			}else{
 				$estado='Modificado';
 			}
@@ -52,8 +52,7 @@ include './../../head.php';
 			$numPedido=$datosPedido['Numpedpro'];
 		}else{
 			$bandera=1;
-			$estado='Abierto';
-			$fecha=date('Y-m-d');
+			//$fecha=date('Y-m-d');
 			if ($_GET['tActual']){
 				$numPedidoTemp=$_GET['tActual'];
 				$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
