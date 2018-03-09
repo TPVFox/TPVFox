@@ -29,18 +29,18 @@ class ClaseCompras
 		$db=$this->db;
 		$smt=$db->query('SELECT * from '.$tabla.' where '.$where);
 		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
+			$resultado=$result;
 		}
-		return $pedido;
+		return $resultado;
 	}
 	public function SelectVariosResult($tabla, $where){
 		$db=$this->db;
 		$smt=$db->query('SELECT * from '.$tabla.' where '.$where);
-		$pedidosPrincipal=array();
+		$resultadoPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
+			array_push($resultadoPrincipal,$result);
 		}
-		return $pedidosPrincipal;
+		return $resultadoPrincipal;
 	}
 }
 ?>
