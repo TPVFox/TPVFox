@@ -7,18 +7,18 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
+	$Controler = new ControladorComun; // Controlado comun..
 
 	//INICIALIZAMOS variables para el plugin de paginado:
-	//$PgActual = 1 por defecto
-	//$CantidadRegistros , usamos la funcion contarRegistro de la class controladorComun /controllers/Controladores  
-	//$LimitePagina = 40 o los que queramos
-	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
-	//$OtrosParametros
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	$filtro = ''; // por defecto
+	$vista = 'articulos';
+	$LinkBase = './ListaProductos.php?';
+	$OtrosParametros = '';
+	
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
@@ -28,30 +28,17 @@
 		$palabraBuscar = explode(' ',$_GET['buscar']); 
 	} 
 	
-	
-	// Creamos objeto controlado comun, para obtener numero de registros. 
-	//parametro necesario para plugin de paginacion
-	//funcion contarRegistro necesita:
-	//$BDTpv 
-	//$vista --> es la tabla en la que trabajamos
-	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
-	
-	$Controler = new ControladorComun; 
-	
-	$vista = 'articulos';
-	$LinkBase = './ListaProductos.php?';
-	$OtrosParametros = '';
 	$paginasMulti = $PgActual-1;
+	
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
 		
 	} else {
 		$desde = 0;
 	}
+	
 	// Realizamos consulta 
 	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
-	
-	
 	if ($stringPalabras !== '' ){
 		$campoBD='articulo_name';
 		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
@@ -74,47 +61,23 @@
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
-	var BRecambios ='';
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-    
-  
-	
-	<script>  
-	    
-	</script> 
     </head>
 
 <body>
         <?php
         include './../../header.php';
         ?>
-        <?php
-		//~ echo '<pre>';
-			//~ print_r($productos);
-		//~ echo '</pre>';
-		?>
        
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Productos: Editar y Añadir Productos </h2>
-					<?php 
-					//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
-					//~ echo '<pre class="text-left">';
-					//~ print_r($Familias);
-					//~ 
-					//~ echo '</pre>';
-					?>
-				</div>
-	        <!--=================  Sidebar -- Menu y filtro =============== 
-				Efecto de que permanezca fixo con Scroll , el problema es en
-				movil
-	        -->
-	       
-			<nav class="col-sm-2">
+				<h2> Productos: Editar y Añadir Productos </h2>
+			</div>
+	        <nav class="col-sm-2">
 				<h4> Productos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
