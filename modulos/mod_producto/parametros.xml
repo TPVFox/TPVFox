@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+	<configuracion>
+		
+	</configuracion>
+	
+	
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="Referencia">cajaReferencia</nombre>
+			<teclas>
+				<action tecla="13"></action>
+				<action tecla="38"></action>
+				<action tecla=" 9"></action>
+				<action tecla="37"></action>
+				<action tecla="39"></action>
+				<action tecla="40"></action>
+			</teclas>
+			
+		</caja_input>	
+	</cajas_input>
+	
+</parametros>
