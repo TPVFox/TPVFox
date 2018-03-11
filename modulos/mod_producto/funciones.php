@@ -2,6 +2,8 @@
 
 
 function obtenerProductos($BDTpv,$filtro) {
+	//[OBSOLETO] -> YA QUE LO HAGO CLASETABLAARTICULOS.
+
 	// Function para obtener productos y listarlos
 	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
 	$resultado = array();
@@ -24,6 +26,8 @@ function obtenerProductos($BDTpv,$filtro) {
 
 //ver seleccionado en check listado en vista producto
 function verSelec($BDTpv,$idProducto,$tabla,$idTienda){
+	//[OBSOLETO] -> YA QUE LO HAGO CLASETABLAARTICULOS.
+	
 	// Obtener datos de un id de producto.
 	//PARAMETROS:
 	//idProducto , id seleccionado en listaProductos es idArticulo en bbdd
@@ -70,6 +74,8 @@ function verSelec($BDTpv,$idProducto,$tabla,$idTienda){
 
 
 function referenciasTiendas($BDTpv,$idArticulo){
+	//[OBSOLETO] -> YA QUE LO HAGO CLASETABLAARTICULOS.
+	
 	//idArticulo
 	//tablas a consultar
 	// articulosTiendas, 	articulosPrecios,	tiendas
@@ -314,6 +320,8 @@ function ContarCodBarras($BDTpv, $idArticulo){
 }
 /*Seleccionar los codigos de barras de un producto*/
 function codBarrasProducto($BDTpv, $idArticulo){
+	//[OBSOLETO] -> YA QUE LO HAGO CLASETABLAARTICULOS.
+
 	$sql='SELECT * from  articulosCodigoBarras where idArticulo='.$idArticulo;
 	if ($ResConsulta = $BDTpv->query($sql)){			
 		while ($fila = $ResConsulta->fetch_assoc()) {

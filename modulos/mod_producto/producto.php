@@ -2,135 +2,51 @@
 <html>
     <head>
         <?php
-		//cambio desde casa 
-		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
-        include '../../clases/iva.php';
-        			$Civas = new iva($BDTpv);
-
+        include ("./../../clases/ClaseTablaArticulos.php");
+		$CTArticulos = new ClaseTablaArticulos($BDTpv);
 		?>
-		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 	</head>
 	<body>
-		<?php
+		<?php     
         include './../../header.php';
-		// ===========  datos producto segun id enviado por url============= //
-		
+		$titulo = 'Productos:';
+		$id = 0 ; // Por  defecto el id a buscar es 0
 		$tabla= 'articulos'; // Tablas que voy utilizar.
 		$estadoInput = 'disabled'; //desactivado input de entrada 
 		
-		//idTienda, para ver producto de esa tienda.
-		$idTienda = $_SESSION['tiendaTpv']['idTienda'];
-		$contNuevoCodBarras=0; //nuevo contador codigo barras
-		//	print_r($_GET);
-		//	print_r($_SESSION['tiendaTpv']);
-			
+		$idTienda = $_SESSION['tiendaTpv']['idTienda']; // Necesito este dato, para obtener datos de esta tienda.
+		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
+		
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Producto
 			$id=$_GET['id']; // Obtenemos id producto para modificar.
-			$idArticulo = $id;
-			$Producto = verSelec($BDTpv,$id,$tabla,$idTienda);	
-			
-			$refTiendas = referenciasTiendas($BDTpv,$id);
-			$codigosBarras = codigosBarras($BDTpv,$id);
-			$familias = nombreFamilias($BDTpv,$idArticulo);
-			//~ $ivas=ivasNoPrincipal($BDTpv, $Producto['iva']);
-			
-			//~ $ivas=iva::ivasNoPrincipal($Producto['iva']);
-			$Civas = new iva($BDTpv);
-			
-			$ivas=$Civas->ivasNoPrincipal($Producto['iva']);
-			$titulo = "Modificar Producto";
-			
-			foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
-							if ($refeTienda['tipoTienda'] === 'principal'){
-								$referencia=$refeTienda['cref'];
-							}else{
-								$referencia=0;
-							}
-							}
-			
-			$tablas = array ('articulos' => array(
-								'idProveedor'	=> $Producto['idProveedor'],
-								'nombre' 		=> $Producto['articulo_name'],	
-								'beneficio' 	=>  $Producto['beneficio'],
-								'costepromedio' => $Producto['costepromedio'],
-								'iva'			=> $Producto['iva'] // tengo que obtener array IVAS varios y uno SELECCIONADO
-								),
-							'artPrecios' => array (
-								'pvpCiva'		=> $Producto['pvpCiva'],
-								'pvpSiva'		=> $Producto['pvpSiva']
-								),
-							'artFamilias' => array(
-									'idFamilia'		=> $familias['idFamilia'],
-									'nombreFamilia' => $familias['familiaNombre']
-								),
-							'artCodBarras'	=> array(
-									'codigo' => $codigosBarras['codigos'][0]['codBarras']
-								)
-							//falta proveedor nombres e idproveedor
-							);
-			
-			
-		
-			$nombreproveedor = $Producto['razonsocial'];
-			
-			if (isset($Producto['error'])){
-				$error='NOCONTINUAR';
-				$tipomensaje= "danger";
-				$mensaje = "Id de producto incorrecto ( ver get) <br/>".$Producto['consulta'];
-			} 
+			$titulo .= "Modificar";
 		} else {
-			// Creamos ficha Producto.
-			$titulo = "Crear Producto";
-			$bandera=1;
-			$Producto['articulo_name']="";
-			$Producto['costePromedio']=0;
-			$Producto['beneficio']=0;
-			$Producto['iva']=21;
-			$Producto['pvpCiva']=0;
-			$Producto['pvpSiva']=0;
-			$Producto['idProveedor']=0;
-			
-			
+			// Quiere decir que no hay id, por lo que es nuevo
+			$titulo .= "Crear";
+
 		}
+		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
+		$Producto = $CTArticulos->getProducto($_GET['id']);
+			
+		if (isset($Producto['error'])){
+			// Esto me falta, necesito en el objeto, hacer un validador, donde 
+			// validad los datos y las consultas realizadas, 
+			// puedo mostrarlas al usuario.
+			$error='NOCONTINUAR';
+			$tipomensaje= "danger";
+			$mensaje = "Id de producto incorrecto ( ver get) <br/>".$Producto['consulta'];
+		} 
 		
 		if ($_POST){
-			$datos=$_POST;
-			$datos['idTienda']=$idTienda;
-			$datos['idProducto']=$_POST['id'];
-			//Si el producto no esta creado
-			if ($bandera == 1){
-			$datos['estado']="Activo";
-			$datos['idTienda']=$idTienda;
-			
-			//Se añade un producto y nos retorna al listado de productos
-				$res=añadirProducto($BDTpv, $datos, $tabla);
-				header('Location:ListaProductos.php');
-			
-			}else{
-				//De lo contrario se modifica y nos retorna a las especificaciones del producto con un mensaje
-			$res=modificarProducto($BDTpv, $datos, $tabla);
-			
-			if (isset($resp['error'])){
-						$tipomensaje= "danger";
-						$mensaje = "Razon social de producto ya existe!";
-					} else {
-						$tipomensaje= "info";
-						$mensaje = "Su registro de producto fue editado.";
-						$i=$datos['idProducto'];
-						
-					}
-					header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
-					
-			
+			// Comprobamos los datos antes de grabar.
+			// header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
+			}
 		}
-		}
-		
-		
 		
 		?>
      
@@ -161,8 +77,8 @@
 				</div>
 				<div class="col-md-7 Datos">
 					<?php // si es nuevo mostramos Nuevo ?>
-					<h3>Datos generales de producto <?php echo $idArticulo?>:</h3>
-					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $idArticulo?>"   >
+					<h4>Datos del producto con ID:<?php echo $id?></h4>
+					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id?>"   >
 					<div class="col-md-12">
 						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
@@ -195,7 +111,7 @@
 								?>
 							</select>
 						</div>
-						<div class="form-group">
+						<div class="form-group col-md-4 ">
 							<?php // Si es nuevo no se muestra ?>
 							<label class="control-label " >Coste Promedio:</label>
 							<div>
@@ -302,7 +218,7 @@
 								</div>
 							</div>
 						</div>
-					
+						<!-- Inicio collapse de Proveedores --> 
 						<div class="panel panel-default">
 							<div class="panel-heading">
 							  <h4 class="panel-title">
@@ -312,27 +228,17 @@
 							<div id="collapse3" class="panel-collapse collapse">
 								<div class="panel-body">
 									<div class="col-md-2 ">	
-									<label class="control-label " > Id proveedor:</label>
-									<input type="text" id="idproveedor" name="idproveedor" <?php echo $estadoInput;?> placeholder="idproveedor" value="<?php echo $Producto['idProveedor'];?>"   >
-								</div>
-								<div class="col-md-2 ">	
-									<label class="control-label " > Nombre proveedor:</label>
-									<input type="text" id="nombreproveedor" name="nombreproveedor" <?php echo $estadoInput;?> placeholder="nombreproveedor" value="<?php echo $nombreproveedor;?>"   >
-								</div>
-									<!--
-									<div class="col-md-2 ">	
-										<label class="control-label " > Referencia:</label>
-										<input type="text" id="referencia" name="referencia"  placeholder="referencia" value="0"   >
+										<label class="control-label " > Id proveedor:</label>
+										<input type="text" id="idproveedor" name="idproveedor" <?php echo $estadoInput;?> placeholder="idproveedor" value="<?php echo $Producto['idProveedor'];?>"   >
 									</div>
 									<div class="col-md-2 ">	
-										<label class="control-label " > Fecha actualización:</label>
-										<input type="text" id="fechaAc" name="fechaAc"  placeholder="fecha actuañización" value="0"   >
+										<label class="control-label " > Nombre proveedor:</label>
+										<input type="text" id="nombreproveedor" name="nombreproveedor" <?php echo $estadoInput;?> placeholder="nombreproveedor" value="<?php echo $nombreproveedor;?>"   >
 									</div>
-									-->
 								</div>
 							</div>
 						</div>
-
+						<!-- Inicio collapse de Referencias Tiendas --> 
 						<div class="panel panel-default">
 							<div class="panel-heading">
 							  <h4 class="panel-title">
@@ -351,42 +257,36 @@
 												<th>estado</th>
 											</tr>
 										</thead>
-									<?php 
-								$icono ='';
-								foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
-										/*Si el tipo de tienda es web entonces se añade un icono con un enlace al producto de virtalmark*/
-										if ($refeTienda['tipoTienda'] === 'web'){
-											$icono = '<a href=http://'.$refeTienda['dominio'].'/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$refeTienda['idVirtu'].'><span class="glyphicon glyphicon-globe"></span></a>';
+										<?php 
+									$icono ='';
+									foreach ($refTiendas['ref'] as $key =>$refeTienda){ 
+											/*Si el tipo de tienda es web entonces se añade un icono con un enlace al producto de virtalmark*/
+											if ($refeTienda['tipoTienda'] === 'web'){
+												$icono = '<a href=http://'.$refeTienda['dominio'].'/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$refeTienda['idVirtu'].'><span class="glyphicon glyphicon-globe"></span></a>';
+											}
+										if ($refeTienda['tipoTienda'] <> 'principal'){
+										?>
+										<tr>
+											<td><?php echo $refeTienda['idVirtu'];?></td>
+											<td><?php echo $refeTienda['idTienda']; ?></td>
+											<td><?php echo $refeTienda['nombreTienda']; echo ' '.$icono; ?></td>
+											<td><?php echo $refeTienda['pvpCiva']; ?></td>
+											<td><?php echo $refeTienda['estado']; ?></td>
+										</tr>
+										<?php
 										}
-									if ($refeTienda['tipoTienda'] <> 'principal'){
-									?>
-									<tr>
-										<td><?php echo $refeTienda['idVirtu'];?></td>
-										<td><?php echo $refeTienda['idTienda']; ?></td>
-										<td><?php echo $refeTienda['nombreTienda']; echo ' '.$icono; ?></td>
-										<td><?php echo $refeTienda['pvpCiva']; ?></td>
-										<td><?php echo $refeTienda['estado']; ?></td>
-									</tr>
-									<?php
 									}
-								}
-								?>
+									?>
 									</table>
 								</div>
 							</div>
 						</div>
-
-
-
 					<!-- Fin de panel-group -->
 					</div> 
-
-					
 				<!-- Fin div col-md-5 -->
 				</div>
-				
 			</div>
-					
-		</div> <!-- container-->
+		<!--fin de div container-->
+		</div> 
 	</body>
 </html>
