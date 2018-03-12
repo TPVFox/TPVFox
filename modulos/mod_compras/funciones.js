@@ -298,8 +298,8 @@ function buscarPedido(valor=""){
 								prod.numPedido=resultado.productos[i]['Numpedpro'];
 								prod.nunidades=resultado.productos[i]['nunidades'];
 								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
-								var bandera2=resultado.productos[i]['iva']/100;
-								prod.importe=(bandera2+resultado.productos[i]['costeSiva'])*resultado.productos[i]['nunidades'];
+								//var bandera2=resultado.productos[i]['iva']/100;
+								prod.importe=resultado.productos[i]['costeSiva']*resultado.productos[i]['nunidades'];
 								productos.push(prod);
 								prodArray.push(prod);
 								numFila++;
@@ -403,9 +403,9 @@ function  buscarAlbaran(valor=""){
 								prod.nunidades=resultado.productos[i]['nunidades'];
 								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
 								var ultimoCoste= parseInt(resultado.productos[i]['costeSiva']);
-								var bandera2=parseInt(resultado.productos[i]['iva'])/100;
+							//	var bandera2=parseInt(resultado.productos[i]['iva'])/100;
 								var cantidad=parseInt(resultado.productos[i]['nunidades']);
-								prod.importe=(bandera2+ultimoCoste)*cantidad;
+								prod.importe=ultimoCoste*cantidad;
 								
 								productos.push(prod);
 								prodArray.push(prod);
@@ -413,7 +413,7 @@ function  buscarAlbaran(valor=""){
 							}
 							//Como solo desde facturas podemos llamar a esta función pues automaticamente llama a la función
 							//de añadir una factura temporal, si no fuera el caso tenemos que hace un if con el parametro dedonde
-								addTemporal("factura");
+							addTemporal("factura");
 							//Modificamos el albaran con estado facturado para que no se pueda volver a añadir productos ni modificar
 							modificarEstado("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
 							//llamamos a agregar fila pedidos aunque sea albaranes por que realiza lo mismo
@@ -456,8 +456,14 @@ function modificarEstado(dedonde, estado, num="", id=""){
 		}
 	});
 }
-// add una referencia de un proveedor a un articulo
 function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
+	//@Objetivo: añadir una referencia a un proveedor articulo o cambiarla en caso de que exista
+	//@parametros;
+	//idArticulo: id del articulo
+	//nfila:Número de la fila
+	//valor: referencia que le vamos a poner 
+	//coste : coste de la referencia
+	//dedonde: de donde venimos di pedidos , albaranes o facturas
 	console.log("ESTOY EN LA FUNCION ADD PROVEEDOR PRODUCTO");
 	console.log(nfila);
 	var parametros = {
@@ -595,7 +601,8 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 				console.log(resultado);
 				if (resultado.Nitems==2){
 					alert("El id del proveedor no existe");
-					resetCampo(idcaja);
+					document.getElementById(idcaja).value='';
+					//resetCampo(idcaja);
 				}
 				if (popup=="popup"){
 					cerrarPopUp();
@@ -638,6 +645,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 	
 }
 function comprobarPedidos(){
+//@Objetivo:
 //Comprobar pedidos, comprueba los pedidos que tiene en estado guardado el proveedor seleccionado
 //Si el proveedor tiene pedidos entonces activamos la tabla oculta para seleccionar los pedidos 
 // Y ponemos el foco en numero de pedido
@@ -676,6 +684,7 @@ function comprobarPedidos(){
 	
 }
 function comprobarAlbaranes(){
+//@Objetivo:
 //Esta función hace lo mismo que la anterior pero en vez de buscar pedidos busca albaranes ya que la llamamos desde facturas
 //Si obtiene un resultado muestra la tabla oculta y si no es asi pone el foco en idArticulo
 
@@ -800,8 +809,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.importe=ultimoCoste.toFixed(2);
 			productos.push(datos);
 			var campo='Unidad_Fila_'+n_item;
-			addTemporal(dedonde);
-			resetCampo(id_input);
+			addTemporal(dedonde)
+			document.getElementById(id_input).value='';
+			//resetCampo(id_input);
 			AgregarFilaProductos(datos, dedonde, campo);
 			if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
 				alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
@@ -863,8 +873,10 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 	});
 }
 function addTemporal(dedonde=""){
+	//@Objetivo: añadir un temporal , dependiendo de donde venga se cargan unos parámetros distintos
+	//@parámetros:
+	//dedonde: de donde venimos , pedidos, albaran, factura
 	console.log('FUNCION Añadir temporal JS-AJAX');
-	console.log(dedonde);
 	if (dedonde=="pedidos"){
 		var pulsado='addPedidoTemporal';
 	}
@@ -973,80 +985,69 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		var num_item=datos.nfila;
 		var campo1='Unidad_Fila_'+num_item;
 		AgregarFilaProductos(datos, dedonde,  campo1);
-		
-		resetCampo(campo);
+		document.getElementById(campo).value='';
+	//	resetCampo(campo);
 		var campo='Unidad_Fila_'+num_item;
 		cerrarPopUp(campo);
 }
-//Elimina el contenido del campo
-function resetCampo(campo){
-	console.log('Entro en resetCampo '+campo);
-	document.getElementById(campo).value='';
-	return;
-}
-function eliminarFila(num_item, valor=""){
-	//Función para cambiar el estado del producto
-	console.log("entre en eliminar Fila Producto");
+//~ //Elimina el contenido del campo
+//~ function resetCampo(campo){
 	
-	console.log(num_item);
+	//~ console.log('Entro en resetCampo '+campo);
+	//~ document.getElementById(campo).value='';
+	//~ return;
+//~ }
+function eliminarFila(num_item, valor=""){
+	//@Objetivo:
+	//Función para cambiar el estado del producto , deja en estado Eliminado el producto
+	console.log("entre en eliminar Fila Producto");
 	var line;
 	num=num_item-1;
-	console.log(num);
 	line = "#Row" + productos[num].nfila;
-	
-	console.log(line);
 	productos[num].estado= 'Eliminado';
-	
 	$(line).addClass('tachado');
-	
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
-		addTemporal(valor);
+	addTemporal(valor);
 	
 }
 function eliminarAdjunto(numRegistro, dedonde, nfila){
+	//@Objetivo: esta acción se ejecuta cuando eleiminamos un pedio o albaran de albaranes o facturas 
+	//pone la fila de los datos del pedido y albaran como eliminada y todos sus productos
+	//@parámetros:
+	//numRegistro: número tanto del pedido como del alabarán
+	//dedonde: de donde venimos , pedidos , albaran o factura
+	//nfila: número de la fila del pedido o albarán
 	console.log("entre en eliminar Fila");
 	var line;
 	num=nfila-1;
 	if (dedonde=="factura"){
 		line = "#lineaP" + albaranes[num].nfila;
-		console.log(num);
 		albaranes[num].estado= 'Eliminado';
+		var idAdjunto=albaranes[num].idAlbaran;
 	}
 	if (dedonde=="albaran"){
 		line = "#lineaP" + pedidos[num].nfila;
-		console.log(num);
 		pedidos[num].estado= 'Eliminado';
+		
+		var idAdjunto=pedidos[num].idPedido;
 	}
-	
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
-		if (dedonde=="albaran"){
-			for(i=0;i<productos.length; i++){
+		for(i=0;i<productos.length; i++){
+			if (dedonde=="albaran"){
 				var numProducto=productos[i].numPedido;
-				if (numRegistro == numProducto){
-					eliminarFila(productos[i].nfila, "bandera");
-					
-				}
-			}
-			num=nfila-1;
-			modificarEstado(dedonde, "Guardado", numRegistro, pedidos[num].idPedido);
-			addTemporal(dedonde);
-		}
-		if (dedonde=="factura"){
-			for(i=0;i<productos.length; i++){
+				
+			}else{
 				var numProducto=productos[i].numAlbaran;
-				if (numRegistro == numProducto){
-					eliminarFila(productos[i].nfila, "bandera");
-					
-				}
 			}
-			num=nfila-1;
-			console.log(albaranes[num].idAlbaran);
-			console.log("Voy a entrar en modificar albaran");
-			modificarEstado(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
-			addTemporal(dedonde);;
+			if (numRegistro == numProducto){
+					eliminarFila(productos[i].nfila, "bandera");
+			}
 		}
+		
+		modificarEstado(dedonde, "Guardado", numRegistro, idAdjunto);
+		addTemporal(dedonde);
 }
 function retornarFila(num_item, valor=""){
 	// @Objetivo :
