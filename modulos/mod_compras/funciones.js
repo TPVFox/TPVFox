@@ -618,10 +618,12 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 					
 					//Dendiendo de donde venga realizamos unas funciones u otras
 					if (dedonde=="albaran"){
-						comprobarPedidos();
+						//comprobarPedidos();
+						comprobarAdjunto(dedonde);
 					}
 					if (dedonde=="factura"){
-						comprobarAlbaranes();
+						//comprobarAlbaranes();
+						comprobarAdjunto(dedonde);
 					}
 					if (dedonde=="pedidos"){
 						// Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
@@ -642,56 +644,20 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 	});
 	
 }
-function comprobarPedidos(){
-//@Objetivo:
-//Comprobar pedidos, comprueba los pedidos que tiene en estado guardado el proveedor seleccionado
-//Si el proveedor tiene pedidos entonces activamos la tabla oculta para seleccionar los pedidos 
-// Y ponemos el foco en numero de pedido
-//Si no tiene solo ponemos el foco en IdArticulo para que se empiece a poner articulos al albarán
+function comprobarAdjunto(dedonde){
+	//@Objetivo: comprobar si el proveedor tiene algun pedido o albaran Guardado que se pueda adjuntar tanto a la factura como al albaran
+	console.log("Entre en adjunto proveedor");
+	if (dedonde=="albaran"){
+		var pulsado='comprobarPedido';
+	}else{
+		var pulsado='comprobarAlbaranes';
+	}
 	var parametros = {
-		"pulsado"    : 'comprobarPedido',
-		"idProveedor": cabecera.idProveedor
+		"pulsado"    :pulsado,
+		"idProveedor": cabecera.idProveedor,
+		"dedonde":dedonde
 	};
-		$.ajax({
-			data       : parametros,
-			url        : 'tareas.php',
-			type       : 'post',
-			beforeSend : function () {
-				console.log('******** estoy en buscar clientes JS****************');
-			},
-			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar clientes');
-				var resultado =  $.parseJSON(response);
-				 
-				if (resultado==1){
-					$('#numPedidoT').css("display", "block");
-					$('#numPedido').css("display", "block");
-					$('#buscarPedido').css("display", "block");
-					$('#tablaPedidos').css("display", "block");
-					ponerFocus('numPedido');
-				}else{
-					ponerFocus('idArticulo');
-				}
-				console.log(resultado);
-				
-	
-		}
-	});
-	
-	
-	
-}
-function comprobarAlbaranes(){
-//@Objetivo:
-//Esta función hace lo mismo que la anterior pero en vez de buscar pedidos busca albaranes ya que la llamamos desde facturas
-//Si obtiene un resultado muestra la tabla oculta y si no es asi pone el foco en idArticulo
-
-	console.log("Entre en comprobar albaranes");
-	var parametros = {
-		"pulsado"    : 'comprobarAlbaranes',
-		"idProveedor": cabecera.idProveedor
-	};
-		$.ajax({
+	$.ajax({
 			data       : parametros,
 			url        : 'tareas.php',
 			type       : 'post',
@@ -718,8 +684,6 @@ function comprobarAlbaranes(){
 		}
 	});
 }
-
-
 function abrirModal(titulo,tabla){
 	// @ Objetivo :
 	// Abril modal con texto buscado y con titulo que le indiquemos.
