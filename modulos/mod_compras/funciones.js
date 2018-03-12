@@ -238,7 +238,7 @@ function buscarAdjunto(dedonde, valor=""){
 		var titulo= 'Listado Albaranes';
 	}
 	var parametros ={
-		'pulsado':pulsado,
+		'pulsado':'buscarAdjunto',
 		'numReal':valor,
 		'idProveedor':cabecera.idProveedor,
 		'dedonde':dedonde
