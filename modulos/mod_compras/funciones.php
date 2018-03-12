@@ -381,42 +381,8 @@ function modificarArrayProductos($productos){
 	return $respuesta;
 }
 //Modal para cuando buscamos un pedido de un proveedor en albaranes
-function modalPedidos($pedidos, $dedonde){
-	$respuesta=array('html'=>'');
-		$contad = 0;
-	$respuesta['html'] .= '<table class="table table-striped"><thead>';
-	$respuesta['html'] .= '<th>';
-	$respuesta['html'] .='<td>Número </td>';
-	$respuesta['html'] .='<td>Fecha</td>';
-	$respuesta['html'] .='<td>Total</td>';
-	$respuesta['html'] .='</th>';
-	$respuesta['html'] .= '</thead><tbody>';
-	foreach ($pedidos as $pedido){
-	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$pedido['Numpedpro'].');">';
-	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
-	$respuesta['html'].='<td>'.$pedido['Numpedpro'].'</td>';
-	$respuesta['html'].='<td>'.$pedido['FechaPedido'].'</td>';
-	$respuesta['html'].='<td>'.$pedido['total'].'</td>';
-	$respuesta['html'].='</tr>';
-	$contad = $contad +1;
-	if ($contad === 10){
-		break;
-	}
-				
-	}
-	$respuesta['html'].='</tbody></table>';
-	return $respuesta;
-}
-
-function modalAlbaranes($albaranes, $dedonde){
-	// @ Objetivo:
-	// Crear html de Modal para cuando buscamos un albaran en facturas
-	// @ Parametros
-	// $albaranes -> Array 
-		
+function modalAdjunto($adjuntos, $dedonde){
 	$respuesta['html']	.= '<table class="table table-striped"><thead>';
 	$respuesta['html']	.= '<th>';
 	$respuesta['html']	.= '<td>Número </td>';
@@ -425,15 +391,24 @@ function modalAlbaranes($albaranes, $dedonde){
 	$respuesta['html']	.= '</th>';
 	$respuesta['html'] 	.=  '</thead><tbody>';
 	$contad = 0;
-	foreach ($albaranes as $albaran){
+	
+	foreach ($adjuntos as $adjunto){
+		if ($dedonde=="albaran"){
+			$numAdjunto=$adjunto['Numpedpro'];
+			$fecha=$adjunto['FechaPedido'];
+		}else{
+			
+			$numAdjunto=$adjunto['Numalbpro'];
+			$fecha=$adjunto['Fecha'];
+		}
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$albaran['Numalbpro'].');">';
+		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$numAdjunto.');">';
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
-		$respuesta['html']	.= '<td>'.$albaran['Numalbpro'].'</td>';
-		$respuesta['html']	.= '<td>'.$albaran['Fecha'].'</td>';
-		$respuesta['html']	.= '<td>'.$albaran['total'].'</td>';
+		$respuesta['html']	.= '<td>'.$numAdjunto.'</td>';
+		$respuesta['html']	.= '<td>'.$fecha.'</td>';
+		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
 		$respuesta['html']	.= '</tr>';
 		$contad = $contad +1;
 		if ($contad === 10){
@@ -453,9 +428,6 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 			if ($pedido['NumAdjunto']){
 				$num=$pedido['NumAdjunto'];
 			}
-			//~ if ($pedido['Numpedpro']){
-				//~ $num=$pedido['Numpedpro'];
-			//~ }
 			if ($pedido['estado']=="activo"){
 				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
@@ -471,12 +443,8 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 		}
 		$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
 		if (isset($pedido['NumAdjunto'])){
-		//	$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['NumAdjunto'].'</td>';
-		//~ }else{
-			//~ $respuesta['html'] .='<td>'.$pedido['Numalbpro'].'</td>';
-		//~ }
-	}
+		}
 		
 		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';

@@ -180,11 +180,7 @@ switch ($pulsado) {
 				
 			}else{
 				$respuesta['datos']=$datosAdjunto;
-				if ($dedonde=="albaran"){
-				$modal=modalPedidos($datosAdjunto['datos'], $dedonde);
-				}else{
-				$modal=modalAlbaranes($datosAdjunto['datos'], $dedonde);
-				}
+				$modal=modalAdjunto($datosAdjunto['datos'], $dedonde);
 				$respuesta['html']=$modal['html'];
 			}
 		echo json_encode($respuesta);
