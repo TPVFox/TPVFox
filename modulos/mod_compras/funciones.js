@@ -1,8 +1,6 @@
 //Función que controla las acciones que llegan del xml
 function controladorAcciones(caja,accion, tecla){
-	
 	switch(accion) {
-		
 		case 'buscarProveedor':
 			console.log("Estoy en buscar proveedor");
 			if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
@@ -37,8 +35,6 @@ function controladorAcciones(caja,accion, tecla){
 					d_focus='ultimo_coste_'+parseInt(caja.fila);
 				}
 			}
-			
-			
 			ponerFocus(d_focus);
 		break;
 		case  'saltar_productos':
@@ -226,18 +222,15 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 					var id = '#N'+productos[nfila].nfila+'_Importe';
 					importe = productos[nfila].importe.toFixed(2);
 					$(id).html(importe);
-					if (dedonde=="albaran"){
-						addTemporal(dedonde);
-					}
-					if (dedonde=="factura"){
-						addFacturaTemporal();
-					}
+					addTemporal(dedonde);
 				}
 		}
 	});
 }
-// funcion para la busqueda de pedido
 function buscarPedido(valor=""){
+	//@Objetivo:Buscar los pedidos con estado Guardado de un idProveedor determinado
+	//@Parametros:
+	//valor: número del pedido introducido 
 	var parametros ={
 		'pulsado':"BuscarPedido",
 		'numPedido':valor,
@@ -420,7 +413,7 @@ function  buscarAlbaran(valor=""){
 							}
 							//Como solo desde facturas podemos llamar a esta función pues automaticamente llama a la función
 							//de añadir una factura temporal, si no fuera el caso tenemos que hace un if con el parametro dedonde
-							addFacturaTemporal();
+								addTemporal("factura");
 							//Modificamos el albaran con estado facturado para que no se pueda volver a añadir productos ni modificar
 							modificarEstado("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
 							//llamamos a agregar fila pedidos aunque sea albaranes por que realiza lo mismo
@@ -497,19 +490,8 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 					var d_focus='idArticulo';
 					ponerFocus(d_focus);
 				
-				}
-				console.log(id);
-				if (dedonde=="pedidos"){
-					addTemporal(dedonde);//Modificamos los productos del pedido
-				}
-				if(dedonde=="albaran"){
-					addTemporal(dedonde);
-				}
-				if (dedonde=="factura"){
-					addFacturaTemporal();
-				}
-				
-	
+			}
+				addTemporal(dedonde);
 		}
 	});
 	console.log(parametros);
@@ -655,22 +637,6 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 	});
 	
 }
-//Esta funcion se activa cuando en el modal de proveedor pinchamos encima de uno de los proveedores
-//Lo que hacemos es volver a la función buscar proveedor pero mandado de busqueda el id del nombre que hemos seleccionado
-// De esta manera nos ahorramos procedimientos
-//~ function escribirProveedorSeleccionado(id, nombre, dedonde){
-	//~ idcaja="id_proveedor";
-	//~ valor=id;
-	//~ $('#id_proveedor').val(id);
-	//~ $('#Proveedor').val(nombre);
-	//~ buscarProveedor(dedonde, idcaja, valor);
-	//~ cerrarPopUp();
-//~ }
-
-
-
-
-
 function comprobarPedidos(){
 //Comprobar pedidos, comprueba los pedidos que tiene en estado guardado el proveedor seleccionado
 //Si el proveedor tiene pedidos entonces activamos la tabla oculta para seleccionar los pedidos 
@@ -834,15 +800,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.importe=ultimoCoste.toFixed(2);
 			productos.push(datos);
 			var campo='Unidad_Fila_'+n_item;
-			if (dedonde=="pedidos"){
-				addTemporal(dedonde);
-			}
-			if (dedonde=="albaran"){
-				addTemporal(dedonde);
-			}
-			if (dedonde=="factura"){
-				addFacturaTemporal();
-			}
+			addTemporal(dedonde);
 			resetCampo(id_input);
 			AgregarFilaProductos(datos, dedonde, campo);
 			if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
@@ -904,152 +862,6 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 		}
 	});
 }
-//~ function addAlbaranTemp(){
-	//~ console.log('FUNCION Añadir albaran temporal JS-AJAX');
-	//~ var parametros = {
-		//~ "pulsado"    : 'addAlbaranTemporal',
-		//~ "idAlbaranTemp": cabecera.idTemporal,
-		//~ "idUsuario":cabecera.idUsuario,
-		//~ "idTienda":cabecera.idTienda,
-		//~ "estado":cabecera.estado,
-		//~ "idAlbaran":cabecera.idReal,
-		//~ //"numAlbaran":cabecera.numReal,
-		//~ "fecha":cabecera.fecha,
-		//~ "productos":productos,
-		//~ "pedidos":pedidos,
-		//~ "idProveedor":cabecera.idProveedor,
-		//~ "suNumero":cabecera.suNumero
-	//~ };
-	//~ console.log("ESTOY EN AÑADIR ALBARAN");
-	//~ console.log(parametros);
-	//~ $.ajax({
-		//~ data       : parametros,
-		//~ url        : 'tareas.php',
-		//~ type       : 'post',
-		//~ beforeSend : function () {
-			//~ console.log('******** estoy en añadir albaran temporal JS****************');
-		//~ },
-		//~ success    :  function (response) {
-			//~ console.log('Llegue devuelta respuesta de añadir albaran temporal');
-			//~ var resultado =  $.parseJSON(response); 
-		
-			//~ var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-
-			
-			//~ if (resultado.existe == 0){
-				//~ history.pushState(null,'','?tActual='+resultado.id);
-				//~ cabecera.idTemporal=resultado.id;
-			//~ }
-				
-			//~ resetearTotales();
-			
-			//~ // Ahora pintamos pie de ticket.
-			//~ if (resultado['totales']['total'] > 0 ){
-				//~ // Quiere decir que hay datos a mostrar en pie.
-				//~ pintamosTotales(resultado);
-			//~ }
-		//~ }
-	//~ });
-	
-//~ }
-
-function addFacturaTemporal(){
-	//Función para añadir o modificar una factura temporal
-//Metemos en parametros todo lo necesario para crear un temporal y lo único que hacemos es comprobar si existe lo modificamos
-//y si no lo creamos
-	console.log('FUNCION Añadir albaran temporal JS-AJAX');
-	var parametros = {
-		"pulsado"    : 'addFacturaTemporal',
-		"idFacturaTemp": cabecera.idTemporal,
-		"idUsuario":cabecera.idUsuario,
-		"idTienda":cabecera.idTienda,
-		"estado":cabecera.estado,
-		"idFactura":cabecera.idReal,
-		"numFactura":cabecera.numFactura,
-		"fecha":cabecera.fecha,
-		"productos":productos,
-		"albaranes":albaranes,
-		"idProveedor":cabecera.idProveedor,
-		"suNumero":cabecera.suNumero
-	};
-	console.log("ESTOY EN AÑADIR FACTURA");
-	console.log(parametros);
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en añadir albaran temporal JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir albaran temporal');
-			var resultado =  $.parseJSON(response); 
-		
-			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-
-			// Añadimos en la cabecera un el id que nos devuelve la funcion para tener control del temporal
-			if (resultado.existe == 0){
-				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idTemporal=resultado.id;
-			}
-				//Borramos los datos del calculo
-			resetearTotales();
-			
-			// Ahora pintamos pie de ticket.
-			if (resultado['totales']['total'] > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				pintamosTotales(resultado);
-				
-			}
-			
-			
-		}
-	});
-}
-
-//~ function addPedidoTemporal(){
-	//~ // Añadir un pedido temporal
-	//~ console.log('FUNCION Añadir pedido temporal JS-AJAX');
-	//~ console.log(productos);
-	//~ var parametros = {
-		//~ "pulsado"    : 'addPedidoTemporal',
-		//~ "numPedidoTemp": cabecera.idTemporal,
-		//~ "idUsuario":cabecera.idUsuario,
-		//~ "idTienda":cabecera.idTienda,
-		//~ "estadoPedido":cabecera.estado,
-		//~ "idPedido":cabecera.idReal,
-		//~ "fecha":cabecera.fecha,
-		//~ "productos":productos,
-		//~ "idProveedor":cabecera.idProveedor
-	//~ };
-	//~ console.log("ESTOY EN AÑADIR PEDIDO");
-	//~ $.ajax({
-		//~ data       : parametros,
-		//~ url        : 'tareas.php',
-		//~ type       : 'post',
-		//~ beforeSend : function () {
-			//~ console.log('******** estoy en añadir PEDIDO temporal JS****************');
-		//~ },
-		//~ success    :  function (response) {
-			//~ console.log('Llegue devuelta respuesta de añadir PEDIDO temporal');
-			//~ var resultado =  $.parseJSON(response); 
-			//~ var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-			//~ console.log(resultado.id.id);
-			//~ if (resultado.existe == 0){
-				//~ history.pushState(null,'','?tActual='+resultado.id);
-				//~ cabecera.idTemporal=resultado.id;
-			//~ }
-			//~ // Creo funcion para restear totales.	
-			//~ resetearTotales();
-			//~ // Ahora pintamos pie de ticket.
-			//~ if (resultado['totales']['total'] > 0 ){
-				//~ // Quiere decir que hay datos a mostrar en pie.
-				//~ pintamosTotales(resultado);
-			//~ }
-		//~ }
-	//~ });
-//~ }
-
 function addTemporal(dedonde=""){
 	console.log('FUNCION Añadir temporal JS-AJAX');
 	console.log(dedonde);
@@ -1058,6 +870,9 @@ function addTemporal(dedonde=""){
 	}
 	if (dedonde=="albaran"){
 		var pulsado='addAlbaranTemporal';
+	}
+	if (dedonde=="factura"){
+		var pulsado='addFacturaTemporal';
 	}
 	var parametros = {
 		"pulsado"    : pulsado,
@@ -1074,7 +889,10 @@ function addTemporal(dedonde=""){
 		parametros['pedidos']=pedidos;
 		parametros['suNumero']=cabecera.suNumero;
 	}
-	
+	if (dedonde=="factura"){
+		parametros['albaranes']=albaranes;
+		parametros['suNumero']=cabecera.suNumero;
+	}
 	console.log(parametros);
 	$.ajax({
 		data       : parametros,
@@ -1151,15 +969,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		var ultimoCoste= parseFloat(ultimoCoste);
 		datos.ultimoCoste=ultimoCoste.toFixed(2);
 		productos.push(datos);
-		if(dedonde=="pedidos"){
-			addTemporal(dedonde);
-		}
-		if (dedonde=="albaran"){
-			addTemporal(dedonde);
-		}
-		if (dedonde=="factura"){
-			addFacturaTemporal();
-		}
+		addTemporal(dedonde);
 		var num_item=datos.nfila;
 		var campo1='Unidad_Fila_'+num_item;
 		AgregarFilaProductos(datos, dedonde,  campo1);
@@ -1191,16 +1001,7 @@ function eliminarFila(num_item, valor=""){
 	
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
-		if (valor=="pedidos"){
-			addTemporal(valor);
-		
-		}
-		if (valor=="albaran"){
-			addTemporal(valor);
-		}
-		if (valor=="factura"){
-			addFacturaTemporal();
-		}
+		addTemporal(valor);
 	
 }
 function eliminarAdjunto(numRegistro, dedonde, nfila){
@@ -1220,9 +1021,6 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 	
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
-	if (dedonde=="pedido"){
-			addTemporal(dedonde);
-		}
 		if (dedonde=="albaran"){
 			for(i=0;i<productos.length; i++){
 				var numProducto=productos[i].numPedido;
@@ -1247,7 +1045,7 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 			console.log(albaranes[num].idAlbaran);
 			console.log("Voy a entrar en modificar albaran");
 			modificarEstado(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
-			addFacturaTemporal();
+			addTemporal(dedonde);;
 		}
 }
 function retornarFila(num_item, valor=""){
@@ -1278,18 +1076,7 @@ function retornarFila(num_item, valor=""){
 				$("#Unidad_Fila_" + productos[num].nfila).prop("disabled", false);
 				$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
 				$("#N" + productos[num].nfila + "_Unidad").val(productos[num].nunidades);
-			
-	if (valor=="pedido"){
-		addTemporal(valor);
-	}
-	if (valor=="albaran"){
-		addTemporal(valor);
-	}
-	if (valor=="factura"){
-		addFacturaTemporal();
-	}
-	
-	
+	addTemporal(valor);
 }
 
 function retornarAdjunto(numRegistro, dedonde, nfila){
@@ -1311,9 +1098,6 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 	
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarAdjunto('+numRegistro+' , '+"'"+dedonde+"', "+nfila+');"><span class="glyphicon glyphicon-trash"></span></a>');
-	if (dedonde=="pedido"){
-		addTemporal(dedonde);
-	}
 	if (dedonde=="albaran"){
 		for(i=0;i<productos.length; i++){
 				var numProducto=productos[i].numPedido;
@@ -1334,7 +1118,7 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 			}
 		num=nfila-1;
 		modificarEstado(dedonde, "Facturado", numRegistro, albaranes[num].idAlbaran);
-		addFacturaTemporal();
+			addTemporal(dedonde);
 	}
 }
 function recalculoImporte(cantidad, num_item, dedonde=""){
@@ -1363,18 +1147,7 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 		importe = importe.toFixed(2);
 		productos[num_item].importe=importe;
 		$(id).html(importe);
-		if (dedonde=="pedidos"){
-			addTemporal(dedonde);
-		}
-		if (dedonde=="albaran"){
-			addTemporal(dedonde);
-		}
-		if (dedonde=="factura"){
-			addFacturaTemporal();
-		}
-		
-		
-	
+		addTemporal(dedonde);
 	
 }
 function after_constructor(padre_caja,event){
@@ -1445,31 +1218,6 @@ function before_constructor(caja){
 function buscarReferencia(idinput){
 	console.log("Entre en buscar referencia");
 	$("#"+idinput).prop('disabled', false);
-	//fila=nfila-1;
-	//var coste=productos[fila].ultimoCoste;
-	//~ var parametros = {
-		//~ "pulsado"    : 'buscarReferencia',
-		//~ "idArticulo":idArticulo,
-		//~ "idProveedor":cabecera.idProveedor,
-		//~ "fila":fila,
-		//~ "coste":coste
-	//~ };
-	//~ $.ajax({
-			//~ data       : parametros,
-			//~ url        : 'tareas.php',
-			//~ type       : 'post',
-			//~ beforeSend : function () {
-				//~ console.log('******** estoy en buscarReferencia****************');
-			//~ },
-			//~ success    :  function (response) {
-				//~ console.log('Llegue devuelta respuesta de buscarReferencia');
-				//~ var resultado =  $.parseJSON(response); 
-				//~ titulo="Modificar referencia";
-				//~ html=resultado.html;
-				//~ abrirModal(titulo, html);
-				
-		//~ }
-	//~ });
 }
 //Esta función la utilizamos desde albarán o desde factura 
 //Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
@@ -1527,13 +1275,10 @@ function mover_down(fila,prefijo){
 			var d_focus = 'idArticulo';
 			ponerFocus(d_focus);
 		}
-	
-	
 }
 function sobreFila(cont){
 	$('#Fila_'+cont).css('background-color','lightblue');
 }
-
 function resetearTotales(){
 	// Funcion para resetear totales.
 	$('#tipo4').html('');
@@ -1548,8 +1293,6 @@ function resetearTotales(){
 	$('.totalImporte').html('');
 	
 }
-
-
 function pintamosTotales (DesgloseTotal) {
 	// Quiere decir que hay datos a mostrar en pie.
 	total = parseFloat(DesgloseTotal['totales']['total']) // varible global.

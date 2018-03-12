@@ -234,7 +234,7 @@ include './../../head.php';
 		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idFacturaTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
-		cabecera['numFactura'] = <?php echo $numFactura ;?>;
+	//	cabecera['numFactura'] = <?php echo $numFactura ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
 		cabecera['suNumero']=<?php echo $suNumero; ?>;

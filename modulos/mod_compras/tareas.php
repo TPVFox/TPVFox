@@ -334,12 +334,12 @@ switch ($pulsado) {
 		case 'addFacturaTemporal':
 			//Añadir factura temporal 
 			// [NOTA] Es igual que añadir pedido temporal con la diferencia de que cambia la tabla temporal de facturas
-			$idFacturaTemp=$_POST['idFacturaTemp'];
+			$idFacturaTemp=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
 			$estado=$_POST['estado'];
-			$idFactura=$_POST['idFactura'];
-			$numFactura=$_POST['numFactura'];
+			$idFactura=$_POST['idReal'];
+			//$numFactura=$_POST['numFactura'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
 			if(isset ($_POST['albaranes'])){
@@ -363,7 +363,7 @@ switch ($pulsado) {
 				$respuesta['sql1']=$rest['sql'];
 			}
 			if ($idFactura>0){
-				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
+				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $idFactura);
 				$respuesta['sql2']=$modId['sql'];
 				$estado="Sin Guardar";
 				$modEstado=$CFac->modEstadoFactura($idFactura, $estado);
