@@ -269,11 +269,11 @@ switch ($pulsado) {
 
 		case 'addAlbaranTemporal':
 			//Añade un albaran temporal es igual que la de pedidos pero esta vez en la tabla temporal de albaranes
-			$idAlbaranTemporal=$_POST['idAlbaranTemp'];
+			$idAlbaranTemporal=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
 			$estado=$_POST['estado'];
-			$idAlbaran=$_POST['idAlbaran'];
+			$idAlbaran=$_POST['idReal'];
 		//	$numAlbaran=$_POST['numAlbaran'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
