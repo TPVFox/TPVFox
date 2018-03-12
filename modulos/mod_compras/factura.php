@@ -373,7 +373,7 @@ if ($suNumero==0){
 			<div style="margin-top:-50px;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del albarán:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran()"></a>
+			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
 			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
 				<thead>
 				

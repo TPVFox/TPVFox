@@ -157,10 +157,12 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		case 'addPedidoAlbaran':
 		if (caja.darParametro('dedonde')=="albaran"){
-			buscarPedido(caja.darValor());
+			//buscarPedido(caja.darValor());
+			buscarAdjunto(caja.darParametro('dedonde'), caja.darValor());
 		}
 		if (caja.darParametro('dedonde')=="factura"){
-			buscarAlbaran(caja.darValor());
+			//buscarAlbaran(caja.darParametro('dedonde'), caja.darValor());
+			buscarAdjunto(caja.darParametro('dedonde'), caja.darValor());
 		}
 			
 		break;
@@ -225,17 +227,22 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 		}
 	});
 }
-function buscarPedido(valor=""){
-	//@Objetivo:Buscar los pedidos con estado Guardado de un idProveedor determinado
-	//@Parametros:
-	//valor: número del pedido introducido 
+
+function buscarAdjunto(dedonde, valor=""){
+	console.log("Entre en buscarAdjunto");
+	if (dedonde=="albaran"){
+		var pulsado ='BuscarPedido';
+		var titulo = 'Listado Pedidos ';
+	}else{
+		var pulsado='BuscarAlbaran';
+		var titulo= 'Listado Albaranes';
+	}
 	var parametros ={
-		'pulsado':"BuscarPedido",
-		'numPedido':valor,
-		'idProveedor':cabecera.idProveedor
+		'pulsado':pulsado,
+		'numReal':valor,
+		'idProveedor':cabecera.idProveedor,
+		'dedonde':dedonde
 	};
-	console.log("Entre en buscarPedido");
-	console.log(parametros);
 	$.ajax({
 			data       : parametros,
 			url        : 'tareas.php',
@@ -247,8 +254,8 @@ function buscarPedido(valor=""){
 				console.log('Llegue devuelta respuesta de buscar pedido');
 			var resultado =  $.parseJSON(response); 
 			var HtmlPedidos=resultado.html;
+			
 			if (valor==""){ // Si el valor esta vacio mostramos el modal con los pedidos de ese proveedor
-				var titulo = 'Listado Pedidos ';
 				abrirModal(titulo, HtmlPedidos);
 				
 			}else{
@@ -257,26 +264,43 @@ function buscarPedido(valor=""){
 					console.log("entre en resultados numero de items");
 					
 					var bandera=0;
-					for(i=0; i<pedidos.length; i++){//recorre todo el array de arrays de pedidos
+					if (dedonde=="albaran"){
+						var adjuntos=pedidos;
+					}else{
+						var adjuntos=albaranes;
+					}
+					
+					
+					for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
 						console.log("entre en el for");
-						var numeroPedido=pedidos[i].Numpedpro;
-						var numeroNuevo=resultado['datos'].Numpedpro;
-						if (numeroPedido == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
+						if (dedonde=="albaran"){
+							var numeroReal=adjuntos[i].Numpedpro;
+							var numeroNuevo=resultado['datos'].Numpedpro;
+						}else{
+							var numeroReal=adjuntos[i].Numalbpro;
+							var numeroNuevo=resultado['datos'].Numalbpro;
+						}
+						
+						if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
 						//del array pedidos entonces la bandera es igual a 1
 							bandera=bandera+1;
 						}
 					}
-						console.log(bandera);
+					
 						if (bandera==0){
-							console.log("Hay un resultado");
+						
 							var datos = [];
 							datos = resultado['datos'];
-							console.log(datos);
+							
 							var datos = [];
 							datos = resultado['datos'];
-							n_item=parseInt(pedidos.length)+1;
+							n_item=parseInt(adjuntos.length)+1;
 							datos.nfila=n_item;
-							pedidos.push(datos);
+							if (dedonde=="albaran"){
+								pedidos.push(datos);
+							}else{
+								albaranes.push(datos);
+							}
 							productosAdd=resultado.productos;
 							var prodArray=new Array();
 							var numFila=productos.length+1;
@@ -289,29 +313,35 @@ function buscarPedido(valor=""){
 								prod.crefProveedor=resultado.productos[i]['ref_prov'];
 								prod.estado=resultado.productos[i]['estadoLinea'];
 								prod.idArticulo=resultado.productos[i]['idArticulo'];
-								prod.idpedpro=resultado.productos[i]['idpedpro'];
 								prod.iva=resultado.productos[i]['iva'];
 								prod.ncant=resultado.productos[i]['ncant'];
 								prod.nfila=numFila;
-								prod.numPedido=resultado.productos[i]['Numpedpro'];
 								prod.nunidades=resultado.productos[i]['nunidades'];
 								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
-								//var bandera2=resultado.productos[i]['iva']/100;
 								prod.importe=resultado.productos[i]['costeSiva']*resultado.productos[i]['nunidades'];
+								if (dedonde=="albaran"){
+									prod.numPedido=resultado.productos[i]['Numpedpro'];
+									prod.idpedpro=resultado.productos[i]['idpedpro'];
+									var numAdjunto=resultado['datos'].Numpedpro;
+									var idAdjunto=resultado['datos'].idPedido;
+								}else{
+									prod.numAlbaran=resultado.productos[i]['Numalbpro'];
+									prod.idalbpro=resultado.productos[i]['idalbpro'];
+									var numAdjunto=resultado['datos'].Numalbpro;
+									var idAdjunto=resultado['datos'].idAlbaran;
+									
+								}
+							
 								productos.push(prod);
 								prodArray.push(prod);
 								numFila++;
 							}
-							//Como pedidos solo lo puede solitar si estamos en un albaran entonce utilizamos la siguiente función
-							// Si no fuera así tendriamos que realizar un if con de donde
-							addTemporal("albaran");
-							//Modificamos los pedidos introducimos a facturados para que no se puedan modificar una vez
-							// que ya estan metidos en el albaran
-							modificarEstado("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
+							addTemporal(dedonde);
+							modificarEstado(dedonde, "Facturado", numAdjunto, idAdjunto);
 							//Agregamos una nueva fila con los datos principales de pedidos
-							AgregarAdjunto(datos, "albaran");
+							AgregarAdjunto(datos, dedonde);
 							//Agregamos los productos de el pedido seleccionado
-							AgregarFilaProductos(prodArray, "albaran");
+							AgregarFilaProductos(prodArray, dedonde);
 							//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
 							//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
 							// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
@@ -323,114 +353,8 @@ function buscarPedido(valor=""){
 	
 		}
 	});
-	
+}
 
-}
-// Funcion que llamamos desde facturas para buscar los albaranes que estan en estado guardado y son del proveedor 
-// que tenemos seleccionado
-function  buscarAlbaran(valor=""){
-	console.log("Entre en buscar ALBARAN");
-	var parametros ={
-		'pulsado':"BuscarAlbaran",
-		'numAlbaran':valor,
-		'idProveedor':cabecera.idProveedor
-	};
-	console.log(parametros);
-	$.ajax({
-			data       : parametros,
-			url        : 'tareas.php',
-			type       : 'post',
-			beforeSend : function () {
-				console.log('******** estoy en buscar albaran JS****************');
-			},
-			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar albaran');
-			var resultado =  $.parseJSON(response); 
-			var HtmlAlbaranes=resultado.html;
-			// Si no metemos ningun valor muestra el modal con todos los albaranes que tenemos de ese proveedor
-			// con el estado guardado
-			if (valor==""){
-				var titulo = 'Listado Albaranes ';
-				abrirModal(titulo, HtmlAlbaranes);
-				
-			}else{
-				console.log(resultado.datos);
-				console.log(resultado);
-				if (resultado.Nitems>0){
-					console.log("entre en resultados numero de items");
-					
-					var bandera=0;
-					for(i=0; i<albaranes.length; i++){
-						console.log("entre en el for");
-						var numeroAlbaran=albaranes[i].Numalbpro;
-						var numeroNuevo=resultado['datos'].Numalbpro;
-						if (numeroAlbaran == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
-						//del array pedidos entonces la bandera es igual a 1
-							bandera=bandera+1;
-						}
-					}
-						console.log(bandera);
-						if (bandera==0){
-							console.log("Hay un resultado");
-							var datos = [];
-							datos = resultado['datos'];
-							console.log(datos);
-							var datos = [];
-							datos = resultado['datos'];
-							n_item=parseInt(albaranes.length)+1;
-							datos.nfila=n_item;
-							albaranes.push(datos);
-							productosAdd=resultado.productos;
-							var prodArray=new Array();
-							var numFila=productos.length+1;
-							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
-								//Recorremos todos los productos de ese albaran y vamos creando un objeto con cada uno
-								// para posteriormente añadirlos a los productos que ya tenemos
-								var prod = new Object();
-								prod.ccodbar=resultado.productos[i]['ccodbar'];
-								prod.cdetalle=resultado.productos[i]['cdetalle'];
-								prod.cref=resultado.productos[i]['cref'];
-								prod.crefProveedor=resultado.productos[i]['ref_prov'];
-								prod.estado=resultado.productos[i]['estadoLinea'];
-								prod.idArticulo=resultado.productos[i]['idArticulo'];
-								prod.idalbpro=resultado.productos[i]['idalbpro'];
-								prod.iva=resultado.productos[i]['iva'];
-								prod.ncant=resultado.productos[i]['ncant'];
-								prod.nfila=numFila;
-								prod.numAlbaran=resultado.productos[i]['Numalbpro'];
-								prod.nunidades=resultado.productos[i]['nunidades'];
-								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
-								var ultimoCoste= parseInt(resultado.productos[i]['costeSiva']);
-							//	var bandera2=parseInt(resultado.productos[i]['iva'])/100;
-								var cantidad=parseInt(resultado.productos[i]['nunidades']);
-								prod.importe=ultimoCoste*cantidad;
-								
-								productos.push(prod);
-								prodArray.push(prod);
-								numFila++;
-							}
-							//Como solo desde facturas podemos llamar a esta función pues automaticamente llama a la función
-							//de añadir una factura temporal, si no fuera el caso tenemos que hace un if con el parametro dedonde
-							addTemporal("factura");
-							//Modificamos el albaran con estado facturado para que no se pueda volver a añadir productos ni modificar
-							modificarEstado("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
-							//llamamos a agregar fila pedidos aunque sea albaranes por que realiza lo mismo
-							AgregarAdjunto(datos, "factura");
-							//Agregamos los productos
-							AgregarFilaProductos(prodArray, "factura");
-							//llamamos a la función cerrarPopUp por que cuando estamos en el modal y seleccionamos un albaran
-							//Lo que realmente hacemos es volver a llamar a esta función pero con el parametro de busqueda
-							//cubierto por el número del albaran de esta manera solo necesitamos una función para todo
-							cerrarPopUp();
-						}
-					
-				}
-			}
-	
-		}
-	});
-	
-}
 function modificarEstado(dedonde, estado, num="", id=""){
 	//~ @Objetivo: Modificar el estado según el id que llegue y de donde para poder filtrar
 	//~ @Parametros : el estado se envia en la función
@@ -647,11 +571,6 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 function comprobarAdjunto(dedonde){
 	//@Objetivo: comprobar si el proveedor tiene algun pedido o albaran Guardado que se pueda adjuntar tanto a la factura como al albaran
 	console.log("Entre en adjunto proveedor");
-	if (dedonde=="albaran"){
-		var pulsado='comprobarPedido';
-	}else{
-		var pulsado='comprobarAlbaranes';
-	}
 	var parametros = {
 		"pulsado"    :'comprobarAdjunto',
 		"idProveedor": cabecera.idProveedor,

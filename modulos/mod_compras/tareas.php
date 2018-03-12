@@ -152,8 +152,9 @@ switch ($pulsado) {
 		//@parametros: 
 		//numPedido: numero del pedido
 		//idProveedor: id del proveedor seleccionado
-		$numPedido=$_POST['numPedido'];
+		$numPedido=$_POST['numReal'];
 		$idProveedor=$_POST['idProveedor'];
+		$dedonde=$_POST['dedonde'];
 		$estado="Guardado";
 		$datosPedido=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado);
 		if (isset($datosPedido)){
@@ -169,7 +170,7 @@ switch ($pulsado) {
 				$respuesta['productos']=$productosPedido;
 			}else{
 				$respuesta=$datosPedido;
-				$modal=modalPedidos($datosPedido['datos']);
+				$modal=modalPedidos($datosPedido['datos'], $dedonde);
 				$respuesta['html']=$modal['html'];
 			}
 		}
@@ -181,9 +182,10 @@ switch ($pulsado) {
 			//Busca los albaranes con el estado guardado 
 			//Si obtiene un resultado crea el arra con los datos necesarios 
 			// si no muestra un modal
-			$numAlbaran=$_POST['numAlbaran'];
+			$numAlbaran=$_POST['numReal'];
 			$idProveedor=$_POST['idProveedor'];
 			$estado="Guardado";
+			$dedonde=$_POST['dedonde'];
 			$datosAlbaran=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAlbaran, $estado);
 			
 			if ($datosAlbaran['Nitem']==1){
@@ -199,7 +201,7 @@ switch ($pulsado) {
 				$respuesta['productos']=$productosAlbaran;
 			}else{
 				$respuesta['datos']=$datosAlbaran;
-				$modal=modalAlbaranes($datosAlbaran['datos']);
+				$modal=modalAlbaranes($datosAlbaran['datos'], $dedonde);
 				$respuesta['html']=$modal['html'];
 			}
 			echo json_encode($respuesta);

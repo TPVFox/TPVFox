@@ -380,18 +380,8 @@ function modificarArrayProductos($productos){
 	}
 	return $respuesta;
 }
-
-// html para cambio de referencia de proveedor
-//~ function htmlCambioRefProveedor($datos, $fila, $articulo, $coste){
-	//~ $resultado['html'] .='<label>Modificación de '.$articulo['articulo_name'].'</label>';
-	//~ $resultado['html'] .='<input type=text value="'.$fila.'" id="numFila" style="display:none">';
-	//~ $resultado['html'] .='<input type=text value="'.$datos['idArticulo'].'" id="idArticuloRef" style="display:none">';
-	//~ $resultado['html'] .='<input type=text value="'.$coste.'" id="coste" style="display:none">';
-	//~ $resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'" data-obj="inputCambioRef" name ="cambioRef" onkeydown="controlEventos(event)" onBlur="controlEventos(event)" id ="inputCambioRef">';
-	//~ return $resultado;
-//~ }
 //Modal para cuando buscamos un pedido de un proveedor en albaranes
-function modalPedidos($pedidos){
+function modalPedidos($pedidos, $dedonde){
 	$respuesta=array('html'=>'');
 		$contad = 0;
 	$respuesta['html'] .= '<table class="table table-striped"><thead>';
@@ -403,7 +393,7 @@ function modalPedidos($pedidos){
 	$respuesta['html'] .= '</thead><tbody>';
 	foreach ($pedidos as $pedido){
 	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarPedido('.$pedido['Numpedpro'].');">';
+	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$pedido['Numpedpro'].');">';
 	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
@@ -421,7 +411,7 @@ function modalPedidos($pedidos){
 	return $respuesta;
 }
 
-function modalAlbaranes($albaranes){
+function modalAlbaranes($albaranes, $dedonde){
 	// @ Objetivo:
 	// Crear html de Modal para cuando buscamos un albaran en facturas
 	// @ Parametros
@@ -437,7 +427,7 @@ function modalAlbaranes($albaranes){
 	$contad = 0;
 	foreach ($albaranes as $albaran){
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAlbaran('.$albaran['Numalbpro'].');">';
+		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$albaran['Numalbpro'].');">';
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
