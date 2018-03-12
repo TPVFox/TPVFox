@@ -450,12 +450,12 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 		$respuesta['html']="";
 	if(isset($pedido)){
 		if ($pedido['estado']){
-			if ($pedido['Numalbpro']){
-				$num=$pedido['Numalbpro'];
+			if ($pedido['NumAdjunto']){
+				$num=$pedido['NumAdjunto'];
 			}
-			if ($pedido['Numpedpro']){
-				$num=$pedido['Numpedpro'];
-			}
+			//~ if ($pedido['Numpedpro']){
+				//~ $num=$pedido['Numpedpro'];
+			//~ }
 			if ($pedido['estado']=="activo"){
 				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
@@ -470,12 +470,13 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 			}
 		}
 		$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
-		if (isset($pedido['Numpedpro'])){
-			$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
-		}else{
-			$respuesta['html'] .='<td>'.$pedido['Numalbpro'].'</td>';
-		}
-		
+		if (isset($pedido['NumAdjunto'])){
+		//	$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
+		$respuesta['html'] .='<td>'.$pedido['NumAdjunto'].'</td>';
+		//~ }else{
+			//~ $respuesta['html'] .='<td>'.$pedido['Numalbpro'].'</td>';
+		//~ }
+	}
 		
 		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';

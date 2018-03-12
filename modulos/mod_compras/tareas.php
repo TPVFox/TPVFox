@@ -145,69 +145,11 @@ switch ($pulsado) {
 		echo json_encode($bandera);
 		break;
 	
-		//~ case 'BuscarPedido':
-		//~ //@Objetivo:
-		//~ //Buscar los pedidos con el estado guardado de un proveedor determinado 
-		//~ //Si solo resicibe un resultado monta el array si no muestra un modal con los pedidos de ese proveedor 
-		//~ //@parametros: 
-		//~ //numPedido: numero del pedido
-		//~ //idProveedor: id del proveedor seleccionado
-		//~ $numPedido=$_POST['numReal'];
-		//~ $idProveedor=$_POST['idProveedor'];
-		//~ $dedonde=$_POST['dedonde'];
-		//~ $estado="Guardado";
-		//~ $datosPedido=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado);
-		//~ if (isset($datosPedido)){
-			//~ if ($datosPedido['Nitem']==1){
-				//~ $respuesta['temporales']=1;
-				//~ $respuesta['datos']['Numpedpro']=$datosPedido['Numpedpro'];
-				//~ $respuesta['datos']['idPedido']=$datosPedido['id'];
-				//~ $respuesta['datos']['fecha']=$datosPedido['FechaPedido'];
-				//~ $respuesta['datos']['total']=$datosPedido['total'];
-				//~ $respuesta['datos']['estado']="activo";
-				//~ $respuesta['Nitems']=$datosPedido['Nitem'];
-				//~ $productosPedido=$CPed->ProductosPedidos($datosPedido['id']);
-				//~ $respuesta['productos']=$productosPedido;
-			//~ }else{
-				//~ $respuesta=$datosPedido;
-				//~ $modal=modalPedidos($datosPedido['datos'], $dedonde);
-				//~ $respuesta['html']=$modal['html'];
-			//~ }
-		//~ }
-		//~ echo json_encode($respuesta);
-		//~ break;
-		
-		//~ case 'BuscarAlbaran':
-			//~ //@Objetivo:
-			//~ //Busca los albaranes con el estado guardado 
-			//~ //Si obtiene un resultado crea el arra con los datos necesarios 
-			//~ // si no muestra un modal
-			//~ $numAlbaran=$_POST['numReal'];
-			//~ $idProveedor=$_POST['idProveedor'];
-			//~ $estado="Guardado";
-			//~ $dedonde=$_POST['dedonde'];
-			//~ $datosAlbaran=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAlbaran, $estado);
-			
-			//~ if ($datosAlbaran['Nitem']==1){
-				//~ $respuesta['temporales']=1;
-				//~ $respuesta['datos']['Numalbpro']=$datosAlbaran['Numalbpro'];
-				//~ $respuesta['datos']['idAlbaran']=$datosAlbaran['id'];
-				//~ $date = new DateTime($datosAlbaran['Fecha']);
-				//~ $respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
-				//~ $respuesta['datos']['total']=$datosAlbaran['total'];
-				//~ $respuesta['datos']['estado']="activo";
-				//~ $respuesta['Nitems']=$datosAlbaran['Nitem'];
-				//~ $productosAlbaran=$CAlb->ProductosAlbaran($datosAlbaran['id']);
-				//~ $respuesta['productos']=$productosAlbaran;
-			//~ }else{
-				//~ $respuesta['datos']=$datosAlbaran;
-				//~ $modal=modalAlbaranes($datosAlbaran['datos'], $dedonde);
-				//~ $respuesta['html']=$modal['html'];
-			//~ }
-			//~ echo json_encode($respuesta);
-		//~ break;
-			
 		case 'buscarAdjunto':
+		//@objetivo:
+		//buscar si el numero de adjunto (número de pedido o albarán )
+		//carga los datos principales y sus productos
+		
 			$numAdjunto=$_POST['numReal'];
 			$idProveedor=$_POST['idProveedor'];
 			$estado="Guardado";

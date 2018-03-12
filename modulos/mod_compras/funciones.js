@@ -229,14 +229,13 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 }
 
 function buscarAdjunto(dedonde, valor=""){
+	//@Objetivo: cada vez que vamos a adjuntar un pedido o un albaran a una factura o albaran ejecutamos esta función que 
+	//carga tanto los productos del adjunto como realiza la comprobación de si ya existe ....
+	//@parametros: 
+	//dedonde:desde donde estamos ejecutando la función
+	//valor: numero de pedido o albarán que vamos a adjuntar
 	console.log("Entre en buscarAdjunto");
-	if (dedonde=="albaran"){
-		var pulsado ='BuscarPedido';
-		var titulo = 'Listado Pedidos ';
-	}else{
-		var pulsado='BuscarAlbaran';
-		var titulo= 'Listado Albaranes';
-	}
+	
 	var parametros ={
 		'pulsado':'buscarAdjunto',
 		'numReal':valor,
@@ -256,31 +255,31 @@ function buscarAdjunto(dedonde, valor=""){
 			var HtmlPedidos=resultado.html;
 			
 			if (valor==""){ // Si el valor esta vacio mostramos el modal con los pedidos de ese proveedor
+				if (dedonde=="albaran"){
+					var titulo = 'Listado Pedidos ';
+				}else{
+					var titulo= 'Listado Albaranes';
+				}
 				abrirModal(titulo, HtmlPedidos);
 				
 			}else{
 				console.log(resultado.datos);
 				if (resultado.Nitems>0){
 					console.log("entre en resultados numero de items");
-					
 					var bandera=0;
 					if (dedonde=="albaran"){
 						var adjuntos=pedidos;
 					}else{
 						var adjuntos=albaranes;
 					}
-					
-					
 					for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
 						console.log("entre en el for");
 						if (dedonde=="albaran"){
 							var numeroReal=adjuntos[i].Numpedpro;
-							var numeroNuevo=resultado['datos'].Numpedpro;
 						}else{
 							var numeroReal=adjuntos[i].Numalbpro;
-							var numeroNuevo=resultado['datos'].Numalbpro;
 						}
-						
+						var numeroNuevo=resultado['datos'].NumAdjunto;
 						if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
 						//del array pedidos entonces la bandera es igual a 1
 							bandera=bandera+1;
@@ -322,16 +321,12 @@ function buscarAdjunto(dedonde, valor=""){
 								if (dedonde=="albaran"){
 									prod.numPedido=resultado.productos[i]['Numpedpro'];
 									prod.idpedpro=resultado.productos[i]['idpedpro'];
-									var numAdjunto=resultado['datos'].Numpedpro;
-									var idAdjunto=resultado['datos'].idPedido;
 								}else{
 									prod.numAlbaran=resultado.productos[i]['Numalbpro'];
 									prod.idalbpro=resultado.productos[i]['idalbpro'];
-									var numAdjunto=resultado['datos'].Numalbpro;
-									var idAdjunto=resultado['datos'].idAlbaran;
-									
 								}
-							
+								var numAdjunto=resultado['datos'].NumAdjunto;
+								var idAdjunto=resultado['datos'].idAdjunto;
 								productos.push(prod);
 								prodArray.push(prod);
 								numFila++;
