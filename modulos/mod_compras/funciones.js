@@ -653,7 +653,7 @@ function comprobarAdjunto(dedonde){
 		var pulsado='comprobarAlbaranes';
 	}
 	var parametros = {
-		"pulsado"    :pulsado,
+		"pulsado"    :'comprobarAdjunto',
 		"idProveedor": cabecera.idProveedor,
 		"dedonde":dedonde
 	};

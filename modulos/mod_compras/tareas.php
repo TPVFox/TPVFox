@@ -127,34 +127,22 @@ switch ($pulsado) {
 		
 		break;
 		
-		case 'comprobarPedido':
-		//@Objetivo: comprobar los pedidos guardados para mostrar el la tabla de pedidos adjunto en albaranes
-		//@parametros: id_proveedor: id del proveedor
-			$estado="Guardado";
-			$idProveedor=$_POST['idProveedor'];
-			$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
-			if (count($buscar)>0){
-				$bandera=1;
-			}else{
-				$bandera=2;
-			}
-			
-			echo json_encode($bandera);
-		break;
-
-		case 'comprobarAlbaranes':
-			//@Onjetivo:
-			//Comprueba los albaranes con el estado guardado
-			$estado="Guardado";
-			$idProveedor=$_POST['idProveedor'];
+		case 'comprobarAdjunto':
+		//@Objetivo:
+		//comprobar que el proveedor tiene albaran o pedido en estado guardado
+		$estado="Guardado";
+		$idProveedor=$_POST['idProveedor'];
+		if ($_POST['dedonde']=="factura"){
 			$buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
-			if (count($buscar)>0){
+		}else{
+			$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
+		}
+		if (count($buscar)>0){
 				$bandera=1;
 			}else{
 				$bandera=2;
 			}
-			
-			echo json_encode($bandera);
+		echo json_encode($bandera);
 		break;
 	
 		case 'BuscarPedido':
