@@ -92,9 +92,9 @@ if (isset($_POST['Guardar'])){
 	// Grabar el pedido.
 	// Si el pedido tiene total 0 se permite guarda.
 	// No se permite guardar si el pedido no tiene productos. ( lineas Activas ).
-	echo '<pre>';
-	print_r($_POST);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($_POST);
+	//~ echo '</pre>';
 	
 	
 	if ($_POST['idTemporal']){
@@ -152,7 +152,7 @@ if (isset($_POST['Guardar'])){
 		$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
 	}
 	
-	exit(); // De momento bloqueo redireccion ya que quiero ver que enviamos.
+	//~ exit(); // De momento bloqueo redireccion ya que quiero ver que enviamos.
 	header('Location: pedidosListado.php');
 	
 }
@@ -161,6 +161,7 @@ if (isset($_POST['Guardar'])){
 $parametros = simplexml_load_file('parametros.xml');
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+//~ echo $idPedido;
 ?>
 <script type="text/javascript">
 // Objetos cajas de tpv
@@ -176,7 +177,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estadoPedido'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
+		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
 		cabecera['idTemporal'] = <?php echo $numPedidoTemp ;?>;
 		cabecera['idReal'] = <?php echo $idPedido ;?>;
 	//	cabecera['numPedido']=<?php echo $numPedido;?>;

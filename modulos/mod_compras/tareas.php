@@ -209,24 +209,14 @@ switch ($pulsado) {
 		case 'addPedidoTemporal';
 			//Añadir un pedido temporal, recibe los campos necesarios para añadir el pedido
 			//Si ya existe modifica el registro si no lo crea, devuelve siempre el id del temporal
-			$numPedidoTemp=$_POST['numPedidoTemp'];
+			$numPedidoTemp=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
-			$estadoPedido=$_POST['estadoPedido'];
-			$idPedido=$_POST['idPedido'];
-			//$numPedido=$_POST['numPedido'];
+			$estadoPedido=$_POST['estado'];
+			$idPedido=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
 			$idProveedor=$_POST['idProveedor'];
-			//~ $cabecera=$_POST['cabecera'];
-			//~ $numPedidoTemp=$_POST['cabecera']['idTemporal'];
-			//~ $idUsuario=$_POST['cabecera']['idUsuario'];
-			//~ $idTienda=$_POST['cabecera']['idTienda'];
-			//~ $estadoPedido=$_POST['cabecera']['estadoPedido'];
-			//~ $idPedido=$_POST['cabecera']['idReal'];
-			//~ $fecha=$_POST['cabecera']['fecha'];
-			//~ $idProveedor=$_POST['cabecera']['idProveedor'];
-			//~ $productos=$_POST['productos'];
 			$existe=0; // Variable para devolver y saber si modifico o insert.
 			if ($numPedidoTemp>0){
 				$rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos);
@@ -284,7 +274,7 @@ switch ($pulsado) {
 			$idTienda=$_POST['idTienda'];
 			$estado=$_POST['estado'];
 			$idAlbaran=$_POST['idAlbaran'];
-			$numAlbaran=$_POST['numAlbaran'];
+		//	$numAlbaran=$_POST['numAlbaran'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
 			if (isset($_POST['pedidos'])){
@@ -310,7 +300,8 @@ switch ($pulsado) {
 				$idAlbaranTemporal=$res;
 			}
 			if ($idAlbaran>0){
-				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $numAlbaran);
+				//$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $numAlbaran);
+				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $idAlbaran);
 				$estado="Sin Guardar";
 				$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
 			}

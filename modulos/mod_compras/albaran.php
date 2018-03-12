@@ -250,7 +250,7 @@ include './../../head.php';
 		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
-		cabecera['numReal'] = <?php echo $numAlbaran ;?>;
+	//	cabecera['numReal'] = <?php echo $numAlbaran ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
 		cabecera['suNumero']=<?php echo $suNumero; ?>;
