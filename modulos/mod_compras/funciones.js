@@ -6,11 +6,9 @@ function controladorAcciones(caja,accion, tecla){
 			if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
 				var d_focus="Proveedor";
 				ponerFocus(d_focus);
-				
 			}else{
 				buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			}
-			
 		break;
 		case 'buscarProducto':
 			console.log("Pulse buscar Producto");
@@ -311,7 +309,7 @@ function buscarPedido(valor=""){
 							// que ya estan metidos en el albaran
 							modificarEstado("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
 							//Agregamos una nueva fila con los datos principales de pedidos
-							AgregarFilaPedido(datos, "albaran");
+							AgregarAdjunto(datos, "albaran");
 							//Agregamos los productos de el pedido seleccionado
 							AgregarFilaProductos(prodArray, "albaran");
 							//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
@@ -417,7 +415,7 @@ function  buscarAlbaran(valor=""){
 							//Modificamos el albaran con estado facturado para que no se pueda volver a añadir productos ni modificar
 							modificarEstado("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
 							//llamamos a agregar fila pedidos aunque sea albaranes por que realiza lo mismo
-							AgregarFilaPedido(datos, "factura");
+							AgregarAdjunto(datos, "factura");
 							//Agregamos los productos
 							AgregarFilaProductos(prodArray, "factura");
 							//llamamos a la función cerrarPopUp por que cuando estamos en el modal y seleccionamos un albaran
@@ -1053,15 +1051,11 @@ function retornarFila(num_item, valor=""){
 	// @Objetivo :
 	// Es pasar un producto eliminado a activo.
 	console.log("entre en retornar fila producto");
-	
-	
 	var line;
 	num=num_item-1;
-	
 	line = "#Row" +productos[num].nfila;
 	console.log(line);
 	// Nueva Objeto de productos.
-	
 	productos[num].estado= 'Activo';
 	console.log(productos[num]);
 	
@@ -1081,46 +1075,42 @@ function retornarFila(num_item, valor=""){
 }
 
 function retornarAdjunto(numRegistro, dedonde, nfila){
+	//@Objetivo: activar pedido o albaran con estado eliminado en albaran o factura
+	//@Parámetros:
+	//nunRegitro: número del pedido o albarán a activar
+	//dedonde: de donde venimos si de albaran o factura
+	//nfila: número de la fila
 	console.log("entre en retornar fila adjunto");
 	var estado="Guardado";
 	var line;
 	num=nfila-1;
-	console.log(num);
 	if (dedonde=="factura"){
 		line = "#lineaP" + albaranes[num].nfila;
-		console.log(line);
 		albaranes[num].estado= 'activo';
+		var idAdjunto=albaranes[num].idAlbaran;
 	}
 	if (dedonde=="albaran"){
 		line = "#lineaP" + pedidos[num].nfila;
-		console.log(line);
 		pedidos[num].estado= 'activo';
+		var idAdjunto=pedidos[num].idPedido;
 	}
 	
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarAdjunto('+numRegistro+' , '+"'"+dedonde+"', "+nfila+');"><span class="glyphicon glyphicon-trash"></span></a>');
-	if (dedonde=="albaran"){
-		for(i=0;i<productos.length; i++){
-				var numProducto=productos[i].numPedido;
+	for(i=0;i<productos.length; i++){
+				if (dedonde=="albaran"){
+					var numProducto=productos[i].numPedido;
+				}else{
+					var numProducto=productos[i].numAlbaran;
+				}
+				
 				if (numRegistro==numProducto){
 					retornarFila(productos[i].nfila, "bandera");
 				}
-			}
+	}
 		num=nfila-1;
-		modificarEstado(dedonde, "Facturado", numRegistro, pedidos[num].idPedido);
+		modificarEstado(dedonde, "Facturado", numRegistro, idAdjunto);
 		addTemporal(dedonde);
-	}
-	if (dedonde=="factura"){
-		for(i=0;i<productos.length; i++){
-				var numProducto=productos[i].numAlbaran;
-				if (numRegistro==numProducto){
-					retornarFila(productos[i].nfila, "bandera");
-				}
-			}
-		num=nfila-1;
-		modificarEstado(dedonde, "Facturado", numRegistro, albaranes[num].idAlbaran);
-			addTemporal(dedonde);
-	}
 }
 function recalculoImporte(cantidad, num_item, dedonde=""){
 	
@@ -1139,11 +1129,8 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 		}
 		productos[num_item].nunidades = cantidad;
 		var bandera=productos[num_item].iva/100;
-	//	var importe=(parseFloat(productos[num_item].ultimoCoste)+parseFloat(bandera))*cantidad;
-	var importe=parseFloat(productos[num_item].ultimoCoste)*cantidad;
+		var importe=parseFloat(productos[num_item].ultimoCoste)*cantidad;
 		console.log(productos[num_item].ultimoCoste+bandera);
-		//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
-		//var importe = cantidad*productos[num_item].precioCiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
 		productos[num_item].importe=importe;
@@ -1215,18 +1202,19 @@ function before_constructor(caja){
 	
 	return caja;	
 }
-//Función para la busqueda de referencia , comprobamos que ese articulo tenga o no una referencia del proveedor
 function buscarReferencia(idinput){
+	//@Objetivo:
+	// modificar el input del id para que se pueda modificar la referencia del proveedor articulo
 	console.log("Entre en buscar referencia");
 	$("#"+idinput).prop('disabled', false);
 }
-//Esta función la utilizamos desde albarán o desde factura 
-//Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
-function AgregarFilaPedido(datos, dedonde){
+function AgregarAdjunto(datos, dedonde){
+	//@	Objetivo: 
+	//Esta función la utilizamos desde albarán o desde factura 
+	//Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
 	console.log("Estoy en agregar fila Pedido");
-	console.log(datos);
 	var parametros = {
-		"pulsado"    : 'htmlAgregarFilaPedido',
+		"pulsado"    : 'htmlAgregarFilaAdjunto',
 		"datos" : datos,
 		"dedonde":dedonde
 	};
@@ -1250,13 +1238,13 @@ function AgregarFilaPedido(datos, dedonde){
 		}
 	});
 }
-//Mostrar la fila principal de articulos
 function mostrarFila(){
+	//@Objetivo: Mostrar la fila principal de articulos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 	$('#idArticulo').focus();
-	console.log("realizo funcion");
 }
+
 function mover_up(fila,prefijo){
 	console.log("entro en mover up");
 	console.log(fila);

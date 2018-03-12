@@ -409,7 +409,7 @@ switch ($pulsado) {
 			}
 			
 		break;
-		case 'htmlAgregarFilaPedido':
+		case 'htmlAgregarFilaAdjunto':
 			//Agrega tanto la fila de pedido como la de alabaranes
 			$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
