@@ -50,16 +50,12 @@ include './../../head.php';
 		$productos=json_decode(json_encode($productosFactura));
 		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosFactura), true);
-			//~ echo '<pre>';
-			//~ print_r($abaranesFactura);
-			//~ echo '</pre>';
+			
 		if ($abaranesFactura){
 			 $modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
-		//~ echo '<pre>';
-			//~ print_r($modificarAlbaran);
-			//~ echo '</pre>';
+		
 		$total=$Datostotales['total'];
 		
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
@@ -165,11 +161,6 @@ include './../../head.php';
 				$numFactura=0;
 				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
-				//~ echo '<pre>';
-				//~ print_r($datos['Albaranes']);
-				//~ echo '</pre>';
-				 //~ print_r($addNuevo);
-			
 		}
 		header('Location: facturasListado.php');
 	}
@@ -195,17 +186,13 @@ include './../../head.php';
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
 		
-		//~ echo '<pre>';
-		//~ print_r($albaranes);
-		//~ echo '</pre>';
+		
 		if ($albaranes || $comprobarAlbaran==1){
 			$style="";
 		}else{
 			$style="display:none;";
 		}
-		//~ echo '<pre>';
-		//~ print_r($albaranes);
-		//~ echo '</pre>';
+	
 		if($_GET['id'] >0 ||$_GET['tActual']>0){
 			$estiloTablaProductos="";
 		}else{
@@ -234,7 +221,6 @@ include './../../head.php';
 		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idFacturaTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
-	//	cabecera['numFactura'] = <?php echo $numFactura ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
 		cabecera['suNumero']=<?php echo $suNumero; ?>;
@@ -300,7 +286,6 @@ if ($suNumero==0){
 	include '../../header.php';
 ?>
 <script type="text/javascript">
-// Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -551,19 +536,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	//~ if ($datosAlbaran['estado']=="Facturado"){
-		//~ ?>
-		//~ $("#tabla").find('input').attr("disabled", "disabled");
-		//~ $("#tabla").find('a').css("display", "none");
-		//~ $("#tablaPedidos").css("display", "none");
-		//~ $("#numPedidoT").css("display", "none");
-		//~ $("#numPedido").css("display", "none");
-		//~ $("#buscarPedido").css("display", "none");
-		//~ $("#bGuardar").css("display", "none");
-		//~ $("#bCancelar").css("display", "none");
-		//~ <?php
-	//~ }
-	?>
+		 ?>
 </script>
 	</body>
 </html>
