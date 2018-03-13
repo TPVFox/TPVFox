@@ -224,7 +224,7 @@ switch ($pulsado) {
 				//Recalcula el valor de los productos
 					$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 					$respuesta['productosre']=$productos_para_recalculo;
-					$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+					$CalculoTotales = recalculoTotales($productos_para_recalculo);
 					$total=round($CalculoTotales['total'],2);
 					$respuesta['total']=round($CalculoTotales['total'],2);
 					//~ $nuevoArray = array(
@@ -288,7 +288,7 @@ switch ($pulsado) {
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$CalculoTotales = recalculoTotales($productos_para_recalculo);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=$total;
 				$nuevoArray = array(
@@ -351,7 +351,7 @@ switch ($pulsado) {
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$CalculoTotales = recalculoTotales($productos_para_recalculo);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=$total;
 				$nuevoArray = array(

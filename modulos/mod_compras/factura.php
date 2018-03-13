@@ -48,7 +48,7 @@ include './../../head.php';
 		}
 		$productosFactura=modificarArrayProductos($productosFactura);
 		$productos=json_decode(json_encode($productosFactura));
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosFactura), true);
 			//~ echo '<pre>';
 			//~ print_r($abaranesFactura);
@@ -115,7 +115,7 @@ include './../../head.php';
 	if(isset($factura['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
-			$Datostotales = recalculoTotalesAl($productos);
+			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
 		//Para guardar cargamos todos los datos en un array , luego comprobamos que si el pedido existe si es así lo borramos

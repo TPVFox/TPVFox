@@ -51,7 +51,7 @@ include './../../head.php';
 		$productosAlbaran=modificarArrayProductos($productosAlbaran);
 		$productos=json_decode(json_encode($productosAlbaran));
 		//Calciular el total con los productos que estn registrados
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosAlbaran), true);
 		if ($pedidosAlbaran){
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
@@ -111,7 +111,7 @@ include './../../head.php';
 	if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
-			$Datostotales = recalculoTotalesAl($productos);
+			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
 		//Guardar el albarán para ello buscamos los datos en el albarán temporal, los almacenamos todos en un array

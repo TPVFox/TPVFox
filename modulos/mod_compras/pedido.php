@@ -46,10 +46,8 @@ include './../../head.php';
 			$nombreProveedor=$datosProveedor['nombrecomercial'];
 			$productosMod=modificarArrayProductos($productosPedido);
 			$productos=json_decode(json_encode($productosMod));
-			$Datostotales = recalculoTotalesAl($productos);
+			$Datostotales = recalculoTotales($productos);
 			$productos=json_decode(json_encode($productosMod), true);
-			//$total=$Datostotales['total'];
-			//$numPedido=$datosPedido['Numpedpro'];
 		}else{
 			$bandera=1;
 			//$fecha=date('Y-m-d');
@@ -83,7 +81,7 @@ include './../../head.php';
 if(isset($pedido['Productos'])){
 	// Obtenemos los datos totales;
 	// convertimos el objeto productos en array
-	$Datostotales = recalculoTotalesAl($productos);
+	$Datostotales = recalculoTotales($productos);
 	$productos = json_decode(json_encode($productos), true); // Array de arrays	
 }
 //  ---------  Control y procesos para guardar el pedido. ------------------ //

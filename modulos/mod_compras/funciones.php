@@ -213,7 +213,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	
 	
 }
-function recalculoTotalesAl($productos) {
+function recalculoTotales($productos) {
 	// @ Objetivo recalcular los totales y desglose del ticket
 	// @ Parametro:
 	// 	$productos (array) de objetos.
