@@ -54,12 +54,6 @@ class FacturasCompras extends ClaseCompras{
 	public function sumarIva($numFactura){
 		//@Objetivo:
 		//Sumar los resultado de importe iva y total base de una factura determinada
-		//~ $db=$this->db;
-		//~ $smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from facproIva where Numfacpro ='.$numFactura);
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $factura=$result;
-		//~ }
-		//~ return $factura;
 		$from_where= 'from facproIva where Numfacpro ='.$numFactura;
 		$factura = parent::sumarIvaBases($from_where);
 		
@@ -69,12 +63,6 @@ class FacturasCompras extends ClaseCompras{
 	public function datosFactura($idFactura){
 		//@Objetivo:
 		//Mostrar los datos de una factura determinada buscada por id
-		//~ $db=$this->db;
-		//~ $smt = $db->query ('SELECT * from facprot where id='.$idFactura);
-			//~ if ($result = $smt->fetch_assoc () ){
-			//~ $factura=$result;
-		//~ }
-		//~ return $factura;
 		$tabla='facprot';
 		$where='id='.$idFactura;
 		$factura = parent::SelectUnResult($tabla, $where);
@@ -84,13 +72,6 @@ class FacturasCompras extends ClaseCompras{
 	public function ProductosFactura($idFactura){
 		//@Objetivo:
 		//Buscar los productos de una factura determinada
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * from  facprolinea where idfacpro='.$idFactura);
-		//~ $facturaPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($facturaPrincipal,$result);
-		//~ }
-		//~ return $facturaPrincipal;
 		$tabla='facprolinea';
 		$where='idfacpro= '.$idFactura;
 		$factura = parent::SelectVariosResult($tabla, $where);
@@ -100,13 +81,6 @@ class FacturasCompras extends ClaseCompras{
 	public function IvasFactura($idFactura){
 		//@Objetivo:
 		//Buscar los ivas de una factura determinada
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * from  facproIva where idfacpro='.$idFactura);
-		//~ $facturaPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($facturaPrincipal,$result);
-		//~ }
-		//~ return $facturaPrincipal;
 		$tabla='facproIva';
 		$where='idfacpro= '.$idFactura;
 		$factura = parent::SelectVariosResult($tabla, $where);
@@ -116,13 +90,6 @@ class FacturasCompras extends ClaseCompras{
 	public function albaranesFactura($idFactura){
 		//@Objetivo:
 		//Buscar todos los albaranes de un id de factura determinado 
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * from  albprofac where idFactura='.$idFactura);
-		//~ $facturaPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($facturaPrincipal,$result);
-		//~ }
-		//~ return $facturaPrincipal;
 		$tabla='albprofac';
 		$where='idFactura= '.$idFactura;
 		$factura = parent::SelectVariosResult($tabla, $where);
@@ -132,12 +99,6 @@ class FacturasCompras extends ClaseCompras{
 	public function buscarFacturaTemporal($idFacturaTemporal){
 		//@Objetivo:
 		//Buscar los datos de una factura temporal
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * FROM facproltemporales WHERE id='.$idFacturaTemporal);
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $factura=$result;
-		//~ }
-		//~ return $factura;
 		$tabla='facproltemporales';
 		$where='id='.$idFacturaTemporal;
 		$factura = parent::SelectUnResult($tabla, $where);
@@ -147,12 +108,6 @@ class FacturasCompras extends ClaseCompras{
 	public function buscarFacturaNumero($numFactura){
 		//@Objetivo:
 		//Buscar los datos de un número de factura
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT * FROM facprot WHERE Numfacpro='.$numFactura);
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $factura=$result;
-		//~ }
-		//~ return $factura;
 		$tabla='facprot';
 		$where='Numfacpro='.$numFactura;
 		$factura = parent::SelectUnResult($tabla, $where);
