@@ -695,12 +695,19 @@ function comprobarAlbaran($idProveedor, $BDTpv){
 	return $bandera;
 }
 function guardarPedido($datosPost, $datosGet, $BDTpv){
+	//@OBjetivo: guardar el pedido , para ello busca primero si ya tiene un pedido real o no , si es asi lo elimina 
+	//Elimina también todos los registros de ese pedido real para poder añadir uno nuevo . Una vez que este guardado el nuevo registro 
+	//de pedido, eliminamos el temporal 
+	//@Parametros recibidos: 
+	//datosPost: son los datos del $_POST
+	//datosGet: son los datos del $_GET
+	//$BDTpv: son los datos de configuración para poder llamar a la clase correspondiente
+	//$error: crea todas las comprobaciones si algo no esta correcto se iguala a 1 y es la variable que retornamos
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	$error=0;
 	
 	$Cpedido=new PedidosCompras($BDTpv);
-	
 	if ($datosPost['idTemporal']){
 		$numPedidoTemp=$datosPost['idTemporal'];
 	}else{
@@ -708,48 +715,48 @@ function guardarPedido($datosPost, $datosGet, $BDTpv){
 	}
 	if (isset ($numPedidoTemp)) {
 		$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
-	if($pedidoTemporal['total']){
-		$total=$pedidoTemporal['total'];
-	}else{
-		$error=1;
-		$total=0;
-	}
-	if (isset($datosPost['fecha'])){
-		$bandera=new DateTime($datosPost['fecha']);
-		$fecha=$bandera->format('Y-m-d');
-	}else{
-		if ($pedidoTemporal['fechaInicio']){
-			$bandera=new DateTime($pedidoTemporal['fechaInicio']);
+		if($pedidoTemporal['total']){
+			$total=$pedidoTemporal['total'];
+		}else{
+			$error=1;
+			$total=0;
+		}
+		if (isset($datosPost['fecha'])){
+			$bandera=new DateTime($datosPost['fecha']);
 			$fecha=$bandera->format('Y-m-d');
 		}else{
-			$fecha=date('Y-m-d');		
+			if ($pedidoTemporal['fechaInicio']){
+				$bandera=new DateTime($pedidoTemporal['fechaInicio']);
+				$fecha=$bandera->format('Y-m-d');
+			}else{
+				$fecha=date('Y-m-d');		
+			}
 		}
-	}
-	if ($pedidoTemporal['idPedpro']){
-		$datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
-		$numPedido=$datosPedidoReal['Numpedpro'];
-	}else{
-		$numPedido=0;
-	}
-	if (isset ($pedidoTemporal['Productos'])){
-		$productos=$pedidoTemporal['Productos'];
-	}else{
-		$error=1;
-	}
-	$fechaCreacion=date("Y-m-d H:i:s");
-	$datosPedido=array(
-		'Numtemp_pedpro'=>$numPedidoTemp,
-		'FechaPedido'=>$fecha,
-		'idTienda'=>$Tienda['idTienda'],
-		'idUsuario'=>$Usuario['id'],
-		'idProveedor'=>$pedidoTemporal['idProveedor'],
-		'estado'=>"Guardado",
-		'total'=>$total,
-		'numPedido'=>$numPedido,
-		'fechaCreacion'=>$fechaCreacion,
-		'Productos'=>$productos,
-		'DatosTotales'=>$Datostotales
-	);
+		if ($pedidoTemporal['idPedpro']){
+			$datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
+			$numPedido=$datosPedidoReal['Numpedpro'];
+		}else{
+			$numPedido=0;
+		}
+		if (isset ($pedidoTemporal['Productos'])){
+			$productos=$pedidoTemporal['Productos'];
+		}else{
+			$error=1;
+		}
+		$fechaCreacion=date("Y-m-d H:i:s");
+		$datosPedido=array(
+			'Numtemp_pedpro'=>$numPedidoTemp,
+			'FechaPedido'=>$fecha,
+			'idTienda'=>$Tienda['idTienda'],
+			'idUsuario'=>$Usuario['id'],
+			'idProveedor'=>$pedidoTemporal['idProveedor'],
+			'estado'=>"Guardado",
+			'total'=>$total,
+			'numPedido'=>$numPedido,
+			'fechaCreacion'=>$fechaCreacion,
+			'Productos'=>$productos,
+			'DatosTotales'=>$Datostotales
+		);
 	}else{
 		$error=1;
 	}
