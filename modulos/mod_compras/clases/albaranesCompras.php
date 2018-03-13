@@ -1,6 +1,6 @@
 <?php 
-
-class AlbaranesCompras{
+include_once ('./clases/ClaseCompras.php');
+class AlbaranesCompras extends ClaseCompras{
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
@@ -73,11 +73,9 @@ class AlbaranesCompras{
 	public function buscarAlbaranNumero($numAlbaran){
 		//@Objetivo:
 		//Buscamos los datos de un albarán real según el número del albarán.
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albprot WHERE Numalbpro='.$numAlbaran);
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
+		$tabla='albprot';
+		$where='Numalbpro='.$numAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
 	
@@ -186,19 +184,6 @@ class AlbaranesCompras{
 			return $albaranPrincipal;
 		
 	}
-	
-	public function TodosAlbaranes(){
-		//@Objetivo:
-		//Mostramos los datos principales de los albaranes de la tabla principal
-		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `albprot` as a LEFT JOIN proveedores as b on a.idProveedor =b.idProveedor ');
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
-	}
-	
 	public function TodosAlbaranesLimite($limite){
 		//@Objetivo:
 		//MOstramos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
@@ -214,73 +199,55 @@ class AlbaranesCompras{
 	public function sumarIva($numAlbaran){
 		//@Objetivo:
 		//Sumamos los importes iva y el total de la base de un número de albarán
-		$db=$this->db;
-		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from albproIva where  Numalbpro  ='.$numAlbaran);
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
+		$from_where= 'from albproIva where  Numalbpro  ='.$numAlbaran;
+		$albaran = parent::sumarIvaBases($from_where);
+		
 		return $albaran;
 	}
 	
 	public function datosAlbaran($idAlbaran){
 		//@Objetivo:
 		//MOstramos los datos de un albarán buscando por ID
-		$db=$this->db;
-		$smt = $db->query ('SELECT * from albprot where id='.$idAlbaran);
-			if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
+		$tabla='albprot';
+		$where='id='.$idAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
 	
 	public function ProductosAlbaran($idAlbaran){
 		//@Objetivo:
 		//BUscamos los productos de un determinado id de albarán
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  albprolinea where idalbpro='.$idAlbaran);
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
+		$tabla='albprolinea';
+		$where='idalbpro= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
 	}
 	
 	public function IvasAlbaran($idAlbaran){
 		//@Objetivo:
 		//Mostramos los registros de iva de un determinado albarán
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  albproIva where idalbpro='.$idAlbaran);
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
+		$tabla='albproIva';
+		$where='idalbpro= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
 	}
 	
 	public function PedidosAlbaranes($idAlbaran){
 		//@Objetivo:
 		//MUestra los pedidos de un número de albarán
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  pedproAlb where idAlbaran='.$idAlbaran);
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
+		$tabla='pedproAlb';
+		$where='idAlbaran= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
 	}
 		public function albaranesProveedorGuardado($idProveedor, $estado){
 		//@Objetivo:
 		//Muestra los albaranes de un proveedor determinado con el estado indicado. Principalmente la utilizamos para saber los
 		//albaranes de guardados de un proveedor para poder incluirlo en facturas
-
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'");
-		 $albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		
-		return $albaranesPrincipal;
+		$tabla='albprot';
+		$where='idProveedor= '.$idProveedor.' and estado='."'".$estado."'";
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
 	}
 	
 	public function buscarAlbaranProveedorGuardado($idProveedor, $numAlbaran, $estado){
