@@ -8,12 +8,21 @@ include './funciones.php';
 include ("./../../plugins/paginacion/paginacion.php");
 include ("./../../controllers/Controladores.php");
 include '../../clases/Proveedores.php';
-$CProv= new Proveedores($BDTpv);
 include 'clases/albaranesCompras.php';
+// Creamos el objeto de controlador.
+$Controler = new ControladorComun; 
+
+// Creamos el objeto de proveedor
+$CProv= new Proveedores($BDTpv);
+
+// Creamos el objeto de albarán
 $CAlb=new AlbaranesCompras($BDTpv);
+
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
-$palabraBuscar=array();
+
+	// --- Preparamos el Paginado --- //
+	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 10; // por defecto.
@@ -26,7 +35,7 @@ $palabraBuscar=array();
 		$stringPalabras = $_GET['buscar'];
 		$palabraBuscar = explode(' ',$_GET['buscar']); 
 	} 
-	$Controler = new ControladorComun; 
+	
 	$vista = 'albclit';
 	$LinkBase = './albaranesListado.php?';
 	$OtrosParametros = '';
@@ -36,21 +45,13 @@ $palabraBuscar=array();
 	} else {
 		$desde = 0;
 	}
-//~ if ($stringPalabras !== '' ){
-		//~ $campoBD='Numalbcli ';
-		//~ $WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		//~ $filtro=$WhereLimite['filtro'];
-		//~ $OtrosParametros=$stringPalabras;
-//~ }
 if ($stringPalabras !== '' ){
-	//	$campoBD='Numpedpro';
 		$campo = array( 'a.Numalbpro','b.nombrecomercial');
 		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
 		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
 		$OtrosParametros=$stringPalabras;
 		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
 	}
-//$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 $CantidadRegistros=count($CAlb->TodosAlbaranesLimite($WhereLimite['filtro']));
 $WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
@@ -60,8 +61,10 @@ if ($stringPalabras !== '' ){
 	} else {
 		$filtro= " ORDER BY Numalbpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
+	
+	
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-$albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
+	$albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
 ?>
 
 </head>
@@ -167,11 +170,9 @@ $albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
 					<?php 
 						$checkUser = 0;
 						foreach ($albaranesDef as $albaran){
-						
 							$checkUser = $checkUser + 1;
 							$totaliva=$CAlb->sumarIva($albaran['Numalbpro']);
 							$date=date_create($albaran['Fecha']);
-						//	$htmlImpirmir=montarHTMLimprimir($albaran['id'], $BDTpv, "albaran");
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $albaran['id'];?>">

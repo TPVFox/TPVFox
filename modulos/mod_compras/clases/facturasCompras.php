@@ -1,6 +1,6 @@
 <?php 
-
-class FacturasCompras{
+include_once ('./clases/ClaseCompras.php');
+class FacturasCompras extends ClaseCompras{
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
@@ -14,10 +14,10 @@ class FacturasCompras{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	//MUestra todos los temporales para el listado principal de factura
 	public function TodosTemporal(){
-			$db = $this->db;
-		//	$smt = $db->query ('SELECT * from facproltemporales');
+		//@Objetivo:
+		//Mostrar tod los temporales para el listado principal
+		$db = $this->db;
 		$smt=$db->query('SELECT tem.numfacpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial from facproltemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor ');
 			$facturaPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
@@ -26,8 +26,10 @@ class FacturasCompras{
 		return $facturaPrincipal;
 		
 	}
-	//Muestra todas las facturas , muestra solo los datos principales
+	
 	public function TodosFactura(){
+		//@Objetivo:
+		//Mostrar solo los datos principales de todas las facturas
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor ');
 		$facturaPrincipal=array();
@@ -36,8 +38,10 @@ class FacturasCompras{
 		}
 		return $facturaPrincipal;
 	}
-	//MUestra los datos principales de una factura con un límite de registros
+	
 	public function TodosFacturaLimite($limite){
+		//@Objetivo:
+		//Mostrar los datos principales de una factura con un límite de registros
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '.$limite);
 		$pedidosPrincipal=array();
@@ -46,74 +50,73 @@ class FacturasCompras{
 		}
 		return $pedidosPrincipal;
 	}
-	//Suma los resultado de importe iva y total base de una factura determinada
+	
 	public function sumarIva($numFactura){
-		$db=$this->db;
-		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from facproIva where Numfacpro ='.$numFactura);
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		//@Objetivo:
+		//Sumar los resultado de importe iva y total base de una factura determinada
+		$from_where= 'from facproIva where Numfacpro ='.$numFactura;
+		$factura = parent::sumarIvaBases($from_where);
+		
 		return $factura;
 	}
-	//MUestra los datos de una factura determinada buscada por id
+	
 	public function datosFactura($idFactura){
-		$db=$this->db;
-		$smt = $db->query ('SELECT * from facprot where id='.$idFactura);
-			if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		//@Objetivo:
+		//Mostrar los datos de una factura determinada buscada por id
+		$tabla='facprot';
+		$where='id='.$idFactura;
+		$factura = parent::SelectUnResult($tabla, $where);
 		return $factura;
 	}
-	//Buscar los productos de una factura determinada
+	
 	public function ProductosFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  facprolinea where idfacpro='.$idFactura);
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
+		//@Objetivo:
+		//Buscar los productos de una factura determinada
+		$tabla='facprolinea';
+		$where='idfacpro= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
+		return $factura;
 	}
-	//Busca los ivas de una factura determinada
+	
 	public function IvasFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  facproIva where idfacpro='.$idFactura);
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
+		//@Objetivo:
+		//Buscar los ivas de una factura determinada
+		$tabla='facproIva';
+		$where='idfacpro= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
+		return $factura;
 	}
-	//Busca todos los albaranes de un id de factura determinado 
+	
 	public function albaranesFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  albprofac where idFactura='.$idFactura);
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
+		//@Objetivo:
+		//Buscar todos los albaranes de un id de factura determinado 
+		$tabla='albprofac';
+		$where='idFactura= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
+		return $factura;
 	}
-	//Busca los datos de una factura temporal
+	
 	public function buscarFacturaTemporal($idFacturaTemporal){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM facproltemporales WHERE id='.$idFacturaTemporal);
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		//@Objetivo:
+		//Buscar los datos de una factura temporal
+		$tabla='facproltemporales';
+		$where='id='.$idFacturaTemporal;
+		$factura = parent::SelectUnResult($tabla, $where);
 		return $factura;
 	}
-	//Busca los datos de un número de factura
+	
 	public function buscarFacturaNumero($numFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM facprot WHERE Numfacpro='.$numFactura);
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		//@Objetivo:
+		//Buscar los datos de un número de factura
+		$tabla='facprot';
+		$where='Numfacpro='.$numFactura;
+		$factura = parent::SelectUnResult($tabla, $where);
 		return $factura;
 	}
-	//MOdfica los datos de una factura temporal
+	
 	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idFacturaTemp, $productos, $albaranes, $suNumero){
+		//@Objetivo:
+		//MOdficar los datos de una factura temporal
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoAlbaranes=json_encode($albaranes);
@@ -124,46 +127,46 @@ class FacturasCompras{
 		$respuesta['pedidos']=$UnicoCampoAlbaranes;
 		return $respuesta;
 	}
-	//Inserta los datos de una factura temporal nueva
+	
 	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $albaranes, $suNumero){
+		//@Objetivo:
+		//Insertar los datos de una factura temporal nueva
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$smt = $db->query ('INSERT INTO facproltemporales ( idUsuario , idTienda , estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoAlbaranes."'".', '.$suNumero.')');
 		$id=$db->insert_id;
-		$sql='INSERT INTO facproltemporales ( idUsuario , idTienda , estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoAlbaranes."'".', '.$suNumero.')';
 		$respuesta['id']=$id;
-		$respuesta['sql']=$sql;
 		$respuesta['productos']=$productos;
 		
 		return $respuesta;
 	}
-	//Añade a una factura temporal el número de la factura real en el caso de que exista factura real
+	
 	public function addNumRealTemporal($idTemporal, $idReal){
+		//@Objetivo:
+		//Añadir a una factura temporal el número de la factura real en el caso de que exista factura real
 		$db=$this->db;
 		$smt=$db->query('UPDATE facproltemporales set numfacpro ='.$idReal .'  where id='.$idTemporal);
-		$sql='UPDATE facproltemporales set numfacpro ='.$idReal .'  where id='.$idTemporal;
-		$resultado['sql']=$sql;
-		return $resultado;
 	}
-	//Modificar el estado de una factura
+	
 	public function modEstadoFactura($idFactura, $estado){
+		//@Objetivo:
+		//Modificar el estado de una factura
 		$db=$this->db;
 		$smt=$db->query('UPDATE facprot set estado="'.$estado .'"  where id='.$idFactura);
-		
-		$resultado['sql']=$sql;
-		return $resultado;
 	}
-	//Modificar el total de una factura temporal, lo hacemos cada vez que añadimos un producto nuevo
+	
 	public function modTotales($res, $total, $totalivas){
+		//@Objetivo:
+		//Modificar el total de una factura temporal, lo hacemos cada vez que añadimos un producto nuevo
 		$db=$this->db;
 		$smt=$db->query('UPDATE facproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
-		$sql='UPDATE facproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
-		$resultado['sql']=$sql;
 		return $resultado;
 	}
-	//Eliminamos todos los datos de una determinada factura
+	
 	public function eliminarFacturasTablas($idFactura){
+		//@Objetivo:
+		//Eliminar todos los datos de una determinada factura
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM facprot where id='.$idFactura );
 		$smt=$db->query('DELETE FROM facprolinea where 	idfacpro ='.$idFactura );
@@ -171,8 +174,10 @@ class FacturasCompras{
 		$smt=$db->query('DELETE FROM albprofac where idFactura ='.$idFactura );
 		
 	}
-	//Añadimos todos los datos de una factura nueva en las diferentes tablas
+	
 	public function AddFacturaGuardado($datos, $idFactura, $numFactura){
+		//@Objetivo:
+		//Añadir todos los datos de una factura nueva en las diferentes tablas
 		$db = $this->db;
 		if ($idFactura>0){
 			$smt = $db->query ('INSERT INTO facprot (id, Numfacpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_num_factura ) VALUES ('.$idFactura.' , '.$numFactura.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')');
@@ -183,8 +188,6 @@ class FacturasCompras{
 			$id=$db->insert_id;
 			$resultado['id']=$id;
 			$smt = $db->query('UPDATE facprot SET Numfacpro  = '.$id.' WHERE id ='.$id);
-			$sql='INSERT INTO facprot (Numtemp_facpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_num_factura) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')';
-			$resultado['sql']=$sql;
 		}
 		$productos = json_decode($datos['productos'], true);
 		foreach ( $productos as $prod){
@@ -206,10 +209,8 @@ class FacturasCompras{
 			}
 			if ($idFactura>0){
 			$smt=$db->query('INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numalbpro ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
-			$resultado['sqlPro']='INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numalbpro ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' ;
 			}else{
 			$smt=$db->query('INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numalbpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
-			$resultado['sqlPro']='INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numalbpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')';
 			}
 		}
 			
@@ -217,10 +218,8 @@ class FacturasCompras{
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idFactura>0){
 			$smt=$db->query('INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$idFactura.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
-			$resultado['sqlto']='INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$idFactura.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 			}else{
 			$smt=$db->query('INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
-			$resultado['sqlto']='INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 			}
 		}
 		$albaranes = json_decode($datos['albaranes'], true); 
@@ -229,25 +228,23 @@ class FacturasCompras{
 				if($idAlbaran>0){
 				
 				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')');
-				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')';
 				}else{
 				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')');
-				$resultado['sqlPed']='INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')';
 				}
 			}
 		}
 		return $resultado;
 	}
-	//CAda vez que guardamos una factura nueva o ya existente eliminamos su temporal
+	
 	public function EliminarRegistroTemporal($idTemporal, $idFactura){
+		//@Objetivo:
+		//CAda vez que guardamos una factura nueva o ya existente eliminamos su temporal
 		$db=$this->db;
 		if ($idFactura>0){
 			$smt=$db->query('DELETE FROM facproltemporales WHERE numfacpro ='.$idFactura);
-			$sql='DELETE FROM facproltemporales WHERE numfacpro ='.$idFactura;
 		}else{
 			$smt=$db->query('DELETE FROM facproltemporales WHERE id='.$idTemporal);
 		}
-		return $sql;
 	}
 }
 

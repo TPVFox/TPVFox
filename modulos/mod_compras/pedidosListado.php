@@ -118,7 +118,6 @@
 							if (isset ($todoTemporal)){
 								foreach ($todoTemporal as $pedidoTemp){
 									if ($pedidoTemp['idPedpro']){
-										//$numPedido=$Cpedido->datosPedidos($pedidoTemp['idPedpro']);
 										$numPed=$pedidoTemp['Numpedpro'];
 								}else{
 									$numPed="";
@@ -173,9 +172,6 @@
 							foreach($pedidosDef as $pedido){
 								$checkUser = $checkUser + 1;
 								$totaliva=$Cpedido->sumarIva($pedido['Numpedpro']);
-							//	$htmlImprimir=montarHTMLimprimir($pedido['id'], $BDTpv, "pedido");
-								
-							
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">

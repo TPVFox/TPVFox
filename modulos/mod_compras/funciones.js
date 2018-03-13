@@ -1,18 +1,14 @@
 //Función que controla las acciones que llegan del xml
 function controladorAcciones(caja,accion, tecla){
-	
 	switch(accion) {
-		
 		case 'buscarProveedor':
 			console.log("Estoy en buscar proveedor");
 			if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
 				var d_focus="Proveedor";
 				ponerFocus(d_focus);
-				
 			}else{
 				buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			}
-			
 		break;
 		case 'buscarProducto':
 			console.log("Pulse buscar Producto");
@@ -37,8 +33,6 @@ function controladorAcciones(caja,accion, tecla){
 					d_focus='ultimo_coste_'+parseInt(caja.fila);
 				}
 			}
-			
-			
 			ponerFocus(d_focus);
 		break;
 		case  'saltar_productos':
@@ -163,10 +157,12 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		case 'addPedidoAlbaran':
 		if (caja.darParametro('dedonde')=="albaran"){
-			buscarPedido(caja.darValor());
+			//buscarPedido(caja.darValor());
+			buscarAdjunto(caja.darParametro('dedonde'), caja.darValor());
 		}
 		if (caja.darParametro('dedonde')=="factura"){
-			buscarAlbaran(caja.darValor());
+			//buscarAlbaran(caja.darParametro('dedonde'), caja.darValor());
+			buscarAdjunto(caja.darParametro('dedonde'), caja.darValor());
 		}
 			
 		break;
@@ -226,25 +222,26 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 					var id = '#N'+productos[nfila].nfila+'_Importe';
 					importe = productos[nfila].importe.toFixed(2);
 					$(id).html(importe);
-					if (dedonde=="albaran"){
-						addAlbaranTemp();
-					}
-					if (dedonde=="factura"){
-						addFacturaTemporal();
-					}
+					addTemporal(dedonde);
 				}
 		}
 	});
 }
-// funcion para la busqueda de pedido
-function buscarPedido(valor=""){
+
+function buscarAdjunto(dedonde, valor=""){
+	//@Objetivo: cada vez que vamos a adjuntar un pedido o un albaran a una factura o albaran ejecutamos esta función que 
+	//carga tanto los productos del adjunto como realiza la comprobación de si ya existe ....
+	//@parametros: 
+	//dedonde:desde donde estamos ejecutando la función
+	//valor: numero de pedido o albarán que vamos a adjuntar
+	console.log("Entre en buscarAdjunto");
+	
 	var parametros ={
-		'pulsado':"BuscarPedido",
-		'numPedido':valor,
-		'idProveedor':cabecera.idProveedor
+		'pulsado':'buscarAdjunto',
+		'numReal':valor,
+		'idProveedor':cabecera.idProveedor,
+		'dedonde':dedonde
 	};
-	console.log("Entre en buscarPedido");
-	console.log(parametros);
 	$.ajax({
 			data       : parametros,
 			url        : 'tareas.php',
@@ -256,36 +253,53 @@ function buscarPedido(valor=""){
 				console.log('Llegue devuelta respuesta de buscar pedido');
 			var resultado =  $.parseJSON(response); 
 			var HtmlPedidos=resultado.html;
+			
 			if (valor==""){ // Si el valor esta vacio mostramos el modal con los pedidos de ese proveedor
-				var titulo = 'Listado Pedidos ';
+				if (dedonde=="albaran"){
+					var titulo = 'Listado Pedidos ';
+				}else{
+					var titulo= 'Listado Albaranes';
+				}
 				abrirModal(titulo, HtmlPedidos);
 				
 			}else{
 				console.log(resultado.datos);
 				if (resultado.Nitems>0){
 					console.log("entre en resultados numero de items");
-					
 					var bandera=0;
-					for(i=0; i<pedidos.length; i++){//recorre todo el array de arrays de pedidos
+					if (dedonde=="albaran"){
+						var adjuntos=pedidos;
+					}else{
+						var adjuntos=albaranes;
+					}
+					for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
 						console.log("entre en el for");
-						var numeroPedido=pedidos[i].Numpedpro;
-						var numeroNuevo=resultado['datos'].Numpedpro;
-						if (numeroPedido == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
+						if (dedonde=="albaran"){
+							var numeroReal=adjuntos[i].Numpedpro;
+						}else{
+							var numeroReal=adjuntos[i].Numalbpro;
+						}
+						var numeroNuevo=resultado['datos'].NumAdjunto;
+						if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
 						//del array pedidos entonces la bandera es igual a 1
 							bandera=bandera+1;
 						}
 					}
-						console.log(bandera);
+					
 						if (bandera==0){
-							console.log("Hay un resultado");
+						
 							var datos = [];
 							datos = resultado['datos'];
-							console.log(datos);
+							
 							var datos = [];
 							datos = resultado['datos'];
-							n_item=parseInt(pedidos.length)+1;
+							n_item=parseInt(adjuntos.length)+1;
 							datos.nfila=n_item;
-							pedidos.push(datos);
+							if (dedonde=="albaran"){
+								pedidos.push(datos);
+							}else{
+								albaranes.push(datos);
+							}
 							productosAdd=resultado.productos;
 							var prodArray=new Array();
 							var numFila=productos.length+1;
@@ -298,29 +312,31 @@ function buscarPedido(valor=""){
 								prod.crefProveedor=resultado.productos[i]['ref_prov'];
 								prod.estado=resultado.productos[i]['estadoLinea'];
 								prod.idArticulo=resultado.productos[i]['idArticulo'];
-								prod.idpedpro=resultado.productos[i]['idpedpro'];
 								prod.iva=resultado.productos[i]['iva'];
 								prod.ncant=resultado.productos[i]['ncant'];
 								prod.nfila=numFila;
-								prod.numPedido=resultado.productos[i]['Numpedpro'];
 								prod.nunidades=resultado.productos[i]['nunidades'];
 								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
-								var bandera2=resultado.productos[i]['iva']/100;
-								prod.importe=(bandera2+resultado.productos[i]['costeSiva'])*resultado.productos[i]['nunidades'];
+								prod.importe=resultado.productos[i]['costeSiva']*resultado.productos[i]['nunidades'];
+								if (dedonde=="albaran"){
+									prod.numPedido=resultado.productos[i]['Numpedpro'];
+									prod.idpedpro=resultado.productos[i]['idpedpro'];
+								}else{
+									prod.numAlbaran=resultado.productos[i]['Numalbpro'];
+									prod.idalbpro=resultado.productos[i]['idalbpro'];
+								}
+								var numAdjunto=resultado['datos'].NumAdjunto;
+								var idAdjunto=resultado['datos'].idAdjunto;
 								productos.push(prod);
 								prodArray.push(prod);
 								numFila++;
 							}
-							//Como pedidos solo lo puede solitar si estamos en un albaran entonce utilizamos la siguiente función
-							// Si no fuera así tendriamos que realizar un if con de donde
-							addAlbaranTemp();
-							//Modificamos los pedidos introducimos a facturados para que no se puedan modificar una vez
-							// que ya estan metidos en el albaran
-							modificarEstado("albaran", "Facturado", resultado['datos'].Numpedpro, resultado['datos'].idPedido);
+							addTemporal(dedonde);
+							modificarEstado(dedonde, "Facturado", numAdjunto, idAdjunto);
 							//Agregamos una nueva fila con los datos principales de pedidos
-							AgregarFilaPedido(datos, "albaran");
+							AgregarAdjunto(datos, dedonde);
 							//Agregamos los productos de el pedido seleccionado
-							AgregarFilaProductos(prodArray, "albaran");
+							AgregarFilaProductos(prodArray, dedonde);
 							//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
 							//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
 							// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
@@ -332,114 +348,8 @@ function buscarPedido(valor=""){
 	
 		}
 	});
-	
+}
 
-}
-// Funcion que llamamos desde facturas para buscar los albaranes que estan en estado guardado y son del proveedor 
-// que tenemos seleccionado
-function  buscarAlbaran(valor=""){
-	console.log("Entre en buscar ALBARAN");
-	var parametros ={
-		'pulsado':"BuscarAlbaran",
-		'numAlbaran':valor,
-		'idProveedor':cabecera.idProveedor
-	};
-	console.log(parametros);
-	$.ajax({
-			data       : parametros,
-			url        : 'tareas.php',
-			type       : 'post',
-			beforeSend : function () {
-				console.log('******** estoy en buscar albaran JS****************');
-			},
-			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar albaran');
-			var resultado =  $.parseJSON(response); 
-			var HtmlAlbaranes=resultado.html;
-			// Si no metemos ningun valor muestra el modal con todos los albaranes que tenemos de ese proveedor
-			// con el estado guardado
-			if (valor==""){
-				var titulo = 'Listado Albaranes ';
-				abrirModal(titulo, HtmlAlbaranes);
-				
-			}else{
-				console.log(resultado.datos);
-				console.log(resultado);
-				if (resultado.Nitems>0){
-					console.log("entre en resultados numero de items");
-					
-					var bandera=0;
-					for(i=0; i<albaranes.length; i++){
-						console.log("entre en el for");
-						var numeroAlbaran=albaranes[i].Numalbpro;
-						var numeroNuevo=resultado['datos'].Numalbpro;
-						if (numeroAlbaran == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
-						//del array pedidos entonces la bandera es igual a 1
-							bandera=bandera+1;
-						}
-					}
-						console.log(bandera);
-						if (bandera==0){
-							console.log("Hay un resultado");
-							var datos = [];
-							datos = resultado['datos'];
-							console.log(datos);
-							var datos = [];
-							datos = resultado['datos'];
-							n_item=parseInt(albaranes.length)+1;
-							datos.nfila=n_item;
-							albaranes.push(datos);
-							productosAdd=resultado.productos;
-							var prodArray=new Array();
-							var numFila=productos.length+1;
-							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
-								//Recorremos todos los productos de ese albaran y vamos creando un objeto con cada uno
-								// para posteriormente añadirlos a los productos que ya tenemos
-								var prod = new Object();
-								prod.ccodbar=resultado.productos[i]['ccodbar'];
-								prod.cdetalle=resultado.productos[i]['cdetalle'];
-								prod.cref=resultado.productos[i]['cref'];
-								prod.crefProveedor=resultado.productos[i]['ref_prov'];
-								prod.estado=resultado.productos[i]['estadoLinea'];
-								prod.idArticulo=resultado.productos[i]['idArticulo'];
-								prod.idalbpro=resultado.productos[i]['idalbpro'];
-								prod.iva=resultado.productos[i]['iva'];
-								prod.ncant=resultado.productos[i]['ncant'];
-								prod.nfila=numFila;
-								prod.numAlbaran=resultado.productos[i]['Numalbpro'];
-								prod.nunidades=resultado.productos[i]['nunidades'];
-								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
-								var ultimoCoste= parseInt(resultado.productos[i]['costeSiva']);
-								var bandera2=parseInt(resultado.productos[i]['iva'])/100;
-								var cantidad=parseInt(resultado.productos[i]['nunidades']);
-								prod.importe=(bandera2+ultimoCoste)*cantidad;
-								
-								productos.push(prod);
-								prodArray.push(prod);
-								numFila++;
-							}
-							//Como solo desde facturas podemos llamar a esta función pues automaticamente llama a la función
-							//de añadir una factura temporal, si no fuera el caso tenemos que hace un if con el parametro dedonde
-							addFacturaTemporal();
-							//Modificamos el albaran con estado facturado para que no se pueda volver a añadir productos ni modificar
-							modificarEstado("factura", "Facturado", resultado['datos'].Numalbpro, resultado['datos'].idAlbaran);
-							//llamamos a agregar fila pedidos aunque sea albaranes por que realiza lo mismo
-							AgregarFilaPedido(datos, "factura");
-							//Agregamos los productos
-							AgregarFilaProductos(prodArray, "factura");
-							//llamamos a la función cerrarPopUp por que cuando estamos en el modal y seleccionamos un albaran
-							//Lo que realmente hacemos es volver a llamar a esta función pero con el parametro de busqueda
-							//cubierto por el número del albaran de esta manera solo necesitamos una función para todo
-							cerrarPopUp();
-						}
-					
-				}
-			}
-	
-		}
-	});
-	
-}
 function modificarEstado(dedonde, estado, num="", id=""){
 	//~ @Objetivo: Modificar el estado según el id que llegue y de donde para poder filtrar
 	//~ @Parametros : el estado se envia en la función
@@ -463,8 +373,14 @@ function modificarEstado(dedonde, estado, num="", id=""){
 		}
 	});
 }
-// add una referencia de un proveedor a un articulo
 function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
+	//@Objetivo: añadir una referencia a un proveedor articulo o cambiarla en caso de que exista
+	//@parametros;
+	//idArticulo: id del articulo
+	//nfila:Número de la fila
+	//valor: referencia que le vamos a poner 
+	//coste : coste de la referencia
+	//dedonde: de donde venimos di pedidos , albaranes o facturas
 	console.log("ESTOY EN LA FUNCION ADD PROVEEDOR PRODUCTO");
 	console.log(nfila);
 	var parametros = {
@@ -497,19 +413,8 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 					var d_focus='idArticulo';
 					ponerFocus(d_focus);
 				
-				}
-				console.log(id);
-				if (dedonde=="pedidos"){
-					addPedidoTemporal();//Modificamos los productos del pedido
-				}
-				if(dedonde=="albaran"){
-					addAlbaranTemp();
-				}
-				if (dedonde=="factura"){
-					addFacturaTemporal();
-				}
-				
-	
+			}
+				addTemporal(dedonde);
 		}
 	});
 	console.log(parametros);
@@ -613,7 +518,8 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 				console.log(resultado);
 				if (resultado.Nitems==2){
 					alert("El id del proveedor no existe");
-					resetCampo(idcaja);
+					document.getElementById(idcaja).value='';
+					//resetCampo(idcaja);
 				}
 				if (popup=="popup"){
 					cerrarPopUp();
@@ -631,10 +537,12 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 					
 					//Dendiendo de donde venga realizamos unas funciones u otras
 					if (dedonde=="albaran"){
-						comprobarPedidos();
+						//comprobarPedidos();
+						comprobarAdjunto(dedonde);
 					}
 					if (dedonde=="factura"){
-						comprobarAlbaranes();
+						//comprobarAlbaranes();
+						comprobarAdjunto(dedonde);
 					}
 					if (dedonde=="pedidos"){
 						// Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
@@ -655,70 +563,15 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 	});
 	
 }
-//Esta funcion se activa cuando en el modal de proveedor pinchamos encima de uno de los proveedores
-//Lo que hacemos es volver a la función buscar proveedor pero mandado de busqueda el id del nombre que hemos seleccionado
-// De esta manera nos ahorramos procedimientos
-//~ function escribirProveedorSeleccionado(id, nombre, dedonde){
-	//~ idcaja="id_proveedor";
-	//~ valor=id;
-	//~ $('#id_proveedor').val(id);
-	//~ $('#Proveedor').val(nombre);
-	//~ buscarProveedor(dedonde, idcaja, valor);
-	//~ cerrarPopUp();
-//~ }
-
-
-
-
-
-function comprobarPedidos(){
-//Comprobar pedidos, comprueba los pedidos que tiene en estado guardado el proveedor seleccionado
-//Si el proveedor tiene pedidos entonces activamos la tabla oculta para seleccionar los pedidos 
-// Y ponemos el foco en numero de pedido
-//Si no tiene solo ponemos el foco en IdArticulo para que se empiece a poner articulos al albarán
+function comprobarAdjunto(dedonde){
+	//@Objetivo: comprobar si el proveedor tiene algun pedido o albaran Guardado que se pueda adjuntar tanto a la factura como al albaran
+	console.log("Entre en adjunto proveedor");
 	var parametros = {
-		"pulsado"    : 'comprobarPedido',
-		"idProveedor": cabecera.idProveedor
+		"pulsado"    :'comprobarAdjunto',
+		"idProveedor": cabecera.idProveedor,
+		"dedonde":dedonde
 	};
-		$.ajax({
-			data       : parametros,
-			url        : 'tareas.php',
-			type       : 'post',
-			beforeSend : function () {
-				console.log('******** estoy en buscar clientes JS****************');
-			},
-			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar clientes');
-				var resultado =  $.parseJSON(response);
-				 
-				if (resultado==1){
-					$('#numPedidoT').css("display", "block");
-					$('#numPedido').css("display", "block");
-					$('#buscarPedido').css("display", "block");
-					$('#tablaPedidos').css("display", "block");
-					ponerFocus('numPedido');
-				}else{
-					ponerFocus('idArticulo');
-				}
-				console.log(resultado);
-				
-	
-		}
-	});
-	
-	
-	
-}
-function comprobarAlbaranes(){
-//Esta función hace lo mismo que la anterior pero en vez de buscar pedidos busca albaranes ya que la llamamos desde facturas
-//Si obtiene un resultado muestra la tabla oculta y si no es asi pone el foco en idArticulo
-
-	console.log("Entre en comprobar albaranes");
-	var parametros = {
-		"pulsado"    : 'comprobarAlbaranes',
-		"idProveedor": cabecera.idProveedor
-	};
-		$.ajax({
+	$.ajax({
 			data       : parametros,
 			url        : 'tareas.php',
 			type       : 'post',
@@ -745,8 +598,6 @@ function comprobarAlbaranes(){
 		}
 	});
 }
-
-
 function abrirModal(titulo,tabla){
 	// @ Objetivo :
 	// Abril modal con texto buscado y con titulo que le indiquemos.
@@ -834,16 +685,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.importe=ultimoCoste.toFixed(2);
 			productos.push(datos);
 			var campo='Unidad_Fila_'+n_item;
-			if (dedonde=="pedidos"){
-				addPedidoTemporal();
-			}
-			if (dedonde=="albaran"){
-				addAlbaranTemp();
-			}
-			if (dedonde=="factura"){
-				addFacturaTemporal();
-			}
-			resetCampo(id_input);
+			addTemporal(dedonde)
+			document.getElementById(id_input).value='';
+			//resetCampo(id_input);
 			AgregarFilaProductos(datos, dedonde, campo);
 			if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
 				alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
@@ -904,178 +748,39 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 		}
 	});
 }
-function addAlbaranTemp(){
-	console.log('FUNCION Añadir albaran temporal JS-AJAX');
+function addTemporal(dedonde=""){
+	//@Objetivo: añadir un temporal , dependiendo de donde venga se cargan unos parámetros distintos
+	//@parámetros:
+	//dedonde: de donde venimos , pedidos, albaran, factura
+	console.log('FUNCION Añadir temporal JS-AJAX');
+	if (dedonde=="pedidos"){
+		var pulsado='addPedidoTemporal';
+	}
+	if (dedonde=="albaran"){
+		var pulsado='addAlbaranTemporal';
+	}
+	if (dedonde=="factura"){
+		var pulsado='addFacturaTemporal';
+	}
 	var parametros = {
-		"pulsado"    : 'addAlbaranTemporal',
-		"idAlbaranTemp": cabecera.idTemporal,
+		"pulsado"    : pulsado,
+		"idTemporal": cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
 		"estado":cabecera.estado,
-		"idAlbaran":cabecera.idReal,
-		"numAlbaran":cabecera.numReal,
-		"fecha":cabecera.fecha,
-		"productos":productos,
-		"pedidos":pedidos,
-		"idProveedor":cabecera.idProveedor,
-		"suNumero":cabecera.suNumero
-	};
-	console.log("ESTOY EN AÑADIR ALBARAN");
-	console.log(parametros);
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en añadir albaran temporal JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir albaran temporal');
-			var resultado =  $.parseJSON(response); 
-		
-			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-
-			
-			if (resultado.existe == 0){
-				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idTemporal=resultado.id;
-			}
-				
-			resetearTotales();
-			
-			// Ahora pintamos pie de ticket.
-			if (resultado['totales']['total'] > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				pintamosTotales(resultado);
-			}
-		}
-	});
-	
-}
-
-function addFacturaTemporal(){
-	//Función para añadir o modificar una factura temporal
-//Metemos en parametros todo lo necesario para crear un temporal y lo único que hacemos es comprobar si existe lo modificamos
-//y si no lo creamos
-	console.log('FUNCION Añadir albaran temporal JS-AJAX');
-	var parametros = {
-		"pulsado"    : 'addFacturaTemporal',
-		"idFacturaTemp": cabecera.idTemporal,
-		"idUsuario":cabecera.idUsuario,
-		"idTienda":cabecera.idTienda,
-		"estado":cabecera.estado,
-		"idFactura":cabecera.idReal,
-		"numFactura":cabecera.numFactura,
-		"fecha":cabecera.fecha,
-		"productos":productos,
-		"albaranes":albaranes,
-		"idProveedor":cabecera.idProveedor,
-		"suNumero":cabecera.suNumero
-	};
-	console.log("ESTOY EN AÑADIR FACTURA");
-	console.log(parametros);
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en añadir albaran temporal JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir albaran temporal');
-			var resultado =  $.parseJSON(response); 
-		
-			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-
-			// Añadimos en la cabecera un el id que nos devuelve la funcion para tener control del temporal
-			if (resultado.existe == 0){
-				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idTemporal=resultado.id;
-			}
-				//Borramos los datos del calculo
-			resetearTotales();
-			
-			// Ahora pintamos pie de ticket.
-			if (resultado['totales']['total'] > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				pintamosTotales(resultado);
-				
-			}
-			
-			
-		}
-	});
-}
-
-function addPedidoTemporal(){
-	// Añadir un pedido temporal
-	console.log('FUNCION Añadir pedido temporal JS-AJAX');
-	console.log(productos);
-	var parametros = {
-		"pulsado"    : 'addPedidoTemporal',
-		"numPedidoTemp": cabecera.idTemporal,
-		"idUsuario":cabecera.idUsuario,
-		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estadoPedido,
-		"idPedido":cabecera.idReal,
+		"idReal":cabecera.idReal,
 		"fecha":cabecera.fecha,
 		"productos":productos,
 		"idProveedor":cabecera.idProveedor
 	};
-	console.log("ESTOY EN AÑADIR PEDIDO");
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en añadir PEDIDO temporal JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir PEDIDO temporal');
-			var resultado =  $.parseJSON(response); 
-			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-			console.log(resultado.id.id);
-			if (resultado.existe == 0){
-				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idTemporal=resultado.id;
-			}
-			// Creo funcion para restear totales.	
-			resetearTotales();
-			// Ahora pintamos pie de ticket.
-			if (resultado['totales']['total'] > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				pintamosTotales(resultado);
-			}
-		}
-	});
-}
-
-function addTemporal(dedonde=""){
-	console.log('FUNCION Añadir temporal JS-AJAX');
-	//~ console.log(cabecera);
-	//~ var cab = [];
-	//~ cab[0]=cabecera;
-	//~ console.log(typeof productos);
-	var cab=JSON.stringify(cabecera)
-	console.log( cab);
-	//~ var parametros = {
-		//~ "pulsado"    : 'addPedidoTemporal',
-		//~ "numPedidoTemp": cabecera.idTemporal,
-		//~ "idUsuario":cabecera.idUsuario,
-		//~ "idTienda":cabecera.idTienda,
-		//~ "estadoPedido":cabecera.estadoPedido,
-		//~ "idPedido":cabecera.Real,
-		//~ "numPedido":cabecera.numReal,
-		//~ "fecha":cabecera.fecha,
-		//~ "productos":productos,
-		//~ "idProveedor":cabecera.idProveedor
-	//~ };
-	var parametros={
-		"pulsado" :'addPedidoTemporal',
-		"productos":productos,
-		'cab':cabecera
+	if (dedonde=="albaran"){
+		parametros['pedidos']=pedidos;
+		parametros['suNumero']=cabecera.suNumero;
 	}
-	
+	if (dedonde=="factura"){
+		parametros['albaranes']=albaranes;
+		parametros['suNumero']=cabecera.suNumero;
+	}
 	console.log(parametros);
 	$.ajax({
 		data       : parametros,
@@ -1152,117 +857,83 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		var ultimoCoste= parseFloat(ultimoCoste);
 		datos.ultimoCoste=ultimoCoste.toFixed(2);
 		productos.push(datos);
-		if(dedonde=="pedidos"){
-			addPedidoTemporal();
-		}
-		if (dedonde=="albaran"){
-			addAlbaranTemp();
-		}
-		if (dedonde=="factura"){
-			addFacturaTemporal();
-		}
+		addTemporal(dedonde);
 		var num_item=datos.nfila;
 		var campo1='Unidad_Fila_'+num_item;
 		AgregarFilaProductos(datos, dedonde,  campo1);
-		
-		resetCampo(campo);
+		document.getElementById(campo).value='';
+	//	resetCampo(campo);
 		var campo='Unidad_Fila_'+num_item;
 		cerrarPopUp(campo);
 }
-//Elimina el contenido del campo
-function resetCampo(campo){
-	console.log('Entro en resetCampo '+campo);
-	document.getElementById(campo).value='';
-	return;
-}
-function eliminarFila(num_item, valor=""){
-	//Función para cambiar el estado del producto
-	console.log("entre en eliminar Fila Producto");
+//~ //Elimina el contenido del campo
+//~ function resetCampo(campo){
 	
-	console.log(num_item);
+	//~ console.log('Entro en resetCampo '+campo);
+	//~ document.getElementById(campo).value='';
+	//~ return;
+//~ }
+function eliminarFila(num_item, valor=""){
+	//@Objetivo:
+	//Función para cambiar el estado del producto , deja en estado Eliminado el producto
+	console.log("entre en eliminar Fila Producto");
 	var line;
 	num=num_item-1;
-	console.log(num);
 	line = "#Row" + productos[num].nfila;
-	
-	console.log(line);
 	productos[num].estado= 'Eliminado';
-	
 	$(line).addClass('tachado');
-	
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
-		if (valor=="pedidos"){
-			addPedidoTemporal();
-		}
-		if (valor=="albaran"){
-			addAlbaranTemp();
-		}
-		if (valor=="factura"){
-			addFacturaTemporal();
-		}
+	addTemporal(valor);
 	
 }
 function eliminarAdjunto(numRegistro, dedonde, nfila){
+	//@Objetivo: esta acción se ejecuta cuando eleiminamos un pedio o albaran de albaranes o facturas 
+	//pone la fila de los datos del pedido y albaran como eliminada y todos sus productos
+	//@parámetros:
+	//numRegistro: número tanto del pedido como del alabarán
+	//dedonde: de donde venimos , pedidos , albaran o factura
+	//nfila: número de la fila del pedido o albarán
 	console.log("entre en eliminar Fila");
 	var line;
 	num=nfila-1;
 	if (dedonde=="factura"){
 		line = "#lineaP" + albaranes[num].nfila;
-		console.log(num);
 		albaranes[num].estado= 'Eliminado';
+		var idAdjunto=albaranes[num].idAlbaran;
 	}
 	if (dedonde=="albaran"){
 		line = "#lineaP" + pedidos[num].nfila;
-		console.log(num);
 		pedidos[num].estado= 'Eliminado';
+		
+		var idAdjunto=pedidos[num].idPedido;
 	}
-	
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
-	if (dedonde=="pedido"){
-			addPedidoTemporal();
-		}
-		if (dedonde=="albaran"){
-			for(i=0;i<productos.length; i++){
+		for(i=0;i<productos.length; i++){
+			if (dedonde=="albaran"){
 				var numProducto=productos[i].numPedido;
-				if (numRegistro == numProducto){
-					eliminarFila(productos[i].nfila, "bandera");
-					
-				}
-			}
-			num=nfila-1;
-			modificarEstado(dedonde, "Guardado", numRegistro, pedidos[num].idPedido);
-			addAlbaranTemp();
-		}
-		if (dedonde=="factura"){
-			for(i=0;i<productos.length; i++){
+				
+			}else{
 				var numProducto=productos[i].numAlbaran;
-				if (numRegistro == numProducto){
-					eliminarFila(productos[i].nfila, "bandera");
-					
-				}
 			}
-			num=nfila-1;
-			console.log(albaranes[num].idAlbaran);
-			console.log("Voy a entrar en modificar albaran");
-			modificarEstado(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
-			addFacturaTemporal();
+			if (numRegistro == numProducto){
+					eliminarFila(productos[i].nfila, "bandera");
+			}
 		}
+		
+		modificarEstado(dedonde, "Guardado", numRegistro, idAdjunto);
+		addTemporal(dedonde);
 }
 function retornarFila(num_item, valor=""){
 	// @Objetivo :
 	// Es pasar un producto eliminado a activo.
 	console.log("entre en retornar fila producto");
-	
-	
 	var line;
 	num=num_item-1;
-	
 	line = "#Row" +productos[num].nfila;
 	console.log(line);
 	// Nueva Objeto de productos.
-	
 	productos[num].estado= 'Activo';
 	console.log(productos[num]);
 	
@@ -1278,64 +949,46 @@ function retornarFila(num_item, valor=""){
 				$("#Unidad_Fila_" + productos[num].nfila).prop("disabled", false);
 				$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
 				$("#N" + productos[num].nfila + "_Unidad").val(productos[num].nunidades);
-			
-	if (valor=="pedido"){
-		addPedidoTemporal();
-	}
-	if (valor=="albaran"){
-		addAlbaranTemp();
-	}
-	if (valor=="factura"){
-		addFacturaTemporal();
-	}
-	
-	
+	addTemporal(valor);
 }
 
 function retornarAdjunto(numRegistro, dedonde, nfila){
+	//@Objetivo: activar pedido o albaran con estado eliminado en albaran o factura
+	//@Parámetros:
+	//nunRegitro: número del pedido o albarán a activar
+	//dedonde: de donde venimos si de albaran o factura
+	//nfila: número de la fila
 	console.log("entre en retornar fila adjunto");
 	var estado="Guardado";
 	var line;
 	num=nfila-1;
-	console.log(num);
 	if (dedonde=="factura"){
 		line = "#lineaP" + albaranes[num].nfila;
-		console.log(line);
 		albaranes[num].estado= 'activo';
+		var idAdjunto=albaranes[num].idAlbaran;
 	}
 	if (dedonde=="albaran"){
 		line = "#lineaP" + pedidos[num].nfila;
-		console.log(line);
 		pedidos[num].estado= 'activo';
+		var idAdjunto=pedidos[num].idPedido;
 	}
 	
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarAdjunto('+numRegistro+' , '+"'"+dedonde+"', "+nfila+');"><span class="glyphicon glyphicon-trash"></span></a>');
-	if (dedonde=="pedido"){
-		addPedidoTemporal();
-	}
-	if (dedonde=="albaran"){
-		for(i=0;i<productos.length; i++){
-				var numProducto=productos[i].numPedido;
+	for(i=0;i<productos.length; i++){
+				if (dedonde=="albaran"){
+					var numProducto=productos[i].numPedido;
+				}else{
+					var numProducto=productos[i].numAlbaran;
+				}
+				
 				if (numRegistro==numProducto){
 					retornarFila(productos[i].nfila, "bandera");
 				}
-			}
-		num=nfila-1;
-		modificarEstado(dedonde, "Facturado", numRegistro, pedidos[num].idPedido);
-		addAlbaranTemp();
 	}
-	if (dedonde=="factura"){
-		for(i=0;i<productos.length; i++){
-				var numProducto=productos[i].numAlbaran;
-				if (numRegistro==numProducto){
-					retornarFila(productos[i].nfila, "bandera");
-				}
-			}
 		num=nfila-1;
-		modificarEstado(dedonde, "Facturado", numRegistro, albaranes[num].idAlbaran);
-		addFacturaTemporal();
-	}
+		modificarEstado(dedonde, "Facturado", numRegistro, idAdjunto);
+		addTemporal(dedonde);
 }
 function recalculoImporte(cantidad, num_item, dedonde=""){
 	
@@ -1354,27 +1007,13 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 		}
 		productos[num_item].nunidades = cantidad;
 		var bandera=productos[num_item].iva/100;
-	//	var importe=(parseFloat(productos[num_item].ultimoCoste)+parseFloat(bandera))*cantidad;
-	var importe=parseFloat(productos[num_item].ultimoCoste)*cantidad;
+		var importe=parseFloat(productos[num_item].ultimoCoste)*cantidad;
 		console.log(productos[num_item].ultimoCoste+bandera);
-		//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
-		//var importe = cantidad*productos[num_item].precioCiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
 		productos[num_item].importe=importe;
 		$(id).html(importe);
-		if (dedonde=="pedidos"){
-			addPedidoTemporal();
-		}
-		if (dedonde=="albaran"){
-			addAlbaranTemp();
-		}
-		if (dedonde=="factura"){
-			addFacturaTemporal();
-		}
-		
-		
-	
+		addTemporal(dedonde);
 	
 }
 function after_constructor(padre_caja,event){
@@ -1441,43 +1080,19 @@ function before_constructor(caja){
 	
 	return caja;	
 }
-//Función para la busqueda de referencia , comprobamos que ese articulo tenga o no una referencia del proveedor
 function buscarReferencia(idinput){
+	//@Objetivo:
+	// modificar el input del id para que se pueda modificar la referencia del proveedor articulo
 	console.log("Entre en buscar referencia");
 	$("#"+idinput).prop('disabled', false);
-	//fila=nfila-1;
-	//var coste=productos[fila].ultimoCoste;
-	//~ var parametros = {
-		//~ "pulsado"    : 'buscarReferencia',
-		//~ "idArticulo":idArticulo,
-		//~ "idProveedor":cabecera.idProveedor,
-		//~ "fila":fila,
-		//~ "coste":coste
-	//~ };
-	//~ $.ajax({
-			//~ data       : parametros,
-			//~ url        : 'tareas.php',
-			//~ type       : 'post',
-			//~ beforeSend : function () {
-				//~ console.log('******** estoy en buscarReferencia****************');
-			//~ },
-			//~ success    :  function (response) {
-				//~ console.log('Llegue devuelta respuesta de buscarReferencia');
-				//~ var resultado =  $.parseJSON(response); 
-				//~ titulo="Modificar referencia";
-				//~ html=resultado.html;
-				//~ abrirModal(titulo, html);
-				
-		//~ }
-	//~ });
 }
-//Esta función la utilizamos desde albarán o desde factura 
-//Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
-function AgregarFilaPedido(datos, dedonde){
+function AgregarAdjunto(datos, dedonde){
+	//@	Objetivo: 
+	//Esta función la utilizamos desde albarán o desde factura 
+	//Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
 	console.log("Estoy en agregar fila Pedido");
-	console.log(datos);
 	var parametros = {
-		"pulsado"    : 'htmlAgregarFilaPedido',
+		"pulsado"    : 'htmlAgregarFilaAdjunto',
 		"datos" : datos,
 		"dedonde":dedonde
 	};
@@ -1501,13 +1116,13 @@ function AgregarFilaPedido(datos, dedonde){
 		}
 	});
 }
-//Mostrar la fila principal de articulos
 function mostrarFila(){
+	//@Objetivo: Mostrar la fila principal de articulos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 	$('#idArticulo').focus();
-	console.log("realizo funcion");
 }
+
 function mover_up(fila,prefijo){
 	console.log("entro en mover up");
 	console.log(fila);
@@ -1527,13 +1142,10 @@ function mover_down(fila,prefijo){
 			var d_focus = 'idArticulo';
 			ponerFocus(d_focus);
 		}
-	
-	
 }
 function sobreFila(cont){
 	$('#Fila_'+cont).css('background-color','lightblue');
 }
-
 function resetearTotales(){
 	// Funcion para resetear totales.
 	$('#tipo4').html('');
@@ -1548,8 +1160,6 @@ function resetearTotales(){
 	$('.totalImporte').html('');
 	
 }
-
-
 function pintamosTotales (DesgloseTotal) {
 	// Quiere decir que hay datos a mostrar en pie.
 	total = parseFloat(DesgloseTotal['totales']['total']) // varible global.

@@ -1,7 +1,5 @@
 <?php 
 
-//~ include '../../clases/Proveedores.php';
-//~ include 'clases/facturasCompras.php';
 include '../../configuracion.php';
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
@@ -10,7 +8,6 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
 	//		$dedonde  -> Nos indica de donde viene. ()
 	$resultado = array();
-	//$resultado['proveedores']=$proveedores;
 	$n_dedonde = 0 ; 
 	$resultado['encontrados'] = count($proveedores);
 	$idcaja;
@@ -33,10 +30,6 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 			
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-			//~ $resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			//~ .')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirProveedorSeleccionado('.$datos.",'".$dedonde."'".');">';
-		
-		
 		
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
 			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
@@ -98,11 +91,6 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 			.' ON a.idArticulo = ac.idArticulo '
 			.'  LEFT JOIN `articulosTiendas` '
 			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '.$buscar.' LIMIT 0 , 30 ';
-			//~ $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste, at.crefTienda , a.`iva` '
-			//~ .' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
-			//~ .' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
-			//~ .' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
-			//~ .' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
@@ -213,7 +201,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	
 	
 }
-function recalculoTotalesAl($productos) {
+function recalculoTotales($productos) {
 	// @ Objetivo recalcular los totales y desglose del ticket
 	// @ Parametro:
 	// 	$productos (array) de objetos.
@@ -221,11 +209,7 @@ function recalculoTotalesAl($productos) {
 	$desglose = array();
 	$subivas = 0;
 	$subtotal = 0;
-	//~ $productosTipo=gettype($productos);
-	//~ $respuesta['tipo']=$productosTipo;
-	// Creamos array de tipos de ivas hay en productos.
-	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
-	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
+	
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estado === 'Activo'){
@@ -250,14 +234,16 @@ function recalculoTotalesAl($productos) {
 		$subivas= $subivas+$desglose[$tipoIva]['iva'];
 		$subtotal= $subtotal +$desglose[$tipoIva]['BaseYiva'];
 	}
-	//~ $respuesta['ivas'] = $ivas;
+	
 	$respuesta['desglose'] = $desglose;
 	$respuesta['subivas']=$subivas;
 	$respuesta['total'] = number_format($subtotal,2);
 	return $respuesta;
 }
-// html de la linea de los productos tanto para pedido, albaran y factura
+
 function htmlLineaProducto($productos, $dedonde){
+	//@Objetivo:
+	// html de la linea de los productos tanto para pedido, albaran y factura
 	 $respuesta=array('html'=>'');
 	if(!is_array($productos)) {
 		// Comprobamos si product no es objeto lo convertimos.
@@ -351,8 +337,10 @@ function htmlLineaProducto($productos, $dedonde){
 		 $respuesta['productos']=$producto;
 	 return $respuesta;
 }
-// Modificar el array de productos para poder trabajar con el en pedidos
+
 function modificarArrayProductos($productos){
+	//@Objetivo:
+	// Modificar el array de productos para poder trabajar en facturas , pedidos y albaranes
 	$respuesta=array();
 	foreach ($productos as $producto){
 		$pro['ccodbar']=$producto['ccodbar'];
@@ -367,8 +355,6 @@ function modificarArrayProductos($productos){
 		if (isset ($producto['Numalbpro'])){
 			$pro['numAlbaran']=$producto['Numalbpro'];
 		}
-		//$bandera=$producto['iva']/100;
-		//$importe=($bandera+$producto['costeSiva'])*$producto['nunidades'];
 		$importe=$producto['costeSiva']*$producto['nunidades'];
 		$pro['importe']=$importe;
 		$pro['iva']=$producto['iva'];
@@ -381,52 +367,9 @@ function modificarArrayProductos($productos){
 	return $respuesta;
 }
 
-// html para cambio de referencia de proveedor
-//~ function htmlCambioRefProveedor($datos, $fila, $articulo, $coste){
-	//~ $resultado['html'] .='<label>Modificación de '.$articulo['articulo_name'].'</label>';
-	//~ $resultado['html'] .='<input type=text value="'.$fila.'" id="numFila" style="display:none">';
-	//~ $resultado['html'] .='<input type=text value="'.$datos['idArticulo'].'" id="idArticuloRef" style="display:none">';
-	//~ $resultado['html'] .='<input type=text value="'.$coste.'" id="coste" style="display:none">';
-	//~ $resultado['html'] .= '<input type=text value="'.$datos['crefProveedor'].'" data-obj="inputCambioRef" name ="cambioRef" onkeydown="controlEventos(event)" onBlur="controlEventos(event)" id ="inputCambioRef">';
-	//~ return $resultado;
-//~ }
-//Modal para cuando buscamos un pedido de un proveedor en albaranes
-function modalPedidos($pedidos){
-	$respuesta=array('html'=>'');
-		$contad = 0;
-	$respuesta['html'] .= '<table class="table table-striped"><thead>';
-	$respuesta['html'] .= '<th>';
-	$respuesta['html'] .='<td>Número </td>';
-	$respuesta['html'] .='<td>Fecha</td>';
-	$respuesta['html'] .='<td>Total</td>';
-	$respuesta['html'] .='</th>';
-	$respuesta['html'] .= '</thead><tbody>';
-	foreach ($pedidos as $pedido){
-	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarPedido('.$pedido['Numpedpro'].');">';
-	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-
-	$respuesta['html'].='<td>'.$pedido['Numpedpro'].'</td>';
-	$respuesta['html'].='<td>'.$pedido['FechaPedido'].'</td>';
-	$respuesta['html'].='<td>'.$pedido['total'].'</td>';
-	$respuesta['html'].='</tr>';
-	$contad = $contad +1;
-	if ($contad === 10){
-		break;
-	}
-				
-	}
-	$respuesta['html'].='</tbody></table>';
-	return $respuesta;
-}
-
-function modalAlbaranes($albaranes){
-	// @ Objetivo:
-	// Crear html de Modal para cuando buscamos un albaran en facturas
-	// @ Parametros
-	// $albaranes -> Array 
-		
+function modalAdjunto($adjuntos, $dedonde){
+	//@Objetivo: 
+	//retornar el html dle modal de adjuntos tanto como si buscamos un pedido en albaranes o un albarán en facturas
 	$respuesta['html']	.= '<table class="table table-striped"><thead>';
 	$respuesta['html']	.= '<th>';
 	$respuesta['html']	.= '<td>Número </td>';
@@ -435,15 +378,24 @@ function modalAlbaranes($albaranes){
 	$respuesta['html']	.= '</th>';
 	$respuesta['html'] 	.=  '</thead><tbody>';
 	$contad = 0;
-	foreach ($albaranes as $albaran){
+	
+	foreach ($adjuntos as $adjunto){
+		if ($dedonde=="albaran"){
+			$numAdjunto=$adjunto['Numpedpro'];
+			$fecha=$adjunto['FechaPedido'];
+		}else{
+			
+			$numAdjunto=$adjunto['Numalbpro'];
+			$fecha=$adjunto['Fecha'];
+		}
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAlbaran('.$albaran['Numalbpro'].');">';
+		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$numAdjunto.');">';
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
-		$respuesta['html']	.= '<td>'.$albaran['Numalbpro'].'</td>';
-		$respuesta['html']	.= '<td>'.$albaran['Fecha'].'</td>';
-		$respuesta['html']	.= '<td>'.$albaran['total'].'</td>';
+		$respuesta['html']	.= '<td>'.$numAdjunto.'</td>';
+		$respuesta['html']	.= '<td>'.$fecha.'</td>';
+		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
 		$respuesta['html']	.= '</tr>';
 		$contad = $contad +1;
 		if ($contad === 10){
@@ -455,40 +407,41 @@ function modalAlbaranes($albaranes){
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
 }
-//Agrega la linea de pedidos a un alabaran con los datos necesarios
-function lineaPedidoAlbaran($pedido, $dedonde){
+function lineaAdjunto($adjunto, $dedonde){
+	//@Objetivo:
+	//Retornar el html de la linea de adjuntos(esto puede ser un pedido en albarán o un albarán en factura).
+	//@Parametros:
+	//adjunto: los datos del albarán o pedido a adjuntar
+	//dedonde: de donde venimos si de albarán o de factura
 		$respuesta['html']="";
-	if(isset($pedido)){
-		if ($pedido['estado']){
-			if ($pedido['Numalbpro']){
-				$num=$pedido['Numalbpro'];
+	if(isset($adjunto)){
+		if ($adjunto['estado']){
+			if ($adjunto['NumAdjunto']){
+				$num=$adjunto['NumAdjunto'];
 			}
-			if ($pedido['Numpedpro']){
-				$num=$pedido['Numpedpro'];
+			if ($adjunto['Numpedpro']){
+				$num=$adjunto['Numpedpro'];
 			}
-			if ($pedido['estado']=="activo"){
-				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
+			if ($adjunto['estado']=="activo"){
+				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$adjunto['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
 				$estadoInput = '';
 			}else{
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
+				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 	
 			}
 		}
-		$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
-		if (isset($pedido['Numpedpro'])){
-			$respuesta['html'] .='<td>'.$pedido['Numpedpro'].'</td>';
-		}else{
-			$respuesta['html'] .='<td>'.$pedido['Numalbpro'].'</td>';
+		$respuesta['html'] .='<tr id="lineaP'.($adjunto['nfila']).'" '.$classtr.'>';
+		if (isset($adjunto['NumAdjunto'])){
+		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
 		
-		
-		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
-		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>';
+		$respuesta['html'] .='<td>'.$adjunto['total'].'</td>';
 		
 		$respuesta['html'].=$btnELiminar_Retornar;
 		$respuesta['html'] .='</tr>';
@@ -496,8 +449,10 @@ function lineaPedidoAlbaran($pedido, $dedonde){
 	return $respuesta;
 }
 
-//Modifica el array de pedidos . Esta función se carga en albaranes.php
+
 function modificarArrayPedidos($pedidos, $BDTpv){
+	//Objetivo : 
+	//Modificar el array de pedidos . Esta función se carga en albaranes.php
 	$respuesta=array();
 		$i=1;
 	foreach ($pedidos as $pedido){
@@ -517,8 +472,10 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 	}
 	return $respuesta;
 }
-//MOdifica el array de albaranes , esta función se carga en facturas.php
+
 function modificarArrayAlbaranes($alabaranes, $BDTpv){
+	//@Objetivo:
+	//MOdificar el array de albaranes , esta función se carga en facturas.php
 	$respuesta=array();
 	$i=1;
 	foreach ($alabaranes as $albaran){
@@ -538,12 +495,14 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 	}
 	return $respuesta;
 }
-//Función que monta el html del pdf, primero se carga los datos dependiendo de donde venga 
-//A continuación se va montando el html pero en dos partes :
-//				- UNa la cabecera : son los datos que queremos fijos en todas las páginas 
-//				- otro es el cuerpo 
-//No hayq eu preocuparse si es mucho contenido ya que la librería pasa automaticamente a la siguiente hoja
+
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
+	//@Objetivo:
+	//Función que monta el html del pdf, primero se carga los datos dependiendo de donde venga 
+	//A continuación se va montando el html pero en dos partes :
+	//				- UNa la cabecera : son los datos que queremos fijos en todas las páginas 
+	//				- otro es el cuerpo 
+	//No hayq eu preocuparse si es mucho contenido ya que la librería pasa automaticamente a la siguiente hoja
 	$CProv= new Proveedores($BDTpv);
 	if ($dedonde=="factura"){
 		$CFac=new FacturasCompras($BDTpv);
@@ -552,7 +511,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosFAc=$CFac->ProductosFactura($id);
 		$productosDEF=modificarArrayProductos($productosFAc);
 		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$texto="Factura Proveedor";
 		$numero=$datos['Numfacpro'];
 		$suNumero=$datos['su_num_factura'];
@@ -565,7 +524,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAlbaran=$CAlb->ProductosAlbaran($id);
 		$productosDEF=modificarArrayProductos($productosAlbaran);
 		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$texto="Albarán Proveedor";
 		$numero=$datos['Numalbpro'];
 		$suNumero=$datos['su_numero'];
@@ -573,11 +532,11 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	}
 	if ($dedonde=="pedido"){
 		$Cpedido=new PedidosCompras($BDTpv);
-		$datos=$Cpedido->datosPedidos($id);
+		$datos=$Cpedido->DatosPedido($id);
 		$productosPedido=$Cpedido->ProductosPedidos($id);
 		$productosDEF=modificarArrayProductos($productosPedido);
 		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
 		$texto="Pedido Proveedor";
 		$numero=$datos['Numpedpro'];
@@ -734,5 +693,165 @@ function comprobarAlbaran($idProveedor, $BDTpv){
 		$bandera=2;
 	}
 	return $bandera;
+}
+function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
+	//@OBjetivo: guardar el pedido , para ello busca primero si ya tiene un pedido real o no , si es asi lo elimina 
+	//Elimina también todos los registros de ese pedido real para poder añadir uno nuevo . Una vez que este guardado el nuevo registro 
+	//de pedido, eliminamos el temporal 
+	//@Parametros recibidos: 
+	//datosPost: son los datos del $_POST
+	//datosGet: son los datos del $_GET
+	//$BDTpv: son los datos de configuración para poder llamar a la clase correspondiente
+	//$error: crea todas las comprobaciones si algo no esta correcto se iguala a 1 y es la variable que retornamos
+	$Tienda = $_SESSION['tiendaTpv'];
+	$Usuario = $_SESSION['usuarioTpv'];
+	$error=0;
+	
+	$Cpedido=new PedidosCompras($BDTpv);
+	if ($datosPost['idTemporal']){
+		$numPedidoTemp=$datosPost['idTemporal'];
+	}else{
+		$numPedidoTemp=$datosGet['tActual'];
+	}
+	if (isset ($numPedidoTemp)) {
+		$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
+		if($pedidoTemporal['total']){
+			$total=$pedidoTemporal['total'];
+		}else{
+			$error=1;
+			$total=0;
+		}
+		if (isset($datosPost['fecha'])){
+			$bandera=new DateTime($datosPost['fecha']);
+			$fecha=$bandera->format('Y-m-d');
+		}else{
+			if ($pedidoTemporal['fechaInicio']){
+				$bandera=new DateTime($pedidoTemporal['fechaInicio']);
+				$fecha=$bandera->format('Y-m-d');
+			}else{
+				$fecha=date('Y-m-d');		
+			}
+		}
+		if ($pedidoTemporal['idPedpro']){
+			$datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
+			$numPedido=$datosPedidoReal['Numpedpro'];
+		}else{
+			$numPedido=0;
+		}
+		if (isset ($pedidoTemporal['Productos'])){
+			$productos=$pedidoTemporal['Productos'];
+		}else{
+			$error=1;
+		}
+		
+		$fechaCreacion=date("Y-m-d H:i:s");
+		$datosPedido=array(
+			'Numtemp_pedpro'=>$numPedidoTemp,
+			'FechaPedido'=>$fecha,
+			'idTienda'=>$Tienda['idTienda'],
+			'idUsuario'=>$Usuario['id'],
+			'idProveedor'=>$pedidoTemporal['idProveedor'],
+			'estado'=>"Guardado",
+			'total'=>$total,
+			'numPedido'=>$numPedido,
+			'fechaCreacion'=>$fechaCreacion,
+			'Productos'=>$productos,
+			'DatosTotales'=>$Datostotales
+		);
+	}else{
+		$error=1;
+	}
+	
+	if ($error==0){
+		if ($pedidoTemporal['idPedpro']){
+			$idPedido=$pedidoTemporal['idPedpro'];
+			$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
+			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
+			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+		}else{
+			$idPedido=0;
+			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+		}
+	}
+	return $error;
+	
+}
+function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
+	//@Objetivo: guardar los da tos del albarán 
+	//Primero se eliminan todos los registros que tenga el id del albarán real de esta manera a continuación insertamos los nuevo
+	//registros
+	//Por último se elimina el albarán temporal
+	$Tienda = $_SESSION['tiendaTpv'];
+	$Usuario = $_SESSION['usuarioTpv'];
+	$error=0;
+	$CAlb=new AlbaranesCompras($BDTpv);
+		if ($datosPost['idTemporal']){
+				$idAlbaranTemporal=$datosPost['idTemporal'];
+		}else{
+				$idAlbaranTemporal=$datosGet['tActual'];
+		}
+		
+		if (isset($idAlbaranTemporal)){
+			$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+			if(['total']){
+				$total=$datosAlbaran['total'];
+			}else{
+				$error=1;
+				$total=0;
+			}
+	
+			if ($datosPost['suNumero']>0){
+				$suNumero=$datosPost['suNumero'];
+			}else{
+				$suNumero=0;
+			}
+			if (isset ($datosPost['fecha'])){
+				$fecha=$datosPost['fecha'];
+			}else{
+				$fecha=$datosAlbaran['fechaInicio'];
+			}
+			if (isset ($datosAlbaran['Productos'])){
+				$productos=$datosAlbaran['Productos'];
+			}else{
+				$productos=0;
+				$error=1;
+			}
+			$datos=array(
+				'Numtemp_albpro'=>$idAlbaranTemporal,
+				'fecha'=>$fecha,
+				'idTienda'=>$Tienda['idTienda'],
+				'idUsuario'=>$Usuario['id'],
+				'idProveedor'=>$datosAlbaran['idProveedor'],
+				'estado'=>"Guardado",
+				'total'=>$total,
+				'DatosTotales'=>$Datostotales,
+				'productos'=>$productos,
+				'pedidos'=>$datosAlbaran['Pedidos'],
+				'suNumero'=>$suNumero
+			);
+		}else{
+			$error=1;
+		}
+		//Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
+		//original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
+		//Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
+		if ($error==0){
+			if ($datosAlbaran['numalbpro']){
+					$numAlbaran=$datosAlbaran['numalbpro'];
+					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
+					$idAlbaran=$datosReal['id'];
+					$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
+					$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+					$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+			}else{
+					$idAlbaran=0;
+					$numAlbaran=0;
+					$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+					$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+					
+			}
+		}
+	return $error;
 }
 ?>

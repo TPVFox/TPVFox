@@ -1,6 +1,6 @@
 <?php 
-
-class AlbaranesCompras{
+include_once ('./clases/ClaseCompras.php');
+class AlbaranesCompras extends ClaseCompras{
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
@@ -14,20 +14,24 @@ class AlbaranesCompras{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	//Modificamos los datos del pedido temporal, cada vez que hacemos cualquier modificación en el albarán, modificamos el temporal
 	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero){
+	//@Objetivo;
+	//Modificamos los datos del pedido temporal, cada vez que hacemos cualquier modificación en el albarán,
+	// modificamos el temporal
+
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$smt=$db->query('UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal);
-		
 		$respuesta['idTemporal']=$idAlbaranTemporal;
 		$respuesta['productos']=$UnicoCampoProductos;
 		$respuesta['pedidos']=$UnicoCampoPedidos;
 		return $respuesta;
 	}
-	//La primera vez que modificamos un albarán en vez de modificar lo insertamos y nos enviamos el id de vuelta
+
 	public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero){
+		//Objetivo:
+		//insertar un nuevo albaran temporal
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
@@ -37,23 +41,28 @@ class AlbaranesCompras{
 		$respuesta['productos']=$productos;
 		return $respuesta;
 	}
-	//Si tenemos un número de albarán real lo insertamos en el temporal
 	public function addNumRealTemporal($idTemporal, $idReal){
+		//Objetivo:
+		//Modificar el albarán tempoal en el caso de que tengamos un numeroReal
 		$db=$this->db;
 		$smt=$db->query('UPDATE albproltemporales set numalbpro ='.$idReal .'  where id='.$idTemporal);
 	}
-	//Modificar el estado del albarán
 	public function modEstadoAlbaran($idAlbaran, $estado){
+		// @Objetivo:
+		//Modificar el estado del albarán
 		$db=$this->db;
 		$smt=$db->query('UPDATE albprot set estado="'.$estado .'"  where id='.$idAlbaran);
 	}
-	//Cada vez que añadimos un producto tenemos que modificar el total del resgitro temporal
+	
 	public function modTotales($res, $total, $totalivas){
+		//@Objetivo:Modificar los totales del albarán temporal
 		$db=$this->db;
 		$smt=$db->query('UPDATE albproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
 	}
-	//Buscamos los datos de un albaran temporal según su id. Solo puede ser un registro por eso es if
+	
 	public function buscarAlbaranTemporal($idAlbaranTemporal){
+		//@Objetivo:
+		//Buscar los datos del un albarán temporal
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albproltemporales WHERE id='.$idAlbaranTemporal);
 		if ($result = $smt->fetch_assoc () ){
@@ -61,17 +70,18 @@ class AlbaranesCompras{
 		}
 		return $albaran;
 	}
-	//Buscamos los datos de un albarán real según el número del albarán. Solo puede ser un registro por eso el IF
 	public function buscarAlbaranNumero($numAlbaran){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albprot WHERE Numalbpro='.$numAlbaran);
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
+		//@Objetivo:
+		//Buscamos los datos de un albarán real según el número del albarán.
+		$tabla='albprot';
+		$where='Numalbpro='.$numAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
-	//Eliminamos todos los registros de un albarán determinado. Lo hacemos cuando vamos a crear uno nuevo
+	
 	public function eliminarAlbaranTablas($idAlbaran){
+		//@Objetivo:
+		//Eliminamos todos los registros de un albarán determinado. Lo hacemos cuando vamos a crear uno nuevo
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM albprot where id='.$idAlbaran );
 		$smt=$db->query('DELETE FROM albprolinea where idalbpro ='.$idAlbaran );
@@ -79,13 +89,12 @@ class AlbaranesCompras{
 		$smt=$db->query('DELETE FROM pedproAlb where idAlbaran ='.$idAlbaran );
 		
 	}
-	//Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
-	public function AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran){
+	
+	public function AddAlbaranGuardado($datos, $idAlbaran){
+		//@Objetivo:
+		//Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
 		$db = $this->db;
 		if ($idAlbaran>0){
-			//~ $smt = $db->query ('INSERT INTO albprot (Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero) VALUES ('.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')');
-			//~ $id=$db->insert_id;
-		
 			$smt = $db->query ('INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero) VALUES ('.$idAlbaran.' , '.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')');
 			$id=$idAlbaran;
 	
@@ -151,8 +160,10 @@ class AlbaranesCompras{
 			}
 		}
 	}
-	//Cadas vez que añadimos un albarán como guardado tenemos que eliminar el registro temporal
+	
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){
+		//@Objetivo:
+		//Cadas vez que añadimos un albarán como guardado tenemos que eliminar el registro temporal
 		$db=$this->db;
 		if ($idAlbaran>0){
 			$smt=$db->query('DELETE FROM albproltemporales WHERE numalbpro ='.$idAlbaran);
@@ -160,10 +171,11 @@ class AlbaranesCompras{
 			$smt=$db->query('DELETE FROM albproltemporales WHERE id='.$idTemporal);
 		}
 	}
-	//Mostramos todos los albaranes temporales
+	
 	public function TodosTemporal(){
+		//@Objetivo:
+		//Mostramos todos los albaranes temporales
 			$db = $this->db;
-		//	$smt = $db->query ('SELECT * from albproltemporales');
 			$smt=$db->query('SELECT tem.numalbpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial from albproltemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor');
 			$albaranPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
@@ -172,18 +184,9 @@ class AlbaranesCompras{
 			return $albaranPrincipal;
 		
 	}
-	//Mostramos los datos principales de los albaranes de la tabla principal
-	public function TodosAlbaranes(){
-		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `albprot` as a LEFT JOIN proveedores as b on a.idProveedor =b.idProveedor ');
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
-	}
-	//MOstramos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
 	public function TodosAlbaranesLimite($limite){
+		//@Objetivo:
+		//MOstramos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `albprot` as a LEFT JOIN proveedores as b on a.idProveedor =b.idProveedor '.$limite);
 		$pedidosPrincipal=array();
@@ -192,68 +195,64 @@ class AlbaranesCompras{
 		}
 		return $pedidosPrincipal;
 	}
-	//Sumamos los importes iva y el total de la base de un número de albarán
+	
 	public function sumarIva($numAlbaran){
-		$db=$this->db;
-		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from albproIva where  Numalbpro  ='.$numAlbaran);
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
-		return $albaran;
-	}
-	//MOstramos los datos de un albarán buscando por ID
-	public function datosAlbaran($idAlbaran){
-		$db=$this->db;
-		$smt = $db->query ('SELECT * from albprot where id='.$idAlbaran);
-			if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
-		return $albaran;
-	}
-	//BUscamos los productos de un determinado id de albarán
-	public function ProductosAlbaran($idAlbaran){
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  albprolinea where idalbpro='.$idAlbaran);
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
-	}
-	//Mostramos los registros de iva de un determinado albarán
-	public function IvasAlbaran($idAlbaran){
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  albproIva where idalbpro='.$idAlbaran);
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
-	}
-	//MUestra los pedidos de un número de albarán
-	public function PedidosAlbaranes($idAlbaran){
-		$db=$this->db;
-		$smt=$db->query('SELECT * from  pedproAlb where idAlbaran='.$idAlbaran);
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
-	}
-	//Muestra los albaranes de un proveedor determinado con el estado indicado. Principalmente la utilizamos para saber los
-	//albaranes de guardados de un proveedor para poder incluirlo en facturas
-	public function albaranesProveedorGuardado($idProveedor, $estado){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'");
-		 $albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
+		//@Objetivo:
+		//Sumamos los importes iva y el total de la base de un número de albarán
+		$from_where= 'from albproIva where  Numalbpro  ='.$numAlbaran;
+		$albaran = parent::sumarIvaBases($from_where);
 		
-		return $albaranesPrincipal;
+		return $albaran;
 	}
-	//Buscar datos principal de un albarán de proveedor y estado guardado
+	
+	public function datosAlbaran($idAlbaran){
+		//@Objetivo:
+		//MOstramos los datos de un albarán buscando por ID
+		$tabla='albprot';
+		$where='id='.$idAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
+		return $albaran;
+	}
+	
+	public function ProductosAlbaran($idAlbaran){
+		//@Objetivo:
+		//BUscamos los productos de un determinado id de albarán
+		$tabla='albprolinea';
+		$where='idalbpro= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
+	}
+	
+	public function IvasAlbaran($idAlbaran){
+		//@Objetivo:
+		//Mostramos los registros de iva de un determinado albarán
+		$tabla='albproIva';
+		$where='idalbpro= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
+	}
+	
+	public function PedidosAlbaranes($idAlbaran){
+		//@Objetivo:
+		//MUestra los pedidos de un número de albarán
+		$tabla='pedproAlb';
+		$where='idAlbaran= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
+	}
+		public function albaranesProveedorGuardado($idProveedor, $estado){
+		//@Objetivo:
+		//Muestra los albaranes de un proveedor determinado con el estado indicado. Principalmente la utilizamos para saber los
+		//albaranes de guardados de un proveedor para poder incluirlo en facturas
+		$tabla='albprot';
+		$where='idProveedor= '.$idProveedor.' and estado='."'".$estado."'";
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
+	}
+	
 	public function buscarAlbaranProveedorGuardado($idProveedor, $numAlbaran, $estado){
+		//@Objetivo:
+		//Buscar datos principal de un albarán de proveedor y estado guardado
 		$db=$this->db;
 		if ($numAlbaran>0){
 			$smt=$db->query('SELECT Numalbpro , Fecha , total, id FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numalbpro='.$numAlbaran);

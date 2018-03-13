@@ -15,27 +15,25 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	$titulo="Crear Albarán De Proveedor";
+	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
-	$estadoCab="'".'Abierto'."'";
+	$fecha=date('Y-m-d');
+	$idAlbaranTemporal=0;
+	$idAlbaran=0;
+	$idProveedor=0;
+	$suNumero=0;
+	$nombreProveedor="";
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){
 		$idAlbaran=$_GET['id'];
-		echo $idAlbaran;
-		$titulo="Modificar Albarán De Proveedor";
 		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
 		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
-		
 		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
 		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
 		$estado=$datosAlbaran['estado'];
-		$estadoCab="'".$datosAlbaran['estado']."'";
-		$date=date_create($datosAlbaran['Fecha']);
-		$fecha=date_format($date,'Y-m-d');
-		$fechaCab="'".$fecha."'";
+		$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
 		$idAlbaranTemporal=0;
-		$numAlbaran=$datosAlbaran['Numalbpro'];
 		$idProveedor=$datosAlbaran['idProveedor'];
 		if ($datosAlbaran['Su_numero']>0){
 			$suNumero=$datosAlbaran['Su_numero'];
@@ -51,25 +49,13 @@ include './../../head.php';
 		$productosAlbaran=modificarArrayProductos($productosAlbaran);
 		$productos=json_decode(json_encode($productosAlbaran));
 		//Calciular el total con los productos que estn registrados
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosAlbaran), true);
 		if ($pedidosAlbaran){
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 			 $pedidos=json_decode(json_encode($modificarPedido), true);
 		}
-		//~ echo '<pre>';
-		//~ print_r($productos);
-		//~ echo '</pre>';
-		$total=$Datostotales['total'];
 	}else{
-	$fecha=date('Y-m-d');
-	$fechaCab="'".$fecha."'";
-	$idAlbaranTemporal=0;
-	$idAlbaran=0;
-	$numAlbaran=0;
-	$idProveedor=0;
-	$suNumero=0;
-	$nombreProveedor="";
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id
 		if (isset($_GET['tActual'])){
@@ -80,14 +66,12 @@ include './../../head.php';
 					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
 					$idAlbaran=$datosReal['id'];
 				}else{
-					$numAlbaran=0;
 					$idAlbaran=0;
 				}
 				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
 					$fecha=date('Y-m-d');
 				}else{
-					$fecha1=date_create($datosAlbaran['fechaInicio']);
-					$fecha =date_format($fecha1, 'Y-m-d');
+					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 				}
 				if ($datosAlbaran['Su_numero']>0){
 					$suNumero=$datosAlbaran['Su_numero'];
@@ -95,13 +79,8 @@ include './../../head.php';
 					$suNumero=0;
 				}
 				$idProveedor=$datosAlbaran['idProveedor'];
-				echo $idProveedor;
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
-				$fechaCab="'".$fecha."'";
-				
-				
-				$estadoCab="'".'Abierto'."'";
 				$albaran=$datosAlbaran;
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
@@ -109,78 +88,26 @@ include './../../head.php';
 		
 	}
 	if(isset($albaran['Productos'])){
-			// Obtenemos los datos totales ( fin de ticket);
+			// Obtenemos los datos totales ;
 			// convertimos el objeto productos en array
-			$Datostotales = recalculoTotalesAl($productos);
+			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
 		//Guardar el albarán para ello buscamos los datos en el albarán temporal, los almacenamos todos en un array
 		
 	if (isset($_POST['Guardar'])){
-		if ($_POST['idTemporal']){
-				$idAlbaranTemporal=$_POST['idTemporal'];
-			}else{
-				$idAlbaranTemporal=$_GET['tActual'];
-			}
-		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-		if(['total']){
-				$total=$datosAlbaran['total'];
-		}else{
-				$total=0;
-		}
-	
-		if ($_POST['suNumero']>0){
-				$suNumero=$_POST['suNumero'];
-		}else{
-			$suNumero=0;
-		}
-		if (isset ($_POST['fecha'])){
-			$fecha=$_POST['fecha'];
-		}else{
-			$fecha=$datosAlbaran['fechaInicio'];
-		}
-		$datos=array(
-			'Numtemp_albpro'=>$idAlbaranTemporal,
-			'fecha'=>$fecha,
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idProveedor'=>$datosAlbaran['idProveedor'],
-			'estado'=>"Guardado",
-			'total'=>$total,
-			'DatosTotales'=>$Datostotales,
-			'productos'=>$datosAlbaran['Productos'],
-			'pedidos'=>$datosAlbaran['Pedidos'],
-			'suNumero'=>$suNumero
-		);
-		echo '<pre>';
-		print_r($datosAlbaran['Productos']);
-		echo '</pre>';
-		//Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
-		//original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
-		//Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
-		if ($datosAlbaran['numalbpro']){
-				$numAlbaran=$datosAlbaran['numalbpro'];
-				$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
-				$idAlbaran=$datosReal['id'];
-				$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
-				//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
-				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
-				//~ echo '<pre>';
-				//~ print_r($addNuevo);
-				//~ echo '</pre>';
-				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-		}else{
-				$idAlbaran=0;
-				$numAlbaran=0;
-				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
-				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-				//~ echo '<pre>';
-				//~ print_r($addNuevo);
-				//~ echo '</pre>';
-				
-		}
+		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
+		//si el resultado es  quiere decir que no hay errores y fue todo correcto
+		//si no es así muestra mensaje de error
+		$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
+	if ($guardar==0){
+		header('Location: albaranesListado.php');
+	}else{
 		
-		 header('Location: albaranesListado.php');
+		echo '<div class="alert alert-warning">
+		<strong>Error!</strong>No has introducido ningún producto.
+		</div>';
+	}
 	}
 	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado
@@ -227,6 +154,7 @@ include './../../head.php';
 			$estiloTablaProductos="display:none;";
 		}
 	
+	$titulo .= ': '.$estado;
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -247,11 +175,10 @@ include './../../head.php';
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
-		cabecera['numReal'] = <?php echo $numAlbaran ;?>;
-		cabecera['fecha'] = <?php echo $fechaCab ;?>;
+		cabecera['fecha'] = '<?php echo $fecha;?>';
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
 		cabecera['suNumero']=<?php echo $suNumero; ?>;
 		
@@ -370,7 +297,7 @@ if ($suNumero==0){
 			<div style="margin-top:-50px;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido()"></a>
+			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
 			<table  class="col-md-12" style="<?php echo $style1;?>" id="tablaPedidos"> 
 				<thead>
 				
@@ -383,7 +310,7 @@ if ($suNumero==0){
 				<?php 
 				if (is_array($pedidos)){
 					foreach ($pedidos as $pedido){
-						$html=lineaPedidoAlbaran($pedido, "albaran");
+						$html=lineaAdjunto($pedido, "albaran");
 					echo $html['html'];
 					}
 					
@@ -430,9 +357,6 @@ if ($suNumero==0){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaProducto($producto, "albaran");
 				echo $html['html'];
-				//~ echo '<pre>';
-				//~ print_r($producto);
-				//~ echo '</pre>';
 			}
 		
 			}
@@ -441,33 +365,27 @@ if ($suNumero==0){
 	  </table>
 	</div>
 	<?php 
-	if (isset($Datostotales)){
-			//~ // Ahora montamos base y ivas
-			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				switch ($iva){
-					case 4 :
-						$base4 = $basesYivas['base'];
-						$iva4 = $basesYivas['iva'];
-					break;
-					case 10 :
-						$base10 = $basesYivas['base'];
-						$iva10 = $basesYivas['iva'];
-					break;
-					case 21 :
-						$base21 = $basesYivas['base'];
-						$iva21 = $basesYivas['iva'];
-					break;
-				}
-			}
-	
-	?>
 
+	// Ahora montamos base y ivas, esto debería ser una funcion, ya que lo utilizamos en imprimir tb.
+	if (isset($Datostotales)){
+		// Montamos ivas y bases
+		$htmlIvas = '';
+		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
+			$key = intval($key);
+			$htmlIvas.='<tr id="line'.$key.'">';
+			$htmlIvas.='<td id="tipo'.$key.'"> '.$key.'%</td>';
+			$htmlIvas.='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
+			$htmlIvas.='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
+			$htmlIvas.='</tr>';
+		}
+	}
+	if (isset($DatosTotales)){
+		?>
 		<script type="text/javascript">
 			total = <?php echo $Datostotales['total'];?>;
-			</script>
-
-			<?php
-}
+		</script>
+		<?php
+	}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -479,44 +397,7 @@ if ($suNumero==0){
 			</tr>
 		</thead>
 		<tbody>
-			<tr id="line4">
-				<td id="tipo4">
-					<?php echo (isset($base4) ? " 4%" : '');?>
-				</td>
-				<td id="base4">
-					<?php echo (isset($base4) ? $base4 : '');?>
-				</td>
-				<td id="iva4">
-
-					<?php echo (isset($iva4) ? $iva4 : '');?>
-
-				</td>
-				
-			</tr>
-			<tr id="line10">
-				<td id="tipo10">
-					<?php echo (isset($base10) ? "10%" : '');?>
-				</td>
-				<td id="base10">
-					<?php echo (isset($base10) ? $base10 : '');?>
-				</td>
-				<td id="iva10">
-					<?php echo (isset($iva10) ? $iva10 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line21">
-				<td id="tipo21">
-					<?php echo (isset($base21) ? "21%" : '');?>
-				</td>
-				<td id="base21">
-					<?php echo (isset($base21) ? $base21 : '');?>
-				</td>
-				<td id="iva21">
-					<?php echo (isset($iva21) ? $iva21 : '');?>
-				</td>
-				
-			</tr>
+			<?php echo $htmlIvas; ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">

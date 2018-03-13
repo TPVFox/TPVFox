@@ -16,19 +16,11 @@ include './../../head.php';
 	// Variables que utilizamos en pedidos.
 	$titulo="Pedido De Proveedor";
 	$fecha=date('Y-m-d');
-
 	$idPedido=0;
 	$numPedidoTemp=0;
-	//$numPedido=0;
-
 	$estado='Abierto';
-	
 	$idProveedor=0;
 	$nombreProveedor="";
-
-	//$total=0;
-
-		
 	if ($_GET){
 		if (isset($_GET['id'])){
 			$idPedido=$_GET['id'];
@@ -46,13 +38,10 @@ include './../../head.php';
 			$nombreProveedor=$datosProveedor['nombrecomercial'];
 			$productosMod=modificarArrayProductos($productosPedido);
 			$productos=json_decode(json_encode($productosMod));
-			$Datostotales = recalculoTotalesAl($productos);
+			$Datostotales = recalculoTotales($productos);
 			$productos=json_decode(json_encode($productosMod), true);
-			//$total=$Datostotales['total'];
-			//$numPedido=$datosPedido['Numpedpro'];
 		}else{
 			$bandera=1;
-			//$fecha=date('Y-m-d');
 			if ($_GET['tActual']){
 				$numPedidoTemp=$_GET['tActual'];
 				$pedido=$Cpedido->DatosTemporal($numPedidoTemp);
@@ -60,14 +49,11 @@ include './../../head.php';
 				$idProveedor=$pedido['idProveedor'];
 				if ($pedido['idPedpro']){				
 					$idPedido=$pedido['idPedpro'];					
-					//$datos=$Cpedido->DatosPedido($idPedido);
-					//$numPedido=$datos['Numpedpro'];
 				}
 				if ($pedido['fechaInicio']){
 					$bandera=new DateTime($pedido['fechaInicio']);
 					$fecha=$bandera->format('Y-m-d');
 				}
-				//$pedido=$pedidoTemporal;
 				$productos = json_decode( $pedido['Productos']); // Array de objetos
 				if ($idProveedor){
 					$datosProveedor=$Cprveedor->buscarProveedorId($idProveedor);
@@ -83,77 +69,23 @@ include './../../head.php';
 if(isset($pedido['Productos'])){
 	// Obtenemos los datos totales;
 	// convertimos el objeto productos en array
-	$Datostotales = recalculoTotalesAl($productos);
+	$Datostotales = recalculoTotales($productos);
 	$productos = json_decode(json_encode($productos), true); // Array de arrays	
 }
 //  ---------  Control y procesos para guardar el pedido. ------------------ //
 if (isset($_POST['Guardar'])){
 	// Objetivo :
 	// Grabar el pedido.
-	// Si el pedido tiene total 0 se permite guarda.
-	// No se permite guardar si el pedido no tiene productos. ( lineas Activas ).
-	echo '<pre>';
-	print_r($_POST);
-	echo '</pre>';
-	
-	
-	if ($_POST['idTemporal']){
-		$numPedidoTemp=$_POST['idTemporal'];
+	$guardar=guardarPedido($_POST, $_GET, $BDTpv, $Datostotales);
+	if ($guardar==0){
+		header('Location: pedidosListado.php');
 	}else{
-		$numPedidoTemp=$_GET['tActual'];
+		
+		echo '<div class="alert alert-warning">
+		<strong>Error!</strong>No has introducido ningún producto.
+		</div>';
 	}
-	$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
-	if($pedidoTemporal['total']){
-		$total=$pedidoTemporal['total'];
-	}else{
-		// Esto no debería permitir si no hay un total... 
-		$total=0;
-	}
-
-	if (isset($_POST['fecha'])){
-		$bandera=new DateTime($_POST['fecha']);
-		$fecha=$bandera->format('Y-m-d');
-	}else{
-		if ($pedidoTemporal['fechaInicio']){
-			$bandera=new DateTime($pedidoTemporal['fechaInicio']);
-			$fecha=$bandera->format('Y-m-d');
-		}else{
-			$fecha=date('Y-m-d');		
-		}
-	}
-	if ($pedidoTemporal['idPedpro']){
-		$datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
-		$numPedido=$datosPedidoReal['Numpedpro'];
-	}else{
-		$numPedido=0;
-	}
-	$fechaCreacion=date("Y-m-d H:i:s");
-	$datosPedido=array(
-		'Numtemp_pedpro'=>$numPedidoTemp,
-		'FechaPedido'=>$fecha,
-		'idTienda'=>$Tienda['idTienda'],
-		'idUsuario'=>$Usuario['id'],
-		'idProveedor'=>$pedidoTemporal['idProveedor'],
-		'estado'=>"Guardado",
-		'total'=>$total,
-		'numPedido'=>$numPedido,
-		'fechaCreacion'=>$fechaCreacion,
-		'Productos'=>$pedidoTemporal['Productos'],
-		'DatosTotales'=>$Datostotales
-	);
-	if ($pedidoTemporal['idPedpro']){
-		$idPedido=$pedidoTemporal['idPedpro'];
-		$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-		$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-		$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
-	}else{
-		$idPedido=0;
-		$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
-		$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
-	}
-	
-	exit(); // De momento bloqueo redireccion ya que quiero ver que enviamos.
-	header('Location: pedidosListado.php');
+ 
 	
 }
 // ---------   FIN PROCESO Y CONTROL DE GUARDAR  ------------------  //
@@ -161,6 +93,7 @@ if (isset($_POST['Guardar'])){
 $parametros = simplexml_load_file('parametros.xml');
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+//~ echo $idPedido;
 ?>
 <script type="text/javascript">
 // Objetos cajas de tpv
@@ -176,10 +109,9 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estadoPedido'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
+		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
 		cabecera['idTemporal'] = <?php echo $numPedidoTemp ;?>;
 		cabecera['idReal'] = <?php echo $idPedido ;?>;
-	//	cabecera['numPedido']=<?php echo $numPedido;?>;
 		cabecera['idProveedor']=<?php echo $idProveedor ;?>;
 		cabecera['fecha']='<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';

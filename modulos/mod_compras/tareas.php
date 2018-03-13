@@ -86,8 +86,9 @@ switch ($pulsado) {
 			 }
 			echo json_encode($respuesta);
 		break;
-		//Añadir un registro a la tabla articuloproveedor
+		
 		case 'addProveedorArticulo':
+		//@Objetivo: comprobar si ya existe un registro de proveedores articulos si es así modificarlo y si nno crearlo
 			$fechaActualizacion=date('Y-m-d');
 			$estado="activo";
 			$datos=array(
@@ -110,6 +111,7 @@ switch ($pulsado) {
 		break;
 		
 		case 'buscarReferencia':
+			//@Objetivo:
 			//Busca si un articulo tiene referencia de proveedor
 			$idArticulo=$_POST['idArticulo'];
 			$idProveedor=$_POST['idProveedor'];
@@ -124,109 +126,78 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		
 		break;
-		//Comprueba los pedidos con el estado guardado
-		case 'comprobarPedido':
-			$estado="Guardado";
-			$idProveedor=$_POST['idProveedor'];
-			$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
-			if (count($buscar)>0){
-				$bandera=1;
-			}else{
-				$bandera=2;
-			}
-			
-			echo json_encode($bandera);
-		break;
-
-		case 'comprobarAlbaranes':
-			//Comprueba los albaranes con el estado guardado
-			$estado="Guardado";
-			$idProveedor=$_POST['idProveedor'];
-			$buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
-			if (count($buscar)>0){
-				$bandera=1;
-			}else{
-				$bandera=2;
-			}
-			
-			echo json_encode($bandera);
-		break;
-		//Buscar los pedidos con el estado guardado de un proveedor determinado 
-		//Si solo resicibe un resultado monta el array si no muestra un modal con los pedidos de ese proveedor 
-		case 'BuscarPedido':
-		$numPedido=$_POST['numPedido'];
-		$idProveedor=$_POST['idProveedor'];
+		
+		case 'comprobarAdjunto':
+		//@Objetivo:
+		//comprobar que el proveedor tiene albaran o pedido en estado guardado
 		$estado="Guardado";
-		$datosPedido=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado);
-		if (isset($datosPedido)){
-			if ($datosPedido['Nitem']==1){
-				$respuesta['temporales']=1;
-				$respuesta['datos']['Numpedpro']=$datosPedido['Numpedpro'];
-				$respuesta['datos']['idPedido']=$datosPedido['id'];
-				$respuesta['datos']['fecha']=$datosPedido['FechaPedido'];
-				$respuesta['datos']['total']=$datosPedido['total'];
-				$respuesta['datos']['estado']="activo";
-				$respuesta['Nitems']=$datosPedido['Nitem'];
-				$productosPedido=$CPed->ProductosPedidos($datosPedido['id']);
-				$respuesta['productos']=$productosPedido;
+		$idProveedor=$_POST['idProveedor'];
+		if ($_POST['dedonde']=="factura"){
+			$buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
+		}else{
+			$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
+		}
+		if (count($buscar)>0){
+				$bandera=1;
 			}else{
-				$respuesta=$datosPedido;
-				$modal=modalPedidos($datosPedido['datos']);
+				$bandera=2;
+			}
+		echo json_encode($bandera);
+		break;
+	
+		case 'buscarAdjunto':
+		//@objetivo:
+		//buscar si el numero de adjunto (número de pedido o albarán )
+		//carga los datos principales y sus productos
+		
+			$numAdjunto=$_POST['numReal'];
+			$idProveedor=$_POST['idProveedor'];
+			$estado="Guardado";
+			$dedonde=$_POST['dedonde'];
+			if ($dedonde=="albaran"){
+				$datosAdjunto=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numAdjunto, $estado);
+			}else{
+				$datosAdjunto=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAdjunto, $estado);
+			}
+			if ($datosAdjunto['Nitem']==1){
+				$respuesta['temporales']=1;
+				if ($dedonde=="albaran"){
+					$respuesta['datos']['NumAdjunto']=$datosAdjunto['Numpedpro'];
+					$respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
+					$productosAdjunto=$CPed->ProductosPedidos($datosAdjunto['id']);
+					$respuesta['productos']=$productosAdjunto;
+				}else{
+					$respuesta['datos']['NumAdjunto']=$datosAdjunto['Numalbpro'];
+					$respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
+					$productosAdjunto=$CAlb->ProductosAlbaran($datosAdjunto['id']);
+					$respuesta['productos']=$productosAdjunto;
+				}
+				$date = new DateTime($datosAdjunto['Fecha']);
+				$respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
+				$respuesta['datos']['total']=$datosAdjunto['total'];
+				$respuesta['datos']['estado']="activo";
+				$respuesta['Nitems']=$datosAdjunto['Nitem'];
+				
+			}else{
+				$respuesta['datos']=$datosAdjunto;
+				$modal=modalAdjunto($datosAdjunto['datos'], $dedonde);
 				$respuesta['html']=$modal['html'];
 			}
-		}
 		echo json_encode($respuesta);
 		break;
 		
-		case 'BuscarAlbaran':
-			//Busca los albaranes con el estado guardado 
-			//Si obtiene un resultado crea el arra con los datos necesarios 
-			// si no muestra un modal
-			$numAlbaran=$_POST['numAlbaran'];
-			$idProveedor=$_POST['idProveedor'];
-			$estado="Guardado";
-			$datosAlbaran=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAlbaran, $estado);
-			
-			if ($datosAlbaran['Nitem']==1){
-				$respuesta['temporales']=1;
-				$respuesta['datos']['Numalbpro']=$datosAlbaran['Numalbpro'];
-				$respuesta['datos']['idAlbaran']=$datosAlbaran['id'];
-				$date = new DateTime($datosAlbaran['Fecha']);
-				$respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
-				$respuesta['datos']['total']=$datosAlbaran['total'];
-				$respuesta['datos']['estado']="activo";
-				$respuesta['Nitems']=$datosAlbaran['Nitem'];
-				$productosAlbaran=$CAlb->ProductosAlbaran($datosAlbaran['id']);
-				$respuesta['productos']=$productosAlbaran;
-			}else{
-				$respuesta['datos']=$datosAlbaran;
-				$modal=modalAlbaranes($datosAlbaran['datos']);
-				$respuesta['html']=$modal['html'];
-			}
-			echo json_encode($respuesta);
-		break;
-			
 		case 'addPedidoTemporal';
+			//@Objetivo:
 			//Añadir un pedido temporal, recibe los campos necesarios para añadir el pedido
 			//Si ya existe modifica el registro si no lo crea, devuelve siempre el id del temporal
-			$numPedidoTemp=$_POST['numPedidoTemp'];
+			$numPedidoTemp=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
-			$estadoPedido=$_POST['estadoPedido'];
-			$idPedido=$_POST['idPedido'];
-			//$numPedido=$_POST['numPedido'];
+			$estadoPedido=$_POST['estado'];
+			$idPedido=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
 			$idProveedor=$_POST['idProveedor'];
-			//~ $cabecera=$_POST['cabecera'];
-			//~ $numPedidoTemp=$_POST['cabecera']['idTemporal'];
-			//~ $idUsuario=$_POST['cabecera']['idUsuario'];
-			//~ $idTienda=$_POST['cabecera']['idTienda'];
-			//~ $estadoPedido=$_POST['cabecera']['estadoPedido'];
-			//~ $idPedido=$_POST['cabecera']['idReal'];
-			//~ $fecha=$_POST['cabecera']['fecha'];
-			//~ $idProveedor=$_POST['cabecera']['idProveedor'];
-			//~ $productos=$_POST['productos'];
 			$existe=0; // Variable para devolver y saber si modifico o insert.
 			if ($numPedidoTemp>0){
 				$rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos);
@@ -240,7 +211,7 @@ switch ($pulsado) {
 				$numPedidoTemp=$res;
 			}
 			$pro=$rest['productos'];
-		//	$respuesta['numPedido']=$numPedido;
+	
 			
 			 if ($idPedido>0){
 				//Existe idPedido, estamos modificacion de un pedido,añadimos el número del pedido real al registro temporal
@@ -253,7 +224,7 @@ switch ($pulsado) {
 				//Recalcula el valor de los productos
 					$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 					$respuesta['productosre']=$productos_para_recalculo;
-					$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+					$CalculoTotales = recalculoTotales($productos_para_recalculo);
 					$total=round($CalculoTotales['total'],2);
 					$respuesta['total']=round($CalculoTotales['total'],2);
 					//~ $nuevoArray = array(
@@ -278,13 +249,13 @@ switch ($pulsado) {
 		
 
 		case 'addAlbaranTemporal':
+			//@Objetivo:
 			//Añade un albaran temporal es igual que la de pedidos pero esta vez en la tabla temporal de albaranes
-			$idAlbaranTemporal=$_POST['idAlbaranTemp'];
+			$idAlbaranTemporal=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
 			$estado=$_POST['estado'];
-			$idAlbaran=$_POST['idAlbaran'];
-			$numAlbaran=$_POST['numAlbaran'];
+			$idAlbaran=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
 			if (isset($_POST['pedidos'])){
@@ -310,28 +281,32 @@ switch ($pulsado) {
 				$idAlbaranTemporal=$res;
 			}
 			if ($idAlbaran>0){
-				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $numAlbaran);
+				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $idAlbaran);
 				$estado="Sin Guardar";
 				$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
 			}
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$CalculoTotales = recalculoTotales($productos_para_recalculo);
 				$total=round($CalculoTotales['total'],2);
-				$respuesta['total']=$total;
-				$nuevoArray = array(
-							'desglose'=> $CalculoTotales['desglose'],
-							'total' => $CalculoTotales['total']
-								);
-				$respuesta['totales']=$nuevoArray;
-				$totalivas=0;
-				foreach($nuevoArray['desglose'] as $nuevo){
-					$totalivas=$totalivas+$nuevo['iva'];
-				}
-				$modTotal=$CAlb->modTotales($res, $total, $totalivas);
+				$respuesta['total']=round($CalculoTotales['total'],2);
+				$respuesta['totales']=$CalculoTotales;
+
+				//~ $total=round($CalculoTotales['total'],2);
+				//~ $respuesta['total']=$total;
+				//~ $nuevoArray = array(
+							//~ 'desglose'=> $CalculoTotales['desglose'],
+							//~ 'total' => $CalculoTotales['total']
+								//~ );
+				//~ $respuesta['totales']=$nuevoArray;
+				//~ $totalivas=0;
+				//~ foreach($nuevoArray['desglose'] as $nuevo){
+					//~ $totalivas=$totalivas+$nuevo['iva'];
+				//~ }
+				$modTotal=$CAlb->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
 				$respuesta['sqlmodtotal']=$modTotal['sql'];
-				$respuesta['total']=$total;
+				//~ $respuesta['total']=$total;
 			}
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
@@ -341,14 +316,14 @@ switch ($pulsado) {
 		
 		
 		case 'addFacturaTemporal':
+		//@Objetivo:
 			//Añadir factura temporal 
 			// [NOTA] Es igual que añadir pedido temporal con la diferencia de que cambia la tabla temporal de facturas
-			$idFacturaTemp=$_POST['idFacturaTemp'];
+			$idFacturaTemp=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
 			$estado=$_POST['estado'];
-			$idFactura=$_POST['idFactura'];
-			$numFactura=$_POST['numFactura'];
+			$idFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
 			$productos=$_POST['productos'];
 			if(isset ($_POST['albaranes'])){
@@ -372,7 +347,7 @@ switch ($pulsado) {
 				$respuesta['sql1']=$rest['sql'];
 			}
 			if ($idFactura>0){
-				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
+				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $idFactura);
 				$respuesta['sql2']=$modId['sql'];
 				$estado="Sin Guardar";
 				$modEstado=$CFac->modEstadoFactura($idFactura, $estado);
@@ -380,7 +355,7 @@ switch ($pulsado) {
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$CalculoTotales = recalculoTotales($productos_para_recalculo);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=$total;
 				$nuevoArray = array(
@@ -418,9 +393,9 @@ switch ($pulsado) {
 			}
 			
 		break;
-		case 'htmlAgregarFilaPedido':
+		case 'htmlAgregarFilaAdjunto':
 			//Agrega tanto la fila de pedido como la de alabaranes
-			$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+			$res=lineaAdjunto($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
