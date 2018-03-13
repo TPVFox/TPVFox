@@ -383,7 +383,7 @@ if ($suNumero==0){
 				<?php 
 				if (is_array($pedidos)){
 					foreach ($pedidos as $pedido){
-						$html=lineaPedidoAlbaran($pedido, "albaran");
+						$html=lineaAdjunto($pedido, "albaran");
 					echo $html['html'];
 					}
 					

@@ -421,7 +421,7 @@ function modalAdjunto($adjuntos, $dedonde){
 	return $respuesta;
 }
 //Agrega la linea de pedidos a un alabaran con los datos necesarios
-function lineaPedidoAlbaran($pedido, $dedonde){
+function lineaAdjunto($pedido, $dedonde){
 		$respuesta['html']="";
 	if(isset($pedido)){
 		if ($pedido['estado']){

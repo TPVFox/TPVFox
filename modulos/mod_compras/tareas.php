@@ -391,7 +391,7 @@ switch ($pulsado) {
 		break;
 		case 'htmlAgregarFilaAdjunto':
 			//Agrega tanto la fila de pedido como la de alabaranes
-			$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+			$res=lineaAdjunto($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;

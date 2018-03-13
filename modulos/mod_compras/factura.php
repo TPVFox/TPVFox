@@ -391,7 +391,7 @@ if ($suNumero==0){
 						}else{
 							$albaran['nfila']=$i;
 						}
-						$html=lineaPedidoAlbaran($albaran, "factura");
+						$html=lineaAdjunto($albaran, "factura");
 					echo $html['html'];
 					$i++;
 					}
