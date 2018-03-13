@@ -697,7 +697,7 @@ function comprobarAlbaran($idProveedor, $BDTpv){
 	}
 	return $bandera;
 }
-function guardarPedido($datosPost, $datosGet, $BDTpv){
+function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 	//@OBjetivo: guardar el pedido , para ello busca primero si ya tiene un pedido real o no , si es asi lo elimina 
 	//Elimina también todos los registros de ese pedido real para poder añadir uno nuevo . Una vez que este guardado el nuevo registro 
 	//de pedido, eliminamos el temporal 

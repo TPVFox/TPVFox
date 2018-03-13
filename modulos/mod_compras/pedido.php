@@ -76,7 +76,7 @@ if(isset($pedido['Productos'])){
 if (isset($_POST['Guardar'])){
 	// Objetivo :
 	// Grabar el pedido.
-	$guardar=guardarPedido($_POST, $_GET, $BDTpv);
+	$guardar=guardarPedido($_POST, $_GET, $BDTpv, $Datostotales);
 	if ($guardar==0){
 		header('Location: pedidosListado.php');
 	}else{
