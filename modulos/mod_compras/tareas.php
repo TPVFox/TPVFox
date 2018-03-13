@@ -290,19 +290,23 @@ switch ($pulsado) {
 				$respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotales($productos_para_recalculo);
 				$total=round($CalculoTotales['total'],2);
-				$respuesta['total']=$total;
-				$nuevoArray = array(
-							'desglose'=> $CalculoTotales['desglose'],
-							'total' => $CalculoTotales['total']
-								);
-				$respuesta['totales']=$nuevoArray;
-				$totalivas=0;
-				foreach($nuevoArray['desglose'] as $nuevo){
-					$totalivas=$totalivas+$nuevo['iva'];
-				}
-				$modTotal=$CAlb->modTotales($res, $total, $totalivas);
+				$respuesta['total']=round($CalculoTotales['total'],2);
+				$respuesta['totales']=$CalculoTotales;
+
+				//~ $total=round($CalculoTotales['total'],2);
+				//~ $respuesta['total']=$total;
+				//~ $nuevoArray = array(
+							//~ 'desglose'=> $CalculoTotales['desglose'],
+							//~ 'total' => $CalculoTotales['total']
+								//~ );
+				//~ $respuesta['totales']=$nuevoArray;
+				//~ $totalivas=0;
+				//~ foreach($nuevoArray['desglose'] as $nuevo){
+					//~ $totalivas=$totalivas+$nuevo['iva'];
+				//~ }
+				$modTotal=$CAlb->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
 				$respuesta['sqlmodtotal']=$modTotal['sql'];
-				$respuesta['total']=$total;
+				//~ $respuesta['total']=$total;
 			}
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;

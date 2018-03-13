@@ -80,7 +80,7 @@ class AlbaranesCompras{
 		
 	}
 	//Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
-	public function AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran){
+	public function AddAlbaranGuardado($datos, $idAlbaran){
 		$db = $this->db;
 		if ($idAlbaran>0){
 			//~ $smt = $db->query ('INSERT INTO albprot (Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero) VALUES ('.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].')');
