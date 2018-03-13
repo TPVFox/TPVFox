@@ -15,27 +15,27 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	$titulo="Crear Albarán De Proveedor";
+	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
-	$estadoCab="'".'Abierto'."'";
+	$fecha=date('Y-m-d');
+	$idAlbaranTemporal=0;
+	$idAlbaran=0;
+	$idProveedor=0;
+	$suNumero=0;
+	$nombreProveedor="";
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){
 		$idAlbaran=$_GET['id'];
-		echo $idAlbaran;
-		$titulo="Modificar Albarán De Proveedor";
 		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
 		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
-		
 		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
 		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
 		$estado=$datosAlbaran['estado'];
-		$estadoCab="'".$datosAlbaran['estado']."'";
-		$date=date_create($datosAlbaran['Fecha']);
-		$fecha=date_format($date,'Y-m-d');
-		$fechaCab="'".$fecha."'";
+		//$date=date_create($datosAlbaran['Fecha']);
+		$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
 		$idAlbaranTemporal=0;
-		$numAlbaran=$datosAlbaran['Numalbpro'];
+		//$numAlbaran=$datosAlbaran['Numalbpro'];
 		$idProveedor=$datosAlbaran['idProveedor'];
 		if ($datosAlbaran['Su_numero']>0){
 			$suNumero=$datosAlbaran['Su_numero'];
@@ -57,19 +57,8 @@ include './../../head.php';
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 			 $pedidos=json_decode(json_encode($modificarPedido), true);
 		}
-		//~ echo '<pre>';
-		//~ print_r($productos);
-		//~ echo '</pre>';
 		$total=$Datostotales['total'];
 	}else{
-	$fecha=date('Y-m-d');
-	$fechaCab="'".$fecha."'";
-	$idAlbaranTemporal=0;
-	$idAlbaran=0;
-	$numAlbaran=0;
-	$idProveedor=0;
-	$suNumero=0;
-	$nombreProveedor="";
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id
 		if (isset($_GET['tActual'])){
@@ -80,14 +69,14 @@ include './../../head.php';
 					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
 					$idAlbaran=$datosReal['id'];
 				}else{
-					$numAlbaran=0;
+					//$numAlbaran=0;
 					$idAlbaran=0;
 				}
 				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
 					$fecha=date('Y-m-d');
 				}else{
-					$fecha1=date_create($datosAlbaran['fechaInicio']);
-					$fecha =date_format($fecha1, 'Y-m-d');
+					//$fecha1=date_create($datosAlbaran['fechaInicio']);
+					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 				}
 				if ($datosAlbaran['Su_numero']>0){
 					$suNumero=$datosAlbaran['Su_numero'];
@@ -98,7 +87,7 @@ include './../../head.php';
 				echo $idProveedor;
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
-				$fechaCab="'".$fecha."'";
+			
 				
 				
 				$estadoCab="'".'Abierto'."'";
@@ -152,9 +141,7 @@ include './../../head.php';
 			'pedidos'=>$datosAlbaran['Pedidos'],
 			'suNumero'=>$suNumero
 		);
-		echo '<pre>';
-		print_r($datosAlbaran['Productos']);
-		echo '</pre>';
+		
 		//Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
 		//original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
 		//Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
@@ -163,20 +150,13 @@ include './../../head.php';
 				$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
 				$idAlbaran=$datosReal['id'];
 				$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
-				//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
 				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
-				//~ echo '<pre>';
-				//~ print_r($addNuevo);
-				//~ echo '</pre>';
 				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
 		}else{
 				$idAlbaran=0;
 				$numAlbaran=0;
 				$addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
 				$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-				//~ echo '<pre>';
-				//~ print_r($addNuevo);
-				//~ echo '</pre>';
 				
 		}
 		
@@ -227,6 +207,7 @@ include './../../head.php';
 			$estiloTablaProductos="display:none;";
 		}
 	
+	$titulo .= ': '.$estado;
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -247,11 +228,10 @@ include './../../head.php';
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
-	//	cabecera['numReal'] = <?php echo $numAlbaran ;?>;
-		cabecera['fecha'] = <?php echo $fechaCab ;?>;
+		cabecera['fecha'] = '<?php echo $fecha;?>';
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
 		cabecera['suNumero']=<?php echo $suNumero; ?>;
 		
@@ -381,6 +361,9 @@ if ($suNumero==0){
 				</thead>
 				
 				<?php 
+				echo '<pre>';
+				print_r($pedidos);
+				echo '</pre>';
 				if (is_array($pedidos)){
 					foreach ($pedidos as $pedido){
 						$html=lineaAdjunto($pedido, "albaran");

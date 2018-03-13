@@ -428,6 +428,9 @@ function lineaAdjunto($pedido, $dedonde){
 			if ($pedido['NumAdjunto']){
 				$num=$pedido['NumAdjunto'];
 			}
+			if ($pedido['Numpedpro']){
+				$num=$pedido['Numpedpro'];
+			}
 			if ($pedido['estado']=="activo"){
 				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
