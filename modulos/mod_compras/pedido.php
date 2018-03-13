@@ -76,15 +76,14 @@ if(isset($pedido['Productos'])){
 if (isset($_POST['Guardar'])){
 	// Objetivo :
 	// Grabar el pedido.
-	// Si el pedido tiene total 0 se permite guarda.
-	// No se permite guardar si el pedido no tiene productos. ( lineas Activas ).
 	$guardar=guardarPedido($_POST, $_GET, $BDTpv);
 	if ($guardar==0){
-		//exit(); // De momento bloqueo redireccion ya que quiero ver que enviamos.
-	header('Location: pedidosListado.php');
+		header('Location: pedidosListado.php');
 	}else{
-		echo "no has introsucido ningún producto";
-		echo '<script>alert(Error, no has introducido ningun producto)</script>';
+		
+		echo '<div class="alert alert-warning">
+		<strong>Error!</strong>No has introducido ningún producto.
+		</div>';
 	}
  
 	
