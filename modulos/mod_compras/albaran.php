@@ -88,7 +88,7 @@ include './../../head.php';
 		
 	}
 	if(isset($albaran['Productos'])){
-			// Obtenemos los datos totales ( fin de ticket);
+			// Obtenemos los datos totales ;
 			// convertimos el objeto productos en array
 			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
@@ -96,70 +96,18 @@ include './../../head.php';
 		//Guardar el albarán para ello buscamos los datos en el albarán temporal, los almacenamos todos en un array
 		
 	if (isset($_POST['Guardar'])){
+		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
+		//si el resultado es  quiere decir que no hay errores y fue todo correcto
+		//si no es así muestra mensaje de error
 		$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
 	if ($guardar==0){
-		header('Location: pedidosListado.php');
+		header('Location: albaranesListado.php');
 	}else{
 		
 		echo '<div class="alert alert-warning">
 		<strong>Error!</strong>No has introducido ningún producto.
 		</div>';
 	}
-		//~ if ($_POST['idTemporal']){
-				//~ $idAlbaranTemporal=$_POST['idTemporal'];
-			//~ }else{
-				//~ $idAlbaranTemporal=$_GET['tActual'];
-			//~ }
-		//~ $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-		//~ if(['total']){
-				//~ $total=$datosAlbaran['total'];
-		//~ }else{
-				//~ $total=0;
-		//~ }
-	
-		//~ if ($_POST['suNumero']>0){
-				//~ $suNumero=$_POST['suNumero'];
-		//~ }else{
-			//~ $suNumero=0;
-		//~ }
-		//~ if (isset ($_POST['fecha'])){
-			//~ $fecha=$_POST['fecha'];
-		//~ }else{
-			//~ $fecha=$datosAlbaran['fechaInicio'];
-		//~ }
-		//~ $datos=array(
-			//~ 'Numtemp_albpro'=>$idAlbaranTemporal,
-			//~ 'fecha'=>$fecha,
-			//~ 'idTienda'=>$Tienda['idTienda'],
-			//~ 'idUsuario'=>$Usuario['id'],
-			//~ 'idProveedor'=>$datosAlbaran['idProveedor'],
-			//~ 'estado'=>"Guardado",
-			//~ 'total'=>$total,
-			//~ 'DatosTotales'=>$Datostotales,
-			//~ 'productos'=>$datosAlbaran['Productos'],
-			//~ 'pedidos'=>$datosAlbaran['Pedidos'],
-			//~ 'suNumero'=>$suNumero
-		//~ );
-		
-		//~ //Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
-		//~ //original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
-		//~ //Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
-		//~ if ($datosAlbaran['numalbpro']){
-				//~ $numAlbaran=$datosAlbaran['numalbpro'];
-				//~ $datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
-				//~ $idAlbaran=$datosReal['id'];
-				//~ $eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
-				//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
-				//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-		//~ }else{
-				//~ $idAlbaran=0;
-				//~ $numAlbaran=0;
-				//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $numAlbaran, $idAlbaran);
-				//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-				
-		//~ }
-		
-		 header('Location: albaranesListado.php');
 	}
 	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado
