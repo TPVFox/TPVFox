@@ -112,7 +112,6 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
 		cabecera['idTemporal'] = <?php echo $numPedidoTemp ;?>;
 		cabecera['idReal'] = <?php echo $idPedido ;?>;
-	//	cabecera['numPedido']=<?php echo $numPedido;?>;
 		cabecera['idProveedor']=<?php echo $idProveedor ;?>;
 		cabecera['fecha']='<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';
