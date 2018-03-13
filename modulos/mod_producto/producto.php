@@ -32,35 +32,35 @@
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->getProducto($_GET['id']);
+		// Ahora montamos html 
+		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
+		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
+		
+		
+		//~ echo '<pre>';
+		//~ print_r($htmlCodBarras);
+		//~ echo '</pre>';
 			
-		if (isset($Producto['error'])){
-			// Esto me falta, necesito en el objeto, hacer un validador, donde 
-			// validad los datos y las consultas realizadas, 
-			// puedo mostrarlas al usuario.
-			$error='NOCONTINUAR';
-			$tipomensaje= "danger";
-			$mensaje = "Id de producto incorrecto ( ver get) <br/>".$Producto['consulta'];
-		} 
+			
 		
 		if ($_POST){
 			// Comprobamos los datos antes de grabar.
 			// header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
-			}
 		}
+
 		
 		?>
      
 		<div class="container">
 				
 			<?php 
-			if (isset($_GET)){
-			$mensaje=$_GET['mensaje'];
-			$tipomensaje=$_GET['tipo'];
-		}
-			if (isset($mensaje) || isset($error)){   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
+			if (isset($Producto['comprobaciones'])){   ?> 
 				<?php 
-				if (isset($error)){
+				foreach ($Producto['comprobaciones'] as $comprobaciones){?>
+					<div class="alert alert-<?php echo $comprobaciones['tipo']; ?>"><?php echo $comprobaciones['mensaje'] ;?></div>
+					<?php 
+				}
+				if (isset($Producto['error'])){
 				// No permito continuar, ya que hubo error grabe.
 				return;
 				}
@@ -82,7 +82,7 @@
 					<div class="col-md-12">
 						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
-							<input type="text" id="referencia" name="referencia" size="10" placeholder="referencia producto" value="<?php echo $referencia;?>"   >
+							<input type="text" id="referencia" name="referencia" size="10" placeholder="referencia producto" value="<?php echo $Producto['cref_tienda_principal'];?>"   >
 						</div>
 						<div class="form-group col-md-9 ">	
 							<label class="control-label " > Nombre producto:</label>
@@ -95,20 +95,14 @@
 							<?php // Si es nuevo solo se utiliza para calcular precio, no se graba ?>
 							<label class="control-label " > Coste Ultimo:</label>
 							<div>
-								<input type="text" id="coste" size="8" name="coste" placeholder="coste" value="<?php echo number_format($Producto['costepromedio'],2, '.', '');?>"   readonly> 
+								<input type="text" id="coste" size="8" name="costeultimo" value="<?php echo number_format($Producto['ultimoCoste'],2, '.', '');?>"   readonly> 
 								<span class="Euro_grande">€</span> 
 							</div>
 						</div>
 						<div class="form-group col-md-4 ">	
 							<label class="control-label " > Iva:</label>
 							<select id="iva" name="iva" onchange="modifPrecioCiva();">
-								<option value=<?php echo  $Producto['iva'];?>><?php echo  $Producto['iva'].'%';?></option>
-								<?php 
-								//foreach que recorre los tipos de ivas que no son el principal
-								foreach ($ivas as $iva){
-									echo '<option value='.$iva['id'].'>'.$iva['iva'].'%'.'</option>';
-								}
-								?>
+								<?php echo $htmlIvas; ?>
 							</select>
 						</div>
 						<div class="form-group col-md-4 ">
@@ -139,62 +133,12 @@
 				</div>
 				<div class="col-md-5 text-center">
 					 <div class="panel-group">
-						<?php //ejemplo panel collapse : https://www.w3schools.com/bootstrap/tryit.asp?filename=trybs_collapsible_panel&stacked=h 
-						// Ojo con el id collapseX que tiene que se distinto... 
-						?>
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<?php $contNuevo = $contNuevoCodBarras+1;	?>
-								<h2 class="panel-title">
-								<a data-toggle="collapse" href="#collapse1">Codigos de Barras</a>
-								</h2>
-							</div>
-							<div id="collapse1" class="panel-collapse collapse">
-								<div class="panel-body">
-									<table id="tcodigo" class="table table-striped">
-									<thead>
-										<tr>
-											<th>Codigos Barras</th> 						
-											<th>
-												<?php echo '<a id="agregar" onclick="comprobarVacio('. $contNuevo.')">
-												Añadir
-												<span class="glyphicon glyphicon-plus"></span>
-												</a>'; ?>
-											</th>								
-										</tr>
-									</thead>
-									<?php 
-									//si  no hay codigoBarras no hay nada que recorrer
-									if ($codigosBarras['codigos']===''){
-										/*$codBarras='No hay codigos';*/
-										$codBarras='';
-										?>
-										<tr>
-											<td><input type="text" id="codBarras" name="codBarras_0"  value="<?php echo $codBarras;?>"   ></td>
-										<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>
-
-										</tr>
-									<?php	
-									} else {
-										$contExiste=0;
+						<?php 
+						$num = 1 ; // Numero collapse;
+						$titulo = 'Códigos de Barras';
+						echo htmlPanelDesplegable($num,$titulo,$htmlCodBarras);
 						
-										foreach ($codigosBarras['codigos'] as $key =>$codigo){ 
-										
-										?>
-										<tr id="Existe<?php echo $contExiste+1;?>">
-											<td><input type="text" id="codBarras" name="codBarras_<?php echo $contExiste+1;?>"  value="<?php echo $codigo['codBarras'];?>"   ></td>
-											<!-- <td><span class="glyphicon glyphicon-trash"></span></td>-->
-											<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>
-										</tr>
-										<?php
-										$contExiste++;
-										}
-									}
-									?>
-									</table>	
-								</div>
-							</div>
-						</div> 
+						?>
 						<!-- Inicio collapse de Familias --> 
 						<div class="panel panel-default">
 							<div class="panel-heading">
