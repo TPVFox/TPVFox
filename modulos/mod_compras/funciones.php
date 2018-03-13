@@ -694,4 +694,79 @@ function comprobarAlbaran($idProveedor, $BDTpv){
 	}
 	return $bandera;
 }
+function guardarPedido($datosPost, $datosGet, $BDTpv){
+	$Tienda = $_SESSION['tiendaTpv'];
+	$Usuario = $_SESSION['usuarioTpv'];
+	$error=0;
+	
+	$Cpedido=new PedidosCompras($BDTpv);
+	
+	if ($datosPost['idTemporal']){
+		$numPedidoTemp=$datosPost['idTemporal'];
+	}else{
+		$numPedidoTemp=$datosGet['tActual'];
+	}
+	if (isset ($numPedidoTemp)) {
+		$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
+	if($pedidoTemporal['total']){
+		$total=$pedidoTemporal['total'];
+	}else{
+		$error=1;
+		$total=0;
+	}
+	if (isset($datosPost['fecha'])){
+		$bandera=new DateTime($datosPost['fecha']);
+		$fecha=$bandera->format('Y-m-d');
+	}else{
+		if ($pedidoTemporal['fechaInicio']){
+			$bandera=new DateTime($pedidoTemporal['fechaInicio']);
+			$fecha=$bandera->format('Y-m-d');
+		}else{
+			$fecha=date('Y-m-d');		
+		}
+	}
+	if ($pedidoTemporal['idPedpro']){
+		$datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
+		$numPedido=$datosPedidoReal['Numpedpro'];
+	}else{
+		$numPedido=0;
+	}
+	if (isset ($pedidoTemporal['Productos'])){
+		$productos=$pedidoTemporal['Productos'];
+	}else{
+		$error=1;
+	}
+	$fechaCreacion=date("Y-m-d H:i:s");
+	$datosPedido=array(
+		'Numtemp_pedpro'=>$numPedidoTemp,
+		'FechaPedido'=>$fecha,
+		'idTienda'=>$Tienda['idTienda'],
+		'idUsuario'=>$Usuario['id'],
+		'idProveedor'=>$pedidoTemporal['idProveedor'],
+		'estado'=>"Guardado",
+		'total'=>$total,
+		'numPedido'=>$numPedido,
+		'fechaCreacion'=>$fechaCreacion,
+		'Productos'=>$productos,
+		'DatosTotales'=>$Datostotales
+	);
+	}else{
+		$error=1;
+	}
+	
+	if ($error==0){
+		if ($pedidoTemporal['idPedpro']){
+			$idPedido=$pedidoTemporal['idPedpro'];
+			$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
+			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
+			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+		}else{
+			$idPedido=0;
+			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+		}
+	}
+	return $error;
+	
+}
 ?>
