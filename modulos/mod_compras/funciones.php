@@ -240,8 +240,10 @@ function recalculoTotales($productos) {
 	$respuesta['total'] = number_format($subtotal,2);
 	return $respuesta;
 }
-// html de la linea de los productos tanto para pedido, albaran y factura
+
 function htmlLineaProducto($productos, $dedonde){
+	//@Objetivo:
+	// html de la linea de los productos tanto para pedido, albaran y factura
 	 $respuesta=array('html'=>'');
 	if(!is_array($productos)) {
 		// Comprobamos si product no es objeto lo convertimos.
@@ -335,8 +337,10 @@ function htmlLineaProducto($productos, $dedonde){
 		 $respuesta['productos']=$producto;
 	 return $respuesta;
 }
-// Modificar el array de productos para poder trabajar con el en pedidos
+
 function modificarArrayProductos($productos){
+	//@Objetivo:
+	// Modificar el array de productos para poder trabajar en facturas , pedidos y albaranes
 	$respuesta=array();
 	foreach ($productos as $producto){
 		$pro['ccodbar']=$producto['ccodbar'];
@@ -362,9 +366,10 @@ function modificarArrayProductos($productos){
 	}
 	return $respuesta;
 }
-//Modal para cuando buscamos un pedido de un proveedor en albaranes
 
 function modalAdjunto($adjuntos, $dedonde){
+	//@Objetivo: 
+	//retornar el html dle modal de adjuntos tanto como si buscamos un pedido en albaranes o un albarán en facturas
 	$respuesta['html']	.= '<table class="table table-striped"><thead>';
 	$respuesta['html']	.= '<th>';
 	$respuesta['html']	.= '<td>Número </td>';
@@ -402,37 +407,41 @@ function modalAdjunto($adjuntos, $dedonde){
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
 }
-//Agrega la linea de pedidos a un alabaran con los datos necesarios
-function lineaAdjunto($pedido, $dedonde){
+function lineaAdjunto($adjunto, $dedonde){
+	//@Objetivo:
+	//Retornar el html de la linea de adjuntos(esto puede ser un pedido en albarán o un albarán en factura).
+	//@Parametros:
+	//adjunto: los datos del albarán o pedido a adjuntar
+	//dedonde: de donde venimos si de albarán o de factura
 		$respuesta['html']="";
-	if(isset($pedido)){
-		if ($pedido['estado']){
-			if ($pedido['NumAdjunto']){
-				$num=$pedido['NumAdjunto'];
+	if(isset($adjunto)){
+		if ($adjunto['estado']){
+			if ($adjunto['NumAdjunto']){
+				$num=$adjunto['NumAdjunto'];
 			}
-			if ($pedido['Numpedpro']){
-				$num=$pedido['Numpedpro'];
+			if ($adjunto['Numpedpro']){
+				$num=$adjunto['Numpedpro'];
 			}
-			if ($pedido['estado']=="activo"){
-				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
+			if ($adjunto['estado']=="activo"){
+				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$adjunto['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
 				$estadoInput = '';
 			}else{
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
+				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 	
 			}
 		}
-		$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
-		if (isset($pedido['NumAdjunto'])){
-		$respuesta['html'] .='<td>'.$pedido['NumAdjunto'].'</td>';
+		$respuesta['html'] .='<tr id="lineaP'.($adjunto['nfila']).'" '.$classtr.'>';
+		if (isset($adjunto['NumAdjunto'])){
+		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
 		
-		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
-		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>';
+		$respuesta['html'] .='<td>'.$adjunto['total'].'</td>';
 		
 		$respuesta['html'].=$btnELiminar_Retornar;
 		$respuesta['html'] .='</tr>';
@@ -440,8 +449,10 @@ function lineaAdjunto($pedido, $dedonde){
 	return $respuesta;
 }
 
-//Modifica el array de pedidos . Esta función se carga en albaranes.php
+
 function modificarArrayPedidos($pedidos, $BDTpv){
+	//Objetivo : 
+	//Modificar el array de pedidos . Esta función se carga en albaranes.php
 	$respuesta=array();
 		$i=1;
 	foreach ($pedidos as $pedido){
@@ -461,8 +472,10 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 	}
 	return $respuesta;
 }
-//MOdifica el array de albaranes , esta función se carga en facturas.php
+
 function modificarArrayAlbaranes($alabaranes, $BDTpv){
+	//@Objetivo:
+	//MOdificar el array de albaranes , esta función se carga en facturas.php
 	$respuesta=array();
 	$i=1;
 	foreach ($alabaranes as $albaran){
@@ -482,12 +495,14 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 	}
 	return $respuesta;
 }
-//Función que monta el html del pdf, primero se carga los datos dependiendo de donde venga 
-//A continuación se va montando el html pero en dos partes :
-//				- UNa la cabecera : son los datos que queremos fijos en todas las páginas 
-//				- otro es el cuerpo 
-//No hayq eu preocuparse si es mucho contenido ya que la librería pasa automaticamente a la siguiente hoja
+
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
+	//@Objetivo:
+	//Función que monta el html del pdf, primero se carga los datos dependiendo de donde venga 
+	//A continuación se va montando el html pero en dos partes :
+	//				- UNa la cabecera : son los datos que queremos fijos en todas las páginas 
+	//				- otro es el cuerpo 
+	//No hayq eu preocuparse si es mucho contenido ya que la librería pasa automaticamente a la siguiente hoja
 	$CProv= new Proveedores($BDTpv);
 	if ($dedonde=="factura"){
 		$CFac=new FacturasCompras($BDTpv);
@@ -763,6 +778,10 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 	
 }
 function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
+	//@Objetivo: guardar los da tos del albarán 
+	//Primero se eliminan todos los registros que tenga el id del albarán real de esta manera a continuación insertamos los nuevo
+	//registros
+	//Por último se elimina el albarán temporal
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	$error=0;
