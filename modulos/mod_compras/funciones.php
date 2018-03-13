@@ -511,7 +511,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosFAc=$CFac->ProductosFactura($id);
 		$productosDEF=modificarArrayProductos($productosFAc);
 		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$texto="Factura Proveedor";
 		$numero=$datos['Numfacpro'];
 		$suNumero=$datos['su_num_factura'];
@@ -524,7 +524,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAlbaran=$CAlb->ProductosAlbaran($id);
 		$productosDEF=modificarArrayProductos($productosAlbaran);
 		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$texto="Albarán Proveedor";
 		$numero=$datos['Numalbpro'];
 		$suNumero=$datos['su_numero'];
@@ -532,11 +532,11 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	}
 	if ($dedonde=="pedido"){
 		$Cpedido=new PedidosCompras($BDTpv);
-		$datos=$Cpedido->datosPedidos($id);
+		$datos=$Cpedido->DatosPedido($id);
 		$productosPedido=$Cpedido->ProductosPedidos($id);
 		$productosDEF=modificarArrayProductos($productosPedido);
 		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
 		$texto="Pedido Proveedor";
 		$numero=$datos['Numpedpro'];
