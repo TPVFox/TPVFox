@@ -57,7 +57,7 @@ include './../../head.php';
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 			 $pedidos=json_decode(json_encode($modificarPedido), true);
 		}
-		$total=$Datostotales['total'];
+	//	$total=$Datostotales['total'];
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id
@@ -69,13 +69,11 @@ include './../../head.php';
 					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
 					$idAlbaran=$datosReal['id'];
 				}else{
-					//$numAlbaran=0;
 					$idAlbaran=0;
 				}
 				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
 					$fecha=date('Y-m-d');
 				}else{
-					//$fecha1=date_create($datosAlbaran['fechaInicio']);
 					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 				}
 				if ($datosAlbaran['Su_numero']>0){
@@ -84,13 +82,8 @@ include './../../head.php';
 					$suNumero=0;
 				}
 				$idProveedor=$datosAlbaran['idProveedor'];
-				echo $idProveedor;
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
-			
-				
-				
-				$estadoCab="'".'Abierto'."'";
 				$albaran=$datosAlbaran;
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
@@ -361,9 +354,6 @@ if ($suNumero==0){
 				</thead>
 				
 				<?php 
-				echo '<pre>';
-				print_r($pedidos);
-				echo '</pre>';
 				if (is_array($pedidos)){
 					foreach ($pedidos as $pedido){
 						$html=lineaAdjunto($pedido, "albaran");
@@ -413,9 +403,6 @@ if ($suNumero==0){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaProducto($producto, "albaran");
 				echo $html['html'];
-				//~ echo '<pre>';
-				//~ print_r($producto);
-				//~ echo '</pre>';
 			}
 		
 			}
@@ -424,33 +411,27 @@ if ($suNumero==0){
 	  </table>
 	</div>
 	<?php 
-	if (isset($Datostotales)){
-			//~ // Ahora montamos base y ivas
-			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				switch ($iva){
-					case 4 :
-						$base4 = $basesYivas['base'];
-						$iva4 = $basesYivas['iva'];
-					break;
-					case 10 :
-						$base10 = $basesYivas['base'];
-						$iva10 = $basesYivas['iva'];
-					break;
-					case 21 :
-						$base21 = $basesYivas['base'];
-						$iva21 = $basesYivas['iva'];
-					break;
-				}
-			}
-	
-	?>
 
+	// Ahora montamos base y ivas, esto debería ser una funcion, ya que lo utilizamos en imprimir tb.
+	if (isset($Datostotales)){
+		// Montamos ivas y bases
+		$htmlIvas = '';
+		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
+			$key = intval($key);
+			$htmlIvas.='<tr id="line'.$key.'">';
+			$htmlIvas.='<td id="tipo'.$key.'"> '.$key.'%</td>';
+			$htmlIvas.='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
+			$htmlIvas.='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
+			$htmlIvas.='</tr>';
+		}
+	}
+	if (isset($DatosTotales)){
+		?>
 		<script type="text/javascript">
 			total = <?php echo $Datostotales['total'];?>;
-			</script>
-
-			<?php
-}
+		</script>
+		<?php
+	}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -462,44 +443,7 @@ if ($suNumero==0){
 			</tr>
 		</thead>
 		<tbody>
-			<tr id="line4">
-				<td id="tipo4">
-					<?php echo (isset($base4) ? " 4%" : '');?>
-				</td>
-				<td id="base4">
-					<?php echo (isset($base4) ? $base4 : '');?>
-				</td>
-				<td id="iva4">
-
-					<?php echo (isset($iva4) ? $iva4 : '');?>
-
-				</td>
-				
-			</tr>
-			<tr id="line10">
-				<td id="tipo10">
-					<?php echo (isset($base10) ? "10%" : '');?>
-				</td>
-				<td id="base10">
-					<?php echo (isset($base10) ? $base10 : '');?>
-				</td>
-				<td id="iva10">
-					<?php echo (isset($iva10) ? $iva10 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line21">
-				<td id="tipo21">
-					<?php echo (isset($base21) ? "21%" : '');?>
-				</td>
-				<td id="base21">
-					<?php echo (isset($base21) ? $base21 : '');?>
-				</td>
-				<td id="iva21">
-					<?php echo (isset($iva21) ? $iva21 : '');?>
-				</td>
-				
-			</tr>
+			<?php echo $htmlIvas; ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
