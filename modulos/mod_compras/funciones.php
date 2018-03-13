@@ -1,7 +1,5 @@
 <?php 
 
-//~ include '../../clases/Proveedores.php';
-//~ include 'clases/facturasCompras.php';
 include '../../configuracion.php';
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
@@ -10,7 +8,6 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
 	//		$dedonde  -> Nos indica de donde viene. ()
 	$resultado = array();
-	//$resultado['proveedores']=$proveedores;
 	$n_dedonde = 0 ; 
 	$resultado['encontrados'] = count($proveedores);
 	$idcaja;
@@ -33,10 +30,6 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 			
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-			//~ $resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			//~ .')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirProveedorSeleccionado('.$datos.",'".$dedonde."'".');">';
-		
-		
 		
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
 			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
@@ -98,11 +91,6 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 			.' ON a.idArticulo = ac.idArticulo '
 			.'  LEFT JOIN `articulosTiendas` '
 			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '.$buscar.' LIMIT 0 , 30 ';
-			//~ $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste, at.crefTienda , a.`iva` '
-			//~ .' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
-			//~ .' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
-			//~ .' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
-			//~ .' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
@@ -221,11 +209,7 @@ function recalculoTotales($productos) {
 	$desglose = array();
 	$subivas = 0;
 	$subtotal = 0;
-	//~ $productosTipo=gettype($productos);
-	//~ $respuesta['tipo']=$productosTipo;
-	// Creamos array de tipos de ivas hay en productos.
-	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
-	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
+	
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estado === 'Activo'){
@@ -250,7 +234,7 @@ function recalculoTotales($productos) {
 		$subivas= $subivas+$desglose[$tipoIva]['iva'];
 		$subtotal= $subtotal +$desglose[$tipoIva]['BaseYiva'];
 	}
-	//~ $respuesta['ivas'] = $ivas;
+	
 	$respuesta['desglose'] = $desglose;
 	$respuesta['subivas']=$subivas;
 	$respuesta['total'] = number_format($subtotal,2);
@@ -367,8 +351,6 @@ function modificarArrayProductos($productos){
 		if (isset ($producto['Numalbpro'])){
 			$pro['numAlbaran']=$producto['Numalbpro'];
 		}
-		//$bandera=$producto['iva']/100;
-		//$importe=($bandera+$producto['costeSiva'])*$producto['nunidades'];
 		$importe=$producto['costeSiva']*$producto['nunidades'];
 		$pro['importe']=$importe;
 		$pro['iva']=$producto['iva'];
