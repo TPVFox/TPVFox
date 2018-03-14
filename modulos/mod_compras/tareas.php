@@ -393,11 +393,13 @@ switch ($pulsado) {
 				'fecha'=>$_POST['fecha'],
 				'estado'=>"activo"
 			);
+			
 			if ($buscar){
 				if ($buscar['fechaActualizacion']>$_POST['fecha']){
 					$respuesta['error']=1;
 				}else{
 					$mod=$CArticulos->modificarCosteProveedorArticulo($datos);
+					$respuesta['sql']=$mod;
 				}
 				
 			}else{
