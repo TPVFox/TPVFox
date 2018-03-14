@@ -432,20 +432,6 @@ if ($suNumero==0){
 	  </table>
 	</div>
 	<?php 
-
-	// Ahora montamos base y ivas, esto debería ser una funcion, ya que lo utilizamos en imprimir tb.
-	if (isset($Datostotales)){
-		// Montamos ivas y bases
-		$htmlIvas = '';
-		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
-			$key = intval($key);
-			$htmlIvas.='<tr id="line'.$key.'">';
-			$htmlIvas.='<td id="tipo'.$key.'"> '.$key.'%</td>';
-			$htmlIvas.='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
-			$htmlIvas.='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
-			$htmlIvas.='</tr>';
-		}
-	}
 	if (isset($DatosTotales)){
 		?>
 		<script type="text/javascript">
@@ -464,7 +450,8 @@ if ($suNumero==0){
 			</tr>
 		</thead>
 		<tbody>
-			<?php echo $htmlIvas; ?>
+			<?php $htmlIvas=htmlTotales($Datostotales);
+			echo $htmlIvas['html'];  ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
