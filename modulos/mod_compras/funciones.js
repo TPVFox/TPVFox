@@ -156,15 +156,7 @@ function controladorAcciones(caja,accion, tecla){
 			cerrarPopUp()
 		break;
 		case 'addPedidoAlbaran':
-		if (caja.darParametro('dedonde')=="albaran"){
-			//buscarPedido(caja.darValor());
 			buscarAdjunto(caja.darParametro('dedonde'), caja.darValor());
-		}
-		if (caja.darParametro('dedonde')=="factura"){
-			//buscarAlbaran(caja.darParametro('dedonde'), caja.darValor());
-			buscarAdjunto(caja.darParametro('dedonde'), caja.darValor());
-		}
-			
 		break;
 		
 		case 'buscarUltimoCoste':
