@@ -855,7 +855,66 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	return $error;
 }
 
-
+function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales){
+	$Tienda = $_SESSION['tiendaTpv'];
+	$Usuario = $_SESSION['usuarioTpv'];
+	$error=0;
+	$CFac = new FacturasCompras($BDTpv);
+	if ($datosPost['idTemporal']){
+		$idFacturaTemporal=$datosPost['idTemporal'];
+	}else{
+		$idFacturaTemporal=$datosGet['tActual'];
+	}
+	if(isset ($idFacturaTemporal)){
+		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+		if(['total']){
+				$total=$datosFactura['total'];
+		}else{
+				$total=0;
+				$error=1;
+		}
+		if ($datosPost['suNumero']>0){
+				$suNumero=$datosPost['suNumero'];
+		}else{
+			$suNumero=0;
+		}
+		$datos=array(
+			'Numtemp_facpro'=>$idFacturaTemporal,
+			'fecha'=>$datosFactura['fechaInicio'],
+			'idTienda'=>$Tienda['idTienda'],
+			'idUsuario'=>$Usuario['id'],
+			'idProveedor'=>$datosFactura['idProveedor'],
+			'estado'=>"Guardado",
+			'total'=>$total,
+			'DatosTotales'=>$Datostotales,
+			'productos'=>$datosFactura['Productos'],
+			'albaranes'=>$datosFactura['Albaranes'],
+			'suNumero'=>$suNumero
+		);
+		if ($error==0){
+			if ($datosFactura['numfacpro']){
+				$numFactura=$datosFactura['numfacpro'];
+				$datosReal=$CFac->buscarFacturaNumero($numFactura);
+				$idFactura=$datosReal['id'];
+				$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
+				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
+				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+			}else{
+				$idFactura=0;
+				$numFactura=0;
+				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
+				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+			}
+		}else{
+			$error=1;
+		}
+		
+	}else{
+		$error=1;
+	}
+	return $error;
+	
+}
 function htmlTotales($Datostotales){
 	$htmlIvas['html'] = '';
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){

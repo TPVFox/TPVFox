@@ -118,51 +118,16 @@ include './../../head.php';
 		// y cargamos los datos nuevos y por último eliminamos el temporal. Si no existe el pedido solo cargamos los datos nuevos
 		//Y eliminamos el temporal
 	if (isset($_POST['Guardar'])){
-		if ($_POST['idTemporal']){
-				$idFacturaTemporal=$_POST['idTemporal'];
+			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales);
+			if ($guardar==0){
+				header('Location: facturasListado.php');
 			}else{
-				$idFacturaTemporal=$_GET['tActual'];
-			}
-		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-		if(['total']){
-				$total=$datosFactura['total'];
-		}else{
-				$total=0;
-		}
-	
-		if ($_POST['suNumero']>0){
-				$suNumero=$_POST['suNumero'];
-		}else{
-			$suNumero=0;
-		}
-		$datos=array(
-			'Numtemp_facpro'=>$idFacturaTemporal,
-			'fecha'=>$datosFactura['fechaInicio'],
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idProveedor'=>$datosFactura['idProveedor'],
-			'estado'=>"Guardado",
-			'total'=>$total,
-			'DatosTotales'=>$Datostotales,
-			'productos'=>$datosFactura['Productos'],
-			'albaranes'=>$datosFactura['Albaranes'],
-			'suNumero'=>$suNumero
-		);
 		
-		if ($datosFactura['numfacpro']){
-				$numFactura=$datosFactura['numfacpro'];
-				$datosReal=$CFac->buscarFacturaNumero($numFactura);
-				$idFactura=$datosReal['id'];
-				$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
-				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
-				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
-		}else{
-				$idFactura=0;
-				$numFactura=0;
-				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
-				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
-		}
-		header('Location: facturasListado.php');
+				echo '<div class="alert alert-warning">
+				<strong>Error!</strong>No has introducido ningún producto.
+				</div>';
+			}
+		//header('Location: facturasListado.php');
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
