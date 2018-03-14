@@ -90,7 +90,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo '
 			.'  LEFT JOIN `articulosTiendas` '
-			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '.$buscar.' LIMIT 0 , 30 ';
+			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '.$buscar.' group by  a.idArticulo LIMIT 0 , 30 ';
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
