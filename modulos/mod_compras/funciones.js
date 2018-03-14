@@ -210,7 +210,7 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 				}else{
 					productos[nfila].ultimoCoste=valor;
 					//var bandera=productos[nfila].iva/100;
-					productos[nfila].importe=parseFloat(valor)*productos[nfila].ncant;
+					productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
 					var id = '#N'+productos[nfila].nfila+'_Importe';
 					importe = productos[nfila].importe.toFixed(2);
 					$(id).html(importe);
@@ -1007,6 +1007,7 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 		console.log(productos[num_item].ultimoCoste+bandera);
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
+		console.log(importe);
 		productos[num_item].importe=importe;
 		$(id).html(importe);
 		addTemporal(dedonde);
