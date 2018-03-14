@@ -927,4 +927,27 @@ function htmlTotales($Datostotales){
 		}
 	return $htmlIvas;
 }
+
+function cancelarFactura($datosPost, $datosGet,$BDTpv){
+	$CFac = new FacturasCompras($BDTpv);
+	$CAlb=new AlbaranesCompras($BDTpv);
+	$error=0;
+	if ($datosPost['idTemporal']){
+			$idFacturaTemporal=$datosPost['idTemporal'];
+	}else{
+			$idFacturaTemporal=$datosGet['tActual'];
+	}
+	if (isset($idFacturaTemporal)){
+		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+		$albaranes=json_decode($datosFactura['Albaranes'], true);
+		foreach ($albaranes as $albaran){
+			$mod=$CAlb->modEstadoAlbaran($albaran['idAlbaran'], "Guardado");
+		}
+		$idFactura=0;
+		$eliminarTemporal=$CFac->EliminarRegistroTemporal($idTemporal, $idFactura);
+	}else{
+		$error=1;
+	}
+	return $error;
+}
 ?>
