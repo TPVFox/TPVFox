@@ -854,4 +854,18 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 		}
 	return $error;
 }
+
+
+function htmlTotales($Datostotales){
+	$htmlIvas['html'] = '';
+		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
+			$key = intval($key);
+			$htmlIvas['html'].='<tr id="line'.$key.'">';
+			$htmlIvas['html'].='<td id="tipo'.$key.'"> '.$key.'%</td>';
+			$htmlIvas['html'].='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
+			$htmlIvas['html'].='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
+			$htmlIvas['html'].='</tr>';
+		}
+	return $htmlIvas;
+}
 ?>

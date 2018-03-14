@@ -230,7 +230,8 @@ switch ($pulsado) {
 					$respuesta['totales']=$CalculoTotales;
 					$modTotal=$CPed->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
 					$respuesta['sqlmodtotal']=$modTotal['sql'];
-					
+					$htmlTotales=htmlTotales($CalculoTotales);
+					$respuesta['htmlTabla']=$htmlTotales['html'];
 				}
 				$respuesta['id']=$res;
 				$respuesta['existe']=$existe;

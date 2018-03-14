@@ -801,11 +801,15 @@ function addTemporal(dedonde=""){
 			}
 			// Creo funcion para restear totales.	
 			resetearTotales();
+			
+			total = parseFloat(resultado['totales']['total'])
+			$('.totalImporte').html(total.toFixed(2));
+			$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
 			// Ahora pintamos pie de ticket.
-			if (resultado['totales']['total'] > 0 ){
+			//~ if (resultado['totales']['total'] > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
-				pintamosTotales(resultado);
-			}
+				//~ pintamosTotales(resultado);
+			//~ }
 		}
 	});
 }
