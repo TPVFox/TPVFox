@@ -432,33 +432,27 @@ if ($suNumero==0){
 	  </table>
 	</div>
 	<?php 
-	if (isset($Datostotales)){
-			//~ // Ahora montamos base y ivas
-			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				switch ($iva){
-					case 4 :
-						$base4 = $basesYivas['base'];
-						$iva4 = $basesYivas['iva'];
-					break;
-					case 10 :
-						$base10 = $basesYivas['base'];
-						$iva10 = $basesYivas['iva'];
-					break;
-					case 21 :
-						$base21 = $basesYivas['base'];
-						$iva21 = $basesYivas['iva'];
-					break;
-				}
-			}
-	
-	?>
 
+	// Ahora montamos base y ivas, esto debería ser una funcion, ya que lo utilizamos en imprimir tb.
+	if (isset($Datostotales)){
+		// Montamos ivas y bases
+		$htmlIvas = '';
+		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
+			$key = intval($key);
+			$htmlIvas.='<tr id="line'.$key.'">';
+			$htmlIvas.='<td id="tipo'.$key.'"> '.$key.'%</td>';
+			$htmlIvas.='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
+			$htmlIvas.='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
+			$htmlIvas.='</tr>';
+		}
+	}
+	if (isset($DatosTotales)){
+		?>
 		<script type="text/javascript">
 			total = <?php echo $Datostotales['total'];?>;
-			</script>
-
-			<?php
-}
+		</script>
+		<?php
+	}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -470,44 +464,7 @@ if ($suNumero==0){
 			</tr>
 		</thead>
 		<tbody>
-			<tr id="line4">
-				<td id="tipo4">
-					<?php echo (isset($base4) ? " 4%" : '');?>
-				</td>
-				<td id="base4">
-					<?php echo (isset($base4) ? $base4 : '');?>
-				</td>
-				<td id="iva4">
-
-					<?php echo (isset($iva4) ? $iva4 : '');?>
-
-				</td>
-				
-			</tr>
-			<tr id="line10">
-				<td id="tipo10">
-					<?php echo (isset($base10) ? "10%" : '');?>
-				</td>
-				<td id="base10">
-					<?php echo (isset($base10) ? $base10 : '');?>
-				</td>
-				<td id="iva10">
-					<?php echo (isset($iva10) ? $iva10 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line21">
-				<td id="tipo21">
-					<?php echo (isset($base21) ? "21%" : '');?>
-				</td>
-				<td id="base21">
-					<?php echo (isset($base21) ? $base21 : '');?>
-				</td>
-				<td id="iva21">
-					<?php echo (isset($iva21) ? $iva21 : '');?>
-				</td>
-				
-			</tr>
+			<?php echo $htmlIvas; ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
