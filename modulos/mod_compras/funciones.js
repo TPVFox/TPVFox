@@ -1174,12 +1174,15 @@ function pintamosTotales (DesgloseTotal) {
 		// mostramos los tipos ivas , bases y importes.
 		var tipos = Object.keys(desglose);
 		console.log(desglose);
+		//~ console.log(index);
 		for (index in tipos){
-			var tipo = tipos[index];
-			$('#line'+parseInt(tipo)).css('display','');
-			$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-			$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-			$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+			var iva = tipos[index];
+			console.log(desglose[iva].base);
+			console.log(parseInt(iva));
+			$('#line'+parseInt(iva)).css('display','');
+			$('#tipo'+parseInt(iva)).html(parseInt(iva)+'%');
+			$('#base'+parseInt(iva)).html(desglose[iva].base); 
+			$('#iva'+parseInt(iva)).html(desglose[iva].iva);
 		}
 	});
 	
