@@ -15,14 +15,19 @@ class PedidosVentas{
 		$smt = $db->query($sql);
 		return $smt;
 	}
-	//Añade un nuevo registro a la tabla temporal
-	public function AddClienteTemp($idCliente, $idTienda, $idUsuario, $estadoPedido){
+	
+	public function AddClienteTemp($idCliente, $idTienda, $idUsuario, $estado){
+		//@Objetivo: Añadir un nuevo registro a la tabla de pedidos temporales
+		//@parametros:
+		//idCliente: id del cliente seleccionado 
+		//idTienda: id de la tienda 
+		//idUsuario: id del usuario 
+		//estado: estado del pedido
+		
 		$db = $this->db;
-		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'")');
-		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'")';
+		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estado.'")');
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
-		$respuesta['sql']=$sql;
 		return $respuesta;
 		
 	}
@@ -30,10 +35,8 @@ class PedidosVentas{
 	public function AddClienteTempPedidoGuardado($idCliente, $idTienda, $idUsuario, $estadoPedido, $idPedido){
 		$db = $this->db;
 		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'", '.$idPedido.')');
-		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'", '.$idPedido.')';
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
-		$respuesta['sql']=$sql;
 		return $respuesta;
 	}
 	//Modifica los datos bases de un registro en la tabla temporal
@@ -46,8 +49,6 @@ class PedidosVentas{
 	public function ModNumPedidoTtemporal($idTemporal, $idPedido){
 		$db = $this->db;
 		$smt = $db->query ('UPDATE pedcliltemporales set idPedcli ='.$idPedido.' WHERE id='.$idTemporal);
-		$sql='UPDATE pedcliltemporales set idPedcli ='.$idPedido.' WHERE id='.$idTemporal;
-		return $sql;
 	}
 	//Busca todos los campos de un registro en la tabla temporal
 	public function BuscarIdTemporal($idTemporal){
@@ -87,7 +88,6 @@ class PedidosVentas{
 		$db = $this->db;
 		if ($idPedido>0){
 		$smt = $db->query ('INSERT INTO pedclit (id, Numpedcli , Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$numPedido.' , '.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
-		$resultado['sql']='INSERT INTO pedclit (id, Numpedcli , Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$numPedido.' , '.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")';
 		$id=$idPedido;
 		}else{
 		$smt = $db->query ('INSERT INTO pedclit (Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
@@ -238,8 +238,6 @@ class PedidosVentas{
 		}
 		}else{
 			$smt=$db->query('SELECT  Numpedcli, FechaPedido , total , id from pedclit where idCliente='.$idCliente .' and estado="Guardado"');
-			//$sql='SELECT  Numpedcli, FechaPedido , total from pedclit where idCliente='.$idCliente;
-			//$pedido['sql']=$sql;
 			$pedidosPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($pedidosPrincipal,$result);	
@@ -254,8 +252,6 @@ class PedidosVentas{
 	public function ModificarEstadoPedido($idPedido, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE pedclit SET estado="'.$estado.'" WHERE id='.$idPedido);
-		$sql='UPDATE pedclit SET estado='.$estado.' WHERE id='.$idPedido;
-		$resultado['sql']=$sql;
 		return $resultado;
 	}
 	//Comprobar los pedidos de un cliente determinado con el estado guardado
@@ -263,8 +259,6 @@ class PedidosVentas{
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';
 		$smt=$db->query('SELECT  id from pedclit where idCliente='.$idCliente .' and estado='.$estado);
-		$sql='SELECT  id from pedclit where idCliente='.$idCliente .' and estado='.$estado;
-		$pedidos['sql']=$sql;
 		while ( $result = $smt->fetch_assoc () ) {
 			$pedidos['ped']=1;
 		}
