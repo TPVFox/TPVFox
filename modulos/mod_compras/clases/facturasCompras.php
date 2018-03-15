@@ -227,9 +227,9 @@ class FacturasCompras extends ClaseCompras{
 			if ($albaran['estado']=='activo'){
 				if($idAlbaran>0){
 				
-				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')');
+				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idAdjunto'].' , '.$albaran['NumAdjunto'].')');
 				}else{
-				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idAlbaran'].' , '.$albaran['Numalbpro'].')');
+				$smt=$db->query('INSERT INTO albprofac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idAdjunto'].' , '.$albaran['NumAdjunto'].')');
 				}
 			}
 		}

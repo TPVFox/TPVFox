@@ -485,8 +485,10 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 			while ($fila = $datosAlbaran->fetch_assoc()) {
 				$alb = $fila;
 			}
-			$res['Numalbpro']=$albaran['numAlbaran'];
-			$res['idAlbaran']=$alb['id'];
+			//~ $res['Numalbpro']=$albaran['numAlbaran'];
+			//~ $res['idAlbaran']=$alb['id'];
+			$res['NumAdjunto']=$albaran['numAlbaran'];
+			$res['idAdjunto']=$alb['id'];
 			$res['fecha']=$alb['Fecha'];
 			$res['idPePro']=$alb['idProveedor'];
 			$res['total']=$alb['total'];
