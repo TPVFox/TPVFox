@@ -17,6 +17,8 @@ include './../../head.php';
 	$titulo="Crear Pedido De Cliente";
 	$estado='Abierto';
 	$bandera=0;
+	$fecha=date('Y-m-d');
+	
 if ($_GET){
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
@@ -24,11 +26,9 @@ if ($_GET){
 		if ($datosPedido['estado']=='Facturado'){//Dependiendo del estado mostramos unos titulo u otro
 			$titulo="Pedidos De Cliente Facturado";
 			$estado='Facturado';
-			$estadoCab="'".'Facturado'."'";
 		}else{
 			$titulo="Modificar Pedido De Cliente";
 			$estado='Modificado';
-			$estadoCab="'".'Modificado'."'";
 		}
 		
 		
@@ -51,15 +51,10 @@ if ($_GET){
 		$pedido_numero=0;
 		
 	}else{
-		$titulo="Crear Pedido De Cliente";
-		$bandera=1;
-		$estado='Abierto';
-		$estadoCab="'".'Abierto'."'";
-		$fecha=date('Y-m-d');
+		
 			if ($_GET['tActual']){//Si recibe un id de un temporal 
 			$pedido_numero=$_GET['tActual'];
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($pedido_numero);//Buscamos los datos del temporal
-			$estadoCab="'".$pedidoTemporal['estadoPedCli']."'";
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
 			if ($pedidoTemporal['idPedcli']){
@@ -84,7 +79,6 @@ if ($_GET){
 	}
 }else{
 	$fecha=date('Y-m-d');
-	$estadoCab="'".'Abierto'."'";
 	$pedido_numero = 0;
 	$idPedido=0;
 	$total=0;
@@ -182,7 +176,7 @@ if ($_GET){
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estadoPedido'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['estadoPedido'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['numPedidoTemp'] = <?php echo $pedido_numero ;?>;
 		cabecera['idPedido'] = <?php echo $idPedido ;?>;
 		cabecera['idCliente']=<?php echo $idCliente ;?>;
