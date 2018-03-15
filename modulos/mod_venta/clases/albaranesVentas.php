@@ -1,37 +1,6 @@
 <?php 
 class AlbaranesVentas{
-	private $idalbcli;
-	private $numalbcli;
-	private $numtemp_albcli;
-	private $fecha;
-	private $idTienda;
-	private $idUsuario;
-	private $idCliente;
-	private $estado;
-	private $formaPago;
-	private $entregado;
-	private $total;
-	private $idalbcclitemporal;
-	private $fechaInicioTemporal;
-	private $fechaFinalTemporal;
-	private $totalTemporal;
-	private $total_ivasTemporal;
-	private $productos;
-	private $idabcclilinea;
-	private $idArticulo;
-	private $cref;
-	private $ccodbar;
-	private $cdetalle;
-	private $ncant;
-	private $nunidades;
-	private $precioCiva;
-	private $iva;
-	private $nfila;
-	private $estadoLinea;
-	private $idalbIva;
-	private $ivaalbIva;
-	private $importeIva;
-	private $totalbase;
+	
 	
 	public function __construct($conexion){
 		$this->db = $conexion;
