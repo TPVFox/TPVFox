@@ -1,5 +1,6 @@
 <?php 
-class PedidosVentas{
+include_once ('./clases/ClaseVentas.php');
+class PedidosVentas extends ClaseVentas{
 	
 	public function __construct($conexion){
 		$this->db = $conexion;
