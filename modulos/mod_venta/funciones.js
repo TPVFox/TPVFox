@@ -292,7 +292,7 @@ function abrirModal(titulo,tabla){
 		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
 	});
 }
-function controladorAcciones(caja,accion, tecla , event){
+function controladorAcciones(caja,accion, tecla){
 	// @ Objetivo es obtener datos si fuera necesario y ejecutar accion despues de pulsar una tecla.
 	//  Es Controlador de acciones a pulsar una tecla que llamamos desde teclado.js
 	// @ Parametros:
@@ -300,6 +300,7 @@ function controladorAcciones(caja,accion, tecla , event){
 	//				tiene funciones que podemos necesitar como:
 	//						darValor -> donde obtiene el valor input
 	switch(accion) {
+		
 		case 'buscarClientes':
 			// Esta funcion necesita el valor.
 			
