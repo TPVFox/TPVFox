@@ -18,6 +18,10 @@ include './../../head.php';
 	$estado='Abierto';
 	$bandera=0;
 	$fecha=date('Y-m-d');
+	$pedido_numero = 0;
+	$idPedido=0;
+	$total=0;
+	$idCliente=0;
 	
 if ($_GET){
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
@@ -61,23 +65,10 @@ if ($_GET){
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
 			}
-		}else{
-			$pedido_numero = 0;
-			$idPedido=0;
-			$total=0;
-			$idCliente=0;
 		}
 		
 	}
-}else{
-	$fecha=date('Y-m-d');
-	$pedido_numero = 0;
-	$idPedido=0;
-	$total=0;
-	$idCliente=0;
-	$nombreCliente=0;
 }
-
 $titulo .= ': '.$estado;
 
 		if(isset($pedido['Productos'])){
