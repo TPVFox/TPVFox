@@ -114,9 +114,7 @@ include './../../head.php';
 			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
-		//Para guardar cargamos todos los datos en un array , luego comprobamos que si el pedido existe si es así lo borramos
-		// y cargamos los datos nuevos y por último eliminamos el temporal. Si no existe el pedido solo cargamos los datos nuevos
-		//Y eliminamos el temporal
+		
 	if (isset($_POST['Guardar'])){
 			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales);
 			if ($guardar==0){
@@ -127,7 +125,7 @@ include './../../head.php';
 				<strong>Error!</strong>No has introducido ningún producto.
 				</div>';
 			}
-		//header('Location: facturasListado.php');
+		
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
@@ -159,7 +157,7 @@ include './../../head.php';
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
 		
-		
+		echo $albaranes;
 		if ($albaranes || $comprobarAlbaran==1){
 			$style="";
 		}else{

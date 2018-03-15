@@ -266,11 +266,12 @@ function buscarAdjunto(dedonde, valor=""){
 					}
 					for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
 						console.log("entre en el for");
-						if (dedonde=="albaran"){
-							var numeroReal=adjuntos[i].Numpedpro;
-						}else{
-							var numeroReal=adjuntos[i].Numalbpro;
-						}
+						//~ if (dedonde=="albaran"){
+							//~ var numeroReal=adjuntos[i].Numpedpro;
+						//~ }else{
+							//~ var numeroReal=adjuntos[i].Numalbpro;
+						//~ }
+						var numeroReal=adjuntos[i].NumAdjunto;
 						var numeroNuevo=resultado['datos'].NumAdjunto;
 						if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
 						//del array pedidos entonces la bandera es igual a 1
@@ -324,7 +325,7 @@ function buscarAdjunto(dedonde, valor=""){
 								numFila++;
 							}
 							addTemporal(dedonde);
-							modificarEstado(dedonde, "Facturado", numAdjunto, idAdjunto);
+							modificarEstado(dedonde, "Facturado",  idAdjunto);
 							//Agregamos una nueva fila con los datos principales de pedidos
 							AgregarAdjunto(datos, dedonde);
 							//Agregamos los productos de el pedido seleccionado
@@ -342,7 +343,7 @@ function buscarAdjunto(dedonde, valor=""){
 	});
 }
 
-function modificarEstado(dedonde, estado, num="", id=""){
+function modificarEstado(dedonde, estado, id=""){
 	//~ @Objetivo: Modificar el estado según el id que llegue y de donde para poder filtrar
 	//~ @Parametros : el estado se envia en la función
 		console.log("Entre en modificar estado pedido");

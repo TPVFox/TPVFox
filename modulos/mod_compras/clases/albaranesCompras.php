@@ -150,10 +150,11 @@ class AlbaranesCompras extends ClaseCompras{
 		if (is_array($pedidos)){
 			foreach ($pedidos as $pedido){
 				if ($pedido['estado']=='activo'){
+				
 					if($idAlbaran>0){
-						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
+						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idAdjunto'].' , '.$pedido['NumAdjunto'].')');
 							}else{
-						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedido'].' , '.$pedido['Numpedpro'].')');
+						$smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idAdjunto'].' , '.$pedido['NumAdjunto'].')');
 					}
 				}
 				

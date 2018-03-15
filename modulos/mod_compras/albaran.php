@@ -55,6 +55,7 @@ include './../../head.php';
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 			 $pedidos=json_decode(json_encode($modificarPedido), true);
 		}
+		echo $pedidos;
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id

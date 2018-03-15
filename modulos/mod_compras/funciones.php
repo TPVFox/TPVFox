@@ -460,8 +460,10 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 			while ($fila = $datosPedido->fetch_assoc()) {
 				$ped = $fila;
 			}
-			$res['Numpedpro']=$pedido['numPedido'];
-			$res['idPedido']=$ped['id'];
+			//$res['Numpedpro']=$pedido['numPedido'];
+			$res['NumAdjunto']=$pedido['numPedido'];
+			//$res['idPedido']=$ped['id'];
+			$res['idAdjunto']=$ped['id'];
 			$res['fecha']=$ped['FechaPedido'];
 			$res['idPePro']=$ped['idProveedor'];
 			$res['total']=$ped['total'];
