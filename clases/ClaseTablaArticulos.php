@@ -27,7 +27,7 @@ class ClaseTablaArticulos{
 	public $fecha_modificado;
 	public $codBarras; // Array de codbarras para ese producto.
 	public $precios_tiendas; // Array de referencias de las tiendas.
-	public $proveedores; // Array de referencias de proveedores.
+	public $proveedores_costes; // Array de proveedores para ese producto ( costes,referencias)
 	public $familias; // Array de familias de ese producto
 	public $proveedor_principal; // Array con datos del proveedor principal
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
@@ -128,12 +128,13 @@ class ClaseTablaArticulos{
 			$this->estado = 'Nuevo';
 		}
 		// Recuerda que idArticulo es 0 por defecto.
-		
-		if ($this->idArticulo !==0){
+		if ($this->idArticulo !==NULL && $this->idArticulo !==0){
 			// Obtenemos referencias y datos de las otras tiendas con sus precios para ese producto	
 			$this->ObtenerReferenciasTiendas($this->idArticulo); 
 			// Obtenemos referencia del producto para tienda principal.
 			$this->ObtenerCrefTiendaPrincipal();
+			// Obtenemos precios de coste de proveedores.
+			$this->ObtenerCostesProveedores($this->idArticulo);
 			// Obtenemos familias a las que pertenece ese producto
 			$this->ObtenerFamiliasProducto($this->idArticulo);
 			// Obtenemos Codbarras a las que pertenece ese producto
@@ -178,7 +179,9 @@ class ClaseTablaArticulos{
 	public function GetIdTienda(){
 		return $this->idTienda;
 	}
-	
+	public function GetCodbarras(){	
+		return $this->codBarras;
+	}
 	
 	public function Comprobaciones(){
 		// Objetivo:
@@ -231,17 +234,52 @@ class ClaseTablaArticulos{
 		}
 	}
 	
-	public function ObtenerDatosProvPredeter($id){
-		// Objetivo:
-		// Obtener los datos del proveedor del que indiquemos
-		$Sql = 'SELECT * FROM `proveedores` WHERE `idProveedor`='.$id;
+	public function ObtenerDatosProvPredeter($id_proveedor){
+		// @ Objetivo:
+		// Obtener los datos principal del proveedor del que indiquemos
+		// @ Parametro: 
+		//   $id_proveedor -> (int) Id del proveedor 
+		$Sql = 'SELECT * FROM `proveedores` WHERE `idProveedor`='.$id_proveedor;
 		$respuesta = $this->Consulta($Sql);
 		if ($respuesta['NItems'] === 1){
-			// Quiere decir que obtuvo un dato solo..
+			// Solo puede obtener un proveedor.
 			$this->proveedor_principal = $respuesta['Items'][0];
+		} else {
+			// Hubo error  ( No puede suceder nunca que sea resultado mas 1...
+			if ($respuesta['NItems'] === 0){
+				// No encontro
+				$error = array ( 'tipo'=>'warning',
+								 'dato' => 'idProveedor:'.$id_proveedor,
+								 'mensaje' => 'No fue encontrado el proveedor, con id:'.$id_proveedor.' ponemos 0 por defecto, mientras no lo guardes no lo arreglas.'
+								 );
+				array_push($this->comprobaciones,$error);
+			} 
+			
 		}
 		
 	}
+	
+	public function ObtenerCostesProveedores($id){
+		// @ Objectivo: 
+		// Obtener los costes de los proveedores para un producto.
+		// @ Parametros:
+		// 	  $id -> (int) Id del producto a buscar.
+		$Sql= 'SELECT art_prov.*, pro.nombrecomercial, pro.razonsocial  FROM `articulosProveedores` AS art_prov LEFT JOIN proveedores AS pro ON pro.idProveedor = art_prov.idProveedor WHERE art_prov.idArticulo ='.$id;
+		$respuesta = $this->Consulta($Sql);
+		if ($respuesta['NItems'] > 0){
+			// Solo puede obtener un proveedor.
+			$this->proveedores_costes = $respuesta['Items'];
+		} else {
+			// Hubo error - No encontro
+			$error = array ( 'tipo'=>'success',
+							 'dato' => 'idArticulo:'.$id,
+							 'mensaje' => 'No encontro ningún coste para es producto.'
+							 );
+			array_push($this->comprobaciones,$error);
+		}
+		
+	}
+	
 	
 	public function ObtenerReferenciasTiendas($id){
 		// Objetivo:
@@ -249,7 +287,8 @@ class ClaseTablaArticulos{
 		// @Parametro
 		// $id -> (int) Id del producto.
 		$Sql = 'SELECT ati.crefTienda, ati.idTienda, ati.idVirtuemart, prec.pvpCiva, prec.pvpSiva, t.tipoTienda , t.dominio FROM `articulosTiendas` as ati '
-			.' LEFT JOIN articulosPrecios as prec ON prec.idTienda = ati.idTienda '
+			.' LEFT JOIN articulosPrecios as prec'
+			.' ON (prec.idTienda = ati.idTienda) and (prec.idArticulo=ati.idArticulo)'
 			.' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
 			.' WHERE  ati.idArticulo= '.$id.' GROUP BY prec.idTienda';
 		$consulta = $this->Consulta($Sql);
