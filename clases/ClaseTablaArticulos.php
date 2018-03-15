@@ -47,7 +47,13 @@ class ClaseTablaArticulos{
 		}
 	}
 	
-	private function Consulta($sql){
+	public function Consulta($sql){
+		// @ Objetivo:
+		// Realizar una consulta y devolver numero respuesta... o error..
+		// [NOTA]
+		// No debería se funcion publica.
+		// Habría que hacer algo como :
+		// http://php.net/manual/es/mysqli-stmt.bind-param.php
 		$respuesta = array();
 		$db = $this->db;
 		$smt = $db->query($sql);
@@ -60,7 +66,7 @@ class ClaseTablaArticulos{
 		} else {
 			// Quiere decir que hubo error en la consulta.
 			$respuesta['consulta'] = $sql;
-			$array['error'] = $db->error;
+			$respuesta['error'] = $db->error;
 		}
 		
 		return $respuesta;
