@@ -984,7 +984,7 @@ function agregarFilaProducto(num_item, campo){
 	console.log(num_item);
 	//Recibe el número del productos (el número de la fila)
 	var parametros = {
-		"pulsado"    : 'HtmlLineaTicket',
+		"pulsado"    : 'AgregarFilaProductos',
 		"producto" : productos[num_item-1],
 		"num_item"      : num_item,
 		"CONF_campoPeso"    : CONF_campoPeso

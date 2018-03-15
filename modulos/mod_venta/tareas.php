@@ -23,8 +23,9 @@ $Ccliente=new Cliente($BDTpv);
 include_once("clases/facturasVentas.php");
 $CFac=new FacturasVentas($BDTpv);
 switch ($pulsado) {
-    //Busqueda de productos si devuelve mas de uno llama a la función que muestra e modal
+  
 		case 'buscarProductos':
+		//@Objetivo: Buscar productos y diferenciar si tenemos que mostrar modal pintar la linea directamente
 			$busqueda = $_POST['valorCampo'];
 			$campoAbuscar = $_POST['campo'];
 			$id_input = $_POST['cajaInput'];
@@ -41,8 +42,10 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);  
 		break;
-		//Añadir un producto, crea un json con todos los productos y modifica el temporal, vuelve a recalcular los totales 
+		
 		case 'anhadirProductos';
+		//@Objetivo 
+		//Añadir un producto, crea un json con todos los productos y modifica el temporal, vuelve a recalcular los totales 
 			$datos=$_POST['productos'];
 			$idTemporal=$_POST['idTemporal'];
 			$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
@@ -61,7 +64,8 @@ switch ($pulsado) {
 			return $respuesta;
 		break;
 		
-		case 'HtmlLineaTicket';
+		case 'AgregarFilaProductos':
+		//Objetivo: Agregar la finla de productos
 			$respuesta = array();
 			$product=$_POST['producto'];
 			$num_item=$_POST['num_item'];
@@ -73,9 +77,10 @@ switch ($pulsado) {
 			$respuesta['producto']=$product;
 			echo json_encode($respuesta);
 		break;
-		//BUsqueda de clientes , si recibe de una caja id lo busca directamente si no crea el modal de clientes 
+		
 	    case 'buscarClientes':
-			// Abrimos modal de clientes
+			//@Objetivo
+			//BUsqueda de clientes , si recibe de una caja id lo busca directamente si no crea el modal de clientes 
 			$busqueda = $_POST['busqueda'];
 			$dedonde = $_POST['dedonde'];
 			$idcaja=$_POST['idcaja'];
@@ -106,9 +111,10 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;	
-		//Cuando el rresultado viene a traves de una ventana modal 
+		
 		case 'escribirCliente':
-			// Cuando la busqueda viene a traves de  la ventana modal
+			//@Objetivo:
+			//escribir el cliente seleccionado
 			$id=$_POST['idcliente'];
 			$numPedidoTemp=$_POST['numPedidoTemp'];
 			$idTienda=$_POST['idTienda'];
@@ -132,12 +138,11 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		
-	
-		
+		case 'buscarPedido':
+		//@Objetivo:
 		//BUscar los pedidos guardado de un cliente para el apartado albaranes, si el pedido que inserto existe guarda los datos de este
 		//Si no muestra un modal con los pedidos guardados de ese cliente
-		case 'buscarPedido':
+	
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
 			$res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
@@ -164,9 +169,11 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
+		
+		case 'buscarAlbaran':
+		//Objetivo:
 		//Busca el albarán indicado, si recibe resultado guarda el albaran y muestra los productos de este 
 		//Si no muestra un albarán
-		case 'buscarAlbaran':
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
 			$res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
@@ -191,8 +198,10 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
-	//Función para añadir albarán temporal, hace las comprobaciones necesarias.
+
 		case 'anhadirAlbaranTemporal':
+		//@Objetivo:
+		//añadir albarán temporal, hace las comprobaciones necesarias.
 			$idAlbaranTemp=$_POST['idAlbaranTemp'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
@@ -246,7 +255,6 @@ switch ($pulsado) {
 				}
 			
 				$modTotal=$CalbAl->modTotales($res, $total, $totalivas);
-				$respuesta['sqlmodtotal']=$modTotal['sql'];
 				$respuesta['total']=$total;
 			}
 			$respuesta['id']=$res;
@@ -256,8 +264,10 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		//Añadir factura temporal hace exactamente lo mismo que el añadir albarán temporal pero esta vez con facturas
+		
 		case 'anhadirfacturaTemporal':
+		//@Objetivo:
+		//Añadir factura temporal hace exactamente lo mismo que el añadir albarán temporal pero esta vez con facturas
 			$idFacturaTemp=$_POST['idFacturaTemp'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
@@ -276,7 +286,7 @@ switch ($pulsado) {
 			if ($idFacturaTemp>0){
 				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idFacturaTemp, $productos);
 				$existe=1;
-				$respuesta['sql']=$rest['sql'];
+				
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{
@@ -285,12 +295,12 @@ switch ($pulsado) {
 				$pro=$rest['productos'];
 				$res=$rest['id'];
 				$idFacturaTemp=$res;
-				$respuesta['sql']=$rest['sql'];
+				
 			}
 			$respuesta['numFactura']=$numFactura;
 			if ($numFactura>0){
 				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
-				$respuesta['sqlmodnum']=$modId;
+				
 			}
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
@@ -309,7 +319,7 @@ switch ($pulsado) {
 				}
 			
 				$modTotal=$CFac->modTotales($res, $total, $totalivas);
-				$respuesta['sqlmodtotal']=$modTotal['sql'];
+				
 				$respuesta['total']=$total;
 			}
 			$respuesta['id']=$res;
@@ -318,16 +328,19 @@ switch ($pulsado) {
 			
 			echo json_encode($respuesta);
 		break;
+			case 'modificarEstadoPedido':
+		//Objetivo:
 		//Modificar el estado de un pedido a Sin Guardar si viene de pedidos , si viene de albarán a facturado
 		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
-		case 'modificarEstadoPedido':
+	
+		
 			if ($_POST['dedonde']=="pedidos"){
 				$idPedido=$_POST['idPedido'];
 				$idTemporal=$_POST['numPedidoTemp'];
 				if ($idPedido>0){
 					$estado="Sin Guardar";
 					$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
-					$respuesta['sql']=$modEstado;
+				
 				}
 			}else if ($_POST['dedonde']=="Albaran"){
 				$idPedido=$_POST['idPedido'];
@@ -338,7 +351,7 @@ switch ($pulsado) {
 				}
 				
 				$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
-				$respuesta['sql']=$modEstado;
+			
 			}else if($_POST['dedonde']=="factura"){
 				$idAlbaran=$_POST['idAlbaran'];
 				$estado="Facturado";
@@ -350,8 +363,10 @@ switch ($pulsado) {
 			}
 		
 		break;
-		//Comprobar los pedidos en estado guardado que son de un cliente
+		
 		case 'comprobarPedidos':
+		//Objetivo:
+		//Comprobar los pedidos en estado guardado que son de un cliente
 			$idCliente=$_POST['idCliente'];
 			$estado="Guardado";
 			if ($idCliente>0){
@@ -359,7 +374,7 @@ switch ($pulsado) {
 				if (isset ($comprobar['ped'])){
 					if ($comprobar['ped']==1){
 						$respuesta['ped']=1;
-						$respuesta['sql']=$comprobar['sql'];
+					
 					}else{
 						$respuesta['ped']=0;
 					}
@@ -370,8 +385,10 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
-		//Comprobar los albaranes con estado guardado que son del cliente seleccionado
+		
 		case 'comprobarAlbaran':
+		//Objetivo:
+		//Comprobar los albaranes con estado guardado que son del cliente seleccionado
 		$idCliente=$_POST['idCliente'];
 			$estado="Guardado";
 			if ($idCliente>0){
@@ -379,10 +396,10 @@ switch ($pulsado) {
 				if (isset ($comprobar['alb'])){
 					if ($comprobar['alb']==1){
 						$respuesta['alb']=1;
-						$respuesta['sql']=$comprobar['sql'];
+						
 					}else{
 						$respuesta['alb']=0;
-						$respuesta['sql']=$comprobar['sql'];
+						
 					}	
 				}else{
 					$respuesta['alb']=0;
@@ -393,20 +410,26 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		//Devuelve el html de la fila del pedido 
+		
 		case 'htmlAgregarFilaPedido':
+		//Objetivo:
+		//Devuelve el html de la fila del pedido 
 			$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
-		//Devuelve el html de la fila albarán
+		
 		case 'htmlAgregarFilaAlbaran':
+		//Objetivo:
+		//Devuelve el html de la fila albarán
 			$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
-		//HTML que va mostrando las filas de los pedidos en un albarán
+		
 		case 'htmlAgregarFilasProductos':
+		//Objetivo:
+		//HTML que va mostrando las filas de los pedidos en un albarán
 		$productos=$_POST['productos'];
 		$dedonde=$_POST['dedonde'];
 		$respuesta =array('html'=>'');
@@ -424,15 +447,19 @@ switch ($pulsado) {
 		 }
 		echo json_encode($respuesta);
 		break;
-		 //Busca los datos de un pedido en concreto
+		
 		case 'buscarDatosPedido':
+		//@Objetivo:
+		 //Busca los datos de un pedido en concreto
 			$idPedido=$_POST['idPedido'];
 			$res=$CcliPed->datosPedidos($idPedido);
 			$respuesta['NumPedido']=$res['Numpedcli'];
 			echo json_encode($respuesta);
 		break;
-		//MUestra las formas de vencimiento de esa factura
+		
 		case 'htmlFomasVenci':
+			//@Objetivo:
+			//MUestra las formas de vencimiento de esa factura
 			$formasVenci=$_POST['formasVenci'];
 			if ($_POST['formasVenci']){
 				$formaPago=json_decode($formasVenci, true);
@@ -447,17 +474,15 @@ switch ($pulsado) {
 			$respuesta['html1']=$for['html'];
 			$fun=fechaVencimiento($venci, $BDTpv);
 			$ven=htmlVencimiento($fun, $BDTpv);
-			
 			$respuesta['html2']=$ven['html'];
 			$respuesta['fecha']=$fun;
-		//	$respuesta['formas']=$html['formas'];
-			
-			
 			echo json_encode($respuesta);
 		break;
 		
-		//MOdificar la forma de vencimiento de esa factura en concreto
+		
 		case 'ModificarFormasVencimiento':
+		//@Objetivo:
+		//MOdificar la forma de vencimiento de esa factura en concreto
 		$opcion=$_POST['opcion'];
 		$fechaVenci=$_POST['fechaVenci'];
 		$idTemporal=$_POST['idFacTem'];
@@ -473,23 +498,29 @@ switch ($pulsado) {
 		$respuesta=$json;
 		echo json_encode($modTemporal);
 		break;
-		//Modificar el estado de una factura 
+		
 		case 'modificarEstadoFactura':
+		//@Objetivo:
+		//Modificar el estado de una factura 
 		$idFactura=$_POST['idFactura'];
 		$estado=$_POST['estado'];
 		$modEstado=$CFac->modificarEstado($idFactura, $estado);
 		echo json_encode($modEstado);
 		break;
 		
-		//modificar el estado de un alabrán
+		
 		case 'modificarEstadoAlbaran':
+		//@Objetivo:
+		//modificar el estado de un alabrán
 		$idAlbaran=$_POST['idAlbaran'];
 		$estado=$_POST['estado'];
 		$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
 		echo json_encode($modEstado);
 		break;
-		//Insertar un nuevo importe a una factura
+		
 		case 'insertarImporte':
+		//@Objetivo:
+		//Insertar un nuevo importe a una factura
 		$importe=$_POST['importe'];
 		$fecha=$_POST['fecha'];
 		$idFactura=$_POST['idFactura'];
@@ -531,6 +562,8 @@ switch ($pulsado) {
 		}
 			echo json_encode($respuesta);
 		break;
+		//@Objetivo:
+		//enviar los datos para imprimir el pdf
 		case 'datosImprimir':
 		$id=$_POST['id'];
 		$dedonde=$_POST['dedonde'];
