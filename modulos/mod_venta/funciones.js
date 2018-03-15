@@ -1,35 +1,35 @@
 // =========================== OBJETOS  ===================================
-function ObjProducto(datos,valor=1,estado ='Activo')
-{
-    console.log('Estoy creando objeto producto');
-    this.id = datos.idArticulo;
-    this.cref = datos.crefTienda
-    this.cdetalle = datos.articulo_name;
-    this.pvpconiva = parseFloat(datos.pvpCiva).toFixed(2);
-    this.ccodebar = datos.codBarras;
-    this.ctipoiva = datos.iva;
-    this.unidad = valor;
-    this.estado = estado;
-    this.nfila = productos.length+1;
-    this.importe = parseFloat(this.pvpconiva) * this.unidad;
-}
-function Buscar (){
-	$(document).ready(function()
-	{
-		// Lo ideal sería identificar palabras..
-		// de momento solo una palabra..
-		NuevoValorBuscar = $('input[name=buscar').val();
-		NuevoValorBuscar = $.trim(NuevoValorBuscar);
-		if (NuevoValorBuscar !== ''){
-			BProductos= NuevoValorBuscar;
-			console.log('Filtro:'+BProductos);
-		} else {
-			alert (' Debes poner algun texto ');
-			BProductos = '';
-		}
-		return;
-	});
-}
+//~ function ObjProducto(datos,valor=1,estado ='Activo')
+//~ {
+    //~ console.log('Estoy creando objeto producto');
+    //~ this.id = datos.idArticulo;
+    //~ this.cref = datos.crefTienda
+    //~ this.cdetalle = datos.articulo_name;
+    //~ this.pvpconiva = parseFloat(datos.pvpCiva).toFixed(2);
+    //~ this.ccodebar = datos.codBarras;
+    //~ this.ctipoiva = datos.iva;
+    //~ this.unidad = valor;
+    //~ this.estado = estado;
+    //~ this.nfila = productos.length+1;
+    //~ this.importe = parseFloat(this.pvpconiva) * this.unidad;
+//~ }
+//~ function Buscar (){
+	//~ $(document).ready(function()
+	//~ {
+		//~ // Lo ideal sería identificar palabras..
+		//~ // de momento solo una palabra..
+		//~ NuevoValorBuscar = $('input[name=buscar').val();
+		//~ NuevoValorBuscar = $.trim(NuevoValorBuscar);
+		//~ if (NuevoValorBuscar !== ''){
+			//~ BProductos= NuevoValorBuscar;
+			//~ console.log('Filtro:'+BProductos);
+		//~ } else {
+			//~ alert (' Debes poner algun texto ');
+			//~ BProductos = '';
+		//~ }
+		//~ return;
+	//~ });
+//~ }
 function metodoClick(pulsado,adonde){
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
@@ -84,8 +84,10 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-// Monta el html de formas de vencimiento del cliente
+
 function formasVenciCliente(formasVenci){
+	//@Objetivo:
+	// Monta el html de formas de vencimiento del cliente
 	console.log("Estoy en formas pago vencimiento factura");
 
 	var parametros = {

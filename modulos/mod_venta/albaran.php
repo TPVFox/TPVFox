@@ -187,12 +187,18 @@ include './../../head.php';
 		}
 	
 		$parametros = simplexml_load_file('parametros.xml');
+		foreach($parametros->cajas_input->caja_input as $caja){
+			$caja->parametros->parametro[0]="albaran";
+		}
+
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 //Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
-		$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
+		//$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
 		
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	//	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
 ?>
 	<script type="text/javascript">
