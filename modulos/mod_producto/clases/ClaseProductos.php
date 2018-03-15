@@ -21,7 +21,7 @@
 
 include ($RutaServidor.$HostNombre.'/clases/ClaseTablaArticulos.php');
 
-class ClaseTablaProductos extends ClaseTablaArticulos{
+class ClaseProductos extends ClaseTablaArticulos{
 	
 	private $idTienda ; // Obtenemos el idTienda de la clase extendida.
 	public $productos; // Array de id, de productos...
@@ -39,8 +39,6 @@ class ClaseTablaProductos extends ClaseTablaArticulos{
 	public function obtenerProductos($filtro=''){
 		// @ Objetivo 
 		// Obtener los campos idArticulo,articulo_name,ultimoCoste,beneficio,iva,pvpCiva,estado productos según con el filtro indicado.
-		echo 'Estado'.$this->estado;
-		echo 'Filtro:'.$filtro;
 		$consulta = "SELECT a.idArticulo,a.articulo_name,a.ultimoCoste,a.beneficio,a.iva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "

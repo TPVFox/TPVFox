@@ -8,7 +8,7 @@
 	include ("./../../controllers/Controladores.php");
 	include ("./clases/ClaseProductos.php");
 	
-	$CTArticulos = new ClaseTablaProductos($BDTpv);
+	$CTArticulos = new ClaseProductos($BDTpv);
 	$Controler = new ControladorComun; // Controlado comun..
 
 	//INICIALIZAMOS variables para el plugin de paginado:
@@ -59,9 +59,7 @@
 	
 	//~ $productos = obtenerProductos($BDTpv,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
 	$productos = $CTArticulos->obtenerProductos($filtro);
-	echo '<pre>';
-	print_r($productos);
-	echo '</pre>';
+	
 	
 	?>
 	
