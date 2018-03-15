@@ -58,11 +58,10 @@ class PedidosVentas extends ClaseVentas{
 
 	public function BuscarIdTemporal($idTemporal){
 		//@Objetivo: Buscar todos los campos de un pedido temporal determinado
-		$db = $this->db;
-		$smt = $db->query ('SELECT * from pedcliltemporales WHERE id='.$idTemporal);
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
+		
+		$tabla='pedcliltemporales';
+		$where='id='.$idTemporal;
+		$pedido = parent::SelectUnResult($tabla, $where);
 		return $pedido;
 	
 	}
@@ -132,16 +131,6 @@ class PedidosVentas extends ClaseVentas{
 		return $resultado;
 	}
 	
-	//~ public function TodosPedidos(){
-		//~ //@Objetivo: Mostrar todos los pedidos guardados pero solo ciertos datos 
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
-		//~ $pedidosPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($pedidosPrincipal,$result);
-		//~ }
-		//~ return $pedidosPrincipal;
-	//~ }
 	public function TodosPedidosFiltro($filtro){
 		//@Objetivo: Todos los pedidos guardados pero ultilizando el filtro
 		$db=$this->db;
@@ -167,37 +156,29 @@ class PedidosVentas extends ClaseVentas{
 	public function datosPedidos($idPedido){
 		//@Objetivo:
 		//Mostrar todos los datos de un pedido
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedclit WHERE id= '.$idPedido );
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
+		$tabla='pedclit';
+		$where='id= '.$idPedido;
+		$pedido = parent::SelectUnResult($tabla, $where);
 		return $pedido;
 	}
 	
 	public function ProductosPedidos($idPedido){
 		//@Objetivo:
 		//Buscar los articulos de un pedido
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedclilinea WHERE idpedcli= '.$idPedido );
-		$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
-		}
-		return $pedidosPrincipal;
+		$tabla='pedclilinea';
+		$where='idpedcli= '.$idPedido;
+		$pedido = parent::SelectVariosResult($tabla, $where);
+		return $pedido;
 	}
 
 	
 	public function IvasPedidos($idPedido){
 		//@Objetivo:
 		//Buscar de la tabla pedcliIva todos los registros de un pedido
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedcliIva WHERE idpedcli= '.$idPedido );
-		$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
-		}
-		return $pedidosPrincipal;
+		$tabla='pedcliIva';
+		$where='idpedcli= '.$idPedido;
+		$pedido = parent::SelectVariosResult($tabla, $where);
+		return $pedido;
 	}
 	
 	public function eliminarPedidoTablas($idPedido){
@@ -232,22 +213,22 @@ class PedidosVentas extends ClaseVentas{
 		return $pedido;
 	}
 	
-	public function buscarNumPedido($idPedidoTemporal){
+	public function buscarNumPedido($idTemporal){
 		//@Objetivo:
 		//Busca el número de pedido de un pedido temporal
 		$db=$this->db;
-		$smt=$db->query('select  Numpedcli from pedclit where id='.$idPedidoTemporal);
+		$smt=$db->query('select  Numpedcli from pedclit where id='.$idTemporal);
 		if ($result = $smt->fetch_assoc () ){
 			$pedido=$result;
 		}
 		return $pedido;
 	}
 	
-	public function buscarNumPedidoId($idPedidoTemporal){
+	public function buscarNumPedidoId($idTemporal){
 		//@Objetivo:
 		//buscar el id de un número de pedido determinado
 		$db=$this->db;
-		$smt=$db->query('select  Numpedcli, id from pedclit where Numpedcli='.$idPedidoTemporal);
+		$smt=$db->query('select  Numpedcli, id from pedclit where Numpedcli='.$idTemporal);
 		if ($result = $smt->fetch_assoc () ){
 			$pedido=$result;
 		}
