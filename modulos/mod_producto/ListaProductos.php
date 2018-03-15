@@ -59,9 +59,9 @@
 	
 	//~ $productos = obtenerProductos($BDTpv,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
 	$productos = $CTArticulos->obtenerProductos($filtro);
-	//~ echo '<pre>';
-	//~ print_r($productosNuevos);
-	//~ echo '</pre>';
+	echo '<pre>';
+	print_r($productos);
+	echo '</pre>';
 	
 	?>
 	
@@ -127,7 +127,7 @@
 						<th>ID</th>
 						<th>PRODUCTO</th>
 						<th>CODIGO BARRAS</th>
-						<th>PROMEDIO</th>
+						<th>COSTE ULTIMO</th>
 						<th>BENEFICIO</th>
 						<th>IVA</th>
 						<th>P.V.P</th>
@@ -161,7 +161,7 @@
 					}
 					?>
 					</td>
-					<td><?php echo number_format($producto['costepromedio'],2); ?></td>
+					<td><?php echo number_format($producto['ultimoCoste'],2); ?></td>
 					<td><?php echo $producto['beneficio']; ?></td>
 					<td><?php echo $producto['iva']; ?></td>
 					<td style="text-align:right;"><?php echo number_format($producto['pvpCiva'],2); ?><small>€</small></td>
