@@ -15,44 +15,45 @@ class AlbaranesVentas{
 		$smt = $db->query($sql);
 		return $smt;
 	}
-	//Insertar un nuevo registro de albaranes temporales
+	
 	public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente){
+		//@Objetivo:
+		//Insertar un nuevo registro de albaranes temporales
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$UnicoCampoProductos=json_encode($productos);
 		$smt = $db->query ('INSERT INTO albcliltemporales ( idUsuario , idTienda , estadoAlbCli , fechaInicio, idClientes, Pedidos, Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoAlbaran.'" , "'.$fecha.'", '.$idCliente.' , '."'".$UnicoCampoPedidos."'".', '."'".$UnicoCampoProductos."'".')');
-		$sql='INSERT INTO albcliltemporales ( idUsuario , idTienda , estadoAlbCli , fechaInicio, idClientes, Productos, Pedidos) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoAlbaran.'" , "'.$fecha.'", '.$idCliente.' , '."'".$UnicoCampoProductos."'".', '."'".$UnicoCampoPedidos."'".')';
-
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
-		$respuesta['sql']=$sql;
 		$respuesta['productos']=$productos;
 		
 		return $respuesta;
 	}
-	//Modificar un registro de albaranes temporales
+	
 	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idTemporal, $productos){
+		//@Objetivo:
+		//Modificar un registro de albaranes temporales
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$UnicoCampoProductos=json_encode($productos);
 		$smt=$db->query('UPDATE albcliltemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbCli="'.$estadoAlbaran.'" , fechaInicio='.$fecha.' , Pedidos='."'".$UnicoCampoPedidos."'". ' ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$idTemporal);
-		$sql='UPDATE albcliltemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbCli='.$estadoAlbaran.' , fechaInicio='.$fecha.' , Pedidos='."'".$UnicoCampoPedidos."'". ' ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$idTemporal;
-		$respuesta['sql']=$sql;
 		$respuesta['idTemporal']=$idTemporal;
 		$respuesta['productos']=$UnicoCampoProductos;
 	
 		return $respuesta;
 	}
-	//SI tenemos un número de albarán real lo metemos en el albarán temporal
+	
 	public function addNumRealTemporal($idTemporal,  $numAlbaran){
+		//@Objetivo:
+		//SI tenemos un número de albarán real lo metemos en el albarán temporal
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$smt=$db->query('UPDATE albcliltemporales SET numalbcli ='.$numAlbaran.' WHERE id='.$idTemporal);
-		$sql='UPDATE albcliltemporales SET numalbcli ='.$numAlbaran.' WHERE id='.$idTemporal;
-		return $sql;
 	}
-	//Buscar todos los datos de un albarán temporal
+	
 	public function buscarDatosAlabaranTemporal($idAlbaranTemporal) {
+		//@Objetivo:
+		//Buscar todos los datos de un albarán temporal
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albcliltemporales WHERE id='.$idAlbaranTemporal);
 		if ($result = $smt->fetch_assoc () ){
@@ -60,8 +61,10 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
-	//Buscar todos los datos de un albarán temporal por numero real de albarán cliente
+	
 	public function buscarTemporalNumReal($idAlbaran){
+		//@Objetivo:
+		//Buscar todos los datos de un albarán temporal por numero real de albarán cliente
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albcliltemporales WHERE numalbcli ='.$idAlbaran);
 		if ($result = $smt->fetch_assoc () ){
@@ -69,16 +72,17 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
-	//Modificar el total de un albarán temporal
+
 	public function modTotales($res, $total, $totalivas){
+		//@Objetivo:
+		//Modificar el total de un albarán temporal
 		$db=$this->db;
 		$smt=$db->query('UPDATE albcliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
-		$sql='UPDATE albcliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
-		$resultado['sql']=$sql;
-		return $resultado;
 	}
-	//Eliminar todas los registros de un id de albarán real 
+	
 	public function eliminarAlbaranTablas($idAlbaran){
+		//@Objetivo:
+		//Eliminar todas los registros de un id de albarán real 
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM albclit where id='.$idAlbaran );
 		$smt=$db->query('DELETE FROM albclilinea where idalbcli ='.$idAlbaran );
@@ -86,8 +90,10 @@ class AlbaranesVentas{
 		$smt=$db->query('DELETE FROM pedcliAlb where idAlbaran ='.$idAlbaran );
 		
 	}
-	//Añadir nuevos registros de un albaran real 
+	
 		public function AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran){
+			//@Objetivo:
+			//Añadir nuevos registros de un albaran real 
 		$db = $this->db;
 		if ($idAlbaran>0){
 		$smt = $db->query ('INSERT INTO albclit (id, Numalbcli, Fecha, idTienda , idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.' , '.$numAlbaran.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].')');
@@ -113,10 +119,8 @@ class AlbaranesVentas{
 			}
 			if ($idAlbaran>0){
 			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
-			$resultado['sqlProductos']='INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numPed.')';
 			}else{
 			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
-			$resultado['sqlProductos']='INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numPed.')' ;
 			}
 		}
 		}
@@ -144,8 +148,10 @@ class AlbaranesVentas{
 		return $resultado;
 	}
 	
-	//Elimina el albarán temporal indicado
+	
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){
+		//@Objetivo:
+		//Eliminar el albarán temporal indicado
 		$db=$this->db;
 		if ($idAlbaran>0){
 			$smt=$db->query('DELETE FROM albcliltemporales WHERE numalbcli ='.$idAlbaran);
@@ -155,18 +161,22 @@ class AlbaranesVentas{
 		}
 		return $sql;
 	}
-	//Muestra algunos datos de todos los albaranes reales
-	public function TodosAlbaranes(){
-		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total, a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
-		}
-		return $albaranesPrincipal;
-	}
-		//Muestra algunos datos de todos los albaranes reales con un filtro
+	
+	//~ public function TodosAlbaranes(){
+		//~ //@Objetivo:
+		//~ //Mostrar algunos datos de todos los albaranes reales
+		//~ $db=$this->db;
+		//~ $smt=$db->query('SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total, a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
+		//~ $albaranesPrincipal=array();
+		//~ while ( $result = $smt->fetch_assoc () ) {
+			//~ array_push($albaranesPrincipal,$result);
+		//~ }
+		//~ return $albaranesPrincipal;
+	//~ }
+		
 	public function TodosAlbaranesFiltro($filtro){
+		//@Objetivo:
+		//Mostrar algunos datos de todos los albaranes reales con un filtro
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total, a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
 		$albaranesPrincipal=array();
@@ -175,8 +185,10 @@ class AlbaranesVentas{
 		}
 		return $albaranesPrincipal;
 	}
-	//Muestra los suma de los impirtes ivas y total base   de un albaran real
+	
 		public function sumarIva($numAlbaran){
+		//@Objetivo:
+		//Mostrar la suma de los impirtes ivas y total base   de un albaran real
 		$db=$this->db;
 		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from albcliIva where  Numalbcli  ='.$numAlbaran);
 		if ($result = $smt->fetch_assoc () ){
@@ -184,8 +196,10 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
-	//MUestra todos los datos temporales
+	
 		public function TodosTemporal(){
+			//@Objetivo:
+			//Mostrar todos los datos temporales
 			$db = $this->db;
 			$smt = $db->query ('SELECT tem.numalbcli, tem.id , tem.idClientes, tem.total, b.Nombre from albcliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes');
 			$albaranPrincipal=array();
@@ -195,8 +209,10 @@ class AlbaranesVentas{
 			return $albaranPrincipal;
 		
 		}
-		//Datos de un albarán real según id
+		
 	public function datosAlbaran($idAlbaran){
+		//@Objetivo:
+		//Datos de un albarán real según id
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclit WHERE id= '.$idAlbaran );
 		if ($result = $smt->fetch_assoc () ){
@@ -204,8 +220,10 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
-		//Datos de un albarán real según numero de cliente
+		
 	public function datosAlbaranNum($numAlbaran){
+		//@Objetivo:
+		//Datos de un albarán real según numero de cliente
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclit WHERE numalbcli = '.$numAlbaran );
 		if ($result = $smt->fetch_assoc () ){
@@ -213,8 +231,10 @@ class AlbaranesVentas{
 		}
 		return $albaran;
 	}
-	//Muestros los productos de un id de cliente real 
+	
 	public function ProductosAlbaran($idAlbaran){
+		//@Objetivo:
+		//Muestros los productos de un id de cliente real 
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albclilinea WHERE idalbcli= '.$idAlbaran );
 		$albaranPrincipal=array();
@@ -223,8 +243,10 @@ class AlbaranesVentas{
 		}
 		return $albaranPrincipal;
 	}
-	//BUsca en la tabla ivas cliente los datos de un albarán real
+	
 	public function IvasAlbaran($idAlbaran){
+			//@Objetivo:
+			//BUsca en la tabla ivas cliente los datos de un albarán real
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM albcliIva WHERE idalbcli= '.$idAlbaran );
 		$albaranPrincipal=array();
@@ -233,8 +255,10 @@ class AlbaranesVentas{
 		}
 		return $albaranPrincipal;
 	}
-	//Busca los pedidos de un albarán real
+	
 	public function PedidosAlbaranes($idAlbaran){
+		//@Objetivo:
+		//Busca los pedidos de un albarán real
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedcliAlb WHERE idAlbaran= '.$idAlbaran );
 		$albaranPrincipal=array();
@@ -243,21 +267,22 @@ class AlbaranesVentas{
 		}
 		return $albaranPrincipal;
 	}
-	//Modificar estado de un albarán real
+	
 	public function ModificarEstadoAlbaran($idAlbaran, $estado){
+		//@Objetivo:
+		//Modificar estado de un albarán real
 		$db=$this->db;
 		$smt=$db->query('UPDATE albclit SET estado="'.$estado.'" WHERE id='.$idAlbaran);
-		$sql='UPDATE albclit SET estado='.$estado.' WHERE id='.$idAlbaran;
-		$resultado['sql']=$sql;
-		return $resultado;
+		
 	}
-	//Comprobar los albaranes de un determinado estado
+	
 		public function ComprobarAlbaranes($idCliente, $estado){
+				//@Objetivo:
+				//Comprobar los albaranes de un determinado estado
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';
 		$smt=$db->query('SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado);
-		$sql='SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado;
-		$albaranes['sql']=$sql;
+	
 		while ( $result = $smt->fetch_assoc () ) {
 			$albaranes['alb']=1;
 		}
