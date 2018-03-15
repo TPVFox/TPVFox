@@ -31,27 +31,32 @@ class PedidosVentas{
 		return $respuesta;
 		
 	}
-	//Añade un nuevo regustro a la tabla temporal de un pedido que ya esta guardado
-	public function AddClienteTempPedidoGuardado($idCliente, $idTienda, $idUsuario, $estadoPedido, $idPedido){
+	
+	public function AddClienteTempPedidoGuardado($idCliente, $idTienda, $idUsuario, $estado, $idPedido){
+		//Objetivo:
+		//añadir un nuevo registro temporal cuando ya tenemos el id del pedido real
 		$db = $this->db;
-		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estadoPedido.'", '.$idPedido.')');
+		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idPedido.')');
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
 		return $respuesta;
 	}
-	//Modifica los datos bases de un registro en la tabla temporal
-	public function ModClienteTemp($idCLiente, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido){
+	
+	public function ModClienteTemp($idCLiente, $idTemporal, $idTienda, $idUsuario, $estado){
+		//@Objetivo: Modificar los datos de la tabla temporal
 		$db = $this->db;
-		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estadoPedido.'" WHERE id='.$numPedidoTemp);		
-		return $sql;
+		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estado.'" WHERE id='.$idTemporal);		
+		
 	}
-	//Modifica los el numero de pedido guardado en la tabla temporal
+
 	public function ModNumPedidoTtemporal($idTemporal, $idPedido){
+		//@Objetivo: Modificar el pedido temporal para insertar el id del pedido real
 		$db = $this->db;
 		$smt = $db->query ('UPDATE pedcliltemporales set idPedcli ='.$idPedido.' WHERE id='.$idTemporal);
 	}
-	//Busca todos los campos de un registro en la tabla temporal
+
 	public function BuscarIdTemporal($idTemporal){
+		//@Objetivo: Buscar todos los campos de un pedido temporal determinado
 		$db = $this->db;
 		$smt = $db->query ('SELECT * from pedcliltemporales WHERE id='.$idTemporal);
 		if ($result = $smt->fetch_assoc () ){
@@ -60,8 +65,9 @@ class PedidosVentas{
 		return $pedido;
 	
 	}
-	//Añade a la tabla temporal los productos en json
+	
 	public function AddProducto($idTemporal, $productos, $total){
+		//@Objetivo: Añade al atabla temporal el listado de productos
 		$total=round($total, 2);
 		$UnicoCampoProductos=json_encode($productos);
 		$db = $this->db;
@@ -70,10 +76,10 @@ class PedidosVentas{
 		$resultado="Correcto Add Id";
 		return $resultado;
 	}
-	//Muestra todos los temporales
+	
 	public function TodosTemporal(){
+		//@Objetivo: Muestra los campos principales del temporal
 			$db = $this->db;
-		//	$smt = $db->query ('SELECT * from pedcliltemporales');
 			$smt=$db->query('SELECT tem.idPedcli, tem.id , tem.idClientes, tem.total, b.Nombre, c.Numpedcli from pedcliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes LEFT JOIN pedclit as c on tem.idPedcli=c.id');
 			$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
@@ -82,9 +88,11 @@ class PedidosVentas{
 		return $pedidosPrincipal;
 		
 	}
-	//Añade un registro de un pedido ya guardado en pedidos . Si el numero del pedido es mayor  de 0 o sea que hay un registro en pedidos 
-	//lo añade a la tabla temporal si no añade un registro normal a la tabla pedido
-	public function AddPedidoGuardado($datos, $idPedido, $numPedido){
+		public function AddPedidoGuardado($datos, $idPedido, $numPedido){
+		//Objetivo:
+		//Añade un registro de un pedido ya guardado en pedidos . Si el numero del pedido es mayor  de 0 o sea que hay un registro en pedidos 
+		//lo añade a la tabla temporal si no añade un registro normal a la tabla pedido
+
 		$db = $this->db;
 		if ($idPedido>0){
 		$smt = $db->query ('INSERT INTO pedclit (id, Numpedcli , Numtemp_pedcli, FechaPedido, idTienda, idUsuario, idCliente, estado, total, fechaCreacion) VALUES ('.$idPedido.' , '.$numPedido.' , '.$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")');
@@ -122,17 +130,19 @@ class PedidosVentas{
 		
 		return $resultado;
 	}
-	//Todos los pedidos guardados
-	public function TodosPedidos(){
-		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
-		$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
-		}
-		return $pedidosPrincipal;
-	}
+	
+	//~ public function TodosPedidos(){
+		//~ //@Objetivo: Mostrar todos los pedidos guardados pero solo ciertos datos 
+		//~ $db=$this->db;
+		//~ $smt=$db->query('SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
+		//~ $pedidosPrincipal=array();
+		//~ while ( $result = $smt->fetch_assoc () ) {
+			//~ array_push($pedidosPrincipal,$result);
+		//~ }
+		//~ return $pedidosPrincipal;
+	//~ }
 	public function TodosPedidosFiltro($filtro){
+		//@Objetivo: Todos los pedidos guardados pero ultilizando el filtro
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
 		$pedidosPrincipal=array();
@@ -141,8 +151,10 @@ class PedidosVentas{
 		}
 		return $pedidosPrincipal;
 	}
-	// Cuando un pedido pasa de temporal a pedidos se borran los registros temporales
+	
 	public function EliminarRegistroTemporal($idTemporal, $idPedido){
+		//@Objetivo:
+		// Cuando un pedido pasa de temporal a pedidos se borran los registros temporales
 		$db=$this->db;
 		if ($idPedido>0){
 			$smt=$db->query('DELETE FROM pedcliltemporales WHERE idPedcli='.$idPedido);
@@ -150,8 +162,10 @@ class PedidosVentas{
 			$smt=$db->query('DELETE FROM pedcliltemporales WHERE id='.$idTemporal);
 		}
 	}
-	//Mostrar todos los datos de un pedido
+	
 	public function datosPedidos($idPedido){
+		//@Objetivo:
+		//Mostrar todos los datos de un pedido
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedclit WHERE id= '.$idPedido );
 		if ($result = $smt->fetch_assoc () ){
@@ -159,8 +173,10 @@ class PedidosVentas{
 		}
 		return $pedido;
 	}
-	//Busca los articulos de un pedido
+	
 	public function ProductosPedidos($idPedido){
+		//@Objetivo:
+		//Buscar los articulos de un pedido
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedclilinea WHERE idpedcli= '.$idPedido );
 		$pedidosPrincipal=array();
@@ -170,8 +186,10 @@ class PedidosVentas{
 		return $pedidosPrincipal;
 	}
 
-	//Busca de la tabla pedcliIva todos los registros de un pedido
+	
 	public function IvasPedidos($idPedido){
+		//@Objetivo:
+		//Buscar de la tabla pedcliIva todos los registros de un pedido
 		$db=$this->db;
 		$smt=$db->query('SELECT * FROM pedcliIva WHERE idpedcli= '.$idPedido );
 		$pedidosPrincipal=array();
@@ -180,16 +198,20 @@ class PedidosVentas{
 		}
 		return $pedidosPrincipal;
 	}
-	//Eliminar los registros de in id de pedido real
+	
 	public function eliminarPedidoTablas($idPedido){
+		//@Objetivo:
+		//Eliminar los registros de in id de pedido real
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM pedclit where id='.$idPedido );
 		$smt=$db->query('DELETE FROM pedclilinea where idpedcli='.$idPedido );
 		$smt=$db->query('DELETE FROM pedcliIva where idpedcli='.$idPedido );
 		
 	}
-	//Contar los registros temporales que tiene un id real
+	
 	public function contarPedidosTemporal($idPedido){
+		//@Objetivo:
+		//Contar los registros temporales que tiene un id real
 		$db=$this->db;
 		$smt=$db->query('Select count(id) as numPedTemp FROM pedcliltemporales where idPedcli='.$idPedido );
 		if ($result = $smt->fetch_assoc () ){
@@ -197,8 +219,10 @@ class PedidosVentas{
 		}
 		return $pedido;
 		}
-		//Suma importe iva y totoal base de todos los registro de un pedido determinado
+		
 	public function sumarIva($numPedido){
+		//@Objetivo:
+		//Suma importe iva y totoal base de todos los registro de un pedido determinado
 		$db=$this->db;
 		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from pedcliIva where Numpedcli ='.$numPedido);
 		if ($result = $smt->fetch_assoc () ){
@@ -206,8 +230,10 @@ class PedidosVentas{
 		}
 		return $pedido;
 	}
-	//Busca el número de pedido de un pedido temporal
+	
 	public function buscarNumPedido($idPedidoTemporal){
+		//@Objetivo:
+		//Busca el número de pedido de un pedido temporal
 		$db=$this->db;
 		$smt=$db->query('select  Numpedcli from pedclit where id='.$idPedidoTemporal);
 		if ($result = $smt->fetch_assoc () ){
@@ -217,6 +243,8 @@ class PedidosVentas{
 	}
 	
 	public function buscarNumPedidoId($idPedidoTemporal){
+		//@Objetivo:
+		//buscar el id de un número de pedido determinado
 		$db=$this->db;
 		$smt=$db->query('select  Numpedcli, id from pedclit where Numpedcli='.$idPedidoTemporal);
 		if ($result = $smt->fetch_assoc () ){
@@ -226,6 +254,8 @@ class PedidosVentas{
 		return $pedido;
 	}
 	public function PedidosClienteGuardado($busqueda, $idCliente){
+		//@Objetivo:
+		//Buscar algunos datos de un pedido guardado
 		$db=$this->db;
 		$pedido['busqueda']=$busqueda;
 		if ($busqueda>0){
@@ -248,14 +278,18 @@ class PedidosVentas{
 		}
 		return $pedido;
 	}
-	//MOdificar el estado de un pedido real indicado
+	
 	public function ModificarEstadoPedido($idPedido, $estado){
+		//@Objetivo:
+		//MOdificar el estado de un pedido real indicado
 		$db=$this->db;
 		$smt=$db->query('UPDATE pedclit SET estado="'.$estado.'" WHERE id='.$idPedido);
 		return $resultado;
 	}
-	//Comprobar los pedidos de un cliente determinado con el estado guardado
+	
 	public function ComprobarPedidos($idCliente, $estado){
+		//@Objetivo:
+		//Comprobar los pedidos de un cliente determinado con el estado guardado
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';
 		$smt=$db->query('SELECT  id from pedclit where idCliente='.$idCliente .' and estado='.$estado);
