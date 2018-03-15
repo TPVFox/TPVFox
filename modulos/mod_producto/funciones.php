@@ -1,15 +1,61 @@
 <?php 
 
+function htmlLineaFamilias($item,$familia=''){
+	// @Objetivo:
+	// Montar linea de codbarras , para añadir o para modificar.
+	$nuevaFila = '<tr>';
+	$nuevaFila .= '<td><input type="hidden" id="idFamilias_'.$item.'" name="idFamilias_'.$item.'" value="'.$familia['idFamilia'].'">'.$familia['idFamilia'].'</td>';
+	$nuevaFila .= '<td>'.$familia['familiaNombre'].'</td>>';
+	$nuevaFila .= '<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
+	$nuevaFila .= '</tr>';
+	return $nuevaFila;
+}
+
+
 
 function htmlLineaCodigoBarras($item,$codBarras=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
 	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input type="text" id="codBarras" name="codBarras_'.$item.'" value="'.$codBarras.'"></td>';
+	$nuevaFila .= '<td><input type="text" id="codBarras_'.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'"></td>';
+	$nuevaFila .= '<td><a id="eliminar_'.$item.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
+	$nuevaFila .= '</tr>';
+	return $nuevaFila;
+}
+
+function htmlLineaProveedorCoste($item,$proveedor=''){
+	// @ Objetivo:
+	// Montar linea de proveedores_coste, para añadir o para modificar.
+	// @ Parametros :
+	// 		$item -> (int) Numero item
+	// 		$proveedor-> (array) Datos de proveedor: idProveedor,crefProveedor,coste,fechaActualizacion,estado,nombrecomercial,razonsocial.
+	
+	// Montamos campos ocultos de IDProveedor
+	$camposIdProveedor = '<input type="hidden" name="idProveedor" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
+	$nom_proveedor = $proveedor['idProveedor'].'.-';
+	if ($proveedor['nombrecomercial'] !== $proveedor['razonsocial']){
+		$nom_proveedor .= $proveedor['razonsocial'].'-'.$proveedor['nombrecomercial'];
+	} else {
+		$nom_proveedor .= $proveedor['razonsocial'];
+	}
+	$nuevaFila = '<tr>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .='<small>'.$camposIdProveedor.$nom_proveedor.'</small>';
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= $proveedor['crefProveedor'];
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= $proveedor['coste'];
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= '<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>';
+	$nuevaFila .='</td>';
 	$nuevaFila .= '<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
 	$nuevaFila .= '</tr>';
 	return $nuevaFila;
 }
+
 function  htmlTablaCodBarras($codBarras){
 	// @ Objetivo
 	// Montar la tabla html de codbarras
@@ -19,7 +65,7 @@ function  htmlTablaCodBarras($codBarras){
 			.'		<thead>'
 			.'			<tr>'
 			.'				<th>Codigos Barras</th>'
-			.'				<th>'.'<a id="agregar" onclick="comprobarVacio()">Añadir'
+			.'				<th>'.'<a id="agregar" onclick="AnhadirCodbarras()">Añadir'
 			.'					<span class="glyphicon glyphicon-plus"></span>'
 			.'					</a>'
 			.'				</th>'
@@ -33,6 +79,61 @@ function  htmlTablaCodBarras($codBarras){
 	$html .= '</table>	';
 	return $html;
 } 
+
+function  htmlTablaFamilias($familias){
+	// @ Objetivo
+	// Montar la tabla html de familias del producto
+	// @ Parametros
+	// 		$familias -> (array) idFamilias y NombreFamilias 
+	$html =	 '<table id="tfamilias" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>idFamilias</th>'
+			.'				<th>Nombre de Familia</th>'
+			.'				<th>'.'<a id="agregar" onclick="comprobarVacio()">Añadir'
+			.'					<span class="glyphicon glyphicon-plus"></span>'
+			.'					</a>'
+			.'				</th>'
+			.'			</tr>'
+			.'		</thead>';
+	if (count($familias)>0){
+		foreach ($familias as $item=>$valor){
+			$html .= htmlLineaFamilias($item,$valor);
+		}
+	}
+	$html .= '</table>	';
+	return $html;
+} 
+
+
+
+function  htmlTablaProveedoresCostes($proveedores){
+	// @ Objetivo
+	// Montar la tabla html de codbarras
+	// @ Parametros
+	// 		// 		$proveedores-> (array) de Arrays con datos de proveedor: idProveedor,crefProveedor,coste,fechaActualizacion,estado,nombrecomercial,razonsocial.
+	$html =	 '<table id="tproveedor" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>Proveedor</th>'
+			.'				<th>Ref_proveedor</th>'
+			.'				<th>Coste</th>'
+			.'				<th>Estado/Fecha</th>'
+			.'				<th>'.'<a id="agregar" onclick="BuscarProveedor()">Añadir'
+			.'					<span class="glyphicon glyphicon-plus"></span>'
+			.'					</a>'
+			.'				</th>'
+			.'			</tr>'
+			.'		</thead>';
+	if (count($proveedores)>0){
+		foreach ($proveedores as $item=>$proveedor_coste){
+			$html .= htmlLineaProveedorCoste($item,$proveedor_coste);
+		}
+	}
+	$html .= '</table>	';
+	return $html;
+} 
+
 
 function htmlOptionIvas($ivas,$ivaProducto){
 	//  Objetivo :
