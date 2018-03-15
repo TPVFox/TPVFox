@@ -113,19 +113,28 @@ include './../../head.php';
 	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado
 	if (isset ($_POST['Cancelar'])){
-		if ($_POST['idTemporal']){
-				$idTemporal=$_POST['idTemporal'];
+		//~ if ($_POST['idTemporal']){
+				//~ $idTemporal=$_POST['idTemporal'];
+		//~ }else{
+				//~ $idTemporal=$_GET['tActual'];
+		//~ }
+		//~ $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+		//~ $pedidos=json_decode($pedidos['Pedidos'], true);
+		//~ foreach ($pedidos as $pedido){
+			//~ $mod=$Cped->modEstadoPedido($pedido['idPedido'], "Guardado");
+		//~ }
+		//~ $idAlbaran=0;
+		//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+		 //~ header('Location: albaranesListado.php');
+		 $cancelar=cancelarAlbaran($_POST, $_GET, $BDTpv);
+		if ($cancelar==0){
+			
+			header('Location: albaranesListado.php');
 		}else{
-				$idTemporal=$_GET['tActual'];
+			echo '<div class="alert alert-warning">
+				<strong>Error!</strong>Error al cancelar en Albarán.
+				</div>';
 		}
-		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-		$pedidos=json_decode($pedidos['Pedidos'], true);
-		foreach ($pedidos as $pedido){
-			$mod=$Cped->modEstadoPedido($pedido['idPedido'], "Guardado");
-		}
-		$idAlbaran=0;
-		$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-		 header('Location: albaranesListado.php');
 	}
 	
 	

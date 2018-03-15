@@ -954,4 +954,27 @@ function cancelarFactura($datosPost, $datosGet,$BDTpv){
 	}
 	return $error;
 }
+
+function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
+	$CAlb=new AlbaranesCompras($BDTpv);
+	$Cped = new PedidosCompras($BDTpv);
+	$error=0;
+	if ($datosPost['idTemporal']){
+		$idTemporal=$datosPost['idTemporal'];
+	}else{
+		$idTemporal=$datosGet['tActual'];
+	}
+	if (isset($idTemporal)){
+		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
+		$pedidos=json_decode($datosAlbaran['Pedidos'], true);
+		foreach ($pedidos as $pedido){
+			$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
+		}
+		$idAlbaran=0;
+		$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+	}else{
+		$error=1;
+	}
+	return $error;
+}
 ?>
