@@ -945,10 +945,10 @@ function cancelarFactura($datosPost, $datosGet,$BDTpv){
 		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
 		$albaranes=json_decode($datosFactura['Albaranes'], true);
 		foreach ($albaranes as $albaran){
-			$mod=$CAlb->modEstadoAlbaran($albaran['idAlbaran'], "Guardado");
+			$mod=$CAlb->modEstadoAlbaran($albaran['idAdjunto'], "Guardado");
 		}
 		$idFactura=0;
-		$eliminarTemporal=$CFac->EliminarRegistroTemporal($idTemporal, $idFactura);
+		$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
 	}else{
 		$error=1;
 	}

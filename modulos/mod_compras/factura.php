@@ -130,19 +130,6 @@ include './../../head.php';
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
 	if (isset($_POST['Cancelar'])){
-		//~ if ($_POST['idTemporal']){
-				//~ $idTemporal=$_POST['idTemporal'];
-		//~ }else{
-				//~ $idTemporal=$_GET['tActual'];
-		//~ }
-		//~ $datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-		//~ $albaranes=json_decode($datosFactura['Albaranes'], true);
-		//~ foreach ($albaranes as $albaran){
-			//~ $mod=$CAlb->modEstadoAlbaran($albaran['idAlbaran'], "Guardado");
-		//~ }
-		//~ $idFactura=0;
-		//~ $eliminarTemporal=$CFac->EliminarRegistroTemporal($idTemporal, $idFactura);
-		//~ header('Location: facturasListado.php');
 		$cancelar=cancelarFactura($_POST, $_GET, $BDTpv);
 		if ($cancelar==0){
 			header('Location: facturasListado.php');
