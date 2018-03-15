@@ -6,7 +6,9 @@
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include ("./../../clases/ClaseTablaArticulos.php");
 	
+	$CTArticulos = new ClaseTablaArticulos($BDTpv);
 	$Controler = new ControladorComun; // Controlado comun..
 
 	//INICIALIZAMOS variables para el plugin de paginado:
@@ -56,6 +58,11 @@
 	}
 	
 	$productos = obtenerProductos($BDTpv,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
+	
+	//~ echo '<pre>';
+	//~ print_r($productos);
+	//~ echo '</pre>';
+	
 	?>
 	
 	<script>
@@ -142,12 +149,16 @@
 					<td><?php echo $producto['articulo_name']; ?></td>
 					<?php
 					/*$totalCodBarras=ContarCodBarras($BDTpv, $producto['idArticulo']);*/
-					$codBarrasProd=codBarrasProducto($BDTpv, $producto['idArticulo']);
+					//~ $codBarrasProd=codBarrasProducto($BDTpv, $producto['idArticulo']);
+					$ObCodbarras = $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
+					$codBarrasProd = $CTArticulos->GetCodbarras();
+					
+					
 					?>
 					<td><?php 
 					if ($codBarrasProd){
 						foreach ($codBarrasProd as $cod){
-							echo '<small>'.$cod['codBarras'].'</small><br>';
+							echo '<small>'.$cod.'</small><br>';
 						}
 					}
 					?>
