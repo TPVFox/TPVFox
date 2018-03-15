@@ -20,10 +20,10 @@ include_once ("./funciones.php");
 
 switch ($pulsado) {
 
-	case 'HtmlCodigoBarrasVacio';
-	$filas=$_POST['filas'];
+	case 'HtmlLineaCodigoBarras';
+	$item=$_POST['fila'];
 		$respuesta = array();
-		$res 	= htmlCodigoBarrasVacio($filas);
+		$res 	= HtmlLineaCodigoBarras($item);
 		$respuesta['html'] =$res;
 		echo json_encode($respuesta);
 		break;
