@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <parametros>
+	<configuracion>
+		<impresion_ticket>Si</impresion_ticket>
+		<campo_peso>no</campo_peso>
+	</configuracion>
 	<cajas_input data-obj="id_input">
 		<caja_input>
 			<nombre id_input="Codbarras">cajaCodBarras</nombre>

@@ -18,13 +18,13 @@ class ComprobarSession {
 		//		$URLCo -> Ruta completa.
 		
 		$resultado = array();
-		// Iniciamos session si no esta iniciada.
+		// --------------  Iniciamos session si no esta iniciada. --------------------- //
 		if (!isset($_SESSION)){
 			// Hay que tener en cuenta que la session no tenemos porque iniciar nosotros, 
 			// otra api del servidor la puede abrir, por eso no debemos reiniciarla nunca
 			// si no esta abierta.
 			session_start();
-		}
+		} 
 		if (!isset($_SESSION['estadoTpv']) || $_SESSION['estadoTpv']=== 'SinActivar'){
 			// Entramos al iniciar sesion o si esta SinActivar.			
 			$_SESSION['estadoTpv']= 'SinActivar'; // Ponemos por defecto sessión inactiva.
@@ -34,13 +34,14 @@ class ComprobarSession {
 				$_SESSION['N_Pagina_Abiertas'] = 0 ;
 			}
 		} 
+		// --------------  Ya tenemos session abierta ahoa comprobamos su estado --------------  //
 		$numeroPaginas = (isset($_SESSION['N_intentos_acceso']) ? $_SESSION['N_intentos_acceso'] : 0);
 		if ($_SESSION['estadoTpv'] != 'Correcto' || $numeroPaginas > 0 ){
 			// El estado de la session no es correcto y ya tenemos session (N_Pagina_Abiertas) + 1.
 			// Esto puede suceder cuando:
 			//    - Refrescamos formulario de Acceso de Usuario.
 			//    - Acaba de enviar el formulario.
-			//    - Hubo un error en la comprabación de datos.
+			//    - Hubo un error en los datos de acceso.
 			if (isset($_POST['usr']) && isset($_POST['pwd'])){
 				// tenemos datos en post para comprobar.
 				$datos = $this->comprobarUser($BDTpv,$_POST['usr'],$_POST['pwd']);

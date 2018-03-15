@@ -32,8 +32,8 @@ Array
     [N_Pagina_Abiertas] => 2
     [usuarioTpv] => Array
         (
-            [login] => monse
-            [nombre] => Monse
+            [login] => Login usuarios
+            [nombre] => Nombre Usuario
             [id] => 2
             [group_id] => 0
         )
@@ -41,11 +41,11 @@ Array
     [tiendaTpv] => Array
         (
             [idTienda] => 1
-            [razonsocial] => Alejandro Grueiro Pazos
-            [telefono] => 665 607 239
-            [direccion] => Paseo Matutino, 12.- 1B
-            [NombreComercial] => Vapeagrow
-            [nif] => 32661089P
+            [razonsocial] => Razon Social de Empresa
+            [telefono] => 666666666
+            [direccion] => Direcion de la empresa
+            [NombreComercial] => Nombre Comencial
+            [nif] => 999999999B
             [ano] => 2017
             [estado] => Activo
         )

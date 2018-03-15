@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 09, 2018 at 12:44 AM
+-- Generation Time: Jan 19, 2018 at 10:41 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -29,15 +29,15 @@ SET time_zone = "+00:00";
 CREATE TABLE `albclit` (
   `id` int(11) NOT NULL,
   `Numalbcli` int(11) NOT NULL,
-  `Numtemp_albcli` int(11) NOT NULL,
-  `Fecha` datetime NOT NULL,
-  `idTienda` int(11) NOT NULL,
-  `idUsuario` int(11) NOT NULL,
-  `idCliente` int(11) NOT NULL,
-  `estado` varchar(12) NOT NULL,
-  `formaPago` varchar(12) NOT NULL,
-  `entregado` decimal(17,2) NOT NULL,
-  `total` decimal(17,2) NOT NULL
+  `Numtemp_albcli` int(11) DEFAULT NULL,
+  `Fecha` datetime DEFAULT NULL,
+  `idTienda` int(11) DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `idCliente` int(11) DEFAULT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `formaPago` varchar(12) DEFAULT NULL,
+  `entregado` decimal(17,2) DEFAULT NULL,
+  `total` decimal(17,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

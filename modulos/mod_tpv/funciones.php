@@ -156,7 +156,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 
 
 
-function htmlCobrar($total){
+function htmlCobrar($total,$configuracion){
 	// @ Objetivo:
 	// Crear el html de ventana de cobrar, la cual mostramos en modo modal.
 	$resultado = array();
@@ -169,7 +169,12 @@ function htmlCobrar($total){
 												
 	$resultado['html'] .= '<h4> Cambio &nbsp<input class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
 	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
-	$resultado['html'] .= '<label><input name="checkimprimir" type="checkbox" checked> Imprimir</label>';
+	if ($configuracion['impresion_ticket'] ==='Si'){
+		$chek = 'checked';
+	} else {
+		$chek = '';
+	}
+	$resultado['html'] .= '<label><input name="checkimprimir" type="checkbox" '.$chek.'> Imprimir</label>';
 	$resultado['html'] .= '</div>';
 	$resultado['html'] .= '<div>';
 	$resultado['html'] .= '<select name="modoPago" id="modoPago">';

@@ -14,9 +14,14 @@
 <head>
 <?php
 	include './../../head.php';
+	
+	
+	
 	include_once ("funciones.php");
 	include ("./../../controllers/Controladores.php");
 	$Controler = new ControladorComun; 
+	// Añado la conexion
+	$Controler->loadDbtpv($BDTpv);
 	// Inicializo varibles por defecto.
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
@@ -29,9 +34,31 @@
 	if (isset($cambiosEstadoTickets['error'])){
 		$error = 'Error en cambio Estado de ticket.'.$cambiosEstadoTickets['error'];
 	}
+	// Cargamos los fichero parametros.
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	$parametros = $ClasesParametros->getRoot();
 	
 	
-	
+	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	//~ $configuracion = $Controler->obtenerConfiguracionModulo('mod_tpv',$Usuario['id']);
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
+	// Creamos checkin de configuracion
+	$checkin = array();
+	// Añadimos a JS la configuracion
+		echo '<script type="application/javascript"> '
+		. 'var configuracion = '. json_encode($configuracion);
+		echo '</script>';
+	if ($configuracion['impresion_ticket'] ==='Si'){
+		$checkin[1] = 'name="impresion_ticket" value="Si" checked onchange="GuardarConfiguracion()"';
+	} else {
+		$checkin[1] = 'name="impresion_ticket" value="No" onchange="GuardarConfiguracion()"';
+
+	}
+	//~ echo '<pre>';
+	//~ print_r($configuracion);
+	//~ echo '</pre>';
 	
 	// Cambio datos si es un tiche Abierto
 	if (isset($_GET['tAbierto'])) {
@@ -70,19 +97,10 @@
 
 <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
 <!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
-<?php 
-// Cargamos XML donde tenemos parametros necesarios de ejecucion
-	// https://diego.com.es/tutorial-de-simplexml
-	$parametros = simplexml_load_file('parametros.xml');
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-//~ echo '<pre>';
-//~ print_r($VarJS);
-//~ echo '</pre>';
-
-
-
 ?>
+
 
 <script type="text/javascript">
 // Objetos cajas de tpv
@@ -108,7 +126,6 @@
 		// Ahora obtenemos el ticket abierto que estamos.
 		$ticket= ObtenerUnTicketTemporal($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
 		// Si carga correctamente el ticket
-		
 		if (isset($ticket['estadoTicket'])){
 			$ticket_estado = $ticket['estadoTicket'];
 			if ($ticket_estado === 'Cobrado'){
@@ -135,7 +152,6 @@
 		$cliente = $ticket['Nombre'].'-'.$ticket['razonsocial'];
 		$idCliente =$ticket['idClientes'];
 	} else {
-		//~ $horaInicio= MaquetarFecha($fechaInicio,'HM'); // Falla no se porque... :-)
 		$cliente = '';
 		$idCliente = 1;
 	}
@@ -160,7 +176,7 @@
 	cabecera['idCliente'] = <?php echo $idCliente;?>;
 	datos = [];
 	<?php
-	$i= 0;
+	//~ $i= 0;
 	foreach($ticket['productos'] as $product){
 	?>
 		// Añadimos datos de productos a variable productos Javascript
@@ -170,18 +186,10 @@
 		datos['pvpCiva'] 		= <?php echo $product->pvpconiva;?>;
 		datos['iva'] 			= <?php echo '"'.$product->ctipoiva.'"';?>;
 		datos['codBarras']		= <?php echo '"'.$product->ccodebar.'"';?>;
+		datos['unidad']		= <?php echo $product->unidad;?>;
+		datos['estado']		= <?php echo '"'.$product->estado.'"';?>;
 		productos.push(new ObjProducto(datos));
-		<?php
-		// cambiamos estado y cantidad de producto creado si fuera necesario.
-		if ($product->estado !== 'Activo'){
-		?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product->estado.'"';?>;
-		<?php
-		}
-		if ($product->unidad != 1){
-		?>	productos[<?php echo $i;?>].unidad=<?php echo $product->unidad;?>;
-		<?php
-		}
-		$i++;
+	<?php	
 	}
 	?>
 
@@ -189,7 +197,6 @@
 <?php } ?>
 <div class="container">
 <nav class="col-md-3">
-	
 		<div class="col-md-6">
 			<h3 class="text-center"> TpvFox</h3>
 			<h4>Otros opciones</h4>
@@ -255,6 +262,10 @@
 		<?php
 	}// Cerramos if de mostrar tickets abiertos o no.
 	?>
+	<div class="col-md-12">
+		<h3 class="text-center">Configuracion</h3>
+		<input type="checkbox" <?php echo $checkin[1];?>>Imprimitr Tickets por defecto<br>
+	</div>
 </nav>
 <div class="col-md-9" >
 	<div class="col-md-8">
@@ -317,7 +328,7 @@
 			<th>Descripcion</th>
 			<th>Unid</th>
 			<?php
-			if ($CONF_campoPeso === 'si'){ ?>
+			if ($configuracion['campo_peso'] === 'si'){ ?>
 				<th>Cant/Kilo</th>
 			<?php
 			} else { ?>
@@ -335,9 +346,6 @@
 			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
 			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
 			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)">
-<!--
-				<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProductos('Descripcion','','tpv')"></a>
--->
 			</td>
 		</tr>
 		</thead>

@@ -47,6 +47,13 @@ class Cliente{
 		}
 		return $cliente;
 	}
+	public function mofificarFormaPagoVenci($idCliente, $formasVenci){
+		$db=$this->db;
+		$smt=$db->query('UPDATE clientes SET fomasVenci='."'".$formasVenci."'".' WHERE idClientes='.$idCliente);
+		$sql='UPDATE clientes SET fomasVenci="'.$formasVenci.'" WHERE idClientes='.$idCliente;
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
 	
 	
 	

@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost:3306
--- Tiempo de generación: 07-10-2017 a las 17:46:29
--- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
--- Versión de PHP: 7.0.19-1
+-- Host: localhost:3306
+-- Generation Time: Feb 07, 2018 at 10:40 PM
+-- Server version: 10.1.26-MariaDB-0+deb9u1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `tpv`
+-- Database: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `articulos`
+-- Table structure for table `articulos`
 --
 
 CREATE TABLE `articulos` (
@@ -35,26 +35,27 @@ CREATE TABLE `articulos` (
   `costepromedio` decimal(17,6) DEFAULT NULL,
   `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
   `fecha_creado` datetime NOT NULL,
-  `fecha_modificado` datetime NOT NULL
+  `fecha_modificado` datetime NOT NULL,
+  `ultimoCoste` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Índices para tablas volcadas
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `articulos`
+-- Indexes for table `articulos`
 --
 ALTER TABLE `articulos`
   ADD PRIMARY KEY (`idArticulo`),
   ADD KEY `idProveedor` (`idProveedor`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `articulos`
+-- AUTO_INCREMENT for table `articulos`
 --
 ALTER TABLE `articulos`
   MODIFY `idArticulo` int(11) NOT NULL AUTO_INCREMENT;

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 08, 2018 at 10:35 PM
+-- Generation Time: Feb 23, 2018 at 10:44 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -36,8 +36,7 @@ CREATE TABLE `proveedores` (
   `fax` varchar(11) NOT NULL,
   `movil` varchar(11) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `fechaalta` date NOT NULL,
-  `idusuario` int(11) NOT NULL,
+  `fecha_creado` datetime NOT NULL,
   `estado` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -50,6 +49,7 @@ CREATE TABLE `proveedores` (
 --
 ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`idProveedor`);
+ALTER TABLE `proveedores` ADD FULLTEXT KEY `nombrecomercial` (`nombrecomercial`);
 
 --
 -- AUTO_INCREMENT for dumped tables

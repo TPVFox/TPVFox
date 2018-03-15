@@ -11,8 +11,16 @@
     url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') 
     format('svg');
 }
+.navbar{
+	margin-bottom: 0px;
+}
+
 .container {
 	width:100%;
+}
+
+. btn-toolbar{
+
 }
 
 label {
@@ -44,4 +52,8 @@ span.circulo {
 }
 .rojo{
 	color: red;
+}
+.producto_codbarras a >h3{
+	color: initial;
+
 }

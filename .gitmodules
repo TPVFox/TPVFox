@@ -1,0 +1,3 @@
+[submodule "lib/tcpdf"]
+	path = lib/tcpdf
+	url = https://github.com/Ricardolau/TCPDF.git

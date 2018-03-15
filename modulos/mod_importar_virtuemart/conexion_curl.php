@@ -39,27 +39,21 @@ curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
 //recogemos la respuesta
 $respuesta = curl_exec ($ch);
 
-//Obtener el código de respuesta
-$httpcode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-
  
 //o el error, por si falla
 $error = curl_error($ch);
+echo '<pre>';
+print_r($error);
+echo '</pre>';
  
 //y finalmente cerramos curl
 curl_close ($ch);
-// [ OBTENEMOS ARRAY DE DATOS DE TMP ARTICULOS COMPLETA ]
-//~ $respuesta = json_decode($respuesta,true);
-//[ ANALIZAMOS Y MOSTRAMOS POSIBLES ERRORES ]
-$accepted_response = array( 200, 301, 302 );
-if( in_array( $httpcode, $accepted_response ) ) {
-	$respuesta = json_decode($respuesta,true);
-	if (isset($respuesta['error'])){
-		$error = $respuesta;
-	}
-} else {
-	$error = $respuesta;
 
+//[ ANALIZAMOS Y MOSTRAMOS POSIBLES ERRORES ]
+if (isset($error)){
+	$respuesta['error'] = $error;
 }
+// [ OBTENEMOS ARRAY DE DATOS DE TMP ARTICULOS COMPLETA ]
+$respuesta = json_decode($respuesta,true);
 ?>
 

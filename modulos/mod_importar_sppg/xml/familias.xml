@@ -27,27 +27,31 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 				<action funcion="mismo" tabla_cruce="familiasTienda" campo_cruce="ref_familia_tienda" description="Referencias iguales"/>
 			</campo>
 			<campo nombre="CNOMFAM">
-				<action funcion="similar" tabla_cruce="familias" campo_crucer="familiaNombre" description="Buscar palabras similares"/>
+				<action funcion="comparar" tabla_cruce="familias" campo_cruce="familiaNombre" description="Buscar palabras similares"/>
 			</campo>
 		</campos>
 		<tpv>
 			<tabla>
 				<nombre>familiasTienda</nombre>
-				<campo nombre="idFamilia">
-					<action fuction="consulta" tabla="familias" campo="idFamilia"/>
-				</campo>
-				<campo nombre="idTienda">
-					<action function="parametro" parametro="idTienda"/>
-				</campo>
-				<campo nombre="ref_familia_tienda">
-					<cruce>CCODFAM</cruce>
-				</campo>
+				<cruces>
+					<campo nombre="idFamilia">
+						<action fuction="consulta" tabla="familias" campo="idFamilia"/>
+					</campo>
+					<campo nombre="idTienda">
+						<action function="parametro" parametro="idTienda"/>
+					</campo>
+					<campo nombre="ref_familia_tienda">
+						<cruce>CCODFAM</cruce>
+					</campo>
+				</cruces>
 			</tabla>
 			<tabla>
 				<nombre>familias</nombre>
-				<campo nombre="idFamilia">
-					<tipo>UNICO</tipo>
-				</campo>
+				<cruces>
+					<campo nombre="idFamilia">
+						<tipo>Unico</tipo>
+					</campo>
+				</cruces>
 				
 			</tabla>
 		</tpv>
@@ -56,9 +60,16 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 				<procesos>
 					<before>
 						<action funcion="AnhadirFuncionIDFamilias"/>
-						<action funcion="Diferencias"/>
 					</before>
 				</procesos>
+				<options tipo="general">
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+				</options>
+				
+			</comprobacion>
+			<comprobacion nombre="NoEncontrado">
 				<options tipo="general">
 					<option tipo="Crear">
 						<texto>Crear Nuevo</texto>
@@ -66,25 +77,15 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
 					</option>
-					<option tipo="Modificar">
-						<texto>Modificar Tpv con Importar</texto>
-					</option>
 				</options>
-				
 			</comprobacion>
-			<comprobacion nombre="NoEncontrado">
+			<comprobacion nombre="Similar">
 				<procesos>
 					<before>
 						<action funcion="SeleccionarRegistroFamilias"/>
 					</before>
 				</procesos>
-				<options tipo="general">
-					<option tipo="Descartar">
-						<texto>Descartar Registro</texto>
-					</option>
-				</options>
-			</comprobacion>
-			<comprobacion nombre="Similar">
+				
 				<options tipo="general">
 					<option tipo="Descartar">
 						<texto>Descartar Registro</texto>
@@ -92,8 +93,6 @@ Para poder realizar esto, tenemos que tener un id asignado en la DBFimportar.fam
 				</options>
 			</comprobacion>
 		</comprobaciones>
-			
-		
 		
 		
 	</tabla>

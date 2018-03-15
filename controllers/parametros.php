@@ -6,7 +6,7 @@ class ClaseParametros
 	private $ficheros; // array de ficheros, con rutaruta fichero de parametros del modulo
 	private $root; // Por defecto contiene el objeto XMl de  los ficheros enviados, aunque podríamos mandarle uno.
 				   // Esto implica que cambiaría el valor de raiz = No
-	private $raiz = 'Si';
+	private $raiz = 'Si'; // Ver explicacion $root
 	private $Array_Elementos;  // 
 	
 	public function __construct($fichero){
@@ -69,9 +69,9 @@ class ClaseParametros
 		return $respuesta;
 	}
 	
-	public function ArrayElementos($elementos,$atributo=''){
+	public function ArrayElementos($elementos){
 		// @ Objetivo.
-		// Obtener objeto SimpleXML dentro de parametros que contenga ese elemento.
+		// Obtener array con los key y valores que contienen SimpleXML 
 		// @ Parametros:
 		// 		$elementos -> string del nombre del grupo de elementos queremos obtener
 		// 		$atributo -> string del atributo del elemento queremos si lo 
@@ -81,17 +81,11 @@ class ClaseParametros
 		$obj = $elementos;
 		
 		foreach ($this->root->$obj as $elemento){
-			if ($atributo ===''){
-				// Si no mandamos atributo.
-				$respuesta[] = $elemento;
-			} else {
-				// Si mandamos atributo entonces solo metemos los que tiene ese atributo.
-				if (isset($elemento[$atributo])){
-					$respuesta[] = $elemento;
-				}
-			}
+			foreach($elemento as $key=>$valor){
+				$respuesta[$key] = (string)$valor;
+			}	
 		}
-		$this->Array_Elementos = $respuesta;
+		//~ $this->Array_Elementos = $respuesta;
 		return $respuesta;
 	}
 	

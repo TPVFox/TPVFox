@@ -20,6 +20,13 @@ include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos funciones
 include_once ("./funciones.php");
 
+// Incluimos controlador.
+include ("./../../controllers/Controladores.php");
+$Controler = new ControladorComun; 
+// Añado la conexion a controlador.
+$Controler->loadDbtpv($BDTpv);
+
+
 switch ($pulsado) {
     
     case 'buscarProductos':
@@ -27,12 +34,41 @@ switch ($pulsado) {
 		$campoAbuscar = $_POST['campo'];
 		$id_input = $_POST['cajaInput'];
 		$deDonde = $_POST['dedonde']; // Obtenemos de donde viene
+		
+		if ($id_input === "Codbarras") {
+			// Si la busqueda es por codbarras y comprobamos el codbarras es propio, 
+			// es decir que empiece por 21 o 20
+			// YA que entonces tendremos que buscar por referencia.
+			include ("./../../controllers/codbarras.php");
+			$Ccodbarras = new ClaseCodbarras ; 
+			$codigo_correcto = $Ccodbarras->ComprobarCodbarras($busqueda);
+			error_log('Es correcot codigoBarras'.strlen($busqueda));
+			if ($codigo_correcto === 'OK'){
+				// Se comprobo código barras y es correcto.
+				$codBarrasPropio= $Ccodbarras->DesgloseCodbarra($busqueda);
+				if (count($codBarrasPropio)>0){
+					// Obtenemos el campo a buscar de parametros de referencia, porque lo necesitamos
+					// Cargamos los fichero parametros.
+					include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+					$ClasesParametros = new ClaseParametros('parametros.xml');
+					//~ $parametros = $ClasesParametros->getRoot();
+					$xml_campo_cref = $ClasesParametros->Xpath('cajas_input//caja_input[nombre="cajaReferencia"]//parametros//parametro[@nombre="campo"]');
+					$campoAbuscar =(string)$xml_campo_cref[0];
+					$id_input='Referencia';
+					$codBarrasPropio['codbarras_leido'] = $busqueda; // Guardamos en array el codbarras leido
+					$busqueda= $codBarrasPropio['referencia'];
+				}
+			}
+		}
+
 		$respuesta = BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv);
 		if ($respuesta['Estado'] !='Correcto' ){
 			// Al ser incorrecta entramos aquí.
 			// Mostramos popUp tanto si encontro varios como si no encontro ninguno.
-			if (!isset($respuesta)){
-				$respuesta = array('datos'=>array());
+
+			if (!isset($respuesta['datos'])){
+				// Para evitar error envio, lo generamos vacio..
+				$respuesta['datos']= array();
 			}
 			$respuesta['listado']= htmlProductos($respuesta['datos'],$id_input,$campoAbuscar,$busqueda);
 		}
@@ -42,6 +78,26 @@ switch ($pulsado) {
 			$respuesta['Estado'] = 'Listado';
 		}
 		
+		if ( isset($codBarrasPropio)){
+			if (count($codBarrasPropio)>0){
+				// Si hay datos , nos enviamos referencia y (precio o peso) obtenidos.
+				$respuesta['codBarrasPropio'] = $codBarrasPropio;
+				if (count($respuesta['datos']=== 1)){
+					// Solo permito cambiar datos si hay un solo resultado.
+					$respuesta['datos'][0]['codBarras'] = $codBarrasPropio['codbarras_leido'];
+					$respuesta['datos'][0]['crefTienda'] = $codBarrasPropio['referencia'];
+					if (isset($codBarrasPropio['peso'])){
+						// [OJO] aquí cambiaría si tuvieramos activado campo de cantidad/peso, ya que es donde lo podríamos.
+						$respuesta['datos'][0]['unidad'] = $codBarrasPropio['peso'];
+					}
+					if (isset($codBarrasPropio['precio'])){
+						$respuesta['datos'][0]['pvpCiva'] = $codBarrasPropio['precio'];
+					}
+				// Ahora cambiamos $respuesta['datos'] , el peso o precio para referencia
+				
+				}
+			}
+		}
 		
 		echo json_encode($respuesta);  
 		break;
@@ -50,6 +106,7 @@ switch ($pulsado) {
 		//~ echo 'cobrar';
 		$totalJS = $_POST['total'];
 		$productos = $_POST['productos'];
+		$configuracion = $_POST['configuracion'];
 		// Convertimos productos que debería ser un objeto a array
 		$productos = json_decode( json_encode( $_POST['productos'] ));
 
@@ -57,7 +114,7 @@ switch ($pulsado) {
 		$totales = recalculoTotales($productos);
 		
 		
-		$respuesta = htmlCobrar($totalJS);
+		$respuesta = htmlCobrar($totalJS,$configuracion);
 		$respuesta['recalculo'] = $totales;
 
 		echo json_encode($respuesta);		
@@ -101,6 +158,7 @@ switch ($pulsado) {
 		$CONF_campoPeso		=$_POST['CONF_campoPeso'];
 		$res 	= htmlLineaTicket($product,$num_item,$CONF_campoPeso);
 		$respuesta['html'] =$res;
+		$respuesta['conf_peso'] =$CONF_campoPeso;
 		echo json_encode($respuesta);
 		break;
 	case 'CerrarTicket';
@@ -196,7 +254,7 @@ switch ($pulsado) {
 	/* **************************************************************	*
      * 			LLAMADAS FUNCIONES COMUNES MODULO CIERRES Y TPV			*
      * **************************************************************	* 	*/
-     case 'buscarClientes':
+	case 'buscarClientes':
 		// Abrimos modal de clientes
 		$busqueda = $_POST['busqueda'];
 		$dedonde = $_POST['dedonde'];
@@ -211,6 +269,21 @@ switch ($pulsado) {
 		$respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
 		echo json_encode($respuesta);
 		break;
+		
+	case 'Grabar_configuracion':
+		// Grabamos configuracion
+		$configuracion = $_POST['configuracion'];
+		// Ahora obtenemos nombre_modulo y usuario , lo ponermos en variable y quitamos array configuracion.
+		$nombre_modulo = $configuracion['nombre_modulo'];
+		$idUsuario = $configuracion['idUsuario'];
+		unset($configuracion['nombre_modulo'],$configuracion['idUsuario']);
+		
+		$respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
+		$respuesta['configuracion'] = $configuracion ; 
+		
+		echo json_encode($respuesta);
+		break;
+		
 		
 }
  

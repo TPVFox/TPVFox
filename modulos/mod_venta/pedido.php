@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,14 +14,26 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	if ($_GET['id']){
+	$titulo="Crear Pedido De Cliente";
+	$estado='Abierto';
+	$bandera=0;
+if ($_GET){
+	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
-		$titulo="Modificar Pedido De Cliente";
-		$estado='Modificado';
-		$estadoCab="'".'Modificado'."'";
-		$datosPedido=$Cpedido->datosPedidos($idPedido);
-		$productosPedido=$Cpedido->ProductosPedidos($idPedido);
-		$ivasPedido=$Cpedido->IvasPedidos($idPedido);
+		$datosPedido=$Cpedido->datosPedidos($idPedido);//Buscar los datos de pedido 
+		if ($datosPedido['estado']=='Facturado'){//Dependiendo del estado mostramos unos titulo u otro
+			$titulo="Pedidos De Cliente Facturado";
+			$estado='Facturado';
+			$estadoCab="'".'Facturado'."'";
+		}else{
+			$titulo="Modificar Pedido De Cliente";
+			$estado='Modificado';
+			$estadoCab="'".'Modificado'."'";
+		}
+		
+		
+		$productosPedido=$Cpedido->ProductosPedidos($idPedido);//Buscamos los productos de ese pedido en su respectiva tabla
+		$ivasPedido=$Cpedido->IvasPedidos($idPedido);//Buscamos los datos del iva 
 		$fecha=$datosPedido['FechaPedido'];
 		$idCliente=$datosPedido['idCliente'];
 		if ($idCliente){
@@ -30,30 +41,34 @@ include './../../head.php';
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
 		}
-	
-		$productos=json_decode(json_encode($productosPedido));
+		$productosMod=modificarArrayProductos($productosPedido);//MOdificar el array de productos según lo que necesitamos
+		$productos=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos);
+		$productos=json_decode(json_encode($productosMod), true);
 		
-		echo '<pre>';
-		print_r($productos);
-		echo '</pre>';
+		
+		$total=$Datostotales['total'];
+		$pedido_numero=0;
+		
 	}else{
 		$titulo="Crear Pedido De Cliente";
 		$bandera=1;
 		$estado='Abierto';
 		$estadoCab="'".'Abierto'."'";
 		$fecha=date('Y-m-d');
-		
-	}
-	if ($_GET['tActual']){
-		// Si recibe el número de pedido temporal cubre los campos 
+			if ($_GET['tActual']){//Si recibe un id de un temporal 
 			$pedido_numero=$_GET['tActual'];
-			$pedidoTemporal= $Cpedido->BuscarIdTemporal($pedido_numero);
+			$pedidoTemporal= $Cpedido->BuscarIdTemporal($pedido_numero);//Buscamos los datos del temporal
 			$estadoCab="'".$pedidoTemporal['estadoPedCli']."'";
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
+			if ($pedidoTemporal['idPedcli']){
+				$idPedido=$pedidoTemporal['idPedcli'];
+			}else{
+				$idPedido=0;
+			}
 			$pedido=$pedidoTemporal;
-			$productos = json_decode( $pedidoTemporal['Productos'] ); // Array de objetos
+			$productos = json_decode( $pedidoTemporal['Productos']); // Array de objetos
 			if ($idCliente){
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
@@ -61,22 +76,46 @@ include './../../head.php';
 			}
 		}else{
 			$pedido_numero = 0;
+			$idPedido=0;
+			$total=0;
+			$idCliente=0;
 		}
+		
+	}
+}else{
+	$fecha=date('Y-m-d');
+	$estadoCab="'".'Abierto'."'";
+	$pedido_numero = 0;
+	$idPedido=0;
+	$total=0;
+	$idCliente=0;
+	$nombreCliente=0;
+}
 		if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
 			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
-		if (isset($_POST['Nuevo'])){
-			$idTemporal=$_POST['idTemporal'];
-			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
+		//Pasar un pedido temporal a real
+		if (isset($_POST['Guardar'])){
+			if ($_POST['idTemporal']){
+				$idTemporal=$_POST['idTemporal'];
+			}else{
+				$idTemporal=$_GET['tActual'];
+			}
+			echo $idTemporal;
+			echo '<br>';
+			echo $_POST['fecha'];
+			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscar los datos del temporal
 			if($pedidoTemporal['total']){
 				$total=$pedidoTemporal['total'];
 			}else{
 				$total=0;
 			}
+			
 			$fechaCreacion=date("Y-m-d H:i:s");
+			//Crear un array con todos los datos nuevos
 			$datosPedido=array(
 			'NPedidoTemporal'=>$idTemporal,
 			'fecha'=>$_POST['fecha'],
@@ -91,24 +130,45 @@ include './../../head.php';
 			'productos'=>$pedidoTemporal['Productos'],
 			'DatosTotales'=>$Datostotales
 			);
-			//~ echo '<pre>';
-			//~ print_r($datosPedido);
-			//~ echo '</pre>';
-			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido);
-			$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal);
+			
+			if ($pedidoTemporal['idPedcli']){
+				//Elimina los registros reales de pedidos  , añadir nuevos registros y eliminar el temporal , cuando se añaden nuevos registros
+				//si tiene número de pedido se mantiene 
+				$idPedido=$pedidoTemporal['idPedcli'];
+				$datosPedidoReal=$Cpedido->datosPedidos($idPedido);
+				$numPedido=$datosPedidoReal['Numpedcli'];
+				
+				$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
+				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
+				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
+			}else{
+				//Como no tenemos número de pedido solo añadimos registros nuevos y eliminamos el temporal
+				$idPedido=0;
+				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
+				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
+			}
+			
 			header('Location: pedidosListado.php');
-				//~ echo '<pre>';
-			//~ print_r($addNuevo);
-			//~ echo '</pre>';
-		}else{
-		//	echo "else de post nuevo";
 		}
-		if (isset ($pedido)){
-			$style="";
+		$fechaCab="'".$fecha."'";
+		if (isset($datosPedido)){
+			if($datosPedido['estado']=="Facturado"){
+				$style="display:none;";
+				$disabled = 'disabled';
+			}else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
+				$style="";
+				$disabled = '';
+			}else{
+				$style="display:none;";
+				$disabled = '';
+			}
 		}else{
+			$disabled = '';
 			$style="display:none;";
 		}
-	//~ echo $pedido_numero;	
+		if (isset ($_GET['tActual'])|| isset ($_GET['id'])){
+			$style="";
+		}
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -124,15 +184,22 @@ include './../../head.php';
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estadoPedido'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
 		cabecera['numPedidoTemp'] = <?php echo $pedido_numero ;?>;
+		cabecera['idPedido'] = <?php echo $idPedido ;?>;
+		cabecera['idCliente']=<?php echo $idCliente ;?>;
+		cabecera['fecha']=<?php echo $fechaCab;?>;
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 
 <?php 
-	if (isset($pedidoTemporal)){ 
+	if (isset($pedidoTemporal)| isset($idPedido)){ 
 ?>
 	console.log("entre en el javascript");
+	</script>
+	<script type="text/javascript">
 <?php
 	$i= 0;
+	if (isset($productos)){
+	
 		foreach($productos as $product){
 ?>
 			datos=<?php echo json_encode($product); ?>;
@@ -141,16 +208,28 @@ include './../../head.php';
 	
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
+		if (isset ($product->estado)){
 			if ($product->estado !== 'Activo'){
 			?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 			<?php
 			}
 			$i++;
 		}
+	}
 	
-	}	
+		
+	}
+	}
+	
+	
 ?>
 </script>
+<?php 
+if ($idCliente===0){
+	$idCliente="";
+	$nombreCliente="";
+}
+?>
 </head>
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
@@ -159,7 +238,6 @@ include './../../head.php';
 	include '../../header.php';
 ?>
 <script type="text/javascript">
-// Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -169,11 +247,14 @@ include './../../head.php';
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<?php 
+		
 			if (isset($_GET)){
+				if(isset($_GET['mensaje']) & isset($_GET['tipo'])){
 				$mensaje=$_GET['mensaje'];
 				$tipomensaje=$_GET['tipo'];
-			}
-			if (isset($mensaje) || isset($error)){   ?> 
+				if (isset($mensaje) || isset($error)){
+			
+			   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
 				if (isset($error)){
@@ -182,20 +263,23 @@ include './../../head.php';
 				}
 				?>
 			<?php
+		}
 			}
+		}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./pedidosListado.php">Volver Atrás</a>
+			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<?php 
-				if ($_GET['id']){	?>
+				
+					if($datosPedido['estado']<>"Facturado"){
+				?>
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php
-				}else{?>
-					<input type="submit" value="Nuevo" name="Nuevo">
-					<?php 
-				}
-				if ($_GET['tActual']){
+					}
+				
+			
+				if (isset($_GET['tActual'])){
 					?>
 					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
 					<?php
@@ -207,17 +291,11 @@ include './../../head.php';
 			<div class="col-md-7">
 				<div class="col-md-6">
 					<strong>Fecha Pedido:</strong><br/>
-					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" <?php echo $disabled;?>>
 				</div>
 				<div class="col-md-6">
 					<strong>Estado:</strong>
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly></span><br/>
-					<?php if ($bandera<>1){?>
-					<strong>NºT_temp:</strong>
-					<span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
-					<?php 
-					}
-					?>
 				</div>
 			</div>
 			<div class="col-md-3">
@@ -227,14 +305,14 @@ include './../../head.php';
 		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
-			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')"></a>
+			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id' <?php echo $disabled;?>>
+			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60" <?php echo $disabled;?>>
+			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('pedidos')" style="<?php echo $style;?>"></a>
 		</div>
 	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
-		<table id="tabla" class="table table-striped">
+		<table id="tabla" class="table table-striped" >
 		<thead>
 		  <tr>
 			<th>L</th>
@@ -258,17 +336,20 @@ include './../../head.php';
 		</thead>
 		<tbody>
 			<?php 
+			if (isset($productos)){
 			foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedido($producto, $producto['nfila'], $CONF_campoPeso);
+				$html=htmlLineaPedido($producto, $producto['nfila'], $CONF_campoPeso, $disabled, $style);
 				echo $html;
+			}
 			}
 		?>
 		</tbody>
 	  </table>
 	</div>
 	<?php 
-	if (isset($pedido['Productos'])){
+	if (isset($pedido['Productos']) | isset ($idPedido)){
 			// Ahora montamos base y ivas
+			if (isset($Datostotales)){
 			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
 					case 4 :
@@ -285,12 +366,14 @@ include './../../head.php';
 					break;
 				}
 			}
-	
+			}
+	if (isset($DatosTotales)){
 	?>
 		<script type="text/javascript">
 			total = <?php echo $Datostotales['total'];?>;
 			</script>
 			<?php
+	}
 	}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
@@ -357,6 +440,20 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
 	$('#id_cliente').focus();
+		<?php
+	if ($idCliente>0){
+		?>
+		$('#Cliente').prop('disabled', true);
+		$('#id_cliente').prop('disabled', true);
+		$("#buscar").css("display", "none");
+		<?php
+	}
+	if($estado=="Facturado"){
+		?>
+		$("#Row0").css("display", "none");
+		<?php
+	}
+	?>
 </script>
 	</body>
 </html>

@@ -6,10 +6,120 @@ Ya que asi no hacemos las otras, ya que no tiene sentido seguir acciones si cons
 <tablas>
 	<tabla>
 		<nombre>clientes</nombre>
+		<campos>
+			<campo nombre="CCODCLI">
+				<tipo>Unico</tipo>
+			</campo>
+			<campo nombre="CDNICIF">
+				<action funcion="mismo" tabla_cruce="clientes" campo_cruce="nif" description="Numeros iguales sin espacios"/>
+			</campo>
+			<campo nombre="CTFO1CLI">
+				<action funcion="mismo" tabla_cruce="clientes" campo_cruce="telefono" description="Numeros iguales sin espacios" />
+				<action funcion="mismo" tabla_cruce="clientes" campo_cruce="movil" description="Numeros iguales sin espacios" />
+			</campo>
+			<campo nombre="CTFO2CLI">
+				<action funcion="mismo" tabla_cruce="clientes" campo_cruce="telefono" description="Numeros iguales sin espacios" />
+				<action funcion="mismo" tabla_cruce="clientes" campo_cruce="movil" description="Numeros iguales sin espacios" />
+			</campo>
+			<campo nombre="CFAX">
+				<action funcion="mismo" tabla_cruce="clientes" campo_cruce="fax" description="Numeros iguales sin espacios"/>
+			</campo>
+			
+			<campo nombre="CNOMCLI">
+				<action funcion="comparar" tabla_cruce="clientes" campo_cruce="Nombre" description="Compara cuales son lo mas aproximados" />
+				<action funcion="comparar" tabla_cruce="clientes" campo_cruce="razonsocial" description="Numeros mismoes sin espacios" />
+			</campo>
+			<campo nombre="CNOMCOM">
+				<action funcion="comparar" tabla_cruce="clientes" campo_cruce="razonsocial" description="Numeros mismoes sin espacios" />
+				<action funcion="comparar" tabla_cruce="clientes" campo_cruce="Nombre" description="Compara cuales son lo mas aproximados" />
+			</campo>
+		</campos>
+		<consultas>
+			<!-- String con los campos queremos obtener de la tabla importar. -->
+			<campos tipo="obtener">
+				 `CDNICIF`, `CCODCLI`, `CNOMCLI`, `CNOMCOM`, concat(`CDIRCLI`, `CPOBCLI`, `CCODPROV`),`CPTLCLI`,`CTFO1CLI`, `CTFO2CLI`, `CFAXCLI`,`EMAIL`
+			</campos>
+			<campos tipo="anhadir" tabla="clientes">
+				 `Nombre`, `razonsocial`, `nif`, `direccion`, `telefono`, `fax`, `movil`,`codpostal`,`email` 
+			</campos>
+			<!-- Funcion a realizar despues de lo que indique tipo  y tabla-->
+			<before tipo="anhadir" tabla="clientes">
+				AnhadirEstadoFecha
+			</before>
+		</consultas>
 		<tpv>
 			<tabla>
 				<nombre>clientes</nombre>
+				<cruces>
+					<campo nombre="idClientes">
+						<tipo>Unico</tipo>
+					</campo>
+					<campo nombre="Nombre">
+						<cruce>CNOMCLI</cruce>
+					</campo>
+					<campo nombre="razonsocial">
+						<cruce>CNOMCOM</cruce>
+					</campo>
+					<campo nombre="nif">
+						<cruce>CDNICIF</cruce>
+					</campo>
+					<campo nombre="direccion">
+						<!-- Este campo tiene que obtener de distinta forma.. -->				
+						<cruce>DIRECCION</cruce>
+					</campo>
+					<campo nombre="codpostal">
+						<cruce>CPTLCLI</cruce>
+					</campo>
+					<campo nombre="telefono">
+						<cruce>CTFO1CLI</cruce>
+					</campo>
+					<campo nombre="fax">
+						<cruce>CFAXCLI</cruce>
+					</campo>
+					<campo nombre="movil">
+						<cruce>CTFO2CLI</cruce>
+					</campo>
+					<campo nombre="email">
+						<cruce>EMAIL</cruce>
+					</campo>
+				</cruces>
+			
 			</tabla>
 		</tpv>
+		<comprobaciones>
+			<comprobacion nombre="Mismo">
+				<options tipo="general">
+					<!-- tengo que crear en el mismo ya que proveedores franquiciados pueden tener el telefono ekoama -->
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+				</options>		
+				
+			</comprobacion>
+			<comprobacion nombre="NoEncontrado">
+				<options tipo="general">
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+				</options>
+			</comprobacion>
+			<comprobacion nombre="Similar">
+				<options tipo="general">
+					<option tipo="Crear">
+						<texto>Crear Nuevo</texto>
+					</option>
+					<option tipo="Descartar">
+						<texto>Descartar Registro</texto>
+					</option>
+				</options>
+			</comprobacion>
+		</comprobaciones>
+		
 	</tabla>
 </tablas>

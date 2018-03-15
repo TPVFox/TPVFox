@@ -12,11 +12,10 @@
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
 	$todoTemporal=$Cpedido->TodosTemporal();
-	$pedidosDef=$Cpedido->TodosPedidos();
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
+	$LimitePagina = 10; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
@@ -31,6 +30,7 @@
 	$LinkBase = './pedidosListado.php?';
 	$OtrosParametros = '';
 	$paginasMulti = $PgActual-1;
+	
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
 		
@@ -38,26 +38,29 @@
 		$desde = 0;
 	}
 if ($stringPalabras !== '' ){
-		$campoBD='Numpedcli';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		$filtro=$WhereLimite['filtro'];
+		$campo = array( 'a.Numpedcli','b.Nombre');
+		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
+		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
 		$OtrosParametros=$stringPalabras;
+		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
 }
-$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-
+$CantidadRegistros=count($Cpedido->TodosPedidosFiltro($WhereLimite['filtro']));
+$WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
 if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+		$filtro = $WhereLimite['filtro']." ORDER BY  Numpedcli desc ".$WhereLimite['rango'];
 	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$filtro= "ORDER BY  Numpedcli  desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
+	
+	$pedidosDef=$Cpedido->TodosPedidosFiltro($filtro);
 ?>
 
 </head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
 <?php
 include '../../header.php';
@@ -67,7 +70,7 @@ include '../../header.php';
 			<div class="col-md-12 text-center">
 					<h2> Pedidos de clientes: Editar y Añadir pedidos </h2>
 				</div>
-					<nav class="col-sm-2">
+					<nav class="col-sm-4">
 				<h4> Pedidos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -86,9 +89,10 @@ include '../../header.php';
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>Nº</th>
-					<th>Cliente</th>
-					<th>Total</th>
+					<th WIDTH="4">Nº Temp</th>
+					<th WIDTH="4">Nº Ped</th>
+					<th WIDTH="100">Cliente</th>
+					<th WIDTH="4">Total</th>
 				</tr>
 				
 			</thead>
@@ -96,10 +100,17 @@ include '../../header.php';
 				<?php 
 				if (isset ($todoTemporal)){
 					foreach ($todoTemporal as $pedidoTemp){
+						if ($pedidoTemp['idPedcli']){
+							//$numPedido=$Cpedido->buscarNumPedido($pedidoTemp['idPedcli']);
+							$numPed=$pedidoTemp['Numpedcli'];
+					}else{
+						$numPed="";
+					}
 					?>
 						<tr>
 						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
-						<td><?php echo $pedidoTemp['idClientes'];?></td>
+						<td><?php echo $numPed;?></td>
+						<td><?php echo $pedidoTemp['Nombre'];?></td>
 						<td><?php echo number_format($pedidoTemp['total'],2);?></td>
 						</tr>
 						<?php
@@ -110,7 +121,7 @@ include '../../header.php';
 		</table>
 		</div>
 			</nav>
-			<div class="col-md-10">
+			<div class="col-md-8">
 					<p>
 					 -Pedidos encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>
@@ -119,7 +130,7 @@ include '../../header.php';
 						echo $htmlPG;
 				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
 					?>
-					<form action="./ListaProductos.php" method="GET" name="formBuscar">
+					<form action="./pedidosListado.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
 						<label>Buscar en número de pedido </label>
 						<input type="text" name="buscar" value="">
@@ -131,7 +142,7 @@ include '../../header.php';
 				<thead>
 					<tr>
 						<th></th>
-						<th>ID</th>
+						
 						<th>Nª PEDIDO</th>
 						<th>FECHA</th>
 						<th>CLIENTE</th>
@@ -139,24 +150,43 @@ include '../../header.php';
 						<th>IVA</th>
 						<th>TOTAL</th>
 						<th>ESTADO</th>
+						
 					</tr>
 				</thead>
 				<tbody>
 					<?php 
 					$checkUser = 0;
 					foreach($pedidosDef as $pedido){
-						$checkUser = $checkUser + 1; 
+						$checkUser = $checkUser + 1;
+						
+						$totaliva=$Cpedido->sumarIva($pedido['Numpedcli']);
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">
-						<td><?php echo $pedido['id'];?></td>
+					
 						<td><?php echo $pedido['Numpedcli'];?></td>
 						<td><?php echo $pedido['FechaPedido'];?></td>
 						<td><?php echo $pedido['Nombre'];?></td>
-						<td></td>
-						<td></td>
+						<td><?php echo $totaliva['totalbase'];?></td>
+						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $pedido['total'];?></td>
-						<td><?php echo $pedido['estado'];?></td>
+						<?php 
+						if ($pedido['estado']=="Sin Guardar"){
+							?>
+							<td><?php echo $pedido['estado'];?></td>
+							<?php
+						}else{
+							$tienda=json_encode($_SESSION['tiendaTpv']);
+							
+							?>
+						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $tienda;?>)'></a></td>
+
+							
+							<?php
+						}
+						
+						?>
+						
 						</tr>
 						<?php
 					}

@@ -5,17 +5,25 @@
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
+        
         include ("./../mod_conexion/conexionBaseDatos.php");
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
 		}
 		
+		include_once '../../clases/FormasPago.php';
+		$CFormasPago=new FormasPago($BDTpv);
+		include_once '../../clases/TiposVencimiento.php';
+		$CtiposVen=new TiposVencimientos($BDTpv);
+		include_once '../../clases/cliente.php';
+		$Ccliente=new Cliente($BDTpv);
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		
 		
 	</head>
 	<body>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
 		<?php
         include './../../header.php';
 		// ===========  datos cliente segun id enviado por url============= //
@@ -50,6 +58,24 @@
 					}
 				} 
 			}
+			if(isset($ClienteUnico['fomasVenci'])){
+				$formaPago=json_decode($ClienteUnico['fomasVenci'], true);
+				$formasPago=$CFormasPago->formadePagoSinPrincipal($formaPago['formapago']);
+				$tiposVen=$CtiposVen->MenosPrincipal($formaPago['vencimiento']);
+				if ($formaPago['formapago']>0){
+					$principalForma=$CFormasPago->datosPrincipal($formaPago['formapago']);
+				}else{
+					$principalForma=0;
+				}
+				if ($formaPago['vencimiento']>0){
+					$principalVenci=$CtiposVen->datosPrincipal($formaPago['vencimiento']);
+				}else{
+					$principalVenci=0;
+				}
+			}else{
+				$formasPago=$CFormasPago->todas();
+				$tiposVen=$CtiposVen->todos();
+			}
 		} else {
 			// Creamos ficha Usuario.
 			$titulo = "Crear Cliente";
@@ -64,15 +90,32 @@
 			$ClienteUnico['email'] = '';			
 			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
 			//$ClienteUnico['id']= '';
+			$formasPago=$CFormasPago->todas();
+			$tiposVen=$CtiposVen->todos();
+			//~ echo '<pre>';
+			//~ print_r($formasPago);
+			//~ echo '</pre>';
 		}
 		
 		if (!isset($error)){
 			if(count($_POST)>0){
 				// Ya enviamos el formulario y gestionamos lo enviado.
 				$datos = $_POST;
+				if ($_POST['formapago']>0||$_POST['vencimiento']>0){
+					$datosForma=array();
+					$datosForma['formapago']=$_POST['formapago'];
+					$datosForma['vencimiento']=$_POST['vencimiento'];
+					$datosForma=json_encode($datosForma);
+				}
+				
 				if($titulo === "Crear Cliente"){
 					// Quiere decir que ya cubrimos los datos del usuario nuevo.
+					
 					$resp = insertarCliente($datos,$BDTpv,$tabla);
+					$id=$resp['id'];
+					if (isset ($datosForma)){
+						$mod=$Ccliente->mofificarFormaPagoVenci($id,$datosForma );
+					}
 					echo $resp['sql'];
 					if (isset($resp['error'])){
 						$tipomensaje= "danger";
@@ -89,7 +132,10 @@
 					//~ print_r($datos);
 					//~ echo '</pre>';
 					$resp = modificarCliente($datos,$BDTpv,$tabla);
-					
+					if (isset ($datosForma)){
+						$mod=$Ccliente->mofificarFormaPagoVenci($datos['idCliente'],$datosForma );
+					//	echo $mod['sql'];
+					}
 					if (isset($resp['error'])){
 						// Error de usuario repetido...
 						$tipomensaje= "danger";
@@ -103,7 +149,7 @@
 				};
 			}
 		}
-		
+	
 		?>
      
 		<div class="container">
@@ -183,13 +229,63 @@
 						</div>
 						
 						<div class="col-md-6 form-group">
+							<label for="sel1">Forma de pago por defecto: </label>
+							<select class="form-control" name="formapago" id="sel1" style="width: 15em;">
+								<?php 
+								if ($principalForma>0){
+								?>
+								<option value="<?php echo $principalForma['id'];?>" ><?php echo $principalForma['descripcion'];?></option>
+								<?php 
+							}else{
+								?>
+								<option value="0" >	Seleccione una forma </option>
+								<?php 
+							}
+								foreach ($formasPago as $forma){
+								?>
+									<option value="<?php echo $forma['id'];?>" >
+									<?php echo $forma['descripcion'];?>
+									</option>
+								<?php
+								}
+								?>
+								
+							</select>
+							
+						</div>
+						
+						<div class="col-md-6 form-group">
 							<label for="sel1">Estado:</label>
-							<select class="form-control" name="estado" id="sel1">
+							<select class="form-control" name="estado" id="sel1" style="width: 14em;">
 								<?php 
 								foreach ($estados as $estado){
 								?>
 									<option value="<?php echo $estado['valor'];?>" <?php echo (isset($estado['porDefecto']) ? $estado['porDefecto'] : '');?> >
 									<?php echo $estado['valor'];?>
+									</option>
+								<?php
+								}
+								?>
+								
+							</select>
+						</div>
+						<div class="col-md-6 form-group">
+							<label for="sel1">Vencimiento por defecto:</label>
+							<select class="form-control" name="vencimiento" id="sel1" style="width: 15em;">
+								<?php 
+								if ($principalVenci>0){
+								?>
+								<option value="<?php echo $principalVenci['id'];?>" ><?php echo $principalVenci['descripcion'];?></option>
+								<?php 	
+								}else{
+								?>
+								<option value="0" >Seleccione un tipo 	</option>
+								<?php 
+							}
+								foreach ($tiposVen as $tipo){
+								?>
+									<option value="<?php echo $tipo['id'];?>" >
+									<?php echo $tipo['descripcion'];?>
 									</option>
 								<?php
 								}
@@ -210,5 +306,8 @@
 			</div>
 			
 		</div>
+		<?php // Incluimos paginas modales
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+?>
 	</body>
 </html>

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 03, 2017 at 09:41 AM
+-- Generation Time: Feb 23, 2018 at 06:09 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -37,7 +37,9 @@ CREATE TABLE `clientes` (
   `movil` varchar(11) NOT NULL,
   `fax` varchar(11) NOT NULL,
   `email` varchar(100) CHARACTER SET utf8 NOT NULL,
-  `estado` varchar(12) CHARACTER SET utf8 NOT NULL
+  `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
+  `fomasVenci` varchar(250) DEFAULT NULL,
+  `fecha_creado` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --

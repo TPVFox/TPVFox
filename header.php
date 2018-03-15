@@ -59,7 +59,7 @@
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_tpv/tpv.php';?>">Tickets</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_venta/pedidosListado.php';?>">Pedidos</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_venta/albaranesListado.php';?>">Albaranes</a></li>
-								<li><a href="<?php echo $HostNombre.'/modulos/mod_venta/facturasListado.php';?>">Facturas Proveedores</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_venta/facturasListado.php';?>">Facturas</a></li>
 							</ul>
 						</li>
 					<?php 
@@ -86,7 +86,9 @@
 					<span class="glyphicon glyphicon-user"></span><?php echo $Usuario['login'];?>
 					<?php
 					if ($_SESSION['estadoTpv'] == "Correcto"){
-					echo "<a href='http://marge.superoliva.es/superoliva/tpvolalla/cerrarSesion.php'>Cerrar</a>";
+					?>
+					<a href="<?php echo $HostNombre.'/cerrarSesion.php';?>">Cerrar</a>
+					<?php
 			}
 				
 				?>

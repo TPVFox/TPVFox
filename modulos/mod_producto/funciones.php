@@ -1,216 +1,184 @@
 <?php 
 
-
-function obtenerProductos($BDTpv,$filtro) {
-	// Function para obtener productos y listarlos
-	//tener en cuenta el  paginado con parametros: $LimitePagina ,$desde,$filtro
-	$resultado = array();
-	//inicio paginacion filtro
-	//para evitar repetir codigo
-	$Controler = new ControladorComun; 
-	$campoBD = 'articulo_name';
-
-	$consulta = "SELECT a.*,  a.`idArticulo`, p.`pvpCiva` FROM `articulos` AS a "
-				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo`  ".$filtro;//$filtroFinal.$rango; 
-	if ($ResConsulta = $BDTpv->query($consulta)){			
-		while ($fila = $ResConsulta->fetch_assoc()) {
-			$resultado[] = $fila;
-		}
-	}
-	//~ $resultado['sql'] = $consulta;
-	return $resultado;
-}
-
-//ver seleccionado en check listado en vista producto
-function verSelec($BDTpv,$idProducto,$tabla,$idTienda){
-	// Obtener datos de un id de producto.
-	//PARAMETROS:
-	//idProducto , id seleccionado en listaProductos es idArticulo en bbdd
-	//tabla es articulos,	articulosPrecios
-	//devolvemos :
-	//todos los datos de las 2 tablas: articulos y articulosPrecios
-	//razonsocial del proveedor de ese producto, 
-		//si no existe proveedor le indicamos que 'No existe'
-	$sqlProveedor=array();
-	$consulta = 'SELECT a.*, prec.* FROM '. $tabla.' as a '
-			.'  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
-			.'  WHERE a.idArticulo ='.$idProducto.' AND '
-			.'  prec.idArticulo='.$idProducto.' AND prec.idTienda= '.$idTienda;
-	$fila= array();
-	$unaOpc = $BDTpv->query($consulta);
-	if (mysqli_error($BDTpv)) {
-		$fila['error'] = 'Error en la consultar'.$BDTpv->errno;
-	} else {
-		if ($unaOpc->num_rows > 0){
-			$fila = $unaOpc->fetch_assoc();
-			if ($fila['idProveedor'] == 0){
-				$fila['razonsocial'] = 'No existe';	
-			} else { //coger razonsocial proveedor
-				$sqlProveedor = 'SELECT razonsocial FROM proveedores WHERE idProveedor='.$fila['idProveedor'];
-				$res = $BDTpv->query($sqlProveedor);
-				if (mysqli_error($BDTpv)) {
-					$fila['error2'] = 'Error en la consulta nombre proveedor'.$BDTpv->errno;
-				} else {
-					if ($res->num_rows > 0){
-						$fila['razonsocial'] = $res->fetch_assoc();
-					}					
-				}
-			}
-		} else {
-			$fila['error']= ' No se a encontrado producto';
-		}
-	}
-	$fila['Nrow']= $unaOpc->num_rows;
-	$fila['sql']=$sqlProveedor;
-	$fila['consulta'] = $consulta;
-	return $fila ;
-	
-}
-
-
-function referenciasTiendas($BDTpv,$idArticulo){
-	//idArticulo
-	//tablas a consultar
-	// articulosTiendas, 	articulosPrecios,	tiendas
-	//Objetivo:
-		//devolver array con datos ['ref']
-		//idTienda,		crefTienda,		idVirtuemart,	estado
-		//razonsocial de la tienda
-		//pvpCiva, 		y 	tipoTienda
-	
-	
-	$resultado=array();
-	//~ $consulta = 'SELECT ati.*, prec.pvpCiva,  t.tipoTienda FROM `articulosTiendas` as ati '
-			//~ .' LEFT JOIN articulosPrecios as prec ON prec.idTienda = ati.idTienda '
-			//~ .' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
-			//~ .' WHERE  ati.idArticulo= '.$idArticulo.' GROUP BY prec.idTienda';
-			
-			$consulta = 'SELECT ati.*, prec.pvpCiva,  t.tipoTienda , t.dominio FROM `articulosTiendas` as ati '
-			.' LEFT JOIN articulosPrecios as prec ON prec.idTienda = ati.idTienda '
-			.' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
-			.' WHERE  ati.idArticulo= '.$idArticulo.' GROUP BY prec.idTienda';
-	
-	
-	//consulta de articulosTiendas, referencias
-	$resp = $BDTpv->query($consulta);
-	if ($resp->num_rows > 0) {
-		$i= 0;
-		while($filaReferencias = $resp->fetch_assoc()) {
-			$resultado['ref'][$i]['idTienda']=$filaReferencias['idTienda'];
-			$resultado['ref'][$i]['cref']=$filaReferencias['crefTienda'];
-			$resultado['ref'][$i]['idVirtu']=$filaReferencias['idVirtuemart'];			
-			$resultado['ref'][$i]['estado']=$filaReferencias['estado'];
-		
-			$nombretienda=NombreTienda($BDTpv,$filaReferencias['idTienda']);
-			$resultado['ref'][$i]['nombreTienda']= $nombretienda['razonsocial'];
-			$resultado['ref'][$i]['pvpCiva']=$filaReferencias['pvpCiva'];
-			$resultado['ref'][$i]['tipoTienda']= $filaReferencias['tipoTienda'];
-			$resultado['ref'][$i]['dominio']=$filaReferencias['dominio'];
-			$i++;
-		}
-	}
-	
-	$resultado['consulta']=$consulta;
-	return $resultado ;
-}
-
-function codigosBarras($BDTpv,$idArticulo){
-	//idArticulo
-	//tablas a consultar
-	//articulosCodigoBarras
-	//por ultimo tambien devolvemos:
-		//codBarras de ese articulo
-	$resultado=array();
-	$sqlCodBarras = 'SELECT * FROM articulosCodigoBarras WHERE idArticulo='.$idArticulo;
-	$resBarras= $BDTpv->query($sqlCodBarras);
-	if ($resBarras->num_rows>0){
-		$x=0;
-		while($fila =$resBarras->fetch_assoc()){
-			$resultado['codigos'][$x]['codBarras'] = $fila['codBarras'];
-			$x++;
-		}
-	} else{
-		//no hay codigos de barras
-		$resultado['codigos']='';
-	}
-	$resultado['sqlBarras']=$sqlCodBarras;
-	return $resultado ;
-}
-
-
-function NombreTienda($BDTpv,$idTienda){
-	//idTienda 
-	//objetivo:
-		//devolver nombre de la tienda del idTienda.
-	$consulta = 'SELECT * FROM tiendas WHERE idTienda = '.$idTienda;
-	$unaOpc = $BDTpv->query($consulta);
-	if (mysqli_error($BDTpv)) {
-		$fila['error'] = 'Error en la consultar'.$BDTpv->errno;
-	} else {
-		if ($unaOpc->num_rows > 0){
-			$fila = $unaOpc->fetch_assoc();
-		} else {
-			$fila['error']= ' No se a encontrado nombre de tienda';
-		}
-	}
-	$fila['Nrow']= $unaOpc->num_rows;
-	$fila['consulta'] = $consulta;
-	return $fila ;
-}
-
-function nombreFamilias($BDTpv,$idArticulo){
-	//idArticulo  
-	// tablas a consultar: familias y articulosFamilias
-	//objetivo
-		//conseguir el nombre de las familias de ese articulo.
-	$consulta= 'SELECT f.*, artfam.* FROM `familias` as f '
-			.' LEFT JOIN articulosFamilias as artfam ON f.idFamilia = artfam.idFamilia '
-			.' WHERE artfam.idArticulo= '.$idArticulo;
-			
-	$unaOpc = $BDTpv->query($consulta);
-	if (mysqli_error($BDTpv)) {
-		$fila['error'] = 'Error en la consultar'.$BDTpv->errno;
-	} else {
-		if ($unaOpc->num_rows > 0){
-			$i=0;
-			while($res = $unaOpc->fetch_assoc()){
-				$fila['familias'][$i]['nombreFam']=$res['familiaNombre'];
-				$i++;
-			}
-		} else {
-			$fila['error']= ' No se a encontrado nombre de familia';
-		}
-	}
-	$fila['Nrow']= $unaOpc->num_rows;
-	$fila['consulta'] = $consulta;
-	return $fila ;
-}
-
-function htmlCodigoBarrasVacio($cont){
-	//creo caja de codigo de barras vacia
-	$cont=$cont+1;
+function htmlLineaFamilias($item,$familia=''){
+	// @Objetivo:
+	// Montar linea de codbarras , para añadir o para modificar.
 	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input type="text" id="codBarras" name="codBarras_'.$cont.'" value=""></td>';
+	$nuevaFila .= '<td><input type="hidden" id="idFamilias_'.$item.'" name="idFamilias_'.$item.'" value="'.$familia['idFamilia'].'">'.$familia['idFamilia'].'</td>';
+	$nuevaFila .= '<td>'.$familia['familiaNombre'].'</td>>';
 	$nuevaFila .= '<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
 	$nuevaFila .= '</tr>';
-	
 	return $nuevaFila;
 }
 
-// Función que selecciona los ivas que no son el iva principal
-// Por un lado recibe el IVA que tiene por defecto un producto y busca los que no coincidan
-//~ function ivasNoPrincipal($BDTpv, $iva){
-	//~ $consulta = 'SELECT * FROM iva WHERE iva <> '.$iva;
-	//~ if ($ResConsulta = $BDTpv->query($consulta)){			
-		//~ while ($fila = $ResConsulta->fetch_assoc()) {
-			//~ $resultado[] = $fila;
-		//~ }
-	//~ }
-	//~ return $resultado;
-//~ }
 
-// Modificar un producto, recoge los datos del formulario post y los va actualizando segun las tablas que corresponda
+
+function htmlLineaCodigoBarras($item,$codBarras=''){
+	// @Objetivo:
+	// Montar linea de codbarras , para añadir o para modificar.
+	$nuevaFila = '<tr>';
+	$nuevaFila .= '<td><input type="text" id="codBarras_'.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'"></td>';
+	$nuevaFila .= '<td><a id="eliminar_'.$item.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
+	$nuevaFila .= '</tr>';
+	return $nuevaFila;
+}
+
+function htmlLineaProveedorCoste($item,$proveedor=''){
+	// @ Objetivo:
+	// Montar linea de proveedores_coste, para añadir o para modificar.
+	// @ Parametros :
+	// 		$item -> (int) Numero item
+	// 		$proveedor-> (array) Datos de proveedor: idProveedor,crefProveedor,coste,fechaActualizacion,estado,nombrecomercial,razonsocial.
+	
+	// Montamos campos ocultos de IDProveedor
+	$camposIdProveedor = '<input type="hidden" name="idProveedor" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
+	$nom_proveedor = $proveedor['idProveedor'].'.-';
+	if ($proveedor['nombrecomercial'] !== $proveedor['razonsocial']){
+		$nom_proveedor .= $proveedor['razonsocial'].'-'.$proveedor['nombrecomercial'];
+	} else {
+		$nom_proveedor .= $proveedor['razonsocial'];
+	}
+	$nuevaFila = '<tr>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .='<small>'.$camposIdProveedor.$nom_proveedor.'</small>';
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= $proveedor['crefProveedor'];
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= $proveedor['coste'];
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= '<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>';
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
+	$nuevaFila .= '</tr>';
+	return $nuevaFila;
+}
+
+function  htmlTablaCodBarras($codBarras){
+	// @ Objetivo
+	// Montar la tabla html de codbarras
+	// @ Parametros
+	// 		$codBarras -> (array) con los codbarras del producto.
+	$html =	 '<table id="tcodigo" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>Codigos Barras</th>'
+			.'				<th>'.'<a id="agregar" onclick="AnhadirCodbarras()">Añadir'
+			.'					<span class="glyphicon glyphicon-plus"></span>'
+			.'					</a>'
+			.'				</th>'
+			.'			</tr>'
+			.'		</thead>';
+	if (count($codBarras)>0){
+		foreach ($codBarras as $item=>$valor){
+			$html .= htmlLineaCodigoBarras($item,$valor);
+		}
+	}
+	$html .= '</table>	';
+	return $html;
+} 
+
+function  htmlTablaFamilias($familias){
+	// @ Objetivo
+	// Montar la tabla html de familias del producto
+	// @ Parametros
+	// 		$familias -> (array) idFamilias y NombreFamilias 
+	$html =	 '<table id="tfamilias" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>idFamilias</th>'
+			.'				<th>Nombre de Familia</th>'
+			.'				<th>'.'<a id="agregar" onclick="comprobarVacio()">Añadir'
+			.'					<span class="glyphicon glyphicon-plus"></span>'
+			.'					</a>'
+			.'				</th>'
+			.'			</tr>'
+			.'		</thead>';
+	if (count($familias)>0){
+		foreach ($familias as $item=>$valor){
+			$html .= htmlLineaFamilias($item,$valor);
+		}
+	}
+	$html .= '</table>	';
+	return $html;
+} 
+
+
+
+function  htmlTablaProveedoresCostes($proveedores){
+	// @ Objetivo
+	// Montar la tabla html de codbarras
+	// @ Parametros
+	// 		// 		$proveedores-> (array) de Arrays con datos de proveedor: idProveedor,crefProveedor,coste,fechaActualizacion,estado,nombrecomercial,razonsocial.
+	$html =	 '<table id="tproveedor" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>Proveedor</th>'
+			.'				<th>Ref_proveedor</th>'
+			.'				<th>Coste</th>'
+			.'				<th>Estado/Fecha</th>'
+			.'				<th>'.'<a id="agregar" onclick="BuscarProveedor()">Añadir'
+			.'					<span class="glyphicon glyphicon-plus"></span>'
+			.'					</a>'
+			.'				</th>'
+			.'			</tr>'
+			.'		</thead>';
+	if (count($proveedores)>0){
+		foreach ($proveedores as $item=>$proveedor_coste){
+			$html .= htmlLineaProveedorCoste($item,$proveedor_coste);
+		}
+	}
+	$html .= '</table>	';
+	return $html;
+} 
+
+
+function htmlOptionIvas($ivas,$ivaProducto){
+	//  Objetivo :
+	// Montar html Option para selecciona Ivas, poniendo seleccionado el ivaProducto
+	$htmlIvas = '';
+	foreach ($ivas as $item){
+			$es_seleccionado = '';
+			if ($ivaProducto === $item['iva']){
+				$es_seleccionado = ' selected';
+			}
+			$htmlIvas .= '<option value="'.$item['idIva'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
+		}
+	return $htmlIvas;	
+	
+}
+
+
+function htmlPanelDesplegable($num_desplegable,$titulo,$body){
+	// @ Objetivo:
+	// Montar html de desplegable.
+	// @ Parametros:
+	// 		$num_desplegable -> (int) que indica el numero deplegable para un correcto funcionamiento.
+	// 		$titulo-> (string) El titulo que se muestra en desplegable
+	// 		$body-> (String) lo que contiene el desplegable.
+	// Ejemplo tomado de:
+	// https://www.w3schools.com/bootstrap/tryit.asp?filename=trybs_collapsible_panel&stacked=h 
+	
+	$collapse = 'collapse'.$num_desplegable;
+	$html ='<div class="panel panel-default">'
+			.		'<div class="panel-heading">'
+			.			'<h2 class="panel-title">'
+			.			'<a data-toggle="collapse" href="#'.$collapse.'">'
+			.			$titulo.'</a>'
+			.			'</h2>'
+			.		'</div>'
+			.		'<div id="'.$collapse.'" class="panel-collapse collapse">'
+			.			'<div class="panel-body">'
+			.				$body
+			.			'</div>'
+			.		'</div>'
+			.'</div>';
+	return $html;
+	 
+}
+
 function modificarProducto($BDTpv, $datos, $tabla){
 	$resultado = array();
 	$id=$datos['idProducto'];
@@ -304,22 +272,8 @@ function añadirProducto($BDTpv, $datos, $tabla){
 			$resultado['sql4'] =$sql4;
 	return $resultado;
 }
-/*Función que cuenta cuantos codigos de barras tiene un articulo*/
-function ContarCodBarras($BDTpv, $idArticulo){
-	$sql='SELECT count(*) from articulosCodigoBarras where idArticulo='.$idArticulo;
-	$res = $BDTpv->query($sql);
-	$items=$res->fetch_row();
-	$resultado=$items[0];
-	return $resultado;
-}
-/*Seleccionar los codigos de barras de un producto*/
-function codBarrasProducto($BDTpv, $idArticulo){
-	$sql='SELECT * from  articulosCodigoBarras where idArticulo='.$idArticulo;
-	if ($ResConsulta = $BDTpv->query($sql)){			
-		while ($fila = $ResConsulta->fetch_assoc()) {
-			$resultado[] = $fila;
-		}
-	}
-	return $resultado;
-}
+
+
+
+
 ?>

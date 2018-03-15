@@ -6,7 +6,10 @@
 
 class ControladorComun 
 {
-     function InfoTabla ($Bd,$tabla){
+     private $BDTpv; // Conexion Base Datos
+     
+     
+     function InfoTabla ($Bd,$tabla,$tipo_campo = 'si'){
 		// Funcion que nos proporciona informacion de la tabla que le indicamos
 		/* Nos proporciona informacion como nombre tabla, filas, cuando fue creada, ultima actualizacion .. y mas campos interesantes:
 		 * Ejemplo de print_r de virtuemart_products 
@@ -16,23 +19,36 @@ class ControladorComun
 		 *    	[Update_time] => 2016-10-31 20:46:35 // Lo recomendable que la hora Update ser superior en nuestra BD , pero no siempre será
 		*/
 		$fila = array();
-		if ($tabla != ''){
-			// Quiere decir que queremos consultar informa todas las tablas.
-				$tablas = 'WHERE `name`="'.$tabla.'"';
-		} else {
-			// Quiere decir que queremos consultar informa un tabla
-				$tablas = '';
-		}
-		$consulta = 'SHOW TABLE STATUS '. $tablas;
+		$consulta = 'SHOW TABLE STATUS WHERE `name`="'.$tabla.'"';
 		$Queryinfo = $Bd->query($consulta);
 		// Hay que tener en cuenta que no produce ningún error... 
 		$Ntablas = $Bd->affected_rows   ;
 		if ($Ntablas == 0) {
-			$fila ['error'] = 'Error tabla no encontrada - '.$tablas;
+			$fila ['error'] = 'Error tabla no encontrada - '.$tabla;
 		} else {
-			$fila = $Queryinfo->fetch_assoc();
+			$fila['info'] = $Queryinfo->fetch_assoc();
 		}
-		$fila['consulta'] = $consulta;
+		if (!isset($fila['error'])){
+			$campos = array();
+			$sqlShow = 'SHOW COLUMNS FROM '.$tabla;
+			$fila['consulta_campos'] = $sqlShow;
+			if ($res=$Bd->query($sqlShow)) {
+				while ($dato_campo = $res->fetch_row()) {
+					if ($tipo_campo ==='si'){
+						// Obtenemos nombre campo y tipo de campo.
+						$campos[] = $dato_campo[0].' '.$dato_campo[1];
+					} else {
+						$campos[] = $dato_campo[0];
+					}
+				}
+				$fila['campos'] = $campos;
+			} else{
+				// Si NO existe o no sale mal enviamos un error.
+				$fila['campos'] = $Bd->error;
+			} 
+		}
+		$fila['consulta_info'] = $consulta;
+			
 		return $fila ;
 		
 	}
@@ -135,6 +151,50 @@ class ControladorComun
 		
 		return $resultado;
 	}
+	
+	function ConstructorLimitOffset($inicio,$final){
+		// @Objetivo: 
+		// Obtener String de limit inicio offset final..
+		$respuesta ='';
+		if ($inicio >0){
+			$respuesta = " LIMIT ".$inicio." OFFSET ".$final;
+		}
+		return $respuesta;
+	}
+	
+	
+	
+	
+	function ConstructorLike($campos,$a_buscar,$operador='AND'){
+	// @ Objetivo:
+	// Construir un where con like de palabras y el campo indicado
+	// Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
+	// @ Parametros:
+	// 	$operador -> (String) puede ser OR o AND.. no mas...
+	$buscar = array(',',';','(',')','-');
+	$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ');
+	$string  = str_replace($buscar, $sustituir, trim($a_buscar));
+	$palabras = explode(' ',$string);
+	$likes = array();
+	// La palabras queremos descartar , la ponemos en mayusculas
+	foreach($palabras as $palabra){
+		if (trim($palabra) !== '' && strlen(trim($palabra))){
+			// Entra si la palabra tiene mas 3 caracteres.
+			// Aplicamos filtro de palabras descartadas
+			
+				foreach ($campos as $campo){
+					$likes[] =  $campo.' LIKE "%'.$palabra.'%" ';
+				}
+				
+			
+		}
+	}
+	// Montamos busqueda con el operador indicado o el por defecto
+	$operador = ' '.$operador.' ';
+	$busqueda = implode($operador,$likes);
+	return $busqueda;
+}
+	
 	
 	function consultaRegistro($BD,$nombretabla,$whereC='') {
 		/* Objetivo:
@@ -269,6 +329,76 @@ class ControladorComun
 		return $htmlVarJS;
 	}
 	
+	function GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion){
+		// @ Objetivo:
+		// Grabar la configuracion de modulo para un usuario.
+		// @ Parametros:
+		// $nombre_modulo -> (String) 
+		// $idUsuario-> (String) Aunque es un numero... :-)
+		// $configuracion -> Array que traer parametros y ademas trae 
+		//			$configuracion['tipo_configuracion'] -> (String) que puede ser Usuario o Modulo
+		// [NOTA] -> Tiene que existir para poder reescribir.
+		$BDTpv = $this->BDTpv;
+		// Ahora comprobamos el tipo de configuracion que es, ya que uno inserta y otro update
+		$tipo_configuracion = $configuracion['tipo_configuracion'];
+		unset($configuracion['tipo_configuracion']); // Elimino para no meterlo como parametro en campo
+		if ( $tipo_configuracion === 'Usuario'){
+			// Existe registro por lo que hacemos udate.
+			$Set_conf= " SET idusuario=".$idUsuario." ,nombre_modulo='".$nombre_modulo."' ,configuracion=".
+				"'".json_encode($configuracion)."',fecha= NOW()";
+			$Sql= 'UPDATE `modulos_configuracion` '.$Set_conf;
+		} else {
+			// No existe registro por lo que creamos registro.
+			$values = "VALUES ('".$idUsuario."','".$nombre_modulo."','".json_encode($configuracion)."',NOW())";
+			$Sql= 'INSERT INTO `modulos_configuracion`(`idusuario`, `nombre_modulo`, `configuracion`, `fecha`) '.$values;
+		}
+		if ($BDTpv->query($Sql)){
+			$respuesta['affectado'] = $BDTpv->affected_rows ;
+		} 
+		$respuesta['Sql']= $Sql;
+	
+		return $respuesta;
+		
+	}
+	function obtenerConfiguracion($conf_defecto,$nombre_modulo,$idUsuario){
+		//Objetivo:
+		//Obtener la configuracion del modulo.
+		//Tenienedo encuenta la configuracion por defecto del modulo y la configuracion que hay en la tabla modulo.
+		//nos quedamos con la de la tabla, pero tenemos comparar con la configuracion por defecto, para saber si 
+		//falta algun parametro.
+		$respuesta = $conf_defecto;
+		$res = $this->obtenerConfiguracionModuloTabla($nombre_modulo,$idUsuario);
+		if ($res['NItems'] === 1){
+			// Si obtiene configuracion, entonce NItems debe ser 1, no puede ser mayor , ni menor..
+			$conf_tabla = json_decode($res['Items'][0]['configuracion']);
+			foreach ($conf_tabla as $key=>$valor){
+				$respuesta[$key] = $valor;
+			}
+			$respuesta['tipo_configuracion'] = 'Usuario';
+		}
+		if (!isset($respuesta['tipo_configuracion'])){
+			// Si  NO existe $respuesta['tipo_configuracion'] ponemos por defecto
+			$respuesta['tipo_configuracion'] = 'Modulo';
+		}
+		// Añadimos $nombre_modulo, $idUsuario, asi podemos moverlo junto.
+		$respuesta['nombre_modulo']= $nombre_modulo;
+		$respuesta['idUsuario'] = $idUsuario;
+		return $respuesta;
+		
+	}
+	
+	function obtenerConfiguracionModuloTabla($nombre_modulo,$idUsuario){
+		// Objetivo :
+		// Obtener la configuracion si la hay de un modulo en cuestion.
+		$BDTpv = $this->BDTpv;
+		$where_conf= ' WHERE idusuario='.$idUsuario.' AND nombre_modulo="'.$nombre_modulo.'"';
+		$respuesta = $this->consultaRegistro($BDTpv,'modulos_configuracion',$where_conf);
+		return $respuesta;
+	}
+	
+	function loadDbtpv($BD){
+		$this->BDTpv = $BD;
+	}
 	
 }
 	

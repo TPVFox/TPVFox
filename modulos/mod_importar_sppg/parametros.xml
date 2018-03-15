@@ -26,7 +26,7 @@
 		<caja_input>
 			<nombre id_input="AnadirID">botonID</nombre>
 			<teclas>
-				<action tecla="13">InsertarIdEnRegistro</action>
+				<action tecla="13">InsertarIdEnRegistroFamilia</action>
 			</teclas>
 			<before>
 				<estado>Si</estado>
@@ -37,6 +37,12 @@
 		</caja_input>
 	</cajas_input>
 	<configuracion>
+		<empresas>
+			<!-- La carpeta de los datos de la empresa debe estar dentro directorio datos que pusimos en configuracion -->
+			<datos_empresa id="3" nombre="Logueicarp 2018">
+				/DBF81
+			</datos_empresa>
+		</empresas>
 		<tipos_registros>
 			<tipo clase="todos">
 				<texto>Todos</texto>
@@ -53,6 +59,10 @@
 			<tipo clase="modificado">
 				<texto>Modificados</texto>
 				<consulta>WHERE estado="Modificado"</consulta>
+			</tipo>
+			<tipo clase="existe">
+				<texto>Existe</texto>
+				<consulta>WHERE estado="Existe"</consulta>
 			</tipo>
 			<tipo clase="descartado">
 				<texto>Descartados</texto>

@@ -52,6 +52,7 @@ if ($existe_curl === FALSE){
 	echo '<pre>';
 	print_r(' No exite curl');
 	echo '</pre>';
+	exit();
 }
 include './conexion_curl.php';
 // Obtenemos arrays ( $repuestas , $error si lo hubiera.. )

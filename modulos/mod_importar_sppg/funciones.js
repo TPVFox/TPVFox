@@ -47,8 +47,12 @@ function ControlPulsado (pulsado) {
 	switch(pulsado) {
 						
 			case 'import_inicio':
-				// Acaba de cargar javascript, por lo que inicia proceso.
-				//llamar func que hace bucle de la matriz de nombres tabla (fichero)
+				// Pulso importar
+				// Bloqueo botton importar , para que no pulse otra vez
+				$("#btnImportar").prop('disabled', true);
+				// Bloque el select empresas, para que no pueda cambiarla.
+				$("#sel1").prop('disabled', true);
+				// Inicio bucle de ficheros de la variable (array) Global nombretabla.
 				bucleFicheros();
 				break;
 	} 
@@ -56,8 +60,9 @@ function ControlPulsado (pulsado) {
 }
 
 
-//matriz en variables
 function bucleFicheros(){
+	// Objetivo:
+	// Es crea un funcion que recorrar array nombretabla (variable Global) cree la Estructura y obtenga los datos.
 	console.log( '========================== Entramos en bucle  =============================================');
 	// Reiniciamos Barra proceso 
 	LimiteActual = 0;
@@ -80,8 +85,8 @@ function bucleFicheros(){
 		ImportEstrucTabla();
 	} else {
 		// termino...
-		alert('termino de importar fichero');
-		$(".btn-actualizar").css("display", "block");
+		console.log('termino de importar fichero');
+		ActualizarAgregarCampoEstado();
 	}
 	
 }
@@ -92,12 +97,13 @@ function ImportEstrucTabla (){
 	console.log('=============Iniciando funcion de EstruTabla=============');
 	//~ console.log('Nombre fichero:'+ nombrefichero);
 	console.log(' Variable global ficheroActual:'+ficheroActual);
-	console.log(' ficheroActual lo actualizamos en bucleficheros...');
-
+	// Obtenemos ruta de objeto (variable global) indicando de donde obtenemos los datos importacion
+	ruta = empresa[id_empresa].ruta;
+	console.log('Ruta obtenida:'+ruta);
 	//estructura articulos
 	var parametros = {
-	"Fichero" 	: ficheroActual,
-	"pulsado" 	: 'import_inicio'
+	"Fichero" 	: ruta+"/"+ficheroActual,
+	"pulsado" 	: 'import_inicio',
 			};
 	$.ajax({
 			data:  parametros,
@@ -125,7 +131,6 @@ function ImportEstrucTabla (){
 						// console.log('estructura '+campos[i]['campo']+' '+campos[i]['tipo']+' '+campos[i]['longitud']+' '+campos[i]['decimal'] );
 						 
 						}					
-					
 						ImportcomprobarTabla();
 						return;
 					} else {	
@@ -221,16 +226,18 @@ function ImportObtenerDatosDbf(){
 			TopeRegistro = LimiteFinal;
 		}
 		console.log('Antes Ajax FicheroActual:' + ficheroActual);
-		tablaActual = ficheroActual.slice(0, -4); 
-
-		//.slice(0, -4)
+		tablaActual = ficheroActual.slice(0, -4); // Le quitamos extension
+		// Obtenemos ruta de objeto (variable global) indicando de donde obtenemos los datos importacion
+		ruta = empresa[id_empresa].ruta;
+		console.log('Ruta obtenida:'+ruta);
 		nombrefichero = ficheroActual;
 		var parametros = {
 			"lineaI" 	: LimiteActual,
 			"lineaF" 	: TopeRegistro,
 			"pulsado" 	: 'obtenerDbf',
 			"Fichero" 	: nombrefichero,
-			"campos" 	: campos
+			"campos" 	: campos,
+			"ruta"		: ruta
 		};
 		$.ajax({
 			data:  parametros,
@@ -302,14 +309,10 @@ function PintarIcono(tablaActual, className, ok=true,cargando=false){
 
 	}
 }
-function ActualizarInicio(actualizar){
-	alert('Pendiente comprobar si empezo con actualizacion...');
-	// Si no empezo entonces... empezamos con añadir campoNecesarios a BDImportar para hacer actualizacion
-	ActualizarAgregarCampoEstado();
-	console.log(actualizar);
-	};
+
 function ActualizarAgregarCampoEstado(){
-	// Antes de enviar el array nombretabla
+	console.log( '------------ Estroy funcion ActualizarAgregarCampoEstado --------------');
+	// Antes de enviar el array nombretabla ( todas las tablas)
 	// tengo eliminar aquellos que están mal.
 	var tablasErroneas= Object.keys(estadoImportacion); 
 	// fuente de código anterior: https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/keys
@@ -335,14 +338,49 @@ function ActualizarAgregarCampoEstado(){
 		success:  function (response) {
 			$("#resultado").html('Termino de agregando campo de estado a  DBDImportar ');
 			console.log('================  Termino campos DBDImportar para actualizar   ====================');
-			var respuesta = parseJSON(response);
-			console.log(resultado);
-		
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
+			console.log( 'Termine de importar y añadir campo Estado');
+			// Debería comprobar si existen registros sin tratar, ya que si no existen debería cambiar 
+			// el objeto respuesta.nombretabla.estado por completado y marcalos en tabla de html. :-)
+			
+			// Ahora añadimos registro a tabla registro_importacion.
+			grabarRegistroImportar(respuesta);
+				
 		}
 	});
-
 }
-
+function grabarRegistroImportar(ficheros){
+	// Objetivo:
+	// Montar los datos necesarios para crear registro para grarbar en tabla registros Importar.
+	// @ Parametros:
+	//  ficheros: Objectos con nombre tabla y estado correcto o incorrecto.
+	var datos = {};
+	datos['empresa'] = empresa[id_empresa];
+	datos['ficheros'] =ficheros;
+	console.log('Entro grabar');
+	console.log(datos);
+	var parametros = {
+		"pulsado"	: "grabarRegistroImportar",
+		"datos" 	: datos // Enviamos respuesta de ficheros.
+		};
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			$("#resultado").html('Grabando registro en tabla registros_importar ');
+			console.log('================  Grabando registro en tabla registros_importar   ====================');
+		},
+		success:  function (response) {
+			$("#resultado").html('Termine de  grabar registro en tabla registros_importar ');
+			console.log('================  Termino campos DBDImportar para actualizar   ====================');
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
+			console.log( 'Termine de importar y añadir campo Estado');
+		}
+	});
+}
 
 
 
@@ -368,28 +406,37 @@ function controladorAcciones(caja,accion){
 	//						darValor -> donde obtiene el valor input
 	switch(accion) {
 		case 'InicioEjecutar':
-				accion_general =$('#accion_general_'+caja.fila).val();
-				var continuar = confirm("Vamos a "+accion_general);
-				console.log(accion_general);
-				if (continuar == true) {
-					// Pulso Si.
-					if (accion_general === 'Descartar'){
-						// Ocultamos fila.
-						$('#fila'+caja.fila).css("display", "none");
-						DescartarRegistroTratar(caja.fila);
+			accion_general =$('#accion_general_'+caja.fila).val();
+			var continuar = confirm("Vamos a "+accion_general);
+			console.log('Accion'+accion_general);
+			if (continuar == true) {
+				// Pulso Si.
+				if (accion_general === 'Descartar'){
+					// Ocultamos fila.
+					$('#fila'+caja.fila).css("display", "none");
+					DescartarRegistroTratar(caja.fila);
+				}
+				if (accion_general === 'Crear'){
+					$('#fila'+caja.fila).css("display", "none");
+					AnhadirRegistroTpv(caja.fila);
+				}
+				if (accion_general === 'AnhadirIdImportar'){
+					$('#fila'+caja.fila).css("display", "none");
+					AnhadirID_DbfImportar(caja.fila);
 					}
-					if (accion_general === 'Nuevo'){
-						$('#fila'+caja.fila).css("display", "none");
-						AnhadirRegistroTpv(caja.fila);
-					}
-					
-					
-				} 
-				
-				
-
-				
-				break; // Recuerda que debe poner break.. sino continua ejecutando default
+			} 
+			break; // Recuerda que debe poner break.. sino continua ejecutando default
+		case 'InsertarIdEnRegistroFamilia':
+			// Entro cuando pulsamos en Añadir ID en tabla familias
+			// Obtengo dato de la caja texto id para enviar
+			var id =$('#anhado_id_'+caja.fila).val();
+			console.log(parseInt(id));
+			InsertarIdRegistroFamilia(caja.fila,id);
+			
+		
+		
+		break;
+		
 		default :
 				alert( 'Accion no encontrada '+ accion);
 	}
@@ -405,7 +452,10 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('Ejecutar') >-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
-	
+	if (padre_caja.id_input.indexOf('AnadirID') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+
 	return padre_caja;
 }
 
@@ -413,9 +463,14 @@ function before_constructor(caja){
 	// @ Objetivo :
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
+	console.log(caja.id_input);
 	if (caja.id_input.indexOf('Ejecutar') >-1){
 		caja.fila = caja.id_input.slice(9);
 		console.log('Fila:'+caja.fila);
+	}
+	if (caja.id_input.indexOf('AnadirID_') >-1){
+		caja.fila = caja.id_input.slice(9);
+		console.log('Fila de AnadirID:'+caja.fila);
 	}
 	
 	return caja;
@@ -457,7 +512,7 @@ function AnhadirRegistroTpv(fila){
 	var parametros = {
 		"pulsado"	: "AnhadirRegistroTpv",
 		"tabla" 	: tabla, // Enviamos todos los ficheros.
-		"datos" 	: datos[0]
+		"datos" 	: datos[0],
 		};
 	
 	$.ajax({
@@ -466,7 +521,6 @@ function AnhadirRegistroTpv(fila){
 		type:  'post',
 		beforeSend: function () {
 			console.log('================  Añadir registro de DBDImportar a tpv en '+tabla+ '   ====================');
-			
 		},
 		success:  function (response) {
 			console.log('================  Termino de añadir registro de DBDImportar en tpv de '+tabla+ '   ====================');
@@ -477,3 +531,88 @@ function AnhadirRegistroTpv(fila){
 	});
 	
 }
+
+
+function InsertarIdRegistroFamilia(fila,id){
+	// @Objetivo:
+	// Grabar en BDImport en estado ="Descartado"
+	datos = registros.importar[fila];
+	var parametros = {
+		"pulsado"	: "FamiliaAnhadirIdRegistro",
+		"tabla" 	: tabla, // Enviamos todos los ficheros.
+		"datos" 	: datos[0],
+		"idValor"	: id
+		};
+	
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			console.log('=======  Añadiendo ID de tpv en campo id de BDImportar de la tabla '+tabla+ '   ==========');
+			
+		},
+		success:  function (response) {
+			console.log('================  Termino de añadir ID en registro en DBDImportar en '+tabla+ '   ====================');
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
+		
+		}
+	});
+
+
+}
+
+
+function getvalsel(event){
+		// Objetivo cambiar el valor input ruta segun empresa seleccionada.
+		console.log('Estoy en funcion de getvalsel');
+		var id =  parseInt(event.target.value);
+		
+		if ( id >0 ){
+			// Si selecciono una empresa 
+			$("#btnImportar").prop('disabled', false);
+			console.log('id='+id);
+			// Ponemos id en variable gloabl.
+			id_empresa = id;
+			// Obtenemos ruta de objeto (variable global) indicando de donde obtenemos los datos importacion
+			$("#directorioRuta").val(empresa[id].ruta);
+		} else {
+			// No permito importar mientras no seleccione una empresa.
+			$("#btnImportar").prop('disabled', true);
+		}
+}
+
+function AnhadirID_DbfImportar(fila){
+	// Objetivo es añadir el ID y estado a la tabla de DBFImportar
+	datos_importar = registros.importar[fila];
+	datos_tpv = registros.tpv[fila];
+	var parametros = {
+		"pulsado"	: "AnhadirID_DbfImportar",
+		"tabla" 	: tabla, // Enviamos todos los ficheros.
+		"datos_importar" 	: datos_importar[0],
+		"datos_tpv"			: datos_tpv[0]
+		};
+	
+	$.ajax({
+		data:  parametros,
+		url:   'tareas.php',
+		type:  'post',
+		beforeSend: function () {
+			console.log('================  Cambiando ID y estado de registro en DBDImportar en '+tabla+ '   ====================');
+			
+		},
+		success:  function (response) {
+			console.log('================  Termino de Cambiar ID y estado de registro en DBDImportar en '+tabla+ '   ====================');
+			var respuesta = $.parseJSON(response);
+			console.log(respuesta);
+		
+		}
+	});
+	
+	
+	
+	
+}
+
+

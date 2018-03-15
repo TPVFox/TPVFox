@@ -20,7 +20,8 @@ function cobrarF1(){
 	var parametros = {
 			"pulsado" 	: 'cobrar',
 			"total" : total,
-			"productos"	 	: productos
+			"productos"	 	: productos,
+			"configuracion"	: configuracion
 			//"dedonde" : dedonde
 	};
 	$.ajax({ data:  parametros,
@@ -45,10 +46,6 @@ function cobrarF1(){
 }
 
 
-//case de nombreCampo = mysql , = html, 
-//con el id='C0_Codbarras' recojo el valor del campo en funcion obtener datos
-// pero necesito  nombreCampo = 'CCODEBAR' para mysql
-//nfila, numero fila
 
 function resetCampo(campo){
 	console.log('Entro en resetCampo '+campo);
@@ -71,6 +68,8 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 	//  3.- O nada un error.
 	
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
+	console.log('De donde:'+dedonde);
+
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
 		"cajaInput"	 : id_input,
@@ -78,6 +77,10 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 		"campo"      : campo,
 		"dedonde"    : dedonde
 	};
+	console.log('Parametros:');
+	console.log(parametros);
+
+
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -93,7 +96,7 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 				var datos = [];
 				datos = resultado.datos[0];
 				console.log('Entro en Estado Correcto funcion buscarProducto ->datos (producto)');
-				//~ console.log(datos);
+				console.log(datos);
 				//~ console.log('consulta '+resultado.sql);
 				resetCampo(id_input);
 				agregarFila(datos);
@@ -128,6 +131,8 @@ function agregarFila(datos,campo=''){
 	// @ Objetivo
 	// 	Añadir producto a productos (JS) y ademas obtener htmlLinea para mostrar
 	// Voy a crear objeto producto nuevo..
+	// @ parametro 
+	//  campo ->  String que indica al campo donde enfocar.
 	console.log('Voy agregar producto');
 	console.log(datos);
 	productos.push(new ObjProducto(datos));
@@ -137,7 +142,7 @@ function agregarFila(datos,campo=''){
 		"pulsado"    : 'HtmlLineaTicket',
 		"producto" : productos[num_item],
 		"num_item"      : num_item,
-		"CONF_campoPeso"    : CONF_campoPeso
+		"CONF_campoPeso"    : configuracion.campo_peso
 	};
 	$.ajax({
 		data       : parametros,
@@ -414,7 +419,7 @@ function metodoClick(pulsado){
 
 
 // =========================== OBJETOS  ===================================
-function ObjProducto(datos,valor=1,estado ='Activo')
+function ObjProducto(datos)
 {
     console.log('Estoy creando objeto producto');
     this.id = datos.idArticulo;
@@ -423,8 +428,16 @@ function ObjProducto(datos,valor=1,estado ='Activo')
     this.pvpconiva = parseFloat(datos.pvpCiva).toFixed(2);
     this.ccodebar = datos.codBarras;
     this.ctipoiva = datos.iva;
-    this.unidad = valor;
-    this.estado = estado;
+    if (datos.unidad === undefined){
+		this.unidad = 1; // Valor por defecto.
+	} else {
+		this.unidad = datos.unidad;
+	}
+    if (datos.estado === undefined){
+		this.estado= 'Activo'; // Valor por defecto.
+	} else {
+		this.estado = datos.estado;
+	}
     this.nfila = productos.length+1;
     this.importe = parseFloat(this.pvpconiva) * this.unidad;
 }
@@ -858,6 +871,44 @@ function RegistrarRestarStockTicket(respuesta){
 			}
 			
 	});
+	
+	
+}
+
+function GuardarConfiguracion(){
+	// Si llega aquí es porque cambio el valor de check impresion...
+	// por lo que cambiamos el valor en configuracion.
+	alert('Grabar configuracion');
+	console.log(configuracion);
+	if (configuracion.impresion_ticket==='Si'){
+		configuracion.impresion_ticket = 'No'
+	} else {
+		configuracion.impresion_ticket = 'Si'
+	}
+	console.log ('Despues de cambio');
+	console.log(configuracion);
+	
+	var parametros = {
+		"pulsado"    		: 'Grabar_configuracion',
+		"configuracion"		: configuracion,
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Grabando configuracion **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de grabar configuracion');
+				//~ var resultado = $.parseJSON(response);
+				var resultado = response;
+			}
+			
+	});
+	
+	
+	
 	
 	
 }
