@@ -870,14 +870,14 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 					productos.push(datos);
 					var num_item=datos['nfila'];
 					//Al inserta un producto se registra en la cabecera el id del cliente 
-					if (cabecera.numPedidoTemp==0){
+					if (cabecera.idTemporal==0){
 						var idCliente=$('#id_cliente').val();
 						console.log(idCliente);
 						console.log('----- voy a escribir aaaaaaaaaaaaaa cliente seleccionado -----');
 						AddTemp(idCliente);
 						cabecera.idCliente=idCliente;
 					}
-					if (cabecera.idPedido>0){
+					if (cabecera.idReal>0){
 						ModificarEstadoPedido("pedidos", "Sin Guardar");
 					}
 					
@@ -918,7 +918,7 @@ function addProductoTemp(){
 	console.log('Entro en añadir productos');
 	var parametros = {
 		"pulsado"    : 'anhadirProductos',
-		"idTemporal":cabecera.numPedidoTemp,
+		"idTemporal":cabecera.idTemporal,
 		"productos":productos
 	};
 	console.log(productos);
@@ -1206,7 +1206,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 		console.log("dentro de productos");
 		console.log(productos);
 		var num_item=datos['nfila'];
-		if (cabecera.numPedidoTemp==0){
+		if (cabecera.idTemporal==0){
 							var idCliente=$('#id_cliente').val();
 							console.log(idCliente);
 							console.log('----- voy a escribir aaaaaaaaaaaaaa cliente seleccionado -----');
@@ -1432,11 +1432,11 @@ function AddTemp(id){
 	var parametros = {
 		"pulsado"    : 'escribirCliente',
 		"idcliente":id,
-		"numPedidoTemp":cabecera.numPedidoTemp,
+		"numPedidoTemp":cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estadoPedido,
-		"idPedido":cabecera.idPedido
+		"estadoPedido":cabecera.estado,
+		"idPedido":cabecera.idReal
 	};
 	$.ajax({
 		data       : parametros,
@@ -1451,7 +1451,7 @@ function AddTemp(id){
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html; 
 			history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
-			cabecera.numPedidoTemp=parseInt(resultado.numPedidoTemp);
+			cabecera.idTemporal=parseInt(resultado.numPedidoTemp);
 		}
 	});
 }
@@ -1841,8 +1841,8 @@ function ModificarEstadoPedido(dedonde, estado, num="", id=""){
 	if (dedonde=="pedidos"){
 		var parametros = {
 			"pulsado"    : 'modificarEstadoPedido',
-			"idPedido":cabecera.idPedido,
-			"numPedidoTemp":cabecera.numPedidoTemp,
+			"idPedido":cabecera.idReal,
+			"numPedidoTemp":cabecera.idTemporal,
 			"estado" : estado,
 			"dedonde": dedonde
 		};
