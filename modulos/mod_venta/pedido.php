@@ -14,7 +14,7 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	$titulo="Crear Pedido De Cliente";
+	$titulo="Pedido De Cliente ";
 	$estado='Abierto';
 	$bandera=0;
 	$fecha=date('Y-m-d');
@@ -23,15 +23,7 @@ if ($_GET){
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
 		$datosPedido=$Cpedido->datosPedidos($idPedido);//Buscar los datos de pedido 
-		if ($datosPedido['estado']=='Facturado'){//Dependiendo del estado mostramos unos titulo u otro
-			$titulo="Pedidos De Cliente Facturado";
-			$estado='Facturado';
-		}else{
-			$titulo="Modificar Pedido De Cliente";
-			$estado='Modificado';
-		}
-		
-		
+		$estado=$datosPedido['estado'];
 		$productosPedido=$Cpedido->ProductosPedidos($idPedido);//Buscamos los productos de ese pedido en su respectiva tabla
 		$ivasPedido=$Cpedido->IvasPedidos($idPedido);//Buscamos los datos del iva 
 		$fecha=$datosPedido['FechaPedido'];
@@ -85,6 +77,9 @@ if ($_GET){
 	$idCliente=0;
 	$nombreCliente=0;
 }
+
+$titulo .= ': '.$estado;
+
 		if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
@@ -144,7 +139,7 @@ if ($_GET){
 			
 			header('Location: pedidosListado.php');
 		}
-		$fechaCab="'".$fecha."'";
+		
 		if (isset($datosPedido)){
 			if($datosPedido['estado']=="Facturado"){
 				$style="display:none;";
@@ -180,7 +175,7 @@ if ($_GET){
 		cabecera['numPedidoTemp'] = <?php echo $pedido_numero ;?>;
 		cabecera['idPedido'] = <?php echo $idPedido ;?>;
 		cabecera['idCliente']=<?php echo $idCliente ;?>;
-		cabecera['fecha']=<?php echo $fechaCab;?>;
+		cabecera['fecha']='<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 
