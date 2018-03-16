@@ -23,7 +23,7 @@
 	//Obtenemos los registros temporarles
 	$todoTemporal=$Cpedido->TodosTemporal();
 	
-	
+	$todoTemporal=array_reverse($todoTemporal);
 	// --- Preparamos el Paginado --- //
 	$vista = 'pedprot';
 	$Total_pedidos = $Controler->contarRegistro($BDTpv,$vista); // Cantidad de pedidos totales sin filtrar.
