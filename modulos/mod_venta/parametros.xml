@@ -80,11 +80,6 @@
 				<parametro nombre="campo">at.crefTienda</parametro>  
 			</parametros> 
 		</caja_input>
-		
-		
-		
-		
-		
 		<caja_input>
 			<nombre id_input="Codbarras">cajaCodBarras</nombre>
 			<teclas>
@@ -179,116 +174,6 @@
 			</parametros> 
 		</caja_input>
 		
-		
-		
-		
-		
-		<!--<caja_input>
-			<nombre id_input="fechaFac">fechaFac</nombre>
-			<teclas>
-				<action tecla="13">saltarNumPedido</action>
-				<action tecla="39">saltarNumPedido</action>
-				<action tecla="40">saltar_idClienteFlechaAbajo</action>
-				<action tecla="9">saltarNumPedido</action>
-				<action tecla="40">saltar_idClienteFlechaAbajo</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">factura</parametro>
-			</parametros> 
-		</caja_input>
-		<caja_input>
-			<nombre id_input="id_clienteFac">cajaIdClienteFac</nombre>
-			<teclas>
-				<action tecla="13">buscarClientes</action>
-				<action tecla="39">saltar_nombreCliente</action>
-				<action tecla="38">saltar_Fecha</action>
-				<action tecla=" 9">saltar_nombreCliente</action>
-				<action tecla="40">saltar_idArticulo</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">factura</parametro>
-			</parametros> 
-		</caja_input>
-		<caja_input>
-			<nombre id_input="ClienteFac">cajaClienteFac</nombre>
-			<teclas>
-				<action tecla="13">buscarClientes</action>
-				<action tecla="39">saltar_idArticulo</action>
-				<action tecla="37">saltar_idCliente</action>
-				<action tecla="38">saltar_Fecha</action>
-				<action tecla=" 9">saltar_idArticulo</action>
-				<action tecla="40">saltar_idArticulo</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">factura</parametro>
-			</parametros> 
-		</caja_input>
-		<caja_input>
-			<nombre id_input="numAlbaran">numAlbaran</nombre>
-			<teclas>
-				<action tecla="39">saltar_idCliente</action>
-				<action tecla="37">saltarFechaAl</action>
-				<action tecla="9">saltar_idCliente</action>
-				<action tecla="13">buscarAlbaran</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">factura</parametro>
-			</parametros> 
-		</caja_input>
-<caja_input>
-			<nombre id_input="idArticuloFac">cajaidArticuloFac</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="39">saltar_Referencia</action>
-				<action tecla=" 9">saltar_Referencia</action>
-				<action tecla="40">saltar_productos</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">factura</parametro>
-				<parametro nombre="campo">a.idArticulo</parametro>  
-			</parametros> 
-		</caja_input>
-<caja_input>
-			<nombre id_input="ReferenciaFac">cajaReferenciaFac</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="39">saltar_CodBarras</action>
-				<action tecla=" 9">saltar_CodBarras</action>
-				<action tecla="40">saltar_productos</action>
-				<action tecla="37">saltar_idArticulo</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">factura</parametro>
-				<parametro nombre="campo">at.crefTienda</parametro>  
-			</parametros> 
-		</caja_input>
-<caja_input>
-			<nombre id_input="CodbarrasFac">cajaCodBarrasFac</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="39">saltar_Descripcion</action>
-				<action tecla=" 9">saltar_Descripcion</action>
-				<action tecla="40">saltar_productos</action>
-				<action tecla="37">saltar_Referencia</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">factura</parametro>
-				<parametro nombre="campo">ac.codBarras</parametro>  
-			</parametros> 
-		</caja_input>
-<caja_input>
-			<nombre id_input="DescripcionFac">cajaDescripcionFac</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="37">saltar_CodBarras</action>
-				<action tecla=" 9">saltar_productos</action>
-				<action tecla="40">saltar_productos</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">factura</parametro>
-				<parametro nombre="campo">a.articulo_name</parametro>  
-			</parametros> 
-		</caja_input>-->
 		<caja_input>
 			<nombre id_input="fechaVenci">fechaVenci</nombre>
 			<teclas>
