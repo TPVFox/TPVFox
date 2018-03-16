@@ -12,6 +12,7 @@
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
 	$todoTemporal=$Cpedido->TodosTemporal();
+		$todoTemporal=array_reverse($todoTemporal);
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
