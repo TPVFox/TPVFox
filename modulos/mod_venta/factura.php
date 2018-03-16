@@ -282,10 +282,10 @@ include './../../head.php';
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 //Como estamos el albaranes la caja de input num fila cambia el de donde a factura
-	//~ foreach($parametros->cajas_input->caja_input as $caja){
-			//~ $caja->parametros->parametro[0]="factura";
-		//~ }
-$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="factura";
+	foreach($parametros->cajas_input->caja_input as $caja){
+			$caja->parametros->parametro[0]="factura";
+		}
+//~ $parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="factura";
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
 		
@@ -408,7 +408,7 @@ if (isset($_GET['tActual'])){
 			
 				<div class="col-md-4">
 					<strong>Fecha Factura:</strong><br>
-					<input type="date" name="fechaFac" id="fechaFac" size="10" data-obj= "fechaFac"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
 				<div class="col-md-3">
 					<strong>Estado:</strong><br>
@@ -424,8 +424,8 @@ if (isset($_GET['tActual'])){
 		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
-			<input type="text" id="id_clienteFac" name="id_clienteFac" data-obj= "cajaIdClienteFac" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="ClienteFac" name="ClienteFac" data-obj= "cajaClienteFac" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
+			<input type="text" id="id_cliente" name="id_cliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('factura')"></a>
 		</div>
 	</div>
@@ -476,10 +476,10 @@ if (isset($_GET['tActual'])){
 		  <tr id="Row0" style=<?php echo $style;?>>  
 			<td id="C0_Linea" ></td>
 			<td></td>
-			<td><input id="idArticuloFac" type="text" name="idArticuloFac" placeholder="idArticulo" data-obj= "cajaidArticuloFac" size="13" value=""  onkeydown="controlEventos(event)"></td>
-			<td><input id="ReferenciaFac" type="text" name="ReferenciaFac" placeholder="Referencia" data-obj="cajaReferenciaFac" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="CodbarrasFac" type="text" name="CodbarrasFac" placeholder="Codbarras" data-obj= "cajaCodBarrasFac" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="DescripcionFac" type="text" name="DescripcionFac" placeholder="Descripcion" data-obj="cajaDescripcionFac" size="20" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="13" value=""  onkeydown="controlEventos(event)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)"></td>
 		  </tr>
 		</thead>
 		<tbody>

@@ -183,7 +183,7 @@
 		
 		
 		
-		<caja_input>
+		<!--<caja_input>
 			<nombre id_input="fechaFac">fechaFac</nombre>
 			<teclas>
 				<action tecla="13">saltarNumPedido</action>
@@ -288,15 +288,15 @@
 				<parametro nombre="dedonde">factura</parametro>
 				<parametro nombre="campo">a.articulo_name</parametro>  
 			</parametros> 
-		</caja_input>
-<caja_input>
+		</caja_input>-->
+		<caja_input>
 			<nombre id_input="fechaVenci">fechaVenci</nombre>
 			<teclas>
 				<action tecla="13">selectFormas</action>	
 			</teclas>
-<parametros>
-<parametro nombre="dedonde">factura</parametro>
-</parametros>
+			<parametros>
+				<parametro nombre="dedonde">factura</parametro>
+			</parametros>
 		</caja_input>
 		
 		
@@ -305,9 +305,9 @@
 			<teclas>
 				<action tecla="13">insertarImporte</action>	
 			</teclas>
-<parametros>
-<parametro nombre="dedonde">factura</parametro>
-</parametros>
+				<parametros>
+					<parametro nombre="dedonde">factura</parametro>
+				</parametros>
 		</caja_input>
 	
 		
