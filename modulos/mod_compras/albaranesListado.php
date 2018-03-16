@@ -21,6 +21,7 @@ $CAlb=new AlbaranesCompras($BDTpv);
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
 
+$todosTemporal=array_reverse($todosTemporal);
 	// --- Preparamos el Paginado --- //
 	$palabraBuscar=array();
 	$stringPalabras='';
