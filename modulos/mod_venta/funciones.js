@@ -1,4 +1,3 @@
-// =========================== OBJETOS  ===================================
 function metodoClick(pulsado,adonde){
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
@@ -72,8 +71,6 @@ function formasVenciCliente(formasVenci){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de html formas pago vencimiento factura');
 			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
-		
 			$("#formaspago").prepend(resultado.html1);
 			$("#fechaVencimiento").prepend(resultado.html2);
 			
@@ -89,14 +86,13 @@ function buscarClientes(dedonde, idcaja, valor=''){
 	//	valor -> Sería el valor caja del propio modal
 
 	console.log('FUNCION buscarClientes JS-AJAX');
-	console.log(cabecera);
 	var parametros = {
 		"pulsado"    : 'buscarClientes',
 		"busqueda" : valor,
 		"dedonde":dedonde,
 		"idcaja":idcaja
 	};
-	console.log (dedonde);
+
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -227,13 +223,10 @@ function controladorAcciones(caja,accion, tecla){
 			break;
 		case 'recalcular_totalProducto':
 		console.log("entre en recalcular precio producto");
-		console.log(caja);
 			// recuerda que lo productos empizan 0 y las filas 1
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
-			console.log ( caja);
 			productos[nfila].unidad = caja.darValor();
-			console.log(productos[nfila].unidad);
 			recalculoImporte(productos[nfila].unidad,nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
 				var d_focus = 'idArticulo';
@@ -244,8 +237,6 @@ function controladorAcciones(caja,accion, tecla){
 			break;
 		case 'mover_down':
 		console.log("entro en mover down");
-		console.log(caja.id_input);
-		console.log(caja.fila);
 			// Controlamos si numero fila es correcto.
 			if ( isNaN(caja.fila) === false){
 				var nueva_fila = parseInt(caja.fila)+1;
@@ -256,8 +247,6 @@ function controladorAcciones(caja,accion, tecla){
 			if (caja.id_input === 'cajaBusqueda'){
 				var nueva_fila = 0;
 			}
-			console.log(caja.darParametro('prefijo'));
-			console.log(nueva_fila);
 			mover_down(nueva_fila,caja.darParametro('prefijo'), caja.darParametro('dedonde'));
 			break;
 		case 'mover_up':
@@ -336,9 +325,6 @@ function controladorAcciones(caja,accion, tecla){
 						
 					}
 				}
-				
-				
-				
 				ponerFocus(d_focus);
 				
 		break;
@@ -405,13 +391,10 @@ var parametros = {
 		success    :  function (response) {
 			console.log('Respuesta de la modificación de los importes');
 			var resultado =  $.parseJSON(response);
-			console.log(resultado);
-			console.log(resultado['html']);
 			if (resultado.mensaje==1){
 				//Se muestra el mensaje cuando el importe es superior al de la factura
 				alert("El importe introducido no es correcto");
 			}else{
-				
 				$("#tablaImporte").append(resultado.html);
 				$("#tabla").find('input').attr("disabled", "disabled");
 				$("#tabla").find('a').css("display", "none");
@@ -433,7 +416,6 @@ function ponerFocus (destino_focus){
 }
 function ponerSelect(destino_focus){
 	console.log('Entro en enviar select de :'+destino_focus);
-	console.log(destino_focus.toString());
 	jQuery('#'+destino_focus.toString()).select(); 
 	
 
@@ -443,7 +425,6 @@ function before_constructor(caja){
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
-	console.log(caja);
 	if (caja.id_input ==='cajaBusqueda'){
 		caja.parametros.dedonde = 'popup';
 		if (caja.name_cja ==='Codbarras'){
@@ -459,7 +440,6 @@ function before_constructor(caja){
 	if (caja.id_input.indexOf('N_') >-1){
 		console.log(' Entro en Before de '+ caja.id_input)
 		caja.fila = caja.id_input.slice(2);
-		console.log(caja.fila);
 	}
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
 		console.log("input de caja");
@@ -496,7 +476,6 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	//  1.- Un producto unico.
 	//  2.- Un listado de productos.
 	//  3.- O nada un error.
-	console.log(idcaja);
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
@@ -508,7 +487,6 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	if (busqueda==""){
 		alert("ERROR NO HAS ESCRITO NADA");
 	}else{
-	console.log(dedonde);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -682,7 +660,6 @@ function addProductoTemp(){
 		"idTemporal":cabecera.idTemporal,
 		"productos":productos
 	};
-	console.log(productos);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -692,8 +669,6 @@ function addProductoTemp(){
 		},
 		success    :  function (response) {
 		var resultado =  $.parseJSON(response);
-		console.log(resultado);
-			
 			$('#tipo4').html('');
 			$('#tipo10').html('');
 			$('#tipo21').html('');
@@ -760,14 +735,10 @@ function agregarFilaProducto(num_item, campo){
 		success    :  function (response) {
 			console.log('Repuesta de Obtener HTML linea de FUNCION -> agregarFila');
 			var resultado =  $.parseJSON(response);
-			console.log(resultado['html']);
-			console.log(resultado['producto']);
 			//Escribe la fila del producto
 			var nuevafila = resultado['html'];
 			// devuelve el html de la fila del producto
 			$("#tabla").prepend(nuevafila);
-			//~ var campo='#Unidad_Fila_'+num_item;
-			console.log(campo);
 			ponerSelect(campo);
 			return resultado;
 		}
@@ -784,8 +755,6 @@ function agregarFila(datos,campo=''){
 	// 	Añadir producto a productos (JS) y ademas obtener htmlLinea para mostrar
 	// Voy a crear objeto producto nuevo..
 	console.log('Voy agregar producto');
-	console.log(datos);
-	
 	productos.push(new ObjProducto(datos));
 	var num_item = productos.length -1; // Obtenemos cual es el ultimo ( recuerda que empieza contado 0)
 	// Ahora por Ajax montamos el html fila.
@@ -843,7 +812,6 @@ function abandonFila(cont){
 }
 function sobreFilaCraton(cont){
 	console.log("Estoy en fila carton");
-	console.log(cont);
 	$('#N_'+cont).css('background-color','azure');
 }
 function cerrarPopUp(destino_focus=''){
@@ -942,7 +910,6 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 							cabecera.idCliente=idCliente;
 		}
 		addProductoTemp();
-		console.log(num_item);
 		agregarFilaProducto(num_item);
 		// Eliminamos contenido de cja destino y ponemos focus.
 		
@@ -959,7 +926,6 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 function eliminarFila(num_item, valor=""){
 	//Función para cambiar el estado del producto
 	console.log("entre en eliminar Fila");
-	console.log(valor);
 	var line;
 	num=num_item-1;
 	console.log(num);
@@ -996,31 +962,21 @@ function retornarFila(num_item, valor=""){
 	// Es pasar un producto eliminado a activo.
 	console.log("entre en retornar fila");
 	var line;
-	console.log(num_item);
 	num=num_item-1;
-	console.log(productos[num]);
 	line = "#Row" +productos[num].nfila;
-	console.log(line);
 	// Nueva Objeto de productos.
 	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
 		productos[num].estadoLinea= 'Activo';
 	}else{
 		productos[num].estado= 'Activo';
 	}
-	console.log(productos);
-
-	
 	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+' , '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-trash"></span></a>');
-
-	console.log(productos[num].nunidades);
 			if (productos[num].nunidades == 0) {
 				// Nueva Objeto de productos.
 				// Antiguo array productos.
 				productos[num].nunidades = 1;
-				
-				
 			}
 				$("#Unidad_Fila_" + productos[num].nfila).prop("disabled", false);
 				$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
@@ -1045,7 +1001,6 @@ function retornarFila(num_item, valor=""){
 			}
 			$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
 			$("#N" + productos[num].nfila + "_Unidad").val(productos[num].unidad);
-			console.log(productos);
 			addProductoTemp();
 	}
 
@@ -1098,8 +1053,6 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 
 function mover_down(fila,prefijo, dedonde=""){
 	console.log("entro en mover down");
-	console.log(fila);
-
 sobreFila(fila);
 	var d_focus = prefijo+fila;
 	if (prefijo !== 'N_'){
@@ -1107,15 +1060,7 @@ sobreFila(fila);
 				console.log("entre en document.getElement");
 				ponerSelect(d_focus);
 			}else{
-				if (dedonde=="albaran"){
-						var d_focus = 'idArticuloAl';
-				}
-				if (dedonde=="pedidos"){
-						var d_focus = 'idArticulo';
-				}
-				if (dedonde=="factura"){
-						var d_focus = 'idArticuloFac';
-				}
+				var d_focus = 'idArticulo';
 				ponerSelect(d_focus);
 			}
 	}	else{
@@ -1147,7 +1092,6 @@ function mover_up(fila,prefijo, dedonde=""){
 function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
-	console.log("realizo funcion");
 }
 function AddTemp(id){
 	console.log("-------------- estoy en add temp -----------");
@@ -1168,7 +1112,6 @@ function AddTemp(id){
 			console.log('******** estoy en añadir cliente JS****************');
 		},
 		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir cliente');
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html; 
@@ -1198,10 +1141,8 @@ function buscarPedido(dedonde, idcaja, valor=''){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de buscar pedidos');
 			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
 			var encontrados = resultado.encontrados;
 			var HtmlPedidos=resultado.html;   //$resultado['html'] de montaje html
-			console.log(resultado);
 			if (valor==""){ //Si el usuario selecciona el icono de buscar pedido abre un modal 
 			//con los pedidos del cliente
 				var titulo = 'Listado Pedidos ';
@@ -1219,15 +1160,12 @@ function buscarPedido(dedonde, idcaja, valor=''){
 						}
 					}
 					if (bandera==0){// si no hay repetidos
-						console.log("Hay un resultado");
 						var datos = [];
 						datos = resultado['datos'];
 						n_item=parseInt(pedidos.length)+1;
 						datos.nfila=n_item;
 						pedidos.push(datos);// En el array de arrays  de pedidos de la cabecera metemos el array de pedido nuevo 
 						productosAdd=resultado.productos;
-						console.log("cuento los productos");
-						console.log(productos.length);
 						var numFila=productos.length+1;
 						for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 							resultado.productos[i]['nfila']=numFila;
@@ -1277,7 +1215,6 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlAlbaranes=resultado.html;   //$resultado['html'] de montaje html
-			console.log(resultado);
 			if (valor==""){ //Si el usuario selecciona el icono de buscar pedido abre un modal 
 			//con los pedidos del cliente
 				var titulo = 'Listado Albaranes ';
@@ -1302,8 +1239,6 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 						datos.nfila=n_item;
 						albaranes.push(datos);// En el array de arrays  de pedidos de la cabecera metemos el array de pedido nuevo 
 						productosAdd=resultado.productos;
-						console.log("cuento los productos");
-						console.log(productos.length);
 						var numFila=productos.length+1;
 						for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 							resultado.productos[i]['nfila']=numFila;
@@ -1330,12 +1265,8 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 		}
 	});
 }
-
-
 //Añadir un albaran temporal, si recibe un idAlbaran se modifica el estado del albarán original a Sin Guardar 
 //Y pintamos el pie del albarán
-
-
 function addAlbaranTemp(){
 	console.log('FUNCION Añadir albaran temporal JS-AJAX');
 	console.log(productos);
@@ -1527,9 +1458,7 @@ function modificarEstadoFactura(idFactura, estado){
 			console.log('******** estoy en Modificar estado factura js****************');
 		},
 		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de estado pedido js');
-			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
+		var resultado =  $.parseJSON(response); 
 		}
 	});
 }
@@ -1551,7 +1480,6 @@ function modificarEstadoAlbaran(idAlbaran, estado){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de estado pedido js');
 			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
 		}
 	});
 }
@@ -1632,13 +1560,12 @@ function comprobarPedidosExis(){
 				$("#tablaPedidos").show();
 				$("#numPedido").focus();
 			}else{
-				$('#idArticuloAl').focus();
+				$('#idArticulo').focus();
 			}
 			
 		}
 	});
 }
-
 //Busca los albaranes de el cliente seleccionado y muestra la tabla oculta
 function comprobarAlbaranesExis(){
 	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
@@ -1658,7 +1585,6 @@ function comprobarAlbaranesExis(){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de comprobar pedidos');
 			var resultado =  $.parseJSON(response); 
-		console.log(resultado);
 			if (resultado.alb==1){
 				$("#numAlbaranT").show();
 				$("#numAlbaran").show();
@@ -1669,8 +1595,6 @@ function comprobarAlbaranesExis(){
 		}
 	});
 }
-
-
 
 //Agregar un html con el pedido 
 function AgregarFilaPedido(datos , dedonde=""){
@@ -1692,7 +1616,6 @@ function AgregarFilaPedido(datos , dedonde=""){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de html fila pedidos');
 			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
 			var nuevafila = resultado['html'];
 			$("#tablaPedidos").prepend(nuevafila);
 			$('#numPedido').focus(); 
@@ -1720,7 +1643,6 @@ function AgregarFilaAlbaran(datos, dedonde){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de html fila pedidos');
 			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
 			var nuevafila = resultado['html'];
 			$("#tablaAlbaran").prepend(nuevafila);
 			$('#numAlbaran').focus(); 
@@ -1743,9 +1665,6 @@ function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
 		"productos" : productosAl,
 		"dedonde": dedonde
 	};
-	console.log("PARAMETROS");
-	console.log(parametros);
-	
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -1782,18 +1701,12 @@ function selectFormas(){
 	console.log("Esto en selectFormas");
 	var option = document.getElementById("formaVenci").value;
 	var fecha = document.getElementById("fechaVenci").value;
-	console.log(fecha);
-	
-
 	var parametros = {
 		"pulsado"    : 'ModificarFormasVencimiento',
 		"opcion" : option,
 		"fechaVenci": fecha,
 		"idFacTem":cabecera.idFacturaTemp
 	};
-	console.log("PARAMETROS");
-	console.log(parametros);
-	
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -1804,7 +1717,7 @@ function selectFormas(){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de html fila pedidos');
 			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
+			
 			
 		}
 	});	
@@ -1840,17 +1753,14 @@ function sobreFila(cont){
 function eliminarAdjunto(numRegistro, dedonde, nfila){
 	
 	console.log("entre en eliminar Fila");
-	console.log(dedonde);
 	var line;
 	num=nfila-1;
 	if (dedonde=="factura"){
 		line = "#lineaP" + albaranes[num].nfila;
-		console.log(num);
 		albaranes[num].estado= 'Eliminado';
 	}
 	if (dedonde=="albaran"){
 		line = "#lineaP" + pedidos[num].nfila;
-		console.log(num);
 		pedidos[num].estado= 'Eliminado';
 	}
 	
@@ -1897,8 +1807,6 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 				}
 			}
 			num=nfila-1;
-			console.log(albaranes[num].idAlbaran);
-			console.log("Voy a entrar en modificar albaran");
 			modificarEstadoAlbaran(albaranes[num].idAlbaran, "Guardado");
 			addFacturaTemp();
 		}
@@ -1908,15 +1816,12 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 	var estado="Guardado";
 	var line;
 	num=nfila-1;
-	console.log(num);
 	if (dedonde=="factura"){
 		line = "#lineaP" + albaranes[num].nfila;
-		console.log(line);
 		albaranes[num].estado= 'Activo';
 	}
 	if (dedonde=="albaran"){
 		line = "#lineaP" + pedidos[num].nfila;
-		console.log(line);
 		pedidos[num].estado= 'Activo';
 	}
 	
