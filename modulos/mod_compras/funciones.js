@@ -674,7 +674,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			}else{
 				var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
 			}
-			datos.ultimoCoste=ultimoCoste.toFixed(2);
+			datos.ultimoCoste=ultimoCoste.toFixed(4);
 			datos.importe=ultimoCoste.toFixed(2);
 			productos.push(datos);
 			var campo='Unidad_Fila_'+n_item;
@@ -852,7 +852,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		var importe =(bandera+ultimoCoste)*1;
 		datos.importe=importe.toFixed(2);
 		var ultimoCoste= parseFloat(ultimoCoste);
-		datos.ultimoCoste=ultimoCoste.toFixed(2);
+		datos.ultimoCoste=ultimoCoste.toFixed(4);
 		productos.push(datos);
 		addTemporal(dedonde);
 		var num_item=datos.nfila;

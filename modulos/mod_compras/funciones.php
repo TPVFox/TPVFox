@@ -265,9 +265,10 @@ function htmlLineaProducto($productos, $dedonde){
 				$estadoInput = '';
 			}
 			if ($dedonde =="albaran" || $dedonde=="factura"){
-				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'.$producto['ultimoCoste'].'" size="6">';
+				$bandera= number_format($producto['ultimoCoste'], 4);
+				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'.$bandera.'" size="6">';
 			}else{
-				$coste= $producto['ultimoCoste'];
+				$coste= number_format($producto['ultimoCoste'], 4);
 			}
 			if (isset($producto['numPedido'])){
 				if ($producto['numPedido']==0){
