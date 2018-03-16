@@ -172,31 +172,13 @@ function controladorAcciones(caja,accion, tecla){
 		console.log('Entro en acciones saltar_idCliente');
 		var dato = caja.darValor();
 			if ( dato.length === 0){
-				if (caja.darParametro('dedonde')=="albaran"){
-					var d_focus = 'id_clienteAl';
-				}
-				if (caja.darParametro('dedonde')=="factura"){
-					var d_focus = 'id_clienteFac';
-				}
-				if (caja.darParametro('dedonde')=="pedidos"){
-					var d_focus = 'id_cliente';
-				}
-				
+				var d_focus = 'id_cliente';
 				ponerFocus(d_focus);
 			}
 			break;
 		case 'saltar_idClienteFlechaAbajo':
 		console.log('Entro en acciones saltar_idClienteFlechaAbajo');
-		console.log(caja.darParametro('dedonde'));
-		if(caja.darParametro('dedonde')=="pedidos"){
-			var d_focus = 'id_cliente';
-		}
-		if (caja.darParametro('dedonde')=="albaran"){
-			var d_focus = 'id_clienteAl';
-		}
-		if (caja.darParametro('dedonde')=="factura"){
-			var d_focus = 'id_clienteFac';
-		}
+		var d_focus = 'id_cliente';
 		ponerFocus(d_focus);
 		break;
 		
@@ -204,15 +186,8 @@ function controladorAcciones(caja,accion, tecla){
 		console.log('Entro en acciones saltar_nombreCliente');
 		var dato = caja.darValor();
 			if ( dato.length === 0){
-				if(caja.darParametro('dedonde')=="pedidos"){
-					var d_focus = 'Cliente';
-				}
-				if (caja.darParametro('dedonde')=="albaran"){
-					var d_focus = 'ClienteAl';
-				}
-				if (caja.darParametro('dedonde')=="factura"){
-					var d_focus = 'ClienteFac';
-				}
+				
+				var d_focus = 'Cliente';
 				ponerFocus(d_focus);
 			}
 			break;
@@ -225,30 +200,12 @@ function controladorAcciones(caja,accion, tecla){
 			break;
 		case 'saltar_Fecha':
 		console.log('Entro en acciones saltar_fecha');
-			if (caja.darParametro('dedonde')=="albaran"){
-				var d_focus = 'fechaAl';
-			}
-			if (caja.darParametro('dedonde')=="pedidos"){
-				var d_focus = 'fecha';
-			}
-			if (caja.darParametro('dedonde')=="factura"){
-				var d_focus = 'fechaFac';
-			}
-				ponerFocus(d_focus);
-			
+			var d_focus = 'fecha';
+			ponerFocus(d_focus);
 			break
 		case 'saltar_idArticulo':
 		console.log('Entro en acciones saltar_idArticulo');
-		var dato = caja.darValor();
-			if (caja.darParametro('dedonde')=="albaran"){
-				var d_focus = 'idArticuloAl';
-			}
-			if (caja.darParametro('dedonde')=="pedidos"){
-				var d_focus = 'idArticulo';
-			}
-			if (caja.darParametro('dedonde')=="factura"){
-				var d_focus = 'idArticuloFac';
-			}
+		var d_focus = 'idArticulo';
 			ponerFocus(d_focus);
 			
 			break
@@ -264,15 +221,7 @@ function controladorAcciones(caja,accion, tecla){
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
-				if (caja.darParametro('dedonde')=="albaran"){
-					var d_focus = 'CodbarrasAl';
-				}
-				if (caja.darParametro('dedonde')=="pedidos"){
-					var d_focus = 'Codbarras';
-				}
-				if (caja.darParametro('dedonde')=="factura"){
-					var d_focus = 'CodbarrasFac';
-				}
+				var d_focus = 'Codbarras';
 				ponerFocus(d_focus);
 			}
 			break;
@@ -287,15 +236,7 @@ function controladorAcciones(caja,accion, tecla){
 			console.log(productos[nfila].unidad);
 			recalculoImporte(productos[nfila].unidad,nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
-			if (caja.darParametro('dedonde')=="albaran"){
-					var d_focus = 'idArticuloAl';
-				}
-				if (caja.darParametro('dedonde')=="pedidos"){
-					var d_focus = 'idArticulo';
-				}
-				if (caja.darParametro('dedonde')=="factura"){
-					var d_focus = 'idArticuloFac';
-				}
+				var d_focus = 'idArticulo';
 				ponerFocus(d_focus);
 			}
 			
@@ -335,15 +276,7 @@ function controladorAcciones(caja,accion, tecla){
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
-				if (caja.darParametro('dedonde')=="albaran"){
-					var d_focus = 'ReferenciaAl';
-				}
-				if (caja.darParametro('dedonde')=="pedidos"){
-					var d_focus = 'Referencia';
-				}
-				if (caja.darParametro('dedonde')=="factura"){
-					var d_focus = 'ReferenciaFac';
-				}
+				var d_focus = 'Referencia';
 				ponerFocus(d_focus);
 			}
 			break;
@@ -351,15 +284,7 @@ function controladorAcciones(caja,accion, tecla){
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
-				if (caja.darParametro('dedonde')=="albaran"){
-					var d_focus = 'DescripcionAl';
-				}
-				if (caja.darParametro('dedonde')=="pedidos"){
-					var d_focus = 'Descripcion';
-				}
-				if (caja.darParametro('dedonde')=="factura"){
-					var d_focus = 'DescripcionFac';
-				}
+				var d_focus = 'Descripcion';
 				ponerFocus(d_focus);
 			}
 			break;
@@ -367,16 +292,8 @@ function controladorAcciones(caja,accion, tecla){
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
-				if (caja.darParametro('dedonde')=="albaran"){
-					var d_focus = 'CodbarrasAl';
-				}
-				if (caja.darParametro('dedonde')=="pedidos"){
-					var d_focus = 'Codbarras';
-				}
+				var d_focus = 'Codbarras';
 				
-				if (caja.darParametro('dedonde')=="pedidos"){
-					var d_focus = 'CodbarrasFac';
-				}
 				ponerFocus(d_focus);
 			}
 			break;
