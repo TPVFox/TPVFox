@@ -166,19 +166,6 @@
 			</before>
 		</caja_input>
 
-
-		<!--<caja_input>
-			<nombre id_input="fechaAl">fechaAl</nombre>
-			<teclas>
-				<action tecla="13">saltarNumPedido</action>
-				<action tecla="39">saltarNumPedidoCon</action>
-				<action tecla="9">saltarNumPedido</action>
-				<action tecla="40">saltar_idClienteFlechaAbajo</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">albaran</parametro>
-			</parametros> 
-		</caja_input>
 		<caja_input>
 			<nombre id_input="numPedido">numPedido</nombre>
 			<teclas>
@@ -191,99 +178,7 @@
 				<parametro nombre="dedonde">albaran</parametro>
 			</parametros> 
 		</caja_input>
-		<caja_input>
-			<nombre id_input="id_clienteAl">cajaIdClienteAl</nombre>
-			<teclas>
-				<action tecla="13">buscarClientes</action>
-				<action tecla="39">saltar_nombreCliente</action>
-				<action tecla="38">saltar_Fecha</action>
-				<action tecla=" 9">saltar_nombreCliente</action>
-				<action tecla="40">saltar_idArticulo</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">albaran</parametro>
-			</parametros> 
-		</caja_input>
-	<caja_input>
-			<nombre id_input="ClienteAl">cajaClienteAl</nombre>
-			<teclas>
-				<action tecla="13">buscarClientes</action>
-				<action tecla="39">saltar_idCliente</action>
-				<action tecla="37">saltar_idCliente</action>
-				<action tecla="38">saltar_Fecha</action>
-				<action tecla=" 9">saltar_idArticulo</action>
-				<action tecla="40">saltar_idArticulo</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">albaran</parametro>
-			</parametros> 
-		</caja_input>
-<caja_input>
-			<nombre id_input="cajaBusquedacliente">cajaBusquedacliente</nombre>
-			<teclas>
-				<action tecla=" 9">buscarClientes</action>
-				<action tecla="13">buscarClientes</action>
-				<action tecla="40">buscarClientes</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">albaran</parametro>
-			</parametros>
-		</caja_input>
-<caja_input>
-			<nombre id_input="idArticuloAl">cajaidArticuloAl</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="39">saltar_Referencia</action>
-				<action tecla="38">saltar_nombreClienteArticulo</action>
-				<action tecla=" 9">saltar_Referencia</action>
-				<action tecla="40">saltar_productos</action>
-				<action tecla="37">saltar_idCliente</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">albaran</parametro>
-				<parametro nombre="campo">a.idArticulo</parametro>  
-			</parametros> 
-		</caja_input>
-<caja_input>
-			<nombre id_input="ReferenciaAl">cajaReferenciaAl</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="39">saltar_CodBarras</action>
-				<action tecla=" 9">saltar_CodBarras</action>
-				<action tecla="40">saltar_productos</action>
-				<action tecla="37">saltar_idArticulo</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">albaran</parametro>
-				<parametro nombre="campo">at.crefTienda</parametro>  
-			</parametros> 
-		</caja_input>
-<caja_input>
-			<nombre id_input="CodbarrasAl">cajaCodBarrasAl</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="39">saltar_Descripcion</action>
-				<action tecla=" 9">saltar_Descripcion</action>
-				<action tecla="40">saltar_productos</action>
-				<action tecla="37">saltar_Referencia</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">albaran</parametro>
-				<parametro nombre="campo">ac.codBarras</parametro>  
-			</parametros> 
-		</caja_input>
-<caja_input>
-			<nombre id_input="DescripcionAl">cajaDescripcionAl</nombre>
-			<teclas>
-				<action tecla="13">buscarProductos</action>
-				<action tecla="37">saltar_CodBarras</action>
-				<action tecla="40">saltar_productos</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">albaran</parametro>
-				<parametro nombre="campo">a.articulo_name</parametro>  
-			</parametros> 
-		</caja_input>-->
+		
 		
 		
 		
