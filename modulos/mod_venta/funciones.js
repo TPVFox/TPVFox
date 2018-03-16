@@ -306,23 +306,25 @@ function controladorAcciones(caja,accion, tecla){
 			
 			console.log("Estoy en buscarClientes");
 			
-			if(caja.darValor()=="" && caja.id_input=="id_cliente"){
-				var d_focus="Cliente";
-				ponerFocus(d_focus);
-			}else {
-				if (caja.darValor()=="" && caja.id_input=="id_clienteAl"){
-				var d_focus="ClienteAl";
-				ponerFocus(d_focus);
-				}else{
-					if(caja.darValor()=="" && caja.id_input=="id_clienteFac"){
-					var d_focus="ClienteFac";
-					ponerFocus(d_focus);
-				}else{
-					buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
-				}
-			}
-		}
-			
+			//~ if(caja.darValor()=="" && caja.id_input=="id_cliente"){
+				//~ var d_focus="Cliente";
+				//~ ponerFocus(d_focus);
+			//~ }
+			//~ else {
+				//~ if (caja.darValor()=="" && caja.id_input=="id_clienteAl"){
+				//~ var d_focus="ClienteAl";
+				//~ ponerFocus(d_focus);
+				//~ }
+				//~ else{
+					//~ if(caja.darValor()=="" && caja.id_input=="id_clienteFac"){
+					//~ var d_focus="ClienteFac";
+					//~ ponerFocus(d_focus);
+				//~ }else{
+					//~ buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+				//~ }
+			//~ }
+		//~ }
+			buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			
 			
 			break;

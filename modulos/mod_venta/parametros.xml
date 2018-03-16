@@ -399,6 +399,9 @@
 			<teclas>
 				<action tecla="13">selectFormas</action>	
 			</teclas>
+<parametros>
+<parametro nombre="dedonde">factura</parametro>
+</parametros>
 		</caja_input>
 		
 		
@@ -407,6 +410,9 @@
 			<teclas>
 				<action tecla="13">insertarImporte</action>	
 			</teclas>
+<parametros>
+<parametro nombre="dedonde">factura</parametro>
+</parametros>
 		</caja_input>
 	
 		

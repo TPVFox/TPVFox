@@ -187,19 +187,21 @@ include './../../head.php';
 		}
 	
 		$parametros = simplexml_load_file('parametros.xml');
-		//~ foreach($parametros->cajas_input->caja_input as $caja){
-			//~ $caja->parametros->parametro[0]="albaran";
-		//~ }
+		foreach($parametros->cajas_input->caja_input as $caja){
+			$caja->parametros->parametro[0]="albaran";
+		}
 
 		//~ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 //Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
-		$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
+	//	$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
 		
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-
+echo '<pre>';
+print_r($VarJS);
+echo '</pre>';
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -319,7 +321,7 @@ if (isset($_GET['tActual'])){
 			
 				<div class="col-md-4">
 					<strong>Fecha albarán:</strong><br>
-					<input type="date" name="fechaAl" id="fechaAl" size="10" data-obj= "fechaAl"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
 				<div class="col-md-3">
 					<strong>Estado:</strong><br>
@@ -334,8 +336,8 @@ if (isset($_GET['tActual'])){
 		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
-			<input type="text" id="id_clienteAl" name="id_clienteAl" data-obj= "cajaIdClienteAl" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="ClienteAl" name="ClienteAl" data-obj= "cajaClienteAl" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
+			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('albaran')"></a>
 		</div>
 	</div>
@@ -390,10 +392,10 @@ if (isset($_GET['tActual'])){
 		  <tr id="Row0" style=<?php echo $style;?>>  
 			<td id="C0_Linea" ></td>
 			<td></td>
-			<td><input id="idArticuloAl" type="text" name="idArticuloAl" placeholder="idArticulo" data-obj= "cajaidArticuloAl" size="13" value=""  onkeydown="controlEventos(event)"></td>
-			<td><input id="ReferenciaAl" type="text" name="ReferenciaAl" placeholder="Referencia" data-obj="cajaReferenciaAl" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="CodbarrasAl" type="text" name="CodbarrasAl" placeholder="Codbarras" data-obj= "cajaCodBarrasAl" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="DescripcionAl" type="text" name="DescripcionAl" placeholder="Descripcion" data-obj="cajaDescripcionAl" size="20" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="13" value=""  onkeydown="controlEventos(event)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)"></td>
 		  </tr>
 		</thead>
 		<tbody>
