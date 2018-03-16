@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 14, 2018 at 10:42 PM
+-- Generation Time: Mar 16, 2018 at 05:17 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -36,7 +36,7 @@ CREATE TABLE `facprolinea` (
   `cdetalle` varchar(100) DEFAULT NULL,
   `ncant` decimal(17,6) DEFAULT NULL,
   `nunidades` decimal(17,6) DEFAULT NULL,
-  `costeSiva` decimal(17,2) DEFAULT NULL,
+  `costeSiva` decimal(17,4) DEFAULT NULL,
   `iva` decimal(4,2) DEFAULT NULL,
   `nfila` int(11) DEFAULT NULL,
   `estadoLinea` varchar(12) DEFAULT NULL,
