@@ -15,7 +15,7 @@
 	
 	$todosTemporal=$Calbaran->TodosTemporal();
 
-	
+	$todosTemporal=array_reverse($todosTemporal);
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
