@@ -1,35 +1,4 @@
 // =========================== OBJETOS  ===================================
-//~ function ObjProducto(datos,valor=1,estado ='Activo')
-//~ {
-    //~ console.log('Estoy creando objeto producto');
-    //~ this.id = datos.idArticulo;
-    //~ this.cref = datos.crefTienda
-    //~ this.cdetalle = datos.articulo_name;
-    //~ this.pvpconiva = parseFloat(datos.pvpCiva).toFixed(2);
-    //~ this.ccodebar = datos.codBarras;
-    //~ this.ctipoiva = datos.iva;
-    //~ this.unidad = valor;
-    //~ this.estado = estado;
-    //~ this.nfila = productos.length+1;
-    //~ this.importe = parseFloat(this.pvpconiva) * this.unidad;
-//~ }
-//~ function Buscar (){
-	//~ $(document).ready(function()
-	//~ {
-		//~ // Lo ideal sería identificar palabras..
-		//~ // de momento solo una palabra..
-		//~ NuevoValorBuscar = $('input[name=buscar').val();
-		//~ NuevoValorBuscar = $.trim(NuevoValorBuscar);
-		//~ if (NuevoValorBuscar !== ''){
-			//~ BProductos= NuevoValorBuscar;
-			//~ console.log('Filtro:'+BProductos);
-		//~ } else {
-			//~ alert (' Debes poner algun texto ');
-			//~ BProductos = '';
-		//~ }
-		//~ return;
-	//~ });
-//~ }
 function metodoClick(pulsado,adonde){
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
@@ -43,7 +12,6 @@ function metodoClick(pulsado,adonde){
 			}
 			// Ahora redireccionamos 
 			window.location.href = './'+adonde+'.php?id='+checkID[0];
-			//window.location.href = './producto.php?id='+checkID[0];
 			break;
 		case 'AgregarPedido':
 			console.log('entro en agregar producto');
@@ -197,30 +165,8 @@ function controladorAcciones(caja,accion, tecla){
 		
 		case 'buscarClientes':
 			// Esta funcion necesita el valor.
-			
 			console.log("Estoy en buscarClientes");
-			
-			//~ if(caja.darValor()=="" && caja.id_input=="id_cliente"){
-				//~ var d_focus="Cliente";
-				//~ ponerFocus(d_focus);
-			//~ }
-			//~ else {
-				//~ if (caja.darValor()=="" && caja.id_input=="id_clienteAl"){
-				//~ var d_focus="ClienteAl";
-				//~ ponerFocus(d_focus);
-				//~ }
-				//~ else{
-					//~ if(caja.darValor()=="" && caja.id_input=="id_clienteFac"){
-					//~ var d_focus="ClienteFac";
-					//~ ponerFocus(d_focus);
-				//~ }else{
-					//~ buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
-				//~ }
-			//~ }
-		//~ }
 			buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
-			
-			
 			break;
 		case 'saltar_idCliente':
 		console.log('Entro en acciones saltar_idCliente');
@@ -336,7 +282,6 @@ function controladorAcciones(caja,accion, tecla){
 			// recuerda que lo productos empizan 0 y las filas 1
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
-			//~ productos.[nfila].unidad = caja.darValor();
 			console.log ( caja);
 			productos[nfila].unidad = caja.darValor();
 			console.log(productos[nfila].unidad);
@@ -945,10 +890,7 @@ function agregarFila(datos,campo=''){
 			
 			var resultado =  $.parseJSON(response);
 			var nuevafila = resultado['html'];
-			//~ console.log(nuevafila);
 			
-			//$ signifca jQuery 
-			//$("#tabla").append(nuevaFila);
 			$("#tabla").prepend(nuevafila);
 			if ('campo' ==='') {
 				// Si no viene dato campo, por lo que focus por defectoe es Codbarras
@@ -997,16 +939,6 @@ function cerrarPopUp(destino_focus=''){
 	}
 	
 }
-//~ function mover_down(fila,prefijo, dedonde=""){
-	//~ console.log("Estoy en mover down ");
-	//~ sobreFilaCraton(fila);
-	//~ var d_focus = prefijo+fila;
-	//~ ponerFocus(d_focus);
-	
-//~ }
-//~ function sobreFilaCraton(cont){
-	//~ $('#Fila_'+cont).css('background-color','azure');
-//~ }
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
 	// @ Objetivo:
 	//   Realizamos cuando venimos popUp de Productos.
@@ -1158,9 +1090,7 @@ function retornarFila(num_item, valor=""){
 	}else{
 		productos[num].estado= 'Activo';
 	}
-	//~ console.log(productos[num].estado);
 	console.log(productos);
-	//~ var pvp =productos[num_item].pvpconiva;
 
 	
 	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
@@ -1172,7 +1102,7 @@ function retornarFila(num_item, valor=""){
 				// Nueva Objeto de productos.
 				// Antiguo array productos.
 				productos[num].nunidades = 1;
-				//	recalculoImporte(productos[num].unidad,num_item);
+				
 				
 			}
 				$("#Unidad_Fila_" + productos[num].nfila).prop("disabled", false);
@@ -1193,7 +1123,7 @@ function retornarFila(num_item, valor=""){
 				//~ productos[nfila].unidad= 1;
 				// Antiguo array productos.
 				productos[num].unidad = 1;
-				//	recalculoImporte(productos[num].unidad,num_item);
+				
 				
 			}
 			$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
@@ -1220,7 +1150,7 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 			eliminarFila(num_item+1, dedonde);
 		}
 		productos[num_item].ncant = cantidad;
-		//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
+		
 		var importe = cantidad*productos[num_item].precioCiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
@@ -1231,7 +1161,7 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		addFacturaTemp();
 	}
 	}else{
-	//~ console.log('cantidad:'+cantidad);
+
 	if (productos[num_item].cant == 0 && cantidad != 0) {
 		retornarFila(num_item+1);
 	} else if (cantidad == 0 ) {
@@ -1239,23 +1169,20 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 	}
 	console.log('Valor de cantidad'+cantidad);
 	productos[num_item].cant = cantidad;
-	//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
+	
 	var importe = cantidad*productos[num_item].pvpCiva;
 	var id = '#N'+productos[num_item].nfila+'_Importe';
-	//alert('recalcular'+id);
+
 	importe = importe.toFixed(2);
 	$(id).html(importe);
 		addProductoTemp();
 	}
 }
-//~ function sobreFilaCraton(cont){
-	//~ $('#N_'+cont).css('background-color','azure');
-//~ }
 
 function mover_down(fila,prefijo, dedonde=""){
 	console.log("entro en mover down");
 	console.log(fila);
-//sobreFilaCraton(fila);
+
 sobreFila(fila);
 	var d_focus = prefijo+fila;
 	if (prefijo !== 'N_'){
@@ -1285,7 +1212,6 @@ sobreFila(fila);
 function mover_up(fila,prefijo, dedonde=""){
 	console.log("entro en mover up");
 	console.log(fila);
-	//sobreFilaCraton(fila);
 	sobreFila(fila);
 	console.log(dedonde);
 	if (dedonde !== "cerrados"){
@@ -1782,9 +1708,6 @@ function comprobarPedidosExis(){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de comprobar pedidos');
 			var resultado =  $.parseJSON(response); 
-		//	var encontrados = resultado.encontrados;
-		//	var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-		console.log(resultado);
 			if (resultado.ped==1){
 				$("#numPedidoT").show();
 				$("#numPedido").show();
@@ -2060,7 +1983,6 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 			console.log(albaranes[num].idAlbaran);
 			console.log("Voy a entrar en modificar albaran");
 			modificarEstadoAlbaran(albaranes[num].idAlbaran, "Guardado");
-		//	modificarEstadoPedido(dedonde, "Guardado", numRegistro, albaranes[num].idAlbaran);
 			addFacturaTemp();
 		}
 }
@@ -2123,7 +2045,6 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 			}
 		num=nfila-1;
 		modificarEstadoAlbaran(albaranes[num].idAlbaran, "Facturado");
-		//modificarEstadoPedido(dedonde, "Facturado", numRegistro, albaranes[num].idAlbaran);
 		addFacturaTemp();
 	}
 }
