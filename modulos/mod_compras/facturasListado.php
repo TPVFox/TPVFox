@@ -12,6 +12,7 @@
 	$CFac=new FacturasCompras($BDTpv);
 	//Guardamos en un array todos los datos de las facturas temporales
 	$todosTemporal=$CFac->TodosTemporal();
+	$todosTemporal=array_reverse($todosTemporal);
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
