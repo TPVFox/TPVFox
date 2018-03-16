@@ -67,9 +67,9 @@ include './../../head.php';
 			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificaralbaran), true);
 		}
-		echo '<pre>';
-		print_r($albaranes);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($albaranes);
+		//~ echo '</pre>';
 		$total=$Datostotales['total'];
 		//Si esta en estado guardado o pagado parcial se puede modificar los importes si no no
 		if ($estado="Guardado" || $estado="Pagado parcial"){
@@ -239,10 +239,10 @@ include './../../head.php';
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
-			echo '<pre>';
-			print_r( $addNuevo);
-			echo '</pre>';
-//	header('Location: facturasListado.php');
+			//~ echo '<pre>';
+			//~ print_r( $addNuevo);
+			//~ echo '</pre>';
+	header('Location: facturasListado.php');
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
@@ -282,10 +282,10 @@ include './../../head.php';
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 //Como estamos el albaranes la caja de input num fila cambia el de donde a factura
-	foreach($parametros->cajas_input->caja_input as $caja){
-			$caja->parametros->parametro[0]="factura";
-		}
-
+	//~ foreach($parametros->cajas_input->caja_input as $caja){
+			//~ $caja->parametros->parametro[0]="factura";
+		//~ }
+$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="factura";
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
 		
