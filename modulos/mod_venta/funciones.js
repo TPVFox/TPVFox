@@ -498,7 +498,6 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
 			console.log(dedonde);
-					//console.log(resultado);
 					if (dedonde == "factura"){
 						if (resultado['Nitems']===1){
 							var datos = new Object();

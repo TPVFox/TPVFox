@@ -102,30 +102,6 @@ switch ($pulsado) {
 				$respuesta['html'] = htmlClientes($busqueda,$dedonde, $idcaja, $buscarTodo['datos']);
 				$respuesta['datos']=$buscarTodo['datos'];
 			}
-			//~ if ($idcaja=="id_clienteAl" || $idcaja=="id_clienteFac"){
-				//~ $res=$Ccliente->DatosClientePorId($busqueda);
-				//~ if ($res){
-					//~ $respuesta['res']=$res;
-					//~ $respuesta['idCliente']=$res['idClientes'];
-					//~ $respuesta['nombre']=$res['Nombre'];
-					//~ $respuesta['Nitems']=1;
-					//~ $respuesta['formasVenci']=$res['fomasVenci'];
-				//~ }
-				
-			//~ }else{
-				//~ $res = array( 'datos' => array());
-				//~ //funcion de buscar clientes
-				//~ //luego html mostrar modal 
-				//~ $res = BusquedaClientes($busqueda,$BDTpv,$tabla, $idcaja);
-				//~ $respuesta['items']=$res['Nitems'];
-				//~ if ($res['Nitems']===1){
-					//~ $respuesta['nombre']=$res['datos'][0]['nombre'];
-					//~ $respuesta['idCliente']=$res['datos'][0]['idClientes'];
-				//~ }else{
-					//~ $respuesta = htmlClientes($busqueda,$dedonde, $idcaja, $res['datos']);
-				//~ }
-			//~ }
-			
 			echo json_encode($respuesta);
 		break;	
 		
