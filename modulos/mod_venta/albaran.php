@@ -199,9 +199,9 @@ include './../../head.php';
 	//	$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
 		
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-echo '<pre>';
-print_r($VarJS);
-echo '</pre>';
+//~ echo '<pre>';
+//~ print_r($VarJS);
+//~ echo '</pre>';
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
