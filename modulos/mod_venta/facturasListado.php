@@ -13,7 +13,7 @@
 	$Ccliente=new Cliente($BDTpv);
 	$Cfactura=new FacturasVentas($BDTpv);
 	$todosTemporal=$Cfactura->TodosTemporal();
-	
+		$todosTemporal=array_reverse($todosTemporal);
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
