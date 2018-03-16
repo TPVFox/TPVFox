@@ -167,7 +167,7 @@
 		</caja_input>
 
 
-		<caja_input>
+		<!--<caja_input>
 			<nombre id_input="fechaAl">fechaAl</nombre>
 			<teclas>
 				<action tecla="13">saltarNumPedido</action>
@@ -283,7 +283,7 @@
 				<parametro nombre="dedonde">albaran</parametro>
 				<parametro nombre="campo">a.articulo_name</parametro>  
 			</parametros> 
-		</caja_input>
+		</caja_input>-->
 		
 		
 		
