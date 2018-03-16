@@ -99,8 +99,8 @@ switch ($pulsado) {
 				
 			}else{
 				$buscarTodo=$Ccliente->BuscarClientePorNombre($busqueda);
-				$respuesta['html'] = htmlClientes($busqueda,$dedonde, $idcaja, $buscarTodo);
-				$respuesta['datos']=$buscarTodo;
+				$respuesta['html'] = htmlClientes($busqueda,$dedonde, $idcaja, $buscarTodo['datos']);
+				$respuesta['datos']=$buscarTodo['datos'];
 			}
 			//~ if ($idcaja=="id_clienteAl" || $idcaja=="id_clienteFac"){
 				//~ $res=$Ccliente->DatosClientePorId($busqueda);

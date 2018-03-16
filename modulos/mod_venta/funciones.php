@@ -121,7 +121,7 @@ $resultado['Nitems']= $res->num_rows;
 	}
 	return $resultado;
 }
-function htmlClientes($busqueda,$dedonde, $idcaja, $clientes = array()){
+function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los clientes si los hubiera.
 	// @ parametros:
@@ -147,7 +147,7 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes = array()){
 	if (count($clientes)>0){
 		$contad = 0;
 		foreach ($clientes as $cliente){  
-			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
+			$razonsocial_nombre=$cliente['Nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
 			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
@@ -156,7 +156,7 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes = array()){
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
 						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>';
+			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['Nombre'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';
 			$resultado['html'] .= '</tr>';

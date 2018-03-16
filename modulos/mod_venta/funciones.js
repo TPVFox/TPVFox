@@ -158,7 +158,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			}else{
 				console.log(resultado.html);
 			 var titulo = 'Listado clientes ';
-			 var HtmlClientes=resultado.html; 
+			 var HtmlClientes=resultado.html.html; 
 			 abrirModal(titulo,HtmlClientes);
 			 }
 			//~ switch(dedonde){
@@ -297,8 +297,8 @@ function abrirModal(titulo,tabla){
 	// @ Objetivo :
 	// Abril modal con texto buscado y con titulo que le indiquemos.
 	console.log('Estamos en abrir modal');
-	console.log(tabla.html);
-	$('.modal-body > p').html(tabla);
+//	console.log(tabla.html);
+	$('.modal-body ').html(tabla);
 	$('.modal-title').html(titulo);
 	$('#busquedaModal').modal('show');
 	
