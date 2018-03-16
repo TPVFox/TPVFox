@@ -54,6 +54,18 @@ class Cliente{
 		$resultado['sql']=$sql;
 		return $resultado;
 	}
+	public function BuscarClientePorNombre($nombreCliente){
+		$db = $this->db;
+		$smt = $db->query ('SELECT * from clientes WHERE Nombre  LIKE "%'.$nombreCliente.'%" or razonsocial like "%'.$nombreCliente.'%" or nif like "%'.$nombreCliente.'%"');
+		$sql='SELECT * from clientes WHERE Nombre  LIKE "%'.$nombreCliente.'%" or razonsocial like "%'.$nombreCliente.'%"';
+		$clientePrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($clientePrincipal, $result);
+			}
+			$respuesta['sql']=$sql;
+			$respuesta['datos']= $clientePrincipal;
+			return $respuesta;
+	}
 	
 	
 	
