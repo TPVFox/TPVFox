@@ -139,140 +139,157 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de buscar clientes');
 			var resultado =  $.parseJSON(response); 
-			var encontrados = resultado.encontrados;
+			//var encontrados = resultado.encontrados;
 			// Si el archivo de donde viene la consulta es  albaran con lo que devuelve la consulta
 			//de buscarCliente se registra en los input y se bloquean posteriormente
 			
-			
-			switch(dedonde){
-				case 'albaran':
-				if (resultado.Nitems==1){
-					//Se registra en la cabecera tanto el id del clinete como el nombre
-					cabecera.idCliente=resultado.idCliente;
-					cabecera.nombreCliente=resultado.nombre;
-					//Los imput de cliente quedan desactivados y se oculta el botón de buscar
-					$('#ClienteAl').val(resultado.nombre);
-					$('#ClienteAl').prop('disabled', true);
-					$('#id_clienteAl').prop('disabled', true);
-					$("#buscar").css("display", "none");
-					$('#idArticuloAl').focus();
-					//Mostrar fila muestra los nombre del cliente en los input
-					mostrarFila();
-					//Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
+			if (resultado.Nitems==1){
+				cabecera.idCliente=resultado.id;
+				cabecera.nombreCliente=resultado.nombre;
+				$('#Cliente').val(resultado.nombre);
+				$('#Cliente').prop('disabled', true);
+				$('#id_cliente').prop('disabled', true);
+				$("#buscar").css("display", "none");
+				$('#idArticulo').focus();
+				mostrarFila();
+				if (dedonde=="albaran"){
 					comprobarPedidosExis();
-				}else{
-					var titulo = 'Listado clientes ';
-					var HtmlClientes=resultado.html; 
-					abrirModal(titulo,HtmlClientes);
 				}
+			}else{
+				console.log(resultado.html);
+			 var titulo = 'Listado clientes ';
+			 var HtmlClientes=resultado.html; 
+			 abrirModal(titulo,HtmlClientes);
+			 }
+			//~ switch(dedonde){
+				//~ case 'albaran':
+				//~ if (resultado.Nitems==1){
+					//~ //Se registra en la cabecera tanto el id del clinete como el nombre
+					//~ cabecera.idCliente=resultado.idCliente;
+					//~ cabecera.nombreCliente=resultado.nombre;
+					//~ //Los imput de cliente quedan desactivados y se oculta el botón de buscar
+					//~ $('#ClienteAl').val(resultado.nombre);
+					//~ $('#ClienteAl').prop('disabled', true);
+					//~ $('#id_clienteAl').prop('disabled', true);
+					//~ $("#buscar").css("display", "none");
+					//~ $('#idArticuloAl').focus();
+					//~ //Mostrar fila muestra los nombre del cliente en los input
+					//~ mostrarFila();
+					//~ //Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
+					//~ comprobarPedidosExis();
+				//~ }else{
+					//~ var titulo = 'Listado clientes ';
+					//~ var HtmlClientes=resultado.html; 
+					//~ abrirModal(titulo,HtmlClientes);
+				//~ }
 				
 				
-				break;
-				case 'pedidos':
-				console.log(dedonde);
-				var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-				if (valor==""){ //Si el valor viene vacio quiere decir que la persona pulsó el icono de buscar
-					var titulo = 'Listado clientes ';
-					abrirModal(titulo,HtmlClientes);
-					// Asignamos focus a caja buscar cliente.
-					if (encontrados >0 ){
-						// Enfocamos el primer item.
-						mover_down(0);
-						$('#N_0').focus();
+				//~ break;
+				//~ case 'pedidos':
+				//~ console.log(dedonde);
+				//~ var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+				//~ if (valor==""){ //Si el valor viene vacio quiere decir que la persona pulsó el icono de buscar
+					//~ var titulo = 'Listado clientes ';
+					//~ abrirModal(titulo,HtmlClientes);
+					//~ // Asignamos focus a caja buscar cliente.
+					//~ if (encontrados >0 ){
+						//~ // Enfocamos el primer item.
+						//~ mover_down(0);
+						//~ $('#N_0').focus();
 						
-					}else {
-						// No hay datos focus a caja buscar cliente.
-						$('#cajaBusquedacliente').focus();
-					}
-				}else if(idcaja==="Cliente"){// Si el cliente escribio en el input del nombre de cliente 
-					console.log('entre en cliente');
-					console.log(resultado);
-					var titulo = 'Listado clientes '; //Muestra los resultados de la consulta en una ventana modal
-					abrirModal(titulo,HtmlClientes);
-					if (encontrados >0 ){
-						// Enfocamos el primer item.
-						mover_down(0);
-						$('#N_0').focus();
-						$('#Cliente').val(resultado.nombre);
-						$('#Cliente').prop('disabled', true);
-						$('#id_cliente').prop('disabled', true);
-						$("#buscar").css("display", "none");
-						$('#idArticulo').focus();
-					}else {
+					//~ }else {
+						//~ // No hay datos focus a caja buscar cliente.
+						//~ $('#cajaBusquedacliente').focus();
+					//~ }
+				//~ }else if(idcaja==="Cliente"){// Si el cliente escribio en el input del nombre de cliente 
+					//~ console.log('entre en cliente');
+					//~ console.log(resultado);
+					//~ var titulo = 'Listado clientes '; //Muestra los resultados de la consulta en una ventana modal
+					//~ abrirModal(titulo,HtmlClientes);
+					//~ if (encontrados >0 ){
+						//~ // Enfocamos el primer item.
+						//~ mover_down(0);
+						//~ $('#N_0').focus();
+						//~ $('#Cliente').val(resultado.nombre);
+						//~ $('#Cliente').prop('disabled', true);
+						//~ $('#id_cliente').prop('disabled', true);
+						//~ $("#buscar").css("display", "none");
+						//~ $('#idArticulo').focus();
+					//~ }else {
 						
-						// No hay datos focus a caja buscar cliente.
-						$('#cajaBusquedacliente').focus();
-					}
-				}else if(idcaja==="cajaBusquedacliente"){ // si la consulta viene de la caja input del modal
-					console.log('entre en caja buqueda');
-					console.log(resultado);
-					var titulo = 'Listado clientes ';
-					abrirModal(titulo,HtmlClientes);
-					if (encontrados >0 ){
-						// Enfocamos el primer item.
-						mover_down(0);
-						$('#N_0').focus();
-						$('#Cliente').val(resultado.nombre);
-						$('#Cliente').prop('disabled', true);
-						$('#id_cliente').prop('disabled', true);
-						$("#buscar").css("display", "none");
-						$('#idArticulo').focus();
-					}else {
-						// No hay datos focus a caja buscar cliente.
-						$('#cajaBusquedacliente').focus();
-					}
-				}else{ //  Si recibión un id se escribe el nombre en el input , en la cabecera se guarda el id 
-				// y la función de mostrar fila cubre los campos de cliente
-				if (encontrados==0){
-					alert("El id del cliente no es correcto");
-					resetCampo(idcaja);
-				}else{
-					console.log('no muestro modal');
-					$('#Cliente').val(resultado.nombre);
-					console.log(resultado.idCliente);
-						cabecera.idCliente=resultado.idCliente;
-						mostrarFila();
-						$('#Cliente').val(resultado.nombre);
-						$('#Cliente').prop('disabled', true);
-						$('#id_cliente').prop('disabled', true);
-						$("#buscar").css("display", "none");
-						$('#idArticulo').focus();
-					}
-				}
+						//~ // No hay datos focus a caja buscar cliente.
+						//~ $('#cajaBusquedacliente').focus();
+					//~ }
+				//~ }else if(idcaja==="cajaBusquedacliente"){ // si la consulta viene de la caja input del modal
+					//~ console.log('entre en caja buqueda');
+					//~ console.log(resultado);
+					//~ var titulo = 'Listado clientes ';
+					//~ abrirModal(titulo,HtmlClientes);
+					//~ if (encontrados >0 ){
+						//~ // Enfocamos el primer item.
+						//~ mover_down(0);
+						//~ $('#N_0').focus();
+						//~ $('#Cliente').val(resultado.nombre);
+						//~ $('#Cliente').prop('disabled', true);
+						//~ $('#id_cliente').prop('disabled', true);
+						//~ $("#buscar").css("display", "none");
+						//~ $('#idArticulo').focus();
+					//~ }else {
+						//~ // No hay datos focus a caja buscar cliente.
+						//~ $('#cajaBusquedacliente').focus();
+					//~ }
+				//~ }else{ //  Si recibión un id se escribe el nombre en el input , en la cabecera se guarda el id 
+				//~ // y la función de mostrar fila cubre los campos de cliente
+				//~ if (encontrados==0){
+					//~ alert("El id del cliente no es correcto");
+					//~ resetCampo(idcaja);
+				//~ }else{
+					//~ console.log('no muestro modal');
+					//~ $('#Cliente').val(resultado.nombre);
+					//~ console.log(resultado.idCliente);
+						//~ cabecera.idCliente=resultado.idCliente;
+						//~ mostrarFila();
+						//~ $('#Cliente').val(resultado.nombre);
+						//~ $('#Cliente').prop('disabled', true);
+						//~ $('#id_cliente').prop('disabled', true);
+						//~ $("#buscar").css("display", "none");
+						//~ $('#idArticulo').focus();
+					//~ }
+				//~ }
 				
-				break;
-				case 'factura':
-				console.log("entre en facturas");
-				console.log(resultado);
-					if (resultado.Nitems==1){
-						console.log("entre  en el if");
-						//Se registra en la cabecera tanto el id del clinete como el nombre
-						cabecera.idCliente=resultado.idCliente;
-						cabecera.nombreCliente=resultado.nombre;
-						//Los imput de cliente quedan desactivados y se oculta el botón de buscar
-						$('#ClienteFac').val(resultado.nombre);
-						$('#ClienteFac').prop('disabled', true);
-						$('#id_clienteFac').prop('disabled', true);
-						$("#buscar").css("display", "none");
-						//Mostrar fila muestra los nombre del cliente en los input
-						mostrarFila();
-						formasVenciCliente(resultado.formasVenci);
-						//Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
-						comprobarAlbaranesExis();
-					}else{
-						var titulo = 'Listado clientes ';
-						var HtmlClientes=resultado.html; 
-						abrirModal(titulo,HtmlClientes);
+				//~ break;
+				//~ case 'factura':
+				//~ console.log("entre en facturas");
+				//~ console.log(resultado);
+					//~ if (resultado.Nitems==1){
+						//~ console.log("entre  en el if");
+						//~ //Se registra en la cabecera tanto el id del clinete como el nombre
+						//~ cabecera.idCliente=resultado.idCliente;
+						//~ cabecera.nombreCliente=resultado.nombre;
+						//~ //Los imput de cliente quedan desactivados y se oculta el botón de buscar
+						//~ $('#ClienteFac').val(resultado.nombre);
+						//~ $('#ClienteFac').prop('disabled', true);
+						//~ $('#id_clienteFac').prop('disabled', true);
+						//~ $("#buscar").css("display", "none");
+						//~ //Mostrar fila muestra los nombre del cliente en los input
+						//~ mostrarFila();
+						//~ formasVenciCliente(resultado.formasVenci);
+						//~ //Comprueba si ese cliente tiene pedidos en estado guardado, si es así dibuja la caja del input pedidos
+						//~ comprobarAlbaranesExis();
+					//~ }else{
+						//~ var titulo = 'Listado clientes ';
+						//~ var HtmlClientes=resultado.html; 
+						//~ abrirModal(titulo,HtmlClientes);
 						
-					}
+					//~ }
 					
 				
 				
-				break;
+				//~ break;
 				
 				
 				
-			}
+			//~ }
 		}
 	});
 }
@@ -280,6 +297,7 @@ function abrirModal(titulo,tabla){
 	// @ Objetivo :
 	// Abril modal con texto buscado y con titulo que le indiquemos.
 	console.log('Estamos en abrir modal');
+	console.log(tabla.html);
 	$('.modal-body > p').html(tabla);
 	$('.modal-title').html(titulo);
 	$('#busquedaModal').modal('show');
