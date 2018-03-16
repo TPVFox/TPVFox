@@ -497,9 +497,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		success    :  function (response) {
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
-			console.log(dedonde);
-					if (dedonde == "factura"){
-						if (resultado['Nitems']===1){
+			 if (resultado['Nitems']===1){
 							var datos = new Object();
 							datos.Numalbcli=0;
 							datos.Numpedcli=0;
@@ -522,57 +520,19 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							var campo='Unidad_Fila_'+n_item;
 							productos.push(datos);
 						
+						if (dedonde=="pedidos"){
+							
+						}
+						if (dedonde=="factura"){
 							addFacturaTemp();
-							
-							AgregarFilaProductosAl(datos, dedonde, campo);
-							resetCampo(id_input);
 						}
-						else{
-							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-				
-							var busqueda = resultado.listado;   
-							var HtmlProductos=busqueda.html;   
-							var titulo = 'Listado productos encontrados ';
-							abrirModal(titulo,HtmlProductos);
-							if (resultado.Nitems >0 ){
-								// Quiere decir que hay resultados por eso apuntamos al primero
-								// focus a primer producto.
-								var d_focus = 'N_0';
-								ponerFocus(d_focus);
-							} else {
-							// No hay resultado pero apuntamos a caj
-							ponerFocus(id_input);
-							}
-						}
-					}
-					if(dedonde =="albaran"){
-						if (resultado['Nitems']===1){
-							var datos = new Object();
-							datos.Numpedcli=0;
-							datos.ccodbar=resultado['datos'][0]['codBarras'];
-							datos.cdetalle=resultado['datos'][0]['articulo_name'];
-							datos.cref=resultado['datos'][0]['crefTienda'];
-							datos.estadoLinea="Activo";
-							datos.idArticulo=resultado['datos'][0]['idArticulo'];
-							datos.idpedcli=0;
-							datos.iva=resultado['datos'][0]['iva'];
-							datos.ncant=1;
-							datos.nfila=productos.length+1;
-							
-							datos.nunidades=1;
-							var importe =resultado['datos'][0]['pvpCiva']*1;
-							datos.importe=importe.toFixed(2);
-							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
-							datos.precioCiva=pvpCiva.toFixed(2);
-							
-							productos.push(datos);
-							
-							n_item=parseInt(productos.length);
-							var campo='Unidad_Fila_'+n_item;
+						if (dedonde=="albaran"){
 							addAlbaranTemp();
+						}
+							
+							
 							AgregarFilaProductosAl(datos, dedonde, campo);
 							resetCampo(id_input);
-						
 						}else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 				
@@ -590,63 +550,8 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							ponerFocus(id_input);
 							}
 						}
-						
-					} 
-					if (dedonde == "pedidos"){
-					console.log(resultado);	
-				if (resultado['Nitems']===1){
-					console.log("entre aqui");
-					var datos = [];
-					datos = resultado['datos'][0];
-					datos['nfila']=productos.length+1;
-					datos['estado']="Activo";
-					datos['cant']=1;
-					var importe =datos['pvpCiva']*datos['cant'];
-					datos['importe']=importe.toFixed(2);
-					var pvpCiva= parseFloat(datos['pvpCiva']);
-					datos['pvpCiva']=pvpCiva.toFixed(2);
-					productos.push(datos);
-					var num_item=datos['nfila'];
-					//Al inserta un producto se registra en la cabecera el id del cliente 
-					if (cabecera.idTemporal==0){
-						var idCliente=$('#id_cliente').val();
-						console.log(idCliente);
-						console.log('----- voy a escribir aaaaaaaaaaaaaa cliente seleccionado -----');
-						AddTemp(idCliente);
-						cabecera.idCliente=idCliente;
-					}
-					if (cabecera.idReal>0){
-						ModificarEstadoPedido("pedidos", "Sin Guardar");
-					}
 					
-					num=parseInt(productos.length);
-					var campo='Unidad_Fila_'+num;
-					
-					addProductoTemp();
-					agregarFilaProducto(num_item, campo);
-					resetCampo(id_input);
-				}else{
-					console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-					console.log(resultado);
-					var busqueda = resultado.listado;   
-					var HtmlProductos=busqueda.html;   
-					var titulo = 'Listado productos encontrados ';
-					abrirModal(titulo,HtmlProductos);
-					if (resultado.Nitems >0 ){
-						// Quiere decir que hay resultados por eso apuntamos al primero
-						// focus a primer producto.
-						var d_focus = 'N_0';
-						ponerFocus(d_focus);
-					} else {
-					// No hay resultado pero apuntamos a caj
-					ponerFocus(id_input);
-					}
-					
-				}
 			}
-				
-		}
-		
 
 	});
 }
