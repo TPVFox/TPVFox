@@ -39,7 +39,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 	public function obtenerProductos($filtro=''){
 		// @ Objetivo 
 		// Obtener los campos idArticulo,articulo_name,ultimoCoste,beneficio,iva,pvpCiva,estado productos según con el filtro indicado.
-		$consulta = "SELECT a.idArticulo,a.articulo_name,a.ultimoCoste,a.beneficio,a.iva,p.pvpCiva,a.estado"
+		$consulta = "SELECT a.idArticulo,a.articulo_name,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
 				."ON p.`idArticulo` = a.`idArticulo`  ".$filtro;
