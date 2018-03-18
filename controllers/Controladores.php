@@ -344,8 +344,8 @@ class ControladorComun
 		unset($configuracion['tipo_configuracion']); // Elimino para no meterlo como parametro en campo
 		if ( $tipo_configuracion === 'Usuario'){
 			// Existe registro por lo que hacemos udate.
-			$Set_conf= " SET idusuario=".$idUsuario." ,nombre_modulo='".$nombre_modulo."' ,configuracion=".
-				"'".json_encode($configuracion)."',fecha= NOW()";
+			$Set_conf= " SET configuracion=".
+				"'".json_encode($configuracion)."',fecha= NOW() WHERE idusuario=".$idUsuario." AND nombre_modulo='".$nombre_modulo."'" ;
 			$Sql= 'UPDATE `modulos_configuracion` '.$Set_conf;
 		} else {
 			// No existe registro por lo que creamos registro.
@@ -375,8 +375,8 @@ class ControladorComun
 				$respuesta[$key] = $valor;
 			}
 			$respuesta['tipo_configuracion'] = 'Usuario';
-		}
-		if (!isset($respuesta['tipo_configuracion'])){
+		} else {
+		//~ if (!isset($respuesta['tipo_configuracion'])){
 			// Si  NO existe $respuesta['tipo_configuracion'] ponemos por defecto
 			$respuesta['tipo_configuracion'] = 'Modulo';
 		}
