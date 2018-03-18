@@ -6,6 +6,17 @@
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
         include ("./clases/ClaseProductos.php");
+		// Cargamos los fichero parametros.
+		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+		$ClasesParametros = new ClaseParametros('parametros.xml');
+		$parametros = $ClasesParametros->getRoot();
+		// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		echo '<pre>';
+		print_r($conf_defecto);
+		echo '</pre>';
+		
+		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
 		$titulo = 'Productos:';
@@ -45,9 +56,9 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		
-		echo '<pre>';
-		print_r($Producto);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($Producto);
+		//~ echo '</pre>';
 			
 			
 		
@@ -147,7 +158,7 @@
 							<label class="control-label " >
 								Precio con Iva:
 							<a onclick="recalcularPrecioSegunCosteBeneficio()">
-							<span title ="Recalcular según beneficio" class="glyphicon glyphicon-refresh"></span>
+							<span title ="Recalcular según beneficio y ultimo coste" class="glyphicon glyphicon-refresh"></span>
 							</a>
 							</label>
 							<input type="text" id="pvpCiva" name="pvpCiva"  onchange="modifPrecioSiva();" value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
