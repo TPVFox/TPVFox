@@ -23,6 +23,7 @@
 	// la tabla que independiente primero y luego las otras, para una correcta importacion.
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
+	// Obtenemos Objeto XML con parametros.
 	$parametros = $ClasesParametros->getRoot();
 	$nom_ficheros = $ClasesParametros->Xpath("tablas/tabla/nombre",'Valores');
 	$ObjTiendasImportar = $ClasesParametros->Xpath("configuracion/empresas/datos_empresa");
