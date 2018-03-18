@@ -1,5 +1,6 @@
 
 //recogemos valor de la caja de busqueda que tenemos en Listado tickets o productos
+
 function BuscarProducto (){
 	$(document).ready(function()
 	{
@@ -185,10 +186,53 @@ function AnhadirCodbarras(){
 			}
 		});
 		
-	
-	
-	
-	
 	}
 	
+}
+
+function GuardarConfiguracion(obj){
+	// Si llega aquí es porque cambio el valor de check impresion...
+	// tenemos que tomar los valores configuracion para enviarlos y cambiarlos.
+	alert('Grabar configuracion');
+	if ($(obj).val() === 'Si'){
+		$(obj).val('No');
+	} else {
+		$(obj).val('Si');
+		
+	}
+	var valor= $(obj).val();
+	var nombre = $(obj).attr("name");
+
+	CambiarConfiguracionMostrarLista(valor,nombre); // Cambiamos el valor de la configuracion
+
+	
+	var parametros = {
+		"pulsado"    		: 'Grabar_configuracion',
+		"configuracion"		: configuracion,
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Grabando configuracion **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de grabar configuracion');
+				// var resultado = $.parseJSON(response);
+				var resultado = response;
+			}
+			
+	});
+	
+}
+function CambiarConfiguracionMostrarLista(valor,nombre){
+	// Ahora cambiamos el valor configuracion.
+	configuracion.mostrar_lista.forEach(function(element) {
+		if (element.nombre === nombre){
+			element.valor=valor;
+
+		}
+	});
+
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <parametros>
 	<configuracion>
-		
+		<!-- Campos a mostrar en lista de producto -->
+		<mostrar_lista nombre="crefTienda" descripcion="Referencia propia">Si</mostrar_lista>
+		<mostrar_lista nombre="codbBarras" descripcion="Codigo Barras">Si</mostrar_lista>
 	</configuracion>
 	
 	
