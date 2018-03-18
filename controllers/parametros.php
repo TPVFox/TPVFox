@@ -24,8 +24,6 @@ class ClaseParametros
 			}
 		}
 		
-		//~ error_log('Fin de inicializar instancia de objeto');
-
 	}
 	
 	public function crearXml($Nuevo_fichero=''){
@@ -74,18 +72,53 @@ class ClaseParametros
 		// Obtener array con los key y valores que contienen SimpleXML 
 		// @ Parametros:
 		// 		$elementos -> string del nombre del grupo de elementos queremos obtener
-		// 		$atributo -> string del atributo del elemento queremos si lo 
 		// @ Devolvemos 
-		//  Array con objetos.
+		//  Array asociativo de elementos indicados.
 		$respuesta = array();
-		$obj = $elementos;
-		
-		foreach ($this->root->$obj as $elemento){
+		foreach ($this->root->$elementos as $elemento){
+			$c = 0; // Contador paso por elemento con el mismo nombre.
 			foreach($elemento as $key=>$valor){
-				$respuesta[$key] = (string)$valor;
+				if (!isset($respuesta[$key])){
+					$c=0; // Contador lo poner en 0 , ya que es un elemento nuevo...
+				}
+				// Ahora comprobamos si tiene atributos:
+				$atributos= ''; // Esta variable puede ser (string) o (object)
+				if ($valor->attributes()){
+					// Solo si hay atributos entra..
+					$atributos = $valor->attributes();
+					foreach ((array)$atributos as $atributo){
+						// Montamos array con key de atributo y valor del atributo.
+						$array_atributos = $atributo;
+						$array_atributos['valor'] = (string)$valor;
+						$obj_atributos = (object)$array_atributos;
+					}
+				}
+				if (count($elemento->$key) === 1 && gettype($atributos) ==='string' ){
+					$respuesta[$key]=(string)$valor;
+				} else {
+					if (count($elemento->$key) >1){;
+						// Esto es cuando hay mas de un elemento igual
+						if (gettype($atributos) !=='string'){
+							$respuesta[$key][$c]=$obj_atributos;
+						} else {
+							// Si no tiene atributos.
+							$respuesta[$key][$c]['valor']=(string)$valor;
+						}
+						$c++;
+					} else {
+						// Esto es cuando NO hay mas elementos como este
+						if (gettype($atributos) !=='string'){
+							$respuesta[$key]=$obj_atributos;
+						} else {
+							// Si no tiene atributos.
+							$respuesta[$key]['valor']=(string)$valor;
+						}
+						
+					}
+				}
 			}	
+			
 		}
-		//~ $this->Array_Elementos = $respuesta;
 		return $respuesta;
 	}
 	
@@ -119,7 +152,7 @@ class ClaseParametros
 		// @ Objetivo
 		// Obtener array de valores de unos elementos.
 		// @ Paramentros:
-		//   $elementos -> array de objetos
+		//   $elementos -> array de objetos de XML
 		$respuesta = array();
 		foreach ($elementos as $elemento){ 
 			$respuesta[] = trim((string) $elemento);
