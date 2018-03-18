@@ -8,8 +8,28 @@
 	include ("./../../controllers/Controladores.php");
 	include ("./clases/ClaseProductos.php");
 	
-	$CTArticulos = new ClaseProductos($BDTpv);
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$Controler = new ControladorComun; // Controlado comun..
+	// Añado la conexion
+	$Controler->loadDbtpv($BDTpv);
+	// Inicializo varibles por defecto.
+	$Tienda = $_SESSION['tiendaTpv'];
+	$Usuario = $_SESSION['usuarioTpv'];
+	
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	$parametros = $ClasesParametros->getRoot();
+	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	// Obtenemos la configuracion del usuario o la por defecto
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_productos',$Usuario['id']);
+	
+	echo '<pre>';
+	print_r($configuracion);
+	echo '</pre>';
+	
+	$CTArticulos = new ClaseProductos($BDTpv);
+
+
 
 	//INICIALIZAMOS variables para el plugin de paginado:
 	$palabraBuscar=array();
@@ -57,10 +77,12 @@
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
 	
-	//~ $productos = obtenerProductos($BDTpv,$filtro); //aqui dentro llamamos a paginacionFiltroBusqueda montamos likes %buscar%
 	$productos = $CTArticulos->obtenerProductos($filtro);
 	
-	
+	// Añadimos a JS la configuracion
+		echo '<script type="application/javascript"> '
+		. 'var configuracion = '. json_encode($configuracion);
+		echo '</script>';
 	?>
 	
 	<script>
@@ -82,7 +104,8 @@
 			<div class="col-md-12 text-center">
 				<h2> Productos: Editar y Añadir Productos </h2>
 			</div>
-	        <nav class="col-sm-2">
+	        <div class="col-sm-2">
+				
 				<h4> Productos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -99,7 +122,22 @@
 								//verUsuario si esta checkado nos lleva vista usuario de ese id
 											//si NO nos indica que tenemos que elegir uno de la lista ?>
 				</ul>	
-			</nav>
+				<h4>Configuracion</h4>
+				<h5>Mostrar y buscar por:</h5>
+				<?php 
+				foreach ($configuracion['mostrar_lista'] as $mostrar){
+					$c= ' onchange="GuardarConfiguracion(this)"';
+					if ($mostrar->valor==='Si'){
+						$c ='checked '.$c;
+					}
+					echo '<input class="configuracion" type="checkbox" name="'.$mostrar->nombre.'" value="'.$mostrar->valor.'"'.$c.'>';
+					echo $mostrar->descripcion.'<br>';
+					
+				}
+				?>
+			
+			</div>
+			
 			<div class="col-md-10">
 					<p>
 					 -Productos encontrados BD local filtrados:
@@ -124,9 +162,17 @@
 						<th></th>
 						<th>ID</th>
 						<th>PRODUCTO</th>
-						<th>CODIGO BARRAS</th>
-						<th>COSTE ULTIMO</th>
-						<th>BENEFICIO</th>
+						<?php if ($configuracion['mostrar_lista'][1]->valor === 'Si'){
+							echo '<th>CODIGO BARRAS</th>';
+						}
+						if ($configuracion['mostrar_lista'][0]->valor === 'Si'){
+							echo '<th>REFERENCIA</th>';
+						}
+						?>
+				
+						<th>COSTE <br/> ULTIMO</th>
+						<th><span title="Beneficio que tiene ficha">%</span> </th>
+						<th>Precio<br/>Sin Iva</th>
 						<th>IVA</th>
 						<th>P.V.P</th>
 						<th>Estado</th>
@@ -145,22 +191,37 @@
 					</td>
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>
+					
 					<?php
-					$ObCodbarras = $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
-					$codBarrasProd = $CTArticulos->GetCodbarras();
-					
-					
-					?>
-					<td><?php 
-					if ($codBarrasProd){
-						foreach ($codBarrasProd as $cod){
-							echo '<small>'.$cod.'</small><br>';
+					if ($configuracion['mostrar_lista'][1]->valor === 'Si'){
+						$ObCodbarras = $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
+						$codBarrasProd = $CTArticulos->GetCodbarras();
+						echo '<td>'; 
+						if ($codBarrasProd){
+							foreach ($codBarrasProd as $cod){
+								echo '<small>'.$cod.'</small><br>';
+							}
 						}
+						echo '</td>';
 					}
 					?>
-					</td>
+					<?php 
+					if ($configuracion['mostrar_lista'][0]->valor === 'Si'){
+						// $ObCodbarras = $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
+						// $codBarrasProd = $CTArticulos->GetCodbarras();
+						echo '<td>'; 
+						// if ($codBarrasProd){
+							// foreach ($codBarrasProd as $cod){
+								// echo '<small>'.$cod.'</small><br>';
+						// }
+						echo '</td>';
+					}
+					
+					?>
+					
 					<td><?php echo number_format($producto['ultimoCoste'],2); ?></td>
 					<td><?php echo $producto['beneficio']; ?></td>
+					<td style="text-align:right;"><?php echo number_format($producto['pvpSiva'],2); ?><small>€</small></td>
 					<td><?php echo $producto['iva']; ?></td>
 					<td style="text-align:right;"><?php echo number_format($producto['pvpCiva'],2); ?><small>€</small></td>
 					<td><?php echo $producto['estado']; ?></td>
