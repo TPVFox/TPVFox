@@ -1346,6 +1346,81 @@ function addFacturaTemp(){
 		
 	});
 }
+function addTemporal(dedonde){
+	var parametros = {
+		"pulsado"    : 'anhadirPedidoTemp',
+		"idTemporal":cabecera.idTemporal,
+		"idUsuario":cabecera.idUsuario,
+		"idTienda":cabecera.idTienda,
+		"estado":cabecera.estado,
+		"idReal":cabecera.idReal,
+		"fecha":cabecera.fecha,
+		"productos":productos,
+		"idCliente":cabecera.idCliente
+	};
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en añadir albaran temporal JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de añadir albaran temporal');
+			var resultado =  $.parseJSON(response); 
+		
+			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
+
+			console.log(resultado.id.id);
+			if (resultado.existe == 0){
+				history.pushState(null,'','?tActual='+resultado.id);
+				cabecera.idTemporal=resultado.id;
+			}
+				
+			$('#tipo4').html('');
+			$('#tipo10').html('');
+			$('#tipo21').html('');
+			$('#base4').html('');
+			$('#base10').html('');
+			$('#base21').html('');
+			$('#iva4').html('');
+			$('#iva10').html('');
+			$('#iva21').html('');
+			$('.totalImporte').html('');
+			
+			// Ahora pintamos pie de albarán.
+			if (resultado['totales']['total'] > 0 ){
+				// Quiere decir que hay datos a mostrar en pie.
+				total = parseFloat(resultado['totales']['total']) // varible global.
+				$('.totalImporte').html(total.toFixed(2));
+				// Ahora tengo que pintar los ivas.
+				var desgloseIvas = [];
+				
+				console.log("estoy aqui");
+				console.log(resultado['totales']['desglose']);
+				
+				desgloseIvas.push(resultado['totales']['desglose']);
+				console.log(desgloseIvas);
+				// Ahora recorremos array desglose
+				desgloseIvas.forEach(function(desglose){
+					console.log('Entro foreah');
+					// mostramos los tipos ivas , bases y importes.
+					var tipos = Object.keys(desglose);
+					console.log(desglose);
+					for (index in tipos){
+						var tipo = tipos[index];
+						$('#line'+parseInt(tipo)).css('display','');
+						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+					}
+				});
+				
+			}
+		}
+	});
+	
+}
 // Modificar el estado de la factura para controlar que tiene temporales
 
 function modificarEstadoFactura(idFactura, estado){
