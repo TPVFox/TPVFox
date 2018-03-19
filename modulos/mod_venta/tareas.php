@@ -165,6 +165,9 @@ switch ($pulsado) {
 			$idTemporal=$res['id'];
 			$respuesta['sql']=$res['sql'];
 		}
+		if ($idReal>0){
+			$modNum=$CcliPed->ModIdReal($idTemporal, $idReal);
+		}
 		if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $productos ));
 				$respuesta['productosre']=$productos_para_recalculo;

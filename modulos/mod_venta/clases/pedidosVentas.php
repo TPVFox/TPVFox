@@ -17,31 +17,31 @@ class PedidosVentas extends ClaseVentas{
 		return $smt;
 	}
 	
-	public function AddClienteTemp($idCliente, $idTienda, $idUsuario, $estado){
-		//@Objetivo: Añadir un nuevo registro a la tabla de pedidos temporales
-		//@parametros:
-		//idCliente: id del cliente seleccionado 
-		//idTienda: id de la tienda 
-		//idUsuario: id del usuario 
-		//estado: estado del pedido
+	//~ public function AddClienteTemp($idCliente, $idTienda, $idUsuario, $estado){
+		//~ //@Objetivo: Añadir un nuevo registro a la tabla de pedidos temporales
+		//~ //@parametros:
+		//~ //idCliente: id del cliente seleccionado 
+		//~ //idTienda: id de la tienda 
+		//~ //idUsuario: id del usuario 
+		//~ //estado: estado del pedido
 		
-		$db = $this->db;
-		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estado.'")');
-		$id=$db->insert_id;
-		$respuesta['id']=$id;
-		return $respuesta;
+		//~ $db = $this->db;
+		//~ $smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estado.'")');
+		//~ $id=$db->insert_id;
+		//~ $respuesta['id']=$id;
+		//~ return $respuesta;
 		
-	}
+	//~ }
 	
-	public function AddClienteTempPedidoGuardado($idCliente, $idTienda, $idUsuario, $estado, $idPedido){
-		//Objetivo:
-		//añadir un nuevo registro temporal cuando ya tenemos el id del pedido real
-		$db = $this->db;
-		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idPedido.')');
-		$id=$db->insert_id;
-		$respuesta['id']=$id;
-		return $respuesta;
-	}
+	//~ public function AddClienteTempPedidoGuardado($idCliente, $idTienda, $idUsuario, $estado, $idPedido){
+		//~ //Objetivo:
+		//~ //añadir un nuevo registro temporal cuando ya tenemos el id del pedido real
+		//~ $db = $this->db;
+		//~ $smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idPedido.')');
+		//~ $id=$db->insert_id;
+		//~ $respuesta['id']=$id;
+		//~ return $respuesta;
+	//~ }
 	public function addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos){
 		$UnicoCampoProductos=json_encode($productos);
 		$db = $this->db;
@@ -52,12 +52,12 @@ class PedidosVentas extends ClaseVentas{
 		return $respuesta;
 	}
 	
-	public function ModClienteTemp($idCLiente, $idTemporal, $idTienda, $idUsuario, $estado){
-		//@Objetivo: Modificar los datos de la tabla temporal
-		$db = $this->db;
-		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estado.'" WHERE id='.$idTemporal);		
+	//~ public function ModClienteTemp($idCLiente, $idTemporal, $idTienda, $idUsuario, $estado){
+		//~ //@Objetivo: Modificar los datos de la tabla temporal
+		//~ $db = $this->db;
+		//~ $smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estado.'" WHERE id='.$idTemporal);		
 		
-	}
+	//~ }
 	public function ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos){
 		$UnicoCampoProductos=json_encode($productos);
 		$db = $this->db;
@@ -65,7 +65,7 @@ class PedidosVentas extends ClaseVentas{
 		
 	}
 
-	public function ModNumPedidoTtemporal($idTemporal, $idPedido){
+	public function ModIdReal($idTemporal, $idPedido){
 		//@Objetivo: Modificar el pedido temporal para insertar el id del pedido real
 		$db = $this->db;
 		$smt = $db->query ('UPDATE pedcliltemporales set idPedcli ='.$idPedido.' WHERE id='.$idTemporal);
@@ -81,16 +81,16 @@ class PedidosVentas extends ClaseVentas{
 	
 	}
 	
-	public function AddProducto($idTemporal, $productos, $total){
-		//@Objetivo: Añade al atabla temporal el listado de productos
-		$total=round($total, 2);
-		$UnicoCampoProductos=json_encode($productos);
-		$db = $this->db;
-		$PrepProductos=$db->real_escape_string($UnicoCampoProductos);
-		$smt = $db->query ('UPDATE pedcliltemporales set total='.$total.' ,  Productos ='."'".$PrepProductos ."'".' WHERE id='.$idTemporal);
-		$resultado="Correcto Add Id";
-		return $resultado;
-	}
+	//~ public function AddProducto($idTemporal, $productos, $total){
+		//~ //@Objetivo: Añade al atabla temporal el listado de productos
+		//~ $total=round($total, 2);
+		//~ $UnicoCampoProductos=json_encode($productos);
+		//~ $db = $this->db;
+		//~ $PrepProductos=$db->real_escape_string($UnicoCampoProductos);
+		//~ $smt = $db->query ('UPDATE pedcliltemporales set total='.$total.' ,  Productos ='."'".$PrepProductos ."'".' WHERE id='.$idTemporal);
+		//~ $resultado="Correcto Add Id";
+		//~ return $resultado;
+	//~ }
 	
 	public function TodosTemporal(){
 		//@Objetivo: Muestra los campos principales del temporal
@@ -228,16 +228,16 @@ class PedidosVentas extends ClaseVentas{
 		return $pedido;
 	}
 	
-	public function buscarNumPedido($idTemporal){
-		//@Objetivo:
-		//Busca el número de pedido de un pedido temporal
-		$db=$this->db;
-		$smt=$db->query('select  Numpedcli from pedclit where id='.$idTemporal);
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
-		return $pedido;
-	}
+	//~ public function buscarNumPedido($idTemporal){
+		//~ //@Objetivo:
+		//~ //Busca el número de pedido de un pedido temporal
+		//~ $db=$this->db;
+		//~ $smt=$db->query('select  Numpedcli from pedclit where id='.$idTemporal);
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $pedido=$result;
+		//~ }
+		//~ return $pedido;
+	//~ }
 	
 	public function buscarNumPedidoId($idTemporal){
 		//@Objetivo:
