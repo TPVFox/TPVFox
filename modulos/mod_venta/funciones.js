@@ -377,7 +377,7 @@ var parametros = {
 		"pulsado"    : 'insertarImporte',
 		"importe" : importe,
 		"fecha"      : fecha,
-		"idFactura": cabecera.idFactura
+		"idFactura": cabecera.idReal
 	};
 	
 	
@@ -1264,12 +1264,12 @@ function addFacturaTemp(){
 	console.log('FUNCION Añadir factura temporal JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'anhadirfacturaTemporal',
-		"idFacturaTemp":cabecera.idFacturaTemp,
+		"idFacturaTemp":cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
-		"estadoFactura":cabecera.estadoFactura,
-		"idFactura":cabecera.idFactura,
-		"numFactura":cabecera.numFactura,
+		"estadoFactura":cabecera.estado,
+		"idFactura":cabecera.idReal,
+	//	"numFactura":cabecera.numFactura,
 		"fecha":cabecera.fecha,
 		"productos":productos,
 		"albaranes":albaranes,
@@ -1293,7 +1293,7 @@ function addFacturaTemp(){
 			//~ console.log(resultado.id.id);
 			if (resultado.existe == 0){
 				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idFacturaTemp=resultado.id;
+				cabecera.idTemporal=resultado.id;
 				selectFormas();
 			}
 				
@@ -1337,9 +1337,9 @@ function addFacturaTemp(){
 				});
 				
 			}
-			if (cabecera.idFactura>0){
+			if (cabecera.idReal>0){
 				var estado="Sin guardar";
-				modificarEstadoFactura(cabecera.idFactura, estado);
+				modificarEstadoFactura(cabecera.idReal, estado);
 			}
 			
 		}
@@ -1665,7 +1665,7 @@ function selectFormas(){
 		"pulsado"    : 'ModificarFormasVencimiento',
 		"opcion" : option,
 		"fechaVenci": fecha,
-		"idFacTem":cabecera.idFacturaTemp
+		"idFacTem":cabecera.idTemporal
 	};
 		$.ajax({
 		data       : parametros,

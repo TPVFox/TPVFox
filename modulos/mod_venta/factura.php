@@ -67,9 +67,7 @@ include './../../head.php';
 			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificaralbaran), true);
 		}
-		//~ echo '<pre>';
-		//~ print_r($albaranes);
-		//~ echo '</pre>';
+		
 		$total=$Datostotales['total'];
 		//Si esta en estado guardado o pagado parcial se puede modificar los importes si no no
 		if ($estado="Guardado" || $estado="Pagado parcial"){
@@ -239,9 +237,7 @@ include './../../head.php';
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
-			//~ echo '<pre>';
-			//~ print_r( $addNuevo);
-			//~ echo '</pre>';
+			
 	header('Location: facturasListado.php');
 			
 		}
@@ -299,13 +295,13 @@ include './../../head.php';
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estadoFactura'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
-		cabecera['idFacturaTemp'] = <?php echo $idFacturaTemporal ;?>;
-		cabecera['idFactura'] = <?php echo $idFactura ;?>;
-		cabecera['numFactura'] = <?php echo $numFactura ;?>;
+		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['idTemporal'] = <?php echo $idFacturaTemporal ;?>;
+		cabecera['idReal'] = <?php echo $idFactura ;?>;
+	//	cabecera['numFactura'] = <?php echo $numFactura ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idCliente'] = <?php echo $idCliente ;?>;
-		cabecera['nombreCliente'] = <?php echo $nombreCliente ;?>;
+		//cabecera['nombreCliente'] = <?php echo $nombreCliente ;?>;
 		
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
