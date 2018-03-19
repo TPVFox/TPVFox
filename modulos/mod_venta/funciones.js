@@ -886,6 +886,7 @@ function addTemporal(dedonde){
 	if (dedonde=="factura"){
 		parametros['albaranes']=albaranes;
 	}
+	console.log(productos);
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',

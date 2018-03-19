@@ -360,16 +360,15 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
 		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
-		 $cant=number_format($producto['ncant'],0);
+		 $cant=number_format($producto['nunidades'],0);
 		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
-		 $importe = $producto['precioCiva']*$producto['ncant'];
+		 $importe = $producto['precioCiva']*$producto['nunidades'];
 		 $importe = number_format($importe,2);
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;
 		 $respuesta['html'] .='</tr>';
-		// $respuesta['productos']=$producto;
 	 return $respuesta['html'];
 }
 
