@@ -191,7 +191,50 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
-
+		case 'anhadirPedidoTemp':
+		$idTemporal=$_POST['idTemporal'];
+		$idUsuario=$_POST['idUsuario'];
+		$idTienda=$_POST['idTienda'];
+		$estado=$_POST['estado'];
+		$fecha=$_POST['fecha'];
+		$idReal=$_POST['idReal'];
+		$idCliente=$_POST['idCliente'];
+		$productos=$_POST['productos'];
+		$existe=0;
+		if ($idTemporal>0){
+			$res=$CcliPed->ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos);
+			
+		}else{
+			$res=$CcliPed->addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos);
+			$idTemporal=$res['id'];
+			$respuesta['sql']=$res['sql'];
+		}
+		if ($productos){
+				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				$respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$total=round($CalculoTotales['total'],2);
+				$respuesta['total']=$total;
+				$nuevoArray = array(
+							'desglose'=> $CalculoTotales['desglose'],
+							'total' => $CalculoTotales['total']
+								);
+				$respuesta['totales']=$nuevoArray;
+				$totalivas=0;
+				foreach($nuevoArray['desglose'] as $nuevo){
+					$totalivas=$totalivas+$nuevo['iva'];
+				}
+			
+				$modTotal=$CcliPed->modTotales($idTemporal, $total, $totalivas);
+				$respuesta['total']=$total;
+			}
+			$respuesta['id']=$idTemporal;
+			$respuesta['existe']=$existe;
+			$respuesta['productos']=$_POST['productos'];
+		echo json_encode($respuesta);
+		break;
+		
+		
 		case 'anhadirAlbaranTemporal':
 		//@Objetivo:
 		//añadir albarán temporal, hace las comprobaciones necesarias.

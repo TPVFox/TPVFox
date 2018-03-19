@@ -521,7 +521,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							productos.push(datos);
 						
 						if (dedonde=="pedidos"){
-							
+							addTemporal(dedonde);
 						}
 						if (dedonde=="factura"){
 							addFacturaTemp();

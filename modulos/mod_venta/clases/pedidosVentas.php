@@ -42,11 +42,24 @@ class PedidosVentas extends ClaseVentas{
 		$respuesta['id']=$id;
 		return $respuesta;
 	}
+	public function addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos){
+		$db = $this->db;
+		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli, Productos ) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', '."'".$productos."'".')');
+		$id=$db->insert_id;
+		$respuesta['sql']='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario, estadoPedCli, idPedcli, Productos ) VALUES ('.$idCliente.', '.$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', '."'".$productos."'".')';
+		$respuesta['id']=$id;
+		return $respuesta;
+	}
 	
 	public function ModClienteTemp($idCLiente, $idTemporal, $idTienda, $idUsuario, $estado){
 		//@Objetivo: Modificar los datos de la tabla temporal
 		$db = $this->db;
 		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCLiente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estado.'" WHERE id='.$idTemporal);		
+		
+	}
+	public function ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos){
+		$db = $this->db;
+		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCliente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estado.'", idPedcli ='.$idReal.', productos='."'".$Productos ."'".' WHERE id='.$idTemporal);		
 		
 	}
 
@@ -279,6 +292,12 @@ class PedidosVentas extends ClaseVentas{
 			$pedidos['ped']=1;
 		}
 		return $pedidos;
+	}
+	public function modTotales($res, $total, $totalivas){
+		//@Objetivo:
+		//Modificar el total de un albarán temporal
+		$db=$this->db;
+		$smt=$db->query('UPDATE pedcliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
 	}
 }
 
