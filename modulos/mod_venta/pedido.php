@@ -316,9 +316,14 @@ if ($idCliente===0){
 		</thead>
 		<tbody>
 			<?php 
+		
 			if (isset($productos)){
 			foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedido($producto, $producto['nfila'], $CONF_campoPeso, $disabled, $style);
+					
+				$html=htmlLineaPedidoAlbaran($producto,"pedidos");
+			
+		//	print_r($html['html']);
+			
 				echo $html;
 			}
 			}

@@ -59,7 +59,7 @@ class PedidosVentas extends ClaseVentas{
 	}
 	public function ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos){
 		$db = $this->db;
-		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCliente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estado.'", idPedcli ='.$idReal.', productos='."'".$Productos ."'".' WHERE id='.$idTemporal);		
+		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCliente.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'.$estado.'", idPedcli ='.$idReal.', productos='."'".$productos ."'".' WHERE id='.$idTemporal);		
 		
 	}
 

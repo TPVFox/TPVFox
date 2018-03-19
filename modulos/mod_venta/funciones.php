@@ -314,7 +314,7 @@ function htmlLineaPedido($producto,$num_item,$CONF_campoPeso, $disable, $style){
 	}
 	
 	// Si estado es eliminado tenemos añadir class y disabled input
-	if ($product->estado !=='Activo'){
+	if ($product->estadoLinea !=='Activo'){
 		$classtr = ' class="tachado" ';
 		$estadoInput = 'disabled';
 			$funcOnclick = ' retornarFila('.$num_item.');';
@@ -339,79 +339,117 @@ function htmlLineaPedido($producto,$num_item,$CONF_campoPeso, $disable, $style){
 	$nuevaFila .='</tr>';
 	return $nuevaFila;
 }
+//~ function recalculoTotales($productos) {
+	//~ // @ Objetivo recalcular los totales y desglose del ticket
+	//~ // @ Parametro:
+	//~ // 	$productos (array) de objetos.
+	//~ $respuesta = array();
+	//~ $desglose = array();
+	//~ $ivas = array();
+	//~ $subtotal = 0;
+	//~ $productosTipo=gettype($productos);
+	//~ $respuesta['tipo']=$productosTipo;
+	//~ // Creamos array de tipos de ivas hay en productos.
+	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
+	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
+	//~ foreach ($productos as $product){
+		//~ // Si la linea esta eliminada, no se pone.
+		//~ if ($product->estado === 'Activo'){
+			//~ $totalLinea = $product->cant * $product->pvpCiva;
+			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
+			//~ $subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
+			//~ // Ahora calculmos bases por ivas
+			//~ $desglose[$product->iva]['BaseYiva'] = (!isset($desglose[$product->iva]['BaseYiva']) ? $totalLinea : $desglose[$product->iva]['BaseYiva']+$totalLinea);
+			//~ // Ahora calculamos base y iva 
+			//~ $operador = (100 + $product->iva) / 100;
+			//~ $desglose[$product->iva]['base'] = number_format(($desglose[$product->iva]['BaseYiva']/$operador),2);
+			//~ $desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['BaseYiva']-$desglose[$product->iva]['base'],2);
+			//~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
+		//~ }
+	
+	//~ }
+	
+	//~ $respuesta['ivas'] = $ivas;
+	//~ $respuesta['desglose'] = $desglose;
+	//~ $respuesta['total'] = number_format($subtotal,2);
+	//~ return $respuesta;
+//~ }
+
+//~ function recalculoTotalesAl($productos) {
+	// @ Objetivo recalcular los totales y desglose del ticket
+	// @ Parametro:
+	// 	$productos (array) de objetos.
+	//~ $respuesta = array();
+	//~ $desglose = array();
+	//~ $ivas = array();
+	//~ $subtotal = 0;
+	//~ $productosTipo=gettype($productos);
+	//~ $respuesta['tipo']=$productosTipo;
+	// Creamos array de tipos de ivas hay en productos.
+	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
+	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
+	//~ foreach ($productos as $product){
+		// Si la linea esta eliminada, no se pone.
+		//~ if ($product->estadoLinea === 'Activo'){
+			//~ $totalLinea = $product->ncant * $product->precioCiva;
+			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
+			//~ $subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
+			//~ // Ahora calculmos bases por ivas
+			//~ $desglose[$product->iva]['BaseYiva'] = (!isset($desglose[$product->iva]['BaseYiva']) ? $totalLinea : $desglose[$product->iva]['BaseYiva']+$totalLinea);
+			//~ // Ahora calculamos base y iva 
+			//~ $operador = (100 + $product->iva) / 100;
+			//~ $desglose[$product->iva]['base'] = number_format(($desglose[$product->iva]['BaseYiva']/$operador),2);
+			//~ $desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['BaseYiva']-$desglose[$product->iva]['base'],2);
+			//~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
+		//~ }
+	
+	//~ }
+	
+	//~ $respuesta['ivas'] = $ivas;
+	//~ $respuesta['desglose'] = $desglose;
+	//~ $respuesta['total'] = number_format($subtotal,2);
+	//~ return $respuesta;
+//~ }
+
 function recalculoTotales($productos) {
 	// @ Objetivo recalcular los totales y desglose del ticket
 	// @ Parametro:
 	// 	$productos (array) de objetos.
 	$respuesta = array();
 	$desglose = array();
-	$ivas = array();
+	$subivas = 0;
 	$subtotal = 0;
-	//~ $productosTipo=gettype($productos);
-	//~ $respuesta['tipo']=$productosTipo;
-	// Creamos array de tipos de ivas hay en productos.
-	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
-	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
-	foreach ($productos as $product){
-		// Si la linea esta eliminada, no se pone.
-		if ($product->estado === 'Activo'){
-			$totalLinea = $product->cant * $product->pvpCiva;
-			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
-			$subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
-			// Ahora calculmos bases por ivas
-			$desglose[$product->iva]['BaseYiva'] = (!isset($desglose[$product->iva]['BaseYiva']) ? $totalLinea : $desglose[$product->iva]['BaseYiva']+$totalLinea);
-			// Ahora calculamos base y iva 
-			$operador = (100 + $product->iva) / 100;
-			$desglose[$product->iva]['base'] = number_format(($desglose[$product->iva]['BaseYiva']/$operador),2);
-			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['BaseYiva']-$desglose[$product->iva]['base'],2);
-			//~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
-		}
 	
-	}
-	
-	//~ $respuesta['ivas'] = $ivas;
-	$respuesta['desglose'] = $desglose;
-	$respuesta['total'] = number_format($subtotal,2);
-	return $respuesta;
-}
-
-function recalculoTotalesAl($productos) {
-	// @ Objetivo recalcular los totales y desglose del ticket
-	// @ Parametro:
-	// 	$productos (array) de objetos.
-	$respuesta = array();
-	$desglose = array();
-	$ivas = array();
-	$subtotal = 0;
-	//~ $productosTipo=gettype($productos);
-	//~ $respuesta['tipo']=$productosTipo;
-	// Creamos array de tipos de ivas hay en productos.
-	//~ $ivas = array_unique(array_column($productos,'ctipoiva'));
-	//~ sort($ivas); // Ordenamos el array obtenido, ya que los indices seguramente no son correlativos.
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estadoLinea === 'Activo'){
-			$totalLinea = $product->ncant * $product->precioCiva;
-			//~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
-			$subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
+			//error_log(json_encode($product));
+			$bandera=$product->iva/100;
 			// Ahora calculmos bases por ivas
-			$desglose[$product->iva]['BaseYiva'] = (!isset($desglose[$product->iva]['BaseYiva']) ? $totalLinea : $desglose[$product->iva]['BaseYiva']+$totalLinea);
 			// Ahora calculamos base y iva 
-			$operador = (100 + $product->iva) / 100;
-			$desglose[$product->iva]['base'] = number_format(($desglose[$product->iva]['BaseYiva']/$operador),2);
-			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['BaseYiva']-$desglose[$product->iva]['base'],2);
-			//~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
+			if (isset($desglose[$product->iva])){
+			$desglose[$product->iva]['base'] = $desglose[$product->iva]['base'] + number_format(($product->importe),2);
+			$desglose[$product->iva]['iva'] = $desglose[$product->iva]['iva']+ number_format($product->importe * $bandera,2);
+			}else{
+			$desglose[$product->iva]['base'] = number_format($product->importe,2);
+			$desglose[$product->iva]['iva'] = number_format($product->importe*$bandera,2);
+			}
+			$desglose[$product->iva]['BaseYiva'] =$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'];
+			
 		}
+		
 	
 	}
+	foreach($desglose as $tipoIva=>$des){
+		$subivas= $subivas+$desglose[$tipoIva]['iva'];
+		$subtotal= $subtotal +$desglose[$tipoIva]['BaseYiva'];
+	}
 	
-	//~ $respuesta['ivas'] = $ivas;
 	$respuesta['desglose'] = $desglose;
+	$respuesta['subivas']=$subivas;
 	$respuesta['total'] = number_format($subtotal,2);
 	return $respuesta;
 }
-
-
 
 
 function modificarArrayProductos($productos){
@@ -436,13 +474,14 @@ function modificarArrayProductos($productos){
 
 function htmlLineaPedidoAlbaran($productos, $dedonde){
 	
-	if(!is_array($productos)) {
-		// Comprobamos si product no es objeto lo convertimos.
-		$producto = (array)$productos;
+	//~ if(!is_array($productos)) {
+		//~ // Comprobamos si product no es objeto lo convertimos.
+		//~ $producto = (array)$productos;
 		
-	} else {
-		$producto = $productos;
-	}
+	//~ } else {
+		//~ $producto = $productos;
+	//~ }
+	$producto=$productos;
 	$respuesta=array('html'=>'');
 	
 		 	if ($producto['estadoLinea'] !=='Activo'){
@@ -483,7 +522,9 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
-		 $respuesta['html'] .='<td>'.$numeroPed.'</td>';
+		 if ($dedonde<>"pedidos"){
+				$respuesta['html'] .='<td>'.$numeroPed.'</td>';
+		}
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
 		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
@@ -497,8 +538,8 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;
 		 $respuesta['html'] .='</tr>';
-		 $respuesta['productos']=$producto;
-	 return $respuesta;
+		// $respuesta['productos']=$producto;
+	 return $respuesta['html'];
 }
 
 
@@ -1007,5 +1048,17 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 	$imprimir['html'] .=(isset($Datostotales['total']) ? $Datostotales['total'] : '');
 	$imprimir['html'] .='</p>';
 		return $imprimir;
+}
+function htmlTotales($Datostotales){
+	$htmlIvas['html'] = '';
+		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
+			$key = intval($key);
+			$htmlIvas['html'].='<tr id="line'.$key.'">';
+			$htmlIvas['html'].='<td id="tipo'.$key.'"> '.$key.'%</td>';
+			$htmlIvas['html'].='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
+			$htmlIvas['html'].='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
+			$htmlIvas['html'].='</tr>';
+		}
+	return $htmlIvas;
 }
 ?>

@@ -1376,47 +1376,12 @@ function addTemporal(dedonde){
 				history.pushState(null,'','?tActual='+resultado.id);
 				cabecera.idTemporal=resultado.id;
 			}
-				
-			$('#tipo4').html('');
-			$('#tipo10').html('');
-			$('#tipo21').html('');
-			$('#base4').html('');
-			$('#base10').html('');
-			$('#base21').html('');
-			$('#iva4').html('');
-			$('#iva10').html('');
-			$('#iva21').html('');
-			$('.totalImporte').html('');
+			resetearTotales();
 			
-			// Ahora pintamos pie de albarán.
-			if (resultado['totales']['total'] > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				total = parseFloat(resultado['totales']['total']) // varible global.
-				$('.totalImporte').html(total.toFixed(2));
-				// Ahora tengo que pintar los ivas.
-				var desgloseIvas = [];
-				
-				console.log("estoy aqui");
-				console.log(resultado['totales']['desglose']);
-				
-				desgloseIvas.push(resultado['totales']['desglose']);
-				console.log(desgloseIvas);
-				// Ahora recorremos array desglose
-				desgloseIvas.forEach(function(desglose){
-					console.log('Entro foreah');
-					// mostramos los tipos ivas , bases y importes.
-					var tipos = Object.keys(desglose);
-					console.log(desglose);
-					for (index in tipos){
-						var tipo = tipos[index];
-						$('#line'+parseInt(tipo)).css('display','');
-						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
-					}
-				});
-				
-			}
+			total = parseFloat(resultado['totales']['total'])
+			$('.totalImporte').html(total.toFixed(2));
+			$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
+			
 		}
 	});
 	
@@ -1848,4 +1813,18 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 		modificarEstadoAlbaran(albaranes[num].idAlbaran, "Facturado");
 		addFacturaTemp();
 	}
+}
+function resetearTotales(){
+	// Funcion para resetear totales.
+	$('#tipo4').html('');
+	$('#tipo10').html('');
+	$('#tipo21').html('');
+	$('#base4').html('');
+	$('#base10').html('');
+	$('#base21').html('');
+	$('#iva4').html('');
+	$('#iva10').html('');
+	$('#iva21').html('');
+	$('.totalImporte').html('');
+	
 }

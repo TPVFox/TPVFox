@@ -210,23 +210,16 @@ switch ($pulsado) {
 			$respuesta['sql']=$res['sql'];
 		}
 		if ($productos){
-				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				$productos_para_recalculo = json_decode( json_encode( $productos ));
 				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$CalculoTotales = recalculoTotales($productos_para_recalculo);
 				$total=round($CalculoTotales['total'],2);
-				$respuesta['total']=$total;
-				$nuevoArray = array(
-							'desglose'=> $CalculoTotales['desglose'],
-							'total' => $CalculoTotales['total']
-								);
-				$respuesta['totales']=$nuevoArray;
-				$totalivas=0;
-				foreach($nuevoArray['desglose'] as $nuevo){
-					$totalivas=$totalivas+$nuevo['iva'];
-				}
-			
+				$respuesta['total']=round($CalculoTotales['total'],2);
+				$respuesta['totales']=$CalculoTotales;
 				$modTotal=$CcliPed->modTotales($idTemporal, $total, $totalivas);
-				$respuesta['total']=$total;
+				//$respuesta['sqlmodtotal']=$modTotal['sql'];
+				$htmlTotales=htmlTotales($CalculoTotales);
+				$respuesta['htmlTabla']=$htmlTotales['html'];
 			}
 			$respuesta['id']=$idTemporal;
 			$respuesta['existe']=$existe;
