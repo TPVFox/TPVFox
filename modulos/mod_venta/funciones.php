@@ -283,25 +283,26 @@ function recalculoTotales($productos) {
 }
 
 
-//~ function modificarArrayProductos($productos){
-	//~ $respuesta=array();
-	//~ foreach ($productos as $producto){
-		//~ $product['idArticulo']=$producto['idArticulo'];
-		//~ $product['crefTienda']=$producto['cref'];
-		//~ $product['articulo_name']=$producto['cdetalle'];
-		//~ $product['pvpCiva']=$producto['precioCiva'];
-		//~ $product['iva']=$producto['iva'];
-		//~ $product['codBarras']=$producto['ccodbar'];
-		//~ $product['nfila']=$producto['nfila'];
-		//~ $product['estado']=$producto['estadoLinea'];
-		//~ $product['cant']=number_format($producto['ncant'],0);
-		//~ $product['importe']=$producto['precioCiva'];
-		//~ $product['unidad']=$producto['nunidades'];
-		//~ array_push($respuesta,$product);
+function modificarArrayProductos($productos){
+	$respuesta=array();
+	foreach ($productos as $producto){
+		$product['idArticulo']=$producto['idArticulo'];
+		$product['cref']=$producto['cref'];
+		$product['cdetalle']=$producto['cdetalle'];
+		$product['precioCiva']=$producto['precioCiva'];
+		$product['iva']=$producto['iva'];
+		$product['ccodbar']=$producto['ccodbar'];
+		$product['nfila']=$producto['nfila'];
+		$product['estadoLinea']=$producto['estadoLinea'];
+		$product['ncant']=number_format($producto['ncant'],0);
+		$product['nunidades']=$producto['nunidades'];
 		
-	//~ }
-	//~ return $respuesta;
-//~ }
+		$product['importe']=$producto['precioCiva']*$producto['nunidades'];
+		array_push($respuesta,$product);
+		
+	}
+	return $respuesta;
+}
 
 function htmlLineaPedidoAlbaran($productos, $dedonde){
 	

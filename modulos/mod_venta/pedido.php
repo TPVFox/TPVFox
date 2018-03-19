@@ -37,10 +37,10 @@ if ($_GET){
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
 		}
-		//$productosMod=modificarArrayProductos($productosPedido);//MOdificar el array de productos según lo que necesitamos
-		$productos=json_decode(json_encode($productosPedido));
+		$productosMod=modificarArrayProductos($productosPedido);//MOdificar el array de productos según lo que necesitamos
+		$productos=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productosPedido), true);
+		$productos=json_decode(json_encode($productos), true);
 		
 		
 		$total=$Datostotales['total'];
