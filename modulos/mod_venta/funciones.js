@@ -1338,7 +1338,7 @@ function addTemporal(dedonde){
 			var pulsado='anhadirfacturaTemporal';
 		}
 		var parametros = {
-		"pulsado"    : 'anhadirPedidoTemp',
+		"pulsado"    : pulsado,
 		"idTemporal":cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,

@@ -240,6 +240,7 @@ switch ($pulsado) {
 			$pedidos=$_POST['pedidos'];
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
+			$idReal=$_POST['idReal'];
 			$existe=0;
 			//Si el número del albarán real existe lo guardamos
 			if ($numAlbaran>0){
@@ -261,30 +262,22 @@ switch ($pulsado) {
 				$res=$rest['id'];
 				$idAlbaranTemp=$res;
 			}
-			$respuesta['numalbaran']=$numAlbaran;
-			if ($numAlbaran>0){
-				$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $numAlbaran);
+			//$respuesta['numalbaran']=$numAlbaran;
+			if ($idReal>0){
+				$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $idReal);
 				$respuesta['sqlmodnum']=$modId;
 			}
 			//recalcula los totales de los productos y modifica el total en albarán temporal
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotalesAl($productos_para_recalculo);
+				$CalculoTotales = recalculoTotales($productos_para_recalculo);
 				$total=round($CalculoTotales['total'],2);
-				$respuesta['total']=$total;
-				$nuevoArray = array(
-							'desglose'=> $CalculoTotales['desglose'],
-							'total' => $CalculoTotales['total']
-								);
-				$respuesta['totales']=$nuevoArray;
-				$totalivas=0;
-				foreach($nuevoArray['desglose'] as $nuevo){
-					$totalivas=$totalivas+$nuevo['iva'];
-				}
-			
-				$modTotal=$CalbAl->modTotales($res, $total, $totalivas);
-				$respuesta['total']=$total;
+				$respuesta['total']=round($CalculoTotales['total'],2);
+				$respuesta['totales']=$CalculoTotales;
+				$modTotal=$CalbAl->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
+				$htmlTotales=htmlTotales($CalculoTotales);
+				$respuesta['htmlTabla']=$htmlTotales['html'];
 			}
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
