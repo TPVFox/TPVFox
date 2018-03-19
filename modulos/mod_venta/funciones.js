@@ -254,8 +254,8 @@ function controladorAcciones(caja,accion, tecla){
 			// recuerda que lo productos empizan 0 y las filas 1
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
-			productos[nfila].unidad = caja.darValor();
-			recalculoImporte(productos[nfila].unidad,nfila, caja.darParametro('dedonde'));
+			productos[nfila].nunidades = caja.darValor();
+			recalculoImporte(productos[nfila].nunidades,nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
 				var d_focus = 'idArticulo';
 				ponerFocus(d_focus);
@@ -768,11 +768,12 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		} else if (cantidad == 0 ) {
 			eliminarFila(num_item+1, dedonde);
 		}
-		productos[num_item].ncant = cantidad;
+		productos[num_item].nunidades = cantidad;
 		
 		var importe = cantidad*productos[num_item].precioCiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
+		productos[num_item].importe= importe;
 		$(id).html(importe);
 		
 		addTemporal(dedonde);
