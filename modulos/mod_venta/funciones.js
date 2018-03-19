@@ -621,23 +621,24 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	}
 	if (dedonde=="albaran"){
 		datos.Numpedcli=0;
+		datos.idpedcli=0;
 	}
 	datos.ccodbar=ccodebar;
 	datos.cdetalle=cdetalle;
 	datos.cref=cref;
 	datos.estadoLinea="Activo";
-	 datos.iva=ctipoIva;
-	 datos.idArticulo=id;
-	 datos.ncant=1;
-	 datos.nfila=productos.length+1;
-	 datos.importe=npconiva.toFixed(2);
-	 var pvpCiva= parseFloat(npconiva);
+	datos.iva=ctipoIva;
+	datos.idArticulo=id;
+	datos.ncant=1;
+	datos.nfila=productos.length+1;
+	datos.importe=npconiva.toFixed(2);
+	var pvpCiva= parseFloat(npconiva);
 	datos.precioCiva=pvpCiva.toFixed(2);
 	productos.push(datos);
-	 addTemporal(dedonde);
-	 AgregarFilaProductosAl(datos, dedonde);
-	 resetCampo(campo);
-	 cerrarPopUp(campo);	
+	addTemporal(dedonde);
+	AgregarFilaProductosAl(datos, dedonde);
+	resetCampo(campo);
+	cerrarPopUp(campo);	
 }
 function eliminarFila(num_item, valor=""){
 	//Función para cambiar el estado del producto

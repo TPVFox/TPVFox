@@ -37,10 +37,10 @@ if ($_GET){
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
 		}
-		$productosMod=modificarArrayProductos($productosPedido);//MOdificar el array de productos según lo que necesitamos
-		$productos=json_decode(json_encode($productosMod));
+		//$productosMod=modificarArrayProductos($productosPedido);//MOdificar el array de productos según lo que necesitamos
+		$productos=json_decode(json_encode($productosPedido));
 		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productosMod), true);
+		$productos=json_decode(json_encode($productosPedido), true);
 		
 		
 		$total=$Datostotales['total'];
@@ -318,7 +318,9 @@ if ($idCliente===0){
 		
 			if (isset($productos)){
 			foreach (array_reverse($productos) as $producto){
-					
+					//~ echo '<pre>';
+					//~ print_r($producto);
+					//~ echo '</pre>';
 				$html=htmlLineaPedidoAlbaran($producto,"pedidos");
 			
 				echo $html;

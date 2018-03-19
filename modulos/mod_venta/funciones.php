@@ -283,25 +283,25 @@ function recalculoTotales($productos) {
 }
 
 
-function modificarArrayProductos($productos){
-	$respuesta=array();
-	foreach ($productos as $producto){
-		$product['idArticulo']=$producto['idArticulo'];
-		$product['crefTienda']=$producto['cref'];
-		$product['articulo_name']=$producto['cdetalle'];
-		$product['pvpCiva']=$producto['precioCiva'];
-		$product['iva']=$producto['iva'];
-		$product['codBarras']=$producto['ccodbar'];
-		$product['nfila']=$producto['nfila'];
-		$product['estado']=$producto['estadoLinea'];
-		$product['cant']=number_format($producto['ncant'],0);
-		$product['importe']=$producto['precioCiva'];
-		$product['unidad']=$producto['nunidades'];
-		array_push($respuesta,$product);
+//~ function modificarArrayProductos($productos){
+	//~ $respuesta=array();
+	//~ foreach ($productos as $producto){
+		//~ $product['idArticulo']=$producto['idArticulo'];
+		//~ $product['crefTienda']=$producto['cref'];
+		//~ $product['articulo_name']=$producto['cdetalle'];
+		//~ $product['pvpCiva']=$producto['precioCiva'];
+		//~ $product['iva']=$producto['iva'];
+		//~ $product['codBarras']=$producto['ccodbar'];
+		//~ $product['nfila']=$producto['nfila'];
+		//~ $product['estado']=$producto['estadoLinea'];
+		//~ $product['cant']=number_format($producto['ncant'],0);
+		//~ $product['importe']=$producto['precioCiva'];
+		//~ $product['unidad']=$producto['nunidades'];
+		//~ array_push($respuesta,$product);
 		
-	}
-	return $respuesta;
-}
+	//~ }
+	//~ return $respuesta;
+//~ }
 
 function htmlLineaPedidoAlbaran($productos, $dedonde){
 	
@@ -674,8 +674,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$numero=$datos['Numpedcli'];
 		$fecha=$datos['FechaPedido'];
 		$productos=$Cpedido->ProductosPedidos($id);
-		$productosMod=modificarArrayProductos($productos);
-		$productos1=json_decode(json_encode($productosMod));
+		//$productosMod=modificarArrayProductos($productos);
+		$productos1=json_decode(json_encode($productos));
 		$Datostotales = recalculoTotales($productos1);
 	}
 	if ($dedonde =='albaran'){
