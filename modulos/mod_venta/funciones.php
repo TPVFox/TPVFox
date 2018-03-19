@@ -203,44 +203,6 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	
 	
 }
-function htmlLineaPedido($producto,$num_item,$CONF_campoPeso, $disable, $style){
-	$classtr = '' ; // para clase en tr
-	$estadoInput = '' ; // estado input cantidad.
-	
-	if(!is_object($producto)) {
-		// Comprobamos si product no es objeto lo convertimos.
-		$product = (object)$producto;
-		
-	} else {
-		$product = $producto;
-	}
-	
-	// Si estado es eliminado tenemos añadir class y disabled input
-	if ($product->estadoLinea !=='Activo'){
-		$classtr = ' class="tachado" ';
-		$estadoInput = 'disabled';
-			$funcOnclick = ' retornarFila('.$num_item.');';
-		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export" style='.$style.'></span></a></td>';
-	} else {
-			$funcOnclick = ' eliminarFila('.$num_item.');';
-		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash" style='.$style.'></span></a></td>';
-	}
-	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';
-	$nuevaFila .= '<td class="linea">'.$product->nfila.'</td>';
-	$nuevaFila .= '<td class="idArticulo">'.$product->idArticulo.'</td>';
-	$nuevaFila .= '<td class="referencia">'.$product->crefTienda.'</td>';
-	$nuevaFila .= '<td class="codbarras">'.$product->codBarras.'</td>';
-	$nuevaFila .= '<td class="detalle">'.$product->articulo_name.'</td>';
-	$nuevaFila .= '<td><input id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->cant.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)" '.$disable.'></td>';
-	$nuevaFila .= '<td class="pvp">'.$product->pvpCiva.'</td>';
-	$nuevaFila .= '<td class="tipoiva">'.$product->iva.'%</td>';
-	$importe = $product->pvpCiva*$product->cant;
-	$importe = number_format($importe,2);
-	$nuevaFila .= '<td id="N'.$product->nfila.'_Importe" class="importe" >'.$importe.'</td>'; //importe 
-	$nuevaFila .= $btnELiminar_Retornar;
-	$nuevaFila .='</tr>';
-	return $nuevaFila;
-}
 
 function recalculoTotales($productos) {
 	// @ Objetivo recalcular los totales y desglose del ticket
