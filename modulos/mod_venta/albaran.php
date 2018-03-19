@@ -212,13 +212,13 @@ include './../../head.php';
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estadoAlbaran'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
-		cabecera['idAlbaranTemp'] = <?php echo $idAlbaranTemporal ;?>;
-		cabecera['idAlbaran'] = <?php echo $idAlbaran ;?>;
-		cabecera['numAlbaran'] = <?php echo $numAlbaran ;?>;
+		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
+		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
+	//	cabecera['numAlbaran'] = <?php echo $numAlbaran ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idCliente'] = <?php echo $idCliente ;?>;
-		cabecera['nombreCliente'] = <?php echo $nombreCliente ;?>;
+	//	cabecera['nombreCliente'] = <?php echo $nombreCliente ;?>;
 		
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array

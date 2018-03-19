@@ -109,7 +109,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			
 			if (resultado.Nitems==1){
 				cabecera.idCliente=resultado.id;
-				cabecera.nombreCliente=resultado.nombre;
+				//cabecera.nombreCliente=resultado.nombre;
 				$('#Cliente').val(resultado.nombre);
 				$('#Cliente').prop('disabled', true);
 				$('#id_cliente').prop('disabled', true);
@@ -557,68 +557,68 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 }
 }
 //Añadir un producto y modificar el importe del total e iva
-function addProductoTemp(){
-	console.log('Entro en añadir productos');
-	var parametros = {
-		"pulsado"    : 'anhadirProductos',
-		"idTemporal":cabecera.idTemporal,
-		"productos":productos
-	};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  Envio datos para Añadir productos  ****************');
-		},
-		success    :  function (response) {
-		var resultado =  $.parseJSON(response);
-			$('#tipo4').html('');
-			$('#tipo10').html('');
-			$('#tipo21').html('');
-			$('#base4').html('');
-			$('#base10').html('');
-			$('#base21').html('');
-			$('#iva4').html('');
-			$('#iva10').html('');
-			$('#iva21').html('');
-			$('.totalImporte').html('');
+//~ function addProductoTemp(){
+	//~ console.log('Entro en añadir productos');
+	//~ var parametros = {
+		//~ "pulsado"    : 'anhadirProductos',
+		//~ "idTemporal":cabecera.idTemporal,
+		//~ "productos":productos
+	//~ };
+	//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : 'tareas.php',
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+			//~ console.log('*********  Envio datos para Añadir productos  ****************');
+		//~ },
+		//~ success    :  function (response) {
+		//~ var resultado =  $.parseJSON(response);
+			//~ $('#tipo4').html('');
+			//~ $('#tipo10').html('');
+			//~ $('#tipo21').html('');
+			//~ $('#base4').html('');
+			//~ $('#base10').html('');
+			//~ $('#base21').html('');
+			//~ $('#iva4').html('');
+			//~ $('#iva10').html('');
+			//~ $('#iva21').html('');
+			//~ $('.totalImporte').html('');
 			
-			// Ahora pintamos pie de ticket.
-			if (resultado['totales']['total'] > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				total = parseFloat(resultado['totales']['total']) // varible global.
-				$('.totalImporte').html(total.toFixed(2));
-				// Ahora tengo que pintar los ivas.
-				var desgloseIvas = [];
+			//~ // Ahora pintamos pie de ticket.
+			//~ if (resultado['totales']['total'] > 0 ){
+				//~ // Quiere decir que hay datos a mostrar en pie.
+				//~ total = parseFloat(resultado['totales']['total']) // varible global.
+				//~ $('.totalImporte').html(total.toFixed(2));
+				//~ // Ahora tengo que pintar los ivas.
+				//~ var desgloseIvas = [];
 				
-				console.log("estoy aqui");
-				console.log(resultado['totales']['desglose']);
+				//~ console.log("estoy aqui");
+				//~ console.log(resultado['totales']['desglose']);
 				
-				desgloseIvas.push(resultado['totales']['desglose']);
-				console.log(desgloseIvas);
-				// Ahora recorremos array desglose
-				desgloseIvas.forEach(function(desglose){
-					console.log('Entro foreah');
-					// mostramos los tipos ivas , bases y importes.
-					var tipos = Object.keys(desglose);
-					console.log(desglose);
-					for (index in tipos){
-						var tipo = tipos[index];
-						$('#line'+parseInt(tipo)).css('display','');
-						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
-					}
-				});
+				//~ desgloseIvas.push(resultado['totales']['desglose']);
+				//~ console.log(desgloseIvas);
+				//~ // Ahora recorremos array desglose
+				//~ desgloseIvas.forEach(function(desglose){
+					//~ console.log('Entro foreah');
+					//~ // mostramos los tipos ivas , bases y importes.
+					//~ var tipos = Object.keys(desglose);
+					//~ console.log(desglose);
+					//~ for (index in tipos){
+						//~ var tipo = tipos[index];
+						//~ $('#line'+parseInt(tipo)).css('display','');
+						//~ $('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
+						//~ $('#base'+parseInt(tipo)).html(desglose[tipo].base); 
+						//~ $('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
+					//~ }
+				//~ });
 				
-			}
+			//~ }
 			
 			
-		}
+		//~ }
 
-	});
-}
+	//~ });
+//~ }
 //html que se muestra cuando añadimos un producto nuevo
 function agregarFilaProducto(num_item, campo){
 	console.log(num_item);
@@ -997,33 +997,33 @@ function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 }
-function AddTemp(id){
-	console.log("-------------- estoy en add temp -----------");
-	var parametros = {
-		"pulsado"    : 'escribirCliente',
-		"idcliente":id,
-		"numPedidoTemp":cabecera.idTemporal,
-		"idUsuario":cabecera.idUsuario,
-		"idTienda":cabecera.idTienda,
-		"estadoPedido":cabecera.estado,
-		"idPedido":cabecera.idReal
-	};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en añadir cliente JS****************');
-		},
-		success    :  function (response) {
-			var resultado =  $.parseJSON(response); 
-			var encontrados = resultado.encontrados;
-			var HtmlClientes=resultado.html; 
-			history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
-			cabecera.idTemporal=parseInt(resultado.numPedidoTemp);
-		}
-	});
-}
+//~ function AddTemp(id){
+	//~ console.log("-------------- estoy en add temp -----------");
+	//~ var parametros = {
+		//~ "pulsado"    : 'escribirCliente',
+		//~ "idcliente":id,
+		//~ "numPedidoTemp":cabecera.idTemporal,
+		//~ "idUsuario":cabecera.idUsuario,
+		//~ "idTienda":cabecera.idTienda,
+		//~ "estadoPedido":cabecera.estado,
+		//~ "idPedido":cabecera.idReal
+	//~ };
+	//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : 'tareas.php',
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+			//~ console.log('******** estoy en añadir cliente JS****************');
+		//~ },
+		//~ success    :  function (response) {
+			//~ var resultado =  $.parseJSON(response); 
+			//~ var encontrados = resultado.encontrados;
+			//~ var HtmlClientes=resultado.html; 
+			//~ history.pushState(null,'','?tActual='+resultado.numPedidoTemp);
+			//~ cabecera.idTemporal=parseInt(resultado.numPedidoTemp);
+		//~ }
+	//~ });
+//~ }
 
 function buscarPedido(dedonde, idcaja, valor=''){
 	//Buscar los pedidos de un cliente que tenga el estado guardado
@@ -1176,11 +1176,11 @@ function addAlbaranTemp(){
 	console.log(productos);
 	var parametros = {
 		"pulsado"    : 'anhadirAlbaranTemporal',
-		"idAlbaranTemp":cabecera.idAlbaranTemp,
+		"idAlbaranTemp":cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
-		"estadoAlbaran":cabecera.estadoAlbaran,
-		"idAlbaran":cabecera.idAlbaran,
+		"estadoAlbaran":cabecera.estado,
+		"idAlbaran":cabecera.idReal,
 		"numAlbaran":cabecera.numAlbaran,
 		"fecha":cabecera.fecha,
 		"productos":productos,
@@ -1205,7 +1205,7 @@ function addAlbaranTemp(){
 			console.log(resultado.id.id);
 			if (resultado.existe == 0){
 				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idAlbaranTemp=resultado.id;
+				cabecera.idTemporal=resultado.id;
 			}
 				
 			$('#tipo4').html('');
@@ -1248,10 +1248,10 @@ function addAlbaranTemp(){
 				});
 				
 			}
-			if (cabecera.idAlbaran>0){
+			if (cabecera.idReal>0){
 			console.log("entre en modificar albaran");
 				var estado="Sin guardar";
-				modificarEstadoAlbaran(cabecera.idAlbaran, estado);
+				modificarEstadoAlbaran(cabecera.idReal, estado);
 				
 			}
 			
@@ -1347,7 +1347,17 @@ function addFacturaTemp(){
 	});
 }
 function addTemporal(dedonde){
-	var parametros = {
+		console.log('FUNCION Añadir temporal JS-AJAX');
+		if (dedonde=="pedidos"){
+			var pulsado= 'anhadirPedidoTemp';
+		}
+		if (dedonde=="albaran"){
+			var pulsado='anhadirAlbaranTemporal';
+		}
+		if (dedonde=="factura"){
+			var pulsado='anhadirfacturaTemporal';
+		}
+		var parametros = {
 		"pulsado"    : 'anhadirPedidoTemp',
 		"idTemporal":cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
@@ -1358,6 +1368,12 @@ function addTemporal(dedonde){
 		"productos":productos,
 		"idCliente":cabecera.idCliente
 	};
+	if (dedonde=="albaran"){
+		parametros['pedidos']=pedidos;
+	}
+	if (dedonde=="factura"){
+		parametros['albaranes']=albaranes;
+	}
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',

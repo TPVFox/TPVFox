@@ -231,11 +231,11 @@ switch ($pulsado) {
 		case 'anhadirAlbaranTemporal':
 		//@Objetivo:
 		//añadir albarán temporal, hace las comprobaciones necesarias.
-			$idAlbaranTemp=$_POST['idAlbaranTemp'];
+			$idAlbaranTemp=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
-			$estadoAlbaran=$_POST['estadoAlbaran'];
-			$numAlbaran=$_POST['numAlbaran'];
+			$estadoAlbaran=$_POST['estado'];
+		//	$numAlbaran=$_POST['numAlbaran'];
 			$fecha=$_POST['fecha'];
 			$pedidos=$_POST['pedidos'];
 			$productos=$_POST['productos'];
@@ -467,12 +467,12 @@ switch ($pulsado) {
 					$bandera=1;
 				}else{
 				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
-				$respuesta['html'].=$res['html'];
+				$respuesta['html'].=$res;
 				}
 		 }
 		 if ($bandera==1){
 			 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
-				 $respuesta['html']=$res['html'];
+				 $respuesta['html']=$res;
 		 }
 		echo json_encode($respuesta);
 		break;
