@@ -723,25 +723,13 @@ function eliminarFila(num_item, valor=""){
 	console.log(num);
 	line = "#Row" + productos[num].nfila;
 	// Nueva Objeto de productos.
-	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
+
 		productos[num].estadoLinea='Eliminado';
-	}else{
-		productos[num].estado= 'Eliminado';
-	}
+	
 	$(line).addClass('tachado');
-	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
-		
-		console.log("estoy eliminar fila factura");
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
 	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
 		addTemporal(valor);
-		
-	}else{
-		$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+');"><span class="glyphicon glyphicon-export"></span></a>');
-	$("#N" +productos[num].nfila + "_Unidad").prop("disabled", true);
-
-		addProductoTemp();
-	}
 	
 }
 function retornarFila(num_item, valor=""){
@@ -752,12 +740,8 @@ function retornarFila(num_item, valor=""){
 	num=num_item-1;
 	line = "#Row" +productos[num].nfila;
 	// Nueva Objeto de productos.
-	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
-		productos[num].estadoLinea= 'Activo';
-	}else{
-		productos[num].estado= 'Activo';
-	}
-	if(valor=="albaran" || valor=="factura" || valor=="bandera"){
+	productos[num].estadoLinea= 'Activo';
+
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+' , '+"'"+valor+"'"+');"><span class="glyphicon glyphicon-trash"></span></a>');
 			if (productos[num].nunidades == 0) {
@@ -770,24 +754,6 @@ function retornarFila(num_item, valor=""){
 				$("#N" + productos[num].nfila + "_Unidad").val(productos[num].nunidades);
 			
 			addTemporal(valor);
-	}else{
-	$(line).removeClass('tachado');
-	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+');"><span class="glyphicon glyphicon-trash"></span></a>');
-
-			if (productos[num].unidad == 0) {
-				// Nueva Objeto de productos.
-				//~ productos[nfila].unidad= 1;
-				// Antiguo array productos.
-				productos[num].unidad = 1;
-				
-				
-			}
-			$("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
-			$("#N" + productos[num].nfila + "_Unidad").val(productos[num].unidad);
-			addProductoTemp();
-	}
-
-	
 }
 function recalculoImporte(cantidad,num_item, dedonde=""){
 	
