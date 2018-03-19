@@ -797,8 +797,6 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 	//	cantidad -> Valor ( numerico) de input unidades.
 	//	num_item -> El numero que indica el producto que modificamos.
 	console.log('Estoy en recalculoImporte');
-	
-	if (dedonde=="albaran"|| dedonde=="factura"){
 		if (productos[num_item].ncant == 0 && cantidad != 0) {
 			retornarFila(num_item+1, dedonde);
 		} else if (cantidad == 0 ) {
@@ -812,24 +810,6 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		$(id).html(importe);
 		
 		addTemporal(dedonde);
-	
-	}else{
-
-	if (productos[num_item].cant == 0 && cantidad != 0) {
-		retornarFila(num_item+1);
-	} else if (cantidad == 0 ) {
-		eliminarFila(num_item+1);
-	}
-	console.log('Valor de cantidad'+cantidad);
-	productos[num_item].cant = cantidad;
-	
-	var importe = cantidad*productos[num_item].pvpCiva;
-	var id = '#N'+productos[num_item].nfila+'_Importe';
-
-	importe = importe.toFixed(2);
-	$(id).html(importe);
-		addProductoTemp();
-	}
 }
 
 function mover_down(fila,prefijo, dedonde=""){
