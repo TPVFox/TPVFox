@@ -541,35 +541,6 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	});
 }
 }
-//html que se muestra cuando añadimos un producto nuevo
-function agregarFilaProducto(num_item, campo){
-	console.log(num_item);
-	//Recibe el número del productos (el número de la fila)
-	var parametros = {
-		"pulsado"    : 'AgregarFilaProductos',
-		"producto" : productos[num_item-1],
-		"num_item"      : num_item,
-		"CONF_campoPeso"    : CONF_campoPeso
-	};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  Obteniendo html de linea ticket  ****************');
-		},
-		success    :  function (response) {
-			console.log('Repuesta de Obtener HTML linea de FUNCION -> agregarFila');
-			var resultado =  $.parseJSON(response);
-			//Escribe la fila del producto
-			var nuevafila = resultado['html'];
-			// devuelve el html de la fila del producto
-			$("#tabla").prepend(nuevafila);
-			ponerSelect(campo);
-			return resultado;
-		}
-	});
-}
 //Borra los datos del input
 function resetCampo(campo){
 	console.log('Entro en resetCampo '+campo);

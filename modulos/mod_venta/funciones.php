@@ -306,13 +306,13 @@ function modificarArrayProductos($productos){
 
 function htmlLineaPedidoAlbaran($productos, $dedonde){
 	
-	//~ if(!is_array($productos)) {
-		//~ // Comprobamos si product no es objeto lo convertimos.
-		//~ $producto = (array)$productos;
+	if(!is_array($productos)) {
+		// Comprobamos si product no es objeto lo convertimos.
+		$producto = (array)$productos;
 		
-	//~ } else {
-		//~ $producto = $productos;
-	//~ }
+	} else {
+		$producto = $productos;
+	}
 	$producto=$productos;
 	$respuesta=array('html'=>'');
 	

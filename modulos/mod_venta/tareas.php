@@ -44,20 +44,6 @@ switch ($pulsado) {
 			echo json_encode($respuesta);  
 		break;
 		
-		case 'AgregarFilaProductos':
-		//Objetivo: Agregar la finla de productos
-			$respuesta = array();
-			$product=$_POST['producto'];
-			$num_item=$_POST['num_item'];
-			$CONF_campoPeso=$_POST['CONF_campoPeso'];
-			$disable="";
-			$style="";
-			$res 	= htmlLineaPedido($product,$num_item,$CONF_campoPeso, $disable, $style);
-			$respuesta['html'] =$res;
-			$respuesta['producto']=$product;
-			echo json_encode($respuesta);
-		break;
-		
 	    case 'buscarClientes':
 			//@Objetivo
 			//BUsqueda de clientes , si recibe de una caja id lo busca directamente si no crea el modal de clientes 
