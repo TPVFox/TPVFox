@@ -216,8 +216,8 @@ switch ($pulsado) {
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
-				$modTotal=$CcliPed->modTotales($idTemporal, $total, $totalivas);
-				//$respuesta['sqlmodtotal']=$modTotal['sql'];
+				$modTotal=$CcliPed->modTotales($idTemporal, $respuesta['total'], $CalculoTotales['subivas']);
+			
 				$htmlTotales=htmlTotales($CalculoTotales);
 				$respuesta['htmlTabla']=$htmlTotales['html'];
 			}

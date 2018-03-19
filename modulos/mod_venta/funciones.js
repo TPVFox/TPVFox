@@ -1397,6 +1397,25 @@ function addTemporal(dedonde){
 			total = parseFloat(resultado['totales']['total'])
 			$('.totalImporte').html(total.toFixed(2));
 			$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
+			var estado="Sin guardar";
+			if (dedonde=="factura"){
+				if (cabecera.idReal>0){
+				var estado="Sin guardar";
+				modificarEstadoFactura(cabecera.idReal, estado);
+			}
+			if (dedonde=="albaran"){
+				if (cabecera.idReal>0){
+				modificarEstadoAlbaran(cabecera.idReal, estado);
+				
+				}
+			}
+			if (dedonde=="pedidos"){
+					if (cabecera.idReal>0){
+						ModificarEstadoPedido(dedonde, estado);
+					}
+			}
+			
+			}
 			
 		}
 	});
