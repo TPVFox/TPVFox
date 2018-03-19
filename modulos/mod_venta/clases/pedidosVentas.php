@@ -119,17 +119,18 @@ class PedidosVentas extends ClaseVentas{
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
-			if($prod['estado']=='Activo'){
-			if ($prod['codBarras']){
-				$codBarras=$prod['codBarras'];
+			if($prod['estadoLinea']=='Activo'){
+			if ($prod['ccodbar']){
+				$codBarras=$prod['ccodbar'];
 			}else{
 				$codBarras=0;
 			}
 			if ($idPedido>0){
-			$smt=$db->query('INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$idPedido.' , '.$prod['idArticulo'].', '."'".$prod['crefTienda']."'".', '.$codBarras.', "'.$prod['articulo_name'].'", '.$prod['cant'].' , '.$prod['cant'].', '.$prod['pvpCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" )' );
+			$smt=$db->query('INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$idPedido.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" )' );
 
 			}else{
-			$smt=$db->query('INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['crefTienda']."'".', '.$codBarras.', "'.$prod['articulo_name'].'", '.$prod['cant'].' , '.$prod['cant'].', '.$prod['pvpCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" )' );
+			$smt=$db->query('INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" )' );
+			$resultado['']='INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo, cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" )';
 		}
 		}
 	}

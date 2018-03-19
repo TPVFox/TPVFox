@@ -102,7 +102,6 @@ include '../../header.php';
 				if (isset ($todoTemporal)){
 					foreach ($todoTemporal as $pedidoTemp){
 						if ($pedidoTemp['idPedcli']){
-							//$numPedido=$Cpedido->buscarNumPedido($pedidoTemp['idPedcli']);
 							$numPed=$pedidoTemp['Numpedcli'];
 					}else{
 						$numPed="";

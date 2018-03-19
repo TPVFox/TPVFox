@@ -84,18 +84,13 @@ $titulo .= ': '.$estado;
 			}else{
 				$idTemporal=$_GET['tActual'];
 			}
-			echo $idTemporal;
-			echo '<br>';
-			echo $_POST['fecha'];
-			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscar los datos del temporal
+			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
 			if($pedidoTemporal['total']){
 				$total=$pedidoTemporal['total'];
 			}else{
 				$total=0;
 			}
-			
 			$fechaCreacion=date("Y-m-d H:i:s");
-			//Crear un array con todos los datos nuevos
 			$datosPedido=array(
 			'NPedidoTemporal'=>$idTemporal,
 			'fecha'=>$_POST['fecha'],
@@ -124,11 +119,15 @@ $titulo .= ': '.$estado;
 			}else{
 				//Como no tenemos número de pedido solo añadimos registros nuevos y eliminamos el temporal
 				$idPedido=0;
+				$numPedido=0;
 				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
 				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
 			}
+			echo '<pre>';
+			print_r($addNuevo);
+			echo '</pre>';
 			
-			header('Location: pedidosListado.php');
+			//header('Location: pedidosListado.php');
 		}
 		
 		if (isset($datosPedido)){
@@ -321,8 +320,6 @@ if ($idCliente===0){
 			foreach (array_reverse($productos) as $producto){
 					
 				$html=htmlLineaPedidoAlbaran($producto,"pedidos");
-			
-		//	print_r($html['html']);
 			
 				echo $html;
 			}
