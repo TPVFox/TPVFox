@@ -482,7 +482,8 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		"cajaInput"	 : id_input,
 		"valorCampo" : busqueda,
 		"campo"      : campo,
-		"idcaja"	 :idcaja
+		"idcaja"	 :idcaja,
+		'dedonde'	:dedonde
 	};
 	if (busqueda==""){
 		alert("ERROR NO HAS ESCRITO NADA");
@@ -654,105 +655,37 @@ function cerrarPopUp(destino_focus=''){
 	}
 	
 }
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id, dedonde){
 	// @ Objetivo:
 	//   Realizamos cuando venimos popUp de Productos.
 	// @ Parametros:
 	// 	 Caja -> Indica la caja queremos que ponga focus
 	//   datos -> Es el array que vamos enviar para añadir fila.
 	console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
-	if (campo=="ReferenciaFac" || campo=="CodbarrasFac" || campo=="DescripcionFac" || campo=='idArticuloFac'){
-		console.log("entre en el if de referencia");
-		var datos = new Object();
+	var datos = new Object();
+	if (dedonde=="factura"){
 		datos.Numalbcli=0;
-		datos.ccodbar=ccodebar;
-		datos.cdetalle=cdetalle;
-		datos.cref=cref;
-		datos.estadoLinea="Activo";
-		datos.idArticulo=id;
 		datos.idalbcli=0;
-		datos.iva=ctipoIva;
-		datos.ncant=1;
-		datos.nfila=productos.length+1;
-		datos.nunidades=1;
-		var importe =npconiva*1;
-		datos.importe=importe.toFixed(2);
-		var pvpCiva= parseFloat(npconiva);
-		datos.precioCiva=pvpCiva.toFixed(2);
-		productos.push(datos);
-		
-		dedonde="factura";
-		addTemporal(dedonde);
-		console.log(dedonde);
-		AgregarFilaProductosAl(datos, dedonde);
-		resetCampo(campo);
-		cerrarPopUp(campo);
 	}
-	if (campo=="CodbarrasAl" || campo=="ReferenciaAl" || campo=="DescripcionAl" || campo=='idArticuloAl'){
-		console.log("entre en el if de albaran producto seleccionado");
-		var datos = new Object();
+	if (dedonde=="albaran"){
 		datos.Numpedcli=0;
-		datos.ccodbar=ccodebar;
-		datos.cdetalle=cdetalle;
-		datos.cref=cref;
-		datos.estadoLinea="Activo";
-		datos.idArticulo=id;
-		datos.idpedcli=0;
-		datos.iva=ctipoIva;
-		datos.ncant=1;
-		datos.nfila=productos.length+1;
-		datos.nunidades=1;
-		var importe =npconiva*1;
-		datos.importe=importe.toFixed(2);
-		var pvpCiva= parseFloat(npconiva);
-		datos.precioCiva=pvpCiva.toFixed(2);
-		productos.push(datos);
-		dedonde="albaran";
-		addTemporal();
-		AgregarFilaProductosAl(datos, dedonde);
-		resetCampo(campo);
-		cerrarPopUp(campo);
 	}
-	if (campo=="Referencia" || campo=="Codbarras" || campo=="Descripcion"){
-		var datos = new Object();
-		datos['idArticulo'] 	= id;
-		datos['crefTienda'] 	= cref;
-		datos['articulo_name'] 	= cdetalle;
-		datos['pvpCiva'] 		= npconiva;
-		datos['iva'] 			= ctipoIva;
-		datos['codBarras']		= ccodebar;
-		datos['nfila']=productos.length+1;
-		datos['estado']="Activo";
-		datos['cant']=1;
-		var importe =datos['pvpCiva']*datos['cant'];			
-		datos['importe']=importe.toFixed(2);
-		var pvpCiva= parseFloat(datos['pvpCiva']);
-		datos['pvpCiva']=pvpCiva.toFixed(2);
-		console.log(datos);
-		productos.push(datos);
-		console.log("dentro de productos");
-		console.log(productos);
-		var num_item=datos['nfila'];
-		if (cabecera.idTemporal==0){
-							var idCliente=$('#id_cliente').val();
-							console.log(idCliente);
-							console.log('----- voy a escribir aaaaaaaaaaaaaa cliente seleccionado -----');
-							AddTemp(idCliente);
-							cabecera.idCliente=idCliente;
-		}
-		addProductoTemp();
-		agregarFilaProducto(num_item);
-		// Eliminamos contenido de cja destino y ponemos focus.
-		
-		resetCampo(campo);
-		var campo='#Unidad_Fila_'+num_item;
-		cerrarPopUp(campo);
-	}
-	
-	
-	
-
-	
+	datos.ccodbar=ccodebar;
+	datos.cdetalle=cdetalle;
+	datos.cref=cref;
+	datos.estadoLinea="Activo";
+	 datos.iva=ctipoIva;
+	 datos.idArticulo=id;
+	 datos.ncant=1;
+	 datos.nfila=productos.length+1;
+	 datos.importe=npconiva.toFixed(2);
+	 var pvpCiva= parseFloat(npconiva);
+	datos.precioCiva=pvpCiva.toFixed(2);
+	productos.push(datos);
+	 addTemporal(dedonde);
+	 AgregarFilaProductosAl(datos, dedonde);
+	 resetCampo(campo);
+	 cerrarPopUp(campo);	
 }
 function eliminarFila(num_item, valor=""){
 	//Función para cambiar el estado del producto

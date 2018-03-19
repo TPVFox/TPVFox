@@ -182,7 +182,7 @@ function  htmlClientesCajas($clientes){
 	return $resultado['script'];
 }
 
-function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
+function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
 	$resultado = array();
@@ -224,7 +224,8 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 						"'".addslashes(htmlspecialchars($producto['crefTienda'],ENT_COMPAT))."','"
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
-						.number_format($producto['pvpCiva'],2).",".$producto['idArticulo'];
+						.number_format($producto['pvpCiva'],2).",".$producto['idArticulo'].
+						" , '".$dedonde."'";
 			$resultado['html'] .= '<tr id="N_'.$contad.'" data-obj= "idN" onmouseout="abandonFila('
 						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
 			
