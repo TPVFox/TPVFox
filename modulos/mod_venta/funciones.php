@@ -82,45 +82,45 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
 	} 
 	return $resultado;
 }
-function BusquedaClientes($busqueda,$BDTpv,$tabla, $idcaja){
-	// @ Objetivo es buscar los clientes 
-	// @ Parametros
-	// 	$busqueda --> Lo que vamos a buscar
-	// 	$BDTpv--> Conexion
-	//	$tabla--> tabla donde buscar.
-	// Buscamos en los tres campos... Nombre, razon social, nif
-	$resultado=array();
-	$buscar1= 'Nombre';
-	$buscar2='razonsocial';
-	$buscar3='nif';
-	$resultado['caja']=$idcaja;
-	if ($idcaja==='id_cliente' || $idcaja ==='id_clienteAl'){
-		$sql='SELECT idClientes, nombre, razonsocial, nif FROM '.$tabla.' WHERE idClientes='.$busqueda; 
-	}else{
-	$sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM '.$tabla.' WHERE '.$buscar1.' LIKE "%'.$busqueda.'%" OR '
-			.$buscar2.' LIKE "%'.$busqueda.'%" OR '.$buscar3.' LIKE "%'.$busqueda.'%"';
-		}
-	$res = $BDTpv->query($sql);
+//~ function BusquedaClientes($busqueda,$BDTpv,$tabla, $idcaja){
+	//~ // @ Objetivo es buscar los clientes 
+	//~ // @ Parametros
+	//~ // 	$busqueda --> Lo que vamos a buscar
+	//~ // 	$BDTpv--> Conexion
+	//~ //	$tabla--> tabla donde buscar.
+	//~ // Buscamos en los tres campos... Nombre, razon social, nif
+	//~ $resultado=array();
+	//~ $buscar1= 'Nombre';
+	//~ $buscar2='razonsocial';
+	//~ $buscar3='nif';
+	//~ $resultado['caja']=$idcaja;
+	//~ if ($idcaja==='id_cliente' || $idcaja ==='id_clienteAl'){
+		//~ $sql='SELECT idClientes, nombre, razonsocial, nif FROM '.$tabla.' WHERE idClientes='.$busqueda; 
+	//~ }else{
+	//~ $sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM '.$tabla.' WHERE '.$buscar1.' LIKE "%'.$busqueda.'%" OR '
+			//~ .$buscar2.' LIKE "%'.$busqueda.'%" OR '.$buscar3.' LIKE "%'.$busqueda.'%"';
+		//~ }
+	//~ $res = $BDTpv->query($sql);
 			//~ $resultado['consulta'] = $sql;
-$resultado['Nitems']= $res->num_rows;
-	 //compruebo error en consulta
-	if (mysqli_error($BDTpv)){
-		$resultado['consulta'] = $sql;
-		$resultado['error'] = $BDTpv->error_list;
-		return $resultado;
-	} 
-	$resultado['consulta']=$sql;
-	$arr = array();
-	$i = 0;
-	//fetch_assoc es un boleano..
-	while ($fila = $res->fetch_assoc()) {
-		$arr[$i] = $fila;
-		$resultado['datos'][0] = $fila;
-		$resultado['datos'] = $arr;
-		$i++;
-	}
-	return $resultado;
-}
+//~ $resultado['Nitems']= $res->num_rows;
+	 //~ //compruebo error en consulta
+	//~ if (mysqli_error($BDTpv)){
+		//~ $resultado['consulta'] = $sql;
+		//~ $resultado['error'] = $BDTpv->error_list;
+		//~ return $resultado;
+	//~ } 
+	//~ $resultado['consulta']=$sql;
+	//~ $arr = array();
+	//~ $i = 0;
+	//~ //fetch_assoc es un boleano..
+	//~ while ($fila = $res->fetch_assoc()) {
+		//~ $arr[$i] = $fila;
+		//~ $resultado['datos'][0] = $fila;
+		//~ $resultado['datos'] = $arr;
+		//~ $i++;
+	//~ }
+	//~ return $resultado;
+//~ }
 function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los clientes si los hubiera.
@@ -172,15 +172,15 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 	// Objetos queremos controlar.
 	return $resultado;
 }
-function  htmlClientesCajas($clientes){
-	$resultado = array();
-	$cliente=$clientes[0]['nombre'];
-	$resultado['script']="<script type='text/javascript'>
-							var cliente=".$cliente.";
-							document.getElementById('Cliente').innerHTML=cliente;
-						</script>";
-	return $resultado['script'];
-}
+//~ function  htmlClientesCajas($clientes){
+	//~ $resultado = array();
+	//~ $cliente=$clientes[0]['nombre'];
+	//~ $resultado['script']="<script type='text/javascript'>
+							//~ var cliente=".$cliente.";
+							//~ document.getElementById('Cliente').innerHTML=cliente;
+						//~ </script>";
+	//~ return $resultado['script'];
+//~ }
 
 function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	// @ Objetivo 
@@ -250,57 +250,57 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	
 	
 }
-function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
-	//@ Objetivo:
-	// Obtener html de una linea de productos.
-	//@ Parametros:
-	// $product -> Debería ser un objeto, pero por javascritp viene como un array por lo comprobamos y convertimos.
-	// Variables que vamos utilizar:
-	$classtr = '' ; // para clase en tr
-	$estadoInput = '' ; // estado input cantidad.
+//~ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
+	//~ //@ Objetivo:
+	//~ // Obtener html de una linea de productos.
+	//~ //@ Parametros:
+	//~ // $product -> Debería ser un objeto, pero por javascritp viene como un array por lo comprobamos y convertimos.
+	//~ // Variables que vamos utilizar:
+	//~ $classtr = '' ; // para clase en tr
+	//~ $estadoInput = '' ; // estado input cantidad.
 	
-	if(!is_object($producto)) {
-		// Comprobamos si product no es objeto lo convertimos.
-		$product = (object)$producto;
+	//~ if(!is_object($producto)) {
+		//~ // Comprobamos si product no es objeto lo convertimos.
+		//~ $product = (object)$producto;
 		
-	} else {
-		$product = $producto;
-	}
+	//~ } else {
+		//~ $product = $producto;
+	//~ }
 	
-	// Si estado es eliminado tenemos añadir class y disabled input
-	if ($product->estado !=='Activo'){
-		$classtr = ' class="tachado" ';
-		$estadoInput = 'disabled';
-			$funcOnclick = ' retornarFila('.$num_item.');';
-		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
-	} else {
-			$funcOnclick = ' eliminarFila('.$num_item.');';
-		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-	}
-	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';
-	$nuevaFila .= '<td class="linea">'.$product->nfila.'</td>'; //num linea
-	$nuevaFila .= '<td class="codbarras">'.$product->ccodebar.'</td>';
-	$nuevaFila .= '<td class="referencia">'.$product->cref.'</td>';
-	$nuevaFila .= '<td class="detalle">'.$product->cdetalle.'</td>';
-	$nuevaFila .= '<td><input id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->unidad.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
-	//si en config peso=si, mostramos columna peso
-	if ($CONF_campoPeso === 'si'){
-		$nuevaFila .= '<td><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
-	} else {
-		$nuevaFila .= '<td style="display:none"><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; 
-	}
-	$nuevaFila .= '<td class="pvp">'.$product->pvpconiva.'</td>';
-	$nuevaFila .= '<td class="tipoiva">'.$product->ctipoiva.'%</td>';
-	// Creamos importe --> 
-	$importe = $product->pvpconiva*$product->unidad;
-	$importe = number_format($importe,2);
-	$nuevaFila .= '<td id="N'.$product->nfila.'_Importe" class="importe" >'.$importe.'</td>'; //importe 
-	// Ahota tengo que controlar el estado del producto,para mostrar uno u otro
-	$nuevaFila .= $btnELiminar_Retornar;
+	//~ // Si estado es eliminado tenemos añadir class y disabled input
+	//~ if ($product->estado !=='Activo'){
+		//~ $classtr = ' class="tachado" ';
+		//~ $estadoInput = 'disabled';
+			//~ $funcOnclick = ' retornarFila('.$num_item.');';
+		//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+	//~ } else {
+			//~ $funcOnclick = ' eliminarFila('.$num_item.');';
+		//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+	//~ }
+	//~ $nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';
+	//~ $nuevaFila .= '<td class="linea">'.$product->nfila.'</td>'; //num linea
+	//~ $nuevaFila .= '<td class="codbarras">'.$product->ccodebar.'</td>';
+	//~ $nuevaFila .= '<td class="referencia">'.$product->cref.'</td>';
+	//~ $nuevaFila .= '<td class="detalle">'.$product->cdetalle.'</td>';
+	//~ $nuevaFila .= '<td><input id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->unidad.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
+	//~ //si en config peso=si, mostramos columna peso
+	//~ if ($CONF_campoPeso === 'si'){
+		//~ $nuevaFila .= '<td><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
+	//~ } else {
+		//~ $nuevaFila .= '<td style="display:none"><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; 
+	//~ }
+	//~ $nuevaFila .= '<td class="pvp">'.$product->pvpconiva.'</td>';
+	//~ $nuevaFila .= '<td class="tipoiva">'.$product->ctipoiva.'%</td>';
+	//~ // Creamos importe --> 
+	//~ $importe = $product->pvpconiva*$product->unidad;
+	//~ $importe = number_format($importe,2);
+	//~ $nuevaFila .= '<td id="N'.$product->nfila.'_Importe" class="importe" >'.$importe.'</td>'; //importe 
+	//~ // Ahota tengo que controlar el estado del producto,para mostrar uno u otro
+	//~ $nuevaFila .= $btnELiminar_Retornar;
 
-	$nuevaFila .='</tr>';
-	return $nuevaFila;
-}
+	//~ $nuevaFila .='</tr>';
+	//~ return $nuevaFila;
+//~ }
 
 function htmlLineaPedido($producto,$num_item,$CONF_campoPeso, $disable, $style){
 	$classtr = '' ; // para clase en tr
@@ -804,17 +804,6 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 
 function htmlVencimiento($nuevafecha, $BDTpv){
 	$vencimiento=new TiposVencimientos($BDTpv);
-	//~ if ($venci>0){
-		//~ $principal=$vencimiento->datosPrincipal($venci);
-		//~ $dias=$principal['dias'];
-		//~ $string=" +".$dias." day ";
-		//~ $fecha = date('Y-m-j');
-		//~ $nuevafecha = strtotime($fecha.$string);
-		//~ $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
-	//~ }else{
-		//~ $nuevafecha = date('Y-m-j');
-	//~ }
-		
 		$html='<input type="date" name="fechaVenci" id="fechaVenci" data-obj= "fechaVenci" onBlur="selectFormas()" value='.$nuevafecha.' >';
 		$respuesta['html']=$html;
 		return $respuesta;
