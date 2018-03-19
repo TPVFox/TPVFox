@@ -77,7 +77,35 @@ function formasVenciCliente(formasVenci){
 		}
 	});
 }
-
+function  modificarEstado(dedonde, estado, idModificar){
+	if (dedonde=="pedidos"){
+		var pulsado='modificarEstadoPedido';
+	}
+	if (dedonde=="albaran"){
+		var pulsado= 'modificarEstadoAlbaran';
+		
+	}
+	if (dedonde=="factura"){
+		var pulsado='modificarEstadoFactura';
+	}
+	var parametros = {
+			"pulsado":pulsado,
+			"idModificar":idModificar,
+			"estado":estado
+		};
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en Modificar estado factura js****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de estado pedido js');
+			var resultado =  $.parseJSON(response); 
+		}
+	});
+}
 function buscarClientes(dedonde, idcaja, valor=''){
 	// @ Objetivo:
 	// 	Abrir modal con lista clientes, que permitar buscar en caja modal.
@@ -769,7 +797,7 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 	//	cantidad -> Valor ( numerico) de input unidades.
 	//	num_item -> El numero que indica el producto que modificamos.
 	console.log('Estoy en recalculoImporte');
-	console.log(num_item);
+	
 	if (dedonde=="albaran"|| dedonde=="factura"){
 		if (productos[num_item].ncant == 0 && cantidad != 0) {
 			retornarFila(num_item+1, dedonde);
@@ -902,7 +930,8 @@ function buscarPedido(dedonde, idcaja, valor=''){
 						//Modifica el estado del pedido a Facturado.
 						//Quiere decir que cuando se mete un pedido en un albaran ya no se puede volver a meter el pedido en otro albarán
 						//Ni se puede modificar  en pedidos
-						ModificarEstadoPedido("Albaran", "Facturado", resultado['datos'].Numpedcli, resultado['datos'].idPedCli);
+						//~ ModificarEstadoPedido("Albaran", "Facturado", resultado['datos'].Numpedcli, resultado['datos'].idPedCli);
+						modificarEstado("pedidos", "Facturado",resultado['datos'].idPedCli );
 						//Añade el html de la fila del pedido
 						
 						AgregarFilaPedido(datos, "albaran");
@@ -977,7 +1006,8 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 						//Modifica el estado del pedido a Facturado.
 						//Quiere decir que cuando se mete un pedido en un albaran ya no se puede volver a meter el pedido en otro albarán
 						//Ni se puede modificar  en pedidos
-					  ModificarEstadoPedido("factura", "Facturado", resultado['datos'].Numalbcli, resultado['datos'].idalbcli);
+					  //~ ModificarEstadoPedido("factura", "Facturado", resultado['datos'].Numalbcli, resultado['datos'].idalbcli);
+					  modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);
 						//Añade el html de la fila del pedido
 						 AgregarFilaAlbaran(datos, dedonde);
 						//Agrega los productos de ese pedido
@@ -1047,17 +1077,20 @@ function addTemporal(dedonde){
 			if (dedonde=="factura"){
 				if (cabecera.idReal>0){
 				var estado="Sin guardar";
-				modificarEstadoFactura(cabecera.idReal, estado);
+				
+				modificarEstado(dedonde, estado, cabecera.idReal);
 			}
 			if (dedonde=="albaran"){
 				if (cabecera.idReal>0){
-				modificarEstadoAlbaran(cabecera.idReal, estado);
+			
+				modificarEstado(dedonde, estado, cabecera.idReal);
 				
 				}
 			}
 			if (dedonde=="pedidos"){
 					if (cabecera.idReal>0){
-						ModificarEstadoPedido(dedonde, estado);
+						//ModificarEstadoPedido(dedonde, estado);
+						modificarEstado(dedonde, estado, cabecera.idReal);
 					}
 			}
 			
@@ -1069,93 +1102,93 @@ function addTemporal(dedonde){
 }
 // Modificar el estado de la factura para controlar que tiene temporales
 
-function modificarEstadoFactura(idFactura, estado){
-	var parametros = {
-			"pulsado": 'modificarEstadoFactura',
-			"idFactura":idFactura,
-			"estado":estado
-		};
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en Modificar estado factura js****************');
-		},
-		success    :  function (response) {
-		var resultado =  $.parseJSON(response); 
-		}
-	});
-}
+//~ function modificarEstadoFactura(idFactura, estado){
+	//~ var parametros = {
+			//~ "pulsado": 'modificarEstadoFactura',
+			//~ "idFactura":idFactura,
+			//~ "estado":estado
+		//~ };
+		//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : 'tareas.php',
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+			//~ console.log('******** estoy en Modificar estado factura js****************');
+		//~ },
+		//~ success    :  function (response) {
+		//~ var resultado =  $.parseJSON(response); 
+		//~ }
+	//~ });
+//~ }
 //Modificar el estado del albarán, se utiliza principalmente cuando en facturas escogemos un albarán
-function modificarEstadoAlbaran(idAlbaran, estado){
-	console.log("Entre en modificar Estado albaran");
-	var parametros = {
-			"pulsado": 'modificarEstadoAlbaran',
-			"idAlbaran":idAlbaran,
-			"estado":estado
-		};
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en Modificar estado factura js****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de estado pedido js');
-			var resultado =  $.parseJSON(response); 
-		}
-	});
-}
+//~ function modificarEstadoAlbaran(idAlbaran, estado){
+	//~ console.log("Entre en modificar Estado albaran");
+	//~ var parametros = {
+			//~ "pulsado": 'modificarEstadoAlbaran',
+			//~ "idAlbaran":idAlbaran,
+			//~ "estado":estado
+		//~ };
+		//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : 'tareas.php',
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+			//~ console.log('******** estoy en Modificar estado factura js****************');
+		//~ },
+		//~ success    :  function (response) {
+			//~ console.log('Llegue devuelta respuesta de estado pedido js');
+			//~ var resultado =  $.parseJSON(response); 
+		//~ }
+	//~ });
+//~ }
 
 
 //Modifica el estado de un pedido, dependiendo de donde venga la función carga unos parametro u otros
-function ModificarEstadoPedido(dedonde, estado, num="", id=""){
-	console.log("Entre en modificar estado pedido");
-	if (dedonde=="pedidos"){
-		var parametros = {
-			"pulsado"    : 'modificarEstadoPedido',
-			"idPedido":cabecera.idReal,
-			"numPedidoTemp":cabecera.idTemporal,
-			"estado" : estado,
-			"dedonde": dedonde
-		};
-	}
-	if (dedonde=="Albaran"){
-		var parametros = {
-			"pulsado"    : 'modificarEstadoPedido',
-			"idPedido":id,
-			"numPedidoTemp":num,
-			"estado" : estado,
-			"dedonde" : dedonde
-		};
-	}
-	console.log(parametros);
-	if (dedonde == "factura"){
-		var parametros = {
-			"pulsado"    : 'modificarEstadoPedido',
-			"idAlbaran":id,
-			"numAlbaranTemporal":num,
-			"estado" : estado,
-			"dedonde" : dedonde
-		};
+//~ function ModificarEstadoPedido(dedonde, estado, num="", id=""){
+	//~ console.log("Entre en modificar estado pedido");
+	//~ if (dedonde=="pedidos"){
+		//~ var parametros = {
+			//~ "pulsado"    : 'modificarEstadoPedido',
+			//~ "idPedido":cabecera.idReal,
+			//~ "numPedidoTemp":cabecera.idTemporal,
+			//~ "estado" : estado,
+			//~ "dedonde": dedonde
+		//~ };
+	//~ }
+	//~ if (dedonde=="Albaran"){
+		//~ var parametros = {
+			//~ "pulsado"    : 'modificarEstadoPedido',
+			//~ "idPedido":id,
+			//~ "numPedidoTemp":num,
+			//~ "estado" : estado,
+			//~ "dedonde" : dedonde
+		//~ };
+	//~ }
+	//~ console.log(parametros);
+	//~ if (dedonde == "factura"){
+		//~ var parametros = {
+			//~ "pulsado"    : 'modificarEstadoPedido',
+			//~ "idAlbaran":id,
+			//~ "numAlbaranTemporal":num,
+			//~ "estado" : estado,
+			//~ "dedonde" : dedonde
+		//~ };
 		
-	}
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en Modificar estado pedido js****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de estado pedido js');
-			var resultado =  $.parseJSON(response); 
-			console.log(resultado);
-		}
-	});
-}
+	//~ }
+		//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : 'tareas.php',
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+			//~ console.log('******** estoy en Modificar estado pedido js****************');
+		//~ },
+		//~ success    :  function (response) {
+			//~ console.log('Llegue devuelta respuesta de estado pedido js');
+			//~ var resultado =  $.parseJSON(response); 
+			//~ console.log(resultado);
+		//~ }
+	//~ });
+//~ }
 
 
 
@@ -1412,7 +1445,8 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 				
 			}
 			num=nfila-1;
-			ModificarEstadoPedido("Albaran", "Guardado", numRegistro, pedidos[num].idPedido);
+			//ModificarEstadoPedido("Albaran", "Guardado", numRegistro, pedidos[num].idPedido);
+			modificarEstado("pedidos", "Guardado", pedidos[num].idPedido);
 			addTemporal("Albaran");
 		}
 		if (dedonde=="factura"){
@@ -1432,8 +1466,8 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 				}
 			}
 			num=nfila-1;
-			modificarEstadoAlbaran(albaranes[num].idAlbaran, "Guardado");
-		
+			modificarEstado("albaran", "Guardado", albaranes[num].idAlbaran);
+			
 			addTemporal("factura");
 		}
 }
@@ -1472,8 +1506,8 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 			}
 		}
 		num=nfila-1;
-		ModificarEstadoPedido("Albaran", "Facturado", numRegistro, pedidos[num].idPedido);
-		
+		//ModificarEstadoPedido("Albaran", "Facturado", numRegistro, pedidos[num].idPedido);
+		modificarEstado("pedidos", "Facturado", pedidos[num].idPedido);
 		addTemporal("albaran");
 	}
 	if (dedonde=="factura"){
@@ -1492,7 +1526,8 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 			}
 			}
 		num=nfila-1;
-		modificarEstadoAlbaran(albaranes[num].idAlbaran, "Facturado");
+		
+		modificarEstado("albaran", "Facturado",albaranes[num].idAlbaran );
 		addTemporal("factura");
 	
 	}

@@ -357,30 +357,33 @@ switch ($pulsado) {
 		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
 	
 		
-			if ($_POST['dedonde']=="pedidos"){
-				$idPedido=$_POST['idPedido'];
-				$idTemporal=$_POST['numPedidoTemp'];
-				if ($idPedido>0){
-					$estado="Sin Guardar";
-					$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
+			//~ if ($_POST['dedonde']=="pedidos"){
+				//~ $idPedido=$_POST['idPedido'];
+				//~ $idTemporal=$_POST['numPedidoTemp'];
+				//~ if ($idPedido>0){
+					//~ $estado="Sin Guardar";
+					//~ $modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
 				
-				}
-			}else if ($_POST['dedonde']=="Albaran"){
-				$idPedido=$_POST['idPedido'];
-				if ($_POST['estado']){
-					$estado=$_POST['estado'];
-				}else{
-					$estado="Facturado";
-				}
+				//~ }
+			//~ }else if ($_POST['dedonde']=="Albaran"){
+				//~ $idPedido=$_POST['idPedido'];
+				//~ if ($_POST['estado']){
+					//~ $estado=$_POST['estado'];
+				//~ }else{
+					//~ $estado="Facturado";
+				//~ }
 				
-				$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
+				//~ $modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
 			
-			}else if($_POST['dedonde']=="factura"){
-				$idAlbaran=$_POST['idAlbaran'];
-				$estado="Facturado";
-				$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
+			//~ }else if($_POST['dedonde']=="factura"){
+				//~ $idAlbaran=$_POST['idAlbaran'];
+				//~ $estado="Facturado";
+				//~ $modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
 				
-			}
+			//~ }
+			$idPedido=$_POST['idModificar'];
+			$estado=$_POST['estado'];
+			$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
 			if (isset ($respuesta)){
 				echo json_encode($respuesta);
 			}
@@ -525,7 +528,7 @@ switch ($pulsado) {
 		case 'modificarEstadoFactura':
 		//@Objetivo:
 		//Modificar el estado de una factura 
-		$idFactura=$_POST['idFactura'];
+		$idFactura=$_POST['idModificar'];
 		$estado=$_POST['estado'];
 		$modEstado=$CFac->modificarEstado($idFactura, $estado);
 		echo json_encode($modEstado);
@@ -535,7 +538,7 @@ switch ($pulsado) {
 		case 'modificarEstadoAlbaran':
 		//@Objetivo:
 		//modificar el estado de un alabrán
-		$idAlbaran=$_POST['idAlbaran'];
+		$idAlbaran=$_POST['idModificar'];
 		$estado=$_POST['estado'];
 		$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
 		echo json_encode($modEstado);
