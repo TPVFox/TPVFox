@@ -44,27 +44,6 @@ switch ($pulsado) {
 			echo json_encode($respuesta);  
 		break;
 		
-		//~ case 'anhadirProductos';
-		//~ //@Objetivo 
-		//~ //Añadir un producto, crea un json con todos los productos y modifica el temporal, vuelve a recalcular los totales 
-			//~ $datos=$_POST['productos'];
-			//~ $idTemporal=$_POST['idTemporal'];
-			//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-			//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
-			//~ $total=round($CalculoTotales['total'],2);
-			//~ $respuesta['total']=$total;
-			//~ if($idTemporal){
-			//~ $modProducto=$CcliPed->AddProducto($idTemporal,$datos , $total);
-			//~ }
-			//~ $nuevoArray = array(
-							//~ 'desglose'=> $CalculoTotales['desglose'],
-							//~ 'total' => $CalculoTotales['total']
-								//~ );
-			//~ $respuesta['totales']=$nuevoArray;
-			//~ echo json_encode($respuesta);
-			//~ return $respuesta;
-		//~ break;
-		
 		case 'AgregarFilaProductos':
 		//Objetivo: Agregar la finla de productos
 			$respuesta = array();
@@ -106,31 +85,7 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;	
 		
-		//~ case 'escribirCliente':
-			//~ //@Objetivo:
-			//~ //escribir el cliente seleccionado
-			//~ $id=$_POST['idcliente'];
-			//~ $numPedidoTemp=$_POST['numPedidoTemp'];
-			//~ $idTienda=$_POST['idTienda'];
-			//~ $idUsuario=$_POST['idUsuario'];
-			//~ $estadoPedido=$_POST['estadoPedido'];
-			//~ $idPedido=$_POST['idPedido'];
-			//~ if ($numPedidoTemp>0){
-				//~ $modCliente=$CcliPed->ModClienteTemp($id, $numPedidoTemp, $idTienda, $idUsuario, $estadoPedido);
-				//~ $respuesta['sql']=$modCliente;
-				//~ $respuesta['busqueda']=$id;
-				//~ $respuesta['numPedidoTemp']=$numPedidoTemp;
-			//~ }else{
-				//~ $addCliente=$CcliPed->AddClienteTemp($id, $idTienda, $idUsuario, $estadoPedido);
-				//~ $respuesta['numPedidoTemp']=$addCliente['id'];
-				//~ $numPedidoTemp=$addCliente['id'];
-			//~ }
-			//~ if ($idPedido>0){
-				//~ $modIdPedido=$CcliPed->ModNumPedidoTtemporal($numPedidoTemp, $idPedido);
-				//~ $respuesta['sqlMod']=$modIdPedido;
-			//~ }
-			//~ echo json_encode($respuesta);
-		//~ break;
+		
 		
 		case 'buscarPedido':
 		//@Objetivo:
@@ -355,32 +310,6 @@ switch ($pulsado) {
 		//Objetivo:
 		//Modificar el estado de un pedido a Sin Guardar si viene de pedidos , si viene de albarán a facturado
 		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
-	
-		
-			//~ if ($_POST['dedonde']=="pedidos"){
-				//~ $idPedido=$_POST['idPedido'];
-				//~ $idTemporal=$_POST['numPedidoTemp'];
-				//~ if ($idPedido>0){
-					//~ $estado="Sin Guardar";
-					//~ $modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
-				
-				//~ }
-			//~ }else if ($_POST['dedonde']=="Albaran"){
-				//~ $idPedido=$_POST['idPedido'];
-				//~ if ($_POST['estado']){
-					//~ $estado=$_POST['estado'];
-				//~ }else{
-					//~ $estado="Facturado";
-				//~ }
-				
-				//~ $modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
-			
-			//~ }else if($_POST['dedonde']=="factura"){
-				//~ $idAlbaran=$_POST['idAlbaran'];
-				//~ $estado="Facturado";
-				//~ $modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
-				
-			//~ }
 			$idPedido=$_POST['idModificar'];
 			$estado=$_POST['estado'];
 			$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
