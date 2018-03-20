@@ -820,6 +820,8 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 						 modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);
 						 AgregarFilaAlbaran(datos, dedonde);
 						 AgregarFilaProductosAl(resultado.productos, dedonde);
+						 $('#Row0').css('display', 'none');
+						
 					}else{
 						alert("Ya has introducido ese pedido");
 					}
