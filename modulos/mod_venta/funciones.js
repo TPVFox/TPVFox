@@ -819,11 +819,11 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 							numFila++;
 						}
 						addTemporal(dedonde);
-						 modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);
-						 AgregarFilaAlbaran(datos, dedonde);
-						 AgregarFilaProductosAl(resultado.productos, dedonde);
-						 $('#Row0').css('display', 'none');
-						 $('.unidad').attr("readonly","readonly");
+						AgregarFilaProductosAl(resultado.productos, dedonde);
+						modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);
+						AgregarFilaAlbaran(datos, dedonde);
+						
+						
 						
 					}else{
 						alert("Ya has introducido ese pedido");
@@ -834,6 +834,11 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 			}
 		}
 	});
+}
+function bloquearInput(){
+	console.log("Elementos js");
+	$('#Row0').css('display', 'none');
+	$('.unidad').attr("readonly","readonly");
 }
 function addTemporal(dedonde){
 		console.log('FUNCION Añadir temporal JS-AJAX');
@@ -1031,6 +1036,10 @@ function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
+			if(albaranes){
+				bloquearInput();
+			}
+			
 		}
 	});
 }
