@@ -91,7 +91,7 @@ switch ($pulsado) {
 					$respuesta['datos']['idPedido']=$res['id'];
 					$respuesta['datos']['fecha']=$res['FechaPedido'];
 					$respuesta['datos']['total']=$res['total'];
-					$respuesta['datos']['estado']="activo";
+					$respuesta['datos']['estado']="Activo";
 					$respuesta['Nitems']=$res['Nitem'];
 					$productosPedido=$CcliPed->ProductosPedidos($res['id']);
 					$respuesta['productos']=$productosPedido;
@@ -120,7 +120,7 @@ switch ($pulsado) {
 					$respuesta['datos']['fecha']=$res['Fecha'];
 					$respuesta['datos']['total']=$res['total'];
 					$respuesta['datos']['idAlbaran']=$res['id'];
-					$respuesta['datos']['estado']="activo";
+					$respuesta['datos']['estado']="Activo";
 					$respuesta['Nitems']=$res['Nitem'];
 					$productosAlbaran=$CalbAl->ProductosAlbaran($res['id']);
 					$respuesta['productos']=$productosAlbaran;

@@ -374,7 +374,7 @@ function htmlAlbaranFactura($albaranes, $dedonde){
 			if ($albaran['Numalbcli']){
 				$num=$albaran['Numalbcli'];
 			}
-			if ($albaran['estado']=="activo"){
+			if ($albaran['estado']=="Activo"){
 				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$albaran['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
