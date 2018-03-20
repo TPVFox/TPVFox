@@ -334,6 +334,7 @@ function buscarAdjunto(dedonde, valor=""){
 							//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
 							// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
 							cerrarPopUp();
+							
 						}
 					
 				}
@@ -738,8 +739,17 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
+					if(albaranes){
+				bloquearInput();
+		}
+
 		}
 	});
+}
+function bloquearInput(){
+	console.log("Elementos js");
+	$('#Row0').css('display', 'none');
+	$('.unidad').attr("readonly","readonly");
 }
 function addTemporal(dedonde=""){
 	//@Objetivo: añadir un temporal , dependiendo de donde venga se cargan unos parámetros distintos
