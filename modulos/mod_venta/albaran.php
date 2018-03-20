@@ -125,7 +125,9 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
-	
+	echo '<pre>';
+	print_r($datosAlbaran['Productos']);
+	echo '</pre>';
 			if($datosAlbaran['numalbcli']>0){
 				$id=$Calbcli->datosAlbaranNum($datosAlbaran['numalbcli']);
 				$numAlbaran=$datosAlbaran['numalbcli'];
@@ -139,7 +141,7 @@ include './../../head.php';
 				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran);
 				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
 			}
-		 header('Location: albaranesListado.php');
+		// header('Location: albaranesListado.php');
 			
 		}
 		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
