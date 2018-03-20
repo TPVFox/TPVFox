@@ -364,8 +364,9 @@ class ControladorComun
 		//Objetivo:
 		//Obtener la configuracion del modulo.
 		//Tenienedo encuenta la configuracion por defecto del modulo y la configuracion que hay en la tabla modulo.
-		//nos quedamos con la de la tabla, pero tenemos comparar con la configuracion por defecto, para saber si 
-		//falta algun parametro.
+		//nos quedamos con la de la tabla
+		//Aunque la compramos por si falta algun parametro configuracion por defecto, si falta deberíamos añadirlo.
+
 		$respuesta = $conf_defecto;
 		$res = $this->obtenerConfiguracionModuloTabla($nombre_modulo,$idUsuario);
 		if ($res['NItems'] === 1){
@@ -376,9 +377,10 @@ class ControladorComun
 			}
 			$respuesta['tipo_configuracion'] = 'Usuario';
 		} else {
-		//~ if (!isset($respuesta['tipo_configuracion'])){
-			// Si  NO existe $respuesta['tipo_configuracion'] ponemos por defecto
-			$respuesta['tipo_configuracion'] = 'Modulo';
+			// Si hay no hay resultado ponemos la configuracion de Modulo
+			if ($res['NItems'] === 0){
+				$respuesta['tipo_configuracion'] = 'Modulo';
+			} 
 		}
 		// Añadimos $nombre_modulo, $idUsuario, asi podemos moverlo junto.
 		$respuesta['nombre_modulo']= $nombre_modulo;
