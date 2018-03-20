@@ -289,28 +289,23 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				$classtr = ' ';
 				$estadoInput = ' ';
 			}
-			if (isset ($producto['Numpedcli'])){
-				if ($producto['Numpedcli']==0){
-					$numeroPed="";
-				}else{
+			$numeroPed="";
+			if ($dedonde=="albaran"){
+				if ($producto['NumpedCli']>0){
+					$numeroPed=$producto['NumpedCli'];
+				}else if ($producto['Numpedcli']>0){
 					$numeroPed=$producto['Numpedcli'];
 				}
-			}else{
-				if (isset ($producto['Numalbcli'])){
-				 if ($producto['Numalbcli']>0){
-					 $numeroPed=$producto['Numalbcli'];
-				 }else{
-					 $numeroPed="";
-				 }
-				}else{
-					if ($producto['NumalbCli']>0){
-						$numeroPed=$producto['NumalbCli'];
-					}else{
-						$numeroPed="";
-					}
+			}
+			if ($dedonde=="factura"){
+				if ($producto['Numalbcli']>0){
+					$numeroPed=$producto['Numalbcli'];
 				}
-				
-				
+			}
+			if ($producto['ccodbar']==0){
+				$codBarras="";
+			}else{
+				$codBarras=$producto['ccodbar'];
 			}
 			
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
@@ -321,7 +316,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		}
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
-		 $respuesta['html'] .='<td class="codbarras">'.$producto['ccodbar'].'</td>';
+		 $respuesta['html'] .='<td class="codbarras">'.$codBarras.'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['nunidades'],0);
 		 $respuesta['html'] .= '<td><input id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';

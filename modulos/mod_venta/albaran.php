@@ -114,7 +114,7 @@ include './../../head.php';
 			//Creamos el array con todos los datos 
 			$datos=array(
 			'Numtemp_albcli'=>$idTemporal,
-			'Fecha'=>$_POST['fechaAl'],
+			'Fecha'=>$_POST['fecha'],
 			'idTienda'=>$Tienda['idTienda'],
 			'idUsuario'=>$Usuario['id'],
 			'idCliente'=>$datosAlbaran['idClientes'],

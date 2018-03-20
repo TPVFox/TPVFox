@@ -748,6 +748,7 @@ function buscarPedido(dedonde, idcaja, valor=''){
 						var numFila=productos.length+1;
 						for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 							resultado.productos[i]['nfila']=numFila;
+							resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['precioCiva'];
 							productos.push(resultado.productos[i]);
 							numFila++;
 						}
