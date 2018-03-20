@@ -302,9 +302,9 @@ switch ($pulsado) {
 			$idPedido=$_POST['idModificar'];
 			$estado=$_POST['estado'];
 			$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
-			if (isset ($respuesta)){
-				echo json_encode($respuesta);
-			}
+			//~ if (isset ($respuesta)){
+				//~ echo json_encode($respuesta);
+			//~ }
 		
 		break;
 		

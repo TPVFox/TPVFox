@@ -23,6 +23,7 @@ include './../../head.php';
 	$idCliente=0;
 	$nombreCliente=0;
 	$titulo="Albarán De Cliente ";
+	$fecha=date('Y-m-d');
 	
 	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
@@ -33,7 +34,6 @@ include './../../head.php';
 		$estado=$datosAlbaran['estado'];
 		$date=date_create($datosAlbaran['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
-		$fechaCab="'".$fecha."'";
 		$numAlbaran=$datosAlbaran['Numalbcli'];
 		$idCliente=$datosAlbaran['idCliente'];
 		if ($idCliente){
@@ -42,7 +42,7 @@ include './../../head.php';
 				$nombreCliente="'".$datosCliente['Nombre']."'";
 		}
 		$productos=json_decode(json_encode($productosAlbaran));
-		$Datostotales = recalculoTotalesAl($productos);
+		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosAlbaran), true);
 	
 		if ($pedidosAlbaran){
@@ -56,8 +56,8 @@ include './../../head.php';
 	}else{
 		$bandera=1;
 	
-		$fecha=date('Y-m-d');
-		$fechaCab="'".$fecha."'";
+		
+		
 			if (isset($_GET['tActual'])){//Recibido un albarán temporal
 				$idAlbaranTemporal=$_GET['tActual'];
 			
@@ -78,7 +78,6 @@ include './../../head.php';
 				$idCliente=$datosAlbaran['idClientes'];
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$cliente['Nombre']."'";
-				$fechaCab="'".$fecha."'";
 				$albaran=$datosAlbaran;
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
@@ -89,7 +88,7 @@ include './../../head.php';
 		if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
-			$Datostotales = recalculoTotalesAl($productos);
+			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
 		if (isset($albaran['Pedidos'])){
@@ -186,7 +185,7 @@ $titulo .= ': '.$estado;
 		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
-		cabecera['fecha'] = <?php echo $fechaCab ;?>;
+		cabecera['fecha'] = '<?php echo $fecha ;?>';
 		cabecera['idCliente'] = <?php echo $idCliente ;?>;
 		
 		 // Si no hay datos GET es 'Nuevo';
@@ -352,12 +351,11 @@ if (isset($_GET['tActual'])){
 		<tbody>
 			<?php 
 			//Si el albarán ya tiene productos 
-		
 			if (isset($productos)){
 				$productos=array_reverse($productos);
 				foreach ( $productos as $producto){
 				$html=htmlLineaPedidoAlbaran($producto, "albaran");
-				echo $html['html'];
+				echo $html;
 			}
 		
 			}

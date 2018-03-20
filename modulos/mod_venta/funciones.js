@@ -92,6 +92,7 @@ function  modificarEstado(dedonde, estado, idModificar){
 			"idModificar":idModificar,
 			"estado":estado
 		};
+		console.log(parametros);
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -99,10 +100,10 @@ function  modificarEstado(dedonde, estado, idModificar){
 		beforeSend : function () {
 			console.log('******** estoy en Modificar estado factura js****************');
 		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de estado pedido js');
-			var resultado =  $.parseJSON(response); 
-		}
+		//~ success    :  function (response) {
+			//~ console.log('Llegue devuelta respuesta de estado pedido js');
+			//~ //var resultado =  $.parseJSON(response); 
+		//~ }
 	});
 }
 function buscarClientes(dedonde, idcaja, valor=''){
@@ -723,20 +724,17 @@ function buscarPedido(dedonde, idcaja, valor=''){
 			console.log('Llegue devuelta respuesta de buscar pedidos');
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
-			var HtmlPedidos=resultado.html;   //$resultado['html'] de montaje html
-			if (valor==""){ //Si el usuario selecciona el icono de buscar pedido abre un modal 
-			//con los pedidos del cliente
+			var HtmlPedidos=resultado.html;   
+			if (valor==""){ 
 				var titulo = 'Listado Pedidos ';
 				abrirModal(titulo, HtmlPedidos);
 			}else{
-				if (resultado.Nitems>0){//Si tiene un resultado comprobamos que el pedido no este en ya en la lista 
-				// de pedidos introducidos . Si la bandera es 0 quiere decir que no esta en la lista de los arrays de pedidos introducidos
+				if (resultado.Nitems>0){
 					var bandera=0;
-					for(i=0; i<pedidos.length; i++){//recorre todo el array de arrays de pedidos
+					for(i=0; i<pedidos.length; i++){
 						var numeroPedido=pedidos[i].Numpedcli;
 						var numeroNuevo=resultado['datos'].Numpedcli;
-						if (numeroPedido == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
-						//del array pedidos entonces la bandera es igual a 1
+						if (numeroPedido == numeroNuevo){
 							bandera=bandera+1;
 						}
 					}
@@ -753,6 +751,7 @@ function buscarPedido(dedonde, idcaja, valor=''){
 							productos.push(resultado.productos[i]);
 							numFila++;
 						}
+						console.log(dedonde);
 						addTemporal(dedonde)
 						modificarEstado("pedidos", "Facturado",resultado['datos'].idPedCli );
 						AgregarFilaPedido(datos, "albaran");
@@ -1034,7 +1033,7 @@ function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
 //lo que hacemos es llamar a la función que llamamos cuando ponemos directamente el número
 function buscarDatosPedido(NumPedido){
 	console.log("Estoy en buscarDatosPedido");
-	buscarPedido("Albaran", "numPedido", NumPedido);
+	buscarPedido("albaran", "numPedido", NumPedido);
 	cerrarPopUp();
 }
 function buscarDatosAlbaran(NumAlbaran){
