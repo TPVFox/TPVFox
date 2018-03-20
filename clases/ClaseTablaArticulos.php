@@ -191,7 +191,9 @@ class ClaseTablaArticulos{
 	public function GetReferenciasTiendas(){	
 		return $this->ref_tiendas;
 	}
-	
+	public function GetComprobaciones(){	
+		return $this->comprobaciones;
+	}
 	public function Comprobaciones(){
 		// Objetivo:
 		// Comprobar si los datos que tiene son correctos y cuales faltan.
