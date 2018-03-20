@@ -41,11 +41,7 @@ if ($_GET){
 		$productos=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productos), true);
-		
-		
 		$total=$Datostotales['total'];
-		
-		
 	}else{
 		
 			if ($_GET['tActual']){//Si recibe un id de un temporal 
@@ -222,27 +218,6 @@ if ($idCliente===0){
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			<?php 
-		
-			if (isset($_GET)){
-				if(isset($_GET['mensaje']) & isset($_GET['tipo'])){
-				$mensaje=$_GET['mensaje'];
-				$tipomensaje=$_GET['tipo'];
-				if (isset($mensaje) || isset($error)){
-			
-			   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
-				}
-				?>
-			<?php
-		}
-			}
-		}
-			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
@@ -315,11 +290,7 @@ if ($idCliente===0){
 		
 			if (isset($productos)){
 			foreach (array_reverse($productos) as $producto){
-					//~ echo '<pre>';
-					//~ print_r($producto);
-					//~ echo '</pre>';
 				$html=htmlLineaPedidoAlbaran($producto,"pedidos");
-			
 				echo $html;
 			}
 			}
@@ -328,26 +299,6 @@ if ($idCliente===0){
 	  </table>
 	</div>
 	<?php 
-	if (isset($pedido['Productos']) | isset ($idPedido)){
-			// Ahora montamos base y ivas
-			if (isset($Datostotales)){
-			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				switch ($iva){
-					case 4 :
-						$base4 = $basesYivas['base'];
-						$iva4 = $basesYivas['iva'];
-					break;
-					case 10 :
-						$base10 = $basesYivas['base'];
-						$iva10 = $basesYivas['iva'];
-					break;
-					case 21 :
-						$base21 = $basesYivas['base'];
-						$iva21 = $basesYivas['iva'];
-					break;
-				}
-			}
-			}
 	if (isset($DatosTotales)){
 	?>
 		<script type="text/javascript">
@@ -355,7 +306,7 @@ if ($idCliente===0){
 			</script>
 			<?php
 	}
-	}
+	
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -367,42 +318,9 @@ if ($idCliente===0){
 			</tr>
 		</thead>
 		<tbody>
-			<tr id="line4">
-				<td id="tipo4">
-					<?php echo (isset($base4) ? " 4%" : '');?>
-				</td>
-				<td id="base4">
-					<?php echo (isset($base4) ? $base4 : '');?>
-				</td>
-				<td id="iva4">
-					<?php echo (isset($iva4) ? $iva4 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line10">
-				<td id="tipo10">
-					<?php echo (isset($base10) ? "10%" : '');?>
-				</td>
-				<td id="base10">
-					<?php echo (isset($base10) ? $base10 : '');?>
-				</td>
-				<td id="iva10">
-					<?php echo (isset($iva10) ? $iva10 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line21">
-				<td id="tipo21">
-					<?php echo (isset($base21) ? "21%" : '');?>
-				</td>
-				<td id="base21">
-					<?php echo (isset($base21) ? $base21 : '');?>
-				</td>
-				<td id="iva21">
-					<?php echo (isset($iva21) ? $iva21 : '');?>
-				</td>
-				
-			</tr>
+			<?php 
+			$htmlIvas=htmlTotales($Datostotales);
+			echo $htmlIvas['html']; ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
