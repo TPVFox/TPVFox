@@ -36,16 +36,45 @@ class ClaseProductos extends ClaseTablaArticulos{
 		}
 	}
 	
-	public function obtenerProductos($filtro=''){
+	public function obtenerProductos($campo,$filtro=''){
 		// @ Objetivo 
 		// Obtener los campos idArticulo,articulo_name,ultimoCoste,beneficio,iva,pvpCiva,estado productos según con el filtro indicado.
-		$consulta = "SELECT a.idArticulo,a.articulo_name,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
+		switch ($campo) {
+			case 'articulo_name':
+				// Buscamos por nombre de articulo..
+				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
+				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
 				."ON p.`idArticulo` = a.`idArticulo`  ".$filtro;
+				break;
+			
+			case 'crefTienda':
+				// Buscamos por Referencia de tienda.
+				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
+				." ,atiendas.crefTienda as crefTienda,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
+				." FROM `articulos` AS a "
+				."LEFT JOIN `articulosPrecios` AS p "
+				."ON p.`idArticulo` = a.`idArticulo` "
+				."LEFT JOIN `articulosTiendas` AS atiendas ON (atiendas.idArticulo = a.idArticulo) AND "
+				."(atiendas.idTienda =".$this->idTienda.") "
+				.$filtro;
+				break;
+			
+			case 'codBarras':
+				// Buscamos por Codbarras.
+				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
+				." ,aCodBarras.codBarras as codBarras,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
+				." FROM `articulos` AS a "
+				."LEFT JOIN `articulosPrecios` AS p "
+				."ON p.`idArticulo` = a.`idArticulo` "
+				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
+				.$filtro;
+				
+			
+		}
+		
 		$respuesta = parent::Consulta($consulta);
-		
-		
 		return $respuesta['Items'];
 		
 	}
