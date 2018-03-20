@@ -101,13 +101,13 @@ class ClaseTablaArticulos{
 									 'dato' =>$consulta,
 									 'mensaje' => 'Encontro mas de un articulo con es id, ponerse en contacto con programador'
 									 );
-							array_push($this->comprobaciones,$error);
+							$this->SetComprobaciones($error);
 						} else {
 							$error = array ( 'tipo'=>'danger',
 							 'dato' =>$Sql,
 							 'mensaje' => 'No encontro ningun registro con ese ID:'.$id.' , ponerse en contacto con programador'
 							 );
-							array_push($this->comprobaciones,$error);
+							$this->SetComprobaciones($error);
 						}
 					}
 				}
@@ -188,6 +188,9 @@ class ClaseTablaArticulos{
 	public function GetCodbarras(){	
 		return $this->codBarras;
 	}
+	public function GetReferenciasTiendas(){	
+		return $this->ref_tiendas;
+	}
 	
 	public function Comprobaciones(){
 		// Objetivo:
@@ -214,7 +217,7 @@ class ClaseTablaArticulos{
 								 'mensaje' => 'Cambiamos el iva, ya que no existe el tipo con iva '.$this->iva.' ponemos iva por defecto, mientras no lo guardes no lo arreglas.'
 								 );
 			$this->iva = 0.00;
-			array_push($this->comprobaciones,$error);
+			$this->SetComprobaciones($error);
 		}
 		
 		
@@ -258,7 +261,7 @@ class ClaseTablaArticulos{
 								 'dato' => 'idProveedor:'.$id_proveedor,
 								 'mensaje' => 'No fue encontrado el proveedor, con id:'.$id_proveedor.' ponemos 0 por defecto, mientras no lo guardes no lo arreglas.'
 								 );
-				array_push($this->comprobaciones,$error);
+				$this->SetComprobaciones($error);
 			} 
 			
 		}
@@ -281,7 +284,7 @@ class ClaseTablaArticulos{
 							 'dato' => 'idArticulo:'.$id,
 							 'mensaje' => 'No encontro ningún coste para es producto.'
 							 );
-			array_push($this->comprobaciones,$error);
+			$this->SetComprobaciones($error);
 		}
 		
 	}
@@ -341,6 +344,17 @@ class ClaseTablaArticulos{
 				break;
 			}
 		}
+	}
+	
+	public function SetComprobaciones($error){
+		// Objetivo 
+		// Añadir al array una comprobacion.
+		if (gettype($error) === 'array'){
+			// Es un array , ahora deberíamos comprobar que el tipo es corecto...:-)
+			// De momento no lo hago..
+			array_push($this->comprobaciones,$error);
+		}
+		
 	}
 }
 
