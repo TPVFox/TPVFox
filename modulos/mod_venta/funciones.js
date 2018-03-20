@@ -823,7 +823,7 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 						 AgregarFilaAlbaran(datos, dedonde);
 						 AgregarFilaProductosAl(resultado.productos, dedonde);
 						 $('#Row0').css('display', 'none');
-						  $('.unidad').attr("readonly","readonly");
+						 $('.unidad').attr("readonly","readonly");
 						
 					}else{
 						alert("Ya has introducido ese pedido");

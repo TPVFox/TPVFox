@@ -555,7 +555,14 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#tabla").find('a').css("display", "none");
 		<?php
 	}
+	
 }
+if (isset($albaranes)){
+		?>
+		 $('#Row0').css('display', 'none');
+		 $('.unidad').attr("readonly","readonly");
+		<?php
+	}
 	?>
 </script>
 	</body>
