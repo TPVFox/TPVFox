@@ -273,17 +273,6 @@ switch ($pulsado) {
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotales($productos_para_recalculo);
-				//~ $total=round($CalculoTotales['total'],2);
-				//~ $respuesta['total']=$total;
-				//~ $nuevoArray = array(
-							//~ 'desglose'=> $CalculoTotales['desglose'],
-							//~ 'total' => $CalculoTotales['total']
-								//~ );
-				//~ $respuesta['totales']=$nuevoArray;
-				//~ $totalivas=0;
-				//~ foreach($nuevoArray['desglose'] as $nuevo){
-					//~ $totalivas=$totalivas+$nuevo['iva'];
-				//~ }
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
