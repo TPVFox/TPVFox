@@ -235,11 +235,11 @@ switch ($pulsado) {
 		case 'anhadirfacturaTemporal':
 		//@Objetivo:
 		//Añadir factura temporal hace exactamente lo mismo que el añadir albarán temporal pero esta vez con facturas
-			$idFacturaTemp=$_POST['idFacturaTemp'];
+			$idFacturaTemp=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
-			$estadoFactura=$_POST['estadoFactura'];
-			$numFactura=$_POST['numFactura'];
+			$estadoFactura=$_POST['estado'];
+			$numFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
 			$albaranes=$_POST['albaranes'];
 			$productos=$_POST['productos'];

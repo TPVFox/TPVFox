@@ -230,7 +230,7 @@
 			}
 			$idFactura=0;
 			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				header('Location: albaranesListado.php');
+				header('Location: facturasListado.php');
 		}
 		
 		if (isset ($albaranes) | isset($_GET['tActual'])| isset($_GET['id'])){
