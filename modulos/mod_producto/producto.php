@@ -12,9 +12,9 @@
 		$parametros = $ClasesParametros->getRoot();
 		// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-		echo '<pre>';
-		print_r($conf_defecto);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($conf_defecto);
+		//~ echo '</pre>';
 		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
@@ -80,18 +80,14 @@
 		<div class="container">
 				
 			<?php 
-			if (isset($Producto['comprobaciones'])){   ?> 
-				<?php 
-				foreach ($Producto['comprobaciones'] as $comprobaciones){?>
-					<div class="alert alert-<?php echo $comprobaciones['tipo']; ?>"><?php echo $comprobaciones['mensaje'] ;?></div>
-					<?php 
+			if (isset($Producto['comprobaciones'])){ 
+				foreach ($Producto['comprobaciones'] as $comprobaciones){
+					echo '<div class="alert alert-'.$comprobaciones['tipo'].'">'.$comprobaciones['mensaje'].'</div>';
 				}
 				if (isset($Producto['error'])){
 				// No permito continuar, ya que hubo error grabe.
 				return;
 				}
-				?>
-			<?php
 			}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>

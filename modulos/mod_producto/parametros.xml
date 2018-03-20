@@ -7,7 +7,7 @@ de la tabla modulos_configuracion los registros de este modulo -->
 		<!-- Campos a mostrar en lista de producto -->
 		<mostrar_lista nombre="articulo_name" buscar_default="Si" descripcion="Nombre del producto" >Si</mostrar_lista>
 		<mostrar_lista nombre="crefTienda" descripcion="Referencia propia">Si</mostrar_lista>
-		<mostrar_lista nombre="codbBarras" descripcion="Codigo Barras">Si</mostrar_lista>
+		<mostrar_lista nombre="codBarras" descripcion="Codigo Barras">Si</mostrar_lista>
 
 	</configuracion>
 	
