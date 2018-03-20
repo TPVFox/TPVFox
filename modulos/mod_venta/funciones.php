@@ -340,7 +340,7 @@ function htmlPedidoAlbaran($pedidos, $dedonde){
 			if ($pedido['Numpedcli']){
 				$num=$pedido['Numpedcli'];
 			}
-			if ($pedido['estado']=="activo"){
+			if ($pedido['estado']=="Activo"){
 				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
