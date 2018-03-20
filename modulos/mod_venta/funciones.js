@@ -1114,13 +1114,13 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 				if (productos[i].Numpedcli){
 					var numProducto=productos[i].Numpedcli;
 					if (numRegistro == numProducto){
-						eliminarFila(productos[i].nfila, "bandera");
+						eliminarFila(productos[i].nfila, dedonde);
 						
 					}
 				}else{
 					var numProducto=productos[i].NumpedCli;
 					if (numRegistro == numProducto){
-						eliminarFila(productos[i].nfila, "bandera");
+						eliminarFila(productos[i].nfila, dedonde);
 						
 					}
 				}
@@ -1128,20 +1128,20 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 			}
 			num=nfila-1;
 			modificarEstado("pedidos", "Guardado", pedidos[num].idPedido);
-			addTemporal("albaran");
+			addTemporal(dedonde);
 		}
 		if (dedonde=="factura"){
 			for(i=0;i<productos.length; i++){
 				if (productos[i].Numalbcli){
 					var numProducto=productos[i].Numalbcli;
 					if (numRegistro == numProducto){
-						eliminarFila(productos[i].nfila, "bandera");
+						eliminarFila(productos[i].nfila, dedonde);
 						
 					}
 				}else{
 					var numProducto=productos[i].NumalbCli;
 					if (numRegistro == numProducto){
-						eliminarFila(productos[i].nfila, "bandera");
+						eliminarFila(productos[i].nfila, dedonde);
 						
 					}
 				}
