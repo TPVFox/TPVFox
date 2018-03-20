@@ -56,7 +56,9 @@
 			$fechave=fechaVencimiento($fechave, $BDTpv);
 		}
 		$textoFecha=htmlVencimiento($fechave, $BDTpv);
-		$productos=json_decode(json_encode($productosFactura));
+		$productosMod=modificarArrayProductos($productosFactura);
+		$productos=json_decode(json_encode($productosMod));
+		
 		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosFactura), true);
 		if ($albaranFactura){
@@ -130,6 +132,7 @@
 			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
+		
 		if (isset($factura['Albaranes'])){
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
