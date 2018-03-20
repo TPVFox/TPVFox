@@ -2,7 +2,7 @@
 <html>
 <head>
 <?php
-include './../../head.php';
+	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
@@ -127,7 +127,7 @@ include './../../head.php';
 		if(isset($factura['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
-			$Datostotales = recalculoTotalesAl($productos);
+			$Datostotales = recalculoTotales($productos);
 			$productos = json_decode(json_encode($productos), true); // Array de arrays	
 		}
 		if (isset($factura['Albaranes'])){
@@ -545,12 +545,12 @@ if ($idCliente==0){
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
-	$('#fechaFac').focus();
+	$('#fecha').focus();
 	<?php
 	if ($idCliente>0){
 		?>
-		$('#ClienteFac').prop('disabled', true);
-		$('#id_clienteFac').prop('disabled', true);
+		$('#Cliente').prop('disabled', true);
+		$('#id_cliente').prop('disabled', true);
 		$("#buscar").css("display", "none");
 		<?php
 	}

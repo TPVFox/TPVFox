@@ -405,12 +405,12 @@ if (isset($_GET['tActual'])){
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">
-	$('#fechaAl').focus();
+	$('#fecha').focus();
 	<?php
 	if ($idCliente>0){
 		?>
-		$('#ClienteAl').prop('disabled', true);
-		$('#id_clienteAl').prop('disabled', true);
+		$('#Cliente').prop('disabled', true);
+		$('#id_cliente').prop('disabled', true);
 		$("#buscar").css("display", "none");
 		<?php
 	}
