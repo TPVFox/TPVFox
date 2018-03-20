@@ -739,7 +739,7 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
-					if(albaranes){
+					if(albaranes.length>0){
 				bloquearInput();
 		}
 
