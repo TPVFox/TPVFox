@@ -540,7 +540,7 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 			$res['fecha']=$ped['FechaPedido'];
 			$res['idPedCli']=$ped['id'];
 			$res['total']=$ped['total'];
-			$res['estado']="activo";
+			$res['estado']="Activo";
 			$res['nfila']=$i;
 			array_push($respuesta,$res);
 		$i++;
@@ -561,7 +561,7 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 			$res['idAlbaran']=$ped['id'];
 			//$res['idalbCli']=$ped[0]['idCliente'];
 			$res['total']=$ped['total'];
-			$res['estado']="activo";
+			$res['estado']="Activo";
 			$res['nfila']=$i;
 			array_push($respuesta,$res);
 		$i++;
