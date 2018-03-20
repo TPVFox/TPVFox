@@ -1,5 +1,6 @@
 <?php 
-class AlbaranesVentas{
+include_once ('./clases/ClaseVentas.php');
+class AlbaranesVentas extends ClaseVentas{
 	
 	
 	public function __construct($conexion){
@@ -102,7 +103,6 @@ class AlbaranesVentas{
 		$smt = $db->query ('INSERT INTO albclit (Numtemp_albcli, Fecha, idTienda , idUsuario , idCliente , estado , total) VALUES ('.$datos['Numtemp_albcli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].')');
 		$id=$db->insert_id;
 		$smt = $db->query('UPDATE albclit SET Numalbcli  = '.$id.' WHERE id ='.$id);
-		$resultado='INSERT INTO albclit (Numtemp_albcli, Fecha, idTienda , idUsuario , idCliente , estado , total) VALUES ('.$datos['Numtemp_albcli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].')';
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
@@ -141,11 +141,9 @@ class AlbaranesVentas{
 
 				}else{
 				$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')');
-				$resultado='INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')';
 				}
 			}
 		}
-		return $resultado;
 	}
 	
 	
@@ -155,24 +153,10 @@ class AlbaranesVentas{
 		$db=$this->db;
 		if ($idAlbaran>0){
 			$smt=$db->query('DELETE FROM albcliltemporales WHERE numalbcli ='.$idAlbaran);
-			$sql='DELETE FROM albcliltemporales WHERE numalbcli ='.$idAlbaran;
 		}else{
 			$smt=$db->query('DELETE FROM albcliltemporales WHERE id='.$idTemporal);
 		}
-		return $sql;
 	}
-	
-	//~ public function TodosAlbaranes(){
-		//~ //@Objetivo:
-		//~ //Mostrar algunos datos de todos los albaranes reales
-		//~ $db=$this->db;
-		//~ $smt=$db->query('SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total, a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
-		//~ $albaranesPrincipal=array();
-		//~ while ( $result = $smt->fetch_assoc () ) {
-			//~ array_push($albaranesPrincipal,$result);
-		//~ }
-		//~ return $albaranesPrincipal;
-	//~ }
 		
 	public function TodosAlbaranesFiltro($filtro){
 		//@Objetivo:
