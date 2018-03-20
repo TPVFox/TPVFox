@@ -19,34 +19,33 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
+	$idFacturaTemporal=0;
+	$idFactura=0;
+	$numFactura=0;
+	$idCliente=0;
+	$nombreCliente=0;
+	$titulo="Factura De Cliente ";
+	$estado='Abierto';
+	$fecha=date('Y-m-d');
+	$Simporte="display:none;";
+	$formaPago=0;
 	if (isset($_GET['id'])){//Si rebie un id quiere decir que ya existe la factura
 		$idFactura=$_GET['id'];
-		$titulo="Modificar Factura De Cliente";
-		$estado='Modificado';
-		$estadoCab="'".'Modificado'."'";
 		$datosFactura=$Cfaccli->datosFactura($idFactura);//Extraemos los datos de la factura 
 		$productosFactura=$Cfaccli->ProductosFactura($idFactura);//De los productos
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas a√±adidos
 		$estado=$datosFactura['estado'];
-		$estadoCab="'".$datosFactura['estado']."'";
-		
 		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
-		$fechaCab="'".$fecha."'";
-		$idFacturaTemporal=0;
 		$numFactura=$datosFactura['Numfaccli'];
 		$idCliente=$datosFactura['idCliente'];
 		if ($idCliente){
-				// Si se cubriÛ el campo de idcliente llama a la funciÛn dentro de la clase cliente 
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$datosCliente['Nombre']."'";
-				//$formasVenci=$datosCliente['formasVenci'];
 		}
 		if ($datosFactura['formaPago']){
 			$formaPago=$datosFactura['formaPago'];
-		}else{
-			$formaPago=0;
 		}
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		if ($datosFactura['FechaVencimiento']){
@@ -57,11 +56,8 @@ include './../../head.php';
 			$fechave=fechaVencimiento($fechave, $BDTpv);
 		}
 		$textoFecha=htmlVencimiento($fechave, $BDTpv);
-
-
 		$productos=json_decode(json_encode($productosFactura));
-		$Datostotales = recalculoTotalesAl($productos);
-		
+		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productosFactura), true);
 		if ($albaranFactura){
 			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
@@ -83,23 +79,16 @@ include './../../head.php';
 		
 	}else{// si no recibe un id de una factura ya creada ponemos los datos de la temporal en caso de que tenga 
 		//Si no dejamos todo en blanco para poder cubrir
-		$titulo="Crear Factura De Cliente";
-		$bandera=1;
-		$estado='Abierto';
-		$estadoCab="'".'Abierto'."'";
-		$fecha=date('Y-m-d');
-		$fechaCab="'".$fecha."'";
-		$Simporte="display:none;";
+		
+	
+		
 	
 			if (isset($_GET['tActual'])){
 				$idFacturaTemporal=$_GET['tActual'];
 				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
 				if (isset($datosFactura['Numfaccli '])){
 					$numFactura=$datosFactura['Numfaccli'];
-				}else{
-					$numFactura=0;
 				}
-				
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
 					$fecha=date('Y-m-d');
 				}else{
@@ -115,21 +104,13 @@ include './../../head.php';
 				}else{
 					$formasVenci='';
 				}
-				$fechaCab="'".$fecha."'";
-				$idFactura=0;
-				$estadoCab="'".'Abierto'."'";
 				$factura=$datosFactura;
-				
 				$productos =  json_decode($datosFactura['Productos']) ;
-				
 				$albaranes=json_decode($datosFactura['Albaranes']);
-				
 				$datoVenci=json_decode($datosFactura['FacCobros'], true);
 				
 				if ($datoVenci['forma']){
 					$formaPago=$datoVenci['forma'];
-				}else{
-					$formaPago=0;
 				}
 				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 				if ($datoVenci['fechaVencimiento']){
@@ -141,14 +122,7 @@ include './../../head.php';
 				}
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
-			}else{
-				$idFacturaTemporal=0;
-				$idFactura=0;
-				$numFactura=0;
-				$idCliente=0;
-				$nombreCliente=0;
 			}
-		
 	}
 		if(isset($factura['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
@@ -204,7 +178,7 @@ include './../../head.php';
 			}
 			$datos=array(
 			'Numtemp_faccli'=>$idTemporal,
-			'Fecha'=>$_POST['fechaFac'],
+			'Fecha'=>$_POST['fecha'],
 			'idTienda'=>$Tienda['idTienda'],
 			'idUsuario'=>$Usuario['id'],
 			'idCliente'=>$idCliente,
@@ -269,10 +243,6 @@ include './../../head.php';
 		}else{
 			$stylea="display:none;";
 		}
-		if (isset($_GET['mensaje'])){
-				$mensaje=$_GET['mensaje'];
-				$tipomensaje=$_GET['tipo'];
-			}
 		
 		$parametros = simplexml_load_file('parametros.xml');
 	
@@ -281,11 +251,10 @@ include './../../head.php';
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="factura";
 		}
-//~ $parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="factura";
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
 		
-
+$titulo .= ': '.$estado;	
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -295,13 +264,11 @@ include './../../head.php';
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idFacturaTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
-	//	cabecera['numFactura'] = <?php echo $numFactura ;?>;
-		cabecera['fecha'] = <?php echo $fechaCab ;?>;
+		cabecera['fecha'] = '<?php echo $fecha ;?>';
 		cabecera['idCliente'] = <?php echo $idCliente ;?>;
-		//cabecera['nombreCliente'] = <?php echo $nombreCliente ;?>;
 		
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos aÒadir con push, que ya debe ser un array
@@ -350,10 +317,10 @@ if ($idCliente==0){
 	$idCliente="";
 	$nombreCliente="";
 }
-if (isset($_GET['tActual'])){
-	$nombreCliente=$cliente['Nombre'];
+//~ if (isset($_GET['tActual'])){
+	//~ $nombreCliente=$cliente['Nombre'];
 	
-}
+//~ }
 
 ?>
 </head>
@@ -373,19 +340,7 @@ if (isset($_GET['tActual'])){
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			<?php 
 			
-			if (isset($mensaje) || isset($error)){   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
-				}
-				?>
-			<?php
-			}
-			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="./facturasListado.php">Volver Atr√°s</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
@@ -483,7 +438,7 @@ if (isset($_GET['tActual'])){
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedidoAlbaran($producto, "factura");
-				echo $html['html'];
+				echo $html;
 			}
 		
 			}
@@ -493,30 +448,10 @@ if (isset($_GET['tActual'])){
 	</div>
 	<?php 
 	if(isset($Datostotales)){
-			// Ahora montamos base y ivas
-			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				switch ($iva){
-					case 4 :
-						$base4 = $basesYivas['base'];
-						$iva4 = $basesYivas['iva'];
-					break;
-					case 10 :
-						$base10 = $basesYivas['base'];
-					$iva10 = $basesYivas['iva'];
-				break;
-				case 21 :
-						$base21 = $basesYivas['base'];
-						$iva21 = $basesYivas['iva'];
-					break;
-				}
-			}
-	
 	?>
-
 		<script type="text/javascript">
 			total = <?php echo $Datostotales['total'];?>;
 			</script>
-
 			<?php
 	}
 	?>
@@ -530,42 +465,9 @@ if (isset($_GET['tActual'])){
 			</tr>
 		</thead>
 		<tbody>
-			<tr id="line4">
-				<td id="tipo4">
-					<?php echo (isset($base4) ? " 4%" : '');?>
-				</td>
-				<td id="base4">
-					<?php echo (isset($base4) ? $base4 : '');?>
-				</td>
-				<td id="iva4">
-					<?php echo (isset($iva4) ? $iva4 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line10">
-				<td id="tipo10">
-					<?php echo (isset($base10) ? "10%" : '');?>
-				</td>
-				<td id="base10">
-					<?php echo (isset($base10) ? $base10 : '');?>
-				</td>
-				<td id="iva10">
-					<?php echo (isset($iva10) ? $iva10 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line21">
-				<td id="tipo21">
-					<?php echo (isset($base21) ? "21%" : '');?>
-				</td>
-				<td id="base21">
-					<?php echo (isset($base21) ? $base21 : '');?>
-				</td>
-				<td id="iva21">
-					<?php echo (isset($iva21) ? $iva21 : '');?>
-				</td>
-				
-			</tr>
+			<?php 
+			$htmlIvas=htmlTotales($Datostotales);
+			echo $htmlIvas['html']; ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
