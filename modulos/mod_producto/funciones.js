@@ -193,7 +193,7 @@ function AnhadirCodbarras(){
 function GuardarConfiguracion(obj){
 	// Si llega aquí es porque cambio el valor de check impresion...
 	// tenemos que tomar los valores configuracion para enviarlos y cambiarlos.
-	alert('Grabar configuracion');
+	console.log('Grabar configuracion');
 	if ($(obj).val() === 'Si'){
 		$(obj).val('No');
 	} else {
@@ -204,8 +204,14 @@ function GuardarConfiguracion(obj){
 	var nombre = $(obj).attr("name");
 
 	CambiarConfiguracionMostrarLista(valor,nombre); // Cambiamos el valor de la configuracion
-
-	
+	// Ahora ejecutamos el guardar la configuracion.. pero esperamos un segundo por si tarda en hacer CambiarConfiguracionMostrarListado.
+	setTimeout(AjaxGuardarConfiguracion,500);
+	// Recargo pagina en un 1 s.
+	setTimeout(refresh,1000);
+}
+function AjaxGuardarConfiguracion(){
+	// Objetivo:
+	// Guardar configuracion de usuario y modulo.
 	var parametros = {
 		"pulsado"    		: 'Grabar_configuracion',
 		"configuracion"		: configuracion,
@@ -221,9 +227,11 @@ function GuardarConfiguracion(obj){
 				console.log('Respuesta de grabar configuracion');
 				// var resultado = $.parseJSON(response);
 				var resultado = response;
+				return resultado ;
 			}
 			
 	});
+	
 	
 }
 function CambiarConfiguracionMostrarLista(valor,nombre){
@@ -235,4 +243,40 @@ function CambiarConfiguracionMostrarLista(valor,nombre){
 		}
 	});
 
+}
+
+function CambiarConfiguracionBuscar_default(nombre){
+	// Ahora cambiamos el valor configuracion.
+	configuracion.mostrar_lista.forEach(function(element) {
+		if (element.nombre === nombre){
+			// Creo propiedad buscar_default.
+			element.buscar_default='Si';
+		} else {
+			// A todos los demas elimino propiedad
+			delete element.buscar_default;
+		}
+	});
+
+}
+
+
+function GuardarBusqueda(event){
+	// @ Objetivo :
+	// Guardar el campo el que se busca en la configuracion del usuario y del modulo.
+	// @ Parametro:
+	// 		event-> Es select....
+	console.log("GuardarBusqeuda");
+	var campo =  event.target.value;
+	CambiarConfiguracionBuscar_default(campo);
+	// Ahora ejecutamos el guardar la configuracion.. pero esperamos un segundo por si tarda en hacer CambiarConfiguracionBuscar_default.
+	var respuesta = setTimeout(AjaxGuardarConfiguracion,500);
+	// Limpiamo la cja de busqueda, ya que cambiamos la  busqueda.
+	$('input:text[name=buscar]').val("");
+	
+}
+
+
+function refresh() {
+	// Funcion para recargar pagina.
+	location.reload(true);
 }

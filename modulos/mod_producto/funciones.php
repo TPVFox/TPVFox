@@ -273,6 +273,67 @@ function añadirProducto($BDTpv, $datos, $tabla){
 	return $resultado;
 }
 
+function MostrarColumnaConfiguracion($mostrar_lista,$parametro){
+	// @ Objetivo:
+	// Es comprobar el estado de la configuracion, para saber si muestra o no, lo utilizo Listadoproductos
+	// @ Parametros:
+	// 		$mostrar_lista:(Array) Array de objectos de configuracion de mostrar_lista.
+	// 		$parametro: (String) Nombre de campo que ponemos en configuracion.
+	// @ Devuelve:
+	// (String) Si o No.
+	foreach ($mostrar_lista as $lista){
+		if ($parametro == $lista->nombre){
+			return $lista->valor;
+		}
+	}
+}
+	
+
+
+function HtmlListadoCheckMostrar($mostrar_lista){
+	// @ Objetivo:
+	// Obtener el html de los parametros que no sea por defecto para poder cambiarlos.
+	// @ Parametros:
+	// 		$mostrar_lista:(Array) Array de objectos de configuracion de mostrar_lista.
+	// @ Devuelve:
+	// 	 Array :
+	// 		[htmlCheck] 	(string) Los inputs con lo check que podemos modificar 
+	// 		[htmlOption]	(string) Select con opciones si sesta marcado como SI.
+	// 		[error] 		(string) Si hubo mas de un parametro por defecto.
+	// 		[campo_defecto]	(string) Con el nombre del parametro por defecto.
+	$respuesta 				= array();
+	$respuesta['htmlOption']= '';
+	$respuesta['htmlCheck'] = '';
+	$c = 0; // Contador de campos con buscar_default
+	foreach ($mostrar_lista as $mostrar){
+		if (!isset($mostrar->buscar_default)){
+			// No pongo opcion de cambiar aquel que esta por defecto.
+			// Solo lo podemos cambiar fichero parametros.xml.
+			$c= ' onchange="GuardarConfiguracion(this)"';
+			if ($mostrar->valor==='Si'){
+				$c ='checked '.$c;
+				$respuesta['htmlOption'] .= '<option value="'.$mostrar->nombre.'">'.$mostrar->descripcion.'</option>';
+			}
+			$respuesta['htmlCheck'] .= '<input class="configuracion" type="checkbox" name="'.$mostrar->nombre.'" value="'.$mostrar->valor.'"'.$c.'>'.$mostrar->descripcion.'<br>';
+		} else {
+			$c ++;
+			if ( $c > 1){
+				// Hubo un error no puede haber mas que uno por default.
+				$respuesta['error'] = 'El fichero de parametros o la tabla modulos_configuracion para este usuario y modulo es incorrecta, ya que tiene mas de un parametro por default.';
+				// No continuamos.
+				return $respuesta;
+			}
+			$respuesta['campo_defecto'] = $mostrar->nombre;
+			$respuesta['htmlOption'] = '<option value="'.$mostrar->nombre.'">'.$mostrar->descripcion.'</option>'.
+										$respuesta['htmlOption'];
+		}
+		
+	}	
+	return $respuesta;
+
+
+}
+
 
 
 

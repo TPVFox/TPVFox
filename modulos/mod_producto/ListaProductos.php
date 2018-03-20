@@ -7,7 +7,8 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include ("./clases/ClaseProductos.php");
-	
+	$CTArticulos = new ClaseProductos($BDTpv);
+
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$Controler = new ControladorComun; // Controlado comun..
 	// Añado la conexion
@@ -15,29 +16,39 @@
 	// Inicializo varibles por defecto.
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
-	
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	// Obtenemos la configuracion del usuario o la por defecto
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_productos',$Usuario['id']);
+	// Compruebo que solo halla un campo por el que buscar por defecto.
+	if (!isset($configuracion['tipo_configuracion'])){
+		// Hubo un error en la carga de configuracion.
+		$error = array(	'tipo'=>'danger',
+						'dato'=>'Fichero Parametros.xml',
+						'mensaje' =>'Error al cargar configuracion.'
+				);
+		$CTArticulos->SetComprobaciones($error);
+
+	}
+	$htmlConfiguracion = HtmlListadoCheckMostrar($configuracion['mostrar_lista']);
 	
-	echo '<pre>';
-	print_r($configuracion);
-	echo '</pre>';
+	if (isset($htmlConfiguracion['error'])){
+		// quiere decir que hubo error en la configuracion.
+		$error = array(	'tipo'=>'danger',
+						'dato'=>'Fichero Parametros.xml',
+						'mensaje' =>$htmlConfiguracion['error']
+				);
+		$CTArticulos->SetComprobaciones($error);
+	}
 	
-	$CTArticulos = new ClaseProductos($BDTpv);
-
-
-
 	//INICIALIZAMOS variables para el plugin de paginado:
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	$filtro = ''; // por defecto
-	$vista = 'articulos';
 	$LinkBase = './ListaProductos.php?';
 	$OtrosParametros = '';
 	
@@ -62,22 +73,32 @@
 	// Realizamos consulta 
 	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
 	if ($stringPalabras !== '' ){
-		$campoBD='articulo_name';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
+		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$htmlConfiguracion['campo_defecto']);
 		$filtro=$WhereLimite['filtro'];
 		$OtrosParametros=$stringPalabras;
 	}
-	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-
+		
+	
+	if ($htmlConfiguracion['campo_defecto']=== 'articulo_name' && $filtro===''){
+		// Si el campo por defecto es nombre... no hace falta hacer consulta para obtener total.
+		$CantidadRegistros = $CTArticulos->GetNumRows(); 
+	} else {
+		$CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro));
+	}
+	
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
 	} else {
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
+		
+	$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro);
 	
-	$productos = $CTArticulos->obtenerProductos($filtro);
+	//~ echo '<pre>';
+	//~ print_r($nuevo);
+	//~ echo '</pre>';
+	
 	
 	// Añadimos a JS la configuracion
 		echo '<script type="application/javascript"> '
@@ -100,6 +121,20 @@
         ?>
        
 	<div class="container">
+		<?php // Control de errores..
+			$comprobaciones = $CTArticulos->GetComprobaciones();
+			if ( count($comprobaciones)>0){
+				foreach ( $comprobaciones as $comprobacion){
+					echo '<div class="alert alert-'.$comprobacion['tipo'].'">'.$comprobacion['mensaje'].'</div>';
+					if ($comprobacion['tipo']==='danger'){
+						// No permito continuar.
+						exit();
+					}
+				}
+			}
+			
+			?>
+		
 		<div class="row">
 			<div class="col-md-12 text-center">
 				<h2> Productos: Editar y Añadir Productos </h2>
@@ -123,17 +158,9 @@
 											//si NO nos indica que tenemos que elegir uno de la lista ?>
 				</ul>	
 				<h4>Configuracion</h4>
-				<h5>Mostrar y buscar por:</h5>
+				<h5>Marca que campos quieres mostrar y por lo quieres buscar.</h5>
 				<?php 
-				foreach ($configuracion['mostrar_lista'] as $mostrar){
-					$c= ' onchange="GuardarConfiguracion(this)"';
-					if ($mostrar->valor==='Si'){
-						$c ='checked '.$c;
-					}
-					echo '<input class="configuracion" type="checkbox" name="'.$mostrar->nombre.'" value="'.$mostrar->valor.'"'.$c.'>';
-					echo $mostrar->descripcion.'<br>';
-					
-				}
+					echo $htmlConfiguracion['htmlCheck'];
 				?>
 			
 			</div>
@@ -149,8 +176,9 @@
 					?>
 				<form action="./ListaProductos.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en descripcion </label>
-						<input type="text" name="buscar" value="">
+						<label>Buscar por:</label>
+						<select onchange="GuardarBusqueda(event);" name="SelectBusqueda" id="sel1"> <?php echo $htmlConfiguracion['htmlOption'];?> </select>
+						<input type="text" name="buscar" value="<?php echo $stringPalabras; ?>">
 						<input type="submit" value="buscar">
 					</div>
 				</form>
@@ -162,10 +190,10 @@
 						<th></th>
 						<th>ID</th>
 						<th>PRODUCTO</th>
-						<?php if ($configuracion['mostrar_lista'][1]->valor === 'Si'){
+						<?php if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'],'codBarras') === 'Si'){
 							echo '<th>CODIGO BARRAS</th>';
 						}
-						if ($configuracion['mostrar_lista'][0]->valor === 'Si'){
+						if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'],'crefTienda') === 'Si'){
 							echo '<th>REFERENCIA</th>';
 						}
 						?>
@@ -193,8 +221,8 @@
 					<td><?php echo $producto['articulo_name']; ?></td>
 					
 					<?php
-					if ($configuracion['mostrar_lista'][1]->valor === 'Si'){
-						$ObCodbarras = $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
+					if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'],'crefTienda') === 'Si'){
+						$CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
 						$codBarrasProd = $CTArticulos->GetCodbarras();
 						echo '<td>'; 
 						if ($codBarrasProd){
@@ -206,14 +234,15 @@
 					}
 					?>
 					<?php 
-					if ($configuracion['mostrar_lista'][0]->valor === 'Si'){
-						// $ObCodbarras = $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
-						// $codBarrasProd = $CTArticulos->GetCodbarras();
+					if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'],'codBarras') === 'Si'){
+						$CTArticulos->ObtenerReferenciasTiendas($producto['idArticulo']);
+						$refTiendas = $CTArticulos->GetReferenciasTiendas();
 						echo '<td>'; 
-						// if ($codBarrasProd){
-							// foreach ($codBarrasProd as $cod){
-								// echo '<small>'.$cod.'</small><br>';
-						// }
+						if ($refTiendas){
+							foreach ($refTiendas as $ref){
+								echo $ref['crefTienda'];
+							}
+						}
 						echo '</td>';
 					}
 					
