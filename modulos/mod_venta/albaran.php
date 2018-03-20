@@ -17,21 +17,20 @@ include './../../head.php';
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$idAlbaranTemporal=0;
+	$estado='Abierto';
 	$idAlbaran=0;
 	$numAlbaran=0;
 	$idCliente=0;
 	$nombreCliente=0;
+	$titulo="Albarán De Cliente ";
 	
 	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
-		$titulo="Modificar Albarán De Cliente";
 		$datosAlbaran=$Calbcli->datosAlbaran($idAlbaran);
 		$productosAlbaran=$Calbcli->ProductosAlbaran($idAlbaran);
 		$ivasAlbaran=$Calbcli->IvasAlbaran($idAlbaran);
 		$pedidosAlbaran=$Calbcli->PedidosAlbaranes($idAlbaran);
 		$estado=$datosAlbaran['estado'];
-		$estadoCab="'".$datosAlbaran['estado']."'";
-		
 		$date=date_create($datosAlbaran['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
 		$fechaCab="'".$fecha."'";
@@ -55,10 +54,8 @@ include './../../head.php';
 		
 		
 	}else{
-		$titulo="Crear Albarán De Cliente";
 		$bandera=1;
-		$estado='Abierto';
-		$estadoCab="'".'Abierto'."'";
+	
 		$fecha=date('Y-m-d');
 		$fechaCab="'".$fecha."'";
 			if (isset($_GET['tActual'])){//Recibido un albarán temporal
@@ -69,9 +66,6 @@ include './../../head.php';
 					$numAlbaran=$datosAlbaran['numalbcli'];
 					$id=$Calbcli->datosAlbaranNum($numAlbaran);
 					$idAlbaran=$id['id'];
-				}else{
-					$numAlbaran=0;
-					$idAlbaran=0;
 				}
 				echo $numAlbaran;
 					if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
@@ -85,9 +79,6 @@ include './../../head.php';
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$cliente['Nombre']."'";
 				$fechaCab="'".$fecha."'";
-				
-				
-				$estadoCab="'".'Abierto'."'";
 				$albaran=$datosAlbaran;
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
@@ -173,7 +164,7 @@ include './../../head.php';
 		}else{
 			$style="display:none;";
 		}
-	
+$titulo .= ': '.$estado;	
 		$parametros = simplexml_load_file('parametros.xml');
 		foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="albaran";
@@ -192,7 +183,7 @@ include './../../head.php';
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
