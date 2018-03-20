@@ -1,35 +1,5 @@
 <?php 
 class FacturasVentas{
-	private $id;
-	private $Numfaccli;
-	private $Numtemp_faccli;
-	private $fecha;
-	private $idTienda;
-	private $idUsuario;
-	private $idCliente;
-	private $estado;
-	private $formaPago;
-	private $entregado;
-	private $total;
-	private $idfacclilinea;
-	private $idArticulo;
-	private $cref;
-	private $ccodbar;
-	private $cdetalle;
-	private $ncant;
-	private $nunidades;
-	private $precioCiva;
-	private $iva;
-	private $nfila;
-	private $estadoLinea;
-	private $idfaccliiva;
-	private $importeiva;
-	private $totalbase;
-	private $fechaCreacion;
-	private $fechaModificacion;
-	private $fechaVencimiento;
-	
-	
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
@@ -54,18 +24,6 @@ class FacturasVentas{
 		}
 		return $facturaPrincipal;
 		
-	}
-
-	
-	//Muestra algunos datos de todos las facturas reales
-	public function TodosFactura(){
-		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ');
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
 	}
 		//Muestra algunos datos de todos las facturas con un filtro
 	public function TodosFacturaFiltro($filtro){
@@ -139,7 +97,6 @@ class FacturasVentas{
 		$db=$this->db;
 		if ($idFactura>0){
 			$smt=$db->query('DELETE FROM faccliltemporales WHERE numfaccli ='.$idFactura);
-			$sql='DELETE FROM faccliltemporales WHERE numfaccli ='.$idFactura;
 		}else{
 			$smt=$db->query('DELETE FROM faccliltemporales WHERE id='.$idTemporal);
 		}
@@ -164,8 +121,6 @@ class FacturasVentas{
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
 		$smt=$db->query('UPDATE faccliltemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio='.$fecha.' , Albaranes ='."'".$UnicoCampoAlbaranes."'". ' ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$idTemporal);
-		$sql='UPDATE faccliltemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacCli='.$estadoFactura.' , fechaInicio='.$fecha.' , Albaranes ='."'".$UnicoCampoAlbaranes."'". ' ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$idTemporal;
-		$respuesta['sql']=$sql;
 		$respuesta['idTemporal']=$idTemporal;
 		$respuesta['productos']=$UnicoCampoProductos;
 	
@@ -178,38 +133,26 @@ class FacturasVentas{
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
 		$smt = $db->query ('INSERT INTO faccliltemporales ( idUsuario , idTienda , estadoFacCli , fechaInicio, idClientes, Albaranes, Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '.$idCliente.' , '."'".$UnicoCampoAlbaranes."'".', '."'".$UnicoCampoProductos."'".')');
-		$sql='INSERT INTO faccliltemporales ( idUsuario , idTienda , estadoFacCli , fechaInicio, idClientes, Productos, Albaranes) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '.$idCliente.' , '."'".$UnicoCampoProductos."'".', '."'".$UnicoCampoAlbaranes."'".')';
-
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
-		$respuesta['sql']=$sql;
 		$respuesta['productos']=$productos;
-		
 		return $respuesta;
 	}
 	
 	//Añade a una factura temporal el número real de la factura en el caso de que exista 
 		public function addNumRealTemporal($idTemporal,  $numFactura){
 		$db = $this->db;
-		//$UnicoCampoPedidos=json_encode($albaranes);
 		$smt=$db->query('UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal);
-		$sql='UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal;
-		return $sql;
 	}
 	//Modifica el total de una factura temporal
 	public function modTotales($res, $total, $totalivas){
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
-		$sql='UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
-		$resultado['sql']=$sql;
-		return $resultado;
 	}
 	//Modificar el estado de una factura real
 	public function modificarEstado($idFactura, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE facclit set estado="'.$estado .'" where id='.$idFactura);
-		$sql='UPDATE facclit set estado='.$estado .' where id='.$idFactura;
-		return $sql;
 	}
 	//Eliminar todos los registros de un id de factura real
 	public function eliminarFacturasTablas($idFactura){
@@ -227,12 +170,10 @@ class FacturasVentas{
 		if ($idFactura>0){
 			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".', '.$datos['entregado'].', "'.$datos['fechaModificacion'].'")');
 			$id=$idFactura;
-			$resultado['insert']='INSERT INTO facclit (Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$idFactura.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".', '.$datos['entregado'].', "'.$datos['fechaModificacion'].'")';
 		}else{
 			$smt = $db->query ('INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".' , '.$datos['entregado'].' , "'.$datos['fechaModificacion'].'")');
 			$id=$db->insert_id;
 			$smt = $db->query('UPDATE facclit SET Numfaccli  = '.$id.' WHERE id ='.$id);
-			$resultado['insert']='INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".' , '.$datos['entregado'].' , "'.$datos['fechaModificacion'].'")';
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
@@ -253,11 +194,9 @@ class FacturasVentas{
 				
 				}
 				if ($idFactura>0){
-				$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numAl.')' );
-				$resultado['productos']='INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numAl.')';
+				$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numAl.')' );
 				}else{
-				$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numAl.')' );
-				$resultado['productos']='INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['ncant'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numAl.')';
+				$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numAl.')' );
 				}
 			}
 		}
@@ -276,10 +215,8 @@ class FacturasVentas{
 			if ($albaran['estado']=="activo" || $albaran['estado']=="Activo"){
 			if($idFactura>0){
 				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')');
-				$resultado['albaran']='INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')';
 				}else{
 				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')');
-				$resultado['albaran']='INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')';
 				}
 			}
 		}
@@ -300,8 +237,6 @@ class FacturasVentas{
 	public function formasVencimientoTemporal($idTemporal, $json){
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal);
-		$sql='UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal;
-		return $sql;
 	}
 	//BUscamos los importes añadidos a una factura 
 	public function importesFacturaDatos($idFactura){
@@ -316,8 +251,6 @@ class FacturasVentas{
 	public function modificarImportesFactura($idFactura, $jsonImporte, $entregado, $estado){
 		$db=$this->db;
 		$smt=$db->query('UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura);
-		$sql='UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura;
-		return $sql;
 	}
 	
 	
