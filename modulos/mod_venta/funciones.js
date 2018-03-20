@@ -1148,7 +1148,7 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 			}
 			num=nfila-1;
 			modificarEstado("albaran", "Guardado", albaranes[num].idAlbaran);
-			addTemporal("factura");
+			addTemporal(dedonde);
 		}
 }
 function retornarAdjunto(numRegistro, dedonde, nfila){
@@ -1172,38 +1172,38 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 			if (productos[i].Numpedcli){
 				var numProducto=productos[i].Numpedcli;
 				if (numRegistro==numProducto){
-					retornarFila(productos[i].nfila, "bandera");
+					retornarFila(productos[i].nfila, dedonde);
 				}
 			}else{
 				var numProducto=productos[i].NumpedCli;
 				if (numRegistro==numProducto){
-					retornarFila(productos[i].nfila, "bandera");
+					retornarFila(productos[i].nfila, dedonde);
 				}
 				
 			}
 		}
 		num=nfila-1;
 		modificarEstado("pedidos", "Facturado", pedidos[num].idPedido);
-		addTemporal("albaran");
+		addTemporal(dedonde);
 	}
 	if (dedonde=="factura"){
 		for(i=0;i<productos.length; i++){
 				if (productos[i].Numalbcli){
 				var numProducto=productos[i].Numalbcli;
 				if (numRegistro==numProducto){
-					retornarFila(productos[i].nfila, "bandera");
+					retornarFila(productos[i].nfila, dedonde);
 				}
 			}else{
 				var numProducto=productos[i].NumalbCli;
 				if (numRegistro==numProducto){
-					retornarFila(productos[i].nfila, "bandera");
+					retornarFila(productos[i].nfila, dedonde);
 				}
 				
 			}
 			}
 		num=nfila-1;
 		modificarEstado("albaran", "Facturado",albaranes[num].idAlbaran );
-		addTemporal("factura");
+		addTemporal(dedonde);
 	
 	}
 }
