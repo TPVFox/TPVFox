@@ -41,9 +41,10 @@ include './../../head.php';
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$datosCliente['Nombre']."'";
 		}
-		$productos=json_decode(json_encode($productosAlbaran));
+		$productosMod=modificarArrayProductos($productosAlbaran);
+		$productos=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productosAlbaran), true);
+		$productos=json_decode(json_encode($productos), true);
 	
 		if ($pedidosAlbaran){
 			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
@@ -365,24 +366,6 @@ if (isset($_GET['tActual'])){
 	</div>
 	<?php 
 	if (isset ($Datostotales)){
-			// Ahora montamos base y ivas
-			foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				switch ($iva){
-					case 4 :
-						$base4 = $basesYivas['base'];
-						$iva4 = $basesYivas['iva'];
-					break;
-					case 10 :
-						$base10 = $basesYivas['base'];
-						$iva10 = $basesYivas['iva'];
-					break;
-					case 21 :
-						$base21 = $basesYivas['base'];
-						$iva21 = $basesYivas['iva'];
-					break;
-				}
-			}
-	
 	?>
 
 		<script type="text/javascript">
@@ -390,7 +373,7 @@ if (isset($_GET['tActual'])){
 			</script>
 
 			<?php
-}
+		}
 	?>
 	<div class="col-md-10 col-md-offset-2 pie-ticket">
 		<table id="tabla-pie" class="col-md-6">
@@ -402,42 +385,9 @@ if (isset($_GET['tActual'])){
 			</tr>
 		</thead>
 		<tbody>
-			<tr id="line4">
-				<td id="tipo4">
-					<?php echo (isset($base4) ? " 4%" : '');?>
-				</td>
-				<td id="base4">
-					<?php echo (isset($base4) ? $base4 : '');?>
-				</td>
-				<td id="iva4">
-					<?php echo (isset($iva4) ? $iva4 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line10">
-				<td id="tipo10">
-					<?php echo (isset($base10) ? "10%" : '');?>
-				</td>
-				<td id="base10">
-					<?php echo (isset($base10) ? $base10 : '');?>
-				</td>
-				<td id="iva10">
-					<?php echo (isset($iva10) ? $iva10 : '');?>
-				</td>
-				
-			</tr>
-			<tr id="line21">
-				<td id="tipo21">
-					<?php echo (isset($base21) ? "21%" : '');?>
-				</td>
-				<td id="base21">
-					<?php echo (isset($base21) ? $base21 : '');?>
-				</td>
-				<td id="iva21">
-					<?php echo (isset($iva21) ? $iva21 : '');?>
-				</td>
-				
-			</tr>
+		<?php 
+			$htmlIvas=htmlTotales($Datostotales);
+			echo $htmlIvas['html']; ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
