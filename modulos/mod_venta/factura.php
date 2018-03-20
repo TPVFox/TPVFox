@@ -276,7 +276,6 @@ $titulo .= ': '.$estado;
 <?php 
 	if (isset($facturaTemporal)| isset($idFactura)){ 
 ?>
-//	console.log("entre en el javascript");
 	</script>
 	<script type="text/javascript">
 <?php
@@ -317,11 +316,6 @@ if ($idCliente==0){
 	$idCliente="";
 	$nombreCliente="";
 }
-//~ if (isset($_GET['tActual'])){
-	//~ $nombreCliente=$cliente['Nombre'];
-	
-//~ }
-
 ?>
 </head>
 <body>
