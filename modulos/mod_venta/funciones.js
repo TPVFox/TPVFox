@@ -799,6 +799,7 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 					for(i=0; i<albaranes.length; i++){//recorre todo el array de arrays de pedidos
 						var numeroAlbaran=albaranes[i].Numalbcli;
 						var numeroNuevo=resultado['datos'].Numalbcli;
+
 						if (numeroAlbaran == numeroNuevo){
 							bandera=bandera+1;
 						}
@@ -813,6 +814,7 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 						var numFila=productos.length+1;
 						for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 							resultado.productos[i]['nfila']=numFila;
+							resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['precioCiva'];
 							productos.push(resultado.productos[i]);
 							numFila++;
 						}
