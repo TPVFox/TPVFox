@@ -16,6 +16,12 @@ include './../../head.php';
 	$Controler = new ControladorComun; 
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
+	$idAlbaranTemporal=0;
+	$idAlbaran=0;
+	$numAlbaran=0;
+	$idCliente=0;
+	$nombreCliente=0;
+	
 	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
 		$titulo="Modificar Albarán De Cliente";
@@ -29,7 +35,6 @@ include './../../head.php';
 		$date=date_create($datosAlbaran['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
 		$fechaCab="'".$fecha."'";
-		$idAlbaranTemporal=0;
 		$numAlbaran=$datosAlbaran['Numalbcli'];
 		$idCliente=$datosAlbaran['idCliente'];
 		if ($idCliente){
@@ -87,12 +92,6 @@ include './../../head.php';
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
 				
-			}else{
-				$idAlbaranTemporal=0;
-				$idAlbaran=0;
-				$numAlbaran=0;
-				$idCliente=0;
-				$nombreCliente=0;
 			}
 		
 	}
@@ -135,28 +134,19 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
-		//~ echo '<pre>';
-		//~ print_r($datosAlbaran['Productos']);
-		//~ echo '</pre>';
+	
 			if($datosAlbaran['numalbcli']>0){
 				$id=$Calbcli->datosAlbaranNum($datosAlbaran['numalbcli']);
 				$numAlbaran=$datosAlbaran['numalbcli'];
 				$idAlbaran=$id['id'];
-				
 				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
 				 $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran);
 				 $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
-				 //~ echo '<pre>';
-				 //~ print_r($addNuevo);
-				 //~ echo '</pre>';
 			 }else{
 				$idAlbaran=0;
 				$numAlbaran=0;
 				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran);
 				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-				//~ echo '<pre>';
-				 //~ print_r($addNuevo);
-				 //~ echo '</pre>';
 			}
 		 header('Location: albaranesListado.php');
 			
@@ -178,9 +168,6 @@ include './../../head.php';
 			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
 				header('Location: albaranesListado.php');
 		}
-		echo '<pre>';
-		print_r($pedidos);
-		echo '</pre>';
 		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
 			$style="";
 		}else{
@@ -191,18 +178,11 @@ include './../../head.php';
 		foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="albaran";
 		}
-
-		//~ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-
-	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 //Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
 	//	$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
 		
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-//~ echo '<pre>';
-//~ print_r($VarJS);
-//~ echo '</pre>';
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -215,10 +195,8 @@ include './../../head.php';
 		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
-	//	cabecera['numAlbaran'] = <?php echo $numAlbaran ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idCliente'] = <?php echo $idCliente ;?>;
-	//	cabecera['nombreCliente'] = <?php echo $nombreCliente ;?>;
 		
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
@@ -286,22 +264,6 @@ if (isset($_GET['tActual'])){
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			<?php 
-			if (isset($_GET['mensaje'])){
-				$mensaje=$_GET['mensaje'];
-				$tipomensaje=$_GET['tipo'];
-			}
-			if (isset($mensaje) || isset($error)){   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
-				}
-				?>
-			<?php
-			}
-			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="./albaranesListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
@@ -360,9 +322,6 @@ if (isset($_GET['tActual'])){
 				</thead>
 				
 				<?php 
-				echo '<pre>';
-				print_r($pedidos);
-				echo '</pre>';
 				//Si existen pedidos en el albarán los escribimos
 				if (isset($pedidos)){
 					$html=htmlPedidoAlbaran($pedidos, "albaran");
