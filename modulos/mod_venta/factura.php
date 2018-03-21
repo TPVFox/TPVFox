@@ -372,11 +372,13 @@ if ($idCliente==0){
 			<div class="col-md-3">
 					<strong>Forma de pago:</strong><br>
 					<p id="formaspago">
+						<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>
 					<?php 
 					if(isset ($textoFormaPago)){
 							echo $textoFormaPago['html'];
 					}
 					?>
+					</select>
 					</p>
 			</div>
 			<div class="col-md-3">
@@ -515,10 +517,11 @@ if ($idCliente==0){
 				<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
 				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
 				<td>
+					<select name='Eformas' id='Eformas'>
 				<?php 
-				$htmlFormas=FormasDePago($BDTpv);
-				echo $htmlFormas;
+				echo $textoFormaPago['html'];
 				?>
+				</select>
 				</td>
 				<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
 				<td></td>

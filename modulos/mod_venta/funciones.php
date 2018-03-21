@@ -573,7 +573,7 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 function htmlFormasVenci($formaVenci, $BDTpv){
 	
 	$formasPago=new FormasPago($BDTpv);
-	$html="<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>";
+	//$html="<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>";
 	
 	$principal=$formasPago->datosPrincipal($formaVenci);
 	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
@@ -581,25 +581,25 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 	foreach ($otras as $otra){
 		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
 	}
-	$html.='</select>';
+	//$html.='</select>';
 	
 	
 	$respuesta['formas']=$formaVenci;
 	$respuesta['html']=$html;
 	return $respuesta;
 }
-function FormasDePago($BDTpv){
-	$html="<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>";
-	$formasPago=new FormasPago($BDTpv);
-	$formas=$formasPago->todas();
-		$html.='<option value= "0">Sin Forma</option>';
-		foreach($formas as $forma){
-			$html.='<option value= "'.$forma['id'].'">'.$forma['descripcion'].'</option>';
-		}
-		$html.='</select>';
-		return $html;
+//~ function FormasDePago($BDTpv){
+	//~ $html="<select name='fomaImporte' id='fomaImporte'>";
+	//~ $formasPago=new FormasPago($BDTpv);
+	//~ $formas=$formasPago->todas();
+		//~ $html.='<option value= "0">Sin Forma</option>';
+		//~ foreach($formas as $forma){
+			//~ $html.='<option value= "'.$forma['id'].'">'.$forma['descripcion'].'</option>';
+		//~ }
+		//~ $html.='</select>';
+		//~ return $html;
 	
-}
+//~ }
 
 function htmlVencimiento($nuevafecha, $BDTpv){
 	$vencimiento=new TiposVencimientos($BDTpv);
