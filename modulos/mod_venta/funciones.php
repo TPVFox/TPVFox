@@ -632,8 +632,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$numero=$datos['Numpedcli'];
 		$fecha=$datos['FechaPedido'];
 		$productos=$Cpedido->ProductosPedidos($id);
-		//$productosMod=modificarArrayProductos($productos);
-		$productos1=json_decode(json_encode($productos));
+		$productosMod=modificarArrayProductos($productos);
+		$productos1=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos1);
 	}
 	if ($dedonde =='albaran'){
@@ -645,8 +645,9 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$numero=$datos['Numalbcli'];
 		$fecha=$datos['Fecha'];
 		$productos=$Calbaran->ProductosAlbaran($id);
-		$productos1=json_decode(json_encode($productos));
-		$Datostotales = recalculoTotalesAl($productos1);
+		$productosMod=modificarArrayProductos($productos);
+		$productos1=json_decode(json_encode($productosMod));
+		$Datostotales = recalculoTotales($productos1);
 		
 	}
 	if ($dedonde=='factura'){
@@ -658,8 +659,9 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$numero=$datos['Numfaccli'];
 		$fecha=$datos['Fecha'];
 		$productos=$Cfaccli->ProductosFactura($id);
-		$productos1=json_decode(json_encode($productos));
-		$Datostotales = recalculoTotalesAl($productos1);
+		$productosMod=modificarArrayProductos($productos);
+		$productos1=json_decode(json_encode($productosMod));
+		$Datostotales = recalculoTotales($productos1);
 	}
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
