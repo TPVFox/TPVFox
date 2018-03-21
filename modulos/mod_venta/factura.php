@@ -46,7 +46,6 @@
 		}
 		if ($datosFactura['formaPago']){
 			$formaPago=$datosFactura['formaPago'];
-			echo $formaPago;
 		}
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		if ($datosFactura['FechaVencimiento']){
@@ -491,9 +490,6 @@ if ($idCliente==0){
 					}
 				
 					?>
-					</p>
-					<p>
-					<input type="text" id="talon"/>
 					</p>
 			</div>
 			<div class="col-md-4">
