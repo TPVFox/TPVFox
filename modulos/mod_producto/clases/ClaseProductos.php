@@ -23,7 +23,7 @@ include ($RutaServidor.$HostNombre.'/clases/ClaseTablaArticulos.php');
 
 class ClaseProductos extends ClaseTablaArticulos{
 	
-	private $idTienda ; // Obtenemos el idTienda de la clase extendida.
+	public $idTienda ; // Obtenemos el idTienda de la clase extendida.
 	public $productos; // Array de id, de productos...
 	
 	
