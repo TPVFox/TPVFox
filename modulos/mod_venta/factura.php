@@ -566,6 +566,11 @@ if (isset($albaranes)){
 		 $('.unidad').attr("readonly","readonly");
 		<?php
 	}
+if (isset($productos) & $albaranes==null){
+	?>
+	$("#tablaAl").hide();
+	<?php
+}
 	?>
 </script>
 	</body>
