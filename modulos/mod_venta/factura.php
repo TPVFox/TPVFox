@@ -380,7 +380,7 @@ if ($idCliente==0){
 	<div class="col-md-4" >
 	
 		<div>
-			<div style="margin-top:-50px;">
+			<div style="margin-top:-50px;" id="tablaAl">
 			<label style="<?php echo $stylea;?>" id="numAlbaranT">Número del albaran:</label>
 			<input style="<?php echo $stylea;?>" type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
 			<a style="<?php echo $stylea;?>" id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>

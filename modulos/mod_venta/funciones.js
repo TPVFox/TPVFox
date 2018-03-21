@@ -519,6 +519,9 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							addTemporal(dedonde);
 							AgregarFilaProductosAl(datos, dedonde, campo);
 							resetCampo(id_input);
+							if (dedonde=="factura"){
+								$("#tablaAl").hide();
+							}
 							
 						}else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
