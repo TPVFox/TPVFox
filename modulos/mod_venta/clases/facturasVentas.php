@@ -38,11 +38,9 @@ class FacturasVentas extends ClaseVentas{
 	}
 	//Muestra los datos de una factura real
 	public function datosFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM facclit WHERE id= '.$idFactura );
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		$tabla='facclit';
+		$where='id='.$idFactura;
+		$factura = parent::SelectUnResult($tabla, $where);
 		return $factura;
 	}
 	
@@ -56,41 +54,30 @@ class FacturasVentas extends ClaseVentas{
 	}
 	//Busca los productos de un número de factura
 	public function ProductosFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM facclilinea WHERE idfaccli= '.$idFactura );
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
+		$tabla='facclilinea';
+		$where='idfaccli= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
+		return $factura;
 	}
 	//Busca los ivas de una factura real
 	public function IvasFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM faccliIva WHERE idfaccli= '.$idFactura );
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
+		$tabla='faccliIva';
+		$where='idfaccli= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
+		return $factura;
 	}
 	//MUestra los albaranes que estan ligados a una determinada factura
 	public function AlbaranesFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albclifac WHERE idFactura= '.$idFactura );
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
+		$tabla='albclifac';
+		$where='idFactura= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
+		return $factura;
 	}
 	//Busca los datos de una factura temporal
 	public function buscarDatosFacturasTemporal($idFacturaTemporal) {
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM faccliltemporales WHERE id='.$idFacturaTemporal);
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		$tabla='faccliltemporales';
+		$where='id='.$idFacturaTemporal;
+		$factura = parent::SelectUnResult($tabla, $where);
 		return $factura;
 	}
 	//Elimina el resgistro de un temporal indicado
@@ -107,11 +94,9 @@ class FacturasVentas extends ClaseVentas{
 	//Busca un temporal por número de factura real
 	
 	public function buscarTemporalNumReal($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM faccliltemporales WHERE 	numfaccli ='.$idFactura);
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		$tabla='faccliltemporales';
+		$where='numfaccli='.$idFactura;
+		$factura = parent::SelectUnResult($tabla, $where);
 		return $factura;
 	}
 	
