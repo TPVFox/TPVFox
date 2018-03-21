@@ -118,24 +118,8 @@ function recalcularPrecioSegunCosteBeneficio (){
 	
 	// Obtenemos el iva que selecciono.
 	console.log('RecalculoPreciosSegunCosteBeneficio');
-	var id_iva=$( "#idIva option:selected" ).val();
-	var iva = 0;
-	ivas.forEach(function(element){
-		if (element.idIva === id_iva){
-			iva = parseFloat(element.iva,2);
-			console.log('id:'+element.idIva+ ' Busco:'+ id_iva + ' Iva:'+element.iva);
-			console.log('Iva encontrado.'+iva);
-		}
-	});
-	if (iva === 'undefined'){
-		// Hubo un error
-		alert ( ' No pudimos obtener el iva ')
-		return;
-	}
-	if (iva >0){
-		// No puedo dividir entre 0
-		iva = iva/100;
-	}
+	var iva = obtenerIva();
+
 	var coste = parseFloat($( "#coste" ).val());
 	var beneficio = parseFloat($( "#beneficio" ).val());
 	if (beneficio >0 ){
@@ -156,7 +140,6 @@ function recalcularPvp(dedonde){
 	// @ Parametros:
 	//  dedonde = (string) id_input.
 	// Obtenemos iva ( deberías ser funcion)
-	var id_iva=$( "#idIva option:selected" ).val();
 	var iva = obtenerIva();
 	console.log('De donde:'+dedonde);
 	if (dedonde === 'pvpSiva'){
