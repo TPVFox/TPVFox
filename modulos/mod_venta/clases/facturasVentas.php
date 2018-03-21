@@ -1,5 +1,6 @@
 <?php 
-class FacturasVentas{
+include_once ('./clases/ClaseVentas.php');
+class FacturasVentas extends ClaseVentas{
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
