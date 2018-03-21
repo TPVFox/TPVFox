@@ -5,6 +5,10 @@
         include './../../head.php';
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
+        include ("./../../controllers/Controladores.php");
+		$Controler = new ControladorComun; 
+		// Añado la conexion
+		$Controler->loadDbtpv($BDTpv);
         include ("./clases/ClaseProductos.php");
 		// Cargamos los fichero parametros.
 		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
@@ -40,6 +44,26 @@
 		
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
+		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		
+		
+		?>	
+
+		<script type="text/javascript">
+		// Objetos cajas de tpv
+		<?php echo $VarJS;?>
+		<?php 
+			echo  'var producto='.json_encode($Producto).';';
+		?>
+		<?php 
+			echo  'var ivas='.json_encode($ivas).';';
+		?>
+		</script>
+
+		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+
 	</head>
 	<body>
 		<?php     
@@ -56,10 +80,7 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		
-		//~ echo '<pre>';
-		//~ print_r($Producto);
-		//~ echo '</pre>';
-			
+		
 			
 		
 		if ($_POST){
@@ -76,6 +97,7 @@
 
 		
 		?>
+
      
 		<div class="container">
 				
@@ -104,11 +126,11 @@
 					<div class="col-md-12">
 						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
-							<input type="text" id="referencia" name="referencia" size="10" placeholder="referencia producto" value="<?php echo $Producto['cref_tienda_principal'];?>"   >
+							<input type="text" id="referencia" name="referencia" size="10" placeholder="referencia producto" data-obj= "cajaReferencia" value="<?php echo $Producto['cref_tienda_principal'];?>" onkeydown="controlEventos(event)"  >
 						</div>
 						<div class="form-group col-md-9 ">	
 							<label class="control-label " > Nombre producto:</label>
-							<input type="text" id="nombre" name="nombre" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>"    size="50" >
+							<input type="text" id="nombre" name="nombre" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>" data-obj= "cajaNombre" onkeydown="controlEventos(event)"   size="50" >
 						</div>
 					</div>
 					<div class="col-md-12">
@@ -117,16 +139,18 @@
 							<?php // Si es nuevo solo se utiliza para calcular precio, no se graba ?>
 							<label class="control-label " >
 								Coste Ultimo:
-								<span title="Editamos coste ultimo, este campo no se cambia en BD aquí, vete a proveedores y cambialo, solo sirve para recalcular precio" class="glyphicon glyphicon-cog"></span>
+								<a onclick="desActivarCoste()" >
+									<span title="Editamos coste ultimo, para recalcular precio. No cambia en BD !!! vete a proveedores y cambiarlo o al meter un albaran de compra." class="glyphicon glyphicon-cog"></span>
+								</a>
 							</label>
 							<div>
-								<input type="text" id="coste" size="8" name="costeultimo" value="<?php echo number_format($Producto['ultimoCoste'],2, '.', '');?>"   readonly> 
+								<input type="text" id="coste" size="8" name="costeultimo" value="<?php echo number_format($Producto['ultimoCoste'],2, '.', '');?>"  data-obj= "cajaCoste" onkeydown="controlEventos(event)"   readonly> 
 								<span class="Euro_grande">€</span> 
 							</div>
 						</div>
 						<div class="form-group col-md-4 ">	
 							<label class="control-label " > Iva:</label>
-							<select id="idIva" name="idIva" onchange="modifPrecioCiva();">
+							<select id="idIva" name="idIva" onchange="recalcularPrecioSegunCosteBeneficio();">
 								<?php echo $htmlIvas; ?>
 							</select>
 						</div>
@@ -144,11 +168,11 @@
 						<div class="col-md-4 ">	
 								<?php // beneficio solo 2 enteros ?>
 								<label class="control-label-inline " > Beneficio:</label>
-								<input type="text" id="beneficio" size="5" name="beneficio" placeholder="beneficio" value="<?php echo number_format($Producto['beneficio'],2,'.','');?>"   > %
+								<input type="text" id="beneficio" size="5" name="beneficio" placeholder="beneficio" data-obj= "cajaBeneficio" onkeydown="controlEventos(event)" value="<?php echo number_format($Producto['beneficio'],2,'.','');?>"   > %
 						</div>
 						<div class="col-md-4 ">	
 							<label class="control-label " > Precio sin Iva:</label>
-							<input type="text" id="pvpSiva" name="pvpSiva"  onchange="modifPrecioCiva();" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
+							<input type="text" id="pvpSiva" name="pvpSiva"  data-obj= "cajaPvpSiva" onkeydown="controlEventos(event)" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
 						</div>
 						<div class="col-md-4 ">	
 							<label class="control-label " >
@@ -157,7 +181,7 @@
 							<span title ="Recalcular según beneficio y ultimo coste" class="glyphicon glyphicon-refresh"></span>
 							</a>
 							</label>
-							<input type="text" id="pvpCiva" name="pvpCiva"  onchange="modifPrecioSiva();" value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
+							<input type="text" id="pvpCiva" name="pvpCiva"  data-obj= "cajaPvpCiva" onkeydown="controlEventos(event)"  value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
 						</div>
 					</div>
 				</div>
@@ -192,6 +216,9 @@
 				</div>
 			</div>
 		<!--fin de div container-->
+		<?php // Incluimos paginas modales
+		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		?>
 		</div> 
 	</body>
 </html>

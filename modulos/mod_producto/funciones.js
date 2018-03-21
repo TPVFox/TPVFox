@@ -110,43 +110,89 @@ function anular(e) {
 	bisa.removeChild(abuelo);
  }
 	 
-//Función que modifica el campo del precio con IVA , dependiendo del precio sin iva o el select de iva . 
- function modifPrecioCiva(){
-	 //Busca la opcion del select iva seleccionado
-			var iva=parseFloat($( "#idIva option:selected" ).val());
-			//Recoge el precio sin iva del input 
-			var SinIva=parseFloat($( "#pvpSiva" ).val());
-			//Calculo de iva 
-			var res=(iva*SinIva)/100;
-			var total=SinIva+res;
-			// Lo redondea a dos decimales
-			total=parseFloat(total).toFixed(2);
-			//Se modifica en el input de precio con iva
-			document.getElementById('pvpCiva').value = total;
-		}
-//Función que modifica el precio sin IVA , dependiendo del precio sin iva y el iva seleccionado lo modifica.
-function modifPrecioSiva(){
-	//Recoge la opción del select iva seleccionada
-	var iva=parseFloat($( "#idIva option:selected" ).val());
-	//Recoge le valor del input de la caja del precio con IVA 
-	var ConIva=parseFloat($( "#pvpCiva" ).val());
-	//Realiza los calculos necesarios
-	ivaT=(iva/100)+1;
-	var total=ConIva/ivaT;
-	//Redondea el resultado a dos decimales 
-	total=parseFloat(total).toFixed(2);
-	//Lo muestra en la caja del input del precio sin IVA
-	document.getElementById('pvpSiva').value = total;
-}
+
 
 function recalcularPrecioSegunCosteBeneficio (){
 	// @ Objetivo
 	// Recalcular precio de PVP sin iva y con iva, segun ultimo coste y beneficio.
 	
-	var iva=parseFloat($( "#idIva option:selected" ).val());
-	alert(iva);
-
+	// Obtenemos el iva que selecciono.
+	console.log('RecalculoPreciosSegunCosteBeneficio');
+	var id_iva=$( "#idIva option:selected" ).val();
+	var iva = 0;
+	ivas.forEach(function(element){
+		if (element.idIva === id_iva){
+			iva = parseFloat(element.iva,2);
+			console.log('id:'+element.idIva+ ' Busco:'+ id_iva + ' Iva:'+element.iva);
+			console.log('Iva encontrado.'+iva);
+		}
+	});
+	if (iva === 'undefined'){
+		// Hubo un error
+		alert ( ' No pudimos obtener el iva ')
+		return;
+	}
+	if (iva >0){
+		// No puedo dividir entre 0
+		iva = iva/100;
+	}
+	var coste = parseFloat($( "#coste" ).val());
+	var beneficio = parseFloat($( "#beneficio" ).val());
+	if (beneficio >0 ){
+		// No puedo dividir entre 0
+		beneficio = beneficio/100;
+	}
+	var precioSiva = coste+(coste*beneficio);
+	var precioCiva = precioSiva+(precioSiva*iva);
+	// Ahora cambiamos los datos en input.
+	$('#pvpSiva').val(precioSiva.toFixed(2));
+	$('#pvpCiva').val(precioCiva.toFixed(2));
+	
 }
+
+function recalcularPvp(dedonde){
+	// @ Objetivo:
+	// Recalcular precio s/iva y precio c/iva segun los datos que tengan las cjas y de donde venga.
+	// @ Parametros:
+	//  dedonde = (string) id_input.
+	// Obtenemos iva ( deberías ser funcion)
+	var id_iva=$( "#idIva option:selected" ).val();
+	var iva = obtenerIva();
+	console.log('De donde:'+dedonde);
+	if (dedonde === 'pvpSiva'){
+		var precioSiva = parseFloat($('#pvpSiva').val(),2);
+		var precioCiva = precioSiva+(precioSiva*iva);
+	} else {
+		var precioCiva = parseFloat($('#pvpCiva').val(),2);
+		var precioSiva = precioCiva -(precioCiva*iva);
+	}
+	//~ // Ahora cambiamos los datos en input.
+	$('#pvpSiva').val(precioSiva.toFixed(2));
+	$('#pvpCiva').val(precioCiva.toFixed(2));
+	
+	
+}
+
+function obtenerIva(){
+	// @ Objetivo
+	// Obtener el iva a aplicar según el que tengamos seleccionado.
+	var id_iva=$( "#idIva option:selected" ).val();
+	var iva = 0;
+	ivas.forEach(function(element){
+		if (element.idIva === id_iva){
+			iva = parseFloat(element.iva,2);
+			console.log('id:'+element.idIva+ ' Busco:'+ id_iva + ' Iva:'+element.iva);
+			console.log('Iva encontrado.'+iva);
+		}
+	});
+	if (iva >0){
+		// No puedo dividir entre 0
+		iva = iva/100;
+	}
+	return iva;
+	
+}
+
 
 function AnhadirCodbarras(){
 	// @ Objetivo
@@ -279,4 +325,62 @@ function GuardarBusqueda(event){
 function refresh() {
 	// Funcion para recargar pagina.
 	location.reload(true);
+}
+
+function desActivarCoste(){
+	// Objetivo:
+	// Activar o Desactivar input de ultimo coste, para poder recalcular precio.
+	// Cambiamo el nombre de la caja para no cambiar el coste_ultimo.
+	console.log('activarCoste');
+	$('#coste').removeAttr('readonly', '');
+	$('#coste').attr('name','coste');
+
+}
+
+// ---------------------------------  Funciones control de teclado ----------------------------------------------- //
+
+function after_constructor(padre_caja,event){
+	// @ Objetivo:
+	// Ejecuta procesos antes construir el obj. caja. ( SI ANTES) Se fue pinza.. :-)
+	// Traemos 
+	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
+	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
+	
+	return padre_caja;
+}
+
+function before_constructor(caja){
+	// @ Objetivo :
+	//  Ejecutar procesos para obtener datos despues del construtor de caja. ( SI DESPUES ) :-)
+	//  Estos procesos los indicamos en parametro before_constructor, si hay
+	console.log( 'Entro en before');
+	console.log(caja);
+	
+	
+	return caja;	
+}
+
+
+
+function controladorAcciones(caja,accion, tecla){
+	console.log(tecla);
+
+	switch(accion) {
+		case 'controlReferencia':
+			console.log("Estoy en buscar controladorAcciones-> controlReferencia");
+			
+		break;
+		case 'salto':
+			console.log("Estoy en buscar controladorAcciones-> salto");
+		break;
+		case 'salto_recalcular':
+			recalcularPrecioSegunCosteBeneficio();
+		break
+		case 'recalcularPvp':
+			console.log(caja)
+			
+			recalcularPvp(caja.id_input);
+		break
+	}
+		
 }

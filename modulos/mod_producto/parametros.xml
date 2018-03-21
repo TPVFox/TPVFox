@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- En parametros configuracion , si cambiar alguno por defecto o añades alguno , es conveniente que elimines de 
-de la tabla modulos_configuracion los registros de este modulo -->
+de la tabla modulos_configuracion los registros de este modulo
+Numero tecla:
+ 13 -> Intro
+ 40 -> Fecha abajo
+
+
+-->
 
 <parametros>
 	<configuracion>
@@ -14,17 +20,51 @@ de la tabla modulos_configuracion los registros de este modulo -->
 	
 	<cajas_input data-obj="id_input">
 		<caja_input>
-			<nombre id_input="Referencia">cajaReferencia</nombre>
+			<nombre id_input="referencia">cajaReferencia</nombre>
 			<teclas>
-				<action tecla="13"></action>
-				<action tecla="38"></action>
-				<action tecla=" 9"></action>
-				<action tecla="37"></action>
-				<action tecla="39"></action>
-				<action tecla="40"></action>
+				<action tecla="13">controlReferencia</action>
+				<action tecla="40">controlReferencia</action>
 			</teclas>
+		</caja_input>
 			
-		</caja_input>	
+		<caja_input>
+			<nombre id_input="nombre">cajaNombre</nombre>
+			<teclas>
+				<action tecla="13">salto</action>
+				<action tecla="40">salto</action>
+			</teclas>
+		</caja_input>
+			
+		<caja_input>
+			<!-- Esta caja solo se existe al pulsar icono label input Coste Ultimo -->
+			<nombre id_input="nombre">cajaCoste</nombre>
+			<teclas>
+				<action tecla="13">salto</action>
+				<action tecla="40">salto</action>
+			</teclas>
+		</caja_input>
+		
+		<caja_input>
+			<!-- Esta caja solo se existe al pulsar icono label input Coste Ultimo -->
+			<nombre id_input="beneficio">cajaBeneficio</nombre>
+			<teclas>
+				<action tecla="13">salto_recalcular</action>
+			</teclas>
+		</caja_input>
+		
+		<caja_input>
+			<nombre id_input="pvpSiva">cajaPvpSiva</nombre>
+			<teclas>
+				<action tecla="13">recalcularPvp</action>
+			</teclas>
+		</caja_input>
+		
+		<caja_input>
+			<nombre id_input="pvpCiva">cajaPvpCiva</nombre>
+			<teclas>
+				<action tecla="13">recalcularPvp</action>
+			</teclas>
+		</caja_input>
 	</cajas_input>
 	
 </parametros>
