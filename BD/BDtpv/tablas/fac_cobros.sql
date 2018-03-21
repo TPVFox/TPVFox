@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 31, 2018 at 09:43 PM
+-- Generation Time: Mar 21, 2018 at 07:23 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -31,7 +31,8 @@ CREATE TABLE `fac_cobros` (
   `idFactura` int(11) NOT NULL,
   `idFormasPago` int(11) NOT NULL,
   `FechaPago` date NOT NULL,
-  `importe` float NOT NULL
+  `importe` float NOT NULL,
+  `Referencia` varchar(25) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
