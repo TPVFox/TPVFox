@@ -505,6 +505,8 @@ if ($idCliente==0){
 			<tr>
 			<td>Importe</td>
 			<td>Fecha</td>
+			<td>Forma de Pago</td>
+			<td>Referencia</td>
 			<td>Pendiente</td>
 			</tr>
 			</thead>
@@ -513,8 +515,10 @@ if ($idCliente==0){
 				<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
 				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
 				<td>
-				<select>
-				</select>
+				<?php 
+				$htmlFormas=FormasDePago($BDTpv);
+				echo $htmlFormas;
+				?>
 				</td>
 				<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
 				<td></td>

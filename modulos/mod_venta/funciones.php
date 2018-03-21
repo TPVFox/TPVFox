@@ -588,6 +588,18 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 	$respuesta['html']=$html;
 	return $respuesta;
 }
+function FormasDePago($BDTpv){
+	$html="<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>";
+	$formasPago=new FormasPago($BDTpv);
+	$formas=$formasPago->todas();
+		$html.='<option value= "0">Sin Forma</option>';
+		foreach($formas as $forma){
+			$html.='<option value= "'.$forma['id'].'">'.$forma['descripcion'].'</option>';
+		}
+		$html.='</select>';
+		return $html;
+	
+}
 
 function htmlVencimiento($nuevafecha, $BDTpv){
 	$vencimiento=new TiposVencimientos($BDTpv);
