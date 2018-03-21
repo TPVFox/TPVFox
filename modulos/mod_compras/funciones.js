@@ -687,6 +687,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
 			}
 			ponerSelect(campo);
+			if (dedonde=="factura"){
+				$("#tablaAl").hide();
+			}
 		}else{
 			// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
 			console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
@@ -845,7 +848,9 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 	//LO que hacemos en la función es que recibimos los campos del producto que hemos seleccionado y creamos un objeto
 	//En el que vamos metiendo los campos (algunos como importe hay que calcularlos)
 	//Y dependiendo de donde venga el modal llamamos a una función u otra de esta manera utilizamos esta función estemos donde estemo
-	
+	if (dedonde=="factura"){
+		$("#tablaAl").hide();
+	}
 	console.log(datos);
 		var datos = new Object();
 		datos.ccodbar=ccodebar;
@@ -872,6 +877,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 	//	resetCampo(campo);
 		var campo='Unidad_Fila_'+num_item;
 		cerrarPopUp(campo);
+		
 }
 //~ //Elimina el contenido del campo
 //~ function resetCampo(campo){
