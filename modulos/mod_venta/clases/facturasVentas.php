@@ -235,21 +235,33 @@ class FacturasVentas extends ClaseVentas{
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal);
 	}
-	public function importesFacturaDatos($idFactura){
-		//@Objetivo:
-		//Buscar los importes añadidos a una factura 
+	//~ public function importesFacturaDatos($idFactura){
+		//~ //@Objetivo:
+		//~ //Buscar los importes añadidos a una factura 
+		//~ $db=$this->db;
+		//~ $smt=$db->query ('SELECT total , entregado, importes FROM facclit where id='.$idFactura );
+			//~ if ($result = $smt->fetch_assoc () ){
+			//~ $factura=$result;
+		//~ }
+		//~ return $factura;
+	//~ }
+	//~ public function modificarImportesFactura($idFactura, $jsonImporte, $entregado, $estado){
+		//~ //@Objetivo:
+		//~ //Modifica los importes de una factura
+		//~ $db=$this->db;
+		//~ $smt=$db->query('UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura);
+	//~ }
+	public function modificarImportesTemporal($idTemporal, $importes){
 		$db=$this->db;
-		$smt=$db->query ('SELECT total , entregado, importes FROM facclit where id='.$idFactura );
+		$smt=$db->query('UPDATE faccliltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal);
+	}
+	public function importesTemporal($idTemporal){
+		$db=$this->db;
+		$smt=$db->query ('SELECT FacCobros FROM faccliltemporales where id='.$idTemporal );
 			if ($result = $smt->fetch_assoc () ){
 			$factura=$result;
 		}
 		return $factura;
-	}
-	public function modificarImportesFactura($idFactura, $jsonImporte, $entregado, $estado){
-		//@Objetivo:
-		//Modifica los importes de una factura
-		$db=$this->db;
-		$smt=$db->query('UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura);
 	}
 }
 

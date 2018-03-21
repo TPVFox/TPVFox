@@ -71,7 +71,7 @@ function formasVenciCliente(formasVenci){
 			console.log('Llegue devuelta respuesta de html formas pago vencimiento factura');
 			var resultado =  $.parseJSON(response); 
 			$("#formaspago").prepend(resultado.html1);
-			$("#fechaVencimiento").prepend(resultado.html2);
+			$("#fechaVenci").prepend(resultado.html2);
 			
 		}
 	});
@@ -357,23 +357,30 @@ function controladorAcciones(caja,accion, tecla){
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		break;
-		case 'insertarImporte':
-		console.log("Entre en insertarImporte de factura");
-		insertarImporte();
-		break;
+		//~ case 'insertarImporte':
+		//~ console.log("Entre en insertarImporte de factura");
+		//~ insertarImporte();
+		//~ break;
 		default :
 			console.log ( 'Accion no encontrada '+ accion);
 	} 
 }
 //Función que inserta los importes que se van añadiendo a una factura 
-function insertarImporte(valor){
+function insertarImporte(){
+addTemporal("factura");
 var importe= document.getElementById("Eimporte").value;
 var fecha=document.getElementById("Efecha").value;
+var forma=document.getElementById("Eformas").value;
+var referencia=document.getElementById("Ereferencia").value;
+var total= 	$(".totalImporte").val()
 var parametros = {
 		"pulsado"    : 'insertarImporte',
 		"importe" : importe,
 		"fecha"      : fecha,
-		"idFactura": cabecera.idReal
+		'forma':forma,
+		'referencia':referencia,
+		'total':total,
+		"idTemporal": cabecera.idTemporal
 	};
 	
 	

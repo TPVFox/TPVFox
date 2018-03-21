@@ -524,7 +524,7 @@ if ($idCliente==0){
 				</select>
 				</td>
 				<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
-				<td><a class="glyphicon glyphicon-ok"></a></td>
+				<td><a onclick="insertarImporte()" class="glyphicon glyphicon-ok"></a></td>
 			</tr>
 			<?php //Si esa factura ya tiene importes los mostramos 
 			if (isset ($importes)){
