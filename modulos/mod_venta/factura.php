@@ -491,6 +491,9 @@ if ($idCliente==0){
 				
 					?>
 					</p>
+					<p>
+					<input type="text" id="talon"/>
+					</p>
 			</div>
 			<div class="col-md-4">
 					<strong>Fecha vencimiento:</strong><br>
@@ -560,7 +563,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 	}
 	
 }
-if (isset($albaranes)){
+if (is_array($albaranes)){
 		?>
 		 $('#Row0').css('display', 'none');
 		 $('.unidad').attr("readonly","readonly");
