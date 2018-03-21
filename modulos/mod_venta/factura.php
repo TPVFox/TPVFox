@@ -46,6 +46,7 @@
 		}
 		if ($datosFactura['formaPago']){
 			$formaPago=$datosFactura['formaPago'];
+			echo $formaPago;
 		}
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		if ($datosFactura['FechaVencimiento']){

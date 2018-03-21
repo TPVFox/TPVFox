@@ -1083,6 +1083,11 @@ function selectFormas(){
 			var resultado =  $.parseJSON(response); 
 		}
 	});	
+	if(option==4){
+		$("#talon").show();
+	}else{
+		$("#talon").hide();
+	}
 }
 function imprimir(id, dedonde, tienda){
 	var parametros = {
