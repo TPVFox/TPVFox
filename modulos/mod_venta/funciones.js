@@ -594,6 +594,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	if (dedonde=="factura"){
 		datos.Numalbcli=0;
 		datos.idalbcli=0;
+		$("#tablaAl").hide();
 	}
 	if (dedonde=="albaran"){
 		datos.Numpedcli=0;
