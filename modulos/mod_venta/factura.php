@@ -354,20 +354,43 @@ if ($idCliente==0){
 	<div class="col-md-8">
 		<div class="col-md-12">
 			
-				<div class="col-md-4">
+				<div class="col-md-2">
 					<strong>Fecha Factura:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
-				<div class="col-md-3">
+				<div class="col-md-2">
 					<strong>Estado:</strong><br>
 				
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $es;?>" size="10" readonly></span><br>
 				</div>
 			
-				<div class="col-md-4">
+				<div class="col-md-2">
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
 				</div>
+				
+			<div class="col-md-3">
+					<strong>Forma de pago:</strong><br>
+					<p id="formaspago">
+					<?php 
+					if(isset ($textoFormaPago)){
+							echo $textoFormaPago['html'];
+					}
+				
+					?>
+					</p>
+			</div>
+			<div class="col-md-3">
+					<strong>Fecha vencimiento:</strong><br>
+					<p id="fechaVencimiento">
+						<?php
+						if (isset ($textoFecha)){
+							echo $textoFecha['html'];
+						}
+					?>
+					
+						</p>
+			</div>
 			
 		</div>
 		<div class="form-group">
@@ -476,34 +499,6 @@ if ($idCliente==0){
 			</div>
 		</div>
 	</div>
-	
-	
-	<div class="col-md-6">
-		<h3>Formas de pago</h3>
-			
-			<div class="col-md-4">
-					<strong>Forma de pago:</strong><br>
-					<p id="formaspago">
-					<?php 
-					if(isset ($textoFormaPago)){
-							echo $textoFormaPago['html'];
-					}
-				
-					?>
-					</p>
-			</div>
-			<div class="col-md-4">
-					<strong>Fecha vencimiento:</strong><br>
-					<p id="fechaVencimiento">
-						<?php
-						if (isset ($textoFecha)){
-							echo $textoFecha['html'];
-						}
-					?>
-					
-						</p>
-			</div>
-		</div>
 		<div class ="col-md-6">
 			<h3 style="<?php echo $Simporte;?>">Entregas</h3>
 			<table  id="tablaImporte" class="table table-striped" style="<?php echo $Simporte;?>">
