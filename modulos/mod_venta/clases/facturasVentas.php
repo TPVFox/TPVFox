@@ -1,5 +1,6 @@
 <?php 
-class FacturasVentas{
+include_once ('./clases/ClaseVentas.php');
+class FacturasVentas extends ClaseVentas{
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
@@ -8,14 +9,14 @@ class FacturasVentas{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
 		return $smt;
 	}
-	//Muestra los datos de todos los temporales
 	public function TodosTemporal(){
+		//@Objetivo:
+		//Mostrar los datos principales de una factura temnporal
 			$db = $this->db;
 			$smt = $db->query ('SELECT tem.numfaccli, tem.id , tem.idClientes, tem.total, b.Nombre from faccliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes');
 			$facturaPrincipal=array();
@@ -25,8 +26,9 @@ class FacturasVentas{
 		return $facturaPrincipal;
 		
 	}
-		//Muestra algunos datos de todos las facturas con un filtro
 	public function TodosFacturaFiltro($filtro){
+		//@Objetivo:
+		//Mostrar los datos principales de todas las facturas con el filtro de paginacion 
 		$db=$this->db;
 		$smt=$db->query('SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
 		$facturaPrincipal=array();
@@ -35,17 +37,17 @@ class FacturasVentas{
 		}
 		return $facturaPrincipal;
 	}
-	//Muestra los datos de una factura real
 	public function datosFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM facclit WHERE id= '.$idFactura );
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		//@Objetivo:
+		//Mostrar los datos de una factura real según el id
+		$tabla='facclit';
+		$where='id='.$idFactura;
+		$factura = parent::SelectUnResult($tabla, $where);
 		return $factura;
 	}
-	
 	public function buscarIdFactura($numFactura){
+		//@Objetivo:
+		//Buscar el id de una factura real 
 		$db=$this->db;
 		$smt=$db->query('SELECT id FROM facclit WHERE Numfaccli= '.$numFactura );
 		if ($result = $smt->fetch_assoc () ){
@@ -53,47 +55,41 @@ class FacturasVentas{
 		}
 		return $factura;
 	}
-	//Busca los productos de un número de factura
 	public function ProductosFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM facclilinea WHERE idfaccli= '.$idFactura );
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
-	}
-	//Busca los ivas de una factura real
-	public function IvasFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM faccliIva WHERE idfaccli= '.$idFactura );
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
-	}
-	//MUestra los albaranes que estan ligados a una determinada factura
-	public function AlbaranesFactura($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albclifac WHERE idFactura= '.$idFactura );
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
-	}
-	//Busca los datos de una factura temporal
-	public function buscarDatosFacturasTemporal($idFacturaTemporal) {
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM faccliltemporales WHERE id='.$idFacturaTemporal);
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		//@Objetivo:
+		//Buscar los productos de un número de factura
+		$tabla='facclilinea';
+		$where='idfaccli= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
 		return $factura;
 	}
-	//Elimina el resgistro de un temporal indicado
+	public function IvasFactura($idFactura){
+		//@Objetivo:
+		//Buscar los ivas de una factura real
+		$tabla='faccliIva';
+		$where='idfaccli= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
+		return $factura;
+	}
+	public function AlbaranesFactura($idFactura){
+		//@Objetivo:
+		//Mostrar los albaranes que estan ligados a una determinada factura
+		$tabla='albclifac';
+		$where='idFactura= '.$idFactura;
+		$factura = parent::SelectVariosResult($tabla, $where);
+		return $factura;
+	}
+	public function buscarDatosFacturasTemporal($idFacturaTemporal) {
+		//@Objetivo:
+		//Buscar los datos de una factura temporal
+		$tabla='faccliltemporales';
+		$where='id='.$idFacturaTemporal;
+		$factura = parent::SelectUnResult($tabla, $where);
+		return $factura;
+	}
 	public function EliminarRegistroTemporal($idTemporal, $idFactura){
+		//@Objetivo:
+		//Eliminar el resgistro de un temporal indicado
 		$db=$this->db;
 		if ($idFactura>0){
 			$smt=$db->query('DELETE FROM faccliltemporales WHERE numfaccli ='.$idFactura);
@@ -102,21 +98,18 @@ class FacturasVentas{
 		}
 		
 	}
-	
-	//Busca un temporal por número de factura real
-	
 	public function buscarTemporalNumReal($idFactura){
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM faccliltemporales WHERE 	numfaccli ='.$idFactura);
-		if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
-		}
+		//@Objetivo:
+		//Buscar un temporal por número de factura real
+		$tabla='faccliltemporales';
+		$where='numfaccli='.$idFactura;
+		$factura = parent::SelectUnResult($tabla, $where);
 		return $factura;
 	}
 	
-	
-	//Modificar los datos de una factura temporal
 	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idTemporal, $productos){
+		//@Objetivo:
+		//Modificar los datos de una factura temporal
 		$db = $this->db;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
@@ -126,9 +119,9 @@ class FacturasVentas{
 	
 		return $respuesta;
 	}
-	//Insertar nuevo registro de factura 
-	
 	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $productos, $idCliente){
+		//@Objetivo:
+		//Insertar nuevo registro de factura 
 		$db = $this->db;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
@@ -138,34 +131,36 @@ class FacturasVentas{
 		$respuesta['productos']=$productos;
 		return $respuesta;
 	}
-	
-	//Añade a una factura temporal el número real de la factura en el caso de que exista 
-		public function addNumRealTemporal($idTemporal,  $numFactura){
+	public function addNumRealTemporal($idTemporal,  $numFactura){
+		//@Objetivo:
+		//Añadir a una factura temporal el número real de la factura en el caso de que exista 
 		$db = $this->db;
 		$smt=$db->query('UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal);
 	}
-	//Modifica el total de una factura temporal
 	public function modTotales($res, $total, $totalivas){
+		//@Objetivo:
+		//Modificar el total de una factura temporal
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
 	}
-	//Modificar el estado de una factura real
 	public function modificarEstado($idFactura, $estado){
+		//@Objetivo:
+		//Modificar el estado de una factura real
 		$db=$this->db;
 		$smt=$db->query('UPDATE facclit set estado="'.$estado .'" where id='.$idFactura);
 	}
-	//Eliminar todos los registros de un id de factura real
 	public function eliminarFacturasTablas($idFactura){
+		//@Objetivo:
+		//Eliminar todos los registros de un id de factura real
 		$db=$this->db;
 		$smt=$db->query('DELETE FROM  facclit where id='.$idFactura );
 		$smt=$db->query('DELETE FROM  facclilinea where idfaccli ='.$idFactura );
 		$smt=$db->query('DELETE FROM faccliIva where idfaccli ='.$idFactura );
-		$smt=$db->query('DELETE FROM albclifac where idFactura  ='.$idFactura );
-		
+		$smt=$db->query('DELETE FROM albclifac where idFactura  ='.$idFactura );	
 	}
-	
-	//Añadir todos los registros de las diferentes tablas de una factura real
-		public function AddFacturaGuardado($datos, $idFactura, $numFactura){
+	public function AddFacturaGuardado($datos, $idFactura, $numFactura){
+		//@Objetivo:
+		//Añadir todos los registros de las diferentes tablas de una factura real
 		$db = $this->db;
 		if ($idFactura>0){
 			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".', '.$datos['entregado'].', "'.$datos['fechaModificacion'].'")');
@@ -224,8 +219,9 @@ class FacturasVentas{
 		}
 		return $resultado;
 	}
-	//Selecciona el importe iva y total base de una factura real
 	public function sumarIva($numFactura){
+		//@Objetivo:
+		//Selecciona el importe iva y total base de una factura real
 		$db=$this->db;
 		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from faccliIva where  Numfaccli  ='.$numFactura);
 		if ($result = $smt->fetch_assoc () ){
@@ -233,13 +229,15 @@ class FacturasVentas{
 		}
 		return $factura;
 	}
-	//Modifica la forma de vencimiento de una factura temporal
 	public function formasVencimientoTemporal($idTemporal, $json){
+		//@Objetivo:
+		//Modificar la forma de vencimiento de una factura temporal
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal);
 	}
-	//BUscamos los importes añadidos a una factura 
 	public function importesFacturaDatos($idFactura){
+		//@Objetivo:
+		//Buscar los importes añadidos a una factura 
 		$db=$this->db;
 		$smt=$db->query ('SELECT total , entregado, importes FROM facclit where id='.$idFactura );
 			if ($result = $smt->fetch_assoc () ){
@@ -247,15 +245,12 @@ class FacturasVentas{
 		}
 		return $factura;
 	}
-	//Modifica los importes de una factura
 	public function modificarImportesFactura($idFactura, $jsonImporte, $entregado, $estado){
+		//@Objetivo:
+		//Modifica los importes de una factura
 		$db=$this->db;
 		$smt=$db->query('UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura);
 	}
-	
-	
-	
-
 }
 
 

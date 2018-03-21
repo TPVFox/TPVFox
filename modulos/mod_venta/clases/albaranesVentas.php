@@ -55,22 +55,18 @@ class AlbaranesVentas extends ClaseVentas{
 	public function buscarDatosAlabaranTemporal($idAlbaranTemporal) {
 		//@Objetivo:
 		//Buscar todos los datos de un albarán temporal
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albcliltemporales WHERE id='.$idAlbaranTemporal);
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
+		$tabla='albcliltemporales';
+		$where='id='.$idAlbaranTemporal;
+		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
 	
 	public function buscarTemporalNumReal($idAlbaran){
 		//@Objetivo:
 		//Buscar todos los datos de un albarán temporal por numero real de albarán cliente
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albcliltemporales WHERE numalbcli ='.$idAlbaran);
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
+		$tabla='albcliltemporales';
+		$where='numalbcli='.$idAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
 
@@ -197,59 +193,47 @@ class AlbaranesVentas extends ClaseVentas{
 	public function datosAlbaran($idAlbaran){
 		//@Objetivo:
 		//Datos de un albarán real según id
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albclit WHERE id= '.$idAlbaran );
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
+		$tabla='albclit';
+		$where='id='.$idAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
 		
 	public function datosAlbaranNum($numAlbaran){
 		//@Objetivo:
 		//Datos de un albarán real según numero de cliente
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albclit WHERE numalbcli = '.$numAlbaran );
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
-		}
+		$tabla='albclit';
+		$where='numalbcli='.$numAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
 	
 	public function ProductosAlbaran($idAlbaran){
 		//@Objetivo:
 		//Muestros los productos de un id de cliente real 
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albclilinea WHERE idalbcli= '.$idAlbaran );
-		$albaranPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranPrincipal,$result);
-		}
-		return $albaranPrincipal;
+		$tabla='albclilinea';
+		$where='idalbcli= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
 	}
 	
 	public function IvasAlbaran($idAlbaran){
 			//@Objetivo:
 			//BUsca en la tabla ivas cliente los datos de un albarán real
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albcliIva WHERE idalbcli= '.$idAlbaran );
-		$albaranPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranPrincipal,$result);
-		}
-		return $albaranPrincipal;
+		$tabla='albcliIva';
+		$where='idalbcli= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
+		
 	}
 	
 	public function PedidosAlbaranes($idAlbaran){
 		//@Objetivo:
 		//Busca los pedidos de un albarán real
-		$db=$this->db;
-		$smt=$db->query('SELECT * FROM pedcliAlb WHERE idAlbaran= '.$idAlbaran );
-		$albaranPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranPrincipal,$result);
-		}
-		return $albaranPrincipal;
+		$tabla='pedcliAlb';
+		$where='idAlbaran= '.$idAlbaran;
+		$albaran = parent::SelectVariosResult($tabla, $where);
+		return $albaran;
 	}
 	
 	public function ModificarEstadoAlbaran($idAlbaran, $estado){
