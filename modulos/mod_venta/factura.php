@@ -149,6 +149,10 @@
 		}
 		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
+			if ($_GET['id']>0){
+			
+			 header('Location: facturasListado.php');
+			}else{
 			$estado="Guardado";
 			if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
@@ -246,6 +250,7 @@
 				
 			}
 	 header('Location: facturasListado.php');
+ }
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
