@@ -22,7 +22,7 @@ class ClaseTablaArticulos{
 	public $ultimoCoste = 0; // Es el ultimo coste compra, si no se compro es el ultimo conocido, que pusimos.
 	public $pvpCiva = 0; // Precio con iva del producto en esa tienda.
 	public $pvpSiva = 0; // Precio sin iva del producto en esa tienda.
-	public $estado ='Activo'; // Estado del producto por defecto en tienda principal: Activo, Eliminado
+	public $estado ='Nuevo'; // Estado del producto en la tabla articulos al crear.
 	public $fecha_creado;
 	public $fecha_modificado;
 	public $codBarras; // Array de codbarras para ese producto.
@@ -128,10 +128,6 @@ class ClaseTablaArticulos{
 			} else {
 				$this->$propiedad = $valor;
 			}
-		}
-		if (count($datos) === 0){
-			// Como no había datos es nuevo.
-			$this->estado = 'Nuevo';
 		}
 		// Recuerda que idArticulo es 0 por defecto.
 		if ($this->idArticulo !==NULL && $this->idArticulo !==0){
