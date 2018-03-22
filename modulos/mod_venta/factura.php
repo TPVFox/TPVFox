@@ -39,6 +39,7 @@
 		echo '<pre>';
 		print_r($datosImportes);
 		echo '</pre>';
+		
 		$estado=$datosFactura['estado'];
 		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
@@ -71,15 +72,19 @@
 		}
 		
 		$total=$Datostotales['total'];
+		$importesFactura=modificarArraysImportes($datosImportes, $total);
+		echo '<pre>';
+		print_r($importesFactura);
+		echo '</pre>';
 		//Si esta en estado guardado o pagado parcial se puede modificar los importes si no no
-		if ($estado="Guardado" || $estado="Pagado parcial"){
-			$Simporte="";
-			$importes=$datosFactura['importes'];
-			$importes=json_decode($importes, true);
+		//~ if ($estado="Guardado" || $estado="Pagado parcial"){
+			//~ $Simporte="";
+			//~ $importes=$datosFactura['importes'];
+			//~ $importes=json_decode($importes, true);
 			
-		}else{
-			$Simporte="display:none;";
-		}
+		//~ }else{
+			//~ $Simporte="display:none;";
+		//~ }
 		
 		
 		

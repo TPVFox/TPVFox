@@ -876,4 +876,19 @@ function htmlTotales($Datostotales){
 		}
 	return $htmlIvas;
 }
+
+function modificarArraysImportes($importes, $total){
+	$importesDef= array();
+	foreach ($importes as $importe){
+		$nuevo= array();
+		$nuevo['importe']=$importe['importe'];
+		$nuevo['fecha']=$importe['FechaPago'];
+		$nuevo['referencia']=$importe['Referencia'];
+		$nuevo['forma']=$importe['idFormasPago'];
+		$total=$total-$importe['importe'];
+		$nuevo['pendiente']=$total;
+		array_push($importesDef, $nuevo);
+	}
+	return $importesDef;
+}
 ?>
