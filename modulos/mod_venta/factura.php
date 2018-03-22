@@ -105,8 +105,12 @@
 				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
 				$albaranes=json_decode($datosFactura['Albaranes']);
+				echo gettype($datosFactura['FacCobros']);
+					echo $datosFactura['FacCobros'];
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
-			
+		echo '<pre>';
+		print_r($importesFactura);
+		echo '</pre>';
 				//~ if ($datoVenci['forma']){
 					//~ $formaPago=$datoVenci['forma'];
 				//~ }
