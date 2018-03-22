@@ -645,11 +645,12 @@ function fechaVencimiento($fecha, $BDTpv){
 }
 
 function htmlImporteFactura($datos, $BDTpv){
-	
+	$formaPago=new FormasPago($BDTpv);
+	$datosPago=$formaPago->datosPrincipal($datos['forma']);
 	$respuesta['html'].='<tr>';
 	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
 	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
-	$respuesta['html'].='<td>'.$datos['forma'].'</td>';
+	$respuesta['html'].='<td>'.$datosPago['descripcion'].'</td>';
 	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
 	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
 	$respuesta['html'].='</tr>';

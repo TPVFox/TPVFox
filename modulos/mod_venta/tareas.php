@@ -467,6 +467,7 @@ switch ($pulsado) {
 		 $total=$_POST['total'];
 		 $bandera=$importe;
 		 $arrayPrincipal=array();
+		 $error=0;
 		 $importesTemporal=$CFac->importesTemporal($idFactura);
 		 if ($importesTemporal){
 			
@@ -478,9 +479,11 @@ switch ($pulsado) {
 			 }
 			 if ($bandera>$total){
 				 $respuesta['mensaje']=1;
+				 $error=1;
 			 }
 			 $respuesta['bandera']=$bandera;
 		 }
+		 if ($error==0){
 		$pendiente=$total-$bandera;
 		$nuevo=array();
 		$nuevo['importe']=$importe;
@@ -493,8 +496,9 @@ switch ($pulsado) {
 		$jsonImporte=json_encode($arrayPrincipal);
 		$modImportes=$CFac->modificarImportesTemporal($idFactura, $jsonImporte);
 		$respuesta['sqlmod']=$modImportes;
-		$html=htmlImporteFactura($nuevo);
+		$html=htmlImporteFactura($nuevo, $BDTpv);
 		$respuesta['html']=$html['html'];
+	}
 		echo json_encode($respuesta);
 		break;
 		//@Objetivo:

@@ -106,7 +106,7 @@
 				$productos =  json_decode($datosFactura['Productos']) ;
 				$albaranes=json_decode($datosFactura['Albaranes']);
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
-				
+			
 				//~ if ($datoVenci['forma']){
 					//~ $formaPago=$datoVenci['forma'];
 				//~ }
@@ -121,9 +121,6 @@
 				//~ }
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
-				echo '<pre>';
-				print_r($importesFactura);
-				echo '</pre>';
 				
 			}
 	}
@@ -537,9 +534,14 @@ if ($idCliente==0){
 				//~ }
 				
 			//~ }
+			echo '<pre>';
+			print_r($importesFactura);
+			echo '</pre>';
+				
+			
 			if (isset($importesFactura)){
-				foreach ($importesFactura as $importe){
-					$htmlImporte=htmlImporteFactura($importe);
+				foreach (array_reverse($importesFactura) as $importe){
+					$htmlImporte=htmlImporteFactura($importe, $BDTpv);
 						
 					echo $htmlImporte['html'];
 				}
