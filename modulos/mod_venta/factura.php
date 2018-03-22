@@ -564,12 +564,6 @@ if ($idCliente==0){
 				<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
 			</tr>
 			<?php //Si esa factura ya tiene importes los mostramos 
-<<<<<<< HEAD
-			if (isset ($importes)){
-				foreach ($importes as $importe){
-					$html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
-					echo $html['html'];
-=======
 			//~ if (isset ($importes)){
 				//~ foreach ($importes as $importe){
 					//~ $html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
@@ -587,7 +581,6 @@ if ($idCliente==0){
 					$htmlImporte=htmlImporteFactura($importe, $BDTpv);
 						
 					echo $htmlImporte['html'];
->>>>>>> master
 				}
 			}			
 			?>
