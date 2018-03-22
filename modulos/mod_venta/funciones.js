@@ -70,8 +70,9 @@ function formasVenciCliente(formasVenci){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de html formas pago vencimiento factura');
 			var resultado =  $.parseJSON(response); 
-			$("#formaspago").prepend(resultado.html1);
-			$("#fechaVenci").prepend(resultado.html2);
+			//$("#formaVenci").prepend(resultado.html1);
+			$("#formaVenci").html(resultado.html1);
+			$("#fechaVencimiento").prepend(resultado.html2);
 			
 		}
 	});
@@ -366,13 +367,11 @@ function controladorAcciones(caja,accion, tecla){
 	} 
 }
 //Función que inserta los importes que se van añadiendo a una factura 
-function insertarImporte(){
-addTemporal("factura");
+function insertarImporte(total){
 var importe= document.getElementById("Eimporte").value;
 var fecha=document.getElementById("Efecha").value;
 var forma=document.getElementById("Eformas").value;
 var referencia=document.getElementById("Ereferencia").value;
-var total= 	$(".totalImporte").val()
 var parametros = {
 		"pulsado"    : 'insertarImporte',
 		"importe" : importe,
@@ -380,9 +379,10 @@ var parametros = {
 		'forma':forma,
 		'referencia':referencia,
 		'total':total,
-		"idTemporal": cabecera.idTemporal
+		"idTemporal": cabecera.idTemporal,
+		"idReal":cabecera.idReal
 	};
-	
+	console.log(parametros);
 	
 	$.ajax({
 		data       : parametros,
@@ -398,10 +398,11 @@ var parametros = {
 				//Se muestra el mensaje cuando el importe es superior al de la factura
 				alert("El importe introducido no es correcto");
 			}else{
-				$("#tablaImporte").append(resultado.html);
+				$("#tablaImporte #fila0").after(resultado.html);
 				$("#tabla").find('input').attr("disabled", "disabled");
 				$("#tabla").find('a').css("display", "none");
 			}
+			
 			
 		}
 	});
@@ -905,6 +906,12 @@ function addTemporal(dedonde){
 			if (cabecera.idReal>0){
 				var estado="Sin guardar";
 				modificarEstado(dedonde, estado, cabecera.idReal);
+			}
+			if (dedonde=="factura"){
+				var importe= document.getElementById("Eimporte").value;
+				if (importe>0){
+					insertarImporte(total);
+				}
 			}
 		}
 	});

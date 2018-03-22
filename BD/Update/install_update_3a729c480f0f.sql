@@ -1,2 +1,2 @@
-"ALTER TABLE `facclit` DROP `entregado`;"
-"ALTER TABLE `facclit` DROP `importes`;"
+ALTER TABLE `facclit` DROP `entregado`;
+ALTER TABLE `facclit` DROP `importes`;

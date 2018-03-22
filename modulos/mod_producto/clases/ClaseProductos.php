@@ -2,7 +2,13 @@
 /* Objetivo de esta clase
  *   - Crear un objeto que contenga productos con todos los datos de estos.
  *   - Tener los parametros cargados, para interactuar con los datos.
- * [NOTAS]
+ *
+ * [Informacion sobre los estados posibles.]
+ * Campo estado de las tablas de articulos :
+ * Sus posibles valores , los podemos ver el metodo: posiblesEstados($tabla), donde hay uno para todas las tablas
+ * y algunas tablas tiene algunos mas.
+ * 
+ * [OTRAS NOTAS]
  * Propiedades privadas:
  * En la clase extendida tenemos propiedades privadas , esta no las puedo obtener directamente.
  * Ejemplo:
@@ -16,6 +22,9 @@
  *   $this->estado no esta declarada en la clase pero si en la extendida tiene valor...
  * 
  * Metodos en UpperCamelCase
+ * 
+ * 
+ * 
  * */
 
 
@@ -24,8 +33,8 @@ include ($RutaServidor.$HostNombre.'/clases/ClaseTablaArticulos.php');
 class ClaseProductos extends ClaseTablaArticulos{
 	
 	public $idTienda ; // Obtenemos el idTienda de la clase extendida.
-	public $productos; // Array de id, de productos...
-	
+		
+
 	
 	public function __construct($conexion='')
 	{
@@ -85,6 +94,70 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// Ten en cuenta que solo la cambia en esta clase no en la extendida, por lo que las consultas realizadas e
 		// en la clase extendida, seguira haciendolo en la tienda asignada en la clase extendida.
 		$this->idTienda= $id;
+	}
+	
+	public function posiblesEstados($tabla){
+		// @Objetivo
+		// Obtener los estados posibles para la tabla que indicamos en parametro.
+		// Posibles estado generales:
+		$posibles_estados = array(  '1'=> array(
+											'estado'      =>'Activo',
+											'Descripcion' =>'Estado normal.'
+												),
+									'2' =>  array(
+											'estado'      =>'Nuevo',
+											'Descripcion' =>'Estado por defecto cuando se creo hace menos de 30 días.'
+											),
+									
+									'3' =>  array(
+											'estado'      =>'Temporal',
+											'Descripcion' =>'Un producto que solo se comprar de forma temporal, en una epoca. En el proceso compra, debería advertilo y saber porque se compra.'
+											),
+									'4' =>  array(
+											'estado'      =>'Oferta',
+											'Descripcion' =>'Indica que el producto esta oferta, deberíamos ver que ofertas y hasta cuando.'
+											),
+									'5' =>  array(
+											'estado'      =>'Baja',
+											'Descripcion' =>'Indica que es un producto que se puede vender hasta fin existencias. Debería advertir a encargados compra que no se puede comprar.'
+											),
+									'6' =>  array(
+											'estado'      =>'importado',
+											'Descripcion' =>'Producto importado, de alguna tienda. Se creo forma automatica. Se cambia el estado, cuando ya lo compremos o cuando lo modifiquemos en ficha de producto'
+											)
+									);
+		// Añado en todas la tablas menos en la articulos ya que son los por defecto.
+		switch ($tabla) {
+			case 'articulosTiendas':
+				$array = array( '7' => array(
+									'estado' =>'NoPublicado',
+									'Descripcion'=>'Que existe en la tienda web pero no está publicado para la venta.'
+									),
+								'8' => array(
+									'estado' =>'Publicado',
+									'Descripcion'=>'Si esta creado y la venta en la tienda web'
+									)
+								);
+				$posibles_estados= $posibles_estados +$array;
+				break;
+			case 'articulosProveedores':
+				$array = array( '9' => array(
+									'estado' =>'SinStock',
+									'Descripcion'=>'El proveedor en estos momento no tiene Stock de producto.'
+									),
+								'10' => array(
+									'estado' =>'Tarifa',
+									'Descripcion'=>'Precio propuesto por el proveedor pero aun no se compro.'
+									),
+									
+								);
+				$posibles_estados= $posibles_estados +$array;
+				break;
+  
+		}
+		return $posibles_estados;
+
+		
 	}
 	
 }

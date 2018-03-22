@@ -6,19 +6,18 @@
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
         include ("./../../controllers/Controladores.php");
+		// Creo objeto de controlador comun.
 		$Controler = new ControladorComun; 
 		// Añado la conexion
 		$Controler->loadDbtpv($BDTpv);
         include ("./clases/ClaseProductos.php");
-		// Cargamos los fichero parametros.
+		// Cargamos los fichero parametros y creamos objeto parametros..
 		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
 		$parametros = $ClasesParametros->getRoot();
 		// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-		//~ echo '<pre>';
-		//~ print_r($conf_defecto);
-		//~ echo '</pre>';
+		
 		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
@@ -29,6 +28,8 @@
 		$estadoInput = 'disabled'; //desactivado input de entrada 
 		
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
+		$posibles_estados = $CTArticulos->posiblesEstados('articulosTiendas');
+			
 		
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Producto
@@ -47,8 +48,6 @@
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		
-		
 		?>	
 
 		<script type="text/javascript">
@@ -77,16 +76,23 @@
 		// Ahora montamos html 
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
 		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
+		// Antes de montar html de proveedores añado array de proveedores cual es pricipal
+		foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
+			if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
+				// Indicamos que es le principal
+				$Producto['proveedores_costes'][$key]['principal'] = 'Si';
+			}
+		}
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
-		
+		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
 		
 			
 		
 		if ($_POST){
-			echo '<pre>';
-			print_r($_POST);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($_POST);
+			//~ echo '</pre>';
 			
 			
 			
@@ -94,7 +100,9 @@
 			// Comprobamos los datos antes de grabar.
 			// header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
 		}
-
+		//~ echo '<pre>';
+		//~ print_r($Producto);
+		//~ echo '</pre>';
 		
 		?>
 
@@ -121,8 +129,17 @@
 				</div>
 				<div class="col-md-6 Datos">
 					<?php // si es nuevo mostramos Nuevo ?>
-					<h4>Datos del producto con ID:<?php echo $id?></h4>
-					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id?>"   >
+					<div class="col-md-7">
+						<h4>Datos del producto con ID:<?php echo $id?></h4>
+					</div>
+					<div class="col-md-5">
+					<label>Estado
+						<select id="idEstado" name="estado" onchange="">
+							<?php echo $htmlEstados; ?>
+						</select>
+					</label>
+					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id;?>" >
+					</div>
 					<div class="col-md-12">
 						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
@@ -139,7 +156,7 @@
 							<?php // Si es nuevo solo se utiliza para calcular precio, no se graba ?>
 							<label class="control-label " >
 								Coste Ultimo:
-								<a onclick="desActivarCoste()" >
+								<a onclick="desActivarCoste(event)" >
 									<span title="Editamos coste ultimo, para recalcular precio. No cambia en BD !!! vete a proveedores y cambiarlo o al meter un albaran de compra." class="glyphicon glyphicon-cog"></span>
 								</a>
 							</label>
@@ -215,6 +232,7 @@
 				<!-- Fin div col-md-6 -->
 				</div>
 			</div>
+			</form>
 		<!--fin de div container-->
 		<?php // Incluimos paginas modales
 		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';

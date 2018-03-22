@@ -95,11 +95,13 @@ function agregoCodBarrasVacio(contNuevo){
 
 			
 			
-//Función para anular el enter en el formulario 
-//Se puso para cuando se lea un código de barras que al hacer enter no cargue todo el formulario
 function anular(e) {
+  // Objetivo:
+  // Evitar recargar el formulario al pulsar intro, ya que sino lo recarga.
+  // [NO COMPRENDO]
+  // No se porque pero lo hace...
   tecla = (document.all) ? e.keyCode : e.which;
-   return (tecla != 13);
+  return (tecla != 13);
 }
 //Función para eliminar el código de barras . Busca los elementos a eliminar mediante DOM
 //Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
@@ -310,13 +312,26 @@ function refresh() {
 	location.reload(true);
 }
 
-function desActivarCoste(){
+function desActivarCoste(event){
 	// Objetivo:
 	// Activar o Desactivar input de ultimo coste, para poder recalcular precio.
-	// Cambiamo el nombre de la caja para no cambiar el coste_ultimo.
-	console.log('activarCoste');
+	// Cambiamo el nombre de la caja para no cambiar el coste_ultimo en post.
+	console.log(event.target);
 	$('#coste').removeAttr('readonly', '');
 	$('#coste').attr('name','coste');
+
+}
+
+function desActivarCajasProveedor(obj){
+	// Objetivo:
+	// Activar o Desactivar cjas de input proveedores coste.
+	
+	// Obtenemos el id del proveedor.
+	var idInput= obj.id;
+	var id_prov = idInput.substr(15, 4);
+	// Cambiamos
+	$('#prov_coste_'+ id_prov).removeAttr('readonly', '');
+	$('#prov_cref_'+ id_prov).removeAttr('readonly', '');;
 
 }
 

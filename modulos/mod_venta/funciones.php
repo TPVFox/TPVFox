@@ -644,12 +644,15 @@ function fechaVencimiento($fecha, $BDTpv){
 	
 }
 
-function htmlImporteFactura($datos){
+function htmlImporteFactura($datos, $BDTpv){
+	$formaPago=new FormasPago($BDTpv);
+	$datosPago=$formaPago->datosPrincipal($datos['forma']);
 	$respuesta['html'].='<tr>';
 	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
 	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
-	$respuesta['html'].='<td>'.$datos['forma'].'</td>';
+	$respuesta['html'].='<td>'.$datosPago['descripcion'].'</td>';
 	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
+	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
 	$respuesta['html'].='</tr>';
 	return $respuesta;
 	
@@ -872,5 +875,20 @@ function htmlTotales($Datostotales){
 			$htmlIvas['html'].='</tr>';
 		}
 	return $htmlIvas;
+}
+
+function modificarArraysImportes($importes, $total){
+	$importesDef= array();
+	foreach ($importes as $importe){
+		$nuevo= array();
+		$nuevo['importe']=$importe['importe'];
+		$nuevo['fecha']=$importe['FechaPago'];
+		$nuevo['referencia']=$importe['Referencia'];
+		$nuevo['forma']=$importe['idFormasPago'];
+		$total=$total-$importe['importe'];
+		$nuevo['pendiente']=$total;
+		array_push($importesDef, $nuevo);
+	}
+	return $importesDef;
 }
 ?>

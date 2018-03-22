@@ -31,27 +31,37 @@ function htmlLineaProveedorCoste($item,$proveedor=''){
 	// 		$proveedor-> (array) Datos de proveedor: idProveedor,crefProveedor,coste,fechaActualizacion,estado,nombrecomercial,razonsocial.
 	
 	// Montamos campos ocultos de IDProveedor
-	$camposIdProveedor = '<input type="hidden" name="idProveedor" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
+	$camposIdProveedor = '<input type="hidden" name="idProveedor_'.$proveedor['idProveedor'].'" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
 	$nom_proveedor = $proveedor['idProveedor'].'.-';
+	// Monstamos nombre y razon social juntas
 	if ($proveedor['nombrecomercial'] !== $proveedor['razonsocial']){
 		$nom_proveedor .= $proveedor['razonsocial'].'-'.$proveedor['nombrecomercial'];
 	} else {
 		$nom_proveedor .= $proveedor['razonsocial'];
 	}
 	$nuevaFila = '<tr>';
+	$atributos = ' name="check_pro"'; // Los check ponemos el mismo nombre ya solo podemos devolver uno como principal
+	if ($proveedor['principal'] ==='Si'){
+		// Ponemos check y readonly y ponemos onclick="return false; asi no permite cambiar.. :-)
+		// [OJO] -> readonly deja cambiar el check igualmente..
+		$atributos .= 'readonly onclick="return false;" checked="true"';
+	} else {
+		$atributos .= 'disabled';
+	}
+	$nuevaFila .= '<td><input '.$atributos.' type="checkbox" value="'.$proveedor['idProveedor'].'"></td>';
 	$nuevaFila .= '<td>';
 	$nuevaFila .='<small>'.$camposIdProveedor.$nom_proveedor.'</small>';
 	$nuevaFila .='</td>';
 	$nuevaFila .= '<td>';
-	$nuevaFila .= $proveedor['crefProveedor'];
+	$nuevaFila .= '<input type="text" size="10" name="prov_cref_'.$proveedor['idProveedor'].'" id="prov_cref_'.$proveedor['idProveedor'].'" value="'.$proveedor['crefProveedor'].'" readonly>';
 	$nuevaFila .='</td>';
 	$nuevaFila .= '<td>';
-	$nuevaFila .= $proveedor['coste'];
+	$nuevaFila .= '<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor'].'" id="prov_coste_'.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>';
 	$nuevaFila .='</td>';
 	$nuevaFila .= '<td>';
 	$nuevaFila .= '<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>';
 	$nuevaFila .='</td>';
-	$nuevaFila .= '<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
+	$nuevaFila .= '<td><a id="desActivarProv_'.$proveedor['idProveedor'].'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'; 		
 	$nuevaFila .= '</tr>';
 	return $nuevaFila;
 }
@@ -115,13 +125,14 @@ function  htmlTablaProveedoresCostes($proveedores){
 	$html =	 '<table id="tproveedor" class="table table-striped">'
 			.'		<thead>'
 			.'			<tr>'
+			.'				<th><span title="Proveedor Principal" class="glyphicon glyphicon-check"></span></th>'
 			.'				<th>Proveedor</th>'
 			.'				<th>Ref_proveedor</th>'
 			.'				<th>Coste</th>'
 			.'				<th>Estado/Fecha</th>'
-			.'				<th>'.'<a id="agregar" onclick="BuscarProveedor()">Añadir'
-			.'					<span class="glyphicon glyphicon-plus"></span>'
-			.'					</a>'
+			.'				<th>'
+			.'				<a  title="Añade un posible proveedor para este producto"'
+			.'				id="agregar_proveedor" class="glyphicon glyphicon-plus" onclick="BuscarProveedor()"></a>'
 			.'				</th>'
 			.'			</tr>'
 			.'		</thead>';
@@ -147,6 +158,21 @@ function htmlOptionIvas($ivas,$ivaProducto){
 			$htmlIvas .= '<option value="'.$item['idIva'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
 		}
 	return $htmlIvas;	
+	
+}
+
+function htmlOptionEstados($posibles_estados,$estado){
+	//  Objetivo :
+	// Montar html Option para selecciona Estados, poniendo seleccionado el estado enviado
+	$htmlEstados = '';
+	foreach ($posibles_estados as $item){
+			$es_seleccionado = '';
+			if ($estado === $item['estado']){
+				$es_seleccionado = ' selected';
+			}
+			$htmlEstados .= '<option value="'.$item['estado'].'" '.$es_seleccionado.'>'.$item['estado'].'</option>';
+		}
+	return $htmlEstados;	
 	
 }
 

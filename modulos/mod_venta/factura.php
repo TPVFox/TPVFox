@@ -35,6 +35,11 @@
 		$productosFactura=$Cfaccli->ProductosFactura($idFactura);//De los productos
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
+		$datosImportes=$Cfaccli->importesFactura($idFactura);
+		//~ echo '<pre>';
+		//~ print_r($datosImportes);
+		//~ echo '</pre>';
+		
 		$estado=$datosFactura['estado'];
 		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
@@ -60,22 +65,26 @@
 		$productos=json_decode(json_encode($productosMod));
 		
 		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productosFactura), true);
+		$productos=json_decode(json_encode($productos), true);
 		if ($albaranFactura){
 			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificaralbaran), true);
 		}
 		
 		$total=$Datostotales['total'];
+		$importesFactura=modificarArraysImportes($datosImportes, $total);
+		//~ echo '<pre>';
+		//~ print_r($importesFactura);
+		//~ echo '</pre>';
 		//Si esta en estado guardado o pagado parcial se puede modificar los importes si no no
-		if ($estado="Guardado" || $estado="Pagado parcial"){
-			$Simporte="";
-			$importes=$datosFactura['importes'];
-			$importes=json_decode($importes, true);
+		//~ if ($estado="Guardado" || $estado="Pagado parcial"){
+			//~ $Simporte="";
+			//~ $importes=$datosFactura['importes'];
+			//~ $importes=json_decode($importes, true);
 			
-		}else{
-			$Simporte="display:none;";
-		}
+		//~ }else{
+			//~ $Simporte="display:none;";
+		//~ }
 		
 		
 		
@@ -100,26 +109,32 @@
 				if (isset ($cliente['formasVenci'])){
 					$formasVenci=$cliente['formasVenci'];
 				}else{
-					$formasVenci='';
+					$formasVenci=0;
 				}
 				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
 				$albaranes=json_decode($datosFactura['Albaranes']);
-				$datoVenci=json_decode($datosFactura['FacCobros'], true);
-				
-				if ($datoVenci['forma']){
-					$formaPago=$datoVenci['forma'];
-				}
-				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
-				if ($datoVenci['fechaVencimiento']){
-					$date=date_create($datoVenci['fechaVencimiento']);
-					$fechave=date_format($date,'Y-m-d');
-				}else{
+				echo gettype($datosFactura['FacCobros']);
+					echo $datosFactura['FacCobros'];
+				$importesFactura=json_decode($datosFactura['FacCobros'], true);
+		//~ echo '<pre>';
+		//~ print_r($importesFactura);
+		//~ echo '</pre>';
+				//~ if ($datoVenci['forma']){
+					//~ $formaPago=$datoVenci['forma'];
+				//~ }
+				//~ echo $formaPago;
+				$textoFormaPago=htmlFormasVenci($formasVenci, $BDTpv);
+				//~ if ($datoVenci['fechaVencimiento']){
+					//~ $date=date_create($datoVenci['fechaVencimiento']);
+					//~ $fechave=date_format($date,'Y-m-d');
+				//~ }else{
 					$fec=date('Y-m-d');
-					$fechave=fechaVencimiento($fechave, $BDTpv);
-				}
+					$fechave=fechaVencimiento($fec, $BDTpv);
+				//~ }
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
+				
 			}
 	}
 		if(isset($factura['Productos'])){
@@ -134,11 +149,16 @@
 		}
 		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
-		
+			if ($_GET['id']>0){
+			
+			 header('Location: facturasListado.php');
+			}else{
+			$estado="Guardado";
 			if ($_POST['idTemporal']){
 				$idTemporal=$_POST['idTemporal'];
 			}else if($_GET['tActual']){
 				$idTemporal=$_GET['tActual'];
+				
 			}else{
 				$idTemporal=0;
 			}
@@ -155,26 +175,40 @@
 				$formaVenci=0;
 			}
 			
-			if ($datosFactura['importes']){
-				$importes=$datosFactura['importes'];
-			}else{
-				$importes=0;
-			}
-			if ($datosFactura['entregado']){
-				$entregado=$datosFactura['entregado'];
-			}else{
-				$entregado=0;
-			}
-			if ($total==$entregado){
-				$estado="Pagado total";
-			}else{
-				if ($datosFactura['estado']){
-					$estado=$datosFactura['estado'];
-				}else{
-					$estado="Guardado";
-				}
+			//~ if ($datosFactura['importes']){
+				//~ $importes=$datosFactura['importes'];
+			//~ }else{
+				//~ $importes=0;
+			//~ }
+			$entregado=0;
+			if (is_array($importesFactura)){
 				
+				foreach ($importesFactura as $import){
+					$entregado=$entregado+$import['importe'];
+				}
+				if ($total==$entregado){
+					$estado="Pagado total";
+				}else{
+					$estado="Pagado Parci";
+				}
 			}
+			//~ echo $estado;
+			//~ print_r($importesFactura);
+			//~ if ($datosFactura['entregado']){
+				//~ $entregado=$datosFactura['entregado'];
+			//~ }else{
+				//~ $entregado=0;
+			//~ }
+			//~ if ($total==$entregado){
+				//~ $estado="Pagado total";
+			//~ }else{
+				//~ if ($datosFactura['estado']){
+					//~ $estado=$datosFactura['estado'];
+				//~ }else{
+					//~ $estado="Guardado";
+				//~ }
+				
+			//~ }
 			$datos=array(
 			'Numtemp_faccli'=>$idTemporal,
 			'Fecha'=>$_POST['fecha'],
@@ -189,10 +223,14 @@
 			'fechaCreacion'=>$fechaActual,
 			'formapago'=>$formaVenci,
 			'fechaVencimiento'=>$_POST['fechaVenci'],
-			'importes'=>$importes,
-			'entregado'=>$entregado,
+			//~ 'importes'=>$importes,
+			//~ 'entregado'=>$entregado,
+			'importes'=>$importesFactura,
 			'fechaModificacion'=>$fechaActual
 			);
+			//~ echo '<pre>';
+			//~ print_r($datos);
+			//~ echo '</pre>';
 			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
 			//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
 			if($datosFactura['numfaccli']>0){
@@ -202,16 +240,17 @@
 				$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				
+				//~ print_r($addNuevo);
 			 }else{
 				 //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
 				$idFactura=0;
 				$numFactura=0;
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				
 			}
-			
-	header('Location: facturasListado.php');
+	 header('Location: facturasListado.php');
+ }
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
@@ -522,16 +561,35 @@ if ($idCliente==0){
 				</select>
 				</td>
 				<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
-				<td><a onclick="insertarImporte()" class="glyphicon glyphicon-ok"></a></td>
+				<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
 			</tr>
 			<?php //Si esa factura ya tiene importes los mostramos 
+<<<<<<< HEAD
 			if (isset ($importes)){
 				foreach ($importes as $importe){
 					$html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
 					echo $html['html'];
-				}
+=======
+			//~ if (isset ($importes)){
+				//~ foreach ($importes as $importe){
+					//~ $html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
+					//~ echo $html['html'];
+				//~ }
 				
-			}
+			//~ }
+			//~ echo '<pre>';
+			//~ print_r($importesFactura);
+			//~ echo '</pre>';
+				
+			
+			if (isset($importesFactura)){
+				foreach (array_reverse($importesFactura) as $importe){
+					$htmlImporte=htmlImporteFactura($importe, $BDTpv);
+						
+					echo $htmlImporte['html'];
+>>>>>>> master
+				}
+			}			
 			?>
 			
 			</tbody>
@@ -554,14 +612,14 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	if (isset ($datosFactura['importes'])){
-	if ($datosFactura['importes']){
+	if (isset ($importesFactura)){
+
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");
+		$("#tablaImporte").show();
+		$("#fila0").show();
 		<?php
-	}
-	
 }
 if (is_array($albaranes)){
 		?>
@@ -574,7 +632,10 @@ if (isset($productos) & $albaranes==null){
 	$("#tablaAl").hide();
 	<?php
 }
+
 	?>
+	
+	
 </script>
 	</body>
 </html>
