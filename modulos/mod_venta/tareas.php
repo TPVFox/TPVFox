@@ -98,7 +98,7 @@ switch ($pulsado) {
 				}
 			}else{
 				$respuesta=$res;
-				$modal=modalPedidos($res['datos']);
+				$modal=modalAdjunto($res['datos']);
 				$respuesta['html']=$modal['html'];
 				
 			}
@@ -127,7 +127,7 @@ switch ($pulsado) {
 				
 			}else{
 				$respuesta=$res;
-				$modal=modalAlbaranes($res['datos']);
+				$modal=modalAdjunto($res['datos']);
 				$respuesta['html']=$modal['html'];
 				
 			}
@@ -350,7 +350,8 @@ switch ($pulsado) {
 		case 'htmlAgregarFilaPedido':
 		//Objetivo:
 		//Devuelve el html de la fila del pedido 
-			$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+		//	$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+		$res=htmlLineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
@@ -358,7 +359,8 @@ switch ($pulsado) {
 		case 'htmlAgregarFilaAlbaran':
 		//Objetivo:
 		//Devuelve el html de la fila albarán
-			$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
+		//	$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
+		$res=htmlAlbaranFactura($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
