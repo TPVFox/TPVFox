@@ -278,7 +278,7 @@ class FacturasVentas extends ClaseVentas{
 	}
 	public function importesFactura($idFactura){
 		$db=$this->db;
-		$smt=$db->query ('SELECT * FROM fac_cobros where id='.$idFactura );
+		$smt=$db->query ('SELECT * FROM fac_cobros where idFactura='.$idFactura );
 		$importesPrincipal=array();
 		while ($result = $smt->fetch_assoc () ){
 			array_push($importesPrincipal,$result);
