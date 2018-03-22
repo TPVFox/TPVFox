@@ -100,26 +100,31 @@
 				if (isset ($cliente['formasVenci'])){
 					$formasVenci=$cliente['formasVenci'];
 				}else{
-					$formasVenci='';
+					$formasVenci=0;
 				}
 				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
 				$albaranes=json_decode($datosFactura['Albaranes']);
-				$datoVenci=json_decode($datosFactura['FacCobros'], true);
+				$importesFactura=json_decode($datosFactura['FacCobros'], true);
 				
-				if ($datoVenci['forma']){
-					$formaPago=$datoVenci['forma'];
-				}
-				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
-				if ($datoVenci['fechaVencimiento']){
-					$date=date_create($datoVenci['fechaVencimiento']);
-					$fechave=date_format($date,'Y-m-d');
-				}else{
+				//~ if ($datoVenci['forma']){
+					//~ $formaPago=$datoVenci['forma'];
+				//~ }
+				//~ echo $formaPago;
+				$textoFormaPago=htmlFormasVenci($formasVenci, $BDTpv);
+				//~ if ($datoVenci['fechaVencimiento']){
+					//~ $date=date_create($datoVenci['fechaVencimiento']);
+					//~ $fechave=date_format($date,'Y-m-d');
+				//~ }else{
 					$fec=date('Y-m-d');
-					$fechave=fechaVencimiento($fechave, $BDTpv);
-				}
+					$fechave=fechaVencimiento($fec, $BDTpv);
+				//~ }
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
+				echo '<pre>';
+				print_r($importesFactura);
+				echo '</pre>';
+				
 			}
 	}
 		if(isset($factura['Productos'])){
@@ -525,13 +530,20 @@ if ($idCliente==0){
 				<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
 			</tr>
 			<?php //Si esa factura ya tiene importes los mostramos 
-			if (isset ($importes)){
-				foreach ($importes as $importe){
-					$html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
-					echo $html['html'];
-				}
+			//~ if (isset ($importes)){
+				//~ foreach ($importes as $importe){
+					//~ $html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
+					//~ echo $html['html'];
+				//~ }
 				
-			}
+			//~ }
+			if (isset($importesFactura)){
+				foreach ($importesFactura as $importe){
+					$htmlImporte=htmlImporteFactura($importe);
+						
+					echo $htmlImporte['html'];
+				}
+			}			
 			?>
 			
 			</tbody>
@@ -554,14 +566,14 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	if (isset ($datosFactura['importes'])){
-	if ($datosFactura['importes']){
+	if (isset ($importesFactura)){
+
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");
+		$("#tablaImporte").show();
+		$("#fila0").show();
 		<?php
-	}
-	
 }
 if (is_array($albaranes)){
 		?>
@@ -574,7 +586,10 @@ if (isset($productos) & $albaranes==null){
 	$("#tablaAl").hide();
 	<?php
 }
+
 	?>
+	
+	
 </script>
 	</body>
 </html>

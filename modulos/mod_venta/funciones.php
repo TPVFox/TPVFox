@@ -644,7 +644,8 @@ function fechaVencimiento($fecha, $BDTpv){
 	
 }
 
-function htmlImporteFactura($datos){
+function htmlImporteFactura($datos, $BDTpv){
+	
 	$respuesta['html'].='<tr>';
 	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
 	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
