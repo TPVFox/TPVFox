@@ -72,7 +72,7 @@ function formasVenciCliente(formasVenci){
 			var resultado =  $.parseJSON(response); 
 			//$("#formaVenci").prepend(resultado.html1);
 			$("#formaVenci").html(resultado.html1);
-			$("#fechaVenci").prepend(resultado.html2);
+			$("#fechaVencimiento").prepend(resultado.html2);
 			
 		}
 	});
