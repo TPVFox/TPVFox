@@ -379,7 +379,8 @@ var parametros = {
 		'forma':forma,
 		'referencia':referencia,
 		'total':total,
-		"idTemporal": cabecera.idTemporal
+		"idTemporal": cabecera.idTemporal,
+		"idReal":cabecera.idReal
 	};
 	console.log(parametros);
 	

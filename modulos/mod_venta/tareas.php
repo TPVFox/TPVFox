@@ -465,13 +465,30 @@ switch ($pulsado) {
 		 $formaPago=$_POST['forma'];
 		 $referencia=$_POST['referencia'];
 		 $total=$_POST['total'];
-		 $bandera=$importe;
+		 $idReal=$_POST['idReal'];
+		
 		 $arrayPrincipal=array();
 		 $error=0;
-		 $importesTemporal=$CFac->importesTemporal($idFactura);
+		 $bandera=0;
+		 $importesReal=$CFac->importesFactura($idReal);
+		 $respuesta['importeReal']=$importesReal;
+		 if(count($importesReal)>0){
+			 foreach($importesReal as $impo){
+				 $bandera=$bandera+$impo['importe'];
+				 $respuesta['bandera1']= $bandera;
+			}
+			 $importesTemporal=json_encode($importesReal);
+			$eliminarReal=$CFac->eliminarRealImportes($idReal);
+			$respuesta['impTemporal']=$importesTemporal;
+		 }else{
+			 $importesTemporal=$CFac->importesTemporal($idFactura);
+			 $importesTemporal=$importesTemporal['FacCobros'];
+			  $bandera=$importe;
+		 }
+		 
 		 if ($importesTemporal){
 			
-			 $importes=json_decode($importesTemporal['FacCobros'], true);
+			 $importes=json_decode($importesTemporal, true);
 			  $respuesta['importes']= $importes;
 			 foreach ($importes as $import){
 				 $bandera=$bandera+(string)$import['importe'];

@@ -285,6 +285,10 @@ class FacturasVentas extends ClaseVentas{
 		}
 		return $importesPrincipal;
 	}
+	public function eliminarRealImportes($idFactura){
+		$db=$this->db;
+		$smt=$db->query ('DELETE FROM  fac_cobros where idFactura='.$idFactura );
+	}
 }
 
 

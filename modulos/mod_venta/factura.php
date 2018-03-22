@@ -36,9 +36,9 @@
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
 		$datosImportes=$Cfaccli->importesFactura($idFactura);
-		echo '<pre>';
-		print_r($datosImportes);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($datosImportes);
+		//~ echo '</pre>';
 		
 		$estado=$datosFactura['estado'];
 		$date=date_create($datosFactura['Fecha']);
@@ -73,9 +73,9 @@
 		
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
-		echo '<pre>';
-		print_r($importesFactura);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($importesFactura);
+		//~ echo '</pre>';
 		//Si esta en estado guardado o pagado parcial se puede modificar los importes si no no
 		//~ if ($estado="Guardado" || $estado="Pagado parcial"){
 			//~ $Simporte="";
