@@ -163,10 +163,10 @@ class FacturasVentas extends ClaseVentas{
 		//Añadir todos los registros de las diferentes tablas de una factura real
 		$db = $this->db;
 		if ($idFactura>0){
-			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".', '.$datos['entregado'].', "'.$datos['fechaModificacion'].'")');
+			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento,  fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", "'.$datos['fechaModificacion'].'")');
 			$id=$idFactura;
 		}else{
-			$smt = $db->query ('INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".' , '.$datos['entregado'].' , "'.$datos['fechaModificacion'].'")');
+			$smt = $db->query ('INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'" ,  "'.$datos['fechaModificacion'].'")');
 			$id=$db->insert_id;
 			$smt = $db->query('UPDATE facclit SET Numfaccli  = '.$id.' WHERE id ='.$id);
 		}

@@ -211,7 +211,7 @@
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
 			
-	header('Location: facturasListado.php');
+	//header('Location: facturasListado.php');
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
