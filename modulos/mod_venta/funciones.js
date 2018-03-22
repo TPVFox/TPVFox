@@ -397,7 +397,7 @@ var parametros = {
 				//Se muestra el mensaje cuando el importe es superior al de la factura
 				alert("El importe introducido no es correcto");
 			}else{
-				$("#tablaImporte").append(resultado.html);
+				$("#tablaImporte #fila0").after(resultado.html);
 				$("#tabla").find('input').attr("disabled", "disabled");
 				$("#tabla").find('a').css("display", "none");
 			}
