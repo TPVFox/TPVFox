@@ -95,11 +95,13 @@ function agregoCodBarrasVacio(contNuevo){
 
 			
 			
-//Función para anular el enter en el formulario 
-//Se puso para cuando se lea un código de barras que al hacer enter no cargue todo el formulario
 function anular(e) {
+  // Objetivo:
+  // Evitar recargar el formulario al pulsar intro, ya que sino lo recarga.
+  // [NO COMPRENDO]
+  // No se porque pero lo hace...
   tecla = (document.all) ? e.keyCode : e.which;
-   return (tecla != 13);
+  return (tecla != 13);
 }
 //Función para eliminar el código de barras . Busca los elementos a eliminar mediante DOM
 //Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
