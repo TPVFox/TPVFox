@@ -312,13 +312,26 @@ function refresh() {
 	location.reload(true);
 }
 
-function desActivarCoste(){
+function desActivarCoste(event){
 	// Objetivo:
 	// Activar o Desactivar input de ultimo coste, para poder recalcular precio.
-	// Cambiamo el nombre de la caja para no cambiar el coste_ultimo.
-	console.log('activarCoste');
+	// Cambiamo el nombre de la caja para no cambiar el coste_ultimo en post.
+	console.log(event.target);
 	$('#coste').removeAttr('readonly', '');
 	$('#coste').attr('name','coste');
+
+}
+
+function desActivarCajasProveedor(obj){
+	// Objetivo:
+	// Activar o Desactivar cjas de input proveedores coste.
+	
+	// Obtenemos el id del proveedor.
+	var idInput= obj.id;
+	var id_prov = idInput.substr(15, 4);
+	// Cambiamos
+	$('#prov_coste_'+ id_prov).removeAttr('readonly', '');
+	$('#prov_cref_'+ id_prov).removeAttr('readonly', '');;
 
 }
 

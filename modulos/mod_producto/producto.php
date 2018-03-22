@@ -76,6 +76,13 @@
 		// Ahora montamos html 
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
 		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
+		// Antes de montar html de proveedores añado array de proveedores cual es pricipal
+		foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
+			if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
+				// Indicamos que es le principal
+				$Producto['proveedores_costes'][$key]['principal'] = 'Si';
+			}
+		}
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
@@ -83,9 +90,9 @@
 			
 		
 		if ($_POST){
-			echo '<pre>';
-			print_r($_POST);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($_POST);
+			//~ echo '</pre>';
 			
 			
 			
@@ -149,7 +156,7 @@
 							<?php // Si es nuevo solo se utiliza para calcular precio, no se graba ?>
 							<label class="control-label " >
 								Coste Ultimo:
-								<a onclick="desActivarCoste()" >
+								<a onclick="desActivarCoste(event)" >
 									<span title="Editamos coste ultimo, para recalcular precio. No cambia en BD !!! vete a proveedores y cambiarlo o al meter un albaran de compra." class="glyphicon glyphicon-cog"></span>
 								</a>
 							</label>
