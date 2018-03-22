@@ -35,6 +35,7 @@
 		$productosFactura=$Cfaccli->ProductosFactura($idFactura);//De los productos
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
+		$datosImportes=$Cfaccli->importesFactura($idFactura);
 		$estado=$datosFactura['estado'];
 		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
@@ -179,6 +180,8 @@
 					$estado="Pagado Parci";
 				}
 			}
+			//~ echo $estado;
+			//~ print_r($importesFactura);
 			//~ if ($datosFactura['entregado']){
 				//~ $entregado=$datosFactura['entregado'];
 			//~ }else{
@@ -213,6 +216,9 @@
 			'importes'=>$importesFactura,
 			'fechaModificacion'=>$fechaActual
 			);
+			//~ echo '<pre>';
+			//~ print_r($datos);
+			//~ echo '</pre>';
 			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
 			//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
 			if($datosFactura['numfaccli']>0){
@@ -222,16 +228,16 @@
 				$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				
+				//~ print_r($addNuevo);
 			 }else{
 				 //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
 				$idFactura=0;
 				$numFactura=0;
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				
 			}
-			
-	header('Location: facturasListado.php');
+	 header('Location: facturasListado.php');
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado

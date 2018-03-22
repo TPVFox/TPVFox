@@ -215,14 +215,18 @@ class FacturasVentas extends ClaseVentas{
 				}
 			}
 		}
-		if (is_array($importes)){
-			foreach ($importes as $importe){
-				$smt=$db->query('INSERT INTO fac_cobros (idFactura, idFormasPago, FechaPago, importe, Referencia) VALUES ('.$id.' , '.$importe['forma'].' , "'.$importe['fecha'].'", '.$importe['importe'].', '.$importe['referencia'].')' );
+		}
+		if(is_array($datos['importes'])){
+			foreach ($datos['importes'] as $importe){
+				$sql='INSERT INTO fac_cobros (idFactura, idFormasPago, FechaPago, importe, Referencia) VALUES ('.$id.' , '.$importe['forma'].' , "'.$importe['fecha'].'", '.$importe['importe'].', '."'".$importe['referencia']."'".')';
+				$smt=$db->query($sql);
+				$resultado['sql']=$sql;
 			}
+		}
 			
-		}
 		
-		}
+		
+		
 		return $resultado;
 	}
 	public function sumarIva($numFactura){
@@ -271,6 +275,15 @@ class FacturasVentas extends ClaseVentas{
 			$factura=$result;
 		}
 		return $factura;
+	}
+	public function importesFactura($idFactura){
+		$db=$this->db;
+		$smt=$db->query ('SELECT * FROM fac_cobros where id='.$idFactura );
+		$importesPrincipal=array();
+		while ($result = $smt->fetch_assoc () ){
+			array_push($importesPrincipal,$result);
+		}
+		return $importesPrincipal;
 	}
 }
 
