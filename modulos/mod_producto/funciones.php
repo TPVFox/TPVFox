@@ -31,7 +31,7 @@ function htmlLineaProveedorCoste($item,$proveedor=''){
 	// 		$proveedor-> (array) Datos de proveedor: idProveedor,crefProveedor,coste,fechaActualizacion,estado,nombrecomercial,razonsocial.
 	
 	// Montamos campos ocultos de IDProveedor
-	$camposIdProveedor = '<input type="hidden" name="idProveedor" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
+	$camposIdProveedor = '<input type="hidden" name="idProveedor_'.$proveedor['idProveedor'].'" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
 	$nom_proveedor = $proveedor['idProveedor'].'.-';
 	if ($proveedor['nombrecomercial'] !== $proveedor['razonsocial']){
 		$nom_proveedor .= $proveedor['razonsocial'].'-'.$proveedor['nombrecomercial'];
@@ -147,6 +147,21 @@ function htmlOptionIvas($ivas,$ivaProducto){
 			$htmlIvas .= '<option value="'.$item['idIva'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
 		}
 	return $htmlIvas;	
+	
+}
+
+function htmlOptionEstados($posibles_estados,$estado){
+	//  Objetivo :
+	// Montar html Option para selecciona Estados, poniendo seleccionado el estado enviado
+	$htmlEstados = '';
+	foreach ($posibles_estados as $item){
+			$es_seleccionado = '';
+			if ($estado === $item['estado']){
+				$es_seleccionado = ' selected';
+			}
+			$htmlEstados .= '<option value="'.$item['estado'].'" '.$es_seleccionado.'>'.$item['estado'].'</option>';
+		}
+	return $htmlEstados;	
 	
 }
 
