@@ -481,12 +481,13 @@ switch ($pulsado) {
 			 }
 			 $respuesta['bandera']=$bandera;
 		 }
-		
+		$pendiente=$total-$bandera;
 		$nuevo=array();
 		$nuevo['importe']=$importe;
 		$nuevo['fecha']=$fecha;
 		$nuevo['forma']=$formaPago;
 		$nuevo['referencia']=$referencia;
+		$nuevo['pendiente']=$pendiente;
 		$respuesta['nuevo']=$nuevo;
 		array_push($arrayPrincipal, $nuevo);
 		$jsonImporte=json_encode($arrayPrincipal);

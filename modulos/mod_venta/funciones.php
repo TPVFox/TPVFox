@@ -650,6 +650,7 @@ function htmlImporteFactura($datos){
 	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
 	$respuesta['html'].='<td>'.$datos['forma'].'</td>';
 	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
+	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
 	$respuesta['html'].='</tr>';
 	return $respuesta;
 	
