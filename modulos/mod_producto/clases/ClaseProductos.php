@@ -144,7 +144,12 @@ class ClaseProductos extends ClaseTablaArticulos{
 				$array = array( '9' => array(
 									'estado' =>'SinStock',
 									'Descripcion'=>'El proveedor en estos momento no tiene Stock de producto.'
-									)
+									),
+								'10' => array(
+									'estado' =>'Tarifa',
+									'Descripcion'=>'Precio propuesto por el proveedor pero aun no se compro.'
+									),
+									
 								);
 				$posibles_estados= $posibles_estados +$array;
 				break;
