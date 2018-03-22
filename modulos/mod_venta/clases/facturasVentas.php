@@ -253,7 +253,10 @@ class FacturasVentas extends ClaseVentas{
 	//~ }
 	public function modificarImportesTemporal($idTemporal, $importes){
 		$db=$this->db;
-		$smt=$db->query('UPDATE faccliltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal);
+		
+		$sql='UPDATE faccliltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal;
+		$smt=$db->query($sql);
+		return $sql;
 	}
 	public function importesTemporal($idTemporal){
 		$db=$this->db;

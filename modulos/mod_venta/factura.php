@@ -60,7 +60,7 @@
 		$productos=json_decode(json_encode($productosMod));
 		
 		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productosFactura), true);
+		$productos=json_decode(json_encode($productos), true);
 		if ($albaranFactura){
 			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificaralbaran), true);
@@ -211,7 +211,7 @@
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 			}
 			
-	//header('Location: facturasListado.php');
+	header('Location: facturasListado.php');
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
@@ -522,7 +522,7 @@ if ($idCliente==0){
 				</select>
 				</td>
 				<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
-				<td><a onclick="insertarImporte()" class="glyphicon glyphicon-ok"></a></td>
+				<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
 			</tr>
 			<?php //Si esa factura ya tiene importes los mostramos 
 			if (isset ($importes)){

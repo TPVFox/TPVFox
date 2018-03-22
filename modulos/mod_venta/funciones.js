@@ -367,13 +367,11 @@ function controladorAcciones(caja,accion, tecla){
 	} 
 }
 //Función que inserta los importes que se van añadiendo a una factura 
-function insertarImporte(){
-addTemporal("factura");
+function insertarImporte(total){
 var importe= document.getElementById("Eimporte").value;
 var fecha=document.getElementById("Efecha").value;
 var forma=document.getElementById("Eformas").value;
 var referencia=document.getElementById("Ereferencia").value;
-var total= 	$(".totalImporte").val()
 var parametros = {
 		"pulsado"    : 'insertarImporte',
 		"importe" : importe,
@@ -383,7 +381,7 @@ var parametros = {
 		'total':total,
 		"idTemporal": cabecera.idTemporal
 	};
-	
+	console.log(parametros);
 	
 	$.ajax({
 		data       : parametros,
@@ -403,6 +401,7 @@ var parametros = {
 				$("#tabla").find('input').attr("disabled", "disabled");
 				$("#tabla").find('a').css("display", "none");
 			}
+			
 			
 		}
 	});
@@ -906,6 +905,12 @@ function addTemporal(dedonde){
 			if (cabecera.idReal>0){
 				var estado="Sin guardar";
 				modificarEstado(dedonde, estado, cabecera.idReal);
+			}
+			if (dedonde=="factura"){
+				var importe= document.getElementById("Eimporte").value;
+				if (importe>0){
+					insertarImporte(total);
+				}
 			}
 		}
 	});
