@@ -81,10 +81,6 @@
 		
 	}else{// si no recibe un id de una factura ya creada ponemos los datos de la temporal en caso de que tenga 
 		//Si no dejamos todo en blanco para poder cubrir
-		
-	
-		
-	
 			if (isset($_GET['tActual'])){
 				$idFacturaTemporal=$_GET['tActual'];
 				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
@@ -487,8 +483,10 @@ if ($idCliente==0){
 		</thead>
 		<tbody>
 			<?php 
+			if(isset($Datostotales)){
 			$htmlIvas=htmlTotales($Datostotales);
-			echo $htmlIvas['html']; ?>
+			echo $htmlIvas['html']; 
+			}?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
@@ -528,7 +526,6 @@ if ($idCliente==0){
 			</tr>
 			<?php //Si esa factura ya tiene importes los mostramos 
 			if (isset ($importes)){
-			
 				foreach ($importes as $importe){
 					$html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
 					echo $html['html'];
