@@ -597,7 +597,6 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 			$res['Numalbcli']=$ped['Numalbcli'];
 			$res['fecha']=$ped['Fecha'];
 			$res['idAlbaran']=$ped['id'];
-			//$res['idalbCli']=$ped[0]['idCliente'];
 			$res['total']=$ped['total'];
 			$res['estado']="Activo";
 			$res['nfila']=$i;
@@ -611,33 +610,16 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 function htmlFormasVenci($formaVenci, $BDTpv){
 	
 	$formasPago=new FormasPago($BDTpv);
-	//$html="<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>";
-	
 	$principal=$formasPago->datosPrincipal($formaVenci);
 	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
 	$otras=$formasPago->formadePagoSinPrincipal($formaVenci);
 	foreach ($otras as $otra){
 		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
-	}
-	//$html.='</select>';
-	
-	
+}
 	$respuesta['formas']=$formaVenci;
 	$respuesta['html']=$html;
 	return $respuesta;
 }
-//~ function FormasDePago($BDTpv){
-	//~ $html="<select name='fomaImporte' id='fomaImporte'>";
-	//~ $formasPago=new FormasPago($BDTpv);
-	//~ $formas=$formasPago->todas();
-		//~ $html.='<option value= "0">Sin Forma</option>';
-		//~ foreach($formas as $forma){
-			//~ $html.='<option value= "'.$forma['id'].'">'.$forma['descripcion'].'</option>';
-		//~ }
-		//~ $html.='</select>';
-		//~ return $html;
-	
-//~ }
 
 function htmlVencimiento($nuevafecha, $BDTpv){
 	$vencimiento=new TiposVencimientos($BDTpv);
@@ -663,11 +645,6 @@ function fechaVencimiento($fecha, $BDTpv){
 }
 
 function htmlImporteFactura($datos){
-	//~ $respuesta['html'].='<tr>';
-	//~ $respuesta['html'].='<td>'.$importe.'</td>';
-	//~ $respuesta['html'].='<td>'.$fecha.'</td>';
-	//~ $respuesta['html'].='<td>'.$pendiente.'</td>';
-	//~ $respuesta['html'].='</tr>';
 	$respuesta['html'].='<tr>';
 	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
 	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
