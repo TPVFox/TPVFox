@@ -70,7 +70,8 @@ function formasVenciCliente(formasVenci){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de html formas pago vencimiento factura');
 			var resultado =  $.parseJSON(response); 
-			$("#formaspago").prepend(resultado.html1);
+			//$("#formaVenci").prepend(resultado.html1);
+			$("#formaVenci").html(resultado.html1);
 			$("#fechaVenci").prepend(resultado.html2);
 			
 		}
