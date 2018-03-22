@@ -108,9 +108,9 @@
 				echo gettype($datosFactura['FacCobros']);
 					echo $datosFactura['FacCobros'];
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
-		echo '<pre>';
-		print_r($importesFactura);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($importesFactura);
+		//~ echo '</pre>';
 				//~ if ($datoVenci['forma']){
 					//~ $formaPago=$datoVenci['forma'];
 				//~ }
@@ -210,6 +210,7 @@
 			'fechaVencimiento'=>$_POST['fechaVenci'],
 			//~ 'importes'=>$importes,
 			//~ 'entregado'=>$entregado,
+			'importes'=>$importesFactura,
 			'fechaModificacion'=>$fechaActual
 			);
 			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
@@ -221,9 +222,6 @@
 				$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				if (is_array($importesFactura)){
-					
-				}
 				
 			 }else{
 				 //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
@@ -554,9 +552,9 @@ if ($idCliente==0){
 				//~ }
 				
 			//~ }
-			echo '<pre>';
-			print_r($importesFactura);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($importesFactura);
+			//~ echo '</pre>';
 				
 			
 			if (isset($importesFactura)){

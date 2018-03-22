@@ -215,6 +215,12 @@ class FacturasVentas extends ClaseVentas{
 				}
 			}
 		}
+		if (is_array($importes)){
+			foreach ($importes as $importe){
+				$smt=$db->query('INSERT INTO fac_cobros (idFactura, idFormasPago, FechaPago, importe, Referencia) VALUES ('.$id.' , '.$importe['forma'].' , "'.$importe['fecha'].'", '.$importe['importe'].', '.$importe['referencia'].')' );
+			}
+			
+		}
 		
 		}
 		return $resultado;
