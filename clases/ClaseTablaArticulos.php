@@ -229,6 +229,12 @@ class ClaseTablaArticulos{
 		return $ivas;
 	}
 	
+	public function GetUnIva($id){
+		$CTivas = new ClaseTablaIva($this->db);
+		$iva = $CTivas->getIva($id);
+		return $iva;
+	}
+	
 	public function ObtenerTiendaPrincipal(){
 		// Objetivo:
 		// Obtener la tienda principal y guardarla en propiedad tienda.
