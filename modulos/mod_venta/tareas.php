@@ -134,6 +134,9 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		case 'anhadirPedidoTemp':
+		//@Objetivo:
+		//añadir un pedido temporal, si existe se modifica y si no se inserta
+		//A continuación se calculan los totales y desgloses 
 		$idTemporal=$_POST['idTemporal'];
 		$idUsuario=$_POST['idUsuario'];
 		$idTienda=$_POST['idTienda'];
@@ -180,7 +183,6 @@ switch ($pulsado) {
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
 			$estadoAlbaran=$_POST['estado'];
-		//	$numAlbaran=$_POST['numAlbaran'];
 			$fecha=$_POST['fecha'];
 			$pedidos=$_POST['pedidos'];
 			$productos=$_POST['productos'];
