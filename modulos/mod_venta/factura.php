@@ -73,20 +73,6 @@
 		
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
-		//~ echo '<pre>';
-		//~ print_r($importesFactura);
-		//~ echo '</pre>';
-		//Si esta en estado guardado o pagado parcial se puede modificar los importes si no no
-		//~ if ($estado="Guardado" || $estado="Pagado parcial"){
-			//~ $Simporte="";
-			//~ $importes=$datosFactura['importes'];
-			//~ $importes=json_decode($importes, true);
-			
-		//~ }else{
-			//~ $Simporte="display:none;";
-		//~ }
-		
-		
 		
 	}else{// si no recibe un id de una factura ya creada ponemos los datos de la temporal en caso de que tenga 
 		//Si no dejamos todo en blanco para poder cubrir
@@ -117,21 +103,11 @@
 				echo gettype($datosFactura['FacCobros']);
 					echo $datosFactura['FacCobros'];
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
-		//~ echo '<pre>';
-		//~ print_r($importesFactura);
-		//~ echo '</pre>';
-				//~ if ($datoVenci['forma']){
-					//~ $formaPago=$datoVenci['forma'];
-				//~ }
-				//~ echo $formaPago;
 				$textoFormaPago=htmlFormasVenci($formasVenci, $BDTpv);
-				//~ if ($datoVenci['fechaVencimiento']){
-					//~ $date=date_create($datoVenci['fechaVencimiento']);
-					//~ $fechave=date_format($date,'Y-m-d');
-				//~ }else{
+			
 					$fec=date('Y-m-d');
 					$fechave=fechaVencimiento($fec, $BDTpv);
-				//~ }
+			
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
 				
@@ -175,11 +151,6 @@
 				$formaVenci=0;
 			}
 			
-			//~ if ($datosFactura['importes']){
-				//~ $importes=$datosFactura['importes'];
-			//~ }else{
-				//~ $importes=0;
-			//~ }
 			$entregado=0;
 			if (is_array($importesFactura)){
 				
@@ -192,23 +163,7 @@
 					$estado="Pagado Parci";
 				}
 			}
-			//~ echo $estado;
-			//~ print_r($importesFactura);
-			//~ if ($datosFactura['entregado']){
-				//~ $entregado=$datosFactura['entregado'];
-			//~ }else{
-				//~ $entregado=0;
-			//~ }
-			//~ if ($total==$entregado){
-				//~ $estado="Pagado total";
-			//~ }else{
-				//~ if ($datosFactura['estado']){
-					//~ $estado=$datosFactura['estado'];
-				//~ }else{
-					//~ $estado="Guardado";
-				//~ }
-				
-			//~ }
+			
 			$datos=array(
 			'Numtemp_faccli'=>$idTemporal,
 			'Fecha'=>$_POST['fecha'],
@@ -223,14 +178,10 @@
 			'fechaCreacion'=>$fechaActual,
 			'formapago'=>$formaVenci,
 			'fechaVencimiento'=>$_POST['fechaVenci'],
-			//~ 'importes'=>$importes,
-			//~ 'entregado'=>$entregado,
 			'importes'=>$importesFactura,
 			'fechaModificacion'=>$fechaActual
 			);
-			//~ echo '<pre>';
-			//~ print_r($datos);
-			//~ echo '</pre>';
+			
 			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
 			//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
 			if($datosFactura['numfaccli']>0){
@@ -240,7 +191,7 @@
 				$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
 				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				//~ print_r($addNuevo);
+			
 			 }else{
 				 //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
 				$idFactura=0;
@@ -564,18 +515,6 @@ if ($idCliente==0){
 				<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
 			</tr>
 			<?php //Si esa factura ya tiene importes los mostramos 
-			//~ if (isset ($importes)){
-				//~ foreach ($importes as $importe){
-					//~ $html=htmlImporteFactura($importe['importe'], $importe['fecha'], $importe['pendiente']);
-					//~ echo $html['html'];
-				//~ }
-				
-			//~ }
-			//~ echo '<pre>';
-			//~ print_r($importesFactura);
-			//~ echo '</pre>';
-				
-			
 			if (isset($importesFactura)){
 				foreach (array_reverse($importesFactura) as $importe){
 					$htmlImporte=htmlImporteFactura($importe, $BDTpv);
