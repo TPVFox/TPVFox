@@ -24,7 +24,8 @@ include './../../head.php';
 	$suNumero=0;
 	$nombreProveedor="";
 	$formaPago=0;
-	$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
+	$fechaVencimiento="";
+	
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){
@@ -36,6 +37,17 @@ include './../../head.php';
 		$estado=$datosAlbaran['estado'];
 		$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
 		$idAlbaranTemporal=0;
+		if ($datosAlbaran['formaPago']){
+			$formaPago=$datosAlbaran['formaPago'];
+		}
+		if ($datosAlbaran['FechaVencimiento']){
+			if ($datosAlbaran['FechaVencimiento']==0000-00-00){
+				$fechaVencimiento="";
+			}else{
+			$fechaVencimiento=date_format(date_create($datosAlbaran['FechaVencimiento']),'Y-m-d');
+		}
+		}
+		echo $datosAlbaran['FechaVencimiento'];
 		$idProveedor=$datosAlbaran['idProveedor'];
 		if ($datosAlbaran['Su_numero']>0){
 			$suNumero=$datosAlbaran['Su_numero'];
@@ -90,6 +102,7 @@ include './../../head.php';
 		}
 		
 	}
+	$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 	if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ;
 			// convertimos el objeto productos en array
@@ -102,7 +115,13 @@ include './../../head.php';
 		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
 		//si el resultado es  quiere decir que no hay errores y fue todo correcto
 		//si no es así muestra mensaje de error
+		//~ echo '<pre>';
+		//~ print_r($_POST);
+		//~ echo '</pre>';
 		$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
+		//~ echo '<pre>';
+		//~ print_r($guardar);
+		//~ echo '</pre>';
 	if ($guardar==0){
 		header('Location: albaranesListado.php');
 	}else{
@@ -128,6 +147,7 @@ include './../../head.php';
 		//~ $idAlbaran=0;
 		//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
 		 //~ header('Location: albaranesListado.php');
+		 
 		 $cancelar=cancelarAlbaran($_POST, $_GET, $BDTpv);
 		if ($cancelar==0){
 			
@@ -297,7 +317,7 @@ if ($suNumero==0){
 				<div class="col-md-3">
 					<strong>Forma de pago:</strong><br>
 					<p id="formaspago">
-						<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>
+						<select name='formaVenci' id='formaVenci'>
 					<?php 
 					
 					if(isset ($textoFormaPago)){
@@ -309,7 +329,7 @@ if ($suNumero==0){
 			</div>
 			<div class="col-md-3">
 					<strong>Fecha vencimiento:</strong><br>
-					<input type="date" name="fechaVenci" id="fechaVenci" size="10"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fechaVenci" id="fechaVenci" size="10"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="<?php echo $fechaVencimiento;?>"placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 
 			</div>
 			

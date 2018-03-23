@@ -124,6 +124,9 @@ include './../../head.php';
 		}
 		
 	if (isset($_POST['Guardar'])){
+		//~ echo '<pre>';
+		//~ print_r($_POST);
+		//~ echo '</pre>';
 			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales,$importesFactura);
 			if ($guardar==0){
 				header('Location: facturasListado.php');

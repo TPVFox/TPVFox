@@ -823,6 +823,17 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 				$productos=0;
 				$error=1;
 			}
+			if ($datosPost['formaVenci']){
+				$formaPago=$datosPost['formaVenci'];
+			}else{
+				$formaPago=0;
+			}
+			if($datosPost['fechaVenci']){
+				$fechaVenci=$datosPost['fechaVenci'];
+			}else{
+				$fechaVenci="";
+			}
+			
 			$datos=array(
 				'Numtemp_albpro'=>$idAlbaranTemporal,
 				'fecha'=>$fecha,
@@ -834,7 +845,9 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 				'DatosTotales'=>$Datostotales,
 				'productos'=>$productos,
 				'pedidos'=>$datosAlbaran['Pedidos'],
-				'suNumero'=>$suNumero
+				'suNumero'=>$suNumero,
+				'formaPago'=>$formaPago,
+				'fechaVenci'=>$fechaVenci
 			);
 		}else{
 			$error=1;
@@ -857,6 +870,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
 					
 			}
+			$error['sql']=$addNuevo;
 		}
 	return $error;
 }
