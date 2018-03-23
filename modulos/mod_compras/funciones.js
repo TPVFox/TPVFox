@@ -811,6 +811,13 @@ function addTemporal(dedonde=""){
 			total = parseFloat(resultado['totales']['total'])
 			$('.totalImporte').html(total.toFixed(2));
 			$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
+			
+			if (dedonde=="factura"){
+				var importe= document.getElementById("Eimporte").value;
+				if (importe>0){
+					insertarImporte(total);
+				}
+			}
 			// Ahora pintamos pie de ticket.
 			//~ if (resultado['totales']['total'] > 0 ){
 				// Quiere decir que hay datos a mostrar en pie.
@@ -1199,5 +1206,53 @@ function pintamosTotales (DesgloseTotal) {
 			$('#iva'+parseInt(iva)).html(desglose[iva].iva);
 		}
 	});
+	
+}
+function insertarImporte(total){
+	//@Objetivo: insertar importe de pago 
+	//Parametros: recibe el total de la factura
+	//Recogemos primero los valores de entrada , se calcula y se escribe el nuevo registro
+var importe= document.getElementById("Eimporte").value;
+var fecha=document.getElementById("Efecha").value;
+var forma=document.getElementById("Eformas").value;
+var referencia=document.getElementById("Ereferencia").value;
+if (forma==0){
+	alert("NO HAS SELECCIONADO UNA FORMA DE PAGO");
+}else{
+var parametros = {
+		"pulsado"    : 'insertarImporte',
+		"importe" : importe,
+		"fecha"      : fecha,
+		'forma':forma,
+		'referencia':referencia,
+		'total':total,
+		"idTemporal": cabecera.idTemporal,
+		"idReal":cabecera.idReal
+	};
+	console.log(parametros);
+	
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Modificando los importes de la factura  ****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta de la modificación de los importes');
+			var resultado =  $.parseJSON(response);
+			if (resultado.mensaje==1){
+				//Se muestra el mensaje cuando el importe es superior al de la factura
+				alert("El importe introducido no es correcto");
+			}else{
+				$("#tablaImporte #fila0").after(resultado.html);
+				$("#tabla").find('input').attr("disabled", "disabled");
+				$("#tabla").find('a').css("display", "none");
+			}
+			
+			
+		}
+	});
+}
 	
 }

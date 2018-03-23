@@ -246,6 +246,34 @@ class FacturasCompras extends ClaseCompras{
 			$smt=$db->query('DELETE FROM facproltemporales WHERE id='.$idTemporal);
 		}
 	}
+	public function importesFactura($idFactura){
+		$db=$this->db;
+		$smt=$db->query ('SELECT * FROM facProCobros where idFactura='.$idFactura );
+		$importesPrincipal=array();
+		while ($result = $smt->fetch_assoc () ){
+			array_push($importesPrincipal,$result);
+		}
+		return $importesPrincipal;
+	}
+	public function eliminarRealImportes($idFactura){
+		$db=$this->db;
+		$smt=$db->query ('DELETE FROM  facProCobros where idFactura='.$idFactura );
+	}
+	public function modificarImportesTemporal($idTemporal, $importes){
+		$db=$this->db;
+		
+		$sql='UPDATE facproltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal;
+		$smt=$db->query($sql);
+		return $sql;
+	}
+	public function importesTemporal($idTemporal){
+		$db=$this->db;
+		$smt=$db->query ('SELECT FacCobros FROM facproltemporales where id='.$idTemporal );
+			if ($result = $smt->fetch_assoc () ){
+			$factura=$result;
+		}
+		return $factura;
+	}
 }
 
 ?>
