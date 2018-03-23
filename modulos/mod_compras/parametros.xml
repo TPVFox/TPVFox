@@ -246,6 +246,26 @@
 				<estado>Si</estado>
 			</before>
 		</caja_input>
+<caja_input>
+			<nombre id_input="fechaVenci">fechaVenci</nombre>
+			<teclas>
+				<action tecla="13">selectFormas</action>	
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">factura</parametro>
+			</parametros>
+		</caja_input>
+		
+		
+		<caja_input>
+			<nombre id_input="Eimporte">cajaEimporte</nombre>
+			<teclas>
+				<action tecla="13">insertarImporte</action>	
+			</teclas>
+				<parametros>
+					<parametro nombre="dedonde">factura</parametro>
+				</parametros>
+		</caja_input>
 		
 	</cajas_input>
 </parametros>
