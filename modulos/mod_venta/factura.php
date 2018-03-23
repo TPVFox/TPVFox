@@ -556,6 +556,11 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#fila0").show();
 		<?php
 }
+if ($estado=="Pagado total"){
+	?>
+	$("#fila0").hide();
+	<?php
+}
 if (is_array($albaranes)){
 		?>
 		 $('#Row0').css('display', 'none');
