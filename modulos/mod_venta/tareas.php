@@ -475,6 +475,7 @@ switch ($pulsado) {
 		 $importesReal=$CFac->importesFactura($idReal);
 		 $respuesta['importeReal']=$importesReal;
 		 if(count($importesReal)>0){
+			 $importesReal=modificarArraysImportes($importesReal, $total);
 			 foreach($importesReal as $impo){
 				 $bandera=$bandera+$impo['importe'];
 				 $respuesta['bandera1']= $bandera;

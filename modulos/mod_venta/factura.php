@@ -181,8 +181,10 @@
 			'importes'=>$importesFactura,
 			'fechaModificacion'=>$fechaActual
 			);
-			
-			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
+			echo '<pre>';
+			print_r($importesFactura);
+			echo '</pre>';
+						//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
 			//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
 			if($datosFactura['numfaccli']>0){
 				$numFactura=$datosFactura['numfaccli'];
@@ -200,7 +202,7 @@
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 				
 			}
-	 header('Location: facturasListado.php');
+header('Location: facturasListado.php');
  }
 			
 		}
