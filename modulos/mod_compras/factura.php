@@ -494,6 +494,11 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#divImportes').show();
 		<?php
 	}
+	if (count($albaranes)==0){
+		?>
+		$('#tablaAl').hide();
+		<?php
+	}
 	?>
 	
 </script>
