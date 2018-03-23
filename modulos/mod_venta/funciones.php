@@ -298,9 +298,12 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				}
 			}
 			if ($dedonde=="factura"){
-				if ($producto['Numalbcli']>0){
+				if(isset($producto['Numalbcli'])){
+					if ($producto['Numalbcli']>0){
 					$numeroPed=$producto['Numalbcli'];
+					}
 				}
+				
 			}
 			if ($producto['ccodbar']==0){
 				$codBarras="";
@@ -488,7 +491,7 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 
 
 function htmlFormasVenci($formaVenci, $BDTpv){
-	
+	$html="";
 	$formasPago=new FormasPago($BDTpv);
 	$principal=$formasPago->datosPrincipal($formaVenci);
 	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';

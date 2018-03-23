@@ -360,6 +360,7 @@ if ($idCliente==0){
 					<p id="formaspago">
 						<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>
 					<?php 
+					
 					if(isset ($textoFormaPago)){
 							echo $textoFormaPago['html'];
 					}
