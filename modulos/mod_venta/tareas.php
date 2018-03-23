@@ -471,32 +471,33 @@ switch ($pulsado) {
 		
 		 $arrayPrincipal=array();
 		 $error=0;
-		 $bandera=0;
+		 $bandera=$importe;
 		 $importesReal=$CFac->importesFactura($idReal);
 		 $respuesta['importeReal']=$importesReal;
 		 if(count($importesReal)>0){
 			 $importesReal=modificarArraysImportes($importesReal, $total);
-			 foreach($importesReal as $impo){
-				 $bandera=$bandera+$impo['importe'];
-				 $respuesta['bandera1']= $bandera;
-			}
-			 $importesTemporal=json_encode($importesReal);
+			 //~ foreach($importesReal as $impo){
+				 //~ $bandera=$bandera+$impo['importe'];
+				 //~ $respuesta['bandera1']= $bandera;
+			//~ }
+			$importesTemporal=json_encode($importesReal);
 			$eliminarReal=$CFac->eliminarRealImportes($idReal);
 			$respuesta['impTemporal']=$importesTemporal;
 		 }else{
 			 $importesTemporal=$CFac->importesTemporal($idFactura);
 			 $importesTemporal=$importesTemporal['FacCobros'];
-			  $bandera=$importe;
+			 $bandera=$importe;
 		 }
 		 
 		 if ($importesTemporal){
 			
-			 $importes=json_decode($importesTemporal, true);
-			  $respuesta['importes']= $importes;
+			$importes=json_decode($importesTemporal, true);
+			$respuesta['importes']= $importes;
 			 foreach ($importes as $import){
 				 $bandera=$bandera+(string)$import['importe'];
 				 array_push($arrayPrincipal, $import);
 			 }
+			 
 			 if ($bandera>$total){
 				 $respuesta['mensaje']=1;
 				 $error=1;
