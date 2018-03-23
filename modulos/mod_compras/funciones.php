@@ -1,6 +1,7 @@
 <?php 
 
 include '../../configuracion.php';
+include_once '../../clases/FormasPago.php';
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
