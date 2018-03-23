@@ -41,6 +41,7 @@
 		//~ echo '</pre>';
 		
 		$estado=$datosFactura['estado'];
+	
 		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
 		$numFactura=$datosFactura['Numfaccli'];
@@ -211,7 +212,7 @@
 			}else{
 				$idTemporal=$_GET['tActual'];
 			}
-		//echo $idTemporal;
+		
 			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
 			$albaranes=json_decode($datosFactura['Albaranes'], true);
 			foreach ($albaranes as $albaran){
@@ -219,19 +220,19 @@
 			}
 			$idFactura=0;
 			$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-			//	header('Location: facturasListado.php');
+				header('Location: facturasListado.php');
 		}
 		
-		if (isset ($albaranes) | isset($_GET['tActual'])| isset($_GET['id'])){
-			$style="";
-		}else{
-			$style="display:none;";
-		}
-		if (isset($albaranes)){
-			$stylea="";
-		}else{
-			$stylea="display:none;";
-		}
+		//~ if (isset ($albaranes) | isset($_GET['tActual'])| isset($_GET['id'])){
+			//~ $style="";
+		//~ }else{
+			//~ $style="display:none;";
+		//~ }
+		//~ if (isset($albaranes)){
+			//~ $stylea="";
+		//~ }else{
+			//~ $stylea="display:none;";
+		//~ }
 		
 		$parametros = simplexml_load_file('parametros.xml');
 	
@@ -296,7 +297,7 @@ $titulo .= ': '.$estado;
 		}
 	}	
 	
-	$es=str_replace("'",'',$estadoCab);  
+	//$es=str_replace("'",'',$estadoCab);  
 	
 ?>
 </script>
@@ -347,7 +348,7 @@ if ($idCliente==0){
 				<div class="col-md-2">
 					<strong>Estado:</strong><br>
 				
-					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $es;?>" size="10" readonly></span><br>
+					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
 				</div>
 			
 				<div class="col-md-2">
@@ -534,6 +535,7 @@ if ($idCliente==0){
 </div>
 <?php // Incluimos paginas modales
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+
 ?>
 <script type="text/javascript">
 	$('#fecha').focus();
@@ -545,7 +547,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	if (isset ($importesFactura)){
+	if (count ($importesFactura)>0){
 
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
@@ -563,7 +565,7 @@ if ($estado=="Pagado total"){
 	$("#Guardar").hide();
 	<?php
 }
-if (is_array($albaranes)){
+if (count($albaranes)>0){
 		?>
 		 $('#Row0').css('display', 'none');
 		 $('.unidad').attr("readonly","readonly");
