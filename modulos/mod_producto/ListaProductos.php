@@ -27,7 +27,7 @@
 		// Hubo un error en la carga de configuracion.
 		$error = array(	'tipo'=>'danger',
 						'dato'=>'Fichero Parametros.xml',
-						'mensaje' =>'Error al cargar configuracion.'
+						'mensaje' =>'Error al cargar configuracion, puede ser en el fichero como en tablas modulo_configuracion.'
 				);
 		$CTArticulos->SetComprobaciones($error);
 
