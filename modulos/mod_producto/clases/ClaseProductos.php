@@ -84,8 +84,13 @@ class ClaseProductos extends ClaseTablaArticulos{
 		}
 		
 		$respuesta = parent::Consulta($consulta);
-		return $respuesta['Items'];
+		if (isset($respuesta['error'])){
+			// Si existe error devolvemos todo el array
+			return $respuesta;
+		}
 		
+		return $respuesta['Items'];
+
 	}
 	
 	public function cambiarTienda($id){
