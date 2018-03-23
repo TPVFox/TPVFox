@@ -367,6 +367,9 @@ var importe= document.getElementById("Eimporte").value;
 var fecha=document.getElementById("Efecha").value;
 var forma=document.getElementById("Eformas").value;
 var referencia=document.getElementById("Ereferencia").value;
+if (forma==0){
+	alert("NO HAS SELECCIONADO UNA FORMA DE PAGO");
+}else{
 var parametros = {
 		"pulsado"    : 'insertarImporte',
 		"importe" : importe,
@@ -401,7 +404,7 @@ var parametros = {
 			
 		}
 	});
-	
+}
 	
 }
 function ponerFocus (destino_focus){
