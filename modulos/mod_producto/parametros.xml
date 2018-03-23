@@ -37,10 +37,9 @@ Numero tecla:
 			
 		<caja_input>
 			<!-- Esta caja solo se existe al pulsar icono label input Coste Ultimo -->
-			<nombre id_input="nombre">cajaCoste</nombre>
+			<nombre id_input="coste">cajaCoste</nombre>
 			<teclas>
-				<action tecla="13">salto</action>
-				<action tecla="40">salto</action>
+				<action tecla="13">salto_recalcular</action>
 			</teclas>
 		</caja_input>
 		
