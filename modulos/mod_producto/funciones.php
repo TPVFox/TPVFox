@@ -41,14 +41,17 @@ function htmlLineaProveedorCoste($item,$proveedor=''){
 	}
 	$nuevaFila = '<tr>';
 	$atributos = ' name="check_pro"'; // Los check ponemos el mismo nombre ya solo podemos devolver uno como principal
-	if ($proveedor['principal'] ==='Si'){
-		// Ponemos check y readonly y ponemos onclick="return false; asi no permite cambiar.. :-)
-		// [OJO] -> readonly deja cambiar el check igualmente..
-		$atributos .= 'readonly onclick="return false;" checked="true"';
-	} else {
+	
+	if (isset($proveedor['principal'])){
+		if ($proveedor['principal'] ==='Si'){
+			// Ponemos check y readonly y ponemos onclick="return false; asi no permite cambiar.. :-)
+			// [OJO] -> readonly deja cambiar el check igualmente..
+			$atributos .= 'readonly onclick="return false;" checked="true"';
+		} 
+	}else {
 		$atributos .= 'disabled';
 	}
-	$nuevaFila .= '<td><input '.$atributos.' type="checkbox" value="'.$proveedor['idProveedor'].'"></td>';
+	$nuevaFila .= '<td><input '.$atributos.' type="checkbox" id="check_pro_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>';
 	$nuevaFila .= '<td>';
 	$nuevaFila .='<small>'.$camposIdProveedor.$nom_proveedor.'</small>';
 	$nuevaFila .='</td>';

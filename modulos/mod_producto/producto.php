@@ -189,7 +189,7 @@
 						</div>
 						<div class="col-md-4 ">	
 							<label class="control-label " > Precio sin Iva:</label>
-							<input type="text" id="pvpSiva" name="pvpSiva"  data-obj= "cajaPvpSiva" onkeydown="controlEventos(event)" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
+							<input type="text" id="pvpSiva" size="10" name="pvpSiva"  data-obj= "cajaPvpSiva" onkeydown="controlEventos(event)" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
 						</div>
 						<div class="col-md-4 ">	
 							<label class="control-label " >
@@ -198,7 +198,7 @@
 							<span title ="Recalcular según beneficio y ultimo coste" class="glyphicon glyphicon-refresh"></span>
 							</a>
 							</label>
-							<input type="text" id="pvpCiva" name="pvpCiva"  data-obj= "cajaPvpCiva" onkeydown="controlEventos(event)"  value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
+							<input type="text" id="pvpCiva" size="10" name="pvpCiva"  data-obj= "cajaPvpCiva" onkeydown="controlEventos(event)"  value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
 						</div>
 					</div>
 				</div>
