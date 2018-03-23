@@ -181,10 +181,8 @@
 			'importes'=>$importesFactura,
 			'fechaModificacion'=>$fechaActual
 			);
-			echo '<pre>';
-			print_r($importesFactura);
-			echo '</pre>';
-						//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
+			
+			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
 			//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
 			if($datosFactura['numfaccli']>0){
 				$numFactura=$datosFactura['numfaccli'];
@@ -202,7 +200,7 @@
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 				
 			}
-header('Location: facturasListado.php');
+			header('Location: facturasListado.php');
  }
 			
 		}
@@ -213,15 +211,15 @@ header('Location: facturasListado.php');
 			}else{
 				$idTemporal=$_GET['tActual'];
 			}
-		
+		//echo $idTemporal;
 			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
 			$albaranes=json_decode($datosFactura['Albaranes'], true);
 			foreach ($albaranes as $albaran){
-				$mod=$Cped->ModificarEstadoAlbaran($albaran['idAlCli'], "Guardado");
+				$mod=$Calbcli->ModificarEstadoAlbaran($albaran['idAlCli'], "Guardado");
 			}
 			$idFactura=0;
-			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				header('Location: facturasListado.php');
+			$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+			//	header('Location: facturasListado.php');
 		}
 		
 		if (isset ($albaranes) | isset($_GET['tActual'])| isset($_GET['id'])){
@@ -329,8 +327,8 @@ if ($idCliente==0){
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  href="./facturasListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-					<input type="submit" value="Guardar" name="Guardar">
-					<input type="submit" value="Cancelar" name="Cancelar">
+					<input type="submit" value="Guardar" id="Guardar" name="Guardar">
+					<input type="submit" value="Cancelar" id="Cancelar" name="Cancelar">
 					<?php
 				if ($idFacturaTemporal>0){
 					?>
@@ -556,20 +554,35 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#fila0").show();
 		<?php
 }
+	
+
 if ($estado=="Pagado total"){
 	?>
 	$("#fila0").hide();
+	$("#Cancelar").hide();
+	$("#Guardar").hide();
 	<?php
 }
+echo '<pre>';
+print_r($albaranes);
+echo '</pre>';
 if (is_array($albaranes)){
+	if(count($albaranes)>0){
 		?>
 		 $('#Row0').css('display', 'none');
 		 $('.unidad').attr("readonly","readonly");
 		<?php
 	}
+	}
 if (isset($productos) & $albaranes==null){
 	?>
 	$("#tablaAl").hide();
+	<?php
+}
+if($estado=="Guardado"){
+	?>
+	$("#Cancelar").hide();
+	$("#Guardar").hide();
 	<?php
 }
 

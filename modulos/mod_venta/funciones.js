@@ -922,6 +922,8 @@ function addTemporal(dedonde){
 					insertarImporte(total);
 				}
 			}
+			$("#Cancelar").show();
+	$("#Guardar").show();
 		}
 	});
 	

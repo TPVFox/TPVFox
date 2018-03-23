@@ -362,7 +362,9 @@ switch ($pulsado) {
 		//Objetivo:
 		//Devuelve el html de la fila albarán
 		//	$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
-		$res=htmlAlbaranFactura($_POST['datos'], $_POST['dedonde']);
+		$arrayAlbaranes=array();
+		array_push($arrayAlbaranes, $_POST['datos']);
+		$res=htmlAlbaranFactura($arrayAlbaranes, $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
