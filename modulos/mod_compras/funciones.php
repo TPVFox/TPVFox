@@ -978,4 +978,30 @@ function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
 	}
 	return $error;
 }
+function htmlImporteFactura($datos, $BDTpv){
+	$formaPago=new FormasPago($BDTpv);
+	$datosPago=$formaPago->datosPrincipal($datos['forma']);
+	$respuesta['html'].='<tr>';
+	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
+	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
+	$respuesta['html'].='<td>'.$datosPago['descripcion'].'</td>';
+	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
+	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
+	$respuesta['html'].='</tr>';
+	return $respuesta;
+	
+}
+function htmlFormasVenci($formaVenci, $BDTpv){
+	$html="";
+	$formasPago=new FormasPago($BDTpv);
+	$principal=$formasPago->datosPrincipal($formaVenci);
+	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
+	$otras=$formasPago->formadePagoSinPrincipal($formaVenci);
+	foreach ($otras as $otra){
+		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
+}
+	$respuesta['formas']=$formaVenci;
+	$respuesta['html']=$html;
+	return $respuesta;
+}
 ?>

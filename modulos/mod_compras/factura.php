@@ -13,11 +13,14 @@ include './../../head.php';
 	include_once 'clases/facturasCompras.php';
 	$CFac = new FacturasCompras($BDTpv);
 	$Controler = new ControladorComun; 
+	include_once '../../clases/FormasPago.php';
+	$CforPago=new FormasPago($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Crear Factura De Proveedor";
 	$estado='Abierto';
 	$estadoCab="'".'Abierto'."'";
+	$formaPago=0;
 	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
@@ -29,6 +32,8 @@ include './../../head.php';
 	
 		$ivasFactura=$CFac->IvasFactura($idFactura);
 		$abaranesFactura=$CFac->albaranesFactura($idFactura);
+		
+		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
@@ -423,6 +428,46 @@ if ($suNumero==0){
 			</div>
 		</div>
 	</div>
+	<div class ="col-md-6" id="divImportes">
+			<h3>Entregas</h3>
+			<table  id="tablaImporte" class="table table-striped">
+			<thead>
+			<tr>
+			<td>Importe</td>
+			<td>Fecha</td>
+			<td>Forma de Pago</td>
+			<td>Referencia</td>
+			<td>Pendiente</td>
+			</tr>
+			</thead>
+			<tbody>
+			 <tr id="fila0">  
+				<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
+				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
+				<td>
+					<select name='Eformas' id='Eformas'>
+				<?php 
+				echo $textoFormaPago['html'];
+				?>
+				</select>
+				</td>
+				<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
+				<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
+			</tr>
+			<?php //Si esa factura ya tiene importes los mostramos 
+			if (isset($importesFactura)){
+				foreach (array_reverse($importesFactura) as $importe){
+					$htmlImporte=htmlImporteFactura($importe, $BDTpv);
+						
+					echo $htmlImporte['html'];
+				}
+			}			
+			?>
+			
+			</tbody>
+			
+			</table>
+		</div>
 </form>
 </div>
 <?php // Incluimos paginas modales
@@ -442,6 +487,11 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		?>
 		 $('#Row0').css('display', 'none');
 		 $('.unidad').attr("readonly","readonly");
+		<?php
+	}
+	if ($estado=="Guardado"){
+		?>
+		$('#divImportes').show();
 		<?php
 	}
 	?>
