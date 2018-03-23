@@ -23,6 +23,8 @@ include './../../head.php';
 	$idProveedor=0;
 	$suNumero=0;
 	$nombreProveedor="";
+	$formaPago=0;
+	$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){
@@ -288,10 +290,28 @@ if ($suNumero==0){
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
 				</div>
-				<div class="col-md-3">
+				<div class="col-md-2">
 					<strong>Su número:</strong><br>
 					<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
 				</div>
+				<div class="col-md-3">
+					<strong>Forma de pago:</strong><br>
+					<p id="formaspago">
+						<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>
+					<?php 
+					
+					if(isset ($textoFormaPago)){
+							echo $textoFormaPago['html'];
+					}
+					?>
+					</select>
+					</p>
+			</div>
+			<div class="col-md-3">
+					<strong>Fecha vencimiento:</strong><br>
+					<input type="date" name="fechaVenci" id="fechaVenci" size="10"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+
+			</div>
 			
 		</div>
 		<div class="form-group">
