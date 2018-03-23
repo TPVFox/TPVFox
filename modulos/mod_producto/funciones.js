@@ -1,6 +1,4 @@
-
 //recogemos valor de la caja de busqueda que tenemos en Listado tickets o productos
-
 function BuscarProducto (){
 	$(document).ready(function()
 	{
@@ -114,7 +112,7 @@ function anular(e) {
 	 
 
 
-function recalcularPrecioSegunCosteBeneficio (){
+function recalcularPrecioSegunCosteBeneficio (caja){
 	// @ Objetivo
 	// Recalcular precio de PVP sin iva y con iva, segun ultimo coste y beneficio.
 	
@@ -131,9 +129,34 @@ function recalcularPrecioSegunCosteBeneficio (){
 	var precioSiva = coste+(coste*beneficio);
 	var precioCiva = precioSiva+(precioSiva*iva);
 	// Ahora cambiamos los datos en input.
+	destacarCambioCaja('pvpSiva');
+	destacarCambioCaja('pvpCiva');
+
 	$('#pvpSiva').val(precioSiva.toFixed(2));
 	$('#pvpCiva').val(precioCiva.toFixed(2));
 	
+	
+	
+	
+
+
+}
+
+function destacarCambioCaja(idcaja){
+	$("#"+idcaja).css("outline-style","solid");
+	$("#"+idcaja).css("outline-color","coral");
+	$("#"+idcaja).animate({
+			"opacity": "0.3"
+		 },2000);
+	t = setTimeout(volverMostrar,2000,idcaja);
+	
+}
+function volverMostrar(idcaja){
+	console.log('Entro volver mostrar');
+	$("#"+idcaja).animate({
+			"opacity": "1"
+		 },1000);
+	$("#"+idcaja).css("outline-color","transparent")
 }
 
 function recalcularPvp(dedonde){
@@ -331,8 +354,34 @@ function desActivarCajasProveedor(obj){
 	var id_prov = idInput.substr(15, 4);
 	// Cambiamos
 	$('#prov_coste_'+ id_prov).removeAttr('readonly', '');
-	$('#prov_cref_'+ id_prov).removeAttr('readonly', '');;
+	$('#prov_cref_'+ id_prov).removeAttr('readonly', '');
+	
+	$('#check_pro_'+ id_prov).removeAttr('disabled', '');
+	$('#check_pro_'+ id_prov).removeAttr('readonly', '');
+	$('#check_pro_'+ id_prov).attr('onclick', "cambioEstadoProvPrincipal(this)");
 
+
+}
+
+function cambioEstadoProvPrincipal(obj){
+	// Objetivo:
+	// Comprobar si cambio estado check de proveedor, si lo marco , desmarca el resto proveedores.
+	// Solo puede haber un proveedor principal.
+	var check = $('#'+obj.id).prop('checked')
+	
+	if (check === true){
+		// Comprobamos si hay alguno marcado , entonces lo desmarcamos.
+		var checks_pro = $("input:checkbox[name=check_pro]:checkbox");
+		console.log(checks_pro.length);
+		for (i = 0; i < checks_pro.length; i++) { 
+			if ( obj.id !== checks_pro[i].id ){
+				console.log(checks_pro[i].id+$("#"+checks_pro[i].id).prop('checked'));
+				$('#'+checks_pro[i].id).removeAttr('checked', '');
+			}
+		}
+		
+	}
+	
 }
 
 // ---------------------------------  Funciones control de teclado ----------------------------------------------- //
@@ -372,7 +421,7 @@ function controladorAcciones(caja,accion, tecla){
 			console.log("Estoy en buscar controladorAcciones-> salto");
 		break;
 		case 'salto_recalcular':
-			recalcularPrecioSegunCosteBeneficio();
+			recalcularPrecioSegunCosteBeneficio(caja);
 		break
 		case 'recalcularPvp':
 			console.log(caja)
