@@ -174,7 +174,7 @@ include './../../head.php';
 	}
 	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-
+echo $estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
