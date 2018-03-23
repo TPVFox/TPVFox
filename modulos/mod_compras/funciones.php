@@ -861,7 +861,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	return $error;
 }
 
-function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales){
+function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importesFactura){
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	$error=0;
@@ -879,6 +879,18 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales){
 				$total=0;
 				$error=1;
 		}
+		$estado="Guardado";
+		if (is_array($importesFactura)){
+				
+				foreach ($importesFactura as $import){
+					$entregado=$entregado+$import['importe'];
+				}
+				if ($total==$entregado){
+					$estado="Pagado total";
+				}else{
+					$estado="Pagado Parci";
+				}
+			}
 		if ($datosPost['suNumero']>0){
 				$suNumero=$datosPost['suNumero'];
 		}else{
@@ -890,11 +902,12 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales){
 			'idTienda'=>$Tienda['idTienda'],
 			'idUsuario'=>$Usuario['id'],
 			'idProveedor'=>$datosFactura['idProveedor'],
-			'estado'=>"Guardado",
+			'estado'=>$estado,
 			'total'=>$total,
 			'DatosTotales'=>$Datostotales,
 			'productos'=>$datosFactura['Productos'],
 			'albaranes'=>$datosFactura['Albaranes'],
+			'importes'=>$importesFactura,
 			'suNumero'=>$suNumero
 		);
 		if ($error==0){
@@ -1004,5 +1017,19 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 	$respuesta['formas']=$formaVenci;
 	$respuesta['html']=$html;
 	return $respuesta;
+}
+function modificarArraysImportes($importes, $total){
+	$importesDef= array();
+	foreach ($importes as $importe){
+		$nuevo= array();
+		$nuevo['importe']=$importe['importe'];
+		$nuevo['fecha']=$importe['FechaPago'];
+		$nuevo['referencia']=$importe['Referencia'];
+		$nuevo['forma']=$importe['idFormasPago'];
+		$total=$total-$importe['importe'];
+		$nuevo['pendiente']=$total;
+		array_push($importesDef, $nuevo);
+	}
+	return $importesDef;
 }
 ?>

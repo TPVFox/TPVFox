@@ -34,6 +34,8 @@ include './../../head.php';
 		$abaranesFactura=$CFac->albaranesFactura($idFactura);
 		
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
+		$datosImportes=$CFac->importesFactura($idFactura);
+		
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
@@ -62,7 +64,7 @@ include './../../head.php';
 		}
 		
 		$total=$Datostotales['total'];
-		
+		$importesFactura=modificarArraysImportes($datosImportes, $total);
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
 	$fecha=date('Y-m-d');
@@ -97,11 +99,12 @@ include './../../head.php';
 				}else{
 					$suNumero=0;
 				}
+				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 				$idProveedor=$datosFactura['idProveedor'];
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
 				$fechaCab="'".$fecha."'";
-				
+				$importesFactura=json_decode($datosFactura['FacCobros'], true);
 				
 				$estadoCab="'".'Abierto'."'";
 				$factura=$datosFactura;
@@ -121,7 +124,7 @@ include './../../head.php';
 		}
 		
 	if (isset($_POST['Guardar'])){
-			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales);
+			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales,$importesFactura);
 			if ($guardar==0){
 				header('Location: facturasListado.php');
 			}else{
@@ -499,6 +502,22 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#tablaAl').hide();
 		<?php
 	}
+	if (count ($importesFactura)>0){
+		?>
+		$("#tabla").find('input').attr("disabled", "disabled");
+		$("#tabla").find('a').css("display", "none");
+		$("#tablaImporte").show();
+		$("#fila0").show();
+		<?php
+}
+if ($estado=="Pagado total"){
+	?>
+	$("#fila0").hide();
+		
+	$("#Cancelar").hide();
+	$("#Guardar").hide();
+	<?php
+}
 	?>
 	
 </script>

@@ -233,6 +233,13 @@ class FacturasCompras extends ClaseCompras{
 				}
 			}
 		}
+		if(is_array($datos['importes'])){
+			foreach ($datos['importes'] as $importe){
+				$sql='INSERT INTO facProCobros (idFactura, idFormasPago, FechaPago, importe, Referencia) VALUES ('.$id.' , '.$importe['forma'].' , "'.$importe['fecha'].'", '.$importe['importe'].', '."'".$importe['referencia']."'".')';
+				$smt=$db->query($sql);
+				$resultado['sql']=$sql;
+			}
+		}
 		return $resultado;
 	}
 	
