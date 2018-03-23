@@ -398,97 +398,127 @@ function htmlAlbaranFactura($albaranes, $dedonde){
 	return $respuesta;
 }
 
-function lineaPedidoAlbaran($pedido, $dedonde){
-		$respuesta['html']="";
-	if(isset($pedido)){
-	if ($pedido['estado']){
-			if ($pedido['Numpedcli']){
-				$num=$pedido['Numpedcli'];
-			}
-			if ($pedido['estado']=="activo"){
-				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-				$classtr = '';
-				$estadoInput = '';
-			}else{
-				$classtr = ' class="tachado" ';
-				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+//~ function lineaPedidoAlbaran($pedido, $dedonde){
+		//~ $respuesta['html']="";
+	//~ if(isset($pedido)){
+	//~ if ($pedido['estado']){
+			//~ if ($pedido['Numpedcli']){
+				//~ $num=$pedido['Numpedcli'];
+			//~ }
+			//~ if ($pedido['estado']=="activo"){
+				//~ $funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
+				//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				//~ $classtr = '';
+				//~ $estadoInput = '';
+			//~ }else{
+				//~ $classtr = ' class="tachado" ';
+				//~ $estadoInput = 'disabled';
+				//~ $funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
+				//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 	
-			}
-		}
-		$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
-		$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
-		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
-		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
-		$respuesta['html'].=$btnELiminar_Retornar;
-		$respuesta['html'] .='</tr>';
-	}
-	return $respuesta;
-}
+			//~ }
+		//~ }
+		//~ $respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
+		//~ $respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
+		//~ $respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
+		//~ $respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+		//~ $respuesta['html'].=$btnELiminar_Retornar;
+		//~ $respuesta['html'] .='</tr>';
+	//~ }
+	//~ return $respuesta;
+//~ }
 
-function lineaAlbaranFactura($albaran, $dedonde){
-	$respuesta['html']="";
-	if(isset($albaran)){
-			if ($albaran['estado']){
-			if ($albaran['Numalbcli']){
-				$num=$albaran['Numalbcli'];
-			}
-			if ($albaran['estado']=="Activo"){
-				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$albaran['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-				$classtr = '';
-				$estadoInput = '';
-			}else{
-				$classtr = ' class="tachado" ';
-				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$albaran['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+//~ function lineaAlbaranFactura($albaran, $dedonde){
+	//~ $respuesta['html']="";
+	//~ if(isset($albaran)){
+			//~ if ($albaran['estado']){
+			//~ if ($albaran['Numalbcli']){
+				//~ $num=$albaran['Numalbcli'];
+			//~ }
+			//~ if ($albaran['estado']=="Activo"){
+				//~ $funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$albaran['nfila'].');';
+				//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				//~ $classtr = '';
+				//~ $estadoInput = '';
+			//~ }else{
+				//~ $classtr = ' class="tachado" ';
+				//~ $estadoInput = 'disabled';
+				//~ $funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$albaran['nfila'].');';
+				//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 	
-			}
-		}
-		$respuesta['html'] .='<tr id="lineaP'.($albaran['nfila']).'" '.$classtr.'>';
-		$respuesta['html'] .='<td>'.$albaran['Numalbcli'].'</td>';
-		$respuesta['html'] .='<td>'.$albaran['fecha'].'</td>';
-		$respuesta['html'] .='<td>'.$albaran['total'].'</td>';
-		$respuesta['html'].=$btnELiminar_Retornar;
-		$respuesta['html'] .='</tr>';
-	}
-	return $respuesta;
-}
+			//~ }
+		//~ }
+		//~ $respuesta['html'] .='<tr id="lineaP'.($albaran['nfila']).'" '.$classtr.'>';
+		//~ $respuesta['html'] .='<td>'.$albaran['Numalbcli'].'</td>';
+		//~ $respuesta['html'] .='<td>'.$albaran['fecha'].'</td>';
+		//~ $respuesta['html'] .='<td>'.$albaran['total'].'</td>';
+		//~ $respuesta['html'].=$btnELiminar_Retornar;
+		//~ $respuesta['html'] .='</tr>';
+	//~ }
+	//~ return $respuesta;
+//~ }
 
-function modalPedidos($pedidos){
-	$contad = 0;
-	$respuesta['html'] .= '<table class="table table-striped"><thead>';
-	$respuesta['html'] .= '<th>';
-	$respuesta['html'] .='<td>Número </td>';
-	$respuesta['html'] .='<td>Fecha</td>';
-	$respuesta['html'] .='<td>Total</td>';
-	$respuesta['html'] .='</th>';
-	$respuesta['html'] .= '</thead><tbody>';
-	foreach ($pedidos as $pedido){
-	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosPedido('.$pedido['Numpedcli'].');">';
-	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+//~ function modalPedidos($pedidos){
+	//~ $contad = 0;
+	//~ $respuesta['html'] .= '<table class="table table-striped"><thead>';
+	//~ $respuesta['html'] .= '<th>';
+	//~ $respuesta['html'] .='<td>Número </td>';
+	//~ $respuesta['html'] .='<td>Fecha</td>';
+	//~ $respuesta['html'] .='<td>Total</td>';
+	//~ $respuesta['html'] .='</th>';
+	//~ $respuesta['html'] .= '</thead><tbody>';
+	//~ foreach ($pedidos as $pedido){
+	//~ $respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
+	//~ .$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosPedido('.$pedido['Numpedcli'].');">';
+	//~ $respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
+	//~ .$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
-	$respuesta['html'].='<td>'.$pedido['Numpedcli'].'</td>';
-	$respuesta['html'].='<td>'.$pedido['FechaPedido'].'</td>';
-	$respuesta['html'].='<td>'.$pedido['total'].'</td>';
-	$respuesta['html'].='</tr>';
-	$contad = $contad +1;
-	if ($contad === 10){
-		break;
-	}
+	//~ $respuesta['html'].='<td>'.$pedido['Numpedcli'].'</td>';
+	//~ $respuesta['html'].='<td>'.$pedido['FechaPedido'].'</td>';
+	//~ $respuesta['html'].='<td>'.$pedido['total'].'</td>';
+	//~ $respuesta['html'].='</tr>';
+	//~ $contad = $contad +1;
+	//~ if ($contad === 10){
+		//~ break;
+	//~ }
 				
-	}
-	$respuesta['html'].='</tbody></table>';
-	return $respuesta;
-}
+	//~ }
+	//~ $respuesta['html'].='</tbody></table>';
+	//~ return $respuesta;
+//~ }
 
 
-function modalAlbaranes($albaranes){
+//~ function modalAlbaranes($albaranes){
+	//~ $contad = 0;
+	//~ $respuesta=array('html'=>'');
+	//~ $respuesta['html'] .= '<table class="table table-striped"><thead>';
+	//~ $respuesta['html'] .= '<th>';
+	//~ $respuesta['html'] .='<td>Número </td>';
+	//~ $respuesta['html'] .='<td>Fecha</td>';
+	//~ $respuesta['html'] .='<td>Total</td>';
+	//~ $respuesta['html'] .='</th>';
+	//~ $respuesta['html'] .= '</thead><tbody>';
+	//~ foreach ($albaranes as $albaran){
+	//~ $respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
+	//~ .$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosAlbaran('.$albaran['Numalbcli'].');">';
+	//~ $respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
+	//~ .$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+
+	//~ $respuesta['html'].='<td>'.$albaran['Numalbcli'].'</td>';
+	//~ $respuesta['html'].='<td>'.$albaran['Fecha'].'</td>';
+	//~ $respuesta['html'].='<td>'.$albaran['total'].'</td>';
+	//~ $respuesta['html'].='</tr>';
+	//~ $contad = $contad +1;
+	//~ if ($contad === 10){
+		//~ break;
+	//~ }
+				
+	//~ }
+	//~ $respuesta['html'].='</tbody></table>';
+	//~ return $respuesta;
+//~ }
+
+function modalAdjunto($adjuntos){
 	$contad = 0;
 	$respuesta=array('html'=>'');
 	$respuesta['html'] .= '<table class="table table-striped"><thead>';
@@ -498,14 +528,24 @@ function modalAlbaranes($albaranes){
 	$respuesta['html'] .='<td>Total</td>';
 	$respuesta['html'] .='</th>';
 	$respuesta['html'] .= '</thead><tbody>';
-	foreach ($albaranes as $albaran){
+	foreach ($adjuntos as $adjunto){
+		if ($adjunto['Numalbcli']){
+			$num=$adjunto['Numalbcli'];
+			}else{
+				$num=$adjunto['Numpedcli'];
+				}
+		if($adjunto['Fecha']){
+			$fecha=$adjunto['Fecha'];
+			}else{
+				$fecha=$adjunto['FechaPedido'];
+				}
 	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosAlbaran('.$albaran['Numalbcli'].');">';
+	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosAlbaran('.$num.');">';
 	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
-	$respuesta['html'].='<td>'.$albaran['Numalbcli'].'</td>';
-	$respuesta['html'].='<td>'.$albaran['Fecha'].'</td>';
+	$respuesta['html'].='<td>'.$num.'</td>';
+	$respuesta['html'].='<td>'.$fecha.'</td>';
 	$respuesta['html'].='<td>'.$albaran['total'].'</td>';
 	$respuesta['html'].='</tr>';
 	$contad = $contad +1;
@@ -516,9 +556,7 @@ function modalAlbaranes($albaranes){
 	}
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
-}
-
-
+	}
 
 
 
@@ -559,7 +597,6 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 			$res['Numalbcli']=$ped['Numalbcli'];
 			$res['fecha']=$ped['Fecha'];
 			$res['idAlbaran']=$ped['id'];
-			//$res['idalbCli']=$ped[0]['idCliente'];
 			$res['total']=$ped['total'];
 			$res['estado']="Activo";
 			$res['nfila']=$i;
@@ -573,33 +610,16 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 function htmlFormasVenci($formaVenci, $BDTpv){
 	
 	$formasPago=new FormasPago($BDTpv);
-	//$html="<select name='formaVenci' id='formaVenci' onChange='selectFormas()'>";
-	
 	$principal=$formasPago->datosPrincipal($formaVenci);
 	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
 	$otras=$formasPago->formadePagoSinPrincipal($formaVenci);
 	foreach ($otras as $otra){
 		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
-	}
-	//$html.='</select>';
-	
-	
+}
 	$respuesta['formas']=$formaVenci;
 	$respuesta['html']=$html;
 	return $respuesta;
 }
-//~ function FormasDePago($BDTpv){
-	//~ $html="<select name='fomaImporte' id='fomaImporte'>";
-	//~ $formasPago=new FormasPago($BDTpv);
-	//~ $formas=$formasPago->todas();
-		//~ $html.='<option value= "0">Sin Forma</option>';
-		//~ foreach($formas as $forma){
-			//~ $html.='<option value= "'.$forma['id'].'">'.$forma['descripcion'].'</option>';
-		//~ }
-		//~ $html.='</select>';
-		//~ return $html;
-	
-//~ }
 
 function htmlVencimiento($nuevafecha, $BDTpv){
 	$vencimiento=new TiposVencimientos($BDTpv);
@@ -624,17 +644,15 @@ function fechaVencimiento($fecha, $BDTpv){
 	
 }
 
-function htmlImporteFactura($datos){
-	//~ $respuesta['html'].='<tr>';
-	//~ $respuesta['html'].='<td>'.$importe.'</td>';
-	//~ $respuesta['html'].='<td>'.$fecha.'</td>';
-	//~ $respuesta['html'].='<td>'.$pendiente.'</td>';
-	//~ $respuesta['html'].='</tr>';
+function htmlImporteFactura($datos, $BDTpv){
+	$formaPago=new FormasPago($BDTpv);
+	$datosPago=$formaPago->datosPrincipal($datos['forma']);
 	$respuesta['html'].='<tr>';
 	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
 	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
-	$respuesta['html'].='<td>'.$datos['forma'].'</td>';
+	$respuesta['html'].='<td>'.$datosPago['descripcion'].'</td>';
 	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
+	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
 	$respuesta['html'].='</tr>';
 	return $respuesta;
 	
@@ -857,5 +875,20 @@ function htmlTotales($Datostotales){
 			$htmlIvas['html'].='</tr>';
 		}
 	return $htmlIvas;
+}
+
+function modificarArraysImportes($importes, $total){
+	$importesDef= array();
+	foreach ($importes as $importe){
+		$nuevo= array();
+		$nuevo['importe']=$importe['importe'];
+		$nuevo['fecha']=$importe['FechaPago'];
+		$nuevo['referencia']=$importe['Referencia'];
+		$nuevo['forma']=$importe['idFormasPago'];
+		$total=$total-$importe['importe'];
+		$nuevo['pendiente']=$total;
+		array_push($importesDef, $nuevo);
+	}
+	return $importesDef;
 }
 ?>

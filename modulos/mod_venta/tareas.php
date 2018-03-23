@@ -98,7 +98,7 @@ switch ($pulsado) {
 				}
 			}else{
 				$respuesta=$res;
-				$modal=modalPedidos($res['datos']);
+				$modal=modalAdjunto($res['datos']);
 				$respuesta['html']=$modal['html'];
 				
 			}
@@ -127,7 +127,7 @@ switch ($pulsado) {
 				
 			}else{
 				$respuesta=$res;
-				$modal=modalAlbaranes($res['datos']);
+				$modal=modalAdjunto($res['datos']);
 				$respuesta['html']=$modal['html'];
 				
 			}
@@ -350,7 +350,8 @@ switch ($pulsado) {
 		case 'htmlAgregarFilaPedido':
 		//Objetivo:
 		//Devuelve el html de la fila del pedido 
-			$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+		//	$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+		$res=htmlLineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
@@ -358,7 +359,8 @@ switch ($pulsado) {
 		case 'htmlAgregarFilaAlbaran':
 		//Objetivo:
 		//Devuelve el html de la fila albarán
-			$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
+		//	$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
+		$res=htmlAlbaranFactura($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
@@ -463,68 +465,58 @@ switch ($pulsado) {
 		 $formaPago=$_POST['forma'];
 		 $referencia=$_POST['referencia'];
 		 $total=$_POST['total'];
-		 $bandera=0;
+		 $idReal=$_POST['idReal'];
+		
 		 $arrayPrincipal=array();
-		 $importesTemporal=$CFac->importesTemporal($idFactura);
+		 $error=0;
+		 $bandera=0;
+		 $importesReal=$CFac->importesFactura($idReal);
+		 $respuesta['importeReal']=$importesReal;
+		 if(count($importesReal)>0){
+			 foreach($importesReal as $impo){
+				 $bandera=$bandera+$impo['importe'];
+				 $respuesta['bandera1']= $bandera;
+			}
+			 $importesTemporal=json_encode($importesReal);
+			$eliminarReal=$CFac->eliminarRealImportes($idReal);
+			$respuesta['impTemporal']=$importesTemporal;
+		 }else{
+			 $importesTemporal=$CFac->importesTemporal($idFactura);
+			 $importesTemporal=$importesTemporal['FacCobros'];
+			  $bandera=$importe;
+		 }
+		 
 		 if ($importesTemporal){
-			 $importes=json_decode($importesTemporal['FacCobros'], true);
+			
+			 $importes=json_decode($importesTemporal, true);
+			  $respuesta['importes']= $importes;
 			 foreach ($importes as $import){
-				 $bandera=$bandera+$import['importe'];
+				 $bandera=$bandera+(string)$import['importe'];
 				 array_push($arrayPrincipal, $import);
 			 }
 			 if ($bandera>$total){
 				 $respuesta['mensaje']=1;
+				 $error=1;
 			 }
+			 $respuesta['bandera']=$bandera;
 		 }
-		
+		 if ($error==0){
+		$pendiente=$total-$bandera;
 		$nuevo=array();
 		$nuevo['importe']=$importe;
 		$nuevo['fecha']=$fecha;
 		$nuevo['forma']=$formaPago;
 		$nuevo['referencia']=$referencia;
-		
+		$nuevo['pendiente']=$pendiente;
+		$respuesta['nuevo']=$nuevo;
 		array_push($arrayPrincipal, $nuevo);
 		$jsonImporte=json_encode($arrayPrincipal);
-		$modImportes=$CFac->modificarImportesTemporal($jsonImporte);
-		$html=htmlImporteFactura($nuevo);
+		$modImportes=$CFac->modificarImportesTemporal($idFactura, $jsonImporte);
+		$respuesta['sqlmod']=$modImportes;
+		$html=htmlImporteFactura($nuevo, $BDTpv);
 		$respuesta['html']=$html['html'];
-		//~ //$estado="Pagado Parcial";
-		//~ $datosFactura=$CFac->importesFacturaDatos($idFactura);
-		//~ if ($datosFactura){
-			//~ if ($datosFactura['total']<$importe){
-				//~ $respuesta['mensaje']=1;
-			//~ }else{
-				//~ $entregado=$datosFactura['entregado']+$importe;
-				//~ $diferencia=$datosFactura['total']-$entregado;
-				//~ $nuevo=array();
-				//~ $nuevo['importe']=$importe;
-				//~ $nuevo['fecha']=$fecha;
-				//~ $nuevo['pendiente']=$diferencia;
-				//~ if ($entregado > $datosFactura['total']){
-					//~ $respuesta['mensaje']=1;
-				//~ }else{
-					//~ $bandera=array();
-					//~ if ($datosFactura['importes']){
-							
-							//~ $datosImporte=json_decode($datosFactura['importes'], true);
-								
-							//~ array_push($datosImporte, $nuevo);
-								
-							//~ $respuesta['array']=$datosImporte;
-							
-							//~ $jsonImporte=json_encode($datosImporte);
-					//~ }else{
-						//~ array_push($bandera, $nuevo);
-						//~ $jsonImporte=json_encode($bandera);
-					//~ }
-					//~ $modFactura=$CFac->modificarImportesFactura($idFactura ,$jsonImporte , $entregado, $estado);
-					//~ $html=htmlImporteFactura($importe, $fecha, $diferencia);
-					//~ $respuesta['html']=$html['html'];
-					//~ $respuesta['mensaje']=2;
-				//~ }
-			//~ }
-		//~ }
-			echo json_encode($respuesta);
+	}
+		echo json_encode($respuesta);
 		break;
 		//@Objetivo:
 		//enviar los datos para imprimir el pdf

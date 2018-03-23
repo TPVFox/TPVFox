@@ -163,10 +163,10 @@ class FacturasVentas extends ClaseVentas{
 		//Añadir todos los registros de las diferentes tablas de una factura real
 		$db = $this->db;
 		if ($idFactura>0){
-			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".', '.$datos['entregado'].', "'.$datos['fechaModificacion'].'")');
+			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento,  fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", "'.$datos['fechaModificacion'].'")');
 			$id=$idFactura;
 		}else{
-			$smt = $db->query ('INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, importes, entregado, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", '."'".$datos['importes']."'".' , '.$datos['entregado'].' , "'.$datos['fechaModificacion'].'")');
+			$smt = $db->query ('INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'" ,  "'.$datos['fechaModificacion'].'")');
 			$id=$db->insert_id;
 			$smt = $db->query('UPDATE facclit SET Numfaccli  = '.$id.' WHERE id ='.$id);
 		}
@@ -215,8 +215,18 @@ class FacturasVentas extends ClaseVentas{
 				}
 			}
 		}
-		
 		}
+		if(is_array($datos['importes'])){
+			foreach ($datos['importes'] as $importe){
+				$sql='INSERT INTO fac_cobros (idFactura, idFormasPago, FechaPago, importe, Referencia) VALUES ('.$id.' , '.$importe['forma'].' , "'.$importe['fecha'].'", '.$importe['importe'].', '."'".$importe['referencia']."'".')';
+				$smt=$db->query($sql);
+				$resultado['sql']=$sql;
+			}
+		}
+			
+		
+		
+		
 		return $resultado;
 	}
 	public function sumarIva($numFactura){
@@ -253,7 +263,10 @@ class FacturasVentas extends ClaseVentas{
 	//~ }
 	public function modificarImportesTemporal($idTemporal, $importes){
 		$db=$this->db;
-		$smt=$db->query('UPDATE faccliltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal);
+		
+		$sql='UPDATE faccliltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal;
+		$smt=$db->query($sql);
+		return $sql;
 	}
 	public function importesTemporal($idTemporal){
 		$db=$this->db;
@@ -262,6 +275,19 @@ class FacturasVentas extends ClaseVentas{
 			$factura=$result;
 		}
 		return $factura;
+	}
+	public function importesFactura($idFactura){
+		$db=$this->db;
+		$smt=$db->query ('SELECT * FROM fac_cobros where idFactura='.$idFactura );
+		$importesPrincipal=array();
+		while ($result = $smt->fetch_assoc () ){
+			array_push($importesPrincipal,$result);
+		}
+		return $importesPrincipal;
+	}
+	public function eliminarRealImportes($idFactura){
+		$db=$this->db;
+		$smt=$db->query ('DELETE FROM  fac_cobros where idFactura='.$idFactura );
 	}
 }
 
