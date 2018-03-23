@@ -490,7 +490,7 @@ if ($idCliente==0){
 			</div>
 		</div>
 	</div>
-		<div class ="col-md-6">
+		<div class ="col-md-6" >
 			<h3 style="<?php echo $Simporte;?>">Entregas</h3>
 			<table  id="tablaImporte" class="table table-striped" style="<?php echo $Simporte;?>">
 			<thead>
@@ -548,7 +548,6 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		<?php
 	}
 	if (count ($importesFactura)>0){
-
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");
@@ -561,6 +560,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 if ($estado=="Pagado total"){
 	?>
 	$("#fila0").hide();
+		
 	$("#Cancelar").hide();
 	$("#Guardar").hide();
 	<?php
@@ -574,6 +574,7 @@ if (count($albaranes)>0){
 
 if($estado=="Guardado"){
 	?>
+	$("#tablaImporte").show();
 	$("#fila0").show();
 	$("#Cancelar").hide();
 	$("#Guardar").hide();
