@@ -291,11 +291,14 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}
 			$numeroPed="";
 			if ($dedonde=="albaran"){
-				if ($producto['NumpedCli']>0){
+				if(isset($producto['NumpedCli'])){
+					if ($producto['NumpedCli']>0){
 					$numeroPed=$producto['NumpedCli'];
 				}else if ($producto['Numpedcli']>0){
 					$numeroPed=$producto['Numpedcli'];
 				}
+					}
+				
 			}
 			if ($dedonde=="factura"){
 				if(isset($producto['Numalbcli'])){
