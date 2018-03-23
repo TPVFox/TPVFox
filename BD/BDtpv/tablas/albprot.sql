@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 09, 2018 at 05:45 PM
+-- Generation Time: Mar 23, 2018 at 09:42 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -38,7 +38,8 @@ CREATE TABLE `albprot` (
   `estado` varchar(12) DEFAULT NULL,
   `formaPago` varchar(12) DEFAULT NULL,
   `entregado` decimal(17,2) DEFAULT NULL,
-  `total` decimal(17,2) DEFAULT NULL
+  `total` decimal(17,2) DEFAULT NULL,
+  `FechaVencimiento` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
