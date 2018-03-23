@@ -19,6 +19,8 @@
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 10; // por defecto.
 	$filtro = ''; // por defecto
+	$WhereLimite['filtro']="";
+	$NuevoRango="";
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
@@ -38,13 +40,6 @@
 	} else {
 		$desde = 0;
 	}
-//~ if ($stringPalabras !== '' ){
-		//~ $campoBD='Numfaccli ';
-		//~ $WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD);
-		//~ $filtro=$WhereLimite['filtro'];
-		//~ $OtrosParametros=$stringPalabras;
-//~ }
-//~ $CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 if ($stringPalabras !== '' ){
 		$campo = array( 'a.Numfaccli','b.Nombre');
 		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
