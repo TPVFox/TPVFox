@@ -101,10 +101,6 @@ function  modificarEstado(dedonde, estado, idModificar){
 		beforeSend : function () {
 			console.log('******** estoy en Modificar estado factura js****************');
 		},
-		//~ success    :  function (response) {
-			//~ console.log('Llegue devuelta respuesta de estado pedido js');
-			//~ //var resultado =  $.parseJSON(response); 
-		//~ }
 	});
 }
 function buscarClientes(dedonde, idcaja, valor=''){
@@ -132,13 +128,11 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de buscar clientes');
 			var resultado =  $.parseJSON(response); 
-			//var encontrados = resultado.encontrados;
 			// Si el archivo de donde viene la consulta es  albaran con lo que devuelve la consulta
 			//de buscarCliente se registra en los input y se bloquean posteriormente
 			
 			if (resultado.Nitems==1){
 				cabecera.idCliente=resultado.id;
-				//cabecera.nombreCliente=resultado.nombre;
 				$('#Cliente').val(resultado.nombre);
 				$('#Cliente').prop('disabled', true);
 				$('#id_cliente').prop('disabled', true);
@@ -166,7 +160,6 @@ function abrirModal(titulo,tabla){
 	// @ Objetivo :
 	// Abril modal con texto buscado y con titulo que le indiquemos.
 	console.log('Estamos en abrir modal');
-//	console.log(tabla.html);
 	$('.modal-body ').html(tabla);
 	$('.modal-title').html(titulo);
 	$('#busquedaModal').modal('show');
@@ -322,8 +315,6 @@ function controladorAcciones(caja,accion, tecla){
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
 			break;
-			
-	//Acciones de albarán
 	
 		case 'saltarNumPedido':
 				console.log("Ente en fecha Al");
@@ -358,10 +349,6 @@ function controladorAcciones(caja,accion, tecla){
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		break;
-		//~ case 'insertarImporte':
-		//~ console.log("Entre en insertarImporte de factura");
-		//~ insertarImporte();
-		//~ break;
 		default :
 			console.log ( 'Accion no encontrada '+ accion);
 	} 
