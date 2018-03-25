@@ -34,8 +34,21 @@ class ClaseTablaIva{
 	public function getDescripcion(){
 		return $this->descripcion;
 	}
-	public function getIva(){
-		return $this->iva;
+	public function getIva($id=''){
+		// Objetivo:
+		// Obtener el iva con id o sin el..
+		if ($id === ''){
+			// Quiere decir que devolvemos el valor propiedad
+			return $this->iva;
+		} else {
+			// Queremos obtener le iva del id indicado.
+			$ivas = $this->todoIvas();
+			foreach ($ivas as $item){
+				if ($item['idIva']===$id){
+				 return $item['iva'];
+				}
+			}
+		}
 	}
 	public function getRecargo(){
 		return $this->recargo;
