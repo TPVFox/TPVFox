@@ -54,9 +54,12 @@ class PedidosVentas extends ClaseVentas{
 	
 	public function TodosTemporal(){
 		//@Objetivo: Muestra los campos principales del temporal
-			$db = $this->db;
-			$smt=$db->query('SELECT tem.idPedcli, tem.id , tem.idClientes, tem.total, b.Nombre, c.Numpedcli from pedcliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes LEFT JOIN pedclit as c on tem.idPedcli=c.id');
-			$pedidosPrincipal=array();
+		$db = $this->db;
+		$sql='SELECT tem.idPedcli, tem.id , tem.idClientes, tem.total, b.Nombre, c.Numpedcli from pedcliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes LEFT JOIN pedclit as c on tem.idPedcli=c.id';
+		// Debemos crear un metodo de consulta igual para todos, poder controlar el error y mostrarlo.
+		$smt=$db->query($sql);
+		$pedidosPrincipal=array();
+		
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($pedidosPrincipal,$result);
 		}
