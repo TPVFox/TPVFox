@@ -78,6 +78,12 @@ function formasVenciCliente(formasVenci){
 	});
 }
 function  modificarEstado(dedonde, estado, idModificar){
+	//@Objetivo:
+	//Modificar el estado dependiendo de donde venga 
+	//Paramtros: 
+	//Dedonde: de donde llamamos a la función
+	//Estado: estado que vamos a asignarle al registro
+	//IdModificar: id del registro que se va a modificar
 	if (dedonde=="pedidos"){
 		var pulsado='modificarEstadoPedido';
 	}
@@ -101,10 +107,6 @@ function  modificarEstado(dedonde, estado, idModificar){
 		beforeSend : function () {
 			console.log('******** estoy en Modificar estado factura js****************');
 		},
-		//~ success    :  function (response) {
-			//~ console.log('Llegue devuelta respuesta de estado pedido js');
-			//~ //var resultado =  $.parseJSON(response); 
-		//~ }
 	});
 }
 function buscarClientes(dedonde, idcaja, valor=''){
@@ -132,13 +134,11 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de buscar clientes');
 			var resultado =  $.parseJSON(response); 
-			//var encontrados = resultado.encontrados;
 			// Si el archivo de donde viene la consulta es  albaran con lo que devuelve la consulta
 			//de buscarCliente se registra en los input y se bloquean posteriormente
 			
 			if (resultado.Nitems==1){
 				cabecera.idCliente=resultado.id;
-				//cabecera.nombreCliente=resultado.nombre;
 				$('#Cliente').val(resultado.nombre);
 				$('#Cliente').prop('disabled', true);
 				$('#id_cliente').prop('disabled', true);
@@ -166,7 +166,6 @@ function abrirModal(titulo,tabla){
 	// @ Objetivo :
 	// Abril modal con texto buscado y con titulo que le indiquemos.
 	console.log('Estamos en abrir modal');
-//	console.log(tabla.html);
 	$('.modal-body ').html(tabla);
 	$('.modal-title').html(titulo);
 	$('#busquedaModal').modal('show');
@@ -322,8 +321,6 @@ function controladorAcciones(caja,accion, tecla){
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
 			break;
-			
-	//Acciones de albarán
 	
 		case 'saltarNumPedido':
 				console.log("Ente en fecha Al");
@@ -358,20 +355,21 @@ function controladorAcciones(caja,accion, tecla){
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		break;
-		//~ case 'insertarImporte':
-		//~ console.log("Entre en insertarImporte de factura");
-		//~ insertarImporte();
-		//~ break;
 		default :
 			console.log ( 'Accion no encontrada '+ accion);
 	} 
 }
-//Función que inserta los importes que se van añadiendo a una factura 
 function insertarImporte(total){
+	//@Objetivo: insertar importe de pago 
+	//Parametros: recibe el total de la factura
+	//Recogemos primero los valores de entrada , se calcula y se escribe el nuevo registro
 var importe= document.getElementById("Eimporte").value;
 var fecha=document.getElementById("Efecha").value;
 var forma=document.getElementById("Eformas").value;
 var referencia=document.getElementById("Ereferencia").value;
+if (forma==0){
+	alert("NO HAS SELECCIONADO UNA FORMA DE PAGO");
+}else{
 var parametros = {
 		"pulsado"    : 'insertarImporte',
 		"importe" : importe,
@@ -406,7 +404,7 @@ var parametros = {
 			
 		}
 	});
-	
+}
 	
 }
 function ponerFocus (destino_focus){
@@ -554,8 +552,8 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	});
 }
 }
-//Borra los datos del input
 function resetCampo(campo){
+	//@Objetivo: borrar los campos input
 	console.log('Entro en resetCampo '+campo);
 	document.getElementById(campo).value='';
 	return;
@@ -626,6 +624,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	cerrarPopUp(campo);	
 }
 function eliminarFila(num_item, valor=""){
+	//@Objetivo
 	//Función para cambiar el estado del producto
 	console.log("entre en eliminar Fila");
 	var line;
@@ -709,15 +708,21 @@ function mover_up(fila,prefijo, dedonde=""){
 		var d_focus = prefijo+fila;
 		ponerFocus(d_focus);
 	}
-}
-//Muestra la fila de inputs para añadir un producto nuevo 
+} 
 function mostrarFila(){
+	//@Objetivo; 
+	//Mostrar la fila de inputs para añadir nuevos productos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 }
 
 function buscarPedido(dedonde, idcaja, valor=''){
+	//@Objetivo
 	//Buscar los pedidos de un cliente que tenga el estado guardado
+	//Parametros:
+	//dedonde: archivo del que viene 
+	//Idcaja : id de la caja de donde se inserto el número
+	//valor: valor que se escribió en la caja
 	console.log('FUNCION buscarPedido JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'buscarPedido',
@@ -783,6 +788,7 @@ function buscarPedido(dedonde, idcaja, valor=''){
 
 
 function buscarAlbaran(dedonde, idcaja, valor=''){
+	//Objetivos:
 	//Buscar los pedidos de un cliente que tenga el estado guardado
 	console.log('FUNCION buscar albaran JS-AJAX');
 	var parametros = {
@@ -849,11 +855,17 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 	});
 }
 function bloquearInput(){
+	//@Objetivo:
+	//Blosquear la linea de insertción de inputs y los input de unidades para que no se puedan modificar
 	console.log("Elementos js");
 	$('#Row0').css('display', 'none');
 	$('.unidad').attr("readonly","readonly");
 }
 function addTemporal(dedonde){
+	//@Objetivo;
+	//Añadir un registro temporal o modificarlo
+	//@Parametros: 
+	//dedonde: de donde viene (factura, albaran, pedidos)
 		console.log('FUNCION Añadir temporal JS-AJAX');
 		if (dedonde=="pedidos"){
 			var pulsado= 'anhadirPedidoTemp';
@@ -913,13 +925,18 @@ function addTemporal(dedonde){
 					insertarImporte(total);
 				}
 			}
+			$("#Cancelar").show();
+	$("#Guardar").show();
 		}
 	});
 	
 }
 
-//Comprueba los pedidos de un cliente que esten en estado guardado 
+
 function comprobarPedidosExis(){
+	//@Objetivo:
+	//comprobar que un cliente tiene pedidos con estado guardado
+	//Si la respuesta es positiva muestra la entrada de pedidos
 	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'comprobarPedidos',
@@ -949,8 +966,10 @@ function comprobarPedidosExis(){
 		}
 	});
 }
-//Busca los albaranes de el cliente seleccionado y muestra la tabla oculta
 function comprobarAlbaranesExis(){
+	//@Objetivo:
+	//Buscar los albaranes de el cliente seleccionado 
+	//Si la respuesta es positiva muestra la tabla oculta
 	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
 	var parametros = {
 		"pulsado"    : 'comprobarAlbaran',
@@ -978,8 +997,13 @@ function comprobarAlbaranesExis(){
 	});
 }
 
-//Agregar un html con el pedido 
+
 function AgregarFilaPedido(datos , dedonde=""){
+	//@Objetivo:
+	//Agregar html con el pedido seleccionado
+	//@Parametros:
+	//datos: datos del pedido adjunto
+	//dedonde: de donde viene
 	console.log("Estoy en agregar fila Pedido");
 	var parametros = {
 		"pulsado"    : 'htmlAgregarFilaPedido',
@@ -1006,8 +1030,12 @@ function AgregarFilaPedido(datos , dedonde=""){
 		}
 	});
 }
-//Agrega el html de el albarán seleccionado en factura
 function AgregarFilaAlbaran(datos, dedonde){
+	//@Objetivo:
+	//Agregar html con el albaran seleccionado
+	//@Parametros:
+	//datos: datos del albaran adjunto
+	//dedonde: de donde viene
 	console.log("Estoy en agregar fila albaran");
 	var parametros = {
 		"pulsado"    : 'htmlAgregarFilaAlbaran',
@@ -1031,8 +1059,9 @@ function AgregarFilaAlbaran(datos, dedonde){
 		}
 	});
 }
-// Agrega el nuevo html de un producto al principio de la tabla productos
 function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
+	//@Objetivo:
+	//Agregar la fila de productos al principio de la tabla
 	console.log("Estoy en agregar fila productos albaran");
 	if (productosAl.length>1){
 		productosAl=productosAl.reverse();
@@ -1062,21 +1091,28 @@ function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
 		}
 	});
 }
-// Cuando seleccionamos un pedido o un albarán llamamos a la funciones correspondiente enviandole el número.
-//Estas funciones se llama en el modal tando de añadir un pedido como un albarán para no hacer mas grande la funcion 
-//lo que hacemos es llamar a la función que llamamos cuando ponemos directamente el número
+
 function buscarDatosPedido(NumPedido){
+	//@Objetivo:
+	// Cuando seleccionamos un pedido o un albarán llamamos a la funciones correspondiente enviandole el número.
+	//Estas funciones se llama en el modal tando de añadir un pedido como un albarán para no hacer mas grande la funcion 
+	//lo que hacemos es llamar a la función que llamamos cuando ponemos directamente el número
 	console.log("Estoy en buscarDatosPedido");
 	buscarPedido("albaran", "numPedido", NumPedido);
 	cerrarPopUp();
 }
 function buscarDatosAlbaran(NumAlbaran){
+	//@Objetivo:
+	//Cuando se selecciona un albaran se llama a la función buscarAlbaran con los datos principales
 	console.log("Estoy en buscar datos albaran");
 	buscarAlbaran("factura", "numAlbaran", NumAlbaran);
 	cerrarPopUp();
 }
-//Seleccionar un forma de vencimiento 
+
 function selectFormas(){
+	//@Objetivo:
+	//Seleccionar un forma de vencimiento 
+	//PENDIENTE DE ELIMINAR
 	console.log("Esto en selectFormas");
 	var option = document.getElementById("formaVenci").value;
 	var fecha = document.getElementById("fechaVenci").value;
@@ -1104,6 +1140,8 @@ function selectFormas(){
 	}
 }
 function imprimir(id, dedonde, tienda){
+	//@Objetivo:
+	//imprimir en pdf tanto una factura, albaran o pedido de una tienda determinada
 	var parametros = {
 		"pulsado"    : 'datosImprimir',
 		"dedonde":dedonde,
@@ -1130,6 +1168,9 @@ function sobreFila(cont){
 }
 
 function eliminarAdjunto(numRegistro, dedonde, nfila){
+	//@Objetivo:
+	//Eliminar tanto un pedido o albaran adjunto en una factura o albaran , elimina por lo tanto los productos
+	//de ese adjunto y le modifica el estado a guardado
 	console.log("entre en eliminar Fila");
 	var line;
 	num=nfila-1;
@@ -1190,6 +1231,8 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 		}
 }
 function retornarAdjunto(numRegistro, dedonde, nfila){
+	//@Objetivo:
+	//retornar un adjunto eliminado , modifica el estado del adjunto a facturado y añade los productos de ese adjunto
 	console.log("entre en retornar fila adjunto");
 	var estado="Guardado";
 	var line;

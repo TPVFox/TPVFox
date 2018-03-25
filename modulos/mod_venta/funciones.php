@@ -291,16 +291,22 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			}
 			$numeroPed="";
 			if ($dedonde=="albaran"){
-				if ($producto['NumpedCli']>0){
+				if(isset($producto['NumpedCli'])){
+					if ($producto['NumpedCli']>0){
 					$numeroPed=$producto['NumpedCli'];
 				}else if ($producto['Numpedcli']>0){
 					$numeroPed=$producto['Numpedcli'];
 				}
+					}
+				
 			}
 			if ($dedonde=="factura"){
-				if ($producto['Numalbcli']>0){
+				if(isset($producto['Numalbcli'])){
+					if ($producto['Numalbcli']>0){
 					$numeroPed=$producto['Numalbcli'];
+					}
 				}
+				
 			}
 			if ($producto['ccodbar']==0){
 				$codBarras="";
@@ -398,126 +404,6 @@ function htmlAlbaranFactura($albaranes, $dedonde){
 	return $respuesta;
 }
 
-//~ function lineaPedidoAlbaran($pedido, $dedonde){
-		//~ $respuesta['html']="";
-	//~ if(isset($pedido)){
-	//~ if ($pedido['estado']){
-			//~ if ($pedido['Numpedcli']){
-				//~ $num=$pedido['Numpedcli'];
-			//~ }
-			//~ if ($pedido['estado']=="activo"){
-				//~ $funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
-				//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-				//~ $classtr = '';
-				//~ $estadoInput = '';
-			//~ }else{
-				//~ $classtr = ' class="tachado" ';
-				//~ $estadoInput = 'disabled';
-				//~ $funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
-				//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
-	
-			//~ }
-		//~ }
-		//~ $respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
-		//~ $respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
-		//~ $respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
-		//~ $respuesta['html'] .='<td>'.$pedido['total'].'</td>';
-		//~ $respuesta['html'].=$btnELiminar_Retornar;
-		//~ $respuesta['html'] .='</tr>';
-	//~ }
-	//~ return $respuesta;
-//~ }
-
-//~ function lineaAlbaranFactura($albaran, $dedonde){
-	//~ $respuesta['html']="";
-	//~ if(isset($albaran)){
-			//~ if ($albaran['estado']){
-			//~ if ($albaran['Numalbcli']){
-				//~ $num=$albaran['Numalbcli'];
-			//~ }
-			//~ if ($albaran['estado']=="Activo"){
-				//~ $funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$albaran['nfila'].');';
-				//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-				//~ $classtr = '';
-				//~ $estadoInput = '';
-			//~ }else{
-				//~ $classtr = ' class="tachado" ';
-				//~ $estadoInput = 'disabled';
-				//~ $funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$albaran['nfila'].');';
-				//~ $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
-	
-			//~ }
-		//~ }
-		//~ $respuesta['html'] .='<tr id="lineaP'.($albaran['nfila']).'" '.$classtr.'>';
-		//~ $respuesta['html'] .='<td>'.$albaran['Numalbcli'].'</td>';
-		//~ $respuesta['html'] .='<td>'.$albaran['fecha'].'</td>';
-		//~ $respuesta['html'] .='<td>'.$albaran['total'].'</td>';
-		//~ $respuesta['html'].=$btnELiminar_Retornar;
-		//~ $respuesta['html'] .='</tr>';
-	//~ }
-	//~ return $respuesta;
-//~ }
-
-//~ function modalPedidos($pedidos){
-	//~ $contad = 0;
-	//~ $respuesta['html'] .= '<table class="table table-striped"><thead>';
-	//~ $respuesta['html'] .= '<th>';
-	//~ $respuesta['html'] .='<td>Número </td>';
-	//~ $respuesta['html'] .='<td>Fecha</td>';
-	//~ $respuesta['html'] .='<td>Total</td>';
-	//~ $respuesta['html'] .='</th>';
-	//~ $respuesta['html'] .= '</thead><tbody>';
-	//~ foreach ($pedidos as $pedido){
-	//~ $respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	//~ .$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosPedido('.$pedido['Numpedcli'].');">';
-	//~ $respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-	//~ .$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-
-	//~ $respuesta['html'].='<td>'.$pedido['Numpedcli'].'</td>';
-	//~ $respuesta['html'].='<td>'.$pedido['FechaPedido'].'</td>';
-	//~ $respuesta['html'].='<td>'.$pedido['total'].'</td>';
-	//~ $respuesta['html'].='</tr>';
-	//~ $contad = $contad +1;
-	//~ if ($contad === 10){
-		//~ break;
-	//~ }
-				
-	//~ }
-	//~ $respuesta['html'].='</tbody></table>';
-	//~ return $respuesta;
-//~ }
-
-
-//~ function modalAlbaranes($albaranes){
-	//~ $contad = 0;
-	//~ $respuesta=array('html'=>'');
-	//~ $respuesta['html'] .= '<table class="table table-striped"><thead>';
-	//~ $respuesta['html'] .= '<th>';
-	//~ $respuesta['html'] .='<td>Número </td>';
-	//~ $respuesta['html'] .='<td>Fecha</td>';
-	//~ $respuesta['html'] .='<td>Total</td>';
-	//~ $respuesta['html'] .='</th>';
-	//~ $respuesta['html'] .= '</thead><tbody>';
-	//~ foreach ($albaranes as $albaran){
-	//~ $respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	//~ .$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosAlbaran('.$albaran['Numalbcli'].');">';
-	//~ $respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-	//~ .$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-
-	//~ $respuesta['html'].='<td>'.$albaran['Numalbcli'].'</td>';
-	//~ $respuesta['html'].='<td>'.$albaran['Fecha'].'</td>';
-	//~ $respuesta['html'].='<td>'.$albaran['total'].'</td>';
-	//~ $respuesta['html'].='</tr>';
-	//~ $contad = $contad +1;
-	//~ if ($contad === 10){
-		//~ break;
-	//~ }
-				
-	//~ }
-	//~ $respuesta['html'].='</tbody></table>';
-	//~ return $respuesta;
-//~ }
-
 function modalAdjunto($adjuntos){
 	$contad = 0;
 	$respuesta=array('html'=>'');
@@ -608,7 +494,7 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 
 
 function htmlFormasVenci($formaVenci, $BDTpv){
-	
+	$html="";
 	$formasPago=new FormasPago($BDTpv);
 	$principal=$formasPago->datosPrincipal($formaVenci);
 	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';

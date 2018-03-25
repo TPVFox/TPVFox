@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 13, 2018 at 10:41 PM
+-- Generation Time: Mar 23, 2018 at 07:44 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -38,7 +38,9 @@ CREATE TABLE `facproltemporales` (
   `total` decimal(17,6) DEFAULT NULL,
   `total_ivas` varchar(250) DEFAULT NULL,
   `Productos` varbinary(50000) DEFAULT NULL,
-  `Albaranes` varbinary(5000) DEFAULT NULL
+  `Albaranes` varbinary(5000) DEFAULT NULL,
+  `Su_numero` varchar(20) DEFAULT NULL,
+  `FacCobros` varbinary(5000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

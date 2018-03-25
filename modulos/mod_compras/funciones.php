@@ -1,6 +1,7 @@
 <?php 
 
 include '../../configuracion.php';
+include_once '../../clases/FormasPago.php';
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
@@ -822,6 +823,17 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 				$productos=0;
 				$error=1;
 			}
+			if ($datosPost['formaVenci']){
+				$formaPago=$datosPost['formaVenci'];
+			}else{
+				$formaPago=0;
+			}
+			if($datosPost['fechaVenci']){
+				$fechaVenci=$datosPost['fechaVenci'];
+			}else{
+				$fechaVenci="";
+			}
+			
 			$datos=array(
 				'Numtemp_albpro'=>$idAlbaranTemporal,
 				'fecha'=>$fecha,
@@ -833,7 +845,9 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 				'DatosTotales'=>$Datostotales,
 				'productos'=>$productos,
 				'pedidos'=>$datosAlbaran['Pedidos'],
-				'suNumero'=>$suNumero
+				'suNumero'=>$suNumero,
+				'formaPago'=>$formaPago,
+				'fechaVenci'=>$fechaVenci
 			);
 		}else{
 			$error=1;
@@ -856,11 +870,12 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
 					
 			}
+			$error['sql']=$addNuevo;
 		}
 	return $error;
 }
 
-function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales){
+function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importesFactura){
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	$error=0;
@@ -878,6 +893,18 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales){
 				$total=0;
 				$error=1;
 		}
+		$estado="Guardado";
+		if (is_array($importesFactura)){
+				
+				foreach ($importesFactura as $import){
+					$entregado=$entregado+$import['importe'];
+				}
+				if ($total==$entregado){
+					$estado="Pagado total";
+				}else{
+					$estado="Pagado Parci";
+				}
+			}
 		if ($datosPost['suNumero']>0){
 				$suNumero=$datosPost['suNumero'];
 		}else{
@@ -889,11 +916,12 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales){
 			'idTienda'=>$Tienda['idTienda'],
 			'idUsuario'=>$Usuario['id'],
 			'idProveedor'=>$datosFactura['idProveedor'],
-			'estado'=>"Guardado",
+			'estado'=>$estado,
 			'total'=>$total,
 			'DatosTotales'=>$Datostotales,
 			'productos'=>$datosFactura['Productos'],
 			'albaranes'=>$datosFactura['Albaranes'],
+			'importes'=>$importesFactura,
 			'suNumero'=>$suNumero
 		);
 		if ($error==0){
@@ -977,5 +1005,45 @@ function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
 		$error=1;
 	}
 	return $error;
+}
+function htmlImporteFactura($datos, $BDTpv){
+	$formaPago=new FormasPago($BDTpv);
+	$datosPago=$formaPago->datosPrincipal($datos['forma']);
+	$respuesta['html'].='<tr>';
+	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
+	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
+	$respuesta['html'].='<td>'.$datosPago['descripcion'].'</td>';
+	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
+	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
+	$respuesta['html'].='</tr>';
+	return $respuesta;
+	
+}
+function htmlFormasVenci($formaVenci, $BDTpv){
+	$html="";
+	$formasPago=new FormasPago($BDTpv);
+	$principal=$formasPago->datosPrincipal($formaVenci);
+	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
+	$otras=$formasPago->formadePagoSinPrincipal($formaVenci);
+	foreach ($otras as $otra){
+		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
+}
+	$respuesta['formas']=$formaVenci;
+	$respuesta['html']=$html;
+	return $respuesta;
+}
+function modificarArraysImportes($importes, $total){
+	$importesDef= array();
+	foreach ($importes as $importe){
+		$nuevo= array();
+		$nuevo['importe']=$importe['importe'];
+		$nuevo['fecha']=$importe['FechaPago'];
+		$nuevo['referencia']=$importe['Referencia'];
+		$nuevo['forma']=$importe['idFormasPago'];
+		$total=$total-$importe['importe'];
+		$nuevo['pendiente']=$total;
+		array_push($importesDef, $nuevo);
+	}
+	return $importesDef;
 }
 ?>

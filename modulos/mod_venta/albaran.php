@@ -388,8 +388,11 @@ if (isset($_GET['tActual'])){
 		</thead>
 		<tbody>
 		<?php 
+		if(isset($htmlIvas)){
 			$htmlIvas=htmlTotales($Datostotales);
-			echo $htmlIvas['html']; ?>
+			echo $htmlIvas['html'];
+			}
+			 ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">

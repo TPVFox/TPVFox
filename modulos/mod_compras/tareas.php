@@ -428,6 +428,66 @@ switch ($pulsado) {
 			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 			echo json_encode($ficheroCompleto);
 		break;
+			case 'insertarImporte':
+		//@Objetivo:
+		//Insertar un nuevo importe a una factura
+		 $importe=$_POST['importe'];
+		 $fecha=$_POST['fecha'];
+		 $idFactura=$_POST['idTemporal'];
+		 $formaPago=$_POST['forma'];
+		 $referencia=$_POST['referencia'];
+		 $total=$_POST['total'];
+		 $idReal=$_POST['idReal'];
+		
+		 $arrayPrincipal=array();
+		 $error=0;
+		 $bandera=$importe;
+		 $importesReal=$CFac->importesFactura($idReal);
+		 $respuesta['importeReal']=$importesReal;
+		 if(count($importesReal)>0){
+			 $importesReal=modificarArraysImportes($importesReal, $total);
+			$importesTemporal=json_encode($importesReal);
+			$eliminarReal=$CFac->eliminarRealImportes($idReal);
+			$respuesta['impTemporal']=$importesTemporal;
+		 }else{
+			 $importesTemporal=$CFac->importesTemporal($idFactura);
+			 $importesTemporal=$importesTemporal['FacCobros'];
+			 $bandera=$importe;
+		 }
+		 
+		 if ($importesTemporal){
+			
+			$importes=json_decode($importesTemporal, true);
+			$respuesta['importes']= $importes;
+			 foreach ($importes as $import){
+				 $bandera=$bandera+(string)$import['importe'];
+				 array_push($arrayPrincipal, $import);
+			 }
+			 
+			 if ($bandera>$total){
+				 $respuesta['mensaje']=1;
+				 $error=1;
+			 }
+			 $respuesta['bandera']=$bandera;
+		 }
+		 if ($error==0){
+		$pendiente=$total-$bandera;
+		$nuevo=array();
+		$nuevo['importe']=$importe;
+		$nuevo['fecha']=$fecha;
+		$nuevo['forma']=$formaPago;
+		$nuevo['referencia']=$referencia;
+		$nuevo['pendiente']=$pendiente;
+		$respuesta['nuevo']=$nuevo;
+		array_push($arrayPrincipal, $nuevo);
+		$jsonImporte=json_encode($arrayPrincipal);
+		$modImportes=$CFac->modificarImportesTemporal($idFactura, $jsonImporte);
+		$respuesta['sqlmod']=$modImportes;
+		$html=htmlImporteFactura($nuevo, $BDTpv);
+		$respuesta['html']=$html['html'];
+	}
+		echo json_encode($respuesta);
+		break;
 		
 	
 }

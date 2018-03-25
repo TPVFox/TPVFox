@@ -21,6 +21,8 @@
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 10; // por defecto.
 	$filtro = ''; // por defecto
+	$WhereLimite['filtro']="";
+	$NuevoRango="";
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
@@ -49,16 +51,12 @@ if ($stringPalabras !== '' ){
 }
 $CantidadRegistros=count($Calbaran->TodosAlbaranesFiltro($WhereLimite['filtro']));
 $WhereLimite['rango']=$NuevoRango;
-//$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-
 if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro']." ORDER BY Numalbcli desc ".$WhereLimite['rango'];
 	} else {
 		$filtro= "ORDER BY Numalbcli desc LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}
-	
+	}	
 	$albaranesDef=$Calbaran->TodosAlbaranesFiltro($filtro);
 ?>
 

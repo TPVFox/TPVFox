@@ -134,6 +134,9 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		case 'anhadirPedidoTemp':
+		//@Objetivo:
+		//añadir un pedido temporal, si existe se modifica y si no se inserta
+		//A continuación se calculan los totales y desgloses 
 		$idTemporal=$_POST['idTemporal'];
 		$idUsuario=$_POST['idUsuario'];
 		$idTienda=$_POST['idTienda'];
@@ -180,7 +183,6 @@ switch ($pulsado) {
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
 			$estadoAlbaran=$_POST['estado'];
-		//	$numAlbaran=$_POST['numAlbaran'];
 			$fecha=$_POST['fecha'];
 			$pedidos=$_POST['pedidos'];
 			$productos=$_POST['productos'];
@@ -360,7 +362,9 @@ switch ($pulsado) {
 		//Objetivo:
 		//Devuelve el html de la fila albarán
 		//	$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
-		$res=htmlAlbaranFactura($_POST['datos'], $_POST['dedonde']);
+		$arrayAlbaranes=array();
+		array_push($arrayAlbaranes, $_POST['datos']);
+		$res=htmlAlbaranFactura($arrayAlbaranes, $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
@@ -469,31 +473,29 @@ switch ($pulsado) {
 		
 		 $arrayPrincipal=array();
 		 $error=0;
-		 $bandera=0;
+		 $bandera=$importe;
 		 $importesReal=$CFac->importesFactura($idReal);
 		 $respuesta['importeReal']=$importesReal;
 		 if(count($importesReal)>0){
-			 foreach($importesReal as $impo){
-				 $bandera=$bandera+$impo['importe'];
-				 $respuesta['bandera1']= $bandera;
-			}
-			 $importesTemporal=json_encode($importesReal);
+			 $importesReal=modificarArraysImportes($importesReal, $total);
+			$importesTemporal=json_encode($importesReal);
 			$eliminarReal=$CFac->eliminarRealImportes($idReal);
 			$respuesta['impTemporal']=$importesTemporal;
 		 }else{
 			 $importesTemporal=$CFac->importesTemporal($idFactura);
 			 $importesTemporal=$importesTemporal['FacCobros'];
-			  $bandera=$importe;
+			 $bandera=$importe;
 		 }
 		 
 		 if ($importesTemporal){
 			
-			 $importes=json_decode($importesTemporal, true);
-			  $respuesta['importes']= $importes;
+			$importes=json_decode($importesTemporal, true);
+			$respuesta['importes']= $importes;
 			 foreach ($importes as $import){
 				 $bandera=$bandera+(string)$import['importe'];
 				 array_push($arrayPrincipal, $import);
 			 }
+			 
 			 if ($bandera>$total){
 				 $respuesta['mensaje']=1;
 				 $error=1;
