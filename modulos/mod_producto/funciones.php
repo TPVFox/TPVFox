@@ -352,9 +352,9 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 				// No continuamos.
 				return $respuesta;
 			}
-			$respuesta['campo_defecto'] = $mostrar->nombre;
-			$respuesta['htmlOption'] = '<option value="'.$mostrar->nombre.'">'.$mostrar->descripcion.'</option>'.
-										$respuesta['htmlOption'];
+			$respuesta['campo_defecto'] = 	$mostrar->nombre;
+			$respuesta['htmlOption'] 	=	'<option value="'.$mostrar->nombre.'">'
+											.$mostrar->descripcion.'</option>'.$respuesta['htmlOption'];
 		}
 		
 	}	
@@ -363,7 +363,112 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 
 }
 
+function prepararParaGrabar($array,$claseArticulos){
+	//@ Objetivo
+	// Preparar array ( POST) para poder grabar,
+	// Si id = 0 es nuevo..
+	
+	
+	// Obtenemos (array) Key del array recibido
+	$keys_array = array_keys($array);
+	
+	// Recorremos las keys
+	$DatosProducto = array();
+	$DatosProducto['codBarras'] = array();
+	$DatosProducto['proveedores_costes'] = array();
+	$DatosProducto['familias'] = array();
 
+
+	// Primero de todo obtengo idTienda.
+	$DatosProducto['idTienda'] = $claseArticulos->GetIdTienda();
+	foreach ($keys_array as $key){
+		switch ($key) {
+			case 'idIva':
+				// Obtenemos iva según id.
+				$DatosProducto['iva']		= $claseArticulos->GetUnIva($array['idIva']);
+				break;
+			case 'id':
+				// Solo creamos elemento array (id) si es mayor 0, es decir modificado.
+				if ($array['id'] >0){
+					$DatosProducto['idArticulo'] = $array['id'];
+				}
+				break;
+			case 'check_pro':
+				// Obtener array de proveedor principal
+				$claseArticulos->ObtenerDatosProvPredeter($array['check_pro']);
+				$DatosProducto['proveedor_principal'] = $claseArticulos->GetProveedorPrincipal();
+				break;
+			 
+			case (substr($key, 0, 10)=== 'codBarras_'):
+				array_push($DatosProducto['codBarras'],$array[$key]);
+
+				break;
+			
+			case (substr($key, 0,12)==='idProveedor_'):
+				// Montamos array de provedores y costes
+				// Este proceso le queda una parte que se debe hacer despues.
+				// ya que el array de proveedores tiene los siguiente elementos:
+				//		[idArticulo] =>  Id producto que si es nuevo no lo tenemos...
+                //	    [idProveedor] => Tenemos que extraerlo de Key
+                // 		[crefProveedor] => Que es la Key -> prov_cref_idProveedor
+                //      [coste] => Que es la valor key prov_coste_idProveedor
+                // 	--Los siguiente elementos no los tenemos.... 
+                //	    [fechaActualizacion] => Esta si no cambia no la cambiamos.
+                //	    [estado] => No lo cambiamos sino No cambio valor ningúno...
+                //      [nombrecomercial] => Hay que obtenerlo , NO HACE FALTA
+                // 		[razonsocial] => Hay que obtenerlo, NO HACE FALTA
+                // 		[principal] => Hay comprobar si el mismo, NO HACE FALTA
+				$resto = 12-strlen($key);
+				$idProveedor = substr($key,$resto);
+				$prov_coste = array(
+						'idArticulo' 	=> $idProveedor,
+						'crefProveedor'	=> $array['prov_cref_'.$idProveedor],
+						'coste'			=> $array['prov_coste_'.$idProveedor]
+					);
+				array_push($DatosProducto['proveedores_costes'],$prov_coste);
+
+				break;
+			case (substr($key, 0,11)==='idFamilias_')  :
+				// Montamos array de familias.
+				// El array que debo obtener es:
+				// 	[idFamilia] => Id de la familia ( que obtengo de array[idFamilia_XX]
+				//  [familiaNombre] => NOmbre tengo que obtenerlo
+				//  [familiaPadre] => Id de padre , tengo que obtenerlo.
+				$resto = 11-strlen($key);
+				$idFamilia = substr($key,$resto);
+				$familia = array(
+							'idFamilia'	=> $idFamilia	
+							);
+				array_push($DatosProducto['familias'],$familia);
+			
+			default:
+				// tengo descarta elemento prov_cref_XX  y prov_coste_XX
+				if (substr($key, 0,10) !=='prov_cref_' && substr($key, 0,11) !=='prov_coste_'){
+					$DatosProducto[$key] 		= $array[$key]; 
+				}
+				
+
+		}
+
+		
+		
+		
+		
+	}
+	
+	echo '<pre>';
+	print_r($array);
+	echo '</pre>';
+	
+	
+	
+
+
+	echo '<pre>';
+	print_r($DatosProducto);
+	echo '</pre>';
+	
+}
 
 
 ?>

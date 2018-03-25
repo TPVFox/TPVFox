@@ -187,6 +187,9 @@ class ClaseTablaArticulos{
 	public function GetReferenciasTiendas(){	
 		return $this->ref_tiendas;
 	}
+	public function GetProveedorPrincipal(){	
+		return $this->proveedor_principal;
+	}
 	public function GetComprobaciones(){	
 		return $this->comprobaciones;
 	}

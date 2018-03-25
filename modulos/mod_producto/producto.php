@@ -86,14 +86,17 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
-		
+		echo '<pre>';
+		print_r($Producto);
+		echo '</pre>';
 			
 		
 		if ($_POST){
+			
 			//~ echo '<pre>';
 			//~ print_r($_POST);
 			//~ echo '</pre>';
-			
+			prepararParaGrabar($_POST,$CTArticulos);
 			
 			
 			
@@ -143,11 +146,11 @@
 					<div class="col-md-12">
 						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
-							<input type="text" id="referencia" name="referencia" size="10" placeholder="referencia producto" data-obj= "cajaReferencia" value="<?php echo $Producto['cref_tienda_principal'];?>" onkeydown="controlEventos(event)"  >
+							<input type="text" id="referencia" name="cref_tienda_principal" size="10" placeholder="referencia producto" data-obj= "cajaReferencia" value="<?php echo $Producto['cref_tienda_principal'];?>" onkeydown="controlEventos(event)"  >
 						</div>
 						<div class="form-group col-md-9 ">	
 							<label class="control-label " > Nombre producto:</label>
-							<input type="text" id="nombre" name="nombre" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>" data-obj= "cajaNombre" onkeydown="controlEventos(event)"   size="50" >
+							<input type="text" id="nombre" name="articulo_name" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>" data-obj= "cajaNombre" onkeydown="controlEventos(event)"   size="50" >
 						</div>
 					</div>
 					<div class="col-md-12">
@@ -161,7 +164,7 @@
 								</a>
 							</label>
 							<div>
-								<input type="text" id="coste" size="8" name="costeultimo" value="<?php echo number_format($Producto['ultimoCoste'],2, '.', '');?>"  data-obj= "cajaCoste" onkeydown="controlEventos(event)"   readonly> 
+								<input type="text" id="coste" size="8" name="ultimoCoste" value="<?php echo number_format($Producto['ultimoCoste'],2, '.', '');?>"  data-obj= "cajaCoste" onkeydown="controlEventos(event)"   readonly> 
 								<span class="Euro_grande">€</span> 
 							</div>
 						</div>
