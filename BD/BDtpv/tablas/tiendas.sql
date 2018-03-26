@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 22, 2018 at 11:25 AM
+-- Generation Time: Mar 26, 2018 at 06:46 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -36,16 +36,9 @@ CREATE TABLE `tiendas` (
   `NombreComercial` varchar(100) DEFAULT NULL,
   `direccion` varchar(100) NOT NULL,
   `ano` varchar(4) DEFAULT NULL,
-  `dominio` varchar(100) NOT NULL,
+  `dominio` varchar(50) NOT NULL,
   `key_api` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `tiendas`
---
-
-INSERT INTO `tiendas` (`idTienda`, `tipoTienda`, `razonsocial`, `nif`, `telefono`, `estado`, `NombreComercial`, `direccion`, `ano`, `dominio`, `key_api`) VALUES
-(1, 'principal', 'Razon Social Administrador', '333333333P', '666999999 ', 'activo', 'Nombre Comercial', 'Direccion, Vigo  ( Pontevedra - España )', '2017', '', '');
 
 --
 -- Indexes for dumped tables
@@ -65,7 +58,7 @@ ALTER TABLE `tiendas`
 -- AUTO_INCREMENT for table `tiendas`
 --
 ALTER TABLE `tiendas`
-  MODIFY `idTienda` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idTienda` int(2) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
