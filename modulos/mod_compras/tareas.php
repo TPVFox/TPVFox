@@ -390,6 +390,7 @@ switch ($pulsado) {
 		//fecha: la fecha que la necesitamos para compararla con la del registro, si la fecha nuestra es menor que la del registro muestra un error
 		
 			$buscar=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
+			$respuesta['costeAnt']=$buscar;
 			$datos=array(
 				'coste'=>$_POST['valor'],
 				'idArticulo'=>$_POST['idArticulo'],
@@ -403,7 +404,6 @@ switch ($pulsado) {
 					$respuesta['error']=1;
 				}else{
 					$mod=$CArticulos->modificarCosteProveedorArticulo($datos);
-					$respuesta['sql']=$mod;
 				}
 				
 			}else{

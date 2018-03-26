@@ -163,6 +163,7 @@ function controladorAcciones(caja,accion, tecla){
 			var nfila = parseInt(caja.fila)-1;
 			console.log(nfila);
 			var idArticulo=productos[nfila].idArticulo;
+		
 			if(valor=""){
 				alert("NO HAS INTRODUCIDO NINGÚN COSTE");
 			}else{
@@ -187,6 +188,9 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	//~ dedonde: donde estamos, si en albaranes o facturas 
 	//~ nfila: número de la fila que estamos cambiando
 	console.log("Entre en addCosteProveedor");
+		
+	var costeAnt=productos[nfila].ultimoCoste;
+	console.log("aun no lo ejecute");
 	var parametros ={
 		'pulsado':"AddCosteProveedor",
 		'idArticulo':idArticulo,
@@ -213,6 +217,7 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 					productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
 					var id = '#N'+productos[nfila].nfila+'_Importe';
 					importe = productos[nfila].importe.toFixed(2);
+					productos[nfila].CosteAnt=costeAnt;
 					$(id).html(importe);
 					addTemporal(dedonde);
 				}
