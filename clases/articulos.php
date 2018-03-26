@@ -44,11 +44,17 @@ class Articulos{
 		$smt=$db->query('UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
 	}
 	public function modificarCosteProveedorArticulo($datos){
+		
 		$db=$this->db;
+		//~ $smt=$db->query('SELECT coste FROM articulosProveedores WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $respuesta=$result;
+		//~ }
+		
+		
 		$smt=$db->query('UPDATE articulosProveedores SET coste='.$datos['coste'].',  fechaActualizacion="'.$datos['fecha'].'" WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
-		$sql='UPDATE articulosProveedores SET coste='.$datos['coste'].' fechaActualizacion="'.$datos['fecha'].'" WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor'];
-		$respuesta['sql']=$sql;
-		return $respuesta;
+		
+		//~ return $respuesta;
 	}
 	
 	
