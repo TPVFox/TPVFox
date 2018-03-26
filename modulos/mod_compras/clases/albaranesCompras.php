@@ -258,14 +258,14 @@ class AlbaranesCompras extends ClaseCompras{
 		//Buscar datos principal de un albarán de proveedor y estado guardado
 		$db=$this->db;
 		if ($numAlbaran>0){
-			$smt=$db->query('SELECT Numalbpro , Fecha , total, id FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numalbpro='.$numAlbaran);
+			$smt=$db->query('SELECT Numalbpro , Fecha , total, id , FechaVencimiento , formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numalbpro='.$numAlbaran);
 			$albaranesPrincipal=array();
 			if ($result = $smt->fetch_assoc () ){
 				$albaran=$result;
 			}
 			$albaran['Nitem']=1;
 		}else{
-			$smt=$db->query('SELECT Numalbpro, Fecha, total, id FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
+			$smt=$db->query('SELECT Numalbpro, Fecha, total, id , FechaVencimiento , formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
 			$albaranesPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($albaranesPrincipal,$result);	

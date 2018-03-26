@@ -132,7 +132,8 @@ switch ($pulsado) {
 		//comprobar que el proveedor tiene albaran o pedido en estado guardado
 		$estado="Guardado";
 		$idProveedor=$_POST['idProveedor'];
-		if ($_POST['dedonde']=="factura"){
+		$dedonde=$_POST['dedonde'];
+		if ($dedonde=="factura"){
 			$buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
 		}else{
 			$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
@@ -142,6 +143,7 @@ switch ($pulsado) {
 			}else{
 				$bandera=2;
 			}
+		
 		echo json_encode($bandera);
 		break;
 	
@@ -169,6 +171,7 @@ switch ($pulsado) {
 				}else{
 					$respuesta['datos']['NumAdjunto']=$datosAdjunto['Numalbpro'];
 					$respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
+					
 					$productosAdjunto=$CAlb->ProductosAlbaran($datosAdjunto['id']);
 					$respuesta['productos']=$productosAdjunto;
 				}
@@ -176,11 +179,12 @@ switch ($pulsado) {
 				$respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
 				$respuesta['datos']['total']=$datosAdjunto['total'];
 				$respuesta['datos']['estado']="activo";
+				
 				$respuesta['Nitems']=$datosAdjunto['Nitem'];
 				
 			}else{
 				$respuesta['datos']=$datosAdjunto;
-				$modal=modalAdjunto($datosAdjunto['datos'], $dedonde);
+				$modal=modalAdjunto($datosAdjunto['datos'], $dedonde, $BDTpv);
 				$respuesta['html']=$modal['html'];
 			}
 		echo json_encode($respuesta);

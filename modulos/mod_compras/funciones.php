@@ -369,13 +369,17 @@ function modificarArrayProductos($productos){
 	return $respuesta;
 }
 
-function modalAdjunto($adjuntos, $dedonde){
+function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	//@Objetivo: 
 	//retornar el html dle modal de adjuntos tanto como si buscamos un pedido en albaranes o un albarán en facturas
 	$respuesta['html']	.= '<table class="table table-striped"><thead>';
 	$respuesta['html']	.= '<th>';
 	$respuesta['html']	.= '<td>Número </td>';
 	$respuesta['html']	.= '<td>Fecha</td>';
+	if ($dedonde=="factura"){
+		$respuesta['html']	.= '<td>Fecha Venci</td>';
+		$respuesta['html']	.= '<td>Forma Pago</td>';
+	}
 	$respuesta['html']	.= '<td>Total</td>';
 	$respuesta['html']	.= '</th>';
 	$respuesta['html'] 	.=  '</thead><tbody>';
@@ -397,6 +401,27 @@ function modalAdjunto($adjuntos, $dedonde){
 
 		$respuesta['html']	.= '<td>'.$numAdjunto.'</td>';
 		$respuesta['html']	.= '<td>'.$fecha.'</td>';
+		if ($dedonde=="factura"){
+			if($adjunto['FechaVencimiento']){
+				if ($adjunto['FechaVencimiento']=="0000-00-00"){
+					$fechaVenci="";
+				}else{
+					$fechaVenci=$adjunto['FechaVencimiento'];
+				}
+				
+			}else{
+				$fechaVenci="";
+			}
+			if ($adjunto['formaPago']){
+				$formasPago=new FormasPago($BDTpv);
+				$datosFormaPago=$formasPago->datosPrincipal($adjunto['formaPago']);
+				$textformaPago=$datosFormaPago['descripcion'];
+			}else{
+				$textformaPago="";
+			}
+			$respuesta['html']	.= '<td>'.$fechaVenci.'</td>';
+			$respuesta['html']	.= '<td>'.$textformaPago.'</td>';
+		}
 		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
 		$respuesta['html']	.= '</tr>';
 		$contad = $contad +1;

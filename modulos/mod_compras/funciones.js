@@ -252,6 +252,7 @@ function buscarAdjunto(dedonde, valor=""){
 				}else{
 					var titulo= 'Listado Albaranes';
 				}
+				console.log(resultado.datos);
 				abrirModal(titulo, HtmlPedidos);
 				
 			}else{
@@ -578,6 +579,7 @@ function comprobarAdjunto(dedonde){
 				console.log(resultado);
 				if (resultado == 1){
 					console.log("entre en las opciones");
+						$('#tablaAl').css("display", "block");
 					$('#numPedidoT').css("display", "block");
 					$('#numPedido').css("display", "block");
 					$('#buscarPedido').css("display", "block");
