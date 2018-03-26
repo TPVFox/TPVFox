@@ -41,7 +41,7 @@ class Articulos{
 	}
 	public function modificarProveedorArticulo($datos){
 		$db=$this->db;
-		$smt=$db->query('UPDATE articulosProveedores SET crefProveedor='.$datos['refProveedor'].' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
+		$smt=$db->query('UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
 	}
 	public function modificarCosteProveedorArticulo($datos){
 		$db=$this->db;

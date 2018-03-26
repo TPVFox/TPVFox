@@ -39,8 +39,8 @@
 	<configuracion>
 		<empresas>
 			<!-- La carpeta de los datos de la empresa debe estar dentro directorio datos que pusimos en configuracion -->
-			<datos_empresa id="3" nombre="Logueicarp 2018">
-				/DBF81
+			<datos_empresa id="4" nombre="Carpintero 2018">
+				/DBF82
 			</datos_empresa>
 		</empresas>
 		<tipos_registros>
