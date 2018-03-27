@@ -44,7 +44,6 @@ Numero tecla:
 		</caja_input>
 		
 		<caja_input>
-			<!-- Esta caja solo se existe al pulsar icono label input Coste Ultimo -->
 			<nombre id_input="beneficio">cajaBeneficio</nombre>
 			<teclas>
 				<action tecla="13">salto_recalcular</action>
@@ -64,6 +63,14 @@ Numero tecla:
 				<action tecla="13">recalcularPvp</action>
 			</teclas>
 		</caja_input>
+		<caja_input>
+			<nombre id_input="prov_coste_">cajaCosteProv</nombre>
+			<teclas>
+				<action tecla="13">controlCosteProv</action>
+			</teclas>
+		</caja_input>
+		
+		
 	</cajas_input>
 	
 </parametros>
