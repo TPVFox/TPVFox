@@ -93,6 +93,18 @@ class ClaseProductos extends ClaseTablaArticulos{
 
 	}
 	
+	public function GetProducto($id= 0){
+		// Objetivo:
+		// Este metodo existe en padre, pero necesito que añada a ArrayPropiedades las comprobaciones hacemos aquí.
+		parent::GetProducto($id);
+		// Ahora hacemos nuestra comprobaciones.
+		$producto = $this->ArrayPropiedades();
+		$this->comprobacionesEstado($producto);
+		return $this->ArrayPropiedades();
+		
+	}
+
+	
 	public function cambiarTienda($id){
 		// @Objetivo
 		// Cambiar el id de la tienda , por si queremos buscar en otras tiendas simplemente.
@@ -161,10 +173,62 @@ class ClaseProductos extends ClaseTablaArticulos{
   
 		}
 		return $posibles_estados;
-
 		
 	}
 	
+	function comprobacionesEstado($producto){
+		// @ Objetivo 
+		// Comprobar que el estado que enviamos sea correcta.
+		// @ Parametros:
+		// 		$producto-> (array) Con los datos del producto
+		// @ Responde :
+		// 		Si hubiera un error crea una comprobación y le añade a la propiedad comprobaciones y tb la devuelve.
+		$estado = $producto['estado'];
+		switch ($estado) {
+			case 'Nuevo':
+				// Debemos saber si la fecha_actualizacion ultima es superior a un mes.
+				$datetime1 = date_create($producto['fecha_creado']);
+				$datetime2 = date_create();
+				$interval = date_diff($datetime1, $datetime2);
+				if ($interval->days >20){
+					// Creamos la advertencia.
+					$error = array ( 'tipo'=>'warning',
+								 'dato' => '',
+								 'mensaje' => 'Ojo !! Este producto tiene el estado [Nuevo], lleva '.$interval->days.' días, recomiendo ponerlo como Activo.'
+								 );
+					parent::SetComprobaciones($error);
+					
+				}
+				break;
+			case 'importado':
+				// Debemos saber si la fecha_actualizacion ultima es superior a un mes.
+				$datetime1 = date_create($producto['fecha_creado']);
+				$datetime2 = date_create();
+				$interval = date_diff($datetime1, $datetime2);
+				if ($interval->days >20){
+					// Creamos la advertencia.
+					$error = array ( 'tipo'=>'warning',
+								 'dato' => '',
+								 'mensaje' => 'Ojo !! Este producto tiene el estado [importado], lleva '.$interval->days.' días, recomiendo cambiarlo.'
+								 );
+					parent::SetComprobaciones($error);
+					
+				}
+				break;
+				
+			
+		}
+		
+		
+		
+	}
+	
+	
+	
+	
+	// Fin de clase.
 }
+
+
 
 ?>
