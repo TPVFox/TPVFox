@@ -4,9 +4,9 @@ function htmlLineaFamilias($item,$familia=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
 	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input type="hidden" id="idFamilias_'.$item.'" name="idFamilias_'.$item.'" value="'.$familia['idFamilia'].'">'.$familia['idFamilia'].'</td>';
-	$nuevaFila .= '<td>'.$familia['familiaNombre'].'</td>>';
-	$nuevaFila .= '<td><a id="eliminar" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
+	$nuevaFila .= '<td><input type="hidden" id="idFamilias_'.$familia['idFamilia'].'" name="idFamilias_'.$familia['idFamilia'].'" value="'.$familia['idFamilia'].'">'.$familia['idFamilia'].'</td>';
+	$nuevaFila .= '<td>'.$familia['familiaNombre'].'</td>';
+	$nuevaFila .= '<td><a id="eliminar_'.$familia['idFamilia'].'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
 	$nuevaFila .= '</tr>';
 	return $nuevaFila;
 }
@@ -59,7 +59,7 @@ function htmlLineaProveedorCoste($item,$proveedor=''){
 	$nuevaFila .= '<input type="text" size="10" name="prov_cref_'.$proveedor['idProveedor'].'" id="prov_cref_'.$proveedor['idProveedor'].'" value="'.$proveedor['crefProveedor'].'" readonly>';
 	$nuevaFila .='</td>';
 	$nuevaFila .= '<td>';
-	$nuevaFila .= '<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor'].'" id="prov_coste_'.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>';
+	$nuevaFila .= '<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor'].'" pattern="[-+]?[0-9]*[.]?[0-9]+" data-obj= "cajaCosteProv" id="prov_coste_'.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>';
 	$nuevaFila .='</td>';
 	$nuevaFila .= '<td>';
 	$nuevaFila .= '<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>';
@@ -442,8 +442,8 @@ function prepararParaGrabar($array,$claseArticulos){
 				array_push($DatosProducto['familias'],$familia);
 			
 			default:
-				// tengo descarta elemento prov_cref_XX  y prov_coste_XX
-				if (substr($key, 0,10) !=='prov_cref_' && substr($key, 0,11) !=='prov_coste_'){
+				// tengo descarta elemento prov_cref_XX , prov_coste_XX y idFamilias_XX
+				if (substr($key, 0,10) !=='prov_cref_' && substr($key, 0,11) !=='prov_coste_' && substr($key, 0,11) !=='idFamilias_'){
 					$DatosProducto[$key] 		= $array[$key]; 
 				}
 				
@@ -456,13 +456,8 @@ function prepararParaGrabar($array,$claseArticulos){
 		
 	}
 	
-	echo '<pre>';
-	print_r($array);
-	echo '</pre>';
+	// Ahora empiezo con las comprobaciones .
 	
-	
-	
-
 
 	echo '<pre>';
 	print_r($DatosProducto);
