@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 26, 2018 at 10:15 PM
+-- Generation Time: Mar 27, 2018 at 07:52 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -29,8 +29,8 @@ SET time_zone = "+00:00";
 CREATE TABLE `historico_precios` (
   `id` int(11) NOT NULL,
   `idArticulo` int(10) NOT NULL,
-  `Antes` decimal(17,0) NOT NULL,
-  `Nuevo` decimal(17,0) NOT NULL,
+  `Antes` decimal(17,4) NOT NULL,
+  `Nuevo` decimal(17,4) NOT NULL,
   `Fecha_Creacion` date NOT NULL,
   `NumDoc` int(11) NOT NULL,
   `Dedonde` varchar(50) NOT NULL,
