@@ -8,6 +8,7 @@ include './../../head.php';
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosCompras.php';
 	include '../../clases/Proveedores.php';
+	
 	$Cpedido=new PedidosCompras($BDTpv);
 	$Cprveedor=new Proveedores($BDTpv);
 	$Controler = new ControladorComun; 
@@ -143,6 +144,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 }
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 
@@ -155,6 +157,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
 <div class="container">
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
+	<a  onclick="abrirIndicencia('pedido');"><span class="glyphicon glyphicon-pencil"></span></a>
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
 		<div class="col-md-12 btn-toolbar">
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
