@@ -961,6 +961,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 			'importes'=>$importesFactura,
 			'suNumero'=>$suNumero
 		);
+		$dedonde="factura";
 		if ($error==0){
 			if ($datosFactura['numfacpro']){
 				$numFactura=$datosFactura['numfacpro'];
@@ -968,13 +969,20 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 				$idFactura=$datosReal['id'];
 				$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
 				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
+				$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
+
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
 			}else{
 				$idFactura=0;
 				$numFactura=0;
 				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
+				$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
+
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
 			}
+			$respuesta['historico']=$historico;
+			$respuesta['sql']=$addNuevo;
+			$respuesta['texto']="nuevo albaran";
 		}else{
 			$error=1;
 		}
@@ -982,7 +990,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 	}else{
 		$error=1;
 	}
-	return $error;
+	return $respuesta;
 	
 }
 function htmlTotales($Datostotales){
