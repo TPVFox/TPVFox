@@ -170,10 +170,15 @@ function recalcularPvp(dedonde){
 	if (dedonde === 'pvpSiva'){
 		var precioSiva = parseFloat($('#pvpSiva').val(),2);
 		var precioCiva = precioSiva+(precioSiva*iva);
+		// Ahora destacamos los input que cambiamos.		
+		destacarCambioCaja('pvpCiva');
 	} else {
 		var precioCiva = parseFloat($('#pvpCiva').val(),2);
 		var precioSiva = precioCiva -(precioCiva*iva);
+		// Ahora destacamos los input que cambiamos		
+		destacarCambioCaja('pvpSiva');
 	}
+
 	//~ // Ahora cambiamos los datos en input.
 	$('#pvpSiva').val(precioSiva.toFixed(2));
 	$('#pvpCiva').val(precioCiva.toFixed(2));
@@ -355,12 +360,20 @@ function desActivarCajasProveedor(obj){
 	// Cambiamos
 	$('#prov_coste_'+ id_prov).removeAttr('readonly', '');
 	$('#prov_cref_'+ id_prov).removeAttr('readonly', '');
-	
+	// Añadimos funcion a input de control de datos.
+	$('#prov_coste_'+ id_prov).attr('onkeydown',"controlEventos(event)");
 	$('#check_pro_'+ id_prov).removeAttr('disabled', '');
 	$('#check_pro_'+ id_prov).removeAttr('readonly', '');
 	$('#check_pro_'+ id_prov).attr('onclick', "cambioEstadoProvPrincipal(this)");
 
 
+}
+function bloquearCajaProveedor(caja){
+	// Objetivo es poner solo lecturar la cja input
+	console.log('Poner solo lectura '+caja.name_cja);
+	$('#'+ caja.name_cja).attr('readonly', "true");
+
+	
 }
 
 function cambioEstadoProvPrincipal(obj){
@@ -418,16 +431,48 @@ function controladorAcciones(caja,accion, tecla){
 			
 		break;
 		case 'salto':
-			console.log("Estoy en buscar controladorAcciones-> salto");
+			console.log("Estoy en buscar controladorAcciones-> salto + caja:");
+			console.log(caja);
 		break;
 		case 'salto_recalcular':
-			recalcularPrecioSegunCosteBeneficio(caja);
+			
+			var re= comprobarNumero(caja.darValor());
+			if ( re === true){
+				recalcularPrecioSegunCosteBeneficio(caja);
+			}
 		break
 		case 'recalcularPvp':
-			console.log(caja)
-			
-			recalcularPvp(caja.id_input);
+			var re= comprobarNumero(caja.darValor());
+			if ( re === true){
+				recalcularPvp(caja.id_input);
+			}
 		break
+		
+		case 'controlCosteProv':
+			caja.id_input = caja.name_cja;
+			console.log(caja.darValor());
+			var re= comprobarNumero(caja.darValor());
+			console.log(re);
+			if ( re === false){
+				alert( 'Error en el coste, fijate bien');
+			} else {
+				// Volvemos a ponerla solo lectura.
+				bloquearCajaProveedor(caja);
+			}
+		break
+		
 	}
 		
+}
+
+
+function comprobarNumero(valor){
+	// Objetivo validar un numero decimal tanto positivo , como negativo.
+	var RE = /^\-?\d*\.?\d*$/;
+    if (RE.test(valor)) {
+        return true;
+    } else {
+        return false;
+    }
+	
 }
