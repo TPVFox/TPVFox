@@ -1,4 +1,5 @@
 //Función que controla las acciones que llegan del xml
+
 function controladorAcciones(caja,accion, tecla){
 	switch(accion) {
 		case 'buscarProveedor':
@@ -160,20 +161,33 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		
 		case 'buscarUltimoCoste':
+			
 			var nfila = parseInt(caja.fila)-1;
-			console.log(nfila);
+			
+			if (caja.tipo_event !== "blur"){
+				
+			//console.log("algo:"+productos[nfila].ultimoCoste);
+			var costeAnt=productos[nfila].ultimoCoste;
+			productos[nfila].CosteAnt=costeAnt;
+		//	alert(productos[nfila].ultimoCoste);
 			var idArticulo=productos[nfila].idArticulo;
 		
 			if(valor=""){
 				alert("NO HAS INTRODUCIDO NINGÚN COSTE");
 			}else{
-				addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
-					if (caja.tipo_event !== "blur"){
+					
+						addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
+						if (caja.tipo_event !== "blur"){
 						var d_focus = 'idArticulo';
 						ponerFocus(d_focus);
-					}
+				}
 				
+			
 			}
+		}
+		
+			
+		
 			
 		break;
 		
@@ -189,40 +203,48 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	//~ nfila: número de la fila que estamos cambiando
 	console.log("Entre en addCosteProveedor");
 		
-	var costeAnt=productos[nfila].ultimoCoste;
-	console.log("aun no lo ejecute");
-	var parametros ={
-		'pulsado':"AddCosteProveedor",
-		'idArticulo':idArticulo,
-		'valor':valor,
-		'idProveedor':cabecera.idProveedor,
-		'fecha':cabecera.fecha
-	};
-	$.ajax({
-			data       : parametros,
-			url        : 'tareas.php',
-			type       : 'post',
-			beforeSend : function () {
-				console.log('******** estoy en buscar clientes JS****************');
-			},
-			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar clientes');
-				var resultado =  $.parseJSON(response); 
-				console.log(resultado);
-				if (resultado.error==1){
-					alert("NO PUEDES CAMBIAR EL COSTE DE ESTE PRODUCTO POR SU FECHA");
-				}else{
-					productos[nfila].ultimoCoste=valor;
-					//var bandera=productos[nfila].iva/100;
-					productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
-					var id = '#N'+productos[nfila].nfila+'_Importe';
-					importe = productos[nfila].importe.toFixed(2);
-					productos[nfila].CosteAnt=costeAnt;
-					$(id).html(importe);
-					addTemporal(dedonde);
-				}
-		}
-	});
+	//~ var costeAnt=productos[nfila].ultimoCoste;
+	//~ productos[nfila].CosteAnt=costeAnt;
+
+	productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
+	var id = '#N'+productos[nfila].nfila+'_Importe';
+	importe = productos[nfila].importe.toFixed(2);
+productos[nfila].ultimoCoste=valor;	
+	$(id).html(importe);
+	addTemporal(dedonde);
+	
+	//~ var parametros ={
+		//~ 'pulsado':"AddCosteProveedor",
+		//~ 'idArticulo':idArticulo,
+		//~ 'valor':valor,
+		//~ 'idProveedor':cabecera.idProveedor,
+		//~ 'fecha':cabecera.fecha
+	//~ };
+	//~ $.ajax({
+			//~ data       : parametros,
+			//~ url        : 'tareas.php',
+			//~ type       : 'post',
+			//~ beforeSend : function () {
+				//~ console.log('******** estoy en buscar clientes JS****************');
+			//~ },
+			//~ success    :  function (response) {
+				//~ console.log('Llegue devuelta respuesta de buscar clientes');
+				//~ var resultado =  $.parseJSON(response); 
+				//~ console.log(resultado);
+				//~ if (resultado.error==1){
+					//~ alert("NO PUEDES CAMBIAR EL COSTE DE ESTE PRODUCTO POR SU FECHA");
+				//~ }else{
+					//~ productos[nfila].ultimoCoste=valor;
+					//~ //var bandera=productos[nfila].iva/100;
+					//~ productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
+					//~ var id = '#N'+productos[nfila].nfila+'_Importe';
+					//~ importe = productos[nfila].importe.toFixed(2);
+					//~ productos[nfila].CosteAnt=costeAnt;
+					//~ $(id).html(importe);
+					//~ addTemporal(dedonde);
+				//~ }
+		//~ }
+	//~ });
 }
 
 function buscarAdjunto(dedonde, valor=""){
@@ -1101,8 +1123,9 @@ function before_constructor(caja){
 	}
 	if (caja.id_input.indexOf('ultimo_coste') >-1){
 		console.log("entro en ultimo_coste_");
-		caja.parametros.item_max = productos.length;
 		caja.fila = caja.id_input.slice(13);
+		caja.parametros.item_max = productos.length;
+		
 		
 	}
 	

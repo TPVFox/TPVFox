@@ -2,6 +2,7 @@
 
 include '../../configuracion.php';
 include_once '../../clases/FormasPago.php';
+include_once '../../clases/articulos.php';
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
@@ -816,6 +817,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	$error=0;
+	$respuesta=array();
 	$CAlb=new AlbaranesCompras($BDTpv);
 		if ($datosPost['idTemporal']){
 				$idAlbaranTemporal=$datosPost['idTemporal'];
@@ -874,6 +876,8 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 				'formaPago'=>$formaPago,
 				'fechaVenci'=>$fechaVenci
 			);
+			$dedonde="albaran";
+			
 		}else{
 			$error=1;
 		}
@@ -887,16 +891,24 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					$idAlbaran=$datosReal['id'];
 					$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
 					$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+					$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
 					$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+					
+					
 			}else{
 					$idAlbaran=0;
 					$numAlbaran=0;
 					$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
+					$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
+
 					$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
 					
 			}
-			$error['sql']=$addNuevo;
+			
 		}
+		$respuesta['historico']=$historico;
+			$respuesta['sql']=$addNuevo;
+			$respuesta['texto']="nuevo albaran";
 	return $error;
 }
 
@@ -1070,5 +1082,53 @@ function modificarArraysImportes($importes, $total){
 		array_push($importesDef, $nuevo);
 	}
 	return $importesDef;
+}
+function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fecha){
+	$CArt=new Articulos($BDTpv);
+	$fechaCreacion=date('Y-m-d');
+	$datos=array(
+	'dedonde'=>$dedonde,
+	'numDoc'=>$numDoc,
+	'tipo'=>"compras",
+	'fechaCreacion'=>$fechaCreacion
+	);
+	$resultado['datos']=$productos;
+	$error=0;
+	$productos = json_decode($productos, true);
+	foreach ($productos as $producto){
+		if ($producto['CosteAnt']){
+			$buscar=$CArt->buscarReferencia($producto['idArticulo'], $idProveedor);
+			$datosNuevos=array(
+				'coste'=>$producto['ultimoCoste'],
+				'idArticulo'=>$producto['idArticulo'],
+				'idProveedor'=>$idProveedor,
+				'fecha'=>$fecha,
+				'estado'=>"activo"
+			);
+			if ($buscar){
+				if ($buscar['fechaActualizacion']>$fecha){
+					$error=1;
+				}else{
+					$mod=$CArt->modificarCosteProveedorArticulo($datosNuevos);
+				}
+				
+			}else{
+				$datosNuevos['refProveedor']=0;
+				$add=$CArt->addArticulosProveedores($datosNuevos);
+			}
+			
+			$datos['idArticulo']=$producto['idArticulo'];
+			$datos['antes']=$producto['CosteAnt'];
+			$datos['nuevo']=$producto['ultimoCoste'];
+			if ($error==0){
+				$nuevoHistorico=$CArt->addHistorico($datos);
+				$resultado['sql']=$nuevoHistorico;
+			}
+			
+		}
+		
+		
+	}
+	return $resultado;
 }
 ?>

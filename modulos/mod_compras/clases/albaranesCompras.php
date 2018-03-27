@@ -161,7 +161,7 @@ class AlbaranesCompras extends ClaseCompras{
 				
 			}
 		}
-		return $sql;
+		return $resultado;
 	}
 	
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){
