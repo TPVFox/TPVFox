@@ -28,7 +28,7 @@
 		$estadoInput = 'disabled'; //desactivado input de entrada 
 		
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
-		$posibles_estados = $CTArticulos->posiblesEstados('articulosTiendas');
+		$posibles_estados = $CTArticulos->posiblesEstados('articulos');
 			
 		
 		if (isset($_GET['id'])) {
@@ -42,6 +42,7 @@
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->getProducto($_GET['id']);
+		
 		
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -86,9 +87,9 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
-		echo '<pre>';
-		print_r($Producto);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($Producto);
+		//~ echo '</pre>';
 			
 		
 		if ($_POST){
@@ -164,7 +165,7 @@
 								</a>
 							</label>
 							<div>
-								<input type="text" id="coste" size="8" name="ultimoCoste" value="<?php echo number_format($Producto['ultimoCoste'],2, '.', '');?>"  data-obj= "cajaCoste" onkeydown="controlEventos(event)"   readonly> 
+								<input type="text" pattern="[-+]?[0-9]*[.]?[0-9]+" id="coste" size="8" name="ultimoCoste" value="<?php echo number_format($Producto['ultimoCoste'],2, '.', '');?>"  data-obj= "cajaCoste" onkeydown="controlEventos(event)"   readonly> 
 								<span class="Euro_grande">€</span> 
 							</div>
 						</div>
@@ -226,8 +227,6 @@
 						echo htmlPanelDesplegable($num,$titulo,$htmlFamilias);
 						?>
 
-						
-						
 						<!-- Inicio collapse de Referencias Tiendas --> 
 
 					<!-- Fin de panel-group -->
