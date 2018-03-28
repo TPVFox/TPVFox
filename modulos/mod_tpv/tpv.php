@@ -108,6 +108,7 @@
 </script>
 
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+ <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 
 
 </head>
@@ -213,6 +214,7 @@
 				<li><a onclick="buscarClientes()">Cliente</a></li>
 				<li><a href="#section3">Abrir Cajon</a></li>
 				<li><a onclick="cobrarF1()">Cobrar</a></li>
+				<li><a  onclick="abrirIndicencia('ticket');">Incidencia</a></li>
 			</ul>
 		</div>
 
