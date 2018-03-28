@@ -503,11 +503,12 @@ switch ($pulsado) {
 		'dedonde'=>$dedonde,
 		'idReal'=>$idReal
 		);
-		$datos=json_encode($datos, true);
+		$datos=json_encode($datos);
 		
 		$estado="No resuelto";
 		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado);
 		$respuesta['html']=$html;
+		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
 		break;
 		

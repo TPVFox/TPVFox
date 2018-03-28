@@ -14,22 +14,21 @@ function enviarIncidencia(){
 		'dedonde':dedonde,
 		'estado':estado,
 		'mensaje':mensaje
-		
 	};
+	console.log(parametros);
 	$.ajax({
 		data       : parametros,
-		url        : 'funciones.php',
-		type       : 'post',
+		url        : 'http://localhost/solvigo/tpvfox/modulos/mod_incidencias/funciones.php',
+		type       : 'get',
 		beforeSend : function () {
-			console.log('*********  Modificando los importes de la factura  ****************');
+			console.log('********* Insertar una incidencia  ****************');
 		},
 		success    :  function (response) {
-			console.log('Respuesta de la modificación de los importes');
+			console.log('Respuesta de añadir una incidencia');
 			var resultado =  $.parseJSON(response);
+			console.log(resultado);
 			
 		}
-	});
-	
-	
+	});	
 	
 }
