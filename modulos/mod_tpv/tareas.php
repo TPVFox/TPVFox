@@ -43,7 +43,6 @@ switch ($pulsado) {
 			include ("./../../controllers/codbarras.php");
 			$Ccodbarras = new ClaseCodbarras ; 
 			$codigo_correcto = $Ccodbarras->ComprobarCodbarras($busqueda);
-			error_log('Es correcot codigoBarras'.strlen($busqueda));
 			if ($codigo_correcto === 'OK'){
 				// Se comprobo código barras y es correcto.
 				$codBarrasPropio= $Ccodbarras->DesgloseCodbarra($busqueda);
