@@ -2,7 +2,6 @@
 <html>
 	<head>
 		<?php 
-		
 		include './../../head.php';
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
