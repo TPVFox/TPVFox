@@ -57,6 +57,13 @@ class Articulos{
 		//~ return $respuesta;
 	}
 	
+	public function addHistorico($datos){
+		$db=$this->db;
+		$smt=$db->query('INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo'].', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '."'".$datos['tipo']."'".')');
+	$sql='INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo'].', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '."'".$datos['tipo']."'".')';
+	return $sql;
+	}
+	
 	
 }
 

@@ -97,7 +97,7 @@ class AlbaranesCompras extends ClaseCompras{
 		if ($idAlbaran>0){
 			$smt = $db->query ('INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('.$idAlbaran.' , '.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].', '.$datos['formaPago'].', "'.$datos['fechaVenci'].'")');
 			$id=$idAlbaran;
-	
+	$resultado['id']=$id;
 		}else{
 			$smt = $db->query ('INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago, FechaVencimiento) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].', '.$datos['formaPago'].', "'.$datos['fechaVenci'].'")');
 			$id=$db->insert_id;
@@ -161,7 +161,7 @@ class AlbaranesCompras extends ClaseCompras{
 				
 			}
 		}
-		return $sql;
+		return $resultado;
 	}
 	
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){

@@ -88,7 +88,7 @@
 				<h2> Pedidos Proveedores: Añadir y modificar</h2>
 			</div>
 			<nav class="col-sm-4">
-				<h4> Pedidos</h4>
+				<h4> Pedidos</h4> 
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php 

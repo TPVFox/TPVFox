@@ -128,14 +128,17 @@ include './../../head.php';
 		//~ print_r($_POST);
 		//~ echo '</pre>';
 			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales,$importesFactura);
-			if ($guardar==0){
-				header('Location: facturasListado.php');
-			}else{
+			echo '<pre>';
+		print_r($guardar);
+		echo '</pre>';
+			//~ if ($guardar==0){
+				//~ header('Location: facturasListado.php');
+			//~ }else{
 		
-				echo '<div class="alert alert-warning">
-				<strong>Error!</strong>No has introducido ningún producto.
-				</div>';
-			}
+				//~ echo '<div class="alert alert-warning">
+				//~ <strong>Error!</strong>No has introducido ningún producto.
+				//~ </div>';
+			//~ }
 		
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original

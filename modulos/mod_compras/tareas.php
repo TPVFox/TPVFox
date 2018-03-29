@@ -12,6 +12,7 @@ include_once ("./../../configuracion.php");
 include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos funciones
 include_once ("./funciones.php");
+include_once ("../mod_incidencias/popup_incidencias.php");
 include_once '../../clases/Proveedores.php';
 $CProveedores=new Proveedores($BDTpv);
 include_once "../../clases/articulos.php";
@@ -490,6 +491,23 @@ switch ($pulsado) {
 		$html=htmlImporteFactura($nuevo, $BDTpv);
 		$respuesta['html']=$html['html'];
 	}
+		echo json_encode($respuesta);
+		break;
+		case 'abririncidencia':
+		$dedonde=$_POST['dedonde'];
+		$usuario=$_POST['usuario'];
+		$idReal=$_POST['idReal'];
+		$tipo="mod_compras";
+		$fecha=date('Y-m-d');
+		$datos=array(
+		'dedonde'=>$dedonde,
+		'idReal'=>$idReal
+		);
+		$datos=json_encode($datos, true);
+		
+		$estado="No resuelto";
+		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado);
+		$respuesta['html']=$html;
 		echo json_encode($respuesta);
 		break;
 		
