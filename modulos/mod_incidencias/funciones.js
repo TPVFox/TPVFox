@@ -18,8 +18,8 @@ function enviarIncidencia(){
 	console.log(parametros);
 	$.ajax({
 		data       : parametros,
-		url        : 'http://localhost/solvigo/tpvfox/modulos/mod_incidencias/funciones.php',
-		type       : 'get',
+		url        : 'tareas.php',
+		type       : 'post',
 		beforeSend : function () {
 			console.log('********* Insertar una incidencia  ****************');
 		},

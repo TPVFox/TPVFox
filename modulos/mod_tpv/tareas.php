@@ -293,7 +293,7 @@ switch ($pulsado) {
 		$dedonde=$_POST['dedonde'];
 		$usuario=$_POST['usuario'];
 		$idReal=$_POST['idReal'];
-		$tipo="mod_compras";
+		$tipo="mod_tpv";
 		$fecha=date('Y-m-d');
 		$datos=array(
 		'dedonde'=>$dedonde,
@@ -307,6 +307,21 @@ switch ($pulsado) {
 		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
 		break;
+		
+		case 'nuevaIncidencia':
+		$usuario= $_POST['usuario'];
+		$fecha= $_POST['fecha'];
+		$datos= $_POST['datos'];
+		$dedonde= $_POST['dedonde'];
+		$estado= $_POST['estado'];
+		$mensaje= $_POST['mensaje'];
+		if($mensaje){
+			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv);
+			$respuesta=$nuevo['sql'];
+		}
+	echo json_encode($respuesta);
+	
+	break;
 		
 		
 }
