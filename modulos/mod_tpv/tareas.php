@@ -116,7 +116,6 @@ switch ($pulsado) {
 		
 		$respuesta = htmlCobrar($totalJS,$configuracion);
 		$respuesta['recalculo'] = $totales;
-
 		echo json_encode($respuesta);		
 		
 		break;
@@ -174,7 +173,7 @@ switch ($pulsado) {
 		$cabecera['estadoTicket'] 		=$_POST['estadoTicket'];
 		$cabecera['numTickTemporal'] 	=$_POST['numTickTemporal'];
 		$checkimprimir 					=$_POST['checkimprimir'];
-		
+		$ruta_impresora					=$_POST['ruta_impresora'];
 		// Obtenemos ticket
 		$ticket 	= ObtenerUnTicketTemporal($BDTpv,$cabecera['idTienda'],$cabecera['idUsuario'] ,$cabecera['numTickTemporal']);
 		// Comprobamos que el resultado es correcto y recalculamos totales
@@ -211,11 +210,16 @@ switch ($pulsado) {
 				$DatosTienda = DatosTiendaID($BDTpv,$cabecera['idTienda']);
 				$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose'],$DatosTienda);
 				// Incluimos fichero para imprimir ticket, con los datosImpresion.
-				include 'impresoraTicket.php';
+				// Comprobamos si existe impresora.
+				if (shell_exec('ls '.$ruta_impresora)){;
+					include 'impresoraTicket.php';
+				} else {
+					$respuesta['error_impresora'] = ' no existe la impresora asignada';
+				}
 				
 			}
 		} else {
-			// Si llega aquí es que $resultado['error'] existe por lo que pudo haber un errror en:
+			// Si llega aquí es que $resultado['error'] existe por lo que pudo haber un error en:
 			// $grabar = grabarTicketCobrado($BDTpv,$productos,$cabecera,$Datostotales['desglose']); 
 			// ya que el oro 
 			error_log ("Error en tareas, en if !isset($respuesta[error]");
@@ -271,7 +275,7 @@ switch ($pulsado) {
 		break;
 		
 	case 'Grabar_configuracion':
-		// Grabamos configuracion
+		// Grabamos configuracion nueva configuracion
 		$configuracion = $_POST['configuracion'];
 		// Ahora obtenemos nombre_modulo y usuario , lo ponermos en variable y quitamos array configuracion.
 		$nombre_modulo = $configuracion['nombre_modulo'];

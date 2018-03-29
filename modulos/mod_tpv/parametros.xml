@@ -3,6 +3,7 @@
 	<configuracion>
 		<impresion_ticket>Si</impresion_ticket>
 		<campo_peso>no</campo_peso>
+		<impresora>/dev/usb/lp0</impresora>
 	</configuracion>
 	<cajas_input data-obj="id_input">
 		<caja_input>

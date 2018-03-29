@@ -16,33 +16,36 @@ function cobrarF1(){
 	//@Objetivo:
 	// Recalcular en php los totales.( Si hay diferencia se informa)
 	// Abrir modal de htmlcobrar
-	
-	var parametros = {
-			"pulsado" 	: 'cobrar',
-			"total" : total,
-			"productos"	 	: productos,
-			"configuracion"	: configuracion
-			//"dedonde" : dedonde
-	};
-	$.ajax({ data:  parametros,
-		url:   'tareas.php',
-		type:  'post',
-		beforeSend: function () {
-			$("#resultado").html('Comprobamos que el producto existe ');
-		},
-		success:  function (response) {
-			console.log('Respuesta ajax - CobrarF1 ');
-			var resultado =  $.parseJSON(response);
-			//HtmlCobrar = resultado;
-			//busqueda = resultado.cobrar;
-			
-			var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
-			var titulo = 'COBRAR ';
-			abrirModal(titulo,HtmlCobrar);
-			//alert('cobrar');
-			
-		}
-	});
+	if ( productos.length>0){
+		var parametros = {
+				"pulsado" 	: 'cobrar',
+				"total" : total,
+				"productos"	 	: productos,
+				"configuracion"	: configuracion
+				//"dedonde" : dedonde
+		};
+		$.ajax({ data:  parametros,
+			url:   'tareas.php',
+			type:  'post',
+			beforeSend: function () {
+				console.log('Iniciamos tarea de cobrar');
+			},
+			success:  function (response) {
+				console.log('Respuesta ajax - CobrarF1 ');
+				var resultado =  $.parseJSON(response);
+				//HtmlCobrar = resultado;
+				//busqueda = resultado.cobrar;
+				
+				var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
+				var titulo = 'COBRAR ';
+				abrirModal(titulo,HtmlCobrar);
+				//alert('cobrar');
+				
+			}
+		});
+	}else {
+		alert ('No hay productos no podemos cobrar');
+	}
 }
 
 
@@ -332,7 +335,8 @@ function cerrarTicket(){
 	 var formaPago = $('#modoPago').val();
 	 //podemos obtener el valor de la propiedad checked, true o false
 	 var checkimprimir = $('input[name=checkimprimir]').prop('checked'); 
-	 
+	 var ruta_impresora = configuracion['impresora'];
+	 console.log(ruta_impresora);
 	//parche desactivar boton aceptar, no hay impresora de tickets
 	$('button[id=CobrarAceptar]').prop('disabled',true);
 	// Ahora ejecutamos ajax para guardar ticket
@@ -346,7 +350,8 @@ function cerrarTicket(){
 		"total"				: total,
 		"entregado"			: entregado,
 		"formaPago"			: formaPago,
-		"checkimprimir"		: checkimprimir  //true o false
+		"checkimprimir"		: checkimprimir,  //true o false
+		"ruta_impresora"	: ruta_impresora 
 	};
 	$.ajax({
 		data       : parametros,
@@ -362,7 +367,14 @@ function cerrarTicket(){
 			console.log(' ********  TERMIANOS DE GRABAR TICKET CERRADO *********** ')
 			// Redireccion para volver a empezar un ticket
 			//~ window.location="tpv.php";
-			document.location.href='tpv.php';
+			console.log(typeof resultado.error_impresora);
+			if (typeof resultado.error_impresora =='string'){
+				alert( 'Impresora de ticket apagada o no es correcta configuracion , NO SE PUEDE IMPRIMIR !!');
+				document.location.href='tpv.php';
+			} else {
+				document.location.href='tpv.php';
+
+			}
 		}
 	});
 	
@@ -603,7 +615,7 @@ function controladorAcciones(caja,accion){
 			}
 			break
 		case 'cobrar':
-			console.log( ' Entro en accion buscarProducto');
+			console.log( ' Entro en accion cobrar');
 			cobrarF1();
 			break
 			

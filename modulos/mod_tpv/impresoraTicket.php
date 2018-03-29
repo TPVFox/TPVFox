@@ -22,7 +22,7 @@ $profile = DefaultCapabilityProfile::getInstance();
 //~ $profile = CapabilityProfile::load("HOP-E801");
 //~ $profile = CapabilityProfile::load("SP2000");
 
-$connector = new FilePrintConnector("/dev/usb/lp0");
+$connector = new FilePrintConnector($ruta_impresora);
 
 $printer = new Printer($connector,$profile);
 // Ahora obtenemos Code Pages CP1252 que contiene el simbolo Euro
