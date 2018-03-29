@@ -59,9 +59,19 @@ class Articulos{
 	
 	public function addHistorico($datos){
 		$db=$this->db;
-		$smt=$db->query('INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo'].', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '."'".$datos['tipo']."'".')');
-	$sql='INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo'].', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '."'".$datos['tipo']."'".')';
+		$smt=$db->query('INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo, estado) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo'].', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".')');
+	$sql='INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo, estado) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo'].', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".')';
 	return $sql;
+	}
+	public function historicoCompras($numDoc, $Dedonde, $tipo){
+		$db=$this->db;
+		$smt=$db->query('SELECT estado, id from historico_precios where NumDoc='.$numDoc.' and  Dedonde ='."'".$Dedonde ."'".' and Tipo ='."'".$tipo."'");
+		$historicoPrincipal=array();
+		while ($result = $smt->fetch_assoc () ){
+			array_push($historicoPrincipal,$result);
+		}
+		return $historicoPrincipal;
+		
 	}
 	
 	
