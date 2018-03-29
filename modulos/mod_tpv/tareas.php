@@ -13,6 +13,7 @@ $pulsado = $_POST['pulsado'];
 use Mike42\Escpos\Printer;
 
 include_once ("./../../configuracion.php");
+include_once ("../mod_incidencias/popup_incidencias.php");
 
 // Crealizamos conexion a la BD Datos
 include_once ("./../mod_conexion/conexionBaseDatos.php");
@@ -285,6 +286,25 @@ switch ($pulsado) {
 		$respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
 		$respuesta['configuracion'] = $configuracion ; 
 		
+		echo json_encode($respuesta);
+		break;
+		
+		case 'abririncidencia':
+		$dedonde=$_POST['dedonde'];
+		$usuario=$_POST['usuario'];
+		$idReal=$_POST['idReal'];
+		$tipo="mod_compras";
+		$fecha=date('Y-m-d');
+		$datos=array(
+		'dedonde'=>$dedonde,
+		'idReal'=>$idReal
+		);
+		$datos=json_encode($datos);
+		
+		$estado="No resuelto";
+		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado);
+		$respuesta['html']=$html;
+		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
 		break;
 		

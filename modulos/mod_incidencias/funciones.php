@@ -1,24 +1,30 @@
 <?php 
-
-$pulsado = $_POST['pulsado'];
-
+$pulsado = $_GET['pulsado'];
 include_once ("./../../configuracion.php");
-// Crealizamos conexion a la BD Datos
 include_once ("./../mod_conexion/conexionBaseDatos.php");
-include_once ("/popup_incidencias.php");
+include_once ("./popup_incidencias.php");
 switch ($pulsado) {
 	case 'nuevaIncidencia':
-		$usuario=$_POST['usuario'];
-		$fecha=$_POST['fecha'];
-		$datos=$_POST['datos'];
-		$dedonde=$_POST['dedonde'];
-		$estado=$_POST['estado'];
-		$mensaje=$_POST['mensaje'];
+		$usuario= $_GET['usuario'];
+		$fecha= $_GET['fecha'];
+		$datos= $_GET['datos'];
+		$dedonde= $_GET['dedonde'];
+		$estado= $_GET['estado'];
+		$mensaje= $_GET['mensaje'];
+		$respuesta['datos']="entre aqui";
 		if($mensaje){
 			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv);
+			$respuesta=$nuevo['sql'];
 		}
+	echo json_encode($respuesta);
 	
 	break;
+	default:
+	$respuesta="no entra en el switch";
+	echo json_encode($respuesta);
+	
+	break;
+	
 	
 	
 }

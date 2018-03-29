@@ -254,6 +254,7 @@ if ($suNumero==0){
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <?php
 	include '../../header.php';
 ?>
@@ -283,6 +284,7 @@ if ($suNumero==0){
 			}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
+			<a  onclick="abrirIndicencia('albaran');"><span class="glyphicon glyphicon-pencil"></span></a>
 			<a  href="./facturasListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">

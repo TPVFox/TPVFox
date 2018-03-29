@@ -280,8 +280,10 @@ if ($suNumero==0){
       }
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
+			<a  onclick="abrirIndicencia('albaran');"><span class="glyphicon glyphicon-pencil"></span></a>
 			<a  href="./albaranesListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">

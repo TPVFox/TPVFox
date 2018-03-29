@@ -27,7 +27,7 @@ $html.='<input type="text" name="inci_mensaje" id="inci_mensaje" value="'.$mensa
 $html.='</div>';
 $html.='<div class="col-md-12">';
 $html.='<label>Datos:</label>';
-$html.='<input type="text" name="inci_datos" id="inci_datos" value="'.$datos.'" readonly="">';
+$html.='<input type="text" name="inci_datos" id="inci_datos" value='."'".$datos."'".' readonly="">';
 $html.='</div>';
 $html.='<a href="" onclick="enviarIncidencia();" >Guardar</a>';
 
@@ -37,6 +37,12 @@ return $html;
 function addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv){
 	$sql='INSERT INTO modulo_incidencia (fecha_creacion, id_usuario, dedonde, mensaje, datos, estado) VALUES ("'.$fecha.'", '.$usuario.', '."'".$dedonde."'".', '."'".$mensaje."'".', '."'".$datos."'".', '."'".$estado."'".')';
 	$res = $BDTpv->query($sql);
+	$id=$BDTpv->insert_id;
+	$sql2='UPDATE modulo_incidencia SET num_incidencia='.$id.' WHERE id='.$id;
+	$res1 = $BDTpv->query($sql2);
+	$respuesta['sql']=$sql;
+	$respuesta['id']=$id;
+	return $respuesta;
 }
 
 ?>
