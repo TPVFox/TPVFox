@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 27, 2018 at 07:52 PM
+-- Generation Time: Mar 29, 2018 at 11:54 AM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -34,7 +34,9 @@ CREATE TABLE `historico_precios` (
   `Fecha_Creacion` date NOT NULL,
   `NumDoc` int(11) NOT NULL,
   `Dedonde` varchar(50) NOT NULL,
-  `Tipo` varchar(50) NOT NULL
+  `Tipo` varchar(50) NOT NULL,
+  `idUsuario` int(5) DEFAULT NULL,
+  `estado` int(60) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
