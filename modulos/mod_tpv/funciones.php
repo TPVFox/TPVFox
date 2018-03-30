@@ -567,7 +567,7 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 		$resultado['consulta'] = $SqlTicket;
 		$resultado['error'] = $BDTpv->error_list;
 		error_log(' Rotura en funcion grabarTicketCobrado()');
-		error_log( $BDTpv->error_list);
+		error_log( json_encode($BDTpv->error_list));
 	}
 	
 	// Preparamos SQl para Consulta para ticketLinea
