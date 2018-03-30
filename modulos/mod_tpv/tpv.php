@@ -140,6 +140,12 @@
 						 'Desde aquí no puede modificarlo';
 			}
 		}
+		if (isset($ticket['error'])){
+			// No continuamos , algo salio mal al obtener ticket temporal.
+			$error .='<br/>'.$ticket['error'];
+			$error .='<br/>'.$ticket['consulta'];
+
+		}
 	}
 	if ( $error !== '') {
 		// Entonces obtenemos las caberas para mostrar.
