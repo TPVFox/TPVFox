@@ -741,7 +741,7 @@ function ponerFocus (destino_focus){
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	console.log('Entro en enviar focus de :'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
-		jQuery('#'+destino_focus.toString()).focus(); 
+		jQuery('#'+destino_focus.toString()).select(); 
 	}, 50); 
 
 }
