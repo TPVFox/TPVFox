@@ -569,6 +569,7 @@ function controladorAcciones(caja,accion){
 				// quiere decir que no tiene valor.
 				var nueva_fila = 0;
 			}
+			console.log('mover_down:'+nueva_fila);
 			mover_down(nueva_fila,caja.darParametro('prefijo'));
 			break;
 		case 'mover_up':
@@ -670,7 +671,8 @@ function before_constructor(caja){
 	}
 	
 	if (caja.id_input.indexOf('N_') >-1){
-		console.log(' Entro en Before de '+caja.id_input)
+		console.log(' Entro en Before:');
+		console.log(caja);
 		caja.fila = caja.id_input.slice(2);
 		console.log(caja.fila);
 	}
@@ -716,8 +718,13 @@ function sobreFilaCraton(cont){
 function mover_down(fila,prefijo){
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
-	ponerFocus(d_focus);
-	
+	// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
+		ponerSelect(d_focus);
+	} else {
+		ponerFocus(d_focus);
+	}
 }
 
 function mover_up(fila,prefijo){
@@ -740,6 +747,15 @@ function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	console.log('Entro en enviar focus de :'+destino_focus);
+	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		jQuery('#'+destino_focus.toString()).focus(); 
+	}, 50); 
+
+}
+function ponerSelect (destino_focus){
+	// @ Objetivo:
+	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
+	console.log('Entro en ponerselects de :'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).select(); 
 	}, 50); 
