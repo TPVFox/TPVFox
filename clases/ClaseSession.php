@@ -169,10 +169,11 @@ class ClaseSession extends ClaseConexion{
 	
 	
 	function cerrarSession(){
-		session_start();
+		//~ session_start();
 		session_unset();
 		session_destroy();
-		header('Location:./../../index.php');
+		// NO puedo hacer header si ya envie informacion de imprimir, por lo que lo descarto.
+		//header('Location:./../../index.php');
 		
 		
 	}
