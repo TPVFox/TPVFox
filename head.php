@@ -12,11 +12,16 @@
    	$URLCom = $RutaServidor . $HostNombre;
 	include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
 	//incluyo ruta del controlador de sesion (funcion php)
-    include_once ($URLCom. "/clases/ComprobarSession.php");
+    //~ include_once ($URLCom. "/clases/ComprobarSession.php");
+    include_once ($URLCom. "/clases/ClaseSession.php");
 
 	// Solo creamos objeto si no existe.
-	$thisTpv = new ComprobarSession;
-	$TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
+	//~ $thisTpv = new ComprobarSession;
+	$thisTpv = new ClaseSession();
+
+	//~ $TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
+	$thisTpv->comprobarEstado();
+
 	// Ver documentacion : /estatico/manualTecnico/help_fichero_header/index.php
 ?>
 

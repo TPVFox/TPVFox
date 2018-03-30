@@ -11,23 +11,49 @@
 ?>
 
 <?php
-	// Incrementamos contador paaginas abiertas.
+	// Incrementamos contador paginas abiertas.
+	if (!class_exists ('ClaseSession')){
+		?>
+		<!DOCTYPE html>
+		<html>
+			<head>
+			<?php
+			include './../../head.php';
+			?>
+			</head>
+			<body>
+			<?php
+			include '../../header.php';
+	}
+		
+	
 	$_SESSION['N_Pagina_Abiertas'] = $_SESSION['N_Pagina_Abiertas'] +1;
-	// debug
-	//~ echo '<pre>';
-	//~ print_r($_SESSION);
-	//~ echo '</pre>';
+	if (isset($_GET['tipo'])){
+		if ($_GET['tipo']==='cerrar'){ 
+		 $titulo = 'Cierre sesion';	
+		}
+	} else {
+		$titulo = 'Inicio de sesion';	
+	}
 	?>
 	
 <div id="formularioUsuario">
       <div class="col-md-6 col-md-offset-3">
-		  <h1>Inicio de sesion </h1>
-		<?php 
-		
+		<?php
+		echo '<h1>'.$titulo.'</h1>';
 		if ($_SESSION['estadoTpv'] === 'Correcto'){ 
 			// Quiere decir que ya esta logueado correctamente.
-			echo 'Realmente quiere desloguearte '.$UsuarioLogin.' datos sesion: '.$_SESSION;
-			echo '</div></div>';
+			if (isset($_GET['tipo'])){
+				if ($_GET['tipo']==='cerrar'){ 
+					echo 'Cerramos session,'.$_SESSION['usuarioTpv']['nombre'];
+					$thisTpv->cerrarSession();
+				}	
+			} else {
+				echo ' Hola '.$_SESSION['usuarioTpv']['nombre'].'<br/>';
+				echo 'Ya estás logueada, quiere cerrar session.<br>';
+				echo '<a href="'.$HostNombre.'/plugins/controlUser/modalUsuario.php?tipo=cerrar">Cerrar</a>';
+			}
+			
 			return;
 		
 		}
@@ -64,3 +90,15 @@
     </div>
 </div>
 
+<?php
+if (isset($_GET['tipo'])){
+		if ($_GET['tipo']==='cerrar'){
+			// Cargamos cabecera
+		?>
+		</body>
+		</html>
+
+		<?php
+		}
+}
+?>

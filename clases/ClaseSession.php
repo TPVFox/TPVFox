@@ -1,22 +1,36 @@
 <?php
-// La  variable global va se:
-// $_SESSION 
-//			['estado']
-// 			['idUsuario']
-//			['Nombre_Usuario']
-//			['Razon_Social']
-// 			['idTienda']
+/* Propiedades en minuscula.
+ * Metodos en UpperCamelCase
+ * */
+$rutaCompleta = $RutaServidor.$HostNombre;
+include ($rutaCompleta.'/clases/ClaseConexion.php');
 
-
-class ComprobarSession {
+class ClaseSession extends ClaseConexion{
+	public $BDTpv ; // (object) Conexion a Base de datos tpv , tiene que se a tpv ya que controla session de ese equipo.
+	private $session ; // (array) Datos de $_SESSION que controlamos.
+	public $Tienda ; // (array) Contiene array con los datos tienda de la session.
+	public $Usuario; // (array) Contiene array con los datos del Usuario de la session.
 	
-	function comprobarEstado($BDTpv, $URLCo){
+	public function __construct()
+	{
+		parent::__construct();
+		$this->BDTpv	= parent::getConexion();
+		$this->comprobarEstado($this->ruta_proyecto); 
+	}
+	
+	public function GetSession(){
+		// Objetivo devolver la session
+		return $this->session;
+	}
+	
+	
+	public function comprobarEstado(){
 		// @ Objetivo :
 		// Comprobar si hay session para la aplicacion abierta y si el usuario es correcto.
 		// @ Parametros:
-		// 		$BDTpv -> Conexión
-		//		$URLCo -> Ruta completa.
-		
+		//		$rutaCompleta -> Ruta completa.
+		$rutaCompleta = $this->ruta_proyecto;
+		$BDTpv = $this->BDTpv;
 		$resultado = array();
 		// --------------  Iniciamos session si no esta iniciada. --------------------- //
 		if (!isset($_SESSION)){
@@ -52,20 +66,21 @@ class ComprobarSession {
 			}
 		}
 		// Comprobación si todo es correcto.. 
-		$comprobar = $this->controlSession($URLCo,$resultado); 
+		$comprobar = $this->controlSession($rutaCompleta,$resultado); 
 		$resultado['SessionTpv']['estado'] = $comprobar;
 		if($numeroPaginas >0){
 			// Solo cambiamos estado si el numeroPaginas es superior a 0
 			$_SESSION['estadoTpv'] = $resultado['SessionTpv']['estado'];
 		}
-		return $resultado;
-
+		
+		$this->session = $_SESSION;
 	}
 	
 	//comparar usuario y password con bbdd
 	function comprobarUser($BDTpv,$usuario,$pwd){
 		// Esto comprobamos que los datos metidos en el formulario son correctos.
 		$resultado = array();
+		$BDTpv = $this->BDTpv;
 		$encriptada = md5($pwd);// Encriptamos contraseña puesta en formulario.
 		$sql = 'SELECT password,nombre,id,group_id FROM usuarios WHERE username="'.$usuario.'"';
 		$res = $BDTpv->query($sql);
@@ -128,7 +143,7 @@ class ComprobarSession {
 		return $resultado;
 	 }
 	 
-	 function controlSession($URLCo,$Estado){
+	 function controlSession($Estado){
 		// Aqui venimos siempre, no debemos hacer consultas, solo poner estado
 		// Al iniciar session, cuando estamos logueados.
 		// El objetivo es comprobar que los parametros session esten correctos.
@@ -150,6 +165,16 @@ class ComprobarSession {
 		}
 		// Devolvemos string si es correo o no.
 		return 'Correcto';
+	}
+	
+	
+	function cerrarSession(){
+		session_start();
+		session_unset();
+		session_destroy();
+		header('Location:./../../index.php');
+		
+		
 	}
 	 
 }

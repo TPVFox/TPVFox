@@ -87,7 +87,8 @@
 					<?php
 					if ($_SESSION['estadoTpv'] == "Correcto"){
 					?>
-					<a href="<?php echo $HostNombre.'/cerrarSesion.php';?>">Cerrar</a>
+
+					<a href="<?php echo $HostNombre.'/plugins/controlUser/modalUsuario.php?tipo=cerrar';?>">Cerrar</a>
 					<?php
 			}
 				
