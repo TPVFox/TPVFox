@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,9 +8,11 @@ include ("./../../plugins/paginacion/paginacion.php");
 include ("./../../controllers/Controladores.php");
 include '../../clases/Proveedores.php';
 include 'clases/albaranesCompras.php';
+//include '../../clases/articulos.php';
+
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
-
+ $CArticulo=new Articulos($BDTpv);
 // Creamos el objeto de proveedor
 $CProv= new Proveedores($BDTpv);
 
@@ -112,6 +113,7 @@ if ($stringPalabras !== '' ){
 				<?php
 			if (isset($todosTemporal)){
 				foreach ($todosTemporal as $temporal){
+					
 					if ($temporal['numalbpro']){
 						$numTemporal=$temporal['numalbpro'];
 					}else{
@@ -171,8 +173,13 @@ if ($stringPalabras !== '' ){
 					<?php 
 						$checkUser = 0;
 						foreach ($albaranesDef as $albaran){
+						
 							$checkUser = $checkUser + 1;
 							$totaliva=$CAlb->sumarIva($albaran['Numalbpro']);
+							$historico=$CArticulo->historicoCompras($albaran['Numalbpro'], "albaran", "compras");
+							echo '<pre>';
+							print_r($historico);
+							echo '</pre>';
 							$date=date_create($albaran['Fecha']);
 						?>
 						<tr>
@@ -191,7 +198,9 @@ if ($stringPalabras !== '' ){
 							<?php
 						}else{
 							?>
-						<td><?php echo $albaran['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $albaran['id'];?>, "albaran", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a></td>
+						<td><?php echo $albaran['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $albaran['id'];?>, "albaran", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a>
+						&nbsp;
+						<a class="glyphicon glyphicon-th-list" style="color:red"></a></td>
 
 							<?php
 						}

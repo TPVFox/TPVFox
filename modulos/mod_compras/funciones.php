@@ -1128,6 +1128,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 			$datos['idArticulo']=$producto['idArticulo'];
 			$datos['antes']=$producto['CosteAnt'];
 			$datos['nuevo']=$producto['ultimoCoste'];
+			$datos['estado']="Pendiente";
 			if ($error==0){
 				$nuevoHistorico=$CArt->addHistorico($datos);
 				$resultado['sql']=$nuevoHistorico;
