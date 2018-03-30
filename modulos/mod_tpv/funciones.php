@@ -314,36 +314,7 @@ function ControlEstadoTicketsAbierto($BDTpv,$idUsuario,$idTienda) {
 	//~ $respuesta['consulta'] = $sql;
 	return $respuesta;
 	}
-function ObtenerCabeceraTicketAbierto($BDTpv,$idUsuario,$idTienda,$numTicket=0){
-	// @ Objetivo es obtener las cabeceras de los ticketAbiertos.
-	// @ Parametro
-	// 	$numticket -> Si recibimos uno, ese no lo devolvemos, para evitar mostrarlo, ya que no tiene sentido mostralo
-	// 				si lo estamos editando.
-	
-	$respuesta = array();
-	// Montamos consulta
-	$sql = 'SELECT t.`numticket`,t.`idClientes`,t.`fechaInicio`,t.`fechaFinal`,t.`total`,t.`total_ivas`,c.Nombre, c.razonsocial FROM `ticketstemporales` as t LEFT JOIN clientes as c ON t.idClientes=c.idClientes WHERE t.idTienda ='.$idTienda.' AND t.idUsuario ='.$idUsuario.' AND estadoTicket="Abierto"';
-	if ($res = $BDTpv->query($sql)) {
-		/* obtener un array asociativo */
-			$i= 0;
-			while ( $fila = $res->fetch_assoc()){
-				if ($numTicket != $fila['numticket']){
-				// Añadimos fila a items si el numero ticket no es igual al que recibimos...
-				// Si es mismo, quiere decir que estamos modificando o viendo un ticket ( Abierto o Cerrado);
-					$respuesta['items'][$i]= $fila;
-				$i++;
-				}
-			}
-		/* liberar el conjunto de resultados */
-		$res->free();
-	} elseif (mysqli_error($BDTpv)){
-		
-		$respuesta['error'] = $BDTpv->error_list;
-	} 
-	
-	$respuesta['consulta'] = $sql;
-	return $respuesta;
-}
+
 function ObtenerUnTicketTemporal($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 	// @ Objetivo
 	// Obtener los datos de un ticket ( ticketsTemporal ), con sus productos en un array.

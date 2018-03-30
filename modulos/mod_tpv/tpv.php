@@ -19,9 +19,14 @@
 	
 	include_once ("funciones.php");
 	include ("./../../controllers/Controladores.php");
+	
 	$Controler = new ControladorComun; 
 	// Añado la conexion
 	$Controler->loadDbtpv($BDTpv);
+	include ("./clases/ClaseTickets.php");
+	$Tickets = new ClaseTickets();
+	
+	
 	// Inicializo varibles por defecto.
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
@@ -75,6 +80,11 @@
 
 ?>
 <?php 
+	// --  Obtenemos todos los tickets abiertos -- //
+	// Se envia el ticket_numero para que ese no lo traiga, ya que no tiene sentido traer el ticket que estamos viendo.
+	$ticketsAbiertos = $Tickets->ObtenerTicketsAbiertos($ticket_numero);
+
+
 	// [PENDIENTE ERROR EN SIGUIENTE <SCRIPT JAVASCRIPT>]
 	// Si no esta logueado genera un error console javascript ;
 	// ERROR -> SyntaxError: expected expression, got ';
@@ -117,10 +127,6 @@
 <?php
 
 	include '../../header.php';
-	// Obtenemos todos los tickets abiertos que hay para mostralos ( solo las cabeceras y total)
-	// Se envia el ticket_numero para que ese no lo traiga, ya que no tiene sentido traer el ticket que estamos viendo.
-	$ticketsAbiertos = ObtenerCabeceraTicketAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda'],$ticket_numero); 
-	
 	// Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
 	if ($ticket_numero > 0){
 		//Obtenemos datos del ticket
@@ -163,10 +169,6 @@
 			$productos = json_decode( json_encode( $ticket['productos'] ), true );
 			$Datostotales = recalculoTotales($ticket['productos']);	
 	}
-	
-	//~ echo '<pre>';
-	//~ print_r($ticketsAbiertos['items']);
-	//~ echo '</pre>';
 
 ?>
 
@@ -238,9 +240,15 @@
 				foreach ($ordenInverso as $item){
 					$i++;	?>
 					<tr>
-						<td><a href="tpv.php?tAbierto=<?php echo $item['numticket']; ?>">
-							<?php echo $item['numticket']; ?>
-							</a>
+						<td>
+							<?php // Si es el mismo usuario tiene permitido modificarlo, ponemos link
+							if ($Usuario['id'] === $item['idUsuario']){
+								echo '<a href="tpv.php?tAbierto='.$item['numticket'].'">'.$item['numticket'].'</a>';
+							} else {
+								echo $item['numticket'].' <span class="glyphicon glyphicon-info-sign" title="Este ticket abierto no es tuyo, es de '.$item['usuario'].'"></span>';
+							}
+							?>
+							
 						</td>
 						<td>
 							<?php echo $item['Nombre']; ?><br/>
