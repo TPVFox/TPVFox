@@ -32,7 +32,58 @@
 		if ($_POST['Guardar']){
 			echo "entre en guardar";
 			$id=$_GET['id'];
-			
+			$i=1;
+			$estado="";
+			$fechaCreacion=date('Y-m-d');
+			foreach ($productosHistoricos as $producto){
+				$idArticulo=$producto['idArticulo'];
+				$datosArticulo=$CArticulo->datosPrincipalesArticulo($idArticulo);
+				$datosPrecios=$CArticulo->articulosPrecio($idArticulo);
+				$ivaPrecio=$datosArticulo['iva']/100;
+				$ivaProducto=$producto['Nuevo']*$ivaPrecio;
+				$pvpRecomendado=$producto['Nuevo']+$datosArticulo['beneficio']+$ivaProducto;
+				
+				
+				$pvpRecomendadoCiva=$_POST['pvpRecomendado'.$i];
+				$pvpRecomendadoCiva=(float)$pvpRecomendadoCiva;
+				if ($pvpRecomendado<>$pvpRecomendadoCiva){
+					$estado="A mano";
+				}else{
+					$estado="Recomendado";
+				}
+				
+				$nuevoIva=1+$ivaPrecio;
+				$nuevo=$pvpRecomendadoCiva/$nuevoIva;
+				$nuevoSiva=number_format($nuevo,6);
+				$nuevo=number_format($pvpRecomendadoCiva,6);
+				//$antes=$pvpRecomendado;
+				$datosHistorico=array(
+				'idArticulo'=>$idArticulo,
+				'antes'=>$pvpRecomendado,
+				'nuevo'=>$pvpRecomendadoCiva,
+				'fechaCreacion'=>$fechaCreacion,
+				'numDoc'=>$id,
+				'dedonde'=>"Recalculo",
+				'tipo'=>"Productos",
+				'estado'=>$estado
+				);
+					
+				$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
+				$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
+				//~ echo '<pre>';
+				//~ echo $pvpRecomendadoCiva;
+				//~ echo '</pre>';
+				//~ echo '<pre>';
+				//~ echo $nuevo;
+				//~ echo '</pre>';
+				//~ echo '<pre>';
+				//~ echo $estado;
+				//~ echo '</pre>';
+				$i++;
+				$estado="";
+			}
+			 $modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
+			 header('Location: ../mod_compras/albaranesListado.php');
 		}
 		
 		?>

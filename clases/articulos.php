@@ -90,6 +90,16 @@ class Articulos{
 		}
 		return $articulo;
 			}
+			
+			public function modificarEstadosHistorico($idAlbaran, $dedonde){
+				$db=$this->db;
+				$smt=$db->query('UPDATE  historico_precios set estado="Revisado"  where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'"');
+				}
+				
+				public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
+					$db=$this->db;
+					$smt=$db->query('UPDATE articulosprecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
+					}
 	
 	
 }
