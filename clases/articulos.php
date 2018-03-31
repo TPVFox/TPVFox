@@ -65,7 +65,7 @@ class Articulos{
 	}
 	public function historicoCompras($numDoc, $Dedonde, $tipo){
 		$db=$this->db;
-		$smt=$db->query('SELECT estado, id from historico_precios where NumDoc='.$numDoc.' and  Dedonde ='."'".$Dedonde ."'".' and Tipo ='."'".$tipo."'");
+		$smt=$db->query('SELECT * from historico_precios where NumDoc='.$numDoc.' and  Dedonde ='."'".$Dedonde ."'".' and Tipo ='."'".$tipo."'");
 		$historicoPrincipal=array();
 		while ($result = $smt->fetch_assoc () ){
 			array_push($historicoPrincipal,$result);
@@ -73,6 +73,23 @@ class Articulos{
 		return $historicoPrincipal;
 		
 	}
+	public function datosPrincipalesArticulo($idArticulo){
+		$db=$this->db;
+		$smt=$db->query('SELECT idArticulo, iva , articulo_name, beneficio FROM articulos where idArticulo='.$idArticulo);
+		if ($result = $smt->fetch_assoc () ){
+			$articulo=$result;
+		}
+		return $articulo;
+		}
+		
+		public function articulosPrecio($idArticulo){
+			$db=$this->db;
+			$smt=$db->query('SELECT * FROM 	articulosprecios where idArticulo='.$idArticulo);
+			if ($result = $smt->fetch_assoc () ){
+			$articulo=$result;
+		}
+		return $articulo;
+			}
 	
 	
 }

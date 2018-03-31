@@ -172,14 +172,18 @@ if ($stringPalabras !== '' ){
 				<tbody>
 					<?php 
 						$checkUser = 0;
+						$iconoCostes=0;
 						foreach ($albaranesDef as $albaran){
 						
 							$checkUser = $checkUser + 1;
 							$totaliva=$CAlb->sumarIva($albaran['Numalbpro']);
 							$historico=$CArticulo->historicoCompras($albaran['Numalbpro'], "albaran", "compras");
-							echo '<pre>';
-							print_r($historico);
-							echo '</pre>';
+							foreach ($historico as $his){
+								if($his['estado']=="Pendiente"){
+								
+							$iconoCostes=1;
+							}
+					}
 							$date=date_create($albaran['Fecha']);
 						?>
 						<tr>
@@ -200,9 +204,14 @@ if ($stringPalabras !== '' ){
 							?>
 						<td><?php echo $albaran['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $albaran['id'];?>, "albaran", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a>
 						&nbsp;
-						<a class="glyphicon glyphicon-th-list" style="color:red"></a></td>
+						<?php 
+						if($iconoCostes==1){
+						?>
+						<a class="glyphicon glyphicon-th-list" style="color:red" href="../mod_producto/Recalculo_precios.php?id=<?php echo $albaran['id'];?>"></a></td>
 
 							<?php
+						}
+						$iconoCostes=0;
 						}
 						
 						?>

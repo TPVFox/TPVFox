@@ -1,5 +1,6 @@
 <?php 
-include_once ('./clases/ClaseCompras.php');
+//~ include_once ('./clases/ClaseCompras.php');
+ include_once('../mod_compras/clases/ClaseCompras.php');
 class AlbaranesCompras extends ClaseCompras{
 	public function consulta($sql){
 		$db = $this->db;
