@@ -15,14 +15,15 @@ include_once ("./funciones.php");
 include_once ("../mod_incidencias/popup_incidencias.php");
 include_once '../../clases/Proveedores.php';
 $CProveedores=new Proveedores($BDTpv);
-include_once "../../clases/articulos.php";
-$CArticulos=new Articulos($BDTpv);
+
 include_once "clases/pedidosCompras.php";
 $CPed=new PedidosCompras($BDTpv);
 include_once "clases/albaranesCompras.php";
 $CAlb=new AlbaranesCompras($BDTpv);
 include_once "clases/facturasCompras.php";
 $CFac= new FacturasCompras($BDTpv);
+include_once "../../clases/articulos.php";
+$CArticulos=new Articulos($BDTpv);
 switch ($pulsado) {
 	case 'buscarProveedor':
 	//@Objetivo:
