@@ -348,6 +348,7 @@ function ObtenerUnTicketTemporal($BDTpv,$idTienda,$idUsuario,$numero_ticket){
 		} else {
 			// Quiere decir que algo salio mal, ya que obtuvo mas o ninguno registro.
 			$respuesta['error'] = ' Numeros tickets obtenidos: '. $respuesta['Numero_rows'];
+			$respuesta['consulta'] = $Sql;
 			return $respuesta; // No continuamos.
 		}
 	} elseif (mysqli_error($BDTpv)){
