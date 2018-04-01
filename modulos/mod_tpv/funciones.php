@@ -413,7 +413,7 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 		$nuevaFila .= '<td style="display:none"><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; 
 	}
 	$nuevaFila .= '<td class="pvp"><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="precioCIva_'.$product->nfila
-					.'" name="precioCIva_'.$product->nfila.'" value="'.$product->pvpconiva.'" size="5" data-obj="cajaPrecioCIva"'
+					.'" name="precioCIva_'.$product->nfila.'" value="'.$product->pvpconiva.'" size="3" data-obj="cajaPrecioCIva"'
 					.' onkeydown="controlEventos(event)"  readonly>'
 					.'<a onclick="ActivarPrecioCIva(event,'.$product->nfila.')">'
 					.'<span class="glyphicon glyphicon-cog"></span>'
