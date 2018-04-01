@@ -11,7 +11,6 @@ var pulsado = '';
 var total = 0;
 
 
-
 function cobrarF1(){
 	//@Objetivo:
 	// Recalcular en php los totales.( Si hay diferencia se informa)
@@ -610,7 +609,7 @@ function controladorAcciones(caja,accion){
 			if (productos.length >0){
 			// Debería añadir al caja N cuantos hay
 				console.log ( 'Entro en saltar a producto que hay '+ productos.length);
-				ponerFocus('Unidad_Fila_'+productos.length);
+				ponerSelect('Unidad_Fila_'+productos.length);
 			} else {
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
@@ -730,7 +729,13 @@ function mover_down(fila,prefijo){
 function mover_up(fila,prefijo){
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
-	ponerFocus(d_focus);
+		// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
+		ponerSelect(d_focus);
+	} else {
+		ponerFocus(d_focus);
+	}
 }
 function cerrarPopUp(destino_focus=''){
 	// @ Objetivo :
