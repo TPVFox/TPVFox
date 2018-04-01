@@ -691,10 +691,14 @@ function after_constructor(padre_caja,event){
 	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
 	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
 	if (padre_caja.id_input.indexOf('N_') >-1){
-		padre_caja.id_input = event.originalTarget.id;
+		padre_caja.id_input = event.target.id;
 	}
 	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
-		padre_caja.id_input = event.originalTarget.id;
+		padre_caja.id_input = event.target.id;
+	}
+	if (padre_caja.id_input ==='precioCIva'){
+		padre_caja.id_input=event.target.id;
+		prueba = event.target
 	}
 	
 	return padre_caja;
