@@ -135,6 +135,18 @@
 				<parametro nombre="dedonde">tpv</parametro>
 			</parametros>
 		</caja_input>
+		<caja_input>
+			<nombre id_input="precioCIva">cajaPrecioCIva</nombre>
+			<teclas>
+				<action tecla="13">CambiarPrecioProducto</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">tpv</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+		</caja_input>
 		
 	</cajas_input>
 </parametros>

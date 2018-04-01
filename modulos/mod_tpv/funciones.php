@@ -405,14 +405,19 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	$nuevaFila .= '<td class="codbarras">'.$product->ccodebar.'</td>';
 	$nuevaFila .= '<td class="referencia">'.$product->cref.'</td>';
 	$nuevaFila .= '<td class="detalle">'.$product->cdetalle.'</td>';
-	$nuevaFila .= '<td><input id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->unidad.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
+	$nuevaFila .= '<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->unidad.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
 	//si en config peso=si, mostramos columna peso
 	if ($CONF_campoPeso === 'si'){
-		$nuevaFila .= '<td><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
+		$nuevaFila .= '<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
 	} else {
 		$nuevaFila .= '<td style="display:none"><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; 
 	}
-	$nuevaFila .= '<td class="pvp">'.$product->pvpconiva.'</td>';
+	$nuevaFila .= '<td class="pvp"><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="precioCIva_'.$product->nfila
+					.'" name="precioCIva_'.$product->nfila.'" value="'.$product->pvpconiva.'" size="5" data-obj="cajaPrecioCIva"'
+					.' onkeydown="controlEventos(event)"  readonly>'
+					.'<a onclick="ActivarPrecioCIva(event,'.$product->nfila.')">'
+					.'<span class="glyphicon glyphicon-cog"></span>'
+					.'</a></td>';
 	$nuevaFila .= '<td class="tipoiva">'.$product->ctipoiva.'%</td>';
 	// Creamos importe --> 
 	$importe = $product->pvpconiva*$product->unidad;

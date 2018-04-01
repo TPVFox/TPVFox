@@ -551,14 +551,15 @@ function controladorAcciones(caja,accion){
 			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.darValor(),caja.darParametro('dedonde'));
 			break;
 		case 'recalcular_ticket':
-			// recuerda que lo productos empizan 0 y las filas 1
-			var nfila = parseInt(caja.fila)-1;
-			// Comprobamos si cambio valor , sino no hacemos nada.
-			//~ productos.[nfila].unidad = caja.darValor();
-			console.log ( caja);
-			productos[nfila].unidad = caja.darValor();
-			recalculoImporte(productos[nfila].unidad,nfila);
-			
+			// Comprobamos que el valor puesto sea un numero decimal.
+			if (comprobarNumero(caja.darValor())){
+				// recuerda que lo productos empizan 0 y las filas 1
+				var n_producto = parseInt(caja.fila)-1;
+				productos[n_producto].unidad = caja.darValor();
+				recalculoImporte(productos[n_producto].unidad,n_producto);
+			} else {
+				alert('Incorrecto la cantidad');
+			}
 			break;
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
@@ -644,6 +645,26 @@ function controladorAcciones(caja,accion){
 			
 		case 'focus_modoPago':
 			ponerFocus('modoPago');
+			break;
+			
+		case 'CambiarPrecioProducto':
+			// Lo primero comprobamos si es correcto el dato.
+			if (comprobarNumero(caja.darValor())){
+				// Es correcto, un numero decimal.. 
+				// Ahora ahora obtengo numero fila y le resto uno simplemente para saber cambiar el precio.
+				n_producto = caja.id_input.slice(11)-1;
+				// Cambiamos el precio.
+				productos[n_producto].pvpconiva = caja.darValor();
+				recalculoImporte(productos[n_producto].unidad,n_producto);
+				// Ahora desactivo caja
+				bloquearCajaProveedor(caja);
+				// Ahora volvemos a codbarras ( aunque esto debería se un parametro... )
+				ponerFocus ('Codbarras');
+				
+			} else {
+				alert( ' No es correcto el numero');
+			}
+	
 			break;
 		
 		default :
@@ -971,4 +992,31 @@ function abrirIndicencia(dedonde){
 			abrirModal(titulo, html);
 		}
 	});
+}
+
+
+function ActivarPrecioCIva(event,nfila){
+	// Objetivo:
+	// Activar o Desactivar input de ultimo coste, para poder recalcular precio.
+	// Cambiamo el nombre de la caja para no cambiar el coste_ultimo en post.
+	console.log(event.target);
+	$('#precioCIva_'+nfila).removeAttr('readonly', '');
+}
+function bloquearCajaProveedor(caja){
+	// Objetivo es poner solo lecturar la cja input
+	console.log('Poner solo lectura '+caja.name_cja);
+	$('#'+ caja.name_cja).attr('readonly', "true");
+
+	
+}
+
+function comprobarNumero(valor){
+	// Objetivo validar un numero decimal tanto positivo , como negativo.
+	var RE = /^\-?\d*\.?\d*$/;
+    if (RE.test(valor)) {
+        return true;
+    } else {
+        return false;
+    }
+	
 }
