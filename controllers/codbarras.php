@@ -19,6 +19,10 @@ class ClaseCodbarras
 			}
 			$digito_control = 10-($suma%10);
 		}
+		if ($digito_control === 10){
+			// Entonces es 0
+			$digito_control = 0;
+		}
 		return $digito_control;
 	}
 	
@@ -31,7 +35,7 @@ class ClaseCodbarras
 
 	$digito_control = $this->ObtenerDigitoControl($codbarras_sinDC);
 	// Ahora comprobamos si el digito de control es igual al ultimo digito del codbarras.
-		if ($digito_control === intval($ultimo_digito)){
+		if ($digito_control === intval($ultimo_digito) ){
 			$resultado = 'OK';
 		} else {
 			$resultado = 'error';
