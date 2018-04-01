@@ -296,12 +296,11 @@ function grabarTicketsTemporal(){
 			$('#iva21').html('');
 			$('.totalImporte').html('');
 			
-			// Ahora pintamos pie de ticket.
-			if (resultado.total > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				total = parseFloat(resultado.total) // varible global.
-				$('.totalImporte').html(total.toFixed(2));
-				// Ahora tengo que pintar los ivas.
+			// Quiere decir que hay datos a mostrar en pie.
+			total = parseFloat(resultado.total) // varible global.
+			$('.totalImporte').html(total.toFixed(2));
+			// Ahora tengo que pintar los ivas.
+			if (resultado.desglose !=='undefined'){
 				var desgloseIvas = [];
 				desgloseIvas.push(resultado.desglose);
 				console.log(desgloseIvas);
