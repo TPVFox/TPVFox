@@ -1,0 +1,15 @@
+ALTER TABLE `albprolinea` ADD `Numpedpro` INT(10) NULL AFTER `ref_prov`;
+ALTER TABLE `facproltemporales` ADD `Su_numero` INT(100) NULL AFTER `Albaranes`;
+ALTER TABLE `facprolinea` ADD `ref_prov` VARCHAR(250) NULL AFTER `estadoLinea`, ADD `Numalbpro` INT(100) NULL AFTER `ref_prov`;
+ALTER TABLE `pedcliltemporales` CHANGE `idPedpro` `idPedcli` INT(11) NULL DEFAULT NULL;
+ALTER TABLE `pedcliltemporales` CHANGE `idProveedor` `idClientes` INT(11) NULL DEFAULT NULL;
+ALTER TABLE `pedcliltemporales` CHANGE `estadoPedPro` `estadoPedCli` VARCHAR(12) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `albclilinea` ADD `NumpedCli` INT(100) NULL AFTER `estadoLinea`;
+ALTER TABLE `facclit` ADD `fechaCreacion` DATETIME NULL AFTER `total`;
+ALTER TABLE `facclit` ADD `fechaVencimiento` DATETIME NULL AFTER `fechaCreacion`;
+ALTER TABLE `facclit` ADD `fechaModificacion` DATETIME NULL AFTER `fechaVencimiento`;
+ALTER TABLE `facclilinea` ADD `NumalbCli` INT(100) NULL AFTER `estadoLinea`;
+INSERT INTO `formasPago` (`id`, `descripcion`) VALUES (1, 'Efectivo'), (2, 'Tarjeta'), (3, 'Recibo bancario'), (4, 'Transferencia bancaria'), (5, 'Talón');
+INSERT INTO `tiposVencimiento` (`id`, `descripcion`, `dias`) VALUES (1, 'Contado', 1), (2, 'Semanal', 7), (3, 'Quincenal', 15), (4, 'Mensual', 30), (5, 'Semestral', 181);
+ALTER TABLE `facproltemporales` ADD `FacCobros` VARCHAR(500) NULL AFTER `Su_numero`;
+ALTER TABLE `historico_precios` CHANGE `estado` `estado` VARCHAR(60) NULL DEFAULT NULL;

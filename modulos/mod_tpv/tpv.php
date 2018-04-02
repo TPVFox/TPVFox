@@ -205,9 +205,9 @@
 	</script>
 <?php } ?>
 <div class="container">
-<nav class="col-md-3">
-		<div class="col-md-6">
-			<h3 class="text-center"> TpvFox</h3>
+<nav class="col-md-2">
+		<div>
+			<h3 class="text-center"> TpvFox Tickets</h3>
 			<h4>Otros opciones</h4>
 			<ul class="nav nav-pills nav-stacked">
 				<li><a href="tpv.php">Nuevo ticket</a></li>
@@ -215,8 +215,7 @@
 				<li><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></li>
 			</ul>
 		</div>
-		<div class="col-md-6">
-			<h3 class="text-center"> Tickets</h3>
+		<div>
 			<h4>Este ticket</h4>
 			<ul class="nav nav-pills nav-stacked">
 				<li><a onclick="buscarClientes()">Cliente</a></li>
@@ -283,12 +282,12 @@
 		<input type="checkbox" <?php echo $checkin[1];?>>Imprimitr Tickets por defecto<br>
 	</div>
 </nav>
-<div class="col-md-9" >
+<div class="col-md-10" >
 	<div class="col-md-8">
 		<div class="col-md-12">
 			<div class="col-md-7">
 				<div class="col-md-6">
-					<strong>Fecha Inicio:</strong><br/>
+					<strong><span class="glyphicon glyphicon-calendar"></span>:</strong>
 					<span id="Fecha"><?php echo $fechaInicio;?></span><br/>
 					<?php // NO se muestra si es un ticket nuevo
 					if ( $ticket_numero != 0){
@@ -296,10 +295,8 @@
 						<div style="background-color:#f9f3f3;">
 						<strong>Hora Inicio:</strong>
 						<span id="HoraInicio"><?php echo $horaInicio;?></span><br/>
-						<strong>Fecha Final:</strong><br/>
+						<strong><span class="glyphicon glyphicon-calendar"></span>:</strong>
 						<span id="FechaFinal"><?php echo $fechaFinal;?></span><br/>
-						<strong>Hora Inicio:</strong>
-						<span id="HoraFinal"><?php echo $horaFinal;?></span>
 						</div>
 						<?php 
 					}
@@ -315,13 +312,13 @@
 			</div>
 			<div class="col-md-5">
 				<label>Empleado:</label>
-				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="25" readonly>
+				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="20" readonly>
 			</div>
 		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
 			<input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
-			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $cliente; ?>" size="60" readonly>
+			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $cliente; ?>" size="50" readonly>
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('tpv')"></a>
 		</div>
 	</div>
@@ -359,8 +356,8 @@
 		  </tr>
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="10" value="" onkeydown="controlEventos(event)"></td>
 			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)">
 			</td>
 		</tr>

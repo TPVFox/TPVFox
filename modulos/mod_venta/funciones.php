@@ -416,9 +416,11 @@ function modalAdjunto($adjuntos){
 	$respuesta['html'] .= '</thead><tbody>';
 	foreach ($adjuntos as $adjunto){
 		if ($adjunto['Numalbcli']){
+			$onclick="buscarDatosAlbaran";
 			$num=$adjunto['Numalbcli'];
 			}else{
 				$num=$adjunto['Numpedcli'];
+				$onclick="buscarDatosPedido";
 				}
 		if($adjunto['Fecha']){
 			$fecha=$adjunto['Fecha'];
@@ -426,13 +428,13 @@ function modalAdjunto($adjuntos){
 				$fecha=$adjunto['FechaPedido'];
 				}
 	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarDatosAlbaran('.$num.');">';
+	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="'.$onclick.'('.$num.');">';
 	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 
 	$respuesta['html'].='<td>'.$num.'</td>';
 	$respuesta['html'].='<td>'.$fecha.'</td>';
-	$respuesta['html'].='<td>'.$albaran['total'].'</td>';
+	$respuesta['html'].='<td>'.$adjunto['total'].'</td>';
 	$respuesta['html'].='</tr>';
 	$contad = $contad +1;
 	if ($contad === 10){

@@ -11,7 +11,6 @@ var pulsado = '';
 var total = 0;
 
 
-
 function cobrarF1(){
 	//@Objetivo:
 	// Recalcular en php los totales.( Si hay diferencia se informa)
@@ -297,12 +296,11 @@ function grabarTicketsTemporal(){
 			$('#iva21').html('');
 			$('.totalImporte').html('');
 			
-			// Ahora pintamos pie de ticket.
-			if (resultado.total > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				total = parseFloat(resultado.total) // varible global.
-				$('.totalImporte').html(total.toFixed(2));
-				// Ahora tengo que pintar los ivas.
+			// Quiere decir que hay datos a mostrar en pie.
+			total = parseFloat(resultado.total) // varible global.
+			$('.totalImporte').html(total.toFixed(2));
+			// Ahora tengo que pintar los ivas.
+			if (resultado.desglose !=='undefined'){
 				var desgloseIvas = [];
 				desgloseIvas.push(resultado.desglose);
 				console.log(desgloseIvas);
@@ -552,14 +550,15 @@ function controladorAcciones(caja,accion){
 			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.darValor(),caja.darParametro('dedonde'));
 			break;
 		case 'recalcular_ticket':
-			// recuerda que lo productos empizan 0 y las filas 1
-			var nfila = parseInt(caja.fila)-1;
-			// Comprobamos si cambio valor , sino no hacemos nada.
-			//~ productos.[nfila].unidad = caja.darValor();
-			console.log ( caja);
-			productos[nfila].unidad = caja.darValor();
-			recalculoImporte(productos[nfila].unidad,nfila);
-			
+			// Comprobamos que el valor puesto sea un numero decimal.
+			if (comprobarNumero(caja.darValor())){
+				// recuerda que lo productos empizan 0 y las filas 1
+				var n_producto = parseInt(caja.fila)-1;
+				productos[n_producto].unidad = caja.darValor();
+				recalculoImporte(productos[n_producto].unidad,n_producto);
+			} else {
+				alert('Incorrecto la cantidad');
+			}
 			break;
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
@@ -610,7 +609,7 @@ function controladorAcciones(caja,accion){
 			if (productos.length >0){
 			// Debería añadir al caja N cuantos hay
 				console.log ( 'Entro en saltar a producto que hay '+ productos.length);
-				ponerFocus('Unidad_Fila_'+productos.length);
+				ponerSelect('Unidad_Fila_'+productos.length);
 			} else {
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
@@ -645,6 +644,26 @@ function controladorAcciones(caja,accion){
 			
 		case 'focus_modoPago':
 			ponerFocus('modoPago');
+			break;
+			
+		case 'CambiarPrecioProducto':
+			// Lo primero comprobamos si es correcto el dato.
+			if (comprobarNumero(caja.darValor())){
+				// Es correcto, un numero decimal.. 
+				// Ahora ahora obtengo numero fila y le resto uno simplemente para saber cambiar el precio.
+				n_producto = caja.id_input.slice(11)-1;
+				// Cambiamos el precio.
+				productos[n_producto].pvpconiva = caja.darValor();
+				recalculoImporte(productos[n_producto].unidad,n_producto);
+				// Ahora desactivo caja
+				bloquearCajaProveedor(caja);
+				// Ahora volvemos a codbarras ( aunque esto debería se un parametro... )
+				ponerFocus ('Codbarras');
+				
+			} else {
+				alert( ' No es correcto el numero');
+			}
+	
 			break;
 		
 		default :
@@ -692,10 +711,14 @@ function after_constructor(padre_caja,event){
 	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
 	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
 	if (padre_caja.id_input.indexOf('N_') >-1){
-		padre_caja.id_input = event.originalTarget.id;
+		padre_caja.id_input = event.target.id;
 	}
 	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
-		padre_caja.id_input = event.originalTarget.id;
+		padre_caja.id_input = event.target.id;
+	}
+	if (padre_caja.id_input ==='precioCIva'){
+		padre_caja.id_input=event.target.id;
+		prueba = event.target
 	}
 	
 	return padre_caja;
@@ -730,7 +753,13 @@ function mover_down(fila,prefijo){
 function mover_up(fila,prefijo){
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
-	ponerFocus(d_focus);
+		// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
+		ponerSelect(d_focus);
+	} else {
+		ponerFocus(d_focus);
+	}
 }
 function cerrarPopUp(destino_focus=''){
 	// @ Objetivo :
@@ -962,4 +991,31 @@ function abrirIndicencia(dedonde){
 			abrirModal(titulo, html);
 		}
 	});
+}
+
+
+function ActivarPrecioCIva(event,nfila){
+	// Objetivo:
+	// Activar o Desactivar input de ultimo coste, para poder recalcular precio.
+	// Cambiamo el nombre de la caja para no cambiar el coste_ultimo en post.
+	console.log(event.target);
+	$('#precioCIva_'+nfila).removeAttr('readonly', '');
+}
+function bloquearCajaProveedor(caja){
+	// Objetivo es poner solo lecturar la cja input
+	console.log('Poner solo lectura '+caja.name_cja);
+	$('#'+ caja.name_cja).attr('readonly', "true");
+
+	
+}
+
+function comprobarNumero(valor){
+	// Objetivo validar un numero decimal tanto positivo , como negativo.
+	var RE = /^\-?\d*\.?\d*$/;
+    if (RE.test(valor)) {
+        return true;
+    } else {
+        return false;
+    }
+	
 }

@@ -84,22 +84,27 @@ class Articulos{
 		
 		public function articulosPrecio($idArticulo){
 			$db=$this->db;
-			$smt=$db->query('SELECT * FROM 	articulosprecios where idArticulo='.$idArticulo);
+			$smt=$db->query('SELECT * FROM 	articulosPrecios where idArticulo='.$idArticulo);
 			if ($result = $smt->fetch_assoc () ){
 			$articulo=$result;
 		}
 		return $articulo;
 			}
 			
-			public function modificarEstadosHistorico($idAlbaran, $dedonde){
+		public function modificarEstadosHistorico($idAlbaran, $dedonde){
 				$db=$this->db;
 				$smt=$db->query('UPDATE  historico_precios set estado="Revisado"  where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'"');
-				}
+		}
 				
-				public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
+		public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
 					$db=$this->db;
-					$smt=$db->query('UPDATE articulosprecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
-					}
+					$smt=$db->query('UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
+		}
+					
+		public function modEstadoArticuloHistorico($idArticulo, $idAlbaran, $dedonde, $tipo, $estado){
+				$db=$this->db;
+				$smt=$db->query('UPDATE historico_precios set estado='."'".$estado."'".' where NumDoc='.$idAlbaran.' and Dedonde='.$dedonde.' and idArticulo='.$idArticulo.'and Tipo='.$tipo);
+		}
 	
 	
 }
