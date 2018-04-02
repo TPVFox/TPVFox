@@ -201,6 +201,9 @@
 				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 				
 			}
+			//~ echo '<pre>';
+			//~ print_r($addNuevo);
+			//~ echo '</pre>';
 			header('Location: facturasListado.php');
  }
 			

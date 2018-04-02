@@ -84,7 +84,7 @@ class Articulos{
 		
 		public function articulosPrecio($idArticulo){
 			$db=$this->db;
-			$smt=$db->query('SELECT * FROM 	articulosprecios where idArticulo='.$idArticulo);
+			$smt=$db->query('SELECT * FROM 	articulosPrecios where idArticulo='.$idArticulo);
 			if ($result = $smt->fetch_assoc () ){
 			$articulo=$result;
 		}
@@ -98,7 +98,7 @@ class Articulos{
 				
 				public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
 					$db=$this->db;
-					$smt=$db->query('UPDATE articulosprecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
+					$smt=$db->query('UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
 					}
 	
 	

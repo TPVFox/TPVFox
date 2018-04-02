@@ -909,7 +909,8 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 		$respuesta['historico']=$historico;
 			$respuesta['sql']=$addNuevo;
 			$respuesta['texto']="nuevo albaran";
-	return $error;
+	//return $error;
+	return $respuesta;
 }
 
 function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importesFactura){

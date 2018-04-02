@@ -141,7 +141,7 @@ include './../../head.php';
 				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran);
 				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
 			}
-		// header('Location: albaranesListado.php');
+		 header('Location: albaranesListado.php');
 			
 		}
 		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
@@ -388,7 +388,7 @@ if (isset($_GET['tActual'])){
 		</thead>
 		<tbody>
 		<?php 
-		if(isset($htmlIvas)){
+		if(isset($Datostotales)){
 			$htmlIvas=htmlTotales($Datostotales);
 			echo $htmlIvas['html'];
 			}
