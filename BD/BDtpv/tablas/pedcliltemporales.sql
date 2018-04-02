@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Jan 18, 2018 at 10:42 PM
--- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.27-0+deb9u1
+-- Servidor: localhost:3306
+-- Tiempo de generación: 02-04-2018 a las 18:06:46
+-- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
+-- Versión de PHP: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tpv`
+-- Base de datos: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pedcliltemporales`
+-- Estructura de tabla para la tabla `pedcliltemporales`
 --
 
 CREATE TABLE `pedcliltemporales` (
@@ -41,21 +41,21 @@ CREATE TABLE `pedcliltemporales` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Indexes for dumped tables
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `pedcliltemporales`
+-- Indices de la tabla `pedcliltemporales`
 --
 ALTER TABLE `pedcliltemporales`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT for table `pedcliltemporales`
+-- AUTO_INCREMENT de la tabla `pedcliltemporales`
 --
 ALTER TABLE `pedcliltemporales`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Mar 16, 2018 at 05:17 PM
--- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.27-0+deb9u1
+-- Servidor: localhost:3306
+-- Tiempo de generación: 02-04-2018 a las 18:06:07
+-- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
+-- Versión de PHP: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tpv`
+-- Base de datos: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `facprolinea`
+-- Estructura de tabla para la tabla `facprolinea`
 --
 
 CREATE TABLE `facprolinea` (
@@ -40,26 +40,26 @@ CREATE TABLE `facprolinea` (
   `iva` decimal(4,2) DEFAULT NULL,
   `nfila` int(11) DEFAULT NULL,
   `estadoLinea` varchar(12) DEFAULT NULL,
-  `ref_prov` varchar(18) DEFAULT NULL,
-  `Numalbpro` int(11) DEFAULT NULL
+  `ref_prov` varchar(250) DEFAULT NULL,
+  `Numalbpro` int(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Indexes for dumped tables
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `facprolinea`
+-- Indices de la tabla `facprolinea`
 --
 ALTER TABLE `facprolinea`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT for table `facprolinea`
+-- AUTO_INCREMENT de la tabla `facprolinea`
 --
 ALTER TABLE `facprolinea`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

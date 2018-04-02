@@ -119,7 +119,9 @@ $titulo .= ': '.$estado;
 				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
 				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
 			}
-			
+			//~ echo '<pre>';
+			//~ print_r($addNuevo);
+			//~ echo '</pre>';
 			header('Location: pedidosListado.php');
 		}
 		

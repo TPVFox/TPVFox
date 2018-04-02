@@ -24,6 +24,8 @@ $Controler = new ControladorComun;
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
 
+include_once('../clases/articulos.php');
+$CArticulo=new Articulos($BDTpv);
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
@@ -47,6 +49,16 @@ switch ($pulsado) {
 		
 		echo json_encode($respuesta);
 		break;
+	case 'eliminarCoste':
+	$idArticulo=$_POST['idArticulo'];
+	$dedonde=$_POST['dedonde'];
+	$id=$_POST['id'];
+	$tipo=$_POST['tipo'];
+	$estado="Sin Cambios";
+	$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
+	
+	echo json_encode($respuesta);
+	break;
 		
 	
 	

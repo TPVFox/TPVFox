@@ -476,3 +476,36 @@ function comprobarNumero(valor){
     }
 	
 }
+
+
+function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
+	
+	var parametros = {
+		"pulsado"    		: 'eliminarCoste',
+		"idArticulo"		: idArticulo,
+		"dedonde"			:dedonde,
+		"id"				:id,
+		"tipo"				:tipo
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Modificando eliminar costes  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar costes ');
+				// var resultado = $.parseJSON(response);
+				var resultado = response;
+				return resultado ;
+			}
+			var line;
+			line = "#Row" + fila;
+			$(line).addClass('tachado');
+			$(line + "> .eliminar").html('<a onclick="retornarCoste('+idArticulo+')"');
+			
+	});
+	
+}
