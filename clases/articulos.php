@@ -91,15 +91,20 @@ class Articulos{
 		return $articulo;
 			}
 			
-			public function modificarEstadosHistorico($idAlbaran, $dedonde){
+		public function modificarEstadosHistorico($idAlbaran, $dedonde){
 				$db=$this->db;
 				$smt=$db->query('UPDATE  historico_precios set estado="Revisado"  where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'"');
-				}
+		}
 				
-				public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
+		public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
 					$db=$this->db;
 					$smt=$db->query('UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
-					}
+		}
+					
+		public function modEstadoArticuloHistorico($idArticulo, $idAlbaran, $dedonde, $tipo, $estado){
+				$db=$this->db;
+				$smt=$db->query('UPDATE historico_precios set estado='."'".$estado."'".' where NumDoc='.$idAlbaran.' and Dedonde='.$dedonde.' and idArticulo='.$idArticulo.'and Tipo='.$tipo);
+		}
 	
 	
 }
