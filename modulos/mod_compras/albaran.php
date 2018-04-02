@@ -119,17 +119,17 @@ include './../../head.php';
 		//~ print_r($_POST);
 		//~ echo '</pre>';
 		$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
-		echo '<pre>';
-		print_r($guardar);
-		echo '</pre>';
-	//~ if ($guardar==0){
-		//~ header('Location: albaranesListado.php');
-	//~ }else{
+		//~ echo '<pre>';
+		//~ print_r($guardar);
+		//~ echo '</pre>';
+	if ($guardar==0){
+		header('Location: albaranesListado.php');
+	}else{
 		
-		//~ echo '<div class="alert alert-warning">
-		//~ <strong>Error!</strong>No has introducido ningún producto.
-		//~ </div>';
-	//~ }
+		echo '<div class="alert alert-warning">
+		<strong>Error!</strong>No has introducido ningún producto.
+		</div>';
+	}
 	}
 	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado

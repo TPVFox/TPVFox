@@ -215,7 +215,7 @@
 			}else{
 				$idTemporal=$_GET['tActual'];
 			}
-		
+		if ($idTemporal){
 			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
 			$albaranes=json_decode($datosFactura['Albaranes'], true);
 			foreach ($albaranes as $albaran){
@@ -224,6 +224,9 @@
 			$idFactura=0;
 			$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
 				header('Location: facturasListado.php');
+			}else{
+				header('Location: facturasListado.php');
+			}
 		}
 		
 		//~ if (isset ($albaranes) | isset($_GET['tActual'])| isset($_GET['id'])){
