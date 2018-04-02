@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Mar 23, 2018 at 07:44 PM
--- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.27-0+deb9u1
+-- Servidor: localhost:3306
+-- Tiempo de generación: 02-04-2018 a las 18:05:30
+-- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
+-- Versión de PHP: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tpv`
+-- Base de datos: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `facproltemporales`
+-- Estructura de tabla para la tabla `facproltemporales`
 --
 
 CREATE TABLE `facproltemporales` (
@@ -39,26 +39,26 @@ CREATE TABLE `facproltemporales` (
   `total_ivas` varchar(250) DEFAULT NULL,
   `Productos` varbinary(50000) DEFAULT NULL,
   `Albaranes` varbinary(5000) DEFAULT NULL,
-  `Su_numero` varchar(20) DEFAULT NULL,
-  `FacCobros` varbinary(5000) NOT NULL
+  `Su_numero` int(100) DEFAULT NULL,
+  `FacCobros` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Indexes for dumped tables
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `facproltemporales`
+-- Indices de la tabla `facproltemporales`
 --
 ALTER TABLE `facproltemporales`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT for table `facproltemporales`
+-- AUTO_INCREMENT de la tabla `facproltemporales`
 --
 ALTER TABLE `facproltemporales`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

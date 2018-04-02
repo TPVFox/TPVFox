@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Mar 21, 2018 at 07:11 PM
--- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.27-0+deb9u1
+-- Servidor: localhost:3306
+-- Tiempo de generación: 02-04-2018 a las 18:08:05
+-- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
+-- Versión de PHP: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tpv`
+-- Base de datos: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `facclit`
+-- Estructura de tabla para la tabla `facclit`
 --
 
 CREATE TABLE `facclit` (
@@ -38,26 +38,26 @@ CREATE TABLE `facclit` (
   `formaPago` varchar(12) DEFAULT NULL,
   `total` decimal(17,2) DEFAULT NULL,
   `fechaCreacion` datetime DEFAULT NULL,
-  `fechaModificacion` datetime DEFAULT NULL,
-  `FechaVencimiento` datetime DEFAULT NULL
+  `fechaVencimiento` datetime DEFAULT NULL,
+  `fechaModificacion` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Indexes for dumped tables
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `facclit`
+-- Indices de la tabla `facclit`
 --
 ALTER TABLE `facclit`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT for table `facclit`
+-- AUTO_INCREMENT de la tabla `facclit`
 --
 ALTER TABLE `facclit`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
