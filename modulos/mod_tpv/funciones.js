@@ -473,7 +473,7 @@ function buscarClientes(pantalla,valor=''){
 			console.log('******** estoy en buscar clientes JS****************');
 		},
 		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de buscar clientes');
+			console.log('Ojo:Abrimos modal de busqueda o buscamos en caja.');
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
@@ -526,6 +526,12 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 	// Cerramos modal  y le indicamos destino focus.
 	cerrarPopUp(); // Destino no indicamo ya que no sabes...
 	if (dedonde ='tpv'){
+		// Cambiamos el id del cliente.
+		cabecera.idCliente = id;
+		if ( productos.length>0){
+			// Si hay productos lo guardamos , sino no.
+			grabarTicketsTemporal();
+		}
 		// Ponemos focus por defecto.
 		ponerFocus('Codbarras');
 	} 
