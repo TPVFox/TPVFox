@@ -39,11 +39,19 @@
 				$idArticulo=$producto['idArticulo'];
 				$datosArticulo=$CArticulo->datosPrincipalesArticulo($idArticulo);
 				$datosPrecios=$CArticulo->articulosPrecio($idArticulo);
+				//~ $ivaPrecio=$datosArticulo['iva']/100;
+				//~ $ivaProducto=$producto['Nuevo']*$ivaPrecio;
+				//~ $beneficio=$datosArticulo['beneficio']/100;
+				//~ $beneficioArticulo=$producto['Nuevo']*$beneficio;
+				//~ $pvpRecomendado=$producto['Nuevo']+	$beneficioArticulo+$ivaProducto;
+				
 				$ivaPrecio=$datosArticulo['iva']/100;
 				$ivaProducto=$producto['Nuevo']*$ivaPrecio;
-				$pvpRecomendado=$producto['Nuevo']+$datosArticulo['beneficio']+$ivaProducto;
-				
-				
+				$precioProducto=$producto['Nuevo']+$ivaProducto;
+				$beneficio=$datosArticulo['beneficio']/100;
+				$beneficioArticulo=$precioProducto*$beneficio;
+				$pvpRecomendado=$beneficioArticulo+$precioProducto;
+					
 				$pvpRecomendadoCiva=$_POST['pvpRecomendado'.$i];
 				$pvpRecomendadoCiva=(float)$pvpRecomendadoCiva;
 				if ($pvpRecomendado<>$pvpRecomendadoCiva){
@@ -55,7 +63,7 @@
 				$nuevoIva=1+$ivaPrecio;
 				$nuevo=$pvpRecomendadoCiva/$nuevoIva;
 				$nuevoSiva=number_format($nuevo,6);
-				$nuevo=number_format($pvpRecomendadoCiva,6);
+				$nuevo=number_format($pvpRecomendadoCiva,2);
 				//$antes=$pvpRecomendado;
 				$datosHistorico=array(
 				'idArticulo'=>$idArticulo,
@@ -94,6 +102,7 @@
 		<?php
 	include '../../header.php';
 	?>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 		<div class="container">
 			<h2 class="text-center"><?php echo $titulo;?></h2>
@@ -122,6 +131,7 @@
 						<th>IVA</th>
 						<th>PVP ACTUAL</th>
 						<th>PVP RECOMENDADO</th>
+						<th>ELIMINAR</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -132,8 +142,14 @@
 					$datosPrecios=$CArticulo->articulosPrecio($producto['idArticulo']);
 					$ivaPrecio=$datosArticulo['iva']/100;
 					$ivaProducto=$producto['Nuevo']*$ivaPrecio;
-					$pvpRecomendado=$producto['Nuevo']+$datosArticulo['beneficio']+$ivaProducto;
-					echo '<tr>';
+					$precioProducto=$producto['Nuevo']+$ivaProducto;
+					$beneficio=$datosArticulo['beneficio']/100;
+					$beneficioArticulo=$precioProducto*$beneficio;
+					$pvpRecomendado=$beneficioArticulo+$precioProducto;
+					//~ $beneficio=$datosArticulo['beneficio']/100;
+					//~ $beneficioArticulo=$producto['Nuevo']*$beneficio;
+					//~ $pvpRecomendado=$producto['Nuevo']+$beneficioArticulo+$ivaProducto;
+					echo '<tr id="#Row'.$i.'">';
 					echo '<td>'.$producto['idArticulo'].'</td>';
 					echo '<td>'.$datosArticulo['articulo_name'].'</td>';
 					echo '<td>'.$producto['Nuevo'].'</td>';
@@ -141,7 +157,14 @@
 					echo '<td>'.$datosArticulo['beneficio'].'</td>';
 					echo '<td>'.$datosArticulo['iva'].'</td>';
 					echo '<td>'.number_format($datosPrecios['pvpCiva'],4).'</td>';
-					echo '<td><input type="text" id="pvpRecomendado'.$i.'" name="pvpRecomendado'.$i.'" value="'.number_format($pvpRecomendado,6).'"></td>';
+					echo '<td><input type="text" id="pvpRecomendado'.$i.'" name="pvpRecomendado'.$i.'" value="'.number_format($pvpRecomendado,2).'"></td>';
+					if ($producto['estado']=="Pendiente"){
+						echo '<td class="eliminar"><a onclick="eliminarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-trash"></span></a></td>';
+					}else{
+						echo '<td class="eliminar"></td>';
+					}
+					
+					
 					echo '</tr>';
 					$i++;
 					}
