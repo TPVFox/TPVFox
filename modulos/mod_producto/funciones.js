@@ -499,13 +499,10 @@ function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
 				console.log('Respuesta de eliminar costes ');
 				// var resultado = $.parseJSON(response);
 				var resultado = response;
-				return resultado ;
-			}
-			var line;
-			line = "#Row" + fila;
-			$(line).addClass('tachado');
-			$(line + "> .eliminar").html('<a onclick="retornarCoste('+idArticulo+')"');
-			
+				$("#Row" + fila).addClass('tachado');
+				$("#Row" + fila+"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+')"');
+				return resultado;
+		}	
 	});
 	
 }
