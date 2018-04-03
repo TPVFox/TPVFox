@@ -72,8 +72,18 @@ switch ($pulsado) {
 	echo json_encode($respuesta);
 	break;
 	case 'imprimir':
-	$respuesta['texto']="texto dentro de imprimir";
-	echo json_encode($respuesta);
+	$id=$_POST['id'];
+	$dedonde="Recalculo";
+	$nombreTmp=$dedonde."recalculo.pdf";
+	$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo);
+	$cabecera=$htmlImprimir['cabecera'];
+	$html=$htmlImprimir['html'];
+	require_once('../../lib/tcpdf/tcpdf.php');
+	include ('../../clases/imprimir.php');
+	include('../../controllers/planImprimir.php');
+	$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+	echo json_encode($ficheroCompleto);
+	
 	break;
 		
 	

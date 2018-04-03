@@ -465,5 +465,28 @@ function prepararParaGrabar($array,$claseArticulos){
 	
 }
 
+function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo){
+	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "Productos");
+
+	
+	$imprimir['cabecera'] .='<table  WIDTH="100%">';
+	$imprimir['cabecera'] .='<tr>';
+	$imprimir['cabecera'] .='<td>NOMBRE</td>';
+	$imprimir['cabecera'] .='<td>COSTE ANTERIOR</td>';
+	$imprimir['cabecera'] .='<td>COSTE NUEVO</td>';
+	$imprimir['cabecera'] .='</tr>';
+	$imprimir['cabecera'] .= '</table>';
+	$imprimir['html'] .='<table  WIDTH="100%">';
+	foreach ($datosHistorico as $prod){
+		$datosArticulo=$CArticulo->datosPrincipalesArticulo($prod['idArticulo']);
+		$imprimir['html'].='<tr>';
+		$imprimir['html'].='<td>'.$datosArticulo['articulo_name'].'</td>';
+		$imprimir['html'].='<td>'.$prod['Antes'].'</td>';
+		$imprimir['html'].='<td>'.$prod['Nuevo'].'</td>';
+		$imprimir['html'].='</tr>';
+	}
+	return $imprimir;
+}
+
 
 ?>

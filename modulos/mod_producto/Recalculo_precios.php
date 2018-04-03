@@ -33,60 +33,62 @@
 			$fechaCreacion=date('Y-m-d');
 			foreach ($productosHistoricos as $producto){
 				if ($producto['estado']=="Pendiente"){
-				$idArticulo=$producto['idArticulo'];
-				
-				$pvpRecomendadoCiva=$_POST['pvpRecomendado'.$i];
-				$pvpRecomendadoCiva=(float)$pvpRecomendadoCiva;
-				
-				$datosArticulo=$CArticulo->datosPrincipalesArticulo($idArticulo);
-				$datosPrecios=$CArticulo->articulosPrecio($idArticulo);
-				$articuloPrecioAnt=$datosPrecios['pvpCiva'];
-				
-				if ($pvpRecomendadoCiva<>$articuloPrecioAnt){
-				
-					$ivaPrecio=$datosArticulo['iva']/100;
-					$ivaProducto=$producto['Nuevo']*$ivaPrecio;
-					$precioProducto=$producto['Nuevo']+$ivaProducto;
-					$beneficio=$datosArticulo['beneficio']/100;
-					$beneficioArticulo=$precioProducto*$beneficio;
-					$pvpRecomendado=$beneficioArticulo+$precioProducto;
+					$idArticulo=$producto['idArticulo'];
+					
+					$pvpRecomendadoCiva=$_POST['pvpRecomendado'.$i];
+					$pvpRecomendadoCiva=(float)$pvpRecomendadoCiva;
+					
+					$datosArticulo=$CArticulo->datosPrincipalesArticulo($idArticulo);
+					$datosPrecios=$CArticulo->articulosPrecio($idArticulo);
+					$articuloPrecioAnt=$datosPrecios['pvpCiva'];
+					
+					if ($pvpRecomendadoCiva<>$articuloPrecioAnt){
+					
+						$ivaPrecio=$datosArticulo['iva']/100;
+						$ivaProducto=$producto['Nuevo']*$ivaPrecio;
+						$precioProducto=$producto['Nuevo']+$ivaProducto;
+						$beneficio=$datosArticulo['beneficio']/100;
+						$beneficioArticulo=$precioProducto*$beneficio;
+						$pvpRecomendado=$beneficioArticulo+$precioProducto;
+							
 						
-					
-					if ($pvpRecomendado<>$pvpRecomendadoCiva){
-						$estado="A mano";
-					}else{
-						$estado="Recomendado";
+						if ($pvpRecomendado<>$pvpRecomendadoCiva){
+							$estado="A mano";
+						}else{
+							$estado="Recomendado";
+						}
+						
+						$nuevoIva=1+$ivaPrecio;
+						$nuevo=$pvpRecomendadoCiva/$nuevoIva;
+						$nuevoSiva=number_format($nuevo,6);
+						$nuevo=number_format($pvpRecomendadoCiva,2);
+						$datosHistorico=array(
+						'idArticulo'=>$idArticulo,
+						'antes'=>$pvpRecomendado,
+						'nuevo'=>$pvpRecomendadoCiva,
+						'fechaCreacion'=>$fechaCreacion,
+						'numDoc'=>$id,
+						'dedonde'=>"Recalculo",
+						'tipo'=>"Productos",
+						'estado'=>$estado
+						);
+						$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
+						$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
+						$i++;
+						$estado="";
 					}
-					
-					$nuevoIva=1+$ivaPrecio;
-					$nuevo=$pvpRecomendadoCiva/$nuevoIva;
-					$nuevoSiva=number_format($nuevo,6);
-					$nuevo=number_format($pvpRecomendadoCiva,2);
-					$datosHistorico=array(
-					'idArticulo'=>$idArticulo,
-					'antes'=>$pvpRecomendado,
-					'nuevo'=>$pvpRecomendadoCiva,
-					'fechaCreacion'=>$fechaCreacion,
-					'numDoc'=>$id,
-					'dedonde'=>"Recalculo",
-					'tipo'=>"Productos",
-					'estado'=>$estado
-					);
-					$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
-					$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
-					$i++;
-					$estado="";
-			}
-			}
+				}
 			}
 			
 			 $modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
-			if ($modificarHistorico){
-			 //header('Location: ../mod_compras/albaranesListado.php');
+			
+			// header('Location: ../mod_compras/albaranesListado.php');
 			
 		}
-		}
-		
+		//~ if ($_POST)
+		//~ echo '<pre>';
+		//~ print_r($_POST);
+		//~ echo '</pre>';
 		?>
 		
 		
@@ -104,6 +106,15 @@
           tecla = (document.all) ? e.keyCode : e.which;
           return (tecla != 13);
       }
+      <?php 
+      if ($_POST['Guardar']){
+		  ?>
+		 mensajeImprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+      ?>
 </script>
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 		<div class="container">
@@ -157,7 +168,7 @@
 					}else{
 						$class="class='tachado'";
 					}
-					echo '<tr id="#Row'.$i.'" '.$class.'>';
+					echo '<tr id="Row'.$i.'" '.$class.'>';
 					echo '<td>'.$producto['idArticulo'].'</td>';
 					echo '<td>'.$datosArticulo['articulo_name'].'</td>';
 					echo '<td>'.$producto['Nuevo'].'</td>';
@@ -184,5 +195,6 @@
 					</div>
 				</form>
 		</div>
+		
 	</body>	
 </html>

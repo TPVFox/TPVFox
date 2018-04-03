@@ -500,10 +500,10 @@ function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
 				 var resultado = $.parseJSON(response);
 				//var resultado = response;
 				
-				lin="#Row" + fila;
-				alert(lin);
-				$(lin).addClass("tachado");
-				$(lin +"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+tipo+', '+fila+');"><span class="glyphicon glyphicon-export"></span></a>');
+				//~ lin="#Row" + fila;
+				//~ alert(lin);
+				$('#Row'+ fila).addClass("tachado");
+				$("#Row" + fila +"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+"'"+tipo+"'"+', '+fila+');"><span class="glyphicon glyphicon-export"></span></a>');
 				//return resultado;
 		}	
 	});
@@ -530,10 +530,10 @@ function retornarCoste(idArticulo, dedonde, id, tipo, fila){
 				 var resultado = $.parseJSON(response);
 				//var resultado = response;
 				
-				lin="#Row" + fila;
-				alert(lin);
-				$(lin).removeClass('tachado');
-				$(lin +"> .eliminar").html('<a onclick="eliminarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+tipo+', '+fila+');"><span class="glyphicon glyphicon-trash"></span></a>');
+				//~ lin="#Row" + fila;
+				//~ alert(lin);
+				 $("#Row" + fila).removeClass('tachado');
+				$("#Row" + fila +"> .eliminar").html('<a onclick="eliminarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+"'"+tipo+"'"+', '+fila+');"><span class="glyphicon glyphicon-trash"></span></a>');
 				//return resultado;
 		}	
 	});
@@ -542,11 +542,14 @@ function mensajeImprimir(id, dedonde){
 	var mensaje = confirm("¿Quieres imprimir los precios?");
 	if (mensaje) {
 		imprimir(id, dedonde);
+		
 		}
 
 	else {
-		alert("¡Has denegado imprimir!");
+		//~ alert("¡Has denegado imprimir!");
+		location.href="../mod_compras/albaranesListado.php";
 		}
+	
 }
 function imprimir(id, dedonde){
 	console.log("estoy en la función imprimir el listado");
@@ -566,9 +569,8 @@ function imprimir(id, dedonde){
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
 				 var resultado = $.parseJSON(response);
-				 if (resultado){
-					 console.log("texto dentro de imprimir");
-				 }
+				 window.open(resultado);
+				location.href="../mod_compras/albaranesListado.php";
 				 
 		}	
 	});
