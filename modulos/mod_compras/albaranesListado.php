@@ -37,6 +37,7 @@ $todosTemporal=array_reverse($todosTemporal);
 		$stringPalabras = $_GET['buscar'];
 		$palabraBuscar = explode(' ',$_GET['buscar']); 
 	} 
+	// --- HAY que arreglar esto ( utilizando el sistema de  productos es mas limpio -- //
 	
 	$vista = 'albclit';
 	$LinkBase = './albaranesListado.php?';
@@ -47,23 +48,27 @@ $todosTemporal=array_reverse($todosTemporal);
 	} else {
 		$desde = 0;
 	}
-if ($stringPalabras !== '' ){
-		$campo = array( 'a.Numalbpro','b.nombrecomercial');
-		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
-		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
-		$OtrosParametros=$stringPalabras;
-		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
-	}
-$CantidadRegistros=count($CAlb->TodosAlbaranesLimite($WhereLimite['filtro']));
-$WhereLimite['rango']=$NuevoRango;
-$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+	// Esto lo inicializo ahora mientras no cambie este proceso y ponga como productos.
+	$WhereLimite = array();
+	$WhereLimite['filtro'] = '';
+	$NuevoRango = '';
+	if ($stringPalabras !== '' ){
+			$campo = array( 'a.Numalbpro','b.nombrecomercial');
+			$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
+			$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
+			$OtrosParametros=$stringPalabras;
+			$WhereLimite['filtro']='WHERE '.$NuevoWhere;
+		}
+	$CantidadRegistros=count($CAlb->TodosAlbaranesLimite($WhereLimite['filtro']));
+	$WhereLimite['rango']=$NuevoRango;
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
-if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro']." ORDER BY Numalbpro desc ".$WhereLimite['rango'];
-	} else {
-		$filtro= " ORDER BY Numalbpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}
-	
+	if ($stringPalabras !== '' ){
+			$filtro = $WhereLimite['filtro']." ORDER BY Numalbpro desc ".$WhereLimite['rango'];
+		} else {
+			$filtro= " ORDER BY Numalbpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
+		}
+		
 	
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
