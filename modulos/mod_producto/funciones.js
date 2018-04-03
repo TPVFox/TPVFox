@@ -538,3 +538,38 @@ function retornarCoste(idArticulo, dedonde, id, tipo, fila){
 		}	
 	});
 }
+function mensajeImprimir(id, dedonde){
+	var mensaje = confirm("¿Quieres imprimir los precios?");
+	if (mensaje) {
+		imprimir(id, dedonde);
+		}
+
+	else {
+		alert("¡Has denegado imprimir!");
+		}
+}
+function imprimir(id, dedonde){
+	console.log("estoy en la función imprimir el listado");
+	var parametros = {
+		"pulsado"    		: 'imprimir',
+		"dedonde"			:dedonde,
+		"id"				:id
+		
+	};
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Modificando eliminar costes  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar costes ');
+				 var resultado = $.parseJSON(response);
+				 if (resultado){
+					 console.log("texto dentro de imprimir");
+				 }
+				 
+		}	
+	});
+}

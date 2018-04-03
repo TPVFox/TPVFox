@@ -71,6 +71,10 @@ switch ($pulsado) {
 	$respuesta['sql']=$mod;
 	echo json_encode($respuesta);
 	break;
+	case 'imprimir':
+	$respuesta['texto']="texto dentro de imprimir";
+	echo json_encode($respuesta);
+	break;
 		
 	
 	

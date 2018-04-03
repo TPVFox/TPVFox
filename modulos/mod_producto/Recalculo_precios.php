@@ -21,13 +21,9 @@
 			$datosAlbaran=$CAlbaran->datosAlbaran($id);
 			$fecha=date_create($datosAlbaran['Fecha']);
 			$fecha=date_format($fecha, 'Y-m-d');
-			//~ echo '<pre>';
-			//~ print_r($datosAlbaran);
-			//~ echo '</pre>';
+			
 			$productosHistoricos=$CArticulo->historicoCompras($id, "albaran", "compras");
-				//~ echo '<pre>';
-			//~ print_r($productosHistoricos);
-			//~ echo '</pre>';
+			
 		}
 		if ($_POST['Guardar']){
 			echo "entre en guardar";
@@ -83,8 +79,12 @@
 			}
 			}
 			}
+			
 			 $modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
-			 header('Location: ../mod_compras/albaranesListado.php');
+			if ($modificarHistorico){
+			 //header('Location: ../mod_compras/albaranesListado.php');
+			
+		}
 		}
 		
 		?>
@@ -109,7 +109,7 @@
 		<div class="container">
 			<h2 class="text-center"><?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-			<input type="submit" value="Guardar" name="Guardar" id="Guardar">
+			<input type="submit" value="Guardar" name="Guardar" id="Guardar" onclick="">
 			<div class="col-md-12">
 				
 				<div class="col-md-2">
@@ -140,6 +140,7 @@
 				<?php 
 				$i=1;
 				foreach ($productosHistoricos as $producto){
+					if ($producto['estado']<>"Revisado"){
 					$datosArticulo=$CArticulo->datosPrincipalesArticulo($producto['idArticulo']);
 					$datosPrecios=$CArticulo->articulosPrecio($producto['idArticulo']);
 					$ivaPrecio=$datosArticulo['iva']/100;
@@ -175,6 +176,7 @@
 					echo '</tr>';
 					$i++;
 					}
+				}
 				?>
 				
 				</tbody>
