@@ -168,7 +168,7 @@ function controladorAcciones(caja,accion, tecla){
 				
 			//console.log("algo:"+productos[nfila].ultimoCoste);
 			var costeAnt=productos[nfila].ultimoCoste;
-			productos[nfila].CosteAnt=costeAnt;
+			
 		//	alert(productos[nfila].ultimoCoste);
 			var idArticulo=productos[nfila].idArticulo;
 		
@@ -181,7 +181,7 @@ function controladorAcciones(caja,accion, tecla){
 			if(valor=""){
 				alert("NO HAS INTRODUCIDO NINGÚN COSTE");
 			}else{
-					
+					productos[nfila].CosteAnt=costeAnt;
 						addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
 						if (caja.tipo_event !== "blur"){
 						var d_focus = 'idArticulo';
