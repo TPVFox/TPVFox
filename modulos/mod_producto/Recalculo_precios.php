@@ -99,14 +99,23 @@
 		
 	</head>
 	<body>
+		
 		<?php
 	include '../../header.php';
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+	<script type="text/javascript">
+// Objetos cajas de tpv
+<?php echo $VarJS;?>
+     function anular(e) {
+          tecla = (document.all) ? e.keyCode : e.which;
+          return (tecla != 13);
+      }
+</script>
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 		<div class="container">
 			<h2 class="text-center"><?php echo $titulo;?></h2>
-			<form action="" method="post" name="formProducto" >
+			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<input type="submit" value="Guardar" name="Guardar" id="Guardar">
 			<div class="col-md-12">
 				
