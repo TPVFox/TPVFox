@@ -805,6 +805,15 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
 			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
 		}
+	}else{
+		if ($datosGet['id']){
+				$fecha=$datosPost['fecha'];
+				$mod=$Cpedido->modFechaPedido($fecha, $datosGet['id']);
+				
+				$error=0;
+			}else{
+				$error=1;
+			}
 	}
 	return $error;
 	
@@ -914,7 +923,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 				}
 				
 				$fecha=$datosPost['fecha'];
-				$mod=$CAlb->modFechaNumero($_GET['id'], $suNumero, $fecha);
+				$mod=$CAlb->modFechaNumero($datosGet['id'], $suNumero, $fecha);
 				
 				$error=0;
 			}else{

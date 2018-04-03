@@ -274,6 +274,10 @@ class PedidosCompras extends ClaseCompras{
 		
 		return $pedido;
 	}
+	public function modFechaPedido($fecha, $idPedido){
+		$db=$this->db;
+		$smt=$db->query('UPDATE pedprot SET FechaPedido= "'.$fecha.'" where id='.$idPedido);
+	}
 	
 	
 }
