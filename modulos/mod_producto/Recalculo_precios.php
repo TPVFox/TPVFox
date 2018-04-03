@@ -64,7 +64,7 @@
 						$nuevo=number_format($pvpRecomendadoCiva,2);
 						$datosHistorico=array(
 						'idArticulo'=>$idArticulo,
-						'antes'=>$pvpRecomendado,
+						'antes'=>$datosPrecios['pvpCiva'],
 						'nuevo'=>$pvpRecomendadoCiva,
 						'fechaCreacion'=>$fechaCreacion,
 						'numDoc'=>$id,
