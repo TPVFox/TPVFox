@@ -299,41 +299,43 @@ if ($suNumero==0){
 	<div class="col-md-8">
 		<div class="col-md-12">
 			
-				<div class="col-md-2">
+				<div class="col-md-4">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
-				<div class="col-md-2">
+				<div class="col-md-4">
 					<strong>Estado:</strong><br>
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
 				</div>
 			
-				<div class="col-md-2">
+				<div class="col-md-4">
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
 				</div>
-				<div class="col-md-2">
-					<strong>Su número:</strong><br>
-					<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
-				</div>
-				<div class="col-md-3">
-					<strong>Forma de pago:</strong><br>
-					<p id="formaspago">
-						<select name='formaVenci' id='formaVenci'>
-					<?php 
-					
-					if(isset ($textoFormaPago)){
-							echo $textoFormaPago['html'];
-					}
-					?>
-					</select>
-					</p>
+		</div>
+		<div class="col-md-12">
+			<div class="col-md-4">
+				<strong>Su número:</strong><br>
+				<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-4">
+				<strong>Forma de pago:</strong><br>
+				<p id="formaspago">
+					<select name='formaVenci' id='formaVenci'>
+				<?php 
+				
+				if(isset ($textoFormaPago)){
+						echo $textoFormaPago['html'];
+				}
+				?>
+				</select>
+				</p>
+			</div>
+			<div class="col-md-4">
 					<strong>Fecha vencimiento:</strong><br>
 					<input type="date" name="fechaVenci" id="fechaVenci" size="10"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="<?php echo $fechaVencimiento;?>"placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
-
 			</div>
+	
 			
 		</div>
 		<div class="form-group">
