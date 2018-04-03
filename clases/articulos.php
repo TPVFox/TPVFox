@@ -16,8 +16,8 @@ class Articulos{
 	
 	public function addArticulosProveedores($datos){
 		$db=$this->db;
-		$smt=$db->query('INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '.$datos['refProveedor'].', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")');
-		$sql='INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '.$datos['refProveedor'].', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")';
+		$smt=$db->query('INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '."'".$datos['refProveedor']."'".', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")');
+		$sql='INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '."'".$datos['refProveedor']."'".', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")';
 		$respuesta['sql']=$sql;
 		return $respuesta;
 	}
@@ -42,6 +42,9 @@ class Articulos{
 	public function modificarProveedorArticulo($datos){
 		$db=$this->db;
 		$smt=$db->query('UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
+$sql='UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor'];
+	$respuesta['sql']=$sql;
+		return $respuesta;
 	}
 	public function modificarCosteProveedorArticulo($datos){
 		

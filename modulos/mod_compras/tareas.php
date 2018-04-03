@@ -101,14 +101,18 @@ switch ($pulsado) {
 				'fecha'=>$fechaActualizacion,
 				'estado'=>$estado
 			);
+			$respuesta['datos']=$datos;
 			$datosArticulo=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
+			$respuesta['ref']=$datosArticulo;
 			if ($datosArticulo){
 				$modArt=$CArticulos->modificarProveedorArticulo($datos);
+				$respuesta['sql']=$modArt['sql'];
 			}else{
 				$addNuevo=$CArticulos->addArticulosProveedores($datos);
+				$respuesta['sql']=$addNuevo['sql'];
 			}
 			
-			$respuesta['sql']=$addNuevo;
+			
 			echo json_encode($respuesta);
 		break;
 		

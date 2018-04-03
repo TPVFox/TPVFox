@@ -434,7 +434,7 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 				productos[nfila].crefProveedor=valor;// pone le valor en el input 
 				fila=nfila+1;//sumamos uno a la fila
 				var id="#Proveedor_Fila_"+fila;
-				if (valor>0){
+				if (valor){
 					$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
 					$(id).val(valor);
 					//$("#enlaceCambio"+fila).prop('disabled', true);
