@@ -154,7 +154,7 @@ include './../../head.php';
 			header('Location: albaranesListado.php');
 		}else{
 			echo '<div class="alert alert-warning">
-				<strong>Error!</strong>Error al cancelar en Albarán.
+				<strong>Error!</strong>Error no tienes modificaciones.
 				</div>';
 		}
 	}

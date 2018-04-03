@@ -905,12 +905,28 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					
 			}
 			
+		}else{
+			if ($_GET['id']){
+				if ($datosPost['suNumero']>0){
+					$suNumero=$datosPost['suNumero'];
+				}else{
+					$suNumero=0;
+				}
+				
+				$fecha=$datosPost['fecha'];
+				$mod=$CAlb->modFechaNumero($_GET['id'], $suNumero, $fecha);
+				
+				$error=0;
+			}else{
+				$error=1;
+			}
+			
 		}
 		$respuesta['historico']=$historico;
 			$respuesta['sql']=$addNuevo;
 			$respuesta['texto']="nuevo albaran";
-	//return $error;
-	return $respuesta;
+	return $error;
+	//~ return $respuesta;
 }
 
 function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importesFactura){

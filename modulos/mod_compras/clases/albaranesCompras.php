@@ -277,5 +277,10 @@ class AlbaranesCompras extends ClaseCompras{
 		}
 		return $albaran;
 	}
+	
+	public function modFechaNumero($id, $suNumero, $fecha){
+		$db=$this->db;
+		$smt=$db->query('UPDATE albprot set Su_numero='.$suNumero.' , Fecha="'.$fecha.'" where id='.$id);
+	}
 }
 ?>
