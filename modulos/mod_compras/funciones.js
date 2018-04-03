@@ -172,6 +172,12 @@ function controladorAcciones(caja,accion, tecla){
 		//	alert(productos[nfila].ultimoCoste);
 			var idArticulo=productos[nfila].idArticulo;
 		
+			if (costeAnt===caja.darValor()){
+				var d_focus = 'idArticulo';
+				ponerFocus(d_focus);
+				//alert("precios iguales");
+			}else{
+			
 			if(valor=""){
 				alert("NO HAS INTRODUCIDO NINGÚN COSTE");
 			}else{
@@ -184,6 +190,7 @@ function controladorAcciones(caja,accion, tecla){
 				
 			
 			}
+		}
 		}
 		
 			
