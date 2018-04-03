@@ -36,59 +36,52 @@
 			$estado="";
 			$fechaCreacion=date('Y-m-d');
 			foreach ($productosHistoricos as $producto){
+				if ($producto['estado']=="Pendiente"){
 				$idArticulo=$producto['idArticulo'];
-				$datosArticulo=$CArticulo->datosPrincipalesArticulo($idArticulo);
-				$datosPrecios=$CArticulo->articulosPrecio($idArticulo);
-				//~ $ivaPrecio=$datosArticulo['iva']/100;
-				//~ $ivaProducto=$producto['Nuevo']*$ivaPrecio;
-				//~ $beneficio=$datosArticulo['beneficio']/100;
-				//~ $beneficioArticulo=$producto['Nuevo']*$beneficio;
-				//~ $pvpRecomendado=$producto['Nuevo']+	$beneficioArticulo+$ivaProducto;
 				
-				$ivaPrecio=$datosArticulo['iva']/100;
-				$ivaProducto=$producto['Nuevo']*$ivaPrecio;
-				$precioProducto=$producto['Nuevo']+$ivaProducto;
-				$beneficio=$datosArticulo['beneficio']/100;
-				$beneficioArticulo=$precioProducto*$beneficio;
-				$pvpRecomendado=$beneficioArticulo+$precioProducto;
-					
 				$pvpRecomendadoCiva=$_POST['pvpRecomendado'.$i];
 				$pvpRecomendadoCiva=(float)$pvpRecomendadoCiva;
-				if ($pvpRecomendado<>$pvpRecomendadoCiva){
-					$estado="A mano";
-				}else{
-					$estado="Recomendado";
-				}
 				
-				$nuevoIva=1+$ivaPrecio;
-				$nuevo=$pvpRecomendadoCiva/$nuevoIva;
-				$nuevoSiva=number_format($nuevo,6);
-				$nuevo=number_format($pvpRecomendadoCiva,2);
-				//$antes=$pvpRecomendado;
-				$datosHistorico=array(
-				'idArticulo'=>$idArticulo,
-				'antes'=>$pvpRecomendado,
-				'nuevo'=>$pvpRecomendadoCiva,
-				'fechaCreacion'=>$fechaCreacion,
-				'numDoc'=>$id,
-				'dedonde'=>"Recalculo",
-				'tipo'=>"Productos",
-				'estado'=>$estado
-				);
+				$datosArticulo=$CArticulo->datosPrincipalesArticulo($idArticulo);
+				$datosPrecios=$CArticulo->articulosPrecio($idArticulo);
+				$articuloPrecioAnt=$datosPrecios['pvpCiva'];
+				
+				if ($pvpRecomendadoCiva<>$articuloPrecioAnt){
+				
+					$ivaPrecio=$datosArticulo['iva']/100;
+					$ivaProducto=$producto['Nuevo']*$ivaPrecio;
+					$precioProducto=$producto['Nuevo']+$ivaProducto;
+					$beneficio=$datosArticulo['beneficio']/100;
+					$beneficioArticulo=$precioProducto*$beneficio;
+					$pvpRecomendado=$beneficioArticulo+$precioProducto;
+						
 					
-				$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
-				$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
-				//~ echo '<pre>';
-				//~ echo $pvpRecomendadoCiva;
-				//~ echo '</pre>';
-				//~ echo '<pre>';
-				//~ echo $nuevo;
-				//~ echo '</pre>';
-				//~ echo '<pre>';
-				//~ echo $estado;
-				//~ echo '</pre>';
-				$i++;
-				$estado="";
+					if ($pvpRecomendado<>$pvpRecomendadoCiva){
+						$estado="A mano";
+					}else{
+						$estado="Recomendado";
+					}
+					
+					$nuevoIva=1+$ivaPrecio;
+					$nuevo=$pvpRecomendadoCiva/$nuevoIva;
+					$nuevoSiva=number_format($nuevo,6);
+					$nuevo=number_format($pvpRecomendadoCiva,2);
+					$datosHistorico=array(
+					'idArticulo'=>$idArticulo,
+					'antes'=>$pvpRecomendado,
+					'nuevo'=>$pvpRecomendadoCiva,
+					'fechaCreacion'=>$fechaCreacion,
+					'numDoc'=>$id,
+					'dedonde'=>"Recalculo",
+					'tipo'=>"Productos",
+					'estado'=>$estado
+					);
+					$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
+					$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
+					$i++;
+					$estado="";
+			}
+			}
 			}
 			 $modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
 			 header('Location: ../mod_compras/albaranesListado.php');
@@ -158,7 +151,12 @@
 					//~ $beneficio=$datosArticulo['beneficio']/100;
 					//~ $beneficioArticulo=$producto['Nuevo']*$beneficio;
 					//~ $pvpRecomendado=$producto['Nuevo']+$beneficioArticulo+$ivaProducto;
-					echo '<tr id="#Row'.$i.'">';
+					if ($producto['estado']=="Pendiente"){
+						$class="";
+					}else{
+						$class="class='tachado'";
+					}
+					echo '<tr id="#Row'.$i.'" '.$class.'>';
 					echo '<td>'.$producto['idArticulo'].'</td>';
 					echo '<td>'.$datosArticulo['articulo_name'].'</td>';
 					echo '<td>'.$producto['Nuevo'].'</td>';
@@ -170,7 +168,7 @@
 					if ($producto['estado']=="Pendiente"){
 						echo '<td class="eliminar"><a onclick="eliminarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-trash"></span></a></td>';
 					}else{
-						echo '<td class="eliminar"></td>';
+						echo '<td class="eliminar"><a onclick="retornarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-export"></span></a></td>';
 					}
 					
 					

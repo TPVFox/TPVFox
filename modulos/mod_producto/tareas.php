@@ -24,7 +24,7 @@ $Controler = new ControladorComun;
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
 
-include_once('../clases/articulos.php');
+include_once('../../clases/articulos.php');
 $CArticulo=new Articulos($BDTpv);
 switch ($pulsado) {
 
@@ -55,8 +55,20 @@ switch ($pulsado) {
 	$id=$_POST['id'];
 	$tipo=$_POST['tipo'];
 	$estado="Sin Cambios";
+	$respuesta['idArticulo'];
 	$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
-	
+	$respuesta['sql']=$mod;
+	echo json_encode($respuesta);
+	break;
+	case 'retornarCoste':
+	$idArticulo=$_POST['idArticulo'];
+	$dedonde=$_POST['dedonde'];
+	$id=$_POST['id'];
+	$tipo=$_POST['tipo'];
+	$estado="Pendiente";
+	$respuesta['idArticulo'];
+	$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
+	$respuesta['sql']=$mod;
 	echo json_encode($respuesta);
 	break;
 		

@@ -497,12 +497,44 @@ function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
-				// var resultado = $.parseJSON(response);
-				var resultado = response;
-				$("#Row" + fila).addClass('tachado');
-				$("#Row" + fila+"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+')"');
-				return resultado;
+				 var resultado = $.parseJSON(response);
+				//var resultado = response;
+				
+				lin="#Row" + fila;
+				alert(lin);
+				$(lin).addClass("tachado");
+				$(lin +"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+tipo+', '+fila+');"><span class="glyphicon glyphicon-export"></span></a>');
+				//return resultado;
 		}	
 	});
 	
+}
+function retornarCoste(idArticulo, dedonde, id, tipo, fila){
+	var parametros = {
+		"pulsado"    		: 'retornarCoste',
+		"idArticulo"		: idArticulo,
+		"dedonde"			:dedonde,
+		"id"				:id,
+		"tipo"				:tipo
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Modificando eliminar costes  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar costes ');
+				 var resultado = $.parseJSON(response);
+				//var resultado = response;
+				
+				lin="#Row" + fila;
+				alert(lin);
+				$(lin).removeClass('tachado');
+				$(lin +"> .eliminar").html('<a onclick="eliminarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+tipo+', '+fila+');"><span class="glyphicon glyphicon-trash"></span></a>');
+				//return resultado;
+		}	
+	});
 }

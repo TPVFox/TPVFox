@@ -106,7 +106,9 @@ $sql='UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']
 					
 		public function modEstadoArticuloHistorico($idArticulo, $idAlbaran, $dedonde, $tipo, $estado){
 				$db=$this->db;
-				$smt=$db->query('UPDATE historico_precios set estado='."'".$estado."'".' where NumDoc='.$idAlbaran.' and Dedonde='.$dedonde.' and idArticulo='.$idArticulo.'and Tipo='.$tipo);
+				$smt=$db->query('UPDATE historico_precios set estado='."'".$estado."'".' where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'" and idArticulo='.$idArticulo.' and Tipo="'.$tipo.'"');
+	$sql='UPDATE historico_precios set estado='."'".$estado."'".' where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'" and idArticulo='.$idArticulo.' and Tipo="'.$tipo.'"';
+	return $sql;
 		}
 	
 	
