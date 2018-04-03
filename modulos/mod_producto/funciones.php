@@ -467,19 +467,22 @@ function prepararParaGrabar($array,$claseArticulos){
 
 function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo){
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "Productos");
-
+	$imprimir['html'] .='<p> ALBARÁN NÚMERO : '.$id.'</p>';
 	
-	$imprimir['cabecera'] .='<table  WIDTH="100%">';
-	$imprimir['cabecera'] .='<tr>';
-	$imprimir['cabecera'] .='<td>NOMBRE</td>';
-	$imprimir['cabecera'] .='<td>COSTE ANTERIOR</td>';
-	$imprimir['cabecera'] .='<td>COSTE NUEVO</td>';
-	$imprimir['cabecera'] .='</tr>';
-	$imprimir['cabecera'] .= '</table>';
+	$imprimir['html'] .='<br>';
+	
+	$imprimir['html'] .='<table  WIDTH="100%">';
+	$imprimir['html'] .='<tr>';
+	$imprimir['html'] .='<td>NOMBRE</td>';
+	$imprimir['html'] .='<td>PRECIO ANTERIOR</td>';
+	$imprimir['html'] .='<td>PRECIO NUEVO</td>';
+	$imprimir['html'] .='</tr>';
+	$imprimir['html'] .= '</table>';
 	$imprimir['html'] .='<table  WIDTH="100%">';
 	foreach ($datosHistorico as $prod){
 		$datosArticulo=$CArticulo->datosPrincipalesArticulo($prod['idArticulo']);
 		$imprimir['html'].='<tr>';
+		$imprimir['html'].='<td>'.$datosArticulo['articulo_name'].'</td>';
 		$imprimir['html'].='<td>'.$datosArticulo['articulo_name'].'</td>';
 		$imprimir['html'].='<td>'.$prod['Antes'].'</td>';
 		$imprimir['html'].='<td>'.$prod['Nuevo'].'</td>';

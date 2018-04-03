@@ -80,7 +80,7 @@ switch ($pulsado) {
 	$html=$htmlImprimir['html'];
 	require_once('../../lib/tcpdf/tcpdf.php');
 	include ('../../clases/imprimir.php');
-	include('../../controllers/planImprimir.php');
+	include('../../controllers/planImprimirRe.php');
 	$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 	echo json_encode($ficheroCompleto);
 	
