@@ -124,21 +124,22 @@ include './../../head.php';
 		}
 		
 	if (isset($_POST['Guardar'])){
-		//~ echo '<pre>';
-		//~ print_r($_POST);
-		//~ echo '</pre>';
-			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales,$importesFactura);
-			echo '<pre>';
-		print_r($guardar);
+		echo '<pre>';
+		print_r($_GET);
 		echo '</pre>';
-			//~ if ($guardar==0){
-				//~ header('Location: facturasListado.php');
-			//~ }else{
+			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales, $importesFactura);
+			//~ echo '<pre>';
+		//~ print_r($guardar);
+		//~ echo '</pre>';
+			if ($guardar==0){
+				header('Location: facturasListado.php');
+			}else{
 		
-				//~ echo '<div class="alert alert-warning">
-				//~ <strong>Error!</strong>No has introducido ningún producto.
-				//~ </div>';
-			//~ }
+				echo '<div class="alert alert-warning">
+				<strong>Error!</strong>No has introducido ningún producto.
+				</div>';
+			}
+			
 		
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
@@ -152,9 +153,10 @@ include './../../head.php';
 			echo '<div class="alert alert-warning">
 				<strong>Error!</strong>Error al cancelar la factura.
 				</div>';
-		}else{
-			header('Location: facturasListado.php');
 		}
+		//~ }else{
+			//~ header('Location: facturasListado.php');
+		//~ }
 	}
 	}
 	

@@ -282,6 +282,12 @@ class FacturasCompras extends ClaseCompras{
 		}
 		return $factura;
 	}
+	public function modFechaNumero($id, $fecha, $suNumero){
+		$db=$this->db;
+		$smt=$db->query ('UPDATE facprot set Su_num_factura ='.$suNumero.' , Fecha="'.$fecha.'" where id='.$id);
+		$sql='UPDATE facprot set Su_num_factura ='.$suNumero.' , Fecha="'.$fecha.'" where id='.$id;
+		return $sql;
+	}
 }
 
 ?>

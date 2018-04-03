@@ -906,7 +906,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 			}
 			
 		}else{
-			if ($_GET['id']){
+			if ($datosGet['id']){
 				if ($datosPost['suNumero']>0){
 					$suNumero=$datosPost['suNumero'];
 				}else{
@@ -923,8 +923,8 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 			
 		}
 		$respuesta['historico']=$historico;
-			$respuesta['sql']=$addNuevo;
-			$respuesta['texto']="nuevo albaran";
+		$respuesta['sql']=$addNuevo;
+		$respuesta['texto']="nuevo albaran";
 	return $error;
 	//~ return $respuesta;
 }
@@ -947,6 +947,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 				$total=0;
 				$error=1;
 		}
+		$fecha=$datosPost['fecha'];
 		$estado="Guardado";
 		if (is_array($importesFactura)){
 				
@@ -966,7 +967,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 		}
 		$datos=array(
 			'Numtemp_facpro'=>$idFacturaTemporal,
-			'fecha'=>$datosFactura['fechaInicio'],
+			'fecha'=>$fecha,
 			'idTienda'=>$Tienda['idTienda'],
 			'idUsuario'=>$Usuario['id'],
 			'idProveedor'=>$datosFactura['idProveedor'],
@@ -997,17 +998,32 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
 			}
-			$respuesta['historico']=$historico;
-			$respuesta['sql']=$addNuevo;
-			$respuesta['texto']="nuevo albaran";
+			//~ $respuesta['historico']=$historico;
+			//~ $respuesta['sql']=$addNuevo;
+			//~ $respuesta['texto']="nuevo albaran";
 		}else{
 			$error=1;
 		}
 		
 	}else{
-		$error=1;
+		if ($datosGet['id']){
+				if ($datosPost['suNumero']>0){
+					$suNumero=$datosPost['suNumero'];
+				}else{
+					$suNumero=0;
+				}
+				
+				$fecha=$datosPost['fecha'];
+				$mod=$CFac->modFechaNumero($datosGet['id'], $fecha, $suNumero);
+				
+				$error=0;
+				//~ $respuesta['sqlMod']=$mod;
+			}else{
+				$error=1;
+			}
 	}
-	return $respuesta;
+	//~ return $respuesta;
+	return $error;
 	
 }
 function htmlTotales($Datostotales){
