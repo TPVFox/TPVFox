@@ -598,7 +598,11 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			if (isset($suNumero)){
 				$imprimir['cabecera'] .='<p>'.$textoSuNumero.'</p>';
 			}
-			$imprimir['cabecera'] .= '<p> NIF: '.$datosProveedor['nif'].'</p>';
+			$imprimir['cabecera'] .= '<p> NIF/CIF: '.$datosProveedor['nif'].'</p>';
+			//~ $imprimir['cabecera'] .= '<p> Dirección: '.$datosProveedor['direccion'].'</p>';
+			//~ $imprimir['cabecera'] .= '<p> Teléfono: '.$datosProveedor['telefono'].'</p>';
+			//~ $imprimir['cabecera'] .= '<p> Email: '.$datosProveedor['email'].'</p>';
+			//~ $imprimir['cabecera'] .= '<p> Fax: '.$datosProveedor['fax'].'</p>';
 			$imprimir['cabecera'] .='</div>';
 	$imprimir['cabecera'].='</td>';
 	$imprimir['cabecera'] .='<td>';
