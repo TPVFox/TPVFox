@@ -297,14 +297,49 @@ function htmlLineaProducto($productos, $dedonde){
 				
 			}
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
+			$filaProveedor='<td><input id="Proveedor_Fila_'
+								.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
+								.'name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" '
+								.'onBlur="controlEventos(event)">'
+								.'<a onclick=buscarReferencia("Proveedor_Fila_'
+								.$producto['nfila'].'") style="display:none" id="enlaceCambio'
+								.$producto['nfila'].'">'
+								.'<span class="glyphicon glyphicon-cog"></span>'
+								.'</a></td>';
 			if (isset($producto['crefProveedor'])){
 				if ($producto['crefProveedor']){
-				$filaProveedor='<td class="referencia"><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+"  value="'.$producto['crefProveedor'].'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)" disabled><a id="enlaceCambio'.$producto['nfila'].'" onclick=buscarReferencia("Proveedor_Fila_'.$producto['nfila'].'") style="text-align: right"><span class="glyphicon glyphicon-cog"></span></a></td>';
-				}else{
-				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"><a onclick=buscarReferencia("Proveedor_Fila_'.$producto['nfila'].'") style="display:none" id="enlaceCambio'.$producto['nfila'].'"><span class="glyphicon glyphicon-cog"></span></a></td>';
+				$filaProveedor='<td class="referencia">'
+								.'<input id="Proveedor_Fila_'.$producto['nfila']
+								.'" type="text" data-obj="Proveedor_Fila"  value="'
+								.$producto['crefProveedor']
+								.'"name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)"'
+								.' onBlur="controlEventos(event)" disabled>'
+								.'<a id="enlaceCambio'
+								.$producto['nfila'].'" onclick=buscarReferencia("Proveedor_Fila_'
+								.$producto['nfila'].'") style="text-align: right">'
+								.'<span class="glyphicon glyphicon-cog"></span>'
+								.'</a></td>';
+				//~ }else{
+				//~ $filaProveedor='<td><input id="Proveedor_Fila_'
+								//~ .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
+								//~ .'name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" '
+								//~ .'onBlur="controlEventos(event)">'.
+								//~ .'<a onclick=buscarReferencia("Proveedor_Fila_'
+								//~ .$producto['nfila'].'") style="display:none" id="enlaceCambio'
+								//~ .$producto['nfila'].'">'
+								//~ .'<span class="glyphicon glyphicon-cog"></span>'
+								//~ .'</a></td>';
 				}
-			}else{
-				$filaProveedor='<td><input id="Proveedor_Fila_'.$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" pattern="[.0-9]+" name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" onBlur="controlEventos(event)"><a onclick=buscarReferencia("Proveedor_Fila_'.$producto['nfila'].'") style="display:none" id="enlaceCambio'.$producto['nfila'].'"><span class="glyphicon glyphicon-cog"></span></a></td>';
+			//~ }else{
+				//~ $filaProveedor='<td><input id="Proveedor_Fila_'
+								//~ .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
+								//~ .'name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" '
+								//~ .'onBlur="controlEventos(event)">'
+								//~ .'<a onclick=buscarReferencia("Proveedor_Fila_'
+								//~ .$producto['nfila'].'") style="display:none" id="enlaceCambio'
+								//~ .$producto['nfila'].'">'.
+								//~ .'<span class="glyphicon glyphicon-cog"></span>'
+								//~ .'</a></td>';
 			}
 			
 			
