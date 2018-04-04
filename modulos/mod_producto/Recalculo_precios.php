@@ -166,6 +166,7 @@
 					<tr>
 						<th>ID</th>
 						<th>NOMBRE</th>
+						<th>REFERENCIA</th>
 						<th>COSTE ULTIMO</th>
 						<th>COSTE ANTERIOR</th>
 						<th>BENEFICIO</th>
@@ -182,6 +183,7 @@
 					if ($producto['estado']<>"Revisado"){
 					$datosArticulo=$CArticulo->datosPrincipalesArticulo($producto['idArticulo']);
 					$datosPrecios=$CArticulo->articulosPrecio($producto['idArticulo']);
+					$datosArticuloProveedor=$CArticulo->buscarReferencia($producto['idArticulo'], $datosAlbaran['idProveedor']);
 					$ivaPrecio=$datosArticulo['iva']/100;
 					$ivaProducto=$producto['Nuevo']*$ivaPrecio;
 					$precioProducto=$producto['Nuevo']+$ivaProducto;
@@ -196,12 +198,13 @@
 					echo '<tr id="Row'.$i.'" '.$class.'>';
 					echo '<td>'.$producto['idArticulo'].'</td>';
 					echo '<td>'.$datosArticulo['articulo_name'].'</td>';
+					echo '<td>'.$datosArticuloProveedor['crefProveedor'].'</td>';
 					echo '<td>'.$producto['Nuevo'].'</td>';
 					echo '<td>'.$producto['Antes'].'</td>';
 					echo '<td>'.$datosArticulo['beneficio'].'</td>';
 					echo '<td>'.$datosArticulo['iva'].'</td>';
 					echo '<td>'.number_format($datosPrecios['pvpCiva'],4).'</td>';
-					echo '<td><input type="text" id="pvpRecomendado'.$i.'" name="pvpRecomendado'.$i.'" value="'.number_format($pvpRecomendado,2).'"></td>';
+					echo '<td><input type="text" id="pvpRecomendado'.$i.'" name="pvpRecomendado'.$i.'" value="'.number_format($pvpRecomendado,2).'" size="5"></td>';
 					if ($producto['estado']=="Pendiente"){
 						echo '<td class="eliminar"><a onclick="eliminarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-trash"></span></a></td>';
 					}else{
