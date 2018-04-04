@@ -1,7 +1,9 @@
 <?php
-	// Directorio actual de index.php ( del proyecto) debe coincidir con $HostNombre.$RutaServidor
-	$DirectorioInicio = getcwd();
-
+	/*
+	 *  @Aplicacion    TpvFox (Soluciones Vigo)
+	 *  @copyright  Copyright (C) 2017 - 2018  Soluciones Vigo.
+	 *  @license    GNU General Public License version 2 or later; see LICENSE.txt
+	 * */
 ?>
 
 <!DOCTYPE html>
