@@ -8,9 +8,11 @@
         include ("./../../controllers/Controladores.php");
 		include '../mod_compras/clases/albaranesCompras.php';
 		include '../../clases/articulos.php';
-       $CAlbaran=new AlbaranesCompras($BDTpv);
-         $CArticulo=new Articulos($BDTpv);
-        $titulo="Recalculo precios PVP ";
+		$volver = 
+		$CAlbaran=new AlbaranesCompras($BDTpv);
+		$CArticulo=new Articulos($BDTpv);
+		$ruta_volver= $HostNombre.'/modulos/mod_compras/albaranesListado.php';
+		$titulo="Recalculo precios PVP ";
         if ($_GET['id']){
 			$id=$_GET['id'];
 			$dedonde="albaran";
@@ -85,17 +87,15 @@
 			// header('Location: ../mod_compras/albaranesListado.php');
 			
 		}
-		//~ if ($_POST)
-		//~ echo '<pre>';
-		//~ print_r($_POST);
-		//~ echo '</pre>';
+		echo '<pre>';
+		print_r($datosAlbaran);
+		echo '</pre>';
 		?>
 		
 		
 	</head>
 	<body>
-		
-		<?php
+	<?php
 	include '../../header.php';
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -120,18 +120,29 @@
 		<div class="container">
 			<h2 class="text-center"><?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-			<input type="submit" value="Guardar" name="Guardar" id="Guardar" onclick="">
+			<div class="col-md-12">
+				<!-- De momento devolvemos a albaranes ya que es donde se hace recalculo
+					 pero esto tendrá cambiar, ya que el recalculo se podrá acceder desde varios sitios -->
+				<a class="text-right" href="<?php echo $ruta_volver;?>">Volver Atrás</a>
+				<input type="submit" value="Guardar" name="Guardar" id="Guardar" onclick="">
+				<input type="submit" value="Imprimir" name="Imprimir" id="Imprimir" onclick="">
+			</div>
 			<div class="col-md-12">
 				
 				<div class="col-md-2">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10"   value="<?php echo $fecha;?>" readonly >
 				</div>
+				<div class="col-md-8">
+					<strong>Proveedor:</strong><br>
+					<!-- Deberíamos mostrar tanto ID-NombreComercial-RazonSocial  -->
+					<input type="text" name="estado" id="estado" size="10"   value="<?php echo $datosAlbaran['idProveedor'];?>" readonly >
+				</div>
 				<div class="col-md-2">
 					<strong>Estado albarán:</strong><br>
 					<input type="text" name="estado" id="estado" size="10"   value="<?php echo $datosAlbaran['estado'];?>" readonly >
 				</div>
-				</div>
+			</div>
 				<div class="col-md-12">
 					<table class="table table-bordered table-hover">
 							<thead>
