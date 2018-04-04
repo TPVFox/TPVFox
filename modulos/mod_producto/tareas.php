@@ -84,7 +84,7 @@ switch ($pulsado) {
 	$dedonde="Recalculo";
 	$nombreTmp=$dedonde."recalculo.pdf";
 	if ($_POST['bandera']==1){
-		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo);
+		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
 	}else{
 		$dedonde="albaran";
 		$htmlImprimir=montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);

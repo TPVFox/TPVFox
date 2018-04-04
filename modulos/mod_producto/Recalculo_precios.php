@@ -87,9 +87,7 @@
 			// header('Location: ../mod_compras/albaranesListado.php');
 			
 		}
-		//~ echo '<pre>';
-		//~ print_r($datosAlbaran);
-		//~ echo '</pre>';
+		
 		
 		?>
 		
@@ -177,9 +175,6 @@
 					$beneficio=$datosArticulo['beneficio']/100;
 					$beneficioArticulo=$precioProducto*$beneficio;
 					$pvpRecomendado=$beneficioArticulo+$precioProducto;
-					//~ $beneficio=$datosArticulo['beneficio']/100;
-					//~ $beneficioArticulo=$producto['Nuevo']*$beneficio;
-					//~ $pvpRecomendado=$producto['Nuevo']+$beneficioArticulo+$ivaProducto;
 					if ($producto['estado']=="Pendiente"){
 						$class="";
 					}else{
