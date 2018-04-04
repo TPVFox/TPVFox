@@ -90,6 +90,7 @@
 		//~ echo '<pre>';
 		//~ print_r($datosAlbaran);
 		//~ echo '</pre>';
+		
 		?>
 		
 		
@@ -114,6 +115,11 @@
 		 
 		  <?php
 	  }
+	  if ($_POST['Imprimir']){
+		?>
+		imprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
+		<?php	
+		}
       ?>
 </script>
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
