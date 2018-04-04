@@ -87,6 +87,7 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
+		$htmlVersionesCoches = htmlTablaVersionesCoches($id);
 		//~ echo '<pre>';
 		//~ print_r($Producto);
 		//~ echo '</pre>';
