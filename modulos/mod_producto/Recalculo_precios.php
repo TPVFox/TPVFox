@@ -8,7 +8,9 @@
         include ("./../../controllers/Controladores.php");
 		include '../mod_compras/clases/albaranesCompras.php';
 		include '../../clases/articulos.php';
-		$volver = 
+		include_once('../../clases/Proveedores.php');
+		$CProveedor=new Proveedores($BDTpv);
+		//~ $volver = 
 		$CAlbaran=new AlbaranesCompras($BDTpv);
 		$CArticulo=new Articulos($BDTpv);
 		$ruta_volver= $HostNombre.'/modulos/mod_compras/albaranesListado.php';
@@ -25,6 +27,7 @@
 			$fecha=date_format($fecha, 'Y-m-d');
 			
 			$productosHistoricos=$CArticulo->historicoCompras($id, "albaran", "compras");
+			$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
 			
 		}
 		if ($_POST['Guardar']){
@@ -137,10 +140,20 @@
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10"   value="<?php echo $fecha;?>" readonly >
 				</div>
-				<div class="col-md-8">
+				<div class="col-md-2">
+					<strong>ID Proveedor:</strong><br>
+					<!-- Deberíamos mostrar tanto ID-NombreComercial-RazonSocial  -->
+					<input type="text" name="idProveedor" id="idProveedor" size="10"   value="<?php echo $datosAlbaran['idProveedor'];?>" readonly >
+				</div>
+				<div class="col-md-3">
 					<strong>Proveedor:</strong><br>
 					<!-- Deberíamos mostrar tanto ID-NombreComercial-RazonSocial  -->
-					<input type="text" name="estado" id="estado" size="10"   value="<?php echo $datosAlbaran['idProveedor'];?>" readonly >
+					<input type="text" name="nombreProveedor" id="nombreProveedor" size="10"   value="<?php echo $datosProveedor['nombrecomercial'];?>" readonly >
+				</div>
+				<div class="col-md-3">
+					<strong>Proveedor:</strong><br>
+					<!-- Deberíamos mostrar tanto ID-NombreComercial-RazonSocial  -->
+					<input type="text" name="razonsocial" id="razonsocial" size="10"   value="<?php echo $datosProveedor['razonsocial'];?>" readonly >
 				</div>
 				<div class="col-md-2">
 					<strong>Estado albarán:</strong><br>
