@@ -1,2 +1,2 @@
-Llamamos plugin aquello que se puede utilizar en varios modulos.
+Llamamos plugin aquello que se puede utilizar en varios modulos o herramienta para relacionarlo con otro.
 
