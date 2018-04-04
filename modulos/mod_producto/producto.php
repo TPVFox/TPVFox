@@ -21,7 +21,9 @@
 		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
-		
+		echo '<pre>';
+		print_r($CTArticulos->GetPlugins());
+		echo '</pre>';
 		$titulo = 'Productos:';
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
