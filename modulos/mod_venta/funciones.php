@@ -324,7 +324,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
 		 $respuesta['html'] .='<td class="codbarras">'.$codBarras.'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
-		 $cant=number_format($producto['nunidades'],0);
+		 $cant=number_format($producto['nunidades'],2);
 		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
@@ -663,10 +663,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 			}
 			$imprimir['html'].='<td WIDTH="15%" >'.$producto['cref'].'</td>';
 			$imprimir['html'].='<td WIDTH="40%" >'.$producto['cdetalle'].'</td>';
-			$imprimir['html'].='<td WIDTH="7%" aling="center">'.number_format($producto['ncant'],0).'</td>';
+			$imprimir['html'].='<td WIDTH="7%" aling="center">'.number_format($producto['nunidades'],0).'</td>';
 			$imprimir['html'].='<td WIDTH="10%" >'.number_format($producto['precioCiva'],2).'</td>';
 			$imprimir['html'].='<td WIDTH="7%" >'.$producto['iva'].'</td>';
-			$importe = $producto['precioCiva']*$producto['ncant'];
+			$importe = $producto['precioCiva']*$producto['nunidades'];
 			$importe = number_format($importe,2);
 			$imprimir['html'].='<td WIDTH="20%" align="center">'.$importe.'</td>';
 			$imprimir['html'].='</tr>';

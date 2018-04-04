@@ -26,6 +26,13 @@ $Controler->loadDbtpv($BDTpv);
 
 include_once('../../clases/articulos.php');
 $CArticulo=new Articulos($BDTpv);
+
+include_once ('../mod_compras/clases/albaranesCompras.php');
+$CAlbaran=new AlbaranesCompras($BDTpv);
+
+include_once('../../clases/Proveedores.php');
+$CProveedor=new Proveedores($BDTpv);
+
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
@@ -73,9 +80,16 @@ switch ($pulsado) {
 	break;
 	case 'imprimir':
 	$id=$_POST['id'];
+	
 	$dedonde="Recalculo";
 	$nombreTmp=$dedonde."recalculo.pdf";
-	$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo);
+	if ($_POST['bandera']==1){
+		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
+	}else{
+		$dedonde="albaran";
+		$htmlImprimir=montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
+		
+	}
 	$cabecera=$htmlImprimir['cabecera'];
 	$html=$htmlImprimir['html'];
 	require_once('../../lib/tcpdf/tcpdf.php');

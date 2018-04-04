@@ -541,7 +541,8 @@ function retornarCoste(idArticulo, dedonde, id, tipo, fila){
 function mensajeImprimir(id, dedonde){
 	var mensaje = confirm("¿Quieres imprimir los precios?");
 	if (mensaje) {
-		imprimir(id, dedonde);
+		var bandera=1;
+		imprimir(id, dedonde, bandera);
 		
 		}
 
@@ -551,12 +552,13 @@ function mensajeImprimir(id, dedonde){
 		}
 	
 }
-function imprimir(id, dedonde){
+function imprimir(id, dedonde, bandera=""){
 	console.log("estoy en la función imprimir el listado");
 	var parametros = {
 		"pulsado"    		: 'imprimir',
 		"dedonde"			:dedonde,
-		"id"				:id
+		"id"				:id,
+		"bandera"			:bandera
 		
 	};
 		$.ajax({
@@ -570,7 +572,9 @@ function imprimir(id, dedonde){
 				console.log('Respuesta de eliminar costes ');
 				 var resultado = $.parseJSON(response);
 				 window.open(resultado);
-				location.href="../mod_compras/albaranesListado.php";
+				 if (bandera==1){
+					location.href="../mod_compras/albaranesListado.php";
+				}
 				 
 		}	
 	});

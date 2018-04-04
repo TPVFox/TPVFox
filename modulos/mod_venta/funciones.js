@@ -909,6 +909,7 @@ function addTemporal(dedonde){
 				history.pushState(null,'','?tActual='+resultado.id);
 				cabecera.idTemporal=resultado.id;
 			}
+			console.log(productos);
 			resetearTotales();
 			
 			total = parseFloat(resultado['totales']['total'])
