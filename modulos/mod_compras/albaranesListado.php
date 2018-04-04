@@ -182,6 +182,7 @@ $todosTemporal=array_reverse($todosTemporal);
 						
 							$checkUser = $checkUser + 1;
 							$totaliva=$CAlb->sumarIva($albaran['Numalbpro']);
+								if ($albaran['estado']<>"Sin Guardar"){
 							$historico=$CArticulo->historicoCompras($albaran['Numalbpro'], "albaran", "compras");
 							foreach ($historico as $his){
 								if($his['estado']=="Pendiente"){
@@ -189,6 +190,7 @@ $todosTemporal=array_reverse($todosTemporal);
 							$iconoCostes=1;
 							}
 					}
+				}
 							$date=date_create($albaran['Fecha']);
 						?>
 						<tr>

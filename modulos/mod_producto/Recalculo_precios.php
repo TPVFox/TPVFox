@@ -87,9 +87,9 @@
 			// header('Location: ../mod_compras/albaranesListado.php');
 			
 		}
-		echo '<pre>';
-		print_r($datosAlbaran);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($datosAlbaran);
+		//~ echo '</pre>';
 		?>
 		
 		
