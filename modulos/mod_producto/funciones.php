@@ -489,6 +489,38 @@ function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo){
 	}
 	return $imprimir;
 }
+function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor){
+	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "compras");
+	$datosAlbaran=$CAlbaran->datosAlbaran($id);
+	$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
+	
+	$imprimir['html'] .='<p> ALBARÁN NÚMERO : '.$id.'</p>';
+	$date = date_create($datosAlbaran['Fecha']);
+	$imprimir['html'] .='<p> FECHA : '.date_format($date, 'Y-m-d').'</p>';
+	$imprimir['html'] .='<p> PROVEEDOR : '.$datosProveedor['nombrecomercial'].'</p>';
+	$imprimir['html'] .='<br>';
+	
+	$imprimir['html'] .='<table  WIDTH="100%">';
+	$imprimir['html'] .='<tr>';
+	$imprimir['html'] .='<td WIDTH="50%">NOMBRE</td>';
+	$imprimir['html'] .='<td>REFERENCIA</td>';
+	$imprimir['html'] .='<td>PRECIO ANTERIOR</td>';
+	$imprimir['html'] .='</tr>';
+	$imprimir['html'] .= '</table>';
+	$imprimir['html'] .='<table  WIDTH="100%">';
+	foreach ($datosHistorico as $prod){
+		$datosArticulo=$CArticulo->datosPrincipalesArticulo($prod['idArticulo']);
+		$datosArticuloProveedor=$CArticulo->buscarReferencia($prod['idArticulo'], $datosAlbaran['idProveedor']);
+		$precioArticulo=$CArticulo->articulosPrecio($prod['idArticulo']);
+		$imprimir['html'].='<tr>';
+		$imprimir['html'].='<td WIDTH="50%">'.$datosArticulo['articulo_name'].'</td>';
+		$imprimir['html'].='<td>'.$datosArticuloProveedor['crefProveedor'].'</td>';
+		$imprimir['html'].='<td>'.number_format($precioArticulo['pvpCiva'],2).'</td>';
+		$imprimir['html'].='</tr>';
+	}
+	return $imprimir;
+	
+}
 
 
 ?>
