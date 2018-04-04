@@ -1,18 +1,33 @@
 <?php 
 include_once ('./clases/ClaseVentas.php');
 class FacturasVentas extends ClaseVentas{
+	
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM facclit';
 		$respuesta = $this->consulta($sql);
-		$this->num_rows = $respuesta->fetch_object()->num_reg;
-		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
+		// Controlamos el resultado.
+		if (gettype($respuesta)==='object'){
+			$this->num_rows = $respuesta->fetch_object()->num_reg;
+		} else {
+			// Es un array porque hubo un fallo
+			echo '<pre>';
+			print_r($respuesta);
+			echo '</pre>';
+		}
 	}
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
-		return $smt;
+		if ($smt) {
+			return $smt;
+		} else {
+			$repuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
 	}
 	public function TodosTemporal(){
 		//@Objetivo:
@@ -30,7 +45,11 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Mostrar los datos principales de todas las facturas con el filtro de paginacion 
 		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
+		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
+		$smt=$this->consulta($sql);
+		//~ echo '<pre>';
+		//~ print_r($smt);
+		//~ echo '</pre>';
 		$facturaPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($facturaPrincipal,$result);

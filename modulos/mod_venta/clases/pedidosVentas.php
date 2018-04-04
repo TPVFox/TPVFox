@@ -7,14 +7,27 @@ class PedidosVentas extends ClaseVentas{
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM pedclit';
 		$respuesta = $this->consulta($sql);
-		$this->num_rows = $respuesta->fetch_object()->num_reg;
-		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
+		if (gettype($respuesta)==='object'){
+			$this->num_rows = $respuesta->fetch_object()->num_reg;
+		} else {
+			// Es un array porque hubo un fallo
+			echo '<pre>';
+			print_r($respuesta);
+			echo '</pre>';
+		}
 	}
 	
 		public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
-		return $smt;
+		if ($smt) {
+			return $smt;
+		} else {
+			$repuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
 	}
 	
 	public function addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos){
@@ -114,7 +127,8 @@ class PedidosVentas extends ClaseVentas{
 	public function TodosPedidosFiltro($filtro){
 		//@Objetivo: Todos los pedidos guardados pero ultilizando el filtro
 		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
+		$Sql= 'SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
+		$smt=$this->consulta($Sql);
 		$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($pedidosPrincipal,$result);
