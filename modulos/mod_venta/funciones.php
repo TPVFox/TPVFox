@@ -663,10 +663,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 			}
 			$imprimir['html'].='<td WIDTH="15%" >'.$producto['cref'].'</td>';
 			$imprimir['html'].='<td WIDTH="40%" >'.$producto['cdetalle'].'</td>';
-			$imprimir['html'].='<td WIDTH="7%" aling="center">'.number_format($producto['ncant'],0).'</td>';
+			$imprimir['html'].='<td WIDTH="7%" aling="center">'.number_format($producto['nunidades'],0).'</td>';
 			$imprimir['html'].='<td WIDTH="10%" >'.number_format($producto['precioCiva'],2).'</td>';
 			$imprimir['html'].='<td WIDTH="7%" >'.$producto['iva'].'</td>';
-			$importe = $producto['precioCiva']*$producto['ncant'];
+			$importe = $producto['precioCiva']*$producto['nunidades'];
 			$importe = number_format($importe,2);
 			$imprimir['html'].='<td WIDTH="20%" align="center">'.$importe.'</td>';
 			$imprimir['html'].='</tr>';
