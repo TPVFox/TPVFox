@@ -574,11 +574,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	if ($dedonde=="factura"){
 		$CFac=new FacturasCompras($BDTpv);
 		$datos=$CFac->datosFactura($id);
-		$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
-		$productosFAc=$CFac->ProductosFactura($id);
-		$productosDEF=modificarArrayProductos($productosFAc);
-		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotales($productos);
+		$productosAdjuntos=$CFac->ProductosFactura($id);
 		$texto="Factura Proveedor";
 		$numero=$datos['Numfacpro'];
 		$suNumero=$datos['su_num_factura'];
@@ -587,11 +583,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	if ($dedonde=="albaran"){
 		$CAlb=new AlbaranesCompras($BDTpv);
 		$datos=$CAlb->datosAlbaran($id);
-		$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
-		$productosAlbaran=$CAlb->ProductosAlbaran($id);
-		$productosDEF=modificarArrayProductos($productosAlbaran);
-		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotales($productos);
+		$productosAdjuntos=$CAlb->ProductosAlbaran($id);
 		$texto="Albarán Proveedor";
 		$numero=$datos['Numalbpro'];
 		$suNumero=$datos['su_numero'];
@@ -600,14 +592,16 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	if ($dedonde=="pedido"){
 		$Cpedido=new PedidosCompras($BDTpv);
 		$datos=$Cpedido->DatosPedido($id);
-		$productosPedido=$Cpedido->ProductosPedidos($id);
-		$productosDEF=modificarArrayProductos($productosPedido);
-		$productos=json_decode(json_encode($productosDEF));
-		$Datostotales = recalculoTotales($productos);
-		$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
+		$productosAdjuntos=$Cpedido->ProductosPedidos($id);
 		$texto="Pedido Proveedor";
 		$numero=$datos['Numpedpro'];
 	}
+	
+	$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
+	$productosDEF=modificarArrayProductos($productosAdjuntos);
+	$productos=json_decode(json_encode($productosDEF));
+	$Datostotales = recalculoTotales($productos);
+	
 	if (isset ($datos['Fecha'])){
 		$date=date_create($datos['Fecha']);
 		$fecha=date_format($date,'Y-m-d');
@@ -623,22 +617,17 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	
 	$imprimir['cabecera'].='<table margin>';
 	$imprimir['cabecera'].='<tr>';
-	$imprimir['cabecera'].='<td>';
-	$imprimir['cabecera'].= '<div>';
-	$imprimir['cabecera'].='<p>Proveedor: '.$datosProveedor['idProveedor'].'</p>';
-	$imprimir['cabecera'] .='<p>'.$datosProveedor['nombrecomercial'].'</p>';
-			if (isset ($datosProveedor['direccion '])){
-				$imprimir['cabecera'] .='<p>'.$datosProveedor['direccion '].'</p>';
-			}
+	$imprimir['cabecera'].='<td>'
+	.'Proveedor: '.$datosProveedor['idProveedor'].'<br>'
+	.$datosProveedor['nombrecomercial'].'<br>'
+	.'Dirección:'.$datosProveedor['direccion'].'<br>'
+	.'NIF/CIF: '.$datosProveedor['nif'].'<br>'
+	.'Teléfono: '.$datosProveedor['telefono'].'<br>'
+	.'Email: '.$datosProveedor['email'].'<br>'
+	.'Fax: '.$datosProveedor['fax'].'<br>';
 			if (isset($suNumero)){
-				$imprimir['cabecera'] .='<p>'.$textoSuNumero.'</p>';
+				$imprimir['cabecera'] .=''.$textoSuNumero.'<br>';
 			}
-			$imprimir['cabecera'] .= '<p> NIF/CIF: '.$datosProveedor['nif'].'</p>';
-			//~ $imprimir['cabecera'] .= '<p> Dirección: '.$datosProveedor['direccion'].'</p>';
-			//~ $imprimir['cabecera'] .= '<p> Teléfono: '.$datosProveedor['telefono'].'</p>';
-			//~ $imprimir['cabecera'] .= '<p> Email: '.$datosProveedor['email'].'</p>';
-			//~ $imprimir['cabecera'] .= '<p> Fax: '.$datosProveedor['fax'].'</p>';
-			$imprimir['cabecera'] .='</div>';
 	$imprimir['cabecera'].='</td>';
 	$imprimir['cabecera'] .='<td>';
 			$imprimir['cabecera'] .='<div>';
