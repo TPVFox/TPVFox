@@ -11,6 +11,7 @@
 function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 	// @ Objetivo:
 	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
+	//  tanto buscamos identicos como Likes 
 	// @ Parametros:
 	//		campoAbuscar-> indicamos que campo estamos buscando.
 	//		busqueda -- string a buscar, puede contener varias palabras
@@ -40,6 +41,7 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 	}
 	$i = 0;
 	foreach ($busquedas as $buscar){
+		/* Buscamos identico primero y luego likes */
 		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
@@ -48,7 +50,7 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
-		//si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
+		// Al ser identicos, es correcto, eso en la primera busqueda
 		if ($i === 0){
 			if ($res->num_rows >0){
 				$resultado['Estado'] = 'Correcto';
@@ -64,22 +66,22 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 		$i++;
 	}	
 	//si hay muchos resultados y si es mas de 1, mostrara un listado
-	if ($res->num_rows > 0){
+	if (isset($res->num_rows)){
 		if ($res->num_rows > 1){
 			$resultado['Estado'] = 'Listado';
+		} else {
+			if ($res->num_rows === 0) {
+				// Cuando se busco pero no se encontro nada.
+				$resultado['Estado'] = 'NoExiste';
+			}
 		}
-	} else { 
-		$resultado['Estado'] = 'Noexiste';
-	}
-	
-	//si hay muchos resultados, recogera los datos para mostrarlos
-	if ($res->num_rows > 0){
-		//fetch_assoc es un boleano..
 		while ($fila = $res->fetch_assoc()) {
 			$products[] = $fila;
 			$resultado['datos']=$products;
 		}
-	} 
+	} else { 
+		$resultado['Estado'] = 'NoSeBusco';
+	}
 	
 	return $resultado;
 }
