@@ -868,7 +868,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	$error=0;
 	$respuesta=array();
 	$CAlb=new AlbaranesCompras($BDTpv);
-		if ($datosPost['idTemporal']){
+		if (isset ($datosPost['idTemporal'])){
 				$idAlbaranTemporal=$datosPost['idTemporal'];
 		}else{
 				$idAlbaranTemporal=$datosGet['tActual'];
@@ -1188,7 +1188,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 	$error=0;
 	$productos = json_decode($productos, true);
 	foreach ($productos as $producto){
-		if ($producto['CosteAnt']){
+		if (isset($producto['CosteAnt'])){
 			$buscar=$CArt->buscarReferencia($producto['idArticulo'], $idProveedor);
 			$datosNuevos=array(
 				'coste'=>$producto['ultimoCoste'],

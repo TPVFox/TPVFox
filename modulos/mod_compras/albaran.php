@@ -25,6 +25,7 @@ include './../../head.php';
 	$nombreProveedor="";
 	$formaPago=0;
 	$fechaVencimiento="";
+	$style1="";
 	
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
@@ -179,9 +180,12 @@ include './../../head.php';
 			
 			echo $comprobarPedidos;
 		}
-		
-		if($_GET['id'] >0 ||$_GET['tActual']>0){
-			$estiloTablaProductos="";
+		if (isset ($_GET['id']) || isset ($_GET['tActual'])){
+			if($_GET['id'] >0 ||$_GET['tActual']>0){
+				$estiloTablaProductos="";
+			}else{
+				$estiloTablaProductos="display:none;";
+			}
 		}else{
 			$estiloTablaProductos="display:none;";
 		}
@@ -242,12 +246,14 @@ include './../../head.php';
 			}
 	
 		}
-		if (is_array($pedidos)){
-			foreach ($pedidos as $pedi){
-				?>
-				datos=<?php echo json_encode($pedi);?>;
-				pedidos.push(datos);
-				<?php
+		if (isset ($pedidos)){
+			if (is_array($pedidos)){
+				foreach ($pedidos as $pedi){
+					?>
+					datos=<?php echo json_encode($pedi);?>;
+					pedidos.push(datos);
+					<?php
+				}
 			}
 		}
 	}	
@@ -362,12 +368,14 @@ if ($suNumero==0){
 				</thead>
 				
 				<?php 
-				if (is_array($pedidos)){
-					foreach ($pedidos as $pedido){
-						$html=lineaAdjunto($pedido, "albaran");
-					echo $html['html'];
+				if (isset($pedidos)){
+					if (is_array($pedidos)){
+						foreach ($pedidos as $pedido){
+							$html=lineaAdjunto($pedido, "albaran");
+						echo $html['html'];
+						}
+						
 					}
-					
 				}
 				?>
 			</table>
@@ -438,8 +446,10 @@ if ($suNumero==0){
 		</thead>
 		<tbody>
 			<?php 
-			$htmlIvas=htmlTotales($Datostotales);
-			echo $htmlIvas['html']; 
+			if (isset ($Datostotales)){
+				$htmlIvas=htmlTotales($Datostotales);
+				echo $htmlIvas['html']; 
+			}
 			?>
 		</tbody>
 		</table>
