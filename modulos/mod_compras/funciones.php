@@ -649,22 +649,23 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$imprimir['cabecera'].='</tr>';
 	$imprimir['cabecera'].='</table>';
 	
-	
+	$imprimir['cabecera'].='<hr/><hr/>';
 	$imprimir['cabecera'] .='<table  WIDTH="100%">';
 	$imprimir['cabecera'] .='<tr>';
 	if ($dedonde == "factura"){
-		$imprimir['cabecera'] .='<td WIDTH="10%">ALB</td>';
+		$imprimir['cabecera'] .='<td WIDTH="10%"><b>ALB</b></td>';
 	}
 	if ($dedonde =="albaran"){
-		$imprimir['cabecera'] .='<td WIDTH="10%">PED</td>';
+		$imprimir['cabecera'] .='<td WIDTH="10%"><b>PED</b></td>';
 	}
-	$imprimir['cabecera'] .='<td WIDTH="10%">REF</td>';
-	$imprimir['cabecera'] .='<td WIDTH="50%">DESCRIPCIÓN</td>';
-	$imprimir['cabecera'] .='<td WIDTH="10%">CANT</td>';
-	$imprimir['cabecera'] .='<td WIDTH="10%">PRECIO</td>';
-	$imprimir['cabecera'] .='<td WIDTH="12%">IMPORTE</td>';
+	$imprimir['cabecera'] .='<td WIDTH="10%"><b>REF</b></td>';
+	$imprimir['cabecera'] .='<td WIDTH="50%"><b>DESCRIPCIÓN</b></td>';
+	$imprimir['cabecera'] .='<td WIDTH="10%"><b>CANT</b></td>';
+	$imprimir['cabecera'] .='<td WIDTH="10%"><b>COSTE</b></td>';
+	$imprimir['cabecera'] .='<td WIDTH="12%"><b>IMPORTE</b></td>';
 	$imprimir['cabecera'] .='</tr>';
 	$imprimir['cabecera'] .='</table>';
+	
 	$imprimir['html'] .='<table  WIDTH="100%">';
 	
 	foreach($productosDEF as $producto){
@@ -712,6 +713,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$imprimir['html'] .='</table>';
 	$imprimir['html'] .='<br>';
 	$imprimir['html'] .='<br>';
+	$imprimir['html'].='<hr/><hr/>';
 	$imprimir['html'] .='<table>';
 	$imprimir['html'] .='
 			<tr>
