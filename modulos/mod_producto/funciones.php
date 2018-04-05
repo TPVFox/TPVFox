@@ -365,8 +365,10 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 
 function prepararParaGrabar($array,$claseArticulos){
 	//@ Objetivo
-	// Preparar array ( POST) para poder grabar,
-	// Si id = 0 es nuevo..
+	// Preparar array con los datos obtenidos( POST) para poder enviarlos a grabar,
+	// Debemos tener en cuenta que :
+	//  Puede haber datos mal.
+	//  Si id = 0 es nuevo..
 	
 	
 	// Obtenemos (array) Key del array recibido

@@ -426,14 +426,20 @@ function controladorAcciones(caja,accion, tecla){
 	console.log(tecla);
 
 	switch(accion) {
+		case 'revisar_contenido':
+			validarEntradaNombre(caja);
+		break;
+		
 		case 'controlReferencia':
 			console.log("Estoy en buscar controladorAcciones-> controlReferencia");
 			
 		break;
+		
 		case 'salto':
 			console.log("Estoy en buscar controladorAcciones-> salto + caja:");
 			console.log(caja);
 		break;
+		
 		case 'salto_recalcular':
 			
 			var re= comprobarNumero(caja.darValor());
@@ -441,6 +447,7 @@ function controladorAcciones(caja,accion, tecla){
 				recalcularPrecioSegunCosteBeneficio(caja);
 			}
 		break
+		
 		case 'recalcularPvp':
 			var re= comprobarNumero(caja.darValor());
 			if ( re === true){
@@ -578,4 +585,15 @@ function imprimir(id, dedonde, bandera=""){
 				 
 		}	
 	});
+}
+
+function validarEntradaNombre(caja){
+	// Objetivo:
+	// Eliminar caracteres extraños para evitar errores
+	console.log(caja)
+	cadena = caja.darValor();
+	cadena = cadena.replace('"', '');
+	console.log(cadena);
+	$('#'+caja.id_input).val(cadena);
+	
 }

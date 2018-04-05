@@ -30,8 +30,8 @@ Numero tecla:
 		<caja_input>
 			<nombre id_input="nombre">cajaNombre</nombre>
 			<teclas>
-				<action tecla="13">salto</action>
-				<action tecla="40">salto</action>
+				<action tecla="13">revisar_contenido</action>
+				<action tecla="40">revisar_contenido</action>
 			</teclas>
 		</caja_input>
 			

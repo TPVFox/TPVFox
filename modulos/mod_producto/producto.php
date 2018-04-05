@@ -151,7 +151,10 @@
 						</div>
 						<div class="form-group col-md-9 ">	
 							<label class="control-label " > Nombre producto:</label>
-							<input type="text" id="nombre" name="articulo_name" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>" data-obj= "cajaNombre" onkeydown="controlEventos(event)"   size="50" >
+							<input type="text" id="nombre" name="articulo_name" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>" data-obj= "cajaNombre" onkeydown="controlEventos(event)"   size="50" required>
+							 <div class="invalid-tooltip-articulo_name" display="none">
+								No permitimos la doble comilla (") 
+							</div>
 						</div>
 					</div>
 					<div class="col-md-12">
