@@ -22,6 +22,7 @@ include './../../head.php';
 	$estado='Abierto';
 	$idProveedor=0;
 	$nombreProveedor="";
+	$Datostotales=array();
 	if ($_GET){
 		if (isset($_GET['id'])){
 			$idPedido=$_GET['id'];

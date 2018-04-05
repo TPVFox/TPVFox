@@ -841,7 +841,8 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
 		}else{
 			$idPedido=0;
-			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+			$numPedido=0;
+			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
 			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
 		}
 	}else{
@@ -1076,6 +1077,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 }
 function htmlTotales($Datostotales){
 	$htmlIvas['html'] = '';
+	if (isset($Datostotales['desglose'])){
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
 			$key = intval($key);
 			$htmlIvas['html'].='<tr id="line'.$key.'">';
@@ -1084,6 +1086,7 @@ function htmlTotales($Datostotales){
 			$htmlIvas['html'].='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
 			$htmlIvas['html'].='</tr>';
 		}
+	}
 	return $htmlIvas;
 }
 
