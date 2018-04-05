@@ -29,12 +29,15 @@ function controladorAcciones(caja,accion, tecla){
 			console.log(caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
 				if (caja.darParametro('dedonde') == "pedidos"){
-					d_focus="idArticulo"
+					d_focus="Referencia";
+					ponerFocus(d_focus);
 				}else{
 					d_focus='ultimo_coste_'+parseInt(caja.fila);
+					ponerSelect(d_focus);
+					
 				}
 			}
-			ponerFocus(d_focus);
+			
 		break;
 		case  'saltar_productos':
 			if (productos.length >0){
@@ -173,7 +176,7 @@ function controladorAcciones(caja,accion, tecla){
 			var idArticulo=productos[nfila].idArticulo;
 		
 			if (costeAnt===caja.darValor()){
-				var d_focus = 'idArticulo';
+				var d_focus = 'Referencia';
 				ponerFocus(d_focus);
 				//alert("precios iguales");
 			}else{
@@ -184,7 +187,7 @@ function controladorAcciones(caja,accion, tecla){
 					productos[nfila].CosteAnt=costeAnt;
 						addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
 						if (caja.tipo_event !== "blur"){
-						var d_focus = 'idArticulo';
+						var d_focus = 'Referencia';
 						ponerFocus(d_focus);
 				}
 				
