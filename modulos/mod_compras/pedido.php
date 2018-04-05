@@ -2,13 +2,12 @@
 <html>
 <head>
 <?php
-include './../../head.php';
+	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosCompras.php';
 	include '../../clases/Proveedores.php';
-	
 	$Cpedido=new PedidosCompras($BDTpv);
 	$Cprveedor=new Proveedores($BDTpv);
 	$Controler = new ControladorComun; 
@@ -82,20 +81,15 @@ if (isset($_POST['Guardar'])){
 	if ($guardar==0){
 		header('Location: pedidosListado.php');
 	}else{
-		
 		echo '<div class="alert alert-warning">
 		<strong>Error!</strong>No has introducido ningún producto.
 		</div>';
 	}
- 
-	
 }
 // ---------   FIN PROCESO Y CONTROL DE GUARDAR  ------------------  //
-
 $parametros = simplexml_load_file('parametros.xml');
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-//~ echo $idPedido;
 ?>
 <script type="text/javascript">
 // Objetos cajas de tpv
@@ -140,7 +134,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	?>
 </script>
 <?php 
- if ($idProveedor===0){
+if ($idProveedor===0){
 	 $idProveedor="";
 }
 ?>
@@ -148,14 +142,11 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-
 </head>
 <body>
-	
 <?php
 	include '../../header.php';
 ?>
-
 <div class="container">
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
 	<a  onclick="abrirIndicencia('pedido');"><span class="glyphicon glyphicon-pencil"></span></a>
@@ -184,8 +175,6 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 				<label>Fecha Pedido:</label>
 				<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 			</div>
-			
-			
 		<div class="col-md-12">
 			<label>Proveedor:</label>
 			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
