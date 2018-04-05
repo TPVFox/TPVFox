@@ -587,6 +587,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$productos1=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos1);
 	}
+	$imprimir['cabecera'].='<p></p><p></p>';
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
 		$imprimir['cabecera'].='<td>'.$tienda['NombreComercial'].'</td>';
@@ -607,7 +608,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$imprimir['cabecera'].='</table>';
 		
 		$imprimir['cabecera'].='<hr/><hr/>';
-		$imprimir['cabecera'].='<p>DATOS DEL CLIENTE: '.$datosCliente['Clientes'].'</p>';
+		$imprimir['cabecera'].='DATOS DEL CLIENTE: '.$datosCliente['Clientes'].'<br>';
 		
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
