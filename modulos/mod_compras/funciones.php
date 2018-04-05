@@ -621,8 +621,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	
 	);
 	//Datos del proveedor
-	
-	$imprimir['cabecera'].='<table margin>';
+	$imprimir['cabecera'].='<p ></p><p ></p>';
+	$imprimir['cabecera'].='<table >';
 	$imprimir['cabecera'].='<tr>';
 	$imprimir['cabecera'].='<td>'
 	.'Proveedor: '.$datosProveedor['idProveedor'].'<br>'

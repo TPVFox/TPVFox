@@ -4,7 +4,7 @@
 //~ $html='<p>HOLA MUNDO HTML</p>';
 $pdf = new imprimir(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-$pdf->SetMargins(10, 70,10);
+$pdf->SetMargins(20, 70, 20, true);
 $pdf->setHtmlHeader($cabecera);
 $pdf->AddPage();
 $pdf->writeHTML($html);
