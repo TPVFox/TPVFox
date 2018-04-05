@@ -3,6 +3,8 @@
 include '../../configuracion.php';
 include_once '../../clases/FormasPago.php';
 include_once '../../clases/articulos.php';
+include_once '../../clases/ClaseTablaTienda.php';
+
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
@@ -571,6 +573,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	//				- otro es el cuerpo 
 	//No hayq eu preocuparse si es mucho contenido ya que la librería pasa automaticamente a la siguiente hoja
 	$CProv= new Proveedores($BDTpv);
+	$Ctienda=new ClaseTablaTienda($BDTpv);
+	$datosTienda=$Ctienda->DatosTienda($idTienda);
 	if ($dedonde=="factura"){
 		$CFac=new FacturasCompras($BDTpv);
 		$datos=$CFac->datosFactura($id);
@@ -579,6 +583,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$numero=$datos['Numfacpro'];
 		$suNumero=$datos['su_num_factura'];
 		$textoSuNumero='SU FAC: '.$suNumero;
+		$date=date_create($datos['Fecha']);
 	}
 	if ($dedonde=="albaran"){
 		$CAlb=new AlbaranesCompras($BDTpv);
@@ -588,6 +593,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$numero=$datos['Numalbpro'];
 		$suNumero=$datos['su_numero'];
 		$textoSuNumero='SU ALB: '.$suNumero;
+		$date=date_create($datos['Fecha']);
 	}
 	if ($dedonde=="pedido"){
 		$Cpedido=new PedidosCompras($BDTpv);
@@ -595,6 +601,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAdjuntos=$Cpedido->ProductosPedidos($id);
 		$texto="Pedido Proveedor";
 		$numero=$datos['Numpedpro'];
+		$date=date_create($datos['FechaPedido']);
 	}
 	
 	$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
@@ -602,8 +609,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$productos=json_decode(json_encode($productosDEF));
 	$Datostotales = recalculoTotales($productos);
 	
-	if (isset ($datos['Fecha'])){
-		$date=date_create($datos['Fecha']);
+	if (isset ($date)){
+		
 		$fecha=date_format($date,'Y-m-d');
 	}else{
 		$fecha="";
@@ -629,13 +636,15 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 				$imprimir['cabecera'] .=''.$textoSuNumero.'<br>';
 			}
 	$imprimir['cabecera'].='</td>';
-	$imprimir['cabecera'] .='<td>';
-			$imprimir['cabecera'] .='<div>';
-			$imprimir['cabecera'] .= '<p>'.$texto.'</p>';
-			$imprimir['cabecera'] .= '<p> Nº: '.$numero.'</p>';
-			$imprimir['cabecera'] .= '<p>Fecha: '.$fecha.'</p>';
-			$imprimir['cabecera'] .= '<p>'.$idTienda.'</p>';
-			$imprimir['cabecera'] .='</div>';
+	$imprimir['cabecera'] .='<td>'
+			
+			.$texto.'<br>'
+			.'Nº: '.$numero.'<br>'
+			.'Fecha: '.$fecha.'<br>'
+			.$datosTienda['razonsocial'].'<br>'
+			.'Direccion: '.$datosTienda['direccion'].'<br>'
+			.'Telefono:'.$datosTienda['telefono'].'<br>';
+			
 	$imprimir['cabecera'].='</td>';
 	$imprimir['cabecera'].='</tr>';
 	$imprimir['cabecera'].='</table>';
