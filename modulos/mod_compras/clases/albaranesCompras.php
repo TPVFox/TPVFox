@@ -38,10 +38,17 @@ class AlbaranesCompras extends ClaseCompras{
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
-		$smt=$db->query('UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal);
+		$sql='UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal;
+	//	$smt=$db->query('UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal);
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+		}else{
 		$respuesta['idTemporal']=$idAlbaranTemporal;
 		$respuesta['productos']=$UnicoCampoProductos;
 		$respuesta['pedidos']=$UnicoCampoPedidos;
+		}
 		return $respuesta;
 	}
 
@@ -52,7 +59,6 @@ class AlbaranesCompras extends ClaseCompras{
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$sql='INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')';
-		//~ $smt = $db->query ('INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')');
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];

@@ -876,7 +876,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 		
 		if (isset($idAlbaranTemporal)){
 			$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-			if(['total']){
+			if($datosAlbaran['total']){
 				$total=$datosAlbaran['total'];
 			}else{
 				$error=1;

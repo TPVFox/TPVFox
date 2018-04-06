@@ -254,7 +254,8 @@ switch ($pulsado) {
 			//@Objetivo:
 			//Añade un albaran temporal es igual que la de pedidos pero esta vez en la tabla temporal de albaranes
 			$idAlbaranTemporal=$_POST['idTemporal'];
-			$idUsuario=$_POST['idUsuario'];
+			 $idUsuario=$_POST['idUsuario'];
+			//~ $idUsuario="";
 			$idTienda=$_POST['idTienda'];
 			$estado=$_POST['estado'];
 			$idAlbaran=$_POST['idReal'];
@@ -271,10 +272,16 @@ switch ($pulsado) {
 			$existe=0;
 			if ($idAlbaranTemporal>0){
 				$rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero);
-				$existe=1;
-			
-				$res=$rest['idTemporal'];
-				$pro=$rest['productos'];
+					if (isset($rest['error'])){
+						$respuesta['error']=$rest['error'];
+						$respuesta['consulta']=$rest['consulta'];
+						echo json_encode($respuesta);
+						break;
+					}else{
+						$existe=1;
+						$res=$rest['idTemporal'];
+						$pro=$rest['productos'];
+					}
 			}else{
 				$rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero);
 				if (isset($rest['error'])){
