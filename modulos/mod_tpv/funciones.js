@@ -627,15 +627,20 @@ function controladorAcciones(caja,accion){
 			
 		case 'poner_entrega':
 			var cambio = parseFloat(caja.darValor()) - total;
-			console.log(cambio);
-			if (cambio < 0){
-				$('#cambio').css('color','red');
-			}else {
-				$('#cambio').css('color','grey');
+			if (comprobarNumero(cambio)){
+				console.log(cambio);
+				if (cambio < 0){
+					$('#cambio').css('color','red');
+				}else {
+					$('#cambio').css('color','grey');
+				}
+				$('#cambio').val(cambio.toFixed(2));
+				// Ponemos como focus el btn de aceptar
+				ponerFocus('CobrarAceptar');
+			} else {
+				alert('Pon bien lo entregado..!!!');
+				$('#entrega').val('');
 			}
-			$('#cambio').val(cambio.toFixed(2));
-			// Ponemos como focus el btn de aceptar
-			ponerFocus('CobrarAceptar');
 			break;
 		
 		case 'cerrar_ticket':
