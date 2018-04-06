@@ -191,6 +191,7 @@ class FacturasCompras extends ClaseCompras{
 			$smt = $db->query('UPDATE facprot SET Numfacpro  = '.$id.' WHERE id ='.$id);
 		}
 		$productos = json_decode($datos['productos'], true);
+		$i=1;
 		foreach ( $productos as $prod){
 			if ($prod['estado']=='Activo' || $prod['estado']=='activo'){
 			if ($prod['ccodbar']){
@@ -208,7 +209,7 @@ class FacturasCompras extends ClaseCompras{
 			}else{
 				$refProveedor=0;
 			}
-			$i=1;
+			
 			if ($idFactura>0){
 			$smt=$db->query('INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numalbpro ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
 			}else{
