@@ -18,6 +18,7 @@
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
 	$filtro = ''; // por defecto
+	$Tienda = $_SESSION['tiendaTpv'];
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
@@ -164,7 +165,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 						
 							$date=date_create($factura['Fecha']);
 							
-							$htmlImpirmir=montarHTMLimprimir($factura['id'], $BDTpv, "factura");
+							$htmlImpirmir=montarHTMLimprimir($factura['id'], $BDTpv, "factura", $Tienda['idTienda']);
 							
 						?>
 						<tr>

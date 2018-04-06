@@ -1,6 +1,4 @@
 <?php 
-
-
 class ClaseTablaTienda{
 	
 		public function __construct($conexion){
