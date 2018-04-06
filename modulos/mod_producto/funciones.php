@@ -460,6 +460,8 @@ function prepararParaGrabar($array,$claseArticulos){
 	
 	// Ahora empiezo con las comprobaciones .
 	
+	// Montamos Sql para grabar precios:
+	$DatosProducto['Sql_update_articulos_precios'] = 'UPDATE `articulosPrecios` SET `pvpCiva`="'.$DatosProducto['pvpCiva'].'",`pvpSiva`="'.$DatosProducto['pvpSiva'].'",`idTienda`='.$DatosProducto['idTienda'].' WHERE `idArticulo`='.$array['id'];
 
 	echo '<pre>';
 	print_r($DatosProducto);
