@@ -3,16 +3,31 @@
  include_once('../mod_compras/clases/ClaseCompras.php');
 class AlbaranesCompras extends ClaseCompras{
 	public function consulta($sql){
+		// Realizamos la consulta.
 		$db = $this->db;
 		$smt = $db->query($sql);
-		return $smt;
+		if ($smt) {
+			return $smt;
+		} else {
+			$repuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
 	}
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM albprot';
 		$respuesta = $this->consulta($sql);
-		$this->num_rows = $respuesta->fetch_object()->num_reg;
+		if (gettype($respuesta)==='object'){
+			$this->num_rows = $respuesta->fetch_object()->num_reg;
+		} else {
+			// Es un array porque hubo un fallo
+			echo '<pre>';
+			print_r($respuesta);
+			echo '</pre>';
+		}
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
 	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero){
@@ -36,10 +51,17 @@ class AlbaranesCompras extends ClaseCompras{
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
-		$smt = $db->query ('INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')');
-		$id=$db->insert_id;
-		$respuesta['id']=$id;
-		$respuesta['productos']=$productos;
+		$sql='INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')';
+		//~ $smt = $db->query ('INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')');
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+		}else{
+			//$id=$db->insert_id;
+			$respuesta['id']=$db->insert_id;
+			$respuesta['productos']=$productos;
+		}
 		return $respuesta;
 	}
 	public function addNumRealTemporal($idTemporal, $idReal){

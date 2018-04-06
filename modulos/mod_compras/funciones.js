@@ -838,30 +838,34 @@ function addTemporal(dedonde=""){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de añadir PEDIDO temporal');
 			var resultado =  $.parseJSON(response); 
-			var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-			console.log(resultado.id.id);
-			if (resultado.existe == 0){
-				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idTemporal=resultado.id;
-			}
-			// Creo funcion para restear totales.	
-			resetearTotales();
-			
-			total = parseFloat(resultado['totales']['total'])
-			$('.totalImporte').html(total.toFixed(2));
-			$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
-			
-			if (dedonde=="factura"){
-				var importe= document.getElementById("Eimporte").value;
-				if (importe>0){
-					insertarImporte(total);
+			if (resultado.error){
+				alert(resultado.consulta);
+			}else{
+				var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
+				console.log(resultado.id.id);
+				if (resultado.existe == 0){
+					history.pushState(null,'','?tActual='+resultado.id);
+					cabecera.idTemporal=resultado.id;
 				}
+				// Creo funcion para restear totales.	
+				resetearTotales();
+				
+				total = parseFloat(resultado['totales']['total'])
+				$('.totalImporte').html(total.toFixed(2));
+				$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
+				
+				if (dedonde=="factura"){
+					var importe= document.getElementById("Eimporte").value;
+					if (importe>0){
+						insertarImporte(total);
+					}
+				}
+				// Ahora pintamos pie de ticket.
+				//~ if (resultado['totales']['total'] > 0 ){
+					// Quiere decir que hay datos a mostrar en pie.
+					//~ pintamosTotales(resultado);
+				//~ }
 			}
-			// Ahora pintamos pie de ticket.
-			//~ if (resultado['totales']['total'] > 0 ){
-				// Quiere decir que hay datos a mostrar en pie.
-				//~ pintamosTotales(resultado);
-			//~ }
 		}
 	});
 }

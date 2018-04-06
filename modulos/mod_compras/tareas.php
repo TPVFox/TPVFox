@@ -272,15 +272,23 @@ switch ($pulsado) {
 			if ($idAlbaranTemporal>0){
 				$rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero);
 				$existe=1;
-		
+			
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{
 				$rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero);
-				$existe=0;
-				$pro=$rest['productos'];
-				$res=$rest['id'];
-				$idAlbaranTemporal=$res;
+				if (isset($rest['error'])){
+					$respuesta['error']=$rest['error'];
+					$respuesta['consulta']=$rest['consulta'];
+						echo json_encode($respuesta);
+						break;
+					
+				}else{
+					$existe=0;
+					$pro=$rest['productos'];
+					$res=$rest['id'];
+					$idAlbaranTemporal=$res;
+				}
 			}
 			if ($idAlbaran>0){
 				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $idAlbaran);
@@ -300,6 +308,7 @@ switch ($pulsado) {
 				$respuesta['htmlTabla']=$htmlTotales['html'];
 				
 			}
+			//$respuesta['error']=$rest['error'];
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
