@@ -9,7 +9,7 @@ include ("./../../controllers/Controladores.php");
 include '../../clases/Proveedores.php';
 include 'clases/albaranesCompras.php';
 //include '../../clases/articulos.php';
-
+$Tienda = $_SESSION['tiendaTpv'];
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
  $CArticulo=new Articulos($BDTpv);
