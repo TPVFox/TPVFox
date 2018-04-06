@@ -107,41 +107,43 @@ class AlbaranesCompras extends ClaseCompras{
 			$sql='INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago, FechaVencimiento) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].', '.$datos['formaPago'].', "'.$datos['fechaVenci'].'")';
 		}
 		$productos = json_decode($datos['productos'], true);
+		$i=1;
 		foreach ( $productos as $prod){
 			if($prod['estado']=='Activo' || $prod['estado']=='activo'){
-			if ($prod['ccodbar']){
-				$codBarras=$prod['ccodbar'];
-			}else{
-				$codBarras=0;
-			}
-			if (isset($prod['numPedido'])){
-				if ($prod['numPedido']){
-					$numPed=$prod['numPedido'];
+				if ($prod['ccodbar']){
+					$codBarras=$prod['ccodbar'];
+				}else{
+					$codBarras=0;
+				}
+				if (isset($prod['numPedido'])){
+					if ($prod['numPedido']){
+						$numPed=$prod['numPedido'];
+					}else{
+						$numPed=0;
+					}
 				}else{
 					$numPed=0;
 				}
-			}else{
-				$numPed=0;
-			}
-			if (isset ($prod['crefProveedor'])){
-				if ($prod['crefProveedor']){
-					$refProveedor=$prod['crefProveedor'];
+				if (isset ($prod['crefProveedor'])){
+					if ($prod['crefProveedor']){
+						$refProveedor=$prod['crefProveedor'];
+					}else{
+						$refProveedor=0;
+					}
 				}else{
 					$refProveedor=0;
 				}
-			}else{
-				$refProveedor=0;
-			}
 			
 			
-			if ($idAlbaran>0){
-			$smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
-			}else{
-			$smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
-			$sql='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')';
-			$resultado['sql']=$sql;
+				if ($idAlbaran>0){
+				$smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
+				}else{
+				$smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
+				$sql='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')';
+				$resultado['sql']=$sql;
+				}
+				$i++;
 			}
-		}
 		} 
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idAlbaran>0){
