@@ -254,8 +254,7 @@ switch ($pulsado) {
 			//@Objetivo:
 			//Añade un albaran temporal es igual que la de pedidos pero esta vez en la tabla temporal de albaranes
 			$idAlbaranTemporal=$_POST['idTemporal'];
-			 $idUsuario=$_POST['idUsuario'];
-			//~ $idUsuario="";
+			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
 			$estado=$_POST['estado'];
 			$idAlbaran=$_POST['idReal'];
