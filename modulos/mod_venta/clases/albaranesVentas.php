@@ -101,6 +101,7 @@ class AlbaranesVentas extends ClaseVentas{
 		$smt = $db->query('UPDATE albclit SET Numalbcli  = '.$id.' WHERE id ='.$id);
 		}
 		$productos = json_decode($datos['productos'], true); 
+		$i=1;
 		foreach ( $productos as $prod){
 			if ($prod['estadoLinea']== 'Activo'){
 			if ($prod['ccodbar']){
@@ -114,10 +115,11 @@ class AlbaranesVentas extends ClaseVentas{
 				$numPed=0;
 			}
 			if ($idAlbaran>0){
-			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
+			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
 			}else{
-			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$prod['nfila'].', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
+			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
 			}
+			$i++;
 		}
 		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
