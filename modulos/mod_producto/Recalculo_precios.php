@@ -79,10 +79,11 @@
 						);
 						$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
 						$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
-						$i++;
-						$estado="";
 					}
+					
 				}
+				$i++;
+				$estado="";
 			}
 			
 			 $modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
