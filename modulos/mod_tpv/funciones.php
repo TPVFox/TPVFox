@@ -167,9 +167,9 @@ function htmlCobrar($total,$configuracion){
 	$resultado['imprimir'] = 0;
 	$resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">';
 	$resultado['html'] .= '<h1>'.number_format($total,2).'<span class="small"> €</span></h1>';
-	$resultado['html'] .= '<h4> Entrega &nbsp <input id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>';
+	$resultado['html'] .= '<h4> Entrega &nbsp <input pattern="[-+]?[0-9]*[.]?[0-9]+" id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>';
 												
-	$resultado['html'] .= '<h4> Cambio &nbsp<input class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
+	$resultado['html'] .= '<h4> Cambio &nbsp<input pattern="[-+]?[0-9]*[.]?[0-9]+" class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
 	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
 	if ($configuracion['impresion_ticket'] ==='Si'){
 		$chek = 'checked';
