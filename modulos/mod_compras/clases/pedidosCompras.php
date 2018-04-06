@@ -11,7 +11,14 @@ class PedidosCompras extends ClaseCompras{
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM pedprot';
 		$respuesta = $this->consulta($sql);
-		$this->num_rows = $respuesta->fetch_object()->num_reg;
+		if (gettype($respuesta)==='object'){
+			$this->num_rows = $respuesta->fetch_object()->num_reg;
+		} else {
+			// Es un array porque hubo un fallo
+			echo '<pre>';
+			print_r($respuesta);
+			echo '</pre>';
+		}
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
 	
@@ -20,7 +27,14 @@ class PedidosCompras extends ClaseCompras{
 		// Realizamos la consulta.
 		$db = $this->db;
 		$smt = $db->query($sql);
-		return $smt;
+		if ($smt) {
+			return $smt;
+		} else {
+			$repuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
 	}
 	
 	
@@ -32,12 +46,12 @@ class PedidosCompras extends ClaseCompras{
 		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
-		$smt=$db->query($sql);
-		$respuesta['sql']=$sql;
-		$respuesta['idTemporal']=$numPedidoTemp;
-		$respuesta['productos']=$UnicoCampoProductos;
+		$smt=$this->consulta($sql);
+		//~ $respuesta['sql']=$sql;
+		//~ $respuesta['idTemporal']=$numPedidoTemp;
+		//~ $respuesta['productos']=$UnicoCampoProductos;
 	
-		return $respuesta;
+		//~ return $respuesta;
 	}
 	public function insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor){
 		//@Objetivo:
@@ -205,11 +219,15 @@ class PedidosCompras extends ClaseCompras{
 		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
 		$db	=$this->db;
 		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite ;
-		$smt=$db->query($Sql);
+		//$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite ;
+		$smt=$this->consulta($Sql);
 		$respuesta=array();
-		
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($respuesta,$result);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+		}else{
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($respuesta,$result);
+			}
 		}
 		return $respuesta;
 	}

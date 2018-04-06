@@ -71,6 +71,11 @@
 	}
 	//MUestra un array con un número determinado de registros
 	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
+	$error="";
+	if (array_key_exists('error', $pedidosDef)){
+		$error['pedidosDef']=$pedidosDef['error'];
+	}
+	
 	?>
 
 </head>
@@ -81,7 +86,13 @@
 <?php
 
 	include '../../header.php';
+	if (is_array($error)){
+		echo '<pre>';
+		print_r($error);
+		echo '</pre>';
+	}
 	?>
+	
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
@@ -199,7 +210,8 @@
 						
 						</tr>
 						<?php
-					}
+					
+				}
 					?>
 					</tr>
 				</thead>
