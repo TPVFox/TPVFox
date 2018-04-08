@@ -178,8 +178,9 @@ switch ($pulsado) {
 		$ticket 	= ObtenerUnTicketTemporal($BDTpv,$cabecera['idTienda'],$cabecera['idUsuario'] ,$cabecera['numTickTemporal']);
 		// Comprobamos que el resultado es correcto y recalculamos totales
 		if (isset($ticket['error'])) { 
-			$respuesta['error-ticket']['mensaje'] ='Error en al Obtener ticket';
-			$respuesta['error-ticket']['datos'] = $ticket['error'];
+			$respuesta['error'][]['tipo'] = 'danger';
+			$respuesta['error'][]['mensaje'] ='Error en al Obtener ticket temporal:'+$cabecera['numTickTemporal']+'No grabamos';
+			$respuesta['error'][]['datos'] = $ticket['error'];
 			echo json_encode($respuesta); // Convierto a JSON.
 			return $respuesta; // No continuamos,.
 		}
@@ -189,14 +190,17 @@ switch ($pulsado) {
 			$productos = json_decode( json_encode( $ticket['productos'] ));
 			$Datostotales = recalculoTotales($ticket['productos']);	
 			if (number_format($Datostotales['total'],2) != number_format($cabecera['total'],2)){
-				$respuesta['error-ticket']['mensaje']  = ' No coincidente TOTAL:'.$cabecera['total'].' con el Total recalculado';
-				$respuesta['error-ticket']['datos'] = $Datostotales;
+				$respuesta['error'][]['tipo'] = 'warning';
+				$respuesta['error'][]['mensaje']  = ' No coincidente TOTAL:'.$cabecera['total'].' con el Total recalculado';
+				$respuesta['error'][]['datos'] = $Datostotales;
 			}
 			// grabamos ticket.
 			$grabar = grabarTicketCobrado($BDTpv,$productos,$cabecera,$Datostotales['desglose']);
-		//si numTickets = -1 , no existe indice usuario. = -2 es no se puede grabar en indices
-			//echo $grabar['Numtickets'];
-
+			// Si hubo un error 
+			if  (isset($grabar['error'])){
+				$respuesta['error'][] = $grabar['error'];
+			}
+			$respuesta['grabar'] =$grabar;
 		
 		}
 		if (!isset($respuesta['error']) ){
@@ -218,15 +222,7 @@ switch ($pulsado) {
 				}
 				
 			}
-		} else {
-			// Si llega aquí es que $resultado['error'] existe por lo que pudo haber un error en:
-			// $grabar = grabarTicketCobrado($BDTpv,$productos,$cabecera,$Datostotales['desglose']); 
-			// ya que el oro 
-			error_log ("Error en tareas, en if !isset($respuesta[error]");
-			exit();
-		}
-		$respuesta['grabar'] =$grabar;
-		//~ $respuesta['ticket'] = $datosImpresion;
+		} 
 		echo json_encode($respuesta);
 		break;
 		

@@ -360,19 +360,32 @@ function cerrarTicket(){
 		},
 		success    :  function (response) {
 			console.log('Respuesta de Guardar ticket Cerrado');
-			console.log(response);
 			var resultado =  $.parseJSON(response); 
 			console.log(' ********  TERMIANOS DE GRABAR TICKET CERRADO *********** ')
-			// Redireccion para volver a empezar un ticket
-			//~ window.location="tpv.php";
-			console.log(typeof resultado.error_impresora);
+			// Comprobamos que no hubo un error en el ticket
+			if (typeof resultado.error !=='undefined'){
+				console.log('Entro en error');
+				// Puede haber varios errores, lo recorremos.
+				for (var i in resultado.error) {
+					objerror= resultado.error[i];
+					console.log(objerror);
+					for (var i in objerror) {
+						console.log(objerror[i]);
+						console.log(objerror[i].tipo);
+						errorString =  "Error_" + i + "tipo = " + objerror[i].tipo + "\n";
+						errorString +=  "mensaje = " + objerror[i].mensaje + "\n";
+
+					}
+				}
+				alert('Hubo un error:'+errorString);
+				console.log(resultado.error);
+			}
 			if (typeof resultado.error_impresora =='string'){
 				alert( 'Impresora de ticket apagada o no es correcta configuracion , NO SE PUEDE IMPRIMIR !!');
-				document.location.href='tpv.php';
-			} else {
-				document.location.href='tpv.php';
-
 			}
+			// Redireccion para volver a empezar un ticket
+			document.location.href='tpv.php';
+
 		}
 	});
 	

@@ -538,14 +538,16 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	
 	// Creamos la consulta para graba en
 	// Preparamos SQl para Consulta en tickest
-	$SqlTicket = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`, `idUsuario`, `idTienda`, `idCliente`, `estado`, `formaPago`, `entregado`, `total`) VALUES ('.$numticket.','.$cabecera['numTickTemporal'].',"'.$fecha.'",'.$cabecera['idUsuario'].','.$cabecera['idTienda'].','.$cabecera['idCliente'].',"'.$estado.'","'.$cabecera['formaPago'].'",'.$cabecera['entregado'].','.$cabecera['total'].')';
+	$SqlTicket = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`, `idUsuario`, `idTienda`, `idCliente`, `estado`, `formaPago`, `entregado`, `total`) VALUES ('.$numticket.','.$cabecera['numTickTemporal'].',"'.$fecha.'",'.$cabecera['idUsuario'].','.$cabecera['idTienda'].','.$cabecera['idCliente'].',"'.$estado.'","'.$cabecera['formaPago'].'","'.$cabecera['entregado'].'","'.$cabecera['total'].'")';
 	// Ejecutamos consulta para obtener el id ( autoincremental) que el que va enlazar los tickets
 	$BDTpv->query($SqlTicket);
 	$numIdTicketT =$BDTpv->insert_id;
 	if (mysqli_error($BDTpv)){
-		$resultado['consulta'] = $SqlTicket;
-		$resultado['error'] = $BDTpv->error_list;
-		error_log(' Rotura en funcion grabarTicketCobrado()');
+		$resultado['error'][]['tipo'] = 'danger';
+		$resultado['error'][]['mensaje'] ='Consulta:'.$SqlTicket;
+		$resultado['error'][]['datos'] = json_encode($BDTpv->error_list);
+		// Registro igualmente en log, de momento...
+		error_log(' Rotura en funcion grabarTicketCobrado()->Error al grabar en ticketst');
 		error_log( json_encode($BDTpv->error_list));
 	}
 	
@@ -563,34 +565,40 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	$valores = implode(',',$valor);
 	$SqlTickets[] ='INSERT INTO `ticketslinea`(`idticketst`,`Numticket`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `precioCiva`, `iva`,nfila,estadoLinea) VALUES '.$valores;
 	// Preparamos SQl para Consulta para ticketstiva	
-	$iva = array();
-	foreach ($desglose as $index=>$valor){
-		$iva []= '('.$numIdTicketT.','.$numticket.','.$index.','.$valor['iva'].','.$valor['base'].')';
-		// $valor['iva'] -> Es el importe del iva.
+	if (count($desglose)>0){
+		// En tickets con valor 0 , no hay datos desglose..
+		$iva = array();
+		foreach ($desglose as $index=>$valor){
+			$iva []= '('.$numIdTicketT.','.$numticket.',"'.$index.'","'.$valor['iva'].'","'.$valor['base'].'")';
+			// $valor['iva'] -> Es el importe del iva.
+		}
+		$ivas = implode(',',$iva); 
+		if ($ivas !=''){
+			$SqlTickets[] = 'INSERT INTO `ticketstIva`(`idticketst`,`Numticket`, `iva`, `importeIva`,`totalbase`) VALUES '.$ivas;
+		}
 	}
-	$ivas = implode(',',$iva);
-	$SqlTickets[] = 'INSERT INTO `ticketstIva`(`idticketst`,`Numticket`, `iva`, `importeIva`,`totalbase`) VALUES '.$ivas;
-	
 	// Preparamos SQL para cambiar estado de ticket temporal.
 	$SqlTickets[] = 'UPDATE `ticketstemporales` SET `fechaFinal`="'.$fecha.'",`estadoTicket`='."'".$estado."'".' WHERE `idTienda`='.$cabecera['idTienda'].' and `idUsuario`='.$cabecera['idUsuario'].' and numticket ='.$cabecera['numTickTemporal'];
 	
 	// Ejecutamos las cuatro consultas.
-	foreach ($SqlTickets as $sql){
+	foreach ($SqlTickets as $key=>$sql){
 		$BDTpv->query($sql);
 		if (mysqli_error($BDTpv)){
-			$resultado['consulta'] = $sql;
-			$resultado['error'] = $BDTpv->error_list;
-			error_log(' Rotura en funcion grabarTicketCobrado()');
+			$resultado['error'][$key]['tipo'] = 'danger';
+			$resultado['error'][$key]['mensaje']= 'Consulta:'.$sql;
+			$resultado['error'][$key]['datos'] =json_encode($BDTpv->error_list);
+			// Registro igualmente en log, de momento...
+			error_log(' Rotura en funcion grabarTicketCobrado()-> Consulta:'.$sql);
 			error_log(json_encode($BDTpv->error_list));
-			// Rompemos programa..
-			//~ exit();
+			
 		} else {
 			// Enviamos datos que cuantos registros fueron añadidos o modificados por cada consulta..
 			// aunque no lo utilizamos.
-			$resultado[]= $BDTpv->affected_rows;
+			$resultado['num_filas_consulta'][$key]= $BDTpv->affected_rows;
 		}	
 	}
 	// Devolvemos los numeros ticket , tanto temporal como real.
+	$resultado['sql_ivas'] = gettype($desglose);
 	$resultado['Numtickets'] = $numticket;
 	$resultado['fecha'] = $fecha;
 	return $resultado;
