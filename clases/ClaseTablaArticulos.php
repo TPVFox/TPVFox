@@ -335,10 +335,12 @@ class ClaseTablaArticulos{
 		$Sql = 'SELECT codBarras FROM articulosCodigoBarras WHERE idArticulo='.$id;
 		$consulta = $this->Consulta($Sql);
 		// Aqui podemos obtener varios registros.
-		foreach ($consulta['Items'] as $cod){
-			 $codbarras[] = $cod['codBarras'];
-		};
-		$this->codBarras = $codbarras;
+		if (isset($consulta['Items'])){
+			foreach ($consulta['Items'] as $cod){
+				$codbarras[] = $cod['codBarras'];
+			};
+			$this->codBarras = $codbarras;
+		} 
 	}
 	
 	public function ObtenerCrefTiendaPrincipal(){
