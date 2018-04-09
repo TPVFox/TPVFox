@@ -253,12 +253,19 @@ class AlbaranesCompras extends ClaseCompras{
 		//@Objetivo:
 		//MOstramos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
 		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `albprot` as a LEFT JOIN proveedores as b on a.idProveedor =b.idProveedor '.$limite);
-		$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
+		$sql='SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, a.estado  from `albprot` as a LEFT JOIN proveedores as b on a.idProveedor =b.idProveedor '.$limite;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$pedidosPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($pedidosPrincipal,$result);
+			}
+			return $pedidosPrincipal;
 		}
-		return $pedidosPrincipal;
 	}
 	
 	public function sumarIva($numAlbaran){
