@@ -49,6 +49,7 @@ class ClasePlugins{
 		return $respuesta;
 		
 	}
+
 	
 	public function ObtenerDir($ruta){
 		// Objetivo scanear directorio y cuales son directorios
@@ -82,7 +83,5 @@ class ClasePlugins{
 		$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
 		
 	}
-
-
 
 }
