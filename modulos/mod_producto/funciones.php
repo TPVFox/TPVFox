@@ -376,6 +376,7 @@ function prepararParaGrabar($array,$claseArticulos){
 	
 	// Recorremos las keys
 	$DatosProducto = array();
+	$Sqls = array();
 	$DatosProducto['codBarras'] = array();
 	$DatosProducto['proveedores_costes'] = array();
 	$DatosProducto['familias'] = array();
@@ -386,7 +387,7 @@ function prepararParaGrabar($array,$claseArticulos){
 	foreach ($keys_array as $key){
 		switch ($key) {
 			case 'idIva':
-				// Obtenemos iva según id.
+				// Obtenemos iva según id obtenido en el formulario.
 				$DatosProducto['iva']		= $claseArticulos->GetUnIva($array['idIva']);
 				break;
 			case 'id':
@@ -428,8 +429,8 @@ function prepararParaGrabar($array,$claseArticulos){
 						'coste'			=> $array['prov_coste_'.$idProveedor]
 					);
 				array_push($DatosProducto['proveedores_costes'],$prov_coste);
-
 				break;
+			
 			case (substr($key, 0,11)==='idFamilias_')  :
 				// Montamos array de familias.
 				// El array que debo obtener es:
@@ -448,24 +449,60 @@ function prepararParaGrabar($array,$claseArticulos){
 				if (substr($key, 0,10) !=='prov_cref_' && substr($key, 0,11) !=='prov_coste_' && substr($key, 0,11) !=='idFamilias_'){
 					$DatosProducto[$key] 		= $array[$key]; 
 				}
-				
-
 		}
-
-		
-		
-		
-		
 	}
 	
 	// Ahora empiezo con las comprobaciones .
+	// Primero comprobamos si es nuevo o ya existia.
+	if ($array['id'] >0 ){
+		// Se esta modificando.
+		// Obtenemos los datos que tiene el producto antes.
+		$producto_sin_modificar = $claseArticulos->getProducto($array['id']);
+		$comprobaciones = array(); // Array que utilizamos para informar de lo que hicimos
+		// ---       	    Ahora empezamos con CodBarras por partes   						--- //
+		// Obtengo aquellos codbarras que no este el el Post, estos son los que tengo eliminar.
+		$codbarras_eliminados = array_diff($producto_sin_modificar['codBarras'],$DatosProducto['codBarras']);
+			
+		if (count($codbarras_eliminados)>0){
+			// Quiere decir que SE BORRO alguno o todos los codbarras que existia.
+			// Eliminamos el codbarras del producto.
+			$Sqls['eliminados'] = $claseArticulos->EliminarCodbarras($array['id'],$codbarras_eliminados);
+			if ($Sqls['eliminados']['NEliminados']===count($codbarras_eliminados)){
+				$comprobaciones[0]['tipo']= 'success';
+				$comprobaciones[0]['mensaje']= 'Eliminamos los siguiente codbarras para este producto:'.implode(',',$codbarras_eliminados);
+			} else {
+				$comprobaciones[0]['tipo']= 'dargen';
+				$comprobaciones[0]['mensaje']= 'Error no coincide el numero eliminado de codbarras: '.implode(',',$codbarras_eliminados);
+			}
+			$comprobaciones[0]['dato']= json_encode($Sqls['eliminados']);
+		}
+		// Ahora vemos los que tenemos que añadir.
+		// En array de los codbarras recibidos ($DatosProducto['codBarras']) eliminamos aquellos que vamos añadir.
+		$codbarras_nuevos = array_diff($DatosProducto['codBarras'],$producto_sin_modificar['codBarras']);
+		if (count($codbarras_nuevos)>0){
+			$Sqls['anhadidos'] = $claseArticulos->AnhadirCodbarras($array['id'],$codbarras_nuevos);
+			if ($Sqls['anhadidos']['NAnhadidos']===count($codbarras_nuevos)){
+				$comprobaciones[1]['tipo']= 'success';
+				$comprobaciones[1]['mensaje']= 'Añadimos los siguiente codbarras: '.implode(',',$codbarras_nuevos);
+			} else {
+				$comprobaciones[1]['tipo']= 'dargen';
+				$comprobaciones[1]['mensaje']= 'Error no coincide el numero insertado con los codbarras que iba añadir codbarras: '.implode(',',$codbarras_nuevos);
+			}
+			$comprobaciones[1]['dato'] = json_encode($Sqls['anhadidos']);
+		}
+		$DatosProducto['Sqls']['codbarras'] = $comprobaciones;
+		
+		// ---					Cambiamos los precios								 --- //
+		$DatosProducto['Sql_update_articulos_precios'] = 'UPDATE `articulosPrecios` SET `pvpCiva`="'.$DatosProducto['pvpCiva'].'",`pvpSiva`="'.$DatosProducto['pvpSiva'].'",`idTienda`='.$DatosProducto['idTienda'].' WHERE `idArticulo`='.$array['id'];
+		
+	}
 	
-	// Montamos Sql para grabar precios:
-	$DatosProducto['Sql_update_articulos_precios'] = 'UPDATE `articulosPrecios` SET `pvpCiva`="'.$DatosProducto['pvpCiva'].'",`pvpSiva`="'.$DatosProducto['pvpSiva'].'",`idTienda`='.$DatosProducto['idTienda'].' WHERE `idArticulo`='.$array['id'];
 
-	echo '<pre>';
-	print_r($DatosProducto);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ echo 'Este array no es obtenido con getProducto, es montado, por lo que las comprobaciones del producto no la hicimos. <br/>;';
+	//~ print_r($DatosProducto);
+	//~ echo '</pre>';
+	return $DatosProducto;
 	
 }
 
@@ -499,6 +536,9 @@ function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProv
 	return $imprimir;
 }
 function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor){
+	// Objetivo
+	// Funcion para imprimir recalculo, sin guardar.
+	
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "compras");
 	$datosAlbaran=$CAlbaran->datosAlbaran($id);
 	$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);

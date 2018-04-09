@@ -33,8 +33,7 @@ include ($RutaServidor.$HostNombre.'/clases/ClaseTablaArticulos.php');
 class ClaseProductos extends ClaseTablaArticulos{
 	
 	public $idTienda ; // Obtenemos el idTienda de la clase extendida.
-		
-
+	
 	
 	public function __construct($conexion='')
 	{
@@ -99,11 +98,12 @@ class ClaseProductos extends ClaseTablaArticulos{
 		parent::GetProducto($id);
 		// Ahora hacemos nuestra comprobaciones.
 		$producto = $this->ArrayPropiedades();
+		// Reinicio comprobacionesEstado.
+		$this->comprobaciones = array();
 		$this->comprobacionesEstado($producto);
 		return $this->ArrayPropiedades();
 		
 	}
-
 	
 	public function cambiarTienda($id){
 		// @Objetivo
@@ -220,10 +220,22 @@ class ClaseProductos extends ClaseTablaArticulos{
 		}
 	}
 	
-	function EliminarCodbarras($id){
-			// Objetivo eliminar codBarras del producto que enviamos.
+	function EliminarCodbarras($id,$codbarras = array()){
+			// @ Objetivo 
+			// Una funcion para eliminar uno o todos los codBarras del producto que enviamos.
+			// @ parametros:
+			// 		id-> (int) ID del producto
+			// 		codbarras -> (array) -> (strings) Codbarras queremos eliminar.
+			$respuesta = array();
 			if ($id > 0){
-				$sql = 'DELETE FROM `articulosCodigoBarras` WHERE `idArticulo`='.$id;
+				if (count($codbarras)>0){
+					// Entonces eliminamos solo el codbarras que indicamos.
+					foreach ($codbarras as $key=>$cd){
+						$codbarras[$key]= 'codbarras="'.$cd.'"';
+					}
+					$stringCodbarras = ' AND ('.implode(' OR ',$codbarras).')'; 
+				}
+				$sql = 'DELETE FROM `articulosCodigoBarras` WHERE `idArticulo`='.$id.$stringCodbarras;
 				$DB = parent::GetDb();
 				$smt = $DB->query($sql);
 				if ($smt) {
@@ -234,13 +246,48 @@ class ClaseProductos extends ClaseTablaArticulos{
 					$respuesta['consulta'] = $sql;
 					$respuesta['error'] = $DB->connect_errno;
 				}
+				$respuesta['consulta'] = $sql;
 				
 			}
+			$respuesta['consulta'] = $sql;
 			return $respuesta;
 			
 	}
 		
-		
+	function AnhadirCodbarras($id,$codbarras = array()){
+			// @ Objetivo 
+			// Una funcion para añadir uno o mas codBarras al producto que enviamos.
+			// @ parametros:
+			// 		id-> (int) ID del producto
+			// 		codbarras -> (array) -> (strings) Codbarras queremos añadir.
+			$respuesta = array();
+			$values = array();
+			if ($id > 0){
+				if (count($codbarras)>0){
+					// Entonces eliminamos solo el codbarras que indicamos.
+					foreach ($codbarras as $key=>$cd){
+						$values[]= '('.$id.',"'.$cd.'")';
+					}
+				}
+				$stringValues = implode(',',$values);
+				$sql = 'INSERT INTO `articulosCodigoBarras`(`idArticulo`, `codBarras`) VALUES '.$stringValues;
+				$DB = parent::GetDb();
+				$smt = $DB->query($sql);
+				if ($smt) {
+					$respuesta['NAnhadidos'] = $DB->affected_rows;
+					// Hubo resultados
+				} else {
+					// Quiere decir que hubo error en la consulta.
+					$respuesta['consulta'] = $sql;
+					$respuesta['error'] = $DB->connect_errno;
+				}
+				$respuesta['consulta'] = $sql;
+				
+			}
+			$respuesta['consulta'] = $sql;
+			return $respuesta;
+			
+	}	
 	
 	
 	

@@ -24,9 +24,7 @@
 		
 		$titulo = 'Productos:';
 		$id = 0 ; // Por  defecto el id a buscar es 0
-		$tabla= 'articulos'; // Tablas que voy utilizar.
-		$estadoInput = 'disabled'; //desactivado input de entrada 
-		
+				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
 		$posibles_estados = $CTArticulos->posiblesEstados('articulos');
 			
@@ -40,10 +38,26 @@
 			$titulo .= "Crear";
 
 		}
+		if ($_POST){
+			
+			$preparados= prepararParaGrabar($_POST,$CTArticulos);
+			
+			// Comprobamos los datos antes de grabar.
+			// header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
+		}
+		//~ echo '<pre>';
+		//~ print_r($Producto);
+		//~ echo '</pre>';
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->getProducto($_GET['id']);
-		
-		
+		if (isset($preparados['Sqls'])){
+			// quiere decir que hizo consultas por lo que tenemos comprobaciones
+			echo 'Algo mucho mas que algo';
+			foreach ($preparados['Sqls']['codbarras'] as $comprobacion){
+				$CTArticulos->SetComprobaciones($comprobacion);
+			}
+		}
+		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
@@ -68,12 +82,7 @@
 	<body>
 		<?php     
         include './../../header.php';
-		// Comprobamos si el estado es Nuevo
-		if ($Producto['estado'] === 'Nuevo'){
-			$disabled = '';
-		} else {
-			$disabled = '';
-		}
+		
 		// Ahora montamos html 
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
 		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
@@ -87,26 +96,9 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
-		//~ echo '<pre>';
-		//~ print_r($Producto);
-		//~ echo '</pre>';
-			
 		
-		if ($_POST){
-			
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
-			prepararParaGrabar($_POST,$CTArticulos);
-			
-			
-			
-			// Comprobamos los datos antes de grabar.
-			// header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
-		}
-		//~ echo '<pre>';
-		//~ print_r($Producto);
-		//~ echo '</pre>';
+		
+		
 		
 		?>
 
@@ -196,7 +188,7 @@
 						</div>
 						<div class="col-md-4 ">	
 							<label class="control-label " > Precio sin Iva:</label>
-							<input type="text" id="pvpSiva" size="10" name="pvpSiva"  data-obj= "cajaPvpSiva" onkeydown="controlEventos(event)" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
+							<input type="text" id="pvpSiva" size="10" name="pvpSiva"  data-obj= "cajaPvpSiva" onkeydown="controlEventos(event)" onblur="controlEventos(event)" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
 						</div>
 						<div class="col-md-4 ">	
 							<label class="control-label " >
@@ -205,7 +197,7 @@
 							<span title ="Recalcular según beneficio y ultimo coste" class="glyphicon glyphicon-refresh"></span>
 							</a>
 							</label>
-							<input type="text" id="pvpCiva" size="10" name="pvpCiva"  data-obj= "cajaPvpCiva" onkeydown="controlEventos(event)"  value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
+							<input type="text" id="pvpCiva" size="10" name="pvpCiva"  data-obj= "cajaPvpCiva" onkeydown="controlEventos(event)" onblur="controlEventos(event)"  value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
 						</div>
 					</div>
 				</div>
