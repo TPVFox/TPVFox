@@ -343,8 +343,10 @@ class ClaseTablaArticulos{
 			foreach ($consulta['Items'] as $cod){
 				$codbarras[] = $cod['codBarras'];
 			};
-			$this->codBarras = $codbarras;
-		} 
+		}
+		// Si no hay resultado devolvemos array vacio igualmente... 
+		$this->codBarras = $codbarras;
+		 
 	}
 	
 	public function ObtenerCrefTiendaPrincipal(){
