@@ -148,7 +148,6 @@ include './../../head.php';
 		if ($guardar==0){
 			header('Location: albaranesListado.php');
 		}else{
-			
 			echo '<div class="alert alert-warning">
 			<strong>Error!</strong>No has introducido ningún producto.
 			</div>';
@@ -312,7 +311,6 @@ if ($suNumero==0){
 <div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">
-			
 				<div class="col-md-4">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
