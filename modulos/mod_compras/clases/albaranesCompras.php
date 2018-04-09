@@ -149,7 +149,7 @@ class AlbaranesCompras extends ClaseCompras{
 		if ($idAlbaran>0){
 			$smt = $db->query ('INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('.$idAlbaran.' , '.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].', '.$datos['formaPago'].', "'.$datos['fechaVenci'].'")');
 			$id=$idAlbaran;
-	$resultado['id']=$id;
+			$resultado['id']=$id;
 		}else{
 			$smt = $db->query ('INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago, FechaVencimiento) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].', '.$datos['formaPago'].', "'.$datos['fechaVenci'].'")');
 			$id=$db->insert_id;
@@ -235,13 +235,19 @@ class AlbaranesCompras extends ClaseCompras{
 		//@Objetivo:
 		//Mostramos todos los albaranes temporales
 			$db = $this->db;
-			$smt=$db->query('SELECT tem.numalbpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial from albproltemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor');
-			$albaranPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($albaranPrincipal,$result);
+			$sql='SELECT tem.numalbpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial from albproltemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor';
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+			}else{
+				$albaranPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($albaranPrincipal,$result);
+				}
+				return $albaranPrincipal;
 			}
-			return $albaranPrincipal;
-		
 	}
 	public function TodosAlbaranesLimite($limite){
 		//@Objetivo:

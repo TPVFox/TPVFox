@@ -21,7 +21,13 @@ $CAlb=new AlbaranesCompras($BDTpv);
 
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
-
+if ($todosTemporal['error']){
+	$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $todosTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+}
 $todosTemporal=array_reverse($todosTemporal);
 	// --- Preparamos el Paginado --- //
 	$palabraBuscar=array();
@@ -82,6 +88,14 @@ $todosTemporal=array_reverse($todosTemporal);
 <?php
 
 	include '../../header.php';
+	
+	if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+	}
 	?>
 	<div class="container">
 		<div class="row">
