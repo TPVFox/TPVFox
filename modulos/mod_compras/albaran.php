@@ -30,47 +30,64 @@ include './../../head.php';
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){
-		$idAlbaran=$_GET['id'];
-		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
-		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
-		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
-		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
+		//~ $idAlbaran=$_GET['id'];
+		//~ $datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
+		//~ $productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
+		//~ $ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
+		//~ $pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
+		//~ $estado=$datosAlbaran['estado'];
+		//~ $fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
+		//~ $idAlbaranTemporal=0;
+		//~ if ($datosAlbaran['formaPago']){
+			//~ $formaPago=$datosAlbaran['formaPago'];
+		//~ }
+		//~ if ($datosAlbaran['FechaVencimiento']){
+			//~ if ($datosAlbaran['FechaVencimiento']==0000-00-00){
+				//~ $fechaVencimiento="";
+			//~ }else{
+			//~ $fechaVencimiento=date_format(date_create($datosAlbaran['FechaVencimiento']),'Y-m-d');
+		//~ }
+		//~ }
+		//~ echo $datosAlbaran['FechaVencimiento'];
+		//~ $idProveedor=$datosAlbaran['idProveedor'];
+		//~ if ($datosAlbaran['Su_numero']>0){
+			//~ $suNumero=$datosAlbaran['Su_numero'];
+		//~ }else{
+			//~ $suNumero=0;
+		//~ }
+		//~ if ($idProveedor){
+			//~ $proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+			//~ $nombreProveedor=$proveedor['nombrecomercial'];
+		//~ }
+		//~ //Modificamos el array de productos para que sea lo mismo que en facturas y pedidos de esta manera siempre podemos
+		//~ //Utilizar siempre las mismas funciones 
+		//~ $productosAlbaran=modificarArrayProductos($productosAlbaran);
+		//~ $productos=json_decode(json_encode($productosAlbaran));
+		//~ //Calciular el total con los productos que estn registrados
+		//~ $Datostotales = recalculoTotales($productos);
+		//~ $productos=json_decode(json_encode($productosAlbaran), true);
+		//~ if ($pedidosAlbaran){
+			 //~ $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
+			 //~ $pedidos=json_decode(json_encode($modificarPedido), true);
+		//~ }
+		//~ echo $pedidos;
+		$datosAlbaran=DatosIdAlbaran($_GET['id'], $CAlb, $Cprveedor);
+		if ($datosAlbaran['errores']){
+		$errores=$datosAlbaran['errores'];
+	}else{
+		$idAlbaran=$datosAlbaran['idAlbaran'];
 		$estado=$datosAlbaran['estado'];
-		$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
+		$fecha=$datosAlbaran['fecha'];
 		$idAlbaranTemporal=0;
-		if ($datosAlbaran['formaPago']){
-			$formaPago=$datosAlbaran['formaPago'];
-		}
-		if ($datosAlbaran['FechaVencimiento']){
-			if ($datosAlbaran['FechaVencimiento']==0000-00-00){
-				$fechaVencimiento="";
-			}else{
-			$fechaVencimiento=date_format(date_create($datosAlbaran['FechaVencimiento']),'Y-m-d');
-		}
-		}
-		echo $datosAlbaran['FechaVencimiento'];
+		$formaPago=$datosAlbaran['formaPago'];
+		$fechaVencimiento=$datosAlbaran['fechaVencimiento'];
 		$idProveedor=$datosAlbaran['idProveedor'];
-		if ($datosAlbaran['Su_numero']>0){
-			$suNumero=$datosAlbaran['Su_numero'];
-		}else{
-			$suNumero=0;
+		$suNumero=$datosAlbaran['suNumero'];
+		$nombreProveedor=$datosAlbaran['nombreProveedor'];
+		$productos=$datosAlbaran['productos'];
+		$Datostotales=$datosAlbaran['DatosTotales'];
+		$pedidos=$datosAlbaran['pedidos'];
 		}
-		if ($idProveedor){
-			$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
-			$nombreProveedor=$proveedor['nombrecomercial'];
-		}
-		//Modificamos el array de productos para que sea lo mismo que en facturas y pedidos de esta manera siempre podemos
-		//Utilizar siempre las mismas funciones 
-		$productosAlbaran=modificarArrayProductos($productosAlbaran);
-		$productos=json_decode(json_encode($productosAlbaran));
-		//Calciular el total con los productos que estn registrados
-		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productosAlbaran), true);
-		if ($pedidosAlbaran){
-			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
-			 $pedidos=json_decode(json_encode($modificarPedido), true);
-		}
-		echo $pedidos;
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id
@@ -252,6 +269,13 @@ if ($suNumero==0){
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
 	include '../../header.php';
+		if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+	}
 ?>
 <script type="text/javascript">
 // Objetos cajas de tpv
