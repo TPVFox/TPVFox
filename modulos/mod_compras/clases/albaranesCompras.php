@@ -78,6 +78,7 @@ class AlbaranesCompras extends ClaseCompras{
 		$smt = $db->query($sql);
 		if ($smt) {
 			$respuesta['id']=$db->insert_id;
+		//	$respuesta['id']=mysqli_insert_id($db);
 			$respuesta['sql']=$sql;
 			return $respuesta;
 		} else {
