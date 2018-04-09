@@ -144,7 +144,6 @@
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
 		
 		
-		
 		?>
 
      
