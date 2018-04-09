@@ -39,7 +39,6 @@ class AlbaranesCompras extends ClaseCompras{
 		$UnicoCampoProductos=json_encode($productos);
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$sql='UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal;
-	//	$smt=$db->query('UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
@@ -64,7 +63,6 @@ class AlbaranesCompras extends ClaseCompras{
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 		}else{
-			//$id=$db->insert_id;
 			$respuesta['id']=$db->insert_id;
 			$respuesta['productos']=$productos;
 		}
@@ -74,7 +72,13 @@ class AlbaranesCompras extends ClaseCompras{
 		//Objetivo:
 		//Modificar el albarán tempoal en el caso de que tengamos un numeroReal
 		$db=$this->db;
-		$smt=$db->query('UPDATE albproltemporales set numalbpro ='.$idReal .'  where id='.$idTemporal);
+		$sql='UPDATE albproltemporales set numalbpro ='.$idReal .'  where id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	public function modEstadoAlbaran($idAlbaran, $estado){
 		// @Objetivo:

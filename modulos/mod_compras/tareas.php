@@ -298,6 +298,12 @@ switch ($pulsado) {
 			}
 			if ($idAlbaran>0){
 				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $idAlbaran);
+				if (isset($rest['error'])){
+						$respuesta['error']=$rest['error'];
+						$respuesta['consulta']=$rest['consulta'];
+						echo json_encode($respuesta);
+						break;
+				}
 				$estado="Sin Guardar";
 				$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
 			}
