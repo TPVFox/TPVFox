@@ -209,7 +209,9 @@ switch ($pulsado) {
 			$productos=$_POST['productos'];
 			$idProveedor=$_POST['idProveedor'];
 			$existe=0; // Variable para devolver y saber si modifico o insert.
+			//Existe la utilizo como bandera para que el javascript solo me cree una vez la url del temporal
 			if ($numPedidoTemp>0){
+				//Si existe el número temporal se modifica el temporal
 				$rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos);
 				if (isset($rest['error'])){
 						$respuesta['error']=$rest['error'];
@@ -220,6 +222,7 @@ switch ($pulsado) {
 					$existe=1;
 				}
 			}else{
+				//Si no existe crea un temporal nuevo
 				$rest=$CPed->insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor);
 				if (isset($rest['error'])){
 						$respuesta['error']=$rest['error'];
@@ -234,6 +237,7 @@ switch ($pulsado) {
 			}
 			$pro=$rest['productos'];
 			 if ($idPedido>0){
+				 //Si existe u pedido real se modifica el temporal para indicarle que tiene un numero temporal
 				//Existe idPedido, estamos modificacion de un pedido,añadimos el número del pedido real al registro temporal
 				//y modificamos el estado del pedido real a sin guardar.
 				$modId=$CPed->addNumRealTemporal($numPedidoTemp, $idPedido);
@@ -244,6 +248,7 @@ switch ($pulsado) {
 						break;
 				}
 				$estado="Sin Guardar";
+				// Se modifica el estado del pedido real a sin guardar
 				$modEstado=$CPed->modEstadoPedido($idPedido, $estado);
 				if (isset($modId['error'])){
 						$respuesta['error']=$modEstado['error'];
@@ -308,6 +313,7 @@ switch ($pulsado) {
 				if (isset($rest['error'])){
 					$respuesta['error']=$rest['error'];
 					$respuesta['consulta']=$rest['consulta'];
+					$existe=0;
 						echo json_encode($respuesta);
 						break;
 					
