@@ -264,9 +264,9 @@ if ($idProveedor==0){
 if ($suNumero==0){
 	$suNumero="";
 }
-echo '<pre>';
-print_r($Datostotales);
-echo '</pre>';
+//~ echo '<pre>';
+//~ print_r($Datostotales);
+//~ echo '</pre>';
 ?>
 </head>
 <body>

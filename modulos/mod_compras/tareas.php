@@ -314,8 +314,9 @@ switch ($pulsado) {
 				}else{
 					$existe=0;
 					$pro=$rest['productos'];
-					$res=$rest['id'];
-					$idAlbaranTemporal=$res;
+					$idAlbaranTemporal=$rest['id'];
+					$respuesta['id']=$rest['id'];
+					$respuesta['sqlTemporal']=$rest['sql'];
 				}
 			}
 			if ($idAlbaran>0){
@@ -342,7 +343,7 @@ switch ($pulsado) {
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
-				$modTotal=$CAlb->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
+				$modTotal=$CAlb->modTotales($idAlbaranTemporal, $respuesta['total'], $CalculoTotales['subivas']);
 				if (isset($modTotal['error'])){
 						$respuesta['error']=$modTotal['error'];
 						$respuesta['consulta']=$modTotal['consulta'];

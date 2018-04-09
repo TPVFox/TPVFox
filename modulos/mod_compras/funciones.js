@@ -836,7 +836,7 @@ function addTemporal(dedonde=""){
 			console.log('******** estoy en añadir PEDIDO temporal JS****************');
 		},
 		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir PEDIDO temporal');
+			console.log('Llegue devuelta respuesta de añadir  temporal');
 			var resultado =  $.parseJSON(response); 
 			if (resultado.error){
 				alert(resultado.consulta);
