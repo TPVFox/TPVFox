@@ -199,8 +199,7 @@ function recalculoTotales($productos) {
 	$respuesta = array();
 	$desglose = array();
 	$subivas = 0;
-	$subtotal = 0;
-	
+	$subtotal = 0;	
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estado === 'Activo'){
@@ -214,17 +213,13 @@ function recalculoTotales($productos) {
 			$desglose[$product->iva]['base'] = number_format($product->importe,2);
 			$desglose[$product->iva]['iva'] = number_format($product->importe*$bandera,2);
 			}
-			$desglose[$product->iva]['BaseYiva'] =$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'];
-			
-		}
-		
-	
+			$desglose[$product->iva]['BaseYiva'] =$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'];		
+		}			
 	}
 	foreach($desglose as $tipoIva=>$des){
 		$subivas= $subivas+$desglose[$tipoIva]['iva'];
 		$subtotal= $subtotal +$desglose[$tipoIva]['BaseYiva'];
-	}
-	
+	}	
 	$respuesta['desglose'] = $desglose;
 	$respuesta['subivas']=$subivas;
 	$respuesta['total'] = number_format($subtotal,2);
@@ -237,8 +232,7 @@ function htmlLineaProducto($productos, $dedonde){
 	 $respuesta=array('html'=>'');
 	if(!is_array($productos)) {
 		// Comprobamos si product no es objeto lo convertimos.
-		$producto = (array)$productos;
-		
+		$producto = (array)$productos;		
 	} else {
 		$producto = $productos;
 	}
@@ -267,10 +261,8 @@ function htmlLineaProducto($productos, $dedonde){
 					$numeroPed=$producto['numPedido'];
 				}
 			}else{
-			
 				$numeroPed="";
 			}
-			
 			if ($dedonde=="factura"){
 				if (isset($producto['numAlbaran'])){
 					if ($producto['numAlbaran']>0){
@@ -314,25 +306,26 @@ function htmlLineaProducto($productos, $dedonde){
 					$codBarra="";
 				}
 			}
-		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
-		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
+		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>'
+		 .'<td class="linea">'.$producto['nfila'].'</td>';
 		 if ($dedonde=="albaran" || $dedonde=="factura"){
 			$respuesta['html'].= '<td class="idArticulo">'.$numeroPed.'</td>';
 		 } 
-		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
-		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
-		 $respuesta['html'] .=$filaProveedor;
-		 $respuesta['html'] .='<td class="codbarras">'.$codBarra.'</td>';
-		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
+		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>'
+		 .'<td class="referencia">'.$producto['cref'].'</td>'.$filaProveedor
+		 .'<td class="codbarras">'.$codBarra.'</td>'
+		 .'<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['nunidades'],2);
-		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila"  pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
-		 $respuesta['html'] .='<td class="pvp">'.$coste.'</td>';
-		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
+		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
+		 .'" type="text" data-obj="Unidad_Fila"  pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'
+		 .$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>'
+		 .'<td class="pvp">'.$coste.'</td>'
+		 . '<td class="tipoiva">'.$producto['iva'].'%</td>';
 		 $importe=$producto['ultimoCoste']*$producto['nunidades'];	
 		 $importe = number_format($importe,2);
-		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
-		 $respuesta['html'] .= $btnELiminar_Retornar;
-		 $respuesta['html'] .='</tr>';
+		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>'
+		 . $btnELiminar_Retornar
+		 .'</tr>';
 		 $respuesta['productos']=$producto;
 	 return $respuesta;
 }
