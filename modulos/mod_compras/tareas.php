@@ -233,14 +233,24 @@ switch ($pulsado) {
 				}
 			}
 			$pro=$rest['productos'];
-	
-			
 			 if ($idPedido>0){
 				//Existe idPedido, estamos modificacion de un pedido,añadimos el número del pedido real al registro temporal
 				//y modificamos el estado del pedido real a sin guardar.
 				$modId=$CPed->addNumRealTemporal($numPedidoTemp, $idPedido);
+				if (isset($modId['error'])){
+						$respuesta['error']=$modId['error'];
+						$respuesta['consulta']=$modId['consulta'];
+						echo json_encode($respuesta);
+						break;
+				}
 				$estado="Sin Guardar";
 				$modEstado=$CPed->modEstadoPedido($idPedido, $estado);
+				if (isset($modId['error'])){
+						$respuesta['error']=$modEstado['error'];
+						$respuesta['consulta']=$modEstado['consulta'];
+						echo json_encode($respuesta);
+						break;
+				}
 			 }
 			if ($productos){
 				//Recalcula el valor de los productos
