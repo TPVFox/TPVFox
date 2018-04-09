@@ -362,17 +362,12 @@ function modificarArrayProductos($productos){
 function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	//@Objetivo: 
 	//retornar el html dle modal de adjuntos tanto como si buscamos un pedido en albaranes o un albarán en facturas
-	$respuesta['html']	.= '<table class="table table-striped"><thead>';
-	$respuesta['html']	.= '<th>';
-	$respuesta['html']	.= '<td>Número </td>';
-	$respuesta['html']	.= '<td>Fecha</td>';
+	$respuesta['html']	.= '<table class="table table-striped"><thead>'
+	. '<th><td>Número </td><td>Fecha</td>';
 	if ($dedonde=="factura"){
-		$respuesta['html']	.= '<td>Fecha Venci</td>';
-		$respuesta['html']	.= '<td>Forma Pago</td>';
+		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td>';
 	}
-	$respuesta['html']	.= '<td>Total</td>';
-	$respuesta['html']	.= '</th>';
-	$respuesta['html'] 	.=  '</thead><tbody>';
+	$respuesta['html']	.= '<td>Total</td></th></thead><tbody>';
 	$contad = 0;
 	foreach ($adjuntos as $adjunto){
 		if ($dedonde=="albaran"){
@@ -386,8 +381,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$numAdjunto.');">';
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-		$respuesta['html']	.= '<td>'.$numAdjunto.'</td>';
-		$respuesta['html']	.= '<td>'.$fecha.'</td>';
+		$respuesta['html']	.= '<td>'.$numAdjunto.'</td><td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){
 			if($adjunto['FechaVencimiento']){
 				if ($adjunto['FechaVencimiento']=="0000-00-00"){
@@ -405,11 +399,9 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			}else{
 				$textformaPago="";
 			}
-			$respuesta['html']	.= '<td>'.$fechaVenci.'</td>';
-			$respuesta['html']	.= '<td>'.$textformaPago.'</td>';
+			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
 		}
-		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
-		$respuesta['html']	.= '</tr>';
+		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td></tr>';
 		$contad = $contad +1;
 		if ($contad === 10){
 			// Mostramos solo 10 albaranes... 
