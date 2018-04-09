@@ -321,12 +321,17 @@ switch ($pulsado) {
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
 				$modTotal=$CAlb->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
+				if (isset($modTotal['error'])){
+						$respuesta['error']=$modTotal['error'];
+						$respuesta['consulta']=$modTotal['consulta'];
+						echo json_encode($respuesta);
+						break;
+				}
 				$respuesta['sqlmodtotal']=$modTotal['sql'];
 				$htmlTotales=htmlTotales($CalculoTotales);
 				$respuesta['htmlTabla']=$htmlTotales['html'];
 				
 			}
-			//$respuesta['error']=$rest['error'];
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];

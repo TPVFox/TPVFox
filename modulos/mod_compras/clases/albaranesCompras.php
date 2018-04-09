@@ -96,7 +96,13 @@ class AlbaranesCompras extends ClaseCompras{
 	public function modTotales($res, $total, $totalivas){
 		//@Objetivo:Modificar los totales del albarán temporal
 		$db=$this->db;
-		$smt=$db->query('UPDATE albproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
+		$sql='UPDATE albproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	
 	public function buscarAlbaranTemporal($idAlbaranTemporal){
