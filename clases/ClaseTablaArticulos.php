@@ -51,6 +51,7 @@ class ClaseTablaArticulos{
 		// @ Objetivo:
 		// Realizar una consulta y devolver numero respuesta... o error..
 		// [NOTA]
+		// Solo valido para SELECT
 		// No debería se funcion publica.
 		// Habría que hacer algo como :
 		// http://php.net/manual/es/mysqli-stmt.bind-param.php
@@ -173,7 +174,10 @@ class ClaseTablaArticulos{
 		
 		return $respuesta;
 	}
-	
+	public function GetDb(){
+		// Puede hacer falta para insert ,update, delete...
+		return $this->db;
+	}
 	
 	public function GetNumRows(){
 		return $this->num_rows;
