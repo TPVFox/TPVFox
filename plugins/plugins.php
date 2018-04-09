@@ -28,10 +28,21 @@ class ClasePlugins{
 		$contador = 0;
 		foreach ($plugins as $plugin){
 			// Recorremos los directorios de la ruta indicada.
-			$fichero_parametro = $ruta.'/'.$plugin.'/parametros.xml';
+			$ruta_plugin = $ruta.'/'.$plugin;
+			$fichero_parametro = $ruta_plugin.'/parametros.xml';
 			// Instanciamos el fichero
 			$parametros = new ClaseParametros($fichero_parametro);
+			// Ahora añadimos la ruta del plugin.
+			$p = $parametros->getRoot();
+			$p->datos_generales->addChild("ruta",$ruta_plugin);
+			// Ahora obtenemos array con los datos de 
 			$respuesta[$contador]['datos_generales'] =$parametros->ArrayElementos('datos_generales'); 
+			// Ahora creamos la clase para cada plugin.
+			$ruta_clase = $ruta_plugin.'/'.$respuesta[$contador]['datos_generales']['nombre_fichero_clase'].'.php';
+			include ($ruta_clase);
+			$nombre_clase = 'Plugin'.$respuesta[$contador]['datos_generales']['nombre_fichero_clase'];
+			$clase = new $nombre_clase;
+			$respuesta[$contador]['clase']= $clase;
 			$contador++;
 			
 		} 
