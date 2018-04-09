@@ -1139,74 +1139,90 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 function DatosIdAlbaran($id, $CAlb, $Cprveedor){
 		$idAlbaran=$id;
 		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
-			if ($datosAlbaran['error']){
-			$errores[1]=array ( 'tipo'=>'Danger!',
-									 'dato' => $albaranesDef['consulta'],
+		if ($datosAlbaran['error']){
+			$errores['error'][0]=array ( 'tipo'=>'Danger!',
+									 'dato' => $datosAlbaran['consulta'],
 									 'class'=>'alert alert-danger',
 									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 									 );
-		
-		}
+		}else{
 		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
+		if ($productosAlbaran['error']){
+			$errores['error'][1]=array ( 'tipo'=>'Danger!',
+									 'dato' => $productosAlbaran['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+		}
 		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
+		if ($ivasAlbaran['error']){
+			$errores['error'][2]=array ( 'tipo'=>'Danger!',
+									 'dato' => $ivasAlbaran['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+		}
 		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
-		$estado=$datosAlbaran['estado'];
-		$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
-		//~ $idAlbaranTemporal=0;
-		if ($datosAlbaran['formaPago']){
-			$formaPago=$datosAlbaran['formaPago'];
-		}else{
-		$formaPago=0;
+		if ($pedidosAlbaran['error']){
+			$errores['error'][3]=array ( 'tipo'=>'Danger!',
+									 'dato' => $pedidosAlbaran['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
 		}
-		if ($datosAlbaran['FechaVencimiento']){
-			if ($datosAlbaran['FechaVencimiento']==0000-00-00){
-				$fechaVencimiento="";
-			}else{
-			$fechaVencimiento=date_format(date_create($datosAlbaran['FechaVencimiento']),'Y-m-d');
-		}
-		}
-		$idProveedor=$datosAlbaran['idProveedor'];
-		if ($datosAlbaran['Su_numero']>0){
-			$suNumero=$datosAlbaran['Su_numero'];
-		}else{
-			$suNumero=0;
-		}
-		if ($idProveedor){
-			$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
-			$nombreProveedor=$proveedor['nombrecomercial'];
-		}
-		//Modificamos el array de productos para que sea lo mismo que en facturas y pedidos de esta manera siempre podemos
-		//Utilizar siempre las mismas funciones 
-		$productosAlbaran=modificarArrayProductos($productosAlbaran);
-		$productos=json_decode(json_encode($productosAlbaran));
-		//Calciular el total con los productos que estn registrados
-		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productosAlbaran), true);
-		if ($pedidosAlbaran){
-			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
-			 $pedidos=json_decode(json_encode($modificarPedido), true);
-		}
-		
-		$respuesta=array(
-			'idAlbaran'=>$idAlbaran,
-			'estado'=>$estado,
-			'fecha'=>$fecha,
-			'formaPago'=>$formaPago,
-			'fechaVencimiento'=>$fechaVencimiento,
-			'idProveedor'=>$idProveedor,
-			'nombreProveedor'=>$nombreProveedor,
-			'suNumero'=>$suNumero,
-			'productos'=>$productos,
-			'DatosTotales'=>$Datostotales,
-			'pedidos'=>$pedidos
-		);
-		if (isset($errores)){
+		if (isset($errores['error'])){
 			return $errores;
 		}else{
-			return $respuesta;
+		
+				$estado=$datosAlbaran['estado'];
+				$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
+				if ($datosAlbaran['formaPago']){
+					$formaPago=$datosAlbaran['formaPago'];
+				}else{
+					$formaPago=0;
+				}
+				if ($datosAlbaran['FechaVencimiento']){
+					if ($datosAlbaran['FechaVencimiento']==0000-00-00){
+						$fechaVencimiento="";
+					}else{
+						$fechaVencimiento=date_format(date_create($datosAlbaran['FechaVencimiento']),'Y-m-d');
+				}
+				}
+				$idProveedor=$datosAlbaran['idProveedor'];
+				if ($datosAlbaran['Su_numero']>0){
+					$suNumero=$datosAlbaran['Su_numero'];
+				}else{
+					$suNumero=0;
+				}
+				if ($idProveedor){
+					$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+					$nombreProveedor=$proveedor['nombrecomercial'];
+				}
+					$productosAlbaran=modificarArrayProductos($productosAlbaran);
+					$productos=json_decode(json_encode($productosAlbaran));
+				//Calciular el total con los productos que estn registrados
+					$Datostotales = recalculoTotales($productos);
+					$productos=json_decode(json_encode($productosAlbaran), true);
+					if ($pedidosAlbaran){
+						 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
+						 $pedidos=json_decode(json_encode($modificarPedido), true);
+					}
+					
+					$respuesta=array(
+						'idAlbaran'=>$idAlbaran,
+						'estado'=>$estado,
+						'fecha'=>$fecha,
+						'formaPago'=>$formaPago,
+						'fechaVencimiento'=>$fechaVencimiento,
+						'idProveedor'=>$idProveedor,
+						'nombreProveedor'=>$nombreProveedor,
+						'suNumero'=>$suNumero,
+						'productos'=>$productos,
+						'DatosTotales'=>$Datostotales,
+						'pedidos'=>$pedidos
+					);
+					return $respuesta;
+			}
 		}
-		
-		
-	
 }
 ?>

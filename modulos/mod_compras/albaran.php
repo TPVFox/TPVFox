@@ -72,22 +72,23 @@ include './../../head.php';
 		//~ }
 		//~ echo $pedidos;
 		$datosAlbaran=DatosIdAlbaran($_GET['id'], $CAlb, $Cprveedor);
-		if ($datosAlbaran['errores']){
-		$errores=$datosAlbaran['errores'];
-	}else{
-		$idAlbaran=$datosAlbaran['idAlbaran'];
-		$estado=$datosAlbaran['estado'];
-		$fecha=$datosAlbaran['fecha'];
-		$idAlbaranTemporal=0;
-		$formaPago=$datosAlbaran['formaPago'];
-		$fechaVencimiento=$datosAlbaran['fechaVencimiento'];
-		$idProveedor=$datosAlbaran['idProveedor'];
-		$suNumero=$datosAlbaran['suNumero'];
-		$nombreProveedor=$datosAlbaran['nombreProveedor'];
-		$productos=$datosAlbaran['productos'];
-		$Datostotales=$datosAlbaran['DatosTotales'];
-		$pedidos=$datosAlbaran['pedidos'];
+		if ($datosAlbaran['error']){
+			$errores=$datosAlbaran['error'];
+		}else{
+			$idAlbaran=$datosAlbaran['idAlbaran'];
+			$estado=$datosAlbaran['estado'];
+			$fecha=$datosAlbaran['fecha'];
+			$idAlbaranTemporal=0;
+			$formaPago=$datosAlbaran['formaPago'];
+			$fechaVencimiento=$datosAlbaran['fechaVencimiento'];
+			$idProveedor=$datosAlbaran['idProveedor'];
+			$suNumero=$datosAlbaran['suNumero'];
+			$nombreProveedor=$datosAlbaran['nombreProveedor'];
+			$productos=$datosAlbaran['productos'];
+			$Datostotales=$datosAlbaran['DatosTotales'];
+			$pedidos=$datosAlbaran['pedidos'];
 		}
+		//~ print_r($datosAlbaran);
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id
@@ -128,7 +129,9 @@ include './../../head.php';
 		}
 		
 	}
-	$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
+	if ($formaPago){
+		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
+	}
 	if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ;
 			// convertimos el objeto productos en array
@@ -262,6 +265,7 @@ if ($idProveedor==0){
 if ($suNumero==0){
 	$suNumero="";
 }
+
 ?>
 </head>
 <body>
@@ -269,13 +273,6 @@ if ($suNumero==0){
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
 	include '../../header.php';
-		if (isset($errores)){
-		foreach($errores as $error){
-				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-				. '</div>';
-		}
-	}
 ?>
 <script type="text/javascript">
 // Objetos cajas de tpv
@@ -289,6 +286,7 @@ if ($suNumero==0){
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
 	<?php
+	
 	if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'

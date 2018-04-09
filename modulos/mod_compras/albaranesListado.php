@@ -95,7 +95,6 @@ $todosTemporal=array_reverse($todosTemporal);
 <?php
 
 	include '../../header.php';
-	
 	if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'
