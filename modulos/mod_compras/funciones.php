@@ -999,11 +999,11 @@ function htmlTotales($Datostotales){
 	if (isset($Datostotales['desglose'])){
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
 			$key = intval($key);
-			$htmlIvas['html'].='<tr id="line'.$key.'">';
-			$htmlIvas['html'].='<td id="tipo'.$key.'"> '.$key.'%</td>';
-			$htmlIvas['html'].='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
-			$htmlIvas['html'].='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
-			$htmlIvas['html'].='</tr>';
+			$htmlIvas['html'].='<tr id="line'.$key.'">'
+			.'<td id="tipo'.$key.'"> '.$key.'%</td>'
+			.'<td id="base'.$key.'"> '.$basesYivas['base'].'</td>'
+			.'<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>'
+			.'</tr>';
 		}
 	}
 	return $htmlIvas;
@@ -1057,13 +1057,11 @@ function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
 function htmlImporteFactura($datos, $BDTpv){
 	$formaPago=new FormasPago($BDTpv);
 	$datosPago=$formaPago->datosPrincipal($datos['forma']);
-	$respuesta['html'].='<tr>';
-	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
-	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
-	$respuesta['html'].='<td>'.$datosPago['descripcion'].'</td>';
-	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
-	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
-	$respuesta['html'].='</tr>';
+	$respuesta['html'].='<tr><td>'.$datos['importe'].'</td>'
+	.'<td>'.$datos['fecha'].'</td>'
+	.'<td>'.$datosPago['descripcion'].'</td>'
+	.'<td>'.$datos['referencia'].'</td>'
+	.'<td>'.$datos['pendiente'].'</td></tr>';
 	return $respuesta;
 	
 }
