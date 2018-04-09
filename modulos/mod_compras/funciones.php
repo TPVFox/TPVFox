@@ -160,10 +160,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			}
 	} else {
 	
-		$resultado['html'] .= '<table class="table table-striped"><thead>';
-		$resultado['html'] .= ' <th></th>';
-		$resultado['html'] .= '</thead><tbody>';
-		
+		$resultado['html'] .= '<table class="table table-striped"><thead><th></th></thead><tbody>';
 		$contad = 0;
 		foreach ($productos as $producto){
 			$datos = 	"'".$id_input."',".
@@ -181,25 +178,19 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
 			}else{
 				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';	
-			}
-						
-			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.$producto['ultimoCoste'].'</td>';
-
-			$resultado['html'] .= '</tr>';
+			}		
+			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
+			. '<td>'.$producto['ultimoCoste'].'</td>'
+			. '</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
 			}
-			
 		}
 		$resultado['html'] .='</tbody></table>';
 	}
 	$resultado['campo'] = $campoAbuscar;
-	
-	return $resultado;
-	
-	
+	return $resultado;		
 }
 function recalculoTotales($productos) {
 	// @ Objetivo recalcular los totales y desglose del ticket
