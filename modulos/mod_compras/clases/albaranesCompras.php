@@ -84,7 +84,13 @@ class AlbaranesCompras extends ClaseCompras{
 		// @Objetivo:
 		//Modificar el estado del albarán
 		$db=$this->db;
-		$smt=$db->query('UPDATE albprot set estado="'.$estado .'"  where id='.$idAlbaran);
+		$sql='UPDATE albprot set estado="'.$estado .'"  where id='.$idAlbaran;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	
 	public function modTotales($res, $total, $totalivas){

@@ -298,14 +298,20 @@ switch ($pulsado) {
 			}
 			if ($idAlbaran>0){
 				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $idAlbaran);
-				if (isset($rest['error'])){
-						$respuesta['error']=$rest['error'];
-						$respuesta['consulta']=$rest['consulta'];
+				if (isset($modId['error'])){
+						$respuesta['error']=$modId['error'];
+						$respuesta['consulta']=$modId['consulta'];
 						echo json_encode($respuesta);
 						break;
 				}
 				$estado="Sin Guardar";
 				$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
+				if (isset($modEstado['error'])){
+						$respuesta['error']=$modEstado['error'];
+						$respuesta['consulta']=$modEstado['consulta'];
+						echo json_encode($respuesta);
+						break;
+				}
 			}
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
