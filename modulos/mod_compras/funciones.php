@@ -443,10 +443,8 @@ function lineaAdjunto($adjunto, $dedonde){
 		if (isset($adjunto['NumAdjunto'])){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
-		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>';
-		$respuesta['html'] .='<td>'.$adjunto['total'].'</td>';
-		$respuesta['html'].=$btnELiminar_Retornar;
-		$respuesta['html'] .='</tr>';
+		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>'
+		.'<td>'.$adjunto['total'].'</td>'.$btnELiminar_Retornar.'</tr>';
 	}
 	return $respuesta;
 }
