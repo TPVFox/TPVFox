@@ -77,6 +77,13 @@ include './../../head.php';
 		if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
 				$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+				if ($datosAlbaran['error']){
+						$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $datosAlbaran['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}else{
 				if (isset ($datosAlbaran['numalbpro'])){
 					$numAlbaran=$datosAlbaran['numalbpro'];
 					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
@@ -100,6 +107,7 @@ include './../../head.php';
 				$albaran=$datosAlbaran;
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
+			}
 		}
 		
 	}
@@ -256,6 +264,16 @@ if ($suNumero==0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
+	<?php
+	if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+	}
+	
+	?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  onclick="abrirIndicencia('albaran');"><span class="glyphicon glyphicon-pencil"></span></a>
 			<a  href="./albaranesListado.php">Volver Atrás</a>

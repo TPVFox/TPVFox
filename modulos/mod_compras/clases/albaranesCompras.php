@@ -109,11 +109,18 @@ class AlbaranesCompras extends ClaseCompras{
 		//@Objetivo:
 		//Buscar los datos del un albarán temporal
 		$db=$this->db;
-		$smt=$db->query('SELECT * FROM albproltemporales WHERE id='.$idAlbaranTemporal);
-		if ($result = $smt->fetch_assoc () ){
-			$albaran=$result;
+		$sql='SELECT * FROM albproltemporales WHERE id='.$idAlbaranTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}else{
+			if ($result = $smt->fetch_assoc () ){
+				$albaran=$result;
+			}
+			return $albaran;	
 		}
-		return $albaran;
 	}
 	public function buscarAlbaranNumero($numAlbaran){
 		//@Objetivo:
