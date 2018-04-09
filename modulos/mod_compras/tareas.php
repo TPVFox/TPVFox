@@ -211,14 +211,26 @@ switch ($pulsado) {
 			$existe=0; // Variable para devolver y saber si modifico o insert.
 			if ($numPedidoTemp>0){
 				$rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos);
-				$existe=1;
-				$respuesta['sql']=$rest['sql'];
-				$res=$rest['idTemporal'];
+				if (isset($rest['error'])){
+						$respuesta['error']=$rest['error'];
+						$respuesta['consulta']=$rest['consulta'];
+						echo json_encode($respuesta);
+						break;
+				}else{
+					$existe=1;
+				}
 			}else{
 				$rest=$CPed->insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor);
-				$existe=0;
-				$res=$rest['id'];
-				$numPedidoTemp=$res;
+				if (isset($rest['error'])){
+						$respuesta['error']=$rest['error'];
+						$respuesta['consulta']=$rest['consulta'];
+						echo json_encode($respuesta);
+						break;
+				}else{
+					$existe=0;
+					$res=$rest['id'];
+					$numPedidoTemp=$res;
+				}
 			}
 			$pro=$rest['productos'];
 	
