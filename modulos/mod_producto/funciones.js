@@ -213,13 +213,16 @@ function AnhadirCodbarras(){
 	
 	// Contamos los tr que hay body tcodigo
 	var num_tr = $('#tcodigo>tbody>tr').length; 
-	
 	var vacio = 'No';
-	for (i = 0; i < num_tr; i++) { 
-		// Comprobamos que input codbarras tenga valor.
-		var valor = $('#codBarras_'+i).val() ;
-		if ( valor.length === 0){
-			vacio = 'Si';
+	var trComprobar;
+	for (i = 0; i <= num_tr; i++) { 
+		// Comprobamos que input codbarras tenga valor, sino tiene no creamos tr con input.
+		trComprobar =document.getElementById("codBarras_"+i);
+		if (document.body.contains(trComprobar)){ 
+			var valor = $('#codBarras_'+i).val() ;
+			if ( valor.length === 0){
+				vacio = 'Si';
+			}
 		}
 	}
 	// Solo continuamos si vacio es No, ya que sino hay una caja codBarras vacio.
