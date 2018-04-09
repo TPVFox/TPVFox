@@ -715,12 +715,12 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 	}
 	if (isset ($numPedidoTemp)) {
 		$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
-		if($pedidoTemporal['total']){
-			$total=$pedidoTemporal['total'];
-		}else{
-			$error=1;
-			$total=0;
-		}
+		//~ if($pedidoTemporal['total']){
+			//~ $total=$pedidoTemporal['total'];
+		//~ }else{
+			//~ $error=1;
+			//~ $total=0;
+		//~ }
 		if (isset($datosPost['fecha'])){
 			$bandera=new DateTime($datosPost['fecha']);
 			$fecha=$bandera->format('Y-m-d');
@@ -740,8 +740,13 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 		}
 		if (isset ($pedidoTemporal['Productos'])){
 			$productos=$pedidoTemporal['Productos'];
+			$productos_para_recalculo = json_decode( $productos );
+			$CalculoTotales = recalculoTotales($productos_para_recalculo);
+			$total=round($CalculoTotales['total'],2);
 		}else{
 			$error=1;
+			$total=0;
+			$productos=0;
 		}
 		
 		$fechaCreacion=date("Y-m-d H:i:s");
@@ -805,12 +810,12 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 		
 		if (isset($idAlbaranTemporal)){
 			$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-			if($datosAlbaran['total']){
-				$total=$datosAlbaran['total'];
-			}else{
-				$error=1;
-				$total=0;
-			}
+			//~ if($datosAlbaran['total']){
+				//~ $total=$datosAlbaran['total'];
+			//~ }else{
+				//~ $error=1;
+				//~ $total=0;
+			//~ }
 	
 			if ($datosPost['suNumero']>0){
 				$suNumero=$datosPost['suNumero'];
@@ -824,9 +829,13 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 			}
 			if (isset ($datosAlbaran['Productos'])){
 				$productos=$datosAlbaran['Productos'];
+				$productos_para_recalculo = json_decode( $productos );
+				$CalculoTotales = recalculoTotales($productos_para_recalculo);
+				$total=round($CalculoTotales['total'],2);
 			}else{
 				$productos=0;
 				$error=1;
+				$total=0;
 			}
 			if ($datosPost['formaVenci']){
 				$formaPago=$datosPost['formaVenci'];
@@ -919,12 +928,12 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 	}
 	if(isset ($idFacturaTemporal)){
 		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-		if(['total']){
-				$total=$datosFactura['total'];
-		}else{
-				$total=0;
-				$error=1;
-		}
+		//~ if(['total']){
+				//~ $total=$datosFactura['total'];
+		//~ }else{
+				//~ $total=0;
+				//~ $error=1;
+		//~ }
 		$fecha=$datosPost['fecha'];
 		$estado="Guardado";
 		if (is_array($importesFactura)){
@@ -942,6 +951,14 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 				$suNumero=$datosPost['suNumero'];
 		}else{
 			$suNumero=0;
+		}
+		if (isset($datosFactura['Productos'])){
+			$productos_para_recalculo = json_decode( $datosFactura['Productos'] );
+			$CalculoTotales = recalculoTotales($productos_para_recalculo);
+			$total=round($CalculoTotales['total'],2);
+		}else{
+			$total=0;
+			$error=1;
 		}
 		$datos=array(
 			'Numtemp_facpro'=>$idFacturaTemporal,
