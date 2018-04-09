@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+	<configuracion>
+		<datos_generales>
+			<nombre_fichero_clase>ClaseFabricantes</nombre_fichero_clase>
+			<version>1.0</version>
+		</datos_generales>
+	</configuracion>
+</parametros>
