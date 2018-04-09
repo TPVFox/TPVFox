@@ -34,7 +34,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 	
 	public $idTienda ; // Obtenemos el idTienda de la clase extendida.
 	public $plugins; // (array) de objectos que son los plugins que vamos tener para este modulo.
-
 	
 	public function __construct($conexion='')
 	{
@@ -43,7 +42,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 			parent::__construct($conexion);
 			$this->idTienda = parent::GetIdTienda();
 		}
-		$this->plugins = new ClasePlugins();
+		$plugins = new ClasePlugins('mod_producto');
+		$this->plugins = $plugins->GetParametrosPlugins();
 	}
 	
 	public function obtenerProductos($campo,$filtro=''){
