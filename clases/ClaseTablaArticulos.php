@@ -202,9 +202,9 @@ class ClaseTablaArticulos{
 		// Comprobar si los datos que tiene son correctos y cuales faltan.
 		// Devolvemos un array mensajes, 
 		//   [comprobaciones] [0]
-		//							[tipo] -> Indicando el tipo mensaje (dargen,warning,info,success)
-		//							[dato] -> Dato que podemos necesitar... como propiedad,consulta, o lo que pueda necesitar.
-		//							[mensaje] -> Texto que podemos mostrar al usuario.
+		//			[tipo] -> (string) Indicando el tipo mensaje (dargen,warning,info,success)
+		//			[dato] -> (string-json) Dato que podemos necesitar... como propiedad,consulta, o lo que pueda necesitar.
+		//			[mensaje] ->(string) Texto que podemos mostrar al usuario.
 		
 		// ---- 1ª Comprobar que el tipo iva exist en la tabla ivas. ---------  //
 		$ivas = $this->GetTodosIvas();
