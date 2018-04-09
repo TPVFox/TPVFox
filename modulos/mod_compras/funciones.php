@@ -217,7 +217,6 @@ function recalculoTotales($productos) {
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estado === 'Activo'){
-			//error_log(json_encode($product));
 			$bandera=$product->iva/100;
 			// Ahora calculmos bases por ivas
 			// Ahora calculamos base y iva 
@@ -295,8 +294,6 @@ function htmlLineaProducto($productos, $dedonde){
 				}else{
 					$numeroPed="";
 				}
-				
-				
 			}
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
 			$filaProveedor='<td><input id="Proveedor_Fila_'
@@ -321,31 +318,8 @@ function htmlLineaProducto($productos, $dedonde){
 								.$producto['nfila'].'") style="text-align: right">'
 								.'<span class="glyphicon glyphicon-cog"></span>'
 								.'</a></td>';
-				//~ }else{
-				//~ $filaProveedor='<td><input id="Proveedor_Fila_'
-								//~ .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
-								//~ .'name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" '
-								//~ .'onBlur="controlEventos(event)">'.
-								//~ .'<a onclick=buscarReferencia("Proveedor_Fila_'
-								//~ .$producto['nfila'].'") style="display:none" id="enlaceCambio'
-								//~ .$producto['nfila'].'">'
-								//~ .'<span class="glyphicon glyphicon-cog"></span>'
-								//~ .'</a></td>';
 				}
-			//~ }else{
-				//~ $filaProveedor='<td><input id="Proveedor_Fila_'
-								//~ .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
-								//~ .'name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" '
-								//~ .'onBlur="controlEventos(event)">'
-								//~ .'<a onclick=buscarReferencia("Proveedor_Fila_'
-								//~ .$producto['nfila'].'") style="display:none" id="enlaceCambio'
-								//~ .$producto['nfila'].'">'.
-								//~ .'<span class="glyphicon glyphicon-cog"></span>'
-								//~ .'</a></td>';
 			}
-			
-			
-			
 			if (isset ($producto['ccodbar'])){
 				if ($producto['ccodbar']>0){
 					$codBarra=$producto['ccodbar'];
@@ -353,12 +327,10 @@ function htmlLineaProducto($productos, $dedonde){
 					$codBarra="";
 				}
 			}
-			
 		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
 		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
 		 if ($dedonde=="albaran" || $dedonde=="factura"){
 			$respuesta['html'].= '<td class="idArticulo">'.$numeroPed.'</td>';
-		
 		 } 
 		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
 		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
@@ -422,13 +394,11 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	$respuesta['html']	.= '</th>';
 	$respuesta['html'] 	.=  '</thead><tbody>';
 	$contad = 0;
-	
 	foreach ($adjuntos as $adjunto){
 		if ($dedonde=="albaran"){
 			$numAdjunto=$adjunto['Numpedpro'];
 			$fecha=$adjunto['FechaPedido'];
 		}else{
-			
 			$numAdjunto=$adjunto['Numalbpro'];
 			$fecha=$adjunto['Fecha'];
 		}
@@ -436,7 +406,6 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$numAdjunto.');">';
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
 		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-
 		$respuesta['html']	.= '<td>'.$numAdjunto.'</td>';
 		$respuesta['html']	.= '<td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){
@@ -446,7 +415,6 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 				}else{
 					$fechaVenci=$adjunto['FechaVencimiento'];
 				}
-				
 			}else{
 				$fechaVenci="";
 			}
@@ -497,24 +465,19 @@ function lineaAdjunto($adjunto, $dedonde){
 				$estadoInput = 'disabled';
 				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
-	
 			}
 		}
 		$respuesta['html'] .='<tr id="lineaP'.($adjunto['nfila']).'" '.$classtr.'>';
 		if (isset($adjunto['NumAdjunto'])){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
-		
 		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>';
 		$respuesta['html'] .='<td>'.$adjunto['total'].'</td>';
-		
 		$respuesta['html'].=$btnELiminar_Retornar;
 		$respuesta['html'] .='</tr>';
 	}
 	return $respuesta;
 }
-
-
 function modificarArrayPedidos($pedidos, $BDTpv){
 	//Objetivo : 
 	//Modificar el array de pedidos . Esta función se carga en albaranes.php
@@ -525,9 +488,7 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 			while ($fila = $datosPedido->fetch_assoc()) {
 				$ped = $fila;
 			}
-			//$res['Numpedpro']=$pedido['numPedido'];
 			$res['NumAdjunto']=$pedido['numPedido'];
-			//$res['idPedido']=$ped['id'];
 			$res['idAdjunto']=$ped['id'];
 			$res['fecha']=$ped['FechaPedido'];
 			$res['idPePro']=$ped['idProveedor'];
@@ -550,8 +511,6 @@ function modificarArrayAlbaranes($alabaranes, $BDTpv){
 			while ($fila = $datosAlbaran->fetch_assoc()) {
 				$alb = $fila;
 			}
-			//~ $res['Numalbpro']=$albaran['numAlbaran'];
-			//~ $res['idAlbaran']=$alb['id'];
 			$res['NumAdjunto']=$albaran['numAlbaran'];
 			$res['idAdjunto']=$alb['id'];
 			$res['fecha']=$alb['Fecha'];
@@ -1044,16 +1003,11 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 				$numFactura=0;
 				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
 				$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
-
 				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
 			}
-			//~ $respuesta['historico']=$historico;
-			//~ $respuesta['sql']=$addNuevo;
-			//~ $respuesta['texto']="nuevo albaran";
 		}else{
 			$error=1;
-		}
-		
+		}		
 	}else{
 		if ($datosGet['id']){
 				if ($datosPost['suNumero']>0){
@@ -1061,19 +1015,14 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 				}else{
 					$suNumero=0;
 				}
-				
 				$fecha=$datosPost['fecha'];
 				$mod=$CFac->modFechaNumero($datosGet['id'], $fecha, $suNumero);
-				
 				$error=0;
-				//~ $respuesta['sqlMod']=$mod;
 			}else{
 				$error=1;
 			}
 	}
-	//~ return $respuesta;
 	return $error;
-	
 }
 function htmlTotales($Datostotales){
 	$htmlIvas['html'] = '';
@@ -1202,13 +1151,11 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 					$error=1;
 				}else{
 					$mod=$CArt->modificarCosteProveedorArticulo($datosNuevos);
-				}
-				
+				}				
 			}else{
 				$datosNuevos['refProveedor']=0;
 				$add=$CArt->addArticulosProveedores($datosNuevos);
-			}
-			
+			}	
 			$datos['idArticulo']=$producto['idArticulo'];
 			$datos['antes']=$producto['CosteAnt'];
 			$datos['nuevo']=$producto['ultimoCoste'];
@@ -1216,11 +1163,8 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 			if ($error==0){
 				$nuevoHistorico=$CArt->addHistorico($datos);
 				$resultado['sql']=$nuevoHistorico;
-			}
-			
-		}
-		
-		
+			}		
+		}			
 	}
 	return $resultado;
 }
