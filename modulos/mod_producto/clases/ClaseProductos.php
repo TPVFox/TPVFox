@@ -218,10 +218,30 @@ class ClaseProductos extends ClaseTablaArticulos{
 				
 			
 		}
-		
-		
-		
 	}
+	
+	function EliminarCodbarras($id){
+			// Objetivo eliminar codBarras del producto que enviamos.
+			if ($id > 0){
+				$sql = 'DELETE FROM `articulosCodigoBarras` WHERE `idArticulo`='.$id;
+				$DB = parent::GetDb();
+				$smt = $DB->query($sql);
+				if ($smt) {
+					$respuesta['NEliminados'] = $DB->affected_rows;
+					// Hubo resultados
+				} else {
+					// Quiere decir que hubo error en la consulta.
+					$respuesta['consulta'] = $sql;
+					$respuesta['error'] = $DB->connect_errno;
+				}
+				
+			}
+			return $respuesta;
+			
+	}
+		
+		
+	
 	
 	
 	
