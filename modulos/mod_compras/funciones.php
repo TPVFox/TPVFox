@@ -22,12 +22,8 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	if (count($proveedores)>10){
 		$resultado['html'] .= '<span>10 clientes de '.count($proveedores).'</span>';
 	}
-	$resultado['html'] .= '<table class="table table-striped"><thead>';
-	$resultado['html'] .= ' <th></th>'; //cabecera blanca para boton agregar
-	$resultado['html'] .= ' <th>Nombre</th>';
-	$resultado['html'] .= ' <th>Razon social</th>';
-	$resultado['html'] .= ' <th>NIF</th>';
-	$resultado['html'] .= '</thead><tbody>';
+	$resultado['html'] .= '<table class="table table-striped"><thead>'
+	. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
 	if (count($proveedores)>0){
 		$contad = 0;
 		foreach ($proveedores as $proveedor){  
@@ -40,12 +36,12 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
-			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-			$resultado['html'] .= '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.$proveedor['nif'].'</td>';
-			$resultado['html'] .= '</tr>';
+						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">'
+			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
+			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
+			. '<td>'.$proveedor['nif'].'</td>'
+			.'</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
