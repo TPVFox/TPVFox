@@ -116,13 +116,7 @@ include './../../head.php';
 		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
 		//si el resultado es  quiere decir que no hay errores y fue todo correcto
 		//si no es así muestra mensaje de error
-		//~ echo '<pre>';
-		//~ print_r($_POST);
-		//~ echo '</pre>';
 		$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
-		//~ echo '<pre>';
-		//~ print_r($guardar);
-		//~ echo '</pre>';
 	if ($guardar==0){
 		header('Location: albaranesListado.php');
 	}else{
@@ -135,20 +129,6 @@ include './../../head.php';
 	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado
 	if (isset ($_POST['Cancelar'])){
-		//~ if ($_POST['idTemporal']){
-				//~ $idTemporal=$_POST['idTemporal'];
-		//~ }else{
-				//~ $idTemporal=$_GET['tActual'];
-		//~ }
-		//~ $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-		//~ $pedidos=json_decode($pedidos['Pedidos'], true);
-		//~ foreach ($pedidos as $pedido){
-			//~ $mod=$Cped->modEstadoPedido($pedido['idPedido'], "Guardado");
-		//~ }
-		//~ $idAlbaran=0;
-		//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-		 //~ header('Location: albaranesListado.php');
-		 
 		 $cancelar=cancelarAlbaran($_POST, $_GET, $BDTpv);
 		if ($cancelar==0){
 			
@@ -159,9 +139,6 @@ include './../../head.php';
 				</div>';
 		}
 	}
-	
-	
-	
 		
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
@@ -225,7 +202,6 @@ include './../../head.php';
 <?php 
 	if (isset($albaranTemporal)| isset($idAlbaran)){ 
 ?>
-//	console.log("entre en el javascript");
 	</script>
 	<script type="text/javascript">
 <?php
