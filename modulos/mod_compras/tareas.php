@@ -357,6 +357,7 @@ switch ($pulsado) {
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
+			
 		echo json_encode($respuesta);
 		break;
 		
