@@ -21,7 +21,9 @@
 		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
-		
+		echo '<pre>';
+		print_r($CTArticulos->GetPlugins());
+		echo '</pre>';
 		$titulo = 'Productos:';
 		$id = 0 ; // Por  defecto el id a buscar es 0
 		$tabla= 'articulos'; // Tablas que voy utilizar.
@@ -87,6 +89,7 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
+		$htmlVersionesCoches = htmlTablaVersionesCoches($id);
 		//~ echo '<pre>';
 		//~ print_r($Producto);
 		//~ echo '</pre>';
