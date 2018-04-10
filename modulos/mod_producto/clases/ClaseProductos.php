@@ -228,38 +228,80 @@ class ClaseProductos extends ClaseTablaArticulos{
 		}
 	}
 	
-	function EliminarCodbarras($id,$codbarras = array()){
-			// @ Objetivo 
-			// Una funcion para eliminar uno o todos los codBarras del producto que enviamos.
-			// @ parametros:
-			// 		id-> (int) ID del producto
-			// 		codbarras -> (array) -> (strings) Codbarras queremos eliminar.
-			$respuesta = array();
-			if ($id > 0){
-				if (count($codbarras)>0){
-					// Entonces eliminamos solo el codbarras que indicamos.
-					foreach ($codbarras as $key=>$cd){
-						$codbarras[$key]= 'codbarras="'.$cd.'"';
+
+	function AnhadirProductoNuevo($datos){
+		// @ Objetivo
+		// Crear un producto nuevo con los datos que tengamos.
+		// @ Parametros:
+		// 		$datos-> (array) con los datos para crear producto.
+		// @ Devuelve:
+		// 		(array) -> id (int) el numero id creado
+		// 				-> errores (array) con tipo,mensaje,dato.
+		$fecha_ahora= date("Y-m-d H:i:s");   // Obtenemos la fecha sistema 
+		$campos_obligatorios = array('articulo_name','estado','iva','pvpSiva','pvpCiva','coste','beneficio');
+		$comprobaciones = array(); // Lo utilizo para guardar resultado de comprobaciones o errores.
+		// ---- 	Comprobamos que existe campo y tiene dato correcto.		--------- //
+		foreach ($campos_obligatorios as $key){
+			$existe = 'NO';
+			if (isset($datos[$key])){
+				$existe ='Si'; // Ya que existe
+				if ($key === 'iva'){
+					// Comprobamos si el iva que vamos añadir es correcto, si no ponemos el por defecto.
+					$comprobarIva = parent::ComprobarIva($datos['iva']);
+					if (gettype($comprobarIva['error'])==='array'){
+						// Hubo un error el tipo de iva 
+						$datos['iva'] = $comprobarIva['iva'];
+						$comprobaciones['iva'] = $comprobarIva['error']; // Podrías utilizar perfectamente $comprobarIva
 					}
-					$stringCodbarras = ' AND ('.implode(' OR ',$codbarras).')'; 
-				}
-				$sql = 'DELETE FROM `articulosCodigoBarras` WHERE `idArticulo`='.$id.$stringCodbarras;
-				$DB = parent::GetDb();
-				$smt = $DB->query($sql);
+					
+				}				
+			}
+			if ($existe === 'NO'){
+				$error = array ( 'tipo'=>'danger',
+								 'mensaje' =>'Error no existe o no es correcto '.$key,
+								 'dato' => $key);
+				$comprobaciones['campos'] = $error;
+				
+				return $comprobaciones;
+			}
+			
+		}
+		// ---- 		Insertamos un producto nuevo en tabla articulos 		----- //
+		$sqlArticulo = 'INSERT INTO `articulos`(`iva`, `articulo_name`, `estado`, `fecha_creado`,beneficio) VALUES ("'.$datos['iva'].'","'.$datos['articulo_name'].'","'.$datos['estado'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
+		$respuesta = array();
+		$DB = parent::GetDb();
+				$smt = $DB->query($sqlArticulo);
 				if ($smt) {
-					$respuesta['NEliminados'] = $DB->affected_rows;
+					$respuesta['idInsert'] = $DB->insert_id;
 					// Hubo resultados
 				} else {
 					// Quiere decir que hubo error en la consulta.
-					$respuesta['consulta'] = $sql;
 					$respuesta['error'] = $DB->connect_errno;
 				}
-				$respuesta['consulta'] = $sql;
-				
-			}
-			$respuesta['consulta'] = $sql;
-			return $respuesta;
-			
+				$respuesta['consulta'] = $sqlArticulo;
+		if (isset($respuesta['error'])){
+			// Entonces hubo error no podemos continuar.
+			$error = array ( 'tipo'=>'danger',
+								 'mensaje' =>'Error al insertar en tabla Articulos '.json_encode($respuesta['error']),
+								 'dato' => $sqlArticulo
+							);
+			$comprobaciones['insert_articulos'] = $error;
+			return $comprobaciones;
+		}
+		$comprobaciones['insert_articulos'] = array( 'id_producto_nuevo' => $respuesta['idInsert'],
+													 'consulta'=> $respuesta['consulta'] = $sqlArticulo
+													);
+		
+		// ---- 		Insertamos un producto precios del producto nuevo en tabla articulosprecios 		----- //
+		$datos['id'] = $respuesta['idInsert'];
+		// Hay que tene en cuenta que si el precio es 0 lo va añadir igualmente, ya que asi se podrá modificar , no insertar.
+		$comprobaciones['insert_articulos_precios']  = parent::InsertarPreciosVentas($datos);
+		
+		// ----         Insertamos codbarras  del producto nuevo 											----- //
+		$comprobaciones['codbarras']=$this->ComprobarCodbarrasUnProducto($datos['id'],$datos['codBarras']);
+		
+		return $comprobaciones;
+		
 	}
 		
 	function AnhadirCodbarras($id,$codbarras = array()){
@@ -296,6 +338,90 @@ class ClaseProductos extends ClaseTablaArticulos{
 			return $respuesta;
 			
 	}	
+	
+	
+	
+	function EliminarCodbarras($id,$codbarras = array()){
+			// @ Objetivo 
+			// Una funcion para eliminar uno o todos los codBarras del producto que enviamos.
+			// @ parametros:
+			// 		id-> (int) ID del producto
+			// 		codbarras -> (array) -> (strings) Codbarras queremos eliminar.
+			$respuesta = array();
+			if ($id > 0){
+				if (count($codbarras)>0){
+					// Entonces eliminamos solo el codbarras que indicamos.
+					foreach ($codbarras as $key=>$cd){
+						$codbarras[$key]= 'codbarras="'.$cd.'"';
+					}
+					$stringCodbarras = ' AND ('.implode(' OR ',$codbarras).')'; 
+				}
+				$sql = 'DELETE FROM `articulosCodigoBarras` WHERE `idArticulo`='.$id.$stringCodbarras;
+				$DB = parent::GetDb();
+				$smt = $DB->query($sql);
+				if ($smt) {
+					$respuesta['NEliminados'] = $DB->affected_rows;
+					// Hubo resultados
+				} else {
+					// Quiere decir que hubo error en la consulta.
+					$respuesta['consulta'] = $sql;
+					$respuesta['error'] = $DB->connect_errno;
+				}
+				$respuesta['consulta'] = $sql;
+				
+			}
+			$respuesta['consulta'] = $sql;
+			return $respuesta;
+			
+	}
+	
+	
+	function ComprobarCodbarrasUnProducto($id_pro,$Pro_Nuevo_codBarras){
+		// @ Objetivo:
+		// Que codigo de barras hay que añadir, modificar o eliminar.
+		// @ Parametros: 
+		//   $id -> (int) Id del producto que vamos añadir,modificar o elimnar codbarras.
+		// 	 $Pro_Nuevo_codBarras-> (array) Los codbarras modificados, eliminado o nuevos.
+		// @ Devuelve:
+		//   comprobaciones : (array) con tipo,mensaje,dato para poder mostrar.
+		$producto_sin_modificar = $this->getProducto($id_pro);
+		$Pro_codBarras = $producto_sin_modificar['codBarras'];// (array) con los codbarras que tenía ante de modificar.
+		
+		$comprobaciones = array(); // Array que utilizamos para informar de lo que hicimos
+		// ---       	    Ahora empezamos con CodBarras por partes   						--- //
+		// Obtengo aquellos codbarras que no este el el Post, estos son los que tengo eliminar.
+		$codbarras_eliminados = array_diff($Pro_codBarras,$Pro_Nuevo_codBarras);
+		
+		if (count($codbarras_eliminados)>0){
+			// Quiere decir que SE BORRO alguno o todos los codbarras que existia.
+			// Eliminamos el codbarras del producto.
+			$Sqls['eliminados'] = $this->EliminarCodbarras($id_pro,$codbarras_eliminados);
+			if ($Sqls['eliminados']['NEliminados']===count($codbarras_eliminados)){
+				$comprobaciones[0]['tipo']= 'warning';
+				$comprobaciones[0]['mensaje']= 'Eliminamos los siguiente codbarras para este producto:'.implode(',',$codbarras_eliminados);
+			} else {
+				$comprobaciones[0]['tipo']= 'dargen';
+				$comprobaciones[0]['mensaje']= 'Error no coincide el numero eliminado de codbarras: '.implode(',',$codbarras_eliminados);
+			}
+			$comprobaciones[0]['dato']= json_encode($Sqls['eliminados']);
+		}
+		// Ahora vemos los que tenemos que añadir.
+		// En array de los codbarras recibidos ($DatosProducto['codBarras']) eliminamos aquellos que vamos añadir.
+		$codbarras_nuevos = array_diff($Pro_Nuevo_codBarras,$Pro_codBarras);
+		if (count($codbarras_nuevos)>0){
+			$Sqls['anhadidos'] = $this->AnhadirCodbarras($id_pro,$codbarras_nuevos);
+			if ($Sqls['anhadidos']['NAnhadidos']===count($codbarras_nuevos)){
+				$comprobaciones[1]['tipo']= 'success';
+				$comprobaciones[1]['mensaje']= 'Añadimos los siguiente codbarras: '.implode(',',$codbarras_nuevos);
+			} else {
+				$comprobaciones[1]['tipo']= 'dargen';
+				$comprobaciones[1]['mensaje']= 'Error no coincide el numero insertado con los codbarras que iba añadir codbarras: '.implode(',',$codbarras_nuevos);
+			}
+			$comprobaciones[1]['dato'] = json_encode($Sqls['anhadidos']);
+		}	
+		
+		return $comprobaciones;
+	}
 	
 	
 	
