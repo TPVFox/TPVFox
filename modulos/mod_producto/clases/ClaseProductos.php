@@ -91,7 +91,15 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $respuesta['Items'];
 
 	}
-	
+	public function GetProductosConCodbarras($codbarras){
+		// Objetivo:
+		// Obtener array con id de productos que tiene ese codbarras.
+		$sql = 'SELECT idArticulo FROM `articulosCodigoBarras` WHERE `codBarras`="'.$codbarras.'"';
+		$items = parent::Consulta($sql);
+		return $items;
+		
+	}
+		
 	public function GetProducto($id= 0){
 		// Objetivo:
 		// Este metodo existe en padre, pero necesito que añada a ArrayPropiedades las comprobaciones hacemos aquí.

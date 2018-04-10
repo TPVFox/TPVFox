@@ -17,7 +17,7 @@ function htmlLineaCodigoBarras($item,$codBarras=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
 	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input type="text" id="codBarras_'.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'"></td>';
+	$nuevaFila .= '<td><input data-obj="cajaCodBarras" type="text" id="codBarras_'.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'" onkeydown="controlEventos(event)"></td>';
 	$nuevaFila .= '<td><a id="eliminar_'.$item.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
 	$nuevaFila .= '</tr>';
 	return $nuevaFila;
@@ -83,13 +83,15 @@ function  htmlTablaCodBarras($codBarras){
 			.'					</a>'
 			.'				</th>'
 			.'			</tr>'
-			.'		</thead>';
+			.'		</thead>'
+			.'		<tbody>';
 	if (count($codBarras)>0){
 		foreach ($codBarras as $item=>$valor){
 			$html .= htmlLineaCodigoBarras($item,$valor);
 		}
 	}
-	$html .= '</table>	';
+			
+	$html .= '</tbody> </table>	';
 	return $html;
 } 
 

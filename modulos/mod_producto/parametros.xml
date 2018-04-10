@@ -69,6 +69,12 @@ Numero tecla:
 				<action tecla="13">controlCosteProv</action>
 			</teclas>
 		</caja_input>
+		<caja_input>
+			<nombre id_input="codBarras_">cajaCodBarras</nombre>
+			<teclas>
+				<action tecla="13">controlCodBarras</action>
+			</teclas>
+		</caja_input>
 		
 		
 	</cajas_input>

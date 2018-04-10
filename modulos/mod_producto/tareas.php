@@ -23,6 +23,9 @@ include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun; 
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
+// Nueva clase 
+include ("./clases/ClaseProductos.php");
+$NCArticulo = new ClaseProductos($BDTpv);
 
 include_once('../../clases/articulos.php');
 $CArticulo=new Articulos($BDTpv);
@@ -56,51 +59,59 @@ switch ($pulsado) {
 		
 		echo json_encode($respuesta);
 		break;
+		
 	case 'eliminarCoste':
-	$idArticulo=$_POST['idArticulo'];
-	$dedonde=$_POST['dedonde'];
-	$id=$_POST['id'];
-	$tipo=$_POST['tipo'];
-	$estado="Sin Cambios";
-	$respuesta['idArticulo'];
-	$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
-	$respuesta['sql']=$mod;
-	echo json_encode($respuesta);
-	break;
+		$idArticulo=$_POST['idArticulo'];
+		$dedonde=$_POST['dedonde'];
+		$id=$_POST['id'];
+		$tipo=$_POST['tipo'];
+		$estado="Sin Cambios";
+		$respuesta['idArticulo'];
+		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
+		$respuesta['sql']=$mod;
+		echo json_encode($respuesta);
+		break;
+		
 	case 'retornarCoste':
-	$idArticulo=$_POST['idArticulo'];
-	$dedonde=$_POST['dedonde'];
-	$id=$_POST['id'];
-	$tipo=$_POST['tipo'];
-	$estado="Pendiente";
-	$respuesta['idArticulo'];
-	$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
-	$respuesta['sql']=$mod;
-	echo json_encode($respuesta);
-	break;
+		$idArticulo=$_POST['idArticulo'];
+		$dedonde=$_POST['dedonde'];
+		$id=$_POST['id'];
+		$tipo=$_POST['tipo'];
+		$estado="Pendiente";
+		$respuesta['idArticulo'];
+		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
+		$respuesta['sql']=$mod;
+		echo json_encode($respuesta);
+		break;
+		
 	case 'imprimir':
-	$id=$_POST['id'];
-	
-	$dedonde="Recalculo";
-	$nombreTmp=$dedonde."recalculo.pdf";
-	if ($_POST['bandera']==1){
-		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
-	}else{
-		$dedonde="albaran";
-		$htmlImprimir=montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
+		$id=$_POST['id'];
 		
-	}
-	$cabecera=$htmlImprimir['cabecera'];
-	$html=$htmlImprimir['html'];
-	require_once('../../lib/tcpdf/tcpdf.php');
-	include ('../../clases/imprimir.php');
-	include('../../controllers/planImprimirRe.php');
-	$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-	echo json_encode($ficheroCompleto);
-	
+		$dedonde="Recalculo";
+		$nombreTmp=$dedonde."recalculo.pdf";
+		if ($_POST['bandera']==1){
+			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
+		}else{
+			$dedonde="albaran";
+			$htmlImprimir=montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
+			
+		}
+		$cabecera=$htmlImprimir['cabecera'];
+		$html=$htmlImprimir['html'];
+		require_once('../../lib/tcpdf/tcpdf.php');
+		include ('../../clases/imprimir.php');
+		include('../../controllers/planImprimirRe.php');
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+		echo json_encode($ficheroCompleto);
 	break;
-		
 	
+	case 'ComprobarSiExisteCodbarras':
+		$resultado = array();
+		$codBarras = $_POST['codBarras'];
+		$resultado = $NCArticulo->GetProductosConCodbarras($codBarras);
+		
+		echo json_encode($resultado);
+	break;
 	
 }
 

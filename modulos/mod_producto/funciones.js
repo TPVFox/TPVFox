@@ -90,8 +90,47 @@ function agregoCodBarrasVacio(contNuevo){
 	});
 	
 }
+function controlCodBarras(caja){
+	// Objetivo
+	// Controlar si el codigo de barras es correcto.
+	// De momento solo controlo que si existe hace una advertencia.
 
+	validarEntradaNombre(caja); // Limpiamos codigo de "
+	var codb = caja.darValor();
+	// Ahora debería comprobar si existe este codigo barras en este producto.
+	 $('#tcodigo').find(':input').each(function (id){
+		// Evitamos que no repita el mismo codigo barras en el mismo producto.
+		if ($('#codBarras_'+id).val() === codb){
+			alert ('No puedes repetir el mismo codbarras en el mismo producto');
+			$('#'+caja.id_input).val('');
+		}
+	});
+		
+	var parametros = {
+		"pulsado"    : 'ComprobarSiExisteCodbarras',
+		"codBarras": codb
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Comprobamos si existe ese codbarras en algún producto  ****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta de comprobación si existe ese codbarras');
 			
+			var resultado =  $.parseJSON(response);
+			console.log(resultado);
+			
+			
+		}
+	});
+	
+}
+
+
+		
 			
 function anular(e) {
   // Objetivo:
@@ -470,6 +509,15 @@ function controladorAcciones(caja,accion, tecla){
 				bloquearCajaProveedor(caja);
 			}
 		break
+		
+		case 'controlCodBarras':
+			caja.id_input = caja.name_cja;
+			var codb = caja.darValor();
+			if (codb.length>0){
+				// No ejecuto si no hay codigo introducido.
+				controlCodBarras(caja);
+			}
+		break;
 		
 	}
 		
