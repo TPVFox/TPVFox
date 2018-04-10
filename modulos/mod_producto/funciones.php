@@ -457,56 +457,27 @@ function prepararParaGrabar($array,$claseArticulos){
 	// Ahora empiezo con las comprobaciones .
 	// Primero comprobamos si es nuevo o ya existia.
 	if ($array['id'] >0 ){
-		// Se esta modificando.
-		// Obtenemos los datos que tiene el producto antes.
-		$producto_sin_modificar = $claseArticulos->getProducto($array['id']);
-		$comprobaciones = array(); // Array que utilizamos para informar de lo que hicimos
-		// ---       	    Ahora empezamos con CodBarras por partes   						--- //
-		// Obtengo aquellos codbarras que no este el el Post, estos son los que tengo eliminar.
-		$codbarras_eliminados = array_diff($producto_sin_modificar['codBarras'],$DatosProducto['codBarras']);
-			
-		if (count($codbarras_eliminados)>0){
-			// Quiere decir que SE BORRO alguno o todos los codbarras que existia.
-			// Eliminamos el codbarras del producto.
-			$Sqls['eliminados'] = $claseArticulos->EliminarCodbarras($array['id'],$codbarras_eliminados);
-			if ($Sqls['eliminados']['NEliminados']===count($codbarras_eliminados)){
-				$comprobaciones[0]['tipo']= 'success';
-				$comprobaciones[0]['mensaje']= 'Eliminamos los siguiente codbarras para este producto:'.implode(',',$codbarras_eliminados);
-			} else {
-				$comprobaciones[0]['tipo']= 'dargen';
-				$comprobaciones[0]['mensaje']= 'Error no coincide el numero eliminado de codbarras: '.implode(',',$codbarras_eliminados);
-			}
-			$comprobaciones[0]['dato']= json_encode($Sqls['eliminados']);
-		}
-		// Ahora vemos los que tenemos que añadir.
-		// En array de los codbarras recibidos ($DatosProducto['codBarras']) eliminamos aquellos que vamos añadir.
-		$codbarras_nuevos = array_diff($DatosProducto['codBarras'],$producto_sin_modificar['codBarras']);
-		if (count($codbarras_nuevos)>0){
-			$Sqls['anhadidos'] = $claseArticulos->AnhadirCodbarras($array['id'],$codbarras_nuevos);
-			if ($Sqls['anhadidos']['NAnhadidos']===count($codbarras_nuevos)){
-				$comprobaciones[1]['tipo']= 'success';
-				$comprobaciones[1]['mensaje']= 'Añadimos los siguiente codbarras: '.implode(',',$codbarras_nuevos);
-			} else {
-				$comprobaciones[1]['tipo']= 'dargen';
-				$comprobaciones[1]['mensaje']= 'Error no coincide el numero insertado con los codbarras que iba añadir codbarras: '.implode(',',$codbarras_nuevos);
-			}
-			$comprobaciones[1]['dato'] = json_encode($Sqls['anhadidos']);
-		}
+		// ---------------            Se esta modificando. ------------------------------------//
+		// --- Comprobamos los codbarras y vemos cuales añadio,modifico o elimino. --//
+		$comprobaciones = $claseArticulos->ComprobarCodbarrasUnProducto($array['id'],$DatosProducto['codBarras']);
+		
+		
 		$DatosProducto['Sqls']['codbarras'] = $comprobaciones;
 		
-		// ---					Cambiamos los precios								 --- //
-		$DatosProducto['Sql_update_articulos_precios'] = 'UPDATE `articulosPrecios` SET `pvpCiva`="'.$DatosProducto['pvpCiva'].'",`pvpSiva`="'.$DatosProducto['pvpSiva'].'",`idTienda`='.$DatosProducto['idTienda'].' WHERE `idArticulo`='.$array['id'];
 		
+	} else {
+		// ----------------------------  SE ESTA AÑADIENDO UN PRODUCTO NUEVO  ------------------------  //
+		$anhadir = $claseArticulos->AnhadirProductoNuevo($DatosProducto);
+		
+		$DatosProducto['Sqls']['NuevoProducto']=$anhadir;
 	}
 	
 
-	//~ echo '<pre>';
-	//~ echo 'Este array no es obtenido con getProducto, es montado, por lo que las comprobaciones del producto no la hicimos. <br/>;';
-	//~ print_r($DatosProducto);
-	//~ echo '</pre>';
 	return $DatosProducto;
 	
 }
+
+
 
 function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor){
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "Productos");
