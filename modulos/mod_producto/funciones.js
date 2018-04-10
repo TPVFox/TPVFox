@@ -98,11 +98,17 @@ function controlCodBarras(caja){
 	validarEntradaNombre(caja); // Limpiamos codigo de "
 	var codb = caja.darValor();
 	// Ahora debería comprobar si existe este codigo barras en este producto.
+	 
 	 $('#tcodigo').find(':input').each(function (id){
-		// Evitamos que no repita el mismo codigo barras en el mismo producto.
-		if ($('#codBarras_'+id).val() === codb){
-			alert ('No puedes repetir el mismo codbarras en el mismo producto');
-			$('#'+caja.id_input).val('');
+		var stringId='codBarras_'+id; 
+		if ( stringId !== caja.id_input){
+			// Evitamos que no repita el mismo codigo barras en el mismo producto.
+			if ($('#codBarras_'+id).val() === codb){
+				console.log($('#codBarras_'+id).val());
+				console.log(codb);
+				alert ('No puedes repetir el mismo codbarras en el mismo producto');
+				$('#'+caja.id_input).val('');
+			}
 		}
 	});
 		
@@ -122,7 +128,16 @@ function controlCodBarras(caja){
 			
 			var resultado =  $.parseJSON(response);
 			console.log(resultado);
-			
+			var msj='';
+			resultado.Items.forEach(function (item){
+				if (item.idArticulo !== producto.idArticulo){
+					msj = 'Existe este codbarras en ';
+				}
+				console.log(item.idArticulo);
+			});
+			if  (msj !==''){
+				alert(msj+resultado.NItems+ " productos. \n Estas segura que quiere añadirlo.")	;
+			}
 			
 		}
 	});
