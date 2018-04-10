@@ -207,10 +207,26 @@ class ClaseTablaArticulos{
 		//			[mensaje] ->(string) Texto que podemos mostrar al usuario.
 		
 		// ---- 1ª Comprobar que el tipo iva exist en la tabla ivas. ---------  //
+		$comprobarIva = $this-> ComprobarIva($this->iva);
+		if (gettype($comprobarIva['error'])==='array'){
+			$this->SetComprobaciones($error);
+		} 
+		$this->iva = $comprobarIva['iva']; // El iva por defecto (0.00) en caso de error 
+		
+		
+	}
+	
+	function ComprobarIva($iva){
+		// @ Objetivo:
+		// Comprobar si el iva es correcto
+		// @ Parametros:
+		// 		$iva -> int que es el valor del iva, no el id.
+		// @ Devuelve:
+		// 	(array) con error (array) en caso de que falle, o string 'Ok' indicando que no fallo.
 		$ivas = $this->GetTodosIvas();
 		$r = 'KO';
 		foreach ($ivas as $item){
-			if ($item['iva'] === $this->iva){
+			if ($item['iva'] === $iva){
 				// Quiere decir que no existe el iva.
 				$r = 'OK';
 				break;
@@ -221,11 +237,15 @@ class ClaseTablaArticulos{
 								 'dato' => $Sql,
 								 'mensaje' => 'Cambiamos el iva, ya que no existe el tipo con iva '.$this->iva.' ponemos iva por defecto, mientras no lo guardes no lo arreglas.'
 								 );
-			$this->iva = 0.00;
-			$this->SetComprobaciones($error);
+			$iva = 0.00;
 		}
+		if (!isset($error)){
+			$error = $r;
+		}
+		$respuesta= array('error'=>$error,
+						  'iva'=> $iva);
 		
-		
+		return $respuesta;
 	}
 	
 	// -----  OTROS FUNCIONES NECESARIAS ------ //
@@ -369,6 +389,54 @@ class ClaseTablaArticulos{
 			// De momento no lo hago..
 			array_push($this->comprobaciones,$error);
 		}
+		
+	}
+	
+	public function InsertarPreciosVentas($datos){
+		// @ Objectivo
+		// Modificar precio venta del producto indicado para tienda indicada.
+		// @ Parametro:
+		// 		$datos -> (array) con los datos insertar.
+		//					$dato['id'] -> (int) de producto.
+		//					$dato['idTienda']-> (int) de la tienda a la que se quiere aplicar los precios.
+		// 					$dato['pvpSiva']-> (float) Precio sin iva, solo 2 decimales,
+		//					$dato['pvpCiva']-> (float) Precio con iva, solo 2 decimales.
+		// 	Los precios son con dos decimales, ya que solo vamos utilizar uno el otro es aproximado.
+		//  Esto puede ser valido para algunas tienda, pero no para otras, ya que no otras necesitan los dos datos y correctos.
+		// @ Devuelve:
+		// 		$respuesta -> (array) donde envimamos la cantidad de registro insertados
+		if ($datos['id'] >0 ){
+			// Solo compruebo que se aun numero y superior a 0;
+			$sql= 'INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) VALUES ('.$datos['id'].',"'.$datos['pvpCiva'].'","'.$datos['pvpSiva'].'",'.$datos['idTienda'].')';
+			$respuesta= array();
+			$DB = $this->db;
+					$smt = $DB->query($sql);
+					if ($smt) {
+						$respuesta['Afectados'] = $DB->affected_rows;
+						// Hubo resultados
+					} else {
+						// Quiere decir que hubo error en la consulta.
+						$error = array ( 'tipo'=>'danger',
+									 'mensaje' =>'Error al insertar en tabla Articulos '.json_encode($DB->connect_errno),
+									 'dato' => $sql
+								);
+						$respuesta['error'] = $error;
+					}
+					$respuesta['consulta'] = $sql;
+
+		} else {
+			// El id es 0 por lo que no añadimos nada y enviamos error.
+			$error = array ( 'tipo'=>'danger',
+									 'mensaje' =>'El id del producto '.$datos['id'].' enviado es incorrecto',
+									 'dato' => $datos
+								);
+						$respuesta['error'] = $error;
+			
+		}
+		
+		return $respuesta;
+	
+		
 		
 	}
 }
