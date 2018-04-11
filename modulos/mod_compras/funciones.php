@@ -846,6 +846,12 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 		}else{
 				$idAlbaranTemporal=$datosGet['tActual'];
 		}
+		if (!isset($Tienda['idTienda'])){
+			$error=1;
+		}
+		if (!isset($Usuario['id'])){
+			$error=1;
+		}
 		
 		if (isset($idAlbaranTemporal)){
 			$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
