@@ -249,7 +249,7 @@ if ($idProveedor===0){
 			<h3>TOTAL</h3>
 			</div>
 			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+				<?php echo (isset($Datostotales['total']) ? number_format ($Datostotales['total'],2, '.', '') : '');?>
 			</div>
 		</div>
 	</div>

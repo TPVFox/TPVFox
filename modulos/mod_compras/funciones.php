@@ -212,13 +212,13 @@ function recalculoTotales($productos) {
 		if ($product->estado === 'Activo'){
 			$bandera=$product->iva/100;
 			if (isset($desglose[$product->iva])){
-			$desglose[$product->iva]['base'] = $desglose[$product->iva]['base'] + $product->importe;
-			$desglose[$product->iva]['iva'] = $desglose[$product->iva]['iva']+ ($product->importe*$bandera);
+			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $product->importe,2, '.', '');
+			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva']+ ($product->importe*$bandera),2, '.', '');
 			}else{
-			$desglose[$product->iva]['base'] = $product->importe;
-			$desglose[$product->iva]['iva'] =$product->importe*$bandera;
+			$desglose[$product->iva]['base'] = number_format($product->importe,2, '.', '');
+			$desglose[$product->iva]['iva'] =number_format($product->importe*$bandera, 2, '.', '');
 			}
-			$desglose[$product->iva]['BaseYiva'] =$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'];	
+			$desglose[$product->iva]['BaseYiva'] =number_format($desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 2, '.', '');	
 		}			
 	}
 	foreach($desglose as $tipoIva=>$des){
