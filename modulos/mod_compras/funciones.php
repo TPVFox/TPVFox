@@ -752,6 +752,12 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 	}else{
 		$numPedidoTemp=$datosGet['tActual'];
 	}
+	if (!isset($Tienda['idTienda'])){
+			$error=1;
+		}
+		if (!isset($Usuario['id'])){
+			$error=1;
+		}
 	if (isset ($numPedidoTemp)) {
 		$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
 		//~ if($pedidoTemporal['total']){
@@ -971,6 +977,12 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 	}else{
 		$idFacturaTemporal=$datosGet['tActual'];
 	}
+	if (!isset($Tienda['idTienda'])){
+			$error=1;
+		}
+		if (!isset($Usuario['id'])){
+			$error=1;
+		}
 	if(isset ($idFacturaTemporal)){
 		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
 		//~ if(['total']){
