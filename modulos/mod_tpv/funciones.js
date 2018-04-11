@@ -250,7 +250,7 @@ function grabarTicketsTemporal(){
 	// Para poder mandar objectos de productos ...
 	var parametros = {
 		"pulsado"    	: 'grabarTickes',
-		"productos"	 	: productos,//
+		"productos"	 	: JSON.stringify(productos),//
 		"idCliente"	 	: cabecera.idCliente,
 		"idTienda" 	 	: cabecera.idTienda,
 		"idUsuario"	 	: cabecera.idUsuario,

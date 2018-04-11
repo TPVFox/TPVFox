@@ -125,7 +125,7 @@ switch ($pulsado) {
 		// Grabar tickets temporales.
 		$respuesta = array();
 		$cabecera = array(); // Array que rellenamos de con POST
-		$productos 					=$_POST['productos'];
+		$productos 					=json_decode($_POST['productos']);
 		$cabecera['idTienda']		=$_POST['idTienda'];
 		$cabecera['idCliente']		=$_POST['idCliente'];
 		$cabecera['idUsuario'] 		=$_POST['idUsuario'];
