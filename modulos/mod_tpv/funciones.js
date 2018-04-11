@@ -250,7 +250,7 @@ function grabarTicketsTemporal(){
 	// Para poder mandar objectos de productos ...
 	var parametros = {
 		"pulsado"    	: 'grabarTickes',
-		"productos"	 	: productos,//
+		"productos"	 	: JSON.stringify(productos),//
 		"idCliente"	 	: cabecera.idCliente,
 		"idTienda" 	 	: cabecera.idTienda,
 		"idUsuario"	 	: cabecera.idUsuario,
@@ -577,6 +577,8 @@ function controladorAcciones(caja,accion){
 				recalculoImporte(productos[n_producto].unidad,n_producto);
 			} else {
 				alert('Incorrecto la cantidad');
+				console.log('Cantidad incorrecta, cambio pongo 1');
+				$('#'+caja.id_input).val('1');
 			}
 			break;
 		case 'mover_down':
@@ -1036,6 +1038,16 @@ function bloquearCajaProveedor(caja){
 function comprobarNumero(valor){
 	// Objetivo validar un numero decimal tanto positivo , como negativo.
 	var RE = /^\-?\d*\.?\d*$/;
+	//~ var RE=  new RegExp('^([0-9]\.[0-9]*|[1-9][0-9]+\.[0-9]*)');
+	console.log(typeof valor);
+	if (typeof valor === 'string'){
+		if (valor.substr(-10,1) === '0'){
+			if (valor.substr(-10,2) !== '0.'){
+				// Comprobamos que el siguiente numero es . sino genera un error.
+				return false;
+			}
+		}
+	}
     if (RE.test(valor)) {
         return true;
     } else {

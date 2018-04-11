@@ -90,8 +90,62 @@ function agregoCodBarrasVacio(contNuevo){
 	});
 	
 }
+function controlCodBarras(caja){
+	// Objetivo
+	// Controlar si el codigo de barras es correcto.
+	// De momento solo controlo que si existe hace una advertencia.
 
+	validarEntradaNombre(caja); // Limpiamos codigo de "
+	var codb = caja.darValor();
+	// Ahora debería comprobar si existe este codigo barras en este producto.
+	 
+	 $('#tcodigo').find(':input').each(function (id){
+		var stringId='codBarras_'+id; 
+		if ( stringId !== caja.id_input){
+			// Evitamos que no repita el mismo codigo barras en el mismo producto.
+			if ($('#codBarras_'+id).val() === codb){
+				console.log($('#codBarras_'+id).val());
+				console.log(codb);
+				alert ('No puedes repetir el mismo codbarras en el mismo producto');
+				$('#'+caja.id_input).val('');
+			}
+		}
+	});
+		
+	var parametros = {
+		"pulsado"    : 'ComprobarSiExisteCodbarras',
+		"codBarras": codb
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Comprobamos si existe ese codbarras en algún producto  ****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta de comprobación si existe ese codbarras');
 			
+			var resultado =  $.parseJSON(response);
+			console.log(resultado);
+			var msj='';
+			resultado.Items.forEach(function (item){
+				if (item.idArticulo !== producto.idArticulo){
+					msj = 'Existe este codbarras en ';
+				}
+				console.log(item.idArticulo);
+			});
+			if  (msj !==''){
+				alert(msj+resultado.NItems+ " productos. \n Estas segura que quiere añadirlo.")	;
+			}
+			
+		}
+	});
+	
+}
+
+
+		
 			
 function anular(e) {
   // Objetivo:
@@ -213,13 +267,16 @@ function AnhadirCodbarras(){
 	
 	// Contamos los tr que hay body tcodigo
 	var num_tr = $('#tcodigo>tbody>tr').length; 
-	
 	var vacio = 'No';
-	for (i = 0; i < num_tr; i++) { 
-		// Comprobamos que input codbarras tenga valor.
-		var valor = $('#codBarras_'+i).val() ;
-		if ( valor.length === 0){
-			vacio = 'Si';
+	var trComprobar;
+	for (i = 0; i <= num_tr; i++) { 
+		// Comprobamos que input codbarras tenga valor, sino tiene no creamos tr con input.
+		trComprobar =document.getElementById("codBarras_"+i);
+		if (document.body.contains(trComprobar)){ 
+			var valor = $('#codBarras_'+i).val() ;
+			if ( valor.length === 0){
+				vacio = 'Si';
+			}
 		}
 	}
 	// Solo continuamos si vacio es No, ya que sino hay una caja codBarras vacio.
@@ -467,6 +524,15 @@ function controladorAcciones(caja,accion, tecla){
 				bloquearCajaProveedor(caja);
 			}
 		break
+		
+		case 'controlCodBarras':
+			caja.id_input = caja.name_cja;
+			var codb = caja.darValor();
+			if (codb.length>0){
+				// No ejecuto si no hay codigo introducido.
+				controlCodBarras(caja);
+			}
+		break;
 		
 	}
 		

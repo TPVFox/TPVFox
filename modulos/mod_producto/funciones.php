@@ -17,7 +17,7 @@ function htmlLineaCodigoBarras($item,$codBarras=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
 	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input type="text" id="codBarras_'.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'"></td>';
+	$nuevaFila .= '<td><input data-obj="cajaCodBarras" type="text" id="codBarras_'.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'" onkeydown="controlEventos(event)"></td>';
 	$nuevaFila .= '<td><a id="eliminar_'.$item.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
 	$nuevaFila .= '</tr>';
 	return $nuevaFila;
@@ -83,13 +83,15 @@ function  htmlTablaCodBarras($codBarras){
 			.'					</a>'
 			.'				</th>'
 			.'			</tr>'
-			.'		</thead>';
+			.'		</thead>'
+			.'		<tbody>';
 	if (count($codBarras)>0){
 		foreach ($codBarras as $item=>$valor){
 			$html .= htmlLineaCodigoBarras($item,$valor);
 		}
 	}
-	$html .= '</table>	';
+			
+	$html .= '</tbody> </table>	';
 	return $html;
 } 
 
@@ -376,6 +378,7 @@ function prepararParaGrabar($array,$claseArticulos){
 	
 	// Recorremos las keys
 	$DatosProducto = array();
+	$Sqls = array();
 	$DatosProducto['codBarras'] = array();
 	$DatosProducto['proveedores_costes'] = array();
 	$DatosProducto['familias'] = array();
@@ -386,7 +389,7 @@ function prepararParaGrabar($array,$claseArticulos){
 	foreach ($keys_array as $key){
 		switch ($key) {
 			case 'idIva':
-				// Obtenemos iva según id.
+				// Obtenemos iva según id obtenido en el formulario.
 				$DatosProducto['iva']		= $claseArticulos->GetUnIva($array['idIva']);
 				break;
 			case 'id':
@@ -428,8 +431,8 @@ function prepararParaGrabar($array,$claseArticulos){
 						'coste'			=> $array['prov_coste_'.$idProveedor]
 					);
 				array_push($DatosProducto['proveedores_costes'],$prov_coste);
-
 				break;
+			
 			case (substr($key, 0,11)==='idFamilias_')  :
 				// Montamos array de familias.
 				// El array que debo obtener es:
@@ -448,26 +451,33 @@ function prepararParaGrabar($array,$claseArticulos){
 				if (substr($key, 0,10) !=='prov_cref_' && substr($key, 0,11) !=='prov_coste_' && substr($key, 0,11) !=='idFamilias_'){
 					$DatosProducto[$key] 		= $array[$key]; 
 				}
-				
-
 		}
-
-		
-		
-		
-		
 	}
 	
 	// Ahora empiezo con las comprobaciones .
+	// Primero comprobamos si es nuevo o ya existia.
+	if ($array['id'] >0 ){
+		// ---------------            Se esta modificando. ------------------------------------//
+		// --- Comprobamos los codbarras y vemos cuales añadio,modifico o elimino. --//
+		$comprobaciones = $claseArticulos->ComprobarCodbarrasUnProducto($array['id'],$DatosProducto['codBarras']);
+		
+		
+		$DatosProducto['Sqls']['codbarras'] = $comprobaciones;
+		
+		
+	} else {
+		// ----------------------------  SE ESTA AÑADIENDO UN PRODUCTO NUEVO  ------------------------  //
+		$anhadir = $claseArticulos->AnhadirProductoNuevo($DatosProducto);
+		
+		$DatosProducto['Sqls']['NuevoProducto']=$anhadir;
+	}
 	
-	// Montamos Sql para grabar precios:
-	$DatosProducto['Sql_update_articulos_precios'] = 'UPDATE `articulosPrecios` SET `pvpCiva`="'.$DatosProducto['pvpCiva'].'",`pvpSiva`="'.$DatosProducto['pvpSiva'].'",`idTienda`='.$DatosProducto['idTienda'].' WHERE `idArticulo`='.$array['id'];
 
-	echo '<pre>';
-	print_r($DatosProducto);
-	echo '</pre>';
+	return $DatosProducto;
 	
 }
+
+
 
 function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor){
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "Productos");
@@ -499,6 +509,9 @@ function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProv
 	return $imprimir;
 }
 function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor){
+	// Objetivo
+	// Funcion para imprimir recalculo, sin guardar.
+	
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "compras");
 	$datosAlbaran=$CAlbaran->datosAlbaran($id);
 	$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);

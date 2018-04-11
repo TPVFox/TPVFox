@@ -21,14 +21,20 @@
 		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
-		echo '<pre>';
-		print_r($CTArticulos->GetPlugins());
-		echo '</pre>';
+		// Cargamos el plugin que nos interesa.
+		if (count($CArticulos_>GetPlugins())>0){
+			foreach ($CArticulos_>GetPlugins() as $plugin){
+				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+					
+				}
+			}
+			echo '<pre>';
+			print_r($CTArticulos->GetPlugins());
+			echo '</pre>';
+		}
 		$titulo = 'Productos:';
 		$id = 0 ; // Por  defecto el id a buscar es 0
-		$tabla= 'articulos'; // Tablas que voy utilizar.
-		$estadoInput = 'disabled'; //desactivado input de entrada 
-		
+				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
 		$posibles_estados = $CTArticulos->posiblesEstados('articulos');
 			
@@ -40,12 +46,65 @@
 		} else {
 			// Quiere decir que no hay id, por lo que es nuevo
 			$titulo .= "Crear";
+		}
+		if ($_POST){
+			
+			$preparados= prepararParaGrabar($_POST,$CTArticulos);
+			// Comprobamos los datos antes de grabar.
+			if (isset($preparados['Sqls']['NuevoProducto'])){
+				// Entonces es que creo uno nuevo.
+				$preparado_nuevo = $preparados['Sqls']['NuevoProducto'];
+				if (isset($preparado_nuevo['insert_articulos']['id_producto_nuevo'])){
+					// Se añadio por lo menos a tabla articulos
+					$id = $preparado_nuevo['insert_articulos']['id_producto_nuevo']; // Asi carga datos.
+					// Montamos comprobaciones para enviar despues de cargar de nuevo producto.
+					$success = array ( 'tipo'=>'success',
+								 'mensaje' =>'Se creo el producto con id '.$id.' nuevo',
+								 'dato' => $preparado_nuevo['consulta']
+								);
+					$preparados['Sqls']['comprobaciones'][] = $success;
+					// Ahora comprobamos si añadio mas cosas en el articulo nuevo. 
+					if (isset($preparado_nuevo['insert_articulos_precios'])){
+						if (isset($preparado_nuevo['insert_articulos_precios']['Afectados'])){
+							// Entiendo que la consulta fue correcta y que se añadio o no.
+							$success = array ( 'tipo'=>'success',
+								 'mensaje' =>'Se añadieron precios correctos en '
+											.$preparado_nuevo['insert_articulos_precios']['Afectados'].' registros',
+								 'dato' => $preparado_nuevo['consulta']
+								);
+							$preparados['Sqls']['comprobaciones'][] = $success;
+						} else {
+							// Hubo un error al insertar los precios.
+							$preparados['Sqls']['comprobaciones'][] = $preparado_nuevo['insert_articulos_precios'];
+						}
+						
+					}
 
+				} else {
+					// Quiere decir que hubo un error al principio
+					$preparados['Sqls']['comprobaciones'][] = $preparado_nuevo;
+				}
+				if (isset($preparado_nuevo['codbarras'])){
+					$preparados['Sqls']['codbarras'] = $preparado_nuevo['codbarras'];
+				}
+			}
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
-		$Producto = $CTArticulos->getProducto($_GET['id']);
-		
-		
+		$Producto = $CTArticulos->getProducto($id);
+		if (isset($preparados['Sqls'])){
+			// quiere decir que hizo consultas por lo que tenemos comprobaciones
+			if (isset($preparados['Sqls']['comprobaciones'])){
+				foreach ($preparados['Sqls']['comprobaciones'] as $comprobacion){
+					$CTArticulos->SetComprobaciones($comprobacion);
+				}
+			}
+			if (isset($preparados['Sqls']['codbarras'])){
+				foreach ($preparados['Sqls']['codbarras'] as $comprobacion){
+					$CTArticulos->SetComprobaciones($comprobacion);
+				}
+			}
+		}
+		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
@@ -70,12 +129,7 @@
 	<body>
 		<?php     
         include './../../header.php';
-		// Comprobamos si el estado es Nuevo
-		if ($Producto['estado'] === 'Nuevo'){
-			$disabled = '';
-		} else {
-			$disabled = '';
-		}
+		
 		// Ahora montamos html 
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
 		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
@@ -89,26 +143,9 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
-		//~ echo '<pre>';
-		//~ print_r($Producto);
-		//~ echo '</pre>';
-			
+		//~ $htmlVersionesCoches = htmlTablaVersionesCoches($id);
 		
-		if ($_POST){
-			
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
-			prepararParaGrabar($_POST,$CTArticulos);
-			
-			
-			
-			// Comprobamos los datos antes de grabar.
-			// header('Location: producto.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
-		}
-		//~ echo '<pre>';
-		//~ print_r($Producto);
-		//~ echo '</pre>';
+		
 		
 		?>
 
@@ -198,7 +235,7 @@
 						</div>
 						<div class="col-md-4 ">	
 							<label class="control-label " > Precio sin Iva:</label>
-							<input type="text" id="pvpSiva" size="10" name="pvpSiva"  data-obj= "cajaPvpSiva" onkeydown="controlEventos(event)" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
+							<input type="text" id="pvpSiva" size="10" name="pvpSiva"  data-obj= "cajaPvpSiva" onkeydown="controlEventos(event)" onblur="controlEventos(event)" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
 						</div>
 						<div class="col-md-4 ">	
 							<label class="control-label " >
@@ -207,7 +244,7 @@
 							<span title ="Recalcular según beneficio y ultimo coste" class="glyphicon glyphicon-refresh"></span>
 							</a>
 							</label>
-							<input type="text" id="pvpCiva" size="10" name="pvpCiva"  data-obj= "cajaPvpCiva" onkeydown="controlEventos(event)"  value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
+							<input type="text" id="pvpCiva" size="10" name="pvpCiva"  data-obj= "cajaPvpCiva" onkeydown="controlEventos(event)" onblur="controlEventos(event)"  value="<?php echo number_format($Producto['pvpCiva'],2, '.', '');?>"   >
 						</div>
 					</div>
 				</div>
