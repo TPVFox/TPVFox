@@ -114,7 +114,10 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $this->ArrayPropiedades();
 		
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> Cambios para merge con TPVFox
 	public function GetPlugins(){
 		$plugins = $this->plugins;
 		return $plugins;//->GetDir();
