@@ -71,7 +71,7 @@ include './../../head.php';
 			 //~ $pedidos=json_decode(json_encode($modificarPedido), true);
 		//~ }
 		//~ echo $pedidos;
-		$datosAlbaran=DatosIdAlbaran($_GET['id'], $CAlb, $Cprveedor);
+		$datosAlbaran=DatosIdAlbaran($_GET['id'], $CAlb, $Cprveedor, $BDTpv );
 		if ($datosAlbaran['error']){
 			$errores=$datosAlbaran['error'];
 		}else{

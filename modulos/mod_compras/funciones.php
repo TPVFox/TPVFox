@@ -446,50 +446,84 @@ function lineaAdjunto($adjunto, $dedonde){
 	}
 	return $respuesta;
 }
-function modificarArrayPedidos($pedidos, $BDTpv){
-	//Objetivo : 
-	//Modificar el array de pedidos . Esta función se carga en albaranes.php
-	$respuesta=array();
-		$i=1;
-	foreach ($pedidos as $pedido){
-			$datosPedido=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$pedido['idPedido'] );
-			while ($fila = $datosPedido->fetch_assoc()) {
-				$ped = $fila;
-			}
-			$res['NumAdjunto']=$pedido['numPedido'];
-			$res['idAdjunto']=$ped['id'];
-			$res['fecha']=$ped['FechaPedido'];
-			$res['idPePro']=$ped['idProveedor'];
-			$res['total']=$ped['total'];
-			$res['estado']="activo";
-			$res['nfila']=$i;
-			array_push($respuesta,$res);
-		$i++;
-	}
-	return $respuesta;
-}
+//~ function modificarArrayPedidos($pedidos, $BDTpv){
+	//~ //Objetivo : 
+	//~ //Modificar el array de pedidos . Esta función se carga en albaranes.php
+	//~ $respuesta=array();
+		//~ $i=1;
+	//~ foreach ($pedidos as $pedido){
+			//~ $datosPedido=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$pedido['idPedido'] );
+			//~ while ($fila = $datosPedido->fetch_assoc()) {
+				//~ $ped = $fila;
+			//~ }
+			//~ $res['NumAdjunto']=$pedido['numPedido'];
+			//~ $res['idAdjunto']=$ped['id'];
+			//~ $res['fecha']=$ped['FechaPedido'];
+			//~ $res['idPePro']=$ped['idProveedor'];
+			//~ $res['total']=$ped['total'];
+			//~ $res['estado']="activo";
+			//~ $res['nfila']=$i;
+			//~ array_push($respuesta,$res);
+		//~ $i++;
+	//~ }
+	//~ return $respuesta;
+//~ }
 
-function modificarArrayAlbaranes($alabaranes, $BDTpv){
-	//@Objetivo:
-	//MOdificar el array de albaranes , esta función se carga en facturas.php
+//~ function modificarArrayAlbaranes($alabaranes, $BDTpv){
+	//~ //@Objetivo:
+	//~ //MOdificar el array de albaranes , esta función se carga en facturas.php
+	//~ $respuesta=array();
+	//~ $i=1;
+	//~ foreach ($alabaranes as $albaran){
+			//~ $datosAlbaran=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$albaran['idAlbaran'] );
+			//~ while ($fila = $datosAlbaran->fetch_assoc()) {
+				//~ $alb = $fila;
+			//~ }
+			//~ $res['NumAdjunto']=$albaran['numAlbaran'];
+			//~ $res['idAdjunto']=$alb['id'];
+			//~ $res['fecha']=$alb['Fecha'];
+			//~ $res['idPePro']=$alb['idProveedor'];
+			//~ $res['total']=$alb['total'];
+			//~ $res['estado']="activo";
+			//~ $res['nfila']=$i;
+			//~ array_push($respuesta,$res);
+		//~ $i++;
+	//~ }
+	//~ return $respuesta;
+//~ }
+
+function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 	$respuesta=array();
 	$i=1;
-	foreach ($alabaranes as $albaran){
-			$datosAlbaran=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$albaran['idAlbaran'] );
-			while ($fila = $datosAlbaran->fetch_assoc()) {
-				$alb = $fila;
-			}
-			$res['NumAdjunto']=$albaran['numAlbaran'];
-			$res['idAdjunto']=$alb['id'];
-			$res['fecha']=$alb['Fecha'];
-			$res['idPePro']=$alb['idProveedor'];
-			$res['total']=$alb['total'];
-			$res['estado']="activo";
-			$res['nfila']=$i;
-			array_push($respuesta,$res);
+	foreach ($adjuntos as $adjunto){
+	if ($dedonde =="albaran"){
+		$datosAdjunto=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$adjunto['idPedido'] );
+	}else{
+		$datosAdjunto=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$adjunto['idAlbaran'] );
+	}
+	while ($fila = $datosAdjunto->fetch_assoc()) {
+			$adj = $fila;
+	}
+	if ($dedonde=="albaran"){
+		$res['NumAdjunto']=$adjunto['numPedido'];
+		$res['fecha']=$adj['FechaPedido'];
+	}else{
+		$res['NumAdjunto']=$adjunto['numAlbaran'];
+		$res['fecha']=$adj['Fecha'];
+	}
+		//~ $res['NumAdjunto']=$pedido['numPedido'];
+		$res['idAdjunto']=$adj['id'];
+		//~ $res['fecha']=$ped['FechaPedido'];
+		$res['idPePro']=$adj['idProveedor'];
+		$res['total']=$adj['total'];
+		$res['estado']="activo";
+		$res['nfila']=$i;
+		array_push($respuesta,$res);
 		$i++;
+		
 	}
 	return $respuesta;
+	
 }
 
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
@@ -1151,7 +1185,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 	}
 	return $resultado;
 }
-function DatosIdAlbaran($id, $CAlb, $Cprveedor){
+function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 		$idAlbaran=$id;
 		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
 		if ($datosAlbaran['error']){
@@ -1219,7 +1253,8 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor){
 					$Datostotales = recalculoTotales($productos);
 					$productos=json_decode(json_encode($productosAlbaran), true);
 					if ($pedidosAlbaran){
-						 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
+						 //$modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
+						 $modificarPedido=modificarArrayAdjunto($pedidosAlbaran, $BDTpv, "albaran");
 						 $pedidos=json_decode(json_encode($modificarPedido), true);
 					}
 					

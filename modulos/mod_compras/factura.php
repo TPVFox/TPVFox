@@ -59,7 +59,8 @@ include './../../head.php';
 		$productos=json_decode(json_encode($productosFactura), true);
 			
 		if ($abaranesFactura){
-			 $modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
+			 //$modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
+			 $modificarAlbaran=modificarArrayAdjunto($abaranesFactura, $BDTpv, "factura");
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
 		
@@ -124,13 +125,7 @@ include './../../head.php';
 		}
 		
 	if (isset($_POST['Guardar'])){
-		echo '<pre>';
-		print_r($_GET);
-		echo '</pre>';
 			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales, $importesFactura);
-			//~ echo '<pre>';
-		//~ print_r($guardar);
-		//~ echo '</pre>';
 			if ($guardar==0){
 				header('Location: facturasListado.php');
 			}else{
@@ -154,9 +149,6 @@ include './../../head.php';
 				<strong>Error!</strong>Error al cancelar la factura.
 				</div>';
 		}
-		//~ }else{
-			//~ header('Location: facturasListado.php');
-		//~ }
 	}
 	}
 	
@@ -274,21 +266,27 @@ if ($suNumero==0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<?php 
-			if (isset($_GET['mensaje'])){
-				$mensaje=$_GET['mensaje'];
-				$tipomensaje=$_GET['tipo'];
-			}
-			if (isset($mensaje) || isset($error)){   ?> 
+			//~ if (isset($_GET['mensaje'])){
+				//~ $mensaje=$_GET['mensaje'];
+				//~ $tipomensaje=$_GET['tipo'];
+			//~ }
+			//~ if (isset($mensaje) || isset($error)){   ?> 
+<!--
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
+-->
+
 				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
-				}
-				?>
+
+				//~ if (isset($error)){
+				//~ // No permito continuar, ya que hubo error grabe.
+				//~ return;
+				//~ }
+				//~ ?>
+
 			<?php
-			}
-			?>
+
+			//~ }
+			 ?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<a  onclick="abrirIndicencia('albaran');"><span class="glyphicon glyphicon-pencil"></span></a>
 			<a  href="./facturasListado.php">Volver Atrás</a>
@@ -526,14 +524,12 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 }
 if ($estado=="Pagado total"){
 	?>
-	$("#fila0").hide();
-		
+	$("#fila0").hide();	
 	$("#Cancelar").hide();
 	$("#Guardar").hide();
 	<?php
 }
 	?>
-	
 </script>
 	</body>
 </html>
