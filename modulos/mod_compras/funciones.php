@@ -70,8 +70,11 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$likes = array();
 	$whereIdentico = array();
 	foreach($palabras as $palabra){
+	
+		
 		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
 		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
+	
 	}
 	
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
@@ -79,9 +82,13 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$busquedas = array();
 	
 	if ($palabra !== ''){ 
-		$busquedas[] = implode(' and ',$whereIdentico);
+		if ($idcaja=="cajaBusqueda"){
+			$busquedas[] = implode(' and ',$likes);
+		}else{
+			$busquedas[] = implode(' and ',$whereIdentico);
 	
-		$busquedas[] = implode(' and ',$likes);
+			$busquedas[] = implode(' and ',$likes);
+		}
 	}
 	$i = 0;
 	foreach ($busquedas as $buscar){
