@@ -192,10 +192,10 @@
 		datos['idArticulo'] 	= <?php echo $product->id;?>;
 		datos['crefTienda'] 	= <?php echo '"'.$product->cref.'"';?>;
 		datos['articulo_name'] 	= <?php echo '"'.$product->cdetalle.'"';?>;
-		datos['pvpCiva'] 		= <?php echo $product->pvpconiva;?>;
+		datos['pvpCiva'] 		= <?php echo '"'.$product->pvpconiva.'"';?>;
 		datos['iva'] 			= <?php echo '"'.$product->ctipoiva.'"';?>;
 		datos['codBarras']		= <?php echo '"'.$product->ccodebar.'"';?>;
-		datos['unidad']		= <?php echo $product->unidad;?>;
+		datos['unidad']		= <?php echo '"'.$product->unidad.'"';?>;
 		datos['estado']		= <?php echo '"'.$product->estado.'"';?>;
 		productos.push(new ObjProducto(datos));
 	<?php	
