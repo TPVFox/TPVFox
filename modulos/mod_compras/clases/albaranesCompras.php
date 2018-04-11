@@ -78,7 +78,6 @@ class AlbaranesCompras extends ClaseCompras{
 		$smt = $db->query($sql);
 		if ($smt) {
 			$respuesta['id']=$db->insert_id;
-		//	$respuesta['id']=mysqli_insert_id($db);
 			$respuesta['sql']=$sql;
 			return $respuesta;
 		} else {
@@ -87,16 +86,6 @@ class AlbaranesCompras extends ClaseCompras{
 			$respuesta['error'] = $db->error;
 			return $respuesta;
 		}
-		//~ $respuesta['sql']=$sql;
-		//~ $smt=$this->consultaInsert($sql);
-		//~ if (gettype($smt)==='array'){
-			//~ $respuesta['error']=$smt['error'];
-			//~ $respuesta['consulta']=$smt['consulta'];
-		//~ }else{
-			//~ $respuesta['id']=$smt;
-			//~ $respuesta['productos']=$productos;	
-		//~ }
-		//~ return $respuesta;
 	}
 	public function addNumRealTemporal($idTemporal, $idReal){
 		//Objetivo:
