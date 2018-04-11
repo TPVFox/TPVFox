@@ -361,7 +361,7 @@ switch ($pulsado) {
 				$respuesta['htmlTabla']=$htmlTotales['html'];
 				
 			}
-			$respuesta['id']=$res;
+			//$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
 			
