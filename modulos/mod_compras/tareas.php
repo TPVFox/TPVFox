@@ -307,6 +307,7 @@ switch ($pulsado) {
 						$existe=1;
 						$res=$rest['idTemporal'];
 						$pro=$rest['productos'];
+						$respuesta['id']=$rest['idTemporal'];
 					}
 			}else{
 				$rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero);
@@ -361,7 +362,7 @@ switch ($pulsado) {
 				$respuesta['htmlTabla']=$htmlTotales['html'];
 				
 			}
-			//$respuesta['id']=$res;
+			//~ $respuesta['id']=$res;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
 			
