@@ -21,9 +21,17 @@
 		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
-		echo '<pre>';
-		print_r($CTArticulos->GetPlugins());
-		echo '</pre>';
+		// Cargamos el plugin que nos interesa.
+		if (count($CArticulos_>GetPlugins())>0){
+			foreach ($CArticulos_>GetPlugins() as $plugin){
+				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+					
+				}
+			}
+			echo '<pre>';
+			print_r($CTArticulos->GetPlugins());
+			echo '</pre>';
+		}
 		$titulo = 'Productos:';
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
@@ -135,7 +143,7 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
-		$htmlVersionesCoches = htmlTablaVersionesCoches($id);
+		//~ $htmlVersionesCoches = htmlTablaVersionesCoches($id);
 		
 		
 		
