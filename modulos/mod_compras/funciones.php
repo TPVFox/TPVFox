@@ -206,7 +206,7 @@ function recalculoTotales($productos) {
 			$bandera=$product->iva/100;
 			if (isset($desglose[$product->iva])){
 			$desglose[$product->iva]['base'] = $desglose[$product->iva]['base'] + $product->importe;
-			$desglose[$product->iva]['iva'] = $desglose[$product->iva]['iva']+ $product->importe;
+			$desglose[$product->iva]['iva'] = $desglose[$product->iva]['iva']+ ($product->importe*$bandera);
 			}else{
 			$desglose[$product->iva]['base'] = $product->importe;
 			$desglose[$product->iva]['iva'] =$product->importe*$bandera;
