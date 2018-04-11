@@ -220,7 +220,7 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
 	var id = '#N'+productos[nfila].nfila+'_Importe';
 	importe = productos[nfila].importe.toFixed(2);
-productos[nfila].ultimoCoste=valor;	
+	productos[nfila].ultimoCoste=valor;	
 	$(id).html(importe);
 	addTemporal(dedonde);
 	
