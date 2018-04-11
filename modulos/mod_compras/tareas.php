@@ -59,13 +59,14 @@ switch ($pulsado) {
 			$idProveedor=$_POST['idProveedor'];
 			$dedonde=$_POST['dedonde'];
 			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idProveedor);
-			if ($res['Nitems']===1){
+			if ($res['Nitems']===1 && $idcaja<>"cajaBusqueda"){
 				$respuesta=$res;
 				$respuesta['Nitems']=$res['Nitems'];	
 			}else{
 				$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
 				$respuesta['Estado'] = 'Listado';
 			}
+			$respuesta['sql']=$res['sql'];
 			echo json_encode($respuesta);  
 	break;	
 	

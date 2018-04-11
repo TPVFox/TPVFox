@@ -14,6 +14,7 @@ function controladorAcciones(caja,accion, tecla){
 		case 'buscarProducto':
 			console.log("Pulse buscar Producto");
 			console.log(caja.darParametro('dedonde'));
+			
 			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.id_input , caja.darValor(),caja.darParametro('dedonde'));
 		break;
 		case 'recalcular_totalProducto':
