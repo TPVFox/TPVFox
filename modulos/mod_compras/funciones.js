@@ -816,7 +816,8 @@ function addTemporal(dedonde=""){
 		"estado":cabecera.estado,
 		"idReal":cabecera.idReal,
 		"fecha":cabecera.fecha,
-		"productos":productos,
+	//	"productos":productos,
+		"productos":JSON.stringify(productos),
 		"idProveedor":cabecera.idProveedor
 	};
 	if (dedonde=="albaran"){

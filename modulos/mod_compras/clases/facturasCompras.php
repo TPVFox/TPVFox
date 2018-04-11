@@ -118,7 +118,8 @@ class FacturasCompras extends ClaseCompras{
 		//@Objetivo:
 		//MOdficar los datos de una factura temporal
 		$db = $this->db;
-		$UnicoCampoProductos=json_encode($productos);
+		$productos_json=json_encode($productos);
+		$UnicoCampoProductos 	=$productos_json;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$smt=$db->query('UPDATE facproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacPro="'.$estado.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Albaranes='."'".$UnicoCampoAlbaranes."'".' , Su_numero='.$suNumero.' WHERE id='.$idFacturaTemp);
 		
@@ -132,7 +133,8 @@ class FacturasCompras extends ClaseCompras{
 		//@Objetivo:
 		//Insertar los datos de una factura temporal nueva
 		$db = $this->db;
-		$UnicoCampoProductos=json_encode($productos);
+		$productos_json=json_encode($productos);
+		$UnicoCampoProductos 	=$productos_json;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$smt = $db->query ('INSERT INTO facproltemporales ( idUsuario , idTienda , estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoAlbaranes."'".', '.$suNumero.')');
 		$respuesta['sql']='INSERT INTO facproltemporales ( idUsuario , idTienda , estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoAlbaranes."'".', '.$suNumero.')';

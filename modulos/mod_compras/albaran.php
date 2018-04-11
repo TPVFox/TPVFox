@@ -123,12 +123,20 @@ include './../../head.php';
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
 				$albaran=$datosAlbaran;
-				$productos =  json_decode($datosAlbaran['Productos']) ;
+				//~ echo '<pre>';
+				//~ print_r($datosAlbaran['Productos']);
+				//~ echo '</pre>';
+				//$productos =  json_decode($datosAlbaran['Productos']) ;
+				$productos =json_decode($datosAlbaran['Productos']);
+				//~ echo '<pre>';
+				//~ print_r($productos);
+				//~ echo '</pre>';
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
 			}
 		}
 		
 	}
+	
 	if ($formaPago){
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 	}

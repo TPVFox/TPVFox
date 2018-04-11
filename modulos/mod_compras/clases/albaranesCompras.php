@@ -53,7 +53,8 @@ class AlbaranesCompras extends ClaseCompras{
 	// modificamos el temporal
 
 		$db = $this->db;
-		$UnicoCampoProductos=json_encode($productos);
+		$productos_json=json_encode($productos);
+		$UnicoCampoProductos 	=$productos_json;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$sql='UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal;
 		$smt=$this->consultaAlbaran($sql);
@@ -72,7 +73,8 @@ class AlbaranesCompras extends ClaseCompras{
 		//Objetivo:
 		//insertar un nuevo albaran temporal
 		$db = $this->db;
-		$UnicoCampoProductos=json_encode($productos);
+		$productos_json=json_encode($productos);
+		$UnicoCampoProductos 	=$productos_json;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$sql='INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, idProveedor,  Productos, Pedidos , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')';
 		$smt = $db->query($sql);

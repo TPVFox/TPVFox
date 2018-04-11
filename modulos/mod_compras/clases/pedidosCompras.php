@@ -44,7 +44,8 @@ class PedidosCompras extends ClaseCompras{
 		// @ Parametros:
 		//Todos los datos del pedido temporal
 		$db = $this->db;
-		$UnicoCampoProductos=json_encode($productos);
+		$productos_json=json_encode($productos);
+		$UnicoCampoProductos 	=$productos_json;
 		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
 		$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
@@ -59,7 +60,8 @@ class PedidosCompras extends ClaseCompras{
 		//@ Parametros:
 		// Todos los parametros que tenemos incialmente cuando creamos el pedido temporal
 		$db = $this->db;
-		$UnicoCampoProductos=json_encode($productos);
+		$productos_json=json_encode($productos);
+		$UnicoCampoProductos 	=$productos_json;
 		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".')';
 		//~ $smt = $db->query ($sql);
 		$smt=$this->consulta($sql);

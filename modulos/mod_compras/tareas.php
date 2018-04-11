@@ -207,7 +207,7 @@ switch ($pulsado) {
 			$estadoPedido=$_POST['estado'];
 			$idPedido=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
-			$productos=$_POST['productos'];
+			$productos=json_decode($_POST['productos']);
 			$idProveedor=$_POST['idProveedor'];
 			$existe=0; // Variable para devolver y saber si modifico o insert.
 			//Existe la utilizo como bandera para que el javascript solo me cree una vez la url del temporal
@@ -260,9 +260,9 @@ switch ($pulsado) {
 			 }
 			if ($productos){
 				//Recalcula el valor de los productos
-					$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-					$respuesta['productosre']=$productos_para_recalculo;
-					$CalculoTotales = recalculoTotales($productos_para_recalculo);
+					//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+					//~ $respuesta['productosre']=$productos_para_recalculo;
+					$CalculoTotales = recalculoTotales($productos);
 					$total=round($CalculoTotales['total'],2);
 					$respuesta['total']=round($CalculoTotales['total'],2);
 					$respuesta['totales']=$CalculoTotales;
@@ -287,7 +287,7 @@ switch ($pulsado) {
 			$estado=$_POST['estado'];
 			$idAlbaran=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
-			$productos=$_POST['productos'];
+			$productos=json_decode($_POST['productos']);
 			if (isset($_POST['pedidos'])){
 				$pedidos=$_POST['pedidos'];
 			}else{
@@ -345,9 +345,9 @@ switch ($pulsado) {
 				}
 			}
 			if ($productos){
-				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotales($productos_para_recalculo);
+				//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				//~ $respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
@@ -381,7 +381,7 @@ switch ($pulsado) {
 			$estado=$_POST['estado'];
 			$idFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
-			$productos=$_POST['productos'];
+			$productos=json_decode($_POST['productos']);
 			if(isset ($_POST['albaranes'])){
 				$albaranes=$_POST['albaranes'];
 			}else{
@@ -409,9 +409,9 @@ switch ($pulsado) {
 				$modEstado=$CFac->modEstadoFactura($idFactura, $estado);
 			}
 			if ($productos){
-				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotales($productos_para_recalculo);
+				//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				//~ $respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
