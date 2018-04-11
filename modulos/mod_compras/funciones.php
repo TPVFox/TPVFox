@@ -1050,8 +1050,8 @@ function htmlTotales($Datostotales){
 			$key = intval($key);
 			$htmlIvas['html'].='<tr id="line'.$key.'">'
 			.'<td id="tipo'.$key.'"> '.$key.'%</td>'
-			.'<td id="base'.$key.'"> '.$basesYivas['base'].'</td>'
-			.'<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>'
+			.'<td id="base'.$key.'"> '.number_format ($basesYivas['base'],2).'</td>'
+			.'<td id="iva'.$key.'">'.number_format ($basesYivas['iva'],2).'</td>'
 			.'</tr>';
 		}
 	}
