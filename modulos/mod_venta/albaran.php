@@ -125,9 +125,9 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
-	echo '<pre>';
-	print_r($datosAlbaran['Productos']);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($datosAlbaran['Productos']);
+	//~ echo '</pre>';
 			if($datosAlbaran['numalbcli']>0){
 				$id=$Calbcli->datosAlbaranNum($datosAlbaran['numalbcli']);
 				$numAlbaran=$datosAlbaran['numalbcli'];
@@ -146,16 +146,23 @@ include './../../head.php';
 		}
 		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
 		if (isset($_POST['Cancelar'])){
-			if ($_POST['idTemporal']){
+			if (isset($_POST['idTemporal'])){
 				$idTemporal=$_POST['idTemporal'];
 			}else{
-				$idTemporal=$_GET['tActual'];
+				if (isset($_GET['tActual'])){
+					$idTemporal=$_GET['tActual'];
+				}else{
+					$idTemporal=0;
+				}
+				
 			}
 			echo "entre en cancelar";
-			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-			$pedidos=json_decode($datosAlbaran['Pedidos'], true);
-			foreach ($pedidos as $pedido){
+			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
+			if (isset($datosAlbaran['Pedidos'])){
+				$pedidos=json_decode($datosAlbaran['Pedidos'], true);
+				foreach ($pedidos as $pedido){
 				$mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
+				}
 			}
 			$idAlbaran=0;
 			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);

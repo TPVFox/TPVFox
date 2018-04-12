@@ -14,8 +14,9 @@ class ClaseVentas{
 		$smt=$db->query('SELECT * from '.$tabla.' where '.$where);
 		if ($result = $smt->fetch_assoc () ){
 			$resultado=$result;
+			return $resultado;
 		}
-		return $resultado;
+		
 	}
 	public function SelectVariosResult($tabla, $where){
 		$db=$this->db;

@@ -195,15 +195,17 @@ switch ($pulsado) {
 			$idReal=$_POST['idReal'];
 			$existe=0;
 			//Si el número del albarán real existe lo guardamos
-			if ($numAlbaran>0){
-				$albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
-				$idAlbaranTemp=$albaran['id'];
+			if (isset($numAlbaran)){
+				if ($numAlbaran>0){
+					$albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
+					$idAlbaranTemp=$albaran['id'];
+				}
 			}
 			//Si el albarán temporal existe lo modifica
 			if ($idAlbaranTemp>0){
 				$rest=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
 				$existe=1;
-				$respuesta['sql']=$rest['sql'];
+				//~ $respuesta['sql']=$rest['sql'];
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{

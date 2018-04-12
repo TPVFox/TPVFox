@@ -613,6 +613,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	datos.iva=ctipoIva;
 	datos.idArticulo=id;
 	datos.ncant=1;
+	datos.nunidades=1;
 	datos.nfila=productos.length+1;
 	datos.importe=npconiva.toFixed(2);
 	var pvpCiva= parseFloat(npconiva);
