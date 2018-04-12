@@ -861,13 +861,6 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 		
 		if (isset($idAlbaranTemporal)){
 			$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-			//~ if($datosAlbaran['total']){
-				//~ $total=$datosAlbaran['total'];
-			//~ }else{
-				//~ $error=1;
-				//~ $total=0;
-			//~ }
-	
 			if ($datosPost['suNumero']>0){
 				$suNumero=$datosPost['suNumero'];
 			}else{
@@ -1206,7 +1199,20 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 				$nuevoHistorico=$CArt->addHistorico($datos);
 				$resultado['sql']=$nuevoHistorico;
 			}		
-		}			
+		}
+		$buscar=$CArt->buscarReferencia($producto['idArticulo'], $idProveedor);
+		if (!$buscar){
+			$datosNuevos=array(
+				'coste'=>$producto['ultimoCoste'],
+				'idArticulo'=>$producto['idArticulo'],
+				'idProveedor'=>$idProveedor,
+				'fecha'=>$fecha,
+				'estado'=>"activo"
+			);	
+			$datosNuevos['refProveedor']=0;
+			$add=$CArt->addArticulosProveedores($datosNuevos);
+		}
+					
 	}
 	return $resultado;
 }
