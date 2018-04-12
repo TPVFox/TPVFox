@@ -97,7 +97,7 @@ class PedidosCompras extends ClaseCompras{
 		$db=$this->db;
 		$sql='UPDATE pedprotemporales set idPedpro='.$idReal .'  where id='.$idTemporal;
 		$smt=$db->query($sql);
-		return $resultado;
+		//~ return $resultado;
 	}
 	public function modEstadoPedido($idPedido, $estado){
 		//@Objetivo: Mofificar el estado del pedido real 
