@@ -148,8 +148,9 @@ if ($idProveedor===0){
 	include '../../header.php';
 ?>
 <div class="container">
+	<a  onclick="abrirIndicencia('pedido');">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
-	<a  onclick="abrirIndicencia('pedido');"><span class="glyphicon glyphicon-pencil"></span></a>
+	
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
 		<div class="col-md-12 btn-toolbar">
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
