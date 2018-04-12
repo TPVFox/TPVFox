@@ -881,12 +881,12 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 				$error=1;
 				$total=0;
 			}
-			if ($datosPost['formaVenci']){
+			if (isset($datosPost['formaVenci'])){
 				$formaPago=$datosPost['formaVenci'];
 			}else{
 				$formaPago=0;
 			}
-			if($datosPost['fechaVenci']){
+			if(isset($datosPost['fechaVenci'])){
 				$fechaVenci=$datosPost['fechaVenci'];
 			}else{
 				$fechaVenci="";
@@ -1219,7 +1219,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 		$idAlbaran=$id;
 		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
-		if ($datosAlbaran['error']){
+		if (isset($datosAlbaran['error'])){
 			$errores['error'][0]=array ( 'tipo'=>'Danger!',
 									 'dato' => $datosAlbaran['consulta'],
 									 'class'=>'alert alert-danger',
@@ -1227,7 +1227,7 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 									 );
 		}else{
 		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
-		if ($productosAlbaran['error']){
+		if (isset($productosAlbaran['error'])){
 			$errores['error'][1]=array ( 'tipo'=>'Danger!',
 									 'dato' => $productosAlbaran['consulta'],
 									 'class'=>'alert alert-danger',
@@ -1235,7 +1235,7 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 									 );
 		}
 		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
-		if ($ivasAlbaran['error']){
+		if (isset($ivasAlbaran['error'])){
 			$errores['error'][2]=array ( 'tipo'=>'Danger!',
 									 'dato' => $ivasAlbaran['consulta'],
 									 'class'=>'alert alert-danger',
@@ -1243,7 +1243,7 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 									 );
 		}
 		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
-		if ($pedidosAlbaran['error']){
+		if (isset($pedidosAlbaran['error'])){
 			$errores['error'][3]=array ( 'tipo'=>'Danger!',
 									 'dato' => $pedidosAlbaran['consulta'],
 									 'class'=>'alert alert-danger',
@@ -1283,10 +1283,11 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 				//Calciular el total con los productos que estn registrados
 					$Datostotales = recalculoTotales($productos);
 					$productos=json_decode(json_encode($productosAlbaran), true);
-					if ($pedidosAlbaran){
+					if (isset($pedidosAlbaran)){
 						 //$modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 						 $modificarPedido=modificarArrayAdjunto($pedidosAlbaran, $BDTpv, "albaran");
 						 $pedidos=json_decode(json_encode($modificarPedido), true);
+						 
 					}
 					
 					$respuesta=array(

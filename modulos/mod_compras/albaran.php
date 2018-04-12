@@ -72,7 +72,7 @@ include './../../head.php';
 		//~ }
 		//~ echo $pedidos;
 		$datosAlbaran=DatosIdAlbaran($_GET['id'], $CAlb, $Cprveedor, $BDTpv );
-		if ($datosAlbaran['error']){
+		if (isset($datosAlbaran['error'])){
 			$errores=$datosAlbaran['error'];
 		}else{
 			$idAlbaran=$datosAlbaran['idAlbaran'];
@@ -95,7 +95,7 @@ include './../../head.php';
 		if (isset($_GET['tActual'])){
 				$idAlbaranTemporal=$_GET['tActual'];
 				$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-				if ($datosAlbaran['error']){
+				if (isset($datosAlbaran['error'])){
 						$errores[0]=array ( 'tipo'=>'Danger!',
 								 'dato' => $datosAlbaran['consulta'],
 								 'class'=>'alert alert-danger',
@@ -190,11 +190,11 @@ include './../../head.php';
 			echo $comprobarPedidos;
 		}
 		if (isset ($_GET['id']) || isset ($_GET['tActual'])){
-			if($_GET['id'] >0 ||$_GET['tActual']>0){
+			//~ if(isset($_GET['id'])||isset($_GET['tActual'])){
 				$estiloTablaProductos="";
-			}else{
-				$estiloTablaProductos="display:none;";
-			}
+			//~ }else{
+				//~ $estiloTablaProductos="display:none;";
+			//~ }
 		}else{
 			$estiloTablaProductos="display:none;";
 		}

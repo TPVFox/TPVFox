@@ -21,7 +21,7 @@ $CAlb=new AlbaranesCompras($BDTpv);
 
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
-if ($todosTemporal['error']){
+if (isset($todosTemporal['error'])){
 	$errores[0]=array ( 'tipo'=>'Danger!',
 								 'dato' => $todosTemporal['consulta'],
 								 'class'=>'alert alert-danger',
@@ -78,7 +78,7 @@ $todosTemporal=array_reverse($todosTemporal);
 	
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
-	if ($albaranesDef['error']){
+	if (isset($albaranesDef['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $albaranesDef['consulta'],
 								 'class'=>'alert alert-danger',

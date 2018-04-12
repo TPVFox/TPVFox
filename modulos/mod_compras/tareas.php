@@ -312,7 +312,7 @@ switch ($pulsado) {
 					}else{
 						$existe=1;
 						$res=$rest['idTemporal'];
-						$pro=$rest['productos'];
+						//~ $pro=$rest['productos'];
 						$respuesta['id']=$rest['idTemporal'];
 					}
 			}else{
@@ -326,7 +326,7 @@ switch ($pulsado) {
 					
 				}else{
 					$existe=0;
-					$pro=$rest['productos'];
+					//~ $pro=$rest['productos'];
 					$idAlbaranTemporal=$rest['id'];
 					$respuesta['id']=$rest['id'];
 					$respuesta['sqlTemporal']=$rest['sql'];
