@@ -293,13 +293,13 @@ switch ($pulsado) {
 			}else{
 				$pedidos=array();
 			}
-			
+			$suNumero=$_POST['suNumero'];
 			$idProveedor=$_POST['idProveedor'];
-			if ($_POST['suNumero']>0){
-				$suNumero=$_POST['suNumero'];
-			}else{
-				$suNumero=0;
-			}
+			//~ if ($_POST['suNumero']>0){
+				
+			//~ }else{
+				//~ $suNumero="";
+			//~ }
 			
 			$existe=0;
 			if ($idAlbaranTemporal>0){
@@ -393,11 +393,8 @@ switch ($pulsado) {
 				$albaranes=array();
 			}
 			$idProveedor=$_POST['idProveedor'];
-			if ($_POST['suNumero']){
-				$suNumero=$_POST['suNumero'];
-			}else{
-				$suNumero=0;
-			}
+			$suNumero=$_POST['suNumero'];
+			
 			
 			if ($idFacturaTemp>0){
 				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idFacturaTemp, $productos, $albaranes, $suNumero);

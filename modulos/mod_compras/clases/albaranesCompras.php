@@ -56,7 +56,7 @@ class AlbaranesCompras extends ClaseCompras{
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
 		$UnicoCampoPedidos=json_encode($pedidos);
-		$sql='UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero='.$suNumero.' WHERE id='.$idAlbaranTemporal;
+		$sql='UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero="'.$suNumero.'" WHERE id='.$idAlbaranTemporal;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
@@ -79,7 +79,7 @@ class AlbaranesCompras extends ClaseCompras{
 		$sql='INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, 
 		idProveedor,  Productos, Pedidos , Su_numero) VALUES 
 		('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '
-		."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', '.$suNumero.')';
+		."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoPedidos."'".', "'.$suNumero.'")';
 		$smt = $db->query($sql);
 		if ($smt) {
 			$respuesta['id']=$db->insert_id;
