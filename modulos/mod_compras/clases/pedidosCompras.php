@@ -213,12 +213,19 @@ class PedidosCompras extends ClaseCompras{
 		//Muestra todos los temporales, esta función la utilizamos en el listado de pedidos
 		$db = $this->db;
 		$Sql= 'SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id';
-		$smt=$db->query($Sql);
+		//~ $smt=$db->query($Sql);
+		$smt=$this->consulta($Sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
 			$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($pedidosPrincipal,$result);
+			}
+			return $pedidosPrincipal;
 		}
-		return $pedidosPrincipal;
 		
 	}
 	
@@ -227,11 +234,11 @@ class PedidosCompras extends ClaseCompras{
 		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
 		$db	=$this->db;
 		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite ;
-		//$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite ;
 		$smt=$this->consulta($Sql);
 		$respuesta=array();
 		if (gettype($smt)==='array'){
-			$respuesta['error']=$smt['error'];
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
 		}else{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($respuesta,$result);

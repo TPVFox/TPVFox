@@ -22,7 +22,20 @@
 	
 	//Obtenemos los registros temporarles
 	$todoTemporal=$Cpedido->TodosTemporal();
-	
+	if (isset($todoTemporal['error'])){
+		$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $todoTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}
+	//~ if (count($todoTemporal)==0){
+		//~ $errores[0]=array ( 'tipo'=>'Warning!',
+								 //~ 'dato' => '',
+								 //~ 'class'=>'alert alert-warning',
+								 //~ 'mensaje' => 'No tienes albaranes tempoles abiertos!'
+								 //~ );
+	//~ }
 	$todoTemporal=array_reverse($todoTemporal);
 	// --- Preparamos el Paginado --- //
 	$vista = 'pedprot';
@@ -71,11 +84,20 @@
 	}
 	//MUestra un array con un número determinado de registros
 	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
-	$error="";
-	if (array_key_exists('error', $pedidosDef)){
-		$error['pedidosDef']=$pedidosDef['error'];
+	if (isset($pedidosDef['error'])){
+		$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $pedidosDef['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
 	}
-	
+	if (count($pedidosDef)==0){
+		$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes albaranes guardados!'
+								 );
+	}
 	?>
 
 </head>
@@ -84,13 +106,18 @@
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
-
 	include '../../header.php';
-	if (is_array($error)){
-		echo '<pre>';
-		print_r($error);
-		echo '</pre>';
+	if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+				. '</div>';
+				if ($error['tipo']=='Danger!'){
+					exit;
+				}
+		}
 	}
+	
 	?>
 	
 		<div class="container">
