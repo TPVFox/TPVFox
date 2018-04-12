@@ -232,8 +232,8 @@ switch ($pulsado) {
 						break;
 				}else{
 					$existe=0;
-					$res=$rest['id'];
-					$numPedidoTemp=$res;
+					//~ $res=$rest['id'];
+					$numPedidoTemp=$rest['id'];
 				}
 			}
 			$pro=$rest['productos'];
@@ -266,12 +266,12 @@ switch ($pulsado) {
 					$total=round($CalculoTotales['total'],2);
 					$respuesta['total']=round($CalculoTotales['total'],2);
 					$respuesta['totales']=$CalculoTotales;
-					$modTotal=$CPed->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
+					$modTotal=$CPed->modTotales($numPedidoTemp, $respuesta['total'], $CalculoTotales['subivas']);
 					$respuesta['sqlmodtotal']=$modTotal['sql'];
 					$htmlTotales=htmlTotales($CalculoTotales);
 					$respuesta['htmlTabla']=$htmlTotales['html'];
 				}
-				$respuesta['id']=$res;
+				$respuesta['id']=$numPedidoTemp;
 				$respuesta['existe']=$existe;
 				$respuesta['productos']=$_POST['productos'];
 				echo json_encode($respuesta);
