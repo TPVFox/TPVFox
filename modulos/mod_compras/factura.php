@@ -272,7 +272,7 @@ if ($suNumero==0){
 			//~ }
 			//~ if (isset($mensaje) || isset($error)){   ?> 
 <!--
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
+				<div class="alert alert-<?php //echo $tipomensaje; ?>"><?php //echo $mensaje ;?></div>
 -->
 
 				<?php 
@@ -287,10 +287,12 @@ if ($suNumero==0){
 
 			//~ }
 			 ?>
+			 <a  onclick="abrirIndicencia('albaran');">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  onclick="abrirIndicencia('albaran');"><span class="glyphicon glyphicon-pencil"></span></a>
-			<a  href="./facturasListado.php">Volver Atrás</a>
+			
+			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+				<a  href="./facturasListado.php">Volver Atrás</a>
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
 					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 					<?php
