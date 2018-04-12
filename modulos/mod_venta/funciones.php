@@ -547,6 +547,13 @@ function htmlImporteFactura($datos, $BDTpv){
 }
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 	$Ccliente=new Cliente($BDTpv);
+	$imprimir=array(
+	'cabecera'=>"",
+	'html'=>""
+	);
+	$datosCliente=array(
+	'Clientes'=>""
+	);
 	if ($dedonde=='pedido'){
 		$Cpedido=new PedidosVentas($BDTpv);
 		$datos=$Cpedido->datosPedidos($id);
@@ -624,9 +631,9 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$imprimir['cabecera'].='<td>TELÉFONO: '.$datosCliente['telefono'].'</td>';
 		$imprimir['cabecera'].='</tr>';
 		$imprimir['cabecera'].='</table>';
-		$imprimie['cabecera'].='</br></br>';
-			$imprimir['cabecera'].='<hr/><hr/>';
-			$imprimie['cabecera'].='</br></br>';
+		$imprimir['cabecera'].='</br></br>';
+		$imprimir['cabecera'].='<hr/><hr/>';
+		$imprimir['cabecera'].='</br></br>';
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
 		if ($dedonde=="albaran"){
@@ -755,6 +762,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 }
 function htmlTotales($Datostotales){
 	$htmlIvas['html'] = '';
+	if (isset($Datostotales)){
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
 			$key = intval($key);
 			$htmlIvas['html'].='<tr id="line'.$key.'">';
@@ -764,6 +772,7 @@ function htmlTotales($Datostotales){
 			$htmlIvas['html'].='</tr>';
 		}
 	return $htmlIvas;
+	}
 }
 
 function modificarArraysImportes($importes, $total){

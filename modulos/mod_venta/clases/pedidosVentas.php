@@ -123,7 +123,7 @@ class PedidosVentas extends ClaseVentas{
 			}
 		}
 		
-		return $resultado;
+		//~ return $resultado;
 	}
 	
 	public function TodosPedidosFiltro($filtro){
@@ -251,7 +251,7 @@ class PedidosVentas extends ClaseVentas{
 		//MOdificar el estado de un pedido real indicado
 		$db=$this->db;
 		$smt=$db->query('UPDATE pedclit SET estado="'.$estado.'" WHERE id='.$idPedido);
-		return $resultado;
+		//~ return $resultado;
 	}
 	
 	public function ComprobarPedidos($idCliente, $estado){

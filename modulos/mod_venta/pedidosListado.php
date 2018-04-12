@@ -38,6 +38,9 @@
 	} else {
 		$desde = 0;
 	}
+		$WhereLimite = array();
+	$WhereLimite['filtro'] = '';
+	$NuevoRango = '';
 if ($stringPalabras !== '' ){
 		$campo = array( 'a.Numpedcli','b.Nombre');
 		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
