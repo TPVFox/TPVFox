@@ -184,7 +184,12 @@ switch ($pulsado) {
 			$idTienda=$_POST['idTienda'];
 			$estadoAlbaran=$_POST['estado'];
 			$fecha=$_POST['fecha'];
-			$pedidos=$_POST['pedidos'];
+			if (isset($_POST['pedidos'])){
+				$pedidos=$_POST['pedidos'];
+			}else{
+				$pedidos=array();
+			}
+			
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
 			$idReal=$_POST['idReal'];
@@ -243,10 +248,14 @@ switch ($pulsado) {
 			$estadoFactura=$_POST['estado'];
 			$numFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
-			$albaranes=$_POST['albaranes'];
+			
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
-			
+			if(isset($_POST['albaranes'])){
+				$albaranes=$_POST['albaranes'];
+			}else{
+				$albaranes=array();
+			}
 			$existe=0;
 			if ($numFactura>0){
 				$factura=$CFac->buscarTemporalNumReal($numFactura);
