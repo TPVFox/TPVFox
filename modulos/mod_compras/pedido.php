@@ -80,11 +80,26 @@ if (isset($_POST['Guardar'])){
 	$guardar=guardarPedido($_POST, $_GET, $BDTpv, $Datostotales);
 	if ($guardar==0){
 		header('Location: pedidosListado.php');
+		
+
 	}else{
-		echo '<div class="alert alert-warning">
-		<strong>Error!</strong>No has introducido ningún producto.
-		</div>';
+		if (isset($guardar['error'])){
+			echo '<div class="alert alert-danger">'
+				. '<strong>Danger! </strong> Error al guardar el pedido <br> '.$guardar['consulta']
+				. '</div>';
+		
+					exit;
+				
+		}else{
+			echo '<div class="alert alert-warning">
+			<strong>Error!</strong>No has introducido ningún producto.
+			</div>';
+		}
 	}
+	echo '<pre>';
+	print_r($guardar);
+	echo '</pre>';
+	
 }
 // ---------   FIN PROCESO Y CONTROL DE GUARDAR  ------------------  //
 $parametros = simplexml_load_file('parametros.xml');

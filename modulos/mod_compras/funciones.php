@@ -762,12 +762,27 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 			$idPedido=$pedidoTemporal['idPedpro'];
 			$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
 			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
+			if (isset($addNuevo['id'])){
 			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+			}else{
+				$error=array(
+					'error'=>$addNuevo['error'],
+					'consulta'=>$addNuevo['consulta']
+				);
+			}
 		}else{
 			$idPedido=0;
 			$numPedido=0;
 			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+			if (!isset($addNuevo['error'])){
+				$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+			}else{
+				$error=array(
+					'error'=>$addNuevo['error'],
+					'consulta'=>$addNuevo['consulta']
+				);
+			}
+			
 		}
 	}else{
 		if ($datosGet['id']){
