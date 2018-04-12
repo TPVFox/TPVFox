@@ -213,49 +213,12 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	//~ dedonde: donde estamos, si en albaranes o facturas 
 	//~ nfila: número de la fila que estamos cambiando
 	console.log("Entre en addCosteProveedor");
-		
-	//~ var costeAnt=productos[nfila].ultimoCoste;
-	//~ productos[nfila].CosteAnt=costeAnt;
-
 	productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
 	var id = '#N'+productos[nfila].nfila+'_Importe';
 	importe = productos[nfila].importe.toFixed(2);
 	productos[nfila].ultimoCoste=valor;	
 	$(id).html(importe);
 	addTemporal(dedonde);
-	
-	//~ var parametros ={
-		//~ 'pulsado':"AddCosteProveedor",
-		//~ 'idArticulo':idArticulo,
-		//~ 'valor':valor,
-		//~ 'idProveedor':cabecera.idProveedor,
-		//~ 'fecha':cabecera.fecha
-	//~ };
-	//~ $.ajax({
-			//~ data       : parametros,
-			//~ url        : 'tareas.php',
-			//~ type       : 'post',
-			//~ beforeSend : function () {
-				//~ console.log('******** estoy en buscar clientes JS****************');
-			//~ },
-			//~ success    :  function (response) {
-				//~ console.log('Llegue devuelta respuesta de buscar clientes');
-				//~ var resultado =  $.parseJSON(response); 
-				//~ console.log(resultado);
-				//~ if (resultado.error==1){
-					//~ alert("NO PUEDES CAMBIAR EL COSTE DE ESTE PRODUCTO POR SU FECHA");
-				//~ }else{
-					//~ productos[nfila].ultimoCoste=valor;
-					//~ //var bandera=productos[nfila].iva/100;
-					//~ productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
-					//~ var id = '#N'+productos[nfila].nfila+'_Importe';
-					//~ importe = productos[nfila].importe.toFixed(2);
-					//~ productos[nfila].CosteAnt=costeAnt;
-					//~ $(id).html(importe);
-					//~ addTemporal(dedonde);
-				//~ }
-		//~ }
-	//~ });
 }
 
 function buscarAdjunto(dedonde, valor=""){
@@ -305,11 +268,6 @@ function buscarAdjunto(dedonde, valor=""){
 					}
 					for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
 						console.log("entre en el for");
-						//~ if (dedonde=="albaran"){
-							//~ var numeroReal=adjuntos[i].Numpedpro;
-						//~ }else{
-							//~ var numeroReal=adjuntos[i].Numalbpro;
-						//~ }
 						var numeroReal=adjuntos[i].NumAdjunto;
 						var numeroNuevo=resultado['datos'].NumAdjunto;
 						if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
@@ -434,14 +392,14 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
-				//abrirModal(resultado.html);
+				
 				productos[nfila].crefProveedor=valor;// pone le valor en el input 
 				fila=nfila+1;//sumamos uno a la fila
 				var id="#Proveedor_Fila_"+fila;
 				if (valor){
 					$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
 					$(id).val(valor);
-					//$("#enlaceCambio"+fila).prop('disabled', true);
+				
 					$('#enlaceCambio'+fila).css("display", "inline");
 					var d_focus='idArticulo';
 					ponerFocus(d_focus);
@@ -703,7 +661,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 			datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
 			datos.estado="Activo";
 			datos.idArticulo=resultado['datos'][0]['idArticulo'];
-			//datos.idpedpro=0;
+			
 			datos.iva=resultado['datos'][0]['iva'];
 			datos.ncant=1;
 			datos.nfila=productos.length+1;
@@ -816,7 +774,6 @@ function addTemporal(dedonde=""){
 		"estado":cabecera.estado,
 		"idReal":cabecera.idReal,
 		"fecha":cabecera.fecha,
-	//	"productos":productos,
 		"productos":JSON.stringify(productos),
 		"idProveedor":cabecera.idProveedor
 	};
@@ -864,11 +821,6 @@ function addTemporal(dedonde=""){
 					}
 				}
 				
-				// Ahora pintamos pie de ticket.
-				//~ if (resultado['totales']['total'] > 0 ){
-					// Quiere decir que hay datos a mostrar en pie.
-					//~ pintamosTotales(resultado);
-				//~ }
 			}
 		}
 	});
@@ -933,13 +885,6 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		cerrarPopUp(campo);
 		
 }
-//~ //Elimina el contenido del campo
-//~ function resetCampo(campo){
-	
-	//~ console.log('Entro en resetCampo '+campo);
-	//~ document.getElementById(campo).value='';
-	//~ return;
-//~ }
 function eliminarFila(num_item, valor=""){
 	//@Objetivo:
 	//Función para cambiar el estado del producto , deja en estado Eliminado el producto
