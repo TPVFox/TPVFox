@@ -1110,9 +1110,11 @@ function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
 	}
 	if (isset($idTemporal)){
 		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
-		$pedidos=json_decode($datosAlbaran['Pedidos'], true);
-		foreach ($pedidos as $pedido){
-			$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
+		if (isset($datosAlbaran['Pedidos'])){
+			$pedidos=json_decode($datosAlbaran['Pedidos'], true);
+			foreach ($pedidos as $pedido){
+				$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
+			}
 		}
 		$idAlbaran=0;
 		$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
