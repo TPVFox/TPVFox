@@ -112,7 +112,7 @@ switch ($pulsado) {
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
 			$res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
-			if ($res['Nitem']==1){
+			if (isset($res['Nitem'])){
 					
 					$respuesta['temporales']=1;
 					$respuesta['datos']['Numalbcli']=$res['Numalbcli'];

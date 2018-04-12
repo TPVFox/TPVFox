@@ -252,7 +252,7 @@ class AlbaranesVentas extends ClaseVentas{
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';
 		$smt=$db->query('SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado);
-	
+		$albaranes=0;
 		while ( $result = $smt->fetch_assoc () ) {
 			$albaranes['alb']=1;
 		}

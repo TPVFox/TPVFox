@@ -194,15 +194,15 @@ class FacturasVentas extends ClaseVentas{
 		$i=1;
 		foreach ( $productos as $prod){
 			if ($prod['estadoLinea']=="Activo"){
-				if ($prod['ccodbar']){
+				if (isset($prod['ccodbar'])){
 					$codBarras=$prod['ccodbar'];
 				}else{
 					$codBarras=0;
 				}
-				if ($prod['Numalbcli']){
+				if (isset($prod['Numalbcli'])){
 					$numAl=$prod['Numalbcli'];
 				}else{
-					if ($prod['NumalbCli']){
+					if (isset($prod['NumalbCli'])){
 						$numAl=$prod['NumalbCli'];
 					}else{
 						$numAl=0;
@@ -246,11 +246,7 @@ class FacturasVentas extends ClaseVentas{
 				$resultado['sql']=$sql;
 			}
 		}
-			
-		
-		
-		
-		return $resultado;
+		//~ return $resultado;
 	}
 	public function sumarIva($numFactura){
 		//@Objetivo:
