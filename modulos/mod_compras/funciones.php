@@ -501,8 +501,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAdjuntos=$CFac->ProductosFactura($id);
 		$texto="Factura Proveedor";
 		$numero=$datos['Numfacpro'];
-		$suNumero=$datos['su_num_factura'];
-		$textoSuNumero='SU FAC: '.$suNumero;
+		if (isset($datos['su_num_factura'])){
+			$suNumero=$datos['su_num_factura'];
+			$textoSuNumero='SU FAC: '.$suNumero;
+		}
 		$date=date_create($datos['Fecha']);
 	}
 	if ($dedonde=="albaran"){
@@ -511,8 +513,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAdjuntos=$CAlb->ProductosAlbaran($id);
 		$texto="Albarán Proveedor";
 		$numero=$datos['Numalbpro'];
-		$suNumero=$datos['su_numero'];
-		$textoSuNumero='SU ALB: '.$suNumero;
+		if (isset($datos['su_numero'])){
+			$suNumero=$datos['su_numero'];
+			$textoSuNumero='SU ALB: '.$suNumero;
+		}
 		$date=date_create($datos['Fecha']);
 	}
 	if ($dedonde=="pedido"){
@@ -555,36 +559,27 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			if (isset($suNumero)){
 				$imprimir['cabecera'] .=''.$textoSuNumero.'<br>';
 			}
-	$imprimir['cabecera'].='</td>';
-	$imprimir['cabecera'] .='<td>'
-			
+	$imprimir['cabecera'].='</td><td>'
 			.$texto.'<br>'
 			.'Nº: '.$numero.'<br>'
 			.'Fecha: '.$fecha.'<br>'
 			.$datosTienda['razonsocial'].'<br>'
 			.'Direccion: '.$datosTienda['direccion'].'<br>'
-			.'Telefono:'.$datosTienda['telefono'].'<br>';
-			
-	$imprimir['cabecera'].='</td>';
-	$imprimir['cabecera'].='</tr>';
-	$imprimir['cabecera'].='</table>';
-	
-	$imprimir['cabecera'].='<hr/><hr/>';
-	$imprimir['cabecera'] .='<table  WIDTH="100%">';
-	$imprimir['cabecera'] .='<tr>';
+			.'Telefono:'.$datosTienda['telefono'].'<br>'
+			.'</td></tr></table><hr/><hr/>'
+			.'<table  WIDTH="100%"><tr>';
 	if ($dedonde == "factura"){
 		$imprimir['cabecera'] .='<td WIDTH="10%"><b>ALB</b></td>';
 	}
 	if ($dedonde =="albaran"){
 		$imprimir['cabecera'] .='<td WIDTH="10%"><b>PED</b></td>';
 	}
-	$imprimir['cabecera'] .='<td WIDTH="10%"><b>REF</b></td>';
-	$imprimir['cabecera'] .='<td WIDTH="50%"><b>DESCRIPCIÓN</b></td>';
-	$imprimir['cabecera'] .='<td WIDTH="10%"><b>CANT</b></td>';
-	$imprimir['cabecera'] .='<td WIDTH="10%"><b>COSTE</b></td>';
-	$imprimir['cabecera'] .='<td WIDTH="12%"><b>IMPORTE</b></td>';
-	$imprimir['cabecera'] .='</tr>';
-	$imprimir['cabecera'] .='</table>';
+	$imprimir['cabecera'] .='<td WIDTH="10%"><b>REF</b></td>'
+	.'<td WIDTH="50%"><b>DESCRIPCIÓN</b></td>'
+	.'<td WIDTH="10%"><b>CANT</b></td>'
+	.'<td WIDTH="10%"><b>COSTE</b></td>'
+	.'<td WIDTH="12%"><b>IMPORTE</b></td>'
+	.'</tr></table>';
 	
 	$imprimir['html'] .='<table  WIDTH="100%">';
 	
