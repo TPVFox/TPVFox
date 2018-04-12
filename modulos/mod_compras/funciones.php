@@ -453,52 +453,6 @@ function lineaAdjunto($adjunto, $dedonde){
 	}
 	return $respuesta;
 }
-//~ function modificarArrayPedidos($pedidos, $BDTpv){
-	//~ //Objetivo : 
-	//~ //Modificar el array de pedidos . Esta función se carga en albaranes.php
-	//~ $respuesta=array();
-		//~ $i=1;
-	//~ foreach ($pedidos as $pedido){
-			//~ $datosPedido=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$pedido['idPedido'] );
-			//~ while ($fila = $datosPedido->fetch_assoc()) {
-				//~ $ped = $fila;
-			//~ }
-			//~ $res['NumAdjunto']=$pedido['numPedido'];
-			//~ $res['idAdjunto']=$ped['id'];
-			//~ $res['fecha']=$ped['FechaPedido'];
-			//~ $res['idPePro']=$ped['idProveedor'];
-			//~ $res['total']=$ped['total'];
-			//~ $res['estado']="activo";
-			//~ $res['nfila']=$i;
-			//~ array_push($respuesta,$res);
-		//~ $i++;
-	//~ }
-	//~ return $respuesta;
-//~ }
-
-//~ function modificarArrayAlbaranes($alabaranes, $BDTpv){
-	//~ //@Objetivo:
-	//~ //MOdificar el array de albaranes , esta función se carga en facturas.php
-	//~ $respuesta=array();
-	//~ $i=1;
-	//~ foreach ($alabaranes as $albaran){
-			//~ $datosAlbaran=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$albaran['idAlbaran'] );
-			//~ while ($fila = $datosAlbaran->fetch_assoc()) {
-				//~ $alb = $fila;
-			//~ }
-			//~ $res['NumAdjunto']=$albaran['numAlbaran'];
-			//~ $res['idAdjunto']=$alb['id'];
-			//~ $res['fecha']=$alb['Fecha'];
-			//~ $res['idPePro']=$alb['idProveedor'];
-			//~ $res['total']=$alb['total'];
-			//~ $res['estado']="activo";
-			//~ $res['nfila']=$i;
-			//~ array_push($respuesta,$res);
-		//~ $i++;
-	//~ }
-	//~ return $respuesta;
-//~ }
-
 function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 	$respuesta=array();
 	$i=1;
@@ -518,9 +472,7 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 		$res['NumAdjunto']=$adjunto['numAlbaran'];
 		$res['fecha']=$adj['Fecha'];
 	}
-		//~ $res['NumAdjunto']=$pedido['numPedido'];
 		$res['idAdjunto']=$adj['id'];
-		//~ $res['fecha']=$ped['FechaPedido'];
 		$res['idPePro']=$adj['idProveedor'];
 		$res['total']=$adj['total'];
 		$res['estado']="activo";
@@ -760,12 +712,6 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 		}
 	if (isset ($numPedidoTemp)) {
 		$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
-		//~ if($pedidoTemporal['total']){
-			//~ $total=$pedidoTemporal['total'];
-		//~ }else{
-			//~ $error=1;
-			//~ $total=0;
-		//~ }
 		if (isset($datosPost['fecha'])){
 			$bandera=new DateTime($datosPost['fecha']);
 			$fecha=$bandera->format('Y-m-d');
@@ -978,12 +924,6 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 		}
 	if(isset ($idFacturaTemporal)){
 		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-		//~ if(['total']){
-				//~ $total=$datosFactura['total'];
-		//~ }else{
-				//~ $total=0;
-				//~ $error=1;
-		//~ }
 		$fecha=$datosPost['fecha'];
 		$estado="Guardado";
 		if (is_array($importesFactura)){
