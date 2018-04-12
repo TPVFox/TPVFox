@@ -332,8 +332,9 @@ if ($idCliente==0){
 <div class="container">
 			
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./facturasListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+			<a  href="./facturasListado.php">Volver Atrás</a>
+			
 					<input type="submit" value="Guardar" id="Guardar" name="Guardar">
 					<input type="submit" value="Cancelar" id="Cancelar" name="Cancelar">
 					<?php

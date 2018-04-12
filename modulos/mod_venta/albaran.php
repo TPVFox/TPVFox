@@ -258,8 +258,8 @@ if (isset($_GET['tActual'])){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./albaranesListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+					<a  href="./albaranesListado.php">Volver Atrás</a>
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
 					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 					<?php

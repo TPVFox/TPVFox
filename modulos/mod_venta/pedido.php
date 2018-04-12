@@ -221,8 +221,9 @@ if ($idCliente===0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+			
 				<?php 
 				
 					if($datosPedido['estado']<>"Facturado"){
