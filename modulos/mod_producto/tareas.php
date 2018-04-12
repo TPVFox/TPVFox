@@ -66,7 +66,7 @@ switch ($pulsado) {
 		$id=$_POST['id'];
 		$tipo=$_POST['tipo'];
 		$estado="Sin Cambios";
-		$respuesta['idArticulo'];
+		//~ $respuesta['idArticulo'];
 		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
 		$respuesta['sql']=$mod;
 		echo json_encode($respuesta);
@@ -78,7 +78,7 @@ switch ($pulsado) {
 		$id=$_POST['id'];
 		$tipo=$_POST['tipo'];
 		$estado="Pendiente";
-		$respuesta['idArticulo'];
+		//~ $respuesta['idArticulo'];
 		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
 		$respuesta['sql']=$mod;
 		echo json_encode($respuesta);
@@ -89,6 +89,7 @@ switch ($pulsado) {
 		
 		$dedonde="Recalculo";
 		$nombreTmp=$dedonde."recalculo.pdf";
+		//~ $htmlImprimir['cabecera']="";
 		if ($_POST['bandera']==1){
 			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
 		}else{
