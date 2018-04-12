@@ -622,7 +622,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			}
 			$imprimir['html'] .='<td WIDTH="10%">'.$refPro.'</td>';
 			$imprimir['html'] .='<td WIDTH="50%">'.$producto['cdetalle'].'</td>';
-			$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['nunidades'],0).'</td>';
+			$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['nunidades'],2).'</td>';
 			$iva=$producto['iva']/100;
 			$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['ultimoCoste'],2).'</td>';
 			$imprimir['html'] .='<td WIDTH="12%">'.number_format($producto['importe'],2).'</td>';
