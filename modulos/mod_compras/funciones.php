@@ -367,6 +367,9 @@ function modificarArrayProductos($productos){
 function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	//@Objetivo: 
 	//retornar el html dle modal de adjuntos tanto como si buscamos un pedido en albaranes o un albarán en facturas
+	$respuesta=array(
+	'html'=>""
+	);
 	$respuesta['html']	.= '<table class="table table-striped"><thead>'
 	. '<th><td>Número </td><td>Fecha</td>';
 	if ($dedonde=="factura"){
@@ -426,10 +429,10 @@ function lineaAdjunto($adjunto, $dedonde){
 		$respuesta['html']="";
 	if(isset($adjunto)){
 		if ($adjunto['estado']){
-			if ($adjunto['NumAdjunto']){
+			if (isset($adjunto['NumAdjunto'])){
 				$num=$adjunto['NumAdjunto'];
 			}
-			if ($adjunto['Numpedpro']){
+			if (isset($adjunto['Numpedpro'])){
 				$num=$adjunto['Numpedpro'];
 			}
 			if ($adjunto['estado']=="activo"){
@@ -593,19 +596,20 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 				}	
 			}
 			if ($dedonde=="albaran"){
-				if ($producto['numPedido']==0){
-					$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
-				}else{
+				if (isset($producto['numPedido'])){
 					$bandera=$producto['numPedido'];
 					$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
+				}else{
+					
+					$imprimir['html'] .='<td  WIDTH="10%"></td>';
 				}
 			}
 			if ($dedonde=="factura"){
-				if ($producto['idalbpro']==0){
-					$imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
-				}else{
+				if (isset($producto['idalbpro'])){
 					$bandera2=$producto['idalbpro'];
 					$imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
+				}else{
+					$imprimir['html'] .='<td  WIDTH="10%"></td>';
 				}
 			}
 			
@@ -906,10 +910,15 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 	$Usuario = $_SESSION['usuarioTpv'];
 	$error=0;
 	$CFac = new FacturasCompras($BDTpv);
-	if ($datosPost['idTemporal']){
+	if (isset($datosPost['idTemporal'])){
 		$idFacturaTemporal=$datosPost['idTemporal'];
 	}else{
-		$idFacturaTemporal=$datosGet['tActual'];
+		if (isset($datosGet['tActual'])){
+			$idFacturaTemporal=$datosGet['tActual'];
+		}else{
+			$error=1;
+		}
+		
 	}
 	if (!isset($Tienda['idTienda'])){
 			$error=1;
@@ -921,11 +930,20 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
 		$fecha=$datosPost['fecha'];
 		$estado="Guardado";
+		$entregado=0;
 		if (is_array($importesFactura)){
-				
+				if (isset($datosFactura['Productos'])){
+			$productos_para_recalculo = json_decode( $datosFactura['Productos'] );
+			$CalculoTotales = recalculoTotales($productos_para_recalculo);
+			$total=round($CalculoTotales['total'],2);
+		}else{
+			$total=0;
+			$error=1;
+		}
 				foreach ($importesFactura as $import){
 					$entregado=$entregado+$import['importe'];
 				}
+				
 				if ($total==$entregado){
 					$estado="Pagado total";
 				}else{
@@ -937,14 +955,14 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 		}else{
 			$suNumero=0;
 		}
-		if (isset($datosFactura['Productos'])){
-			$productos_para_recalculo = json_decode( $datosFactura['Productos'] );
-			$CalculoTotales = recalculoTotales($productos_para_recalculo);
-			$total=round($CalculoTotales['total'],2);
-		}else{
-			$total=0;
-			$error=1;
-		}
+		//~ if (isset($datosFactura['Productos'])){
+			//~ $productos_para_recalculo = json_decode( $datosFactura['Productos'] );
+			//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
+			//~ $total=round($CalculoTotales['total'],2);
+		//~ }else{
+			//~ $total=0;
+			//~ $error=1;
+		//~ }
 		$datos=array(
 			'Numtemp_facpro'=>$idFacturaTemporal,
 			'fecha'=>$fecha,
@@ -1061,6 +1079,9 @@ function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
 function htmlImporteFactura($datos, $BDTpv){
 	$formaPago=new FormasPago($BDTpv);
 	$datosPago=$formaPago->datosPrincipal($datos['forma']);
+	$respuesta=array(
+	'html'=>""
+	);
 	$respuesta['html'].='<tr><td>'.$datos['importe'].'</td>'
 	.'<td>'.$datos['fecha'].'</td>'
 	.'<td>'.$datosPago['descripcion'].'</td>'

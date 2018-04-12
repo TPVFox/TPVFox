@@ -164,7 +164,7 @@ class FacturasCompras extends ClaseCompras{
 		//Modificar el total de una factura temporal, lo hacemos cada vez que añadimos un producto nuevo
 		$db=$this->db;
 		$smt=$db->query('UPDATE facproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
-		return $resultado;
+		//~ return $resultado;
 	}
 	
 	public function eliminarFacturasTablas($idFactura){
@@ -196,17 +196,17 @@ class FacturasCompras extends ClaseCompras{
 		$i=1;
 		foreach ( $productos as $prod){
 			if ($prod['estado']=='Activo' || $prod['estado']=='activo'){
-			if ($prod['ccodbar']){
+			if (isset($prod['ccodbar'])){
 				$codBarras=$prod['ccodbar'];
 			}else{
 				$codBarras=0;
 			}
-			if ($prod['numAlbaran']){
+			if (isset($prod['numAlbaran'])){
 				$numPed=$prod['numAlbaran'];
 			}else{
 				$numPed=0;
 			}
-			if ($prod['crefProveedor']){
+			if (isset($prod['crefProveedor'])){
 				$refProveedor=$prod['crefProveedor'];
 			}else{
 				$refProveedor=0;

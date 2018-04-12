@@ -19,6 +19,9 @@
 	$LimitePagina = 40; // por defecto.
 	$filtro = ''; // por defecto
 	$Tienda = $_SESSION['tiendaTpv'];
+	$WhereLimite = array();
+	$WhereLimite['filtro'] = '';
+	$NuevoRango = '';
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}

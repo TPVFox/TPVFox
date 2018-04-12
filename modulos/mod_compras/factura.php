@@ -21,6 +21,9 @@ include './../../head.php';
 	$estado='Abierto';
 	$estadoCab="'".'Abierto'."'";
 	$formaPago=0;
+	$comprobarAlbaran=0;
+	$importesFactura=array();
+	$albaranes=array();
 	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
@@ -156,18 +159,19 @@ include './../../head.php';
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
 		
-		echo $albaranes;
-		if ($albaranes || $comprobarAlbaran==1){
+		//~ echo $albaranes;
+		if (isset($albaranes) || $comprobarAlbaran==1){
 			$style="";
 		}else{
 			$style="display:none;";
 		}
 	
-		if($_GET['id'] >0 ||$_GET['tActual']>0){
+		if(isset($_GET['id']) || isset($_GET['tActual'])){
 			$estiloTablaProductos="";
 		}else{
 			$estiloTablaProductos="display:none;";
 		}
+		//~ echo $estiloTablaProductos;
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -178,7 +182,7 @@ include './../../head.php';
 	}
 	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-echo $estado;
+//~ echo $estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -224,7 +228,7 @@ echo $estado;
 	
 		}
 		$i= 0;
-		if (is_array($albaranes)){
+		if (isset($albaranes)){
 			foreach ($albaranes as $alb){
 				?>
 				datos=<?php echo json_encode($alb);?>;
@@ -247,6 +251,9 @@ if ($idProveedor==0){
 if ($suNumero==0){
 	$suNumero="";
 }
+//~ echo '<pre>';
+//~ print_r($albaranes);
+//~ echo '</pre>';
 ?>
 </head>
 <body>
@@ -265,28 +272,6 @@ if ($suNumero==0){
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			<?php 
-			//~ if (isset($_GET['mensaje'])){
-				//~ $mensaje=$_GET['mensaje'];
-				//~ $tipomensaje=$_GET['tipo'];
-			//~ }
-			//~ if (isset($mensaje) || isset($error)){   ?> 
-<!--
-				<div class="alert alert-<?php //echo $tipomensaje; ?>"><?php //echo $mensaje ;?></div>
--->
-
-				<?php 
-
-				//~ if (isset($error)){
-				//~ // No permito continuar, ya que hubo error grabe.
-				//~ return;
-				//~ }
-				//~ ?>
-
-			<?php
-
-			//~ }
-			 ?>
 			 <a  onclick="abrirIndicencia('albaran');">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
@@ -350,7 +335,8 @@ if ($suNumero==0){
 				
 				<?php 
 				$i=1;
-				if (is_array($albaranes)){
+				if (isset($albaranes)){
+					
 					foreach ($albaranes as $albaran){
 						if (isset ($albaran['nfila'])){
 						}else{
@@ -400,7 +386,7 @@ if ($suNumero==0){
 		<tbody>
 			<?php 
 			
-			if (is_array($productos)){
+			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaProducto($producto, "factura");
 				echo $html['html'];
@@ -430,8 +416,12 @@ if ($suNumero==0){
 			</tr>
 		</thead>
 		<tbody>
-			<?php $htmlIvas=htmlTotales($Datostotales);
-			echo $htmlIvas['html'];  ?>
+			<?php 
+			if (isset($Datostotales)){
+			$htmlIvas=htmlTotales($Datostotales);
+			echo $htmlIvas['html'];
+		}
+			  ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
@@ -464,7 +454,9 @@ if ($suNumero==0){
 				<td>
 					<select name='Eformas' id='Eformas'>
 				<?php 
+				if(isset($textoFormaPago['html'])){
 				echo $textoFormaPago['html'];
+			}
 				?>
 				</select>
 				</td>
@@ -500,7 +492,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	if (is_array($albaranes)){
+	if (count($albaranes)>0){
 		?>
 		 $('#Row0').css('display', 'none');
 		 $('.unidad').attr("readonly","readonly");
@@ -516,7 +508,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#tablaAl').hide();
 		<?php
 	}
-	if (count ($importesFactura)>0){
+	if (count($importesFactura)>0){
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");

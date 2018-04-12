@@ -168,7 +168,7 @@ switch ($pulsado) {
 			}else{
 				$datosAdjunto=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAdjunto, $estado);
 			}
-			if ($datosAdjunto['Nitem']==1){
+			if (isset($datosAdjunto['Nitem'])){
 				$respuesta['temporales']=1;
 				if ($dedonde=="albaran"){
 					$respuesta['datos']['NumAdjunto']=$datosAdjunto['Numpedpro'];
