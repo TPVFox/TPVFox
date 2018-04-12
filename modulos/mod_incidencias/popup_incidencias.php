@@ -1,6 +1,7 @@
 <?php 
 
 function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado){
+$html="";
 $html.='<div class="col-md-12">';
 $html.='<div class="col-md-6">';
 $html.='<label>Usuario:</label>';
@@ -23,7 +24,7 @@ $html.='</div>';
 $html.='</div>';
 $html.='<div class="col-md-12">';
 $html.='<label>Mensaje:</label>';
-$html.='<input type="text" name="inci_mensaje" id="inci_mensaje" value="'.$mensaje.'" size="60" >';
+$html.='<input type="text" name="inci_mensaje" id="inci_mensaje"  size="60" >';
 $html.='</div>';
 $html.='<div class="col-md-12">';
 $html.='<label>Datos:</label>';
