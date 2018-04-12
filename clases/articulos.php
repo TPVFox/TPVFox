@@ -27,8 +27,9 @@ class Articulos{
 		
 		if ($result = $smt->fetch_assoc () ){
 			$referencia=$result;
+			return $referencia;
 		}
-		return $referencia;
+		
 	}
 	
 	public function buscarNombreArticulo($idArticulo){
