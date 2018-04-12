@@ -13,7 +13,7 @@ class AlbaranesCompras extends ClaseCompras{
 			
 			return $smt;
 		} else {
-			$repuesta = array();
+			$respuesta = array();
 			$respuesta['consulta'] = $sql;
 			$respuesta['error'] = $db->error;
 			return $respuesta;
@@ -26,7 +26,7 @@ class AlbaranesCompras extends ClaseCompras{
 			//~ $id= $db->insert_id;
 			//~ return $id;
 		//~ } else {
-			//~ $repuesta = array();
+			//~ $respuesta = array();
 			//~ $respuesta['consulta'] = $sql;
 			//~ $respuesta['error'] = $db->error;
 			//~ return $respuesta;
@@ -86,7 +86,7 @@ class AlbaranesCompras extends ClaseCompras{
 			$respuesta['sql']=$sql;
 			return $respuesta;
 		} else {
-			$repuesta = array();
+			$respuesta = array();
 			$respuesta['consulta'] = $sql;
 			$respuesta['error'] = $db->error;
 			return $respuesta;

@@ -30,7 +30,7 @@ class PedidosCompras extends ClaseCompras{
 		if ($smt) {
 			return $smt;
 		} else {
-			$repuesta = array();
+			$respuesta = array();
 			$respuesta['consulta'] = $sql;
 			$respuesta['error'] = $db->error;
 			return $respuesta;
