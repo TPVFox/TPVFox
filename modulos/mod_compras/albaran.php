@@ -30,47 +30,6 @@ include './../../head.php';
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){
-		//~ $idAlbaran=$_GET['id'];
-		//~ $datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
-		//~ $productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
-		//~ $ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
-		//~ $pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
-		//~ $estado=$datosAlbaran['estado'];
-		//~ $fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
-		//~ $idAlbaranTemporal=0;
-		//~ if ($datosAlbaran['formaPago']){
-			//~ $formaPago=$datosAlbaran['formaPago'];
-		//~ }
-		//~ if ($datosAlbaran['FechaVencimiento']){
-			//~ if ($datosAlbaran['FechaVencimiento']==0000-00-00){
-				//~ $fechaVencimiento="";
-			//~ }else{
-			//~ $fechaVencimiento=date_format(date_create($datosAlbaran['FechaVencimiento']),'Y-m-d');
-		//~ }
-		//~ }
-		//~ echo $datosAlbaran['FechaVencimiento'];
-		//~ $idProveedor=$datosAlbaran['idProveedor'];
-		//~ if ($datosAlbaran['Su_numero']>0){
-			//~ $suNumero=$datosAlbaran['Su_numero'];
-		//~ }else{
-			//~ $suNumero=0;
-		//~ }
-		//~ if ($idProveedor){
-			//~ $proveedor=$Cprveedor->buscarProveedorId($idProveedor);
-			//~ $nombreProveedor=$proveedor['nombrecomercial'];
-		//~ }
-		//~ //Modificamos el array de productos para que sea lo mismo que en facturas y pedidos de esta manera siempre podemos
-		//~ //Utilizar siempre las mismas funciones 
-		//~ $productosAlbaran=modificarArrayProductos($productosAlbaran);
-		//~ $productos=json_decode(json_encode($productosAlbaran));
-		//~ //Calciular el total con los productos que estn registrados
-		//~ $Datostotales = recalculoTotales($productos);
-		//~ $productos=json_decode(json_encode($productosAlbaran), true);
-		//~ if ($pedidosAlbaran){
-			 //~ $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
-			 //~ $pedidos=json_decode(json_encode($modificarPedido), true);
-		//~ }
-		//~ echo $pedidos;
 		$datosAlbaran=DatosIdAlbaran($_GET['id'], $CAlb, $Cprveedor, $BDTpv );
 		if (isset($datosAlbaran['error'])){
 			$errores=$datosAlbaran['error'];
@@ -88,7 +47,6 @@ include './../../head.php';
 			$Datostotales=$datosAlbaran['DatosTotales'];
 			$pedidos=$datosAlbaran['pedidos'];
 		}
-		//~ print_r($datosAlbaran);
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id
@@ -123,14 +81,7 @@ include './../../head.php';
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
 				$albaran=$datosAlbaran;
-				//~ echo '<pre>';
-				//~ print_r($datosAlbaran['Productos']);
-				//~ echo '</pre>';
-				//$productos =  json_decode($datosAlbaran['Productos']) ;
 				$productos =json_decode($datosAlbaran['Productos']);
-				//~ echo '<pre>';
-				//~ print_r($productos);
-				//~ echo '</pre>';
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
 			}
 		}
@@ -190,11 +141,7 @@ include './../../head.php';
 			echo $comprobarPedidos;
 		}
 		if (isset ($_GET['id']) || isset ($_GET['tActual'])){
-			//~ if(isset($_GET['id'])||isset($_GET['tActual'])){
-				$estiloTablaProductos="";
-			//~ }else{
-				//~ $estiloTablaProductos="display:none;";
-			//~ }
+			$estiloTablaProductos="";
 		}else{
 			$estiloTablaProductos="display:none;";
 		}
@@ -260,9 +207,7 @@ include './../../head.php';
 				}
 			}
 		}
-	}	
-	
-	
+	}		
 ?>
 </script>
 <?php 
@@ -272,9 +217,6 @@ if ($idProveedor==0){
 if ($suNumero==0){
 	$suNumero="";
 }
-//~ echo '<pre>';
-//~ print_r($Datostotales);
-//~ echo '</pre>';
 ?>
 </head>
 <body>
