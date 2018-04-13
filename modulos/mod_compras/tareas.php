@@ -63,8 +63,10 @@ switch ($pulsado) {
 				$respuesta=$res;
 				$respuesta['Nitems']=$res['Nitems'];	
 			}else{
-				$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
-				$respuesta['Estado'] = 'Listado';
+				if (isset($res['datos'])){
+					$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
+					$respuesta['Estado'] = 'Listado';
+				}
 			}
 			$respuesta['sql']=$res['sql'];
 			echo json_encode($respuesta);  
