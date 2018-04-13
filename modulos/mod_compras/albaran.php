@@ -129,13 +129,13 @@ include './../../head.php';
 	// y cambiamos el estado del original a guardado
 	if (isset ($_POST['Cancelar'])){
 		 $cancelar=cancelarAlbaran($_POST, $_GET, $BDTpv);
-		if ($cancelar==0){
+		if (count($cancelar)==0){
 			
 			header('Location: albaranesListado.php');
 		}else{
-			echo '<div class="alert alert-warning">
-				<strong>Error!</strong>Error no tienes modificaciones.
-				</div>';
+			echo '<div class="'.$cancelar['class'].'">'
+					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					. '</div>';
 		}
 	}
 		if (isset($albaran['Pedidos'])){

@@ -1262,25 +1262,69 @@ function cancelarFactura($datosPost, $datosGet,$BDTpv){
 function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
 	$CAlb=new AlbaranesCompras($BDTpv);
 	$Cped = new PedidosCompras($BDTpv);
-	$error=0;
-	if ($datosPost['idTemporal']){
-		$idTemporal=$datosPost['idTemporal'];
-	}else{
+	$error=array();
+	$idAlbaran=0;
+	if (isset($datosGet['tActual'])){
 		$idTemporal=$datosGet['tActual'];
-	}
-	if (isset($idTemporal)){
 		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
-		if (isset($datosAlbaran['Pedidos'])){
-			$pedidos=json_decode($datosAlbaran['Pedidos'], true);
-			foreach ($pedidos as $pedido){
-				$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
+		if (isset($datosAlbaran['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+								'dato' => $datosAlbaran['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+		}else{
+			if (isset($datosAlbaran['Pedidos'])){
+				$pedidos=json_decode($datosAlbaran['Pedidos'], true);
+				if (count($pedidos)>0){
+					foreach ($pedidos as $pedido){
+						$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
+						if($mod['error']){
+							$error =array ( 'tipo'=>'Danger!',
+								'dato' => $mod['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+							break;
+						}
+					}
+				}
 			}
+			$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+			if (isset($eliminarTemporal['error'])){
+				$error =array ( 'tipo'=>'Danger!',
+								'dato' => $eliminarTemporal['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+			}
+			
 		}
-		$idAlbaran=0;
-		$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
 	}else{
-		$error=1;
+		$error=array ( 'tipo'=>'Info!',
+			'dato' => '',
+			'class'=>'alert alert-info',
+			'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+			);
 	}
+	//~ if ($datosPost['idTemporal']){
+		//~ $idTemporal=$datosPost['idTemporal'];
+	//~ }else{
+		//~ $idTemporal=$datosGet['tActual'];
+	//~ }
+	//~ if (isset($idTemporal)){
+		//~ $datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
+		//~ if (isset($datosAlbaran['Pedidos'])){
+			//~ $pedidos=json_decode($datosAlbaran['Pedidos'], true);
+			//~ foreach ($pedidos as $pedido){
+				//~ $mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
+			//~ }
+		//~ }
+		//~ $idAlbaran=0;
+		//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+	//~ }else{
+		//~ $error=1;
+	//~ }
 	return $error;
 }
 function htmlImporteFactura($datos, $BDTpv){
