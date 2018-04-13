@@ -32,8 +32,9 @@ class Proveedores{
 		$smt=$db->query('SELECT * from proveedores where idProveedor='.$idProveedor);
 		if ($result = $smt->fetch_assoc () ){
 			$proveedor=$result;
+			return $proveedor;
 		}
-		return $proveedor;
+		
 	}
 	public function buscarProveedorNombre($nombre){
 		$db = $this->db;

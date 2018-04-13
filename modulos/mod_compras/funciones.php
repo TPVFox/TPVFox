@@ -779,7 +779,7 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 							if (isset($pedidoTemporal['idPedpro'])){
 								$idPedido=$pedidoTemporal['idPedpro'];
 								$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($pedidoTemporal['idPedpro']);
-								if ($eliminarTablasPrincipal['error']){
+								if (isset($eliminarTablasPrincipal['error'])){
 									$errores[0]=array ( 'tipo'=>'Danger!',
 										'dato' => $eliminarTablasPrincipal['consulta'],
 										'class'=>'alert alert-danger',
