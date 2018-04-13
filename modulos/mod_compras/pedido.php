@@ -78,27 +78,20 @@ if (isset($_POST['Guardar'])){
 	// Objetivo :
 	// Grabar el pedido.
 	$guardar=guardarPedido($_POST, $_GET, $BDTpv, $Datostotales);
-	if ($guardar==0){
+	if (count($guardar)==0){
 		header('Location: pedidosListado.php');
 		
 
 	}else{
-		if (isset($guardar['error'])){
-			echo '<div class="alert alert-danger">'
-				. '<strong>Danger! </strong> Error al guardar el pedido <br> '.$guardar['consulta']
+		foreach ($guardar as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
 				. '</div>';
-		
-					exit;
-				
-		}else{
-			echo '<div class="alert alert-warning">
-			<strong>Error!</strong>No has introducido ningún producto.
-			</div>';
-		}
+			}
 	}
-	echo '<pre>';
-	print_r($guardar);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($guardar);
+	//~ echo '</pre>';
 	
 }
 // ---------   FIN PROCESO Y CONTROL DE GUARDAR  ------------------  //
