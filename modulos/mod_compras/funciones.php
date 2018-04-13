@@ -693,114 +693,259 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 	//datosGet: son los datos del $_GET
 	//$BDTpv: son los datos de configuración para poder llamar a la clase correspondiente
 	//$error: crea todas las comprobaciones si algo no esta correcto se iguala a 1 y es la variable que retornamos
+	$Cpedido=new PedidosCompras($BDTpv);
+	$errores=array();
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
-	$error=0;
-	
-	$Cpedido=new PedidosCompras($BDTpv);
-	if (isset($datosPost['idTemporal'])){
-		$numPedidoTemp=$datosPost['idTemporal'];
-	}else{
-		if (isset($datosGet['tActual'])){
-			$numPedidoTemp=$datosGet['tActual'];
-		}else{
-			$error=1;
-		}
-		
+	if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
+			$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR NO HAY DATOS DE SESIÓN!'
+								 );
+			return $errores;
 	}
-	if (!isset($Tienda['idTienda'])){
-			$error=1;
-		}
-		if (!isset($Usuario['id'])){
-			$error=1;
-		}
-	if (isset ($numPedidoTemp)) {
-		$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
-		if (isset($datosPost['fecha'])){
-			$bandera=new DateTime($datosPost['fecha']);
-			$fecha=$bandera->format('Y-m-d');
-		}else{
-			if ($pedidoTemporal['fechaInicio']){
-				$bandera=new DateTime($pedidoTemporal['fechaInicio']);
-				$fecha=$bandera->format('Y-m-d');
-			}else{
-				$fecha=date('Y-m-d');		
-			}
-		}
-		if ($pedidoTemporal['idPedpro']){
-			$datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
-			$numPedido=$datosPedidoReal['Numpedpro'];
-		}else{
-			$numPedido=0;
-		}
-		if (isset ($pedidoTemporal['Productos'])){
-			$productos=$pedidoTemporal['Productos'];
-			$productos_para_recalculo = json_decode( $productos );
-			$CalculoTotales = recalculoTotales($productos_para_recalculo);
-			$total=round($CalculoTotales['total'],2);
-		}else{
-			$error=1;
-			$total=0;
-			$productos=0;
-		}
-		
-		$fechaCreacion=date("Y-m-d H:i:s");
-		$datosPedido=array(
-			'Numtemp_pedpro'=>$numPedidoTemp,
-			'FechaPedido'=>$fecha,
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idProveedor'=>$pedidoTemporal['idProveedor'],
-			'estado'=>"Guardado",
-			'total'=>$total,
-			'numPedido'=>$numPedido,
-			'fechaCreacion'=>$fechaCreacion,
-			'Productos'=>$productos,
-			'DatosTotales'=>$Datostotales
-		);
-	}else{
-		$error=1;
+	//~ $numPedido=0;
+	$fecha=date('Y-m-d');
+	$fechaCreacion=date("Y-m-d H:i:s");
+	$idPedido=0;
+	if (isset($datosGet['tActual'])){
+			$datosPost['estado']='Sin guardar';
+	}
+	switch($datosPost['estado']){
+				case 'Sin guardar':
+				case 'Abierto':
+					if (isset($datosGet['tActual'])){
+						$idPedidoTemporal=$datosGet['tActual'];
+					}else{
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'El temporal ya no existe  !'
+								 );
+						break;
+					}
+					$pedidoTemporal=$Cpedido->DatosTemporal($idPedidoTemporal);
+					if (isset($pedidoTemporal['error'])){
+						$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $pedidoTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL:  !'
+								 );
+						break;
+					}else{
+						 if (isset($datosPost['fecha'])){
+							$fecha=$datosPost['fecha'];
+						}else{
+							if (isset($pedidoTemporal['fechaInicio'])){
+								$fecha=$pedidoTemporal['fechaInicio'];
+							}
+						}
+						if (isset ($pedidoTemporal['Productos'])){
+							$productos=$pedidoTemporal['Productos'];
+							$productos_para_recalculo = json_decode( $productos );
+							if (count($productos_para_recalculo)>0){
+								$CalculoTotales = recalculoTotales($productos_para_recalculo);
+								$total=round($CalculoTotales['total'],2);
+							}else{
+								$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No existen productos para el recalculo de precios!'
+								 );
+								break;
+							}
+						}else{
+							$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No existen productos !'
+								 );
+							break;
+						}
+						$datosPedido=array(
+							'Numtemp_pedpro'=>$idPedidoTemporal,
+							'FechaPedido'=>$fecha,
+							'idTienda'=>$Tienda['idTienda'],
+							'idUsuario'=>$Usuario['id'],
+							'idProveedor'=>$pedidoTemporal['idProveedor'],
+							'estado'=>"Guardado",
+							'total'=>$total,
+							//~ 'numPedido'=>$numPedido,
+							'fechaCreacion'=>$fechaCreacion,
+							'Productos'=>$productos,
+							'DatosTotales'=>$Datostotales
+							);
+							if (isset($pedidoTemporal['idPedpro'])){
+								$idPedido=$pedidoTemporal['idPedpro'];
+								$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($pedidoTemporal['idPedpro']);
+								if ($eliminarTablasPrincipal['error']){
+									$errores[0]=array ( 'tipo'=>'Danger!',
+										'dato' => $eliminarTablasPrincipal['consulta'],
+										'class'=>'alert alert-danger',
+										'mensaje' => 'Error de SQL:  '
+									);
+									break;
+								}
+							}
+							
+							$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+							if (isset($addNuevo['error'])){
+								$errores[0]=array ( 'tipo'=>'Danger!',
+										'dato' => $addNuevo['consulta'],
+										'class'=>'alert alert-danger',
+										'mensaje' => 'Error de SQL:  '
+									);
+									break;
+							}else{
+								if(isset($addNuevo['id'])){
+									$eliminarTemporal=$Cpedido->eliminarTemporal($idPedidoTemporal, $idPedido);
+									if (isset($eliminarTemporal['error'])){
+										$errores[0]=array ( 'tipo'=>'Danger!',
+										'dato' => $eliminarTemporal['consulta'],
+										'class'=>'alert alert-danger',
+										'mensaje' => 'Error de SQL:  '
+										);
+										break;
+									}
+								}
+							}
+					}
+				break;
+				case 'Guardado':
+					if (isset($datosGet['id'])){
+						if ($datosPost['fecha']){
+							$mod=$Cpedido->modFechaPedido($datosPost['fecha'], $datosGet['id']);
+							if (isset($mod['error'])){
+								$errores[0]=array ( 'tipo'=>'Danger!',
+									'dato' => $mod['consulta'],
+									'class'=>'alert alert-danger',
+									'mensaje' => 'Error de SQL al modificar la fecha!'
+								 );
+							}
+						}else{
+							$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'Has dejado el campo fecha vacío!'
+								 );
+						}
+					}
+				break;
+				default:
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No puedes modificar este pedido'
+								 );
+				break;
 	}
 	
-	if ($error==0){
-		if ($pedidoTemporal['idPedpro']){
-			$idPedido=$pedidoTemporal['idPedpro'];
-			$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-			if (isset($addNuevo['id'])){
-			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
-			}else{
-				$error=array(
-					'error'=>$addNuevo['error'],
-					'consulta'=>$addNuevo['consulta']
-				);
-			}
-		}else{
-			$idPedido=0;
-			$numPedido=0;
-			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-			if (!isset($addNuevo['error'])){
-				$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
-			}else{
-				$error=array(
-					'error'=>$addNuevo['error'],
-					'consulta'=>$addNuevo['consulta']
-				);
-			}
-			
-		}
-	}else{
-		if ($datosGet['id']){
-				$fecha=$datosPost['fecha'];
-				$mod=$Cpedido->modFechaPedido($fecha, $datosGet['id']);
 				
-				$error=0;
-			}else{
-				$error=1;
-			}
-	}
-	return $error;
+	//~ $Cpedido=new PedidosCompras($BDTpv);
+	//~ if (isset($datosPost['idTemporal'])){
+		//~ $numPedidoTemp=$datosPost['idTemporal'];
+	//~ }else{
+		//~ if (isset($datosGet['tActual'])){
+			//~ $numPedidoTemp=$datosGet['tActual'];
+		//~ }else{
+			//~ $error=1;
+		//~ }
+		
+	//~ }
+	//~ if (!isset($Tienda['idTienda'])){
+			//~ $error=1;
+		//~ }
+		//~ if (!isset($Usuario['id'])){
+			//~ $error=1;
+		//~ }
+	//~ if (isset ($numPedidoTemp)) {
+		//~ $pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
+		//~ if (isset($datosPost['fecha'])){
+			//~ $bandera=new DateTime($datosPost['fecha']);
+			//~ $fecha=$bandera->format('Y-m-d');
+		//~ }else{
+			//~ if ($pedidoTemporal['fechaInicio']){
+				//~ $bandera=new DateTime($pedidoTemporal['fechaInicio']);
+				//~ $fecha=$bandera->format('Y-m-d');
+			//~ }else{
+				//~ $fecha=date('Y-m-d');		
+			//~ }
+		//~ }
+		//~ if ($pedidoTemporal['idPedpro']){
+			//~ $datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
+			//~ $numPedido=$datosPedidoReal['Numpedpro'];
+		//~ }else{
+			//~ $numPedido=0;
+		//~ }
+		//~ if (isset ($pedidoTemporal['Productos'])){
+			//~ $productos=$pedidoTemporal['Productos'];
+			//~ $productos_para_recalculo = json_decode( $productos );
+			//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
+			//~ $total=round($CalculoTotales['total'],2);
+		//~ }else{
+			//~ $error=1;
+			//~ $total=0;
+			//~ $productos=0;
+		//~ }
+		
+		//~ $fechaCreacion=date("Y-m-d H:i:s");
+		//~ $datosPedido=array(
+			//~ 'Numtemp_pedpro'=>$numPedidoTemp,
+			//~ 'FechaPedido'=>$fecha,
+			//~ 'idTienda'=>$Tienda['idTienda'],
+			//~ 'idUsuario'=>$Usuario['id'],
+			//~ 'idProveedor'=>$pedidoTemporal['idProveedor'],
+			//~ 'estado'=>"Guardado",
+			//~ 'total'=>$total,
+			//~ 'numPedido'=>$numPedido,
+			//~ 'fechaCreacion'=>$fechaCreacion,
+			//~ 'Productos'=>$productos,
+			//~ 'DatosTotales'=>$Datostotales
+		//~ );
+	//~ }else{
+		//~ $error=1;
+	//~ }
 	
+	//~ if ($error==0){
+		//~ if ($pedidoTemporal['idPedpro']){
+			//~ $idPedido=$pedidoTemporal['idPedpro'];
+			//~ $eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
+			//~ $addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
+			//~ if (isset($addNuevo['id'])){
+			//~ $eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+			//~ }else{
+				//~ $error=array(
+					//~ 'error'=>$addNuevo['error'],
+					//~ 'consulta'=>$addNuevo['consulta']
+				//~ );
+			//~ }
+		//~ }else{
+			//~ $idPedido=0;
+			//~ $numPedido=0;
+			//~ $addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
+			//~ if (!isset($addNuevo['error'])){
+				//~ $eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
+			//~ }else{
+				//~ $error=array(
+					//~ 'error'=>$addNuevo['error'],
+					//~ 'consulta'=>$addNuevo['consulta']
+				//~ );
+			//~ }
+			
+		//~ }
+	//~ }else{
+		//~ if ($datosGet['id']){
+				//~ $fecha=$datosPost['fecha'];
+				//~ $mod=$Cpedido->modFechaPedido($fecha, $datosGet['id']);
+				
+				//~ $error=0;
+			//~ }else{
+				//~ $error=1;
+			//~ }
+	//~ }
+	//~ return $error;
+	return $errores;
 }
 function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	//@Objetivo: guardar los da tos del albarán 
@@ -956,14 +1101,13 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					}
 					break;
 					default:
-					if (isset($mod['error'])){
-						$errores[0]=array ( 'tipo'=>'Warning!',
+					$errores[0]=array ( 'tipo'=>'Warning!',
 								 'dato' => '',
 								 'class'=>'alert alert-warning',
 								 'mensaje' => 'No has realizado nunguna modificación !'
-								 );
+					);
 			
-					}
+					
 					break;
 				
 			}
