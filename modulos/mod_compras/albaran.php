@@ -26,7 +26,7 @@ include './../../head.php';
 	$formaPago=0;
 	$fechaVencimiento="";
 	$style1="";
-	
+	$Datostotales=array();
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){

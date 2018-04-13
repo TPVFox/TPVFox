@@ -831,7 +831,17 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 		switch($datosPost['estado']){
 				case 'Sin guardar':
 				case 'Abierto':
-					$idAlbaranTemporal=$datosGet['tActual'];
+					if (isset(datosGet['tActual'])){
+						$idAlbaranTemporal=$datosGet['tActual'];
+					}else{
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'El temporal ya no existe  !'
+								 );
+						break;
+					}
+					
 					$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
 					if ($datosPost['suNumero']>0){
 						$suNumero=$datosPost['suNumero'];
@@ -904,15 +914,23 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 								 'mensaje' => 'Error añadir un nuevo albarán !'
 								 );
 					}else{
-						$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
-						//Queda comprobar el error en historico coste
-						$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-						if (isset($eliminarTemporal['error'])){
+						if(isset($addNuevo['id'])){
+							$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
+							//Queda comprobar el error en historico coste
+							$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+							if (isset($eliminarTemporal['error'])){
+								$errores[3]=array ( 'tipo'=>'Danger!',
+									 'dato' => $eliminarTemporal['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'Error al eliminar las tablas temporales!'
+									 );
+							}
+						}else{
 							$errores[3]=array ( 'tipo'=>'Danger!',
-								 'dato' => $eliminarTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'Error al eliminar las tablas temporales!'
-								 );
+									 'dato' => '',
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'Error al generar id nuevo de la función AddAlbaranGuardado!'
+									 );
 						}
 					}
 					break;
