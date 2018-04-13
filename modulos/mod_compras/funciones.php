@@ -698,10 +698,15 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 	$error=0;
 	
 	$Cpedido=new PedidosCompras($BDTpv);
-	if ($datosPost['idTemporal']){
+	if (isset($datosPost['idTemporal'])){
 		$numPedidoTemp=$datosPost['idTemporal'];
 	}else{
-		$numPedidoTemp=$datosGet['tActual'];
+		if (isset($datosGet['tActual'])){
+			$numPedidoTemp=$datosGet['tActual'];
+		}else{
+			$error=1;
+		}
+		
 	}
 	if (!isset($Tienda['idTienda'])){
 			$error=1;
@@ -820,12 +825,6 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	$dedonde="albaran";
 	$idAlbaran=0;
 	$CAlb=new AlbaranesCompras($BDTpv);
-	//~ $errores['estado']=$datosPost['estado'];
-		//~ if (isset ($datosPost['idTemporal'])){
-				//~ $idAlbaranTemporal=$datosPost['idTemporal'];
-		//~ }else{
-				//~ $idAlbaranTemporal=$datosGet['tActual'];
-		//~ }
 		if (isset($datosGet['tActual'])){
 			$datosPost['estado']='Sin guardar';
 		}
@@ -845,8 +844,17 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					if (isset ($datosAlbaran['Productos'])){
 						$productos=$datosAlbaran['Productos'];
 						$productos_para_recalculo = json_decode( $productos );
-						$CalculoTotales = recalculoTotales($productos_para_recalculo);
-						$total=round($CalculoTotales['total'],2);
+						if(count($productos_para_recalculo)>0){
+							$CalculoTotales = recalculoTotales($productos_para_recalculo);
+							$total=round($CalculoTotales['total'],2);
+						}else{
+							$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes productos  !'
+								 );
+						break;
+						}
 					}else{
 						$errores[0]=array ( 'tipo'=>'Warning!',
 								 'dato' => '',
@@ -881,18 +889,30 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 						$idAlbaran=$datosAlbaran['numalbpro'];
 					}
 					if (isset($eliminarTablasPrincipal['error'])){
-						$errores[1]=$eliminarTablasPrincipal['error'];
+						$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTablasPrincipal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error al eliminar las tablas principales!'
+								 );
 						break;
 					}
 					$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
 					if (isset($addNuevo['error'])){
-						$errores[2]=$addNuevo['error'];
+						$errores[2]=array ( 'tipo'=>'Danger!',
+								 'dato' => $addNuevo['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error añadir un nuevo albarán !'
+								 );
 					}else{
 						$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
 						//Queda comprobar el error en historico coste
 						$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
 						if (isset($eliminarTemporal['error'])){
-							$errores[3]=$eliminarTemporal['error'];
+							$errores[3]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error al eliminar las tablas temporales!'
+								 );
 						}
 					}
 					break;
@@ -924,116 +944,6 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 				
 			}
 			return $errores;
-		//~ if (!isset($Tienda['idTienda'])){
-			//~ $error=1;
-		//~ }
-		//~ if (!isset($Usuario['id'])){
-			//~ $error=1;
-		//~ }
-		
-		//~ if (isset($idAlbaranTemporal)){
-			//~ $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-			//~ if ($datosPost['suNumero']>0){
-				//~ $suNumero=$datosPost['suNumero'];
-			//~ }
-			//~ else{
-				//~ $suNumero=0;
-			//~ }
-			//~ if (isset ($datosPost['fecha'])){
-				//~ $fecha=$datosPost['fecha'];
-			//~ }else{
-				//~ $fecha=$datosAlbaran['fechaInicio'];
-			//~ }
-			//~ if (isset ($datosAlbaran['Productos'])){
-				//~ $productos=$datosAlbaran['Productos'];
-				//~ $productos_para_recalculo = json_decode( $productos );
-				//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
-				//~ $total=round($CalculoTotales['total'],2);
-			//~ }else{
-				//~ $productos=0;
-				//~ $error=1;
-				//~ $total=0;
-			//~ }
-			//~ if (isset($datosPost['formaVenci'])){
-				//~ $formaPago=$datosPost['formaVenci'];
-			//~ }
-			//~ else{
-				//~ $formaPago=0;
-			//~ }
-			//~ if(isset($datosPost['fechaVenci'])){
-				//~ $fechaVenci=$datosPost['fechaVenci'];
-			//~ }
-			//~ else{
-				//~ $fechaVenci="";
-			//~ }
-			
-			//~ $datos=array(
-				//~ 'Numtemp_albpro'=>$idAlbaranTemporal,
-				//~ 'fecha'=>$fecha,
-				//~ 'idTienda'=>$Tienda['idTienda'],
-				//~ 'idUsuario'=>$Usuario['id'],
-				//~ 'idProveedor'=>$datosAlbaran['idProveedor'],
-				//~ 'estado'=>"Guardado",
-				//~ 'total'=>$total,
-				//~ 'DatosTotales'=>$Datostotales,
-				//~ 'productos'=>$productos,
-				//~ 'pedidos'=>$datosAlbaran['Pedidos'],
-				//~ 'suNumero'=>$suNumero,
-				//~ 'formaPago'=>$formaPago,
-				//~ 'fechaVenci'=>$fechaVenci
-			//~ );
-			//~ $dedonde="albaran";
-			
-		//~ }else{
-			//~ $error=1;
-		//~ }
-		//~ //Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
-		//~ //original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
-		//~ //Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
-		//~ if ($error==0){
-			//~ if ($datosAlbaran['numalbpro']){
-					//~ $numAlbaran=$datosAlbaran['numalbpro'];
-					//~ $datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
-					//~ $idAlbaran=$datosReal['id'];
-					//~ $eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
-					//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
-					//~ $historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
-					//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-					
-					
-			//~ }else{
-					//~ $idAlbaran=0;
-					//~ $numAlbaran=0;
-					//~ $addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
-					//~ $historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
-
-					//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-					
-			//~ }
-			
-		//~ }else{
-			//~ if ($datosGet['id']){
-				//~ if ($datosPost['suNumero']>0){
-					//~ $suNumero=$datosPost['suNumero'];
-				//~ }else{
-					//~ $suNumero=0;
-				//~ }
-				
-				//~ $fecha=$datosPost['fecha'];
-				//~ $mod=$CAlb->modFechaNumero($datosGet['id'], $suNumero, $fecha);
-				
-				//~ $error=0;
-			//~ }else{
-				//~ $error=1;
-			//~ }
-			
-		//~ }
-		//~ $respuesta['historico']=$historico;
-		//~ $respuesta['sql']=$addNuevo;
-		//~ $respuesta['texto']="nuevo albaran";
-		//~ return $errores;
-	//~ return $error;
-	//~ return $respuesta;
 }
 
 function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importesFactura){

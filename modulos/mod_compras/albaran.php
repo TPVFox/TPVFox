@@ -106,23 +106,20 @@ include './../../head.php';
 	
 		 $guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
 		if (count($guardar)==0){
-			//header('Location: albaranesListado.php');
-			echo '<pre>';
-			print_r($guardar);
-			echo '</pre>';
+			header('Location: albaranesListado.php');
+			//~ echo '<pre>';
+			//~ print_r($guardar);
+			//~ echo '</pre>';
 		}else{
 			foreach ($guardar as $error){
 				echo '<div class="'.$error['class'].'">'
 				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
 				. '</div>';
 			}
-			//~ echo '<div class="alert alert-warning">
-			//~ <strong>Error!</strong>No has introducido ningún producto.
-			//~ </div>';
 		}
-		echo '<pre>';
-			print_r($guardar);
-			echo '</pre>';
+		//~ echo '<pre>';
+			//~ print_r($guardar);
+			//~ echo '</pre>';
 		//~ echo $_POST['estado'];
 	}
 	//Cancelar, cuando cancelamos un albarán quiere decir que los 
