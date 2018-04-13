@@ -831,7 +831,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 		switch($datosPost['estado']){
 				case 'Sin guardar':
 				case 'Abierto':
-					if (isset(datosGet['tActual'])){
+					if (isset($datosGet['tActual'])){
 						$idAlbaranTemporal=$datosGet['tActual'];
 					}else{
 						$errores[0]=array ( 'tipo'=>'Warning!',
@@ -843,7 +843,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					}
 					
 					$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-					if ($datosPost['suNumero']>0){
+					if (empty($datosPost['suNumero'])){
 						$suNumero=$datosPost['suNumero'];
 					}
 					if (isset ($datosPost['fecha'])){
@@ -916,10 +916,16 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					}else{
 						if(isset($addNuevo['id'])){
 							$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
-							//Queda comprobar el error en historico coste
+							if ($historico['error']){
+								$errores[3]=array ( 'tipo'=>'Danger!',
+								 'dato' => $historico['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error en al modificar los coste de los productos !'
+								 );
+							}
 							$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
 							if (isset($eliminarTemporal['error'])){
-								$errores[3]=array ( 'tipo'=>'Danger!',
+								$errores[4]=array ( 'tipo'=>'Danger!',
 									 'dato' => $eliminarTemporal['consulta'],
 									 'class'=>'alert alert-danger',
 									 'mensaje' => 'Error al eliminar las tablas temporales!'
@@ -1177,6 +1183,7 @@ function modificarArraysImportes($importes, $total){
 	return $importesDef;
 }
 function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fecha){
+	$errores=array();
 	$CArt=new Articulos($BDTpv);
 	$fechaCreacion=date('Y-m-d');
 	$datos=array(
@@ -1185,53 +1192,83 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 	'tipo'=>"compras",
 	'fechaCreacion'=>$fechaCreacion
 	);
-	$resultado['datos']=$productos;
-	$error=0;
+	//~ $resultado['datos']=$productos;
+	//~ $error=0;
 	$productos = json_decode($productos, true);
-	foreach ($productos as $producto){
-		if (isset($producto['CosteAnt'])){
+	if (count($productos)>0){
+		foreach ($productos as $producto){
 			$buscar=$CArt->buscarReferencia($producto['idArticulo'], $idProveedor);
-			$datosNuevos=array(
-				'coste'=>$producto['ultimoCoste'],
-				'idArticulo'=>$producto['idArticulo'],
-				'idProveedor'=>$idProveedor,
-				'fecha'=>$fecha,
-				'estado'=>"activo"
-			);
-			if ($buscar){
-				if ($buscar['fechaActualizacion']>$fecha){
-					$error=1;
-				}else{
-					$mod=$CArt->modificarCosteProveedorArticulo($datosNuevos);
-				}				
+			if (isset($buscar['error'])){
+					$errores['error']=$buscar['error'];
+					$errores['consulta']=$buscar['consulta'];
+					break;
 			}else{
-				$datosNuevos['refProveedor']=0;
-				$add=$CArt->addArticulosProveedores($datosNuevos);
-			}	
-			$datos['idArticulo']=$producto['idArticulo'];
-			$datos['antes']=$producto['CosteAnt'];
-			$datos['nuevo']=$producto['ultimoCoste'];
-			$datos['estado']="Pendiente";
-			if ($error==0){
-				$nuevoHistorico=$CArt->addHistorico($datos);
-				$resultado['sql']=$nuevoHistorico;
-			}		
-		}
-		$buscar=$CArt->buscarReferencia($producto['idArticulo'], $idProveedor);
-		if (!$buscar){
-			$datosNuevos=array(
-				'coste'=>$producto['ultimoCoste'],
-				'idArticulo'=>$producto['idArticulo'],
-				'idProveedor'=>$idProveedor,
-				'fecha'=>$fecha,
-				'estado'=>"activo"
-			);	
-			$datosNuevos['refProveedor']=0;
-			$add=$CArt->addArticulosProveedores($datosNuevos);
-		}
+				if (isset($producto['CosteAnt'])){
+					 $datosNuevos=array(
+						'coste'=>$producto['ultimoCoste'],
+						'idArticulo'=>$producto['idArticulo'],
+						'idProveedor'=>$idProveedor,
+						'fecha'=>$fecha,
+						'estado'=>"activo"
+					);
+					if (isset($buscar['fechaActualizacion'])){
+						if ($buscar['fechaActualizacion']>$fecha){
+							$errores['error']='Warning';
+							$errores['consulta']='La fecha de la tabla articulos proveedor es mayor que la del albarán';
+						}else{
+							$mod=$CArt->modificarCosteProveedorArticulo($datosNuevos);
+							if (isset($mod['error'])){
+								$errores['error']=$mod['error'];
+								$errores['consulta']=$mod['consulta'];
+								break;
+							}
+						}				
+					}else{
+						$datosNuevos['refProveedor']="";
+						$add=$CArt->addArticulosProveedores($datosNuevos);
+						if (isset($add['error'])){
+							$errores['error']=$add['error'];
+							$errores['consulta']=$add['consulta'];
+							break;
+						}
+					}
 					
+					$datos['idArticulo']=$producto['idArticulo'];
+					$datos['antes']=$producto['CosteAnt'];
+					$datos['nuevo']=$producto['ultimoCoste'];
+					$datos['estado']="Pendiente";
+					$nuevoHistorico=$CArt->addHistorico($datos);
+					if (isset($nuevoHistorico['error'])){
+						$errores['error']=$nuevoHistorico['error'];
+						$errores['consulta']=$nuevoHistorico['consulta'];
+						break;
+					}
+						
+				}else{
+					if (!isset($buscar['idArticulo'])){
+						$datosNuevos=array(
+							'coste'=>$producto['ultimoCoste'],
+							'idArticulo'=>$producto['idArticulo'],
+							'idProveedor'=>$idProveedor,
+							'fecha'=>$fecha,
+							'estado'=>"activo",
+							'refProveedor'=>""
+						);	
+						$add=$CArt->addArticulosProveedores($datosNuevos);
+						if (isset($add['error'])){
+							$errores['error']=$add['error'];
+							$errores['consulta']=$add['consulta'];
+						}
+					}
+				}
+				
+			}			
+		}
+	}else{
+		$errores['error']='Danger!';
+		$errores['consulta']='Error no tiene productos';
 	}
-	return $resultado;
+	return $errores;
 }
 function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 		$idAlbaran=$id;

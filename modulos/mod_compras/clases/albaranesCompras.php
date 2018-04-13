@@ -7,10 +7,6 @@ class AlbaranesCompras extends ClaseCompras{
 		$db = $this->db;
 		$smt = $db->query($sql);
 		if ($smt) {
-			//~ if (isset($db->insert_id)){
-				//~ $smt=$db->insert_id;
-				//~ }
-			
 			return $smt;
 		} else {
 			$respuesta = array();
@@ -43,7 +39,10 @@ class AlbaranesCompras extends ClaseCompras{
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
 		$UnicoCampoPedidos=json_encode($pedidos);
-		$sql='UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero="'.$suNumero.'" WHERE id='.$idAlbaranTemporal;
+		$sql='UPDATE albproltemporales SET idUsuario ='.$idUsuario.' , idTienda='
+		.$idTienda.' , estadoAlbPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='
+		."'".$UnicoCampoProductos."'".', Pedidos='."'".$UnicoCampoPedidos."'".' , Su_numero="'
+		.$suNumero.'" WHERE id='.$idAlbaranTemporal;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
@@ -181,7 +180,7 @@ class AlbaranesCompras extends ClaseCompras{
 				
 			}else{
 				$id=$idAlbaran;
-				$resultado['id']=$id;
+				$respuesta['id']=$id;
 			}
 		}else{
 			$sql='INSERT INTO  albprot  (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , 
@@ -196,7 +195,7 @@ class AlbaranesCompras extends ClaseCompras{
 				
 			}else{
 				$id=$db->insert_id;
-				$resultado['id']=$id;
+				$respuesta['id']=$id;
 				if (isset($id)){
 					$sql='UPDATE albprot SET Numalbpro  = '.$id.' WHERE id ='.$id;
 					$smt=$this->consultaAlbaran($sql);
