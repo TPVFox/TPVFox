@@ -20,7 +20,12 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 	$resultado = array();
 	$palabras = array(); 
 	$products = array();
-	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
+	
+	// Limpio busqueda para evitar rotura en la consulta.
+	$buscar = array(',',';','(',')','"');
+	$sustituir = array(' , ',' ; ',' ( ',' ) ',' ');
+	$string  = str_replace($buscar, $sustituir, trim($busqueda));
+	$palabras = explode(' ',$string); //array de varias palabras, si las hay..
 	
 	$resultado['palabras']= $palabras;
 	$likes = array();
@@ -61,6 +66,7 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 		if (mysqli_error($BDTpv)){
 			$resultado['consulta'] = $sql;
 			$resultado['error'] = $BDTpv->error_list;
+			error_log('Error_buscar_producto:'.json_encode($resultado['error']).'  Consulta:'.$sql);
 			return $resultado;
 		} 
 		$i++;
