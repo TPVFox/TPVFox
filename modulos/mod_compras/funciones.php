@@ -1307,24 +1307,6 @@ function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
 			'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
 			);
 	}
-	//~ if ($datosPost['idTemporal']){
-		//~ $idTemporal=$datosPost['idTemporal'];
-	//~ }else{
-		//~ $idTemporal=$datosGet['tActual'];
-	//~ }
-	//~ if (isset($idTemporal)){
-		//~ $datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
-		//~ if (isset($datosAlbaran['Pedidos'])){
-			//~ $pedidos=json_decode($datosAlbaran['Pedidos'], true);
-			//~ foreach ($pedidos as $pedido){
-				//~ $mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
-			//~ }
-		//~ }
-		//~ $idAlbaran=0;
-		//~ $eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-	//~ }else{
-		//~ $error=1;
-	//~ }
 	return $error;
 }
 function htmlImporteFactura($datos, $BDTpv){
