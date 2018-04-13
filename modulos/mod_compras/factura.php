@@ -147,11 +147,7 @@ include './../../head.php';
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
 	if (isset($_POST['Cancelar'])){
-		//~ if ($_GET['tActual'] || $_GET['id']){
-		$cancelar=cancelarFactura($_POST, $_GET, $BDTpv);
-		//~ echo '<pre>';
-		//~ print_r($cancelar);
-		//~ echo '</pre>';
+		$cancelar=cancelarFactura( $_GET, $BDTpv);
 		if (count($cancelar)==0){
 			header('Location: facturasListado.php');
 		}else{
@@ -159,7 +155,6 @@ include './../../head.php';
 					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
 					. '</div>';
 		}
-		//~ }
 	}
 	
 		if (isset($factura['Albaranes'])){

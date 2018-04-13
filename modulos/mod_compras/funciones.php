@@ -841,10 +841,22 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 	return $errores;
 }
 function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
-	//@Objetivo: guardar los da tos del albarán 
-	//Primero se eliminan todos los registros que tenga el id del albarán real de esta manera a continuación insertamos los nuevo
-	//registros
-	//Por último se elimina el albarán temporal
+	//@Objetivo: GUardar un albarán, eliminar el temporal y comprobar cambio de precios 
+	//para insertarlos en el historico
+	//@Parámetros: 
+	//datosPost, datosGet-> son $_POST y $_GET
+	//BDTpv-> para poder inicializar las clases
+	//Datostotales-> envio el array de datos totales que ya esta calculado en albarán.php
+	//Primero compruebo que tengo id de la tienda y el id del usuario
+	//A continuación dependiendo del estado realizo unas tareas u otras
+	//@Funciones según estados:
+	//	-Si el estado es sin guardar o activo realizo comprobaciones, una vez que no se detecten errores
+	//	Elimino las tablas temporales en caso de que sea un albarán modificado , después inserto el 
+	//	albarán nuevo , elimino el temporal y ejecuto la función historicoCostes para que quede registro de los 
+	// 	productos que se modificaron costes
+	// - Si el estado es Guardado sólo le modifico la fecha y sunumero ya que no se genera un temporal
+	//	cuando se ejecutan estos cambios
+	
 	$errores=array();
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
@@ -1209,7 +1221,20 @@ function htmlTotales($Datostotales){
 	return $htmlIvas;
 }
 
-function cancelarFactura($datosPost, $datosGet,$BDTpv){
+function cancelarFactura( $datosGet,$BDTpv){
+	//@Objetivo: Eliminar la factura temporal y si este tiene alguún albarán adjunto cambiarle
+	//el estado a "Guardado"
+	//@Parametros:
+	//$datosGet: envío los datos de get
+	//Si no existe el id Temporal no dejo hacer las funciones siguientes 
+	//y muestro un error info
+	//@Funciones de clase:
+	//buscarFacturaTemporal, primero busco los datos de la factura temporal
+	//						comprobación de error sql en la función
+	// modEstadoAlbaran, despues compruebo si tengo albaranes adjuntos a la factura
+	//				si es así le modifico el estado para que se puedan adjuntar en otro
+	//EliminarRegistroTemporal: Por último elimino el registro temporal y como en los 
+	//					anteriores compruebo los errores de sql
 	$error=array();
 	$CFac = new FacturasCompras($BDTpv);
 	$CAlb=new AlbaranesCompras($BDTpv);
@@ -1259,7 +1284,21 @@ function cancelarFactura($datosPost, $datosGet,$BDTpv){
 	return $error;
 }
 
-function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
+function cancelarAlbaran( $datosGet, $BDTpv){
+	//@Objetivo: Eliminar el albarán temporal y si este tiene alguún pedido adjunto cambiarle
+	//el estado a "Guardado"
+	//@Parametros:
+	//$datosGet: envío los datos de get
+	//Si no existe el id Temporal no dejo hacer las funciones siguientes 
+	//y muestro un error info
+	//@Funciones de clase:
+	//buscarAlbaranTemporal, primero busco los datos del albarán temporal
+	//						comprobación de error sql en la función
+	// modEstadoPedido, despues compruebo si tendo pedidos adjuntos al albarán
+	//				si es así le mosdifico el estado para que se puedan adjuntar en otro
+	//EliminarRegistroTemporal: Por último elimino el registro temporal y como en los 
+	//					anteriores compruebo los errores de sql
+	
 	$CAlb=new AlbaranesCompras($BDTpv);
 	$Cped = new PedidosCompras($BDTpv);
 	$error=array();
