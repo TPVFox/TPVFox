@@ -148,10 +148,6 @@ class AlbaranesCompras extends ClaseCompras{
 		$db=$this->db;
 		$sql=array();
 		$respuesta=array();
-		//~ $smt=$db->query('DELETE FROM albprot where id='.$idAlbaran );
-		//~ $smt=$db->query('DELETE FROM albprolinea where idalbpro ='.$idAlbaran );
-		//~ $smt=$db->query('DELETE FROM albproIva where idalbpro ='.$idAlbaran );
-		//~ $smt=$db->query('DELETE FROM pedproAlb where idAlbaran ='.$idAlbaran );
 		$sql[0]='DELETE FROM albprot where id='.$idAlbaran;
 		$sql[1]='DELETE FROM albprolinea where idalbpro ='.$idAlbaran;
 		$sql[2]='DELETE FROM albproIva where idalbpro ='.$idAlbaran;
@@ -170,10 +166,14 @@ class AlbaranesCompras extends ClaseCompras{
 	public function AddAlbaranGuardado($datos, $idAlbaran){
 		//@Objetivo:
 		//Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
+		$respuesta=array();
 		$db = $this->db;
 		if ($idAlbaran>0){
-			//~ $smt = $db->query ('INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('.$idAlbaran.' , '.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].', '.$datos['formaPago'].', "'.$datos['fechaVenci'].'")');
-			$sql='INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('.$idAlbaran.' , '.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['suNumero'].'", "'.$datos['formaPago'].'", "'.$datos['fechaVenci'].'")';
+			$sql='INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , 
+			idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('
+			.$idAlbaran.' , '.$idAlbaran.', "'.$datos['fecha'].'", '.$datos['idTienda'].', '
+			.$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado'].'", '.$datos['total']
+			.', "'.$datos['suNumero'].'", "'.$datos['formaPago'].'", "'.$datos['fechaVenci'].'")';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -184,8 +184,11 @@ class AlbaranesCompras extends ClaseCompras{
 				$resultado['id']=$id;
 			}
 		}else{
-			//~ $smt = $db->query ('INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago, FechaVencimiento) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].', '.$datos['formaPago'].', "'.$datos['fechaVenci'].'")');
-			$sql='INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago, FechaVencimiento) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['suNumero'].'", "'.$datos['formaPago'].'", "'.$datos['fechaVenci'].'")';
+			$sql='INSERT INTO  albprot  (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , 
+			total, Su_numero, formaPago, FechaVencimiento) VALUES ('
+			.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '
+			.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total']
+			.', "'.$datos['suNumero'].'", "'.$datos['formaPago'].'", "'.$datos['fechaVenci'].'")';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -205,10 +208,6 @@ class AlbaranesCompras extends ClaseCompras{
 						$respuesta['error']="No existe id";
 						$respuesta['consulta']="El realiza el insert";
 				}
-			//~ $resultado['id']=$id;
-			//~ $smt = $db->query('UPDATE albprot SET Numalbpro  = '.$id.' WHERE id ='.$id);
-			//~ $sql='INSERT INTO albprot (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_numero, formaPago, FechaVencimiento) VALUES ('.$datos['Numtemp_albpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado'].'", '.$datos['total'].', '.$datos['suNumero'].', '.$datos['formaPago'].', "'.$datos['fechaVenci'].'")';
-			//~ 
 			}
 		}
 		if (!isset($respuesta['error'])){
@@ -217,10 +216,10 @@ class AlbaranesCompras extends ClaseCompras{
 			$numAlbaran=$id;
 			foreach ( $productos as $prod){
 				if($prod['estado']=='Activo' || $prod['estado']=='activo'){
-					$codBarras="";
+					$codBarras=null;
 					$numPed=0;
-					$refProveedor="";
-					if ($prod['ccodbar']){
+					$refProveedor=" ";
+					if (isset($prod['ccodbar'])){
 						$codBarras=$prod['ccodbar'];
 					}
 					if (isset($prod['numPedido'])){
@@ -229,17 +228,10 @@ class AlbaranesCompras extends ClaseCompras{
 					if (isset ($prod['crefProveedor'])){
 						$refProveedor=$prod['crefProveedor'];	
 					}
-					//~ if ($idAlbaran>0){
-					//~ $smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
-					//~ }else{
-					//~ $smt=$db->query('INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')' );
-					//~ $sql='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov  , Numpedpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'".', '.$numPed.')';
-					//~ $resultado['sql']=$sql;
-					//~ }
 					$sql='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, 
 					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro )
-					 VALUES ('.$id.', '.$numAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '
-					 .$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '
+					 VALUES ('.$id.', '.$numAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', "'
+					 .$codBarras.'", "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '
 					 .$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'"
 					 .$refProveedor."'".', '.$numPed.')';
 					$smt=$this->consultaAlbaran($sql);
@@ -252,11 +244,6 @@ class AlbaranesCompras extends ClaseCompras{
 				}
 			} 
 			foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
-				//~ if($idAlbaran>0){
-				//~ $smt=$db->query('INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$idAlbaran.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
-				//~ }else{
-				//~ $smt=$db->query('INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
-				//~ }
 				$sql='INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('
 				.$id.', '.$numAlbaran.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 				$smt=$this->consultaAlbaran($sql);
@@ -271,12 +258,6 @@ class AlbaranesCompras extends ClaseCompras{
 			if (count($pedidos)>0){
 				foreach ($pedidos as $pedido){
 					if ($pedido['estado']=='activo'){
-					
-						//~ if($idAlbaran>0){
-							//~ $smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '.$pedido['idAdjunto'].' , '.$pedido['NumAdjunto'].')');
-								//~ }else{
-							//~ $smt=$db->query('INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idAdjunto'].' , '.$pedido['NumAdjunto'].')');
-						//~ }
 						$sql='INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) 
 						VALUES ('.$id.', '.$numAlbaran.' ,  '.$pedido['idAdjunto'].' , '
 						.$pedido['NumAdjunto'].')';
@@ -292,7 +273,7 @@ class AlbaranesCompras extends ClaseCompras{
 				}
 			}
 	}
-		return $resultado;
+		return $respuesta;
 	}
 	
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){
