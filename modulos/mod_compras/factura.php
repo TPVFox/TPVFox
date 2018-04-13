@@ -153,7 +153,7 @@ include './../../head.php';
 		//~ print_r($cancelar);
 		//~ echo '</pre>';
 		if (count($cancelar)==0){
-			//header('Location: facturasListado.php');
+			header('Location: facturasListado.php');
 		}else{
 			echo '<div class="'.$cancelar['class'].'">'
 					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']

@@ -110,8 +110,14 @@ class PedidosCompras extends ClaseCompras{
 		// $estado-> string del estado
 		$db=$this->db;
 		$sql='UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido;
-		$smt=$db->query($sql);
-		return $sql;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
+		//~ $smt=$db->query($sql);
+		//~ return $sql;
 	}
 	public function DatosTemporal($idTemporal){
 		// @ Objetivo:
