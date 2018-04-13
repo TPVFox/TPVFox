@@ -1210,24 +1210,51 @@ function htmlTotales($Datostotales){
 }
 
 function cancelarFactura($datosPost, $datosGet,$BDTpv){
+	$error=array();
 	$CFac = new FacturasCompras($BDTpv);
 	$CAlb=new AlbaranesCompras($BDTpv);
-	$error=0;
-	if ($datosPost['idTemporal']){
-			$idFacturaTemporal=$datosPost['idTemporal'];
-	}else{
-			$idFacturaTemporal=$datosGet['tActual'];
-	}
-	if (isset($idFacturaTemporal)){
-		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-		$albaranes=json_decode($datosFactura['Albaranes'], true);
-		foreach ($albaranes as $albaran){
-			$mod=$CAlb->modEstadoAlbaran($albaran['idAdjunto'], "Guardado");
-		}
+	if (isset($datosGet['tActual'])){
+		$idFacturaTemporal=$datosGet['tActual'];
 		$idFactura=0;
-		$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+		if (isset($datosFactura['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+								 'dato' => $datosFactura['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL '
+								 );
+		}else{
+			$albaranes=json_decode($datosFactura['Albaranes'], true);
+			if(count($albaranes)>0){
+				foreach ($albaranes as $albaran){
+					$mod=$CAlb->modEstadoAlbaran($albaran['idAdjunto'], "Guardado");
+					if(isset($mod['error'])){
+						$error=array ( 'tipo'=>'Danger!',
+								 'dato' => $mod['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL'
+								 );
+						break;
+					}
+				}
+			}
+			
+			$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+				if (isset($eliminarTemporal['error'])){
+					$error=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL'
+								 );
+				
+			}
+		}
 	}else{
-		$error=1;
+		$error=array ( 'tipo'=>'Info!',
+								 'dato' => '',
+								 'class'=>'alert alert-info',
+								 'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+								 );
 	}
 	return $error;
 }

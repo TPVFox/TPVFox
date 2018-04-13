@@ -323,12 +323,11 @@ class FacturasCompras extends ClaseCompras{
 		if ($idFactura>0){
 			$sql='DELETE FROM facproltemporales WHERE numfacpro ='.$idFactura;
 		}else{
-			$sql='DELETE FROM facproltemporales WHERE id='.$idTemporal;
+			$sql='DELETE FROM facproltemporales  WHERE id='.$idTemporal;
 		}
-		error_log($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
-			
+			error_log($sql);
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 			return $respuesta;
