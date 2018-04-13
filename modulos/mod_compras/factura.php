@@ -129,14 +129,18 @@ include './../../head.php';
 		
 	if (isset($_POST['Guardar'])){
 			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales, $importesFactura);
-			if ($guardar==0){
+			if (count($guardar)==0){
 				header('Location: facturasListado.php');
 			}else{
-		
-				echo '<div class="alert alert-warning">
-				<strong>Error!</strong>No has introducido ningún producto.
-				</div>';
+				foreach ($guardar as $error){
+					echo '<div class="'.$error['class'].'">'
+					. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+					. '</div>';
+				}
 			}
+			//~ echo '<pre>';
+			//~ print_r($_POST);
+			//~ echo '</pre>';
 			
 		
 	}

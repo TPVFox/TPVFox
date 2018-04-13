@@ -954,7 +954,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					}else{
 						if(isset($addNuevo['id'])){
 							$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
-							if ($historico['error']){
+							if (isset($historico['error'])){
 								$errores[3]=array ( 'tipo'=>'Danger!',
 								 'dato' => $historico['consulta'],
 								 'class'=>'alert alert-danger',
@@ -1008,55 +1008,240 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 }
 
 function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importesFactura){
+	$errores=array();
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
-	$error=0;
-	$CFac = new FacturasCompras($BDTpv);
-	if (isset($datosPost['idTemporal'])){
-		$idFacturaTemporal=$datosPost['idTemporal'];
-	}else{
-		if (isset($datosGet['tActual'])){
-			$idFacturaTemporal=$datosGet['tActual'];
-		}else{
-			$error=1;
-		}
-		
+	if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
+			$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR NO HAY DATOS DE SESIÓN!'
+								 );
+			return $errores;
 	}
-	if (!isset($Tienda['idTienda'])){
-			$error=1;
-		}
-		if (!isset($Usuario['id'])){
-			$error=1;
-		}
-	if(isset ($idFacturaTemporal)){
-		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-		$fecha=$datosPost['fecha'];
-		$estado="Guardado";
-		$entregado=0;
-		if (is_array($importesFactura)){
+	$CFac = new FacturasCompras($BDTpv);
+	if (isset($datosGet['tActual'])){
+			$datosPost['estado']='Sin guardar';
+	}
+	$suNumero="";
+	$fecha=date('Y-m-d');
+	$estado="Guardado";
+	$entregado=0;
+	$dedonde="factura";
+	$idFactura=0;
+	
+	switch($datosPost['estado']){
+		case 'Sin guardar':
+		case 'Abierto':
+			if (isset($datosGet['tActual'])){
+						$idFacturaTemporal=$datosGet['tActual'];
+			}else{
+				$errores[0]=array ( 'tipo'=>'Warning!',
+					'dato' => '',
+					'class'=>'alert alert-warning',
+					'mensaje' => 'El temporal ya no existe  !'
+					);
+					break;
+			}
+			$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+			if (isset($datosFactura['error'])){
+				$errores[0]=array ( 'tipo'=>'Danger!',
+						'dato' => $datosFactura['consulta'],
+						'class'=>'alert alert-danger',
+						'mensaje' => 'Error de SQL !'
+					);
+			}else{
 				if (isset($datosFactura['Productos'])){
-			$productos_para_recalculo = json_decode( $datosFactura['Productos'] );
-			$CalculoTotales = recalculoTotales($productos_para_recalculo);
-			$total=round($CalculoTotales['total'],2);
-		}else{
-			$total=0;
-			$error=1;
-		}
-				foreach ($importesFactura as $import){
-					$entregado=$entregado+$import['importe'];
+					$productos_para_recalculo = json_decode( $datosFactura['Productos'] );
+					$CalculoTotales = recalculoTotales($productos_para_recalculo);
+					$total=round($CalculoTotales['total'],2);
+				}else{
+					$errores[0]=array ( 'tipo'=>'Danger!',
+						'dato' => '',
+						'class'=>'alert alert-danger',
+						'mensaje' => 'Error no tienes productos !'
+					);
+					break;
+				}
+				if (count($importesFactura)>0){
+					foreach ($importesFactura as $import){
+						$entregado=$entregado+$import['importe'];
+					}
+					if ($total==$entregado){
+						$estado="Pagado total";
+					}else{
+						$estado="Pagado Parci";
+					}
+				}
+				$datos=array(
+					'Numtemp_facpro'=>$idFacturaTemporal,
+					'fecha'=>$fecha,
+					'idTienda'=>$Tienda['idTienda'],
+					'idUsuario'=>$Usuario['id'],
+					'idProveedor'=>$datosFactura['idProveedor'],
+					'estado'=>$estado,
+					'total'=>$total,
+					'DatosTotales'=>$Datostotales,
+					'productos'=>$datosFactura['Productos'],
+					'albaranes'=>$datosFactura['Albaranes'],
+					'importes'=>$importesFactura,
+					'suNumero'=>$suNumero
+				);
+				if ($datosFactura['numfacpro']){
+					$idFactura=$datosFactura['numfacpro'];
+					$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
+					if (isset($eliminarTablasPrincipal['error'])){
+						$errores[0]=array ( 'tipo'=>'Danger!',
+						'dato' =>$eliminarTablasPrincipal['consulta'],
+						'class'=>'alert alert-danger',
+						'mensaje' => 'Error de SQL !'
+						);
+						break;
+					}
+				}
+				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura);
+				if (isset($addNuevo['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+					'dato' =>$addNuevo['consulta'],
+					'class'=>'alert alert-danger',
+					'mensaje' => 'Error de SQL !'
+					);
+					break;
+				}else{
+					if (isset($addNuevo['id'])){
+						$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
+						if (isset($historico['error'])){
+								$errores[3]=array ( 'tipo'=>'Danger!',
+								 'dato' => $historico['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error en al modificar los coste de los productos !'
+								 );
+						}
+						$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal,  $idFactura);
+						if (isset($eliminarTemporal['error'])){
+							$errores[4]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL!'
+								 );
+							break;
+						}
+					}else{
+						$errores[0]=array ( 'tipo'=>'Danger!',
+						'dato' =>'',
+						'class'=>'alert alert-danger',
+						'mensaje' => 'Error no hizo el inset de nuevo albarán correctamente'
+						);
+						break;
+					}
 				}
 				
-				if ($total==$entregado){
-					$estado="Pagado total";
-				}else{
-					$estado="Pagado Parci";
-				}
+				
 			}
-		if ($datosPost['suNumero']>0){
-				$suNumero=$datosPost['suNumero'];
+		break;
+		case 'Pagado total':
+			$errores[0]=array ( 'tipo'=>'Warning!',
+				'dato' => '',
+				'class'=>'alert alert-warning',
+				'mensaje' => 'No puedes guardar la factura ya que tiene estado Pagado Total !'
+			);
+		break;
+		case 'Guardado':
+		 if ($datosGet['id']){
+				if ($datosPost['suNumero']>0){
+					$suNumero=$datosPost['suNumero'];
+				}
+				if (isset($datosPost['fecha'])){
+					if ($datosPost['fecha']==""){
+						$errores[0]=array ( 'tipo'=>'Warning!',
+						'dato' => '',
+						'class'=>'alert alert-warning',
+						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
+						);
+					}else{
+						$mod=$CFac->modFechaNumero($datosGet['id'], $datosPost['fecha'], $suNumero);
+						if (isset($mod['error'])){
+							$errores[0]=array ( 'tipo'=>'Danger!',
+							'dato' => $mod['consulta'],
+							'class'=>'alert alert-danger',
+							'mensaje' => 'Error de SQL !'
+							);
+						}
+					}
+				}else{
+					$errores[0]=array ( 'tipo'=>'Warning!',
+						'dato' => '',
+						'class'=>'alert alert-warning',
+						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
+					);
+				}
+				
 		}else{
-			$suNumero=0;
+			$errores[0]=array ( 'tipo'=>'Warning!',
+				'dato' => '',
+				'class'=>'alert alert-warning',
+				'mensaje' => 'No has realizado nunguna modificación !'
+			);
 		}
+		break;
+		default:
+			$errores[0]=array ( 'tipo'=>'Warning!',
+				'dato' => '',
+				'class'=>'alert alert-warning',
+				'mensaje' => 'No has realizado nunguna modificación !'
+			);
+		break;
+	}
+	return $errores;
+	//~ $Tienda = $_SESSION['tiendaTpv'];
+	//~ $Usuario = $_SESSION['usuarioTpv'];
+	//~ $error=0;
+	//~ $CFac = new FacturasCompras($BDTpv);
+	//~ if (isset($datosPost['idTemporal'])){
+		//~ $idFacturaTemporal=$datosPost['idTemporal'];
+	//~ }else{
+		//~ if (isset($datosGet['tActual'])){
+			//~ $idFacturaTemporal=$datosGet['tActual'];
+		//~ }else{
+			//~ $error=1;
+		//~ }
+		
+	//~ }
+	//~ if (!isset($Tienda['idTienda'])){
+			//~ $error=1;
+		//~ }
+		//~ if (!isset($Usuario['id'])){
+			//~ $error=1;
+		//~ }
+	//~ if(isset ($idFacturaTemporal)){
+		//~ $datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+		//~ $fecha=$datosPost['fecha'];
+		//~ $estado="Guardado";
+		//~ $entregado=0;
+		//~ if (is_array($importesFactura)){
+				//~ if (isset($datosFactura['Productos'])){
+			//~ $productos_para_recalculo = json_decode( $datosFactura['Productos'] );
+			//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
+			//~ $total=round($CalculoTotales['total'],2);
+		//~ }else{
+			//~ $total=0;
+			//~ $error=1;
+		//~ }
+				//~ foreach ($importesFactura as $import){
+					//~ $entregado=$entregado+$import['importe'];
+				//~ }
+				
+				//~ if ($total==$entregado){
+					//~ $estado="Pagado total";
+				//~ }else{
+					//~ $estado="Pagado Parci";
+				//~ }
+			//~ }
+		//~ if ($datosPost['suNumero']>0){
+				//~ $suNumero=$datosPost['suNumero'];
+		//~ }else{
+			//~ $suNumero=0;
+		//~ }
 		//~ if (isset($datosFactura['Productos'])){
 			//~ $productos_para_recalculo = json_decode( $datosFactura['Productos'] );
 			//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
@@ -1065,56 +1250,56 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 			//~ $total=0;
 			//~ $error=1;
 		//~ }
-		$datos=array(
-			'Numtemp_facpro'=>$idFacturaTemporal,
-			'fecha'=>$fecha,
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idProveedor'=>$datosFactura['idProveedor'],
-			'estado'=>$estado,
-			'total'=>$total,
-			'DatosTotales'=>$Datostotales,
-			'productos'=>$datosFactura['Productos'],
-			'albaranes'=>$datosFactura['Albaranes'],
-			'importes'=>$importesFactura,
-			'suNumero'=>$suNumero
-		);
-		$dedonde="factura";
-		if ($error==0){
-			if ($datosFactura['numfacpro']){
-				$numFactura=$datosFactura['numfacpro'];
-				$datosReal=$CFac->buscarFacturaNumero($numFactura);
-				$idFactura=$datosReal['id'];
-				$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
-				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
-				$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
+		//~ $datos=array(
+			//~ 'Numtemp_facpro'=>$idFacturaTemporal,
+			//~ 'fecha'=>$fecha,
+			//~ 'idTienda'=>$Tienda['idTienda'],
+			//~ 'idUsuario'=>$Usuario['id'],
+			//~ 'idProveedor'=>$datosFactura['idProveedor'],
+			//~ 'estado'=>$estado,
+			//~ 'total'=>$total,
+			//~ 'DatosTotales'=>$Datostotales,
+			//~ 'productos'=>$datosFactura['Productos'],
+			//~ 'albaranes'=>$datosFactura['Albaranes'],
+			//~ 'importes'=>$importesFactura,
+			//~ 'suNumero'=>$suNumero
+		//~ );
+		//~ $dedonde="factura";
+		//~ if ($error==0){
+			//~ if ($datosFactura['numfacpro']){
+				//~ $numFactura=$datosFactura['numfacpro'];
+				//~ $datosReal=$CFac->buscarFacturaNumero($numFactura);
+				//~ $idFactura=$datosReal['id'];
+				//~ $eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
+				//~ $addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
+				//~ $historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
 
-				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
-			}else{
-				$idFactura=0;
-				$numFactura=0;
-				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
-				$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
-				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
-			}
-		}else{
-			$error=1;
-		}		
-	}else{
-		if ($datosGet['id']){
-				if ($datosPost['suNumero']>0){
-					$suNumero=$datosPost['suNumero'];
-				}else{
-					$suNumero=0;
-				}
-				$fecha=$datosPost['fecha'];
-				$mod=$CFac->modFechaNumero($datosGet['id'], $fecha, $suNumero);
-				$error=0;
-			}else{
-				$error=1;
-			}
-	}
-	return $error;
+				//~ $eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+			//~ }else{
+				//~ $idFactura=0;
+				//~ $numFactura=0;
+				//~ $addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
+				//~ $historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
+				//~ $eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+			//~ }
+		//~ }else{
+			//~ $error=1;
+		//~ }		
+	//~ }else{
+		//~ if ($datosGet['id']){
+				//~ if ($datosPost['suNumero']>0){
+					//~ $suNumero=$datosPost['suNumero'];
+				//~ }else{
+					//~ $suNumero=0;
+				//~ }
+				//~ $fecha=$datosPost['fecha'];
+				//~ $mod=$CFac->modFechaNumero($datosGet['id'], $fecha, $suNumero);
+				//~ $error=0;
+			//~ }else{
+				//~ $error=1;
+			//~ }
+	//~ }
+	//~ return $error;
 }
 function htmlTotales($Datostotales){
 	$htmlIvas['html'] = '';
