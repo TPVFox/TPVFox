@@ -97,30 +97,36 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 			if (resultado['Estado'] === 'Correcto') {
 				var datos = [];
 				datos = resultado.datos[0];
-				console.log('Entro en Estado Correcto funcion buscarProducto ->datos (producto)');
+				console.log('==== Entro en Estado Correcto funcion buscarProducto ->datos (producto) ====');
 				console.log(datos);
 				//~ console.log('consulta '+resultado.sql);
 				resetCampo(id_input);
 				agregarFila(datos);
-				
-			} else {
-				// Se ejecuta tanto sea un listado como un error.
-				console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-				var busqueda = resultado.listado;   
-				var HtmlProductos=busqueda.html;   
-				var titulo = 'Listado productos encontrados ';
-				// Abrimos modal de productos.
-				abrirModal(titulo,HtmlProductos);
-				if (resultado.Nitems >0 ){
-					// Quiere decir que hay resultados por eso apuntamos al primero
-					// focus a primer producto.
-						var d_focus = 'N_0';
-						ponerFocus(d_focus);
-				} else {
-					// No hay resultado pero apuntamos a caj
-					ponerFocus(id_input);
-				}
+				return;
+			} 
+			if (resultado['Estado'] === 'NoSeBusco' && resultado['dedonde'] === 'popup'){
+				console.log('==== Entro en Estado NoSeBusco y de popup ===========');
+				$('#cajaBusqueda').focus(); //foco en input caja busqueda del producto
+				return
 			}
+			// Se ejecuta tanto sea un listado como un error.
+			console.log('===== Entro en Estado Listado de funcion buscarProducto =====');
+			var busqueda = resultado.listado;   
+			var HtmlProductos=busqueda.html;   
+			var titulo = 'Listado productos encontrados ';
+			// Abrimos modal de productos.
+			abrirModal(titulo,HtmlProductos);
+			if (resultado.Nitems >0 ){
+				// Quiere decir que hay resultados por eso apuntamos al primero
+				// focus a primer producto.
+				var d_focus = 'N_0';
+				ponerFocus(d_focus);
+			} else {
+				// Quiere decir que busco pero no encontro nada.
+				console.log('Busco pero no encontro nada');
+				ponerFocus('cajaBusqueda');
+			}
+			
 		// Al no poner return , esto se va ejecutar siempre.
 		//~ document.getElementById(id_input).value='';
 		}
@@ -519,9 +525,10 @@ function abrirModal(titulo,tabla){
 	$('#busquedaModal').on('shown.bs.modal', function() {
 		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
 		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
-		$('#cajaBusqueda').focus(); //foco en input caja busqueda del cliente
+		$('#cajaBusqueda').focus(); //foco en input caja busqueda del producto
 		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
 	});
+	return ;
 }
 
 
@@ -558,6 +565,7 @@ function controladorAcciones(caja,accion){
 	//  	caja -> Objeto que aparte de los datos que le ponemos en variables globales de cada input
 	//				tiene funciones que podemos necesitar como:
 	//						darValor -> donde obtiene el valor input
+	
 	switch(accion) {
 		case 'buscarClientes':
 			// Esta funcion necesita el valor.
@@ -610,6 +618,8 @@ function controladorAcciones(caja,accion){
 				ponerFocus(d_focus);
 			}
 			break;
+		
+		
 		case 'saltar_Descripcion':
 			var dato = caja.darValor();
 			if ( dato.length === 0){
@@ -619,12 +629,18 @@ function controladorAcciones(caja,accion){
 			}
 			break;
 		case 'saltar_CodBarras':
+			console.log('Saltar_Codbarras');
 			var dato = caja.darValor();
 			if ( dato.length === 0){
 				// Si esta vacio, sino permitimos saltar.
 				var d_focus = 'Codbarras';
 				ponerFocus(d_focus);
 			}
+			break;
+		case 'saltar_CodBarras_desde_fila':
+			console.log('Saltar_Codbarras');
+				var d_focus = 'Codbarras';
+				ponerFocus(d_focus);
 			break;
 		case  'saltar_productos':
 			if (productos.length >0){
@@ -689,7 +705,11 @@ function controladorAcciones(caja,accion){
 			} else {
 				alert( ' No es correcto el numero');
 			}
-	
+			break;
+		
+		case 'CerrarModal':
+			console.log("CerrarModal por pulsar ESC");
+			ponerFocus(caja.name_cja);
 			break;
 		
 		default :

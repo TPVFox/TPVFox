@@ -98,7 +98,7 @@ switch ($pulsado) {
 				}
 			}
 		}
-		
+		$respuesta['dedonde'] = $deDonde; // Enviamos de donde para tratarlo en javascript.
 		echo json_encode($respuesta);  
 		break;
 	
