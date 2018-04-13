@@ -103,16 +103,30 @@ include './../../head.php';
 		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
 		//si el resultado es  quiere decir que no hay errores y fue todo correcto
 		//si no es así muestra mensaje de error
-		$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
-		if ($guardar==0){
-			header('Location: albaranesListado.php');
+	
+		 $guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
+		if (count($guardar)==0){
+			//header('Location: albaranesListado.php');
+			echo '<pre>';
+			print_r($guardar);
+			echo '</pre>';
 		}else{
-			echo '<div class="alert alert-warning">
-			<strong>Error!</strong>No has introducido ningún producto.
-			</div>';
+			foreach ($guardar as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+				. '</div>';
+			}
+			//~ echo '<div class="alert alert-warning">
+			//~ <strong>Error!</strong>No has introducido ningún producto.
+			//~ </div>';
 		}
+		echo '<pre>';
+			print_r($guardar);
+			echo '</pre>';
+		//~ echo $_POST['estado'];
 	}
-	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
+	//Cancelar, cuando cancelamos un albarán quiere decir que los 
+	//cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado
 	if (isset ($_POST['Cancelar'])){
 		 $cancelar=cancelarAlbaran($_POST, $_GET, $BDTpv);
