@@ -705,7 +705,6 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 								 );
 			return $errores;
 	}
-	//~ $numPedido=0;
 	$fecha=date('Y-m-d');
 	$fechaCreacion=date("Y-m-d H:i:s");
 	$idPedido=0;
@@ -771,7 +770,6 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 							'idProveedor'=>$pedidoTemporal['idProveedor'],
 							'estado'=>"Guardado",
 							'total'=>$total,
-							//~ 'numPedido'=>$numPedido,
 							'fechaCreacion'=>$fechaCreacion,
 							'Productos'=>$productos,
 							'DatosTotales'=>$Datostotales
@@ -840,111 +838,6 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 								 );
 				break;
 	}
-	
-				
-	//~ $Cpedido=new PedidosCompras($BDTpv);
-	//~ if (isset($datosPost['idTemporal'])){
-		//~ $numPedidoTemp=$datosPost['idTemporal'];
-	//~ }else{
-		//~ if (isset($datosGet['tActual'])){
-			//~ $numPedidoTemp=$datosGet['tActual'];
-		//~ }else{
-			//~ $error=1;
-		//~ }
-		
-	//~ }
-	//~ if (!isset($Tienda['idTienda'])){
-			//~ $error=1;
-		//~ }
-		//~ if (!isset($Usuario['id'])){
-			//~ $error=1;
-		//~ }
-	//~ if (isset ($numPedidoTemp)) {
-		//~ $pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
-		//~ if (isset($datosPost['fecha'])){
-			//~ $bandera=new DateTime($datosPost['fecha']);
-			//~ $fecha=$bandera->format('Y-m-d');
-		//~ }else{
-			//~ if ($pedidoTemporal['fechaInicio']){
-				//~ $bandera=new DateTime($pedidoTemporal['fechaInicio']);
-				//~ $fecha=$bandera->format('Y-m-d');
-			//~ }else{
-				//~ $fecha=date('Y-m-d');		
-			//~ }
-		//~ }
-		//~ if ($pedidoTemporal['idPedpro']){
-			//~ $datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
-			//~ $numPedido=$datosPedidoReal['Numpedpro'];
-		//~ }else{
-			//~ $numPedido=0;
-		//~ }
-		//~ if (isset ($pedidoTemporal['Productos'])){
-			//~ $productos=$pedidoTemporal['Productos'];
-			//~ $productos_para_recalculo = json_decode( $productos );
-			//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
-			//~ $total=round($CalculoTotales['total'],2);
-		//~ }else{
-			//~ $error=1;
-			//~ $total=0;
-			//~ $productos=0;
-		//~ }
-		
-		//~ $fechaCreacion=date("Y-m-d H:i:s");
-		//~ $datosPedido=array(
-			//~ 'Numtemp_pedpro'=>$numPedidoTemp,
-			//~ 'FechaPedido'=>$fecha,
-			//~ 'idTienda'=>$Tienda['idTienda'],
-			//~ 'idUsuario'=>$Usuario['id'],
-			//~ 'idProveedor'=>$pedidoTemporal['idProveedor'],
-			//~ 'estado'=>"Guardado",
-			//~ 'total'=>$total,
-			//~ 'numPedido'=>$numPedido,
-			//~ 'fechaCreacion'=>$fechaCreacion,
-			//~ 'Productos'=>$productos,
-			//~ 'DatosTotales'=>$Datostotales
-		//~ );
-	//~ }else{
-		//~ $error=1;
-	//~ }
-	
-	//~ if ($error==0){
-		//~ if ($pedidoTemporal['idPedpro']){
-			//~ $idPedido=$pedidoTemporal['idPedpro'];
-			//~ $eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-			//~ $addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-			//~ if (isset($addNuevo['id'])){
-			//~ $eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
-			//~ }else{
-				//~ $error=array(
-					//~ 'error'=>$addNuevo['error'],
-					//~ 'consulta'=>$addNuevo['consulta']
-				//~ );
-			//~ }
-		//~ }else{
-			//~ $idPedido=0;
-			//~ $numPedido=0;
-			//~ $addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-			//~ if (!isset($addNuevo['error'])){
-				//~ $eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
-			//~ }else{
-				//~ $error=array(
-					//~ 'error'=>$addNuevo['error'],
-					//~ 'consulta'=>$addNuevo['consulta']
-				//~ );
-			//~ }
-			
-		//~ }
-	//~ }else{
-		//~ if ($datosGet['id']){
-				//~ $fecha=$datosPost['fecha'];
-				//~ $mod=$Cpedido->modFechaPedido($fecha, $datosGet['id']);
-				
-				//~ $error=0;
-			//~ }else{
-				//~ $error=1;
-			//~ }
-	//~ }
-	//~ return $error;
 	return $errores;
 }
 function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
