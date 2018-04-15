@@ -77,7 +77,7 @@ include './../../head.php';
 	$idFactura=0;
 	$numFactura=0;
 	$idProveedor=0;
-	$suNumero=0;
+	$suNumero="";
 	$nombreProveedor="";
 	//Si recibe los datos de un temporal
 		if (isset($_GET['tActual'])){
@@ -199,7 +199,7 @@ include './../../head.php';
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
-		cabecera['suNumero']=<?php echo $suNumero; ?>;
+		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		
 		
 		 // Si no hay datos GET es 'Nuevo';
