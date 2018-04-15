@@ -99,7 +99,7 @@ function nombreUsuario($BDTpv,$idUsuario){
 
 
 
-function obtenerCierres($BDTpv ,$filtro='') {
+function obtenerCierres($BDTpv ,$filtro='',$limite='') {
 	// Function para obtener cierres y listarlos
 	//tablas usadas: - cierres
 				//	 - usuarios
@@ -108,7 +108,7 @@ function obtenerCierres($BDTpv ,$filtro='') {
 		$filtro = ' where '.$filtro;
 	}
 	$consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
-				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro; 
+				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro.$limite; 
 	
 	$Resql = $BDTpv->query($consulta);	
 	if ($Resql){
