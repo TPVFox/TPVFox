@@ -154,23 +154,32 @@ switch ($pulsado) {
 		//~ break;
 		
 		case 'comprobarAdjunto':
-		//@Objetivo:
-		//comprobar que el proveedor tiene albaran o pedido en estado guardado
-		$estado="Guardado";
-		$idProveedor=$_POST['idProveedor'];
-		$dedonde=$_POST['dedonde'];
-		if ($dedonde=="factura"){
-			$buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
-		}else{
-			$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
-		}
-		if (count($buscar)>0){
-				$bandera=1;
+			//@Objetivo:
+			//comprobar que el proveedor tiene albaran o pedido en estado guardado
+			$estado="Guardado";
+			$idProveedor=$_POST['idProveedor'];
+			$dedonde=$_POST['dedonde'];
+			$respuesta=array();
+			if ($dedonde=="factura"){
+				$buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
+				if (isset($buscar['error'])){
+						$respuesta['error']=$buscar['error'];
+						$respuesta['consulta']=$buscar['consulta'];
+				}
 			}else{
-				$bandera=2;
+				$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
+				if (isset($buscar['error'])){
+						$respuesta['error']=$buscar['error'];
+						$respuesta['consulta']=$buscar['consulta'];
+				}
 			}
-		
-		echo json_encode($bandera);
+			if (count($buscar)>0){
+					$respuesta['bandera']=1;
+			}else{
+					$respuesta['bandera']=2;
+			}
+			
+			echo json_encode($respuesta);
 		break;
 	
 		case 'buscarAdjunto':

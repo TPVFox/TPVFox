@@ -578,19 +578,23 @@ function comprobarAdjunto(dedonde){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
-				console.log(resultado);
-				if (resultado == 1){
-					console.log("entre en las opciones");
-					$('#tablaAl').css("display", "block");
-					$('#numPedidoT').css("display", "block");
-					$('#numPedido').css("display", "block");
-					$('#buscarPedido').css("display", "block");
-					$('#tablaPedidos').css("display", "block");
-					ponerFocus('numPedido');
+				//~ console.log(resultado);
+				if (resultado.error){ç
+				
 				}else{
-					ponerFocus('idArticulo');
+					if (resultado.bandera == 1){
+						console.log("entre en las opciones");
+						$('#tablaAl').css("display", "block");
+						$('#numPedidoT').css("display", "block");
+						$('#numPedido').css("display", "block");
+						$('#buscarPedido').css("display", "block");
+						$('#tablaPedidos').css("display", "block");
+						ponerFocus('numPedido');
+					}else{
+						ponerFocus('idArticulo');
+					}
+				//~ console.log(resultado);
 				}
-				console.log(resultado);
 				
 	
 		}
