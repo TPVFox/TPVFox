@@ -50,7 +50,7 @@ class PedidosCompras extends ClaseCompras{
 		.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'"
 		.$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
 		$smt=$this->consulta($sql);
-			if (gettype($smt)==='array'){
+		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 			return $respuesta;
@@ -120,8 +120,6 @@ class PedidosCompras extends ClaseCompras{
 			$respuesta['consulta']=$smt['consulta'];
 			return $respuesta;
 		}
-		//~ $smt=$db->query($sql);
-		//~ return $sql;
 	}
 	public function DatosTemporal($idTemporal){
 		// @ Objetivo:
@@ -206,7 +204,6 @@ class PedidosCompras extends ClaseCompras{
 					if (gettype($smt)==='array'){
 						$respuesta['error']=$smt['error'];
 						$respuesta['consulta']=$smt['consulta'];
-					
 					}
 				}else{
 					$respuesta['error']=$smt['error'];
@@ -284,12 +281,11 @@ class PedidosCompras extends ClaseCompras{
 		$Sql= 'SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, 
 		c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on 
 		tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id';
-		//~ $smt=$db->query($Sql);
 		$smt=$this->consulta($Sql);
 		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
 		}else{
 			$pedidosPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
@@ -310,8 +306,8 @@ class PedidosCompras extends ClaseCompras{
 		$smt=$this->consulta($Sql);
 		$respuesta=array();
 		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
 		}else{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($respuesta,$result);
@@ -391,9 +387,9 @@ class PedidosCompras extends ClaseCompras{
 		$sql='UPDATE pedprot SET FechaPedido= "'.$fecha.'" where id='.$idPedido;
 		$smt=$this->consulta($Sql);
 		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
 		}
 		
 	}

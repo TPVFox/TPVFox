@@ -48,9 +48,9 @@ class AlbaranesCompras extends ClaseCompras{
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 		}else{
-		$respuesta['idTemporal']=$idAlbaranTemporal;
-		$respuesta['productos']=$UnicoCampoProductos;
-		$respuesta['pedidos']=$UnicoCampoPedidos;
+			$respuesta['idTemporal']=$idAlbaranTemporal;
+			$respuesta['productos']=$UnicoCampoProductos;
+			$respuesta['pedidos']=$UnicoCampoPedidos;
 		}
 		return $respuesta;
 	}
@@ -271,7 +271,7 @@ class AlbaranesCompras extends ClaseCompras{
 					
 				}
 			}
-	}
+		}
 		return $respuesta;
 	}
 	
@@ -284,7 +284,6 @@ class AlbaranesCompras extends ClaseCompras{
 		}else{
 			$sql='DELETE FROM albproltemporales WHERE id='.$idTemporal;
 		}
-		//~ $sql='DELETE FROM albproltemporales WHERE id='.$idTemporal;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];

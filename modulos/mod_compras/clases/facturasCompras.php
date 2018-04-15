@@ -32,8 +32,7 @@ class FacturasCompras extends ClaseCompras{
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($facturaPrincipal,$result);
 		}
-		return $facturaPrincipal;
-		
+		return $facturaPrincipal;	
 	}
 	
 	public function TodosFactura(){
@@ -161,7 +160,6 @@ class FacturasCompras extends ClaseCompras{
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
 		$respuesta['productos']=$productos;
-		
 		return $respuesta;
 	}
 	
@@ -183,8 +181,8 @@ class FacturasCompras extends ClaseCompras{
 		//@Objetivo:
 		//Modificar el total de una factura temporal, lo hacemos cada vez que añadimos un producto nuevo
 		$db=$this->db;
-		$smt=$db->query('UPDATE facproltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
-		//~ return $resultado;
+		$smt=$db->query('UPDATE facproltemporales set total='.$total .' , total_ivas='
+		.$totalivas .' where id='.$res);
 	}
 	
 	public function eliminarFacturasTablas($idFactura){
@@ -332,7 +330,6 @@ class FacturasCompras extends ClaseCompras{
 		//@Objetivo:
 		//CAda vez que guardamos una factura nueva o ya existente eliminamos su temporal
 		$db=$this->db;
-		
 		if ($idFactura>0){
 			$sql='DELETE FROM facproltemporales WHERE numfacpro ='.$idFactura;
 		}else{
@@ -361,7 +358,6 @@ class FacturasCompras extends ClaseCompras{
 	}
 	public function modificarImportesTemporal($idTemporal, $importes){
 		$db=$this->db;
-		
 		$sql='UPDATE facproltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal;
 		$smt=$db->query($sql);
 		return $sql;
