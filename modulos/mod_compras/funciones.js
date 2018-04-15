@@ -581,7 +581,7 @@ function comprobarAdjunto(dedonde){
 				console.log(resultado);
 				if (resultado == 1){
 					console.log("entre en las opciones");
-						$('#tablaAl').css("display", "block");
+					$('#tablaAl').css("display", "block");
 					$('#numPedidoT').css("display", "block");
 					$('#numPedido').css("display", "block");
 					$('#buscarPedido').css("display", "block");

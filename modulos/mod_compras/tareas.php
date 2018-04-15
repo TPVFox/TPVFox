@@ -136,22 +136,22 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		case 'buscarReferencia':
-			//@Objetivo:
-			//Busca si un articulo tiene referencia de proveedor
-			$idArticulo=$_POST['idArticulo'];
-			$idProveedor=$_POST['idProveedor'];
-			$coste=$_POST['coste'];
-			$fila=$_POST['fila'];
-			$datosArticulo=$CArticulos->buscarReferencia($idArticulo, $idProveedor);
-			$articulo=$CArticulos->buscarNombreArticulo($idArticulo);
+		//~ case 'buscarReferencia':
+			//~ //@Objetivo:
+			//~ //Busca si un articulo tiene referencia de proveedor
+			//~ $idArticulo=$_POST['idArticulo'];
+			//~ $idProveedor=$_POST['idProveedor'];
+			//~ $coste=$_POST['coste'];
+			//~ $fila=$_POST['fila'];
+			//~ $datosArticulo=$CArticulos->buscarReferencia($idArticulo, $idProveedor);
+			//~ $articulo=$CArticulos->buscarNombreArticulo($idArticulo);
 			
-			$html=htmlCambioRefProveedor($datosArticulo, $fila, $articulo, $coste);
-			$respuesta['html']=$html['html'];
+			//~ $html=htmlCambioRefProveedor($datosArticulo, $fila, $articulo, $coste);
+			//~ $respuesta['html']=$html['html'];
 			
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		
-		break;
+		//~ break;
 		
 		case 'comprobarAdjunto':
 		//@Objetivo:
