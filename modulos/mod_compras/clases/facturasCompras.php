@@ -344,12 +344,19 @@ class FacturasCompras extends ClaseCompras{
 	}
 	public function importesFactura($idFactura){
 		$db=$this->db;
-		$smt=$db->query ('SELECT * FROM facProCobros where idFactura='.$idFactura );
-		$importesPrincipal=array();
-		while ($result = $smt->fetch_assoc () ){
-			array_push($importesPrincipal,$result);
+		$sql='SELECT * FROM facProCobros where idFactura='.$idFactura ;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}else{
+			$importesPrincipal=array();
+			while ($result = $smt->fetch_assoc () ){
+				array_push($importesPrincipal,$result);
+			}
+			return $importesPrincipal;
 		}
-		return $importesPrincipal;
 	}
 	public function eliminarRealImportes($idFactura){
 		$db=$this->db;

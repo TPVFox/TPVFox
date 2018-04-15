@@ -567,8 +567,12 @@ switch ($pulsado) {
 			 $arrayPrincipal=array();
 			 $error=0;
 			 $bandera=$importe;
-			 $importesReal=$CFac->importesFactura($idReal);
 			 $respuesta=array();
+			 $importesReal=$CFac->importesFactura($idReal);
+			 if (isset($importesReal['error'])){
+				$respuesta['error']=$importesReal['error'];
+				$respuesta['consulta']=$importesReal['consulta'];
+			}
 			 $respuesta['importeReal']=$importesReal;
 			 if(count($importesReal)>0){
 				$importesReal=modificarArraysImportes($importesReal, $total);
