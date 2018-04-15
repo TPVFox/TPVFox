@@ -4,6 +4,19 @@ class ClaseVentas{
 	
 	public $db; //(Objeto) Es la conexion;
 
+	public function consulta($sql){
+		// Realizamos la consulta.
+		$db = $this->db;
+		$smt = $db->query($sql);
+		if ($smt) {
+			return $smt;
+		} else {
+			$respuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
+	}  
 	
 	public function __construct($conexion){
 		$this->db = $conexion;
