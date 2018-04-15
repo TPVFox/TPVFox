@@ -46,7 +46,9 @@ class PedidosCompras extends ClaseCompras{
 		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
-		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
+		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda
+		.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'"
+		.$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
 		$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
@@ -62,7 +64,9 @@ class PedidosCompras extends ClaseCompras{
 		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
-		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".')';
+		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , 
+		fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'
+		.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".')';
 		//~ $smt = $db->query ($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
@@ -277,7 +281,9 @@ class PedidosCompras extends ClaseCompras{
 	public function TodosTemporal(){
 		//Muestra todos los temporales, esta función la utilizamos en el listado de pedidos
 		$db = $this->db;
-		$Sql= 'SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id';
+		$Sql= 'SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, 
+		c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on 
+		tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id';
 		//~ $smt=$db->query($Sql);
 		$smt=$this->consulta($Sql);
 		if (gettype($smt)==='array'){
@@ -298,7 +304,9 @@ class PedidosCompras extends ClaseCompras{
 	public function TodosPedidosLimite($limite = ''){
 		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
 		$db	=$this->db;
-		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite ;
+		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, 
+		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on 
+		a.idProveedor=b.idProveedor '. $limite ;
 		$smt=$this->consulta($Sql);
 		$respuesta=array();
 		if (gettype($smt)==='array'){
@@ -357,14 +365,17 @@ class PedidosCompras extends ClaseCompras{
 		
 		$db=$this->db;
 		if ($numPedido>0){
-			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numpedpro='.$numPedido);
+			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot 
+			WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'"
+			.' and Numpedpro='.$numPedido);
 			$pedidosPrincipal=array();
 			if ($result = $smt->fetch_assoc () ){
 				$pedido=$result;
 			}
 			$pedido['Nitem']=1;
 		}else{
-			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
+			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot
+			 WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
 			$pedidosPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($pedidosPrincipal,$result);	
