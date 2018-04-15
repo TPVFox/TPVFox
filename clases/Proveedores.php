@@ -24,28 +24,50 @@ class Proveedores{
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
-		return $smt;
+		if ($smt) {
+			return $smt;
+		} else {
+			$respuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
 	}
 	
 	public function buscarProveedorId($idProveedor){
 		$db = $this->db;
-		$smt=$db->query('SELECT * from proveedores where idProveedor='.$idProveedor);
-		if ($result = $smt->fetch_assoc () ){
-			$proveedor=$result;
-			return $proveedor;
+		$sql='SELECT * from proveedores where idProveedor='.$idProveedor;
+		//~ $smt=$db->query('SELECT * from proveedores where idProveedor='.$idProveedor);
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}else{
+			if ($result = $smt->fetch_assoc () ){
+				$proveedor=$result;
+				return $proveedor;
+			}
 		}
 		
 	}
 	public function buscarProveedorNombre($nombre){
 		$db = $this->db;
-		$smt=$db->query('SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"');
-		$sql='SELECT * from proveedores where nombrecomercial="%'.$nombre.'%"';
-		$proveedorPrincipal=array();
+		$sql='SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"';
+		//~ $smt=$db->query('SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"');
+		//~ $sql='SELECT * from proveedores where nombrecomercial="%'.$nombre.'%"';
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+		}else{
+			$proveedorPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($proveedorPrincipal, $result);
 			}
 			$respuesta['datos']=$proveedorPrincipal;
-			$respuesta['sql']=$sql;
+			//~ $respuesta['sql']=$sql;
+		}
 			return $respuesta;
 	}
 	
