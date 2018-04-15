@@ -179,10 +179,6 @@ include './../../head.php';
 	var pedidos =[];
 <?php 
 	if (isset($albaranTemporal)|| isset($idAlbaran)){ 
-?>
-	</script>
-	<script type="text/javascript">
-<?php
 	$i= 0;
 		if (isset($productos)){
 			foreach($productos as $product){
