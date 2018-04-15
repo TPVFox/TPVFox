@@ -21,7 +21,7 @@ include './../../head.php';
 	$idAlbaranTemporal=0;
 	$idAlbaran=0;
 	$idProveedor=0;
-	$suNumero=0;
+	$suNumero="";
 	$nombreProveedor="";
 	$formaPago=0;
 	$fechaVencimiento="";
@@ -37,8 +37,8 @@ include './../../head.php';
 			$idAlbaran=$datosAlbaran['idAlbaran'];
 			$estado=$datosAlbaran['estado'];
 			$fecha=$datosAlbaran['fecha'];
-			$idAlbaranTemporal=0;
 			$formaPago=$datosAlbaran['formaPago'];
+			$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
 			$fechaVencimiento=$datosAlbaran['fechaVencimiento'];
 			$idProveedor=$datosAlbaran['idProveedor'];
 			$suNumero=$datosAlbaran['suNumero'];
@@ -72,10 +72,8 @@ include './../../head.php';
 				}else{
 					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 				}
-				if ($datosAlbaran['Su_numero']>0){
+				if ($datosAlbaran['Su_numero']!==""){
 					$suNumero=$datosAlbaran['Su_numero'];
-				}else{
-					$suNumero=0;
 				}
 				$idProveedor=$datosAlbaran['idProveedor'];
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
@@ -88,9 +86,6 @@ include './../../head.php';
 		
 	}
 	
-	if ($formaPago){
-		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
-	}
 	if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ;
 			// convertimos el objeto productos en array
@@ -178,11 +173,7 @@ include './../../head.php';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	var pedidos =[];
 <?php 
-	if (isset($albaranTemporal)| isset($idAlbaran)){ 
-?>
-	</script>
-	<script type="text/javascript">
-<?php
+	if (isset($albaranTemporal)|| isset($idAlbaran)){ 
 	$i= 0;
 		if (isset($productos)){
 			foreach($productos as $product){
@@ -213,14 +204,6 @@ include './../../head.php';
 	}		
 ?>
 </script>
-<?php 
-if ($idProveedor==0){
-	$idProveedor="";
-}
-if ($suNumero==0){
-	$suNumero="";
-}
-?>
 </head>
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>

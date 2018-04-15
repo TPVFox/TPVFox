@@ -2,19 +2,9 @@
 //~ include_once ('./clases/ClaseCompras.php');
  include_once('../mod_compras/clases/ClaseCompras.php');
 class AlbaranesCompras extends ClaseCompras{
-	public function consultaAlbaran($sql){
-		// Realizamos la consulta.
-		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
-			return $smt;
-		} else {
-			$respuesta = array();
-			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $db->error;
-			return $respuesta;
-		}
-	}
+	public $db ; //(object) -> Conexion mysqli.
+	
+	
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.
@@ -29,6 +19,22 @@ class AlbaranesCompras extends ClaseCompras{
 			echo '</pre>';
 		}
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
+	}
+	
+	public function consultaAlbaran($sql){
+		// Realizamos la consulta.
+		// Esta consulta no tiene sentido teniendo la del padre...
+		
+		$db = $this->db;
+		$smt = $db->query($sql);
+		if ($smt) {
+			return $smt;
+		} else {
+			$respuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
 	}
 	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero){
 	//@Objetivo;
@@ -137,7 +143,7 @@ class AlbaranesCompras extends ClaseCompras{
 		//Buscamos los datos de un albarán real según el número del albarán.
 		$tabla='albprot';
 		$where='Numalbpro='.$numAlbaran;
-		$albaran = parent::SelectUnResult($tabla, $where);
+		$albaran = parent::SelectUnResult($tabla, $where); // Funciona sin haber metido al padre db..
 		return $albaran;
 	}
 	

@@ -173,8 +173,8 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			$datos = 	"'".$id_input."',".
 						"'".addslashes(htmlspecialchars($producto['crefTienda'],ENT_COMPAT))."','"
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
-						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
-						.$producto['ultimoCoste'].",".$producto['idArticulo'].", '".$dedonde."' , ".
+						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
+						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
 						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
 						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
