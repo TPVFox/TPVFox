@@ -507,48 +507,51 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
 				console.log(resultado);
-				if (resultado.Nitems==2){
-					alert("El id del proveedor no existe");
-					document.getElementById(idcaja).value='';
-					//resetCampo(idcaja);
-				}
-				if (popup=="popup"){
-					cerrarPopUp();
-				}
-				if (resultado.Nitems==1){
-					// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
-					//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
-					//Se oculta el botón del botón buscar
-					cabecera.idProveedor=resultado.id;
-					$('#id_proveedor').val(resultado.id);
-					$('#Proveedor').val(resultado.nombre);
-					$('#Proveedor').prop('disabled', true);
-					$('#id_proveedor').prop('disabled', true);
-					$("#buscar").css("display", "none");
-					
-					//Dendiendo de donde venga realizamos unas funciones u otras
-					if (dedonde=="albaran"){
-						//comprobarPedidos();
-						comprobarAdjunto(dedonde);
-					}
-					if (dedonde=="factura"){
-						//comprobarAlbaranes();
-						comprobarAdjunto(dedonde);
-					}
-					if (dedonde=="pedidos"){
-						// Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
-						//Para poder empezar a meter articulos
-						ponerFocus("idArticulo");
-					}
-					mostrarFila();
-					
+				if (resultado.error){
+					alert('Error de sql :'+resultado.consulta);
 				}else{
-					//Si no mostramos un modal con los proveedores según la busqueda
-					var titulo = 'Listado Proveedores ';
-					var HtmlProveedores=resultado.html['html']; 
-					abrirModal(titulo,HtmlProveedores);
+					if (resultado.Nitems==2){
+						alert("El id del proveedor no existe");
+						document.getElementById(idcaja).value='';
+						//resetCampo(idcaja);
+					}
+					if (popup=="popup"){
+						cerrarPopUp();
+					}
+					if (resultado.Nitems==1){
+						// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
+						//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
+						//Se oculta el botón del botón buscar
+						cabecera.idProveedor=resultado.id;
+						$('#id_proveedor').val(resultado.id);
+						$('#Proveedor').val(resultado.nombre);
+						$('#Proveedor').prop('disabled', true);
+						$('#id_proveedor').prop('disabled', true);
+						$("#buscar").css("display", "none");
+						
+						//Dendiendo de donde venga realizamos unas funciones u otras
+						if (dedonde=="albaran"){
+							//comprobarPedidos();
+							comprobarAdjunto(dedonde);
+						}
+						if (dedonde=="factura"){
+							//comprobarAlbaranes();
+							comprobarAdjunto(dedonde);
+						}
+						if (dedonde=="pedidos"){
+							// Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
+							//Para poder empezar a meter articulos
+							ponerFocus("idArticulo");
+						}
+						mostrarFila();
+						
+					}else{
+						//Si no mostramos un modal con los proveedores según la busqueda
+						var titulo = 'Listado Proveedores ';
+						var HtmlProveedores=resultado.html['html']; 
+						abrirModal(titulo,HtmlProveedores);
+					}
 				}
-				
 	
 		}
 	});
