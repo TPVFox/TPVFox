@@ -337,7 +337,6 @@ class FacturasCompras extends ClaseCompras{
 		}
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
-			error_log($sql);
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 			return $respuesta;
@@ -354,21 +353,38 @@ class FacturasCompras extends ClaseCompras{
 	}
 	public function eliminarRealImportes($idFactura){
 		$db=$this->db;
-		$smt=$db->query ('DELETE FROM  facProCobros where idFactura='.$idFactura );
+		$sql='DELETE FROM  facProCobros where idFactura='.$idFactura ;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	public function modificarImportesTemporal($idTemporal, $importes){
 		$db=$this->db;
 		$sql='UPDATE facproltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal;
-		$smt=$db->query($sql);
-		return $sql;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	public function importesTemporal($idTemporal){
 		$db=$this->db;
-		$smt=$db->query ('SELECT FacCobros FROM facproltemporales where id='.$idTemporal );
+		$sql='SELECT FacCobros FROM facproltemporales where id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}else{
 			if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
+				$factura=$result;
+			}
+			return $factura;
 		}
-		return $factura;
 	}
 	public function modFechaNumero($id, $fecha, $suNumero){
 		$db=$this->db;
