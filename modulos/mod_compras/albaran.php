@@ -178,7 +178,7 @@ include './../../head.php';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	var pedidos =[];
 <?php 
-	if (isset($albaranTemporal)| isset($idAlbaran)){ 
+	if (isset($albaranTemporal)|| isset($idAlbaran)){ 
 ?>
 	</script>
 	<script type="text/javascript">
