@@ -392,23 +392,26 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
-				
-				productos[nfila].crefProveedor=valor;// pone le valor en el input 
-				fila=nfila+1;//sumamos uno a la fila
-				var id="#Proveedor_Fila_"+fila;
-				if (valor){
-					$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
-					$(id).val(valor);
-				
-					$('#enlaceCambio'+fila).css("display", "inline");
-					var d_focus='idArticulo';
-					ponerFocus(d_focus);
-				
+				if (resultado.error){
+					alert('ERROR DE SQL: '+resultado.error);
+				}else{
+					productos[nfila].crefProveedor=valor;// pone le valor en el input 
+					fila=nfila+1;//sumamos uno a la fila
+					var id="#Proveedor_Fila_"+fila;
+					if (valor){
+						$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
+						$(id).val(valor);
+					
+						$('#enlaceCambio'+fila).css("display", "inline");
+						var d_focus='idArticulo';
+						ponerFocus(d_focus);
+					
+					}
+					addTemporal(dedonde);
+				}
 			}
-				addTemporal(dedonde);
-		}
-	});
-	console.log(parametros);
+		});
+	//~ console.log(parametros);
 	
 }
 

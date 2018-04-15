@@ -105,6 +105,7 @@ switch ($pulsado) {
 		//@Objetivo: comprobar si ya existe un registro de proveedores articulos si es así modificarlo y si nno crearlo
 			$fechaActualizacion=date('Y-m-d');
 			$estado="activo";
+			$respuesta=array();
 			$datos=array(
 				'idArticulo'=>$_POST['idArticulo'],
 				'refProveedor'=>$_POST['refProveedor'],
@@ -113,18 +114,25 @@ switch ($pulsado) {
 				'fecha'=>$fechaActualizacion,
 				'estado'=>$estado
 			);
-			$respuesta['datos']=$datos;
 			$datosArticulo=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
-			$respuesta['ref']=$datosArticulo;
-			if ($datosArticulo){
-				$modArt=$CArticulos->modificarProveedorArticulo($datos);
-				$respuesta['sql']=$modArt['sql'];
+			if (isset($datosArticulo['error'])){
+					$respuesta['error']=$datosArticulo['error'];
+					$respuesta['consulta']=$datosArticulo['consulta'];
 			}else{
-				$addNuevo=$CArticulos->addArticulosProveedores($datos);
-				$respuesta['sql']=$addNuevo['sql'];
+				if (isset($datosArticulo['idArticulo'])){
+					$modArt=$CArticulos->modificarProveedorArticulo($datos);
+					if (isset($modArt['error'])){
+						$respuesta['error']=$modArt['error'];
+						$respuesta['consulta']=$modArt['consulta'];
+					}
+				}else{
+					$addNuevo=$CArticulos->addArticulosProveedores($datos);	
+					if (isset($addNuevo['error'])){
+						$respuesta['error']=$addNuevo['error'];
+						$respuesta['consulta']=$addNuevo['consulta'];
+					}
+				}
 			}
-			
-			
 			echo json_encode($respuesta);
 		break;
 		
