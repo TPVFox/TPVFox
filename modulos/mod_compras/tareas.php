@@ -227,14 +227,13 @@ switch ($pulsado) {
 			}else{
 				//Si no existe crea un temporal nuevo
 				$rest=$CPed->insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor);
-				if (isset($rest['error'])){
+				if (isset($rest['error'])){// Control de errores
 						$respuesta['error']=$rest['error'];
 						$respuesta['consulta']=$rest['consulta'];
 						echo json_encode($respuesta);
 						break;
 				}else{
 					$existe=0;
-					//~ $res=$rest['id'];
 					$numPedidoTemp=$rest['id'];
 				}
 			}
@@ -262,8 +261,6 @@ switch ($pulsado) {
 			 }
 			if ($productos){
 				//Recalcula el valor de los productos
-					//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-					//~ $respuesta['productosre']=$productos_para_recalculo;
 					$CalculoTotales = recalculoTotales($productos);
 					$total=round($CalculoTotales['total'],2);
 					$respuesta['total']=round($CalculoTotales['total'],2);
@@ -297,13 +294,9 @@ switch ($pulsado) {
 			}
 			$suNumero=$_POST['suNumero'];
 			$idProveedor=$_POST['idProveedor'];
-			//~ if ($_POST['suNumero']>0){
-				
-			//~ }else{
-				//~ $suNumero="";
-			//~ }
-			
 			$existe=0;
+		//Si existe el albaran  temporal se modifica , devuelve el control de errores
+		//Si no tiene  errores devuelve el idTemporal y la bandera que se utiliza el el js de existe
 			if ($idAlbaranTemporal>0){
 				$rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero);
 					if (isset($rest['error'])){
@@ -314,10 +307,10 @@ switch ($pulsado) {
 					}else{
 						$existe=1;
 						$res=$rest['idTemporal'];
-						//~ $pro=$rest['productos'];
 						$respuesta['id']=$rest['idTemporal'];
 					}
 			}else{
+				//Si no existe el temporal se crea , con control de errores 
 				$rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero);
 				if (isset($rest['error'])){
 					$respuesta['error']=$rest['error'];
@@ -328,12 +321,14 @@ switch ($pulsado) {
 					
 				}else{
 					$existe=0;
-					//~ $pro=$rest['productos'];
 					$idAlbaranTemporal=$rest['id'];
 					$respuesta['id']=$rest['id'];
 					$respuesta['sqlTemporal']=$rest['sql'];
 				}
 			}
+			//Si es un albarán que se está modificando se guarda en el Real el idTemporal
+			//Y se cambia el estado a Sin guardar
+			//Con control de errores las dos funciones
 			if ($idAlbaran>0){
 				$modId=$CAlb->addNumRealTemporal($idAlbaranTemporal, $idAlbaran);
 				if (isset($modId['error'])){
@@ -352,8 +347,6 @@ switch ($pulsado) {
 				}
 			}
 			if ($productos){
-				//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-				//~ $respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
@@ -370,7 +363,6 @@ switch ($pulsado) {
 				$respuesta['htmlTabla']=$htmlTotales['html'];
 				
 			}
-			//~ $respuesta['id']=$res;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
 			
