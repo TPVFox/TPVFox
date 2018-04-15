@@ -297,7 +297,9 @@ class AlbaranesCompras extends ClaseCompras{
 		//@Objetivo:
 		//Mostramos todos los albaranes temporales
 			$db = $this->db;
-			$sql='SELECT tem.numalbpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial from albproltemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor';
+			$sql='SELECT tem.numalbpro, tem.id , tem.idProveedor, tem.total, 
+			b.nombrecomercial from albproltemporales as tem left JOIN proveedores 
+			as b on tem.idProveedor=b.idProveedor';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -315,7 +317,9 @@ class AlbaranesCompras extends ClaseCompras{
 		//@Objetivo:
 		//MOstramos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
 		$db=$this->db;
-		$sql='SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, a.estado  from `albprot` as a LEFT JOIN proveedores as b on a.idProveedor =b.idProveedor '.$limite;
+		$sql='SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, 
+		a.estado  from `albprot` as a LEFT JOIN proveedores as b on 
+		a.idProveedor =b.idProveedor '.$limite;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -376,7 +380,8 @@ class AlbaranesCompras extends ClaseCompras{
 	}
 		public function albaranesProveedorGuardado($idProveedor, $estado){
 		//@Objetivo:
-		//Muestra los albaranes de un proveedor determinado con el estado indicado. Principalmente la utilizamos para saber los
+		//Muestra los albaranes de un proveedor determinado con el estado indicado. 
+		//Principalmente la utilizamos para saber los
 		//albaranes de guardados de un proveedor para poder incluirlo en facturas
 		$tabla='albprot';
 		$where='idProveedor= '.$idProveedor.' and estado='."'".$estado."'";
@@ -389,14 +394,18 @@ class AlbaranesCompras extends ClaseCompras{
 		//Buscar datos principal de un albarán de proveedor y estado guardado
 		$db=$this->db;
 		if ($numAlbaran>0){
-			$smt=$db->query('SELECT Numalbpro , Fecha , total, id , FechaVencimiento , formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numalbpro='.$numAlbaran);
+			$smt=$db->query('SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
+			 formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'"
+			 .$estado."'".' and Numalbpro='.$numAlbaran);
 			$albaranesPrincipal=array();
 			if ($result = $smt->fetch_assoc () ){
 				$albaran=$result;
 			}
 			$albaran['Nitem']=1;
 		}else{
-			$smt=$db->query('SELECT Numalbpro, Fecha, total, id , FechaVencimiento , formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
+			$smt=$db->query('SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
+			formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado='
+			."'".$estado."'");
 			$albaranesPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($albaranesPrincipal,$result);	
@@ -408,7 +417,6 @@ class AlbaranesCompras extends ClaseCompras{
 	
 	public function modFechaNumero($id, $suNumero, $fecha){
 		$db=$this->db;
-		//~ $smt=$db->query('UPDATE albprot set Su_numero='.$suNumero.' , Fecha="'.$fecha.'" where id='.$id);
 		$sql='UPDATE albprot set Su_numero="'.$suNumero.'" , Fecha="'.$fecha.'" where id='.$id;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
