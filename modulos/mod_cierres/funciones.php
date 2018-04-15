@@ -99,17 +99,25 @@ function nombreUsuario($BDTpv,$idUsuario){
 
 
 
-function obtenerCierres($BDTpv ,$filtro) {
+function obtenerCierres($BDTpv ,$filtro='') {
 	// Function para obtener cierres y listarlos
 	//tablas usadas: - cierres
 				//	 - usuarios
 	$resultado = array();
+	if ($filtro !=''){
+		$filtro = ' where '.$filtro;
+	}
 	$consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
 				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro; 
 	
 	$Resql = $BDTpv->query($consulta);	
-	while ($datos = $Resql->fetch_assoc()) {
+	if ($Resql){
+		while ($datos = $Resql->fetch_assoc()) {
 			$resultado[]=$datos;
+		}
+	} else  {
+		$resultado['consulta'] = $consulta;
+		$resultado['error'] = $BDTpv->error;
 	}
 	//$resultado ['sql'] = $consulta;
 	return $resultado;
@@ -656,12 +664,25 @@ function tiposIva($BDTpv,$tabla) {
 	
 }
 //Suma el importe base y el importe iva de un determinado iva
-function sumDatosIva($BDTpv, $iva){
-	$sql='SELECT SUM(importe_base) AS base , SUM(importe_iva) AS iva from cierres_ivas where tipo_iva='.$iva;
-	if ($ResConsulta = $BDTpv->query($sql)){			
+function sumDatosIva($BDTpv, $iva,$filtro=''){
+	// @ Objetivo
+	// Sumar bases de un iva de cierres indicados
+	// @ Parametros:
+	// 		$BDTvp -> (objeto) Conexion.
+	// 		$iva -> El iva buscar.
+	// 		$filtro-> Puede venir vacio, o el intervalo de fechas.
+	if ($filtro !==''){
+		$filtro = ' AND ( c.'.$filtro.')';
+	}
+	$sql='SELECT c.FechaCierre,SUM(importe_base) AS base , SUM(importe_iva) AS iva from cierres_ivas as ci LEFT JOIN cierres as c ON ci.idCierre= c.idCierre where (ci.tipo_iva="'.$iva.'")'.$filtro;
+	$ResConsulta = $BDTpv->query($sql);
+	if ($ResConsulta){			
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado = $fila;
 		}
+	} else {
+		$resultado['consulta'] = $sql;
+		$resultado['error'] = $BDTpv->error;
 	}
 	return $resultado;
 }

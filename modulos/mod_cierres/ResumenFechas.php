@@ -10,8 +10,9 @@
 		if (isset($_GET['fecha1'])& isset($_GET['fecha2'])) {
 			$fecha1=$_GET['fecha1'];
 			$fecha2=$_GET['fecha2'];
-			$filtro='where FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
+			$filtro=' FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
 		}
+		
 		$total=0;
 		$fecha_dmY = 'd-m-Y';
 		//Obterer los cierres entre dos fechas
@@ -77,7 +78,9 @@
 				foreach ($ivas  as $iva){
 				
 					//$consultaResIva=sumDatosIva($BDTpv, $iva['iva']);
-						$consultaResIva=sumDatosIva($BDTpv, $iva['iva']);
+						
+					$consultaResIva=sumDatosIva($BDTpv, $iva['iva'],$filtro);
+						
 					if ($consultaResIva['base']){
 						$importeBase=$consultaResIva['base'];
 					

@@ -45,7 +45,7 @@
 	$vista = 'cierres';
 	$LinkBase = './ListaCierres.php?';
 	$OtrosParametros = '';	
-
+	$filtro = '';
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
@@ -74,11 +74,10 @@
 	
 	if (isset($_GET['fecha1']) & isset($_GET['fecha2'])){
 		// SI recibe por get las fechas añade el filtro a la consulta
-		$filtro='where FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
+		$filtro=' FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
 	}
 	
 	$cierres = obtenerCierres($BDTpv,$filtro);
-	//~ print_r($cierres);
 	?>
 	<script>
 	// Declaramos variables globales
