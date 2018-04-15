@@ -25,7 +25,9 @@ class FacturasCompras extends ClaseCompras{
 		//@Objetivo:
 		//Mostrar tod los temporales para el listado principal
 		$db = $this->db;
-		$smt=$db->query('SELECT tem.numfacpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial from facproltemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor ');
+		$smt=$db->query('SELECT tem.numfacpro, tem.id , tem.idProveedor, 
+		tem.total, b.nombrecomercial from facproltemporales as tem left 
+		JOIN proveedores as b on tem.idProveedor=b.idProveedor ');
 			$facturaPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($facturaPrincipal,$result);
@@ -38,7 +40,9 @@ class FacturasCompras extends ClaseCompras{
 		//@Objetivo:
 		//Mostrar solo los datos principales de todas las facturas
 		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor ');
+		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, 
+		a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on
+		 a.idProveedor=b.idProveedor ');
 		$facturaPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($facturaPrincipal,$result);
@@ -50,7 +54,9 @@ class FacturasCompras extends ClaseCompras{
 		//@Objetivo:
 		//Mostrar los datos principales de una factura con un límite de registros
 		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '.$limite);
+		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, 
+		a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on 
+		a.idProveedor=b.idProveedor '.$limite);
 		$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($pedidosPrincipal,$result);
@@ -128,7 +134,10 @@ class FacturasCompras extends ClaseCompras{
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
-		$smt=$db->query('UPDATE facproltemporales SET idUsuario ='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacPro="'.$estado.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".', Albaranes='."'".$UnicoCampoAlbaranes."'".' , Su_numero="'.$suNumero.'" WHERE id='.$idFacturaTemp);
+		$smt=$db->query('UPDATE facproltemporales SET idUsuario ='.$idUsuario.' , 
+		idTienda='.$idTienda.' , estadoFacPro="'.$estado.'" , fechaInicio="'.$fecha.'"  
+		,Productos='."'".$UnicoCampoProductos."'".', Albaranes='."'".$UnicoCampoAlbaranes."'".' 
+		, Su_numero="'.$suNumero.'" WHERE id='.$idFacturaTemp);
 		
 		$respuesta['idTemporal']=$idFacturaTemp;
 		$respuesta['productos']=$UnicoCampoProductos;
@@ -143,7 +152,11 @@ class FacturasCompras extends ClaseCompras{
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
-		$smt = $db->query ('INSERT INTO facproltemporales ( idUsuario , idTienda , estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoAlbaranes."'".', "'.$suNumero.'")');
+		$smt = $db->query ('INSERT INTO facproltemporales ( idUsuario , idTienda , 
+		estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , 
+		Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'
+		.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'"
+		.$UnicoCampoAlbaranes."'".', "'.$suNumero.'")');
 		$respuesta['sql']='INSERT INTO facproltemporales ( idUsuario , idTienda , estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".' , '."'".$UnicoCampoAlbaranes."'".', "'.$suNumero.'")';
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
