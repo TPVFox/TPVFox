@@ -17,7 +17,8 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	$idcaja;
 	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
 	$resultado['html'] .= '<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'.
-				'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
+				'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda.'"
+				 onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($proveedores)>10){
 		$resultado['html'] .= '<span>10 clientes de '.count($proveedores).'</span>';
@@ -32,11 +33,13 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 		
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
+			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '
+			."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">'
+						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('
+						.$contad.')"   type="image"  alt="">'
 			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
 			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
@@ -93,11 +96,14 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$i = 0;
 	foreach ($busquedas as $buscar){
 
-			$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste, at.crefTienda ,p.`crefProveedor`, p.coste, p.fechaActualizacion,  a.`iva` '
+			$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste,
+			 at.crefTienda ,p.`crefProveedor`, p.coste, p.fechaActualizacion,  a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo '
 			.'  LEFT JOIN `articulosTiendas` '
-			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '.$buscar.' group by  a.idArticulo LIMIT 0 , 30 ';
+			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores 
+			as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '
+			.$buscar.' group by  a.idArticulo LIMIT 0 , 30 ';
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
@@ -149,7 +155,8 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	$resultado['html'] .= '<label>Busqueda por '.$id_input.'</label>';
 	// Utilizo el metodo onkeydown ya que encuentro que onKeyup no funciona en igual con todas las teclas.
 	
-	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" data-obj="cajaBusquedaproductos" size="13" value="'
+	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" 
+					data-obj="cajaBusquedaproductos" size="13" value="'
 					.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 	if (count($productos)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
@@ -159,7 +166,8 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			if (strlen($busqueda) === 0 ) {
 				// Si no encontro resultados, entonces debemos porne una alert y incluso sonorá era guay...
 				$resultado['html'] .= '<div class="alert alert-info">';
-				$resultado['html'] .=' <strong>Buscar!</strong> Pon las palabras para buscar productos que consideres.</div>';
+				$resultado['html'] .=' <strong>Buscar!</strong> Pon las palabras para buscar productos 
+										que consideres.</div>';
 			} else {
 				// Si no encontro resultados, entonces debemos porne una alert y incluso sonorá era guay...
 				$resultado['html'] .= '<div class="alert alert-warning">';
@@ -177,10 +185,14 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.$producto['ultimoCoste'].",".$producto['idArticulo'].", '".$dedonde."' , ".
 						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
+						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  
+						onclick="escribirProductoSeleccionado('.$datos.');">';
 			
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" 
+									name="filaproducto" onfocusout="abandonFila('
+						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" 
+						onkeydown="controlEventos(event)" type="image"  alt=""><span  
+						class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			if ($id_input=="ReferenciaPro"){
 				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
 			}else{
@@ -246,16 +258,20 @@ function htmlLineaProducto($productos, $dedonde){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
 				$funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".$dedonde."'".');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+							<span class="glyphicon glyphicon-export"></span></a></td>';
 			} else {
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+							<span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
 				$estadoInput = '';
 			}
 			if ($dedonde =="albaran" || $dedonde=="factura"){
 				$bandera= number_format($producto['ultimoCoste'], 4);
-				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'.$bandera.'" size="6">';
+				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" 
+					onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'
+					.$bandera.'" size="6">';
 			}else{
 				$coste= number_format($producto['ultimoCoste'], 4);
 			}
@@ -386,9 +402,12 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			$fecha=$adjunto['Fecha'];
 		}
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$numAdjunto.');">';
-		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('
+		."'".$dedonde."'".', '.$numAdjunto.');">';
+		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad
+		.'" name="filaproducto" onfocusout="abandonFila('
+		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)"
+		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$respuesta['html']	.= '<td>'.$numAdjunto.'</td><td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){
 			if($adjunto['FechaVencimiento']){
@@ -437,14 +456,16 @@ function lineaAdjunto($adjunto, $dedonde){
 			}
 			if ($adjunto['estado']=="activo"){
 				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$adjunto['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+				<span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
 				$estadoInput = '';
 			}else{
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
 				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+				<span class="glyphicon glyphicon-export"></span></a></td>';
 			}
 		}
 		$respuesta['html'] .='<tr id="lineaP'.($adjunto['nfila']).'" '.$classtr.'>';
@@ -1545,12 +1566,10 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 					$Datostotales = recalculoTotales($productos);
 					$productos=json_decode(json_encode($productosAlbaran), true);
 					if (isset($pedidosAlbaran)){
-						 //$modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
 						 $modificarPedido=modificarArrayAdjunto($pedidosAlbaran, $BDTpv, "albaran");
 						 $pedidos=json_decode(json_encode($modificarPedido), true);
 						 
 					}
-					
 					$respuesta=array(
 						'idAlbaran'=>$idAlbaran,
 						'estado'=>$estado,
