@@ -363,6 +363,10 @@ function modificarEstado(dedonde, estado, id=""){
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de estado pedido js');
+			var resultado =  $.parseJSON(response); 
+			if (resultado.error){
+				alert('Error de SQL'+respuesta.consulta);
+			}
 		}
 	});
 }

@@ -478,15 +478,23 @@ switch ($pulsado) {
 		//@Parámetros que recibe: 
 		//id -> id que recibimos , puede ser id de pedido o id de albaran
 		//dedonde->Para poder filtrar que función tenemos que ejecutar	
-			
+			$respuesta=array();
 			$estado=$_POST['estado'];
 			if ($_POST['dedonde']=="albaran"){
 				$modEstado=$CPed->modEstadoPedido($_POST['id'], $estado);
+				if (isset($mosEstado['error'])){
+						$respuesta['error']=$mosEstado['error'];
+						$respuesta['consulta']=$modEstado['consulta'];
+				}
 			}
 			if ($_POST['dedonde']=="factura"){
 				$modEstado=$CAlb->modEstadoAlbaran($_POST['id'], $estado);
+				if (isset($mosEstado['error'])){
+						$respuesta['error']=$mosEstado['error'];
+						$respuesta['consulta']=$modEstado['consulta'];
+				}
 			}
-			
+			echo json_encode($respuesta);
 		break;
 		case 'htmlAgregarFilaAdjunto':
 			//Agrega tanto la fila de pedido como la de alabaranes
