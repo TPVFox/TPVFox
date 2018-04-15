@@ -246,97 +246,99 @@ function buscarAdjunto(dedonde, valor=""){
 				console.log('Llegue devuelta respuesta de buscar pedido');
 			var resultado =  $.parseJSON(response); 
 			var HtmlPedidos=resultado.html;
-			
-			if (valor==""){ // Si el valor esta vacio mostramos el modal con los pedidos de ese proveedor
-				if (dedonde=="albaran"){
-					var titulo = 'Listado Pedidos ';
-				}else{
-					var titulo= 'Listado Albaranes';
-				}
-				console.log(resultado.datos);
-				abrirModal(titulo, HtmlPedidos);
-				
+			if (resultado.error){
+				alert('Error de SQL'+respuesta.consulta);
 			}else{
-				console.log(resultado.datos);
-				if (resultado.Nitems>0){
-					console.log("entre en resultados numero de items");
-					var bandera=0;
+				if (valor==""){ // Si el valor esta vacio mostramos el modal con los pedidos de ese proveedor
 					if (dedonde=="albaran"){
-						var adjuntos=pedidos;
+						var titulo = 'Listado Pedidos ';
 					}else{
-						var adjuntos=albaranes;
+						var titulo= 'Listado Albaranes';
 					}
-					for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
-						console.log("entre en el for");
-						var numeroReal=adjuntos[i].NumAdjunto;
-						var numeroNuevo=resultado['datos'].NumAdjunto;
-						if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
-						//del array pedidos entonces la bandera es igual a 1
-							bandera=bandera+1;
-						}
-					}
+					console.log(resultado.datos);
+					abrirModal(titulo, HtmlPedidos);
 					
-						if (bandera==0){
+				}else{
+					console.log(resultado.datos);
+					if (resultado.Nitems>0){
+						console.log("entre en resultados numero de items");
+						var bandera=0;
+						if (dedonde=="albaran"){
+							var adjuntos=pedidos;
+						}else{
+							var adjuntos=albaranes;
+						}
+						for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
+							console.log("entre en el for");
+							var numeroReal=adjuntos[i].NumAdjunto;
+							var numeroNuevo=resultado['datos'].NumAdjunto;
+							if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
+							//del array pedidos entonces la bandera es igual a 1
+								bandera=bandera+1;
+							}
+						}
 						
-							var datos = [];
-							datos = resultado['datos'];
+							if (bandera==0){
 							
-							var datos = [];
-							datos = resultado['datos'];
-							n_item=parseInt(adjuntos.length)+1;
-							datos.nfila=n_item;
-							if (dedonde=="albaran"){
-								pedidos.push(datos);
-							}else{
-								albaranes.push(datos);
-							}
-							productosAdd=resultado.productos;
-							var prodArray=new Array();
-							var numFila=productos.length+1;
-							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
-								// cargamos todos los datos en un objeto y por ultimo lo añadimos a los productos que ya tenemos
-								var prod = new Object();
-								prod.ccodbar=resultado.productos[i]['ccodbar'];
-								prod.cdetalle=resultado.productos[i]['cdetalle'];
-								prod.cref=resultado.productos[i]['cref'];
-								prod.crefProveedor=resultado.productos[i]['ref_prov'];
-								prod.estado=resultado.productos[i]['estadoLinea'];
-								prod.idArticulo=resultado.productos[i]['idArticulo'];
-								prod.iva=resultado.productos[i]['iva'];
-								prod.ncant=resultado.productos[i]['ncant'];
-								prod.nfila=numFila;
-								prod.nunidades=resultado.productos[i]['nunidades'];
-								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
-								prod.importe=resultado.productos[i]['costeSiva']*resultado.productos[i]['nunidades'];
+								var datos = [];
+								datos = resultado['datos'];
+								
+								var datos = [];
+								datos = resultado['datos'];
+								n_item=parseInt(adjuntos.length)+1;
+								datos.nfila=n_item;
 								if (dedonde=="albaran"){
-									prod.numPedido=resultado.productos[i]['Numpedpro'];
-									prod.idpedpro=resultado.productos[i]['idpedpro'];
+									pedidos.push(datos);
 								}else{
-									prod.numAlbaran=resultado.productos[i]['Numalbpro'];
-									prod.idalbpro=resultado.productos[i]['idalbpro'];
+									albaranes.push(datos);
 								}
-								var numAdjunto=resultado['datos'].NumAdjunto;
-								var idAdjunto=resultado['datos'].idAdjunto;
-								productos.push(prod);
-								prodArray.push(prod);
-								numFila++;
+								productosAdd=resultado.productos;
+								var prodArray=new Array();
+								var numFila=productos.length+1;
+								for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
+									// cargamos todos los datos en un objeto y por ultimo lo añadimos a los productos que ya tenemos
+									var prod = new Object();
+									prod.ccodbar=resultado.productos[i]['ccodbar'];
+									prod.cdetalle=resultado.productos[i]['cdetalle'];
+									prod.cref=resultado.productos[i]['cref'];
+									prod.crefProveedor=resultado.productos[i]['ref_prov'];
+									prod.estado=resultado.productos[i]['estadoLinea'];
+									prod.idArticulo=resultado.productos[i]['idArticulo'];
+									prod.iva=resultado.productos[i]['iva'];
+									prod.ncant=resultado.productos[i]['ncant'];
+									prod.nfila=numFila;
+									prod.nunidades=resultado.productos[i]['nunidades'];
+									prod.ultimoCoste=resultado.productos[i]['costeSiva'];
+									prod.importe=resultado.productos[i]['costeSiva']*resultado.productos[i]['nunidades'];
+									if (dedonde=="albaran"){
+										prod.numPedido=resultado.productos[i]['Numpedpro'];
+										prod.idpedpro=resultado.productos[i]['idpedpro'];
+									}else{
+										prod.numAlbaran=resultado.productos[i]['Numalbpro'];
+										prod.idalbpro=resultado.productos[i]['idalbpro'];
+									}
+									var numAdjunto=resultado['datos'].NumAdjunto;
+									var idAdjunto=resultado['datos'].idAdjunto;
+									productos.push(prod);
+									prodArray.push(prod);
+									numFila++;
+								}
+								addTemporal(dedonde);
+								modificarEstado(dedonde, "Facturado",  idAdjunto);
+								//Agregamos una nueva fila con los datos principales de pedidos
+								AgregarAdjunto(datos, dedonde);
+								//Agregamos los productos de el pedido seleccionado
+								AgregarFilaProductos(prodArray, dedonde);
+								//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
+								//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
+								// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
+								cerrarPopUp();
+								
 							}
-							addTemporal(dedonde);
-							modificarEstado(dedonde, "Facturado",  idAdjunto);
-							//Agregamos una nueva fila con los datos principales de pedidos
-							AgregarAdjunto(datos, dedonde);
-							//Agregamos los productos de el pedido seleccionado
-							AgregarFilaProductos(prodArray, dedonde);
-							//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
-							//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
-							// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
-							cerrarPopUp();
-							
-						}
-					
+						
+					}
 				}
 			}
-	
 		}
 	});
 }

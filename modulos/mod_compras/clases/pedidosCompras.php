@@ -361,22 +361,34 @@ class PedidosCompras extends ClaseCompras{
 		
 		$db=$this->db;
 		if ($numPedido>0){
-			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot 
+			$sql='SELECT Numpedpro, FechaPedido, total, id FROM pedprot 
 			WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'"
-			.' and Numpedpro='.$numPedido);
-			$pedidosPrincipal=array();
-			if ($result = $smt->fetch_assoc () ){
-				$pedido=$result;
+			.' and Numpedpro='.$numPedido;
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$pedido['error']=$smt['error'];
+				$pedido['consulta']=$smt['consulta'];
+			}else{
+				$pedidosPrincipal=array();
+				if ($result = $smt->fetch_assoc () ){
+					$pedido=$result;
+				}
+				$pedido['Nitem']=1;
 			}
-			$pedido['Nitem']=1;
 		}else{
-			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot
-			 WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
-			$pedidosPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($pedidosPrincipal,$result);	
+			$sql='SELECT Numpedpro, FechaPedido, total, id FROM pedprot
+			 WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'";
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$pedido['error']=$smt['error'];
+				$pedido['consulta']=$smt['consulta'];
+			}else{
+				$pedidosPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($pedidosPrincipal,$result);	
+				}
+				$pedido['datos']=$pedidosPrincipal;
 			}
-			$pedido['datos']=$pedidosPrincipal;
 		}
 		
 		

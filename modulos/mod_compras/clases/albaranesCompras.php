@@ -393,23 +393,36 @@ class AlbaranesCompras extends ClaseCompras{
 		//Buscar datos principal de un albarán de proveedor y estado guardado
 		$db=$this->db;
 		if ($numAlbaran>0){
-			$smt=$db->query('SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
+			$sql='SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
 			 formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'"
-			 .$estado."'".' and Numalbpro='.$numAlbaran);
-			$albaranesPrincipal=array();
-			if ($result = $smt->fetch_assoc () ){
-				$albaran=$result;
+			 .$estado."'".' and Numalbpro='.$numAlbaran;
+			$smt=$this->consultaAlbaran($sql);
+			if (gettype($smt)==='array'){
+					$albaran['error']=$smt['error'];
+					$albaran['consulta']=$smt['consulta'];
+					return $respuesta;
+			}else{
+				$albaranesPrincipal=array();
+				if ($result = $smt->fetch_assoc () ){
+					$albaran=$result;
+				}
+				$albaran['Nitem']=1;
 			}
-			$albaran['Nitem']=1;
 		}else{
-			$smt=$db->query('SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
+			$sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
 			formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado='
-			."'".$estado."'");
-			$albaranesPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($albaranesPrincipal,$result);	
+			."'".$estado."'";
+			if (gettype($smt)==='array'){
+					$albaran['error']=$smt['error'];
+					$albaran['consulta']=$smt['consulta'];
+					return $respuesta;
+			}else{
+				$albaranesPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($albaranesPrincipal,$result);	
+				}
+				$albaran['datos']=$albaranesPrincipal;
 			}
-			$albaran['datos']=$albaranesPrincipal;
 		}
 		return $albaran;
 	}
