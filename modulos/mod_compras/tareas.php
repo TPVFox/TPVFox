@@ -452,37 +452,37 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		
-		case 'AddCosteProveedor':
-		//@objetivo: Añadir o modificar los registros de referencia
-		//@Parametros :
-		//idProveedor: El id del proveedor 
-		//idArticulo: id del articulo
-		//Valor: valor que hemos colocado en el input
-		//fecha: la fecha que la necesitamos para compararla con la del registro, si la fecha nuestra es menor que la del registro muestra un error
+		//~ case 'AddCosteProveedor':
+		//~ //@objetivo: Añadir o modificar los registros de referencia
+		//~ //@Parametros :
+		//~ //idProveedor: El id del proveedor 
+		//~ //idArticulo: id del articulo
+		//~ //Valor: valor que hemos colocado en el input
+		//~ //fecha: la fecha que la necesitamos para compararla con la del registro, si la fecha nuestra es menor que la del registro muestra un error
 		
-			$buscar=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
-			$respuesta['costeAnt']=$buscar;
-			$datos=array(
-				'coste'=>$_POST['valor'],
-				'idArticulo'=>$_POST['idArticulo'],
-				'idProveedor'=>$_POST['idProveedor'],
-				'fecha'=>$_POST['fecha'],
-				'estado'=>"activo"
-			);
+			//~ $buscar=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
+			//~ $respuesta['costeAnt']=$buscar;
+			//~ $datos=array(
+				//~ 'coste'=>$_POST['valor'],
+				//~ 'idArticulo'=>$_POST['idArticulo'],
+				//~ 'idProveedor'=>$_POST['idProveedor'],
+				//~ 'fecha'=>$_POST['fecha'],
+				//~ 'estado'=>"activo"
+			//~ );
 			
-			if ($buscar){
-				if ($buscar['fechaActualizacion']>$_POST['fecha']){
-					$respuesta['error']=1;
-				}else{
-					$mod=$CArticulos->modificarCosteProveedorArticulo($datos);
-				}
+			//~ if ($buscar){
+				//~ if ($buscar['fechaActualizacion']>$_POST['fecha']){
+					//~ $respuesta['error']=1;
+				//~ }else{
+					//~ $mod=$CArticulos->modificarCosteProveedorArticulo($datos);
+				//~ }
 				
-			}else{
-				$datos['refProveedor']=0;
-				$add=$CArticulos->addArticulosProveedores($datos);
-			}
-			echo json_encode($respuesta);
-		break;
+			//~ }else{
+				//~ $datos['refProveedor']=0;
+				//~ $add=$CArticulos->addArticulosProveedores($datos);
+			//~ }
+			//~ echo json_encode($respuesta);
+		//~ break;
 		
 		case 'datosImprimir':
 			//Imprimir un documento , dependiendo de donde venga se pone el nombre y envía todos los datos  
