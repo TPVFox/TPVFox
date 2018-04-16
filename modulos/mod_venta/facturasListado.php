@@ -13,7 +13,14 @@
 	$Ccliente=new Cliente($BDTpv);
 	$Cfactura=new FacturasVentas($BDTpv);
 	$todosTemporal=$Cfactura->TodosTemporal();
-		$todosTemporal=array_reverse($todosTemporal);
+	if (isset($todosTemporal['error'])){
+	$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $todosTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}
+	$todosTemporal=array_reverse($todosTemporal);
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
@@ -58,6 +65,13 @@ if ($stringPalabras !== '' ){
 }
 	
 $facturasDef=$Cfactura->TodosFacturaFiltro($filtro);
+if (isset($facturasDef['error'])){
+		$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $facturasDef['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+}
 ?>
 
 </head>
@@ -67,6 +81,13 @@ $facturasDef=$Cfactura->TodosFacturaFiltro($filtro);
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
 <?php
 include '../../header.php';
+if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+}
 ?>
 		<div class="container">
 		<div class="row">

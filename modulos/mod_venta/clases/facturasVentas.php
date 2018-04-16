@@ -33,14 +33,21 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Mostrar los datos principales de una factura temnporal
 			$db = $this->db;
-			$smt = $db->query ('SELECT tem.numfaccli, tem.id , tem.idClientes,
+			$sql='SELECT tem.numfaccli, tem.id , tem.idClientes,
 			 tem.total, b.Nombre from faccliltemporales as tem left JOIN 
-			 clientes as b on tem.idClientes=b.idClientes');
-			$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;
+			 clientes as b on tem.idClientes=b.idClientes';
+			 $smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+			}else{
+				$facturaPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($facturaPrincipal,$result);
+				}
+				return $facturaPrincipal;
+			}
 		
 	}
 	public function TodosFacturaFiltro($filtro){
@@ -50,14 +57,18 @@ class FacturasVentas extends ClaseVentas{
 		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado 
 		FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
 		$smt=$this->consulta($sql);
-		//~ echo '<pre>';
-		//~ print_r($smt);
-		//~ echo '</pre>';
-		$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$facturaPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($facturaPrincipal,$result);
+			}
+			return $facturaPrincipal;
 		}
-		return $facturaPrincipal;
 	}
 	public function datosFactura($idFactura){
 		//@Objetivo:
