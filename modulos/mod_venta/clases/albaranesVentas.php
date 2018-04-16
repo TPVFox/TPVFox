@@ -202,13 +202,20 @@ class AlbaranesVentas extends ClaseVentas{
 		//@Objetivo:
 		//Mostrar algunos datos de todos los albaranes reales con un filtro
 		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total,
-		 a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro);
-		$albaranesPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($albaranesPrincipal,$result);
+		$sql='SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total,
+		 a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$albaranesPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($albaranesPrincipal,$result);
+			}
+			return $albaranesPrincipal;
 		}
-		return $albaranesPrincipal;
 	}
 	
 		public function sumarIva($numAlbaran){
@@ -227,14 +234,21 @@ class AlbaranesVentas extends ClaseVentas{
 			//@Objetivo:
 			//Mostrar todos los datos temporales
 			$db = $this->db;
-			$smt = $db->query ('SELECT tem.numalbcli, tem.id , tem.idClientes,
+			$sql='SELECT tem.numalbcli, tem.id , tem.idClientes,
 			 tem.total, b.Nombre from albcliltemporales as tem left JOIN clientes
-			  as b on tem.idClientes=b.idClientes');
-			$albaranPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($albaranPrincipal,$result);
+			  as b on tem.idClientes=b.idClientes';
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+			}else{
+				$albaranPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($albaranPrincipal,$result);
+				}
+				return $albaranPrincipal;
 			}
-			return $albaranPrincipal;
 		
 		}
 		
