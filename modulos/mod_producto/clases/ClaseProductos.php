@@ -267,7 +267,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 			
 		}
 		// ---- 		Insertamos un producto nuevo en tabla articulos 		----- //
-		$sqlArticulo = 'INSERT INTO `articulos`(`iva`, `articulo_name`, `estado`, `fecha_creado`,beneficio) VALUES ("'.$datos['iva'].'","'.$datos['articulo_name'].'","'.$datos['estado'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
+		$sqlArticulo = 'INSERT INTO `articulos`(`iva`, `articulo_name`, `estado`,ultimoCoste, `fecha_creado`,beneficio) VALUES ("'.$datos['iva'].'","'.$datos['articulo_name'].'","'.$datos['estado'].'","'.$datos['coste'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
+		// De momento inserto ultimoCoste, pero no deberíamos... :-) ya que no se compro.	
 		$respuesta = array();
 		$DB = parent::GetDb();
 				$smt = $DB->query($sqlArticulo);
@@ -277,6 +278,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				} else {
 					// Quiere decir que hubo error en la consulta.
 					$respuesta['error'] = $DB->connect_errno;
+					
 				}
 				$respuesta['consulta'] = $sqlArticulo;
 		if (isset($respuesta['error'])){
