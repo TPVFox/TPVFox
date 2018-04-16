@@ -134,9 +134,10 @@ class FacturasCompras extends ClaseCompras{
 		$UnicoCampoProductos 	=$productos_json;
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$UnicoCampoAlbaranes=json_encode($albaranes);
+		$PreAlbaran = $db->real_escape_string($UnicoCampoAlbaranes);
 		$sql='UPDATE facproltemporales SET idUsuario ='.$idUsuario.' , 
 		idTienda='.$idTienda.' , estadoFacPro="'.$estado.'" , fechaInicio="'.$fecha.'"  
-		,Productos="'.$PrepProductos.'", Albaranes="'.$UnicoCampoAlbaranes.'" 
+		,Productos="'.$PrepProductos.'", Albaranes="'.$PreAlbaran.'" 
 		, Su_numero="'.$suNumero.'" WHERE id='.$idFacturaTemp;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
@@ -158,11 +159,12 @@ class FacturasCompras extends ClaseCompras{
 		$UnicoCampoProductos 	=$productos_json;
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$UnicoCampoAlbaranes=json_encode($albaranes);
+		$PreAlbaran = $db->real_escape_string($UnicoCampoAlbaranes);
 		$sql='INSERT INTO facproltemporales ( idUsuario , idTienda , 
 		estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , 
 		Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'
 		.$fecha.'", '.$idProveedor.' , "'.$PrepProductos.'" , "'
-		.$UnicoCampoAlbaranes.'", "'.$suNumero.'")';
+		.$PreAlbaran.'", "'.$suNumero.'")';
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];

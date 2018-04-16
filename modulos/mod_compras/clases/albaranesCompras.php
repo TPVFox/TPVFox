@@ -415,15 +415,16 @@ class AlbaranesCompras extends ClaseCompras{
 			}
 		}else{
 			$sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
-			formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado='
-			."'".$estado."'";
+			formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
+			.$estado.'"';
+			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 					$albaran['error']=$smt['error'];
 					$albaran['consulta']=$smt['consulta'];
 					return $respuesta;
 			}else{
 				$albaranesPrincipal=array();
-				while ( $result = $smt->fetch_assoc () ) {
+				while ( $result = $smt->fetch_assoc()) {
 					array_push($albaranesPrincipal,$result);	
 				}
 				$albaran['datos']=$albaranesPrincipal;
