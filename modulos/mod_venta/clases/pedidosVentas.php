@@ -32,15 +32,15 @@ class PedidosVentas extends ClaseVentas{
 	
 	public function addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos){
 		$UnicoCampoProductos=json_encode($productos);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$db = $this->db;
 		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario,
 		 estadoPedCli, idPedcli, Productos ) VALUES ('.$idCliente.', '
-		 .$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', '
-		 ."'".$UnicoCampoProductos."'".')');
+		 .$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', "'.$PrepProductos.'")');
 		$id=$db->insert_id;
 		$respuesta['sql']='INSERT INTO pedcliltemporales (idClientes, idTienda,
 		 idUsuario, estadoPedCli, idPedcli, Productos ) VALUES ('.$idCliente.', '
-		 .$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', '."'".$UnicoCampoProductos."'".')';
+		 .$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', "'.$PrepProductos.'")';
 		$respuesta['id']=$id;
 		return $respuesta;
 	}
@@ -48,11 +48,12 @@ class PedidosVentas extends ClaseVentas{
 	
 	public function ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos){
 		$UnicoCampoProductos=json_encode($productos);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$db = $this->db;
 		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCliente
 		.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'
-		.$estado.'", idPedcli ='.$idReal.', productos='."'".$UnicoCampoProductos 
-		."'".' WHERE id='.$idTemporal);		
+		.$estado.'", idPedcli ='.$idReal.', productos="'.$PrepProductos 
+		.'" WHERE id='.$idTemporal);		
 		
 	}
 
