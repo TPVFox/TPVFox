@@ -135,10 +135,12 @@ class FacturasVentas extends ClaseVentas{
 		$db = $this->db;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
 		$smt=$db->query('UPDATE faccliltemporales SET idUsuario='.$idUsuario
 		.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio='
-		.$fecha.' , Albaranes ='."'".$UnicoCampoAlbaranes."'". ' ,Productos='."'".$UnicoCampoProductos
-		."'".'  WHERE id='.$idTemporal);
+		.$fecha.' , Albaranes ="'.$PrepAlbaranes.'" ,Productos="'.$PrepProductos
+		.'  WHERE id='.$idTemporal);
 		$respuesta['idTemporal']=$idTemporal;
 		$respuesta['productos']=$UnicoCampoProductos;
 	
@@ -150,10 +152,12 @@ class FacturasVentas extends ClaseVentas{
 		$db = $this->db;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
 		$smt = $db->query ('INSERT INTO faccliltemporales ( idUsuario , idTienda ,
 		 estadoFacCli , fechaInicio, idClientes, Albaranes, Productos ) VALUES ('
 		 .$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '
-		 .$idCliente.' , '."'".$UnicoCampoAlbaranes."'".', '."'".$UnicoCampoProductos."'".')');
+		 .$idCliente.' , "'.$PrepAlbaranes.'", "'.$PrepProductos.'")');
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
 		$respuesta['productos']=$productos;
