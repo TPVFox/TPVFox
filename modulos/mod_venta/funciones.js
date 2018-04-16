@@ -686,10 +686,10 @@ function mover_down(fila,prefijo, dedonde=""){
 			if ( document.getElementById(d_focus) ) {
 				ponerSelect(d_focus);
 			}else{
-				var d_focus = 'idArticulo';
-				ponerSelect(d_focus);
-				//~ var d_focus = 'Fila_';
-				//~ ponerFocus(d_focus);
+				//~ var d_focus = 'idArticulo';
+				//~ ponerSelect(d_focus);
+				var d_focus = 'Fila_';
+				ponerFocus(d_focus);
 			}
 	}	else{
 		var ant=fila-1;
