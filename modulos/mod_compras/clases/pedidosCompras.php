@@ -46,9 +46,10 @@ class PedidosCompras extends ClaseCompras{
 		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda
-		.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'"
-		.$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
+		.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos="'
+		.$PrepProductos.'"  WHERE id='.$numPedidoTemp;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
@@ -64,9 +65,10 @@ class PedidosCompras extends ClaseCompras{
 		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , 
 		fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'
-		.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".')';
+		.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , "'.$PrepProductos.'")';
 		//~ $smt = $db->query ($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
