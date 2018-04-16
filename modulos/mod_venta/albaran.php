@@ -56,12 +56,8 @@ include './../../head.php';
 		
 	}else{
 		$bandera=1;
-	
-		
-		
 			if (isset($_GET['tActual'])){//Recibido un albarán temporal
 				$idAlbaranTemporal=$_GET['tActual'];
-			
 				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);//Recogemos todos los datos del albarán temporal 
 				if (isset($datosAlbaran['numalbcli'])){
 					$numAlbaran=$datosAlbaran['numalbcli'];
@@ -125,9 +121,6 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
-	//~ echo '<pre>';
-	//~ print_r($datosAlbaran['Productos']);
-	//~ echo '</pre>';
 			if($datosAlbaran['numalbcli']>0){
 				$id=$Calbcli->datosAlbaranNum($datosAlbaran['numalbcli']);
 				$numAlbaran=$datosAlbaran['numalbcli'];
@@ -203,11 +196,6 @@ $titulo .= ': '.$estado;
 	var pedidos =[];
 <?php 
 	if (isset($albaranTemporal)| isset($idAlbaran)){ 
-?>
-//	console.log("entre en el javascript");
-	</script>
-	<script type="text/javascript">
-<?php
 	$i= 0;
 		if (isset($productos)){
 			foreach($productos as $product){

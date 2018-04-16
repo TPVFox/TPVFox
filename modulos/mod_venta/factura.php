@@ -38,10 +38,6 @@
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
 		$datosImportes=$Cfaccli->importesFactura($idFactura);
-		//~ echo '<pre>';
-		//~ print_r($datosImportes);
-		//~ echo '</pre>';
-		
 		$estado=$datosFactura['estado'];
 	
 		$date=date_create($datosFactura['Fecha']);
