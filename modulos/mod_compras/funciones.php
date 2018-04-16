@@ -430,7 +430,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 		}
 		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td></tr>';
 		$contad = $contad +1;
-		if ($contad === 10){
+		if ($contad === 30){
 			// Mostramos solo 10 albaranes... 
 			// Un problema. ( Puede haber muchos mas);
 			break;
