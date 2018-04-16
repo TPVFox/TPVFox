@@ -5,6 +5,7 @@ function controladorAcciones(caja,accion, tecla){
 		case 'buscarProveedor':
 			console.log("Estoy en buscar proveedor");
 			if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
+				// Entramos cuando venimos de id de proveedor.
 				var d_focus="Proveedor";
 				ponerFocus(d_focus);
 			}else{
@@ -518,19 +519,19 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 				console.log(resultado);
 				if (resultado.error){
 					alert('Error de sql :'+resultado.consulta);
-				}else{
-					if (resultado.Nitems==2){
-						alert("El id del proveedor no existe");
-						document.getElementById(idcaja).value='';
-						//resetCampo(idcaja);
-					}
-					if (popup=="popup"){
-						cerrarPopUp();
-					}
+					return;
+				}
+
+				if (resultado.Nitems==2){
+					alert("El id del proveedor no existe");
+					document.getElementById(idcaja).value='';
+					//resetCampo(idcaja);
+				}
 					if (resultado.Nitems==1){
 						// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
 						//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
 						//Se oculta el botón del botón buscar
+						cerrarPopUp();
 						cabecera.idProveedor=resultado.id;
 						$('#id_proveedor').val(resultado.id);
 						$('#Proveedor').val(resultado.nombre);
@@ -559,8 +560,19 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 						var titulo = 'Listado Proveedores ';
 						var HtmlProveedores=resultado.html['html']; 
 						abrirModal(titulo,HtmlProveedores);
+						if ( idcaja === 'cajaBusquedaproveedor'){
+							// Buscamos en modal y podermo apuntar resultado , si hay claro.
+							if (resultado.html.encontrados >0){
+								console.log('Encontrads'+resultado.html.encontrados);
+								ponerFocus('N_0');
+							} else {
+								ponerFocus('cajaBusquedaproveedor');
+							}
+						
+						}
+
 					}
-				}
+				
 	
 		}
 	});
@@ -617,9 +629,9 @@ function abrirModal(titulo,tabla){
 	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
 	$('#busquedaModal').on('shown.bs.modal', function() {
 		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
-		$('#cajaBusqueda').focus(); //foco en input caja busqueda del cliente
-		$('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
+		$('#cajaBusqueda').focus(); //f
+				$('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
+
 	});
 }
 function sobreFilaCraton(cont){
@@ -1070,7 +1082,6 @@ function before_constructor(caja){
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
-	console.log('constructor compras caja--> '+caja);
 	if (caja.id_input ==='cajaBusqueda'){
 		//caja.parametros.dedonde = 'popup';
 		if (caja.name_cja ==='Codbarras'){
@@ -1104,7 +1115,6 @@ function before_constructor(caja){
 		console.log("entro en ultimo_coste_");
 		caja.fila = caja.id_input.slice(13);
 		caja.parametros.item_max = productos.length;
-		
 		
 	}
 	
@@ -1164,7 +1174,8 @@ function mover_up(fila,prefijo){
 	ponerSelect(d_focus);
 }
 function mover_down(fila,prefijo){
-	console.log('mover down'+d_focus);
+	console.log('mover down'+fila);
+
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 		if ( document.getElementById(d_focus) ) {
@@ -1172,7 +1183,6 @@ function mover_down(fila,prefijo){
 		}else{
 			//~ var d_focus = 'idArticulo';
 			//estamos en abrir modal ponemos focus en la 1ª opc despues de buscar algo.. nos movemos con tabulador
-			var d_focus = 'Fila_';
 			ponerFocus(d_focus);
 		}
 }
