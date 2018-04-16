@@ -688,6 +688,8 @@ function mover_down(fila,prefijo, dedonde=""){
 			}else{
 				var d_focus = 'idArticulo';
 				ponerSelect(d_focus);
+				//~ var d_focus = 'Fila_';
+				//~ ponerFocus(d_focus);
 			}
 	}	else{
 		var ant=fila-1;
