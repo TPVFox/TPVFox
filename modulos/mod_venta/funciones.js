@@ -114,28 +114,31 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			var resultado =  $.parseJSON(response); 
 			// Si el archivo de donde viene la consulta es  albaran con lo que devuelve la consulta
 			//de buscarCliente se registra en los input y se bloquean posteriormente
-			
-			if (resultado.Nitems==1){
-				cabecera.idCliente=resultado.id;
-				$('#Cliente').val(resultado.nombre);
-				$('#Cliente').prop('disabled', true);
-				$('#id_cliente').prop('disabled', true);
-				$("#buscar").css("display", "none");
-				$('#idArticulo').focus();
-				mostrarFila();
-				if (dedonde=="albaran"){
-					comprobarPedidosExis();
-				}
-				if (dedonde=="factura"){
-					formasVenciCliente(resultado.formasVenci);
-					comprobarAlbaranesExis();
-				}
+			if (resultado.error){
+					alert('ERROR DE SQL: '+resultado.consulta);
 			}else{
-				console.log(resultado.html);
-			 var titulo = 'Listado clientes ';
-			 var HtmlClientes=resultado.html.html; 
-			 abrirModal(titulo,HtmlClientes);
-			 }
+				if (resultado.Nitems==1){
+					cabecera.idCliente=resultado.id;
+					$('#Cliente').val(resultado.nombre);
+					$('#Cliente').prop('disabled', true);
+					$('#id_cliente').prop('disabled', true);
+					$("#buscar").css("display", "none");
+					$('#idArticulo').focus();
+					mostrarFila();
+					if (dedonde=="albaran"){
+						comprobarPedidosExis();
+					}
+					if (dedonde=="factura"){
+						formasVenciCliente(resultado.formasVenci);
+						comprobarAlbaranesExis();
+					}
+				}else{
+					console.log(resultado.html);
+				 var titulo = 'Listado clientes ';
+				 var HtmlClientes=resultado.html.html; 
+				 abrirModal(titulo,HtmlClientes);
+				 }
+			}
 			
 		}
 	});
