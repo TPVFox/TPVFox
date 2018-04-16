@@ -30,10 +30,12 @@ class AlbaranesVentas extends ClaseVentas{
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$UnicoCampoProductos=json_encode($productos);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepPedidos = $db->real_escape_string($UnicoCampoPedidos);
 		$smt = $db->query ('INSERT INTO albcliltemporales ( idUsuario , idTienda , estadoAlbCli
 		 , fechaInicio, idClientes, Pedidos, Productos ) VALUES ('.$idUsuario.' , '
-		 .$idTienda.' , "'.$estadoAlbaran.'" , "'.$fecha.'", '.$idCliente.' , '
-		 ."'".$UnicoCampoPedidos."'".', '."'".$UnicoCampoProductos."'".')');
+		 .$idTienda.' , "'.$estadoAlbaran.'" , "'.$fecha.'", '.$idCliente.' , "'
+		 .$PrepPedidos.'", "'.$PrepProductos.'")');
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
 		$respuesta['productos']=$productos;
@@ -47,10 +49,12 @@ class AlbaranesVentas extends ClaseVentas{
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$UnicoCampoProductos=json_encode($productos);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepPedidos = $db->real_escape_string($UnicoCampoPedidos);
 		$smt=$db->query('UPDATE albcliltemporales SET idUsuario='.$idUsuario
 		.' , idTienda='.$idTienda.' , estadoAlbCli="'.$estadoAlbaran.'" , fechaInicio='
-		.$fecha.' , Pedidos='."'".$UnicoCampoPedidos."'". ' ,Productos='."'".$UnicoCampoProductos."'"
-		.'  WHERE id='.$idTemporal);
+		.$fecha.' , Pedidos="'.$PrepPedidos.'" ,Productos="'.$PrepProductos
+		.'"  WHERE id='.$idTemporal);
 		$respuesta['idTemporal']=$idTemporal;
 		$respuesta['productos']=$UnicoCampoProductos;
 	
