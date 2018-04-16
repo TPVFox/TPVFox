@@ -619,7 +619,7 @@ function abrirModal(titulo,tabla){
 		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
 		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
 		$('#cajaBusqueda').focus(); //foco en input caja busqueda del cliente
-		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
+		$('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
 	});
 }
 function sobreFilaCraton(cont){
@@ -1070,7 +1070,7 @@ function before_constructor(caja){
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
-	console.log(caja);
+	console.log('constructor compras caja--> '+caja);
 	if (caja.id_input ==='cajaBusqueda'){
 		//caja.parametros.dedonde = 'popup';
 		if (caja.name_cja ==='Codbarras'){
@@ -1164,12 +1164,15 @@ function mover_up(fila,prefijo){
 	ponerSelect(d_focus);
 }
 function mover_down(fila,prefijo){
+	console.log('mover down'+d_focus);
 	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 		if ( document.getElementById(d_focus) ) {
 			ponerSelect(d_focus);
 		}else{
-			var d_focus = 'idArticulo';
+			//~ var d_focus = 'idArticulo';
+			//estamos en abrir modal ponemos focus en la 1ª opc despues de buscar algo.. nos movemos con tabulador
+			var d_focus = 'Fila_';
 			ponerFocus(d_focus);
 		}
 }
