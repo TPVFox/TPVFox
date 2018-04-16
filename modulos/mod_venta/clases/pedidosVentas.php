@@ -83,13 +83,18 @@ class PedidosVentas extends ClaseVentas{
 		 clientes as b on tem.idClientes=b.idClientes LEFT JOIN pedclit 
 		 as c on tem.idPedcli=c.id';
 		// Debemos crear un metodo de consulta igual para todos, poder controlar el error y mostrarlo.
-		$smt=$db->query($sql);
-		$pedidosPrincipal=array();
-		
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$pedidosPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($pedidosPrincipal,$result);
+			}
+			return $pedidosPrincipal;
 		}
-		return $pedidosPrincipal;
 		
 	}
 		public function AddPedidoGuardado($datos, $idPedido, $numPedido){
@@ -164,14 +169,20 @@ class PedidosVentas extends ClaseVentas{
 	public function TodosPedidosFiltro($filtro){
 		//@Objetivo: Todos los pedidos guardados pero ultilizando el filtro
 		$db=$this->db;
-		$Sql= 'SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado 
+		$sql= 'SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado 
 		FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
-		$smt=$this->consulta($Sql);
-		$pedidosPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($pedidosPrincipal,$result);
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$pedidosPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($pedidosPrincipal,$result);
+			}
+			return $pedidosPrincipal;
 		}
-		return $pedidosPrincipal;
 	}
 	
 	public function EliminarRegistroTemporal($idTemporal, $idPedido){
