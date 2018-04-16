@@ -19,7 +19,7 @@
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 10; // por defecto.
+	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
 	$WhereLimite['filtro']="";
 	$NuevoRango="";
