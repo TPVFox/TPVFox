@@ -16,7 +16,7 @@
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
+	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
 	$Tienda = $_SESSION['tiendaTpv'];
 	$WhereLimite = array();

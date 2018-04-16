@@ -35,7 +35,7 @@ $todosTemporal=array_reverse($todosTemporal);
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 10; // por defecto.
+	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
