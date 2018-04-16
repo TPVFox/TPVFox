@@ -11,25 +11,43 @@ class Articulos{
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
-		return $smt;
+		if ($smt) {
+			return $smt;
+		} else {
+			$respuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
 	}
 	
 	public function addArticulosProveedores($datos){
 		$db=$this->db;
-		$smt=$db->query('INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '."'".$datos['refProveedor']."'".', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")');
-		$sql='INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '."'".$datos['refProveedor']."'".', '.$datos['coste'].', "'.$datos['fecha'].'", "'.$datos['estado'].'")';
-		$respuesta['sql']=$sql;
-		return $respuesta;
+		$sql='INSERT INTO articulosProveedores (idArticulo, idProveedor, crefProveedor, 
+		coste, fechaActualizacion, estado) VALUE ('.$datos['idArticulo'].', '.$datos['idProveedor'].', '
+		."'".$datos['refProveedor']."'".', '.$datos['coste'].', "'.$datos['fecha'].'", "'
+		.$datos['estado'].'")';
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	public function buscarReferencia($idArticulo, $idProveedor){
 		$db=$this->db;
-		$smt=$db->query('SELECT * FROM articulosProveedores WHERE idArticulo='.$idArticulo.' and idProveedor='.$idProveedor);
-		
-		if ($result = $smt->fetch_assoc () ){
-			$referencia=$result;
-			return $referencia;
+		$sql='SELECT * FROM articulosProveedores WHERE idArticulo='.$idArticulo.' and idProveedor='.$idProveedor;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}else{
+			if ($result = $smt->fetch_assoc () ){
+				$referencia=$result;
+				return $referencia;
+			}
 		}
-		
 	}
 	
 	public function buscarNombreArticulo($idArticulo){
@@ -42,30 +60,43 @@ class Articulos{
 	}
 	public function modificarProveedorArticulo($datos){
 		$db=$this->db;
-		$smt=$db->query('UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
-$sql='UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor'];
-	$respuesta['sql']=$sql;
+		$sql='UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']
+		."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='
+		.$datos['idProveedor'];
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 		return $respuesta;
 	}
 	public function modificarCosteProveedorArticulo($datos){
-		
 		$db=$this->db;
-		//~ $smt=$db->query('SELECT coste FROM articulosProveedores WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $respuesta=$result;
-		//~ }
+		$sql='UPDATE articulosProveedores SET coste='.$datos['coste']
+		.',  fechaActualizacion="'.$datos['fecha'].'" WHERE idArticulo='
+		.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor'];
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 		
-		
-		$smt=$db->query('UPDATE articulosProveedores SET coste='.$datos['coste'].',  fechaActualizacion="'.$datos['fecha'].'" WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
-		
-		//~ return $respuesta;
 	}
 	
 	public function addHistorico($datos){
 		$db=$this->db;
-		$smt=$db->query('INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo, estado) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo'].', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".')');
-	$sql='INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo, estado) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo'].', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".')';
-	return $sql;
+		$sql='INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, 
+		Dedonde, Tipo, estado) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo']
+		.', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '
+		."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".')';
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	public function historicoCompras($numDoc, $Dedonde, $tipo){
 		$db=$this->db;

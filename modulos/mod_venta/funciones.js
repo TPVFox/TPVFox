@@ -26,27 +26,27 @@ function metodoClick(pulsado,adonde){
 			window.location.href = './factura.php';
 			break;
 		
-		case 'NuevaBusquedaPedido':
-			// Obtenemos puesto en input de Buscar
-			Buscar();
-			// Ahora redireccionamos 
-			if (BPedido !== ''){
-				window.location.href = './'+adonde+'.php?buscar='+BPedido;
-			} else {
-				// volvemos sin mas..
-				return;
-			}
-			break;
-		case 'AgregarAlbaran':
-			console.log('entro en agregar producto');
-			window.location.href = './albaran.php';
+		//~ case 'NuevaBusquedaPedido':
+			//~ // Obtenemos puesto en input de Buscar
+			//~ Buscar();
+			//~ // Ahora redireccionamos 
+			//~ if (BPedido !== ''){
+				//~ window.location.href = './'+adonde+'.php?buscar='+BPedido;
+			//~ } else {
+				//~ // volvemos sin mas..
+				//~ return;
+			//~ }
+			//~ break;
+		//~ case 'AgregarAlbaran':
+			//~ console.log('entro en agregar producto');
+			//~ window.location.href = './albaran.php';
 			
-			break;
-	case 'AgregarFactura':
-			console.log('entro en agregar producto');
-			window.location.href = './factura.php';
+			//~ break;
+	//~ case 'AgregarFactura':
+			//~ console.log('entro en agregar producto');
+			//~ window.location.href = './factura.php';
 			
-			break;
+			//~ break;
 		
 	 }
 } 

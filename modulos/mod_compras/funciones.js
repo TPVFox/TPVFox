@@ -246,97 +246,99 @@ function buscarAdjunto(dedonde, valor=""){
 				console.log('Llegue devuelta respuesta de buscar pedido');
 			var resultado =  $.parseJSON(response); 
 			var HtmlPedidos=resultado.html;
-			
-			if (valor==""){ // Si el valor esta vacio mostramos el modal con los pedidos de ese proveedor
-				if (dedonde=="albaran"){
-					var titulo = 'Listado Pedidos ';
-				}else{
-					var titulo= 'Listado Albaranes';
-				}
-				console.log(resultado.datos);
-				abrirModal(titulo, HtmlPedidos);
-				
+			if (resultado.error){
+				alert('Error de SQL'+respuesta.consulta);
 			}else{
-				console.log(resultado.datos);
-				if (resultado.Nitems>0){
-					console.log("entre en resultados numero de items");
-					var bandera=0;
+				if (valor==""){ // Si el valor esta vacio mostramos el modal con los pedidos de ese proveedor
 					if (dedonde=="albaran"){
-						var adjuntos=pedidos;
+						var titulo = 'Listado Pedidos ';
 					}else{
-						var adjuntos=albaranes;
+						var titulo= 'Listado Albaranes';
 					}
-					for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
-						console.log("entre en el for");
-						var numeroReal=adjuntos[i].NumAdjunto;
-						var numeroNuevo=resultado['datos'].NumAdjunto;
-						if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
-						//del array pedidos entonces la bandera es igual a 1
-							bandera=bandera+1;
-						}
-					}
+					console.log(resultado.datos);
+					abrirModal(titulo, HtmlPedidos);
 					
-						if (bandera==0){
+				}else{
+					console.log(resultado.datos);
+					if (resultado.Nitems>0){
+						console.log("entre en resultados numero de items");
+						var bandera=0;
+						if (dedonde=="albaran"){
+							var adjuntos=pedidos;
+						}else{
+							var adjuntos=albaranes;
+						}
+						for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
+							console.log("entre en el for");
+							var numeroReal=adjuntos[i].NumAdjunto;
+							var numeroNuevo=resultado['datos'].NumAdjunto;
+							if (numeroReal == numeroNuevo){// Si el número del pedido introducido es igual que el número de pedido
+							//del array pedidos entonces la bandera es igual a 1
+								bandera=bandera+1;
+							}
+						}
 						
-							var datos = [];
-							datos = resultado['datos'];
+							if (bandera==0){
 							
-							var datos = [];
-							datos = resultado['datos'];
-							n_item=parseInt(adjuntos.length)+1;
-							datos.nfila=n_item;
-							if (dedonde=="albaran"){
-								pedidos.push(datos);
-							}else{
-								albaranes.push(datos);
-							}
-							productosAdd=resultado.productos;
-							var prodArray=new Array();
-							var numFila=productos.length+1;
-							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
-								// cargamos todos los datos en un objeto y por ultimo lo añadimos a los productos que ya tenemos
-								var prod = new Object();
-								prod.ccodbar=resultado.productos[i]['ccodbar'];
-								prod.cdetalle=resultado.productos[i]['cdetalle'];
-								prod.cref=resultado.productos[i]['cref'];
-								prod.crefProveedor=resultado.productos[i]['ref_prov'];
-								prod.estado=resultado.productos[i]['estadoLinea'];
-								prod.idArticulo=resultado.productos[i]['idArticulo'];
-								prod.iva=resultado.productos[i]['iva'];
-								prod.ncant=resultado.productos[i]['ncant'];
-								prod.nfila=numFila;
-								prod.nunidades=resultado.productos[i]['nunidades'];
-								prod.ultimoCoste=resultado.productos[i]['costeSiva'];
-								prod.importe=resultado.productos[i]['costeSiva']*resultado.productos[i]['nunidades'];
+								var datos = [];
+								datos = resultado['datos'];
+								
+								var datos = [];
+								datos = resultado['datos'];
+								n_item=parseInt(adjuntos.length)+1;
+								datos.nfila=n_item;
 								if (dedonde=="albaran"){
-									prod.numPedido=resultado.productos[i]['Numpedpro'];
-									prod.idpedpro=resultado.productos[i]['idpedpro'];
+									pedidos.push(datos);
 								}else{
-									prod.numAlbaran=resultado.productos[i]['Numalbpro'];
-									prod.idalbpro=resultado.productos[i]['idalbpro'];
+									albaranes.push(datos);
 								}
-								var numAdjunto=resultado['datos'].NumAdjunto;
-								var idAdjunto=resultado['datos'].idAdjunto;
-								productos.push(prod);
-								prodArray.push(prod);
-								numFila++;
+								productosAdd=resultado.productos;
+								var prodArray=new Array();
+								var numFila=productos.length+1;
+								for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
+									// cargamos todos los datos en un objeto y por ultimo lo añadimos a los productos que ya tenemos
+									var prod = new Object();
+									prod.ccodbar=resultado.productos[i]['ccodbar'];
+									prod.cdetalle=resultado.productos[i]['cdetalle'];
+									prod.cref=resultado.productos[i]['cref'];
+									prod.crefProveedor=resultado.productos[i]['ref_prov'];
+									prod.estado=resultado.productos[i]['estadoLinea'];
+									prod.idArticulo=resultado.productos[i]['idArticulo'];
+									prod.iva=resultado.productos[i]['iva'];
+									prod.ncant=resultado.productos[i]['ncant'];
+									prod.nfila=numFila;
+									prod.nunidades=resultado.productos[i]['nunidades'];
+									prod.ultimoCoste=resultado.productos[i]['costeSiva'];
+									prod.importe=resultado.productos[i]['costeSiva']*resultado.productos[i]['nunidades'];
+									if (dedonde=="albaran"){
+										prod.numPedido=resultado.productos[i]['Numpedpro'];
+										prod.idpedpro=resultado.productos[i]['idpedpro'];
+									}else{
+										prod.numAlbaran=resultado.productos[i]['Numalbpro'];
+										prod.idalbpro=resultado.productos[i]['idalbpro'];
+									}
+									var numAdjunto=resultado['datos'].NumAdjunto;
+									var idAdjunto=resultado['datos'].idAdjunto;
+									productos.push(prod);
+									prodArray.push(prod);
+									numFila++;
+								}
+								addTemporal(dedonde);
+								modificarEstado(dedonde, "Facturado",  idAdjunto);
+								//Agregamos una nueva fila con los datos principales de pedidos
+								AgregarAdjunto(datos, dedonde);
+								//Agregamos los productos de el pedido seleccionado
+								AgregarFilaProductos(prodArray, dedonde);
+								//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
+								//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
+								// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
+								cerrarPopUp();
+								
 							}
-							addTemporal(dedonde);
-							modificarEstado(dedonde, "Facturado",  idAdjunto);
-							//Agregamos una nueva fila con los datos principales de pedidos
-							AgregarAdjunto(datos, dedonde);
-							//Agregamos los productos de el pedido seleccionado
-							AgregarFilaProductos(prodArray, dedonde);
-							//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
-							//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
-							// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
-							cerrarPopUp();
-							
-						}
-					
+						
+					}
 				}
 			}
-	
 		}
 	});
 }
@@ -361,6 +363,10 @@ function modificarEstado(dedonde, estado, id=""){
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de estado pedido js');
+			var resultado =  $.parseJSON(response); 
+			if (resultado.error){
+				alert('Error de SQL'+respuesta.consulta);
+			}
 		}
 	});
 }
@@ -392,23 +398,26 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
-				
-				productos[nfila].crefProveedor=valor;// pone le valor en el input 
-				fila=nfila+1;//sumamos uno a la fila
-				var id="#Proveedor_Fila_"+fila;
-				if (valor){
-					$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
-					$(id).val(valor);
-				
-					$('#enlaceCambio'+fila).css("display", "inline");
-					var d_focus='idArticulo';
-					ponerFocus(d_focus);
-				
+				if (resultado.error){
+					alert('ERROR DE SQL: '+resultado.error);
+				}else{
+					productos[nfila].crefProveedor=valor;// pone le valor en el input 
+					fila=nfila+1;//sumamos uno a la fila
+					var id="#Proveedor_Fila_"+fila;
+					if (valor){
+						$(id).prop('disabled', true);// desactivar el input para que no se pueda cambiar 
+						$(id).val(valor);
+					
+						$('#enlaceCambio'+fila).css("display", "inline");
+						var d_focus='idArticulo';
+						ponerFocus(d_focus);
+					
+					}
+					addTemporal(dedonde);
+				}
 			}
-				addTemporal(dedonde);
-		}
-	});
-	console.log(parametros);
+		});
+	//~ console.log(parametros);
 	
 }
 
@@ -507,48 +516,51 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
 				console.log(resultado);
-				if (resultado.Nitems==2){
-					alert("El id del proveedor no existe");
-					document.getElementById(idcaja).value='';
-					//resetCampo(idcaja);
-				}
-				if (popup=="popup"){
-					cerrarPopUp();
-				}
-				if (resultado.Nitems==1){
-					// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
-					//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
-					//Se oculta el botón del botón buscar
-					cabecera.idProveedor=resultado.id;
-					$('#id_proveedor').val(resultado.id);
-					$('#Proveedor').val(resultado.nombre);
-					$('#Proveedor').prop('disabled', true);
-					$('#id_proveedor').prop('disabled', true);
-					$("#buscar").css("display", "none");
-					
-					//Dendiendo de donde venga realizamos unas funciones u otras
-					if (dedonde=="albaran"){
-						//comprobarPedidos();
-						comprobarAdjunto(dedonde);
-					}
-					if (dedonde=="factura"){
-						//comprobarAlbaranes();
-						comprobarAdjunto(dedonde);
-					}
-					if (dedonde=="pedidos"){
-						// Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
-						//Para poder empezar a meter articulos
-						ponerFocus("idArticulo");
-					}
-					mostrarFila();
-					
+				if (resultado.error){
+					alert('Error de sql :'+resultado.consulta);
 				}else{
-					//Si no mostramos un modal con los proveedores según la busqueda
-					var titulo = 'Listado Proveedores ';
-					var HtmlProveedores=resultado.html['html']; 
-					abrirModal(titulo,HtmlProveedores);
+					if (resultado.Nitems==2){
+						alert("El id del proveedor no existe");
+						document.getElementById(idcaja).value='';
+						//resetCampo(idcaja);
+					}
+					if (popup=="popup"){
+						cerrarPopUp();
+					}
+					if (resultado.Nitems==1){
+						// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
+						//Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
+						//Se oculta el botón del botón buscar
+						cabecera.idProveedor=resultado.id;
+						$('#id_proveedor').val(resultado.id);
+						$('#Proveedor').val(resultado.nombre);
+						$('#Proveedor').prop('disabled', true);
+						$('#id_proveedor').prop('disabled', true);
+						$("#buscar").css("display", "none");
+						
+						//Dendiendo de donde venga realizamos unas funciones u otras
+						if (dedonde=="albaran"){
+							//comprobarPedidos();
+							comprobarAdjunto(dedonde);
+						}
+						if (dedonde=="factura"){
+							//comprobarAlbaranes();
+							comprobarAdjunto(dedonde);
+						}
+						if (dedonde=="pedidos"){
+							// Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
+							//Para poder empezar a meter articulos
+							ponerFocus("idArticulo");
+						}
+						mostrarFila();
+						
+					}else{
+						//Si no mostramos un modal con los proveedores según la busqueda
+						var titulo = 'Listado Proveedores ';
+						var HtmlProveedores=resultado.html['html']; 
+						abrirModal(titulo,HtmlProveedores);
+					}
 				}
-				
 	
 		}
 	});
@@ -572,19 +584,23 @@ function comprobarAdjunto(dedonde){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
-				console.log(resultado);
-				if (resultado == 1){
-					console.log("entre en las opciones");
-						$('#tablaAl').css("display", "block");
-					$('#numPedidoT').css("display", "block");
-					$('#numPedido').css("display", "block");
-					$('#buscarPedido').css("display", "block");
-					$('#tablaPedidos').css("display", "block");
-					ponerFocus('numPedido');
+				//~ console.log(resultado);
+				if (resultado.error){ç
+				
 				}else{
-					ponerFocus('idArticulo');
+					if (resultado.bandera == 1){
+						console.log("entre en las opciones");
+						$('#tablaAl').css("display", "block");
+						$('#numPedidoT').css("display", "block");
+						$('#numPedido').css("display", "block");
+						$('#buscarPedido').css("display", "block");
+						$('#tablaPedidos').css("display", "block");
+						ponerFocus('numPedido');
+					}else{
+						ponerFocus('idArticulo');
+					}
+				//~ console.log(resultado);
 				}
-				console.log(resultado);
 				
 	
 		}
@@ -1234,13 +1250,17 @@ var parametros = {
 		success    :  function (response) {
 			console.log('Respuesta de la modificación de los importes');
 			var resultado =  $.parseJSON(response);
-			if (resultado.mensaje==1){
-				//Se muestra el mensaje cuando el importe es superior al de la factura
-				alert("El importe introducido no es correcto");
+			if (resultado.error){
+				alert('Error de SQL '+resultado.consulta);
 			}else{
-				$("#tablaImporte #fila0").after(resultado.html);
-				$("#tabla").find('input').attr("disabled", "disabled");
-				$("#tabla").find('a').css("display", "none");
+				if (resultado.mensaje==1){
+					//Se muestra el mensaje cuando el importe es superior al de la factura
+					alert("El importe introducido no es correcto");
+				}else{
+					$("#tablaImporte #fila0").after(resultado.html);
+					$("#tabla").find('input').attr("disabled", "disabled");
+					$("#tabla").find('a').css("display", "none");
+				}
 			}
 			
 			

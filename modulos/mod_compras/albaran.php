@@ -21,12 +21,12 @@ include './../../head.php';
 	$idAlbaranTemporal=0;
 	$idAlbaran=0;
 	$idProveedor=0;
-	$suNumero=0;
+	$suNumero="";
 	$nombreProveedor="";
 	$formaPago=0;
 	$fechaVencimiento="";
 	$style1="";
-	
+	$Datostotales=array();
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
 	if (isset($_GET['id'])){
@@ -103,26 +103,29 @@ include './../../head.php';
 		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
 		//si el resultado es  quiere decir que no hay errores y fue todo correcto
 		//si no es así muestra mensaje de error
-		$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
-		if ($guardar==0){
+		 $guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
+		if (count($guardar)==0){
 			header('Location: albaranesListado.php');
 		}else{
-			echo '<div class="alert alert-warning">
-			<strong>Error!</strong>No has introducido ningún producto.
-			</div>';
+			foreach ($guardar as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+				. '</div>';
+			}
 		}
 	}
-	//Cancelar, cuando cancelamos un albarán quiere decir que los cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
+	//Cancelar, cuando cancelamos un albarán quiere decir que los 
+	//cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado
 	if (isset ($_POST['Cancelar'])){
-		 $cancelar=cancelarAlbaran($_POST, $_GET, $BDTpv);
-		if ($cancelar==0){
+		 $cancelar=cancelarAlbaran( $_GET, $BDTpv);
+		if (count($cancelar)==0){
 			
 			header('Location: albaranesListado.php');
 		}else{
-			echo '<div class="alert alert-warning">
-				<strong>Error!</strong>Error no tienes modificaciones.
-				</div>';
+			echo '<div class="'.$cancelar['class'].'">'
+					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					. '</div>';
 		}
 	}
 		if (isset($albaran['Pedidos'])){
@@ -170,16 +173,12 @@ include './../../head.php';
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = '<?php echo $fecha;?>';
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
-		cabecera['suNumero']=<?php echo $suNumero; ?>;
+		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	var pedidos =[];
 <?php 
-	if (isset($albaranTemporal)| isset($idAlbaran)){ 
-?>
-	</script>
-	<script type="text/javascript">
-<?php
+	if (isset($albaranTemporal)|| isset($idAlbaran)){ 
 	$i= 0;
 		if (isset($productos)){
 			foreach($productos as $product){

@@ -77,7 +77,7 @@ include './../../head.php';
 	$idFactura=0;
 	$numFactura=0;
 	$idProveedor=0;
-	$suNumero=0;
+	$suNumero="";
 	$nombreProveedor="";
 	//Si recibe los datos de un temporal
 		if (isset($_GET['tActual'])){
@@ -129,30 +129,32 @@ include './../../head.php';
 		
 	if (isset($_POST['Guardar'])){
 			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales, $importesFactura);
-			if ($guardar==0){
+			if (count($guardar)==0){
 				header('Location: facturasListado.php');
 			}else{
-		
-				echo '<div class="alert alert-warning">
-				<strong>Error!</strong>No has introducido ningún producto.
-				</div>';
+				foreach ($guardar as $error){
+					echo '<div class="'.$error['class'].'">'
+					. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+					. '</div>';
+				}
 			}
+			//~ echo '<pre>';
+			//~ print_r($_POST);
+			//~ echo '</pre>';
 			
 		
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
 	if (isset($_POST['Cancelar'])){
-		if ($_GET['tActual'] || $_GET['id']){
-		$cancelar=cancelarFactura($_POST, $_GET, $BDTpv);
-		if ($cancelar==0){
+		$cancelar=cancelarFactura( $_GET, $BDTpv);
+		if (count($cancelar)==0){
 			header('Location: facturasListado.php');
 		}else{
-			echo '<div class="alert alert-warning">
-				<strong>Error!</strong>Error al cancelar la factura.
-				</div>';
+			echo '<div class="'.$cancelar['class'].'">'
+					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					. '</div>';
 		}
-	}
 	}
 	
 		if (isset($factura['Albaranes'])){
@@ -197,7 +199,7 @@ include './../../head.php';
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
-		cabecera['suNumero']=<?php echo $suNumero; ?>;
+		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		
 		
 		 // Si no hay datos GET es 'Nuevo';
