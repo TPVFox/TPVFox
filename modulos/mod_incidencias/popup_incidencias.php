@@ -30,8 +30,9 @@ $html.='<div class="col-md-12">';
 $html.='<label>Datos:</label>';
 $html.='<input type="text" name="inci_datos" id="inci_datos" value='."'".$datos."'".' readonly="">';
 $html.='</div>';
+$html.='<div class="modal-footer">';
 $html.='<a href="" onclick="enviarIncidencia();" >Guardar</a>';
-
+$html.='</div>';
 return $html;
 	
 }

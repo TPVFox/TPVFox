@@ -46,9 +46,12 @@ class PedidosCompras extends ClaseCompras{
 		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
-		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$numPedidoTemp;
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda
+		.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos="'
+		.$PrepProductos.'"  WHERE id='.$numPedidoTemp;
 		$smt=$this->consulta($sql);
-			if (gettype($smt)==='array'){
+		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 			return $respuesta;
@@ -62,7 +65,10 @@ class PedidosCompras extends ClaseCompras{
 		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
-		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , '."'".$UnicoCampoProductos."'".')';
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , 
+		fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'
+		.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , "'.$PrepProductos.'")';
 		//~ $smt = $db->query ($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
@@ -116,8 +122,6 @@ class PedidosCompras extends ClaseCompras{
 			$respuesta['consulta']=$smt['consulta'];
 			return $respuesta;
 		}
-		//~ $smt=$db->query($sql);
-		//~ return $sql;
 	}
 	public function DatosTemporal($idTemporal){
 		// @ Objetivo:
@@ -202,7 +206,6 @@ class PedidosCompras extends ClaseCompras{
 					if (gettype($smt)==='array'){
 						$respuesta['error']=$smt['error'];
 						$respuesta['consulta']=$smt['consulta'];
-					
 					}
 				}else{
 					$respuesta['error']=$smt['error'];
@@ -277,13 +280,14 @@ class PedidosCompras extends ClaseCompras{
 	public function TodosTemporal(){
 		//Muestra todos los temporales, esta función la utilizamos en el listado de pedidos
 		$db = $this->db;
-		$Sql= 'SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id';
-		//~ $smt=$db->query($Sql);
+		$Sql= 'SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, 
+		c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on 
+		tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id';
 		$smt=$this->consulta($Sql);
 		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
 		}else{
 			$pedidosPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
@@ -298,12 +302,14 @@ class PedidosCompras extends ClaseCompras{
 	public function TodosPedidosLimite($limite = ''){
 		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
 		$db	=$this->db;
-		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on a.idProveedor=b.idProveedor '. $limite ;
+		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, 
+		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on 
+		a.idProveedor=b.idProveedor '. $limite ;
 		$smt=$this->consulta($Sql);
 		$respuesta=array();
 		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
 		}else{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($respuesta,$result);
@@ -357,19 +363,34 @@ class PedidosCompras extends ClaseCompras{
 		
 		$db=$this->db;
 		if ($numPedido>0){
-			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'".' and Numpedpro='.$numPedido);
-			$pedidosPrincipal=array();
-			if ($result = $smt->fetch_assoc () ){
-				$pedido=$result;
+			$sql='SELECT Numpedpro, FechaPedido, total, id FROM pedprot 
+			WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'"
+			.' and Numpedpro='.$numPedido;
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$pedido['error']=$smt['error'];
+				$pedido['consulta']=$smt['consulta'];
+			}else{
+				$pedidosPrincipal=array();
+				if ($result = $smt->fetch_assoc () ){
+					$pedido=$result;
+				}
+				$pedido['Nitem']=1; // No lo entiendo , y si la consulta obtiene mas.
 			}
-			$pedido['Nitem']=1;
 		}else{
-			$smt=$db->query('SELECT Numpedpro, FechaPedido, total, id FROM pedprot WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'");
-			$pedidosPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($pedidosPrincipal,$result);	
+			$sql='SELECT Numpedpro, FechaPedido, total, id FROM pedprot
+			 WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'";
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$pedido['error']=$smt['error'];
+				$pedido['consulta']=$smt['consulta'];
+			}else{
+				$pedidosPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($pedidosPrincipal,$result);	
+				}
+				$pedido['datos']=$pedidosPrincipal;
 			}
-			$pedido['datos']=$pedidosPrincipal;
 		}
 		
 		
@@ -380,9 +401,9 @@ class PedidosCompras extends ClaseCompras{
 		$sql='UPDATE pedprot SET FechaPedido= "'.$fecha.'" where id='.$idPedido;
 		$smt=$this->consulta($Sql);
 		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
 		}
 		
 	}

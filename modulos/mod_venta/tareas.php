@@ -50,7 +50,7 @@ switch ($pulsado) {
 			$busqueda = $_POST['busqueda'];
 			$dedonde = $_POST['dedonde'];
 			$idcaja=$_POST['idcaja'];
-			$tabla='clientes';
+			//~ $tabla='clientes';
 			if ($idcaja=="id_cliente"){
 				$res=$Ccliente->DatosClientePorId($busqueda);
 				if ($res){
@@ -113,7 +113,6 @@ switch ($pulsado) {
 			$idCliente=$_POST['idCliente'];
 			$res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
 			if (isset($res['Nitem'])){
-					
 					$respuesta['temporales']=1;
 					$respuesta['datos']['Numalbcli']=$res['Numalbcli'];
 					$respuesta['datos']['idalbcli']=$res['id'];
@@ -148,7 +147,6 @@ switch ($pulsado) {
 		$existe=0;
 		if ($idTemporal>0){
 			$res=$CcliPed->ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos);
-			
 		}else{
 			$res=$CcliPed->addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos);
 			$idTemporal=$res['id'];

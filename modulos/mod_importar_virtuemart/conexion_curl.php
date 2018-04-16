@@ -51,7 +51,9 @@ curl_close ($ch);
 
 //[ ANALIZAMOS Y MOSTRAMOS POSIBLES ERRORES ]
 if (isset($error)){
-	$respuesta['error'] = $error;
+	if ($error !==''){
+		$respuesta['error'] = $error;
+	}
 }
 // [ OBTENEMOS ARRAY DE DATOS DE TMP ARTICULOS COMPLETA ]
 $respuesta = json_decode($respuesta,true);

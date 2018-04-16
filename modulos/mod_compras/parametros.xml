@@ -57,10 +57,13 @@
 			<nombre id_input="cajaBusquedaproveedor">cajaBusquedaproveedor</nombre>
 			<teclas>
 				<action tecla="13">buscarProveedor</action>
+				<action tecla="40">mover_down</action>
+
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
 			</parametros> 
+			
 		</caja_input>
 		<caja_input>
 			<nombre id_input="idArticulo">cajaidArticulo</nombre>

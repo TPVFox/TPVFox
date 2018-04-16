@@ -33,7 +33,9 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Mostrar los datos principales de una factura temnporal
 			$db = $this->db;
-			$smt = $db->query ('SELECT tem.numfaccli, tem.id , tem.idClientes, tem.total, b.Nombre from faccliltemporales as tem left JOIN clientes as b on tem.idClientes=b.idClientes');
+			$smt = $db->query ('SELECT tem.numfaccli, tem.id , tem.idClientes,
+			 tem.total, b.Nombre from faccliltemporales as tem left JOIN 
+			 clientes as b on tem.idClientes=b.idClientes');
 			$facturaPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($facturaPrincipal,$result);
@@ -45,7 +47,8 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Mostrar los datos principales de todas las facturas con el filtro de paginacion 
 		$db=$this->db;
-		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
+		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado 
+		FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
 		$smt=$this->consulta($sql);
 		//~ echo '<pre>';
 		//~ print_r($smt);
@@ -132,7 +135,12 @@ class FacturasVentas extends ClaseVentas{
 		$db = $this->db;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
-		$smt=$db->query('UPDATE faccliltemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio='.$fecha.' , Albaranes ='."'".$UnicoCampoAlbaranes."'". ' ,Productos='."'".$UnicoCampoProductos."'".'  WHERE id='.$idTemporal);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
+		$smt=$db->query('UPDATE faccliltemporales SET idUsuario='.$idUsuario
+		.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio='
+		.$fecha.' , Albaranes ="'.$PrepAlbaranes.'" ,Productos="'.$PrepProductos
+		.'  WHERE id='.$idTemporal);
 		$respuesta['idTemporal']=$idTemporal;
 		$respuesta['productos']=$UnicoCampoProductos;
 	
@@ -144,7 +152,12 @@ class FacturasVentas extends ClaseVentas{
 		$db = $this->db;
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
-		$smt = $db->query ('INSERT INTO faccliltemporales ( idUsuario , idTienda , estadoFacCli , fechaInicio, idClientes, Albaranes, Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '.$idCliente.' , '."'".$UnicoCampoAlbaranes."'".', '."'".$UnicoCampoProductos."'".')');
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
+		$smt = $db->query ('INSERT INTO faccliltemporales ( idUsuario , idTienda ,
+		 estadoFacCli , fechaInicio, idClientes, Albaranes, Productos ) VALUES ('
+		 .$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '
+		 .$idCliente.' , "'.$PrepAlbaranes.'", "'.$PrepProductos.'")');
 		$id=$db->insert_id;
 		$respuesta['id']=$id;
 		$respuesta['productos']=$productos;
@@ -182,11 +195,23 @@ class FacturasVentas extends ClaseVentas{
 		//Añadir todos los registros de las diferentes tablas de una factura real
 		$db = $this->db;
 		if ($idFactura>0){
-			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento,  fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'", "'.$datos['fechaModificacion'].'")');
+			$smt = $db->query ('INSERT INTO facclit (id, Numfaccli, Fecha, idTienda 
+			, idUsuario , idCliente , estado , total, fechaCreacion, formaPago, 
+			fechaVencimiento,  fechaModificacion) VALUES ('.$idFactura.' , '.$numFactura
+			.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '
+			.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'
+			.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento']
+			.'", "'.$datos['fechaModificacion'].'")');
 			$id=$idFactura;
 		}else{
-			$smt = $db->query ('INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'" ,  "'.$datos['fechaModificacion'].'")');
-			$resultado['sql1']='INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'" ,  "'.$datos['fechaModificacion'].'")';
+			$smt = $db->query ('INSERT INTO facclit (Numtemp_faccli , Fecha, 
+			idTienda , idUsuario , idCliente , estado , total, fechaCreacion,
+			 formaPago, fechaVencimiento, fechaModificacion) VALUES ('
+			 .$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']
+			 . ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado']
+			 .'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago']
+			 .', "'.$datos['fechaVencimiento'].'" ,  "'.$datos['fechaModificacion'].'")');
+			//~ $resultado['sql1']='INSERT INTO facclit (Numtemp_faccli , Fecha, idTienda , idUsuario , idCliente , estado , total, fechaCreacion, formaPago, fechaVencimiento, fechaModificacion) VALUES ('.$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", '.$datos['formapago'].', "'.$datos['fechaVencimiento'].'" ,  "'.$datos['fechaModificacion'].'")';
 			$id=$db->insert_id;
 			$smt = $db->query('UPDATE facclit SET Numfaccli  = '.$id.' WHERE id ='.$id);
 		}
@@ -210,20 +235,36 @@ class FacturasVentas extends ClaseVentas{
 				
 				}
 				if ($idFactura>0){
-				$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$idFactura.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numAl.')' );
+				$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli ,
+				 idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva,
+				  iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$idFactura
+				  .' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras
+				  .', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades']
+				  .', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea']
+				  .'" , '.$numAl.')' );
 				}else{
-				$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numAl.')' );
-				$resultado['sql2']='INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numAl.')';
+				$smt=$db->query('INSERT INTO facclilinea (idfaccli  , Numfaccli ,
+				 idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, 
+				 iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '
+				 .$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'
+				 .$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '
+				 .$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea']
+				 .'" , '.$numAl.')' );
+				//~ $resultado['sql2']='INSERT INTO facclilinea (idfaccli  , Numfaccli , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numAl.')';
 				}
 				$i++;
 			}
 		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idFactura>0){
-			$smt=$db->query('INSERT INTO faccliIva (idfaccli  ,  Numfaccli  , iva , importeIva, totalbase) VALUES ('.$id.', '.$idFactura.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+			$smt=$db->query('INSERT INTO faccliIva (idfaccli  ,  Numfaccli  , iva , 
+			importeIva, totalbase) VALUES ('.$id.', '.$idFactura.' , '.$iva.', '
+			.$basesYivas['iva'].' , '.$basesYivas['base'].')');
 
 			}else{
-			$smt=$db->query('INSERT INTO faccliIva (idfaccli  ,  Numfaccli  , iva , importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+			$smt=$db->query('INSERT INTO faccliIva (idfaccli  ,  Numfaccli  , iva , 
+			importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '
+			.$basesYivas['iva'].' , '.$basesYivas['base'].')');
 
 			}
 		}
@@ -232,16 +273,22 @@ class FacturasVentas extends ClaseVentas{
 		foreach ($albaranes as $albaran){
 			if ($albaran['estado']=="activo" || $albaran['estado']=="Activo"){
 			if($idFactura>0){
-				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')');
+				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   
+				, idAlbaran , numAlbaran) VALUES ('.$id.', '.$idFactura.' ,  '.$albaran['idalbcli']
+				.' , '.$albaran['Numalbcli'].')');
 				}else{
-				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura   , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '.$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')');
+				$smt=$db->query('INSERT INTO albclifac (idFactura  ,  numFactura  
+				 , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '
+				 .$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')');
 				}
 			}
 		}
 		}
 		if(is_array($datos['importes'])){
 			foreach ($datos['importes'] as $importe){
-				$sql='INSERT INTO fac_cobros (idFactura, idFormasPago, FechaPago, importe, Referencia) VALUES ('.$id.' , '.$importe['forma'].' , "'.$importe['fecha'].'", '.$importe['importe'].', '."'".$importe['referencia']."'".')';
+				$sql='INSERT INTO fac_cobros (idFactura, idFormasPago, FechaPago, 
+				importe, Referencia) VALUES ('.$id.' , '.$importe['forma'].' , "'
+				.$importe['fecha'].'", '.$importe['importe'].', '."'".$importe['referencia']."'".')';
 				$smt=$db->query($sql);
 				$resultado['sql']=$sql;
 			}
@@ -252,7 +299,8 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Selecciona el importe iva y total base de una factura real
 		$db=$this->db;
-		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase from faccliIva where  Numfaccli  ='.$numFactura);
+		$smt=$db->query('select sum(importeIva ) as importeIva , sum(totalbase) as
+		  totalbase from faccliIva where  Numfaccli  ='.$numFactura);
 		if ($result = $smt->fetch_assoc () ){
 			$factura=$result;
 		}
@@ -264,22 +312,6 @@ class FacturasVentas extends ClaseVentas{
 		$db=$this->db;
 		$smt=$db->query('UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal);
 	}
-	//~ public function importesFacturaDatos($idFactura){
-		//~ //@Objetivo:
-		//~ //Buscar los importes añadidos a una factura 
-		//~ $db=$this->db;
-		//~ $smt=$db->query ('SELECT total , entregado, importes FROM facclit where id='.$idFactura );
-			//~ if ($result = $smt->fetch_assoc () ){
-			//~ $factura=$result;
-		//~ }
-		//~ return $factura;
-	//~ }
-	//~ public function modificarImportesFactura($idFactura, $jsonImporte, $entregado, $estado){
-		//~ //@Objetivo:
-		//~ //Modifica los importes de una factura
-		//~ $db=$this->db;
-		//~ $smt=$db->query('UPDATE facclit SET importes='."'".$jsonImporte."'".' , entregado='.$entregado.' , estado="'.$estado.'" where id='.$idFactura);
-	//~ }
 	public function modificarImportesTemporal($idTemporal, $importes){
 		$db=$this->db;
 		

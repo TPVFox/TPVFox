@@ -60,9 +60,15 @@ class Articulos{
 	}
 	public function modificarProveedorArticulo($datos){
 		$db=$this->db;
-		$smt=$db->query('UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor']);
-		$sql='UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='.$datos['idProveedor'];
-		$respuesta['sql']=$sql;
+		$sql='UPDATE articulosProveedores SET crefProveedor='."'".$datos['refProveedor']
+		."'".' WHERE idArticulo='.$datos['idArticulo'].' and idProveedor='
+		.$datos['idProveedor'];
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 		return $respuesta;
 	}
 	public function modificarCosteProveedorArticulo($datos){

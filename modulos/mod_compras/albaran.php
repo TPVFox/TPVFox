@@ -168,7 +168,7 @@ include './../../head.php';
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = '<?php echo $fecha;?>';
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
-		cabecera['suNumero']=<?php echo $suNumero; ?>;
+		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	var pedidos =[];
