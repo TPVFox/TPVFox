@@ -75,6 +75,7 @@ switch ($pulsado) {
 				if (isset($res['datos'])){
 					$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
 					$respuesta['Estado'] = 'Listado';
+					$respuesta['html']=$respuesta['listado'];
 				}
 			}
 			$respuesta['sql']=$res['sql'];
