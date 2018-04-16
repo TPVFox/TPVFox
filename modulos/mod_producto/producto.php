@@ -22,8 +22,8 @@
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		// Cargamos el plugin que nos interesa.
-		if (count($CArticulos_>GetPlugins())>0){
-			foreach ($CArticulos_>GetPlugins() as $plugin){
+		if (count($CTArticulos->GetPlugins())>0){
+			foreach ($CTArticulos->GetPlugins() as $plugin){
 				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
 					
 				}
