@@ -15,7 +15,6 @@ include_once ("./funciones.php");
 include_once ("../mod_incidencias/popup_incidencias.php");
 include_once '../../clases/Proveedores.php';
 $CProveedores=new Proveedores($BDTpv);
-
 include_once "clases/pedidosCompras.php";
 $CPed=new PedidosCompras($BDTpv);
 include_once "clases/albaranesCompras.php";
@@ -136,23 +135,6 @@ switch ($pulsado) {
 			}
 			echo json_encode($respuesta);
 		break;
-		
-		//~ case 'buscarReferencia':
-			//~ //@Objetivo:
-			//~ //Busca si un articulo tiene referencia de proveedor
-			//~ $idArticulo=$_POST['idArticulo'];
-			//~ $idProveedor=$_POST['idProveedor'];
-			//~ $coste=$_POST['coste'];
-			//~ $fila=$_POST['fila'];
-			//~ $datosArticulo=$CArticulos->buscarReferencia($idArticulo, $idProveedor);
-			//~ $articulo=$CArticulos->buscarNombreArticulo($idArticulo);
-			
-			//~ $html=htmlCambioRefProveedor($datosArticulo, $fila, $articulo, $coste);
-			//~ $respuesta['html']=$html['html'];
-			
-			//~ echo json_encode($respuesta);
-		
-		//~ break;
 		
 		case 'comprobarAdjunto':
 			//@Objetivo:
@@ -455,7 +437,6 @@ switch ($pulsado) {
 					$pro=$rest['productos'];
 					$res=$rest['id'];
 					$idFacturaTemp=$res;
-					//~ $respuesta['sql1']=$rest['sql'];
 				}
 			}
 			if ($idFactura>0){
@@ -464,7 +445,6 @@ switch ($pulsado) {
 					$respuesta['error']=$modId['error'];
 					$respuesta['consulta']=$modId['consulta'];
 				}else{
-					//~ $respuesta['sql2']=$modId['sql'];
 					$estado="Sin Guardar";
 					$modEstado=$CFac->modEstadoFactura($idFactura, $estado);
 					if (isset($modEstado['error'])){
@@ -524,38 +504,6 @@ switch ($pulsado) {
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
-		
-		//~ case 'AddCosteProveedor':
-		//~ //@objetivo: Añadir o modificar los registros de referencia
-		//~ //@Parametros :
-		//~ //idProveedor: El id del proveedor 
-		//~ //idArticulo: id del articulo
-		//~ //Valor: valor que hemos colocado en el input
-		//~ //fecha: la fecha que la necesitamos para compararla con la del registro, si la fecha nuestra es menor que la del registro muestra un error
-		
-			//~ $buscar=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
-			//~ $respuesta['costeAnt']=$buscar;
-			//~ $datos=array(
-				//~ 'coste'=>$_POST['valor'],
-				//~ 'idArticulo'=>$_POST['idArticulo'],
-				//~ 'idProveedor'=>$_POST['idProveedor'],
-				//~ 'fecha'=>$_POST['fecha'],
-				//~ 'estado'=>"activo"
-			//~ );
-			
-			//~ if ($buscar){
-				//~ if ($buscar['fechaActualizacion']>$_POST['fecha']){
-					//~ $respuesta['error']=1;
-				//~ }else{
-					//~ $mod=$CArticulos->modificarCosteProveedorArticulo($datos);
-				//~ }
-				
-			//~ }else{
-				//~ $datos['refProveedor']=0;
-				//~ $add=$CArticulos->addArticulosProveedores($datos);
-			//~ }
-			//~ echo json_encode($respuesta);
-		//~ break;
 		
 		case 'datosImprimir':
 			//Imprimir un documento , dependiendo de donde venga se pone el nombre y envía todos los datos  
@@ -644,7 +592,6 @@ switch ($pulsado) {
 					$respuesta['error']=$modImportes['error'];
 					$respuesta['consulta']=$modImportes['consulta'];
 				}
-				//~ $respuesta['sqlmod']=$modImportes;
 				$html=htmlImporteFactura($nuevo, $BDTpv);
 				$respuesta['html']=$html['html'];
 			}
@@ -661,13 +608,13 @@ switch ($pulsado) {
 		'idReal'=>$idReal
 		);
 		$datos=json_encode($datos);
-		
 		$estado="No resuelto";
 		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
 		break;
+		
 		case 'nuevaIncidencia':
 		$usuario= $_POST['usuario'];
 		$fecha= $_POST['fecha'];
