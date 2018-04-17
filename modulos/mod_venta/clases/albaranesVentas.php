@@ -336,7 +336,13 @@ class AlbaranesVentas extends ClaseVentas{
 		//@Objetivo:
 		//Modificar estado de un albarán real
 		$db=$this->db;
-		$smt=$db->query('UPDATE albclit SET estado="'.$estado.'" WHERE id='.$idAlbaran);
+		$sql='UPDATE albclit SET estado="'.$estado.'" WHERE id='.$idAlbaran;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 		
 	}
 	
@@ -345,12 +351,19 @@ class AlbaranesVentas extends ClaseVentas{
 				//Comprobar los albaranes de un determinado estado
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';
-		$smt=$db->query('SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado);
+		$sql='SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado;
 		$albaranes=0;
-		while ( $result = $smt->fetch_assoc () ) {
-			$albaranes['alb']=1;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}else{
+			while ( $result = $smt->fetch_assoc () ) {
+				$albaranes['alb']=1;
+			}
+			return $albaranes;
 		}
-		return $albaranes;
 	}
 	
 	
@@ -358,31 +371,36 @@ class AlbaranesVentas extends ClaseVentas{
 		$db=$this->db;
 		$pedido['busqueda']=$busqueda;
 		if ($busqueda>0){
-		$smt=$db->query('select  Numalbcli , id , Fecha  , total from albclit where
-		 Numalbcli ='.$busqueda.' and  idCliente='. $idCliente);
-		if ($smt){
-			if ($result = $smt->fetch_assoc () ){
-				$pedido=$result;
+			$sql='select  Numalbcli , id , Fecha  , total from albclit where
+			 Numalbcli ='.$busqueda.' and  idCliente='. $idCliente;
+			 $smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$pedido['error']=$smt['error'];
+				$pedido['consulta']=$smt['consulta'];
+			}else{
+				if ($result = $smt->fetch_assoc () ){
+					$pedido=$result;
+				}
+				$pedido['Nitem']=1;
 			}
-			$pedido['Nitem']=1;
-		}
 		}else{
-			$smt=$db->query('SELECT  Numalbcli , Fecha  , total , id from albclit 
-			where idCliente='.$idCliente .' and estado="Guardado"');
-		
+			$sql='SELECT  Numalbcli , Fecha  , total , id from albclit 
+			where idCliente='.$idCliente .' and estado="Guardado"';
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$pedido['error']=$smt['error'];
+				$pedido['consulta']=$smt['consulta'];
+			}else{
 			$pedidosPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($pedidosPrincipal,$result);	
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($pedidosPrincipal,$result);	
+				}
+				
+				$pedido['datos']=$pedidosPrincipal;
 			}
-			
-			$pedido['datos']=$pedidosPrincipal;
-			
 		}
 		return $pedido;
 	}
-
-	
-	
 }
 
 ?>
