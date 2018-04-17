@@ -31,9 +31,10 @@ class PedidosVentas extends ClaseVentas{
 	}
 	
 	public function addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos){
+		
+		$db = $this->db;
 		$UnicoCampoProductos=json_encode($productos);
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
-		$db = $this->db;
 		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario,
 		 estadoPedCli, idPedcli, Productos ) VALUES ('.$idCliente.', '
 		 .$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', "'.$PrepProductos.'")';
@@ -303,7 +304,7 @@ class PedidosVentas extends ClaseVentas{
 		$pedido['busqueda']=$busqueda;
 		if ($busqueda>0){
 		$sql='select  Numpedcli, id , FechaPedido , total from 
-		pedclit where Numpedcli='.$busqueda.' and  idCliente='. $idCliente
+		pedclit where Numpedcli='.$busqueda.' and  idCliente='. $idCliente;
 		$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 				$pedido['error']=$smt['error'];

@@ -184,7 +184,7 @@ switch ($pulsado) {
 				$respuesta['error']=$res['error'];
 				$respuesta['consulta']=$res['consulta'];
 			}else{
-			$idTemporal=$res['id'];
+				$idTemporal=$res['id'];
 			//~ $respuesta['sql']=$res['sql'];
 			}
 		}
