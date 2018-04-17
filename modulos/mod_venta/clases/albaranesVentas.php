@@ -140,84 +140,101 @@ class AlbaranesVentas extends ClaseVentas{
 		
 	}
 	
-		public function AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran){
+public function AddAlbaranGuardado($datos, $idAlbaran){
 			//@Objetivo:
 			//Añadir nuevos registros de un albaran real 
+		$i=1;
 		$db = $this->db;
 		if ($idAlbaran>0){
-			$smt = $db->query ('INSERT INTO albclit (id, Numalbcli, Fecha, idTienda , 
-			idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.' , '.$numAlbaran
+			$sql='INSERT INTO albclit (id, Numalbcli, Fecha, idTienda , 
+			idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.' , '.$idAlbaran
 			.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '
-			.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].')');
-			$id=$idAlbaran;
+			.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].')';
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				
+			}else{
+				$id=$idAlbaran;
+			}
 		}else{
-			$smt = $db->query ('INSERT INTO albclit (Numtemp_albcli, Fecha, idTienda ,
+			$sql='INSERT INTO albclit (Numtemp_albcli, Fecha, idTienda ,
 			 idUsuario , idCliente , estado , total) VALUES ('.$datos['Numtemp_albcli']
 			 .' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario']
-			 .', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].')');
-			$id=$db->insert_id;
-			$smt = $db->query('UPDATE albclit SET Numalbcli  = '.$id.' WHERE id ='.$id);
+			 .', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].')';
+			 $smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				
+			}else{
+				$id=$db->insert_id;
+				$sql='UPDATE albclit SET Numalbcli  = '.$id.' WHERE id ='.$id;
+				$smt=$this->consulta($sql);
+				if (gettype($smt)==='array'){
+					$respuesta['error']=$smt['error'];
+					$respuesta['consulta']=$smt['consulta'];
+				
+				}
+			}
 		}
 		$productos = json_decode($datos['productos'], true); 
-		$i=1;
 		foreach ( $productos as $prod){
 			if ($prod['estadoLinea']== 'Activo'){
-			if ($prod['ccodbar']){
-				$codBarras=$prod['ccodbar'];
-			}else{
-				$codBarras=0;
-			}
-			if ($prod['Numpedcli']){
-				$numPed=$prod['Numpedcli'];
-			}else{
 				$numPed=0;
-			}
-			if ($idAlbaran>0){
-				$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo
-				 , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea,
-				  NumpedCli ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '
-				  ."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '
-				  .$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '
-				  .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' );	
-			}else{
-				$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo
+				$codBarras=0;
+				if ($prod['ccodbar']){
+					$codBarras=$prod['ccodbar'];
+				}
+				if ($prod['Numpedcli']){
+					$numPed=$prod['Numpedcli'];
+				}
+			
+				$sql='INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo
 				 , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, 
 				 estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']
-				 .', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '
+				 .', '."'".$prod['cref']."'".', "'.$codBarras.'", "'.$prod['cdetalle'].'", '
 				 .$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '
-				 .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
+				 .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' ;
+				 $i++;
+				 $smt=$this->consulta($sql);
+				 
+				if (gettype($smt)==='array'){
+					$respuesta['error']=$smt['error'];
+					$respuesta['consulta']=$smt['consulta'];
+					break;
+				}
+			
+				
 			}
-			$i++;
-		}
 		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
-			if($idAlbaran>0){
-				$smt=$db->query('INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva , 
-				importeIva, totalbase) VALUES ('.$id.', '.$idAlbaran.' , '.$iva.', '
-				.$basesYivas['iva'].' , '.$basesYivas['base'].')');
-
-			}else{
 				$smt=$db->query('INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva ,
 				importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '
 				.$basesYivas['iva'].' , '.$basesYivas['base'].')');
-
-			}
+				$smt=$this->consulta($sql);
+				if (gettype($smt)==='array'){
+					$respuesta['error']=$smt['error'];
+					$respuesta['consulta']=$smt['consulta'];
+					break;
+				}
 		}
 		$pedidos = json_decode($datos['pedidos'], true); 
 		foreach ($pedidos as $pedido){
 			if ($pedido['estado']=="activo" || $pedido['estado']=="Activo"){
-				if($idAlbaran>0){
-					$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran  
-					 , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '
-					 .$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')');
-
-				}else{
-					$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran  
+				$sql='INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran  
 					 , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli']
-					 .' , '.$pedido['Numpedcli'].')');
+					 .' , '.$pedido['Numpedcli'].')';
+				$smt=$this->consulta($sql);
+				if (gettype($smt)==='array'){
+					$respuesta['error']=$smt['error'];
+					$respuesta['consulta']=$smt['consulta'];
+					break;
 				}
 			}
 		}
+		return $respuesta;
 }
 	
 	

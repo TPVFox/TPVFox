@@ -108,7 +108,7 @@ include './../../head.php';
 			}else{
 				$total=0;
 			}
-			//Creamos el array con todos los datos 
+			$idAlbaran=0;
 			$datos=array(
 			'Numtemp_albcli'=>$idTemporal,
 			'Fecha'=>$_POST['fecha'],
@@ -121,20 +121,46 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
+			$errores=array();
 			if($datosAlbaran['numalbcli']>0){
-				$id=$Calbcli->datosAlbaranNum($datosAlbaran['numalbcli']);
-				$numAlbaran=$datosAlbaran['numalbcli'];
-				$idAlbaran=$id['id'];
+				$idAlbaran=$datosAlbaran['numalbcli'];
 				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
-				 $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran);
-				 $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
-			 }else{
-				$idAlbaran=0;
-				$numAlbaran=0;
-				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran, $numAlbaran);
-				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+				if (isset($eliminarTablasPrincipal['error'])){
+				$errores[0]=array ( 'tipo'=>'Danger!',
+											 'dato' => $eliminarTablasPrincipal['consulta'],
+											 'class'=>'alert alert-danger',
+											 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+											 );
+				}
+				
 			}
-		 header('Location: albaranesListado.php');
+			if(count($errores)==0){
+				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
+					if(isset($addNuevo['error'])){
+					$errores[1]=array ( 'tipo'=>'Danger!',
+												 'dato' => $addNuevo['consulta'],
+												 'class'=>'alert alert-danger',
+												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+												 );
+					}
+				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
+					if(isset($eliminarTemporal['error'])){
+					$errores[2]=array ( 'tipo'=>'Danger!',
+												 'dato' => $eliminarTemporal['consulta'],
+												 'class'=>'alert alert-danger',
+												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+												 );
+					}
+				}
+			if(count($errores)==0){
+				header('Location: albaranesListado.php');
+			}else{
+					foreach($errores as $error){
+						echo '<div class="'.$error['class'].'">'
+						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+						. '</div>';
+				}
+			}
 			
 		}
 		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
