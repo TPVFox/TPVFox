@@ -137,14 +137,14 @@ class FacturasVentas extends ClaseVentas{
 		}
 		
 	}
-	public function buscarTemporalNumReal($idFactura){
-		//@Objetivo:
-		//Buscar un temporal por número de factura real
-		$tabla='faccliltemporales';
-		$where='numfaccli='.$idFactura;
-		$factura = parent::SelectUnResult($tabla, $where);
-		return $factura;
-	}
+	//~ public function buscarTemporalNumReal($idFactura){
+		//~ //@Objetivo:
+		//~ //Buscar un temporal por número de factura real
+		//~ $tabla='faccliltemporales';
+		//~ $where='numfaccli='.$idFactura;
+		//~ $factura = parent::SelectUnResult($tabla, $where);
+		//~ return $factura;
+	//~ }
 	
 	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idTemporal, $productos){
 		//@Objetivo:

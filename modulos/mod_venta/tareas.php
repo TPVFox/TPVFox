@@ -309,7 +309,6 @@ switch ($pulsado) {
 			$estadoFactura=$_POST['estado'];
 			$numFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
-			
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
 			if(isset($_POST['albaranes'])){
@@ -317,29 +316,42 @@ switch ($pulsado) {
 			}else{
 				$albaranes=array();
 			}
+			$respuesta=array();
 			$existe=0;
-			if ($numFactura>0){
-				$factura=$CFac->buscarTemporalNumReal($numFactura);
-				$idFacturaTemp=$factura['id'];
-			}
+			//~ if ($numFactura>0){
+				//~ $factura=$CFac->buscarTemporalNumReal($numFactura);
+				//~ $idFacturaTemp=$factura['id'];
+			//~ }
 			if ($idFacturaTemp>0){
 				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idFacturaTemp, $productos);
-				$existe=1;
-				
-				$res=$rest['idTemporal'];
-				$pro=$rest['productos'];
+				if(isset($rest['error'])){
+					$respuesta['error']=$rest['error'];
+					$respuesta['consulta']=$rest['consulta'];
+				}else{
+					$existe=1;	
+					$res=$rest['idTemporal'];
+					$pro=$rest['productos'];
+				}
 			}else{
 				$rest=$CFac->insertarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $productos, $idCliente);
-				$existe=0;
-				$pro=$rest['productos'];
-				$res=$rest['id'];
-				$idFacturaTemp=$res;
+				if(isset($rest['error'])){
+					$respuesta['error']=$rest['error'];
+					$respuesta['consulta']=$rest['consulta'];
+				}else{
+					$existe=0;
+					$pro=$rest['productos'];
+					$res=$rest['id'];
+					$idFacturaTemp=$res;
+				}
 				
 			}
 			$respuesta['numFactura']=$numFactura;
 			if ($numFactura>0){
 				$modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
-				
+				if(isset($modId['error'])){
+					$respuesta['error']=$modId['error'];
+					$respuesta['consulta']=$modId['consulta'];
+				}
 			}
 			if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
@@ -349,6 +361,10 @@ switch ($pulsado) {
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
 				$modTotal=$CFac->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
+				if(isset($modTotal['error'])){
+					$respuesta['error']=$modTotal['error'];
+					$respuesta['consulta']=$modTotal['consulta'];
+				}
 				$htmlTotales=htmlTotales($CalculoTotales);
 				$respuesta['htmlTabla']=$htmlTotales['html'];
 				
@@ -523,14 +539,18 @@ switch ($pulsado) {
 		$formasVenci=array();
 		$formasVenci['forma']=$opcion;
 		$formasVenci['fechaVencimiento']=$fechaVenci;
-		
+		$respuesta=array();
 		$json=json_encode($formasVenci);
 		
 		if ($idTemporal>0){
 			$modTemporal=$CFac->formasVencimientoTemporal($idTemporal, $json);
+			if(isset($modTemporal['error'])){
+					$respuesta['error']=$modTemporal['error'];
+					$respuesta['consulta']=$modTemporal['consulta'];
+			}
 		}
-		$respuesta=$json;
-		echo json_encode($modTemporal);
+		//~ $respuesta=$json;
+		echo json_encode($respuesta);
 		break;
 		
 		case 'modificarEstadoFactura':
@@ -538,8 +558,13 @@ switch ($pulsado) {
 		//Modificar el estado de una factura 
 		$idFactura=$_POST['idModificar'];
 		$estado=$_POST['estado'];
+		$respuesta=array();
 		$modEstado=$CFac->modificarEstado($idFactura, $estado);
-		echo json_encode($modEstado);
+		if(isset($modEstado['error'])){
+					$respuesta['error']=$modEstado['error'];
+					$respuesta['consulta']=$modEstado['consulta'];
+		}
+		echo json_encode($respuesta);
 		break;
 		
 		
@@ -567,21 +592,33 @@ switch ($pulsado) {
 		 $referencia=$_POST['referencia'];
 		 $total=$_POST['total'];
 		 $idReal=$_POST['idReal'];
-		
 		 $arrayPrincipal=array();
+		 $respuesta=array();
 		 $error=0;
 		 $bandera=$importe;
 		 $importesReal=$CFac->importesFactura($idReal);
+		 if (isset($importesReal['error'])){
+			$respuesta['error']=$importesReal['error'];
+			$respuesta['consulta']=$importesReal['consulta'];
+		}
 		 $respuesta['importeReal']=$importesReal;
 		 if(count($importesReal)>0){
 			 $importesReal=modificarArraysImportes($importesReal, $total);
 			$importesTemporal=json_encode($importesReal);
 			$eliminarReal=$CFac->eliminarRealImportes($idReal);
+			if (isset($eliminarReal['error'])){
+				$respuesta['error']=$eliminarReal['error'];
+				$respuesta['consulta']=$eliminarReal['consulta'];
+			}
 			$respuesta['impTemporal']=$importesTemporal;
 		 }else{
-			 $importesTemporal=$CFac->importesTemporal($idFactura);
-			 $importesTemporal=$importesTemporal['FacCobros'];
-			 $bandera=$importe;
+			$importesTemporal=$CFac->importesTemporal($idFactura);
+			if (isset($importesTemporal['error'])){
+				$respuesta['error']=$importesTemporal['error'];
+				$respuesta['consulta']=$importesTemporal['consulta'];
+			}
+			$importesTemporal=$importesTemporal['FacCobros'];
+			$bandera=$importe;
 		 }
 		 
 		 if ($importesTemporal){
@@ -611,6 +648,10 @@ switch ($pulsado) {
 			array_push($arrayPrincipal, $nuevo);
 			$jsonImporte=json_encode($arrayPrincipal);
 			$modImportes=$CFac->modificarImportesTemporal($idFactura, $jsonImporte);
+			if (isset($modImportes['error'])){
+				$respuesta['error']=$modImportes['error'];
+				$respuesta['consulta']=$modImportes['consulta'];
+			}
 			$respuesta['sqlmod']=$modImportes;
 			$html=htmlImporteFactura($nuevo, $BDTpv);
 			$respuesta['html']=$html['html'];
