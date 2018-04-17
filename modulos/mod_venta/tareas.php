@@ -174,13 +174,26 @@ switch ($pulsado) {
 		$existe=0;
 		if ($idTemporal>0){
 			$res=$CcliPed->ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos);
+			if(isset($res['error'])){
+				$respuesta['error']=$res['error'];
+				$respuesta['consulta']=$res['consulta'];
+			}
 		}else{
 			$res=$CcliPed->addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos);
+			if(isset($res['error'])){
+				$respuesta['error']=$res['error'];
+				$respuesta['consulta']=$res['consulta'];
+			}else{
 			$idTemporal=$res['id'];
-			$respuesta['sql']=$res['sql'];
+			//~ $respuesta['sql']=$res['sql'];
+			}
 		}
 		if ($idReal>0){
 			$modNum=$CcliPed->ModIdReal($idTemporal, $idReal);
+			if(isset($modNum['error'])){
+				$respuesta['error']=$modNum['error'];
+				$respuesta['consulta']=$modNum['consulta'];
+			}
 		}
 		if ($productos){
 				$productos_para_recalculo = json_decode( json_encode( $productos ));
@@ -190,6 +203,10 @@ switch ($pulsado) {
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
 				$modTotal=$CcliPed->modTotales($idTemporal, $respuesta['total'], $CalculoTotales['subivas']);
+				if(isset($modTotal['error'])){
+					$respuesta['error']=$modTotal['error'];
+					$respuesta['consulta']=$modTotal['consulta'];
+				}
 			
 				$htmlTotales=htmlTotales($CalculoTotales);
 				$respuesta['htmlTabla']=$htmlTotales['html'];
