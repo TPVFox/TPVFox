@@ -803,47 +803,51 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
 			var HtmlAlbaranes=resultado.html;   //$resultado['html'] de montaje html
-			if (valor==""){ //Si el usuario selecciona el icono de buscar pedido abre un modal 
-			//con los pedidos del cliente
-				var titulo = 'Listado Albaranes ';
-				abrirModal(titulo, HtmlAlbaranes);
+			if(resultado.error){
+				alert('Error de sql: '+resultado.consulta);
 			}else{
-				if (resultado.Nitems>0){
-					var bandera=0;
-					for(i=0; i<albaranes.length; i++){//recorre todo el array de arrays de pedidos
-						var numeroAlbaran=albaranes[i].Numalbcli;
-						var numeroNuevo=resultado['datos'].Numalbcli;
-
-						if (numeroAlbaran == numeroNuevo){
-							bandera=bandera+1;
-						}
-					}
-					if (bandera==0){// si no hay repetidos
-						var datos = [];
-						datos = resultado['datos'];
-						n_item=parseInt(albaranes.length)+1;
-						datos.nfila=n_item;
-						albaranes.push(datos);// En el array de arrays  de pedidos de la cabecera metemos el array de pedido nuevo 
-						productosAdd=resultado.productos;
-						var numFila=productos.length+1;
-						for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
-							resultado.productos[i]['nfila']=numFila;
-							resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['precioCiva'];
-							productos.push(resultado.productos[i]);
-							numFila++;
-						}
-						addTemporal(dedonde);
-						AgregarFilaProductosAl(resultado.productos, dedonde);
-						modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);
-						AgregarFilaAlbaran(datos, dedonde);
-						
-						
-						
-					}else{
-						alert("Ya has introducido ese pedido");
-					}
+				if (valor==""){ //Si el usuario selecciona el icono de buscar pedido abre un modal 
+				//con los pedidos del cliente
+					var titulo = 'Listado Albaranes ';
+					abrirModal(titulo, HtmlAlbaranes);
 				}else{
-					alert("No hay resultado");
+					if (resultado.Nitems>0){
+						var bandera=0;
+						for(i=0; i<albaranes.length; i++){//recorre todo el array de arrays de pedidos
+							var numeroAlbaran=albaranes[i].Numalbcli;
+							var numeroNuevo=resultado['datos'].Numalbcli;
+
+							if (numeroAlbaran == numeroNuevo){
+								bandera=bandera+1;
+							}
+						}
+						if (bandera==0){// si no hay repetidos
+							var datos = [];
+							datos = resultado['datos'];
+							n_item=parseInt(albaranes.length)+1;
+							datos.nfila=n_item;
+							albaranes.push(datos);// En el array de arrays  de pedidos de la cabecera metemos el array de pedido nuevo 
+							productosAdd=resultado.productos;
+							var numFila=productos.length+1;
+							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
+								resultado.productos[i]['nfila']=numFila;
+								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['precioCiva'];
+								productos.push(resultado.productos[i]);
+								numFila++;
+							}
+							addTemporal(dedonde);
+							AgregarFilaProductosAl(resultado.productos, dedonde);
+							modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);
+							AgregarFilaAlbaran(datos, dedonde);
+							
+							
+							
+						}else{
+							alert("Ya has introducido ese pedido");
+						}
+					}else{
+						alert("No hay resultado");
+					}
 				}
 			}
 		}
