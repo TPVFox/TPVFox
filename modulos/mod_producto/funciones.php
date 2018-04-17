@@ -197,7 +197,10 @@ function  htmlTablaRefTiendas($crefTiendas){
 			.'		</thead>';
 	if (count($crefTiendas)>0){
 		foreach ($crefTiendas as $item=>$crefTienda){
-			$html .= htmlLineaRefTienda($item,$crefTienda);
+			if ($crefTienda['tipoTienda'] !=='principal'){
+				// No generamos html de tienda principal ya que no tiene sentido.
+				$html .= htmlLineaRefTienda($item,$crefTienda);
+			}
 		}
 	}
 	$html .= '</table>	';

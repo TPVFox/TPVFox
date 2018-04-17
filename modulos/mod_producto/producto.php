@@ -112,9 +112,9 @@
 		}
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		// Obtenemos referencias de tiendas :
-		echo '<pre>';
-		print_r($Producto);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($Producto);
+		//~ echo '</pre>';
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
