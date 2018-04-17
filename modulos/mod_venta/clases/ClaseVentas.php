@@ -42,7 +42,7 @@ class ClaseVentas{
 	public function SelectVariosResult($tabla, $where){
 		$db=$this->db;
 		$sql='SELECT * from '.$tabla.' where '.$where;
-		
+		$smt = $db->query($sql);
 		//~ $smt=$db->query('SELECT * from '.$tabla.' where '.$where);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
