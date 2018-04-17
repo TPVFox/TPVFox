@@ -975,11 +975,15 @@ function comprobarAlbaranesExis(){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de comprobar pedidos');
 			var resultado =  $.parseJSON(response); 
-			if (resultado.alb==1){
-				$("#numAlbaranT").show();
-				$("#numAlbaran").show();
-				$("#buscarAlbaran").show();
-				$("#tablaAlbaran").show();
+			if (resultado.error){
+				alert('Error de SQL: '+resultado.consulta);
+			}else{
+				if (resultado.alb==1){
+					$("#numAlbaranT").show();
+					$("#numAlbaran").show();
+					$("#buscarAlbaran").show();
+					$("#tablaAlbaran").show();
+				}
 			}
 			
 		}

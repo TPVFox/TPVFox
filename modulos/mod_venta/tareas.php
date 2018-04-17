@@ -362,22 +362,27 @@ switch ($pulsado) {
 		//Objetivo:
 		//Comprobar los albaranes con estado guardado que son del cliente seleccionado
 		$idCliente=$_POST['idCliente'];
-			$estado="Guardado";
+		$estado="Guardado";
+		$respuesta=array();
 			if ($idCliente>0){
 				$comprobar=$CalbAl->ComprobarAlbaranes($idCliente, $estado);
-				if (isset ($comprobar['alb'])){
-					if ($comprobar['alb']==1){
-						$respuesta['alb']=1;
-						
+				if (isset($comprobar['error'])){
+					$respuesta['error']=$comprobar['error'];
+					$respuesta['consulta']=$comprobar['consulta'];
+				}else{
+					if (isset ($comprobar['alb'])){
+						if ($comprobar['alb']==1){
+							$respuesta['alb']=1;
+							
+						}else{
+							$respuesta['alb']=0;
+							
+						}	
 					}else{
 						$respuesta['alb']=0;
-						
-					}	
-				}else{
-					$respuesta['alb']=0;
-					$respuesta['sql']=$comprobar['sql'];
+						$respuesta['sql']=$comprobar['sql'];
+					}
 				}
-				
 			}
 			echo json_encode($respuesta);
 		break;
@@ -387,7 +392,7 @@ switch ($pulsado) {
 		//Objetivo:
 		//Devuelve el html de la fila del pedido 
 		//	$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
-		$res=htmlLineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+			$res=htmlLineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
