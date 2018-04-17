@@ -476,14 +476,20 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
-		case 'buscarDatosPedido':
-		//@Objetivo:
-		 //Busca los datos de un pedido en concreto
-			$idPedido=$_POST['idPedido'];
-			$res=$CcliPed->datosPedidos($idPedido);
-			$respuesta['NumPedido']=$res['Numpedcli'];
-			echo json_encode($respuesta);
-		break;
+		//~ case 'buscarDatosPedido':
+		//~ //@Objetivo:
+		 //~ //Busca los datos de un pedido en concreto
+			//~ $idPedido=$_POST['idPedido'];
+			//~ $respuesta=array();
+			//~ $res=$CcliPed->datosPedidos($idPedido);
+			//~ if(isset($res['error'])){
+				//~ $respuesta['error']=$res['error'];
+				//~ $respuesta['consulta']=$res['consulta'];
+			//~ }else{
+				//~ $respuesta['NumPedido']=$res['Numpedcli'];
+			//~ }
+			//~ echo json_encode($respuesta);
+		//~ break;
 		
 		case 'htmlFomasVenci':
 			//@Objetivo:
