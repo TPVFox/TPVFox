@@ -262,16 +262,16 @@ class PedidosVentas extends ClaseVentas{
 		
 	}
 	
-	public function contarPedidosTemporal($idPedido){
-		//@Objetivo:
-		//Contar los registros temporales que tiene un id real
-		$db=$this->db;
-		$smt=$db->query('Select count(id) as numPedTemp FROM pedcliltemporales where idPedcli='.$idPedido );
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
-		return $pedido;
-		}
+	//~ public function contarPedidosTemporal($idPedido){
+		//~ //@Objetivo:
+		//~ //Contar los registros temporales que tiene un id real
+		//~ $db=$this->db;
+		//~ $smt=$db->query('Select count(id) as numPedTemp FROM pedcliltemporales where idPedcli='.$idPedido );
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $pedido=$result;
+		//~ }
+		//~ return $pedido;
+		//~ }
 		
 	public function sumarIva($numPedido){
 		//@Objetivo:
