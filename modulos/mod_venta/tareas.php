@@ -90,8 +90,8 @@ switch ($pulsado) {
 			$idCliente=$_POST['idCliente'];
 			$res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
 			if (isset($res['error'])){
-				$respuesta['error']=$respuesta['error'];
-				$respuesta['consulta']=$respuesta['consulta'];
+				$respuesta['error']=$res['error'];
+				$respuesta['consulta']=$res['consulta'];
 			}else{
 				$respuesta['res']=$res;
 				if ($res['Nitem']==1){
@@ -130,23 +130,32 @@ switch ($pulsado) {
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
 			$res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
-			if (isset($res['Nitem'])){
-					$respuesta['temporales']=1;
-					$respuesta['datos']['Numalbcli']=$res['Numalbcli'];
-					$respuesta['datos']['idalbcli']=$res['id'];
-					$respuesta['datos']['fecha']=$res['Fecha'];
-					$respuesta['datos']['total']=$res['total'];
-					$respuesta['datos']['idAlbaran']=$res['id'];
-					$respuesta['datos']['estado']="Activo";
-					$respuesta['Nitems']=$res['Nitem'];
-					$productosAlbaran=$CalbAl->ProductosAlbaran($res['id']);
-					$respuesta['productos']=$productosAlbaran;
-				
+			if (isset($res['error'])){
+				$respuesta['error']=$res['error'];
+				$respuesta['consulta']=$res['consulta'];
 			}else{
-				$respuesta=$res;
-				$modal=modalAdjunto($res['datos']);
-				$respuesta['html']=$modal['html'];
-				
+				if (isset($res['Nitem'])){
+						$respuesta['temporales']=1;
+						$respuesta['datos']['Numalbcli']=$res['Numalbcli'];
+						$respuesta['datos']['idalbcli']=$res['id'];
+						$respuesta['datos']['fecha']=$res['Fecha'];
+						$respuesta['datos']['total']=$res['total'];
+						$respuesta['datos']['idAlbaran']=$res['id'];
+						$respuesta['datos']['estado']="Activo";
+						$respuesta['Nitems']=$res['Nitem'];
+						$productosAlbaran=$CalbAl->ProductosAlbaran($res['id']);
+						if(isset($productosAlbaran['error'])){
+							$respuesta['error']=$productosAlbaran['error'];
+							$respuesta['consulta']=$productosAlbaran['consulta'];
+						}
+						$respuesta['productos']=$productosAlbaran;
+					
+				}else{
+					$respuesta=$res;
+					$modal=modalAdjunto($res['datos']);
+					$respuesta['html']=$modal['html'];
+					
+				}
 			}
 			echo json_encode($respuesta);
 		break;
