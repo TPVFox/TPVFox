@@ -79,7 +79,7 @@ class AlbaranesVentas extends ClaseVentas{
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$sql='UPDATE albcliltemporales SET numalbcli ='.$numAlbaran
-		.' WHERE id='.$idTempora;
+		.' WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
