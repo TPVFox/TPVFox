@@ -365,11 +365,16 @@ switch ($pulsado) {
 		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
 			$idPedido=$_POST['idModificar'];
 			$estado=$_POST['estado'];
+			$respuesta=array();
 			$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
+			if(isset($modEstado['error'])){
+				$respuesta['error']=$modEstado['error'];
+				$respuesta['consulta']=$modEstado['consulta'];
+			}
 			//~ if (isset ($respuesta)){
 				//~ echo json_encode($respuesta);
 			//~ }
-		
+		echo json_encode($respuesta);
 		break;
 		
 		case 'comprobarPedidos':

@@ -346,7 +346,7 @@ class PedidosVentas extends ClaseVentas{
 				$resultado['error']=$smt['error'];
 				$resultado['consulta']=$smt['consulta'];
 				return $resultado;
-			}
+		}
 		//~ return $resultado;
 	}
 	
