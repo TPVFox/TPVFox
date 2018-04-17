@@ -158,7 +158,7 @@ class FacturasVentas extends ClaseVentas{
 		$sql='UPDATE faccliltemporales SET idUsuario='.$idUsuario
 		.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio='
 		.$fecha.' , Albaranes ="'.$PrepAlbaranes.'" ,Productos="'.$PrepProductos
-		.'  WHERE id='.$idTemporal;
+		.' " WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -188,7 +188,7 @@ class FacturasVentas extends ClaseVentas{
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
+				//~ return $respuesta;
 		}else{
 			$id=$db->insert_id;
 			$respuesta['id']=$id;

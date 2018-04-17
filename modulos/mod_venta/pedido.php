@@ -22,14 +22,35 @@ include './../../head.php';
 	$idPedido=0;
 	$total=0;
 	$idCliente=0;
-	
+	$errores=array();
 if ($_GET){
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
 		$datosPedido=$Cpedido->datosPedidos($idPedido);//Buscar los datos de pedido 
+		if (isset($datosPedido['error'])){
+		$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $datosPedido['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+		}
 		$estado=$datosPedido['estado'];
 		$productosPedido=$Cpedido->ProductosPedidos($idPedido);//Buscamos los productos de ese pedido en su respectiva tabla
+		if (isset($productosPedido['error'])){
+		$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $productosPedido['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+		}
 		$ivasPedido=$Cpedido->IvasPedidos($idPedido);//Buscamos los datos del iva 
+		if (isset($ivasPedido['error'])){
+		$errores[2]=array ( 'tipo'=>'Danger!',
+								 'dato' => $ivasPedido['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+		}
 		$fecha=$datosPedido['FechaPedido'];
 		$idCliente=$datosPedido['idCliente'];
 		if ($idCliente){
@@ -47,6 +68,13 @@ if ($_GET){
 			if ($_GET['tActual']){//Si recibe un id de un temporal 
 			$idTemporal=$_GET['tActual'];
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscamos los datos del temporal
+			if (isset($pedidoTemporal['error'])){
+			$errores[3]=array ( 'tipo'=>'Danger!',
+								 'dato' => $pedidoTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+			}
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
 			if ($pedidoTemporal['idPedcli']){
@@ -81,11 +109,19 @@ $titulo .= ': '.$estado;
 				$idTemporal=$_GET['tActual'];
 			}
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
+			if (isset($pedidoTemporal['error'])){
+			$errores[3]=array ( 'tipo'=>'Danger!',
+								 'dato' => $pedidoTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+			}
 			if(isset($pedidoTemporal['total'])){
 				$total=$pedidoTemporal['total'];
 			}else{
 				$total=0;
 			}
+			$idPedido=0;
 			$fechaCreacion=date("Y-m-d H:i:s");
 			$datosPedido=array(
 			'NPedidoTemporal'=>$idTemporal,
@@ -101,30 +137,54 @@ $titulo .= ': '.$estado;
 			'productos'=>$pedidoTemporal['Productos'],
 			'DatosTotales'=>$Datostotales
 			);
-			
-			if ($pedidoTemporal['idPedcli']){
-				//Elimina los registros reales de pedidos  , añadir nuevos registros y eliminar el temporal , cuando se añaden nuevos registros
-				//si tiene número de pedido se mantiene 
+			if (isset($pedidoTemporal['idPedcli'])){
 				$idPedido=$pedidoTemporal['idPedcli'];
-				$datosPedidoReal=$Cpedido->datosPedidos($idPedido);
-				$numPedido=$datosPedidoReal['Numpedcli'];
-				
-				$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
-			}else{
-				//Como no tenemos número de pedido solo añadimos registros nuevos y eliminamos el temporal
-				$idPedido=0;
-				$numPedido=0;
-				$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-				$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
 			}
+			
+			if ($idPedido>0){
+				$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
+				if (isset($eliminarTablasPrincipal['error'])){
+				$errores[3]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTablasPrincipal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}
+			}
+				if(count($errores)==0){
+					$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+					if(isset($addNuevo['error'])){
+						$errores[4]=array ( 'tipo'=>'Danger!',
+								 'dato' => $addNuevo['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+					}
+				
+					$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
+					if(isset($eliminarTemporal['error'])){
+						$errores[5]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+					}
+				}
+				if(count($errores)==0){
+					//~ header('Location: pedidosListado.php');
+				}else{
+					foreach ($errores as $error){
+						echo '<div class="'.$error['class'].'">'
+						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+						. '</div>';
+					}
+				}
+			
+			
 			//~ echo '<pre>';
-			//~ print_r($addNuevo);
+			//~ print_r($errores);
 			//~ echo '</pre>';
-			header('Location: pedidosListado.php');
 		}
-		
 		if (isset($datosPedido)){
 			if($estado=="Facturado"){
 				$style="display:none;";
@@ -210,6 +270,13 @@ if ($idCliente===0){
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
 	include '../../header.php';
+	if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+}
 ?>
 <script type="text/javascript">
 <?php echo $VarJS;?>

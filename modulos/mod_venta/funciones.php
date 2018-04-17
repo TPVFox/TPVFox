@@ -372,7 +372,7 @@ function htmlPedidoAlbaran($pedidos, $dedonde){
 
 
 function htmlAlbaranFactura($albaranes, $dedonde){
-	$respuesta="";
+	$respuesta=array();
 	$respuesta['html']="";
 	if(isset($albaranes)){
 	foreach($albaranes as $albaran){

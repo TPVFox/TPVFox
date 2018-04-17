@@ -322,6 +322,7 @@ switch ($pulsado) {
 				//~ $factura=$CFac->buscarTemporalNumReal($numFactura);
 				//~ $idFacturaTemp=$factura['id'];
 			//~ }
+			$res=$idFacturaTemp;
 			if ($idFacturaTemp>0){
 				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idFacturaTemp, $productos);
 				if(isset($rest['error'])){
@@ -329,7 +330,6 @@ switch ($pulsado) {
 					$respuesta['consulta']=$rest['consulta'];
 				}else{
 					$existe=1;	
-					$res=$rest['idTemporal'];
 					$pro=$rest['productos'];
 				}
 			}else{
@@ -353,7 +353,7 @@ switch ($pulsado) {
 					$respuesta['consulta']=$modId['consulta'];
 				}
 			}
-			if ($productos){
+			if (isset($productos)){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotales($productos_para_recalculo);
