@@ -84,13 +84,14 @@ function  modificarEstado(dedonde, estado, idModificar){
 		type       : 'post',
 		beforeSend : function () {
 			console.log('******** estoy en Modificar estado factura js****************');
-			success    :  function (response) {
+		},
+		success    :  function (response) {
 				var resultado =  $.parseJSON(response); 
 				if (resultado.error){
 					alert('Error de SQL: '+resultado.consulta);
 				}
 			}
-		},
+		
 	});
 }
 function buscarClientes(dedonde, idcaja, valor=''){
