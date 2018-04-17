@@ -338,8 +338,8 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 
 
 function htmlPedidoAlbaran($pedidos, $dedonde){
-	$respuesta="";
-	$respuesta['html']="";
+	$respuesta=array();
+	$respuesta['html']='';
 	if(isset($pedidos)){
 	foreach($pedidos as $pedido){
 		if ($pedido['estado']){
@@ -450,11 +450,11 @@ function modalAdjunto($adjuntos){
 
 function modificarArrayPedidos($pedidos, $BDTpv){
 	$respuesta=array();
-		$i=1;
+	$i=1;
 	foreach ($pedidos as $pedido){
 			$datosPedido=$BDTpv->query('SELECT * FROM pedclit WHERE id= '.$pedido['idPedido'] );
 			while ($fila = $datosPedido->fetch_assoc()) {
-				$ped[] = $fila;
+				$ped= $fila;
 			}
 			if ($pedido['numPedido']){
 				$numPedido=$pedido['numPedido'];
