@@ -125,9 +125,15 @@ class FacturasVentas extends ClaseVentas{
 		//Eliminar el resgistro de un temporal indicado
 		$db=$this->db;
 		if ($idFactura>0){
-			$smt=$db->query('DELETE FROM faccliltemporales WHERE numfaccli ='.$idFactura);
+			$sql='DELETE FROM faccliltemporales WHERE numfaccli ='.$idFactura;
 		}else{
-			$smt=$db->query('DELETE FROM faccliltemporales WHERE id='.$idTemporal);
+			$sql='DELETE FROM faccliltemporales WHERE id='.$idTemporal;
+		}
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
 		}
 		
 	}
@@ -144,16 +150,24 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Modificar los datos de una factura temporal
 		$db = $this->db;
+		$respuesta=array();
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
-		$smt=$db->query('UPDATE faccliltemporales SET idUsuario='.$idUsuario
+		$sql='UPDATE faccliltemporales SET idUsuario='.$idUsuario
 		.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio='
 		.$fecha.' , Albaranes ="'.$PrepAlbaranes.'" ,Productos="'.$PrepProductos
-		.'  WHERE id='.$idTemporal);
-		$respuesta['idTemporal']=$idTemporal;
-		$respuesta['productos']=$UnicoCampoProductos;
+		.'  WHERE id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$respuesta['idTemporal']=$idTemporal;
+			$respuesta['productos']=$UnicoCampoProductos;
+		}
 	
 		return $respuesta;
 	}
@@ -161,45 +175,81 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Insertar nuevo registro de factura 
 		$db = $this->db;
+		$respuesta=array();
 		$UnicoCampoAlbaranes=json_encode($albaranes);
 		$UnicoCampoProductos=json_encode($productos);
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
-		$smt = $db->query ('INSERT INTO faccliltemporales ( idUsuario , idTienda ,
+		$sql='INSERT INTO faccliltemporales ( idUsuario , idTienda ,
 		 estadoFacCli , fechaInicio, idClientes, Albaranes, Productos ) VALUES ('
 		 .$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '
-		 .$idCliente.' , "'.$PrepAlbaranes.'", "'.$PrepProductos.'")');
-		$id=$db->insert_id;
-		$respuesta['id']=$id;
-		$respuesta['productos']=$productos;
+		 .$idCliente.' , "'.$PrepAlbaranes.'", "'.$PrepProductos.'")';
+		 $smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$id=$db->insert_id;
+			$respuesta['id']=$id;
+			$respuesta['productos']=$productos;
+		}
 		return $respuesta;
 	}
 	public function addNumRealTemporal($idTemporal,  $numFactura){
 		//@Objetivo:
 		//Añadir a una factura temporal el número real de la factura en el caso de que exista 
 		$db = $this->db;
-		$smt=$db->query('UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal);
+		$sql='UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
 	}
 	public function modTotales($res, $total, $totalivas){
 		//@Objetivo:
 		//Modificar el total de una factura temporal
 		$db=$this->db;
-		$smt=$db->query('UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
+		$sql='UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
 	}
 	public function modificarEstado($idFactura, $estado){
 		//@Objetivo:
 		//Modificar el estado de una factura real
 		$db=$this->db;
-		$smt=$db->query('UPDATE facclit set estado="'.$estado .'" where id='.$idFactura);
+		$sql='UPDATE facclit set estado="'.$estado .'" where id='.$idFactura;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
 	}
 	public function eliminarFacturasTablas($idFactura){
 		//@Objetivo:
 		//Eliminar todos los registros de un id de factura real
+		$respuesta=array();
 		$db=$this->db;
-		$smt=$db->query('DELETE FROM  facclit where id='.$idFactura );
-		$smt=$db->query('DELETE FROM  facclilinea where idfaccli ='.$idFactura );
-		$smt=$db->query('DELETE FROM faccliIva where idfaccli ='.$idFactura );
-		$smt=$db->query('DELETE FROM albclifac where idFactura  ='.$idFactura );	
+		$sql[0]='DELETE FROM  facclit where id='.$idFactura ;
+		$sql[1]='DELETE FROM  facclilinea where idfaccli ='.$idFactura ;
+		$sql[2]='DELETE FROM faccliIva where idfaccli ='.$idFactura ;
+		$sql[3]='DELETE FROM albclifac where idFactura  ='.$idFactura ;	
+		foreach($sql as $consulta){
+			$smt=$this->consulta($consulta);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				break;
+			}
+		}
+		return $respuesta;
 	}
 	public function AddFacturaGuardado($datos, $idFactura, $numFactura){
 		//@Objetivo:
@@ -321,35 +371,64 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Modificar la forma de vencimiento de una factura temporal
 		$db=$this->db;
-		$smt=$db->query('UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal);
+		$sql='UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
 	}
 	public function modificarImportesTemporal($idTemporal, $importes){
 		$db=$this->db;
-		
 		$sql='UPDATE faccliltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal;
-		$smt=$db->query($sql);
-		return $sql;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
 	}
 	public function importesTemporal($idTemporal){
 		$db=$this->db;
-		$smt=$db->query ('SELECT FacCobros FROM faccliltemporales where id='.$idTemporal );
+		$sql='SELECT FacCobros FROM faccliltemporales where id='.$idTemporal ;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
 			if ($result = $smt->fetch_assoc () ){
-			$factura=$result;
+				$factura=$result;
+			}
+			return $factura;
 		}
-		return $factura;
 	}
 	public function importesFactura($idFactura){
 		$db=$this->db;
-		$smt=$db->query ('SELECT * FROM fac_cobros where idFactura='.$idFactura );
-		$importesPrincipal=array();
-		while ($result = $smt->fetch_assoc () ){
-			array_push($importesPrincipal,$result);
+		$sql='SELECT * FROM fac_cobros where idFactura='.$idFactura ;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$importesPrincipal=array();
+			while ($result = $smt->fetch_assoc () ){
+				array_push($importesPrincipal,$result);
+			}
+			return $importesPrincipal;
 		}
-		return $importesPrincipal;
 	}
 	public function eliminarRealImportes($idFactura){
 		$db=$this->db;
-		$smt=$db->query ('DELETE FROM  fac_cobros where idFactura='.$idFactura );
+		$sql='DELETE FROM  fac_cobros where idFactura='.$idFactura ;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
 	}
 }
 
