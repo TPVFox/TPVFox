@@ -380,15 +380,18 @@ var parametros = {
 		success    :  function (response) {
 			console.log('Respuesta de la modificación de los importes');
 			var resultado =  $.parseJSON(response);
-			if (resultado.mensaje==1){
-				//Se muestra el mensaje cuando el importe es superior al de la factura
-				alert("El importe introducido no es correcto");
+			if(resultado.error){
+				alert('Error de SQL:'+resultado.consulta);
 			}else{
-				$("#tablaImporte #fila0").after(resultado.html);
-				$("#tabla").find('input').attr("disabled", "disabled");
-				$("#tabla").find('a').css("display", "none");
+				if (resultado.mensaje==1){
+					//Se muestra el mensaje cuando el importe es superior al de la factura
+					alert("El importe introducido no es correcto");
+				}else{
+					$("#tablaImporte #fila0").after(resultado.html);
+					$("#tabla").find('input').attr("disabled", "disabled");
+					$("#tabla").find('a').css("display", "none");
+				}
 			}
-			
 			
 		}
 	});
