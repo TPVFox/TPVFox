@@ -1139,6 +1139,9 @@ function selectFormas(){
 		},
 		success    :  function (response) {
 			var resultado =  $.parseJSON(response); 
+			if(resultado.error){
+				alert('Error de SQL: '+resultado.consulta);
+			}
 		}
 	});	
 	if(option==4){
