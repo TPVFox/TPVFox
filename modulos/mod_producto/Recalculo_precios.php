@@ -15,7 +15,7 @@
 		$CArticulo=new Articulos($BDTpv);
 		$ruta_volver= $HostNombre.'/modulos/mod_compras/albaranesListado.php';
 		$titulo="Recalculo precios PVP ";
-        if ($_GET['id']){
+        if (isset($_GET['id'])){
 			$id=$_GET['id'];
 			$dedonde="albaran";
 			
@@ -30,8 +30,7 @@
 			$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
 			
 		}
-		if ($_POST['Guardar']){
-			echo "entre en guardar";
+		if (isset($_POST['Guardar'])){
 			$id=$_GET['id'];
 			$i=1;
 			$estado="";
@@ -103,21 +102,19 @@
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 	<script type="text/javascript">
-// Objetos cajas de tpv
-<?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
           return (tecla != 13);
       }
       <?php 
-      if ($_POST['Guardar']){
+      if (isset($_POST['Guardar'])){
 		  ?>
 		 mensajeImprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
 		
 		 
 		  <?php
 	  }
-	  if ($_POST['Imprimir']){
+	  if (isset($_POST['Imprimir'])){
 		?>
 		imprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
 		<?php	

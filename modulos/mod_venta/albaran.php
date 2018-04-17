@@ -56,12 +56,8 @@ include './../../head.php';
 		
 	}else{
 		$bandera=1;
-	
-		
-		
 			if (isset($_GET['tActual'])){//Recibido un albarán temporal
 				$idAlbaranTemporal=$_GET['tActual'];
-			
 				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);//Recogemos todos los datos del albarán temporal 
 				if (isset($datosAlbaran['numalbcli'])){
 					$numAlbaran=$datosAlbaran['numalbcli'];
@@ -125,9 +121,6 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
-	echo '<pre>';
-	print_r($datosAlbaran['Productos']);
-	echo '</pre>';
 			if($datosAlbaran['numalbcli']>0){
 				$id=$Calbcli->datosAlbaranNum($datosAlbaran['numalbcli']);
 				$numAlbaran=$datosAlbaran['numalbcli'];
@@ -146,16 +139,23 @@ include './../../head.php';
 		}
 		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
 		if (isset($_POST['Cancelar'])){
-			if ($_POST['idTemporal']){
+			if (isset($_POST['idTemporal'])){
 				$idTemporal=$_POST['idTemporal'];
 			}else{
-				$idTemporal=$_GET['tActual'];
+				if (isset($_GET['tActual'])){
+					$idTemporal=$_GET['tActual'];
+				}else{
+					$idTemporal=0;
+				}
+				
 			}
 			echo "entre en cancelar";
-			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-			$pedidos=json_decode($datosAlbaran['Pedidos'], true);
-			foreach ($pedidos as $pedido){
+			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
+			if (isset($datosAlbaran['Pedidos'])){
+				$pedidos=json_decode($datosAlbaran['Pedidos'], true);
+				foreach ($pedidos as $pedido){
 				$mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
+				}
 			}
 			$idAlbaran=0;
 			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
@@ -196,11 +196,6 @@ $titulo .= ': '.$estado;
 	var pedidos =[];
 <?php 
 	if (isset($albaranTemporal)| isset($idAlbaran)){ 
-?>
-//	console.log("entre en el javascript");
-	</script>
-	<script type="text/javascript">
-<?php
 	$i= 0;
 		if (isset($productos)){
 			foreach($productos as $product){
@@ -258,8 +253,8 @@ if (isset($_GET['tActual'])){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./albaranesListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+					<a  href="./albaranesListado.php">Volver Atrás</a>
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
 					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 					<?php

@@ -9,7 +9,9 @@ include ("./../../controllers/Controladores.php");
 include '../../clases/Proveedores.php';
 include 'clases/albaranesCompras.php';
 //include '../../clases/articulos.php';
-$Tienda = $_SESSION['tiendaTpv'];
+if (isset($_SESSION['tiendaTpv'])){
+	$Tienda = $_SESSION['tiendaTpv'];
+}
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
  $CArticulo=new Articulos($BDTpv);
@@ -21,13 +23,19 @@ $CAlb=new AlbaranesCompras($BDTpv);
 
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
-
+if (isset($todosTemporal['error'])){
+	$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $todosTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+}
 $todosTemporal=array_reverse($todosTemporal);
 	// --- Preparamos el Paginado --- //
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 10; // por defecto.
+	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
@@ -72,6 +80,13 @@ $todosTemporal=array_reverse($todosTemporal);
 	
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$albaranesDef=$CAlb->TodosAlbaranesLimite($filtro);
+	if (isset($albaranesDef['error'])){
+		$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $albaranesDef['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}
 ?>
 
 </head>
@@ -82,6 +97,13 @@ $todosTemporal=array_reverse($todosTemporal);
 <?php
 
 	include '../../header.php';
+	if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+	}
 	?>
 	<div class="container">
 		<div class="row">

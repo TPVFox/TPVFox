@@ -50,10 +50,13 @@ switch ($pulsado) {
 			$busqueda = $_POST['busqueda'];
 			$dedonde = $_POST['dedonde'];
 			$idcaja=$_POST['idcaja'];
-			$tabla='clientes';
+			$respuesta=array();
 			if ($idcaja=="id_cliente"){
 				$res=$Ccliente->DatosClientePorId($busqueda);
-				if ($res){
+				if (isset($res['error'])){
+					$respuesta['error']=$res['error'];
+					$respuesta['consulta']=$res['consulta'];
+				}else if (isset($res['idClientes'])){
 					$respuesta['res']=$res;
 					$respuesta['id']=$res['idClientes'];
 					$respuesta['nombre']=$res['Nombre'];
@@ -65,8 +68,13 @@ switch ($pulsado) {
 				
 			}else{
 				$buscarTodo=$Ccliente->BuscarClientePorNombre($busqueda);
-				$respuesta['html'] = htmlClientes($busqueda,$dedonde, $idcaja, $buscarTodo['datos']);
-				$respuesta['datos']=$buscarTodo['datos'];
+				if (isset($buscarTodo['error'])){
+					$respuesta['error']=$buscarTodo['error'];
+					$respuesta['consulta']=$buscarTodo['consulta'];
+				}else{
+					$respuesta['html'] = htmlClientes($busqueda,$dedonde, $idcaja, $buscarTodo['datos']);
+					$respuesta['datos']=$buscarTodo['datos'];
+				}
 			}
 			echo json_encode($respuesta);
 		break;	
@@ -112,8 +120,7 @@ switch ($pulsado) {
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
 			$res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
-			if ($res['Nitem']==1){
-					
+			if (isset($res['Nitem'])){
 					$respuesta['temporales']=1;
 					$respuesta['datos']['Numalbcli']=$res['Numalbcli'];
 					$respuesta['datos']['idalbcli']=$res['id'];
@@ -148,7 +155,6 @@ switch ($pulsado) {
 		$existe=0;
 		if ($idTemporal>0){
 			$res=$CcliPed->ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos);
-			
 		}else{
 			$res=$CcliPed->addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos);
 			$idTemporal=$res['id'];
@@ -184,21 +190,28 @@ switch ($pulsado) {
 			$idTienda=$_POST['idTienda'];
 			$estadoAlbaran=$_POST['estado'];
 			$fecha=$_POST['fecha'];
-			$pedidos=$_POST['pedidos'];
+			if (isset($_POST['pedidos'])){
+				$pedidos=$_POST['pedidos'];
+			}else{
+				$pedidos=array();
+			}
+			
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
 			$idReal=$_POST['idReal'];
 			$existe=0;
 			//Si el número del albarán real existe lo guardamos
-			if ($numAlbaran>0){
-				$albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
-				$idAlbaranTemp=$albaran['id'];
+			if (isset($numAlbaran)){
+				if ($numAlbaran>0){
+					$albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
+					$idAlbaranTemp=$albaran['id'];
+				}
 			}
 			//Si el albarán temporal existe lo modifica
 			if ($idAlbaranTemp>0){
 				$rest=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
 				$existe=1;
-				$respuesta['sql']=$rest['sql'];
+				//~ $respuesta['sql']=$rest['sql'];
 				$res=$rest['idTemporal'];
 				$pro=$rest['productos'];
 			}else{
@@ -243,10 +256,14 @@ switch ($pulsado) {
 			$estadoFactura=$_POST['estado'];
 			$numFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
-			$albaranes=$_POST['albaranes'];
+			
 			$productos=$_POST['productos'];
 			$idCliente=$_POST['idCliente'];
-			
+			if(isset($_POST['albaranes'])){
+				$albaranes=$_POST['albaranes'];
+			}else{
+				$albaranes=array();
+			}
 			$existe=0;
 			if ($numFactura>0){
 				$factura=$CFac->buscarTemporalNumReal($numFactura);

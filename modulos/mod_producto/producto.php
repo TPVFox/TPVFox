@@ -22,8 +22,8 @@
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		// Cargamos el plugin que nos interesa.
-		if (count($CArticulos_>GetPlugins())>0){
-			foreach ($CArticulos_>GetPlugins() as $plugin){
+		if (count($CTArticulos->GetPlugins())>0){
+			foreach ($CTArticulos->GetPlugins() as $plugin){
 				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
 					
 				}
@@ -82,7 +82,7 @@
 
 				} else {
 					// Quiere decir que hubo un error al principio
-					$preparados['Sqls']['comprobaciones'][] = $preparado_nuevo;
+					$preparados['Sqls']['comprobaciones'][] = $preparado_nuevo['insert_articulos'];
 				}
 				if (isset($preparado_nuevo['codbarras'])){
 					$preparados['Sqls']['codbarras'] = $preparado_nuevo['codbarras'];
@@ -91,6 +91,7 @@
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->getProducto($id);
+				
 		if (isset($preparados['Sqls'])){
 			// quiere decir que hizo consultas por lo que tenemos comprobaciones
 			if (isset($preparados['Sqls']['comprobaciones'])){
@@ -103,8 +104,14 @@
 					$CTArticulos->SetComprobaciones($comprobacion);
 				}
 			}
+			if (isset($preparados['Sqls']['insert_articulos'])){
+				foreach ($preparados['Sqls']['insert_articulos'] as $comprobacion){
+					$CTArticulos->SetComprobaciones($comprobacion);
+				}
+			}
 		}
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
+		
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
@@ -144,7 +151,10 @@
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
 		//~ $htmlVersionesCoches = htmlTablaVersionesCoches($id);
+<<<<<<< HEAD
 		
+=======
+>>>>>>> tvmaster
 		
 		
 		?>

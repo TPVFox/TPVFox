@@ -75,13 +75,13 @@ $titulo .= ': '.$estado;
 		}
 		//Pasar un pedido temporal a real
 		if (isset($_POST['Guardar'])){
-			if ($_POST['idTemporal']){
+			if (isset($_POST['idTemporal'])){
 				$idTemporal=$_POST['idTemporal'];
 			}else{
 				$idTemporal=$_GET['tActual'];
 			}
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
-			if($pedidoTemporal['total']){
+			if(isset($pedidoTemporal['total'])){
 				$total=$pedidoTemporal['total'];
 			}else{
 				$total=0;
@@ -126,10 +126,10 @@ $titulo .= ': '.$estado;
 		}
 		
 		if (isset($datosPedido)){
-			if($datosPedido['estado']=="Facturado"){
+			if($estado=="Facturado"){
 				$style="display:none;";
 				$disabled = 'disabled';
-			}else if (isset ($pedido)| $datosPedido['estado']=="Guardado"){
+			}else if (isset ($pedido)| $estado=="Guardado"){
 				$style="";
 				$disabled = '';
 			}else{
@@ -221,11 +221,12 @@ if ($idCliente===0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+			
 				<?php 
 				
-					if($datosPedido['estado']<>"Facturado"){
+					if($estado<>"Facturado"){
 				?>
 					<input type="submit" value="Guardar" name="Guardar">
 					<?php
@@ -321,8 +322,10 @@ if ($idCliente===0){
 		</thead>
 		<tbody>
 			<?php 
+			if (isset($Datostotales)){
 			$htmlIvas=htmlTotales($Datostotales);
-			echo $htmlIvas['html']; ?>
+			echo $htmlIvas['html'];
+			} ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">

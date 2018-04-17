@@ -45,7 +45,8 @@
 	$vista = 'cierres';
 	$LinkBase = './ListaCierres.php?';
 	$OtrosParametros = '';	
-
+	$filtro = '';
+	$limite = '';
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 		$desde = ($paginasMulti * $LimitePagina); 
@@ -68,17 +69,18 @@
 	if ($stringPalabras !== '' ){
 		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
 	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		$limite= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
 	
 	
 	if (isset($_GET['fecha1']) & isset($_GET['fecha2'])){
 		// SI recibe por get las fechas añade el filtro a la consulta
-		$filtro='where FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
+		$filtro=' FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
 	}
 	
-	$cierres = obtenerCierres($BDTpv,$filtro);
-	//~ print_r($cierres);
+	$cierres = obtenerCierres($BDTpv,$filtro,$limite);
+	
+	
 	?>
 	<script>
 	// Declaramos variables globales

@@ -483,6 +483,8 @@ function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProv
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "Productos");
 	$datosAlbaran=$CAlbaran->datosAlbaran($id);
 	$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
+	$imprimir['html']="";
+	$imprimir['cabecera']="";
 	$imprimir['html'] .='<p> ALBARÁN NÚMERO : '.$id.'</p>';
 	$date = date_create($datosAlbaran['Fecha']);
 	$imprimir['html'] .='<p> FECHA : '.date_format($date, 'Y-m-d').'</p>';
@@ -515,7 +517,8 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "compras");
 	$datosAlbaran=$CAlbaran->datosAlbaran($id);
 	$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
-	
+	$imprimir['html']="";
+	$imprimir['cabecera']="";
 	$imprimir['html'] .='<p> ALBARÁN NÚMERO : '.$id.'</p>';
 	$date = date_create($datosAlbaran['Fecha']);
 	$imprimir['html'] .='<p> FECHA : '.date_format($date, 'Y-m-d').'</p>';

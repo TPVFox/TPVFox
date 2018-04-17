@@ -29,6 +29,8 @@
 	$fecha=date('Y-m-d');
 	$Simporte="display:none;";
 	$formaPago=0;
+	$albaranes=array();
+	$importesFactura=array();
 	if (isset($_GET['id'])){//Si rebie un id quiere decir que ya existe la factura
 		$idFactura=$_GET['id'];
 		$datosFactura=$Cfaccli->datosFactura($idFactura);//Extraemos los datos de la factura 
@@ -36,10 +38,6 @@
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
 		$datosImportes=$Cfaccli->importesFactura($idFactura);
-		//~ echo '<pre>';
-		//~ print_r($datosImportes);
-		//~ echo '</pre>';
-		
 		$estado=$datosFactura['estado'];
 	
 		$date=date_create($datosFactura['Fecha']);
@@ -50,16 +48,16 @@
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$datosCliente['Nombre']."'";
 		}
-		if ($datosFactura['formaPago']){
+		if (isset($datosFactura['formaPago'])){
 			$formaPago=$datosFactura['formaPago'];
 		}
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
-		if ($datosFactura['FechaVencimiento']){
+		if (isset($datosFactura['FechaVencimiento'])){
 			$date=date_create($datosFactura['FechaVencimiento']);
 			$fechave=date_format($date,'Y-m-d');
 		}else{
 			$fec=date('Y-m-d');
-			$fechave=fechaVencimiento($fechave, $BDTpv);
+			$fechave=fechaVencimiento($fec, $BDTpv);
 		}
 		$textoFecha=htmlVencimiento($fechave, $BDTpv);
 		$productosMod=modificarArrayProductos($productosFactura);
@@ -126,14 +124,13 @@
 		}
 		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
-			if ($_GET['id']>0){
-			
+			if (isset($_GET['id'])){
 			 header('Location: facturasListado.php');
 			}else{
 			$estado="Guardado";
-			if ($_POST['idTemporal']){
+			if (isset($_POST['idTemporal'])){
 				$idTemporal=$_POST['idTemporal'];
-			}else if($_GET['tActual']){
+			}else if(isset($_GET['tActual'])){
 				$idTemporal=$_GET['tActual'];
 				
 			}else{
@@ -210,12 +207,17 @@
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
 		if (isset($_POST['Cancelar'])){
-			if ($_POST['idTemporal']){
+			if (isset($_POST['idTemporal'])){
 				$idTemporal=$_POST['idTemporal'];
 			}else{
-				$idTemporal=$_GET['tActual'];
+				if (isset ($_GET['tActual'])){
+					$idTemporal=$_GET['tActual'];
+				}else{
+					$idTemporal=0;
+				}
+				
 			}
-		if ($idTemporal){
+		if ($idTemporal>0){
 			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
 			$albaranes=json_decode($datosFactura['Albaranes'], true);
 			foreach ($albaranes as $albaran){
@@ -332,8 +334,9 @@ if ($idCliente==0){
 <div class="container">
 			
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  href="./facturasListado.php">Volver Atrás</a>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+			<a  href="./facturasListado.php">Volver Atrás</a>
+			
 					<input type="submit" value="Guardar" id="Guardar" name="Guardar">
 					<input type="submit" value="Cancelar" id="Cancelar" name="Cancelar">
 					<?php
@@ -399,10 +402,10 @@ if ($idCliente==0){
 	
 		<div>
 			<div style="margin-top:-50px;" id="tablaAl">
-			<label style="<?php echo $stylea;?>" id="numAlbaranT">Número del albaran:</label>
-			<input style="<?php echo $stylea;?>" type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
-			<a style="<?php echo $stylea;?>" id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>
-			<table  class="col-md-12" style="<?php echo $stylea;?>" id="tablaAlbaran"> 
+			<label  id="numAlbaranT">Número del albaran:</label>
+			<input  type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
+			<a  id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>
+			<table  class="col-md-12"  id="tablaAlbaran"> 
 				<thead>
 				
 				<td><b>Número</b></td>
@@ -439,7 +442,7 @@ if ($idCliente==0){
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		  <tr id="Row0" style=<?php echo $style;?>>  
+		  <tr id="Row0">  
 			<td id="C0_Linea" ></td>
 			<td></td>
 			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="13" value=""  onkeydown="controlEventos(event)"></td>
@@ -515,7 +518,9 @@ if ($idCliente==0){
 				<td>
 					<select name='Eformas' id='Eformas'>
 				<?php 
-				echo $textoFormaPago['html'];
+				if(isset ($textoFormaPago['html'])){
+					echo $textoFormaPago['html'];
+				}
 				?>
 				</select>
 				</td>
@@ -552,8 +557,12 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#id_cliente').prop('disabled', true);
 		$("#buscar").css("display", "none");
 		<?php
+	}else{
+		?>
+		$("#Row0").css("display", "none");
+		<?php
 	}
-	if (count ($importesFactura)>0){
+	if (count($importesFactura)>0){
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");

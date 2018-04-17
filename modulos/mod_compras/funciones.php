@@ -17,17 +17,14 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	$idcaja;
 	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
 	$resultado['html'] .= '<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'.
-				'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
+				'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda.'"
+				 onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($proveedores)>10){
 		$resultado['html'] .= '<span>10 clientes de '.count($proveedores).'</span>';
 	}
-	$resultado['html'] .= '<table class="table table-striped"><thead>';
-	$resultado['html'] .= ' <th></th>'; //cabecera blanca para boton agregar
-	$resultado['html'] .= ' <th>Nombre</th>';
-	$resultado['html'] .= ' <th>Razon social</th>';
-	$resultado['html'] .= ' <th>NIF</th>';
-	$resultado['html'] .= '</thead><tbody>';
+	$resultado['html'] .= '<table class="table table-striped"><thead>'
+	. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
 	if (count($proveedores)>0){
 		$contad = 0;
 		foreach ($proveedores as $proveedor){  
@@ -36,16 +33,18 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 		
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
+			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '
+			."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
-			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-			$resultado['html'] .= '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.$proveedor['nif'].'</td>';
-			$resultado['html'] .= '</tr>';
+						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('
+						.$contad.')"   type="image"  alt="">'
+			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
+			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
+			. '<td>'.$proveedor['nif'].'</td>'
+			.'</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
@@ -74,8 +73,11 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$likes = array();
 	$whereIdentico = array();
 	foreach($palabras as $palabra){
+	
+		
 		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
 		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
+	
 	}
 	
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
@@ -83,18 +85,25 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$busquedas = array();
 	
 	if ($palabra !== ''){ 
-		$busquedas[] = implode(' and ',$whereIdentico);
+		if ($idcaja=="cajaBusqueda"){
+			$busquedas[] = implode(' and ',$likes);
+		}else{
+			$busquedas[] = implode(' and ',$whereIdentico);
 	
-		$busquedas[] = implode(' and ',$likes);
+			$busquedas[] = implode(' and ',$likes);
+		}
 	}
 	$i = 0;
 	foreach ($busquedas as $buscar){
 
-			$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste, at.crefTienda ,p.`crefProveedor`, p.coste, p.fechaActualizacion,  a.`iva` '
+			$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste,
+			 at.crefTienda ,p.`crefProveedor`, p.coste, p.fechaActualizacion,  a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo '
 			.'  LEFT JOIN `articulosTiendas` '
-			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '.$buscar.' group by  a.idArticulo LIMIT 0 , 30 ';
+			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores 
+			as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '
+			.$buscar.' group by  a.idArticulo LIMIT 0 , 30 ';
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
@@ -146,7 +155,8 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	$resultado['html'] .= '<label>Busqueda por '.$id_input.'</label>';
 	// Utilizo el metodo onkeydown ya que encuentro que onKeyup no funciona en igual con todas las teclas.
 	
-	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" data-obj="cajaBusquedaproductos" size="13" value="'
+	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" 
+					data-obj="cajaBusquedaproductos" size="13" value="'
 					.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 	if (count($productos)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
@@ -156,7 +166,8 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			if (strlen($busqueda) === 0 ) {
 				// Si no encontro resultados, entonces debemos porne una alert y incluso sonorá era guay...
 				$resultado['html'] .= '<div class="alert alert-info">';
-				$resultado['html'] .=' <strong>Buscar!</strong> Pon las palabras para buscar productos que consideres.</div>';
+				$resultado['html'] .=' <strong>Buscar!</strong> Pon las palabras para buscar productos 
+										que consideres.</div>';
 			} else {
 				// Si no encontro resultados, entonces debemos porne una alert y incluso sonorá era guay...
 				$resultado['html'] .= '<div class="alert alert-warning">';
@@ -164,46 +175,41 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			}
 	} else {
 	
-		$resultado['html'] .= '<table class="table table-striped"><thead>';
-		$resultado['html'] .= ' <th></th>';
-		$resultado['html'] .= '</thead><tbody>';
-		
+		$resultado['html'] .= '<table class="table table-striped"><thead><th></th></thead><tbody>';
 		$contad = 0;
 		foreach ($productos as $producto){
 			$datos = 	"'".$id_input."',".
 						"'".addslashes(htmlspecialchars($producto['crefTienda'],ENT_COMPAT))."','"
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
-						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
-						.$producto['ultimoCoste'].",".$producto['idArticulo'].", '".$dedonde."' , ".
+						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
+						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
 						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
+						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  
+						onclick="escribirProductoSeleccionado('.$datos.');">';
 			
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" 
+									name="filaproducto" onfocusout="abandonFila('
+						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" 
+						onkeydown="controlEventos(event)" type="image"  alt=""><span  
+						class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			if ($id_input=="ReferenciaPro"){
 				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
 			}else{
 				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';	
-			}
-						
-			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.$producto['ultimoCoste'].'</td>';
-
-			$resultado['html'] .= '</tr>';
+			}		
+			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
+			. '<td>'.$producto['ultimoCoste'].'</td>'
+			. '</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
 			}
-			
 		}
 		$resultado['html'] .='</tbody></table>';
 	}
 	$resultado['campo'] = $campoAbuscar;
-	
-	return $resultado;
-	
-	
+	return $resultado;		
 }
 function recalculoTotales($productos) {
 	// @ Objetivo recalcular los totales y desglose del ticket
@@ -212,36 +218,28 @@ function recalculoTotales($productos) {
 	$respuesta = array();
 	$desglose = array();
 	$subivas = 0;
-	$subtotal = 0;
-	
+	$subtotal = 0;	
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estado === 'Activo'){
-			//error_log(json_encode($product));
 			$bandera=$product->iva/100;
-			// Ahora calculmos bases por ivas
-			// Ahora calculamos base y iva 
 			if (isset($desglose[$product->iva])){
-			$desglose[$product->iva]['base'] = $desglose[$product->iva]['base'] + number_format(($product->importe),2);
-			$desglose[$product->iva]['iva'] = $desglose[$product->iva]['iva']+ number_format($product->importe * $bandera,2);
+			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $product->importe,2, '.', '');
+			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva']+ ($product->importe*$bandera),2, '.', '');
 			}else{
-			$desglose[$product->iva]['base'] = number_format($product->importe,2);
-			$desglose[$product->iva]['iva'] = number_format($product->importe*$bandera,2);
+			$desglose[$product->iva]['base'] = number_format($product->importe,2, '.', '');
+			$desglose[$product->iva]['iva'] =number_format($product->importe*$bandera, 2, '.', '');
 			}
-			$desglose[$product->iva]['BaseYiva'] =$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'];
-			
-		}
-		
-	
+			$desglose[$product->iva]['BaseYiva'] =number_format($desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 2, '.', '');	
+		}			
 	}
 	foreach($desglose as $tipoIva=>$des){
 		$subivas= $subivas+$desglose[$tipoIva]['iva'];
 		$subtotal= $subtotal +$desglose[$tipoIva]['BaseYiva'];
-	}
-	
+	}	
 	$respuesta['desglose'] = $desglose;
 	$respuesta['subivas']=$subivas;
-	$respuesta['total'] = number_format($subtotal,2);
+	$respuesta['total'] = $subtotal;
 	return $respuesta;
 }
 
@@ -251,8 +249,7 @@ function htmlLineaProducto($productos, $dedonde){
 	 $respuesta=array('html'=>'');
 	if(!is_array($productos)) {
 		// Comprobamos si product no es objeto lo convertimos.
-		$producto = (array)$productos;
-		
+		$producto = (array)$productos;		
 	} else {
 		$producto = $productos;
 	}
@@ -261,16 +258,20 @@ function htmlLineaProducto($productos, $dedonde){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
 				$funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".$dedonde."'".');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+							<span class="glyphicon glyphicon-export"></span></a></td>';
 			} else {
 				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+							<span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
 				$estadoInput = '';
 			}
 			if ($dedonde =="albaran" || $dedonde=="factura"){
 				$bandera= number_format($producto['ultimoCoste'], 4);
-				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'.$bandera.'" size="6">';
+				$coste='<input type="text" id="ultimo_coste_'.$producto['nfila'].'" data-obj="ultimo_coste" 
+					onkeydown="controlEventos(event)" name="ultimo" onBlur="controlEventos(event)" value="'
+					.$bandera.'" size="6">';
 			}else{
 				$coste= number_format($producto['ultimoCoste'], 4);
 			}
@@ -281,10 +282,8 @@ function htmlLineaProducto($productos, $dedonde){
 					$numeroPed=$producto['numPedido'];
 				}
 			}else{
-			
 				$numeroPed="";
 			}
-			
 			if ($dedonde=="factura"){
 				if (isset($producto['numAlbaran'])){
 					if ($producto['numAlbaran']>0){
@@ -295,8 +294,6 @@ function htmlLineaProducto($productos, $dedonde){
 				}else{
 					$numeroPed="";
 				}
-				
-				
 			}
 			//Si tiene referencia del proveedor lo muestra si no muestra un input para poder introducir la referencia
 			$filaProveedor='<td><input id="Proveedor_Fila_'
@@ -321,31 +318,8 @@ function htmlLineaProducto($productos, $dedonde){
 								.$producto['nfila'].'") style="text-align: right">'
 								.'<span class="glyphicon glyphicon-cog"></span>'
 								.'</a></td>';
-				//~ }else{
-				//~ $filaProveedor='<td><input id="Proveedor_Fila_'
-								//~ .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
-								//~ .'name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" '
-								//~ .'onBlur="controlEventos(event)">'.
-								//~ .'<a onclick=buscarReferencia("Proveedor_Fila_'
-								//~ .$producto['nfila'].'") style="display:none" id="enlaceCambio'
-								//~ .$producto['nfila'].'">'
-								//~ .'<span class="glyphicon glyphicon-cog"></span>'
-								//~ .'</a></td>';
 				}
-			//~ }else{
-				//~ $filaProveedor='<td><input id="Proveedor_Fila_'
-								//~ .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
-								//~ .'name="proveedor" placeholder="ref" size="7"  onkeydown="controlEventos(event)" '
-								//~ .'onBlur="controlEventos(event)">'
-								//~ .'<a onclick=buscarReferencia("Proveedor_Fila_'
-								//~ .$producto['nfila'].'") style="display:none" id="enlaceCambio'
-								//~ .$producto['nfila'].'">'.
-								//~ .'<span class="glyphicon glyphicon-cog"></span>'
-								//~ .'</a></td>';
 			}
-			
-			
-			
 			if (isset ($producto['ccodbar'])){
 				if ($producto['ccodbar']>0){
 					$codBarra=$producto['ccodbar'];
@@ -353,27 +327,26 @@ function htmlLineaProducto($productos, $dedonde){
 					$codBarra="";
 				}
 			}
-			
-		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
-		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
+		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>'
+		 .'<td class="linea">'.$producto['nfila'].'</td>';
 		 if ($dedonde=="albaran" || $dedonde=="factura"){
 			$respuesta['html'].= '<td class="idArticulo">'.$numeroPed.'</td>';
-		
 		 } 
-		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
-		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
-		 $respuesta['html'] .=$filaProveedor;
-		 $respuesta['html'] .='<td class="codbarras">'.$codBarra.'</td>';
-		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
+		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>'
+		 .'<td class="referencia">'.$producto['cref'].'</td>'.$filaProveedor
+		 .'<td class="codbarras">'.$codBarra.'</td>'
+		 .'<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['nunidades'],2);
-		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila"  pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
-		 $respuesta['html'] .='<td class="pvp">'.$coste.'</td>';
-		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
+		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
+		 .'" type="text" data-obj="Unidad_Fila"  pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'
+		 .$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>'
+		 .'<td class="pvp">'.$coste.'</td>'
+		 . '<td class="tipoiva">'.$producto['iva'].'%</td>';
 		 $importe=$producto['ultimoCoste']*$producto['nunidades'];	
 		 $importe = number_format($importe,2);
-		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
-		 $respuesta['html'] .= $btnELiminar_Retornar;
-		 $respuesta['html'] .='</tr>';
+		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>'
+		 . $btnELiminar_Retornar
+		 .'</tr>';
 		 $respuesta['productos']=$producto;
 	 return $respuesta;
 }
@@ -410,35 +383,32 @@ function modificarArrayProductos($productos){
 function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	//@Objetivo: 
 	//retornar el html dle modal de adjuntos tanto como si buscamos un pedido en albaranes o un albarán en facturas
-	$respuesta['html']	.= '<table class="table table-striped"><thead>';
-	$respuesta['html']	.= '<th>';
-	$respuesta['html']	.= '<td>Número </td>';
-	$respuesta['html']	.= '<td>Fecha</td>';
+	$respuesta=array(
+	'html'=>""
+	);
+	$respuesta['html']	.= '<table class="table table-striped"><thead>'
+	. '<th><td>Número </td><td>Fecha</td>';
 	if ($dedonde=="factura"){
-		$respuesta['html']	.= '<td>Fecha Venci</td>';
-		$respuesta['html']	.= '<td>Forma Pago</td>';
+		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td>';
 	}
-	$respuesta['html']	.= '<td>Total</td>';
-	$respuesta['html']	.= '</th>';
-	$respuesta['html'] 	.=  '</thead><tbody>';
+	$respuesta['html']	.= '<td>Total</td></th></thead><tbody>';
 	$contad = 0;
-	
 	foreach ($adjuntos as $adjunto){
 		if ($dedonde=="albaran"){
 			$numAdjunto=$adjunto['Numpedpro'];
 			$fecha=$adjunto['FechaPedido'];
 		}else{
-			
 			$numAdjunto=$adjunto['Numalbpro'];
 			$fecha=$adjunto['Fecha'];
 		}
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('."'".$dedonde."'".', '.$numAdjunto.');">';
-		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-
-		$respuesta['html']	.= '<td>'.$numAdjunto.'</td>';
-		$respuesta['html']	.= '<td>'.$fecha.'</td>';
+		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('
+		."'".$dedonde."'".', '.$numAdjunto.');">';
+		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad
+		.'" name="filaproducto" onfocusout="abandonFila('
+		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)"
+		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+		$respuesta['html']	.= '<td>'.$numAdjunto.'</td><td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){
 			if($adjunto['FechaVencimiento']){
 				if ($adjunto['FechaVencimiento']=="0000-00-00"){
@@ -446,7 +416,6 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 				}else{
 					$fechaVenci=$adjunto['FechaVencimiento'];
 				}
-				
 			}else{
 				$fechaVenci="";
 			}
@@ -457,13 +426,11 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			}else{
 				$textformaPago="";
 			}
-			$respuesta['html']	.= '<td>'.$fechaVenci.'</td>';
-			$respuesta['html']	.= '<td>'.$textformaPago.'</td>';
+			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
 		}
-		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
-		$respuesta['html']	.= '</tr>';
+		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td></tr>';
 		$contad = $contad +1;
-		if ($contad === 10){
+		if ($contad === 30){
 			// Mostramos solo 10 albaranes... 
 			// Un problema. ( Puede haber muchos mas);
 			break;
@@ -481,88 +448,65 @@ function lineaAdjunto($adjunto, $dedonde){
 		$respuesta['html']="";
 	if(isset($adjunto)){
 		if ($adjunto['estado']){
-			if ($adjunto['NumAdjunto']){
+			if (isset($adjunto['NumAdjunto'])){
 				$num=$adjunto['NumAdjunto'];
 			}
-			if ($adjunto['Numpedpro']){
+			if (isset($adjunto['Numpedpro'])){
 				$num=$adjunto['Numpedpro'];
 			}
 			if ($adjunto['estado']=="activo"){
 				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$adjunto['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+				<span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
 				$estadoInput = '';
 			}else{
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
 				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
-	
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+				<span class="glyphicon glyphicon-export"></span></a></td>';
 			}
 		}
 		$respuesta['html'] .='<tr id="lineaP'.($adjunto['nfila']).'" '.$classtr.'>';
 		if (isset($adjunto['NumAdjunto'])){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
-		
-		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>';
-		$respuesta['html'] .='<td>'.$adjunto['total'].'</td>';
-		
-		$respuesta['html'].=$btnELiminar_Retornar;
-		$respuesta['html'] .='</tr>';
+		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>'
+		.'<td>'.$adjunto['total'].'</td>'.$btnELiminar_Retornar.'</tr>';
 	}
 	return $respuesta;
 }
-
-
-function modificarArrayPedidos($pedidos, $BDTpv){
-	//Objetivo : 
-	//Modificar el array de pedidos . Esta función se carga en albaranes.php
-	$respuesta=array();
-		$i=1;
-	foreach ($pedidos as $pedido){
-			$datosPedido=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$pedido['idPedido'] );
-			while ($fila = $datosPedido->fetch_assoc()) {
-				$ped = $fila;
-			}
-			//$res['Numpedpro']=$pedido['numPedido'];
-			$res['NumAdjunto']=$pedido['numPedido'];
-			//$res['idPedido']=$ped['id'];
-			$res['idAdjunto']=$ped['id'];
-			$res['fecha']=$ped['FechaPedido'];
-			$res['idPePro']=$ped['idProveedor'];
-			$res['total']=$ped['total'];
-			$res['estado']="activo";
-			$res['nfila']=$i;
-			array_push($respuesta,$res);
-		$i++;
-	}
-	return $respuesta;
-}
-
-function modificarArrayAlbaranes($alabaranes, $BDTpv){
-	//@Objetivo:
-	//MOdificar el array de albaranes , esta función se carga en facturas.php
+function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 	$respuesta=array();
 	$i=1;
-	foreach ($alabaranes as $albaran){
-			$datosAlbaran=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$albaran['idAlbaran'] );
-			while ($fila = $datosAlbaran->fetch_assoc()) {
-				$alb = $fila;
-			}
-			//~ $res['Numalbpro']=$albaran['numAlbaran'];
-			//~ $res['idAlbaran']=$alb['id'];
-			$res['NumAdjunto']=$albaran['numAlbaran'];
-			$res['idAdjunto']=$alb['id'];
-			$res['fecha']=$alb['Fecha'];
-			$res['idPePro']=$alb['idProveedor'];
-			$res['total']=$alb['total'];
-			$res['estado']="activo";
-			$res['nfila']=$i;
-			array_push($respuesta,$res);
+	foreach ($adjuntos as $adjunto){
+	if ($dedonde =="albaran"){
+		$datosAdjunto=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$adjunto['idPedido'] );
+	}else{
+		$datosAdjunto=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$adjunto['idAlbaran'] );
+	}
+	while ($fila = $datosAdjunto->fetch_assoc()) {
+			$adj = $fila;
+	}
+	if ($dedonde=="albaran"){
+		$res['NumAdjunto']=$adjunto['numPedido'];
+		$res['fecha']=$adj['FechaPedido'];
+	}else{
+		$res['NumAdjunto']=$adjunto['numAlbaran'];
+		$res['fecha']=$adj['Fecha'];
+	}
+		$res['idAdjunto']=$adj['id'];
+		$res['idPePro']=$adj['idProveedor'];
+		$res['total']=$adj['total'];
+		$res['estado']="activo";
+		$res['nfila']=$i;
+		array_push($respuesta,$res);
 		$i++;
+		
 	}
 	return $respuesta;
+	
 }
 
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
@@ -581,8 +525,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAdjuntos=$CFac->ProductosFactura($id);
 		$texto="Factura Proveedor";
 		$numero=$datos['Numfacpro'];
-		$suNumero=$datos['su_num_factura'];
-		$textoSuNumero='SU FAC: '.$suNumero;
+		if (isset($datos['su_num_factura'])){
+			$suNumero=$datos['su_num_factura'];
+			$textoSuNumero='SU FAC: '.$suNumero;
+		}
 		$date=date_create($datos['Fecha']);
 	}
 	if ($dedonde=="albaran"){
@@ -591,8 +537,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAdjuntos=$CAlb->ProductosAlbaran($id);
 		$texto="Albarán Proveedor";
 		$numero=$datos['Numalbpro'];
-		$suNumero=$datos['su_numero'];
-		$textoSuNumero='SU ALB: '.$suNumero;
+		if (isset($datos['su_numero'])){
+			$suNumero=$datos['su_numero'];
+			$textoSuNumero='SU ALB: '.$suNumero;
+		}
 		$date=date_create($datos['Fecha']);
 	}
 	if ($dedonde=="pedido"){
@@ -635,36 +583,27 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			if (isset($suNumero)){
 				$imprimir['cabecera'] .=''.$textoSuNumero.'<br>';
 			}
-	$imprimir['cabecera'].='</td>';
-	$imprimir['cabecera'] .='<td>'
-			
+	$imprimir['cabecera'].='</td><td>'
 			.$texto.'<br>'
 			.'Nº: '.$numero.'<br>'
 			.'Fecha: '.$fecha.'<br>'
 			.$datosTienda['razonsocial'].'<br>'
 			.'Direccion: '.$datosTienda['direccion'].'<br>'
-			.'Telefono:'.$datosTienda['telefono'].'<br>';
-			
-	$imprimir['cabecera'].='</td>';
-	$imprimir['cabecera'].='</tr>';
-	$imprimir['cabecera'].='</table>';
-	
-	$imprimir['cabecera'].='<hr/><hr/>';
-	$imprimir['cabecera'] .='<table  WIDTH="100%">';
-	$imprimir['cabecera'] .='<tr>';
+			.'Telefono:'.$datosTienda['telefono'].'<br>'
+			.'</td></tr></table><hr/><hr/>'
+			.'<table  WIDTH="100%"><tr>';
 	if ($dedonde == "factura"){
 		$imprimir['cabecera'] .='<td WIDTH="10%"><b>ALB</b></td>';
 	}
 	if ($dedonde =="albaran"){
 		$imprimir['cabecera'] .='<td WIDTH="10%"><b>PED</b></td>';
 	}
-	$imprimir['cabecera'] .='<td WIDTH="10%"><b>REF</b></td>';
-	$imprimir['cabecera'] .='<td WIDTH="50%"><b>DESCRIPCIÓN</b></td>';
-	$imprimir['cabecera'] .='<td WIDTH="10%"><b>CANT</b></td>';
-	$imprimir['cabecera'] .='<td WIDTH="10%"><b>COSTE</b></td>';
-	$imprimir['cabecera'] .='<td WIDTH="12%"><b>IMPORTE</b></td>';
-	$imprimir['cabecera'] .='</tr>';
-	$imprimir['cabecera'] .='</table>';
+	$imprimir['cabecera'] .='<td WIDTH="10%"><b>REF</b></td>'
+	.'<td WIDTH="50%"><b>DESCRIPCIÓN</b></td>'
+	.'<td WIDTH="10%"><b>CANT</b></td>'
+	.'<td WIDTH="10%"><b>COSTE</b></td>'
+	.'<td WIDTH="12%"><b>IMPORTE</b></td>'
+	.'</tr></table>';
 	
 	$imprimir['html'] .='<table  WIDTH="100%">';
 	
@@ -678,19 +617,20 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 				}	
 			}
 			if ($dedonde=="albaran"){
-				if ($producto['numPedido']==0){
-					$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
-				}else{
+				if (isset($producto['numPedido'])){
 					$bandera=$producto['numPedido'];
 					$imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
+				}else{
+					
+					$imprimir['html'] .='<td  WIDTH="10%"></td>';
 				}
 			}
 			if ($dedonde=="factura"){
-				if ($producto['idalbpro']==0){
-					$imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
-				}else{
+				if (isset($producto['idalbpro'])){
 					$bandera2=$producto['idalbpro'];
 					$imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
+				}else{
+					$imprimir['html'] .='<td  WIDTH="10%"></td>';
 				}
 			}
 			
@@ -703,7 +643,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			}
 			$imprimir['html'] .='<td WIDTH="10%">'.$refPro.'</td>';
 			$imprimir['html'] .='<td WIDTH="50%">'.$producto['cdetalle'].'</td>';
-			$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['nunidades'],0).'</td>';
+			$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['nunidades'],2).'</td>';
 			$iva=$producto['iva']/100;
 			$imprimir['html'] .='<td WIDTH="10%">'.number_format($producto['ultimoCoste'],2).'</td>';
 			$imprimir['html'] .='<td WIDTH="12%">'.number_format($producto['importe'],2).'</td>';
@@ -774,377 +714,673 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 	//datosGet: son los datos del $_GET
 	//$BDTpv: son los datos de configuración para poder llamar a la clase correspondiente
 	//$error: crea todas las comprobaciones si algo no esta correcto se iguala a 1 y es la variable que retornamos
+	$Cpedido=new PedidosCompras($BDTpv);
+	$errores=array();
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
-	$error=0;
-	
-	$Cpedido=new PedidosCompras($BDTpv);
-	if ($datosPost['idTemporal']){
-		$numPedidoTemp=$datosPost['idTemporal'];
-	}else{
-		$numPedidoTemp=$datosGet['tActual'];
+	if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
+			$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR NO HAY DATOS DE SESIÓN!'
+								 );
+			return $errores;
 	}
-	if (isset ($numPedidoTemp)) {
-		$pedidoTemporal=$Cpedido->DatosTemporal($numPedidoTemp);
-		if($pedidoTemporal['total']){
-			$total=$pedidoTemporal['total'];
-		}else{
-			$error=1;
-			$total=0;
-		}
-		if (isset($datosPost['fecha'])){
-			$bandera=new DateTime($datosPost['fecha']);
-			$fecha=$bandera->format('Y-m-d');
-		}else{
-			if ($pedidoTemporal['fechaInicio']){
-				$bandera=new DateTime($pedidoTemporal['fechaInicio']);
-				$fecha=$bandera->format('Y-m-d');
-			}else{
-				$fecha=date('Y-m-d');		
-			}
-		}
-		if ($pedidoTemporal['idPedpro']){
-			$datosPedidoReal=$Cpedido->DatosPedido($pedidoTemporal['idPedpro']);
-			$numPedido=$datosPedidoReal['Numpedpro'];
-		}else{
-			$numPedido=0;
-		}
-		if (isset ($pedidoTemporal['Productos'])){
-			$productos=$pedidoTemporal['Productos'];
-		}else{
-			$error=1;
-		}
-		
-		$fechaCreacion=date("Y-m-d H:i:s");
-		$datosPedido=array(
-			'Numtemp_pedpro'=>$numPedidoTemp,
-			'FechaPedido'=>$fecha,
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idProveedor'=>$pedidoTemporal['idProveedor'],
-			'estado'=>"Guardado",
-			'total'=>$total,
-			'numPedido'=>$numPedido,
-			'fechaCreacion'=>$fechaCreacion,
-			'Productos'=>$productos,
-			'DatosTotales'=>$Datostotales
-		);
-	}else{
-		$error=1;
+	$fecha=date('Y-m-d');
+	$fechaCreacion=date("Y-m-d H:i:s");
+	$idPedido=0;
+	if (isset($datosGet['tActual'])){
+			$datosPost['estado']='Sin guardar';
 	}
-	
-	if ($error==0){
-		if ($pedidoTemporal['idPedpro']){
-			$idPedido=$pedidoTemporal['idPedpro'];
-			$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
-		}else{
-			$idPedido=0;
-			$numPedido=0;
-			$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido, $numPedido);
-			$eliminarTemporal=$Cpedido->eliminarTemporal($numPedidoTemp, $idPedido);
-		}
-	}else{
-		if ($datosGet['id']){
-				$fecha=$datosPost['fecha'];
-				$mod=$Cpedido->modFechaPedido($fecha, $datosGet['id']);
-				
-				$error=0;
-			}else{
-				$error=1;
-			}
+	switch($datosPost['estado']){
+				case 'Sin guardar':
+				case 'Abierto':
+					if (isset($datosGet['tActual'])){
+						$idPedidoTemporal=$datosGet['tActual'];
+					}else{
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'El temporal ya no existe  !'
+								 );
+						break;
+					}
+					$pedidoTemporal=$Cpedido->DatosTemporal($idPedidoTemporal);
+					if (isset($pedidoTemporal['error'])){
+						$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $pedidoTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL:  !'
+								 );
+						break;
+					}else{
+						 if (isset($datosPost['fecha'])){
+							$fecha=$datosPost['fecha'];
+						}else{
+							if (isset($pedidoTemporal['fechaInicio'])){
+								$fecha=$pedidoTemporal['fechaInicio'];
+							}
+						}
+						if (isset ($pedidoTemporal['Productos'])){
+							$productos=$pedidoTemporal['Productos'];
+							$productos_para_recalculo = json_decode( $productos );
+							if (count($productos_para_recalculo)>0){
+								$CalculoTotales = recalculoTotales($productos_para_recalculo);
+								$total=round($CalculoTotales['total'],2);
+							}else{
+								$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No existen productos para el recalculo de precios!'
+								 );
+								break;
+							}
+						}else{
+							$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No existen productos !'
+								 );
+							break;
+						}
+						$datosPedido=array(
+							'Numtemp_pedpro'=>$idPedidoTemporal,
+							'FechaPedido'=>$fecha,
+							'idTienda'=>$Tienda['idTienda'],
+							'idUsuario'=>$Usuario['id'],
+							'idProveedor'=>$pedidoTemporal['idProveedor'],
+							'estado'=>"Guardado",
+							'total'=>$total,
+							'fechaCreacion'=>$fechaCreacion,
+							'Productos'=>$productos,
+							'DatosTotales'=>$Datostotales
+							);
+							if (isset($pedidoTemporal['idPedpro'])){
+								$idPedido=$pedidoTemporal['idPedpro'];
+								$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($pedidoTemporal['idPedpro']);
+								if (isset($eliminarTablasPrincipal['error'])){
+									$errores[0]=array ( 'tipo'=>'Danger!',
+										'dato' => $eliminarTablasPrincipal['consulta'],
+										'class'=>'alert alert-danger',
+										'mensaje' => 'Error de SQL:  '
+									);
+									break;
+								}
+							}
+							
+							$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+							if (isset($addNuevo['error'])){
+								$errores[0]=array ( 'tipo'=>'Danger!',
+										'dato' => $addNuevo['consulta'],
+										'class'=>'alert alert-danger',
+										'mensaje' => 'Error de SQL:  '
+									);
+									break;
+							}else{
+								if(isset($addNuevo['id'])){
+									$eliminarTemporal=$Cpedido->eliminarTemporal($idPedidoTemporal, $idPedido);
+									if (isset($eliminarTemporal['error'])){
+										$errores[0]=array ( 'tipo'=>'Danger!',
+										'dato' => $eliminarTemporal['consulta'],
+										'class'=>'alert alert-danger',
+										'mensaje' => 'Error de SQL:  '
+										);
+										break;
+									}
+								}
+							}
+					}
+				break;
+				case 'Guardado':
+					if (isset($datosGet['id'])){
+						if ($datosPost['fecha']){
+							$mod=$Cpedido->modFechaPedido($datosPost['fecha'], $datosGet['id']);
+							if (isset($mod['error'])){
+								$errores[0]=array ( 'tipo'=>'Danger!',
+									'dato' => $mod['consulta'],
+									'class'=>'alert alert-danger',
+									'mensaje' => 'Error de SQL al modificar la fecha!'
+								 );
+							}
+						}else{
+							$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'Has dejado el campo fecha vacío!'
+								 );
+						}
+					}
+				break;
+				default:
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No puedes modificar este pedido'
+								 );
+				break;
 	}
-	return $error;
-	
+	return $errores;
 }
 function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
-	//@Objetivo: guardar los da tos del albarán 
-	//Primero se eliminan todos los registros que tenga el id del albarán real de esta manera a continuación insertamos los nuevo
-	//registros
-	//Por último se elimina el albarán temporal
+	//@Objetivo: GUardar un albarán, eliminar el temporal y comprobar cambio de precios 
+	//para insertarlos en el historico
+	//@Parámetros: 
+	//datosPost, datosGet-> son $_POST y $_GET
+	//BDTpv-> para poder inicializar las clases
+	//Datostotales-> envio el array de datos totales que ya esta calculado en albarán.php
+	//Primero compruebo que tengo id de la tienda y el id del usuario
+	//A continuación dependiendo del estado realizo unas tareas u otras
+	//@Funciones según estados:
+	//	-Si el estado es sin guardar o activo realizo comprobaciones, una vez que no se detecten errores
+	//	Elimino las tablas temporales en caso de que sea un albarán modificado , después inserto el 
+	//	albarán nuevo , elimino el temporal y ejecuto la función historicoCostes para que quede registro de los 
+	// 	productos que se modificaron costes
+	// - Si el estado es Guardado sólo le modifico la fecha y sunumero ya que no se genera un temporal
+	//	cuando se ejecutan estos cambios
+	
+	$errores=array();
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
-	$error=0;
-	$respuesta=array();
+	if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
+			$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR NO HAY DATOS DE SESIÓN!'
+								 );
+			return $errores;
+	}
+	$suNumero="";
+	$formaPago="";
+	$fechaVenci="";
+	$fecha=$datosPost['fecha'];
+	$dedonde="albaran";
+	$idAlbaran=0;
 	$CAlb=new AlbaranesCompras($BDTpv);
-		if (isset ($datosPost['idTemporal'])){
-				$idAlbaranTemporal=$datosPost['idTemporal'];
-		}else{
-				$idAlbaranTemporal=$datosGet['tActual'];
+		if (isset($datosGet['tActual'])){
+			$datosPost['estado']='Sin guardar';
 		}
-		
-		if (isset($idAlbaranTemporal)){
-			$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-			if(['total']){
-				$total=$datosAlbaran['total'];
-			}else{
-				$error=1;
-				$total=0;
-			}
-	
-			if ($datosPost['suNumero']>0){
-				$suNumero=$datosPost['suNumero'];
-			}else{
-				$suNumero=0;
-			}
-			if (isset ($datosPost['fecha'])){
-				$fecha=$datosPost['fecha'];
-			}else{
-				$fecha=$datosAlbaran['fechaInicio'];
-			}
-			if (isset ($datosAlbaran['Productos'])){
-				$productos=$datosAlbaran['Productos'];
-			}else{
-				$productos=0;
-				$error=1;
-			}
-			if ($datosPost['formaVenci']){
-				$formaPago=$datosPost['formaVenci'];
-			}else{
-				$formaPago=0;
-			}
-			if($datosPost['fechaVenci']){
-				$fechaVenci=$datosPost['fechaVenci'];
-			}else{
-				$fechaVenci="";
-			}
-			
-			$datos=array(
-				'Numtemp_albpro'=>$idAlbaranTemporal,
-				'fecha'=>$fecha,
-				'idTienda'=>$Tienda['idTienda'],
-				'idUsuario'=>$Usuario['id'],
-				'idProveedor'=>$datosAlbaran['idProveedor'],
-				'estado'=>"Guardado",
-				'total'=>$total,
-				'DatosTotales'=>$Datostotales,
-				'productos'=>$productos,
-				'pedidos'=>$datosAlbaran['Pedidos'],
-				'suNumero'=>$suNumero,
-				'formaPago'=>$formaPago,
-				'fechaVenci'=>$fechaVenci
-			);
-			$dedonde="albaran";
-			
-		}else{
-			$error=1;
-		}
-		//Si recibe número de albarán quiere decir que ya existe por esta razón tenemos que eliminar todos los datos del albarán
-		//original para poder poner los nuevo, una vez que este todo guardado eliminamos el temporal.
-		//Si no es así, es un albarán nuevo solo tenemos que crear un albarán definitivo y eliminar el temporal
-		if ($error==0){
-			if ($datosAlbaran['numalbpro']){
-					$numAlbaran=$datosAlbaran['numalbpro'];
-					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
-					$idAlbaran=$datosReal['id'];
-					$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($idAlbaran);
+		switch($datosPost['estado']){
+				case 'Sin guardar':
+				case 'Abierto':
+					if (isset($datosGet['tActual'])){
+						$idAlbaranTemporal=$datosGet['tActual'];
+					}else{
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'El temporal ya no existe  !'
+								 );
+						break;
+					}
+					
+					$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+					if (empty($datosPost['suNumero'])){
+						$suNumero=$datosPost['suNumero'];
+					}
+					if (isset ($datosPost['fecha'])){
+						$fecha=$datosPost['fecha'];
+					}else{
+						$fecha=$datosAlbaran['fechaInicio'];
+					}
+					if (isset ($datosAlbaran['Productos'])){
+						$productos=$datosAlbaran['Productos'];
+						$productos_para_recalculo = json_decode( $productos );
+						if(count($productos_para_recalculo)>0){
+							$CalculoTotales = recalculoTotales($productos_para_recalculo);
+							$total=round($CalculoTotales['total'],2);
+						}else{
+							$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes productos  !'
+								 );
+						break;
+						}
+					}else{
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes productos  !'
+								 );
+						break;
+					}
+					if (isset($datosPost['formaVenci'])){
+						$formaPago=$datosPost['formaVenci'];
+					}
+					if(isset($datosPost['fechaVenci'])){
+						$fechaVenci=$datosPost['fechaVenci'];
+					}
+					$datos=array(
+						'Numtemp_albpro'=>$idAlbaranTemporal,
+						'fecha'=>$fecha,
+						'idTienda'=>$Tienda['idTienda'],
+						'idUsuario'=>$Usuario['id'],
+						'idProveedor'=>$datosAlbaran['idProveedor'],
+						'estado'=>"Guardado",
+						'total'=>$total,
+						'DatosTotales'=>$Datostotales,
+						'productos'=>$productos,
+						'pedidos'=>$datosAlbaran['Pedidos'],
+						'suNumero'=>$suNumero,
+						'formaPago'=>$formaPago,
+						'fechaVenci'=>$fechaVenci
+					);
+					if ($datosAlbaran['numalbpro']){
+						$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($datosAlbaran['numalbpro']);
+						$idAlbaran=$datosAlbaran['numalbpro'];
+					}
+					if (isset($eliminarTablasPrincipal['error'])){
+						$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTablasPrincipal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error al eliminar las tablas principales!'
+								 );
+						break;
+					}
 					$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
-					$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
-					$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-					
-					
-			}else{
-					$idAlbaran=0;
-					$numAlbaran=0;
-					$addNuevo=$CAlb->AddAlbaranGuardado($datos, $idAlbaran);
-					$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
-
-					$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-					
-			}
+					if (isset($addNuevo['error'])){
+						$errores[2]=array ( 'tipo'=>'Danger!',
+								 'dato' => $addNuevo['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error añadir un nuevo albarán !'
+								 );
+					}else{
+						if(isset($addNuevo['id'])){
+							$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
+							if (isset($historico['error'])){
+								$errores[3]=array ( 'tipo'=>'Danger!',
+								 'dato' => $historico['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error en al modificar los coste de los productos !'
+								 );
+							}
+							$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+							if (isset($eliminarTemporal['error'])){
+								$errores[4]=array ( 'tipo'=>'Danger!',
+									 'dato' => $eliminarTemporal['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'Error al eliminar las tablas temporales!'
+									 );
+							}
+						}else{
+							$errores[3]=array ( 'tipo'=>'Danger!',
+									 'dato' => '',
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'Error al generar id nuevo de la función AddAlbaranGuardado!'
+									 );
+						}
+					}
+					break;
+				case 'Guardado':
+					$idReal=$datosGet['id'];
+					if (isset($datosPost['suNumero'])){
+						$suNumero=$datosPost['suNumero'];
+					}
+					$mod=$CAlb->modFechaNumero($idReal, $suNumero, $fecha);
+					if (isset($mod['error'])){
+						$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $mod['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR de SQL!'
+								 );
 			
-		}else{
-			if ($datosGet['id']){
-				if ($datosPost['suNumero']>0){
-					$suNumero=$datosPost['suNumero'];
-				}else{
-					$suNumero=0;
-				}
-				
-				$fecha=$datosPost['fecha'];
-				$mod=$CAlb->modFechaNumero($datosGet['id'], $suNumero, $fecha);
-				
-				$error=0;
-			}else{
-				$error=1;
-			}
+					}
+					break;
+					default:
+					$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No has realizado nunguna modificación !'
+					);
 			
-		}
-		$respuesta['historico']=$historico;
-		$respuesta['sql']=$addNuevo;
-		$respuesta['texto']="nuevo albaran";
-	return $error;
-	//~ return $respuesta;
+					
+					break;
+				
+			}
+			return $errores;
 }
 
 function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importesFactura){
+	$errores=array();
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
-	$error=0;
-	$CFac = new FacturasCompras($BDTpv);
-	if ($datosPost['idTemporal']){
-		$idFacturaTemporal=$datosPost['idTemporal'];
-	}else{
-		$idFacturaTemporal=$datosGet['tActual'];
+	if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
+			$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR NO HAY DATOS DE SESIÓN!'
+								 );
+			return $errores;
 	}
-	if(isset ($idFacturaTemporal)){
-		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-		if(['total']){
-				$total=$datosFactura['total'];
-		}else{
-				$total=0;
-				$error=1;
-		}
-		$fecha=$datosPost['fecha'];
-		$estado="Guardado";
-		if (is_array($importesFactura)){
-				
-				foreach ($importesFactura as $import){
-					$entregado=$entregado+$import['importe'];
-				}
-				if ($total==$entregado){
-					$estado="Pagado total";
-				}else{
-					$estado="Pagado Parci";
-				}
-			}
-		if ($datosPost['suNumero']>0){
-				$suNumero=$datosPost['suNumero'];
-		}else{
-			$suNumero=0;
-		}
-		$datos=array(
-			'Numtemp_facpro'=>$idFacturaTemporal,
-			'fecha'=>$fecha,
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idProveedor'=>$datosFactura['idProveedor'],
-			'estado'=>$estado,
-			'total'=>$total,
-			'DatosTotales'=>$Datostotales,
-			'productos'=>$datosFactura['Productos'],
-			'albaranes'=>$datosFactura['Albaranes'],
-			'importes'=>$importesFactura,
-			'suNumero'=>$suNumero
-		);
-		$dedonde="factura";
-		if ($error==0){
-			if ($datosFactura['numfacpro']){
-				$numFactura=$datosFactura['numfacpro'];
-				$datosReal=$CFac->buscarFacturaNumero($numFactura);
-				$idFactura=$datosReal['id'];
-				$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
-				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
-				$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
-
-				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+	$CFac = new FacturasCompras($BDTpv);
+	if (isset($datosGet['tActual'])){
+			$datosPost['estado']='Sin guardar';
+	}
+	$suNumero="";
+	$fecha=date('Y-m-d');
+	$estado="Guardado";
+	$entregado=0;
+	$dedonde="factura";
+	$idFactura=0;
+	
+	switch($datosPost['estado']){
+		case 'Sin guardar':
+		case 'Abierto':
+			if (isset($datosGet['tActual'])){
+						$idFacturaTemporal=$datosGet['tActual'];
 			}else{
-				$idFactura=0;
-				$numFactura=0;
-				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura, $numFactura);
-				$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
-
-				$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+				$errores[0]=array ( 'tipo'=>'Warning!',
+					'dato' => '',
+					'class'=>'alert alert-warning',
+					'mensaje' => 'El temporal ya no existe  !'
+					);
+					break;
 			}
-			//~ $respuesta['historico']=$historico;
-			//~ $respuesta['sql']=$addNuevo;
-			//~ $respuesta['texto']="nuevo albaran";
-		}else{
-			$error=1;
-		}
-		
-	}else{
-		if ($datosGet['id']){
+			$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+			if (isset($datosFactura['error'])){
+				$errores[0]=array ( 'tipo'=>'Danger!',
+						'dato' => $datosFactura['consulta'],
+						'class'=>'alert alert-danger',
+						'mensaje' => 'Error de SQL !'
+					);
+			}else{
+				if (isset($datosFactura['Productos'])){
+					$productos_para_recalculo = json_decode( $datosFactura['Productos'] );
+					$CalculoTotales = recalculoTotales($productos_para_recalculo);
+					$total=round($CalculoTotales['total'],2);
+				}else{
+					$errores[0]=array ( 'tipo'=>'Danger!',
+						'dato' => '',
+						'class'=>'alert alert-danger',
+						'mensaje' => 'Error no tienes productos !'
+					);
+					break;
+				}
+				if (count($importesFactura)>0){
+					foreach ($importesFactura as $import){
+						$entregado=$entregado+$import['importe'];
+					}
+					if ($total==$entregado){
+						$estado="Pagado total";
+					}else{
+						$estado="Pagado Parci";
+					}
+				}
+				$datos=array(
+					'Numtemp_facpro'=>$idFacturaTemporal,
+					'fecha'=>$fecha,
+					'idTienda'=>$Tienda['idTienda'],
+					'idUsuario'=>$Usuario['id'],
+					'idProveedor'=>$datosFactura['idProveedor'],
+					'estado'=>$estado,
+					'total'=>$total,
+					'DatosTotales'=>$Datostotales,
+					'productos'=>$datosFactura['Productos'],
+					'albaranes'=>$datosFactura['Albaranes'],
+					'importes'=>$importesFactura,
+					'suNumero'=>$suNumero
+				);
+				if ($datosFactura['numfacpro']){
+					$idFactura=$datosFactura['numfacpro'];
+					$eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
+					if (isset($eliminarTablasPrincipal['error'])){
+						$errores[0]=array ( 'tipo'=>'Danger!',
+						'dato' =>$eliminarTablasPrincipal['consulta'],
+						'class'=>'alert alert-danger',
+						'mensaje' => 'Error de SQL !'
+						);
+						break;
+					}
+				}
+				$addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura);
+				if (isset($addNuevo['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+					'dato' =>$addNuevo['consulta'],
+					'class'=>'alert alert-danger',
+					'mensaje' => 'Error de SQL !'
+					);
+					break;
+				}else{
+					if (isset($addNuevo['id'])){
+						$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
+						if (isset($historico['error'])){
+								$errores[3]=array ( 'tipo'=>'Danger!',
+								 'dato' => $historico['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error en al modificar los coste de los productos !'
+								 );
+						}
+						$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal,  $idFactura);
+						if (isset($eliminarTemporal['error'])){
+							$errores[4]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL!'
+								 );
+							break;
+						}
+					}else{
+						$errores[0]=array ( 'tipo'=>'Danger!',
+						'dato' =>'',
+						'class'=>'alert alert-danger',
+						'mensaje' => 'Error no hizo el inset de nuevo albarán correctamente'
+						);
+						break;
+					}
+				}
+				
+				
+			}
+		break;
+		case 'Pagado total':
+			$errores[0]=array ( 'tipo'=>'Warning!',
+				'dato' => '',
+				'class'=>'alert alert-warning',
+				'mensaje' => 'No puedes guardar la factura ya que tiene estado Pagado Total !'
+			);
+		break;
+		case 'Guardado':
+		 if ($datosGet['id']){
 				if ($datosPost['suNumero']>0){
 					$suNumero=$datosPost['suNumero'];
+				}
+				if (isset($datosPost['fecha'])){
+					if ($datosPost['fecha']==""){
+						$errores[0]=array ( 'tipo'=>'Warning!',
+						'dato' => '',
+						'class'=>'alert alert-warning',
+						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
+						);
+					}else{
+						$mod=$CFac->modFechaNumero($datosGet['id'], $datosPost['fecha'], $suNumero);
+						if (isset($mod['error'])){
+							$errores[0]=array ( 'tipo'=>'Danger!',
+							'dato' => $mod['consulta'],
+							'class'=>'alert alert-danger',
+							'mensaje' => 'Error de SQL !'
+							);
+						}
+					}
 				}else{
-					$suNumero=0;
+					$errores[0]=array ( 'tipo'=>'Warning!',
+						'dato' => '',
+						'class'=>'alert alert-warning',
+						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
+					);
 				}
 				
-				$fecha=$datosPost['fecha'];
-				$mod=$CFac->modFechaNumero($datosGet['id'], $fecha, $suNumero);
-				
-				$error=0;
-				//~ $respuesta['sqlMod']=$mod;
-			}else{
-				$error=1;
-			}
+		}else{
+			$errores[0]=array ( 'tipo'=>'Warning!',
+				'dato' => '',
+				'class'=>'alert alert-warning',
+				'mensaje' => 'No has realizado nunguna modificación !'
+			);
+		}
+		break;
+		default:
+			$errores[0]=array ( 'tipo'=>'Warning!',
+				'dato' => '',
+				'class'=>'alert alert-warning',
+				'mensaje' => 'No has realizado nunguna modificación !'
+			);
+		break;
 	}
-	//~ return $respuesta;
-	return $error;
-	
+	return $errores;
 }
 function htmlTotales($Datostotales){
 	$htmlIvas['html'] = '';
 	if (isset($Datostotales['desglose'])){
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
 			$key = intval($key);
-			$htmlIvas['html'].='<tr id="line'.$key.'">';
-			$htmlIvas['html'].='<td id="tipo'.$key.'"> '.$key.'%</td>';
-			$htmlIvas['html'].='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
-			$htmlIvas['html'].='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
-			$htmlIvas['html'].='</tr>';
+			$htmlIvas['html'].='<tr id="line'.$key.'">'
+			.'<td id="tipo'.$key.'"> '.$key.'%</td>'
+			.'<td id="base'.$key.'"> '.number_format ($basesYivas['base'],2).'</td>'
+			.'<td id="iva'.$key.'">'.number_format ($basesYivas['iva'],2).'</td>'
+			.'</tr>';
 		}
 	}
 	return $htmlIvas;
 }
 
-function cancelarFactura($datosPost, $datosGet,$BDTpv){
+function cancelarFactura( $datosGet,$BDTpv){
+	//@Objetivo: Eliminar la factura temporal y si este tiene alguún albarán adjunto cambiarle
+	//el estado a "Guardado"
+	//@Parametros:
+	//$datosGet: envío los datos de get
+	//Si no existe el id Temporal no dejo hacer las funciones siguientes 
+	//y muestro un error info
+	//@Funciones de clase:
+	//buscarFacturaTemporal, primero busco los datos de la factura temporal
+	//						comprobación de error sql en la función
+	// modEstadoAlbaran, despues compruebo si tengo albaranes adjuntos a la factura
+	//				si es así le modifico el estado para que se puedan adjuntar en otro
+	//EliminarRegistroTemporal: Por último elimino el registro temporal y como en los 
+	//					anteriores compruebo los errores de sql
+	$error=array();
 	$CFac = new FacturasCompras($BDTpv);
 	$CAlb=new AlbaranesCompras($BDTpv);
-	$error=0;
-	if ($datosPost['idTemporal']){
-			$idFacturaTemporal=$datosPost['idTemporal'];
-	}else{
-			$idFacturaTemporal=$datosGet['tActual'];
-	}
-	if (isset($idFacturaTemporal)){
-		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-		$albaranes=json_decode($datosFactura['Albaranes'], true);
-		foreach ($albaranes as $albaran){
-			$mod=$CAlb->modEstadoAlbaran($albaran['idAdjunto'], "Guardado");
-		}
+	if (isset($datosGet['tActual'])){
+		$idFacturaTemporal=$datosGet['tActual'];
 		$idFactura=0;
-		$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+		if (isset($datosFactura['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+								 'dato' => $datosFactura['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL '
+								 );
+		}else{
+			$albaranes=json_decode($datosFactura['Albaranes'], true);
+			if(count($albaranes)>0){
+				foreach ($albaranes as $albaran){
+					$mod=$CAlb->modEstadoAlbaran($albaran['idAdjunto'], "Guardado");
+					if(isset($mod['error'])){
+						$error=array ( 'tipo'=>'Danger!',
+								 'dato' => $mod['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL'
+								 );
+						break;
+					}
+				}
+			}
+			
+			$eliminarTemporal=$CFac->EliminarRegistroTemporal($idFacturaTemporal, $idFactura);
+				if (isset($eliminarTemporal['error'])){
+					$error=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminarTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error de SQL'
+								 );
+				
+			}
+		}
 	}else{
-		$error=1;
+		$error=array ( 'tipo'=>'Info!',
+								 'dato' => '',
+								 'class'=>'alert alert-info',
+								 'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+								 );
 	}
 	return $error;
 }
 
-function cancelarAlbaran($datosPost, $datosGet, $BDTpv){
+function cancelarAlbaran( $datosGet, $BDTpv){
+	//@Objetivo: Eliminar el albarán temporal y si este tiene alguún pedido adjunto cambiarle
+	//el estado a "Guardado"
+	//@Parametros:
+	//$datosGet: envío los datos de get
+	//Si no existe el id Temporal no dejo hacer las funciones siguientes 
+	//y muestro un error info
+	//@Funciones de clase:
+	//buscarAlbaranTemporal, primero busco los datos del albarán temporal
+	//						comprobación de error sql en la función
+	// modEstadoPedido, despues compruebo si tendo pedidos adjuntos al albarán
+	//				si es así le mosdifico el estado para que se puedan adjuntar en otro
+	//EliminarRegistroTemporal: Por último elimino el registro temporal y como en los 
+	//					anteriores compruebo los errores de sql
+	
 	$CAlb=new AlbaranesCompras($BDTpv);
 	$Cped = new PedidosCompras($BDTpv);
-	$error=0;
-	if ($datosPost['idTemporal']){
-		$idTemporal=$datosPost['idTemporal'];
-	}else{
+	$error=array();
+	$idAlbaran=0;
+	if (isset($datosGet['tActual'])){
 		$idTemporal=$datosGet['tActual'];
-	}
-	if (isset($idTemporal)){
 		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
-		$pedidos=json_decode($datosAlbaran['Pedidos'], true);
-		foreach ($pedidos as $pedido){
-			$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
+		if (isset($datosAlbaran['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+								'dato' => $datosAlbaran['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+		}else{
+			if (isset($datosAlbaran['Pedidos'])){
+				$pedidos=json_decode($datosAlbaran['Pedidos'], true);
+				if (count($pedidos)>0){
+					foreach ($pedidos as $pedido){
+						$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
+						if($mod['error']){
+							$error =array ( 'tipo'=>'Danger!',
+								'dato' => $mod['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+							break;
+						}
+					}
+				}
+			}
+			$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+			if (isset($eliminarTemporal['error'])){
+				$error =array ( 'tipo'=>'Danger!',
+								'dato' => $eliminarTemporal['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+			}
+
+			
 		}
-		$idAlbaran=0;
-		$eliminarTemporal=$CAlb->EliminarRegistroTemporal($idTemporal, $idAlbaran);
 	}else{
-		$error=1;
+		$error=array ( 'tipo'=>'Info!',
+			'dato' => '',
+			'class'=>'alert alert-info',
+			'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+			);
 	}
 	return $error;
 }
 function htmlImporteFactura($datos, $BDTpv){
 	$formaPago=new FormasPago($BDTpv);
 	$datosPago=$formaPago->datosPrincipal($datos['forma']);
-	$respuesta['html'].='<tr>';
-	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
-	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
-	$respuesta['html'].='<td>'.$datosPago['descripcion'].'</td>';
-	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
-	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
-	$respuesta['html'].='</tr>';
+	$respuesta=array(
+	'html'=>""
+	);
+	$respuesta['html'].='<tr><td>'.$datos['importe'].'</td>'
+	.'<td>'.$datos['fecha'].'</td>'
+	.'<td>'.$datosPago['descripcion'].'</td>'
+	.'<td>'.$datos['referencia'].'</td>'
+	.'<td>'.$datos['pendiente'].'</td></tr>';
 	return $respuesta;
 	
 }
@@ -1176,6 +1412,7 @@ function modificarArraysImportes($importes, $total){
 	return $importesDef;
 }
 function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fecha){
+	$errores=array();
 	$CArt=new Articulos($BDTpv);
 	$fechaCreacion=date('Y-m-d');
 	$datos=array(
@@ -1184,44 +1421,171 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 	'tipo'=>"compras",
 	'fechaCreacion'=>$fechaCreacion
 	);
-	$resultado['datos']=$productos;
-	$error=0;
+	//~ $resultado['datos']=$productos;
+	//~ $error=0;
 	$productos = json_decode($productos, true);
-	foreach ($productos as $producto){
-		if (isset($producto['CosteAnt'])){
+	if (count($productos)>0){
+		foreach ($productos as $producto){
 			$buscar=$CArt->buscarReferencia($producto['idArticulo'], $idProveedor);
-			$datosNuevos=array(
-				'coste'=>$producto['ultimoCoste'],
-				'idArticulo'=>$producto['idArticulo'],
-				'idProveedor'=>$idProveedor,
-				'fecha'=>$fecha,
-				'estado'=>"activo"
-			);
-			if ($buscar){
-				if ($buscar['fechaActualizacion']>$fecha){
-					$error=1;
+			if (isset($buscar['error'])){
+					$errores['error']=$buscar['error'];
+					$errores['consulta']=$buscar['consulta'];
+					break;
+			}else{
+				if (isset($producto['CosteAnt'])){
+					 $datosNuevos=array(
+						'coste'=>$producto['ultimoCoste'],
+						'idArticulo'=>$producto['idArticulo'],
+						'idProveedor'=>$idProveedor,
+						'fecha'=>$fecha,
+						'estado'=>"activo"
+					);
+					if (isset($buscar['fechaActualizacion'])){
+						if ($buscar['fechaActualizacion']>$fecha){
+							$errores['error']='Warning';
+							$errores['consulta']='La fecha de la tabla articulos proveedor es mayor que la del albarán';
+						}else{
+							$mod=$CArt->modificarCosteProveedorArticulo($datosNuevos);
+							if (isset($mod['error'])){
+								$errores['error']=$mod['error'];
+								$errores['consulta']=$mod['consulta'];
+								break;
+							}
+						}				
+					}else{
+						$datosNuevos['refProveedor']="";
+						$add=$CArt->addArticulosProveedores($datosNuevos);
+						if (isset($add['error'])){
+							$errores['error']=$add['error'];
+							$errores['consulta']=$add['consulta'];
+							break;
+						}
+					}
+					
+					$datos['idArticulo']=$producto['idArticulo'];
+					$datos['antes']=$producto['CosteAnt'];
+					$datos['nuevo']=$producto['ultimoCoste'];
+					$datos['estado']="Pendiente";
+					$nuevoHistorico=$CArt->addHistorico($datos);
+					if (isset($nuevoHistorico['error'])){
+						$errores['error']=$nuevoHistorico['error'];
+						$errores['consulta']=$nuevoHistorico['consulta'];
+						break;
+					}
+						
 				}else{
-					$mod=$CArt->modificarCosteProveedorArticulo($datosNuevos);
+					if (!isset($buscar['idArticulo'])){
+						$datosNuevos=array(
+							'coste'=>$producto['ultimoCoste'],
+							'idArticulo'=>$producto['idArticulo'],
+							'idProveedor'=>$idProveedor,
+							'fecha'=>$fecha,
+							'estado'=>"activo",
+							'refProveedor'=>""
+						);	
+						$add=$CArt->addArticulosProveedores($datosNuevos);
+						if (isset($add['error'])){
+							$errores['error']=$add['error'];
+							$errores['consulta']=$add['consulta'];
+						}
+					}
 				}
 				
-			}else{
-				$datosNuevos['refProveedor']=0;
-				$add=$CArt->addArticulosProveedores($datosNuevos);
-			}
-			
-			$datos['idArticulo']=$producto['idArticulo'];
-			$datos['antes']=$producto['CosteAnt'];
-			$datos['nuevo']=$producto['ultimoCoste'];
-			$datos['estado']="Pendiente";
-			if ($error==0){
-				$nuevoHistorico=$CArt->addHistorico($datos);
-				$resultado['sql']=$nuevoHistorico;
-			}
-			
+			}			
 		}
-		
-		
+	}else{
+		$errores['error']='Danger!';
+		$errores['consulta']='Error no tiene productos';
 	}
-	return $resultado;
+	return $errores;
+}
+function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
+		$idAlbaran=$id;
+		$datosAlbaran=$CAlb->datosAlbaran($idAlbaran);
+		if (isset($datosAlbaran['error'])){
+			$errores['error'][0]=array ( 'tipo'=>'Danger!',
+									 'dato' => $datosAlbaran['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+		}else{
+		$productosAlbaran=$CAlb->ProductosAlbaran($idAlbaran);
+		if (isset($productosAlbaran['error'])){
+			$errores['error'][1]=array ( 'tipo'=>'Danger!',
+									 'dato' => $productosAlbaran['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+		}
+		$ivasAlbaran=$CAlb->IvasAlbaran($idAlbaran);
+		if (isset($ivasAlbaran['error'])){
+			$errores['error'][2]=array ( 'tipo'=>'Danger!',
+									 'dato' => $ivasAlbaran['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+		}
+		$pedidosAlbaran=$CAlb->PedidosAlbaranes($idAlbaran);
+		if (isset($pedidosAlbaran['error'])){
+			$errores['error'][3]=array ( 'tipo'=>'Danger!',
+									 'dato' => $pedidosAlbaran['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+		}
+		if (isset($errores['error'])){
+			return $errores;
+		}else{
+		
+				$estado=$datosAlbaran['estado'];
+				$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
+				if ($datosAlbaran['formaPago']){
+					$formaPago=$datosAlbaran['formaPago'];
+				}else{
+					$formaPago=0;
+				}
+				if ($datosAlbaran['FechaVencimiento']){
+					if ($datosAlbaran['FechaVencimiento']==0000-00-00){
+						$fechaVencimiento="";
+					}else{
+						$fechaVencimiento=date_format(date_create($datosAlbaran['FechaVencimiento']),'Y-m-d');
+				}
+				}
+				$idProveedor=$datosAlbaran['idProveedor'];
+				if ($datosAlbaran['Su_numero']>0){
+					$suNumero=$datosAlbaran['Su_numero'];
+				}else{
+					$suNumero=0;
+				}
+				if ($idProveedor){
+					$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+					$nombreProveedor=$proveedor['nombrecomercial'];
+				}
+					$productosAlbaran=modificarArrayProductos($productosAlbaran);
+					$productos=json_decode(json_encode($productosAlbaran));
+				//Calciular el total con los productos que estn registrados
+					$Datostotales = recalculoTotales($productos);
+					$productos=json_decode(json_encode($productosAlbaran), true);
+					if (isset($pedidosAlbaran)){
+						 $modificarPedido=modificarArrayAdjunto($pedidosAlbaran, $BDTpv, "albaran");
+						 $pedidos=json_decode(json_encode($modificarPedido), true);
+						 
+					}
+					$respuesta=array(
+						'idAlbaran'=>$idAlbaran,
+						'estado'=>$estado,
+						'fecha'=>$fecha,
+						'formaPago'=>$formaPago,
+						'fechaVencimiento'=>$fechaVencimiento,
+						'idProveedor'=>$idProveedor,
+						'nombreProveedor'=>$nombreProveedor,
+						'suNumero'=>$suNumero,
+						'productos'=>$productos,
+						'DatosTotales'=>$Datostotales,
+						'pedidos'=>$pedidos
+					);
+					return $respuesta;
+			}
+		}
 }
 ?>

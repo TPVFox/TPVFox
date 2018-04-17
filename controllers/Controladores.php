@@ -171,8 +171,8 @@ class ControladorComun
 	// Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
 	// @ Parametros:
 	// 	$operador -> (String) puede ser OR o AND.. no mas...
-	$buscar = array(',',';','(',')','-');
-	$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ');
+	$buscar = array(',',';','(',')','-','"');
+	$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ',' ');
 	$string  = str_replace($buscar, $sustituir, trim($a_buscar));
 	$palabras = explode(' ',$string);
 	$likes = array();

@@ -24,7 +24,14 @@ class Cliente{
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
-		return $smt;
+		if ($smt) {
+			return $smt;
+		} else {
+			$respuesta = array();
+			$respuesta['consulta'] = $sql;
+			$respuesta['error'] = $db->error;
+			return $respuesta;
+		}
 	}
 	public function arrrayDatos($datos){
 		$this->id= $datos['idClientes'];
@@ -41,11 +48,18 @@ class Cliente{
 	}
 	public function DatosClientePorId($idCliente){
 		$db = $this->db;
-		$smt = $db->query ('SELECT * from clientes WHERE idClientes='.$idCliente);
-		if ($result = $smt->fetch_assoc () ){
-			$cliente=$result;
+		$sql='SELECT * from clientes WHERE idClientes='.$idCliente;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}else{
+			if ($result = $smt->fetch_assoc () ){
+				$cliente=$result;
+			}
+			return $cliente;
 		}
-		return $cliente;
 	}
 	public function mofificarFormaPagoVenci($idCliente, $formasVenci){
 		$db=$this->db;
@@ -56,15 +70,22 @@ class Cliente{
 	}
 	public function BuscarClientePorNombre($nombreCliente){
 		$db = $this->db;
-		$smt = $db->query ('SELECT * from clientes WHERE Nombre  LIKE "%'.$nombreCliente.'%" or razonsocial like "%'.$nombreCliente.'%" or nif like "%'.$nombreCliente.'%"');
-		$sql='SELECT * from clientes WHERE Nombre  LIKE "%'.$nombreCliente.'%" or razonsocial like "%'.$nombreCliente.'%"';
-		$clientePrincipal=array();
+		$sql='SELECT * from clientes WHERE Nombre  LIKE "%'.$nombreCliente.'%" or
+		 razonsocial like "%'.$nombreCliente.'%" or nif like "%'.$nombreCliente.'%"';
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}else{
+			$clientePrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
-				array_push($clientePrincipal, $result);
+					array_push($clientePrincipal, $result);
 			}
 			$respuesta['sql']=$sql;
 			$respuesta['datos']= $clientePrincipal;
 			return $respuesta;
+		}
 	}
 	
 	

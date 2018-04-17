@@ -14,12 +14,18 @@
 	$Calbaran=new AlbaranesVentas($BDTpv);
 	
 	$todosTemporal=$Calbaran->TodosTemporal();
-
+	if (isset($todosTemporal['error'])){
+		$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $todosTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}
 	$todosTemporal=array_reverse($todosTemporal);
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 10; // por defecto.
+	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
 	$WhereLimite['filtro']="";
 	$NuevoRango="";
@@ -57,7 +63,14 @@ if ($stringPalabras !== '' ){
 	} else {
 		$filtro= "ORDER BY Numalbcli desc LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}	
-	$albaranesDef=$Calbaran->TodosAlbaranesFiltro($filtro);
+$albaranesDef=$Calbaran->TodosAlbaranesFiltro($filtro);
+if (isset($albaranesDef['error'])){
+		$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $albaranesDef['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+}
 ?>
 
 </head>
@@ -67,6 +80,13 @@ if ($stringPalabras !== '' ){
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
 <?php
 include '../../header.php';
+if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+	}
 ?>
 		<div class="container">
 		<div class="row">

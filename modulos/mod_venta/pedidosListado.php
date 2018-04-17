@@ -12,11 +12,18 @@
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
 	$todoTemporal=$Cpedido->TodosTemporal();
-		$todoTemporal=array_reverse($todoTemporal);
+	if (isset($todoTemporal['error'])){
+	$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $todoTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}
+	$todoTemporal=array_reverse($todoTemporal);
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 10; // por defecto.
+	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
@@ -38,6 +45,9 @@
 	} else {
 		$desde = 0;
 	}
+		$WhereLimite = array();
+	$WhereLimite['filtro'] = '';
+	$NuevoRango = '';
 if ($stringPalabras !== '' ){
 		$campo = array( 'a.Numpedcli','b.Nombre');
 		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
@@ -56,6 +66,13 @@ if ($stringPalabras !== '' ){
 	}
 	
 	$pedidosDef=$Cpedido->TodosPedidosFiltro($filtro);
+	if (isset($pedidosDef['error'])){
+	$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $pedidosDef['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}
 ?>
 
 </head>
@@ -65,6 +82,13 @@ if ($stringPalabras !== '' ){
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
 <?php
 include '../../header.php';
+if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+}
 ?>
 		<div class="container">
 		<div class="row">

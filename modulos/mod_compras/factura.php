@@ -21,6 +21,9 @@ include './../../head.php';
 	$estado='Abierto';
 	$estadoCab="'".'Abierto'."'";
 	$formaPago=0;
+	$comprobarAlbaran=0;
+	$importesFactura=array();
+	$albaranes=array();
 	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
@@ -59,7 +62,8 @@ include './../../head.php';
 		$productos=json_decode(json_encode($productosFactura), true);
 			
 		if ($abaranesFactura){
-			 $modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
+			 //$modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
+			 $modificarAlbaran=modificarArrayAdjunto($abaranesFactura, $BDTpv, "factura");
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
 		
@@ -73,7 +77,7 @@ include './../../head.php';
 	$idFactura=0;
 	$numFactura=0;
 	$idProveedor=0;
-	$suNumero=0;
+	$suNumero="";
 	$nombreProveedor="";
 	//Si recibe los datos de un temporal
 		if (isset($_GET['tActual'])){
@@ -124,58 +128,52 @@ include './../../head.php';
 		}
 		
 	if (isset($_POST['Guardar'])){
-		echo '<pre>';
-		print_r($_GET);
-		echo '</pre>';
 			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales, $importesFactura);
-			//~ echo '<pre>';
-		//~ print_r($guardar);
-		//~ echo '</pre>';
-			if ($guardar==0){
+			if (count($guardar)==0){
 				header('Location: facturasListado.php');
 			}else{
-		
-				echo '<div class="alert alert-warning">
-				<strong>Error!</strong>No has introducido ningún producto.
-				</div>';
+				foreach ($guardar as $error){
+					echo '<div class="'.$error['class'].'">'
+					. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+					. '</div>';
+				}
 			}
+			//~ echo '<pre>';
+			//~ print_r($_POST);
+			//~ echo '</pre>';
 			
 		
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
 	if (isset($_POST['Cancelar'])){
-		if ($_GET['tActual'] || $_GET['id']){
-		$cancelar=cancelarFactura($_POST, $_GET, $BDTpv);
-		if ($cancelar==0){
+		$cancelar=cancelarFactura( $_GET, $BDTpv);
+		if (count($cancelar)==0){
 			header('Location: facturasListado.php');
 		}else{
-			echo '<div class="alert alert-warning">
-				<strong>Error!</strong>Error al cancelar la factura.
-				</div>';
+			echo '<div class="'.$cancelar['class'].'">'
+					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					. '</div>';
 		}
-		//~ }else{
-			//~ header('Location: facturasListado.php');
-		//~ }
-	}
 	}
 	
 		if (isset($factura['Albaranes'])){
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
 		
-		echo $albaranes;
-		if ($albaranes || $comprobarAlbaran==1){
+		//~ echo $albaranes;
+		if (isset($albaranes) || $comprobarAlbaran==1){
 			$style="";
 		}else{
 			$style="display:none;";
 		}
 	
-		if($_GET['id'] >0 ||$_GET['tActual']>0){
+		if(isset($_GET['id']) || isset($_GET['tActual'])){
 			$estiloTablaProductos="";
 		}else{
 			$estiloTablaProductos="display:none;";
 		}
+		//~ echo $estiloTablaProductos;
 		$parametros = simplexml_load_file('parametros.xml');
 	
 // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -186,7 +184,7 @@ include './../../head.php';
 	}
 	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-echo $estado;
+//~ echo $estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -201,7 +199,7 @@ echo $estado;
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
 		cabecera['fecha'] = <?php echo $fechaCab ;?>;
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
-		cabecera['suNumero']=<?php echo $suNumero; ?>;
+		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		
 		
 		 // Si no hay datos GET es 'Nuevo';
@@ -232,7 +230,7 @@ echo $estado;
 	
 		}
 		$i= 0;
-		if (is_array($albaranes)){
+		if (isset($albaranes)){
 			foreach ($albaranes as $alb){
 				?>
 				datos=<?php echo json_encode($alb);?>;
@@ -255,6 +253,9 @@ if ($idProveedor==0){
 if ($suNumero==0){
 	$suNumero="";
 }
+//~ echo '<pre>';
+//~ print_r($albaranes);
+//~ echo '</pre>';
 ?>
 </head>
 <body>
@@ -273,26 +274,12 @@ if ($suNumero==0){
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			<?php 
-			if (isset($_GET['mensaje'])){
-				$mensaje=$_GET['mensaje'];
-				$tipomensaje=$_GET['tipo'];
-			}
-			if (isset($mensaje) || isset($error)){   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
-				}
-				?>
-			<?php
-			}
-			?>
+			 <a  onclick="abrirIndicencia('albaran');">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<a  onclick="abrirIndicencia('albaran');"><span class="glyphicon glyphicon-pencil"></span></a>
-			<a  href="./facturasListado.php">Volver Atrás</a>
+			
+			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+				<a  href="./facturasListado.php">Volver Atrás</a>
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
 					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 					<?php
@@ -350,7 +337,8 @@ if ($suNumero==0){
 				
 				<?php 
 				$i=1;
-				if (is_array($albaranes)){
+				if (isset($albaranes)){
+					
 					foreach ($albaranes as $albaran){
 						if (isset ($albaran['nfila'])){
 						}else{
@@ -400,7 +388,7 @@ if ($suNumero==0){
 		<tbody>
 			<?php 
 			
-			if (is_array($productos)){
+			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaProducto($producto, "factura");
 				echo $html['html'];
@@ -430,8 +418,12 @@ if ($suNumero==0){
 			</tr>
 		</thead>
 		<tbody>
-			<?php $htmlIvas=htmlTotales($Datostotales);
-			echo $htmlIvas['html'];  ?>
+			<?php 
+			if (isset($Datostotales)){
+			$htmlIvas=htmlTotales($Datostotales);
+			echo $htmlIvas['html'];
+		}
+			  ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
@@ -440,7 +432,7 @@ if ($suNumero==0){
 			</div>
 			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
 
-				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+				<?php echo (isset($Datostotales['total']) ? number_format ($Datostotales['total'],2, '.', '') : '');?>
 
 			</div>
 		</div>
@@ -464,7 +456,9 @@ if ($suNumero==0){
 				<td>
 					<select name='Eformas' id='Eformas'>
 				<?php 
+				if(isset($textoFormaPago['html'])){
 				echo $textoFormaPago['html'];
+			}
 				?>
 				</select>
 				</td>
@@ -500,7 +494,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	if (is_array($albaranes)){
+	if (count($albaranes)>0){
 		?>
 		 $('#Row0').css('display', 'none');
 		 $('.unidad').attr("readonly","readonly");
@@ -516,7 +510,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#tablaAl').hide();
 		<?php
 	}
-	if (count ($importesFactura)>0){
+	if (count($importesFactura)>0){
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");
@@ -526,14 +520,12 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 }
 if ($estado=="Pagado total"){
 	?>
-	$("#fila0").hide();
-		
+	$("#fila0").hide();	
 	$("#Cancelar").hide();
 	$("#Guardar").hide();
 	<?php
 }
 	?>
-	
 </script>
 	</body>
 </html>

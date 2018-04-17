@@ -20,21 +20,35 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 	$resultado = array();
 	$palabras = array(); 
 	$products = array();
-	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
 	
-	$resultado['palabras']= $palabras;
+	if ($busqueda ===''){
+		$resultado['Estado'] = 'NoSeBusco';
+		return $resultado ; // No continuamos ya que no tiene sentido.
+	}
+	
+	// Limpio busqueda para evitar rotura en la consulta.
+	$buscar = array(',',';','(',')','"',"'");
+	$sustituir = array(' , ',' ; ',' ( ',' ) ',' ',' ');
+	$string  = str_replace($buscar, $sustituir, trim($busqueda));
+	$palabras = explode(' ',$string); //array de varias palabras, si las hay..
+	
 	$likes = array();
 	$whereIdentico = array();
 	
-	foreach($palabras as $palabra){
-		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
-		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
+	foreach($palabras as $key=>$palabra){
+		if (trim($palabra) !== ''){
+			$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
+			$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
+		} else {
+			unset($palabras[$key]);
+		}
 	}
-	
+	$resultado['palabras']= $palabras;
+
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
 	$busquedas = array();
 	
-	if ($palabra !== ''){ 
+	if (count($palabras>0)){ 
 		$busquedas[] = implode(' and ',$whereIdentico);
 	
 		$busquedas[] = implode(' and ',$likes);
@@ -49,6 +63,7 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
+		
 		$resultado['Nitems']= $res->num_rows;
 		// Al ser identicos, es correcto, eso en la primera busqueda
 		if ($i === 0){
@@ -61,11 +76,13 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 		if (mysqli_error($BDTpv)){
 			$resultado['consulta'] = $sql;
 			$resultado['error'] = $BDTpv->error_list;
+			error_log('Error_buscar_producto:'.json_encode($resultado['error']).'  Consulta:'.$sql);
 			return $resultado;
 		} 
 		$i++;
 	}	
 	//si hay muchos resultados y si es mas de 1, mostrara un listado
+	
 	if (isset($res->num_rows)){
 		if ($res->num_rows > 1){
 			$resultado['Estado'] = 'Listado';
@@ -79,9 +96,7 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 			$products[] = $fila;
 			$resultado['datos']=$products;
 		}
-	} else { 
-		$resultado['Estado'] = 'NoSeBusco';
-	}
+	} 
 	
 	return $resultado;
 }

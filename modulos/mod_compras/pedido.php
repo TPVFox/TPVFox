@@ -78,13 +78,21 @@ if (isset($_POST['Guardar'])){
 	// Objetivo :
 	// Grabar el pedido.
 	$guardar=guardarPedido($_POST, $_GET, $BDTpv, $Datostotales);
-	if ($guardar==0){
+	if (count($guardar)==0){
 		header('Location: pedidosListado.php');
+		
+
 	}else{
-		echo '<div class="alert alert-warning">
-		<strong>Error!</strong>No has introducido ningún producto.
-		</div>';
+		foreach ($guardar as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+				. '</div>';
+			}
 	}
+	//~ echo '<pre>';
+	//~ print_r($guardar);
+	//~ echo '</pre>';
+	
 }
 // ---------   FIN PROCESO Y CONTROL DE GUARDAR  ------------------  //
 $parametros = simplexml_load_file('parametros.xml');
@@ -148,8 +156,9 @@ if ($idProveedor===0){
 	include '../../header.php';
 ?>
 <div class="container">
+	<a  onclick="abrirIndicencia('pedido');">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
-	<a  onclick="abrirIndicencia('pedido');"><span class="glyphicon glyphicon-pencil"></span></a>
+	
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
 		<div class="col-md-12 btn-toolbar">
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
@@ -249,7 +258,7 @@ if ($idProveedor===0){
 			<h3>TOTAL</h3>
 			</div>
 			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+				<?php echo (isset($Datostotales['total']) ? number_format ($Datostotales['total'],2, '.', '') : '');?>
 			</div>
 		</div>
 	</div>

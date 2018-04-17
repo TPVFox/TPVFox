@@ -40,8 +40,9 @@ class TiposVencimientos{
 		$smt = $db->query ('SELECT * from tiposVencimiento where id='.$idPrincipal);
 		if ($result = $smt->fetch_assoc () ){
 			$resultado=$result;
+			return $resultado;
 		}
-		return $resultado;
+		
 	}	
 }
 

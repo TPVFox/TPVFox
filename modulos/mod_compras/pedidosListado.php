@@ -22,7 +22,20 @@
 	
 	//Obtenemos los registros temporarles
 	$todoTemporal=$Cpedido->TodosTemporal();
-	
+	if (isset($todoTemporal['error'])){
+		$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $todoTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}
+	//~ if (count($todoTemporal)==0){
+		//~ $errores[0]=array ( 'tipo'=>'Warning!',
+								 //~ 'dato' => '',
+								 //~ 'class'=>'alert alert-warning',
+								 //~ 'mensaje' => 'No tienes albaranes tempoles abiertos!'
+								 //~ );
+	//~ }
 	$todoTemporal=array_reverse($todoTemporal);
 	// --- Preparamos el Paginado --- //
 	$vista = 'pedprot';
@@ -32,7 +45,7 @@
 	$palabraBuscar=array();
 	$stringPalabras='';
 	$PgActual = 1; // por defecto.
-	$LimitePagina = 10; // por defecto.
+	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
@@ -71,6 +84,20 @@
 	}
 	//MUestra un array con un número determinado de registros
 	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
+	if (isset($pedidosDef['error'])){
+		$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $pedidosDef['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}
+	if (count($pedidosDef)==0){
+		$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes albaranes guardados!'
+								 );
+	}
 	?>
 
 </head>
@@ -79,9 +106,20 @@
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
-
 	include '../../header.php';
+	if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+				. '</div>';
+				if ($error['tipo']=='Danger!'){
+					exit;
+				}
+		}
+	}
+	
 	?>
+	
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
@@ -199,7 +237,8 @@
 						
 						</tr>
 						<?php
-					}
+					
+				}
 					?>
 					</tr>
 				</thead>
