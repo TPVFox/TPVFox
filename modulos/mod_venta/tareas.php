@@ -89,26 +89,36 @@ switch ($pulsado) {
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
 			$res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
-			$respuesta['res']=$res;
-			if ($res['Nitem']==1){
-				$temporales=$CcliPed->contarPedidosTemporal($res['id']);
-				if ($temporales['numPedTemp']==0){
-					$respuesta['temporales']=$temporales;
-					$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
-					$respuesta['datos']['idPedCli']=$res['id'];
-					$respuesta['datos']['idPedido']=$res['id'];
-					$respuesta['datos']['fecha']=$res['FechaPedido'];
-					$respuesta['datos']['total']=$res['total'];
-					$respuesta['datos']['estado']="Activo";
-					$respuesta['Nitems']=$res['Nitem'];
-					$productosPedido=$CcliPed->ProductosPedidos($res['id']);
-					$respuesta['productos']=$productosPedido;
-				}
+			if (isset($res['error'])){
+				$respuesta['error']=$respuesta['error'];
+				$respuesta['consulta']=$respuesta['consulta'];
 			}else{
-				$respuesta=$res;
-				$modal=modalAdjunto($res['datos']);
-				$respuesta['html']=$modal['html'];
-				
+				$respuesta['res']=$res;
+				if ($res['Nitem']==1){
+					//~ $temporales=$CcliPed->contarPedidosTemporal($res['id']);
+					//~ if ($temporales['numPedTemp']==0){
+						//~ $respuesta['temporales']=$temporales;
+						$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
+						$respuesta['datos']['idPedCli']=$res['id'];
+						$respuesta['datos']['idPedido']=$res['id'];
+						$respuesta['datos']['fecha']=$res['FechaPedido'];
+						$respuesta['datos']['total']=$res['total'];
+						$respuesta['datos']['estado']="Activo";
+						$respuesta['Nitems']=$res['Nitem'];
+						$productosPedido=$CcliPed->ProductosPedidos($res['id']);
+						if (isset($productosPedido['error'])){
+							$respuesta['error']=$productosPedido['error'];
+							$respuesta['consulta']=$productosPedido['consulta'];
+						}else{
+							$respuesta['productos']=$productosPedido;
+						}
+					//~ }
+				}else{
+					$respuesta=$res;
+					$modal=modalAdjunto($res['datos']);
+					$respuesta['html']=$modal['html'];
+					
+				}
 			}
 			echo json_encode($respuesta);
 		break;
