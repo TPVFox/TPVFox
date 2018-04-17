@@ -171,7 +171,7 @@ $titulo .= ': '.$estado;
 					}
 				}
 				if(count($errores)==0){
-					//~ header('Location: pedidosListado.php');
+					 header('Location: pedidosListado.php');
 				}else{
 					foreach ($errores as $error){
 						echo '<div class="'.$error['class'].'">'
