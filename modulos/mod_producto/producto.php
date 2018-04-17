@@ -151,12 +151,6 @@
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
 		//~ $htmlVersionesCoches = htmlTablaVersionesCoches($id);
-<<<<<<< HEAD
-		
-=======
->>>>>>> tvmaster
-		
-		
 		?>
 
      

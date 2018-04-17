@@ -83,10 +83,4 @@ class ClasePlugins{
 		
 	}
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> tvmaster
 }
