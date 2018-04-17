@@ -495,8 +495,13 @@ switch ($pulsado) {
 		//modificar el estado de un alabrán
 		$idAlbaran=$_POST['idModificar'];
 		$estado=$_POST['estado'];
+		$resultado=array();
 		$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
-		echo json_encode($modEstado);
+		if (isset($modEstado['error'])){
+			$respuesta['error']=$modEstado['error'];
+			$respuesta['consulta']=$modEstado['consulta'];
+		}
+		echo json_encode($respuesta);
 		break;
 		
 		case 'insertarImporte':
