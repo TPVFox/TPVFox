@@ -202,9 +202,15 @@ class PedidosVentas extends ClaseVentas{
 		// Cuando un pedido pasa de temporal a pedidos se borran los registros temporales
 		$db=$this->db;
 		if ($idPedido>0){
-			$smt=$db->query('DELETE FROM pedcliltemporales WHERE idPedcli='.$idPedido);
+			$sql='DELETE FROM pedcliltemporales WHERE idPedcli='.$idPedido;
 		}else{
-			$smt=$db->query('DELETE FROM pedcliltemporales WHERE id='.$idTemporal);
+			$sql='DELETE FROM pedcliltemporales WHERE id='.$idTemporal;
+		}
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
 		}
 	}
 	
@@ -240,9 +246,19 @@ class PedidosVentas extends ClaseVentas{
 		//@Objetivo:
 		//Eliminar los registros de in id de pedido real
 		$db=$this->db;
-		$smt=$db->query('DELETE FROM pedclit where id='.$idPedido );
-		$smt=$db->query('DELETE FROM pedclilinea where idpedcli='.$idPedido );
-		$smt=$db->query('DELETE FROM pedcliIva where idpedcli='.$idPedido );
+		$respuesta=array();
+		$sql[0]='DELETE FROM pedclit where id='.$idPedido ;
+		$sql[1]='DELETE FROM pedclilinea where idpedcli='.$idPedido ;
+		$sql[2]='DELETE FROM pedcliIva where idpedcli='.$idPedido ;
+		foreach ($sql as $consulta){
+			$smt=$this->consulta($consulta);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				break;
+			}
+		}
+		return $respuesta;
 		
 	}
 	
@@ -269,41 +285,52 @@ class PedidosVentas extends ClaseVentas{
 		return $pedido;
 	}
 	
-	public function buscarNumPedidoId($idTemporal){
-		//@Objetivo:
-		//buscar el id de un número de pedido determinado
-		$db=$this->db;
-		$smt=$db->query('select  Numpedcli, id from pedclit where Numpedcli='.$idTemporal);
-		if ($result = $smt->fetch_assoc () ){
-			$pedido=$result;
-		}
-		$pedido['Nitems']= $smt->num_rows;
-		return $pedido;
-	}
+	//~ public function buscarNumPedidoId($idTemporal){
+		//~ //@Objetivo:
+		//~ //buscar el id de un número de pedido determinado
+		//~ $db=$this->db;
+		//~ $smt=$db->query('select  Numpedcli, id from pedclit where Numpedcli='.$idTemporal);
+		//~ if ($result = $smt->fetch_assoc () ){
+			//~ $pedido=$result;
+		//~ }
+		//~ $pedido['Nitems']= $smt->num_rows;
+		//~ return $pedido;
+	//~ }
 	public function PedidosClienteGuardado($busqueda, $idCliente){
 		//@Objetivo:
 		//Buscar algunos datos de un pedido guardado
 		$db=$this->db;
 		$pedido['busqueda']=$busqueda;
 		if ($busqueda>0){
-		$smt=$db->query('select  Numpedcli, id , FechaPedido , total from 
-		pedclit where Numpedcli='.$busqueda.' and  idCliente='. $idCliente);
-		if ($smt){
-			if ($result = $smt->fetch_assoc () ){
-				$pedido=$result;
+		$sql='select  Numpedcli, id , FechaPedido , total from 
+		pedclit where Numpedcli='.$busqueda.' and  idCliente='. $idCliente
+		$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$pedido['error']=$smt['error'];
+				$pedido['consulta']=$smt['consulta'];
+				
+			}else{
+				if ($result = $smt->fetch_assoc () ){
+					$pedido=$result;
+				}
+				$pedido['Nitem']=1;
 			}
-			$pedido['Nitem']=1;
-		}
 		}else{
-			$smt=$db->query('SELECT  Numpedcli, FechaPedido , total , 
-			id from pedclit where idCliente='.$idCliente .' and estado="Guardado"');
-			$pedidosPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($pedidosPrincipal,$result);	
+			$sql='SELECT  Numpedcli, FechaPedido , total , 
+			id from pedclit where idCliente='.$idCliente .' and estado="Guardado"';
+			$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$pedido['error']=$smt['error'];
+				$pedido['consulta']=$smt['consulta'];
+				
+			}else{
+				$pedidosPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($pedidosPrincipal,$result);	
+				}
+				
+				$pedido['datos']=$pedidosPrincipal;
 			}
-			
-			$pedido['datos']=$pedidosPrincipal;
-			
 		}
 		return $pedido;
 	}
@@ -312,8 +339,14 @@ class PedidosVentas extends ClaseVentas{
 		//@Objetivo:
 		//MOdificar el estado de un pedido real indicado
 		$db=$this->db;
-		$smt=$db->query('UPDATE pedclit SET estado="'.$estado.'" 
-		WHERE id='.$idPedido);
+		$sql='UPDATE pedclit SET estado="'.$estado.'" 
+		WHERE id='.$idPedido;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$resultado['error']=$smt['error'];
+				$resultado['consulta']=$smt['consulta'];
+				return $resultado;
+			}
 		//~ return $resultado;
 	}
 	
@@ -322,19 +355,32 @@ class PedidosVentas extends ClaseVentas{
 		//Comprobar los pedidos de un cliente determinado con el estado guardado
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';
-		$smt=$db->query('SELECT  id from pedclit where idCliente='
-		.$idCliente .' and estado='.$estado);
-		while ( $result = $smt->fetch_assoc () ) {
-			$pedidos['ped']=1;
+		$sql='SELECT  id from pedclit where idCliente='
+		.$idCliente .' and estado='.$estado;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$resultado['error']=$smt['error'];
+				$resultado['consulta']=$smt['consulta'];
+				return $resultado;
+		}else{
+			while ( $result = $smt->fetch_assoc () ) {
+				$pedidos['ped']=1;
+			}
+			return $pedidos;
 		}
-		return $pedidos;
 	}
 	public function modTotales($res, $total, $totalivas){
 		//@Objetivo:
 		//Modificar el total de un albarán temporal
 		$db=$this->db;
-		$smt=$db->query('UPDATE pedcliltemporales set total='.$total 
-		.' , total_ivas='.$totalivas .' where id='.$res);
+		$sql='UPDATE pedcliltemporales set total='.$total 
+		.' , total_ivas='.$totalivas .' where id='.$res;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$resultado['error']=$smt['error'];
+				$resultado['consulta']=$smt['consulta'];
+				return $resultado;
+		}
 	}
 }
 
