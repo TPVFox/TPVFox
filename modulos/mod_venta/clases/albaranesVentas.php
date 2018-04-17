@@ -27,37 +27,49 @@ class AlbaranesVentas extends ClaseVentas{
 	public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente){
 		//@Objetivo:
 		//Insertar un nuevo registro de albaranes temporales
+		$respuesta=array();
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$UnicoCampoProductos=json_encode($productos);
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$PrepPedidos = $db->real_escape_string($UnicoCampoPedidos);
-		$smt = $db->query ('INSERT INTO albcliltemporales ( idUsuario , idTienda , estadoAlbCli
+		$sql='INSERT INTO albcliltemporales ( idUsuario , idTienda , estadoAlbCli
 		 , fechaInicio, idClientes, Pedidos, Productos ) VALUES ('.$idUsuario.' , '
 		 .$idTienda.' , "'.$estadoAlbaran.'" , "'.$fecha.'", '.$idCliente.' , "'
-		 .$PrepPedidos.'", "'.$PrepProductos.'")');
-		$id=$db->insert_id;
-		$respuesta['id']=$id;
-		$respuesta['productos']=$productos;
-		
+		 .$PrepPedidos.'", "'.$PrepProductos.'")';
+		 $smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+		}else{
+			$id=$db->insert_id;
+			$respuesta['id']=$id;
+			$respuesta['productos']=$productos;
+		}
 		return $respuesta;
 	}
 	
 	public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idTemporal, $productos){
 		//@Objetivo:
 		//Modificar un registro de albaranes temporales
+		$respuesta=array();
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
 		$UnicoCampoProductos=json_encode($productos);
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$PrepPedidos = $db->real_escape_string($UnicoCampoPedidos);
-		$smt=$db->query('UPDATE albcliltemporales SET idUsuario='.$idUsuario
+		$sql='UPDATE albcliltemporales SET idUsuario='.$idUsuario
 		.' , idTienda='.$idTienda.' , estadoAlbCli="'.$estadoAlbaran.'" , fechaInicio='
 		.$fecha.' , Pedidos="'.$PrepPedidos.'" ,Productos="'.$PrepProductos
-		.'"  WHERE id='.$idTemporal);
-		$respuesta['idTemporal']=$idTemporal;
-		$respuesta['productos']=$UnicoCampoProductos;
-	
+		.'"  WHERE id='.$idTemporal;
+		 $smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+		}else{
+			$respuesta['idTemporal']=$idTemporal;
+			$respuesta['productos']=$UnicoCampoProductos;
+		}
 		return $respuesta;
 	}
 	
@@ -66,8 +78,14 @@ class AlbaranesVentas extends ClaseVentas{
 		//SI tenemos un número de albarán real lo metemos en el albarán temporal
 		$db = $this->db;
 		$UnicoCampoPedidos=json_encode($pedidos);
-		$smt=$db->query('UPDATE albcliltemporales SET numalbcli ='.$numAlbaran
-		.' WHERE id='.$idTemporal);
+		$sql='UPDATE albcliltemporales SET numalbcli ='.$numAlbaran
+		.' WHERE id='.$idTempora;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	
 	public function buscarDatosAlabaranTemporal($idAlbaranTemporal) {
@@ -92,17 +110,33 @@ class AlbaranesVentas extends ClaseVentas{
 		//@Objetivo:
 		//Modificar el total de un albarán temporal
 		$db=$this->db;
-		$smt=$db->query('UPDATE albcliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res);
+		$sql='UPDATE albcliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
 	}
 	
 	public function eliminarAlbaranTablas($idAlbaran){
 		//@Objetivo:
 		//Eliminar todas los registros de un id de albarán real 
+		$respuesta=array();
 		$db=$this->db;
-		$smt=$db->query('DELETE FROM albclit where id='.$idAlbaran );
-		$smt=$db->query('DELETE FROM albclilinea where idalbcli ='.$idAlbaran );
-		$smt=$db->query('DELETE FROM albcliIva where idalbcli ='.$idAlbaran );
-		$smt=$db->query('DELETE FROM pedcliAlb where idAlbaran ='.$idAlbaran );
+		$sql[0]='DELETE FROM albclit where id='.$idAlbaran ;
+		$sql[1]='DELETE FROM albclilinea where idalbcli ='.$idAlbaran ;
+		$sql[2]='DELETE FROM albcliIva where idalbcli ='.$idAlbaran ;
+		$sql[3]='DELETE FROM pedcliAlb where idAlbaran ='.$idAlbaran ;
+		foreach ($sql as $consulta){
+			$smt=$this->consulta($consulta);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				break;
+			}
+		}
+		return $respuesta;
 		
 	}
 	
