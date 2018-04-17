@@ -547,38 +547,38 @@ switch ($pulsado) {
 			 $respuesta['bandera']=$bandera;
 		 }
 		 if ($error==0){
-		$pendiente=$total-$bandera;
-		$nuevo=array();
-		$nuevo['importe']=$importe;
-		$nuevo['fecha']=$fecha;
-		$nuevo['forma']=$formaPago;
-		$nuevo['referencia']=$referencia;
-		$nuevo['pendiente']=$pendiente;
-		$respuesta['nuevo']=$nuevo;
-		array_push($arrayPrincipal, $nuevo);
-		$jsonImporte=json_encode($arrayPrincipal);
-		$modImportes=$CFac->modificarImportesTemporal($idFactura, $jsonImporte);
-		$respuesta['sqlmod']=$modImportes;
-		$html=htmlImporteFactura($nuevo, $BDTpv);
-		$respuesta['html']=$html['html'];
-	}
+			$pendiente=$total-$bandera;
+			$nuevo=array();
+			$nuevo['importe']=$importe;
+			$nuevo['fecha']=$fecha;
+			$nuevo['forma']=$formaPago;
+			$nuevo['referencia']=$referencia;
+			$nuevo['pendiente']=$pendiente;
+			$respuesta['nuevo']=$nuevo;
+			array_push($arrayPrincipal, $nuevo);
+			$jsonImporte=json_encode($arrayPrincipal);
+			$modImportes=$CFac->modificarImportesTemporal($idFactura, $jsonImporte);
+			$respuesta['sqlmod']=$modImportes;
+			$html=htmlImporteFactura($nuevo, $BDTpv);
+			$respuesta['html']=$html['html'];
+		}
 		echo json_encode($respuesta);
 		break;
 		//@Objetivo:
 		//enviar los datos para imprimir el pdf
 		case 'datosImprimir':
-		$id=$_POST['id'];
-		$dedonde=$_POST['dedonde'];
-		$tienda=$_POST['tienda'];
-		$nombreTmp=$dedonde."ventas.pdf";
-		$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $tienda);
-		$cabecera=$htmlImprimir['cabecera'];
-		$html=$htmlImprimir['html'];
-		require_once('../../lib/tcpdf/tcpdf.php');
-		include ('../../clases/imprimir.php');
-		include('../../controllers/planImprimir.php');
-		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-		echo json_encode($ficheroCompleto);
+			$id=$_POST['id'];
+			$dedonde=$_POST['dedonde'];
+			$tienda=$_POST['tienda'];
+			$nombreTmp=$dedonde."ventas.pdf";
+			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $tienda);
+			$cabecera=$htmlImprimir['cabecera'];
+			$html=$htmlImprimir['html'];
+			require_once('../../lib/tcpdf/tcpdf.php');
+			include ('../../clases/imprimir.php');
+			include('../../controllers/planImprimir.php');
+			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+			echo json_encode($ficheroCompleto);
 		break;
 		
 		

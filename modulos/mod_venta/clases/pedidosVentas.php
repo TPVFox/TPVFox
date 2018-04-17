@@ -34,15 +34,18 @@ class PedidosVentas extends ClaseVentas{
 		$UnicoCampoProductos=json_encode($productos);
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$db = $this->db;
-		$smt = $db->query ('INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario,
+		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario,
 		 estadoPedCli, idPedcli, Productos ) VALUES ('.$idCliente.', '
-		 .$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', "'.$PrepProductos.'")');
-		$id=$db->insert_id;
-		$respuesta['sql']='INSERT INTO pedcliltemporales (idClientes, idTienda,
-		 idUsuario, estadoPedCli, idPedcli, Productos ) VALUES ('.$idCliente.', '
 		 .$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', "'.$PrepProductos.'")';
-		$respuesta['id']=$id;
-		return $respuesta;
+		$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+			}else{
+				$id=$db->insert_id;
+				$respuesta['id']=$id;
+			}
+			return $respuesta;
 	}
 	
 	
@@ -50,18 +53,29 @@ class PedidosVentas extends ClaseVentas{
 		$UnicoCampoProductos=json_encode($productos);
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$db = $this->db;
-		$smt = $db->query ('UPDATE pedcliltemporales set idClientes ='.$idCliente
+		$sql='UPDATE pedcliltemporales set idClientes ='.$idCliente
 		.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'
 		.$estado.'", idPedcli ='.$idReal.', productos="'.$PrepProductos 
-		.'" WHERE id='.$idTemporal);		
-		
+		.'" WHERE id='.$idTemporal;		
+		$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+			}
 	}
 
 	public function ModIdReal($idTemporal, $idPedido){
 		//@Objetivo: Modificar el pedido temporal para insertar el id del pedido real
 		$db = $this->db;
-		$smt = $db->query ('UPDATE pedcliltemporales set idPedcli ='.$idPedido
-		.' WHERE id='.$idTemporal);
+		$sql='UPDATE pedcliltemporales set idPedcli ='.$idPedido
+		.' WHERE id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
 	}
 
 	public function BuscarIdTemporal($idTemporal){
@@ -73,8 +87,6 @@ class PedidosVentas extends ClaseVentas{
 		return $pedido;
 	
 	}
-	
-	
 	public function TodosTemporal(){
 		//@Objetivo: Muestra los campos principales del temporal
 		$db = $this->db;
