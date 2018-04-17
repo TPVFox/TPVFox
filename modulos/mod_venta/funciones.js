@@ -889,29 +889,33 @@ function addTemporal(dedonde){
 			console.log('Llegue devuelta respuesta de añadir albaran temporal');
 			var resultado =  $.parseJSON(response); 
 			var HtmlClientes=resultado.html;
-			if (resultado.existe == 0){
-				history.pushState(null,'','?tActual='+resultado.id);
-				cabecera.idTemporal=resultado.id;
-			}
-			console.log(productos);
-			resetearTotales();
-			
-			total = parseFloat(resultado['totales']['total'])
-			$('.totalImporte').html(total.toFixed(2));
-			$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
-			var estado="Sin guardar";
-			if (cabecera.idReal>0){
-				var estado="Sin guardar";
-				modificarEstado(dedonde, estado, cabecera.idReal);
-			}
-			if (dedonde=="factura"){
-				var importe= document.getElementById("Eimporte").value;
-				if (importe>0){
-					insertarImporte(total);
+			if(resultado.error){
+				alert('Error de SQL: '+resultado.consulta);
+			}else{
+				if (resultado.existe == 0){
+					history.pushState(null,'','?tActual='+resultado.id);
+					cabecera.idTemporal=resultado.id;
 				}
+				console.log(productos);
+				resetearTotales();
+				
+				total = parseFloat(resultado['totales']['total'])
+				$('.totalImporte').html(total.toFixed(2));
+				$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
+				var estado="Sin guardar";
+				if (cabecera.idReal>0){
+					var estado="Sin guardar";
+					modificarEstado(dedonde, estado, cabecera.idReal);
+				}
+				if (dedonde=="factura"){
+					var importe= document.getElementById("Eimporte").value;
+					if (importe>0){
+						insertarImporte(total);
+					}
+				}
+				$("#Cancelar").show();
+				$("#Guardar").show();
 			}
-			$("#Cancelar").show();
-	$("#Guardar").show();
 		}
 	});
 	

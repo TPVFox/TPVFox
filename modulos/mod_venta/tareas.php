@@ -200,35 +200,49 @@ switch ($pulsado) {
 			$idCliente=$_POST['idCliente'];
 			$idReal=$_POST['idReal'];
 			$existe=0;
+			$respuesta=array();
 			//Si el número del albarán real existe lo guardamos
-			if (isset($numAlbaran)){
-				if ($numAlbaran>0){
-					$albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
-					$idAlbaranTemp=$albaran['id'];
-				}
-			}
+			//~ if (isset($numAlbaran)){
+				//~ if ($numAlbaran>0){
+					//~ $albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
+					//~ $idAlbaranTemp=$albaran['id'];
+				//~ }
+			//~ }
 			//Si el albarán temporal existe lo modifica
 			if ($idAlbaranTemp>0){
 				$rest=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
-				$existe=1;
-				//~ $respuesta['sql']=$rest['sql'];
-				$res=$rest['idTemporal'];
-				$pro=$rest['productos'];
+				if (isset($rest['error'])){
+					$respuesta['error']=$rest['error'];
+					$respuesta['consulta']=$rest['consulta'];
+				}else{
+					$existe=1;
+					$res=$rest['idTemporal'];
+					//~ $pro=$rest['productos'];
+				}
 			}else{
 				//Si no lo inserta
 				$rest=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente);
-				$existe=0;
-				$pro=$rest['productos'];
-				$res=$rest['id'];
-				$idAlbaranTemp=$res;
+				if (isset($rest['error'])){
+					$respuesta['error']=$rest['error'];
+					$respuesta['consulta']=$rest['consulta'];
+				}else{
+					$existe=0;
+				//~ $pro=$rest['productos'];
+					$res=$rest['id'];
+					$idAlbaranTemp=$res;
+				}
 			}
 			//$respuesta['numalbaran']=$numAlbaran;
 			if ($idReal>0){
 				$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $idReal);
-				$respuesta['sqlmodnum']=$modId;
+				if (isset($modId['error'])){
+					$respuesta['error']=$modId['error'];
+					$respuesta['consulta']=$modId['consulta'];
+				}
+				//~ $respuesta['sqlmodnum']=$modId;
 			}
 			//recalcula los totales de los productos y modifica el total en albarán temporal
-			if ($productos){
+			if (isset($productos)){
 				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
 				$respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotales($productos_para_recalculo);
@@ -236,13 +250,16 @@ switch ($pulsado) {
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
 				$modTotal=$CalbAl->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
+				if (isset($modTotal['error'])){
+					$respuesta['error']=$modTotal['error'];
+					$respuesta['consulta']=$modTotal['consulta'];	
+				}
 				$htmlTotales=htmlTotales($CalculoTotales);
 				$respuesta['htmlTabla']=$htmlTotales['html'];
 			}
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
-			
 			echo json_encode($respuesta);
 		break;
 		

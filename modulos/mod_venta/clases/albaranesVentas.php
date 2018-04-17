@@ -145,18 +145,18 @@ class AlbaranesVentas extends ClaseVentas{
 			//Añadir nuevos registros de un albaran real 
 		$db = $this->db;
 		if ($idAlbaran>0){
-		$smt = $db->query ('INSERT INTO albclit (id, Numalbcli, Fecha, idTienda , 
-		idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.' , '.$numAlbaran
-		.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '
-		.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].')');
-		$id=$idAlbaran;
+			$smt = $db->query ('INSERT INTO albclit (id, Numalbcli, Fecha, idTienda , 
+			idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.' , '.$numAlbaran
+			.', "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '
+			.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].')');
+			$id=$idAlbaran;
 		}else{
-		$smt = $db->query ('INSERT INTO albclit (Numtemp_albcli, Fecha, idTienda ,
-		 idUsuario , idCliente , estado , total) VALUES ('.$datos['Numtemp_albcli']
-		 .' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario']
-		 .', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].')');
-		$id=$db->insert_id;
-		$smt = $db->query('UPDATE albclit SET Numalbcli  = '.$id.' WHERE id ='.$id);
+			$smt = $db->query ('INSERT INTO albclit (Numtemp_albcli, Fecha, idTienda ,
+			 idUsuario , idCliente , estado , total) VALUES ('.$datos['Numtemp_albcli']
+			 .' , "'.$datos['Fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario']
+			 .', '.$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].')');
+			$id=$db->insert_id;
+			$smt = $db->query('UPDATE albclit SET Numalbcli  = '.$id.' WHERE id ='.$id);
 		}
 		$productos = json_decode($datos['productos'], true); 
 		$i=1;
@@ -173,52 +173,52 @@ class AlbaranesVentas extends ClaseVentas{
 				$numPed=0;
 			}
 			if ($idAlbaran>0){
-			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo
-			 , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea,
-			  NumpedCli ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '
-			  ."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '
-			  .$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '
-			  .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
+				$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo
+				 , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea,
+				  NumpedCli ) VALUES ('.$id.', '.$idAlbaran.' , '.$prod['idArticulo'].', '
+				  ."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '
+				  .$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '
+				  .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' );	
 			}else{
-			$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo
-			 , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, 
-			 estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']
-			 .', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '
-			 .$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '
-			 .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
+				$smt=$db->query('INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo
+				 , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, 
+				 estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']
+				 .', '."'".$prod['cref']."'".', '.$codBarras.', "'.$prod['cdetalle'].'", '
+				 .$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '
+				 .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' );
 			}
 			$i++;
 		}
 		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			if($idAlbaran>0){
-			$smt=$db->query('INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva , 
-			importeIva, totalbase) VALUES ('.$id.', '.$idAlbaran.' , '.$iva.', '
-			.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+				$smt=$db->query('INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva , 
+				importeIva, totalbase) VALUES ('.$id.', '.$idAlbaran.' , '.$iva.', '
+				.$basesYivas['iva'].' , '.$basesYivas['base'].')');
 
 			}else{
-			$smt=$db->query('INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva ,
-			 importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '
-			 .$basesYivas['iva'].' , '.$basesYivas['base'].')');
+				$smt=$db->query('INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva ,
+				importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '
+				.$basesYivas['iva'].' , '.$basesYivas['base'].')');
 
 			}
 		}
 		$pedidos = json_decode($datos['pedidos'], true); 
 		foreach ($pedidos as $pedido){
 			if ($pedido['estado']=="activo" || $pedido['estado']=="Activo"){
-			if($idAlbaran>0){
-				$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran  
-				 , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '
-				 .$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')');
+				if($idAlbaran>0){
+					$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran  
+					 , idPedido , numPedido) VALUES ('.$id.', '.$idAlbaran.' ,  '
+					 .$pedido['idPedCli'].' , '.$pedido['Numpedcli'].')');
 
 				}else{
-				$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran  
-				 , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli']
-				 .' , '.$pedido['Numpedcli'].')');
+					$smt=$db->query('INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran  
+					 , idPedido , numPedido) VALUES ('.$id.', '.$id.' ,  '.$pedido['idPedCli']
+					 .' , '.$pedido['Numpedcli'].')');
 				}
 			}
 		}
-	}
+}
 	
 	
 	public function EliminarRegistroTemporal($idTemporal, $idAlbaran){
