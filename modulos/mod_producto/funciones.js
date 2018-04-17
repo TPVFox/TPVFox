@@ -16,9 +16,45 @@ function BuscarProducto (){
 		return;
 	});
 }
-//parametros:
-//adonde : a donde quiero ir o donde quiero permanecer: ListaTickets, ListaProductos.. 
+
+function BuscarProveedor (){
+	// @ Objetivo:
+	// Obtener caja de busqueda de Proveedor y abrir modal con caja de busqueda de proveedor para añadir un proveedor.
+	
+	var parametros = {
+		"pulsado"    	: 'HtmlCajaBuscarProveedor',
+		"dedonde"	 	: 'productos'
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Obteniendo html de cajabuscarproveedor  ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de Obtener HTML de cajabuscarproveedor');
+			
+			var resultado =  $.parseJSON(response);
+			var titulo = 'Buscar Proveedor Nuevo para este producto'
+			var contenido = resultado['html'];
+			abrirModal(titulo,contenido);
+			focusAlLanzarModal('cajaBusquedaproveedor');
+			
+		}
+	});
+	
+	
+	
+	
+}
+
+
 function metodoClick(pulsado,adonde){
+	// @ Objetivo:
+	//  Controlas los click en listadoproductos.
+	// @ parametros:
+	//     adonde : a donde quiero ir o donde quiero permanecer: ListaTickets, ListaProductos.. 
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
 		case 'VerProducto':
@@ -30,9 +66,7 @@ function metodoClick(pulsado,adonde){
 				return
 			}
 			// Ahora redireccionamos 
-			window.location.href = './'+adonde+'.php?id='+checkID[0];
-			//window.location.href = './producto.php?id='+checkID[0];
-			
+			window.location.href = './'+adonde+'.php?id='+checkID[0];			
 			
 			break;
 		
