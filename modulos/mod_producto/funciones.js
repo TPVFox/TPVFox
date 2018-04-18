@@ -787,5 +787,4 @@ function selecionarItemProducto(id){
 				 
 		}	
 	});
-
 }
