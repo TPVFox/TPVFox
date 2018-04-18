@@ -49,7 +49,11 @@
 				$nombreCliente="'".$datosCliente['Nombre']."'";
 		}
 		if (isset($datosFactura['formaPago'])){
-			$formaPago=$datosFactura['formaPago'];
+			if($datosFactura['formaPago']>0){
+				$formaPago=$datosFactura['formaPago'];
+			}
+			
+			
 		}
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		if (isset($datosFactura['FechaVencimiento'])){
