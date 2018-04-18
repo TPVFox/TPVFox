@@ -731,3 +731,7 @@ function seleccionProveedor(dedonde,idproveedor){
 	alert('Ahora debería obtener los datos necesario');
 	
 	}
+function imprimirEtiquetas(id){
+	alert(id);
+
+}

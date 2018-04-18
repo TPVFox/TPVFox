@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php
+       <?php
 	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
@@ -110,6 +110,7 @@
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
+	
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -157,6 +158,9 @@
 								//agregarUsuario nos lleva a formulario usuario
 								//verUsuario si esta checkado nos lleva vista usuario de ese id
 											//si NO nos indica que tenemos que elegir uno de la lista ?>
+				<h4 class='imprimir'>Etiquetas</h4>
+				<h5 class='imprimir'>Imprimir etiquetas</h5>
+				<li class='imprimir'><a href="#section2";>Imprimir</a></li>
 				</ul>	
 				<h4>Configuracion</h4>
 				<h5>Marca que campos quieres mostrar y por lo quieres buscar.</h5>
@@ -217,7 +221,7 @@
 				?>
 
 				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $producto['idArticulo'];?>">
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="imprimirEtiquetas(<?php echo $producto['idArticulo']; ?>)" value="<?php echo $producto['idArticulo'];?>">
 					</td>
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>
