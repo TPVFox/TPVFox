@@ -54,7 +54,7 @@ if ($existe_curl === FALSE){
 	echo '</pre>';
 	exit();
 }
-include './conexion_curl.php';
+include ($RutaServidor.$HostNombre.'/lib/curl/conexion_curl.php');
 // Obtenemos arrays ( $repuestas , $error si lo hubiera.. )
 
 // [OBTENEMOS LISTADO PRODUCTOS SERVIDOR ]

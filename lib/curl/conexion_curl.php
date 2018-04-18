@@ -42,9 +42,9 @@ $respuesta = curl_exec ($ch);
  
 //o el error, por si falla
 $error = curl_error($ch);
-echo '<pre>';
-print_r($error);
-echo '</pre>';
+//~ echo '<pre>';
+//~ print_r($respuesta);
+//~ echo '</pre>';
  
 //y finalmente cerramos curl
 curl_close ($ch);
