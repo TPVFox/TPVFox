@@ -697,3 +697,7 @@ function validarEntradaNombre(caja){
 	$('#'+caja.id_input).val(cadena);
 	
 }
+function imprimirEtiquetas(id){
+	alert(id);
+
+}
