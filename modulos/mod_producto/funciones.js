@@ -755,7 +755,6 @@ function validarEntradaNombre(caja){
 	
 }
 
-
 function seleccionProveedor(dedonde,idproveedor){
 	alert('Ahora debería obtener los datos necesario');
 	
@@ -790,4 +789,3 @@ function selecionarItemProducto(id){
 	});
 
 }
-
