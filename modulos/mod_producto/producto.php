@@ -21,7 +21,17 @@
 		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
-		
+		// Cargamos el plugin que nos interesa.
+		if (count($CTArticulos->GetPlugins())>0){
+			foreach ($CTArticulos->GetPlugins() as $plugin){
+				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+					
+				}
+			}
+			echo '<pre>';
+			print_r($CTArticulos->GetPlugins());
+			echo '</pre>';
+		}
 		$titulo = 'Productos:';
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
@@ -101,7 +111,10 @@
 			}
 		}
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
-		
+		// Obtenemos referencias de tiendas :
+		//~ echo '<pre>';
+		//~ print_r($Producto);
+		//~ echo '</pre>';
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
@@ -140,10 +153,8 @@
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
-		
-		
-		
-		
+		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
+		//~ $htmlVersionesCoches = htmlTablaVersionesCoches($id);
 		?>
 
      
@@ -265,7 +276,13 @@
 						$titulo = 'Familias';
 						echo htmlPanelDesplegable($num,$titulo,$htmlFamilias);
 						?>
-
+						<!-- Inicio collapse de Tiendas --> 
+						<?php 
+						$num = 4; // Numero collapse;
+						$titulo = 'Productos en otras tiendas.';
+						echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
+						?>
+						
 						<!-- Inicio collapse de Referencias Tiendas --> 
 
 					<!-- Fin de panel-group -->

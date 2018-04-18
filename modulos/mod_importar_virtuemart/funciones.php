@@ -536,7 +536,7 @@ function ObtenerTiendaImport($BDTpv,$id){
 }
 function ListadoProductosCompletoTPV($BDTpv){
 	$resultado = array();
-	$sql = "SELECT a.idArticulo,at.idVirtuemart,a.articulo_name,a.`iva`,at.estado,ap.pvpCiva,ap.pvpSiva,a.`fecha_creado`,a.`fecha_modificado` FROM `articulos` AS a LEFT JOIN articulosTiendas AS at ON at.idArticulo =a.idArticulo and at.idTienda = 2 LEFT JOIN articulosPrecios AS ap ON ap.idArticulo=a.idArticulo and at.idTienda = 2 GROUP BY at.idVirtuemart";
+	$sql = "SELECT a.idArticulo,at.idVirtuemart,a.articulo_name,a.`iva`,at.estado,ap.pvpCiva,ap.pvpSiva,a.`fecha_creado`,a.`fecha_modificado` FROM `articulos` AS a LEFT JOIN articulosTiendas AS at ON at.idArticulo =a.idArticulo and at.idTienda = 4 LEFT JOIN articulosPrecios AS ap ON ap.idArticulo=a.idArticulo and at.idTienda = 4 GROUP BY at.idVirtuemart";
 	
 	$resultado['consulta'] = $sql;
 	if ($consulta = $BDTpv->query($sql)){

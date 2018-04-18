@@ -69,6 +69,34 @@ function htmlLineaProveedorCoste($item,$proveedor=''){
 	return $nuevaFila;
 }
 
+function htmlLineaRefTienda($item,$crefTienda){
+	// @ Objetivo:
+	// Montar linea de proveedores_coste, para añadir o para modificar.
+	// @ Parametros :
+	// 		$item -> (int) Numero item
+	// 		$crefTienda-> (array) Datos de crefTienda: idTienda,crefTienda,idVirtuemart,...
+	
+	
+	
+	$nuevaFila = '<tr>';
+	$nuevaFila .= '<td>'.$crefTienda['idTienda'].'</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .='<small>'.$crefTienda['crefTienda'].'/'.$crefTienda['idVirtuemart'].'</small>';
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= $crefTienda['pvpSiva'];
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= $crefTienda['pvpSiva'];
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>';
+	$nuevaFila .= $crefTienda['tipoTienda'];
+	$nuevaFila .='</td>';
+	$nuevaFila .= '<td>'.$crefTienda['dominio'].'</td>'; 		
+	$nuevaFila .= '</tr>';
+	return $nuevaFila;
+}
+
 function  htmlTablaCodBarras($codBarras){
 	// @ Objetivo
 	// Montar la tabla html de codbarras
@@ -154,6 +182,35 @@ function  htmlTablaProveedoresCostes($proveedores){
 	if (isset($JSproveedores)){
 		$html .= '<script>'.$JSproveedores.'</script>';
 	}
+	return $html;
+} 
+
+
+function  htmlTablaRefTiendas($crefTiendas){
+	// @ Objetivo
+	// Montar la tabla html de codbarras
+	// @ Parametros
+	// 		// 		$crefTiendas-> (array) de Arrays con datos de productos en otras tiendas.
+	$html =	 '<table id="tproveedor" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>idTienda</th>'
+			.'				<th>Cref / id </th>'
+			.'				<th>PvpCIva</th>'
+			.'				<th>PvpSIva</th>'
+			.'				<th>Tipo Tienda</th>'
+			.'				<th>dominio</th>'
+			.'			</tr>'
+			.'		</thead>';
+	if (count($crefTiendas)>0){
+		foreach ($crefTiendas as $item=>$crefTienda){
+			if ($crefTienda['tipoTienda'] !=='principal'){
+				// No generamos html de tienda principal ya que no tiene sentido.
+				$html .= htmlLineaRefTienda($item,$crefTienda);
+			}
+		}
+	}
+	$html .= '</table>	';
 	return $html;
 } 
 
