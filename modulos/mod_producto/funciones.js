@@ -17,14 +17,22 @@ function BuscarProducto (){
 	});
 }
 
-function BuscarProveedor (){
+function BuscarProveedor (dedonde,busqueda=''){
 	// @ Objetivo:
 	// Obtener caja de busqueda de Proveedor y abrir modal con caja de busqueda de proveedor para añadir un proveedor.
-	
+	// @ Parametro:
+	// 	 dedonde -> Indicamos quien ejecuta funcion: popup , o productos ( link),
+	// 	 busqueda-> Si viene de productos (link) no lo tiene valor, sino si.
+	// --  Ahora obtengo un array con los idsProveedores que tiene añadido al producto, ya que hacer falta -- //
+	idsProveedores = obtenerIdsProveedores();
+	// -- Montamos parametros -- //
 	var parametros = {
 		"pulsado"    	: 'HtmlCajaBuscarProveedor',
-		"dedonde"	 	: 'productos'
+		"dedonde"	 	: dedonde,
+		"busqueda"		: busqueda,
+		"idsProveedores": idsProveedores
 	};
+	// -- Enviamos datos por Ajax -- //
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -40,7 +48,7 @@ function BuscarProveedor (){
 			var contenido = resultado['html'];
 			abrirModal(titulo,contenido);
 			focusAlLanzarModal('cajaBusquedaproveedor');
-			
+			$('#cajaBusquedaproveedor').focus();
 		}
 	});
 	
@@ -294,6 +302,17 @@ function obtenerIva(){
 	
 }
 
+
+function obtenerIdsProveedores(){
+	// Objetivo:
+	// Obtener ids de los proveedores que tiene asigando el producto.
+	var idsProveedores= [];
+	proveedores.forEach(function(proveedor){
+		idsProveedores.push(proveedor.idProveedor);
+	});
+	return idsProveedores;
+	
+}
 
 function AnhadirCodbarras(){
 	// @ Objetivo
@@ -568,6 +587,15 @@ function controladorAcciones(caja,accion, tecla){
 			}
 		break;
 		
+		
+		case 'buscarProveedor':
+			// Solo venimos a esta accion cuando pulsamos intro cajaBusquedaproveedor
+			// entonce enviamos dedonde=popup, el buscar=Valor cja... que puede ser vacio.. 
+			var buscar = caja.darValor();
+			var dedonde = 'popup';
+			BuscarProveedor (dedonde,buscar)
+		break;
+		
 	}
 		
 }
@@ -697,3 +725,9 @@ function validarEntradaNombre(caja){
 	$('#'+caja.id_input).val(cadena);
 	
 }
+
+
+function seleccionProveedor(dedonde,idproveedor){
+	alert('Ahora debería obtener los datos necesario');
+	
+	}
