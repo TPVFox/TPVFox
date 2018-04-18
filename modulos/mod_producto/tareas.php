@@ -114,6 +114,37 @@ switch ($pulsado) {
 		echo json_encode($resultado);
 	break;
 	
+	case 'HtmlCajaBuscarProveedor':
+		$resultado 		= array();
+		$dedonde 		= $_POST['dedonde'];
+		$busqueda =  $_POST['busqueda']; // Este valor puede venir vacio , por lo que...
+		$DescartIdsProv = $_POST['idsProveedores']; // Descartamos los ids de los proveedores que ya tiene el producto.
+													// para que no pueda seleccionadlor.
+		if ($busqueda !==''){
+			// Realizamos la busqueda todos los proveedores menos los que tiene añadidos en el producto..
+			$proveedores = $CProveedor->buscarProveedorNombre($busqueda);
+			// Ahora tengo que quitar del array proveedores[datos], aquellos que no ya estan añadidos para que no se muestre.
+			$descartado = array();
+
+			foreach ($proveedores['datos'] as $key=>$proveedor){
+				$idProveedor = $proveedor['idProveedor'];
+				if (in_array ($idProveedor,$DescartIdsProv)){
+					$descartados[] = $idProveedor;
+					unset($proveedores['datos'][$key]);
+				};
+			}
+		} else {
+			$proveedores = array();
+			$proveedores['datos'] = array(); // ya enviamos datos... :-)
+		}
+		$resultado = htmlBuscarProveedor($busqueda,$dedonde,$proveedores['datos']);
+		$resultado['proveedores'] = $proveedores;
+		$resultado['busqueda'] = $busqueda;
+		$resultado['descartados'] = $descartados;
+
+		echo json_encode($resultado);
+	break;
+	
 }
 
 

@@ -49,7 +49,7 @@ function htmlLineaProveedorCoste($item,$proveedor=''){
 			$atributos .= 'readonly onclick="return false;" checked="true"';
 		} 
 	}else {
-		$atributos .= 'disabled';
+		$atributos .= ' disabled';
 	}
 	$nuevaFila .= '<td><input '.$atributos.' type="checkbox" id="check_pro_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>';
 	$nuevaFila .= '<td>';
@@ -142,11 +142,18 @@ function  htmlTablaProveedoresCostes($proveedores){
 			.'			</tr>'
 			.'		</thead>';
 	if (count($proveedores)>0){
+		// Creamos <script> para añadir varible de proveedores, 
+		// ya que no hace falta para no añadirlo en la cja busqueda proveedores.
+		$JSproveedores = 'var proveedores ='.json_encode($proveedores).';';
 		foreach ($proveedores as $item=>$proveedor_coste){
 			$html .= htmlLineaProveedorCoste($item,$proveedor_coste);
 		}
 	}
 	$html .= '</table>	';
+	// Solo si hay claro proveedores, añadimos variable proveedores a JS.
+	if (isset($JSproveedores)){
+		$html .= '<script>'.$JSproveedores.'</script>';
+	}
 	return $html;
 } 
 
@@ -547,5 +554,55 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	
 }
 
+function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
+	// @ Objetivo:
+	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
+	// @ parametros:
+	// 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
+	//		$dedonde  -> Nos indica de donde viene. ()
+	$resultado = array();
+	$resultado['encontrados'] = count($proveedores);
+	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
+	$resultado['html'] .= '<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'.
+				'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda.'"
+				 onkeydown="controlEventos(event)" type="text">';
+				
+	if (count($proveedores)>10){
+		$resultado['html'] .= '<span>10 proveedores de '.count($proveedores).'</span>';
+	}
+	$resultado['html'] .= '<table class="table table-striped"><thead>'
+	. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
+	if (count($proveedores)>0){
+		$contad = 0;
+		foreach ($proveedores as $proveedor){  
+			
+			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
+			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
+		
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
+			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="seleccionProveedor('."'".$dedonde."'".' , '
+			."'id_proveedor'".');">';
+		
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
+						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('
+						.$contad.')"   type="image"  alt="">'
+			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
+			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
+			. '<td>'.$proveedor['nif'].'</td>'
+			.'</tr>';
+			$contad = $contad +1;
+			if ($contad === 10){
+				break;
+			}
+			
+		}
+	} 
+	$resultado['html'] .='</tbody></table>';
+	// Ahora generamos objetos de filas.
+	// Objetos queremos controlar.
+	return $resultado;
 
+}
 ?>
