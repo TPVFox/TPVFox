@@ -16,6 +16,7 @@ class AlbaranesVentas extends ClaseVentas{
 		$smt = $db->query($sql);
 		if ($smt) {
 			return $smt;
+			
 		} else {
 			$respuesta = array();
 			$respuesta['consulta'] = $sql;
@@ -181,38 +182,37 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 		}
 		$productos = json_decode($datos['productos'], true); 
 		foreach ( $productos as $prod){
-			if ($prod['estadoLinea']== 'Activo'){
+			if ($prod['estadoLinea']=== 'Activo'){
 				$numPed=0;
-				$codBarras=0;
-				if ($prod['ccodbar']){
+				$codBarras="";
+				if (isset($prod['ccodbar'])){
 					$codBarras=$prod['ccodbar'];
 				}
-				if ($prod['Numpedcli']){
+				if (isset($prod['Numpedcli'])){
 					$numPed=$prod['Numpedcli'];
 				}
-			
-				$sql='INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo
-				 , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, 
+				$sql='INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo ,
+				 cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, 
 				 estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']
-				 .', '."'".$prod['cref']."'".', "'.$codBarras.'", "'.$prod['cdetalle'].'", '
+				 .', "'.$prod['cref'].'", "'.$codBarras.'", "'.$prod['cdetalle'].'", '
 				 .$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '
 				 .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' ;
-				 $i++;
 				 $smt=$this->consulta($sql);
-				 
+				 //~ error_log('sql '.$sql);
 				if (gettype($smt)==='array'){
 					$respuesta['error']=$smt['error'];
 					$respuesta['consulta']=$smt['consulta'];
 					break;
 				}
-			
 				
+			$i++;
+			
 			}
 		}
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
-				$smt=$db->query('INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva ,
+				$sql='INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva ,
 				importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '
-				.$basesYivas['iva'].' , '.$basesYivas['base'].')');
+				.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 				$smt=$this->consulta($sql);
 				if (gettype($smt)==='array'){
 					$respuesta['error']=$smt['error'];

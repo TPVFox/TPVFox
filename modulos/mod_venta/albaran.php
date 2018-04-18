@@ -121,6 +121,9 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
+			echo '<pre>';
+			print_r($datosAlbaran['Productos']);
+			echo '</pre>';
 			$errores=array();
 			if($datosAlbaran['numalbcli']>0){
 				$idAlbaran=$datosAlbaran['numalbcli'];
@@ -152,6 +155,9 @@ include './../../head.php';
 												 );
 					}
 				}
+				//~ echo '<pre>';
+				//~ print_r($addNuevo);
+				//~ echo '</pre>';
 			if(count($errores)==0){
 				header('Location: albaranesListado.php');
 			}else{
