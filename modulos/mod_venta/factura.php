@@ -127,82 +127,122 @@
 			if (isset($_GET['id'])){
 			 header('Location: facturasListado.php');
 			}else{
-			$estado="Guardado";
-			if (isset($_POST['idTemporal'])){
-				$idTemporal=$_POST['idTemporal'];
-			}else if(isset($_GET['tActual'])){
-				$idTemporal=$_GET['tActual'];
-				
-			}else{
-				$idTemporal=0;
-			}
-			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
-			if($datosFactura['total']){
-				$total=$datosFactura['total'];
-			}else{
-				$total=0;
-			}
-			$fechaActual=date('Y-m-d');
-			if ($_POST['formaVenci']){
-				$formaVenci=$_POST['formaVenci'];
-			}else{
-				$formaVenci=0;
-			}
-			
-			$entregado=0;
-			if (is_array($importesFactura)){
-				
-				foreach ($importesFactura as $import){
-					$entregado=$entregado+$import['importe'];
-				}
-				if ($total==$entregado){
-					$estado="Pagado total";
+				$estado="Guardado";
+				if (isset($_POST['idTemporal'])){
+					$idTemporal=$_POST['idTemporal'];
+				}else if(isset($_GET['tActual'])){
+					$idTemporal=$_GET['tActual'];
 				}else{
-					$estado="Pagado Parci";
+					$idTemporal=0;
 				}
-			}
-			
-			$datos=array(
-			'Numtemp_faccli'=>$idTemporal,
-			'Fecha'=>$_POST['fecha'],
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idCliente'=>$idCliente,
-			'estado'=>$estado,
-			'total'=>$total,
-			'DatosTotales'=>$Datostotales,
-			'productos'=>$datosFactura['Productos'],
-			'albaranes'=>$datosFactura['Albaranes'],
-			'fechaCreacion'=>$fechaActual,
-			'formapago'=>$formaVenci,
-			'fechaVencimiento'=>$_POST['fechaVenci'],
-			'importes'=>$importesFactura,
-			'fechaModificacion'=>$fechaActual
-			);
-			
-			//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
-			//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
-			if($datosFactura['numfaccli']>0){
-				$numFactura=$datosFactura['numfaccli'];
-				$buscarId=$Cfaccli->buscarIdFactura($numFactura);
-				$idFactura=$buscarId['id'];
-				$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
-				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
-				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-			
-			 }else{
-				 //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
+				$total=0;
+				$formaVenci="";
+				$entregado=0;
 				$idFactura=0;
-				$numFactura=0;
-				$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura, $numFactura);
-				$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				$errores=array();
+				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
+				if($datosFactura['total']){
+					$total=$datosFactura['total'];
+				}
+				$fechaActual=date('Y-m-d');
+				if ($_POST['formaVenci']){
+					$formaVenci=$_POST['formaVenci'];
+				}
 				
-			}
-			//~ echo '<pre>';
-			//~ print_r($addNuevo);
-			//~ echo '</pre>';
-			header('Location: facturasListado.php');
- }
+				
+				if (is_array($importesFactura)){
+					
+					foreach ($importesFactura as $import){
+						$entregado=$entregado+$import['importe'];
+					}
+					if ($total==$entregado){
+						$estado="Pagado total";
+					}else{
+						$estado="Pagado Parci";
+					}
+				}
+				
+				$datos=array(
+				'Numtemp_faccli'=>$idTemporal,
+				'Fecha'=>$_POST['fecha'],
+				'idTienda'=>$Tienda['idTienda'],
+				'idUsuario'=>$Usuario['id'],
+				'idCliente'=>$idCliente,
+				'estado'=>$estado,
+				'total'=>$total,
+				'DatosTotales'=>$Datostotales,
+				'productos'=>$datosFactura['Productos'],
+				'albaranes'=>$datosFactura['Albaranes'],
+				'fechaCreacion'=>$fechaActual,
+				'formapago'=>$formaVenci,
+				'fechaVencimiento'=>$_POST['fechaVenci'],
+				'importes'=>$importesFactura,
+				'fechaModificacion'=>$fechaActual
+				);
+				if($datosFactura['numfaccli']>0){
+					$idFactura=$datosFactura['numfaccli'];
+					$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
+					if (isset($eliminarTablasPrincipal['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+												 'dato' => $eliminarTablasPrincipal['consulta'],
+												 'class'=>'alert alert-danger',
+												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+												 );
+					}
+				}
+				if(count($errores)==0){
+					$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
+					if (isset($addNuevo['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+												 'dato' => $addNuevo['consulta'],
+												 'class'=>'alert alert-danger',
+												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+												 );
+					}else{
+						$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+						if (isset($eliminarTemporal['error'])){
+						$errores[1]=array ( 'tipo'=>'Danger!',
+												 'dato' => $eliminarTemporal['consulta'],
+												 'class'=>'alert alert-danger',
+												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+												 );
+						 }
+					}
+					
+				}
+				if(count($errores)>0){
+					foreach($errores as $error){
+						echo '<div class="'.$error['class'].'">'
+						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+						. '</div>';
+					}
+				}else{
+					header('Location: facturasListado.php');
+				}
+				
+				//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
+				//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
+				//~ if($datosFactura['numfaccli']>0){
+					//~ $numFactura=$datosFactura['numfaccli'];
+					//~ $buscarId=$Cfaccli->buscarIdFactura($numFactura);
+					//~ $idFactura=$buscarId['id'];
+					//~ $eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
+					//~ $addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
+					//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				
+				 //~ }else{
+					 //~ //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
+					//~ $idFactura=0;
+					//~ $numFactura=0;
+					//~ $addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
+					//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+					
+				//~ }
+				//~ echo '<pre>';
+				//~ print_r($addNuevo);
+				//~ echo '</pre>';
+				//header('Location: facturasListado.php');
+		}
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
