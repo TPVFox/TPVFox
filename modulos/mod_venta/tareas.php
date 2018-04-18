@@ -170,7 +170,7 @@ switch ($pulsado) {
 		$fecha=$_POST['fecha'];
 		$idReal=$_POST['idReal'];
 		$idCliente=$_POST['idCliente'];
-		$productos=$_POST['productos'];
+		$productos=json_decode($_POST['productos']);
 		$existe=0;
 		if ($idTemporal>0){
 			$res=$CcliPed->ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos);
@@ -195,10 +195,10 @@ switch ($pulsado) {
 				$respuesta['consulta']=$modNum['consulta'];
 			}
 		}
-		if ($productos){
-				$productos_para_recalculo = json_decode( json_encode( $productos ));
-				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotales($productos_para_recalculo);
+		 if ($productos){
+				//~ $productos_para_recalculo = json_decode( json_encode( $productos ));
+				//~ $respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
@@ -232,7 +232,7 @@ switch ($pulsado) {
 				$pedidos=array();
 			}
 			
-			$productos=$_POST['productos'];
+			$productos=json_decode($_POST['productos']);
 			$idCliente=$_POST['idCliente'];
 			$idReal=$_POST['idReal'];
 			$existe=0;
@@ -279,9 +279,9 @@ switch ($pulsado) {
 			}
 			//recalcula los totales de los productos y modifica el total en albarán temporal
 			if (isset($productos)){
-				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotales($productos_para_recalculo);
+				//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				//~ $respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;
@@ -309,7 +309,7 @@ switch ($pulsado) {
 			$estadoFactura=$_POST['estado'];
 			$numFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
-			$productos=$_POST['productos'];
+			$productos=json_decode($_POST['productos']);
 			$idCliente=$_POST['idCliente'];
 			if(isset($_POST['albaranes'])){
 				$albaranes=$_POST['albaranes'];
@@ -354,9 +354,9 @@ switch ($pulsado) {
 				}
 			}
 			if (isset($productos)){
-				$productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-				$respuesta['productosre']=$productos_para_recalculo;
-				$CalculoTotales = recalculoTotales($productos_para_recalculo);
+				//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
+				//~ $respuesta['productosre']=$productos_para_recalculo;
+				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
 				$respuesta['totales']=$CalculoTotales;

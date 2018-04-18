@@ -497,10 +497,14 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 
 function htmlFormasVenci($formaVenci, $BDTpv){
 	$html="";
+	$forma="";
 	$formasPago=new FormasPago($BDTpv);
-	$principal=$formasPago->datosPrincipal($formaVenci);
+	if(isset($formaVenci)){
+		$forma=$formaVenci;
+	}
+	$principal=$formasPago->datosPrincipal($forma);
 	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
-	$otras=$formasPago->formadePagoSinPrincipal($formaVenci);
+	$otras=$formasPago->formadePagoSinPrincipal($forma);
 	foreach ($otras as $otra){
 		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
 }
