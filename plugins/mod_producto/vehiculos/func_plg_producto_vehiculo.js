@@ -7,34 +7,30 @@ function SeleccionMarca(){
 	
 
 
-function  SeleccionMarca(tienda_web,productos){
+function  SeleccionMarca(event){
 	// @Objetivo :
 	// Ejecutar en servidor de web funcion que reste stock de productos
 	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
 	alert ( 'cambio de marca ');
-	//~ var parametros = {
-		//~ "key" :  tienda_web.key_api,
-		//~ "action"    : 'ObtenerMarcasVehiculos'
-	//~ };
-	//~ $.ajax({
-		//~ data       : parametros,
-		//~ url        : url_ruta,
-		//~ type       : 'post',
-		//~ beforeSend : function () {
-		//~ console.log('*********  Solicitamos a  servidor datos de vehiculo  ****************');
-		//~ },
-		//~ success    :  function (response) {
-				//~ console.log('Respuesta de envio de datos');
-				var resultado = $.parseJSON(response);
-				//~ var resultado = response;
-	
-				//~ if (resultado['Datos'].estado !== 'Correcto'){
-					//~ // Quiere decir que algo salio mal.. por lo que debemos guardalo en registro como error.
-					//~ alert(' Error, algo salio mal.');
-				//~ }
-				//~ // Ahora registramos en tpv ( importar_virtuemart_ticketst el resultado)
-				//~ console.log(resultado['Datos']);
-			//~ }
+	console.log(event.target);
+	var idMarca = $('select[id=myMarca]').val();
+	console.log(ruta_plg_vehiculos);
+	var parametros = {
+		"pulsado" :  'BuscarModelos',
+		"idMarca"    : 'ObtenerMarcasVehiculos'
+	};
+	$.ajax({
+		data       : parametros,
+		url        : ruta_plg_vehiculos+'tareas_vehiculos.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Obteniendo modelos de vehiculos  ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de obtener modelos de vehiculos');
+			var resultado =  $.parseJSON(response);
 			
-	//~ });
+		}
+	});
+	
 } 

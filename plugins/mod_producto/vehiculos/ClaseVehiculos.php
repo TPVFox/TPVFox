@@ -12,6 +12,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 	public $ruta_web; // (string) ruta que indica donde esta la web de donde obtenemos los datos.
 	public $key_api; // (string) que es la llave para conectarse.. debemos obtenerla de la base de datos.
 	public $HostNombre; // (string) Ruta desde servidor a proyecto..
+	public $Ruta_plugin; // (string) Ruta desde servidor a plugin.
 	public function __construct() {
 		parent::__construct(); // Inicializamos la conexion.
 		$this->obtenerRutaProyecto();
@@ -32,7 +33,11 @@ class PluginClaseVehiculos extends ClaseConexion{
 		$this->RutaServidor 	= $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
 		$RutaProyectoCompleta 	= $this->ruta_proyecto;
 		$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
-		
+		$this->Ruta_plugin 		= $this->HostNombre.'/plugins/mod_producto/vehiculos/';
+	}
+	
+	public function getRutaPlugin(){
+		return $this->Ruta_plugin; 
 	}
 	
 	public function htmlFormularioSeleccionVehiculo(){ 
@@ -40,13 +45,14 @@ class PluginClaseVehiculos extends ClaseConexion{
 		// Crear formulario html para selecciona Vehiculo
 		$respuesta = array();
 		$HostNombre = $this->HostNombre;
-		$html	='<script src="'.$HostNombre.'/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>'
+		$html	='<script>var ruta_plg_vehiculos = "'.$this->Ruta_plugin.'"</script>'
+				.'<script src="'.$HostNombre.'/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>'
 				.'<div class="row" id="SeleccionarVersion">'
 				.'	<!-- Presentacion de marca -->'
 				.'		<div class="col-md-3 form-group marca">'
 				.' 		<label class="marca">Marca</label>'
 				.'			<!-- Cargamos select con marcas -->'
-				.'			<select name="myMarca" id="myMarca" onchange="SeleccionMarca()">';
+				.'			<select name="myMarca" id="myMarca" onchange="SeleccionMarca(event)">';
 		$options = $this->ObtenerMarcasVehiculoWeb();
 		$html .= $options;		
 		$html .='			</select>'
