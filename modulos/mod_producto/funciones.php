@@ -547,25 +547,26 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	
 }
 function productosSesion($idProducto){
+	$respuesta['idProducto']=$idProducto;
 	if (!in_array($idProducto, $_SESSION['productos'])){
 		array_push($_SESSION['productos'], $idProducto);
 	}else{
 		$i=0;
 		foreach($_SESSION['productos'] as $prod){
-			if($prod[$i]==$idProducto){
+			//~ $respuesta['prod'][$i]=$prod;
+			if($prod==$idProducto){
 				$respuesta['prod']=$prod;
 				unset($_SESSION['productos'][$i]);
 			}
 			$i++;
 		}
-		//~ in_array($idProducto, $_SESSION['productos']);
-		//~ unset($_SESSION['productos'],$idProducto);
 	}
-	if($_SESSION['productos']>0){
+	if(array_count_values ($_SESSION['productos'])>0){
 			$respuesta['Nitems']=1;
 	}else{
 			$respuesta['Nitems']=0;
 	}
+	$_SESSION['productos'] = array_values($_SESSION['productos']);
 	$respuesta['productos']=$_SESSION['productos'];
  return $respuesta;
 }
