@@ -7,9 +7,23 @@
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include ("./clases/ClaseProductos.php");
+	include ('../../clases/articulos.php');
+	$CArticulos = new Articulos($BDTpv);
+		
+	if(!isset($_SESSION['productos'])){
+	//Mostrar un error 	
+	}
+	
+	
+	if(isset($_POST['Imprimir'])){
+	echo '<pre>';
+	print_r($_POST);
+	echo '</pre>';
 	echo '<pre>';
 	print_r($_SESSION['productos']);
 	echo '</pre>';
+	
+	}
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
@@ -36,7 +50,7 @@
 					<option value="a7">A7</option>
 				</select>
 				<br><br>
-				<input type="submit" value="Imprimir">
+				<input type="submit" value="Imprimir" name="Imprimir">
 				
 				
 			</div>
@@ -53,12 +67,16 @@
 				<tbody>
 				<?php
 					foreach($_SESSION['productos'] as $producto){
-					echo '<tr><td>
-					'.$producto.'
-					</td>
-					
-					
-					</tr>';
+						$articulo=$CArticulos->buscarNombreArticulo($producto);
+						$precio=$CArticulos->articulosPrecio($producto);
+						?>
+						<tr>
+						<td><?php echo $producto;?></td>
+						<td><?php echo $articulo['articulo_name'];?></td>
+						<td><?php echo number_format($precio['pvpCiva'],2);?>€</td>
+						<td></td>
+					</tr>
+					<?php
 					}
 				?>
 				</tbody>
