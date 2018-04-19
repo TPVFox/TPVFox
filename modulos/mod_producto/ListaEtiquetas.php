@@ -9,19 +9,25 @@
 	include ("./clases/ClaseProductos.php");
 	include ('../../clases/articulos.php');
 	$CArticulos = new Articulos($BDTpv);
-		
+	$Tienda = $_SESSION['tiendaTpv'];
+	$idTienda= $Tienda['idTienda'];	
 	if(!isset($_SESSION['productos'])){
 	//Mostrar un error 	
 	}
 	
 	
 	if(isset($_POST['Imprimir'])){
-	//~ echo '<pre>';
-	//~ print_r($_POST);
-	//~ echo '</pre>';
-	//~ echo '<pre>';
-	//~ print_r($_SESSION['productos']);
-	//~ echo '</pre>';
+		$dedonde="Etiqueta";
+		$nombreTmp=$dedonde."etiquetas.pdf";
+		$imprimir=mostarImprirmiA9($_SESSION['productos'], $BDTpv, $idTienda);
+		$cabecera=$htmlImprimir['cabecera'];
+		$html=$htmlImprimir['html'];
+		require_once('../../lib/tcpdf/tcpdf.php');
+		include ('../../clases/imprimir.php');
+		include('../../controllers/planImprimirRe.php');
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+		json_encode($ficheroCompleto);
+	
 	
 	}
 	?>
