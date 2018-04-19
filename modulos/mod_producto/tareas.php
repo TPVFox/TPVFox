@@ -120,13 +120,14 @@ switch ($pulsado) {
 	break;
 	case 'productosSesion':
 		$idProducto=$_POST['id'];
-		$productos=$_POST['productos'];
 		$respuesta=array();
 		$respuesta=productosSesion($idProducto);
-		if(count($respuesta['productos'])===0){
-			$respuesta=1;
-		}
-		echo json_encode($respuesta);
+		//~ if(count($respuesta['productos']>0)){
+			//~ $respuesta['Nitems']=1;
+		//~ }else{
+			//~ $respuesta['Nitems']=0;
+		//~ }
+			echo json_encode($respuesta);
 	break;
 	
 	case 'productosSesion':
