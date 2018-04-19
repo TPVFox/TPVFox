@@ -260,13 +260,15 @@ switch ($pulsado) {
 		$busqueda = $_POST['busqueda'];
 		$dedonde = $_POST['dedonde'];
 		$tabla='clientes';
-		$res = array( 'datos' => array());
 		//funcion de buscar clientes
 		//luego html mostrar modal 
 		if ($busqueda != ''){
 			//$res = BusquedaClientes($busqueda);
 			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
 		} 
+		if (!isset($res['datos'])){
+			$res = array( 'datos' => array());
+		}
 		$respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
 		echo json_encode($respuesta);
 		break;
@@ -285,7 +287,7 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
-		case 'abririncidencia':
+	case 'abririncidencia':
 		$dedonde=$_POST['dedonde'];
 		$usuario=$_POST['usuario'];
 		$idReal=$_POST['idReal'];
@@ -304,7 +306,7 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
-		case 'nuevaIncidencia':
+	case 'nuevaIncidencia':
 		$usuario= $_POST['usuario'];
 		$fecha= $_POST['fecha'];
 		$datos= $_POST['datos'];

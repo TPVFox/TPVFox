@@ -94,6 +94,9 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
 			console.log('Estado'+resultado['Estado']);
+			if (resultado['Estado'] === undefined){
+				alert('Busco pero viene sin estado, avisar servicio técnico');
+			}
 			if (resultado['Estado'] === 'Correcto') {
 				var datos = [];
 				datos = resultado.datos[0];
@@ -127,8 +130,6 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 				ponerFocus('cajaBusqueda');
 			}
 			
-		// Al no poner return , esto se va ejecutar siempre.
-		//~ document.getElementById(id_input).value='';
 		}
 		
 

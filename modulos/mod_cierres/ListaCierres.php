@@ -19,6 +19,8 @@
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
+	$banderaCierres=0;
+
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
@@ -85,20 +87,11 @@
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
-	var BRecambios ='';
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_cierres/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
   
-	
-	<script>
-	// Funciones para atajo de teclado.
-	//~ shortcut.add("Shift+V",function() {
-		//~ // Atajo de teclado para ver
-		//~ metodoClick('VerUsuario');
-	//~ });    
-	</script> 
     </head>
 
 <body>

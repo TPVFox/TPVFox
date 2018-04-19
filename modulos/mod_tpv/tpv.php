@@ -218,7 +218,7 @@
 		<div>
 			<h4>Este ticket</h4>
 			<ul class="nav nav-pills nav-stacked">
-				<li><a onclick="buscarClientes()">Cliente</a></li>
+				<li><a onclick="buscarClientes('tpv')">Cliente</a></li>
 				<li><a href="#section3">Abrir Cajon</a></li>
 				<li><a onclick="cobrarF1()">Cobrar</a></li>
 				<li><a  onclick="abrirIndicencia('ticket');">Incidencia</a></li>

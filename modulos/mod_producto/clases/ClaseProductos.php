@@ -87,7 +87,9 @@ class ClaseProductos extends ClaseTablaArticulos{
 			// Si existe error devolvemos todo el array
 			return $respuesta;
 		}
-		
+		if ($respuesta['NItems'] === 0){
+			$respuesta['Items'] = array();
+		}
 		return $respuesta['Items'];
 
 	}

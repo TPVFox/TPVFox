@@ -6,10 +6,6 @@
         include './../../head.php';
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
-		if ($Usuario['estado'] === "Incorrecto"){
-			return;	
-		}
-		
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		

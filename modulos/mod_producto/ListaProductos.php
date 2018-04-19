@@ -85,16 +85,17 @@
 	} else {
 		$CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro));
 	}
-	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
-	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+	$htmlPG= ''; 
+	if ($CantidadRegistros > 0){
+		$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+		if ($stringPalabras !== '' ){
+			$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+		} else {
+			$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		}
+			
+		$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro);
 	}
-		
-	$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro);
-	
 	//~ echo '<pre>';
 	//~ print_r($nuevo);
 	//~ echo '</pre>';
@@ -210,6 +211,7 @@
 	
 				<?php
 				$checkUser = 0;
+			if (isset($productos)){
 				foreach ($productos as $producto){ 
 					$checkUser = $checkUser + 1; 
 				?>
@@ -259,6 +261,7 @@
 
 				<?php 
 				}
+			}
 				?>
 				
 			</table>
