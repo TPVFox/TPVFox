@@ -13,8 +13,13 @@ $pulsado = $_POST['pulsado'];
 include_once ("./../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos
-include_once ("./../mod_conexion/conexionBaseDatos.php");
+//~ include_once ("./../mod_conexion/conexionBaseDatos.php");
+include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
 
+	// Solo creamos objeto si no existe.
+	//~ $thisTpv = new ComprobarSession;
+	$thisTpv = new ClaseSession();
+	$BDTpv = $thisTpv->getConexion();
 // Incluimos funciones
 include_once ("./funciones.php");
 
@@ -39,7 +44,7 @@ $CProveedor=new Proveedores($BDTpv);
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
-	$item=$_POST['fila'];
+		$item=$_POST['fila'];
 		$respuesta = array();
 		$res 	= HtmlLineaCodigoBarras($item);
 		$respuesta['html'] =$res;

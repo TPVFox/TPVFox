@@ -18,7 +18,7 @@
 		
 	}
 	
-	include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
+	//~ include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
 	//incluyo ruta del controlador de sesion (funcion php)
     //~ include_once ($URLCom. "/clases/ComprobarSession.php");
     include_once ($URLCom. "/clases/ClaseSession.php");
@@ -26,7 +26,7 @@
 	// Solo creamos objeto si no existe.
 	//~ $thisTpv = new ComprobarSession;
 	$thisTpv = new ClaseSession();
-
+	$BDTpv = $thisTpv->getConexion(); // Asi podemos eliminar lines include mod_conexion/conexionBaseDatos
 	//~ $TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
 	$thisTpv->comprobarEstado();
 
