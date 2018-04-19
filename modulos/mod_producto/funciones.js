@@ -96,6 +96,9 @@ function metodoClick(pulsado,adonde){
 			}
 			console.log('Resultado Buscar:'+BProductos);
 			break;
+		//~ case 'ImprimirEtiquetas':
+			//~ window.location.href = './'+adonde+'.php;
+		//~ break;
 		
 		
 	 }
@@ -751,7 +754,7 @@ function imprimirEtiquetas(id){
 				
 				 var resultado = $.parseJSON(response);
 				 if(resultado.Nitems==1){
-						alert("hay productos");
+					alert("hay productos");
 				}else{
 					alert("No hay productos");
 				}

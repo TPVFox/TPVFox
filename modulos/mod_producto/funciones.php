@@ -568,7 +568,7 @@ function productosSesion($idProducto){
 			$i++;
 		}
 	}
-	if(array_count_values ($_SESSION['productos'])>0){
+	if(array_count_values($_SESSION['productos'])>0){
 			$respuesta['Nitems']=1;
 	}else{
 			$respuesta['Nitems']=0;
