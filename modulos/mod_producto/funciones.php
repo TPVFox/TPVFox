@@ -577,7 +577,6 @@ function productosSesion($idProducto){
 	$respuesta['productos']=$_SESSION['productos'];
  return $respuesta;
 }
-
 function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
@@ -631,12 +630,24 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 }
 
 
-function mostarImprirmiA9($productos, $BDTpv){
+function mostarImprirmiA9($productos, $BDTpv, $idTienda){
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
 	);
+	$CArticulos = new Articulos($BDTpv);
 	
+	foreach ($productos as $producto){
+		$datosArticulo=$CArticulos->datosArticulosPrincipal($producto, $idTienda);
+		$imprimir['html']='<table style="table-layout:fixed" width="210" height="147>';
+		$imprimir['html']='<tr>';
+		$imprimir['html']='<td>';
+		$imprimir['html']=$datosArticulo['articulo_name'];
+		$imprimir['html']='</td>';
+		$imprimir['html']='</tr>';
+		$imprimir['html']='</table>';
+	}
+	return $html;
 }
 
 ?>

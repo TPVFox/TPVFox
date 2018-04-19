@@ -16,12 +16,12 @@
 	
 	
 	if(isset($_POST['Imprimir'])){
-	echo '<pre>';
-	print_r($_POST);
-	echo '</pre>';
-	echo '<pre>';
-	print_r($_SESSION['productos']);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($_POST);
+	//~ echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($_SESSION['productos']);
+	//~ echo '</pre>';
 	
 	}
 	?>
