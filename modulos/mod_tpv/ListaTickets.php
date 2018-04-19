@@ -239,7 +239,7 @@
 					</td>
 					<td>
 						<?php 
-							if (isset($ticket['enviado_stock'])){
+							if (!isset($ticket['respuesta_envio_rows'])){
 								// Quiere decir que se encontro registro
 								echo '<span title="'.$ticket['respuesta_envio'].'">'.$ticket['enviado_stock'].'</span>';
 							}  ;?>
