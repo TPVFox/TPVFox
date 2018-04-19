@@ -1,5 +1,5 @@
 <?php 
-
+session_start();
 function htmlLineaFamilias($item,$familia=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
@@ -552,6 +552,22 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	}
 	return $imprimir;
 	
+}
+function productosSesion($idProducto){
+	if (!in_array($idProducto, $_SESSION['productos'])){
+		array_push($_SESSION['productos'], $idProducto);
+	}else{
+		$i=0;
+		foreach($_SESSION['productos'] as $prod){
+			if($prod==$idProducto){
+				$respuesta['prod']=$prod;
+				unset($_SESSION['productos'][$i]);
+			}
+			$i++;
+		}
+	}
+	$respuesta['productos']=$_SESSION['productos'];
+	 return $respuesta;
 }
 
 function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){

@@ -19,6 +19,7 @@
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		
 		
+		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
