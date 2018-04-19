@@ -2,6 +2,7 @@
 $clasesDeclaradas = get_declared_classes();
 if (!in_array("ClaseConexion", $clasesDeclaradas)) {
     echo "No declaraste Clase conexion";
+    echo json_encode($claseDeclaradas);
     exit();
 }
 
