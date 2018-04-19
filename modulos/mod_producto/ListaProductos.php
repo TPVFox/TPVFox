@@ -164,7 +164,7 @@
 											//si NO nos indica que tenemos que elegir uno de la lista ?>
 				<h4 class='imprimir'>Etiquetas</h4>
 				<h5 class='imprimir'>Imprimir etiquetas</h5>
-				<li class='imprimir'><a href="#section2";>Imprimir</a></li>
+				<li class='imprimir'><a href='ListaEtiquetas.php'; onclick="metodoClick('ImprimirEtiquetas','listaEtiqueta');";>Imprimir</a></li>
 				</ul>	
 				<h4>Configuracion</h4>
 				<h5>Marca que campos quieres mostrar y por lo quieres buscar.</h5>
