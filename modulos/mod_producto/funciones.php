@@ -629,4 +629,14 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 	return $resultado;
 
 }
+
+
+function mostarImprirmiA9($productos, $BDTpv){
+	$imprimir=array(
+		'html'=>'',
+		'cabecera'=>''
+	);
+	
+}
+
 ?>
