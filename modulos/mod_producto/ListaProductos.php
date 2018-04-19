@@ -8,7 +8,17 @@
 	include ("./../../controllers/Controladores.php");
 	include ("./clases/ClaseProductos.php");
 	$CTArticulos = new ClaseProductos($BDTpv);
-
+// Cargamos el plugin que nos interesa.
+		if (count($CTArticulos->GetPlugins())>0){
+			foreach ($CTArticulos->GetPlugins() as $plugin){
+				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+					$ObjVersiones = $plugin['clase'];
+				}
+			}
+		}
+	echo '<pre>';
+	print_r($ObjVersiones);
+	echo '</pre>';
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$Controler = new ControladorComun; // Controlado comun..
 	// Añado la conexion
@@ -166,6 +176,12 @@
 			</div>
 			
 			<div class="col-md-10">
+					<div>
+					<?php $formVersion = $ObjVersiones->htmlFormularioSeleccionVehiculo();
+							echo $formVersion['html'];
+					?>
+					</div>
+					<div>
 					<p>
 					 -Productos encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>
@@ -174,6 +190,7 @@
 						echo $htmlPG;
 				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
 					?>
+					</div>
 				<form action="./ListaProductos.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
 						<label>Buscar por:</label>
