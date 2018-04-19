@@ -552,15 +552,22 @@ function productosSesion($idProducto){
 	}else{
 		$i=0;
 		foreach($_SESSION['productos'] as $prod){
-			if($prod==$idProducto){
+			if($prod[$i]==$idProducto){
 				$respuesta['prod']=$prod;
 				unset($_SESSION['productos'][$i]);
 			}
 			$i++;
 		}
+		//~ in_array($idProducto, $_SESSION['productos']);
+		//~ unset($_SESSION['productos'],$idProducto);
+	}
+	if($_SESSION['productos']>0){
+			$respuesta['Nitems']=1;
+	}else{
+			$respuesta['Nitems']=0;
 	}
 	$respuesta['productos']=$_SESSION['productos'];
-	 return $respuesta;
+ return $respuesta;
 }
 
 

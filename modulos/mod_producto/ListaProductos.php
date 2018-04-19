@@ -221,10 +221,14 @@
 				$checkUser = 0;
 				foreach ($productos as $producto){ 
 					$checkUser = $checkUser + 1; 
+					$checked="";
+					if(in_array($producto['idArticulo'], $_SESSION['productos'])){
+						$checked="checked";
+					}
 				?>
 
 				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="imprimirEtiquetas(<?php echo $producto['idArticulo']; ?>, <?php echo $_SESSION['producto'];?>)" value="<?php echo $producto['idArticulo'];?>">
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="imprimirEtiquetas(<?php echo $producto['idArticulo']; ?>)" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
 					</td>
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>
