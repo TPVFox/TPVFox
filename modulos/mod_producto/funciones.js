@@ -697,7 +697,31 @@ function validarEntradaNombre(caja){
 	$('#'+caja.id_input).val(cadena);
 	
 }
-function imprimirEtiquetas(id){
-	alert(id);
+function imprimirEtiquetas(id, productos){
+	
+	var parametros = {
+		"pulsado"    	: 'productosSesion',
+		"id"			:id,
+		"productos"		:productos
+		
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Modificando eliminar costes  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar costes ');
+				 var resultado = $.parseJSON(response);
+				 if(resultado==1){
+						alert("hay productos");
+				}else{
+					alert("No hay productos");
+				}
+				 
+		}	
+	});
 
 }
