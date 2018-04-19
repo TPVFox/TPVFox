@@ -571,5 +571,12 @@ function productosSesion($idProducto){
  return $respuesta;
 }
 
+function mostarImprirmiA9($productos, $BDTpv){
+	$imprimir=array(
+		'html'=>'',
+		'cabecera'=>''
+	);
+	
+}
 
 ?>
