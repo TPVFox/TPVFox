@@ -69,6 +69,7 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 		if ($i === 0){
 			if ($res->num_rows >0){
 				$resultado['Estado'] = 'Correcto';
+				// No volvemos a buscar posibles (LIKE)
 				break;
 			}
 		}
@@ -81,11 +82,16 @@ function BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv) {
 		} 
 		$i++;
 	}	
-	//si hay muchos resultados y si es mas de 1, mostrara un listado
 	
 	if (isset($res->num_rows)){
-		if ($res->num_rows > 1){
-			$resultado['Estado'] = 'Listado';
+		// Si existe resultado entramos.
+		if ($res->num_rows > 0){
+			if ( !isset($resultado['Estado'])){
+				// Quiere decir que no encontro uno igual, sino que encontro LIKE
+				// es posible el resultado busqueda sea uno solo, pero lo hizo con LIKE
+				// mostramos listado (popup) igualmente.
+				$resultado['Estado'] = 'Listado';
+			}
 		} else {
 			if ($res->num_rows === 0) {
 				// Cuando se busco pero no se encontro nada.
