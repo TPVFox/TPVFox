@@ -653,7 +653,7 @@ function mostarImprirmiA9($productos, $BDTpv, $idTienda){
 		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$datosArticulo['codBarras'].'</font><br>';
 		$imprimir['html'].='<font size="6.5 em">Ref: '.$datosArticulo['crefTienda'];
 		$imprimir['html'] .=' RefProv: '.$datosArticulo['crefProveedor'].'</font><br>';
-		$imprimir['html'].='<b>'.$datosArticulo['articulo_name'].'</b><br>';
+		$imprimir['html'].='<b>'.$datosArticulo['articulo_name'].'</b><br><br>';
 		$imprimir['html'].='<b><font size="20 em">'.number_format($datosArticulo['pvpCiva'],2).'€</font></b><br>';
 		$imprimir['html'].='</td>';
 		
