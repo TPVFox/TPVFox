@@ -473,6 +473,8 @@
 
 </div>
 <?php // Incluimos paginas modales
+// Añadimos JS necesario para modal.
+echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 
 ?>

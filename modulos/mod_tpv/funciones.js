@@ -38,6 +38,7 @@ function cobrarF1(){
 				var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
 				var titulo = 'COBRAR ';
 				abrirModal(titulo,HtmlCobrar);
+				focusAlLanzarModal('entrega');
 				//alert('cobrar');
 				
 			}
@@ -79,10 +80,6 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 		"campo"      : campo,
 		"dedonde"    : dedonde
 	};
-	console.log('Parametros:');
-	console.log(parametros);
-
-
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -119,16 +116,13 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 			var titulo = 'Listado productos encontrados ';
 			// Abrimos modal de productos.
 			abrirModal(titulo,HtmlProductos);
+			focusAlLanzarModal('cajaBusqueda');
 			if (resultado.Nitems >0 ){
 				// Quiere decir que hay resultados por eso apuntamos al primero
 				// focus a primer producto.
 				var d_focus = 'N_0';
 				ponerFocus(d_focus);
-			} else {
-				// Quiere decir que busco pero no encontro nada.
-				console.log('Busco pero no encontro nada');
-				ponerFocus('cajaBusqueda');
-			}
+			} 
 			
 		}
 		
@@ -142,8 +136,7 @@ function agregarFila(datos,campo=''){
 	// Voy a crear objeto producto nuevo..
 	// @ parametro 
 	//  campo ->  String que indica al campo donde enfocar.
-	console.log('Voy agregar producto');
-	console.log(datos);
+	console.log('Function agregarFila');
 	productos.push(new ObjProducto(datos));
 	var num_item = productos.length -1; // Obtenemos cual es el ultimo ( recuerda que empieza contado 0)
 	// Ahora por Ajax montamos el html fila.
@@ -238,10 +231,10 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	datos['pvpCiva'] 		= npconiva;
 	datos['iva'] 			= ctipoIva;
 	datos['codBarras']		= ccodebar;
+	cerrarPopUp();
 	agregarFila(datos);
 	// Eliminamos contenido de cja destino y ponemos focus.
 	resetCampo(campo);
-	cerrarPopUp(campo);
 
 	
 }
@@ -250,10 +243,8 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 function grabarTicketsTemporal(){
 	// @ Objetivo
 	// Grabar cabeceras y productos, amabas variables globales en tabla de ticket temporal.
-	console.log('Grabamos en BD');
+	console.log('grabarTicketTemporal - Grabamos en BD');
 	var i  =0;
-	console.log('Productos');
-	console.log(productos);
 	// Para poder mandar objectos de productos ...
 	var parametros = {
 		"pulsado"    	: 'grabarTickes',
@@ -275,7 +266,6 @@ function grabarTicketsTemporal(){
 			console.log('Respuesta de grabar');
 			//~ console.log(response);
 			var resultado =  $.parseJSON(response); 
-			console.log(resultado.estadoTicket);
 			// Cambiamos el estado :
 			cabecera.estadoTicket = resultado.estadoTicket;
 			cabecera.numTicket = resultado.NumeroTicket;
@@ -284,8 +274,7 @@ function grabarTicketsTemporal(){
 			$('#EstadoTicket').css('color','white')
 			$('#NTicket').html('0/'+resultado.NumeroTicket);
 			
-			console.log(productos.length);
-				
+			
 			//objetivo cuando esta en ticket actual , 
 			//en el navegador ponga ?tActual para que no afecte F5 SIN RECARGAR pagina
 			if (productos.length ===1 ){ 
@@ -310,13 +299,10 @@ function grabarTicketsTemporal(){
 			if (resultado.desglose !=='undefined'){
 				var desgloseIvas = [];
 				desgloseIvas.push(resultado.desglose);
-				console.log(desgloseIvas);
 				// Ahora recorremos array desglose
 				desgloseIvas.forEach(function(desglose){
-					console.log('Entro foreah');
 					// mostramos los tipos ivas , bases y importes.
 					var tipos = Object.keys(desglose);
-					console.log(desglose);
 					for (index in tipos){
 						var tipo = tipos[index];
 						$('#line'+parseInt(tipo)).css('display','');
@@ -413,9 +399,8 @@ function metodoClick(pulsado){
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
 			}
-				
 			window.location.href = './ticketCobrado.php?id='+checkID[0];
-			break;
+		break;
 		
 		case 'imprimirTicket':
 		//seleccionar para imprimir ticket elegido
@@ -425,27 +410,14 @@ function metodoClick(pulsado){
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
 			}
-				
-			//window.location.href = './ticketCerrado.php?id='+checkID[0];
 			alert('Ticket cerrado, opc imprimir');
-			
-			break;	
+		break;	
+		
 		case 'descontarStockWeb':
-			//seleccionar para enviar stock web
-			//~ VerIdSeleccionado (); // de momento solo hacemos dentro un ticket cerrado
-			//~ if (checkID.length >1 || checkID.length=== 0) {
-				//~ alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
-				//~ return
-			//~ }
 			alert('Ticket cerrado enviar Sctok a Web');
-			
-			break;			
+		break;			
 	 }
 } 
-
-
-
-
 
 
 // =========================== OBJETOS  ===================================
@@ -499,39 +471,18 @@ function buscarClientes(pantalla,valor=''){
 			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
 			var titulo = 'Listado clientes ';
 			abrirModal(titulo,HtmlClientes);
+			focusAlLanzarModal('cajaBusquedacliente');
 			// Asignamos focus a caja buscar cliente.
 			// Asignamos focus
 			if (encontrados >0 ){
 				// Enfocamos el primer item.
 				mover_down(0);
 				$('#N_0').focus();
-			}else {
-				// No hay datos focus a caja buscar cliente.
-				$('#cajaBusquedacliente').focus();
 			}
 		}
 	});
 }
 	
-
-function abrirModal(titulo,tabla){
-	// @ Objetivo :
-	// Abril modal con texto buscado y con titulo que le indiquemos.
-	console.log('Estamos en abrir modal');
-	$('.modal-body > p').html(tabla);
-	$('.modal-title').html(titulo);
-	$('#busquedaModal').modal('show');
-	
-	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	$('#busquedaModal').on('shown.bs.modal', function() {
-		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
-		$('#cajaBusqueda').focus(); //foco en input caja busqueda del producto
-		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
-	});
-	return ;
-}
-
 
 
 function escribirClienteSeleccionado(id,nombre,dedonde=''){
@@ -571,12 +522,14 @@ function controladorAcciones(caja,accion){
 		case 'buscarClientes':
 			// Esta funcion necesita el valor.
 			buscarClientes(caja.darParametro('dedonde'),caja.darValor());
-			break;
+		break;
+		
 		case 'buscarProductos':
 			// Esta funcion necesita el valor.
 			console.log('Entro en acciones buscar Productos');
 			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.darValor(),caja.darParametro('dedonde'));
-			break;
+		break;
+		
 		case 'recalcular_ticket':
 			// Comprobamos que el valor puesto sea un numero decimal.
 			if (comprobarNumero(caja.darValor())){
@@ -589,28 +542,27 @@ function controladorAcciones(caja,accion){
 				console.log('Cantidad incorrecta, cambio pongo 1');
 				$('#'+caja.id_input).val('1');
 			}
-			break;
+		break;
+		
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
+			var nueva_fila = 0;
 			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)+1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
-			}
+				nueva_fila = parseInt(caja.fila)+1;
+			} 
 			console.log('mover_down:'+nueva_fila);
 			mover_down(nueva_fila,caja.darParametro('prefijo'));
-			break;
+		break;
+		
 		case 'mover_up':
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
+			var nueva_fila = 0;
 			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)-1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
-			}
+				nueva_fila = parseInt(caja.fila)-1;
+			} 
 			mover_up(nueva_fila,caja.darParametro('prefijo'));
-			break;
+		break;
+		
 		case 'saltar_Referencia':
 			var dato = caja.darValor();
 			if ( dato.length === 0){
@@ -618,8 +570,7 @@ function controladorAcciones(caja,accion){
 				var d_focus = 'Referencia';
 				ponerFocus(d_focus);
 			}
-			break;
-		
+		break;
 		
 		case 'saltar_Descripcion':
 			var dato = caja.darValor();
@@ -628,7 +579,8 @@ function controladorAcciones(caja,accion){
 				var d_focus = 'Descripcion';
 				ponerFocus(d_focus);
 			}
-			break;
+		break;
+		
 		case 'saltar_CodBarras':
 			console.log('Saltar_Codbarras');
 			var dato = caja.darValor();
@@ -637,12 +589,14 @@ function controladorAcciones(caja,accion){
 				var d_focus = 'Codbarras';
 				ponerFocus(d_focus);
 			}
-			break;
+		break;
+		
 		case 'saltar_CodBarras_desde_fila':
 			console.log('Saltar_Codbarras');
 				var d_focus = 'Codbarras';
 				ponerFocus(d_focus);
-			break;
+		break;
+		
 		case  'saltar_productos':
 			if (productos.length >0){
 			// Debería añadir al caja N cuantos hay
@@ -651,11 +605,12 @@ function controladorAcciones(caja,accion){
 			} else {
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
-			break
+		break
+		
 		case 'cobrar':
 			console.log( ' Entro en accion cobrar');
 			cobrarF1();
-			break
+		break
 			
 		case 'poner_entrega':
 			var cambio = parseFloat(caja.darValor()) - total;
@@ -673,21 +628,22 @@ function controladorAcciones(caja,accion){
 				alert('Pon bien lo entregado..!!!');
 				$('#entrega').val('');
 			}
-			break;
+		break;
 		
 		case 'cerrar_ticket':
 			console.log(' Entro en contralador de acciones, cerrar ticket');
 			CobrarAceptar.parametros.pulsado_intro = 'Si';
 			// Ahora grabamos y cerramos ticket
 			cerrarTicket()
-			break;
+		break;
+		
 		case 'focus_entrega':
 			ponerFocus('entrega');
-			break;
+		break;
 			
 		case 'focus_modoPago':
 			ponerFocus('modoPago');
-			break;
+		break;
 			
 		case 'CambiarPrecioProducto':
 			// Lo primero comprobamos si es correcto el dato.
@@ -706,12 +662,12 @@ function controladorAcciones(caja,accion){
 			} else {
 				alert( ' No es correcto el numero');
 			}
-			break;
+		break;
 		
 		case 'CerrarModal':
 			console.log("CerrarModal por pulsar ESC");
 			ponerFocus(caja.name_cja);
-			break;
+		break;
 		
 		default :
 			console.log ( 'Accion no encontrada '+ accion);
@@ -738,9 +694,7 @@ function before_constructor(caja){
 	
 	if (caja.id_input.indexOf('N_') >-1){
 		console.log(' Entro en Before:');
-		console.log(caja);
 		caja.fila = caja.id_input.slice(2);
-		console.log(caja.fila);
 	}
 	
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
@@ -753,7 +707,7 @@ function before_constructor(caja){
 
 function after_constructor(padre_caja,event){
 	// @ Objetivo:
-	// Ejecuta procesos antes construir el obj. caja.
+	// Ejecuta procesos ANTES ( mi ingles-- :-) de construir el obj. caja.
 	// Traemos 
 	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
 	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
@@ -808,16 +762,6 @@ function mover_up(fila,prefijo){
 		ponerFocus(d_focus);
 	}
 }
-function cerrarPopUp(destino_focus=''){
-	// @ Objetivo :
-	// Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
-	//cerrar modal busqueda
-	$('#busquedaModal').modal('hide');
-	if (destino_focus !== ''){
-		ponerFocus(destino_focus);
-	}
-	
-}
 
 function ponerFocus (destino_focus){
 	// @ Objetivo:
@@ -851,7 +795,6 @@ function recalculoImporte(cantidad,num_item){
 	} else if (cantidad == 0 ) {
 		eliminarFila(num_item);
 	}
-	console.log('Valor de cantidad'+cantidad);
 	productos[num_item].unidad = cantidad;
 	//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
 	var importe = cantidad*productos[num_item].pvpconiva;
@@ -865,8 +808,10 @@ function recalculoImporte(cantidad,num_item){
 function PrepararEnviarStockWeb(){
 	// @ Objetivo:
 	//  Enviar URl de servidor productos para cambiar stock
-	//  Esta es funcion provisional, ya que deberíamos saber con configuracion a que web queremos cambiar el stock
-	//  o con una seleccion de webs... 
+	//  [OJO]
+	//  Esta es funcion provisional, ya que ponemos por defecto valor web = 2 , 
+	//  deberíamos saber con configuracion a que web queremos cambiar el stock
+
 	//  Inicializamos Variables:
 	var tienda_web = [];	
 	console.log('PREPARAMOS DATOS PARA ENVIAR');
@@ -890,7 +835,6 @@ function PrepararEnviarStockWeb(){
 			var resultado =  $.parseJSON(response); 
 			// Ponemos datos de tienda_web en variable
 			tienda_web = resultado.tienda;
-			console.log(response);
 			// Recuerda que el repción de los datos no es el mismo que envio, por debemos asociar key con valor.
 			if (typeof resultado.idVirtuemart !== 'undefined'){;
 				// Hubo resultado, recorremos para añadir a productos.
@@ -905,10 +849,8 @@ function PrepararEnviarStockWeb(){
 						}
 					}
 				}
-				
-			// Ahora aquellos productos que tiene idVirtuemart
-			EnviarStockWeb(tienda_web,productos);
-				
+				// Ahora aquellos productos que tiene idVirtuemart
+				EnviarStockWeb(tienda_web,productos);
 			} else {
 				alert( 'No hay idVirtuemart para los productos, o hubo un error');
 				return;
@@ -946,8 +888,6 @@ function EnviarStockWeb(tienda_web,productos){
 					alert(' Error, algo salio mal.');
 				}
 				// Ahora registramos en tpv ( importar_virtuemart_ticketst el resultado)
-				console.log(resultado['Datos']);
-
 				RegistrarRestarStockTicket(resultado['Datos']);
 			}
 			
@@ -1011,9 +951,7 @@ function GuardarConfiguracion(){
 			
 	});
 	
-	
-	
-	
+
 	
 }
 function abrirIndicencia(dedonde){
