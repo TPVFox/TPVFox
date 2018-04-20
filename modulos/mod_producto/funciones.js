@@ -689,13 +689,13 @@ function imprimir(id, dedonde, bandera=""){
 		}	
 	});
 }
-function imprimitEtiquetas(productos, dedonde, idTienda){
-	console.log(productos);
+function imprimitEtiquetas(productos, dedonde, idTienda, tamano){
 	var parametros = {
 		"pulsado"    		: 'imprimirEtiquetas',
 		"dedonde"			:dedonde,
-		"idTienda"	:idTienda,
-		"productos"				:productos
+		"idTienda"			:idTienda,
+		"tamano"			:tamano,
+		"productos"			:productos
 		
 	};
 	$.ajax({

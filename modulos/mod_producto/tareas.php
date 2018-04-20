@@ -128,9 +128,22 @@ switch ($pulsado) {
 	case 'imprimirEtiquetas':
 		$productos=$_POST['productos'];
 		$idTienda=$_POST['idTienda'];
+		$tamano=$_POST['tamano'];
+		
 		$dedonde="Etiqueta";
 		$nombreTmp=$dedonde."etiquetas.pdf";
-		$imprimir=mostarImprirmiA9($productos, $BDTpv, $idTienda);
+		switch ($tamano){
+			case 1:
+				$imprimir=ImprimirA9($productos, $BDTpv, $idTienda);
+			break;
+			case 2:
+				$imprimir=ImprimirA5($productos, $BDTpv, $idTienda);
+			break;
+			case 3:
+				$imprimir=ImprimirA7($productos, $BDTpv, $idTienda);
+			break;
+		}
+		
 		$cabecera=$imprimir['cabecera'];
 		$html=$imprimir['html'];
 		 //~ $ficheroCompleto=$html;

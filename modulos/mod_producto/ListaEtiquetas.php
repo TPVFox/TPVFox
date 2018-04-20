@@ -26,23 +26,14 @@
 		
         <?php
         include './../../header.php';
+        echo $_POST['tamanhos'];
         ?>
         <script type="text/javascript">
         <?php
         if(isset($_POST['Imprimir'])){
-		//~ $dedonde="Etiqueta";
-		//~ $nombreTmp=$dedonde."etiquetas.pdf";
-		//~ $imprimir=mostarImprirmiA9($_SESSION['productos'], $BDTpv, $idTienda);
-		//~ $cabecera=$htmlImprimir['cabecera'];
-		//~ $html=$htmlImprimir['html'];
-		//~ require_once('../../lib/tcpdf/tcpdf.php');
-		//~ include ('../../clases/imprimir.php');
-		//~ include('../../controllers/planImprimirRe.php');
-		//~ $ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-		//~ json_encode($ficheroCompleto);
-		$dedonde="Etiqueta";
+		$dedonde="Etiqueta";	
 		?>
-		imprimitEtiquetas(<?php echo $_SESSION['productos'];?>, <?php echo "'".$dedonde."'"; ?>, <?php echo $idTienda;?>);
+		imprimitEtiquetas(<?php echo $_SESSION['productos'];?>, <?php echo "'".$dedonde."'"; ?>, <?php echo $idTienda;?>, <?php echo $_POST['tamanhos'];?>);
 		<?php	
 		
 	}
@@ -59,9 +50,9 @@
 				<br><br>
 				Selecciona el tamaño: 
 				<select  name="tamanhos">
-					<option value="a9">A9</option>
-					<option value="a5">A5</option>
-					<option value="a7">A7</option>
+					<option value="1">A9</option>
+					<option value="2">A5</option>
+					<option value="3">A7</option>
 				</select>
 				<br><br>
 				<input type="submit" value="Imprimir" name="Imprimir">
