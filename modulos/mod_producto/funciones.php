@@ -590,11 +590,12 @@ function mostarImprirmiA9($productos, $BDTpv, $idTienda){
 			$imprimir['html'].='<tr>';
 			$i=0;
 		}
-		
 		$imprimir['html'].='<td>';
-		$imprimir['html'].='Codbarras: '.$datosArticulo['codBarras'].'<br>';
-		$imprimir['html'].='Ref: '.$datosArticulo['crefTienda'].'<br>';
-		$imprimir['html'].=$datosArticulo['articulo_name'].'<br>';
+		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$datosArticulo['codBarras'].'</font><br>';
+		$imprimir['html'].='<font size="6.5 em">Ref: '.$datosArticulo['crefTienda'];
+		$imprimir['html'] .='   RefProv: '.$datosArticulo['crefProveedor'].'</font><br>';
+		$imprimir['html'].='<b>'.$datosArticulo['articulo_name'].'</b><br>';
+		$imprimir['html'].='<b>'.number_format($datosArticulo['pvpCiva'],2).'</b><br>';
 		$imprimir['html'].='</td>';
 		
 	$i++;
