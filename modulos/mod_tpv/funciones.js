@@ -163,7 +163,8 @@ function agregarFila(datos,campo=''){
 			//$ signifca jQuery 
 			//$("#tabla").append(nuevaFila);
 			$("#tabla").prepend(nuevafila);
-			if ('campo' ==='') {
+			console.log('algun campo:'+typeof campo);
+			if (campo ==='') {
 				// Si no viene dato campo, por lo que focus por defectoe es Codbarras
 				$('#Codbarras').focus();  
 			} else {
