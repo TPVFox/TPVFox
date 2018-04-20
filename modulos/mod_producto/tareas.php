@@ -125,6 +125,22 @@ switch ($pulsado) {
 		//~ }
 			echo json_encode($respuesta);
 	break;
+	case 'imprimirEtiquetas':
+		$productos=$_POST['productos'];
+		$idTienda=$_POST['idTienda'];
+		$dedonde="Etiqueta";
+		$nombreTmp=$dedonde."etiquetas.pdf";
+		$imprimir=mostarImprirmiA9($productos, $BDTpv, $idTienda);
+		$cabecera=$imprimir['cabecera'];
+		$html=$imprimir['html'];
+		 //~ $ficheroCompleto=$html;
+		require_once('../../lib/tcpdf/tcpdf.php');
+		include ('../../clases/imprimir.php');
+		include('../../controllers/planImprimirRe.php');
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+	
+		echo json_encode($ficheroCompleto);
+	break;
 	
 	case 'HtmlCajaBuscarProveedor':
 		$resultado 		= array();
