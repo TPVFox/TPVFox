@@ -579,7 +579,7 @@ function mostarImprirmiA9($productos, $BDTpv, $idTienda){
 	$i=0;
 	$imprimir['html'].="";
 	$CArticulos = new Articulos($BDTpv);
-	$imprimir['html'].='<table borde=1px>';
+	$imprimir['html'].='<table border="1px">';
 	$imprimir['html'].='<tr>';
 	
 	$imprimir['productos']=$_SESSION['productos'];
@@ -591,11 +591,11 @@ function mostarImprirmiA9($productos, $BDTpv, $idTienda){
 			$i=0;
 		}
 		$imprimir['html'].='<td>';
-		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$datosArticulo['codBarras'].'</font><br>';
-		$imprimir['html'].='<font size="6.5 em">Ref: '.$datosArticulo['crefTienda'];
-		$imprimir['html'] .='   RefProv: '.$datosArticulo['crefProveedor'].'</font><br>';
-		$imprimir['html'].='<b>'.$datosArticulo['articulo_name'].'</b><br>';
-		$imprimir['html'].='<b>'.number_format($datosArticulo['pvpCiva'],2).'</b><br>';
+		$imprimir['html'].='<font size="6.5 em" >&nbsp;Codbarras: '.$datosArticulo['codBarras'].'</font><br>';
+		$imprimir['html'].='<font size="6.5 em">&nbsp;Ref: '.$datosArticulo['crefTienda'];
+		$imprimir['html'] .='&nbsp; RefProv: '.$datosArticulo['crefProveedor'].'</font><br>';
+		$imprimir['html'].='<b>&nbsp;'.$datosArticulo['articulo_name'].'</b><br>';
+		$imprimir['html'].='<b>&nbsp;'.number_format($datosArticulo['pvpCiva'],2).'</b><br>';
 		$imprimir['html'].='</td>';
 		
 	$i++;
