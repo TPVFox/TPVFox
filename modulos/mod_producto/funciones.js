@@ -763,3 +763,4 @@ function imprimirEtiquetas(id){
 	});
 
 }
+

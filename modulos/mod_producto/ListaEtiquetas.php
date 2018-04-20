@@ -27,8 +27,9 @@
 		include('../../controllers/planImprimirRe.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 		json_encode($ficheroCompleto);
-	
-	
+		?>
+		 window.open(<?php echo $ficheroCompleto;?>);
+		<?php
 	}
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
