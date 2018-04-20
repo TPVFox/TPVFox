@@ -745,9 +745,9 @@ function imprimirEtiquetas(id){
 				
 				 var resultado = $.parseJSON(response);
 				 if(resultado.Nitems==1){
-					alert("hay productos");
+					//~ alert("hay productos");
 				}else{
-					alert("No hay productos");
+					//~ alert("No hay productos");
 				}
 				 
 		}	
