@@ -689,7 +689,33 @@ function imprimir(id, dedonde, bandera=""){
 		}	
 	});
 }
-
+function imprimitEtiquetas(productos, dedonde, idTienda){
+	console.log(productos);
+	var parametros = {
+		"pulsado"    		: 'imprimirEtiquetas',
+		"dedonde"			:dedonde,
+		"idTienda"	:idTienda,
+		"productos"				:productos
+		
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Modificando eliminar costes  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar costes ');
+				 var resultado = $.parseJSON(response);
+				 window.open(resultado);
+				 //~ if (bandera==1){
+					//~ location.href="ListaProductos.php";
+				//~ }
+				 
+		}	
+	});
+}
 function validarEntradaNombre(caja){
 	// Objetivo:
 	// Eliminar caracteres extraños para evitar errores

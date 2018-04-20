@@ -576,19 +576,33 @@ function mostarImprirmiA9($productos, $BDTpv, $idTienda){
 		'html'=>'',
 		'cabecera'=>''
 	);
+	$i=0;
+	$imprimir['html'].="";
 	$CArticulos = new Articulos($BDTpv);
+	$imprimir['html'].='<table borde=1px>';
+	$imprimir['html'].='<tr>';
 	
-	foreach ($productos as $producto){
+	$imprimir['productos']=$_SESSION['productos'];
+	foreach ($_SESSION['productos'] as $producto){
 		$datosArticulo=$CArticulos->datosArticulosPrincipal($producto, $idTienda);
-		$imprimir['html']='<table style="table-layout:fixed" width="210" height="147>';
-		$imprimir['html']='<tr>';
-		$imprimir['html']='<td>';
-		$imprimir['html']=$datosArticulo['articulo_name'];
-		$imprimir['html']='</td>';
-		$imprimir['html']='</tr>';
-		$imprimir['html']='</table>';
+		if($i==3){
+			$imprimir['html'].='</tr>';
+			$imprimir['html'].='<tr>';
+			$i=0;
+		}
+		
+		$imprimir['html'].='<td>';
+		$imprimir['html'].='Codbarras: '.$datosArticulo['codBarras'].'<br>';
+		$imprimir['html'].='Ref: '.$datosArticulo['crefTienda'].'<br>';
+		$imprimir['html'].=$datosArticulo['articulo_name'].'<br>';
+		$imprimir['html'].='</td>';
+		
+	$i++;
 	}
-	return $html;
+	$imprimir['html'].='</tr>';
+		$imprimir['html'].='</table>';
+	//~ error_log($imprimir['html']);
+	return $imprimir;
 }
 
 ?>

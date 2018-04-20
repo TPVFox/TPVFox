@@ -16,31 +16,38 @@
 	}
 	
 	
-	if(isset($_POST['Imprimir'])){
-		$dedonde="Etiqueta";
-		$nombreTmp=$dedonde."etiquetas.pdf";
-		$imprimir=mostarImprirmiA9($_SESSION['productos'], $BDTpv, $idTienda);
-		$cabecera=$htmlImprimir['cabecera'];
-		$html=$htmlImprimir['html'];
-		require_once('../../lib/tcpdf/tcpdf.php');
-		include ('../../clases/imprimir.php');
-		include('../../controllers/planImprimirRe.php');
-		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-		json_encode($ficheroCompleto);
-		?>
-		 window.open(<?php echo $ficheroCompleto;?>);
-		<?php
-	}
+	
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 		</head>
 
 <body>
+		
         <?php
         include './../../header.php';
         ?>
-       
+        <script type="text/javascript">
+        <?php
+        if(isset($_POST['Imprimir'])){
+		//~ $dedonde="Etiqueta";
+		//~ $nombreTmp=$dedonde."etiquetas.pdf";
+		//~ $imprimir=mostarImprirmiA9($_SESSION['productos'], $BDTpv, $idTienda);
+		//~ $cabecera=$htmlImprimir['cabecera'];
+		//~ $html=$htmlImprimir['html'];
+		//~ require_once('../../lib/tcpdf/tcpdf.php');
+		//~ include ('../../clases/imprimir.php');
+		//~ include('../../controllers/planImprimirRe.php');
+		//~ $ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+		//~ json_encode($ficheroCompleto);
+		$dedonde="Etiqueta";
+		?>
+		imprimitEtiquetas(<?php echo $_SESSION['productos'];?>, <?php echo "'".$dedonde."'"; ?>, <?php echo $idTienda;?>);
+		<?php	
+		
+	}
+        ?>
+       </script>
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
