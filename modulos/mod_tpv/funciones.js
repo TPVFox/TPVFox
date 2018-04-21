@@ -38,7 +38,7 @@ function cobrarF1(){
 				var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
 				var titulo = 'COBRAR ';
 				abrirModal(titulo,HtmlCobrar);
-				focusAlLanzarModal('entrega');
+				SelectAlLanzarModal('entrega');
 				//alert('cobrar');
 				
 			}
@@ -324,11 +324,13 @@ function cerrarTicket(){
 	// Enviar datos del ticket (cabecera y caja de cobrar)
 	// para guaardar como Cobrado en tablas ticket y temporal de ticket se cambia estado a COBRADO
 	 var entregado = $('#entrega').val();
+	 var cambio = $('#cambio').val();
 	 var formaPago = $('#modoPago').val();
 	 //podemos obtener el valor de la propiedad checked, true o false
 	 var checkimprimir = $('input[name=checkimprimir]').prop('checked'); 
 	 var ruta_impresora = configuracion['impresora'];
 	 console.log(ruta_impresora);
+	 console.log('cambio'+cambio);
 	//parche desactivar boton aceptar, no hay impresora de tickets
 	$('button[id=CobrarAceptar]').prop('disabled',true);
 	// Ahora ejecutamos ajax para guardar ticket
@@ -341,6 +343,7 @@ function cerrarTicket(){
 		"numTickTemporal"	: cabecera.numTicket,
 		"total"				: total,
 		"entregado"			: entregado,
+		"cambio"			: cambio,
 		"formaPago"			: formaPago,
 		"checkimprimir"		: checkimprimir,  //true o false
 		"ruta_impresora"	: ruta_impresora 
