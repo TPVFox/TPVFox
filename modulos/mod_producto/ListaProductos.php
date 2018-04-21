@@ -17,9 +17,9 @@
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	
-	if(!isset($_SESSION['productos'])){
-		$_SESSION['productos']=array();
-	}
+	//~ if(!isset($_SESSION['productos_seleccionados'])){
+		//~ $_SESSION['productos_se']=array();
+	//~ }
 	
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
@@ -222,15 +222,20 @@
 				$checkUser = 0;
 			if (isset($productos)){
 				foreach ($productos as $producto){ 
+					// [RECUERDA]
+					// Utilizo una funcion js, en global para controlar que item tengo seleccionados,... 
+					// por eso el uno rowUsuario cuando es productos.
 					$checkUser = $checkUser + 1; 
 					$checked="";
-					if(in_array($producto['idArticulo'], $_SESSION['productos'])){
-						$checked="checked";
+					if (isset($_SESSION['productos_seleccionados'])){
+						if(in_array($producto['idArticulo'], $_SESSION['productos_seleccionados'])){
+							$checked="checked";
+						}
 					}
 				?>
 
 				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="imprimirEtiquetas(<?php echo $producto['idArticulo']; ?>)" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>)" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
 					</td>
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>

@@ -717,7 +717,7 @@ function imprimir(id, dedonde, bandera=""){
 		}	
 	});
 }
-function imprimitEtiquetas(productos, dedonde, idTienda, tamano){
+function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 	var parametros = {
 		"pulsado"    		: 'imprimirEtiquetas',
 		"dedonde"			:dedonde,
@@ -761,8 +761,8 @@ function seleccionProveedor(dedonde,idproveedor){
 	
 	}
 
-function imprimirEtiquetas(id){
-
+function selecionarItemProducto(id){
+	console.log('Selecciono Item de producto, lo añadimos a session');
 	var parametros = {
 		"pulsado"    	: 'productosSesion',
 		"id"			:id
@@ -778,11 +778,12 @@ function imprimirEtiquetas(id){
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
 				
-				 var resultado = $.parseJSON(response);
-				 if(resultado.Nitems==1){
-					//~ alert("hay productos");
+				var resultado = $.parseJSON(response);
+				console.log(resultado);
+				if(resultado.Nitems>0){
+					alert("hay productos");
 				}else{
-					//~ alert("No hay productos");
+					alert("No hay productos");
 				}
 				 
 		}	

@@ -1,5 +1,4 @@
 <?php 
-session_start();
 function htmlLineaFamilias($item,$familia=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
@@ -554,28 +553,34 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	
 }
 function productosSesion($idProducto){
-	$respuesta['idProducto']=$idProducto;
-	if (!in_array($idProducto, $_SESSION['productos'])){
-		array_push($_SESSION['productos'], $idProducto);
+	// @ Objetivo
+	// Guardar en la session los productos seleccionados.
+	// @ Parametro:
+	// 		idProducto-> (int) Id del producto seleccionado.
+	// 		session-> (array) de los valores de session obtenidos.
+	$respuesta = array();
+	$respuesta['Nitems'] = 0 ;// Por defecto. items..
+	if (!isset($_SESSION['productos_seleccionados'])){
+		// Si no existe lo creamos como un array
+		$_SESSION['productos_seleccionados'] = array();
+	}
+	if (!in_array($idProducto, $_SESSION['productos_seleccionados'])){
+		array_push($_SESSION['productos_seleccionados'], $idProducto);
 	}else{
-		$i=0;
-		foreach($_SESSION['productos'] as $prod){
-			//~ $respuesta['prod'][$i]=$prod;
+		foreach($_SESSION['productos_seleccionados'] as $key=>$prod){
 			if($prod==$idProducto){
 				$respuesta['prod']=$prod;
-				unset($_SESSION['productos'][$i]);
+				unset($_SESSION['productos_seleccionados'][$key]);
 			}
-			$i++;
 		}
 	}
-	if(array_count_values($_SESSION['productos'])>0){
-			$respuesta['Nitems']=1;
-	}else{
-			$respuesta['Nitems']=0;
+	if(count($_SESSION['productos_seleccionados'])>0){
+			$respuesta['Nitems']=count($_SESSION['productos_seleccionados']);
 	}
-	$_SESSION['productos'] = array_values($_SESSION['productos']);
-	$respuesta['productos']=$_SESSION['productos'];
- return $respuesta;
+	$_SESSION['productos_seleccionados'] = array_values($_SESSION['productos_seleccionados']);
+	$respuesta['idProducto']=$idProducto;
+	$respuesta['productos_seleccionados']= $_SESSION['productos_seleccionados'];
+	return $respuesta;
 }
 function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 	// @ Objetivo:

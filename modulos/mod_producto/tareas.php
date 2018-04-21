@@ -16,6 +16,11 @@ include_once ("./../../configuracion.php");
 include_once ("./../mod_conexion/conexionBaseDatos.php");
 
 
+$rutaCompleta = $RutaServidor.$HostNombre;
+include_once($rutaCompleta.'/clases/ClaseSession.php');
+
+$CSession =  new ClaseSession();
+
 
 // Incluimos controlador.
 include ("./../../controllers/Controladores.php");
@@ -114,17 +119,17 @@ switch ($pulsado) {
 		
 		echo json_encode($resultado);
 	break;
+	
 	case 'productosSesion':
 		$idProducto=$_POST['id'];
 		$respuesta=array();
+		$session = $CSession->GetSession();
 		$respuesta=productosSesion($idProducto);
-		//~ if(count($respuesta['productos']>0)){
-			//~ $respuesta['Nitems']=1;
-		//~ }else{
-			//~ $respuesta['Nitems']=0;
-		//~ }
-			echo json_encode($respuesta);
+		//~ $respuesta['session'] =$session;
+
+		echo json_encode($respuesta);
 	break;
+	
 	case 'imprimirEtiquetas':
 		$productos=$_POST['productos'];
 		$idTienda=$_POST['idTienda'];
