@@ -173,6 +173,8 @@ switch ($pulsado) {
 		$cabecera['idUsuario'] 			=$_POST['idUsuario'];
 		$cabecera['estadoTicket'] 		=$_POST['estadoTicket'];
 		$cabecera['numTickTemporal'] 	=$_POST['numTickTemporal'];
+		$cabecera['cambio'] 			=$_POST['cambio'];
+
 		$checkimprimir 					=$_POST['checkimprimir'];
 		$ruta_impresora					=$_POST['ruta_impresora'];
 		// Obtenemos ticket
