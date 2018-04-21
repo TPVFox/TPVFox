@@ -651,7 +651,7 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 		// Solo montamos lineas para imprimir aquellos que estado es 'Activo';
 		if ( $product->estado === 'Activo'){
 			// No mostramos referencia, mostramos id producto
-			$lineas[$i]['1'] = substr($product->cdetalle, 0, 36).' (id:'.$product->id.') ';//.substr($product->cref,0,10);
+			$lineas[$i]['1'] = ' (id:'.$product->id.') '.substr($product->cdetalle, 0, 36);//.substr($product->cref,0,10);
 			$importe = $product->unidad * $product->pvpconiva;
 			// Creamos un array con valores numericos para poder formatear correctamente los datos
 			$Numeros = array(
@@ -692,6 +692,10 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 	}
 	$respuesta['pie-datos'] .=str_repeat("-",42)."\n";
 	$respuesta['pie-total'] =number_format($cabecera['total'],2);
+	$respuesta['pie-formaPago'] =$cabecera['formaPago'];
+	$respuesta['pie-entregado'] =number_format($cabecera['entregado'],2);
+	$respuesta['pie-cambio'] =number_format($cabecera['cambio'],2);
+
 	$respuesta['pie-datos2'] ="\n".$tienda['razonsocial']." - CIF: ".$tienda['nif']."\n";
 
 
