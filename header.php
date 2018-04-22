@@ -63,7 +63,7 @@
 							</ul>
 						</li>
 					<?php 
-					if ($Usuario['group_id'] === '1'){?>
+					if ($Usuario['group_id'] > '1'){?>
 						<?php //coloco dropdown importar, al pinchar tengo 2 opc en lista?>
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Sistema
