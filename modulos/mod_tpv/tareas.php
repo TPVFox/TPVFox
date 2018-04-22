@@ -139,8 +139,6 @@ switch ($pulsado) {
 						'total' => $CalculoTotales['total']
 							);
 		
-		//~ $CalculoTotales = gettype($productos);
-
 		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
 		$respuesta=$res;
 		
@@ -215,11 +213,13 @@ switch ($pulsado) {
 				$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose'],$DatosTienda);
 				// Incluimos fichero para imprimir ticket, con los datosImpresion.
 				// Comprobamos si existe impresora.
-				if (shell_exec('ls '.$ruta_impresora)){;
+				if (ComprobarImpresoraTickets($ruta_impresora) === true){;
+					
 					include 'impresoraTicket.php';
 				} else {
-					$respuesta['error_impresora'] = ' no existe la impresora asignada';
+					$respuesta['error_impresora'] = ' no existe la impresora asignada, hay un error';
 				}
+	
 				
 			}
 		} 

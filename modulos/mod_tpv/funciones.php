@@ -524,6 +524,8 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	//				$cabecera['idUsuario']
 	//				$cabecera['estadoTicket']
 	//				$cabecera['numTickTemporal'] 
+	//				$cabecera['cambio'] 
+
 	// 		$productos . Array de Objetos que trae ->
 	//				[0] Indice producto.
 	// 					producto.id;
@@ -624,6 +626,21 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	$resultado['fecha'] = $fecha;
 	return $resultado;
 }
+
+function ComprobarImpresoraTickets($ruta_impresora){
+	// @ Objetivo :
+	// Comprobar si la ruta de la impresora es correcto.
+	// @ Parametro:
+	//   ruta_impresora-> (string) Ruta de la impresora.
+	// @ Devuelve:
+	//   boreano-> true (correcto) , false (no la encuentra)
+	$respuesta = false;
+	if (shell_exec('ls '.$ruta_impresora)){
+		$respuesta = true;
+	}
+	return $respuesta;
+}
+
 
 function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 	// @ Objetivo es montar un array con las distintas partes del ticket para luego mandar imprimir.

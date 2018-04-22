@@ -323,14 +323,22 @@ function cerrarTicket(){
 	//@ Objetivo:
 	// Enviar datos del ticket (cabecera y caja de cobrar)
 	// para guaardar como Cobrado en tablas ticket y temporal de ticket se cambia estado a COBRADO
+	 
 	 var entregado = $('#entrega').val();
 	 var cambio = $('#cambio').val();
+	 console.log('Numero caracteres de entregado:'+entregado.length);
+	 if (entregado.length === 0){
+		// Quiere decir que no puso correcto la entrega... por lo que el cambio tampoco es correcto
+		// genera un warning en servirdor.
+		// Entonces ponemos entregado total.
+		entregado = total;
+		cambio = '0';
+	 }
 	 var formaPago = $('#modoPago').val();
 	 //podemos obtener el valor de la propiedad checked, true o false
 	 var checkimprimir = $('input[name=checkimprimir]').prop('checked'); 
-	 var ruta_impresora = configuracion['impresora'];
+	 var ruta_impresora = configuracion['impresora_ticket'];
 	 console.log(ruta_impresora);
-	 console.log('cambio'+cambio);
 	//parche desactivar boton aceptar, no hay impresora de tickets
 	$('button[id=CobrarAceptar]').prop('disabled',true);
 	// Ahora ejecutamos ajax para guardar ticket
