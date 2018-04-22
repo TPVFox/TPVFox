@@ -105,11 +105,8 @@ switch ($pulsado) {
 	case 'cobrar':
 		//~ echo 'cobrar';
 		$totalJS = $_POST['total'];
-		$productos = $_POST['productos'];
+		$productos = json_decode($_POST['productos']);
 		$configuracion = $_POST['configuracion'];
-		// Convertimos productos que debería ser un objeto a array
-		$productos = json_decode( json_encode( $_POST['productos'] ));
-
 		// Recalcular totales.
 		$totales = recalculoTotales($productos);
 		
@@ -236,7 +233,7 @@ switch ($pulsado) {
 		
 	case 'ObtenerRefTiendaWeb';
 		$respuesta = array();
-		$productos =$_POST['productos'];
+		$productos =json_decode($_POST['productos']);
 		$idweb	 = $_POST['web'];
 		//Ahora obtenemos datos tienda web.
 		$tienda = BuscarTienda($BDTpv,$idweb);

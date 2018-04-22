@@ -19,7 +19,7 @@ function cobrarF1(){
 		var parametros = {
 				"pulsado" 	: 'cobrar',
 				"total" : total,
-				"productos"	 	: productos,
+				"productos"	 	: JSON.stringify(productos),
 				"configuracion"	: configuracion
 				//"dedonde" : dedonde
 		};
@@ -821,7 +821,7 @@ function PrepararEnviarStockWeb(){
 	console.log('PREPARAMOS DATOS PARA ENVIAR');
 	var parametros = {
 		"pulsado" : 'ObtenerRefTiendaWeb',
-		"productos"    : productos,
+		"productos"    : JSON.stringify(productos),
 		"web"		 : '2'
 	};
 	$.ajax({
@@ -873,7 +873,7 @@ function EnviarStockWeb(tienda_web,productos){
 	var parametros = {
 		"key" :  tienda_web.key_api,
 		"action"    : 'RestarStock',
-		"productos"	: productos
+		"productos"	: JSON.stringify(productos)
 	};
 	$.ajax({
 		data       : parametros,
