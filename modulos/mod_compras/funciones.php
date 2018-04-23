@@ -1229,6 +1229,8 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 }
 function htmlTotales($Datostotales){
 	$htmlIvas['html'] = '';
+	$totalBase=0;
+	$totaliva=0;
 	if (isset($Datostotales['desglose'])){
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
 			$key = intval($key);
@@ -1237,7 +1239,15 @@ function htmlTotales($Datostotales){
 			.'<td id="base'.$key.'"> '.number_format ($basesYivas['base'],2).'</td>'
 			.'<td id="iva'.$key.'">'.number_format ($basesYivas['iva'],2).'</td>'
 			.'</tr>';
+		
+		$totalBase=$totalBase+$basesYivas['base'];
+		$totaliva=$totaliva+$basesYivas['iva'];
 		}
+		$htmlIvas['html'].='<tr>'
+		.'<td> Totales </td>'
+		.'<td>'.$totalBase.'</td>'
+		.'<td>'.$totaliva.'</td>'
+		.'</tr>';
 	}
 	return $htmlIvas;
 }
