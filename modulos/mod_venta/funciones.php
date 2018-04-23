@@ -765,6 +765,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		return $imprimir;
 }
 function htmlTotales($Datostotales){
+	$totalBase=0;
+	$totaliva=0;
 	$htmlIvas['html'] = '';
 	if (isset($Datostotales)){
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
@@ -774,7 +776,15 @@ function htmlTotales($Datostotales){
 			$htmlIvas['html'].='<td id="base'.$key.'"> '.$basesYivas['base'].'</td>';
 			$htmlIvas['html'].='<td id="iva'.$key.'">'.$basesYivas['iva'].'</td>';
 			$htmlIvas['html'].='</tr>';
+			
+		$totalBase=$totalBase+$basesYivas['base'];
+		$totaliva=$totaliva+$basesYivas['iva'];
 		}
+		$htmlIvas['html'].='<tr>'
+		.'<td> Totales </td>'
+		.'<td>'.$totalBase.'</td>'
+		.'<td>'.$totaliva.'</td>'
+		.'</tr>';
 	return $htmlIvas;
 	}
 }
