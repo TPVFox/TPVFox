@@ -45,12 +45,18 @@
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
 	if ($stringPalabras !== '' ){
-			$filtro = $WhereLimite['filtro']." a.num_incidencia desc  ".$WhereLimite['rango'];
+			$filtro = $WhereLimite['filtro']." ORDER BY a.num_incidencia desc  ".$WhereLimite['rango'];
 		} else {
-			$filtro= " a.num_incidencia desc  LIMIT ".$LimitePagina." OFFSET ".$desde;
+			$filtro= " ORDER BY a.num_incidencia desc  LIMIT ".$LimitePagina." OFFSET ".$desde;
 		}
 	$incidenciasFiltro=$CIncidencia->todasIncidenciasLimite($filtro);
-		
+	if (isset($incidenciasFiltro['error'])){
+		$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $incidenciasFiltro['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+	}	
 	?>
 </head>
 <body>
@@ -59,6 +65,13 @@
      <?php
 
 	include '../../header.php';
+	if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '</div>';
+		}
+	}
 	?>
 		<div class="container">
 		<div class="row">
