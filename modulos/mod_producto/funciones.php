@@ -655,9 +655,9 @@ function ImprimirA9($productos){
 		$imprimir['html'].='<td align="center">';
 		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
 		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
-		$imprimir['html'] .=' RefProv: '.$producto['crefProveedor'].'</font><br>';
+		$imprimir['html'].=' RefProv: '.$producto['crefProveedor'].'</font><br>';
 		$imprimir['html'].='<b>'.$producto['articulo_name'].'</b><br><br>';
-		$imprimir['html'].='<b><font size="20 em">'.number_format($producto['pvpCiva'],2).'€</font></b><br>';
+		$imprimir['html'].='<b><font size="25 em">'.number_format($producto['pvpCiva'],2,',','').'€</font></b><br>';
 		$imprimir['html'].='</td>';
 		
 	$i++;
@@ -684,9 +684,9 @@ $imprimir=array(
 		$imprimir['html'].='<td align="center"  style="height:200px;" >';
 		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
 		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
-		$imprimir['html'] .=' RefProv: '.$producto['crefProveedor'].'</font><br>';
-		$imprimir['html'].='<b><font size="25 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
-		$imprimir['html'].='<b><font size="60 em">'.number_format($producto['pvpCiva'],2).'€</font></b><br>';
+		$imprimir['html'].=' RefProv: '.$producto['crefProveedor'].'</font><br>';
+		$imprimir['html'].='<b><font size="20 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
+		$imprimir['html'].='<b><font size="100 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br>';
 		$imprimir['html'].='</td>';
 		
 	$i++;
