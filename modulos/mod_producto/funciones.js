@@ -807,6 +807,7 @@ function selecionarItemProducto(id, dedonde=""){
 				if(resultado.Nitems===0){
 					if(dedonde=="listaProductos"){
 						$(".imprimir").css("display", "none");
+						
 					}else{
 						location.href="ListaProductos.php";
 					}
@@ -814,6 +815,7 @@ function selecionarItemProducto(id, dedonde=""){
 				}else{
 					if(dedonde=="listaProductos"){
 						$(".imprimir").css("display", "block");
+						$(".textoCantidad").html("Productos seleccionados: "+resultado.Nitems);
 					}else{
 						location.href="ListaEtiquetas.php";
 					}
