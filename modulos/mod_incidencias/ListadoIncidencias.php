@@ -6,7 +6,51 @@
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
-	
+	include 'ClaseIncidencia.php';
+	$Controler = new ControladorComun; 
+	$CIncidencia= new incidencia($BDTpv);
+	$palabraBuscar=array();
+	$stringPalabras='';
+	$PgActual = 1; // por defecto.
+	$LimitePagina = 30; // por defecto.
+	$filtro = ''; // por defecto
+	if (isset($_GET['pagina'])) {
+		$PgActual = $_GET['pagina'];
+	}
+	if (isset($_GET['buscar'])) {  
+		//recibo un string con 1 o mas palabras
+		$stringPalabras = $_GET['buscar'];
+		$palabraBuscar = explode(' ',$_GET['buscar']); 
+	} 
+	$LinkBase = './ListadoIncidencias.php?';
+	$OtrosParametros = '';
+	$paginasMulti = $PgActual-1;
+	if ($paginasMulti > 0) {
+		$desde = ($paginasMulti * $LimitePagina); 
+	} else {
+		$desde = 0;
+	}
+	$WhereLimite = array();
+	$WhereLimite['filtro'] = '';
+	$NuevoRango = '';
+	if ($stringPalabras !== '' ){
+			$campo = array( 'a.Numalbpro','b.nombrecomercial');
+			$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
+			$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
+			$OtrosParametros=$stringPalabras;
+			$WhereLimite['filtro']='WHERE '.$NuevoWhere;
+		}
+	$CantidadRegistros=count($CIncidencia->todasIncidenciasLimite($WhereLimite['filtro']));
+	$WhereLimite['rango']=$NuevoRango;
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+
+	if ($stringPalabras !== '' ){
+			$filtro = $WhereLimite['filtro']." a.num_incidencia desc  ".$WhereLimite['rango'];
+		} else {
+			$filtro= " a.num_incidencia desc  LIMIT ".$LimitePagina." OFFSET ".$desde;
+		}
+	$incidenciasFiltro=$CIncidencia->todasIncidenciasLimite($filtro);
+		
 	?>
 </head>
 <body>
