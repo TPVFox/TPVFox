@@ -224,24 +224,16 @@
 					// por eso el uno rowUsuario cuando es productos.
 					$checkUser = $checkUser + 1; 
 					$checked="";
-<<<<<<< HEAD
-					if(in_array($producto['idArticulo'], $_SESSION['productos'])){
-						$checked="checked";
-=======
 					if (isset($_SESSION['productos_seleccionados'])){
 						if(in_array($producto['idArticulo'], $_SESSION['productos_seleccionados'])){
 							$checked="checked";
 						}
->>>>>>> master
 					}
 				?>
 
 				<tr>
-<<<<<<< HEAD
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="imprimirEtiquetas(<?php echo $producto['idArticulo']; ?>)" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
-=======
+
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>)" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
->>>>>>> master
 					</td>
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>
