@@ -696,5 +696,9 @@ $imprimir=array(
 	return $imprimir;
 
 }
+function eliminarSeleccion(){
+	$_SESSION['productos_seleccionados']=array();
+
+}
 
 ?>

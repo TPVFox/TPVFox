@@ -781,14 +781,33 @@ function selecionarItemProducto(id){
 				
 				var resultado = $.parseJSON(response);
 				console.log(resultado);
-				if(resultado.Nitems>0){
-					alert("hay productos");
-				}else{
-					alert("No hay productos");
-				}
+				//~ if(resultado.Nitems>0){
+					//~ alert("hay productos");
+				//~ }else{
+					//~ alert("No hay productos");
+				//~ }
 				 
 		}	
 	});
 
+}
+function eliminarSeleccionProductos(){
+		var parametros = {
+		"pulsado"    	: 'eliminarSeleccion'
+		
+		};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Eliminar seleccion de productos  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar seleccion de productos ');
+				location.href="ListaProductos.php";
+				 
+		}	
+	});
 }
 

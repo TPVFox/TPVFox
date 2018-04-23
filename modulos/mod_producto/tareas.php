@@ -236,6 +236,10 @@ switch ($pulsado) {
 
 		echo json_encode($resultado);
 	break;
+	case 'eliminarSeleccion':
+	$eliminar=eliminarSeleccion();
+	
+	break;
 	
 }
 
