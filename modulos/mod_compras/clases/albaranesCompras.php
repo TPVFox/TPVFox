@@ -242,8 +242,8 @@ class AlbaranesCompras extends ClaseCompras{
 					$sql='INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, 
 					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro )
 					 VALUES ('.$id.', '.$numAlbaran.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', "'
-					 .$codBarras.'", "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '
-					 .$prod['ultimoCoste'].' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'"
+					 .$codBarras.'", "'.$prod['cdetalle'].'", "'.$prod['ncant'].'" , "'.$prod['nunidades'].'", "'
+					 .$prod['ultimoCoste'].'" , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'"
 					 .$refProveedor."'".', '.$numPed.')';
 					$smt=$this->consultaAlbaran($sql);
 					if (gettype($smt)==='array'){
