@@ -1,5 +1,9 @@
 <?php 
-$pulsado = $_GET['pulsado'];
+$pulsado="";
+if(isset($_GET['pulsado'])){
+	$pulsado = $_GET['pulsado'];
+}
+
 include_once ("./../../configuracion.php");
 include_once ("./../mod_conexion/conexionBaseDatos.php");
 include_once ("./popup_incidencias.php");
@@ -19,6 +23,7 @@ switch ($pulsado) {
 	echo json_encode($respuesta);
 	
 	break;
+	
 	
 	
 	

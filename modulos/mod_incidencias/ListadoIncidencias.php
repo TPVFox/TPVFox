@@ -15,6 +15,7 @@
 	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
 	$errores=array();
+	$Usuario = $_SESSION['usuarioTpv'];
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
@@ -84,7 +85,7 @@
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				
-					<li><a href="#section2">Añadir</a></li>
+					<li><a onclick="abrirIndicencia('incidencia', <?php echo $Usuario['id'];?>);">Añadir</a></li>
 				
 					<li><a href="#section2" onclick="metodoClick('Ver','incidencia');";>Modificar</a></li>
 				
@@ -143,5 +144,9 @@
 		
 		</div>	
 			</nav>
+			<?php // Incluimos paginas modales
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+// hacemos comprobaciones de estilos 
+?>
 </body>
 </html>
