@@ -717,6 +717,7 @@ function imprimir(id, dedonde, bandera=""){
 	});
 }
 function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
+	console.log(productos);
 	var parametros = {
 		"pulsado"    		: 'imprimirEtiquetas',
 		"dedonde"			:dedonde,
@@ -735,7 +736,8 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
 				 var resultado = $.parseJSON(response);
-				 window.open(resultado);
+				 console.log(resultado);
+				 window.open(resultado['fichero']);
 				 //~ if (bandera==1){
 					//~ location.href="ListaProductos.php";
 				//~ }

@@ -29,10 +29,10 @@
         ?>
         <script type="text/javascript">
         <?php
-        //~ if(isset($_POST['Imprimir'])){
-			echo 'imprimirEtiquetas('."'".json_encode($_SESSION['productos_seleccionados'])."'".',"'.$dedonde.'",'
+        if(isset($_POST['Imprimir'])){
+			echo 'imprimirEtiquetas('."'".json_encode($_SESSION['productos_seleccionados'])."'".',"'.$dedonde.'","'
 									.$idTienda.'","'.$_POST['tamanhos'].'");';
-		//~ }
+		}
         ?>
        </script>
 	<div class="container">

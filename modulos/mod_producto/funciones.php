@@ -635,31 +635,29 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 }
 
 
-function ImprimirA9($productos, $BDTpv, $idTienda){
+function ImprimirA9($productos){
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
 	);
 	$i=0;
 	$imprimir['html'].="";
-	$CArticulos = new Articulos($BDTpv);
 	$imprimir['html'].='<table border="1px">';
 	$imprimir['html'].='<tr>';
 	
-	$imprimir['productos']=$_SESSION['productos'];
-	foreach ($_SESSION['productos'] as $producto){
-		$datosArticulo=$CArticulos->datosArticulosPrincipal($producto, $idTienda);
+	$imprimir['productos']=$productos;
+	foreach ($productos as $producto){
 		if($i==3){
 			$imprimir['html'].='</tr>';
 			$imprimir['html'].='<tr>';
 			$i=0;
 		}
 		$imprimir['html'].='<td align="center">';
-		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$datosArticulo['codBarras'].'</font><br>';
-		$imprimir['html'].='<font size="6.5 em">Ref: '.$datosArticulo['crefTienda'];
-		$imprimir['html'] .=' RefProv: '.$datosArticulo['crefProveedor'].'</font><br>';
-		$imprimir['html'].='<b>'.$datosArticulo['articulo_name'].'</b><br><br>';
-		$imprimir['html'].='<b><font size="20 em">'.number_format($datosArticulo['pvpCiva'],2).'€</font></b><br>';
+		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
+		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
+		$imprimir['html'] .=' RefProv: '.$producto['crefProveedor'].'</font><br>';
+		$imprimir['html'].='<b>'.$producto['articulo_name'].'</b><br><br>';
+		$imprimir['html'].='<b><font size="20 em">'.number_format($producto['pvpCiva'],2).'€</font></b><br>';
 		$imprimir['html'].='</td>';
 		
 	$i++;
@@ -668,28 +666,27 @@ function ImprimirA9($productos, $BDTpv, $idTienda){
 	$imprimir['html'].='</table>';
 	return $imprimir;
 }
-function ImprimirA7($productos, $BDTpv, $idTienda){
+function ImprimirA7($productos){
 $imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
 	);
 	$imprimir['html'].="";
-	$CArticulos = new Articulos($BDTpv);
 	$imprimir['html'].='<table border="1px">';
 	$imprimir['html'].='<tr>';
-	foreach ($_SESSION['productos'] as $producto){
-		$datosArticulo=$CArticulos->datosArticulosPrincipal($producto, $idTienda);
+	$i=0;
+	foreach ($productos as $producto){
 		if($i==2){
 			$imprimir['html'].='</tr>';
 			$imprimir['html'].='<tr>';
 			$i=0;
 		}
 		$imprimir['html'].='<td align="center"  style="height:200px;" >';
-		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$datosArticulo['codBarras'].'</font><br>';
-		$imprimir['html'].='<font size="6.5 em">Ref: '.$datosArticulo['crefTienda'];
-		$imprimir['html'] .=' RefProv: '.$datosArticulo['crefProveedor'].'</font><br>';
-		$imprimir['html'].='<b><font size="25 em">'.$datosArticulo['articulo_name'].'</font></b><br><br><br>';
-		$imprimir['html'].='<b><font size="60 em">'.number_format($datosArticulo['pvpCiva'],2).'€</font></b><br>';
+		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
+		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
+		$imprimir['html'] .=' RefProv: '.$producto['crefProveedor'].'</font><br>';
+		$imprimir['html'].='<b><font size="25 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
+		$imprimir['html'].='<b><font size="60 em">'.number_format($producto['pvpCiva'],2).'€</font></b><br>';
 		$imprimir['html'].='</td>';
 		
 	$i++;
