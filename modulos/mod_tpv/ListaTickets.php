@@ -218,6 +218,7 @@
 				$checkUser = 0;
 				//
 				$i=0;
+				$tickets = array_reverse($tickets);
 				foreach ($tickets as $ticket){ 
 					$checkUser = $checkUser + 1; 
 				?>
@@ -238,7 +239,7 @@
 					</td>
 					<td>
 						<?php 
-							if ($ticket['respuesta_envio_rows'] !== 0){
+							if (!isset($ticket['respuesta_envio_rows'])){
 								// Quiere decir que se encontro registro
 								echo '<span title="'.$ticket['respuesta_envio'].'">'.$ticket['enviado_stock'].'</span>';
 							}  ;?>

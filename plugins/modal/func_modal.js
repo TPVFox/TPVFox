@@ -16,13 +16,21 @@ function focusAlLanzarModal(idCaja){
 	
 	$('#busquedaModal').on('shown.bs.modal', function() {
 		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-		$('#cajaBusqueda').focus(); //f
-				$('#'+idCaja).focus(); //foco en input caja busqueda del proveedor
+		$('#'+idCaja).focus(); //foco en input caja busqueda del proveedor
 
 	});	
 }
 
+function SelectAlLanzarModal(idCaja){
+	// @Objetivo:
+	// Poner select cuando esta visible el evento modal.
+	// Se espera que concluyan las transiciones de CSS
+	
+	$('#busquedaModal').on('shown.bs.modal', function() {
+		$('#'+idCaja).select(); //foco en input caja busqueda del proveedor
 
+	});	
+}
 
 
 function cerrarPopUp(){

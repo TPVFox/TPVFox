@@ -16,6 +16,11 @@ include_once ("./../../configuracion.php");
 include_once ("./../mod_conexion/conexionBaseDatos.php");
 
 
+$rutaCompleta = $RutaServidor.$HostNombre;
+include_once($rutaCompleta.'/clases/ClaseSession.php');
+
+$CSession =  new ClaseSession();
+
 
 // Incluimos controlador.
 include ("./../../controllers/Controladores.php");
@@ -153,6 +158,77 @@ switch ($pulsado) {
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 	
 		echo json_encode($ficheroCompleto);
+	break;
+	
+	case 'productosSesion':
+		$idProducto=$_POST['id'];
+		$respuesta=array();
+		$session = $CSession->GetSession();
+		$respuesta=productosSesion($idProducto);
+		//~ $respuesta['session'] =$session;
+
+		echo json_encode($respuesta);
+	break;
+	
+	case 'imprimirEtiquetas':
+		$productos=$_POST['productos'];
+		$idTienda=$_POST['idTienda'];
+		$tamano=$_POST['tamano'];
+		
+		$dedonde="Etiqueta";
+		$nombreTmp=$dedonde."etiquetas.pdf";
+		switch ($tamano){
+			case 1:
+				$imprimir=ImprimirA9($productos, $BDTpv, $idTienda);
+			break;
+			case 2:
+				$imprimir=ImprimirA5($productos, $BDTpv, $idTienda);
+			break;
+			case 3:
+				$imprimir=ImprimirA7($productos, $BDTpv, $idTienda);
+			break;
+		}
+		
+		$cabecera=$imprimir['cabecera'];
+		$html=$imprimir['html'];
+		 //~ $ficheroCompleto=$html;
+		require_once('../../lib/tcpdf/tcpdf.php');
+		include ('../../clases/imprimir.php');
+		include('../../controllers/planImprimirRe.php');
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+	
+		echo json_encode($ficheroCompleto);
+	break;
+	
+	case 'HtmlCajaBuscarProveedor':
+		$resultado 		= array();
+		$dedonde 		= $_POST['dedonde'];
+		$busqueda =  $_POST['busqueda']; // Este valor puede venir vacio , por lo que...
+		$DescartIdsProv = $_POST['idsProveedores']; // Descartamos los ids de los proveedores que ya tiene el producto.
+													// para que no pueda seleccionadlor.
+		if ($busqueda !==''){
+			// Realizamos la busqueda todos los proveedores menos los que tiene añadidos en el producto..
+			$proveedores = $CProveedor->buscarProveedorNombre($busqueda);
+			// Ahora tengo que quitar del array proveedores[datos], aquellos que no ya estan añadidos para que no se muestre.
+			$descartado = array();
+
+			foreach ($proveedores['datos'] as $key=>$proveedor){
+				$idProveedor = $proveedor['idProveedor'];
+				if (in_array ($idProveedor,$DescartIdsProv)){
+					$descartados[] = $idProveedor;
+					unset($proveedores['datos'][$key]);
+				};
+			}
+		} else {
+			$proveedores = array();
+			$proveedores['datos'] = array(); // ya enviamos datos... :-)
+		}
+		$resultado = htmlBuscarProveedor($busqueda,$dedonde,$proveedores['datos']);
+		$resultado['proveedores'] = $proveedores;
+		$resultado['busqueda'] = $busqueda;
+		$resultado['descartados'] = $descartados;
+
+		echo json_encode($resultado);
 	break;
 	
 }

@@ -17,9 +17,6 @@
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	
-	if(!isset($_SESSION['productos'])){
-		$_SESSION['productos']=array();
-	}
 	
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
@@ -90,16 +87,17 @@
 	} else {
 		$CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro));
 	}
-	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
-	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+	$htmlPG= ''; 
+	if ($CantidadRegistros > 0){
+		$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+		if ($stringPalabras !== '' ){
+			$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+		} else {
+			$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		}
+			
+		$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro);
 	}
-		
-	$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro);
-	
 	//~ echo '<pre>';
 	//~ print_r($nuevo);
 	//~ echo '</pre>';
@@ -219,16 +217,31 @@
 	
 				<?php
 				$checkUser = 0;
+			if (isset($productos)){
 				foreach ($productos as $producto){ 
+					// [RECUERDA]
+					// Utilizo una funcion js, en global para controlar que item tengo seleccionados,... 
+					// por eso el uno rowUsuario cuando es productos.
 					$checkUser = $checkUser + 1; 
 					$checked="";
+<<<<<<< HEAD
 					if(in_array($producto['idArticulo'], $_SESSION['productos'])){
 						$checked="checked";
+=======
+					if (isset($_SESSION['productos_seleccionados'])){
+						if(in_array($producto['idArticulo'], $_SESSION['productos_seleccionados'])){
+							$checked="checked";
+						}
+>>>>>>> master
 					}
 				?>
 
 				<tr>
+<<<<<<< HEAD
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="imprimirEtiquetas(<?php echo $producto['idArticulo']; ?>)" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
+=======
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>)" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
+>>>>>>> master
 					</td>
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>
@@ -272,6 +285,7 @@
 
 				<?php 
 				}
+			}
 				?>
 				
 			</table>

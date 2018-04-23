@@ -11,10 +11,6 @@
 	$CArticulos = new Articulos($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
 	$idTienda= $Tienda['idTienda'];	
-	if(!isset($_SESSION['productos'])){
-	//Mostrar un error 	
-	}
-	
 	
 	
 	?>
@@ -27,16 +23,16 @@
         <?php
         include './../../header.php';
         echo $_POST['tamanhos'];
+        echo '<pre>';
+        print_r($_SESSION['productos_seleccionados']);
+        echo '</pre>';
         ?>
         <script type="text/javascript">
         <?php
-        if(isset($_POST['Imprimir'])){
-		$dedonde="Etiqueta";	
-		?>
-		imprimitEtiquetas(<?php echo $_SESSION['productos'];?>, <?php echo "'".$dedonde."'"; ?>, <?php echo $idTienda;?>, <?php echo $_POST['tamanhos'];?>);
-		<?php	
-		
-	}
+        //~ if(isset($_POST['Imprimir'])){
+			echo 'imprimirEtiquetas('."'".json_encode($_SESSION['productos_seleccionados'])."'".',"'.$dedonde.'",'
+									.$idTienda.'","'.$_POST['tamanhos'].'");';
+		//~ }
         ?>
        </script>
 	<div class="container">
@@ -71,7 +67,7 @@
 				</thead>
 				<tbody>
 				<?php
-					foreach($_SESSION['productos'] as $producto){
+					foreach($_SESSION['productos_seleccionados'] as $producto){
 						$articulo=$CArticulos->buscarNombreArticulo($producto);
 						$precio=$CArticulos->articulosPrecio($producto);
 						?>
