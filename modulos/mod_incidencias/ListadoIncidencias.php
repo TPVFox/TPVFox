@@ -119,13 +119,15 @@
 				</thead>
 				<tbody>
 				<?php 
-				
+				$checkUser = 0;
 				foreach($incidenciasFiltro as $incidencia){
+							$checkUser = $checkUser + 1;
+								$date=date_create($incidencia['fecha']);
 					?>
 					<tr>
-					<td></td>
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $incidencia['id'];?>">
 					<td><?php echo $incidencia['num_incidencia'];?></td>
-					<td><?php echo $incidencia['fecha'];?></td>
+					<td><?php echo date_format($date,'Y-m-d');?></td>
 					<td><?php echo $incidencia['nombre'];?></td>
 					<td><?php echo $incidencia['dedonde'];?></td>
 					<td><?php echo $incidencia['mensaje'];?></td>
