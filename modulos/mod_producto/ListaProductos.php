@@ -285,7 +285,22 @@
 			</div>
 		</div>
 	</div>
+	<?php 
+	//~ echo '<pre>';
+	//~ print_r($_SESSION['productos_seleccionados']);
+	//~ echo '</pre>';
+	//~ echo count($_SESSION['productos_seleccionados']);
+	?>
     </div>
+	<script type="text/javascript">
+		<?php 
+		if(count($_SESSION['productos_seleccionados'])==0){
+		?>
+		$(".imprimir").css("display", "none");
+		<?php
 		
+		}
+		?>
+	</script>	
 </body>
 </html>
