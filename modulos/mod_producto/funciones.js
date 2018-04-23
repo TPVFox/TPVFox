@@ -781,11 +781,12 @@ function selecionarItemProducto(id){
 				
 				var resultado = $.parseJSON(response);
 				console.log(resultado);
-				//~ if(resultado.Nitems>0){
-					//~ alert("hay productos");
-				//~ }else{
-					//~ alert("No hay productos");
-				//~ }
+				if(resultado.Nitems===0){
+					$(".imprimir").css("display", "none");
+					
+				}else{
+					$(".imprimir").css("display", "block");
+				}
 				 
 		}	
 	});
