@@ -19,11 +19,7 @@ switch ($pulsado) {
 	echo json_encode($respuesta);
 	
 	break;
-	default:
-	$respuesta="no entra en el switch";
-	echo json_encode($respuesta);
 	
-	break;
 	
 	
 	
