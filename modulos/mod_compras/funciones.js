@@ -679,61 +679,68 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 		success    :  function (response) {
 			console.log('Repuesta de FUNCION -> buscarProducto');
 			var resultado =  $.parseJSON(response);
-		if (resultado['Nitems']===1){
-			// Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
-			//Llamamos a la función de add pedido temporal y agregar la fila de producto
-			var datos = new Object();			
-			datos.ccodbar=resultado['datos'][0]['codBarras'];
-			datos.cdetalle=resultado['datos'][0]['articulo_name'];
-			datos.cref=resultado['datos'][0]['crefTienda'];
-			datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
-			datos.estado="Activo";
-			datos.idArticulo=resultado['datos'][0]['idArticulo'];
-			
-			datos.iva=resultado['datos'][0]['iva'];
-			datos.ncant=1;
-			datos.nfila=productos.length+1;
-			n_item=parseInt(productos.length)+1;
-			datos.nunidades=1;
-			
-			if (resultado['datos'][0]['coste']>0){
-				var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
-			}else{
-				var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
-			}
-			datos.ultimoCoste=ultimoCoste.toFixed(4);
-			datos.importe=ultimoCoste.toFixed(2);
-			productos.push(datos);
-			var campo='Unidad_Fila_'+n_item;
-			addTemporal(dedonde)
-			document.getElementById(id_input).value='';
-			//resetCampo(id_input);
-			AgregarFilaProductos(datos, dedonde, campo);
-			if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
-				alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
-			}
-			ponerSelect(campo);
-			if (dedonde=="factura"){
-				$("#tablaAl").hide();
-			}
+		if (resultado['Nitems']===2){
+				alert("El elemento buscado no está relacionado con ningún producto");
 		}else{
-			// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
-			console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
+			if (resultado['Nitems']===1){
+				// Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
+				//Llamamos a la función de add pedido temporal y agregar la fila de producto
+				var datos = new Object();			
+				datos.ccodbar=resultado['datos'][0]['codBarras'];
+				datos.cdetalle=resultado['datos'][0]['articulo_name'];
+				datos.cref=resultado['datos'][0]['crefTienda'];
+				datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
+				datos.estado="Activo";
+				datos.idArticulo=resultado['datos'][0]['idArticulo'];
 				
-			var busqueda = resultado.listado;   
-			var HtmlProductos=busqueda['html']; 
-			console.log(HtmlProductos);
-			var titulo = 'Listado productos encontrados ';
-			abrirModal(titulo,HtmlProductos);
-			if (resultado.Nitems >0 ){
-				// Quiere decir que hay resultados por eso apuntamos al primero
-				// focus a primer producto.
-				var d_focus = 'N_0';
-				ponerFocus(d_focus);
-			} else {
-				// No hay resultado pero apuntamos a caj
-					$('#cajaBusqueda').focus();
+				datos.iva=resultado['datos'][0]['iva'];
+				datos.ncant=1;
+				datos.nfila=productos.length+1;
+				n_item=parseInt(productos.length)+1;
+				datos.nunidades=1;
+				
+				if (resultado['datos'][0]['coste']>0){
+					var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
+				}else{
+					var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
+				}
+				datos.ultimoCoste=ultimoCoste.toFixed(4);
+				datos.importe=ultimoCoste.toFixed(2);
+				productos.push(datos);
+				var campo='Unidad_Fila_'+n_item;
+				addTemporal(dedonde)
+				document.getElementById(id_input).value='';
+				//resetCampo(id_input);
+				AgregarFilaProductos(datos, dedonde, campo);
+				if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
+					alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
+				}
+				ponerSelect(campo);
+				if (dedonde=="factura"){
+					$("#tablaAl").hide();
+				}
+			}else{
+				// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
+				console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
+			
+				var busqueda = resultado.listado; 
+				
+				var HtmlProductos=busqueda['html']; 
+				
+				console.log(HtmlProductos);
+				var titulo = 'Listado productos encontrados ';
+				abrirModal(titulo,HtmlProductos);
+				if (resultado.Nitems >0 ){
+					// Quiere decir que hay resultados por eso apuntamos al primero
+					// focus a primer producto.
+					var d_focus = 'N_0';
+					ponerFocus(d_focus);
+				} else {
+					// No hay resultado pero apuntamos a caj
+						$('#cajaBusqueda').focus();
+				}
 			}
+			
 		}
 	}
 	});
