@@ -86,7 +86,7 @@
 				
 					<li><a href="#section2">Añadir</a></li>
 				
-					<li><a href="#section2">Modificar</a></li>
+					<li><a href="#section2" onclick="metodoClick('Ver','incidencia');";>Modificar</a></li>
 				
 				</ul>
 				<div class="col-md-12">
