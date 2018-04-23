@@ -762,7 +762,7 @@ function seleccionProveedor(dedonde,idproveedor){
 	
 	}
 
-function selecionarItemProducto(id){
+function selecionarItemProducto(id, dedonde=""){
 	console.log('Selecciono Item de producto, lo añadimos a session');
 	var parametros = {
 		"pulsado"    	: 'productosSesion',
@@ -782,10 +782,19 @@ function selecionarItemProducto(id){
 				var resultado = $.parseJSON(response);
 				console.log(resultado);
 				if(resultado.Nitems===0){
-					$(".imprimir").css("display", "none");
+					if(dedonde=="listaProductos"){
+						$(".imprimir").css("display", "none");
+					}else{
+						location.href="ListaProductos.php";
+					}
 					
 				}else{
-					$(".imprimir").css("display", "block");
+					if(dedonde=="listaProductos"){
+						$(".imprimir").css("display", "block");
+					}else{
+						location.href="ListaEtiquetas.php";
+					}
+					
 				}
 				 
 		}	

@@ -22,10 +22,10 @@
 		
         <?php
         include './../../header.php';
-        echo $_POST['tamanhos'];
-        echo '<pre>';
-        print_r($_SESSION['productos_seleccionados']);
-        echo '</pre>';
+        //~ echo $_POST['tamanhos'];
+        //~ echo '<pre>';
+        //~ print_r($_SESSION['productos_seleccionados']);
+        //~ echo '</pre>';
         ?>
         <script type="text/javascript">
         <?php
@@ -75,7 +75,11 @@
 						<td><?php echo $producto;?></td>
 						<td><?php echo $articulo['articulo_name'];?></td>
 						<td><?php echo number_format($precio['pvpCiva'],2);?>€</td>
-						<td></td>
+						<td>
+							<a onclick="selecionarItemProducto(<?php echo $producto;?>, 'ListaEtiquetas')">
+							<span class="glyphicon glyphicon-trash"></span>
+							</a>
+						</td>
 					</tr>
 					<?php
 					}
