@@ -14,6 +14,7 @@
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 30; // por defecto.
 	$filtro = ''; // por defecto
+	$errores=array();
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
@@ -117,7 +118,23 @@
 					</tr>
 				</thead>
 				<tbody>
+				<?php 
 				
+				foreach($incidenciasFiltro as $incidencia){
+					?>
+					<tr>
+					<td></td>
+					<td><?php echo $incidencia['num_incidencia'];?></td>
+					<td><?php echo $incidencia['fecha'];?></td>
+					<td><?php echo $incidencia['nombre'];?></td>
+					<td><?php echo $incidencia['dedonde'];?></td>
+					<td><?php echo $incidencia['mensaje'];?></td>
+					<td><?php echo $incidencia['estado'];?></td>
+					</tr>
+					<?php
+				}
+				
+				?>
 				</tbody>
 				</table>
 			</div>
