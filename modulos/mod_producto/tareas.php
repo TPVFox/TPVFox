@@ -171,7 +171,6 @@ switch ($pulsado) {
 		$respuesta=array();
 		$session = $CSession->GetSession();
 		$respuesta=productosSesion($idProducto);
-		//~ $respuesta['session'] =$session;
 
 		echo json_encode($respuesta);
 	break;
@@ -239,6 +238,16 @@ switch ($pulsado) {
 	case 'eliminarSeleccion':
 	$eliminar=eliminarSeleccion();
 	
+	break;
+	
+	case 'obtenerCostesProveedor':
+		$resultado = array();
+		$idProveedor = $_POST['idProveedor'];
+		$idProducto = $_POST['idProducto'];
+
+		$resultado = $NCArticulo->ObtenerCostesDeUnProveedor($idProducto,$idProveedor);
+		
+	echo json_encode($resultado);
 	break;
 	
 }

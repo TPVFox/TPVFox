@@ -606,10 +606,10 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 			
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-		
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="seleccionProveedor('."'".$dedonde."'".' , '
-			."'id_proveedor'".');">';
+			$idFila = 'Fila_'.$contad;
+			$resultado['html'] 	.= '<tr id="'.$idFila.'" onmouseout="abandonFila('."'".$idFila."'"
+								.')" onmouseover="sobreFilaCraton('."'".$idFila."'"
+								.')" onclick="seleccionProveedor('."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
