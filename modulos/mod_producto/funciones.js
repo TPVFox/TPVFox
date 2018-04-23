@@ -759,8 +759,31 @@ function validarEntradaNombre(caja){
 
 function seleccionProveedor(dedonde,idproveedor){
 	alert('Ahora debería obtener los datos necesario');
-	
+	console.log(producto.idArticulo);
+	var parametros = {
+		"pulsado" 		: 'obtenerCostesProveedor',
+		"idProveedor"	: idproveedor,
+		"idProducto"	: producto.idArticulo
 	}
+	$.ajax({
+		data 		: parametros,
+		url 		: 'tareas.php',
+		type 		: 'post',
+		beforeSend	:function () {
+		console.log('*********  Obtener datos de proveedor y coste  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eObtener datos de proveedor y coste ');
+				
+				var resultado = $.parseJSON(response);
+				console.log(resultado);
+				alert ( 'Volvi de buscar datos de proveedor');
+				 
+		}	
+	});
+
+
+}
 
 function selecionarItemProducto(id){
 	console.log('Selecciono Item de producto, lo añadimos a session');
