@@ -250,6 +250,7 @@ class AlbaranesCompras extends ClaseCompras{
 						$respuesta['error']=$smt['error'];
 						$respuesta['consulta']=$smt['consulta'];
 						break;
+						//~ exit;
 					}
 					$i++;
 				}
