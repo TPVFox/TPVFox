@@ -227,10 +227,10 @@ function recalculoTotales($productos) {
 			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $product->importe,2, '.', '');
 			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva']+ ($product->importe*$bandera),2, '.', '');
 			}else{
-			$desglose[$product->iva]['base'] = number_format($product->importe,2, '.', '');
-			$desglose[$product->iva]['iva'] =number_format($product->importe*$bandera, 2, '.', '');
+			$desglose[$product->iva]['base'] = number_format((float)$product->importe,2, '.', '');
+			$desglose[$product->iva]['iva'] =number_format((float)$product->importe*$bandera, 2, '.', '');
 			}
-			$desglose[$product->iva]['BaseYiva'] =number_format($desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 2, '.', '');	
+			$desglose[$product->iva]['BaseYiva'] =number_format((float)$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 2, '.', '');	
 		}			
 	}
 	foreach($desglose as $tipoIva=>$des){
