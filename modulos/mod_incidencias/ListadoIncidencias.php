@@ -55,6 +55,7 @@
 						<th>FECHA</th>
 						<th>USUARIO</th>
 						<th>DE DONDE</th>
+						<th>MENSAJE</th>
 						<th>ESTADO</th>
 					</tr>
 				</thead>
