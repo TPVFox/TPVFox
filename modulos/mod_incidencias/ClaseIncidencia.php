@@ -44,6 +44,18 @@ class incidencia{
 			return $incidenciasPrincipal;
 		}
 	}
+	public function datosIncidencia($idIncidencia){
+		$db=$this->db;
+		$sql='select * from modulo_incidencia';
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			
+		}
+	}
 	
 	
 	
