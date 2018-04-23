@@ -300,8 +300,8 @@ class FacturasCompras extends ClaseCompras{
 					 ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea,
 					  ref_prov , Numalbpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']
 					  .', '."'".$prod['cref']."'".', "'.$codBarras.'", "'.$prod['cdetalle']
-					  .'", '.$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['ultimoCoste']
-					  .' , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'"
+					  .'", '.$prod['ncant'].' , "'.$prod['nunidades'].'", "'.$prod['ultimoCoste']
+					  .'" , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'"
 					  .', '.$numPed.')';
 					$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
