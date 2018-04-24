@@ -19,14 +19,49 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
 	// Solo creamos objeto si no existe.
 	$thisTpv = new ClaseSession();
 	$BDTpv = $thisTpv->getConexion();
-
+include ($RutaServidor.$HostNombre."/plugins/mod_producto/vehiculos/ClaseVehiculos.php");
+$ObjVehiculos = new PluginClaseVehiculos();
 
 switch ($pulsado) {
 
 	case 'BuscarModelos':
-	$respuesta = array();
-	$respuesta['prueba'] = 'algo';
-	echo json_encode($respuesta);
+		$idMarca = $_POST['idMarca'];
+		$respuesta = array();
+		
+		$datosModelosUnaMarca = $ObjVehiculos->ObtenerModelosUnaMarcaWeb($idMarca);
+		$respuesta['options']= $datosModelosUnaMarca['Datos']['options_html'];
+		echo json_encode($respuesta);
+	break;
+	
+	case 'BuscarVersionVehiculo':
+		$idModelo = $_POST['idModelo'];
+		$respuesta = array();
+		
+		$datosVersionesUnModelo = $ObjVehiculos->ObtenerVersionesUnModeloWeb($idModelo);
+		$respuesta['options']= $datosVersionesUnModelo['Datos']['options_html'];
+		echo json_encode($respuesta);
+	break;
+	
+	case 'BuscarVehiculo':
+		$idVersion = $_POST['idVersion'];
+		$respuesta = array();
+		
+		$datosUnVehiculo = $ObjVehiculos->ObtenerUnVehiculo($idVersion);
+		$respuesta= $datosUnVehiculo;
+		echo json_encode($respuesta);
+	break;
+
+	case 'GuardarVehiculoSeleccionado':
+		$vehiculo = $_POST['datosVehiculo'];
+		$idRecambios = $_POST['idRecambios'];
+		$respuesta = array();
+		$_SESSION['productos_seleccionado'] = array();
+		foreach ($idRecambios as $id){
+			$_SESSION['productos_seleccionado'][] =  $id;
+		};
+		$htmlVehiculo = $ObjVehiculos->HtmlVehiculo($vehiculo[0],count($idRecambios));
+		$respuesta['html']= $htmlVehiculo;
+		echo json_encode($respuesta);
 	break;
 	
 }

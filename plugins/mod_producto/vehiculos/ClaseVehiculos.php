@@ -48,6 +48,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 		$html	='<script>var ruta_plg_vehiculos = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>'
 				.'<div class="row" id="SeleccionarVersion">'
+				.'<div id="vehiculos_seleccionados"></div>'
 				.'	<!-- Presentacion de marca -->'
 				.'		<div class="col-md-3 form-group marca">'
 				.' 		<label class="marca">Marca</label>'
@@ -61,7 +62,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.'		<div class="col-md-3 form-group nodelo">'
 				.'			<label class="nodelo">Modelo</label>'
 				.'			<!-- Cargamos select con marcas -->'
-				.'			<select disabled name="Minodelo" id="nodelo" onchange="CambioModelos()">'
+				.'			<select disabled name="Minodelo" id="myModelo" onchange="SeleccionModelo(event)">'
 				.'				<option value="0">Seleccione una modelo</option>'
 				.'			</select>'
 				.'		</div>'
@@ -69,12 +70,12 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.'		<div class="col-md-3 form-group versiones">'
 				.'			<label class="versiones">Versiones</label>'
 				.'			<!-- Cargamos select con marcas -->'
-				.'			<select disabled name="MiVersiones" id="versiones">'
+				.'			<select disabled name="MiVersiones" id="myVersion">'
 				.'				<option value="0">Seleccione una modelo</option>'
 				.'			</select>'
 				.'		</div>'
 				.'		<div class="col-md-3 form-group enviar" style="margin-top:20px">'
-				.'			<button class="btn btn-primary" type="submit">Seleccionar</button>'
+				.'			<button class="btn btn-primary" onclick="SeleccionVersion(event)">Seleccionar</button>'
 				.'		</div>'
 				.'</div>';
 		$respuesta['html'] = $html;
@@ -107,6 +108,84 @@ class PluginClaseVehiculos extends ClaseConexion{
 	
 	}
 	
+	
+	public function ObtenerModelosUnaMarcaWeb($idMarca){
+		// @Objetivo es obtener los mosdelos de una marca que tenemos en el componente de la web. ('SELECT * FROM `prefijo_vehiculo_modelos` where idmarca = ? )
+		// [VARIABLE DE CONEXION]
+		$ruta =$this->ruta_web;
+		$parametros = array('key' 		=>$this->key_api,
+							'action'	=>'ObtenerModelosUnaMarca',
+							'idMarca' 	=>$idMarca
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		//~ echo '<pre>';
+		//~ print_r($respuesta);
+		//~ echo '</pre>';
+		return $respuesta;
+	
+	}
+	
+	public function ObtenerVersionesUnModeloWeb($idModelo){
+		// @Objetivo es obtener las versiones de un modelo de la web.
+		// [VARIABLE DE CONEXION]
+		$ruta =$this->ruta_web;
+		$parametros = array('key' 		=>$this->key_api,
+							'action'	=>'ObtenerVersionesUnModelo',
+							'idModelo' 	=>$idModelo
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		//~ echo '<pre>';
+		//~ print_r($respuesta);
+		//~ echo '</pre>';
+		return $respuesta;
+	
+	}
+	
+	
+	
+	public function ObtenerUnVehiculo($idVersion){
+		// @Objetivo es obtener los datos de un vehiculo enviando version de la web.
+		// [VARIABLE DE CONEXION]
+		$ruta =$this->ruta_web;
+		$parametros = array('key' 		=>$this->key_api,
+							'action'	=>'ObtenerUnVehiculo',
+							'idVersion' 	=>$idVersion
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		//~ echo '<pre>';
+		//~ print_r($respuesta);
+		//~ echo '</pre>';
+		return $respuesta;
+	
+	}
+	
 	public function ObtenerTiendasWeb(){
 		// Objetivo obtener datos de la tabla tienda para poder cargar el select de tienda On Line.
 		$BDTpv = parent::getConexion();
@@ -136,6 +215,28 @@ class PluginClaseVehiculos extends ClaseConexion{
 		return $resultado;
 	}
 	
+	public function HtmlVehiculo($vehiculo,$n_Recambios){
+		$html = '<div class="col-md-12">'
+				.'<div class="alert alert-success">'
+				.'<span>'
+				.'Productos encontrados('.$n_Recambios.')----------> '
+				.'</span>'
+				.'<span>'
+				.' '.$vehiculo['id']
+				.'</span>'
+				.'<span>'
+				.' '.$vehiculo['marca']
+				.'</span>'
+				.'<span>'
+				.' '.$vehiculo['modelo']
+				.'</span>'
+				.'<span>'
+				.' '.$vehiculo['nombre']
+				.'</span>'
+				.'</div>'
+				.'</div>';
+		return $html;
+	}
 	
 	
 }
