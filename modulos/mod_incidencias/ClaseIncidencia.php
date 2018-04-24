@@ -46,14 +46,17 @@ class incidencia{
 	}
 	public function datosIncidencia($idIncidencia){
 		$db=$this->db;
-		$sql='select * from modulo_incidencia';
+		$sql='select * from modulo_incidencia where id='.$idIncidencia;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
 				return $respuesta;
 		}else{
-			
+			if ($result = $smt->fetch_assoc () ){
+				$incidencia=$result;
+			}
+			return $incidencia;	
 		}
 	}
 	
