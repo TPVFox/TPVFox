@@ -59,6 +59,23 @@ class incidencia{
 			return $incidencia;	
 		}
 	}
+	public function incidenciasNumero($numeroIncidencia){
+		$db=$this->db;
+		$sql='select * from modulo_incidencia where num_incidencia='.$numeroIncidencia;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$incidenciaPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($incidenciaPrincipal,$result);
+				}
+				return $incidenciaPrincipal;
+		}
+	}
+	
 	
 	
 	

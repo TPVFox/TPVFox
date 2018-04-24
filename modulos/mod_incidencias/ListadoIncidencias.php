@@ -121,13 +121,26 @@
 				<tbody>
 				<?php 
 				$checkUser = 0;
+				$numInci=1;
 				foreach($incidenciasFiltro as $incidencia){
 							$checkUser = $checkUser + 1;
-								$date=date_create($incidencia['fecha']);
+							$date=date_create($incidencia['fecha']);
+							$numInci=count($CIncidencia->incidenciasNumero($incidencia['num_incidencia']));
 					?>
 					<tr>
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $incidencia['id'];?>">
-					<td><?php echo $incidencia['num_incidencia'];?></td>
+					<td><?php echo $incidencia['num_incidencia'];?>
+					<?php 
+						if($numInci>1){
+							?>
+							<div style="float:right">
+							<a  class="glyphicon glyphicon-envelope"></a> <?php echo $numInci;?>
+							</div>
+							<?php
+						}
+					
+					?>
+					</td>
 					<td><?php echo date_format($date,'Y-m-d');?></td>
 					<td><?php echo $incidencia['nombre'];?></td>
 					<td><?php echo $incidencia['dedonde'];?></td>
