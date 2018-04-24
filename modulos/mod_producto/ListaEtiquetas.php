@@ -13,7 +13,6 @@
 	$idTienda= $Tienda['idTienda'];	
 	
 	
-	
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
@@ -23,17 +22,17 @@
 		
         <?php
         include './../../header.php';
-        echo $_POST['tamanhos'];
-        echo '<pre>';
-        print_r($_SESSION['productos_seleccionados']);
-        echo '</pre>';
+        //~ echo $_POST['tamanhos'];
+        //~ echo '<pre>';
+        //~ print_r($_SESSION['productos_seleccionados']);
+        //~ echo '</pre>';
         ?>
         <script type="text/javascript">
         <?php
-        //~ if(isset($_POST['Imprimir'])){
-			echo 'imprimirEtiquetas('."'".json_encode($_SESSION['productos_seleccionados'])."'".',"'.$dedonde.'",'
+        if(isset($_POST['Imprimir'])){
+			echo 'imprimirEtiquetas('."'".json_encode($_SESSION['productos_seleccionados'])."'".',"'.$dedonde.'","'
 									.$idTienda.'","'.$_POST['tamanhos'].'");';
-		//~ }
+		}
         ?>
        </script>
 	<div class="container">
@@ -76,7 +75,11 @@
 						<td><?php echo $producto;?></td>
 						<td><?php echo $articulo['articulo_name'];?></td>
 						<td><?php echo number_format($precio['pvpCiva'],2);?>€</td>
-						<td></td>
+						<td>
+							<a onclick="selecionarItemProducto(<?php echo $producto;?>, 'ListaEtiquetas')">
+							<span class="glyphicon glyphicon-trash"></span>
+							</a>
+						</td>
 					</tr>
 					<?php
 					}

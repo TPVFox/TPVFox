@@ -130,33 +130,40 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 	break;
 	case 'imprimirEtiquetas':
-		$productos=$_POST['productos'];
+		$respuesta = array();
+		$IdsProductos=json_decode($_POST['productos']);
 		$idTienda=$_POST['idTienda'];
 		$tamano=$_POST['tamano'];
-		
+		$productos = array();
+		foreach ($IdsProductos as $id){
+			$productos[]= $NCArticulo->getProducto($id);	
+		}
 		$dedonde="Etiqueta";
 		$nombreTmp=$dedonde."etiquetas.pdf";
 		switch ($tamano){
 			case 1:
-				$imprimir=ImprimirA9($productos, $BDTpv, $idTienda);
+				$imprimir=ImprimirA9($productos);
 			break;
 			case 2:
-				$imprimir=ImprimirA5($productos, $BDTpv, $idTienda);
+				$imprimir=ImprimirA5($productos);
 			break;
 			case 3:
-				$imprimir=ImprimirA7($productos, $BDTpv, $idTienda);
+				$imprimir=ImprimirA7($productos);
 			break;
 		}
 		
 		$cabecera=$imprimir['cabecera'];
 		$html=$imprimir['html'];
 		 //~ $ficheroCompleto=$html;
+		$ficheroCompleto=$html;
 		require_once('../../lib/tcpdf/tcpdf.php');
 		include ('../../clases/imprimir.php');
 		include('../../controllers/planImprimirRe.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 	
-		echo json_encode($ficheroCompleto);
+		$respuesta['fichero'] = $ficheroCompleto;
+		$respuesta['productos'] = $productos;
+		echo json_encode($respuesta);
 	break;
 	
 	case 'productosSesion':
@@ -164,7 +171,6 @@ switch ($pulsado) {
 		$respuesta=array();
 		$session = $CSession->GetSession();
 		$respuesta=productosSesion($idProducto);
-		//~ $respuesta['session'] =$session;
 
 		echo json_encode($respuesta);
 	break;
@@ -228,6 +234,20 @@ switch ($pulsado) {
 		$resultado['descartados'] = $descartados;
 
 		echo json_encode($resultado);
+	break;
+	case 'eliminarSeleccion':
+	$eliminar=eliminarSeleccion();
+	
+	break;
+	
+	case 'obtenerCostesProveedor':
+		$resultado = array();
+		$idProveedor = $_POST['idProveedor'];
+		$idProducto = $_POST['idProducto'];
+
+		$resultado = $NCArticulo->ObtenerCostesDeUnProveedor($idProducto,$idProveedor);
+		
+	echo json_encode($resultado);
 	break;
 	
 }

@@ -48,7 +48,6 @@ function BuscarProveedor (dedonde,busqueda=''){
 			var contenido = resultado['html'];
 			abrirModal(titulo,contenido);
 			focusAlLanzarModal('cajaBusquedaproveedor');
-			$('#cajaBusquedaproveedor').focus();
 		}
 	});
 	
@@ -718,6 +717,7 @@ function imprimir(id, dedonde, bandera=""){
 	});
 }
 function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
+	console.log(productos);
 	var parametros = {
 		"pulsado"    		: 'imprimirEtiquetas',
 		"dedonde"			:dedonde,
@@ -736,7 +736,8 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
 				 var resultado = $.parseJSON(response);
-				 window.open(resultado);
+				 console.log(resultado);
+				 window.open(resultado['fichero']);
 				 //~ if (bandera==1){
 					//~ location.href="ListaProductos.php";
 				//~ }
@@ -757,10 +758,33 @@ function validarEntradaNombre(caja){
 
 function seleccionProveedor(dedonde,idproveedor){
 	alert('Ahora debería obtener los datos necesario');
-	
+	console.log(producto.idArticulo);
+	var parametros = {
+		"pulsado" 		: 'obtenerCostesProveedor',
+		"idProveedor"	: idproveedor,
+		"idProducto"	: producto.idArticulo
 	}
+	$.ajax({
+		data 		: parametros,
+		url 		: 'tareas.php',
+		type 		: 'post',
+		beforeSend	:function () {
+		console.log('*********  Obtener datos de proveedor y coste  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eObtener datos de proveedor y coste ');
+				
+				var resultado = $.parseJSON(response);
+				console.log(resultado);
+				alert ( 'Volvi de buscar datos de proveedor');
+				 
+		}	
+	});
 
-function selecionarItemProducto(id){
+
+}
+
+function selecionarItemProducto(id, dedonde=""){
 	console.log('Selecciono Item de producto, lo añadimos a session');
 	var parametros = {
 		"pulsado"    	: 'productosSesion',
@@ -779,12 +803,44 @@ function selecionarItemProducto(id){
 				
 				var resultado = $.parseJSON(response);
 				console.log(resultado);
-				if(resultado.Nitems>0){
-					alert("hay productos");
+				if(resultado.Nitems===0){
+					if(dedonde=="listaProductos"){
+						$(".imprimir").css("display", "none");
+						
+					}else{
+						location.href="ListaProductos.php";
+					}
+					
 				}else{
-					alert("No hay productos");
+					if(dedonde=="listaProductos"){
+						$(".imprimir").css("display", "block");
+						$(".textoCantidad").html("Productos seleccionados: "+resultado.Nitems);
+					}else{
+						location.href="ListaEtiquetas.php";
+					}
+					
 				}
 				 
 		}	
 	});
 }
+function eliminarSeleccionProductos(){
+		var parametros = {
+		"pulsado"    	: 'eliminarSeleccion'
+		
+		};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Eliminar seleccion de productos  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar seleccion de productos ');
+				location.href="ListaProductos.php";
+				 
+		}	
+	});
+}
+
