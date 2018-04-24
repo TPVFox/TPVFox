@@ -9,11 +9,12 @@ switch ($pulsado) {
 	case 'abririncidencia':
 		$dedonde=$_POST['dedonde'];
 		$usuario=$_POST['usuario'];
-		$numInicidencia=0;
+		$numIncidencia=0;
 		if(isset($_POST['numIncidencia'])){
-			$numInicidencia=$_POST['numIncidencia'];
+			$numIncidencia=$_POST['numIncidencia'];
 			
 		}
+		
 		$tipo="mod_incidencias";
 		$fecha=date('Y-m-d');
 		$datos=array(
@@ -22,7 +23,7 @@ switch ($pulsado) {
 		
 		$datos=json_encode($datos);
 		$estado="No resuelto";
-		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia);
+		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numIncidencia);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
@@ -35,13 +36,14 @@ switch ($pulsado) {
 		$dedonde= $_POST['dedonde'];
 		$estado= $_POST['estado'];
 		$mensaje= $_POST['mensaje'];
-		$numInicidencia=0;
+		$numIncidencia=0;
 		if(isset($_POST['numIncidencia'])){
-			$numInicidencia=$_POST['numIncidencia'];
+			$numIncidencia=$_POST['numIncidencia'];
 			
 		}
+		error_log($_POST);
 		if($mensaje){
-			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numInicidencia);
+			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numIncidencia);
 			$respuesta=$nuevo['sql'];
 		}
 	echo json_encode($respuesta);

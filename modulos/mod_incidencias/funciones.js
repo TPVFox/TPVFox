@@ -5,7 +5,7 @@ function enviarIncidencia(){
 	var dedonde=$("#inci_dedonde").val();
 	var estado=$("#inci_estado").val();
 	var mensaje=$("#inci_mensaje").val();
-	var numIncidencia=$("#numInicidencia").val();
+	var numIncidencia=$("#numIncidencia").val();
 	var parametros = {
 		'pulsado':'nuevaIncidencia',
 		'usuario':usuario,
@@ -14,7 +14,7 @@ function enviarIncidencia(){
 		'dedonde':dedonde,
 		'estado':estado,
 		'mensaje':mensaje,
-		'numInicidencia':numIncidencia
+		'numIncidencia':numIncidencia
 	};
 	console.log(parametros);
 	$.ajax({
@@ -60,7 +60,7 @@ function abrirIndicencia(dedonde, idUsuario, numIncidencia=""){
 		"numIncidencia":numIncidencia
 		
 	};
-	
+	console.log(parametros);
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',

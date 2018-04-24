@@ -32,7 +32,7 @@
 		<form action="" method="post" name="formIncidencia" onkeypress="return anular(event)">
 			<h2 class="text-center">Datos de la incidencia Nº <?php echo $datosIncidencia['num_incidencia'];?></h2>
 			<a  href="./ListadoIncidencias.php">Volver Atrás</a><br><br>
-			<a onclick="abrirIndicencia('incidencia', <?php echo $Usuario['id'];?>);">Responder incidencia</a><br><br>
+			<a onclick="abrirIndicencia('incidencia', <?php echo $Usuario['id'];?>, <?php echo $datosIncidencia['num_incidencia'];?>);">Responder incidencia</a><br><br>
 			<div class="col-md-12" >
 				<div class="col-md-2">
 					<strong>Fecha:</strong><br>
@@ -68,5 +68,9 @@
 			</div>
 		</form>
 	</div>
+	<?php // Incluimos paginas modales
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+// hacemos comprobaciones de estilos 
+?>
 </body>
 </html>

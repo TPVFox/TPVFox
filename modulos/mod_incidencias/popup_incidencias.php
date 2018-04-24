@@ -1,6 +1,6 @@
 <?php 
 
-function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numInicidencia){
+function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncidencia){
 $html="";
 $html.='<div class="col-md-12">';
 $html.='<div class="col-md-6">';
@@ -30,7 +30,7 @@ $html.='<div class="col-md-12">';
 $html.='<label>Datos:</label>';
 $html.='<input type="text" name="inci_datos" id="inci_datos" value='."'".$datos."'".' readonly="">';
 $html.='</div>';
-$html.='<input type="hidden" name="numInicidencia" id="numInicidencia" value='.$numInicidencia.'>';
+$html.='<input type="hidden" name="numIncidencia" id="numIncidencia" value='.$numIncidencia.'>';
 $html.='<div class="modal-footer">';
 $html.='<a href="" onclick="enviarIncidencia();" >Guardar</a>';
 $html.='</div>';
@@ -41,8 +41,8 @@ function addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $B
 	$sql='INSERT INTO modulo_incidencia (fecha_creacion, id_usuario, dedonde, mensaje, datos, estado) VALUES ("'.$fecha.'", '.$usuario.', '."'".$dedonde."'".', '."'".$mensaje."'".', '."'".$datos."'".', '."'".$estado."'".')';
 	$res = $BDTpv->query($sql);
 	$id=$BDTpv->insert_id;
-	if($numInicidencia>0){
-		$num=$numInicidencia;
+	if($numIncidencia>0){
+		$num=$numIncidencia;
 	}else{
 		$num=$id;
 	}
