@@ -61,7 +61,7 @@ class incidencia{
 	}
 	public function incidenciasNumero($numeroIncidencia){
 		$db=$this->db;
-		$sql='select * from modulo_incidencia where num_incidencia='.$numeroIncidencia;
+		$sql='select a.* ,  b.username from modulo_incidencia as a inner JOIN   usuarios as b on a.id_usuario=b.id where num_incidencia='.$numeroIncidencia;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];

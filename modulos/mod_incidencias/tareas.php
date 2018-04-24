@@ -41,7 +41,6 @@ switch ($pulsado) {
 			$numIncidencia=$_POST['numIncidencia'];
 			
 		}
-		error_log($_POST);
 		if($mensaje){
 			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numIncidencia);
 			$respuesta=$nuevo['sql'];

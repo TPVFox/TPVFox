@@ -65,7 +65,7 @@
 					
 					
 					?>
-					<input type="text" id="usuario" name="usuario" value="<?php echo  $datosIncidencia['dedonde'];?>" size="10" readonly>
+					<input type="text" id="usuario" name="usuario" value="<?php echo  $datosIncidencia['username'];?>" size="10" readonly>
 				</div>
 			</div>
 			<div class="col-md-12" >
