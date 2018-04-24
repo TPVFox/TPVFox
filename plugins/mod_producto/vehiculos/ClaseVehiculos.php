@@ -48,7 +48,13 @@ class PluginClaseVehiculos extends ClaseConexion{
 		$html	='<script>var ruta_plg_vehiculos = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>'
 				.'<div class="row" id="SeleccionarVersion">'
-				.'<div id="vehiculos_seleccionados"></div>'
+				.'<div id="vehiculos_seleccionados">';
+		if (isset($_SESSION['coches_seleccionados'])){
+			foreach ($_SESSION['coches_seleccionados'] as $coche){
+				$html.= $coche;
+			}
+		}
+		$html  .='</div>'
 				.'	<!-- Presentacion de marca -->'
 				.'		<div class="col-md-3 form-group marca">'
 				.' 		<label class="marca">Marca</label>'

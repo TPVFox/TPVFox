@@ -55,11 +55,14 @@ switch ($pulsado) {
 		$vehiculo = $_POST['datosVehiculo'];
 		$idRecambios = $_POST['idRecambios'];
 		$respuesta = array();
-		$_SESSION['productos_seleccionado'] = array();
+		$_SESSION['productos_seleccionados'] = array();
 		foreach ($idRecambios as $id){
-			$_SESSION['productos_seleccionado'][] =  $id;
+			$_SESSION['productos_seleccionados'][] =  $id;
 		};
 		$htmlVehiculo = $ObjVehiculos->HtmlVehiculo($vehiculo[0],count($idRecambios));
+		// Ahora añado a session el coche seleccionado.
+		$_SESSION['coches_seleccionados'] = array();
+		$_SESSION['coches_seleccionados'][] = $htmlVehiculo;
 		$respuesta['html']= $htmlVehiculo;
 		echo json_encode($respuesta);
 	break;

@@ -6,7 +6,6 @@ function  SeleccionMarca(event){
 	// @Objetivo :
 	// Ejecutar en servidor de web funcion que reste stock de productos
 	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
-	alert ( 'cambio de marca ');
 	console.log(event.target);
 	var idMarca = $('select[id=myMarca]').val();
 	console.log(ruta_plg_vehiculos);
@@ -37,7 +36,6 @@ function  SeleccionModelo(event){
 	// @Objetivo :
 	// Ejecutar en servidor de web funcion que reste stock de productos
 	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
-	alert ( 'cambio de marca ');
 	console.log(event.target);
 	var idModelo = $('select[id=myModelo]').val();
 	console.log(ruta_plg_vehiculos);
@@ -68,7 +66,6 @@ function  SeleccionVersion(event){
 	// @Objetivo :
 	// Ejecutar en servidor de web funcion que reste stock de productos
 	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
-	alert ( 'Seleccion vehiculo ');
 	console.log(event.target);
 	var idVersion = $('select[id=myVersion]').val();
 	console.log(idVersion);
