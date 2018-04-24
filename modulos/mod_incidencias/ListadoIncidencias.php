@@ -128,7 +128,7 @@
 							$numInci=count($CIncidencia->incidenciasNumero($incidencia['num_incidencia']));
 					?>
 					<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $incidencia['id'];?>">
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $incidencia['num_incidencia'];?>">
 					<td><?php echo $incidencia['num_incidencia'];?>
 					<?php 
 						if($numInci>1){

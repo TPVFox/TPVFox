@@ -10,7 +10,10 @@
 	//~ $Controler = new ControladorComun; 
 	$CIncidencia= new incidencia($BDTpv);
 	if(isset($_GET['id'])){
-		$datosIncidencia=$CIncidencia->datosIncidencia($_GET['id']);
+		$datosIncidencias=$CIncidencia->incidenciasNumero($_GET['id']);
+		echo '<pre>';
+		print_r($datosIncidencias);
+		echo '</pre>';
 	}
 	?>
 </head>
@@ -29,10 +32,15 @@
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 	<div class="container">
-		<form action="" method="post" name="formIncidencia" onkeypress="return anular(event)">
+		
 			<h2 class="text-center">Datos de la incidencia Nº <?php echo $datosIncidencia['num_incidencia'];?></h2>
+			
 			<a  href="./ListadoIncidencias.php">Volver Atrás</a><br><br>
 			<a onclick="abrirIndicencia('incidencia', <?php echo $Usuario['id'];?>, <?php echo $datosIncidencia['num_incidencia'];?>);">Responder incidencia</a><br><br>
+			<?php 
+			
+			foreach($datosIncidencias as $datosIncidencia){
+			?>
 			<div class="col-md-12" >
 				<div class="col-md-2">
 					<strong>Fecha:</strong><br>
@@ -64,9 +72,13 @@
 				<div class="col-md-2">
 					<strong>Mensaje:</strong><br>
 					<input type="text" name="mensaje" id="mensaje"   size="50" value="<?php echo $datosIncidencia['mensaje'];?>" readonly>
+					<hr/>
 				</div>
 			</div>
-		</form>
+		
+		<?php 
+	}
+		?>
 	</div>
 	<?php // Incluimos paginas modales
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
