@@ -5,7 +5,7 @@ function enviarIncidencia(){
 	var dedonde=$("#inci_dedonde").val();
 	var estado=$("#inci_estado").val();
 	var mensaje=$("#inci_mensaje").val();
-	
+	var numIncidencia=$("#numInicidencia").val();
 	var parametros = {
 		'pulsado':'nuevaIncidencia',
 		'usuario':usuario,
@@ -13,7 +13,8 @@ function enviarIncidencia(){
 		'datos':datos,
 		'dedonde':dedonde,
 		'estado':estado,
-		'mensaje':mensaje
+		'mensaje':mensaje,
+		'numInicidencia':numIncidencia
 	};
 	console.log(parametros);
 	$.ajax({
@@ -51,11 +52,12 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-function abrirIndicencia(dedonde, idUsuario){
+function abrirIndicencia(dedonde, idUsuario, numIncidencia=""){
 	var parametros = {
 		"pulsado"    : 'abririncidencia',
 		"dedonde" : dedonde,
-		"usuario":idUsuario
+		"usuario":idUsuario,
+		"numIncidencia":numIncidencia
 		
 	};
 	
