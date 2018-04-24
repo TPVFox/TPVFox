@@ -23,7 +23,10 @@ switch ($caja) {
         $articulo = (new Articulos($BDTpv))->leerPrecio($valor);
         
         if($articulo){            
-            $resultado = ['datos'=>$articulo];
+            if(count($articulo['datos'])==1){
+                $articulo['datos'] = $articulo['datos'][0];
+            }
+            $resultado = $articulo;
         }
 
         break;

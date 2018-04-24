@@ -27,8 +27,8 @@ class Modelo {
 
         $smt = $this->db->query($sql);
         if ($smt) {
-            $datos = $smt->fetch_all(MYSQLI_ASSOC);
-            $respuesta['datos'] = (!$datos)||count($datos)==1?$datos[0]:$datos;
+            $respuesta['datos'] = $smt->fetch_all(MYSQLI_ASSOC);
+             // (!$datos)||count($datos)==1?$datos[0]:$datos;
         } else {
             $respuesta['error'] = $this->db->error;
         }

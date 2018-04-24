@@ -28,17 +28,17 @@ if ($existetarifa[0]) {
         'estado' => '1'
         , 'pvpSiva' => $pvpSiva
         , 'pvpCiva' => $pvpCiva
-        , 'fechaActualizacion' => '"'. date(FORMATO_FECHA_ES).'"',
-        'estado'=>'1'
+        , 'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
+        'estado'=>'2'
     ]);
 } else {
-    $resultado = $tarifaCliente->insert($idcliente, $idarticulo, [
+    $resultado = $tarifaCliente->insert( [
         'idArticulo' => $idarticulo,
         'idClientes' => $idcliente,
         'estado' => '1',
         'pvpSiva' => $pvpSiva,
         'pvpCiva' => $pvpCiva,
-        'fechaActualizacion' => '"'. date(FORMATO_FECHA_ES).'"',
+        'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
         'estado' => '1'
     ]);
 }

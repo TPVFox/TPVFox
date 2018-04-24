@@ -6,8 +6,9 @@
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
  * @Descripción	
  */
+//include_once './../../inicial.php';
 
-include_once '/var/www/html/tpvfox/modulos/claseModelo.php';
+include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
 
 class TarifaCliente extends modelo {
 
@@ -32,7 +33,6 @@ class TarifaCliente extends modelo {
         if (isset($consulta['error'])) {
             $resultado = -1;
         } else {
-
             $resultado = count($consulta['datos']);
         }
         return [$resultado,$consulta['consulta']];
@@ -59,13 +59,11 @@ class TarifaCliente extends modelo {
         return $consulta['error'];
     }
 
-    public function insert($idcliente, $idarticulo, $datos) {
+    public function insert($datos) {
 
         $updateStr = [];
-        $updateStr[] = ' idArticulo= ' . $idarticulo;
-        $updateStr[] = ' idClientes= ' . $idcliente;
         if (is_array($datos)) {
-            foreach (datos as $key => $value) {
+            foreach ($datos as $key => $value) {
                 $updateStr[] = $key . ' = ' . $value;
             }
         } else {
@@ -78,7 +76,7 @@ class TarifaCliente extends modelo {
 
         $consulta = $this->consultaDML($sql);
 
-        return $consulta['error'];
+        return $consulta['consulta'];
     }
 
     public function replace($idcliente, $idarticulo, $datos) {
@@ -87,7 +85,7 @@ class TarifaCliente extends modelo {
         $updateStr[] = ' idArticulo= ' . $idarticulo;
         $updateStr[] = ' idClientes= ' . $idcliente;
         if (is_array($datos)) {
-            foreach (datos as $key => $value) {
+            foreach ($datos as $key => $value) {
                 $updateStr[] = $key . ' = ' . $value;
             }
         } else {

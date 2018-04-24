@@ -1,17 +1,13 @@
 <?php
 
-/* 
- * @Copyright 2018, Alagoro Software. 
- * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
- * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
- */
-
 define('FORMATO_FECHA_ES', 'd-m-Y H:m:s');
-        // __DIR__  // Sabemos el directorio donde esta fichero HEAD
+define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
+
+	// __DIR__  // Sabemos el directorio donde esta fichero HEAD
 	// $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
 	// $RutaServidor = str_replace($_SERVER['DOCUMENT_ROOT'],'', __DIR__);
 	$Ruta = __DIR__.'/';
+	
 	if (file_exists($Ruta.'configuracion.php')){
 		include_once ($Ruta.'configuracion.php');
 		if (file_exists($RutaServidor . $HostNombre)){
@@ -22,7 +18,8 @@ define('FORMATO_FECHA_ES', 'd-m-Y H:m:s');
 		echo '<pre>';
 			print_r('No se encuentra o esta mal el fichero de configuracion.php');
 		echo '</pre>';
-		exit();		
+		exit();
+		
 	}
 	
 	include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
