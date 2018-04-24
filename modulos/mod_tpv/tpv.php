@@ -260,7 +260,7 @@ if (count($Control_Error)>0){
 				<li><a onclick="buscarClientes('tpv')">Cliente</a></li>
 				<li><a href="#section3">Abrir Cajon</a></li>
 				<li><a onclick="cobrarF1()">Cobrar</a></li>
-				<li><a  onclick="abrirIndicencia('ticket');">Incidencia</a></li>
+				<li><a  onclick="abrirIndicencia('ticket',<?php echo $Usuario['id'];?>);">Incidencia</a></li>
 			</ul>
 		</div>
 
