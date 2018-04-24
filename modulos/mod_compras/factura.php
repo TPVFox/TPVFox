@@ -274,7 +274,7 @@ if ($suNumero==0){
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			 <a  onclick="abrirIndicencia('albaran');">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+			 <a  onclick="abrirIndicencia('factura',<?php echo $Usuario['id'];?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			

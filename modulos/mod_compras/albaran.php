@@ -233,7 +233,7 @@ include './../../head.php';
 	}
 	
 	?>
-	<a  onclick="abrirIndicencia('albaran');">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<a  onclick="abrirIndicencia('albaran' ,<?php echo $Usuario['id'];?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
