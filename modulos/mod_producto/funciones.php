@@ -1,5 +1,4 @@
 <?php 
-
 function htmlLineaFamilias($item,$familia=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
@@ -610,7 +609,43 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	return $imprimir;
 	
 }
-
+function productosSesion($idProducto){
+	// @ Objetivo
+	// Guardar en la session los productos seleccionados.
+	// @ Parametro:
+	// 		idProducto-> (int) Id del producto seleccionado.
+	// 		session-> (array) de los valores de session obtenidos.
+	$respuesta = array();
+	$respuesta['Nitems'] = 0 ;// Por defecto. items..
+	if (!isset($_SESSION['productos_seleccionados'])){
+		// Si no existe lo creamos como un array
+		$_SESSION['productos_seleccionados'] = array();
+	}
+	if (!in_array($idProducto, $_SESSION['productos_seleccionados'])){
+		array_push($_SESSION['productos_seleccionados'], $idProducto);
+	}else{
+		foreach($_SESSION['productos_seleccionados'] as $key=>$prod){
+			if($prod==$idProducto){
+				$respuesta['prod']=$prod;
+				unset($_SESSION['productos_seleccionados'][$key]);
+			}
+		}
+		//~ in_array($idProducto, $_SESSION['productos']);
+		//~ unset($_SESSION['productos'],$idProducto);
+	}
+	if($_SESSION['productos']>0){
+			$respuesta['Nitems']=1;
+	}else{
+			$respuesta['Nitems']=0;
+	}
+	if(count($_SESSION['productos_seleccionados'])>0){
+			$respuesta['Nitems']=count($_SESSION['productos_seleccionados']);
+	}
+	$_SESSION['productos_seleccionados'] = array_values($_SESSION['productos_seleccionados']);
+	$respuesta['idProducto']=$idProducto;
+	$respuesta['productos_seleccionados']= $_SESSION['productos_seleccionados'];
+	return $respuesta;
+}
 function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
@@ -635,10 +670,10 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 			
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-		
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="seleccionProveedor('."'".$dedonde."'".' , '
-			."'id_proveedor'".');">';
+			$idFila = 'Fila_'.$contad;
+			$resultado['html'] 	.= '<tr id="'.$idFila.'" onmouseout="abandonFila('."'".$idFila."'"
+								.')" onmouseover="sobreFilaCraton('."'".$idFila."'"
+								.')" onclick="seleccionProveedor('."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
@@ -662,4 +697,72 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 	return $resultado;
 
 }
+
+
+function ImprimirA9($productos){
+	$imprimir=array(
+		'html'=>'',
+		'cabecera'=>''
+	);
+	$i=0;
+	$imprimir['html'].="";
+	$imprimir['html'].='<table border="1px">';
+	$imprimir['html'].='<tr>';
+	
+	$imprimir['productos']=$productos;
+	foreach ($productos as $producto){
+		if($i==3){
+			$imprimir['html'].='</tr>';
+			$imprimir['html'].='<tr>';
+			$i=0;
+		}
+		$imprimir['html'].='<td align="center">';
+		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
+		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
+		$imprimir['html'].=' RefProv: '.$producto['crefProveedor'].'</font><br>';
+		$imprimir['html'].='<b>'.$producto['articulo_name'].'</b><br><br>';
+		$imprimir['html'].='<b><font size="25 em">'.number_format($producto['pvpCiva'],2,',','').'€</font></b><br>';
+		$imprimir['html'].='</td>';
+		
+	$i++;
+	}
+	$imprimir['html'].='</tr>';
+	$imprimir['html'].='</table>';
+	return $imprimir;
+}
+function ImprimirA7($productos){
+$imprimir=array(
+		'html'=>'',
+		'cabecera'=>''
+	);
+	$imprimir['html'].="";
+	$imprimir['html'].='<table border="1px">';
+	$imprimir['html'].='<tr>';
+	$i=0;
+	foreach ($productos as $producto){
+		if($i==2){
+			$imprimir['html'].='</tr>';
+			$imprimir['html'].='<tr>';
+			$i=0;
+		}
+		$imprimir['html'].='<td align="center"  style="height:200px;" >';
+		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
+		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
+		$imprimir['html'].=' RefProv: '.$producto['crefProveedor'].'</font><br>';
+		$imprimir['html'].='<b><font size="20 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
+		$imprimir['html'].='<b><font size="100 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br>';
+		$imprimir['html'].='</td>';
+		
+	$i++;
+	}
+	$imprimir['html'].='</tr>';
+	$imprimir['html'].='</table>';
+	return $imprimir;
+
+}
+function eliminarSeleccion(){
+	$_SESSION['productos_seleccionados']=array();
+
+}
+
 ?>

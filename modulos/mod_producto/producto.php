@@ -19,6 +19,7 @@
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		
 		
+		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		// Cargamos el plugin que nos interesa.
@@ -293,7 +294,6 @@
 			</form>
 		<!--fin de div container-->
 		<?php // Incluimos paginas modales
-		// Añadimos JS necesario para modal.
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		?>

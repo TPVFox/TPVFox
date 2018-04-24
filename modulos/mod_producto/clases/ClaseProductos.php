@@ -89,7 +89,9 @@ class ClaseProductos extends ClaseTablaArticulos{
 			// Si existe error devolvemos todo el array
 			return $respuesta;
 		}
-		
+		if ($respuesta['NItems'] === 0){
+			$respuesta['Items'] = array();
+		}
 		return $respuesta['Items'];
 
 	}
@@ -431,7 +433,30 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $comprobaciones;
 	}
 	
-	
+	public function ObtenerCostesDeUnProveedor($id,$idProveedor){
+		// @ Objectivo: 
+		// Obtener los datos del proveedor seleccionado y el ultimo coste.()...
+		// @ Parametros:
+		// 	  $id -> (int) Id del producto a buscar.
+		// 	  $idProveedor-> (int) Id de proveedor
+		$respuesta = array();
+		$Sql= 'SELECT art_prov.*, pro.nombrecomercial, pro.razonsocial  FROM `articulosProveedores` AS art_prov LEFT JOIN proveedores AS pro ON pro.idProveedor = art_prov.idProveedor WHERE art_prov.idArticulo ='.$id. ' AND art_prov.idProveedor ='.$idProveedor;
+		$resp = $this->Consulta($Sql);
+		if ($resp['NItems'] > 0){
+			// Solo puede obtener un proveedor.
+			$respuesta = $resp['Items'];
+		} else {
+			// Hubo error - No encontro
+			$error = array ( 'tipo'=>'success',
+							 'dato' => 'idArticulo:'.$id.' idProveedor:'.$idProveeedor,
+							 'mensaje' => 'No encontro ningún coste para es producto de ese proveedor.'
+							 );
+			$respuesta['error'] = $error;
+			$respuesta['error'] = $Sql;
+
+		}
+		return $respuesta;
+	}
 	
 	
 	

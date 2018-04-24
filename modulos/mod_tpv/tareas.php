@@ -105,11 +105,8 @@ switch ($pulsado) {
 	case 'cobrar':
 		//~ echo 'cobrar';
 		$totalJS = $_POST['total'];
-		$productos = $_POST['productos'];
+		$productos = json_decode($_POST['productos']);
 		$configuracion = $_POST['configuracion'];
-		// Convertimos productos que debería ser un objeto a array
-		$productos = json_decode( json_encode( $_POST['productos'] ));
-
 		// Recalcular totales.
 		$totales = recalculoTotales($productos);
 		
@@ -142,8 +139,6 @@ switch ($pulsado) {
 						'total' => $CalculoTotales['total']
 							);
 		
-		//~ $CalculoTotales = gettype($productos);
-
 		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
 		$respuesta=$res;
 		
@@ -173,6 +168,8 @@ switch ($pulsado) {
 		$cabecera['idUsuario'] 			=$_POST['idUsuario'];
 		$cabecera['estadoTicket'] 		=$_POST['estadoTicket'];
 		$cabecera['numTickTemporal'] 	=$_POST['numTickTemporal'];
+		$cabecera['cambio'] 			=$_POST['cambio'];
+
 		$checkimprimir 					=$_POST['checkimprimir'];
 		$ruta_impresora					=$_POST['ruta_impresora'];
 		// Obtenemos ticket
@@ -216,11 +213,13 @@ switch ($pulsado) {
 				$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose'],$DatosTienda);
 				// Incluimos fichero para imprimir ticket, con los datosImpresion.
 				// Comprobamos si existe impresora.
-				if (shell_exec('ls '.$ruta_impresora)){;
+				if (ComprobarImpresoraTickets($ruta_impresora) === true){;
+					
 					include 'impresoraTicket.php';
 				} else {
-					$respuesta['error_impresora'] = ' no existe la impresora asignada';
+					$respuesta['error_impresora'] = ' no existe la impresora asignada, hay un error';
 				}
+	
 				
 			}
 		} 
@@ -234,7 +233,7 @@ switch ($pulsado) {
 		
 	case 'ObtenerRefTiendaWeb';
 		$respuesta = array();
-		$productos =$_POST['productos'];
+		$productos =json_decode($_POST['productos']);
 		$idweb	 = $_POST['web'];
 		//Ahora obtenemos datos tienda web.
 		$tienda = BuscarTienda($BDTpv,$idweb);
@@ -260,13 +259,15 @@ switch ($pulsado) {
 		$busqueda = $_POST['busqueda'];
 		$dedonde = $_POST['dedonde'];
 		$tabla='clientes';
-		$res = array( 'datos' => array());
 		//funcion de buscar clientes
 		//luego html mostrar modal 
 		if ($busqueda != ''){
 			//$res = BusquedaClientes($busqueda);
 			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
 		} 
+		if (!isset($res['datos'])){
+			$res = array( 'datos' => array());
+		}
 		$respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
 		echo json_encode($respuesta);
 		break;
@@ -285,7 +286,7 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
-		case 'abririncidencia':
+	case 'abririncidencia':
 		$dedonde=$_POST['dedonde'];
 		$usuario=$_POST['usuario'];
 		$idReal=$_POST['idReal'];
@@ -304,7 +305,7 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 		break;
 		
-		case 'nuevaIncidencia':
+	case 'nuevaIncidencia':
 		$usuario= $_POST['usuario'];
 		$fecha= $_POST['fecha'];
 		$datos= $_POST['datos'];

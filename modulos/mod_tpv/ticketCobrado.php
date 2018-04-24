@@ -91,7 +91,7 @@
 				echo "datos_producto['idArticulo']	=".$product['idArticulo'].';';
 				echo "datos_producto['codBarras'] 	='".$product['ccodbar']."';";
 				echo "datos_producto['crefTienda'] 	='".$product['cref']."';";
-				echo "datos_producto['articulo_name'] 	='".$product['cdetalle']."';";
+				echo "datos_producto['articulo_name'] 	=".'"'.$product['cdetalle'].'";';
 				echo "datos_producto['iva']	='".$product['iva']."';";
 				echo "datos_producto['pvpCiva']	=".$product['precioCiva'].';';
 			// Ahora añadimos datos_productos a productos... creando objeto.
@@ -103,14 +103,6 @@
 			?>
 		
 		</script>
-		<?php
-		//~ // debug
-		//~ echo '<pre>';
-		//~ print_r($enviado_stock);
-		//~ echo '</pre>';
-	
-		
-		?>
      
 		<div class="container">
 				

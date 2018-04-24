@@ -10,7 +10,6 @@
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
-	var BRecambios ='';
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_usuario/funciones.js"></script>
@@ -19,15 +18,6 @@
     <!-- Cargamos libreria control de teclado -->
 	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script> 
   
-	
-	<script>
-	// Funciones para atajo de teclado.
-	//~ shortcut.add("Shift+V",function() {
-		//~ // Atajo de teclado para ver
-		//~ metodoClick('VerUsuario');
-	//~ });    
-	    
-	</script> 
     </head>
 
 <body>
@@ -39,13 +29,6 @@
 		<div class="row">
 			<div class="col-md-12 text-center">
 					<h2> Usuarios: Editar y Añadir Usuarios </h2>
-					<?php 
-					//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
-					//~ echo '<pre class="text-left">';
-					//~ print_r($Familias);
-					//~ 
-					//~ echo '</pre>';
-					?>
 				</div>
 	        <!--=================  Sidebar -- Menu y filtro =============== 
 				Efecto de que permanezca fixo con Scroll , el problema es en

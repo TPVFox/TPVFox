@@ -231,7 +231,7 @@ class PedidosCompras extends ClaseCompras{
 				ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea) values ('
 				.$id.', '.$numPedido.', '.$prod['idArticulo'].', '."'".$prod['cref']."'".', '."'"
 				.$refProveedor."'".', "'.$codBarras.'", "'.$prod['cdetalle'].'", '.$prod['ncant']
-				.', '.$prod['nunidades'].', '.$prod['ultimoCoste'].', '.$prod['iva'].', '.$i.', "'
+				.', "'.$prod['nunidades'].'", "'.$prod['ultimoCoste'].'", '.$prod['iva'].', '.$i.', "'
 				.$prod['estado'].'")';
 				
 				$smt=$this->consulta($sql);

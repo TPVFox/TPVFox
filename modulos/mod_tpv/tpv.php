@@ -33,11 +33,15 @@
 	$ticket_estado = 'Nuevo'; 
 	$ticket_numero = 0;
 	$fechaInicio = date("d/m/Y");
-	$error = '';
+	$Control_Error = array();
 	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
 	if (isset($cambiosEstadoTickets['error'])){
-		$error = 'Error en cambio Estado de ticket.'.$cambiosEstadoTickets['error'];
+		$error = array ( 'tipo'=>'dander',
+								 'mensaje' =>'Error en cambio Estado de ticket.'.$cambiosEstadoTickets['error'],
+								 'dato' => $preparado_nuevo['consulta']
+							);
+		array_push($Control_Error,$error);
 	}
 	// Cargamos los fichero parametros.
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
@@ -57,13 +61,23 @@
 		echo '</script>';
 	if ($configuracion['impresion_ticket'] ==='Si'){
 		$checkin[1] = 'name="impresion_ticket" value="Si" checked onchange="GuardarConfiguracion()"';
+		// Ahora comprobamos si la impresora_ticket definida es correcta.
+		$comprobacion_impresora_ticket = ComprobarImpresoraTickets($configuracion['impresora_ticket']);
+		if ($comprobacion_impresora_ticket === false){
+			$error = array ( 'tipo'=>'warning',
+								 'mensaje' =>'La impresora de tickets esta mal configurada, en la ruta:'.$configuracion['impresora_ticket'].'. Vete a ficha usuario y cambia la configuracion<br/>',
+								 'dato' => $configuracion['impresora_ticket']
+					);
+			
+			
+			array_push($Control_Error,$error);
+		};
+		
 	} else {
 		$checkin[1] = 'name="impresion_ticket" value="No" onchange="GuardarConfiguracion()"';
 
 	}
-	//~ echo '<pre>';
-	//~ print_r($configuracion);
-	//~ echo '</pre>';
+	
 	
 	// Cambio datos si es un tiche Abierto
 	if (isset($_GET['tAbierto'])) {
@@ -136,23 +150,35 @@
 		if (isset($ticket['estadoTicket'])){
 			$ticket_estado = $ticket['estadoTicket'];
 			if ($ticket_estado === 'Cobrado'){
-				$error .= ' El ticket '.$ticket_numero.' es ticket con el estado '.$ticket_estado.'<br/>'.
-						 'Desde aquí no puede modificarlo';
+				$error = array ( 'tipo'=>'danger',
+								 'mensaje' =>'El ticket '.$ticket_numero.' es ticket con el estado '.$ticket_estado.'<br/>'.
+						 'Desde aquí no puede modificarlo',
+								 'dato' => $ticket_numero.'='.$ticket_estado
+					);
+				
+				array_push($Control_Error,$error);
 			}
 		}
 		if (isset($ticket['error'])){
 			// No continuamos , algo salio mal al obtener ticket temporal.
-			$error .='<br/>'.$ticket['error'];
-			$error .='<br/>'.$ticket['consulta'];
-
+			$error = array ( 'tipo'=>'danger',
+								 'mensaje' =>'Algo salio mal:'.$ticket['error'],
+								 'dato' => $ticket['consulta']
+					);
+			array_push($Control_Error,$error);
 		}
 	}
-	if ( $error !== '') {
-		// Entonces obtenemos las caberas para mostrar.
-		echo '<pre>';
-		echo $error;
-		echo '</pre>';
-		exit(); // NO continuamos.
+	// Si hay errores danger no continuamos.
+	if (count($Control_Error)>0){
+		foreach ( $Control_Error as $error){
+			if ($error['tipo'] === 'danger'){
+				echo '<pre>';
+				print_r($Control_Error);
+				echo '</pre>';
+				exit();
+			}
+		}
+		
 	}
 	
 	if ($ticket_numero > 0){
@@ -205,6 +231,19 @@
 	</script>
 <?php } ?>
 <div class="container">
+<?php 
+// Si hubo errores entonces los mostramos:
+if (count($Control_Error)>0){
+	foreach ( $Control_Error as $error){
+		echo '<div class="col-md-12">'
+			.	'<div class="alert alert-'.$error['tipo'].'"><strong>'
+			.		$error['tipo'].'!</strong>'
+			.			$error['mensaje']
+			.	'</div>'
+			.'</div>';
+	}
+}
+?>
 <nav class="col-md-2">
 		<div>
 			<h3 class="text-center"> TpvFox Tickets</h3>
@@ -218,7 +257,7 @@
 		<div>
 			<h4>Este ticket</h4>
 			<ul class="nav nav-pills nav-stacked">
-				<li><a onclick="buscarClientes()">Cliente</a></li>
+				<li><a onclick="buscarClientes('tpv')">Cliente</a></li>
 				<li><a href="#section3">Abrir Cajon</a></li>
 				<li><a onclick="cobrarF1()">Cobrar</a></li>
 				<li><a  onclick="abrirIndicencia('ticket');">Incidencia</a></li>
@@ -473,6 +512,8 @@
 
 </div>
 <?php // Incluimos paginas modales
+// Añadimos JS necesario para modal.
+echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 
 ?>

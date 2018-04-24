@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php
+       <?php
 	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
@@ -26,6 +26,8 @@
 	// Inicializo varibles por defecto.
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
+	
+	
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
@@ -95,21 +97,24 @@
 	} else {
 		$CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro));
 	}
-	
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
-	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+	$htmlPG= ''; 
+	if ($CantidadRegistros > 0){
+		$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
+		if ($stringPalabras !== '' ){
+			$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
+		} else {
+			$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		}
+			
+		$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro);
 	}
-		
-	$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro);
-	
 	//~ echo '<pre>';
 	//~ print_r($nuevo);
 	//~ echo '</pre>';
 	
-	
+	if (isset($_SESSION['productos_seleccionados'])){
+		$cantProductosSelect=count($_SESSION['productos_seleccionados']);
+	}
 	// Añadimos a JS la configuracion
 		echo '<script type="application/javascript"> '
 		. 'var configuracion = '. json_encode($configuracion);
@@ -119,6 +124,7 @@
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
+	
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -155,7 +161,7 @@
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php 
-					if ($Usuario['group_id'] === '1'){
+					if ($Usuario['group_id'] > '0'){
 				?>
 					<li><a href="#section2" onclick="metodoClick('AgregarProducto');";>Añadir</a></li>
 					<?php 
@@ -166,6 +172,11 @@
 								//agregarUsuario nos lleva a formulario usuario
 								//verUsuario si esta checkado nos lleva vista usuario de ese id
 											//si NO nos indica que tenemos que elegir uno de la lista ?>
+				<h4 class='imprimir'>Etiquetas</h4>
+				<h5 class='imprimir'>Imprimir etiquetas</h5>
+				<h6 class='imprimir textoCantidad'>Productos seleccionados: <?php echo $cantProductosSelect;?> </h6>
+				<li class='imprimir'><a  onclick="eliminarSeleccionProductos();";>Eliminar Selección</a></li>
+				<li class='imprimir'><a href='ListaEtiquetas.php'; onclick="metodoClick('ImprimirEtiquetas','listaEtiqueta');";>Imprimir</a></li>
 				</ul>	
 				<h4>Configuracion</h4>
 				<h5>Marca que campos quieres mostrar y por lo quieres buscar.</h5>
@@ -227,12 +238,23 @@
 	
 				<?php
 				$checkUser = 0;
+			if (isset($productos)){
 				foreach ($productos as $producto){ 
+					// [RECUERDA]
+					// Utilizo una funcion js, en global para controlar que item tengo seleccionados,... 
+					// por eso el uno rowUsuario cuando es productos.
 					$checkUser = $checkUser + 1; 
+					$checked="";
+					if (isset($_SESSION['productos_seleccionados'])){
+						if(in_array($producto['idArticulo'], $_SESSION['productos_seleccionados'])){
+							$checked="checked";
+						}
+					}
 				?>
 
 				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $producto['idArticulo'];?>">
+
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>, 'listaProductos')" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
 					</td>
 					<td><?php echo $producto['idArticulo']; ?></td>
 					<td><?php echo $producto['articulo_name']; ?></td>
@@ -276,13 +298,29 @@
 
 				<?php 
 				}
+			}
 				?>
 				
 			</table>
 			</div>
 		</div>
 	</div>
+	<?php 
+	//~ echo '<pre>';
+	//~ print_r($_SESSION['productos_seleccionados']);
+	//~ echo '</pre>';
+	//~ echo count($_SESSION['productos_seleccionados']);
+	?>
     </div>
+	<script type="text/javascript">
+		<?php 
+		if(count($_SESSION['productos_seleccionados'])==0){
+		?>
+		$(".imprimir").css("display", "none");
+		<?php
 		
+		}
+		?>
+	</script>	
 </body>
 </html>

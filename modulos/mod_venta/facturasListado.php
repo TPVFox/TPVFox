@@ -99,7 +99,7 @@ if (isset($errores)){
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php 
-					if ($Usuario['group_id'] === '1'){
+					if ($Usuario['group_id'] > '0'){
 				?>
 					<li><a href="#section2" onclick="metodoClick('AgregarFactura');";>Añadir</a></li>
 					<?php 
