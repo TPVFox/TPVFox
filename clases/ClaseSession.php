@@ -66,8 +66,7 @@ class ClaseSession extends ClaseConexion{
 			}
 		}
 		// Comprobación si todo es correcto.. 
-		//~ $comprobar = $this->controlSession($rutaCompleta,$resultado); 
-		$comprobar = $this->controlSession($resultado);
+		$comprobar = $this->controlSession($resultado); 
 		$resultado['SessionTpv']['estado'] = $comprobar;
 		if($numeroPaginas >0){
 			// Solo cambiamos estado si el numeroPaginas es superior a 0
