@@ -75,6 +75,13 @@
 					<hr/>
 				</div>
 			</div>
+			<div class="col-md-12" >
+				<div class="col-md-2">
+					<strong>Datos:</strong><br>
+					<input type="text" name="datos" id="datos"   size="50" value="<?php echo $datosIncidencia['datos'];?>" readonly>
+					<hr/>
+				</div>
+			</div>
 		
 		<?php 
 	}
