@@ -30,7 +30,7 @@ class incidencia{
 		 a.fecha_creacion as fecha , a.dedonde as dedonde, 
 		 a.estado as estado, b.nombre as nombre , a.mensaje as mensaje 
 		 from modulo_incidencia as a INNER JOIN usuarios as b 
-		 on a.id_usuario=b.id '.$limite;
+		 on a.id_usuario=b.id  where a.id in  (select max(id) from modulo_incidencia GROUP by num_incidencia) '.$limite;
 		 $smt=$this->consulta($sql);
 		 if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
