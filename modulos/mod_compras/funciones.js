@@ -618,38 +618,38 @@ function comprobarAdjunto(dedonde){
 		}
 	});
 }
-function abrirModal(titulo,tabla){
-	// @ Objetivo :
-	// Abril modal con texto buscado y con titulo que le indiquemos.
-	console.log('Estamos en abrir modal');
-	$('.modal-body > p').html(tabla);
-	$('.modal-title').html(titulo);
-	$('#busquedaModal').modal('show');
+//~ function abrirModal(titulo,tabla){
+	//~ // @ Objetivo :
+	//~ // Abril modal con texto buscado y con titulo que le indiquemos.
+	//~ console.log('Estamos en abrir modal');
+	//~ $('.modal-body > p').html(tabla);
+	//~ $('.modal-title').html(titulo);
+	//~ $('#busquedaModal').modal('show');
 	
-	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	$('#busquedaModal').on('shown.bs.modal', function() {
-		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-		$('#cajaBusqueda').focus(); //f
-				$('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
+	//~ //Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
+	//~ $('#busquedaModal').on('shown.bs.modal', function() {
+		//~ // Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
+		//~ $('#cajaBusqueda').focus(); //f
+				//~ $('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
 
-	});
-}
-function sobreFilaCraton(cont){
-	$('#Fila_'+cont).css('background-color','azure');
-}
-function abandonFila(cont){
-	$('#Fila_'+cont).css('background-color','white');
-}
-function cerrarPopUp(destino_focus=''){
-	// @ Objetivo :
-	// Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
-	//cerrar modal busqueda
-	$('#busquedaModal').modal('hide');
-	if (destino_focus !== ''){
-		ponerFocus(destino_focus);
-	}
+	//~ });
+//~ }
+//~ function sobreFilaCraton(cont){
+	//~ $('#Fila_'+cont).css('background-color','azure');
+//~ }
+//~ function abandonFila(cont){
+	//~ $('#Fila_'+cont).css('background-color','white');
+//~ }
+//~ function cerrarPopUp(destino_focus=''){
+	//~ // @ Objetivo :
+	//~ // Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
+	//~ //cerrar modal busqueda
+	//~ $('#busquedaModal').modal('hide');
+	//~ if (destino_focus !== ''){
+		//~ ponerFocus(destino_focus);
+	//~ }
 	
-}
+//~ }
 
 function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 	//@Objetivo: 
