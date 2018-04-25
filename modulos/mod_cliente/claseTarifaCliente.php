@@ -20,7 +20,7 @@ class TarifaCliente extends modelo {
                 . 'FROM articulosClientes AS artcli'
                 . ' LEFT OUTER JOIN articulos AS art ON (artcli.idArticulo = art.idArticulo)'
                 . ' WHERE artcli.idClientes=' . $idcliente
-                . ' ORDER BY artcli.fechaActualizacion, art.articulo_name';
+                . ' ORDER BY artcli.fechaActualizacion DESC, art.articulo_name';
         return $this->consulta($sql);
     }
 
