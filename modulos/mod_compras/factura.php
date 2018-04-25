@@ -6,6 +6,8 @@ include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
 	include '../../clases/Proveedores.php';
 	$Cprveedor=new Proveedores($BDTpv);
 	include 'clases/albaranesCompras.php';
@@ -13,8 +15,10 @@ include './../../head.php';
 	include_once 'clases/facturasCompras.php';
 	$CFac = new FacturasCompras($BDTpv);
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	include_once '../../clases/FormasPago.php';
 	$CforPago=new FormasPago($BDTpv);
+	$dedonde="factura";
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Crear Factura De Proveedor";
@@ -24,6 +28,29 @@ include './../../head.php';
 	$comprobarAlbaran=0;
 	$importesFactura=array();
 	$albaranes=array();
+	
+		$parametros = $ClasesParametros->getRoot();
+	//~ $parametros = simplexml_load_file('parametros.xml');
+	
+// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+//Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
+		
+	foreach($parametros->cajas_input->caja_input as $caja){
+		$caja->parametros->parametro[0]="factura";
+	}
+	
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
+	$configuracionArchivo=array();
+	foreach ($configuracion['incidencias'] as $config){
+		if(get_object_vars($config)['dedonde']==$dedonde){
+			array_push($configuracionArchivo, $config);
+		}
+	}
+	
+	
+	
 	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
@@ -174,22 +201,13 @@ include './../../head.php';
 			$estiloTablaProductos="display:none;";
 		}
 		//~ echo $estiloTablaProductos;
-		$parametros = simplexml_load_file('parametros.xml');
-	
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-//Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
 		
-	foreach($parametros->cajas_input->caja_input as $caja){
-		$caja->parametros->parametro[0]="factura";
-	}
-	
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 //~ echo $estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -274,7 +292,7 @@ if ($suNumero==0){
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			 <a  onclick="abrirIndicencia('factura',<?php echo $Usuario['id'];?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+			 <a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			
