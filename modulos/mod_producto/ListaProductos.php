@@ -102,9 +102,7 @@
 	//~ print_r($nuevo);
 	//~ echo '</pre>';
 	
-	if (isset($_SESSION['productos_seleccionados'])){
-		$cantProductosSelect=count($_SESSION['productos_seleccionados']);
-	}
+	
 	// Añadimos a JS la configuracion
 		echo '<script type="application/javascript"> '
 		. 'var configuracion = '. json_encode($configuracion);
@@ -146,7 +144,7 @@
 				<h2> Productos: Editar y Añadir Productos </h2>
 			</div>
 	        <div class="col-sm-2">
-				
+				<div class="nav">
 				<h4> Productos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -158,22 +156,25 @@
 				}
 					?>
 					<li><a href="#section2" onclick="metodoClick('VerProducto','producto');";>Modificar</a></li>
-				<?php		//metodoClick js case pulsado 
-								//agregarUsuario nos lleva a formulario usuario
-								//verUsuario si esta checkado nos lleva vista usuario de ese id
-											//si NO nos indica que tenemos que elegir uno de la lista ?>
-				<h4 class='imprimir'>Etiquetas</h4>
-				<h5 class='imprimir'>Imprimir etiquetas</h5>
-				<h6 class='imprimir textoCantidad'>Productos seleccionados: <?php echo $cantProductosSelect;?> </h6>
-				<li class='imprimir'><a  onclick="eliminarSeleccionProductos();";>Eliminar Selección</a></li>
-				<li class='imprimir'><a href='ListaEtiquetas.php'; onclick="metodoClick('ImprimirEtiquetas','listaEtiqueta');";>Imprimir</a></li>
-				</ul>	
-				<h4>Configuracion</h4>
+				</ul>
+				</div>
+				<div class="nav productos_seleccionados" <?php echo $prod_seleccion['display'];?>>
+					<h4>Seleccionados <span class="label label-default textoCantidad"><?php echo $prod_seleccion['NItems'];?></span></h4>
+					<p>Opcion de seleccion:</p>
+					<ul class="nav nav-pills nav-stacked"> 
+						<li><a onclick="filtrarSeleccionProductos();">Filtrar Seleccion</a></li>
+						<li><a onclick="eliminarSeleccionProductos();">Eliminar Selección</a></li>
+						<li><a href='ListaEtiquetas.php'; onclick="metodoClick('ImprimirEtiquetas','listaEtiqueta');";>Imprimir Etiquetas</a></li>
+					</ul>
+				</div>
+				<div class ="nav">
+				<h4>Configuracion de usuario</h4>
 				<h5>Marca que campos quieres mostrar y por lo quieres buscar.</h5>
 				<?php 
 					echo $htmlConfiguracion['htmlCheck'];
 				?>
-			
+				</div>
+				
 			</div>
 			
 			<div class="col-md-10">
@@ -228,8 +229,8 @@
 					// por eso el uno rowUsuario cuando es productos.
 					$checkUser = $checkUser + 1; 
 					$checked="";
-					if (isset($_SESSION['productos_seleccionados'])){
-						if(in_array($producto['idArticulo'], $_SESSION['productos_seleccionados'])){
+					if (isset($prod_seleccion['Items'])){
+						if(in_array($producto['idArticulo'],$prod_seleccion['Items'])){
 							$checked="checked";
 						}
 					}
@@ -295,15 +296,6 @@
 	//~ echo count($_SESSION['productos_seleccionados']);
 	?>
     </div>
-	<script type="text/javascript">
-		<?php 
-		if(count($_SESSION['productos_seleccionados'])==0){
-		?>
-		$(".imprimir").css("display", "none");
-		<?php
-		
-		}
-		?>
-	</script>	
+
 </body>
 </html>
