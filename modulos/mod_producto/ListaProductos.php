@@ -4,12 +4,14 @@
        <?php
 	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
+	//~ include ("./../../plugins/paginacion/paginacion.php");
+	include ("./../../plugins/paginacion/ClasePaginacion.php");
+
+	
 	include ("./../../controllers/Controladores.php");
 	include ("./clases/ClaseProductos.php");
-	$CTArticulos = new ClaseProductos($BDTpv);
-
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$CTArticulos = new ClaseProductos($BDTpv);
 	$Controler = new ControladorComun; // Controlado comun..
 	// Añado la conexion
 	$Controler->loadDbtpv($BDTpv);
@@ -17,11 +19,22 @@
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	
-	
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	// Ahora compruebo productos_seleccion:
+	$prod_seleccion = array('NItems'=>0);
+	if (isset($_SESSION['productos_seleccionados'])){
+		$prod_seleccion['Items']=$_SESSION['productos_seleccionados'];
+		$prod_seleccion['NItems'] = count($prod_seleccion['Items']);
+	}
+	if ($prod_seleccion['NItems']=== 0){
+		// No hay productos seleccionados, diplay none y No en parametro filtro.
+		$prod_seleccion['display'] = 'style="display:none"';
+		$conf_defecto['filtro']->valor= 'No';
+	}
+	
 	// Obtenemos la configuracion del usuario o la por defecto
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_productos',$Usuario['id']);
 	// Compruebo que solo halla un campo por el que buscar por defecto.
@@ -45,62 +58,25 @@
 		$CTArticulos->SetComprobaciones($error);
 	}
 	
-	//INICIALIZAMOS variables para el plugin de paginado:
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
-	$filtro = ''; // por defecto
-	$LinkBase = './ListaProductos.php?';
-	$OtrosParametros = '';
-	
-	if (isset($_GET['pagina'])) {
-		$PgActual = $_GET['pagina'];
-	}
-	if (isset($_GET['buscar'])) {  
-		//recibo un string con 1 o mas palabras
-		$stringPalabras = $_GET['buscar'];
-		$palabraBuscar = explode(' ',$_GET['buscar']); 
-	} 
-	
-	$paginasMulti = $PgActual-1;
-	
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
-		
-	} else {
-		$desde = 0;
-	}
-	
-	// Realizamos consulta 
-	//si existe palabraBuscar introducida en buscar, la usamos en la funcion obtenerProductos
-	if ($stringPalabras !== '' ){
-		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$htmlConfiguracion['campo_defecto']);
-		$filtro=$WhereLimite['filtro'];
-		$OtrosParametros=$stringPalabras;
-	}
-		
-	
-	if ($htmlConfiguracion['campo_defecto']=== 'articulo_name' && $filtro===''){
-		// Si el campo por defecto es nombre... no hace falta hacer consulta para obtener total.
-		$CantidadRegistros = $CTArticulos->GetNumRows(); 
-	} else {
+	// --- Inicializamos objteto de Paginado --- //
+	$NPaginado = new PluginClasePaginacion(__FILE__);
+	$campos = array($htmlConfiguracion['campo_defecto']);
+	$NPaginado->SetCamposControler($Controler,$campos);
+	// --- Ahora contamos registro que hay para es filtro --- //
+	$filtro= $NPaginado->GetFiltroWhere();
+	if ( $NPaginado->GetFiltroWhere() !== ''){
 		$CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro));
+	} else {
+		$CantidadRegistros = $CTArticulos->GetNumRows(); 
 	}
+	// --- Ahora envio a NPaginado la cantidad registros --- //
+	$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	
 	$htmlPG= ''; 
 	if ($CantidadRegistros > 0){
-		$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-		if ($stringPalabras !== '' ){
-			$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
-		} else {
-			$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
-		}
-			
-		$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro);
+		$htmlPG = $NPaginado->htmlPaginado();	
+		$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro.$NPaginado->GetLimitConsulta());
 	}
-	//~ echo '<pre>';
-	//~ print_r($nuevo);
-	//~ echo '</pre>';
 	
 	
 	// Añadimos a JS la configuracion
