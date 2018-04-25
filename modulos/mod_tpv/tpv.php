@@ -53,6 +53,11 @@
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	//~ $configuracion = $Controler->obtenerConfiguracionModulo('mod_tpv',$Usuario['id']);
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
+	//~ $configuracionIncidencias=$configuracion['incidencias'];
+	
+	//~ echo '<pre>';
+	//~ print_r($configuracionIncidencias);
+	//~ echo '</pre>';
 	// Creamos checkin de configuracion
 	$checkin = array();
 	// Añadimos a JS la configuracion
@@ -260,7 +265,7 @@ if (count($Control_Error)>0){
 				<li><a onclick="buscarClientes('tpv')">Cliente</a></li>
 				<li><a href="#section3">Abrir Cajon</a></li>
 				<li><a onclick="cobrarF1()">Cobrar</a></li>
-				<li><a  onclick="abrirIndicencia('ticket',<?php echo $Usuario['id'];?>);">Incidencia</a></li>
+				<li><a  onclick="abrirIndicencia('ticket',<?php echo $Usuario['id'];?>,configuracion.incidencias);">Incidencia</a></li>
 			</ul>
 		</div>
 

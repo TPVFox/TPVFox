@@ -32,7 +32,13 @@ include './../../head.php';
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
 	$configuracionArchivo=array();
+	//~ echo '<pre>';
+	//~ print_r($configuracion['incidencias']);
+	//~ echo '</pre>';
 	foreach ($configuracion['incidencias'] as $config){
+		//~ echo '<pre>';
+	//~ print_r($config);
+	//~ echo '</pre>';
 		if(get_object_vars($config)['dedonde']==$dedonde){
 			array_push($configuracionArchivo, $config);
 		}
