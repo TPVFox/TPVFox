@@ -77,19 +77,19 @@ function abrirIndicencia(dedonde, idUsuario, numIncidencia=""){
 		}
 	});
 }
-function abrirModal(titulo,tabla){
-	// @ Objetivo :
-	// Abril modal con texto buscado y con titulo que le indiquemos.
-	console.log('Estamos en abrir modal');
-	$('.modal-body > p').html(tabla);
-	$('.modal-title').html(titulo);
-	$('#busquedaModal').modal('show');
+//~ function abrirModal(titulo,tabla){
+	//~ // @ Objetivo :
+	//~ // Abril modal con texto buscado y con titulo que le indiquemos.
+	//~ console.log('Estamos en abrir modal');
+	//~ $('.modal-body > p').html(tabla);
+	//~ $('.modal-title').html(titulo);
+	//~ $('#busquedaModal').modal('show');
 	
-	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	$('#busquedaModal').on('shown.bs.modal', function() {
-		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-	$('#cajaBusqueda').focus(); //f
-	$('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
+	//~ //Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
+	//~ $('#busquedaModal').on('shown.bs.modal', function() {
+		//~ // Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
+	//~ $('#cajaBusqueda').focus(); //f
+	//~ $('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
 
-	});
-}
+	//~ });
+//~ }
