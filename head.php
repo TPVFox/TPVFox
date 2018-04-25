@@ -1,6 +1,5 @@
 <?php
 include_once 'inicial.php';
-
 ?>
 <meta name="language" content="es">
 <meta charset="UTF-8">

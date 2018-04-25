@@ -10,6 +10,7 @@
 
 include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
 
+
 class TarifaCliente extends modelo {
 
     public function leer($idcliente) {
