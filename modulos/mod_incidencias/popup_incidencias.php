@@ -11,7 +11,7 @@ function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncide
 				$usuDeft=$config['valor'];
 		}
 	}
-	if ($usuDeft>0){
+	if ($usuDeft>=0){
 		$sql='select * from usuarios';
 		$smt = $BDTpv->query($sql);
 		$usuariosSelect=array();
