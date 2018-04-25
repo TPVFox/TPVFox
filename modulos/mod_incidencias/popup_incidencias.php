@@ -1,6 +1,6 @@
 <?php 
 
-function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncidencia, $configuracion){
+function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncidencia, $configuracion, $BDTpv){
 	$select="Si";
 	$usuDeft=1;
 	foreach($configuracion as $config){
@@ -10,6 +10,14 @@ function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncide
 			case 'usuario_Defecto':
 				$usuDeft=$config['valor'];
 		}
+	}
+	if ($usuDeft>0){
+		$sql='select * from usuarios';
+		$smt = $BDTpv->query($sql);
+		$usuariosSelect=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($usuariosSelect,$result);
+				}
 	}
 $html="";
 $html.='<div class="col-md-12">';
@@ -40,8 +48,14 @@ $html.='<div class="col-md-12">';
 $html.='<div class="col-md-6">';
 if($select=="Si"){
 	$html.='<label>Seleccionar usuario:</label>';
-	$html.='<select name="usuarioSelec">';
-	
+	$html.='<select name="usuarioSelec" id="usuarioSelec">';
+	foreach ($usuariosSelect as $usu){
+		if ($usu['id']==$usuDeft){
+			$html.='<option value='.$usu['id'].' selected>'.$usu['username'].'</option>';
+		}else{
+			$html.='<option value='.$usu['id'].' >'.$usu['username'].'</option>';
+		}
+	}
 	$html.='</select>';
 }
 $html.='</div>';

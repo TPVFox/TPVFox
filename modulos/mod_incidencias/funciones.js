@@ -6,6 +6,7 @@ function enviarIncidencia(){
 	var estado=$("#inci_estado").val();
 	var mensaje=$("#inci_mensaje").val();
 	var numIncidencia=$("#numIncidencia").val();
+	var usuarioSelec=$("#usuarioSelec").val();
 	var parametros = {
 		'pulsado':'nuevaIncidencia',
 		'usuario':usuario,
@@ -14,7 +15,8 @@ function enviarIncidencia(){
 		'dedonde':dedonde,
 		'estado':estado,
 		'mensaje':mensaje,
-		'numIncidencia':numIncidencia
+		'numIncidencia':numIncidencia,
+		'usuarioSelec':usuarioSelec
 	};
 	console.log(parametros);
 	$.ajax({
