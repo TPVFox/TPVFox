@@ -3,7 +3,7 @@
 function abrirModal(titulo,contenido){
 	// @ Objetivo :
 	// Abril modal con texto buscado y con titulo que le indiquemos.
-	console.log('Estamos en abrir modal');
+	console.log('Estamos en abrir modal de func_modal');
 	$('.modal-body > p').html(contenido);
 	$('.modal-title').html(titulo);
 	$('#busquedaModal').modal('show');

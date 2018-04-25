@@ -511,10 +511,10 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** estoy en buscar clientes JS****************');
+				console.log('******** estoy en buscar Proveedor JS****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar clientes');
+				console.log('Llegue devuelta respuesta de buscar Proveedor');
 				var resultado =  $.parseJSON(response); 
 				console.log(resultado);
 				if (resultado.error){
@@ -560,16 +560,21 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 						var titulo = 'Listado Proveedores ';
 						var HtmlProveedores=resultado.html['html']; 
 						abrirModal(titulo,HtmlProveedores);
-						if ( idcaja === 'cajaBusquedaproveedor'){
+						focusAlLanzarModal('cajaBusquedaproveedor');
+						//~ if ( idcaja === 'cajaBusquedaproveedor'){
+							
 							// Buscamos en modal y podermo apuntar resultado , si hay claro.
-							if (resultado.html.encontrados >0){
-								console.log('Encontrads'+resultado.html.encontrados);
-								ponerFocus('N_0');
-							} else {
-								ponerFocus('cajaBusquedaproveedor');
-							}
+							//~ if (resultado.html.encontrados >0){
+								//~ console.log('Encontrados'+resultado.html.encontrados);
+								//~ focusAlLanzarModal('cajaBusquedaproveedor');
+								//~ ponerFocus('N_0');
+							//~ } 
+							//~ focusAlLanzarModal('cajaBusquedaproveedor');
+							//~ else {
+								
+							//~ }
 						
-						}
+						//~ }
 
 					}
 				
@@ -730,15 +735,17 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				console.log(HtmlProductos);
 				var titulo = 'Listado productos encontrados ';
 				abrirModal(titulo,HtmlProductos);
+				focusAlLanzarModal('cajaBusqueda');
 				if (resultado.Nitems >0 ){
 					// Quiere decir que hay resultados por eso apuntamos al primero
 					// focus a primer producto.
 					var d_focus = 'N_0';
 					ponerFocus(d_focus);
-				} else {
-					// No hay resultado pero apuntamos a caj
-						$('#cajaBusqueda').focus();
-				}
+				 }
+				 //~ else {
+					//~ // No hay resultado pero apuntamos a caj
+						//~ $('#cajaBusqueda').focus();
+				//~ }
 			}
 			
 		}
