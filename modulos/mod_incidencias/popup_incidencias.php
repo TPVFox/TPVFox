@@ -1,6 +1,16 @@
 <?php 
 
-function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncidencia){
+function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncidencia, $configuracion){
+	$select="Si";
+	$usuDeft=1;
+	foreach($configuracion as $config){
+		switch($config['descripcion']){
+			case 'mostrar_Select':
+				$select=$config['valor'];
+			case 'usuario_Defecto':
+				$usuDeft=$config['valor'];
+		}
+	}
 $html="";
 $html.='<div class="col-md-12">';
 $html.='<div class="col-md-6">';
@@ -27,8 +37,18 @@ $html.='<label>Mensaje:</label>';
 $html.='<input type="text" name="inci_mensaje" id="inci_mensaje"  size="60" >';
 $html.='</div>';
 $html.='<div class="col-md-12">';
+$html.='<div class="col-md-6">';
+if($select=="Si"){
+	$html.='<label>Seleccionar usuario:</label>';
+	$html.='<select name="usuarioSelec">';
+	
+	$html.='</select>';
+}
+$html.='</div>';
+$html.='<div class="col-md-6">';
 $html.='<label>Datos:</label>';
 $html.='<input type="text" name="inci_datos" id="inci_datos" value='."'".$datos."'".' readonly="">';
+$html.='</div>';
 $html.='</div>';
 $html.='<input type="hidden" name="numIncidencia" id="numIncidencia" value='.$numIncidencia.'>';
 $html.='<div class="modal-footer">';

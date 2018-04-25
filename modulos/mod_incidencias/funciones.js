@@ -52,15 +52,16 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-function abrirIndicencia(dedonde, idUsuario, numIncidencia=""){
+function abrirIndicencia(dedonde, idUsuario, configuracion, numIncidencia=""){
 	var parametros = {
 		"pulsado"    : 'abririncidencia',
 		"dedonde" : dedonde,
 		"usuario":idUsuario,
-		"numIncidencia":numIncidencia
+		"numIncidencia":numIncidencia,
+		"configuracion":configuracion
 		
 	};
-	console.log(parametros);
+	console.log(configuracion);
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
