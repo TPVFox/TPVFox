@@ -785,6 +785,18 @@ function seleccionProveedor(dedonde,idproveedor){
 }
 
 function selecionarItemProducto(id, dedonde=""){
+	// @ Objetivo:
+	// 		Al seleccionar un check comprueba si existes productos_seleccionado de session.
+	//	si existe lo elimina y si no lo añade.
+	//  [NOTA] : Se utiliza en varias vistas (listadoproductos y listado etiquetas
+	// @ Parametros:
+	// 		id -> (int) Id producto
+	//		dedonde-> la vista Listaproductos o Lista etiquetas.
+	//
+	// @ Devuelve:
+	// 		El numero de productos que tiene seleccionados
+	// En la vista LISTAETIQUETAS sino quedan productos seleccionado , lleva LISTAPRODUCTOS.
+	
 	console.log('Selecciono Item de producto, lo añadimos a session');
 	var parametros = {
 		"pulsado"    	: 'productosSesion',
@@ -805,7 +817,7 @@ function selecionarItemProducto(id, dedonde=""){
 				console.log(resultado);
 				if(resultado.Nitems===0){
 					if(dedonde=="listaProductos"){
-						$(".imprimir").css("display", "none");
+						$(".productos_seleccionados").css("display", "none");
 						
 					}else{
 						location.href="ListaProductos.php";
@@ -813,8 +825,8 @@ function selecionarItemProducto(id, dedonde=""){
 					
 				}else{
 					if(dedonde=="listaProductos"){
-						$(".imprimir").css("display", "block");
-						$(".textoCantidad").html("Productos seleccionados: "+resultado.Nitems);
+						$(".productos_seleccionados").css("display", "block");
+						$(".textoCantidad").html(resultado.Nitems);
 					}else{
 						location.href="ListaEtiquetas.php";
 					}
@@ -825,6 +837,8 @@ function selecionarItemProducto(id, dedonde=""){
 	});
 }
 function eliminarSeleccionProductos(){
+	// @ Objetivo :
+	// Eliminar todos los productos seleccionados. ( al pulsar ELiminar productos).
 		var parametros = {
 		"pulsado"    	: 'eliminarSeleccion'
 		
