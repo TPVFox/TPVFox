@@ -14,7 +14,7 @@ switch ($pulsado) {
 			$numIncidencia=$_POST['numIncidencia'];
 			
 		}
-		
+		$configuracion=$_POST['configuracion'];
 		$tipo="mod_incidencias";
 		$fecha=date('Y-m-d');
 		$datos=array(
@@ -23,7 +23,7 @@ switch ($pulsado) {
 		
 		$datos=json_encode($datos);
 		$estado="No resuelto";
-		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numIncidencia);
+		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numIncidencia, $configuracion, $BDTpv);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
@@ -36,11 +36,14 @@ switch ($pulsado) {
 		$dedonde= $_POST['dedonde'];
 		$estado= $_POST['estado'];
 		$mensaje= $_POST['mensaje'];
+		if(isset($_POST['usuarioSelec'])){
 		$usuarioSelect=$_POST['usuarioSelec'];
+		}
 		
 		if($usuarioSelect>0){
 			$datos=json_decode($datos);
-			$datos['usuarioSelec']=$usuarioSelect;
+			//~ error.log($datos);
+			$datos->usuarioSelec=$usuarioSelect;
 			$datos=json_encode($datos);
 		}
 		$numIncidencia=0;
