@@ -170,7 +170,10 @@ class ControladorComun
 	// Construir un where con like de palabras y el campo indicado
 	// Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
 	// @ Parametros:
+	//  $campos -> (array) Campos los que buscar..
+	//  $a_buscar-> (String) Que puede contener varias palabras.
 	// 	$operador -> (String) puede ser OR o AND.. no mas...
+	
 	$buscar = array(',',';','(',')','-','"');
 	$sustituir = array(' , ',' ; ',' ( ',' ) ',' - ',' ');
 	$string  = str_replace($buscar, $sustituir, trim($a_buscar));
