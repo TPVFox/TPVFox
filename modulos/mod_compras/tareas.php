@@ -604,6 +604,7 @@ switch ($pulsado) {
 		$dedonde=$_POST['dedonde'];
 		$usuario=$_POST['usuario'];
 		$idReal=$_POST['idReal'];
+		$configuracion=$_POST['configuracion'];
 		$numInicidencia=0;
 		$tipo="mod_compras";
 		$fecha=date('Y-m-d');
@@ -613,7 +614,7 @@ switch ($pulsado) {
 		);
 		$datos=json_encode($datos);
 		$estado="No resuelto";
-		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia);
+		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);

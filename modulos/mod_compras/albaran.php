@@ -33,14 +33,16 @@ include './../../head.php';
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
 	$configuracionArchivo=array();
 	foreach ($configuracion['incidencias'] as $config){
-		//~ print_r($config);
-		//~ echo get_object_vars($config)['dedonde'];
 		if(get_object_vars($config)['dedonde']==$dedonde){
 			array_push($configuracionArchivo, $config);
 		}
 	}
 	echo '<pre>';
-	print_r($configuracionArchivo );
+	print_r($configuracionArchivo);
+	echo '</pre>';
+	//~ $configuracionArchivo=json_decode(json_encode($configuracionArchivo),true);
+	echo '<pre>';
+	print_r($configuracionArchivo);
 	echo '</pre>';
 	
 	
@@ -181,7 +183,7 @@ include './../../head.php';
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -256,7 +258,7 @@ include './../../head.php';
 	}
 	
 	?>
-	<a  onclick="abrirIndicencia('albaran' ,<?php echo $Usuario['id'];?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
