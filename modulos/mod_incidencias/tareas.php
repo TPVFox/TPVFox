@@ -36,6 +36,13 @@ switch ($pulsado) {
 		$dedonde= $_POST['dedonde'];
 		$estado= $_POST['estado'];
 		$mensaje= $_POST['mensaje'];
+		$usuarioSelect=$_POST['usuarioSelec'];
+		error.log($usuarioSelect);
+		if($usuarioSelect>0){
+			$datos=json_decode($datos);
+			$datos['usuarioSelec']=$usuarioSelect;
+			$datos=json_encode($datos);
+		}
 		$numIncidencia=0;
 		if(isset($_POST['numIncidencia'])){
 			$numIncidencia=$_POST['numIncidencia'];
