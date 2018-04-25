@@ -37,7 +37,7 @@ switch ($pulsado) {
 		$estado= $_POST['estado'];
 		$mensaje= $_POST['mensaje'];
 		$usuarioSelect=$_POST['usuarioSelec'];
-		error.log($usuarioSelect);
+		
 		if($usuarioSelect>0){
 			$datos=json_decode($datos);
 			$datos['usuarioSelec']=$usuarioSelect;

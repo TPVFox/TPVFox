@@ -37,13 +37,13 @@ include './../../head.php';
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	echo '<pre>';
-	print_r($configuracionArchivo);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($configuracionArchivo);
+	//~ echo '</pre>';
 	//~ $configuracionArchivo=json_decode(json_encode($configuracionArchivo),true);
-	echo '<pre>';
-	print_r($configuracionArchivo);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($configuracionArchivo);
+	//~ echo '</pre>';
 	
 	
 	// array con los datos de usuario
@@ -169,7 +169,7 @@ include './../../head.php';
 			}else{
 				$style="display:none;";
 			}
-			echo $comprobarPedidos;
+			//~ echo $comprobarPedidos;
 		}
 		if (isset ($_GET['id']) || isset ($_GET['tActual'])){
 			$estiloTablaProductos="";
