@@ -21,9 +21,7 @@ include './../../head.php';
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	$dedonde="albaran";
-	$parametros = $ClasesParametros->getRoot();
-	//~ $parametros = simplexml_load_file('parametros.xml');
-		
+	$parametros = $ClasesParametros->getRoot();	
 	foreach($parametros->cajas_input->caja_input as $caja){
 		$caja->parametros->parametro[0]="albaran";
 	}
@@ -32,27 +30,11 @@ include './../../head.php';
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
 	$configuracionArchivo=array();
-	//~ echo '<pre>';
-	//~ print_r($configuracion['incidencias']);
-	//~ echo '</pre>';
 	foreach ($configuracion['incidencias'] as $config){
-		//~ echo '<pre>';
-	//~ print_r($config);
-	//~ echo '</pre>';
 		if(get_object_vars($config)['dedonde']==$dedonde){
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	//~ echo '<pre>';
-	//~ print_r($configuracionArchivo);
-	//~ echo '</pre>';
-	//~ $configuracionArchivo=json_decode(json_encode($configuracionArchivo),true);
-	//~ echo '<pre>';
-	//~ print_r($configuracionArchivo);
-	//~ echo '</pre>';
-	
-	
-	// array con los datos de usuario
 	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
 	$fecha=date('Y-m-d');
@@ -175,7 +157,6 @@ include './../../head.php';
 			}else{
 				$style="display:none;";
 			}
-			//~ echo $comprobarPedidos;
 		}
 		if (isset ($_GET['id']) || isset ($_GET['tActual'])){
 			$estiloTablaProductos="";
@@ -190,7 +171,6 @@ include './../../head.php';
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
-	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
