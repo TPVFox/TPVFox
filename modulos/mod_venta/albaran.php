@@ -175,9 +175,6 @@ include './../../head.php';
 												 );
 					}
 				}
-				//~ echo '<pre>';
-				//~ print_r($addNuevo);
-				//~ echo '</pre>';
 			if(count($errores)==0){
 				header('Location: albaranesListado.php');
 			}else{
