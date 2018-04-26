@@ -19,7 +19,7 @@ function cobrarF1(){
 		var parametros = {
 				"pulsado" 	: 'cobrar',
 				"total" : total,
-				"productos"	 	: productos,
+				"productos"	 	: JSON.stringify(productos),
 				"configuracion"	: configuracion
 				//"dedonde" : dedonde
 		};
@@ -38,7 +38,7 @@ function cobrarF1(){
 				var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
 				var titulo = 'COBRAR ';
 				abrirModal(titulo,HtmlCobrar);
-				focusAlLanzarModal('entrega');
+				SelectAlLanzarModal('entrega');
 				//alert('cobrar');
 				
 			}
@@ -323,11 +323,21 @@ function cerrarTicket(){
 	//@ Objetivo:
 	// Enviar datos del ticket (cabecera y caja de cobrar)
 	// para guaardar como Cobrado en tablas ticket y temporal de ticket se cambia estado a COBRADO
+	 
 	 var entregado = $('#entrega').val();
+	 var cambio = $('#cambio').val();
+	 console.log('Numero caracteres de entregado:'+entregado.length);
+	 if (entregado.length === 0){
+		// Quiere decir que no puso correcto la entrega... por lo que el cambio tampoco es correcto
+		// genera un warning en servirdor.
+		// Entonces ponemos entregado total.
+		entregado = total;
+		cambio = '0';
+	 }
 	 var formaPago = $('#modoPago').val();
 	 //podemos obtener el valor de la propiedad checked, true o false
 	 var checkimprimir = $('input[name=checkimprimir]').prop('checked'); 
-	 var ruta_impresora = configuracion['impresora'];
+	 var ruta_impresora = configuracion['impresora_ticket'];
 	 console.log(ruta_impresora);
 	//parche desactivar boton aceptar, no hay impresora de tickets
 	$('button[id=CobrarAceptar]').prop('disabled',true);
@@ -341,6 +351,7 @@ function cerrarTicket(){
 		"numTickTemporal"	: cabecera.numTicket,
 		"total"				: total,
 		"entregado"			: entregado,
+		"cambio"			: cambio,
 		"formaPago"			: formaPago,
 		"checkimprimir"		: checkimprimir,  //true o false
 		"ruta_impresora"	: ruta_impresora 
@@ -818,7 +829,7 @@ function PrepararEnviarStockWeb(){
 	console.log('PREPARAMOS DATOS PARA ENVIAR');
 	var parametros = {
 		"pulsado" : 'ObtenerRefTiendaWeb',
-		"productos"    : productos,
+		"productos"    : JSON.stringify(productos),
 		"web"		 : '2'
 	};
 	$.ajax({
@@ -870,7 +881,7 @@ function EnviarStockWeb(tienda_web,productos){
 	var parametros = {
 		"key" :  tienda_web.key_api,
 		"action"    : 'RestarStock',
-		"productos"	: productos
+		"productos"	: JSON.stringify(productos)
 	};
 	$.ajax({
 		data       : parametros,
@@ -955,29 +966,29 @@ function GuardarConfiguracion(){
 
 	
 }
-function abrirIndicencia(dedonde){
-	var parametros = {
-		"pulsado"    : 'abririncidencia',
-		"dedonde" : dedonde,
-		"usuario":cabecera.idUsuario,
-		"idReal":cabecera.idReal
-	};
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  Modificando los importes de la factura  ****************');
-		},
-		success    :  function (response) {
-			console.log('Respuesta de la modificación de los importes');
-			var resultado =  $.parseJSON(response);
-			titulo="Crear incidencia";
-			html=resultado.html;
-			abrirModal(titulo, html);
-		}
-	});
-}
+//~ function abrirIndicencia(dedonde){
+	//~ var parametros = {
+		//~ "pulsado"    : 'abririncidencia',
+		//~ "dedonde" : dedonde,
+		//~ "usuario":cabecera.idUsuario,
+		//~ "idReal":cabecera.idReal
+	//~ };
+		//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : 'tareas.php',
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+			//~ console.log('*********  Modificando los importes de la factura  ****************');
+		//~ },
+		//~ success    :  function (response) {
+			//~ console.log('Respuesta de la modificación de los importes');
+			//~ var resultado =  $.parseJSON(response);
+			//~ titulo="Crear incidencia";
+			//~ html=resultado.html;
+			//~ abrirModal(titulo, html);
+		//~ }
+	//~ });
+//~ }
 
 
 function ActivarPrecioCIva(event,nfila){

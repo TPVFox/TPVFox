@@ -105,11 +105,8 @@ switch ($pulsado) {
 	case 'cobrar':
 		//~ echo 'cobrar';
 		$totalJS = $_POST['total'];
-		$productos = $_POST['productos'];
+		$productos = json_decode($_POST['productos']);
 		$configuracion = $_POST['configuracion'];
-		// Convertimos productos que debería ser un objeto a array
-		$productos = json_decode( json_encode( $_POST['productos'] ));
-
 		// Recalcular totales.
 		$totales = recalculoTotales($productos);
 		
@@ -142,8 +139,6 @@ switch ($pulsado) {
 						'total' => $CalculoTotales['total']
 							);
 		
-		//~ $CalculoTotales = gettype($productos);
-
 		$res 	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
 		$respuesta=$res;
 		
@@ -173,6 +168,8 @@ switch ($pulsado) {
 		$cabecera['idUsuario'] 			=$_POST['idUsuario'];
 		$cabecera['estadoTicket'] 		=$_POST['estadoTicket'];
 		$cabecera['numTickTemporal'] 	=$_POST['numTickTemporal'];
+		$cabecera['cambio'] 			=$_POST['cambio'];
+
 		$checkimprimir 					=$_POST['checkimprimir'];
 		$ruta_impresora					=$_POST['ruta_impresora'];
 		// Obtenemos ticket
@@ -216,11 +213,13 @@ switch ($pulsado) {
 				$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose'],$DatosTienda);
 				// Incluimos fichero para imprimir ticket, con los datosImpresion.
 				// Comprobamos si existe impresora.
-				if (shell_exec('ls '.$ruta_impresora)){;
+				if (ComprobarImpresoraTickets($ruta_impresora) === true){;
+					
 					include 'impresoraTicket.php';
 				} else {
-					$respuesta['error_impresora'] = ' no existe la impresora asignada';
+					$respuesta['error_impresora'] = ' no existe la impresora asignada, hay un error';
 				}
+	
 				
 			}
 		} 
@@ -234,7 +233,7 @@ switch ($pulsado) {
 		
 	case 'ObtenerRefTiendaWeb';
 		$respuesta = array();
-		$productos =$_POST['productos'];
+		$productos =json_decode($_POST['productos']);
 		$idweb	 = $_POST['web'];
 		//Ahora obtenemos datos tienda web.
 		$tienda = BuscarTienda($BDTpv,$idweb);
@@ -290,8 +289,14 @@ switch ($pulsado) {
 	case 'abririncidencia':
 		$dedonde=$_POST['dedonde'];
 		$usuario=$_POST['usuario'];
-		$idReal=$_POST['idReal'];
+		$idReal=0;
+		if(isset($_POST['idReal'])){
+			$idReal=$_POST['idReal'];
+		}
+		
+		$configuracion=$_POST['configuracion'];
 		$tipo="mod_tpv";
+		$numInicidencia=0;
 		$fecha=date('Y-m-d');
 		$datos=array(
 		'dedonde'=>$dedonde,
@@ -300,7 +305,7 @@ switch ($pulsado) {
 		$datos=json_encode($datos);
 		
 		$estado="No resuelto";
-		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado);
+		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado,  $numInicidencia, $configuracion, $BDTpv);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
@@ -313,8 +318,19 @@ switch ($pulsado) {
 		$dedonde= $_POST['dedonde'];
 		$estado= $_POST['estado'];
 		$mensaje= $_POST['mensaje'];
+		$numInicidencia=0;
+		$usuarioSelect=0;
+		if(isset($_POST['usuarioSelec'])){
+		$usuarioSelect=$_POST['usuarioSelec'];
+		}
+		if($usuarioSelect>0){
+			$datos=json_decode($datos);
+			//~ error.log($datos);
+			$datos->usuarioSelec=$usuarioSelect;
+			$datos=json_encode($datos);
+		}
 		if($mensaje){
-			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv);
+			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numInicidencia);
 			$respuesta=$nuevo['sql'];
 		}
 	echo json_encode($respuesta);

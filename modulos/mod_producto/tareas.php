@@ -21,7 +21,6 @@ include_once($rutaCompleta.'/clases/ClaseSession.php');
 
 $CSession =  new ClaseSession();
 
-
 // Incluimos controlador.
 include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun; 
@@ -119,13 +118,59 @@ switch ($pulsado) {
 		
 		echo json_encode($resultado);
 	break;
+	case 'productosSesion':
+		$idProducto=$_POST['id'];
+		$respuesta=array();
+		$respuesta=productosSesion($idProducto);
+		//~ if(count($respuesta['productos']>0)){
+			//~ $respuesta['Nitems']=1;
+		//~ }else{
+			//~ $respuesta['Nitems']=0;
+		//~ }
+			echo json_encode($respuesta);
+	break;
+	case 'imprimirEtiquetas':
+		$respuesta = array();
+		$IdsProductos=json_decode($_POST['productos']);
+		$idTienda=$_POST['idTienda'];
+		$tamano=$_POST['tamano'];
+		$productos = array();
+		foreach ($IdsProductos as $id){
+			$productos[]= $NCArticulo->getProducto($id);	
+		}
+		$dedonde="Etiqueta";
+		$nombreTmp=$dedonde."etiquetas.pdf";
+		switch ($tamano){
+			case 1:
+				$imprimir=ImprimirA9($productos);
+			break;
+			case 2:
+				$imprimir=ImprimirA5($productos);
+			break;
+			case 3:
+				$imprimir=ImprimirA7($productos);
+			break;
+		}
+		
+		$cabecera=$imprimir['cabecera'];
+		$html=$imprimir['html'];
+		 //~ $ficheroCompleto=$html;
+		$ficheroCompleto=$html;
+		require_once('../../lib/tcpdf/tcpdf.php');
+		include ('../../clases/imprimir.php');
+		include('../../controllers/planImprimirRe.php');
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+	
+		$respuesta['fichero'] = $ficheroCompleto;
+		$respuesta['productos'] = $productos;
+		echo json_encode($respuesta);
+	break;
 	
 	case 'productosSesion':
 		$idProducto=$_POST['id'];
 		$respuesta=array();
 		$session = $CSession->GetSession();
 		$respuesta=productosSesion($idProducto);
-		//~ $respuesta['session'] =$session;
 
 		echo json_encode($respuesta);
 	break;
@@ -189,6 +234,20 @@ switch ($pulsado) {
 		$resultado['descartados'] = $descartados;
 
 		echo json_encode($resultado);
+	break;
+	case 'eliminarSeleccion':
+	$eliminar=eliminarSeleccion();
+	
+	break;
+	
+	case 'obtenerCostesProveedor':
+		$resultado = array();
+		$idProveedor = $_POST['idProveedor'];
+		$idProducto = $_POST['idProducto'];
+
+		$resultado = $NCArticulo->ObtenerCostesDeUnProveedor($idProducto,$idProveedor);
+		
+	echo json_encode($resultado);
 	break;
 	
 }

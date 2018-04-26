@@ -48,7 +48,6 @@ function BuscarProveedor (dedonde,busqueda=''){
 			var contenido = resultado['html'];
 			abrirModal(titulo,contenido);
 			focusAlLanzarModal('cajaBusquedaproveedor');
-			$('#cajaBusquedaproveedor').focus();
 		}
 	});
 	
@@ -718,6 +717,7 @@ function imprimir(id, dedonde, bandera=""){
 	});
 }
 function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
+	console.log(productos);
 	var parametros = {
 		"pulsado"    		: 'imprimirEtiquetas',
 		"dedonde"			:dedonde,
@@ -736,7 +736,8 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
 				 var resultado = $.parseJSON(response);
-				 window.open(resultado);
+				 console.log(resultado);
+				 window.open(resultado['fichero']);
 				 //~ if (bandera==1){
 					//~ location.href="ListaProductos.php";
 				//~ }
@@ -755,13 +756,47 @@ function validarEntradaNombre(caja){
 	
 }
 
-
 function seleccionProveedor(dedonde,idproveedor){
 	alert('Ahora debería obtener los datos necesario');
-	
+	console.log(producto.idArticulo);
+	var parametros = {
+		"pulsado" 		: 'obtenerCostesProveedor',
+		"idProveedor"	: idproveedor,
+		"idProducto"	: producto.idArticulo
 	}
+	$.ajax({
+		data 		: parametros,
+		url 		: 'tareas.php',
+		type 		: 'post',
+		beforeSend	:function () {
+		console.log('*********  Obtener datos de proveedor y coste  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eObtener datos de proveedor y coste ');
+				
+				var resultado = $.parseJSON(response);
+				console.log(resultado);
+				alert ( 'Volvi de buscar datos de proveedor');
+				 
+		}	
+	});
 
-function selecionarItemProducto(id){
+
+}
+
+function selecionarItemProducto(id, dedonde=""){
+	// @ Objetivo:
+	// 		Al seleccionar un check comprueba si existes productos_seleccionado de session.
+	//	si existe lo elimina y si no lo añade.
+	//  [NOTA] : Se utiliza en varias vistas (listadoproductos y listado etiquetas
+	// @ Parametros:
+	// 		id -> (int) Id producto
+	//		dedonde-> la vista Listaproductos o Lista etiquetas.
+	//
+	// @ Devuelve:
+	// 		El numero de productos que tiene seleccionados
+	// En la vista LISTAETIQUETAS sino quedan productos seleccionado , lleva LISTAPRODUCTOS.
+	
 	console.log('Selecciono Item de producto, lo añadimos a session');
 	var parametros = {
 		"pulsado"    	: 'productosSesion',
@@ -780,14 +815,46 @@ function selecionarItemProducto(id){
 				
 				var resultado = $.parseJSON(response);
 				console.log(resultado);
-				if(resultado.Nitems>0){
-					alert("hay productos");
+				if(resultado.Nitems===0){
+					if(dedonde=="listaProductos"){
+						$(".productos_seleccionados").css("display", "none");
+						
+					}else{
+						location.href="ListaProductos.php";
+					}
+					
 				}else{
-					alert("No hay productos");
+					if(dedonde=="listaProductos"){
+						$(".productos_seleccionados").css("display", "block");
+						$(".textoCantidad").html(resultado.Nitems);
+					}else{
+						location.href="ListaEtiquetas.php";
+					}
+					
 				}
 				 
 		}	
 	});
-
+}
+function eliminarSeleccionProductos(){
+	// @ Objetivo :
+	// Eliminar todos los productos seleccionados. ( al pulsar ELiminar productos).
+		var parametros = {
+		"pulsado"    	: 'eliminarSeleccion'
+		
+		};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Eliminar seleccion de productos  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar seleccion de productos ');
+				location.href="ListaProductos.php";
+				 
+		}	
+	});
 }
 

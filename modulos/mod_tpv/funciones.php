@@ -524,6 +524,8 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	//				$cabecera['idUsuario']
 	//				$cabecera['estadoTicket']
 	//				$cabecera['numTickTemporal'] 
+	//				$cabecera['cambio'] 
+
 	// 		$productos . Array de Objetos que trae ->
 	//				[0] Indice producto.
 	// 					producto.id;
@@ -625,6 +627,21 @@ function grabarTicketCobrado($BDTpv,$productos,$cabecera,$desglose) {
 	return $resultado;
 }
 
+function ComprobarImpresoraTickets($ruta_impresora){
+	// @ Objetivo :
+	// Comprobar si la ruta de la impresora es correcto.
+	// @ Parametro:
+	//   ruta_impresora-> (string) Ruta de la impresora.
+	// @ Devuelve:
+	//   boreano-> true (correcto) , false (no la encuentra)
+	$respuesta = false;
+	if (shell_exec('ls '.$ruta_impresora)){
+		$respuesta = true;
+	}
+	return $respuesta;
+}
+
+
 function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 	// @ Objetivo es montar un array con las distintas partes del ticket para luego mandar imprimir.
 	// Recuerda que € no imprime directamente hay que utilizar la code Page 1252, por ello en 
@@ -651,7 +668,7 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 		// Solo montamos lineas para imprimir aquellos que estado es 'Activo';
 		if ( $product->estado === 'Activo'){
 			// No mostramos referencia, mostramos id producto
-			$lineas[$i]['1'] = substr($product->cdetalle, 0, 36).' (id:'.$product->id.') ';//.substr($product->cref,0,10);
+			$lineas[$i]['1'] = ' (id:'.$product->id.') '.substr($product->cdetalle, 0, 36);//.substr($product->cref,0,10);
 			$importe = $product->unidad * $product->pvpconiva;
 			// Creamos un array con valores numericos para poder formatear correctamente los datos
 			$Numeros = array(
@@ -692,6 +709,10 @@ function ImprimirTicket($productos,$cabecera,$desglose,$tienda){
 	}
 	$respuesta['pie-datos'] .=str_repeat("-",42)."\n";
 	$respuesta['pie-total'] =number_format($cabecera['total'],2);
+	$respuesta['pie-formaPago'] =$cabecera['formaPago'];
+	$respuesta['pie-entregado'] =number_format($cabecera['entregado'],2);
+	$respuesta['pie-cambio'] =number_format($cabecera['cambio'],2);
+
 	$respuesta['pie-datos2'] ="\n".$tienda['razonsocial']." - CIF: ".$tienda['nif']."\n";
 
 

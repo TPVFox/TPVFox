@@ -19,8 +19,7 @@
 	$filtro = ''; // por defecto
 	$PgActual = 1; // por defecto.
 	$LimitePagina = 40; // por defecto.
-	$banderaCierres=0;
-
+	$linkResumen = '<span title="Pon la fechas en filtro" class="glyphicon glyphicon-info-sign"> Ver Resumen </span>';
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
@@ -32,7 +31,12 @@
 	if (isset ($_GET['fecha1']) & isset($_GET['fecha2'])){
 		$fecha1=$_GET['fecha1'];
 		$fecha2=$_GET['fecha2'];
-		$banderaCierres=1;
+		// Montamos link para mostrar para poder ver resumen
+		$linkResumen = '<a href="ResumenFechas.php?fecha1='.$fecha1.'&fecha2='.$fecha2.'">Ver Resumen</a>';
+		
+		
+		
+		
 		
 	}
 	// Creamos objeto controlado comun, para obtener numero de registros. 
@@ -104,33 +108,24 @@
 			<div class="col-md-12 text-center">
 					<h2> Listar Cierres </h2>
 				</div>
-	        <!--=================  Sidebar -- Menu y filtro =============== 
-				Efecto de que permanezca fixo con Scroll , el problema es en
-				movil
-	        -->
-	       
-			<nav class="col-sm-2" id="myScrollspy">
-				<div data-offset-top="505">
+	           
+			<div class="col-sm-2">
+				<div class="col-md-12">
 					<h4> Cierres</h4>
 					<h5> Opciones para una selección</h5>
 					<ul class="nav nav-pills nav-stacked"> 
 						<li><a href="#section2" onclick="metodoClick('VerCierre');";>Ver Cierre</a></li>
-						<?php 
-						if ($banderaCierres===1){
-						?>
-						<li><a href="ResumenFechas.php?fecha1=<?php echo $fecha1;?>&fecha2=<?php echo $fecha2;?>">Resumen Cierres</a></li>
-						<?php 
-					}
-						?>
+						<li><!-- Ya controlo en cierres que no pueda hacer caja si no hay tickets, pero tb podría quitar link -->
+							<a href="../mod_cierres/CierreCaja.php?dedonde=cierre">Cierre Caja</a>
+						</li>
+						<li><?php echo $linkResumen;?></li>
 					</ul>
 				</div>
-				<div style="position: fixed" >
+				<div class="col-md-12">
 					<h4>Opciones administrador:</h4>
-					<ul class=" nav nav-pills nav-stacked " > 
-						<li><a  class="btn btn-warning btn-lg active" role="button" aria-pressed="true" href="../mod_cierres/CierreCaja.php?dedonde=cierre">Cierre Caja</a></li>
-					</ul>
+					
 				</div>
-			</nav>
+			</div>
 			<div class="col-md-10">
 					<p>
 					 -Cierres encontrados BD local filtrados:

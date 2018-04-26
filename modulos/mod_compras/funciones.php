@@ -227,10 +227,10 @@ function recalculoTotales($productos) {
 			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $product->importe,2, '.', '');
 			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva']+ ($product->importe*$bandera),2, '.', '');
 			}else{
-			$desglose[$product->iva]['base'] = number_format($product->importe,2, '.', '');
-			$desglose[$product->iva]['iva'] =number_format($product->importe*$bandera, 2, '.', '');
+			$desglose[$product->iva]['base'] = number_format((float)$product->importe,2, '.', '');
+			$desglose[$product->iva]['iva'] =number_format((float)$product->importe*$bandera, 2, '.', '');
 			}
-			$desglose[$product->iva]['BaseYiva'] =number_format($desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 2, '.', '');	
+			$desglose[$product->iva]['BaseYiva'] =number_format((float)$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 2, '.', '');	
 		}			
 	}
 	foreach($desglose as $tipoIva=>$des){
@@ -1229,6 +1229,8 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 }
 function htmlTotales($Datostotales){
 	$htmlIvas['html'] = '';
+	$totalBase=0;
+	$totaliva=0;
 	if (isset($Datostotales['desglose'])){
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
 			$key = intval($key);
@@ -1237,7 +1239,15 @@ function htmlTotales($Datostotales){
 			.'<td id="base'.$key.'"> '.number_format ($basesYivas['base'],2).'</td>'
 			.'<td id="iva'.$key.'">'.number_format ($basesYivas['iva'],2).'</td>'
 			.'</tr>';
+		
+		$totalBase=$totalBase+$basesYivas['base'];
+		$totaliva=$totaliva+$basesYivas['iva'];
 		}
+		$htmlIvas['html'].='<tr>'
+		.'<td> Totales </td>'
+		.'<td>'.$totalBase.'</td>'
+		.'<td>'.$totaliva.'</td>'
+		.'</tr>';
 	}
 	return $htmlIvas;
 }

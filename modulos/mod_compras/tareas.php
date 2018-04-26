@@ -68,13 +68,16 @@ switch ($pulsado) {
 			$dedonde=$_POST['dedonde'];
 			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idProveedor);
 			if ($res['Nitems']===1 && $idcaja<>"cajaBusqueda"){
-				$respuesta=$res;
-				$respuesta['Nitems']=$res['Nitems'];	
+					$respuesta=$res;
+					$respuesta['Nitems']=$res['Nitems'];
+				
 			}else{
 				if (isset($res['datos'])){
 					$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
 					$respuesta['Estado'] = 'Listado';
 					$respuesta['html']=$respuesta['listado'];
+				}else{
+					$respuesta['Nitems']=2;
 				}
 			}
 			$respuesta['sql']=$res['sql'];
@@ -600,7 +603,13 @@ switch ($pulsado) {
 		case 'abririncidencia':
 		$dedonde=$_POST['dedonde'];
 		$usuario=$_POST['usuario'];
-		$idReal=$_POST['idReal'];
+		$idReal=0;
+		if(isset($_POST['idReal'])){
+			$idReal=$_POST['idReal'];
+		}
+		
+		$configuracion=$_POST['configuracion'];
+		$numInicidencia=0;
 		$tipo="mod_compras";
 		$fecha=date('Y-m-d');
 		$datos=array(
@@ -609,7 +618,7 @@ switch ($pulsado) {
 		);
 		$datos=json_encode($datos);
 		$estado="No resuelto";
-		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado);
+		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
@@ -622,8 +631,20 @@ switch ($pulsado) {
 		$dedonde= $_POST['dedonde'];
 		$estado= $_POST['estado'];
 		$mensaje= $_POST['mensaje'];
+		$usuarioSelect=0;
+		if(isset($_POST['usuarioSelec'])){
+		$usuarioSelect=$_POST['usuarioSelec'];
+		}
+		//~ error.log($usuarioSelect);
+		if($usuarioSelect>0){
+			$datos=json_decode($datos);
+			//~ error.log($datos);
+			$datos->usuarioSelec=$usuarioSelect;
+			$datos=json_encode($datos);
+		}
+		$numInicidencia=0;
 		if($mensaje){
-			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv);
+			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
 			$respuesta=$nuevo['sql'];
 		}
 	echo json_encode($respuesta);
