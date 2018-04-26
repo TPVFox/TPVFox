@@ -81,7 +81,7 @@ include './../../head.php';
 		$total=$Datostotales['total'];
 	}else{
 		
-			if ($_GET['tActual']){//Si recibe un id de un temporal 
+			if (isset($_GET['tActual'])){//Si recibe un id de un temporal 
 			$idTemporal=$_GET['tActual'];
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscamos los datos del temporal
 			if (isset($pedidoTemporal['error'])){
@@ -93,14 +93,14 @@ include './../../head.php';
 			}
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
-			if ($pedidoTemporal['idPedcli']){
+			if (isset($pedidoTemporal['idPedcli'])){
 				$idPedido=$pedidoTemporal['idPedcli'];
 			}else{
 				$idPedido=0;
 			}
 			$pedido=$pedidoTemporal;
 			$productos = json_decode( $pedidoTemporal['Productos']); // Array de objetos
-			if ($idCliente){
+			if (isset($idCliente)){
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
