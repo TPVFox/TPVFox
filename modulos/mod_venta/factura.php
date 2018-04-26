@@ -6,6 +6,9 @@
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	
 	include '../../clases/cliente.php';
 	$Ccliente=new Cliente($BDTpv);
 	include 'clases/albaranesVentas.php';
@@ -17,6 +20,7 @@
 	include_once '../../clases/FormasPago.php';
 	$CforPago=new FormasPago($BDTpv);
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$idFacturaTemporal=0;
@@ -31,6 +35,22 @@
 	$formaPago=0;
 	$albaranes=array();
 	$importesFactura=array();
+	$dedonde="factura";
+	
+		$parametros = $ClasesParametros->getRoot();
+	foreach($parametros->cajas_input->caja_input as $caja){
+			$caja->parametros->parametro[0]="factura";
+		}
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_ventas',$Usuario['id']);
+		$configuracionArchivo=array();
+		foreach ($configuracion['incidencias'] as $config){
+			if(get_object_vars($config)['dedonde']==$dedonde){
+				array_push($configuracionArchivo, $config);
+			}
+		}
+		
 	if (isset($_GET['id'])){//Si rebie un id quiere decir que ya existe la factura
 		$idFactura=$_GET['id'];
 		$datosFactura=$Cfaccli->datosFactura($idFactura);//Extraemos los datos de la factura 
@@ -286,22 +306,14 @@
 			//~ $stylea="display:none;";
 		//~ }
 		
-		$parametros = simplexml_load_file('parametros.xml');
 	
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-//Como estamos el albaranes la caja de input num fila cambia el de donde a factura
-	foreach($parametros->cajas_input->caja_input as $caja){
-			$caja->parametros->parametro[0]="factura";
-		}
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		
 		
 $titulo .= ': '.$estado;	
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -375,8 +387,9 @@ if ($idCliente==0){
       }
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
-			
+			<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<a  href="./facturasListado.php">Volver Atrás</a>
