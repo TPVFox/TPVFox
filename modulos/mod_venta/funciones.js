@@ -151,22 +151,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 		}
 	});
 }
-//~ function abrirModal(titulo,tabla){
-	//~ // @ Objetivo :
-	//~ // Abril modal con texto buscado y con titulo que le indiquemos.
-	//~ console.log('Estamos en abrir modal');
-	//~ $('.modal-body ').html(tabla);
-	//~ $('.modal-title').html(titulo);
-	//~ $('#busquedaModal').modal('show');
-	
-	//~ //Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	//~ $('#busquedaModal').on('shown.bs.modal', function() {
-		//~ // Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-		//~ $('#entrega').select(); 	//foco en input entrega MODAL cobrar
-		//~ $('#cajaBusqueda').focus(); //foco en input caja busqueda del cliente
-		//~ $('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
-	//~ });
-//~ }
 function controladorAcciones(caja,accion, tecla){
 	// @ Objetivo es obtener datos si fuera necesario y ejecutar accion despues de pulsar una tecla.
 	//  Es Controlador de acciones a pulsar una tecla que llamamos desde teclado.js
@@ -565,24 +549,6 @@ function escribirClienteSeleccionado(id, nombre ,dedonde=''){
 	 cerrarPopUp();
 	 mostrarFila();
 }
-
-//~ function abandonFila(cont){
-	//~ $('#N_'+cont).css('background-color','white');
-//~ }
-//~ function sobreFilaCraton(cont){
-	//~ console.log("Estoy en fila carton");
-	//~ $('#N_'+cont).css('background-color','azure');
-//~ }
-//~ function cerrarPopUp(destino_focus=''){
-	//~ // @ Objetivo :
-	//~ // Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
-	//~ //cerrar modal busqueda
-	//~ $('#busquedaModal').modal('hide');
-	//~ if (destino_focus !== ''){
-		//~ ponerFocus(destino_focus);
-	//~ }
-	
-//~ }
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id, dedonde){
 	// @ Objetivo:
 	//   Realizamos cuando venimos popUp de Productos.
@@ -680,8 +646,6 @@ function mover_down(fila,prefijo, dedonde=""){
 			if ( document.getElementById(d_focus) ) {
 				ponerSelect(d_focus);
 			}else{
-				//~ var d_focus = 'idArticulo';
-				//~ ponerSelect(d_focus);
 				var d_focus = 'Fila_';
 				ponerFocus(d_focus);
 			}
@@ -1180,9 +1144,6 @@ function imprimir(id, dedonde, tienda){
 		
 	});
 }
-//~ function sobreFila(cont){
-	//~ $('#N_'+cont).css('background-color','lightblue');
-//~ }
 
 function eliminarAdjunto(numRegistro, dedonde, nfila){
 	//@Objetivo:
