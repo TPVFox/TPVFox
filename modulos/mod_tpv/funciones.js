@@ -606,7 +606,7 @@ function controladorAcciones(caja,accion){
 		case 'saltar_CodBarras_desde_fila':
 			console.log('Saltar_Codbarras');
 				var d_focus = 'Codbarras';
-				ponerFocus(d_focus);
+				ponerSelect(d_focus);
 		break;
 		
 		case  'saltar_productos':
