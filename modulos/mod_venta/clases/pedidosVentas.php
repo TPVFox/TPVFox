@@ -377,6 +377,7 @@ class PedidosVentas extends ClaseVentas{
 				$resultado['consulta']=$smt['consulta'];
 				return $resultado;
 		}else{
+			$pedidos=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				$pedidos['ped']=1;
 			}

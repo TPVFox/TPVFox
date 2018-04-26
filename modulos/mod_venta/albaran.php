@@ -117,13 +117,13 @@ include './../../head.php';
 		//Si no existe un número de albarán real solo hay que crear un los registros nuevos de los albaranes en las diferentes tablas
 		//Y eliminar el temporal
 		if (isset($_POST['Guardar'])){
-			if ($_POST['idTemporal']){
+			if (isset($_POST['idTemporal'])){
 				$idTemporal=$_POST['idTemporal'];
 			}else{
 				$idTemporal=$_GET['tActual'];
 			}
 			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-			if($datosAlbaran['total']){
+			if(isset($datosAlbaran['total'])){
 				$total=$datosAlbaran['total'];
 			}else{
 				$total=0;
@@ -141,9 +141,9 @@ include './../../head.php';
 			'productos'=>$datosAlbaran['Productos'],
 			'pedidos'=>$datosAlbaran['Pedidos']
 			);
-			echo '<pre>';
-			print_r($datosAlbaran['Productos']);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($datosAlbaran['Productos']);
+			//~ echo '</pre>';
 			$errores=array();
 			if($datosAlbaran['numalbcli']>0){
 				$idAlbaran=$datosAlbaran['numalbcli'];

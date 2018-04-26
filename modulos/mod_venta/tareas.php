@@ -574,7 +574,7 @@ switch ($pulsado) {
 		//modificar el estado de un alabrán
 		$idAlbaran=$_POST['idModificar'];
 		$estado=$_POST['estado'];
-		$resultado=array();
+		$respuesta=array();
 		$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
 		if (isset($modEstado['error'])){
 			$respuesta['error']=$modEstado['error'];
