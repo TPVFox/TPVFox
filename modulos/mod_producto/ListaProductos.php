@@ -24,7 +24,7 @@
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	// Ahora compruebo productos_seleccion:
-	$prod_seleccion = array('NItems'=>0);
+	$prod_seleccion = array('NItems'=>0,'display'=>'');
 	if (isset($_SESSION['productos_seleccionados'])){
 		$prod_seleccion['Items']=$_SESSION['productos_seleccionados'];
 		$prod_seleccion['NItems'] = count($prod_seleccion['Items']);
@@ -64,18 +64,31 @@
 	$NPaginado->SetCamposControler($Controler,$campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere();
+	$CantidadRegistros=0;
 	if ( $NPaginado->GetFiltroWhere() !== ''){
 		$CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro));
 	} else {
 		$CantidadRegistros = $CTArticulos->GetNumRows(); 
 	}
 	// --- Ahora envio a NPaginado la cantidad registros --- //
-	$NPaginado->SetCantidadRegistros($CantidadRegistros);
-	
+	if ($prod_seleccion['NItems']>0){
+		//~ $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
+	} else {
+		$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	}
 	$htmlPG= ''; 
-	if ($CantidadRegistros > 0){
+	if ($CantidadRegistros > 0 || $prod_seleccion['NItems']>0){
 		$htmlPG = $NPaginado->htmlPaginado();	
+		if ($prod_seleccion['NItems'] > 0){
+			if ($filtro !==''){
+				$filtro .=  ' AND (a.idArticulo IN ('.implode(',',$prod_seleccion['Items']).'))';
+			} else {
+				$filtro = ' WHERE (a.idArticulo IN ('.implode(',',$prod_seleccion['Items']).'))';
+			}
+		}
+		echo $filtro;
 		$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro.$NPaginado->GetLimitConsulta());
+
 	}
 	
 	
@@ -166,7 +179,7 @@
 					<div class="form-group ClaseBuscar">
 						<label>Buscar por:</label>
 						<select onchange="GuardarBusqueda(event);" name="SelectBusqueda" id="sel1"> <?php echo $htmlConfiguracion['htmlOption'];?> </select>
-						<input type="text" name="buscar" value="<?php echo $stringPalabras; ?>">
+						<input type="text" name="buscar" value="<?php echo $NPaginado->GetBusqueda(); ?>">
 						<input type="submit" value="buscar">
 					</div>
 				</form>
