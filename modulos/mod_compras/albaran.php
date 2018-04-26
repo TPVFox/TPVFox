@@ -2,25 +2,41 @@
 <html>
 <head>
 <?php
-include './../../head.php';
+	//Carga de archivos php necesarios
+	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
+	//~ include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-	$ClasesParametros = new ClaseParametros('parametros.xml');
-	
 	include '../../clases/Proveedores.php';
-	$Cprveedor=new Proveedores($BDTpv);
 	include 'clases/albaranesCompras.php';
-	$CAlb=new AlbaranesCompras($BDTpv);
 	include_once 'clases/pedidosCompras.php';
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	//cargar las clases necesarias
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	$Cprveedor=new Proveedores($BDTpv);
+	$CAlb=new AlbaranesCompras($BDTpv);
 	$Cped = new PedidosCompras($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
-	
+	//Inicializar las variables
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	$dedonde="albaran";
+	$titulo="Albarán De Proveedor ";
+	$estado='Abierto';
+	$fecha=date('Y-m-d');
+	$idAlbaranTemporal=0;
+	$idAlbaran=0;
+	$idProveedor=0;
+	$suNumero="";
+	$nombreProveedor="";
+	$formaPago=0;
+	$fechaVencimiento="";
+	$style1="";
+	$Datostotales=array();
+	
+	
+	//Cargamos la configuración por defecto y las acciones de las cajas 
 	$parametros = $ClasesParametros->getRoot();	
 	foreach($parametros->cajas_input->caja_input as $caja){
 		$caja->parametros->parametro[0]="albaran";
@@ -35,18 +51,7 @@ include './../../head.php';
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	$titulo="Albarán De Proveedor ";
-	$estado='Abierto';
-	$fecha=date('Y-m-d');
-	$idAlbaranTemporal=0;
-	$idAlbaran=0;
-	$idProveedor=0;
-	$suNumero="";
-	$nombreProveedor="";
-	$formaPago=0;
-	$fechaVencimiento="";
-	$style1="";
-	$Datostotales=array();
+	
 	
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
@@ -219,6 +224,8 @@ include './../../head.php';
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <?php
 	include '../../header.php';
 ?>
@@ -230,8 +237,7 @@ include './../../head.php';
           return (tecla != 13);
       }
 </script>
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+
 <div class="container">
 	<?php
 	
