@@ -50,11 +50,11 @@ class PluginClasePaginacion {
 				$this->limitConsulta= " LIMIT ".$this->LimitePagina." OFFSET ".$this->desde;
 				
 			}
-			//~ if ( $this->CantidadRegistros % $this->LimitePagina){
-				//~ // Sumamos una pagina ya que no da justo.
-				//~ $this->TotalPaginas = $this->TotalPaginas+1;
-			//~ }
-			$this->TotalPaginas = round($this->TotalPaginas,0);
+			if ( $this->CantidadRegistros % $this->LimitePagina){
+				// Sumamos una pagina ya que no da justo.
+				$this->TotalPaginas = $this->TotalPaginas+1;
+			}
+			$this->TotalPaginas = (int)$this->TotalPaginas;
 			$this->ObtenerPaginasPrevSigui();
 		}
 	}
@@ -188,9 +188,12 @@ class PluginClasePaginacion {
 		$paginas = $this->paginas;
 		$Linkpg = '<li><a href="'.$this->LinkBase;
 		if( $this->Busqueda !== ''){
-		$Linkpg	.= 'buscar='.$this->Busqueda;
+			$Linkpg	.= 'buscar='.$this->Busqueda.'&pagina=';
+		} else {
+			$Linkpg .= 'pagina=';
 		}
-		$Linkpg	.='pagina=';
+		
+		//~ $Linkpg	.='pagina=';
 		// Montamos HTML para mostrar...
 		$htmlPG =  '<ul class="pagination">';
 		// Pagina inicio 
