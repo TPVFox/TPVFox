@@ -268,13 +268,6 @@ function modificarArrayProductos($productos){
 
 function htmlLineaPedidoAlbaran($productos, $dedonde){
 	$codBarras="";
-	//~ if(!is_array($productos)) {
-		//~ // Comprobamos si product no es objeto lo convertimos.
-		//~ $producto = (array)$productos;
-		
-	//~ } else {
-		//~ $producto = $productos;
-	//~ }
 	$producto=$productos;
 	$respuesta=array('html'=>'');
 	
