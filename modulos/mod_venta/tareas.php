@@ -94,7 +94,7 @@ switch ($pulsado) {
 				$respuesta['consulta']=$res['consulta'];
 			}else{
 				$respuesta['res']=$res;
-				if ($res['Nitem']==1){
+				if (isset($res['Nitem'])){
 					//~ $temporales=$CcliPed->contarPedidosTemporal($res['id']);
 					//~ if ($temporales['numPedTemp']==0){
 						//~ $respuesta['temporales']=$temporales;
