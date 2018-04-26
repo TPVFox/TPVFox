@@ -31,7 +31,7 @@ class ClaseTablaArticulos{
 	public $familias; // Array de familias de ese producto
 	public $proveedor_principal; // Array con datos del proveedor principal
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
-	
+	public $ref_tiendas ; // (array) No inicializado, se utiliza para guardar las referencias distintas tiendas.
 	
 	public function __construct($conexion='')
 	{
@@ -279,22 +279,24 @@ class ClaseTablaArticulos{
 		// Obtener los datos principal del proveedor del que indiquemos
 		// @ Parametro: 
 		//   $id_proveedor -> (int) Id del proveedor 
-		$Sql = 'SELECT * FROM `proveedores` WHERE `idProveedor`='.$id_proveedor;
-		$respuesta = $this->Consulta($Sql);
-		if ($respuesta['NItems'] === 1){
-			// Solo puede obtener un proveedor.
-			$this->proveedor_principal = $respuesta['Items'][0];
-		} else {
-			// Hubo error  ( No puede suceder nunca que sea resultado mas 1...
-			if ($respuesta['NItems'] === 0){
-				// No encontro
-				$error = array ( 'tipo'=>'warning',
-								 'dato' => 'idProveedor:'.$id_proveedor,
-								 'mensaje' => 'No fue encontrado el proveedor, con id:'.$id_proveedor.' ponemos 0 por defecto, mientras no lo guardes no lo arreglas.'
-								 );
-				$this->SetComprobaciones($error);
-			} 
-			
+		if (isset($id_proveedor) && $id_proveedor !== 0 ) {
+			$Sql = 'SELECT * FROM `proveedores` WHERE `idProveedor`='.$id_proveedor;
+			$respuesta = $this->Consulta($Sql);
+			if ($respuesta['NItems'] === 1){
+				// Solo puede obtener un proveedor.
+				$this->proveedor_principal = $respuesta['Items'][0];
+			} else {
+				// Hubo error  ( No puede suceder nunca que sea resultado mas 1...
+				if ($respuesta['NItems'] === 0){
+					// No encontro
+					$error = array ( 'tipo'=>'warning',
+									 'dato' => 'idProveedor:'.$id_proveedor,
+									 'mensaje' => 'No fue encontrado el proveedor, con id:'.$id_proveedor.' ponemos 0 por defecto, mientras no lo guardes no lo arreglas.'
+									 );
+					$this->SetComprobaciones($error);
+				} 
+				
+			}
 		}
 		
 	}
@@ -333,7 +335,9 @@ class ClaseTablaArticulos{
 			.' WHERE  ati.idArticulo= '.$id.' GROUP BY prec.idTienda';
 		$consulta = $this->Consulta($Sql);
 		// Aqui podemos obtener varios registros.
-		$this->ref_tiendas = $consulta['Items'];
+		if (isset($consulta['Items'])){
+			$this->ref_tiendas = $consulta['Items'];
+		}
 	}
 	
 	public function ObtenerFamiliasProducto($id){
@@ -346,8 +350,9 @@ class ClaseTablaArticulos{
 			.' WHERE artfam.idArticulo= '.$id;
 		$consulta = $this->Consulta($Sql);
 		// Aqui podemos obtener varios registros.
-		$this->familias = $consulta['Items'];
-		
+		if (isset($consulta['Items'])){
+			$this->familias = $consulta['Items'];
+		}
 	}
 	
 	public function ObtenerCodbarrasProducto($id){
@@ -372,11 +377,13 @@ class ClaseTablaArticulos{
 	public function ObtenerCrefTiendaPrincipal(){
 		// Objetivo
 		// Es obtener la referencia del producto de la tienda principal.		
-		foreach ($this->ref_tiendas as $item){
-			if ($item['idTienda'] === $this->idTienda){
-				// Es la tienda que tenemos com principal en propiedades de clase.
-				$this->cref_tienda_principal = $item['crefTienda'];
-				break;
+		if (gettype($this->ref_tiendas) === 'array'){
+			foreach ($this->ref_tiendas as $item){
+				if ($item['idTienda'] === $this->idTienda){
+					// Es la tienda que tenemos com principal en propiedades de clase.
+					$this->cref_tienda_principal = $item['crefTienda'];
+					break;
+				}
 			}
 		}
 	}

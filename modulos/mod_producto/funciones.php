@@ -576,11 +576,7 @@ function productosSesion($idProducto){
 		//~ in_array($idProducto, $_SESSION['productos']);
 		//~ unset($_SESSION['productos'],$idProducto);
 	}
-	if($_SESSION['productos']>0){
-			$respuesta['Nitems']=1;
-	}else{
-			$respuesta['Nitems']=0;
-	}
+	
 	if(count($_SESSION['productos_seleccionados'])>0){
 			$respuesta['Nitems']=count($_SESSION['productos_seleccionados']);
 	}
