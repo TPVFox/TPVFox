@@ -612,8 +612,8 @@ if($estado=="Guardado"){
 	?>
 	$("#tablaImporte").show();
 	$("#fila0").show();
-	$("#Cancelar").hide();
-	$("#Guardar").hide();
+	//~ $("#Cancelar").hide();
+	//~ $("#Guardar").hide();
 	<?php
 }
 if (isset($productos) & $albaranes==null){
