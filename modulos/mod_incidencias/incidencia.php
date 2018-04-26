@@ -5,11 +5,26 @@
 	include './../../head.php';
 	include './funciones.php';
 	include ("./../../controllers/Controladores.php");
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Controler = new ControladorComun; 
 	include 'ClaseIncidencia.php';
-	//~ $Controler = new ControladorComun; 
+	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	$CIncidencia= new incidencia($BDTpv);
+	$Usuario = $_SESSION['usuarioTpv'];
+	$dedonde='incidencia';
+	$parametros = $ClasesParametros->getRoot();
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_incidencias',$Usuario['id']);
+	
+	$configuracion=json_decode(json_encode($configuracion),true);
+	$configuracion=$configuracion['incidencias'];
+	$id="";
+	
+	
 	if(isset($_GET['id'])){
+		$id=$_GET['id'];
 		$datosIncidencias=$CIncidencia->incidenciasNumero($_GET['id']);
 		echo '<pre>';
 		print_r($datosIncidencias);
@@ -20,6 +35,9 @@
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+     <script type="text/javascript" >
+		<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+	</script>
 <?php
 	include '../../header.php';
 ?>
@@ -36,7 +54,7 @@
 			<h2 class="text-center">Datos de la incidencia Nº <?php echo $datosIncidencia['num_incidencia'];?></h2>
 			
 			<a  href="./ListadoIncidencias.php">Volver Atrás</a><br><br>
-			<a onclick="abrirIndicencia('incidencia', <?php echo $Usuario['id'];?>, <?php echo $datosIncidencia['num_incidencia'];?>);">Responder incidencia</a><br><br>
+			<a onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $id;?>);">Responder incidencia</a><br><br>
 			<?php 
 			
 			foreach($datosIncidencias as $datosIncidencia){
