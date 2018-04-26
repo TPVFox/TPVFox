@@ -839,6 +839,7 @@ function selecionarItemProducto(id, dedonde=""){
 function eliminarSeleccionProductos(){
 	// @ Objetivo :
 	// Eliminar todos los productos seleccionados. ( al pulsar ELiminar productos).
+	console.log(configuracion);
 		var parametros = {
 		"pulsado"    	: 'eliminarSeleccion'
 		
@@ -852,9 +853,27 @@ function eliminarSeleccionProductos(){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eliminar seleccion de productos ');
+				// La configuracion la cambiamos ya que si esta como si filtrar , ya no .
+				configuracion.filtro.valor='No';
+				AjaxGuardarConfiguracion();
 				location.href="ListaProductos.php";
 				 
 		}	
 	});
+}
+
+function UnProductoClick(id){
+	// @ Objetivo:
+	// Hizo click en id o Nombre de producto, por lo que lo mostramos.
+	window.location.href = './producto.php?id='+id;
+	
+}
+
+function filtrarSeleccionProductos(){
+	// @Objetivo:
+	// Hizo click en filtrar productos seleccionados por lo que 
+	configuracion.filtro.valor='Si';
+	AjaxGuardarConfiguracion();
+	location.href="ListaProductos.php";
 }
 
