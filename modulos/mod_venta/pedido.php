@@ -8,10 +8,14 @@ include './../../head.php';
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosVentas.php';
 	include '../../clases/cliente.php';
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
 	
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
+	$dedonde="pedidos";
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Pedido De Cliente ";
@@ -23,7 +27,19 @@ include './../../head.php';
 	$total=0;
 	$idCliente=0;
 	$errores=array();
-if ($_GET){
+	$parametros = $ClasesParametros->getRoot();
+	//~ $parametros = simplexml_load_file('parametros.xml');
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_ventas',$Usuario['id']);
+	$configuracionArchivo=array();
+		foreach ($configuracion['incidencias'] as $config){
+		
+		if(get_object_vars($config)['dedonde']==$dedonde){
+			array_push($configuracionArchivo, $config);
+		}
+	}
+	
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
 		$datosPedido=$Cpedido->datosPedidos($idPedido);//Buscar los datos de pedido 
@@ -65,7 +81,7 @@ if ($_GET){
 		$total=$Datostotales['total'];
 	}else{
 		
-			if ($_GET['tActual']){//Si recibe un id de un temporal 
+			if (isset($_GET['tActual'])){//Si recibe un id de un temporal 
 			$idTemporal=$_GET['tActual'];
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscamos los datos del temporal
 			if (isset($pedidoTemporal['error'])){
@@ -77,14 +93,14 @@ if ($_GET){
 			}
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
-			if ($pedidoTemporal['idPedcli']){
+			if (isset($pedidoTemporal['idPedcli'])){
 				$idPedido=$pedidoTemporal['idPedcli'];
 			}else{
 				$idPedido=0;
 			}
 			$pedido=$pedidoTemporal;
 			$productos = json_decode( $pedidoTemporal['Productos']); // Array de objetos
-			if ($idCliente){
+			if (isset($idCliente)){
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
@@ -92,7 +108,7 @@ if ($_GET){
 		}
 		
 	}
-}
+
 $titulo .= ': '.$estado;
 
 		if(isset($pedido['Productos'])){
@@ -179,11 +195,6 @@ $titulo .= ': '.$estado;
 						. '</div>';
 					}
 				}
-			
-			
-			//~ echo '<pre>';
-			//~ print_r($errores);
-			//~ echo '</pre>';
 		}
 		if (isset($datosPedido)){
 			if($estado=="Facturado"){
@@ -203,15 +214,12 @@ $titulo .= ': '.$estado;
 		if (isset ($_GET['tActual'])|| isset ($_GET['id'])){
 			$style="";
 		}
-		$parametros = simplexml_load_file('parametros.xml');
-	
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -286,7 +294,10 @@ if ($idCliente===0){
       }
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
+		<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idPedido ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>

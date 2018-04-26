@@ -254,6 +254,7 @@ class FacturasVentas extends ClaseVentas{
 	public function AddFacturaGuardado($datos, $idFactura){
 		//@Objetivo:
 		//Añadir todos los registros de las diferentes tablas de una factura real
+		$respuesta=array();
 		$db = $this->db;
 		if ($idFactura>0){
 			$sql='INSERT INTO facclit (id, Numfaccli, Fecha, idTienda 

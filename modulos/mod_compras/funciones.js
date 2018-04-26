@@ -171,16 +171,16 @@ function controladorAcciones(caja,accion, tecla){
 			
 			if (caja.tipo_event !== "blur"){
 				
-			//console.log("algo:"+productos[nfila].ultimoCoste);
+			
 			var costeAnt=productos[nfila].ultimoCoste;
 			
-		//	alert(productos[nfila].ultimoCoste);
+		
 			var idArticulo=productos[nfila].idArticulo;
 		
 			if (costeAnt===caja.darValor()){
 				var d_focus = 'Referencia';
 				ponerFocus(d_focus);
-				//alert("precios iguales");
+				
 			}else{
 			
 			if(valor=""){
@@ -418,8 +418,6 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 				}
 			}
 		});
-	//~ console.log(parametros);
-	
 }
 
 function metodoClick(pulsado,adonde){
@@ -435,7 +433,6 @@ function metodoClick(pulsado,adonde){
 			}
 			// Ahora redireccionamos 
 			window.location.href = './'+adonde+'.php?id='+checkID[0];
-			//window.location.href = './producto.php?id='+checkID[0];
 			break;
 		case 'AgregarPedido':
 			console.log('entro en agregar producto');
@@ -525,7 +522,6 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 				if (resultado.Nitems==2){
 					alert("El id del proveedor no existe");
 					document.getElementById(idcaja).value='';
-					//resetCampo(idcaja);
 				}
 					if (resultado.Nitems==1){
 						// Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
@@ -541,11 +537,9 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 						
 						//Dendiendo de donde venga realizamos unas funciones u otras
 						if (dedonde=="albaran"){
-							//comprobarPedidos();
 							comprobarAdjunto(dedonde);
 						}
 						if (dedonde=="factura"){
-							//comprobarAlbaranes();
 							comprobarAdjunto(dedonde);
 						}
 						if (dedonde=="pedidos"){
@@ -561,21 +555,6 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 						var HtmlProveedores=resultado.html['html']; 
 						abrirModal(titulo,HtmlProveedores);
 						focusAlLanzarModal('cajaBusquedaproveedor');
-						//~ if ( idcaja === 'cajaBusquedaproveedor'){
-							
-							// Buscamos en modal y podermo apuntar resultado , si hay claro.
-							//~ if (resultado.html.encontrados >0){
-								//~ console.log('Encontrados'+resultado.html.encontrados);
-								//~ focusAlLanzarModal('cajaBusquedaproveedor');
-								//~ ponerFocus('N_0');
-							//~ } 
-							//~ focusAlLanzarModal('cajaBusquedaproveedor');
-							//~ else {
-								
-							//~ }
-						
-						//~ }
-
 					}
 				
 	
@@ -601,9 +580,8 @@ function comprobarAdjunto(dedonde){
 			success    :  function (response) {
 				console.log('Llegue devuelta respuesta de buscar clientes');
 				var resultado =  $.parseJSON(response); 
-				//~ console.log(resultado);
-				if (resultado.error){ç
-				
+				if (resultado.error){
+					alert(resultado.error);
 				}else{
 					if (resultado.bandera == 1){
 						console.log("entre en las opciones");
@@ -616,45 +594,12 @@ function comprobarAdjunto(dedonde){
 					}else{
 						ponerFocus('idArticulo');
 					}
-				//~ console.log(resultado);
 				}
 				
 	
 		}
 	});
 }
-//~ function abrirModal(titulo,tabla){
-	//~ // @ Objetivo :
-	//~ // Abril modal con texto buscado y con titulo que le indiquemos.
-	//~ console.log('Estamos en abrir modal');
-	//~ $('.modal-body > p').html(tabla);
-	//~ $('.modal-title').html(titulo);
-	//~ $('#busquedaModal').modal('show');
-	
-	//~ //Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	//~ $('#busquedaModal').on('shown.bs.modal', function() {
-		//~ // Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-		//~ $('#cajaBusqueda').focus(); //f
-				//~ $('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
-
-	//~ });
-//~ }
-//~ function sobreFilaCraton(cont){
-	//~ $('#Fila_'+cont).css('background-color','azure');
-//~ }
-//~ function abandonFila(cont){
-	//~ $('#Fila_'+cont).css('background-color','white');
-//~ }
-//~ function cerrarPopUp(destino_focus=''){
-	//~ // @ Objetivo :
-	//~ // Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
-	//~ //cerrar modal busqueda
-	//~ $('#busquedaModal').modal('hide');
-	//~ if (destino_focus !== ''){
-		//~ ponerFocus(destino_focus);
-	//~ }
-	
-//~ }
 
 function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 	//@Objetivo: 
@@ -715,7 +660,6 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				var campo='Unidad_Fila_'+n_item;
 				addTemporal(dedonde)
 				document.getElementById(id_input).value='';
-				//resetCampo(id_input);
 				AgregarFilaProductos(datos, dedonde, campo);
 				if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
 					alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
@@ -742,12 +686,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 					var d_focus = 'N_0';
 					ponerFocus(d_focus);
 				 }
-				 //~ else {
-					//~ // No hay resultado pero apuntamos a caj
-						//~ $('#cajaBusqueda').focus();
-				//~ }
 			}
-			
 		}
 	}
 	});
@@ -852,7 +791,6 @@ function addTemporal(dedonde=""){
 				resetearTotales();
 				
 				total = parseFloat(resultado['totales']['total'])
-				//~ alert(total);
 				$('.totalImporte').html(total.toFixed(2));
 				$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
 				
@@ -872,8 +810,6 @@ function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	console.log('Entro en enviar focus de :'+destino_focus);
-	//console.log(destino_focus.toString());
-	
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
 		
@@ -922,7 +858,6 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 		var campo1='Unidad_Fila_'+num_item;
 		AgregarFilaProductos(datos, dedonde,  campo1);
 		document.getElementById(campo).value='';
-	//	resetCampo(campo);
 		var campo='Unidad_Fila_'+num_item;
 		cerrarPopUp(campo);
 		
@@ -1097,7 +1032,6 @@ function before_constructor(caja){
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
 	if (caja.id_input ==='cajaBusqueda'){
-		//caja.parametros.dedonde = 'popup';
 		if (caja.name_cja ==='Codbarras'){
 			caja.parametros.campo = cajaCodBarras.parametros.campo;
 		}
@@ -1195,7 +1129,6 @@ function mover_down(fila,prefijo){
 		if ( document.getElementById(d_focus) ) {
 			ponerSelect(d_focus);
 		}else{
-			//~ var d_focus = 'idArticulo';
 			//estamos en abrir modal ponemos focus en la 1ª opc despues de buscar algo.. nos movemos con tabulador
 			ponerFocus(d_focus);
 		}
@@ -1296,28 +1229,3 @@ var parametros = {
 }
 	
 }
-
-//~ function abrirIndicencia(dedonde, idUsuario, configuracion){
-	//~ console.log(configuracion);
-	//~ var parametros = {
-		//~ "pulsado"    : 'abririncidencia',
-		//~ "dedonde" : dedonde,
-		//~ "usuario":cabecera.idUsuario,
-		//~ "idReal":cabecera.idReal
-	//~ };
-		//~ $.ajax({
-		//~ data       : parametros,
-		//~ url        : 'tareas.php',
-		//~ type       : 'post',
-		//~ beforeSend : function () {
-			//~ console.log('*********  Modificando los importes de la factura  ****************');
-		//~ },
-		//~ success    :  function (response) {
-			//~ console.log('Respuesta de la modificación de los importes');
-			//~ var resultado =  $.parseJSON(response);
-			//~ titulo="Crear incidencia";
-			//~ html=resultado.html;
-			//~ abrirModal(titulo, html);
-		//~ }
-	//~ });
-//~ }

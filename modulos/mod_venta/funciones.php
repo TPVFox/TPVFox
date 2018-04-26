@@ -267,14 +267,7 @@ function modificarArrayProductos($productos){
 }
 
 function htmlLineaPedidoAlbaran($productos, $dedonde){
-	
-	if(!is_array($productos)) {
-		// Comprobamos si product no es objeto lo convertimos.
-		$producto = (array)$productos;
-		
-	} else {
-		$producto = $productos;
-	}
+	$codBarras="";
 	$producto=$productos;
 	$respuesta=array('html'=>'');
 	
@@ -308,9 +301,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				}
 				
 			}
-			if ($producto['ccodbar']==0){
-				$codBarras="";
-			}else{
+			if (isset($producto['ccodbar'])){
 				$codBarras=$producto['ccodbar'];
 			}
 			
@@ -415,14 +406,14 @@ function modalAdjunto($adjuntos){
 	$respuesta['html'] .='</th>';
 	$respuesta['html'] .= '</thead><tbody>';
 	foreach ($adjuntos as $adjunto){
-		if ($adjunto['Numalbcli']){
+		if (isset($adjunto['Numalbcli'])){
 			$onclick="buscarDatosAlbaran";
 			$num=$adjunto['Numalbcli'];
 			}else{
 				$num=$adjunto['Numpedcli'];
 				$onclick="buscarDatosPedido";
 				}
-		if($adjunto['Fecha']){
+		if(isset($adjunto['Fecha'])){
 			$fecha=$adjunto['Fecha'];
 			}else{
 				$fecha=$adjunto['FechaPedido'];

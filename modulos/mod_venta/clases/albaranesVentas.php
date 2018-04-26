@@ -78,7 +78,6 @@ class AlbaranesVentas extends ClaseVentas{
 		//@Objetivo:
 		//SI tenemos un número de albarán real lo metemos en el albarán temporal
 		$db = $this->db;
-		$UnicoCampoPedidos=json_encode($pedidos);
 		$sql='UPDATE albcliltemporales SET numalbcli ='.$numAlbaran
 		.' WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
@@ -144,6 +143,7 @@ class AlbaranesVentas extends ClaseVentas{
 public function AddAlbaranGuardado($datos, $idAlbaran){
 			//@Objetivo:
 			//Añadir nuevos registros de un albaran real 
+		$respuesta=array();
 		$i=1;
 		$db = $this->db;
 		if ($idAlbaran>0){

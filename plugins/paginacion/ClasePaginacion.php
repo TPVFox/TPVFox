@@ -2,7 +2,7 @@
 
 
 class PluginClasePaginacion {
-	public $PagActual 			=1  ; // (int) Pagina actual
+	public $PagActual 			= 1  ; // (int) Pagina actual
 	public $CantidadRegistros	= 0 ; // (int) El total de registros de la consulta.
 	public $LinkBase; 				// (string) Indica la ruta donde estamos.
 	public $ArrayTPg 			= array('inicio'=>'Inicio','actual'=>'Actual','ultima'=>'Ultima'); // Para texto predeterminado.
@@ -106,12 +106,12 @@ class PluginClasePaginacion {
 	public function ObtenerPaginasPrevSigui(){
 		// Ahora monstamos las paginas previas.
 		$paginas = array();
-		$paginas['Actual'] = $this->PagActual;
+		$paginas['actual'] = $this->PagActual;
 		$paginas['inicio'] = 1;
-		$paginas['Ultima'] = $this->TotalPaginas;
+		$paginas['ultima'] = $this->TotalPaginas;
 		// Preparamos paginas previos.
-		if ($paginas['Actual'] > $paginas['inicio']) {
-			$difPg= $paginas['Actual'] - $paginas['inicio'];
+		if ($paginas['actual'] > $paginas['inicio']) {
+			$difPg= $paginas['actual'] - $paginas['inicio'];
 			if ($difPg >6 ){
 				// Quiere decir que hay mas 5 paginas hasta llegar al inicio
 				$difPg = 5; // Máximo de paginas previas a mostrar.		
@@ -120,8 +120,8 @@ class PluginClasePaginacion {
 			$x= 0;
 			for ($i = 1; $i <= $difPg; $i++) {
 				// Comprobamos que no vamos anotar la pagina inicio , que no hace falta.
-				if (($paginas['Actual']-($i)) > $paginas['inicio']) {
-				$paginas['previo'][$i] = $paginas['Actual']-($i);
+				if (($paginas['actual']-($i)) > $paginas['inicio']) {
+				$paginas['previo'][$i] = $paginas['actual']-($i);
 				$x++;
 				}
 			}
@@ -144,8 +144,8 @@ class PluginClasePaginacion {
 		}
 		
 		
-		if ($paginas['Actual'] < $paginas['Ultima']) {
-			$difPg= $paginas['Ultima']- $paginas['Actual'];
+		if ($paginas['actual'] < $paginas['ultima']) {
+			$difPg= $paginas['ultima']- $paginas['actual'];
 			if ($difPg > 6 ){
 				$difPg = 5; // Su hay mas 5, solo muestra 6
 				 
@@ -154,8 +154,8 @@ class PluginClasePaginacion {
 			$x= 0;
 			for ($i = 1; $i <= $difPg; $i++) {
 				// Comprobamos que no vamos añadir la pagina ultima, ya que esta no hace falta.
-				if ($paginas['Actual']+$i !== $paginas['Ultima']) {
-					$paginas['next'][$i] = $paginas['Actual']+ $i  ;
+				if ($paginas['actual']+$i !== $paginas['ultima']) {
+					$paginas['next'][$i] = $paginas['actual']+ $i  ;
 					$x++;
 				} 
 			}
@@ -164,7 +164,7 @@ class PluginClasePaginacion {
 			$PrevBloques = 0;
 			if (isset($paginas['next'])){
 				if ($paginas['next'][$x]){
-					$PrevBloques= round((($paginas['Ultima']- $paginas['next'][$x]) /4),0, PHP_ROUND_HALF_UP);
+					$PrevBloques= round((($paginas['ultima']- $paginas['next'][$x]) /4),0, PHP_ROUND_HALF_UP);
 					$paginas['PrevBloquesNext'] = $PrevBloques;
 				}
 			}
@@ -184,62 +184,65 @@ class PluginClasePaginacion {
 	}
 	
 	public function htmlPaginado(){
-		$ArrayTPg= $this->ArrayTPg;
-		$paginas = $this->Paginas;
-		$Linkpg = '<li><a href="'.$this->LinkBase;
-		if( $this->Busqueda !== ''){
-			$Linkpg	.= 'buscar='.$this->Busqueda.'&pagina=';
-		} else {
-			$Linkpg .= 'pagina=';
-		}
-		
-		//~ $Linkpg	.='pagina=';
-		// Montamos HTML para mostrar...
-		$htmlPG =  '<ul class="pagination">';
-		// Pagina inicio 
-		if ($paginas['Actual'] == $paginas['inicio']){
-			$htmlPG = $htmlPG.'<li class="active"><a>'.$ArrayTPg['inicio'].'</a></li>';
-		} else {
-			$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'.$ArrayTPg['inicio'].'</a></li>';
-		}
-		
-		// Paginas anteriores (previos)
-		if (isset($paginas['previo'])){
-			// El orden es al reves, de la creacion 
-			$previo = $paginas['previo'];
-			sort($previo); // Ordenamo ... 
-			$ordenInverso = $previo;
-			foreach ($ordenInverso as $pagina) {
-				$htmlPG = $htmlPG.$Linkpg.$pagina.'">'.$pagina.'</a></li>';
+		$htmlPG = '';
+		if ($this->TotalPaginas >1){
+			$ArrayTPg= $this->ArrayTPg;
+			$paginas = $this->Paginas;
+			$Linkpg = '<li><a href="'.$this->LinkBase;
+			if( $this->Busqueda !== ''){
+				$Linkpg	.= 'buscar='.$this->Busqueda.'&pagina=';
+			} else {
+				$Linkpg .= 'pagina=';
 			}
 			
-		}
-		// Pagina actual ()
-		if ($paginas['Actual'] != 1 and $paginas['Actual'] != $paginas['Ultima'] ){
-		// Pagina actual distinta a inicio....
-		$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['Actual'].'</a></li>';
-		}
-		// Pagina siguientes.
-		$x= 0;
-		if (isset($paginas['next'])){
-			foreach ($paginas['next'] as $paginaF	) {
-				$x++ ;
-				$pref= '';
-				if ($x>5){
-				// Marque el salto..
-				$pref = "&gt;"; //'>';	
-				}
-				$htmlPG = $htmlPG.$Linkpg.$paginaF.'">'.$pref.$paginaF.'</a></li>';
+			//~ $Linkpg	.='pagina=';
+			// Montamos HTML para mostrar...
+			$htmlPG =  '<ul class="pagination">';
+			// Pagina inicio 
+			if ($paginas['actual'] == $paginas['inicio']){
+				$htmlPG = $htmlPG.'<li class="active"><a>'.$ArrayTPg['inicio'].'</a></li>';
+			} else {
+				$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'.$ArrayTPg['inicio'].'</a></li>';
 			}
+			
+			// Paginas anteriores (previos)
+			if (isset($paginas['previo'])){
+				// El orden es al reves, de la creacion 
+				$previo = $paginas['previo'];
+				sort($previo); // Ordenamo ... 
+				$ordenInverso = $previo;
+				foreach ($ordenInverso as $pagina) {
+					$htmlPG = $htmlPG.$Linkpg.$pagina.'">'.$pagina.'</a></li>';
+				}
+				
+			}
+			// Pagina actual ()
+			if ($paginas['actual'] != 1 and $paginas['actual'] != $paginas['ultima'] ){
+			// Pagina actual distinta a inicio....
+			$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['actual'].'</a></li>';
+			}
+			// Pagina siguientes.
+			$x= 0;
+			if (isset($paginas['next'])){
+				foreach ($paginas['next'] as $paginaF	) {
+					$x++ ;
+					$pref= '';
+					if ($x>5){
+					// Marque el salto..
+					$pref = "&gt;"; //'>';	
+					}
+					$htmlPG = $htmlPG.$Linkpg.$paginaF.'">'.$pref.$paginaF.'</a></li>';
+				}
+			}
+			//~ $controlError .= '-PaginaF:'.$paginaF;
+			// Mostramos ultima pagina, si no se mostro en previo.
+			if ( $paginas['actual'] == $paginas['ultima']){
+				$htmlPG = $htmlPG.'<li class="active"><a>'.$ArrayTPg['ultima'].'</a></li>';
+			} else{
+				$htmlPG = $htmlPG.$Linkpg.$paginas['ultima'].'">'.$ArrayTPg['ultima'].'</a></li>';
+			}
+			$htmlPG = $htmlPG. '</ul>';
 		}
-		//~ $controlError .= '-PaginaF:'.$paginaF;
-		// Mostramos ultima pagina, si no se mostro en previo.
-		if ( $paginas['Actual'] == $paginas['Ultima']){
-			$htmlPG = $htmlPG.'<li class="active"><a>'.$ArrayTPg['ultima'].'</a></li>';
-		} else{
-			$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.$ArrayTPg['ultima'].'</a></li>';
-		}
-		$htmlPG = $htmlPG. '</ul>';
 		return $htmlPG;
 	}
 	
