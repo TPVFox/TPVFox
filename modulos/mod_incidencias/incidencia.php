@@ -26,9 +26,9 @@
 	if(isset($_GET['id'])){
 		$id=$_GET['id'];
 		$datosIncidencias=$CIncidencia->incidenciasNumero($_GET['id']);
-		echo '<pre>';
-		print_r($datosIncidencias);
-		echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($datosIncidencias);
+		//~ echo '</pre>';
 	}
 	?>
 </head>
@@ -58,6 +58,18 @@
 			<?php 
 			
 			foreach($datosIncidencias as $datosIncidencia){
+				
+				$datosPrincipales=json_decode($datosIncidencia['datos']);
+			
+				if(isset($datosPrincipales->usuarioSelec)){
+						$sql='select * from usuarios where id='.$datosPrincipales->usuarioSelec;
+						
+						$smt = $BDTpv->query($sql);
+						if ($result = $smt->fetch_assoc () ){
+						$usuarioSelect=$result;
+						}
+				}
+				
 			?>
 			<div class="col-md-12" >
 				<div class="col-md-2">
@@ -73,31 +85,35 @@
 					<strong>Estado:</strong><br>
 					<input type="text" id="Estado" name="Estado" value="<?php echo  $datosIncidencia['estado'];?>" size="10" readonly>
 				</div>
+				
 				<div class="col-md-2">
 					<strong>Dedonde:</strong><br>
-					<input type="text" id="dedonde" name="dedonde" value="<?php echo  $datosIncidencia['dedonde'];?>" size="10" readonly>
+					<input type="text" id="dedonde" name="dedonde" value="<?php echo  $datosIncidencia['dedonde'];?>" size="15" readonly>
 				</div>
 				<div class="col-md-2">
 					<strong>Usuario:</strong><br>
-					<?php 
-					
-					
-					?>
 					<input type="text" id="usuario" name="usuario" value="<?php echo  $datosIncidencia['username'];?>" size="10" readonly>
 				</div>
-			</div>
-			<div class="col-md-12" >
+				<?php 
+				if (isset($usuarioSelect['id'])){
+				?>
 				<div class="col-md-2">
-					<strong>Mensaje:</strong><br>
-					<input type="text" name="mensaje" id="mensaje"   size="50" value="<?php echo $datosIncidencia['mensaje'];?>" readonly>
-					<hr/>
+					<strong>Usuario Asignado:</strong><br>
+					<input type="text" id="usuarioAsig" name="usuarioAsig" value="<?php echo  $usuarioSelect['username'];?>" size="10" readonly>
 				</div>
 			</div>
+			<?php 
+				}
+			?>
 			<div class="col-md-12" >
-				<div class="col-md-2">
+				<div class="col-md-5">
+					<strong>Mensaje:</strong><br>
+					<input type="text" name="mensaje" id="mensaje"   size="50" value="<?php echo $datosIncidencia['mensaje'];?>" readonly>
+					
+				</div>
+				<div class="col-md-5">
 					<strong>Datos:</strong><br>
 					<input type="text" name="datos" id="datos" size="50" value='<?php echo $datosIncidencia['datos'];?>' readonly>
-					<hr/>
 				</div>
 			</div>
 		
