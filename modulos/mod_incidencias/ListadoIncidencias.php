@@ -6,8 +6,11 @@
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
 	include 'ClaseIncidencia.php';
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	$CIncidencia= new incidencia($BDTpv);
 	$palabraBuscar=array();
 	$stringPalabras='';
@@ -16,6 +19,18 @@
 	$filtro = ''; // por defecto
 	$errores=array();
 	$Usuario = $_SESSION['usuarioTpv'];
+	$dedonde='incidencia';
+	$parametros = $ClasesParametros->getRoot();
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_incidencias',$Usuario['id']);
+	
+	$configuracion=json_decode(json_encode($configuracion),true);
+	$configuracion=$configuracion['incidencias'];
+	//~ echo '<pre>';
+	//~ print_r($configuracion);
+	//~ echo '</pre>';
+	
+	
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
@@ -64,6 +79,9 @@
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>    
+    <script type="text/javascript" >
+		<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+	</script>
      <?php
 
 	include '../../header.php';
@@ -85,7 +103,7 @@
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				
-					<li><a onclick="abrirIndicencia('incidencia', <?php echo $Usuario['id'];?>);">Añadir</a></li>
+					<li><a onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir</a></li>
 				
 					<li><a href="#section2" onclick="metodoClick('Ver','incidencia');";>Modificar</a></li>
 				
@@ -121,13 +139,26 @@
 				<tbody>
 				<?php 
 				$checkUser = 0;
+				$numInci=1;
 				foreach($incidenciasFiltro as $incidencia){
 							$checkUser = $checkUser + 1;
-								$date=date_create($incidencia['fecha']);
+							$date=date_create($incidencia['fecha']);
+							$numInci=count($CIncidencia->incidenciasNumero($incidencia['num_incidencia']));
 					?>
 					<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $incidencia['id'];?>">
-					<td><?php echo $incidencia['num_incidencia'];?></td>
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $incidencia['num_incidencia'];?>">
+					<td><?php echo $incidencia['num_incidencia'];?>
+					<?php 
+						if($numInci>1){
+							?>
+							<div style="float:right">
+							<a  class="glyphicon glyphicon-envelope"></a> <?php echo $numInci;?>
+							</div>
+							<?php
+						}
+					
+					?>
+					</td>
 					<td><?php echo date_format($date,'Y-m-d');?></td>
 					<td><?php echo $incidencia['nombre'];?></td>
 					<td><?php echo $incidencia['dedonde'];?></td>
@@ -145,6 +176,7 @@
 		</div>	
 			</nav>
 			<?php // Incluimos paginas modales
+			echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 // hacemos comprobaciones de estilos 
 ?>

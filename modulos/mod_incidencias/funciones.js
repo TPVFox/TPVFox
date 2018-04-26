@@ -5,7 +5,8 @@ function enviarIncidencia(){
 	var dedonde=$("#inci_dedonde").val();
 	var estado=$("#inci_estado").val();
 	var mensaje=$("#inci_mensaje").val();
-	
+	var numIncidencia=$("#numIncidencia").val();
+	var usuarioSelec=$("#usuarioSelec").val();
 	var parametros = {
 		'pulsado':'nuevaIncidencia',
 		'usuario':usuario,
@@ -13,7 +14,9 @@ function enviarIncidencia(){
 		'datos':datos,
 		'dedonde':dedonde,
 		'estado':estado,
-		'mensaje':mensaje
+		'mensaje':mensaje,
+		'numIncidencia':numIncidencia,
+		'usuarioSelec':usuarioSelec
 	};
 	console.log(parametros);
 	$.ajax({
@@ -51,14 +54,16 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-function abrirIndicencia(dedonde, idUsuario){
+function abrirIndicencia(dedonde, idUsuario, configuracion, numIncidencia=""){
 	var parametros = {
 		"pulsado"    : 'abririncidencia',
 		"dedonde" : dedonde,
-		"usuario":idUsuario
+		"usuario":idUsuario,
+		"numIncidencia":numIncidencia,
+		"configuracion":configuracion
 		
 	};
-	
+	console.log(configuracion);
 		$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -75,19 +80,19 @@ function abrirIndicencia(dedonde, idUsuario){
 		}
 	});
 }
-function abrirModal(titulo,tabla){
-	// @ Objetivo :
-	// Abril modal con texto buscado y con titulo que le indiquemos.
-	console.log('Estamos en abrir modal');
-	$('.modal-body > p').html(tabla);
-	$('.modal-title').html(titulo);
-	$('#busquedaModal').modal('show');
+//~ function abrirModal(titulo,tabla){
+	//~ // @ Objetivo :
+	//~ // Abril modal con texto buscado y con titulo que le indiquemos.
+	//~ console.log('Estamos en abrir modal');
+	//~ $('.modal-body > p').html(tabla);
+	//~ $('.modal-title').html(titulo);
+	//~ $('#busquedaModal').modal('show');
 	
-	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	$('#busquedaModal').on('shown.bs.modal', function() {
-		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-	$('#cajaBusqueda').focus(); //f
-	$('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
+	//~ //Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
+	//~ $('#busquedaModal').on('shown.bs.modal', function() {
+		//~ // Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
+	//~ $('#cajaBusqueda').focus(); //f
+	//~ $('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
 
-	});
-}
+	//~ });
+//~ }

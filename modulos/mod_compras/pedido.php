@@ -8,13 +8,17 @@
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosCompras.php';
 	include '../../clases/Proveedores.php';
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Cpedido=new PedidosCompras($BDTpv);
 	$Cprveedor=new Proveedores($BDTpv);
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	// Variables que utilizamos en pedidos.
 	$titulo="Pedido De Proveedor";
+	$dedonde="pedidos";
 	$fecha=date('Y-m-d');
 	$idPedido=0;
 	$numPedidoTemp=0;
@@ -22,6 +26,23 @@
 	$idProveedor=0;
 	$nombreProveedor="";
 	$Datostotales=array();
+	
+	// ---------   FIN PROCESO Y CONTROL DE GUARDAR  ------------------  //
+	$parametros = $ClasesParametros->getRoot();
+//~ $parametros = simplexml_load_file('parametros.xml');
+// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
+	$configuracionArchivo=array();
+	foreach ($configuracion['incidencias'] as $config){
+		if(get_object_vars($config)['dedonde']==$dedonde){
+			array_push($configuracionArchivo, $config);
+		}
+	}
+	
+	
 	if ($_GET){
 		if (isset($_GET['id'])){
 			$idPedido=$_GET['id'];
@@ -94,10 +115,7 @@ if (isset($_POST['Guardar'])){
 	//~ echo '</pre>';
 	
 }
-// ---------   FIN PROCESO Y CONTROL DE GUARDAR  ------------------  //
-$parametros = simplexml_load_file('parametros.xml');
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+
 ?>
 <script type="text/javascript">
 // Objetos cajas de tpv
@@ -108,7 +126,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
       }
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+		<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -156,7 +174,7 @@ if ($idProveedor===0){
 	include '../../header.php';
 ?>
 <div class="container">
-	<a  onclick="abrirIndicencia('pedido');">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
 	
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
@@ -265,6 +283,7 @@ if ($idProveedor===0){
 </form>
 </div>
 <?php // Incluimos paginas modales
+ echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 <script type="text/javascript">

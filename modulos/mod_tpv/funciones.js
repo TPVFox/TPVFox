@@ -966,29 +966,29 @@ function GuardarConfiguracion(){
 
 	
 }
-function abrirIndicencia(dedonde){
-	var parametros = {
-		"pulsado"    : 'abririncidencia',
-		"dedonde" : dedonde,
-		"usuario":cabecera.idUsuario,
-		"idReal":cabecera.idReal
-	};
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  Modificando los importes de la factura  ****************');
-		},
-		success    :  function (response) {
-			console.log('Respuesta de la modificación de los importes');
-			var resultado =  $.parseJSON(response);
-			titulo="Crear incidencia";
-			html=resultado.html;
-			abrirModal(titulo, html);
-		}
-	});
-}
+//~ function abrirIndicencia(dedonde){
+	//~ var parametros = {
+		//~ "pulsado"    : 'abririncidencia',
+		//~ "dedonde" : dedonde,
+		//~ "usuario":cabecera.idUsuario,
+		//~ "idReal":cabecera.idReal
+	//~ };
+		//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : 'tareas.php',
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+			//~ console.log('*********  Modificando los importes de la factura  ****************');
+		//~ },
+		//~ success    :  function (response) {
+			//~ console.log('Respuesta de la modificación de los importes');
+			//~ var resultado =  $.parseJSON(response);
+			//~ titulo="Crear incidencia";
+			//~ html=resultado.html;
+			//~ abrirModal(titulo, html);
+		//~ }
+	//~ });
+//~ }
 
 
 function ActivarPrecioCIva(event,nfila){

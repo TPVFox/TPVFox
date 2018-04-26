@@ -144,28 +144,29 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				 var titulo = 'Listado clientes ';
 				 var HtmlClientes=resultado.html.html; 
 				 abrirModal(titulo,HtmlClientes);
+				 focusAlLanzarModal('cajaBusquedacliente');
 				 }
 			}
 			
 		}
 	});
 }
-function abrirModal(titulo,tabla){
-	// @ Objetivo :
-	// Abril modal con texto buscado y con titulo que le indiquemos.
-	console.log('Estamos en abrir modal');
-	$('.modal-body ').html(tabla);
-	$('.modal-title').html(titulo);
-	$('#busquedaModal').modal('show');
+//~ function abrirModal(titulo,tabla){
+	//~ // @ Objetivo :
+	//~ // Abril modal con texto buscado y con titulo que le indiquemos.
+	//~ console.log('Estamos en abrir modal');
+	//~ $('.modal-body ').html(tabla);
+	//~ $('.modal-title').html(titulo);
+	//~ $('#busquedaModal').modal('show');
 	
-	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	$('#busquedaModal').on('shown.bs.modal', function() {
-		// Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-		$('#entrega').select(); 	//foco en input entrega MODAL cobrar
-		$('#cajaBusqueda').focus(); //foco en input caja busqueda del cliente
-		$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
-	});
-}
+	//~ //Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
+	//~ $('#busquedaModal').on('shown.bs.modal', function() {
+		//~ // Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
+		//~ $('#entrega').select(); 	//foco en input entrega MODAL cobrar
+		//~ $('#cajaBusqueda').focus(); //foco en input caja busqueda del cliente
+		//~ $('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
+	//~ });
+//~ }
 function controladorAcciones(caja,accion, tecla){
 	// @ Objetivo es obtener datos si fuera necesario y ejecutar accion despues de pulsar una tecla.
 	//  Es Controlador de acciones a pulsar una tecla que llamamos desde teclado.js
@@ -527,14 +528,16 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							var HtmlProductos=busqueda.html;   
 							var titulo = 'Listado productos encontrados ';
 							abrirModal(titulo,HtmlProductos);
+							focusAlLanzarModal('cajaBusqueda');
 							if (resultado.Nitems >0 ){
 								// Quiere decir que hay resultados por eso apuntamos al primero
 								// focus a primer producto.
 								var d_focus = 'N_0';
-								ponerFocus(d_focus);
+								 ponerFocus(d_focus);
+								 focusAlLanzarModal('cajaBusqueda');
 							} else {
 							// No hay resultado pero apuntamos a caj
-							ponerFocus(id_input);
+							//~ ponerFocus(id_input);
 							}
 						}
 					
@@ -563,23 +566,23 @@ function escribirClienteSeleccionado(id, nombre ,dedonde=''){
 	 mostrarFila();
 }
 
-function abandonFila(cont){
-	$('#N_'+cont).css('background-color','white');
-}
-function sobreFilaCraton(cont){
-	console.log("Estoy en fila carton");
-	$('#N_'+cont).css('background-color','azure');
-}
-function cerrarPopUp(destino_focus=''){
-	// @ Objetivo :
-	// Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
-	//cerrar modal busqueda
-	$('#busquedaModal').modal('hide');
-	if (destino_focus !== ''){
-		ponerFocus(destino_focus);
-	}
+//~ function abandonFila(cont){
+	//~ $('#N_'+cont).css('background-color','white');
+//~ }
+//~ function sobreFilaCraton(cont){
+	//~ console.log("Estoy en fila carton");
+	//~ $('#N_'+cont).css('background-color','azure');
+//~ }
+//~ function cerrarPopUp(destino_focus=''){
+	//~ // @ Objetivo :
+	//~ // Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
+	//~ //cerrar modal busqueda
+	//~ $('#busquedaModal').modal('hide');
+	//~ if (destino_focus !== ''){
+		//~ ponerFocus(destino_focus);
+	//~ }
 	
-}
+//~ }
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id, dedonde){
 	// @ Objetivo:
 	//   Realizamos cuando venimos popUp de Productos.
@@ -1177,9 +1180,9 @@ function imprimir(id, dedonde, tienda){
 		
 	});
 }
-function sobreFila(cont){
-	$('#N_'+cont).css('background-color','lightblue');
-}
+//~ function sobreFila(cont){
+	//~ $('#N_'+cont).css('background-color','lightblue');
+//~ }
 
 function eliminarAdjunto(numRegistro, dedonde, nfila){
 	//@Objetivo:
