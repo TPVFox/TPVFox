@@ -96,9 +96,6 @@ switch ($pulsado) {
 			}else{
 				$respuesta['res']=$res;
 				if (isset($res['Nitem'])){
-					//~ $temporales=$CcliPed->contarPedidosTemporal($res['id']);
-					//~ if ($temporales['numPedTemp']==0){
-						//~ $respuesta['temporales']=$temporales;
 						$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
 						$respuesta['datos']['idPedCli']=$res['id'];
 						$respuesta['datos']['idPedido']=$res['id'];
@@ -113,7 +110,7 @@ switch ($pulsado) {
 						}else{
 							$respuesta['productos']=$productosPedido;
 						}
-					//~ }
+					
 				}else{
 					$respuesta=$res;
 					$modal=modalAdjunto($res['datos']);
@@ -186,7 +183,6 @@ switch ($pulsado) {
 				$respuesta['consulta']=$res['consulta'];
 			}else{
 				$idTemporal=$res['id'];
-			//~ $respuesta['sql']=$res['sql'];
 			}
 		}
 		if ($idReal>0){
@@ -197,8 +193,6 @@ switch ($pulsado) {
 			}
 		}
 		 if ($productos){
-				//~ $productos_para_recalculo = json_decode( json_encode( $productos ));
-				//~ $respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
@@ -238,13 +232,6 @@ switch ($pulsado) {
 			$idReal=$_POST['idReal'];
 			$existe=0;
 			$respuesta=array();
-			//Si el número del albarán real existe lo guardamos
-			//~ if (isset($numAlbaran)){
-				//~ if ($numAlbaran>0){
-					//~ $albaran=$CalbAl->buscarTemporalNumReal($numAlbaran);
-					//~ $idAlbaranTemp=$albaran['id'];
-				//~ }
-			//~ }
 			//Si el albarán temporal existe lo modifica
 			if ($idAlbaranTemp>0){
 				$rest=$CalbAl->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $idAlbaranTemp, $productos);
@@ -254,7 +241,6 @@ switch ($pulsado) {
 				}else{
 					$existe=1;
 					$res=$rest['idTemporal'];
-					//~ $pro=$rest['productos'];
 				}
 			}else{
 				//Si no lo inserta
@@ -264,24 +250,19 @@ switch ($pulsado) {
 					$respuesta['consulta']=$rest['consulta'];
 				}else{
 					$existe=0;
-				//~ $pro=$rest['productos'];
 					$res=$rest['id'];
 					$idAlbaranTemp=$res;
 				}
 			}
-			//$respuesta['numalbaran']=$numAlbaran;
 			if ($idReal>0){
 				$modId=$CalbAl->addNumRealTemporal($idAlbaranTemp, $idReal);
 				if (isset($modId['error'])){
 					$respuesta['error']=$modId['error'];
 					$respuesta['consulta']=$modId['consulta'];
 				}
-				//~ $respuesta['sqlmodnum']=$modId;
 			}
 			//recalcula los totales de los productos y modifica el total en albarán temporal
 			if (isset($productos)){
-				//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-				//~ $respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
@@ -319,10 +300,6 @@ switch ($pulsado) {
 			}
 			$respuesta=array();
 			$existe=0;
-			//~ if ($numFactura>0){
-				//~ $factura=$CFac->buscarTemporalNumReal($numFactura);
-				//~ $idFacturaTemp=$factura['id'];
-			//~ }
 			$res=$idFacturaTemp;
 			if ($idFacturaTemp>0){
 				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idFacturaTemp, $productos);
@@ -355,8 +332,6 @@ switch ($pulsado) {
 				}
 			}
 			if (isset($productos)){
-				//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-				//~ $respuesta['productosre']=$productos_para_recalculo;
 				$CalculoTotales = recalculoTotales($productos);
 				$total=round($CalculoTotales['total'],2);
 				$respuesta['total']=round($CalculoTotales['total'],2);
@@ -388,9 +363,6 @@ switch ($pulsado) {
 				$respuesta['error']=$modEstado['error'];
 				$respuesta['consulta']=$modEstado['consulta'];
 			}
-			//~ if (isset ($respuesta)){
-				//~ echo json_encode($respuesta);
-			//~ }
 		echo json_encode($respuesta);
 		break;
 		
@@ -464,7 +436,6 @@ switch ($pulsado) {
 		case 'htmlAgregarFilaAlbaran':
 		//Objetivo:
 		//Devuelve el html de la fila albarán
-		//	$res=lineaAlbaranFactura($_POST['datos'], $_POST['dedonde']);
 		$arrayAlbaranes=array();
 		array_push($arrayAlbaranes, $_POST['datos']);
 		$res=htmlAlbaranFactura($arrayAlbaranes, $_POST['dedonde']);
@@ -492,21 +463,6 @@ switch ($pulsado) {
 		 }
 		echo json_encode($respuesta);
 		break;
-		
-		//~ case 'buscarDatosPedido':
-		//~ //@Objetivo:
-		 //~ //Busca los datos de un pedido en concreto
-			//~ $idPedido=$_POST['idPedido'];
-			//~ $respuesta=array();
-			//~ $res=$CcliPed->datosPedidos($idPedido);
-			//~ if(isset($res['error'])){
-				//~ $respuesta['error']=$res['error'];
-				//~ $respuesta['consulta']=$res['consulta'];
-			//~ }else{
-				//~ $respuesta['NumPedido']=$res['Numpedcli'];
-			//~ }
-			//~ echo json_encode($respuesta);
-		//~ break;
 		
 		case 'htmlFomasVenci':
 			//@Objetivo:
@@ -550,7 +506,6 @@ switch ($pulsado) {
 					$respuesta['consulta']=$modTemporal['consulta'];
 			}
 		}
-		//~ $respuesta=$json;
 		echo json_encode($respuesta);
 		break;
 		
@@ -710,10 +665,8 @@ switch ($pulsado) {
 		if(isset($_POST['usuarioSelec'])){
 		$usuarioSelect=$_POST['usuarioSelec'];
 		}
-		//~ error.log($usuarioSelect);
 		if($usuarioSelect>0){
 			$datos=json_decode($datos);
-			//~ error.log($datos);
 			$datos->usuarioSelec=$usuarioSelect;
 			$datos=json_encode($datos);
 		}
