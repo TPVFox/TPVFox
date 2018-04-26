@@ -14,7 +14,7 @@ class PluginClasePaginacion {
 	public $Busqueda 			= ''; // (string) lo que se busco.
 	public $filtroWhere			= ''; // (string) Es where para hacer la consulta
 	public $limitConsulta		= ''; // (string) Es limite si lo hubiera.
-	public $Paginas				= ''; // (array) Donde tendremos los numeros de la paginas previas y siguientes.
+	public $Paginas				= array(); // (array) Donde tendremos los numeros de la paginas previas y siguientes.
 
 	public function __construct($fichero) {
 		$this->LinkBase = './'.basename($fichero).'?';
@@ -64,7 +64,7 @@ class PluginClasePaginacion {
 	}
 	
 	public function GetBusqueda(){
-		$respuesta = array('string'=>$this->Busqueda,'array'=>$this->arrayBusqueda);
+		$respuesta = $this->Busqueda;
 		return $respuesta;
 	}
 	
@@ -89,7 +89,7 @@ class PluginClasePaginacion {
 	}
 	
 	public function GetPaginas(){
-		return $this->paginas;
+		return $this->Paginas;
 	}
 	
 	public function obtenerRutaProyecto(){
@@ -179,13 +179,13 @@ class PluginClasePaginacion {
 			
 		}
 		
-		$this->paginas = $paginas;
+		$this->Paginas = $paginas;
 		
 	}
 	
 	public function htmlPaginado(){
 		$ArrayTPg= $this->ArrayTPg;
-		$paginas = $this->paginas;
+		$paginas = $this->Paginas;
 		$Linkpg = '<li><a href="'.$this->LinkBase;
 		if( $this->Busqueda !== ''){
 			$Linkpg	.= 'buscar='.$this->Busqueda.'&pagina=';
