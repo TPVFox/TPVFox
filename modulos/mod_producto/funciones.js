@@ -808,18 +808,16 @@ function selecionarItemProducto(id, dedonde=""){
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-		console.log('*********  Modificando eliminar costes  **************');
+		console.log('********* Añado o Elimino de producto_seleccionado a session  **************');
 		},
 		success    :  function (response) {
-				console.log('Respuesta de eliminar costes ');
+				console.log('Respuesta de añadir o eliminad productos seleccionados');
 				
 				var resultado = $.parseJSON(response);
 				console.log(resultado);
 				if(resultado.Nitems===0){
 					if(dedonde=="listaProductos"){
 						$(".productos_seleccionados").css("display", "none");
-						
-					}else{
 						location.href="ListaProductos.php";
 					}
 					
