@@ -296,7 +296,7 @@ if ($idCliente===0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
-		<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+		<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idPedido ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">

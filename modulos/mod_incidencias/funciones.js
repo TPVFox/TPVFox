@@ -54,13 +54,14 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-function abrirIndicencia(dedonde, idUsuario, configuracion, numIncidencia=""){
+function abrirIndicencia(dedonde, idUsuario, configuracion, idReal="" , numIncidencia=""){
 	var parametros = {
 		"pulsado"    : 'abririncidencia',
 		"dedonde" : dedonde,
 		"usuario":idUsuario,
 		"numIncidencia":numIncidencia,
-		"configuracion":configuracion
+		"configuracion":configuracion,
+		'idReal': idReal
 		
 	};
 	console.log(configuracion);
