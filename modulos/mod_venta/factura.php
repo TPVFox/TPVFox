@@ -243,29 +243,6 @@
 				}else{
 					header('Location: facturasListado.php');
 				}
-				
-				//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
-				//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
-				//~ if($datosFactura['numfaccli']>0){
-					//~ $numFactura=$datosFactura['numfaccli'];
-					//~ $buscarId=$Cfaccli->buscarIdFactura($numFactura);
-					//~ $idFactura=$buscarId['id'];
-					//~ $eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
-					//~ $addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
-					//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				
-				 //~ }else{
-					 //~ //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
-					//~ $idFactura=0;
-					//~ $numFactura=0;
-					//~ $addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
-					//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-					
-				//~ }
-				//~ echo '<pre>';
-				//~ print_r($addNuevo);
-				//~ echo '</pre>';
-				//header('Location: facturasListado.php');
 		}
 			
 		}
@@ -294,20 +271,6 @@
 				header('Location: facturasListado.php');
 			}
 		}
-		
-		//~ if (isset ($albaranes) | isset($_GET['tActual'])| isset($_GET['id'])){
-			//~ $style="";
-		//~ }else{
-			//~ $style="display:none;";
-		//~ }
-		//~ if (isset($albaranes)){
-			//~ $stylea="";
-		//~ }else{
-			//~ $stylea="display:none;";
-		//~ }
-		
-	
-		
 $titulo .= ': '.$estado;	
 ?>
 	<script type="text/javascript">

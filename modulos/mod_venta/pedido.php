@@ -195,11 +195,6 @@ $titulo .= ': '.$estado;
 						. '</div>';
 					}
 				}
-			
-			
-			//~ echo '<pre>';
-			//~ print_r($errores);
-			//~ echo '</pre>';
 		}
 		if (isset($datosPedido)){
 			if($estado=="Facturado"){
