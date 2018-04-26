@@ -69,12 +69,14 @@
 						$usuarioSelect=$result;
 						}
 				}
+				$fecha =date_format(date_create($datosIncidencia['fecha_creacion']), 'Y-m-d');
 				
 			?>
 			<div class="col-md-12" >
+				<h4>Datos incidencia</h2>
 				<div class="col-md-2">
 					<strong>Fecha:</strong><br>
-					<input type="date" name="fecha" id="fecha" size="10"   value="<?php echo $datosIncidencia['fecha_creacion'];?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" readonly>
+					<input type="date" name="fecha" id="fecha" size="10"   value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" readonly>
 				</div>
 				<div class="col-md-2">
 					<strong>Número de incidencia:</strong><br>
@@ -115,6 +117,7 @@
 					<strong>Datos:</strong><br>
 					<input type="text" name="datos" id="datos" size="50" value='<?php echo $datosIncidencia['datos'];?>' readonly>
 				</div>
+				 <div class="col-xs-12 col-sm-12 "><hr></div>
 			</div>
 		
 		<?php 
