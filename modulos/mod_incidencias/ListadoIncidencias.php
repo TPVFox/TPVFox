@@ -26,11 +26,7 @@
 	
 	$configuracion=json_decode(json_encode($configuracion),true);
 	$configuracion=$configuracion['incidencias'];
-	//~ echo '<pre>';
-	//~ print_r($configuracion);
-	//~ echo '</pre>';
-	
-	
+
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}
