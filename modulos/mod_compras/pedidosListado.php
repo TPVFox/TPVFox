@@ -29,13 +29,7 @@
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 	}
-	//~ if (count($todoTemporal)==0){
-		//~ $errores[0]=array ( 'tipo'=>'Warning!',
-								 //~ 'dato' => '',
-								 //~ 'class'=>'alert alert-warning',
-								 //~ 'mensaje' => 'No tienes albaranes tempoles abiertos!'
-								 //~ );
-	//~ }
+	
 	$todoTemporal=array_reverse($todoTemporal);
 	// --- Preparamos el Paginado --- //
 	$vista = 'pedprot';
