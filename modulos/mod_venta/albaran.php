@@ -7,6 +7,9 @@ include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	
 	include '../../clases/cliente.php';
 	$Ccliente=new Cliente($BDTpv);
 	include 'clases/albaranesVentas.php';
@@ -14,6 +17,7 @@ include './../../head.php';
 	include_once 'clases/pedidosVentas.php';
 	$Cped = new PedidosVentas($BDTpv);
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$idAlbaranTemporal=0;
@@ -24,6 +28,22 @@ include './../../head.php';
 	$nombreCliente=0;
 	$titulo="Albarán De Cliente ";
 	$fecha=date('Y-m-d');
+	$dedonde="albaran";
+	
+	$parametros = $ClasesParametros->getRoot();
+	foreach($parametros->cajas_input->caja_input as $caja){
+			$caja->parametros->parametro[0]="albaran";
+	}
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_ventas',$Usuario['id']);
+	$configuracionArchivo=array();
+	foreach ($configuracion['incidencias'] as $config){
+		if(get_object_vars($config)['dedonde']==$dedonde){
+			array_push($configuracionArchivo, $config);
+		}
+	}
+	
 	
 	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
@@ -199,20 +219,12 @@ include './../../head.php';
 			$style="display:none;";
 		}
 $titulo .= ': '.$estado;	
-		$parametros = simplexml_load_file('parametros.xml');
-		foreach($parametros->cajas_input->caja_input as $caja){
-			$caja->parametros->parametro[0]="albaran";
-		}
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-//Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
-	//	$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
 		
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -283,7 +295,9 @@ if (isset($_GET['tActual'])){
       }
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
+		<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<a  href="./albaranesListado.php">Volver Atrás</a>
