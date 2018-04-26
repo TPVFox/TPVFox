@@ -71,22 +71,24 @@
 		$CantidadRegistros = $CTArticulos->GetNumRows(); 
 	}
 	// --- Ahora envio a NPaginado la cantidad registros --- //
-	if ($prod_seleccion['NItems']>0){
-		//~ $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
+	if ($prod_seleccion['NItems']>0 && $configuracion['filtro']->valor === 'Si'){
+		$NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
 	} else {
 		$NPaginado->SetCantidadRegistros($CantidadRegistros);
 	}
 	$htmlPG= ''; 
 	if ($CantidadRegistros > 0 || $prod_seleccion['NItems']>0){
 		$htmlPG = $NPaginado->htmlPaginado();	
-		if ($prod_seleccion['NItems'] > 0){
-			if ($filtro !==''){
-				$filtro .=  ' AND (a.idArticulo IN ('.implode(',',$prod_seleccion['Items']).'))';
-			} else {
-				$filtro = ' WHERE (a.idArticulo IN ('.implode(',',$prod_seleccion['Items']).'))';
+		// Queremos filtrar o no. 
+		if ($configuracion['filtro']->valor === 'Si'){
+			if ($prod_seleccion['NItems'] > 0){
+				if ($filtro !==''){
+					$filtro .=  ' AND (a.idArticulo IN ('.implode(',',$prod_seleccion['Items']).'))';
+				} else {
+					$filtro = ' WHERE (a.idArticulo IN ('.implode(',',$prod_seleccion['Items']).'))';
+				}
 			}
 		}
-		echo $filtro;
 		$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro.$NPaginado->GetLimitConsulta());
 
 	}
@@ -229,10 +231,10 @@
 
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>, 'listaProductos')" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
 					</td>
-					<td><?php echo $producto['idArticulo']; ?></td>
-					<td><?php echo $producto['articulo_name']; ?></td>
-					
-					<?php
+					<?php 
+					$htmltd ='<td style="cursor:pointer" onclick="UnProductoClick('."'".$producto['idArticulo']."'".');">'; 
+					echo $htmltd.$producto['idArticulo'].'</td>';
+					echo $htmltd.$producto['articulo_name'].'</td>';
 					if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'],'crefTienda') === 'Si'){
 						$CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
 						$codBarrasProd = $CTArticulos->GetCodbarras();
