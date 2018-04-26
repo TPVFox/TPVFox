@@ -144,6 +144,7 @@ class AlbaranesVentas extends ClaseVentas{
 public function AddAlbaranGuardado($datos, $idAlbaran){
 			//@Objetivo:
 			//Añadir nuevos registros de un albaran real 
+		$respuesta=array();
 		$i=1;
 		$db = $this->db;
 		if ($idAlbaran>0){

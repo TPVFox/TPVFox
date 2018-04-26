@@ -115,7 +115,7 @@ class PedidosVentas extends ClaseVentas{
 		//Objetivo:
 		//Añade un registro de un pedido ya guardado en pedidos . Si el numero del pedido es mayor  de 0 o sea que hay un registro en pedidos 
 		//lo añade a la tabla temporal si no añade un registro normal a la tabla pedido
-
+		$respuesta=array();
 		$db = $this->db;
 		if ($idPedido>0){
 			$sql='INSERT INTO pedclit (id, Numpedcli , Numtemp_pedcli, 
