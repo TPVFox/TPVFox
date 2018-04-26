@@ -19,7 +19,7 @@
 	$filtro = ''; // por defecto
 	$errores=array();
 	$Usuario = $_SESSION['usuarioTpv'];
-	$dedonde='incidencia';
+	$dedonde='listado Incidencias';
 	$parametros = $ClasesParametros->getRoot();
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_incidencias',$Usuario['id']);

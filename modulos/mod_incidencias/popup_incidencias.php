@@ -19,6 +19,7 @@ function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncide
 					array_push($usuariosSelect,$result);
 				}
 	}
+	$datosPrincipales=json_decode($datos);
 $html="";
 $html.='<div class="col-md-12">';
 $html.='<div class="col-md-6">';
@@ -37,7 +38,16 @@ $html.='<input type="text" name="inci_dedonde" id="inci_dedonde" value="'.$dedon
 $html.='</div>';
 $html.='<div class="col-md-6">';
 $html.='<label>Estado:</label>';
+if ($datosPrincipales->dedonde=="incidencia"){
+	$html.='<select name="inci_estado" id="inci_estado">';
+		$html.='<option value=0 selected>No resuelto</option>';
+		$html.='<option value=1 selected>Resuelto</option>';
+		$html.='<option value=2 selected>Pendiente</option>';
+	$html.='</select>';
+	
+}else{
 $html.='<input type="text" name="inci_estado" id="inci_estado" value="'.$estado.'" readonly="">';
+}
 $html.='</div>';
 $html.='</div>';
 $html.='<div class="col-md-12">';
@@ -72,6 +82,21 @@ return $html;
 	
 }
 function addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numIncidencia){
+	switch($estado){
+		case '0':
+			$estado="No resuelto";
+			break;
+		case '1':
+			$estado="Resuelto";
+			break;
+		case '2':
+			$estado="Pendiente";
+			break;
+		default:
+			$estado="No resuelto";
+			break;
+		
+	}
 	$sql='INSERT INTO modulo_incidencia (fecha_creacion, id_usuario, dedonde, mensaje, datos, estado) VALUES ("'.$fecha.'", '.$usuario.', '."'".$dedonde."'".', '."'".$mensaje."'".', '."'".$datos."'".', '."'".$estado."'".')';
 	$res = $BDTpv->query($sql);
 	$id=$BDTpv->insert_id;
