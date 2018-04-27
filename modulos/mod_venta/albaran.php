@@ -118,9 +118,9 @@ include './../../head.php';
 		//Y eliminar el temporal
 		if (isset($_POST['Guardar'])){
 			$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
-			echo '<pre>';
-			print_r($guardar);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($guardar);
+			//~ echo '</pre>';
 			if (count($guardar)==0){
 				
 			//	header('Location: albaranesListado.php');
