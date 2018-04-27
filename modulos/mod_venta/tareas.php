@@ -448,6 +448,7 @@ switch ($pulsado) {
 		//HTML que va mostrando las filas de los pedidos en un albarán
 		$productos=$_POST['productos'];
 		$dedonde=$_POST['dedonde'];
+		$bandera=0;
 		$respuesta =array('html'=>'');
 			 foreach($productos as $producto){
 				if (!is_array($producto)){

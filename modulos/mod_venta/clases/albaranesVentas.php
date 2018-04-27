@@ -370,7 +370,7 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 		$db=$this->db;
 		$estado='"'.'Guardado'.'"';
 		$sql='SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado;
-		$albaranes=0;
+		$albaranes=array();
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
