@@ -737,7 +737,7 @@ function ImprimirA5($productos){
 		'cabecera'=>''
 	);
 	$imprimir['html'].="";
-	$imprimir['html'].='<table border="1px" height="527">';
+	$imprimir['html'].='<table border="1px" height="527" style="table-layout: fixed;">';
 		foreach ($productos as $producto){
 			$imprimir['html'].='<tr>';
 			$imprimir['html'].='<td align="center"  style="height:200px;" >';
