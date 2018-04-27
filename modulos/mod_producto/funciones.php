@@ -638,7 +638,7 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 }
 
 
-function ImprimirA9($productos){
+function ImprimirA8($productos){
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''

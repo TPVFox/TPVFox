@@ -142,7 +142,7 @@ switch ($pulsado) {
 		$nombreTmp=$dedonde."etiquetas.pdf";
 		switch ($tamano){
 			case 1:
-				$imprimir=ImprimirA9($productos);
+				$imprimir=ImprimirA8($productos);
 			break;
 			case 2:
 				$imprimir=ImprimirA5($productos);

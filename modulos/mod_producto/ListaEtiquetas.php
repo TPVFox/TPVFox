@@ -47,7 +47,7 @@
 				<br><br>
 				Selecciona el tamaño: 
 				<select  name="tamanhos">
-					<option value="1">A9</option>
+					<option value="1">A8</option>
 					<option value="2">A5</option>
 					<option value="3">A7</option>
 				</select>
