@@ -154,13 +154,13 @@ switch ($pulsado) {
 		
 		$cabecera=$imprimir['cabecera'];
 		$html=$imprimir['html'];
-		 //~ $ficheroCompleto=$html;
+		 $ficheroCompleto=$html;
 		$ficheroCompleto=$html;
 		require_once('../../lib/tcpdf/tcpdf.php');
 		include ('../../clases/imprimir.php');
 		include('../../controllers/planImprimirRe.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-	
+		$respuesta['html']=$html;
 		$respuesta['fichero'] = $ficheroCompleto;
 		$respuesta['productos'] = $productos;
 		echo json_encode($respuesta);
@@ -175,35 +175,36 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 	break;
 	
-	case 'imprimirEtiquetas':
-		$productos=$_POST['productos'];
-		$idTienda=$_POST['idTienda'];
-		$tamano=$_POST['tamano'];
+	//~ case 'imprimirEtiquetas':
+		//~ $productos=$_POST['productos'];
+		//~ $idTienda=$_POST['idTienda'];
+		//~ $tamano=$_POST['tamano'];
 		
-		$dedonde="Etiqueta";
-		$nombreTmp=$dedonde."etiquetas.pdf";
-		switch ($tamano){
-			case 1:
-				$imprimir=ImprimirA9($productos, $BDTpv, $idTienda);
-			break;
-			case 2:
-				$imprimir=ImprimirA5($productos, $BDTpv, $idTienda);
-			break;
-			case 3:
-				$imprimir=ImprimirA7($productos, $BDTpv, $idTienda);
-			break;
-		}
+		//~ $dedonde="Etiqueta";
+		//~ $nombreTmp=$dedonde."etiquetas.pdf";
+		//~ switch ($tamano){
+			//~ case 1:
+				//~ $imprimir=ImprimirA9($productos, $BDTpv, $idTienda);
+			//~ break;
+			//~ case 2:
+				//~ $imprimir=ImprimirA5($productos, $BDTpv, $idTienda);
+			//~ break;
+			//~ case 3:
+				//~ $imprimir=ImprimirA7($productos, $BDTpv, $idTienda);
+			//~ break;
+		//~ }
 		
-		$cabecera=$imprimir['cabecera'];
-		$html=$imprimir['html'];
-		 //~ $ficheroCompleto=$html;
-		require_once('../../lib/tcpdf/tcpdf.php');
-		include ('../../clases/imprimir.php');
-		include('../../controllers/planImprimirRe.php');
-		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+		//~ $cabecera=$imprimir['cabecera'];
+		//~ $html=$imprimir['html'];
+		 //~ $ficheroCompleto['html']="hola";
+		//~ error_log("hola mundo");
+		//~ require_once('../../lib/tcpdf/tcpdf.php');
+		//~ include ('../../clases/imprimir.php');
+		//~ include('../../controllers/planImprimirRe.php');
+		//~ $ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 	
-		echo json_encode($ficheroCompleto);
-	break;
+		//~ echo json_encode($ficheroCompleto);
+	//~ break;
 	
 	case 'HtmlCajaBuscarProveedor':
 		$resultado 		= array();

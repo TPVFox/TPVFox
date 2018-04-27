@@ -10,7 +10,8 @@
 	include ('../../clases/articulos.php');
 	$CArticulos = new Articulos($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
-	$idTienda= $Tienda['idTienda'];	
+	$idTienda= $Tienda['idTienda'];
+	$dedonde="ListaEtiquetas";
 	
 	
 	?>
