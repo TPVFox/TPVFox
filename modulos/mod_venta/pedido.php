@@ -119,82 +119,95 @@ $titulo .= ': '.$estado;
 		}
 		//Pasar un pedido temporal a real
 		if (isset($_POST['Guardar'])){
-			if (isset($_POST['idTemporal'])){
-				$idTemporal=$_POST['idTemporal'];
-			}else{
-				$idTemporal=$_GET['tActual'];
-			}
-			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
-			if (isset($pedidoTemporal['error'])){
-			$errores[3]=array ( 'tipo'=>'Danger!',
-								 'dato' => $pedidoTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-			}
-			if(isset($pedidoTemporal['total'])){
-				$total=$pedidoTemporal['total'];
-			}else{
-				$total=0;
-			}
-			$idPedido=0;
-			$fechaCreacion=date("Y-m-d H:i:s");
-			$datosPedido=array(
-			'NPedidoTemporal'=>$idTemporal,
-			'fecha'=>$_POST['fecha'],
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idCliente'=>$pedidoTemporal['idClientes'],
-			'estado'=>"Guardado",
-			'formaPago'=>" ",
-			'entregado'=>" ",
-			'total'=>$total,
-			'fechaCreacion'=>$fechaCreacion,
-			'productos'=>$pedidoTemporal['Productos'],
-			'DatosTotales'=>$Datostotales
-			);
-			if (isset($pedidoTemporal['idPedcli'])){
-				$idPedido=$pedidoTemporal['idPedcli'];
-			}
-			
-			if ($idPedido>0){
-				$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-				if (isset($eliminarTablasPrincipal['error'])){
-				$errores[3]=array ( 'tipo'=>'Danger!',
-								 'dato' => $eliminarTablasPrincipal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-				}
-			}
-				if(count($errores)==0){
-					$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
-					if(isset($addNuevo['error'])){
-						$errores[4]=array ( 'tipo'=>'Danger!',
-								 'dato' => $addNuevo['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-					}
-				
-					$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
-					if(isset($eliminarTemporal['error'])){
-						$errores[5]=array ( 'tipo'=>'Danger!',
-								 'dato' => $eliminarTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-					}
-				}
-				if(count($errores)==0){
-					 header('Location: pedidosListado.php');
-				}else{
-					foreach ($errores as $error){
-						echo '<div class="'.$error['class'].'">'
-						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+			if (isset($_GET['id'])){
+				$modFecha=$Cpedido->modificarFecha($_GET['id'], $_POST['fecha']);
+				if(isset($modFecha['error'])){
+					echo '<div class="alert alert-danger">'
+						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
 						. '</div>';
-					}
+					
+				}else{
+					header('Location: facturasListado.php');
 				}
+			}else{
+				if (isset($_POST['idTemporal'])){
+					$idTemporal=$_POST['idTemporal'];
+				}else{
+					$idTemporal=$_GET['tActual'];
+				}
+				$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
+				if (isset($pedidoTemporal['error'])){
+				$errores[3]=array ( 'tipo'=>'Danger!',
+									 'dato' => $pedidoTemporal['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+				}else{
+					if(isset($pedidoTemporal['total'])){
+						$total=$pedidoTemporal['total'];
+					}else{
+						$total=0;
+					}
+					$idPedido=0;
+					$fechaCreacion=date("Y-m-d H:i:s");
+					$datosPedido=array(
+					'NPedidoTemporal'=>$idTemporal,
+					'fecha'=>$_POST['fecha'],
+					'idTienda'=>$Tienda['idTienda'],
+					'idUsuario'=>$Usuario['id'],
+					'idCliente'=>$pedidoTemporal['idClientes'],
+					'estado'=>"Guardado",
+					'formaPago'=>" ",
+					'entregado'=>" ",
+					'total'=>$total,
+					'fechaCreacion'=>$fechaCreacion,
+					'productos'=>$pedidoTemporal['Productos'],
+					'DatosTotales'=>$Datostotales
+					);
+					if (isset($pedidoTemporal['idPedcli'])){
+						$idPedido=$pedidoTemporal['idPedcli'];
+					}
+					
+					if ($idPedido>0){
+						$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
+						if (isset($eliminarTablasPrincipal['error'])){
+						$errores[3]=array ( 'tipo'=>'Danger!',
+										 'dato' => $eliminarTablasPrincipal['consulta'],
+										 'class'=>'alert alert-danger',
+										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+										 );
+						}
+					}
+						if(count($errores)==0){
+							$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+							if(isset($addNuevo['error'])){
+								$errores[4]=array ( 'tipo'=>'Danger!',
+										 'dato' => $addNuevo['consulta'],
+										 'class'=>'alert alert-danger',
+										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+										 );
+							}
+						
+							$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
+							if(isset($eliminarTemporal['error'])){
+								$errores[5]=array ( 'tipo'=>'Danger!',
+										 'dato' => $eliminarTemporal['consulta'],
+										 'class'=>'alert alert-danger',
+										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+										 );
+							}
+						}
+						if(count($errores)==0){
+							 header('Location: pedidosListado.php');
+						}else{
+							foreach ($errores as $error){
+								echo '<div class="'.$error['class'].'">'
+								. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+								. '</div>';
+							}
+						}
+				}
+			}
 		}
 		if (isset($datosPedido)){
 			if($estado=="Facturado"){
