@@ -794,4 +794,138 @@ function modificarArraysImportes($importes, $total){
 	}
 	return $importesDef;
 }
+
+function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
+	$errores=array();
+	$Tienda = $_SESSION['tiendaTpv'];
+	$Usuario = $_SESSION['usuarioTpv'];
+	if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
+			$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR NO HAY DATOS DE SESIÓN!'
+								 );
+			return $errores;
+	}
+	$Calbcli=new AlbaranesVentas($BDTpv);
+	if (isset($datosGet['tActual'])){
+			$datosPost['estado']='Sin guardar';
+	}
+	$fecha=$datosPost['fecha'];
+	switch($datosPost['estado']){
+				case 'Sin guardar':
+				case 'Abierto':
+					if (isset($datosGet['tActual'])){
+						$idAlbaranTemporal=$datosGet['tActual'];
+					}else{
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'El temporal ya no existe  !'
+								 );
+						break;
+					}
+					$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
+					if (isset ($datosPost['fecha'])){
+						$fecha=$datosPost['fecha'];
+					}else{
+						$fecha=$datosAlbaran['fechaInicio'];
+					}
+					if (isset ($datosAlbaran['Productos'])){
+						$productos=$datosAlbaran['Productos'];
+						$productos_para_recalculo = json_decode( $productos );
+						if(count($productos_para_recalculo)>0){
+							$CalculoTotales = recalculoTotales($productos_para_recalculo);
+							$total=round($CalculoTotales['total'],2);
+						}else{
+							$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes productos  !'
+								 );
+						break;
+						}
+					}else{
+						$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes productos  !'
+								 );
+						break;
+					}
+					$datos=array(
+						'Numtemp_albcli'=>$idAlbaranTemporal,
+						'Fecha'=>$fecha,
+						'idTienda'=>$Tienda['idTienda'],
+						'idUsuario'=>$Usuario['id'],
+						'idCliente'=>$datosAlbaran['idClientes'],
+						'estado'=>"Guardado",
+						'total'=>$total,
+						'DatosTotales'=>$Datostotales,
+						'productos'=>$datosAlbaran['Productos'],
+						'pedidos'=>$datosAlbaran['Pedidos']
+					);
+					if($datosAlbaran['numalbcli']>0){
+						$idAlbaran=$datosAlbaran['numalbcli'];
+						$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
+						if (isset($eliminarTablasPrincipal['error'])){
+						$errores[0]=array ( 'tipo'=>'Danger!',
+													 'dato' => $eliminarTablasPrincipal['consulta'],
+													 'class'=>'alert alert-danger',
+													 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+													 );
+						}
+						
+					}
+					if(count($errores)==0){
+							$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
+							if(isset($addNuevo['error'])){
+							$errores[1]=array ( 'tipo'=>'Danger!',
+														 'dato' => $addNuevo['consulta'],
+														 'class'=>'alert alert-danger',
+														 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+														 );
+							}
+							$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idAlbaranTemporal, $datosAlbaran['numalbcli']);
+							if(isset($eliminarTemporal['error'])){
+							$errores[2]=array ( 'tipo'=>'Danger!',
+														 'dato' => $eliminarTemporal['consulta'],
+														 'class'=>'alert alert-danger',
+														 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+														 );
+							}
+					}
+					break;
+					case 'Guardado':
+					if (isset($datosGet['id'])){
+						$idReal=$datosGet['id'];
+						$modFecha=$Calbcli->modificarFecha($idReal, $fecha);
+						if(isset($modFecha['error'])){
+							$errores[2]=array ( 'tipo'=>'Danger!',
+														 'dato' => $modFecha['consulta'],
+														 'class'=>'alert alert-danger',
+														 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+														 );
+							}
+					}else{
+						$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'aalert alert-danger',
+								 'mensaje' => 'No ha recibido ningún id para modificar !'
+						);
+					}
+					break;
+					default:
+					$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No has realizado nunguna modificación !'
+					);
+			
+					
+					break;
+				}
+				return $errores;
+						
+}
 ?>

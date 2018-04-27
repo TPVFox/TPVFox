@@ -146,6 +146,7 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 		$respuesta=array();
 		$i=1;
 		$db = $this->db;
+		//~ error_log('idAlbaran'.$idAlbaran);
 		if ($idAlbaran>0){
 			$sql='INSERT INTO albclit (id, Numalbcli, Fecha, idTienda , 
 			idUsuario , idCliente , estado , total) VALUES ('.$idAlbaran.' , '.$idAlbaran
@@ -417,6 +418,17 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 			}
 		}
 		return $pedido;
+	}
+	public function modificarFecha($idReal, $fecha){
+		$db=$this->db;
+		$sql='UPDATE albclit SET Fecha="'.$fecha.'" WHERE id='.$idReal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$errores=array();
+				$errores['error']=$smt['error'];
+				$errores['consulta']=$smt['consulta'];
+				return $errores;
+			}
 	}
 }
 
