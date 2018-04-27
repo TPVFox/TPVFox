@@ -6,25 +6,41 @@
         include './../../head.php';
         include './funciones.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
+        include ("./../../controllers/Controladores.php");
+        include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+        $ClasesParametros = new ClaseParametros('parametros.xml');  
+		$Controler = new ControladorComun; 
+		$Controler->loadDbtpv($BDTpv);
+		$dedonde="proveedor";
+		$idProveedor=0;
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		
 		
 	</head>
 	<body>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+		 <script type="text/javascript" >
+			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+		</script>
 		<?php
         include './../../header.php';
 		// ===========  datos proveedor segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
+		$Usuario = $_SESSION['usuarioTpv'];
 		$tabla= 'proveedores'; // Tablas que voy utilizar.
 		$estados = array(); // Creo los estados de usuarios ( para select)
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
+		
 		// Obtenemos id
 		//~ print_r($_GET);
 		
-		
+		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_proveedor',$Usuario['id']);
+		$configuracion=$configuracion['incidencias'];
 		if (isset($_GET['id'])) {
+			$idProveedor=$_GET['id'];
 			// Modificar Ficha fichero
 			$id=$_GET['id']; // Obtenemos id para modificar.
 			$ProveedorUnico = verSelec($BDTpv,$id,$tabla);
@@ -125,6 +141,7 @@
 			<?php
 			}
 			?>
+			<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion , <?php echo $idProveedor ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
 			<div class="col-md-12">
@@ -140,9 +157,11 @@
 				</div>
 
 				<form action="" method="post" name="formProveedor">
+
 				<div class="col-md-9">
 					<div class="Datos">
 						<div class="col-md-6 form-group">
+							
 							<label>Nombre comercial Proveedor:</label>
 							<input type="text" id="nombrecomercial" name="nombrecomercial" <?php echo $ProveedorUnico['nombrecomercial'];?> placeholder="nombre" value="<?php echo $ProveedorUnico['nombrecomercial'];?>"   >
 							
@@ -216,7 +235,11 @@
 				<div class="col-md-9">
 				</form>
 			</div>
-			
+			<?php // Incluimos paginas modales
+echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+// hacemos comprobaciones de estilos 
+?>
 		</div>
 	</body>
 </html>
