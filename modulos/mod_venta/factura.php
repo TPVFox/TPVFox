@@ -149,7 +149,15 @@
 		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
 			if (isset($_GET['id'])){
-			 header('Location: facturasListado.php');
+				$modFecha=$Cfaccli->modificarFechaFactura($_GET['id'], $_POST['fecha']);
+				if(isset($modFecha['error'])){
+					echo '<div class="alert alert-danger">'
+						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
+						. '</div>';
+					
+				}else{
+					header('Location: facturasListado.php');
+				}
 			}else{
 				$estado="Guardado";
 				if (isset($_POST['idTemporal'])){
