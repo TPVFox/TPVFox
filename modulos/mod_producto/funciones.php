@@ -698,24 +698,66 @@ $imprimir=array(
 	$i=0;
 	foreach ($productos as $producto){
 		if($i==2){
-			$imprimir['html'].='</tr>';
-			$imprimir['html'].='<tr>';
 			$i=0;
+			$imprimir['html'].='<tr>';
 		}
 		$imprimir['html'].='<td align="center"  style="height:200px;" >';
-		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
-		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
-		$imprimir['html'].=' RefProv: '.$producto['crefProveedor'].'</font><br>';
-		$imprimir['html'].='<b><font size="20 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
-		$imprimir['html'].='<b><font size="100 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br>';
-		$imprimir['html'].='</td>';
+		$imprimir['html'].='<b><font size="13 em">'.$producto['articulo_name'].'</font></b><br>';
+		$imprimir['html'].='<b><font size="100 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br>';
+		$imprimir['html'].='<font size="6.5 em">  Fecha: '.date('Y-m-d').'</font>';
+		$imprimir['html'].='<font size="6.5 em" >  Codbarras: ';
+		foreach($producto['codBarras'] as $codigo){
+				$imprimir['html'].=$codigo.' ';
+		}
+		$imprimir['html'].='</font>';
+		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['cref_tienda_principal'].'</font>';
+		$imprimir['html'].='<font size="6.5 em">  Id: '.$producto['idArticulo'].'</font>';
 		
+		
+		
+		$imprimir['html'].='</td>';
+		if($i==1){
+			$imprimir['html'].='</tr>';
+		}
 	$i++;
 	}
-	$imprimir['html'].='</tr>';
+	if($i<=1){
+		$rep=2-$i;
+		$imprimir['html'].= str_repeat("<td></td>", $rep);
+		$imprimir['html'].='</tr>';
+	}
+	//~ $imprimir['html'].='</tr>';
 	$imprimir['html'].='</table>';
 	return $imprimir;
 
+}
+function ImprimirA5($productos){
+	$imprimir=array(
+		'html'=>'',
+		'cabecera'=>''
+	);
+	$imprimir['html'].="";
+	$imprimir['html'].='<table border="1px" height="527">';
+		foreach ($productos as $producto){
+			$imprimir['html'].='<tr>';
+			$imprimir['html'].='<td align="center"  style="height:200px;" >';
+			$imprimir['html'].='<b><font size="30 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
+			$imprimir['html'].='<b><font size="35 em">TECLA: </font></b><br>';
+			$imprimir['html'].='<b><font size="250 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br><br>';
+			$imprimir['html'].='<font size="12 em">  Fecha: '.date('Y-m-d').'</font>';
+			$imprimir['html'].='<font size="12 em" >  Codbarras: ';
+			foreach($producto['codBarras'] as $codigo){
+					$imprimir['html'].=$codigo.' ';
+			}
+			$imprimir['html'].='</font>';
+			$imprimir['html'].='<font size="12 em">Ref: '.$producto['cref_tienda_principal'].'</font>';
+			$imprimir['html'].='<font size="12 em">  Id: '.$producto['idArticulo'].'</font>';
+			$imprimir['html'].='</td>';
+			$imprimir['html'].='</tr>';
+		}
+		$imprimir['html'].='</table>';
+	return $imprimir;
+	
 }
 function eliminarSeleccion(){
 	$_SESSION['productos_seleccionados']=array();
