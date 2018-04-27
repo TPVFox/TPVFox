@@ -20,6 +20,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
 	$resultado = array();
 	$palabras = array(); 
 	$products = array();
+	$busqueda=trim($busqueda);
 	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
 	$resultado['palabras']= $palabras;
 	$likes = array();
