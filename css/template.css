@@ -57,3 +57,16 @@ span.circulo {
 	color: initial;
 
 }
+
+/** CSS para tabla de buscardo **/
+tbody tr.FilaModal:focus-within{
+	background-color:lightblue;
+}
+
+tbody tr.FilaModal:hover{
+	border: solid #d8d8de 1px;
+	background-color:azure;
+}
+
+
+
