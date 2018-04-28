@@ -585,12 +585,14 @@ function productosSesion($idProducto){
 	$respuesta['productos_seleccionados']= $_SESSION['productos_seleccionados'];
 	return $respuesta;
 }
-function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
+function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
 	// @ parametros:
-	// 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
-	//		$dedonde  -> Nos indica de donde viene. ()
+	// 		$busqueda 	-> (string) El valor a buscar,aunque puede venir vacio.. 
+	//		$dedonde  	-> (string) Nos indica de donde viene. ()
+	//		$provedores -> (array) Con o sin datos de los proveedores que encontramos.
+	//		$descartados-> (array) Con o sin datos de los proveedores descartados, porque ya los tiene añadidos.
 	$resultado = array();
 	$resultado['encontrados'] = count($proveedores);
 	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
@@ -627,6 +629,17 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 		}
 	} 
 	$resultado['html'] .='</tbody></table>';
+	// Ahora mostramos los proveedores descartados.
+	
+	if (count($descartados) > 0){
+		$resultado['html'] .='<div class="alert alert-danger">';
+		$resultado['html'] .='<h4>Proveedores descartados porque ya existen</h4>';
+		foreach ($descartados as $descartado){
+			$resultado['html'] .='<p>'.$descartado['nombrecomercial'].' - '.$descartado['razonsocial'].'</p>';
+		}
+		$resultado['html'] .='</div>';
+
+	}
 	// Ahora generamos objetos de filas.
 	// Objetos queremos controlar.
 	return $resultado;
