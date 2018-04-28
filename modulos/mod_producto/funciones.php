@@ -610,14 +610,10 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$idFila = 'Fila_'.$contad;
-			$resultado['html'] 	.= '<tr id="'.$idFila.'" onmouseout="abandonFila('."'".$idFila."'"
-								.')" onmouseover="sobreFilaCraton('."'".$idFila."'"
-								.')" onclick="seleccionProveedor('."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">';
+			$resultado['html'] 	.= '<tr class="FilaModal" id="'.$idFila.'" onclick="seleccionProveedor('."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('
-						.$contad.')"   type="image"  alt="">'
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
 			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
 			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
