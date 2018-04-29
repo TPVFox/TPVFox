@@ -22,7 +22,7 @@ function htmlLineaCodigoBarras($item,$codBarras=''){
 	return $nuevaFila;
 }
 
-function htmlLineaProveedorCoste($item,$proveedor=''){
+function htmlLineaProveedorCoste($proveedor){
 	// @ Objetivo:
 	// Montar linea de proveedores_coste, para añadir o para modificar.
 	// @ Parametros :
@@ -145,7 +145,7 @@ function  htmlTablaProveedoresCostes($proveedores){
 		// ya que no hace falta para no añadirlo en la cja busqueda proveedores.
 		$JSproveedores = 'var proveedores ='.json_encode($proveedores).';';
 		foreach ($proveedores as $item=>$proveedor_coste){
-			$html .= htmlLineaProveedorCoste($item,$proveedor_coste);
+			$html .= htmlLineaProveedorCoste($proveedor_coste);
 		}
 	}
 	$html .= '</table>	';

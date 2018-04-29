@@ -774,11 +774,16 @@ function seleccionProveedor(dedonde,idproveedor){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eObtener datos de proveedor y coste ');
-				
+				// Cerramos modal..
+				cerrarPopUp();
 				var resultado = $.parseJSON(response);
-				console.log(resultado);
-				alert ( 'Volvi de buscar datos de proveedor');
-				 
+				if (resultado.error){
+					alert (' Hubo un error al obtener los datos del proveedor ');
+				} else {
+					console.log(resultado);
+					var nuevo_proveedor = resultado.htmlFilaProveedor;
+					$("#tproveedor").prepend(nuevo_proveedor);
+				} 
 		}	
 	});
 
