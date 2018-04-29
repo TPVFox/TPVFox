@@ -1133,9 +1133,7 @@ function mover_down(fila,prefijo){
 			ponerFocus(d_focus);
 		}
 }
-function sobreFila(cont){
-	$('#Fila_'+cont).css('background-color','lightblue');
-}
+
 function resetearTotales(){
 	// Funcion para resetear totales.
 	$('#tipo4').html('');
