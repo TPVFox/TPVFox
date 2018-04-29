@@ -650,7 +650,6 @@ function mover_down(fila,prefijo, dedonde=""){
 			}
 	}	else{
 		var ant=fila-1;
-		abandonFila(ant);
 		ponerFocus(d_focus);
 		
 	}
@@ -663,7 +662,6 @@ function mover_up(fila,prefijo, dedonde=""){
 		ponerSelect(d_focus);
 	}else{
 		var ant=fila-1;
-		abandonFila(ant);
 		var d_focus = prefijo+fila;
 		ponerFocus(d_focus);
 	}
