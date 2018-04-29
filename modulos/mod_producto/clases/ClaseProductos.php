@@ -442,12 +442,10 @@ class ClaseProductos extends ClaseTablaArticulos{
 		} else {
 			// Hubo error - No encontro
 			$error = array ( 'tipo'=>'success',
-							 'dato' => 'idArticulo:'.$id.' idProveedor:'.$idProveeedor,
+							 'dato' => 'idArticulo:'.$id.' idProveedor:'.$idProveedor,
 							 'mensaje' => 'No encontro ningún coste para es producto de ese proveedor.'
 							 );
 			$respuesta['error'] = $error;
-			$respuesta['error'] = $Sql;
-
 		}
 		return $respuesta;
 	}
