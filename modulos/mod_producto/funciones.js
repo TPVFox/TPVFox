@@ -758,8 +758,7 @@ function validarEntradaNombre(caja){
 }
 
 function seleccionProveedor(dedonde,idproveedor){
-	alert('Ahora debería obtener los datos necesario');
-	console.log(producto.idArticulo);
+	console.log('Estoy en seleccionar nuevo proveedor para producto:'+producto.idArticulo);
 	var parametros = {
 		"pulsado" 		: 'obtenerCostesProveedor',
 		"idProveedor"	: idproveedor,

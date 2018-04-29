@@ -50,21 +50,30 @@ function htmlLineaProveedorCoste($proveedor){
 	}else {
 		$atributos .= ' disabled';
 	}
-	$nuevaFila .= '<td><input '.$atributos.' type="checkbox" id="check_pro_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .='<small>'.$camposIdProveedor.$nom_proveedor.'</small>';
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .= '<input type="text" size="10" name="prov_cref_'.$proveedor['idProveedor'].'" id="prov_cref_'.$proveedor['idProveedor'].'" value="'.$proveedor['crefProveedor'].'" readonly>';
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .= '<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor'].'" pattern="[-+]?[0-9]*[.]?[0-9]+" data-obj= "cajaCosteProv" id="prov_coste_'.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>';
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .= '<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>';
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td><a id="desActivarProv_'.$proveedor['idProveedor'].'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'; 		
-	$nuevaFila .= '</tr>';
+	if (!isset($proveedor['crefProveedor'])){
+		$proveedor['crefProveedor'] = '';
+	}
+	$nuevaFila .= '<td><input '.$atributos.' type="checkbox" id="check_pro_'
+					.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>'
+					.'<td>'
+					.'<small>'.$camposIdProveedor.$nom_proveedor.'</small>'
+					.'</td>'
+					.'<td>'
+					.'<input type="text" size="10" name="prov_cref_'.$proveedor['idProveedor'].'" id="prov_cref_'
+					.$proveedor['idProveedor'].'" value="'.$proveedor['crefProveedor'].'" readonly>'
+					.'</td>'
+					.'<td>'
+					.'<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor']
+					.'" pattern="[-+]?[0-9]*[.]?[0-9]+" data-obj= "cajaCosteProv" id="prov_coste_'
+					.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>'
+					.'</td>'
+					.'<td>'
+					.'<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>'
+					.'</td>'
+					.'<td><a id="desActivarProv_'.$proveedor['idProveedor']
+					.'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'
+					.'</tr>';
+					
 	return $nuevaFila;
 }
 
