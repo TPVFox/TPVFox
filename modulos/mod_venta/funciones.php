@@ -112,12 +112,12 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 		foreach ($clientes as $cliente){  
 			$razonsocial_nombre=$cliente['Nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" '
+								.'onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN"'
+								.'onkeydown="controlEventos(event)" type="image"  alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['Nombre'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
@@ -180,16 +180,16 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
 						.number_format($producto['pvpCiva'],2).",".$producto['idArticulo'].
 						" , '".$dedonde."'";
-			$resultado['html'] .= '<tr id="N_'.$contad.'" data-obj= "idN" onmouseout="abandonFila('
-						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
-			
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-			$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';				
-			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.number_format($producto['pvpCiva'],2).'</td>';
-
-			$resultado['html'] .= '</tr>';
+			$resultado['html'] .= '<tr id="N_'.$contad.'" data-obj= "idN" class="FilaModal"'.
+								.'onclick="escribirProductoSeleccionado('.$datos.');">'
+								.'<td id="C'.$contad.'_Lin" >'
+								.'<input id="N_'.$contad.'" name="filaproducto" data-obj="idN"'
+								.' onkeydown="controlEventos(event)" type="image"  alt="">'
+								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+								.'<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>'
+								.'<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
+								.'<td>'.number_format($producto['pvpCiva'],2).'</td>';
+								.'</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
@@ -407,32 +407,35 @@ function modalAdjunto($adjuntos){
 	$respuesta['html'] .='</th>';
 	$respuesta['html'] .= '</thead><tbody>';
 	foreach ($adjuntos as $adjunto){
+		
 		if (isset($adjunto['Numalbcli'])){
 			$onclick="buscarDatosAlbaran";
 			$num=$adjunto['Numalbcli'];
-			}else{
-				$num=$adjunto['Numpedcli'];
-				$onclick="buscarDatosPedido";
-				}
+		}else{
+			$num=$adjunto['Numpedcli'];
+			$onclick="buscarDatosPedido";
+		}
+		
 		if(isset($adjunto['Fecha'])){
 			$fecha=$adjunto['Fecha'];
-			}else{
-				$fecha=$adjunto['FechaPedido'];
-				}
-	$respuesta['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-	.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="'.$onclick.'('.$num.');">';
-	$respuesta['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-	.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-
-	$respuesta['html'].='<td>'.$num.'</td>';
-	$respuesta['html'].='<td>'.$fecha.'</td>';
-	$respuesta['html'].='<td>'.$adjunto['total'].'</td>';
-	$respuesta['html'].='</tr>';
-	$contad = $contad +1;
-	if ($contad === 10){
-		break;
-	}
-				
+		}else{
+			$fecha=$adjunto['FechaPedido'];
+		}
+		
+		$respuesta['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="'.$onclick.'('.$num.');">'
+							.'<td id="C'.$contad.'_Lin" >'
+							.'<input id="N_'.$contad.'" name="filapedido" data-obj="idN" '
+							.' onkeydown="controlEventos(event)" type="image"  alt="">'
+							.'<span  class="glyphicon glyphicon-plus-sign agregar"></span>'
+							.'</td>'
+							.'<td>'.$num.'</td>'
+							.'<td>'.$fecha.'</td>'
+							.'<td>'.$adjunto['total'].'</td>'
+							.'</tr>';
+		$contad = $contad +1;
+		if ($contad === 10){
+			break;
+		}
 	}
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;

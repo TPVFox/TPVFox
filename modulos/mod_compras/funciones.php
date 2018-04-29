@@ -395,12 +395,10 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			$numAdjunto=$adjunto['Numalbpro'];
 			$fecha=$adjunto['Fecha'];
 		}
-		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('
+		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarAdjunto('
 		."'".$dedonde."'".', '.$numAdjunto.');">';
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad
-		.'" name="filaproducto" onfocusout="abandonFila('
-		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)"
+		.'" name="filaproducto" data-obj="idN" onkeydown="controlEventos(event)"
 		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$respuesta['html']	.= '<td>'.$numAdjunto.'</td><td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){
