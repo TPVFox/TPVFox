@@ -397,6 +397,17 @@ class PedidosVentas extends ClaseVentas{
 				return $resultado;
 		}
 	}
+	public function modificarFecha($idPedido, $fecha){
+		$db=$this->db;
+		$sql='UPDATE pedclit SET FechaPedido="'.$fecha.'" where id='.$idPedido;
+			$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$resultado=array();
+				$resultado['error']=$smt['error'];
+				$resultado['consulta']=$smt['consulta'];
+				return $resultado;
+		}
+	}
 }
 
 ?>

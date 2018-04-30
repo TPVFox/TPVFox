@@ -143,7 +143,7 @@ switch ($pulsado) {
 		$nombreTmp=$dedonde."etiquetas.pdf";
 		switch ($tamano){
 			case 1:
-				$imprimir=ImprimirA9($productos);
+				$imprimir=ImprimirA8($productos);
 			break;
 			case 2:
 				$imprimir=ImprimirA5($productos);
@@ -155,13 +155,13 @@ switch ($pulsado) {
 		
 		$cabecera=$imprimir['cabecera'];
 		$html=$imprimir['html'];
-		 //~ $ficheroCompleto=$html;
+		 $ficheroCompleto=$html;
 		$ficheroCompleto=$html;
 		require_once('../../lib/tcpdf/tcpdf.php');
 		include ('../../clases/imprimir.php');
 		include('../../controllers/planImprimirRe.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-	
+		$respuesta['html']=$html;
 		$respuesta['fichero'] = $ficheroCompleto;
 		$respuesta['productos'] = $productos;
 		echo json_encode($respuesta);
@@ -176,52 +176,21 @@ switch ($pulsado) {
 		echo json_encode($respuesta);
 	break;
 	
-	case 'imprimirEtiquetas':
-		$productos=$_POST['productos'];
-		$idTienda=$_POST['idTienda'];
-		$tamano=$_POST['tamano'];
-		
-		$dedonde="Etiqueta";
-		$nombreTmp=$dedonde."etiquetas.pdf";
-		switch ($tamano){
-			case 1:
-				$imprimir=ImprimirA9($productos, $BDTpv, $idTienda);
-			break;
-			case 2:
-				$imprimir=ImprimirA5($productos, $BDTpv, $idTienda);
-			break;
-			case 3:
-				$imprimir=ImprimirA7($productos, $BDTpv, $idTienda);
-			break;
-		}
-		
-		$cabecera=$imprimir['cabecera'];
-		$html=$imprimir['html'];
-		 //~ $ficheroCompleto=$html;
-		require_once('../../lib/tcpdf/tcpdf.php');
-		include ('../../clases/imprimir.php');
-		include('../../controllers/planImprimirRe.php');
-		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-	
-		echo json_encode($ficheroCompleto);
-	break;
-	
 	case 'HtmlCajaBuscarProveedor':
 		$resultado 		= array();
-		$dedonde 		= $_POST['dedonde'];
+		$dedonde 		= 'producto';
 		$busqueda =  $_POST['busqueda']; // Este valor puede venir vacio , por lo que...
 		$DescartIdsProv = $_POST['idsProveedores']; // Descartamos los ids de los proveedores que ya tiene el producto.
 													// para que no pueda seleccionadlor.
+		$descartados = array();
 		if ($busqueda !==''){
 			// Realizamos la busqueda todos los proveedores menos los que tiene añadidos en el producto..
 			$proveedores = $CProveedor->buscarProveedorNombre($busqueda);
 			// Ahora tengo que quitar del array proveedores[datos], aquellos que no ya estan añadidos para que no se muestre.
-			$descartado = array();
-
 			foreach ($proveedores['datos'] as $key=>$proveedor){
 				$idProveedor = $proveedor['idProveedor'];
 				if (in_array ($idProveedor,$DescartIdsProv)){
-					$descartados[] = $idProveedor;
+					$descartados[] = $proveedor;
 					unset($proveedores['datos'][$key]);
 				};
 			}
@@ -229,25 +198,49 @@ switch ($pulsado) {
 			$proveedores = array();
 			$proveedores['datos'] = array(); // ya enviamos datos... :-)
 		}
-		$resultado = htmlBuscarProveedor($busqueda,$dedonde,$proveedores['datos']);
+		$resultado = htmlBuscarProveedor($busqueda,$dedonde,$proveedores['datos'],$descartados);
 		$resultado['proveedores'] = $proveedores;
 		$resultado['busqueda'] = $busqueda;
 		$resultado['descartados'] = $descartados;
-
+		
 		echo json_encode($resultado);
 	break;
-	case 'eliminarSeleccion':
-	$eliminar=eliminarSeleccion();
 	
+	case 'eliminarSeleccion':
+		$eliminar=eliminarSeleccion();
 	break;
 	
 	case 'obtenerCostesProveedor':
 		$resultado = array();
 		$idProveedor = $_POST['idProveedor'];
 		$idProducto = $_POST['idProducto'];
+		// Compruebo que realmente no tenga coste para ese producto es proveedor.
+		$comprobarCosteProveedor = $NCArticulo->ObtenerCostesDeUnProveedor($idProducto,$idProveedor);
+		if (isset($comprobarCosteProveedor['error'])){
+			// Quiere decir que realmente no encontro registros articuloProveedor para ese producto y proveedor.
+			// Buscarmos datos para ese proveedor.
+			$proveedores= $CProveedor->buscarProveedorId($idProveedor);
+		} else {
+			$resultado['error'] = $comprobarCosteProveedor['error'];
+		}
+		if ( count($proveedores) >0 && (!isset($resultado['error'])) ){
+			//Quiere decir que fue correcto, obtuvimos un proveedor
+			// montamos array de proveedor para enviar.
+			$proveedor = $proveedores;
+			$proveedor['fechaActualizacion']= date("Y-m-d H:i:s");
+			$proveedor['estado']			= 'Nuevo';
+			$proveedor['coste']				= '0.00' ; // Debería ser el ultimo coste... 
+			$htmlFilaProveedor = htmlLineaProveedorCoste($proveedor);
+			$resultado['htmlFilaProveedor'] = $htmlFilaProveedor ;
+			$resultado['proveedores'] = $proveedores;
+			$resultado['proveedor'] = $proveedor;
 
-		$resultado = $NCArticulo->ObtenerCostesDeUnProveedor($idProducto,$idProveedor);
-		
+
+		}	else {
+			$resultado['error'] ='Error se obtuvo mas de un proveedor no es posible';
+			$resultado['proveedores'] = $proveedores;
+			
+		}
 	echo json_encode($resultado);
 	break;
 	

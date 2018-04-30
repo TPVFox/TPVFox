@@ -54,7 +54,7 @@
 			<h2 class="text-center">Datos de la incidencia Nº <?php echo $id;?></h2>
 			
 			<a  href="./ListadoIncidencias.php">Volver Atrás</a><br><br>
-			<a onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $id;?>);">Responder incidencia</a><br><br>
+			<a onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, 0, <?php echo $id;?>);">Responder incidencia</a><br><br>
 			<?php 
 			
 			foreach($datosIncidencias as $datosIncidencia){

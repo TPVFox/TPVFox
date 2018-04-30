@@ -14,18 +14,8 @@ function obtenerProveedores($BDTpv,$filtro) {
 //~ echo $consulta;
 //~ echo '</pre>';	
 	while ($proveedor = $Resql->fetch_assoc()) {			
-			$clientes['items'][$i]['idProveedor'] = $proveedor['idProveedor'];
-			$clientes['items'][$i]['nombrecomercial'] = $proveedor['nombrecomercial'];
-			$clientes['items'][$i]['razonsocial'] = $proveedor['razonsocial'];
-			$clientes['items'][$i]['nif'] = $proveedor['nif'];
-			$clientes['items'][$i]['direccion'] = $proveedor['direccion'];
-			$clientes['items'][$i]['telefono'] = $proveedor['telefono'];
-			$clientes['items'][$i]['movil'] = $proveedor['movil'];
-			$clientes['items'][$i]['fax'] = $proveedor['fax'];
-			$clientes['items'][$i]['email'] = $proveedor['email'];
-			$clientes['items'][$i]['fechaalta'] = $proveedor['fechaalta'];
-			$clientes['items'][$i]['estado'] = $proveedor['estado'];
-	$i = $i+1;
+		$clientes['items'][$i] = $proveedor;
+		$i++;
 	}
 
 	$clientes ['consulta'] = $consulta;

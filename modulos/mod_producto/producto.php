@@ -50,7 +50,7 @@
 		}
 		if ($_POST){
 			
-			$preparados= prepararParaGrabar($_POST,$CTArticulos);
+			$preparados= preparaYgrabar($_POST,$CTArticulos);
 			// Comprobamos los datos antes de grabar.
 			if (isset($preparados['Sqls']['NuevoProducto'])){
 				// Entonces es que creo uno nuevo.
@@ -91,7 +91,9 @@
 			}
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
-		$Producto = $CTArticulos->getProducto($id);
+		$Producto = $CTArticulos->GetProducto($id);
+		
+		
 				
 		if (isset($preparados['Sqls'])){
 			// quiere decir que hizo consultas por lo que tenemos comprobaciones

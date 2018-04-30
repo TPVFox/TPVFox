@@ -95,6 +95,33 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $respuesta['Items'];
 
 	}
+	
+	public function GetProducto($id= 0){
+		// Objetivo:
+		// Este metodo existe en padre, pero necesito que añada a ArrayPropiedades las comprobaciones hacemos aquí.
+		parent::GetProducto($id);
+		// Ahora hacemos nuestra comprobaciones.
+		$producto = $this->ArrayPropiedades();
+		// Ahora comprobamos si el ultimo_coste es realmente el ultimo coste.
+		// Se considera ultimo_coste a :
+		//    - A la ultimo precio de coste de un albaran o factura de compra.
+		// No se considera ultimo coste a:
+		// 	  - A un precio tarifa puesto en un proveedor.
+		// [NO PUEDO CONTINUAR MIENTRAS NO SE ARREGLE ISSUE 31 ]
+		
+		// Reinicio comprobacionesEstado.
+		$this->comprobaciones = array();
+		$this->comprobacionesEstado($producto);
+		
+		return $this->ArrayPropiedades();
+		
+	}
+	public function GetPlugins(){
+		$plugins = $this->plugins;
+		return $plugins;//->GetDir();
+	}
+	
+	
 	public function GetProductosConCodbarras($codbarras){
 		// Objetivo:
 		// Obtener array con id de productos que tiene ese codbarras.
@@ -104,22 +131,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 	}
 		
-	public function GetProducto($id= 0){
-		// Objetivo:
-		// Este metodo existe en padre, pero necesito que añada a ArrayPropiedades las comprobaciones hacemos aquí.
-		parent::GetProducto($id);
-		// Ahora hacemos nuestra comprobaciones.
-		$producto = $this->ArrayPropiedades();
-		// Reinicio comprobacionesEstado.
-		$this->comprobaciones = array();
-		$this->comprobacionesEstado($producto);
-		return $this->ArrayPropiedades();
-		
-	}
-	public function GetPlugins(){
-		$plugins = $this->plugins;
-		return $plugins;//->GetDir();
-	}
+	
 	
 	public function cambiarTienda($id){
 		// @Objetivo
@@ -448,12 +460,10 @@ class ClaseProductos extends ClaseTablaArticulos{
 		} else {
 			// Hubo error - No encontro
 			$error = array ( 'tipo'=>'success',
-							 'dato' => 'idArticulo:'.$id.' idProveedor:'.$idProveeedor,
+							 'dato' => 'idArticulo:'.$id.' idProveedor:'.$idProveedor,
 							 'mensaje' => 'No encontro ningún coste para es producto de ese proveedor.'
 							 );
 			$respuesta['error'] = $error;
-			$respuesta['error'] = $Sql;
-
 		}
 		return $respuesta;
 	}

@@ -1115,7 +1115,6 @@ function mover_up(fila,prefijo){
 	console.log("entro en mover up");
 	console.log(fila);
 	
-	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 	
 	console.log(d_focus);
@@ -1124,7 +1123,6 @@ function mover_up(fila,prefijo){
 function mover_down(fila,prefijo){
 	console.log('mover down'+fila);
 
-	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 		if ( document.getElementById(d_focus) ) {
 			ponerSelect(d_focus);
@@ -1133,9 +1131,7 @@ function mover_down(fila,prefijo){
 			ponerFocus(d_focus);
 		}
 }
-function sobreFila(cont){
-	$('#Fila_'+cont).css('background-color','lightblue');
-}
+
 function resetearTotales(){
 	// Funcion para resetear totales.
 	$('#tipo4').html('');

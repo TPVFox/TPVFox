@@ -640,7 +640,6 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 
 function mover_down(fila,prefijo, dedonde=""){
 	console.log("entro en mover down");
-	sobreFila(fila);
 	var d_focus = prefijo+fila;
 	if (prefijo !== 'N_'){
 			if ( document.getElementById(d_focus) ) {
@@ -651,7 +650,6 @@ function mover_down(fila,prefijo, dedonde=""){
 			}
 	}	else{
 		var ant=fila-1;
-		abandonFila(ant);
 		ponerFocus(d_focus);
 		
 	}
@@ -659,13 +657,11 @@ function mover_down(fila,prefijo, dedonde=""){
 
 function mover_up(fila,prefijo, dedonde=""){
 	console.log("entro en mover up");
-	sobreFila(fila);
 	if (dedonde !== "cerrados"){
 		var d_focus = prefijo+fila;
 		ponerSelect(d_focus);
 	}else{
 		var ant=fila-1;
-		abandonFila(ant);
 		var d_focus = prefijo+fila;
 		ponerFocus(d_focus);
 	}

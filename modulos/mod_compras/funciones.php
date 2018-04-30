@@ -32,14 +32,11 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 		
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarProveedor('."'".$dedonde."'".' , '
 			."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('
-						.$contad.')"   type="image"  alt="">'
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filaproveedor" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
 			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
 			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
@@ -184,15 +181,12 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
 						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
 						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal"  
 						onclick="escribirProductoSeleccionado('.$datos.');">';
 			
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" 
-									name="filaproducto" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" 
-						onkeydown="controlEventos(event)" type="image"  alt=""><span  
-						class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+									name="filaproducto" data-obj="idN" 	onkeydown="controlEventos(event)" type="image"  alt="">'
+								.'<span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			if ($id_input=="ReferenciaPro"){
 				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
 			}else{
@@ -401,12 +395,10 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			$numAdjunto=$adjunto['Numalbpro'];
 			$fecha=$adjunto['Fecha'];
 		}
-		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('
+		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarAdjunto('
 		."'".$dedonde."'".', '.$numAdjunto.');">';
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad
-		.'" name="filaproducto" onfocusout="abandonFila('
-		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)"
+		.'" name="filaproducto" data-obj="idN" onkeydown="controlEventos(event)"
 		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$respuesta['html']	.= '<td>'.$numAdjunto.'</td><td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){

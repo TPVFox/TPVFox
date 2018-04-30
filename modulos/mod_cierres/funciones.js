@@ -276,18 +276,6 @@ function controladorAcciones(caja,accion){
 
 
 // ===================  FUNCIONES DE PINTAR BONITO y MOVIMIENTOS =========================
-//html onfocus 
-function sobreFila(cont){
-	$('#Fila_'+cont).css('background-color','lightblue');
-}
-//html onfocusout y onmouseout
-function abandonFila(cont){
-	$('#Fila_'+cont).css('background-color','white');
-}
-
-function sobreFilaCraton(cont){
-	$('#Fila_'+cont).css('background-color','azure');
-}
 
 function mover_down(fila){
 	sobreFilaCraton(fila);
