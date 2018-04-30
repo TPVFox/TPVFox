@@ -106,6 +106,17 @@ if (isset($_POST['Guardar'])){
 			}
 	}
 }
+if (isset ($_POST['Cancelar'])){
+		 $cancelar=cancelarPedido( $_GET, $BDTpv);
+		if (count($cancelar)==0){
+			
+			header('Location: pedidosListado.php');
+		}else{
+			echo '<div class="'.$cancelar['class'].'">'
+					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					. '</div>';
+		}
+	}
 
 ?>
 <script type="text/javascript">
@@ -171,6 +182,7 @@ if ($idProveedor===0){
 		<div class="col-md-12 btn-toolbar">
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
+			<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 			<?php
 			if (isset($numPedidoTemp)){
 			?>

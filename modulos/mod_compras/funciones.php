@@ -1306,7 +1306,51 @@ function cancelarFactura( $datosGet,$BDTpv){
 	}
 	return $error;
 }
+function cancelarPedido( $datosGet, $BDTpv){
+	//@Objetivo: Eliminar el pedido temporal 
+	//@Parametros:
+	//$datosGet: envío los datos de get
+	//Si no existe el id Temporal no dejo hacer las funciones siguientes 
+	//y muestro un error info
+	//@Funciones de clase:
+	//buscarPedidoTemporal, primero busco los datos del pedido temporal
+	//						comprobación de error sql en la función
+	//EliminarRegistroTemporal: Por último elimino el registro temporal y como en los 
+	//					anteriores compruebo los errores de sql
+	
+	$Cped = new PedidosCompras($BDTpv);
+	$error=array();
+	$idPedido=0;
+	if (isset($datosGet['tActual'])){
+		$idTemporal=$datosGet['tActual'];
+		$datosPedido=$Cped->DatosTemporal($idTemporal);
+		if (isset($datosPedido['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+								'dato' => $datosPedido['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+		}else{
+			$eliminarTemporal=$Cped->eliminarTemporal($idTemporal, $idPedido);
+			if (isset($eliminarTemporal['error'])){
+				$error =array ( 'tipo'=>'Danger!',
+								'dato' => $eliminarTemporal['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+			}
 
+			
+		}
+	}else{
+		$error=array ( 'tipo'=>'Info!',
+			'dato' => '',
+			'class'=>'alert alert-info',
+			'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+			);
+	}
+	return $error;
+}
 function cancelarAlbaran( $datosGet, $BDTpv){
 	//@Objetivo: Eliminar el albarán temporal y si este tiene alguún pedido adjunto cambiarle
 	//el estado a "Guardado"
