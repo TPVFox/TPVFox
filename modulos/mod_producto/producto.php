@@ -81,7 +81,9 @@
 			}
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
-		$Producto = $CTArticulos->getProducto($id);
+		$Producto = $CTArticulos->GetProducto($id);
+		
+		
 				
 		if (isset($preparados['Sqls'])){
 			// quiere decir que hizo consultas por lo que tenemos comprobaciones
