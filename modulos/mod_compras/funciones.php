@@ -1244,7 +1244,7 @@ function htmlTotales($Datostotales){
 	return $htmlIvas;
 }
 
-function cancelarFactura( $datosGet,$BDTpv){
+function cancelarFactura( $idFacturaTemporal,$BDTpv){
 	//@Objetivo: Eliminar la factura temporal y si este tiene alguún albarán adjunto cambiarle
 	//el estado a "Guardado"
 	//@Parametros:
@@ -1261,8 +1261,8 @@ function cancelarFactura( $datosGet,$BDTpv){
 	$error=array();
 	$CFac = new FacturasCompras($BDTpv);
 	$CAlb=new AlbaranesCompras($BDTpv);
-	if (isset($datosGet['tActual'])){
-		$idFacturaTemporal=$datosGet['tActual'];
+	if ($idFacturaTemporal>0){
+		//~ $idFacturaTemporal=$datosGet['tActual'];
 		$idFactura=0;
 		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
 		if (isset($datosFactura['error'])){
@@ -1306,7 +1306,7 @@ function cancelarFactura( $datosGet,$BDTpv){
 	}
 	return $error;
 }
-function cancelarPedido( $datosGet, $BDTpv){
+function cancelarPedido( $idTemporal, $BDTpv){
 	//@Objetivo: Eliminar el pedido temporal 
 	//@Parametros:
 	//$datosGet: envío los datos de get
@@ -1321,8 +1321,8 @@ function cancelarPedido( $datosGet, $BDTpv){
 	$Cped = new PedidosCompras($BDTpv);
 	$error=array();
 	$idPedido=0;
-	if (isset($datosGet['tActual'])){
-		$idTemporal=$datosGet['tActual'];
+	if ($idTemporal>0){
+		
 		$datosPedido=$Cped->DatosTemporal($idTemporal);
 		if (isset($datosPedido['error'])){
 			$error =array ( 'tipo'=>'Danger!',
@@ -1351,11 +1351,11 @@ function cancelarPedido( $datosGet, $BDTpv){
 	}
 	return $error;
 }
-function cancelarAlbaran( $datosGet, $BDTpv){
+function cancelarAlbaran( $idTemporal, $BDTpv){
 	//@Objetivo: Eliminar el albarán temporal y si este tiene alguún pedido adjunto cambiarle
 	//el estado a "Guardado"
 	//@Parametros:
-	//$datosGet: envío los datos de get
+	//$idTemporal: envío los datos de get
 	//Si no existe el id Temporal no dejo hacer las funciones siguientes 
 	//y muestro un error info
 	//@Funciones de clase:
@@ -1370,8 +1370,8 @@ function cancelarAlbaran( $datosGet, $BDTpv){
 	$Cped = new PedidosCompras($BDTpv);
 	$error=array();
 	$idAlbaran=0;
-	if (isset($datosGet['tActual'])){
-		$idTemporal=$datosGet['tActual'];
+	if ($idTemporal>0){
+		//~ $idTemporal=$datosGet['tActual'];
 		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
 		if (isset($datosAlbaran['error'])){
 			$error =array ( 'tipo'=>'Danger!',

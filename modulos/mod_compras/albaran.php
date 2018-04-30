@@ -138,17 +138,17 @@
 	//Cancelar, cuando cancelamos un albarán quiere decir que los 
 	//cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado
-	if (isset ($_POST['Cancelar'])){
-		 $cancelar=cancelarAlbaran( $_GET, $BDTpv);
-		if (count($cancelar)==0){
+	//~ if (isset ($_POST['Cancelar'])){
+		 //~ $cancelar=cancelarAlbaran( $_GET, $BDTpv);
+		//~ if (count($cancelar)==0){
 			
-			header('Location: albaranesListado.php');
-		}else{
-			echo '<div class="'.$cancelar['class'].'">'
-					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
-					. '</div>';
-		}
-	}
+			//~ header('Location: albaranesListado.php');
+		//~ }else{
+			//~ echo '<div class="'.$cancelar['class'].'">'
+					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					//~ . '</div>';
+		//~ }
+	//~ }
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
 			$style1="";
@@ -230,6 +230,15 @@
 	include '../../header.php';
 ?>
 <script type="text/javascript">
+	<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {

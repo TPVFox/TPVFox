@@ -106,20 +106,33 @@ if (isset($_POST['Guardar'])){
 			}
 	}
 }
-if (isset ($_POST['Cancelar'])){
-		 $cancelar=cancelarPedido( $_GET, $BDTpv);
-		if (count($cancelar)==0){
+//~ if (isset ($_POST['Cancelar'])){
+		 //~ $cancelar=cancelarPedido( $_GET, $BDTpv);
+		//~ if (count($cancelar)==0){
 			
-			header('Location: pedidosListado.php');
-		}else{
-			echo '<div class="'.$cancelar['class'].'">'
-					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
-					. '</div>';
-		}
-	}
+			//~ header('Location: pedidosListado.php');
+		//~ }else{
+			//~ echo '<div class="'.$cancelar['class'].'">'
+					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					//~ . '</div>';
+		//~ }
+	//~ }
 
 ?>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script type="text/javascript">
+	<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo$numPedidoTemp;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
@@ -165,10 +178,7 @@ if ($idProveedor===0){
 	 $idProveedor="";
 }
 ?>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+
 </head>
 <body>
 <?php

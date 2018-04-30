@@ -1225,3 +1225,60 @@ var parametros = {
 }
 	
 }
+function mensajeCancelar(idTemporal, dedonde){
+	var mensaje = confirm("Estas  seguro que quieres cancelar");
+	if (mensaje) {
+		if (idTemporal=="0"){
+			alert("No puedes cancelar si está guardado");
+		}else{
+			var parametros = {
+				"pulsado"    : 'cancelarTemporal',
+				"dedonde" : dedonde,
+				"idTemporal"      : idTemporal
+			};
+			$.ajax({
+				data       : parametros,
+				url        : 'tareas.php',
+				type       : 'post',
+				beforeSend : function () {
+					console.log('*********  Entre en cancelar archivos temporales  ****************');
+				},
+				success    :  function (response) {
+					console.log('REspuesta de cancelar temporales');
+					var resultado =  $.parseJSON(response);
+					console.log(resultado);
+						if(resultado.mensaje){
+							alert(resultado.mensaje+": "+resultado.dato);
+						}else{
+							switch(dedonde){
+								case 'pedidos':
+									location.href="pedidosListado.php";
+								break;
+								case 'albaran':
+									location.href="albaranesListado.php";
+								break;
+								case 'factura':
+									location.href="facturasListado.php";
+								break;
+							}
+						}
+					}
+					
+					
+				
+			});
+		}
+	}else{
+		switch(dedonde){
+			case 'pedidos':
+				location.href="pedidosListado.php";
+			break;
+			case 'albaran':
+				location.href="albaranesListado.php";
+			break;
+			case 'factura':
+				location.href="facturasListado.php";
+			break;
+		}
+	}
+}

@@ -160,16 +160,16 @@
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
-	if (isset($_POST['Cancelar'])){
-		$cancelar=cancelarFactura( $_GET, $BDTpv);
-		if (count($cancelar)==0){
-			header('Location: facturasListado.php');
-		}else{
-			echo '<div class="'.$cancelar['class'].'">'
-					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
-					. '</div>';
-		}
-	}
+	//~ if (isset($_POST['Cancelar'])){
+		//~ $cancelar=cancelarFactura( $_GET, $BDTpv);
+		//~ if (count($cancelar)==0){
+			//~ header('Location: facturasListado.php');
+		//~ }else{
+			//~ echo '<div class="'.$cancelar['class'].'">'
+					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					//~ . '</div>';
+		//~ }
+	//~ }
 	
 		if (isset($factura['Albaranes'])){
 			$albaranes=json_decode(json_encode($albaranes), true);
@@ -258,6 +258,15 @@ if ($suNumero==0){
 	include '../../header.php';
 ?>
 <script type="text/javascript">
+		<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
