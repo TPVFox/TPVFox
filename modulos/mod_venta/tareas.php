@@ -446,21 +446,24 @@ switch ($pulsado) {
 		
 		case 'htmlAgregarFilasProductos':
 		//Objetivo:
-		//HTML que va mostrando las filas de los pedidos en un albarán
+		//HTML mostrar las lineas de productos
+		//Parametros: 
+		// Productos: puede recibir tanto un array de arrays de productos(productos de un adjunto) o un array con los
+		//datos de un producto
 		$productos=$_POST['productos'];
 		$dedonde=$_POST['dedonde'];
 		$bandera=0;
 		$respuesta =array('html'=>'');
 		 foreach($productos as $producto){
-				if (!is_array($producto)){
+				if (!is_array($producto)){//Si no es un array de arrays carga bandera con 1 y sale del bucle
 					$bandera=1;
 					break;
-				}else{
+				}else{//Como es un array de datos los carga en la función
 					$res=htmlLineaPedidoAlbaran($producto, $dedonde);
 					$respuesta['html'].=$res;
 				}
 		 }
-		 if ($bandera==1){
+		 if ($bandera==1){//Como es un array con los datos de producto los carga directamente en la función 
 			 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
 				 $respuesta['html']=$res;
 		 }
