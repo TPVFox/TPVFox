@@ -8,10 +8,14 @@ include './../../head.php';
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosVentas.php';
 	include '../../clases/cliente.php';
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
 	
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
+	$dedonde="pedidos";
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Pedido De Cliente ";
@@ -23,7 +27,19 @@ include './../../head.php';
 	$total=0;
 	$idCliente=0;
 	$errores=array();
-if ($_GET){
+	$parametros = $ClasesParametros->getRoot();
+	//~ $parametros = simplexml_load_file('parametros.xml');
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_ventas',$Usuario['id']);
+	$configuracionArchivo=array();
+		foreach ($configuracion['incidencias'] as $config){
+		
+		if(get_object_vars($config)['dedonde']==$dedonde){
+			array_push($configuracionArchivo, $config);
+		}
+	}
+	
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
 		$datosPedido=$Cpedido->datosPedidos($idPedido);//Buscar los datos de pedido 
@@ -65,7 +81,7 @@ if ($_GET){
 		$total=$Datostotales['total'];
 	}else{
 		
-			if ($_GET['tActual']){//Si recibe un id de un temporal 
+			if (isset($_GET['tActual'])){//Si recibe un id de un temporal 
 			$idTemporal=$_GET['tActual'];
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscamos los datos del temporal
 			if (isset($pedidoTemporal['error'])){
@@ -77,14 +93,14 @@ if ($_GET){
 			}
 			$estado=$pedidoTemporal['estadoPedCli'];
 			$idCliente=$pedidoTemporal['idClientes'];
-			if ($pedidoTemporal['idPedcli']){
+			if (isset($pedidoTemporal['idPedcli'])){
 				$idPedido=$pedidoTemporal['idPedcli'];
 			}else{
 				$idPedido=0;
 			}
 			$pedido=$pedidoTemporal;
 			$productos = json_decode( $pedidoTemporal['Productos']); // Array de objetos
-			if ($idCliente){
+			if (isset($idCliente)){
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente=$datosCliente['Nombre'];
@@ -92,7 +108,7 @@ if ($_GET){
 		}
 		
 	}
-}
+
 $titulo .= ': '.$estado;
 
 		if(isset($pedido['Productos'])){
@@ -103,87 +119,95 @@ $titulo .= ': '.$estado;
 		}
 		//Pasar un pedido temporal a real
 		if (isset($_POST['Guardar'])){
-			if (isset($_POST['idTemporal'])){
-				$idTemporal=$_POST['idTemporal'];
-			}else{
-				$idTemporal=$_GET['tActual'];
-			}
-			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
-			if (isset($pedidoTemporal['error'])){
-			$errores[3]=array ( 'tipo'=>'Danger!',
-								 'dato' => $pedidoTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-			}
-			if(isset($pedidoTemporal['total'])){
-				$total=$pedidoTemporal['total'];
-			}else{
-				$total=0;
-			}
-			$idPedido=0;
-			$fechaCreacion=date("Y-m-d H:i:s");
-			$datosPedido=array(
-			'NPedidoTemporal'=>$idTemporal,
-			'fecha'=>$_POST['fecha'],
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idCliente'=>$pedidoTemporal['idClientes'],
-			'estado'=>"Guardado",
-			'formaPago'=>" ",
-			'entregado'=>" ",
-			'total'=>$total,
-			'fechaCreacion'=>$fechaCreacion,
-			'productos'=>$pedidoTemporal['Productos'],
-			'DatosTotales'=>$Datostotales
-			);
-			if (isset($pedidoTemporal['idPedcli'])){
-				$idPedido=$pedidoTemporal['idPedcli'];
-			}
-			
-			if ($idPedido>0){
-				$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
-				if (isset($eliminarTablasPrincipal['error'])){
-				$errores[3]=array ( 'tipo'=>'Danger!',
-								 'dato' => $eliminarTablasPrincipal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-				}
-			}
-				if(count($errores)==0){
-					$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
-					if(isset($addNuevo['error'])){
-						$errores[4]=array ( 'tipo'=>'Danger!',
-								 'dato' => $addNuevo['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-					}
-				
-					$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
-					if(isset($eliminarTemporal['error'])){
-						$errores[5]=array ( 'tipo'=>'Danger!',
-								 'dato' => $eliminarTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-					}
-				}
-				if(count($errores)==0){
-					 header('Location: pedidosListado.php');
-				}else{
-					foreach ($errores as $error){
-						echo '<div class="'.$error['class'].'">'
-						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+			if (isset($_GET['id'])){
+				$modFecha=$Cpedido->modificarFecha($_GET['id'], $_POST['fecha']);
+				if(isset($modFecha['error'])){
+					echo '<div class="alert alert-danger">'
+						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
 						. '</div>';
-					}
+					
+				}else{
+					header('Location: facturasListado.php');
 				}
-			
-			
-			//~ echo '<pre>';
-			//~ print_r($errores);
-			//~ echo '</pre>';
+			}else{
+				if (isset($_POST['idTemporal'])){
+					$idTemporal=$_POST['idTemporal'];
+				}else{
+					$idTemporal=$_GET['tActual'];
+				}
+				$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);
+				if (isset($pedidoTemporal['error'])){
+				$errores[3]=array ( 'tipo'=>'Danger!',
+									 'dato' => $pedidoTemporal['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+				}else{
+					if(isset($pedidoTemporal['total'])){
+						$total=$pedidoTemporal['total'];
+					}else{
+						$total=0;
+					}
+					$idPedido=0;
+					$fechaCreacion=date("Y-m-d H:i:s");
+					$datosPedido=array(
+					'NPedidoTemporal'=>$idTemporal,
+					'fecha'=>$_POST['fecha'],
+					'idTienda'=>$Tienda['idTienda'],
+					'idUsuario'=>$Usuario['id'],
+					'idCliente'=>$pedidoTemporal['idClientes'],
+					'estado'=>"Guardado",
+					'formaPago'=>" ",
+					'entregado'=>" ",
+					'total'=>$total,
+					'fechaCreacion'=>$fechaCreacion,
+					'productos'=>$pedidoTemporal['Productos'],
+					'DatosTotales'=>$Datostotales
+					);
+					if (isset($pedidoTemporal['idPedcli'])){
+						$idPedido=$pedidoTemporal['idPedcli'];
+					}
+					
+					if ($idPedido>0){
+						$eliminarTablasPrincipal=$Cpedido->eliminarPedidoTablas($idPedido);
+						if (isset($eliminarTablasPrincipal['error'])){
+						$errores[3]=array ( 'tipo'=>'Danger!',
+										 'dato' => $eliminarTablasPrincipal['consulta'],
+										 'class'=>'alert alert-danger',
+										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+										 );
+						}
+					}
+						if(count($errores)==0){
+							$addNuevo=$Cpedido->AddPedidoGuardado($datosPedido, $idPedido);
+							if(isset($addNuevo['error'])){
+								$errores[4]=array ( 'tipo'=>'Danger!',
+										 'dato' => $addNuevo['consulta'],
+										 'class'=>'alert alert-danger',
+										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+										 );
+							}
+						
+							$eliminarTemporal=$Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
+							if(isset($eliminarTemporal['error'])){
+								$errores[5]=array ( 'tipo'=>'Danger!',
+										 'dato' => $eliminarTemporal['consulta'],
+										 'class'=>'alert alert-danger',
+										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+										 );
+							}
+						}
+						if(count($errores)==0){
+							 header('Location: pedidosListado.php');
+						}else{
+							foreach ($errores as $error){
+								echo '<div class="'.$error['class'].'">'
+								. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+								. '</div>';
+							}
+						}
+				}
+			}
 		}
 		if (isset($datosPedido)){
 			if($estado=="Facturado"){
@@ -203,15 +227,12 @@ $titulo .= ': '.$estado;
 		if (isset ($_GET['tActual'])|| isset ($_GET['id'])){
 			$style="";
 		}
-		$parametros = simplexml_load_file('parametros.xml');
-	
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -279,6 +300,15 @@ if ($idCliente===0){
 }
 ?>
 <script type="text/javascript">
+			<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -286,7 +316,10 @@ if ($idCliente===0){
       }
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
+		<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idPedido ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
@@ -296,6 +329,7 @@ if ($idCliente===0){
 					if($estado<>"Facturado"){
 				?>
 					<input type="submit" value="Guardar" name="Guardar">
+					<input type="submit" value="Cancelar" name="Cancelar" id="Cancelar">
 					<?php
 					}
 				

@@ -6,6 +6,9 @@
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	
 	include '../../clases/cliente.php';
 	$Ccliente=new Cliente($BDTpv);
 	include 'clases/albaranesVentas.php';
@@ -17,6 +20,7 @@
 	include_once '../../clases/FormasPago.php';
 	$CforPago=new FormasPago($BDTpv);
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$idFacturaTemporal=0;
@@ -31,6 +35,22 @@
 	$formaPago=0;
 	$albaranes=array();
 	$importesFactura=array();
+	$dedonde="factura";
+	
+		$parametros = $ClasesParametros->getRoot();
+	foreach($parametros->cajas_input->caja_input as $caja){
+			$caja->parametros->parametro[0]="factura";
+		}
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_ventas',$Usuario['id']);
+		$configuracionArchivo=array();
+		foreach ($configuracion['incidencias'] as $config){
+			if(get_object_vars($config)['dedonde']==$dedonde){
+				array_push($configuracionArchivo, $config);
+			}
+		}
+		
 	if (isset($_GET['id'])){//Si rebie un id quiere decir que ya existe la factura
 		$idFactura=$_GET['id'];
 		$datosFactura=$Cfaccli->datosFactura($idFactura);//Extraemos los datos de la factura 
@@ -129,7 +149,15 @@
 		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
 			if (isset($_GET['id'])){
-			 header('Location: facturasListado.php');
+				$modFecha=$Cfaccli->modificarFechaFactura($_GET['id'], $_POST['fecha']);
+				if(isset($modFecha['error'])){
+					echo '<div class="alert alert-danger">'
+						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
+						. '</div>';
+					
+				}else{
+					header('Location: facturasListado.php');
+				}
 			}else{
 				$estado="Guardado";
 				if (isset($_POST['idTemporal'])){
@@ -223,85 +251,40 @@
 				}else{
 					header('Location: facturasListado.php');
 				}
-				
-				//Si ya existia una factura real eliminamos todos los datos de la factura real tanto en facturas clientes como productos, ivas y albaranes facturas
-				//Una vez que tenemos los datos eliminados agregamos los datos nuevos en las mismas tablas y por último eliminamos la temporal
-				//~ if($datosFactura['numfaccli']>0){
-					//~ $numFactura=$datosFactura['numfaccli'];
-					//~ $buscarId=$Cfaccli->buscarIdFactura($numFactura);
-					//~ $idFactura=$buscarId['id'];
-					//~ $eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
-					//~ $addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
-					//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				
-				 //~ }else{
-					 //~ //Si no tenemos una factura real solo realizamos la parte de crear los registros nuevos y eliminar el temporal
-					//~ $idFactura=0;
-					//~ $numFactura=0;
-					//~ $addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
-					//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-					
-				//~ }
-				//~ echo '<pre>';
-				//~ print_r($addNuevo);
-				//~ echo '</pre>';
-				//header('Location: facturasListado.php');
 		}
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
-		if (isset($_POST['Cancelar'])){
-			if (isset($_POST['idTemporal'])){
-				$idTemporal=$_POST['idTemporal'];
-			}else{
-				if (isset ($_GET['tActual'])){
-					$idTemporal=$_GET['tActual'];
-				}else{
-					$idTemporal=0;
-				}
+		//~ if (isset($_POST['Cancelar'])){
+			//~ if (isset($_POST['idTemporal'])){
+				//~ $idTemporal=$_POST['idTemporal'];
+			//~ }else{
+				//~ if (isset ($_GET['tActual'])){
+					//~ $idTemporal=$_GET['tActual'];
+				//~ }else{
+					//~ $idTemporal=0;
+				//~ }
 				
-			}
-		if ($idTemporal>0){
-			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
-			$albaranes=json_decode($datosFactura['Albaranes'], true);
-			foreach ($albaranes as $albaran){
-				$mod=$Calbcli->ModificarEstadoAlbaran($albaran['idAlCli'], "Guardado");
-			}
-			$idFactura=0;
-			$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				header('Location: facturasListado.php');
-			}else{
-				header('Location: facturasListado.php');
-			}
-		}
-		
-		//~ if (isset ($albaranes) | isset($_GET['tActual'])| isset($_GET['id'])){
-			//~ $style="";
-		//~ }else{
-			//~ $style="display:none;";
+			//~ }
+		//~ if ($idTemporal>0){
+			//~ $datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
+			//~ $albaranes=json_decode($datosFactura['Albaranes'], true);
+			//~ foreach ($albaranes as $albaran){
+				//~ $mod=$Calbcli->ModificarEstadoAlbaran($albaran['idAlCli'], "Guardado");
+			//~ }
+			//~ $idFactura=0;
+			//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				//~ header('Location: facturasListado.php');
+			//~ }else{
+				//~ header('Location: facturasListado.php');
+			//~ }
 		//~ }
-		//~ if (isset($albaranes)){
-			//~ $stylea="";
-		//~ }else{
-			//~ $stylea="display:none;";
-		//~ }
-		
-		$parametros = simplexml_load_file('parametros.xml');
-	
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-//Como estamos el albaranes la caja de input num fila cambia el de donde a factura
-	foreach($parametros->cajas_input->caja_input as $caja){
-			$caja->parametros->parametro[0]="factura";
-		}
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		
-		
 $titulo .= ': '.$estado;	
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -367,6 +350,15 @@ if ($idCliente==0){
 	include '../../header.php';
 ?>
 <script type="text/javascript">
+		<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
@@ -375,8 +367,9 @@ if ($idCliente==0){
       }
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
-			
+			<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<a  href="./facturasListado.php">Volver Atrás</a>
@@ -636,8 +629,8 @@ if($estado=="Guardado"){
 	?>
 	$("#tablaImporte").show();
 	$("#fila0").show();
-	$("#Cancelar").hide();
-	$("#Guardar").hide();
+	//~ $("#Cancelar").hide();
+	//~ $("#Guardar").hide();
 	<?php
 }
 if (isset($productos) & $albaranes==null){

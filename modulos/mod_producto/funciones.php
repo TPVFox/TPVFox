@@ -2,11 +2,14 @@
 function htmlLineaFamilias($item,$familia=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
-	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input type="hidden" id="idFamilias_'.$familia['idFamilia'].'" name="idFamilias_'.$familia['idFamilia'].'" value="'.$familia['idFamilia'].'">'.$familia['idFamilia'].'</td>';
-	$nuevaFila .= '<td>'.$familia['familiaNombre'].'</td>';
-	$nuevaFila .= '<td><a id="eliminar_'.$familia['idFamilia'].'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
-	$nuevaFila .= '</tr>';
+	$nuevaFila = '<tr>'
+				. '<td><input type="hidden" id="idFamilias_'.$familia['idFamilia']
+				.'" name="idFamilias_'.$familia['idFamilia'].'" value="'.$familia['idFamilia'].'">'
+				.$familia['idFamilia'].'</td>'
+				.'<td>'.$familia['familiaNombre'].'</td>'
+				.'<td><a id="eliminar_'.$familia['idFamilia']
+				.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a>'
+				.'</td>'.'</tr>';
 	return $nuevaFila;
 }
 
@@ -15,14 +18,16 @@ function htmlLineaFamilias($item,$familia=''){
 function htmlLineaCodigoBarras($item,$codBarras=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
-	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input data-obj="cajaCodBarras" type="text" id="codBarras_'.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'" onkeydown="controlEventos(event)"></td>';
-	$nuevaFila .= '<td><a id="eliminar_'.$item.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
-	$nuevaFila .= '</tr>';
+	$nuevaFila = '<tr>'
+				.'<td><input data-obj="cajaCodBarras" type="text" id="codBarras_'
+				.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'" onkeydown="controlEventos(event)"></td>'
+				.'<td><a id="eliminar_'.$item
+				.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'
+				.'</tr>';
 	return $nuevaFila;
 }
 
-function htmlLineaProveedorCoste($item,$proveedor=''){
+function htmlLineaProveedorCoste($proveedor){
 	// @ Objetivo:
 	// Montar linea de proveedores_coste, para añadir o para modificar.
 	// @ Parametros :
@@ -38,7 +43,6 @@ function htmlLineaProveedorCoste($item,$proveedor=''){
 	} else {
 		$nom_proveedor .= $proveedor['razonsocial'];
 	}
-	$nuevaFila = '<tr>';
 	$atributos = ' name="check_pro"'; // Los check ponemos el mismo nombre ya solo podemos devolver uno como principal
 	
 	if (isset($proveedor['principal'])){
@@ -50,21 +54,32 @@ function htmlLineaProveedorCoste($item,$proveedor=''){
 	}else {
 		$atributos .= ' disabled';
 	}
-	$nuevaFila .= '<td><input '.$atributos.' type="checkbox" id="check_pro_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .='<small>'.$camposIdProveedor.$nom_proveedor.'</small>';
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .= '<input type="text" size="10" name="prov_cref_'.$proveedor['idProveedor'].'" id="prov_cref_'.$proveedor['idProveedor'].'" value="'.$proveedor['crefProveedor'].'" readonly>';
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .= '<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor'].'" pattern="[-+]?[0-9]*[.]?[0-9]+" data-obj= "cajaCosteProv" id="prov_coste_'.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>';
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .= '<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>';
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td><a id="desActivarProv_'.$proveedor['idProveedor'].'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'; 		
-	$nuevaFila .= '</tr>';
+	if (!isset($proveedor['crefProveedor'])){
+		$proveedor['crefProveedor'] = '';
+	}
+	$nuevaFila = '<tr>'
+				.'<td><input '.$atributos.' type="checkbox" id="check_pro_'
+				.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>'
+				.'<td>'
+				.'<small>'.$camposIdProveedor.$nom_proveedor.'</small>'
+				.'</td>'
+				.'<td>'
+				.'<input type="text" size="10" name="prov_cref_'.$proveedor['idProveedor'].'" id="prov_cref_'
+				.$proveedor['idProveedor'].'" value="'.$proveedor['crefProveedor'].'" readonly>'
+				.'</td>'
+				.'<td>'
+				.'<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor']
+				.'" pattern="[-+]?[0-9]*[.]?[0-9]+" data-obj= "cajaCosteProv" id="prov_coste_'
+				.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>'
+				.'</td>'
+				.'<td>'
+				.'<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'
+				.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>'
+				.'</td>'
+				.'<td><a id="desActivarProv_'.$proveedor['idProveedor']
+				.'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'
+				.'</tr>';
+					
 	return $nuevaFila;
 }
 
@@ -145,7 +160,7 @@ function  htmlTablaProveedoresCostes($proveedores){
 		// ya que no hace falta para no añadirlo en la cja busqueda proveedores.
 		$JSproveedores = 'var proveedores ='.json_encode($proveedores).';';
 		foreach ($proveedores as $item=>$proveedor_coste){
-			$html .= htmlLineaProveedorCoste($item,$proveedor_coste);
+			$html .= htmlLineaProveedorCoste($proveedor_coste);
 		}
 	}
 	$html .= '</table>	';
@@ -371,12 +386,12 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 
 }
 
-function prepararParaGrabar($array,$claseArticulos){
+function prepararYgrabar($array,$claseArticulos){
 	//@ Objetivo
-	// Preparar array con los datos obtenidos( POST) para poder enviarlos a grabar,
+	// Preparar y Grabar los datos obtenidos ( POST) en productos,
 	// Debemos tener en cuenta que :
-	//  Puede haber datos mal.
-	//  Si id = 0 es nuevo..
+	//   id = 0 es nuevo..
+	//   id = ??? es modificado.
 	
 	
 	// Obtenemos (array) Key del array recibido
@@ -466,15 +481,10 @@ function prepararParaGrabar($array,$claseArticulos){
 		// ---------------            Se esta modificando. ------------------------------------//
 		// --- Comprobamos los codbarras y vemos cuales añadio,modifico o elimino. --//
 		$comprobaciones = $claseArticulos->ComprobarCodbarrasUnProducto($array['id'],$DatosProducto['codBarras']);
-		
-		
 		$DatosProducto['Sqls']['codbarras'] = $comprobaciones;
-		
-		
 	} else {
 		// ----------------------------  SE ESTA AÑADIENDO UN PRODUCTO NUEVO  ------------------------  //
 		$anhadir = $claseArticulos->AnhadirProductoNuevo($DatosProducto);
-		
 		$DatosProducto['Sqls']['NuevoProducto']=$anhadir;
 	}
 	
@@ -573,14 +583,8 @@ function productosSesion($idProducto){
 				unset($_SESSION['productos_seleccionados'][$key]);
 			}
 		}
-		//~ in_array($idProducto, $_SESSION['productos']);
-		//~ unset($_SESSION['productos'],$idProducto);
 	}
-	if($_SESSION['productos']>0){
-			$respuesta['Nitems']=1;
-	}else{
-			$respuesta['Nitems']=0;
-	}
+	
 	if(count($_SESSION['productos_seleccionados'])>0){
 			$respuesta['Nitems']=count($_SESSION['productos_seleccionados']);
 	}
@@ -589,24 +593,26 @@ function productosSesion($idProducto){
 	$respuesta['productos_seleccionados']= $_SESSION['productos_seleccionados'];
 	return $respuesta;
 }
-function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
+function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
 	// @ parametros:
-	// 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
-	//		$dedonde  -> Nos indica de donde viene. ()
+	// 		$busqueda 	-> (string) El valor a buscar,aunque puede venir vacio.. 
+	//		$dedonde  	-> (string) Nos indica de donde viene. ()
+	//		$provedores -> (array) Con o sin datos de los proveedores que encontramos.
+	//		$descartados-> (array) Con o sin datos de los proveedores descartados, porque ya los tiene añadidos.
 	$resultado = array();
 	$resultado['encontrados'] = count($proveedores);
-	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
-	$resultado['html'] .= '<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'.
-				'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda.'"
-				 onkeydown="controlEventos(event)" type="text">';
+	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>'
+					.'<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'
+					.'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda
+					.'" onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($proveedores)>10){
 		$resultado['html'] .= '<span>10 proveedores de '.count($proveedores).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
-	. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
+						. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
 	if (count($proveedores)>0){
 		$contad = 0;
 		foreach ($proveedores as $proveedor){  
@@ -614,19 +620,15 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$idFila = 'Fila_'.$contad;
-			$resultado['html'] 	.= '<tr id="'.$idFila.'" onmouseout="abandonFila('."'".$idFila."'"
-								.')" onmouseover="sobreFilaCraton('."'".$idFila."'"
-								.')" onclick="seleccionProveedor('."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">';
-		
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('
-						.$contad.')"   type="image"  alt="">'
-			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
-			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
-			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
-			. '<td>'.$proveedor['nif'].'</td>'
-			.'</tr>';
+			$resultado['html'] 	.= '<tr class="FilaModal" id="'.$idFila.'" onclick="seleccionProveedor('
+								."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">'
+								.'<td id="C'.$contad.'_Lin" >'
+								.'<input id="N_'.$contad.'" name="filaproveedor" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
+								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+								. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
+								. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
+								. '<td>'.$proveedor['nif'].'</td>'
+								.'</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
@@ -635,6 +637,17 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 		}
 	} 
 	$resultado['html'] .='</tbody></table>';
+	// Ahora mostramos los proveedores descartados.
+	
+	if (count($descartados) > 0){
+		$resultado['html'] .='<div class="alert alert-danger">'
+							.'<h4>Proveedores descartados porque ya existen</h4>';
+		foreach ($descartados as $descartado){
+			$resultado['html'] .='<p>'.$descartado['nombrecomercial'].' - '.$descartado['razonsocial'].'</p>';
+		}
+		$resultado['html'] .='</div>';
+
+	}
 	// Ahora generamos objetos de filas.
 	// Objetos queremos controlar.
 	return $resultado;
@@ -642,7 +655,7 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores = array()){
 }
 
 
-function ImprimirA9($productos){
+function ImprimirA8($productos){
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
@@ -655,21 +668,39 @@ function ImprimirA9($productos){
 	$imprimir['productos']=$productos;
 	foreach ($productos as $producto){
 		if($i==3){
-			$imprimir['html'].='</tr>';
-			$imprimir['html'].='<tr>';
 			$i=0;
+			$imprimir['html'].='<tr>';
 		}
 		$imprimir['html'].='<td align="center">';
-		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
-		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
-		$imprimir['html'].=' RefProv: '.$producto['crefProveedor'].'</font><br>';
-		$imprimir['html'].='<b>'.$producto['articulo_name'].'</b><br><br>';
-		$imprimir['html'].='<b><font size="25 em">'.number_format($producto['pvpCiva'],2,',','').'€</font></b><br>';
-		$imprimir['html'].='</td>';
+		$imprimir['html'].='<font size="9 em"><b>'.$producto['articulo_name'].'</b></font><br>';
+		$imprimir['html'].='<b><font size="30 em">'.number_format($producto['pvpCiva'],2,',','').'</font><font size="6.5 em" >€</font></b><br>';
+		if(strlen ($producto['articulo_name'])<=30){
+			$imprimir['html'].='<br>';
+		}
+		$imprimir['html'].='<font size="6.5 em">  Fecha: '.date('Y-m-d').'</font>';
+		$imprimir['html'].='<font size="6.5 em" >  Codbarras: ';
+		foreach($producto['codBarras'] as $codigo){
+				$imprimir['html'].=$codigo.' ';
+		}
+		$imprimir['html'].='</font>';
+		$imprimir['html'].='<font size="6.5 em">  Ref: '.$producto['cref_tienda_principal'].'</font>';
+		$imprimir['html'].='<font size="6.5 em">  Id: '.$producto['idArticulo'].'</font>';
+		//~ $imprimir['html'].=' RefProv:</font><br>';
 		
-	$i++;
+		
+		$imprimir['html'].='</td>';
+		if($i==2){
+			$imprimir['html'].='</tr>';
+		}
+		
+		$i++;
 	}
-	$imprimir['html'].='</tr>';
+	if($i<=2){
+		$rep=3-$i;
+		$imprimir['html'].= str_repeat("<td></td>", $rep);
+		$imprimir['html'].='</tr>';
+	}
+	
 	$imprimir['html'].='</table>';
 	return $imprimir;
 }
@@ -684,24 +715,66 @@ $imprimir=array(
 	$i=0;
 	foreach ($productos as $producto){
 		if($i==2){
-			$imprimir['html'].='</tr>';
-			$imprimir['html'].='<tr>';
 			$i=0;
+			$imprimir['html'].='<tr>';
 		}
 		$imprimir['html'].='<td align="center"  style="height:200px;" >';
-		$imprimir['html'].='<font size="6.5 em" >Codbarras: '.$producto['codBarras'].'</font><br>';
-		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['crefTienda'];
-		$imprimir['html'].=' RefProv: '.$producto['crefProveedor'].'</font><br>';
-		$imprimir['html'].='<b><font size="20 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
-		$imprimir['html'].='<b><font size="100 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br>';
-		$imprimir['html'].='</td>';
+		$imprimir['html'].='<b><font size="13 em">'.$producto['articulo_name'].'</font></b><br>';
+		$imprimir['html'].='<b><font size="100 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br>';
+		$imprimir['html'].='<font size="6.5 em">  Fecha: '.date('Y-m-d').'</font>';
+		$imprimir['html'].='<font size="6.5 em" >  Codbarras: ';
+		foreach($producto['codBarras'] as $codigo){
+				$imprimir['html'].=$codigo.' ';
+		}
+		$imprimir['html'].='</font>';
+		$imprimir['html'].='<font size="6.5 em">Ref: '.$producto['cref_tienda_principal'].'</font>';
+		$imprimir['html'].='<font size="6.5 em">  Id: '.$producto['idArticulo'].'</font>';
 		
+		
+		
+		$imprimir['html'].='</td>';
+		if($i==1){
+			$imprimir['html'].='</tr>';
+		}
 	$i++;
 	}
-	$imprimir['html'].='</tr>';
+	if($i<=1){
+		$rep=2-$i;
+		$imprimir['html'].= str_repeat("<td></td>", $rep);
+		$imprimir['html'].='</tr>';
+	}
+	//~ $imprimir['html'].='</tr>';
 	$imprimir['html'].='</table>';
 	return $imprimir;
 
+}
+function ImprimirA5($productos){
+	$imprimir=array(
+		'html'=>'',
+		'cabecera'=>''
+	);
+	$imprimir['html'].="";
+	$imprimir['html'].='<table border="1px" height="527" style="table-layout: fixed;">';
+		foreach ($productos as $producto){
+			$imprimir['html'].='<tr>';
+			$imprimir['html'].='<td align="center"  style="height:200px;" >';
+			$imprimir['html'].='<b><font size="30 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
+			$imprimir['html'].='<b><font size="35 em"> </font></b><br>';
+			$imprimir['html'].='<b><font size="250 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br><br>';
+			$imprimir['html'].='<font size="12 em">  Fecha: '.date('Y-m-d').'</font>';
+			$imprimir['html'].='<font size="12 em" >  Codbarras: ';
+			foreach($producto['codBarras'] as $codigo){
+					$imprimir['html'].=$codigo.' ';
+			}
+			$imprimir['html'].='</font>';
+			$imprimir['html'].='<font size="12 em">Ref: '.$producto['cref_tienda_principal'].'</font>';
+			$imprimir['html'].='<font size="12 em">  Id: '.$producto['idArticulo'].'</font>';
+			$imprimir['html'].='</td>';
+			$imprimir['html'].='</tr>';
+		}
+		$imprimir['html'].='</table>';
+	return $imprimir;
+	
 }
 function eliminarSeleccion(){
 	$_SESSION['productos_seleccionados']=array();

@@ -19,18 +19,14 @@
 	$filtro = ''; // por defecto
 	$errores=array();
 	$Usuario = $_SESSION['usuarioTpv'];
-	$dedonde='incidencia';
+	$dedonde='listado Incidencias';
 	$parametros = $ClasesParametros->getRoot();
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_incidencias',$Usuario['id']);
 	
 	$configuracion=json_decode(json_encode($configuracion),true);
 	$configuracion=$configuracion['incidencias'];
-	//~ echo '<pre>';
-	//~ print_r($configuracion);
-	//~ echo '</pre>';
-	
-	
+
 	if (isset($_GET['pagina'])) {
 		$PgActual = $_GET['pagina'];
 	}

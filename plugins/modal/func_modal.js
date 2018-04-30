@@ -41,22 +41,4 @@ function SelectAlLanzarModal(idCaja){
 
 // -- CSS para fila de tabla... 
 
-function sobreFila(idCaja){
-	console.log('sobreFila de func_modal.js');
-	$('#'+idCaja).css('background-color','lightblue');
-}
-//html onfocusout y onmouseout
-function abandonFila(idCaja){
-	console.log('abandonFila de func_modal.js');
-	$('#'+idCaja).removeAttr( 'style' );
-	$('#'+idCaja).css('background-color','white');
-
-}
-
-function sobreFilaCraton(idCaja){
-	console.log('sobreFilaCraton de func_modal.js');
-	$('#'+idCaja).css('background-color','azure');
-	$('#'+idCaja).css('border','solid #d8d8de 1px');
-	
-}
 

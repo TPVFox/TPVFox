@@ -32,14 +32,11 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 		
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="buscarProveedor('."'".$dedonde."'".' , '
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarProveedor('."'".$dedonde."'".' , '
 			."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('
-						.$contad.')"   type="image"  alt="">'
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filaproveedor" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
 			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
 			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
@@ -184,15 +181,12 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
 						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
 						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal"  
 						onclick="escribirProductoSeleccionado('.$datos.');">';
 			
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" 
-									name="filaproducto" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" 
-						onkeydown="controlEventos(event)" type="image"  alt=""><span  
-						class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+									name="filaproducto" data-obj="idN" 	onkeydown="controlEventos(event)" type="image"  alt="">'
+								.'<span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			if ($id_input=="ReferenciaPro"){
 				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
 			}else{
@@ -401,12 +395,10 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			$numAdjunto=$adjunto['Numalbpro'];
 			$fecha=$adjunto['Fecha'];
 		}
-		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-		.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="buscarAdjunto('
+		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarAdjunto('
 		."'".$dedonde."'".', '.$numAdjunto.');">';
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad
-		.'" name="filaproducto" onfocusout="abandonFila('
-		.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)"
+		.'" name="filaproducto" data-obj="idN" onkeydown="controlEventos(event)"
 		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$respuesta['html']	.= '<td>'.$numAdjunto.'</td><td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){
@@ -1252,7 +1244,7 @@ function htmlTotales($Datostotales){
 	return $htmlIvas;
 }
 
-function cancelarFactura( $datosGet,$BDTpv){
+function cancelarFactura( $idFacturaTemporal,$BDTpv){
 	//@Objetivo: Eliminar la factura temporal y si este tiene alguún albarán adjunto cambiarle
 	//el estado a "Guardado"
 	//@Parametros:
@@ -1269,8 +1261,8 @@ function cancelarFactura( $datosGet,$BDTpv){
 	$error=array();
 	$CFac = new FacturasCompras($BDTpv);
 	$CAlb=new AlbaranesCompras($BDTpv);
-	if (isset($datosGet['tActual'])){
-		$idFacturaTemporal=$datosGet['tActual'];
+	if ($idFacturaTemporal>0){
+		//~ $idFacturaTemporal=$datosGet['tActual'];
 		$idFactura=0;
 		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
 		if (isset($datosFactura['error'])){
@@ -1314,12 +1306,56 @@ function cancelarFactura( $datosGet,$BDTpv){
 	}
 	return $error;
 }
+function cancelarPedido( $idTemporal, $BDTpv){
+	//@Objetivo: Eliminar el pedido temporal 
+	//@Parametros:
+	//$datosGet: envío los datos de get
+	//Si no existe el id Temporal no dejo hacer las funciones siguientes 
+	//y muestro un error info
+	//@Funciones de clase:
+	//buscarPedidoTemporal, primero busco los datos del pedido temporal
+	//						comprobación de error sql en la función
+	//EliminarRegistroTemporal: Por último elimino el registro temporal y como en los 
+	//					anteriores compruebo los errores de sql
+	
+	$Cped = new PedidosCompras($BDTpv);
+	$error=array();
+	$idPedido=0;
+	if ($idTemporal>0){
+		
+		$datosPedido=$Cped->DatosTemporal($idTemporal);
+		if (isset($datosPedido['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+								'dato' => $datosPedido['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+		}else{
+			$eliminarTemporal=$Cped->eliminarTemporal($idTemporal, $idPedido);
+			if (isset($eliminarTemporal['error'])){
+				$error =array ( 'tipo'=>'Danger!',
+								'dato' => $eliminarTemporal['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+			}
 
-function cancelarAlbaran( $datosGet, $BDTpv){
+			
+		}
+	}else{
+		$error=array ( 'tipo'=>'Info!',
+			'dato' => '',
+			'class'=>'alert alert-info',
+			'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+			);
+	}
+	return $error;
+}
+function cancelarAlbaran( $idTemporal, $BDTpv){
 	//@Objetivo: Eliminar el albarán temporal y si este tiene alguún pedido adjunto cambiarle
 	//el estado a "Guardado"
 	//@Parametros:
-	//$datosGet: envío los datos de get
+	//$idTemporal: envío los datos de get
 	//Si no existe el id Temporal no dejo hacer las funciones siguientes 
 	//y muestro un error info
 	//@Funciones de clase:
@@ -1334,8 +1370,8 @@ function cancelarAlbaran( $datosGet, $BDTpv){
 	$Cped = new PedidosCompras($BDTpv);
 	$error=array();
 	$idAlbaran=0;
-	if (isset($datosGet['tActual'])){
-		$idTemporal=$datosGet['tActual'];
+	if ($idTemporal>0){
+		//~ $idTemporal=$datosGet['tActual'];
 		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
 		if (isset($datosAlbaran['error'])){
 			$error =array ( 'tipo'=>'Danger!',
@@ -1349,7 +1385,7 @@ function cancelarAlbaran( $datosGet, $BDTpv){
 				if (count($pedidos)>0){
 					foreach ($pedidos as $pedido){
 						$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
-						if($mod['error']){
+						if(isset($mod['error'])){
 							$error =array ( 'tipo'=>'Danger!',
 								'dato' => $mod['consulta'],
 								'class'=>'alert alert-danger',
@@ -1431,6 +1467,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 	'tipo'=>"compras",
 	'fechaCreacion'=>$fechaCreacion
 	);
+	 //~ $fecha=date_format($fecha, 'Y-m-d H:i:s');
 	//~ $resultado['datos']=$productos;
 	//~ $error=0;
 	$productos = json_decode($productos, true);

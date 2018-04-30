@@ -631,11 +631,9 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 		foreach ($clientes as $cliente){  
 			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="cerrarModalClientes('.$datos.','.$n_dedonde.');">';
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="cerrarModalClientes('.$datos.','.$n_dedonde.');">';
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN" onfocusout="abandonFila('
-						.$contad.')" onkeydown="controlEventos(event,'."'".'N_'.$contad."'".')" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
+			$resultado['html'] .= '<input id="N_'.$contad.'" class="FilaModal" name="filacliente" data-obj="idN" onkeydown="controlEventos(event,'."'".'N_'.$contad."'".')"  type="image"  alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';

@@ -726,6 +726,7 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 		"productos"			:productos
 		
 	};
+	
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -757,8 +758,7 @@ function validarEntradaNombre(caja){
 }
 
 function seleccionProveedor(dedonde,idproveedor){
-	alert('Ahora debería obtener los datos necesario');
-	console.log(producto.idArticulo);
+	console.log('Estoy en seleccionar nuevo proveedor para producto:'+producto.idArticulo);
 	var parametros = {
 		"pulsado" 		: 'obtenerCostesProveedor',
 		"idProveedor"	: idproveedor,
@@ -773,11 +773,16 @@ function seleccionProveedor(dedonde,idproveedor){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eObtener datos de proveedor y coste ');
-				
+				// Cerramos modal..
+				cerrarPopUp();
 				var resultado = $.parseJSON(response);
-				console.log(resultado);
-				alert ( 'Volvi de buscar datos de proveedor');
-				 
+				if (resultado.error){
+					alert (' Hubo un error al obtener los datos del proveedor ');
+				} else {
+					console.log(resultado);
+					var nuevo_proveedor = resultado.htmlFilaProveedor;
+					$("#tproveedor").prepend(nuevo_proveedor);
+				} 
 		}	
 	});
 
@@ -808,18 +813,16 @@ function selecionarItemProducto(id, dedonde=""){
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-		console.log('*********  Modificando eliminar costes  **************');
+		console.log('********* Añado o Elimino de producto_seleccionado a session  **************');
 		},
 		success    :  function (response) {
-				console.log('Respuesta de eliminar costes ');
+				console.log('Respuesta de añadir o eliminad productos seleccionados');
 				
 				var resultado = $.parseJSON(response);
 				console.log(resultado);
 				if(resultado.Nitems===0){
 					if(dedonde=="listaProductos"){
 						$(".productos_seleccionados").css("display", "none");
-						
-					}else{
 						location.href="ListaProductos.php";
 					}
 					
@@ -839,6 +842,7 @@ function selecionarItemProducto(id, dedonde=""){
 function eliminarSeleccionProductos(){
 	// @ Objetivo :
 	// Eliminar todos los productos seleccionados. ( al pulsar ELiminar productos).
+	console.log(configuracion);
 		var parametros = {
 		"pulsado"    	: 'eliminarSeleccion'
 		
@@ -852,9 +856,27 @@ function eliminarSeleccionProductos(){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eliminar seleccion de productos ');
+				// La configuracion la cambiamos ya que si esta como si filtrar , ya no .
+				configuracion.filtro.valor='No';
+				AjaxGuardarConfiguracion();
 				location.href="ListaProductos.php";
 				 
 		}	
 	});
+}
+
+function UnProductoClick(id){
+	// @ Objetivo:
+	// Hizo click en id o Nombre de producto, por lo que lo mostramos.
+	window.location.href = './producto.php?id='+id;
+	
+}
+
+function filtrarSeleccionProductos(){
+	// @Objetivo:
+	// Hizo click en filtrar productos seleccionados por lo que 
+	configuracion.filtro.valor='Si';
+	AjaxGuardarConfiguracion();
+	location.href="ListaProductos.php";
 }
 

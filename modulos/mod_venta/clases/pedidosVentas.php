@@ -115,7 +115,7 @@ class PedidosVentas extends ClaseVentas{
 		//Objetivo:
 		//Añade un registro de un pedido ya guardado en pedidos . Si el numero del pedido es mayor  de 0 o sea que hay un registro en pedidos 
 		//lo añade a la tabla temporal si no añade un registro normal a la tabla pedido
-
+		$respuesta=array();
 		$db = $this->db;
 		if ($idPedido>0){
 			$sql='INSERT INTO pedclit (id, Numpedcli , Numtemp_pedcli, 
@@ -377,6 +377,7 @@ class PedidosVentas extends ClaseVentas{
 				$resultado['consulta']=$smt['consulta'];
 				return $resultado;
 		}else{
+			$pedidos=array();
 			while ( $result = $smt->fetch_assoc () ) {
 				$pedidos['ped']=1;
 			}
@@ -391,6 +392,17 @@ class PedidosVentas extends ClaseVentas{
 		.' , total_ivas='.$totalivas .' where id='.$res;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
+				$resultado['error']=$smt['error'];
+				$resultado['consulta']=$smt['consulta'];
+				return $resultado;
+		}
+	}
+	public function modificarFecha($idPedido, $fecha){
+		$db=$this->db;
+		$sql='UPDATE pedclit SET FechaPedido="'.$fecha.'" where id='.$idPedido;
+			$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$resultado=array();
 				$resultado['error']=$smt['error'];
 				$resultado['consulta']=$smt['consulta'];
 				return $resultado;

@@ -24,7 +24,7 @@
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	// Ahora compruebo productos_seleccion:
-	$prod_seleccion = array('NItems'=>0);
+	$prod_seleccion = array('NItems'=>0,'display'=>'');
 	if (isset($_SESSION['productos_seleccionados'])){
 		$prod_seleccion['Items']=$_SESSION['productos_seleccionados'];
 		$prod_seleccion['NItems'] = count($prod_seleccion['Items']);
@@ -64,18 +64,33 @@
 	$NPaginado->SetCamposControler($Controler,$campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere();
+	$CantidadRegistros=0;
 	if ( $NPaginado->GetFiltroWhere() !== ''){
 		$CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro));
 	} else {
 		$CantidadRegistros = $CTArticulos->GetNumRows(); 
 	}
 	// --- Ahora envio a NPaginado la cantidad registros --- //
-	$NPaginado->SetCantidadRegistros($CantidadRegistros);
-	
+	if ($prod_seleccion['NItems']>0 && $configuracion['filtro']->valor === 'Si'){
+		$NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
+	} else {
+		$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	}
 	$htmlPG= ''; 
-	if ($CantidadRegistros > 0){
+	if ($CantidadRegistros > 0 || $prod_seleccion['NItems']>0){
 		$htmlPG = $NPaginado->htmlPaginado();	
+		// Queremos filtrar o no. 
+		if ($configuracion['filtro']->valor === 'Si'){
+			if ($prod_seleccion['NItems'] > 0){
+				if ($filtro !==''){
+					$filtro .=  ' AND (a.idArticulo IN ('.implode(',',$prod_seleccion['Items']).'))';
+				} else {
+					$filtro = ' WHERE (a.idArticulo IN ('.implode(',',$prod_seleccion['Items']).'))';
+				}
+			}
+		}
 		$productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],$filtro.$NPaginado->GetLimitConsulta());
+
 	}
 	
 	
@@ -166,7 +181,7 @@
 					<div class="form-group ClaseBuscar">
 						<label>Buscar por:</label>
 						<select onchange="GuardarBusqueda(event);" name="SelectBusqueda" id="sel1"> <?php echo $htmlConfiguracion['htmlOption'];?> </select>
-						<input type="text" name="buscar" value="<?php echo $stringPalabras; ?>">
+						<input type="text" name="buscar" value="<?php echo $NPaginado->GetBusqueda(); ?>">
 						<input type="submit" value="buscar">
 					</div>
 				</form>
@@ -216,10 +231,10 @@
 
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>, 'listaProductos')" value="<?php echo $producto['idArticulo'];?>" <?php echo $checked;?>>
 					</td>
-					<td><?php echo $producto['idArticulo']; ?></td>
-					<td><?php echo $producto['articulo_name']; ?></td>
-					
-					<?php
+					<?php 
+					$htmltd ='<td style="cursor:pointer" onclick="UnProductoClick('."'".$producto['idArticulo']."'".');">'; 
+					echo $htmltd.$producto['idArticulo'].'</td>';
+					echo $htmltd.$producto['articulo_name'].'</td>';
 					if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'],'crefTienda') === 'Si'){
 						$CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
 						$codBarrasProd = $CTArticulos->GetCodbarras();

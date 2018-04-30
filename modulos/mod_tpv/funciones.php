@@ -122,8 +122,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 	$resultado['html'] .= '<label>Busqueda por '.$id_input.'</label>';
 	// Utilizo el metodo onkeydown ya que encuentro que onKeyup no funciona en igual con todas las teclas.
 	
-	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" data-obj="cajaBusquedaproductos" size="13" value="'
-					.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
+	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" data-obj="cajaBusquedaproductos" size="13" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 	if (count($productos)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
 	}
@@ -151,11 +150,12 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda){
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
 						.number_format($producto['pvpCiva'],2).",".$producto['idArticulo'];
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('
-						.$contad.')" onmouseover="sobreFilaCraton('.$contad.')"  onclick="escribirProductoSeleccionado('.$datos.');">';
+			$Fila_N = 'Fila_'.$contad;
+			$resultado['html'] .= '<tr class="FilaModal" id="'.$Fila_N.'"  onclick="escribirProductoSeleccionado('
+							.$datos.');">';
 			
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" name="filaproducto" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onfocus="sobreFila('.$contad.')" onkeydown="controlEventos(event)" type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin">'
+								.'<input id="N_'.$contad.'" name="filaproducto"  data-obj="idN"  onkeydown="controlEventos(event)" type="image" alt=""><span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';				
 			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.number_format($producto['pvpCiva'],2).'</td>';
@@ -1074,11 +1074,9 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 		foreach ($clientes as $cliente){  
 			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" onmouseout="abandonFila('.$contad
-			.')" onmouseover="sobreFilaCraton('.$contad.')" onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
+			$resultado['html'] .= '<tr class="FilaModal" id="Fila_'.$contad.'" onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" onfocusout="abandonFila('
-						.$contad.')" data-obj="idN" onkeydown="controlEventos(event)" onfocus="sobreFila('.$contad.')"   type="image"  alt="">';
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';

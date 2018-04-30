@@ -606,7 +606,7 @@ function controladorAcciones(caja,accion){
 		case 'saltar_CodBarras_desde_fila':
 			console.log('Saltar_Codbarras');
 				var d_focus = 'Codbarras';
-				ponerFocus(d_focus);
+				ponerSelect(d_focus);
 		break;
 		
 		case  'saltar_productos':
@@ -738,21 +738,9 @@ function after_constructor(padre_caja,event){
 }
 
 // ===================  FUNCIONES DE PINTAR BONITO y MOVIMIENTOS =========================
-//html onfocus 
-function sobreFila(cont){
-	$('#Fila_'+cont).css('background-color','lightblue');
-}
-//html onfocusout y onmouseout
-function abandonFila(cont){
-	$('#Fila_'+cont).css('background-color','white');
-}
 
-function sobreFilaCraton(cont){
-	$('#Fila_'+cont).css('background-color','azure');
-}
 
 function mover_down(fila,prefijo){
-	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 	// Segun prefijo de la caja seleccionamos o pones focus.
 	if ( prefijo === 'Unidad_Fila_'){
@@ -764,7 +752,6 @@ function mover_down(fila,prefijo){
 }
 
 function mover_up(fila,prefijo){
-	sobreFilaCraton(fila);
 	var d_focus = prefijo+fila;
 		// Segun prefijo de la caja seleccionamos o pones focus.
 	if ( prefijo === 'Unidad_Fila_'){

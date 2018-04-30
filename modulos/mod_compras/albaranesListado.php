@@ -8,7 +8,7 @@ include ("./../../plugins/paginacion/paginacion.php");
 include ("./../../controllers/Controladores.php");
 include '../../clases/Proveedores.php';
 include 'clases/albaranesCompras.php';
-//include '../../clases/articulos.php';
+
 if (isset($_SESSION['tiendaTpv'])){
 	$Tienda = $_SESSION['tiendaTpv'];
 }
@@ -17,7 +17,6 @@ $Controler = new ControladorComun;
  $CArticulo=new Articulos($BDTpv);
 // Creamos el objeto de proveedor
 $CProv= new Proveedores($BDTpv);
-
 // Creamos el objeto de albarán
 $CAlb=new AlbaranesCompras($BDTpv);
 

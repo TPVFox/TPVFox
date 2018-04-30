@@ -2,57 +2,26 @@
 <html>
 <head>
 <?php
-include './../../head.php';
+	//Carga de archivos php necesarios
+	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
+	//~ include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-	$ClasesParametros = new ClaseParametros('parametros.xml');
-	
 	include '../../clases/Proveedores.php';
-	$Cprveedor=new Proveedores($BDTpv);
 	include 'clases/albaranesCompras.php';
-	$CAlb=new AlbaranesCompras($BDTpv);
 	include_once 'clases/pedidosCompras.php';
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	//cargar las clases necesarias
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	$Cprveedor=new Proveedores($BDTpv);
+	$CAlb=new AlbaranesCompras($BDTpv);
 	$Cped = new PedidosCompras($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
-	
+	//Inicializar las variables
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];
 	$dedonde="albaran";
-	$parametros = $ClasesParametros->getRoot();
-	//~ $parametros = simplexml_load_file('parametros.xml');
-		
-	foreach($parametros->cajas_input->caja_input as $caja){
-		$caja->parametros->parametro[0]="albaran";
-	}
-	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-	
-	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
-	$configuracionArchivo=array();
-	//~ echo '<pre>';
-	//~ print_r($configuracion['incidencias']);
-	//~ echo '</pre>';
-	foreach ($configuracion['incidencias'] as $config){
-		//~ echo '<pre>';
-	//~ print_r($config);
-	//~ echo '</pre>';
-		if(get_object_vars($config)['dedonde']==$dedonde){
-			array_push($configuracionArchivo, $config);
-		}
-	}
-	//~ echo '<pre>';
-	//~ print_r($configuracionArchivo);
-	//~ echo '</pre>';
-	//~ $configuracionArchivo=json_decode(json_encode($configuracionArchivo),true);
-	//~ echo '<pre>';
-	//~ print_r($configuracionArchivo);
-	//~ echo '</pre>';
-	
-	
-	// array con los datos de usuario
 	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
 	$fecha=date('Y-m-d');
@@ -65,6 +34,24 @@ include './../../head.php';
 	$fechaVencimiento="";
 	$style1="";
 	$Datostotales=array();
+	
+	
+	//Cargamos la configuración por defecto y las acciones de las cajas 
+	$parametros = $ClasesParametros->getRoot();	
+	foreach($parametros->cajas_input->caja_input as $caja){
+		$caja->parametros->parametro[0]="albaran";
+	}
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
+	$configuracionArchivo=array();
+	foreach ($configuracion['incidencias'] as $config){
+		if(get_object_vars($config)['dedonde']==$dedonde){
+			array_push($configuracionArchivo, $config);
+		}
+	}
+	
 	
 	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
 	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
@@ -151,17 +138,17 @@ include './../../head.php';
 	//Cancelar, cuando cancelamos un albarán quiere decir que los 
 	//cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
 	// y cambiamos el estado del original a guardado
-	if (isset ($_POST['Cancelar'])){
-		 $cancelar=cancelarAlbaran( $_GET, $BDTpv);
-		if (count($cancelar)==0){
+	//~ if (isset ($_POST['Cancelar'])){
+		 //~ $cancelar=cancelarAlbaran( $_GET, $BDTpv);
+		//~ if (count($cancelar)==0){
 			
-			header('Location: albaranesListado.php');
-		}else{
-			echo '<div class="'.$cancelar['class'].'">'
-					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
-					. '</div>';
-		}
-	}
+			//~ header('Location: albaranesListado.php');
+		//~ }else{
+			//~ echo '<div class="'.$cancelar['class'].'">'
+					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					//~ . '</div>';
+		//~ }
+	//~ }
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
 			$style1="";
@@ -175,7 +162,6 @@ include './../../head.php';
 			}else{
 				$style="display:none;";
 			}
-			//~ echo $comprobarPedidos;
 		}
 		if (isset ($_GET['id']) || isset ($_GET['tActual'])){
 			$estiloTablaProductos="";
@@ -190,7 +176,6 @@ include './../../head.php';
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
-	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
@@ -239,10 +224,21 @@ include './../../head.php';
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <?php
 	include '../../header.php';
 ?>
 <script type="text/javascript">
+	<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
@@ -250,8 +246,7 @@ include './../../head.php';
           return (tecla != 13);
       }
 </script>
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+
 <div class="container">
 	<?php
 	
@@ -264,7 +259,7 @@ include './../../head.php';
 	}
 	
 	?>
-	<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion , <?php echo $idAlbaran ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">

@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <parametros>
+	<configuracion>
+		<incidencias descripcion="mostrar_Select" dedonde="albaran">Si</incidencias>
+		<incidencias descripcion="mostrar_Select" dedonde="factura">Si</incidencias>
+		<incidencias descripcion="mostrar_Select" dedonde="pedidos">Si</incidencias>
+		<incidencias descripcion="usuario_Defecto" dedonde="albaran">1</incidencias>
+		<incidencias descripcion="usuario_Defecto" dedonde="factura">1</incidencias>
+		<incidencias descripcion="usuario_Defecto" dedonde="pedidos">1</incidencias>
+		
+	</configuracion>	
 	<cajas_input data-obj="id_input">
 		<caja_input>
 			<nombre id_input="fecha">cajaFecha</nombre>

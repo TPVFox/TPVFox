@@ -8,20 +8,19 @@
  *  */
 $pulsado = $_POST['pulsado'];
 include_once ("./../../configuracion.php");
-// Crealizamos conexion a la BD Datos
 include_once ("./../mod_conexion/conexionBaseDatos.php");
-// Incluimos funciones
 include_once ("./funciones.php");
 include_once ("../mod_incidencias/popup_incidencias.php");
-include_once '../../clases/Proveedores.php';
-$CProveedores=new Proveedores($BDTpv);
 include_once "clases/pedidosCompras.php";
-$CPed=new PedidosCompras($BDTpv);
+include_once '../../clases/Proveedores.php';
 include_once "clases/albaranesCompras.php";
-$CAlb=new AlbaranesCompras($BDTpv);
 include_once "clases/facturasCompras.php";
-$CFac= new FacturasCompras($BDTpv);
 include_once "../../clases/articulos.php";
+
+$CProveedores=new Proveedores($BDTpv);
+$CPed=new PedidosCompras($BDTpv);
+$CAlb=new AlbaranesCompras($BDTpv);
+$CFac= new FacturasCompras($BDTpv);
 $CArticulos=new Articulos($BDTpv);
 switch ($pulsado) {
 	case 'buscarProveedor':
@@ -502,13 +501,14 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		case 'htmlAgregarFilaAdjunto':
-			//Agrega tanto la fila de pedido como la de alabaranes
+		//OBjetivo: agregar la fila con los datos del albaran o pedido adjunto
 			$res=lineaAdjunto($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
 		
 		case 'datosImprimir':
+			//@Objetivo:
 			//Imprimir un documento , dependiendo de donde venga se pone el nombre y envía todos los datos  
 			//a la función montarHTMLimprimir que lo que realiza es simplemente montar el html una parte copn la cabecera y 
 			//otra con el cuerpo del documento
@@ -530,6 +530,8 @@ switch ($pulsado) {
 		case 'insertarImporte':
 			//@Objetivo:
 			//Insertar un nuevo importe a una factura
+			//@Proceso:
+			//Primero se buscan los importes que tiene ya esa factura, si tiene elimina el registro
 			 $importe=$_POST['importe'];
 			 $fecha=$_POST['fecha'];
 			 $idFactura=$_POST['idTemporal'];
@@ -541,6 +543,7 @@ switch ($pulsado) {
 			 $error=0;
 			 $bandera=$importe;
 			 $respuesta=array();
+			 $importesReal=array();
 			 $importesReal=$CFac->importesFactura($idReal);
 			 if (isset($importesReal['error'])){
 				$respuesta['error']=$importesReal['error'];
@@ -650,5 +653,25 @@ switch ($pulsado) {
 	echo json_encode($respuesta);
 	
 	break;
+	case 'cancelarTemporal':
+		$idTemporal=$_POST['idTemporal'];
+		$dedonde=$_POST['dedonde'];
+		$respuesta=array();
+		switch($dedonde){
+			case 'pedidos':
+				$cancelar=cancelarPedido( $idTemporal, $BDTpv);
+				$respuesta=$cancelar;
+			break;
+			case 'albaran':
+				$cancelar=cancelarAlbaran( $idTemporal, $BDTpv);
+			break;
+			case 'factura':
+				$cancelar=cancelarFactura( $idTemporal, $BDTpv);
+			break;
+		 }
+		 echo json_encode($respuesta);
+	break;
+	
+	
 }
 ?>

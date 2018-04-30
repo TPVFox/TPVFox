@@ -7,6 +7,9 @@ include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
+	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	
 	include '../../clases/cliente.php';
 	$Ccliente=new Cliente($BDTpv);
 	include 'clases/albaranesVentas.php';
@@ -14,6 +17,7 @@ include './../../head.php';
 	include_once 'clases/pedidosVentas.php';
 	$Cped = new PedidosVentas($BDTpv);
 	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$idAlbaranTemporal=0;
@@ -21,9 +25,26 @@ include './../../head.php';
 	$idAlbaran=0;
 	$numAlbaran=0;
 	$idCliente=0;
-	$nombreCliente=0;
+	$nombreCliente="";
 	$titulo="Albarán De Cliente ";
 	$fecha=date('Y-m-d');
+	$dedonde="albaran";
+	$Datostotales=array();
+
+	$parametros = $ClasesParametros->getRoot();
+	foreach($parametros->cajas_input->caja_input as $caja){
+			$caja->parametros->parametro[0]="albaran";
+	}
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_ventas',$Usuario['id']);
+	$configuracionArchivo=array();
+	foreach ($configuracion['incidencias'] as $config){
+		if(get_object_vars($config)['dedonde']==$dedonde){
+			array_push($configuracionArchivo, $config);
+		}
+	}
+	
 	
 	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
@@ -74,7 +95,9 @@ include './../../head.php';
 			
 				$idCliente=$datosAlbaran['idClientes'];
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
-				$nombreCliente="'".$cliente['Nombre']."'";
+				if(isset($cliente['Nombre'])){
+					$nombreCliente="'".$cliente['Nombre']."'";
+				}
 				$albaran=$datosAlbaran;
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
@@ -97,122 +120,126 @@ include './../../head.php';
 		//Si no existe un número de albarán real solo hay que crear un los registros nuevos de los albaranes en las diferentes tablas
 		//Y eliminar el temporal
 		if (isset($_POST['Guardar'])){
-			if ($_POST['idTemporal']){
-				$idTemporal=$_POST['idTemporal'];
-			}else{
-				$idTemporal=$_GET['tActual'];
-			}
-			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-			if($datosAlbaran['total']){
-				$total=$datosAlbaran['total'];
-			}else{
-				$total=0;
-			}
-			$idAlbaran=0;
-			$datos=array(
-			'Numtemp_albcli'=>$idTemporal,
-			'Fecha'=>$_POST['fecha'],
-			'idTienda'=>$Tienda['idTienda'],
-			'idUsuario'=>$Usuario['id'],
-			'idCliente'=>$datosAlbaran['idClientes'],
-			'estado'=>"Guardado",
-			'total'=>$total,
-			'DatosTotales'=>$Datostotales,
-			'productos'=>$datosAlbaran['Productos'],
-			'pedidos'=>$datosAlbaran['Pedidos']
-			);
-			echo '<pre>';
-			print_r($datosAlbaran['Productos']);
-			echo '</pre>';
-			$errores=array();
-			if($datosAlbaran['numalbcli']>0){
-				$idAlbaran=$datosAlbaran['numalbcli'];
-				$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
-				if (isset($eliminarTablasPrincipal['error'])){
-				$errores[0]=array ( 'tipo'=>'Danger!',
-											 'dato' => $eliminarTablasPrincipal['consulta'],
-											 'class'=>'alert alert-danger',
-											 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-											 );
-				}
+			$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
+			//~ echo '<pre>';
+			//~ print_r($guardar);
+			//~ echo '</pre>';
+			if (count($guardar)==0){
 				
-			}
-			if(count($errores)==0){
-				$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
-					if(isset($addNuevo['error'])){
-					$errores[1]=array ( 'tipo'=>'Danger!',
-												 'dato' => $addNuevo['consulta'],
-												 'class'=>'alert alert-danger',
-												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 );
-					}
-				$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
-					if(isset($eliminarTemporal['error'])){
-					$errores[2]=array ( 'tipo'=>'Danger!',
-												 'dato' => $eliminarTemporal['consulta'],
-												 'class'=>'alert alert-danger',
-												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 );
-					}
-				}
-				//~ echo '<pre>';
-				//~ print_r($addNuevo);
-				//~ echo '</pre>';
-			if(count($errores)==0){
 				header('Location: albaranesListado.php');
 			}else{
-					foreach($errores as $error){
-						echo '<div class="'.$error['class'].'">'
-						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-						. '</div>';
+				foreach ($guardar as $error){
+					echo '<div class="'.$error['class'].'">'
+					. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+					. '</div>';
 				}
 			}
+			//~ if (isset($_POST['idTemporal'])){
+				//~ $idTemporal=$_POST['idTemporal'];
+			//~ }else{
+				//~ $idTemporal=$_GET['tActual'];
+			//~ }
+			//~ $datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
+			//~ if(isset($datosAlbaran['total'])){
+				//~ $total=$datosAlbaran['total'];
+			//~ }else{
+				//~ $total=0;
+			//~ }
+			//~ $idAlbaran=0;
+			//~ $datos=array(
+			//~ 'Numtemp_albcli'=>$idTemporal,
+			//~ 'Fecha'=>$_POST['fecha'],
+			//~ 'idTienda'=>$Tienda['idTienda'],
+			//~ 'idUsuario'=>$Usuario['id'],
+			//~ 'idCliente'=>$datosAlbaran['idClientes'],
+			//~ 'estado'=>"Guardado",
+			//~ 'total'=>$total,
+			//~ 'DatosTotales'=>$Datostotales,
+			//~ 'productos'=>$datosAlbaran['Productos'],
+			//~ 'pedidos'=>$datosAlbaran['Pedidos']
+			//~ );
+			//~ echo '<pre>';
+			//~ print_r($datosAlbaran['Productos']);
+			//~ echo '</pre>';
+			//~ $errores=array();
+			//~ if($datosAlbaran['numalbcli']>0){
+				//~ $idAlbaran=$datosAlbaran['numalbcli'];
+				//~ $eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
+				//~ if (isset($eliminarTablasPrincipal['error'])){
+				//~ $errores[0]=array ( 'tipo'=>'Danger!',
+											 //~ 'dato' => $eliminarTablasPrincipal['consulta'],
+											 //~ 'class'=>'alert alert-danger',
+											 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+											 //~ );
+				//~ }
+				
+			//~ }
+			//~ if(count($errores)==0){
+				//~ $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
+					//~ if(isset($addNuevo['error'])){
+					//~ $errores[1]=array ( 'tipo'=>'Danger!',
+												 //~ 'dato' => $addNuevo['consulta'],
+												 //~ 'class'=>'alert alert-danger',
+												 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+												 //~ );
+					//~ }
+				//~ $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
+					//~ if(isset($eliminarTemporal['error'])){
+					//~ $errores[2]=array ( 'tipo'=>'Danger!',
+												 //~ 'dato' => $eliminarTemporal['consulta'],
+												 //~ 'class'=>'alert alert-danger',
+												 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+												 //~ );
+					//~ }
+				//~ }
+			//~ if(count($errores)==0){
+				//~ header('Location: albaranesListado.php');
+			//~ }else{
+					//~ foreach($errores as $error){
+						//~ echo '<div class="'.$error['class'].'">'
+						//~ . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+						//~ . '</div>';
+				//~ }
+			//~ }
 			
 		}
 		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
-		if (isset($_POST['Cancelar'])){
-			if (isset($_POST['idTemporal'])){
-				$idTemporal=$_POST['idTemporal'];
-			}else{
-				if (isset($_GET['tActual'])){
-					$idTemporal=$_GET['tActual'];
-				}else{
-					$idTemporal=0;
-				}
+		//~ if (isset($_POST['Cancelar'])){
+			
+			//~ if (isset($_POST['idTemporal'])){
+				//~ $idTemporal=$_POST['idTemporal'];
+			//~ }else{
+				//~ if (isset($_GET['tActual'])){
+					//~ $idTemporal=$_GET['tActual'];
+				//~ }else{
+					//~ $idTemporal=0;
+				//~ }
 				
-			}
-			echo "entre en cancelar";
-			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
-			if (isset($datosAlbaran['Pedidos'])){
-				$pedidos=json_decode($datosAlbaran['Pedidos'], true);
-				foreach ($pedidos as $pedido){
-				$mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
-				}
-			}
-			$idAlbaran=0;
-			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-				header('Location: albaranesListado.php');
-		}
+			//~ }
+			//~ echo "entre en cancelar";
+			//~ $datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
+			//~ if (isset($datosAlbaran['Pedidos'])){
+				//~ $pedidos=json_decode($datosAlbaran['Pedidos'], true);
+				//~ foreach ($pedidos as $pedido){
+				//~ $mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
+				//~ }
+			//~ }
+			//~ $idAlbaran=0;
+			//~ $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+				//~ header('Location: albaranesListado.php');
+		//~ }
 		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
 			$style="";
 		}else{
 			$style="display:none;";
 		}
 $titulo .= ': '.$estado;	
-		$parametros = simplexml_load_file('parametros.xml');
-		foreach($parametros->cajas_input->caja_input as $caja){
-			$caja->parametros->parametro[0]="albaran";
-		}
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-//Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
-	//	$parametros->cajas_input->caja_input[10]->parametros->parametro[0][0]="albaran";
 		
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
@@ -275,6 +302,15 @@ if (isset($_GET['tActual'])){
 	include '../../header.php';
 ?>
 <script type="text/javascript">
+		<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
@@ -283,7 +319,9 @@ if (isset($_GET['tActual'])){
       }
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
+		<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idAlbaran ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 					<a  href="./albaranesListado.php">Volver Atrás</a>
@@ -344,8 +382,10 @@ if (isset($_GET['tActual'])){
 				<?php 
 				//Si existen pedidos en el albarán los escribimos
 				if (isset($pedidos)){
-					$html=htmlPedidoAlbaran($pedidos, "albaran");
+					foreach ($pedidos as $pedido){
+					$html=htmlPedidoAlbaran($pedido, "albaran");
 					echo $html['html'];
+				}
 				}
 				?>
 			</table>
@@ -394,7 +434,7 @@ if (isset($_GET['tActual'])){
 	  </table>
 	</div>
 	<?php 
-	if (isset ($Datostotales)){
+	if (isset ($Datostotales['total'])){
 	?>
 
 		<script type="text/javascript">

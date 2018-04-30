@@ -2,22 +2,25 @@
 <html>
 <head>
 <?php
-include './../../head.php';
+	//llamadas  a archivos php 
+	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-	$ClasesParametros = new ClaseParametros('parametros.xml');
 	include '../../clases/Proveedores.php';
-	$Cprveedor=new Proveedores($BDTpv);
 	include 'clases/albaranesCompras.php';
-	$CAlb=new AlbaranesCompras($BDTpv);
 	include_once 'clases/facturasCompras.php';
+	include_once '../../clases/FormasPago.php';
+	//Carga de clases necesarias
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	$Cprveedor=new Proveedores($BDTpv);
+	$CAlb=new AlbaranesCompras($BDTpv);
 	$CFac = new FacturasCompras($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
-	include_once '../../clases/FormasPago.php';
 	$CforPago=new FormasPago($BDTpv);
+	//iniciación de las variables
 	$dedonde="factura";
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
@@ -28,18 +31,13 @@ include './../../head.php';
 	$comprobarAlbaran=0;
 	$importesFactura=array();
 	$albaranes=array();
-	
-		$parametros = $ClasesParametros->getRoot();
-	//~ $parametros = simplexml_load_file('parametros.xml');
-	
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-//Como estamos el albaranes la caja de input num fila cambia el de donde a albaran
-		
+	//Carga de los parametros de configuración y las acciones de las cajas
+	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){
 		$caja->parametros->parametro[0]="factura";
 	}
 	
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
 	$configuracionArchivo=array();
@@ -57,15 +55,11 @@ include './../../head.php';
 		
 		$titulo="Modificar factura De Proveedor";
 		$datosFactura=$CFac->datosFactura($idFactura);
-		
 		$productosFactura=$CFac->ProductosFactura($idFactura);
-	
 		$ivasFactura=$CFac->IvasFactura($idFactura);
 		$abaranesFactura=$CFac->albaranesFactura($idFactura);
-		
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		$datosImportes=$CFac->importesFactura($idFactura);
-		
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
@@ -89,7 +83,6 @@ include './../../head.php';
 		$productos=json_decode(json_encode($productosFactura), true);
 			
 		if ($abaranesFactura){
-			 //$modificarAlbaran=modificarArrayAlbaranes($abaranesFactura, $BDTpv);
 			 $modificarAlbaran=modificarArrayAdjunto($abaranesFactura, $BDTpv, "factura");
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
@@ -98,18 +91,17 @@ include './../../head.php';
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
-	$fecha=date('Y-m-d');
-	$fechaCab="'".$fecha."'";
-	$idFacturaTemporal=0;
-	$idFactura=0;
-	$numFactura=0;
-	$idProveedor=0;
-	$suNumero="";
-	$nombreProveedor="";
+		$fecha=date('Y-m-d');
+		$fechaCab="'".$fecha."'";
+		$idFacturaTemporal=0;
+		$idFactura=0;
+		$numFactura=0;
+		$idProveedor=0;
+		$suNumero="";
+		$nombreProveedor="";
 	//Si recibe los datos de un temporal
 		if (isset($_GET['tActual'])){
 				$idFacturaTemporal=$_GET['tActual'];
-				
 				$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
 				if (isset ($datosFactura['numfacpro'])){
 					$numFactura=$datosFactura['numfacpro'];
@@ -151,7 +143,7 @@ include './../../head.php';
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
 			$Datostotales = recalculoTotales($productos);
-			$productos = json_decode(json_encode($productos), true); // Array de arrays	
+			$productos = json_decode(json_encode($productos), true); // Array de arrays
 		}
 		
 	if (isset($_POST['Guardar'])){
@@ -165,30 +157,23 @@ include './../../head.php';
 					. '</div>';
 				}
 			}
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
-			
-		
 	}
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
-	if (isset($_POST['Cancelar'])){
-		$cancelar=cancelarFactura( $_GET, $BDTpv);
-		if (count($cancelar)==0){
-			header('Location: facturasListado.php');
-		}else{
-			echo '<div class="'.$cancelar['class'].'">'
-					. '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
-					. '</div>';
-		}
-	}
+	//~ if (isset($_POST['Cancelar'])){
+		//~ $cancelar=cancelarFactura( $_GET, $BDTpv);
+		//~ if (count($cancelar)==0){
+			//~ header('Location: facturasListado.php');
+		//~ }else{
+			//~ echo '<div class="'.$cancelar['class'].'">'
+					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					//~ . '</div>';
+		//~ }
+	//~ }
 	
 		if (isset($factura['Albaranes'])){
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
-		
-		//~ echo $albaranes;
 		if (isset($albaranes) || $comprobarAlbaran==1){
 			$style="";
 		}else{
@@ -200,15 +185,11 @@ include './../../head.php';
 		}else{
 			$estiloTablaProductos="display:none;";
 		}
-		//~ echo $estiloTablaProductos;
-		
-//~ echo $estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
-	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
@@ -225,11 +206,6 @@ include './../../head.php';
 	var albaranes =[];
 <?php 
 	if (isset($facturaTemporal)| isset($idFactura)){ 
-?>
-//	console.log("entre en el javascript");
-	</script>
-	<script type="text/javascript">
-<?php
 	$i= 0;
 		if (isset($productos)){
 			foreach($productos as $product){
@@ -271,31 +247,35 @@ if ($idProveedor==0){
 if ($suNumero==0){
 	$suNumero="";
 }
-//~ echo '<pre>';
-//~ print_r($albaranes);
-//~ echo '</pre>';
 ?>
 </head>
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <?php
 	include '../../header.php';
 ?>
 <script type="text/javascript">
+		<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
           return (tecla != 13);
       }
 </script>
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <div class="container">
-			 <a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+			 <a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			
-			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<a  href="./facturasListado.php">Volver Atrás</a>
 					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
@@ -310,7 +290,6 @@ if ($suNumero==0){
 <div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">
-			
 				<div class="col-md-2">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
@@ -319,7 +298,6 @@ if ($suNumero==0){
 					<strong>Estado:</strong><br>
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
 				</div>
-			
 				<div class="col-md-2">
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
@@ -346,7 +324,6 @@ if ($suNumero==0){
 			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
 			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
 				<thead>
-				
 				<td><b>Número</b></td>
 				<td><b>Fecha</b></td>
 				<td><b>Total</b></td>
@@ -356,15 +333,13 @@ if ($suNumero==0){
 				<?php 
 				$i=1;
 				if (isset($albaranes)){
-					
 					foreach ($albaranes as $albaran){
-						if (isset ($albaran['nfila'])){
-						}else{
+						if (!isset ($albaran['nfila'])){
 							$albaran['nfila']=$i;
 						}
 						$html=lineaAdjunto($albaran, "factura");
-					echo $html['html'];
-					$i++;
+						echo $html['html'];
+						$i++;
 					}
 					
 				}
@@ -438,9 +413,9 @@ if ($suNumero==0){
 		<tbody>
 			<?php 
 			if (isset($Datostotales)){
-			$htmlIvas=htmlTotales($Datostotales);
-			echo $htmlIvas['html'];
-		}
+				$htmlIvas=htmlTotales($Datostotales);
+				echo $htmlIvas['html'];
+			}
 			  ?>
 		</tbody>
 		</table>
@@ -449,7 +424,6 @@ if ($suNumero==0){
 			<h3>TOTAL</h3>
 			</div>
 			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-
 				<?php echo (isset($Datostotales['total']) ? number_format ($Datostotales['total'],2, '.', '') : '');?>
 
 			</div>
@@ -472,11 +446,11 @@ if ($suNumero==0){
 				<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
 				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
 				<td>
-					<select name='Eformas' id='Eformas'>
+				<select name='Eformas' id='Eformas'>
 				<?php 
 				if(isset($textoFormaPago['html'])){
-				echo $textoFormaPago['html'];
-			}
+					echo $textoFormaPago['html'];
+				}
 				?>
 				</select>
 				</td>
@@ -486,15 +460,12 @@ if ($suNumero==0){
 			<?php //Si esa factura ya tiene importes los mostramos 
 			if (isset($importesFactura)){
 				foreach (array_reverse($importesFactura) as $importe){
-					$htmlImporte=htmlImporteFactura($importe, $BDTpv);
-						
+					$htmlImporte=htmlImporteFactura($importe, $BDTpv);	
 					echo $htmlImporte['html'];
 				}
 			}			
 			?>
-			
 			</tbody>
-			
 			</table>
 		</div>
 </form>
@@ -536,15 +507,15 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#tablaImporte").show();
 		$("#fila0").show();
 		<?php
-}
-if ($estado=="Pagado total"){
-	?>
-	$("#fila0").hide();	
-	$("#Cancelar").hide();
-	$("#Guardar").hide();
-	<?php
-}
+	}
+	if ($estado=="Pagado total"){
+		?>
+		$("#fila0").hide();	
+		$("#Cancelar").hide();
+		$("#Guardar").hide();
+		<?php
+	}
 	?>
 </script>
-	</body>
+</body>
 </html>

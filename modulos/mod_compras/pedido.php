@@ -2,6 +2,7 @@
 <html>
 <head>
 <?php
+	//llamadas  a archivos php 
 	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
@@ -9,14 +10,15 @@
 	include 'clases/pedidosCompras.php';
 	include '../../clases/Proveedores.php';
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Cpedido=new PedidosCompras($BDTpv);
 	$Cprveedor=new Proveedores($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
+	// Variables que utilizamos en pedidos.
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	// Variables que utilizamos en pedidos.
 	$titulo="Pedido De Proveedor";
 	$dedonde="pedidos";
 	$fecha=date('Y-m-d');
@@ -26,13 +28,9 @@
 	$idProveedor=0;
 	$nombreProveedor="";
 	$Datostotales=array();
-	
-	// ---------   FIN PROCESO Y CONTROL DE GUARDAR  ------------------  //
+	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();
-//~ $parametros = simplexml_load_file('parametros.xml');
-// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-	
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
 	$configuracionArchivo=array();
@@ -41,9 +39,7 @@
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	
-	
-	if ($_GET){
+
 		if (isset($_GET['id'])){
 			$idPedido=$_GET['id'];
 			$datosPedido=$Cpedido->DatosPedido($idPedido);
@@ -84,7 +80,6 @@
 				
 			}
 		}
-	}
 	// Añadimos al titulo el estado
 	$titulo .= ': '.$estado;
 	
@@ -110,14 +105,34 @@ if (isset($_POST['Guardar'])){
 				. '</div>';
 			}
 	}
-	//~ echo '<pre>';
-	//~ print_r($guardar);
-	//~ echo '</pre>';
-	
 }
+//~ if (isset ($_POST['Cancelar'])){
+		 //~ $cancelar=cancelarPedido( $_GET, $BDTpv);
+		//~ if (count($cancelar)==0){
+			
+			//~ header('Location: pedidosListado.php');
+		//~ }else{
+			//~ echo '<div class="'.$cancelar['class'].'">'
+					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					//~ . '</div>';
+		//~ }
+	//~ }
 
 ?>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script type="text/javascript">
+	<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo$numPedidoTemp;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
@@ -126,8 +141,7 @@ if (isset($_POST['Guardar'])){
       }
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-		<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
-	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
+	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
@@ -164,23 +178,21 @@ if ($idProveedor===0){
 	 $idProveedor="";
 }
 ?>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+
 </head>
 <body>
 <?php
 	include '../../header.php';
 ?>
 <div class="container">
-	<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idPedido ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
 	
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
 		<div class="col-md-12 btn-toolbar">
 			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
 			<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
+			<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 			<?php
 			if (isset($numPedidoTemp)){
 			?>
