@@ -6,14 +6,16 @@
 $RutaProyectoCompleta 	= str_replace('plugins','', __DIR__); // Obtenermos la ruta del proyecto
 include ($RutaProyectoCompleta.'/controllers/parametros.php'); 
 class ClasePlugins{
+	 public $dedonde;							// (String) ruta desde servidor del fichero que lo llama , no la clase, el fichero.
 	 public $ruta 					= '' ;		// (string) ruta completa a plugins
 	 public $RutaServidor 			= '' ;		// (string) ruta del servidor
 	 public $HostNombre				= '' ;		// (string) ruta desde el servidor al proyecto.
 	 public $parametros_plugins		= array(); 	// (array) de varios objetos
-	 
-	public function __construct($modulo=''){
+
+	public function __construct($modulo,$dedonde){
 		// Obtenemos la ruta del proyecto
 		$this->obtenerRutaProyecto();
+		$this->dedonde = $dedonde;
 		// Obtenermos los directorios ( plugins de ese modulo);
 		if ($modulo === ''){
 			$ruta = $this->ruta;
@@ -41,7 +43,7 @@ class ClasePlugins{
 			$ruta_clase = $ruta_plugin.'/'.$respuesta[$contador]['datos_generales']['nombre_fichero_clase'].'.php';
 			include ($ruta_clase);
 			$nombre_clase = 'Plugin'.$respuesta[$contador]['datos_generales']['nombre_fichero_clase'];
-			$clase = new $nombre_clase;
+			$clase = new $nombre_clase($this->dedonde);
 			$respuesta[$contador]['clase']= $clase;
 			$contador++;
 			

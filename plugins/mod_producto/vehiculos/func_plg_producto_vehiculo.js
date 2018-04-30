@@ -62,7 +62,7 @@ function  SeleccionModelo(event){
 	
 } 
 
-function  SeleccionVersion(event){
+function  SeleccionVersion(event,dedonde){
 	// @Objetivo :
 	// Ejecutar en servidor de web funcion que reste stock de productos
 	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
@@ -90,6 +90,8 @@ function  SeleccionVersion(event){
 				console.log('Obtuvimos los siguiente datos del vehiculo');
 				GuardoVehiculoSeleccionado(resultado['Datos'].item,resultado['Datos'].recambios);
 				console.log(resultado['Datos'].item);
+				// Ahora tendría que redireccionar pero no se adonde, porque no tengo el dato en que pagina estoy...
+				location.href =dedonde;
 			}
 			
 		}

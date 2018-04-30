@@ -31,7 +31,7 @@
 include ($RutaServidor.$HostNombre.'/clases/ClaseTablaArticulos.php');
 include ($RutaServidor.$HostNombre.'/plugins/plugins.php');
 class ClaseProductos extends ClaseTablaArticulos{
-	
+	public $view ; //string ruta de la vista que estamos
 	public $idTienda ; // Obtenemos el idTienda de la clase extendida.
 	public $plugins; // (array) de objectos que son los plugins que vamos tener para este modulo.
 	
@@ -42,7 +42,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 			parent::__construct($conexion);
 			$this->idTienda = parent::GetIdTienda();
 		}
-		$plugins = new ClasePlugins('mod_producto');
+		$this->view = str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);
+		$plugins = new ClasePlugins('mod_producto',$this->view);
 		$this->plugins = $plugins->GetParametrosPlugins();
 	}
 	
@@ -121,6 +122,9 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $plugins;//->GetDir();
 	}
 	
+	public function GetView(){
+		return $this->view;//->GetDir();
+	}
 	
 	public function GetProductosConCodbarras($codbarras){
 		// Objetivo:

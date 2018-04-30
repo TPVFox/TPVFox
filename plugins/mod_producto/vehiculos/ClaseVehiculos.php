@@ -13,8 +13,10 @@ class PluginClaseVehiculos extends ClaseConexion{
 	public $key_api; // (string) que es la llave para conectarse.. debemos obtenerla de la base de datos.
 	public $HostNombre; // (string) Ruta desde servidor a proyecto..
 	public $Ruta_plugin; // (string) Ruta desde servidor a plugin.
-	public function __construct() {
+	public $dedonde;  
+	public function __construct($dedonde ='') {
 		parent::__construct(); // Inicializamos la conexion.
+		$this->dedonde = $dedonde;
 		$this->obtenerRutaProyecto();
 		$tiendasWebs = $this->ObtenerTiendasWeb();
 		if (count($tiendasWebs['items'])>1){
@@ -81,7 +83,8 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.'			</select>'
 				.'		</div>'
 				.'		<div class="col-md-3 form-group enviar" style="margin-top:20px">'
-				.'			<button class="btn btn-primary" onclick="SeleccionVersion(event)">Seleccionar</button>'
+				.'			<button class="btn btn-primary" onclick="SeleccionVersion(event,'
+				."'".$this->dedonde."'".')">Seleccionar</button>'
 				.'		</div>'
 				.'</div>';
 		$respuesta['html'] = $html;
