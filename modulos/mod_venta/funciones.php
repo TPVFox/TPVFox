@@ -180,7 +180,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
 						.number_format($producto['pvpCiva'],2).",".$producto['idArticulo'].
 						" , '".$dedonde."'";
-			$resultado['html'] .= '<tr id="N_'.$contad.'" data-obj= "idN" class="FilaModal"'.
+			$resultado['html'] .= '<tr id="N_'.$contad.'" data-obj= "idN" class="FilaModal"'
 								.'onclick="escribirProductoSeleccionado('.$datos.');">'
 								.'<td id="C'.$contad.'_Lin" >'
 								.'<input id="N_'.$contad.'" name="filaproducto" data-obj="idN"'
@@ -188,7 +188,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 								.'<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>'
 								.'<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
-								.'<td>'.number_format($producto['pvpCiva'],2).'</td>';
+								.'<td>'.number_format($producto['pvpCiva'],2).'</td>'
 								.'</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
@@ -271,7 +271,6 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 	$codBarras="";
 	$producto=$productos;
 	$respuesta=array('html'=>'');
-	
 		 	if ($producto['estadoLinea'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
@@ -287,11 +286,11 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 			if ($dedonde=="albaran"){
 				if(isset($producto['NumpedCli'])){
 					if ($producto['NumpedCli']>0){
-					$numeroPed=$producto['NumpedCli'];
-				}else if ($producto['Numpedcli']>0){
-					$numeroPed=$producto['Numpedcli'];
-				}
+						$numeroPed=$producto['NumpedCli'];
 					}
+				}else if ($producto['Numpedcli']>0){
+						$numeroPed=$producto['Numpedcli'];
+				}	
 				
 			}
 			if ($dedonde=="factura"){
@@ -333,31 +332,31 @@ function htmlPedidoAlbaran($pedidos, $dedonde){
 	$respuesta=array();
 	$respuesta['html']='';
 	if(isset($pedidos)){
-	foreach($pedidos as $pedido){
-		if ($pedido['estado']){
-			if ($pedido['Numpedcli']){
-				$num=$pedido['Numpedcli'];
+		foreach($pedidos as $pedido){
+			if ($pedido['estado']){
+				if ($pedido['Numpedcli']){
+					$num=$pedido['Numpedcli'];
+				}
+				if ($pedido['estado']=="Activo"){
+					$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
+					$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+					$classtr = '';
+					$estadoInput = '';
+				}else{
+					$classtr = ' class="tachado" ';
+					$estadoInput = 'disabled';
+					$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
+					$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+		
+				}
 			}
-			if ($pedido['estado']=="Activo"){
-				$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-				$classtr = '';
-				$estadoInput = '';
-			}else{
-				$classtr = ' class="tachado" ';
-				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
-	
-			}
+			$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
+			$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
+			$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
+			$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
+			$respuesta['html'].=$btnELiminar_Retornar;
+			$respuesta['html'] .='</tr>';
 		}
-		$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
-		$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
-		$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
-		$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
-		$respuesta['html'].=$btnELiminar_Retornar;
-		$respuesta['html'] .='</tr>';
-	}
 	}
 	return $respuesta;
 }
@@ -763,7 +762,7 @@ function htmlTotales($Datostotales){
 	$totalBase=0;
 	$totaliva=0;
 	$htmlIvas['html'] = '';
-	if (isset($Datostotales)){
+	if (isset($Datostotales['desglose'] )){
 		foreach ($Datostotales['desglose'] as  $key => $basesYivas){
 			$key = intval($key);
 			$htmlIvas['html'].='<tr id="line'.$key.'">';
@@ -880,6 +879,8 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 													 );
 						}
 						
+					}else{
+						$idAlbaran=0;
 					}
 					if(count($errores)==0){
 							$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);

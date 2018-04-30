@@ -25,11 +25,12 @@ include './../../head.php';
 	$idAlbaran=0;
 	$numAlbaran=0;
 	$idCliente=0;
-	$nombreCliente=0;
+	$nombreCliente="";
 	$titulo="Albarán De Cliente ";
 	$fecha=date('Y-m-d');
 	$dedonde="albaran";
-	
+	$Datostotales=array();
+
 	$parametros = $ClasesParametros->getRoot();
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="albaran";
@@ -94,7 +95,9 @@ include './../../head.php';
 			
 				$idCliente=$datosAlbaran['idClientes'];
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
-				$nombreCliente="'".$cliente['Nombre']."'";
+				if(isset($cliente['Nombre'])){
+					$nombreCliente="'".$cliente['Nombre']."'";
+				}
 				$albaran=$datosAlbaran;
 				$productos =  json_decode($datosAlbaran['Productos']) ;
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
@@ -123,7 +126,7 @@ include './../../head.php';
 			//~ echo '</pre>';
 			if (count($guardar)==0){
 				
-			//	header('Location: albaranesListado.php');
+				header('Location: albaranesListado.php');
 			}else{
 				foreach ($guardar as $error){
 					echo '<div class="'.$error['class'].'">'
@@ -419,7 +422,7 @@ if (isset($_GET['tActual'])){
 	  </table>
 	</div>
 	<?php 
-	if (isset ($Datostotales)){
+	if (isset ($Datostotales['total'])){
 	?>
 
 		<script type="text/javascript">

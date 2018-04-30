@@ -428,7 +428,8 @@ switch ($pulsado) {
 		//Objetivo:
 		//Devuelve el html de la fila del pedido 
 		//	$res=lineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
-			$res=htmlLineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+			//~ $res=htmlLineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
+			$res=htmlPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
 			echo json_encode($respuesta);
 		break;
@@ -450,12 +451,12 @@ switch ($pulsado) {
 		$dedonde=$_POST['dedonde'];
 		$bandera=0;
 		$respuesta =array('html'=>'');
-			 foreach($productos as $producto){
+		 foreach($productos as $producto){
 				if (!is_array($producto)){
 					$bandera=1;
 				}else{
-				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
-				$respuesta['html'].=$res;
+					$res=htmlLineaPedidoAlbaran($producto, $dedonde);
+					$respuesta['html'].=$res;
 				}
 		 }
 		 if ($bandera==1){
