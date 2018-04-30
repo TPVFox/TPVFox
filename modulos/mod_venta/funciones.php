@@ -328,12 +328,12 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 }
 
 
-function htmlPedidoAlbaran($pedidos, $dedonde){
+function htmlPedidoAlbaran($pedido, $dedonde){
 	$respuesta=array();
 	$respuesta['html']='';
-	if(isset($pedidos)){
-		foreach($pedidos as $pedido){
-			if ($pedido['estado']){
+	if(isset($pedido)){
+		//~ foreach($pedidos as $pedido){
+			//~ if ($pedido['estado']){
 				if ($pedido['Numpedcli']){
 					$num=$pedido['Numpedcli'];
 				}
@@ -349,14 +349,14 @@ function htmlPedidoAlbaran($pedidos, $dedonde){
 					$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
 		
 				}
-			}
+			//~ }
 			$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
 			$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
 			$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
 			$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
 			$respuesta['html'].=$btnELiminar_Retornar;
 			$respuesta['html'] .='</tr>';
-		}
+		//~ }
 	}
 	return $respuesta;
 }

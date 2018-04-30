@@ -454,6 +454,7 @@ switch ($pulsado) {
 		 foreach($productos as $producto){
 				if (!is_array($producto)){
 					$bandera=1;
+					break;
 				}else{
 					$res=htmlLineaPedidoAlbaran($producto, $dedonde);
 					$respuesta['html'].=$res;

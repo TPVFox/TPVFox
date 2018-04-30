@@ -372,8 +372,10 @@ if (isset($_GET['tActual'])){
 				<?php 
 				//Si existen pedidos en el albarán los escribimos
 				if (isset($pedidos)){
-					$html=htmlPedidoAlbaran($pedidos, "albaran");
+					foreach ($pedidos as $pedido){
+					$html=htmlPedidoAlbaran($pedido, "albaran");
 					echo $html['html'];
+				}
 				}
 				?>
 			</table>
