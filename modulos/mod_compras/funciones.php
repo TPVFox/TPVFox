@@ -1385,7 +1385,7 @@ function cancelarAlbaran( $idTemporal, $BDTpv){
 				if (count($pedidos)>0){
 					foreach ($pedidos as $pedido){
 						$mod=$Cped->modEstadoPedido($pedido['idAdjunto'], "Guardado");
-						if($mod['error']){
+						if(isset($mod['error'])){
 							$error =array ( 'tipo'=>'Danger!',
 								'dato' => $mod['consulta'],
 								'class'=>'alert alert-danger',
