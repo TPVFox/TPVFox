@@ -687,6 +687,23 @@ switch ($pulsado) {
 	
 	break;
 		
-		
+	case 'cancelarTemporal':
+		$idTemporal=$_POST['idTemporal'];
+		$dedonde=$_POST['dedonde'];
+		$respuesta=array();
+		switch($dedonde){
+			case 'pedidos':
+				$cancelar=cancelarPedido( $idTemporal, $BDTpv);
+				$respuesta=$cancelar;
+			break;
+			case 'albaran':
+				$cancelar=cancelarAlbaran( $idTemporal, $BDTpv);
+			break;
+			case 'factura':
+				$cancelar=cancelarFactura( $idTemporal, $BDTpv);
+			break;
+		 }
+		 echo json_encode($respuesta);
+	break;
 		
 }

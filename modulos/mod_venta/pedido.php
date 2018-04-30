@@ -300,6 +300,15 @@ if ($idCliente===0){
 }
 ?>
 <script type="text/javascript">
+			<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -320,6 +329,7 @@ if ($idCliente===0){
 					if($estado<>"Facturado"){
 				?>
 					<input type="submit" value="Guardar" name="Guardar">
+					<input type="submit" value="Cancelar" name="Cancelar" id="Cancelar">
 					<?php
 					}
 				

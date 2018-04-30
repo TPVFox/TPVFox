@@ -933,4 +933,117 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 				return $errores;
 						
 }
+function cancelarAlbaran($idTemporal, $BDTpv){
+	$Calbcli=new AlbaranesVentas($BDTpv);
+	$Cped = new PedidosVentas($BDTpv);
+	$error=array();
+	if($idTemporal>0){
+		$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
+		if(isset($datosAlbaran['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+								'dato' => $datosAlbaran['consulta'],
+								'class'=>'alert alert-danger',
+								'mensaje' => 'Error de SQL '
+								);
+		}else{
+			if (isset($datosAlbaran['Pedidos'])){
+				$pedidos=json_decode($datosAlbaran['Pedidos'], true);
+				foreach ($pedidos as $pedido){
+					$mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
+						if(isset($mod['error'])){
+							$error =array ( 'tipo'=>'Danger!',
+									'dato' => $mod['consulta'],
+									'class'=>'alert alert-danger',
+									'mensaje' => 'Error de SQL '
+									);
+								break;
+						}
+				}
+			}
+			$idAlbaran=0;
+			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+			if(isset($eliminarTemporal['error'])){
+				$error =array ( 'tipo'=>'Danger!',
+									'dato' => $eliminarTemporal['consulta'],
+									'class'=>'alert alert-danger',
+									'mensaje' => 'Error de SQL '
+									);
+			}
+		}
+	}else{
+		$error=array ( 'tipo'=>'Info!',
+			'dato' => '',
+			'class'=>'alert alert-info',
+			'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+			);
+	}
+	return $error;
+}
+function cancelarPedido($idTemporal, $BDTpv){
+	$Cped = new PedidosVentas($BDTpv);
+	$error=array();
+	if($idTemporal>0){
+		$idPedido=0;
+		$eliminarTemporal=$Cped->EliminarRegistroTemporal($idTemporal, $idPedido);
+		if(isset($eliminarTemporal['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+									'dato' => $eliminarTemporal['consulta'],
+									'class'=>'alert alert-danger',
+									'mensaje' => 'Error de SQL '
+									);
+		}
+	}else{
+			$error=array ( 'tipo'=>'Info!',
+			'dato' => '',
+			'class'=>'alert alert-info',
+			'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+			);
+	}
+	return $error;
+}
+function cancelarFactura($idTemporal, $BDTpv){
+	$Calbcli=new AlbaranesVentas($BDTpv);
+	$Cfaccli=new FacturasVentas($BDTpv);
+	if($idTemporal>0){
+		$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
+		if(isset($datosFactura['error'])){
+			$error =array ( 'tipo'=>'Danger!',
+									'dato' => $datosFactura['consulta'],
+									'class'=>'alert alert-danger',
+									'mensaje' => 'Error de SQL '
+									);
+		}else{
+			$albaranes=json_decode($datosFactura['Albaranes'], true);
+			foreach ($albaranes as $albaran){
+				$mod=$Calbcli->ModificarEstadoAlbaran($albaran['idAlbaran'], "Guardado");
+				if(isset($mod['error'])){
+					$error =array ( 'tipo'=>'Danger!',
+									'dato' => $mod['consulta'],
+									'class'=>'alert alert-danger',
+									'mensaje' => 'Error de SQL '
+									);
+					break;
+				}
+			}
+			$idFactura=0;
+			$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+			if(isset($eliminarTemporal['error'])){
+				$error =array ( 'tipo'=>'Danger!',
+									'dato' => $eliminarTemporal['consulta'],
+									'class'=>'alert alert-danger',
+									'mensaje' => 'Error de SQL '
+									);
+			}
+			
+			
+		}
+	}else{
+		$error=array ( 'tipo'=>'Info!',
+			'dato' => '',
+			'class'=>'alert alert-info',
+			'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+			);
+	}
+	return $error;
+}
 ?>

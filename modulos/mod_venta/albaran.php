@@ -204,29 +204,30 @@ include './../../head.php';
 			
 		}
 		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
-		if (isset($_POST['Cancelar'])){
-			if (isset($_POST['idTemporal'])){
-				$idTemporal=$_POST['idTemporal'];
-			}else{
-				if (isset($_GET['tActual'])){
-					$idTemporal=$_GET['tActual'];
-				}else{
-					$idTemporal=0;
-				}
+		//~ if (isset($_POST['Cancelar'])){
+			
+			//~ if (isset($_POST['idTemporal'])){
+				//~ $idTemporal=$_POST['idTemporal'];
+			//~ }else{
+				//~ if (isset($_GET['tActual'])){
+					//~ $idTemporal=$_GET['tActual'];
+				//~ }else{
+					//~ $idTemporal=0;
+				//~ }
 				
-			}
-			echo "entre en cancelar";
-			$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
-			if (isset($datosAlbaran['Pedidos'])){
-				$pedidos=json_decode($datosAlbaran['Pedidos'], true);
-				foreach ($pedidos as $pedido){
-				$mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
-				}
-			}
-			$idAlbaran=0;
-			$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-				header('Location: albaranesListado.php');
-		}
+			//~ }
+			//~ echo "entre en cancelar";
+			//~ $datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
+			//~ if (isset($datosAlbaran['Pedidos'])){
+				//~ $pedidos=json_decode($datosAlbaran['Pedidos'], true);
+				//~ foreach ($pedidos as $pedido){
+				//~ $mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
+				//~ }
+			//~ }
+			//~ $idAlbaran=0;
+			//~ $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+				//~ header('Location: albaranesListado.php');
+		//~ }
 		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
 			$style="";
 		}else{
@@ -301,6 +302,15 @@ if (isset($_GET['tActual'])){
 	include '../../header.php';
 ?>
 <script type="text/javascript">
+		<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {

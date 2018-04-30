@@ -255,30 +255,30 @@
 			
 		}
 		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
-		if (isset($_POST['Cancelar'])){
-			if (isset($_POST['idTemporal'])){
-				$idTemporal=$_POST['idTemporal'];
-			}else{
-				if (isset ($_GET['tActual'])){
-					$idTemporal=$_GET['tActual'];
-				}else{
-					$idTemporal=0;
-				}
+		//~ if (isset($_POST['Cancelar'])){
+			//~ if (isset($_POST['idTemporal'])){
+				//~ $idTemporal=$_POST['idTemporal'];
+			//~ }else{
+				//~ if (isset ($_GET['tActual'])){
+					//~ $idTemporal=$_GET['tActual'];
+				//~ }else{
+					//~ $idTemporal=0;
+				//~ }
 				
-			}
-		if ($idTemporal>0){
-			$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
-			$albaranes=json_decode($datosFactura['Albaranes'], true);
-			foreach ($albaranes as $albaran){
-				$mod=$Calbcli->ModificarEstadoAlbaran($albaran['idAlCli'], "Guardado");
-			}
-			$idFactura=0;
-			$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-				header('Location: facturasListado.php');
-			}else{
-				header('Location: facturasListado.php');
-			}
-		}
+			//~ }
+		//~ if ($idTemporal>0){
+			//~ $datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
+			//~ $albaranes=json_decode($datosFactura['Albaranes'], true);
+			//~ foreach ($albaranes as $albaran){
+				//~ $mod=$Calbcli->ModificarEstadoAlbaran($albaran['idAlCli'], "Guardado");
+			//~ }
+			//~ $idFactura=0;
+			//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				//~ header('Location: facturasListado.php');
+			//~ }else{
+				//~ header('Location: facturasListado.php');
+			//~ }
+		//~ }
 $titulo .= ': '.$estado;	
 ?>
 	<script type="text/javascript">
@@ -350,6 +350,15 @@ if ($idCliente==0){
 	include '../../header.php';
 ?>
 <script type="text/javascript">
+		<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
