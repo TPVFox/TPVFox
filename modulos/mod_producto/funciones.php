@@ -2,11 +2,14 @@
 function htmlLineaFamilias($item,$familia=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
-	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input type="hidden" id="idFamilias_'.$familia['idFamilia'].'" name="idFamilias_'.$familia['idFamilia'].'" value="'.$familia['idFamilia'].'">'.$familia['idFamilia'].'</td>';
-	$nuevaFila .= '<td>'.$familia['familiaNombre'].'</td>';
-	$nuevaFila .= '<td><a id="eliminar_'.$familia['idFamilia'].'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
-	$nuevaFila .= '</tr>';
+	$nuevaFila = '<tr>'
+				. '<td><input type="hidden" id="idFamilias_'.$familia['idFamilia']
+				.'" name="idFamilias_'.$familia['idFamilia'].'" value="'.$familia['idFamilia'].'">'
+				.$familia['idFamilia'].'</td>'
+				.'<td>'.$familia['familiaNombre'].'</td>'
+				.'<td><a id="eliminar_'.$familia['idFamilia']
+				.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a>'
+				.'</td>'.'</tr>';
 	return $nuevaFila;
 }
 
@@ -15,10 +18,12 @@ function htmlLineaFamilias($item,$familia=''){
 function htmlLineaCodigoBarras($item,$codBarras=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
-	$nuevaFila = '<tr>';
-	$nuevaFila .= '<td><input data-obj="cajaCodBarras" type="text" id="codBarras_'.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'" onkeydown="controlEventos(event)"></td>';
-	$nuevaFila .= '<td><a id="eliminar_'.$item.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'; 		
-	$nuevaFila .= '</tr>';
+	$nuevaFila = '<tr>'
+				.'<td><input data-obj="cajaCodBarras" type="text" id="codBarras_'
+				.$item.'" name="codBarras_'.$item.'" value="'.$codBarras.'" onkeydown="controlEventos(event)"></td>'
+				.'<td><a id="eliminar_'.$item
+				.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a></td>'
+				.'</tr>';
 	return $nuevaFila;
 }
 
@@ -38,7 +43,6 @@ function htmlLineaProveedorCoste($proveedor){
 	} else {
 		$nom_proveedor .= $proveedor['razonsocial'];
 	}
-	$nuevaFila = '<tr>';
 	$atributos = ' name="check_pro"'; // Los check ponemos el mismo nombre ya solo podemos devolver uno como principal
 	
 	if (isset($proveedor['principal'])){
@@ -53,26 +57,28 @@ function htmlLineaProveedorCoste($proveedor){
 	if (!isset($proveedor['crefProveedor'])){
 		$proveedor['crefProveedor'] = '';
 	}
-	$nuevaFila .= '<td><input '.$atributos.' type="checkbox" id="check_pro_'
-					.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>'
-					.'<td>'
-					.'<small>'.$camposIdProveedor.$nom_proveedor.'</small>'
-					.'</td>'
-					.'<td>'
-					.'<input type="text" size="10" name="prov_cref_'.$proveedor['idProveedor'].'" id="prov_cref_'
-					.$proveedor['idProveedor'].'" value="'.$proveedor['crefProveedor'].'" readonly>'
-					.'</td>'
-					.'<td>'
-					.'<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor']
-					.'" pattern="[-+]?[0-9]*[.]?[0-9]+" data-obj= "cajaCosteProv" id="prov_coste_'
-					.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>'
-					.'</td>'
-					.'<td>'
-					.'<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>'
-					.'</td>'
-					.'<td><a id="desActivarProv_'.$proveedor['idProveedor']
-					.'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'
-					.'</tr>';
+	$nuevaFila = '<tr>'
+				.'<td><input '.$atributos.' type="checkbox" id="check_pro_'
+				.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>'
+				.'<td>'
+				.'<small>'.$camposIdProveedor.$nom_proveedor.'</small>'
+				.'</td>'
+				.'<td>'
+				.'<input type="text" size="10" name="prov_cref_'.$proveedor['idProveedor'].'" id="prov_cref_'
+				.$proveedor['idProveedor'].'" value="'.$proveedor['crefProveedor'].'" readonly>'
+				.'</td>'
+				.'<td>'
+				.'<input type="text" size="8" name="prov_coste_'.$proveedor['idProveedor']
+				.'" pattern="[-+]?[0-9]*[.]?[0-9]+" data-obj= "cajaCosteProv" id="prov_coste_'
+				.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>'
+				.'</td>'
+				.'<td>'
+				.'<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'
+				.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>'
+				.'</td>'
+				.'<td><a id="desActivarProv_'.$proveedor['idProveedor']
+				.'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'
+				.'</tr>';
 					
 	return $nuevaFila;
 }
@@ -475,15 +481,10 @@ function prepararParaGrabar($array,$claseArticulos){
 		// ---------------            Se esta modificando. ------------------------------------//
 		// --- Comprobamos los codbarras y vemos cuales añadio,modifico o elimino. --//
 		$comprobaciones = $claseArticulos->ComprobarCodbarrasUnProducto($array['id'],$DatosProducto['codBarras']);
-		
-		
 		$DatosProducto['Sqls']['codbarras'] = $comprobaciones;
-		
-		
 	} else {
 		// ----------------------------  SE ESTA AÑADIENDO UN PRODUCTO NUEVO  ------------------------  //
 		$anhadir = $claseArticulos->AnhadirProductoNuevo($DatosProducto);
-		
 		$DatosProducto['Sqls']['NuevoProducto']=$anhadir;
 	}
 	
@@ -582,8 +583,6 @@ function productosSesion($idProducto){
 				unset($_SESSION['productos_seleccionados'][$key]);
 			}
 		}
-		//~ in_array($idProducto, $_SESSION['productos']);
-		//~ unset($_SESSION['productos'],$idProducto);
 	}
 	
 	if(count($_SESSION['productos_seleccionados'])>0){
@@ -604,16 +603,16 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 	//		$descartados-> (array) Con o sin datos de los proveedores descartados, porque ya los tiene añadidos.
 	$resultado = array();
 	$resultado['encontrados'] = count($proveedores);
-	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
-	$resultado['html'] .= '<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'.
-				'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda.'"
-				 onkeydown="controlEventos(event)" type="text">';
+	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>'
+					.'<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'
+					.'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda
+					.'" onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($proveedores)>10){
 		$resultado['html'] .= '<span>10 proveedores de '.count($proveedores).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
-	. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
+						. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
 	if (count($proveedores)>0){
 		$contad = 0;
 		foreach ($proveedores as $proveedor){  
@@ -621,15 +620,15 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 			$razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$idFila = 'Fila_'.$contad;
-			$resultado['html'] 	.= '<tr class="FilaModal" id="'.$idFila.'" onclick="seleccionProveedor('."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">';
-		
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filaproveedor" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
-			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
-			. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
-			. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
-			. '<td>'.$proveedor['nif'].'</td>'
-			.'</tr>';
+			$resultado['html'] 	.= '<tr class="FilaModal" id="'.$idFila.'" onclick="seleccionProveedor('
+								."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">'
+								.'<td id="C'.$contad.'_Lin" >'
+								.'<input id="N_'.$contad.'" name="filaproveedor" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
+								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+								. '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
+								. '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
+								. '<td>'.$proveedor['nif'].'</td>'
+								.'</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
@@ -641,8 +640,8 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 	// Ahora mostramos los proveedores descartados.
 	
 	if (count($descartados) > 0){
-		$resultado['html'] .='<div class="alert alert-danger">';
-		$resultado['html'] .='<h4>Proveedores descartados porque ya existen</h4>';
+		$resultado['html'] .='<div class="alert alert-danger">'
+							.'<h4>Proveedores descartados porque ya existen</h4>';
 		foreach ($descartados as $descartado){
 			$resultado['html'] .='<p>'.$descartado['nombrecomercial'].' - '.$descartado['razonsocial'].'</p>';
 		}
