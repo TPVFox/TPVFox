@@ -447,28 +447,22 @@ switch ($pulsado) {
 		case 'htmlAgregarFilasProductos':
 		//Objetivo:
 		//HTML mostrar las lineas de productos
-		//Parametros: 
-		// Productos: puede recibir tanto un array de arrays de productos(productos de un adjunto) o un array con los
-		//datos de un producto
-		$productos=$_POST['productos'];
+		$productos=$_POST['productos']; // (array) Un array de varios productos, o un array de un producto..
 		$dedonde=$_POST['dedonde'];
-		$bandera=0;
 		$respuesta =array('html'=>'');
 		 foreach($productos as $producto){
-				if (!is_array($producto)){//Si no es un array de arrays carga bandera con 1 y sale del bucle
-					//~ $bandera=1;
-					 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
-					 $respuesta['html']=$res;
-					break;
-				}else{//Como es un array de datos los carga en la función
-					$res=htmlLineaPedidoAlbaran($producto, $dedonde);
-					$respuesta['html'].=$res;
-				}
+			if (!is_array($producto)){
+				 // Si no es un array, es un producto, por lo que se hace linea productos ( que es uno solo )
+				 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
+				 $respuesta['html']=$res;
+				break;
+			}else{
+				//Como es un array de productos ejecutamos foreach
+				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
+				$respuesta['html'].=$res;
+			}
 		 }
-		 //~ if ($bandera==1){//Como es un array con los datos de producto los carga directamente en la función 
-			 //~ $res=htmlLineaPedidoAlbaran($productos, $dedonde);
-				 //~ $respuesta['html']=$res;
-		 //~ }
+		
 		echo json_encode($respuesta);
 		break;
 		
