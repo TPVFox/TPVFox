@@ -288,7 +288,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 					if ($producto['NumpedCli']>0){
 						$numeroPed=$producto['NumpedCli'];
 					}
-				}else if ($producto['Numpedcli']>0){
+				}else if (isset($producto['Numpedcli'])){
 						$numeroPed=$producto['Numpedcli'];
 				}	
 				
@@ -1004,6 +1004,7 @@ function cancelarPedido($idTemporal, $BDTpv){
 function cancelarFactura($idTemporal, $BDTpv){
 	$Calbcli=new AlbaranesVentas($BDTpv);
 	$Cfaccli=new FacturasVentas($BDTpv);
+	$error=array();
 	if($idTemporal>0){
 		$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
 		if(isset($datosFactura['error'])){
