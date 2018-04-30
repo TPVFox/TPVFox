@@ -149,6 +149,10 @@
 				$checkUser = 0;
 				foreach ($proveedores['items'] as $proveedor){ 
 					$checkUser = $checkUser + 1; 
+					// Para evitar notice
+					if (!isset($proveedor['fechaalta'])){
+						$proveedor['fechaalta'] = "";
+					}
 				?>
 
 				<tr>
