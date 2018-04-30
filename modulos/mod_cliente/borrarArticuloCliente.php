@@ -13,8 +13,6 @@ include_once './../../inicial.php';
 require_once 'claseTarifaCliente.php';
 
 $idarticulo = $_POST['idarticulo'];
-$pvpSiva = $_POST['pvpSiva'];
-$pvpCiva = $_POST['pvpCiva'];
 $idcliente = $_POST['idcliente'];
 
 // validar datos
@@ -25,22 +23,11 @@ $existetarifa = $tarifaCliente->existeArticulo($idcliente, $idarticulo);
 
 if ($existetarifa) {
     $resultado = $tarifaCliente->update($idcliente, $idarticulo, [
-        'estado' => '1'
-        , 'pvpSiva' => $pvpSiva
-        , 'pvpCiva' => $pvpCiva
-        , 'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
-        'estado'=>'1'
-    ]);
-} else {
-    $resultado = $tarifaCliente->insert( [
-        'idArticulo' => $idarticulo,
-        'idClientes' => $idcliente,
-        'pvpSiva' => $pvpSiva,
-        'pvpCiva' => $pvpCiva,
         'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
-        'estado' => '1'
+        'estado'=>'2'
     ]);
 }
+
 echo json_encode($resultado);
 
 

@@ -6,13 +6,9 @@
  */
 
 $(function () {
-    var self = this;
-
-    $('#idArticulo').focus();
-
-    var testigo = 0;
 
     $("#btn-grabar-tc").button().on("click", function (event) {
+        self.numero
         event.stopPropagation();
         event.preventDefault();
 
@@ -73,19 +69,92 @@ $(function () {
         var idcliente = $(event.target).data('idcliente');
 
         var callback = function (respuesta) {
-                var obj = JSON.parse(respuesta);
-                var response = obj.datos;
-                var idCliente = $('#id_cliente').val();
-                $('#inputIdArticulo').val(response['idArticulo']);
-                $('#inputDescripcion').val(response['descripcion']);
-                $('#inputPrecioSin').val(response['pvpSiva']);
-                $('#inputIVA').val(response['ivaArticulo']);
-                $('#inputPrecioCon').val(response['pvpCiva']);
-                $('#idcliente').val(idCliente);
-                $('#formulario').show();
-                $('#inputPrecioSin').focus();
-            };
-        leerArticulo(idcliente, {caja:caja,valor:valor}, callback)
+            var obj = JSON.parse(respuesta);
+            var response = obj.datos;
+            var idCliente = $('#id_cliente').val();
+            $('#inputIdArticulo').val(response['idArticulo']);
+            $('#inputDescripcion').val(response['descripcion']);
+            $('#inputPrecioSin').val(response['pvpSiva']);
+            $('#inputIVA').val(response['ivaArticulo']);
+            $('#inputPrecioCon').val(response['pvpCiva']);
+            $('#idcliente').val(idCliente);
+            $('#formulario').show();
+            $('#inputPrecioSin').focus();
+        };
+        leerArticulo({idcliente: idCliente, caja: caja, valor: valor}, callback);
     });
 
+    $(".art-eliminar").button().on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var idarticulo = $(event.target).data('idarticulo');
+        var idcliente = $(event.target).data('idcliente');
+        if (confirm('¿Deseas eliminar este articulo de la tarifa del cliente?')) {
+            borrarArticulo(idcliente, idarticulo, function (event) {
+                window.location.href = './tarifaCliente.php?id=' + idcliente;
+            });
+
+        }
+    });
+
+    $(".art-buscar").button().on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var campo = $('#campoabuscar').val();
+        var valor = $('#cajaBusqueda').val();
+
+        leerArticulo({idcliente: cliente.idClientes
+            , caja: campo
+            , usarlike: 'si'
+            , valor: valor, pagina: 0}, function (respuesta) {
+            var obj = JSON.parse(respuesta);
+            var datos = obj.datos;
+            var tabla = obj.html;
+            $('#paginabuscar').val(obj.pagina);
+
+            if (tabla) {
+                $('.modal-body > p').html(tabla);
+
+                $(".btn-busca-art").button().on("click", function (event) {
+                    event.stopPropagation();
+                    event.preventDefault();
+
+                    var idarticulo = $(event.target).data('id');
+
+                    var callback = function (respuesta) {
+                        var obj = JSON.parse(respuesta);
+                        var response = obj.datos;
+                        var idCliente = $('#id_cliente').val();
+                        if (response.length == 1) {
+                            response = response[0];
+                            $('#busquedaModal').modal('hide');
+
+                            $('#inputIdArticulo').val(response['idArticulo']);
+                            $('#inputDescripcion').val(response['descripcion']);
+                            $('#inputPrecioSin').val(response['pvpSiva']);
+                            $('#inputIVA').val(response['ivaArticulo']);
+                            $('#inputPrecioCon').val(response['pvpCiva']);
+                            $('#idcliente').val(idCliente);
+                            $('#formulario').show();
+                            $('#inputPrecioSin').focus();
+                        }
+
+                    };
+
+                    leerArticulo({idcliente: cliente.idClientes, caja: 'idArticulo', valor: idarticulo}, callback);
+
+                });
+
+            }
+        }
+        );
+
+    });
+
+
+    $('#cajaidArticulo').focus();
+
 });
+
+
+ 

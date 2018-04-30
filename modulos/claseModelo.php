@@ -7,6 +7,11 @@
  * @Descripción	
  */
 
+
+define('ARTICULOS_MAXLINPAG', 12);
+
+
+
 /**
  * Description of claseModelo
  *

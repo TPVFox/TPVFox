@@ -19,13 +19,23 @@ class TarifaCliente extends modelo {
                 . ', art.articulo_name as descripcion '
                 . 'FROM articulosClientes AS artcli'
                 . ' LEFT OUTER JOIN articulos AS art ON (artcli.idArticulo = art.idArticulo)'
-                . ' WHERE artcli.idClientes=' . $idcliente
+                . ' WHERE artcli.idClientes=' . $idcliente .' AND artcli.estado= 1'
                 . ' ORDER BY artcli.fechaActualizacion DESC, art.articulo_name';
         return $this->consulta($sql);
     }
 
+    public function leerArticulo($idcliente, $idarticulo) {
+        $sql = 'SELECT artcli.*'
+                . ', art.iva as ivaArticulo '
+                . ', art.articulo_name as descripcion '
+                . 'FROM articulosClientes AS artcli'
+                . ' LEFT OUTER JOIN articulos AS art ON (artcli.idArticulo = art.idArticulo)'
+                . ' WHERE artcli.idClientes=' . $idcliente .' AND artcli.idArticulo=' . $idarticulo;
+        return $this->consulta($sql);
+    }
+
     public function existeArticulo($idcliente, $idarticulo) {
-        $sql = 'SELECT artcli.estado '
+        $sql = 'SELECT count(*) as contador '
                 . 'FROM articulosClientes AS artcli'
                 . ' WHERE artcli.idClientes=' . $idcliente
                 . ' AND artcli.idArticulo =' . $idarticulo;
@@ -34,9 +44,10 @@ class TarifaCliente extends modelo {
         if (isset($consulta['error'])) {
             $resultado = -1;
         } else {
-            $resultado = count($consulta['datos']);
+            $obj = $consulta['datos'];
+            $resultado = $obj[0]['contador'];
         }
-        return [$resultado,$consulta['consulta']];
+        return $resultado;
     }
 
     public function update($idcliente, $idarticulo, $modificaciones) {

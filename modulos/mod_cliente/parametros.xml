@@ -5,7 +5,7 @@
 	</configuracion>
 	<cajas_input data-obj="id_input">
 		<caja_input>
-			<nombre id_input="Codbarras">cajaCodBarras</nombre>
+			<nombre id_input="cajaCodbarras">cajaCodBarras</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
 				<action tecla="112">Ayuda</action>
@@ -13,15 +13,14 @@
 			
 		</caja_input>
 		<caja_input>
-			<nombre id_input="Referencia">cajaReferencia</nombre>
+			<nombre id_input="cajaReferencia">cajaReferencia</nombre>
 			<teclas>
-				<action tecla="13">buscarProducto</action>
-				
+				<action tecla="13">buscarProducto</action>				
 			</teclas>
 			
 		</caja_input>
 		<caja_input>
-			<nombre id_input="Descripcion">cajaDescripcion</nombre>
+			<nombre id_input="cajaDescripcion">cajaDescripcion</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
 				

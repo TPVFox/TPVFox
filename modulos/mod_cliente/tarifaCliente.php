@@ -48,6 +48,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
         <?php
         include './../../head.php';
         ?>
+
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/tarifacliente.js"></script>
@@ -99,7 +100,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                                        placeholder="Referencia" data-obj="cajaReferencia" 
                                        size="13" value="" onkeydown="controlEventos(event)" />
                             </td>
-                            <td><input id="cajaCodBarras" type="text" name="Codbarras" 
+                            <td><input id="cajaCodbarras" type="text" name="Codbarras" 
                                        placeholder="Codbarras" data-obj= "cajaCodBarras" 
                                        size="13" value="" data-objeto="cajaCodBarras" 
                                        onkeydown="controlEventos(event)" />
@@ -179,14 +180,31 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
             </div>
 
         </div>
-
-
         <!-- Modal -->
-        <?php
-// Incluimos paginas modales
-        include $RutaServidor . '/' . $HostNombre . '/plugins/modal/busquedaModal.php';
-        ?>
+        <div id="busquedaModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title text-center">	Titulo ...</h3>
+                    </div>
+                    <div class="modal-body">
+                        <input id="cajaBusqueda" type="text" value="">
+                        <button id="buscarArticulos" class="art-buscar">Buscar</button>
+                        <input id="campoabuscar"   type="hidden">
+                        <input id="paginabuscar"   type="hidden" value="1">
 
+                        <p>contenido.</p>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
     </body>
 </html>
