@@ -386,12 +386,12 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 
 }
 
-function prepararParaGrabar($array,$claseArticulos){
+function prepararYgrabar($array,$claseArticulos){
 	//@ Objetivo
-	// Preparar array con los datos obtenidos( POST) para poder enviarlos a grabar,
+	// Preparar y Grabar los datos obtenidos ( POST) en productos,
 	// Debemos tener en cuenta que :
-	//  Puede haber datos mal.
-	//  Si id = 0 es nuevo..
+	//   id = 0 es nuevo..
+	//   id = ??? es modificado.
 	
 	
 	// Obtenemos (array) Key del array recibido
