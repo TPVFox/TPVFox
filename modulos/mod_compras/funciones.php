@@ -1423,6 +1423,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 	'tipo'=>"compras",
 	'fechaCreacion'=>$fechaCreacion
 	);
+	 //~ $fecha=date_format($fecha, 'Y-m-d H:i:s');
 	//~ $resultado['datos']=$productos;
 	//~ $error=0;
 	$productos = json_decode($productos, true);
