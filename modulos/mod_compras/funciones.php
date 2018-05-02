@@ -906,7 +906,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					}
 					
 					$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-					if (empty($datosPost['suNumero'])){
+					if (isset($datosPost['suNumero'])){
 						$suNumero=$datosPost['suNumero'];
 					}
 					if (isset ($datosPost['fecha'])){
@@ -1616,10 +1616,10 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 				}
 				}
 				$idProveedor=$datosAlbaran['idProveedor'];
-				if ($datosAlbaran['Su_numero']>0){
+				if (isset($datosAlbaran['Su_numero'])){
 					$suNumero=$datosAlbaran['Su_numero'];
 				}else{
-					$suNumero=0;
+					$suNumero="";
 				}
 				if ($idProveedor){
 					$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
