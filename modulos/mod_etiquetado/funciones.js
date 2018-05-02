@@ -31,4 +31,23 @@ function repetirProducto(unidades){
 	//@OBjetivo: repetir el producto cuantas veces sea indicado
 	//NOta: controlar si ya tiene productos introducidos
 	console.log('Entre en repetir producto');
+	var parametros ={
+		'pulsado':'repetirProductos',
+		'unidades':unidades,
+		'idProducto':cabecera.idProducto
+		
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** repetir productos JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta repetir productos JS');
+				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
+				
+			}
+		});
 }

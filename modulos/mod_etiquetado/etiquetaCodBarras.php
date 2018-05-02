@@ -34,15 +34,36 @@
         ?>
         <script type="text/javascript">
 			var cabecera = [];
-			cabecera['idUsuario'] = <?php echo $Usuario['id'];?>;
-			cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-			cabecera['estado'] ='<?php echo $estado ;?>';
-			cabecera['idTemporal'] = <?php echo $idTemporal ;?>;
-			cabecera['idReal'] = <?php echo $idReal ;?>;
-			cabecera['fechaEnv'] = '<?php echo $fechaEnv ;?>';
-			cabecera['fechaCad'] = '<?php echo $fechaCad ;?>';
-			cabecera['idProducto'] = <?php echo $idProducto ;?>;
-			
+				cabecera['idUsuario'] = <?php echo $Usuario['id'];?>;
+				cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
+				cabecera['estado'] ='<?php echo $estado ;?>';
+				cabecera['idTemporal'] = <?php echo $idTemporal ;?>;
+				cabecera['idReal'] = <?php echo $idReal ;?>;
+				cabecera['fechaEnv'] = '<?php echo $fechaEnv ;?>';
+				cabecera['fechaCad'] = '<?php echo $fechaCad ;?>';
+				cabecera['idProducto'] = <?php echo $idProducto ;?>;
+			var productos = [];
+			<?php 
+	if (isset($etiqueta)| isset($etiquetaTemporal)){ 
+	$i= 0;
+		if (isset($productos)){
+			foreach($productos as $product){
+?>	
+				datos=<?php echo json_encode($product); ?>;
+				productos.push(datos);
+	
+<?php 
+		// cambiamos estado y cantidad de producto creado si fuera necesario.
+			if ($product['estado'] !== 'Activo'){
+			?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
+			<?php
+			}
+			$i++;
+			}
+	
+		}
+	}
+		?>
 		</script>
      </head>
 	<body>
