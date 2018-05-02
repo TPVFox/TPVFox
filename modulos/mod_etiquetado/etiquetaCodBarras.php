@@ -16,6 +16,7 @@
         $numAlb="";
         $nomPro="";
         $idReal=0;
+        $unidades="";
         if (isset($_GET['idProducto'])){
 			$idProducto=$_GET['idProducto'];
 			$datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
@@ -24,6 +25,7 @@
         ?>
      </head>
 	<body>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_etiquetado/funciones.js"></script>
 	<?php     
         include './../../header.php';
         ?>
@@ -48,7 +50,7 @@
 					</div>
 					<div class="col-md-2">
 						<label>Tipo</label>
-					<select name="tipo" id="tipo">
+					<select name="tipo" id="tipo" onchange="modificarTipo(value);">
 						<option value='0'>Selecciona</option>
 						<option value='1'>Por unidad</option>
 						<option value='2'>Por peso</option>
@@ -64,6 +66,10 @@
 						<label>Producto:</label>
 						<input type="text" id="producto" name="producto" value="<?php echo $nomPro;?>" size="50" readonly>
 					</div>
+					<div class="col-md-2">
+						<label>Unidades</label>
+						<input type="text" id="unidades" name="unidades" value="<?php echo $unidades;?>" size="10" >
+					</div>
 				</div>
 				<div class="col-md-12">
 					<table id="tabla" class="table table-striped">
@@ -71,7 +77,7 @@
 							<tr>
 								<th>L</th>
 								<th>Nombre del producto</th>
-								<th>Tipo</th>
+								<th id="tipoTabla">Tipo</th>
 								<th>Precio</th>
 								<th>Fecha</th>
 								<th>Num Alb</th>
