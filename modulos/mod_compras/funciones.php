@@ -1185,7 +1185,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
 						);
 					}else{
-						 error_log($suNumero);
+						 //~ error_log($suNumero);
 						$mod=$CFac->modFechaNumero($datosGet['id'], $datosPost['fecha'], $suNumero);
 						if (isset($mod['error'])){
 							$errores[0]=array ( 'tipo'=>'Danger!',
