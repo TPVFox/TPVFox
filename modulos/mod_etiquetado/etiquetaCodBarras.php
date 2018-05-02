@@ -21,6 +21,9 @@
         $nomPro="";
         $idReal=0;
         $unidades="";
+        $estado="Activo";
+        $idTemporal=0;
+		$idProducto=0;
         if (isset($_GET['idProducto'])){
 			$idProducto=$_GET['idProducto'];
 			$datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
@@ -29,6 +32,18 @@
 		$parametros = $ClasesParametros->getRoot();	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
         ?>
+        <script type="text/javascript">
+			var cabecera = [];
+			cabecera['idUsuario'] = <?php echo $Usuario['id'];?>;
+			cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
+			cabecera['estado'] ='<?php echo $estado ;?>';
+			cabecera['idTemporal'] = <?php echo $idTemporal ;?>;
+			cabecera['idReal'] = <?php echo $idReal ;?>;
+			cabecera['fechaEnv'] = '<?php echo $fechaEnv ;?>';
+			cabecera['fechaCad'] = '<?php echo $fechaCad ;?>';
+			cabecera['idProducto'] = <?php echo $idProducto ;?>;
+			
+		</script>
      </head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_etiquetado/funciones.js"></script>
