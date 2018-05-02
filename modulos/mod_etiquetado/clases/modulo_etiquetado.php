@@ -24,6 +24,7 @@ class Modulo_etiquetado{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
+	
 }
 
 ?>
