@@ -79,7 +79,7 @@ function metodoClick(pulsado,adonde){
 		case 'EtiquetasCodBarras':
 			console.log('Entro en etiquetas codigo de barras');
 			// Cargamos variable global ar checkID = [];
-			VerIdSeleccionado ();
+			 VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
