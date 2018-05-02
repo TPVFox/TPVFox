@@ -46,7 +46,7 @@
 					</div>
 					<div class="col-md-2">
 						<label>Fecha Caducidad</label>
-						<input type="date" name="fechaCad" id="fechaCad" size="10" data-obj= "cajaFecha"  value="<?php echo $fechaCad;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+						<input type="date" name="fechaCad" id="fechaCad" size="10" data-obj= "cajaFechaCad"  value="<?php echo $fechaCad;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 					</div>
 					<div class="col-md-2">
 						<label>Tipo</label>
@@ -58,7 +58,7 @@
 					</div>
 					<div class="col-md-2">
 						<label>Num Albarán</label>
-						<input type="text" id="numAlb" name="numAlb" value="<?php echo $numAlb;?>" size="10">
+						<input type="text" id="numAlb" name="numAlb" value="<?php echo $numAlb;?>" size="10" data-obj= "cajaNumAlb" onkeydown="controlEventos(event)">
 					</div>
 				</div>
 				<div class="col-md-12">
@@ -68,7 +68,7 @@
 					</div>
 					<div class="col-md-2">
 						<label>Unidades</label>
-						<input type="text" id="unidades" name="unidades" value="<?php echo $unidades;?>" size="10" >
+						<input type="text" id="unidades" name="unidades" value="<?php echo $unidades;?>" size="10" data-obj= "cajaUnidades" onkeydown="controlEventos(event)" >
 					</div>
 				</div>
 				<div class="col-md-12">
