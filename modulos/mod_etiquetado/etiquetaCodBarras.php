@@ -10,6 +10,9 @@
         $fechaCad=date('Y-m-d');
         $numAlb="";
         $nomPro="";
+        if (isset($_GET['idProducto'])){
+			
+		}
         ?>
      </head>
 	<body>
@@ -51,7 +54,7 @@
 				<div class="col-md-12">
 					<div class="col-md-5">
 						<label>Producto:</label>
-						<input type="text" id="producto" name="producto" value="<?php echo $nomPro;?>" size="50">
+						<input type="text" id="producto" name="producto" value="<?php echo $nomPro;?>" size="50" readonly>
 					</div>
 				</div>
 				<div class="col-md-12">

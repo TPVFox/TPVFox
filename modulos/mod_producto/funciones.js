@@ -85,7 +85,7 @@ function metodoClick(pulsado,adonde){
 				return
 			}
 			// Ahora redireccionamos 
-			window.location.href = './../mod_etiquetado/'+adonde+'.php?id='+checkID[0];			
+			window.location.href = './../mod_etiquetado/'+adonde+'.php?idProducto='+checkID[0];			
 			
 			break;
 		
