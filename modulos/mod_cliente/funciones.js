@@ -56,11 +56,11 @@ function controladorAcciones(caja, accion) {
             $('#inputPrecioSin').focus();
         } else {
             $('#busquedaModal').on('shown.bs.modal', function () {
+                $('#cajaBusqueda').focus();
                 $('#buscarArticulos').click();
             });
             $('#busquedaModal').modal('show');
         }
-
     };
 
     switch (accion) {
@@ -82,6 +82,7 @@ function leerArticulo(parametros, callback) {
     $('#campoabuscar').val(parametros.caja);
     $('#cajaBusqueda').val(parametros.valor);
 //    $('#inputPaginaModal').val(1);
+                borrarInputsFiltro();
 
     $.ajax({
         data: parametros,

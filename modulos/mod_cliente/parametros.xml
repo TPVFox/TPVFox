@@ -12,42 +12,33 @@
 			</teclas>
 			
 		</caja_input>
-		<caja_input>
+
+                <caja_input>
 			<nombre id_input="cajaReferencia">cajaReferencia</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>				
 			</teclas>
-			
 		</caja_input>
-		<caja_input>
+
+                <caja_input>
 			<nombre id_input="cajaDescripcion">cajaDescripcion</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
-				
 			</teclas>
-			
 		</caja_input>
-		<caja_input>
+
+                <caja_input>
 			<nombre id_input="cajaBusqueda">cajaBusquedaproductos</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
-				
 			</teclas>
-			
 		</caja_input>
-		
-		
-		
-		
 		
 		<caja_input>
 			<nombre id_input="cajaidArticulo">cajaidArticulo</nombre>
 			<teclas>
 				<action tecla="13">buscarProducto</action>
 			</teclas>
-			
-	
 		</caja_input>
-		
 	</cajas_input>
 </parametros>

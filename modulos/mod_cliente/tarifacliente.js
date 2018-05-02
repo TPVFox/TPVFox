@@ -40,7 +40,7 @@ $(function () {
         $('#inputIdArticulo').val('');
         $('#inputPrecioSin').val('');
         $('#inputPrecioCon').val('');
-        $('#id_cliente').val('');
+//        $('#id_cliente').val('');
 
         $('#formulario').hide();
         $('#idArticulo').focus();
@@ -100,61 +100,102 @@ $(function () {
     $(".art-buscar").button().on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
-        var campo = $('#campoabuscar').val();
-        var valor = $('#cajaBusqueda').val();
 
-        leerArticulo({idcliente: cliente.idClientes
-            , caja: campo
-            , usarlike: 'si'
-            , valor: valor, pagina: 0}, function (respuesta) {
-            var obj = JSON.parse(respuesta);
-            var datos = obj.datos;
-            var tabla = obj.html;
-            $('#paginabuscar').val(obj.pagina);
-
-            if (tabla) {
-                $('.modal-body > p').html(tabla);
-
-                $(".btn-busca-art").button().on("click", function (event) {
-                    event.stopPropagation();
-                    event.preventDefault();
-
-                    var idarticulo = $(event.target).data('id');
-
-                    var callback = function (respuesta) {
-                        var obj = JSON.parse(respuesta);
-                        var response = obj.datos;
-                        var idCliente = $('#id_cliente').val();
-                        if (response.length == 1) {
-                            response = response[0];
-                            $('#busquedaModal').modal('hide');
-
-                            $('#inputIdArticulo').val(response['idArticulo']);
-                            $('#inputDescripcion').val(response['descripcion']);
-                            $('#inputPrecioSin').val(response['pvpSiva']);
-                            $('#inputIVA').val(response['ivaArticulo']);
-                            $('#inputPrecioCon').val(response['pvpCiva']);
-                            $('#idcliente').val(idCliente);
-                            $('#formulario').show();
-                            $('#inputPrecioSin').focus();
-                        }
-
-                    };
-
-                    leerArticulo({idcliente: cliente.idClientes, caja: 'idArticulo', valor: idarticulo}, callback);
-
-                });
-
-            }
-        }
-        );
+        $('#paginabuscar').val(1);
+        buscarArticulos();
 
     });
 
 
     $('#cajaidArticulo').focus();
+    var optionsBootpag = {
+        total: 5,
+        page: 1,
+        maxVisible: 5,
+        leaps: true,
+        firstLastUse: true,
+        wrapClass: 'pagination',
+        activeClass: 'active',
+        disabledClass: 'disabled',
+        next: 'siguiente',
+        prev: 'anterior',
+        last: 'final',
+        first: 'inicio'
+    };
+    $('.articulos-page-selection-bottom, .articulos-page-selection-top').bootpag(optionsBootpag).on("page", function (event, num) {
+        $("#paginabuscar").val(num);
+        buscarArticulos();
+    });
 
 });
 
 
- 
+function buscarArticulos() {
+    var campo = $('#campoabuscar').val();
+    var valor = $('#cajaBusqueda').val();
+
+//    resetpagina = resetpagina || 0;
+//    if (resetpagina) {
+//        $('#paginabuscar').val(1);
+//    }
+
+    leerArticulo({idcliente: cliente.idClientes
+        , caja: campo
+        , usarlike: 'si'
+        , valor: valor
+        , pagina: $('#paginabuscar').val()}, function (respuesta) {
+        var obj = JSON.parse(respuesta);
+        var datos = obj.datos;
+        var tabla = obj.html;
+
+        $('#paginabuscar').val(obj.pagina);
+
+        if (tabla) {
+            $('.modal-body > p').html(tabla);
+            $('.articulos-page-selection-bottom, .articulos-page-selection-top').bootpag({total: obj.totalPaginas, page: obj.pagina});
+
+            // click en columna 1 de la tabla con el idArticulo
+            $(".btn-busca-art").button().on("click", function (event) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                var idarticulo = $(event.target).data('id');
+
+                var callback = function (respuesta) {
+                    var obj = JSON.parse(respuesta);
+                    var response = obj.datos;
+                    var idCliente = $('#id_cliente').val();
+                    if (response.length == 1) {
+                        response = response[0];
+                        $('#busquedaModal').modal('hide');
+                        $('#inputIdArticulo').val(response['idArticulo']);
+                        $('#inputDescripcion').val(response['descripcion']);
+                        $('#inputPrecioSin').val(response['pvpSiva']);
+                        $('#inputIVA').val(response['ivaArticulo']);
+                        $('#inputPrecioCon').val(response['pvpCiva']);
+                        $('#idcliente').val(idCliente);
+                        $('#formulario').show();
+                        $('#inputPrecioSin').focus();
+                    }
+                };
+
+                leerArticulo({idcliente: cliente.idClientes
+                    , caja: 'idArticulo'
+                    , valor: idarticulo}, callback);
+
+            });
+
+        }
+    }
+    );
+
+}
+
+
+function borrarInputsFiltro() {
+    $('#cajaidArticulo').val('');
+    $('#cajaReferencia').val('');
+    $('#cajaCodbarras').val('');
+    $('#cajaDescripcion').val('');
+}
+

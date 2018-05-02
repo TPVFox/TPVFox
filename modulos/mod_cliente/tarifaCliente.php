@@ -27,7 +27,7 @@ if (isset($tarifaCliente['error'])) {
     echo $tarifaCliente['error'] . '<--<br>-->' . $tarifaCliente['consulta'];
 } else {
     $datos = $tarifaCliente['datos'];
-    var_dump($datos);
+//    var_dump($datos);
 }
 include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun;
@@ -48,10 +48,10 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
         <?php
         include './../../head.php';
         ?>
-
-        <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-        <script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
-        <script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/tarifacliente.js"></script>
+        <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/jquery.bootpag.min.js"></script>
+        <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
+        <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_cliente/tarifacliente.js"></script>
         <script type="text/javascript">
             // Objetos cajas de tpv
 <?php echo $VarJS; ?>
@@ -187,7 +187,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                 <div class="modal-content">
                     <div class="modal-header btn-primary">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title text-center">	Titulo ...</h3>
+                        <h3 class="modal-title text-center">Buscar Artículos</h3>
                     </div>
                     <div class="modal-body">
                         <input id="cajaBusqueda" type="text" value="">
@@ -195,8 +195,11 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                         <input id="campoabuscar"   type="hidden">
                         <input id="paginabuscar"   type="hidden" value="1">
 
+                        <div class="articulos-page-selection-top"></div>
+
                         <p>contenido.</p>
 
+                        <div class="articulos-page-selection-bottom"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>

@@ -41,7 +41,7 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . 'FROM articulos AS art '
                 . ' LEFT OUTER JOIN articulosCodigoBarras AS artcb ON (art.idArticulo=artcb.idArticulo) '
                 . ' LEFT OUTER JOIN articulosTiendas AS artti ON (art.idArticulo=artti.idArticulo) '
-                . ' WHERE artcb.codBarras =' . $codbarras
+                . ' WHERE artcb.codBarras =\'' . $codbarras.'\''
                 . ' AND artti.idTienda= ' . $idTienda;
         return $this->consulta($sql);
     }
@@ -75,4 +75,70 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
         return $this->consulta($sql);
     }
 
-}
+    public function leerXReferencia($referencia, $idTienda = 1) {
+        $sql = 'SELECT art.*, artcb.codBarras, artti.crefTienda as referencia '
+                . 'FROM articulos AS art '
+                . ' LEFT OUTER JOIN articulosCodigoBarras AS artcb ON (art.idArticulo=artcb.idArticulo) '
+                . ' LEFT OUTER JOIN articulosTiendas AS artti ON (art.idArticulo=artti.idArticulo) '
+                . ' WHERE artti.crefTienda =\'' . $referencia.'\''
+                . ' AND artti.idTienda= ' . $idTienda;
+        return $this->consulta($sql);
+    }
+
+    public function contarLikeReferencia($referencia, $idTienda = 1) {
+        $sql = 'SELECT count(art.idArticulo) as contador '
+                . 'FROM articulos AS art '
+                . ' LEFT OUTER JOIN articulosCodigoBarras AS artcb ON (art.idArticulo=artcb.idArticulo) '
+                . ' LEFT OUTER JOIN articulosTiendas AS artti ON (art.idArticulo=artti.idArticulo) '
+                . ' WHERE artti.crefTienda LIKE \'%' . $referencia . '%\''
+                . ' AND artti.idTienda= ' . $idTienda;
+        $consulta = $this->consulta($sql);
+        $resultado = false;
+        if($consulta['datos']){
+            $resultado = $consulta['datos'][0]['contador'];
+        }
+        return $resultado;
+    }
+
+    public function leerLikeReferencia($referencia,$pagina=0, $idTienda = 1) {
+        $sql = 'SELECT art.*, artcb.codBarras, artti.crefTienda as referencia '
+                . 'FROM articulos AS art '
+                . ' LEFT OUTER JOIN articulosCodigoBarras AS artcb ON (art.idArticulo=artcb.idArticulo) '
+                . ' LEFT OUTER JOIN articulosTiendas AS artti ON (art.idArticulo=artti.idArticulo) '
+                . ' WHERE artti.crefTienda LIKE \'%' . $referencia . '%\''
+                . ' AND artti.idTienda= ' . $idTienda;
+        if($pagina !== 0){
+            $inicio = (($pagina-1) * ARTICULOS_MAXLINPAG)+1;
+            $sql .= ' LIMIT '.$inicio.', '.ARTICULOS_MAXLINPAG;
+        }
+        return $this->consulta($sql);
+    }
+
+    public function contarLikeDescripcion($descripcion) {
+        $sql = 'SELECT count(art.idArticulo) as contador '
+                . 'FROM articulos AS art '
+                . ' WHERE art.articulo_name LIKE \'%' . $descripcion . '%\'';
+        $consulta = $this->consulta($sql);
+        $resultado = false;
+        if($consulta['datos']){
+            $resultado = $consulta['datos'][0]['contador'];
+        }
+        return $resultado;
+    }
+
+    public function leerLikeDescripcion($descripcion,$pagina=0, $idTienda = 1) {
+        $sql = 'SELECT art.*, artcb.codBarras, artti.crefTienda as referencia '
+                . 'FROM articulos AS art '
+                . ' LEFT OUTER JOIN articulosCodigoBarras AS artcb ON (art.idArticulo=artcb.idArticulo) '
+                . ' LEFT OUTER JOIN articulosTiendas AS artti ON (art.idArticulo=artti.idArticulo) '
+                . ' WHERE art.articulo_name LIKE \'%' . $descripcion . '%\''
+                . ' AND artti.idTienda= ' . $idTienda;
+        if($pagina !== 0){
+            $inicio = (($pagina-1) * ARTICULOS_MAXLINPAG)+1;
+            $sql .= ' LIMIT '.$inicio.', '.ARTICULOS_MAXLINPAG;
+        }
+        return $this->consulta($sql);
+    }
+    
+    
+    }
