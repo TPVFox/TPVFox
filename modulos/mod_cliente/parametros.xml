@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+	<configuracion>
+		<incidencias descripcion="mostrar_Select" dedonde="cliente">Si</incidencias>
+		<incidencias descripcion="usuario_Defecto" dedonde="cliente">1</incidencias>
+	</configuracion>
+</parametros>
