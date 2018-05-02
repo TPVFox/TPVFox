@@ -5,9 +5,13 @@
         include './../../head.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
         include '../../clases/articulos.php';
-      
-        $Carticulo=new Articulos($BDTpv);
+		include ("./../../controllers/Controladores.php");
+		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+		$ClasesParametros = new ClaseParametros('parametros.xml');
         
+        $Controler = new ControladorComun; 
+		$Controler->loadDbtpv($BDTpv);
+		$Carticulo=new Articulos($BDTpv);
         $Tienda = $_SESSION['tiendaTpv'];
 		$Usuario = $_SESSION['usuarioTpv'];
         $titulo="Crear Etiquetas de Código Barras";
@@ -22,6 +26,8 @@
 			$datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
 			$nomPro=$datosProducto['articulo_name'];
 		}
+		$parametros = $ClasesParametros->getRoot();	
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
         ?>
      </head>
 	<body>
@@ -29,6 +35,13 @@
 	<?php     
         include './../../header.php';
         ?>
+        <script type="text/javascript">
+			<?php echo $VarJS;?>
+			 function anular(e) {
+				  tecla = (document.all) ? e.keyCode : e.which;
+				  return (tecla != 13);
+			  }
+		</script>
         <div class="container">
 		<h2 class="text-center"> <?php echo $titulo;?></h2>
 		<form action="" method="post" name="formEtiqueta" onkeypress="return anular(event)">
