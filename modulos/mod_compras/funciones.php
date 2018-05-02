@@ -385,7 +385,10 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	if ($dedonde=="factura"){
 		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td>';
 	}
-	$respuesta['html']	.= '<td>TotalCiva</td><td>TotalSiva</td></th></thead><tbody>';
+	$respuesta['html']	.= '<td>TotalCiva</td>';
+	if ($dedonde=="factura"){
+		$respuesta['html']	.='<td>TotalSiva</td></th></thead><tbody>';
+	}
 	$contad = 0;
 	foreach ($adjuntos as $adjunto){
 		if ($dedonde=="albaran"){
@@ -425,7 +428,9 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
 		}
 		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
-		$respuesta['html']	.= '<td>'.$adjunto['totalSiva'].'</td></tr>';
+		if ($dedonde=="factura"){
+			$respuesta['html']	.= '<td>'.$adjunto['totalSiva'].'</td></tr>';
+		}
 		$contad = $contad +1;
 		if ($contad === 30){
 			// Mostramos solo 10 albaranes... 
