@@ -18,3 +18,8 @@ function modificarTipo(tipo){
 	}
 	$('#tipoTabla').html(tipoTabla);
 }
+function controladorAcciones(caja,accion, tecla){
+	switch(accion) {
+		
+	}
+}
