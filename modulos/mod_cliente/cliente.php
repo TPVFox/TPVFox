@@ -255,7 +255,7 @@
 							<label for="sel1">Forma de pago por defecto: </label>
 							<select class="form-control" name="formapago" id="sel1" style="width: 15em;">
 								<?php 
-								if ($principalForma>0){
+								if (isset($principalForma)){
 								?>
 								<option value="<?php echo $principalForma['id'];?>" ><?php echo $principalForma['descripcion'];?></option>
 								<?php 
@@ -296,7 +296,7 @@
 							<label for="sel1">Vencimiento por defecto:</label>
 							<select class="form-control" name="vencimiento" id="sel1" style="width: 15em;">
 								<?php 
-								if ($principalVenci>0){
+								if (isset($principalVenci)){
 								?>
 								<option value="<?php echo $principalVenci['id'];?>" ><?php echo $principalVenci['descripcion'];?></option>
 								<?php 	
