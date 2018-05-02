@@ -7,6 +7,7 @@
         include './funciones.php';
         
         include ("./../mod_conexion/conexionBaseDatos.php");
+         include ("./../../controllers/Controladores.php");
         include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
         $ClasesParametros = new ClaseParametros('parametros.xml');  
         
@@ -329,7 +330,12 @@
 			
 		</div>
 		<?php // Incluimos paginas modales
+//~ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+// Incluimos paginas modales
+echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+// hacemos comprobaciones de estilos 
 ?>
+
 	</body>
 </html>
