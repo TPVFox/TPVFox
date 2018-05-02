@@ -422,9 +422,12 @@ class AlbaranesCompras extends ClaseCompras{
 				$albaran['Nitem']=1;
 			}
 		}else{
-			$sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
-			formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
-			.$estado.'"';
+			//~ $sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
+			//~ formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
+			//~ .$estado.'"';
+			$sql='SELECT a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento , 
+			a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a  INNER JOIN albproIva as b 
+			on a.`id`=b.idalbpro where  a.idProveedor='.$idProveedor.' and a.estado="'.$estado.'" GROUP by a.id';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 					$albaran['error']=$smt['error'];

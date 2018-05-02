@@ -381,19 +381,23 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	'html'=>""
 	);
 	$respuesta['html']	.= '<table class="table table-striped"><thead>'
-	. '<th><td>Número </td><td>Fecha</td>';
+	. '<th><td>Número</td><td>Fecha</td>';
 	if ($dedonde=="factura"){
 		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td>';
 	}
-	$respuesta['html']	.= '<td>Total</td></th></thead><tbody>';
+	$respuesta['html']	.= '<td>TotalCiva</td><td>TotalSiva</td></th></thead><tbody>';
 	$contad = 0;
 	foreach ($adjuntos as $adjunto){
 		if ($dedonde=="albaran"){
 			$numAdjunto=$adjunto['Numpedpro'];
-			$fecha=$adjunto['FechaPedido'];
+			//~ $fecha=$adjunto['FechaPedido'];
+			$fecha = date_create($adjunto['FechaPedido']);
+			$fecha=date_format($fecha, 'Y-m-d');
 		}else{
 			$numAdjunto=$adjunto['Numalbpro'];
-			$fecha=$adjunto['Fecha'];
+			//~ $fecha=$adjunto['Fecha'];
+			$fecha = date_create($adjunto['Fecha']);
+			$fecha=date_format($fecha, 'Y-m-d');
 		}
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarAdjunto('
 		."'".$dedonde."'".', '.$numAdjunto.');">';
@@ -420,7 +424,8 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			}
 			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
 		}
-		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td></tr>';
+		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
+		$respuesta['html']	.= '<td>'.$adjunto['totalSiva'].'</td></tr>';
 		$contad = $contad +1;
 		if ($contad === 30){
 			// Mostramos solo 10 albaranes... 
