@@ -32,6 +32,7 @@
      </head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_etiquetado/funciones.js"></script>
+		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 	<?php     
         include './../../header.php';
         ?>
