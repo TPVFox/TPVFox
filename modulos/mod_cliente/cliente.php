@@ -7,6 +7,12 @@
         include './funciones.php';
         
         include ("./../mod_conexion/conexionBaseDatos.php");
+        include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+        $ClasesParametros = new ClaseParametros('parametros.xml');  
+        
+        $Controler = new ControladorComun; 
+		$Controler->loadDbtpv($BDTpv);
+		
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
 		}
@@ -17,6 +23,10 @@
 		$CtiposVen=new TiposVencimientos($BDTpv);
 		include_once '../../clases/cliente.php';
 		$Ccliente=new Cliente($BDTpv);
+		
+		$dedonde="cliente";
+		$id=0;
+		
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		
@@ -24,8 +34,19 @@
 	</head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+		 <script type="text/javascript" >
+			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+		</script>
 		<?php
         include './../../header.php';
+        
+        $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
+		$configuracion=$configuracion['incidencias'];
+        
+        
+        
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$tabla= 'clientes'; // Tablas que voy utilizar.
@@ -171,6 +192,7 @@
 			<?php
 			}
 			?>
+			<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion , <?php echo $id ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
 			<a class="text-ritght" href="./ListaClientes.php">Volver Atrás</a>
 			<div class="col-md-12">
