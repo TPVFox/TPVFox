@@ -24,11 +24,9 @@
 	
 	
 	if(isset($_GET['id'])){
+		//Si recibe el numero de la incidencia carga todas las incidencias de ese número determminado
 		$id=$_GET['id'];
 		$datosIncidencias=$CIncidencia->incidenciasNumero($_GET['id']);
-		//~ echo '<pre>';
-		//~ print_r($datosIncidencias);
-		//~ echo '</pre>';
 	}
 	?>
 </head>
@@ -42,11 +40,11 @@
 	include '../../header.php';
 ?>
 <script type="text/javascript">
-// Objetos cajas de tpv
-     function anular(e) {
-          tecla = (document.all) ? e.keyCode : e.which;
-          return (tecla != 13);
-      }
+//Anular la tecla enter de el formulario
+     //~ function anular(e) {
+          //~ tecla = (document.all) ? e.keyCode : e.which;
+          //~ return (tecla != 13);
+      //~ }
 </script>
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 	<div class="container">
