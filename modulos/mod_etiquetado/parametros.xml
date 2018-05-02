@@ -20,7 +20,7 @@
 		<caja_input>
 			<nombre id_input="unidades">cajaUnidades</nombre>
 			<teclas>
-
+				<action tecla="13">RepetirProducto</action>
 			</teclas>
 		</caja_input>
 	</cajas_input>

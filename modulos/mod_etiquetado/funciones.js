@@ -20,6 +20,15 @@ function modificarTipo(tipo){
 }
 function controladorAcciones(caja,accion, tecla){
 	switch(accion) {
-		
+		case 'RepetirProducto':
+			console.log('Entre en repetir producto');
+			repetirProducto(caja.darValor());
+		break;
 	}
+}
+
+function repetirProducto(unidades){
+	//@OBjetivo: repetir el producto cuantas veces sea indicado
+	//NOta: controlar si ya tiene productos introducidos
+	console.log('Entre en repetir producto');
 }
