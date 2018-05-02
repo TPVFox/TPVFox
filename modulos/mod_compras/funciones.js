@@ -586,10 +586,10 @@ function comprobarAdjunto(dedonde){
 					if (resultado.bandera == 1){
 						console.log("entre en las opciones");
 						$('#tablaAl').css("display", "block");
-						$('#numPedidoT').css("display", "block");
-						$('#numPedido').css("display", "block");
-						$('#buscarPedido').css("display", "block");
-						$('#tablaPedidos').css("display", "block");
+						//~ $('#numPedidoT').css("display", "block");
+						//~ $('#numPedido').css("display", "block");
+						//~ $('#buscarPedido').css("display", "block");
+						//~ $('#tablaPedidos').css("display", "block");
 						ponerFocus('numPedido');
 					}else{
 						ponerFocus('idArticulo');

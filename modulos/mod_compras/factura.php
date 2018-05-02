@@ -319,11 +319,11 @@ if ($idProveedor==0){
 	<div class="col-md-4" >
 	<div>
 		<div>
-			<div style="margin-top:-50px;" id="tablaAl">
-			<label style="<?php echo $style;?>" id="numPedidoT">Número del albarán:</label>
-			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
-			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
+			<div style="margin-top:-50px;" id="tablaAl" style="<?php echo $style;?>">
+			<label  id="numPedidoT">Número del albarán:</label>
+			<input  type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
+			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
+			<table  class="col-md-12" id="tablaPedidos"> 
 				<thead>
 				<td><b>Número</b></td>
 				<td><b>Fecha</b></td>
