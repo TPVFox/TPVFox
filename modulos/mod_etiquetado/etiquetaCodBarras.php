@@ -4,14 +4,22 @@
 		<?php
         include './../../head.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
+        include '../../clases/articulos.php';
+      
+        $Carticulo=new Articulos($BDTpv);
         
+        $Tienda = $_SESSION['tiendaTpv'];
+		$Usuario = $_SESSION['usuarioTpv'];
         $titulo="Crear Etiquetas de Código Barras";
         $fechaEnv=date('Y-m-d H:i:s');
         $fechaCad=date('Y-m-d');
         $numAlb="";
         $nomPro="";
+        $idReal=0;
         if (isset($_GET['idProducto'])){
-			
+			$idProducto=$_GET['idProducto'];
+			$datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
+			$nomPro=$datosProducto['articulo_name'];
 		}
         ?>
      </head>
