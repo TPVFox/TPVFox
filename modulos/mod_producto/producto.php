@@ -40,7 +40,7 @@
 		}
 		if ($_POST){
 			
-			$preparados= preparaYgrabar($_POST,$CTArticulos);
+			$preparados= prepararYgrabar($_POST,$CTArticulos);
 			// Comprobamos los datos antes de grabar.
 			if (isset($preparados['Sqls']['NuevoProducto'])){
 				// Entonces es que creo uno nuevo.
