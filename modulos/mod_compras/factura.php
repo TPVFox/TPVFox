@@ -68,10 +68,10 @@
 		$idFacturaTemporal=0;
 		$numFactura=$datosFactura['Numfacpro'];
 		$idProveedor=$datosFactura['idProveedor'];
-		if ($datosFactura['Su_num_factura']>0){
+		if (isset($datosFactura['Su_num_factura'])){
 			$suNumero=$datosFactura['Su_num_factura'];
 		}else{
-			$suNumero=0;
+			$suNumero="";
 		}
 		if ($idProveedor){
 			$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
@@ -117,10 +117,10 @@
 					$fecha1=date_create($datosFactura['fechaInicio']);
 					$fecha =date_format($fecha1, 'Y-m-d');
 				}
-				if ($datosFactura['Su_numero']>0){
+				if (isset($datosFactura['Su_numero'])){
 					$suNumero=$datosFactura['Su_numero'];
 				}else{
-					$suNumero=0;
+					$suNumero="";
 				}
 				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 				$idProveedor=$datosFactura['idProveedor'];
@@ -158,6 +158,7 @@
 				}
 			}
 	}
+	//~ echo $suNumero;
 	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
 	// le cambiamos el estado a guardado
 	//~ if (isset($_POST['Cancelar'])){
@@ -244,9 +245,9 @@ if ($idProveedor==0){
 	$idProveedor="";
 	
 }
-if ($suNumero==0){
-	$suNumero="";
-}
+//~ if ($suNumero==0){
+	//~ $suNumero="";
+//~ }
 ?>
 </head>
 <body>
