@@ -898,7 +898,7 @@ function ObtenerRefWebProductos($BDTpv,$productos,$idWeb){
 	$resultado = array();
 	$wheres = array();
 	foreach ($productos as $producto){
-		$wheres[] = $producto['id'];
+		$wheres[] = $producto->id;
 	}
 	$where = '('.implode(',',$wheres).')';
 	
