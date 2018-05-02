@@ -13,7 +13,7 @@
         
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
-		
+		$Usuario = $_SESSION['usuarioTpv'];
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
 		}
@@ -28,6 +28,9 @@
 		$dedonde="cliente";
 		$id=0;
 		
+		  $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
+		$configuracion=$configuracion['incidencias']; 
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		
@@ -42,9 +45,7 @@
 		<?php
         include './../../header.php';
         
-        $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
-		$configuracion=$configuracion['incidencias'];
+      
         
         
         
@@ -180,9 +181,18 @@
 			//~ echo '<pre>';
 			//~ print_r($_POST);
 			//~ echo '</pre>';
-			$mensaje=$_GET['mensaje'];
-			$tipomensaje=$_GET['tipo'];
-			if (isset($mensaje) || isset($error)){   ?> 
+			$mensaje="";
+			$tipomensaje="";
+			if(isset($_GET['mensaje'])){
+				$mensaje=$_GET['mensaje'];
+			}
+			if(isset($_GET['tipo'])){
+				$tipomensaje=$_GET['tipo'];
+			}
+			//~ $mensaje=$_GET['mensaje'];
+			//~ $tipomensaje=$_GET['tipo'];
+			
+			if (!empty($mensaje)|| isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
 				if (isset($error)){
