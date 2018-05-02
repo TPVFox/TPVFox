@@ -1098,6 +1098,21 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 						$estado="Pagado Parci";
 					}
 				}
+				if(isset($datosPost['suNumero'])){
+					$suNumero=$datosPost['suNumero'];
+				}
+				if (isset($datosPost['fecha'])){
+					if ($datosPost['fecha']==""){
+						$errores[0]=array ( 'tipo'=>'Warning!',
+						'dato' => '',
+						'class'=>'alert alert-warning',
+						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
+						);
+						break;
+					}else{
+						$fecha=$datosPost['fecha'];
+					}
+				}
 				$datos=array(
 					'Numtemp_facpro'=>$idFacturaTemporal,
 					'fecha'=>$fecha,
