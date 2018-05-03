@@ -30,7 +30,7 @@ include './../../head.php';
 	$fecha=date('Y-m-d');
 	$dedonde="albaran";
 	$Datostotales=array();
-
+	$textoNum="";
 	$parametros = $ClasesParametros->getRoot();
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="albaran";
@@ -48,6 +48,7 @@ include './../../head.php';
 	
 	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
+		$textoNum=$idAlbaran;
 		$datosAlbaran=$Calbcli->datosAlbaran($idAlbaran);
 		$productosAlbaran=$Calbcli->ProductosAlbaran($idAlbaran);
 		$ivasAlbaran=$Calbcli->IvasAlbaran($idAlbaran);
@@ -84,6 +85,7 @@ include './../../head.php';
 					$numAlbaran=$datosAlbaran['numalbcli'];
 					$id=$Calbcli->datosAlbaranNum($numAlbaran);
 					$idAlbaran=$id['id'];
+					$textoNum=$idAlbaran;
 				}
 				echo $numAlbaran;
 					if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
@@ -233,7 +235,7 @@ include './../../head.php';
 		}else{
 			$style="display:none;";
 		}
-$titulo .= ': '.$estado;	
+$titulo .= ' '.$textoNum.': '.$estado;
 		
 ?>
 	<script type="text/javascript">
