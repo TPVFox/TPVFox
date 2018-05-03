@@ -5,7 +5,6 @@
 	//Carga de archivos php necesarios
 	include './../../head.php';
 	include './funciones.php';
-	//~ include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include '../../clases/Proveedores.php';
 	include 'clases/albaranesCompras.php';
@@ -135,20 +134,6 @@
 			}
 		}
 	}
-	//Cancelar, cuando cancelamos un albarán quiere decir que los 
-	//cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
-	// y cambiamos el estado del original a guardado
-	//~ if (isset ($_POST['Cancelar'])){
-		 //~ $cancelar=cancelarAlbaran( $_GET, $BDTpv);
-		//~ if (count($cancelar)==0){
-			
-			//~ header('Location: albaranesListado.php');
-		//~ }else{
-			//~ echo '<div class="'.$cancelar['class'].'">'
-					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
-					//~ . '</div>';
-		//~ }
-	//~ }
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
 			$style1="";
