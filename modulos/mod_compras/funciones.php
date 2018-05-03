@@ -332,7 +332,7 @@ function htmlLineaProducto($productos, $dedonde){
 		 .'<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['nunidades'],2);
 		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
-		 .'" type="text" data-obj="Unidad_Fila"  pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'
+		 .'" type="text" data-obj="Unidad_Fila"  pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'
 		 .$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>'
 		 .'<td class="pvp">'.$coste.'</td>'
 		 . '<td class="tipoiva">'.$producto['iva'].'%</td>';
