@@ -314,6 +314,12 @@ switch ($pulsado) {
 			$estado=$_POST['estado'];
 			$idAlbaran=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
+			//~ error_log($fecha);
+			$fecha = new DateTime($fecha);
+			$fecha = $fecha->format('Y-m-d');
+			//~ error_log($fecha);
+			//~ $fecha=date_format($fecha, 'Y-m-d');
+			//~ error_log($fecha);
 			$productos=json_decode($_POST['productos']);
 			if (isset($_POST['pedidos'])){
 				$pedidos=$_POST['pedidos'];

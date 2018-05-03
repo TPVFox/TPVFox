@@ -79,6 +79,7 @@ class AlbaranesCompras extends ClaseCompras{
 		('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , "'
 		.$PrepProductos.'" , "'.$PrepPedidos.'", "'.$suNumero.'")';
 		$smt = $db->query($sql);
+		error_log($sql);
 		if ($smt) {
 			$respuesta['id']=$db->insert_id;
 			$respuesta['sql']=$sql;
