@@ -27,6 +27,7 @@ include './../../head.php';
 	$total=0;
 	$idCliente=0;
 	$errores=array();
+	$textoNum="";
 	$parametros = $ClasesParametros->getRoot();
 	//~ $parametros = simplexml_load_file('parametros.xml');
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -42,6 +43,7 @@ include './../../head.php';
 	
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
+		$textoNum=$idPedido;
 		$datosPedido=$Cpedido->datosPedidos($idPedido);//Buscar los datos de pedido 
 		if (isset($datosPedido['error'])){
 		$errores[0]=array ( 'tipo'=>'Danger!',
@@ -95,6 +97,7 @@ include './../../head.php';
 			$idCliente=$pedidoTemporal['idClientes'];
 			if (isset($pedidoTemporal['idPedcli'])){
 				$idPedido=$pedidoTemporal['idPedcli'];
+				$textoNum=$idPedido;
 			}else{
 				$idPedido=0;
 			}
@@ -109,7 +112,7 @@ include './../../head.php';
 		
 	}
 
-$titulo .= ': '.$estado;
+$titulo .= ' '.$textoNum.': '.$estado;
 
 		if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
