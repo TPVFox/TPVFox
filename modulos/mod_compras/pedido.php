@@ -28,6 +28,7 @@
 	$idProveedor=0;
 	$nombreProveedor="";
 	$Datostotales=array();
+	$textoNum="";
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -42,6 +43,7 @@
 
 		if (isset($_GET['id'])){
 			$idPedido=$_GET['id'];
+			$textoNum=$idPedido;
 			$datosPedido=$Cpedido->DatosPedido($idPedido);
 			if ($datosPedido['estado']=='Facturado'){
 				$estado=$datosPedido['estado'];
@@ -66,7 +68,8 @@
 				$estado=$pedido['estadoPedPro'];
 				$idProveedor=$pedido['idProveedor'];
 				if ($pedido['idPedpro']){				
-					$idPedido=$pedido['idPedpro'];					
+					$idPedido=$pedido['idPedpro'];	
+					$textoNum=$idPedido;		
 				}
 				if ($pedido['fechaInicio']){
 					$bandera=new DateTime($pedido['fechaInicio']);
@@ -81,7 +84,7 @@
 			}
 		}
 	// Añadimos al titulo el estado
-	$titulo .= ': '.$estado;
+	$titulo .= ' '.$textoNum.': '.$estado;
 	
 if(isset($pedido['Productos'])){
 	// Obtenemos los datos totales;
