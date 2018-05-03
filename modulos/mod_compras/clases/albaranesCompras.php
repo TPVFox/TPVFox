@@ -180,7 +180,7 @@ class AlbaranesCompras extends ClaseCompras{
 		//Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
 		$respuesta=array();
 		$db = $this->db;
-		error_log('fecha de clase'.$datos['fecha']);
+		//~ error_log('fecha de clase'.$datos['fecha']);
 		if ($idAlbaran>0){
 			$sql='INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , 
 			idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('

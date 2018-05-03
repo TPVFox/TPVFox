@@ -896,7 +896,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	$fechaVenci="";
 	//~ $fecha=$datosPost['fecha'];
 	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
-	error_log($fecha);
+	//~ error_log($fecha);
 	$dedonde="albaran";
 	$idAlbaran=0;
 	$CAlb=new AlbaranesCompras($BDTpv);
