@@ -92,7 +92,7 @@
 		//~ echo '</pre>';
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
-	
+	//~ echo $total;
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
 		$fecha=date('Y-m-d');

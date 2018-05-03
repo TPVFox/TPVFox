@@ -23,7 +23,7 @@
 	$dedonde="albaran";
 	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
 	$fecha=date('d-m-Y');
 	$idAlbaranTemporal=0;
 	$idAlbaran=0;
@@ -63,7 +63,8 @@
 		}else{
 			$idAlbaran=$datosAlbaran['idAlbaran'];
 			$estado=$datosAlbaran['estado'];
-			$fecha=$datosAlbaran['fecha'];
+			//~ $fecha=$datosAlbaran['fecha'];
+			$fecha =date_format(date_create($datosAlbaran['fecha']), 'd-m-Y');
 			$formaPago=$datosAlbaran['formaPago'];
 			$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
 			$fechaVencimiento=$datosAlbaran['fechaVencimiento'];
@@ -97,9 +98,11 @@
 					$idAlbaran=0;
 				}
 				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('Y-m-d');
+					//~ $fecha=date('Y-m-d');
+					$fecha=date('d-m-Y');
 				}else{
-					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
+					//~ $fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
+					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
 				}
 				if ($datosAlbaran['Su_numero']!==""){
 					$suNumero=$datosAlbaran['Su_numero'];
