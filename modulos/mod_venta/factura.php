@@ -36,6 +36,7 @@
 	$albaranes=array();
 	$importesFactura=array();
 	$dedonde="factura";
+	$textoNum="";
 	
 		$parametros = $ClasesParametros->getRoot();
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -53,6 +54,7 @@
 		
 	if (isset($_GET['id'])){//Si rebie un id quiere decir que ya existe la factura
 		$idFactura=$_GET['id'];
+		$textoNum=$idFactura;
 		$datosFactura=$Cfaccli->datosFactura($idFactura);//Extraemos los datos de la factura 
 		$productosFactura=$Cfaccli->ProductosFactura($idFactura);//De los productos
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
@@ -104,6 +106,8 @@
 				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
 				if (isset($datosFactura['Numfaccli '])){
 					$numFactura=$datosFactura['Numfaccli'];
+					$idFactura=$numFactura;
+					$textoNum=$idFactura;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
 					$fecha=date('Y-m-d');
@@ -278,8 +282,7 @@
 			//~ }else{
 				//~ header('Location: facturasListado.php');
 			//~ }
-		//~ }
-$titulo .= ': '.$estado;	
+$titulo .= ' '.$textoNum.': '.$estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
