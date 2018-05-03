@@ -87,9 +87,12 @@
 			 $modificarAlbaran=modificarArrayAdjunto($abaranesFactura, $BDTpv, "factura");
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
-		
+			//~ echo '<pre>';
+		//~ print_r($datosImportes);
+		//~ echo '</pre>';
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
+	
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
 		$fecha=date('Y-m-d');
@@ -424,7 +427,7 @@ if ($idProveedor==0){
 				<tbody>
 					 <tr id="fila0">  
 						<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
-						<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
+						<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha"    value="<?php echo $fecha;?>"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
 						<td>
 						<select name='Eformas' id='Eformas'>
 						<?php 

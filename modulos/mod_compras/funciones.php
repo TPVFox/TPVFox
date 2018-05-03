@@ -1472,14 +1472,24 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 }
 function modificarArraysImportes($importes, $total){
 	$importesDef= array();
+	
 	foreach ($importes as $importe){
+		
 		$nuevo= array();
 		$nuevo['importe']=$importe['importe'];
 		$nuevo['fecha']=$importe['FechaPago'];
 		$nuevo['referencia']=$importe['Referencia'];
 		$nuevo['forma']=$importe['idFormasPago'];
+		//~ error_log($importe['importe']);
+		
+		//~ $import=floatval($importe['importe']);
+		error_log('total antes:'.$total);
+		//~ $total=$total-$importe['importe'];
 		$total=$total-$importe['importe'];
+		error_log('total:'. $total);
+		error_log('importe'.$importe['importe']);
 		$nuevo['pendiente']=$total;
+		
 		array_push($importesDef, $nuevo);
 	}
 	return $importesDef;
