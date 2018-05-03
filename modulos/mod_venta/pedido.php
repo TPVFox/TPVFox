@@ -325,24 +325,32 @@ if ($idCliente===0){
 
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+			<div class="col-md-12" >
 			
-				<?php 
-				
-					if($estado<>"Facturado"){
-				?>
-					<input type="submit" value="Guardar" name="Guardar">
-					<input type="submit" value="Cancelar" name="Cancelar" id="Cancelar">
+				<div class="col-md-8" >
+			
+				<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+					<?php 
+						if($estado<>"Facturado"){
+					?>
+						<input type="submit" value="Guardar" class="btn btn-primary" name="Guardar">
+						</div>
+				<div class="col-md-4 " >
+						<input class="pull-right btn btn-danger" type="submit" value="Cancelar" name="Cancelar" id="Cancelar">
 					<?php
 					}
-				
-			
+					?>
+				</div>
+			</div>
+					<?php
+					
 				if (isset($_GET['tActual'])){
 					?>
 					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
 					<?php
 				}
 					?>
+					
 <div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">
