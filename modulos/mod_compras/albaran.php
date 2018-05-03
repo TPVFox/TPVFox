@@ -255,17 +255,22 @@
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-			
-			<a  href="./albaranesListado.php">Volver Atrás</a>
-					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
-					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
-					<?php
-				if ($idAlbaranTemporal>0){
-					?>
-					<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
-					<?php
-				}
-					?>
+			<div class="col-md-12">
+				<div class="col-md-8" >
+						<a  href="./albaranesListado.php">Volver Atrás</a>
+						<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+				</div>
+				<div class="col-md-4 " >
+						<input type="submit" class="pull-right btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
+						<?php
+					if ($idAlbaranTemporal>0){
+						?>
+						<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
+						<?php
+					}
+						?>
+					</div>
+				</div>
 <div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">
@@ -316,7 +321,7 @@
 	<div class="col-md-4" >
 	<div>
 		<div>
-			<div style="margin-top:-50px;">
+			<div style="margin-top:-20x;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
 			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
