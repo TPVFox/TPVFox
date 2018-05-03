@@ -21,7 +21,8 @@
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Pedido De Proveedor";
 	$dedonde="pedidos";
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
+	$fecha=date('d-m-Y');
 	$idPedido=0;
 	$numPedidoTemp=0;
 	$estado='Abierto';
@@ -52,7 +53,8 @@
 			}
 			$productosPedido=$Cpedido->ProductosPedidos($idPedido);
 			$ivasPedido=$Cpedido->IvasPedidos($idPedido);
-			$fecha=$datosPedido['FechaPedido'];
+			//~ $fecha=$datosPedido['FechaPedido'];
+			$fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
 			$idProveedor=$datosPedido['idProveedor'];
 			$datosProveedor=$Cprveedor->buscarProveedorId($idProveedor);
 			$nombreProveedor=$datosProveedor['nombrecomercial'];
@@ -73,7 +75,8 @@
 				}
 				if ($pedido['fechaInicio']){
 					$bandera=new DateTime($pedido['fechaInicio']);
-					$fecha=$bandera->format('Y-m-d');
+					//~ $fecha=$bandera->format('Y-m-d');
+					$fecha=$bandera->format('d-m-Y');
 				}
 				$productos = json_decode( $pedido['Productos']); // Array de objetos
 				if ($idProveedor){
@@ -199,7 +202,7 @@ if ($idProveedor===0){
 			</div>
 			<div class="col-md-5">
 				<label>Fecha Pedido:</label>
-				<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+				<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 			</div>
 		<div class="col-md-12">
 			<label>Proveedor:</label>

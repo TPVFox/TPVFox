@@ -237,6 +237,8 @@ switch ($pulsado) {
 			$estadoPedido=$_POST['estado'];
 			$idPedido=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
+			$fecha = new DateTime($fecha);
+			$fecha = $fecha->format('Y-m-d');
 			$productos=json_decode($_POST['productos']);
 			$idProveedor=$_POST['idProveedor'];
 			$existe=0; // Variable para devolver y saber si modifico o insert.

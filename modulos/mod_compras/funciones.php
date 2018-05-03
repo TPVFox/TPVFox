@@ -757,7 +757,8 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 						break;
 					}else{
 						 if (isset($datosPost['fecha'])){
-							$fecha=$datosPost['fecha'];
+							//~ $fecha=$datosPost['fecha'];
+							$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 						}else{
 							if (isset($pedidoTemporal['fechaInicio'])){
 								$fecha=$pedidoTemporal['fechaInicio'];
@@ -833,10 +834,12 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 							}
 					}
 				break;
+				case 'Modificado':
 				case 'Guardado':
 					if (isset($datosGet['id'])){
 						if ($datosPost['fecha']){
-							$mod=$Cpedido->modFechaPedido($datosPost['fecha'], $datosGet['id']);
+							$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
+							$mod=$Cpedido->modFechaPedido($fecha, $datosGet['id']);
 							if (isset($mod['error'])){
 								$errores[0]=array ( 'tipo'=>'Danger!',
 									'dato' => $mod['consulta'],
