@@ -414,6 +414,8 @@ switch ($pulsado) {
 			$estado=$_POST['estado'];
 			$idFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
+			$fecha = new DateTime($fecha);
+			$fecha = $fecha->format('Y-m-d');
 			$respuesta=array();
 			$productos=json_decode($_POST['productos']);
 			if(isset ($_POST['albaranes'])){

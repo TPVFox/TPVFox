@@ -1063,7 +1063,8 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 			$datosPost['estado']='Sin guardar';
 	}
 	$suNumero="";
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
+	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 	$estado="Guardado";
 	$entregado=0;
 	$dedonde="factura";
@@ -1125,6 +1126,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 						break;
 					}else{
 						$fecha=$datosPost['fecha'];
+						$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 					}
 				}
 				$datos=array(
@@ -1215,7 +1217,8 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 						);
 					}else{
 						 //~ error_log($suNumero);
-						$mod=$CFac->modFechaNumero($datosGet['id'], $datosPost['fecha'], $suNumero);
+						 $fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
+						$mod=$CFac->modFechaNumero($datosGet['id'], $fecha, $suNumero);
 						if (isset($mod['error'])){
 							$errores[0]=array ( 'tipo'=>'Danger!',
 							'dato' => $mod['consulta'],

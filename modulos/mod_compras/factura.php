@@ -32,6 +32,8 @@
 	$importesFactura=array();
 	$albaranes=array();
 	$textoNum="";
+	$fecha=date('d-m-Y');
+	$fechaImporte=date('Y-d-m');
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -64,7 +66,8 @@
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
-		$fecha=date_format($date,'Y-m-d');
+		//~ $fecha=date_format($date,'Y-m-d');
+		$fecha=date_format($date,'d-m-Y');
 		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;
 		$numFactura=$datosFactura['Numfacpro'];
@@ -95,7 +98,7 @@
 	//~ echo $total;
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
-		$fecha=date('Y-m-d');
+		$fecha=date('d-m-Y');
 		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;
 		$idFactura=0;
@@ -117,10 +120,12 @@
 					$idFactura=0;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('Y-m-d');
+					//~ $fecha=date('Y-m-d');
+					$fecha=date('d-m-Y');
 				}else{
 					$fecha1=date_create($datosFactura['fechaInicio']);
-					$fecha =date_format($fecha1, 'Y-m-d');
+					//~ $fecha =date_format($fecha1, 'Y-m-d');
+					$fecha =date_format($fecha1, 'd-m-Y');
 				}
 				if (isset($datosFactura['Su_numero'])){
 					$suNumero=$datosFactura['Su_numero'];
@@ -280,7 +285,7 @@ if ($idProveedor==0){
 		<div class="col-md-12">
 				<div class="col-md-2">
 					<strong>Fecha albarán:</strong><br>
-					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 				</div>
 				<div class="col-md-2">
 					<strong>Estado:</strong><br>
@@ -427,7 +432,7 @@ if ($idProveedor==0){
 				<tbody>
 					 <tr id="fila0">  
 						<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
-						<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha"    value="<?php echo $fecha;?>"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
+						<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha"    value="<?php echo $fechaImporte;?>"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
 						<td>
 						<select name='Eformas' id='Eformas'>
 						<?php 
