@@ -26,7 +26,7 @@ class incidencia{
 	
 	public function todasIncidenciasLimite($limite){
 		//@Objetivo : 
-		//Listar todas las etiquetas con el límite del páginado
+		//Listar todas las incidencias con el límite del páginado
 		//Devuelve errores en caso de que el sql muestre un error
 		$db=$this->db;
 		$sql='SELECT a.id as id , a.`num_incidencia` as num_incidencia ,
