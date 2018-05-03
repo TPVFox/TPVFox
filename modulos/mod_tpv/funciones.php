@@ -1055,11 +1055,11 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 		$resultado['html'] .= '<span>10 clientes de '.count($clientes).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
-						.' <th></th>'; //cabecera blanca para boton agregar
+						.' <th></th>' //cabecera blanca para boton agregar
 						.' <th>Nombre</th>'
 						.' <th>Razon social</th>'
 						.' <th>NIF</th>'
-						.'</thead><tbody>'
+						.'</thead><tbody>';
 	if (count($clientes)>0){
 		$contad = 0;
 		foreach ($clientes as $cliente){  
