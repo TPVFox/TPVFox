@@ -179,17 +179,23 @@ if ($idProveedor===0){
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
 	
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
-		<div class="col-md-12 btn-toolbar">
-			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
-			<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
-			<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
+		<div class="col-md-12">
+			<div class="col-md-8" >
+				<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+				<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+			</div>
+			<div class="col-md-4 " >
+			<input type="submit"class="pull-right btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
+			
 			<?php
 			if (isset($numPedidoTemp)){
 			?>
-				<input type="text" style="display:none;" name="idTemporal" value=<?php echo $numPedidoTemp;?>>
+				<input  type="text" style="display:none;" name="idTemporal" value=<?php echo $numPedidoTemp;?>>
 			<?php
 			}
 			?>
+			</div>
+			
 		</div>
 	<div class="col-md-8">
 			<div class="col-md-3">
