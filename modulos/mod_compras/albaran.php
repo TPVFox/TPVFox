@@ -33,6 +33,7 @@
 	$fechaVencimiento="";
 	$style1="";
 	$Datostotales=array();
+	$textoNum="";
 	
 	
 	//Cargamos la configuración por defecto y las acciones de las cajas 
@@ -71,6 +72,7 @@
 			$productos=$datosAlbaran['productos'];
 			$Datostotales=$datosAlbaran['DatosTotales'];
 			$pedidos=$datosAlbaran['pedidos'];
+			$textoNum=$idAlbaran;
 		}
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
@@ -89,6 +91,7 @@
 					$numAlbaran=$datosAlbaran['numalbpro'];
 					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
 					$idAlbaran=$datosReal['id'];
+					$textoNum=$idAlbaran;
 				}else{
 					$idAlbaran=0;
 				}
@@ -154,7 +157,7 @@
 			$estiloTablaProductos="display:none;";
 		}
 	
-		$titulo .= ': '.$estado;
+		$titulo .= $textoNum.' : '.$estado;
 		
 ?>
 	<script type="text/javascript">
