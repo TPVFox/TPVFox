@@ -106,18 +106,6 @@ if (isset($_POST['Guardar'])){
 			}
 	}
 }
-//~ if (isset ($_POST['Cancelar'])){
-		 //~ $cancelar=cancelarPedido( $_GET, $BDTpv);
-		//~ if (count($cancelar)==0){
-			
-			//~ header('Location: pedidosListado.php');
-		//~ }else{
-			//~ echo '<div class="'.$cancelar['class'].'">'
-					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
-					//~ . '</div>';
-		//~ }
-	//~ }
-
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
@@ -128,12 +116,9 @@ if (isset($_POST['Guardar'])){
 	 if (isset($_POST['Cancelar'])){
 		  ?>
 		 mensajeCancelar(<?php echo$numPedidoTemp;?>, <?php echo "'".$dedonde."'"; ?>);
-		
-		 
 		  <?php
 	  }
 	  ?>
-// Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -178,7 +163,6 @@ if ($idProveedor===0){
 	 $idProveedor="";
 }
 ?>
-
 </head>
 <body>
 <?php
@@ -224,39 +208,39 @@ if ($idProveedor===0){
 	<!-- Tabla de lineas de productos -->
 	<div>
 		<table id="tabla" class="table table-striped" >
-		<thead>
-		  <tr>
-			<th>L</th>
-			<th>Id Articulo</th>
-			<th>Referencia</th>
-			<th>Referencia Proveedor</th>
-			<th>Cod Barras</th>
-			<th>Descripcion</th>
-			<th>Unid</th>
-			<th>Coste</th>
-			<th>Iva</th>
-			<th>Importe</th>
-			<th></th>
-		  </tr>
-		  <tr id="Row0">  
-			<td id="C0_Linea" ></td>
-			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="6" value=""  onkeydown="controlEventos(event)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="25" value="" onkeydown="controlEventos(event)"></td>
-		  </tr>
-		</thead>
-		<tbody>
-			<?php 
-			if (isset($productos)){
-				foreach (array_reverse($productos) as $producto){
-					$h=htmlLineaProducto($producto, "pedidos");
-					echo $h['html'];
+			<thead>
+			  <tr>
+				<th>L</th>
+				<th>Id Articulo</th>
+				<th>Referencia</th>
+				<th>Referencia Proveedor</th>
+				<th>Cod Barras</th>
+				<th>Descripcion</th>
+				<th>Unid</th>
+				<th>Coste</th>
+				<th>Iva</th>
+				<th>Importe</th>
+				<th></th>
+			  </tr>
+			  <tr id="Row0">  
+				<td id="C0_Linea" ></td>
+				<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="6" value=""  onkeydown="controlEventos(event)"></td>
+				<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+				<td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="13" value="" onkeydown="controlEventos(event)"></td>
+				<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+				<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="25" value="" onkeydown="controlEventos(event)"></td>
+			  </tr>
+			</thead>
+			<tbody>
+				<?php 
+				if (isset($productos)){
+					foreach (array_reverse($productos) as $producto){
+						$h=htmlLineaProducto($producto, "pedidos");
+						echo $h['html'];
+					}
 				}
-			}
-		?>
-		</tbody>
+			?>
+			</tbody>
 	  </table>
 	</div>
 	<?php 
