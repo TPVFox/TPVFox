@@ -81,7 +81,7 @@ $(function () {
             $('#formulario').show();
             $('#inputPrecioSin').focus();
         };
-        leerArticulo({idcliente: idCliente, caja: caja, valor: valor}, callback);
+        leerArticulo({idcliente: idcliente, caja: caja, valor: valor}, callback);
     });
 
     $(".art-eliminar").button().on("click", function (event) {
