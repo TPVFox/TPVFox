@@ -24,13 +24,14 @@
 	$dedonde="factura";
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	$titulo="Crear Factura De Proveedor";
+	$titulo="Factura De Proveedor";
 	$estado='Abierto';
 	$estadoCab="'".'Abierto'."'";
 	$formaPago=0;
 	$comprobarAlbaran=0;
 	$importesFactura=array();
 	$albaranes=array();
+	$textoNum="";
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -52,8 +53,8 @@
 	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
-		
-		$titulo="Modificar factura De Proveedor";
+		$textoNum=$idFactura;
+		//~ $titulo="Modificar factura De Proveedor";
 		$datosFactura=$CFac->datosFactura($idFactura);
 		$productosFactura=$CFac->ProductosFactura($idFactura);
 		$ivasFactura=$CFac->IvasFactura($idFactura);
@@ -107,6 +108,7 @@
 					$numFactura=$datosFactura['numfacpro'];
 					$datosReal=$CFac->buscarFacturaNumero($numFactura);
 					$idFactura=$datosReal['id'];
+					$textoNum=$idFactura;
 				}else{
 					$numFactura=0;
 					$idFactura=0;
@@ -172,6 +174,7 @@
 		}else{
 			$estiloTablaProductos="display:none;";
 		}
+		$titulo .= ' '.$textoNum.': '.$estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
