@@ -87,8 +87,8 @@ function controladorAcciones(caja,accion, tecla){
 				cabecera.suNumero=caja.darValor();
 			}
 			if (caja.id_input=="Proveedor"){
-				console.log(dato.length);
-				if ( dato.length <= 0){
+				console.log("longitud"+dato.length);
+				if ( dato.length == 0){
 					ponerFocus(d_focus);
 				}
 			}else{
@@ -104,27 +104,46 @@ function controladorAcciones(caja,accion, tecla){
 							 var nuevofocus="idArticulo";
 							 ponerFocus(nuevofocus);
 						 }
+						 console.log("estoy aqui 1"+dato.length);
 						ponerFocus(d_focus);
 					}
 				}else{
-					 ponerFocus(d_focus);
+					 console.log("estoy aqui 2"+dato.length);
+					 if(dato==0){
+						ponerFocus(d_focus);
+				 }
 				}
 				
 			}
 			
 			
 		break;
+		case 'Saltar_idProveedorAbajo':
+			var dato = caja.darValor();
+			
+				var d_focus = 'id_proveedor';
+				ponerFocus(d_focus);
+			
+			
+			
+		break;
 		case 'Saltar_Proveedor':
 			var dato = caja.darValor();
-			var d_focus = 'Proveedor';
-			ponerFocus(d_focus);
+				if(dato==0){
+					var d_focus = 'Proveedor';
+					ponerFocus(d_focus);
+				}
+			
+			
 			
 		break;
 		case 'Saltar_idArticulo':
 			var dato = caja.darValor();
-			
-			var d_focus = 'idArticulo';
-			ponerFocus(d_focus);
+			if(dato==0){
+					var d_focus = 'idArticulo';
+					ponerFocus(d_focus);
+			}
+		
 			
 		break;
 		case 'Saltar_fecha':
@@ -134,23 +153,32 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		case 'Saltar_Referencia':
 			var dato = caja.darValor();
-			var d_focus = 'Referencia';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Referencia';
+				ponerFocus(d_focus);
+			}
+			
 		break;
 		case 'Saltar_ReferenciaPro':
 			var dato = caja.darValor();
-			var d_focus = 'ReferenciaPro';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'ReferenciaPro';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'Saltar_CodBarras':
 			var dato = caja.darValor();
-			var d_focus = 'Codbarras';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Codbarras';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'Saltar_Descripcion':
 			var dato = caja.darValor();
-			var d_focus = 'Descripcion';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Descripcion';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'addRefProveedor':
 			var idArticulo=$('#idArticuloRef').val();
@@ -586,10 +614,10 @@ function comprobarAdjunto(dedonde){
 					if (resultado.bandera == 1){
 						console.log("entre en las opciones");
 						$('#tablaAl').css("display", "block");
-						$('#numPedidoT').css("display", "block");
-						$('#numPedido').css("display", "block");
-						$('#buscarPedido').css("display", "block");
-						$('#tablaPedidos').css("display", "block");
+						//~ $('#numPedidoT').css("display", "block");
+						//~ $('#numPedido').css("display", "block");
+						//~ $('#buscarPedido').css("display", "block");
+						//~ $('#tablaPedidos').css("display", "block");
 						ponerFocus('numPedido');
 					}else{
 						ponerFocus('idArticulo');

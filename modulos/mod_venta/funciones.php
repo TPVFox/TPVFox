@@ -316,7 +316,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<td class="codbarras">'.$codBarras.'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['nunidades'],2);
-		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
+		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
 		 $importe = $producto['precioCiva']*$producto['nunidades'];
@@ -814,7 +814,8 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 	if (isset($datosGet['tActual'])){
 			$datosPost['estado']='Sin guardar';
 	}
-	$fecha=$datosPost['fecha'];
+	//~ $fecha=$datosPost['fecha'];
+	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 	switch($datosPost['estado']){
 				case 'Sin guardar':
 				case 'Abierto':
@@ -830,9 +831,11 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 					}
 					$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
 					if (isset ($datosPost['fecha'])){
-						$fecha=$datosPost['fecha'];
+						//~ $fecha=$datosPost['fecha'];
+						$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 					}else{
-						$fecha=$datosAlbaran['fechaInicio'];
+						//~ $fecha=$datosAlbaran['fechaInicio'];
+						$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					}
 					if (isset ($datosAlbaran['Productos'])){
 						$productos=$datosAlbaran['Productos'];

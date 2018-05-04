@@ -332,7 +332,7 @@ function htmlLineaProducto($productos, $dedonde){
 		 .'<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['nunidades'],2);
 		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
-		 .'" type="text" data-obj="Unidad_Fila"  pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'
+		 .'" type="text" data-obj="Unidad_Fila"  pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'
 		 .$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>'
 		 .'<td class="pvp">'.$coste.'</td>'
 		 . '<td class="tipoiva">'.$producto['iva'].'%</td>';
@@ -381,19 +381,26 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	'html'=>""
 	);
 	$respuesta['html']	.= '<table class="table table-striped"><thead>'
-	. '<th><td>Número </td><td>Fecha</td>';
+	. '<th><td>Número</td><td>Fecha</td>';
 	if ($dedonde=="factura"){
 		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td>';
 	}
-	$respuesta['html']	.= '<td>Total</td></th></thead><tbody>';
+	$respuesta['html']	.= '<td>TotalCiva</td>';
+	if ($dedonde=="factura"){
+		$respuesta['html']	.='<td>TotalSiva</td></th></thead><tbody>';
+	}
 	$contad = 0;
 	foreach ($adjuntos as $adjunto){
 		if ($dedonde=="albaran"){
 			$numAdjunto=$adjunto['Numpedpro'];
-			$fecha=$adjunto['FechaPedido'];
+			//~ $fecha=$adjunto['FechaPedido'];
+			$fecha = date_create($adjunto['FechaPedido']);
+			$fecha=date_format($fecha, 'Y-m-d');
 		}else{
 			$numAdjunto=$adjunto['Numalbpro'];
-			$fecha=$adjunto['Fecha'];
+			//~ $fecha=$adjunto['Fecha'];
+			$fecha = date_create($adjunto['Fecha']);
+			$fecha=date_format($fecha, 'Y-m-d');
 		}
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarAdjunto('
 		."'".$dedonde."'".', '.$numAdjunto.');">';
@@ -420,7 +427,10 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 			}
 			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
 		}
-		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td></tr>';
+		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
+		if ($dedonde=="factura"){
+			$respuesta['html']	.= '<td>'.$adjunto['totalSiva'].'</td></tr>';
+		}
 		$contad = $contad +1;
 		if ($contad === 30){
 			// Mostramos solo 10 albaranes... 
@@ -747,7 +757,8 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 						break;
 					}else{
 						 if (isset($datosPost['fecha'])){
-							$fecha=$datosPost['fecha'];
+							//~ $fecha=$datosPost['fecha'];
+							$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 						}else{
 							if (isset($pedidoTemporal['fechaInicio'])){
 								$fecha=$pedidoTemporal['fechaInicio'];
@@ -823,10 +834,12 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 							}
 					}
 				break;
+				case 'Modificado':
 				case 'Guardado':
 					if (isset($datosGet['id'])){
 						if ($datosPost['fecha']){
-							$mod=$Cpedido->modFechaPedido($datosPost['fecha'], $datosGet['id']);
+							$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
+							$mod=$Cpedido->modFechaPedido($fecha, $datosGet['id']);
 							if (isset($mod['error'])){
 								$errores[0]=array ( 'tipo'=>'Danger!',
 									'dato' => $mod['consulta'],
@@ -884,7 +897,9 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	$suNumero="";
 	$formaPago="";
 	$fechaVenci="";
-	$fecha=$datosPost['fecha'];
+	//~ $fecha=$datosPost['fecha'];
+	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
+	//~ error_log($fecha);
 	$dedonde="albaran";
 	$idAlbaran=0;
 	$CAlb=new AlbaranesCompras($BDTpv);
@@ -906,13 +921,15 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					}
 					
 					$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-					if (empty($datosPost['suNumero'])){
+					if (isset($datosPost['suNumero'])){
 						$suNumero=$datosPost['suNumero'];
 					}
 					if (isset ($datosPost['fecha'])){
-						$fecha=$datosPost['fecha'];
+						//~ $fecha=$datosPost['fecha'];
+						$fecha=date_format(date_create($datosPost['fecha']), 'Y-m-d');
 					}else{
-						$fecha=$datosAlbaran['fechaInicio'];
+						//~ $fecha=$datosAlbaran['fechaInicio'];
+						$fecha=date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					}
 					if (isset ($datosAlbaran['Productos'])){
 						$productos=$datosAlbaran['Productos'];
@@ -1049,7 +1066,8 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 			$datosPost['estado']='Sin guardar';
 	}
 	$suNumero="";
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
+	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 	$estado="Guardado";
 	$entregado=0;
 	$dedonde="factura";
@@ -1096,6 +1114,22 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 						$estado="Pagado total";
 					}else{
 						$estado="Pagado Parci";
+					}
+				}
+				if(isset($datosPost['suNumero'])){
+					$suNumero=$datosPost['suNumero'];
+				}
+				if (isset($datosPost['fecha'])){
+					if ($datosPost['fecha']==""){
+						$errores[0]=array ( 'tipo'=>'Warning!',
+						'dato' => '',
+						'class'=>'alert alert-warning',
+						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
+						);
+						break;
+					}else{
+						$fecha=$datosPost['fecha'];
+						$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 					}
 				}
 				$datos=array(
@@ -1173,7 +1207,8 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 		break;
 		case 'Guardado':
 		 if ($datosGet['id']){
-				if ($datosPost['suNumero']>0){
+			
+				if (isset($datosPost['suNumero'])){
 					$suNumero=$datosPost['suNumero'];
 				}
 				if (isset($datosPost['fecha'])){
@@ -1184,7 +1219,9 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
 						);
 					}else{
-						$mod=$CFac->modFechaNumero($datosGet['id'], $datosPost['fecha'], $suNumero);
+						 //~ error_log($suNumero);
+						 $fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
+						$mod=$CFac->modFechaNumero($datosGet['id'], $fecha, $suNumero);
 						if (isset($mod['error'])){
 							$errores[0]=array ( 'tipo'=>'Danger!',
 							'dato' => $mod['consulta'],
@@ -1444,15 +1481,25 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 	return $respuesta;
 }
 function modificarArraysImportes($importes, $total){
+	
 	$importesDef= array();
+	//~ error_log($total);
 	foreach ($importes as $importe){
+		
 		$nuevo= array();
 		$nuevo['importe']=$importe['importe'];
 		$nuevo['fecha']=$importe['FechaPago'];
 		$nuevo['referencia']=$importe['Referencia'];
 		$nuevo['forma']=$importe['idFormasPago'];
-		$total=$total-$importe['importe'];
+		
+		$imp=floatval($importe['importe']);
+		$total=$total-$imp;
+		//~ if($total<0){
+			//~ $total=0;
+		//~ }
 		$nuevo['pendiente']=$total;
+		$total=number_format((float)$total,2, '.', '');
+		
 		array_push($importesDef, $nuevo);
 	}
 	return $importesDef;
@@ -1599,10 +1646,10 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 				}
 				}
 				$idProveedor=$datosAlbaran['idProveedor'];
-				if ($datosAlbaran['Su_numero']>0){
+				if (isset($datosAlbaran['Su_numero'])){
 					$suNumero=$datosAlbaran['Su_numero'];
 				}else{
-					$suNumero=0;
+					$suNumero="";
 				}
 				if ($idProveedor){
 					$proveedor=$Cprveedor->buscarProveedorId($idProveedor);

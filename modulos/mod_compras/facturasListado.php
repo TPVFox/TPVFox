@@ -137,7 +137,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 					?>
 					<form action="./facturasListado.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en número de factura </label>
+						<label>Buscar por nombre de proveedor o número de factura</label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>

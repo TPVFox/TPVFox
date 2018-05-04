@@ -76,6 +76,18 @@ function metodoClick(pulsado,adonde){
 			window.location.href = './'+adonde+'.php?id='+checkID[0];			
 			
 			break;
+		case 'EtiquetasCodBarras':
+			console.log('Entro en etiquetas codigo de barras');
+			// Cargamos variable global ar checkID = [];
+			 VerIdSeleccionado ();
+			if (checkID.length >1 || checkID.length=== 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return
+			}
+			// Ahora redireccionamos 
+			window.location.href = './../mod_etiquetado/'+adonde+'.php?idProducto='+checkID[0];			
+			
+			break;
 		
 		case 'AgregarProducto':
 			console.log('entro en agregar producto');

@@ -166,6 +166,8 @@ switch ($pulsado) {
 		$idTienda=$_POST['idTienda'];
 		$estado=$_POST['estado'];
 		$fecha=$_POST['fecha'];
+		$fecha = new DateTime($fecha);
+		$fecha = $fecha->format('Y-m-d');
 		$idReal=$_POST['idReal'];
 		$idCliente=$_POST['idCliente'];
 		$productos=json_decode($_POST['productos']);
@@ -221,6 +223,8 @@ switch ($pulsado) {
 			$idTienda=$_POST['idTienda'];
 			$estadoAlbaran=$_POST['estado'];
 			$fecha=$_POST['fecha'];
+			$fecha = new DateTime($fecha);
+			$fecha = $fecha->format('Y-m-d');
 			if (isset($_POST['pedidos'])){
 				$pedidos=$_POST['pedidos'];
 			}else{

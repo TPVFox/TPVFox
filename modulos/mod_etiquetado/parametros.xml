@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+	<configuracion>
+		<incidencias descripcion="mostrar_Select" dedonde="etiquetado">Si</incidencias>
+		<incidencias descripcion="usuario_Defecto" dedonde="etiquetado">1</incidencias>
+	</configuracion>
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="fechaCad">cajaFechaCad</nombre>
+			<teclas>
+
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="numAlb">cajaNumAlb</nombre>
+			<teclas>
+
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="unidades">cajaUnidades</nombre>
+			<teclas>
+				<action tecla="13">RepetirProducto</action>
+			</teclas>
+		</caja_input>
+	</cajas_input>
+
+</parametros>

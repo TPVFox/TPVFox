@@ -145,10 +145,10 @@ class Articulos{
 		public function datosArticulosPrincipal($idArticulo, $idTienda){
 		$db=$this->db;
 		$sql='select a.articulo_name, c.codBarras , pre.pvpCiva , pro.crefProveedor, t.crefTienda
-				FROM articulos as a INNER JOIN articuloscodigobarras as c on a.idArticulo=c.idArticulo 
-				inner join articulosprecios as pre on a.idArticulo=pre.idArticulo 
-				INNER join articulosproveedores as pro on a.idArticulo=pro.idArticulo 
-				inner join articulostiendas as t on a.idArticulo=t.idArticulo
+				FROM articulos as a INNER JOIN articulosCodigoBarras as c on a.idArticulo=c.idArticulo 
+				inner join articulosPrecios as pre on a.idArticulo=pre.idArticulo 
+				INNER join articulosProveedores as pro on a.idArticulo=pro.idArticulo 
+				inner join articulosTiendas as t on a.idArticulo=t.idArticulo
 				where a.idArticulo='.$idArticulo.' and t.idTienda='.$idTienda;
 		$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){

@@ -3,7 +3,7 @@
 <head>
 <?php
 //comentario desde casa
-include './../../head.php';
+	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
@@ -27,10 +27,11 @@ include './../../head.php';
 	$idCliente=0;
 	$nombreCliente="";
 	$titulo="Albarán De Cliente ";
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
+	$fecha=date('d-m-Y');
 	$dedonde="albaran";
 	$Datostotales=array();
-
+	$textoNum="";
 	$parametros = $ClasesParametros->getRoot();
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="albaran";
@@ -48,6 +49,7 @@ include './../../head.php';
 	
 	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
+		$textoNum=$idAlbaran;
 		$datosAlbaran=$Calbcli->datosAlbaran($idAlbaran);
 		$productosAlbaran=$Calbcli->ProductosAlbaran($idAlbaran);
 		$ivasAlbaran=$Calbcli->IvasAlbaran($idAlbaran);
@@ -84,13 +86,16 @@ include './../../head.php';
 					$numAlbaran=$datosAlbaran['numalbcli'];
 					$id=$Calbcli->datosAlbaranNum($numAlbaran);
 					$idAlbaran=$id['id'];
+					$textoNum=$idAlbaran;
 				}
 				echo $numAlbaran;
 					if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('Y-m-d');
+					//~ $fecha=date('Y-m-d');
+					$fecha=date('d-m-Y');
 				}else{
-					$fecha1=date_create($datosAlbaran['fechaInicio']);
-					$fecha =date_format($fecha1, 'Y-m-d');
+					//~ $fecha1=date_create($datosAlbaran['fechaInicio']);
+					//~ $fecha =date_format($fecha1, 'Y-m-d');
+					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
 				}
 			
 				$idCliente=$datosAlbaran['idClientes'];
@@ -121,9 +126,6 @@ include './../../head.php';
 		//Y eliminar el temporal
 		if (isset($_POST['Guardar'])){
 			$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
-			//~ echo '<pre>';
-			//~ print_r($guardar);
-			//~ echo '</pre>';
 			if (count($guardar)==0){
 				
 				header('Location: albaranesListado.php');
@@ -134,106 +136,13 @@ include './../../head.php';
 					. '</div>';
 				}
 			}
-			//~ if (isset($_POST['idTemporal'])){
-				//~ $idTemporal=$_POST['idTemporal'];
-			//~ }else{
-				//~ $idTemporal=$_GET['tActual'];
-			//~ }
-			//~ $datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-			//~ if(isset($datosAlbaran['total'])){
-				//~ $total=$datosAlbaran['total'];
-			//~ }else{
-				//~ $total=0;
-			//~ }
-			//~ $idAlbaran=0;
-			//~ $datos=array(
-			//~ 'Numtemp_albcli'=>$idTemporal,
-			//~ 'Fecha'=>$_POST['fecha'],
-			//~ 'idTienda'=>$Tienda['idTienda'],
-			//~ 'idUsuario'=>$Usuario['id'],
-			//~ 'idCliente'=>$datosAlbaran['idClientes'],
-			//~ 'estado'=>"Guardado",
-			//~ 'total'=>$total,
-			//~ 'DatosTotales'=>$Datostotales,
-			//~ 'productos'=>$datosAlbaran['Productos'],
-			//~ 'pedidos'=>$datosAlbaran['Pedidos']
-			//~ );
-			//~ echo '<pre>';
-			//~ print_r($datosAlbaran['Productos']);
-			//~ echo '</pre>';
-			//~ $errores=array();
-			//~ if($datosAlbaran['numalbcli']>0){
-				//~ $idAlbaran=$datosAlbaran['numalbcli'];
-				//~ $eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
-				//~ if (isset($eliminarTablasPrincipal['error'])){
-				//~ $errores[0]=array ( 'tipo'=>'Danger!',
-											 //~ 'dato' => $eliminarTablasPrincipal['consulta'],
-											 //~ 'class'=>'alert alert-danger',
-											 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-											 //~ );
-				//~ }
-				
-			//~ }
-			//~ if(count($errores)==0){
-				//~ $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
-					//~ if(isset($addNuevo['error'])){
-					//~ $errores[1]=array ( 'tipo'=>'Danger!',
-												 //~ 'dato' => $addNuevo['consulta'],
-												 //~ 'class'=>'alert alert-danger',
-												 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 //~ );
-					//~ }
-				//~ $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
-					//~ if(isset($eliminarTemporal['error'])){
-					//~ $errores[2]=array ( 'tipo'=>'Danger!',
-												 //~ 'dato' => $eliminarTemporal['consulta'],
-												 //~ 'class'=>'alert alert-danger',
-												 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 //~ );
-					//~ }
-				//~ }
-			//~ if(count($errores)==0){
-				//~ header('Location: albaranesListado.php');
-			//~ }else{
-					//~ foreach($errores as $error){
-						//~ echo '<div class="'.$error['class'].'">'
-						//~ . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-						//~ . '</div>';
-				//~ }
-			//~ }
-			
 		}
-		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
-		//~ if (isset($_POST['Cancelar'])){
-			
-			//~ if (isset($_POST['idTemporal'])){
-				//~ $idTemporal=$_POST['idTemporal'];
-			//~ }else{
-				//~ if (isset($_GET['tActual'])){
-					//~ $idTemporal=$_GET['tActual'];
-				//~ }else{
-					//~ $idTemporal=0;
-				//~ }
-				
-			//~ }
-			//~ echo "entre en cancelar";
-			//~ $datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
-			//~ if (isset($datosAlbaran['Pedidos'])){
-				//~ $pedidos=json_decode($datosAlbaran['Pedidos'], true);
-				//~ foreach ($pedidos as $pedido){
-				//~ $mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
-				//~ }
-			//~ }
-			//~ $idAlbaran=0;
-			//~ $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-				//~ header('Location: albaranesListado.php');
-		//~ }
 		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
 			$style="";
 		}else{
 			$style="display:none;";
 		}
-$titulo .= ': '.$estado;	
+$titulo .= ' '.$textoNum.': '.$estado;
 		
 ?>
 	<script type="text/javascript">
@@ -324,9 +233,14 @@ if (isset($_GET['tActual'])){
 		<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idAlbaran ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+				<div class="col-md-12">
+				<div class="col-md-8" >
 					<a  href="./albaranesListado.php">Volver Atrás</a>
-					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
-					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
+					<input  class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+					</div>
+				<div class="col-md-4 " >
+					<input type="submit"  class="pull-right btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
+					</div>
 					<?php
 					if (isset($idAlbaranTemporal)){
 				if ($idAlbaranTemporal>0){
@@ -342,7 +256,7 @@ if (isset($_GET['tActual'])){
 			
 				<div class="col-md-4">
 					<strong>Fecha albarán:</strong><br>
-					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 				</div>
 				<div class="col-md-3">
 					<strong>Estado:</strong><br>

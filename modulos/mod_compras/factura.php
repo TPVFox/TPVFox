@@ -24,13 +24,16 @@
 	$dedonde="factura";
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	$titulo="Crear Factura De Proveedor";
+	$titulo="Factura De Proveedor";
 	$estado='Abierto';
 	$estadoCab="'".'Abierto'."'";
 	$formaPago=0;
 	$comprobarAlbaran=0;
 	$importesFactura=array();
 	$albaranes=array();
+	$textoNum="";
+	$fecha=date('d-m-Y');
+	$fechaImporte=date('Y-d-m');
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -52,8 +55,8 @@
 	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
-		
-		$titulo="Modificar factura De Proveedor";
+		$textoNum=$idFactura;
+		//~ $titulo="Modificar factura De Proveedor";
 		$datosFactura=$CFac->datosFactura($idFactura);
 		$productosFactura=$CFac->ProductosFactura($idFactura);
 		$ivasFactura=$CFac->IvasFactura($idFactura);
@@ -63,15 +66,16 @@
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
-		$fecha=date_format($date,'Y-m-d');
+		//~ $fecha=date_format($date,'Y-m-d');
+		$fecha=date_format($date,'d-m-Y');
 		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;
 		$numFactura=$datosFactura['Numfacpro'];
 		$idProveedor=$datosFactura['idProveedor'];
-		if ($datosFactura['Su_num_factura']>0){
+		if (isset($datosFactura['Su_num_factura'])){
 			$suNumero=$datosFactura['Su_num_factura'];
 		}else{
-			$suNumero=0;
+			$suNumero="";
 		}
 		if ($idProveedor){
 			$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
@@ -86,12 +90,15 @@
 			 $modificarAlbaran=modificarArrayAdjunto($abaranesFactura, $BDTpv, "factura");
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
-		
+			//~ echo '<pre>';
+		//~ print_r($datosImportes);
+		//~ echo '</pre>';
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
+	//~ echo $total;
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
-		$fecha=date('Y-m-d');
+		$fecha=date('d-m-Y');
 		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;
 		$idFactura=0;
@@ -107,20 +114,23 @@
 					$numFactura=$datosFactura['numfacpro'];
 					$datosReal=$CFac->buscarFacturaNumero($numFactura);
 					$idFactura=$datosReal['id'];
+					$textoNum=$idFactura;
 				}else{
 					$numFactura=0;
 					$idFactura=0;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('Y-m-d');
+					//~ $fecha=date('Y-m-d');
+					$fecha=date('d-m-Y');
 				}else{
 					$fecha1=date_create($datosFactura['fechaInicio']);
-					$fecha =date_format($fecha1, 'Y-m-d');
+					//~ $fecha =date_format($fecha1, 'Y-m-d');
+					$fecha =date_format($fecha1, 'd-m-Y');
 				}
-				if ($datosFactura['Su_numero']>0){
+				if (isset($datosFactura['Su_numero'])){
 					$suNumero=$datosFactura['Su_numero'];
 				}else{
-					$suNumero=0;
+					$suNumero="";
 				}
 				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 				$idProveedor=$datosFactura['idProveedor'];
@@ -158,19 +168,6 @@
 				}
 			}
 	}
-	// Si cancelamos quiere decir que no queremos guardar los datos , por esto eliminamos el temporal y si tiene original
-	// le cambiamos el estado a guardado
-	//~ if (isset($_POST['Cancelar'])){
-		//~ $cancelar=cancelarFactura( $_GET, $BDTpv);
-		//~ if (count($cancelar)==0){
-			//~ header('Location: facturasListado.php');
-		//~ }else{
-			//~ echo '<div class="'.$cancelar['class'].'">'
-					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
-					//~ . '</div>';
-		//~ }
-	//~ }
-	
 		if (isset($factura['Albaranes'])){
 			$albaranes=json_decode(json_encode($albaranes), true);
 		}
@@ -185,6 +182,7 @@
 		}else{
 			$estiloTablaProductos="display:none;";
 		}
+		$titulo .= ' '.$textoNum.': '.$estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -244,9 +242,6 @@ if ($idProveedor==0){
 	$idProveedor="";
 	
 }
-if ($suNumero==0){
-	$suNumero="";
-}
 ?>
 </head>
 <body>
@@ -261,9 +256,7 @@ if ($suNumero==0){
 		<?php
 	 if (isset($_POST['Cancelar'])){
 		  ?>
-		 mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
-		
-		 
+		 mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>); 
 		  <?php
 	  }
 	  ?>
@@ -277,9 +270,14 @@ if ($suNumero==0){
 			 <a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+				<div class="col-md-12">
+				<div class="col-md-8" >
 				<a  href="./facturasListado.php">Volver Atrás</a>
-					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
-					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
+					<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+				</div>
+				<div class="col-md-4 " >
+					<input type="submit" class="pull-right btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
+					</div>
 					<?php
 				if ($idFacturaTemporal>0){
 					?>
@@ -292,7 +290,7 @@ if ($suNumero==0){
 		<div class="col-md-12">
 				<div class="col-md-2">
 					<strong>Fecha albarán:</strong><br>
-					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 				</div>
 				<div class="col-md-2">
 					<strong>Estado:</strong><br>
@@ -318,18 +316,17 @@ if ($suNumero==0){
 	<div class="col-md-4" >
 	<div>
 		<div>
-			<div style="margin-top:-50px;" id="tablaAl">
-			<label style="<?php echo $style;?>" id="numPedidoT">Número del albarán:</label>
-			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
-			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
+			<div style="margin-top:-50px;" id="tablaAl" style="<?php echo $style;?>">
+			<label  id="numPedidoT">Número del albarán:</label>
+			<input  type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
+			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
+			<table  class="col-md-12" id="tablaPedidos"> 
 				<thead>
 				<td><b>Número</b></td>
 				<td><b>Fecha</b></td>
 				<td><b>Total</b></td>
 				<td></td>
 				</thead>
-				
 				<?php 
 				$i=1;
 				if (isset($albaranes)){
@@ -341,7 +338,6 @@ if ($suNumero==0){
 						echo $html['html'];
 						$i++;
 					}
-					
 				}
 				?>
 			</table>
@@ -380,13 +376,11 @@ if ($suNumero==0){
 		</thead>
 		<tbody>
 			<?php 
-			
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaProducto($producto, "factura");
-				echo $html['html'];
-			}
-		
+					$html=htmlLineaProducto($producto, "factura");
+					echo $html['html'];
+				}
 			}
 			?>
 		</tbody>
@@ -425,47 +419,46 @@ if ($suNumero==0){
 			</div>
 			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
 				<?php echo (isset($Datostotales['total']) ? number_format ($Datostotales['total'],2, '.', '') : '');?>
-
 			</div>
 		</div>
 	</div>
 	<div class ="col-md-6" id="divImportes">
 			<h3>Entregas</h3>
 			<table  id="tablaImporte" class="table table-striped">
-			<thead>
-			<tr>
-			<td>Importe</td>
-			<td>Fecha</td>
-			<td>Forma de Pago</td>
-			<td>Referencia</td>
-			<td>Pendiente</td>
-			</tr>
-			</thead>
-			<tbody>
-			 <tr id="fila0">  
-				<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
-				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
-				<td>
-				<select name='Eformas' id='Eformas'>
-				<?php 
-				if(isset($textoFormaPago['html'])){
-					echo $textoFormaPago['html'];
-				}
+				<thead>
+					<tr>
+						<td>Importe</td>
+						<td>Fecha</td>
+						<td>Forma de Pago</td>
+						<td>Referencia</td>
+						<td>Pendiente</td>
+					</tr>
+				</thead>
+				<tbody>
+					 <tr id="fila0">  
+						<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
+						<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha"    value="<?php echo $fechaImporte;?>"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
+						<td>
+						<select name='Eformas' id='Eformas'>
+						<?php 
+						if(isset($textoFormaPago['html'])){
+							echo $textoFormaPago['html'];
+						}
+						?>
+						</select>
+						</td>
+						<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
+						<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
+					</tr>
+				<?php //Si esa factura ya tiene importes los mostramos 
+				if (isset($importesFactura)){
+					foreach (array_reverse($importesFactura) as $importe){
+						$htmlImporte=htmlImporteFactura($importe, $BDTpv);	
+						echo $htmlImporte['html'];
+					}
+				}			
 				?>
-				</select>
-				</td>
-				<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
-				<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
-			</tr>
-			<?php //Si esa factura ya tiene importes los mostramos 
-			if (isset($importesFactura)){
-				foreach (array_reverse($importesFactura) as $importe){
-					$htmlImporte=htmlImporteFactura($importe, $BDTpv);	
-					echo $htmlImporte['html'];
-				}
-			}			
-			?>
-			</tbody>
+				</tbody>
 			</table>
 		</div>
 </form>

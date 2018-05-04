@@ -79,6 +79,7 @@ class AlbaranesCompras extends ClaseCompras{
 		('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , "'
 		.$PrepProductos.'" , "'.$PrepPedidos.'", "'.$suNumero.'")';
 		$smt = $db->query($sql);
+		error_log($sql);
 		if ($smt) {
 			$respuesta['id']=$db->insert_id;
 			$respuesta['sql']=$sql;
@@ -179,6 +180,7 @@ class AlbaranesCompras extends ClaseCompras{
 		//Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
 		$respuesta=array();
 		$db = $this->db;
+		//~ error_log('fecha de clase'.$datos['fecha']);
 		if ($idAlbaran>0){
 			$sql='INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , 
 			idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('
@@ -422,9 +424,12 @@ class AlbaranesCompras extends ClaseCompras{
 				$albaran['Nitem']=1;
 			}
 		}else{
-			$sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
-			formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
-			.$estado.'"';
+			//~ $sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
+			//~ formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
+			//~ .$estado.'"';
+			$sql='SELECT a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento , 
+			a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a  INNER JOIN albproIva as b 
+			on a.`id`=b.idalbpro where  a.idProveedor='.$idProveedor.' and a.estado="'.$estado.'" GROUP by a.id';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 					$albaran['error']=$smt['error'];

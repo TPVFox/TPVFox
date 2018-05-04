@@ -237,6 +237,8 @@ switch ($pulsado) {
 			$estadoPedido=$_POST['estado'];
 			$idPedido=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
+			$fecha = new DateTime($fecha);
+			$fecha = $fecha->format('Y-m-d');
 			$productos=json_decode($_POST['productos']);
 			$idProveedor=$_POST['idProveedor'];
 			$existe=0; // Variable para devolver y saber si modifico o insert.
@@ -314,6 +316,12 @@ switch ($pulsado) {
 			$estado=$_POST['estado'];
 			$idAlbaran=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
+			//~ error_log($fecha);
+			$fecha = new DateTime($fecha);
+			$fecha = $fecha->format('Y-m-d');
+			//~ error_log($fecha);
+			//~ $fecha=date_format($fecha, 'Y-m-d');
+			//~ error_log($fecha);
 			$productos=json_decode($_POST['productos']);
 			if (isset($_POST['pedidos'])){
 				$pedidos=$_POST['pedidos'];
@@ -408,6 +416,8 @@ switch ($pulsado) {
 			$estado=$_POST['estado'];
 			$idFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
+			$fecha = new DateTime($fecha);
+			$fecha = $fecha->format('Y-m-d');
 			$respuesta=array();
 			$productos=json_decode($_POST['productos']);
 			if(isset ($_POST['albaranes'])){
@@ -604,74 +614,86 @@ switch ($pulsado) {
 			echo json_encode($respuesta);
 		break;
 		case 'abririncidencia':
-		$dedonde=$_POST['dedonde'];
-		$usuario=$_POST['usuario'];
-		$idReal=0;
-		if(isset($_POST['idReal'])){
-			$idReal=$_POST['idReal'];
-		}
-		
-		$configuracion=$_POST['configuracion'];
-		$numInicidencia=0;
-		$tipo="mod_compras";
-		$fecha=date('Y-m-d');
-		$datos=array(
-		'dedonde'=>$dedonde,
-		'idReal'=>$idReal
-		);
-		$datos=json_encode($datos);
-		$estado="No resuelto";
-		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
-		$respuesta['html']=$html;
-		$respuesta['datos']=$datos;
-		echo json_encode($respuesta);
+		//@OBJETIVO:
+		//Mostrar el modal de incidencias con los datos de compras, según en el archivo en el que está 
+		//situado envía los datos de este. El idReal es el id del albarán, pedido o factura guardado si no lo 
+		//envía en 0
+		//@Retornar: devuelve el html para insertar en el js del modal
+			$dedonde=$_POST['dedonde'];
+			$usuario=$_POST['usuario'];
+			$idReal=0;
+			if(isset($_POST['idReal'])){
+				$idReal=$_POST['idReal'];
+			}
+			
+			$configuracion=$_POST['configuracion'];
+			$numInicidencia=0;
+			$tipo="mod_compras";
+			$fecha=date('Y-m-d');
+			$datos=array(
+			'dedonde'=>$dedonde,
+			'idReal'=>$idReal
+			);
+			$datos=json_encode($datos);
+			$estado="No resuelto";
+			$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
+			$respuesta['html']=$html;
+			$respuesta['datos']=$datos;
+			echo json_encode($respuesta);
 		break;
 		
 		case 'nuevaIncidencia':
-		$usuario= $_POST['usuario'];
-		$fecha= $_POST['fecha'];
-		$datos= $_POST['datos'];
-		$dedonde= $_POST['dedonde'];
-		$estado= $_POST['estado'];
-		$mensaje= $_POST['mensaje'];
-		$usuarioSelect=0;
-		if(isset($_POST['usuarioSelec'])){
-		$usuarioSelect=$_POST['usuarioSelec'];
-		}
-		//~ error.log($usuarioSelect);
-		if($usuarioSelect>0){
-			$datos=json_decode($datos);
-			//~ error.log($datos);
-			$datos->usuarioSelec=$usuarioSelect;
-			$datos=json_encode($datos);
-		}
-		$numInicidencia=0;
-		if($mensaje){
-			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
-			$respuesta=$nuevo['sql'];
-		}
-	echo json_encode($respuesta);
-	
-	break;
-	case 'cancelarTemporal':
-		$idTemporal=$_POST['idTemporal'];
-		$dedonde=$_POST['dedonde'];
-		$respuesta=array();
-		switch($dedonde){
-			case 'pedidos':
-				$cancelar=cancelarPedido( $idTemporal, $BDTpv);
-				$respuesta=$cancelar;
-			break;
-			case 'albaran':
-				$cancelar=cancelarAlbaran( $idTemporal, $BDTpv);
-			break;
-			case 'factura':
-				$cancelar=cancelarFactura( $idTemporal, $BDTpv);
-			break;
-		 }
-		 echo json_encode($respuesta);
-	break;
-	
+		//@Objetivo: Agregar una nueva incidencia, dirigimos los datos a la función addIncidencia
+		//esta está situada en el modulo de incidencias e inserta una nueva fila a la tabla de módulo
+		//de incidencias con los datos seleccionado en el modal.
+			$usuario= $_POST['usuario'];
+			$fecha= $_POST['fecha'];
+			$datos= $_POST['datos'];
+			$dedonde= $_POST['dedonde'];
+			$estado= $_POST['estado'];
+			$mensaje= $_POST['mensaje'];
+			$usuarioSelect=0;
+			if(isset($_POST['usuarioSelec'])){
+				$usuarioSelect=$_POST['usuarioSelec'];
+			}
+			if($usuarioSelect>0){
+				$datos=json_decode($datos);
+				$datos->usuarioSelec=$usuarioSelect;
+				$datos=json_encode($datos);
+			}
+			$numInicidencia=0;
+			if($mensaje){
+				$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
+				$respuesta=$nuevo['sql'];
+			}
+		echo json_encode($respuesta);
+		
+		break;
+		case 'cancelarTemporal':
+		//@Objetivo: cancelar el archivo temporal , cuando cancelamos un temporal muestra de primeros una alert
+		//donde aceptamos en caso de querrer eliminar, a  continuación dependiendo de del archivo donde estemos
+		//situados ejecuta su función 
+		//@Retorno: en principio devuelve un array vacio a no ser que se tenga un error en la función ejecutada
+			$idTemporal=$_POST['idTemporal'];
+			$dedonde=$_POST['dedonde'];
+			$respuesta=array();
+			switch($dedonde){
+				case 'pedidos':
+					$cancelar=cancelarPedido( $idTemporal, $BDTpv);
+					$respuesta=$cancelar;
+				break;
+				case 'albaran':
+					$cancelar=cancelarAlbaran( $idTemporal, $BDTpv);
+					$respuesta=$cancelar;
+				break;
+				case 'factura':
+					$cancelar=cancelarFactura( $idTemporal, $BDTpv);
+					$respuesta=$cancelar;
+				break;
+			 }
+			 echo json_encode($respuesta);
+		break;
+		
 	
 }
 ?>

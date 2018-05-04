@@ -1,0 +1,9 @@
+ALTER TABLE `modulo_etiquetado_temporal` ADD `idUsuario` INT(11) NOT NULL AFTER `productos`;
+ALTER TABLE `modulo_etiquetado` ADD `idUsuario` INT(11) NOT NULL AFTER `productos`;
+ALTER TABLE pedprotemporales CHANGE Productos Productos MEDIUMBLOB NULL DEFAULT NULL;
+ALTER TABLE pedcliltemporales CHANGE Productos Productos MEDIUMBLOB NULL DEFAULT NULL;
+ALTER TABLE ticketstemporales CHANGE Productos Productos MEDIUMBLOB NULL DEFAULT NULL;
+ALTER TABLE albcliltemporales CHANGE Productos Productos MEDIUMBLOB NULL DEFAULT NULL;
+ALTER TABLE albproltemporales CHANGE Productos Productos MEDIUMBLOB NULL DEFAULT NULL;
+ALTER TABLE facproltemporales CHANGE Productos Productos MEDIUMBLOB NULL DEFAULT NULL; 
+ALTER TABLE faccliltemporales CHANGE Productos Productos MEDIUMBLOB NULL DEFAULT NULL;
