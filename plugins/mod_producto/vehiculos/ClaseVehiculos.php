@@ -228,9 +228,6 @@ class PluginClaseVehiculos extends ClaseConexion{
 		$html = '<div class="col-md-12">'
 				.'<div class="alert alert-success">'
 				.'<span>'
-				.'Productos encontrados('.$n_Recambios.')----------> '
-				.'</span>'
-				.'<span>'
 				.' '.$vehiculo['id']
 				.'</span>'
 				.'<span>'
@@ -242,6 +239,10 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.'<span>'
 				.' '.$vehiculo['nombre']
 				.'</span>'
+				.'<span>'
+				.'----> Numero recambios('.$n_Recambios.') '
+				.'</span>'
+				
 				.'</div>'
 				.'</div>';
 		return $html;

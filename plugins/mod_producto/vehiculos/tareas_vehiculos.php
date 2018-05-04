@@ -66,7 +66,7 @@ switch ($pulsado) {
 		if (!isset($_SESSION['coches_seleccionados'])){
 			$_SESSION['coches_seleccionados'] = array();
 		}
-		$_SESSION['coches_seleccionados'][] = $htmlVehiculo;
+		$_SESSION['coches_seleccionados'][] = $vehiculo ;
 		$respuesta['html']= $htmlVehiculo;
 		echo json_encode($respuesta);
 	break;
