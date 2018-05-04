@@ -814,7 +814,8 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 	if (isset($datosGet['tActual'])){
 			$datosPost['estado']='Sin guardar';
 	}
-	$fecha=$datosPost['fecha'];
+	//~ $fecha=$datosPost['fecha'];
+	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 	switch($datosPost['estado']){
 				case 'Sin guardar':
 				case 'Abierto':
@@ -830,9 +831,11 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 					}
 					$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
 					if (isset ($datosPost['fecha'])){
-						$fecha=$datosPost['fecha'];
+						//~ $fecha=$datosPost['fecha'];
+						$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 					}else{
-						$fecha=$datosAlbaran['fechaInicio'];
+						//~ $fecha=$datosAlbaran['fechaInicio'];
+						$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					}
 					if (isset ($datosAlbaran['Productos'])){
 						$productos=$datosAlbaran['Productos'];

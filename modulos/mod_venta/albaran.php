@@ -3,7 +3,7 @@
 <head>
 <?php
 //comentario desde casa
-include './../../head.php';
+	include './../../head.php';
 	include './funciones.php';
 	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
@@ -27,7 +27,8 @@ include './../../head.php';
 	$idCliente=0;
 	$nombreCliente="";
 	$titulo="Albarán De Cliente ";
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
+	$fecha=date('d-m-Y');
 	$dedonde="albaran";
 	$Datostotales=array();
 	$textoNum="";
@@ -89,10 +90,12 @@ include './../../head.php';
 				}
 				echo $numAlbaran;
 					if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('Y-m-d');
+					//~ $fecha=date('Y-m-d');
+					$fecha=date('d-m-Y');
 				}else{
-					$fecha1=date_create($datosAlbaran['fechaInicio']);
-					$fecha =date_format($fecha1, 'Y-m-d');
+					//~ $fecha1=date_create($datosAlbaran['fechaInicio']);
+					//~ $fecha =date_format($fecha1, 'Y-m-d');
+					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
 				}
 			
 				$idCliente=$datosAlbaran['idClientes'];
