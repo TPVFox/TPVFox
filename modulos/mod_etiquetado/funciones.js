@@ -65,8 +65,19 @@ function repetirProducto(unidades){
 					prod.estado=productosAdd[i]['estado'];
 					prod.Nfila=productosAdd[i]['Nfila'];
 					productos.push(prod);
-									}
+				}
 				
 			}
 		});
+}
+function addEtiquetadoTemporal(){
+	var parametros ={
+		'pulsado'	:'addEtiquetadoTemporal',
+		'estado'	: cabecera.estado,
+		'idTemporal': cabecera.idTemporal,
+		'idReal'	: cabecera.idReal,
+		'fechaEnv'	: cabecera.fechaEnv,
+		'fechaCad'	: cabecera.fechaCad,
+		'idProducto': cabecera.idProducto
+	};
 }
