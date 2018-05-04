@@ -147,7 +147,6 @@
 				}
 					?>
 					<li><a href="#section2" onclick="metodoClick('VerProducto','producto');";>Modificar</a></li>
-					<li><a href="#section2" onclick="metodoClick('EtiquetasCodBarras','etiquetaCodBarras');";>Etiquetas Cod Barras</a></li>
 				</ul>
 				</div>
 				<div class="nav productos_seleccionados" <?php echo $prod_seleccion['display'];?>>
