@@ -34,7 +34,9 @@ function repetirProducto(unidades){
 	var parametros ={
 		'pulsado':'repetirProductos',
 		'unidades':unidades,
-		'idProducto':cabecera.idProducto
+		'idProducto':cabecera.idProducto,
+		'idTienda': cabecera.idTienda,
+		'fechaCad':cabecera.fechaCad
 		
 	};
 	$.ajax({
@@ -47,6 +49,9 @@ function repetirProducto(unidades){
 			success    :  function (response) {
 				console.log('Llegue devuelta repetir productos JS');
 				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
+				var filasNuevas = resultado['html'];
+				$("#tabla").prepend(filasNuevas);
+				cabecera.productos=resultado['productos'];
 				
 			}
 		});

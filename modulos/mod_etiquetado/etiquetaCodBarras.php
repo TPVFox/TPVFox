@@ -3,9 +3,10 @@
     <head>
 		<?php
         include './../../head.php';
+        include ("./../../controllers/Controladores.php");
         include ("./../mod_conexion/conexionBaseDatos.php");
         include '../../clases/articulos.php';
-		include ("./../../controllers/Controladores.php");
+		
 		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
         
@@ -138,6 +139,9 @@
 								<th>Num Cod Barras</th>
 							</tr>
 						</thead>
+						<tbody>
+						
+						</tbody>
 					</table>
 				</div>
 			</div>
