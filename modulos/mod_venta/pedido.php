@@ -21,7 +21,8 @@ include './../../head.php';
 	$titulo="Pedido De Cliente ";
 	$estado='Abierto';
 	$bandera=0;
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
+	$fecha=date('d-m-Y');
 	$idTemporal = 0;
 	$idPedido=0;
 	$total=0;
@@ -69,7 +70,8 @@ include './../../head.php';
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 		}
-		$fecha=$datosPedido['FechaPedido'];
+		//~ $fecha=$datosPedido['FechaPedido'];
+		$fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
 		$idCliente=$datosPedido['idCliente'];
 		if ($idCliente){
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
@@ -123,7 +125,8 @@ $titulo .= ' '.$textoNum.': '.$estado;
 		//Pasar un pedido temporal a real
 		if (isset($_POST['Guardar'])){
 			if (isset($_GET['id'])){
-				$modFecha=$Cpedido->modificarFecha($_GET['id'], $_POST['fecha']);
+				$fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
+				 $modFecha=$Cpedido->modificarFecha($_GET['id'],$fecha);
 				if(isset($modFecha['error'])){
 					echo '<div class="alert alert-danger">'
 						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
@@ -153,9 +156,10 @@ $titulo .= ' '.$textoNum.': '.$estado;
 					}
 					$idPedido=0;
 					$fechaCreacion=date("Y-m-d H:i:s");
+					$fecha=date_format(date_create($_POST['fecha']), 'Y-m-d');
 					$datosPedido=array(
 					'NPedidoTemporal'=>$idTemporal,
-					'fecha'=>$_POST['fecha'],
+					'fecha'=>$fecha,
 					'idTienda'=>$Tienda['idTienda'],
 					'idUsuario'=>$Usuario['id'],
 					'idCliente'=>$pedidoTemporal['idClientes'],
