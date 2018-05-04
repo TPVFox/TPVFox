@@ -126,9 +126,6 @@
 		//Y eliminar el temporal
 		if (isset($_POST['Guardar'])){
 			$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
-			//~ echo '<pre>';
-			//~ print_r($guardar);
-			//~ echo '</pre>';
 			if (count($guardar)==0){
 				
 				header('Location: albaranesListado.php');
@@ -139,100 +136,7 @@
 					. '</div>';
 				}
 			}
-			//~ if (isset($_POST['idTemporal'])){
-				//~ $idTemporal=$_POST['idTemporal'];
-			//~ }else{
-				//~ $idTemporal=$_GET['tActual'];
-			//~ }
-			//~ $datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-			//~ if(isset($datosAlbaran['total'])){
-				//~ $total=$datosAlbaran['total'];
-			//~ }else{
-				//~ $total=0;
-			//~ }
-			//~ $idAlbaran=0;
-			//~ $datos=array(
-			//~ 'Numtemp_albcli'=>$idTemporal,
-			//~ 'Fecha'=>$_POST['fecha'],
-			//~ 'idTienda'=>$Tienda['idTienda'],
-			//~ 'idUsuario'=>$Usuario['id'],
-			//~ 'idCliente'=>$datosAlbaran['idClientes'],
-			//~ 'estado'=>"Guardado",
-			//~ 'total'=>$total,
-			//~ 'DatosTotales'=>$Datostotales,
-			//~ 'productos'=>$datosAlbaran['Productos'],
-			//~ 'pedidos'=>$datosAlbaran['Pedidos']
-			//~ );
-			//~ echo '<pre>';
-			//~ print_r($datosAlbaran['Productos']);
-			//~ echo '</pre>';
-			//~ $errores=array();
-			//~ if($datosAlbaran['numalbcli']>0){
-				//~ $idAlbaran=$datosAlbaran['numalbcli'];
-				//~ $eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
-				//~ if (isset($eliminarTablasPrincipal['error'])){
-				//~ $errores[0]=array ( 'tipo'=>'Danger!',
-											 //~ 'dato' => $eliminarTablasPrincipal['consulta'],
-											 //~ 'class'=>'alert alert-danger',
-											 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-											 //~ );
-				//~ }
-				
-			//~ }
-			//~ if(count($errores)==0){
-				//~ $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
-					//~ if(isset($addNuevo['error'])){
-					//~ $errores[1]=array ( 'tipo'=>'Danger!',
-												 //~ 'dato' => $addNuevo['consulta'],
-												 //~ 'class'=>'alert alert-danger',
-												 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 //~ );
-					//~ }
-				//~ $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $datosAlbaran['numalbcli']);
-					//~ if(isset($eliminarTemporal['error'])){
-					//~ $errores[2]=array ( 'tipo'=>'Danger!',
-												 //~ 'dato' => $eliminarTemporal['consulta'],
-												 //~ 'class'=>'alert alert-danger',
-												 //~ 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 //~ );
-					//~ }
-				//~ }
-			//~ if(count($errores)==0){
-				//~ header('Location: albaranesListado.php');
-			//~ }else{
-					//~ foreach($errores as $error){
-						//~ echo '<div class="'.$error['class'].'">'
-						//~ . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-						//~ . '</div>';
-				//~ }
-			//~ }
-			
 		}
-		//Cuando cancelamos eliminamos los datos del albrán temporal y si tiene uno real le cambiamos el estado a Guardado
-		//~ if (isset($_POST['Cancelar'])){
-			
-			//~ if (isset($_POST['idTemporal'])){
-				//~ $idTemporal=$_POST['idTemporal'];
-			//~ }else{
-				//~ if (isset($_GET['tActual'])){
-					//~ $idTemporal=$_GET['tActual'];
-				//~ }else{
-					//~ $idTemporal=0;
-				//~ }
-				
-			//~ }
-			//~ echo "entre en cancelar";
-			//~ $datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
-			//~ if (isset($datosAlbaran['Pedidos'])){
-				//~ $pedidos=json_decode($datosAlbaran['Pedidos'], true);
-				//~ foreach ($pedidos as $pedido){
-				//~ $mod=$Cped->ModificarEstadoPedido($pedido['idPedCli'], "Guardado");
-				//~ }
-			//~ }
-			//~ $idAlbaran=0;
-			//~ $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-				//~ header('Location: albaranesListado.php');
-		//~ }
 		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
 			$style="";
 		}else{
