@@ -30,7 +30,8 @@
 	$nombreCliente=0;
 	$titulo="Factura De Cliente ";
 	$estado='Abierto';
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
+	$fecha=date('d-m-Y');
 	$Simporte="display:none;";
 	$formaPago=0;
 	$albaranes=array();
@@ -62,8 +63,9 @@
 		$datosImportes=$Cfaccli->importesFactura($idFactura);
 		$estado=$datosFactura['estado'];
 	
-		$date=date_create($datosFactura['Fecha']);
-		$fecha=date_format($date,'Y-m-d');
+		//~ $date=date_create($datosFactura['Fecha']);
+		//~ $fecha=date_format($date,'Y-m-d');
+		$fecha =date_format(date_create($datosFactura['Fecha']), 'd-m-Y');
 		$numFactura=$datosFactura['Numfaccli'];
 		$idCliente=$datosFactura['idCliente'];
 		if ($idCliente){
@@ -110,10 +112,12 @@
 					$textoNum=$idFactura;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('Y-m-d');
+					//~ $fecha=date('Y-m-d');
+					$fecha=date('d-m-Y');
 				}else{
-					$fecha1=date_create($datosFactura['fechaInicio']);
-					$fecha =date_format($fecha1, 'Y-m-d');
+					//~ $fecha1=date_create($datosFactura['fechaInicio']);
+					//~ $fecha =date_format($fecha1, 'Y-m-d');
+					$fecha =date_format(date_create($datosFactura['fechaInicio']), 'd-m-Y');
 				}
 				$idCliente=$datosFactura['idClientes'];
 				
@@ -153,7 +157,8 @@
 		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
 			if (isset($_GET['id'])){
-				$modFecha=$Cfaccli->modificarFechaFactura($_GET['id'], $_POST['fecha']);
+				$fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
+				$modFecha=$Cfaccli->modificarFechaFactura($_GET['id'], $fecha);
 				if(isset($modFecha['error'])){
 					echo '<div class="alert alert-danger">'
 						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
@@ -197,10 +202,10 @@
 						$estado="Pagado Parci";
 					}
 				}
-				
+				$fecha=date_format(date_create($_POST['fecha']), 'Y-m-d');
 				$datos=array(
 				'Numtemp_faccli'=>$idTemporal,
-				'Fecha'=>$_POST['fecha'],
+				'Fecha'=>$fecha,
 				'idTienda'=>$Tienda['idTienda'],
 				'idUsuario'=>$Usuario['id'],
 				'idCliente'=>$idCliente,
