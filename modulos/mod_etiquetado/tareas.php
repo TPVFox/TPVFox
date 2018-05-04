@@ -51,7 +51,10 @@ switch ($pulsado) {
 			}else{
 				$idTemporal=$nuevo['id'];
 			}
+			
 		}
+		$respuesta['idTemporal']=$idTemporal;
+		$respuesta['productos']=$_POST['productos'];
 	
 	break;
 	

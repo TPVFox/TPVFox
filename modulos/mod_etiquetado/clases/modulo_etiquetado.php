@@ -26,7 +26,7 @@ class Modulo_etiquetado{
 	}
 	public function addTemporal($datos, $productos){
 		$respuesta=array();
-		$sql='INSERT INTO `modulo_etiquetado`(`num_lote`, `tipo`,
+		$sql='INSERT INTO `modulo_etiquetado_temporal`(`num_lote`, `tipo`,
 		 `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
 		 `productos`, `idUsuario`) VALUES('.$datos['idReal'].', '.$datos['tipo'].', "'.$datos['fechaEnv'].'",
 		 "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$datos['NumAlb'].', "'.$datos['estado'].'"
@@ -36,13 +36,13 @@ class Modulo_etiquetado{
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
 		}else{
-			$respuesta['id']=$db->insert_id;
+			$respuesta['id']=$smt->insert_id;
 		}
 		return $respuesta;
 	}
 	public function modificarTemporal($datos, $productos, $idTemporal){
 		$respuesta=array();
-		$sql='UPDATE `modulo_etiquetado` SET 
+		$sql='UPDATE `modulo_etiquetado_temporal` SET 
 		`num_lote`='.$datos['idReal'].',`tipo`='.$datos['tipo'].',`fecha_env`="'.$datos['fechaEnv'].'"
 		,`fecha_cad`="'.$datos['fechaCad'].'",`idArticulo`='.$datos['idProducto'].',`numAlb`='.$datos['NumAlb'].'
 		,`estado`="'.$datos['estado'].'",`productos`="'.$productos.'"

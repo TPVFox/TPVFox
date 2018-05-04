@@ -74,7 +74,10 @@ function repetirProducto(unidades){
 function addEtiquetadoTemporal(){
 	var tipo=$("#tipo option:selected").val();
 	var NumAlb=$("#numAlb").val();
-	//~ console.log(tipo);
+	if(NumAlb==""){
+		NumAlb=0;
+	}
+	console.log(productos);
 	var parametros ={
 		'pulsado'	:'addEtiquetadoTemporal',
 		'estado'	: cabecera.estado,
