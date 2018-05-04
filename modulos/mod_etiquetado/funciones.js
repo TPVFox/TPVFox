@@ -36,7 +36,8 @@ function repetirProducto(unidades){
 		'unidades':unidades,
 		'idProducto':cabecera.idProducto,
 		'idTienda': cabecera.idTienda,
-		'fechaCad':cabecera.fechaCad
+		'fechaCad':cabecera.fechaCad,
+		'productos':productos
 		
 	};
 	$.ajax({
@@ -51,7 +52,20 @@ function repetirProducto(unidades){
 				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
 				var filasNuevas = resultado['html'];
 				$("#tabla").prepend(filasNuevas);
-				cabecera.productos=resultado['productos'];
+				console.log(resultado['productos']);
+				productosAdd=resultado['productos'];
+				for (i=0; i<productosAdd.length; i++){
+					var prod = new Object();
+					prod.nombre=productosAdd[i]['nombre'];
+					prod.peso=productosAdd[i]['peso'];
+					prod.precio=productosAdd[i]['precio'];
+					prod.Fecha=productosAdd[i]['Fecha'];
+					prod.NumAlb=productosAdd[i]['NumAlb'];
+					prod.codBarras=productosAdd[i]['codBarras'];
+					prod.estado=productosAdd[i]['estado'];
+					prod.Nfila=productosAdd[i]['Nfila'];
+					productos.push(prod);
+									}
 				
 			}
 		});

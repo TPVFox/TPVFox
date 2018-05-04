@@ -1,15 +1,16 @@
 <?php 
 
-function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad){
+function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd){
 	$CArticulo= new Articulos($BDTpv);
 	$respuesta=array();
 	$datosArticulo=$CArticulo->datosArticulosPrincipal($idProducto, $idTienda);
-	$respuesta['datos']=$datosArticulo;
+	//~ $respuesta['datos']=$datosArticulo;
 	//~ error_log($datosArticulo);
 	$Productos=array();
 	$html="";
-
+	
 	for($i=1;$i<=$veces;$i++){
+		
 		$nuevoProducto=array();
 		$nuevoProducto['nombre']=$datosArticulo['articulo_name'];
 		$nuevoProducto['peso']=1;
@@ -18,7 +19,7 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		$nuevoProducto['NumAlb']="";
 		$nuevoProducto['codBarras']="";
 		$nuevoProducto['estado']='Activo';
-		$nuevoProducto['Nfila']=$i;
+		$nuevoProducto['Nfila']=$numProd+$i;
 		array_push($Productos, $nuevoProducto);
 		
 		if ($nuevoProducto['estado'] !=='Activo'){
@@ -43,6 +44,7 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		 .'<td><input type="text" id="fecha_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['Fecha'].'"></td>'
 		 .'<td><input type="text" id="numAlb_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['NumAlb'].'"></td>'
 		 .'<td><input type="text" id="codBarras_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['codBarras'].'"></td>'
+		 . $btnELiminar_Retornar
 		 .'</tr>';
 		
 	}

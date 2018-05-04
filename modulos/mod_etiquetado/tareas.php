@@ -18,8 +18,12 @@ switch ($pulsado) {
 		$idProducto=$_POST['idProducto'];
 		$idTienda=$_POST['idTienda'];
 		$fechaCad=$_POST['fechaCad'];
-		$htmlProductos=repetirLineasProducto($unidades, $idProducto, $BDTpv, $idTienda, $fechaCad);
-		$respuesta['datos']=$htmlProductos['datos'];
+		$productos=$_POST['productos'];
+		$numProd=count($productos);
+		
+		$htmlProductos=repetirLineasProducto($unidades, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd);
+		//~ $respuesta['datos']=$htmlProductos['datos'];
+		$respuesta['numProd']=$numProd;
 		$respuesta['productos']=$htmlProductos['productos'];
 		$respuesta['html']=$htmlProductos['html'];
 	break;
