@@ -39,6 +39,10 @@ switch ($pulsado) {
 		}
 		if($idTemporal>0){
 			//MOdificar temporal
+			$modif=$CEtiquetado->modificarTemporal($_POST, $productos, $idTemporal);
+			if(isset($modif['error'])){
+				$respuesta['consulta']=$modif['consulta'];
+			}
 		}else{
 			//crear temporal y devolver idTemporal
 			$nuevo=$CEtiquetado->addTemporal($_POST, $productos);

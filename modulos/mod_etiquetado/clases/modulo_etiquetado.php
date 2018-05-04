@@ -40,6 +40,20 @@ class Modulo_etiquetado{
 		}
 		return $respuesta;
 	}
+	public function modificarTemporal($datos, $productos, $idTemporal){
+		$respuesta=array();
+		$sql='UPDATE `modulo_etiquetado` SET 
+		`num_lote`='.$datos['idReal'].',`tipo`='.$datos['tipo'].',`fecha_env`="'.$datos['fechaEnv'].'"
+		,`fecha_cad`="'.$datos['fechaCad'].'",`idArticulo`='.$datos['idProducto'].',`numAlb`='.$datos['NumAlb'].'
+		,`estado`="'.$datos['estado'].'",`productos`="'.$productos.'"
+		,`idUsuario`='.$datos['idUsuario'].' WHERE id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+		}
+		return $respuesta;
+	}
 	
 }
 
