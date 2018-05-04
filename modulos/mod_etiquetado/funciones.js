@@ -51,7 +51,7 @@ function repetirProducto(unidades){
 				console.log('Llegue devuelta repetir productos JS');
 				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
 				var filasNuevas = resultado['html'];
-				$("#tabla").prepend(filasNuevas);
+				$("#tabla").append(filasNuevas);
 				console.log(resultado['productos']);
 				productosAdd=resultado['productos'];
 				for (i=0; i<productosAdd.length; i++){
