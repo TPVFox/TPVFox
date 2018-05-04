@@ -83,10 +83,14 @@
 		<h2 class="text-center"> <?php echo $titulo;?></h2>
 		<form action="" method="post" name="formEtiqueta" onkeypress="return anular(event)">
 			<div class="col-md-12">
-				<div class="col-md-12 btn-toolbar">
-					<a class="text-ritght" href="./../mod_producto/ListaProductos.php">Volver Atrás</a>
-					<input type="submit" name="Guardar" value="Guardar">
-					<input type="submit" name="Cancelar" value="Cancelar">
+				<div class="col-md-12 ">
+					<div class="col-md-8">
+						<a href="./../mod_producto/ListaProductos.php">Volver Atrás</a>
+						<input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
+					</div>
+					<div class="col-md-4">
+						<input type="submit" class="pull-right btn btn-danger" name="Cancelar" value="Cancelar">
+					</div>
 				</div>
 				
 				<div class="col-md-12">
