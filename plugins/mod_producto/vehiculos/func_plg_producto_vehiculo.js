@@ -126,3 +126,28 @@ function  GuardoVehiculoSeleccionado(vehiculo,recambios){
 	});
 	
 }
+
+function EliminarVehiculoSeleccionado(event,item,dedonde){
+	// Objetivo .
+	// Eliminar un determinado vehiculo seleccionado.
+	var parametros = {
+		"pulsado" :  'EliminarVehiculoSeleccionado',
+		"item_vehiculo"    : item,
+	};
+	$.ajax({
+		data       : parametros,
+		url        : ruta_plg_vehiculos+'tareas_vehiculos.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Eliminar datos del vehiculo seleccionado ****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta despues eliminar vehiculo seleccionado');
+			var resultado =  $.parseJSON(response);
+			console.log(resultado);
+			location.href =dedonde;
+			
+		}
+	});
+	
+}

@@ -52,8 +52,9 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.'<div class="row" id="SeleccionarVersion">'
 				.'<div id="vehiculos_seleccionados">';
 		if (isset($_SESSION['coches_seleccionados'])){
-			foreach ($_SESSION['coches_seleccionados'] as $coche){
-				$html.= $coche;
+			foreach ($_SESSION['coches_seleccionados'] as $key=>$coche){
+				$html.= $this->HtmlVehiculo($coche,$key);
+
 			}
 		}
 		$html  .='</div>'
@@ -224,7 +225,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 		return $resultado;
 	}
 	
-	public function HtmlVehiculo($vehiculo,$n_Recambios){
+	public function HtmlVehiculo($vehiculo,$item){
 		$html = '<div class="col-md-12">'
 				.'<div class="alert alert-success">'
 				.'<span>'
@@ -237,12 +238,27 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.' '.$vehiculo['modelo']
 				.'</span>'
 				.'<span>'
-				.' '.$vehiculo['nombre']
-				.'</span>'
+				.' Version:'.$vehiculo['nombre']
+				.'</span> '
+				.'<span class="label label-success">'
+				.' CV/KW:'.$vehiculo['cv'].'/'.$vehiculo['kw']
+				.'</span> '
+				.'<span class="label label-success">'
+				.' cm3:'.$vehiculo['cm3']
+				.'</span> '
+				.'<span class="label label-success">'
+				.' combustible:'.$vehiculo['combustible']
+				.'</span> '
+				.'<span class="label label-success">'
+				.' Inicio Fabricacion:'.$vehiculo['fecha_inicial']
+				.'</span> '
+				.'<span class="label label-success">'
+				.' Fin Fabricacion:'.$vehiculo['fecha_final']
+				.'</span> '
 				.'<span>'
-				.'----> Numero recambios('.$n_Recambios.') '
+				.'----> Numero recambios('.count($vehiculo['Recambios']).') '
 				.'</span>'
-				
+				.'<button class="btn btn-primary eliminar_item" onclick="EliminarVehiculoSeleccionado(event,'."'".$item."'".','."'".$this->dedonde."'".')"><span class="glyphicon glyphicon-trash"></span></button>'
 				.'</div>'
 				.'</div>';
 		return $html;

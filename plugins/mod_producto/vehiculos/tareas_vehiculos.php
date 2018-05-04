@@ -22,57 +22,75 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
 include ($RutaServidor.$HostNombre."/plugins/mod_producto/vehiculos/ClaseVehiculos.php");
 $ObjVehiculos = new PluginClaseVehiculos();
 
-switch ($pulsado) {
+	switch ($pulsado) {
 
-	case 'BuscarModelos':
-		$idMarca = $_POST['idMarca'];
-		$respuesta = array();
+		case 'BuscarModelos':
+			$idMarca = $_POST['idMarca'];
+			$respuesta = array();
+			
+			$datosModelosUnaMarca = $ObjVehiculos->ObtenerModelosUnaMarcaWeb($idMarca);
+			$respuesta['options']= $datosModelosUnaMarca['Datos']['options_html'];
+		break;
 		
-		$datosModelosUnaMarca = $ObjVehiculos->ObtenerModelosUnaMarcaWeb($idMarca);
-		$respuesta['options']= $datosModelosUnaMarca['Datos']['options_html'];
-		echo json_encode($respuesta);
-	break;
-	
-	case 'BuscarVersionVehiculo':
-		$idModelo = $_POST['idModelo'];
-		$respuesta = array();
+		case 'BuscarVersionVehiculo':
+			$idModelo = $_POST['idModelo'];
+			$respuesta = array();
+			
+			$datosVersionesUnModelo = $ObjVehiculos->ObtenerVersionesUnModeloWeb($idModelo);
+			$respuesta['options']= $datosVersionesUnModelo['Datos']['options_html'];
+		break;
 		
-		$datosVersionesUnModelo = $ObjVehiculos->ObtenerVersionesUnModeloWeb($idModelo);
-		$respuesta['options']= $datosVersionesUnModelo['Datos']['options_html'];
-		echo json_encode($respuesta);
-	break;
-	
-	case 'BuscarVehiculo':
-		$idVersion = $_POST['idVersion'];
-		$respuesta = array();
-		
-		$datosUnVehiculo = $ObjVehiculos->ObtenerUnVehiculo($idVersion);
-		$respuesta= $datosUnVehiculo;
-		echo json_encode($respuesta);
-	break;
+		case 'BuscarVehiculo':
+			$idVersion = $_POST['idVersion'];
+			$respuesta = array();
+			
+			$datosUnVehiculo = $ObjVehiculos->ObtenerUnVehiculo($idVersion);
+			$respuesta= $datosUnVehiculo;
+		break;
 
-	case 'GuardarVehiculoSeleccionado':
-		$vehiculo = $_POST['datosVehiculo'];
-		$idRecambios = $_POST['idRecambios'];
-		$respuesta = array();
-		if (!isset($_SESSION['productos_seleccionados'])){
-			$_SESSION['productos_seleccionados'] = array();
-		}
-		foreach ($idRecambios as $id){
-			$_SESSION['productos_seleccionados'][] =  $id;
-		};
-		$htmlVehiculo = $ObjVehiculos->HtmlVehiculo($vehiculo[0],count($idRecambios));
-		// Ahora añado a session el coche seleccionado.
-		if (!isset($_SESSION['coches_seleccionados'])){
-			$_SESSION['coches_seleccionados'] = array();
-		}
-		$_SESSION['coches_seleccionados'][] = $vehiculo ;
-		$respuesta['html']= $htmlVehiculo;
-		echo json_encode($respuesta);
-	break;
-	
-}
-
+		case 'GuardarVehiculoSeleccionado':
+			$vehiculo = $_POST['datosVehiculo'];
+			$idRecambios = $_POST['idRecambios'];
+			$respuesta = array();
+			if (!isset($_SESSION['productos_seleccionados'])){
+				$_SESSION['productos_seleccionados'] = array();
+			}
+			foreach ($idRecambios as $id){
+				$_SESSION['productos_seleccionados'][] =  $id;
+			};
+			// Ahora añado a session el coche seleccionado.
+			if (!isset($_SESSION['coches_seleccionados'])){
+				$_SESSION['coches_seleccionados'] = array();
+			}
+			$vehiculo[0]['Recambios'] = $idRecambios;
+			$_SESSION['coches_seleccionados'][] = $vehiculo[0] ;
+			
+		break;
+		
+		case 'EliminarVehiculoSeleccionado':
+			$item_vehiculo = $_POST['item_vehiculo'];
+			if ( isset($_SESSION['coches_seleccionados'][$item_vehiculo])){
+			    $vehiculo = $_SESSION['coches_seleccionados'][$item_vehiculo];
+			    
+			    if (count($vehiculo['Recambios'])>0){
+					// Eliminamos los recambios de ese vehiculo.
+					foreach ($vehiculo['Recambios'] as $valor){
+						$index =array_search($valor, $_SESSION['productos_seleccionados']);
+						if (gettype($index) !== 'boolean'){
+							unset($_SESSION['productos_seleccionados'][$index]);
+						}
+					}
+					
+				}
+				unset($_SESSION['coches_seleccionados'][$item_vehiculo]);
+			$respuesta['eliminado_vehiculo'] = $item_vehiculo;
+			}
+			
+		break;
+		
+	}
+// Devolvemos.
+echo json_encode($respuesta);
 
  
 ?>
