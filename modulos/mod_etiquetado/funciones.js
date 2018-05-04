@@ -49,7 +49,7 @@ function repetirProducto(unidades){
 			},
 			success    :  function (response) {
 				console.log('Llegue devuelta repetir productos JS');
-				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
+				var resultado =  $.parseJSON(response); 
 				var filasNuevas = resultado['html'];
 				$("#tabla").append(filasNuevas);
 				console.log(resultado['productos']);
@@ -66,11 +66,15 @@ function repetirProducto(unidades){
 					prod.Nfila=productosAdd[i]['Nfila'];
 					productos.push(prod);
 				}
+				addEtiquetadoTemporal()
 				
 			}
 		});
 }
 function addEtiquetadoTemporal(){
+	var tipo=$("#tipo option:selected").val();
+	var NumAlb=$("#numAlb").val();
+	//~ console.log(tipo);
 	var parametros ={
 		'pulsado'	:'addEtiquetadoTemporal',
 		'estado'	: cabecera.estado,
@@ -78,6 +82,25 @@ function addEtiquetadoTemporal(){
 		'idReal'	: cabecera.idReal,
 		'fechaEnv'	: cabecera.fechaEnv,
 		'fechaCad'	: cabecera.fechaCad,
-		'idProducto': cabecera.idProducto
+		'idProducto': cabecera.idProducto,
+		'idUsuario'	: cabecera.idUsuario,
+		'tipo'		: tipo,
+		'NumAlb'	: NumAlb,
+		'productos'	: productos
 	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** repetir productos JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta repetir productos JS');
+				var resultado =  $.parseJSON(response);
+				
+				
+			}
+		});
+	
 }

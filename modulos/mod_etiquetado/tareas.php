@@ -22,15 +22,35 @@ switch ($pulsado) {
 		if(isset($_POST['productos'])){
 			$numProd=count($_POST['productos']);
 		}
-		//~ $productos=$_POST['productos'];
-		//~ $numProd=count($productos);
-		
 		$htmlProductos=repetirLineasProducto($unidades, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd);
-		//~ $respuesta['datos']=$htmlProductos['datos'];
 		$respuesta['numProd']=$numProd;
 		$respuesta['productos']=$htmlProductos['productos'];
 		$respuesta['html']=$htmlProductos['html'];
 	break;
+	case 'addEtiquetadoTemporal':
+		$idTemporal=0;
+		$productos=array();
+		if(isset($_POST['productos'])){
+			$productos=$_POST['productos'];
+		}
+		$productos=json_decode($productos);
+		if(isset($_POST['idTemporal'])){
+			$idTemporal=$_POST['idTemporal'];
+		}
+		if($idTemporal>0){
+			//MOdificar temporal
+		}else{
+			//crear temporal y devolver idTemporal
+			$nuevo=$CEtiquetado->addTemporal($_POST, $productos);
+			if(isset($nuevo['error'])){
+				$respuesta['consulta']=$nuevo['consulta'];
+			}else{
+				$idTemporal=$nuevo['id'];
+			}
+		}
+	
+	break;
+	
 	
 }
  echo json_encode($respuesta);
