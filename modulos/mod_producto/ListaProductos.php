@@ -20,9 +20,9 @@
 				}
 			}
 		}
-	echo '<pre>';
-	print_r($ObjVersiones);
-	echo '</pre>';
+	//~ echo '<pre>';
+	//~ print_r($ObjVersiones);
+	//~ echo '</pre>';
 
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$Controler = new ControladorComun; // Controlado comun..
