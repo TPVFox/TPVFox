@@ -133,7 +133,7 @@ $titulo .= ' '.$textoNum.': '.$estado;
 						. '</div>';
 					
 				}else{
-					header('Location: facturasListado.php');
+					header('Location: pedidosListado.php');
 				}
 			}else{
 				if (isset($_POST['idTemporal'])){
@@ -361,7 +361,7 @@ if ($idCliente===0){
 			<div class="col-md-7">
 				<div class="col-md-6">
 					<strong>Fecha Pedido:</strong><br/>
-					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" <?php echo $disabled;?>>
+					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy" <?php echo $disabled;?>>
 				</div>
 				<div class="col-md-6">
 					<strong>Estado:</strong>
