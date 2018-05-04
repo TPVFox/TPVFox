@@ -10,6 +10,7 @@
 include_once './../../inicial.php';
 
 require_once './../mod_producto/clases/ClaseArticulos.php';
+require_once './clases/claseTarifaCliente.php';
 
 function datos2Html($datos) {
     $html = '<table class="table table-striped">';
@@ -54,7 +55,8 @@ return (($nItems-$resto) / $itemsPerPage) + 1;
 
 $caja = $_POST['caja'];
 $usarlike = $_POST['usarlike'];
-$valor = $_POST['valor'];
+$valor = $_POST['valor'];  
+$idcliente = isset($_POST['idcliente']) ? $_POST['idcliente'] : 0;
 $idtienda = isset($POST['idtienda']) ? $POST['idtienda'] : 1;
 $paginaBuscar = isset($_POST['pagina']) ? $_POST['pagina'] : 1;
         
@@ -65,18 +67,21 @@ $contador = 0;
 
 if ($caja) {
     switch ($caja) {
-        case 'idArticulo':
-            $articulo = (new alArticulos($BDTpv))->leerPrecio($valor);
-
-            if ($articulo) {
-//                if (count($articulo['datos']) == 1) {
-//                    $articulo['datos'] = $articulo['datos'][0];
-//                }
+        case 'idpreciocliente':
+            $articulo = (new TarifaCliente($BDTpv))->leerPrecio($idcliente, $valor);
+            if ($articulo) {                
                 $articulos = $articulo;
             }
             break;
 
-        case 'Referencia':
+        case 'idArticulo':
+            $articulo = (new alArticulos($BDTpv))->leerPrecio($valor);
+            if ($articulo) {
+                $articulos = $articulo;
+            }
+            break;
+
+            case 'Referencia':
             $articulo = new alArticulos($BDTpv);
             if ($usarlike === 'si') {
                 $contador = $articulo->contarLikeReferencia($valor, $idtienda);

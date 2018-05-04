@@ -12,7 +12,7 @@ include_once './../../inicial.php';
 
 include_once './../../clases/cliente.php';
 
-require_once 'claseTarifaCliente.php';
+require_once './clases/claseTarifaCliente.php';
 
 $idcliente = $_GET['id'];
 
@@ -124,14 +124,14 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                             <td><input type="text" disabled="disabled" name="descripcion" 
                                        id="inputDescripcion" /></td>
                             <td><input type="text" placeholder="Precio sin iva" class="al-editiva"
-                                       name="precioSiva" id="inputPrecioSin"
+                                       name="precioSiva" id="inputPrecioSin" style="text-align: right"
                                        data-obj="inputPrecioSin" data-result="inputPrecioCon" 
                                        data-factor="*" data-percent="inputIVA"
                                        /></td>
                             <td><input type="text" placeholder="% iva" name="ivaArticulo" 
-                                       disabled="disabled" id="inputIVA" /></td>
+                                       disabled="disabled" id="inputIVA" style="text-align: right" /></td>
                             <td><input type="text" placeholder="precio con iva" class="al-editiva"
-                                       name="precioCiva" id="inputPrecioCon" 
+                                       name="precioCiva" id="inputPrecioCon" style="text-align: right"
                                        data-obj="inputPrecioCon" data-result="inputPrecioSin" 
                                        data-factor="/" data-percent="inputIVA"
                                        /></td>
@@ -150,9 +150,9 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                             <th>L</th>
                             <th>Id Articulo</th>
                             <th>Descripcion</th>
-                            <th>Precio S/IVA</th>
-                            <th>% IVA</th>
-                            <th>Precio C/IVA</th>
+                            <th style="text-align: right">Precio S/IVA</th>
+                            <th style="text-align: right">% IVA</th>
+                            <th style="text-align: right">Precio C/IVA</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -163,9 +163,9 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                             echo '<td> L </td>';
                             echo '<td>' . $tarifaCliente['idArticulo'] . '</td>';
                             echo '<td>' . $tarifaCliente['descripcion'] . '</td>';
-                            echo '<td>' . $tarifaCliente['pvpSiva'] . '</td>';
-                            echo '<td>' . $tarifaCliente['ivaArticulo'] . '</td>';
-                            echo '<td>' . $tarifaCliente['pvpCiva'] . '</td>';
+                            echo '<td style="text-align: right">' . number_format($tarifaCliente['pvpSiva'],2, '.', '') . '</td>';
+                            echo '<td style="text-align: right">' . number_format($tarifaCliente['ivaArticulo'],2, '.', '') . '</td>';
+                            echo '<td style="text-align: right">' . number_format($tarifaCliente['pvpCiva'],2, '.', '') . '</td>';
                             echo '<td><button name="btn-grabar-tc" data-idarticulo=' . $tarifaCliente['idArticulo'] . ' data-idcliente=' . $tarifaCliente['idClientes']
                             . ' class="btn btn-primary btn-sm art-modificar"><span class="glyphicon'
                             . ' glyphicon-pencil"></span> modificar</button> '

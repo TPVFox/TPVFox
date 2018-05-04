@@ -10,7 +10,7 @@
 
 include_once './../../inicial.php';
 
-require_once 'claseTarifaCliente.php';
+require_once './clases/claseTarifaCliente.php';
 
 $idarticulo = $_POST['idarticulo'];
 $pvpSiva = $_POST['pvpSiva'];
@@ -29,7 +29,7 @@ if ($existetarifa) {
         , 'pvpSiva' => $pvpSiva
         , 'pvpCiva' => $pvpCiva
         , 'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
-        'estado'=>'1'
+        'estado'=>K_TARIFACLIENTE_ESTADO_ACTIVO
     ]);
 } else {
     $resultado = $tarifaCliente->insert( [
@@ -38,7 +38,7 @@ if ($existetarifa) {
         'pvpSiva' => $pvpSiva,
         'pvpCiva' => $pvpCiva,
         'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
-        'estado' => '1'
+        'estado' => K_TARIFACLIENTE_ESTADO_ACTIVO
     ]);
 }
 echo json_encode($resultado);

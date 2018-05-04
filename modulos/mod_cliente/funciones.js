@@ -48,9 +48,9 @@ function controladorAcciones(caja, accion) {
             response = response[0];
             $('#inputIdArticulo').val(response['idArticulo']);
             $('#inputDescripcion').val(response['descripcion']);
-            $('#inputPrecioSin').val(response['pvpSiva']);
+            $('#inputPrecioSin').val(parseFloat(response['pvpSiva']).toFixed(2));
             $('#inputIVA').val(response['ivaArticulo']);
-            $('#inputPrecioCon').val(response['pvpCiva']);
+            $('#inputPrecioCon').val(parseFloat(response['pvpCiva']).toFixed(2));
             $('#idcliente').val(idCliente);
             $('#formulario').show();
             $('#inputPrecioSin').focus();
@@ -82,7 +82,7 @@ function leerArticulo(parametros, callback) {
     $('#campoabuscar').val(parametros.caja);
     $('#cajaBusqueda').val(parametros.valor);
 //    $('#inputPaginaModal').val(1);
-                borrarInputsFiltro();
+    borrarInputsFiltro();
 
     $.ajax({
         data: parametros,

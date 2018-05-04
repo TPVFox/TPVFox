@@ -19,18 +19,19 @@ class TarifaCliente extends modelo {
                 . ', art.articulo_name as descripcion '
                 . 'FROM articulosClientes AS artcli'
                 . ' LEFT OUTER JOIN articulos AS art ON (artcli.idArticulo = art.idArticulo)'
-                . ' WHERE artcli.idClientes=' . $idcliente .' AND artcli.estado= 1'
+                . ' WHERE artcli.idClientes=' . $idcliente .' AND artcli.estado= '.K_TARIFACLIENTE_ESTADO_ACTIVO
                 . ' ORDER BY artcli.fechaActualizacion DESC, art.articulo_name';
         return $this->consulta($sql);
     }
 
-    public function leerArticulo($idcliente, $idarticulo) {
+    public function leerPrecio($idcliente, $idarticulo) {
         $sql = 'SELECT artcli.*'
                 . ', art.iva as ivaArticulo '
                 . ', art.articulo_name as descripcion '
                 . 'FROM articulosClientes AS artcli'
                 . ' LEFT OUTER JOIN articulos AS art ON (artcli.idArticulo = art.idArticulo)'
-                . ' WHERE artcli.idClientes=' . $idcliente .' AND artcli.idArticulo=' . $idarticulo;
+                . ' WHERE artcli.idClientes=' . $idcliente .' AND artcli.idArticulo=' . $idarticulo
+                . ' LIMIT 1 ';
         return $this->consulta($sql);
     }
 
@@ -68,7 +69,7 @@ class TarifaCliente extends modelo {
 
         $consulta = $this->consultaDML($sql);
 
-        return $consulta['error'];
+        return $consulta; //['error'];
     }
 
     public function insert($datos) {

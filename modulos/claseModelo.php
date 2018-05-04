@@ -10,6 +10,8 @@
 
 define('ARTICULOS_MAXLINPAG', 12);
 
+define('K_TARIFACLIENTE_ESTADO_ACTIVO', '1');
+define('K_TARIFACLIENTE_ESTADO_BORRADO', '2');
 
 
 /**

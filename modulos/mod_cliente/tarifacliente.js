@@ -14,8 +14,8 @@ $(function () {
 
         var parametros = {
             idarticulo: $('#inputIdArticulo').val(),
-            pvpSiva: $('#inputPrecioSin').val(),
-            pvpCiva: $('#inputPrecioCon').val(),
+            pvpSiva: parseFloat($('#inputPrecioSin').val()).toFixed(2),
+            pvpCiva: parseFloat($('#inputPrecioCon').val()).toFixed(2),
             idcliente: $('#id_cliente').val()
         };
 
@@ -52,31 +52,32 @@ $(function () {
         event.preventDefault();
 
         var result = $('#' + $(event.target).data('result'));
-        var obj = $('#' + $(event.target).data('obj')).val();
+        var obj = parseFloat($('#' + $(event.target).data('obj')).val()).toFixed(2);
+        $('#' + $(event.target).data('obj')).val(obj);
         var percent = $('#' + $(event.target).data('percent')).val();
         var factor = $(event.target).data('factor');
 
         var valor = eval(obj + factor + (1 + (percent / 100)));
-        result.val(valor);
+        result.val(valor.toFixed(2));
     });
 
     $(".art-modificar").button().on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
 
-        var caja = 'idArticulo';
+        var caja = 'idpreciocliente';
         var valor = $(event.target).data('idarticulo');
         var idcliente = $(event.target).data('idcliente');
 
         var callback = function (respuesta) {
             var obj = JSON.parse(respuesta);
-            var response = obj.datos;
+            var response = obj.datos[0];
             var idCliente = $('#id_cliente').val();
             $('#inputIdArticulo').val(response['idArticulo']);
             $('#inputDescripcion').val(response['descripcion']);
-            $('#inputPrecioSin').val(response['pvpSiva']);
+            $('#inputPrecioSin').val(parseFloat(response['pvpSiva']).toFixed(2));
             $('#inputIVA').val(response['ivaArticulo']);
-            $('#inputPrecioCon').val(response['pvpCiva']);
+            $('#inputPrecioCon').val(parseFloat(response['pvpCiva']).toFixed(2));
             $('#idcliente').val(idCliente);
             $('#formulario').show();
             $('#inputPrecioSin').focus();
@@ -170,9 +171,9 @@ function buscarArticulos() {
                         $('#busquedaModal').modal('hide');
                         $('#inputIdArticulo').val(response['idArticulo']);
                         $('#inputDescripcion').val(response['descripcion']);
-                        $('#inputPrecioSin').val(response['pvpSiva']);
+                        $('#inputPrecioSin').val(parseFloat(response['pvpSiva']).toFixed(2));
                         $('#inputIVA').val(response['ivaArticulo']);
-                        $('#inputPrecioCon').val(response['pvpCiva']);
+                        $('#inputPrecioCon').val(parseFloat(response['pvpCiva']).toFixed(2));
                         $('#idcliente').val(idCliente);
                         $('#formulario').show();
                         $('#inputPrecioSin').focus();

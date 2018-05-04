@@ -10,7 +10,7 @@
 
 include_once './../../inicial.php';
 
-require_once 'claseTarifaCliente.php';
+require_once './clases/claseTarifaCliente.php';
 
 $idarticulo = $_POST['idarticulo'];
 $idcliente = $_POST['idcliente'];
@@ -24,7 +24,7 @@ $existetarifa = $tarifaCliente->existeArticulo($idcliente, $idarticulo);
 if ($existetarifa) {
     $resultado = $tarifaCliente->update($idcliente, $idarticulo, [
         'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
-        'estado'=>'2'
+        'estado'=> K_TARIFACLIENTE_ESTADO_BORRADO
     ]);
 }
 
