@@ -357,10 +357,15 @@ if ($idCliente==0){
 			<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+				<div class="col-md-12">
+				<div class="col-md-8" >
 			<a  href="./facturasListado.php">Volver Atrás</a>
 			
-					<input type="submit" value="Guardar" id="Guardar" name="Guardar">
-					<input type="submit" value="Cancelar" id="Cancelar" name="Cancelar">
+					<input type="submit"  class="btn btn-primary" value="Guardar" id="Guardar" name="Guardar">
+					</div>
+				<div class="col-md-4 " >
+					<input type="submit" class="pull-right btn btn-danger" value="Cancelar" id="Cancelar" name="Cancelar">
+					</div>
 					<?php
 				if ($idFacturaTemporal>0){
 					?>
