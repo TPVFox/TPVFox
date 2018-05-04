@@ -233,9 +233,14 @@ if (isset($_GET['tActual'])){
 		<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idAlbaran ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+				<div class="col-md-12">
+				<div class="col-md-8" >
 					<a  href="./albaranesListado.php">Volver Atrás</a>
-					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
-					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
+					<input  class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+					</div>
+				<div class="col-md-4 " >
+					<input type="submit"  class="pull-right btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
+					</div>
 					<?php
 					if (isset($idAlbaranTemporal)){
 				if ($idAlbaranTemporal>0){
