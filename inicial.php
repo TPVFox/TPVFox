@@ -22,7 +22,7 @@ define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 		
 	}
 	
-	include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
+	//~ include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
 	//incluyo ruta del controlador de sesion (funcion php)
     //~ include_once ($URLCom. "/clases/ComprobarSession.php");
     include_once ($URLCom. "/clases/ClaseSession.php");

@@ -126,16 +126,16 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                             <td><input type="text" placeholder="Precio sin iva" class="al-editiva"
                                        name="precioSiva" id="inputPrecioSin" style="text-align: right"
                                        data-obj="inputPrecioSin" data-result="inputPrecioCon" 
-                                       data-factor="*" data-percent="inputIVA"
+                                       data-factor="*" data-percent="inputIVA" onkeydown="controlEventos(event)"
                                        /></td>
                             <td><input type="text" placeholder="% iva" name="ivaArticulo" 
-                                       disabled="disabled" id="inputIVA" style="text-align: right" /></td>
+                                       readonly id="inputIVA" style="text-align: right" /></td>
                             <td><input type="text" placeholder="precio con iva" class="al-editiva"
                                        name="precioCiva" id="inputPrecioCon" style="text-align: right"
                                        data-obj="inputPrecioCon" data-result="inputPrecioSin" 
-                                       data-factor="/" data-percent="inputIVA"
+                                       data-factor="/" data-percent="inputIVA" onkeydown="controlEventos(event)"
                                        /></td>
-                            <td><button id="btn-grabar-tc" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-ok"></span> grabar</button> 
+                            <td><button id="btn-grabar-tc" onclick="controlEventos(event)" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-ok"></span> grabar</button> 
                                 <button id="btn-cancelar-tc" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove"></span> cancelar</button></td>
                         </tr>
                     </table>

@@ -3,7 +3,6 @@
 	<configuracion>
 		<incidencias descripcion="mostrar_Select" dedonde="cliente">Si</incidencias>
 		<incidencias descripcion="usuario_Defecto" dedonde="cliente">1</incidencias>
-		
 	</configuracion>
 	<cajas_input data-obj="id_input">
 		<caja_input>
@@ -42,6 +41,18 @@
 				<action tecla="13">buscarProducto</action>
 			</teclas>
 		</caja_input>
+		<caja_input>
+			<nombre id_input="inputPrecioSin">inputPrecioSin</nombre>
+			<teclas>
+				<action tecla="13">saltar_preciosCon</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="inputPrecioCon">inputPrecioCon</nombre>
+			<teclas>
+				<action tecla="13">grabarArticulo</action>
+			</teclas>
+		</caja_input>
+		
 	</cajas_input>
-
 </parametros>

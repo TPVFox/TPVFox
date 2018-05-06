@@ -8,7 +8,6 @@
  */
 
 
-include_once './../../inicial.php';
 
 require_once './clases/claseTarifaCliente.php';
 
@@ -41,6 +40,5 @@ if ($existetarifa) {
         'estado' => K_TARIFACLIENTE_ESTADO_ACTIVO
     ]);
 }
-echo json_encode($resultado);
 
 

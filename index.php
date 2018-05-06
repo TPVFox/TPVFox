@@ -10,8 +10,7 @@
 <html>
 <head>
 <?php
-	include 'head.php';
-?>
+	include 'head.php';?>
 </head>
 <body>
 	<?php 

@@ -142,8 +142,13 @@
 		}
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
-		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);		
+		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
+		
+		
+		
+		
 		?>
+
      
 		<div class="container">
 				
