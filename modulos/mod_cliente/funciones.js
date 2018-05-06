@@ -11,6 +11,8 @@ var callback = function (respuesta) {
         var response = obj.datos;
         var idCliente = $('#id_cliente').val();
         if (response.length == 1) {
+			// Si hay respuesta mostramos caja de entrada precios.
+			$('#cjas_precios').removeAttr( 'style' );
             response = response[0];
             $('#inputIdArticulo').val(response['idArticulo']);
             $('#inputDescripcion').val(response['descripcion']);
