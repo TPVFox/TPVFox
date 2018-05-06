@@ -1,18 +1,18 @@
 $(function () {
 
 
-    $("#btn-cancelar-tc").button().on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+    //~ $("#btn-cancelar-tc").button().on("click", function (event) {
+        //~ event.stopPropagation();
+        //~ event.preventDefault();
 
-        $('#inputIdArticulo').val('');
-        $('#inputPrecioSin').val('');
-        $('#inputPrecioCon').val('');
-//        $('#id_cliente').val('');
+        //~ $('#inputIdArticulo').val('');
+        //~ $('#inputPrecioSin').val('');
+        //~ $('#inputPrecioCon').val('');
+//~ //        $('#id_cliente').val('');
 
-        $('#formulario').hide();
-        $('#idArticulo').focus();
-    });
+        //~ $('#formulario').hide();
+        //~ $('#idArticulo').focus();
+    //~ });
 
     //~ $(".al-editiva").blur(function (event) {
 

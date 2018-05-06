@@ -53,6 +53,27 @@
 				<action tecla="13">grabarArticulo</action>
 			</teclas>
 		</caja_input>
+		<caja_input>
+			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
+			<nombre id_input="btn-grabar-tc">btn_grabar_tc</nombre>
+			<teclas>
+				<action tecla="13">grabarArticulo</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
+			<nombre id_input="btn-grabar-tc">btn_cancelar_tc</nombre>
+			<teclas>
+				<action tecla="13">cancelarAnhadir</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
+			<nombre id_input="btn_modificar">btn_modificar</nombre>
+			<teclas>
+				<action tecla="13">modificarArticulo</action>
+			</teclas>
+		</caja_input>
 		
 	</cajas_input>
 </parametros>

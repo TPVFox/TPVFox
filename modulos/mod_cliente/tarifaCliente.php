@@ -55,7 +55,6 @@ echo '</pre>';
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/jquery.bootpag.min.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
-        <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_cliente/tarifacliente.js"></script>
         <script type="text/javascript">
             // Objetos cajas de tpv
 <?php echo $VarJS; ?>
@@ -109,7 +108,7 @@ echo '</pre>';
 				</div>
 			</div>
             <div class="row">
-                <div id="formulario">                   
+                <div>                   
                     <table id="tabla" class="table">
 						<thead>
 							<tr>
@@ -122,7 +121,7 @@ echo '</pre>';
 								<th><!--cjas btn --></th>
 							</tr>
 							
-							<tr id="cjas_precios" style="display:none;">
+							<tr id="formulario" style="display:none;">
 								<td></td>
 								<td>
 									<input type="text" placeholder="id" name="idArticulo" size ="6"
@@ -151,10 +150,10 @@ echo '</pre>';
 										   />
 								</td>
 								<td>
-									<button id="btn-grabar-tc" onclick="controlEventos(event)" class="btn btn-primary btn-sm">
+									<button id="btn-grabar-tc" data-obj="btn_grabar_tc" onclick="controlEventos(event)" class="btn btn-primary btn-sm">
 										<span class="glyphicon glyphicon-ok"></span> grabar
 									</button> 
-									<button id="btn-cancelar-tc" class="btn btn-danger btn-sm">
+									<button id="btn-cancelar-tc" data-obj="btn_cancelar_tc" onclick="controlEventos(event)"class="btn btn-danger btn-sm">
 										<span class="glyphicon glyphicon-remove"></span> cancelar
 									</button>
 								</td>
@@ -171,9 +170,11 @@ echo '</pre>';
 								echo '<td style="text-align: right">' . number_format($tarifaCliente['ivaArticulo'],2, '.', '') . '</td>';
 								echo '<td style="text-align: right">' . number_format($tarifaCliente['pvpCiva'],2, '.', '') . '</td>';
 								echo '<td>'
-									.'<button name="btn-grabar-tc" data-idarticulo=' 
+									.'<button name="btn_modificar" data-idarticulo=' 
 									. $tarifaCliente['idArticulo'] . ' data-idcliente=' 
-									. $tarifaCliente['idClientes'] . ' class="btn btn-primary btn-sm art-modificar">'
+									. $tarifaCliente['idClientes'] . ' data-obj="btn_modificar"'
+									. 'onclick="controlEventos(event)"'
+									. ' class="btn btn-primary btn-sm art-modificar">'
 									.' <span class="glyphicon glyphicon-pencil"></span>'
 									.' modificar</button> '
 									.' <button name="btn-cancelar-tc" data-idarticulo=' 

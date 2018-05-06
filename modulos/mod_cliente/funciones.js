@@ -12,7 +12,7 @@ var callback = function (respuesta) {
         var idCliente = $('#id_cliente').val();
         if (response.length == 1) {
 			// Si hay respuesta mostramos caja de entrada precios.
-			$('#cjas_precios').removeAttr( 'style' );
+			$('#formulario').removeAttr( 'style' );
             response = response[0];
             $('#inputIdArticulo').val(response['idArticulo']);
             $('#inputDescripcion').val(response['descripcion']);
@@ -104,6 +104,14 @@ function controladorAcciones(caja, accion) {
 			grabarArticulo(caja);
 			$('#cajaidArticulo').focus();
 			break;
+		
+		case 'cancelarAnhadir':
+			console.log('vamos cancelar');
+			cancelarAnhadir();
+			break;
+		
+		case 'modificarArticulo':
+			console.log(caja);
 			
         default :
             console.log('Accion no encontrada ' + accion);
@@ -314,4 +322,13 @@ function ponerFocusCajasEntradas(caja_name){
 	
 		
 	console.log(caja_name);
+}
+
+function cancelarAnhadir(){
+	$('#inputIdArticulo').val('');
+    $('#inputPrecioSin').val('');
+    $('#inputPrecioCon').val('');
+    $('#formulario').hide();
+	$('#idArticulo').focus();
+	
 }
