@@ -57,7 +57,7 @@
 			$etiquetasFiltro=$CEtiquetas->todasEtiquetasLimite($filtro);
 			if (isset($etiquetasFiltro['error'])){
 				$errores[1]=array ( 'tipo'=>'Danger!',
-										 'dato' => $incidenciasFiltro['consulta'],
+										 'dato' => $etiquetasFiltro['consulta'],
 										 'class'=>'alert alert-danger',
 										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 										 );
@@ -92,11 +92,36 @@
 					</ul>
 					<h4 class="text-center"> Lotes Abiertos</h4>
 					<table class="table table-striped">
-						
+						<thead>
+							<th>Lote</th>
+							<th>Fecha</th>
+							<th>Producto</th>
+						</thead>
 					</table>
-					<div class="col-md-12">
-					</div>
 				</nav>
+				<div class="col-md-8">
+					<p>
+					 -Lotes de etiquetas encontrados  BD local filtrados:
+						<?php echo $CantidadRegistros; ?>
+					</p>
+					<?php 	// Mostramos paginacion 
+						echo $htmlPG;
+				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
+					?>
+					<table class="table table-bordered table-hover">
+						<thead>
+					<tr>
+						<th></th>
+						<th>Nª LOTE</th>
+						<th>PRODUCTO</th>
+						<th>FECHA ENV</th>
+						<th>FECHA CAD</th>
+						<th>ESTADO</th>
+						<th>IMPRIMIR</th>
+					</tr>
+				</thead>
+					</table>
+					</div>
 			</div>
 		</div>	
 

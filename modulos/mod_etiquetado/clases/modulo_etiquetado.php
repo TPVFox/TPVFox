@@ -57,8 +57,8 @@ class Modulo_etiquetado{
 	
 	public function todasEtiquetasLimite($limite){
 		$db=$this->db;
-		$sql='a.num_lote, a.fecha_env, a.fecha_cad, a.estado, b.articulo_name from modulo_etiquetado as a
-		inner join articulos as b on a.idArticulo=b.idArticulo where '.$limite;
+		$sql='SELECT a.num_lote, a.fecha_env, a.fecha_cad, a.estado, b.articulo_name from modulo_etiquetado as a
+		inner join articulos as b on a.idArticulo=b.idArticulo  '.$limite;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
