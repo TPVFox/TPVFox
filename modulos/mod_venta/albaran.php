@@ -56,7 +56,8 @@
 		$pedidosAlbaran=$Calbcli->PedidosAlbaranes($idAlbaran);
 		$estado=$datosAlbaran['estado'];
 		$date=date_create($datosAlbaran['Fecha']);
-		$fecha=date_format($date,'Y-m-d');
+		//~ $fecha=date_format($date,'Y-m-d');
+		$fecha=date_format($date,'d-m-Y');
 		$numAlbaran=$datosAlbaran['Numalbcli'];
 		$idCliente=$datosAlbaran['idCliente'];
 		if ($idCliente){
@@ -89,7 +90,7 @@
 					$textoNum=$idAlbaran;
 				}
 				echo $numAlbaran;
-					if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
+				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
 					//~ $fecha=date('Y-m-d');
 					$fecha=date('d-m-Y');
 				}else{
@@ -97,7 +98,7 @@
 					//~ $fecha =date_format($fecha1, 'Y-m-d');
 					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
 				}
-			
+			//~ echo $fecha;
 				$idCliente=$datosAlbaran['idClientes'];
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				if(isset($cliente['Nombre'])){
@@ -143,7 +144,7 @@
 			$style="display:none;";
 		}
 $titulo .= ' '.$textoNum.': '.$estado;
-		
+		//~ echo $fecha;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
