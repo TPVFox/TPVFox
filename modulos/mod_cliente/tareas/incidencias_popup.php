@@ -24,4 +24,3 @@ $html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia,
 $respuesta['html']=$html;
 $respuesta['datos']=$datos;
 
-?>
