@@ -42,19 +42,8 @@ function noData2Html() {
     return $html;
 }
 
-function cuentaPaginas($nItems, $itemsPerPage = ARTICULOS_MAXLINPAG){
-if($itemsPerPage===0){ // No quiero excepciones de "division por 0"
-    $itemsPerPage = ARTICULOS_MAXLINPAG;
-}
-$resto = $nItems % $itemsPerPage;
-
-return (($nItems-$resto) / $itemsPerPage) + 1;
-
-
-}
 
 $caja = $_POST['caja'];
-$usarlike = $_POST['usarlike'];
 $valor = $_POST['valor'];  
 $idcliente = isset($_POST['idcliente']) ? $_POST['idcliente'] : 0;
 $idtienda = isset($POST['idtienda']) ? $POST['idtienda'] : 1;
@@ -63,7 +52,6 @@ $paginaBuscar = isset($_POST['pagina']) ? $_POST['pagina'] : 1;
 $resultado = [];
 
 $articulos = [];
-$contador = 0;
 
 if ($caja) {
     switch ($caja) {
@@ -81,72 +69,54 @@ if ($caja) {
             }
             break;
 
-            case 'Referencia':
+        case 'Referencia':
             $articulo = new alArticulos($BDTpv);
-            if ($usarlike === 'si') {
-                $contador = $articulo->contarLikeReferencia($valor, $idtienda);
-                if ($contador == 0) {
-                    $articulos['datos'] = [];
-                    $articulos['html'] = noData2Html();
-                } else {
-                    $articulos = $articulo->leerLikeReferencia($valor, $paginaBuscar, $idtienda);
-                    if ($articulos['datos']) {
-                        $articulos['html'] = datos2Html($articulos['datos']);
-                    }
-                }
-            } else {
-                $articulos = $articulo->leerXReferencia($valor, $idtienda);
+            // Buscamos articulos =
+            $articulos = $articulo->leerXReferencia($valor, $idtienda);
                 if ($articulos) {
                     if (count($articulos['datos']) == 1) {
                         $idArticulo = $articulos['datos'][0]['idArticulo'];
                         $articulos = $articulo->leerPrecio($idArticulo);
-                    }
-                }
-            }
+                    } else {
+						// Quiere decir que no hubo resultados o que hubo mas de uno ( es posible)
+							$articulos = $articulo->leerLikeReferencia($valor, $paginaBuscar, $idtienda);
+							if ($articulos['datos']) {
+								$articulos['html'] = datos2Html($articulos['datos']);
+							}
+					}
+				}
             break;
 
         case 'Descripcion':
             $articulo = new alArticulos($BDTpv);
-            $contador = $articulo->contarLikeDescripcion($valor);
-            if ($contador == 0) {
-                $articulos['datos'] = [];
-                $articulos['html'] = noData2Html();
-            } else {
-                $articulos = $articulo->leerLikeDescripcion($valor, $paginaBuscar);
+            $articulos = $articulo->leerLikeDescripcion($valor, $paginaBuscar);
                 if ($articulos['datos']) {
                     $articulos['html'] = datos2Html($articulos['datos']);
                 }
-            }
+
             break;
 
         case 'Codbarras':
             $articulo = new alArticulos($BDTpv);
-            if ($usarlike === 'si') {
-                $contador = $articulo->contarLikeCodBarras($valor);
-
-                if ($contador == 0) {
-                    $articulos['datos'] = [];
-                    $articulos['html'] = noData2Html();
-                } else {
-                    $articulos = $articulo->leerLikeCodBarras($valor, $paginaBuscar);
-                    if ($articulos['datos']) {
-                        $articulos['html'] = datos2Html($articulos['datos']);
-                    }
-                }
-            } else {
-                $articulos = $articulo->leerXCodBarras($valor);
+            $articulos = $articulo->leerXCodBarras($valor);
                 if ($articulos) {
                     if (count($articulos['datos']) == 1) {
                         $idArticulo = $articulos['datos'][0]['idArticulo'];
                         $articulos = $articulo->leerPrecio($idArticulo);
-                    }
+                    } else {
+						// Quiere decir que no hubo resultados o que hubo mas de uno ( es posible)
+						  $articulos = $articulo->leerLikeCodBarras($valor, $paginaBuscar);
+						if ($articulos['datos']) {
+							$articulos['html'] = datos2Html($articulos['datos']);
+						}
+						
+					}
                 }
-            }
             break;
+
     }
     $articulos['contador'] = $contador;   
     $articulos['pagina'] = $paginaBuscar;   // absurdo. Va y viene el mismo valor. ¿?
-    $articulos['totalPaginas'] = $articulos['contador']== 0 ? 999 : cuentaPaginas($articulos['contador']);
     $resultado = $articulos;
     
 }

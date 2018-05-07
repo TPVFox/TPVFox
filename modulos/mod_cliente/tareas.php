@@ -17,9 +17,14 @@ switch ($pulsado) {
 		include_once("./tareas/grabarArticuloCliente.php");
 		$respuesta = $resultado;
 		break;
+	
+	case 'Borrar_producto_tarifa_cliente':
+		include_once("./tareas/borrarArticuloCliente.php");
+		$respuesta = $resultado;
+		break;
+
 
 }
 
 echo json_encode($respuesta);
-
 ?>

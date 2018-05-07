@@ -10,6 +10,7 @@ var callback = function (respuesta) {
         var obj = JSON.parse(respuesta);
         var response = obj.datos;
         var idCliente = $('#id_cliente').val();
+        console.log(obj);
         if (response.length == 1) {
 			// Si hay respuesta mostramos caja de entrada precios.
 			$('#formulario').removeAttr( 'style' );
@@ -23,11 +24,11 @@ var callback = function (respuesta) {
             $('#formulario').show();
 			$('#inputPrecioSin').select();
         } else {
-            $('#busquedaModal').on('shown.bs.modal', function () {
-                $('#cajaBusqueda').focus();
-                $('#buscarArticulos').click();
-            });
-            $('#busquedaModal').modal('show');
+            var titulo= 'Buscar producto por ';
+            var contenido = obj.html
+            console.log(contenido)
+            abrirModal(titulo,contenido);
+			focusAlLanzarModal('cajaBusqueda');
         }
     };
 
@@ -112,10 +113,45 @@ function controladorAcciones(caja, accion) {
 		
 		case 'modificarArticulo':
 			console.log(caja);
-			
+			leerArticulo({idcliente: cliente.idclientes, caja: 'idArticulo', valor: caja.idArticulo}, callback);
+			break;
+		
+		case 'cancelarArticulo':
+			console.log(caja);
+			borrarArticulo(caja.idArticulo);
+			break;
+		
         default :
             console.log('Accion no encontrada ' + accion);
     }
+}
+
+function after_constructor(padre_caja,event){
+	// @ Objetivo:
+	// Ejecuta procesos ANTES ( mi ingles-- :-) de construir el obj. caja.
+	// Traemos 
+	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
+	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
+
+	if (padre_caja.id_input.indexOf('btn_modificar_') >-1){
+		// Ponemos como id realmente el de evento no el caja xml.
+		padre_caja.id_input = event.target.id;
+	}
+	if (padre_caja.id_input.indexOf('btn_cancelar_') >-1){
+		// Ponemos como id realmente el de evento no el caja xml.
+		padre_caja.id_input = event.target.id;
+	}
+	
+	return padre_caja;
+}
+function before_constructor(caja){
+	if (caja.id_input.indexOf('btn_modificar_') >-1){
+		caja.idArticulo = caja.id_input.slice(14);
+	}
+	if (caja.id_input.indexOf('btn_cancelar_') >-1){
+		caja.idArticulo = caja.id_input.slice(13);
+	}
+	return caja;
 }
 
 function leerArticulo(parametros, callback) {
@@ -135,16 +171,28 @@ function leerArticulo(parametros, callback) {
     });
 }
 
-function borrarArticulo(idcliente, idarticulo, callback) {
+function borrarArticulo(idarticulo) {
     $.ajax({
-        data: {idcliente: idcliente,
+        data: {pulsado: 'Borrar_producto_tarifa_cliente',idcliente: cliente.idClientes,
             idarticulo: idarticulo},
-        url: './borrarArticuloCliente.php',
+        url: 'tareas.php',
         type: 'post',
-        success: callback,
-        error: function (request, textStatus, error) {
-            console.log(textStatus);
-        }
+        beforeSend : function () {
+		console.log('*********  Eliminando producto de tarifa del cliente **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta despues de eliminar producto de tarifa.');
+				var resultado = $.parseJSON(response);
+				//~ var resultado = response;
+				if (resultado.error === "0" ){
+					//quiere decir que elimino correctamente
+	                window.location.href = './tarifaCliente.php?id=' + cliente.idClientes;
+				} else {
+					alert( ' Hubo un error al eliminarlo ');
+					console.log(resultado);
+
+				}
+			}
     });
 }
 

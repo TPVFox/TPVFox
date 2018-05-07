@@ -69,10 +69,29 @@
 		</caja_input>
 		<caja_input>
 			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
-			<nombre id_input="btn_modificar">btn_modificar</nombre>
+			<nombre id_input="btn_modificar_">btn_modificar</nombre>
 			<teclas>
 				<action tecla="13">modificarArticulo</action>
 			</teclas>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		<caja_input>
+			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
+			<nombre id_input="btn_cancelar_">btn_cancelar</nombre>
+			<teclas>
+				<action tecla="13">cancelarArticulo</action>
+			</teclas>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
 		</caja_input>
 		
 	</cajas_input>

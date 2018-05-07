@@ -8,8 +8,6 @@
  */
 
 
-include_once './../../inicial.php';
-
 require_once './clases/claseTarifaCliente.php';
 
 $idarticulo = $_POST['idarticulo'];
@@ -28,6 +26,5 @@ if ($existetarifa) {
     ]);
 }
 
-echo json_encode($resultado);
-
+//~ $resultado['existe'] = $existetarifa 
 

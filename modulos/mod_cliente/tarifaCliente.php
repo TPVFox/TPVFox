@@ -170,16 +170,16 @@ echo '</pre>';
 								echo '<td style="text-align: right">' . number_format($tarifaCliente['ivaArticulo'],2, '.', '') . '</td>';
 								echo '<td style="text-align: right">' . number_format($tarifaCliente['pvpCiva'],2, '.', '') . '</td>';
 								echo '<td>'
-									.'<button name="btn_modificar" data-idarticulo=' 
-									. $tarifaCliente['idArticulo'] . ' data-idcliente=' 
-									. $tarifaCliente['idClientes'] . ' data-obj="btn_modificar"'
+									.'<button name="btn_modificar" id="btn_modificar_' 
+									. $tarifaCliente['idArticulo'] . '" data-obj="btn_modificar"'
 									. 'onclick="controlEventos(event)"'
-									. ' class="btn btn-primary btn-sm art-modificar">'
+									. ' class="btn btn-primary btn-sm">'
 									.' <span class="glyphicon glyphicon-pencil"></span>'
 									.' modificar</button> '
-									.' <button name="btn-cancelar-tc" data-idarticulo=' 
-									. $tarifaCliente['idArticulo'] . ' data-idcliente=' 
-									. $tarifaCliente['idClientes'] . ' class="btn btn-danger btn-sm art-eliminar">'
+									.' <button name="btn-cancelar-tc" id="btn_cancelar_' 
+									. $tarifaCliente['idArticulo'] . '" data-obj="btn_cancelar" '
+									. 'onclick="controlEventos(event)"'
+									.' class="btn btn-danger btn-sm">'
 									.' <span class="glyphicon glyphicon-trash"></span>'.
 									' eliminar</button> ' 
 									.'</td>';
@@ -192,33 +192,10 @@ echo '</pre>';
 
         </div>
         <!-- Modal -->
-        <div id="busquedaModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header btn-primary">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title text-center">Buscar Artículos</h3>
-                    </div>
-                    <div class="modal-body">
-                        <input id="cajaBusqueda" type="text" value="">
-                        <button id="buscarArticulos" class="art-buscar">Buscar</button>
-                        <input id="campoabuscar"   type="hidden">
-                        <input id="paginabuscar"   type="hidden" value="1">
-
-                        <div class="articulos-page-selection-top"></div>
-
-                        <p>contenido.</p>
-
-                        <div class="articulos-page-selection-bottom"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <?php // Incluimos paginas modales
+		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		?>
 
     </body>
 </html>
