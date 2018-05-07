@@ -24,7 +24,7 @@
         $unidades="";
         $estado="Activo";
         $idTemporal=0;
-		$idProducto=0;
+		$idProducto="";
         //~ if (isset($_GET['idProducto'])){
 			//~ $idProducto=$_GET['idProducto'];
 			//~ $datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
@@ -42,7 +42,7 @@
 				cabecera['idReal'] = <?php echo $idReal ;?>;
 				cabecera['fechaEnv'] = '<?php echo $fechaEnv ;?>';
 				cabecera['fechaCad'] = '<?php echo $fechaCad ;?>';
-				cabecera['idProducto'] = <?php echo $idProducto ;?>;
+				cabecera['idProducto'] = '<?php echo $idProducto ;?>';
 			var productos = [];
 			<?php 
 	if (isset($etiqueta)| isset($etiquetaTemporal)){ 

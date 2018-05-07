@@ -43,11 +43,12 @@ function controladorAcciones(caja, accion, tecla){
 	switch(accion) {
 		case 'RepetirProducto':
 			console.log('Entre en repetir producto');
-			repetirProducto(caja.darValor);
+			repetirProducto(caja.darValor());
 		break;
 		case 'BuscarProducto':
 			console.log('Entre en el case de buscar producto');
-			buscarProducto(caja.daValor, caja.id_input);
+			console.log(caja.darValor());
+			buscarProducto(caja.darValor(), caja.id_input);
 		break;
 	}
 }
@@ -133,7 +134,9 @@ function addEtiquetadoTemporal(){
 	
 }
 function buscarProducto(valor, caja){
+	
 	console.log("estoy dento de la función de buscar Producto");
+	console.log(valor);
 	var parametros ={
 		'pulsado'	: 'buscarProducto',
 		'valor'		:valor,
@@ -150,7 +153,7 @@ function buscarProducto(valor, caja){
 			success    :  function (response) {
 				console.log('Llegue devuelta de buscar Producto JS');
 				var resultado =  $.parseJSON(response);
-				
+				console.log(resultado);
 				
 			}
 		});

@@ -69,8 +69,8 @@ function htmlProductos($busqueda, $productos){
 			$contad = 0;
 			foreach($productos as $producto){
 				$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarProducto('
-				.$producto['idArticulo'].', "id_producto")>';
-				.'<td id="C'.$contad.'_Lin" >';
+				.$producto['idArticulo'].', "id_producto")>'
+				.'<td id="C'.$contad.'_Lin" >'
 				.'<input id="N_'.$contad.'" name="filaproducto" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
 				. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 				. '<td>'.$producto['idArticulo'].'</td>'
