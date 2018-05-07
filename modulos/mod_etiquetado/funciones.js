@@ -45,6 +45,10 @@ function controladorAcciones(caja,accion, tecla){
 			console.log('Entre en repetir producto');
 			repetirProducto(caja.darValor());
 		break;
+		case 'BuscarProducto':
+			console.log('Entre en el case de buscar producto');
+			buscarProducto(caja.daValor(), caja.id_input);
+		break;
 	}
 }
 
@@ -127,4 +131,26 @@ function addEtiquetadoTemporal(){
 			}
 		});
 	
+}
+function buscarProducto(valor, caja){
+	console.log("estoy dento de la función de buscar Producto");
+	var parametros ={
+		'pulsado'	: 'buscarProducto',
+		'valor'		:valor,
+		'caja'		:caja
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** repetir productos JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta repetir productos JS');
+				var resultado =  $.parseJSON(response);
+				
+				
+			}
+		});
 }
