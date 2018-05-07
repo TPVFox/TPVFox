@@ -42,7 +42,7 @@ switch ($pulsado) {
 				$respuesta['Estado'] = 'Listado';
 				$respuesta['datos']=$res['datos'];
 			}
-			echo json_encode($respuesta);  
+			//~ echo json_encode($respuesta);  
 		break;
 		
 	    case 'buscarClientes':
@@ -77,7 +77,7 @@ switch ($pulsado) {
 					$respuesta['datos']=$buscarTodo['datos'];
 				}
 			}
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;	
 		
 		
@@ -118,7 +118,7 @@ switch ($pulsado) {
 					
 				}
 			}
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		
 		case 'buscarAlbaran':
@@ -155,7 +155,7 @@ switch ($pulsado) {
 					
 				}
 			}
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		case 'anhadirPedidoTemp':
 		//@Objetivo:
@@ -211,7 +211,7 @@ switch ($pulsado) {
 			$respuesta['id']=$idTemporal;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
-		echo json_encode($respuesta);
+		//~ echo json_encode($respuesta);
 		break;
 		
 		
@@ -282,7 +282,7 @@ switch ($pulsado) {
 			$respuesta['id']=$res;
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		
 		
@@ -353,7 +353,7 @@ switch ($pulsado) {
 			$respuesta['existe']=$existe;
 			$respuesta['productos']=$_POST['productos'];
 			
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 			case 'modificarEstadoPedido':
 		//Objetivo:
@@ -367,7 +367,7 @@ switch ($pulsado) {
 				$respuesta['error']=$modEstado['error'];
 				$respuesta['consulta']=$modEstado['consulta'];
 			}
-		echo json_encode($respuesta);
+		//~ echo json_encode($respuesta);
 		break;
 		
 		case 'comprobarPedidos':
@@ -395,7 +395,7 @@ switch ($pulsado) {
 				
 			}
 		}
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		
 		case 'comprobarAlbaran':
@@ -424,7 +424,7 @@ switch ($pulsado) {
 					}
 				}
 			}
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		
 		
@@ -435,7 +435,7 @@ switch ($pulsado) {
 			//~ $res=htmlLineaPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$res=htmlPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		
 		case 'htmlAgregarFilaAlbaran':
@@ -445,7 +445,7 @@ switch ($pulsado) {
 		array_push($arrayAlbaranes, $_POST['datos']);
 		$res=htmlAlbaranFactura($arrayAlbaranes, $_POST['dedonde']);
 			$respuesta['html']=$res['html'];
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		
 		case 'htmlAgregarFilasProductos':
@@ -467,7 +467,7 @@ switch ($pulsado) {
 			}
 		 }
 		
-		echo json_encode($respuesta);
+		//~ echo json_encode($respuesta);
 		break;
 		
 		case 'htmlFomasVenci':
@@ -489,7 +489,7 @@ switch ($pulsado) {
 			$ven=htmlVencimiento($fun, $BDTpv);
 			$respuesta['html2']=$ven['html'];
 			$respuesta['fecha']=$fun;
-			echo json_encode($respuesta);
+			//~ echo json_encode($respuesta);
 		break;
 		
 		
@@ -512,7 +512,7 @@ switch ($pulsado) {
 					$respuesta['consulta']=$modTemporal['consulta'];
 			}
 		}
-		echo json_encode($respuesta);
+		//~ echo json_encode($respuesta);
 		break;
 		
 		case 'modificarEstadoFactura':
@@ -526,7 +526,7 @@ switch ($pulsado) {
 					$respuesta['error']=$modEstado['error'];
 					$respuesta['consulta']=$modEstado['consulta'];
 		}
-		echo json_encode($respuesta);
+		//~ echo json_encode($respuesta);
 		break;
 		
 		
@@ -541,7 +541,7 @@ switch ($pulsado) {
 			$respuesta['error']=$modEstado['error'];
 			$respuesta['consulta']=$modEstado['consulta'];
 		}
-		echo json_encode($respuesta);
+		//~ echo json_encode($respuesta);
 		break;
 		
 		case 'insertarImporte':
@@ -618,7 +618,7 @@ switch ($pulsado) {
 			$html=htmlImporteFactura($nuevo, $BDTpv);
 			$respuesta['html']=$html['html'];
 		}
-		echo json_encode($respuesta);
+		//~ echo json_encode($respuesta);
 		break;
 		//@Objetivo:
 		//enviar los datos para imprimir el pdf
@@ -634,7 +634,8 @@ switch ($pulsado) {
 			include ('../../clases/imprimir.php');
 			include('../../controllers/planImprimir.php');
 			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-			echo json_encode($ficheroCompleto);
+			$respuesta=$ficheroCompleto;
+			//~ echo json_encode($ficheroCompleto);
 		break;
 		case 'abririncidencia':
 		$dedonde=$_POST['dedonde'];
@@ -657,7 +658,7 @@ switch ($pulsado) {
 		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
-		echo json_encode($respuesta);
+		//~ echo json_encode($respuesta);
 		break;
 		
 		case 'nuevaIncidencia':
@@ -681,7 +682,7 @@ switch ($pulsado) {
 			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
 			$respuesta=$nuevo['sql'];
 		}
-	echo json_encode($respuesta);
+	//~ echo json_encode($respuesta);
 	
 	break;
 		
@@ -701,7 +702,10 @@ switch ($pulsado) {
 				$cancelar=cancelarFactura( $idTemporal, $BDTpv);
 			break;
 		 }
-		 echo json_encode($respuesta);
+		 //~ echo json_encode($respuesta);
 	break;
+	
 		
 }
+echo json_encode($respuesta);
+return $respuesta;
