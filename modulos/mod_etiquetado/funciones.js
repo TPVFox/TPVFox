@@ -165,6 +165,8 @@ function buscarProducto(valor, caja){
 						$('#producto').prop('disabled', true);
 						$('#id_producto').prop('disabled', true);
 						$("#buscar").css("display", "none");
+						$('#unidades').focus();
+						
 					}
 				}
 				
