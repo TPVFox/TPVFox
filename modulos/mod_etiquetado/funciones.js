@@ -154,6 +154,19 @@ function buscarProducto(valor, caja){
 				console.log('Llegue devuelta de buscar Producto JS');
 				var resultado =  $.parseJSON(response);
 				console.log(resultado);
+				if(resultado.error){
+					alert("Error de sql:"+resultado.consulta);
+				}else{
+					if(resultado.Nitem==1){
+						console.log("sólo hay un resultado");
+						cabecera.idProducto=resultado.datos['idArticulo'];
+						$('#id_producto').val(resultado.datos['idArticulo']);
+						$('#producto').val(resultado.datos['articulo_name']);
+						$('#producto').prop('disabled', true);
+						$('#id_producto').prop('disabled', true);
+						$("#buscar").css("display", "none");
+					}
+				}
 				
 			}
 		});
