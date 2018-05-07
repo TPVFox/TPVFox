@@ -55,6 +55,24 @@ class Modulo_etiquetado{
 		return $respuesta;
 	}
 	
+	public function todasEtiquetasLimite($limite){
+		$db=$this->db;
+		$sql='a.num_lote, a.fecha_env, a.fecha_cad, a.estado, b.articulo_name from modulo_etiquetado as a
+		inner join articulos as b on a.idArticulo=b.idArticulo where '.$limite;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$etiquetasPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($etiquetasPrincipal,$result);
+			}
+			return $etiquetasPrincipal;
+		}
+	}
+	
 }
 
 ?>
