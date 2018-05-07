@@ -801,6 +801,7 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 								productos.push(resultado.productos[i]);
 								numFila++;
 							}
+							console.log(productos);
 							addTemporal(dedonde);
 							AgregarFilaProductosAl(resultado.productos, dedonde);
 							modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);
