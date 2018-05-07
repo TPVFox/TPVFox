@@ -24,12 +24,12 @@
         $unidades="";
         $estado="Activo";
         $idTemporal=0;
-		$idProducto=0;
-        if (isset($_GET['idProducto'])){
-			$idProducto=$_GET['idProducto'];
-			$datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
-			$nomPro=$datosProducto['articulo_name'];
-		}
+		$idProducto="";
+        //~ if (isset($_GET['idProducto'])){
+			//~ $idProducto=$_GET['idProducto'];
+			//~ $datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
+			//~ $nomPro=$datosProducto['articulo_name'];
+		//~ }
 		$parametros = $ClasesParametros->getRoot();	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
         ?>
@@ -119,7 +119,9 @@
 				<div class="col-md-12">
 					<div class="col-md-5">
 						<label>Producto:</label>
-						<input type="text" id="producto" name="producto" value="<?php echo $nomPro;?>" size="50" readonly>
+						<input type="text" id="id_producto" name="id_producto" data-obj= "cajaIdProducto" value="<?php echo $idProducto;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+						<input type="text" id="producto" name="producto" value="<?php echo $nomPro;?>" size="50" data-obj="cajaNombreProducto" onkeydown="controlEventos(event)" placeholder='Nombre del producto'>
+						<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProducto()"></a>
 					</div>
 					<div class="col-md-2">
 						<label>Unidades</label>
