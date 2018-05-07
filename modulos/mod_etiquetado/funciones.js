@@ -1,3 +1,24 @@
+function metodoClick(pulsado,adonde){
+	switch(pulsado) {
+		case 'Ver':
+			console.log('Entro en Ver');
+			VerIdSeleccionado ();
+			if (checkID.length >1 || checkID.length=== 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return
+			}
+			// Ahora redireccionamos 
+			window.location.href = './'+adonde+'.php?id='+checkID[0];
+		break;
+		
+		case 'Agregar':
+			console.log('entro en agregar lote');
+			window.location.href = './etiquetaCodBarras.php';
+			
+		break;
+	}
+}
+
 function modificarTipo(tipo){
 	//@Objetivo: cada vez que seleccionamos en el select un tipo distinto se modifica el nombre
 	//de tipo en la tabla

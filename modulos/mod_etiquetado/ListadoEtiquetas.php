@@ -87,7 +87,7 @@
 					<h4> Lotes</h4>
 					<h5> Opciones para una selección</h5>
 					<ul class="nav nav-pills nav-stacked"> 
-						<li><a onclick="">Añadir</a></li>
+						<li><a onclick="metodoClick('Agregar' , 'etiquetaCodBarras')">Añadir</a></li>
 						<li><a onclick="">Modificar</a></li>
 					</ul>
 					<h4 class="text-center"> Lotes Abiertos</h4>
