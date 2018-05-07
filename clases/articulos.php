@@ -144,7 +144,7 @@ class Articulos{
 		}
 		public function datosArticulosPrincipal($idArticulo, $idTienda){
 		$db=$this->db;
-		$sql='select a.articulo_name, c.codBarras , pre.pvpCiva , pro.crefProveedor, t.crefTienda
+		$sql='select a.articulo_name, c.codBarras , pre.pvpCiva , pro.crefProveedor, t.crefTienda, a.idArticulo
 				FROM articulos as a INNER JOIN articulosCodigoBarras as c on a.idArticulo=c.idArticulo 
 				inner join articulosPrecios as pre on a.idArticulo=pre.idArticulo 
 				INNER join articulosProveedores as pro on a.idArticulo=pro.idArticulo 
