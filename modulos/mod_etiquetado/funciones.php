@@ -53,5 +53,37 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 	return $respuesta;
 	
 }
-
+function htmlProductos($busqueda, $productos){
+	$resultado = array();
+	$resultado['encontrados'] = count($productos);
+	$resultado['html'] = '<label>Busqueda De Productos</label>
+				<input id="cajaBusquedaproductos" name="valorProducto" placeholder="Buscar"'.
+				'size="13" data-obj="cajaBusquedaproductos" value="'.$busqueda.'"
+				 onkeydown="controlEventos(event)" type="text">';
+	if (count($productos)>10){
+		$resultado['html'] .= '<span>10 Productos de '.count($productos).'</span>';
+	}
+	$resultado['html'] .= '<table class="table table-striped"><thead>'
+	. ' <th></th> <th>Id</th><th>Nombre del Producto</th><th>PVPCiva</th></thead><tbody>';
+	if (count($proveedores)>0){
+			$contad = 0;
+			foreach($productos as $producto){
+				$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarProducto('
+				.$producto['idArticulo'].', "id_producto")>';
+				.'<td id="C'.$contad.'_Lin" >';
+				.'<input id="N_'.$contad.'" name="filaproducto" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
+				. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+				. '<td>'.$producto['idArticulo'].'</td>'
+				. '<td>'.$producto['articulo_name'].'</td>'
+				. '<td>'.$producto['pvpCiva'].'</td>'
+				.'</tr>';
+				$contad = $contad +1;
+				if ($contad === 10){
+					break;
+				}
+			}
+			$resultado['html'] .='</tbody></table>';
+			return $resultado;
+	}
+}
 ?>

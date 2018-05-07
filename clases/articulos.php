@@ -163,6 +163,28 @@ class Articulos{
 			}
 		
 		}
+		
+	public function buscarPorNombre($valor, $idTienda){
+		$db=$this->db;
+		$sql='select a.articulo_name, c.codBarras , pre.pvpCiva , pro.crefProveedor, t.crefTienda, a.idArticulo
+				FROM articulos as a INNER JOIN articulosCodigoBarras as c on a.idArticulo=c.idArticulo 
+				inner join articulosPrecios as pre on a.idArticulo=pre.idArticulo 
+				INNER join articulosProveedores as pro on a.idArticulo=pro.idArticulo 
+				inner join articulosTiendas as t on a.idArticulo=t.idArticulo
+				where a.articulo_name like "%'.$idArticulo.'%" and t.idTienda='.$idTienda.'group by  a.idArticulo LIMIT 0 , 30';
+		$smt=$this->consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+			}else{
+				$articulosPrincipal=array();
+				while ($result = $smt->fetch_assoc () ){
+					array_push($articulosPrincipal,$result);
+				}
+				return $articulosPrincipal;
+			}
+	}
 	
 	
 }

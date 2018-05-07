@@ -6,7 +6,7 @@
 	</configuracion>
 	<cajas_input data-obj="id_input">
 		<caja_input>
-			<nombre id_input="id_producto"></nombre>
+			<nombre id_input="id_producto">cajaIdProducto</nombre>
 			<teclas>
 				<action tecla="13">BuscarProducto</action>
 			</teclas>

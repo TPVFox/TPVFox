@@ -24,7 +24,7 @@
         $unidades="";
         $estado="Activo";
         $idTemporal=0;
-		$idProducto="";
+		$idProducto=0;
         //~ if (isset($_GET['idProducto'])){
 			//~ $idProducto=$_GET['idProducto'];
 			//~ $datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);

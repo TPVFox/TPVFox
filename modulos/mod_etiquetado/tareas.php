@@ -57,6 +57,31 @@ switch ($pulsado) {
 		$respuesta['productos']=$_POST['productos'];
 	
 	break;
+	case 'buscarProducto':
+		$valor=$_POST['valor'];
+		$caja=$_POST['caja'];
+		$idTienda=$_POST['idTienda'];
+		if($caja=='id_producto'){
+			$buscarId=$CArticulos->datosArticulosPrincipal($valor, $idTienda);
+			if(isset($buscarId['error'])){
+				$respuesta['error']=$buscarId['error'];
+				$respuesta['consulta']=$buscarId['consulta'];
+			}else{
+				$respuesta['Nitem']=1;
+				$respuesta['datos']=$buscarId;
+			}
+		}else{
+			$buscarTodo=$CArticulos->buscarPorNombre($valor, $idTienda);
+			if(($buscarTodo['error'])){
+				$respuesta['error']=$buscarTodo['error'];
+				$respuesta['consulta']=$buscarTodo['consulta'];
+			}else{
+				$html=htmlProductos($valor, $buscarTodo);
+				$respuesta['html']=$html['html'];
+			}
+		}
+	
+	break;
 	
 	
 }

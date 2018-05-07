@@ -39,15 +39,15 @@ function modificarTipo(tipo){
 	}
 	$('#tipoTabla').html(tipoTabla);
 }
-function controladorAcciones(caja,accion, tecla){
+function controladorAcciones(caja, accion, tecla){
 	switch(accion) {
 		case 'RepetirProducto':
 			console.log('Entre en repetir producto');
-			repetirProducto(caja.darValor());
+			repetirProducto(caja.darValor);
 		break;
 		case 'BuscarProducto':
 			console.log('Entre en el case de buscar producto');
-			buscarProducto(caja.daValor(), caja.id_input);
+			buscarProducto(caja.daValor, caja.id_input);
 		break;
 	}
 }
@@ -137,7 +137,8 @@ function buscarProducto(valor, caja){
 	var parametros ={
 		'pulsado'	: 'buscarProducto',
 		'valor'		:valor,
-		'caja'		:caja
+		'caja'		:caja,
+		'idTienda'	:cabecera.idTienda
 	};
 	$.ajax({
 			data       : parametros,
@@ -147,7 +148,7 @@ function buscarProducto(valor, caja){
 				console.log('******** repetir productos JS****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta repetir productos JS');
+				console.log('Llegue devuelta de buscar Producto JS');
 				var resultado =  $.parseJSON(response);
 				
 				
