@@ -647,7 +647,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
 		if ($dedonde=="albaran"){
-			$imprimir['cabecera'].='<td WIDTH="5%" align="center">PED</td>';
+			$imprimir['cabecera'].='<td WIDTH="6%" align="center">PED</td>';
 		}
 		if ($dedonde=="factura"){
 			$imprimir['cabecera'].='<td WIDTH="5%" align="center">ALB</td>';
