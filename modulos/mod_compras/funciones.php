@@ -21,7 +21,7 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 				 onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($proveedores)>10){
-		$resultado['html'] .= '<span>10 clientes de '.count($proveedores).'</span>';
+		$resultado['html'] .= '<span>10 proveedores de '.count($proveedores).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
 	. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
