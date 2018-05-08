@@ -35,6 +35,7 @@
 				}else{
 					$respuesta['datos']['NumAdjunto']=$datosAdjunto['Numalbpro'];
 					$respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
+					$respuesta['datos']['totalSiva']=$datosAdjunto['totalSiva'];
 					$productosAdjunto=$CAlb->ProductosAlbaran($datosAdjunto['id']);
 					if (isset($productosAdjunto['error'])){
 						$respuesta['error']=$productosAdjunto['error'];

@@ -480,7 +480,13 @@ function lineaAdjunto($adjunto, $dedonde){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
 		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>'
-		.'<td>'.$adjunto['total'].'</td>'.$btnELiminar_Retornar.'</tr>';
+		.'<td>'.$adjunto['total'].'</td>';
+		if(isset($adjunto['totalSiva'])){
+			$respuesta['html'] .='<td>'.$adjunto['totalSiva'].'</td>';
+		}else{
+			$respuesta['html'] .='<td></td>';
+		}
+		$respuesta['html'].=$btnELiminar_Retornar.'</tr>';
 	}
 	return $respuesta;
 }

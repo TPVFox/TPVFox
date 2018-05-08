@@ -324,11 +324,15 @@ if ($idProveedor==0){
 				<thead>
 				<td><b>Número</b></td>
 				<td><b>Fecha</b></td>
-				<td><b>Total</b></td>
+				<td><b>TotalCiva</b></td>
+				<td><b>TotalSiva</b></td>
 				<td></td>
 				</thead>
 				<?php 
 				$i=1;
+				//~ echo '<pre>';
+				//~ print_r($albaranes);
+				//~ echo '</pre>';
 				if (isset($albaranes)){
 					foreach ($albaranes as $albaran){
 						if (!isset ($albaran['nfila'])){

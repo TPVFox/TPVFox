@@ -408,9 +408,13 @@ class AlbaranesCompras extends ClaseCompras{
 		//Buscar datos principal de un albarán de proveedor y estado guardado
 		$db=$this->db;
 		if ($numAlbaran>0){
-			$sql='SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
-			 formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'"
-			 .$estado."'".' and Numalbpro='.$numAlbaran;
+			//~ $sql='SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
+			 //~ formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'"
+			 //~ .$estado."'".' and Numalbpro='.$numAlbaran;
+			 $sql='SELECT a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
+			  a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a 
+			  INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor='.$idProveedor.' 
+			  and a.estado="'.$estado.'" and a.Numalbpro='.$numAlbaran.' GROUP by a.id ';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 					$albaran['error']=$smt['error'];
