@@ -20,6 +20,13 @@
 		
 		</caja_input>
 		<caja_input>
+			<nombre id_input="cajaBusquedaproductos">cajaBusquedaproductos</nombre>
+			<teclas>
+				<action tecla="13">BuscarProducto</action>
+			</teclas>
+		
+		</caja_input>
+		<caja_input>
 			<nombre id_input="fechaCad">cajaFechaCad</nombre>
 			<teclas>
 
