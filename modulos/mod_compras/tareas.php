@@ -436,6 +436,11 @@ switch ($pulsado) {
 			 }
 			
 		break;
+		case 'htmlAgregarFilaAdjuntoProductos':
+			$datos=$_POST['datos'];
+			$html=htmlDatosAdjuntoProductos($datos);
+			$respuesta=$html;
+		break;
 		
 	
 }

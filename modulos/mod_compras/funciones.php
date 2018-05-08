@@ -1693,4 +1693,14 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 			}
 		}
 }
+function htmlDatosAdjuntoProductos($datos){
+
+	$respuesta='<tr>
+		<td colspan="3">Número de albarán:'.$datos['NumAdjunto'].'</td>
+		<td colspan="2">Fecha:'.$datos['fecha'].'</td>
+		<td colspan="2">Total con IVA:'.$datos['total'].'</td>
+		<td colspan="5">Total sin IVA:'.$datos['totalSiva'].'</td>
+		</tr>';
+	return $respuesta;
+}
 ?>

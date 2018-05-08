@@ -356,8 +356,12 @@ function buscarAdjunto(dedonde, valor=""){
 								modificarEstado(dedonde, "Facturado",  idAdjunto);
 								//Agregamos una nueva fila con los datos principales de pedidos
 								AgregarAdjunto(datos, dedonde);
+								
 								//Agregamos los productos de el pedido seleccionado
 								AgregarFilaProductos(prodArray, dedonde);
+								if(dedonde=="factura"){
+									AgregarFilaAdjuntoProductos(datos);
+								}
 								//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
 								//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
 								// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
@@ -371,7 +375,28 @@ function buscarAdjunto(dedonde, valor=""){
 		}
 	});
 }
-
+function AgregarFilaAdjuntoProductos(datos){
+	var parametros = {
+		"pulsado"    : 'htmlAgregarFilaAdjuntoProductos',
+		"datos" : datos
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en escribir html fila pedidos JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de html fila pedidos');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+			var nuevafila = resultado;
+			$("#tabla").prepend(nuevafila);
+		}
+	});
+}
 function modificarEstado(dedonde, estado, id=""){
 	//~ @Objetivo: Modificar el estado según el id que llegue y de donde para poder filtrar
 	//~ @Parametros : el estado se envia en la función
@@ -751,9 +776,9 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
-					if(albaranes.length>0){
+			if(albaranes.length>0){
 				bloquearInput();
-		}
+			}
 
 		}
 	});

@@ -334,15 +334,19 @@ if ($idProveedor==0){
 				//~ print_r($albaranes);
 				//~ echo '</pre>';
 				if (isset($albaranes)){
+					$alb_html=[];
 					foreach ($albaranes as $albaran){
 						if (!isset ($albaran['nfila'])){
 							$albaran['nfila']=$i;
 						}
 						$html=lineaAdjunto($albaran, "factura");
 						echo $html['html'];
+ 						$alb_html[]=htmlDatosAdjuntoProductos($albaran);
+
 						$i++;
 					}
 				}
+				$alb_html=array_reverse($alb_html);
 				?>
 			</table>
 			</div>
@@ -380,8 +384,21 @@ if ($idProveedor==0){
 		</thead>
 		<tbody>
 			<?php 
+			$numAdjunto=0;
+			$i=0;
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
+				
+					if($producto['numAlbaran']<>$numAdjunto){
+						echo $alb_html[$i];
+						$numAdjunto=$producto['numAlbaran'];
+						$i++;
+					}	//~ $indice=array_search($numAdjunto,$albaranes);
+						//~ $html=htmlDatosAdjuntoProductos($albaranes[$indice]);
+						//~ $numAdjunto=$producto['numAlbaran'];
+						//~ echo $numAdjunto;
+						//~ echo $html;
+					//~ }
 					$html=htmlLineaProducto($producto, "factura");
 					echo $html['html'];
 				}
