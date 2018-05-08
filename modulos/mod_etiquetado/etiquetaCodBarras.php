@@ -17,7 +17,9 @@
 		$Usuario = $_SESSION['usuarioTpv'];
         $titulo="Crear Etiquetas de Código Barras";
         $fechaEnv=date('Y-m-d H:i:s');
-        $fechaCad=date('Y-m-d');
+        $nuevafecha = strtotime ( '+7 day' , strtotime ( $fechaEnv ) ) ;
+		$fechaCad = date ( 'Y-m-d' , $nuevafecha );
+        //~ $fechaCad=date('Y-m-d');
         $numAlb="";
         $nomPro="";
         $idReal=0;
