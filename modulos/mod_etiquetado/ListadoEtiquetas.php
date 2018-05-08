@@ -61,7 +61,10 @@
 										 'class'=>'alert alert-danger',
 										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 										 );
-			}		
+			}	
+			//~ echo '<pre>';
+			//~ print_r($etiquetasFiltro);
+			//~ echo '</pre>';	
 		?>
 	</head>
 	<body>
@@ -120,6 +123,29 @@
 						<th>IMPRIMIR</th>
 					</tr>
 				</thead>
+				<tbody>
+					<?php 
+					$checkUser = 0;
+					foreach($etiquetasFiltro as $etiqueta){
+						$checkUser = $checkUser + 1;
+						
+						?>
+						<tr>
+					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $etiqueta['id'];?>"></td>
+					<td><?php echo $etiqueta['num_lote'];?></td>
+					<td><?php echo $etiqueta['articulo_name'];?></td>
+					<td><?php echo $etiqueta['fecha_env'];?></td>
+					<td><?php echo $etiqueta['fecha_cad'];?></td>
+					<td><?php echo $etiqueta['estado'];?></td>
+					<td></td>
+					</tr>
+						<?php
+					}
+					
+					?>
+					
+				
+				</tbody>
 					</table>
 					</div>
 			</div>
