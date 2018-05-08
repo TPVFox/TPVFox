@@ -73,6 +73,24 @@ class Modulo_etiquetado{
 			return $etiquetasPrincipal;
 		}
 	}
+	public function todosTemporal(){
+		$db=$this->db;
+		$sql='select a.id, a.num_lote, a.fecha_env, b.articulo_name from 
+		modulo_etiquetado_temporal as a inner join articulos as b on 
+		a.idArticulo=b.idArticulo  ';
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$etiquetasPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($etiquetasPrincipal,$result);
+			}
+			return $etiquetasPrincipal;
+		}
+	}
 	
 	public function buscarTemporal($idTemporal){
 		$db=$this->db;

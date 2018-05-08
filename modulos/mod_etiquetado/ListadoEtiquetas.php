@@ -12,7 +12,17 @@
 			$Controler->loadDbtpv($BDTpv);
 			$CEtiquetas=new Modulo_etiquetado($BDTpv);
 			
-			
+			$todosTemporal=$CEtiquetas->todosTemporal();
+			if(isset($todosTemporal['error'])){
+				$errores[1]=array ( 'tipo'=>'Danger!',
+										 'dato' => $todosTemporal['consulta'],
+										 'class'=>'alert alert-danger',
+										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+										 );
+			}
+			//~ echo '<pre>';
+			//~ print_r($todosTemporal);
+			//~ echo '</pre>'; 
 			$palabraBuscar=array();
 			$stringPalabras='';
 			$PgActual = 1; // por defecto.
@@ -86,7 +96,7 @@
 				<div class="col-md-12 text-center">
 					<h2> Lotes Etiquetas: Añadir Lotes </h2>
 				</div>
-				<nav class="col-sm-2">
+				<nav class="col-sm-4">
 					<h4> Lotes</h4>
 					<h5> Opciones para una selección</h5>
 					<ul class="nav nav-pills nav-stacked"> 
@@ -96,10 +106,25 @@
 					<h4 class="text-center"> Lotes Abiertos</h4>
 					<table class="table table-striped">
 						<thead>
+							<th>Nª Temp</th>
 							<th>Lote</th>
 							<th>Fecha</th>
 							<th>Producto</th>
 						</thead>
+						<tbody>
+						<?php 
+						foreach($todosTemporal as $temporal){
+							?>
+							<tr>
+								<td><?php echo $temporal['id'];?></td>
+								<td><?php echo $temporal['num_lote'];?></td>
+								<td><?php echo $temporal['fecha_env'];?></td>
+								<td><?php echo $temporal['articulo_name'];?></td>
+							</tr>
+							<?php
+						}
+						?>
+						</tbody>
 					</table>
 				</nav>
 				<div class="col-md-8">
