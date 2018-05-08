@@ -2,7 +2,7 @@
 $pulsado = $_POST['pulsado'];
 
 include_once './../../inicial.php';
-
+include_once './funciones.php';
 
 switch ($pulsado) {
 	case 'abririncidencia':
@@ -22,7 +22,11 @@ switch ($pulsado) {
 		include_once("./tareas/borrarArticuloCliente.php");
 		$respuesta = $resultado;
 		break;
-
+	
+	case 'leerArticulo':
+		include_once("./tareas/leerArticulo.php");
+		$respuesta = $resultado;
+		break;
 
 }
 

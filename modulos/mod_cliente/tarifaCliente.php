@@ -39,9 +39,9 @@ $ClasesParametros = new ClaseParametros('parametros.xml');
 $parametros = $ClasesParametros->getRoot();
 $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
-echo '<pre>';
-print_r($datos);
-echo '</pre>';
+//~ echo '<pre>';
+//~ print_r($datos);
+//~ echo '</pre>';
 
 // Obtenemos la configuracion del usuario o la por defecto
 ?>
