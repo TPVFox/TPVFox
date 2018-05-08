@@ -116,7 +116,7 @@
 						foreach($todosTemporal as $temporal){
 							?>
 							<tr>
-								<td><?php echo $temporal['id'];?></td>
+								<td><a href="etiquetaCodBarras.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></a></td>
 								<td><?php echo $temporal['num_lote'];?></td>
 								<td><?php echo $temporal['fecha_env'];?></td>
 								<td><?php echo $temporal['articulo_name'];?></td>
