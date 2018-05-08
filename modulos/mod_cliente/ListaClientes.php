@@ -112,8 +112,9 @@
 				<h4> Clientes</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
-					<li><a href="#section1" onclick="metodoClick('AgregarCliente');";>Añadir</a></li>
-					<li><a href="#section2" onclick="metodoClick('VerCliente');";>Modificar</a></li>
+					<li><a href="#section1" onclick="metodoClick('AgregarCliente');">Añadir</a></li>
+					<li><a href="#section2" onclick="metodoClick('VerCliente');">Modificar</a></li>
+					<li><a href="#" onclick="metodoClick('TarificarCliente');">Tarifa</a></li>
 									<?php //metodoClick js case pulsado 
 									//agregarUsuario nos lleva a formulario usuario
 									//verUsuario si esta checkado nos lleva vista usuario de ese id

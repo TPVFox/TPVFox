@@ -1,7 +1,7 @@
 <?php 
 $pulsado = $_POST['pulsado'];
 include_once ("./../../configuracion.php");
-include_once ("./../mod_conexion/conexionBaseDatos.php");
+include_once ("./../../inicial.php");
 include_once ("./funciones.php");
 include_once ("../mod_incidencias/popup_incidencias.php");
 $respuesta=array();

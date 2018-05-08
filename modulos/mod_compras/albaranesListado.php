@@ -14,7 +14,8 @@ if (isset($_SESSION['tiendaTpv'])){
 }
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
- $CArticulo=new Articulos($BDTpv);
+
+$CArticulo=new Articulos($BDTpv);
 // Creamos el objeto de proveedor
 $CProv= new Proveedores($BDTpv);
 // Creamos el objeto de albarán
