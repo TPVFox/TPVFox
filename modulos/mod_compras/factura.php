@@ -34,6 +34,7 @@
 	$textoNum="";
 	$fecha=date('d-m-Y');
 	$fechaImporte=date('Y-d-m');
+	$numAdjunto=0;
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -330,9 +331,6 @@ if ($idProveedor==0){
 				</thead>
 				<?php 
 				$i=1;
-				//~ echo '<pre>';
-				//~ print_r($albaranes);
-				//~ echo '</pre>';
 				if (isset($albaranes)){
 					$alb_html=[];
 					foreach ($albaranes as $albaran){
@@ -384,7 +382,6 @@ if ($idProveedor==0){
 		</thead>
 		<tbody>
 			<?php 
-			$numAdjunto=0;
 			$i=0;
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
@@ -393,12 +390,7 @@ if ($idProveedor==0){
 						echo $alb_html[$i];
 						$numAdjunto=$producto['numAlbaran'];
 						$i++;
-					}	//~ $indice=array_search($numAdjunto,$albaranes);
-						//~ $html=htmlDatosAdjuntoProductos($albaranes[$indice]);
-						//~ $numAdjunto=$producto['numAlbaran'];
-						//~ echo $numAdjunto;
-						//~ echo $html;
-					//~ }
+					}	
 					$html=htmlLineaProducto($producto, "factura");
 					echo $html['html'];
 				}

@@ -499,7 +499,7 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 	}else{
 		//~ $datosAdjunto=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$adjunto['idAlbaran'] );
 		$datosAdjunto=$BDTpv->query('SELECT a.Numalbpro , a.Fecha , a.total,
-		a.id , a.FechaVencimiento , a.formaPago , sum(b.totalbase) as 
+		a.id , a.FechaVencimiento, a.idProveedor , a.formaPago , sum(b.totalbase) as 
 		totalSiva FROM albprot as a INNER JOIN albproIva as b on a.
 		`id`=b.idalbpro where a.Numalbpro='.$adjunto['idAlbaran'].' GROUP by a.id ');
 	}
