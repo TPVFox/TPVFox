@@ -399,7 +399,7 @@ class PedidosCompras extends ClaseCompras{
 	public function modFechaPedido($fecha, $idPedido){
 		$db=$this->db;
 		$sql='UPDATE pedprot SET FechaPedido= "'.$fecha.'" where id='.$idPedido;
-		$smt=$this->consulta($Sql);
+		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];

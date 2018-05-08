@@ -6,7 +6,7 @@
     <head>
         <?php
         include './../../head.php';
-        include ("./../../modulos/mod_conexion/conexionBaseDatos.php");
+        //~ include ("./../../modulos/mod_conexion/conexionBaseDatos.php");
 		// Incluimos el fichero arrayAyudas donde obtenemos los cuadros de ayuda que hay.
 		// Recuerda que no se puede utilizar el registro 0 
 		// Si quieres añadir una ayuda, recuerda que debes añadirla en ese fichero.

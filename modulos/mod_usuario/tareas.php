@@ -2,7 +2,7 @@
 include_once ("./../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos
-include_once ("./../mod_conexion/conexionBaseDatos.php");
+include_once ("./../../inicial.php");
 // Incluimos funciones
 include_once ("./funciones.php");
 

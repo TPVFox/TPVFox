@@ -4,7 +4,7 @@
 		<?php 
 		include './../../head.php';
         include './funciones.php';
-        include ("./../mod_conexion/conexionBaseDatos.php");
+        //~ include ("./../mod_conexion/conexionBaseDatos.php");
         include ("./../../controllers/Controladores.php");
 		include '../mod_compras/clases/albaranesCompras.php';
 		include '../../clases/articulos.php';

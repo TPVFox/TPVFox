@@ -87,8 +87,8 @@ function controladorAcciones(caja,accion, tecla){
 				cabecera.suNumero=caja.darValor();
 			}
 			if (caja.id_input=="Proveedor"){
-				console.log(dato.length);
-				if ( dato.length <= 0){
+				console.log("longitud"+dato.length);
+				if ( dato.length == 0){
 					ponerFocus(d_focus);
 				}
 			}else{
@@ -104,27 +104,46 @@ function controladorAcciones(caja,accion, tecla){
 							 var nuevofocus="idArticulo";
 							 ponerFocus(nuevofocus);
 						 }
+						 console.log("estoy aqui 1"+dato.length);
 						ponerFocus(d_focus);
 					}
 				}else{
-					 ponerFocus(d_focus);
+					 console.log("estoy aqui 2"+dato.length);
+					 if(dato==0){
+						ponerFocus(d_focus);
+				 }
 				}
 				
 			}
 			
 			
 		break;
+		case 'Saltar_idProveedorAbajo':
+			var dato = caja.darValor();
+			
+				var d_focus = 'id_proveedor';
+				ponerFocus(d_focus);
+			
+			
+			
+		break;
 		case 'Saltar_Proveedor':
 			var dato = caja.darValor();
-			var d_focus = 'Proveedor';
-			ponerFocus(d_focus);
+				if(dato==0){
+					var d_focus = 'Proveedor';
+					ponerFocus(d_focus);
+				}
+			
+			
 			
 		break;
 		case 'Saltar_idArticulo':
 			var dato = caja.darValor();
-			
-			var d_focus = 'idArticulo';
-			ponerFocus(d_focus);
+			if(dato==0){
+					var d_focus = 'idArticulo';
+					ponerFocus(d_focus);
+			}
+		
 			
 		break;
 		case 'Saltar_fecha':
@@ -134,23 +153,32 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		case 'Saltar_Referencia':
 			var dato = caja.darValor();
-			var d_focus = 'Referencia';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Referencia';
+				ponerFocus(d_focus);
+			}
+			
 		break;
 		case 'Saltar_ReferenciaPro':
 			var dato = caja.darValor();
-			var d_focus = 'ReferenciaPro';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'ReferenciaPro';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'Saltar_CodBarras':
 			var dato = caja.darValor();
-			var d_focus = 'Codbarras';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Codbarras';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'Saltar_Descripcion':
 			var dato = caja.darValor();
-			var d_focus = 'Descripcion';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Descripcion';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'addRefProveedor':
 			var idArticulo=$('#idArticuloRef').val();
@@ -586,10 +614,10 @@ function comprobarAdjunto(dedonde){
 					if (resultado.bandera == 1){
 						console.log("entre en las opciones");
 						$('#tablaAl').css("display", "block");
-						$('#numPedidoT').css("display", "block");
-						$('#numPedido').css("display", "block");
-						$('#buscarPedido').css("display", "block");
-						$('#tablaPedidos').css("display", "block");
+						//~ $('#numPedidoT').css("display", "block");
+						//~ $('#numPedido').css("display", "block");
+						//~ $('#buscarPedido').css("display", "block");
+						//~ $('#tablaPedidos').css("display", "block");
 						ponerFocus('numPedido');
 					}else{
 						ponerFocus('idArticulo');
@@ -661,6 +689,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				addTemporal(dedonde)
 				document.getElementById(id_input).value='';
 				AgregarFilaProductos(datos, dedonde, campo);
+				console.log("muestro fecha");
+				console.log(resultado['datos'][0]);
 				if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
 					alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
 				}
@@ -1224,4 +1254,61 @@ var parametros = {
 	});
 }
 	
+}
+function mensajeCancelar(idTemporal, dedonde){
+	var mensaje = confirm("Estas  seguro que quieres cancelar");
+	if (mensaje) {
+		if (idTemporal=="0"){
+			alert("No puedes cancelar si está guardado");
+		}else{
+			var parametros = {
+				"pulsado"    : 'cancelarTemporal',
+				"dedonde" : dedonde,
+				"idTemporal"      : idTemporal
+			};
+			$.ajax({
+				data       : parametros,
+				url        : 'tareas.php',
+				type       : 'post',
+				beforeSend : function () {
+					console.log('*********  Entre en cancelar archivos temporales  ****************');
+				},
+				success    :  function (response) {
+					console.log('REspuesta de cancelar temporales');
+					var resultado =  $.parseJSON(response);
+					console.log(resultado);
+						if(resultado.mensaje){
+							alert(resultado.mensaje+": "+resultado.dato);
+						}else{
+							switch(dedonde){
+								case 'pedidos':
+									location.href="pedidosListado.php";
+								break;
+								case 'albaran':
+									location.href="albaranesListado.php";
+								break;
+								case 'factura':
+									location.href="facturasListado.php";
+								break;
+							}
+						}
+					}
+					
+					
+				
+			});
+		}
+	}else{
+		switch(dedonde){
+			case 'pedidos':
+				location.href="pedidosListado.php";
+			break;
+			case 'albaran':
+				location.href="albaranesListado.php";
+			break;
+			case 'factura':
+				location.href="facturasListado.php";
+			break;
+		}
+	}
 }

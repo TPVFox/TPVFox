@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+	<configuracion>
+		<incidencias descripcion="mostrar_Select" dedonde="cliente">Si</incidencias>
+		<incidencias descripcion="usuario_Defecto" dedonde="cliente">1</incidencias>
+	</configuracion>
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="cajaCodbarras">cajaCodBarras</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+				<action tecla="112">Ayuda</action>
+			</teclas>
+		</caja_input>
+		
+		<caja_input>
+			<nombre id_input="cajaReferencia">cajaReferencia</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>				
+			</teclas>
+		</caja_input>
+		
+        <caja_input>
+			<nombre id_input="cajaDescripcion">cajaDescripcion</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+			</teclas>
+		</caja_input>
+		
+        <caja_input>
+			<nombre id_input="cajaBusqueda">cajaBusquedaproductos</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">popup</parametro>
+			</parametros> 
+			<before>
+				<estado>Si</estado>
+			</before>
+			
+		</caja_input>
+		
+		<caja_input>
+			<nombre id_input="cajaidArticulo">cajaidArticulo</nombre>
+			<teclas>
+				<action tecla="13">buscarProducto</action>
+			</teclas>
+		</caja_input>
+		
+		<caja_input>
+			<nombre id_input="inputPrecioSin">inputPrecioSin</nombre>
+			<teclas>
+				<action tecla="13">saltar_preciosCon</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="inputPrecioCon">inputPrecioCon</nombre>
+			<teclas>
+				<action tecla="13">grabarArticulo</action>
+			</teclas>
+		</caja_input>
+		
+		<caja_input>
+			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
+			<nombre id_input="btn-grabar-tc">btn_grabar_tc</nombre>
+			<teclas>
+				<action tecla="13">grabarArticulo</action>
+			</teclas>
+		</caja_input>
+		
+		<caja_input>
+			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
+			<nombre id_input="btn-grabar-tc">btn_cancelar_tc</nombre>
+			<teclas>
+				<action tecla="13">cancelarAnhadir</action>
+			</teclas>
+		</caja_input>
+		
+		<caja_input>
+			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
+			<nombre id_input="btn_modificar_">btn_modificar</nombre>
+			<teclas>
+				<action tecla="13">modificarArticulo</action>
+			</teclas>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		
+		<caja_input>
+			<!-- Este no es un input es btn por lo tecla solo va tener 13 -->
+			<nombre id_input="btn_cancelar_">btn_cancelar</nombre>
+			<teclas>
+				<action tecla="13">cancelarArticulo</action>
+			</teclas>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="N_">idN</nombre>
+			<teclas>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">popup</parametro>
+				<parametro nombre="prefijo">N_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		
+	</cajas_input>
+</parametros>

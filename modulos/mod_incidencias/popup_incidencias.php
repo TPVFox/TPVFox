@@ -1,6 +1,7 @@
 <?php 
 
 function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncidencia, $configuracion, $BDTpv){
+	//Objetivo: Mostrar el contenido del modal de incidencias
 	$select="Si";
 	$usuDeft=1;
 	foreach($configuracion as $config){
@@ -21,44 +22,33 @@ function modalIncidencia($usuario, $datos, $fecha, $dedonde, $estado, $numIncide
 	}
 	$datosPrincipales=json_decode($datos);
 $html="";
-$html.='<div class="col-md-12">';
-$html.='<div class="col-md-6">';
-$html.='<label>Usuario:</label>';
-$html.='<input type="text" name="inci_usuario" id="inci_usuario" value="'.$usuario.'" readonly="">';
-$html.='</div>';
-$html.='<div class="col-md-6">';
-$html.='<label>Fecha:</label>';
-$html.='<input type="date" name="inci_fecha" id="inci_fecha" value="'.$fecha.'" readonly="">';
-$html.='</div>';
-$html.='</div>';
-$html.='<div class="col-md-12">';
-$html.='<div class="col-md-6">';
-$html.='<label>Dedonde:</label>';
-$html.='<input type="text" name="inci_dedonde" id="inci_dedonde" value="'.$dedonde.'" readonly="">';
-$html.='</div>';
-$html.='<div class="col-md-6">';
-$html.='<label>Estado:</label>';
+$html.='<div class="col-md-12"><div class="col-md-6">'
+	.'<label>Usuario:</label>'
+	.'<input type="text" name="inci_usuario" id="inci_usuario" value="'.$usuario.'" readonly="">'
+	.'</div><div class="col-md-6"><label>Fecha:</label>'
+	.'<input type="date" name="inci_fecha" id="inci_fecha" value="'.$fecha.'" readonly=""></div></div>'
+	.'<div class="col-md-12">'
+	.'<div class="col-md-6">'
+	.'<label>Dedonde:</label>'
+	.'<input type="text" name="inci_dedonde" id="inci_dedonde" value="'.$dedonde.'" readonly="">'
+	.'</div><div class="col-md-6"><label>Estado:</label>';
 if ($datosPrincipales->dedonde=="incidencia"){
-	$html.='<select name="inci_estado" id="inci_estado">';
-		$html.='<option value=0 selected>No resuelto</option>';
-		$html.='<option value=1 selected>Resuelto</option>';
-		$html.='<option value=2 selected>Pendiente</option>';
-	$html.='</select>';
+	$html.='<select name="inci_estado" id="inci_estado">'
+		.'<option value=0 selected>No resuelto</option>'
+		.'<option value=1 selected>Resuelto</option>'
+		.'<option value=2 selected>Pendiente</option>'
+	.'</select>';
 	
 }else{
-$html.='<input type="text" name="inci_estado" id="inci_estado" value="'.$estado.'" readonly="">';
+	$html.='<input type="text" name="inci_estado" id="inci_estado" value="'.$estado.'" readonly="">';
 }
-$html.='</div>';
-$html.='</div>';
-$html.='<div class="col-md-12">';
-$html.='<label>Mensaje:</label>';
-$html.='<input type="text" name="inci_mensaje" id="inci_mensaje"  size="60" >';
-$html.='</div>';
-$html.='<div class="col-md-12">';
-$html.='<div class="col-md-6">';
+$html.='</div></div><div class="col-md-12">'
+.'<label>Mensaje:</label>'
+.'<input type="text" name="inci_mensaje" id="inci_mensaje"  size="60" >'
+.'</div><div class="col-md-12"><div class="col-md-6">';
 if($select=="Si"){
-	$html.='<label>Seleccionar usuario:</label>';
-	$html.='<select name="usuarioSelec" id="usuarioSelec">';
+	$html.='<label>Seleccionar usuario:</label>'
+	.'<select name="usuarioSelec" id="usuarioSelec">';
 	foreach ($usuariosSelect as $usu){
 		if ($usu['id']==$usuDeft){
 			$html.='<option value='.$usu['id'].' selected>'.$usu['username'].'</option>';
@@ -68,16 +58,13 @@ if($select=="Si"){
 	}
 	$html.='</select>';
 }
-$html.='</div>';
-$html.='<div class="col-md-6">';
-$html.='<label>Datos:</label>';
-$html.='<input type="text" name="inci_datos" id="inci_datos" value='."'".$datos."'".' readonly="">';
-$html.='</div>';
-$html.='</div>';
-$html.='<input type="hidden" name="numIncidencia" id="numIncidencia" value='.$numIncidencia.'>';
-$html.='<div class="modal-footer">';
-$html.='<a href="" onclick="enviarIncidencia();" >Guardar</a>';
-$html.='</div>';
+$html.='</div><div class="col-md-6"><label>Datos:</label>'
+.'<input type="text" name="inci_datos" id="inci_datos" value='."'".$datos."'".' readonly="">'
+.'</div></div>'
+.'<input type="hidden" name="numIncidencia" id="numIncidencia" value='.$numIncidencia.'>'
+.'<div class="modal-footer">'
+.'<a href="" onclick="enviarIncidencia();" >Guardar</a>'
+.'</div>';
 return $html;
 	
 }

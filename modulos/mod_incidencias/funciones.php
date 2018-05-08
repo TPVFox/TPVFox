@@ -5,7 +5,7 @@ if(isset($_GET['pulsado'])){
 }
 
 include_once ("./../../configuracion.php");
-include_once ("./../mod_conexion/conexionBaseDatos.php");
+include_once ("./../../inicial.php");
 include_once ("./popup_incidencias.php");
 switch ($pulsado) {
 	case 'nuevaIncidencia':

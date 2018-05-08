@@ -130,7 +130,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					$('#Cliente').prop('disabled', true);
 					$('#id_cliente').prop('disabled', true);
 					$("#buscar").css("display", "none");
-					$('#idArticulo').focus();
+					
 					mostrarFila();
 					if (dedonde=="albaran"){
 						comprobarPedidosExis();
@@ -139,6 +139,11 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						formasVenciCliente(resultado.formasVenci);
 						comprobarAlbaranesExis();
 					}
+					if(dedonde=="pedido"){
+					$('#Referencia').focus();	
+					}
+					
+					
 				}else{
 					console.log(resultado.html);
 				 var titulo = 'Listado clientes ';
@@ -671,6 +676,7 @@ function mostrarFila(){
 	//Mostrar la fila de inputs para añadir nuevos productos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
+	$('#Referencia').focus();
 }
 
 function buscarPedido(dedonde, idcaja, valor=''){
@@ -801,6 +807,7 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 								productos.push(resultado.productos[i]);
 								numFila++;
 							}
+							console.log(productos);
 							addTemporal(dedonde);
 							AgregarFilaProductosAl(resultado.productos, dedonde);
 							modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);
@@ -1275,4 +1282,61 @@ function resetearTotales(){
 	$('#iva21').html('');
 	$('.totalImporte').html('');
 	
+}
+function mensajeCancelar(idTemporal, dedonde){
+	var mensaje = confirm("Estas  seguro que quieres cancelar");
+	if (mensaje) {
+		if (idTemporal=="0"){
+			alert("No puedes cancelar si está guardado");
+		}else{
+			var parametros = {
+				"pulsado"    : 'cancelarTemporal',
+				"dedonde" : dedonde,
+				"idTemporal"      : idTemporal
+			};
+			$.ajax({
+				data       : parametros,
+				url        : 'tareas.php',
+				type       : 'post',
+				beforeSend : function () {
+					console.log('*********  Entre en cancelar archivos temporales  ****************');
+				},
+				success    :  function (response) {
+					console.log('REspuesta de cancelar temporales');
+					var resultado =  $.parseJSON(response);
+					console.log(resultado);
+						if(resultado.mensaje){
+							alert(resultado.mensaje+": "+resultado.dato);
+						}else{
+							switch(dedonde){
+								case 'pedidos':
+									location.href="pedidosListado.php";
+								break;
+								case 'albaran':
+									location.href="albaranesListado.php";
+								break;
+								case 'factura':
+									location.href="facturasListado.php";
+								break;
+							}
+						}
+					}
+					
+					
+				
+			});
+		}
+	}else{
+		switch(dedonde){
+			case 'pedidos':
+				location.href="pedidosListado.php";
+			break;
+			case 'albaran':
+				location.href="albaranesListado.php";
+			break;
+			case 'factura':
+				location.href="facturasListado.php";
+			break;
+		}
+	}
 }

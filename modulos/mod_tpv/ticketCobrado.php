@@ -6,7 +6,7 @@
         include './../../head.php';
         include './funciones.php';
         //~ include '../mod_cierres/funciones.php';
-        include ("./../mod_conexion/conexionBaseDatos.php");
+        //~ include ("./../mod_conexion/conexionBaseDatos.php");
 		// Ya no hace falta, ya que lo contralomos head.
 		//~ if ($Usuario['estado'] === "Incorrecto"){
 			//~ return;	

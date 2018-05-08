@@ -21,12 +21,14 @@ include './../../head.php';
 	$titulo="Pedido De Cliente ";
 	$estado='Abierto';
 	$bandera=0;
-	$fecha=date('Y-m-d');
+	//~ $fecha=date('Y-m-d');
+	$fecha=date('d-m-Y');
 	$idTemporal = 0;
 	$idPedido=0;
 	$total=0;
 	$idCliente=0;
 	$errores=array();
+	$textoNum="";
 	$parametros = $ClasesParametros->getRoot();
 	//~ $parametros = simplexml_load_file('parametros.xml');
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -42,6 +44,7 @@ include './../../head.php';
 	
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
 		$idPedido=$_GET['id'];
+		$textoNum=$idPedido;
 		$datosPedido=$Cpedido->datosPedidos($idPedido);//Buscar los datos de pedido 
 		if (isset($datosPedido['error'])){
 		$errores[0]=array ( 'tipo'=>'Danger!',
@@ -67,7 +70,8 @@ include './../../head.php';
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 		}
-		$fecha=$datosPedido['FechaPedido'];
+		//~ $fecha=$datosPedido['FechaPedido'];
+		$fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
 		$idCliente=$datosPedido['idCliente'];
 		if ($idCliente){
 				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
@@ -95,6 +99,7 @@ include './../../head.php';
 			$idCliente=$pedidoTemporal['idClientes'];
 			if (isset($pedidoTemporal['idPedcli'])){
 				$idPedido=$pedidoTemporal['idPedcli'];
+				$textoNum=$idPedido;
 			}else{
 				$idPedido=0;
 			}
@@ -109,7 +114,7 @@ include './../../head.php';
 		
 	}
 
-$titulo .= ': '.$estado;
+$titulo .= ' '.$textoNum.': '.$estado;
 
 		if(isset($pedido['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
@@ -120,14 +125,15 @@ $titulo .= ': '.$estado;
 		//Pasar un pedido temporal a real
 		if (isset($_POST['Guardar'])){
 			if (isset($_GET['id'])){
-				$modFecha=$Cpedido->modificarFecha($_GET['id'], $_POST['fecha']);
+				$fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
+				 $modFecha=$Cpedido->modificarFecha($_GET['id'],$fecha);
 				if(isset($modFecha['error'])){
 					echo '<div class="alert alert-danger">'
 						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
 						. '</div>';
 					
 				}else{
-					header('Location: facturasListado.php');
+					header('Location: pedidosListado.php');
 				}
 			}else{
 				if (isset($_POST['idTemporal'])){
@@ -150,9 +156,10 @@ $titulo .= ': '.$estado;
 					}
 					$idPedido=0;
 					$fechaCreacion=date("Y-m-d H:i:s");
+					$fecha=date_format(date_create($_POST['fecha']), 'Y-m-d');
 					$datosPedido=array(
 					'NPedidoTemporal'=>$idTemporal,
-					'fecha'=>$_POST['fecha'],
+					'fecha'=>$fecha,
 					'idTienda'=>$Tienda['idTienda'],
 					'idUsuario'=>$Usuario['id'],
 					'idCliente'=>$pedidoTemporal['idClientes'],
@@ -300,6 +307,15 @@ if ($idCliente===0){
 }
 ?>
 <script type="text/javascript">
+			<?php
+	 if (isset($_POST['Cancelar'])){
+		  ?>
+		 mensajeCancelar(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
+		  <?php
+	  }
+	  ?>
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -313,30 +329,39 @@ if ($idCliente===0){
 
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+			<div class="col-md-12" >
 			
-				<?php 
-				
-					if($estado<>"Facturado"){
-				?>
-					<input type="submit" value="Guardar" name="Guardar">
+				<div class="col-md-8" >
+			
+				<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+					<?php 
+						if($estado<>"Facturado"){
+					?>
+						<input type="submit" value="Guardar" class="btn btn-primary" name="Guardar">
+						</div>
+				<div class="col-md-4 " >
+						<input class="pull-right btn btn-danger" type="submit" value="Cancelar" name="Cancelar" id="Cancelar">
 					<?php
 					}
-				
-			
+					?>
+				</div>
+			</div>
+					<?php
+					
 				if (isset($_GET['tActual'])){
 					?>
 					<input type="text" style="display:none;" name="idTemporal" value=<?php echo $_GET['tActual'];?>>
 					<?php
 				}
 					?>
+					
 <div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">
 			<div class="col-md-7">
 				<div class="col-md-6">
 					<strong>Fecha Pedido:</strong><br/>
-					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd" <?php echo $disabled;?>>
+					<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy" <?php echo $disabled;?>>
 				</div>
 				<div class="col-md-6">
 					<strong>Estado:</strong>

@@ -62,6 +62,7 @@
 		} else {
 			$filtro= " ORDER BY a.num_incidencia desc  LIMIT ".$LimitePagina." OFFSET ".$desde;
 		}
+		//Buscar todas las incidencias con un límite para el paginado
 	$incidenciasFiltro=$CIncidencia->todasIncidenciasLimite($filtro);
 	if (isset($incidenciasFiltro['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
@@ -81,6 +82,7 @@
      <?php
 
 	include '../../header.php';
+	//Mostrar los errores que tiene los sql;
 	if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'
@@ -139,6 +141,7 @@
 				foreach($incidenciasFiltro as $incidencia){
 							$checkUser = $checkUser + 1;
 							$date=date_create($incidencia['fecha']);
+							//Contar el número de incidencias que tiene un número determinado
 							$numInci=count($CIncidencia->incidenciasNumero($incidencia['num_incidencia']));
 					?>
 					<tr>

@@ -13,8 +13,7 @@ $pulsado = $_POST['pulsado'];
 include_once ("./../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos
-//~ include_once ("./../mod_conexion/conexionBaseDatos.php");
-include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
+include_once ("./../../inicial.php");
 
 	// Solo creamos objeto si no existe.
 	//~ $thisTpv = new ComprobarSession;

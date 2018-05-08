@@ -1,0 +1,3 @@
+CREATE TABLE `modulo_etiquetado_temporal` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `num_lote` INT(11) NOT NULL , `tipo` VARCHAR(12) NOT NULL , `fecha_env` DATETIME NOT NULL , `fecha_cad` DATE NOT NULL , `idArticulo` INT(11) NOT NULL , `numAlb` INT(11) NOT NULL , `estado` VARCHAR(12) NOT NULL , `productos` VARBINARY(50000) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+CREATE TABLE `modulo_etiquetado` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `num_lote` INT(11) NOT NULL , `tipo` VARCHAR(12) NOT NULL , `fecha_env` DATETIME NOT NULL , `fecha_cad` DATE NOT NULL , `idArticulo` INT(11) NOT NULL , `numAlb` INT(11) NOT NULL , `estado` VARCHAR(12) NOT NULL , `productos` VARBINARY(50000) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;

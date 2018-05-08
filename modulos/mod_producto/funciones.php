@@ -816,7 +816,7 @@ function ImprimirA5($productos){
 			$imprimir['html'].='<tr>';
 			$imprimir['html'].='<td align="center"  style="height:200px;" >';
 			$imprimir['html'].='<b><font size="30 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
-			$imprimir['html'].='<b><font size="35 em">TECLA: </font></b><br>';
+			$imprimir['html'].='<b><font size="35 em"> </font></b><br>';
 			$imprimir['html'].='<b><font size="250 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br><br>';
 			$imprimir['html'].='<font size="12 em">  Fecha: '.date('Y-m-d').'</font>';
 			$imprimir['html'].='<font size="12 em" >  Codbarras: ';
