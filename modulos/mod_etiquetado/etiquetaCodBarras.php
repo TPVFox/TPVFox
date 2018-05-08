@@ -151,6 +151,11 @@
 			</div>
 		</form>
 		</div>
+		<?php // Incluimos paginas modales
+echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+// hacemos comprobaciones de estilos 
+?>
 	</body>
 </html>
       
