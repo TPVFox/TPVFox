@@ -57,6 +57,10 @@ function htmlLineaProveedorCoste($proveedor){
 	if (!isset($proveedor['crefProveedor'])){
 		$proveedor['crefProveedor'] = '';
 	}
+	$style_color = '';
+	if (isset($proveedor['ultimo_pro'])){
+		$style_color = ' style="color:red;" ';
+	}
 	$nuevaFila = '<tr>'
 				.'<td><input '.$atributos.' type="checkbox" id="check_pro_'
 				.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>'
@@ -74,7 +78,7 @@ function htmlLineaProveedorCoste($proveedor){
 				.'</td>'
 				.'<td>'
 				.'<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'
-				.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>'
+				.$proveedor['fechaActualizacion'].'" '.$style_color.'>'.$proveedor['estado'].'</span>'
 				.'</td>'
 				.'<td><a id="desActivarProv_'.$proveedor['idProveedor']
 				.'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'
@@ -779,6 +783,32 @@ function ImprimirA5($productos){
 function eliminarSeleccion(){
 	$_SESSION['productos_seleccionados']=array();
 
+}
+
+
+function comprobarUltimaCompraProveedor($Pro_costes){
+	// @Objetivo 
+	// Comprobar a quien se compro por ultima vez un producto.
+	// @Parametros
+	// 		$Pro_costes -> Array con los proveedores y los costes que se compro es te producto.
+	$respuesta = array();
+	if (count($Pro_costes) > 0){
+		$id_proveedor_ultimo = 0;
+		$ultimo_coste = 0;
+		$fecha_ultima = "0000-00-00";
+		foreach ($Pro_costes as $key =>$proveedor){
+			if ($proveedor['fechaActualizacion']>$fecha_ultima){
+				$id_proveedor_ultimo = $proveedor['idProveedor'];
+				$ultimo_coste = $proveedor['coste'];
+				$fecha_ultima = $proveedor['fechaActualizacion'];
+				$item = $key;
+			}
+		}
+		$Pro_costes[$item]['ultimo_pro'] = 'Si';
+	}
+	$respuesta['proveedores'] = $Pro_costes;
+	$respuesta['coste_ultimo'] = $ultimo_coste;
+	return $respuesta;
 }
 
 ?>

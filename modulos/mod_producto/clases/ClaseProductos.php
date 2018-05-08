@@ -5,7 +5,7 @@
  *
  * [Informacion sobre los estados posibles.]
  * Campo estado de las tablas de articulos :
- * Sus posibles valores , los podemos ver el metodo: posiblesEstados($tabla), donde hay uno para todas las tablas
+ * Sus posibles valores , los podemos ver el metodo: posiblesEstados($tabla), donde hay unos para todas las tablas
  * y algunas tablas tiene algunos mas.
  * 
  * [OTRAS NOTAS]

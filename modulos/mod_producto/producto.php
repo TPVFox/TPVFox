@@ -140,10 +140,23 @@
 				$Producto['proveedores_costes'][$key]['principal'] = 'Si';
 			}
 		}
-		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
+		// Vemos cual fue el ultimo proveedor al que se compro.
+		$proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
+		$htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
+		// Ahora comprobamos si el coste ultimo es correcto.
+		if ($proveedores_costes['coste_ultimo'] != $Producto['ultimoCoste']){
+			$success = array ( 'tipo'=>'warning',
+								 'mensaje' =>'El ultimo coste, se acaba de actualizar, coste_actual: '
+								 .$Producto['ultimoCoste']. ' y coste_ultimo real:'.$proveedores_costes['coste_ultimo'],
+								 'dato' => array($proveedores_costes['coste_ultimo'],$Producto['ultimoCoste'])
+								);
+			$Producto['comprobaciones'][] = $success;
+			// Ahora cambiamos el coste_ultimo
+			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
+		}
+		
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
-		
 		
 		
 		
