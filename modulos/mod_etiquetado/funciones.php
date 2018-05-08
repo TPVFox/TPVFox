@@ -65,7 +65,7 @@ function htmlProductos($busqueda, $productos){
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
 	. ' <th></th> <th>Id</th><th>Nombre del Producto</th><th>PVPCiva</th></thead><tbody>';
-	if (count($proveedores)>0){
+	if (count($productos)>0){
 			$contad = 0;
 			foreach($productos as $producto){
 				$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarProducto('

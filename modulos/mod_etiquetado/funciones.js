@@ -167,6 +167,11 @@ function buscarProducto(valor, caja){
 						$("#buscar").css("display", "none");
 						$('#unidades').focus();
 						
+					}else{
+						var titulo = 'Listado De Productos ';
+						var HtmlProductos=resultado.html; 
+						abrirModal(titulo,HtmlProductos);
+						focusAlLanzarModal('cajaBusquedaproductos');
 					}
 				}
 				
