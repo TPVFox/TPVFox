@@ -6,6 +6,7 @@
         include ("./../../controllers/Controladores.php");
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
         include '../../clases/articulos.php';
+        include 'clases/modulo_etiquetado.php';
 		
 		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
@@ -13,13 +14,13 @@
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
 		$Carticulo=new Articulos($BDTpv);
+		$Cetiqueta=new Modulo_etiquetado($BDTpv);
         $Tienda = $_SESSION['tiendaTpv'];
 		$Usuario = $_SESSION['usuarioTpv'];
         $titulo="Crear Etiquetas de Código Barras";
         $fechaEnv=date('Y-m-d H:i:s');
         $nuevafecha = strtotime ( '+7 day' , strtotime ( $fechaEnv ) ) ;
 		$fechaCad = date ( 'Y-m-d' , $nuevafecha );
-        //~ $fechaCad=date('Y-m-d');
         $numAlb="";
         $nomPro="";
         $idReal=0;
@@ -27,13 +28,32 @@
         $estado="Activo";
         $idTemporal=0;
 		$idProducto="";
-        //~ if (isset($_GET['idProducto'])){
-			//~ $idProducto=$_GET['idProducto'];
-			//~ $datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
-			//~ $nomPro=$datosProducto['articulo_name'];
-		//~ }
 		$parametros = $ClasesParametros->getRoot();	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		
+		if(isset($_GET['id'])){
+			
+		}
+		if(isset($_GET['tActual'])){
+			$idTemporal=$_GET['tActual'];
+			$etiquetaTemporal=$Cetiqueta->buscarTemporal($idTemporal);
+			if(isset($etiquetaTemporal['error'])){
+				
+			}else{
+				$fechaEnv=$etiquetaTemporal['fecha_env'];
+				$fechaCad=$etiquetaTemporal['fecha_cad'];
+				$numAlb=$etiquetaTemporal['numAlb'];
+				$idProducto=$etiquetaTemporal['idArticulo'];
+				$nomPro=$etiquetaTemporal['articulo_name'];
+				$estado=$etiquetaTemporal['estado'];
+				$productos=$etiquetaTemporal['productos'];
+				$productos=json_decode($productos, true);
+				//~ echo '<pre>';
+				//~ print_r($productos);
+				//~ echo '</pre>';
+				
+			}
+		}
         ?>
         <script type="text/javascript">
 			var cabecera = [];
@@ -88,7 +108,7 @@
 			<div class="col-md-12">
 				<div class="col-md-12 ">
 					<div class="col-md-8">
-						<a href="./../mod_producto/ListaProductos.php">Volver Atrás</a>
+						<a href="ListadoEtiquetas.php">Volver Atrás</a>
 						<input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
 					</div>
 					<div class="col-md-4">
