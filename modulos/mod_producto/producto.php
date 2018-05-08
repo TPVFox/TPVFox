@@ -4,7 +4,7 @@
         <?php
         include './../../head.php';
         include './funciones.php';
-        include ("./../mod_conexion/conexionBaseDatos.php");
+        //~ include ("./../mod_conexion/conexionBaseDatos.php");
         include ("./../../controllers/Controladores.php");
 		// Creo objeto de controlador comun.
 		$Controler = new ControladorComun; 

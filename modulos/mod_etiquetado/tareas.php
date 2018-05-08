@@ -3,7 +3,7 @@
 $pulsado = $_POST['pulsado'];
 
 include_once ("./../../configuracion.php");
-include_once ("./../mod_conexion/conexionBaseDatos.php");
+include_once ("./../../inicial.php");
 include_once ("./funciones.php");
 include_once "../../clases/articulos.php";
 include_once "clases/modulo_etiquetado.php";

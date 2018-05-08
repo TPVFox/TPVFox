@@ -4,7 +4,7 @@
 		<?php
         include './../../head.php';
         include ("./../../controllers/Controladores.php");
-        include ("./../mod_conexion/conexionBaseDatos.php");
+        //~ include ("./../mod_conexion/conexionBaseDatos.php");
         include '../../clases/articulos.php';
 		
 		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');

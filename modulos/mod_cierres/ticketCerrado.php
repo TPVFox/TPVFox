@@ -5,7 +5,7 @@
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
-        include ("./../mod_conexion/conexionBaseDatos.php");
+        //~ include ("./../mod_conexion/conexionBaseDatos.php");
 		?>
 		<script type="text/javascript">
 		var cajaBusquedacliente = {

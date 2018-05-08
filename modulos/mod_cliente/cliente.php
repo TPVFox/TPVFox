@@ -6,7 +6,7 @@
         include './../../head.php';
         include './funciones.php';
         
-        include ("./../mod_conexion/conexionBaseDatos.php");
+        //~ include ("./../../mod_conexion/conexionBaseDatos.php");
          include ("./../../controllers/Controladores.php");
         include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
         $ClasesParametros = new ClaseParametros('parametros.xml');  
