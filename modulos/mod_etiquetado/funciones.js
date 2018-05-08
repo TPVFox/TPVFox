@@ -127,13 +127,20 @@ function addEtiquetadoTemporal(){
 			success    :  function (response) {
 				console.log('Llegue devuelta repetir productos JS');
 				var resultado =  $.parseJSON(response);
-				
+				if (resultado.error){
+					alert(resultado.consulta);
+				}else{
+					if (resultado.existe == 0){
+						history.pushState(null,'','?tActual='+resultado.idTemporal);
+						cabecera.idTemporal=resultado.idTemporal;
+					}
+				}
 				
 			}
 		});
 	
 }
-function buscarProducto(valor, caja){
+function buscarProducto(valor="", caja=""){
 	
 	console.log("estoy dento de la función de buscar Producto");
 	console.log(valor);

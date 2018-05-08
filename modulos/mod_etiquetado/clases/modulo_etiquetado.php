@@ -26,6 +26,7 @@ class Modulo_etiquetado{
 	}
 	public function addTemporal($datos, $productos){
 		$respuesta=array();
+		$db = $this->db;
 		$sql='INSERT INTO `modulo_etiquetado_temporal`(`num_lote`, `tipo`,
 		 `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
 		 `productos`, `idUsuario`) VALUES('.$datos['idReal'].', '.$datos['tipo'].', "'.$datos['fechaEnv'].'",
@@ -36,7 +37,7 @@ class Modulo_etiquetado{
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
 		}else{
-			$respuesta['id']=$smt->insert_id;
+			$respuesta['id']=$db->insert_id;
 		}
 		return $respuesta;
 	}

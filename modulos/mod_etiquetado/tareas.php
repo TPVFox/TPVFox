@@ -29,6 +29,7 @@ switch ($pulsado) {
 	break;
 	case 'addEtiquetadoTemporal':
 		$idTemporal=0;
+		$existe=0;
 		$productos=array();
 		if(isset($_POST['productos'])){
 			$productos=$_POST['productos'];
@@ -53,6 +54,7 @@ switch ($pulsado) {
 			}
 			
 		}
+		$respuesta['existe']=$existe;
 		$respuesta['idTemporal']=$idTemporal;
 		$respuesta['productos']=$_POST['productos'];
 	
