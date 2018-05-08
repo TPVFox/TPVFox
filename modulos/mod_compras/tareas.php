@@ -133,93 +133,95 @@ switch ($pulsado) {
 					//~ }
 				//~ }
 			//~ }
+			include ('tareas/addProveedorArticulo.php');
 		break;
 		
 		case 'comprobarAdjunto':
-			//@Objetivo:
-			//comprobar que el proveedor tiene albaran o pedido en estado guardado
-			$estado="Guardado";
-			$idProveedor=$_POST['idProveedor'];
-			$dedonde=$_POST['dedonde'];
-			$respuesta=array();
-			if ($dedonde=="factura"){
-				$buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
-				if (isset($buscar['error'])){
-						$respuesta['error']=$buscar['error'];
-						$respuesta['consulta']=$buscar['consulta'];
-				}
-			}else{
-				$buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
-				if (isset($buscar['error'])){
-						$respuesta['error']=$buscar['error'];
-						$respuesta['consulta']=$buscar['consulta'];
-				}
-			}
-			if (count($buscar)>0){
-					$respuesta['bandera']=1;
-			}else{
-					$respuesta['bandera']=2;
-			}
-			
+			//~ //@Objetivo:
+			//~ //comprobar que el proveedor tiene albaran o pedido en estado guardado
+			//~ $estado="Guardado";
+			//~ $idProveedor=$_POST['idProveedor'];
+			//~ $dedonde=$_POST['dedonde'];
+			//~ $respuesta=array();
+			//~ if ($dedonde=="factura"){
+				//~ $buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
+				//~ if (isset($buscar['error'])){
+						//~ $respuesta['error']=$buscar['error'];
+						//~ $respuesta['consulta']=$buscar['consulta'];
+				//~ }
+			//~ }else{
+				//~ $buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
+				//~ if (isset($buscar['error'])){
+						//~ $respuesta['error']=$buscar['error'];
+						//~ $respuesta['consulta']=$buscar['consulta'];
+				//~ }
+			//~ }
+			//~ if (count($buscar)>0){
+					//~ $respuesta['bandera']=1;
+			//~ }else{
+					//~ $respuesta['bandera']=2;
+			//~ }
+			include ('tareas/comprobarAdjunto.php');
 		break;
 	
 		case 'buscarAdjunto':
 		//@objetivo:
 		//buscar si el numero de adjunto (número de pedido o albarán )
 		//carga los datos principales y sus productos
-			$respuesta=array();
-			$numAdjunto=$_POST['numReal'];
-			$idProveedor=$_POST['idProveedor'];
-			$estado="Guardado";
-			$dedonde=$_POST['dedonde'];
-			if ($dedonde=="albaran"){
-				$datosAdjunto=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numAdjunto, $estado);
-				if (isset($datosAdjunto['error'])){
-					$respuesta['error']=$datosAdjunto['error'];
-					$respuesta['consola']=$datosAdjunto['consulta'];
-				}
-			}else{
-				$datosAdjunto=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAdjunto, $estado);
-				if (isset($datosAdjunto['error'])){
-					$respuesta['error']=$datosAdjunto['error'];
-					$respuesta['consola']=$datosAdjunto['consulta'];
-				}
-			}
-			if (isset($datosAdjunto['Nitem'])){
-				$respuesta['temporales']=1;
-				if ($dedonde=="albaran"){
-					$respuesta['datos']['NumAdjunto']=$datosAdjunto['Numpedpro'];
-					$respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
-					$productosAdjunto=$CPed->ProductosPedidos($datosAdjunto['id']);
-					if (isset($productosAdjunto['error'])){
-						$respuesta['error']=$productosAdjunto['error'];
-						$respuesta['consulta']=$productosAdjunto['consulta'];
-					}else{
-						$respuesta['productos']=$productosAdjunto;
-					}
-				}else{
-					$respuesta['datos']['NumAdjunto']=$datosAdjunto['Numalbpro'];
-					$respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
-					$productosAdjunto=$CAlb->ProductosAlbaran($datosAdjunto['id']);
-					if (isset($productosAdjunto['error'])){
-						$respuesta['error']=$productosAdjunto['error'];
-						$respuesta['consulta']=$productosAdjunto['consulta'];
-					}else{
-						$respuesta['productos']=$productosAdjunto;
-					}
-				}
-				$date = new DateTime($datosAdjunto['Fecha']);
-				$respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
-				$respuesta['datos']['total']=$datosAdjunto['total'];
-				$respuesta['datos']['estado']="activo";
+			//~ $respuesta=array();
+			//~ $numAdjunto=$_POST['numReal'];
+			//~ $idProveedor=$_POST['idProveedor'];
+			//~ $estado="Guardado";
+			//~ $dedonde=$_POST['dedonde'];
+			//~ if ($dedonde=="albaran"){
+				//~ $datosAdjunto=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numAdjunto, $estado);
+				//~ if (isset($datosAdjunto['error'])){
+					//~ $respuesta['error']=$datosAdjunto['error'];
+					//~ $respuesta['consola']=$datosAdjunto['consulta'];
+				//~ }
+			//~ }else{
+				//~ $datosAdjunto=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAdjunto, $estado);
+				//~ if (isset($datosAdjunto['error'])){
+					//~ $respuesta['error']=$datosAdjunto['error'];
+					//~ $respuesta['consola']=$datosAdjunto['consulta'];
+				//~ }
+			//~ }
+			//~ if (isset($datosAdjunto['Nitem'])){
+				//~ $respuesta['temporales']=1;
+				//~ if ($dedonde=="albaran"){
+					//~ $respuesta['datos']['NumAdjunto']=$datosAdjunto['Numpedpro'];
+					//~ $respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
+					//~ $productosAdjunto=$CPed->ProductosPedidos($datosAdjunto['id']);
+					//~ if (isset($productosAdjunto['error'])){
+						//~ $respuesta['error']=$productosAdjunto['error'];
+						//~ $respuesta['consulta']=$productosAdjunto['consulta'];
+					//~ }else{
+						//~ $respuesta['productos']=$productosAdjunto;
+					//~ }
+				//~ }else{
+					//~ $respuesta['datos']['NumAdjunto']=$datosAdjunto['Numalbpro'];
+					//~ $respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
+					//~ $productosAdjunto=$CAlb->ProductosAlbaran($datosAdjunto['id']);
+					//~ if (isset($productosAdjunto['error'])){
+						//~ $respuesta['error']=$productosAdjunto['error'];
+						//~ $respuesta['consulta']=$productosAdjunto['consulta'];
+					//~ }else{
+						//~ $respuesta['productos']=$productosAdjunto;
+					//~ }
+				//~ }
+				//~ $date = new DateTime($datosAdjunto['Fecha']);
+				//~ $respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
+				//~ $respuesta['datos']['total']=$datosAdjunto['total'];
+				//~ $respuesta['datos']['estado']="activo";
 				
-				$respuesta['Nitems']=$datosAdjunto['Nitem'];
+				//~ $respuesta['Nitems']=$datosAdjunto['Nitem'];
 				
-			}else{
-				$respuesta['datos']=$datosAdjunto;
-				$modal=modalAdjunto($datosAdjunto['datos'], $dedonde, $BDTpv);
-				$respuesta['html']=$modal['html'];
-			}
+			//~ }else{
+				//~ $respuesta['datos']=$datosAdjunto;
+				//~ $modal=modalAdjunto($datosAdjunto['datos'], $dedonde, $BDTpv);
+				//~ $respuesta['html']=$modal['html'];
+			//~ }
+			include ('tareas/buscarAdjunto.php');
 		break;
 		
 		case 'addPedidoTemporal';
