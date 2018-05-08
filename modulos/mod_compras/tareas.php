@@ -24,63 +24,10 @@ $CFac= new FacturasCompras($BDTpv);
 $CArticulos=new Articulos($BDTpv);
 switch ($pulsado) {
 	case 'buscarProveedor':
-	//@Objetivo:
-	//Busca el proveedor según el dato insertado , si el dato viene de la caja idProveedor entonces busca por id
-	//Si no busca por nombre del proveedor y muestra un modal con las coincidencias ,
-	//Si no recibe busqueda muestra un modal con todos los nombres de los proveedores 
-	// Contiene el control de errores de las funciones que llama a la clase proveedor
-		//~ if ($_POST['idcaja']=="id_proveedor"){
-			//~ $buscarId=$CProveedores->buscarProveedorId($_POST['busqueda']);
-			//~ if (isset($buscarId['error'])){
-				//~ $respuesta['error']=$buscarId['error'];
-				//~ $respuesta['consulta']=$buscarId['consulta'];
-			//~ }else{
-				//~ if (isset($buscarId['idProveedor'])){
-					//~ $respuesta['id']=$buscarId['idProveedor'];
-					//~ $respuesta['nombre']=$buscarId['nombrecomercial'];
-					//~ $respuesta['Nitems']=1;
-				//~ }else{
-					//~ $respuesta['Nitems']=2;
-				//~ }
-			//~ }
-		//~ }else{
-			//~ $buscarTodo=$CProveedores->buscarProveedorNombre($_POST['busqueda']);
-			//~ if (isset($buscarTodo['error'])){
-				//~ $respuesta['error']=$buscarTodo['error'];
-				//~ $respuesta['consulta']=$buscarTodo['consulta'];
-			//~ }else{
-				//~ $respuesta['html']=htmlProveedores($_POST['busqueda'],$_POST['dedonde'], $_POST['idcaja'], $buscarTodo['datos']);
-				//~ $respuesta['datos']=$buscarTodo['datos'];
-			//~ }
-			
-		//~ }
 		include ('tareas/buscarProveedor.php');
 	break;
 	case 'buscarProductos':
-			//@Objetivo;
-			//Busqueda de productos: Recive el valor a buscar el campo por el que tiene que buscar 
-			//~ $busqueda = $_POST['valorCampo'];
-			//~ $campoAbuscar = $_POST['campo'];
-			//~ $id_input = $_POST['id_input'];
-			//~ $idcaja=$_POST['idcaja'];
-			//~ $idProveedor=$_POST['idProveedor'];
-			//~ $dedonde=$_POST['dedonde'];
-			//~ $res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idProveedor);
-			//~ if ($res['Nitems']===1 && $idcaja<>"cajaBusqueda"){
-					//~ $respuesta=$res;
-					//~ $respuesta['Nitems']=$res['Nitems'];
-				
-			//~ }else{
-				//~ if (isset($res['datos'])){
-					//~ $respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
-					//~ $respuesta['Estado'] = 'Listado';
-					//~ $respuesta['html']=$respuesta['listado'];
-				//~ }else{
-					//~ $respuesta['Nitems']=2;
-				//~ }
-			//~ }
-			//~ $respuesta['sql']=$res['sql'];
-			include ('tareas/buscarProducto.php');
+		include ('tareas/buscarProducto.php');
 	break;	
 	
 	case 'htmlAgregarFilasProductos':
@@ -102,203 +49,19 @@ switch ($pulsado) {
 		break;
 		
 		case 'addProveedorArticulo':
-		//~ //@Objetivo: comprobar si ya existe un registro de proveedores articulos si es así modificarlo y si nno crearlo
-			//~ $fechaActualizacion=date('Y-m-d');
-			//~ $estado="activo";
-			//~ $respuesta=array();
-			//~ $datos=array(
-				//~ 'idArticulo'=>$_POST['idArticulo'],
-				//~ 'refProveedor'=>$_POST['refProveedor'],
-				//~ 'idProveedor'=>$_POST['idProveedor'],
-				//~ 'coste'=>$_POST['coste'],
-				//~ 'fecha'=>$fechaActualizacion,
-				//~ 'estado'=>$estado
-			//~ );
-			//~ $datosArticulo=$CArticulos->buscarReferencia($_POST['idArticulo'], $_POST['idProveedor']);
-			//~ if (isset($datosArticulo['error'])){
-					//~ $respuesta['error']=$datosArticulo['error'];
-					//~ $respuesta['consulta']=$datosArticulo['consulta'];
-			//~ }else{
-				//~ if (isset($datosArticulo['idArticulo'])){
-					//~ $modArt=$CArticulos->modificarProveedorArticulo($datos);
-					//~ if (isset($modArt['error'])){
-						//~ $respuesta['error']=$modArt['error'];
-						//~ $respuesta['consulta']=$modArt['consulta'];
-					//~ }
-				//~ }else{
-					//~ $addNuevo=$CArticulos->addArticulosProveedores($datos);	
-					//~ if (isset($addNuevo['error'])){
-						//~ $respuesta['error']=$addNuevo['error'];
-						//~ $respuesta['consulta']=$addNuevo['consulta'];
-					//~ }
-				//~ }
-			//~ }
 			include ('tareas/addProveedorArticulo.php');
 		break;
 		
 		case 'comprobarAdjunto':
-			//~ //@Objetivo:
-			//~ //comprobar que el proveedor tiene albaran o pedido en estado guardado
-			//~ $estado="Guardado";
-			//~ $idProveedor=$_POST['idProveedor'];
-			//~ $dedonde=$_POST['dedonde'];
-			//~ $respuesta=array();
-			//~ if ($dedonde=="factura"){
-				//~ $buscar=$CAlb->albaranesProveedorGuardado($idProveedor, $estado);
-				//~ if (isset($buscar['error'])){
-						//~ $respuesta['error']=$buscar['error'];
-						//~ $respuesta['consulta']=$buscar['consulta'];
-				//~ }
-			//~ }else{
-				//~ $buscar=$CPed->pedidosProveedorGuardado($idProveedor, $estado);
-				//~ if (isset($buscar['error'])){
-						//~ $respuesta['error']=$buscar['error'];
-						//~ $respuesta['consulta']=$buscar['consulta'];
-				//~ }
-			//~ }
-			//~ if (count($buscar)>0){
-					//~ $respuesta['bandera']=1;
-			//~ }else{
-					//~ $respuesta['bandera']=2;
-			//~ }
 			include ('tareas/comprobarAdjunto.php');
 		break;
 	
 		case 'buscarAdjunto':
-		//@objetivo:
-		//buscar si el numero de adjunto (número de pedido o albarán )
-		//carga los datos principales y sus productos
-			//~ $respuesta=array();
-			//~ $numAdjunto=$_POST['numReal'];
-			//~ $idProveedor=$_POST['idProveedor'];
-			//~ $estado="Guardado";
-			//~ $dedonde=$_POST['dedonde'];
-			//~ if ($dedonde=="albaran"){
-				//~ $datosAdjunto=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numAdjunto, $estado);
-				//~ if (isset($datosAdjunto['error'])){
-					//~ $respuesta['error']=$datosAdjunto['error'];
-					//~ $respuesta['consola']=$datosAdjunto['consulta'];
-				//~ }
-			//~ }else{
-				//~ $datosAdjunto=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAdjunto, $estado);
-				//~ if (isset($datosAdjunto['error'])){
-					//~ $respuesta['error']=$datosAdjunto['error'];
-					//~ $respuesta['consola']=$datosAdjunto['consulta'];
-				//~ }
-			//~ }
-			//~ if (isset($datosAdjunto['Nitem'])){
-				//~ $respuesta['temporales']=1;
-				//~ if ($dedonde=="albaran"){
-					//~ $respuesta['datos']['NumAdjunto']=$datosAdjunto['Numpedpro'];
-					//~ $respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
-					//~ $productosAdjunto=$CPed->ProductosPedidos($datosAdjunto['id']);
-					//~ if (isset($productosAdjunto['error'])){
-						//~ $respuesta['error']=$productosAdjunto['error'];
-						//~ $respuesta['consulta']=$productosAdjunto['consulta'];
-					//~ }else{
-						//~ $respuesta['productos']=$productosAdjunto;
-					//~ }
-				//~ }else{
-					//~ $respuesta['datos']['NumAdjunto']=$datosAdjunto['Numalbpro'];
-					//~ $respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
-					//~ $productosAdjunto=$CAlb->ProductosAlbaran($datosAdjunto['id']);
-					//~ if (isset($productosAdjunto['error'])){
-						//~ $respuesta['error']=$productosAdjunto['error'];
-						//~ $respuesta['consulta']=$productosAdjunto['consulta'];
-					//~ }else{
-						//~ $respuesta['productos']=$productosAdjunto;
-					//~ }
-				//~ }
-				//~ $date = new DateTime($datosAdjunto['Fecha']);
-				//~ $respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
-				//~ $respuesta['datos']['total']=$datosAdjunto['total'];
-				//~ $respuesta['datos']['estado']="activo";
-				
-				//~ $respuesta['Nitems']=$datosAdjunto['Nitem'];
-				
-			//~ }else{
-				//~ $respuesta['datos']=$datosAdjunto;
-				//~ $modal=modalAdjunto($datosAdjunto['datos'], $dedonde, $BDTpv);
-				//~ $respuesta['html']=$modal['html'];
-			//~ }
 			include ('tareas/buscarAdjunto.php');
 		break;
 		
 		case 'addPedidoTemporal';
-			//@Objetivo:
-			//Añadir un pedido temporal, recibe los campos necesarios para añadir el pedido
-			//Si ya existe modifica el registro si no lo crea, devuelve siempre el id del temporal
-			//~ $numPedidoTemp=$_POST['idTemporal'];
-			//~ $idUsuario=$_POST['idUsuario'];
-			//~ $idTienda=$_POST['idTienda'];
-			//~ $estadoPedido=$_POST['estado'];
-			//~ $idPedido=$_POST['idReal'];
-			//~ $fecha=$_POST['fecha'];
-			//~ $fecha = new DateTime($fecha);
-			//~ $fecha = $fecha->format('Y-m-d');
-			//~ $productos=json_decode($_POST['productos']);
-			//~ $idProveedor=$_POST['idProveedor'];
-			//~ $existe=0; // Variable para devolver y saber si modifico o insert.
-			//~ //Existe la utilizo como bandera para que el javascript solo me cree una vez la url del temporal
-			//~ if ($numPedidoTemp>0){
-				//~ //Si existe el número temporal se modifica el temporal
-				//~ $rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos);
-				//~ if (isset($rest['error'])){
-						//~ $respuesta['error']=$rest['error'];
-						//~ $respuesta['consulta']=$rest['consulta'];
-						//~ echo json_encode($respuesta);
-						//~ break;
-				//~ }else{
-					//~ $existe=1;
-				//~ }
-			//~ }else{
-				//~ //Si no existe crea un temporal nuevo
-				//~ $rest=$CPed->insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor);
-				//~ if (isset($rest['error'])){// Control de errores
-						//~ $respuesta['error']=$rest['error'];
-						//~ $respuesta['consulta']=$rest['consulta'];
-						//~ echo json_encode($respuesta);
-						//~ break;
-				//~ }else{
-					//~ $existe=0;
-					//~ $numPedidoTemp=$rest['id'];
-				//~ }
-			//~ }
-			//~ $pro=$rest['productos'];
-			 //~ if ($idPedido>0){
-				 //~ //Si existe u pedido real se modifica el temporal para indicarle que tiene un numero temporal
-				//~ //Existe idPedido, estamos modificacion de un pedido,añadimos el número del pedido real al registro temporal
-				//~ //y modificamos el estado del pedido real a sin guardar.
-				//~ $modId=$CPed->addNumRealTemporal($numPedidoTemp, $idPedido);
-				//~ if (isset($modId['error'])){
-						//~ $respuesta['error']=$modId['error'];
-						//~ $respuesta['consulta']=$modId['consulta'];
-						//~ break;
-				//~ }
-				//~ $estado="Sin Guardar";
-				//~ // Se modifica el estado del pedido real a sin guardar
-				//~ $modEstado=$CPed->modEstadoPedido($idPedido, $estado);
-				//~ if (isset($modId['error'])){
-						//~ $respuesta['error']=$modEstado['error'];
-						//~ $respuesta['consulta']=$modEstado['consulta'];
-						//~ break;
-				//~ }
-			 //~ }
-			//~ if ($productos){
-				//~ //Recalcula el valor de los productos
-					//~ $CalculoTotales = recalculoTotales($productos);
-					//~ $total=round($CalculoTotales['total'],2);
-					//~ $respuesta['total']=round($CalculoTotales['total'],2);
-					//~ $respuesta['totales']=$CalculoTotales;
-					//~ $modTotal=$CPed->modTotales($numPedidoTemp, $respuesta['total'], $CalculoTotales['subivas']);
-					//~ $respuesta['sqlmodtotal']=$modTotal['sql'];
-					//~ $htmlTotales=htmlTotales($CalculoTotales);
-					//~ $respuesta['htmlTabla']=$htmlTotales['html'];
-				//~ }
-				//~ $respuesta['id']=$numPedidoTemp;
-				//~ $respuesta['existe']=$existe;
-				//~ $respuesta['productos']=$_POST['productos'];
-				include ('tareas/addPedidoTemporal.php');
+			include ('tareas/addPedidoTemporal.php');
 		break;
 		
 
