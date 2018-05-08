@@ -31,7 +31,7 @@ class Modulo_etiquetado{
 		 `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
 		 `productos`, `idUsuario`) VALUES('.$datos['idReal'].', '.$datos['tipo'].', "'.$datos['fechaEnv'].'",
 		 "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$datos['NumAlb'].', "'.$datos['estado'].'"
-		 ,"'.$productos.'", '.$datos['idUsuario'].')';
+		 ,'."'".$productos."'".', '.$datos['idUsuario'].')';
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];

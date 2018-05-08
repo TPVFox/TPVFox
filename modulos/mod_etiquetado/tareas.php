@@ -34,7 +34,8 @@ switch ($pulsado) {
 		if(isset($_POST['productos'])){
 			$productos=$_POST['productos'];
 		}
-		$productos=json_decode($productos);
+		$productos=json_encode($productos, true);
+		$respuesta['productos']=$productos;
 		if(isset($_POST['idTemporal'])){
 			$idTemporal=$_POST['idTemporal'];
 		}
