@@ -259,7 +259,12 @@ function modificarArrayProductos($productos){
 		$product['estadoLinea']=$producto['estadoLinea'];
 		$product['ncant']=number_format($producto['ncant'],0);
 		$product['nunidades']=$producto['nunidades'];
-		
+		if(isset($producto['NumalbCli'])){
+			$product['NumalbCli']=$producto['NumalbCli'];
+		}
+		if(isset($producto['NumpedCli'])){
+			$product['NumpedCli']=$producto['NumpedCli'];
+		}
 		$product['importe']=$producto['precioCiva']*$producto['nunidades'];
 		array_push($respuesta,$product);
 		
@@ -297,6 +302,13 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 				if(isset($producto['Numalbcli'])){
 					if ($producto['Numalbcli']>0){
 					$numeroPed=$producto['Numalbcli'];
+					}
+				}else{
+					if(isset($producto['NumalbCli'])){
+						$numeroPed=$producto['NumalbCli'];
+					}
+					if(isset($producto['numalbcli'])){
+						$numeroPed=$producto['numalbcli'];
 					}
 				}
 				

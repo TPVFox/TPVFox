@@ -89,6 +89,7 @@
 			$fechave=fechaVencimiento($fec, $BDTpv);
 		}
 		$textoFecha=htmlVencimiento($fechave, $BDTpv);
+		
 		$productosMod=modificarArrayProductos($productosFactura);
 		$productos=json_decode(json_encode($productosMod));
 		
@@ -101,6 +102,7 @@
 		
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
+		
 		
 	}else{// si no recibe un id de una factura ya creada ponemos los datos de la temporal en caso de que tenga 
 		//Si no dejamos todo en blanco para poder cubrir
@@ -142,6 +144,9 @@
 			
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
+				//~ echo '<pre>';
+		//~ print_r($productos);
+		//~ echo '</pre>';
 				
 			}
 	}
@@ -481,6 +486,7 @@ if ($idCliente==0){
 		</thead>
 		<tbody>
 			<?php 
+			
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedidoAlbaran($producto, "factura");

@@ -348,7 +348,7 @@ class FacturasVentas extends ClaseVentas{
 			if ($albaran['estado']=="activo" || $albaran['estado']=="Activo"){
 					$sql='INSERT INTO albclifac (idFactura  ,  numFactura  
 					 , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '
-					 .$albaran['idalbcli'].' , '.$albaran['Numalbcli'].')';
+					 .$albaran['idAlbaran'].' , '.$albaran['Numalbcli'].')';
 					$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
 						$respuesta['error']=$smt['error'];

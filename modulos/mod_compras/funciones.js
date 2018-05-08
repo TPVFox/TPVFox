@@ -689,6 +689,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				addTemporal(dedonde)
 				document.getElementById(id_input).value='';
 				AgregarFilaProductos(datos, dedonde, campo);
+				console.log("muestro fecha");
+				console.log(resultado['datos'][0]);
 				if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
 					alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
 				}
