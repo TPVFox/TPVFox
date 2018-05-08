@@ -158,6 +158,7 @@ function buscarProducto(valor, caja){
 					alert("Error de sql:"+resultado.consulta);
 				}else{
 					if(resultado.Nitem==1){
+						cerrarPopUp();
 						console.log("sólo hay un resultado");
 						cabecera.idProducto=resultado.datos['idArticulo'];
 						$('#id_producto').val(resultado.datos['idArticulo']);

@@ -72,7 +72,7 @@ switch ($pulsado) {
 			}
 		}else{
 			$buscarTodo=$CArticulos->buscarPorNombre($valor, $idTienda);
-			if(($buscarTodo['error'])){
+			if(isset($buscarTodo['error'])){
 				$respuesta['error']=$buscarTodo['error'];
 				$respuesta['consulta']=$buscarTodo['consulta'];
 			}else{
