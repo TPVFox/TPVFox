@@ -4,8 +4,12 @@
 <?php
 	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
+	include ("./../../plugins/paginacion/ClasePaginacion.php");
+	
+
 	include ("./../../controllers/Controladores.php");
+	$Controler = new ControladorComun; 
+
 	include '../../clases/Proveedores.php';
 	$CProv= new Proveedores($BDTpv);
 	include 'clases/facturasCompras.php';
@@ -13,11 +17,6 @@
 	//Guardamos en un array todos los datos de las facturas temporales
 	$todosTemporal=$CFac->TodosTemporal();
 	$todosTemporal=array_reverse($todosTemporal);
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 30; // por defecto.
-	$filtro = ''; // por defecto
 	$Tienda = $_SESSION['tiendaTpv'];
 	$WhereLimite = array();
 	$WhereLimite['filtro'] = '';
@@ -52,13 +51,23 @@ $CantidadRegistros=count($CFac->TodosFacturaLimite($WhereLimite['filtro']));
 $WhereLimite['rango']=$NuevoRango;
 $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
-if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro']." ORDER BY Numfacpro desc ".$WhereLimite['rango'];
-	} else {
-		$filtro= " ORDER BY Numfacpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
-}
-	//array de facturas guardadas pero solo la cantidad anteriormente indicada
-$facturasDef=$CFac->TodosFacturaLimite($filtro);
+	
+	// ===========    Paginacion  ====================== //
+	$NPaginado = new PluginClasePaginacion(__FILE__);
+	$campos = array( 'a.Numfacpro','b.nombrecomercial');
+	$NPaginado->SetCamposControler($Controler,$campos);
+	// --- Ahora contamos registro que hay para es filtro --- //
+	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+	$CantidadRegistros=0;
+	// Obtenemos la cantidad registros 
+	$f = $CFac->TodosFacturaLimite($filtro);
+	$CantidadRegistros = count($f['Items']);
+	// --- Ahora envio a NPaginado la cantidad registros --- //
+	$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	$htmlPG = $NPaginado->htmlPaginado();
+	$f = $CFac->TodosFacturaLimite($filtro.$NPaginado->GetLimitConsulta());
+	$facturasDef=array_reverse($f['Items']);
+
 ?>
 
 </head>
