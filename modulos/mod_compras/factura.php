@@ -91,12 +91,8 @@
 			 $modificarAlbaran=modificarArrayAdjunto($abaranesFactura, $BDTpv, "factura");
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
-			//~ echo '<pre>';
-		//~ print_r($datosImportes);
-		//~ echo '</pre>';
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
-	//~ echo $total;
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
 		$fecha=date('d-m-Y');
@@ -121,11 +117,9 @@
 					$idFactura=0;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-					//~ $fecha=date('Y-m-d');
 					$fecha=date('d-m-Y');
 				}else{
 					$fecha1=date_create($datosFactura['fechaInicio']);
-					//~ $fecha =date_format($fecha1, 'Y-m-d');
 					$fecha =date_format($fecha1, 'd-m-Y');
 				}
 				if (isset($datosFactura['Su_numero'])){
@@ -139,13 +133,11 @@
 				$nombreProveedor=$proveedor['nombrecomercial'];
 				$fechaCab="'".$fecha."'";
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
-				
 				$estadoCab="'".'Abierto'."'";
 				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
-				
-			
 				$albaranes=json_decode($datosFactura['Albaranes']);
+				$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 				
 		}
 		
@@ -177,6 +169,7 @@
 		}else{
 			$style="display:none;";
 		}
+		echo $style;
 	
 		if(isset($_GET['id']) || isset($_GET['tActual'])){
 			$estiloTablaProductos="";
@@ -501,7 +494,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#divImportes').show();
 		<?php
 	}
-	if (count($albaranes)==0){
+	if (count($albaranes)==0 & $comprobarAlbaran==2){
 		?>
 		$('#tablaAl').hide();
 		<?php
