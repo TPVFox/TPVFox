@@ -165,6 +165,14 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 					
 							$checkUser = $checkUser + 1;
 							$totaliva=$CFac->sumarIva($factura['Numfacpro']);
+							$totalBase="0.00";
+							$importeIva="0.00";
+							if(isset( $totaliva['totalbase'])){
+								$totalBase=$totaliva['totalbase'];
+							}
+							if(isset( $totaliva['importeIva'])){
+								$importeIva=$totaliva['importeIva'];
+							}
 						
 							$date=date_create($factura['Fecha']);
 							
@@ -177,8 +185,8 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 						<td><?php echo $factura['Numfacpro'];?></td>
 						<td><?php echo date_format($date,'Y-m-d');?></td>
 						<td><?php echo $factura['nombrecomercial'];?></td>
-						<td><?php echo $totaliva['totalbase'];?></td>
-						<td><?php echo $totaliva['importeIva'];?></td>
+						<td><?php echo $totalBase;?></td>
+						<td><?php echo $importeIva;?></td>
 						<td><?php echo $factura['total'];?></td>
 						<?php 
 						if ($factura['estado']=="Sin Guardar"){

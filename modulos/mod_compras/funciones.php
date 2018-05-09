@@ -1703,12 +1703,19 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 		}
 }
 function htmlDatosAdjuntoProductos($datos){
-
+	$total=0;
+	$totalSiva=0;
+if(isset($datos['total'])){
+	$total=$datos['total'];
+}
+if(isset($datos['totalSiva'])){
+	$totalSiva=$datos['totalSiva'];
+}
 	$respuesta='<tr>
 		<td colspan="3">Número de albarán:'.$datos['NumAdjunto'].'</td>
 		<td colspan="2">Fecha:'.$datos['fecha'].'</td>
-		<td colspan="2">Total con IVA:'.$datos['total'].'</td>
-		<td colspan="5">Total sin IVA:'.$datos['totalSiva'].'</td>
+		<td colspan="2">Total con IVA:'.$total.'</td>
+		<td colspan="5">Total sin IVA:'.$totalSiva.'</td>
 		</tr>';
 	return $respuesta;
 }

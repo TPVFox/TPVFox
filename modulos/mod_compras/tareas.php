@@ -22,6 +22,7 @@ $CPed=new PedidosCompras($BDTpv);
 $CAlb=new AlbaranesCompras($BDTpv);
 $CFac= new FacturasCompras($BDTpv);
 $CArticulos=new Articulos($BDTpv);
+$respuesta=array();
 switch ($pulsado) {
 	case 'buscarProveedor':
 		include ('tareas/buscarProveedor.php');
