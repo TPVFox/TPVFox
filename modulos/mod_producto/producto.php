@@ -39,7 +39,6 @@
 			$titulo .= "Crear";
 		}
 		if ($_POST){
-			
 			$preparados= prepararYgrabar($_POST,$CTArticulos);
 			// Comprobamos los datos antes de grabar.
 			if (isset($preparados['Sqls']['NuevoProducto'])){
@@ -140,9 +139,9 @@
 				$Producto['proveedores_costes'][$key]['principal'] = 'Si';
 			}
 		}
-		// Vemos cual fue el ultimo proveedor al que se compro.
+		// ==========		 Comprobamso el ultimo coste y que proveedor		====  ===== //
 		$proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
-		$htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
+		
 		// Ahora comprobamos si el coste ultimo es correcto.
 		if ($proveedores_costes['coste_ultimo'] != $Producto['ultimoCoste']){
 			$success = array ( 'tipo'=>'warning',
@@ -154,7 +153,8 @@
 			// Ahora cambiamos el coste_ultimo
 			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
 		}
-		
+		// ==========		Montamos  html que mostramos. 			============ //
+		$htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
 		

@@ -107,9 +107,6 @@ function metodoClick(pulsado,adonde){
 			}
 			console.log('Resultado Buscar:'+BProductos);
 			break;
-		//~ case 'ImprimirEtiquetas':
-			//~ window.location.href = './'+adonde+'.php;
-		//~ break;
 		
 		
 	 }
@@ -694,7 +691,6 @@ function mensajeImprimir(id, dedonde){
 		imprimir(id, dedonde, bandera);
 		
 		}
-
 	else {
 		//~ alert("¡Has denegado imprimir!");
 		location.href="../mod_compras/albaranesListado.php";
@@ -715,7 +711,7 @@ function imprimir(id, dedonde, bandera=""){
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-		console.log('*********  Modificando eliminar costes  **************');
+		console.log('*********  Modificando imprimir   **************');
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
