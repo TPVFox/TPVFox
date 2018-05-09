@@ -161,6 +161,7 @@ $facturasDef=$CFac->TodosFacturaLimite($filtro);
 					<?php 
 					
 						$checkUser = 0;
+						
 						foreach ($facturasDef as $factura){
 					
 							$checkUser = $checkUser + 1;
