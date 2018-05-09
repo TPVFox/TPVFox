@@ -283,10 +283,10 @@ if ($idProveedor==0){
 				}
 					?>
 <div class="col-md-12" >
-	<div class="col-md-8">
+	<div class="col-md-7">
 		<div class="col-md-12">
 				<div class="col-md-2">
-					<strong>Fecha albarán:</strong><br>
+					<strong>Fecha:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 				</div>
 				<div class="col-md-2">
@@ -310,7 +310,7 @@ if ($idProveedor==0){
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('factura')"></a>
 		</div>
 	</div>
-	<div class="col-md-4" >
+	<div class="col-md-5" >
 	<div>
 		<div>
 			<div style="margin-top:-50px;" id="tablaAl" style="<?php echo $style;?>">
