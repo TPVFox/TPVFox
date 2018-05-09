@@ -4,7 +4,6 @@
 		<?php
         include './../../head.php';
         include ("./../../controllers/Controladores.php");
-        //~ include ("./../mod_conexion/conexionBaseDatos.php");
         include '../../clases/articulos.php';
         include 'clases/modulo_etiquetado.php';
         include 'funciones.php';
@@ -49,11 +48,20 @@
 				$estado=$etiquetaTemporal['estado'];
 				$productos=$etiquetaTemporal['productos'];
 				$productos=json_decode($productos, true);
-				//~ echo '<pre>';
-				//~ print_r($productos);
-				//~ echo '</pre>';
-				
 			}
+		}
+		if(isset($_POST['Cancelar'])){
+			if($idTemporal>0){
+				$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
+				if(isset($eliminar['error'])){
+					//Preparar los errores de sql;
+				}else{
+					header('Location: ListadoEtiquetas.php');
+				}
+			}else{
+				//MOstrar advertencia de que no se puede cancelar uno guardado
+			}
+			
 		}
         ?>
         <script type="text/javascript">

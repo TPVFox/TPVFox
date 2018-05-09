@@ -129,6 +129,16 @@ class Modulo_etiquetado{
 		}
 		
 	}
+	public function eliminarTemporal($idTemporal){
+		$db=$this->db;
+		$sql='DELETE FROM `modulo_etiquetado_temporal` WHERE id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
+	}
 	
 }
 
