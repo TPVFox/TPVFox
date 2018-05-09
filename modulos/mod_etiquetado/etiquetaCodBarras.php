@@ -33,13 +33,30 @@
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
 		if(isset($_GET['id'])){
-			
+			$idReal=$_GET['id'];
+			$etiquetaReal=$Cetiqueta->datosLote($idReal);
+			if(isset($etiquetaReal['error'])){
+				//cargar los errores
+			}else{
+				$fechaEnv=$etiquetaReal['fecha_env'];
+				$fechaCad=$etiquetaReal['fecha_cad'];
+				$numAlb=$etiquetaReal['numAlb'];
+				$idProducto=$etiquetaReal['idArticulo'];
+				$nomPro=$etiquetaReal['articulo_name'];
+				$estado=$etiquetaReal['estado'];
+				$tipo=$etiquetaReal['tipo'];
+				$productos=$etiquetaReal['productos'];
+				$productos=json_decode($productos, true);
+				if(isset($etiquetaReal['num_lote'])){
+					$idReal=$etiquetaReal['num_lote'];
+				}
+			}
 		}
 		if(isset($_GET['tActual'])){
 			$idTemporal=$_GET['tActual'];
 			$etiquetaTemporal=$Cetiqueta->buscarTemporal($idTemporal);
 			if(isset($etiquetaTemporal['error'])){
-				
+				//Cargar los errores
 			}else{
 				$fechaEnv=$etiquetaTemporal['fecha_env'];
 				$fechaCad=$etiquetaTemporal['fecha_cad'];
