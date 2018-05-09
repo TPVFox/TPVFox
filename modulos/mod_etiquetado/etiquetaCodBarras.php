@@ -63,6 +63,9 @@
 				if(isset($productos)){
 					$productos=json_encode($productos);
 				}
+				if(isset($_POST['tipo'])){
+					$tipo=$_POST['tipo'];
+				}
 				$datos=array(
 					'idReal'	=>$idReal,
 					'tipo'		=>$tipo,
