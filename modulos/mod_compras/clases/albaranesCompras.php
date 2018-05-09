@@ -79,7 +79,6 @@ class AlbaranesCompras extends ClaseCompras{
 		('.$idUsuario.' , '.$idTienda.' , "'.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , "'
 		.$PrepProductos.'" , "'.$PrepPedidos.'", "'.$suNumero.'")';
 		$smt = $db->query($sql);
-		error_log($sql);
 		if ($smt) {
 			$respuesta['id']=$db->insert_id;
 			$respuesta['sql']=$sql;
@@ -408,9 +407,13 @@ class AlbaranesCompras extends ClaseCompras{
 		//Buscar datos principal de un albarán de proveedor y estado guardado
 		$db=$this->db;
 		if ($numAlbaran>0){
-			$sql='SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
-			 formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'"
-			 .$estado."'".' and Numalbpro='.$numAlbaran;
+			//~ $sql='SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
+			 //~ formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'"
+			 //~ .$estado."'".' and Numalbpro='.$numAlbaran;
+			 $sql='SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
+			  a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a 
+			  INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor='.$idProveedor.' 
+			  and a.estado="'.$estado.'" and a.Numalbpro='.$numAlbaran.' GROUP by a.id ';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 					$albaran['error']=$smt['error'];
@@ -427,7 +430,7 @@ class AlbaranesCompras extends ClaseCompras{
 			//~ $sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
 			//~ formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
 			//~ .$estado.'"';
-			$sql='SELECT a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento , 
+			$sql='SELECT a.Su_numero , a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento , 
 			a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a  INNER JOIN albproIva as b 
 			on a.`id`=b.idalbpro where  a.idProveedor='.$idProveedor.' and a.estado="'.$estado.'" GROUP by a.id';
 			$smt=$this->consultaAlbaran($sql);

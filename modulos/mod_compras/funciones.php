@@ -21,7 +21,7 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 				 onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($proveedores)>10){
-		$resultado['html'] .= '<span>10 clientes de '.count($proveedores).'</span>';
+		$resultado['html'] .= '<span>10 proveedores de '.count($proveedores).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
 	. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
@@ -65,6 +65,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$resultado = array();
 	$palabras = array(); 
 	$products = array();
+	$busqueda=trim($busqueda);
 	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
 	$resultado['palabras']= $palabras;
 	$likes = array();
@@ -134,8 +135,11 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 		//fetch_assoc es un boleano..
 		while ($fila = $res->fetch_assoc()) {
 			$products[] = $fila;
-			$fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
-			$products[$i]['fechaActualizacion']=$fecha;
+			//~ if(isset($products['fechaActualizacion'])){
+				$fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
+				$products[$i]['fechaActualizacion']=$fecha;
+			//~ }
+			
 			$resultado['datos']=$products;
 			$i++;
 			
@@ -223,13 +227,13 @@ function recalculoTotales($productos) {
 		if ($product->estado === 'Activo'){
 			$bandera=$product->iva/100;
 			if (isset($desglose[$product->iva])){
-			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $product->importe,2, '.', '');
-			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva']+ ($product->importe*$bandera),2, '.', '');
+			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $product->importe,3, '.', '');
+			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva']+ ($product->importe*$bandera),3, '.', '');
 			}else{
-			$desglose[$product->iva]['base'] = number_format((float)$product->importe,2, '.', '');
-			$desglose[$product->iva]['iva'] =number_format((float)$product->importe*$bandera, 2, '.', '');
+			$desglose[$product->iva]['base'] = number_format((float)$product->importe,3, '.', '');
+			$desglose[$product->iva]['iva'] =number_format((float)$product->importe*$bandera, 3, '.', '');
 			}
-			$desglose[$product->iva]['BaseYiva'] =number_format((float)$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 2, '.', '');	
+			$desglose[$product->iva]['BaseYiva'] =number_format((float)$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 3, '.', '');	
 		}			
 	}
 	foreach($desglose as $tipoIva=>$des){
@@ -388,7 +392,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	$respuesta['html']	.= '<table class="table table-striped"><thead>'
 	. '<th><td>Número</td><td>Fecha</td>';
 	if ($dedonde=="factura"){
-		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td>';
+		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td><td>Su Número</td>';
 	}
 	$respuesta['html']	.= '<td>TotalCiva</td>';
 	if ($dedonde=="factura"){
@@ -414,7 +418,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$respuesta['html']	.= '<td>'.$numAdjunto.'</td><td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){
-			if($adjunto['FechaVencimiento']){
+			if(isset($adjunto['FechaVencimiento'])){
 				if ($adjunto['FechaVencimiento']=="0000-00-00"){
 					$fechaVenci="";
 				}else{
@@ -431,6 +435,11 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 				$textformaPago="";
 			}
 			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
+			if(isset($adjunto['Su_numero'])){
+				$respuesta['html']	.='<td>'.$adjunto['Su_numero'].'</td>';
+			}else{
+				$respuesta['html']	.='<td></td>';
+			}
 		}
 		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
 		if ($dedonde=="factura"){
@@ -479,8 +488,23 @@ function lineaAdjunto($adjunto, $dedonde){
 		if (isset($adjunto['NumAdjunto'])){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
-		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>'
-		.'<td>'.$adjunto['total'].'</td>'.$btnELiminar_Retornar.'</tr>';
+		if($dedonde=="factura"){
+			if(isset($adjunto['Su_numero'])){
+				$respuesta['html'] .='<td>'.$adjunto['Su_numero'].'</td>';
+			}else{
+				$respuesta['html'] .='<td></td>';
+			}
+		}
+		$date=date_create($adjunto['fecha']);
+		$fecha=date_format($date,'d-m-Y');
+		$respuesta['html'] .='<td>'.$fecha.'</td>'
+		.'<td>'.$adjunto['total'].'</td>';
+		if(isset($adjunto['totalSiva'])){
+			$respuesta['html'] .='<td>'.$adjunto['totalSiva'].'</td>';
+		}else{
+			$respuesta['html'] .='<td></td>';
+		}
+		$respuesta['html'].=$btnELiminar_Retornar.'</tr>';
 	}
 	return $respuesta;
 }
@@ -491,7 +515,11 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 	if ($dedonde =="albaran"){
 		$datosAdjunto=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$adjunto['idPedido'] );
 	}else{
-		$datosAdjunto=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$adjunto['idAlbaran'] );
+		//~ $datosAdjunto=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$adjunto['idAlbaran'] );
+		$datosAdjunto=$BDTpv->query('SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total,
+		a.id , a.FechaVencimiento, a.idProveedor , a.formaPago , sum(b.totalbase) as 
+		totalSiva FROM albprot as a INNER JOIN albproIva as b on a.
+		`id`=b.idalbpro where a.Numalbpro='.$adjunto['idAlbaran'].' GROUP by a.id ');
 	}
 	while ($fila = $datosAdjunto->fetch_assoc()) {
 			$adj = $fila;
@@ -502,6 +530,8 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 	}else{
 		$res['NumAdjunto']=$adjunto['numAlbaran'];
 		$res['fecha']=$adj['Fecha'];
+		$res['totalSiva']=$adj['totalSiva'];
+		$res['Su_numero']=$adj['Su_numero'];
 	}
 		$res['idAdjunto']=$adj['id'];
 		$res['idPePro']=$adj['idProveedor'];
@@ -1686,5 +1716,27 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 					return $respuesta;
 			}
 		}
+}
+function htmlDatosAdjuntoProductos($datos){
+	$total=0;
+	$totalSiva=0;
+	$suNumero="";
+if(isset($datos['total'])){
+	$total=$datos['total'];
+}
+if(isset($datos['totalSiva'])){
+	$totalSiva=$datos['totalSiva'];
+}
+if(isset($datos['Su_numero'])){
+	$suNumero=$datos['Su_numero'];
+}
+	$respuesta='<tr class="success">
+		<td colspan="2"><strong>Número de albarán:'.$datos['NumAdjunto'].'</strong></td>
+		<td colspan="2"><strong>Su número:'.$suNumero.'</strong></td>
+		<td colspan="2"><strong>Fecha:'.$datos['fecha'].'</strong></td>
+		<td colspan="2"><strong>Total con IVA:'.$total.'</strong></td>
+		<td colspan="4"><strong>Total sin IVA:'.$totalSiva.'</strong></td>
+		</tr>';
+	return $respuesta;
 }
 ?>

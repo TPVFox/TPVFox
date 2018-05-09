@@ -43,6 +43,8 @@ class PluginClasePaginacion {
 
 
 	public function CuantasPaginas(){
+		// Objetivo 
+		// Obtener el total paginas 
 		if ($this->CantidadRegistros >0){
 			$this->TotalPaginas = $this->CantidadRegistros/$this->LimitePagina;
 			
@@ -80,7 +82,17 @@ class PluginClasePaginacion {
 		return $this->desde;
 	}
 	
-	public function GetFiltroWhere(){
+	public function GetFiltroWhere($operador ='AND'){
+		// @ Objetivo 
+		// 	Devolver el filtrowhere que tenemos generado o lo generamos si operarador es distinto de AND
+		//  Solo lo generamos si buscar tiene datos... sino no tiene sentido.
+		// @ Parametros:
+		// 	  $operador -> (string ) OR o AND , lo utizamos para hacer likes con es operador.
+		if ($operador !== 'AND' && $this->Busqueda !==''){
+			// Volvemos a generar el FiltroWhere
+			$this->SetFiltroWhere($operador);
+		}
+		
 		return $this->filtroWhere;
 	}
 	
@@ -99,12 +111,11 @@ class PluginClasePaginacion {
 		$this->RutaServidor 	= $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
 		$RutaProyectoCompleta 	= str_replace('plugins/paginacion','', $ruta);
 		$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
-		
 	}
 	
 	
 	public function ObtenerPaginasPrevSigui(){
-		// Ahora monstamos las paginas previas.
+		// Ahora mostramos las paginas previas.
 		$paginas = array();
 		$paginas['actual'] = $this->PagActual;
 		$paginas['inicio'] = 1;
@@ -255,10 +266,10 @@ class PluginClasePaginacion {
 		} 
 	}
 	
-	public function SetFiltroWhere(){
+	public function SetFiltroWhere($operador='AND'){
 		$controler =$this->controler;
 		$campos = $this->campos;
-		$this->filtroWhere = 'WHERE ('.$controler->ConstructorLike($campos,$this->Busqueda).')';
+		$this->filtroWhere = 'WHERE ('.$controler->ConstructorLike($campos,$this->Busqueda,$operador).')';
 		
 	}
 	

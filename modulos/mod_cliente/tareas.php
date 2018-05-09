@@ -29,6 +29,6 @@ switch ($pulsado) {
 		break;
 
 }
-
 echo json_encode($respuesta);
+return $respuesta;
 ?>

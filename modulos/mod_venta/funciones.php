@@ -647,7 +647,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
 		if ($dedonde=="albaran"){
-			$imprimir['cabecera'].='<td WIDTH="5%" align="center">PED</td>';
+			$imprimir['cabecera'].='<td WIDTH="6%" align="center">PED</td>';
 		}
 		if ($dedonde=="factura"){
 			$imprimir['cabecera'].='<td WIDTH="5%" align="center">ALB</td>';
@@ -1061,5 +1061,16 @@ function cancelarFactura($idTemporal, $BDTpv){
 			);
 	}
 	return $error;
+}
+function comprobarAlbaran($idCliente, $BDTpv){
+	$Calb=new AlbaranesVentas($BDTpv);
+	$busqueda="";
+	$con=$Calb->AlbaranClienteGuardado($busqueda, $idCliente);
+	if (count($con)>0){
+		$bandera=1;
+	}else{
+		$bandera=2;
+	}
+	return $bandera;
 }
 ?>

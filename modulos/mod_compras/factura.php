@@ -34,6 +34,8 @@
 	$textoNum="";
 	$fecha=date('d-m-Y');
 	$fechaImporte=date('Y-d-m');
+	$numAdjunto=0;
+	$suNumero="";
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -90,12 +92,8 @@
 			 $modificarAlbaran=modificarArrayAdjunto($abaranesFactura, $BDTpv, "factura");
 			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
 		}
-			//~ echo '<pre>';
-		//~ print_r($datosImportes);
-		//~ echo '</pre>';
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
-	//~ echo $total;
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 	}else{
 		$fecha=date('d-m-Y');
@@ -120,11 +118,9 @@
 					$idFactura=0;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-					//~ $fecha=date('Y-m-d');
 					$fecha=date('d-m-Y');
 				}else{
 					$fecha1=date_create($datosFactura['fechaInicio']);
-					//~ $fecha =date_format($fecha1, 'Y-m-d');
 					$fecha =date_format($fecha1, 'd-m-Y');
 				}
 				if (isset($datosFactura['Su_numero'])){
@@ -138,13 +134,12 @@
 				$nombreProveedor=$proveedor['nombrecomercial'];
 				$fechaCab="'".$fecha."'";
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
-				
 				$estadoCab="'".'Abierto'."'";
 				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
-				
-			
 				$albaranes=json_decode($datosFactura['Albaranes']);
+				$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
+				echo $suNumero;
 				
 		}
 		
@@ -176,6 +171,7 @@
 		}else{
 			$style="display:none;";
 		}
+		echo $style;
 	
 		if(isset($_GET['id']) || isset($_GET['tActual'])){
 			$estiloTablaProductos="";
@@ -234,7 +230,7 @@
 		}
 	}	
 	
-	
+
 ?>
 </script>
 <?php 
@@ -242,6 +238,7 @@ if ($idProveedor==0){
 	$idProveedor="";
 	
 }
+
 ?>
 </head>
 <body>
@@ -286,10 +283,10 @@ if ($idProveedor==0){
 				}
 					?>
 <div class="col-md-12" >
-	<div class="col-md-8">
+	<div class="col-md-7">
 		<div class="col-md-12">
 				<div class="col-md-2">
-					<strong>Fecha albarán:</strong><br>
+					<strong>Fecha:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 				</div>
 				<div class="col-md-2">
@@ -313,7 +310,7 @@ if ($idProveedor==0){
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('factura')"></a>
 		</div>
 	</div>
-	<div class="col-md-4" >
+	<div class="col-md-5" >
 	<div>
 		<div>
 			<div style="margin-top:-50px;" id="tablaAl" style="<?php echo $style;?>">
@@ -323,22 +320,28 @@ if ($idProveedor==0){
 			<table  class="col-md-12" id="tablaPedidos"> 
 				<thead>
 				<td><b>Número</b></td>
+				<td><b>Su Número</b></td>
 				<td><b>Fecha</b></td>
-				<td><b>Total</b></td>
+				<td><b>TotalCiva</b></td>
+				<td><b>TotalSiva</b></td>
 				<td></td>
 				</thead>
 				<?php 
 				$i=1;
 				if (isset($albaranes)){
+					$alb_html=[];
 					foreach ($albaranes as $albaran){
 						if (!isset ($albaran['nfila'])){
 							$albaran['nfila']=$i;
 						}
 						$html=lineaAdjunto($albaran, "factura");
 						echo $html['html'];
+ 						$alb_html[]=htmlDatosAdjuntoProductos($albaran);
+
 						$i++;
 					}
 				}
+				$alb_html=array_reverse($alb_html);
 				?>
 			</table>
 			</div>
@@ -376,8 +379,15 @@ if ($idProveedor==0){
 		</thead>
 		<tbody>
 			<?php 
+			$i=0;
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
+				
+					if($producto['numAlbaran']<>$numAdjunto){
+						echo $alb_html[$i];
+						$numAdjunto=$producto['numAlbaran'];
+						$i++;
+					}	
 					$html=htmlLineaProducto($producto, "factura");
 					echo $html['html'];
 				}
@@ -488,7 +498,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$('#divImportes').show();
 		<?php
 	}
-	if (count($albaranes)==0){
+	if (count($albaranes)==0 & $comprobarAlbaran==2){
 		?>
 		$('#tablaAl').hide();
 		<?php
