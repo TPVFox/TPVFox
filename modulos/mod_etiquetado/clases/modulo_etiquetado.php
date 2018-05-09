@@ -170,6 +170,23 @@ class Modulo_etiquetado{
 		}
 	}
 	
+	function datosLote($idLote){
+		$db=$this->db;
+		$sql='select a.*, b.articulo_name FROM modulo_etiquetado
+		 as a inner join articulos as b on a.idArticulo=b.idArticulo
+		  where a.id='.$idLote;
+		  $smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			if ($result = $smt->fetch_assoc () ){
+					$lote=$result;
+					return $lote;
+				}
+		}
+	}
 	
 }
 
