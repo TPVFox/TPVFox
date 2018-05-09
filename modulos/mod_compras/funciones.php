@@ -495,8 +495,9 @@ function lineaAdjunto($adjunto, $dedonde){
 				$respuesta['html'] .='<td></td>';
 			}
 		}
-		
-		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>'
+		$date=date_create($adjunto['fecha']);
+		$fecha=date_format($date,'d-m-Y');
+		$respuesta['html'] .='<td>'.$fecha.'</td>'
 		.'<td>'.$adjunto['total'].'</td>';
 		if(isset($adjunto['totalSiva'])){
 			$respuesta['html'] .='<td>'.$adjunto['totalSiva'].'</td>';
