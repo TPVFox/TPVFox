@@ -25,7 +25,7 @@
 					if (isset($rest['error'])){
 						$respuesta['error']=$rest['error'];
 						$respuesta['consulta']=$rest['consulta'];
-						break;
+						//~ break;
 					}else{
 						$existe=1;
 						$res=$rest['idTemporal'];
@@ -38,7 +38,7 @@
 					$respuesta['error']=$rest['error'];
 					$respuesta['consulta']=$rest['consulta'];
 					$existe=0;
-						break;
+						//~ break;
 					
 				}else{
 					$existe=0;
@@ -55,14 +55,14 @@
 				if (isset($modId['error'])){
 						$respuesta['error']=$modId['error'];
 						$respuesta['consulta']=$modId['consulta'];
-						break;
+						//~ break;
 				}
 				$estado="Sin Guardar";
 				$modEstado=$CAlb->modEstadoAlbaran($idAlbaran, $estado);
 				if (isset($modEstado['error'])){
 						$respuesta['error']=$modEstado['error'];
 						$respuesta['consulta']=$modEstado['consulta'];
-						break;
+						//~ break;
 				}
 			}
 			if ($productos){
@@ -74,7 +74,7 @@
 				if (isset($modTotal['error'])){
 						$respuesta['error']=$modTotal['error'];
 						$respuesta['consulta']=$modTotal['consulta'];
-						break;
+						//~ break;
 				}
 				$respuesta['sqlmodtotal']=$modTotal['sql'];
 				$htmlTotales=htmlTotales($CalculoTotales);

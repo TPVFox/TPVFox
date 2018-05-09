@@ -35,6 +35,7 @@
 	$fecha=date('d-m-Y');
 	$fechaImporte=date('Y-d-m');
 	$numAdjunto=0;
+	$suNumero="";
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -138,6 +139,7 @@
 				$productos =  json_decode($datosFactura['Productos']) ;
 				$albaranes=json_decode($datosFactura['Albaranes']);
 				$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
+				echo $suNumero;
 				
 		}
 		
@@ -228,7 +230,7 @@
 		}
 	}	
 	
-	
+
 ?>
 </script>
 <?php 
@@ -236,6 +238,7 @@ if ($idProveedor==0){
 	$idProveedor="";
 	
 }
+
 ?>
 </head>
 <body>
@@ -317,6 +320,7 @@ if ($idProveedor==0){
 			<table  class="col-md-12" id="tablaPedidos"> 
 				<thead>
 				<td><b>Número</b></td>
+				<td><b>Su Número</b></td>
 				<td><b>Fecha</b></td>
 				<td><b>TotalCiva</b></td>
 				<td><b>TotalSiva</b></td>

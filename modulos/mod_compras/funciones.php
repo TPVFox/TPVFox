@@ -392,7 +392,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	$respuesta['html']	.= '<table class="table table-striped"><thead>'
 	. '<th><td>Número</td><td>Fecha</td>';
 	if ($dedonde=="factura"){
-		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td>';
+		$respuesta['html']	.= '<td>Fecha Venci</td><td>Forma Pago</td><td>Su Número</td>';
 	}
 	$respuesta['html']	.= '<td>TotalCiva</td>';
 	if ($dedonde=="factura"){
@@ -418,7 +418,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 		$respuesta['html']	.= '<td>'.$numAdjunto.'</td><td>'.$fecha.'</td>';
 		if ($dedonde=="factura"){
-			if($adjunto['FechaVencimiento']){
+			if(isset($adjunto['FechaVencimiento'])){
 				if ($adjunto['FechaVencimiento']=="0000-00-00"){
 					$fechaVenci="";
 				}else{
@@ -435,6 +435,11 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 				$textformaPago="";
 			}
 			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
+			if(isset($adjunto['Su_numero'])){
+				$respuesta['html']	.='<td>'.$adjunto['Su_numero'].'</td>';
+			}else{
+				$respuesta['html']	.='<td></td>';
+			}
 		}
 		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
 		if ($dedonde=="factura"){
@@ -483,6 +488,14 @@ function lineaAdjunto($adjunto, $dedonde){
 		if (isset($adjunto['NumAdjunto'])){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
+		if($dedonde=="factura"){
+			if(isset($adjunto['Su_numero'])){
+				$respuesta['html'] .='<td>'.$adjunto['Su_numero'].'</td>';
+			}else{
+				$respuesta['html'] .='<td></td>';
+			}
+		}
+		
 		$respuesta['html'] .='<td>'.$adjunto['fecha'].'</td>'
 		.'<td>'.$adjunto['total'].'</td>';
 		if(isset($adjunto['totalSiva'])){
@@ -502,7 +515,7 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 		$datosAdjunto=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$adjunto['idPedido'] );
 	}else{
 		//~ $datosAdjunto=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$adjunto['idAlbaran'] );
-		$datosAdjunto=$BDTpv->query('SELECT a.Numalbpro , a.Fecha , a.total,
+		$datosAdjunto=$BDTpv->query('SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total,
 		a.id , a.FechaVencimiento, a.idProveedor , a.formaPago , sum(b.totalbase) as 
 		totalSiva FROM albprot as a INNER JOIN albproIva as b on a.
 		`id`=b.idalbpro where a.Numalbpro='.$adjunto['idAlbaran'].' GROUP by a.id ');
@@ -517,6 +530,7 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 		$res['NumAdjunto']=$adjunto['numAlbaran'];
 		$res['fecha']=$adj['Fecha'];
 		$res['totalSiva']=$adj['totalSiva'];
+		$res['Su_numero']=$adj['Su_numero'];
 	}
 		$res['idAdjunto']=$adj['id'];
 		$res['idPePro']=$adj['idProveedor'];
@@ -1705,17 +1719,22 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 function htmlDatosAdjuntoProductos($datos){
 	$total=0;
 	$totalSiva=0;
+	$suNumero="";
 if(isset($datos['total'])){
 	$total=$datos['total'];
 }
 if(isset($datos['totalSiva'])){
 	$totalSiva=$datos['totalSiva'];
 }
+if(isset($datos['Su_numero'])){
+	$suNumero=$datos['Su_numero'];
+}
 	$respuesta='<tr class="success">
-		<td colspan="3"><strong>Número de albarán:'.$datos['NumAdjunto'].'</strong></td>
+		<td colspan="2"><strong>Número de albarán:'.$datos['NumAdjunto'].'</strong></td>
+		<td colspan="2"><strong>Su número:'.$suNumero.'</strong></td>
 		<td colspan="2"><strong>Fecha:'.$datos['fecha'].'</strong></td>
 		<td colspan="2"><strong>Total con IVA:'.$total.'</strong></td>
-		<td colspan="5"><strong>Total sin IVA:'.$totalSiva.'</strong></td>
+		<td colspan="4"><strong>Total sin IVA:'.$totalSiva.'</strong></td>
 		</tr>';
 	return $respuesta;
 }
