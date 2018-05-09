@@ -7,6 +7,7 @@
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
         include '../../clases/articulos.php';
         include 'clases/modulo_etiquetado.php';
+        include 'funciones.php';
 		
 		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
@@ -164,7 +165,12 @@
 							</tr>
 						</thead>
 						<tbody>
-						
+						<?php 
+						if(isset($productos)){
+							$html=lineasProductos($productos);
+							echo $html;
+						}
+						?>
 						</tbody>
 					</table>
 				</div>

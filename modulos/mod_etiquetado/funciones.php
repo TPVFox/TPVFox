@@ -86,4 +86,34 @@ function htmlProductos($busqueda, $productos){
 			return $resultado;
 	}
 }
+function lineasProductos($productos){
+	foreach($productos as $producto){
+			if ($producto['estado'] !=='Activo'){
+				$classtr = ' class="tachado" ';
+				$estadoInput = 'disabled';
+				$funcOnclick = ' retornarFila('.$producto['Nfila'].', "etiquetas");';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+							<span class="glyphicon glyphicon-export"></span></a></td>';
+			} else {
+				$funcOnclick = ' eliminarFila('.$producto['Nfila'].' , "etiquetas");';
+				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
+							<span class="glyphicon glyphicon-trash"></span></a></td>';
+				$classtr = '';
+				$estadoInput = '';
+			}
+		
+		$html.='<tr id="Row'.($producto['Nfila']).'" '.$classtr.'>'
+		 .'<td class="linea">'.$producto['Nfila'].'</td>'
+		 .'<td><input type="text" id="nombre_'.$producto['Nfila'].'" value="'.$producto['nombre'].'"></td>'
+		 .'<td><input type="text" id="peso_'.$producto['Nfila'].'" value="'.$producto['peso'].'"></td>'
+		 .'<td><input type="text" id="precio_'.$producto['Nfila'].'" value="'.$producto['precio'].'"></td>'
+		 .'<td><input type="text" id="fecha_'.$producto['Nfila'].'" value="'.$producto['Fecha'].'"></td>'
+		 .'<td><input type="text" id="numAlb_'.$producto['Nfila'].'" value="'.$producto['NumAlb'].'"></td>'
+		 .'<td><input type="text" id="codBarras_'.$producto['Nfila'].'" value="'.$producto['codBarras'].'"></td>'
+		 . $btnELiminar_Retornar
+		 .'</tr>';
+		 
+	}
+	return $html;
+}
 ?>
