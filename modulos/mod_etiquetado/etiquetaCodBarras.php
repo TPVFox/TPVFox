@@ -75,9 +75,8 @@
 					'idUsuario'	=>$Usuario['id']
 				);
 				$guardar=$Cetiqueta->addLoteGuardado($datos);
-				echo '<pre>';
-				print_r($guardar);
-				echo '</pre>';
+				$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
+				//Falta el control de errores y redirigir
 				
 			}else{
 				//Mostrar advertencia de que no se puede guardar un lote que ya está guardado
