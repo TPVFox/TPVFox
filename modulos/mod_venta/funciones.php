@@ -1062,4 +1062,15 @@ function cancelarFactura($idTemporal, $BDTpv){
 	}
 	return $error;
 }
+function comprobarAlbaran($idCliente, $BDTpv){
+	$Calb=new AlbaranesVentas($BDTpv);
+	$busqueda="";
+	$con=$Calb->AlbaranClienteGuardado($busqueda, $idCliente);
+	if (count($con)>0){
+		$bandera=1;
+	}else{
+		$bandera=2;
+	}
+	return $bandera;
+}
 ?>

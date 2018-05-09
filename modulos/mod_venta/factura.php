@@ -30,7 +30,6 @@
 	$nombreCliente=0;
 	$titulo="Factura De Cliente ";
 	$estado='Abierto';
-	//~ $fecha=date('Y-m-d');
 	$fecha=date('d-m-Y');
 	$Simporte="display:none;";
 	$formaPago=0;
@@ -63,9 +62,6 @@
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
 		$datosImportes=$Cfaccli->importesFactura($idFactura);
 		$estado=$datosFactura['estado'];
-	
-		//~ $date=date_create($datosFactura['Fecha']);
-		//~ $fecha=date_format($date,'Y-m-d');
 		$fecha =date_format(date_create($datosFactura['Fecha']), 'd-m-Y');
 		$numFactura=$datosFactura['Numfaccli'];
 		$idCliente=$datosFactura['idCliente'];
@@ -73,6 +69,7 @@
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$datosCliente['Nombre']."'";
 		}
+		$comprobarAlbaran=comprobarAlbaran($idCliente, $BDTpv);
 		if (isset($datosFactura['formaPago'])){
 			if($datosFactura['formaPago']>0){
 				$formaPago=$datosFactura['formaPago'];
@@ -115,15 +112,12 @@
 					$textoNum=$idFactura;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-					//~ $fecha=date('Y-m-d');
 					$fecha=date('d-m-Y');
 				}else{
-					//~ $fecha1=date_create($datosFactura['fechaInicio']);
-					//~ $fecha =date_format($fecha1, 'Y-m-d');
 					$fecha =date_format(date_create($datosFactura['fechaInicio']), 'd-m-Y');
 				}
 				$idCliente=$datosFactura['idClientes'];
-				
+				$comprobarAlbaran=comprobarAlbaran($idCliente, $BDTpv);
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$cliente['Nombre']."'";
 				if (isset ($cliente['formasVenci'])){
@@ -144,12 +138,9 @@
 			
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
-				//~ echo '<pre>';
-		//~ print_r($productos);
-		//~ echo '</pre>';
-				
 			}
 	}
+	echo $comprobarAlbaran;
 		if(isset($factura['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
@@ -630,7 +621,7 @@ if($estado=="Guardado"){
 	//~ $("#Guardar").hide();
 	<?php
 }
-if (isset($productos) & $albaranes==null){
+if (isset($productos) & $albaranes==null & $comprobarAlbaran==2){
 	?>
 	$("#tablaAl").hide();
 	<?php
