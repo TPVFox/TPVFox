@@ -32,7 +32,7 @@
 	} 
 	$Controler = new ControladorComun; 
 	$vista = 'albclit';
-	$LinkBase = './albaranesListado.php?';
+	$LinkBase = './facturasListado.php?';
 	$OtrosParametros = '';
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
