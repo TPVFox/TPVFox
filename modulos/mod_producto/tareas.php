@@ -45,8 +45,7 @@ switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
 		$respuesta = array();
-		$item=$_POST['fila'];
-		$respuesta['html']	= HtmlLineaCodigoBarras($item);
+		$respuesta['html']	= HtmlLineaCodigoBarras($_POST['fila']);
 		break;
 		
 	case 'Grabar_configuracion':
@@ -69,8 +68,7 @@ switch ($pulsado) {
 		$dedonde=$_POST['dedonde'];
 		$id=$_POST['id'];
 		$tipo=$_POST['tipo'];
-		$estado="Sin Cambios";
-		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
+		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo,'Sin Cambios');
 		$respuesta['sql']=$mod;
 		break;
 		
@@ -79,12 +77,12 @@ switch ($pulsado) {
 		$dedonde=$_POST['dedonde'];
 		$id=$_POST['id'];
 		$tipo=$_POST['tipo'];
-		$estado="Pendiente";
-		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, $estado);
+		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, 'Pendiente');
 		$respuesta['sql']=$mod;
 		break;
 		
 	case 'imprimir':
+		$respuesta = array();
 		// De momento no puedo pasar a tareas ya devuelve un fichero ... 
 		$id=$_POST['id'];
 		$dedonde="Recalculo";
@@ -108,57 +106,23 @@ switch ($pulsado) {
 	
 	case 'ComprobarSiExisteCodbarras':
 		$respuesta = array();
-		$codBarras = $_POST['codBarras'];
-		$respuesta = $NCArticulo->GetProductosConCodbarras($codBarras);
+		$respuesta = $NCArticulo->GetProductosConCodbarras($_POST['codBarras']);
 	break;
 	
 	case 'productosSesion':
 		$respuesta=array();
-		$idProducto=$_POST['id'];
-		$respuesta=productosSesion($idProducto);
+		$respuesta=productosSesion($_POST['id']);
 		
 	break;
 	
 	case 'imprimirEtiquetas':
-		$respuesta = array();
-		$IdsProductos=json_decode($_POST['productos']);
-		$idTienda=$_POST['idTienda'];
-		$tamano=$_POST['tamano'];
-		$productos = array();
-		foreach ($IdsProductos as $id){
-			$productos[]= $NCArticulo->getProducto($id);	
-		}
-		$dedonde="Etiqueta";
-		$nombreTmp=$dedonde."etiquetas.pdf";
-		switch ($tamano){
-			case 1:
-				$imprimir=ImprimirA8($productos);
-			break;
-			case 2:
-				$imprimir=ImprimirA5($productos);
-			break;
-			case 3:
-				$imprimir=ImprimirA7($productos);
-			break;
-		}
-		
-		$cabecera=$imprimir['cabecera'];
-		$html=$imprimir['html'];
-		$ficheroCompleto=$html;
-		require_once('../../lib/tcpdf/tcpdf.php');
-		include ('../../clases/imprimir.php');
-		include('../../controllers/planImprimirRe.php');
-		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-		$respuesta['html']=$html;
-		$respuesta['fichero'] = $ficheroCompleto;
-		$respuesta['productos'] = $productos;
+		include('./tareas/imprimirEtiquetas.php');
 	break;
 	
 	case 'productosSesion':
 		$respuesta=array();
-		$idProducto=$_POST['id'];
 		$session = $CSession->GetSession();
-		$respuesta=productosSesion($idProducto);
+		$respuesta=productosSesion($_POST['id']);
 		break;
 	
 	case 'HtmlCajaBuscarProveedor':
@@ -170,7 +134,7 @@ switch ($pulsado) {
 	break;
 	
 	case 'obtenerCostesProveedor':
-		include('.tareas/obtenerCostesProveedor.php');
+		include('./tareas/obtenerCostesProveedor.php');
 	break;
 	
 }
