@@ -227,7 +227,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 <?php 
 if($idProducto>0){
 	?>
-	$('#producto').prop('disabled', true);
+		$('#producto').prop('disabled', true);
 		$('#id_producto').prop('disabled', true);
 		$("#buscar").css("display", "none");
 	<?php
