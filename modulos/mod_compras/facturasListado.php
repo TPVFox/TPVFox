@@ -18,40 +18,7 @@
 	$todosTemporal=$CFac->TodosTemporal();
 	$todosTemporal=array_reverse($todosTemporal);
 	$Tienda = $_SESSION['tiendaTpv'];
-	$WhereLimite = array();
-	$WhereLimite['filtro'] = '';
-	$NuevoRango = '';
-	if (isset($_GET['pagina'])) {
-		$PgActual = $_GET['pagina'];
-	}
-	if (isset($_GET['buscar'])) {  
-		//recibo un string con 1 o mas palabras
-		$stringPalabras = $_GET['buscar'];
-		$palabraBuscar = explode(' ',$_GET['buscar']); 
-	} 
-	$Controler = new ControladorComun; 
-	$vista = 'albclit';
-	$LinkBase = './facturasListado.php?';
-	$OtrosParametros = '';
-	$paginasMulti = $PgActual-1;
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
 		
-	} else {
-		$desde = 0;
-	}
-if ($stringPalabras !== '' ){
-		$campo = array( 'a.Numfacpro','b.nombrecomercial');
-		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
-		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
-		$OtrosParametros=$stringPalabras;
-		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
-	}
-$CantidadRegistros=count($CFac->TodosFacturaLimite($WhereLimite['filtro']));
-$WhereLimite['rango']=$NuevoRango;
-$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-
-	
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numfacpro','b.nombrecomercial');
