@@ -223,6 +223,17 @@ echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 // hacemos comprobaciones de estilos 
 ?>
+<script type="text/javascript">
+<?php 
+if($idProducto>0){
+	?>
+	$('#producto').prop('disabled', true);
+		$('#id_producto').prop('disabled', true);
+		$("#buscar").css("display", "none");
+	<?php
+}
+?>
+</script>
 	</body>
 </html>
       
