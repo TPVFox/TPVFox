@@ -38,7 +38,7 @@
 	$dedonde="factura";
 	$textoNum="";
 	$fechaImp=date('Y-m-d');
-	
+	$comprobarAlbaran=0;
 		$parametros = $ClasesParametros->getRoot();
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="factura";
@@ -140,7 +140,7 @@
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
 			}
 	}
-	echo $comprobarAlbaran;
+	//~ echo $comprobarAlbaran;
 		if(isset($factura['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
