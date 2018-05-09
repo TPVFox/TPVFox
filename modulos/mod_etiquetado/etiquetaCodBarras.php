@@ -28,6 +28,7 @@
         $estado="Activo";
         $idTemporal=0;
 		$idProducto="";
+		$tipo=0;
 		$parametros = $ClasesParametros->getRoot();	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
@@ -46,8 +47,40 @@
 				$idProducto=$etiquetaTemporal['idArticulo'];
 				$nomPro=$etiquetaTemporal['articulo_name'];
 				$estado=$etiquetaTemporal['estado'];
+				$tipo=$etiquetaTemporal['tipo'];
 				$productos=$etiquetaTemporal['productos'];
 				$productos=json_decode($productos, true);
+				if(isset($etiquetaTemporal['num_lote'])){
+					$idReal=$etiquetaTemporal['num_lote'];
+				}
+			}
+		}
+		if(isset($_POST['Guardar'])){
+			if($idTemporal>0){
+				if(isset($_POST['fechaCad'])){
+					$fechaCad=$_POST['fechaCad'];
+				}
+				if(isset($productos)){
+					$productos=json_encode($productos);
+				}
+				$datos=array(
+					'idReal'	=>$idReal,
+					'tipo'		=>$tipo,
+					'fecha_env'	=>$fechaEnv,
+					'fecha_cad'	=>$fechaCad,
+					'idArticulo'=>$idProducto,
+					'numAlb'	=>$numAlb,
+					'estado'	=>"Guardado",
+					'productos'	=>$productos,
+					'idUsuario'	=>$Usuario['id']
+				);
+				$guardar=$Cetiqueta->addLoteGuardado($datos);
+				echo '<pre>';
+				print_r($guardar);
+				echo '</pre>';
+				
+			}else{
+				//Mostrar advertencia de que no se puede guardar un lote que ya está guardado
 			}
 		}
 		if(isset($_POST['Cancelar'])){

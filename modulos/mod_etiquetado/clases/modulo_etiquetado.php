@@ -140,6 +140,36 @@ class Modulo_etiquetado{
 		}
 	}
 	
+	public function addLoteGuardado($datos){
+		$db=$this->db;
+		if($datos['idReal']>0){
+			//MOdificar los campos 
+		}else{
+			$sql='INSERT INTO `modulo_etiquetado`(`tipo`, 
+			`fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
+			`productos`, `idUsuario`) VALUES ("'.$datos['tipo'].'", "'.$datos['fecha_env'].'",
+			"'.$datos['fecha_cad'].'", '.$datos['idArticulo'].', '.$datos['numAlb'].',
+			"'.$datos['estado'].'", '."'".$datos['productos']."'".', '.$datos['idUsuario'].')';
+		}
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$id=$db->insert_id;
+			if($datos['idReal']==0){
+				$sql='UPDATE modulo_etiquetado SET num_lote='.$id.' WHERE id='.$id;
+				$smt=$this->consulta($sql);
+				if (gettype($smt)==='array'){
+						$respuesta['error']=$smt['error'];
+						$respuesta['consulta']=$smt['consulta'];
+						return $respuesta;
+				}
+			}
+		}
+	}
+	
 }
 
 ?>
