@@ -134,8 +134,11 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 		//fetch_assoc es un boleano..
 		while ($fila = $res->fetch_assoc()) {
 			$products[] = $fila;
-			$fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
-			$products[$i]['fechaActualizacion']=$fecha;
+			if(isset($products['fechaActualizacion'])){
+				$fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
+				$products[$i]['fechaActualizacion']=$fecha;
+			}
+			
 			$resultado['datos']=$products;
 			$i++;
 			
