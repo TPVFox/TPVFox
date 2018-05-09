@@ -1711,11 +1711,11 @@ if(isset($datos['total'])){
 if(isset($datos['totalSiva'])){
 	$totalSiva=$datos['totalSiva'];
 }
-	$respuesta='<tr>
-		<td colspan="3">Número de albarán:'.$datos['NumAdjunto'].'</td>
-		<td colspan="2">Fecha:'.$datos['fecha'].'</td>
-		<td colspan="2">Total con IVA:'.$total.'</td>
-		<td colspan="5">Total sin IVA:'.$totalSiva.'</td>
+	$respuesta='<tr class="success">
+		<td colspan="3"><strong>Número de albarán:'.$datos['NumAdjunto'].'</strong></td>
+		<td colspan="2"><strong>Fecha:'.$datos['fecha'].'</strong></td>
+		<td colspan="2"><strong>Total con IVA:'.$total.'</strong></td>
+		<td colspan="5"><strong>Total sin IVA:'.$totalSiva.'</strong></td>
 		</tr>';
 	return $respuesta;
 }
