@@ -51,9 +51,9 @@
 				if(isset($etiquetaReal['num_lote'])){
 					$idReal=$etiquetaReal['num_lote'];
 				}
-				echo '<pre>';
-				print_r($productos);
-				echo '</pre>';
+				//~ echo '<pre>';
+				//~ print_r($productos);
+				//~ echo '</pre>';
 			}
 		}
 		if(isset($_GET['tActual'])){
