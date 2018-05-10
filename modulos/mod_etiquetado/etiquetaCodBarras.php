@@ -101,6 +101,9 @@
 				$guardar=$Cetiqueta->addLoteGuardado($datos);
 				$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
 				//Falta el control de errores y redirigir
+				echo '<pre>';
+				print_r($guardar);
+				echo '</pre>';
 				
 			}else{
 				//Mostrar advertencia de que no se puede guardar un lote que ya está guardado

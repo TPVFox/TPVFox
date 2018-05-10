@@ -124,7 +124,10 @@ class Modulo_etiquetado{
 	public function addLoteGuardado($datos){
 		$db=$this->db;
 		if($datos['idReal']>0){
-			//MOdificar los campos 
+			$sql='UPDATE `modulo_etiquetado` SET 
+			`tipo`="'.$datos['tipo'].'",`fecha_env`="'.$datos['fecha_env'].'",`fecha_cad`="'.$datos['fecha_cad'].'",
+			`idArticulo`='.$datos['idArticulo'].',`numAlb`='.$datos['numAlb'].',`estado`="'.$datos['estado'].'",
+			`productos`='."'".$datos['productos']."'".',`idUsuario`='.$datos['idUsuario'].' where id='.$datos['idReal'];
 		}else{
 			$sql='INSERT INTO `modulo_etiquetado`(`tipo`, 
 			`fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
