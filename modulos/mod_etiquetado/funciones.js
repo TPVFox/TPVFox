@@ -63,7 +63,12 @@ function controladorAcciones(caja, accion, tecla){
 		break;
 		case 'modificarNombreProducto':
 			console.log('entre en modificarNombreProducto');
-			console.log(caja.fila);
+			var nfila=caja.fila-1
+			console.log(nfila);
+			if(nfila>=0){
+				productos[nfila]['nombre']=caja.darValor();
+				addEtiquetadoTemporal();
+			}
 		break;
 	}
 }
@@ -237,3 +242,4 @@ function mover_up(fila,prefijo){
 	console.log(d_focus);
 	ponerSelect(d_focus);
 }
+
