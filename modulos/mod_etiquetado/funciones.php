@@ -9,6 +9,16 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 	
 	for($i=1;$i<=$veces;$i++){
 		
+		
+		switch($tipo){
+			case 1:
+				$codigoBarras=codigoBarrasUnidades($datosArticulo['crefTienda'], 1);
+			break;
+			case 2:
+				$codigoBarras=codigoBarrasPeso($datosArticulo['crefTienda'], 1);
+			break;
+		}
+		
 		$nuevoProducto=array();
 		$nuevoProducto['nombre']=$datosArticulo['articulo_name'];
 		$nuevoProducto['peso']=1;
@@ -18,6 +28,9 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		$nuevoProducto['codBarras']="";
 		$nuevoProducto['estado']='Activo';
 		$nuevoProducto['Nfila']=$numProd+$i;
+		
+		
+		
 		array_push($Productos, $nuevoProducto);
 		
 		if ($nuevoProducto['estado'] !=='Activo'){
@@ -114,5 +127,12 @@ function lineasProductos($productos){
 		 
 	}
 	return $html;
+}
+
+function codigoBarrasUnidades($referenciaTienda, $cantidad){
+	
+}
+function codigoBarrasPeso($referenciaTienda, $cantidad){
+	
 }
 ?>
