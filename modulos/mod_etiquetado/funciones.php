@@ -1,11 +1,9 @@
 <?php 
 
-function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd){
+function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd, $tipo){
 	$CArticulo= new Articulos($BDTpv);
 	$respuesta=array();
 	$datosArticulo=$CArticulo->datosArticulosPrincipal($idProducto, $idTienda);
-	//~ $respuesta['datos']=$datosArticulo;
-	//~ error_log($datosArticulo);
 	$Productos=array();
 	$html="";
 	

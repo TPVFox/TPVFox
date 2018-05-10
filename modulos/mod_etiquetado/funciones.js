@@ -46,7 +46,7 @@ function controladorAcciones(caja, accion, tecla){
 			if(caja.darValor()>0){
 				var select=$("#tipo option:selected").val();
 				if(select==1 || select==2){
-					repetirProducto(caja.darValor());
+					repetirProducto(caja.darValor(), select);
 				}else{
 					alert('No has seleccionado TIPO');
 				}
@@ -64,7 +64,7 @@ function controladorAcciones(caja, accion, tecla){
 	}
 }
 
-function repetirProducto(unidades){
+function repetirProducto(unidades, tipo){
 	//@OBjetivo: repetir el producto cuantas veces sea indicado
 	//NOta: controlar si ya tiene productos introducidos
 	console.log('Entre en repetir producto');
@@ -74,7 +74,8 @@ function repetirProducto(unidades){
 		'idProducto':cabecera.idProducto,
 		'idTienda': cabecera.idTienda,
 		'fechaCad':cabecera.fechaCad,
-		'productos':productos
+		'productos':productos,
+		'tipo' :	tipo
 		
 	};
 	$.ajax({
