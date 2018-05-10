@@ -717,7 +717,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				console.log("muestro fecha");
 				console.log(resultado['datos'][0]);
 				if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
-					alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
+					alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
 				}
 				ponerSelect(campo);
 				if (dedonde=="factura"){
