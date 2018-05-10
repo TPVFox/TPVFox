@@ -54,7 +54,7 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		 .'<td><input type="text" id="precio_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['precio'].'"></td>'
 		 .'<td><input type="text" id="fecha_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['Fecha'].'"></td>'
 		 .'<td><input type="text" id="numAlb_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['NumAlb'].'"></td>'
-		 .'<td><input type="text" id="codBarras_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['codBarras'].'"></td>'
+		 .'<td><input type="text" id="codBarras_'.$nuevoProducto['Nfila'].'" value="'.$codigoBarras.'"></td>'
 		 . $btnELiminar_Retornar
 		 .'</tr>';
 		
@@ -130,9 +130,44 @@ function lineasProductos($productos){
 }
 
 function codigoBarrasUnidades($referenciaTienda, $cantidad){
+	$principio='20';
+	$referencia=$referenciaTienda;
+	$dividir = explode(".", $cantidad);
+	if(isset($dividir['0'])){
+		$entero=str_pad($dividir['0'], 2, "0", STR_PAD_LEFT); 
+	}
+	if(isset($dividir['1'])){
+		$decimal=str_pad($dividir['1'], 3, "0", STR_PAD_RIGHT); 
+	}else{
+		$decimal='000';
+	}
+	$codigo=$principio.$referencia.$entero.$decimal;
+	$dc=calcularDigitoControl($codigo);
+	$codigoBarras=$codigo.$dc;
+	return $codigoBarras;
 	
 }
 function codigoBarrasPeso($referenciaTienda, $cantidad){
 	
+}
+
+function calcularDigitoControl($codigo){
+	$par=0;
+	$impar=0;
+	$bandera=1;//bandera es 1 por que se la primera corresponde a la posición 0
+	$longitud=strlen($codigo)-1;//obtenemos la longitud del string , se resta uno por que la primera posición es 0
+	  for ($i=$longitud; $i>=0; $i--){//se realiza el for al reves 
+		if($bandera%2 == 0){//Si la bandera es divisible por 2 es par 
+		  $par += $codigo[$i];//se selecciona el número y se suma a la variable par
+		}else{//si no es impar y se hace los mismo pero multiplicando por 3
+		  $impar += $codigo[$i]*3;
+		}
+		$bandera++;
+	  }
+	$control = ($par+$impar)%10;//se suman el par e impar y se divide entre 10
+	if($control > 0){
+		$control = 10 - $control;//si es mayor que cero se le resta a 10
+	}
+	return $control;
 }
 ?>
