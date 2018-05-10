@@ -44,7 +44,13 @@ function controladorAcciones(caja, accion, tecla){
 		case 'RepetirProducto':
 			console.log('Entre en repetir producto');
 			if(caja.darValor()>0){
-				repetirProducto(caja.darValor());
+				var select=$("#tipo option:selected").val();
+				if(select==1 || select==2){
+					repetirProducto(caja.darValor());
+				}else{
+					alert('No has seleccionado TIPO');
+				}
+				
 			}else{
 				alert("No has escrito ninguna cantidad");
 			}
