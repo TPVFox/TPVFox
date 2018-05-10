@@ -58,6 +58,23 @@
 				<action tecla="13">RepetirProducto</action>
 			</teclas>
 		</caja_input>
+		<caja_input>
+			<nombre id_input="nombre">nombre</nombre>
+			<teclas>
+				<action tecla="13">modificarNombreProducto</action>
+				<action tecla="40">mover_up</action>
+				<action tecla="38">mover_down</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="prefijo">nombre_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>		
 	</cajas_input>
 
 </parametros>

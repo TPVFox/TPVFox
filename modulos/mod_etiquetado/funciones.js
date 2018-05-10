@@ -198,3 +198,17 @@ function buscarProducto(valor="", caja=""){
 			}
 		});
 }
+function after_constructor(padre_caja,event){
+	
+	if (padre_caja.id_input.indexOf('nombre_') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+	return padre_caja;
+}
+function before_constructor(caja){
+	if (caja.id_input.indexOf('nombre_') >-1){
+		console.log(' Entro en Before de '+caja.id_input)
+		caja.fila = caja.id_input.slice(7);
+	}
+	return caja;
+}
