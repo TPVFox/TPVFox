@@ -35,7 +35,7 @@ function htmlLineaProveedorCoste($proveedor){
 	// 		$proveedor-> (array) Datos de proveedor: idProveedor,crefProveedor,coste,fechaActualizacion,estado,nombrecomercial,razonsocial.
 	
 	// Montamos campos ocultos de IDProveedor
-	$camposIdProveedor = '<input type="hidden" name="idProveedor_'.$proveedor['idProveedor'].'" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
+	$camposIdProveedor = '<input class="idProveedor" type="hidden" name="idProveedor_'.$proveedor['idProveedor'].'" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
 	$nom_proveedor = $proveedor['idProveedor'].'.-';
 	// Monstamos nombre y razon social juntas
 	if ($proveedor['nombrecomercial'] !== $proveedor['razonsocial']){
@@ -392,26 +392,24 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 
 function prepararYgrabar($array,$claseArticulos){
 	//@ Objetivo
-	// Preparar y Grabar los datos obtenidos ( POST) en productos,
-	// Debemos tener en cuenta que :
+	//	Preparar y Grabar los datos obtenidos ( POST) en productos,
+	// 	Debemos tener en cuenta que :
 	//   id = 0 es nuevo..
 	//   id = ??? es modificado.
-	
+	//@ Parametros
+	// 	 $array => Array ( post) con los datos del formulario.
 	
 	// Obtenemos (array) Key del array recibido
-	$keys_array = array_keys($array);
+	$Post = array_keys($array);
 	
 	// Recorremos las keys
 	$DatosProducto = array();
-	$Sqls = array();
 	$DatosProducto['codBarras'] = array();
 	$DatosProducto['proveedores_costes'] = array();
 	$DatosProducto['familias'] = array();
-
-
 	// Primero de todo obtengo idTienda.
 	$DatosProducto['idTienda'] = $claseArticulos->GetIdTienda();
-	foreach ($keys_array as $key){
+	foreach ($Post as $key){
 		switch ($key) {
 			case 'idIva':
 				// Obtenemos iva según id obtenido en el formulario.
@@ -485,7 +483,7 @@ function prepararYgrabar($array,$claseArticulos){
 	// Primero comprobamos si es nuevo o ya existia.
 	if ($array['id'] >0 ){
 		// ---------------            Se esta modificando. ------------------------------------//
-		// --- Comprobamos los codbarras y vemos cuales añadio,modifico o elimino. --//
+		// --- Comprobamos los codbarras y vemos cuales añado,modifico o elimino. --//
 		$comprobaciones = $claseArticulos->ComprobarCodbarrasUnProducto($array['id'],$DatosProducto['codBarras']);
 		$DatosProducto['Sqls']['codbarras'] = $comprobaciones;
 	} else {
