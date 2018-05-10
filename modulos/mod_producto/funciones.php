@@ -430,8 +430,10 @@ function prepararYgrabar($array,$claseArticulos){
 				break;
 			 
 			case (substr($key, 0, 10)=== 'codBarras_'):
-				array_push($DatosProducto['codBarras'],$array[$key]);
-
+				if (trim($array[$key])!== ''){
+					// No enviamos texto blanco o vacio
+					array_push($DatosProducto['codBarras'],$array[$key]);
+				}
 				break;
 			
 			case (substr($key, 0,12)==='idProveedor_'):
