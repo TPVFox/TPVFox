@@ -51,6 +51,9 @@
 				if(isset($etiquetaReal['num_lote'])){
 					$idReal=$etiquetaReal['num_lote'];
 				}
+				echo '<pre>';
+				print_r($productos);
+				echo '</pre>';
 			}
 		}
 		if(isset($_GET['tActual'])){
@@ -117,6 +120,11 @@
 			}
 			
 		}
+		//~ echo '<pre>';
+				//~ print_r($productos);
+				//~ echo '</pre>';
+				echo count($productos);
+				
         ?>
         <script type="text/javascript">
 			var cabecera = [];
@@ -130,9 +138,9 @@
 				cabecera['idProducto'] = '<?php echo $idProducto ;?>';
 			var productos = [];
 			<?php 
-	if (isset($etiqueta)| isset($etiquetaTemporal)){ 
+	if (isset($etiquetaReal)| isset($etiquetaTemporal)){ 
 	$i= 0;
-		if (count($productos)>0){
+		if (isset($productos)){
 			foreach($productos as $product){
 ?>	
 				datos=<?php echo json_encode($product); ?>;
