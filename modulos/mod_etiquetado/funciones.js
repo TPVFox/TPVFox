@@ -212,3 +212,23 @@ function before_constructor(caja){
 	}
 	return caja;
 }
+function mover_down(fila,prefijo){
+	console.log('mover down'+fila);
+
+	var d_focus = prefijo+fila;
+		if ( document.getElementById(d_focus) ) {
+			ponerSelect(d_focus);
+		}else{
+			//estamos en abrir modal ponemos focus en la 1ª opc despues de buscar algo.. nos movemos con tabulador
+			ponerFocus(d_focus);
+		}
+}
+function mover_up(fila,prefijo){
+	console.log("entro en mover up");
+	console.log(fila);
+	
+	var d_focus = prefijo+fila;
+	
+	console.log(d_focus);
+	ponerSelect(d_focus);
+}

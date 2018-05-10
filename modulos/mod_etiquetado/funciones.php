@@ -131,7 +131,7 @@ function lineasProductos($productos){
 		 .'<td>'.$producto['precio'].'</td>'
 		 .'<td>'.$producto['Fecha'].'</td>'
 		 .'<td><input type="text" id="numAlb_'.$producto['Nfila'].'" 
-		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
+		 data-obj="numAlb" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
 		 value="'.$producto['NumAlb'].'" size="7"></td>'
 		 .'<td>'.$producto['codBarras'].'</td>'
 		 . $btnELiminar_Retornar
