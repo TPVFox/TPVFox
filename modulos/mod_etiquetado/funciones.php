@@ -148,7 +148,21 @@ function codigoBarrasUnidades($referenciaTienda, $cantidad){
 	
 }
 function codigoBarrasPeso($referenciaTienda, $cantidad){
-	
+	$principio='21';
+	$referencia=$referenciaTienda;
+	$dividir = explode(".", $cantidad);
+	if(isset($dividir['0'])){
+		$entero=str_pad($dividir['0'], 2, "0", STR_PAD_LEFT); 
+	}
+	if(isset($dividir['1'])){
+		$decimal=str_pad($dividir['1'], 3, "0", STR_PAD_RIGHT); 
+	}else{
+		$decimal='000';
+	}
+	$codigo=$principio.$referencia.$entero.$decimal;
+	$dc=calcularDigitoControl($codigo);
+	$codigoBarras=$codigo.$dc;
+	return $codigoBarras;
 }
 
 function calcularDigitoControl($codigo){
