@@ -152,15 +152,12 @@ class ClaseProductos extends ClaseTablaArticulos{
 											'estado'      =>'Temporal',
 											'Descripcion' =>'Un producto que solo se comprar de forma temporal, en una epoca. En el proceso compra, debería advertilo y saber porque se compra.'
 											),
+									
 									'4' =>  array(
-											'estado'      =>'Oferta',
-											'Descripcion' =>'Indica que el producto esta oferta, deberíamos ver que ofertas y hasta cuando.'
-											),
-									'5' =>  array(
 											'estado'      =>'Baja',
 											'Descripcion' =>'Indica que es un producto que se puede vender hasta fin existencias. Debería advertir a encargados compra que no se puede comprar.'
 											),
-									'6' =>  array(
+									'5' =>  array(
 											'estado'      =>'importado',
 											'Descripcion' =>'Producto importado, de alguna tienda. Se creo forma automatica. Se cambia el estado, cuando ya lo compremos o cuando lo modifiquemos en ficha de producto'
 											)
@@ -168,11 +165,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// Añado en todas la tablas menos en la articulos ya que son los por defecto.
 		switch ($tabla) {
 			case 'articulosTiendas':
-				$array = array( '7' => array(
+				$array = array( '6' => array(
 									'estado' =>'NoPublicado',
 									'Descripcion'=>'Que existe en la tienda web pero no está publicado para la venta.'
 									),
-								'8' => array(
+								'7' => array(
 									'estado' =>'Publicado',
 									'Descripcion'=>'Si esta creado y la venta en la tienda web'
 									)
@@ -180,11 +177,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 				$posibles_estados= $posibles_estados +$array;
 				break;
 			case 'articulosProveedores':
-				$array = array( '9' => array(
+				$array = array( '8' => array(
 									'estado' =>'SinStock',
 									'Descripcion'=>'El proveedor en estos momento no tiene Stock de producto.'
 									),
-								'10' => array(
+								'9' => array(
 									'estado' =>'Tarifa',
 									'Descripcion'=>'Precio propuesto por el proveedor pero aun no se compro.'
 									),
