@@ -101,7 +101,7 @@
 					<h5> Opciones para una selección</h5>
 					<ul class="nav nav-pills nav-stacked"> 
 						<li><a onclick="metodoClick('Agregar' , 'etiquetaCodBarras')">Añadir</a></li>
-						<li><a onclick="">Modificar</a></li>
+						<li><a  onclick="metodoClick('Ver','etiquetaCodBarras');";>Modificar</a></li>
 					</ul>
 					<h4 class="text-center"> Lotes Abiertos</h4>
 					<table class="table table-striped">
