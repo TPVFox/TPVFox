@@ -86,6 +86,9 @@ function controladorAcciones(caja,accion, tecla){
 			if (caja.id_input=="suNumero"){
 				cabecera.suNumero=caja.darValor();
 			}
+			if (caja.id_input=="fecha"){
+				cabecera.fecha=caja.darValor();
+			}
 			if (caja.id_input=="Proveedor"){
 				console.log("longitud"+dato.length);
 				if ( dato.length == 0){
@@ -716,8 +719,17 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				AgregarFilaProductos(datos, dedonde, campo);
 				console.log("muestro fecha");
 				console.log(resultado['datos'][0]);
-				if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
-					alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+				//~ console.log(cabecera.fecha);
+				 if(resultado['datos'][0]['fechaActualizacion']!=null){
+					 
+					fechaProducto= new Date(resultado['datos'][0]['fechaActualizacion']);
+					fechaCabecera= cabecera.fecha.split("-");
+					fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
+				console.log(fechaCabecera);
+					if(fechaProducto>fechaCabecera)
+					{
+						 alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+					}
 				}
 				ponerSelect(campo);
 				if (dedonde=="factura"){

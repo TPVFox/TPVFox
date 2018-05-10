@@ -136,13 +136,20 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 		while ($fila = $res->fetch_assoc()) {
 			$products[] = $fila;
 			//~ if(isset($products['fechaActualizacion'])){
-				$fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
-				$products[$i]['fechaActualizacion']=$fecha;
+				//~ $fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
+				//~ $products[$i]['fechaActualizacion']=$fecha;
 			//~ }
 			
 			$resultado['datos']=$products;
 			$i++;
 			
+		}
+		if($resultado['Nitems']==1){
+			//~ $fecha=$resultado['datos'][0]['fechaActualizacion'];
+			//~ if($fecha!=null){
+				//~ $fecha =date_format(date_create($fecha), 'd-m-Y');
+				//~ $resultado['datos'][0]['fechaActualizacion']=$fecha;
+			//~ }
 		}
 	} 
 	return $resultado;
