@@ -722,7 +722,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				//~ console.log(cabecera.fecha);
 				 if(resultado['datos'][0]['fechaActualizacion']!=null){
 					 
-					fechaProducto= new Date(resultado['datos'][0]['fechaActualizacion']);
+					//~ fechaProducto= new Date(resultado['datos'][0]['fechaActualizacion']);
+					fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
+					fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
 					fechaCabecera= cabecera.fecha.split("-");
 					fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
 				console.log(fechaCabecera);

@@ -145,11 +145,11 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 			
 		}
 		if($resultado['Nitems']==1){
-			//~ $fecha=$resultado['datos'][0]['fechaActualizacion'];
-			//~ if($fecha!=null){
-				//~ $fecha =date_format(date_create($fecha), 'd-m-Y');
-				//~ $resultado['datos'][0]['fechaActualizacion']=$fecha;
-			//~ }
+			$fecha=$resultado['datos'][0]['fechaActualizacion'];
+			if($fecha!=null){
+				$fecha =date_format(date_create($fecha), 'd-m-Y');
+				$resultado['datos'][0]['fechaActualizacion']=$fecha;
+			}
 		}
 	} 
 	return $resultado;
