@@ -152,10 +152,10 @@ function codigoBarrasPeso($referenciaTienda, $cantidad){
 	$referencia=$referenciaTienda;
 	$dividir = explode(".", $cantidad);
 	if(isset($dividir['0'])){
-		$entero=str_pad($dividir['0'], 2, "0", STR_PAD_LEFT); 
+		$entero=str_pad($dividir['0'], 3, "0", STR_PAD_LEFT); 
 	}
 	if(isset($dividir['1'])){
-		$decimal=str_pad($dividir['1'], 3, "0", STR_PAD_RIGHT); 
+		$decimal=str_pad($dividir['1'], 2, "0", STR_PAD_RIGHT); 
 	}else{
 		$decimal='000';
 	}
