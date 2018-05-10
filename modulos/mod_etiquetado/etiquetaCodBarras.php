@@ -29,6 +29,7 @@
         $idTemporal=0;
 		$idProducto="";
 		$tipo=0;
+		$productos=array();
 		$parametros = $ClasesParametros->getRoot();	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
@@ -100,6 +101,7 @@
 				
 			}else{
 				//Mostrar advertencia de que no se puede guardar un lote que ya está guardado
+				//controlar cuando no hay temporal y se guarda solo la fecha o numalb
 			}
 		}
 		if(isset($_POST['Cancelar'])){
@@ -130,7 +132,7 @@
 			<?php 
 	if (isset($etiqueta)| isset($etiquetaTemporal)){ 
 	$i= 0;
-		if (isset($productos)){
+		if (count($productos)>0){
 			foreach($productos as $product){
 ?>	
 				datos=<?php echo json_encode($product); ?>;
@@ -226,7 +228,7 @@
 						</thead>
 						<tbody>
 						<?php 
-						if(isset($productos)){
+						if(count($productos)>0){
 							$html=lineasProductos($productos);
 							echo $html;
 						}

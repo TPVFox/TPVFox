@@ -87,6 +87,7 @@ function htmlProductos($busqueda, $productos){
 	}
 }
 function lineasProductos($productos){
+	$html="";
 	foreach($productos as $producto){
 			if ($producto['estado'] !=='Activo'){
 				$classtr = ' class="tachado" ';
