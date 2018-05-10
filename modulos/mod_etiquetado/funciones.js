@@ -43,7 +43,6 @@ function controladorAcciones(caja, accion, tecla){
 	switch(accion) {
 		case 'RepetirProducto':
 			console.log('Entre en repetir producto');
-			repetirProducto(caja.darValor());
 		break;
 		case 'BuscarProducto':
 			console.log('Entre en el case de buscar producto');
