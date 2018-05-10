@@ -54,7 +54,7 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		 .'<td><input type="text" id="precio_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['precio'].'"></td>'
 		 .'<td><input type="text" id="fecha_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['Fecha'].'"></td>'
 		 .'<td><input type="text" id="numAlb_'.$nuevoProducto['Nfila'].'" value="'.$nuevoProducto['NumAlb'].'"></td>'
-		 .'<td><input type="text" id="codBarras_'.$nuevoProducto['Nfila'].'" value="'.$codigoBarras.'"></td>'
+		 .'<td>'.$codigoBarras.'</td>'
 		 . $btnELiminar_Retornar
 		 .'</tr>';
 		
@@ -121,7 +121,7 @@ function lineasProductos($productos){
 		 .'<td><input type="text" id="precio_'.$producto['Nfila'].'" value="'.$producto['precio'].'"></td>'
 		 .'<td><input type="text" id="fecha_'.$producto['Nfila'].'" value="'.$producto['Fecha'].'"></td>'
 		 .'<td><input type="text" id="numAlb_'.$producto['Nfila'].'" value="'.$producto['NumAlb'].'"></td>'
-		 .'<td><input type="text" id="codBarras_'.$producto['Nfila'].'" value="'.$producto['codBarras'].'"></td>'
+		 .'<td>'.$producto['codBarras'].'</td>'
 		 . $btnELiminar_Retornar
 		 .'</tr>';
 		 

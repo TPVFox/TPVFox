@@ -33,8 +33,6 @@
 		$parametros = $ClasesParametros->getRoot();	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
-		$codigo=calcularDigitoControl('054321223455');
-		echo 'el codigo es '.$codigo;
 		
 		
 		if(isset($_GET['id'])){
