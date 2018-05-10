@@ -231,8 +231,8 @@
 						<thead>
 							<tr>
 								<th>L</th>
-								<th>Nombre del producto</th>
-								<th id="tipoTabla">Tipo</th>
+								<th class="col-sm-4">Nombre del producto</th>
+								<th id="tipoTabla" class="col-sm-1">Tipo</th>
 								<th>Precio</th>
 								<th>Fecha</th>
 								<th>Num Alb</th>

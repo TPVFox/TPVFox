@@ -124,15 +124,15 @@ function lineasProductos($productos){
 		 .'<td class="linea">'.$producto['Nfila'].'</td>'
 		 .'<td><input type="text" id="nombre_'.$producto['Nfila'].'"  
 		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)" 
-		 value="'.$producto['nombre'].'"></td>'
+		 value="'.$producto['nombre'].'" size="50"></td>'
 		 .'<td><input type="text" id="peso_'.$producto['Nfila'].'" 
 		 data-obj="peso" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"
-		  value="'.$producto['peso'].'"></td>'
+		  value="'.$producto['peso'].'" size="5"></td>'
 		 .'<td>'.$producto['precio'].'</td>'
 		 .'<td>'.$producto['Fecha'].'</td>'
 		 .'<td><input type="text" id="numAlb_'.$producto['Nfila'].'" 
 		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
-		 value="'.$producto['NumAlb'].'"></td>'
+		 value="'.$producto['NumAlb'].'" size="7"></td>'
 		 .'<td>'.$producto['codBarras'].'</td>'
 		 . $btnELiminar_Retornar
 		 .'</tr>';
