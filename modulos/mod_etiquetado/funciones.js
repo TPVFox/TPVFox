@@ -61,6 +61,10 @@ function controladorAcciones(caja, accion, tecla){
 			console.log(caja.darValor());
 			buscarProducto(caja.darValor(), caja.id_input);
 		break;
+		case 'modificarNombreProducto':
+			console.log('entre en modificarNombreProducto');
+			console.log(caja.fila);
+		break;
 	}
 }
 
@@ -199,14 +203,15 @@ function buscarProducto(valor="", caja=""){
 		});
 }
 function after_constructor(padre_caja,event){
-	
-	if (padre_caja.id_input.indexOf('nombre_') >-1){
+	console.log("entre en after_constructor");
+	if (padre_caja.id_input.indexOf('nombre_') >=-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
 	return padre_caja;
 }
 function before_constructor(caja){
-	if (caja.id_input.indexOf('nombre_') >-1){
+	console.log("entre en before_constructor");
+	if (caja.id_input.indexOf('nombre_') >=-1){
 		console.log(' Entro en Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(7);
 	}
