@@ -1055,12 +1055,20 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 						}
 					}
 					break;
+				case 'Facturado':
 				case 'Guardado':
 					$idReal=$datosGet['id'];
 					if (isset($datosPost['suNumero'])){
 						$suNumero=$datosPost['suNumero'];
 					}
-					$mod=$CAlb->modFechaNumero($idReal, $suNumero, $fecha);
+					if(isset($datosPost['formaVenci'])){
+						$formaPago=$datosPost['formaVenci'];
+					}
+					if(isset($datosPost['fechaVenci'])){
+						$fechaVenci=$datosPost['fechaVenci'];
+					}
+					
+					$mod=$CAlb->modFechaNumero($idReal, $suNumero, $fecha, $formaPago, $fechaVenci);
 					if (isset($mod['error'])){
 						$errores[0]=array ( 'tipo'=>'Danger!',
 								 'dato' => $mod['consulta'],
