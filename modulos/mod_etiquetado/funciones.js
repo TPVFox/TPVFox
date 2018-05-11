@@ -38,6 +38,7 @@ function modificarTipo(tipo){
 			break;
 	}
 	$('#tipoTabla').html(tipoTabla);
+	cabecera.tipo=tipo;
 }
 function controladorAcciones(caja, accion, tecla){
 	switch(accion) {
