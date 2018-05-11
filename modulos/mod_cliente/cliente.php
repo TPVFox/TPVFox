@@ -6,14 +6,7 @@
         include './../../head.php';
         include './funciones.php';
         
-        //~ include ("./../../mod_conexion/conexionBaseDatos.php");
-         include ("./../../controllers/Controladores.php");
-        include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-        $ClasesParametros = new ClaseParametros('parametros.xml');  
-        
-        $Controler = new ControladorComun; 
-		$Controler->loadDbtpv($BDTpv);
-		$Usuario = $_SESSION['usuarioTpv'];
+        include ("./../mod_conexion/conexionBaseDatos.php");
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
 		}
@@ -24,13 +17,6 @@
 		$CtiposVen=new TiposVencimientos($BDTpv);
 		include_once '../../clases/cliente.php';
 		$Ccliente=new Cliente($BDTpv);
-		
-		$dedonde="cliente";
-		$id=0;
-		
-		  $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
-		$configuracion=$configuracion['incidencias']; 
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		
@@ -38,17 +24,8 @@
 	</head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-		 <script type="text/javascript" >
-			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
-		</script>
 		<?php
         include './../../header.php';
-        
-      
-        
-        
-        
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$tabla= 'clientes'; // Tablas que voy utilizar.
@@ -181,18 +158,9 @@
 			//~ echo '<pre>';
 			//~ print_r($_POST);
 			//~ echo '</pre>';
-			$mensaje="";
-			$tipomensaje="";
-			if(isset($_GET['mensaje'])){
-				$mensaje=$_GET['mensaje'];
-			}
-			if(isset($_GET['tipo'])){
-				$tipomensaje=$_GET['tipo'];
-			}
-			//~ $mensaje=$_GET['mensaje'];
-			//~ $tipomensaje=$_GET['tipo'];
-			
-			if (!empty($mensaje)|| isset($error)){   ?> 
+			$mensaje=$_GET['mensaje'];
+			$tipomensaje=$_GET['tipo'];
+			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
 				if (isset($error)){
@@ -203,7 +171,6 @@
 			<?php
 			}
 			?>
-			<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion , <?php echo $id ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
 			<a class="text-ritght" href="./ListaClientes.php">Volver Atrás</a>
 			<div class="col-md-12">
@@ -265,7 +232,7 @@
 							<label for="sel1">Forma de pago por defecto: </label>
 							<select class="form-control" name="formapago" id="sel1" style="width: 15em;">
 								<?php 
-								if (isset($principalForma)){
+								if ($principalForma>0){
 								?>
 								<option value="<?php echo $principalForma['id'];?>" ><?php echo $principalForma['descripcion'];?></option>
 								<?php 
@@ -306,7 +273,7 @@
 							<label for="sel1">Vencimiento por defecto:</label>
 							<select class="form-control" name="vencimiento" id="sel1" style="width: 15em;">
 								<?php 
-								if (isset($principalVenci)){
+								if ($principalVenci>0){
 								?>
 								<option value="<?php echo $principalVenci['id'];?>" ><?php echo $principalVenci['descripcion'];?></option>
 								<?php 	
@@ -340,12 +307,7 @@
 			
 		</div>
 		<?php // Incluimos paginas modales
-//~ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-// Incluimos paginas modales
-echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-// hacemos comprobaciones de estilos 
 ?>
-
 	</body>
 </html>

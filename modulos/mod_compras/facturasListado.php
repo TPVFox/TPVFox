@@ -4,12 +4,8 @@
 <?php
 	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/ClasePaginacion.php");
-	
-
+	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
-	$Controler = new ControladorComun; 
-
 	include '../../clases/Proveedores.php';
 	$CProv= new Proveedores($BDTpv);
 	include 'clases/facturasCompras.php';
@@ -17,24 +13,52 @@
 	//Guardamos en un array todos los datos de las facturas temporales
 	$todosTemporal=$CFac->TodosTemporal();
 	$todosTemporal=array_reverse($todosTemporal);
+	$palabraBuscar=array();
+	$stringPalabras='';
+	$PgActual = 1; // por defecto.
+	$LimitePagina = 30; // por defecto.
+	$filtro = ''; // por defecto
 	$Tienda = $_SESSION['tiendaTpv'];
+	$WhereLimite = array();
+	$WhereLimite['filtro'] = '';
+	$NuevoRango = '';
+	if (isset($_GET['pagina'])) {
+		$PgActual = $_GET['pagina'];
+	}
+	if (isset($_GET['buscar'])) {  
+		//recibo un string con 1 o mas palabras
+		$stringPalabras = $_GET['buscar'];
+		$palabraBuscar = explode(' ',$_GET['buscar']); 
+	} 
+	$Controler = new ControladorComun; 
+	$vista = 'albclit';
+	$LinkBase = './albaranesListado.php?';
+	$OtrosParametros = '';
+	$paginasMulti = $PgActual-1;
+	if ($paginasMulti > 0) {
+		$desde = ($paginasMulti * $LimitePagina); 
 		
-	// ===========    Paginacion  ====================== //
-	$NPaginado = new PluginClasePaginacion(__FILE__);
-	$campos = array( 'a.Numfacpro','b.nombrecomercial');
-	$NPaginado->SetCamposControler($Controler,$campos);
-	// --- Ahora contamos registro que hay para es filtro --- //
-	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
-	$CantidadRegistros=0;
-	// Obtenemos la cantidad registros 
-	$f = $CFac->TodosFacturaLimite($filtro);
-	$CantidadRegistros = count($f['Items']);
-	// --- Ahora envio a NPaginado la cantidad registros --- //
-	$NPaginado->SetCantidadRegistros($CantidadRegistros);
-	$htmlPG = $NPaginado->htmlPaginado();
-	$f = $CFac->TodosFacturaLimite($filtro.$NPaginado->GetLimitConsulta());
-	$facturasDef=array_reverse($f['Items']);
+	} else {
+		$desde = 0;
+	}
+if ($stringPalabras !== '' ){
+		$campo = array( 'a.Numfacpro','b.nombrecomercial');
+		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
+		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
+		$OtrosParametros=$stringPalabras;
+		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
+	}
+$CantidadRegistros=count($CFac->TodosFacturaLimite($WhereLimite['filtro']));
+$WhereLimite['rango']=$NuevoRango;
+$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 
+if ($stringPalabras !== '' ){
+		$filtro = $WhereLimite['filtro']." ORDER BY Numfacpro desc ".$WhereLimite['rango'];
+	} else {
+		$filtro= " ORDER BY Numfacpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
+}
+	//array de facturas guardadas pero solo la cantidad anteriormente indicada
+$facturasDef=$CFac->TodosFacturaLimite($filtro);
 ?>
 
 </head>
@@ -113,7 +137,7 @@
 					?>
 					<form action="./facturasListado.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar por nombre de proveedor o número de factura</label>
+						<label>Buscar en número de factura </label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>
@@ -137,19 +161,10 @@
 					<?php 
 					
 						$checkUser = 0;
-						
 						foreach ($facturasDef as $factura){
 					
 							$checkUser = $checkUser + 1;
 							$totaliva=$CFac->sumarIva($factura['Numfacpro']);
-							$totalBase="0.00";
-							$importeIva="0.00";
-							if(isset( $totaliva['totalbase'])){
-								$totalBase=$totaliva['totalbase'];
-							}
-							if(isset( $totaliva['importeIva'])){
-								$importeIva=$totaliva['importeIva'];
-							}
 						
 							$date=date_create($factura['Fecha']);
 							
@@ -162,8 +177,8 @@
 						<td><?php echo $factura['Numfacpro'];?></td>
 						<td><?php echo date_format($date,'Y-m-d');?></td>
 						<td><?php echo $factura['nombrecomercial'];?></td>
-						<td><?php echo $totalBase;?></td>
-						<td><?php echo $importeIva;?></td>
+						<td><?php echo $totaliva['totalbase'];?></td>
+						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $factura['total'];?></td>
 						<?php 
 						if ($factura['estado']=="Sin Guardar"){

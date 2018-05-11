@@ -130,7 +130,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					$('#Cliente').prop('disabled', true);
 					$('#id_cliente').prop('disabled', true);
 					$("#buscar").css("display", "none");
-					
+					$('#idArticulo').focus();
 					mostrarFila();
 					if (dedonde=="albaran"){
 						comprobarPedidosExis();
@@ -139,11 +139,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 						formasVenciCliente(resultado.formasVenci);
 						comprobarAlbaranesExis();
 					}
-					if(dedonde=="pedido"){
-					$('#Referencia').focus();	
-					}
-					
-					
 				}else{
 					console.log(resultado.html);
 				 var titulo = 'Listado clientes ';
@@ -676,7 +671,6 @@ function mostrarFila(){
 	//Mostrar la fila de inputs para añadir nuevos productos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
-	$('#Referencia').focus();
 }
 
 function buscarPedido(dedonde, idcaja, valor=''){
@@ -807,7 +801,6 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 								productos.push(resultado.productos[i]);
 								numFila++;
 							}
-							console.log(productos);
 							addTemporal(dedonde);
 							AgregarFilaProductosAl(resultado.productos, dedonde);
 							modificarEstado("albaran", "Facturado", resultado['datos'].idalbcli);

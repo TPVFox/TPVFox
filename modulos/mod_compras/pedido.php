@@ -21,15 +21,13 @@
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Pedido De Proveedor";
 	$dedonde="pedidos";
-	//~ $fecha=date('Y-m-d');
-	$fecha=date('d-m-Y');
+	$fecha=date('Y-m-d');
 	$idPedido=0;
 	$numPedidoTemp=0;
 	$estado='Abierto';
 	$idProveedor=0;
 	$nombreProveedor="";
 	$Datostotales=array();
-	$textoNum="";
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -44,7 +42,6 @@
 
 		if (isset($_GET['id'])){
 			$idPedido=$_GET['id'];
-			$textoNum=$idPedido;
 			$datosPedido=$Cpedido->DatosPedido($idPedido);
 			if ($datosPedido['estado']=='Facturado'){
 				$estado=$datosPedido['estado'];
@@ -53,8 +50,7 @@
 			}
 			$productosPedido=$Cpedido->ProductosPedidos($idPedido);
 			$ivasPedido=$Cpedido->IvasPedidos($idPedido);
-			//~ $fecha=$datosPedido['FechaPedido'];
-			$fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
+			$fecha=$datosPedido['FechaPedido'];
 			$idProveedor=$datosPedido['idProveedor'];
 			$datosProveedor=$Cprveedor->buscarProveedorId($idProveedor);
 			$nombreProveedor=$datosProveedor['nombrecomercial'];
@@ -70,13 +66,11 @@
 				$estado=$pedido['estadoPedPro'];
 				$idProveedor=$pedido['idProveedor'];
 				if ($pedido['idPedpro']){				
-					$idPedido=$pedido['idPedpro'];	
-					$textoNum=$idPedido;		
+					$idPedido=$pedido['idPedpro'];					
 				}
 				if ($pedido['fechaInicio']){
 					$bandera=new DateTime($pedido['fechaInicio']);
-					//~ $fecha=$bandera->format('Y-m-d');
-					$fecha=$bandera->format('d-m-Y');
+					$fecha=$bandera->format('Y-m-d');
 				}
 				$productos = json_decode( $pedido['Productos']); // Array de objetos
 				if ($idProveedor){
@@ -87,7 +81,7 @@
 			}
 		}
 	// Añadimos al titulo el estado
-	$titulo .= ' '.$textoNum.': '.$estado;
+	$titulo .= ': '.$estado;
 	
 if(isset($pedido['Productos'])){
 	// Obtenemos los datos totales;
@@ -112,6 +106,18 @@ if (isset($_POST['Guardar'])){
 			}
 	}
 }
+//~ if (isset ($_POST['Cancelar'])){
+		 //~ $cancelar=cancelarPedido( $_GET, $BDTpv);
+		//~ if (count($cancelar)==0){
+			
+			//~ header('Location: pedidosListado.php');
+		//~ }else{
+			//~ echo '<div class="'.$cancelar['class'].'">'
+					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					//~ . '</div>';
+		//~ }
+	//~ }
+
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
@@ -122,9 +128,12 @@ if (isset($_POST['Guardar'])){
 	 if (isset($_POST['Cancelar'])){
 		  ?>
 		 mensajeCancelar(<?php echo$numPedidoTemp;?>, <?php echo "'".$dedonde."'"; ?>);
+		
+		 
 		  <?php
 	  }
 	  ?>
+// Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -169,6 +178,7 @@ if ($idProveedor===0){
 	 $idProveedor="";
 }
 ?>
+
 </head>
 <body>
 <?php
@@ -179,23 +189,17 @@ if ($idProveedor===0){
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
 	
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
-		<div class="col-md-12">
-			<div class="col-md-8" >
-				<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
-				<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
-			</div>
-			<div class="col-md-4 " >
-			<input type="submit"class="pull-right btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
-			
+		<div class="col-md-12 btn-toolbar">
+			<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+			<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
+			<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
 			<?php
 			if (isset($numPedidoTemp)){
 			?>
-				<input  type="text" style="display:none;" name="idTemporal" value=<?php echo $numPedidoTemp;?>>
+				<input type="text" style="display:none;" name="idTemporal" value=<?php echo $numPedidoTemp;?>>
 			<?php
 			}
 			?>
-			</div>
-			
 		</div>
 	<div class="col-md-8">
 			<div class="col-md-3">
@@ -208,7 +212,7 @@ if ($idProveedor===0){
 			</div>
 			<div class="col-md-5">
 				<label>Fecha Pedido:</label>
-				<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+				<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 			</div>
 		<div class="col-md-12">
 			<label>Proveedor:</label>
@@ -220,39 +224,39 @@ if ($idProveedor===0){
 	<!-- Tabla de lineas de productos -->
 	<div>
 		<table id="tabla" class="table table-striped" >
-			<thead>
-			  <tr>
-				<th>L</th>
-				<th>Id Articulo</th>
-				<th>Referencia</th>
-				<th>Referencia Proveedor</th>
-				<th>Cod Barras</th>
-				<th>Descripcion</th>
-				<th>Unid</th>
-				<th>Coste</th>
-				<th>Iva</th>
-				<th>Importe</th>
-				<th></th>
-			  </tr>
-			  <tr id="Row0">  
-				<td id="C0_Linea" ></td>
-				<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="6" value=""  onkeydown="controlEventos(event)"></td>
-				<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
-				<td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="13" value="" onkeydown="controlEventos(event)"></td>
-				<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-				<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="25" value="" onkeydown="controlEventos(event)"></td>
-			  </tr>
-			</thead>
-			<tbody>
-				<?php 
-				if (isset($productos)){
-					foreach (array_reverse($productos) as $producto){
-						$h=htmlLineaProducto($producto, "pedidos");
-						echo $h['html'];
-					}
+		<thead>
+		  <tr>
+			<th>L</th>
+			<th>Id Articulo</th>
+			<th>Referencia</th>
+			<th>Referencia Proveedor</th>
+			<th>Cod Barras</th>
+			<th>Descripcion</th>
+			<th>Unid</th>
+			<th>Coste</th>
+			<th>Iva</th>
+			<th>Importe</th>
+			<th></th>
+		  </tr>
+		  <tr id="Row0">  
+			<td id="C0_Linea" ></td>
+			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="6" value=""  onkeydown="controlEventos(event)"></td>
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="13" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="25" value="" onkeydown="controlEventos(event)"></td>
+		  </tr>
+		</thead>
+		<tbody>
+			<?php 
+			if (isset($productos)){
+				foreach (array_reverse($productos) as $producto){
+					$h=htmlLineaProducto($producto, "pedidos");
+					echo $h['html'];
 				}
-			?>
-			</tbody>
+			}
+		?>
+		</tbody>
 	  </table>
 	</div>
 	<?php 

@@ -5,7 +5,7 @@
  *
  * [Informacion sobre los estados posibles.]
  * Campo estado de las tablas de articulos :
- * Sus posibles valores , los podemos ver el metodo: posiblesEstados($tabla), donde hay unos para todas las tablas
+ * Sus posibles valores , los podemos ver el metodo: posiblesEstados($tabla), donde hay uno para todas las tablas
  * y algunas tablas tiene algunos mas.
  * 
  * [OTRAS NOTAS]
@@ -152,12 +152,15 @@ class ClaseProductos extends ClaseTablaArticulos{
 											'estado'      =>'Temporal',
 											'Descripcion' =>'Un producto que solo se comprar de forma temporal, en una epoca. En el proceso compra, debería advertilo y saber porque se compra.'
 											),
-									
 									'4' =>  array(
+											'estado'      =>'Oferta',
+											'Descripcion' =>'Indica que el producto esta oferta, deberíamos ver que ofertas y hasta cuando.'
+											),
+									'5' =>  array(
 											'estado'      =>'Baja',
 											'Descripcion' =>'Indica que es un producto que se puede vender hasta fin existencias. Debería advertir a encargados compra que no se puede comprar.'
 											),
-									'5' =>  array(
+									'6' =>  array(
 											'estado'      =>'importado',
 											'Descripcion' =>'Producto importado, de alguna tienda. Se creo forma automatica. Se cambia el estado, cuando ya lo compremos o cuando lo modifiquemos en ficha de producto'
 											)
@@ -165,11 +168,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// Añado en todas la tablas menos en la articulos ya que son los por defecto.
 		switch ($tabla) {
 			case 'articulosTiendas':
-				$array = array( '6' => array(
+				$array = array( '7' => array(
 									'estado' =>'NoPublicado',
 									'Descripcion'=>'Que existe en la tienda web pero no está publicado para la venta.'
 									),
-								'7' => array(
+								'8' => array(
 									'estado' =>'Publicado',
 									'Descripcion'=>'Si esta creado y la venta en la tienda web'
 									)
@@ -177,11 +180,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 				$posibles_estados= $posibles_estados +$array;
 				break;
 			case 'articulosProveedores':
-				$array = array( '8' => array(
+				$array = array( '9' => array(
 									'estado' =>'SinStock',
 									'Descripcion'=>'El proveedor en estos momento no tiene Stock de producto.'
 									),
-								'9' => array(
+								'10' => array(
 									'estado' =>'Tarifa',
 									'Descripcion'=>'Precio propuesto por el proveedor pero aun no se compro.'
 									),
@@ -249,41 +252,70 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// 		(array) -> id (int) el numero id creado
 		// 				-> errores (array) con tipo,mensaje,dato.
 		$fecha_ahora= date("Y-m-d H:i:s");   // Obtenemos la fecha sistema 
+		$campos_obligatorios = array('articulo_name','estado','iva','pvpSiva','pvpCiva','coste','beneficio');
+		$comprobaciones = array(); // Lo utilizo para guardar resultado de comprobaciones o errores.
+		// ---- 	Comprobamos que existe campo y tiene dato correcto.		--------- //
+		foreach ($campos_obligatorios as $key){
+			$existe = 'NO';
+			if (isset($datos[$key])){
+				$existe ='Si'; // Ya que existe
+				if ($key === 'iva'){
+					// Comprobamos si el iva que vamos añadir es correcto, si no ponemos el por defecto.
+					$comprobarIva = parent::ComprobarIva($datos['iva']);
+					if (gettype($comprobarIva['error'])==='array'){
+						// Hubo un error el tipo de iva 
+						$datos['iva'] = $comprobarIva['iva'];
+						$comprobaciones['iva'] = $comprobarIva['error']; // Podrías utilizar perfectamente $comprobarIva
+					}
+					
+				}				
+			}
+			if ($existe === 'NO'){
+				$error = array ( 'tipo'=>'danger',
+								 'mensaje' =>'Error no existe o no es correcto '.$key,
+								 'dato' => $key);
+				$comprobaciones['campos'] = $error;
+				
+				return $comprobaciones;
+			}
+			
+		}
 		// ---- 		Insertamos un producto nuevo en tabla articulos 		----- //
-		$sqlArticulo = 'INSERT INTO `articulos`(iva, articulo_name, estado,ultimoCoste, fecha_creado,beneficio) VALUES ("'
-						.$datos['iva'].'","'.$datos['articulo_name'].'","'.$datos['estado'].'","'
-						.$datos['coste'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
+		$sqlArticulo = 'INSERT INTO `articulos`(`iva`, `articulo_name`, `estado`,ultimoCoste, `fecha_creado`,beneficio) VALUES ("'.$datos['iva'].'","'.$datos['articulo_name'].'","'.$datos['estado'].'","'.$datos['coste'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
 		// De momento inserto ultimoCoste, pero no deberíamos... :-) ya que no se compro.	
 		$respuesta = array();
 		$DB = parent::GetDb();
-		$smt = $DB->query($sqlArticulo);
-		if ($smt) {
-			$respuesta['idInsert'] = $DB->insert_id;
-			// Hubo resultados
-		} else {
-			// Quiere decir que hubo error en la consulta.
-			$respuesta['error'] = $DB->connect_errno;
-			$error = array ( 'tipo'=>'danger',
-						 'mensaje' =>'Error al insertar en tabla Articulos '.json_encode($respuesta['error']),
-						 'dato' => $sqlArticulo
-					);
-			$comprobaciones['insert_articulos'] = $error;
-		}
+				$smt = $DB->query($sqlArticulo);
+				if ($smt) {
+					$respuesta['idInsert'] = $DB->insert_id;
+					// Hubo resultados
+				} else {
+					// Quiere decir que hubo error en la consulta.
+					$respuesta['error'] = $DB->connect_errno;
+					
+				}
 				$respuesta['consulta'] = $sqlArticulo;
-		if (!isset($respuesta['error'])){
-			
-			$comprobaciones['insert_articulos'] = array( 'id_producto_nuevo' => $respuesta['idInsert'],
-														 'consulta'=> $respuesta['consulta'] = $sqlArticulo
-														);
-			
-			// ---- 		Insertamos un producto precios del producto nuevo en tabla articulosprecios 		----- //
-			$datos['id'] = $respuesta['idInsert'];
-			// Hay que tene en cuenta que si el precio es 0 lo va añadir igualmente, ya que asi se podrá modificar , no insertar.
-			$comprobaciones['insert_articulos_precios']  = parent::InsertarPreciosVentas($datos);
-			
-			// ----         Insertamos codbarras  del producto nuevo 											----- //
-			$comprobaciones['codbarras']=$this->ComprobarCodbarrasUnProducto($datos['id'],$datos['codBarras']);
+		if (isset($respuesta['error'])){
+			// Entonces hubo error no podemos continuar.
+			$error = array ( 'tipo'=>'danger',
+								 'mensaje' =>'Error al insertar en tabla Articulos '.json_encode($respuesta['error']),
+								 'dato' => $sqlArticulo
+							);
+			$comprobaciones['insert_articulos'] = $error;
+			return $comprobaciones;
 		}
+		$comprobaciones['insert_articulos'] = array( 'id_producto_nuevo' => $respuesta['idInsert'],
+													 'consulta'=> $respuesta['consulta'] = $sqlArticulo
+													);
+		
+		// ---- 		Insertamos un producto precios del producto nuevo en tabla articulosprecios 		----- //
+		$datos['id'] = $respuesta['idInsert'];
+		// Hay que tene en cuenta que si el precio es 0 lo va añadir igualmente, ya que asi se podrá modificar , no insertar.
+		$comprobaciones['insert_articulos_precios']  = parent::InsertarPreciosVentas($datos);
+		
+		// ----         Insertamos codbarras  del producto nuevo 											----- //
+		$comprobaciones['codbarras']=$this->ComprobarCodbarrasUnProducto($datos['id'],$datos['codBarras']);
+		
 		return $comprobaciones;
 		
 	}
@@ -305,17 +337,16 @@ class ClaseProductos extends ClaseTablaArticulos{
 				}
 				$stringValues = implode(',',$values);
 				$sql = 'INSERT INTO `articulosCodigoBarras`(`idArticulo`, `codBarras`) VALUES '.$stringValues;
-				$respuesta = $this->Consulta_insert_update($sql);
-				//~ $DB = parent::GetDb();
-				//~ $smt = $DB->query($sql);
-				//~ if ($smt) {
-					//~ $respuesta['NAnhadidos'] = $DB->affected_rows;
-					//~ // Hubo resultados
-				//~ } else {
-					//~ // Quiere decir que hubo error en la consulta.
-					//~ $respuesta['consulta'] = $sql;
-					//~ $respuesta['error'] = $DB->connect_errno;
-				//~ }
+				$DB = parent::GetDb();
+				$smt = $DB->query($sql);
+				if ($smt) {
+					$respuesta['NAnhadidos'] = $DB->affected_rows;
+					// Hubo resultados
+				} else {
+					// Quiere decir que hubo error en la consulta.
+					$respuesta['consulta'] = $sql;
+					$respuesta['error'] = $DB->connect_errno;
+				}
 				$respuesta['consulta'] = $sql;
 				
 			}
@@ -395,11 +426,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		$codbarras_nuevos = array_diff($Pro_Nuevo_codBarras,$Pro_codBarras);
 		if (count($codbarras_nuevos)>0){
 			$Sqls['anhadidos'] = $this->AnhadirCodbarras($id_pro,$codbarras_nuevos);
-			if ($Sqls['anhadidos']['NAfectados']===count($codbarras_nuevos)){
+			if ($Sqls['anhadidos']['NAnhadidos']===count($codbarras_nuevos)){
 				$comprobaciones[1]['tipo']= 'success';
 				$comprobaciones[1]['mensaje']= 'Añadimos los siguiente codbarras: '.implode(',',$codbarras_nuevos);
 			} else {
-				$comprobaciones[1]['tipo']= 'danger';
+				$comprobaciones[1]['tipo']= 'dargen';
 				$comprobaciones[1]['mensaje']= 'Error no coincide el numero insertado con los codbarras que iba añadir codbarras: '.implode(',',$codbarras_nuevos);
 			}
 			$comprobaciones[1]['dato'] = json_encode($Sqls['anhadidos']);
@@ -407,70 +438,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 		return $comprobaciones;
 	}
-	
-	public function ComprobarProveedoresCostes($id,$datosProveedores){
-		// @ Objetivos
-		//  Comprobar que proveedores son nuevos, existen o hay que modificarlos.
-		// @ Parametros
-		// 		id 			-> (int)  Id de producto a consultar.
-		//		datosProveedores -> (array) de arrays que contienen los datos costes, referencia y id de producto.
-		parent::ObtenerCostesProveedores($id); // Obtenemos datos de los proveedores de ese producto.
-		$proveedores_costes_sin = $this->proveedores_costes;
-		// Eliminamos del array los elementos que no vamos comprobar.
-		$elementos_descartados = array('fechaActualizacion','estado','nombrecomercial','razonsocial');
-		// --- 		Comprobamos si se modifico			  --- //
-		foreach ($proveedores_costes_sin as $key=>$p){
-			foreach ($elementos_descartados as $elemento){
-				unset($p[$elemento]);
-			}
-			// Ahora tenemos que buscar el mismo proveedor en los datos recibidos.
-			foreach ($datosProveedores as $k=>$datos){
-				if ($datos['idProveedor'] === $p['idProveedor']){
-					// Es el mismo proveedor, comprobamos si tiene los mismos datos.
-					if ( serialize($p) === serialize($datos) ){
-						// tiene los mismos datos por lo que debemos eliminarlo de $datosProveedores.
-						// ya que no vamos hacer nada.
-						unset($datosProveedores[$k]);
-					} else {
-						// Se modifico el proveedor...
-						$datosProveedores[$k]['estado'] =$proveedores_costes_sin[$key]['estado']; // Mantengo el mismo estado.
-						$datosProveedores[$k]['se_hizo'] = 'modificado';
-					}
-				}
-			}
-		}
-		//  ----  Ahora monstamos SQL  para grabar ----- //
-		$comprobaciones = array();
-		foreach ($datosProveedores as $k=>$datos){
-			if (!isset($datos['se_hizo'])){
-				//  Es nuevo registro coste proveedor, le añadimos el estado y fecha actualizacion 
-				$datosProveedores[$k]['estado'] = 'Activo';
-				$datosProveedores[$k]['se_hizo'] = 'nuevo';
-				// Montamos Sql insert ya que es nuevo.
-				$sql = 'INSERT INTO `articulosProveedores`(`idArticulo`, `idProveedor`,'
-						.' `crefProveedor`, `coste`, `fechaActualizacion`, `estado`) VALUES ('
-						.$datos['idArticulo'].','.$datos['idProveedor'].',"'
-						.$datos['creProveedor'].'","'.$datos['coste'].'",NOW(),"'
-						.'Activo'.'")';
-				$comprobaciones['nuevo'][]=$this->Consulta_insert_update($sql);
-			} else {
-				// Es modificado montamos sql update
-				$sql = 'UPDATE `articulosProveedores` SET `idArticulo`='
-						.$datos['idArticulo'].',`idProveedor`='.$datos['idProveedor'].',`crefProveedor`="'
-						.$datos['crefProveedor'].'",`coste`="'.$datos['coste']
-						.'",`fechaActualizacion`= NOW(),`estado`="'.$datos['estado'].'" WHERE idArticulo = '
-						.$datos['idArticulo'].' AND idProveedor ='.$datos['idProveedor'];
-				$comprobaciones['modificado'][]=$this->Consulta_insert_update($sql);
-
-			}
-		}
-		//	----- 		EJECUTAMOS SQLS 		---- //
-		
-		
-		return $comprobaciones;
-	}
-	
-	
 	
 	public function ObtenerCostesDeUnProveedor($id,$idProveedor){
 		// @ Objectivo: 
@@ -495,57 +462,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $respuesta;
 	}
 	
-	public function comprobacionCamposObligatoriosProducto($datos){
-		// Objetivo es comprobar que los datos enviados son correctos.
-		// @ Parametros
-		// 		$datos = (array asociativo) 
-		$campos_obligatorios = array('articulo_name','estado','iva','pvpSiva','pvpCiva','coste','beneficio');
-		$comprobaciones = array(); // Lo utilizo para guardar resultado de comprobaciones o errores.
-		// ---- 	Comprobamos que existe campo y tiene dato correcto.		--------- //
-		foreach ($campos_obligatorios as $key){
-			$existe = 'NO';
-			if (isset($datos[$key])){
-				$existe ='Si'; // Ya que existe
-				if ($key === 'iva'){
-					// Comprobamos si el iva que vamos añadir es correcto, si no ponemos el por defecto.
-					$comprobarIva = parent::ComprobarIva($datos['iva']);
-					if (gettype($comprobarIva['error'])==='array'){
-						// Hubo un error el tipo de iva 
-						$datos['iva'] = $comprobarIva['iva'];
-						$comprobaciones['iva'] = $comprobarIva['error']; // Podrías utilizar perfectamente $comprobarIva
-					}
-					
-				}				
-			} else {
-				$error = array ( 'tipo'=>'danger',
-								 'mensaje' =>'Error no existe o no es correcto '.$key,
-								 'dato' => $key);
-				$comprobaciones['campos'] = $error;
-				
-			}
-			
-		}
-		return $comprobaciones;
-
-	}
-	
-	public  function Consulta_insert_update($sql) {
-		// Objetivo
-		// Un metodo para realiza consulta de update insert, sin tener que devolver el id del insert.....
-		// Dudo que sea util.. 
-		$respuesta = array();
-		$DB = parent::GetDb();
-		$smt = $DB->query($sql);
-		if ($smt) {
-			$respuesta['NAfectados'] = $DB->affected_rows;
-			// Hubo resultados
-		} else {
-			// Quiere decir que hubo error en la consulta.
-			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $DB->connect_errno;
-		}
-		return $respuesta;
-	}
 	
 	
 	// Fin de clase.

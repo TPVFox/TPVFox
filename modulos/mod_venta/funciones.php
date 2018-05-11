@@ -259,12 +259,7 @@ function modificarArrayProductos($productos){
 		$product['estadoLinea']=$producto['estadoLinea'];
 		$product['ncant']=number_format($producto['ncant'],0);
 		$product['nunidades']=$producto['nunidades'];
-		if(isset($producto['NumalbCli'])){
-			$product['NumalbCli']=$producto['NumalbCli'];
-		}
-		if(isset($producto['NumpedCli'])){
-			$product['NumpedCli']=$producto['NumpedCli'];
-		}
+		
 		$product['importe']=$producto['precioCiva']*$producto['nunidades'];
 		array_push($respuesta,$product);
 		
@@ -303,13 +298,6 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 					if ($producto['Numalbcli']>0){
 					$numeroPed=$producto['Numalbcli'];
 					}
-				}else{
-					if(isset($producto['NumalbCli'])){
-						$numeroPed=$producto['NumalbCli'];
-					}
-					if(isset($producto['numalbcli'])){
-						$numeroPed=$producto['numalbcli'];
-					}
 				}
 				
 			}
@@ -328,7 +316,7 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $respuesta['html'] .='<td class="codbarras">'.$codBarras.'</td>';
 		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
 		 $cant=number_format($producto['nunidades'],2);
-		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
+		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="?-[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
 		 $importe = $producto['precioCiva']*$producto['nunidades'];
@@ -647,7 +635,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$imprimir['cabecera'].='<table>';
 		$imprimir['cabecera'].='<tr>';
 		if ($dedonde=="albaran"){
-			$imprimir['cabecera'].='<td WIDTH="6%" align="center">PED</td>';
+			$imprimir['cabecera'].='<td WIDTH="5%" align="center">PED</td>';
 		}
 		if ($dedonde=="factura"){
 			$imprimir['cabecera'].='<td WIDTH="5%" align="center">ALB</td>';
@@ -826,8 +814,7 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 	if (isset($datosGet['tActual'])){
 			$datosPost['estado']='Sin guardar';
 	}
-	//~ $fecha=$datosPost['fecha'];
-	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
+	$fecha=$datosPost['fecha'];
 	switch($datosPost['estado']){
 				case 'Sin guardar':
 				case 'Abierto':
@@ -843,11 +830,9 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 					}
 					$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
 					if (isset ($datosPost['fecha'])){
-						//~ $fecha=$datosPost['fecha'];
-						$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
+						$fecha=$datosPost['fecha'];
 					}else{
-						//~ $fecha=$datosAlbaran['fechaInicio'];
-						$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
+						$fecha=$datosAlbaran['fechaInicio'];
 					}
 					if (isset ($datosAlbaran['Productos'])){
 						$productos=$datosAlbaran['Productos'];
@@ -1061,16 +1046,5 @@ function cancelarFactura($idTemporal, $BDTpv){
 			);
 	}
 	return $error;
-}
-function comprobarAlbaran($idCliente, $BDTpv){
-	$Calb=new AlbaranesVentas($BDTpv);
-	$busqueda="";
-	$con=$Calb->AlbaranClienteGuardado($busqueda, $idCliente);
-	if (count($con)>0){
-		$bandera=1;
-	}else{
-		$bandera=2;
-	}
-	return $bandera;
 }
 ?>

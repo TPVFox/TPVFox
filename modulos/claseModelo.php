@@ -22,7 +22,8 @@ define('K_TARIFACLIENTE_ESTADO_BORRADO', '2');
 class Modelo {
 
     protected $db;
-
+    protected $tabla;
+    
     public function __construct($conexion) {
         $this->db = $conexion;
     }
@@ -52,4 +53,29 @@ class Modelo {
         return $respuesta;
     }
 
+    
+    protected function insert($datos, $soloSQL = false) {
+
+        $updateStr = [];
+        if (is_array($datos)) {
+            foreach ($datos as $key => $value) {
+                $updateStr[] = $key . ' = \'' . $value . '\'';
+            }
+        } else {
+            $updateStr[] = $datos;
+        }
+        $updateString = implode(', ', $updateStr);
+
+        $sql = 'INSERT '.$this->tabla
+                . ' SET ' . $updateString;
+        if($soloSQL){
+            $consulta['consulta'] = $sql;
+        } else
+            $consulta = $this->consultaDML($sql);
+
+        return $consulta['consulta'];
+    }
+
+    
+    
 }

@@ -16,7 +16,7 @@ include_once ("./../../configuracion.php");
 include_once ("../mod_incidencias/popup_incidencias.php");
 
 // Crealizamos conexion a la BD Datos
-include_once ("./../../inicial.php");
+include_once ("./../mod_conexion/conexionBaseDatos.php");
 
 // Incluimos funciones
 include_once ("./funciones.php");

@@ -186,26 +186,27 @@ function htmlCobrar($total,$configuracion){
 	$resultado['entregado'] = 0;
 	$resultado['modoPago'] = 0;
 	$resultado['imprimir'] = 0;
-	$resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">'
-						.'<h1>'.number_format($total,2).'<span class="small"> €</span></h1>'
-						.'<h4> Entrega &nbsp <input pattern="[-+]?[0-9]*[.]?[0-9]+" id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>'
-						.'<h4> Cambio &nbsp<input class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value="0"></input></h4>'
-						.'<div class="checkbox" style="text-align:center">';
+	$resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">';
+	$resultado['html'] .= '<h1>'.number_format($total,2).'<span class="small"> €</span></h1>';
+	$resultado['html'] .= '<h4> Entrega &nbsp <input pattern="[-+]?[0-9]*[.]?[0-9]+" id="entrega" name="entrega" class="text-right" value="'.number_format($total,2).'" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>';
+												
+	$resultado['html'] .= '<h4> Cambio &nbsp<input pattern="[-+]?[0-9]*[.]?[0-9]+" class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value=""></input></h4>';
+	$resultado['html'] .= '<div class="checkbox" style="text-align:center">';
 	if ($configuracion['impresion_ticket'] ==='Si'){
 		$chek = 'checked';
 	} else {
 		$chek = '';
 	}
-	$resultado['html'] .= '<label><input name="checkimprimir" type="checkbox" '.$chek.'> Imprimir</label>'
-						.'</div>'
-						.'<div>'
-						.'<select name="modoPago" id="modoPago">'
-						.'<option value="contado">Contado</option>'
-						.'<option value="tarjeta">Tarjeta</option>'
-						.'</select>'
-						.' <button id="CobrarAceptar" type="button" data-obj="CobrarAceptar" onkeydown="controlEventos(event)" class="btn btn-primary" onclick="controlEventos(event)" >Aceptar</button>'
-						.'</div>'
-						.'</div>';
+	$resultado['html'] .= '<label><input name="checkimprimir" type="checkbox" '.$chek.'> Imprimir</label>';
+	$resultado['html'] .= '</div>';
+	$resultado['html'] .= '<div>';
+	$resultado['html'] .= '<select name="modoPago" id="modoPago">';
+	$resultado['html'] .= '<option value="contado">Contado</option>';
+	$resultado['html'] .= '<option value="tarjeta">Tarjeta</option>';
+	$resultado['html'] .= '</select>';
+	$resultado['html'] .= ' <button id="CobrarAceptar" type="button" data-obj="CobrarAceptar" onkeydown="controlEventos(event)" class="btn btn-primary" onclick="controlEventos(event)" >Aceptar</button>';
+	$resultado['html'] .= '</div>';
+	$resultado['html'] .= '</div>';
 	
 	return $resultado;
 }
@@ -254,6 +255,15 @@ function grabarTicketsTemporales($BDTpv,$productos,$cabecera,$total) {
 			$resultado['consulta'] = $SQL;
 			$resultado['error'] = $BDTpv->error_list;
 		} 
+		// Ahora comprobamos los estado de los ticket,ya que solo podemos tener uno como actual y los ponemos abiertos.
+		
+		// Tambien cambiamos el numero ticket temporal por el que se acaba de crear.
+		//~ $sql = "UPDATE `indices` SET `tempTicket`=".$numTicket." WHERE `idTienda` =".$idTienda." AND `idUsuario` =".$idUsuario;
+		//~ $BDTpv->query($sql);
+		//~ if (mysqli_error($BDTpv)){
+			//~ $resultado['consulta2'] = $sql;
+			//~ $resultado['error2'] = $BDTpv->error_list;
+		//~ } 
 
 	} else {
 		// Si NO es Nuevo entonces se hace UPDATE
@@ -402,9 +412,7 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 	} else {
 		$product = $producto;
 	}
-	// Creamos importe --> 
-	$importe = $product->pvpconiva*$product->unidad;
-	$importe = number_format($importe,2);
+	
 	// Si estado es eliminado tenemos añadir class y disabled input
 	if ($product->estado !=='Activo'){
 		$classtr = ' class="tachado" ';
@@ -415,15 +423,12 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 			$funcOnclick = ' eliminarFila('.$num_item.');';
 		$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
 	}
-	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>'
-				.'<td class="linea">'.$product->nfila.'</td>' //num linea
-				.'<td class="codbarras">'.$product->ccodebar.'</td>'
-				.'<td class="referencia">'.$product->cref.'</td>'
-				.'<td class="detalle">'.$product->cdetalle.'</td>'
-				.'<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="Unidad_Fila_'.$product->nfila
-				.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'
-				.$product->unidad.'"  '.$estadoInput.' onkeydown="controlEventos(event,'
-				."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
+	$nuevaFila = '<tr id="Row'.($product->nfila).'" '.$classtr.'>';
+	$nuevaFila .= '<td class="linea">'.$product->nfila.'</td>'; //num linea
+	$nuevaFila .= '<td class="codbarras">'.$product->ccodebar.'</td>';
+	$nuevaFila .= '<td class="referencia">'.$product->cref.'</td>';
+	$nuevaFila .= '<td class="detalle">'.$product->cdetalle.'</td>';
+	$nuevaFila .= '<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="Unidad_Fila_'.$product->nfila.'" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$product->unidad.'"  '.$estadoInput.' onkeydown="controlEventos(event,'."'Unidad_Fila_".$product->nfila."'".')" onBlur="controlEventos(event)"></td>';
 	//si en config peso=si, mostramos columna peso
 	if ($CONF_campoPeso === 'si'){
 		$nuevaFila .= '<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
@@ -431,15 +436,20 @@ function htmlLineaTicket($producto,$num_item,$CONF_campoPeso){
 		$nuevaFila .= '<td style="display:none"><input id="C'.$product->nfila.'_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; 
 	}
 	$nuevaFila .= '<td class="pvp"><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="precioCIva_'.$product->nfila
-				.'" name="precioCIva_'.$product->nfila.'" value="'.$product->pvpconiva.'" size="3" data-obj="cajaPrecioCIva"'
-				.' onkeydown="controlEventos(event)"  readonly>'
-				.'<a onclick="ActivarPrecioCIva(event,'.$product->nfila.')">'
-				.'<span class="glyphicon glyphicon-cog"></span>'
-				.'</a></td>'
-				.'<td class="tipoiva">'.$product->ctipoiva.'%</td>'
-				.'<td id="N'.$product->nfila.'_Importe" class="importe" >'.$importe.'</td>' //importe 
-				. $btnELiminar_Retornar // Mostramos btn eliminar o retornar
-				.'</tr>';
+					.'" name="precioCIva_'.$product->nfila.'" value="'.$product->pvpconiva.'" size="3" data-obj="cajaPrecioCIva"'
+					.' onkeydown="controlEventos(event)"  readonly>'
+					.'<a onclick="ActivarPrecioCIva(event,'.$product->nfila.')">'
+					.'<span class="glyphicon glyphicon-cog"></span>'
+					.'</a></td>';
+	$nuevaFila .= '<td class="tipoiva">'.$product->ctipoiva.'%</td>';
+	// Creamos importe --> 
+	$importe = $product->pvpconiva*$product->unidad;
+	$importe = number_format($importe,2);
+	$nuevaFila .= '<td id="N'.$product->nfila.'_Importe" class="importe" >'.$importe.'</td>'; //importe 
+	// Ahota tengo que controlar el estado del producto,para mostrar uno u otro
+	$nuevaFila .= $btnELiminar_Retornar;
+
+	$nuevaFila .='</tr>';
 	return $nuevaFila;
 }
 
@@ -1046,34 +1056,32 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 	$n_dedonde = 0 ; 
 	$resultado['encontrados'] = count($clientes);
 	
-	$resultado['html'] = '<label>Busqueda Cliente en '.$dedonde.'</label>'
-						.'<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'
-						.'size="13" data-obj="cajaBusquedacliente" value="'.$busqueda
-						.'" onkeydown="controlEventos(event)" type="text">';
+	$resultado['html'] = '<label>Busqueda Cliente en '.$dedonde.'</label>';
+	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
+				'size="13" data-obj="cajaBusquedacliente" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($clientes)>10){
 		$resultado['html'] .= '<span>10 clientes de '.count($clientes).'</span>';
 	}
-	$resultado['html'] .= '<table class="table table-striped"><thead>'
-						.' <th></th>' //cabecera blanca para boton agregar
-						.' <th>Nombre</th>'
-						.' <th>Razon social</th>'
-						.' <th>NIF</th>'
-						.'</thead><tbody>';
+	$resultado['html'] .= '<table class="table table-striped"><thead>';
+	$resultado['html'] .= ' <th></th>'; //cabecera blanca para boton agregar
+	$resultado['html'] .= ' <th>Nombre</th>';
+	$resultado['html'] .= ' <th>Razon social</th>';
+	$resultado['html'] .= ' <th>NIF</th>';
+	$resultado['html'] .= '</thead><tbody>';
 	if (count($clientes)>0){
 		$contad = 0;
 		foreach ($clientes as $cliente){  
 			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr class="FilaModal" id="Fila_'
-								.$contad.'" onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">'
-								.'<td id="C'.$contad.'_Lin" >'
-								.'<input id="N_'.$contad.'" name="filacliente" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
-								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
-								. '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>'
-								.'<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>'
-								.'<td>'.$cliente['nif'].'</td>'
-								.'</tr>';
+			$resultado['html'] .= '<tr class="FilaModal" id="Fila_'.$contad.'" onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">';
+			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>';
+			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
+			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';
+			$resultado['html'] .= '</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;

@@ -76,18 +76,6 @@ function metodoClick(pulsado,adonde){
 			window.location.href = './'+adonde+'.php?id='+checkID[0];			
 			
 			break;
-		case 'EtiquetasCodBarras':
-			console.log('Entro en etiquetas codigo de barras');
-			// Cargamos variable global ar checkID = [];
-			 VerIdSeleccionado ();
-			if (checkID.length >1 || checkID.length=== 0) {
-				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
-				return
-			}
-			// Ahora redireccionamos 
-			window.location.href = './../mod_etiquetado/'+adonde+'.php?idProducto='+checkID[0];			
-			
-			break;
 		
 		case 'AgregarProducto':
 			console.log('entro en agregar producto');
@@ -107,6 +95,9 @@ function metodoClick(pulsado,adonde){
 			}
 			console.log('Resultado Buscar:'+BProductos);
 			break;
+		//~ case 'ImprimirEtiquetas':
+			//~ window.location.href = './'+adonde+'.php;
+		//~ break;
 		
 		
 	 }
@@ -316,14 +307,11 @@ function obtenerIva(){
 
 function obtenerIdsProveedores(){
 	// Objetivo:
-	// Obtener ids de los proveedores que tiene ya asignado el producto o que se añadieron ya...
-	// por eso utilizamos los valores de los inputs y no los valores de variable proveedor.
+	// Obtener ids de los proveedores que tiene asigando el producto.
 	var idsProveedores= [];
-	$('.idProveedor').each(function(){
-		idsProveedores.push($(this).val());
+	proveedores.forEach(function(proveedor){
+		idsProveedores.push(proveedor.idProveedor);
 	});
-	console.log(idsProveedores);
-	
 	return idsProveedores;
 	
 }
@@ -694,6 +682,7 @@ function mensajeImprimir(id, dedonde){
 		imprimir(id, dedonde, bandera);
 		
 		}
+
 	else {
 		//~ alert("¡Has denegado imprimir!");
 		location.href="../mod_compras/albaranesListado.php";
@@ -714,7 +703,7 @@ function imprimir(id, dedonde, bandera=""){
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-		console.log('*********  Modificando imprimir   **************');
+		console.log('*********  Modificando eliminar costes  **************');
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');

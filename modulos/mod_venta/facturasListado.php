@@ -182,15 +182,7 @@ if (isset($errores)){
 						foreach ($facturasDef as $factura){
 						
 							$checkUser = $checkUser + 1;
-							$totalBase="0.00";
-							$importeIva="0.00";
 							$totaliva=$Cfactura->sumarIva($factura['Numfaccli']);
-							if(isset( $totaliva['totalbase'])){
-								$totalBase=$totaliva['totalbase'];
-							}
-							if(isset( $totaliva['importeIva'])){
-								$importeIva=$totaliva['importeIva'];
-							}
 							$date=date_create($factura['Fecha']);
 						?>
 						<tr>
@@ -199,8 +191,8 @@ if (isset($errores)){
 						<td><?php echo $factura['Numfaccli'];?></td>
 						<td><?php echo date_format($date,'Y-m-d');?></td>
 						<td><?php echo $factura['Nombre'];?></td>
-						<td><?php echo $totalBase;?></td>
-						<td><?php echo $importeIva;?></td>
+						<td><?php echo $totaliva['totalbase'];?></td>
+						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $factura['total'];?></td>
 						<?php 
 						if ($factura['estado']=="Sin Guardar"){

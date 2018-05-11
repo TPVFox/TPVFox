@@ -5,6 +5,7 @@
 	//Carga de archivos php necesarios
 	include './../../head.php';
 	include './funciones.php';
+	//~ include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include '../../clases/Proveedores.php';
 	include 'clases/albaranesCompras.php';
@@ -23,8 +24,7 @@
 	$dedonde="albaran";
 	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
-	//~ $fecha=date('Y-m-d');
-	$fecha=date('d-m-Y');
+	$fecha=date('Y-m-d');
 	$idAlbaranTemporal=0;
 	$idAlbaran=0;
 	$idProveedor=0;
@@ -34,7 +34,6 @@
 	$fechaVencimiento="";
 	$style1="";
 	$Datostotales=array();
-	$textoNum="";
 	
 	
 	//Cargamos la configuración por defecto y las acciones de las cajas 
@@ -63,8 +62,7 @@
 		}else{
 			$idAlbaran=$datosAlbaran['idAlbaran'];
 			$estado=$datosAlbaran['estado'];
-			//~ $fecha=$datosAlbaran['fecha'];
-			$fecha =date_format(date_create($datosAlbaran['fecha']), 'd-m-Y');
+			$fecha=$datosAlbaran['fecha'];
 			$formaPago=$datosAlbaran['formaPago'];
 			$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
 			$fechaVencimiento=$datosAlbaran['fechaVencimiento'];
@@ -74,7 +72,6 @@
 			$productos=$datosAlbaran['productos'];
 			$Datostotales=$datosAlbaran['DatosTotales'];
 			$pedidos=$datosAlbaran['pedidos'];
-			$textoNum=$idAlbaran;
 		}
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
@@ -93,16 +90,13 @@
 					$numAlbaran=$datosAlbaran['numalbpro'];
 					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
 					$idAlbaran=$datosReal['id'];
-					$textoNum=$idAlbaran;
 				}else{
 					$idAlbaran=0;
 				}
 				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
-					//~ $fecha=date('Y-m-d');
-					$fecha=date('d-m-Y');
+					$fecha=date('Y-m-d');
 				}else{
-					//~ $fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
-					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
+					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 				}
 				if ($datosAlbaran['Su_numero']!==""){
 					$suNumero=$datosAlbaran['Su_numero'];
@@ -141,6 +135,20 @@
 			}
 		}
 	}
+	//Cancelar, cuando cancelamos un albarán quiere decir que los 
+	//cambios que hemos echo no se efectúan para ello eliminamos el temporal que hemos creado
+	// y cambiamos el estado del original a guardado
+	//~ if (isset ($_POST['Cancelar'])){
+		 //~ $cancelar=cancelarAlbaran( $_GET, $BDTpv);
+		//~ if (count($cancelar)==0){
+			
+			//~ header('Location: albaranesListado.php');
+		//~ }else{
+			//~ echo '<div class="'.$cancelar['class'].'">'
+					//~ . '<strong>'.$cancelar['tipo'].' </strong> '.$cancelar['mensaje'].' <br> '.$cancelar['dato']
+					//~ . '</div>';
+		//~ }
+	//~ }
 		if (isset($albaran['Pedidos'])){
 			$pedidos=json_decode(json_encode($pedidos), true);
 			$style1="";
@@ -161,7 +169,7 @@
 			$estiloTablaProductos="display:none;";
 		}
 	
-		$titulo .= $textoNum.' : '.$estado;
+		$titulo .= ': '.$estado;
 		
 ?>
 	<script type="text/javascript">
@@ -255,28 +263,23 @@
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-			<div class="col-md-12">
-				<div class="col-md-8" >
-						<a  href="./albaranesListado.php">Volver Atrás</a>
-						<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
-				</div>
-				<div class="col-md-4 " >
-						<input type="submit" class="pull-right btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
-						<?php
-					if ($idAlbaranTemporal>0){
-						?>
-						<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
-						<?php
-					}
-						?>
-					</div>
-				</div>
+			
+			<a  href="./albaranesListado.php">Volver Atrás</a>
+					<input type="submit" value="Guardar" name="Guardar" id="bGuardar">
+					<input type="submit" value="Cancelar" name="Cancelar" id="bCancelar">
+					<?php
+				if ($idAlbaranTemporal>0){
+					?>
+					<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
+					<?php
+				}
+					?>
 <div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">
 				<div class="col-md-4">
 					<strong>Fecha albarán:</strong><br>
-					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
 				<div class="col-md-4">
 					<strong>Estado:</strong><br>
@@ -321,7 +324,7 @@
 	<div class="col-md-4" >
 	<div>
 		<div>
-			<div style="margin-top:-20x;">
+			<div style="margin-top:-50px;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
 			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>

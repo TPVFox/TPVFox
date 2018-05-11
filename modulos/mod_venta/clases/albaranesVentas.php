@@ -192,9 +192,6 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 				if (isset($prod['Numpedcli'])){
 					$numPed=$prod['Numpedcli'];
 				}
-				if(isset($prod['NumpedCli'])){
-						$numPed=$prod['NumpedCli'];
-				}
 				$sql='INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo ,
 				 cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, 
 				 estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']

@@ -30,15 +30,13 @@
 	$nombreCliente=0;
 	$titulo="Factura De Cliente ";
 	$estado='Abierto';
-	$fecha=date('d-m-Y');
+	$fecha=date('Y-m-d');
 	$Simporte="display:none;";
 	$formaPago=0;
 	$albaranes=array();
 	$importesFactura=array();
 	$dedonde="factura";
-	$textoNum="";
-	$fechaImp=date('Y-m-d');
-	$comprobarAlbaran=0;
+	
 		$parametros = $ClasesParametros->getRoot();
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="factura";
@@ -55,21 +53,21 @@
 		
 	if (isset($_GET['id'])){//Si rebie un id quiere decir que ya existe la factura
 		$idFactura=$_GET['id'];
-		$textoNum=$idFactura;
 		$datosFactura=$Cfaccli->datosFactura($idFactura);//Extraemos los datos de la factura 
 		$productosFactura=$Cfaccli->ProductosFactura($idFactura);//De los productos
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
 		$datosImportes=$Cfaccli->importesFactura($idFactura);
 		$estado=$datosFactura['estado'];
-		$fecha =date_format(date_create($datosFactura['Fecha']), 'd-m-Y');
+	
+		$date=date_create($datosFactura['Fecha']);
+		$fecha=date_format($date,'Y-m-d');
 		$numFactura=$datosFactura['Numfaccli'];
 		$idCliente=$datosFactura['idCliente'];
 		if ($idCliente){
 				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$datosCliente['Nombre']."'";
 		}
-		$comprobarAlbaran=comprobarAlbaran($idCliente, $BDTpv);
 		if (isset($datosFactura['formaPago'])){
 			if($datosFactura['formaPago']>0){
 				$formaPago=$datosFactura['formaPago'];
@@ -86,7 +84,6 @@
 			$fechave=fechaVencimiento($fec, $BDTpv);
 		}
 		$textoFecha=htmlVencimiento($fechave, $BDTpv);
-		
 		$productosMod=modificarArrayProductos($productosFactura);
 		$productos=json_decode(json_encode($productosMod));
 		
@@ -100,7 +97,6 @@
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
 		
-		
 	}else{// si no recibe un id de una factura ya creada ponemos los datos de la temporal en caso de que tenga 
 		//Si no dejamos todo en blanco para poder cubrir
 			if (isset($_GET['tActual'])){
@@ -108,16 +104,15 @@
 				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
 				if (isset($datosFactura['Numfaccli '])){
 					$numFactura=$datosFactura['Numfaccli'];
-					$idFactura=$numFactura;
-					$textoNum=$idFactura;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('d-m-Y');
+					$fecha=date('Y-m-d');
 				}else{
-					$fecha =date_format(date_create($datosFactura['fechaInicio']), 'd-m-Y');
+					$fecha1=date_create($datosFactura['fechaInicio']);
+					$fecha =date_format($fecha1, 'Y-m-d');
 				}
 				$idCliente=$datosFactura['idClientes'];
-				$comprobarAlbaran=comprobarAlbaran($idCliente, $BDTpv);
+				
 				$cliente=$Ccliente->DatosClientePorId($idCliente);
 				$nombreCliente="'".$cliente['Nombre']."'";
 				if (isset ($cliente['formasVenci'])){
@@ -138,9 +133,9 @@
 			
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
+				
 			}
 	}
-	//~ echo $comprobarAlbaran;
 		if(isset($factura['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
@@ -154,8 +149,7 @@
 		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
 			if (isset($_GET['id'])){
-				$fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
-				$modFecha=$Cfaccli->modificarFechaFactura($_GET['id'], $fecha);
+				$modFecha=$Cfaccli->modificarFechaFactura($_GET['id'], $_POST['fecha']);
 				if(isset($modFecha['error'])){
 					echo '<div class="alert alert-danger">'
 						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
@@ -199,10 +193,10 @@
 						$estado="Pagado Parci";
 					}
 				}
-				$fecha=date_format(date_create($_POST['fecha']), 'Y-m-d');
+				
 				$datos=array(
 				'Numtemp_faccli'=>$idTemporal,
-				'Fecha'=>$fecha,
+				'Fecha'=>$_POST['fecha'],
 				'idTienda'=>$Tienda['idTienda'],
 				'idUsuario'=>$Usuario['id'],
 				'idCliente'=>$idCliente,
@@ -260,8 +254,32 @@
 		}
 			
 		}
-		
-$titulo .= ' '.$textoNum.': '.$estado;
+		//Cuando cancelamos una factura eliminamos su temporal y ponemos la factura original con estado guardado
+		//~ if (isset($_POST['Cancelar'])){
+			//~ if (isset($_POST['idTemporal'])){
+				//~ $idTemporal=$_POST['idTemporal'];
+			//~ }else{
+				//~ if (isset ($_GET['tActual'])){
+					//~ $idTemporal=$_GET['tActual'];
+				//~ }else{
+					//~ $idTemporal=0;
+				//~ }
+				
+			//~ }
+		//~ if ($idTemporal>0){
+			//~ $datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
+			//~ $albaranes=json_decode($datosFactura['Albaranes'], true);
+			//~ foreach ($albaranes as $albaran){
+				//~ $mod=$Calbcli->ModificarEstadoAlbaran($albaran['idAlCli'], "Guardado");
+			//~ }
+			//~ $idFactura=0;
+			//~ $eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+				//~ header('Location: facturasListado.php');
+			//~ }else{
+				//~ header('Location: facturasListado.php');
+			//~ }
+		//~ }
+$titulo .= ': '.$estado;	
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -354,15 +372,10 @@ if ($idCliente==0){
 			<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, <?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-				<div class="col-md-12">
-				<div class="col-md-8" >
 			<a  href="./facturasListado.php">Volver Atrás</a>
 			
-					<input type="submit"  class="btn btn-primary" value="Guardar" id="Guardar" name="Guardar">
-					</div>
-				<div class="col-md-4 " >
-					<input type="submit" class="pull-right btn btn-danger" value="Cancelar" id="Cancelar" name="Cancelar">
-					</div>
+					<input type="submit" value="Guardar" id="Guardar" name="Guardar">
+					<input type="submit" value="Cancelar" id="Cancelar" name="Cancelar">
 					<?php
 				if ($idFacturaTemporal>0){
 					?>
@@ -376,7 +389,7 @@ if ($idCliente==0){
 			
 				<div class="col-md-2">
 					<strong>Fecha Factura:</strong><br>
-					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 				</div>
 				<div class="col-md-2">
 					<strong>Estado:</strong><br>
@@ -477,7 +490,6 @@ if ($idCliente==0){
 		</thead>
 		<tbody>
 			<?php 
-			
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
 				$html=htmlLineaPedidoAlbaran($producto, "factura");
@@ -539,7 +551,7 @@ if ($idCliente==0){
 			<tbody>
 			 <tr id="fila0">  
 				<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
-				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fechaImp;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
+				<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha" data-obj= "cajaEfecha"  onkeydown="controlEventos(event)" value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd"></td>
 				<td>
 					<select name='Eformas' id='Eformas'>
 				<?php 
@@ -621,7 +633,7 @@ if($estado=="Guardado"){
 	//~ $("#Guardar").hide();
 	<?php
 }
-if (isset($productos) & $albaranes==null & $comprobarAlbaran==2){
+if (isset($productos) & $albaranes==null){
 	?>
 	$("#tablaAl").hide();
 	<?php
