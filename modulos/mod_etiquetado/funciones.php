@@ -37,11 +37,11 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		if ($nuevoProducto['estado'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarFila('.$nuevoProducto['Nfila'].', "etiquetas");';
+				$funcOnclick = ' retornarFila('.$nuevoProducto['Nfila'].', '."'".'etiquetas'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
 							<span class="glyphicon glyphicon-export"></span></a></td>';
 			} else {
-				$funcOnclick = ' eliminarFila('.$nuevoProducto['Nfila'].' , "etiquetas");';
+				$funcOnclick = ' eliminarFila('.$nuevoProducto['Nfila'].' ,'."'".'etiquetas'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
 							<span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
@@ -110,11 +110,11 @@ function lineasProductos($productos){
 			if ($producto['estado'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarFila('.$producto['Nfila'].', "etiquetas");';
+				$funcOnclick = ' retornarFila('.$producto['Nfila'].', '."'".'etiquetas'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
 							<span class="glyphicon glyphicon-export"></span></a></td>';
 			} else {
-				$funcOnclick = ' eliminarFila('.$producto['Nfila'].' , "etiquetas");';
+				$funcOnclick = ' eliminarFila('.$producto['Nfila'].' , '."'".'etiquetas'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
 							<span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';

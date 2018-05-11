@@ -306,4 +306,31 @@ function mover_up(fila,prefijo){
 	console.log(d_focus);
 	ponerSelect(d_focus);
 }
-
+function eliminarFila(num_item, dedonde){
+	console.log("Entro en eliminar Filas");
+	var line;
+	num=num_item-1;
+	line = "#Row" + productos[num].Nfila;
+	console.log(line);
+	productos[num].estado= 'Eliminado';
+	$(line).addClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
+	 $('#nombre_'+productos[num].Nfila ).prop("disabled", true);
+	 $('#peso_'+productos[num].Nfila ).prop("disabled", true);
+	 $('#numAlb_'+productos[num].Nfila ).prop("disabled", true);
+	 addEtiquetadoTemporal();
+}
+function retornarFila(num_item, dedonde){
+	console.log("Entro en eliminar Filas");
+	var line;
+	num=num_item-1;
+	line = "#Row" + productos[num].Nfila;
+	console.log(line);
+	productos[num].estado= 'Activo';
+	$(line).removeClass('tachado');
+	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+' , '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-trash"></span></a>');
+	$('#nombre_'+productos[num].Nfila ).prop("disabled", false);
+	 $('#peso_'+productos[num].Nfila ).prop("disabled", false);
+	 $('#numAlb_'+productos[num].Nfila ).prop("disabled", false);
+	 addEtiquetadoTemporal();
+}
