@@ -88,7 +88,16 @@ switch ($pulsado) {
 	break;
 	case 'modificarCodigoBarras':
 		$tipo=$_POST['tipo'];
-		
+		$producto=$_POST['producto'];
+		switch($tipo){
+			case 1:
+				$codigoBarras=codigoBarrasUnidades($producto['crefTienda'], $producto['peso']);
+			break;
+			case 2:
+				$codigoBarras=codigoBarrasPeso($producto['crefTienda'],  $producto['peso']);
+			break;
+		}
+		$respuesta['cod']=$codigoBarras;
 	
 	break;
 	

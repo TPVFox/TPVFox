@@ -90,7 +90,7 @@ function modificarCodigoBarras(nfila){
 	var parametros ={
 		'pulsado':'modificarCodigoBarras',
 		'tipo':cabecera.tipo,
-		'producto':cabecera.producto[nfila]
+		'producto':productos[nfila]
 		
 	};
 		$.ajax({
@@ -103,7 +103,7 @@ function modificarCodigoBarras(nfila){
 			success    :  function (response) {
 				console.log('Llegue devuelta repetir productos JS');
 				var resultado =  $.parseJSON(response); 
-				var filasNuevas = resultado['html'];
+				console.log(resultado);
 				
 				
 			}
@@ -249,6 +249,9 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('nombre_') >=-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
+	if (padre_caja.id_input.indexOf('peso_') >=-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
 	return padre_caja;
 }
 function before_constructor(caja){
@@ -256,6 +259,10 @@ function before_constructor(caja){
 	if (caja.id_input.indexOf('nombre_') >=-1){
 		console.log(' Entro en Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(7);
+	}
+	if (caja.id_input.indexOf('peso_') >=-1){
+		console.log(' Entro en Before de '+caja.id_input)
+		caja.fila = caja.id_input.slice(5);
 	}
 	return caja;
 }

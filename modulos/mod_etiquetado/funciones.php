@@ -166,16 +166,18 @@ function codigoBarrasPeso($referenciaTienda, $cantidad){
 	$dividir = explode(".", $cantidad);
 	if(isset($dividir['0'])){
 		$entero=str_pad($dividir['0'], 3, "0", STR_PAD_LEFT); 
+		
 	}
 	if(isset($dividir['1'])){
 		$decimal=str_pad($dividir['1'], 2, "0", STR_PAD_RIGHT); 
 	}else{
-		$decimal='000';
+		$decimal='00';
 	}
+	
 	$codigo=$principio.$referencia.$entero.$decimal;
 	$dc=calcularDigitoControl($codigo);
 	$codigoBarras=$codigo.$dc;
-	return $codigoBarras;
+	 return $codigoBarras;
 }
 
 function calcularDigitoControl($codigo){
