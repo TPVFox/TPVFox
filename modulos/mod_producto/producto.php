@@ -24,8 +24,8 @@
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
-		$posibles_estados = $CTArticulos->posiblesEstados('articulos');
-			
+		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
+	
 		$titulo = 'Productos:';
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Producto
@@ -43,54 +43,27 @@
 		
 		
 				
-		if (isset($preparados['Sqls'])){
-			// quiere decir que hizo consultas por lo que tenemos comprobaciones
-			if (isset($preparados['Sqls']['comprobaciones'])){
-				foreach ($preparados['Sqls']['comprobaciones'] as $comprobacion){
-					$CTArticulos->SetComprobaciones($comprobacion);
-				}
-			}
-			if (isset($preparados['Sqls']['codbarras'])){
-				foreach ($preparados['Sqls']['codbarras'] as $comprobacion){
-					$CTArticulos->SetComprobaciones($comprobacion);
-				}
-			}
-			if (isset($preparados['Sqls']['insert_articulos'])){
-				foreach ($preparados['Sqls']['insert_articulos'] as $comprobacion){
-					$CTArticulos->SetComprobaciones($comprobacion);
-				}
+		if (isset($preparados['comprobaciones'])){
+			foreach ($preparados['comprobaciones'] as $comprobacion){
+				$CTArticulos->SetComprobaciones($comprobacion);
 			}
 		}
+		if (isset($preparados['codbarras'])){
+			foreach ($preparados['codbarras'] as $comprobacion){
+				$CTArticulos->SetComprobaciones($comprobacion);
+			}
+		}
+		if (isset($preparados['insert_articulos'])){
+			foreach ($preparados['insert_articulos'] as $comprobacion){
+				$CTArticulos->SetComprobaciones($comprobacion);
+			}
+		}
+		//~ echo '<pre>';
+		//~ print_r($preparados);
+		//~ echo '</pre>';
+		
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		
-		?>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
-		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		?>	
-
-		<script type="text/javascript">
-		// Objetos cajas de tpv
-		<?php echo $VarJS;?>
-		<?php 
-			echo  'var producto='.json_encode($Producto).';';
-		?>
-		<?php 
-			echo  'var ivas='.json_encode($ivas).';';
-		?>
-		</script>
-
-		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-
-	</head>
-	<body>
-		<?php     
-        include './../../header.php';
-		
-		// Ahora montamos html 
-		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
-		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
 		// Antes de montar html de proveedores añado array de proveedores cual es pricipal
 		foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
 			if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
@@ -113,12 +86,35 @@
 			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
 		}
 		// ==========		Montamos  html que mostramos. 			============ //
+		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
+		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
-		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
+		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
 		
-		
-		
+		?>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
+		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		?>	
+		<script type="text/javascript">
+		// Objetos cajas de tpv
+		<?php echo $VarJS;?>
+		<?php 
+			echo  'var producto='.json_encode($Producto).';';
+		?>
+		<?php 
+			echo  'var ivas='.json_encode($ivas).';';
+		?>
+		</script>
+
+		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+
+	</head>
+	<body>
+		<?php     
+        include './../../header.php';
 		?>
 
      
@@ -150,7 +146,7 @@
 					<div class="col-md-5">
 					<label>Estado
 						<select id="idEstado" name="estado" onchange="">
-							<?php echo $htmlEstados; ?>
+							<?php echo $htmlEstadosProducto; ?>
 						</select>
 					</label>
 					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id;?>" >
