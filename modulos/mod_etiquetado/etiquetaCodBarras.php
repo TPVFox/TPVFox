@@ -84,7 +84,27 @@
 					$fechaCad=$_POST['fechaCad'];
 				}
 				if(isset($productos)){
-					$productos=json_encode($productos);
+					//~ print_r($productos);
+					$i=0;
+					foreach($productos as $producto){
+						if($producto['estado']=='Eliminado'){
+							unset($productos[$i]);
+							$i++;
+						}
+					}
+					echo '<pre>';
+					print_r($productos);
+					echo '</pre>';
+					$cantidadProd=count($productos);
+					
+					if($cantidadProd>0){
+						$productos=json_encode($productos);
+					}else{
+						echo 'NO hay productos';
+						exit;
+					}
+					
+					
 				}
 				if(isset($_POST['tipo'])){
 					$tipo=$_POST['tipo'];

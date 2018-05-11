@@ -61,7 +61,7 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		 .'<td><input type="text" id="numAlb_'.$nuevoProducto['Nfila'].'" 
 		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
 		 value="'.$nuevoProducto['NumAlb'].'" size="7"></td>'
-		 .'<td id="codigoBarras_'.$producto['Nfila'].'">'.$codigoBarras.'</td>'
+		 .'<td id="codigoBarras_'.$nuevoProducto['Nfila'].'">'.$codigoBarras.'</td>'
 		 . $btnELiminar_Retornar
 		 .'</tr>';
 		
