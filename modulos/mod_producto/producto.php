@@ -18,8 +18,6 @@
 		// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		
-		
-		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		// Cargamos el plugin que nos interesa.
@@ -34,12 +32,13 @@
 			echo '</pre>';
 		}
 		$titulo = 'Productos:';
+		
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
-		$posibles_estados = $CTArticulos->posiblesEstados('articulos');
-			
-		
+		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
+	
+		$titulo = 'Productos:';
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Producto
 			$id=$_GET['id']; // Obtenemos id producto para modificar.
@@ -49,82 +48,72 @@
 			$titulo .= "Crear";
 		}
 		if ($_POST){
-			
-			$preparados= prepararYgrabar($_POST,$CTArticulos);
-			// Comprobamos los datos antes de grabar.
-			if (isset($preparados['Sqls']['NuevoProducto'])){
-				// Entonces es que creo uno nuevo.
-				$preparado_nuevo = $preparados['Sqls']['NuevoProducto'];
-				if (isset($preparado_nuevo['insert_articulos']['id_producto_nuevo'])){
-					// Se añadio por lo menos a tabla articulos
-					$id = $preparado_nuevo['insert_articulos']['id_producto_nuevo']; // Asi carga datos.
-					// Montamos comprobaciones para enviar despues de cargar de nuevo producto.
-					$success = array ( 'tipo'=>'success',
-								 'mensaje' =>'Se creo el producto con id '.$id.' nuevo',
-								 'dato' => $preparado_nuevo['consulta']
-								);
-					$preparados['Sqls']['comprobaciones'][] = $success;
-					// Ahora comprobamos si añadio mas cosas en el articulo nuevo. 
-					if (isset($preparado_nuevo['insert_articulos_precios'])){
-						if (isset($preparado_nuevo['insert_articulos_precios']['Afectados'])){
-							// Entiendo que la consulta fue correcta y que se añadio o no.
-							$success = array ( 'tipo'=>'success',
-								 'mensaje' =>'Se añadieron precios correctos en '
-											.$preparado_nuevo['insert_articulos_precios']['Afectados'].' registros',
-								 'dato' => $preparado_nuevo['consulta']
-								);
-							$preparados['Sqls']['comprobaciones'][] = $success;
-						} else {
-							// Hubo un error al insertar los precios.
-							$preparados['Sqls']['comprobaciones'][] = $preparado_nuevo['insert_articulos_precios'];
-						}
-						
-					}
-
-				} else {
-					// Quiere decir que hubo un error al principio
-					$preparados['Sqls']['comprobaciones'][] = $preparado_nuevo['insert_articulos'];
-				}
-				if (isset($preparado_nuevo['codbarras'])){
-					$preparados['Sqls']['codbarras'] = $preparado_nuevo['codbarras'];
-				}
-			}
+			include_once ('./tareas/reciboPost.php');
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->GetProducto($id);
 		
 		
 				
-		if (isset($preparados['Sqls'])){
-			// quiere decir que hizo consultas por lo que tenemos comprobaciones
-			if (isset($preparados['Sqls']['comprobaciones'])){
-				foreach ($preparados['Sqls']['comprobaciones'] as $comprobacion){
-					$CTArticulos->SetComprobaciones($comprobacion);
-				}
-			}
-			if (isset($preparados['Sqls']['codbarras'])){
-				foreach ($preparados['Sqls']['codbarras'] as $comprobacion){
-					$CTArticulos->SetComprobaciones($comprobacion);
-				}
-			}
-			if (isset($preparados['Sqls']['insert_articulos'])){
-				foreach ($preparados['Sqls']['insert_articulos'] as $comprobacion){
-					$CTArticulos->SetComprobaciones($comprobacion);
-				}
+		if (isset($preparados['comprobaciones'])){
+			foreach ($preparados['comprobaciones'] as $comprobacion){
+				$CTArticulos->SetComprobaciones($comprobacion);
 			}
 		}
+		if (isset($preparados['codbarras'])){
+			foreach ($preparados['codbarras'] as $comprobacion){
+				$CTArticulos->SetComprobaciones($comprobacion);
+			}
+		}
+		if (isset($preparados['insert_articulos'])){
+			foreach ($preparados['insert_articulos'] as $comprobacion){
+				$CTArticulos->SetComprobaciones($comprobacion);
+			}
+		}
+		//~ echo '<pre>';
+		//~ print_r($preparados);
+		//~ echo '</pre>';
+		
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		// Obtenemos referencias de tiendas :
 		//~ echo '<pre>';
 		//~ print_r($Producto);
 		//~ echo '</pre>';
+		
+		// Antes de montar html de proveedores añado array de proveedores cual es pricipal
+		foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
+			if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
+				// Indicamos que es le principal
+				$Producto['proveedores_costes'][$key]['principal'] = 'Si';
+			}
+		}
+		// ==========		 Comprobamso el ultimo coste y que proveedor		====  ===== //
+		$proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
+		
+		// Ahora comprobamos si el coste ultimo es correcto.
+		if ($proveedores_costes['coste_ultimo'] != $Producto['ultimoCoste']){
+			$success = array ( 'tipo'=>'warning',
+								 'mensaje' =>'El ultimo coste, se acaba de actualizar, coste_actual: '
+								 .$Producto['ultimoCoste']. ' y coste_ultimo real:'.$proveedores_costes['coste_ultimo'],
+								 'dato' => array($proveedores_costes['coste_ultimo'],$Producto['ultimoCoste'])
+								);
+			$Producto['comprobaciones'][] = $success;
+			// Ahora cambiamos el coste_ultimo
+			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
+		}
+		// ==========		Montamos  html que mostramos. 			============ //
+		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
+		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
+		$htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
+		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
+		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
+		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		?>	
-
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
@@ -142,22 +131,6 @@
 	<body>
 		<?php     
         include './../../header.php';
-		
-		// Ahora montamos html 
-		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
-		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
-		// Antes de montar html de proveedores añado array de proveedores cual es pricipal
-		foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
-			if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
-				// Indicamos que es le principal
-				$Producto['proveedores_costes'][$key]['principal'] = 'Si';
-			}
-		}
-		$htmlProveedoresCostes = htmlTablaProveedoresCostes($Producto['proveedores_costes']);
-		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
-		$htmlEstados =  htmlOptionEstados($posibles_estados,$Producto['estado']);
-		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
-		//~ $htmlVersionesCoches = htmlTablaVersionesCoches($id);
 		?>
 
      
@@ -189,7 +162,7 @@
 					<div class="col-md-5">
 					<label>Estado
 						<select id="idEstado" name="estado" onchange="">
-							<?php echo $htmlEstados; ?>
+							<?php echo $htmlEstadosProducto; ?>
 						</select>
 					</label>
 					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id;?>" >

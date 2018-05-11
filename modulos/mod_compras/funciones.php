@@ -136,13 +136,20 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 		while ($fila = $res->fetch_assoc()) {
 			$products[] = $fila;
 			//~ if(isset($products['fechaActualizacion'])){
-				$fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
-				$products[$i]['fechaActualizacion']=$fecha;
+				//~ $fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
+				//~ $products[$i]['fechaActualizacion']=$fecha;
 			//~ }
 			
 			$resultado['datos']=$products;
 			$i++;
 			
+		}
+		if($resultado['Nitems']==1){
+			$fecha=$resultado['datos'][0]['fechaActualizacion'];
+			if($fecha!=null){
+				$fecha =date_format(date_create($fecha), 'd-m-Y');
+				$resultado['datos'][0]['fechaActualizacion']=$fecha;
+			}
 		}
 	} 
 	return $resultado;
@@ -1055,12 +1062,20 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 						}
 					}
 					break;
+				case 'Facturado':
 				case 'Guardado':
 					$idReal=$datosGet['id'];
 					if (isset($datosPost['suNumero'])){
 						$suNumero=$datosPost['suNumero'];
 					}
-					$mod=$CAlb->modFechaNumero($idReal, $suNumero, $fecha);
+					if(isset($datosPost['formaVenci'])){
+						$formaPago=$datosPost['formaVenci'];
+					}
+					if(isset($datosPost['fechaVenci'])){
+						$fechaVenci=$datosPost['fechaVenci'];
+					}
+					
+					$mod=$CAlb->modFechaNumero($idReal, $suNumero, $fecha, $formaPago, $fechaVenci);
 					if (isset($mod['error'])){
 						$errores[0]=array ( 'tipo'=>'Danger!',
 								 'dato' => $mod['consulta'],

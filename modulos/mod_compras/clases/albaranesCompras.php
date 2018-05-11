@@ -449,9 +449,9 @@ class AlbaranesCompras extends ClaseCompras{
 		return $albaran;
 	}
 	
-	public function modFechaNumero($id, $suNumero, $fecha){
+	public function modFechaNumero($id, $suNumero, $fecha, $formaPago, $fechaVencimiento){
 		$db=$this->db;
-		$sql='UPDATE albprot set Su_numero="'.$suNumero.'" , Fecha="'.$fecha.'" where id='.$id;
+		$sql='UPDATE albprot set Su_numero="'.$suNumero.'" , Fecha="'.$fecha.'", formaPago="'.$formaPago.'", FechaVencimiento="'.$fechaVencimiento.'" where id='.$id;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
