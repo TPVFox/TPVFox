@@ -70,11 +70,45 @@ function controladorAcciones(caja, accion, tecla){
 				productos[nfila]['nombre']=caja.darValor();
 				console.log(productos[nfila]['nombre']);
 				addEtiquetadoTemporal();
+			}else{
+				alert("Error al seleccionar producto");
+			}
+		break;
+		case 'modificarPesoProducto':
+			console.log('entre en modificarPesoProductos');
+			var nfila=caja.fila-1
+			if(nfila>=0){
+				productos[nfila]['peso']=caja.darValor();
+				modificarCodigoBarras(nfila);
+			}else{
+				alert("Error al seleccionar producto");
 			}
 		break;
 	}
 }
-
+function modificarCodigoBarras(nfila){
+	var parametros ={
+		'pulsado':'modificarCodigoBarras',
+		'tipo':cabecera.tipo,
+		'producto':cabecera.producto[nfila]
+		
+	};
+		$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** repetir productos JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta repetir productos JS');
+				var resultado =  $.parseJSON(response); 
+				var filasNuevas = resultado['html'];
+				
+				
+			}
+		});
+}
 function repetirProducto(unidades, tipo){
 	//@OBjetivo: repetir el producto cuantas veces sea indicado
 	//NOta: controlar si ya tiene productos introducidos
@@ -113,6 +147,7 @@ function repetirProducto(unidades, tipo){
 					prod.codBarras=productosAdd[i]['codBarras'];
 					prod.estado=productosAdd[i]['estado'];
 					prod.Nfila=productosAdd[i]['Nfila'];
+					prod.crefTienda=productosAdd[i]['crefTienda'];
 					productos.push(prod);
 				}
 				addEtiquetadoTemporal()

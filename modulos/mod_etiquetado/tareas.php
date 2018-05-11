@@ -86,6 +86,11 @@ switch ($pulsado) {
 		}
 	
 	break;
+	case 'modificarCodigoBarras':
+		$tipo=$_POST['tipo'];
+		
+	
+	break;
 	
 	
 }

@@ -27,6 +27,7 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		$nuevoProducto['NumAlb']="";
 		$nuevoProducto['codBarras']=$codigoBarras;
 		$nuevoProducto['estado']='Activo';
+		$nuevoProducto['crefTienda']=$datosArticulo['crefTienda'];
 		$nuevoProducto['Nfila']=$numProd+$i;
 		
 		
