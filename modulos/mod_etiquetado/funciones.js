@@ -84,6 +84,15 @@ function controladorAcciones(caja, accion, tecla){
 				alert("Error al seleccionar producto");
 			}
 		break;
+		case 'modificarNumeroAlbaranProducto':
+			var nfila=caja.fila-1
+			if(nfila>=0){
+				productos[nfila]['NumAlb']=caja.darValor();
+				addEtiquetadoTemporal();
+			}else{
+				alert("Error al seleccionar producto");
+			}
+		break;
 	}
 }
 function modificarCodigoBarras(nfila){
@@ -256,6 +265,9 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('peso_') >=-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
+	if (padre_caja.id_input.indexOf('numAlb_') >=-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
 	return padre_caja;
 }
 function before_constructor(caja){
@@ -267,6 +279,10 @@ function before_constructor(caja){
 	if (caja.id_input.indexOf('peso_') >=-1){
 		console.log(' Entro en Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(5);
+	}
+	if (caja.id_input.indexOf('numAlb_') >=-1){
+		console.log(' Entro en Before de '+caja.id_input)
+		caja.fila = caja.id_input.slice(7);
 	}
 	return caja;
 }
