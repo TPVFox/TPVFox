@@ -104,12 +104,11 @@ function modificarCodigoBarras(nfila){
 				console.log('Llegue devuelta repetir productos JS');
 				var resultado =  $.parseJSON(response); 
 				productos[nfila]['codBarras']=resultado.codBarras;
-				//~ $('#codigoBarras_'+nfila).text(resultado.codBarras);
 				nfila=nfila+1;
 				id='#codigoBarras_'+nfila;
 				console.log(id);
 				$('#codigoBarras_'+nfila).html(resultado.codBarras);
-				
+				addEtiquetadoTemporal();
 				
 			}
 		});
