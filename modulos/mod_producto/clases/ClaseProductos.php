@@ -523,7 +523,20 @@ class ClaseProductos extends ClaseTablaArticulos{
 	}
 	
 	
-	
+	public function ComprobarNuevosPreciosProducto($id,$DatosPostProducto){
+		// @ Objetivo
+		// Comprobar si los precios cambiaron y grabarlos.
+		// @ Parametros 
+		//  	id -> (int) id producto queremos modificar 
+		//		datosProveedores -> (array) de arrays que contienen los datos costes, referencia y id de producto.
+		// @ Devolvemos 
+		// 		comprobaciones -> (array) con los cambios realizados.
+		$comprobaciones = array();
+		
+		
+		
+		return $comprobaciones;
+	}
 	
 	public function ObtenerCostesDeUnProveedor($id,$idProveedor){
 		// @ Objectivo: 
