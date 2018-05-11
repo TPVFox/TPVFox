@@ -451,7 +451,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 						.' `crefProveedor`, `coste`, `fechaActualizacion`, `estado`) VALUES ('
 						.$datos['idArticulo'].','.$datos['idProveedor'].',"'
 						.$datos['creProveedor'].'","'.$datos['coste'].'",NOW(),"'
-						.'Activo'.'")';
+						.'Tarifa'.'")';
 				$comprobaciones['nuevo'][]=$this->Consulta_insert_update($sql);
 			} else {
 				// Es modificado montamos sql update
