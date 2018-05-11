@@ -105,38 +105,40 @@ function htmlProductos($busqueda, $productos){
 	}
 }
 function lineasProductos($productos){
+	$nFila=1;
 	$html="";
 	foreach($productos as $producto){
 			if ($producto['estado'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarFila('.$producto['Nfila'].', '."'".'etiquetas'."'".');';
+				$funcOnclick = ' retornarFila('.$nFila.', '."'".'etiquetas'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
 							<span class="glyphicon glyphicon-export"></span></a></td>';
 			} else {
-				$funcOnclick = ' eliminarFila('.$producto['Nfila'].' , '."'".'etiquetas'."'".');';
+				$funcOnclick = ' eliminarFila('.$nFila.' , '."'".'etiquetas'."'".');';
 				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">
 							<span class="glyphicon glyphicon-trash"></span></a></td>';
 				$classtr = '';
 				$estadoInput = '';
 			}
 		
-		$html.='<tr id="Row'.($producto['Nfila']).'" '.$classtr.'>'
-		 .'<td class="linea">'.$producto['Nfila'].'</td>'
-		 .'<td><input type="text" id="nombre_'.$producto['Nfila'].'"  
+		$html.='<tr id="Row'.($nFila).'" '.$classtr.'>'
+		 .'<td class="linea">'.$nFila.'</td>'
+		 .'<td><input type="text" id="nombre_'.$nFila.'"  
 		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)" 
 		 value="'.$producto['nombre'].'" size="50"></td>'
-		 .'<td><input type="text" id="peso_'.$producto['Nfila'].'" 
+		 .'<td><input type="text" id="peso_'.$nFila.'" 
 		 data-obj="peso" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"
 		  value="'.$producto['peso'].'" size="5"></td>'
 		 .'<td>'.$producto['precio'].'</td>'
 		 .'<td>'.$producto['Fecha'].'</td>'
-		 .'<td><input type="text" id="numAlb_'.$producto['Nfila'].'" 
+		 .'<td><input type="text" id="numAlb_'.$nFila.'" 
 		 data-obj="numAlb" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
 		 value="'.$producto['NumAlb'].'" size="7"></td>'
-		 .'<td  id="codigoBarras_'.$producto['Nfila'].'">'.$producto['codBarras'].'</td>'
+		 .'<td  id="codigoBarras_'.$nFila.'">'.$producto['codBarras'].'</td>'
 		 . $btnELiminar_Retornar
 		 .'</tr>';
+		 $nFila++;
 		 
 	}
 	return $html;

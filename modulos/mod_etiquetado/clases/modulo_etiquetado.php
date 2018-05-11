@@ -27,10 +27,15 @@ class Modulo_etiquetado{
 	public function addTemporal($datos, $productos){
 		$respuesta=array();
 		$db = $this->db;
+		if($datos['NumAlb']>0){
+			$numAlb=$datos['NumAlb'];
+		}else{
+			$numAlb=0;
+		}
 		$sql='INSERT INTO `modulo_etiquetado_temporal`(`num_lote`, `tipo`,
 		 `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
 		 `productos`, `idUsuario`) VALUES('.$datos['idReal'].', '.$datos['tipo'].', "'.$datos['fechaEnv'].'",
-		 "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$datos['NumAlb'].', "'.$datos['estado'].'"
+		 "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$numAlb.', "'.$datos['estado'].'"
 		 ,'."'".$productos."'".', '.$datos['idUsuario'].')';
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){

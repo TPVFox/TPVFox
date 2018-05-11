@@ -30,6 +30,7 @@
 		$idProducto="";
 		$tipo=0;
 		$productos=array();
+		$errores=array();
 		$parametros = $ClasesParametros->getRoot();	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
@@ -84,7 +85,7 @@
 					$fechaCad=$_POST['fechaCad'];
 				}
 				if(isset($productos)){
-					//~ print_r($productos);
+					
 					$i=0;
 					foreach($productos as $producto){
 						if($producto['estado']=='Eliminado'){
@@ -92,16 +93,17 @@
 							$i++;
 						}
 					}
-					echo '<pre>';
-					print_r($productos);
-					echo '</pre>';
+					
 					$cantidadProd=count($productos);
 					
 					if($cantidadProd>0){
 						$productos=json_encode($productos);
 					}else{
-						echo 'NO hay productos';
-						exit;
+						$errores[0]=array ( 'tipo'=>'Info!',
+								 'dato' =>'NO puedes eliminar todos los elementos',
+								 'class'=>'alert alert-info',
+								 'mensaje' => ''
+								 );
 					}
 					
 					
@@ -120,12 +122,12 @@
 					'productos'	=>$productos,
 					'idUsuario'	=>$Usuario['id']
 				);
-				$guardar=$Cetiqueta->addLoteGuardado($datos);
-				$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
+				if(count($errores)==0){
+					$guardar=$Cetiqueta->addLoteGuardado($datos);
+					$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
+				}
 				//Falta el control de errores y redirigir
-				echo '<pre>';
-				print_r($guardar);
-				echo '</pre>';
+				
 				
 			}else{
 				//Mostrar advertencia de que no se puede guardar un lote que ya está guardado
@@ -145,9 +147,11 @@
 			}
 			
 		}
-		//~ echo '<pre>';
-				//~ print_r($productos);
-				//~ echo '</pre>';
+				foreach($productos as $producto){
+					$nFila=1;
+					$producto['Nfila']=$nFila;
+					$nFila++;
+				}
 				//~ echo count($productos);
 				
         ?>
