@@ -26,185 +26,22 @@ $CFac=new FacturasVentas($BDTpv);
 switch ($pulsado) {
   
 		case 'buscarProductos':
-		//@Objetivo: Buscar productos y diferenciar si tenemos que mostrar modal pintar la linea directamente
-			$busqueda = $_POST['valorCampo'];
-			$campoAbuscar = $_POST['campo'];
-			$id_input = $_POST['cajaInput'];
-			$idcaja=$_POST['idcaja'];
-			$dedonde=$_POST['dedonde'];
-			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv);
-			if ($res['Nitems']===1){
-				$respuesta=$res;
-				$respuesta['Nitems']=$res['Nitems'];	
-			}else{
-				// Cambio estado para devolver que es listado.
-				$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde);
-				$respuesta['Estado'] = 'Listado';
-				$respuesta['datos']=$res['datos'];
-			}
+			include 'tareas/BuscarProductos.php';
 		break;
 		
 	    case 'buscarClientes':
-			//@Objetivo
-			//BUsqueda de clientes , si recibe de una caja id lo busca directamente si no crea el modal de clientes 
-			$busqueda = $_POST['busqueda'];
-			$dedonde = $_POST['dedonde'];
-			$idcaja=$_POST['idcaja'];
-			$respuesta=array();
-			if ($idcaja=="id_cliente"){
-				$res=$Ccliente->DatosClientePorId($busqueda);
-				if (isset($res['error'])){
-					$respuesta['error']=$res['error'];
-					$respuesta['consulta']=$res['consulta'];
-				}else if (isset($res['idClientes'])){
-					$respuesta['res']=$res;
-					$respuesta['id']=$res['idClientes'];
-					$respuesta['nombre']=$res['Nombre'];
-					$respuesta['Nitems']=1;
-					$respuesta['formasVenci']=$res['fomasVenci'];
-				}else{
-					$respuesta['Nitems']=2;
-				}
-				
-			}else{
-				$buscarTodo=$Ccliente->BuscarClientePorNombre($busqueda);
-				if (isset($buscarTodo['error'])){
-					$respuesta['error']=$buscarTodo['error'];
-					$respuesta['consulta']=$buscarTodo['consulta'];
-				}else{
-					$respuesta['html'] = htmlClientes($busqueda,$dedonde, $idcaja, $buscarTodo['datos']);
-					$respuesta['datos']=$buscarTodo['datos'];
-				}
-			}
+			include 'tareas/BuscarClientes.php';
 		break;	
 		
 		case 'buscarPedido':
-		//@Objetivo:
-		//BUscar los pedidos guardado de un cliente para el apartado albaranes, si el pedido que inserto existe guarda los datos de este
-		//Si no muestra un modal con los pedidos guardados de ese cliente
-	
-			$busqueda=$_POST['busqueda'];
-			$idCliente=$_POST['idCliente'];
-			$res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
-			if (isset($res['error'])){
-				$respuesta['error']=$res['error'];
-				$respuesta['consulta']=$res['consulta'];
-			}else{
-				$respuesta['res']=$res;
-				if (isset($res['Nitem'])){
-						$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
-						$respuesta['datos']['idPedCli']=$res['id'];
-						$respuesta['datos']['idPedido']=$res['id'];
-						$respuesta['datos']['fecha']=$res['FechaPedido'];
-						$respuesta['datos']['total']=$res['total'];
-						$respuesta['datos']['estado']="Activo";
-						$respuesta['Nitems']=$res['Nitem'];
-						$productosPedido=$CcliPed->ProductosPedidos($res['id']);
-						if (isset($productosPedido['error'])){
-							$respuesta['error']=$productosPedido['error'];
-							$respuesta['consulta']=$productosPedido['consulta'];
-						}else{
-							$respuesta['productos']=$productosPedido;
-						}
-					
-				}else{
-					$respuesta=$res;
-					$modal=modalAdjunto($res['datos']);
-					$respuesta['html']=$modal['html'];
-					
-				}
-			}
+			include 'tareas/BuscarPedido.php';
 		break;
 		
 		case 'buscarAlbaran':
-		//Objetivo:
-		//Busca el albarán indicado, si recibe resultado guarda el albaran y muestra los productos de este 
-		//Si no muestra un albarán
-			$busqueda=$_POST['busqueda'];
-			$idCliente=$_POST['idCliente'];
-			$res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
-			if (isset($res['error'])){
-				$respuesta['error']=$res['error'];
-				$respuesta['consulta']=$res['consulta'];
-			}else{
-				if (isset($res['Nitem'])){
-						$respuesta['temporales']=1;
-						$respuesta['datos']['Numalbcli']=$res['Numalbcli'];
-						$respuesta['datos']['idalbcli']=$res['id'];
-						$respuesta['datos']['fecha']=$res['Fecha'];
-						$respuesta['datos']['total']=$res['total'];
-						$respuesta['datos']['idAlbaran']=$res['id'];
-						$respuesta['datos']['estado']="Activo";
-						$respuesta['Nitems']=$res['Nitem'];
-						$productosAlbaran=$CalbAl->ProductosAlbaran($res['id']);
-						if(isset($productosAlbaran['error'])){
-							$respuesta['error']=$productosAlbaran['error'];
-							$respuesta['consulta']=$productosAlbaran['consulta'];
-						}
-						$respuesta['productos']=$productosAlbaran;
-					
-				}else{
-					$respuesta=$res;
-					$modal=modalAdjunto($res['datos']);
-					$respuesta['html']=$modal['html'];
-					
-				}
-			}
+			include 'tareas/BuscarAlbaran.php';
 		break;
 		case 'anhadirPedidoTemp':
-		//@Objetivo:
-		//añadir un pedido temporal, si existe se modifica y si no se inserta
-		//A continuación se calculan los totales y desgloses 
-		$idTemporal=$_POST['idTemporal'];
-		$idUsuario=$_POST['idUsuario'];
-		$idTienda=$_POST['idTienda'];
-		$estado=$_POST['estado'];
-		$fecha=$_POST['fecha'];
-		$fecha = new DateTime($fecha);
-		$fecha = $fecha->format('Y-m-d');
-		$idReal=$_POST['idReal'];
-		$idCliente=$_POST['idCliente'];
-		$productos=json_decode($_POST['productos']);
-		$existe=0;
-		if ($idTemporal>0){
-			$res=$CcliPed->ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos);
-			if(isset($res['error'])){
-				$respuesta['error']=$res['error'];
-				$respuesta['consulta']=$res['consulta'];
-			}
-		}else{
-			$res=$CcliPed->addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos);
-			if(isset($res['error'])){
-				$respuesta['error']=$res['error'];
-				$respuesta['consulta']=$res['consulta'];
-			}else{
-				$idTemporal=$res['id'];
-			}
-		}
-		if ($idReal>0){
-			$modNum=$CcliPed->ModIdReal($idTemporal, $idReal);
-			if(isset($modNum['error'])){
-				$respuesta['error']=$modNum['error'];
-				$respuesta['consulta']=$modNum['consulta'];
-			}
-		}
-		 if ($productos){
-				$CalculoTotales = recalculoTotales($productos);
-				$total=round($CalculoTotales['total'],2);
-				$respuesta['total']=round($CalculoTotales['total'],2);
-				$respuesta['totales']=$CalculoTotales;
-				$modTotal=$CcliPed->modTotales($idTemporal, $respuesta['total'], $CalculoTotales['subivas']);
-				if(isset($modTotal['error'])){
-					$respuesta['error']=$modTotal['error'];
-					$respuesta['consulta']=$modTotal['consulta'];
-				}
-			
-				$htmlTotales=htmlTotales($CalculoTotales);
-				$respuesta['htmlTabla']=$htmlTotales['html'];
-			}
-			$respuesta['id']=$idTemporal;
-			$respuesta['existe']=$existe;
-			$respuesta['productos']=$_POST['productos'];
+			include 'tareas/AddPedidoTemporal.php';
 		break;
 		
 		
