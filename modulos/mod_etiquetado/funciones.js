@@ -65,7 +65,7 @@ function controladorAcciones(caja, accion, tecla){
 		case 'modificarNombreProducto':
 			console.log('entre en modificarNombreProducto');
 			var nfila=caja.fila-1
-			console.log(nfila);
+			console.log(caja.fila);
 			if(nfila>=0){
 				productos[nfila]['nombre']=caja.darValor();
 				console.log(productos[nfila]['nombre']);
@@ -77,6 +77,7 @@ function controladorAcciones(caja, accion, tecla){
 		case 'modificarPesoProducto':
 			console.log('entre en modificarPesoProductos');
 			var nfila=caja.fila-1
+			console.log(nfila);
 			if(nfila>=0){
 				productos[nfila]['peso']=caja.darValor();
 				modificarCodigoBarras(nfila);
@@ -267,6 +268,7 @@ function buscarProducto(valor="", caja=""){
 }
 function after_constructor(padre_caja,event){
 	console.log("entre en after_constructor");
+	console.log(padre_caja.id_input.indexOf('peso_'));
 	if (padre_caja.id_input.indexOf('nombre_') >=-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}

@@ -24,7 +24,10 @@ class Modulo_etiquetado{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
+	
 	public function addTemporal($datos, $productos){
+		//@Objetivo:
+		//Crear un albarán temporal
 		$respuesta=array();
 		$db = $this->db;
 		if($datos['NumAlb']>0){
@@ -47,6 +50,8 @@ class Modulo_etiquetado{
 		return $respuesta;
 	}
 	public function modificarTemporal($datos, $productos, $idTemporal){
+			//@Objetivo:
+			//Modificar el albarán temporal
 		$respuesta=array();
 		$sql='UPDATE `modulo_etiquetado_temporal` SET 
 		`num_lote`='.$datos['idReal'].',`tipo`='.$datos['tipo'].',`fecha_env`="'.$datos['fechaEnv'].'"
