@@ -46,7 +46,7 @@ class Modulo_etiquetado{
 		$sql='UPDATE `modulo_etiquetado_temporal` SET 
 		`num_lote`='.$datos['idReal'].',`tipo`='.$datos['tipo'].',`fecha_env`="'.$datos['fechaEnv'].'"
 		,`fecha_cad`="'.$datos['fechaCad'].'",`idArticulo`='.$datos['idProducto'].',`numAlb`='.$datos['NumAlb'].'
-		,`estado`="'.$datos['estado'].'",`productos`="'.$productos.'"
+		,`estado`="'.$datos['estado'].'",`productos`='."'".$productos."'".'
 		,`idUsuario`='.$datos['idUsuario'].' WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
