@@ -23,13 +23,13 @@
 		// Cargamos el plugin que nos interesa.
 		if (count($CTArticulos->GetPlugins())>0){
 			foreach ($CTArticulos->GetPlugins() as $plugin){
-				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
-					
+				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVirtuemart'){
+					$ObjVirtuemart = $plugin['clase'];
+					if (isset($_GET['id'])){
+						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($_GET['id']);
+					}
 				}
 			}
-			echo '<pre>';
-			print_r($CTArticulos->GetPlugins());
-			echo '</pre>';
 		}
 		$titulo = 'Productos:';
 		
@@ -257,6 +257,9 @@
 						$num = 4; // Numero collapse;
 						$titulo = 'Productos en otras tiendas.';
 						echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
+						if (isset($htmlLinkVirtuemart)){
+							echo $htmlLinkVirtuemart;
+						}
 						?>
 						
 						<!-- Inicio collapse de Referencias Tiendas --> 
