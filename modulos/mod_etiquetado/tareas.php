@@ -97,7 +97,7 @@ switch ($pulsado) {
 				$codigoBarras=codigoBarrasPeso($producto['crefTienda'],  $producto['peso']);
 			break;
 		}
-		$respuesta['cod']=$codigoBarras;
+		$respuesta['codBarras']=$codigoBarras;
 	
 	break;
 	
