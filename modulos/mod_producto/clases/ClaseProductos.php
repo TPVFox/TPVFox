@@ -471,6 +471,59 @@ class ClaseProductos extends ClaseTablaArticulos{
 	}
 	
 	
+	public function ComprobarNuevosDatosProducto($id,$DatosPostProducto){
+		// @ Objetivo
+		// Comprobar que datos son distintos y grabarlos.
+		// @ Parametros 
+		//  	id -> (int) id producto queremos modificar 
+		//		datosProveedores -> (array) de arrays que contienen los datos costes, referencia y id de producto.
+		// @ Devolvemos 
+		// 		comprobaciones -> (array) con los cambios realizados.
+		$comprobaciones = array();
+		parent::GetProducto($id);
+		// ---- Ahora montamos datos generales actuales  de producto ---- //
+		$datosgenerales_actual = array(
+								'idTienda' 				=> $this->GetIdTienda(),
+								'idArticulo' 			=> $id,
+								'articulo_name'			=> $this->articulo_name,
+								'iva'					=> $this->iva,
+								'estado'				=> $this->estado,
+								'ultimoCoste'			=> number_format($this->ultimoCoste,2),
+								'beneficio'				=> $this->beneficio
+								);
+		// Obtenemos id de proveedor principal
+		if (gettype($this->proveedor_principal) === 'array'){
+			$datosgenerales_actual['idProveedor'] = $this->proveedor_principal['idProveedor'];
+		}
+		// ---- Ahora montamos datos generales post					--- //
+		$datosgenerales_post = array(
+							'idTienda' 					=> $DatosPostProducto['idTienda'],
+							'idArticulo' 				=> $DatosPostProducto['idArticulo'],
+							'articulo_name'				=> $DatosPostProducto['articulo_name'],
+							'iva'						=> $DatosPostProducto['iva'],
+							'estado'					=> $DatosPostProducto['estado'],
+							'ultimoCoste'				=> $DatosPostProducto['ultimoCoste'],
+							'beneficio'					=> $DatosPostProducto['beneficio']
+							);
+		
+		// Obtenemos id de proveedor principal
+		if (gettype($DatosPostProducto['proveedor_principal']) === 'array'){
+			$datosgenerales_post['idProveedor'] = $DatosPostProducto['proveedor_principal']['idProveedor'];
+		}
+		// Ahora comparamos si no es igual guardamos cambios, sino no hacemos nada.
+		if (serialize($datosgenerales_actual) !== serialize($datosgenerales_post) ){
+			// Montamos sql para guardar...
+			$d =$datosgenerales_post;
+			$sql =	'UPDATE `articulos` SET `iva`="'.$d['iva'].'",`idProveedor`="'
+					.$d['idProveedor'].'",`articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'.$d['estado'].'",`fecha_modificado`=NOW(),`ultimoCoste`="'.$d['ultimoCoste'].'" WHERE idArticulo = '.$d['idArticulo'];
+			$comprobaciones['datos_generales']=$this->Consulta_insert_update($sql);
+		}
+		return $comprobaciones;
+		
+	}
+	
+	
+	
 	
 	public function ObtenerCostesDeUnProveedor($id,$idProveedor){
 		// @ Objectivo: 

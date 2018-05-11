@@ -304,16 +304,14 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 function prepararandoPostProducto($array,$claseArticulos){
 	//@ Objetivo
 	//	Preparar los que recibimos por POST en productos,
-	// 	Debemos tener en cuenta que :
-	//   id = 0 es nuevo..
-	//   id = ??? es modificado.
+	
 	//@ Parametros
 	// 	 $array => Array ( post) con los datos del formulario.
 	
 	// Obtenemos (array) Key del array recibido
 	$Post = array_keys($array);
 	
-	// Recorremos las keys
+	// Recorremos las keys y montamos DatosProducto que son los datos Post formateados.
 	$DatosProducto = array();
 	$DatosProducto['codBarras'] = array();
 	$DatosProducto['proveedores_costes'] = array();
@@ -322,6 +320,19 @@ function prepararandoPostProducto($array,$claseArticulos){
 	$DatosProducto['idTienda'] = $claseArticulos->GetIdTienda();
 	foreach ($Post as $key){
 		switch ($key) {
+			case 'articulo_name':
+				if (trim($array['articulo_name']) === ''){
+					// Viene vacio, por lo que no continuamos.
+					$advertencia = array ( 'tipo'=>'danger',
+								'mensaje' =>'El campo nombre producto no puede estar vacio.',
+								'dato' => 'Case de funciones.php en prepararandoPostProducto'
+								);
+					$DatosProducto['comprobaciones'][] = $advertencia;
+				} else {
+					$DatosProducto['articulo_name'] = $array['articulo_name'];
+
+				}
+				break;
 			case 'idIva':
 				// Obtenemos iva según id obtenido en el formulario.
 				$DatosProducto['iva']		= $claseArticulos->GetUnIva($array['idIva']);
@@ -362,7 +373,7 @@ function prepararandoPostProducto($array,$claseArticulos){
 								'mensaje' =>'El proveedor '.$idProveedor.' no lo añadimos ya que no tiene referencia , ni coste y no esta marcado como principal',
 								'dato' => $sqlArticulo
 								);
-						$DatosProducto['comprobaciones'] = $advertencia;
+						$DatosProducto['comprobaciones'][] = $advertencia;
 					}
 				}
 				if ($monto === 'Si') {
