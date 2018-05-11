@@ -51,15 +51,15 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		 .'<td class="linea">'.$nuevoProducto['Nfila'].'</td>'
 		 .'<td><input type="text" id="nombre_'.$nuevoProducto['Nfila'].'"  
 		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)" 
-		 value="'.$nuevoProducto['nombre'].'"></td>'
+		 value="'.$nuevoProducto['nombre'].'" size="50"></td>'
 		 .'<td><input type="text" id="peso_'.$nuevoProducto['Nfila'].'" 
 		 data-obj="peso" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"
-		  value="'.$nuevoProducto['peso'].'"></td>'
+		  value="'.$nuevoProducto['peso'].'" size="5"></td>'
 		 .'<td>'.$nuevoProducto['precio'].'</td>'
 		 .'<td>'.$nuevoProducto['Fecha'].'</td>'
 		 .'<td><input type="text" id="numAlb_'.$nuevoProducto['Nfila'].'" 
 		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
-		 value="'.$nuevoProducto['NumAlb'].'"></td>'
+		 value="'.$nuevoProducto['NumAlb'].'" size="7"></td>'
 		 .'<td>'.$codigoBarras.'</td>'
 		 . $btnELiminar_Retornar
 		 .'</tr>';

@@ -67,6 +67,7 @@ function controladorAcciones(caja, accion, tecla){
 			console.log(nfila);
 			if(nfila>=0){
 				productos[nfila]['nombre']=caja.darValor();
+				console.log(productos[nfila]['nombre']);
 				addEtiquetadoTemporal();
 			}
 		break;
