@@ -142,6 +142,7 @@
 				cabecera['fechaCad'] = '<?php echo $fechaCad ;?>';
 				cabecera['idProducto'] = '<?php echo $idProducto ;?>';
 				cabecera['tipo'] = '<?php echo $tipo ;?>';
+				cabecera['numAlb'] = '<?php echo $numAlb ;?>';
 			var productos = [];
 			<?php 
 	if (isset($etiquetaReal)| isset($etiquetaTemporal)){ 

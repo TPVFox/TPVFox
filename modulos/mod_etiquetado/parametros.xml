@@ -49,7 +49,7 @@
 		<caja_input>
 			<nombre id_input="numAlb">cajaNumAlb</nombre>
 			<teclas>
-
+				<action tecla="13">GuardarNumAlb</action>
 			</teclas>
 		</caja_input>
 		<caja_input>

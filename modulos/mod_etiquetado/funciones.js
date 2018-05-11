@@ -93,6 +93,14 @@ function controladorAcciones(caja, accion, tecla){
 				alert("Error al seleccionar producto");
 			}
 		break;
+		case 'GuardarNumAlb':
+			if(caja.darValor()>0){
+				cabecera.numAlb=caja.darValor();
+			}
+			if(cabecera.idTemporal>0){
+				addEtiquetadoTemporal();
+			}
+		break;
 	}
 }
 function modificarCodigoBarras(nfila){
@@ -169,11 +177,11 @@ function repetirProducto(unidades, tipo){
 		});
 }
 function addEtiquetadoTemporal(){
-	var tipo=$("#tipo option:selected").val();
-	var NumAlb=$("#numAlb").val();
-	if(NumAlb==""){
-		NumAlb=0;
-	}
+	//~ var tipo=$("#tipo option:selected").val();
+	//~ var NumAlb=$("#numAlb").val();
+	//~ if(NumAlb==""){
+		//~ NumAlb=0;
+	//~ }
 	console.log(productos);
 	var parametros ={
 		'pulsado'	:'addEtiquetadoTemporal',
@@ -184,8 +192,8 @@ function addEtiquetadoTemporal(){
 		'fechaCad'	: cabecera.fechaCad,
 		'idProducto': cabecera.idProducto,
 		'idUsuario'	: cabecera.idUsuario,
-		'tipo'		: tipo,
-		'NumAlb'	: NumAlb,
+		'tipo'		: cabecera.tipo,
+		'NumAlb'	: cabecera.numAlb,
 		'productos'	: productos
 	};
 	$.ajax({
