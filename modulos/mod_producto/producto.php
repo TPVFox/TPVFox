@@ -75,7 +75,7 @@
 		$proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
 		
 		// Ahora comprobamos si el coste ultimo es correcto.
-		if ($proveedores_costes['coste_ultimo'] != $Producto['ultimoCoste']){
+		if (number_format($proveedores_costes['coste_ultimo'],2) != number_format($Producto['ultimoCoste'],2)){
 			$success = array ( 'tipo'=>'warning',
 								 'mensaje' =>'El ultimo coste, se acaba de actualizar, coste_actual: '
 								 .$Producto['ultimoCoste']. ' y coste_ultimo real:'.$proveedores_costes['coste_ultimo'],
