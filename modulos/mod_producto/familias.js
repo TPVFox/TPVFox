@@ -88,7 +88,7 @@ $(function () {
         }
     });
 
-    $("#btn-change-grabar").on("click", function (event) {
+    $("#btn-padre-grabar").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
         //var data = $(event.currentTarget).data();
@@ -136,7 +136,7 @@ $(function () {
         }
     });
 
-    $('#nombreFamilia').autocomplete({
+    $('#inputNombreFamiliaModal').autocomplete({
         minLength: 3,
         source: function (request, response) {
             // Fetch data
