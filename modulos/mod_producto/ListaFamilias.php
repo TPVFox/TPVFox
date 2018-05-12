@@ -31,6 +31,7 @@ $familias = new ClaseFamilias($BDTpv);
         <?php
         include './../../head.php';
         ?>
+        <script type="text/javascript" src="<?php echo $HostNombre; ?>/jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>        
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/jquery.bootpag.min.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -54,7 +55,8 @@ $familias = new ClaseFamilias($BDTpv);
                         <ul class="nav nav-pills nav-stacked"> 
                             <li><button class="btn btn-link" id="botonnuevo-hijo-0"
                                         data-alabuelo="0">Añadir</button></li>
-                            <li><a href="#section2" onclick="metodoClick('VerProducto', 'producto');";>Modificar</a></li>
+                            <li><button class="btn btn-link" id="boton-cambiarpadre"
+                                        data-alabuelo="0">Modificar</button></li>
                         </ul>
                     </div>
                 </div>
@@ -81,6 +83,7 @@ $familias = new ClaseFamilias($BDTpv);
                 </div>
             </div>
         </div>
+
         <!-- Modal -->
         <div id="familiasModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -102,16 +105,42 @@ $familias = new ClaseFamilias($BDTpv);
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button id="btn-fam-grabar" class="btn btn-primary" >
-                                <span class="glyphicon glyphicon-save"> </span>Grabar</button>&nbsp;
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+
                         </div>
                     </div>
-
+                    <div class="modal-footer">
+                        <button id="btn-fam-grabar" class="btn btn-primary" >
+                            <span class="glyphicon glyphicon-save"> </span>Grabar</button>&nbsp;
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    </div>
                 </div>
             </div>
-
+        </div>
+        <!-- Modal -->
+        <div id="cambioPadreModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title text-center">Familias: cambiar padre</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div id="formularioFamiliaModal" >
+                            <div class="row  ui-front">
+                                Cambiar padre a: <input class="form-control" id="inputNombreFamiliaModal" 
+                                       value="--- Padre raíz ---"/>
+                                <input id="inputIdFamiliaModal" type="hidden" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-padre-grabar" class="btn btn-primary" >
+                            <span class="glyphicon glyphicon-save"> </span>Grabar</button>&nbsp;
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

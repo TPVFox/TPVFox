@@ -268,18 +268,19 @@ switch ($pulsado) {
         echo json_encode($resultado);
         break;
 
-    case 'leerFamiliaPadre':
-        $idfamilia = $_POST['idpadre'];
+    case 'BuscaNombreFamilia':
+        $nombre = $_POST['nombre'];
         
         $resultado = [];
-        $resultado['padre'] = $idfamilia;
-        if ($idfamilia >= 0) {
-            $familia = (new ClaseFamilias($BDTpv))->leer($idfamilia);
+        $familias = (new ClaseFamilias($BDTpv))->buscaXNombre($nombre);
+        if(!isset($familias['error'])){
+            $datos = $familias['datos'];
+            foreach ($datos as $dato) {
+                $resultado [] = ['label'=>$dato['familiaNombre'],'valor'=>$dato['idFamilia']];
+            }
         } else {
-            $familias['datos'] = [];
+            $resultado = $familias['error'];
         }
-        $resultado['datos'] = $familias['datos'];
-        $resultado['html'] = familias2Html($familias['datos']);
         echo json_encode($resultado);
         break;
 

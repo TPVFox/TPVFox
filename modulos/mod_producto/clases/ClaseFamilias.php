@@ -52,19 +52,24 @@ class ClaseFamilias extends Modelo {
         return $resultado;
     }
 
+    public function buscaXNombre($nombre) {
+        $sql = 'SELECT FAM.* '
+                . ' FROM familias as FAM '
+                . ' WHERE FAM.familiaNombre LIKE "%' . $nombre . '%"'
+                . ' ORDER BY FAM.familiaNombre';
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
+
     public function grabar($datos) {
         return $this->insert($datos);
     }
 }
 
-/* Para update
- * 
- * ALTER TABLE `familias` CHANGE `idFamilia` `idFamilia` INT(11) NOT NULL AUTO_INCREMENT;
- */
-
 /*
- *                                 <input class="form-control" id='nombrePropietario' 
-                                       value="{$fsc->getPropietarioNave('Nombrecompleto')}"/>
+ *
+    <input class="form-control" id='nombrePropietario' 
+        value="{$fsc->getPropietarioNave('Nombrecompleto')}"/>
 
     $('#nombrePropietario').autocomplete({
         serviceUrl: 'index.php?page=propietarios',
