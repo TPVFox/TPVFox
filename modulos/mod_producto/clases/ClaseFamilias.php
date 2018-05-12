@@ -64,41 +64,13 @@ class ClaseFamilias extends Modelo {
     public function grabar($datos) {
         return $this->insert($datos);
     }
-}
 
-/*
- *
-    <input class="form-control" id='nombrePropietario' 
-        value="{$fsc->getPropietarioNave('Nombrecompleto')}"/>
-
-    $('#nombrePropietario').autocomplete({
-        serviceUrl: 'index.php?page=propietarios',
-        paramName: 'searchbyname',
-        minChars: 2,
-        onSelect: function (suggestion) {
-            if (suggestion) {
-                $('#nombrePropietario').val(suggestion.data.Nombrecompleto);
-                $('#idPropietario').val(suggestion.data.ID);
-                $('#telefono1Propietario').val(suggestion.data.Telefono1);
-            }
+    public function actualizarpadre($idpadre, $idfamilias) {
+        $datos=[];
+        foreach ($idfamilias as $idfamilia) {
+            $datos[]=$this->update(['familiaPadre'=>$idpadre], ['idFamilia='.$idfamilia]);
         }
-    });
-
-
-
-    private function ajax_nombre_search() {
-        $this->template = FALSE;
-        $resultado = json_encode(['suggestions' => []]);
-        $this->propietarios = $this->propietario->filtrar(['Nombrecompleto LIKE "%' . $this->propietario->filterByName . '%"']);
-        if ($this->propietarios) {
-            $json = [];
-            foreach ($this->propietarios as $propietario) {
-                $json[] = ['value' => $propietario->Nombrecompleto, 'data' => $propietario];
-            }
-            $resultado = json_encode(['suggestions' => $json]);
-        }
-        echo $resultado;
+        
+        return $datos;
     }
-
-
- */
+}

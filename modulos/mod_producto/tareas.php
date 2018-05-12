@@ -270,13 +270,13 @@ switch ($pulsado) {
 
     case 'BuscaNombreFamilia':
         $nombre = $_POST['nombre'];
-        
+
         $resultado = [];
         $familias = (new ClaseFamilias($BDTpv))->buscaXNombre($nombre);
-        if(!isset($familias['error'])){
+        if (!isset($familias['error'])) {
             $datos = $familias['datos'];
             foreach ($datos as $dato) {
-                $resultado [] = ['label'=>$dato['familiaNombre'],'valor'=>$dato['idFamilia']];
+                $resultado [] = ['label' => $dato['familiaNombre'], 'valor' => $dato['idFamilia']];
             }
         } else {
             $resultado = $familias['error'];
@@ -284,28 +284,30 @@ switch ($pulsado) {
         echo json_encode($resultado);
         break;
 
-        case 'grabarFamilia':
-        
+    case 'grabarFamilia':
+
         // comprobar datos en el lado servidor    
         $idpadre = $_POST['idpadre'];
         $nombre = $_POST['nombre'];
         // Que no estan vacios
         // que idpadre es >= 0 y un id existente
         // generar $resultado['error']
-        
+
         $resultado = [];
         $resultado['familiaPadre'] = $idpadre;
         $resultado['familiaNombre'] = $nombre;
         if ($idpadre >= 0) {
             $familia = new ClaseFamilias($BDTpv);
             $resultado['insert'] = $familia->grabar($resultado);
-//            $resultado['datos'] = $familia->leerUnPadre($idpadre);
-//        } else {
-//            $familias['datos'] = [];
-//            $resultado['error'] = ['error:1'];
-        }        
-//        $resultado['html'] = familias2Html($resultado['datos']);
+        }
         echo json_encode($resultado);
+        break;
+
+    case 'grabarPadres':
+        $idpadre = $_POST['idpadre'];
+        $idsfamilia = $_POST['idsfamilia'];
+        $familia = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
+        echo json_encode($familia);
         break;
 }
 

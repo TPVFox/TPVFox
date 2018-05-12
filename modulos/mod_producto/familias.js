@@ -8,13 +8,7 @@
 
 $(function () {
 
-    leerFamilias(0, function (respuesta) {
-        var obj = JSON.parse(respuesta);
-        var datos = obj.datos;
-        var tabla = obj.html;
-
-        $('#seccion-' + obj.padre).html(tabla);
-    });
+    leerfamiliaspadre0();
 
     $("#botonnuevo-hijo-0").on("click", function (event) {
         event.stopPropagation();
@@ -32,6 +26,8 @@ $(function () {
     $("#boton-cambiarpadre").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
+
+
 
         $('#inputNombreFamiliaModal').val('');
         $('#inputIdFamiliaModal').val('-1');
@@ -92,44 +88,28 @@ $(function () {
         event.stopPropagation();
         event.preventDefault();
         //var data = $(event.currentTarget).data();
-        var idpadre = $('#selectFamiliaPadre').val();
-        var nombrefamilia = $('#inputNombreModal').val();
+        var idpadre = $('#inputIdFamiliaModal').val();
+
+        var idsfamilia = $('#tablafamilias input:checked[name="checkFamilia"]')
+                .map(function () {
+                    var id = ($(this)[0].id).slice(5);
+                    return id;
+                }).get();
+
+
+
         var mensajes = [];
         if (idpadre == -1) {
             mensajes.push('Por favor seccione un padre de la lista');
         }
-        if (nombrefamilia.length == 0) {
-            mensajes.push('Por favor da un nombre a la familia');
-        }
         if (mensajes.length > 0) {
             //errores
+            for(var i=0; i<mensajes.length;i++){
+                alert(mensajes[i]);
+            }
         } else {
-            grabarPadre({idpadre: idpadre, idsfamilia: nombrefamilia}, function (response) {
-                if ($("#fila-" + idpadre).hasClass('al-filavisible')) {
-                    leerFamilias(idpadre, function (respuesta) {
-                        var obj = JSON.parse(respuesta);
-                        var datos = obj.datos;
-                        var tabla = obj.html;
-
-                        $('#seccion-' + obj.padre).html(tabla);
-                    });
-                } else {
-                    if ($("#botonexpandir-" + idpadre).length === 0) {
-                        //repintar abuelo
-                        var idabuelo = $("#botonnuevo-hijo-" + idpadre).data('alabuelo');
-                        leerFamilias(idabuelo, function (respuesta) {
-                            var obj = JSON.parse(respuesta);
-                            var datos = obj.datos;
-                            var tabla = obj.html;
-
-                            $("#botonexpandir-" + obj.padre).hide();
-                            $("#botoncompactar-" + obj.padre).show();
-                            $("#fila-" + obj.padre).show();
-                            $("#fila-" + obj.padre).addClass('al-filavisible');
-                            $('#seccion-' + obj.padre).html(tabla);
-                        });
-                    }
-                }
+            grabarPadres({idpadre: idpadre, idsfamilia: idsfamilia}, function (response) {
+                leerfamiliaspadre0();
                 $('#inputNombreModal').val('');
                 $('#cambioPadreModal').modal('hide');
             });
@@ -153,7 +133,7 @@ $(function () {
                 }
             });
         },
-        select: function (event,ui) {
+        select: function (event, ui) {
             console.log(event);
             if (ui) {
                 $('#nombreFamilia').val(ui.item.label);
@@ -162,10 +142,19 @@ $(function () {
             //return false;
         }
     });
-
-
-
 });
+
+function leerfamiliaspadre0() {
+    leerFamilias(0, function (respuesta) {
+        var obj = JSON.parse(respuesta);
+        var datos = obj.datos;
+        var tabla = obj.html;
+
+        $('#seccion-' + obj.padre).html(tabla);
+    });
+}
+
+
 
 function capturaevento_click(botones) {
     for (var i = 0; i <= botones.length - 1; i++) {
@@ -258,6 +247,24 @@ function grabarFamilia(datos, callback) {
         pulsado: 'grabarFamilia',
         idpadre: datos.idpadre,
         nombre: datos.nombrefamilia
+    };
+
+    $.ajax({
+        data: parametros,
+        url: './tareas.php',
+        type: 'post',
+        success: callback,
+        error: function (request, textStatus, error) {
+            console.log(textStatus);
+        }
+    });
+}
+
+function grabarPadres(datos, callback) {
+    var parametros = {
+        pulsado: 'grabarPadres',
+        idpadre: datos.idpadre,
+        idsfamilia: datos.idsfamilia
     };
 
     $.ajax({

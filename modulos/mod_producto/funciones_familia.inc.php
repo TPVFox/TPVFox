@@ -14,7 +14,8 @@ function familias2Html($familias) {
         foreach ($familias as $indice => $familia) {
             $indices[] = $familia['idFamilia'];
             $resultado .= '<tr>';
-            $resultado .= '<td> <input type="checkbox" class="form-check-input" id="check' . $familia['idFamilia'] . '"> </td>';
+            $resultado .= '<td> <input type="checkbox" class="form-check-input"'
+                    . ' name="checkFamilia" id="check' . $familia['idFamilia'] . '"> </td>';
             $resultado .= '<td>' . $familia['idFamilia'] . '</td>';
             $resultado .= '<td>' . $familia['familiaNombre'] . '(' . $familia['hijos'] . ')' . '</td>';
             $resultado .= $familia['familiaPadre'] == 0 ? '<td> </td>' : '<td> ' . $familia['familiaPadre'] . ' (' . $familia['nombrepadre'] . ')</td>';

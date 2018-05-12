@@ -63,7 +63,7 @@ $familias = new ClaseFamilias($BDTpv);
                 <div class="col-md-10">
                     <!-- Tabla de lineas de productos -->
 
-                    <div class="row">
+                    <div class="row" id="tablafamilias">
                         <table id="tabla" class="table table-bordered table-hover table-striped" >
                             <thead>
                                 <tr>
