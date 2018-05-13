@@ -36,7 +36,7 @@
 			$titulo .= "Crear";
 		}
 		if ($_POST){
-			include_once ('./tareas/reciboPost.php');
+			include_once ('./tareas/reciboPostProducto.php');
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->GetProducto($id);
@@ -58,9 +58,6 @@
 				$CTArticulos->SetComprobaciones($comprobacion);
 			}
 		}
-		//~ echo '<pre>';
-		//~ print_r($preparados);
-		//~ echo '</pre>';
 		
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		

@@ -54,7 +54,14 @@ if ($id >0 ){
 			}
 		}
 		// ---			Comprobamos  y  grabamos los precios venta .		---//
-		$comprobaciones = $CTArticulos->ComprobarNuevosPreciosProducto($id,$DatosPostProducto);
+		
+		
+		$comprobaciones = $CTArticulos->ComprobarNuevosPreciosProducto($id,$DatosPostProducto,$Usuario['id']);
+		$preparados['comprobaciones'] = $comprobaciones['mensajes'];
+		//~ echo '<pre>';
+		//~ print_r($comprobaciones);
+		//~ echo '</pre>';
+				
 		// ---			Comprobamos  y grabamos los codbarras .				---//
 		$comprobaciones = $CTArticulos->ComprobarCodbarrasUnProducto($id,$DatosPostProducto['codBarras']);
 		$preparados['codbarras'] = $comprobaciones;
