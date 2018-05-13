@@ -12,9 +12,6 @@
 	//~ echo '</pre>';
 	// Ponemos valor a variables control o reiniciamos.
 
-	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('group_id'=>0,'login' =>'invitado'));
-	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
-	
 	
 	// NOTA:
 	// Aquellos los links que quieres limitar el acceso , debemos poner un controlador.
