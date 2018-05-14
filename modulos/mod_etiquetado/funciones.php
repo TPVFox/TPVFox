@@ -201,4 +201,8 @@ function calcularDigitoControl($codigo){
 	}
 	return $control;
 }
+
+function imprimirEtiquetas($lotes){
+	
+}
 ?>

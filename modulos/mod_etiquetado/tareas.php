@@ -118,6 +118,11 @@ switch ($pulsado) {
 		}
 		$respuesta['etiquetas']=$etiquetas;
 	break;
+	case 'imprimirEtiquetas':
+		$lotes=$_POST['lotes'];
+		$html=imprimirEtiquetas($lotes);
+	
+	break;
 	
 	
 }
