@@ -10,7 +10,10 @@ function metodoClick(pulsado,adonde){
 			// Ahora redireccionamos 
 			window.location.href = './'+adonde+'.php?id='+checkID[0];
 		break;
-		
+		case 'Imprimir':
+			VerIdSeleccionado ();
+			
+		break;
 		case 'Agregar':
 			console.log('entro en agregar lote');
 			window.location.href = './etiquetaCodBarras.php';

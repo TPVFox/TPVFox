@@ -102,6 +102,7 @@
 					<ul class="nav nav-pills nav-stacked"> 
 						<li><a onclick="metodoClick('Agregar' , 'etiquetaCodBarras')">Añadir</a></li>
 						<li><a  onclick="metodoClick('Ver','etiquetaCodBarras');";>Modificar</a></li>
+						<li><a  onclick="metodoClick('Imprimir','etiquetaCodBarras');";>Imprimir</a></li>
 					</ul>
 					<h4 class="text-center"> Lotes Abiertos</h4>
 					<table class="table table-striped">
