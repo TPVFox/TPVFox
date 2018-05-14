@@ -76,7 +76,7 @@ function controladorAcciones(caja, accion, tecla){
 		break;
 		case 'modificarPesoProducto':
 			console.log('entre en modificarPesoProductos');
-			var nfila=caja.fila-1
+			var nfila=caja.fila-1;
 			console.log(nfila);
 			if(nfila>=0){
 				productos[nfila]['peso']=caja.darValor();
@@ -266,7 +266,7 @@ function buscarProducto(valor="", caja=""){
 			}
 		});
 }
-function after_constructor(padre_caja,event){
+function after_constructor(padre_caja, event){
 	console.log("entre en after_constructor");
 	console.log(padre_caja.id_input.indexOf('peso_'));
 	if (padre_caja.id_input.indexOf('nombre_') >=-1){
@@ -282,18 +282,19 @@ function after_constructor(padre_caja,event){
 }
 function before_constructor(caja){
 	console.log("entre en before_constructor");
-	if (caja.id_input.indexOf('nombre_') >=-1){
+	if (caja.id_input.indexOf('nombre_') >-1){
 		console.log(' Entro en Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(7);
 	}
-	if (caja.id_input.indexOf('peso_') >=-1){
+	if (caja.id_input.indexOf('peso_') >-1){
 		console.log(' Entro en Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(5);
 	}
-	if (caja.id_input.indexOf('numAlb_') >=-1){
-		console.log(' Entro en Before de '+caja.id_input)
+	if (caja.id_input.indexOf('numAlb_') >-1){
+		console.log(' Entro en 3 Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(7);
 	}
+
 	return caja;
 }
 function mover_down(fila,prefijo){
