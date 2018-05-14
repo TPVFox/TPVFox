@@ -108,6 +108,17 @@ switch ($pulsado) {
 	
 	break;
 	
+	case 'contarEtiquetas':
+		$lotes=$_POST['lotes'];
+		$etiquetas=0;
+		foreach($lotes as $lote){
+			$etiquetaReal=$CEtiquetado->datosLote($lote);
+			$productos=json_decode($etiquetaReal['productos'], true);
+			$etiquetas=$etiquetas+count($productos);
+		}
+		$respuesta['etiquetas']=$etiquetas;
+	break;
+	
 	
 }
  echo json_encode($respuesta);

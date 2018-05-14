@@ -12,7 +12,7 @@ function metodoClick(pulsado,adonde){
 		break;
 		case 'Imprimir':
 			VerIdSeleccionado ();
-			
+			contarEtiquetasLote(checkID);
 		break;
 		case 'Agregar':
 			console.log('entro en agregar lote');
@@ -387,4 +387,35 @@ function validarCaja(valor){
 		
 	}
 	return validar;
+}
+function contarEtiquetasLote(lotes){
+	var parametros ={
+		'pulsado'	: 'contarEtiquetas',
+		'lotes'		:lotes
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** repetir productos JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta repetir productos JS');
+				var resultado =  $.parseJSON(response);
+				console.log(resultado);
+				if(resultado.etiquetas>16){
+					alert("Te has sobrepasado de las etiquetas por hoja. El formato de impresión puede que no coincida");
+				}
+				if(resultado.etiquetas==16){
+					alert("Has seleccionado justo las etiquetas a una página");
+				}
+				if(resultado.etiquetas<16){
+					var faltan=16-resultado.etiquetas;
+					alert("Te faltan etiquetas "+faltan+" para llegar a 16 (hoja entera)");
+				}else{
+					alert("No tienes lotes seleccionado");
+				}
+			}
+		});
 }
