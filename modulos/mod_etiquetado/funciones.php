@@ -93,7 +93,7 @@ function htmlProductos($busqueda, $productos){
 				. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 				. '<td>'.$producto['idArticulo'].'</td>'
 				. '<td>'.$producto['articulo_name'].'</td>'
-				. '<td>'.$producto['pvpCiva'].'</td>'
+				. '<td>'.number_format($producto['pvpCiva'], 2).'</td>'
 				.'</tr>';
 				$contad = $contad +1;
 				if ($contad === 10){
@@ -130,7 +130,7 @@ function lineasProductos($productos){
 		 .'<td><input type="text" id="peso_'.$nFila.'" 
 		 data-obj="peso" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"
 		  value="'.$producto['peso'].'" size="5"></td>'
-		 .'<td>'.$producto['precio'].'</td>'
+		 .'<td>'.number_format($producto['precio'], 2).'</td>'
 		 .'<td>'.$producto['Fecha'].'</td>'
 		 .'<td><input type="text" id="numAlb_'.$nFila.'" 
 		 data-obj="numAlb" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
