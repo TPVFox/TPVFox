@@ -13,6 +13,7 @@ function metodoClick(pulsado,adonde){
 		case 'Imprimir':
 			VerIdSeleccionado ();
 			contarEtiquetasLote(checkID);
+			imprimirEtiquetas(checkID);
 		break;
 		case 'Agregar':
 			console.log('entro en agregar lote');
@@ -21,7 +22,26 @@ function metodoClick(pulsado,adonde){
 		break;
 	}
 }
-
+function imprimirEtiquetas(lotes){
+	var parametros ={
+		'pulsado':'imprimirEtiquetas',
+		'lotes':lotes
+	};
+		$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** imprimir etiquetas JS****************');
+			},
+			success    :  function (response) {
+				console.log('Llegue devuelta imprimir etiquetas JS');
+				var resultado =  $.parseJSON(response);
+				console.log(resultado);
+			
+			}
+		});
+}
 function modificarTipo(tipo){
 	//@Objetivo: cada vez que seleccionamos en el select un tipo distinto se modifica el nombre
 	//de tipo en la tabla
