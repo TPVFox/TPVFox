@@ -407,13 +407,14 @@ function contarEtiquetasLote(lotes){
 				if(resultado.etiquetas>16){
 					alert("Te has sobrepasado de las etiquetas por hoja. El formato de impresión puede que no coincida");
 				}
-				if(resultado.etiquetas==16){
+				else if(resultado.etiquetas==16){
 					alert("Has seleccionado justo las etiquetas a una página");
 				}
-				if(resultado.etiquetas<16){
+				else if(resultado.etiquetas<16){
 					var faltan=16-resultado.etiquetas;
 					alert("Te faltan etiquetas "+faltan+" para llegar a 16 (hoja entera)");
-				}else{
+				}
+				else{
 					alert("No tienes lotes seleccionado");
 				}
 			}
