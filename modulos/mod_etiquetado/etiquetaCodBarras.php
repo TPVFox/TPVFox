@@ -56,10 +56,10 @@
 				}
 				switch($tipo){
 					case '1':
-						$TipoTexto="Unidades";
+						$TipoTexto="Por unidad";
 					break;
 					case '2':
-						$TipoTexto="Peso";
+						$TipoTexto="Por peso";
 					break;
 					default:
 						$TipoTexto="Sin seleccionar";
@@ -314,6 +314,11 @@ if($idProducto>0){
 if($estado=="Guardado"){
 	?>
 	$('#fechaCad').prop('disabled', true);
+	<?php
+}
+if($tipo>0){
+	?>
+	$("#tipo option[value="+<?php echo $tipo;?> +"]").attr("selected",true);
 	<?php
 }
 ?>
