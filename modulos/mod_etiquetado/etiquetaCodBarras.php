@@ -74,7 +74,11 @@
 			$idTemporal=$_GET['tActual'];
 			$etiquetaTemporal=$Cetiqueta->buscarTemporal($idTemporal);
 			if(isset($etiquetaTemporal['error'])){
-				//Cargar los errores
+				$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $etiquetaTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
 			}else{
 				$fechaEnv=$etiquetaTemporal['fecha_env'];
 				$fechaCad=$etiquetaTemporal['fecha_cad'];
@@ -135,12 +139,31 @@
 				);
 				if(count($errores)==0){
 					$guardar=$Cetiqueta->addLoteGuardado($datos);
-					$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
+					if(isset($guardar['error'])){
+						$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $guardar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+					}else{
+						$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
+						if(isset($eliminar['error'])){
+							$errores[2]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+						}else{
+							header('Location: ListadoEtiquetas.php');
+						}
+					}
 				}
-				//Falta el control de errores y redirigir
-				
-				
 			}else{
+				$errores[2]=array ( 'tipo'=>'Info!',
+								 'dato' => '',
+								 'class'=>'alert alert-info',
+								 'mensaje' => 'No se puede guardar ya que no tiene ninguna modificación!'
+								 );
 				//Mostrar advertencia de que no se puede guardar un lote que ya está guardado
 				//controlar cuando no hay temporal y se guarda solo la fecha o numalb
 			}
@@ -149,7 +172,11 @@
 			if($idTemporal>0){
 				$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
 				if(isset($eliminar['error'])){
-					//Preparar los errores de sql;
+					$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
 				}else{
 					header('Location: ListadoEtiquetas.php');
 				}
@@ -207,6 +234,14 @@
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 	<?php     
         include './../../header.php';
+        if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+				. '</div>';
+		}
+	}
+	
         ?>
         <script type="text/javascript">
 			<?php echo $VarJS;?>
