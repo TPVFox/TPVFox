@@ -229,11 +229,19 @@
 					</div>
 					<div class="col-md-2">
 						<label>Tipo</label>
+						<?php 
+						if($estado=='Guardado'){
+							?>
+							<input type="text" name="tipo" id="tipo" value="<?php echo $tipo;?>" readonly>
+							<?php
+						}else{
+						?>
 					<select name="tipo" id="tipo" onchange="modificarTipo(value);">
 						<option value='0'>Selecciona</option>
 						<option value='1'>Por unidad</option>
 						<option value='2'>Por peso</option>
 					</select>
+					<?php }?>
 					</div>
 					<div class="col-md-2">
 						<label>Num Albarán</label>
@@ -290,6 +298,11 @@ if($idProducto>0){
 		$('#producto').prop('disabled', true);
 		$('#id_producto').prop('disabled', true);
 		$("#buscar").css("display", "none");
+	<?php
+}
+if($estado=="Guardado"){
+	?>
+	$('#fechaCad').prop('disabled', true);
 	<?php
 }
 ?>
