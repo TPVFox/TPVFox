@@ -95,7 +95,7 @@ function controladorAcciones(caja, accion) {
 		
 		case 'modificarArticulo':
 			console.log(caja);
-			leerArticulo({idcliente: cliente.idclientes, caja: 'idArticulo', valor: caja.idArticulo}, callback);
+			leerArticulo({idcliente: cliente.idclientes, caja: 'idArticulo', valor: caja.idArticulo});
 			break;
 		
 		case 'cancelarArticulo':
