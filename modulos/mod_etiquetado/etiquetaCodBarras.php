@@ -54,6 +54,17 @@
 				if(isset($etiquetaReal['num_lote'])){
 					$idReal=$etiquetaReal['num_lote'];
 				}
+				switch($tipo){
+					case '1':
+						$TipoTexto="Unidades";
+					break;
+					case '2':
+						$TipoTexto="Peso";
+					break;
+					default:
+						$TipoTexto="Sin seleccionar";
+					break;
+				}
 				//~ echo '<pre>';
 				//~ print_r($productos);
 				//~ echo '</pre>';
@@ -232,7 +243,7 @@
 						<?php 
 						if($estado=='Guardado'){
 							?>
-							<input type="text" name="tipo" id="tipo" value="<?php echo $tipo;?>" readonly>
+							<input type="text" name="tipo" id="tipo" value="<?php echo $TipoTexto;?>" readonly>
 							<?php
 						}else{
 						?>
