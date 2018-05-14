@@ -156,6 +156,7 @@
 						<li><a onclick="filtrarSeleccionProductos();">Filtrar Seleccion</a></li>
 						<li><a onclick="eliminarSeleccionProductos();">Eliminar Selección</a></li>
 						<li><a href='ListaEtiquetas.php'; onclick="metodoClick('ImprimirEtiquetas','listaEtiqueta');";>Imprimir Etiquetas</a></li>
+						<li><a href='ListaMayor.php'; onclick="metodoClick('ImprimirEtiquetas','listaEtiqueta');";>Imprimir Mayor</a></li>
 					</ul>
 				</div>
 				<div class ="nav">

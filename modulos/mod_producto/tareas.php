@@ -54,7 +54,8 @@ include_once('../../clases/Proveedores.php');
 $CProveedor = new Proveedores($BDTpv);
 
 include_once './clases/ClaseFamilias.php';
-
+include_once './clases/ClaseArticulos.php';
+include_once './funciones_mayor.inc.php';
 
 switch ($pulsado) {
 
@@ -308,6 +309,35 @@ switch ($pulsado) {
         $idsfamilia = $_POST['idsfamilia'];
         $familia = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
         echo json_encode($familia);
+        break;
+
+    case 'imprimemayor':
+        $idArticulo = $_POST['idproducto'];
+        $stockinicial = $_POST['stockinicial'];
+        $fechainicio = $_POST['fechainicio'];
+        $fechafinal = $_POST['fechafin'];
+        
+        
+        // Validar en el lado del servidor. Si no hay fechas o el stock es alfanumerico o el articulo no existe
+        // mensaje de error
+        
+        
+        $articulo = new alArticulos($BDTpv);
+        if($articulo->existe($idArticulo)){
+        $sqldata = $articulo->calculaMayor(compact("fechainicio","fechafinal","idArticulo"));
+        if(!$sqldata['error']){
+            $sumastock = $stockinicial;
+            foreach ($sqldata['datos'] as $indice => $linea) {
+                $sumastock += $linea['entrega']-$linea['salida'];
+                $sqldata['datos'][$indice]['stock'] = $sumastock;                
+            }
+        }
+        
+        $resultado = datamayor2html($sqldata['datos']);
+        } else {
+            $resultado = 'No existe articulo';
+        }
+        echo json_encode($resultado);
         break;
 }
 
