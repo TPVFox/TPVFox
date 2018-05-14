@@ -78,12 +78,19 @@ function controladorAcciones(caja, accion, tecla){
 			console.log('entre en modificarPesoProductos');
 			var nfila=caja.fila-1;
 			console.log(nfila);
-			if(nfila>=0){
-				productos[nfila]['peso']=caja.darValor();
-				modificarCodigoBarras(nfila);
+			var val=validarCaja(caja.darValor());
+			if(val!=false){
+				if(nfila>=0){
+					productos[nfila]['peso']=caja.darValor();
+					modificarCodigoBarras(nfila);
+				}else{
+					alert("Error al seleccionar producto");
+				}
 			}else{
-				alert("Error al seleccionar producto");
+				alert('Error en el formato del número');
+				 $( "#"+caja.id_input ).select();
 			}
+			
 		break;
 		case 'modificarNumeroAlbaranProducto':
 			var nfila=caja.fila-1
@@ -344,4 +351,37 @@ function retornarFila(num_item, dedonde){
 	 $('#peso_'+productos[num].Nfila ).prop("disabled", false);
 	 $('#numAlb_'+productos[num].Nfila ).prop("disabled", false);
 	 addEtiquetadoTemporal();
+}
+function validarCaja(valor){
+	sep = valor.split(".");
+	entero=sep[0];
+	decimal=sep[1];
+	canEntero=entero.length;
+	if(decimal){
+		canDecimal=decimal.length;
+	}else{
+		canDecimal=0;
+	}
+	
+	console.log(canEntero);
+	console.log(canDecimal);
+	//Si es unidades
+	if(cabecera.tipo==1){
+		if(canEntero<=2 & canDecimal<=2){
+			var validar=true;
+		}else{
+			var validar=false;
+		}
+		
+	}
+	//si es peso
+	if(cabecera.tipo==2){
+		if(canEntero<=1 & canDecimal<=3){
+			var validar=true;
+		}else{
+			var validar=false;
+		}
+		
+	}
+	return validar;
 }
