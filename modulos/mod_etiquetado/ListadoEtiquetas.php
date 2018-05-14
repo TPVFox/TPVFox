@@ -146,7 +146,7 @@
 						<th>FECHA ENV</th>
 						<th>FECHA CAD</th>
 						<th>ESTADO</th>
-						<th>IMPRIMIR</th>
+						<th>ETIQUETAS</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -155,7 +155,12 @@
 					foreach($etiquetasFiltro as $etiqueta){
 						$checkUser = $checkUser + 1;
 						
-						?>
+						$productos=$etiqueta['productos'];
+					
+						$productos=json_decode($productos, true);
+						
+						
+							?>
 						<tr>
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $etiqueta['id'];?>"></td>
 					<td><?php echo $etiqueta['num_lote'];?></td>
@@ -163,7 +168,7 @@
 					<td><?php echo $etiqueta['fecha_env'];?></td>
 					<td><?php echo $etiqueta['fecha_cad'];?></td>
 					<td><?php echo $etiqueta['estado'];?></td>
-					<td></td>
+					<td><?php echo count($productos);?></td>
 					</tr>
 						<?php
 					}
