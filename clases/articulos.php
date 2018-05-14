@@ -172,6 +172,8 @@ class Articulos{
 				INNER join articulosProveedores as pro on a.idArticulo=pro.idArticulo 
 				inner join articulosTiendas as t on a.idArticulo=t.idArticulo
 				where a.articulo_name like "%'.$valor.'%" and t.idTienda='.$idTienda.' group by  a.idArticulo LIMIT 0 , 30';
+		
+		
 		$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];

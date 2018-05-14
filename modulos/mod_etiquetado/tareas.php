@@ -71,8 +71,15 @@ switch ($pulsado) {
 				$respuesta['error']=$buscarId['error'];
 				$respuesta['consulta']=$buscarId['consulta'];
 			}else{
-				$respuesta['Nitem']=1;
-				$respuesta['datos']=$buscarId;
+				$comprobar = strpos($buscarId['crefTienda'],'-');
+				if($comprobar==false){
+					$respuesta['Nitem']=1;
+					$respuesta['datos']=$buscarId;
+				}else{
+					$respuesta['error']='Error';
+					$respuesta['consulta']='La referencia del producto tiene que ser *****';
+				}
+				
 			}
 		}else{
 			$buscarTodo=$CArticulos->buscarPorNombre($valor, $idTienda);
