@@ -181,7 +181,11 @@
 					header('Location: ListadoEtiquetas.php');
 				}
 			}else{
-				//MOstrar advertencia de que no se puede cancelar uno guardado
+					$errores[2]=array ( 'tipo'=>'Info!',
+								 'dato' => '',
+								 'class'=>'alert alert-info',
+								 'mensaje' => 'No puedes cancelar un lote que ya está guardado!'
+								 );
 			}
 			
 		}
