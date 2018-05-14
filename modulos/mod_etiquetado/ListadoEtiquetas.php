@@ -154,11 +154,12 @@
 					$checkUser = 0;
 					foreach($etiquetasFiltro as $etiqueta){
 						$checkUser = $checkUser + 1;
-						
-						$productos=$etiqueta['productos'];
-					
-						$productos=json_decode($productos, true);
-						
+						if(isset($etiqueta['productos'])){
+							$productos=$etiqueta['productos'];
+							$productos=json_decode($productos, true);
+						}else{
+							$productos=array();
+						}
 						
 							?>
 						<tr>
