@@ -43,7 +43,7 @@
 		<caja_input>
 			<nombre id_input="fechaCad">cajaFechaCad</nombre>
 			<teclas>
-
+				<action tecla="13">GuardarFechaCad</action>
 			</teclas>
 		</caja_input>
 		<caja_input>

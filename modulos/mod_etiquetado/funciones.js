@@ -137,6 +137,9 @@ function controladorAcciones(caja, accion, tecla){
 				addEtiquetadoTemporal();
 			}
 		break;
+		case 'GuardarFechaCad':
+			cabecera.fechaCad=caja.darValor();
+		break;
 	}
 }
 function modificarCodigoBarras(nfila){
