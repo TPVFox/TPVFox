@@ -120,7 +120,13 @@ switch ($pulsado) {
 	break;
 	case 'imprimirEtiquetas':
 		$lotes=$_POST['lotes'];
-		$html=imprimirEtiquetas($lotes);
+		$nombreTmp="etiquetas.pdf";
+		//~ $html=imprimirEtiquetas($lotes);
+		include('../../lib/tcpdf/tcpdf.php');
+		include ('../../clases/imprimir.php');
+		include('../../controllers/planImprimirCodBarras.php');
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+		$respuesta=$ficheroCompleto;
 	
 	break;
 	

@@ -207,7 +207,7 @@ function imprimirEtiquetas($lotes){
 		'cabecera'=>"",
 		'html'=>""
 	);
-	$html['html'].='<table>
+	$html['html'].='<table WIDTH="500">
 	
 	</table>';
 }

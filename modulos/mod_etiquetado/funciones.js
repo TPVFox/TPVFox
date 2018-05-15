@@ -38,6 +38,7 @@ function imprimirEtiquetas(lotes){
 				console.log('Llegue devuelta imprimir etiquetas JS');
 				var resultado =  $.parseJSON(response);
 				console.log(resultado);
+				 window.open(resultado);
 			
 			}
 		});

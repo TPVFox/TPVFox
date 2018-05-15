@@ -50,6 +50,9 @@
 				$estado=$etiquetaReal['estado'];
 				$tipo=$etiquetaReal['tipo'];
 				$productos=$etiquetaReal['productos'];
+				echo '<pre>';
+				print_r($productos);
+				echo '</pre>';
 				$productos=json_decode($productos, true);
 				if(isset($etiquetaReal['num_lote'])){
 					$idReal=$etiquetaReal['num_lote'];
@@ -65,9 +68,7 @@
 						$TipoTexto="Sin seleccionar";
 					break;
 				}
-				//~ echo '<pre>';
-				//~ print_r($productos);
-				//~ echo '</pre>';
+				
 			}
 		}
 		if(isset($_GET['tActual'])){
