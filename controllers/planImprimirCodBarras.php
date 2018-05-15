@@ -27,7 +27,7 @@ $style = array(
 
 $style['cellfitalign'] = 'L';
 $i=0;
-
+$pdf->SetFont('helvetica', '', 9);
 foreach($lotes as $lote){
 	$etiquetas=$CEtiquetado->datosLote($lote);
 	$productos=$etiquetas['productos'];
@@ -39,11 +39,15 @@ foreach($lotes as $lote){
 			$x = $pdf->GetX();
             $y = $pdf->GetY();
            
-           $texto=$producto['nombre']." Peso:".$producto['peso']." Precio".$producto['precio'];
+           $texto1='Lote: '.$lote.' Fecha Env: '.$lote['fecha_env'];
+           $texto2=$producto['nombre'].'\n'.$producto['nombre'];
             //~ $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-8.5, 105, 18, 0.4, $style, 'M');
             $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-10, 105, 18, 0.4, $style, 'M');
             $pdf->SetXY($x,$y);
-			$pdf->Cell(105, 30, $texto, 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
+			$pdf->Cell(50, 30, $texto1, 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
+			//~ $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-10, 105, 18, 0.4, $style, 'M');
+			//~ $pdf->SetXY($x,$y);
+			$pdf->Multicell(50,20,"This is a multi-line text string\nNew line",1, 0, 'C', '', '', 0, '', 'C', 'B');
 			
 				
             //~ $pdf->Cell(105, 51, $producto['nombre'], 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
