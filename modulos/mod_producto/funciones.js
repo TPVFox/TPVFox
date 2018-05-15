@@ -719,7 +719,7 @@ function imprimir(id, dedonde, bandera=""){
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
 				 var resultado = $.parseJSON(response);
-				 window.open(resultado);
+				 window.open(resultado.fichero);
 				 if (bandera==1){
 					location.href="../mod_compras/albaranesListado.php";
 				}

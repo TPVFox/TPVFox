@@ -23,7 +23,7 @@ $respuesta = array();
 		
 		$cabecera=$imprimir['cabecera'];
 		$html=$imprimir['html'];
-		$ficheroCompleto=$html;
+		//~ $ficheroCompleto=$html;
 		require_once($rutaCompleta.'/lib/tcpdf/tcpdf.php');
 		include ($rutaCompleta.'/clases/imprimir.php');
 		include($rutaCompleta.'/controllers/planImprimirRe.php');
