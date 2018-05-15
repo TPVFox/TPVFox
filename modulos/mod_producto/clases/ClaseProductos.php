@@ -531,8 +531,9 @@ class ClaseProductos extends ClaseTablaArticulos{
 		//		datosProveedores -> (array) de arrays que contienen los datos costes, referencia y id de producto.
 		//
 		// @ Devolvemos 
-		// 		comprobaciones -> (array) con los cambios realizados.
+		// 		comprobaciones -> (array) con los cambios realizados y con elemento mensajes con array aunque este vacio.
 		$comprobaciones = array();
+		$comprobaciones['mensajes'] = [];
 		$estado = '';
 		parent::GetProducto($id); // Obtenemos los datos de producto actual.
 		$precio_recalculado = number_format($this->precioCivaRecalculado(),2);

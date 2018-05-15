@@ -30,13 +30,14 @@ if (isset($DatosPostProducto['comprobaciones'])){
 //~ print_r($DatosPostProducto);
 //~ echo '</pre>';
 
-// --- Ahora comprobamos y grabamos ---- //
+//~ // --- Ahora comprobamos y grabamos ---- //
 
 //  -----------------------------------     NUEVO  O  MODIFICADO 		------------------------------------- //
 if ($id >0 ){
 		// ------------------------            MODIFICADO 			-------------------------------//
 		// ---			Comprobamos  y grabamos datos generales . 			--- //
 		$comprobaciones = $CTArticulos->ComprobarNuevosDatosProducto($id,$DatosPostProducto);
+		
 		foreach ($comprobaciones as $comprobacion){
 			if (isset($comprobacion['NAfectados'])){
 				// Fue correcto el grabar.
@@ -45,6 +46,10 @@ if ($id >0 ){
 							 'dato' => ' No controlo que cambios realizaron por separador en ComprobarNuevosDatosProducto'
 							);
 				$preparados['comprobaciones'][] = $success;
+				//~ echo '<pre>';
+				//~ print_r($preparados);
+				//~ echo '</pre>';
+			
 			}
 			if (isset($comprobacion['error'])){
 				echo '<pre>';
@@ -57,10 +62,9 @@ if ($id >0 ){
 		
 		
 		$comprobaciones = $CTArticulos->ComprobarNuevosPreciosProducto($id,$DatosPostProducto,$Usuario['id']);
-		$preparados['comprobaciones'] = $comprobaciones['mensajes'];
-		//~ echo '<pre>';
-		//~ print_r($comprobaciones);
-		//~ echo '</pre>';
+		foreach ($comprobaciones['mensajes'] as $mensaje){
+			$preparados['comprobaciones'][]= $mensaje;
+		}
 				
 		// ---			Comprobamos  y grabamos los codbarras .				---//
 		$comprobaciones = $CTArticulos->ComprobarCodbarrasUnProducto($id,$DatosPostProducto['codBarras']);
