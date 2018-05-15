@@ -4,13 +4,28 @@
 
 $pdf = new imprimir(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 $cabecera="";
-$pdf->SetMargins(0, 0, 0, true);
+$pdf->SetMargins(0, 10,0, true);
 $pdf->setHtmlHeader($cabecera);
 $pdf->AddPage();
-$tbl = "<table border='1px'><tr>";
-		
-	
-$pdf->writeHTML($tbl);
+$style = array(
+    'position' => '',
+    'align' => 'C',
+    'stretch' => false,
+    'fitwidth' => true,
+    'cellfitalign' => '',
+    'border' => true,
+    'hpadding' => 'auto',
+    'vpadding' => 'auto',
+    'fgcolor' => array(0,0,0),
+    'bgcolor' => false, //array(255,255,255),
+    'text' => true,
+    'font' => 'helvetica',
+    'fontsize' => 8,
+    'stretchtext' => 4
+);
+
+
+$style['cellfitalign'] = 'C';
 $i=0;
 foreach($lotes as $lote){
 	$etiquetas=$CEtiquetado->datosLote($lote);
@@ -19,33 +34,27 @@ foreach($lotes as $lote){
 	foreach($productos as $producto){
 		if($i==2){
 			$i=0;
-			$tbl = "<tr>";
-			$pdf->writeHTML($tbl);
 		}
-		$tbl='<td>Prueba de imprimir</td>';
-		$pdf->writeHTML($tbl);
 		
+		
+	
+			$x = $pdf->GetX();
+            $y = $pdf->GetY();
+            //~ $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-8.5, 105, 18, 0.4, $style, 'M');
+            $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y, 105, 18, 0.4, $style, 'M');
+            //Reset X,Y so wrapping cell wraps around the barcode's cell.
+            $pdf->SetXY($x,$y);
+            //~ $pdf->Cell(105, 51, $producto['nombre'], 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
+            $pdf->Cell(105, 51, $producto['nombre'], 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
+    
 		if($i==1){
-			$tbl = "</tr>";
-			$pdf->writeHTML($tbl);
+			$pdf->Ln();
 		}
+		
 		$i++;
 		
 	}
 }
-if($i<=1){
-		$rep=2-$i;
-		$tbl= str_repeat("<td></td>", $rep);
-		$pdf->writeHTML($tbl);
-		$tbl='</tr>';
-		$pdf->writeHTML($tbl);
-	}
-
-$tbl = "</table>";
-	
-	$pdf->writeHTML($tbl);
-
-
 //~ $pdf->writeHTML($html);
 //~ $pdf->write1DBarcode('8410014820938', 'EAN13', '', '', '', 18, 0.4, '', 'N');
 //~ $pdf->Output($RutaServidor.$rutatmp.'/'.$nombreTmp, 'F');

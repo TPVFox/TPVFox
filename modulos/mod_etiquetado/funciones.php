@@ -154,7 +154,7 @@ function codigoBarrasUnidades($referenciaTienda, $cantidad){
 	if(isset($dividir['1'])){
 		$decimal=str_pad($dividir['1'], 2, "0", STR_PAD_RIGHT); 
 	}else{
-		$decimal='000';
+		$decimal='00';
 	}
 	$codigo=$principio.$referencia.$entero.$decimal;
 	$dc=calcularDigitoControl($codigo);
@@ -173,7 +173,7 @@ function codigoBarrasPeso($referenciaTienda, $cantidad){
 	if(isset($dividir['1'])){
 		$decimal=str_pad($dividir['1'], 3, "0", STR_PAD_RIGHT); 
 	}else{
-		$decimal='00';
+		$decimal='000';
 	}
 	
 	$codigo=$principio.$referencia.$entero.$decimal;
