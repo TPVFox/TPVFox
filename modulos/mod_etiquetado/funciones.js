@@ -62,6 +62,11 @@ function modificarTipo(tipo){
 	}
 	$('#tipoTabla').html(tipoTabla);
 	cabecera.tipo=tipo;
+	if(productos.length>0){
+		for (i=0;i<productos.length;i++){ 
+				modificarCodigoBarras(i);
+		}
+	}
 }
 function controladorAcciones(caja, accion, tecla){
 	switch(accion) {
