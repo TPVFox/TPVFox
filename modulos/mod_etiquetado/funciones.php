@@ -203,6 +203,12 @@ function calcularDigitoControl($codigo){
 }
 
 function imprimirEtiquetas($lotes){
+	$html=array(
+		'cabecera'=>"",
+		'html'=>""
+	);
+	$html['html'].='<table>
 	
+	</table>';
 }
 ?>
