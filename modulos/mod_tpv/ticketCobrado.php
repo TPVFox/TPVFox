@@ -80,9 +80,6 @@
 			$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$datos['consulta'];
 		}
 		// Añadimos productos a JS
-		echo '<pre>';
-		print_r($datos['lineas']);
-		echo '</pre>';
 		?>
 		<script type="text/javascript">
 			var id_ticketst = <?php echo $id; ?>;
