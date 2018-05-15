@@ -8,6 +8,7 @@
         include ("./../../controllers/Controladores.php");
         include ("./clases/ClaseProductos.php");
         include ('../../clases/articulos.php');
+        
         $CArticulos = new Articulos($BDTpv);
         $Tienda = $_SESSION['tiendaTpv'];
         $idTienda = $Tienda['idTienda'];
@@ -50,7 +51,7 @@ if (isset($_POST['Imprimir'])) {
                         Fecha hasta: 
                         <input type="text" class="calendar" id="inputFechahasta" />
                         <br><br>
-                        <input type="submit" name="Imprimir">
+                        <input type="submit" name="Imprimir" value="Imprimir">
                     </div>
                 </form>
 

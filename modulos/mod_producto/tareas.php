@@ -312,28 +312,50 @@ switch ($pulsado) {
         break;
 
     case 'imprimemayor':
+
         $idArticulo = $_POST['idproducto'];
         $stockinicial = $_POST['stockinicial'];
         $fechainicio = $_POST['fechainicio'];
         $fechafinal = $_POST['fechafin'];
-        
-        
+
+
         // Validar en el lado del servidor. Si no hay fechas o el stock es alfanumerico o el articulo no existe
         // mensaje de error
-        
-        
+
+        $resultado = [];
         $articulo = new alArticulos($BDTpv);
-        if($articulo->existe($idArticulo)){
-        $sqldata = $articulo->calculaMayor(compact("fechainicio","fechafinal","idArticulo"));
-        if(!$sqldata['error']){
-            $sumastock = $stockinicial;
-            foreach ($sqldata['datos'] as $indice => $linea) {
-                $sumastock += $linea['entrega']-$linea['salida'];
-                $sqldata['datos'][$indice]['stock'] = $sumastock;                
+        if ($articulo->existe($idArticulo)) {
+            $miarticulo = $articulo->leer($idArticulo);
+            $nombreArticulo = $miarticulo['datos'][0]['articulo_name'];
+
+            $sqldata = $articulo->calculaMayor(compact("fechainicio", "fechafinal", "idArticulo"));
+
+            if ($sqldata['datos']) {
+                $sumastock = $stockinicial;
+                foreach ($sqldata['datos'] as $indice => $linea) {
+                    $sumastock += $linea['entrega'] - $linea['salida'];
+                    $sqldata['datos'][$indice]['stock'] = $sumastock;
+                }
+                $cabecera = cabeceramayor2html(['titulo' => 'Mayor productos'
+                    , 'empresa' => '01 Alimentaria Longueicap 2018'
+                    , 'condiciones' => 'Periódo: ' . $fechainicio . ' / ' . $fechafinal
+                ]);
+                $cuerpo = datamayor2html($sqldata['datos']);
+                $pdf = new imprimirPDF();
+                $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
+                $pdf->SetMargins(10, 70, 10);
+                $pdf->setCabecera($cabecera);
+                $pdf->AddPage();
+                $pdf->writeHTML($cuerpo);
+                $fichero = 'mayor'.time().'.pdf';
+                $filename = $RutaServidor.$rutatmp.'/'.$fichero;
+                $pdf->Output($filename, 'F');
+
+                $resultado['html'] = $cuerpo;
+                $resultado['fichero'] = $rutatmp.'/'.$fichero;
+            } else {
+                $resultado = 'Error en "sqldata"';
             }
-        }
-        
-        $resultado = datamayor2html($sqldata['datos']);
         } else {
             $resultado = 'No existe articulo';
         }

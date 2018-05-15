@@ -17,7 +17,7 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
 class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase articulos que hizo Ricardo & Co.
 
     public function leer($idArticulo) {
-        $sql = 'SELECT *'
+        $sql = 'SELECT * '
                 . 'FROM articulos '
                 . ' WHERE idArticulo =' . $idArticulo
                 . ' LIMIT 1';

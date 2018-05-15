@@ -19,14 +19,15 @@ function MayorProductos() {
     var parametros;
     for( var i=0; i< idsproducto.length; i++){
         parametros = {pulsado : 'imprimemayor',
-            idproducto : idsproducto[i],
+            idproducto : parseInt(idsproducto[i]),
             stockinicial : $('#stkini'+idsproducto[i].trim()).val(),
             fechainicio : $('#inputFechadesde').val(),
             fechafin : $('#inputFechahasta').val(),
         }
         ajaxMayor(parametros, function(response){
             var resultado = JSON.parse(response);
-           $('#tablamayor').html(resultado);
+	window.open(resultado['fichero']);            
+           $('#tablamayor').html(resultado['html']);
            $('#tablamayor').show();
         })
     }
