@@ -39,20 +39,23 @@ foreach($lotes as $lote){
 			$x = $pdf->GetX();
             $y = $pdf->GetY();
            
-           $texto1='Lote: '.$lote.' Fecha Env: '.$lote['fecha_env'];
+           $texto1='Lote: '.$lote.' Fecha Env: ';
            $texto2=$producto['nombre'].'\n'.$producto['nombre'];
             //~ $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-8.5, 105, 18, 0.4, $style, 'M');
             $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-10, 105, 18, 0.4, $style, 'M');
             $pdf->SetXY($x,$y);
 			$pdf->Cell(50, 30, $texto1, 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
+			
+			$pdf->Cell(50, 15, $texto2, 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
+			$pdf->Cell(50, 15, $texto2, 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
 			//~ $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-10, 105, 18, 0.4, $style, 'M');
 			//~ $pdf->SetXY($x,$y);
-			$pdf->Multicell(50,20,"This is a multi-line text string\nNew line",1, 0, 'C', '', '', 0, '', 'C', 'B');
+			//~ $pdf->Multicell(50,20,"This is a multi-line text string\nNew line",1, 0, 'C', '', '', 0, '', 'C', 'B');
 			
 				
             //~ $pdf->Cell(105, 51, $producto['nombre'], 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
-            
-    
+            //~ $pdf->MultiCell(80, 0, $texto1, 1, 'J', 1, 0, '', '', true, 0, false, true, 0);
+   
 		if($i==1){
 			$pdf->Ln();
 		}
