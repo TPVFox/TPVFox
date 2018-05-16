@@ -362,6 +362,16 @@ if($estado=="Guardado"){
 	?>
 	$('#fechaCad').prop('disabled', true);
 	<?php
+	if($tipo==1){
+		?>
+		$('#tipoTabla').html("Unidad");
+			<?php
+	}
+	if($tipo==2){
+		?>
+		$('#tipoTabla').html("Peso");
+			<?php
+	}
 }
 if($tipo>0){
 	?>
