@@ -14,6 +14,15 @@ $CEtiquetado= new Modulo_etiquetado($BDTpv);
 $respuesta=array();
 switch ($pulsado) {
 	case 'repetirProductos':
+	//@OBjetivo: Repetir un productos tantas veces como el usuario indicara
+	//@Parametros:
+	//Unidades: el número de veces a repetir el producto
+	//IdProducto: es el id del producto a repetir
+	//IdTienda: id de la tieneda en la que estamos(lo necesitamos por que en la función vamos a buscar los datos de ese producto)
+	//fechaCad: fecha de caducidad del producto (todos los productos de un lote tendrán la misma fecha de caducidad)
+	//tipo: puede ser unidades o peso
+	//@Devuelve: 
+	//el html con las líneas generadas
 		$unidades=$_POST['unidades'];
 		$idProducto=$_POST['idProducto'];
 		$idTienda=$_POST['idTienda'];
@@ -29,6 +38,13 @@ switch ($pulsado) {
 		$respuesta['html']=$htmlProductos['html'];
 	break;
 	case 'addEtiquetadoTemporal':
+	//@Objetivo: Añadir/Modificar etiqueta temporal
+	//@Parámetros: 
+	//$_POST: todos los datos que enviamos por ajax 
+	//@Funcionamiento: Si el idTemporal es mayor que 0 , se modifica el temporal, si no se crea.
+	//Si existe el idReal (o sea que ya hay un lote creado) modifica el estado a "Sin guardar"
+	//@Devuelve:
+	//El idTemporal, lo errores y los productos
 		$idTemporal=0;
 		$idReal=0;
 		$existe=0;
@@ -72,6 +88,9 @@ switch ($pulsado) {
 	
 	break;
 	case 'buscarProducto':
+	//@Objetivo:
+	//Buscar los datos del producto y comprueba que la referencia del producto no tenga - si es así envia un error
+	
 		$valor=$_POST['valor'];
 		$caja=$_POST['caja'];
 		$idTienda=$_POST['idTienda'];
@@ -104,6 +123,8 @@ switch ($pulsado) {
 	
 	break;
 	case 'modificarCodigoBarras':
+	//@Objetivo:
+	//Modificar el código de barras según el tipo y referencia
 		$tipo=$_POST['tipo'];
 		$producto=$_POST['producto'];
 		switch($tipo){
@@ -119,6 +140,8 @@ switch ($pulsado) {
 	break;
 	
 	case 'contarEtiquetas':
+	//@Objetivo:
+	//Contar la cantidad de etiquetas que se van a imprimir para mostrar un alert
 		$lotes=$_POST['lotes'];
 		$etiquetas=0;
 		foreach($lotes as $lote){
@@ -129,9 +152,9 @@ switch ($pulsado) {
 		$respuesta['etiquetas']=$etiquetas;
 	break;
 	case 'imprimirEtiquetas':
+	//@OBjetivo: imprimir las etiquetas
 		$lotes=$_POST['lotes'];
 		$nombreTmp="etiquetas.pdf";
-		//~ $html=imprimirEtiquetas($lotes);
 		include('../../lib/tcpdf/tcpdf.php');
 		include ('../../clases/imprimir.php');
 		include('../../controllers/planImprimirCodBarras.php');
