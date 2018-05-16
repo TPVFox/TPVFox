@@ -155,10 +155,10 @@ function modificarCodigoBarras(nfila){
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** repetir productos JS****************');
+				console.log('******** ModificarCodigoBarras JS****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta repetir productos JS');
+				console.log('Llegue devuelta ModificarCodigoBarras JS');
 				var resultado =  $.parseJSON(response); 
 				productos[nfila]['codBarras']=resultado.codBarras;
 				nfila=nfila+1;

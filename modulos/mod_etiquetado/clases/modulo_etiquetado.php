@@ -52,10 +52,15 @@ class Modulo_etiquetado{
 	public function modificarTemporal($datos, $productos, $idTemporal){
 			//@Objetivo:
 			//Modificar el albarán temporal
+		if($datos['NumAlb']>0){
+			$numAlb=$datos['NumAlb'];
+		}else{
+			$numAlb=0;
+		}
 		$respuesta=array();
 		$sql='UPDATE `modulo_etiquetado_temporal` SET 
 		`num_lote`='.$datos['idReal'].',`tipo`='.$datos['tipo'].',`fecha_env`="'.$datos['fechaEnv'].'"
-		,`fecha_cad`="'.$datos['fechaCad'].'",`idArticulo`='.$datos['idProducto'].',`numAlb`='.$datos['NumAlb'].'
+		,`fecha_cad`="'.$datos['fechaCad'].'",`idArticulo`='.$datos['idProducto'].',`numAlb`='.$numAlb.'
 		,`estado`="'.$datos['estado'].'",`productos`='."'".$productos."'".'
 		,`idUsuario`='.$datos['idUsuario'].' WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);

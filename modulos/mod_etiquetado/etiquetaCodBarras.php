@@ -50,10 +50,11 @@
 				$estado=$etiquetaReal['estado'];
 				$tipo=$etiquetaReal['tipo'];
 				$productos=$etiquetaReal['productos'];
+				
+				$productos=json_decode($productos, true);
 				echo '<pre>';
 				print_r($productos);
 				echo '</pre>';
-				$productos=json_decode($productos, true);
 				if(isset($etiquetaReal['num_lote'])){
 					$idReal=$etiquetaReal['num_lote'];
 				}
@@ -97,6 +98,12 @@
 		}
 		if(isset($_POST['Guardar'])){
 			if($idTemporal>0){
+				$datosTemporal=$Cetiqueta->buscarTemporal($idTemporal);
+				$productos=$datosTemporal['productos'];
+				$productos=json_decode($productos, true);
+				echo '<pre>';
+				print_r($productos);
+				echo '</pre>';
 				if(isset($_POST['fechaCad'])){
 					$fechaCad=$_POST['fechaCad'];
 				}
@@ -155,7 +162,7 @@
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 						}else{
-							header('Location: ListadoEtiquetas.php');
+							//~ header('Location: ListadoEtiquetas.php');
 						}
 					}
 				}
