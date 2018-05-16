@@ -129,9 +129,11 @@
 					
 					
 				}
-				if(isset($_POST['tipo'])){
-					$tipo=$_POST['tipo'];
+				if(isset($datosTemporal['tipo'])){
+					$tipo=$datosTemporal['tipo'];
 				}
+				
+				
 				$datos=array(
 					'idReal'	=>$idReal,
 					'tipo'		=>$tipo,
