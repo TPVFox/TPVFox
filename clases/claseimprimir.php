@@ -1,6 +1,6 @@
 <?php
 
-require_once $RutaServidor.'/tpvfox/lib/tcpdf/tcpdf.php';
+require_once $RutaServidor.$HostNombre.'/lib/tcpdf/tcpdf.php';
 
 class imprimirPDF extends TCPDF {
 
