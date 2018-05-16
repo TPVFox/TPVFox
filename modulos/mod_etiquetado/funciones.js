@@ -112,6 +112,11 @@ function controladorAcciones(caja, accion, tecla){
 				if(nfila>=0){
 					productos[nfila]['peso']=caja.darValor();
 					modificarCodigoBarras(nfila);
+					var cajasig=parseInt(caja.fila)+1;
+					console.log(cajasig);
+					var inputSig='peso_'+cajasig;
+					console.log(inputSig);
+					$( "#"+inputSig ).select();
 				}else{
 					alert("Error al seleccionar producto");
 				}
