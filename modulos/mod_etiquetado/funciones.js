@@ -74,7 +74,8 @@ function controladorAcciones(caja, accion, tecla){
 		case 'RepetirProducto':
 			console.log('Entre en repetir producto');
 			if(caja.darValor()>0){
-				var select=$("#tipo option:selected").val();
+				//~ var select=$("#tipo option:selected").val();
+				var select=cabecera.tipo;
 				if(select==1 || select==2){
 					repetirProducto(caja.darValor(), select);
 				}else{
