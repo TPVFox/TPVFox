@@ -5,6 +5,10 @@
 $pdf = new imprimir(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 $cabecera="";
 $pdf->SetMargins(3, 10,3, false);
+
+
+// margen pie de pagina 0
+$pdf->SetAutoPageBreak(false, 0);
 $pdf->setHtmlHeader($cabecera);
 $pdf->AddPage();
 $style = array(
@@ -48,10 +52,10 @@ foreach($lotes as $lote){
 			$texto2='<br><br>'.$producto['nombre'].'<br>'.'
 			Precio kilo: '.$precioKilo.'€<br>Peso: '.$producto['peso'].'kg<br><font size="15"><b>PVP: '.$pvp.
 			'€</b></font><br>Fecha cad: '.$etiquetas['fecha_cad'].'<br>';
-            $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y+3, 105, 18, 0.4, $style, 'M');
+            $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y+2, 105, 18, 0.4, $style, 'M');
             $pdf->SetXY($x,$y);
-			$pdf->MultiCell(55, 34.3, $texto1, 0, 'L', 0, 0, '', '', true, 0, false, true, 45 ,'M');
-			$pdf->MultiCell(50, 34.3, $texto2, 0, 'L', 0, 0, '', '', true, 0, true, true, 45 ,'M');
+			$pdf->MultiCell(55, 35, $texto1, 1, 'L', 0, 0, '', '', true, 0, false, true, 45 ,'M');
+			$pdf->MultiCell(50, 35, $texto2, 1, 'L', 0, 0, '', '', true, 0, true, true, 45 ,'M');
 		if($i==1){
 			$pdf->Ln();
 		}
