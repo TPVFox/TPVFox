@@ -45,8 +45,8 @@ foreach($lotes as $lote){
 			$pvp=number_format($pvp, 2);
 			$texto1='Lote: '.$lote.'  Fecha Env: '.$fechaEnv;
 			$texto2='<br><br>'.$producto['nombre'].'<br>'.'
-			Precio kilo: '.$precioKilo.'€<br>PVP: '.$pvp.
-			'€<br>Fecha cad: '.$etiquetas['fecha_cad'].'<br>';
+			Precio kilo: '.$precioKilo.'€<br><font size="15"><b>PVP: '.$pvp.
+			'€</b></font><br>Fecha cad: '.$etiquetas['fecha_cad'].'<br>';
             $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y+3, 105, 18, 0.4, $style, 'M');
             $pdf->SetXY($x,$y);
 			$pdf->MultiCell(55, 34.3, $texto1, 0, 'L', 0, 0, '', '', true, 0, false, true, 45 ,'M');
