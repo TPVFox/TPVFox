@@ -13,7 +13,7 @@ function metodoClick(pulsado,adonde){
 		case 'Imprimir':
 			VerIdSeleccionado ();
 			contarEtiquetasLote(checkID);
-			imprimirEtiquetas(checkID);
+			//~ imprimirEtiquetas(checkID);
 		break;
 		case 'Agregar':
 			console.log('entro en agregar lote');
@@ -437,17 +437,20 @@ function contarEtiquetasLote(lotes){
 				var resultado =  $.parseJSON(response);
 				console.log(resultado);
 				if(resultado.etiquetas>16){
-					alert("Te has sobrepasado de las etiquetas por hoja. El formato de impresión puede que no coincida");
+					 var opcion = confirm("Te has sobrepasado de las etiquetas por hoja. El formato de impresión puede que no coincida");
 				}
 				else if(resultado.etiquetas==16){
-					alert("Has seleccionado justo las etiquetas a una página");
+					 var opcion = confirm("Has seleccionado justo las etiquetas a una página");
 				}
 				else if(resultado.etiquetas<16){
 					var faltan=16-resultado.etiquetas;
-					alert("Te faltan etiquetas "+faltan+" para llegar a 16 (hoja entera)");
+					 var opcion = confirm("Te faltan etiquetas "+faltan+" para llegar a 16 (hoja entera)");
 				}
 				else{
-					alert("No tienes lotes seleccionado");
+					 var opcion = confirm("No tienes lotes seleccionado");
+				}
+				if (opcion == true) {
+						imprimirEtiquetas(lotes);
 				}
 			}
 		});

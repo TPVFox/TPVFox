@@ -54,8 +54,8 @@ foreach($lotes as $lote){
 			'€</b></font><br>Fecha cad: '.$etiquetas['fecha_cad'].'<br>';
             $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y+2, 105, 18, 0.4, $style, 'M');
             $pdf->SetXY($x,$y);
-			$pdf->MultiCell(55, 35, $texto1, 1, 'L', 0, 0, '', '', true, 0, false, true, 45 ,'M');
-			$pdf->MultiCell(50, 35, $texto2, 1, 'L', 0, 0, '', '', true, 0, true, true, 45 ,'M');
+			$pdf->MultiCell(55, 35, $texto1, 0, 'L', 0, 0, '', '', true, 0, false, true, 45 ,'M');
+			$pdf->MultiCell(50, 35, $texto2, 0, 'L', 0, 0, '', '', true, 0, true, true, 45 ,'M');
 		if($i==1){
 			$pdf->Ln();
 		}
