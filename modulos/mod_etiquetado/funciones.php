@@ -201,14 +201,4 @@ function calcularDigitoControl($codigo){
 	}
 	return $control;
 }
-
-function imprimirEtiquetas($lotes){
-	$html=array(
-		'cabecera'=>"",
-		'html'=>""
-	);
-	$html['html'].='<table WIDTH="500">
-	
-	</table>';
-}
 ?>
