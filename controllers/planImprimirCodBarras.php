@@ -4,7 +4,7 @@
 
 $pdf = new imprimir(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 $cabecera="";
-$pdf->SetMargins(0, 20,0, true);
+$pdf->SetMargins(0, 10,0, true);
 $pdf->setHtmlHeader($cabecera);
 $pdf->AddPage();
 $style = array(
@@ -39,23 +39,12 @@ foreach($lotes as $lote){
 			$x = $pdf->GetX();
             $y = $pdf->GetY();
            
-           $texto1='Lote: '.$lote.' Fecha Env: ';
-           $texto2=$producto['nombre'].'\n'.$producto['nombre'];
-            //~ $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-8.5, 105, 18, 0.4, $style, 'M');
-            $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-10, 105, 18, 0.4, $style, 'M');
+           $texto1='Lote: '.$lote.' Fecha Env: '.$etiquetas['fecha_env'];
+           $texto2=$producto['nombre'].'<br> '.'Fecha cad: '.$etiquetas['fecha_cad'].' <br> Precio: '.$producto['precio'];
+            $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y, 105, 18, 0.4, $style, 'M');
             $pdf->SetXY($x,$y);
-			$pdf->Cell(50, 30, $texto1, 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
-			
-			$pdf->Cell(50, 15, $texto2, 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
-			$pdf->Cell(50, 15, $texto2, 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
-			//~ $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y-10, 105, 18, 0.4, $style, 'M');
-			//~ $pdf->SetXY($x,$y);
-			//~ $pdf->Multicell(50,20,"This is a multi-line text string\nNew line",1, 0, 'C', '', '', 0, '', 'C', 'B');
-			
-				
-            //~ $pdf->Cell(105, 51, $producto['nombre'], 1, 0, 'C', FALSE, '', 0, FALSE, 'C', 'B');
-            //~ $pdf->MultiCell(80, 0, $texto1, 1, 'J', 1, 0, '', '', true, 0, false, true, 0);
-   
+			$pdf->MultiCell(55, 30, $texto1, 1, 'L', 0, 0, '', '', true, 0, false, true, 45 ,'M');
+			$pdf->MultiCell(50, 30, $texto2, 1, 'L', 0, 0, '', '', true, 0, true, true, 45 ,'M');
 		if($i==1){
 			$pdf->Ln();
 		}
