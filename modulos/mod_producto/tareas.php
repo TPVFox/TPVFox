@@ -70,7 +70,6 @@ switch ($pulsado) {
         }
         $resultado['datos'] = $familias['datos'];
         $resultado['html'] = familias2Html($familias['datos']);
-        echo json_encode($resultado);
         break;
 
     case 'BuscaNombreFamilia':
@@ -86,7 +85,6 @@ switch ($pulsado) {
         } else {
             $resultado = $familias['error'];
         }
-        echo json_encode($resultado);
         break;
 
     case 'grabarFamilia':
@@ -105,14 +103,12 @@ switch ($pulsado) {
             $familia = new ClaseFamilias($BDTpv);
             $resultado['insert'] = $familia->grabar($resultado);
         }
-        echo json_encode($resultado);
         break;
 
     case 'grabarPadres':
         $idpadre = $_POST['idpadre'];
         $idsfamilia = $_POST['idsfamilia'];
-        $familia = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
-        echo json_encode($familia);
+        $resultado = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
         break;
 
     case 'imprimemayor':
@@ -163,7 +159,6 @@ switch ($pulsado) {
         } else {
             $resultado = 'No existe articulo';
         }
-        echo json_encode($resultado);
         break;
 
 	case 'HtmlLineaCodigoBarras';
@@ -264,7 +259,3 @@ switch ($pulsado) {
 }
 
         echo json_encode($resultado);
-?>
-
-
-
