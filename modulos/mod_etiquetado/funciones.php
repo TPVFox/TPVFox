@@ -145,7 +145,7 @@ function lineasProductos($productos){
 }
 
 function codigoBarrasUnidades($referenciaTienda, $cantidad){
-	$principio='20';
+	$principio='21';
 	$referencia=$referenciaTienda;
 	$dividir = explode(".", $cantidad);
 	if(isset($dividir['0'])){
@@ -163,7 +163,7 @@ function codigoBarrasUnidades($referenciaTienda, $cantidad){
 	
 }
 function codigoBarrasPeso($referenciaTienda, $cantidad){
-	$principio='21';
+	$principio='20';
 	$referencia=$referenciaTienda;
 	$dividir = explode(".", $cantidad);
 	if(isset($dividir['0'])){
