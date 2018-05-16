@@ -28,6 +28,8 @@ class Modulo_etiquetado{
 	public function addTemporal($datos, $productos){
 		//@Objetivo:
 		//Crear un albarán temporal
+		//@Retorna:
+		//O un error de sql o el id del temporal que se caba de crear
 		$respuesta=array();
 		$db = $this->db;
 		if($datos['NumAlb']>0){
@@ -52,6 +54,8 @@ class Modulo_etiquetado{
 	public function modificarTemporal($datos, $productos, $idTemporal){
 			//@Objetivo:
 			//Modificar el albarán temporal
+			//@Retorna:
+			//error de sql en caso de que lo tenga
 		if($datos['NumAlb']>0){
 			$numAlb=$datos['NumAlb'];
 		}else{
@@ -72,6 +76,8 @@ class Modulo_etiquetado{
 	}
 	
 	public function todasEtiquetasLimite($limite){
+		//@OBjetivo:
+		//LIstar todas las etiquetas guardadas 
 		$db=$this->db;
 		$sql='SELECT a.num_lote, a.id , a.fecha_env, a.fecha_cad, a.estado, b.articulo_name , a.productos from modulo_etiquetado as a
 		inner join articulos as b on a.idArticulo=b.idArticulo  '.$limite;
