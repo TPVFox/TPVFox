@@ -1,4 +1,11 @@
 <?php
+/* Este fichero lo utilizamos para cargar lo necesario para el funcionamiento.
+ * Normalmente ya lo cargamos en head,  pero muchas veces es necesario cargarlo antes de head.
+ * Incluso cuando cargamos en tareas , es necesario , asi no cargamos el head que no es necesario.
+ * 
+*/
+
+
 
 define('FORMATO_FECHA_ES', 'd-m-Y H:m:s');
 define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
@@ -22,7 +29,7 @@ define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 		
 	}
 	
-	include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
+	//~ include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
 	//incluyo ruta del controlador de sesion (funcion php)
     //~ include_once ($URLCom. "/clases/ComprobarSession.php");
     include_once ($URLCom. "/clases/ClaseSession.php");
@@ -30,8 +37,11 @@ define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 	// Solo creamos objeto si no existe.
 	//~ $thisTpv = new ComprobarSession;
 	$thisTpv = new ClaseSession();
-
+	$BDTpv = $thisTpv->getConexion(); // Para la antigua conexion. Eliminar include mod_conexion/conexionBaseDatos
 	//~ $TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
 	$thisTpv->comprobarEstado();
 
-	// Ver documentacion : /estatico/manualTecnico/help_fichero_header/index.php
+	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('group_id'=>0,'login' =>'invitado'));
+	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
+
+	

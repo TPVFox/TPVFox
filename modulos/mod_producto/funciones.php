@@ -35,7 +35,7 @@ function htmlLineaProveedorCoste($proveedor){
 	// 		$proveedor-> (array) Datos de proveedor: idProveedor,crefProveedor,coste,fechaActualizacion,estado,nombrecomercial,razonsocial.
 	
 	// Montamos campos ocultos de IDProveedor
-	$camposIdProveedor = '<input type="hidden" name="idProveedor_'.$proveedor['idProveedor'].'" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
+	$camposIdProveedor = '<input class="idProveedor" type="hidden" name="idProveedor_'.$proveedor['idProveedor'].'" id="idProveedor_'.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'">';
 	$nom_proveedor = $proveedor['idProveedor'].'.-';
 	// Monstamos nombre y razon social juntas
 	if ($proveedor['nombrecomercial'] !== $proveedor['razonsocial']){
@@ -57,6 +57,10 @@ function htmlLineaProveedorCoste($proveedor){
 	if (!isset($proveedor['crefProveedor'])){
 		$proveedor['crefProveedor'] = '';
 	}
+	$style_color = '';
+	if (isset($proveedor['ultimo_pro'])){
+		$style_color = ' style="color:red;" ';
+	}
 	$nuevaFila = '<tr>'
 				.'<td><input '.$atributos.' type="checkbox" id="check_pro_'
 				.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>'
@@ -73,8 +77,9 @@ function htmlLineaProveedorCoste($proveedor){
 				.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>'
 				.'</td>'
 				.'<td>'
+				.$proveedor['estado']
 				.'<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'
-				.$proveedor['fechaActualizacion'].'">'.$proveedor['estado'].'</span>'
+				.$proveedor['fechaActualizacion'].'" '.$style_color.'>'.'</span>'
 				.'</td>'
 				.'<td><a id="desActivarProv_'.$proveedor['idProveedor']
 				.'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'
@@ -187,9 +192,12 @@ function htmlOptionIvas($ivas,$ivaProducto){
 	
 }
 
-function htmlOptionEstados($posibles_estados,$estado){
+function htmlOptionEstados($posibles_estados,$estado=''){
 	//  Objetivo :
 	// Montar html Option para selecciona Estados, poniendo seleccionado el estado enviado
+	//  @ Parametros 
+	// 		$posibles_estados -> (array) de posibles estados..
+	//		$ estado -> (string) Con el estado que queremos este seleccionado
 	$htmlEstados = '';
 	foreach ($posibles_estados as $item){
 			$es_seleccionado = '';
@@ -231,99 +239,6 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	 
 }
 
-function modificarProducto($BDTpv, $datos, $tabla){
-	$resultado = array();
-	$id=$datos['idProducto'];
-	$nombre=$datos['nombre'];
-	$coste=$datos['coste'];
-	$beneficio=$datos['beneficio'];
-	$iva=$datos['iva'];
-	$pvpCiva=$datos['pvpCiva'];
-	$pvpSiva=$datos['pvpSiva'];
-	$referencia=$datos['referencia'];
-	$tienda=$datos['idTienda'];
-	// Montar un array con los las claves del array datos
-	$keys=array_keys($datos);
-	$codBarras = [];
-	// Se va recorriendo  
-	foreach($keys as $key){
-		// Los que coincidan con el campo cod quiere decir que es un codigo de barras y se añaden al array codBarras[]
-		$nombre1="cod";
-		if (strpos($key, $nombre1)>-1){
-			if ($datos[$key]<>""){
-				$codBarras[] = '('.$id.',"'.$datos[$key].'")';
-			}
-		}
-	}
-	$stringCodbarras = implode(',',$codBarras);
-	//Fecha y hora del sistema
-	$fechaMod=date("Y-m-d H:i:s");
-	$sql='UPDATE '.$tabla.' SET articulo_name="'.$nombre.'", costepromedio='.$coste.', beneficio='.$beneficio.' , iva ='.$iva.', fecha_modificado="'.$fechaMod.'" WHERE idArticulo='.$id;
-	$sql2='UPDATE articulosPrecios SET pvpCiva='.$pvpCiva.', pvpSiva='.$pvpSiva.' WHERE idArticulo='.$id  ;
-	$sql3='DELETE FROM articulosCodigoBarras where idArticulo='.$id;
-	$sql5='UPDATE articulosTiendas set crefTienda ="'.$referencia.'" WHERE  idArticulo='.$id.' and idTienda='.$tienda;
-	$sql4='INSERT INTO articulosCodigoBarras (idArticulo, codBarras) VALUES '.$stringCodbarras;
-	$consulta = $BDTpv->query($sql);
-	$consulta = $BDTpv->query($sql2);
-	$consulta = $BDTpv->query($sql3);
-	$consulta = $BDTpv->query($sql4);
-	$consulta = $BDTpv->query($sql5);
-	$resultado['sql'] =$sql;
-	$resultado['sql2'] =$sql2;
-	$resultado['sql3'] =$sql3;
-	$resultado['sql4'] =$sql4;
-	$resultado['sql6'] =$sql5;
-	$resultado['sql5']=$keys;
-	return $resultado;	
-}
-/*Función para añadir un producto nuevo*/
-function añadirProducto($BDTpv, $datos, $tabla){
-	$nombre=$datos['nombre'];
-	$coste=$datos['coste'];
-	$beneficio=$datos['beneficio'];
-	$iva=$datos['iva'];
-	$pvpCiva=$datos['pvpCiva'];
-	$pvpSiva=$datos['pvpSiva'];
-	$idProovedor=$datos['idProveedor'];
-	$estado=$datos['estado'];
-	$pvpCiva=$datos['pvpCiva'];
-	$pvpSiva=$datos['pvpSiva'];
-	$idTienda=$datos['idTienda'];
-	$referencia=$datos['referencia'];
-	
-	//Fecha y hora del sistema 
-	$fechaAdd=date("Y-m-d H:i:s");
-	$keys=array_keys($datos);
-	$codBarras = [];
-	$sql='INSERT INTO '.$tabla.' (iva, idProveedor , articulo_name, beneficio, costepromedio, estado, fecha_creado) VALUES ("'.$iva.'" , "'.$idProovedor.'" , "'.$nombre.'", "'.$beneficio.'", "'.$coste.'", "'. $estado .'", "'.$fechaAdd.'")';
-	$consulta = $BDTpv->query($sql);
-	//Id del inster anterior 
-	$idGenerado=$BDTpv->insert_id;
-	foreach($keys as $key){
-		// Los que coincidan con el campo cod quiere decir que es un codigo de barras y se añaden al array codBarras[]
-		$nombre1="cod";
-		if (strpos($key, $nombre1)>-1){
-			if ($datos[$key]<>""){
-				$codBarras[] = '('.$idGenerado.',"'.$datos[$key].'")';
-			}
-		}
-	}
-	$stringCodbarras = implode(',',$codBarras);
-	$sql2='INSERT INTO articulosPrecios (idArticulo, pvpCiva , pvpSiva, idTienda ) VALUES ('.$idGenerado.', '.$pvpCiva.', '.$pvpSiva.' , '.$idTienda.')';
-	if ($referencia == 0){
-		$referencia="Sin ref";
-	}
-	$sql4='INSERT INTO articulosTiendas (idArticulo, idTienda, crefTienda) VALUES ('.$idGenerado.', '.$idTienda.', "'.$referencia.'")';
-	$sql3='INSERT INTO articulosCodigoBarras (idArticulo, codBarras) VALUES '.$stringCodbarras;
-	$consulta = $BDTpv->query($sql2);
-	$consulta = $BDTpv->query($sql3);
-		$consulta = $BDTpv->query($sql4);
-	$resultado['sql'] =$sql;
-		$resultado['sql1'] =$sql2;
-			$resultado['sql2'] =$sql3;
-			$resultado['sql4'] =$sql4;
-	return $resultado;
-}
 
 function MostrarColumnaConfiguracion($mostrar_lista,$parametro){
 	// @ Objetivo:
@@ -386,29 +301,38 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 
 }
 
-function prepararYgrabar($array,$claseArticulos){
+function prepararandoPostProducto($array,$claseArticulos){
 	//@ Objetivo
-	// Preparar y Grabar los datos obtenidos ( POST) en productos,
-	// Debemos tener en cuenta que :
-	//   id = 0 es nuevo..
-	//   id = ??? es modificado.
+	//	Preparar los que recibimos por POST en productos,
 	
+	//@ Parametros
+	// 	 $array => Array ( post) con los datos del formulario.
 	
 	// Obtenemos (array) Key del array recibido
-	$keys_array = array_keys($array);
+	$Post = array_keys($array);
 	
-	// Recorremos las keys
+	// Recorremos las keys y montamos DatosProducto que son los datos Post formateados.
 	$DatosProducto = array();
-	$Sqls = array();
 	$DatosProducto['codBarras'] = array();
 	$DatosProducto['proveedores_costes'] = array();
 	$DatosProducto['familias'] = array();
-
-
 	// Primero de todo obtengo idTienda.
 	$DatosProducto['idTienda'] = $claseArticulos->GetIdTienda();
-	foreach ($keys_array as $key){
+	foreach ($Post as $key){
 		switch ($key) {
+			case 'articulo_name':
+				if (trim($array['articulo_name']) === ''){
+					// Viene vacio, por lo que no continuamos.
+					$advertencia = array ( 'tipo'=>'danger',
+								'mensaje' =>'El campo nombre producto no puede estar vacio.',
+								'dato' => 'Case de funciones.php en prepararandoPostProducto'
+								);
+					$DatosProducto['comprobaciones'][] = $advertencia;
+				} else {
+					$DatosProducto['articulo_name'] = $array['articulo_name'];
+
+				}
+				break;
 			case 'idIva':
 				// Obtenemos iva según id obtenido en el formulario.
 				$DatosProducto['iva']		= $claseArticulos->GetUnIva($array['idIva']);
@@ -426,32 +350,42 @@ function prepararYgrabar($array,$claseArticulos){
 				break;
 			 
 			case (substr($key, 0, 10)=== 'codBarras_'):
-				array_push($DatosProducto['codBarras'],$array[$key]);
-
+				if (trim($array[$key])!== ''){
+					// No enviamos texto blanco o vacio
+					array_push($DatosProducto['codBarras'],$array[$key]);
+				}
 				break;
 			
 			case (substr($key, 0,12)==='idProveedor_'):
 				// Montamos array de provedores y costes
-				// Este proceso le queda una parte que se debe hacer despues.
-				// ya que el array de proveedores tiene los siguiente elementos:
-				//		[idArticulo] =>  Id producto que si es nuevo no lo tenemos...
-                //	    [idProveedor] => Tenemos que extraerlo de Key
-                // 		[crefProveedor] => Que es la Key -> prov_cref_idProveedor
-                //      [coste] => Que es la valor key prov_coste_idProveedor
-                // 	--Los siguiente elementos no los tenemos.... 
-                //	    [fechaActualizacion] => Esta si no cambia no la cambiamos.
-                //	    [estado] => No lo cambiamos sino No cambio valor ningúno...
-                //      [nombrecomercial] => Hay que obtenerlo , NO HACE FALTA
-                // 		[razonsocial] => Hay que obtenerlo, NO HACE FALTA
-                // 		[principal] => Hay comprobar si el mismo, NO HACE FALTA
 				$resto = 12-strlen($key);
 				$idProveedor = substr($key,$resto);
-				$prov_coste = array(
-						'idArticulo' 	=> $idProveedor,
-						'crefProveedor'	=> $array['prov_cref_'.$idProveedor],
-						'coste'			=> $array['prov_coste_'.$idProveedor]
-					);
-				array_push($DatosProducto['proveedores_costes'],$prov_coste);
+				$p_r = trim($array['prov_cref_'.$idProveedor]);
+				$p_c = trim($array['prov_coste_'.$idProveedor]);
+				$monto = 'Si';
+				if ( $p_r === '' &&  $p_c == 0 ){
+					// No tiene datos comprobamos si esta marcado como principal
+					// sino no lo montamos.
+					if ($array['check_pro'] !== $idProveedor){
+						$monto = 'No';
+						// Monstamos advertencia
+						$advertencia = array ( 'tipo'=>'warning',
+								'mensaje' =>'El proveedor '.$idProveedor.' no lo añadimos ya que no tiene referencia , ni coste y no esta marcado como principal',
+								'dato' => $sqlArticulo
+								);
+						$DatosProducto['comprobaciones'][] = $advertencia;
+					}
+				}
+				if ($monto === 'Si') {
+					// Contiene datos no esta vacio.
+					$prov_coste = array(
+							'idArticulo' 	=> $array['id'],
+							'idProveedor' 	=> $idProveedor,
+							'crefProveedor'	=> $p_r,
+							'coste'			=> $p_c
+						);
+					array_push($DatosProducto['proveedores_costes'],$prov_coste);
+				}
 				break;
 			
 			case (substr($key, 0,11)==='idFamilias_')  :
@@ -475,20 +409,6 @@ function prepararYgrabar($array,$claseArticulos){
 		}
 	}
 	
-	// Ahora empiezo con las comprobaciones .
-	// Primero comprobamos si es nuevo o ya existia.
-	if ($array['id'] >0 ){
-		// ---------------            Se esta modificando. ------------------------------------//
-		// --- Comprobamos los codbarras y vemos cuales añadio,modifico o elimino. --//
-		$comprobaciones = $claseArticulos->ComprobarCodbarrasUnProducto($array['id'],$DatosProducto['codBarras']);
-		$DatosProducto['Sqls']['codbarras'] = $comprobaciones;
-	} else {
-		// ----------------------------  SE ESTA AÑADIENDO UN PRODUCTO NUEVO  ------------------------  //
-		$anhadir = $claseArticulos->AnhadirProductoNuevo($DatosProducto);
-		$DatosProducto['Sqls']['NuevoProducto']=$anhadir;
-	}
-	
-
 	return $DatosProducto;
 	
 }
@@ -781,7 +701,30 @@ function eliminarSeleccion(){
 
 }
 
-include_once 'funciones_familia.inc.php';
 
+function comprobarUltimaCompraProveedor($Pro_costes){
+	// @Objetivo 
+	// Comprobar a quien se compro por ultima vez un producto.
+	// @Parametros
+	// 		$Pro_costes -> Array con los proveedores y los costes que se compro es te producto.
+	$respuesta = array();
+	if (count($Pro_costes) > 0){
+		$id_proveedor_ultimo = 0;
+		$ultimo_coste = 0;
+		$fecha_ultima = "0000-00-00";
+		foreach ($Pro_costes as $key =>$proveedor){
+			if ($proveedor['fechaActualizacion']>$fecha_ultima){
+				$id_proveedor_ultimo = $proveedor['idProveedor'];
+				$ultimo_coste = $proveedor['coste'];
+				$fecha_ultima = $proveedor['fechaActualizacion'];
+				$item = $key;
+			}
+		}
+		$Pro_costes[$item]['ultimo_pro'] = 'Si';
+	}
+	$respuesta['proveedores'] = $Pro_costes;
+	$respuesta['coste_ultimo'] = $ultimo_coste;
+	return $respuesta;
+}
 
 ?>

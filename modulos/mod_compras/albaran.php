@@ -217,7 +217,8 @@
 				}
 			}
 		}
-	}		
+	}	
+	
 ?>
 </script>
 </head>
@@ -256,6 +257,9 @@
 				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
 				. '</div>';
 		}
+	}
+	if($idProveedor==0){
+			$idProveedor="";
 	}
 	
 	?>

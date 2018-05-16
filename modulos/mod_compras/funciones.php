@@ -980,9 +980,9 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 						if(isset($addNuevo['id'])){
 							$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
 							if (isset($historico['error'])){
-								$errores[3]=array ( 'tipo'=>'Danger!',
+								$errores[3]=array ( 'tipo'=>'Info!',
 								 'dato' => $historico['consulta'],
-								 'class'=>'alert alert-danger',
+								 'class'=>"alert alert-info",
 								 'mensaje' => 'Error en al modificar los coste de los productos !'
 								 );
 							}
