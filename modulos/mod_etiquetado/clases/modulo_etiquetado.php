@@ -186,6 +186,16 @@ class Modulo_etiquetado{
 				}
 		}
 	}
+	function modifEstadoReal($estado, $id){
+		$db=$this->db;
+		$sql='UPDATE modulo_etiquetado SET estado="'.$estado.'" where id='.$id;
+		 $smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
+	}
 	
 }
 

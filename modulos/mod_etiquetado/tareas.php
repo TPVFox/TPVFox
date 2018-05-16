@@ -30,10 +30,14 @@ switch ($pulsado) {
 	break;
 	case 'addEtiquetadoTemporal':
 		$idTemporal=0;
+		$idReal=0;
 		$existe=0;
 		$productos=array();
 		if(isset($_POST['productos'])){
 			$productos=$_POST['productos'];
+		}
+		if(isset($_POST['idReal'])){
+			$idReal=$_POST['idReal'];
 		}
 		$productos=json_encode($productos, true);
 		$respuesta['productos']=$productos;
@@ -55,6 +59,12 @@ switch ($pulsado) {
 				$idTemporal=$nuevo['id'];
 			}
 			
+		}
+		if($idReal>0){
+			$modReal=$CEtiquetado->modifEstadoReal("Sin guardar", $idReal);
+			if(isset($modReal['error'])){
+				$respuesta['consulta']=$nuevo['consulta'];
+			}
 		}
 		$respuesta['existe']=$existe;
 		$respuesta['idTemporal']=$idTemporal;
