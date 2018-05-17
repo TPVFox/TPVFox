@@ -6,15 +6,50 @@
 	</configuracion>
 	<cajas_input data-obj="id_input">
 		<caja_input>
+			<nombre id_input="id_producto">cajaIdProducto</nombre>
+			<teclas>
+				<action tecla="13">BuscarProducto</action>
+			</teclas>
+		
+		</caja_input>
+		<caja_input>
+			<nombre id_input="producto">cajaNombreProducto</nombre>
+			<teclas>
+				<action tecla="13">BuscarProducto</action>
+			</teclas>
+		
+		</caja_input>
+		<caja_input>
+			<nombre id_input="cajaBusquedaproductos">cajaBusquedaproductos</nombre>
+			<teclas>
+				<action tecla="13">BuscarProducto</action>
+			</teclas>
+		
+		</caja_input>
+		<caja_input>
+			<nombre id_input="producto">cajaNombreProducto</nombre>
+			<teclas>
+				<action tecla="13">BuscarProducto</action>
+			</teclas>
+		
+		</caja_input>
+		<caja_input>
+			<nombre id_input="cajaBusquedaproductos">cajaBusquedaproductos</nombre>
+			<teclas>
+				<action tecla="13">BuscarProducto</action>
+			</teclas>
+		
+		</caja_input>
+		<caja_input>
 			<nombre id_input="fechaCad">cajaFechaCad</nombre>
 			<teclas>
-
+				<action tecla="13">GuardarFechaCad</action>
 			</teclas>
 		</caja_input>
 		<caja_input>
 			<nombre id_input="numAlb">cajaNumAlb</nombre>
 			<teclas>
-
+				<action tecla="13">GuardarNumAlb</action>
 			</teclas>
 		</caja_input>
 		<caja_input>
@@ -23,6 +58,57 @@
 				<action tecla="13">RepetirProducto</action>
 			</teclas>
 		</caja_input>
+		<caja_input>
+			<nombre id_input="nombre">nombre</nombre>
+			<teclas>
+				<action tecla="13">modificarNombreProducto</action>
+				<action tecla="40">mover_up</action>
+				<action tecla="38">mover_down</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="prefijo">nombre_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>	
+		<caja_input>
+			<nombre id_input="peso">peso</nombre>
+			<teclas>
+				<action tecla="13">modificarPesoProducto</action>
+				<action tecla="40">mover_up</action>
+				<action tecla="38">mover_down</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="prefijo">peso_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>	
+		<caja_input>
+			<nombre id_input="numAlb">numAlb</nombre>
+			<teclas>
+				<action tecla="13">modificarNumeroAlbaranProducto</action>
+				<action tecla="40">mover_up</action>
+				<action tecla="38">mover_down</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="prefijo">numAlb_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>		
 	</cajas_input>
 
 </parametros>
