@@ -26,9 +26,13 @@ function MayorProductos() {
         }
         ajaxMayor(parametros, function(response){
             var resultado = JSON.parse(response);
-	window.open(resultado['fichero']);            
+	    if(resultado['html']){
            $('#tablamayor').html(resultado['html']);
            $('#tablamayor').show();
+           $('#imprimir'+parametros.idproducto).html(resultado['fichero']);
+            } else {
+           $('#tablamayor').html(resultado['error']);                
+            }
         })
     }
     
@@ -41,7 +45,7 @@ function ajaxMayor(parametros, callback) {
 
     $.ajax({
         data: parametros,
-        url: './tareas.php',
+        url: './tareasmayor.php',
         type: 'post',
         success: callback,
         error: function (request, textStatus, error) {

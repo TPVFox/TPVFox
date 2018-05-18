@@ -39,7 +39,7 @@ if (isset($_POST['Imprimir'])) {
         <div class="container">
             <div class="row">
                 <div class="col-md-12 text-center">
-                    <h2> Etiquetas: Imprimir Mayor del producto </h2>
+                    <h2> Productos: Imprimir Mayor del producto </h2>
                 </div>
                 <form action="javascript:MayorProductos();" method="post" name="formProducto" >
                     <div class="col-sm-2">
@@ -51,10 +51,9 @@ if (isset($_POST['Imprimir'])) {
                         Fecha hasta: 
                         <input type="text" class="calendar" id="inputFechahasta" />
                         <br><br>
-                        <input type="submit" name="Imprimir" value="Imprimir">
+                        <input type="submit" name="generar" value="Generar">
                     </div>
                 </form>
-
                 <div class="col-md-10">
                     <table class="table table-bordered table-hover">
                         <thead>
@@ -64,6 +63,7 @@ if (isset($_POST['Imprimir'])) {
                                 <th>P.V.P</th>
                                 <th>STOCK INICIAL</th>
                                 <th>ELIMINAR</th>
+                                <th>IMPRIMIR</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,6 +84,9 @@ if (isset($_POST['Imprimir'])) {
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </a>
                                     </td>
+                                    <td id="imprimir<?php echo $producto; ?>">
+                                        
+                                    </td>
                                 </tr>
                                 <?php
                             }
@@ -92,7 +95,7 @@ if (isset($_POST['Imprimir'])) {
                         </tbody>
                     </table>
                 </div>
-                <div id="tablamayor" class="row" style="display: none">
+                <div id="tablamayor" class="col-10" style="display: none">
                     
                 </div>
             </div>
