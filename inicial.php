@@ -41,3 +41,7 @@ define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 	//~ $TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
 	$thisTpv->comprobarEstado();
 
+	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('group_id'=>0,'login' =>'invitado'));
+	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
+
+	

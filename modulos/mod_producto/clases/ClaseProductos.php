@@ -461,7 +461,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 						.' `crefProveedor`, `coste`, `fechaActualizacion`, `estado`) VALUES ('
 						.$datos['idArticulo'].','.$datos['idProveedor'].',"'
 						.$datos['creProveedor'].'","'.$datos['coste'].'",NOW(),"'
-						.'Activo'.'")';
+						.'Tarifa'.'")';
 				$comprobaciones['nuevo'][]=$this->Consulta_insert_update($sql);
 			} else {
 				// Es modificado montamos sql update
@@ -481,6 +481,147 @@ class ClaseProductos extends ClaseTablaArticulos{
 	}
 	
 	
+	public function ComprobarNuevosDatosProducto($id,$DatosPostProducto){
+		// @ Objetivo
+		// Comprobar que datos son distintos y grabarlos.
+		// @ Parametros 
+		//  	id -> (int) id producto queremos modificar 
+		//		datosProveedores -> (array) de arrays que contienen los datos costes, referencia y id de producto.
+		// @ Devolvemos 
+		// 		comprobaciones -> (array) con los cambios realizados.
+		$comprobaciones = array();
+		parent::GetProducto($id);
+		// ---- Ahora montamos datos generales actuales  de producto ---- //
+		$datosgenerales_actual = array(
+								'idTienda' 				=> $this->GetIdTienda(),
+								'idArticulo' 			=> $id,
+								'articulo_name'			=> $this->articulo_name,
+								'iva'					=> $this->iva,
+								'estado'				=> $this->estado,
+								'ultimoCoste'			=> number_format($this->ultimoCoste,2),
+								'beneficio'				=> $this->beneficio
+								);
+		// Obtenemos id de proveedor principal
+		if (gettype($this->proveedor_principal) === 'array'){
+			$datosgenerales_actual['idProveedor'] = $this->proveedor_principal['idProveedor'];
+		}
+		// ---- Ahora montamos datos generales post					--- //
+		$datosgenerales_post = array(
+							'idTienda' 					=> $DatosPostProducto['idTienda'],
+							'idArticulo' 				=> $DatosPostProducto['idArticulo'],
+							'articulo_name'				=> $DatosPostProducto['articulo_name'],
+							'iva'						=> $DatosPostProducto['iva'],
+							'estado'					=> $DatosPostProducto['estado'],
+							'ultimoCoste'				=> $DatosPostProducto['ultimoCoste'],
+							'beneficio'					=> $DatosPostProducto['beneficio']
+							);
+		
+		// Obtenemos id de proveedor principal
+		if (gettype($DatosPostProducto['proveedor_principal']) === 'array'){
+			$datosgenerales_post['idProveedor'] = $DatosPostProducto['proveedor_principal']['idProveedor'];
+		}
+		// Ahora comparamos si no es igual guardamos cambios, sino no hacemos nada.
+		if (serialize($datosgenerales_actual) !== serialize($datosgenerales_post) ){
+			// Montamos sql para guardar...
+			$d =$datosgenerales_post;
+			$sql =	'UPDATE `articulos` SET `iva`="'.$d['iva'].'",`idProveedor`="'
+					.$d['idProveedor'].'",`articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'.$d['estado'].'",`fecha_modificado`=NOW(),`ultimoCoste`="'.$d['ultimoCoste'].'" WHERE idArticulo = '.$d['idArticulo'];
+			$comprobaciones['datos_generales']=$this->Consulta_insert_update($sql);
+		}
+		return $comprobaciones;
+		
+	}
+	
+	
+	public function ComprobarNuevosPreciosProducto($id,$DatosPostProducto,$idUsuario){
+		// @ Objetivo
+		// Comprobar si los precios cambiaron y grabarlos.
+		// @ Parametros 
+		//  	id -> (int) id producto queremos modificar 
+		//		datosProveedores -> (array) de arrays que contienen los datos costes, referencia y id de producto.
+		//
+		// @ Devolvemos 
+		// 		comprobaciones -> (array) con los cambios realizados y con elemento mensajes con array aunque este vacio.
+		$comprobaciones = array();
+		$comprobaciones['mensajes'] = [];
+		$estado = '';
+		parent::GetProducto($id); // Obtenemos los datos de producto actual.
+		$precio_recalculado = number_format($this->precioCivaRecalculado(),2);
+				
+		if ($this->idArticulo >0 ){
+			$precioCIva_post = number_format($DatosPostProducto['pvpCiva'],2);
+			$precioSIva_post = number_format($DatosPostProducto['pvpSiva'],2);
+			$c_precio = 'No';
+			if ( $precioSIva_post !== number_format($this->pvpSiva,2)){
+				$c_precio = 'Si';
+			}
+			if ( $precioCIva_post !== number_format($this->pvpCiva,2)){
+				$c_precio = 'Si';
+			}
+			if ($c_precio === 'Si' ){
+				// ---  Cambiamos el precio en la tabla articulosPrecios    ---- //
+				$sql= 'UPDATE `articulosPrecios` SET `pvpCiva`="'
+					.$precioCIva_post.'",`pvpSiva`="'.$precioSIva_post.'" WHERE idArticulo='
+					.$id.' AND  idTienda='.$this->idTienda;
+				$consulta = $this->Consulta_insert_update($sql);
+				if ($consulta['NAfectados'] === 1){
+					// Cambio un registro
+					$success = array ( 'tipo'=>'success',
+							 'mensaje' =>'Se ha grabado correctamente los nuevos precios.',
+							 'dato' => ' Cantidad de registros modificados '.$consulta['NAfectados']
+							);
+					$comprobaciones['mensajes'][] = $success;
+				} else {
+					$success = array ( 'tipo'=>'danger',
+							 'mensaje' =>'Hubo un error en la consulta '.$slq,
+							 'dato' => $consulta
+							);
+					$comprobaciones['mensajes'][] = $success;
+					
+				}
+				// ---  Añadimos historico de precios en la tabla historico_precios    ---- //
+				$estado = 'Recomendado';
+				if ($precio_recalculado !== $precioCIva_post){
+					// El precio nuevo fue metido a mano, no es el recalculado.
+					$estado = 'A mano';
+				} 
+				// Montamos los datos que necesita el metodo.
+				$datos = array();
+				$datos['antes'] = $this->pvpCiva;
+				$datos['nuevo'] = $DatosPostProducto['pvpCiva'];
+				$datos['idArticulo' ] = $id;
+				$datos['estado'] = $estado;
+				$datos['dedonde'] = 'producto'; // De que vista
+				$datos['tipo'] = 'Productos'; // Que modulo;
+				$datos['numDoc'] = 0; // No hay numero de documento, podría ser el idArticulo pero es absurdo ponerlo.
+				$consulta = $this->addHistorico($datos);
+				if ($consulta['NAfectados'] === 1){
+					// Cambio un registro
+					$success = array ( 'tipo'=>'success',
+							 'mensaje' =>'Se ha grabado correctamente el historico de precios.',
+							 'dato' => ' Cantidad de registros añadidos '.$consulta['NAfectados']
+							);
+					$comprobaciones['mensajes'][] = $success;
+				} else {
+					$success = array ( 'tipo'=>'danger',
+							 'mensaje' =>'Hubo un error en la consulta '.$slq,
+							 'dato' => $consulta
+							);
+					$comprobaciones['mensajes'][] = $success;
+					
+				}
+			}
+		}
+		
+		$comprobaciones['pvpCiva_antes'] =$this->pvpCiva;
+		$comprobaciones['pvpCiva_nuevo'] =$precioCIva_post;
+		$comprobaciones['pvpCiva_recalculado'] =$precio_recalculado;		
+		$comprobaciones['estado'] =$estado;		
+		$comprobaciones['Sql_articulosPrecios'] =$sql;		
+		$comprobaciones['Sql_'] =$estado;		
+
+		return $comprobaciones;
+	}
 	
 	public function ObtenerCostesDeUnProveedor($id,$idProveedor){
 		// @ Objectivo: 
@@ -558,6 +699,49 @@ class ClaseProductos extends ClaseTablaArticulos{
 	}
 	
 	
+	
+	
+	public function addHistorico($datos){
+		// @ Objetivo 
+		// 	Añadir la tabla de historico_precios que cambio precio.
+		// @ Parametros 
+		//   $datos -> array() con :
+		// 					idArticulo-> (int) 
+		//					Antes-> (float) precioCiva anterior.
+		//					Nuevo-> (float) precioCiva nuevo.
+		// 					NumDoc-> (int)  numero de documento si vienes de un albaran compra
+		// 					dedonde-> (string) Indica modulo (vista) que ejecuta.
+		// 					idUsuario-> (int) id del usuario que lo genera.
+		//					estado->  (string) Estado que puede ser , Recalculado o A mano.
+		// 					tipo ->  (string) modulo que lo ejecuta.			
+		$campos = 'idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo, estado';
+		$sql	='INSERT INTO historico_precios ('.$campos.') VALUES ('.$datos['idArticulo']
+				.' , "'.$datos['antes'].'" , "'.$datos['nuevo']
+				.'", NOW(), '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '
+				."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".')';
+
+		$consulta = $this->Consulta_insert_update($sql);
+		
+		return $consulta;
+	}
+	
+	public function precioCivaRecalculado(){
+		// @ Objetivo
+		//  Obtener el precio con iva que recomendamos vender con el beneficio.
+		// @ Parametros
+		// 	De momento solo obtenemos el coste, iva , beneficio de objeto.
+		$coste = $this->ultimoCoste;
+		if ( $this->iva >0 ){
+			$costeCiva = $coste + ($coste * $this->iva/100);
+		}
+		$precio_recalculado = $costeCiva;
+		if ($this->beneficio > 0){
+			$precio_recalculado = $precio_recalculado + ($precio_recalculado * $this->beneficio/100);
+		} 
+		
+		return $precio_recalculado;
+		
+	}
 	// Fin de clase.
 }
 

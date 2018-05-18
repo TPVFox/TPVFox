@@ -15,18 +15,58 @@ if (isset($_POST['id'])){
 $DatosPostProducto= prepararandoPostProducto($_POST,$CTArticulos);
 // Ahora vemos si hay advertencias de campos
 if (isset($DatosPostProducto['comprobaciones'])){
-	$preparados['comprobaciones'][] = $DatosPostProducto['comprobaciones'];
+	foreach ($DatosPostProducto['comprobaciones'] as $key =>$comprobacion){
+		$preparados['comprobaciones'][] = $comprobacion;
+		if ($comprobacion['tipo'] === 'danger'){
+			echo '<pre>';
+				print_r($comprobacion);
+			echo '</pre>';
+			exit();
+		} 
+	}
+	
 }
 //~ echo '<pre>';
-//~ print_r($_POST);
+//~ print_r($DatosPostProducto);
 //~ echo '</pre>';
 
-// --- Ahora comprobamos y grabamos ---- //
+//~ // --- Ahora comprobamos y grabamos ---- //
 
 //  -----------------------------------     NUEVO  O  MODIFICADO 		------------------------------------- //
 if ($id >0 ){
 		// ------------------------            MODIFICADO 			-------------------------------//
-		// --- 	Comprobamos  y grabamos los codbarras .	---//
+		// ---			Comprobamos  y grabamos datos generales . 			--- //
+		$comprobaciones = $CTArticulos->ComprobarNuevosDatosProducto($id,$DatosPostProducto);
+		
+		foreach ($comprobaciones as $comprobacion){
+			if (isset($comprobacion['NAfectados'])){
+				// Fue correcto el grabar.
+				$success = array ( 'tipo'=>'success',
+							 'mensaje' =>'Se ha grabado correctamente los cambios generales.',
+							 'dato' => ' No controlo que cambios realizaron por separador en ComprobarNuevosDatosProducto'
+							);
+				$preparados['comprobaciones'][] = $success;
+				//~ echo '<pre>';
+				//~ print_r($preparados);
+				//~ echo '</pre>';
+			
+			}
+			if (isset($comprobacion['error'])){
+				echo '<pre>';
+				print_r($comprobacion);
+				echo '</pre>';
+				exit();
+			}
+		}
+		// ---			Comprobamos  y  grabamos los precios venta .		---//
+		
+		
+		$comprobaciones = $CTArticulos->ComprobarNuevosPreciosProducto($id,$DatosPostProducto,$Usuario['id']);
+		foreach ($comprobaciones['mensajes'] as $mensaje){
+			$preparados['comprobaciones'][]= $mensaje;
+		}
+				
+		// ---			Comprobamos  y grabamos los codbarras .				---//
 		$comprobaciones = $CTArticulos->ComprobarCodbarrasUnProducto($id,$DatosPostProducto['codBarras']);
 		$preparados['codbarras'] = $comprobaciones;
 		// ---	Comprobamos y grabamos los proveedores . ---//
@@ -68,7 +108,6 @@ if ($id >0 ){
 			}
 			
 		}
-		// ---  Comprobamos  y grabamos datos generales . --- //
 		
 		
 		//~ echo '<pre>';

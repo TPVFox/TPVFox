@@ -48,7 +48,7 @@
 			$titulo .= "Crear";
 		}
 		if ($_POST){
-			include_once ('./tareas/reciboPost.php');
+			include_once ('./tareas/reciboPostProducto.php');
 		}
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->GetProducto($id);
@@ -70,9 +70,6 @@
 				$CTArticulos->SetComprobaciones($comprobacion);
 			}
 		}
-		//~ echo '<pre>';
-		//~ print_r($preparados);
-		//~ echo '</pre>';
 		
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		// Obtenemos referencias de tiendas :
@@ -91,7 +88,7 @@
 		$proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
 		
 		// Ahora comprobamos si el coste ultimo es correcto.
-		if ($proveedores_costes['coste_ultimo'] != $Producto['ultimoCoste']){
+		if (number_format($proveedores_costes['coste_ultimo'],2) != number_format($Producto['ultimoCoste'],2)){
 			$success = array ( 'tipo'=>'warning',
 								 'mensaje' =>'El ultimo coste, se acaba de actualizar, coste_actual: '
 								 .$Producto['ultimoCoste']. ' y coste_ultimo real:'.$proveedores_costes['coste_ultimo'],

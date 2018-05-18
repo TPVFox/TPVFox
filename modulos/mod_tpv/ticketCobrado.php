@@ -94,8 +94,9 @@
 				echo "datos_producto['articulo_name'] 	=".'"'.$product['cdetalle'].'";';
 				echo "datos_producto['iva']	='".$product['iva']."';";
 				echo "datos_producto['pvpCiva']	=".$product['precioCiva'].';';
+				echo "datos_producto['unidad'] = '".$product['nunidades']."';";
 			// Ahora añadimos datos_productos a productos... creando objeto.
-			echo 'productos.push(new ObjProducto(datos_producto,'.$product['nunidades'].'));';
+			echo 'productos.push(new ObjProducto(datos_producto));';
 			echo "productos[".$i."].estado	='".$product['estadoLinea']."';";
 
 			$i++;
@@ -128,9 +129,9 @@
 				<ul class="nav nav-pills nav-stacked"> 
 				 <?php
 				 if ($permitir_envio === 'Si'){?>
-				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb();" >Descontar Stock en Web</button
+				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb();" >Descontar Stock en Web</button>
 				 <?php } ?>
-				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
+				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');">Imprimir</a></li>
 				</ul>
 				</div>	
 			</nav>

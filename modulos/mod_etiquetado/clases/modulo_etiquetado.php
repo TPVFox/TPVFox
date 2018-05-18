@@ -24,28 +24,48 @@ class Modulo_etiquetado{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
+	
 	public function addTemporal($datos, $productos){
+		//@Objetivo:
+		//Crear un albarán temporal
+		//@Retorna:
+		//O un error de sql o el id del temporal que se caba de crear
 		$respuesta=array();
+		$db = $this->db;
+		if($datos['NumAlb']>0){
+			$numAlb=$datos['NumAlb'];
+		}else{
+			$numAlb=0;
+		}
 		$sql='INSERT INTO `modulo_etiquetado_temporal`(`num_lote`, `tipo`,
 		 `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
 		 `productos`, `idUsuario`) VALUES('.$datos['idReal'].', '.$datos['tipo'].', "'.$datos['fechaEnv'].'",
-		 "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$datos['NumAlb'].', "'.$datos['estado'].'"
-		 ,"'.$productos.'", '.$datos['idUsuario'].')';
+		 "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$numAlb.', "'.$datos['estado'].'"
+		 ,'."'".$productos."'".', '.$datos['idUsuario'].')';
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
 		}else{
-			$respuesta['id']=$smt->insert_id;
+			$respuesta['id']=$db->insert_id;
 		}
 		return $respuesta;
 	}
 	public function modificarTemporal($datos, $productos, $idTemporal){
+			//@Objetivo:
+			//Modificar el albarán temporal
+			//@Retorna:
+			//error de sql en caso de que lo tenga
+		if($datos['NumAlb']>0){
+			$numAlb=$datos['NumAlb'];
+		}else{
+			$numAlb=0;
+		}
 		$respuesta=array();
 		$sql='UPDATE `modulo_etiquetado_temporal` SET 
 		`num_lote`='.$datos['idReal'].',`tipo`='.$datos['tipo'].',`fecha_env`="'.$datos['fechaEnv'].'"
-		,`fecha_cad`="'.$datos['fechaCad'].'",`idArticulo`='.$datos['idProducto'].',`numAlb`='.$datos['NumAlb'].'
-		,`estado`="'.$datos['estado'].'",`productos`="'.$productos.'"
+		,`fecha_cad`="'.$datos['fechaCad'].'",`idArticulo`='.$datos['idProducto'].',`numAlb`='.$numAlb.'
+		,`estado`="'.$datos['estado'].'",`productos`='."'".$productos."'".'
 		,`idUsuario`='.$datos['idUsuario'].' WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
@@ -53,6 +73,134 @@ class Modulo_etiquetado{
 				$respuesta['consulta']=$smt['consulta'];
 		}
 		return $respuesta;
+	}
+	
+	public function todasEtiquetasLimite($limite){
+		//@OBjetivo:
+		//LIstar todas las etiquetas guardadas 
+		$db=$this->db;
+		$sql='SELECT a.num_lote, a.id , a.fecha_env, a.fecha_cad, a.estado, b.articulo_name , a.productos from modulo_etiquetado as a
+		inner join articulos as b on a.idArticulo=b.idArticulo  '.$limite;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$etiquetasPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($etiquetasPrincipal,$result);
+			}
+			return $etiquetasPrincipal;
+		}
+	}
+	public function todosTemporal(){
+		$db=$this->db;
+		$sql='select a.id, a.num_lote, a.fecha_env, b.articulo_name from 
+		modulo_etiquetado_temporal as a inner join articulos as b on 
+		a.idArticulo=b.idArticulo  ';
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$etiquetasPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				array_push($etiquetasPrincipal,$result);
+			}
+			return $etiquetasPrincipal;
+		}
+	}
+	
+	public function buscarTemporal($idTemporal){
+		$db=$this->db;
+		$sql='select a.*, b.articulo_name FROM modulo_etiquetado_temporal
+		 as a inner join articulos as b on a.idArticulo=b.idArticulo
+		  where a.id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			if ($result = $smt->fetch_assoc () ){
+					$lote=$result;
+					return $lote;
+				}
+		}
+		
+	}
+	public function eliminarTemporal($idTemporal){
+		$db=$this->db;
+		$sql='DELETE FROM `modulo_etiquetado_temporal` WHERE id='.$idTemporal;
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
+	}
+	
+	public function addLoteGuardado($datos){
+		$db=$this->db;
+		if($datos['idReal']>0){
+			$sql='UPDATE `modulo_etiquetado` SET 
+			`tipo`="'.$datos['tipo'].'",`fecha_env`="'.$datos['fecha_env'].'",`fecha_cad`="'.$datos['fecha_cad'].'",
+			`idArticulo`='.$datos['idArticulo'].',`numAlb`='.$datos['numAlb'].',`estado`="'.$datos['estado'].'",
+			`productos`='."'".$datos['productos']."'".',`idUsuario`='.$datos['idUsuario'].' where id='.$datos['idReal'];
+		}else{
+			$sql='INSERT INTO `modulo_etiquetado`(`tipo`, 
+			`fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
+			`productos`, `idUsuario`) VALUES ("'.$datos['tipo'].'", "'.$datos['fecha_env'].'",
+			"'.$datos['fecha_cad'].'", '.$datos['idArticulo'].', '.$datos['numAlb'].',
+			"'.$datos['estado'].'", '."'".$datos['productos']."'".', '.$datos['idUsuario'].')';
+		}
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$id=$db->insert_id;
+			if($datos['idReal']==0){
+				$sql='UPDATE modulo_etiquetado SET num_lote='.$id.' WHERE id='.$id;
+				$smt=$this->consulta($sql);
+				if (gettype($smt)==='array'){
+						$respuesta['error']=$smt['error'];
+						$respuesta['consulta']=$smt['consulta'];
+						return $respuesta;
+				}
+			}
+		}
+	}
+	
+	function datosLote($idLote){
+		$db=$this->db;
+		$sql='select a.*, b.articulo_name FROM modulo_etiquetado
+		 as a inner join articulos as b on a.idArticulo=b.idArticulo
+		  where a.id='.$idLote;
+		  $smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			if ($result = $smt->fetch_assoc () ){
+					$lote=$result;
+					return $lote;
+				}
+		}
+	}
+	function modifEstadoReal($estado, $id){
+		$db=$this->db;
+		$sql='UPDATE modulo_etiquetado SET estado="'.$estado.'" where id='.$id;
+		 $smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}
 	}
 	
 }

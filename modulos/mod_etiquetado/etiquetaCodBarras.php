@@ -4,8 +4,9 @@
 		<?php
         include './../../head.php';
         include ("./../../controllers/Controladores.php");
-        //~ include ("./../mod_conexion/conexionBaseDatos.php");
         include '../../clases/articulos.php';
+        include 'clases/modulo_etiquetado.php';
+        include 'funciones.php';
 		
 		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
@@ -13,25 +14,196 @@
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
 		$Carticulo=new Articulos($BDTpv);
+		$Cetiqueta=new Modulo_etiquetado($BDTpv);
         $Tienda = $_SESSION['tiendaTpv'];
 		$Usuario = $_SESSION['usuarioTpv'];
         $titulo="Crear Etiquetas de Código Barras";
         $fechaEnv=date('Y-m-d H:i:s');
-        $fechaCad=date('Y-m-d');
+        $nuevafecha = strtotime ( '+7 day' , strtotime ( $fechaEnv ) ) ;
+		$fechaCad = date ( 'Y-m-d' , $nuevafecha );
         $numAlb="";
         $nomPro="";
         $idReal=0;
         $unidades="";
         $estado="Activo";
         $idTemporal=0;
-		$idProducto=0;
-        if (isset($_GET['idProducto'])){
-			$idProducto=$_GET['idProducto'];
-			$datosProducto=$Carticulo->datosPrincipalesArticulo($idProducto);
-			$nomPro=$datosProducto['articulo_name'];
-		}
+		$idProducto="";
+		$tipo=0;
+		$productos=array();
+		$errores=array();
 		$parametros = $ClasesParametros->getRoot();	
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		
+		
+		
+		if(isset($_GET['id'])){
+			$idReal=$_GET['id'];
+			$etiquetaReal=$Cetiqueta->datosLote($idReal);
+			if(isset($etiquetaReal['error'])){
+				//cargar los errores
+			}else{
+				$fechaEnv=$etiquetaReal['fecha_env'];
+				$fechaCad=$etiquetaReal['fecha_cad'];
+				$numAlb=$etiquetaReal['numAlb'];
+				$idProducto=$etiquetaReal['idArticulo'];
+				$nomPro=$etiquetaReal['articulo_name'];
+				$estado=$etiquetaReal['estado'];
+				$tipo=$etiquetaReal['tipo'];
+				$productos=$etiquetaReal['productos'];
+				
+				$productos=json_decode($productos, true);
+				
+				if(isset($etiquetaReal['num_lote'])){
+					$idReal=$etiquetaReal['num_lote'];
+				}
+				switch($tipo){
+					case '1':
+						$TipoTexto="Por unidad";
+					break;
+					case '2':
+						$TipoTexto="Por peso";
+					break;
+					default:
+						$TipoTexto="Sin seleccionar";
+					break;
+				}
+				
+			}
+		}
+		if(isset($_GET['tActual'])){
+			$idTemporal=$_GET['tActual'];
+			$etiquetaTemporal=$Cetiqueta->buscarTemporal($idTemporal);
+			if(isset($etiquetaTemporal['error'])){
+				$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $etiquetaTemporal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+			}else{
+				$fechaEnv=$etiquetaTemporal['fecha_env'];
+				$fechaCad=$etiquetaTemporal['fecha_cad'];
+				$numAlb=$etiquetaTemporal['numAlb'];
+				$idProducto=$etiquetaTemporal['idArticulo'];
+				$nomPro=$etiquetaTemporal['articulo_name'];
+				$estado=$etiquetaTemporal['estado'];
+				$tipo=$etiquetaTemporal['tipo'];
+				$productos=$etiquetaTemporal['productos'];
+				$productos=json_decode($productos, true);
+				if(isset($etiquetaTemporal['num_lote'])){
+					$idReal=$etiquetaTemporal['num_lote'];
+				}
+			}
+		}
+		if(isset($_POST['Guardar'])){
+			if($idTemporal>0){
+				$datosTemporal=$Cetiqueta->buscarTemporal($idTemporal);
+				$productos=$datosTemporal['productos'];
+				$productos=json_decode($productos, true);
+				//~ echo '<pre>';
+				//~ print_r($productos);
+				//~ echo '</pre>';
+				if(isset($_POST['fechaCad'])){
+					$fechaCad=$_POST['fechaCad'];
+				}
+				if(isset($productos)){
+					
+					$i=0;
+					foreach($productos as $producto){
+						if($producto['estado']=='Eliminado'){
+							unset($productos[$i]);
+							$i++;
+						}
+					}
+					
+					$cantidadProd=count($productos);
+					
+					if($cantidadProd>0){
+						$productos=json_encode($productos);
+					}else{
+						$errores[0]=array ( 'tipo'=>'Info!',
+								 'dato' =>'NO puedes eliminar todos los elementos',
+								 'class'=>'alert alert-info',
+								 'mensaje' => ''
+								 );
+					}
+					
+					
+				}
+				if(isset($datosTemporal['tipo'])){
+					$tipo=$datosTemporal['tipo'];
+				}
+				
+				
+				$datos=array(
+					'idReal'	=>$idReal,
+					'tipo'		=>$tipo,
+					'fecha_env'	=>$fechaEnv,
+					'fecha_cad'	=>$fechaCad,
+					'idArticulo'=>$idProducto,
+					'numAlb'	=>$numAlb,
+					'estado'	=>"Guardado",
+					'productos'	=>$productos,
+					'idUsuario'	=>$Usuario['id']
+				);
+				if(count($errores)==0){
+					$guardar=$Cetiqueta->addLoteGuardado($datos);
+					if(isset($guardar['error'])){
+						$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $guardar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+					}else{
+						$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
+						if(isset($eliminar['error'])){
+							$errores[2]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+						}else{
+							header('Location: ListadoEtiquetas.php');
+						}
+					}
+				}
+			}else{
+				$errores[2]=array ( 'tipo'=>'Info!',
+								 'dato' => '',
+								 'class'=>'alert alert-info',
+								 'mensaje' => 'No se puede guardar ya que no tiene ninguna modificación!'
+								 );
+				//Mostrar advertencia de que no se puede guardar un lote que ya está guardado
+				//controlar cuando no hay temporal y se guarda solo la fecha o numalb
+			}
+		}
+		if(isset($_POST['Cancelar'])){
+			if($idTemporal>0){
+				$eliminar=$Cetiqueta->eliminarTemporal($idTemporal);
+				if(isset($eliminar['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $eliminar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}else{
+					header('Location: ListadoEtiquetas.php');
+				}
+			}else{
+					$errores[2]=array ( 'tipo'=>'Info!',
+								 'dato' => '',
+								 'class'=>'alert alert-info',
+								 'mensaje' => 'No puedes cancelar un lote que ya está guardado!'
+								 );
+			}
+			
+		}
+				foreach($productos as $producto){
+					$nFila=1;
+					$producto['Nfila']=$nFila;
+					$nFila++;
+				}
+				//~ echo count($productos);
+				
         ?>
         <script type="text/javascript">
 			var cabecera = [];
@@ -42,10 +214,12 @@
 				cabecera['idReal'] = <?php echo $idReal ;?>;
 				cabecera['fechaEnv'] = '<?php echo $fechaEnv ;?>';
 				cabecera['fechaCad'] = '<?php echo $fechaCad ;?>';
-				cabecera['idProducto'] = <?php echo $idProducto ;?>;
+				cabecera['idProducto'] = '<?php echo $idProducto ;?>';
+				cabecera['tipo'] = '<?php echo $tipo ;?>';
+				cabecera['numAlb'] = '<?php echo $numAlb ;?>';
 			var productos = [];
 			<?php 
-	if (isset($etiqueta)| isset($etiquetaTemporal)){ 
+	if (isset($etiquetaReal)| isset($etiquetaTemporal)){ 
 	$i= 0;
 		if (isset($productos)){
 			foreach($productos as $product){
@@ -72,6 +246,14 @@
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 	<?php     
         include './../../header.php';
+        if (isset($errores)){
+		foreach($errores as $error){
+				echo '<div class="'.$error['class'].'">'
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+				. '</div>';
+		}
+	}
+	
         ?>
         <script type="text/javascript">
 			<?php echo $VarJS;?>
@@ -86,7 +268,7 @@
 			<div class="col-md-12">
 				<div class="col-md-12 ">
 					<div class="col-md-8">
-						<a href="./../mod_producto/ListaProductos.php">Volver Atrás</a>
+						<a href="ListadoEtiquetas.php">Volver Atrás</a>
 						<input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
 					</div>
 					<div class="col-md-4">
@@ -105,11 +287,19 @@
 					</div>
 					<div class="col-md-2">
 						<label>Tipo</label>
+						<?php 
+						if($estado=='Guardado'){
+							?>
+							<input type="text" name="tipo" id="tipo" value="<?php echo $TipoTexto;?>" readonly>
+							<?php
+						}else{
+						?>
 					<select name="tipo" id="tipo" onchange="modificarTipo(value);">
 						<option value='0'>Selecciona</option>
 						<option value='1'>Por unidad</option>
 						<option value='2'>Por peso</option>
 					</select>
+					<?php }?>
 					</div>
 					<div class="col-md-2">
 						<label>Num Albarán</label>
@@ -117,9 +307,11 @@
 					</div>
 				</div>
 				<div class="col-md-12">
-					<div class="col-md-5">
+					<div class="col-md-6">
 						<label>Producto:</label>
-						<input type="text" id="producto" name="producto" value="<?php echo $nomPro;?>" size="50" readonly>
+						<input type="text" id="id_producto" name="id_producto" data-obj= "cajaIdProducto" value="<?php echo $idProducto;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+						<input type="text" id="producto" name="producto" value="<?php echo $nomPro;?>" size="50" data-obj="cajaNombreProducto" onkeydown="controlEventos(event)" placeholder='Nombre del producto'>
+						<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProducto()"></a>
 					</div>
 					<div class="col-md-2">
 						<label>Unidades</label>
@@ -131,7 +323,7 @@
 						<thead>
 							<tr>
 								<th>L</th>
-								<th>Nombre del producto</th>
+								<th class="col-sm-4">Nombre del producto</th>
 								<th id="tipoTabla">Tipo</th>
 								<th>Precio</th>
 								<th>Fecha</th>
@@ -140,13 +332,54 @@
 							</tr>
 						</thead>
 						<tbody>
-						
+						<?php 
+						if(count($productos)>0){
+							$html=lineasProductos($productos);
+							echo $html;
+						}
+						?>
 						</tbody>
 					</table>
 				</div>
 			</div>
 		</form>
 		</div>
+		<?php // Incluimos paginas modales
+echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+// hacemos comprobaciones de estilos 
+?>
+<script type="text/javascript">
+<?php 
+if($idProducto>0){
+	?>
+		$('#producto').prop('disabled', true);
+		$('#id_producto').prop('disabled', true);
+		$("#buscar").css("display", "none");
+	<?php
+}
+if($estado=="Guardado"){
+	?>
+	$('#fechaCad').prop('disabled', true);
+	<?php
+	if($tipo==1){
+		?>
+		$('#tipoTabla').html("Unidad");
+			<?php
+	}
+	if($tipo==2){
+		?>
+		$('#tipoTabla').html("Peso");
+			<?php
+	}
+}
+if($tipo>0){
+	?>
+	$("#tipo option[value="+<?php echo $tipo;?> +"]").attr("selected",true);
+	<?php
+}
+?>
+</script>
 	</body>
 </html>
       

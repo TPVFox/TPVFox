@@ -113,7 +113,7 @@ class ClaseTablaArticulos{
 					}
 				}
 		} else {
-			// Se monta tanto nuevo , como si con id.
+			// Se monta tanto id sea 0 como si no existe id.
 			$this->MontarProducto();
 		}
 		return $this->ArrayPropiedades();

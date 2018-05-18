@@ -101,7 +101,8 @@ switch ($pulsado) {
 		include ('../../clases/imprimir.php');
 		include('../../controllers/planImprimirRe.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-		echo json_encode($ficheroCompleto);
+		$respuesta['fichero']=$ficheroCompleto;
+		//~ echo json_encode($ficheroCompleto);
 	break;
 	
 	case 'ComprobarSiExisteCodbarras':
