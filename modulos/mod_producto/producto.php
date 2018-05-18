@@ -20,17 +20,7 @@
 		
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
-		// Cargamos el plugin que nos interesa.
-		if (count($CTArticulos->GetPlugins())>0){
-			foreach ($CTArticulos->GetPlugins() as $plugin){
-				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVirtuemart'){
-					$ObjVirtuemart = $plugin['clase'];
-					if (isset($_GET['id'])){
-						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($_GET['id']);
-					}
-				}
-			}
-		}
+		
 		$titulo = 'Productos:';
 		
 		$id = 0 ; // Por  defecto el id a buscar es 0
@@ -98,6 +88,30 @@
 			// Ahora cambiamos el coste_ultimo
 			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
 		}
+		// Cargamos el plugin que nos interesa.
+		//~ echo '<pre>';
+		//~ print_r($Producto);
+		//~ echo '</pre>';
+		if (count($CTArticulos->GetPlugins())>0){
+			foreach ($CTArticulos->GetPlugins() as $plugin){
+				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVirtuemart'){
+					// Ahora obtenemos el idVirtuemart si lo tiene el producto.
+					$idVirtuemart= 0;
+					if( isset($Producto['ref_tiendas'])){
+						foreach ($Producto['ref_tiendas'] as $ref){
+							if ($ref['idVirtuemart'] >0){
+								$idVirtuemart = $ref['idVirtuemart'];
+							}
+						}
+					}
+					$ObjVirtuemart = $plugin['clase'];
+					if ($idVirtuemart>0 ){
+						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($idVirtuemart);
+					}
+				}
+			}
+		}
+		
 		// ==========		Montamos  html que mostramos. 			============ //
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
 		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
