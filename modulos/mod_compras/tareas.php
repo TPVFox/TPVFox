@@ -117,8 +117,8 @@ switch ($pulsado) {
 			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
 			$cabecera=$htmlImprimir['cabecera'];
 			$html=$htmlImprimir['html'];
-			//~ require_once('../../lib/tcpdf/tcpdf.php');
-			//~ include ('../../clases/imprimir.php');
+			require_once('../../lib/tcpdf/tcpdf.php');
+			include ('../../clases/imprimir.php');
 			include('../../controllers/planImprimir.php');
 			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 			$respuesta=$ficheroCompleto;
