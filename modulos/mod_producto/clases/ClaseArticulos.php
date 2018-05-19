@@ -163,8 +163,8 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ' FROM albclit as alb '
                 . ' JOIN albclilinea as linalb ON (alb.id=linalb.idalbcli) '
                 . ' JOIN clientes as cli ON (alb.idCliente = cli.idClientes) '
-                . ' WHERE alb.Fecha >= "'.$parametros['fechadesde'].'"'
-                . ' AND alb.Fecha <= "'.$parametros['fechahasta'].'"'
+                . ' WHERE DATE(alb.Fecha) >= "'.$parametros['fechadesde'].'"'
+                . ' AND DATE(alb.Fecha) <= "'.$parametros['fechahasta'].'"'
                 . ' AND linalb.idArticulo = '.$parametros['idArticulo'];
         
         $sqlprepare['sqlTiccli'] = 'SELECT tic.fecha'
@@ -178,8 +178,8 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ' FROM ticketst as tic '
                 . ' JOIN ticketslinea as lintic ON (tic.id=lintic.idticketst) '
                 . ' JOIN clientes as cli ON (tic.idCliente = cli.idClientes) '
-                . ' WHERE tic.Fecha >= "'.$parametros['fechadesde'].'"'
-                . ' AND tic.Fecha <= "'.$parametros['fechahasta'].'"'
+                . ' WHERE DATE(tic.Fecha) >= "'.$parametros['fechadesde'].'"'
+                . ' AND DATE(tic.Fecha) <= "'.$parametros['fechahasta'].'"'
                 . ' AND lintic.idArticulo = '.$parametros['idArticulo'];
 
         $sqlprepare['sqlAlbpro'] = 'SELECT alb.fecha'
@@ -193,8 +193,8 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ' FROM albprot as alb '
                 . ' JOIN albprolinea as linalb ON (alb.id=linalb.idalbpro) '
                 . ' JOIN proveedores as pro ON (alb.idProveedor = pro.idProveedor) '
-                . ' WHERE alb.Fecha >= "'.$parametros['fechadesde'].'"'
-                . ' AND alb.Fecha <= "'.$parametros['fechahasta'].'"'
+                . ' WHERE DATE(alb.Fecha) >= "'.$parametros['fechadesde'].'"'
+                . ' AND DATE(alb.Fecha) <= "'.$parametros['fechahasta'].'"'
                 . ' AND linalb.idArticulo = '.$parametros['idArticulo'];
         $sql = implode(' UNION ', $sqlprepare);
         $sql .= ' ORDER BY fecha ';

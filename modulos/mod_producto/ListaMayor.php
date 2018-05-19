@@ -80,7 +80,7 @@ if (isset($_POST['Imprimir'])) {
                                     <td><?php echo number_format($precio['pvpCiva'], 2); ?>€</td>
                                     <td><input type="text" value="0" style="text-align: right" id="<?php echo 'stkini' . $producto; ?>"</td>
                                     <td>
-                                        <a onclick="selecionarItemProducto(<?php echo $producto; ?>, 'ListaEtiquetas')">
+                                        <a onclick="selecionarItemProducto(<?php echo $producto; ?>, 'ListaMayor')">
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </a>
                                     </td>

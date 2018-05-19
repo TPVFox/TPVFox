@@ -9,7 +9,7 @@
 
 include_once '../../clases/claseimprimir.php';
 
-function datamayor2html($sqldata,$nombreArticulo) {
+function datamayor2html($sqldata,$nombreArticulo, $sumas) {
     $resultado = '';
     if (count($sqldata) > 0) {
         $resultado .= '<table border="1px" style="width:100%;">';
@@ -37,25 +37,50 @@ function datamayor2html($sqldata,$nombreArticulo) {
         $resultado .= ' </thead>';
 
         $resultado .= ' <tbody>';
-    $resultado .= ' <tr><td colspan="9"><b>' . $nombreArticulo . '</b></td></tr>';
+    $resultado .= ' <tr>';
+    $resultado .= '<td colspan="4"><b>' . $nombreArticulo . '</b></td>';
+    $resultado .= '<td align="right"><b>Stock inicial</b></td>';
+    $resultado .= '<td align="right">'.$sumas['stockinicial'].'</td>';
+    $resultado .= '<td colspan="2"></td>';
+    $resultado .= ' </tr>';
 
         foreach ($sqldata as $linea) {
             $resultado .= '<tr height="20px"> ';
             $resultado .= ' <td width="20%">' . $linea['fecha'] . ' </td>';
             $a = $linea['entrega'] != 0.0 ? number_format($linea['entrega'], 3) : ' ';
-            $resultado .= ' <td width="10%">' . $a . ' </td>';
+            $resultado .= ' <td width="10%"  align="right">' . $a . ' </td>';
             $a = $linea['precioentrada'] != 0.0 ? number_format($linea['precioentrada'], 3) : ' ';
-            $resultado .= ' <td width="10%">' . $a . ' </td>';
+            $resultado .= ' <td width="10%"  align="right">' . $a . ' </td>';
 
             $a = $linea['salida'] != 0.0 ? number_format($linea['salida'], 3) : ' ';
-            $resultado .= ' <td width="10%">' . $a . ' </td>';
+            $resultado .= ' <td width="10%" align="right">' . $a . ' </td>';
             $a = $linea['preciosalida'] != 0.0 ? number_format($linea['preciosalida'], 3) : ' ';
-            $resultado .= ' <td width="10%">' . $a . '</td>';
-            $resultado .= ' <td width="10%">' . number_format($linea['stock'], 3) . ' </td>';
-            $resultado .= ' <td width="10%">' . $linea['tipodoc'] . ' ' . $linea['numdocu'] . ' </td>';
+            $resultado .= ' <td width="10%" align="right">' . $a . '</td>';
+            $resultado .= ' <td width="10%" align="right">' . number_format($linea['stock'], 3) . ' </td>';
+            $resultado .= ' <td width="10%" align="right">' . $linea['tipodoc'] . ' ' . $linea['numdocu'] . ' </td>';
             $resultado .= ' <td width="20%">' . substr($linea['nombre'], 0, 15) . '</td>';
             $resultado .= ' </tr>';
         }
+            $resultado .= '<tr height="5px" > ';
+            $resultado .= ' <td width="20%" > </td>';
+            $resultado .= ' <td width="10%" align="right" style="background-color:black"> </td>';
+            $resultado .= ' <td width="10%"> </td>';
+            $resultado .= ' <td width="10%" align="right" style="background-color:black"> </td>';
+            $resultado .= ' <td width="10%"> </td>';
+            $resultado .= ' <td width="10%" align="right" style="background-color:black"> </td>';
+            $resultado .= ' <td width="10%"> </td>';
+            $resultado .= ' <td width="20%"> </td>';
+            $resultado .= ' </tr>';
+            $resultado .= '<tr > ';
+            $resultado .= ' <td width="20%" align="right"><b>TOTALES:</b></td>';
+            $resultado .= ' <td width="10%" align="right">'.number_format($sumas['totalEntrada'], 3).'</td>';
+            $resultado .= ' <td width="10%"> </td>';
+            $resultado .= ' <td width="10%" align="right">'.number_format($sumas['totalSalida'], 3).'</td>';
+            $resultado .= ' <td width="10%"> </td>';
+            $resultado .= ' <td width="10%" align="right">'.number_format($sumas['sumastock'], 3).'</td>';
+            $resultado .= ' <td width="10%"> </td>';
+            $resultado .= ' <td width="20%"> </td>';
+            $resultado .= ' </tr>';
         $resultado .= ' </tbody>';
 
         $resultado .= ' </table>';

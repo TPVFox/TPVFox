@@ -55,7 +55,7 @@ switch ($pulsado) {
         $articulo = new alArticulos($BDTpv);
         if ($articulo->existe($idArticulo)) {
             $miarticulo = $articulo->leer($idArticulo);
-            $nombreArticulo = $miarticulo['datos'][0]['articulo'].' '.$miarticulo['datos'][0]['articulo_name'];
+            $nombreArticulo = $miarticulo['datos'][0]['idArticulo'].' '.$miarticulo['datos'][0]['articulo_name'];
 
             $fecha = explode('/', $fechainicio);
             $fechadesde = $fecha[2].'/'.$fecha[1].'/'.$fecha[0];
@@ -67,19 +67,23 @@ switch ($pulsado) {
 
             if ($sqldata['datos']) {
                 $sumastock = $stockinicial;
+                $totalEntrada = 0.0;
+                $totalSalida = 0.0;
                 foreach ($sqldata['datos'] as $indice => $linea) {
+                    $totalEntrada += $linea['entrega'];
+                    $totalSalida += $linea['salida'];
                     $sumastock += $linea['entrega'] - $linea['salida'];
                     $sqldata['datos'][$indice]['stock'] = $sumastock;
                 }
-
+                $sumas = compact('stockinicial','totalEntrada','totalSalida','sumastock');
                 $cabecera = cabeceramayor2html(['titulo' => 'Mayor productos'
                     , 'empresa' => '01 Alimentaria Longueicap 2018'
                     , 'condiciones' => 'Periódo: ' . $fechainicio . ' / ' . $fechafinal
                 ]);
-                $cuerpo = datamayor2html($sqldata['datos'],$nombreArticulo);
+                $cuerpo = datamayor2html($sqldata['datos'],$nombreArticulo, $sumas);
                 $pdf = new imprimirPDF();
                 $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
-                $pdf->SetMargins(10, 70, 10);
+                $pdf->SetMargins(10, 60, 10);
                 $pdf->setCabecera($cabecera);
                 $pdf->AddPage();
                 $pdf->writeHTML($cuerpo);
