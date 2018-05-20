@@ -8,7 +8,6 @@
  */
 
 
-
 /* Fichero de tareas a realizar.
  * 
  * 
@@ -17,10 +16,6 @@
  *
  *   
  */
-include ("./../../controllers/Controladores.php");
-$Controler = new ControladorComun;
-
-
 
 
 /* ===============  REALIZAMOS CONEXIONES  =============== */
@@ -28,10 +23,11 @@ $Controler = new ControladorComun;
 
 $pulsado = $_POST['pulsado'];
 
-include_once ("./../../configuracion.php");
+include_once ("./../../inicial.php");
 
 // Crealizamos conexion a la BD Datos
-include_once ("./../mod_conexion/conexionBaseDatos.php");
+include ("./../../controllers/Controladores.php");
+$Controler = new ControladorComun;
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
 

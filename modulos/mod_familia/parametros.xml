@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- En parametros configuracion , si cambiar alguno por defecto o añades alguno , es conveniente que elimines de 
+de la tabla modulos_configuracion los registros de este modulo
+Numero tecla:
+ 13 -> Intro
+ 40 -> Fecha abajo
+
+
+-->
+
+<parametros>
+	
+	
+	
+</parametros>

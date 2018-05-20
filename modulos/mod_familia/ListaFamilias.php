@@ -15,14 +15,16 @@ include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun;
 
 // Mostramos formulario si no tiene acceso.
-include_once ($RutaServidor . $HostNombre . '/controllers/parametros.php');
+//~ include_once ($RutaServidor . $HostNombre . '/controllers/parametros.php');
 
-$ClasesParametros = new ClaseParametros('parametros.xml');
-$parametros = $ClasesParametros->getRoot();
-$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+//~ $ClasesParametros = new ClaseParametros('parametros.xml');
+//~ $parametros = $ClasesParametros->getRoot();
+//~ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
 $familias = new ClaseFamilias($BDTpv);
 // Obtenemos la configuracion del usuario o la por defecto
+
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -31,11 +33,8 @@ $familias = new ClaseFamilias($BDTpv);
         <?php
         include './../../head.php';
         ?>
-        <script type="text/javascript" src="<?php echo $HostNombre; ?>/jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>        
-        <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/jquery.bootpag.min.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-        <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-        <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_producto/familias.js"></script>
+        <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.js"></script>
     </head>
 
     <body>
