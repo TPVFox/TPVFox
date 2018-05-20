@@ -10,7 +10,6 @@ class Producto{
 	private $fecha_creado;
 	private $fecha_modificado;
 	private $codBarras;
-        
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.

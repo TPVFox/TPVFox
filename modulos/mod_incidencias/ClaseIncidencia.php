@@ -25,12 +25,16 @@ class incidencia{
 	
 	
 	public function todasIncidenciasLimite($limite){
+		//@Objetivo : 
+		//Listar todas las incidencias con el límite del páginado
+		//Devuelve errores en caso de que el sql muestre un error
 		$db=$this->db;
 		$sql='SELECT a.id as id , a.`num_incidencia` as num_incidencia ,
 		 a.fecha_creacion as fecha , a.dedonde as dedonde, 
 		 a.estado as estado, b.nombre as nombre , a.mensaje as mensaje 
 		 from modulo_incidencia as a INNER JOIN usuarios as b 
-		 on a.id_usuario=b.id  where a.id in  (select max(id) from modulo_incidencia GROUP by num_incidencia) '.$limite;
+		 on a.id_usuario=b.id  where a.id in  (select max(id) 
+		 from modulo_incidencia GROUP by num_incidencia) '.$limite;
 		 $smt=$this->consulta($sql);
 		 if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -45,6 +49,9 @@ class incidencia{
 		}
 	}
 	public function datosIncidencia($idIncidencia){
+		//Objetivo:
+		//Mostrar los datos de un id de incidencia
+		//Muestra los errores de sql
 		$db=$this->db;
 		$sql='select * from modulo_incidencia where id='.$idIncidencia;
 		$smt=$this->consulta($sql);
@@ -60,8 +67,11 @@ class incidencia{
 		}
 	}
 	public function incidenciasNumero($numeroIncidencia){
+		//Objetivo: Mostrar las indicencias de un número determinado de incidencia ya que varias indicencias
+		//Pueden estar agrupadas en el mismo número
 		$db=$this->db;
-		$sql='select a.* ,  b.username from modulo_incidencia as a inner JOIN   usuarios as b on a.id_usuario=b.id where num_incidencia='.$numeroIncidencia;
+		$sql='select a.* ,  b.username from modulo_incidencia as a inner JOIN   
+		usuarios as b on a.id_usuario=b.id where num_incidencia='.$numeroIncidencia;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];

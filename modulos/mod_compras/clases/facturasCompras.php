@@ -53,14 +53,18 @@ class FacturasCompras extends ClaseCompras{
 		//@Objetivo:
 		//Mostrar los datos principales de una factura con un límite de registros
 		$db=$this->db;
-		$smt=$db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, 
+		$sql= 'SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, 
 		a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on 
-		a.idProveedor=b.idProveedor '.$limite);
+		a.idProveedor=b.idProveedor '.$limite;
+		$smt=$db->query($sql);
 		$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
 			array_push($pedidosPrincipal,$result);
 		}
-		return $pedidosPrincipal;
+		$resultado = array();
+		$resultado['Items'] = $pedidosPrincipal;
+		$resultado['consulta'] = $sql;
+		return $resultado;
 	}
 	
 	public function sumarIva($numFactura){
@@ -429,6 +433,7 @@ class FacturasCompras extends ClaseCompras{
 	public function modFechaNumero($id, $fecha, $suNumero){
 		$db=$this->db;
 		$sql='UPDATE facprot set Su_num_factura ="'.$suNumero.'" , Fecha="'.$fecha.'" where id='.$id;
+		//~ error_log($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];

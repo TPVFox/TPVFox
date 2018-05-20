@@ -34,13 +34,7 @@
 			<div class="collapse navbar-collapse navbar-ex1-collapse">
 				<ul class="nav navbar-nav navbar-left ">
 					<li><a href="<?php echo $HostNombre.'/index.php'?>">Home</a></li>
-                                        <li class="dropdown">
-                                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Almacén
-							<span class="caret"></span></a>
-                                                        <ul class="dropdown-menu">
-                                                <li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
-                                                <li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaFamilias.php';?>">Familias</a></li>
-                                            </ul></li>
+					<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_cliente/ListaClientes.php';?>">Clientes</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_cierres/ListaCierres.php';?>">Cierres</a></li>

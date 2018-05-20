@@ -86,9 +86,12 @@ function controladorAcciones(caja,accion, tecla){
 			if (caja.id_input=="suNumero"){
 				cabecera.suNumero=caja.darValor();
 			}
+			if (caja.id_input=="fecha"){
+				cabecera.fecha=caja.darValor();
+			}
 			if (caja.id_input=="Proveedor"){
-				console.log(dato.length);
-				if ( dato.length <= 0){
+				console.log("longitud"+dato.length);
+				if ( dato.length == 0){
 					ponerFocus(d_focus);
 				}
 			}else{
@@ -104,27 +107,46 @@ function controladorAcciones(caja,accion, tecla){
 							 var nuevofocus="idArticulo";
 							 ponerFocus(nuevofocus);
 						 }
+						 console.log("estoy aqui 1"+dato.length);
 						ponerFocus(d_focus);
 					}
 				}else{
-					 ponerFocus(d_focus);
+					 console.log("estoy aqui 2"+dato.length);
+					 if(dato==0){
+						ponerFocus(d_focus);
+				 }
 				}
 				
 			}
 			
 			
 		break;
+		case 'Saltar_idProveedorAbajo':
+			var dato = caja.darValor();
+			
+				var d_focus = 'id_proveedor';
+				ponerFocus(d_focus);
+			
+			
+			
+		break;
 		case 'Saltar_Proveedor':
 			var dato = caja.darValor();
-			var d_focus = 'Proveedor';
-			ponerFocus(d_focus);
+				if(dato==0){
+					var d_focus = 'Proveedor';
+					ponerFocus(d_focus);
+				}
+			
+			
 			
 		break;
 		case 'Saltar_idArticulo':
 			var dato = caja.darValor();
-			
-			var d_focus = 'idArticulo';
-			ponerFocus(d_focus);
+			if(dato==0){
+					var d_focus = 'idArticulo';
+					ponerFocus(d_focus);
+			}
+		
 			
 		break;
 		case 'Saltar_fecha':
@@ -134,23 +156,32 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		case 'Saltar_Referencia':
 			var dato = caja.darValor();
-			var d_focus = 'Referencia';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Referencia';
+				ponerFocus(d_focus);
+			}
+			
 		break;
 		case 'Saltar_ReferenciaPro':
 			var dato = caja.darValor();
-			var d_focus = 'ReferenciaPro';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'ReferenciaPro';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'Saltar_CodBarras':
 			var dato = caja.darValor();
-			var d_focus = 'Codbarras';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Codbarras';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'Saltar_Descripcion':
 			var dato = caja.darValor();
-			var d_focus = 'Descripcion';
-			ponerFocus(d_focus);
+			if(dato==0){
+				var d_focus = 'Descripcion';
+				ponerFocus(d_focus);
+			}
 		break;
 		case 'addRefProveedor':
 			var idArticulo=$('#idArticuloRef').val();
@@ -328,8 +359,12 @@ function buscarAdjunto(dedonde, valor=""){
 								modificarEstado(dedonde, "Facturado",  idAdjunto);
 								//Agregamos una nueva fila con los datos principales de pedidos
 								AgregarAdjunto(datos, dedonde);
+								
 								//Agregamos los productos de el pedido seleccionado
 								AgregarFilaProductos(prodArray, dedonde);
+								if(dedonde=="factura"){
+									AgregarFilaAdjuntoProductos(datos);
+								}
 								//Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
 								//Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
 								// a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
@@ -343,7 +378,28 @@ function buscarAdjunto(dedonde, valor=""){
 		}
 	});
 }
-
+function AgregarFilaAdjuntoProductos(datos){
+	var parametros = {
+		"pulsado"    : 'htmlAgregarFilaAdjuntoProductos',
+		"datos" : datos
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** estoy en escribir html fila pedidos JS****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta respuesta de html fila pedidos');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+			var nuevafila = resultado;
+			$("#tabla").prepend(nuevafila);
+		}
+	});
+}
 function modificarEstado(dedonde, estado, id=""){
 	//~ @Objetivo: Modificar el estado según el id que llegue y de donde para poder filtrar
 	//~ @Parametros : el estado se envia en la función
@@ -586,10 +642,10 @@ function comprobarAdjunto(dedonde){
 					if (resultado.bandera == 1){
 						console.log("entre en las opciones");
 						$('#tablaAl').css("display", "block");
-						$('#numPedidoT').css("display", "block");
-						$('#numPedido').css("display", "block");
-						$('#buscarPedido').css("display", "block");
-						$('#tablaPedidos').css("display", "block");
+						//~ $('#numPedidoT').css("display", "block");
+						//~ $('#numPedido').css("display", "block");
+						//~ $('#buscarPedido').css("display", "block");
+						//~ $('#tablaPedidos').css("display", "block");
 						ponerFocus('numPedido');
 					}else{
 						ponerFocus('idArticulo');
@@ -661,8 +717,21 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				addTemporal(dedonde)
 				document.getElementById(id_input).value='';
 				AgregarFilaProductos(datos, dedonde, campo);
-				if(resultado['datos'][0]['fechaActualizacion']>cabecera.fecha){
-					alert("LA FECHA DEL COSTE DEL PRODUCTO ES SUPERIOR A LA FECHA ESCRITA");
+				console.log("muestro fecha");
+				console.log(resultado['datos'][0]);
+				//~ console.log(cabecera.fecha);
+				 if(resultado['datos'][0]['fechaActualizacion']!=null){
+					 
+					//~ fechaProducto= new Date(resultado['datos'][0]['fechaActualizacion']);
+					fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
+					fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
+					fechaCabecera= cabecera.fecha.split("-");
+					fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
+				console.log(fechaCabecera);
+					if(fechaProducto>fechaCabecera)
+					{
+						 alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+					}
 				}
 				ponerSelect(campo);
 				if (dedonde=="factura"){
@@ -721,9 +790,9 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
-					if(albaranes.length>0){
+			if(albaranes.length>0){
 				bloquearInput();
-		}
+			}
 
 		}
 	});

@@ -179,6 +179,7 @@ class AlbaranesCompras extends ClaseCompras{
 		//Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
 		$respuesta=array();
 		$db = $this->db;
+		//~ error_log('fecha de clase'.$datos['fecha']);
 		if ($idAlbaran>0){
 			$sql='INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , 
 			idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('
@@ -406,9 +407,13 @@ class AlbaranesCompras extends ClaseCompras{
 		//Buscar datos principal de un albarán de proveedor y estado guardado
 		$db=$this->db;
 		if ($numAlbaran>0){
-			$sql='SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
-			 formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'"
-			 .$estado."'".' and Numalbpro='.$numAlbaran;
+			//~ $sql='SELECT Numalbpro , Fecha , total, id , FechaVencimiento ,
+			 //~ formaPago FROM albprot WHERE idProveedor= '.$idProveedor.' and estado='."'"
+			 //~ .$estado."'".' and Numalbpro='.$numAlbaran;
+			 $sql='SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
+			  a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a 
+			  INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor='.$idProveedor.' 
+			  and a.estado="'.$estado.'" and a.Numalbpro='.$numAlbaran.' GROUP by a.id ';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 					$albaran['error']=$smt['error'];
@@ -422,9 +427,12 @@ class AlbaranesCompras extends ClaseCompras{
 				$albaran['Nitem']=1;
 			}
 		}else{
-			$sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
-			formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
-			.$estado.'"';
+			//~ $sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
+			//~ formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
+			//~ .$estado.'"';
+			$sql='SELECT a.Su_numero , a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento , 
+			a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a  INNER JOIN albproIva as b 
+			on a.`id`=b.idalbpro where  a.idProveedor='.$idProveedor.' and a.estado="'.$estado.'" GROUP by a.id';
 			$smt=$this->consultaAlbaran($sql);
 			if (gettype($smt)==='array'){
 					$albaran['error']=$smt['error'];
@@ -441,9 +449,9 @@ class AlbaranesCompras extends ClaseCompras{
 		return $albaran;
 	}
 	
-	public function modFechaNumero($id, $suNumero, $fecha){
+	public function modFechaNumero($id, $suNumero, $fecha, $formaPago, $fechaVencimiento){
 		$db=$this->db;
-		$sql='UPDATE albprot set Su_numero="'.$suNumero.'" , Fecha="'.$fecha.'" where id='.$id;
+		$sql='UPDATE albprot set Su_numero="'.$suNumero.'" , Fecha="'.$fecha.'", formaPago="'.$formaPago.'", FechaVencimiento="'.$fechaVencimiento.'" where id='.$id;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];

@@ -2,7 +2,7 @@
 $pulsado = $_POST['pulsado'];
 
 include_once ("./../../configuracion.php");
-include_once ("./../mod_conexion/conexionBaseDatos.php");
+include_once ("./../../inicial.php");
 include_once ("./popup_incidencias.php");
 
 switch ($pulsado) {
@@ -26,7 +26,7 @@ switch ($pulsado) {
 		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numIncidencia, $configuracion, $BDTpv);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
-		echo json_encode($respuesta);
+		
 		break;
 		
 	case 'nuevaIncidencia':
@@ -56,9 +56,11 @@ switch ($pulsado) {
 			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numIncidencia);
 			$respuesta=$nuevo['sql'];
 		}
-	echo json_encode($respuesta);
+	
 	
 	break;
 	
 }
+echo json_encode($respuesta);
+return $respuesta;
 ?>

@@ -14,7 +14,8 @@ if (isset($_SESSION['tiendaTpv'])){
 }
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
- $CArticulo=new Articulos($BDTpv);
+
+$CArticulo=new Articulos($BDTpv);
 // Creamos el objeto de proveedor
 $CProv= new Proveedores($BDTpv);
 // Creamos el objeto de albarán
@@ -175,7 +176,7 @@ $todosTemporal=array_reverse($todosTemporal);
 					?>
 					<form action="./albaranesListado.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en número de albarán </label>
+						<label>Buscar por nombre de proveedor o número de albarán</label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>

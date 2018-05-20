@@ -180,7 +180,7 @@
 					?>
 					<form action="./pedidosListado.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en número de pedido </label>
+						<label>Buscar por nombre de proveedor o número de pedido</label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>
