@@ -567,6 +567,26 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$CFac=new FacturasCompras($BDTpv);
 		$datos=$CFac->datosFactura($id);
 		$productosAdjuntos=$CFac->ProductosFactura($id);
+		$adjuntos=$CFac->albaranesFactura($id);
+		if ($adjuntos){
+			 $modifAdjunto=modificarArrayAdjunto($adjuntos, $BDTpv, "factura");
+			 $adjuntos=json_decode(json_encode($modifAdjunto), true);
+		}
+		$alb_html=[];
+		foreach ($adjuntos as $adjunto){ 
+				$total=0;
+				$totalSiva=0;
+				$suNumero="";
+			if(isset($adjunto['total'])){
+				$total=$adjunto['total'];
+			}
+			if(isset($adjunto['totalSiva'])){
+				$totalSiva=$adjunto['totalSiva'];
+			}
+			$alb_html[]='<tr><td><b><font size="9">Nun Alb:'.$adjunto['NumAdjunto'].'</font></b></td><td WIDTH="50%"><b><font size="9">'.$adjunto['fecha'].'</font></b></td>
+			<td colspan="2"><b><font size="9">Total con iva : '.$total.'</font></b></td><td colspan="2"><b><font size="9">Total Sin iva : '.$totalSiva.'</font></b></td></tr>';
+		}
+		$alb_html=array_reverse($alb_html);
 		$texto="Factura Proveedor";
 		$numero=$datos['Numfacpro'];
 		if (isset($datos['su_num_factura'])){
@@ -600,6 +620,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$productosDEF=modificarArrayProductos($productosAdjuntos);
 	$productos=json_decode(json_encode($productosDEF));
 	$Datostotales = recalculoTotales($productos);
+	$productosDEF=array_reverse($productosDEF);
 	
 	if (isset ($date)){
 		
@@ -636,8 +657,20 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			<td>IVA</td>
 			</tr></table>';
 	$imprimir['html'] .='<table WIDTH="80%">';
-	
+	$i=0;
+	$numAdjunto=0;
 	foreach($productosDEF as $producto){
+		if($dedonde=="factura"){
+			$numAdjuntoProd=$producto['numAlbaran'];
+		}
+		//~ if($dedonde=="albaran"){
+			//~ $numAdjuntoProd=$producto['numPedido'];
+		//~ }
+		if($numAdjuntoProd<>$numAdjunto){
+			$imprimir['html'] .= $alb_html[$i];
+			$numAdjunto=$numAdjuntoProd;
+			$i++;
+		}
 		if ($producto['estado']=='Activo'){
 			$imprimir['html'] .='<tr>';
 			$bandera="";
