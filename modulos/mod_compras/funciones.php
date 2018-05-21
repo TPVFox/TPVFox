@@ -635,43 +635,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			<td>Importe</td>
 			<td>IVA</td>
 			</tr></table>';
-	//~ //Datos del proveedor
-	//~ $imprimir['cabecera'].='<p ></p><p ></p>';
-	//~ $imprimir['cabecera'].='<table >';
-	//~ $imprimir['cabecera'].='<tr>';
-	//~ $imprimir['cabecera'].='<td>'
-	//~ .'Proveedor: '.$datosProveedor['idProveedor'].'<br>'
-	//~ .$datosProveedor['nombrecomercial'].'<br>'
-	//~ .'Dirección:'.$datosProveedor['direccion'].'<br>'
-	//~ .'NIF/CIF: '.$datosProveedor['nif'].'<br>'
-	//~ .'Teléfono: '.$datosProveedor['telefono'].'<br>'
-	//~ .'Email: '.$datosProveedor['email'].'<br>'
-	//~ .'Fax: '.$datosProveedor['fax'].'<br>';
-			//~ if (isset($suNumero)){
-				//~ $imprimir['cabecera'] .=''.$textoSuNumero.'<br>';
-			//~ }
-	//~ $imprimir['cabecera'].='</td><td>'
-			//~ .$texto.'<br>'
-			//~ .'Nº: '.$numero.'<br>'
-			//~ .'Fecha: '.$fecha.'<br>'
-			//~ .$datosTienda['razonsocial'].'<br>'
-			//~ .'Direccion: '.$datosTienda['direccion'].'<br>'
-			//~ .'Telefono:'.$datosTienda['telefono'].'<br>'
-			//~ .'</td></tr></table><hr/><hr/>'
-			//~ .'<table  WIDTH="100%"><tr>';
-	//~ if ($dedonde == "factura"){
-		//~ $imprimir['cabecera'] .='<td WIDTH="10%"><b>ALB</b></td>';
-	//~ }
-	//~ if ($dedonde =="albaran"){
-		//~ $imprimir['cabecera'] .='<td WIDTH="10%"><b>PED</b></td>';
-	//~ }
-	//~ $imprimir['cabecera'] .='<td WIDTH="10%"><b>REF</b></td>'
-	//~ .'<td WIDTH="50%"><b>DESCRIPCIÓN</b></td>'
-	//~ .'<td WIDTH="10%"><b>CANT</b></td>'
-	//~ .'<td WIDTH="10%"><b>COSTE</b></td>'
-	//~ .'<td WIDTH="12%"><b>IMPORTE</b></td>'
-	//~ .'</tr></table>';
-	
 	$imprimir['html'] .='<table WIDTH="80%">';
 	
 	foreach($productosDEF as $producto){
@@ -683,26 +646,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 					$bandera=$producto['idalbpro'];	
 				}	
 			}
-			//~ if ($dedonde=="albaran"){
-				//~ if (isset($producto['numPedido'])){
-					//~ $bandera=$producto['numPedido'];
-					//~ $imprimir['html'] .='<td  WIDTH="10%">'.$bandera.'</td>';
-				//~ }else{
-					
-					//~ $imprimir['html'] .='<td  WIDTH="10%"></td>';
-				//~ }
-			//~ }
-			//~ if ($dedonde=="factura"){
-				//~ if (isset($producto['idalbpro'])){
-					//~ $bandera2=$producto['idalbpro'];
-					//~ $imprimir['html'] .='<td  WIDTH="10%">'.$bandera2.'</td>';
-				//~ }else{
-					//~ $imprimir['html'] .='<td  WIDTH="10%"></td>';
-				//~ }
-			//~ }
-			
-			
-			
 			if ($producto['crefProveedor']>0){
 				$refPro=$producto['crefProveedor'];
 			}else{
