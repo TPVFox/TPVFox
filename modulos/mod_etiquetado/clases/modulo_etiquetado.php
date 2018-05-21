@@ -95,6 +95,8 @@ class Modulo_etiquetado{
 		}
 	}
 	public function todosTemporal(){
+		//@Objetivo:
+		//Mostrar todos los temporales
 		$db=$this->db;
 		$sql='select a.id, a.num_lote, a.fecha_env, b.articulo_name from 
 		modulo_etiquetado_temporal as a inner join articulos as b on 
@@ -114,6 +116,8 @@ class Modulo_etiquetado{
 	}
 	
 	public function buscarTemporal($idTemporal){
+		//Objetivo;
+		//BUscar los datos de un temporal
 		$db=$this->db;
 		$sql='select a.*, b.articulo_name FROM modulo_etiquetado_temporal
 		 as a inner join articulos as b on a.idArticulo=b.idArticulo
@@ -132,6 +136,8 @@ class Modulo_etiquetado{
 		
 	}
 	public function eliminarTemporal($idTemporal){
+		//Objetivo:
+		//eliminar un temporal determinado
 		$db=$this->db;
 		$sql='DELETE FROM `modulo_etiquetado_temporal` WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
@@ -143,6 +149,8 @@ class Modulo_etiquetado{
 	}
 	
 	public function addLoteGuardado($datos){
+		//OBjetivo:
+		//GUardar un lote nuevo o modificarlo si ya existe
 		$db=$this->db;
 		if($datos['idReal']>0){
 			$sql='UPDATE `modulo_etiquetado` SET 
@@ -176,6 +184,8 @@ class Modulo_etiquetado{
 	}
 	
 	function datosLote($idLote){
+		//OBjetivo:
+		//MOstrar todos los datos de un lote ya guardado
 		$db=$this->db;
 		$sql='select a.*, b.articulo_name FROM modulo_etiquetado
 		 as a inner join articulos as b on a.idArticulo=b.idArticulo
@@ -193,6 +203,8 @@ class Modulo_etiquetado{
 		}
 	}
 	function modifEstadoReal($estado, $id){
+		//Objetivo:
+		//MOdificar el estado de un lote real
 		$db=$this->db;
 		$sql='UPDATE modulo_etiquetado SET estado="'.$estado.'" where id='.$id;
 		 $smt=$this->consulta($sql);
