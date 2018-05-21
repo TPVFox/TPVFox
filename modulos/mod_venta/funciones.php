@@ -40,8 +40,6 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 		$busquedas[] = implode(' and ',$likes);
 	}
 	$i = 0;
-	error_log($id_input);
-	error_log($idcaja);
 	foreach ($busquedas as $buscar){
 		$sql1='SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` 
 			FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac 
