@@ -250,10 +250,10 @@ function addEtiquetadoTemporal(){
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** repetir productos JS****************');
+				console.log('******** addEtiquetadoTemporal JS****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta repetir productos JS');
+				console.log('Llegue devuelta  addEtiquetado Temporal JS');
 				var resultado =  $.parseJSON(response);
 				if (resultado.error){
 					alert(resultado.consulta);
@@ -285,10 +285,10 @@ function buscarProducto(valor="", caja=""){
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** repetir productos JS****************');
+				console.log('******** buscar producto JS****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta de buscar Producto JS');
+				console.log('Llegue devuelta de buscar producto  JS');
 				var resultado =  $.parseJSON(response);
 				console.log(resultado);
 				if(resultado.error){
@@ -444,10 +444,10 @@ function contarEtiquetasLote(lotes){
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** repetir productos JS****************');
+				console.log('******** contar etiquetas JS****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta repetir productos JS');
+				console.log('Llegue contar etiquetas JS');
 				var resultado =  $.parseJSON(response);
 				console.log(resultado);
 				if(resultado.etiquetas>16){
