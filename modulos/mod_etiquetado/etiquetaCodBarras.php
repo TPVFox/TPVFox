@@ -40,7 +40,11 @@
 			$idReal=$_GET['id'];
 			$etiquetaReal=$Cetiqueta->datosLote($idReal);
 			if(isset($etiquetaReal['error'])){
-				//cargar los errores
+				$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $etiquetaReal['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
 			}else{
 				$fechaEnv=$etiquetaReal['fecha_env'];
 				$fechaCad=$etiquetaReal['fecha_cad'];

@@ -64,12 +64,14 @@ switch ($pulsado) {
 			//MOdificar temporal
 			$modif=$CEtiquetado->modificarTemporal($_POST, $productos, $idTemporal);
 			if(isset($modif['error'])){
+				$respuesta['error']=$modif['error'];
 				$respuesta['consulta']=$modif['consulta'];
 			}
 		}else{
 			//crear temporal y devolver idTemporal
 			$nuevo=$CEtiquetado->addTemporal($_POST, $productos);
 			if(isset($nuevo['error'])){
+				$respuesta['error']=$nuevo['error'];
 				$respuesta['consulta']=$nuevo['consulta'];
 			}else{
 				$idTemporal=$nuevo['id'];
@@ -79,7 +81,8 @@ switch ($pulsado) {
 		if($idReal>0){
 			$modReal=$CEtiquetado->modifEstadoReal("Sin guardar", $idReal);
 			if(isset($modReal['error'])){
-				$respuesta['consulta']=$nuevo['consulta'];
+				$respuesta['error']=$modReal['error'];
+				$respuesta['consulta']=$modReal['consulta'];
 			}
 		}
 		$respuesta['existe']=$existe;
