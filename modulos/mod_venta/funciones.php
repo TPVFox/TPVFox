@@ -9,7 +9,7 @@
 	include_once '../../clases/FormasPago.php';
 	include_once '../../clases/TiposVencimiento.php';
  
-function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
+function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idCliente) {
 	// @ Objetivo:
 	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
 	// @ Parametros:
@@ -40,7 +40,18 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
 		$busquedas[] = implode(' and ',$likes);
 	}
 	$i = 0;
+	error_log($id_input);
+	error_log($idcaja);
 	foreach ($busquedas as $buscar){
+		$sql1='SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` 
+			FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac 
+			ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosClientes` AS ap 
+			ON a.idArticulo = ap.idArticulo  LEFT JOIN `articulosTiendas` 
+			AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE ap.idClientes='.$idCliente.' and ap.estado=1 and 
+			'.$buscar.' LIMIT 0 , 30';
+		$res = $BDTpv->query($sql1);
+		$resultado['Nitems']= $res->num_rows;
+		if($resultado['Nitems']==0 || $id_input<>'idArticulo'){
 		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
@@ -49,6 +60,8 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv) {
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
+		}
+		
 		//si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
 		if ($i === 0){
 			if ($res->num_rows >0){
@@ -136,9 +149,10 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 	return $resultado;
 }
 
-function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
+function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $BDTpv,$idCliente){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
+	//~ $Cprod=new Producto($BDTpv);
 	$resultado = array();
 	
 	$resultado['encontrados'] = count($productos);
@@ -174,11 +188,24 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 		
 		$contad = 0;
 		foreach ($productos as $producto){
+			$pvpCiva=$producto['pvpCiva'];
+			//comprobarTarifa=$Cprod->productosClientes($idCliente, $producto['idArticulo']);
+			$sql='select * from articulosClientes where idClientes='.$idCliente.' and 
+			idArticulo='.$producto['idArticulo'].' and estado=1';
+			$res = $BDTpv->query($sql);
+			
+			$resultado['Nitems']= $res->num_rows;
+			if($resultado['Nitems']>0){
+				if ($fila = $res->fetch_assoc()) {
+					$pvpCiva=$fila['pvpCiva'];
+				}
+				
+			}
 			$datos = 	"'".$id_input."',".
 						"'".addslashes(htmlspecialchars($producto['crefTienda'],ENT_COMPAT))."','"
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
-						.number_format($producto['pvpCiva'],2).",".$producto['idArticulo'].
+						.number_format($pvpCiva,2).",".$producto['idArticulo'].
 						" , '".$dedonde."'";
 			$resultado['html'] .= '<tr id="N_'.$contad.'" data-obj= "idN" class="FilaModal"'
 								.'onclick="escribirProductoSeleccionado('.$datos.');">'
@@ -188,7 +215,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 								.'<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>'
 								.'<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
-								.'<td>'.number_format($producto['pvpCiva'],2).'</td>'
+								.'<td>'.number_format($pvpCiva,2).'</td>'
 								.'</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
