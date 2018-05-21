@@ -209,8 +209,11 @@ function controladorAcciones(caja,accion, tecla){
 			break
 		case 'saltar_idArticulo':
 		console.log('Entro en acciones saltar_idArticulo');
-		var d_focus = 'idArticulo';
-			ponerFocus(d_focus);
+			var dato = caja.darValor();
+			if(dato.length === 0){
+				var d_focus = 'idArticulo';
+				ponerFocus(d_focus);
+			}
 			
 			break
 		case 'buscarProductos':
