@@ -71,6 +71,7 @@
 			}
 		}
 		if(isset($_GET['tActual'])){
+			//@Obejtivo: si resibe los datos de un temporal los carga
 			$idTemporal=$_GET['tActual'];
 			$etiquetaTemporal=$Cetiqueta->buscarTemporal($idTemporal);
 			if(isset($etiquetaTemporal['error'])){
@@ -95,6 +96,12 @@
 			}
 		}
 		if(isset($_POST['Guardar'])){
+			//@OBjetivo: guardar los datos de un temporal como real
+			//Funcionamiento:
+			//Primero se buscan los datos del temporal, sólo se guardan los productos que el estado
+			//sea activo
+			//Si se eliminan todos los productos muestra un error
+			//A continuación se guardar el real y se elimina el temporal mientras no suceda nigún error
 			if($idTemporal>0){
 				$datosTemporal=$Cetiqueta->buscarTemporal($idTemporal);
 				$productos=$datosTemporal['productos'];

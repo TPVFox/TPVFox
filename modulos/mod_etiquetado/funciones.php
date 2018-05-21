@@ -1,6 +1,16 @@
 <?php 
 
 function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd, $tipo){
+	//@Objetivo: 
+	//Repetir las lineas de un producto tantas veces como sea indicado
+	//@Retorno:
+	//el html con las líneas y los productos 
+	//@Funcionamiento:
+	//Con el for se repite tantas veces como hemos indicado, siempre es el mismo producto por lo que buscamos los 
+	//datos de un producto en concreto
+	//UNa vez tengamos los datos del producto y el tipo que indiquemos en el select se calcula el código de barras
+	//Se va creando un array con los productos y datos necesarios
+	//También al mismo tiempo se van generando las líneas html de los productos para mostrar por pantalla
 	$CArticulo= new Articulos($BDTpv);
 	$respuesta=array();
 	$datosArticulo=$CArticulo->datosArticulosPrincipal($idProducto, $idTienda);
@@ -72,6 +82,7 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 	
 }
 function htmlProductos($busqueda, $productos){
+	//Generar el listado para el modal a la hora de buscar productos
 	$resultado = array();
 	$resultado['encontrados'] = count($productos);
 	$resultado['html'] = '<label>Busqueda De Productos</label>
@@ -105,6 +116,10 @@ function htmlProductos($busqueda, $productos){
 	}
 }
 function lineasProductos($productos){
+	//@Objetivo:
+	//Cargar las líneas de los productos cuando recargamos la página o accedemos a ella
+	//@Retorna;
+	//el  html con los datos de los productos;
 	$nFila=1;
 	$html="";
 	foreach($productos as $producto){
@@ -145,6 +160,10 @@ function lineasProductos($productos){
 }
 
 function codigoBarrasUnidades($referenciaTienda, $cantidad){
+	//@OBjetivo:
+	//Generar el código de barras si es por unidades
+	//@Retorna;
+	//El código de barras con el dígito de control
 	$principio='21';
 	$referencia=$referenciaTienda;
 	$dividir = explode(".", $cantidad);
@@ -163,6 +182,10 @@ function codigoBarrasUnidades($referenciaTienda, $cantidad){
 	
 }
 function codigoBarrasPeso($referenciaTienda, $cantidad){
+	//@OBjetivo:
+	//Generar el código de barras si es por peso
+	//@Retorna;
+	//El código de barras con el dígito de control
 	$principio='20';
 	$referencia=$referenciaTienda;
 	$dividir = explode(".", $cantidad);
@@ -183,6 +206,8 @@ function codigoBarrasPeso($referenciaTienda, $cantidad){
 }
 
 function calcularDigitoControl($codigo){
+	//@Objetivo:
+	//calcular el dígito de control
 	$par=0;
 	$impar=0;
 	$bandera=1;//bandera es 1 por que se la primera corresponde a la posición 0

@@ -23,6 +23,10 @@ function metodoClick(pulsado,adonde){
 	}
 }
 function imprimirEtiquetas(lotes){
+	//@OBjetivo:
+	//imprimir las etiquetas
+	//@Retorno:
+	//abre una nueva pestaña con el resultado
 	var parametros ={
 		'pulsado':'imprimirEtiquetas',
 		'lotes':lotes
@@ -146,6 +150,9 @@ function controladorAcciones(caja, accion, tecla){
 	}
 }
 function modificarCodigoBarras(nfila){
+	//@OBjetivo:
+	//MOdificar el código de barras
+	//Si se modifican los datos del producto se tiene que modificar el código de barras de ese producto
 	var parametros ={
 		'pulsado':'modificarCodigoBarras',
 		'tipo':cabecera.tipo,
@@ -221,11 +228,9 @@ function repetirProducto(unidades, tipo){
 		});
 }
 function addEtiquetadoTemporal(){
-	//~ var tipo=$("#tipo option:selected").val();
-	//~ var NumAlb=$("#numAlb").val();
-	//~ if(NumAlb==""){
-		//~ NumAlb=0;
-	//~ }
+	//@Objetivo:
+	//Añadir una etiqueta temporal
+	//Generar el registro o modificarlo de una etiqueta temporal
 	console.log(productos);
 	var parametros ={
 		'pulsado'	:'addEtiquetadoTemporal',
@@ -264,6 +269,8 @@ function addEtiquetadoTemporal(){
 	
 }
 function buscarProducto(valor="", caja=""){
+	//@OBjetivo:
+	//BUscar los datos del producto
 	
 	console.log("estoy dento de la función de buscar Producto");
 	console.log(valor);
@@ -361,6 +368,8 @@ function mover_up(fila,prefijo){
 	ponerSelect(d_focus);
 }
 function eliminarFila(num_item, dedonde){
+	//@Objetivo :
+	//Cambiar a estado eliminado , para dar la sensación de que el producto está eliminado
 	console.log("Entro en eliminar Filas");
 	var line;
 	num=num_item-1;
@@ -375,6 +384,7 @@ function eliminarFila(num_item, dedonde){
 	 addEtiquetadoTemporal();
 }
 function retornarFila(num_item, dedonde){
+	//@Objetivo: cambiar el estado de eliminado a activo
 	console.log("Entro en eliminar Filas");
 	var line;
 	num=num_item-1;
@@ -422,6 +432,9 @@ function validarCaja(valor){
 	return validar;
 }
 function contarEtiquetasLote(lotes){
+	//Objetivo:
+	//contar cuantas etiquetas se van a imprimir para avisar al usuario en caso de que no rellene una hoja entera mostrar 
+	//un alert
 	var parametros ={
 		'pulsado'	: 'contarEtiquetas',
 		'lotes'		:lotes
