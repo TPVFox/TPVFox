@@ -120,12 +120,6 @@ switch ($pulsado) {
 		include('./tareas/imprimirEtiquetas.php');
 	break;
 	
-	case 'productosSesion':
-		$respuesta=array();
-		$session = $CSession->GetSession();
-		$respuesta=productosSesion($_POST['id']);
-		break;
-	
 	case 'HtmlCajaBuscarProveedor':
 		include ('./tareas/htmlCajaBuscarProveedor.php');
 	break;
