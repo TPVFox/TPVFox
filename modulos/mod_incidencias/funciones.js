@@ -1,6 +1,4 @@
 function enviarIncidencia(){
-	var usuario=$("#inci_usuario").val();
-	var fecha=$("#inci_fecha").val();
 	var datos=$("#inci_datos").val();
 	var dedonde=$("#inci_dedonde").val();
 	var estado=$("#inci_estado").val();
@@ -9,8 +7,6 @@ function enviarIncidencia(){
 	var usuarioSelec=$("#usuarioSelec").val();
 	var parametros = {
 		'pulsado':'nuevaIncidencia',
-		'usuario':usuario,
-		'fecha':fecha,
 		'datos':datos,
 		'dedonde':dedonde,
 		'estado':estado,
@@ -54,11 +50,13 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-function abrirIndicencia(dedonde, idUsuario, configuracion, idReal="" , numIncidencia=""){
+function abrirModalIndicencia(dedonde, configuracion,numIncidencia=0, idReal=""){
+	// Objetivo es preparar el html para mostrar modal de incidencia.
+	console.log(dedonde);
+	
 	var parametros = {
 		"pulsado"    : 'abririncidencia',
 		"dedonde" : dedonde,
-		"usuario":idUsuario,
 		"numIncidencia":numIncidencia,
 		"configuracion":configuracion,
 		'idReal': idReal
@@ -70,30 +68,19 @@ function abrirIndicencia(dedonde, idUsuario, configuracion, idReal="" , numIncid
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-			console.log('*********  Modificando los importes de la factura  ****************');
+			console.log('*********  Añadiendo incidencia tanto nueva como respuesta a una   ***********');
 		},
 		success    :  function (response) {
 			console.log('Respuesta de abrir incidencias');
 			var resultado =  $.parseJSON(response);
-			titulo="Crear incidencia";
+			if (numIncidencia > 0){
+				titulo="Respuesta a incidencia nº "+numIncidencia;
+			} else {
+				titulo="Crear incidencia";
+			}
 			html=resultado.html;
 			abrirModal(titulo, html);
 		}
 	});
 }
-//~ function abrirModal(titulo,tabla){
-	//~ // @ Objetivo :
-	//~ // Abril modal con texto buscado y con titulo que le indiquemos.
-	//~ console.log('Estamos en abrir modal');
-	//~ $('.modal-body > p').html(tabla);
-	//~ $('.modal-title').html(titulo);
-	//~ $('#busquedaModal').modal('show');
-	
-	//~ //Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	//~ $('#busquedaModal').on('shown.bs.modal', function() {
-		//~ // Pongo focus a cada cja pero no se muy bien, porque no funciona si pongo el focus en la accion realizada.
-	//~ $('#cajaBusqueda').focus(); //f
-	//~ $('#cajaBusquedaproveedor').focus(); //foco en input caja busqueda del proveedor
 
-	//~ });
-//~ }

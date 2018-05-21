@@ -8,11 +8,11 @@
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Controler = new ControladorComun; 
-	include 'ClaseIncidencia.php';
+	include './clases/ClaseIncidencia.php';
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
-	$CIncidencia= new incidencia($BDTpv);
-	$Usuario = $_SESSION['usuarioTpv'];
+	$CIncidencia= new ClaseIncidencia($BDTpv);
+	
 	$dedonde='incidencia';
 	$parametros = $ClasesParametros->getRoot();
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
@@ -52,7 +52,7 @@
 			<h2 class="text-center">Datos de la incidencia Nº <?php echo $id;?></h2>
 			
 			<a  href="./ListadoIncidencias.php">Volver Atrás</a><br><br>
-			<a onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion, 0, <?php echo $id;?>);">Responder incidencia</a><br><br>
+			<a onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, <?php echo $id;?>);">Responder incidencia</a><br><br>
 			<?php 
 			
 			foreach($datosIncidencias as $datosIncidencia){

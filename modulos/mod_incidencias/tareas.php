@@ -1,37 +1,30 @@
 <?php 
 $pulsado = $_POST['pulsado'];
 
-include_once ("./../../configuracion.php");
+//~ include_once ("./../../configuracion.php");
 include_once ("./../../inicial.php");
-include_once ("./popup_incidencias.php");
+include_once ("./clases/ClaseIncidencia.php");
+$Cincidencias = new ClaseIncidencia($BDTpv);
+//~ include_once ("./popup_incidencias.php");
 
 switch ($pulsado) {
 	case 'abririncidencia':
-		$dedonde=$_POST['dedonde'];
-		$usuario=$_POST['usuario'];
-		$numIncidencia=0;
-		if(isset($_POST['numIncidencia'])){
-			$numIncidencia=$_POST['numIncidencia'];
-			
-		}
-		$configuracion=$_POST['configuracion'];
-		$tipo="mod_incidencias";
-		$fecha=date('Y-m-d');
+		$numIncidencia	= $_POST['numIncidencia']; // Siempre lo debemos enviar, si es nuevo enviamos 0
+		$configuracion	= $_POST['configuracion'];
+		$dedonde		= $_POST['dedonde'];
 		$datos=array(
 		'dedonde'=>$dedonde
 		);
-		
-		$datos=json_encode($datos);
+		$datos			= json_encode($datos);
 		$estado="No resuelto";
-		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numIncidencia, $configuracion, $BDTpv);
+		$html 	=	$Cincidencias->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
 		
 		break;
 		
 	case 'nuevaIncidencia':
-		$usuario= $_POST['usuario'];
-		$fecha= $_POST['fecha'];
+		$respuesta = array();
 		$datos= $_POST['datos'];
 		$dedonde= $_POST['dedonde'];
 		$estado= $_POST['estado'];
@@ -53,8 +46,7 @@ switch ($pulsado) {
 		}
 		
 		if($mensaje){
-			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numIncidencia);
-			$respuesta=$nuevo['sql'];
+			$respuesta=$Cincidencias->addIncidencia( $dedonde, $datos, $mensaje, $estado, $numIncidencia);
 		}
 	
 	

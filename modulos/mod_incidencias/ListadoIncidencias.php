@@ -4,22 +4,44 @@
 	<?php 
 	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
+	//~ include ("./../../plugins/paginacion/paginacion.php");
+	include ("./../../plugins/paginacion/ClasePaginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-	$ClasesParametros = new ClaseParametros('parametros.xml');
-	include 'ClaseIncidencia.php';
+	include './clases/ClaseIncidencia.php';
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
-	$CIncidencia= new incidencia($BDTpv);
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 30; // por defecto.
-	$filtro = ''; // por defecto
+	$CIncidencia= new ClaseIncidencia($BDTpv);
+	
+	$ClasesParametros = new ClaseParametros('parametros.xml');
+	$parametros = $ClasesParametros->getRoot();
+	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+	
 	$errores=array();
-	$Usuario = $_SESSION['usuarioTpv'];
 	$dedonde='listado Incidencias';
+	// --- Inicializamos objteto de Paginado --- //
+	$NPaginado = new PluginClasePaginacion(__FILE__);
+	$campos = array( 'a.Numalbpro','b.nombrecomercial');
+	$NPaginado->SetCamposControler($Controler,$campos);
+	// --- Ahora contamos registro que hay para es filtro --- //
+	$filtro= $NPaginado->GetFiltroWhere();
+	$CantidadRegistros=0;
+	if ( $NPaginado->GetFiltroWhere() !== ''){
+		// Contar con  filtro..
+		$CantidadRegistros=count($CIncidencia->todasIncidenciasLimite($NPaginado->GetFiltroWhere()));
+	} else {
+		$CantidadRegistros = $CIncidencia->GetNumRows(); 
+	}
+	$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	$htmlPG = $NPaginado->htmlPaginado();	
+	// -- Fin de paginado -- //
+	
+	echo '<pre>';
+	print_r($filtro.$NPaginado->GetLimitConsulta());
+	echo '</pre>';
+	
+	
 	$parametros = $ClasesParametros->getRoot();
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_incidencias',$Usuario['id']);
@@ -27,50 +49,17 @@
 	$configuracion=json_decode(json_encode($configuracion),true);
 	$configuracion=$configuracion['incidencias'];
 
-	if (isset($_GET['pagina'])) {
-		$PgActual = $_GET['pagina'];
-	}
-	if (isset($_GET['buscar'])) {  
-		//recibo un string con 1 o mas palabras
-		$stringPalabras = $_GET['buscar'];
-		$palabraBuscar = explode(' ',$_GET['buscar']); 
-	} 
-	$LinkBase = './ListadoIncidencias.php?';
-	$OtrosParametros = '';
-	$paginasMulti = $PgActual-1;
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
-	} else {
-		$desde = 0;
-	}
-	$WhereLimite = array();
-	$WhereLimite['filtro'] = '';
-	$NuevoRango = '';
-	if ($stringPalabras !== '' ){
-			$campo = array( 'a.Numalbpro','b.nombrecomercial');
-			$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
-			$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
-			$OtrosParametros=$stringPalabras;
-			$WhereLimite['filtro']='WHERE '.$NuevoWhere;
-		}
-	$CantidadRegistros=count($CIncidencia->todasIncidenciasLimite($WhereLimite['filtro']));
-	$WhereLimite['rango']=$NuevoRango;
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-
-	if ($stringPalabras !== '' ){
-			$filtro = $WhereLimite['filtro']." ORDER BY a.num_incidencia desc  ".$WhereLimite['rango'];
-		} else {
-			$filtro= " ORDER BY a.num_incidencia desc  LIMIT ".$LimitePagina." OFFSET ".$desde;
-		}
-		//Buscar todas las incidencias con un límite para el paginado
-	$incidenciasFiltro=$CIncidencia->todasIncidenciasLimite($filtro);
+	$incidenciasFiltro= $CIncidencia->todasIncidenciasLimite($filtro.$NPaginado->GetLimitConsulta());
 	if (isset($incidenciasFiltro['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $incidenciasFiltro['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
-	}	
+	}
+	echo '<pre>';
+	print_r($incidenciasFiltro['consulta']);
+	echo '</pre>';
 	?>
 </head>
 <body>
@@ -101,7 +90,7 @@
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				
-					<li><a onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion);">Añadir</a></li>
+					<li><a onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion);">Añadir</a></li>
 				
 					<li><a href="#section2" onclick="metodoClick('Ver','incidencia');";>Modificar</a></li>
 				
@@ -138,7 +127,7 @@
 				<?php 
 				$checkUser = 0;
 				$numInci=1;
-				foreach($incidenciasFiltro as $incidencia){
+				foreach($incidenciasFiltro['NItems'] as $incidencia){
 							$checkUser = $checkUser + 1;
 							$date=date_create($incidencia['fecha']);
 							//Contar el número de incidencias que tiene un número determinado
@@ -173,11 +162,10 @@
 			</div>
 		
 		</div>	
-			</nav>
 			<?php // Incluimos paginas modales
 			echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-// hacemos comprobaciones de estilos 
-?>
+			include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+			// hacemos comprobaciones de estilos 
+			?>
 </body>
 </html>
