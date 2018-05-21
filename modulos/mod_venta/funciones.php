@@ -191,11 +191,12 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $
 			$sql='select * from articulosClientes where idClientes='.$idCliente.' and 
 			idArticulo='.$producto['idArticulo'].' and estado=1';
 			$res = $BDTpv->query($sql);
-			
+			$bandera=0;
 			$resultado['Nitems']= $res->num_rows;
 			if($resultado['Nitems']>0){
 				if ($fila = $res->fetch_assoc()) {
 					$pvpCiva=$fila['pvpCiva'];
+					$bandera=1;
 				}
 				
 			}
@@ -213,8 +214,13 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $
 								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 								.'<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>'
 								.'<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
-								.'<td>'.number_format($pvpCiva,2).'</td>'
-								.'</tr>';
+								.'<td>'.number_format($pvpCiva,2).'</td>';
+								if($bandera==1){
+									$resultado['html'] .='<td><strike>'.number_format($producto['pvpCiva'],2).'</strike></td>';
+								}else{
+									$resultado['html'] .='<td></td>';
+								}
+			$resultado['html'] .='</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
