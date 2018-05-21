@@ -469,7 +469,8 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		"valorCampo" : busqueda,
 		"campo"      : campo,
 		"idcaja"	 :idcaja,
-		'dedonde'	:dedonde
+		'dedonde'	:dedonde,
+		'idCliente'	:cabecera.idCliente
 	};
 	if (busqueda==""){
 		alert("ERROR NO HAS ESCRITO NADA");
