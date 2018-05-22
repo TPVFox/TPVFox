@@ -50,26 +50,43 @@ function controladorAcciones(caja,accion, tecla){
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
 			break;
+		//~ case 'mover_down':
+			//~ // Controlamos si numero fila es correcto.
+			//~ if ( isNaN(caja.fila) === false){
+				//~ var nueva_fila = parseInt(caja.fila)+1;
+			//~ } else {
+				//~ // quiere decir que no tiene valor.
+				//~ var nueva_fila = 0;
+			//~ }
+			//~ mover_down(nueva_fila,caja.darParametro('prefijo'));
+		//~ break;
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
+			var nueva_fila = 0;
 			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)+1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
-			}
+				nueva_fila = parseInt(caja.fila)+1;
+			} 
+			console.log('mover_down:'+nueva_fila);
 			mover_down(nueva_fila,caja.darParametro('prefijo'));
 		break;
 		case 'mover_up':
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
+			var nueva_fila = 0;
 			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)-1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
-			}
+				nueva_fila = parseInt(caja.fila)-1;
+			} 
 			mover_up(nueva_fila,caja.darParametro('prefijo'));
 		break;
+		//~ case 'mover_up':
+			//~ console.log( 'Accion subir 1 desde fila'+caja.fila);
+			//~ if ( isNaN(caja.fila) === false){
+				//~ var nueva_fila = parseInt(caja.fila)-1;
+			//~ } else {
+				//~ // quiere decir que no tiene valor.
+				//~ var nueva_fila = 0;
+			//~ }
+			//~ mover_up(nueva_fila,caja.darParametro('prefijo'));
+		//~ break;
 		case 'addProveedorProducto':
 			console.log("estoy en add proveedor fila");
 			//Recibe el número de la fila. para poder manipular la referencia de la fila

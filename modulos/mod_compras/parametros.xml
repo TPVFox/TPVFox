@@ -67,6 +67,8 @@
 			<teclas>
 				<action tecla="13">buscarProveedor</action>
 				<action tecla="40">mover_down</action>
+				<action tecla="9">mover_down</action>
+				<action tecla="38">mover_up</action>
 
 			</teclas>
 			<parametros>
