@@ -195,12 +195,13 @@ function modificarCodigoBarras(nfila, bandera=""){
 				productos[nfila]['codBarras']=resultado.codBarras;
 				nfila=nfila+1;
 				id='codigoBarras_'+nfila;
-				//~ console.log(id);
 				$('#codigoBarras_'+nfila).html(resultado.codBarras);
 				addEtiquetadoTemporal();
 				if(bandera==""){
 					var nfilaSig=nfila+1;
+					idOrig='peso_'+nfila;
 					$( "#peso_"+nfilaSig ).select();
+					destacarCambioCaja(idOrig);
 				}
 				destacarCambioCaja(id);
 					
