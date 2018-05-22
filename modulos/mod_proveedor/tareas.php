@@ -21,7 +21,7 @@ switch ($pulsado) {
 		$tipo="mod_proveedor";
 		$fecha=date('Y-m-d');
 		$datos=array(
-		'dedonde'=>$dedonde,
+		'vista'=>$dedonde,
 		'idReal'=>$idReal
 		);
 		$datos=json_encode($datos);
