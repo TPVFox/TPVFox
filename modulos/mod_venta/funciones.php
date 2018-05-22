@@ -637,7 +637,28 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$productosMod=modificarArrayProductos($productos);
 		$productos1=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos1);
-		
+		$albaranFactura=$Cfaccli->AlbaranesFactura($id);
+		$alb_html=[];
+		if ($albaranFactura){
+			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
+			 $albaranes=json_decode(json_encode($modificaralbaran), true);
+			 foreach ($albaranes as $adjunto){ 
+				 
+				$total=0;
+				if(isset($adjunto['total'])){
+					$total=$adjunto['total'];
+				}
+				if (isset ($adjunto['fecha'])){
+					$fecha1=date_create($adjunto['fecha']);
+					$fecha1=date_format($fecha1,'Y-m-d');
+				}else{
+					$fecha1="";
+				}
+				$alb_html[]='<tr><td><b><font size="9">Nun Alb:'.$adjunto['Numalbcli'].'</font></b></td><td WIDTH="50%"><b><font size="9">'.$fecha1.'</font></b></td>
+				<td colspan="4"><b><font size="9">Total  : '.$total.'€</font></b></td></tr>';
+			}
+		}
+		$alb_html=array_reverse($alb_html);
 	}
 	if (isset ($date)){
 		$fecha=date_format($date,'Y-m-d');
@@ -725,7 +746,17 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		//~ $imprimir['cabecera'].='</tr>';
 		//~ $imprimir['cabecera'].='</table>';
 		$imprimir['html'].='<table WIDTH="80%">';
+		$i=0;
+		$numAdjunto=0;
 		foreach ($productos as $producto){
+			if($dedonde=="factura"){
+				$numAdjuntoProd=$producto['NumalbCli'];
+				if($numAdjuntoProd<>$numAdjunto){
+					$imprimir['html'] .= $alb_html[$i];
+					$numAdjunto=$numAdjuntoProd;
+					$i++;
+				}
+			}
 			$imprimir['html'].='<tr>';
 			//~ if ( $dedonde=="albaran"){
 				//~ if ($producto['NumpedCli'] ){
