@@ -38,11 +38,7 @@
 	$htmlPG = $NPaginado->htmlPaginado();	
 	// -- Fin de paginado -- //
 	
-	echo '<pre>';
-	print_r($filtro.$NPaginado->GetLimitConsulta());
-	echo '</pre>';
-	
-	
+		
 	$parametros = $ClasesParametros->getRoot();
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_incidencias',$Usuario['id']);
@@ -58,9 +54,6 @@
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 	}
-	echo '<pre>';
-	print_r($incidenciasFiltro['consulta']);
-	echo '</pre>';
 	?>
 </head>
 <body>
