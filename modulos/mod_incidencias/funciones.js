@@ -25,6 +25,12 @@ function enviarIncidencia(){
 		success    :  function (response) {
 			console.log('Respuesta de añadir una incidencia');
 			var resultado =  $.parseJSON(response);
+			if(resultado.error){
+				alert(resultado.mensaje);
+			}else{
+			
+				$('#busquedaModal').modal('hide');
+			}
 			console.log(resultado);
 			
 		}
