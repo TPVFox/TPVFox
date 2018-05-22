@@ -13,7 +13,7 @@ $pulsado = $_POST['pulsado'];
 use Mike42\Escpos\Printer;
 
 include_once ("./../../configuracion.php");
-include_once ("../mod_incidencias/popup_incidencias.php");
+//~ include_once ("../mod_incidencias/popup_incidencias.php");
 
 // Crealizamos conexion a la BD Datos
 include_once ("./../../inicial.php");
@@ -27,7 +27,8 @@ $Controler = new ControladorComun;
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
 
-
+include_once '../mod_incidencias/clases/ClaseIncidencia.php';
+$CIncidencia=new ClaseIncidencia($BDTpv);
 switch ($pulsado) {
     
     case 'buscarProductos':
@@ -305,7 +306,8 @@ switch ($pulsado) {
 		$datos=json_encode($datos);
 		
 		$estado="No resuelto";
-		$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado,  $numInicidencia, $configuracion, $BDTpv);
+		//~ $html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado,  $numInicidencia, $configuracion, $BDTpv);
+		$html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
 		echo json_encode($respuesta);
@@ -315,11 +317,12 @@ switch ($pulsado) {
 		$usuario= $_POST['usuario'];
 		$fecha= $_POST['fecha'];
 		$datos= $_POST['datos'];
-		$dedonde= $_POST['dedonde'];
+		//~ $dedonde= $_POST['dedonde'];
 		$estado= $_POST['estado'];
 		$mensaje= $_POST['mensaje'];
 		$numInicidencia=0;
 		$usuarioSelect=0;
+		$dedonde="mod_tpv";
 		if(isset($_POST['usuarioSelec'])){
 		$usuarioSelect=$_POST['usuarioSelec'];
 		}
@@ -330,8 +333,10 @@ switch ($pulsado) {
 			$datos=json_encode($datos);
 		}
 		if($mensaje){
-			$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numInicidencia);
-			$respuesta=$nuevo['sql'];
+			//~ $nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numInicidencia);
+			//~ $respuesta=$nuevo['sql'];
+			$nuevo=$CIncidencia->addIncidencia($dedonde, $datos, $mensaje, $estado, $numInicidencia);
+				$respuesta=$nuevo;
 		}
 	echo json_encode($respuesta);
 	
