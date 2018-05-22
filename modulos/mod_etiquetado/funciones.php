@@ -61,15 +61,15 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		$html.='<tr id="Row'.($nuevoProducto['Nfila']).'" '.$classtr.'>'
 		 .'<td class="linea">'.$nuevoProducto['Nfila'].'</td>'
 		 .'<td><input type="text" id="nombre_'.$nuevoProducto['Nfila'].'"  
-		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)" 
+		 data-obj="nombre" onkeydown="controlEventos(event)" 
 		 value="'.$nuevoProducto['nombre'].'" size="50"></td>'
 		 .'<td><input type="text" id="peso_'.$nuevoProducto['Nfila'].'" 
-		 data-obj="peso" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"
+		 data-obj="peso" onkeydown="controlEventos(event)" 
 		  value="'.$nuevoProducto['peso'].'" size="5"></td>'
 		 .'<td>'.$nuevoProducto['precio'].'</td>'
 		 .'<td>'.$nuevoProducto['Fecha'].'</td>'
 		 .'<td><input type="text" id="numAlb_'.$nuevoProducto['Nfila'].'" 
-		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
+		 data-obj="nombre" onkeydown="controlEventos(event)"  
 		 value="'.$nuevoProducto['NumAlb'].'" size="7"></td>'
 		 .'<td id="codigoBarras_'.$nuevoProducto['Nfila'].'">'.$codigoBarras.'</td>'
 		 . $btnELiminar_Retornar
@@ -140,15 +140,15 @@ function lineasProductos($productos){
 		$html.='<tr id="Row'.($nFila).'" '.$classtr.'>'
 		 .'<td class="linea">'.$nFila.'</td>'
 		 .'<td><input type="text" id="nombre_'.$nFila.'"  
-		 data-obj="nombre" onkeydown="controlEventos(event)"  onblur="controlEventos(event)" 
+		 data-obj="nombre" onkeydown="controlEventos(event)"  
 		 value="'.$producto['nombre'].'" size="50"></td>'
 		 .'<td><input type="text" id="peso_'.$nFila.'" 
-		 data-obj="peso" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"
+		 data-obj="peso" onkeydown="controlEventos(event)"  
 		  value="'.$producto['peso'].'" size="5"></td>'
 		 .'<td>'.number_format($producto['precio'], 2).'</td>'
 		 .'<td>'.$producto['Fecha'].'</td>'
 		 .'<td><input type="text" id="numAlb_'.$nFila.'" 
-		 data-obj="numAlb" onkeydown="controlEventos(event)"  onblur="controlEventos(event)"  
+		 data-obj="numAlb" onkeydown="controlEventos(event)"    
 		 value="'.$producto['NumAlb'].'" size="7"></td>'
 		 .'<td  id="codigoBarras_'.$nFila.'">'.$producto['codBarras'].'</td>'
 		 . $btnELiminar_Retornar
