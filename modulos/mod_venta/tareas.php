@@ -12,7 +12,9 @@ include_once ("./../../configuracion.php");
 include_once ("./../../inicial.php");
 // Incluimos funciones
 include_once ("./funciones.php");
-include_once ("../mod_incidencias/popup_incidencias.php");
+//~ include_once ("../mod_incidencias/popup_incidencias.php");
+include_once '../mod_incidencias/clases/ClaseIncidencia.php';
+$CIncidencia=new ClaseIncidencia($BDTpv);
 include_once("clases/pedidosVentas.php");
 $CcliPed=new PedidosVentas($BDTpv);
 include_once("../../clases/producto.php");
@@ -212,7 +214,9 @@ switch ($pulsado) {
 			);
 			$datos=json_encode($datos);
 			$estado="No resuelto";
-			$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
+			$html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
+
+			//~ $html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
 			$respuesta['html']=$html;
 			$respuesta['datos']=$datos;
 		break;
@@ -221,7 +225,8 @@ switch ($pulsado) {
 			$usuario= $_POST['usuario'];
 			$fecha= $_POST['fecha'];
 			$datos= $_POST['datos'];
-			$dedonde= $_POST['dedonde'];
+			//~ $dedonde= $_POST['dedonde'];
+			$dedonde="mos_ventas";
 			$estado= $_POST['estado'];
 			$mensaje= $_POST['mensaje'];
 			$usuarioSelect=0;
@@ -234,9 +239,11 @@ switch ($pulsado) {
 				$datos=json_encode($datos);
 			}
 			$numInicidencia=0;
-			if($mensaje){
-				$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
-				$respuesta=$nuevo['sql'];
+			if(isset($mensaje)){
+				//~ $nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
+				//~ $respuesta=$nuevo['sql'];
+				$nuevo=$CIncidencia->addIncidencia($dedonde, $datos, $mensaje, $estado, $numInicidencia);
+				$respuesta=$nuevo;
 			}
 		break;
 		
