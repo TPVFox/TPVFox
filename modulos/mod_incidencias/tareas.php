@@ -13,7 +13,7 @@ switch ($pulsado) {
 		$configuracion	= $_POST['configuracion'];
 		$dedonde		= $_POST['dedonde'];
 		$datos=array(
-		'dedonde'=>$dedonde
+		'vista'=>$dedonde
 		);
 		$datos			= json_encode($datos);
 		$estado="No resuelto";
