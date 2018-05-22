@@ -105,6 +105,10 @@ function controladorAcciones(caja, accion, tecla){
 				productos[nfila]['nombre']=caja.darValor();
 				console.log(productos[nfila]['nombre']);
 				addEtiquetadoTemporal();
+				id='nombre_'+caja.fila;
+				destacarCambioCaja(id);
+				$( "#peso_"+caja.fila ).select();
+				
 			}else{
 				alert("Error al seleccionar producto");
 			}
@@ -172,14 +176,15 @@ function modificarCodigoBarras(nfila, bandera=""){
 				var resultado =  $.parseJSON(response); 
 				productos[nfila]['codBarras']=resultado.codBarras;
 				nfila=nfila+1;
-				id='#codigoBarras_'+nfila;
-				console.log(id);
+				id='codigoBarras_'+nfila;
+				//~ console.log(id);
 				$('#codigoBarras_'+nfila).html(resultado.codBarras);
 				addEtiquetadoTemporal();
 				if(bandera==""){
 					var nfilaSig=nfila+1;
 					$( "#peso_"+nfilaSig ).select();
 				}
+				destacarCambioCaja(id);
 					
 			}
 		});
@@ -471,4 +476,20 @@ function contarEtiquetasLote(lotes){
 				}
 			}
 		});
+}
+function destacarCambioCaja(idcaja){
+	$("#"+idcaja).css("outline-style","solid");
+	$("#"+idcaja).css("outline-color","coral");
+	$("#"+idcaja).animate({
+			"opacity": "0.3"
+		 },2000);
+	t = setTimeout(volverMostrar,2000,idcaja);
+	
+}
+function volverMostrar(idcaja){
+	console.log('Entro volver mostrar');
+	$("#"+idcaja).animate({
+			"opacity": "1"
+		 },1000);
+	$("#"+idcaja).css("outline-color","transparent")
 }
