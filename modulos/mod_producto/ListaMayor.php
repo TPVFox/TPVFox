@@ -8,7 +8,7 @@
         include ("./../../controllers/Controladores.php");
         include ("./clases/ClaseProductos.php");
         include ('../../clases/articulos.php');
-        
+
         $CArticulos = new Articulos($BDTpv);
         $Tienda = $_SESSION['tiendaTpv'];
         $idTienda = $Tienda['idTienda'];
@@ -63,7 +63,9 @@ if (isset($_POST['Imprimir'])) {
                                 <th>P.V.P</th>
                                 <th>STOCK INICIAL</th>
                                 <th>ELIMINAR</th>
+                                <th>VISUALIZAR</th>
                                 <th>IMPRIMIR</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,7 +74,7 @@ if (isset($_POST['Imprimir'])) {
                             foreach ($_SESSION['productos_seleccionados'] as $producto) {
                                 $articulo = $CArticulos->buscarNombreArticulo($producto);
                                 $precio = $CArticulos->articulosPrecio($producto);
-                                $productos[] = $producto; 
+                                $productos[] = $producto;
                                 ?>
                                 <tr>
                                     <td><?php echo $producto; ?></td>
@@ -84,19 +86,35 @@ if (isset($_POST['Imprimir'])) {
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </a>
                                     </td>
-                                    <td id="imprimir<?php echo $producto; ?>">
-                                        
+                                    <td id="visualizar<?php echo $producto; ?>">
+                                        <button class="btn btn-primary" 
+                                                type="button" 
+                                                data-toggle="collapse" 
+                                                data-target="#multiCollapseExample<?php echo $producto; ?>" 
+                                                aria-expanded="false" 
+                                                aria-controls="multiCollapseExample<?php echo $producto; ?>">
+                                            <span class="glyphicon glyphicon-eye-open"></span>
+                                        </button>
+                                    </td>
+                                    <td id="imprimir<?php echo $producto; ?>"> </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7">
+                                        <div class="collapse multi-collapse" id="multiCollapseExample<?php echo $producto; ?>">
+                                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 
+                                            Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
+                                        </div>
                                     </td>
                                 </tr>
                                 <?php
                             }
-                            echo '<input type="hidden" id="idsproducto" value="'.implode(', ', $productos),'" />';
+                            echo '<input type="hidden" id="idsproducto" value="' . implode(', ', $productos), '" />';
                             ?>
                         </tbody>
                     </table>
                 </div>
                 <div id="tablamayor" class="col-10" style="display: none">
-                    
+
                 </div>
             </div>
         </div>
