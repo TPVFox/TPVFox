@@ -179,6 +179,7 @@ switch ($pulsado) {
 			$numInicidencia=0;
 			if($mensaje){
 				$nuevo=$CIncidencia->addIncidencia($dedonde, $datos, $mensaje, $estado, $numInicidencia);
+				$respuesta=$nuevo;
 				//~ $nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
 				//~ $respuesta=$nuevo['sql'];
 			}
