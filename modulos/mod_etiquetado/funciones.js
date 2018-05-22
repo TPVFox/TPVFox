@@ -152,6 +152,24 @@ function controladorAcciones(caja, accion, tecla){
 		case 'GuardarFechaCad':
 			cabecera.fechaCad=caja.darValor();
 		break;
+		case  'mover_down':
+			console.log("EStoy en mover dow");
+			var nfila=parseInt(caja.fila)+1
+			
+			console.log(caja);
+			id=caja.parametros.prefijo+nfila;
+			console.log(id);
+			$( "#"+id ).select();
+		break;
+		case 'mover_up':
+			console.log("EStoy en mover up");
+			var nfila=parseInt(caja.fila)-1
+			
+			console.log(caja);
+			id=caja.parametros.prefijo+nfila;
+			console.log(id);
+			$( "#"+id ).select();
+		break;
 	}
 }
 function modificarCodigoBarras(nfila, bandera=""){
@@ -355,26 +373,26 @@ function before_constructor(caja){
 
 	return caja;
 }
-function mover_down(fila,prefijo){
-	console.log('mover down'+fila);
+//~ function mover_down(fila,prefijo){
+	//~ console.log('mover down'+fila);
 
-	var d_focus = prefijo+fila;
-		if ( document.getElementById(d_focus) ) {
-			ponerSelect(d_focus);
-		}else{
-			//estamos en abrir modal ponemos focus en la 1ª opc despues de buscar algo.. nos movemos con tabulador
-			ponerFocus(d_focus);
-		}
-}
-function mover_up(fila,prefijo){
-	console.log("entro en mover up");
-	console.log(fila);
+	//~ var d_focus = prefijo+fila;
+		//~ if ( document.getElementById(d_focus) ) {
+			//~ ponerSelect(d_focus);
+		//~ }else{
+			//~ //estamos en abrir modal ponemos focus en la 1ª opc despues de buscar algo.. nos movemos con tabulador
+			//~ ponerFocus(d_focus);
+		//~ }
+//~ }
+//~ function mover_up(fila,prefijo){
+	//~ console.log("entro en mover up");
+	//~ console.log(fila);
 	
-	var d_focus = prefijo+fila;
+	//~ var d_focus = prefijo+fila;
 	
-	console.log(d_focus);
-	ponerSelect(d_focus);
-}
+	//~ console.log(d_focus);
+	//~ ponerSelect(d_focus);
+//~ }
 function eliminarFila(num_item, dedonde){
 	//@Objetivo :
 	//Cambiar a estado eliminado , para dar la sensación de que el producto está eliminado

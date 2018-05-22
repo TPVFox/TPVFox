@@ -62,8 +62,8 @@
 			<nombre id_input="nombre">nombre</nombre>
 			<teclas>
 				<action tecla="13">modificarNombreProducto</action>
-				<action tecla="40">mover_up</action>
-				<action tecla="38">mover_down</action>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="prefijo">nombre_</parametro>
@@ -79,8 +79,8 @@
 			<nombre id_input="peso">peso</nombre>
 			<teclas>
 				<action tecla="13">modificarPesoProducto</action>
-				<action tecla="40">mover_up</action>
-				<action tecla="38">mover_down</action>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="prefijo">peso_</parametro>
@@ -96,8 +96,8 @@
 			<nombre id_input="numAlb">numAlb</nombre>
 			<teclas>
 				<action tecla="13">modificarNumeroAlbaranProducto</action>
-				<action tecla="40">mover_up</action>
-				<action tecla="38">mover_down</action>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="prefijo">numAlb_</parametro>
