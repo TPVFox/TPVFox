@@ -140,7 +140,7 @@ function lineasProductos($productos){
 		$html.='<tr id="Row'.($nFila).'" '.$classtr.'>'
 		 .'<td class="linea">'.$nFila.'</td>'
 		 .'<td><input type="text" id="nombre_'.$nFila.'"  
-		 data-obj="nombre" onkeydown="controlEventos(event)"  
+		 data-obj="nombre" onkeydown="controlEventos(event)"
 		 value="'.$producto['nombre'].'" size="50"></td>'
 		 .'<td><input type="text" id="peso_'.$nFila.'" 
 		 data-obj="peso" onkeydown="controlEventos(event)"  
