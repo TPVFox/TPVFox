@@ -60,16 +60,20 @@
 				if(isset($etiquetaReal['num_lote'])){
 					$idReal=$etiquetaReal['num_lote'];
 				}
-				switch($tipo){
-					case '1':
-						$TipoTexto="Por unidad";
-					break;
-					case '2':
-						$TipoTexto="Por peso";
-					break;
-					default:
-						$TipoTexto="Sin seleccionar";
-					break;
+				if(isset($tipo)){
+					switch($tipo){
+						case '1':
+							$TipoTexto="Por unidad";
+						break;
+						case '2':
+							$TipoTexto="Por peso";
+						break;
+						default:
+							$TipoTexto="Sin seleccionar";
+						break;
+					}
+				}else{
+					$TipoTexto="Sin seleccionar";
 				}
 				
 			}
@@ -208,11 +212,13 @@
 			}
 			
 		}
+	
 				foreach($productos as $producto){
 					$nFila=1;
 					$producto['Nfila']=$nFila;
 					$nFila++;
 				}
+		
 				//~ echo count($productos);
 				
         ?>
