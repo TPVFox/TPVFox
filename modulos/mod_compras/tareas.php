@@ -163,7 +163,8 @@ switch ($pulsado) {
 			$usuario= $_POST['usuario'];
 			$fecha= $_POST['fecha'];
 			$datos= $_POST['datos'];
-			$dedonde= $_POST['dedonde'];
+			//~ $dedonde= $_POST['dedonde'];
+			$dedonde="mod_compras";
 			$estado= $_POST['estado'];
 			$mensaje= $_POST['mensaje'];
 			$usuarioSelect=0;
@@ -177,8 +178,9 @@ switch ($pulsado) {
 			}
 			$numInicidencia=0;
 			if($mensaje){
-				$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
-				$respuesta=$nuevo['sql'];
+				$nuevo=$CIncidencia->addIncidencia($dedonde, $datos, $mensaje, $estado, $numInicidencia);
+				//~ $nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
+				//~ $respuesta=$nuevo['sql'];
 			}
 		break;
 		case 'cancelarTemporal':
