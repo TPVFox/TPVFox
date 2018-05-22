@@ -141,7 +141,7 @@
 			<?php
 			}
 			?>
-			<a  onclick="abrirIndicencia('<?php echo $dedonde;?>' , <?php echo $Usuario['id'];?>, configuracion , <?php echo $idProveedor ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
 			<div class="col-md-12">
