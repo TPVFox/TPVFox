@@ -67,9 +67,10 @@ function modificarTipo(tipo){
 	}
 	$('#tipoTabla').html(tipoTabla);
 	cabecera.tipo=tipo;
+	var bandera=1;
 	if(productos.length>0){
 		for (i=0;i<productos.length;i++){ 
-				modificarCodigoBarras(i);
+				modificarCodigoBarras(i, bandera);
 		}
 	}
 }
@@ -149,7 +150,7 @@ function controladorAcciones(caja, accion, tecla){
 		break;
 	}
 }
-function modificarCodigoBarras(nfila){
+function modificarCodigoBarras(nfila, bandera=""){
 	//@OBjetivo:
 	//MOdificar el código de barras
 	//Si se modifican los datos del producto se tiene que modificar el código de barras de ese producto
@@ -175,9 +176,11 @@ function modificarCodigoBarras(nfila){
 				console.log(id);
 				$('#codigoBarras_'+nfila).html(resultado.codBarras);
 				addEtiquetadoTemporal();
-				var nfilaSig=nfila+1;
-				$( "#peso_"+nfilaSig ).select();
-				
+				if(bandera==""){
+					var nfilaSig=nfila+1;
+					$( "#peso_"+nfilaSig ).select();
+				}
+					
 			}
 		});
 }
