@@ -31,6 +31,7 @@
 		// Contar con  filtro..
 		$CantidadRegistros=count($CIncidencia->todasIncidenciasLimite($NPaginado->GetFiltroWhere()));
 	} else {
+		// Obtengo num_registros sin filtro.
 		$CantidadRegistros = $CIncidencia->GetNumRows(); 
 	}
 	$NPaginado->SetCantidadRegistros($CantidadRegistros);

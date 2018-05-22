@@ -168,15 +168,11 @@ class ClaseIncidencia{
 		$datosPrincipales=json_decode($datos);
 		$html="";
 		$html.='<div class="col-md-12">'
-					.'<div class="col-md-2">'
-						.'<label>Usuario:</label>'
-						.'<input type="text" name="inci_usuario" id="inci_usuario" size="4" value="'.$usuario.'" readonly="">'
-					.'</div>'
-					.'<div class="col-md-5">'
+					.'<div class="col-md-6">'
 						.'<label>Fecha:</label>'
 						.'<input type="date" name="inci_fecha" id="inci_fecha" value="'.date("Y-m-d H:i:s").'" readonly="">'
 					.'</div>'
-					.'<div class="col-md-5">'
+					.'<div class="col-md-6">'
 						.'<label>Dedonde:</label>'
 						.'<input type="text" name="inci_dedonde" id="inci_dedonde" value="'.$dedonde.'" readonly="">'
 					.'</div>'
@@ -221,6 +217,7 @@ class ClaseIncidencia{
 			.'<div class="text-right">'
 			.'<a class="btn btn-primary" onclick="enviarIncidencia();" >Guardar</a>'
 			.'<input type="hidden" name="numIncidencia" id="numIncidencia" value='.$numIncidencia.'>'
+			.'<input type="hidden" name="inci_usuario" id="inci_usuario" value="'.$usuario.'">'
 			.'</div>';
 	return $html;
 		
