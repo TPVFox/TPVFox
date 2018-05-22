@@ -58,8 +58,16 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-function abrirModalIndicencia(dedonde, configuracion,numIncidencia=0, idReal=""){
-	// Objetivo es preparar el html para mostrar modal de incidencia.
+function abrirModalIndicencia(dedonde, configuracion,numIncidencia=0){
+	// @ Objetivo 
+	// 	Preparar el html para mostrar modal de incidencia.
+	// @ Parametros:
+	// 	dedonde -> indica el modulo desde donde se ejecuta.
+	//  configuracion-> Objecto que obtenermos parametros del modulo 
+	//					mostrar_select ->donde indica si mostramos select asignar usuarios
+	//					usuario_Defecto-> indica al select que usuario tiene por defecto.
+	// 	numIncidencia -> Si trae valor es que se esta respondiendo, por lo que estado debería permitir seleccionarlo.
+	
 	console.log(dedonde);
 	
 	var parametros = {
@@ -67,8 +75,6 @@ function abrirModalIndicencia(dedonde, configuracion,numIncidencia=0, idReal="")
 		"dedonde" : dedonde,
 		"numIncidencia":numIncidencia,
 		"configuracion":configuracion,
-		'idReal': idReal
-		
 	};
 	console.log(configuracion);
 		$.ajax({

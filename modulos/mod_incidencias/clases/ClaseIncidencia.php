@@ -181,7 +181,8 @@ class ClaseIncidencia{
 				
 				.'<div class="col-md-6">'
 				.'<label>Estado:</label>';
-				if ($datosPrincipales->dedonde=="incidencia"){
+				if ($numIncidencia > 0){
+					// Si hay numero incidencia se puede cambiar estado... 
 					$html.='<select name="inci_estado" id="inci_estado">'
 					.'<option value=0 selected>No resuelto</option>'
 					.'<option value=1 selected>Resuelto</option>'
