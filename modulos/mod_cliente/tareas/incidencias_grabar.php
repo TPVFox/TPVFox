@@ -1,8 +1,8 @@
 <?php
 // Llegamos aquí de tareas , donde mostramos grabamos incidencia.
-include_once ($RutaServidor . $HostNombre."/modulos/mod_incidencias/popup_incidencias.php");
+include_once ($RutaServidor . $HostNombre."/modulos/mod_incidencias/clases/ClaseIncidencia.php");
 include_once ($RutaServidor . $HostNombre."/modulos/mod_cliente/funciones.php");
-
+$CIncidencia=new ClaseIncidencia($BDTpv);
 $usuario= $_POST['usuario'];
 $fecha= $_POST['fecha'];
 $datos= $_POST['datos'];
@@ -22,7 +22,9 @@ if($usuarioSelect>0){
 }
 $numInicidencia=0;
 if($mensaje){
-	$nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
-	$respuesta=$nuevo['sql'];
+	$nuevo=$CIncidencia->addIncidencia($dedonde, $datos, $mensaje, $estado, $numInicidencia);
+	$respuesta=$nuevo;
+	//~ $nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv,  $numInicidencia);
+	//~ $respuesta=$nuevo['sql'];
 }
 ?>

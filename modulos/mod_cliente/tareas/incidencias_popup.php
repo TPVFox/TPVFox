@@ -1,8 +1,8 @@
 <?php
 // Llegamos aquí de tareas , donde necesitamos creamos incidencia.
-include_once ($RutaServidor . $HostNombre."/modulos/mod_incidencias/popup_incidencias.php");
+include_once ($RutaServidor . $HostNombre."/modulos/mod_incidencias/clases/ClaseIncidencia.php");
 include_once ($RutaServidor . $HostNombre."/modulos/mod_cliente/funciones.php");
-
+$CIncidencia=new ClaseIncidencia($BDTpv);
 $dedonde=$_POST['dedonde'];
 $usuario=$_POST['usuario'];
 $idReal=0;
@@ -20,7 +20,9 @@ $datos=array(
 );
 $datos=json_encode($datos);
 $estado="No resuelto";
-$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
+$numIncidencia=0;
+$html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
+//~ $html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
 $respuesta['html']=$html;
 $respuesta['datos']=$datos;
 
