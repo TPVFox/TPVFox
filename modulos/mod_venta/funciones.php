@@ -602,7 +602,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 		$textoCabecera="Pedido de cliente";
 		$numero=$datos['Numpedcli'];
-		$fecha=$datos['FechaPedido'];
+		$date=date_create($datos['FechaPedido']);
+		//~ $fecha=$datos['FechaPedido'];
 		$productos=$Cpedido->ProductosPedidos($id);
 		$productosMod=modificarArrayProductos($productos);
 		$productos1=json_decode(json_encode($productosMod));
@@ -615,7 +616,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 		$textoCabecera="Albarán de Cliente";
 		$numero=$datos['Numalbcli'];
-		$fecha=$datos['Fecha'];
+		//~ $fecha=$datos['Fecha'];
+		$date=date_create($datos['Fecha']);
 		$productos=$Calbaran->ProductosAlbaran($id);
 		$productosMod=modificarArrayProductos($productos);
 		$productos1=json_decode(json_encode($productosMod));
@@ -629,68 +631,97 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
 		$textoCabecera="Factura de Cliente";
 		$numero=$datos['Numfaccli'];
-		$fecha=$datos['Fecha'];
+		//~ $fecha=$datos['Fecha'];
+		$date=date_create($datos['Fecha']);
 		$productos=$Cfaccli->ProductosFactura($id);
 		$productosMod=modificarArrayProductos($productos);
 		$productos1=json_decode(json_encode($productosMod));
 		$Datostotales = recalculoTotales($productos1);
 	}
-	$imprimir['cabecera'].='<p></p><p></p>';
-		$imprimir['cabecera'].='<table>';
-		$imprimir['cabecera'].='<tr>';
-		$imprimir['cabecera'].='<td>'.$tienda['NombreComercial'].'</td>';
-		$imprimir['cabecera'].='<td>'.$textoCabecera.'</td>';
-		$imprimir['cabecera'].='</tr>';
-		$imprimir['cabecera'].='<tr>';
-		$imprimir['cabecera'].='<td>'.$tienda['direccion'].'</td>';
-		$imprimir['cabecera'].='<td>Nª'.$numero.'</td>';
-		$imprimir['cabecera'].='</tr>';
-		$imprimir['cabecera'].='<tr>';
-		$imprimir['cabecera'].='<td> NIF: '.$tienda['nif'].'</td>';
-		$imprimir['cabecera'].='<td>Fecha: '.$fecha.'</td>';
-		$imprimir['cabecera'].='</tr>';
-		$imprimir['cabecera'].='<tr>';
-		$imprimir['cabecera'].='<td> Teléfono: '.$tienda['telefono'].'</td>';
-		$imprimir['cabecera'].='<td></td>';
-		$imprimir['cabecera'].='</tr>';
-		$imprimir['cabecera'].='</table>';
+	if (isset ($date)){
+		$fecha=date_format($date,'Y-m-d');
+	}else{
+		$fecha="";
+	}
+	$imprimir['cabecera'].='<font size="20">Super Oliva </font><br>
+		<font size="12">'.$tienda['razonsocial'].'</font><br>'.
+		'<font size="12">'.$tienda['direccion'].'</font><br>'.
+		'<font size="9"><b>NIF: </b>'.$tienda['nif'].'</font><br>'.
+		'<font size="9"><b>Teléfono: </b>'.$tienda['telefono'].'</font><br>'.
+		'<font size="17">'.$textoCabecera.' número '.$numero.' con Fecha '.$fecha.'</font>'.
+		'<hr>'.
+		'<font size="20">'.$datosCliente['Nombre'].'</font><br>'.
+		'<table><tr><td><font size="12">'.$datosCliente['razonsocial'].'</font></td>
+		<td><font>Dirección de entrega :</font></td></tr>'.
+		'<tr><td><font size="9"><b>NIF: </b>'.$datosCliente['nif'].'</font></td>
+		<td><font>'.$datosCliente['direccion'].'</font></td></tr>'.
+		'<tr><td><font size="9"><b>Teléfono: </b>'.$datosCliente['telefono'].'</font></td>
+		<td><font size="9">Código Postal: </font></td></tr>'.
+		'<tr><td><font size="9">email: '.$datosCliente['email'].'</font></td><td></td></tr></table>'.
+		'<table WIDTH="80%" border="1px"><tr>
+			<td>Referencia</td>
+			<td WIDTH="50%">Descripción del producto</td>
+			<td>Unid/Peso</td>
+			<td>Precio</td>
+			<td>Importe</td>
+			<td>IVA</td>
+			</tr></table>';
+	//~ $imprimir['cabecera'].='<p></p><p></p>';
+		//~ $imprimir['cabecera'].='<table>';
+		//~ $imprimir['cabecera'].='<tr>';
+		//~ $imprimir['cabecera'].='<td>'.$tienda['NombreComercial'].'</td>';
+		//~ $imprimir['cabecera'].='<td>'.$textoCabecera.'</td>';
+		//~ $imprimir['cabecera'].='</tr>';
+		//~ $imprimir['cabecera'].='<tr>';
+		//~ $imprimir['cabecera'].='<td>'.$tienda['direccion'].'</td>';
+		//~ $imprimir['cabecera'].='<td>Nª'.$numero.'</td>';
+		//~ $imprimir['cabecera'].='</tr>';
+		//~ $imprimir['cabecera'].='<tr>';
+		//~ $imprimir['cabecera'].='<td> NIF: '.$tienda['nif'].'</td>';
+		//~ $imprimir['cabecera'].='<td>Fecha: '.$fecha.'</td>';
+		//~ $imprimir['cabecera'].='</tr>';
+		//~ $imprimir['cabecera'].='<tr>';
+		//~ $imprimir['cabecera'].='<td> Teléfono: '.$tienda['telefono'].'</td>';
+		//~ $imprimir['cabecera'].='<td></td>';
+		//~ $imprimir['cabecera'].='</tr>';
+		//~ $imprimir['cabecera'].='</table>';
 		
-		$imprimir['cabecera'].='<hr/><hr/>';
-		$imprimir['cabecera'].='DATOS DEL CLIENTE: '.$datosCliente['Clientes'].'<br>';
+		//~ $imprimir['cabecera'].='<hr/><hr/>';
+		//~ $imprimir['cabecera'].='DATOS DEL CLIENTE: '.$datosCliente['Clientes'].'<br>';
 		
-		$imprimir['cabecera'].='<table>';
-		$imprimir['cabecera'].='<tr>';
-		$imprimir['cabecera'].='<td>'.$datosCliente['Nombre'].'</td>';
-		$imprimir['cabecera'].='<td>NIF: '.$datosCliente['nif'].'</td>';
-		$imprimir['cabecera'].='</tr>';
-		$imprimir['cabecera'].='<tr>';
-		$imprimir['cabecera'].='<td>'.$datosCliente['direccion'].'</td>';
-		$imprimir['cabecera'].='<td>CODPOSTAL: '.$datosCliente['codpostal'].'</td>';
-		$imprimir['cabecera'].='</tr>';
-		$imprimir['cabecera'].='<tr>';
-		$imprimir['cabecera'].='<td>'.$datosCliente['razonsocial'].'</td>';
-		$imprimir['cabecera'].='<td>TELÉFONO: '.$datosCliente['telefono'].'</td>';
-		$imprimir['cabecera'].='</tr>';
-		$imprimir['cabecera'].='</table>';
-		$imprimir['cabecera'].='</br></br>';
-		$imprimir['cabecera'].='<hr/><hr/>';
-		$imprimir['cabecera'].='</br></br>';
-		$imprimir['cabecera'].='<table>';
-		$imprimir['cabecera'].='<tr>';
-		if ($dedonde=="albaran"){
-			$imprimir['cabecera'].='<td WIDTH="6%" align="center">PED</td>';
-		}
-		if ($dedonde=="factura"){
-			$imprimir['cabecera'].='<td WIDTH="5%" align="center">ALB</td>';
-		}
-		$imprimir['cabecera'].='<td WIDTH="15%" >REF</td>';
-		$imprimir['cabecera'].='<td WIDTH="40%">DESCRIPCIÓN</td>';
-		$imprimir['cabecera'].='<td WIDTH="7%" >CANT</td>';
-		$imprimir['cabecera'].='<td WIDTH="10%" >PRECIO</td>';
-		$imprimir['cabecera'].='<td WIDTH="7%" >IVA</td>';
-		$imprimir['cabecera'].='<td WIDTH="20%" >IMPORTE</td>';
-		$imprimir['cabecera'].='</tr>';
-		$imprimir['cabecera'].='</table>';
+		//~ $imprimir['cabecera'].='<table>';
+		//~ $imprimir['cabecera'].='<tr>';
+		//~ $imprimir['cabecera'].='<td>'.$datosCliente['Nombre'].'</td>';
+		//~ $imprimir['cabecera'].='<td>NIF: '.$datosCliente['nif'].'</td>';
+		//~ $imprimir['cabecera'].='</tr>';
+		//~ $imprimir['cabecera'].='<tr>';
+		//~ $imprimir['cabecera'].='<td>'.$datosCliente['direccion'].'</td>';
+		//~ $imprimir['cabecera'].='<td>CODPOSTAL: '.$datosCliente['codpostal'].'</td>';
+		//~ $imprimir['cabecera'].='</tr>';
+		//~ $imprimir['cabecera'].='<tr>';
+		//~ $imprimir['cabecera'].='<td>'.$datosCliente['razonsocial'].'</td>';
+		//~ $imprimir['cabecera'].='<td>TELÉFONO: '.$datosCliente['telefono'].'</td>';
+		//~ $imprimir['cabecera'].='</tr>';
+		//~ $imprimir['cabecera'].='</table>';
+		//~ $imprimir['cabecera'].='</br></br>';
+		//~ $imprimir['cabecera'].='<hr/><hr/>';
+		//~ $imprimir['cabecera'].='</br></br>';
+		//~ $imprimir['cabecera'].='<table>';
+		//~ $imprimir['cabecera'].='<tr>';
+		//~ if ($dedonde=="albaran"){
+			//~ $imprimir['cabecera'].='<td WIDTH="6%" align="center">PED</td>';
+		//~ }
+		//~ if ($dedonde=="factura"){
+			//~ $imprimir['cabecera'].='<td WIDTH="5%" align="center">ALB</td>';
+		//~ }
+		//~ $imprimir['cabecera'].='<td WIDTH="15%" >REF</td>';
+		//~ $imprimir['cabecera'].='<td WIDTH="40%">DESCRIPCIÓN</td>';
+		//~ $imprimir['cabecera'].='<td WIDTH="7%" >CANT</td>';
+		//~ $imprimir['cabecera'].='<td WIDTH="10%" >PRECIO</td>';
+		//~ $imprimir['cabecera'].='<td WIDTH="7%" >IVA</td>';
+		//~ $imprimir['cabecera'].='<td WIDTH="20%" >IMPORTE</td>';
+		//~ $imprimir['cabecera'].='</tr>';
+		//~ $imprimir['cabecera'].='</table>';
 		$imprimir['html'].='<table>';
 		foreach ($productos as $producto){
 			$imprimir['html'].='<tr>';
