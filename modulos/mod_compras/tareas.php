@@ -10,13 +10,14 @@ $pulsado = $_POST['pulsado'];
 include_once ("./../../configuracion.php");
 include_once ("./../../inicial.php");
 include_once ("./funciones.php");
-include_once ("../mod_incidencias/popup_incidencias.php");
+//~ include_once ("../mod_incidencias/popup_incidencias.php");
 include_once "clases/pedidosCompras.php";
 include_once '../../clases/Proveedores.php';
 include_once "clases/albaranesCompras.php";
 include_once "clases/facturasCompras.php";
 include_once "../../clases/articulos.php";
-
+include_once '../mod_incidencias/clases/ClaseIncidencia.php';
+$CIncidencia=new ClaseIncidencia($BDTpv);
 $CProveedores=new Proveedores($BDTpv);
 $CPed=new PedidosCompras($BDTpv);
 $CAlb=new AlbaranesCompras($BDTpv);
@@ -149,7 +150,8 @@ switch ($pulsado) {
 			);
 			$datos=json_encode($datos);
 			$estado="No resuelto";
-			$html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
+			$html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
+			//~ $html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado, $numInicidencia, $configuracion, $BDTpv);
 			$respuesta['html']=$html;
 			$respuesta['datos']=$datos;
 		break;
