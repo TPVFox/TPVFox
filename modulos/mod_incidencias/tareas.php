@@ -11,9 +11,9 @@ switch ($pulsado) {
 	case 'abririncidencia':
 		$numIncidencia	= $_POST['numIncidencia']; // Siempre lo debemos enviar, si es nuevo enviamos 0
 		$configuracion	= $_POST['configuracion'];
-		$dedonde		= $_POST['dedonde'];
+		$dedonde		= 'mod_incidencia';
 		$datos=array(
-		'vista'=>$dedonde
+		'vista'=>$_POST['dedonde']
 		);
 		$datos			= json_encode($datos);
 		$estado="No resuelto";

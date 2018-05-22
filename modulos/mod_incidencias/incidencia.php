@@ -3,7 +3,6 @@
 <head>
 	<?php 
 	include './../../head.php';
-	include './funciones.php';
 	include ("./../../controllers/Controladores.php");
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
