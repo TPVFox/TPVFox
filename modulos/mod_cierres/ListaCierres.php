@@ -1,89 +1,46 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php
+	<?php
 	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
+	//~ include ("./../../plugins/paginacion/paginacion.php");
+	include ("./../../plugins/paginacion/ClasePaginacion.php");
 	include ("./../../controllers/Controladores.php");
-	
+	$Controler = new ControladorComun; 
+	$Controler->loadDbtpv($BDTpv);
 	$fecha_dmYHora = 'd-m-Y H:m:s';
-	//INICIALIZAMOS variables para el plugin de paginado:
-	//$PgActual = 1 por defecto
-	//$CantidadRegistros , usamos la funcion contarRegistro de la class controladorComun /controllers/Controladores  
-	//$LimitePagina = 40 o los que queramos
-	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
-	//$OtrosParametros
-	$palabraBuscar=array();
-	$stringPalabras='';	
-	$filtro = ''; // por defecto
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
 	$linkResumen = '<span title="Pon la fechas en filtro" class="glyphicon glyphicon-info-sign"> Ver Resumen </span>';
-	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-	if (isset($_GET['pagina'])) {
-		$PgActual = $_GET['pagina'];
+	$vista = 'cierres';
+	// --- Inicializamos objteto de Paginado --- //
+	$NPaginado = new PluginClasePaginacion(__FILE__);
+	$campos = array( 'idCierre');
+	$NPaginado->SetCamposControler($Controler,$campos);
+	// --- Ahora contamos registro que hay para es filtro --- //
+	$filtro= $NPaginado->GetFiltroWhere();
+	$CantidadRegistros=0;
+	if ( $NPaginado->GetFiltroWhere() !== ''){
+		// Contar con  filtro..
+		$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
+
+	} else {
+		// Obtengo num_registros sin filtro.
+		$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
 	}
-	if (isset($_GET['buscar'])) {  
-		$stringPalabras = $_GET['buscar'];
-		$palabraBuscar = explode(' ',$_GET['buscar']); 		
-	} 
+	$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	$htmlPG = $NPaginado->htmlPaginado();
+	$limite = $NPaginado->GetLimitConsulta(); // Me hace falta limite para obtener cierre.
+	// -- Fin de paginado -- //
+
 	if (isset ($_GET['fecha1']) & isset($_GET['fecha2'])){
 		$fecha1=$_GET['fecha1'];
 		$fecha2=$_GET['fecha2'];
 		// Montamos link para mostrar para poder ver resumen
 		$linkResumen = '<a href="ResumenFechas.php?fecha1='.$fecha1.'&fecha2='.$fecha2.'">Ver Resumen</a>';
-		
-		
-		
-		
-		
-	}
-	// Creamos objeto controlado comun, para obtener numero de registros. 
-	//parametro necesario para plugin de paginacion
-	//funcion contarRegistro necesita:
-	//$BDTpv 
-	//$vista --> es la tabla en la que trabajamos
-	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
-	
-	$Controler = new ControladorComun; 
-	
-	$vista = 'cierres';
-	$LinkBase = './ListaCierres.php?';
-	$OtrosParametros = '';	
-	$filtro = '';
-	$limite = '';
-	$paginasMulti = $PgActual-1;
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
-	} else {
-		$desde = 0;
-	}
-
-	//si hay palabras a buscar
-	if ($stringPalabras !== '' ){
-		$campoBD='idCierre';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD='',$campo3BD='');
-		$filtro=$WhereLimite['filtro'];
-		$OtrosParametros=$stringPalabras;
-	}
-
-
-	//$OtrosParametros = $palabraBuscar;	
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
-	} else {
-		$limite= " LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}
-	
-	
-	if (isset($_GET['fecha1']) & isset($_GET['fecha2'])){
 		// SI recibe por get las fechas añade el filtro a la consulta
 		$filtro=' FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
 	}
-	
+
 	$cierres = obtenerCierres($BDTpv,$filtro,$limite);
 	
 	
@@ -173,14 +130,14 @@
 				
 	
 				<?php
-				$checkUser = 0;
+				$check = 0;
 				foreach (array_reverse($cierres) as $cierre){ 
-					$checkUser = $checkUser + 1; 
+					$check ++ ; 
 				?>
 
 				<tr>
 					<td class="rowUsuario">
-						<input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cierre['idCierre'];?>">
+						<input type="checkbox" name="checkUsu<?php echo $check;?>" value="<?php echo $cierre['idCierre'];?>">
 					</td>
 					<td><?php echo $cierre['idCierre']; ?></td>
 					<td><?php echo $cierre['nombreUsuario']; ?></td>					
