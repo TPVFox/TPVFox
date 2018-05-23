@@ -305,6 +305,9 @@ function modificarArrayProductos($productos){
 		if(isset($producto['NumpedCli'])){
 			$product['NumpedCli']=$producto['NumpedCli'];
 		}
+		if(isset($producto['Numalbcli'])){
+			$product['Numalbcli']=$producto['Numalbcli'];
+		}
 		//~ $product['importe']=$producto['precioCiva']*$producto['nunidades'];
 		$product['importe']=$sinIva*$producto['nunidades'];
 		array_push($respuesta,$product);

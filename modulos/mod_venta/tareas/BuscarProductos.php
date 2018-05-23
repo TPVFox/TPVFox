@@ -9,7 +9,7 @@
 			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idCliente);
 			if ($res['Nitems']===1){
 				$respuesta=$res;
-				$respuesta['Nitems']=$res['Nitems'];	
+				$respuesta['Nitems']=$res['Nitems'];
 			}else{
 				// Cambio estado para devolver que es listado.
 				$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde, $BDTpv, $idCliente);
