@@ -20,6 +20,7 @@
 						$respuesta['datos']['estado']="Activo";
 						$respuesta['Nitems']=$res['Nitem'];
 						$productosPedido=$CcliPed->ProductosPedidos($res['id']);
+						$productosPedido=modificarArrayProductos($productosPedido);
 						if (isset($productosPedido['error'])){
 							$respuesta['error']=$productosPedido['error'];
 							$respuesta['consulta']=$productosPedido['consulta'];
