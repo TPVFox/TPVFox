@@ -62,7 +62,7 @@ function controladorAcciones(caja, accion) {
 				console.log(caja.dedonde);
 				leerArticulo({dedonde: caja.dedonde,idcliente: cliente.idClientes, caja: idcaja, valor: caja.darValor()});
 			} else {
-				// quiere decir que no tuene valor .
+				// quiere decir que no tiene valor cja saltamos. .
 				if (caja.dedonde !=='popup'){
 					//
 					ponerFocusCajasEntradas(caja.name_cja);
@@ -192,9 +192,8 @@ function leerArticulo(parametros) {
 			var idCliente = $('#id_cliente').val();
 			console.log(parametros.caja);
 			if (obj.NItems === 1 && parametros.dedonde !=='popup') {
-				console.log('Entr0');
 				// Mostrar linea de entrada precio sin iva y con iva.
-				mostrarLineaEntradaPrecios(response);
+				mostrarLineaEntradaPrecios(response[0]);
 			} else {
 				// Abrimos de popup , aunque ya los tengamos abierto,... lo hacemos
 				// [PENDIENTE RESOLVER] No esta bien volver abrir, ya lo tuvieramos abierto, solo debería recargar...
@@ -261,6 +260,7 @@ function escribirProductoSeleccionado(name,iva,pvpSiva,pvpCiva,idArticulo){
 
 function mostrarLineaEntradaPrecios(response){
 	// Si hay respuesta mostramos caja de entrada precios.
+	console.log('Entro en mostrar lineas de producto');
 	$('#formulario').removeAttr( 'style' );
 	$('#inputIdArticulo').val(response['idArticulo']);
 	$('#inputDescripcion').val(response['articulo_name']);
@@ -273,66 +273,6 @@ function mostrarLineaEntradaPrecios(response){
 	
 }
 
-//~ function buscarArticulos() {
-    //~ var campo = $('#campoabuscar').val();
-    //~ var valor = $('#cajaBusqueda').val();
-
-//~ //    resetpagina = resetpagina || 0;
-//~ //    if (resetpagina) {
-//~ //        $('#paginabuscar').val(1);
-//~ //    }
-
-    //~ leerArticulo({idcliente: cliente.idClientes
-        //~ , caja: campo
-        //~ , usarlike: 'si'
-        //~ , valor: valor
-        //~ , pagina: $('#paginabuscar').val()}, function (respuesta) {
-        //~ var obj = JSON.parse(respuesta);
-        //~ var datos = obj.datos;
-        //~ var tabla = obj.html;
-
-        //~ $('#paginabuscar').val(obj.pagina);
-
-        //~ if (tabla) {
-            //~ $('.modal-body > p').html(tabla);
-            //~ $('.articulos-page-selection-bottom, .articulos-page-selection-top').bootpag({total: obj.totalPaginas, page: obj.pagina});
-
-            //~ // click en columna 1 de la tabla con el idArticulo
-            //~ $(".btn-busca-art").button().on("click", function (event) {
-                //~ event.stopPropagation();
-                //~ event.preventDefault();
-
-                //~ var idarticulo = $(event.target).data('id');
-
-                //~ var callback = function (respuesta) {
-                    //~ var obj = JSON.parse(respuesta);
-                    //~ var response = obj.datos;
-                    //~ var idCliente = $('#id_cliente').val();
-                    //~ if (response.length == 1) {
-                        //~ response = response[0];
-                        //~ $('#busquedaModal').modal('hide');
-                        //~ $('#inputIdArticulo').val(response['idArticulo']);
-                        //~ $('#inputDescripcion').val(response['descripcion']);
-                        //~ $('#inputPrecioSin').val(parseFloat(response['pvpSiva']).toFixed(2));
-                        //~ $('#inputIVA').val(response['ivaArticulo']);
-                        //~ $('#inputPrecioCon').val(parseFloat(response['pvpCiva']).toFixed(2));
-                        //~ $('#idcliente').val(idCliente);
-                        //~ $('#formulario').show();
-                        //~ $('#inputPrecioSin').focus();
-                    //~ }
-                //~ };
-
-                //~ leerArticulo({idcliente: cliente.idClientes
-                    //~ , caja: 'idArticulo'
-                    //~ , valor: idarticulo}, callback);
-
-            //~ });
-
-        //~ }
-    //~ }
-    //~ );
-
-//~ }
 
 
 function borrarInputsFiltro() {
