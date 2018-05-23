@@ -701,62 +701,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 			<td>Importe</td>
 			<td>IVA</td>
 			</tr></table>';
-	//~ $imprimir['cabecera'].='<p></p><p></p>';
-		//~ $imprimir['cabecera'].='<table>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$tienda['NombreComercial'].'</td>';
-		//~ $imprimir['cabecera'].='<td>'.$textoCabecera.'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$tienda['direccion'].'</td>';
-		//~ $imprimir['cabecera'].='<td>Nª'.$numero.'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td> NIF: '.$tienda['nif'].'</td>';
-		//~ $imprimir['cabecera'].='<td>Fecha: '.$fecha.'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td> Teléfono: '.$tienda['telefono'].'</td>';
-		//~ $imprimir['cabecera'].='<td></td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='</table>';
-		
-		//~ $imprimir['cabecera'].='<hr/><hr/>';
-		//~ $imprimir['cabecera'].='DATOS DEL CLIENTE: '.$datosCliente['Clientes'].'<br>';
-		
-		//~ $imprimir['cabecera'].='<table>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$datosCliente['Nombre'].'</td>';
-		//~ $imprimir['cabecera'].='<td>NIF: '.$datosCliente['nif'].'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$datosCliente['direccion'].'</td>';
-		//~ $imprimir['cabecera'].='<td>CODPOSTAL: '.$datosCliente['codpostal'].'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$datosCliente['razonsocial'].'</td>';
-		//~ $imprimir['cabecera'].='<td>TELÉFONO: '.$datosCliente['telefono'].'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='</table>';
-		//~ $imprimir['cabecera'].='</br></br>';
-		//~ $imprimir['cabecera'].='<hr/><hr/>';
-		//~ $imprimir['cabecera'].='</br></br>';
-		//~ $imprimir['cabecera'].='<table>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ if ($dedonde=="albaran"){
-			//~ $imprimir['cabecera'].='<td WIDTH="6%" align="center">PED</td>';
-		//~ }
-		//~ if ($dedonde=="factura"){
-			//~ $imprimir['cabecera'].='<td WIDTH="5%" align="center">ALB</td>';
-		//~ }
-		//~ $imprimir['cabecera'].='<td WIDTH="15%" >REF</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="40%">DESCRIPCIÓN</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="7%" >CANT</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="10%" >PRECIO</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="7%" >IVA</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="20%" >IMPORTE</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='</table>';
 		$imprimir['html'].='<table WIDTH="80%">';
 		$i=0;
 		$numAdjunto=0;
@@ -770,27 +714,11 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 				}
 			}
 			$imprimir['html'].='<tr>';
-			//~ if ( $dedonde=="albaran"){
-				//~ if ($producto['NumpedCli'] ){
-					//~ $numPed=$producto['NumpedCli'];
-				//~ }else{
-					//~ $numPed="";
-				//~ }
-				//~ $imprimir['html'].='<td WIDTH="5%">'.$numPed.'</td>';
-			//~ }
-			//~ if ($dedonde=="factura"){
-				//~ if ($producto['NumalbCli']){
-					//~ $numAlb=$producto['NumalbCli'];
-				//~ }else{
-					//~ $numAlb="";
-				//~ }
-				//~ $imprimir['html'].='<td WIDTH="5%">'.$numAlb.'</td>';
-			//~ }
 			$imprimir['html'].='<td><font size="8">'.$producto['cref'].'</font></td>';
 			$imprimir['html'].='<td WIDTH="50%" ><font size="8">'.$producto['cdetalle'].'</font></td>';
 			$imprimir['html'].='<td><font size="8">'.number_format($producto['nunidades'],2).'</font></td>';
-			$imprimir['html'].='<td><font size="8">'.number_format($producto['precioCiva'],2).'</font></td>';
-			$importe = $producto['precioCiva']*$producto['nunidades'];
+			$imprimir['html'].='<td><font size="8">'.number_format($producto['precioSiva'],2).'</font></td>';
+			$importe = $producto['precioSiva']*$producto['nunidades'];
 			$importe = number_format($importe,2);
 			$imprimir['html'].='<td><font size="8">'.$importe.'</font></td>';
 			$imprimir['html'].='<td><font size="8">'.number_format($producto['iva'],0).'%</font></td>';
