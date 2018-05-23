@@ -49,7 +49,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 			'.$buscar.' LIMIT 0 , 30';
 		$res = $BDTpv->query($sql1);
 		$resultado['Nitems']= $res->num_rows;
-		if($resultado['Nitems']==0 || $id_input<>'idArticulo'){
+		if($resultado['Nitems']==0){
 		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, ap.pvpSiva, at.crefTienda , a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
@@ -289,7 +289,9 @@ function modificarArrayProductos($productos){
 			$sinIva=number_format($producto['pvpSiva'],2);
 		}else{
 			$iva=$producto['iva']/100;
-			$sinIva=$producto['precioCiva']-$iva;
+			$op1=$producto['precioCiva']*$iva;
+			$sinIva=$producto['precioCiva']-$op1;
+			$sinIva=number_format($sinIva,2);
 		}
 		error_log($sinIva);
 		$product['pvpSiva']=$sinIva;
