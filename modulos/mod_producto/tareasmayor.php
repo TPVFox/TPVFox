@@ -75,8 +75,9 @@ switch ($pulsado) {
                 $cabecera = cabeceramayor2html(['titulo' => 'Mayor productos'
                     , 'empresa' => '01 Alimentaria Longueicap 2018'
                     , 'condiciones' => 'Periódo: ' . $fechainicio . ' / ' . $fechafinal
+                        , 'producto' => $nombreArticulo
                 ]);
-                $cuerpo = datamayor2html($sqldata['datos'], $nombreArticulo, $sumas);
+                $cuerpo = datamayor2html($sqldata['datos'], $sumas);
                 $pdf = new imprimirPDF();
                 $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
                 $pdf->SetMargins(10, 60, 10);

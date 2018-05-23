@@ -10,6 +10,14 @@ $(function () {
     $('#inputFechadesde').val('01/01/2018');
     $('#inputFechahasta').val('31/12/2018');
 
+    $(".boton-visualizar").on("click", function (event) {
+//        event.stopPropagation();
+//        event.preventDefault();
+
+        var data = $(event.currentTarget).data();
+        $('#linea_'+data.productoid).toggle();
+    });
+
 });
 
 function MayorProductos() {
@@ -27,11 +35,12 @@ function MayorProductos() {
         ajaxMayor(parametros, function (response) {
             var resultado = JSON.parse(response);
             if (resultado['html']) {
-                $('#tablamayor').html(resultado['html']);
-                $('#tablamayor').show();
+                $('#multiCollapseExample' + resultado['idproducto']).html(resultado['html']);
+//                $('#tablamayor').show();
                 $('#imprimir' + resultado['idproducto']).html(resultado['fichero']);
+                $('#visualizar' + resultado['idproducto']).show();
             } else {
-                $('#tablamayor').html(resultado['error']);
+                $('#multiCollapseExample' + resultado['idproducto']).html(resultado['error']);
             }
         })
     }

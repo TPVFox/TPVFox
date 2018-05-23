@@ -86,19 +86,21 @@ if (isset($_POST['Imprimir'])) {
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </a>
                                     </td>
-                                    <td id="visualizar<?php echo $producto; ?>">
-                                        <button class="btn btn-primary" 
+                                    <td ><div id="visualizar<?php echo $producto; ?>" style="display:none">
+                                        <button class="btn btn-link boton-visualizar" 
                                                 type="button" 
                                                 data-toggle="collapse" 
+                                                data-productoid="<?php echo $producto; ?>"
                                                 data-target="#multiCollapseExample<?php echo $producto; ?>" 
                                                 aria-expanded="false" 
                                                 aria-controls="multiCollapseExample<?php echo $producto; ?>">
                                             <span class="glyphicon glyphicon-eye-open"></span>
                                         </button>
+                                            </div>
                                     </td>
                                     <td id="imprimir<?php echo $producto; ?>"> </td>
                                 </tr>
-                                <tr>
+                                <tr id="linea_<?php echo $producto; ?>" style="display: none">
                                     <td colspan="7">
                                         <div class="collapse multi-collapse" id="multiCollapseExample<?php echo $producto; ?>">
                                             Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 
