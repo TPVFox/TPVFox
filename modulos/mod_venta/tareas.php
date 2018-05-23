@@ -100,6 +100,7 @@ switch ($pulsado) {
 			if (!is_array($producto)){
 				 // Si no es un array, es un producto, por lo que se hace linea productos ( que es uno solo )
 				 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
+				
 				 $respuesta['html']=$res;
 				break;
 			}else{
@@ -107,6 +108,7 @@ switch ($pulsado) {
 				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
 				$respuesta['html'].=$res;
 			}
+			 $respuesta['productos']=$productos;
 		 }
 		break;
 		

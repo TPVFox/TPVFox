@@ -41,7 +41,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 	}
 	$i = 0;
 	foreach ($busquedas as $buscar){
-		$sql1='SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` 
+		$sql1='SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, ap.pvpSiva, at.crefTienda , a.`iva` 
 			FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac 
 			ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosClientes` AS ap 
 			ON a.idArticulo = ap.idArticulo  LEFT JOIN `articulosTiendas` 
@@ -50,7 +50,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 		$res = $BDTpv->query($sql1);
 		$resultado['Nitems']= $res->num_rows;
 		if($resultado['Nitems']==0 || $id_input<>'idArticulo'){
-		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
+		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, ap.pvpSiva, at.crefTienda , a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
 			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
@@ -284,6 +284,7 @@ function modificarArrayProductos($productos){
 		$product['cref']=$producto['cref'];
 		$product['cdetalle']=$producto['cdetalle'];
 		$product['precioCiva']=$producto['precioCiva'];
+		$product['precioSiva']=$producto['precioSiva'];
 		$product['iva']=$producto['iva'];
 		$product['ccodbar']=$producto['ccodbar'];
 		$product['nfila']=$producto['nfila'];
@@ -296,7 +297,8 @@ function modificarArrayProductos($productos){
 		if(isset($producto['NumpedCli'])){
 			$product['NumpedCli']=$producto['NumpedCli'];
 		}
-		$product['importe']=$producto['precioCiva']*$producto['nunidades'];
+		//~ $product['importe']=$producto['precioCiva']*$producto['nunidades'];
+		$product['importe']=$producto['precioSiva']*$producto['nunidades'];
 		array_push($respuesta,$product);
 		
 	}
@@ -361,8 +363,10 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $cant=number_format($producto['nunidades'],2);
 		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
+		 $respuesta['html'] .='<td class="psi">'.$producto['precioSiva'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
-		 $importe = $producto['precioCiva']*$producto['nunidades'];
+		 //~ $importe = $producto['precioCiva']*$producto['nunidades'];
+		 $importe = $producto['precioSiva']*$producto['nunidades'];
 		 $importe = number_format($importe,2);
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;
