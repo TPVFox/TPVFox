@@ -359,7 +359,7 @@ function grabarArticulo(event){
             type: 'post',
             success: function (response) {
                 var idcliente = $('#id_cliente').val();
-                window.location.href = './tarifaCliente.php?id=' + idcliente;
+                //~ window.location.href = './tarifaCliente.php?id=' + idcliente;
             },
             // No se realmente cual es el funcionamiento de esto...
             error: function (request, textStatus, error) {
@@ -386,9 +386,12 @@ function recalcularPvp(dedonde){
 		// Ahora destacamos los input que cambiamos.		
 		destacarCambioCaja('inputPrecioCon');
 	} else {
+		console.log('Entro');
 		var precioCiva = parseFloat($('#inputPrecioCon').val(),2);
-		var precioSiva = precioCiva -((precioCiva*iva)/100);
-		console.log(precioSiva.toFixed(2));
+		var precioSiva = precioCiva/(1+((iva)/100));
+		console.log(iva);
+		console.log(precioCiva);
+
 		$('#inputPrecioSin').val(precioSiva.toFixed(2));
 
 		// Ahora destacamos los input que cambiamos		
