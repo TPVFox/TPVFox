@@ -197,10 +197,10 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 				}
 				$sql='INSERT INTO albclilinea (idalbcli  , Numalbcli , idArticulo ,
 				 cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, 
-				 estadoLinea, NumpedCli ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']
+				 estadoLinea, NumpedCli, pvpSiva ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']
 				 .', "'.$prod['cref'].'", "'.$codBarras.'", "'.$prod['cdetalle'].'", '
 				 .$prod['ncant'].' , '.$prod['nunidades'].', '.$prod['precioCiva'].' , '
-				 .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.')' ;
+				 .$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" , '.$numPed.', '.$prod['pvpSiva'].')' ;
 				 $smt=$this->consulta($sql);
 				 //~ error_log('sql '.$sql);
 				if (gettype($smt)==='array'){

@@ -315,11 +315,11 @@ class FacturasVentas extends ClaseVentas{
 				
 				$sql='INSERT INTO facclilinea (idfaccli  , Numfaccli ,
 				 idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, 
-				 iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '
+				 iva, nfila, estadoLinea, NumalbCli, pvpSiva ) VALUES ('.$id.', '.$id.' , '
 				 .$prod['idArticulo'].', '."'".$prod['cref']."'".', "'.$codBarras.'", "'
 				 .$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '
 				 .$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea']
-				 .'" , '.$numAl.')' ;
+				 .'" , '.$numAl.', '.$prod['pvpSiva'].')' ;
 					$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
 						$respuesta['error']=$smt['error'];

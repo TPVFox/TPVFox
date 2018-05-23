@@ -285,14 +285,14 @@ function modificarArrayProductos($productos){
 		$product['cref']=$producto['cref'];
 		$product['cdetalle']=$producto['cdetalle'];
 		$product['precioCiva']=$producto['precioCiva'];
-		if(isset($producto['precioSiva'])){
-			$sinIva=$producto['precioSiva'];
+		if(isset($producto['pvpSiva'])){
+			$sinIva=number_format($producto['pvpSiva'],2);
 		}else{
 			$iva=$producto['iva']/100;
 			$sinIva=$producto['precioCiva']-$iva;
 		}
 		error_log($sinIva);
-		$product['precioSiva']=$sinIva;
+		$product['pvpSiva']=$sinIva;
 		$product['iva']=$producto['iva'];
 		$product['ccodbar']=$producto['ccodbar'];
 		$product['nfila']=$producto['nfila'];
@@ -377,10 +377,10 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $cant=number_format($producto['nunidades'],2);
 		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
-		 $respuesta['html'] .='<td class="psi">'.$producto['precioSiva'].'</td>';
+		 $respuesta['html'] .='<td class="psi">'.$producto['pvpSiva'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
 		 //~ $importe = $producto['precioCiva']*$producto['nunidades'];
-		 $importe = $producto['precioSiva']*$producto['nunidades'];
+		 $importe = $producto['pvpSiva']*$producto['nunidades'];
 		 $importe = number_format($importe,2);
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;
@@ -723,8 +723,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 			$imprimir['html'].='<td><font size="8">'.$producto['cref'].'</font></td>';
 			$imprimir['html'].='<td WIDTH="50%" ><font size="8">'.$producto['cdetalle'].'</font></td>';
 			$imprimir['html'].='<td><font size="8">'.number_format($producto['nunidades'],2).'</font></td>';
-			$imprimir['html'].='<td><font size="8">'.number_format($producto['precioSiva'],2).'</font></td>';
-			$importe = $producto['precioSiva']*$producto['nunidades'];
+			$imprimir['html'].='<td><font size="8">'.number_format($producto['pvpSiva'],2).'</font></td>';
+			$importe = $producto['pvpSiva']*$producto['nunidades'];
 			$importe = number_format($importe,2);
 			$imprimir['html'].='<td><font size="8">'.$importe.'</font></td>';
 			$imprimir['html'].='<td><font size="8">'.number_format($producto['iva'],0).'%</font></td>';

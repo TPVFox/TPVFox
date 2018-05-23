@@ -508,7 +508,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
 							datos.precioCiva=pvpCiva.toFixed(2);
 							var pvpSiva= parseFloat(resultado['datos'][0]['pvpSiva']);
-							datos.precioSiva=pvpSiva.toFixed(2);
+							datos.pvpSiva=pvpSiva.toFixed(2);
 							n_item=parseInt(productos.length)+1;
 							var campo='Unidad_Fila_'+n_item;
 							productos.push(datos);
@@ -645,7 +645,7 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		}
 		productos[num_item].nunidades = cantidad;
 		//~ var importe = cantidad*productos[num_item].precioCiva;
-		var importe = cantidad*productos[num_item].precioSiva;
+		var importe = cantidad*productos[num_item].pvpSiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
 		productos[num_item].importe= importe;
@@ -742,7 +742,7 @@ function buscarPedido(dedonde, idcaja, valor=''){
 							var numFila=productos.length+1;
 							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 								resultado.productos[i]['nfila']=numFila;
-								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['precioSiva'];
+								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['pvpSiva'];
 								productos.push(resultado.productos[i]);
 								numFila++;
 							}
@@ -813,7 +813,7 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 							var numFila=productos.length+1;
 							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 								resultado.productos[i]['nfila']=numFila;
-								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['precioSiva'];
+								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['pvpSiva'];
 								productos.push(resultado.productos[i]);
 								numFila++;
 							}
