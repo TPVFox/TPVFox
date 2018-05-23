@@ -359,7 +359,7 @@ function grabarArticulo(event){
             type: 'post',
             success: function (response) {
                 var idcliente = $('#id_cliente').val();
-                //~ window.location.href = './tarifaCliente.php?id=' + idcliente;
+                window.location.href = './tarifaCliente.php?id=' + idcliente;
             },
             // No se realmente cual es el funcionamiento de esto...
             error: function (request, textStatus, error) {
