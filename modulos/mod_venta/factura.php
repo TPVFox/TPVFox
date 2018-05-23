@@ -132,9 +132,8 @@
 					echo $datosFactura['FacCobros'];
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
 				$textoFormaPago=htmlFormasVenci($formasVenci, $BDTpv);
-			
-					$fec=date('Y-m-d');
-					$fechave=fechaVencimiento($fec, $BDTpv);
+				$fec=date('Y-m-d');
+				$fechave=fechaVencimiento($fec, $BDTpv);
 			
 				
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
@@ -260,7 +259,9 @@
 		}
 			
 		}
-		
+		//~ echo '<pre>';
+		//~ print_r($productos);
+		//~ echo '</pre>';
 $titulo .= ' '.$textoNum.': '.$estado;
 ?>
 	<script type="text/javascript">
@@ -462,6 +463,7 @@ if ($idCliente==0){
 			<th>Descripcion</th>
 			<th>Unid</th>
 			<th>PVP</th>
+			<th>S/iva</th>
 			<th>Iva</th>
 			<th>Importe</th>
 			<th></th>

@@ -280,11 +280,19 @@ function recalculoTotales($productos) {
 function modificarArrayProductos($productos){
 	$respuesta=array();
 	foreach ($productos as $producto){
+		$sinIva=0;
 		$product['idArticulo']=$producto['idArticulo'];
 		$product['cref']=$producto['cref'];
 		$product['cdetalle']=$producto['cdetalle'];
 		$product['precioCiva']=$producto['precioCiva'];
-		$product['precioSiva']=$producto['precioSiva'];
+		if(isset($producto['precioSiva'])){
+			$sinIva=$producto['precioSiva'];
+		}else{
+			$iva=$producto['iva']/100;
+			$sinIva=$producto['precioCiva']-$iva;
+		}
+		error_log($sinIva);
+		$product['precioSiva']=$sinIva;
 		$product['iva']=$producto['iva'];
 		$product['ccodbar']=$producto['ccodbar'];
 		$product['nfila']=$producto['nfila'];
@@ -298,7 +306,7 @@ function modificarArrayProductos($productos){
 			$product['NumpedCli']=$producto['NumpedCli'];
 		}
 		//~ $product['importe']=$producto['precioCiva']*$producto['nunidades'];
-		$product['importe']=$producto['precioSiva']*$producto['nunidades'];
+		$product['importe']=$sinIva*$producto['nunidades'];
 		array_push($respuesta,$product);
 		
 	}
