@@ -35,7 +35,7 @@ if ($caja) {
             $array=[];
             // Realmente esta mal la clase ya que no devuelve error si no existe id.
             if ($articulo['idArticulo'] !== null) {
-                $articulos['datos'] = $articulo;
+                $articulos['datos'][0] = $articulo;
                 $articulos['NItems'] = 1;
                	$total_productos = $articulos['NItems'];
                	$array[] = $articulos['datos'];
