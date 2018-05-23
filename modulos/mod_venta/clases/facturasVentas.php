@@ -447,16 +447,19 @@ class FacturasVentas extends ClaseVentas{
 				return $respuesta;
 		}
 	}
-	public function modificarFechaFactura($idFactura, $Fecha){
+	public function modificarFechaFactura($idFactura, $Fecha, $formaPago, $fechaVenci){
+		$respuesta=array();
 		$db=$this->db;
-		$sql='UPDATE  facclit set Fecha="'.$Fecha.'" where id='.$idFactura ;
+		$sql='UPDATE  facclit set Fecha="'.$Fecha.'" , formaPago="'.$formaPago.'" ,  fechaVencimiento="'.$fechaVenci.'" where id='.$idFactura ;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta=array();
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
+				
 		}
+		$respuesta['sql']=$sql;
+		return $respuesta;
 	}
 }
 	

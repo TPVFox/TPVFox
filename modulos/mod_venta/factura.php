@@ -153,115 +153,138 @@
 		//Cuando guardadmos buscamos todos los datos de la factura temporal y hacfemos las comprobaciones pertinentes
 		if (isset($_POST['Guardar'])){
 			if (isset($_GET['id'])){
-				$fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
-				$modFecha=$Cfaccli->modificarFechaFactura($_GET['id'], $fecha);
+				$formaVenci="";
+				$fechaVenci="";
+				if (isset($_POST['formaVenci'])){
+					$formaVenci=$_POST['formaVenci'];
+				}
+				if(isset($_POST['fechaVenci'])){
+					$fecha1=date_create($_POST['fechaVenci']);
+					$fechaVenci=date_format($fecha1, 'Y-m-d');;
+				}
+				$fecha1=date_create($_POST['fecha']);
+				
+				//~ $fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
+				$fecha=date_format($fecha1, 'Y-m-d');
+				$modFecha=$Cfaccli->modificarFechaFactura($_GET['id'], $fecha, $formaVenci, $fechaVenci);
 				if(isset($modFecha['error'])){
 					echo '<div class="alert alert-danger">'
 						. '<strong>Danger! </strong> Error en la base de datos <br>Sentencia: '.$modFecha['consulta']
 						. '</div>';
 					
 				}else{
-					header('Location: facturasListado.php');
+					//~ header('Location: facturasListado.php');
 				}
+				echo '<pre>';
+				print_r($modFecha);
+				echo '</pre>';
+				echo $fecha;
 			}else{
-				$estado="Guardado";
-				if (isset($_POST['idTemporal'])){
-					$idTemporal=$_POST['idTemporal'];
-				}else if(isset($_GET['tActual'])){
-					$idTemporal=$_GET['tActual'];
-				}else{
-					$idTemporal=0;
-				}
-				$total=0;
-				$formaVenci="";
-				$entregado=0;
-				$idFactura=0;
-				$errores=array();
-				$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
-				if($datosFactura['total']){
-					$total=$datosFactura['total'];
-				}
-				$fechaActual=date('Y-m-d');
-				if ($_POST['formaVenci']){
-					$formaVenci=$_POST['formaVenci'];
-				}
+				
+			
+								$estado="Guardado";
+								if (isset($_POST['idTemporal'])){
+									$idTemporal=$_POST['idTemporal'];
+								}else if(isset($_GET['tActual'])){
+									$idTemporal=$_GET['tActual'];
+								}else{
+									$idTemporal=0;
+								}
+								$total=0;
+								$formaVenci="";
+								$entregado=0;
+								$idFactura=0;
+								$errores=array();
+								$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
+								if($datosFactura['total']){
+									$total=$datosFactura['total'];
+								}
+								$fechaActual=date('Y-m-d');
+								if ($_POST['formaVenci']){
+									$formaVenci=$_POST['formaVenci'];
+								}
+								
+								
+								if (is_array($importesFactura)){
+									
+									foreach ($importesFactura as $import){
+										$entregado=$entregado+$import['importe'];
+									}
+									if ($total==$entregado){
+										$estado="Pagado total";
+									}else{
+										$estado="Pagado Parci";
+									}
+								}
+								$fecha=date_format(date_create($_POST['fecha']), 'Y-m-d');
+								$datos=array(
+								'Numtemp_faccli'=>$idTemporal,
+								'Fecha'=>$fecha,
+								'idTienda'=>$Tienda['idTienda'],
+								'idUsuario'=>$Usuario['id'],
+								'idCliente'=>$idCliente,
+								'estado'=>$estado,
+								'total'=>$total,
+								'DatosTotales'=>$Datostotales,
+								'productos'=>$datosFactura['Productos'],
+								'albaranes'=>$datosFactura['Albaranes'],
+								'fechaCreacion'=>$fechaActual,
+								'formapago'=>$formaVenci,
+								'fechaVencimiento'=>$_POST['fechaVenci'],
+								'importes'=>$importesFactura,
+								'fechaModificacion'=>$fechaActual
+								);
+								if($datosFactura['numfaccli']>0){
+									$idFactura=$datosFactura['numfaccli'];
+									$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
+									if (isset($eliminarTablasPrincipal['error'])){
+									$errores[0]=array ( 'tipo'=>'Danger!',
+																 'dato' => $eliminarTablasPrincipal['consulta'],
+																 'class'=>'alert alert-danger',
+																 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+																 );
+									}
+								}
+								if(count($errores)==0){
+									$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
+									if (isset($addNuevo['error'])){
+									$errores[0]=array ( 'tipo'=>'Danger!',
+																 'dato' => $addNuevo['consulta'],
+																 'class'=>'alert alert-danger',
+																 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+																 );
+									}else{
+										$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
+										if (isset($eliminarTemporal['error'])){
+										$errores[1]=array ( 'tipo'=>'Danger!',
+																 'dato' => $eliminarTemporal['consulta'],
+																 'class'=>'alert alert-danger',
+																 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+																 );
+										 }
+									}
+									
+								}
+								if(count($errores)>0){
+									foreach($errores as $error){
+										echo '<div class="'.$error['class'].'">'
+										. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+										. '</div>';
+									}
+								}else{
+									header('Location: facturasListado.php');
+								}
+					
 				
 				
-				if (is_array($importesFactura)){
 					
-					foreach ($importesFactura as $import){
-						$entregado=$entregado+$import['importe'];
-					}
-					if ($total==$entregado){
-						$estado="Pagado total";
-					}else{
-						$estado="Pagado Parci";
-					}
-				}
-				$fecha=date_format(date_create($_POST['fecha']), 'Y-m-d');
-				$datos=array(
-				'Numtemp_faccli'=>$idTemporal,
-				'Fecha'=>$fecha,
-				'idTienda'=>$Tienda['idTienda'],
-				'idUsuario'=>$Usuario['id'],
-				'idCliente'=>$idCliente,
-				'estado'=>$estado,
-				'total'=>$total,
-				'DatosTotales'=>$Datostotales,
-				'productos'=>$datosFactura['Productos'],
-				'albaranes'=>$datosFactura['Albaranes'],
-				'fechaCreacion'=>$fechaActual,
-				'formapago'=>$formaVenci,
-				'fechaVencimiento'=>$_POST['fechaVenci'],
-				'importes'=>$importesFactura,
-				'fechaModificacion'=>$fechaActual
-				);
-				if($datosFactura['numfaccli']>0){
-					$idFactura=$datosFactura['numfaccli'];
-					$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);
-					if (isset($eliminarTablasPrincipal['error'])){
-					$errores[0]=array ( 'tipo'=>'Danger!',
-												 'dato' => $eliminarTablasPrincipal['consulta'],
-												 'class'=>'alert alert-danger',
-												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 );
-					}
-				}
-				if(count($errores)==0){
-					$addNuevo=$Cfaccli->AddFacturaGuardado($datos, $idFactura);
-					if (isset($addNuevo['error'])){
-					$errores[0]=array ( 'tipo'=>'Danger!',
-												 'dato' => $addNuevo['consulta'],
-												 'class'=>'alert alert-danger',
-												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 );
-					}else{
-						$eliminarTemporal=$Cfaccli->EliminarRegistroTemporal($idTemporal, $idFactura);
-						if (isset($eliminarTemporal['error'])){
-						$errores[1]=array ( 'tipo'=>'Danger!',
-												 'dato' => $eliminarTemporal['consulta'],
-												 'class'=>'alert alert-danger',
-												 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-												 );
-						 }
-					}
 					
-				}
-				if(count($errores)>0){
-					foreach($errores as $error){
-						echo '<div class="'.$error['class'].'">'
-						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-						. '</div>';
-					}
-				}else{
-					header('Location: facturasListado.php');
-				}
+				
+				
 		}
 			
 		}
-		//~ echo '<pre>';
-		//~ print_r($productos);
-		//~ echo '</pre>';
+		
 $titulo .= ' '.$textoNum.': '.$estado;
 ?>
 	<script type="text/javascript">
