@@ -59,7 +59,9 @@ function datamayor2html($sqldata, $sumas) {
             $resultado .= ' <td width="10%" align="right">' . number_format($linea['stock'], 3) . ' </td>';
             $resultado .= ' <td width="10%" align="right">' . $linea['tipodoc'] . ' ' . $linea['numdocu'] . ' </td>';
             $resultado .= ' <td width="20%">' . substr($linea['nombre'], 0, 15) . '</td>';
-            $resultado .= ' <td width="10%" align="right"'.$linea['estado']=='Sin Guardar'? ' style="background-color:red;color:white">':'>' . $linea['estado'] . ' </td>';
+            $resultado .= ' <td width="10%" align="right"';
+            $resultado .= $linea['estado']=='Sin Guardar'? ' style="background-color:red;color:white">':'>';
+            $resultado .= $linea['estado'] . ' </td>';
             $resultado .= ' </tr>';
         }
         $resultado .= '<tr height="5px" > ';
