@@ -273,7 +273,7 @@ function controladorAcciones(caja,accion, tecla){
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
 			var nueva_fila = 0;
 			if(caja.fila=='0'){
-				if(cabecera.idProveedor>0){
+				if(cabecera.idCliente>0){
 					ponerSelect('cajaBusqueda');
 				}else{
 					$("#cajaBusquedacliente").select();
