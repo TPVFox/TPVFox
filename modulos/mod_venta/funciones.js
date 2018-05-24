@@ -448,7 +448,10 @@ function before_constructor(caja){
 		caja.fila = caja.id_input.slice(2);
 		if(caja.tecla==13){
 			if(cabecera.idCliente>0){
-				buscarProductos('idArticulo', 'a.idArticulo', 'idArticulo', caja.darValor(), caja.parametros.dedonde);
+				if(caja.parametros.dedonde!='pedidos'){
+				console.log(caja);
+				 buscarProductos('idArticulo', 'a.idArticulo', 'idArticulo', caja.darValor(), caja.parametros.dedonde);
+			 }
 				
 			}else{
 				buscarClientes(caja.parametros.dedonde, "id_cliente", caja.darValor());
@@ -485,7 +488,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	// 		nombreinput = id caja de donde viene
 	//		campo =  campo a buscar
 	// 		busqueda = valor del input que corresponde.
-	// 		dedonde  = [tpv] o [popup] 
+	// 		
 	// @ Respuesta:
 	//  1.- Un producto unico.
 	//  2.- Un listado de productos.

@@ -140,7 +140,7 @@
 				<action tecla="38">mover_up</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">cerrados</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>
 				<parametro nombre="prefijo">N_</parametro>
 			</parametros>
