@@ -124,7 +124,7 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 			$razonsocial_nombre=$cliente['Nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" '
-								.'onclick="escribirClienteSeleccionado('.$cliente['idClientes'].', '."'".$cliente['Nombre']."'".', '."'".'albaran'."'".');">';
+								.'onclick="escribirClienteSeleccionado('.$cliente['idClientes'].', '."'".$cliente['Nombre']."'".', '."'".$dedonde."'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN"'
