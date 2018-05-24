@@ -65,7 +65,7 @@ function controladorAcciones(caja,accion, tecla){
 			console.log(caja);
 			var nueva_fila = 0;
 			if(caja.id_input=="cajaBusquedaproveedor"){
-				ponerSelect('Fila_0');
+				ponerFocus('N_0');
 			}else{
 			if ( isNaN(caja.fila) === false){
 				nueva_fila = parseInt(caja.fila)+1;
