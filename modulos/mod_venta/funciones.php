@@ -207,7 +207,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $
 						.number_format($pvpCiva,2).",".$producto['idArticulo'].
 						" , '".$dedonde."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" data-obj= "idN" class="FilaModal"'
-								.'onclick="escribirProductoSeleccionado('.$datos.');">'
+								.'onclick="buscarProductos('."'".'idArticulo'."'".', '."'".'a.idArticulo'."'".', '."'".'idArticulo'."'".', '.$producto['idArticulo'].', '."'".$dedonde."'".');">'
 								.'<td id="C'.$contad.'_Lin" >'
 								.'<input id="N_'.$contad.'" name="filaproducto" data-obj="idN"'
 								.' onkeydown="controlEventos(event)" type="image" value='.$producto['idArticulo'].' alt="">'
