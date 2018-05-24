@@ -642,6 +642,9 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 						var HtmlProveedores=resultado.html['html']; 
 						abrirModal(titulo,HtmlProveedores);
 						focusAlLanzarModal('cajaBusquedaproveedor');
+						if(resultado.html['encontrados']){
+							ponerFocus('N_0');
+						}
 					}
 				
 	
