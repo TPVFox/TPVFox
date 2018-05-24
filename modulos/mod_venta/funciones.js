@@ -450,7 +450,7 @@ function before_constructor(caja){
 		caja.fila = caja.id_input.slice(2);
 		if(caja.tecla==13){
 			if(cabecera.idCliente>0){
-				if(caja.parametros.dedonde!='pedidos'|| caja.parametros.dedonde!='factura' ){
+				if(caja.parametros.dedonde!='pedidos'|| caja.parametros.dedonde !='factura' ){
 				console.log(caja);
 				 buscarProductos('idArticulo', 'a.idArticulo', 'idArticulo', caja.darValor(), caja.parametros.dedonde);
 			 }
