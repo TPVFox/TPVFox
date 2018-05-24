@@ -772,11 +772,16 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				var titulo = 'Listado productos encontrados ';
 				abrirModal(titulo,HtmlProductos);
 				focusAlLanzarModal('cajaBusqueda');
-				if (resultado.Nitems >0 ){
+				console.log(id_input);
+				console.log(resultado.Nitems);
+				if (resultado.html.encontrados >0 ){
 					// Quiere decir que hay resultados por eso apuntamos al primero
 					// focus a primer producto.
-					var d_focus = 'N_0';
-					ponerFocus(d_focus);
+					if(id_input=="Descripcion"){
+						var d_focus = 'N_0';
+						ponerFocus(d_focus);
+					}
+					
 				 }
 			}
 		}
