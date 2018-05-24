@@ -588,41 +588,41 @@ function escribirClienteSeleccionado(id, nombre ,dedonde=''){
 	 cerrarPopUp();
 	 mostrarFila();
 }
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id, dedonde){
-	// @ Objetivo:
-	//   Realizamos cuando venimos popUp de Productos.
-	// @ Parametros:
-	// 	 Caja -> Indica la caja queremos que ponga focus
-	//   datos -> Es el array que vamos enviar para añadir fila.
-	console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
-	var datos = new Object();
-	if (dedonde=="factura"){
-		datos.Numalbcli=0;
-		datos.idalbcli=0;
-		$("#tablaAl").hide();
-	}
-	if (dedonde=="albaran"){
-		datos.Numpedcli=0;
-		datos.idpedcli=0;
-	}
-	datos.ccodbar=ccodebar;
-	datos.cdetalle=cdetalle;
-	datos.cref=cref;
-	datos.estadoLinea="Activo";
-	datos.iva=ctipoIva;
-	datos.idArticulo=id;
-	datos.ncant=1;
-	datos.nunidades=1;
-	datos.nfila=productos.length+1;
-	datos.importe=npconiva.toFixed(2);
-	var pvpCiva= parseFloat(npconiva);
-	datos.precioCiva=pvpCiva.toFixed(2);
-	productos.push(datos);
-	addTemporal(dedonde);
-	AgregarFilaProductosAl(datos, dedonde);
-	resetCampo(campo);
-	cerrarPopUp(campo);	
-}
+//~ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id, dedonde){
+	//~ // @ Objetivo:
+	//~ //   Realizamos cuando venimos popUp de Productos.
+	//~ // @ Parametros:
+	//~ // 	 Caja -> Indica la caja queremos que ponga focus
+	//~ //   datos -> Es el array que vamos enviar para añadir fila.
+	//~ console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
+	//~ var datos = new Object();
+	//~ if (dedonde=="factura"){
+		//~ datos.Numalbcli=0;
+		//~ datos.idalbcli=0;
+		//~ $("#tablaAl").hide();
+	//~ }
+	//~ if (dedonde=="albaran"){
+		//~ datos.Numpedcli=0;
+		//~ datos.idpedcli=0;
+	//~ }
+	//~ datos.ccodbar=ccodebar;
+	//~ datos.cdetalle=cdetalle;
+	//~ datos.cref=cref;
+	//~ datos.estadoLinea="Activo";
+	//~ datos.iva=ctipoIva;
+	//~ datos.idArticulo=id;
+	//~ datos.ncant=1;
+	//~ datos.nunidades=1;
+	//~ datos.nfila=productos.length+1;
+	//~ datos.importe=npconiva.toFixed(2);
+	//~ var pvpCiva= parseFloat(npconiva);
+	//~ datos.precioCiva=pvpCiva.toFixed(2);
+	//~ productos.push(datos);
+	//~ addTemporal(dedonde);
+	//~ AgregarFilaProductosAl(datos, dedonde);
+	//~ resetCampo(campo);
+	//~ cerrarPopUp(campo);	
+//~ }
 function eliminarFila(num_item, valor=""){
 	//@Objetivo
 	//Función para cambiar el estado del producto
