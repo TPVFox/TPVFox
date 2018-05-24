@@ -150,6 +150,9 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				 var HtmlClientes=resultado.html.html; 
 				 abrirModal(titulo,HtmlClientes);
 				 focusAlLanzarModal('cajaBusquedacliente');
+				if(resultado.html.encontrados>0){
+					ponerFocus('N_0');
+				}
 				 }
 			}
 			
@@ -166,9 +169,14 @@ function controladorAcciones(caja,accion, tecla){
 	switch(accion) {
 		
 		case 'buscarClientes':
+		
 			// Esta funcion necesita el valor.
 			console.log("Estoy en buscarClientes");
-			buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+			console.log(caja);
+			if(caja.name_cja!="filacliente"){
+				buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+			}
+			
 			break;
 		case 'saltar_idCliente':
 		console.log('Entro en acciones saltar_idCliente');
@@ -246,30 +254,37 @@ function controladorAcciones(caja,accion, tecla){
 			
 			break;
 		case 'mover_down':
-		console.log("entro en mover down");
 			// Controlamos si numero fila es correcto.
+			console.log(caja);
+			var nueva_fila = 0;
+			if(caja.id_input=="cajaBusquedacliente" || caja.id_input=="cajaBusqueda"){
+				ponerFocus('N_0');
+				
+			}else{
 			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)+1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
+				nueva_fila = parseInt(caja.fila)+1;
+			} 
+			console.log('mover_down:'+nueva_fila);
+			
+			mover_down(nueva_fila,caja.darParametro('prefijo'));
 			}
-			if (caja.id_input === 'cajaBusqueda'){
-				var nueva_fila = 0;
-			}
-			mover_down(nueva_fila,caja.darParametro('prefijo'), caja.darParametro('dedonde'));
-			break;
+		break;
 		case 'mover_up':
-		console.log("Entro en mover up");
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
-			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)-1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
+			var nueva_fila = 0;
+			if(caja.fila=='0'){
+				if(cabecera.idProveedor>0){
+					ponerSelect('cajaBusqueda');
+				}else{
+					$("#cajaBusquedacliente").select();
+				}
+			}else{
+				if ( isNaN(caja.fila) === false){
+					nueva_fila = parseInt(caja.fila)-1;
+				}
+				mover_up(nueva_fila,caja.darParametro('prefijo'));
 			}
-			mover_up(nueva_fila,caja.darParametro('prefijo'), caja.darParametro('dedonde'));
-			break;
+		break;
 			
 		case 'saltar_Referencia':
 			var dato = caja.darValor();
@@ -339,8 +354,6 @@ function controladorAcciones(caja,accion, tecla){
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		break;
-		default :
-			console.log ( 'Accion no encontrada '+ accion);
 	} 
 }
 function insertarImporte(total){
@@ -403,10 +416,13 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
-function ponerSelect(destino_focus){
-	console.log('Entro en enviar select de :'+destino_focus);
-	jQuery('#'+destino_focus.toString()).select(); 
-	
+function ponerSelect (destino_focus){
+	// @ Objetivo:
+	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
+	console.log('Entro en ponerselects de :'+destino_focus);
+	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		jQuery('#'+destino_focus.toString()).select(); 
+	}, 50); 
 
 }
 function before_constructor(caja){
@@ -653,34 +669,26 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		addTemporal(dedonde);
 }
 
-function mover_down(fila,prefijo, dedonde=""){
-	console.log("entro en mover down");
+function mover_up(fila,prefijo){
 	var d_focus = prefijo+fila;
-	if (prefijo !== 'N_'){
-			if ( document.getElementById(d_focus) ) {
-				ponerSelect(d_focus);
-			}else{
-				var d_focus = 'Fila_';
-				ponerFocus(d_focus);
-			}
-	}	else{
-		var ant=fila-1;
+		// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
+		ponerSelect(d_focus);
+	} else {
 		ponerFocus(d_focus);
-		
 	}
 }
-
-function mover_up(fila,prefijo, dedonde=""){
-	console.log("entro en mover up");
-	if (dedonde !== "cerrados"){
-		var d_focus = prefijo+fila;
+function mover_down(fila,prefijo){
+	var d_focus = prefijo+fila;
+	// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
 		ponerSelect(d_focus);
-	}else{
-		var ant=fila-1;
-		var d_focus = prefijo+fila;
+	} else {
 		ponerFocus(d_focus);
 	}
-} 
+}
 function mostrarFila(){
 	//@Objetivo; 
 	//Mostrar la fila de inputs para añadir nuevos productos

@@ -124,11 +124,11 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 			$razonsocial_nombre=$cliente['Nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" '
-								.'onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
+								.'onclick="escribirClienteSeleccionado('.$cliente['idClientes'].', '."'".$cliente['Nombre']."'".', '."'".'albaran'."'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN"'
-								.'onkeydown="controlEventos(event)" type="image"  alt="">';
+								.'onkeydown="controlEventos(event)" type="image" value='.$cliente['idClientes'].' alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['Nombre'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
@@ -206,7 +206,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
 						.number_format($pvpCiva,2).",".$producto['idArticulo'].
 						" , '".$dedonde."'";
-			$resultado['html'] .= '<tr id="N_'.$contad.'" data-obj= "idN" class="FilaModal"'
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" data-obj= "idN" class="FilaModal"'
 								.'onclick="escribirProductoSeleccionado('.$datos.');">'
 								.'<td id="C'.$contad.'_Lin" >'
 								.'<input id="N_'.$contad.'" name="filaproducto" data-obj="idN"'
