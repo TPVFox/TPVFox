@@ -127,6 +127,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				if (resultado.Nitems==1){
 					cabecera.idCliente=resultado.id;
 					$('#Cliente').val(resultado.nombre);
+					$('#id_cliente').val(resultado.id);
 					$('#Cliente').prop('disabled', true);
 					$('#id_cliente').prop('disabled', true);
 					$("#buscar").css("display", "none");
@@ -142,7 +143,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					if(dedonde=="pedido"){
 					$('#Referencia').focus();	
 					}
-					
+					 cerrarPopUp();
 					
 				}else{
 					console.log(resultado.html);
@@ -445,6 +446,14 @@ function before_constructor(caja){
 	if (caja.id_input.indexOf('N_') >-1){
 		console.log(' Entro en Before de '+ caja.id_input)
 		caja.fila = caja.id_input.slice(2);
+		if(caja.tecla==13){
+			if(cabecera.idCliente>0){
+				
+				
+			}else{
+				buscarClientes(caja.parametros.dedonde, "id_cliente", caja.darValor());
+			}
+		}
 	}
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
 		console.log("input de caja");
