@@ -49,8 +49,10 @@ function formasVenciCliente(formasVenci){
 			console.log('Llegue devuelta respuesta de html formas pago vencimiento factura');
 			var resultado =  $.parseJSON(response); 
 			//$("#formaVenci").prepend(resultado.html1);
+			console.log(resultado);
 			$("#formaVenci").html(resultado.html1);
 			$("#fechaVencimiento").prepend(resultado.html2);
+				//~ $("#fechaVencimiento").prepend(resultado.fecha);
 			
 		}
 	});
@@ -448,13 +450,16 @@ function before_constructor(caja){
 		caja.fila = caja.id_input.slice(2);
 		if(caja.tecla==13){
 			if(cabecera.idCliente>0){
-				if(caja.parametros.dedonde!='pedidos'){
+				if(caja.parametros.dedonde!='pedidos'|| caja.parametros.dedonde!='factura' ){
 				console.log(caja);
 				 buscarProductos('idArticulo', 'a.idArticulo', 'idArticulo', caja.darValor(), caja.parametros.dedonde);
 			 }
 				
 			}else{
-				buscarClientes(caja.parametros.dedonde, "id_cliente", caja.darValor());
+				if(caja.parametros.dedonde!="factura"){
+					 buscarClientes(caja.parametros.dedonde, "id_cliente", caja.darValor());
+				}
+				
 			}
 		}
 	}
