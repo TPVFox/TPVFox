@@ -78,10 +78,18 @@ function controladorAcciones(caja,accion, tecla){
 		case 'mover_up':
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
 			var nueva_fila = 0;
-			if ( isNaN(caja.fila) === false){
-				nueva_fila = parseInt(caja.fila)-1;
-			} 
-			mover_up(nueva_fila,caja.darParametro('prefijo'));
+			if(caja.fila=='0'){
+				if(cabecera.idProveedor>0){
+					ponerSelect('cajaBusqueda');
+				}else{
+					$("#cajaBusquedaproveedor").select();
+				}
+			}else{
+				if ( isNaN(caja.fila) === false){
+					nueva_fila = parseInt(caja.fila)-1;
+				}
+				mover_up(nueva_fila,caja.darParametro('prefijo'));
+			}
 		break;
 		//~ case 'mover_up':
 			//~ console.log( 'Accion subir 1 desde fila'+caja.fila);
