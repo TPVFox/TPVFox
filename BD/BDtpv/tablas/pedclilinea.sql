@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 18, 2018 at 10:41 PM
+-- Generation Time: May 24, 2018 at 03:43 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.27-0+deb9u1
 
@@ -39,7 +39,8 @@ CREATE TABLE `pedclilinea` (
   `precioCiva` decimal(17,2) NOT NULL,
   `iva` decimal(4,2) NOT NULL,
   `nfila` int(11) NOT NULL,
-  `estadoLinea` varchar(12) NOT NULL
+  `estadoLinea` varchar(12) NOT NULL,
+  `pvpSiva` decimal(17,6) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
