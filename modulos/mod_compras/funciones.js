@@ -64,7 +64,7 @@ function controladorAcciones(caja,accion, tecla){
 			// Controlamos si numero fila es correcto.
 			console.log(caja);
 			var nueva_fila = 0;
-			if(caja.id_input=="cajaBusquedaproveedor"){
+			if(caja.id_input=="cajaBusquedaproveedor" || caja.id_input=="cajaBusqueda"){
 				ponerFocus('N_0');
 			}else{
 			if ( isNaN(caja.fila) === false){
