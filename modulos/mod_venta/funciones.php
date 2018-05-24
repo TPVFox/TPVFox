@@ -210,7 +210,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $
 								.'onclick="escribirProductoSeleccionado('.$datos.');">'
 								.'<td id="C'.$contad.'_Lin" >'
 								.'<input id="N_'.$contad.'" name="filaproducto" data-obj="idN"'
-								.' onkeydown="controlEventos(event)" type="image"  alt="">'
+								.' onkeydown="controlEventos(event)" type="image" value='.$producto['idArticulo'].' alt="">'
 								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 								.'<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>'
 								.'<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'

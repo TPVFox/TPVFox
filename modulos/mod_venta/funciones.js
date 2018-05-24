@@ -448,7 +448,7 @@ function before_constructor(caja){
 		caja.fila = caja.id_input.slice(2);
 		if(caja.tecla==13){
 			if(cabecera.idCliente>0){
-				
+				buscarProductos('idArticulo', 'a.idArticulo', 'idArticulo', caja.darValor(), caja.parametros.dedonde);
 				
 			}else{
 				buscarClientes(caja.parametros.dedonde, "id_cliente", caja.darValor());
@@ -543,7 +543,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							if (dedonde=="factura"){
 								$("#tablaAl").hide();
 							}
-							
+							 cerrarPopUp();
 						}else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 				
