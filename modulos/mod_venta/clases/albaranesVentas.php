@@ -258,7 +258,7 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 		//Mostrar algunos datos de todos los albaranes reales con un filtro
 		$db=$this->db;
 		$sql='SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total,
-		 a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
+		 a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ORDER BY Numalbcli desc '.$filtro;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -269,7 +269,11 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($albaranesPrincipal,$result);
 			}
-			return $albaranesPrincipal;
+			$respuesta = array();
+			$respuesta['Items'] = $albaranesPrincipal;
+			$respuesta['consulta'] = $sql;
+			$respuesta['limite']=$limite;
+			return $respuesta;
 		}
 	}
 	
