@@ -450,8 +450,10 @@ function before_constructor(caja){
 		caja.fila = caja.id_input.slice(2);
 		if(caja.tecla==13){
 			if(cabecera.idCliente>0){
-				if(caja.parametros.dedonde!='pedidos'|| caja.parametros.dedonde !='factura' ){
+				console.log(caja.parametros.dedonde);
+				if(caja.parametros.dedonde=='albaran'){
 				console.log(caja);
+				console.log(caja.parametros.dedonde);
 				 buscarProductos('idArticulo', 'a.idArticulo', 'idArticulo', caja.darValor(), caja.parametros.dedonde);
 			 }
 				
@@ -560,12 +562,12 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							var titulo = 'Listado productos encontrados ';
 							abrirModal(titulo,HtmlProductos);
 							focusAlLanzarModal('cajaBusqueda');
-							if (resultado.Nitems >0 ){
+							if (resultado.listado['encontrados'] >0 ){
 								// Quiere decir que hay resultados por eso apuntamos al primero
 								// focus a primer producto.
 								var d_focus = 'N_0';
 								 ponerFocus(d_focus);
-								 focusAlLanzarModal('cajaBusqueda');
+								 //~ focusAlLanzarModal('cajaBusqueda');
 							} else {
 							// No hay resultado pero apuntamos a caj
 							//~ ponerFocus(id_input);
