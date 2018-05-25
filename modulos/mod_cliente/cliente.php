@@ -185,7 +185,7 @@
 				
 				<h3><?php echo $ClienteUnico['razonsocial'];?></h3>
 
-				<div class="col-md-3">
+				<div class="col-md-1">
 					<?php 
 					// UrlImagen
 					$img = './../../css/img/imgUsuario.png';
@@ -194,7 +194,7 @@
 				</div>
 
 				<form action="" method="post" name="formCliente">
-				<div class="col-md-9">
+				<div class="col-md-7">
 					<div class="Datos">
 						<div class="col-md-6 form-group">
 							<label>Nombre Cliente:</label>
@@ -306,6 +306,9 @@
 					</div>
 					
 				</div>
+				<div class="col-md-4">
+					<!-- Aquí irá el código de los grupos-->
+					</div>
 				<div class="col-md-12">
 					<input type="submit" value="Guardar">
 				
