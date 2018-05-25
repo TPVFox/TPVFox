@@ -199,12 +199,16 @@
 						<div class="col-md-6 form-group">
 							<label>Nombre Cliente:</label>
 							<input type="text" id="nombre"  name="nombre" <?php echo $ClienteUnico['Nombre'];?> placeholder="nombre" value="<?php echo $ClienteUnico['Nombre'];?>"   >
-							
+							 <div class="invalid-tooltip-nombre" display="none">
+								No permitimos la doble comilla (") 
+							</div>
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
 							<input  type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>"   >
-							
+							 <div class="invalid-tooltip-nombre" display="none">
+								No permitimos la doble comilla (") 
+							</div>
 						</div>
 						<div class="col-md-6 form-group">
 							<label>NIF:</label>
