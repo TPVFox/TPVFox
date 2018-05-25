@@ -8,7 +8,7 @@
 	//~ include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../plugins/paginacion/ClasePaginacion.php");
 	include ("./../../controllers/Controladores.php");
-
+$Controler = new ControladorComun; 
 	include '../../clases/cliente.php';
 	include 'clases/facturasVentas.php';
 	$Ccliente=new Cliente($BDTpv);
@@ -43,7 +43,7 @@
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$f=$Cfactura->TodosFacturaFiltro($filtro.$NPaginado->GetLimitConsulta());
-	$facturasDef=$f['Items'];
+	$facturasDef=array_reverse($f['Items']);
 if (isset($f['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $f['consulta'],

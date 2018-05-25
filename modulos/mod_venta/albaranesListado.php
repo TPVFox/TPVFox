@@ -13,7 +13,7 @@
 	include 'clases/albaranesVentas.php';
 	$Ccliente=new Cliente($BDTpv);
 	$Calbaran=new AlbaranesVentas($BDTpv);
-	
+	$Controler = new ControladorComun; 
 	$todosTemporal=$Calbaran->TodosTemporal();
 	if (isset($todosTemporal['error'])){
 		$errores[0]=array ( 'tipo'=>'Danger!',
@@ -45,7 +45,7 @@
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$a=$Calbaran->TodosAlbaranesFiltro($filtro.$NPaginado->GetLimitConsulta());
-	$albaranesDef=$a['Items'];
+	$albaranesDef=array_reverse($a['Items']);
 if (isset($a['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $a['consulta'],

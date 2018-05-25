@@ -36,7 +36,7 @@
 		
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
-	$campos = array( 'a.Numpedcli','b.Nombre');
+	$campos = array( 'a.Numpedpro','b.nombrecomercial');
 
 	$NPaginado->SetCamposControler($Controler,$campos);
 	// --- Ahora contamos registro que hay para es filtro --- //

@@ -12,6 +12,7 @@
 	include '../../clases/cliente.php';
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
+	$Controler = new ControladorComun; 
 	$todoTemporal=$Cpedido->TodosTemporal();
 	if (isset($todoTemporal['error'])){
 	$errores[0]=array ( 'tipo'=>'Danger!',
@@ -25,7 +26,7 @@
 		
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
-	$campos = array( 'a.Numpedpro','b.nombrecomercial');
+	$campos = array( 'a.Numpedcli','b.Nombre');
 
 	$NPaginado->SetCamposControler($Controler,$campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
@@ -34,7 +35,6 @@
 	$CantidadRegistros=0;
 	// Obtenemos la cantidad registros 
 	$p= $Cpedido->TodosPedidosFiltro($filtro);
-		
 	$CantidadRegistros = count($p['Items']);
 	
 	// --- Ahora envio a NPaginado la cantidad registros --- //
@@ -42,7 +42,7 @@
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$p=$Cpedido->TodosPedidosFiltro($filtro.$NPaginado->GetLimitConsulta());
-	$pedidosDef=$p['Items'];
+	$pedidosDef=array_reverse($p['Items']);
 	if (isset($p['error'])){
 	$errores[0]=array ( 'tipo'=>'Danger!',
 								 'dato' => $p['consulta'],
