@@ -55,7 +55,7 @@ class FacturasCompras extends ClaseCompras{
 		$db=$this->db;
 		$sql= 'SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial, 
 		a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on 
-		a.idProveedor=b.idProveedor ORDER BY Numfacpro desc'.$limite;
+		a.idProveedor=b.idProveedor '.$limite;
 		$smt=$db->query($sql);
 		$pedidosPrincipal=array();
 		while ( $result = $smt->fetch_assoc () ) {
