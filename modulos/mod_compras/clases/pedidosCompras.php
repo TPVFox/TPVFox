@@ -304,7 +304,7 @@ class PedidosCompras extends ClaseCompras{
 		$db	=$this->db;
 		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, 
 		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on 
-		a.idProveedor=b.idProveedor  ORDER BY Numpedpro desc '. $limite ;
+		a.idProveedor=b.idProveedor   '. $limite ;
 		$smt=$this->consulta($Sql);
 		$pedidosPrincipal=array();
 		if (gettype($smt)==='array'){

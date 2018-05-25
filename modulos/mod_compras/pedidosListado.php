@@ -54,6 +54,7 @@
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$p=$Cpedido->TodosPedidosLimite($filtro.$NPaginado->GetLimitConsulta());
 	$pedidosDef=$p['Items'];
+	 $pedidosDef=array_reverse($p['Items']);
 	if (isset($p['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $p['consulta'],

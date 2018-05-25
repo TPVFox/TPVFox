@@ -332,7 +332,7 @@ class AlbaranesCompras extends ClaseCompras{
 		$db=$this->db;
 		$sql='SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, 
 		a.estado  from `albprot` as a LEFT JOIN proveedores as b on 
-		a.idProveedor =b.idProveedor   ORDER BY Numalbpro desc'.$limite;
+		a.idProveedor =b.idProveedor  '.$limite;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
