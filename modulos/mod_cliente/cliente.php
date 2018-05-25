@@ -53,7 +53,7 @@
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
 			$ClienteUnico = verSelec($BDTpv,$id,$tabla);
-			$titulo = "Modificar Cliente";
+			$titulo = "Modificar";
 			if (isset($ClienteUnico['error'])){
 				$error='NOCONTINUAR';
 				$tipomensaje= "danger";
@@ -91,7 +91,7 @@
 			}
 		} else {
 			// Creamos ficha Usuario.
-			$titulo = "Crear Cliente";
+			$titulo = "Crear";
 			$ClienteUnico = array();
 			$ClienteUnico['Nombre'] = '';
 			$ClienteUnico['razonsocial'] = '';
@@ -117,7 +117,7 @@
 					$datosForma=json_encode($datosForma);
 				}
 				
-				if($titulo === "Crear Cliente"){
+				if($titulo === "Crear"){
 					// Quiere decir que ya cubrimos los datos del usuario nuevo.
 					
 					$resp = insertarCliente($datos,$BDTpv,$tabla);
@@ -179,11 +179,11 @@
 			}
 			?>
 			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
-			<h1 class="text-center"> <?php echo $titulo;?></h1>
+			<h1 class="text-center"> Cliente: <?php echo $titulo;?></h1>
 			<a class="text-ritght" href="./ListaClientes.php">Volver Atrás</a>
 			<div class="col-md-12">
 				
-				<h3><?php echo $ClienteUnico['razonsocial'];?></h3>
+				<h4>Datos del cliente con ID:<?php echo $id?></h4>
 
 				<div class="col-md-1">
 					<?php 
@@ -198,12 +198,12 @@
 					<div class="Datos">
 						<div class="col-md-6 form-group">
 							<label>Nombre Cliente:</label>
-							<input type="text" id="nombre" name="nombre" <?php echo $ClienteUnico['Nombre'];?> placeholder="nombre" value="<?php echo $ClienteUnico['Nombre'];?>"   >
+							<input type="text" id="nombre"  name="nombre" <?php echo $ClienteUnico['Nombre'];?> placeholder="nombre" value="<?php echo $ClienteUnico['Nombre'];?>"   >
 							
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
-							<input type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>"   >
+							<input  type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>"   >
 							
 						</div>
 						<div class="col-md-6 form-group">
