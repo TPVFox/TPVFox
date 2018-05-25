@@ -196,7 +196,7 @@ class PedidosVentas extends ClaseVentas{
 		//@Objetivo: Todos los pedidos guardados pero ultilizando el filtro
 		$db=$this->db;
 		$sql= 'SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado 
-		FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
+		FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ORDER BY Numpedcli desc'.$filtro;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -207,7 +207,11 @@ class PedidosVentas extends ClaseVentas{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($pedidosPrincipal,$result);
 			}
-			return $pedidosPrincipal;
+				$respuesta = array();
+			$respuesta['Items'] = $pedidosPrincipal;
+			$respuesta['consulta'] = $sql;
+			$respuesta['limite']=$limite;
+			return $respuesta;
 		}
 	}
 	
