@@ -5,9 +5,7 @@
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
-        
-        //~ include ("./../../mod_conexion/conexionBaseDatos.php");
-         include ("./../../controllers/Controladores.php");
+        include ("./../../controllers/Controladores.php");
         include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
         $ClasesParametros = new ClaseParametros('parametros.xml');  
         
@@ -44,11 +42,6 @@
 		</script>
 		<?php
         include './../../header.php';
-        
-      
-        
-        
-        
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$tabla= 'clientes'; // Tablas que voy utilizar.
@@ -56,9 +49,6 @@
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
 		// Obtenemos id
-		//~ print_r($_GET);
-		
-		
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
@@ -112,12 +102,8 @@
 			$ClienteUnico['fax'] = '';
 			$ClienteUnico['email'] = '';			
 			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
-			//$ClienteUnico['id']= '';
 			$formasPago=$CFormasPago->todas();
 			$tiposVen=$CtiposVen->todos();
-			//~ echo '<pre>';
-			//~ print_r($formasPago);
-			//~ echo '</pre>';
 		}
 		
 		if (!isset($error)){
@@ -151,13 +137,9 @@
 				} else {
 					// Quiere decir que ya modificamos los datos del ficha del cliente
 					$ClienteUnico['razonsocial'] =$datos['razonsocial'];
-					//~ echo'<pre>';
-					//~ print_r($datos);
-					//~ echo '</pre>';
 					$resp = modificarCliente($datos,$BDTpv,$tabla);
 					if (isset ($datosForma)){
 						$mod=$Ccliente->mofificarFormaPagoVenci($datos['idCliente'],$datosForma );
-					//	echo $mod['sql'];
 					}
 					if (isset($resp['error'])){
 						// Error de usuario repetido...
@@ -176,11 +158,7 @@
 		?>
      
 		<div class="container">
-				
 			<?php 
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
 			$mensaje="";
 			$tipomensaje="";
 			if(isset($_GET['mensaje'])){
@@ -189,9 +167,6 @@
 			if(isset($_GET['tipo'])){
 				$tipomensaje=$_GET['tipo'];
 			}
-			//~ $mensaje=$_GET['mensaje'];
-			//~ $tipomensaje=$_GET['tipo'];
-			
 			if (!empty($mensaje)|| isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
@@ -339,12 +314,9 @@
 			</div>
 			
 		</div>
-		<?php // Incluimos paginas modales
-//~ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-// Incluimos paginas modales
+		<?php 
 echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-// hacemos comprobaciones de estilos 
 ?>
 
 	</body>
