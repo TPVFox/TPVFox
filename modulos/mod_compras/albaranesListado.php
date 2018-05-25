@@ -54,9 +54,9 @@ $todosTemporal=array_reverse($todosTemporal);
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
 	 $albaranesDef=$a['Items'];
-	if (isset($albaranesDef['error'])){
+	if (isset($a['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
-								 'dato' => $albaranesDef['consulta'],
+								 'dato' => $a['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
