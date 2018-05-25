@@ -55,7 +55,7 @@ class FacturasVentas extends ClaseVentas{
 		//Mostrar los datos principales de todas las facturas con el filtro de paginacion 
 		$db=$this->db;
 		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado 
-		FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
+		FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ORDER BY Numfaccli desc '.$filtro;
 		$smt=$this->consulta($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
@@ -67,7 +67,11 @@ class FacturasVentas extends ClaseVentas{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($facturaPrincipal,$result);
 			}
-			return $facturaPrincipal;
+			$respuesta = array();
+			$respuesta['Items'] = $facturaPrincipal;
+			$respuesta['consulta'] = $sql;
+			$respuesta['limite']=$limite;
+			return $respuesta;
 		}
 	}
 	public function datosFactura($idFactura){
