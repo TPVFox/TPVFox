@@ -23,47 +23,7 @@
 								 );
 	}
 	$todosTemporal=array_reverse($todosTemporal);
-	//~ $palabraBuscar=array();
-	//~ $stringPalabras='';
-	//~ $PgActual = 1; // por defecto.
-	//~ $LimitePagina = 30; // por defecto.
-	//~ $filtro = ''; // por defecto
-	//~ $WhereLimite['filtro']="";
-	//~ $NuevoRango="";
-	//~ if (isset($_GET['pagina'])) {
-		//~ $PgActual = $_GET['pagina'];
-	//~ }
-	//~ if (isset($_GET['buscar'])) {  
-		//~ //recibo un string con 1 o mas palabras
-		//~ $stringPalabras = $_GET['buscar'];
-		//~ $palabraBuscar = explode(' ',$_GET['buscar']); 
-	//~ } 
-	//~ $Controler = new ControladorComun; 
-	//~ $vista = 'albclit';
-	//~ $LinkBase = './albaranesListado.php?';
-	//~ $OtrosParametros = '';
-	//~ $paginasMulti = $PgActual-1;
-	//~ if ($paginasMulti > 0) {
-		//~ $desde = ($paginasMulti * $LimitePagina); 
-		
-	//~ } else {
-		//~ $desde = 0;
-	//~ }
-//~ if ($stringPalabras !== '' ){
-		//~ $campo = array( 'a.Numalbcli','b.Nombre');
-		//~ $NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
-		//~ $NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
-		//~ $OtrosParametros=$stringPalabras;
-		//~ $WhereLimite['filtro']='WHERE '.$NuevoWhere;
-//~ }
-//~ $CantidadRegistros=count($Calbaran->TodosAlbaranesFiltro($WhereLimite['filtro']));
-//~ $WhereLimite['rango']=$NuevoRango;
-//~ $htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-//~ if ($stringPalabras !== '' ){
-		//~ $filtro = $WhereLimite['filtro']." ORDER BY Numalbcli desc ".$WhereLimite['rango'];
-	//~ } else {
-		//~ $filtro= "ORDER BY Numalbcli desc LIMIT ".$LimitePagina." OFFSET ".$desde;
-	//~ }	
+	
 	$Tienda = $_SESSION['tiendaTpv'];
 		
 	// ===========    Paginacion  ====================== //
