@@ -78,11 +78,12 @@
 			
 		}
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
-		if (isset($datosFactura['FechaVencimiento'])){
-			$date=date_create($datosFactura['FechaVencimiento']);
+		if (isset($datosFactura['fechaVencimiento'])){
+			$date=date_create($datosFactura['fechaVencimiento']);
 			$fechave=date_format($date,'Y-m-d');
 		}else{
 			$fec=date('Y-m-d');
+			echo $fec;
 			$fechave=fechaVencimiento($fec, $BDTpv);
 		}
 		$textoFecha=htmlVencimiento($fechave, $BDTpv);
@@ -173,12 +174,12 @@
 						. '</div>';
 					
 				}else{
-					//~ header('Location: facturasListado.php');
+					 header('Location: facturasListado.php');
 				}
-				echo '<pre>';
-				print_r($modFecha);
-				echo '</pre>';
-				echo $fecha;
+				//~ echo '<pre>';
+				//~ print_r($modFecha);
+				//~ echo '</pre>';
+				//~ echo $fecha;
 			}else{
 				
 			
