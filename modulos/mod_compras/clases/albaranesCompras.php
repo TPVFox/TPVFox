@@ -332,7 +332,7 @@ class AlbaranesCompras extends ClaseCompras{
 		$db=$this->db;
 		$sql='SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, 
 		a.estado  from `albprot` as a LEFT JOIN proveedores as b on 
-		a.idProveedor =b.idProveedor '.$limite;
+		a.idProveedor =b.idProveedor   ORDER BY Numalbpro desc'.$limite;
 		$smt=$this->consultaAlbaran($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -343,7 +343,11 @@ class AlbaranesCompras extends ClaseCompras{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($pedidosPrincipal,$result);
 			}
-			return $pedidosPrincipal;
+			$resultado = array();
+			$resultado['Items'] = $pedidosPrincipal;
+			$resultado['consulta'] = $sql;
+			$resultado['limite']=$limite;
+			return $resultado;
 		}
 	}
 	
