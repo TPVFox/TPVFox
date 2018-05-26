@@ -40,6 +40,7 @@
                                                         <ul class="dropdown-menu">
                                                 <li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
                                                 <li><a href="<?php echo $HostNombre.'/modulos/mod_familia/ListaFamilias.php';?>">Familias</a></li>
+                                                <li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaFamilias.php';?>">Familias (producto)</a></li>
                                             </ul></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_cliente/ListaClientes.php';?>">Clientes</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>
