@@ -32,6 +32,7 @@ $familias = new ClaseFamilias($BDTpv);
         include './../../head.php';
         ?>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <script type="text/javascript" src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.js"></script>
     </head>
@@ -63,7 +64,7 @@ $familias = new ClaseFamilias($BDTpv);
                             <li><button class="btn btn-link" id="boton-eliminarseccionados"
                                         data-alabuelo="0">Quitar seleccion todos</button></li>
                         </ul>
-                </div>
+                    </div>
                 </div>
                 <div class="col-md-10">
                     <!-- Tabla de lineas de productos -->
@@ -134,7 +135,7 @@ $familias = new ClaseFamilias($BDTpv);
                         <div id="formularioFamiliaModal" >
                             <div class="row  ui-front">
                                 Cambiar padre a: <input class="form-control" id="inputNombreFamiliaModal" 
-                                       value="--- Padre raíz ---"/>
+                                                        value="--- Padre raíz ---"/>
                                 <input id="inputIdFamiliaModal" type="hidden" value="0">
                             </div>
                         </div>

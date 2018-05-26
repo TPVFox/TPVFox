@@ -63,7 +63,7 @@ $Controler->loadDbtpv($BDTpv);
 
 include_once './clases/ClaseFamilias.php';
 include_once './funciones_familia.inc.php';
-include_once './clases/ClaseArticulos.php';
+//include_once './clases/ClaseArticulos.php';
 //include_once './funciones_mayor.inc.php';
 
 

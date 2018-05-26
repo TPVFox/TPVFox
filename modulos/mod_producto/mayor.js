@@ -48,8 +48,6 @@ function MayorProductos() {
 }
 
 
-
-
 function ajaxMayor(parametros, callback) {
 
     $.ajax({
@@ -61,6 +59,8 @@ function ajaxMayor(parametros, callback) {
                     + '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>'
                     + '</div>';
             $('#imprimir' + parametros.idproducto).html(html_spinner);
+            $('#visualizar' + parametros.idproducto).hide();
+
         },
         success: callback,
         error: function (request, textStatus, error) {

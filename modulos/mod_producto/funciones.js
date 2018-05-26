@@ -844,7 +844,7 @@ function selecionarItemProducto(id, dedonde=""){
 						$(".productos_seleccionados").css("display", "block");
 						$(".textoCantidad").html(resultado.Nitems);
 					}else{
-						location.href="ListaEtiquetas.php";
+						location.href=dedonde+".php";
 					}
 					
 				}

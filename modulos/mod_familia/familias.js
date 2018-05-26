@@ -27,12 +27,15 @@ $(function () {
         event.stopPropagation();
         event.preventDefault();
 
-
-
+        var checksChecked = leerChecked('form-check-input');
+        if (checksChecked.length > 0) {
         $('#inputNombreFamiliaModal').val('');
         $('#inputIdFamiliaModal').val('-1');
         $('#cambioPadreModal').modal('show');
         $('#inputNombreFamiliaModal').focus();
+        } else {
+            alert('Antes de modificar, por favor selecciona un elemento')
+        }
     });
 
 

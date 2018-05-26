@@ -65,7 +65,6 @@ if (isset($_POST['Imprimir'])) {
                                 <th>ELIMINAR</th>
                                 <th>VISUALIZAR</th>
                                 <th>IMPRIMIR</th>
-                                <th></th>
                             </tr>
                         </thead>
                         <tbody>

@@ -160,11 +160,12 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ', " " as tipodoc '
                 . ', alb.Numalbcli as numdocu '
                 . ', cli.Nombre as nombre'
+                . ', alb.estado as estado'                
                 . ' FROM albclit as alb '
                 . ' JOIN albclilinea as linalb ON (alb.id=linalb.idalbcli) '
                 . ' JOIN clientes as cli ON (alb.idCliente = cli.idClientes) '
-                . ' WHERE alb.Fecha >= "'.$parametros['fechainicio'].'"'
-                . ' AND alb.Fecha <= "'.$parametros['fechafinal'].'"'
+                . ' WHERE DATE(alb.Fecha) >= "'.$parametros['fechadesde'].'"'
+                . ' AND DATE(alb.Fecha) <= "'.$parametros['fechahasta'].'"'
                 . ' AND linalb.idArticulo = '.$parametros['idArticulo'];
         
         $sqlprepare['sqlTiccli'] = 'SELECT tic.fecha'
@@ -175,11 +176,12 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ', "T" as tipodoc '
                 . ', tic.Numticket as numdocu '
                 . ', cli.Nombre as nombre'
+                . ', tic.estado as estado'                
                 . ' FROM ticketst as tic '
                 . ' JOIN ticketslinea as lintic ON (tic.id=lintic.idticketst) '
                 . ' JOIN clientes as cli ON (tic.idCliente = cli.idClientes) '
-                . ' WHERE tic.Fecha >= "'.$parametros['fechainicio'].'"'
-                . ' AND tic.Fecha <= "'.$parametros['fechafinal'].'"'
+                . ' WHERE DATE(tic.Fecha) >= "'.$parametros['fechadesde'].'"'
+                . ' AND DATE(tic.Fecha) <= "'.$parametros['fechahasta'].'"'
                 . ' AND lintic.idArticulo = '.$parametros['idArticulo'];
 
         $sqlprepare['sqlAlbpro'] = 'SELECT alb.fecha'
@@ -190,11 +192,12 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ', " " as tipodoc '
                 . ', alb.Numalbpro as numdocu '
                 . ', pro.razonsocial as nombre'
+                . ', alb.estado as estado'                
                 . ' FROM albprot as alb '
                 . ' JOIN albprolinea as linalb ON (alb.id=linalb.idalbpro) '
                 . ' JOIN proveedores as pro ON (alb.idProveedor = pro.idProveedor) '
-                . ' WHERE alb.Fecha >= "'.$parametros['fechainicio'].'"'
-                . ' AND alb.Fecha <= "'.$parametros['fechafinal'].'"'
+                . ' WHERE DATE(alb.Fecha) >= "'.$parametros['fechadesde'].'"'
+                . ' AND DATE(alb.Fecha) <= "'.$parametros['fechahasta'].'"'
                 . ' AND linalb.idArticulo = '.$parametros['idArticulo'];
         $sql = implode(' UNION ', $sqlprepare);
         $sql .= ' ORDER BY fecha ';
