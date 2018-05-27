@@ -3,7 +3,7 @@
 	<configuracion>
 		<impresion_ticket>Si</impresion_ticket>
 		<campo_peso>no</campo_peso>
-		<impresora_ticket>/dev/usb/lp0</impresora_ticket>
+		<impresora_ticket>/dev/usb/lp1</impresora_ticket>
 		<incidencias descripcion="mostrar_Select">Si</incidencias>
 		<incidencias descripcion="usuario_Defecto">1</incidencias>
 	</configuracion>
