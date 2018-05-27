@@ -111,16 +111,4 @@
 <!-- Fin de menu -->
 </header>
 
-<?php 
-// Mostramos formulario si no tiene acceso.
-	// Bloqueamos si 	
-	if ($_SESSION['estadoTpv'] != "Correcto"){
-		// Mostramos modal de usuario.
-		include_once ($URLCom."/plugins/controlUser/modalUsuario.php");
-		?>
-		</body>
-		</html>
-		<?php
-		exit;	
-	}
-	?>
+
