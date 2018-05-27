@@ -9,12 +9,20 @@
         $Controler = new ControladorComun; 
 		// Añado la conexion
 		$Controler->loadDbtpv($BDTpv);
-        // Eliminamos como creacion objeto de cajas en javascript y utilizamos parametros xml.
-        //   dedonde debería ser ticketcobrado , no tpv.
+		// Cargamos clase y creamos objeto de tickets
+		include ("./clases/ClaseTickets.php");
+		$CTickets = new ClaseTickets();
+		
         // Cargamos los fichero parametros.
 		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
 		$parametros = $ClasesParametros->getRoot();
+		
+		// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
+	
+		
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$idUsuario = $Usuario['id'];
@@ -47,12 +55,16 @@
 		// Añadimos productos a JS
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		echo '<pre>';
-		print_r($datos);
-		echo '</pre>';
 		
+		$ticket = $CTickets->obtenerUnTicket($id);
 		
-		
+		$datosImpresion = $CTickets->prepararParaImprimirTicket($ticket);
+		$ruta_impresora = $configuracion['impresora_ticket'];
+		if (ComprobarImpresoraTickets($ruta_impresora) === true){;
+			include 'tareas/impresoraTicket.php';
+		} else {
+			$respuesta['error_impresora'] = ' no existe la impresora asignada, hay un error';
+		}
 		?>
 		<script type="text/javascript">
 		// Objetos cajas de tpv
@@ -100,7 +112,7 @@
 				 if ($permitir_envio === 'Si'){?>
 				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb();" >Descontar Stock en Web</button>
 				 <?php } ?>
-				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');">Imprimir</a></li>
+				 	<li><a onclick="imprimirTicketCerrado(<?php echo $id;?>);">Imprimir</a></li>
 				</ul>
 				</div>	
 			</nav>
