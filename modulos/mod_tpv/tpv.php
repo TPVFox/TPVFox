@@ -4,7 +4,7 @@
  * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero
- * @Descripcion	TPV para realizar la gestion de ticket
+ * @Descripcion	TPV para realizar la gestion de tickets
  *  */
 
 ?>
@@ -14,8 +14,6 @@
 <head>
 <?php
 	include './../../head.php';
-	
-	
 	
 	include_once ("funciones.php");
 	include ("./../../controllers/Controladores.php");
@@ -28,13 +26,11 @@
 	
 	
 	// Inicializo varibles por defecto.
-	$Tienda = $_SESSION['tiendaTpv'];
-	$Usuario = $_SESSION['usuarioTpv'];
 	$ticket_estado = 'Nuevo'; 
 	$ticket_numero = 0;
 	$fechaInicio = date("d/m/Y");
-	$Control_Error = array();
-	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.
+	$Control_Error = array(); // control de errores.
+	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.( Si hay usuario claro) 
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
 	if (isset($cambiosEstadoTickets['error'])){
 		$error = array ( 'tipo'=>'dander',
@@ -53,11 +49,8 @@
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	//~ $configuracion = $Controler->obtenerConfiguracionModulo('mod_tpv',$Usuario['id']);
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
-	//~ $configuracionIncidencias=$configuracion['incidencias'];
 	
-	//~ echo '<pre>';
-	//~ print_r($configuracionIncidencias);
-	//~ echo '</pre>';
+	
 	// Creamos checkin de configuracion
 	$checkin = array();
 	// Añadimos a JS la configuracion
@@ -103,11 +96,6 @@
 	// Se envia el ticket_numero para que ese no lo traiga, ya que no tiene sentido traer el ticket que estamos viendo.
 	$ticketsAbiertos = $Tickets->ObtenerTicketsAbiertos($ticket_numero);
 
-
-	// [PENDIENTE ERROR EN SIGUIENTE <SCRIPT JAVASCRIPT>]
-	// Si no esta logueado genera un error console javascript ;
-	// ERROR -> SyntaxError: expected expression, got ';
-
 ?>
 <script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -137,7 +125,7 @@
 </script>
 
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
- <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 
 
 </head>
