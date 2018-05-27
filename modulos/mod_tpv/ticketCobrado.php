@@ -5,51 +5,16 @@
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
-        //~ include '../mod_cierres/funciones.php';
-        //~ include ("./../mod_conexion/conexionBaseDatos.php");
-		// Ya no hace falta, ya que lo contralomos head.
-		//~ if ($Usuario['estado'] === "Incorrecto"){
-			//~ return;	
-		//~ }
-		
-		?>
-	<script type="text/javascript">
-		var cajaBusquedacliente = {
-		id_input : 'cajaBusquedacliente',
-		acciones : { 
-			13 : 'buscarClientes', // pulso intro
-			40 : 'buscarClientes', // pulso abajo
-			 9 : 'buscarClientes', // tabulador
-			},
-		parametros : {
-		dedonde : 'tpv' 
-			}
-		}
-
-		var idN = {
-		after_constructor: 'Si',
-		id_input : 'N_',
-		acciones : {
-			40 : 'mover_down', // pulso abajo
-			38 : 'mover_up' // fecha arriba
-			},
-		parametros : {
-			dedonde : 'cerrados',
-			prefijo : 'N_'
-			},
-		before_constructor : 'Si' // Ejecutamos funcion before_constructor justo después crear objeto caja.
-		}	
-	</script>
-		
-		<!-- Cargamos libreria control de teclado -->
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
-		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-
-		
-	</head>
-	<body>
-		<?php
-        include './../../header.php';
+       	include ("./../../controllers/Controladores.php");
+        $Controler = new ControladorComun; 
+		// Añado la conexion
+		$Controler->loadDbtpv($BDTpv);
+        // Eliminamos como creacion objeto de cajas en javascript y utilizamos parametros xml.
+        //   dedonde debería ser ticketcobrado , no tpv.
+        // Cargamos los fichero parametros.
+		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+		$ClasesParametros = new ClaseParametros('parametros.xml');
+		$parametros = $ClasesParametros->getRoot();
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$idUsuario = $Usuario['id'];
@@ -80,30 +45,34 @@
 			$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$datos['consulta'];
 		}
 		// Añadimos productos a JS
+		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		echo '<pre>';
+		print_r($datos);
+		echo '</pre>';
+		
+		
+		
 		?>
 		<script type="text/javascript">
-			var id_ticketst = <?php echo $id; ?>;
-			var productos = [];
-			var datos_producto = [];
-			<?php 
-			$i = 0;
-			foreach($datos['lineas'] as $product){
-				echo "datos_producto['idArticulo']	=".$product['idArticulo'].';';
-				echo "datos_producto['codBarras'] 	='".$product['ccodbar']."';";
-				echo "datos_producto['crefTienda'] 	='".$product['cref']."';";
-				echo "datos_producto['articulo_name'] 	=".'"'.$product['cdetalle'].'";';
-				echo "datos_producto['iva']	='".$product['iva']."';";
-				echo "datos_producto['pvpCiva']	=".$product['precioCiva'].';';
-				echo "datos_producto['unidad'] = '".$product['nunidades']."';";
-			// Ahora añadimos datos_productos a productos... creando objeto.
-			echo 'productos.push(new ObjProducto(datos_producto));';
-			echo "productos[".$i."].estado	='".$product['estadoLinea']."';";
-
-			$i++;
-			}
-			?>
-		
+		// Objetos cajas de tpv
+		<?php echo $VarJS;?>
 		</script>
+		
+		
+		
+		
+		
+		<!-- Cargamos libreria control de teclado -->
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
+		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+				
+	</head>
+	<body>
+		<?php
+        include './../../header.php';
+		?>
+		
      
 		<div class="container">
 				
@@ -184,6 +153,7 @@
 						</thead>
 						<tbody>
 							<?php
+							$total = 0;
 							foreach ($datos['lineas'] as $key =>$dato) {?>
 								<?php 
 								if ($dato['estadoLinea'] === 'Eliminado'){
@@ -193,21 +163,26 @@
 									$htmlEstado='';
 									$classRow ='';
 								}
+								$nunidades = number_format($dato['nunidades'],3);
+								$precioCiva = number_format($dato['precioCiva'],2);
+								$importe = number_format($nunidades*$precioCiva,2);
+								if ($dato['estadoLinea'] !== 'Eliminado'){
+									// Solo sumo si estado es distinto Eliminado
+									$total = $total + $importe;
+								}
 								?> 
 								<tr <?php echo $classRow?>>
 									<td><?php echo $key+1; ?></td>
 									<td><?php echo $dato['ccodbar'];  ?></td>
 									<td><?php echo $dato['cref']; ?></td>
 									<td><?php echo $dato['cdetalle']; ?></td>
-									<td><?php echo number_format($dato['nunidades'],2); ?></td>
-									<td><?php echo number_format($dato['precioCiva'],2); ?></td>
+									<td><?php echo $nunidades; ?></td>
+									<td><?php echo $precioCiva; ?></td>
 									<td><?php echo $dato['iva']; ?></td>
-									<td><?php echo number_format($dato['nunidades'],2)*number_format($dato['precioCiva'],2); ?></td>
+									<td><?php echo $importe ?></td>
 									<td> <?php echo $htmlEstado; ?>	</td>
 								</tr>
 								<?php
-								
-								
 							}?>
 							
 						</tbody>
@@ -255,6 +230,13 @@
 					<p>Entregado</p>
 				</div>
 				<div class="col-md-8 text-right totalImporte" >
+					<?php
+					if ( strval($total) !=  $datos['totales']['total']){
+						echo '<pre>';
+						print_r('Total no coincide, me da:'.$total);
+						echo '</pre>';
+					}
+					?>
 					<div style="font-size: 3em;"><?php echo  $datos['totales']['total'];?></div>
 					<p><?php echo  $datos['totales']['formaPago'];?></p>
 					<p><?php echo  $datos['totales']['entregado'];?></p>
