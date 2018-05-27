@@ -29,10 +29,10 @@ $(function () {
 
         var checksChecked = leerChecked('form-check-input');
         if (checksChecked.length > 0) {
-        $('#inputNombreFamiliaModal').val('');
-        $('#inputIdFamiliaModal').val('-1');
-        $('#cambioPadreModal').modal('show');
-        $('#inputNombreFamiliaModal').focus();
+            $('#inputNombreFamiliaModal').val('');
+            $('#inputIdFamiliaModal').val('-1');
+            $('#cambioPadreModal').modal('show');
+            $('#inputNombreFamiliaModal').focus();
         } else {
             alert('Antes de modificar, por favor selecciona un elemento')
         }
@@ -107,7 +107,7 @@ $(function () {
         }
         if (mensajes.length > 0) {
             //errores
-            for(var i=0; i<mensajes.length;i++){
+            for (var i = 0; i < mensajes.length; i++) {
                 alert(mensajes[i]);
             }
         } else {
@@ -119,32 +119,51 @@ $(function () {
         }
     });
 
-//    $('#inputNombreFamiliaModal').autocomplete({
-//        minLength: 3,
+//    $('#inputNombreFamiliaModal').typeahead({
 //        source: function (request, response) {
-//            // Fetch data
 //            $.ajax({
 //                url: "tareasfamilias.php",
-//                type: 'post',
 //                data: {
 //                    pulsado: 'BuscaNombreFamilia',
-//                    nombre: request.term
+//                    nombre : request
 //                },
-//                success: function (data) {
-//                    var obj = JSON.parse(data);
-//                    response(obj);
+//                dataType: "json",
+//                type: "POST",
+//                success: function (response) {
+//                    result($.map(response, function (item) {
+//                        return item;
+//                    }));
 //                }
 //            });
-//        },
-//        select: function (event, ui) {
-//            console.log(event);
-//            if (ui) {
-//                $('#nombreFamilia').val(ui.item.label);
-//                $('#inputIdFamiliaModal').val(ui.item.valor);
-//            }
-//            //return false;
 //        }
 //    });
+
+    $('#inputNombreFamiliaModal').autocomplete({
+        minLength: 3,
+        source: function (request, response) {
+            // Fetch data
+            $.ajax({
+                url: "tareasfamilias.php",
+                type: 'post',
+                data: {
+                    pulsado: 'BuscaNombreFamilia',
+                    nombre: request.term
+                },
+                success: function (data) {
+                    var obj = JSON.parse(data);
+                    response(obj);
+                }
+            });
+        },
+        select: function (event, ui) {
+            console.log(event);
+            if (ui) {
+                $('#nombreFamilia').val(ui.item.label);
+                $('#inputIdFamiliaModal').val(ui.item.valor);
+            }
+            //return false;
+        }
+    });
 });
 
 function leerfamiliaspadre0() {
