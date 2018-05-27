@@ -129,15 +129,7 @@ switch ($pulsado) {
 		break;
 		
 	case 'ObtenerRefTiendaWeb';
-		// @Objetivo :
-		// Obtener la referencia producto de una tienda. (web)
-		$respuesta = array();
-		$productos =json_decode($_POST['productos']);
-		$idweb	 = $_POST['web'];
-		//Ahora obtenemos datos tienda web.
-		$tienda = BuscarTienda($BDTpv,$idweb);
-		$respuesta = ObtenerRefWebProductos($BDTpv,$productos,$idweb);
-		$respuesta['tienda'] = $tienda;
+		include('tareas/PrepararEnviarStockWeb.php');
 		break;
 		
 	case 'RegistrarRestaStock':
