@@ -209,7 +209,6 @@ switch ($pulsado) {
 			$configuracion=$_POST['configuracion'];
 			$numInicidencia=0;
 			$tipo="mod_ventas";
-			$fecha=date('Y-m-d');
 			$datos=array(
 			'vista'=>$dedonde,
 			'idReal'=>$idReal
