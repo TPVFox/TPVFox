@@ -311,6 +311,28 @@
 					
 				</div>
 				<div class="col-md-4">
+					 <div class="panel-group">
+						 <?php 
+						$num = 1 ; // Numero collapse;
+						$titulo = 'Tickets';
+						echo htmlPanelDesplegable($num,$titulo,$htmlTickets);
+						?>
+						<?php 
+						$num = 2 ; // Numero collapse;
+						$titulo = 'Facturas';
+						echo htmlPanelDesplegable($num,$titulo,$htmlFacturas);
+						?>
+						<?php 
+						$num = 3 ; // Numero collapse;
+						$titulo = 'Albaranes';
+						echo htmlPanelDesplegable($num,$titulo,$htmlAlbaranes);
+						?>
+						<?php 
+						$num = 4 ; // Numero collapse;
+						$titulo = 'Pedidos';
+						echo htmlPanelDesplegable($num,$titulo,$htmlPedidos);
+						?>
+						 </div>
 					<!-- Aquí irá el código de los grupos-->
 					</div>
 				<div class="col-md-12">
