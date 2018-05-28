@@ -244,4 +244,44 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	return $html;
 	 
 }
+function htmlTablaTickets($tickets,  $HostNombre){
+	$html.='<table class="table table-striped">
+		<thead>
+			<tr>
+				<td>Fecha</td>
+				<td>Número ticket</td>
+				<td>Total</td>
+			</tr>
+		</thead>
+		<tbody>';
+	foreach($tickets as $ticket){
+		$html.='<tr>'.
+			'<td>'.$ticket['Fecha'].'</td>'.
+			'<td><a href="'.$HostNombre.'/modulos/mod_tpv/ticketCobrado.php?id='.$ticket['id'].'">'.$ticket['Numticket'].'</a></td>'.
+			'<td>'.$ticket['total'].'</td>'.
+		'</tr>';
+	}
+	$html.='</tbody></table>';
+	return $html;
+}
+function htmlTablaFacturas($facturas,  $HostNombre){
+	$html.='<table class="table table-striped">
+		<thead>
+			<tr>
+				<td>Fecha</td>
+				<td>Número ticket</td>
+				<td>Total</td>
+			</tr>
+		</thead>
+		<tbody>';
+	foreach($facturas as $factura){
+		$html.='<tr>'.
+			'<td>'.$factura['Fecha'].'</td>'.
+			'<td><a href="'.$HostNombre.'/modulos/mod_venta/factura.php?id='.$factura['id'].'">'.$factura['Numfaccli'].'</a></td>'.
+			'<td>'.$factura['total'].'</td>'.
+		'</tr>';
+	}
+	$html.='</tbody></table>';
+	return $html;
+}
 ?>

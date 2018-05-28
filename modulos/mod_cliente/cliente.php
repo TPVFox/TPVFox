@@ -56,9 +56,9 @@
 			//~ $ClienteUnico = verSelec($BDTpv,$id,$tabla);
 			$ClienteUnico=$Cliente->getCliente($id);
 			$titulo = "Modificar";
-			echo '<pre>';
-			print_r($ClienteUnico);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($ClienteUnico);
+			//~ echo '</pre>';
 			if (isset($ClienteUnico['error'])){
 				//~ $error='NO CONTINUAR';
 				//~ $tipomensaje= "danger";
@@ -99,6 +99,14 @@
 				$formasPago=$CFormasPago->todas();
 				$tiposVen=$CtiposVen->todos();
 			}
+			$tickets=$Cliente->getTicket($id);
+			$htmlTickets=htmlTablaTickets($tickets['datos'], $HostNombre);
+			$facturas=$Cliente->getFacturas($id);
+			$htmlFacturas=htmlTablaFacturas($facturas['datos'], $HostNombre);
+			//~ echo $htmlTickets;
+			//~ echo '<pre>';
+			//~ print_r($facturas);
+			//~ echo '</pre>';
 		} else {
 			// Creamos ficha Usuario.
 			$titulo = "Crear";
