@@ -10,7 +10,6 @@ class ClaseCliente extends modelo{
 		$sql= 'SELECT * FROM clientes WHERE idClientes='.$id;
 		return $this->consulta($sql);
 	}
-	
 	public function getTicket($id){
 		$sql='SELECT Numticket as num , Fecha as fecha , total ,id FROM ticketst WHERE idCliente= '.$id.' order by Numticket desc';
 		return $this->consulta($sql);
@@ -26,6 +25,14 @@ class ClaseCliente extends modelo{
 	public function getPedidos($id){
 		$sql='SELECT Numpedcli as num, FechaPedido as fecha, total, id FROM pedclit WHERE idCliente='.$id.' order by id desc';
 		return $this->consulta($sql);
+	}
+	public function adjuntosCliente($id){
+		$respuesta=array();
+		$respuesta['tickets']=$this->getTicket($id);
+		$respuesta['facturas']=$this->getFacturas($id);
+		$respuesta['albaranes']=$this->getAlbaranes($id);
+		$respuesta['pedidos']=$this->getPedidos($id);
+		return $respuesta;
 	}
 }
 

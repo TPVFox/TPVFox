@@ -245,6 +245,7 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	 
 }
 function htmlTablaGeneral($datos, $HostNombre, $dedonde){
+	if(count($datos)>0){
 	switch($dedonde){
 			case 'ticket':
 				$url=$HostNombre.'/modulos/mod_tpv/ticketCobrado.php?id=';
@@ -268,14 +269,19 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 			</tr>
 		</thead>
 		<tbody>';
-	foreach($datos as $dato){
-		$html.='<tr>'.
-			'<td>'.$dato['fecha'].'</td>'.
-			'<td><a href="'.$url.$dato['id'].'">'.$dato['num'].'</a></td>'.
-			'<td>'.$dato['total'].'</td>'.
-		'</tr>';
+	
+		foreach($datos as $dato){
+			$html.='<tr>'.
+				'<td>'.$dato['fecha'].'</td>'.
+				'<td><a href="'.$url.$dato['id'].'">'.$dato['num'].'</a></td>'.
+				'<td>'.$dato['total'].'</td>'.
+			'</tr>';
+		}
+		$html.='</tbody></table>';
+	}else{
+		$html.='<div class="alert alert-info">Este cliente no tiene '.$dedonde.'</div>';
 	}
-	$html.='</tbody></table>';
+	
 	return $html;
 }
 ?>
