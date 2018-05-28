@@ -23,8 +23,19 @@ include_once ("./funciones.php");
 // Incluimos controlador.
 include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun; 
-// Añado la conexion a controlador.
-$Controler->loadDbtpv($BDTpv);
+$Controler->loadDbtpv($BDTpv); // Añado la conexion a controlador.
+
+// Creamos clases de parametros 
+include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+$ClasesParametros = new ClaseParametros('parametros.xml');
+$parametros = $ClasesParametros->getRoot();
+// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
+
+// Creamos clase de ticket
+include ("./clases/ClaseTickets.php");
+$CTickets = new ClaseTickets();
 
 include_once '../mod_incidencias/clases/ClaseIncidencia.php';
 $CIncidencia=new ClaseIncidencia($BDTpv);
@@ -65,9 +76,19 @@ switch ($pulsado) {
 	
 	case 'ImprimirTicketCerrados';
 		// Ahora debería imprimir el ticket cerrado.
-		$idTicketst					=$_POST['idTicketst'];
+		$id					=$_POST['idTicketst'];
+		$ticket = $CTickets->obtenerUnTicket($id);
+		
+		$datosImpresion = $CTickets->prepararParaImprimirTicket($ticket);
+		$ruta_impresora = $configuracion['impresora_ticket'];
+		if (ComprobarImpresoraTickets($ruta_impresora) === true){;
+			include 'tareas/impresoraTicket.php';
+		} else {
+			$respuesta['error_impresora'] = ' no existe la impresora asignada, hay un error';
+		}
 		// Pendiente de realizar.
-		$respuesta['idTicketST'] = $idTicketst;
+		$respuesta['idTicketST'] = $id;
+		$respuesta['datosImpresion'] = $datosImpresion;
 		break;
 
 	case 'ObtenerRefTiendaWeb';

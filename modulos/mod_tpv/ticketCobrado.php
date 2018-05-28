@@ -56,15 +56,6 @@
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		
-		$ticket = $CTickets->obtenerUnTicket($id);
-		
-		$datosImpresion = $CTickets->prepararParaImprimirTicket($ticket);
-		$ruta_impresora = $configuracion['impresora_ticket'];
-		if (ComprobarImpresoraTickets($ruta_impresora) === true){;
-			include 'tareas/impresoraTicket.php';
-		} else {
-			$respuesta['error_impresora'] = ' no existe la impresora asignada, hay un error';
-		}
 		?>
 		<script type="text/javascript">
 		// Objetos cajas de tpv
