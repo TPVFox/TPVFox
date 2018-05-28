@@ -11,10 +11,10 @@
         
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
-		$Usuario = $_SESSION['usuarioTpv'];
-		if ($Usuario['estado'] === "Incorrecto"){
-			return;	
-		}
+		//~ $Usuario = $_SESSION['usuarioTpv'];
+		//~ if ($Usuario['estado'] === "Incorrecto"){
+			//~ return;	
+		//~ }
 		
 		include_once '../../clases/FormasPago.php';
 		$CFormasPago=new FormasPago($BDTpv);
@@ -31,53 +31,16 @@
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
 		$configuracion=$configuracion['incidencias']; 
 		
-		
-			if($_POST['Guardar']){
-			$guardar=guardarCliente($_POST, $BDTpv);
-			if($guardar['error']=="0"){
-				header('Location: ListaClientes.php');
-			}else{
-				$errores[7]=array ( 'tipo'=>'Danger!',
-								 'dato' => $guardar['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-			}
-		}
-		
-		?>
-		<!-- Cargamos libreria control de teclado -->
-		
-		
-	</head>
-	<body>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-		 <script type="text/javascript" >
-			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
-		</script>
-		<?php
-        include './../../header.php';
-		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
-		//~ $tabla= 'clientes'; // Tablas que voy utilizar.
 		$estados = array(); // Creo los estados de usuarios ( para select)
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
 		// Obtenemos id
 		if (isset($_GET['id'])) {
-			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
-			//~ $ClienteUnico = verSelec($BDTpv,$id,$tabla);
 			$ClienteUnico=$Cliente->getCliente($id);
 			$titulo = "Modificar";
-			//~ echo '<pre>';
-			//~ print_r($ClienteUnico);
-			//~ echo '</pre>';
 			if (isset($ClienteUnico['error'])){
-				//~ $error='NO CONTINUAR';
-				//~ $tipomensaje= "danger";
-				//~ $mensaje = "Id de usuario incorrecto ( ver get) <br/>".$ClienteUnico['consulta'];
 				$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $ClienteUnico['consulta'],
 								 'class'=>'alert alert-danger',
@@ -157,65 +120,32 @@
 			$tiposVen=$CtiposVen->todos();
 		}
 	
-		//~ if (!isset($error)){
-			//~ if(count($_POST)>0){
-				//~ // Ya enviamos el formulario y gestionamos lo enviado.
-				//~ $datos = $_POST;
-				//~ if ($_POST['formapago']>0||$_POST['vencimiento']>0){
-					//~ $datosForma=array();
-					//~ $datosForma['formapago']=$_POST['formapago'];
-					//~ $datosForma['vencimiento']=$_POST['vencimiento'];
-					//~ $datosForma=json_encode($datosForma);
-				//~ }
-				
-				//~ if($titulo === "Crear"){
-					//~ // Quiere decir que ya cubrimos los datos del usuario nuevo.
-					
-					//~ $resp = insertarCliente($datos,$BDTpv,$tabla);
-					//~ $id=$resp['id'];
-					//~ if (isset ($datosForma)){
-						//~ $mod=$Ccliente->mofificarFormaPagoVenci($id,$datosForma );
-					//~ }
-					//~ echo $resp['sql'];
-					//~ if (isset($resp['error'])){
-						//~ $errores[5]=array ( 'tipo'=>'Danger!',
-								 //~ 'dato' => '',
-								 //~ 'class'=>'alert alert-danger',
-								 //~ 'mensaje' => 'Nombre de cliente ya existe!'
-								 //~ );
-						//~ $tipomensaje= "danger";
-						//~ $mensaje = "Nombre de cliente ya existe!";
-						
-					//~ } else {
-						//~ $errores[6]=array ( 'tipo'=>'Info!',
-								 //~ 'dato' => '',
-								 //~ 'class'=>'alert alert-info',
-								 //~ 'mensaje' => 'Nombre de cliente ya existe!'
-								 //~ );
-						//~ $tipomensaje= "info";
-						//~ $mensaje = "Nuevo cliente creado.";
-					//~ }
-				//~ } else {
-					//~ // Quiere decir que ya modificamos los datos del ficha del cliente
-					//~ $ClienteUnico['razonsocial'] =$datos['razonsocial'];
-					//~ $resp = modificarCliente($datos,$BDTpv,$tabla);
-					//~ if (isset ($datosForma)){
-						//~ $mod=$Ccliente->mofificarFormaPagoVenci($datos['idCliente'],$datosForma );
-					//~ }
-					//~ if (isset($resp['error'])){
-						//~ // Error de usuario repetido...
-						//~ $tipomensaje= "danger";
-						//~ $mensaje = "Razon social de cliente ya existe!";
-					//~ } else {
-						//~ $tipomensaje= "info";
-						//~ $mensaje = "Su registro de cliente fue editado.";
-						//~ $i=$_GET['id'];
-						//~ header('Location: cliente.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
-					//~ }
-				//~ };
-			//~ }
-		//~ }
-	
+			if($_POST['Guardar']){
+			$guardar=guardarCliente($_POST, $BDTpv);
+			if($guardar['error']=="0"){
+				header('Location: ListaClientes.php');
+			}else{
+				$errores[7]=array ( 'tipo'=>'Danger!',
+								 'dato' => $guardar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+			}
+		}
+		
+		?>
+		<!-- Cargamos libreria control de teclado -->
+		
+		
+	</head>
+	<body>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+		 <script type="text/javascript" >
+			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+		</script>
+		<?php
+        include './../../header.php';
 		?>
      
 		<div class="container">
