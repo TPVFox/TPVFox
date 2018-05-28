@@ -103,9 +103,13 @@
 			$htmlTickets=htmlTablaTickets($tickets['datos'], $HostNombre);
 			$facturas=$Cliente->getFacturas($id);
 			$htmlFacturas=htmlTablaFacturas($facturas['datos'], $HostNombre);
+			$albaranes=$Cliente->getAlbaranes($id);
+			$htmlAlbaranes=htmlTablaAlbaranes($albaranes['datos'], $HostNombre);
+			$pedidos=$Cliente->getPedidos($id);
+			$htmlPedidos=htmlTablaPedidos($pedidos['datos'], $HostNombre);
 			//~ echo $htmlTickets;
 			//~ echo '<pre>';
-			//~ print_r($facturas);
+			//~ print_r($pedidos);
 			//~ echo '</pre>';
 		} else {
 			// Creamos ficha Usuario.
