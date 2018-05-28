@@ -245,7 +245,8 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	 
 }
 function htmlTablaTickets($tickets,  $HostNombre){
-	$html.='<table class="table table-striped">
+
+	$html='<table class="table table-striped">
 		<thead>
 			<tr>
 				<td>Fecha</td>
@@ -265,11 +266,11 @@ function htmlTablaTickets($tickets,  $HostNombre){
 	return $html;
 }
 function htmlTablaFacturas($facturas,  $HostNombre){
-	$html.='<table class="table table-striped">
+	$html='<table class="table table-striped">
 		<thead>
 			<tr>
 				<td>Fecha</td>
-				<td>Número ticket</td>
+				<td>Número factura</td>
 				<td>Total</td>
 			</tr>
 		</thead>
@@ -279,6 +280,46 @@ function htmlTablaFacturas($facturas,  $HostNombre){
 			'<td>'.$factura['Fecha'].'</td>'.
 			'<td><a href="'.$HostNombre.'/modulos/mod_venta/factura.php?id='.$factura['id'].'">'.$factura['Numfaccli'].'</a></td>'.
 			'<td>'.$factura['total'].'</td>'.
+		'</tr>';
+	}
+	$html.='</tbody></table>';
+	return $html;
+}
+function htmlTablaAlbaranes($albaranes,  $HostNombre){
+	$html='<table class="table table-striped">
+		<thead>
+			<tr>
+				<td>Fecha</td>
+				<td>Número albarán</td>
+				<td>Total</td>
+			</tr>
+		</thead>
+		<tbody>';
+	foreach($albaranes as $albaran){
+		$html.='<tr>'.
+			'<td>'.$albaran['Fecha'].'</td>'.
+			'<td><a href="'.$HostNombre.'/modulos/mod_venta/albaran.php?id='.$albaran['id'].'">'.$albaran['Numalbcli'].'</a></td>'.
+			'<td>'.$albaran['total'].'</td>'.
+		'</tr>';
+	}
+	$html.='</tbody></table>';
+	return $html;
+}
+function htmlTablaPedidos($pedidos,  $HostNombre){
+	$html='<table class="table table-striped">
+		<thead>
+			<tr>
+				<td>Fecha</td>
+				<td>Número albarán</td>
+				<td>Total</td>
+			</tr>
+		</thead>
+		<tbody>';
+	foreach($pedidos as $pedido){
+		$html.='<tr>'.
+			'<td>'.$pedido['FechaPedido'].'</td>'.
+			'<td><a href="'.$HostNombre.'/modulos/mod_venta/pedido.php?id='.$pedido['id'].'">'.$pedido['Numpedcli'].'</a></td>'.
+			'<td>'.$pedido['total'].'</td>'.
 		'</tr>';
 	}
 	$html.='</tbody></table>';

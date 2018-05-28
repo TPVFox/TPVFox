@@ -20,10 +20,12 @@ class ClaseCliente extends modelo{
 		return $this->consulta($sql);
 	}
 	public function getAlbaranes($id){
-		
+		$sql='SELECT Numalbcli, Fecha, total, id FROM albclit WHERE idCliente='.$id.' order by id desc';
+		return $this->consulta($sql);
 	}
 	public function getPedidos($id){
-		
+		$sql='SELECT Numpedcli, FechaPedido, total, id FROM pedclit WHERE idCliente='.$id.' order by id desc';
+		return $this->consulta($sql);
 	}
 }
 
