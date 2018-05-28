@@ -100,17 +100,14 @@
 				$tiposVen=$CtiposVen->todos();
 			}
 			$tickets=$Cliente->getTicket($id);
-			$htmlTickets=htmlTablaTickets($tickets['datos'], $HostNombre);
+			$htmlTickets=htmlTablaGeneral($tickets['datos'], $HostNombre, "ticket");
 			$facturas=$Cliente->getFacturas($id);
-			$htmlFacturas=htmlTablaFacturas($facturas['datos'], $HostNombre);
+			$htmlFacturas=htmlTablaGeneral($facturas['datos'], $HostNombre, "factura");
 			$albaranes=$Cliente->getAlbaranes($id);
-			$htmlAlbaranes=htmlTablaAlbaranes($albaranes['datos'], $HostNombre);
+			$htmlAlbaranes=htmlTablaGeneral($albaranes['datos'], $HostNombre, "albaran");
 			$pedidos=$Cliente->getPedidos($id);
-			$htmlPedidos=htmlTablaPedidos($pedidos['datos'], $HostNombre);
-			//~ echo $htmlTickets;
-			//~ echo '<pre>';
-			//~ print_r($pedidos);
-			//~ echo '</pre>';
+			$htmlPedidos=htmlTablaGeneral($pedidos['datos'], $HostNombre, "pedido");
+			
 		} else {
 			// Creamos ficha Usuario.
 			$titulo = "Crear";

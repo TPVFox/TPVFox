@@ -12,19 +12,19 @@ class ClaseCliente extends modelo{
 	}
 	
 	public function getTicket($id){
-		$sql='SELECT Numticket  , Fecha , total ,id FROM ticketst WHERE idCliente= '.$id.' order by Numticket desc';
+		$sql='SELECT Numticket as num , Fecha as fecha , total ,id FROM ticketst WHERE idCliente= '.$id.' order by Numticket desc';
 		return $this->consulta($sql);
 	}
 	public function getFacturas($id){
-		$sql='SELECT Numfaccli, Fecha, total, id FROM facclit WHERE idCliente='.$id.' order by id desc';
+		$sql='SELECT Numfaccli as num, Fecha as fecha, total, id FROM facclit WHERE idCliente='.$id.' order by id desc';
 		return $this->consulta($sql);
 	}
 	public function getAlbaranes($id){
-		$sql='SELECT Numalbcli, Fecha, total, id FROM albclit WHERE idCliente='.$id.' order by id desc';
+		$sql='SELECT Numalbcli as  num, Fecha as fecha, total, id FROM albclit WHERE idCliente='.$id.' order by id desc';
 		return $this->consulta($sql);
 	}
 	public function getPedidos($id){
-		$sql='SELECT Numpedcli, FechaPedido, total, id FROM pedclit WHERE idCliente='.$id.' order by id desc';
+		$sql='SELECT Numpedcli as num, FechaPedido as fecha, total, id FROM pedclit WHERE idCliente='.$id.' order by id desc';
 		return $this->consulta($sql);
 	}
 }

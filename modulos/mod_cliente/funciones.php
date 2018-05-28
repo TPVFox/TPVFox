@@ -244,48 +244,21 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	return $html;
 	 
 }
-function htmlTablaTickets($tickets,  $HostNombre){
-
-	$html='<table class="table table-striped">
-		<thead>
-			<tr>
-				<td>Fecha</td>
-				<td>Número ticket</td>
-				<td>Total</td>
-			</tr>
-		</thead>
-		<tbody>';
-	foreach($tickets as $ticket){
-		$html.='<tr>'.
-			'<td>'.$ticket['Fecha'].'</td>'.
-			'<td><a href="'.$HostNombre.'/modulos/mod_tpv/ticketCobrado.php?id='.$ticket['id'].'">'.$ticket['Numticket'].'</a></td>'.
-			'<td>'.$ticket['total'].'</td>'.
-		'</tr>';
+function htmlTablaGeneral($datos, $HostNombre, $dedonde){
+	switch($dedonde){
+			case 'ticket':
+				$url=$HostNombre.'/modulos/mod_tpv/ticketCobrado.php?id=';
+			break;
+			case 'factura':
+				$url=$HostNombre.'/modulos/mod_venta/factura.php?id=';
+			break;
+			case 'albaran':
+				$url=$HostNombre.'/modulos/mod_venta/albaran.php?id=';
+			break;
+			case 'pedido':
+				$url=$HostNombre.'/modulos/mod_venta/pedido.php?id=';
+			break;
 	}
-	$html.='</tbody></table>';
-	return $html;
-}
-function htmlTablaFacturas($facturas,  $HostNombre){
-	$html='<table class="table table-striped">
-		<thead>
-			<tr>
-				<td>Fecha</td>
-				<td>Número factura</td>
-				<td>Total</td>
-			</tr>
-		</thead>
-		<tbody>';
-	foreach($facturas as $factura){
-		$html.='<tr>'.
-			'<td>'.$factura['Fecha'].'</td>'.
-			'<td><a href="'.$HostNombre.'/modulos/mod_venta/factura.php?id='.$factura['id'].'">'.$factura['Numfaccli'].'</a></td>'.
-			'<td>'.$factura['total'].'</td>'.
-		'</tr>';
-	}
-	$html.='</tbody></table>';
-	return $html;
-}
-function htmlTablaAlbaranes($albaranes,  $HostNombre){
 	$html='<table class="table table-striped">
 		<thead>
 			<tr>
@@ -295,31 +268,11 @@ function htmlTablaAlbaranes($albaranes,  $HostNombre){
 			</tr>
 		</thead>
 		<tbody>';
-	foreach($albaranes as $albaran){
+	foreach($datos as $dato){
 		$html.='<tr>'.
-			'<td>'.$albaran['Fecha'].'</td>'.
-			'<td><a href="'.$HostNombre.'/modulos/mod_venta/albaran.php?id='.$albaran['id'].'">'.$albaran['Numalbcli'].'</a></td>'.
-			'<td>'.$albaran['total'].'</td>'.
-		'</tr>';
-	}
-	$html.='</tbody></table>';
-	return $html;
-}
-function htmlTablaPedidos($pedidos,  $HostNombre){
-	$html='<table class="table table-striped">
-		<thead>
-			<tr>
-				<td>Fecha</td>
-				<td>Número albarán</td>
-				<td>Total</td>
-			</tr>
-		</thead>
-		<tbody>';
-	foreach($pedidos as $pedido){
-		$html.='<tr>'.
-			'<td>'.$pedido['FechaPedido'].'</td>'.
-			'<td><a href="'.$HostNombre.'/modulos/mod_venta/pedido.php?id='.$pedido['id'].'">'.$pedido['Numpedcli'].'</a></td>'.
-			'<td>'.$pedido['total'].'</td>'.
+			'<td>'.$dato['fecha'].'</td>'.
+			'<td><a href="'.$url.$dato['id'].'">'.$dato['num'].'</a></td>'.
+			'<td>'.$dato['total'].'</td>'.
 		'</tr>';
 	}
 	$html.='</tbody></table>';
