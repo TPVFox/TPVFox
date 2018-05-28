@@ -30,7 +30,7 @@
 			$ticket = $CTickets->obtenerUnTicket($id);
 		}
 			
-		$titulo = "Ticket Cobrado";
+		$titulo = 'Ticket '.$ticket['cabecera']['estado'];
 		
 		// Añadimos productos a JS
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -233,7 +233,9 @@
 			
 		</div>
 		<?php // Incluimos paginas modales
-			include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		// hacemos comprobaciones de estilos 
 		?>
 	</body>
 </html>
