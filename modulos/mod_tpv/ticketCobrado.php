@@ -23,49 +23,28 @@
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
 	
 		
-		// ===========  datos cliente segun id enviado por url============= //
-		$idTienda = $Tienda['idTienda'];
-		$idUsuario = $Usuario['id'];
-		
+				
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
-			$datos = ObtenerUnTicket($BDTpv,$id,$idTienda);
-			$idCliente=$datos['cabecera']['idClientes'];
-			$nombreCliente =$datos['cabecera']['DatosCliente'];
-			$datoTicket=$datos['cabecera'];
-			// Ahora comprobamos si envio datos
-			$enviado_stock = ObtenerEnvioIdTickets( $BDTpv,$id);
-			$permitir_envio = 'Si';
-			if (isset($enviado_stock['tickets'])){
-				// Hay resultado consulta.
-				if ($enviado_stock['tickets']['respuesta_envio_rows'] >= 1){
-					// Quiere decir que se envio ...
-					$permitir_envio = 'No';
-				}
-			}
+			$ticket = $CTickets->obtenerUnTicket($id);
 		}
 			
-		$titulo = "Ticket Cobrado";
-		if (isset($datos['error'])){
-			$error='NOCONTINUAR';
-			$tipomensaje= "danger";
-			$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$datos['consulta'];
-		}
+		$titulo = 'Ticket '.$ticket['cabecera']['estado'];
+		
 		// Añadimos productos a JS
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		
+		//~ echo '<pre>';
+		//~ print_r($ticket);
+		//~ echo '</pre>';
 		?>
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
 		</script>
 		
-		
-		
-		
-		
+
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
@@ -81,12 +60,15 @@
 				
 			<?php 
 			
-			if (isset($mensaje) || isset($error)){   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
+			if (isset($ticket['error'])) {   
+				foreach ($ticket['error'] as $error){
+				?> 
+					<div class="alert alert-<?php echo $error['tipo']; ?>"><?php echo $error['mensaje'] ;?></div>
+					<?php 
+					if ($error['tipo']==='danger'){
+						// No permito continuar, ya que hubo error grabe.
+						exit();
+					}
 				}
 				?>
 			<?php
@@ -114,27 +96,29 @@
 					<div class="col-md-7">
 						<div class="col-md-6">
 							<strong>Fecha Inicio:</strong><br/>
-							<span id="Fecha"><?php echo $datoTicket['Fecha'];?></span><br/>
+							<span id="Fecha"><?php echo $ticket['cabecera']['Fecha'];?></span><br/>
 						</div>
 						<div class="col-md-6">
 							<strong>Estado:</strong>
-							<span id="EstadoTicket"> <?php echo $datoTicket['estado'];?></span><br/>
+							<span id="EstadoTicket"> <?php echo $ticket['cabecera']['estado'];?></span><br/>
 							<strong>NºTicket:</strong>
-							<span id="NTicket"><?php echo $datoTicket['Numticket'];?></span><br/>
+							<span id="NTicket"><?php echo $ticket['cabecera']['Numticket'];?></span><br/>
 						</div>
 					</div>
 					<div class="col-md-5">
 						<label>Empleado:</label>
-						<span id="Usuario"><?php echo $datoTicket['username'];?></span><br/>
+						<span id="Usuario"><?php echo $ticket['cabecera']['username'];?></span><br/>
 					</div>
 				</div> 
 				<?php //Cliente  ?>
 				<div class="form-group">
 					<label>Cliente:</label>
-					<input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
-					<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $nombreCliente; ?>" size="60" readonly>
+					<?php 
+					echo '<input type="text" id="id_cliente" name="idCliente" value="'
+						.$ticket['cabecera']['idCliente'].'" size="2" readonly>';
+					echo '<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="'
+						.$ticket['cabecera']['Nombre'].' - '.$ticket['cabecera']['razonsocial'].'" size="60" readonly>';?>
 					<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('cobrados')"></a>
-			
 				</div>
 			
 			</div>
@@ -157,7 +141,7 @@
 						<tbody>
 							<?php
 							$total = 0;
-							foreach ($datos['lineas'] as $key =>$dato) {?>
+							foreach ($ticket['lineas'] as $key =>$dato) {?>
 								<?php 
 								if ($dato['estadoLinea'] === 'Eliminado'){
 									$htmlEstado = '<span class="glyphicon glyphicon-trash"></span>';
@@ -205,7 +189,7 @@
 				<tbody>
 				<?php 
 			
-				foreach ( $datos['basesYivas'] as $baseYiva){
+				foreach ( $ticket['basesYivas'] as $baseYiva){
 				?>
 				<tr>
 					<td  class="tipo_iva">
@@ -234,22 +218,24 @@
 				</div>
 				<div class="col-md-8 text-right totalImporte" >
 					<?php
-					if ( strval($total) !=  $datos['totales']['total']){
+					if ( strval($total) !=  $ticket['cabecera']['total']){
 						echo '<pre>';
 						print_r('Total no coincide, me da:'.$total);
 						echo '</pre>';
 					}
 					?>
-					<div style="font-size: 3em;"><?php echo  $datos['totales']['total'];?></div>
-					<p><?php echo  $datos['totales']['formaPago'];?></p>
-					<p><?php echo  $datos['totales']['entregado'];?></p>
+					<div style="font-size: 3em;"><?php echo  $ticket['cabecera']['total'];?></div>
+					<p><?php echo  $ticket['cabecera']['formaPago'];?></p>
+					<p><?php echo  $ticket['cabecera']['entregado'];?></p>
 				</div>
 				
 			</div>	
 			
 		</div>
 		<?php // Incluimos paginas modales
-			include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		// hacemos comprobaciones de estilos 
 		?>
 	</body>
 </html>
