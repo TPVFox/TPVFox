@@ -12,10 +12,12 @@ class ClaseCliente extends modelo{
 	}
 	
 	public function getTicket($id){
-		
+		$sql='SELECT Numticket  , Fecha , total ,id FROM ticketst WHERE idCliente= '.$id.' order by Numticket desc';
+		return $this->consulta($sql);
 	}
 	public function getFacturas($id){
-		
+		$sql='SELECT Numfaccli, Fecha, total, id FROM facclit WHERE idCliente='.$id.' order by id desc';
+		return $this->consulta($sql);
 	}
 	public function getAlbaranes($id){
 		
