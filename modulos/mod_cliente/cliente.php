@@ -99,14 +99,28 @@
 				$formasPago=$CFormasPago->todas();
 				$tiposVen=$CtiposVen->todos();
 			}
-			$tickets=$Cliente->getTicket($id);
-			$htmlTickets=htmlTablaGeneral($tickets['datos'], $HostNombre, "ticket");
-			$facturas=$Cliente->getFacturas($id);
-			$htmlFacturas=htmlTablaGeneral($facturas['datos'], $HostNombre, "factura");
-			$albaranes=$Cliente->getAlbaranes($id);
-			$htmlAlbaranes=htmlTablaGeneral($albaranes['datos'], $HostNombre, "albaran");
-			$pedidos=$Cliente->getPedidos($id);
-			$htmlPedidos=htmlTablaGeneral($pedidos['datos'], $HostNombre, "pedido");
+			$adjuntos=$Cliente->adjuntosCliente($id);
+			$i=2;
+			foreach($adjuntos as $adjunto){
+				if(isset($adjunto['error'])){
+					$errores[$i]=array ( 'tipo'=>'Danger!',
+								 'dato' => $adjunto['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+								 $i++;
+				}
+			}
+			
+			$htmlTickets=htmlTablaGeneral($adjuntos['tickets']['datos'], $HostNombre, "ticket");
+				
+			$htmlFacturas=htmlTablaGeneral($adjuntos['facturas']['datos'], $HostNombre, "factura");
+				
+			$htmlAlbaranes=htmlTablaGeneral($adjuntos['albaranes']['datos'], $HostNombre, "albaran");
+				
+			$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
+			
+			
 			
 		} else {
 			// Creamos ficha Usuario.
