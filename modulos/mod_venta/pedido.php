@@ -392,6 +392,7 @@ if ($idCliente===0){
 			<th>Descripcion</th>
 			<th>Unid</th>
 			<th>PVP</th>
+			<th>S/iva</th>
 			<th>Iva</th>
 			<th>Importe</th>
 			<th></th>

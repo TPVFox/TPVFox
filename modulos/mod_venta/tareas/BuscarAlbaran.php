@@ -19,6 +19,7 @@
 						$respuesta['datos']['estado']="Activo";
 						$respuesta['Nitems']=$res['Nitem'];
 						$productosAlbaran=$CalbAl->ProductosAlbaran($res['id']);
+						$productosAlbaran=modificarArrayProductos($productosAlbaran);
 						if(isset($productosAlbaran['error'])){
 							$respuesta['error']=$productosAlbaran['error'];
 							$respuesta['consulta']=$productosAlbaran['consulta'];

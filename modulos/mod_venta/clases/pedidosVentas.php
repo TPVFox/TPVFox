@@ -163,10 +163,10 @@ class PedidosVentas extends ClaseVentas{
 					$codBarras=$prod['ccodbar'];
 				}
 				$sql='INSERT INTO pedclilinea (idpedcli , Numpedcli, idArticulo,
-				 cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ) 
+				 cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, iva, nfila, estadoLinea ,pvpSiva) 
 				 VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', "'
 				 .$codBarras.'", "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades']
-				 .', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'" )' ;
+				 .', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'", '.$prod['pvpSiva'].' )' ;
 				$smt=$this->consulta($sql);
 				if (gettype($smt)==='array'){
 						$respuesta['error']=$smt['error'];
@@ -207,7 +207,11 @@ class PedidosVentas extends ClaseVentas{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($pedidosPrincipal,$result);
 			}
-			return $pedidosPrincipal;
+			$respuesta = array();
+			$respuesta['Items'] = $pedidosPrincipal;
+			$respuesta['consulta'] = $sql;
+			$respuesta['limite']=$limite;
+			return $respuesta;
 		}
 	}
 	

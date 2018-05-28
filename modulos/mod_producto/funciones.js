@@ -281,7 +281,9 @@ function recalcularPvp(dedonde){
 		destacarCambioCaja('pvpCiva');
 	} else {
 		var precioCiva = parseFloat($('#pvpCiva').val(),2);
-		var precioSiva = precioCiva -(precioCiva*iva);
+		iva = iva +1;
+		console.log(iva);
+		var precioSiva = precioCiva/iva;
 		// Ahora destacamos los input que cambiamos		
 		destacarCambioCaja('pvpSiva');
 	}
@@ -842,7 +844,7 @@ function selecionarItemProducto(id, dedonde=""){
 						$(".productos_seleccionados").css("display", "block");
 						$(".textoCantidad").html(resultado.Nitems);
 					}else{
-						location.href="ListaEtiquetas.php";
+						location.href=dedonde+".php";
 					}
 					
 				}

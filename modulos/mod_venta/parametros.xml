@@ -52,9 +52,10 @@
 	<caja_input>
 			<nombre id_input="cajaBusquedacliente">cajaBusquedacliente</nombre>
 			<teclas>
-				<action tecla=" 9">buscarClientes</action>
+				<action tecla="40">mover_down</action>
+				<action tecla=" 9">mover_down</action>
 				<action tecla="13">buscarClientes</action>
-				<action tecla="40">buscarClientes</action>
+				
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -139,7 +140,7 @@
 				<action tecla="38">mover_up</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">cerrados</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>
 				<parametro nombre="prefijo">N_</parametro>
 			</parametros>

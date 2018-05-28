@@ -41,7 +41,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 	}
 	$i = 0;
 	foreach ($busquedas as $buscar){
-		$sql1='SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` 
+		$sql1='SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, ap.pvpSiva, at.crefTienda , a.`iva` 
 			FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac 
 			ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosClientes` AS ap 
 			ON a.idArticulo = ap.idArticulo  LEFT JOIN `articulosTiendas` 
@@ -49,8 +49,8 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 			'.$buscar.' LIMIT 0 , 30';
 		$res = $BDTpv->query($sql1);
 		$resultado['Nitems']= $res->num_rows;
-		if($resultado['Nitems']==0 || $id_input<>'idArticulo'){
-		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
+		if($resultado['Nitems']==0){
+		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, ap.pvpSiva, at.crefTienda , a.`iva` '
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
 			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
@@ -124,11 +124,11 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 			$razonsocial_nombre=$cliente['Nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" '
-								.'onclick="escribirClienteSeleccionado('.$datos.",'".$dedonde."'".');">';
+								.'onclick="escribirClienteSeleccionado('.$cliente['idClientes'].', '."'".$cliente['Nombre']."'".', '."'".$dedonde."'".');">';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN"'
-								.'onkeydown="controlEventos(event)" type="image"  alt="">';
+								.'onkeydown="controlEventos(event)" type="image" value='.$cliente['idClientes'].' alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['Nombre'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
@@ -206,11 +206,12 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
 						.number_format($pvpCiva,2).",".$producto['idArticulo'].
 						" , '".$dedonde."'";
-			$resultado['html'] .= '<tr id="N_'.$contad.'" data-obj= "idN" class="FilaModal"'
-								.'onclick="escribirProductoSeleccionado('.$datos.');">'
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" data-obj= "idN" class="FilaModal"'
+								.'onclick="buscarProductos('."'".'idArticulo'."'".', '."'".'a.idArticulo'."'".', '."'".'idArticulo'.
+								"'".', '.$producto['idArticulo'].', '."'".$dedonde."'".');">'
 								.'<td id="C'.$contad.'_Lin" >'
 								.'<input id="N_'.$contad.'" name="filaproducto" data-obj="idN"'
-								.' onkeydown="controlEventos(event)" type="image"  alt="">'
+								.' onkeydown="controlEventos(event)" type="image" value='.$producto['idArticulo'].' alt="">'
 								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 								.'<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>'
 								.'<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
@@ -280,10 +281,21 @@ function recalculoTotales($productos) {
 function modificarArrayProductos($productos){
 	$respuesta=array();
 	foreach ($productos as $producto){
+		$sinIva=0;
 		$product['idArticulo']=$producto['idArticulo'];
 		$product['cref']=$producto['cref'];
 		$product['cdetalle']=$producto['cdetalle'];
 		$product['precioCiva']=$producto['precioCiva'];
+		if(isset($producto['pvpSiva'])){
+			$sinIva=number_format($producto['pvpSiva'],2);
+		}else{
+			$iva=$producto['iva']/100;
+			$op1=$producto['precioCiva']*$iva;
+			$sinIva=$producto['precioCiva']-$op1;
+			$sinIva=number_format($sinIva,2);
+		}
+		error_log($sinIva);
+		$product['pvpSiva']=$sinIva;
 		$product['iva']=$producto['iva'];
 		$product['ccodbar']=$producto['ccodbar'];
 		$product['nfila']=$producto['nfila'];
@@ -296,7 +308,14 @@ function modificarArrayProductos($productos){
 		if(isset($producto['NumpedCli'])){
 			$product['NumpedCli']=$producto['NumpedCli'];
 		}
-		$product['importe']=$producto['precioCiva']*$producto['nunidades'];
+		if(isset($producto['Numalbcli'])){
+			$product['Numalbcli']=$producto['Numalbcli'];
+		}
+		if(isset($producto['Numpedcli'])){
+			$product['Numpedcli']=$producto['Numpedcli'];
+		}
+		//~ $product['importe']=$producto['precioCiva']*$producto['nunidades'];
+		$product['importe']=$sinIva*$producto['nunidades'];
 		array_push($respuesta,$product);
 		
 	}
@@ -361,8 +380,10 @@ function htmlLineaPedidoAlbaran($productos, $dedonde){
 		 $cant=number_format($producto['nunidades'],2);
 		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="4"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
 		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
+		 $respuesta['html'] .='<td class="psi">'.$producto['pvpSiva'].'</td>';
 		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
-		 $importe = $producto['precioCiva']*$producto['nunidades'];
+		 //~ $importe = $producto['precioCiva']*$producto['nunidades'];
+		 $importe = $producto['pvpSiva']*$producto['nunidades'];
 		 $importe = number_format($importe,2);
 		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
 		 $respuesta['html'] .= $btnELiminar_Retornar;
@@ -653,6 +674,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 					$fecha1=date_format($fecha1,'Y-m-d');
 				}else{
 					$fecha1="";
+
 				}
 				$alb_html[]='<tr><td><b><font size="9">Nun Alb:'.$adjunto['Numalbcli'].'</font></b></td><td WIDTH="50%"><b><font size="9">'.$fecha1.'</font></b></td>
 				<td colspan="4"><b><font size="9">Total  : '.$total.'€</font></b></td></tr>';
@@ -689,62 +711,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 			<td>Importe</td>
 			<td>IVA</td>
 			</tr></table>';
-	//~ $imprimir['cabecera'].='<p></p><p></p>';
-		//~ $imprimir['cabecera'].='<table>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$tienda['NombreComercial'].'</td>';
-		//~ $imprimir['cabecera'].='<td>'.$textoCabecera.'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$tienda['direccion'].'</td>';
-		//~ $imprimir['cabecera'].='<td>Nª'.$numero.'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td> NIF: '.$tienda['nif'].'</td>';
-		//~ $imprimir['cabecera'].='<td>Fecha: '.$fecha.'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td> Teléfono: '.$tienda['telefono'].'</td>';
-		//~ $imprimir['cabecera'].='<td></td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='</table>';
-		
-		//~ $imprimir['cabecera'].='<hr/><hr/>';
-		//~ $imprimir['cabecera'].='DATOS DEL CLIENTE: '.$datosCliente['Clientes'].'<br>';
-		
-		//~ $imprimir['cabecera'].='<table>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$datosCliente['Nombre'].'</td>';
-		//~ $imprimir['cabecera'].='<td>NIF: '.$datosCliente['nif'].'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$datosCliente['direccion'].'</td>';
-		//~ $imprimir['cabecera'].='<td>CODPOSTAL: '.$datosCliente['codpostal'].'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ $imprimir['cabecera'].='<td>'.$datosCliente['razonsocial'].'</td>';
-		//~ $imprimir['cabecera'].='<td>TELÉFONO: '.$datosCliente['telefono'].'</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='</table>';
-		//~ $imprimir['cabecera'].='</br></br>';
-		//~ $imprimir['cabecera'].='<hr/><hr/>';
-		//~ $imprimir['cabecera'].='</br></br>';
-		//~ $imprimir['cabecera'].='<table>';
-		//~ $imprimir['cabecera'].='<tr>';
-		//~ if ($dedonde=="albaran"){
-			//~ $imprimir['cabecera'].='<td WIDTH="6%" align="center">PED</td>';
-		//~ }
-		//~ if ($dedonde=="factura"){
-			//~ $imprimir['cabecera'].='<td WIDTH="5%" align="center">ALB</td>';
-		//~ }
-		//~ $imprimir['cabecera'].='<td WIDTH="15%" >REF</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="40%">DESCRIPCIÓN</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="7%" >CANT</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="10%" >PRECIO</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="7%" >IVA</td>';
-		//~ $imprimir['cabecera'].='<td WIDTH="20%" >IMPORTE</td>';
-		//~ $imprimir['cabecera'].='</tr>';
-		//~ $imprimir['cabecera'].='</table>';
 		$imprimir['html'].='<table WIDTH="80%">';
 		$i=0;
 		$numAdjunto=0;
@@ -758,27 +724,11 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 				}
 			}
 			$imprimir['html'].='<tr>';
-			//~ if ( $dedonde=="albaran"){
-				//~ if ($producto['NumpedCli'] ){
-					//~ $numPed=$producto['NumpedCli'];
-				//~ }else{
-					//~ $numPed="";
-				//~ }
-				//~ $imprimir['html'].='<td WIDTH="5%">'.$numPed.'</td>';
-			//~ }
-			//~ if ($dedonde=="factura"){
-				//~ if ($producto['NumalbCli']){
-					//~ $numAlb=$producto['NumalbCli'];
-				//~ }else{
-					//~ $numAlb="";
-				//~ }
-				//~ $imprimir['html'].='<td WIDTH="5%">'.$numAlb.'</td>';
-			//~ }
 			$imprimir['html'].='<td><font size="8">'.$producto['cref'].'</font></td>';
 			$imprimir['html'].='<td WIDTH="50%" ><font size="8">'.$producto['cdetalle'].'</font></td>';
 			$imprimir['html'].='<td><font size="8">'.number_format($producto['nunidades'],2).'</font></td>';
-			$imprimir['html'].='<td><font size="8">'.number_format($producto['precioCiva'],2).'</font></td>';
-			$importe = $producto['precioCiva']*$producto['nunidades'];
+			$imprimir['html'].='<td><font size="8">'.number_format($producto['pvpSiva'],2).'</font></td>';
+			$importe = $producto['pvpSiva']*$producto['nunidades'];
 			$importe = number_format($importe,2);
 			$imprimir['html'].='<td><font size="8">'.$importe.'</font></td>';
 			$imprimir['html'].='<td><font size="8">'.number_format($producto['iva'],0).'%</font></td>';

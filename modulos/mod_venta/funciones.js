@@ -49,8 +49,10 @@ function formasVenciCliente(formasVenci){
 			console.log('Llegue devuelta respuesta de html formas pago vencimiento factura');
 			var resultado =  $.parseJSON(response); 
 			//$("#formaVenci").prepend(resultado.html1);
+			console.log(resultado);
 			$("#formaVenci").html(resultado.html1);
 			$("#fechaVencimiento").prepend(resultado.html2);
+				//~ $("#fechaVencimiento").prepend(resultado.fecha);
 			
 		}
 	});
@@ -127,6 +129,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				if (resultado.Nitems==1){
 					cabecera.idCliente=resultado.id;
 					$('#Cliente').val(resultado.nombre);
+					$('#id_cliente').val(resultado.id);
 					$('#Cliente').prop('disabled', true);
 					$('#id_cliente').prop('disabled', true);
 					$("#buscar").css("display", "none");
@@ -142,7 +145,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					if(dedonde=="pedido"){
 					$('#Referencia').focus();	
 					}
-					
+					 cerrarPopUp();
 					
 				}else{
 					console.log(resultado.html);
@@ -150,6 +153,9 @@ function buscarClientes(dedonde, idcaja, valor=''){
 				 var HtmlClientes=resultado.html.html; 
 				 abrirModal(titulo,HtmlClientes);
 				 focusAlLanzarModal('cajaBusquedacliente');
+				if(resultado.html.encontrados>0){
+					ponerFocus('N_0');
+				}
 				 }
 			}
 			
@@ -166,9 +172,14 @@ function controladorAcciones(caja,accion, tecla){
 	switch(accion) {
 		
 		case 'buscarClientes':
+		
 			// Esta funcion necesita el valor.
 			console.log("Estoy en buscarClientes");
-			buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+			console.log(caja);
+			if(caja.name_cja!="filacliente"){
+				buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+			}
+			
 			break;
 		case 'saltar_idCliente':
 		console.log('Entro en acciones saltar_idCliente');
@@ -246,30 +257,37 @@ function controladorAcciones(caja,accion, tecla){
 			
 			break;
 		case 'mover_down':
-		console.log("entro en mover down");
 			// Controlamos si numero fila es correcto.
+			console.log(caja);
+			var nueva_fila = 0;
+			if(caja.id_input=="cajaBusquedacliente" || caja.id_input=="cajaBusqueda"){
+				ponerFocus('N_0');
+				
+			}else{
 			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)+1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
+				nueva_fila = parseInt(caja.fila)+1;
+			} 
+			console.log('mover_down:'+nueva_fila);
+			
+			mover_down(nueva_fila,caja.darParametro('prefijo'));
 			}
-			if (caja.id_input === 'cajaBusqueda'){
-				var nueva_fila = 0;
-			}
-			mover_down(nueva_fila,caja.darParametro('prefijo'), caja.darParametro('dedonde'));
-			break;
+		break;
 		case 'mover_up':
-		console.log("Entro en mover up");
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
-			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)-1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
+			var nueva_fila = 0;
+			if(caja.fila=='0'){
+				if(cabecera.idCliente>0){
+					ponerSelect('cajaBusqueda');
+				}else{
+					$("#cajaBusquedacliente").select();
+				}
+			}else{
+				if ( isNaN(caja.fila) === false){
+					nueva_fila = parseInt(caja.fila)-1;
+				}
+				mover_up(nueva_fila,caja.darParametro('prefijo'));
 			}
-			mover_up(nueva_fila,caja.darParametro('prefijo'), caja.darParametro('dedonde'));
-			break;
+		break;
 			
 		case 'saltar_Referencia':
 			var dato = caja.darValor();
@@ -339,8 +357,6 @@ function controladorAcciones(caja,accion, tecla){
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		break;
-		default :
-			console.log ( 'Accion no encontrada '+ accion);
 	} 
 }
 function insertarImporte(total){
@@ -403,10 +419,13 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
-function ponerSelect(destino_focus){
-	console.log('Entro en enviar select de :'+destino_focus);
-	jQuery('#'+destino_focus.toString()).select(); 
-	
+function ponerSelect (destino_focus){
+	// @ Objetivo:
+	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
+	console.log('Entro en ponerselects de :'+destino_focus);
+	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		jQuery('#'+destino_focus.toString()).select(); 
+	}, 50); 
 
 }
 function before_constructor(caja){
@@ -429,6 +448,22 @@ function before_constructor(caja){
 	if (caja.id_input.indexOf('N_') >-1){
 		console.log(' Entro en Before de '+ caja.id_input)
 		caja.fila = caja.id_input.slice(2);
+		if(caja.tecla==13){
+			if(cabecera.idCliente>0){
+				console.log(caja.parametros.dedonde);
+				if(caja.parametros.dedonde=='albaran'){
+				console.log(caja);
+				console.log(caja.parametros.dedonde);
+				 buscarProductos('idArticulo', 'a.idArticulo', 'idArticulo', caja.darValor(), caja.parametros.dedonde);
+			 }
+				
+			}else{
+				if(caja.parametros.dedonde!="factura"){
+					 buscarClientes(caja.parametros.dedonde, "id_cliente", caja.darValor());
+				}
+				
+			}
+		}
 	}
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
 		console.log("input de caja");
@@ -460,7 +495,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	// 		nombreinput = id caja de donde viene
 	//		campo =  campo a buscar
 	// 		busqueda = valor del input que corresponde.
-	// 		dedonde  = [tpv] o [popup] 
+	// 		
 	// @ Respuesta:
 	//  1.- Un producto unico.
 	//  2.- Un listado de productos.
@@ -502,11 +537,13 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							datos.ncant=1;
 							datos.nfila=productos.length+1;
 							datos.nunidades=1;
-							var importe =resultado['datos'][0]['pvpCiva']*1;
+							//~ var importe =resultado['datos'][0]['pvpCiva']*1;
+							var importe =resultado['datos'][0]['pvpSiva']*1;
 							datos.importe=importe.toFixed(2);
 							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
 							datos.precioCiva=pvpCiva.toFixed(2);
-							
+							var pvpSiva= parseFloat(resultado['datos'][0]['pvpSiva']);
+							datos.pvpSiva=pvpSiva.toFixed(2);
 							n_item=parseInt(productos.length)+1;
 							var campo='Unidad_Fila_'+n_item;
 							productos.push(datos);
@@ -516,7 +553,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							if (dedonde=="factura"){
 								$("#tablaAl").hide();
 							}
-							
+							 cerrarPopUp();
 						}else{
 							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
 				
@@ -525,12 +562,12 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							var titulo = 'Listado productos encontrados ';
 							abrirModal(titulo,HtmlProductos);
 							focusAlLanzarModal('cajaBusqueda');
-							if (resultado.Nitems >0 ){
+							if (resultado.listado['encontrados'] >0 ){
 								// Quiere decir que hay resultados por eso apuntamos al primero
 								// focus a primer producto.
 								var d_focus = 'N_0';
 								 ponerFocus(d_focus);
-								 focusAlLanzarModal('cajaBusqueda');
+								 //~ focusAlLanzarModal('cajaBusqueda');
 							} else {
 							// No hay resultado pero apuntamos a caj
 							//~ ponerFocus(id_input);
@@ -561,41 +598,41 @@ function escribirClienteSeleccionado(id, nombre ,dedonde=''){
 	 cerrarPopUp();
 	 mostrarFila();
 }
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id, dedonde){
-	// @ Objetivo:
-	//   Realizamos cuando venimos popUp de Productos.
-	// @ Parametros:
-	// 	 Caja -> Indica la caja queremos que ponga focus
-	//   datos -> Es el array que vamos enviar para añadir fila.
-	console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
-	var datos = new Object();
-	if (dedonde=="factura"){
-		datos.Numalbcli=0;
-		datos.idalbcli=0;
-		$("#tablaAl").hide();
-	}
-	if (dedonde=="albaran"){
-		datos.Numpedcli=0;
-		datos.idpedcli=0;
-	}
-	datos.ccodbar=ccodebar;
-	datos.cdetalle=cdetalle;
-	datos.cref=cref;
-	datos.estadoLinea="Activo";
-	datos.iva=ctipoIva;
-	datos.idArticulo=id;
-	datos.ncant=1;
-	datos.nunidades=1;
-	datos.nfila=productos.length+1;
-	datos.importe=npconiva.toFixed(2);
-	var pvpCiva= parseFloat(npconiva);
-	datos.precioCiva=pvpCiva.toFixed(2);
-	productos.push(datos);
-	addTemporal(dedonde);
-	AgregarFilaProductosAl(datos, dedonde);
-	resetCampo(campo);
-	cerrarPopUp(campo);	
-}
+//~ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id, dedonde){
+	//~ // @ Objetivo:
+	//~ //   Realizamos cuando venimos popUp de Productos.
+	//~ // @ Parametros:
+	//~ // 	 Caja -> Indica la caja queremos que ponga focus
+	//~ //   datos -> Es el array que vamos enviar para añadir fila.
+	//~ console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
+	//~ var datos = new Object();
+	//~ if (dedonde=="factura"){
+		//~ datos.Numalbcli=0;
+		//~ datos.idalbcli=0;
+		//~ $("#tablaAl").hide();
+	//~ }
+	//~ if (dedonde=="albaran"){
+		//~ datos.Numpedcli=0;
+		//~ datos.idpedcli=0;
+	//~ }
+	//~ datos.ccodbar=ccodebar;
+	//~ datos.cdetalle=cdetalle;
+	//~ datos.cref=cref;
+	//~ datos.estadoLinea="Activo";
+	//~ datos.iva=ctipoIva;
+	//~ datos.idArticulo=id;
+	//~ datos.ncant=1;
+	//~ datos.nunidades=1;
+	//~ datos.nfila=productos.length+1;
+	//~ datos.importe=npconiva.toFixed(2);
+	//~ var pvpCiva= parseFloat(npconiva);
+	//~ datos.precioCiva=pvpCiva.toFixed(2);
+	//~ productos.push(datos);
+	//~ addTemporal(dedonde);
+	//~ AgregarFilaProductosAl(datos, dedonde);
+	//~ resetCampo(campo);
+	//~ cerrarPopUp(campo);	
+//~ }
 function eliminarFila(num_item, valor=""){
 	//@Objetivo
 	//Función para cambiar el estado del producto
@@ -642,7 +679,8 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 			eliminarFila(num_item+1, dedonde);
 		}
 		productos[num_item].nunidades = cantidad;
-		var importe = cantidad*productos[num_item].precioCiva;
+		//~ var importe = cantidad*productos[num_item].precioCiva;
+		var importe = cantidad*productos[num_item].pvpSiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
 		productos[num_item].importe= importe;
@@ -650,34 +688,26 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		addTemporal(dedonde);
 }
 
-function mover_down(fila,prefijo, dedonde=""){
-	console.log("entro en mover down");
+function mover_up(fila,prefijo){
 	var d_focus = prefijo+fila;
-	if (prefijo !== 'N_'){
-			if ( document.getElementById(d_focus) ) {
-				ponerSelect(d_focus);
-			}else{
-				var d_focus = 'Fila_';
-				ponerFocus(d_focus);
-			}
-	}	else{
-		var ant=fila-1;
+		// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
+		ponerSelect(d_focus);
+	} else {
 		ponerFocus(d_focus);
-		
 	}
 }
-
-function mover_up(fila,prefijo, dedonde=""){
-	console.log("entro en mover up");
-	if (dedonde !== "cerrados"){
-		var d_focus = prefijo+fila;
+function mover_down(fila,prefijo){
+	var d_focus = prefijo+fila;
+	// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
 		ponerSelect(d_focus);
-	}else{
-		var ant=fila-1;
-		var d_focus = prefijo+fila;
+	} else {
 		ponerFocus(d_focus);
 	}
-} 
+}
 function mostrarFila(){
 	//@Objetivo; 
 	//Mostrar la fila de inputs para añadir nuevos productos
@@ -739,7 +769,7 @@ function buscarPedido(dedonde, idcaja, valor=''){
 							var numFila=productos.length+1;
 							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 								resultado.productos[i]['nfila']=numFila;
-								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['precioCiva'];
+								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['pvpSiva'];
 								productos.push(resultado.productos[i]);
 								numFila++;
 							}
@@ -794,8 +824,8 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 						var bandera=0;
 						for(i=0; i<albaranes.length; i++){//recorre todo el array de arrays de pedidos
 							var numeroAlbaran=albaranes[i].Numalbcli;
+							//~ var numeroNuevo=resultado['datos'].Numalbcli;
 							var numeroNuevo=resultado['datos'].Numalbcli;
-
 							if (numeroAlbaran == numeroNuevo){
 								bandera=bandera+1;
 							}
@@ -810,7 +840,7 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 							var numFila=productos.length+1;
 							for (i=0; i<productosAdd.length; i++){ //en el array de arrays de productos metemos los productos de ese pedido
 								resultado.productos[i]['nfila']=numFila;
-								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['precioCiva'];
+								resultado.productos[i]['importe']=resultado.productos[i]['nunidades']*resultado.productos[i]['pvpSiva'];
 								productos.push(resultado.productos[i]);
 								numFila++;
 							}

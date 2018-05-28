@@ -33,7 +33,7 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 			$datos = 	"'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 		
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarProveedor('."'".$dedonde."'".' , '
-			."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');">';
+			."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');" >';
 		
 			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$contad.'" name="filaproveedor" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'

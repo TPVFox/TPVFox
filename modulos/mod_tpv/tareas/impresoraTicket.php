@@ -13,7 +13,7 @@
  * El problema es que con esa codigo de caracteres, no muestra correctamente otros caracteres como é
  * */
 
-require __DIR__ . './../../lib/escpos-php/autoload.php';
+require  $URLCom.'/lib/escpos-php/autoload.php';
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\CapabilityProfile;

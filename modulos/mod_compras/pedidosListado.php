@@ -6,7 +6,8 @@
 
 	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
+	//~ include ("./../../plugins/paginacion/paginacion.php");
+	include ("./../../plugins/paginacion/ClasePaginacion.php");
 	include ("./../../controllers/Controladores.php");
 	include 'clases/pedidosCompras.php';
 	include '../../clases/Proveedores.php';
@@ -31,56 +32,32 @@
 	}
 	
 	$todoTemporal=array_reverse($todoTemporal);
-	// --- Preparamos el Paginado --- //
-	$vista = 'pedprot';
-	$Total_pedidos = $Controler->contarRegistro($BDTpv,$vista); // Cantidad de pedidos totales sin filtrar.
-	$LinkBase = './pedidosListado.php?';
-	$OtrosParametros = '';
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 30; // por defecto.
-	$filtro = ''; // por defecto
-	if (isset($_GET['pagina'])) {
-		$PgActual = $_GET['pagina'];
-	}
-	if (isset($_GET['buscar'])) {  
-		//recibo un string con 1 o mas palabras
-		$stringPalabras = $_GET['buscar'];
-		$palabraBuscar = explode(' ',$_GET['buscar']); 
-	} 
-	// Obtenemos "desde" numero que indicamos en OFFSET  
-	$paginasMulti = $PgActual-1;
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
-	} else {
-		$desde = 0;
-	}
-	// Inicializo $WhereLimite
-	$WhereLimite = array	( 'filtro' => '', 
-							  'rango'  => '');
-	if ($stringPalabras !== '' ){
-			$campoBD='Numpedpro';
-			$campo = array( 'a.Numpedpro','b.nombrecomercial');
-			$N = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
-			$WhereLimite['rango'] =$Controler->ConstructorLimitOffset($LimitePagina, $desde);
-			$OtrosParametros=$stringPalabras;
-			$WhereLimite['filtro']='WHERE '.$N;
-		}
-	// Contamos registros con filtro si lo hay claro, sono va en blanco.
-	$CantidadRegistros=count($Cpedido->TodosPedidosLimite($WhereLimite['filtro']));
-	// Solo mostramos paginado si hay mas que limitePagina, debo hacerlo en paginado.
-	$htmlPG = paginado($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	if ($stringPalabras !== '' ){
-			$filtro = $WhereLimite['filtro']." ORDER BY  Numpedpro desc ".$WhereLimite['rango'];
-	} else {
-			$filtro= "ORDER BY  Numpedpro desc LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}
-	//MUestra un array con un número determinado de registros
-	$pedidosDef=$Cpedido->TodosPedidosLimite($filtro);
-	if (isset($pedidosDef['error'])){
+	$Tienda = $_SESSION['tiendaTpv'];
+		
+	// ===========    Paginacion  ====================== //
+	$NPaginado = new PluginClasePaginacion(__FILE__);
+	$campos = array( 'a.Numpedpro','b.nombrecomercial');
+
+	$NPaginado->SetCamposControler($Controler,$campos);
+	// --- Ahora contamos registro que hay para es filtro --- //
+	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+
+	$CantidadRegistros=0;
+	// Obtenemos la cantidad registros 
+	$p= $Cpedido->TodosPedidosLimite($filtro);
+		
+	$CantidadRegistros = count($p['Items']);
+	
+	// --- Ahora envio a NPaginado la cantidad registros --- //
+	$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	$htmlPG = $NPaginado->htmlPaginado();
+	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
+	$p=$Cpedido->TodosPedidosLimite($filtro.$NPaginado->GetLimitConsulta());
+	$pedidosDef=$p['Items'];
+	 $pedidosDef=array_reverse($p['Items']);
+	if (isset($p['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
-								 'dato' => $pedidosDef['consulta'],
+								 'dato' => $p['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );

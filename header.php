@@ -34,7 +34,14 @@
 			<div class="collapse navbar-collapse navbar-ex1-collapse">
 				<ul class="nav navbar-nav navbar-left ">
 					<li><a href="<?php echo $HostNombre.'/index.php'?>">Home</a></li>
-					<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
+						<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Almacén
+							<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_familia/ListaFamilias.php';?>">Familias</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_etiquetado/ListadoEtiquetas.php';?>">Lotes (Etiquetado)</a></li>
+							</ul></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_cliente/ListaClientes.php';?>">Clientes</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_cierres/ListaCierres.php';?>">Cierres</a></li>
@@ -72,8 +79,6 @@
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_tienda/ListaTiendas.php';?>">Tiendas</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_copia_seguridad/CopiaSeguridad.php';?>">Copia Seguridad</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_incidencias/ListadoIncidencias.php';?>">Incidencias</a></li>
-								<li><a href="<?php echo $HostNombre.'/modulos/mod_etiquetado/ListadoEtiquetas.php';?>">Etiquetado</a></li>
-
 							</ul>
 						</li>
 						
@@ -105,16 +110,4 @@
 <!-- Fin de menu -->
 </header>
 
-<?php 
-// Mostramos formulario si no tiene acceso.
-	// Bloqueamos si 	
-	if ($_SESSION['estadoTpv'] != "Correcto"){
-		// Mostramos modal de usuario.
-		include_once ($URLCom."/plugins/controlUser/modalUsuario.php");
-		?>
-		</body>
-		</html>
-		<?php
-		exit;	
-	}
-	?>
+

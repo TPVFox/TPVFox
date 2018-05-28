@@ -33,8 +33,8 @@
 	$NPaginado->SetCantidadRegistros($CantidadRegistros);
 	$htmlPG = $NPaginado->htmlPaginado();
 	$f = $CFac->TodosFacturaLimite($filtro.$NPaginado->GetLimitConsulta());
+	
 	$facturasDef=array_reverse($f['Items']);
-
 ?>
 
 </head>

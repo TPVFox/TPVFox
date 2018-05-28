@@ -50,26 +50,39 @@ function controladorAcciones(caja,accion, tecla){
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
 			break;
+		
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
+			console.log(caja);
+			var nueva_fila = 0;
+			if(caja.id_input=="cajaBusquedaproveedor" || caja.id_input=="cajaBusqueda"){
+				ponerFocus('N_0');
+			}else{
 			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)+1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
-			}
+				nueva_fila = parseInt(caja.fila)+1;
+			} 
+			console.log('mover_down:'+nueva_fila);
+			
 			mover_down(nueva_fila,caja.darParametro('prefijo'));
+			}
 		break;
 		case 'mover_up':
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
-			if ( isNaN(caja.fila) === false){
-				var nueva_fila = parseInt(caja.fila)-1;
-			} else {
-				// quiere decir que no tiene valor.
-				var nueva_fila = 0;
+			var nueva_fila = 0;
+			if(caja.fila=='0'){
+				if(cabecera.idProveedor>0){
+					ponerSelect('cajaBusqueda');
+				}else{
+					$("#cajaBusquedaproveedor").select();
+				}
+			}else{
+				if ( isNaN(caja.fila) === false){
+					nueva_fila = parseInt(caja.fila)-1;
+				}
+				mover_up(nueva_fila,caja.darParametro('prefijo'));
 			}
-			mover_up(nueva_fila,caja.darParametro('prefijo'));
 		break;
+		
 		case 'addProveedorProducto':
 			console.log("estoy en add proveedor fila");
 			//Recibe el número de la fila. para poder manipular la referencia de la fila
@@ -611,6 +624,9 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 						var HtmlProveedores=resultado.html['html']; 
 						abrirModal(titulo,HtmlProveedores);
 						focusAlLanzarModal('cajaBusquedaproveedor');
+						if(resultado.html['encontrados']){
+							ponerFocus('N_0');
+						}
 					}
 				
 	
@@ -749,11 +765,16 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				var titulo = 'Listado productos encontrados ';
 				abrirModal(titulo,HtmlProductos);
 				focusAlLanzarModal('cajaBusqueda');
-				if (resultado.Nitems >0 ){
+				console.log(id_input);
+				console.log(resultado.Nitems);
+				if (resultado.html.encontrados >0 ){
 					// Quiere decir que hay resultados por eso apuntamos al primero
 					// focus a primer producto.
-					var d_focus = 'N_0';
-					ponerFocus(d_focus);
+					if(id_input=="Descripcion"){
+						var d_focus = 'N_0';
+						ponerFocus(d_focus);
+					}
+					
 				 }
 			}
 		}
@@ -881,17 +902,16 @@ function ponerFocus (destino_focus){
 	console.log('Entro en enviar focus de :'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
-		
 	}, 50); 
-	
+
 }
-function ponerSelect(destino_focus){
-	//@objetivo:
-	//seleccionar la cantidad 
-	console.log('Entro en enviar select de :'+destino_focus);
-	console.log(destino_focus.toString());
-	jQuery('#'+destino_focus.toString()).select(); 
-	
+function ponerSelect (destino_focus){
+	// @ Objetivo:
+	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
+	console.log('Entro en ponerselects de :'+destino_focus);
+	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		jQuery('#'+destino_focus.toString()).select(); 
+	}, 50); 
 
 }
 
@@ -1076,6 +1096,7 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 	
 }
 function after_constructor(padre_caja,event){
+	console.log(padre_caja);
 	// @ Objetivo:
 	// Ejecuta procesos antes construir el obj. caja.
 	// Traemos 
@@ -1085,6 +1106,9 @@ function after_constructor(padre_caja,event){
 		padre_caja.id_input = event.originalTarget.id;
 	}
 	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
+	if (padre_caja.id_input.indexOf('Fila_') >-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
 	if (padre_caja.id_input.indexOf('Proveedor_Fila') >-1){
@@ -1114,6 +1138,11 @@ function before_constructor(caja){
 	if (caja.id_input.indexOf('N_') >-1){
 		console.log(' Entro en Before de '+caja.id_input)
 		caja.fila = caja.id_input.slice(2);
+		console.log(caja.fila);
+	}
+	if (caja.id_input.indexOf('Fila_') >-1){
+		console.log(' Entro en Before de '+caja.id_input)
+		caja.fila = caja.id_input.slice(5);
 		console.log(caja.fila);
 	}
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
@@ -1181,26 +1210,25 @@ function mostrarFila(){
 }
 
 function mover_up(fila,prefijo){
-	console.log("entro en mover up");
-	console.log(fila);
-	
 	var d_focus = prefijo+fila;
-	
-	console.log(d_focus);
-	ponerSelect(d_focus);
+		// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
+		ponerSelect(d_focus);
+	} else {
+		ponerFocus(d_focus);
+	}
 }
 function mover_down(fila,prefijo){
-	console.log('mover down'+fila);
-
 	var d_focus = prefijo+fila;
-		if ( document.getElementById(d_focus) ) {
-			ponerSelect(d_focus);
-		}else{
-			//estamos en abrir modal ponemos focus en la 1ª opc despues de buscar algo.. nos movemos con tabulador
-			ponerFocus(d_focus);
-		}
+	// Segun prefijo de la caja seleccionamos o pones focus.
+	if ( prefijo === 'Unidad_Fila_'){
+		// Seleccionamos
+		ponerSelect(d_focus);
+	} else {
+		ponerFocus(d_focus);
+	}
 }
-
 function resetearTotales(){
 	// Funcion para resetear totales.
 	$('#tipo4').html('');

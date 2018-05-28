@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost:3306
--- Tiempo de generación: 02-04-2018 a las 18:08:39
--- Versión del servidor: 10.1.26-MariaDB-0+deb9u1
--- Versión de PHP: 7.0.27-0+deb9u1
+-- Host: localhost:3306
+-- Generation Time: May 24, 2018 at 03:41 PM
+-- Server version: 10.1.26-MariaDB-0+deb9u1
+-- PHP Version: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `tpv`
+-- Database: `tpv`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `facclilinea`
+-- Table structure for table `facclilinea`
 --
 
 CREATE TABLE `facclilinea` (
@@ -40,25 +40,26 @@ CREATE TABLE `facclilinea` (
   `iva` decimal(4,2) DEFAULT NULL,
   `nfila` int(11) DEFAULT NULL,
   `estadoLinea` varchar(12) DEFAULT NULL,
-  `NumalbCli` int(100) DEFAULT NULL
+  `NumalbCli` int(100) DEFAULT NULL,
+  `pvpSiva` decimal(17,6) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Índices para tablas volcadas
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `facclilinea`
+-- Indexes for table `facclilinea`
 --
 ALTER TABLE `facclilinea`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `facclilinea`
+-- AUTO_INCREMENT for table `facclilinea`
 --
 ALTER TABLE `facclilinea`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

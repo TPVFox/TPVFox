@@ -23,3 +23,30 @@ function VerIdSeleccionado (){
 		return;
 	});
 }
+
+
+// Lo mismo que lo de arriba, pero con parámetros para que sea realmente global:
+// VerIdSeleccionado =equivalente= leerChecked('rowUsuario','checkUsu');
+// Pero con este código vale para cualquier conjunto de checks con una clase común 
+// y con un id distinto por check
+//
+//Recibe: clase : común para todos los elementos que se quieren buscar
+//Devuelve : array con los ids de los elementos con propiedad checked = true
+//
+// ¿Pero que coño hace un .js en la carpeta de controllers?
+//
+function leerChecked(clase) {
+    var checks = [];
+    
+    $('.' + clase).each(function (indice) {
+        indice++;
+        //todos los que sean de la clase row1
+        if ($(this)[0].checked) {
+            // cant cuenta los que está seleccionado.
+            var id = $(this)[0].id;
+            checks.push(id);
+        }
+
+    });
+    return checks;
+}

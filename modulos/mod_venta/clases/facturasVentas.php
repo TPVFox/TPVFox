@@ -55,7 +55,7 @@ class FacturasVentas extends ClaseVentas{
 		//Mostrar los datos principales de todas las facturas con el filtro de paginacion 
 		$db=$this->db;
 		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado 
-		FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
+		FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes  '.$filtro;
 		$smt=$this->consulta($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
@@ -67,7 +67,11 @@ class FacturasVentas extends ClaseVentas{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($facturaPrincipal,$result);
 			}
-			return $facturaPrincipal;
+			$respuesta = array();
+			$respuesta['Items'] = $facturaPrincipal;
+			$respuesta['consulta'] = $sql;
+			$respuesta['limite']=$limite;
+			return $respuesta;
 		}
 	}
 	public function datosFactura($idFactura){
@@ -315,11 +319,11 @@ class FacturasVentas extends ClaseVentas{
 				
 				$sql='INSERT INTO facclilinea (idfaccli  , Numfaccli ,
 				 idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, 
-				 iva, nfila, estadoLinea, NumalbCli ) VALUES ('.$id.', '.$id.' , '
+				 iva, nfila, estadoLinea, NumalbCli, pvpSiva ) VALUES ('.$id.', '.$id.' , '
 				 .$prod['idArticulo'].', '."'".$prod['cref']."'".', "'.$codBarras.'", "'
 				 .$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '
 				 .$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea']
-				 .'" , '.$numAl.')' ;
+				 .'" , '.$numAl.', '.$prod['pvpSiva'].')' ;
 					$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
 						$respuesta['error']=$smt['error'];
@@ -447,16 +451,19 @@ class FacturasVentas extends ClaseVentas{
 				return $respuesta;
 		}
 	}
-	public function modificarFechaFactura($idFactura, $Fecha){
+	public function modificarFechaFactura($idFactura, $Fecha, $formaPago, $fechaVenci){
+		$respuesta=array();
 		$db=$this->db;
-		$sql='UPDATE  facclit set Fecha="'.$Fecha.'" where id='.$idFactura ;
+		$sql='UPDATE  facclit set Fecha="'.$Fecha.'" , formaPago="'.$formaPago.'" ,  fechaVencimiento="'.$fechaVenci.'" where id='.$idFactura ;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta=array();
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
+				
 		}
+		$respuesta['sql']=$sql;
+		return $respuesta;
 	}
 }
 	

@@ -304,16 +304,21 @@ class PedidosCompras extends ClaseCompras{
 		$db	=$this->db;
 		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, 
 		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on 
-		a.idProveedor=b.idProveedor '. $limite ;
+		a.idProveedor=b.idProveedor   '. $limite ;
 		$smt=$this->consulta($Sql);
-		$respuesta=array();
+		$pedidosPrincipal=array();
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 		}else{
 			while ( $result = $smt->fetch_assoc () ) {
-				array_push($respuesta,$result);
+				array_push($pedidosPrincipal,$result);
 			}
+				$respuesta = array();
+			$respuesta['Items'] = $pedidosPrincipal;
+			$respuesta['consulta'] = $sql;
+			$respuesta['limite']=$limite;
+			
 		}
 		return $respuesta;
 	}

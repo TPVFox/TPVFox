@@ -5,14 +5,15 @@
 <?php
 	include './../../head.php';
 	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
+	//~ include ("./../../plugins/paginacion/paginacion.php");
+	include ("./../../plugins/paginacion/ClasePaginacion.php");
 	include ("./../../controllers/Controladores.php");
 
 	include '../../clases/cliente.php';
 	include 'clases/albaranesVentas.php';
 	$Ccliente=new Cliente($BDTpv);
 	$Calbaran=new AlbaranesVentas($BDTpv);
-	
+	$Controler = new ControladorComun; 
 	$todosTemporal=$Calbaran->TodosTemporal();
 	if (isset($todosTemporal['error'])){
 		$errores[0]=array ( 'tipo'=>'Danger!',
@@ -22,51 +23,32 @@
 								 );
 	}
 	$todosTemporal=array_reverse($todosTemporal);
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 30; // por defecto.
-	$filtro = ''; // por defecto
-	$WhereLimite['filtro']="";
-	$NuevoRango="";
-	if (isset($_GET['pagina'])) {
-		$PgActual = $_GET['pagina'];
-	}
-	if (isset($_GET['buscar'])) {  
-		//recibo un string con 1 o mas palabras
-		$stringPalabras = $_GET['buscar'];
-		$palabraBuscar = explode(' ',$_GET['buscar']); 
-	} 
-	$Controler = new ControladorComun; 
-	$vista = 'albclit';
-	$LinkBase = './albaranesListado.php?';
-	$OtrosParametros = '';
-	$paginasMulti = $PgActual-1;
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
+	
+	$Tienda = $_SESSION['tiendaTpv'];
 		
-	} else {
-		$desde = 0;
-	}
-if ($stringPalabras !== '' ){
-		$campo = array( 'a.Numalbcli','b.Nombre');
-		$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
-		$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
-		$OtrosParametros=$stringPalabras;
-		$WhereLimite['filtro']='WHERE '.$NuevoWhere;
-}
-$CantidadRegistros=count($Calbaran->TodosAlbaranesFiltro($WhereLimite['filtro']));
-$WhereLimite['rango']=$NuevoRango;
-$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro']." ORDER BY Numalbcli desc ".$WhereLimite['rango'];
-	} else {
-		$filtro= "ORDER BY Numalbcli desc LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}	
-$albaranesDef=$Calbaran->TodosAlbaranesFiltro($filtro);
-if (isset($albaranesDef['error'])){
+	// ===========    Paginacion  ====================== //
+	$NPaginado = new PluginClasePaginacion(__FILE__);
+	$campos = array( 'a.Numalbcli','b.Nombre');
+
+	$NPaginado->SetCamposControler($Controler,$campos);
+	// --- Ahora contamos registro que hay para es filtro --- //
+	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+
+	$CantidadRegistros=0;
+	// Obtenemos la cantidad registros 
+	$a= $Calbaran->TodosAlbaranesFiltro($filtro);
+		
+	$CantidadRegistros = count($a['Items']);
+	
+	// --- Ahora envio a NPaginado la cantidad registros --- //
+	$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	$htmlPG = $NPaginado->htmlPaginado();
+	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
+	$a=$Calbaran->TodosAlbaranesFiltro($filtro.$NPaginado->GetLimitConsulta());
+	$albaranesDef=array_reverse($a['Items']);
+if (isset($a['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
-								 'dato' => $albaranesDef['consulta'],
+								 'dato' => $a['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );

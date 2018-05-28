@@ -415,14 +415,15 @@ function metodoClick(pulsado){
 		break;
 		
 		case 'imprimirTicket':
-		//seleccionar para imprimir ticket elegido
 			console.log('entro en imprimir ticket');
 			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
 			}
-			alert('Ticket cerrado, opc imprimir');
+			//Solo permitimos imprimir un ticket, no varios
+			alert('Ticket cerrado, opc imprimir'+checkID[0]);
+			imprimirTicketCerrado(checkID[0]);
 		break;	
 		
 		case 'descontarStockWeb':
@@ -430,7 +431,29 @@ function metodoClick(pulsado){
 		break;			
 	 }
 } 
-
+function imprimirTicketCerrado(idTicketst){
+	// Objetivo es imprimir un ticket cerrado.
+	console.log('Imprimir ticket cerrado');
+	var parametros = {
+		"pulsado"    : 'ImprimirTicketCerrados',
+		"idTicketst" : idTicketst
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** Imprimiento ticket cerrado . Idticketst '+ idTicketst +'  ****************');
+		},
+		success    :  function (response) {
+			console.log(' Repsuesta de imprimit ticketst cerrados');
+			var resultado =  $.parseJSON(response); 
+			console.log(resultado);
+		
+		}
+	});
+	
+}
 
 // =========================== OBJETOS  ===================================
 function ObjProducto(datos)
