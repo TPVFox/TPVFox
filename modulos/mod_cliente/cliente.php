@@ -22,11 +22,12 @@
 		$CtiposVen=new TiposVencimientos($BDTpv);
 		include_once '../../clases/cliente.php';
 		$Ccliente=new Cliente($BDTpv);
-		
+		include_once 'clases/ClaseCliente.php';
+		$Cliente=new ClaseCliente($BDTpv);		
 		$dedonde="cliente";
 		$id=0;
 		
-		  $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
 		$configuracion=$configuracion['incidencias']; 
 		?>
@@ -44,7 +45,7 @@
         include './../../header.php';
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
-		$tabla= 'clientes'; // Tablas que voy utilizar.
+		//~ $tabla= 'clientes'; // Tablas que voy utilizar.
 		$estados = array(); // Creo los estados de usuarios ( para select)
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
@@ -52,14 +53,15 @@
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
-			$ClienteUnico = verSelec($BDTpv,$id,$tabla);
+			//~ $ClienteUnico = verSelec($BDTpv,$id,$tabla);
+			$ClienteUnico=$Cliente->getCliente($id);
 			$titulo = "Modificar";
 			if (isset($ClienteUnico['error'])){
-				$error='NOCONTINUAR';
+				$error='NO CONTINUAR';
 				$tipomensaje= "danger";
 				$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$ClienteUnico['consulta'];
 			} else {
-				
+				$ClienteUnico=$ClienteUnico['datos'][0];
 				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
 				if (count($_POST) ===0){
 				$i = 0;
