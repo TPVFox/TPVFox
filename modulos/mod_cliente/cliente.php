@@ -56,10 +56,18 @@
 			//~ $ClienteUnico = verSelec($BDTpv,$id,$tabla);
 			$ClienteUnico=$Cliente->getCliente($id);
 			$titulo = "Modificar";
+			echo '<pre>';
+			print_r($ClienteUnico);
+			echo '</pre>';
 			if (isset($ClienteUnico['error'])){
-				$error='NO CONTINUAR';
-				$tipomensaje= "danger";
-				$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$ClienteUnico['consulta'];
+				//~ $error='NO CONTINUAR';
+				//~ $tipomensaje= "danger";
+				//~ $mensaje = "Id de usuario incorrecto ( ver get) <br/>".$ClienteUnico['consulta'];
+				$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $ClienteUnico['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
 			} else {
 				$ClienteUnico=$ClienteUnico['datos'][0];
 				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
@@ -160,26 +168,20 @@
 		?>
      
 		<div class="container">
-			<?php 
-			$mensaje="";
-			$tipomensaje="";
-			if(isset($_GET['mensaje'])){
-				$mensaje=$_GET['mensaje'];
-			}
-			if(isset($_GET['tipo'])){
-				$tipomensaje=$_GET['tipo'];
-			}
-			if (!empty($mensaje)|| isset($error)){   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
+			
 				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
+				
+				if (isset($errores)){
+				foreach($errores as $error){
+						echo '<div class="'.$error['class'].'">'
+						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+						. '</div>';
+				}
+	
 				return;
 				}
 				?>
-			<?php
-			}
-			?>
+			
 			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h1 class="text-center"> Cliente: <?php echo $titulo;?></h1>
 			<a class="text-ritght" href="./ListaClientes.php">Volver Atrás</a>
