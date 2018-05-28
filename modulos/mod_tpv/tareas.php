@@ -13,7 +13,6 @@ $pulsado = $_POST['pulsado'];
 //~ use Mike42\Escpos\Printer;
 
 include_once ("./../../configuracion.php");
-//~ include_once ("../mod_incidencias/popup_incidencias.php");
 
 // Crealizamos conexion a la BD Datos
 include_once ("./../../inicial.php");
@@ -149,7 +148,6 @@ switch ($pulsado) {
 		$datos=json_encode($datos);
 		
 		$estado="No resuelto";
-		//~ $html=modalIncidencia($usuario, $datos, $fecha, $tipo, $estado,  $numInicidencia, $configuracion, $BDTpv);
 		$html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
 		$respuesta['html']=$html;
 		$respuesta['datos']=$datos;
@@ -159,7 +157,6 @@ switch ($pulsado) {
 		$usuario= $_POST['usuario'];
 		$fecha= $_POST['fecha'];
 		$datos= $_POST['datos'];
-		//~ $dedonde= $_POST['dedonde'];
 		$estado= $_POST['estado'];
 		$mensaje= $_POST['mensaje'];
 		$numInicidencia=0;
@@ -174,10 +171,8 @@ switch ($pulsado) {
 			$datos=json_encode($datos);
 		}
 		if($mensaje){
-			//~ $nuevo=addIncidencia($usuario, $fecha, $dedonde, $datos, $estado, $mensaje, $BDTpv, $numInicidencia);
-			//~ $respuesta=$nuevo['sql'];
 			$nuevo=$CIncidencia->addIncidencia($dedonde, $datos, $mensaje, $estado, $numInicidencia);
-				$respuesta=$nuevo;
+			$respuesta=$nuevo;
 		}
 		break;
 		

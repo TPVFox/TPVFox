@@ -674,7 +674,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 					$fecha1=date_format($fecha1,'Y-m-d');
 				}else{
 					$fecha1="";
-
 				}
 				$alb_html[]='<tr><td><b><font size="9">Nun Alb:'.$adjunto['Numalbcli'].'</font></b></td><td WIDTH="50%"><b><font size="9">'.$fecha1.'</font></b></td>
 				<td colspan="4"><b><font size="9">Total  : '.$total.'€</font></b></td></tr>';
