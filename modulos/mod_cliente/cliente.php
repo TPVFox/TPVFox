@@ -120,7 +120,7 @@
 			$tiposVen=$CtiposVen->todos();
 		}
 	
-			if($_POST['Guardar']){
+			if(isset($_POST['Guardar'])){
 			$guardar=guardarCliente($_POST, $BDTpv);
 			if($guardar['error']=="0"){
 				header('Location: ListaClientes.php');

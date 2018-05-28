@@ -279,7 +279,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 		}
 		$html.='</tbody></table>';
 	}else{
-		$html.='<div class="alert alert-info">Este cliente no tiene '.$dedonde.'</div>';
+		$html='<div class="alert alert-info">Este cliente no tiene '.$dedonde.'</div>';
 	}
 	
 	return $html;
