@@ -7,19 +7,11 @@
         //~ include ("./../../plugins/paginacion/paginacion.php");
         include ("./../../plugins/paginacion/ClasePaginacion.php");
 
+
         include ("./../../controllers/Controladores.php");
         include ("./clases/ClaseProductos.php");
         include_once ($RutaServidor . $HostNombre . '/controllers/parametros.php');
         $CTArticulos = new ClaseProductos($BDTpv);
-// Cargamos el plugin que nos interesa.
-		if (count($CTArticulos->GetPlugins())>0){
-			foreach ($CTArticulos->GetPlugins() as $plugin){
-				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
-					$ObjVersiones = $plugin['clase'];
-				}
-			}
-		}
-
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
@@ -106,7 +98,6 @@
         echo '</script>';
         ?>
 
-
         <script>
             // Declaramos variables globales
             var checkID = [];
@@ -177,12 +168,6 @@ echo $htmlConfiguracion['htmlCheck'];
                 </div>
 
                 <div class="col-md-10">
-					<div>
-					<?php $formVersion = $ObjVersiones->htmlFormularioSeleccionVehiculo();
-							echo $formVersion['html'];
-					?>
-					</div>
-					<div>
                     <p>
                         -Productos encontrados BD local filtrados:
 <?php echo $CantidadRegistros; ?>

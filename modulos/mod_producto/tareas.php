@@ -15,17 +15,17 @@ include_once ("./../../configuracion.php");
 // Crealizamos conexion a la BD Datos
 include_once ("./../../inicial.php");
 
-	// Solo creamos objeto si no existe.
-	//~ $thisTpv = new ComprobarSession;
-	$thisTpv = new ClaseSession();
-	$BDTpv = $thisTpv->getConexion();
-// Incluimos funciones
-include_once ("./funciones.php");
+
+$rutaCompleta = $RutaServidor.$HostNombre;
+include_once($rutaCompleta.'/clases/ClaseSession.php');
+
+$CSession =  new ClaseSession();
 
 // Incluimos controlador.
 include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun; 
-
+// Incluimos funciones
+include_once ("./funciones.php");
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
 // Nueva clase 
