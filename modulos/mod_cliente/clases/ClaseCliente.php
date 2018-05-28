@@ -34,6 +34,28 @@ class ClaseCliente extends modelo{
 		$respuesta['pedidos']=$this->getPedidos($id);
 		return $respuesta;
 	}
+	public function modificarDatosCliente($datos, $id){
+		$sql='UPDATE `clientes` SET Nombre="'.$datos['nombre'].'" , razonsocial="'.$datos['razonsocial'].'" , 
+		nif="'.$datos['nif'].'" , direccion="'.$datos['direccion'].'" , codpostal="'.$datos['codpostal'].'" , telefono="'.$datos['telefono']
+		.'" , movil="'.$datos['movil'].'" , fax="'.$datos['fax'].'" , email="'.$datos['email'].'" , estado="'.$datos['estado'].'" ,
+		fomasVenci='."'".$datos['formasVenci']."'".' WHERE idClientes='.$id;
+		//~ $consulta=$this->consulta($sql);
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
+	public function addcliente($datos){
+		$sql='INSERT INTO `clientes`( `Nombre`, `razonsocial`, 
+		`nif`, `direccion`, `codpostal`, `telefono`, `movil`, `fax`, `email`, 
+		`estado`, `fomasVenci`, `fecha_creado`) VALUES ("'.$datos['nombre'].'", "'.$datos['razonsocial'].'", 
+		"'.$datos['nif'].'", "'.$datos['direccion'].'", "'.$datos['codpostal'].'", "'.$datos['telefono'].'",
+		 "'.$datos['movil'].'", "'.$datos['fax'].'", "'.$datos['email'].'", "'.$datos['estado'].'", '."'".$datos['formasVenci']."'".', NOW())';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
 }
 
 
