@@ -30,6 +30,21 @@
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
 		$configuracion=$configuracion['incidencias']; 
+		
+		
+			if($_POST['Guardar']){
+			$guardar=guardarCliente($_POST, $BDTpv);
+			if($guardar['error']=="0"){
+				header('Location: ListaClientes.php');
+			}else{
+				$errores[7]=array ( 'tipo'=>'Danger!',
+								 'dato' => $guardar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+			}
+		}
+		
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		
@@ -81,20 +96,23 @@
 					}
 				} 
 			}
-			if(isset($ClienteUnico['fomasVenci'])){
-				$formaPago=json_decode($ClienteUnico['fomasVenci'], true);
-				$formasPago=$CFormasPago->formadePagoSinPrincipal($formaPago['formapago']);
-				$tiposVen=$CtiposVen->MenosPrincipal($formaPago['vencimiento']);
-				if ($formaPago['formapago']>0){
-					$principalForma=$CFormasPago->datosPrincipal($formaPago['formapago']);
-				}else{
-					$principalForma=0;
-				}
-				if ($formaPago['vencimiento']>0){
-					$principalVenci=$CtiposVen->datosPrincipal($formaPago['vencimiento']);
-				}else{
-					$principalVenci=0;
-				}
+			if(isset($ClienteUnico['fomasVenci'])|| $ClienteUnico['fomasVenci']!=""){
+				
+				//~ $formaPago=json_decode($ClienteUnico['fomasVenci'], true);
+				//~ $formasPago=$CFormasPago->formadePagoSinPrincipal($formaPago['formapago']);
+				//~ $tiposVen=$CtiposVen->MenosPrincipal($formaPago['vencimiento']);
+				//~ if ($formaPago['formapago']>0){
+					//~ $principalForma=$CFormasPago->datosPrincipal($formaPago['formapago']);
+				//~ }else{
+					//~ $principalForma=0;
+				//~ }
+				//~ if ($formaPago['vencimiento']>0){
+					//~ $principalVenci=$CtiposVen->datosPrincipal($formaPago['vencimiento']);
+				//~ }else{
+					//~ $principalVenci=0;
+				//~ }
+				$formasPago=$CFormasPago->todas();
+				$tiposVen=$CtiposVen->todos();
 			}else{
 				$formasPago=$CFormasPago->todas();
 				$tiposVen=$CtiposVen->todos();
@@ -138,55 +156,65 @@
 			$formasPago=$CFormasPago->todas();
 			$tiposVen=$CtiposVen->todos();
 		}
-		
-		if (!isset($error)){
-			if(count($_POST)>0){
-				// Ya enviamos el formulario y gestionamos lo enviado.
-				$datos = $_POST;
-				if ($_POST['formapago']>0||$_POST['vencimiento']>0){
-					$datosForma=array();
-					$datosForma['formapago']=$_POST['formapago'];
-					$datosForma['vencimiento']=$_POST['vencimiento'];
-					$datosForma=json_encode($datosForma);
-				}
+	
+		//~ if (!isset($error)){
+			//~ if(count($_POST)>0){
+				//~ // Ya enviamos el formulario y gestionamos lo enviado.
+				//~ $datos = $_POST;
+				//~ if ($_POST['formapago']>0||$_POST['vencimiento']>0){
+					//~ $datosForma=array();
+					//~ $datosForma['formapago']=$_POST['formapago'];
+					//~ $datosForma['vencimiento']=$_POST['vencimiento'];
+					//~ $datosForma=json_encode($datosForma);
+				//~ }
 				
-				if($titulo === "Crear"){
-					// Quiere decir que ya cubrimos los datos del usuario nuevo.
+				//~ if($titulo === "Crear"){
+					//~ // Quiere decir que ya cubrimos los datos del usuario nuevo.
 					
-					$resp = insertarCliente($datos,$BDTpv,$tabla);
-					$id=$resp['id'];
-					if (isset ($datosForma)){
-						$mod=$Ccliente->mofificarFormaPagoVenci($id,$datosForma );
-					}
-					echo $resp['sql'];
-					if (isset($resp['error'])){
-						$tipomensaje= "danger";
-						$mensaje = "Nombre de cliente ya existe!";
+					//~ $resp = insertarCliente($datos,$BDTpv,$tabla);
+					//~ $id=$resp['id'];
+					//~ if (isset ($datosForma)){
+						//~ $mod=$Ccliente->mofificarFormaPagoVenci($id,$datosForma );
+					//~ }
+					//~ echo $resp['sql'];
+					//~ if (isset($resp['error'])){
+						//~ $errores[5]=array ( 'tipo'=>'Danger!',
+								 //~ 'dato' => '',
+								 //~ 'class'=>'alert alert-danger',
+								 //~ 'mensaje' => 'Nombre de cliente ya existe!'
+								 //~ );
+						//~ $tipomensaje= "danger";
+						//~ $mensaje = "Nombre de cliente ya existe!";
 						
-					} else {
-						$tipomensaje= "info";
-						$mensaje = "Nuevo cliente creado.";
-					}
-				} else {
-					// Quiere decir que ya modificamos los datos del ficha del cliente
-					$ClienteUnico['razonsocial'] =$datos['razonsocial'];
-					$resp = modificarCliente($datos,$BDTpv,$tabla);
-					if (isset ($datosForma)){
-						$mod=$Ccliente->mofificarFormaPagoVenci($datos['idCliente'],$datosForma );
-					}
-					if (isset($resp['error'])){
-						// Error de usuario repetido...
-						$tipomensaje= "danger";
-						$mensaje = "Razon social de cliente ya existe!";
-					} else {
-						$tipomensaje= "info";
-						$mensaje = "Su registro de cliente fue editado.";
-						$i=$_GET['id'];
-						header('Location: cliente.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
-					}
-				};
-			}
-		}
+					//~ } else {
+						//~ $errores[6]=array ( 'tipo'=>'Info!',
+								 //~ 'dato' => '',
+								 //~ 'class'=>'alert alert-info',
+								 //~ 'mensaje' => 'Nombre de cliente ya existe!'
+								 //~ );
+						//~ $tipomensaje= "info";
+						//~ $mensaje = "Nuevo cliente creado.";
+					//~ }
+				//~ } else {
+					//~ // Quiere decir que ya modificamos los datos del ficha del cliente
+					//~ $ClienteUnico['razonsocial'] =$datos['razonsocial'];
+					//~ $resp = modificarCliente($datos,$BDTpv,$tabla);
+					//~ if (isset ($datosForma)){
+						//~ $mod=$Ccliente->mofificarFormaPagoVenci($datos['idCliente'],$datosForma );
+					//~ }
+					//~ if (isset($resp['error'])){
+						//~ // Error de usuario repetido...
+						//~ $tipomensaje= "danger";
+						//~ $mensaje = "Razon social de cliente ya existe!";
+					//~ } else {
+						//~ $tipomensaje= "info";
+						//~ $mensaje = "Su registro de cliente fue editado.";
+						//~ $i=$_GET['id'];
+						//~ header('Location: cliente.php?id='.$i.'&tipo='.$tipomensaje.'&mensaje='.$mensaje);
+					//~ }
+				//~ };
+			//~ }
+		//~ }
 	
 		?>
      
@@ -207,7 +235,11 @@
 			
 			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h1 class="text-center"> Cliente: <?php echo $titulo;?></h1>
+			<form action="" method="post" name="formCliente">
+					
 			<a class="text-ritght" href="./ListaClientes.php">Volver Atrás</a>
+			<input type="submit" value="Guardar" name="Guardar">
+			
 			<div class="col-md-12">
 				
 				<h4>Datos del cliente con ID:<?php echo $id?></h4>
@@ -220,19 +252,19 @@
 					<img src="<?php echo $img;?>" style="width:100%;">
 				</div>
 
-				<form action="" method="post" name="formCliente">
+			
 				<div class="col-md-7">
 					<div class="Datos">
 						<div class="col-md-6 form-group">
 							<label>Nombre Cliente:</label>
-							<input type="text" id="nombre"  name="nombre" <?php echo $ClienteUnico['Nombre'];?> placeholder="nombre" value="<?php echo $ClienteUnico['Nombre'];?>"   >
+							<input type="text" id="nombre"  name="nombre" <?php echo $ClienteUnico['Nombre'];?> placeholder="nombre" value="<?php echo $ClienteUnico['Nombre'];?>"  required >
 							 <div class="invalid-tooltip-nombre" display="none">
 								No permitimos la doble comilla (") 
 							</div>
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
-							<input  type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>"   >
+							<input  type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>"  required >
 							 <div class="invalid-tooltip-nombre" display="none">
 								No permitimos la doble comilla (") 
 							</div>
@@ -362,10 +394,6 @@
 						 </div>
 					<!-- Aquí irá el código de los grupos-->
 					</div>
-				<div class="col-md-12">
-					<input type="submit" value="Guardar">
-				
-				<div class="col-md-9">
 				</form>
 			</div>
 			

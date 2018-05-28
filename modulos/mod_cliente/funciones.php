@@ -284,4 +284,63 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 	
 	return $html;
 }
+
+function guardarCliente($datosPost, $BDTpv){
+	$Cliente=new ClaseCliente($BDTpv);
+	$nif="";
+	$direccion="";
+	$codpostal="";
+	$telefono="";
+	$movil="";
+	$fax="";
+	$email="";
+	if ($datosPost['formapago']>0||$datosPost['vencimiento']>0){
+			$datosForma=array();
+			$datosForma['formapago']=$datosPost['formapago'];
+			$datosForma['vencimiento']=$datosPost['vencimiento'];
+			$datosForma=json_encode($datosForma);
+	}else{
+		$datosForma=null;
+	}
+	if(isset($datosPost['nif'])){
+		$nif=$datosPost['nif'];
+	}
+	if(isset($datosPost['direccion'])){
+		$direccion=$datosPost['direccion'];
+	}
+	if(isset($datosPost['codpostal'])){
+		$codpostal=$datosPost['codpostal'];
+	}
+	if(isset($datosPost['telefono'])){
+		$telefono=$datosPost['telefono'];
+	}
+	if(isset($datosPost['movil'])){
+		$movil=$datosPost['movil'];
+	}
+	if(isset($datosPost['fax'])){
+		$fax=$datosPost['fax'];
+	}
+	if(isset($datosPost['email'])){
+		$email=$datosPost['email'];
+	}
+	$datosNuevos=array(
+		'nombre'=>$datosPost['nombre'],
+		'razonsocial'=>$datosPost['razonsocial'],
+		'nif'=>$nif,
+		'direccion'=>$direccion,
+		'codpostal'=>$codpostal,
+		'telefono'=>$telefono,
+		'movil'=>$movil,
+		'fax'=>$fax,
+		'email'=>$email,
+		'estado'=>$datosPost['estado'],
+		'formasVenci'=>$datosForma
+	);
+	if($datosPost['idCliente']>0){
+		$mod=$Cliente->modificarDatosCliente($datosNuevos, $datosPost['idCliente']);
+	}else{
+		$mod=$Cliente->addcliente($datosNuevos);
+	}
+	return $mod;
+}
 ?>
