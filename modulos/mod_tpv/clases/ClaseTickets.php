@@ -133,14 +133,14 @@ class ClaseTickets extends ClaseSession {
 						
 			} else {
 				// Quiere decir que se encontro mas o ningún ticket.
-				$resultado['error'] = array( 'tipo'		=> 'Danger',
-											 'mensaje'	=> 'Error en numero registros encontrado '.$query['NItems'],
+				$resultado['error'][] = array( 'tipo'		=> 'danger',
+											 'mensaje'	=> 'Error '.$query['NItems'].' registros encontrado para el idticketst '.$idTicketst,
 											 'dato'		=> $query
 											);
 			}
 			
 		} else {
-			$resultado['error'][]		=  array( 'tipo'		=> 'Danger',
+			$resultado['error'][]		=  array( 'tipo'		=> 'danger',
 											 'mensaje'	=> 'Error en la consulta:'.$consulta,
 											 'dato'		=> $query
 											);
@@ -185,7 +185,7 @@ class ClaseTickets extends ClaseSession {
 			$resultado['sql'] = $sql;
 
 		} else {
-			$resultado['error'] = array( 'tipo'		=> 'Warning',
+			$resultado['error'] = array( 'tipo'		=> 'warning',
 										'mensaje'	=> 'Error a la hora obtner bases y ivas, registros: '.$query['NItems'],
 										 'dato'		=> $query
 										);
@@ -203,7 +203,7 @@ class ClaseTickets extends ClaseSession {
 		if (!isset($query['error'])){
 			$resultado['items'] = $query['Items'];
 		} else {
-			$resultado['error'] = array( 'tipo'		=> 'Warning',
+			$resultado['error'] = array( 'tipo'		=> 'warning',
 										'mensaje'	=> 'Error a la hora obtener lineas del ticket, registros: '.$query['NItems'],
 										 'dato'		=> $query
 										);
