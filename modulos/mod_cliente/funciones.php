@@ -169,7 +169,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 		<thead>
 			<tr>
 				<td>Fecha</td>
-				<td>Número albarán</td>
+				<td>Número</td>
 				<td>Total</td>
 			</tr>
 		</thead>
