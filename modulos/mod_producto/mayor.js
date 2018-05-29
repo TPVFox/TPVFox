@@ -15,7 +15,7 @@ $(function () {
 //        event.preventDefault();
 
         var data = $(event.currentTarget).data();
-        $('#linea_'+data.productoid).toggle();
+        $('#linea_' + data.productoid).toggle();
     });
 
 });
@@ -37,11 +37,12 @@ function MayorProductos() {
             if (resultado['html']) {
                 $('#multiCollapseExample' + resultado['idproducto']).html(resultado['html']);
 //                $('#tablamayor').show();
-                $('#imprimir' + resultado['idproducto']).html(resultado['fichero']);
-                $('#visualizar' + resultado['idproducto']).show();
+            $('#imprimir' + resultado['idproducto']).html(resultado['fichero']);
             } else {
                 $('#multiCollapseExample' + resultado['idproducto']).html(resultado['error']);
+                $('#imprimir' + resultado['idproducto']).html('');
             }
+            $('#visualizar' + resultado['idproducto']).show();
         })
     }
 

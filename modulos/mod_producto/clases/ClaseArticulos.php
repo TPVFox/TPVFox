@@ -182,7 +182,8 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ' JOIN clientes as cli ON (tic.idCliente = cli.idClientes) '
                 . ' WHERE DATE(tic.Fecha) >= "'.$parametros['fechadesde'].'"'
                 . ' AND DATE(tic.Fecha) <= "'.$parametros['fechahasta'].'"'
-                . ' AND lintic.idArticulo = '.$parametros['idArticulo'];
+                . ' AND lintic.idArticulo = '.$parametros['idArticulo']
+                . ' AND lintic.estadoLinea = "Activo"';
 
         $sqlprepare['sqlAlbpro'] = 'SELECT alb.fecha'
                 . ', linalb.nunidades as entrega'
