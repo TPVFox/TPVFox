@@ -94,7 +94,11 @@ switch ($pulsado) {
                 $resultado['fichero'] = '<a href="' . $rutatmp . '/' . $fichero . '" target="_blank">'
                         . '<span class="glyphicon glyphicon-print"></span> </a>';
             } else {
-                $resultado['error'] = 'Error en "sqldata"';
+                if ($sqldata['error']) {
+                    $resultado['error'] = $sqldata['error'];
+                } else {
+                    $resultado['error'] = 'No existen datos en el intervalo de fechas seleccionado';
+                }
             }
             $resultado['consulta'] = $sqldata['consulta'];
             $resultado['idproducto'] = $idArticulo;
