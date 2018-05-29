@@ -19,7 +19,7 @@
 			// ===========  datos proveedor segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$Usuario = $_SESSION['usuarioTpv'];
-		$tabla= 'proveedores'; // Tablas que voy utilizar.
+	
 		$estados = array(); // Creo los estados de usuarios ( para select)
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
@@ -34,8 +34,17 @@
 			$idProveedor=$_GET['id'];
 			// Modificar Ficha fichero
 			$id=$_GET['id']; // Obtenemos id para modificar.
-			$ProveedorUnico = verSelec($BDTpv,$id,$tabla);
-			$titulo = "Modificar Proveedor";
+			$ProveedorUnico=$CProveedor->getProveedor($id);
+			if (isset($ProveedorUnico['error'])){
+				$errores[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => $ProveedorUnico['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+			} else {
+			
+			$ProveedorUnico=$ProveedorUnico['datos'][0];
+			$titulo = "Modificar";
 			if (isset($ProveedorUnico['error'])){
 				$error='NOCONTINUAR';
 				$tipomensaje= "danger";
@@ -72,9 +81,11 @@
 			$htmlAlbaranes=htmlTablaGeneral($adjuntos['albaranes']['datos'], $HostNombre, "albaran");
 				
 			$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
-		} else {
+		}
+		}
+		 else {
 			// Creamos ficha Usuario.
-			$titulo = "Crear Proveedor";
+			$titulo = "Crear";
 			$ProveedorUnico = array();
 			$ProveedorUnico['nombrecomercial'] = '';
 			$ProveedorUnico['razonsocial'] = '';
@@ -158,7 +169,7 @@
 				}
 				?>
 			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
-			<h1 class="text-center"> <?php echo $titulo;?></h1>
+			<h1 class="text-center"> Proveedor: <?php echo $titulo;?></h1>
 			<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
 			<input type="submit" value="Guardar" name="Guardar">
