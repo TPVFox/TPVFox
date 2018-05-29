@@ -25,7 +25,7 @@ function controladorAcciones(caja,accion, tecla){
 			// Comprobamos si cambio valor , sino no hacemos nada.
 			//~ productos.[nfila].unidad = caja.darValor();
 			productos[nfila].nunidades = caja.darValor();
-		
+			productos[nfila].ncant = caja.darValor();
 			console.log(caja.fila);
 			recalculoImporte(productos[nfila].nunidades, nfila, caja.darParametro('dedonde'));
 			console.log(caja.darParametro('dedonde'));
