@@ -80,7 +80,7 @@ switch ($pulsado) {
                 $cuerpo = datamayor2html($sqldata['datos'], $sumas);
                 $pdf = new imprimirPDF();
                 $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
-                $pdf->SetMargins(10, 60, 10);
+                $pdf->SetMargins(10, 30, 10);
                 $pdf->setCabecera($cabecera);
                 $pdf->AddPage();
                 $pdf->writeHTML($cuerpo);
