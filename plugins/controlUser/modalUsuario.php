@@ -13,6 +13,7 @@
 <?php
 	// Incrementamos contador paginas abiertas.
 	if (!class_exists ('ClaseSession')){
+		// LLega aquí cuando cerramos session
 		?>
 		<!DOCTYPE html>
 		<html>
@@ -24,6 +25,18 @@
 			<body>
 			<?php
 			include '../../header.php';
+	} else {
+	?>
+		<meta name="language" content="es">
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="<?php echo $HostNombre;?>/css/bootstrap.min.css" type="text/css">
+		<link rel="stylesheet" href="<?php echo $HostNombre;?>/css/template.css" type="text/css">
+		<script src="<?php echo $HostNombre;?>/jquery/jquery-2.2.5-pre.min.js"></script>
+		<script src="<?php echo $HostNombre;?>/css/bootstrap.min.js"></script>
+		</head>
+		<body>
+	<?php
+		include $URLCom.'/header.php';
 	}
 		
 	
@@ -54,26 +67,21 @@
 				echo '<a href="'.$HostNombre.'/plugins/controlUser/modalUsuario.php?tipo=cerrar">Cerrar</a>';
 			}
 			
-			return;
+			exit();
 		
 		}
-		if ($_SESSION['estadoTpv'] !== 'SinActivar'){ 
-			// ya quiere decir quiere decir que no es la primera vez... de intento logueo.
-			if ($_SESSION['estadoTpv']==='ErrorIndiceUsuario'){
-				$mensaje = '<strong>Error tabla de indice!</strong> Avisa servicio tecnico.
-				<p> No se encuentra Indice del usuario o hay mas de un registros. <br/>Tienes '.$_SESSION['N_Pagina_Abiertas'].' paginas del proyecto abierto.</p>';
-			} else {
-				$mensaje= '<strong>Error sesion!</strong> Contraseña o usuario incorrectos.
-				<p> Tienes '.$_SESSION['N_Pagina_Abiertas'].'paginas del proyecto abierto.</p>';
+		if (count($thisTpv->GetComprobaciones())>0) { 
+			foreach ($thisTpv->GetComprobaciones() as $error){
+				echo '<div class="alert alert-'.$error['tipo'].'">';
+				echo $error['mensaje'];
+				echo '</div>';
+				if ($error['tipo'] === 'danger'){
+					exit();
+				}
 			}
-			
-		} 
-		?>
-		<?php if (isset($mensaje)) { ?> 
-		<div class="alert alert-danger">
-			<?php echo $mensaje;?>
-		</div>
-		<?php } ?> 
+		}
+		?> 
+		
 		<form action="" method="post" name="form">
 		<div class="form-group">
 			<label for="usr">Nombre:</label>
@@ -95,6 +103,7 @@ if (isset($_GET['tipo'])){
 		if ($_GET['tipo']==='cerrar'){
 			// Cargamos cabecera
 		?>
+		
 		</body>
 		</html>
 
