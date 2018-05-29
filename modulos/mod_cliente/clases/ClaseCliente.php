@@ -95,7 +95,7 @@ class ClaseCliente extends modelo{
 			return $consulta;
 		}else{
 			if($consulta['datos']>0){
-				if($consulta['datos'][0]['idClientes'] != $datos['idClientes']){
+				if($consulta['datos'][0]['idClientes'] != $datos['idCliente']){
 				$respuesta['error']="Existe";
 				$respuesta['consulta']="Ese nif ya existe";
 				return $respuesta;
