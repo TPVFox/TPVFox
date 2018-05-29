@@ -88,9 +88,9 @@ class Articulos{
 	public function addHistorico($datos){
 		$db=$this->db;
 		$sql='INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, 
-		Dedonde, Tipo, estado) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo']
+		Dedonde, Tipo, estado, idUsuario) VALUES ('.$datos['idArticulo'].' , '.$datos['antes'].' , '.$datos['nuevo']
 		.', '."'".$datos['fechaCreacion']."'".', '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '
-		."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".')';
+		."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".', '.$datos['idUsuario'].')';
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
