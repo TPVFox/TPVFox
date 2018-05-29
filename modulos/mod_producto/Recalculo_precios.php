@@ -15,6 +15,7 @@
 		$CArticulo=new Articulos($BDTpv);
 		$ruta_volver= $HostNombre.'/modulos/mod_compras/albaranesListado.php';
 		$titulo="Recalculo precios PVP ";
+		$Usuario = $_SESSION['usuarioTpv'];
         if (isset($_GET['id'])){
 			$id=$_GET['id'];
 			$dedonde="albaran";
@@ -74,7 +75,8 @@
 						'numDoc'=>$id,
 						'dedonde'=>"Recalculo",
 						'tipo'=>"Productos",
-						'estado'=>$estado
+						'estado'=>$estado,
+						'idUsuario'=>$Usuario['id']
 						);
 						$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
 						$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
