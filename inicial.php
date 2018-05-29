@@ -10,10 +10,7 @@
 define('FORMATO_FECHA_ES', 'd-m-Y H:m:s');
 define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 
-	// __DIR__  // Sabemos el directorio donde esta fichero HEAD
-	// $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
-	// $RutaServidor = str_replace($_SERVER['DOCUMENT_ROOT'],'', __DIR__);
-	$Ruta = __DIR__.'/';
+$Ruta = __DIR__.'/';
 	
 	if (file_exists($Ruta.'configuracion.php')){
 		include_once ($Ruta.'configuracion.php');
@@ -29,17 +26,14 @@ define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 		
 	}
 	
-	//~ include_once ($URLCom."/modulos/mod_conexion/conexionBaseDatos.php");
-	//incluyo ruta del controlador de sesion (funcion php)
-    //~ include_once ($URLCom. "/clases/ComprobarSession.php");
     include_once ($URLCom. "/clases/ClaseSession.php");
 
 	// Solo creamos objeto si no existe.
-	//~ $thisTpv = new ComprobarSession;
+	
 	$thisTpv = new ClaseSession();
-	$BDTpv = $thisTpv->getConexion(); // Para la antigua conexion. Eliminar include mod_conexion/conexionBaseDatos
-	//~ $TPVsession= $thisTpv->comprobarEstado($BDTpv, $URLCom);
-	$thisTpv->comprobarEstado();
+	$BDTpv = $thisTpv->getConexion(); // Para la antigua conexion. 
+	// [PENDIENTE ] Eliminar mod_conexion/conexionBaseDatos , falta arreglar mod_importar
+	//~ $thisTpv->comprobarEstado();
 
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('group_id'=>0,'login' =>'invitado'));
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
