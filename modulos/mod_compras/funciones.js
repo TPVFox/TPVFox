@@ -197,11 +197,12 @@ function controladorAcciones(caja,accion, tecla){
 			}
 		break;
 		case 'addRefProveedor':
-			var idArticulo=$('#idArticuloRef').val();
-			var fila=$('#numFila').val();
-			var coste =productos[fila].ultimoCoste
-			console.log(fila);
-			nfila=parseInt(fila);
+		fila=caja,fila;
+		nfila=caja.fila-1;
+		console.log(nfila);
+		var idArticulo=productos[nfila].idArticulo;
+		var coste=productos[nfila].ultimoCoste;
+			
 			addProveedorProducto(idArticulo, nfila, caja.darValor(), coste, caja.darParametro('dedonde'));
 			cerrarPopUp()
 		break;
@@ -1153,9 +1154,10 @@ function before_constructor(caja){
 	}
 	if (caja.id_input.indexOf('Proveedor_Fila') >-1){
 		console.log("entro en Proveedor_Fila_");
-		
+		console.log("entre aqui");
 		caja.parametros.item_max = productos.length;
 		caja.fila = caja.id_input.slice(15);
+		console.log(caja);
 	}
 	if (caja.id_input.indexOf('ultimo_coste') >-1){
 		console.log("entro en ultimo_coste_");
