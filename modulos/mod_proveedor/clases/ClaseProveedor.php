@@ -51,6 +51,8 @@ class ClaseProveedor extends modelo{
 			return $consulta;
 		}
 	}
+	
+	
 }
 
 ?>
