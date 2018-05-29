@@ -192,6 +192,7 @@ function guardarProveedor($datosPost, $BDTpv){
 	$movil="";
 	$email="";
 	$estado="";
+	$mod="";
 	if(isset($datosPost['direccion'])){
 		$direccion=$datosPost['direccion'];
 	}
@@ -219,13 +220,14 @@ function guardarProveedor($datosPost, $BDTpv){
 		'fax'=>$fax,
 		'movil'=>$movil,
 		'email'=>$email,
-		'estado'=>$estado
+		'estado'=>$estado,
+		'idProveedor'=>$datosPost['idProveedor']
 	);
 	if($datosPost['idProveedor']>0){
 		$mod=$Proveedor->modificarDatosProveedor($datos);
 	}else{
-		
+		$mod=$Proveedor->addProveedorNuevo($datos);
 	}
-	return $resultado;
+	return $mod;
 }
 ?>

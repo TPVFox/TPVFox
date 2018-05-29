@@ -90,46 +90,17 @@
 		}
 		if(isset($_POST['Guardar'])){
 			
+			$guardar=guardarProveedor($_POST, $BDTpv);
+			if($guardar['error']=="0"){
+				header('Location: ListaProveedores.php');
+			}else{
+				$errores[7]=array ( 'tipo'=>'Danger!',
+								 'dato' => $guardar['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+			}
 		}
-		//~ if (!isset($error)){
-			//~ if(count($_POST)>0){
-				//~ // Ya enviamos el formulario y gestionamos lo enviado.
-				//~ $datos = $_POST;
-				//~ if($titulo === "Crear Proveedor"){
-					//~ // Quiere decir que ya cubrimos los datos del usuario nuevo.
-					//~ $resp = insertarProveedor($datos,$BDTpv,$tabla);
-					//~ if (isset($resp['error'])){
-						//~ $tipomensaje= "danger";
-						//~ $mensaje = "Nombre comercial de proveedor ya existe!";
-						//~ header('Location:proveedor.php?mensaje='.$mensaje.'&tipomensaje='.$tipomensaje);
-						
-					//~ } else {
-						//~ $tipomensaje= "info";
-						//~ $mensaje = "Nuevo proveedor creado.";
-						//~ header('Location:ListaProveedores.php');
-					//~ }
-				//~ } else {
-					//~ // Quiere decir que ya modificamos los datos del ficha del cliente
-					//~ $ProveedorUnico['razonsocial'] =$datos['razonsocial'];
-					//~ $resp = modificarProveedor($datos,$BDTpv,$tabla);
-					
-					//~ if (isset($resp['error'])){
-						//~ // Error de usuario repetido...
-						//~ $tipomensaje= "danger";
-						//~ $mensaje = "Razon social de proveedor ya existe!";
-					//~ } else {
-						//~ $tipomensaje= "info";
-						//~ $mensaje = "Su registro de proveedor fue editado.";
-						
-					//~ }
-					//~ header('Location:proveedor.php?id='.$_GET['id'].'&mensaje='.$mensaje.'&tipomensaje='.$tipomensaje);
-				//~ };
-			//~ }
-			
-		//~ }
-		
-		
-		
 		?>
 		<!-- Cargamos libreria control de teclado -->
 		
