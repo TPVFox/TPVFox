@@ -8,14 +8,8 @@
         include ("./../../controllers/Controladores.php");
         include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
         $ClasesParametros = new ClaseParametros('parametros.xml');  
-        
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
-		//~ $Usuario = $_SESSION['usuarioTpv'];
-		//~ if ($Usuario['estado'] === "Incorrecto"){
-			//~ return;	
-		//~ }
-		
 		include_once '../../clases/FormasPago.php';
 		$CFormasPago=new FormasPago($BDTpv);
 		include_once '../../clases/TiposVencimiento.php';
@@ -26,7 +20,6 @@
 		$Cliente=new ClaseCliente($BDTpv);		
 		$dedonde="cliente";
 		$id=0;
-		
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
 		$configuracion=$configuracion['incidencias']; 
@@ -58,27 +51,24 @@
 					$i++;
 					}
 				} 
-			}
-			if(isset($ClienteUnico['fomasVenci'])|| $ClienteUnico['fomasVenci']!=""){
-				
-				//~ $formaPago=json_decode($ClienteUnico['fomasVenci'], true);
-				//~ $formasPago=$CFormasPago->formadePagoSinPrincipal($formaPago['formapago']);
-				//~ $tiposVen=$CtiposVen->MenosPrincipal($formaPago['vencimiento']);
-				//~ if ($formaPago['formapago']>0){
-					//~ $principalForma=$CFormasPago->datosPrincipal($formaPago['formapago']);
-				//~ }else{
-					//~ $principalForma=0;
-				//~ }
-				//~ if ($formaPago['vencimiento']>0){
-					//~ $principalVenci=$CtiposVen->datosPrincipal($formaPago['vencimiento']);
-				//~ }else{
-					//~ $principalVenci=0;
-				//~ }
-				$formasPago=$CFormasPago->todas();
-				$tiposVen=$CtiposVen->todos();
-			}else{
-				$formasPago=$CFormasPago->todas();
-				$tiposVen=$CtiposVen->todos();
+				$formaPago=json_decode($ClienteUnico['fomasVenci'], true);
+				if(count($formaPago)>0){
+					$formasPago=$CFormasPago->formadePagoSinPrincipal($formaPago['formapago']);
+					$tiposVen=$CtiposVen->MenosPrincipal($formaPago['vencimiento']);
+					if ($formaPago['formapago']>0){
+						$principalForma=$CFormasPago->datosPrincipal($formaPago['formapago']);
+					}else{
+						$principalForma=0;
+					}
+					if ($formaPago['vencimiento']>0){
+						$principalVenci=$CtiposVen->datosPrincipal($formaPago['vencimiento']);
+					}else{
+						$principalVenci=0;
+					}
+				}else{
+					$formasPago=$CFormasPago->todas();
+					$tiposVen=$CtiposVen->todos();
+				}
 			}
 			$adjuntos=$Cliente->adjuntosCliente($id);
 			$i=2;
