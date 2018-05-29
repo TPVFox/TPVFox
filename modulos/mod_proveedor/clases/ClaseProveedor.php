@@ -30,6 +30,27 @@ class ClaseProveedor extends modelo{
 		$respuesta['pedidos']=$this->getPedidos($id);
 		return $respuesta;
 	}
+	public function modificarDatosProveedor($datos){
+		$sql='UPDATE `proveedores` SET `nombrecomercial`="'.$datos['nombrecomercial'].'",
+		`razonsocial`="'.$datos['razonsocial'].'",`nif`="'.$datos['nif'].'",`direccion`="'.$datos['direccion'].'",
+		`telefono`="'.$datos['telefono'].'",`fax`="'.$datos['fax'].'",`movil`="'.$movil.'",
+		`email`="'.$datos['email'].'",`estado`="'.$datos['estado'].'" WHERE idProveedor='.$datos['idProveedor'];
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
+	public function addProveedorNuevo($datos){
+		$sql='INSERT INTO `proveedores`( `nombrecomercial`, `razonsocial`, 
+		`nif`, `direccion`, `telefono`, `fax`, `movil`, `email`, `fecha_creado`, 
+		`estado`) VALUES ("'.$datos['nombrecomercial'].'","'.$datos['razonsocial'].'",
+		"'.$datos['nif'].'","'.$datos['direccion'].'","'.$datos['telefono'].'","'.$datos['fax'].'",
+		"'.$datos['movil'].'","'.$datos['email'].'",NOW() , "'.$datos['estado'].'" )';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
 }
 
 ?>

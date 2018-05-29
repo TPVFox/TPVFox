@@ -183,4 +183,49 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	return $html;
 	 
 }
+
+function guardarProveedor($datosPost, $BDTpv){
+	$Proveedor= new ClaseProveedor($BDTpv);
+	$direccion="";
+	$telefono="";
+	$fax="";
+	$movil="";
+	$email="";
+	$estado="";
+	if(isset($datosPost['direccion'])){
+		$direccion=$datosPost['direccion'];
+	}
+	if(isset($datosPost['telefono'])){
+		$telefono=$datosPost['telefono'];
+	}
+	if(isset($datosPost['fax'])){
+		$fax=$datosPost['fax'];
+	}
+	if(isset($datosPost['movil'])){
+		$movil=$datosPost['movil'];
+	}
+	if(isset($datosPost['email'])){
+		$email=$datosPost['email'];
+	}
+	if(isset($datosPost['estado'])){
+		$estado=$datosPost['estado'];
+	}
+	$datos=array(
+		'nombrecomercial'=>$datosPost['nombrecomercial'],
+		'razonsocial'=>$datosPost['razonsocial'],
+		'nif'=>$datosPost['nif'],
+		'direccion'=>$direccion,
+		'telefono'=>$telefono,
+		'fax'=>$fax,
+		'movil'=>$movil,
+		'email'=>$email,
+		'estado'=>$estado
+	);
+	if($datosPost['idProveedor']>0){
+		$mod=$Proveedor->modificarDatosProveedor($datos);
+	}else{
+		
+	}
+	return $resultado;
+}
 ?>
