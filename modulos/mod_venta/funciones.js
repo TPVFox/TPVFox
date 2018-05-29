@@ -248,6 +248,7 @@ function controladorAcciones(caja,accion, tecla){
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
 			productos[nfila].nunidades = caja.darValor();
+			productos[nfila].ncant=caja.darValor();
 			recalculoImporte(productos[nfila].nunidades,nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
 				var d_focus = 'idArticulo';
@@ -679,6 +680,7 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 			eliminarFila(num_item+1, dedonde);
 		}
 		productos[num_item].nunidades = cantidad;
+		productos[num_item].ncant = cantidad;
 		//~ var importe = cantidad*productos[num_item].precioCiva;
 		var importe = cantidad*productos[num_item].pvpSiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
