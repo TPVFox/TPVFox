@@ -23,7 +23,13 @@ class ClaseProveedor extends modelo{
 		$sql='SELECT Numpedpro as num, FechaPedido as fecha , total, id FROM pedprot WHERE idProveedor='.$id;
 		return $this->consulta($sql);
 	}
-	
+	public function adjuntosProveedor($id){
+		$respuesta=array();
+		$respuesta['facturas']=$this->getFacturas($id);
+		$respuesta['albaranes']=$this->getAlbaranes($id);
+		$respuesta['pedidos']=$this->getPedidos($id);
+		return $respuesta;
+	}
 }
 
 ?>
