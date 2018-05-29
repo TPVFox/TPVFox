@@ -240,7 +240,8 @@ function guardarCliente($datosPost, $BDTpv){
 		'fax'=>$fax,
 		'email'=>$email,
 		'estado'=>$datosPost['estado'],
-		'formasVenci'=>$datosForma
+		'formasVenci'=>$datosForma,
+		'idCliente'=>$datosPost['idCliente']
 	);
 	
 	$comprobar=$Cliente->comprobarExistenDatos($datosNuevos);
