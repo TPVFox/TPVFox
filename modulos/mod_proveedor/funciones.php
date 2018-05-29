@@ -192,7 +192,7 @@ function guardarProveedor($datosPost, $BDTpv){
 	$movil="";
 	$email="";
 	$estado="";
-	$mod="";
+	$mod=array();
 	if(isset($datosPost['direccion'])){
 		$direccion=$datosPost['direccion'];
 	}
@@ -223,10 +223,17 @@ function guardarProveedor($datosPost, $BDTpv){
 		'estado'=>$estado,
 		'idProveedor'=>$datosPost['idProveedor']
 	);
+		
+	$comprobar=$Proveedor->comprobarExistenDatos($datos);
+			if($comprobar['error']){
+				$mod['comprobar']=$comprobar;
+			}
+		
 	if($datosPost['idProveedor']>0){
-		$mod=$Proveedor->modificarDatosProveedor($datos);
+		
+		$mod['Proveedor']=$Proveedor->modificarDatosProveedor($datos);
 	}else{
-		$mod=$Proveedor->addProveedorNuevo($datos);
+		$mod['Proveedor']=$Proveedor->addProveedorNuevo($datos);
 	}
 	return $mod;
 }
