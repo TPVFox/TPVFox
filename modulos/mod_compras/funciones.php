@@ -1037,7 +1037,7 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 								 );
 					}else{
 						if(isset($addNuevo['id'])){
-							$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha);
+							$historico=historicoCoste($productos, $dedonde, $addNuevo['id'], $BDTpv, $datosAlbaran['idProveedor'], $fecha, $Usuario['id']);
 							if (isset($historico['error'])){
 								$errores[3]=array ( 'tipo'=>'Info!',
 								 'dato' => $historico['consulta'],
@@ -1218,7 +1218,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 					break;
 				}else{
 					if (isset($addNuevo['id'])){
-						$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio']);
+						$historico=historicoCoste($datosFactura['Productos'], $dedonde, $addNuevo['id'], $BDTpv, $datosFactura['idProveedor'], $datosFactura['fechaInicio'], $Usuario['id']);
 						if (isset($historico['error'])){
 								$errores[3]=array ( 'tipo'=>'Danger!',
 								 'dato' => $historico['consulta'],
@@ -1554,7 +1554,7 @@ function modificarArraysImportes($importes, $total){
 	}
 	return $importesDef;
 }
-function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fecha){
+function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fecha, $idUsuario){
 	$errores=array();
 	$CArt=new Articulos($BDTpv);
 	$fechaCreacion=date('Y-m-d');
@@ -1610,6 +1610,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 					$datos['antes']=$producto['CosteAnt'];
 					$datos['nuevo']=$producto['ultimoCoste'];
 					$datos['estado']="Pendiente";
+					$datos['idUsuario']=$idUsuario;
 					$nuevoHistorico=$CArt->addHistorico($datos);
 					if (isset($nuevoHistorico['error'])){
 						$errores['error']=$nuevoHistorico['error'];

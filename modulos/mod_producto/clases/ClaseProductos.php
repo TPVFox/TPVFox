@@ -714,11 +714,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// 					idUsuario-> (int) id del usuario que lo genera.
 		//					estado->  (string) Estado que puede ser , Recalculado o A mano.
 		// 					tipo ->  (string) modulo que lo ejecuta.			
-		$campos = 'idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo, estado';
+		$campos = 'idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc, Dedonde, Tipo, estado, idUsuario';
 		$sql	='INSERT INTO historico_precios ('.$campos.') VALUES ('.$datos['idArticulo']
 				.' , "'.$datos['antes'].'" , "'.$datos['nuevo']
 				.'", NOW(), '.$datos['numDoc'].', '."'".$datos['dedonde']."'".', '
-				."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".')';
+				."'".$datos['tipo']."'".' , '."'".$datos['estado']."'".', '.$datos['idUsuario'].')';
 
 		$consulta = $this->Consulta_insert_update($sql);
 		
