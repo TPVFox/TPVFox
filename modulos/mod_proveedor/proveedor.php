@@ -15,19 +15,8 @@
 		$CProveedor= new ClaseProveedor($BDTpv);
 		$dedonde="proveedor";
 		$idProveedor=0;
-		?>
-		<!-- Cargamos libreria control de teclado -->
 		
-		
-	</head>
-	<body>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-		 <script type="text/javascript" >
-			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
-		</script>
-		<?php
-        include './../../header.php';
-		// ===========  datos proveedor segun id enviado por url============= //
+			// ===========  datos proveedor segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$Usuario = $_SESSION['usuarioTpv'];
 		$tabla= 'proveedores'; // Tablas que voy utilizar.
@@ -66,9 +55,17 @@
 			}
 			
 			$adjuntos=$CProveedor->adjuntosProveedor($id);
-			//~ echo '<pre>';
-			//~ print_r($adjuntos);
-			//~ echo '</pre>';
+			$i=2;
+			foreach($adjuntos as $adjunto){
+				if(isset($adjunto['error'])){
+					$errores[$i]=array ( 'tipo'=>'Danger!',
+								 'dato' => $adjunto['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+								 $i++;
+				}
+			}
 				
 			$htmlFacturas=htmlTablaGeneral($adjuntos['facturas']['datos'], $HostNombre, "factura");
 				
@@ -133,30 +130,29 @@
 			
 		}
 		
+		
+		
+		?>
+		<!-- Cargamos libreria control de teclado -->
+		
+		
+	</head>
+	<body>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+		 <script type="text/javascript" >
+			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+		</script>
+		<?php
+        include './../../header.php';
+	
 		?>
      
 		<div class="container">
-				
-			<?php 
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
-			$mensaje=$_GET['mensaje'];
-			$tipomensaje=$_GET['tipomensaje'];
-			if (isset($mensaje) || isset($error)){   ?> 
-				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-				<?php 
-				if (isset($error)){
-				// No permito continuar, ya que hubo error grabe.
-				return;
-				}
-				?>
-			<?php
-			}
-			?>
 			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
+			<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
+			<input type="submit" value="Guardar" name="Guardar">
 			<div class="col-md-12">
 				
 				<h4>Datos del proveedor con ID:<?php echo $id?></h4>
@@ -169,7 +165,7 @@
 					<img src="<?php echo $img;?>" style="width:100%;">
 				</div>
 
-				<form action="" method="post" name="formProveedor">
+				
 
 				<div class="col-md-7">
 					<div class="Datos">
@@ -262,10 +258,7 @@
 						?>
 						 </div>
 				</div>
-				<div class="col-md-12">
-					<input type="submit" value="Guardar">
 				
-				<div class="col-md-9">
 				</form>
 			</div>
 			<?php // Incluimos paginas modales
