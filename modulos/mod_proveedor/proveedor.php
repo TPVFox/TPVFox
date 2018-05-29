@@ -23,10 +23,6 @@
 		$estados = array(); // Creo los estados de usuarios ( para select)
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
-		
-		// Obtenemos id
-		//~ print_r($_GET);
-		
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_proveedor',$Usuario['id']);
 		$configuracion=$configuracion['incidencias'];
@@ -42,15 +38,8 @@
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 			} else {
-			
 			$ProveedorUnico=$ProveedorUnico['datos'][0];
 			$titulo = "Modificar";
-			if (isset($ProveedorUnico['error'])){
-				$error='NOCONTINUAR';
-				$tipomensaje= "danger";
-				$mensaje = "Id de usuario incorrecto ( ver get) <br/>".$ProveedorUnico['consulta'];
-			} else {
-				
 				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
 				if (count($_POST) ===0){
 				$i = 0;
@@ -61,29 +50,29 @@
 					$i++;
 					}
 				} 
+				$adjuntos=$CProveedor->adjuntosProveedor($id);
+				$i=2;
+				foreach($adjuntos as $adjunto){
+					if(isset($adjunto['error'])){
+						$errores[$i]=array ( 'tipo'=>'Danger!',
+									 'dato' => $adjunto['consulta'],
+									 'class'=>'alert alert-danger',
+									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+									 );
+									 $i++;
+					}
+				}
+					
+				$htmlFacturas=htmlTablaGeneral($adjuntos['facturas']['datos'], $HostNombre, "factura");
+					
+				$htmlAlbaranes=htmlTablaGeneral($adjuntos['albaranes']['datos'], $HostNombre, "albaran");
+					
+				$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
+				
 			}
 			
-			$adjuntos=$CProveedor->adjuntosProveedor($id);
-			$i=2;
-			foreach($adjuntos as $adjunto){
-				if(isset($adjunto['error'])){
-					$errores[$i]=array ( 'tipo'=>'Danger!',
-								 'dato' => $adjunto['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-								 $i++;
-				}
-			}
-				
-			$htmlFacturas=htmlTablaGeneral($adjuntos['facturas']['datos'], $HostNombre, "factura");
-				
-			$htmlAlbaranes=htmlTablaGeneral($adjuntos['albaranes']['datos'], $HostNombre, "albaran");
-				
-			$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
-		}
-		}
-		 else {
+			
+		} else {
 			// Creamos ficha Usuario.
 			$titulo = "Crear";
 			$ProveedorUnico = array();
@@ -99,43 +88,45 @@
 			$ProveedorUnico['idUsuario'] = $Usuario['id'];
 			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
 		}
-		
-		if (!isset($error)){
-			if(count($_POST)>0){
-				// Ya enviamos el formulario y gestionamos lo enviado.
-				$datos = $_POST;
-				if($titulo === "Crear Proveedor"){
-					// Quiere decir que ya cubrimos los datos del usuario nuevo.
-					$resp = insertarProveedor($datos,$BDTpv,$tabla);
-					if (isset($resp['error'])){
-						$tipomensaje= "danger";
-						$mensaje = "Nombre comercial de proveedor ya existe!";
-						header('Location:proveedor.php?mensaje='.$mensaje.'&tipomensaje='.$tipomensaje);
-						
-					} else {
-						$tipomensaje= "info";
-						$mensaje = "Nuevo proveedor creado.";
-						header('Location:ListaProveedores.php');
-					}
-				} else {
-					// Quiere decir que ya modificamos los datos del ficha del cliente
-					$ProveedorUnico['razonsocial'] =$datos['razonsocial'];
-					$resp = modificarProveedor($datos,$BDTpv,$tabla);
-					
-					if (isset($resp['error'])){
-						// Error de usuario repetido...
-						$tipomensaje= "danger";
-						$mensaje = "Razon social de proveedor ya existe!";
-					} else {
-						$tipomensaje= "info";
-						$mensaje = "Su registro de proveedor fue editado.";
-						
-					}
-					header('Location:proveedor.php?id='.$_GET['id'].'&mensaje='.$mensaje.'&tipomensaje='.$tipomensaje);
-				};
-			}
+		if(isset($_POST['Guardar'])){
 			
 		}
+		//~ if (!isset($error)){
+			//~ if(count($_POST)>0){
+				//~ // Ya enviamos el formulario y gestionamos lo enviado.
+				//~ $datos = $_POST;
+				//~ if($titulo === "Crear Proveedor"){
+					//~ // Quiere decir que ya cubrimos los datos del usuario nuevo.
+					//~ $resp = insertarProveedor($datos,$BDTpv,$tabla);
+					//~ if (isset($resp['error'])){
+						//~ $tipomensaje= "danger";
+						//~ $mensaje = "Nombre comercial de proveedor ya existe!";
+						//~ header('Location:proveedor.php?mensaje='.$mensaje.'&tipomensaje='.$tipomensaje);
+						
+					//~ } else {
+						//~ $tipomensaje= "info";
+						//~ $mensaje = "Nuevo proveedor creado.";
+						//~ header('Location:ListaProveedores.php');
+					//~ }
+				//~ } else {
+					//~ // Quiere decir que ya modificamos los datos del ficha del cliente
+					//~ $ProveedorUnico['razonsocial'] =$datos['razonsocial'];
+					//~ $resp = modificarProveedor($datos,$BDTpv,$tabla);
+					
+					//~ if (isset($resp['error'])){
+						//~ // Error de usuario repetido...
+						//~ $tipomensaje= "danger";
+						//~ $mensaje = "Razon social de proveedor ya existe!";
+					//~ } else {
+						//~ $tipomensaje= "info";
+						//~ $mensaje = "Su registro de proveedor fue editado.";
+						
+					//~ }
+					//~ header('Location:proveedor.php?id='.$_GET['id'].'&mensaje='.$mensaje.'&tipomensaje='.$tipomensaje);
+				//~ };
+			//~ }
+			
+		//~ }
 		
 		
 		
@@ -192,12 +183,12 @@
 						<div class="col-md-6 form-group">
 							
 							<label>Nombre comercial Proveedor:</label>
-							<input type="text" id="nombrecomercial" name="nombrecomercial" <?php echo $ProveedorUnico['nombrecomercial'];?> placeholder="nombre" value="<?php echo $ProveedorUnico['nombrecomercial'];?>"   >
+							<input type="text" id="nombrecomercial" name="nombrecomercial" <?php echo $ProveedorUnico['nombrecomercial'];?> placeholder="nombre" value="<?php echo $ProveedorUnico['nombrecomercial'];?>" required  >
 							
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
-							<input type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ProveedorUnico['razonsocial'];?>"   >
+							<input type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ProveedorUnico['razonsocial'];?>"   required>
 							
 						</div>
 						<div class="col-md-6 form-group">
