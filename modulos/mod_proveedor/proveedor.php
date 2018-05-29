@@ -209,7 +209,7 @@
 							<input type="text" id="idusuario" name="idusuario" value="<?php echo $Usuario['id'];?>"  readonly>
 						</div>
 						
-						<div class="col-md-6 form-group">
+						<div class="col-md-4 form-group">
 							<label for="sel1">Estado:</label>
 							<select class="form-control" name="estado" id="sel1">
 								<?php 
