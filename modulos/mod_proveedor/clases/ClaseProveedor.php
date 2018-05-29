@@ -15,7 +15,7 @@ class ClaseProveedor extends modelo{
 	}
 	
 	public function getAlbaranes($id){
-		$sql='SELECT Numalbpro as num. Fecha as fecha, total , id FROM albprot WHERE idProveedor='.$id;
+		$sql='SELECT Numalbpro as num, Fecha as fecha, total , id FROM albprot WHERE idProveedor='.$id;
 		return $this->consulta($sql);
 	}
 	
