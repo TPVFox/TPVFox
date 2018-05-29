@@ -116,7 +116,7 @@
 				<action tecla="13">addRefProveedor</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">cerrados</parametro>
+				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>
 				<parametro nombre="prefijo">Proveedor_Fila_</parametro>
 			</parametros>
