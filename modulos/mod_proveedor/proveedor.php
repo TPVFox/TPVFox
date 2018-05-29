@@ -11,6 +11,8 @@
         $ClasesParametros = new ClaseParametros('parametros.xml');  
 		$Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
+		include_once ('clases/ClaseProveedor.php');
+		$CProveedor= new ClaseProveedor($BDTpv);
 		$dedonde="proveedor";
 		$idProveedor=0;
 		?>
@@ -62,6 +64,17 @@
 					}
 				} 
 			}
+			
+			$adjuntos=$CProveedor->adjuntosProveedor($id);
+			//~ echo '<pre>';
+			//~ print_r($adjuntos);
+			//~ echo '</pre>';
+				
+			$htmlFacturas=htmlTablaGeneral($adjuntos['facturas']['datos'], $HostNombre, "factura");
+				
+			$htmlAlbaranes=htmlTablaGeneral($adjuntos['albaranes']['datos'], $HostNombre, "albaran");
+				
+			$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
 		} else {
 			// Creamos ficha Usuario.
 			$titulo = "Crear Proveedor";
@@ -230,6 +243,24 @@
 					
 				</div>
 				<div class="col-md-4">
+					 <div class="panel-group">
+						
+						<?php 
+						$num = 1 ; // Numero collapse;
+						$titulo = 'Facturas';
+						echo htmlPanelDesplegable($num,$titulo,$htmlFacturas);
+						?>
+						<?php 
+						$num = 2 ; // Numero collapse;
+						$titulo = 'Albaranes';
+						echo htmlPanelDesplegable($num,$titulo,$htmlAlbaranes);
+						?>
+						<?php 
+						$num = 3 ; // Numero collapse;
+						$titulo = 'Pedidos';
+						echo htmlPanelDesplegable($num,$titulo,$htmlPedidos);
+						?>
+						 </div>
 				</div>
 				<div class="col-md-12">
 					<input type="submit" value="Guardar">
