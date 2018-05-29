@@ -87,7 +87,6 @@
 			$ProveedorUnico['fechaalta'] = date('Y-m-d');
 			$ProveedorUnico['idUsuario'] = $Usuario['id'];
 			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
-			//$ProveedorUnico['id']= '';
 		}
 		
 		if (!isset($error)){
@@ -110,9 +109,6 @@
 				} else {
 					// Quiere decir que ya modificamos los datos del ficha del cliente
 					$ProveedorUnico['razonsocial'] =$datos['razonsocial'];
-					//~ echo'<pre>';
-					//~ print_r($datos);
-					//~ echo '</pre>';
 					$resp = modificarProveedor($datos,$BDTpv,$tabla);
 					
 					if (isset($resp['error'])){
@@ -148,6 +144,19 @@
 		?>
      
 		<div class="container">
+			
+				<?php 
+				
+				if (isset($errores)){
+				foreach($errores as $error){
+						echo '<div class="'.$error['class'].'">'
+						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+						. '</div>';
+				}
+	
+				return;
+				}
+				?>
 			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
 			<form action="" method="post" name="formProveedor">
