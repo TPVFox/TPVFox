@@ -54,15 +54,18 @@ class ClaseProveedor extends modelo{
 	
 	public function comprobarExistenDatos($datos){
 		$respuesta=array();
-		$sql='select nif FROM proveedores where nif='.$datos['nif'];
+		$sql='select nif , idProveedor FROM proveedores where nif="'.$datos['nif'].'"';
 		$consulta=$this->consulta($sql);
 		if(isset($consulta['error'])){
 			return $consulta;
 		}else{
 			if($consulta['datos']>0){
-				$respuesta['error']="Existe";
-				$respuesta['consulta']="Ese nif ya existe";
-				return $respuesta;
+				if($consulta['datos'][0]['idProveedor'] != $datos['idProveedor']){
+					$respuesta['error']="Existe";
+					$respuesta['consulta']="Ese nif ya existe";
+					return $respuesta;
+				}
+				
 			}
 		}
 	}
