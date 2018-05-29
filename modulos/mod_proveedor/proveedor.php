@@ -146,9 +146,9 @@
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
 			<div class="col-md-12">
 				
-				<h3><?php echo $ProveedorUnico['razonsocial'];?></h3>
+				<h4>Datos del proveedor con ID:<?php echo $id?></h4>
 
-				<div class="col-md-3">
+				<div class="col-md-1">
 					<?php 
 					// UrlImagen
 					$img = './../../css/img/imgUsuario.png';
@@ -158,7 +158,7 @@
 
 				<form action="" method="post" name="formProveedor">
 
-				<div class="col-md-9">
+				<div class="col-md-7">
 					<div class="Datos">
 						<div class="col-md-6 form-group">
 							
@@ -228,6 +228,8 @@
 						
 					</div>
 					
+				</div>
+				<div class="col-md-4">
 				</div>
 				<div class="col-md-12">
 					<input type="submit" value="Guardar">
