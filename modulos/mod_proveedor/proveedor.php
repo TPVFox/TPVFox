@@ -91,6 +91,9 @@
 		if(isset($_POST['Guardar'])){
 			
 			$guardar=guardarProveedor($_POST, $BDTpv);
+			//~ echo '<pre>';
+			//~ print_r($guardar);
+			//~ echo '</pre>';
 			if($guardar['Proveedor']['error']=="0"){
 				if($guardar['comprobar']['error']=="Existe"){
 					$errores[7]=array ( 'tipo'=>'Info!',
@@ -99,7 +102,7 @@
 								 'mensaje' => 'COINCIDENCIA!'
 								 );
 				}else{
-					header('Location: ListaProveedores.php');
+					//~ header('Location: ListaProveedores.php');
 				}
 			}else{
 				$errores[7]=array ( 'tipo'=>'Danger!',
