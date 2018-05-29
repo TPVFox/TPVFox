@@ -112,11 +112,23 @@
 	
 			if(isset($_POST['Guardar'])){
 			$guardar=guardarCliente($_POST, $BDTpv);
-			if($guardar['error']=="0"){
-				header('Location: ListaClientes.php');
+			//~ echo '<pre>';
+			//~ print_r($guardar);
+			//~ echo '</pre>';
+			if($guardar['cliente']['error']=="0"){
+				if($guardar['buscarCliente']['error']=="Existe"){
+					$errores[7]=array ( 'tipo'=>'Info!',
+								 'dato' => $guardar['buscarCliente']['consulta'],
+								 'class'=>'alert alert-info',
+								 'mensaje' => 'COINCIDENCIA!'
+								 );
+				}else{
+					 header('Location: ListaClientes.php');
+				}
+				
 			}else{
 				$errores[7]=array ( 'tipo'=>'Danger!',
-								 'dato' => $guardar['consulta'],
+								 'dato' => $guardar['cliente']['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
@@ -149,7 +161,7 @@
 						. '</div>';
 				}
 	
-				return;
+				//~ return;
 				}
 				?>
 			

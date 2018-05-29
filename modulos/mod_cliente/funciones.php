@@ -199,6 +199,7 @@ function guardarCliente($datosPost, $BDTpv){
 	$movil="";
 	$fax="";
 	$email="";
+	$mod=array();
 	if ($datosPost['formapago']>0||$datosPost['vencimiento']>0){
 			$datosForma=array();
 			$datosForma['formapago']=$datosPost['formapago'];
@@ -242,9 +243,18 @@ function guardarCliente($datosPost, $BDTpv){
 		'formasVenci'=>$datosForma
 	);
 	if($datosPost['idCliente']>0){
-		$mod=$Cliente->modificarDatosCliente($datosNuevos, $datosPost['idCliente']);
+		$buscarCliente=$Cliente->getCliente($datosPost['idCliente']);
+		if (isset($buscarCliente['error'])){
+				$mod['buscarCliente']=$buscarCliente;
+		}else{
+			$comprobar=$Cliente->comprobarExistenDatos($datosNuevos);
+			if($comprobar['error']){
+				$mod['buscarCliente']=$comprobar;
+			}
+			$mod['cliente']=$Cliente->modificarDatosCliente($datosNuevos, $datosPost['idCliente']);
+		}
 	}else{
-		$mod=$Cliente->addcliente($datosNuevos);
+		$mod['cliente']=$Cliente->addcliente($datosNuevos);
 	}
 	return $mod;
 }

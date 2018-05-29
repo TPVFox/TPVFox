@@ -87,6 +87,20 @@ class ClaseCliente extends modelo{
 			return $consulta;
 		}
 	}
+	public function comprobarExistenDatos($datos){
+		$respuesta=array();
+		$sql='select nif FROM clientes where nif='.$datos['nif'];
+		$consulta=$this->consulta($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}else{
+			if($consulta['datos']>0){
+				$respuesta['error']="Existe";
+				$respuesta['consulta']="Ese nif ya existe";
+				return $respuesta;
+			}
+		}
+	}
 }
 
 
