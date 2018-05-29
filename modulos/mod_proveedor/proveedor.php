@@ -91,11 +91,19 @@
 		if(isset($_POST['Guardar'])){
 			
 			$guardar=guardarProveedor($_POST, $BDTpv);
-			if($guardar['error']=="0"){
-				header('Location: ListaProveedores.php');
+			if($guardar['Proveedor']['error']=="0"){
+				if($guardar['comprobar']['error']=="Existe"){
+					$errores[7]=array ( 'tipo'=>'Info!',
+								 'dato' => $guardar['comprobar']['consulta'],
+								 'class'=>'alert alert-info',
+								 'mensaje' => 'COINCIDENCIA!'
+								 );
+				}else{
+					header('Location: ListaProveedores.php');
+				}
 			}else{
 				$errores[7]=array ( 'tipo'=>'Danger!',
-								 'dato' => $guardar['consulta'],
+								 'dato' => $guardar['Proveedor']['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
@@ -127,7 +135,7 @@
 						. '</div>';
 				}
 	
-				return;
+				//~ return;
 				}
 				?>
 			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
