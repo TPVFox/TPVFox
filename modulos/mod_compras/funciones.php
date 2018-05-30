@@ -633,7 +633,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	'html'=>''
 	
 	);
-	$imprimir['cabecera'].='<font size="20">Super Oliva </font><br>
+	$imprimir['cabecera'].='<p></p><font size="20">Super Oliva </font><br>
 			<font size="12">'.$datosTienda['razonsocial'].'</font><br>'.
 			'<font size="12">'.$datosTienda['direccion'].'</font><br>'.
 			'<font size="9"><b>NIF: </b>'.$datosTienda['nif'].'</font><br>'.

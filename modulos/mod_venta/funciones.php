@@ -687,7 +687,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		$fecha="";
 	}
 		$productos=array_reverse($productos);
-	$imprimir['cabecera'].='<font size="20">Super Oliva </font><br>
+	$imprimir['cabecera'].='<p></p><font size="20">Super Oliva </font><br>
 		<font size="12">'.$tienda['razonsocial'].'</font><br>'.
 		'<font size="12">'.$tienda['direccion'].'</font><br>'.
 		'<font size="9"><b>NIF: </b>'.$tienda['nif'].'</font><br>'.
