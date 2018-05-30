@@ -153,7 +153,7 @@
 				switch ($dedonde){
 					case 'ticket':
 						 header('Location: Resumenes/resumenTickets.php?fechaIni='.$comprobarFechas['fechaIni']
-						 .'&fechaFin='.$comprobarFechas['fechaFin']);
+						 .'&fechaFin='.$comprobarFechas['fechaFin'].'&idCliente='.$id);
 					break;
 				}
 			}
