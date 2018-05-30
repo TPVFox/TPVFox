@@ -11,12 +11,12 @@
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
 		$errores=array();
+		$titulo="";
 		if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
 			$fechaIni=$_GET['fechaIni'];
 			$fechaFin=$_GET['fechaFin'];
 			$idCliente=$_GET['idCliente'];
-			echo $fechaIni;
-			echo $fechaFin;
+			$titulo='Tickets del cliente '.$idCliente .' entre '.$fechaIni.' y '.$fechaFin;
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => '',
@@ -33,12 +33,46 @@
         include './../../../header.php';
 		?>
 		<div class="container">
-			
+			<div class="col-md-12">
+				<h2><?php echo $titulo?></h2>
+				<div  class="col-md-12">
+					<table class="col-md-12">
+						<thead>
+							<tr>
+								<td>Producto</td>
+								<td>Cantidad</td>
+								<td>Importe</td>
+							</tr>
+						</thead>
+					</table>
+					<table class="col-md-12">
+						<thead>
+							<tr>
+								<td>Fecha</td>
+								<td>Ticket</td>
+								<td>Base</td>
+								<td>IVA</td>
+								<td>Total</td>
+							</tr>
+						</thead>
+					</table>
+					<table class="col-md-12">
+						<thead>
+							<tr>
+								<td>Base</td>
+								<td>IVA</td>
+								<td>Total</td>
+							</tr>
+						</thead>
+					</table>
+				
+				</div>
+			</div>
 		</div>
 		<?php 
-echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-?>
+		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		?>
 
 	</body>
 </html>
