@@ -131,6 +131,15 @@ class ClaseCliente extends modelo{
 							$productos[$key]['cdetalle']=$prod['cdetalle'];
 							$productos[$key]['nunidades']=$prod['nunidades'];
 							$productos[$key]['precioCiva']=$prod['precioCiva'];
+						}else{
+							$unidades=$productos[$prod['idArticulo']]['nunidades'];
+							$unidadesNuevas=$unidades+$prod['nunidades'];
+							$precio=$productos[$prod['idArticulo']]['precioCiva'];
+							$precioNuevo=$precio+$prod['precioCiva'];
+							$key=$prod['idArticulo'];
+							$productos[$key]['nunidades']=$unidadesNuevas;
+							$productos[$key]['precioCiva']=$precioNuevo;
+							
 						}
 					}
 					$respuesta['productos']=$productos;
