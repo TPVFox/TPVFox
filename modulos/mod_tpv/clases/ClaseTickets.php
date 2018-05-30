@@ -315,6 +315,8 @@ class ClaseTickets extends ClaseSession {
 		}
 		return $respuesta;
 	}
+	
+	
 	// Fin de clase.
 }
 
