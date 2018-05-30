@@ -104,10 +104,45 @@ class ClaseCliente extends modelo{
 		}
 	}
 	public function ticketClienteFechas($idCliente, $fechaIni, $fechaFin){
+		$respuesta=array();
+		$productos=array();
 		$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente.' and `Fecha` BETWEEN 
 		"'.$fechaIni.'" and  "'.$fechaFin.'"';
-		return $this->consulta($sql);
+		
+		$tickets=$this->consulta($sql);
+		if(isset($tickets['error'])){
+			$respuesta=$tickets;
+		}else{
+			foreach($tickets['datos'] as $ticket){
+				$sqlProductos='SELECT  idArticulo , cdetalle, nunidades, precioCiva
+				 from ticketslinea where idticketst ='.$ticket['id'];
+				 $lineasProductos=$this->consulta($sqlProductos);
+				 if(isset($lineasProductos['error'])){
+					$respuesta=$lineasProductos;
+				}else{
+					//~ $respuesta['lineasProductos']=$lineasProductos['datos'];
+					foreach ($lineasProductos['datos'] as $prod){
+						//~ $clave=array_search($prod['cdetalle'], $productos);
+						$clave=in_array($prod['idArticulo'], $productos);
+						$respuesta['clave']=$clave;
+						if($clave == false){
+							$key=$prod['idArticulo'];
+							$productos[$key]['idArticulo']=$prod['idArticulo'];
+							$productos[$key]['cdetalle']=$prod['cdetalle'];
+							$productos[$key]['nunidades']=$prod['nunidades'];
+							$productos[$key]['precioCiva']=$prod['precioCiva'];
+						}
+					}
+					$respuesta['productos']=$productos;
+				}
+			}
+			
+		}
+		
+		return $respuesta;
 	}
+	
+	
 }
 
 
