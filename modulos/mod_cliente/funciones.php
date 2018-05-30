@@ -167,12 +167,14 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 	}
 	$html='<table>
 		<tr>
-			<td>Fecha Inicio: <input type="date" size="10" id="fechaInicial" name="fechaInicial" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"></td>
-			<td>Fecha Fin: <input type="date" size="10"  id="fechaFin" name="fechaFin" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"></td>
-			<td><br><input type="button" class="btn btn-info" value="Resumen"></td>
+		<form method="post" name="formularioAdjunto">
+			<td>Fecha Inicio: <input type="date" size="10" id="fechaInicial" class="fechaInicial" value="" name="fechaInicial" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"></td>
+			<td>Fecha Fin: <input type="date" size="10"  id="fechaFin" class="fechaFin" value="" name="fechaFin" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"></td>
+			<td><br><input type="submit" class="btn btn-info" value="'.$dedonde.'" name="Resumen" ></td>
+		</form>
 		</tr>
-	</table>';
-	$html.='<table class="table table-striped">
+	</table>'
+	.'<table class="table table-striped">
 		<thead>
 			<tr>
 				<td>Fecha</td>

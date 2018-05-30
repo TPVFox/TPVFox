@@ -430,3 +430,10 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
+//~ function enviarResumen(dedonde){
+	//~ console.log(dedonde);
+	//~ var fechaInicio=$('#fechaInicial').val();
+	//~ var fechaFin=$('#fechaFin').val();
+	//~ console.log(fechaInicio);
+	//~ console.log(fechaFin);
+//~ }

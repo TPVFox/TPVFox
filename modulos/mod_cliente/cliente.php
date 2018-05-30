@@ -134,6 +134,11 @@
 								 );
 			}
 		}
+		if(isset($_POST['Resumen'])){
+			echo '<pre>';
+			print_r($_POST);
+			echo '</pre>';
+		}
 		
 		?>
 		<!-- Cargamos libreria control de teclado -->
