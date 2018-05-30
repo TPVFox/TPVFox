@@ -113,39 +113,10 @@ class ClaseCliente extends modelo{
 		if(isset($tickets['error'])){
 			$respuesta=$tickets;
 		}else{
-			foreach($tickets['datos'] as $ticket){
-				$sqlProductos='SELECT  idArticulo , cdetalle, nunidades, precioCiva
-				 from ticketslinea where idticketst ='.$ticket['id'];
-				 $lineasProductos=$this->consulta($sqlProductos);
-				 if(isset($lineasProductos['error'])){
-					$respuesta=$lineasProductos;
-				}else{
-					//~ $respuesta['lineasProductos']=$lineasProductos['datos'];
-					foreach ($lineasProductos['datos'] as $prod){
-						//~ $clave=array_search($prod['cdetalle'], $productos);
-						$clave=in_array($prod['idArticulo'], $productos);
-						$respuesta['clave']=$clave;
-						if($clave == false){
-							$key=$prod['idArticulo'];
-							$productos[$key]['idArticulo']=$prod['idArticulo'];
-							$productos[$key]['cdetalle']=$prod['cdetalle'];
-							$productos[$key]['nunidades']=$prod['nunidades'];
-							$productos[$key]['precioCiva']=$prod['precioCiva'];
-						}else{
-							$unidades=$productos[$prod['idArticulo']]['nunidades'];
-							$unidadesNuevas=$unidades+$prod['nunidades'];
-							$precio=$productos[$prod['idArticulo']]['precioCiva'];
-							$precioNuevo=$precio+$prod['precioCiva'];
-							$key=$prod['idArticulo'];
-							$productos[$key]['nunidades']=$unidadesNuevas;
-							$productos[$key]['precioCiva']=$precioNuevo;
-							
-						}
-					}
-					$respuesta['productos']=$productos;
-				}
-			}
-			
+			$ids=implode(', ', array_column($tickets['datos'], 'id'));
+			$sql='SELECT	*,	SUM(nunidades)	FROM	`ticketslinea`	WHERE`idticketst` IN('.$ids.') and 
+			`estadoLinea` <> "Eliminado" GROUP BY idArticulo + `precioCiva`';
+					
 		}
 		
 		return $respuesta;
