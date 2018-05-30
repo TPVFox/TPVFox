@@ -585,7 +585,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 					// El precio nuevo fue metido a mano, no es el recalculado.
 					$estado = 'A mano';
 				} 
-				// Montamos los datos que necesita el metodo.
+				// Montamos los datos que necesita para añadir historico (addHistorico).
 				$datos = array();
 				$datos['antes'] = $this->pvpCiva;
 				$datos['nuevo'] = $DatosPostProducto['pvpCiva'];
@@ -594,18 +594,20 @@ class ClaseProductos extends ClaseTablaArticulos{
 				$datos['dedonde'] = 'producto'; // De que vista
 				$datos['tipo'] = 'Productos'; // Que modulo;
 				$datos['numDoc'] = 0; // No hay numero de documento, podría ser el idArticulo pero es absurdo ponerlo.
-				$consulta = $this->addHistorico($datos);
-				if ($consulta['NAfectados'] === 1){
+				$datos['idUsuario'] = $idUsuario;
+				$anhadirHistorico = $this->addHistorico($datos);
+				if ($anhadirHistorico['NAfectados'] === 1){
 					// Cambio un registro
 					$success = array ( 'tipo'=>'success',
 							 'mensaje' =>'Se ha grabado correctamente el historico de precios.',
-							 'dato' => ' Cantidad de registros añadidos '.$consulta['NAfectados']
+							 'dato' => ' Cantidad de registros añadidos '.$anhadirHistorico['NAfectados']
 							);
 					$comprobaciones['mensajes'][] = $success;
 				} else {
 					$success = array ( 'tipo'=>'danger',
-							 'mensaje' =>'Hubo un error en la consulta '.$slq,
-							 'dato' => $consulta
+							 'mensaje' =>'Hubo un error en la consulta a la hora grabar el historico'
+							 .$anhadirHistorico['consulta'],
+							 'dato' => $$anhadirHistorico
 							);
 					$comprobaciones['mensajes'][] = $success;
 					
