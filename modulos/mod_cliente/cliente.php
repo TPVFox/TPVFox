@@ -139,9 +139,9 @@
 			//~ print_r($_POST['Resumen']);
 			//~ echo '</pre>';
 			$comprobarFechas=comprobarFechas($_POST['fechaInicial'], $_POST['fechaFin']);
-			echo '<pre>';
-			print_r($comprobarFechas);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($comprobarFechas);
+			//~ echo '</pre>';
 			$dedonde=$_POST['Resumen'];
 			if(isset($comprobarFechas['error'])){
 				$errores[8]=array ( 'tipo'=>'Info!',
