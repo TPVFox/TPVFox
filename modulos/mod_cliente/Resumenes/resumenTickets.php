@@ -39,30 +39,37 @@
         include './../../../header.php';
 		?>
 		<div class="container">
-			<div class="col-md-12">
+			<div class="col-md-12 text-center" >
 				<h2><?php echo $titulo?></h2>
-				<div  class="col-md-12">
-					<table class="col-md-12">
+			</div>
+			
+			<div class="col-md-8 " >
+					<table class="table table-striped table-bordered">
 						<thead>
 							<tr>
-								<td>Producto</td>
-								<td>Cantidad</td>
-								<td>Importe</td>
+								<th>PRODUCTO</th>
+								<th>CANTIDAD</th>
+								<th>PRECIO</th>
+								<th>IMPORTE</th>
 							</tr>
 						</thead>
 						<tbody>
 						<?php 
-						
 						foreach($arrayNums['productos'] as $producto){
-							echo '<tr>';
-							echo '<td>'.$producto['cdetalle'].'</td>';
-							echo '<td>'.$producto['totalUnidades'].'</td>';
-							echo '<td>'.$producto['precioCiva'].'</td>';
-							echo '</tr>';
+							$precio=$producto['totalUnidades']*$producto['precioCiva'];
+							echo '<tr>'
+							. '<td>'.$producto['cdetalle'].'</td>'
+							.'<td>'. number_format ($producto['totalUnidades'],2).'</td>'
+							.'<td>'.number_format ($producto['precioCiva'],2).'</td>'
+							. '<td>'.number_format ($precio,2).'</td>'
+							. '</tr>';
 						}
 						?>
 						</tbody>
 					</table>
+				
+				</div>
+				<div class="col-md-4 " >
 					<table class="col-md-12">
 						<thead>
 							<tr>
