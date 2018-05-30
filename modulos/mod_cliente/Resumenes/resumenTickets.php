@@ -50,6 +50,18 @@
 								<td>Importe</td>
 							</tr>
 						</thead>
+						<tbody>
+						<?php 
+						
+						foreach($arrayNums['productos'] as $producto){
+							echo '<tr>';
+							echo '<td>'.$producto['cdetalle'].'</td>';
+							echo '<td>'.$producto['nunidades'].'</td>';
+							echo '<td>'.$producto['precioCiva'].'</td>';
+							echo '</tr>';
+						}
+						?>
+						</tbody>
 					</table>
 					<table class="col-md-12">
 						<thead>
