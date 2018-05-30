@@ -20,9 +20,9 @@
 			$idCliente=$_GET['idCliente'];
 			$titulo='Tickets del cliente '.$idCliente .' entre '.$fechaIni.' y '.$fechaFin;
 			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
-			echo '<pre>';
-			print_r($arrayNums);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($arrayNums);
+			//~ echo '</pre>';
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => '',
@@ -56,7 +56,7 @@
 						foreach($arrayNums['productos'] as $producto){
 							echo '<tr>';
 							echo '<td>'.$producto['cdetalle'].'</td>';
-							echo '<td>'.$producto['nunidades'].'</td>';
+							echo '<td>'.$producto['totalUnidades'].'</td>';
 							echo '<td>'.$producto['precioCiva'].'</td>';
 							echo '</tr>';
 						}
