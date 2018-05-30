@@ -8,6 +8,8 @@
         include ("./../../../controllers/Controladores.php");
         include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
         $ClasesParametros = new ClaseParametros('../parametros.xml');  
+        include '../clases/ClaseCliente.php';
+		$Cliente= new ClaseCliente($BDTpv);
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
 		$errores=array();
@@ -17,6 +19,10 @@
 			$fechaFin=$_GET['fechaFin'];
 			$idCliente=$_GET['idCliente'];
 			$titulo='Tickets del cliente '.$idCliente .' entre '.$fechaIni.' y '.$fechaFin;
+			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
+			echo '<pre>';
+			print_r($arrayNums);
+			echo '</pre>';
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => '',

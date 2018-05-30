@@ -103,6 +103,11 @@ class ClaseCliente extends modelo{
 			}
 		}
 	}
+	public function ticketClienteFechas($idCliente, $fechaIni, $fechaFin){
+		$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente.' and `Fecha` BETWEEN 
+		"'.$fechaIni.'" and  "'.$fechaFin.'"';
+		return $this->consulta($sql);
+	}
 }
 
 
