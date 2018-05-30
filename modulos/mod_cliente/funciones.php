@@ -267,4 +267,17 @@ function guardarCliente($datosPost, $BDTpv){
 	}
 	return $mod;
 }
+function comprobarFechas($fechaIni, $fechaFin){
+	$resultado=array();
+	if($fechaIni=="" ||$fechaFin==""){
+		$resultado['error']='Error';
+		$resultado['consulta']='Una de las fechas está sin cubrir';
+	}else{
+		$fechaIni =date_format(date_create($fechaIni), 'Y-m-d');
+		$fechaFin =date_format(date_create($fechaFin), 'Y-m-d');
+		$resultado['fechaIni']=$fechaIni;
+		$resultado['fechaFin']=$fechaFin;
+	}
+	return $resultado;
+}
 ?>
