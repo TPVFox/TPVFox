@@ -165,7 +165,14 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 				$url=$HostNombre.'/modulos/mod_venta/pedido.php?id=';
 			break;
 	}
-	$html='<table class="table table-striped">
+	$html='<table>
+		<tr>
+			<td>Fecha Inicio: <input type="date" size="10" id="fechaInicial" name="fechaInicial" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"></td>
+			<td>Fecha Fin: <input type="date" size="10"  id="fechaFin" name="fechaFin" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"></td>
+			<td><br><input type="button" class="btn btn-info" value="Resumen"></td>
+		</tr>
+	</table>';
+	$html.='<table class="table table-striped">
 		<thead>
 			<tr>
 				<td>Fecha</td>
