@@ -1557,12 +1557,12 @@ function modificarArraysImportes($importes, $total){
 function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fecha, $idUsuario){
 	$errores=array();
 	$CArt=new Articulos($BDTpv);
-	$fechaCreacion=date('Y-m-d');
+	//~ $fechaCreacion=date('Y-m-d');
 	$datos=array(
 	'dedonde'=>$dedonde,
 	'numDoc'=>$numDoc,
-	'tipo'=>"compras",
-	'fechaCreacion'=>$fechaCreacion
+	'tipo'=>"compras"
+	//~ 'fechaCreacion'=>$fechaCreacion
 	);
 	 //~ $fecha=date_format($fecha, 'Y-m-d H:i:s');
 	//~ $resultado['datos']=$productos;
