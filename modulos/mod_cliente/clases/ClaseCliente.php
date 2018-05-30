@@ -115,6 +115,13 @@ class ClaseCliente extends modelo{
 			$ids=implode(', ', array_column($tickets['datos'], 'id'));
 			$sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`ticketslinea`	WHERE`idticketst` IN('.$ids.') and 
 			`estadoLinea` <> "Eliminado" GROUP BY idArticulo + `precioCiva`';
+			$productos=$this->consulta($sql);
+			if(isset($tickets['error'])){
+				$respuesta=$productos;
+			}else{
+				$respuesta['productos']=$productos['datos'];
+			}
+			
 		}
 		return $respuesta;
 	}
