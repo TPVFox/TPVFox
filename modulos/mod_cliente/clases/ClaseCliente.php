@@ -108,7 +108,6 @@ class ClaseCliente extends modelo{
 		$productos=array();
 		$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente.' and `Fecha` BETWEEN 
 		"'.$fechaIni.'" and  "'.$fechaFin.'"';
-		
 		$tickets=$this->consulta($sql);
 		if(isset($tickets['error'])){
 			$respuesta=$tickets;
@@ -116,9 +115,7 @@ class ClaseCliente extends modelo{
 			$ids=implode(', ', array_column($tickets['datos'], 'id'));
 			$sql='SELECT	*,	SUM(nunidades)	FROM	`ticketslinea`	WHERE`idticketst` IN('.$ids.') and 
 			`estadoLinea` <> "Eliminado" GROUP BY idArticulo + `precioCiva`';
-					
 		}
-		
 		return $respuesta;
 	}
 	
