@@ -55,6 +55,7 @@
 						</thead>
 						<tbody>
 						<?php 
+						$totalProductos=0;
 						foreach($arrayNums['productos'] as $producto){
 							$precio=$producto['totalUnidades']*$producto['precioCiva'];
 							echo '<tr>'
@@ -63,11 +64,22 @@
 							.'<td>'.number_format ($producto['precioCiva'],2).'</td>'
 							. '<td>'.number_format ($precio,2).'</td>'
 							. '</tr>';
+							$totalProductos=$totalProductos+$precio;
 						}
 						?>
 						</tbody>
 					</table>
-				
+					<div class="col-md-12">
+						<div class="col-md-9">
+						</div>
+						<div class="col-md-3">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<h3 class="panel-title">TOTAL: <?php echo $totalProductos;?></h3>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 				<div class="col-md-4 " >
 					<table class="col-md-12">
