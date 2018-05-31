@@ -445,6 +445,7 @@ function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
             idCliente: id,
             fechaInicial: fechaInicial,
             fechaFinal: fechaFinal
+           
         };
          $.ajax({
             data: parametros,
@@ -453,6 +454,7 @@ function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
             success: function (response) {
               var resultado =  $.parseJSON(response); 
 				console.log(resultado);
+				 window.open(resultado);
             },
            
         });
