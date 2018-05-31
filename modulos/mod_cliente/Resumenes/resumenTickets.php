@@ -64,6 +64,13 @@
 			}
 			$style="";
 			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
+			if(isset($arrayNums['error'])){
+				$errores[1]=array ( 'tipo'=>'DANGER!',
+								 'dato' => $arrayNums['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error no se han enviado corectamente las fechas'
+								 );
+			}
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => '',
@@ -78,7 +85,17 @@
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 		<?php
         include './../../../header.php';
-		?>
+       
+				
+				if (isset($errores)){
+				foreach($errores as $error){
+						echo '<div class="'.$error['class'].'">'
+						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+						. '</div>';
+				}
+				}
+				?>
+		
 		<div class="container">
 			<div class="col-md-12 text-center" >
 					<h2 class="text-center"> <?php echo $titulo;?></h2>
