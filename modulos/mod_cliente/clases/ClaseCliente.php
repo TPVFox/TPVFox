@@ -132,6 +132,14 @@ class ClaseCliente extends modelo{
 			}else{
 				$respuesta['resumenBases']=$resumenBases['datos'];
 			}
+			$sql='SELECT *, sum(importeIva) as sumiva , sum(totalbase) as sumBase from ticketstIva where idticketst 
+			in ('.$ids.')  GROUP BY iva;';
+			$desglose=$this->consulta($sql);
+			if(isset($desglose['error'])){
+				$respuesta=$desglose;
+			}else{
+				$respuesta['desglose']=$desglose['datos'];
+			}
 		}
 		return $respuesta;
 	}
