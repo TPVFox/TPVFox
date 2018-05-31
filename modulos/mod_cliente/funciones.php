@@ -152,27 +152,22 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 	switch($dedonde){
 			case 'ticket':
 				$url=$HostNombre.'/modulos/mod_tpv/ticketCobrado.php?id=';
+				$resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idCliente'].')" value="Resumen" name="Resumen" ></td>';
 			break;
 			case 'factura':
 				$url=$HostNombre.'/modulos/mod_venta/factura.php?id=';
+				$resumen="";
 			break;
 			case 'albaran':
 				$url=$HostNombre.'/modulos/mod_venta/albaran.php?id=';
+				$resumen="";
 			break;
 			case 'pedido':
 				$url=$HostNombre.'/modulos/mod_venta/pedido.php?id=';
+				$resumen="";
 			break;
 	}
-	$html='<table>
-		<tr>
-		<form method="post" name="formularioAdjunto">
-			<td>Fecha Inicio: <input type="date" size="10" id="fechaInicial" class="fechaInicial" value="" name="fechaInicial" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"></td>
-			<td>Fecha Fin: <input type="date" size="10"  id="fechaFin" class="fechaFin" value="" name="fechaFin" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"></td>
-			<td><br><input type="submit" class="btn btn-info" value="'.$dedonde.'" name="Resumen" ></td>
-		</form>
-		</tr>
-	</table>'
-	.'<table class="table table-striped">
+	$html=$resumen.'	<table class="table table-striped">
 		<thead>
 			<tr>
 				<td>Fecha</td>
