@@ -68,7 +68,7 @@
 				$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => $arrayNums['consulta'],
 								 'class'=>'alert alert-danger',
-								 'mensaje' => 'Error no se han enviado corectamente las fechas'
+								 'mensaje' => 'Error de sql'
 								 );
 			}
 		}else{

@@ -448,10 +448,11 @@ function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
         };
          $.ajax({
             data: parametros,
-            url: './tareas.php',
+            url: './../tareas.php',
             type: 'post',
             success: function (response) {
-              
+              var resultado =  $.parseJSON(response); 
+				console.log(resultado);
             },
            
         });
