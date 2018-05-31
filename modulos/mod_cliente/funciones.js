@@ -430,7 +430,8 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
-function resumen(dedonde, idUsuario){
+function resumen(dedonde, idCliente){
 	console.log(dedonde);
-	console.log(idUsuario);
+	console.log(idCliente);
+	window.location.href = './Resumenes/resumenTickets.php?id='+idCliente;
 }
