@@ -16,6 +16,7 @@
 		$titulo="";
 		$fechaInicial="";
 		$fechaFinal="";
+		$style='style="display:none;"';
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
 			$datosCliente=$Cliente->getCliente($id);
@@ -27,6 +28,7 @@
 								 );
 			}else{
 				$titulo='Resumen tickets';
+				
 			}
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
@@ -60,6 +62,7 @@
 				$fechaInicial =date_format(date_create($fechaIni), 'd-m-Y');
 				$fechaFinal =date_format(date_create($fechaFin), 'd-m-Y');
 			}
+			$style="";
 			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
@@ -100,7 +103,7 @@
 					
 					</form>
 				</div>
-				<div class="col-md-5 " >
+				<div class="col-md-5 " <?php echo $style;?>>
 					<h4 class="text-center" ><u>TOTALES</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
@@ -146,7 +149,7 @@
 			
 			
 				
-			<div class="col-md-6" >
+			<div class="col-md-6"   <?php echo $style;?>>
 				<h4 class="text-center" ><u>RESUMEN PRODUCTOS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
@@ -185,7 +188,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-md-6 " >
+				<div class="col-md-6 "   <?php echo $style;?>>
 					<h4 class="text-center" ><u>TICKETS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
@@ -217,7 +220,7 @@
 						
 						</tbody>
 					</table>
-					<div class="col-md-12">
+					<div class="col-md-12" >
 						<div class="col-md-5">
 						</div>
 						<div class="col-md-7">
