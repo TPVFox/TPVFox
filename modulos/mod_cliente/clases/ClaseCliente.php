@@ -106,6 +106,7 @@ class ClaseCliente extends modelo{
 	public function ticketClienteFechas($idCliente, $fechaIni, $fechaFin){
 		$respuesta=array();
 		$productos=array();
+		$resumenBases=array();
 		$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente.' and `Fecha` BETWEEN 
 		"'.$fechaIni.'" and  "'.$fechaFin.'"';
 		$tickets=$this->consulta($sql);
@@ -121,7 +122,16 @@ class ClaseCliente extends modelo{
 			}else{
 				$respuesta['productos']=$productos['datos'];
 			}
-			
+			$sql='SELECT i.* , sum(i.totalbase) as sumabase , sum(i.importeIva) 
+			as sumarIva, t.Fecha as fecha   from ticketstIva as i  
+			left JOIN ticketst as t on t.id=i.idticketst  where idticketst 
+			in ('.$ids.')  GROUP BY idticketst;';
+			$resumenBases=$this->consulta($sql);
+			if(isset($resumenBases['error'])){
+				$respuesta=$resumenBases;
+			}else{
+				$respuesta['resumenBases']=$resumenBases['datos'];
+			}
 		}
 		return $respuesta;
 	}

@@ -20,6 +20,7 @@
 			$idCliente=$_GET['idCliente'];
 			$titulo='Tickets del cliente '.$idCliente .' entre '.$fechaIni.' y '.$fechaFin;
 			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
+			
 			//~ echo '<pre>';
 			//~ print_r($arrayNums);
 			//~ echo '</pre>';
@@ -92,7 +93,36 @@
 								<th>TOTAL</th>
 							</tr>
 						</thead>
+						<tbody>
+						<?php 
+						$totalLinea=0;
+						$totalbases=0;
+							foreach($arrayNums['resumenBases'] as $bases){
+								$totalLinea=$bases['sumabase']+$bases['sumarIva'];
+								$totalbases=$totalbases+$totalLinea;
+								echo '<tr>
+								<td>'.$bases['fecha'].'</td>
+								<td></td>
+								<td>'.$bases['sumabase'].'</td>
+								<td>'.$bases['sumarIva'].'</td>
+								<td>'.$totalLinea.'</td>
+								</tr>';
+							}
+						?>
+						
+						</tbody>
 					</table>
+					<div class="col-md-12">
+						<div class="col-md-5">
+						</div>
+						<div class="col-md-7">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<h3 class="panel-title">TOTAL: <?php echo $totalbases;?></h3>
+								</div>
+							</div>
+						</div>
+					</div>
 					<table class="table table-striped table-bordered">
 						<thead>
 							<tr>
