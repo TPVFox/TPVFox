@@ -14,19 +14,38 @@
 		$Controler->loadDbtpv($BDTpv);
 		$errores=array();
 		$titulo="";
-		if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
-			$fechaIni=$_GET['fechaIni'];
-			$fechaFin=$_GET['fechaFin'];
-			$idCliente=$_GET['idCliente'];
-			$titulo='Tickets del cliente '.$idCliente .' entre '.$fechaIni.' y '.$fechaFin;
-			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
+		if(isset($_GET['id'])){
+			$id=$_GET['id'];
+			$datosCliente=$Cliente->getCliente($id);
+			if($datosCliente['error']){
+				 $errores[1]=array ( 'tipo'=>'DANGER!',
+								 'dato' => $datosCliente['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'Error en sql'
+								 );
+			}else{
+				$titulo='Resumen tickets : '.$id .' - '.$datosCliente['datos'][0]['Nombre'].' -  '.$datosCliente['datos'][0]['razonsocial'];
+			}
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => '',
 								 'class'=>'alert alert-danger',
-								 'mensaje' => 'Error no se han enviado corectamente las fechas'
+								 'mensaje' => 'Error no se ha enviado el id del cliente'
 								 );
 		}
+		//~ if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
+			//~ $fechaIni=$_GET['fechaIni'];
+			//~ $fechaFin=$_GET['fechaFin'];
+			//~ $idCliente=$_GET['idCliente'];
+			//~ $titulo='Tickets del cliente '.$idCliente .' entre '.$fechaIni.' y '.$fechaFin;
+			//~ $arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
+		//~ }else{
+			//~ $errores[1]=array ( 'tipo'=>'DANGER!',
+								 //~ 'dato' => '',
+								 //~ 'class'=>'alert alert-danger',
+								 //~ 'mensaje' => 'Error no se han enviado corectamente las fechas'
+								 //~ );
+		//~ }
 		?>
 	</head>
 	<body>
@@ -37,7 +56,7 @@
 		?>
 		<div class="container">
 			<div class="col-md-12 text-center" >
-				<h2><?php echo $titulo?></h2>
+				<h4><?php echo $titulo?></h4>
 			</div>
 			
 			<div class="col-md-8 " >
