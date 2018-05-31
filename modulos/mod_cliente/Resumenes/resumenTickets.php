@@ -65,7 +65,7 @@
 							.'<td>'.number_format ($producto['precioCiva'],2).'</td>'
 							. '<td>'.number_format ($precio,2).'</td>'
 							. '</tr>';
-							$totalProductos=$totalProductos+$precio;
+							$totalProductos=$totalProductos+number_format ($precio,2);
 						}
 						?>
 						</tbody>
@@ -126,12 +126,41 @@
 					<table class="table table-striped table-bordered">
 						<thead>
 							<tr>
+								<th></th>
 								<th>BASE</th>
 								<th>IVA</th>
 								<th>TOTAL</th>
 							</tr>
 						</thead>
+						<tbody>
+						<?php 
+						$totalLinea=0;
+						$totalDesglose=0;
+						foreach($arrayNums['desglose'] as $desglose){
+							$totalLinea=$desglose['sumBase']+$desglose['sumiva'];
+							$totalDesglose=$totalDesglose+$totalLinea;
+							echo '<tr>
+								<td>'.$desglose['iva'].'%</td>
+								<td>'.$desglose['sumBase'].'</td>
+								<td>'.$desglose['sumiva'].'</td>
+								<td>'.$totalLinea.'</td>
+							</tr>';
+						}
+						
+						?>
+						</tbody>
 					</table>
+					<div class="col-md-12">
+						<div class="col-md-5">
+						</div>
+						<div class="col-md-7">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<h3 class="panel-title">TOTAL: <?php echo $totalbases;?></h3>
+								</div>
+							</div>
+						</div>
+					</div>
 				
 				</div>
 			</div>
