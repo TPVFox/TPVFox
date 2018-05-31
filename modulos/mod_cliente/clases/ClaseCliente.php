@@ -107,8 +107,13 @@ class ClaseCliente extends modelo{
 		$respuesta=array();
 		$productos=array();
 		$resumenBases=array();
-		$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente.' and `Fecha` BETWEEN 
+		if($fechaIni=="" & $fechaFin==""){
+			$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente;
+		}else{
+			$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente.' and `Fecha` BETWEEN 
 		"'.$fechaIni.'" and  "'.$fechaFin.'"';
+		}
+		
 		$tickets=$this->consulta($sql);
 		if(isset($tickets['error'])){
 			$respuesta=$tickets;
@@ -122,7 +127,7 @@ class ClaseCliente extends modelo{
 			}else{
 				$respuesta['productos']=$productos['datos'];
 			}
-			$sql='SELECT i.* , sum(i.totalbase) as sumabase , sum(i.importeIva) 
+			$sql='SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
 			as sumarIva, t.Fecha as fecha   from ticketstIva as i  
 			left JOIN ticketst as t on t.id=i.idticketst  where idticketst 
 			in ('.$ids.')  GROUP BY idticketst;';
