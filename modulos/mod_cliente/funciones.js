@@ -435,3 +435,24 @@ function resumen(dedonde, idCliente){
 	console.log(idCliente);
 	window.location.href = './Resumenes/resumenTickets.php?id='+idCliente;
 }
+function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
+		console.log(dedonde);
+		console.log(id);
+		console.log(fechaInicial);
+		console.log(fechaFinal);
+		  var parametros = {
+			'pulsado' : 'imprimirResumenTickets',
+            idCliente: id,
+            fechaInicial: fechaInicial,
+            fechaFinal: fechaFinal
+        };
+         $.ajax({
+            data: parametros,
+            url: './tareas.php',
+            type: 'post',
+            success: function (response) {
+              
+            },
+           
+        });
+}

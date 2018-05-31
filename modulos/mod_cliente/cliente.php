@@ -112,9 +112,6 @@
 	
 			if(isset($_POST['Guardar'])){
 			$guardar=guardarCliente($_POST, $BDTpv);
-			//~ echo '<pre>';
-			//~ print_r($guardar);
-			//~ echo '</pre>';
 			if($guardar['cliente']['error']=="0"){
 				if($guardar['buscarCliente']['error']=="Existe"){
 					$errores[7]=array ( 'tipo'=>'Info!',
@@ -134,36 +131,8 @@
 								 );
 			}
 		}
-		//~ if(isset($_POST['Resumen'])){
-			//~ echo '<pre>';
-			//~ print_r($_POST['Resumen']);
-			//~ echo '</pre>';
-			//~ $comprobarFechas=comprobarFechas($_POST['fechaInicial'], $_POST['fechaFin']);
-			//~ echo '<pre>';
-			//~ print_r($comprobarFechas);
-			//~ echo '</pre>';
-			//~ $dedonde=$_POST['Resumen'];
-			//~ if(isset($comprobarFechas['error'])){
-				//~ $errores[8]=array ( 'tipo'=>'Info!',
-								 //~ 'dato' => $comprobarFechas['consulta'],
-								 //~ 'class'=>'alert alert-info',
-								 //~ 'mensaje' => ''
-								 //~ );
-			//~ }else{
-				//~ switch ($dedonde){
-					//~ case 'ticket':
-						 //~ header('Location: Resumenes/resumenTickets.php?fechaIni='.$comprobarFechas['fechaIni']
-						 //~ .'&fechaFin='.$comprobarFechas['fechaFin'].'&idCliente='.$id);
-					//~ break;
-				//~ }
-			//~ }
-			
-		//~ }
 		
 		?>
-		<!-- Cargamos libreria control de teclado -->
-		
-		
 	</head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
@@ -185,8 +154,6 @@
 						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
 						. '</div>';
 				}
-	
-				//~ return;
 				}
 				?>
 			
