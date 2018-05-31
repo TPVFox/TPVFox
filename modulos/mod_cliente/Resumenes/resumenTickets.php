@@ -20,10 +20,6 @@
 			$idCliente=$_GET['idCliente'];
 			$titulo='Tickets del cliente '.$idCliente .' entre '.$fechaIni.' y '.$fechaFin;
 			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
-			
-			//~ echo '<pre>';
-			//~ print_r($arrayNums);
-			//~ echo '</pre>';
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => '',

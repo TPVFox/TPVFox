@@ -430,3 +430,7 @@ function ponerFocus (destino_focus){
 	}, 50); 
 
 }
+function resumen(dedonde, idUsuario){
+	console.log(dedonde);
+	console.log(idUsuario);
+}
