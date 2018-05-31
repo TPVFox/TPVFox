@@ -27,6 +27,9 @@ switch ($pulsado) {
 		include_once("./tareas/leerArticulo.php");
 		$respuesta = $resultado;
 		break;
+	case 'imprimirResumenTickets':
+		include_once ("./tareas/imprimirResumenTickets.php");
+		$respuesta=$resultado;
 
 }
 echo json_encode($respuesta);
