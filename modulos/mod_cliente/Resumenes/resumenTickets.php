@@ -58,7 +58,25 @@
 			<div class="col-md-12 text-center" >
 				<h4><?php echo $titulo?></h4>
 			</div>
+			<div class="col-md-12" >
+				<div class="col-md-4 " >
+					<form method="post">
+					<label>Fecha Inicial</label>
+					<input type="date" id="fechaInicial" name="fechaInicial" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+					<label>Fecha Final</label>
+					<input type="date" id="fechaFinal" name="fechaFinal" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+					<br><br>
+					<input type="submit" name="porfechas" class="btn btn-info" value="Resumen fechas">
+					<input type="submit" name="portodo"class="btn btn-warning"  value="Todo">
+					
+					</form>
+				</div>
+				<div class="col-md-7 " >
+				</div>
+			</div>
 			
+			
+				
 			<div class="col-md-8 " >
 					<table class="table table-striped table-bordered">
 						<thead>
