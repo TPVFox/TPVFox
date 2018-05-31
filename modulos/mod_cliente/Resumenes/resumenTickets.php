@@ -82,23 +82,23 @@
 					</div>
 				</div>
 				<div class="col-md-4 " >
-					<table class="col-md-12">
+					<table class="table table-striped table-bordered">
 						<thead>
 							<tr>
-								<td>Fecha</td>
-								<td>Ticket</td>
-								<td>Base</td>
-								<td>IVA</td>
-								<td>Total</td>
+								<th>FECHA</th>
+								<th>TICKET</th>
+								<th>BASE</th>
+								<th>IVA</th>
+								<th>TOTAL</th>
 							</tr>
 						</thead>
 					</table>
-					<table class="col-md-12">
+					<table class="table table-striped table-bordered">
 						<thead>
 							<tr>
-								<td>Base</td>
-								<td>IVA</td>
-								<td>Total</td>
+								<th>BASE</th>
+								<th>IVA</th>
+								<th>TOTAL</th>
 							</tr>
 						</thead>
 					</table>
