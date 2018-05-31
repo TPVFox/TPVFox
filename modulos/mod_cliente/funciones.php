@@ -176,13 +176,17 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 			</tr>
 		</thead>
 		<tbody>';
-	
+	$i=0;
 		foreach($datos as $dato){
 			$html.='<tr>'.
 				'<td>'.$dato['fecha'].'</td>'.
 				'<td><a href="'.$url.$dato['id'].'">'.$dato['num'].'</a></td>'.
 				'<td>'.$dato['total'].'</td>'.
 			'</tr>';
+			$i++;
+			if($i==10){
+				break;
+			}
 		}
 		$html.='</tbody></table>';
 	}else{
