@@ -93,8 +93,8 @@
 					</form>
 				</div>
 				<div class="col-md-5 " >
-					<h4 class="text-center page-header" >TOTALES</h4>
-					<table class="table table-striped table-bordered">
+					<h4 class="text-center" ><u>TOTALES</u></h4>
+					<table class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
 								<th></th>
@@ -139,8 +139,8 @@
 			
 				
 			<div class="col-md-6" >
-				<h4 class="text-center page-header" >RESUMEN PRODUCTOS</h4>
-					<table class="table table-striped table-bordered">
+				<h4 class="text-center" ><u>RESUMEN PRODUCTOS</u></h4>
+					<table class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
 								<th>PRODUCTO</th>
@@ -166,9 +166,9 @@
 						</tbody>
 					</table>
 					<div class="col-md-12">
-						<div class="col-md-9">
+						<div class="col-md-7">
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-5">
 							<div class="panel panel-success">
 								<div class="panel-heading">
 									<h3 class="panel-title">TOTAL: <?php echo $totalProductos;?></h3>
@@ -178,8 +178,8 @@
 					</div>
 				</div>
 				<div class="col-md-6 " >
-					<h4 class="text-center page-header" >TICKETS</h4>
-					<table class="table table-striped table-bordered">
+					<h4 class="text-center" ><u>TICKETS</u></h4>
+					<table class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
 								<th>FECHA</th>
