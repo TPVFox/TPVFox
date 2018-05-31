@@ -19,14 +19,14 @@
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
 			$datosCliente=$Cliente->getCliente($id);
-			if($datosCliente['error']){
+			if(isset($datosCliente['error'])){
 				 $errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => $datosCliente['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'Error en sql'
 								 );
 			}else{
-				$titulo='Resumen tickets : '.$id .' - '.$datosCliente['datos'][0]['Nombre'].' -  '.$datosCliente['datos'][0]['razonsocial'];
+				$titulo='Resumen tickets';
 			}
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
@@ -38,9 +38,6 @@
 		
 		if(isset($_POST['porfechas'])){
 			$comprobarFechas=comprobarFechas($_POST['fechaInicial'], $_POST['fechaFinal']);
-			echo '<pre>';
-			print_r($comprobarFechas);
-			echo '</pre>';
 			if(isset($comprobarFechas['error'])){
 				$errores[8]=array ( 'tipo'=>'Info!',
 								 'dato' => $comprobarFechas['consulta'],
@@ -52,14 +49,18 @@
 						'&fechaFin='.$comprobarFechas['fechaFin'].'&id='.$id);
 			 }
 		}
+		if(isset($_POST['portodo'])){
+			 header('Location: resumenTickets.php?fechaIni=&fechaFin=&id='.$id);
+		}
 		if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
 			$fechaIni=$_GET['fechaIni'];
 			$fechaFin=$_GET['fechaFin'];
 			$idCliente=$_GET['id'];
-			$fechaInicial =date_format(date_create($fechaIni), 'd-m-Y');
-			$fechaFinal =date_format(date_create($fechaFin), 'd-m-Y');
+			if($fechaIni<>"" & $fechaFin<>""){
+				$fechaInicial =date_format(date_create($fechaIni), 'd-m-Y');
+				$fechaFinal =date_format(date_create($fechaFin), 'd-m-Y');
+			}
 			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
-			
 		}else{
 			$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => '',
@@ -77,10 +78,17 @@
 		?>
 		<div class="container">
 			<div class="col-md-12 text-center" >
-				<h4><?php echo $titulo?></h4>
+					<h2 class="text-center"> <?php echo $titulo;?></h2>
 			</div>
 			<div class="col-md-12" >
-				<div class="col-md-7 " >
+				<div class="col-md-3 " >
+					<h4><u>DATOS DEL CLIENTE</u></h4>
+					<b>ID: </b><?php echo $id;?></br>
+					<b>Nombre: </b><?php echo $datosCliente['datos'][0]['Nombre'];?></br>
+					<b>Razón social: </b><?php echo $datosCliente['datos'][0]['razonsocial'];?></br>
+					<b>NIF:</b><?php echo $datosCliente['datos'][0]['nif'];?></br>
+				</div>
+				<div class="col-md-4" >
 					<form method="post">
 					<label>Fecha Inicial</label>
 					<input type="date" id="fechaInicial" name="fechaInicial" value="<?php echo $fechaInicial;?>" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
@@ -196,9 +204,10 @@
 							foreach($arrayNums['resumenBases'] as $bases){
 								$totalLinea=$bases['sumabase']+$bases['sumarIva'];
 								$totalbases=$totalbases+$totalLinea;
+								$numTicket=$bases['idTienda'].'-'.$bases['idUsuario'].'-'.$bases['Numticket'];
 								echo '<tr>
 								<td>'.$bases['fecha'].'</td>
-								<td></td>
+								<td>'.$numTicket.'</td>
 								<td>'.$bases['sumabase'].'</td>
 								<td>'.$bases['sumarIva'].'</td>
 								<td>'.$totalLinea.'</td>
