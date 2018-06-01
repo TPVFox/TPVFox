@@ -302,10 +302,10 @@ class PedidosCompras extends ClaseCompras{
 	public function TodosPedidosLimite($limite = ''){
 		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
 		$db	=$this->db;
-		$Sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, 
+		$sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, 
 		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on 
 		a.idProveedor=b.idProveedor   '. $limite ;
-		$smt=$this->consulta($Sql);
+		$smt=$this->consulta($sql);
 		$pedidosPrincipal=array();
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
