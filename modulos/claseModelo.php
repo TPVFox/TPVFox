@@ -7,101 +7,50 @@
  * @Descripción	
  */
 
-
-define('ARTICULOS_MAXLINPAG', 12);
-
-define('K_TARIFACLIENTE_ESTADO_ACTIVO', '1');
-define('K_TARIFACLIENTE_ESTADO_BORRADO', '2');
+require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
 
 /**
  * Description of claseModelo
  *
  * @author alagoro
  */
-class Modelo {
-
-    protected $db;
-    protected $tabla;
-
-    public function __construct($conexion) {
-        $this->db = $conexion;
-    }
+class Modelo extends ModeloP {
 
     protected function consulta($sql) {
         // Realizamos la consulta.
+        $smt = parent::consulta($sql);
         $respuesta = [];
-        $respuesta['consulta'] = $sql;
-
-        $smt = $this->db->query($sql);
+        $respuesta['consulta'] = $this->getSQLConsulta();
         if ($smt) {
-            $respuesta['datos'] = $smt->fetch_all(MYSQLI_ASSOC);
-            // (!$datos)||count($datos)==1?$datos[0]:$datos;
+            $respuesta['datos'] = $smt;
         } else {
-            $respuesta['error'] = $this->db->error;
+            $respuesta['error'] = $this->getErrorConsulta();
         }
         return $respuesta;
     }
 
     protected function consultaDML($sql) {
         // Realizamos la consulta.
+        $smt = parent::consultaDML($sql);
         $respuesta = [];
         $respuesta['consulta'] = $sql;
 
-        $respuesta['error'] = $this->db->query($sql) ? '0' : $this->db->error;
+        $respuesta['error'] = $smt ? '0' : $this->getErrorConsulta();
 
         return $respuesta;
     }
 
     protected function insert($datos, $soloSQL = false) {
 
-        $updateStr = [];
-        if (is_array($datos)) {
-            foreach ($datos as $key => $value) {
-                $updateStr[] = $key . ' = \'' . $value . '\'';
-            }
-        } else {
-            $updateStr[] = $datos;
-        }
-        $updateString = implode(', ', $updateStr);
+        parent::insert($datos, $soloSQL);
 
-        $sql = 'INSERT ' . $this->tabla
-                . ' SET ' . $updateString;
-        if ($soloSQL) {
-            $consulta['consulta'] = $sql;
-        } else
-            $consulta = $this->consultaDML($sql);
-
-        return $consulta['consulta'];
+        return $this->getSQLConsulta();
     }
 
     protected function update($datos, $condicion, $soloSQL = false) {
+        parent::update($datos, $condicion, $soloSQL);
 
-        $updateSet = [];
-        if (is_array($datos)) {
-            foreach ($datos as $key => $value) {
-                $updateSet[] = $key . ' = \'' . $value . '\'';
-            }
-        } else {
-            $updateSet[] = $datos;
-        }
-
-        $updateString = implode(', ', $updateSet);
-
-        if (!is_array($condicion)) {
-            $updateWhere = $condicion;
-        } else {
-            $updateWhere = implode(' AND ', $condicion);
-        }
-
-        $sql = 'UPDATE ' . $this->tabla
-                . ' SET ' . $updateString
-                . ' WHERE ' . $updateWhere;
-        if ($soloSQL) {
-            $consulta['consulta'] = $sql;
-        } else
-            $consulta = $this->consultaDML($sql);
-
-        return $consulta['consulta'];
+        return $this->getSQLConsulta();
     }
 
 }
