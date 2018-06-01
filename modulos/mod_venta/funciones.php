@@ -294,7 +294,7 @@ function modificarArrayProductos($productos){
 			$sinIva=$producto['precioCiva']-$op1;
 			$sinIva=number_format($sinIva,2);
 		}
-		error_log($sinIva);
+		//~ error_log($sinIva);
 		$product['pvpSiva']=$sinIva;
 		$product['iva']=$producto['iva'];
 		$product['ccodbar']=$producto['ccodbar'];
