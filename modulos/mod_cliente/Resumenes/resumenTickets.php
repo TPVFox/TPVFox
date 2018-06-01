@@ -2,7 +2,6 @@
 <html>
     <head>
 		 <?php
-		// Reinicio variables
         include './../../../head.php';
          include './../funciones.php';
         include ("./../../../controllers/Controladores.php");
@@ -18,6 +17,8 @@
 		$fechaFinal="";
 		$style='style="display:none;"';
 		if(isset($_GET['id'])){
+			//Se cargar los datos del cliente, se controlan los errores de que no reciba id de cliente 
+			//y si hay error en la consulta 
 			$id=$_GET['id'];
 			$datosCliente=$Cliente->getCliente($id);
 			if(isset($datosCliente['error'])){
@@ -39,6 +40,7 @@
 		}
 		
 		if(isset($_POST['porfechas'])){
+			//Cuando se envia por fechas se comprueba que las fechas estan bien escritas y que están las dos
 			$comprobarFechas=comprobarFechas($_POST['fechaInicial'], $_POST['fechaFinal']);
 			if(isset($comprobarFechas['error'])){
 				$errores[8]=array ( 'tipo'=>'Info!',
@@ -52,9 +54,12 @@
 			 }
 		}
 		if(isset($_POST['portodo'])){
+			//Si buscamos todo recarga la página sin fechas
 			 header('Location: resumenTickets.php?fechaIni=&fechaFin=&id='.$id);
 		}
 		if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
+			//Cuando recibimos los datos tenga fechas escritas o no buscamos los resumenes en la clase 
+			//MOstramos errores de sql;
 			$fechaIni=$_GET['fechaIni'];
 			$fechaFin=$_GET['fechaFin'];
 			$idCliente=$_GET['id'];
@@ -254,10 +259,5 @@
 				</div>
 			</div>
 		</div>
-		<?php 
-		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-		?>
-
 	</body>
 </html>
