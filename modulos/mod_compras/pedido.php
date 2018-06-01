@@ -64,7 +64,7 @@
 			$productos=json_decode(json_encode($productosMod), true);
 		}else{
 			$bandera=1;
-			if ($_GET['tActual']){
+			if (isset($_GET['tActual'])){
 				$numPedidoTemp=$_GET['tActual'];
 				$pedido=$Cpedido->DatosTemporal($numPedidoTemp);
 				$estado=$pedido['estadoPedPro'];
