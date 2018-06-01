@@ -131,15 +131,17 @@
 						<?php 
 						$totalLinea=0;
 						$totalDesglose=0;
-						foreach($arrayNums['desglose'] as $desglose){
-							$totalLinea=$desglose['sumBase']+$desglose['sumiva'];
-							$totalDesglose=$totalDesglose+$totalLinea;
-							echo '<tr>
-								<td>'.$desglose['iva'].'%</td>
-								<td>'.$desglose['sumBase'].'</td>
-								<td>'.$desglose['sumiva'].'</td>
-								<td>'.$totalLinea.'</td>
-							</tr>';
+						if(isset($arrayNums['desglose'])){
+							foreach($arrayNums['desglose'] as $desglose){
+								$totalLinea=$desglose['sumBase']+$desglose['sumiva'];
+								$totalDesglose=$totalDesglose+$totalLinea;
+								echo '<tr>
+									<td>'.$desglose['iva'].'%</td>
+									<td>'.$desglose['sumBase'].'</td>
+									<td>'.$desglose['sumiva'].'</td>
+									<td>'.$totalLinea.'</td>
+								</tr>';
+							}
 						}
 						
 						?>
@@ -176,15 +178,17 @@
 						<tbody>
 						<?php 
 						$totalProductos=0;
-						foreach($arrayNums['productos'] as $producto){
-							$precio=$producto['totalUnidades']*$producto['precioCiva'];
-							echo '<tr>'
-							. '<td>'.$producto['cdetalle'].'</td>'
-							.'<td>'. number_format ($producto['totalUnidades'],2).'</td>'
-							.'<td>'.number_format ($producto['precioCiva'],2).'</td>'
-							. '<td>'.number_format ($precio,2).'</td>'
-							. '</tr>';
-							$totalProductos=$totalProductos+number_format ($precio,2);
+						if(isset($arrayNums['productos'])){
+							foreach($arrayNums['productos'] as $producto){
+								$precio=$producto['totalUnidades']*$producto['precioCiva'];
+								echo '<tr>'
+								. '<td>'.$producto['cdetalle'].'</td>'
+								.'<td>'. number_format ($producto['totalUnidades'],2).'</td>'
+								.'<td>'.number_format ($producto['precioCiva'],2).'</td>'
+								. '<td>'.number_format ($precio,2).'</td>'
+								. '</tr>';
+								$totalProductos=$totalProductos+number_format ($precio,2);
+							}
 						}
 						?>
 						</tbody>
@@ -217,6 +221,7 @@
 						<?php 
 						$totalLinea=0;
 						$totalbases=0;
+						if(isset($arrayNums['resumenBases'])){
 							foreach($arrayNums['resumenBases'] as $bases){
 								$totalLinea=$bases['sumabase']+$bases['sumarIva'];
 								$totalbases=$totalbases+$totalLinea;
@@ -229,6 +234,7 @@
 								<td>'.$totalLinea.'</td>
 								</tr>';
 							}
+						}
 						?>
 						
 						</tbody>
