@@ -251,10 +251,9 @@ if (isset($_GET['tActual'])){
 				}
 			}
 					?>
-<div class="col-md-12" >
+<div class="rot" >
 	<div class="col-md-8">
 		<div class="col-md-12">
-			
 				<div class="col-md-4">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
@@ -278,12 +277,11 @@ if (isset($_GET['tActual'])){
 		</div>
 	</div>
 	<div class="col-md-4" >
-	
-		<div>
 			<div style="margin-top:-50px;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
 			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
+			<div class="table-responsive">
 			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
 				<thead>
 				
@@ -307,8 +305,9 @@ if (isset($_GET['tActual'])){
 			</div>
 		</div>
 	</div>
+	</div>
 	<!-- Tabla de lineas de productos -->
-	<div>
+	<div >
 		<table id="tabla" class="table table-striped">
 		<thead>
 		  <tr>
@@ -328,10 +327,10 @@ if (isset($_GET['tActual'])){
 		  <tr id="Row0" style=<?php echo $style;?>>  
 			<td id="C0_Linea" ></td>
 			<td></td>
-			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="13" value=""  onkeydown="controlEventos(event)"></td>
+			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="6" value=""  onkeydown="controlEventos(event)"></td>
 			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="13" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)"></td>
 		  </tr>
 		</thead>
 		<tbody>
@@ -386,7 +385,7 @@ if (isset($_GET['tActual'])){
 				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
 			</div>
 		</div>
-	</div>
+	
 </form>
 </div>
 <?php // Incluimos paginas modales
