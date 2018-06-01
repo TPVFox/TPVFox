@@ -184,10 +184,12 @@ function controladorAcciones(caja,accion, tecla){
 		case 'saltar_idCliente':
 		console.log('Entro en acciones saltar_idCliente');
 		var dato = caja.darValor();
-			if ( dato.length === 0){
-				if(caja.id_input=="fecha"){
+		if(caja.id_input=="fecha"){
 					cabecera.fecha=dato;
-				}
+					var d_focus = 'id_cliente';
+				ponerFocus(d_focus);
+		}
+			if ( dato.length === 0){
 				var d_focus = 'id_cliente';
 				ponerFocus(d_focus);
 			}
