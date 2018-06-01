@@ -272,7 +272,7 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 			$respuesta = array();
 			$respuesta['Items'] = $albaranesPrincipal;
 			$respuesta['consulta'] = $sql;
-			$respuesta['limite']=$limite;
+			//~ $respuesta['limite']=$limite;
 			return $respuesta;
 		}
 	}
