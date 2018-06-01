@@ -125,9 +125,9 @@ function controladorAcciones(caja,accion, tecla){
 					}
 				}else{
 					 console.log("estoy aqui 2"+dato.length);
-					 if(dato==0){
-						ponerFocus(d_focus);
-				 }
+					
+						ponerFocus('id_proveedor');
+				 
 				}
 				
 			}
