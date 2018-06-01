@@ -210,7 +210,7 @@ class PedidosVentas extends ClaseVentas{
 			$respuesta = array();
 			$respuesta['Items'] = $pedidosPrincipal;
 			$respuesta['consulta'] = $sql;
-			$respuesta['limite']=$limite;
+			//~ $respuesta['limite']=$limite;
 			return $respuesta;
 		}
 	}

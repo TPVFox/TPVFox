@@ -70,7 +70,7 @@ class FacturasVentas extends ClaseVentas{
 			$respuesta = array();
 			$respuesta['Items'] = $facturaPrincipal;
 			$respuesta['consulta'] = $sql;
-			$respuesta['limite']=$limite;
+			//~ $respuesta['limite']=$limite;
 			return $respuesta;
 		}
 	}
