@@ -71,13 +71,8 @@
 								 'mensaje' => 'Error de sql'
 								 );
 			}
-		}else{
-			$errores[1]=array ( 'tipo'=>'DANGER!',
-								 'dato' => '',
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'Error no se han enviado corectamente las fechas'
-								 );
 		}
+		
 		?>
 	</head>
 	<body>
