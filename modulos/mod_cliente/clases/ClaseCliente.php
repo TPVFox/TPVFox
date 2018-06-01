@@ -88,6 +88,10 @@ class ClaseCliente extends modelo{
 		}
 	}
 	public function comprobarExistenDatos($datos){
+		//Objetivo:
+		//Comprobar cuando guardamos que le nif del cliente no es el mismo que otro cliente
+		//Parametros:
+		//Los datos del cliente
 		$respuesta=array();
 		$sql='select nif , idClientes  FROM clientes where nif="'.$datos['nif'].'"';
 		$consulta=$this->consulta($sql);
@@ -104,6 +108,18 @@ class ClaseCliente extends modelo{
 		}
 	}
 	public function ticketClienteFechas($idCliente, $fechaIni, $fechaFin){
+		//@Objetivo:
+		//MOstrar los datos para el resumen tanto si tienen fechas como si selecciona todos
+		//@Parametros:
+		//idCliente: id del cliente
+		//fechaInicio: fecha de inicio del resumen
+		//fechaFin: fecha de fin de resumen
+		//COnsultas:
+		//1º Busca el numero de tickets e id de tickets de un cliente
+		//2º Busca los productos sumando la cantidad y el importe (los productos que tienen precio de venta distinto los
+		// cuenta como productos individuales).
+		//3º Suma todas las bases y todos los ivas , los agrupa por iva
+		//4º Muestra el número del ticket con el total de bases y el total de ivas de cada ticket
 		$respuesta=array();
 		$productos=array();
 		$resumenBases=array();
