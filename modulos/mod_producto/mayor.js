@@ -35,9 +35,15 @@ function MayorProductos() {
         ajaxMayor(parametros, function (response) {
             var resultado = JSON.parse(response);
             if (resultado['html']) {
+                console.log(resultado['tiempo'])
                 $('#multiCollapseExample' + resultado['idproducto']).html(resultado['html']);
+                ajaxHtml2PDF({idproducto: resultado['idproducto'],
+                pulsado:'imprimePDFMayor'}, function (response) {
+                    var resultado = JSON.parse(response);
+                    $('#imprimir' + resultado['idproducto']).html(resultado['fichero']);
+                    console.log(resultado['tiempo']);
+                });
 //                $('#tablamayor').show();
-            $('#imprimir' + resultado['idproducto']).html(resultado['fichero']);
             } else {
                 $('#multiCollapseExample' + resultado['idproducto']).html(resultado['error']);
                 $('#imprimir' + resultado['idproducto']).html('');
@@ -50,6 +56,27 @@ function MayorProductos() {
 
 
 function ajaxMayor(parametros, callback) {
+
+    $.ajax({
+        data: parametros,
+        url: './tareasmayor.php',
+        type: 'post',
+        beforeSend: function () {
+            var html_spinner = '<div class="text-center">'
+                    + '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>'
+                    + '</div>';
+            $('#imprimir' + parametros.idproducto).html(html_spinner);
+            $('#visualizar' + parametros.idproducto).hide();
+
+        },
+        success: callback,
+        error: function (request, textStatus, error) {
+            console.log(textStatus);
+        }
+    });
+}
+
+function ajaxHtml2PDF(parametros, callback) {
 
     $.ajax({
         data: parametros,
