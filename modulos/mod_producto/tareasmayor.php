@@ -34,7 +34,38 @@ $Controler->loadDbtpv($BDTpv);
 include_once './clases/ClaseArticulos.php';
 include_once './funciones_mayor.inc.php';
 
+$inicio = microtime(true);
 switch ($pulsado) {
+
+    case 'imprimePDFMayor':
+        $idArticulo = $_POST['idproducto'];
+        $ficheroCa = $RutaServidor . $rutatmp . '/' . 'cabecera_' . $idArticulo . '.htmp';
+        if (file_exists($ficheroCa)) {
+            $fp = file_get_contents($ficheroCa);
+            $cabecera = json_decode($fp);
+            $ficheroCu = $RutaServidor . $rutatmp . '/' . 'cuerpo_' . $idArticulo . '.htmp';
+            if (file_exists($ficheroCu)) {
+                $fp = file_get_contents($ficheroCu);
+                $cuerpo = json_decode($fp);
+
+                $pdf = new imprimirPDF();
+                $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
+                $pdf->SetMargins(10, 30, 10);
+                $pdf->setCabecera($cabecera);
+                $pdf->AddPage();
+                $pdf->writeHTML($cuerpo);
+                $fichero = 'mayor' . $idArticulo . '.pdf';
+                $filename = $RutaServidor . $rutatmp . '/' . $fichero;
+                $pdf->Output($filename, 'F');
+            }
+        }
+        $resultado['idproducto'] = $idArticulo;
+        $resultado['fichero'] = '<a href="' . $rutatmp . '/' . $fichero . '" target="_blank">'
+                . '<span class="glyphicon glyphicon-print"></span> </a>';
+        $resultado['tiempo'] = microtime(true) - $inicio;
+
+        echo json_encode($resultado);
+        break;
 
     case 'imprimemayor':
 
@@ -48,7 +79,7 @@ switch ($pulsado) {
         // mensaje de error
 
         $resultado = [];
-        $articulo = new alArticulos($BDTpv);
+        $articulo = new alArticulos();
         if ($articulo->existe($idArticulo)) {
             $miarticulo = $articulo->leer($idArticulo);
             $nombreArticulo = $miarticulo['datos'][0]['idArticulo'] . ' ' . $miarticulo['datos'][0]['articulo_name'];
@@ -78,21 +109,26 @@ switch ($pulsado) {
                     , 'producto' => $nombreArticulo
                 ]);
                 $cuerpo = datamayor2html($sqldata['datos'], $sumas);
-                $pdf = new imprimirPDF();
-                $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
-                $pdf->SetMargins(10, 30, 10);
-                $pdf->setCabecera($cabecera);
-                $pdf->AddPage();
-                $pdf->writeHTML($cuerpo);
-                $fichero = 'mayor' . $idArticulo . '.pdf';
-                $filename = $RutaServidor . $rutatmp . '/' . $fichero;
-                $pdf->Output($filename, 'F');
+
+                $resultado['filecabecera'] = file_put_contents($RutaServidor . $rutatmp . '/' . 'cabecera_' . $idArticulo . '.htmp', json_encode($cabecera), LOCK_EX);
+                $resultado['filecuerpo'] = file_put_contents($RutaServidor . $rutatmp . '/' . 'cuerpo_' . $idArticulo . '.htmp', json_encode($cuerpo), LOCK_EX);
+                $resultado['fileca'] = 'cabecera_' . $idArticulo . '.htmp';
+                $resultado['tiempo'] = microtime(true) - $inicio;
+//                $pdf = new imprimirPDF();
+//                $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
+//                $pdf->SetMargins(10, 30, 10);
+//                $pdf->setCabecera($cabecera);
+//                $pdf->AddPage();
+//                $pdf->writeHTML($cuerpo);
+//                $fichero = 'mayor' . $idArticulo . '.pdf';
+//                $filename = $RutaServidor . $rutatmp . '/' . $fichero;
+//                $pdf->Output($filename, 'F');
 
                 $resultado['html'] = $cabecera . ' ' . $cuerpo;
-                $resultado['idproducto'] = $idArticulo;
-                $resultado['datos'] = $sqldata['datos'];
-                $resultado['fichero'] = '<a href="' . $rutatmp . '/' . $fichero . '" target="_blank">'
-                        . '<span class="glyphicon glyphicon-print"></span> </a>';
+//                $resultado['idproducto'] = $idArticulo;   //Está repe
+//                $resultado['datos'] = $sqldata['datos'];
+//                $resultado['fichero'] = '<a href="' . $rutatmp . '/' . $fichero . '" target="_blank">'
+//                        . '<span class="glyphicon glyphicon-print"></span> </a>';
             } else {
                 if ($sqldata['error']) {
                     $resultado['error'] = $sqldata['error'];
