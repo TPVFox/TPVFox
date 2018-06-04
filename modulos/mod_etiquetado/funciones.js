@@ -232,24 +232,29 @@ function repetirProducto(unidades, tipo){
 			success    :  function (response) {
 				console.log('Llegue devuelta repetir productos JS');
 				var resultado =  $.parseJSON(response); 
-				var filasNuevas = resultado['html'];
-				$("#tabla").append(filasNuevas);
-				console.log(resultado['productos']);
-				productosAdd=resultado['productos'];
-				for (i=0; i<productosAdd.length; i++){
-					var prod = new Object();
-					prod.nombre=productosAdd[i]['nombre'];
-					prod.peso=productosAdd[i]['peso'];
-					prod.precio=productosAdd[i]['precio'];
-					prod.Fecha=productosAdd[i]['Fecha'];
-					prod.NumAlb=productosAdd[i]['NumAlb'];
-					prod.codBarras=productosAdd[i]['codBarras'];
-					prod.estado=productosAdd[i]['estado'];
-					prod.Nfila=productosAdd[i]['Nfila'];
-					prod.crefTienda=productosAdd[i]['crefTienda'];
-					productos.push(prod);
+				if(resultado.error){
+					alert(resultado.error);
+				}else{
+					var filasNuevas = resultado['html'];
+					$("#tabla").append(filasNuevas);
+					console.log(resultado['productos']);
+					productosAdd=resultado['productos'];
+					for (i=0; i<productosAdd.length; i++){
+						var prod = new Object();
+						prod.nombre=productosAdd[i]['nombre'];
+						prod.peso=productosAdd[i]['peso'];
+						prod.precio=productosAdd[i]['precio'];
+						prod.Fecha=productosAdd[i]['Fecha'];
+						prod.NumAlb=productosAdd[i]['NumAlb'];
+						prod.codBarras=productosAdd[i]['codBarras'];
+						prod.estado=productosAdd[i]['estado'];
+						prod.Nfila=productosAdd[i]['Nfila'];
+						prod.crefTienda=productosAdd[i]['crefTienda'];
+						productos.push(prod);
+					}
+					addEtiquetadoTemporal()
 				}
-				addEtiquetadoTemporal()
+				
 				
 			}
 		});
@@ -319,7 +324,7 @@ function buscarProducto(valor="", caja=""){
 				var resultado =  $.parseJSON(response);
 				console.log(resultado);
 				if(resultado.error){
-					alert("Error de sql:"+resultado.consulta);
+					alert("Error:"+resultado.consulta);
 				}else{
 					if(resultado.Nitem==1){
 						cerrarPopUp();
