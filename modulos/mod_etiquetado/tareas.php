@@ -32,10 +32,15 @@ switch ($pulsado) {
 		if(isset($_POST['productos'])){
 			$numProd=count($_POST['productos']);
 		}
-		$htmlProductos=repetirLineasProducto($unidades, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd, $tipo);
-		$respuesta['numProd']=$numProd;
-		$respuesta['productos']=$htmlProductos['productos'];
-		$respuesta['html']=$htmlProductos['html'];
+		if($idProducto>0){
+			$htmlProductos=repetirLineasProducto($unidades, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd, $tipo);
+			$respuesta['numProd']=$numProd;
+			$respuesta['productos']=$htmlProductos['productos'];
+			$respuesta['html']=$htmlProductos['html'];
+		}else{
+			$respuesta['error']="No has seleccionado el producto";
+		}
+		
 	break;
 	case 'addEtiquetadoTemporal':
 	//@Objetivo: Añadir/Modificar etiqueta temporal
