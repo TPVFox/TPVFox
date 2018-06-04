@@ -463,5 +463,13 @@ class AlbaranesCompras extends ClaseCompras{
 			return $respuesta;
 		}
 	}
+	
+	public function NumfacturaDeAlbaran($numAlbaran){	
+		$db=$this->db;
+		$tabla='albprofac';
+		$where='`numAlbaran`='.$numAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
+		return $albaran;
+	}
 }
 ?>
