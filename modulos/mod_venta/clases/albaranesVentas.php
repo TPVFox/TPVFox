@@ -437,6 +437,14 @@ public function AddAlbaranGuardado($datos, $idAlbaran){
 				return $errores;
 			}
 	}
+	
+	public function NumfacturaDeAlbaran($numAlbaran){	
+		$db=$this->db;
+		$tabla='albclifac';
+		$where='`numAlbaran`='.$numAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
+		return $albaran;
+	}
 }
 
 ?>
