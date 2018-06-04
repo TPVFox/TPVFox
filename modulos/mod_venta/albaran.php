@@ -77,7 +77,17 @@
 			
 		$total=$Datostotales['total'];
 		
-		
+			if($estado=="Facturado"){
+				$numFactura=$Calbcli->NumfacturaDeAlbaran($idAlbaran);
+				if(isset($numFactura['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $numFactura['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}
+			
+			}
 	}else{
 		$bandera=1;
 			if (isset($_GET['tActual'])){//Recibido un albarán temporal
@@ -274,6 +284,11 @@ if (isset($_GET['tActual'])){
 			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
 			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('albaran')"></a>
+			<?php 
+			if(isset($numFactura)){
+				echo '<b>Número de factura asociado: '.$numFactura['numFactura'].'</b>';
+			}
+			?>
 		</div>
 	</div>
 	<div class="col-md-4" >
