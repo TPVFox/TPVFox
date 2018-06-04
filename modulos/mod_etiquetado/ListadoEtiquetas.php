@@ -11,7 +11,7 @@
 			$Controler = new ControladorComun; 
 			$Controler->loadDbtpv($BDTpv);
 			$CEtiquetas=new Modulo_etiquetado($BDTpv);
-			
+			$errores=array();
 			$todosTemporal=$CEtiquetas->todosTemporal();
 			if(isset($todosTemporal['error'])){
 				$errores[1]=array ( 'tipo'=>'Danger!',
@@ -28,7 +28,7 @@
 			$PgActual = 1; // por defecto.
 			$LimitePagina = 30; // por defecto.
 			$filtro = ''; // por defecto
-			$errores=array();
+			
 			
 			if (isset($_GET['pagina'])) {
 				$PgActual = $_GET['pagina'];
