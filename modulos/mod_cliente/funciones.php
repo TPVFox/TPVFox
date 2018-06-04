@@ -173,6 +173,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 				<td>Fecha</td>
 				<td>Número</td>
 				<td>Total</td>
+				<td>Estado</td>
 			</tr>
 		</thead>
 		<tbody>';
@@ -182,6 +183,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 				'<td>'.$dato['fecha'].'</td>'.
 				'<td><a href="'.$url.$dato['id'].'">'.$dato['num'].'</a></td>'.
 				'<td>'.$dato['total'].'</td>'.
+				'<td>'.$dato['estado'].'</td>'.
 			'</tr>';
 			$i++;
 			if($i==10){
