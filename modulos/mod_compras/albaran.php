@@ -63,7 +63,6 @@
 		}else{
 			$idAlbaran=$datosAlbaran['idAlbaran'];
 			$estado=$datosAlbaran['estado'];
-			//~ $fecha=$datosAlbaran['fecha'];
 			$fecha =date_format(date_create($datosAlbaran['fecha']), 'd-m-Y');
 			$formaPago=$datosAlbaran['formaPago'];
 			$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
@@ -75,6 +74,17 @@
 			$Datostotales=$datosAlbaran['DatosTotales'];
 			$pedidos=$datosAlbaran['pedidos'];
 			$textoNum=$idAlbaran;
+			if($estado=="Facturado"){
+				$numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
+				if(isset($numFactura['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $numFactura['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}
+			
+			}
 		}
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
@@ -320,6 +330,11 @@
 			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
 			<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" placeholder="Nombre del Proveedor" onkeydown="controlEventos(event)" value="<?php echo $nombreProveedor; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('albaran')"></a>
+			<?php 
+			if(isset($numFactura)){
+				echo '<b>Número de factura asociado: '.$numFactura['numFactura'].'</b>';
+			}
+			?>
 		</div>
 	</div>
 	<div class="col-md-4" >
