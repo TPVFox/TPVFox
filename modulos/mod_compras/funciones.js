@@ -99,6 +99,9 @@ function controladorAcciones(caja,accion, tecla){
 			if (caja.id_input=="suNumero"){
 				cabecera.suNumero=caja.darValor();
 			}
+			if (caja.id_input=="hora"){
+				cabecera.hora=caja.darValor();
+			}
 			if (caja.id_input=="fecha"){
 				cabecera.fecha=caja.darValor();
 			}
@@ -847,7 +850,8 @@ function addTemporal(dedonde=""){
 		"idReal":cabecera.idReal,
 		"fecha":cabecera.fecha,
 		"productos":JSON.stringify(productos),
-		"idProveedor":cabecera.idProveedor
+		"idProveedor":cabecera.idProveedor,
+		"hora":cabecera.hora
 	};
 	if (dedonde=="albaran"){
 		parametros['pedidos']=pedidos;

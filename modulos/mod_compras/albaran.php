@@ -25,6 +25,7 @@
 	$estado='Abierto';
 	//~ $fecha=date('Y-m-d');
 	$fecha=date('d-m-Y');
+	$hora="";
 	$idAlbaranTemporal=0;
 	$idAlbaran=0;
 	$idProveedor=0;
@@ -187,6 +188,7 @@
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = '<?php echo $fecha;?>';
+		cabecera['hora'] = '<?php echo $hora;?>';
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		 // Si no hay datos GET es 'Nuevo';
@@ -297,7 +299,7 @@
 				</div>
 				<div class="col-md-3">
 					<strong>Hora de entrega:</strong><br>
-					<input type="time" id="hora" value="<?php echo $hora;?>" name="hora" size="5" max="24:00" min="00:00" pattern="[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}" placeholder='HH:MM' title=" Formato de entrada HH:MM">
+					<input type="time" id="hora" value="<?php echo $hora;?>"  data-obj= "cajaHora" onkeydown="controlEventos(event)"  name="hora" size="5" max="24:00" min="00:00" pattern="[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}" placeholder='HH:MM' title=" Formato de entrada HH:MM">
 					
 				</div>
 				<div class="col-md-3">
