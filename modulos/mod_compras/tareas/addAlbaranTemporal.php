@@ -9,6 +9,7 @@
 			$fecha=$_POST['fecha'];
 			$fecha = new DateTime($fecha);
 			$fecha = $fecha->format('Y-m-d');
+			$hora="";
 			$hora=$_POST['hora'];
 			if($hora !=""){
 				$fecha1=$fecha.' '.$hora.':00';
