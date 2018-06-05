@@ -314,11 +314,11 @@
 				</div>
 		</div>
 		<div class="col-md-12">
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<strong>Su número:</strong><br>
 				<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<strong>Forma de pago:</strong><br>
 				<p id="formaspago">
 					<select name='formaVenci' id='formaVenci'>
@@ -331,9 +331,20 @@
 				</select>
 				</p>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 					<strong>Fecha vencimiento:</strong><br>
 					<input type="date" name="fechaVenci" id="fechaVenci" size="10"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="<?php echo $fechaVencimiento;?>"placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+			</div>
+			<div class="col-md-3">
+					<strong>Escoger casilla de salto:</strong><br>
+					<select id="salto" name="salto">
+						<option value="0">Seleccionar</option>
+						<option value="1">Id Articulo</option>
+						<option value="2">Referencia</option>
+						<option value="3">Referencia Proveedor</option>
+						<option value="4">Cod Barras</option>
+						<option value="5">Descripción</option>
+					</select>
 			</div>
 		</div>
 		<div class="form-group">
