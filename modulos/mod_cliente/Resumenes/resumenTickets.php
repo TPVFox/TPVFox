@@ -216,7 +216,7 @@
 						<thead>
 							<tr>
 								<th>FECHA</th>
-								<th>TICKET</th>
+								<th>FACTURA</th>
 								<th>BASE</th>
 								<th>IVA</th>
 								<th>TOTAL</th>
