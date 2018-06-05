@@ -373,6 +373,19 @@ if ($idCliente===0){
 				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="25" readonly>
 			</div>
 		</div>
+		<div class="col-md-12">
+		<div class="col-md-4">
+					<strong>Escoger casilla de salto:</strong><br>
+					<select id="salto" name="salto">
+						<option value="0">Seleccionar</option>
+						<option value="1">Id Articulo</option>
+						<option value="2">Referencia</option>
+						<option value="3">Referencia Proveedor</option>
+						<option value="4">Cod Barras</option>
+						<option value="5">Descripción</option>
+					</select>
+			</div>
+		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
 			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id' <?php echo $disabled;?>>
