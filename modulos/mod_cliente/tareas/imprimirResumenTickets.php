@@ -103,7 +103,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 				<td><b>'.$totalDesglose.'</b></td>
 				</tr>
 				</table>	
-				<h3>Resumen de tickets</h3>
+				<h3>Facturas simplificadas (Tickets)</h3>
 				<table  WIDTH="75%" border="1px">'.
 				'<tr>
 				<td  WIDTH="50%">Fecha</td>
