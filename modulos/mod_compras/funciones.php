@@ -1687,6 +1687,7 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 		
 				$estado=$datosAlbaran['estado'];
 				$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
+				$hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
 				if ($datosAlbaran['formaPago']){
 					$formaPago=$datosAlbaran['formaPago'];
 				}else{
@@ -1730,7 +1731,8 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 						'suNumero'=>$suNumero,
 						'productos'=>$productos,
 						'DatosTotales'=>$Datostotales,
-						'pedidos'=>$pedidos
+						'pedidos'=>$pedidos,
+						'hora'=>$hora
 					);
 					return $respuesta;
 			}
