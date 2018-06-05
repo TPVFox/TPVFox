@@ -202,13 +202,24 @@ if ($idProveedor===0){
 				<label>Estado:</label>
 				<input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<label>Usuario:</label>
 				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="13" readonly>
 			</div>
-			<div class="col-md-5">
+			<div class="col-md-3">
 				<label>Fecha Pedido:</label>
 				<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+			</div>
+				<div class="col-md-3">
+					<strong>Escoger casilla de salto:</strong><br>
+					<select id="salto" name="salto">
+						<option value="0">Seleccionar</option>
+						<option value="1">Id Articulo</option>
+						<option value="2">Referencia</option>
+						<option value="3">Referencia Proveedor</option>
+						<option value="4">Cod Barras</option>
+						<option value="5">Descripción</option>
+					</select>
 			</div>
 		<div class="col-md-12">
 			<label>Proveedor:</label>
