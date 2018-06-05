@@ -253,8 +253,9 @@ function controladorAcciones(caja,accion, tecla){
 			productos[nfila].ncant=caja.darValor();
 			recalculoImporte(productos[nfila].nunidades,nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
-				var d_focus = 'idArticulo';
-				ponerFocus(d_focus);
+				//~ var d_focus = 'idArticulo';
+				//~ ponerFocus(d_focus);
+				pornerFocusEnOpcionSalto();
 			}
 			
 			
@@ -717,7 +718,8 @@ function mostrarFila(){
 	//Mostrar la fila de inputs para añadir nuevos productos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
-	$('#Referencia').focus();
+	//~ $('#Referencia').focus();
+	pornerFocusEnOpcionSalto();
 }
 
 function buscarPedido(dedonde, idcaja, valor=''){
@@ -1380,4 +1382,32 @@ function mensajeCancelar(idTemporal, dedonde){
 			break;
 		}
 	}
+}
+function pornerFocusEnOpcionSalto(){
+	var valor = $("#salto").val();
+	switch(valor){
+		case '0':
+			d_focus='Referencia';
+		break;
+		case '1':
+			d_focus='idArticulo';
+		break;
+		case '2':
+			d_focus='Referencia';
+		break;
+		case '3':
+			d_focus='ReferenciaPro';
+		break;
+		case '4':
+			d_focus='Codbarras';
+		break;
+		case '5':
+			d_focus='Descripcion';
+		break;
+		default:
+			d_focus='Referencia';
+		break;
+		
+	}
+	ponerFocus(d_focus);
 }
