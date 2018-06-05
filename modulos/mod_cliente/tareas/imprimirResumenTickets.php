@@ -59,14 +59,14 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 			'<tr><td><font size="9"><b>Teléfono: </b>'.$datosCliente['telefono'].'</font></td>
 			<td><font size="9">Código Postal: </font></td></tr>'.
 			'<tr><td><font size="9">email: '.$datosCliente['email'].'</font></td><td></td></tr></table>'.
-			'<table WIDTH="80%" border="1px"><tr>
+			'';
+						
+		$html='<table WIDTH="80%" border="1px"><tr>
 			<td WIDTH="50%">Descripción del producto</td>
 			<td>Cantidad</td>
 			<td>Precio</td>
 			<td>Importe</td>
-			</tr></table>';
-						
-		$html='<table  WIDTH="80%" border="1px">';
+			</tr></table><table  WIDTH="80%" border="1px">';
 			foreach($arrayNums['productos'] as $producto){
 				$precio=$producto['totalUnidades']*$producto['precioCiva'];
 				$html.='<tr>'
