@@ -4,7 +4,8 @@
 		<?php 
 			include './../../head.php';
 			include './funciones.php';
-			include ("./../../plugins/paginacion/paginacion.php");
+			//~ include ("./../../plugins/paginacion/paginacion.php");
+			include ("./../../plugins/paginacion/ClasePaginacion.php");
 			include ("./../../controllers/Controladores.php");
 			include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 			include 'clases/modulo_etiquetado.php';
@@ -20,61 +21,36 @@
 										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 										 );
 			}
-			//~ echo '<pre>';
-			//~ print_r($todosTemporal);
-			//~ echo '</pre>'; 
-			$palabraBuscar=array();
-			$stringPalabras='';
-			$PgActual = 1; // por defecto.
-			$LimitePagina = 30; // por defecto.
-			$filtro = ''; // por defecto
+		
+	$Tienda = $_SESSION['tiendaTpv'];
+		
+	// ===========    Paginacion  ====================== //
+	$NPaginado = new PluginClasePaginacion(__FILE__);
+	$campos = array( 'b.articulo_name','a.num_lote');
+
+	$NPaginado->SetCamposControler($Controler,$campos);
+	// --- Ahora contamos registro que hay para es filtro --- //
+	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+
+	$CantidadRegistros=0;
+	// Obtenemos la cantidad registros 
+	$a = $CEtiquetas->todasEtiquetasLimite($filtro);
+		
+	$CantidadRegistros = count($a);
+
+	// --- Ahora envio a NPaginado la cantidad registros --- //
+	$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	$htmlPG = $NPaginado->htmlPaginado();
+	
+	$etiquetasFiltro=$CEtiquetas->todasEtiquetasLimite($filtro.$NPaginado->GetLimitConsulta());
+	if (isset($etiquetasFiltro['error'])){
+		$errores[1]=array ( 'tipo'=>'Danger!',
+				 'dato' => $etiquetasFiltro['consulta'],
+				 'class'=>'alert alert-danger',
+				 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+			 );
+	}	
 			
-			
-			if (isset($_GET['pagina'])) {
-				$PgActual = $_GET['pagina'];
-			}
-			if (isset($_GET['buscar'])) {  
-				//recibo un string con 1 o mas palabras
-				$stringPalabras = $_GET['buscar'];
-				$palabraBuscar = explode(' ',$_GET['buscar']); 
-			} 
-			$LinkBase = './ListadoEtiquetas.php?';
-			$OtrosParametros = '';
-			$paginasMulti = $PgActual-1;
-			if ($paginasMulti > 0) {
-				$desde = ($paginasMulti * $LimitePagina); 
-			} else {
-				$desde = 0;
-			}
-			$WhereLimite = array();
-			$WhereLimite['filtro'] = '';
-			$NuevoRango = '';
-			if ($stringPalabras !== '' ){
-					$campo = array( 'b.articulo_name');
-					$NuevoWhere = $Controler->ConstructorLike($campo, $stringPalabras, 'OR');
-					$NuevoRango=$Controler->ConstructorLimitOffset($LimitePagina, $desde);
-					$OtrosParametros=$stringPalabras;
-					$WhereLimite['filtro']='WHERE '.$NuevoWhere;
-			}
-			$CantidadRegistros=count($CEtiquetas->todasEtiquetasLimite($WhereLimite['filtro']));
-			$WhereLimite['rango']=$NuevoRango;
-			$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-			if ($stringPalabras !== '' ){
-				$filtro = $WhereLimite['filtro']." ORDER BY a.fecha_env desc  ".$WhereLimite['rango'];
-			} else {
-				$filtro= " ORDER BY a.fecha_env desc  LIMIT ".$LimitePagina." OFFSET ".$desde;
-			}	
-			$etiquetasFiltro=$CEtiquetas->todasEtiquetasLimite($filtro);
-			if (isset($etiquetasFiltro['error'])){
-				$errores[1]=array ( 'tipo'=>'Danger!',
-										 'dato' => $etiquetasFiltro['consulta'],
-										 'class'=>'alert alert-danger',
-										 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-										 );
-			}	
-			//~ echo '<pre>';
-			//~ print_r($etiquetasFiltro);
-			//~ echo '</pre>';	
 		?>
 	</head>
 	<body>
