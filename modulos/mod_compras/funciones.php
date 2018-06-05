@@ -939,9 +939,9 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	$suNumero="";
 	$formaPago="";
 	$fechaVenci="";
-	//~ $fecha=$datosPost['fecha'];
+	
 	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
-	//~ error_log($fecha);
+
 	$dedonde="albaran";
 	$idAlbaran=0;
 	$CAlb=new AlbaranesCompras($BDTpv);
@@ -967,10 +967,13 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 						$suNumero=$datosPost['suNumero'];
 					}
 					if (isset ($datosPost['fecha'])){
-						//~ $fecha=$datosPost['fecha'];
 						$fecha=date_format(date_create($datosPost['fecha']), 'Y-m-d');
+						if($datosPost['hora']){
+							$fecha1=$datosPost['fecha'].' '.$datosPost['hora'].':00';
+							$fecha=date_format(date_create($fecha1), 'Y-m-d H:i:s');
+							
+						}
 					}else{
-						//~ $fecha=$datosAlbaran['fechaInicio'];
 						$fecha=date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					}
 					if (isset ($datosAlbaran['Productos'])){
