@@ -50,6 +50,13 @@ function controladorAcciones(caja,accion, tecla){
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
 			break;
+		case 'Saltar_hora':
+			if (caja.id_input=="fecha"){
+				cabecera.fecha=caja.darValor();
+			}
+			var d_focus = 'hora';
+			ponerFocus(d_focus);
+		break;
 		
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.

@@ -116,6 +116,7 @@
 				}else{
 					//~ $fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
+					$hora=date_format(date_create($datosAlbaran['fechaInicio']),'H:i');
 				}
 				if ($datosAlbaran['Su_numero']!==""){
 					$suNumero=$datosAlbaran['Su_numero'];

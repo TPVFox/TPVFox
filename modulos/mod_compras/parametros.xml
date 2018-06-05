@@ -15,7 +15,7 @@
 			<teclas>
 				<action tecla="40">Saltar_idProveedorAbajo</action>
 				<action tecla="39">Saltar_idProveedor</action>
-				<action tecla="13">Saltar_idProveedor</action>
+				<action tecla="13">Saltar_hora</action>
 				<action tecla="9">Saltar_idProveedor</action>
 			</teclas>
 			<parametros>
