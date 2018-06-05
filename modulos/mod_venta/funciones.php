@@ -580,15 +580,15 @@ function htmlVencimiento($nuevafecha, $BDTpv){
 }
 function fechaVencimiento($fecha, $BDTpv){
 	if ($fecha>0){
-	$vencimiento=new TiposVencimientos($BDTpv);
-	$principal=$vencimiento->datosPrincipal($fecha);
-	$dias=$principal['dias'];
-	$string=" +".$dias." day ";
-	$fecha = date('Y-m-j');
-	$nuevafecha = strtotime($fecha.$string);
-	$nuevafecha = date ( 'Y-m-j' , $nuevafecha );
+		$vencimiento=new TiposVencimientos($BDTpv);
+		$principal=$vencimiento->datosPrincipal($fecha);
+		$dias=$principal['dias'];
+		$string=" +".$dias." day ";
+		$fecha = date('Y-m-j');
+		$nuevafecha = strtotime($fecha.$string);
+		$nuevafecha = date ( 'Y-m-d' , $nuevafecha );
 	}else{
-		 $nuevafecha = date('Y-m-j');
+		 $nuevafecha = date('Y-m-d');
 	}
 	return $nuevafecha;
 	

@@ -81,6 +81,7 @@
 		if (isset($datosFactura['fechaVencimiento'])){
 			$date=date_create($datosFactura['fechaVencimiento']);
 			$fechave=date_format($date,'Y-m-d');
+			echo $datosFactura['fechaVencimiento'];
 		}else{
 			$fec=date('Y-m-d');
 			echo $fec;
