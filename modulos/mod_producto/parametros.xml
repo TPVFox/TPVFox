@@ -106,7 +106,22 @@ Numero tecla:
 				<estado>Si</estado>
 			</before>
 		</caja_input>
-		
+		<caja_input>
+			<nombre id_input="pvpRecomendado">pvpRecomendado</nombre>
+			<teclas>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="prefijo">pvpRecomendado_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>			
+		</caja_input>
 		
 	</cajas_input>
 	

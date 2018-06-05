@@ -6,9 +6,21 @@
         include './funciones.php';
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
         include ("./../../controllers/Controladores.php");
+        
 		include '../mod_compras/clases/albaranesCompras.php';
 		include '../../clases/articulos.php';
 		include_once('../../clases/Proveedores.php');
+		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+		$Controler = new ControladorComun; 
+		$Controler->loadDbtpv($BDTpv);
+		$ClasesParametros = new ClaseParametros('parametros.xml');
+		$parametros = $ClasesParametros->getRoot();
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		//~ echo $VarJS;
+		
+		//~ echo '<pre>';
+		//~ print_r($parametros);
+		//~ echo '</pre>';
 		$CProveedor=new Proveedores($BDTpv);
 		//~ $volver = 
 		$CAlbaran=new AlbaranesCompras($BDTpv);
@@ -40,7 +52,7 @@
 				if ($producto['estado']=="Pendiente"){
 					$idArticulo=$producto['idArticulo'];
 					
-					$pvpRecomendadoCiva=$_POST['pvpRecomendado'.$i];
+					$pvpRecomendadoCiva=$_POST['pvpRecomendado_'.$i];
 					$pvpRecomendadoCiva=(float)$pvpRecomendadoCiva;
 					
 					$datosArticulo=$CArticulo->datosPrincipalesArticulo($idArticulo);
@@ -104,6 +116,7 @@
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 	<script type="text/javascript">
+		<?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
           return (tecla != 13);
@@ -204,7 +217,7 @@
 					echo '<td>'.$datosArticulo['beneficio'].'</td>';
 					echo '<td>'.$datosArticulo['iva'].'</td>';
 					echo '<td>'.number_format($datosPrecios['pvpCiva'],4).'</td>';
-					echo '<td><input type="text" id="pvpRecomendado'.$i.'" name="pvpRecomendado'.$i.'" value="'.number_format($pvpRecomendado,2).'" size="5"></td>';
+					echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"  onkeydown="controlEventos(event)" data-obj="pvpRecomendado" value="'.number_format($pvpRecomendado,2).'" size="5"></td>';
 					if ($producto['estado']=="Pendiente"){
 						echo '<td class="eliminar"><a onclick="eliminarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-trash"></span></a></td>';
 					}else{
