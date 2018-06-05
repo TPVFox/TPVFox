@@ -288,16 +288,22 @@
 <div class="row" >
 	<div class="col-md-8">
 		<div class="col-md-12">
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+					
 				</div>
-				<div class="col-md-4">
+				<div class="col-md-3">
+					<strong>Hora de entrega:</strong><br>
+					<input type="time" name="hora" size="5" max="24:00" min="00:00" pattern="[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}" placeholder='HH:MM' title=" Formato de entrada HH:MM">
+					
+				</div>
+				<div class="col-md-3">
 					<strong>Estado:</strong><br>
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
 				</div>
 			
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
 				</div>
