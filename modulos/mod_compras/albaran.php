@@ -74,6 +74,8 @@
 			$Datostotales=$datosAlbaran['DatosTotales'];
 			$pedidos=$datosAlbaran['pedidos'];
 			$textoNum=$idAlbaran;
+			$hora=$datosAlbaran['hora'];
+			
 			if($estado=="Facturado"){
 				$numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
 				if(isset($numFactura['error'])){
@@ -295,7 +297,7 @@
 				</div>
 				<div class="col-md-3">
 					<strong>Hora de entrega:</strong><br>
-					<input type="time" id="hora" name="hora" size="5" max="24:00" min="00:00" pattern="[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}" placeholder='HH:MM' title=" Formato de entrada HH:MM">
+					<input type="time" id="hora" value="<?php echo $hora;?>" name="hora" size="5" max="24:00" min="00:00" pattern="[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}" placeholder='HH:MM' title=" Formato de entrada HH:MM">
 					
 				</div>
 				<div class="col-md-3">
