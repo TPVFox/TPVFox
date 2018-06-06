@@ -70,7 +70,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 			<?php 
 			if(count($datos)>0){
 				?>
-				  <a  class="pull-right" href="ListaClientes.php">Imprimir Tarifas</a>
+				  <input type="text" class="btn btn-info pull-right"    onclick="imprimirTarifa(<?php echo $idcliente; ?>)" value="Imprimir Tarifas">
 				<?php
 			}
 			?>
