@@ -7,7 +7,10 @@ class ClaseIva extends modelo{
 		$sql= 'SELECT * FROM iva ';
 		return $this->consulta($sql);
 	}
-	
+	public function getDatos($id){
+		$sql='SELECT * FROM iva WHERE idIva='.$id;
+		return $this->consulta($sql);
+	}
 }
 
 

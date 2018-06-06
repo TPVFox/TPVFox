@@ -8,6 +8,7 @@ class ClaseFormasPago extends modelo{
 		return $this->consulta($sql);
 	}
 	
+	
 }
 
 
