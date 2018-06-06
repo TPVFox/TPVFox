@@ -26,18 +26,18 @@ function crearModalIva($id, $BDTpv){
 	}
 	$html['html']='<div class="col-md-12">
 			<div class="col-md-4">
-			<label>Id:</label><input type="text" value="'.$datos['idIva'].'" readonly="readonly" size="3">
+			<label>Id:</label><input type="text" id="id" value="'.$datos['idIva'].'" readonly="readonly" size="3">
 			</div>
 			<div class="col-md-8">
-			<label>Descripción:</label><input type="text" value="'.$datos['descripcionIva'].'">
+			<label>Descripción:</label><input id="descripcion" type="text" value="'.$datos['descripcionIva'].'">
 			</div>
 			</div>
 		<div class="col-md-12">
 			<div class="col-md-4">
-			<label>Iva:</label> <input type="text" value="'.$datos['iva'].'" size="5">%
+			<label>Iva:</label> <input type="text" id="iva" value="'.$datos['iva'].'" size="5">%
 			</div>
 			<div class="col-md-8">
-			<label>Recargo:</label> <input type="text" value="'.$datos['recargo'].'" size="5">
+			<label>Recargo:</label> <input type="text" id="recargo" value="'.$datos['recargo'].'" size="5">
 			</div>
 		</div>
 		<div class="col-md-12">
@@ -62,10 +62,10 @@ function crearModalForma($id, $BDTpv){
 	}
 	$html['html']='<div class="col-md-12">
 			<div class="col-md-4">
-			<label>Id:</label><input type="text" value="'.$datos['id'].'" readonly="readonly" size="3">
+			<label>Id:</label><input type="text" id="id" value="'.$datos['id'].'" readonly="readonly" size="3">
 			</div>
 			<div class="col-md-8">
-			<label>Descripción:</label><input type="text" value="'.$datos['descripcion'].'">
+			<label>Descripción:</label><input id="descripcion" type="text" value="'.$datos['descripcion'].'">
 			</div>
 			</div>
 		<div class="col-md-12">
@@ -89,10 +89,10 @@ function crearModalVencimiento($id, $BDTpv){
 	}
 	$html['html']='<div class="col-md-12">
 			<div class="col-md-4">
-			<label>Id:</label><input type="text" value="'.$datos['id'].'" readonly="readonly" size="3">
+			<label>Id:</label><input type="text" id="id" value="'.$datos['id'].'" readonly="readonly" size="3">
 			</div>
 			<div class="col-md-8">
-			<label>Descripción:</label><input type="text" value="'.$datos['descripcion'].'">
+			<label>Descripción:</label><input id="descripcion" type="text" value="'.$datos['descripcion'].'">
 			</div>
 			</div>
 		<div class="col-md-12">

@@ -21,3 +21,18 @@ function abrirmodal(id, dedonde){
 		}
 	});
 }
+function modificarTabla(dedonde){
+	var datos = [];
+	datos[0]=($("#id").val());
+	datos[1]=($("#descripcion").val());
+	if(dedonde=="iva"){
+		datos[2]=($("#iva").val());
+		datos[3]=($("#recargo").val());
+	}
+	var parametros = {
+		"pulsado"    : 'ModificarTabla',
+		"dedonde" : dedonde,
+		"datos":datos
+	};
+	
+}
