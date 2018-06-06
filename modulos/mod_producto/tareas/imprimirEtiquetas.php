@@ -19,6 +19,8 @@ $respuesta = array();
 			case 3:
 				$imprimir=ImprimirA7($productos);
 			break;
+			case 4:
+				$imprimir=ImprimirA9($productos);
 		}
 		
 		$cabecera=$imprimir['cabecera'];
