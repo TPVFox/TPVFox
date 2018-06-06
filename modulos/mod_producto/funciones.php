@@ -638,6 +638,7 @@ function ImprimirA8($productos){
 		'cabecera'=>''
 	);
 	$i=0;
+	$t=0;
 	$imprimir['html'].="";
 	$imprimir['html'].='<table border="1px">';
 	$imprimir['html'].='<tr>';
@@ -671,6 +672,12 @@ function ImprimirA8($productos){
 		}
 		
 		$i++;
+		
+		$t++;
+		if($t==24){
+			$imprimir['html'].='</table><br><br><br><table border="1px">';
+			$t=0;
+		}
 	}
 	if($i<=2){
 		$rep=3-$i;
