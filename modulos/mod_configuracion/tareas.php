@@ -11,6 +11,10 @@ switch ($pulsado) {
 		$html=abrirModal($_POST['id'], $_POST['dedonde'], $BDTpv);
 		$respuesta=$html;
 	break;
+	case 'ModificarTabla':
+		$datos=$_POST['datos'];
+		
+	break;
 	
 	
 	
