@@ -6,7 +6,7 @@ class ClaseIncidencia{
 	public function __construct($conexion){
 		$this->db = $conexion;
 	
-		$sql = 'SELECT MAX(num_incidencia)  as num_reg FROM `modulo_incidencia';
+		$sql = 'SELECT MAX(num_incidencia)  as num_reg FROM modulo_incidencia';
 		$respuesta = $this->consulta($sql);
 		$this->num_incidencia = $respuesta->fetch_object()->num_reg;
 		
