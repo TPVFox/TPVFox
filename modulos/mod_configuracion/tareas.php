@@ -1,11 +1,15 @@
 <?php 
+
 $pulsado = $_POST['pulsado'];
-include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseIva.php';
+include_once 'clases/ClaseIva.php';
+include_once 'clases/ClaseFormasPago.php';
+include_once 'clases/ClaseVencimiento.php';
+include_once 'funciones.php';
+include_once ("./../../inicial.php");
 switch ($pulsado) {
 	case 'abrirModalModificar':
-		$html=abrirModal($_POST['id'], $_POST['dedonde']);
+		$html=abrirModal($_POST['id'], $_POST['dedonde'], $BDTpv);
 		$respuesta=$html;
-	
 	break;
 	
 	

@@ -14,6 +14,7 @@ function abrirmodal(id, dedonde){
 		success    :  function (response) {
 			console.log('Respuesta de abrir el modal de modificar');
 			var resultado =  $.parseJSON(response);
+			console.log(resultado);
 			titulo="Modificar Elemento de tabla "+dedonde;
 			html=resultado.html;
 			abrirModal(titulo, html);

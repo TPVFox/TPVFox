@@ -7,7 +7,10 @@ class ClaseFormasPago extends modelo{
 		$sql= 'SELECT * FROM formasPago ';
 		return $this->consulta($sql);
 	}
-	
+	public function getDatos($id){
+		$sql='SELECT * FROM formasPago WHERE id='.$id;
+		return $this->consulta($sql);
+	}
 	
 }
 
