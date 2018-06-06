@@ -16,6 +16,7 @@ $todosVencimiento=$Vencimiento->cargarDatos();
 
 
 ?>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_configuracion/funciones.js"></script>
   <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 </head>
 <body>
@@ -48,7 +49,7 @@ $todosVencimiento=$Vencimiento->cargarDatos();
 								echo '<td>'.$iva['descripcionIva'].'</td>';
 								echo '<td>'.$iva['iva'].'</td>';
 								echo '<td>'.$iva['recargo'].'</td>';
-								echo '<td></td>';
+								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$iva['idIva'].', "iva")"></a></td>';
 								echo '</tr>';
 							}
 							
@@ -72,7 +73,7 @@ $todosVencimiento=$Vencimiento->cargarDatos();
 								echo '<tr>';
 								echo '<td>'.$forma['id'].'</td>';
 								echo '<td>'.$forma['descripcion'].'</td>';
-								echo '<td></td>';
+								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$forma['id'].', "forma")"></a></td>';
 								echo '</tr>';
 							}
 							
@@ -98,14 +99,19 @@ $todosVencimiento=$Vencimiento->cargarDatos();
 								echo '<td>'.$venci['id'].'</td>';
 								echo '<td>'.$venci['descripcion'].'</td>';
 								echo '<td>'.$venci['dias'].'</td>';
-								echo '<td></td>';
+								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$venci['id'].', "vencimiento")"></a></td>';
 								echo '</tr>';
 							}
-							
 							?>
 						</tbody>
 					</table>
 			</div>
 		</div>
 	</div>
+	<?php // Incluimos paginas modales
+			echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+			include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+			// hacemos comprobaciones de estilos 
+			?>
 </body>
+	
