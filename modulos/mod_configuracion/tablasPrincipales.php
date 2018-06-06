@@ -4,8 +4,14 @@
 <?php 
 include './../../head.php';
 include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseIva.php';
+include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseFormasPago.php';
+include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseVencimiento.php';
 $iva=new ClaseIva($BDTpv);
+$formas=new ClaseFormasPago($BDTpv);
+$Vencimiento=new ClaseVencimiento($BDTpv);
 $todosIvas=$iva->cargarDatos();
+$todosFormas=$formas->cargarDatos();
+$todosVencimiento=$Vencimiento->cargarDatos();
 
 
 
@@ -60,6 +66,18 @@ $todosIvas=$iva->cargarDatos();
 								<th></th>
 							</tr>
 						</thead>
+						<tbody>
+							<?php 
+							foreach($todosFormas['datos'] as $forma){
+								echo '<tr>';
+								echo '<td>'.$forma['id'].'</td>';
+								echo '<td>'.$forma['descripcion'].'</td>';
+								echo '<td></td>';
+								echo '</tr>';
+							}
+							
+							?>
+						</tbody>
 					</table>
 			</div>
 			<div class="col-md-4  text-center">
@@ -69,9 +87,23 @@ $todosIvas=$iva->cargarDatos();
 							<tr>
 								<th>ID</th>
 								<th>Descripción</th>
+								<th>Días</th>
 								<th></th>
 							</tr>
 						</thead>
+						<tbody>
+							<?php 
+							foreach($todosVencimiento['datos'] as $venci){
+								echo '<tr>';
+								echo '<td>'.$venci['id'].'</td>';
+								echo '<td>'.$venci['descripcion'].'</td>';
+								echo '<td>'.$venci['dias'].'</td>';
+								echo '<td></td>';
+								echo '</tr>';
+							}
+							
+							?>
+						</tbody>
 					</table>
 			</div>
 		</div>
