@@ -470,8 +470,13 @@ function imprimirTarifa(idCliente){
             type: 'post',
             success: function (response) {
               var resultado =  $.parseJSON(response); 
-				console.log(resultado);
-				 window.open(resultado);
+              if(resultado.error){
+				  alert(resultado.error);
+			  }else{
+				  window.open(resultado);
+			  }
+				
+				 
             },
            
         });
