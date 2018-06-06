@@ -3,9 +3,11 @@
     <head>
 <?php 
 include './../../head.php';
+include ("./../../controllers/Controladores.php");
 include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseIva.php';
 include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseFormasPago.php';
 include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseVencimiento.php';
+include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/funciones.php';
 $iva=new ClaseIva($BDTpv);
 $formas=new ClaseFormasPago($BDTpv);
 $Vencimiento=new ClaseVencimiento($BDTpv);
@@ -16,7 +18,7 @@ $todosVencimiento=$Vencimiento->cargarDatos();
 
 
 ?>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_configuracion/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_configuracion/funciones.js"></script>
   <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 </head>
 <body>
@@ -49,7 +51,7 @@ $todosVencimiento=$Vencimiento->cargarDatos();
 								echo '<td>'.$iva['descripcionIva'].'</td>';
 								echo '<td>'.$iva['iva'].'</td>';
 								echo '<td>'.$iva['recargo'].'</td>';
-								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$iva['idIva'].', "iva")"></a></td>';
+								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$iva['idIva'].', '."'".'iva'."'".')"></a></td>';
 								echo '</tr>';
 							}
 							
@@ -73,7 +75,7 @@ $todosVencimiento=$Vencimiento->cargarDatos();
 								echo '<tr>';
 								echo '<td>'.$forma['id'].'</td>';
 								echo '<td>'.$forma['descripcion'].'</td>';
-								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$forma['id'].', "forma")"></a></td>';
+								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$forma['id'].', '."'".'forma'."'".')"></a></td>';
 								echo '</tr>';
 							}
 							
@@ -99,7 +101,7 @@ $todosVencimiento=$Vencimiento->cargarDatos();
 								echo '<td>'.$venci['id'].'</td>';
 								echo '<td>'.$venci['descripcion'].'</td>';
 								echo '<td>'.$venci['dias'].'</td>';
-								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$venci['id'].', "vencimiento")"></a></td>';
+								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirmodal('.$venci['id'].', '."'".'vencimiento'."'".')"></a></td>';
 								echo '</tr>';
 							}
 							?>

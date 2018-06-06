@@ -7,7 +7,10 @@ class ClaseVencimiento extends modelo{
 		$sql= 'SELECT * FROM tiposVencimiento ';
 		return $this->consulta($sql);
 	}
-	
+	public function getDatos($id){
+		$sql='SELECT * FROM tiposVencimiento WHERE id='.$id;
+		return $this->consulta($sql);
+	}
 }
 
 
