@@ -765,7 +765,7 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 		"productos"			:productos
 		
 	};
-	
+	console.log(tamano);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
