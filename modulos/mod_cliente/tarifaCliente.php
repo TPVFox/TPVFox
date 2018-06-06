@@ -67,7 +67,13 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
         <div class="container">
             <h2 class="text-center"> Tarifa de Cliente </h2>
-
+			<?php 
+			if(count($datos)>0){
+				?>
+				  <a  class="pull-right" href="ListaClientes.php">Imprimir Tarifas</a>
+				<?php
+			}
+			?>
             <a  href="ListaClientes.php">Volver Atrás</a>
 
             <input type="text" style="display:none;" name="idTemporal" value=0>
