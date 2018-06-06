@@ -466,7 +466,7 @@ function imprimirTarifa(idCliente){
         };
        $.ajax({
             data: parametros,
-            url: './../tareas.php',
+            url: './tareas.php',
             type: 'post',
             success: function (response) {
               var resultado =  $.parseJSON(response); 
