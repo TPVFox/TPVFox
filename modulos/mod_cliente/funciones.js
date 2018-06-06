@@ -474,6 +474,7 @@ function imprimirTarifa(idCliente){
 				  alert(resultado.error);
 			  }else{
 				  window.open(resultado);
+				  //~ console.log(resultado);
 			  }
 				
 				 
