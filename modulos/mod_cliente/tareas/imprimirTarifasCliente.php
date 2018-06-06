@@ -32,17 +32,17 @@ if(isset($tarifaCliente['error'])){
 			<td><font size="9">'.$datosCliente['direccion'].'</font></td></tr>'.
 			'<tr><td><font size="9"><b>Teléfono: </b>'.$datosCliente['telefono'].'</font></td>
 			<td><font size="9">Código Postal: </font></td></tr>'.
-			'<tr><td><font size="9">email: '.$datosCliente['email'].'</font></td><td></td></tr></table>';
-			 $cabecera.='<table  WIDTH="80%" border="1px">
-				<tr>
-					<td>IdArticulo</td>
-					<td>Descripción</td>
-					<td>Precio S/IVA</td>
-					<td>% IVA/td>
-					<td>Precio C/IVA</td>
-				</tr>
-			</table>';
-			
+			'<tr><td><font size="9">email: '.$datosCliente['email'].'</font></td><td></td></tr></table>'.
+			'<table WIDTH="80%" border="1px">'.
+				'<tr>'.
+					'<td>IdArticulo</td>'.
+					'<td WIDTH="40%">Descripción</td>'.
+					'<td>Precio S/IVA</td>'.
+					'<td>IVA</td>'.
+					'<td>Precio C/IVA</td>'.
+				'</tr>'.
+			'</table>';
+		
 		$html='<table  WIDTH="80%">';
 		foreach($datos as $tarifaCliente){
 			$html.='<tr>
@@ -60,7 +60,8 @@ if(isset($tarifaCliente['error'])){
 		include ('../../clases/imprimir.php');
 		include('../../controllers/planImprimir.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-		$resultado=$ficheroCompleto;
+		 $resultado=$ficheroCompleto;
+		//~ $resultado=$cabecera;
 }
 
 
