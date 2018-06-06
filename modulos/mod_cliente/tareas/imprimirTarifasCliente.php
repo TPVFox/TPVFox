@@ -6,28 +6,16 @@ $idCliente=$_POST['idCliente'];
 if(isset($idCliente)){
 	$datosCliente=$Cliente->getCliente($idCliente);
 	if(isset($datosCliente['error'])){
-	 $resultado['error']=array ( 'tipo'=>'DANGER!',
-		 'dato' => $datosCliente['consulta'],
-		 'class'=>'alert alert-danger',
-		 'mensaje' => 'Error en sql'
-		 );
+		$resultado['error']=$datosCliente['consulta'];
 	}else{
 		$datosCliente=$datosCliente['datos'][0];
 	}
 }else{
-	$resultado['error']=array ( 'tipo'=>'DANGER!',
-		'dato' => '',
-		'class'=>'alert alert-danger',
-		'mensaje' => 'Error no se ha enviado el id del cliente'
-		);
+	$resultado['error']='Error no se ha enviado el id del cliente';
 }
 $tarifaCliente = (new TarifaCliente($BDTpv))->leer($idCliente);
 if(isset($tarifaCliente['error'])){
-	 $resultado['error']=array ( 'tipo'=>'DANGER!',
-		 'dato' => $tarifaCliente['consulta'],
-		 'class'=>'alert alert-danger',
-		 'mensaje' => 'Error en sql'
-		 );
+	$resultado['error']=$tarifaCliente['consulta'];
 }else{
 	 $datos = $tarifaCliente['datos'];
 	 $cabecera='<p></p><font size="20">Super Oliva </font><br>
