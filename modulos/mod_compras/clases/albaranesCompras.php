@@ -280,6 +280,7 @@ class AlbaranesCompras extends ClaseCompras {
                     $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['ncant'], K_STOCKARTICULO_SUMA);
                     $i++;
                 }
+                
             }
             foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
                 $sql = 'INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('

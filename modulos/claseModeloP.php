@@ -116,7 +116,7 @@ class ModeloP {
         return $respuesta;
     }
     protected function insert($tabla,$datos, $soloSQL = false) {
-        return ModeloP::_insert($datos, $soloSQL);
+        return ModeloP::_insert($tabla,$datos, $soloSQL);
     }
 
     protected static function _update($tabla, $datos, $condicion, $soloSQL = false) {
