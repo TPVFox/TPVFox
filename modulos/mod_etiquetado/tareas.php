@@ -104,6 +104,7 @@ switch ($pulsado) {
 		$idTienda=$_POST['idTienda'];
 		if($caja=='id_producto'){
 			$buscarId=$CArticulos->datosArticulosPrincipal($valor, $idTienda);
+			$respuesta['datosA']=$buscarId;
 			if(isset($buscarId['error'])){
 				$respuesta['error']=$buscarId['error'];
 				$respuesta['consulta']=$buscarId['consulta'];
