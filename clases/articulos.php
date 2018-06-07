@@ -168,10 +168,10 @@ class Articulos{
 		
 	public function buscarPorNombre($valor, $idTienda){
 		$db=$this->db;
-		$sql='select a.articulo_name,  pre.pvpCiva , pro.crefProveedor, t.crefTienda, a.idArticulo
+		$sql='select a.articulo_name,  pre.pvpCiva , t.crefTienda, a.idArticulo
 				FROM articulos as a 
 				inner join articulosPrecios as pre on a.idArticulo=pre.idArticulo 
-				INNER join articulosProveedores as pro on a.idArticulo=pro.idArticulo 
+				
 				inner join articulosTiendas as t on a.idArticulo=t.idArticulo
 				where a.articulo_name like "%'.$valor.'%" and t.idTienda='.$idTienda.' group by  a.idArticulo LIMIT 0 , 30';
 		
