@@ -148,6 +148,14 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	 
 }
 function htmlTablaGeneral($datos, $HostNombre, $dedonde){
+	//Objetivo: crear el html con los datos adjuntos(tickets, albaranes, facturas, pedidos)
+	//Dependiendo de donde venga la llamada a la función tiene el un enlace a los resumenes diferente
+	//@Parametros:
+	//dedonde: de donde son los datos que vamos a buscar:
+		//-Tickets
+		//-Facturas
+		//-Albaranes
+		//-Pedidos
 	if(count($datos)>0){
 	switch($dedonde){
 			case 'ticket':
@@ -199,6 +207,12 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 }
 
 function guardarCliente($datosPost, $BDTpv){
+	//@objetivo:
+	//Guardar los datos de un cliente
+	//Primero realiza comprobaciones de todos los campos y dependiendo si tiene id de cliente o no
+	//modifica o crear un nuevo cliente
+	//Paramtros:
+	//datosPost: datos que recibimos del formulario
 	$Cliente=new ClaseCliente($BDTpv);
 	$nif="";
 	$direccion="";
@@ -267,6 +281,10 @@ function guardarCliente($datosPost, $BDTpv){
 	return $mod;
 }
 function comprobarFechas($fechaIni, $fechaFin){
+	//@Objetivo: comprobar las fechas de busqueda de resumen 
+	//@Comprobaciones:
+	//comprobar si las dos fechas están cubiertas 
+	//comprobar el formato de las fechas de año mes y dia
 	$resultado=array();
 	if($fechaIni=="" ||$fechaFin==""){
 		$resultado['error']='Error';
