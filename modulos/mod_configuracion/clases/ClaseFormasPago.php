@@ -18,6 +18,13 @@ class ClaseFormasPago extends modelo{
 			return $consulta;
 		}
 	}
+	public function insertarRegistro($datos){
+		$sql='INSERT INTO `formasPago`(`descripcion`) VALUES ('."'".$datos['descripcion']."'".')';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
 	
 }
 
