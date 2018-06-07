@@ -144,13 +144,14 @@ class Articulos{
 		}
 		public function datosArticulosPrincipal($idArticulo, $idTienda){
 		$db=$this->db;
-		$sql='select a.articulo_name , pre.pvpCiva , pro.crefProveedor, t.crefTienda, a.idArticulo
+		$sql='select a.articulo_name , pre.pvpCiva , t.crefTienda, a.idArticulo
 				FROM articulos as a 
 				inner join articulosPrecios as pre on a.idArticulo=pre.idArticulo 
-				INNER join articulosProveedores as pro on a.idArticulo=pro.idArticulo 
+				
 				inner join articulosTiendas as t on a.idArticulo=t.idArticulo
 				where a.idArticulo='.$idArticulo.' and t.idTienda='.$idTienda;
 		$smt=$this->consulta($sql);
+		$articulo['sql']=$sql;
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
@@ -158,8 +159,9 @@ class Articulos{
 			}else{
 				if ($result = $smt->fetch_assoc () ){
 				$articulo=$result;
-				return $articulo;
+				
 				}
+				return $articulo;
 			}
 		
 		}
