@@ -93,7 +93,7 @@ function htmlProductos($busqueda, $productos){
 		$resultado['html'] .= '<span>10 Productos de '.count($productos).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
-	. ' <th></th> <th>Id</th><th>Nombre del Producto</th><th>PVPCiva</th></thead><tbody>';
+	. ' <th></th> <th>Id</th><th>Nombre del Producto</th><th>PVPCiva</th><th>Referencia</th></thead><tbody>';
 	if (count($productos)>0){
 			$contad = 0;
 			foreach($productos as $producto){
@@ -105,6 +105,7 @@ function htmlProductos($busqueda, $productos){
 				. '<td>'.$producto['idArticulo'].'</td>'
 				. '<td>'.$producto['articulo_name'].'</td>'
 				. '<td>'.number_format($producto['pvpCiva'], 2).'</td>'
+				.'<td>'.$producto['crefTienda'].'</td>'
 				.'</tr>';
 				$contad = $contad +1;
 				if ($contad === 10){
