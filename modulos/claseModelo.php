@@ -14,8 +14,9 @@ require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
  *
  * @author alagoro
  */
-class Modelo extends ModeloP {
-
+class Modelo extends ModeloP {   
+    protected  $tabla;
+    
     protected function consulta($sql) {
         // Realizamos la consulta.
         $smt = parent::consulta($sql);
@@ -40,15 +41,15 @@ class Modelo extends ModeloP {
         return $respuesta;
     }
 
-    protected function insert($datos, $soloSQL = false) {
+    protected function insert( $datos, $soloSQL = false) {
 
-        parent::insert($datos, $soloSQL);
+        parent::insert($this->tabla, $datos, $soloSQL);
 
         return $this->getSQLConsulta();
     }
 
     protected function update($datos, $condicion, $soloSQL = false) {
-        parent::update($datos, $condicion, $soloSQL);
+        parent::update($this->tabla, $datos, $condicion, $soloSQL);
 
         return $this->getSQLConsulta();
     }
