@@ -91,8 +91,11 @@ function crearModalVencimiento($id, $BDTpv){
 			<div class="col-md-4">
 			<label>Id:</label><input type="text" id="id" value="'.$datos['id'].'" readonly="readonly" size="3">
 			</div>
-			<div class="col-md-8">
+			<div class="col-md-5">
 			<label>Descripción:</label><input id="descripcion" type="text" value="'.$datos['descripcion'].'">
+			</div>
+			<div class="col-md-1">
+			<label>Dias:</label><input id="dias" type="text" value="'.$datos['dias'].'" size="3">
 			</div>
 			</div>
 		<div class="col-md-12">

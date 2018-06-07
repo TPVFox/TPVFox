@@ -32,13 +32,19 @@ function modificarTabla(dedonde){
 		var iva="";
 		var recargo="";
 	}
+	if(dedonde="vencimiento"){
+		var dias=($("#dias").val());
+	}else{
+		var dias=0;
+	}
 	var parametros = {
 		"pulsado"    : 'ModificarTabla',
 		"dedonde" : dedonde,
 		"iva":iva,
 		"recargo":recargo,
 		"id":id,
-		"descripcion":descripcion
+		"descripcion":descripcion,
+		"dias":dias
 	};
 	$.ajax({
 		data       : parametros,
