@@ -1,5 +1,5 @@
 <?php 
-include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
+include_once '../../modulos/claseModelo.php';
 
 
 class ClaseFormasPago extends modelo{

@@ -17,6 +17,7 @@ switch ($pulsado) {
 		$datos['descripcion']=$_POST['descripcion'];
 		$datos['iva']=$_POST['iva'];
 		$datos['recargo']=$_POST['recargo'];
+		$datos['dias']=$_POST['dias'];
 		$dedonde=$_POST['dedonde'];
 		switch($dedonde){
 			case 'iva':
