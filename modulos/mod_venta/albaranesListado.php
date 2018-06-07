@@ -91,7 +91,7 @@ if (isset($errores)){
 				</ul>	
 					<div class="col-md-12">
 		<h4 class="text-center"> Albaranes Abiertos</h4>
-		<table class="table table-striped">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th WIDTH="4">Nº Temp</th>
