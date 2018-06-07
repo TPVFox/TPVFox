@@ -18,6 +18,13 @@ class ClaseIva extends modelo{
 			return $consulta;
 		}
 	}
+	public function insertarRegistro($datos){
+		$sql='INSERT INTO `iva`(`descripcionIva`, `iva`, `recargo`) VALUES ('."'".$datos['descripcion']."'".', '."'".$datos['iva']."'".', '."'".$datos['recargo']."'".')';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
 }
 
 

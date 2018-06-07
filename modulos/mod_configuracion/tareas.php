@@ -21,15 +21,27 @@ switch ($pulsado) {
 		switch($dedonde){
 			case 'iva':
 				$iva=new ClaseIva($BDTpv);
-				$modificar=$iva->modificarTabla($datos);
+				if($_POST['id']>0){
+					$modificar=$iva->modificarTabla($datos);
+				}else{
+					$modificar=$iva->insertarRegistro($datos);
+				}
 			break;
 			case 'forma':
 				$formas=new ClaseFormasPago($BDTpv);
-				$modificar=$formas->modificarTabla($datos);
+				if($_POST['id']>0){
+					$modificar=$formas->modificarTabla($datos);
+				}else{
+					$modificar=$formas->insertarRegistro($datos);
+				}
 			break;
 			case 'vencimiento':
 				$Vencimiento=new ClaseVencimiento($BDTpv);
-				$modificar=$Vencimiento->modificarTabla($datos);
+				if($_POST['id']>0){
+					$modificar=$Vencimiento->modificarTabla($datos);
+				}else{
+					$modificar=$Vencimiento->insertarRegistro($datos);
+				}
 			break;
 		}
 		$respuesta=$modificar;
