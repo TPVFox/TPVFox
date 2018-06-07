@@ -11,6 +11,13 @@ class ClaseIva extends modelo{
 		$sql='SELECT * FROM iva WHERE idIva='.$id;
 		return $this->consulta($sql);
 	}
+	public function modificarTabla($datos){
+		$sql='UPDATE `iva` SET `descripcionIva`='."'".$datos['descripcion']."'".',`iva`='."'".$datos['iva']."'".',`recargo`='."'".$datos['recargo']."'".' WHERE idIva='.$datos['id'];
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
 }
 
 

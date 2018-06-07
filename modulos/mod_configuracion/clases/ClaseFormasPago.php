@@ -11,6 +11,13 @@ class ClaseFormasPago extends modelo{
 		$sql='SELECT * FROM formasPago WHERE id='.$id;
 		return $this->consulta($sql);
 	}
+	public function modificarTabla($datos){
+		$sql='UPDATE `formasPago` SET `descripcion`='."'".$datos['descripcion']."'".' WHERE id='.$datos['id'];
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
 	
 }
 

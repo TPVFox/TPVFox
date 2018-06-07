@@ -12,8 +12,27 @@ switch ($pulsado) {
 		$respuesta=$html;
 	break;
 	case 'ModificarTabla':
-		$datos=$_POST['datos'];
-		
+		$datos=array();
+		$datos['id']=$_POST['id'];
+		$datos['descripcion']=$_POST['descripcion'];
+		$datos['iva']=$_POST['iva'];
+		$datos['recargo']=$_POST['recargo'];
+		$dedonde=$_POST['dedonde'];
+		switch($dedonde){
+			case 'iva':
+				$iva=new ClaseIva($BDTpv);
+				$modificar=$iva->modificarTabla($datos);
+			break;
+			case 'forma':
+				$formas=new ClaseFormasPago($BDTpv);
+				$modificar=$formas->modificarTabla($datos);
+			break;
+			case 'vencimiento':
+				$Vencimiento=new ClaseVencimiento($BDTpv);
+				$modificar=$Vencimiento->modificarTabla($datos);
+			break;
+		}
+		$respuesta=$modificar;
 	break;
 	
 	
