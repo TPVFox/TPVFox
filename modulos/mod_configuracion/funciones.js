@@ -22,17 +22,43 @@ function abrirmodal(id, dedonde){
 	});
 }
 function modificarTabla(dedonde){
-	var datos = [];
-	datos[0]=($("#id").val());
-	datos[1]=($("#descripcion").val());
+	
+	var id=($("#id").val());
+	var descripcion=($("#descripcion").val());
 	if(dedonde=="iva"){
-		datos[2]=($("#iva").val());
-		datos[3]=($("#recargo").val());
+		var iva=($("#iva").val());
+		var recargo=($("#recargo").val());
+	}else{
+		var iva="";
+		var recargo="";
 	}
 	var parametros = {
 		"pulsado"    : 'ModificarTabla',
 		"dedonde" : dedonde,
-		"datos":datos
+		"iva":iva,
+		"recargo":recargo,
+		"id":id,
+		"descripcion":descripcion
 	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  MOdificar tablas de configuración   ***********');
+		},
+		success    :  function (response) {
+			console.log('Respuesta  MOdificar tablas de configuración');
+			var resultado =  $.parseJSON(response);
+			console.log(resultado);
+			if(resultado.error==0){
+				//~ cerrarPopUp();
+				location.reload(true);
+			}else{
+				alert(resultado.consulta);
+			}
+			
+		}
+	});
 	
 }

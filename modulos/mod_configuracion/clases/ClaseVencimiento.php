@@ -11,6 +11,13 @@ class ClaseVencimiento extends modelo{
 		$sql='SELECT * FROM tiposVencimiento WHERE id='.$id;
 		return $this->consulta($sql);
 	}
+	public function modificarTabla($datos){
+		$sql='UPDATE `tiposVencimiento` SET `descripcion`='."'".$datos['descripcion']."'".' WHERE id='.$datos['id'];
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
 }
 
 
