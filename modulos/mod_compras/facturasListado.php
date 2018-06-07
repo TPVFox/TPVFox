@@ -67,7 +67,7 @@
 				</ul>
 				<div class="col-md-12">
 		<h4 class="text-center"> Facturas Abiertas</h4>
-		<table class="table table-striped">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th WIDTH="4">Nº Temp</th>
