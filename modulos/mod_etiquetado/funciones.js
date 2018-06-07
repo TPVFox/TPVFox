@@ -192,6 +192,7 @@ function modificarCodigoBarras(nfila, bandera=""){
 			success    :  function (response) {
 				console.log('Llegue devuelta ModificarCodigoBarras JS');
 				var resultado =  $.parseJSON(response); 
+				console.log(resultado);
 				productos[nfila]['codBarras']=resultado.codBarras;
 				nfila=nfila+1;
 				id='codigoBarras_'+nfila;

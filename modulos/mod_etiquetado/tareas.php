@@ -138,7 +138,9 @@ switch ($pulsado) {
 		$producto=$_POST['producto'];
 		switch($tipo){
 			case 1:
-				$codigoBarras=codigoBarrasUnidades($producto['crefTienda'], $producto['peso']);
+				$precio=(int)$producto['peso']*(float)$producto['precio'];
+				$respuesta['precio']=(float)$producto['precio'];
+				$codigoBarras=codigoBarrasUnidades($producto['crefTienda'], $precio);
 			break;
 			case 2:
 				$codigoBarras=codigoBarrasPeso($producto['crefTienda'],  $producto['peso']);
