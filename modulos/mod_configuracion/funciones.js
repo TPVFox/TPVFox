@@ -37,6 +37,9 @@ function modificarTabla(dedonde){
 	}else{
 		var dias=0;
 	}
+	if(descripcion==""){
+		alert("No has escrito ninguna descripción");
+	}else{
 	var parametros = {
 		"pulsado"    : 'ModificarTabla',
 		"dedonde" : dedonde,
@@ -66,5 +69,6 @@ function modificarTabla(dedonde){
 			
 		}
 	});
+}
 	
 }
