@@ -101,7 +101,7 @@ $todosTemporal=array_reverse($todosTemporal);
 				</ul>
 				<div class="col-md-12">
 		<h4 class="text-center"> Albaranes Abiertos</h4>
-		<table class="table table-striped">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th WIDTH="4" >Nº Temp</th>
@@ -125,7 +125,7 @@ $todosTemporal=array_reverse($todosTemporal);
 					<tr>
 						<td><a href="albaran.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
 						<td><?php echo $numTemporal;?></td>
-						<td><?php echo $temporal['nombrecomercial'];?></td>
+						<td ><?php echo $temporal['nombrecomercial'];?></td>
 						<td><?php echo number_format($temporal['total'],2);?></td>
 						</tr>
 					
@@ -164,7 +164,7 @@ $todosTemporal=array_reverse($todosTemporal);
 						
 						<th>Nª ALBARÁN</th>
 						<th>FECHA</th>
-						<th>CLIENTE</th>
+						<th>PROVEEDOR</th>
 						<th>BASE</th>
 						<th>IVA</th>
 						<th>TOTAL</th>
