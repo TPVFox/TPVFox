@@ -1,10 +1,10 @@
 <?php
 
 /*
- * @Copyright 2018, Alagoro Software. 
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción
  */
 
 include_once $RutaServidor . $HostNombre . '/clases/ClaseConexion.php';
@@ -24,50 +24,71 @@ define('K_STOCKARTICULO_RESTA', -1);
  */
 class ModeloP {
 
-    protected $db;
-    protected $tabla;
-    protected $resultado;
+//    protected static $instance = null;
+    protected static $db = null;
+    protected static $tabla;
+    protected static $resultado = ['error' => 0, 'consulta' => ''];
 
-    public function __construct($conexion = null ) {
-        $this->resultado = ['error' => 0, 'consulta' => ''];
-        if(is_null($conexion)){
-            $objConexion = new ClaseConexion();            
-            if(!$objConexion){
-                $this->resultado['error'] = $objConexion->getErrorConexion();
+//    public static function getInstance() {
+//        if (is_null(self::$instance)) {
+//            self::$instance = new ModeloP();
+//        }
+//        return self::$instance;
+//    }
+
+    public static function getDbo() {
+        if (is_null(self::$db)) {
+            $objConexion = new ClaseConexion();
+            if (!$objConexion) {
+                self::setResult('', $objConexion->getErrorConexion());
             }
-            $conexion = $objConexion->getConexion();
+            self::$db = $objConexion->getConexion();
         }
-        $this->db = $conexion;
+        return self::$db;
+    }
+
+    protected static function setResult($sql, $code) {
+        ModeloP::$resultado['consulta'] = $sql;
+        ModeloP::$resultado['error'] = $code;
+    }
+
+    protected static function _consulta($sql) {
+        $db = self::getDbo();
+
+        // Realizamos la consulta.
+        $error = 0;
+        $respuesta = false;
+        $smt = $db->query($sql);
+        if ($smt) {
+            $respuesta = $smt->fetch_all(MYSQLI_ASSOC);
+            // (!$datos)||count($datos)==1?$datos[0]:$datos;
+        } else {
+            $error = $db->error;
+        }
+        ModeloP::setResult($sql, $error);
+        return $respuesta;
     }
 
     protected function consulta($sql) {
-        // Realizamos la consulta.
-        $respuesta = false;
-        $this->resultado['consulta'] = $sql;
-
-        $smt = $this->db->query($sql);
-        if ($smt) {
-            $respuesta = $smt->fetch_all(MYSQLI_ASSOC);
-            $this->resultado['error'] = 0;
-            // (!$datos)||count($datos)==1?$datos[0]:$datos;
-        } else {
-            $this->resultado['error'] = $this->db->error;
-        }
-        return $respuesta;
+        //Para compatibilidad con desarrollo anterior
+        return ModeloP::_consulta($sql);
     }
 
-    protected function consultaDML($sql) {
-        // Realizamos la consulta.
-        $respuesta = $this->db->query($sql);
+    protected static function _consultaDML($sql) {
+        $db = self::getDbo();
 
-        $this->resultado['consulta'] = $sql;
+        $respuesta = $db->query($sql);
 
-        $this->resultado['error'] = $respuesta ? 0 : $this->db->error;
+        ModeloP::setResult($sql, ($respuesta ? 0 : $db->error));
 
         return $respuesta;
     }
 
-    protected function insert($datos, $soloSQL = false) {
+    protected function consultaDML($sql){
+        return ModeloP::_consultaDML($sql);
+    }
+
+    protected static function _insert($tabla,$datos, $soloSQL = false) {
         $respuesta = false;
         $updateStr = [];
         if (is_array($datos)) {
@@ -78,25 +99,27 @@ class ModeloP {
             $updateStr[] = $datos;
         }
         $updateString = implode(', ', $updateStr);
-        
-        $sql = 'INSERT ' . $this->tabla
+
+        $sql = 'INSERT ' . $tabla
                 . ' SET ' . $updateString;
 
-        $this->resultado['consulta'] = $sql;
-        $this->resultado['error'] = 0;
+        ModeloP::setResult($sql, 0);
 
         if ($soloSQL) {
-            $respuesta = ($sql!=='');
+            $respuesta = ($sql !== '');
         } else {
-            if ($this->consultaDML($sql)) {
-                $respuesta = $this->db->insert_id();
+            if (ModeloP::_consultaDML($sql)) {
+                $respuesta = self::$db->insert_id;
             }
         }
 
         return $respuesta;
     }
+    protected function insert($tabla,$datos, $soloSQL = false) {
+        return ModeloP::_insert($datos, $soloSQL);
+    }
 
-    protected function update($datos, $condicion, $soloSQL = false) {
+    protected static function _update($tabla, $datos, $condicion, $soloSQL = false) {
         $respuesta = false;
         $updateSet = [];
         if (is_array($datos)) {
@@ -115,29 +138,34 @@ class ModeloP {
             $updateWhere = implode(' AND ', $condicion);
         }
 
-        $sql = 'UPDATE ' . $this->tabla
+        $sql = 'UPDATE ' . $tabla
                 . ' SET ' . $updateString
                 . ' WHERE ' . $updateWhere;
 
-        $this->resultado['consulta'] = $sql;
-        $this->resultado['error'] = 0;
+        ModeloP::setResult($sql, 0);
+
         if ($soloSQL) {
-            $respuesta = true;            
+            $respuesta = true;
         } else
-            $respuesta = $this->consultaDML($sql);
+            $respuesta = self::consultaDML($sql);
 
         return $respuesta;
     }
 
-    public function hayErrorConsulta(){
-        return $this->resultado['error'] !== 0;
+        protected function update($tabla, $datos, $condicion, $soloSQL = false) {
+            return ModeloP::_update($tabla, $datos, $condicion, $soloSQL);
+        }
+
+    public static function hayErrorConsulta() {
+        return ModeloP::$resultado['error'] !== 0;
     }
-    
-    public function getErrorConsulta(){
-        return $this->resultado['error'];
+
+    public static function getErrorConsulta() {
+        return ModeloP::$resultado['error'];
     }
-    
-    public function getSQLConsulta(){
-        return $this->resultado['consulta'] ;
+
+    public static function getSQLConsulta() {
+        return ModeloP::$resultado['consulta'];
     }
+
 }
