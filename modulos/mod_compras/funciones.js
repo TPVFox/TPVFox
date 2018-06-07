@@ -109,6 +109,7 @@ function controladorAcciones(caja,accion, tecla){
 			}
 			if (caja.id_input=="hora"){
 				cabecera.hora=caja.darValor();
+				ponerFocus("suNumero");
 			}
 			if (caja.id_input=="fecha"){
 				cabecera.fecha=caja.darValor();
@@ -131,13 +132,19 @@ function controladorAcciones(caja,accion, tecla){
 							 var nuevofocus="idArticulo";
 							 ponerFocus(nuevofocus);
 						 }
-						 console.log("estoy aqui 1"+dato.length);
-						ponerFocus(d_focus);
+						 if (caja.id_input=="hora"){
+							cabecera.hora=caja.darValor();
+							ponerFocus("suNumero");
+						}else{
+							 console.log("estoy aqui 1"+dato.length);
+							ponerFocus(d_focus);
+						}
 					}
 				}else{
 					 console.log("estoy aqui 2"+dato.length);
-					
+					 
 						ponerFocus('id_proveedor');
+					
 				 
 				}
 				
