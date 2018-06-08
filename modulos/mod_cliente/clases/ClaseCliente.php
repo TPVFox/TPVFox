@@ -87,6 +87,7 @@ class ClaseCliente extends modelo{
 			return $consulta;
 		}
 	}
+        
 	public function comprobarExistenDatos($datos){
 		//Objetivo:
 		//Comprobar cuando guardamos que le nif del cliente no es el mismo que otro cliente
