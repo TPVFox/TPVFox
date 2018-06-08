@@ -31,6 +31,7 @@
 	$campos = array( 'a.Numalbcli','b.Nombre');
 
 	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetOrderConsulta('a.Numalbcli');
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 
@@ -45,7 +46,7 @@
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$a=$Calbaran->TodosAlbaranesFiltro($filtro.$NPaginado->GetLimitConsulta());
-	$albaranesDef=array_reverse($a['Items']);
+	$albaranesDef=$a['Items'];
 if (isset($a['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $a['consulta'],
