@@ -420,6 +420,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 		}
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarAdjunto('
 		."'".$dedonde."'".', '.$numAdjunto.');">';
+		
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad
 		.'" name="filaproducto" data-obj="idN" onkeydown="controlEventos(event)"
 		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
