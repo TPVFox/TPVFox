@@ -39,9 +39,12 @@ $todosTemporal=array_reverse($todosTemporal);
 	$campos = array( 'a.Numalbpro','b.nombrecomercial');
 
 	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetOrderConsulta('a.Numalbpro');
+	//~ echo '<pre>';
+//~ print_r($NPaginado);
+//~ echo '</pre>';
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
-
 	$CantidadRegistros=0;
 	// Obtenemos la cantidad registros 
 	$a = $CAlb->TodosAlbaranesLimite($filtro);
@@ -54,7 +57,8 @@ $todosTemporal=array_reverse($todosTemporal);
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
 	
-	 $albaranesDef=array_reverse($a['Items']);
+	 //~ $albaranesDef=array_reverse($a['Items']);
+	 $albaranesDef=$a['Items'];
 	if (isset($a['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $a['consulta'],

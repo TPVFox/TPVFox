@@ -15,6 +15,7 @@ class PluginClasePaginacion {
 	public $filtroWhere			= ''; // (string) Es where para hacer la consulta
 	public $limitConsulta		= ''; // (string) Es limite si lo hubiera.
 	public $Paginas				= array(); // (array) Donde tendremos los numeros de la paginas previas y siguientes.
+	public $filtroOrd			='';
 
 	public function __construct($fichero) {
 		$this->LinkBase = './'.basename($fichero).'?';
@@ -91,9 +92,13 @@ class PluginClasePaginacion {
 		if ($operador !== 'AND' && $this->Busqueda !==''){
 			// Volvemos a generar el FiltroWhere
 			$this->SetFiltroWhere($operador);
+			$where=$this->filtroWhere.' '.$this->filtroOrd;
+		}else{
+			$where=$this->filtroOrd;
 		}
+		//~ return $this->filtroWhere;
+		return $where;
 		
-		return $this->filtroWhere;
 	}
 	
 	public function GetLimitConsulta(){
@@ -269,7 +274,14 @@ class PluginClasePaginacion {
 	public function SetFiltroWhere($operador='AND'){
 		$controler =$this->controler;
 		$campos = $this->campos;
-		$this->filtroWhere = 'WHERE ('.$controler->ConstructorLike($campos,$this->Busqueda,$operador).')';
+		$this->filtroWhere = 'WHERE ('.$controler->ConstructorLike($campos,$this->Busqueda,$operador).') ';
+		
+	}
+	public function  SetOrderConsulta($campoOrd=''){
+		$controler =$this->controler;
+		if($campoOrd != ''){
+			$this->filtroOrd='ORDER BY '.$campoOrd.' DESC ';
+		}
 		
 	}
 	
