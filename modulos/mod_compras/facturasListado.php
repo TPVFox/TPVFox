@@ -22,6 +22,7 @@
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numfacpro','b.nombrecomercial');
+	$NPaginado->SetOrderConsulta('a.Numfacpro');
 	$NPaginado->SetCamposControler($Controler,$campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
@@ -34,7 +35,7 @@
 	$htmlPG = $NPaginado->htmlPaginado();
 	$f = $CFac->TodosFacturaLimite($filtro.$NPaginado->GetLimitConsulta());
 	
-	$facturasDef=array_reverse($f['Items']);
+	$facturasDef=$f['Items'];
 ?>
 
 </head>

@@ -37,7 +37,7 @@
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numpedpro','b.nombrecomercial');
-
+	$NPaginado->SetOrderConsulta('a.Numpedpro');
 	$NPaginado->SetCamposControler($Controler,$campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
@@ -54,7 +54,7 @@
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$p=$Cpedido->TodosPedidosLimite($filtro.$NPaginado->GetLimitConsulta());
 	$pedidosDef=$p['Items'];
-	 $pedidosDef=array_reverse($p['Items']);
+	 $pedidosDef=$p['Items'];
 	if (isset($p['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $p['consulta'],
