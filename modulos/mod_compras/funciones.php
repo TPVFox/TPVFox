@@ -1077,7 +1077,14 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					if(isset($datosPost['fechaVenci'])){
 						$fechaVenci=$datosPost['fechaVenci'];
 					}
-					
+					if (isset ($datosPost['fecha'])){
+						$fecha=date_format(date_create($datosPost['fecha']), 'Y-m-d');
+						if($datosPost['hora']){
+							$fecha1=$datosPost['fecha'].' '.$datosPost['hora'].':00';
+							$fecha=date_format(date_create($fecha1), 'Y-m-d H:i:s');
+							
+						}
+					}
 					$mod=$CAlb->modFechaNumero($idReal, $suNumero, $fecha, $formaPago, $fechaVenci);
 					if (isset($mod['error'])){
 						$errores[0]=array ( 'tipo'=>'Danger!',
