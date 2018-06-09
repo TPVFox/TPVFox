@@ -92,10 +92,9 @@ class PluginClasePaginacion {
 		if ($operador !== 'AND' && $this->Busqueda !==''){
 			// Volvemos a generar el FiltroWhere
 			$this->SetFiltroWhere($operador);
-			$where=$this->filtroWhere.' '.$this->filtroOrd;
-		}else{
-			$where=$this->filtroOrd;
+			
 		}
+		$where=$this->filtroWhere.' '.$this->filtroOrd;
 		//~ return $this->filtroWhere;
 		return $where;
 		
@@ -280,7 +279,7 @@ class PluginClasePaginacion {
 	public function  SetOrderConsulta($campoOrd=''){
 		$controler =$this->controler;
 		if($campoOrd != ''){
-			$this->filtroOrd='ORDER BY '.$campoOrd.' DESC ';
+			$this->filtroOrd=' ORDER BY '.$campoOrd.' DESC ';
 		}
 		
 	}
