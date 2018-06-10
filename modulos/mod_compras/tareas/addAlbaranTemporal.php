@@ -9,6 +9,12 @@
 			$fecha=$_POST['fecha'];
 			$fecha = new DateTime($fecha);
 			$fecha = $fecha->format('Y-m-d');
+			$hora="";
+			$hora=$_POST['hora'];
+			if($hora !=""){
+				$fecha1=$fecha.' '.$hora.':00';
+				$fecha=date_format(date_create($fecha1), 'Y-m-d H:i:s');
+			}
 			$productos=json_decode($_POST['productos']);
 			if (isset($_POST['pedidos'])){
 				$pedidos=$_POST['pedidos'];

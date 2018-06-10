@@ -67,7 +67,13 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
         <div class="container">
             <h2 class="text-center"> Tarifa de Cliente </h2>
-
+			<?php 
+			if(count($datos)>0){
+				?>
+				  <input type="text" class="btn btn-info pull-right"    onclick="imprimirTarifa(<?php echo $idcliente; ?>)" value="Imprimir Tarifas">
+				<?php
+			}
+			?>
             <a  href="ListaClientes.php">Volver Atrás</a>
 
             <input type="text" style="display:none;" name="idTemporal" value=0>
@@ -163,7 +169,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 							<?php
 							foreach ($datos as $tarifaCliente) {
 								echo '<tr>';
-								echo '<td> L </td>';
+								echo '<td>  </td>';
 								echo '<td>' . $tarifaCliente['idArticulo'] . '</td>';
 								echo '<td>' . $tarifaCliente['descripcion'] . '</td>';
 								echo '<td style="text-align: right">' . number_format($tarifaCliente['pvpSiva'],2, '.', '') . '</td>';

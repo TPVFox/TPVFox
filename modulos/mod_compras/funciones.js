@@ -31,8 +31,9 @@ function controladorAcciones(caja,accion, tecla){
 			console.log(caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
 				if (caja.darParametro('dedonde') == "pedidos"){
-					d_focus="Referencia";
-					ponerFocus(d_focus);
+					//~ d_focus="Referencia";
+					//~ ponerFocus(d_focus);
+					pornerFocusEnOpcionSalto();
 				}else{
 					d_focus='ultimo_coste_'+parseInt(caja.fila);
 					ponerSelect(d_focus);
@@ -50,6 +51,13 @@ function controladorAcciones(caja,accion, tecla){
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
 			break;
+		case 'Saltar_hora':
+			if (caja.id_input=="fecha"){
+				cabecera.fecha=caja.darValor();
+			}
+			var d_focus = 'hora';
+			ponerFocus(d_focus);
+		break;
 		
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
@@ -99,6 +107,10 @@ function controladorAcciones(caja,accion, tecla){
 			if (caja.id_input=="suNumero"){
 				cabecera.suNumero=caja.darValor();
 			}
+			if (caja.id_input=="hora"){
+				cabecera.hora=caja.darValor();
+				ponerFocus("suNumero");
+			}
 			if (caja.id_input=="fecha"){
 				cabecera.fecha=caja.darValor();
 			}
@@ -120,13 +132,19 @@ function controladorAcciones(caja,accion, tecla){
 							 var nuevofocus="idArticulo";
 							 ponerFocus(nuevofocus);
 						 }
-						 console.log("estoy aqui 1"+dato.length);
-						ponerFocus(d_focus);
+						 if (caja.id_input=="hora"){
+							cabecera.hora=caja.darValor();
+							ponerFocus("suNumero");
+						}else{
+							 console.log("estoy aqui 1"+dato.length);
+							ponerFocus(d_focus);
+						}
 					}
 				}else{
 					 console.log("estoy aqui 2"+dato.length);
-					
+					 
 						ponerFocus('id_proveedor');
+					
 				 
 				}
 				
@@ -223,8 +241,9 @@ function controladorAcciones(caja,accion, tecla){
 			var idArticulo=productos[nfila].idArticulo;
 		
 			if (costeAnt===caja.darValor()){
-				var d_focus = 'Referencia';
-				ponerFocus(d_focus);
+				//~ var d_focus = 'Referencia';
+				//~ ponerFocus(d_focus);
+					pornerFocusEnOpcionSalto();
 				
 			}else{
 			
@@ -847,7 +866,8 @@ function addTemporal(dedonde=""){
 		"idReal":cabecera.idReal,
 		"fecha":cabecera.fecha,
 		"productos":JSON.stringify(productos),
-		"idProveedor":cabecera.idProveedor
+		"idProveedor":cabecera.idProveedor,
+		"hora":cabecera.hora
 	};
 	if (dedonde=="albaran"){
 		parametros['pedidos']=pedidos;
@@ -1208,7 +1228,9 @@ function mostrarFila(){
 	//@Objetivo: Mostrar la fila principal de articulos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
-	$('#idArticulo').focus();
+	
+	pornerFocusEnOpcionSalto();
+	//~ $('#idArticulo').focus();
 }
 
 function mover_up(fila,prefijo){
@@ -1380,4 +1402,32 @@ function mensajeCancelar(idTemporal, dedonde){
 			break;
 		}
 	}
+}
+function pornerFocusEnOpcionSalto(){
+	var valor = $("#salto").val();
+	switch(valor){
+		case '0':
+			d_focus='Referencia';
+		break;
+		case '1':
+			d_focus='idArticulo';
+		break;
+		case '2':
+			d_focus='Referencia';
+		break;
+		case '3':
+			d_focus='ReferenciaPro';
+		break;
+		case '4':
+			d_focus='Codbarras';
+		break;
+		case '5':
+			d_focus='Descripcion';
+		break;
+		default:
+			d_focus='Referencia';
+		break;
+		
+	}
+	ponerFocus(d_focus);
 }

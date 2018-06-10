@@ -420,6 +420,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 		}
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarAdjunto('
 		."'".$dedonde."'".', '.$numAdjunto.');">';
+		
 		$respuesta['html'] 	.= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad
 		.'" name="filaproducto" data-obj="idN" onkeydown="controlEventos(event)"
 		 type="image"  alt=""><span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
@@ -939,9 +940,9 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 	$suNumero="";
 	$formaPago="";
 	$fechaVenci="";
-	//~ $fecha=$datosPost['fecha'];
+	
 	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
-	//~ error_log($fecha);
+
 	$dedonde="albaran";
 	$idAlbaran=0;
 	$CAlb=new AlbaranesCompras($BDTpv);
@@ -967,10 +968,13 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 						$suNumero=$datosPost['suNumero'];
 					}
 					if (isset ($datosPost['fecha'])){
-						//~ $fecha=$datosPost['fecha'];
 						$fecha=date_format(date_create($datosPost['fecha']), 'Y-m-d');
+						if($datosPost['hora']){
+							$fecha1=$datosPost['fecha'].' '.$datosPost['hora'].':00';
+							$fecha=date_format(date_create($fecha1), 'Y-m-d H:i:s');
+							
+						}
 					}else{
-						//~ $fecha=$datosAlbaran['fechaInicio'];
 						$fecha=date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					}
 					if (isset ($datosAlbaran['Productos'])){
@@ -1074,7 +1078,14 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 					if(isset($datosPost['fechaVenci'])){
 						$fechaVenci=$datosPost['fechaVenci'];
 					}
-					
+					if (isset ($datosPost['fecha'])){
+						$fecha=date_format(date_create($datosPost['fecha']), 'Y-m-d');
+						if($datosPost['hora']){
+							$fecha1=$datosPost['fecha'].' '.$datosPost['hora'].':00';
+							$fecha=date_format(date_create($fecha1), 'Y-m-d H:i:s');
+							
+						}
+					}
 					$mod=$CAlb->modFechaNumero($idReal, $suNumero, $fecha, $formaPago, $fechaVenci);
 					if (isset($mod['error'])){
 						$errores[0]=array ( 'tipo'=>'Danger!',
@@ -1684,6 +1695,7 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 		
 				$estado=$datosAlbaran['estado'];
 				$fecha=date_format(date_create($datosAlbaran['Fecha']),'Y-m-d');
+				$hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
 				if ($datosAlbaran['formaPago']){
 					$formaPago=$datosAlbaran['formaPago'];
 				}else{
@@ -1727,7 +1739,8 @@ function DatosIdAlbaran($id, $CAlb, $Cprveedor, $BDTpv){
 						'suNumero'=>$suNumero,
 						'productos'=>$productos,
 						'DatosTotales'=>$Datostotales,
-						'pedidos'=>$pedidos
+						'pedidos'=>$pedidos,
+						'hora'=>$hora
 					);
 					return $respuesta;
 			}

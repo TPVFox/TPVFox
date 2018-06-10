@@ -22,7 +22,7 @@ function repetirLineasProducto($veces, $idProducto, $BDTpv, $idTienda, $fechaCad
 		
 		switch($tipo){
 			case 1:
-				$codigoBarras=codigoBarrasUnidades($datosArticulo['crefTienda'], 1);
+				$codigoBarras=codigoBarrasUnidades($datosArticulo['crefTienda'], $datosArticulo['pvpCiva']);
 			break;
 			case 2:
 				$codigoBarras=codigoBarrasPeso($datosArticulo['crefTienda'], 1);
@@ -93,7 +93,7 @@ function htmlProductos($busqueda, $productos){
 		$resultado['html'] .= '<span>10 Productos de '.count($productos).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
-	. ' <th></th> <th>Id</th><th>Nombre del Producto</th><th>PVPCiva</th></thead><tbody>';
+	. ' <th></th> <th>Id</th><th>Nombre del Producto</th><th>PVPCiva</th><th>Referencia</th></thead><tbody>';
 	if (count($productos)>0){
 			$contad = 0;
 			foreach($productos as $producto){
@@ -105,6 +105,7 @@ function htmlProductos($busqueda, $productos){
 				. '<td>'.$producto['idArticulo'].'</td>'
 				. '<td>'.$producto['articulo_name'].'</td>'
 				. '<td>'.number_format($producto['pvpCiva'], 2).'</td>'
+				.'<td>'.$producto['crefTienda'].'</td>'
 				.'</tr>';
 				$contad = $contad +1;
 				if ($contad === 10){
@@ -159,14 +160,15 @@ function lineasProductos($productos){
 	return $html;
 }
 
-function codigoBarrasUnidades($referenciaTienda, $cantidad){
+function codigoBarrasUnidades($referenciaTienda, $precio){
 	//@OBjetivo:
 	//Generar el código de barras si es por unidades
 	//@Retorna;
 	//El código de barras con el dígito de control
 	$principio='21';
 	$referencia=$referenciaTienda;
-	$dividir = explode(".", $cantidad);
+	$precio=number_format($precio, 2);
+	$dividir = explode(".", $precio);
 	if(isset($dividir['0'])){
 		$entero=str_pad($dividir['0'], 3, "0", STR_PAD_LEFT); 
 	}

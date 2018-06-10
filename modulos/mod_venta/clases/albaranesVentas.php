@@ -150,7 +150,7 @@ class AlbaranesVentas extends ClaseVentas {
                 $idArticulo = $linea['idArticulo'];
                 $idTienda = $albaran['idTienda'];
                 $cantidad = $linea['ncant'];
-                $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_SUMA);
+                $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_RESTA);
             }
         }
         
@@ -223,7 +223,7 @@ class AlbaranesVentas extends ClaseVentas {
                     $respuesta['consulta'] = $smt['consulta'];
                     break;
                 }
-                $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['ncant'], K_STOCKARTICULO_RESTA);
+                $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['ncant'], K_STOCKARTICULO_SUMA);
                 $i++;
             }
         }
@@ -447,7 +447,13 @@ class AlbaranesVentas extends ClaseVentas {
             return $errores;
         }
     }
+	public function NumfacturaDeAlbaran($numAlbaran){	
+		$db=$this->db;
+		$tabla='albclifac';
+		$where='`numAlbaran`='.$numAlbaran;
+		$albaran = parent::SelectUnResult($tabla, $where);
+		return $albaran;
+	}
 
 }
 
-?>

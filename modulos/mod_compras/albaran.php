@@ -25,6 +25,7 @@
 	$estado='Abierto';
 	//~ $fecha=date('Y-m-d');
 	$fecha=date('d-m-Y');
+	$hora="";
 	$idAlbaranTemporal=0;
 	$idAlbaran=0;
 	$idProveedor=0;
@@ -63,7 +64,6 @@
 		}else{
 			$idAlbaran=$datosAlbaran['idAlbaran'];
 			$estado=$datosAlbaran['estado'];
-			//~ $fecha=$datosAlbaran['fecha'];
 			$fecha =date_format(date_create($datosAlbaran['fecha']), 'd-m-Y');
 			$formaPago=$datosAlbaran['formaPago'];
 			$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
@@ -75,6 +75,19 @@
 			$Datostotales=$datosAlbaran['DatosTotales'];
 			$pedidos=$datosAlbaran['pedidos'];
 			$textoNum=$idAlbaran;
+			$hora=$datosAlbaran['hora'];
+			
+			if($estado=="Facturado"){
+				$numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
+				if(isset($numFactura['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $numFactura['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}
+			
+			}
 		}
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
@@ -103,6 +116,7 @@
 				}else{
 					//~ $fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
+					$hora=date_format(date_create($datosAlbaran['fechaInicio']),'H:i');
 				}
 				if ($datosAlbaran['Su_numero']!==""){
 					$suNumero=$datosAlbaran['Su_numero'];
@@ -175,6 +189,7 @@
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = '<?php echo $fecha;?>';
+		cabecera['hora'] = '<?php echo $hora;?>';
 		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		 // Si no hay datos GET es 'Nuevo';
@@ -278,26 +293,32 @@
 <div class="row" >
 	<div class="col-md-8">
 		<div class="col-md-12">
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+					
 				</div>
-				<div class="col-md-4">
+				<div class="col-md-3">
+					<strong>Hora de entrega:</strong><br>
+					<input type="time" id="hora" value="<?php echo $hora;?>"  data-obj= "cajaHora" onkeydown="controlEventos(event)"  name="hora" size="5" max="24:00" min="00:00" pattern="[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}" placeholder='HH:MM' title=" Formato de entrada HH:MM">
+					
+				</div>
+				<div class="col-md-3">
 					<strong>Estado:</strong><br>
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
 				</div>
 			
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
 				</div>
 		</div>
 		<div class="col-md-12">
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<strong>Su número:</strong><br>
 				<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<strong>Forma de pago:</strong><br>
 				<p id="formaspago">
 					<select name='formaVenci' id='formaVenci'>
@@ -310,9 +331,20 @@
 				</select>
 				</p>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 					<strong>Fecha vencimiento:</strong><br>
 					<input type="date" name="fechaVenci" id="fechaVenci" size="10"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="<?php echo $fechaVencimiento;?>"placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+			</div>
+			<div class="col-md-3">
+					<strong>Escoger casilla de salto:</strong><br>
+					<select id="salto" name="salto">
+						<option value="0">Seleccionar</option>
+						<option value="1">Id Articulo</option>
+						<option value="2">Referencia</option>
+						<option value="3">Referencia Proveedor</option>
+						<option value="4">Cod Barras</option>
+						<option value="5">Descripción</option>
+					</select>
 			</div>
 		</div>
 		<div class="form-group">
@@ -320,6 +352,11 @@
 			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
 			<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" placeholder="Nombre del Proveedor" onkeydown="controlEventos(event)" value="<?php echo $nombreProveedor; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('albaran')"></a>
+			<?php 
+			if(isset($numFactura)){
+				echo '<b>Número de factura asociado: '.$numFactura['numFactura'].'</b>';
+			}
+			?>
 		</div>
 	</div>
 	<div class="col-md-4" >

@@ -39,9 +39,12 @@ $todosTemporal=array_reverse($todosTemporal);
 	$campos = array( 'a.Numalbpro','b.nombrecomercial');
 
 	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetOrderConsulta('a.Numalbpro');
+	//~ echo '<pre>';
+//~ print_r($NPaginado);
+//~ echo '</pre>';
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
-
 	$CantidadRegistros=0;
 	// Obtenemos la cantidad registros 
 	$a = $CAlb->TodosAlbaranesLimite($filtro);
@@ -54,7 +57,8 @@ $todosTemporal=array_reverse($todosTemporal);
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
 	
-	 $albaranesDef=array_reverse($a['Items']);
+	 //~ $albaranesDef=array_reverse($a['Items']);
+	 $albaranesDef=$a['Items'];
 	if (isset($a['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $a['consulta'],
@@ -101,7 +105,7 @@ $todosTemporal=array_reverse($todosTemporal);
 				</ul>
 				<div class="col-md-12">
 		<h4 class="text-center"> Albaranes Abiertos</h4>
-		<table class="table table-striped">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th WIDTH="4" >Nº Temp</th>
@@ -125,7 +129,7 @@ $todosTemporal=array_reverse($todosTemporal);
 					<tr>
 						<td><a href="albaran.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
 						<td><?php echo $numTemporal;?></td>
-						<td><?php echo $temporal['nombrecomercial'];?></td>
+						<td ><?php echo $temporal['nombrecomercial'];?></td>
 						<td><?php echo number_format($temporal['total'],2);?></td>
 						</tr>
 					
@@ -164,7 +168,7 @@ $todosTemporal=array_reverse($todosTemporal);
 						
 						<th>Nª ALBARÁN</th>
 						<th>FECHA</th>
-						<th>CLIENTE</th>
+						<th>PROVEEDOR</th>
 						<th>BASE</th>
 						<th>IVA</th>
 						<th>TOTAL</th>

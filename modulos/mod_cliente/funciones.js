@@ -459,3 +459,26 @@ function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
            
         });
 }
+function imprimirTarifa(idCliente){
+	 var parametros = {
+			'pulsado' : 'imprimirTarifasCliente',
+            idCliente: idCliente
+        };
+       $.ajax({
+            data: parametros,
+            url: './tareas.php',
+            type: 'post',
+            success: function (response) {
+              var resultado =  $.parseJSON(response); 
+              if(resultado.error){
+				  alert(resultado.error);
+			  }else{
+				  window.open(resultado);
+				  //~ console.log(resultado);
+			  }
+				
+				 
+            },
+           
+        });
+}

@@ -35,6 +35,7 @@ $cont=0;
 $pdf->SetFont('helvetica', '', 9);
 foreach($lotes as $lote){
 	$etiquetas=$CEtiquetado->datosLote($lote);
+	$tipo=$etiquetas['tipo'];
 	$productos=$etiquetas['productos'];
 	$productos=json_decode($productos, true);
 	foreach($productos as $producto){
@@ -49,8 +50,11 @@ foreach($lotes as $lote){
 			$pvp=number_format($pvp, 2);
 			
 			$texto1='Lote: '.$lote.'  Fecha Env: '.$fechaEnv;
-			$texto2='<br><br>'.$producto['nombre'].'<br>'.'
-			Precio kilo: '.$precioKilo.'€<br>Peso: '.$producto['peso'].'kg<br><font size="15"><b>PVP: '.$pvp.
+			$texto2='<br><br>'.$producto['nombre'].'<br>';
+			if($tipo==2){
+				$texto2.='Precio kilo: '.$precioKilo.'€<br>Peso: '.$producto['peso'].'kg<br>';
+			}
+			$texto2.='<font size="15"><b>PVP: '.$pvp.
 			'€</b></font><br>Fecha cad: '.$etiquetas['fecha_cad'].'<br>';
             $pdf->write1DBarcode($producto['codBarras'], 'EAN13', '', $y+2, 105, 18, 0.4, $style, 'M');
             $pdf->SetXY($x,$y);

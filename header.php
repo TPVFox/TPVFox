@@ -79,6 +79,7 @@
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_tienda/ListaTiendas.php';?>">Tiendas</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_copia_seguridad/CopiaSeguridad.php';?>">Copia Seguridad</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_incidencias/ListadoIncidencias.php';?>">Incidencias</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_configuracion/tablasPrincipales.php';?>">Tablas Principales</a></li>
 							</ul>
 						</li>
 						

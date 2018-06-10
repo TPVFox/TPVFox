@@ -1,4 +1,9 @@
 <?php 
+
+
+//@Objetivo: Generar el documento de impresión de un resumen de tickets
+
+
 include_once ($RutaServidor . $HostNombre."/modulos/mod_cliente/clases/ClaseCliente.php");
 $Cliente= new ClaseCliente($BDTpv);
 $Tienda = $_SESSION['tiendaTpv'];
@@ -59,14 +64,14 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 			'<tr><td><font size="9"><b>Teléfono: </b>'.$datosCliente['telefono'].'</font></td>
 			<td><font size="9">Código Postal: </font></td></tr>'.
 			'<tr><td><font size="9">email: '.$datosCliente['email'].'</font></td><td></td></tr></table>'.
-			'<table WIDTH="80%" border="1px"><tr>
+			'';
+						
+		$html='<table WIDTH="80%" border="1px"><tr>
 			<td WIDTH="50%">Descripción del producto</td>
 			<td>Cantidad</td>
 			<td>Precio</td>
 			<td>Importe</td>
-			</tr></table>';
-						
-		$html='<table  WIDTH="80%" border="1px">';
+			</tr></table><table  WIDTH="80%" border="1px">';
 			foreach($arrayNums['productos'] as $producto){
 				$precio=$producto['totalUnidades']*$producto['precioCiva'];
 				$html.='<tr>'
@@ -103,7 +108,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 				<td><b>'.$totalDesglose.'</b></td>
 				</tr>
 				</table>	
-				<h3>Resumen de tickets</h3>
+				<h3>Facturas simplificadas (Tickets)</h3>
 				<table  WIDTH="75%" border="1px">'.
 				'<tr>
 				<td  WIDTH="50%">Fecha</td>

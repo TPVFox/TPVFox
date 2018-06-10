@@ -32,10 +32,15 @@ switch ($pulsado) {
 		if(isset($_POST['productos'])){
 			$numProd=count($_POST['productos']);
 		}
-		$htmlProductos=repetirLineasProducto($unidades, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd, $tipo);
-		$respuesta['numProd']=$numProd;
-		$respuesta['productos']=$htmlProductos['productos'];
-		$respuesta['html']=$htmlProductos['html'];
+		if($idProducto>0){
+			$htmlProductos=repetirLineasProducto($unidades, $idProducto, $BDTpv, $idTienda, $fechaCad, $numProd, $tipo);
+			$respuesta['numProd']=$numProd;
+			$respuesta['productos']=$htmlProductos['productos'];
+			$respuesta['html']=$htmlProductos['html'];
+		}else{
+			$respuesta['error']="No has seleccionado el producto";
+		}
+		
 	break;
 	case 'addEtiquetadoTemporal':
 	//@Objetivo: Añadir/Modificar etiqueta temporal
@@ -99,6 +104,7 @@ switch ($pulsado) {
 		$idTienda=$_POST['idTienda'];
 		if($caja=='id_producto'){
 			$buscarId=$CArticulos->datosArticulosPrincipal($valor, $idTienda);
+			$respuesta['datosA']=$buscarId;
 			if(isset($buscarId['error'])){
 				$respuesta['error']=$buscarId['error'];
 				$respuesta['consulta']=$buscarId['consulta'];
@@ -132,7 +138,9 @@ switch ($pulsado) {
 		$producto=$_POST['producto'];
 		switch($tipo){
 			case 1:
-				$codigoBarras=codigoBarrasUnidades($producto['crefTienda'], $producto['peso']);
+				$precio=(int)$producto['peso']*(float)$producto['precio'];
+				$respuesta['precio']=(float)$producto['precio'];
+				$codigoBarras=codigoBarrasUnidades($producto['crefTienda'], $precio);
 			break;
 			case 2:
 				$codigoBarras=codigoBarrasPeso($producto['crefTienda'],  $producto['peso']);

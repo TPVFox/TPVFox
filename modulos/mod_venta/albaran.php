@@ -77,7 +77,17 @@
 			
 		$total=$Datostotales['total'];
 		
-		
+			if($estado=="Facturado"){
+				$numFactura=$Calbcli->NumfacturaDeAlbaran($idAlbaran);
+				if(isset($numFactura['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $numFactura['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}
+			
+			}
 	}else{
 		$bandera=1;
 			if (isset($_GET['tActual'])){//Recibido un albarán temporal
@@ -254,7 +264,7 @@ if (isset($_GET['tActual'])){
 <div class="rot" >
 	<div class="col-md-8">
 		<div class="col-md-12">
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<strong>Fecha albarán:</strong><br>
 					<input type="date" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 				</div>
@@ -263,10 +273,21 @@ if (isset($_GET['tActual'])){
 					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
 				</div>
 			
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
 				</div>
+				<div class="col-md-3">
+					<strong>Escoger casilla de salto:</strong><br>
+					<select id="salto" name="salto">
+						<option value="0">Seleccionar</option>
+						<option value="1">Id Articulo</option>
+						<option value="2">Referencia</option>
+						<option value="3">Referencia Proveedor</option>
+						<option value="4">Cod Barras</option>
+						<option value="5">Descripción</option>
+					</select>
+			</div>
 			
 		</div>
 		<div class="form-group">
@@ -274,6 +295,11 @@ if (isset($_GET['tActual'])){
 			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
 			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('albaran')"></a>
+			<?php 
+			if(isset($numFactura)){
+				echo '<b>Número de factura asociado: '.$numFactura['numFactura'].'</b>';
+			}
+			?>
 		</div>
 	</div>
 	<div class="col-md-4" >

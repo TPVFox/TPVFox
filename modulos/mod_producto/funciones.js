@@ -531,7 +531,11 @@ function after_constructor(padre_caja,event){
 	// Traemos 
 	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
 	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
-	
+	console.log("entre aqui");
+	console.log(event);
+	if (padre_caja.id_input.indexOf('pvpRecomendado') >-1){
+		padre_caja.id_input = event.originalTarget.id;
+	}
 	return padre_caja;
 }
 
@@ -541,8 +545,9 @@ function before_constructor(caja){
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
 	console.log(caja);
-	
-	
+	if (caja.id_input.indexOf('pvpRecomendado_') >-1){
+		caja.fila = caja.id_input.slice(15);
+	}
 	return caja;	
 }
 
@@ -550,7 +555,7 @@ function before_constructor(caja){
 
 function controladorAcciones(caja,accion, tecla){
 	console.log(tecla);
-
+	console.log(caja);
 	switch(accion) {
 		case 'revisar_contenido':
 			validarEntradaNombre(caja);
@@ -610,6 +615,27 @@ function controladorAcciones(caja,accion, tecla){
 			var buscar = caja.darValor();
 			var dedonde = 'popup';
 			BuscarProveedor (dedonde,buscar)
+		break;
+		case 'mover_down':
+			// Controlamos si numero fila es correcto.
+			console.log(caja);
+			var nueva_fila = 0;
+			if ( isNaN(caja.fila) === false){
+				nueva_fila = parseInt(caja.fila)+1;
+			} 
+			console.log('mover_down:'+nueva_fila);
+			mover_down(nueva_fila,caja.darParametro('prefijo'));
+			
+		break;
+		case 'mover_up':
+			console.log( 'Accion subir 1 desde fila'+caja.fila);
+			var nueva_fila = 0;
+			
+			if ( isNaN(caja.fila) === false){
+				nueva_fila = parseInt(caja.fila)-1;
+			}
+			mover_up(nueva_fila,caja.darParametro('prefijo'));
+			
 		break;
 		
 	}
@@ -739,7 +765,7 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 		"productos"			:productos
 		
 	};
-	
+	console.log(tamano);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -892,4 +918,21 @@ function filtrarSeleccionProductos(){
 	AjaxGuardarConfiguracion();
 	location.href="ListaProductos.php";
 }
+function mover_up(fila,prefijo){
+	var d_focus = prefijo+fila;
+	ponerSelect(d_focus);
+	
+}
+function mover_down(fila,prefijo){
+	var d_focus = prefijo+fila;
+	ponerSelect(d_focus);
+}
+function ponerSelect (destino_focus){
+	// @ Objetivo:
+	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
+	console.log('Entro en ponerselects de :'+destino_focus);
+	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		jQuery('#'+destino_focus.toString()).select(); 
+	}, 50); 
 
+}

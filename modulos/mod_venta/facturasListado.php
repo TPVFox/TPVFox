@@ -29,6 +29,7 @@ $Controler = new ControladorComun;
 	$campos = array( 'a.Numfaccli','b.Nombre');
 
 	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetOrderConsulta('a.Numfaccli');
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 
@@ -43,7 +44,7 @@ $Controler = new ControladorComun;
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$f=$Cfactura->TodosFacturaFiltro($filtro.$NPaginado->GetLimitConsulta());
-	$facturasDef=array_reverse($f['Items']);
+	$facturasDef=$f['Items'];
 if (isset($f['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $f['consulta'],
@@ -89,7 +90,7 @@ if (isset($errores)){
 				</ul>	
 					<div class="col-md-12">
 		<h4 class="text-center"> Facturas Abiertas</h4>
-		<table class="table table-striped">
+		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th>Nº Temp</th>

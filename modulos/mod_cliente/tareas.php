@@ -30,6 +30,9 @@ switch ($pulsado) {
 	case 'imprimirResumenTickets':
 		include_once ("./tareas/imprimirResumenTickets.php");
 		$respuesta=$resultado;
+	case 'imprimirTarifasCliente':
+		include_once ("./tareas/imprimirTarifasCliente.php");
+		$respuesta=$resultado;
 
 }
 echo json_encode($respuesta);
