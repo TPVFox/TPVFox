@@ -150,7 +150,7 @@ class AlbaranesVentas extends ClaseVentas {
                 $idArticulo = $linea['idArticulo'];
                 $idTienda = $albaran['idTienda'];
                 $cantidad = $linea['ncant'];
-                $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_SUMA);
+                $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_RESTA);
             }
         }
         
@@ -309,148 +309,144 @@ class AlbaranesVentas extends ClaseVentas {
         $sql = 'SELECT tem.numalbcli, tem.id , tem.idClientes,
 			 tem.total, b.Nombre from albcliltemporales as tem left JOIN clientes
 			  as b on tem.idClientes=b.idClientes';
-			$smt=$this->consulta($sql);
-			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-			}else{
-				$albaranPrincipal=array();
-				while ( $result = $smt->fetch_assoc () ) {
-					array_push($albaranPrincipal,$result);
-				}
-				return $albaranPrincipal;
-			}
-		
-		}
-		
-	public function datosAlbaran($idAlbaran){
-		//@Objetivo:
-		//Datos de un albarán real según id
-		$tabla='albclit';
-		$where='id='.$idAlbaran;
-		$albaran = parent::SelectUnResult($tabla, $where);
-		return $albaran;
-	}
-		
-	public function datosAlbaranNum($numAlbaran){
-		//@Objetivo:
-		//Datos de un albarán real según numero de cliente
-		$tabla='albclit';
-		$where='numalbcli='.$numAlbaran;
-		$albaran = parent::SelectUnResult($tabla, $where);
-		return $albaran;
-	}
-	
-	public function ProductosAlbaran($idAlbaran){
-		//@Objetivo:
-		//Muestros los productos de un id de cliente real 
-		$tabla='albclilinea';
-		$where='idalbcli= '.$idAlbaran;
-		$albaran = parent::SelectVariosResult($tabla, $where);
-		return $albaran;
-	}
-	
-	public function IvasAlbaran($idAlbaran){
-			//@Objetivo:
-			//BUsca en la tabla ivas cliente los datos de un albarán real
-		$tabla='albcliIva';
-		$where='idalbcli= '.$idAlbaran;
-		$albaran = parent::SelectVariosResult($tabla, $where);
-		return $albaran;
-		
-	}
-	
-	public function PedidosAlbaranes($idAlbaran){
-		//@Objetivo:
-		//Busca los pedidos de un albarán real
-		$tabla='pedcliAlb';
-		$where='idAlbaran= '.$idAlbaran;
-		$albaran = parent::SelectVariosResult($tabla, $where);
-		return $albaran;
-	}
-	
-	public function ModificarEstadoAlbaran($idAlbaran, $estado){
-		//@Objetivo:
-		//Modificar estado de un albarán real
-		$db=$this->db;
-		$sql='UPDATE albclit SET estado="'.$estado.'" WHERE id='.$idAlbaran;
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-			$respuesta['error']=$smt['error'];
-			$respuesta['consulta']=$smt['consulta'];
-			return $respuesta;
-		}
-		
-	}
-	
-		public function ComprobarAlbaranes($idCliente, $estado){
-				//@Objetivo:
-				//Comprobar los albaranes de un determinado estado
-		$db=$this->db;
-		$estado='"'.'Guardado'.'"';
-		$sql='SELECT  id from albclit where idCliente='.$idCliente .' and estado='.$estado;
-		$albaranes=array();
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-			$respuesta['error']=$smt['error'];
-			$respuesta['consulta']=$smt['consulta'];
-			return $respuesta;
-		}else{
-			while ( $result = $smt->fetch_assoc () ) {
-				$albaranes['alb']=1;
-			}
-			return $albaranes;
-		}
-	}
-	
-	
-		public function AlbaranClienteGuardado($busqueda, $idCliente){
-		$db=$this->db;
-		$pedido['busqueda']=$busqueda;
-		if ($busqueda>0){
-			$sql='select  Numalbcli , id , Fecha  , total from albclit where
-			 Numalbcli ='.$busqueda.' and  idCliente='. $idCliente;
-			 $smt=$this->consulta($sql);
-			if (gettype($smt)==='array'){
-				$pedido['error']=$smt['error'];
-				$pedido['consulta']=$smt['consulta'];
-			}else{
-				if ($result = $smt->fetch_assoc () ){
-					$pedido=$result;
-				}
-				$pedido['Nitem']=1;
-			}
-		}else{
-			$sql='SELECT  Numalbcli , Fecha  , total , id from albclit 
-			where idCliente='.$idCliente .' and estado="Guardado"';
-			$smt=$this->consulta($sql);
-			if (gettype($smt)==='array'){
-				$pedido['error']=$smt['error'];
-				$pedido['consulta']=$smt['consulta'];
-			}else{
-			$pedidosPrincipal=array();
-				while ( $result = $smt->fetch_assoc () ) {
-					array_push($pedidosPrincipal,$result);	
-				}
-				
-				$pedido['datos']=$pedidosPrincipal;
-			}
-		}
-		return $pedido;
-	}
-	public function modificarFecha($idReal, $fecha){
-		$db=$this->db;
-		$sql='UPDATE albclit SET Fecha="'.$fecha.'" WHERE id='.$idReal;
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-				$errores=array();
-				$errores['error']=$smt['error'];
-				$errores['consulta']=$smt['consulta'];
-				return $errores;
-			}
-	}
-	
+        $smt = $this->consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta['error'] = $smt['error'];
+            $respuesta['consulta'] = $smt['consulta'];
+            return $respuesta;
+        } else {
+            $albaranPrincipal = array();
+            while ($result = $smt->fetch_assoc()) {
+                array_push($albaranPrincipal, $result);
+            }
+            return $albaranPrincipal;
+        }
+    }
+
+    public function datosAlbaran($idAlbaran) {
+        //@Objetivo:
+        //Datos de un albarán real según id
+        $tabla = 'albclit';
+        $where = 'id=' . $idAlbaran;
+        $albaran = parent::SelectUnResult($tabla, $where);
+        return $albaran;
+    }
+
+    public function datosAlbaranNum($numAlbaran) {
+        //@Objetivo:
+        //Datos de un albarán real según numero de cliente
+        $tabla = 'albclit';
+        $where = 'numalbcli=' . $numAlbaran;
+        $albaran = parent::SelectUnResult($tabla, $where);
+        return $albaran;
+    }
+
+    public function ProductosAlbaran($idAlbaran) {
+        //@Objetivo:
+        //Muestros los productos de un id de cliente real 
+        $tabla = 'albclilinea';
+        $where = 'idalbcli= ' . $idAlbaran;
+        $albaran = parent::SelectVariosResult($tabla, $where);
+        return $albaran;
+    }
+
+    public function IvasAlbaran($idAlbaran) {
+        //@Objetivo:
+        //BUsca en la tabla ivas cliente los datos de un albarán real
+        $tabla = 'albcliIva';
+        $where = 'idalbcli= ' . $idAlbaran;
+        $albaran = parent::SelectVariosResult($tabla, $where);
+        return $albaran;
+    }
+
+    public function PedidosAlbaranes($idAlbaran) {
+        //@Objetivo:
+        //Busca los pedidos de un albarán real
+        $tabla = 'pedcliAlb';
+        $where = 'idAlbaran= ' . $idAlbaran;
+        $albaran = parent::SelectVariosResult($tabla, $where);
+        return $albaran;
+    }
+
+    public function ModificarEstadoAlbaran($idAlbaran, $estado) {
+        //@Objetivo:
+        //Modificar estado de un albarán real
+        $db = $this->db;
+        $sql = 'UPDATE albclit SET estado="' . $estado . '" WHERE id=' . $idAlbaran;
+        $smt = $this->consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta['error'] = $smt['error'];
+            $respuesta['consulta'] = $smt['consulta'];
+            return $respuesta;
+        }
+    }
+
+    public function ComprobarAlbaranes($idCliente, $estado) {
+        //@Objetivo:
+        //Comprobar los albaranes de un determinado estado
+        $db = $this->db;
+        $estado = '"' . 'Guardado' . '"';
+        $sql = 'SELECT  id from albclit where idCliente=' . $idCliente . ' and estado=' . $estado;
+        $albaranes = array();
+        $smt = $this->consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta['error'] = $smt['error'];
+            $respuesta['consulta'] = $smt['consulta'];
+            return $respuesta;
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                $albaranes['alb'] = 1;
+            }
+            return $albaranes;
+        }
+    }
+
+    public function AlbaranClienteGuardado($busqueda, $idCliente) {
+        $db = $this->db;
+        $pedido['busqueda'] = $busqueda;
+        if ($busqueda > 0) {
+            $sql = 'select  Numalbcli , id , Fecha  , total from albclit where
+			 Numalbcli =' . $busqueda . ' and  idCliente=' . $idCliente;
+            $smt = $this->consulta($sql);
+            if (gettype($smt) === 'array') {
+                $pedido['error'] = $smt['error'];
+                $pedido['consulta'] = $smt['consulta'];
+            } else {
+                if ($result = $smt->fetch_assoc()) {
+                    $pedido = $result;
+                }
+                $pedido['Nitem'] = 1;
+            }
+        } else {
+            $sql = 'SELECT  Numalbcli , Fecha  , total , id from albclit 
+			where idCliente=' . $idCliente . ' and estado="Guardado"';
+            $smt = $this->consulta($sql);
+            if (gettype($smt) === 'array') {
+                $pedido['error'] = $smt['error'];
+                $pedido['consulta'] = $smt['consulta'];
+            } else {
+                $pedidosPrincipal = array();
+                while ($result = $smt->fetch_assoc()) {
+                    array_push($pedidosPrincipal, $result);
+                }
+
+                $pedido['datos'] = $pedidosPrincipal;
+            }
+        }
+        return $pedido;
+    }
+
+    public function modificarFecha($idReal, $fecha) {
+        $db = $this->db;
+        $sql = 'UPDATE albclit SET Fecha="' . $fecha . '" WHERE id=' . $idReal;
+        $smt = $this->consulta($sql);
+        if (gettype($smt) === 'array') {
+            $errores = array();
+            $errores['error'] = $smt['error'];
+            $errores['consulta'] = $smt['consulta'];
+            return $errores;
+        }
+    }
 	public function NumfacturaDeAlbaran($numAlbaran){	
 		$db=$this->db;
 		$tabla='albclifac';
@@ -458,6 +454,7 @@ class AlbaranesVentas extends ClaseVentas {
 		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
+
 }
 
-?>
+
