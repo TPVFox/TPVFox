@@ -38,7 +38,7 @@
 		// Montamos link para mostrar para poder ver resumen
 		$linkResumen = '<a href="ResumenFechas.php?fecha1='.$fecha1.'&fecha2='.$fecha2.'">Ver Resumen</a>';
 		// SI recibe por get las fechas añade el filtro a la consulta
-		$filtro=' FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
+		$filtro=' WHERE FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
 	}
 
 	$cierres = obtenerCierres($BDTpv,$filtro,$limite);

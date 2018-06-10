@@ -104,8 +104,8 @@ function obtenerCierres($BDTpv ,$filtro='',$limite='') {
 	//tablas usadas: - cierres
 				//	 - usuarios
 	$resultado = array();
-	if ($filtro !=''){
-		$filtro = ' where '.$filtro;
+	if (trim($filtro) !=''){
+		$filtro = ' '.$filtro;
 	}
 	$consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
 				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro.$limite; 
