@@ -26,7 +26,7 @@ class ModeloP {
 
 //    protected static $instance = null;
     protected static $db = null;
-    protected static $tabla;
+//    protected static $tabla;
     protected static $resultado = ['error' => 0, 'consulta' => ''];
 
 //    public static function getInstance() {
