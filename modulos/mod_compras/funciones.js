@@ -684,7 +684,8 @@ function comprobarAdjunto(dedonde){
 						$('#tablaPedidos').css("display", "block");
 						ponerFocus('numPedido');
 					}else{
-						ponerFocus('idArticulo');
+						pornerFocusEnOpcionSalto();
+						//~ ponerFocus('idArticulo');
 					}
 				}
 				
