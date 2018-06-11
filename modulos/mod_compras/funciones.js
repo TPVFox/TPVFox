@@ -253,8 +253,8 @@ function controladorAcciones(caja,accion, tecla){
 					productos[nfila].CosteAnt=costeAnt;
 						addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
 						if (caja.tipo_event !== "blur"){
-						var d_focus = 'Referencia';
-						ponerFocus(d_focus);
+						//~ var d_focus = 'Referencia';
+						pornerFocusEnOpcionSalto();
 				}
 				
 			
