@@ -16,5 +16,23 @@ Familia:
 https://pixabay.com/en/boy-daughter-family-father-1300621/
 Cesta:
 https://pixabay.com/en/basket-buy-shop-shopping-turquoise-152089/
-
-
+Furgoneta:
+https://pixabay.com/en/van-travel-1918555/
+Manos:
+https://pixabay.com/en/handshake-meeting-deal-hand-trade-651818/
+Alerta
+https://pixabay.com/en/attention-warning-sign-danger-303861/
+tabla BD;
+https://pixabay.com/en/database-schema-data-tables-schema-1895779/
+Pedido compras
+https://pixabay.com/en/list-checkbox-checked-tick-note-147904/
+Albaran compras
+https://pixabay.com/en/desk-people-money-ticket-exchange-44076/
+Factura compras
+https://pixabay.com/en/pen-list-paper-shopping-price-158672/
+Pedidos ventas:
+https://pixabay.com/en/folder-flat-design-icon-symbol-2103508/
+FActura ventas:
+https://pixabay.com/en/document-a-project-proposal-approval-2034327/
+Alabaranes Ventas
+https://pixabay.com/en/folder-office-files-corporate-23609/

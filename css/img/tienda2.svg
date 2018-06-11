@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.92.1 r15371"
+   width="33.372139"
+   height="34.559937"
+   sodipodi:docname="tienda2.svg"
+   inkscape:export-filename="/home/solucion40/Proyectos/CarteraProyectos/Clientes/vapeagrow/Disenografico/icono/tienda.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1360"
+     inkscape:window-height="669"
+     id="namedview4"
+     showgrid="false"
+     fit-margin-top="0.2"
+     fit-margin-right="0.2"
+     fit-margin-left="0.2"
+     fit-margin-bottom="0.2"
+     inkscape:zoom="5.2149125"
+     inkscape:cx="23.131861"
+     inkscape:cy="30.074845"
+     inkscape:window-x="0"
+     inkscape:window-y="28"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <path
+     inkscape:connector-curvature="0"
+     id="path2993"
+     d="m 1.5162096,34.268007 c -0.062768,-0.06283 -0.114122,-0.555072 -0.114122,-1.093994 v -0.979872 l 0.5519215,-0.05323 0.5519216,-0.05323 v -7.132533 -7.132523 l -1.1462986,-0.05024 c -0.63046436,-0.02756 -1.14629877,-0.08389 -1.14629877,-0.12513 0,-0.04128 0.6113593,-2.254902 1.35857617,-4.919264 0.747217,-2.664352 1.3585764,-4.9649815 1.3585764,-5.1125122 0,-0.14752 -0.15284,-0.4625173 -0.3396441,-0.7 -0.4799239,-0.6101227 -0.4483896,-1.5992 0.070208,-2.2021013 l 0.4098503,-0.47648 H 16.657684 30.244469 l 0.438237,0.4117013 c 0.571509,0.536896 0.626702,1.82752 0.09859,2.30544 -0.186805,0.1690667 -0.339645,0.419168 -0.339645,0.5557973 0,0.1366294 0.611359,2.33664 1.358576,4.8889279 0.747218,2.552288 1.358577,4.755979 1.358577,4.897077 0,0.198571 -0.259114,0.267904 -1.146298,0.306774 l -1.146299,0.05024 -0.04436,7.027925 c -0.03185,5.046976 0.0099,7.093301 0.14816,7.259893 0.105888,0.127574 0.377859,0.231968 0.604383,0.231968 0.3974,0 0.41009,0.03723 0.361307,1.061387 l -0.05056,1.061387 -15.127405,0.04331 c -8.3200747,0.0239 -15.1787602,-0.0085 -15.2415281,-0.07072 z M 28.024117,25.13653 c 0.03498,-4.225301 -0.0026,-5.452875 -0.169822,-5.559072 -0.249233,-0.158208 -4.556649,-0.191595 -4.955831,-0.0384 -0.237305,0.09099 -0.268623,0.744928 -0.268623,5.608427 v 5.505365 l 2.674697,-0.04672 2.674697,-0.04672 0.04488,-5.422784 z m -8.893797,0.653877 c 0.202815,-0.528533 0.114283,-5.935669 -0.100704,-6.150656 -0.151552,-0.151552 -1.90578,-0.203776 -6.843828,-0.203776 -4.9380481,0 -6.6922774,0.05216 -6.8438282,0.203776 -0.1426114,0.142614 -0.2037864,1.075552 -0.2037864,3.107744 0,2.032203 0.061174,2.965142 0.2037864,3.107755 0.1516545,0.151648 1.9281592,0.203787 6.9445342,0.203787 5.990022,0 6.752227,-0.02997 6.843828,-0.26863 z M 6.9598004,16.78597 C 7.3545823,16.73818 7.7123073,16.643015 7.7547458,16.574354 7.7971838,16.505664 8.0332115,14.662706 8.2792496,12.478855 8.7216717,8.5519008 8.7230098,8.5033995 8.4007963,8.0707701 8.1125422,7.6837515 7.9372061,7.6276235 6.879213,7.5838048 5.1562259,7.5124448 5.1578069,7.5094581 4.3979536,12.196935 c -0.6275569,3.871318 -0.7012988,4.55216 -0.5134043,4.740054 0.1013675,0.10144 1.5939785,0.02805 3.0752511,-0.151019 z M 30.137691,16.69669 c 0.03519,-0.1056 -0.228562,-1.996971 -0.586121,-4.203104 -0.795275,-4.9068372 -0.771248,-4.8602452 -2.506356,-4.8602452 -1.133527,0 -1.26451,0.0368 -1.565736,0.440288 -0.326129,0.4368107 -0.325145,0.4716587 0.12472,4.4153702 0.348056,3.05119 0.516551,4.024427 0.724956,4.18736 0.356652,0.278848 3.716387,0.296779 3.808537,0.02027 z m -7.5515,-0.190144 c 0.111253,-0.140779 0.07325,-1.533568 -0.112831,-4.1352 -0.346813,-4.8488425 -0.335761,-4.8229225 -2.05512,-4.8229225 -1.911645,0 -1.864653,-0.1168214 -1.861527,4.6276585 0.0014,2.171595 0.06,4.038613 0.130156,4.148939 0.22875,0.359701 3.633264,0.518186 3.899322,0.181525 z m -7.366418,-0.21408 c 0.05414,-0.141099 0.105578,-1.980875 0.114301,-4.088416 0.01938,-4.6811839 0.02821,-4.6556265 -1.609915,-4.6556265 -1.283546,0 -1.565825,0.088107 -1.831839,0.571904 -0.197314,0.3588373 -0.8085,7.8082455 -0.674113,8.2163945 0.05043,0.153152 0.603712,0.212267 1.986512,0.212267 1.552963,0 1.935293,-0.04864 2.015054,-0.256523 z"
+     style="fill:#000000;fill-opacity:1;stroke-width:1.06666672" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.80000019px;line-height:0%;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06666672;"
+     x="7.2934189"
+     y="21.225643"
+     id="text3010"
+     transform="scale(0.87282069,1.1457107)"><tspan
+       sodipodi:role="line"
+       id="tspan3012"
+       x="7.2934189"
+       y="21.225643"
+       style="font-size:3.80674338px;line-height:1.87;stroke-width:1.06666672;fill:#000000;">TIENDA</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.80000019px;line-height:0%;font-family:'CopprplGoth Bd BT';-inkscape-font-specification:'CopprplGoth Bd BT';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#3c908b;fill-opacity:1;stroke:none;stroke-width:1.0666666"
+     x="5.540391"
+     y="2.6602685"
+     id="text3014"
+     transform="scale(0.91468294,1.093275)"><tspan
+       sodipodi:role="line"
+       id="tspan3016"
+       x="5.540391"
+       y="5.9852686"
+       style="font-size:4.59799528px;line-height:1.87;stroke-width:1.0666666" /></text>
+</svg>
