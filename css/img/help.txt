@@ -36,3 +36,5 @@ FActura ventas:
 https://pixabay.com/en/document-a-project-proposal-approval-2034327/
 Alabaranes Ventas
 https://pixabay.com/en/folder-office-files-corporate-23609/
+caja:
+https://pixabay.com/en/cash-register-register-retail-store-576159/

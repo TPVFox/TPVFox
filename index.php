@@ -35,7 +35,7 @@
 							</div>
 							<div class="col-md-4 text-center">
 								<h6 class="text-center">Familias</h6>
-								<a class="text-center" title="Familias" href="modulos/mod_etiquetado/ListadoEtiquetas.php"><img width="40px" src="css/img/boy-1300621.svg" alt="Familias" /></a>
+								<a class="text-center" title="Familias" href="modulos/mod_etiquetado/ListadoEtiquetas.php"><img width="40px" src="css/img/dibujo1.svg" alt="Familias" /></a>
 							</div>
 							<div class="col-md-4 text-center">
 								<h6 class="text-center">Lotes</h6>
@@ -86,8 +86,9 @@
 					<div class="col-md-4">
 						<div class="col-md-11" style="margin: 4%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
 						<h4 class="text-center text-center">Tickets</h4>
-						<div class="col-md-4">
-								<h6 class="text-center">Venta</h6>
+						<div class="col-md-4 text-center">
+								<h6 class="text-center">Caja</h6>
+								<a class="text-center" title="Caja" href="modulos/mod_tpv/tpv.php"><img width="45px" src="css/img/cash-register-576159.svg" alt="Caja" /></a>
 							</div>
 							<div class="col-md-4 text-center">
 								<h6 class="text-center">Cierres</h6>
