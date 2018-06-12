@@ -101,6 +101,8 @@
         <script>
             // Declaramos variables globales
             var checkID = [];
+        
+         
 
         </script> 
         <!-- Cargamos fuciones de modulo. -->
@@ -109,6 +111,11 @@
     </head>
 
     <body>
+		<script>
+			setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
+		jQuery('#buscar').focus(); 
+	}, 50);
+		</script>
 <?php
 include './../../header.php';
 ?>
@@ -181,7 +188,7 @@ echo $htmlConfiguracion['htmlCheck'];
                         <div class="form-group ClaseBuscar">
                             <label>Buscar por:</label>
                             <select onchange="GuardarBusqueda(event);" name="SelectBusqueda" id="sel1"> <?php echo $htmlConfiguracion['htmlOption']; ?> </select>
-                            <input type="text" name="buscar" value="<?php echo $NPaginado->GetBusqueda(); ?>">
+                            <input id="buscar" type="text" name="buscar" value="<?php echo $NPaginado->GetBusqueda(); ?>">
                             <input type="submit" value="buscar">
                         </div>
                     </form>

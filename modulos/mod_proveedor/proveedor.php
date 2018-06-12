@@ -61,6 +61,7 @@
 									 );
 									 $i++;
 					}
+				
 				}
 					
 				$htmlFacturas=htmlTablaGeneral($adjuntos['facturas']['datos'], $HostNombre, "factura");
@@ -102,7 +103,7 @@
 								 'mensaje' => 'COINCIDENCIA!'
 								 );
 				}else{
-					//~ header('Location: ListaProveedores.php');
+					 header('Location: ListaProveedores.php');
 				}
 			}else{
 				$errores[7]=array ( 'tipo'=>'Danger!',

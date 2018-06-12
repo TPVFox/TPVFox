@@ -25,7 +25,10 @@ class Modelo extends ModeloP {
         if ($smt) {
             $respuesta['datos'] = $smt;
         } else {
-            $respuesta['error'] = $this->getErrorConsulta();
+			if($this->getErrorConsulta()!='0'){
+				$respuesta['error'] = $this->getErrorConsulta();
+			}
+            
         }
         return $respuesta;
     }
