@@ -15,6 +15,116 @@
 <body>
 	<?php 
 	include 'header.php';
+	$titulos=array('Almacén', 'Compras', 'Ventas', 'Tickets', 'Contactos', 'Sistema');
+	$links=array( '0'=>array(
+					'icono'=>'css/img/productosP.png',
+					'link'=>'modulos/mod_producto/ListaProductos.php',
+					'texto'=>'Productos',
+					'permmiso'=>0
+					),
+				'1'=>array(
+					'icono'=>'css/img/familiasP.png',
+					'link'=>'modulos/mod_familia/ListaFamilias.php',
+					'texto'=>'Familias',
+					'permmiso'=>1
+					),
+				'2'=>array(
+					'icono'=>'css/img/lotesP.png',
+					'link'=>'modulos/mod_etiquetado/ListadoEtiquetas.php',
+					'texto'=>'Lotes',
+					'permmiso'=>1
+					),
+				'3'=>array(
+					'icono'=>'css/img/pedidosComP.png',
+					'link'=>'modulos/mod_compras/pedidosListado.php',
+					'texto'=>'Pedidos',
+					'permmiso'=>0
+					),
+				'4'=>array(
+					'icono'=>'css/img/albaranComP.png',
+					'link'=>'modulos/mod_compras/albaranesListado.php',
+					'texto'=>'Albaranes',
+					'permmiso'=>0
+					),
+				'5'=>array(
+					'icono'=>'css/img/facturasComP.png',
+					'link'=>'modulos/mod_compras/facturasListado.php',
+					'texto'=>'Facturas',
+					'permmiso'=>0
+					),
+				'6'=>array(
+					'icono'=>'css/img/PedidosVenP.png',
+					'link'=>'modulos/mod_venta/pedidosListado.php',
+					'texto'=>'Pedidos',
+					'permmiso'=>0
+					),	
+				'7'=>array(
+					'icono'=>'css/img/albaranVenP.png',
+					'link'=>'modulos/mod_venta/albaranesListado.php',
+					'texto'=>'Albaranes',
+					'permmiso'=>0
+					),	
+				'8'=>array(
+					'icono'=>'css/img/facturaVenP.png',
+					'link'=>'modulos/mod_venta/facturasListado.php',
+					'texto'=>'Facturas',
+					'permmiso'=>0
+					),	
+				'9'=>array(
+					'icono'=>'css/img/cajaP.png',
+					'link'=>'modulos/mod_tpv/tpv.php',
+					'texto'=>'Caja',
+					'permmiso'=>0
+					),	
+				'10'=>array(
+					'icono'=>'css/img/cierresP.png',
+					'link'=>'modulos/mod_cierres/CierreCaja.php?dedonde=tpv',
+					'texto'=>'Cierres',
+					'permmiso'=>0
+					),
+				'11'=>array(
+					'icono'=>'css/img/ticketsP.png',
+					'link'=>'modulos/mod_tpv/ListaTickets.php?estado=Cobrado',
+					'texto'=>'Tickets',
+					'permmiso'=>0
+					),	
+				'12'=>array(
+					'icono'=>'css/img/usuariosP.png',
+					'link'=>'modulos/mod_usuario/ListaUsuarios.php',
+					'texto'=>'Usuarios',
+					'permmiso'=>9
+					),
+				'13'=>array(
+					'icono'=>'css/img/clientesP.png',
+					'link'=>'modulos/mod_cliente/ListaClientes.php',
+					'texto'=>'Clientes',
+					'permmiso'=>1
+					),
+				'14'=>array(
+					'icono'=>'css/img/proveedoresP.png',
+					'link'=>'modulos/mod_proveedor/ListaProveedores.php',
+					'texto'=>'Proveedores',
+					'permmiso'=>1
+					),
+				'15'=>array(
+					'icono'=>'css/img/tiendaP.png',
+					'link'=>'modulos/mod_tienda/ListaTiendas.php',
+					'texto'=>'Tiendas',
+					'permmiso'=>9
+					),
+				'16'=>array(
+					'icono'=>'css/img/incidenciasP.png',
+					'link'=>'modulos/mod_incidencias/ListadoIncidencias.php',
+					'texto'=>'Incidencias',
+					'permmiso'=>9
+					),
+				'17'=>array(
+					'icono'=>'css/img/tablasP.png',
+					'link'=>'modulos/mod_configuracion/tablasPrincipales.php',
+					'texto'=>'Tablas',
+					'permmiso'=>9
+					),
+				);
 	?>
 	
 	<section>
@@ -24,119 +134,46 @@
 			</div>
 			<div class="col-md-12 row">
 				<h2 class="text-center">Accesos Directos</h2>
-				<div class="col-md-12 row">
+				<?php 
+				$t=0;
+				$i=0;
+				$c=0;
+				foreach ($links as $link){
+					if($c==0){
+						echo '<div class="col-md-12 row">';
 					
-					<div class="col-md-4">
-						<div class="col-md-11" style="margin: 4%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
-						<h4 class="text-center">Almacén</h4>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Productos</h6>
-								<a class="text-center" title="Productos" href="modulos/mod_producto/ListaProductos.php"><img  src="css/img/productosP.png" alt="Productos" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Familias</h6>
-								<a class="text-center" title="Familias" href="modulos/mod_familia/ListaFamilias.php"><img  src="css/img/familiasP.png" alt="Familias" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Lotes</h6>
-								<a class="text-center" title="Lotes" href="modulos/mod_etiquetado/ListadoEtiquetas.php"><img  src="css/img/lotesP.png" alt="Lotes" /></a>
-							</div>
-						</div>
-						
-					</div>
-					<div class="col-md-4" >
-						<div class="col-md-11" style="margin: 4%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
-						<h4 class="text-center">Compras</h4>
-						<div class="col-md-4 text-center">
-								<h6 class="text-center">Pedidos</h6>
-								<a class="text-center" title="Pedidos" href="modulos/mod_compras/pedidosListado.php"><img  src="css/img/pedidosComP.png" alt="Pedidos" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Albaranes</h6>
-								<a class="text-center" title="Albaran" href="modulos/mod_compras/albaranesListado.php"><img src="css/img/albaranComP.png" alt="Albaran" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Facturas</h6>
-								<a class="text-center" title="Factura" href="modulos/mod_compras/facturasListado.php"><img  src="css/img/facturasComP.png" alt="Factura" /></a>
-							</div>
-						</div>
-						
-					</div>
-					<div class="col-md-4" >
-						<div class="col-md-11" style="margin: 4%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
-						<h4 class="text-center">Ventas</h4>
-						<div class="col-md-4 text-center">
-								<h6 class="text-center">Pedidos</h6>
-								<a class="text-center" title="Pedidos" href="modulos/mod_venta/pedidosListado.php"><img  src="css/img/PedidosVenP.png" alt="Pedidos" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Albaranes</h6>
-								<a class="text-center" title="Albaranes" href="modulos/mod_venta/albaranesListado.php"><img  src="css/img/albaranVenP.png" alt="Albaranes" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Facturas</h6>
-								<a class="text-center" title="Factura" href="modulos/mod_venta/facturasListado.php"><img  src="css/img/facturaVenP.png" alt="Factura" /></a>
-							</div>
-						</div>
-						
-					</div>
-				</div>
-					<div class="col-md-12 row">
+					}
+					if($i==0){
+						echo '<div class="col-md-4" >';
+						echo '<div class="col-md-11" style="margin: 4%;padding:3%;border-radius:10px;background-color:#f3f3f6;">';
+						echo '<h4 class="text-center">'.$titulos[$t].'</h4>';
+					}
+				echo '<div class="col-md-4 text-center ">
+						<h6 class="text-center">'.$link['texto'].'</h6>';
+				
+			if ($Usuario['group_id'] >=$link['permmiso'] ){
+				echo '<a class="text-center" title="'.$link['texto'].'" href="'.$link['link'].'"><img  src="'.$link['icono'].'" alt="'.$link['texto'].'" /></a>';
+			}else{
+				echo '<img  style="opacity:0.2" src="'.$link['icono'].'" alt="'.$link['texto'].'" />';
+			}
+				
+				echo '</div>';
 					
-					<div class="col-md-4">
-						<div class="col-md-11" style="margin: 4%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
-						<h4 class="text-center text-center">Tickets</h4>
-						<div class="col-md-4 text-center">
-								<h6 class="text-center">Caja</h6>
-								<a class="text-center" title="Caja" href="modulos/mod_tpv/tpv.php"><img  src="css/img/cajaP.png" alt="Caja" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Cierres</h6>
-								<a class="text-center" title="Cierres" href="modulos/mod_cierres/CierreCaja.php?dedonde=tpv"><img  src="css/img/cierresP.png" alt="Cierres" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Tikets</h6>
-								    <a title="Tickets" href="modulos/mod_tpv/ListaTickets.php?estado=Cobrado"><img  src="css/img/ticketsP.png" alt="Tickets" /></a>
-							</div>
-						</div>
+					$i++;
+					if($i==3){
+						$i=0;
+						$t=$t+1;
+						echo '</div>';
+						echo '</div>';
+					}
+					$c++;
+					if($c==9){
+						$c=0;
+						echo '</div>';
 						
-					</div>
-					<div class="col-md-4" >
-						<div class="col-md-11" style="margin: 4%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
-						<h4 class="text-center">Contactos</h4>
-						<div class="col-md-4 text-center">
-								<h6 class="text-center">Usuarios</h6>
-								<a class="text-center" title="Usuarios" href="modulos/mod_usuario/ListaUsuarios.php"><img  src="css/img/usuariosP.png" alt="Usuarios" /></a>
-							</div>
-							<div class="col-md-4 text-center">
-								<h6 class="text-center">Clientes</h6>
-									<a class="text-center" title="Clientes" href="modulos/mod_cliente/ListaClientes.php"><img  src="css/img/clientesP.png" alt="Clientes" /></a>
-							</div>
-							<div class="col-md-4 text-center ">
-								<h6 class="text-center">Proveedores</h6>
-								<a class="text-center" title="Proveedores" href="modulos/mod_proveedor/ListaProveedores.php"><img  src="css/img/proveedoresP.png" alt="Proveedores" /></a>
-							</div>
-						</div>
-						
-					</div>
-					<div class="col-md-4" >
-						<div class="col-md-11" style="margin: 4%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
-						<h4 class="text-center">Sistema</h4>
-						<div class="col-md-4 text-center ">
-								<h6 class="text-center">Tiendas</h6>
-									<a class="text-center" title="Tienda" href="modulos/mod_tienda/ListaTiendas.php"><img src="css/img/tiendaP.png" alt="Tiendas" /></a>
-							</div>
-							<div class="col-md-4 text-center ">
-								<h6 class="text-center">Incidendias</h6>
-								<a class="text-center" title="Incidencias" href="modulos/mod_incidencias/ListadoIncidencias.php"><img src="css/img/incidenciasP.png" alt="Incidencias" /></a>
-							</div>
-							<div class="col-md-4 text-center ">
-								<h6 class="text-center">Tablas</h6>
-								<a class="text-center" title="Tablas" href="modulos/mod_configuracion/tablasPrincipales.php"><img  src="css/img/tablasP.png" alt="Tablas" /></a>
-							</div>
-						</div>
-						
-					</div>
+					}
+				}
+				?>
 				</div>
 				</div>
 				<div class="col-md-12">
