@@ -1,40 +1,54 @@
-Ticket
+TicketsP
 https://pixabay.com/en/ticket-label-parcel-packaging-150090/
-Candado
+
+cierresP
 https://pixabay.com/en/castle-padlock-shut-off-to-378353/
-Usuario
+
+UsuarioP
 https://pixabay.com/en/avatar-black-head-monochrome-1299805/
-Cliente
+
+user-1633249.svg
 https://pixabay.com/en/user-person-people-profile-account-1633249/
-Proveedor:
+
+user-1633248.svg
 https://pixabay.com/en/user-person-people-profile-account-1633248/
-Tienda:
-https://pixabay.com/en/home-house-silhouette-icon-146585/
-Cod barras:
+
+
+lotesP.png:
 https://pixabay.com/en/bar-code-bar-code-label-product-id-150961/
-Familia:
-https://pixabay.com/en/boy-daughter-family-father-1300621/
-Cesta:
+
+productosP:
 https://pixabay.com/en/basket-buy-shop-shopping-turquoise-152089/
-Furgoneta:
+
+proveedoresP:
 https://pixabay.com/en/van-travel-1918555/
-Manos:
+
+ClientesP:
 https://pixabay.com/en/handshake-meeting-deal-hand-trade-651818/
-Alerta
+
+incidenciasP
 https://pixabay.com/en/attention-warning-sign-danger-303861/
-tabla BD;
+
+tablasP;
 https://pixabay.com/en/database-schema-data-tables-schema-1895779/
-Pedido compras
+
+PedidoComP
 https://pixabay.com/en/list-checkbox-checked-tick-note-147904/
-Albaran compras
+
+AlbaranComP
 https://pixabay.com/en/desk-people-money-ticket-exchange-44076/
-Factura compras
+
+FacturaComP
 https://pixabay.com/en/pen-list-paper-shopping-price-158672/
-Pedidos ventas:
+
+PedidosVenP:
 https://pixabay.com/en/folder-flat-design-icon-symbol-2103508/
-FActura ventas:
+
+FacturaVenP:
 https://pixabay.com/en/document-a-project-proposal-approval-2034327/
-Alabaranes Ventas
+
+AlbaranVenP
 https://pixabay.com/en/folder-office-files-corporate-23609/
-caja:
+
+cajap:
 https://pixabay.com/en/cash-register-register-retail-store-576159/
