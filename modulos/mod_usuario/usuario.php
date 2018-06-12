@@ -120,19 +120,22 @@
 			}
 			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
+			<form action="" method="post" name="formUsuario">
 			<a class="text-ritght" href="./ListaUsuarios.php">Volver Atrás</a>
+			<input type="submit" value="Guardar">
 			<div class="col-md-12">
 				
 				<h3><?php echo $UsuarioUnico['nombre'];?></h3>
-				<div class="col-md-3">
+				<div class="col-md-1">
+						
 					<?php 
 					// UrlImagen
 					$img = './../../css/img/imgUsuario.png';
 					?>
 					<img src="<?php echo $img;?>" style="width:100%;">
 				</div>
-				<form action="" method="post" name="formUsuario">
-				<div class="col-md-9">
+				
+				<div class="col-md-7">
 					<div class="Datos">
 						<div class="col-md-6 form-group">
 							<label>Nombre Usuario/login:</label>
@@ -185,8 +188,13 @@
 					</div>
 					
 				</div>
+				<div class="col-md-4">
+					
+				</div>
 				<div class="col-md-12">
+<!--
 					<input type="submit" value="Guardar">
+-->
 				
 				<div class="col-md-9">
 				</form>
