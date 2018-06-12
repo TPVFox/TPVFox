@@ -607,7 +607,7 @@ function grabarTicketCobrado($BDTpv, $productos, $cabecera, $desglose) {
     }
     foreach ($articulosStock as $articuloStock) {
         alArticulosStocks::actualizarStock($articuloStock['idArticulo'], $articuloStock['idTienda']
-                , $articuloStock['nunidades'], K_STOCKARTICULO_SUMA);
+                , $articuloStock['nunidades'], K_STOCKARTICULO_RESTA);
     }
     // Devolvemos los numeros ticket , tanto temporal como real.
     $resultado['sql_ivas'] = gettype($desglose);
