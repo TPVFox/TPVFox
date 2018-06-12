@@ -173,7 +173,7 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ', "0" as precioentrada'
                 . ', lintic.nunidades as salida'
                 . ', lintic.precioCiva as preciosalida'
-                . ', "T" as tipodoc '
+                . ', "T'.$parametros['Tienda']['idTienda'].'-'.$parametros['Usuario']['id'].'-" as tipodoc '
                 . ', tic.Numticket as numdocu '
                 . ', cli.Nombre as nombre'
                 . ', tic.estado as estado'                

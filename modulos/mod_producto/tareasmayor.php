@@ -90,7 +90,9 @@ switch ($pulsado) {
             $fecha = explode('/', $fechafinal);
             $fechahasta = $fecha[2] . '/' . $fecha[1] . '/' . $fecha[0];
 
-            $sqldata = $articulo->calculaMayor(compact("fechadesde", "fechahasta", "idArticulo"));
+                    $Tienda = $_SESSION['tiendaTpv'];
+        $Usuario = $_SESSION['usuarioTpv'];
+            $sqldata = $articulo->calculaMayor(compact("fechadesde", "fechahasta", "idArticulo","Tienda","Usuario"));
 
             if ($sqldata['datos']) {
                 $sumastock = $stockinicial;
