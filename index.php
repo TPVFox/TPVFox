@@ -35,7 +35,7 @@
 							</div>
 							<div class="col-md-4 text-center">
 								<h6 class="text-center">Familias</h6>
-								<a class="text-center" title="Familias" href="modulos/mod_etiquetado/ListadoEtiquetas.php"><img width="40px" src="css/img/dibujo1.svg" alt="Familias" /></a>
+								<a class="text-center" title="Familias" href="modulos/mod_familia/ListaFamilias.php"><img width="40px" src="css/img/dibujo1.svg" alt="Familias" /></a>
 							</div>
 							<div class="col-md-4 text-center">
 								<h6 class="text-center">Lotes</h6>
