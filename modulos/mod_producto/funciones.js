@@ -936,3 +936,27 @@ function ponerSelect (destino_focus){
 	}, 50); 
 
 }
+function comprobarReferencia(idProducto){
+		var referencia=$("#referencia").val();
+		var parametros = {
+		"pulsado"    	: 'comprobarReferencia',
+		"idProducto"	:idProducto,
+		"referencia"	:referencia
+		
+		};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  comprobar la refrencia escrita en el producto  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de comprobar la referencia escrita en el producto ');
+				var resultado = $.parseJSON(response);
+				
+				 
+		}	
+	});
+		
+}
