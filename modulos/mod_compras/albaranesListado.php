@@ -48,7 +48,7 @@ $todosTemporal=array_reverse($todosTemporal);
 	$CantidadRegistros=0;
 	// Obtenemos la cantidad registros 
 	$a = $CAlb->TodosAlbaranesLimite($filtro);
-		
+		//~ echo $filtro;
 	$CantidadRegistros = count($a['Items']);
 	
 	// --- Ahora envio a NPaginado la cantidad registros --- //
