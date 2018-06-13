@@ -1,5 +1,6 @@
 <?php
-//~ require_once('../lib/tcpdf/tcpdf.php');
+//~ require_once('../../lib/tcpdf/tcpdf.php');
+	
 class imprimir extends TCPDF {
 	//~ //Datos de la cabecera 
         //~ public function Cabecera() {
@@ -9,7 +10,7 @@ class imprimir extends TCPDF {
              //~ //   $this->Image('', 120, 10, 75, 0, 'PNG', '');
              //~ $this->writeHTML($headerData['string']);
         //~ }
-        
+     
         var $htmlHeader;
         public function setHtmlHeader($htmlHeader) {
 			$this->htmlHeader = $htmlHeader;
