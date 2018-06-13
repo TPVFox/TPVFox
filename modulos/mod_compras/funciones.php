@@ -1768,4 +1768,57 @@ if(isset($datos['Su_numero'])){
 		</tr>';
 	return $respuesta;
 }
+
+function incidenciasAdjuntas($id, $dedonde, $BDTpv, $vista){
+	include_once('../mod_incidencias/clases/ClaseIncidencia.php');
+	$Cindicencia=new ClaseIncidencia($BDTpv);
+	$incidenciasAdjuntas=$Cindicencia->incidenciasAdjuntas($id, $dedonde, $vista);
+	if(isset($incidenciasAdjuntas['error'])){
+		$respuesta['error']=$incidenciasAdjuntas['error'];
+		$respuesta['consulta']=$incidenciasAdjuntas['consulta'];
+	}else{
+		
+		$respuesta['datos']=$incidenciasAdjuntas;
+	}
+	return $respuesta;
+}
+function modalIncidenciasAdjuntas($datos){
+	$html="";
+	foreach($datos as $dato){
+		$html.='<div class="col-md-12">'
+					.'<h4>Incidencia:</h4>'
+					.'<div class="col-md-6">'
+						.'<label>Fecha:</label>'
+						.'<input type="date" name="inci_fecha" id="inci_fecha" value="'.$dato['fecha_creacion'].'" readonly="">'
+					.'</div>'
+					.'<div class="col-md-6">'
+						.'<label>Dedonde:</label>'
+						.'<input type="text" name="inci_dedonde" id="inci_dedonde" value="'.$dato['dedonde'].'" readonly="">'
+					.'</div>'
+				.'</div>'
+				.'<div class="col-md-12">'
+					.'<div class="col-md-6">'
+						.'<label>Estado:</label>'
+						.'<input type="text" name="estado" id="estado" value="'.$dato['estado'].'" readonly="">'
+					.'</div>'
+					.'<div class="col-md-6">'
+						.'<label>Usuario:</label>'
+						.'<input type="text" name="usuario" id="usuario" value="'.$dato['id_usuario'].'" readonly="">'
+					.'</div>'
+				.'</div>'
+				.'<div class="col-md-12">'
+					.'<div class="col-md-6">'
+						.'<label>Datos:</label>'
+						.'<textarea rows="4" cols="20" readonly> '.$dato['datos'].'</textarea>'
+					.'</div>'
+					.'<div class="col-md-6">'
+						.'<label>Mensaje:</label>'
+						.'<textarea rows="4" cols="20" readonly> '.$dato['mensaje'].'</textarea>'
+					.'</div>'
+				.'</div>';
+				
+					
+	}
+	return $html;
+}
 ?>

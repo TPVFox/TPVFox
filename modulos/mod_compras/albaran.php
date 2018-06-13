@@ -89,6 +89,9 @@
 			
 			}
 		}
+		$incidenciasAdjuntas=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, "albaran");
+		$inciden=count($incidenciasAdjuntas['datos']);
+		echo $inciden;
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id
@@ -271,6 +274,11 @@
 	if($idAlbaran>0){
 		?>
 		<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' ,  configuracion , 0,<?php echo $idAlbaran ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+		<?php
+	}
+	if($inciden>0){
+		?>
+		<input class="btn btn-primary" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_compras', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
 		<?php
 	}
 	?>

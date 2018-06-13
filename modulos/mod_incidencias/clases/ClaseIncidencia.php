@@ -223,6 +223,25 @@ class ClaseIncidencia{
 	return $html;
 		
 	}
+	public function incidenciasAdjuntas($idReal, $dedonde, $vista){
+		$db = $this->db;
+		$sql='SELECT * FROM `modulo_incidencia` WHERE `dedonde`="'.$dedonde.'" and datos like '."'".'%"vista":"'.$vista.'","idReal":"'.$idReal.'"%'."'";
+		//~ error_log($sql);
+		$smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$sql;
+				return $respuesta;
+		}else{
+			$incidenciaPrincipal=array();
+			while ( $result = $smt->fetch_assoc () ) {
+				
+				array_push($incidenciaPrincipal,$result);
+			}
+			return $incidenciaPrincipal;
+		}
+		
+	}
 	
 }
 

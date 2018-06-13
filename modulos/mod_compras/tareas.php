@@ -212,6 +212,19 @@ switch ($pulsado) {
 			$html=htmlDatosAdjuntoProductos($datos);
 			$respuesta=$html;
 		break;
+		case 'abrirIncidenciasAdjuntas':
+			$idReal=$_POST['id'];
+			$modulo=$_POST['modulo'];
+			$dedonde=$_POST['dedonde'];
+			$datosIncidencia=$CIncidencia->incidenciasAdjuntas($idReal, $modulo,  $dedonde);
+			if(isset($datosIncidencia['error'])){
+				$respuesta['error']=$datosIncidencia['error'];
+				$respuesta['consulta']=$datosIncidencia['consulta'];
+			}else{
+					$html=modalIncidenciasAdjuntas($datosIncidencia);
+					$respuesta['html']=$html;
+			}
+		break;
 		
 	
 }
