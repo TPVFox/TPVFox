@@ -18,7 +18,9 @@
 		
 		
 	</head>
+	
 	<body>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_usuario/funciones.js"></script>
 		<?php
         include './../../header.php';
 		// ===========  datos usuario segun id enviado por url============= //
@@ -57,9 +59,9 @@
 					}
 				}
 				$configuracionesUsuario=$Cusuario->getConfiguracionModulo($id);
-				echo '<pre>';
-				print_r($configuracionesUsuario);
-				echo '</pre>';
+				//~ echo '<pre>';
+				//~ print_r($configuracionesUsuario);
+				//~ echo '</pre>';
 				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
 				 
 			}

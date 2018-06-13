@@ -25,6 +25,14 @@ function metodoClick(pulsado){
 		
 	 }
 } 
+function eliminarConfiguracionModulo(idUsuario, modulo){
+	var mensaje = confirm("¿Estás seguro que quieres eliminar la configuración del usuario?");
+	if (mensaje) {
+		var bandera=1;
+		alert("si");
+		
+	}
+}
 
 
 
