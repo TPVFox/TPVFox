@@ -28,8 +28,32 @@ function metodoClick(pulsado){
 function eliminarConfiguracionModulo(idUsuario, modulo){
 	var mensaje = confirm("¿Estás seguro que quieres eliminar la configuración del usuario?");
 	if (mensaje) {
-		var bandera=1;
-		alert("si");
+			var parametros = {
+		"pulsado"    		: 'eliminarConfigModulo',
+		"idUsuario"			:idUsuario,
+		"modulo"				:modulo
+		
+		};
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Eliminar configuración del modulo   **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta Eliminar configuración del modulo ');
+				 var resultado = $.parseJSON(response);
+				 if(resultado.error){
+					 alert(resultado.consulta);
+				 }else{
+					location.reload(true);
+				 }
+				 
+				 
+		}	
+	});
+		
 		
 	}
 }

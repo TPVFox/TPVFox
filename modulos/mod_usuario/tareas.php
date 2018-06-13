@@ -5,7 +5,8 @@ include_once ("./../../configuracion.php");
 include_once ("./../../inicial.php");
 // Incluimos funciones
 include_once ("./funciones.php");
-
+include_once ('clases/claseUsuarios.php');
+$Cusuario=new ClaseUsuarios($BDTpv);
 // Obtenemos funcion que nos envia... 
 
 $pulsado = $_POST['pulsado'];
@@ -21,8 +22,20 @@ $pulsado = $_POST['pulsado'];
 	
 	$respuesta = CopiarDescripcion($id,$DatosRefCruzadas,$prefijoJoomla,$BDWebJoomla);
 	header("Content-Type: application/json;charset=utf-8");
-	echo json_encode($respuesta);
-
+	
+	break;
+	case 'eliminarConfigModulo':
+		$idUsuario=$_POST['idUsuario'];
+		$modulo=$_POST['modulo'];
+		$eliminar=$Cusuario->eliminarConfiguracionUsuario($idUsuario, $modulo);
+		if($eliminar['error']!='0'){
+			$respuesta['error']=$eliminar['error'];
+			$respuesta['consulta']=$eliminar['consulta'];
+		}else{
+			$respuesta=array();
+		}
+	break;
 }
-
+echo json_encode($respuesta);
+return $respuesta;
 ?>

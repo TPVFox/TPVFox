@@ -6,6 +6,13 @@ class ClaseUsuarios extends modelo{
 		$sql='SELECT * FROM `modulos_configuracion` where idusuario='.$idUsuario;
 		return $this->consulta($sql);
 	}
+	public function eliminarConfiguracionUsuario($idUsuario, $modulo){
+		$sql='DELETE FROM `modulos_configuracion` WHERE idusuario='.$idUsuario.' and `nombre_modulo`="'.$modulo.'"';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
 	
 }
 
