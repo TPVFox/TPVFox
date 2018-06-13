@@ -49,7 +49,7 @@ class Modelo extends ModeloP {
     }
 
     protected function update($datos, $condicion, $soloSQL = false) {
-        parent::update($this->tabla, $datos, $condicion, $soloSQL);
+        parent::_update($this->tabla, $datos, $condicion, $soloSQL);
 
         return $this->getSQLConsulta();
     }

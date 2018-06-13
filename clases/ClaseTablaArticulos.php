@@ -6,6 +6,7 @@
 
 include ($RutaServidor.$HostNombre.'/clases/ClaseTablaIva.php');
 include ($RutaServidor.$HostNombre.'/clases/ClaseTablaFamilias.php');
+include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseArticulosStocks.php';
 
 class ClaseTablaArticulos{
 	
@@ -32,6 +33,7 @@ class ClaseTablaArticulos{
 	public $proveedor_principal; // Array con datos del proveedor principal
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
 	public $ref_tiendas ; // (array) No inicializado, se utiliza para guardar las referencias distintas tiendas.
+        public $stocks = [];
 	
 	public function __construct($conexion='')
 	{
@@ -84,7 +86,7 @@ class ClaseTablaArticulos{
 		// El campo ultimoCoste, tendría que llamarse coste_ultimo
 		// El campo costepromedio -> coste_promedio ...
 		
-		if ($id !=0){
+		if ($id !=0){                    
 			$Sql = 'SELECT a.*, prec.* FROM articulos as a '
 				.'  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
 				.'  WHERE a.idArticulo ='.$id.' AND '
@@ -95,6 +97,7 @@ class ClaseTablaArticulos{
 				if ($consulta['NItems'] === 1){
 					$respuesta = $consulta['Items'][0];
 					$this->MontarProducto($respuesta);
+//                                        var_dump($respuesta);
 				} else {
 				// Hubo un error o encontro mas de uno o 0, es decir no existe.
 						if ($consulta['NItems'] > 1){
@@ -142,6 +145,8 @@ class ClaseTablaArticulos{
 			$this->ObtenerFamiliasProducto($this->idArticulo);
 			// Obtenemos Codbarras a las que pertenece ese producto
 			$this->ObtenerCodbarrasProducto($this->idArticulo);
+                        $this->stocks = alArticulosStocks::leer($this->idArticulo, $this->idTienda,true);                       
+                        
 			// Por ultimo realizamos comprobaciones.
 			$this->Comprobaciones();
 		}
@@ -157,7 +162,7 @@ class ClaseTablaArticulos{
 			foreach ( $this->comprobaciones as $comprobaciones){
 				// Si existe comprobaciones con tipo error no continuamos.
 				if ($comprobaciones['tipo'] === 'danger'){
-					$error =array('error'=>'No puedo continuar por hay error grabe',
+					$error =array('error'=>'No puedo continuar porque hay error grave',
 								  'comprobaciones' => $this->comprobaciones);
 					return $error;
 				}
