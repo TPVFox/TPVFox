@@ -96,7 +96,20 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $respuesta['Items'];
 
 	}
-	
+	public function comprobarReferenciaProductoTienda($idProducto, $referencia){
+		$consulta="SELECT * FROM articulostiendas WHERE idTienda=".$this->idTienda.' and idArticulo='.$idProducto
+		.' and crefTienda="'.$referencia.'"';
+		$respuesta = parent::Consulta($consulta);
+		if (isset($respuesta['error'])){
+			// Si existe error devolvemos todo el array
+			return $respuesta;
+		}
+		if ($respuesta['NItems'] === 0){
+			$respuesta['Items'] = array();
+			return $respuesta['Items'];
+		}
+		
+	}
 	public function GetProducto($id= 0){
 		// Objetivo:
 		// Este metodo existe en padre, pero necesito que añada a ArrayPropiedades las comprobaciones hacemos aquí.

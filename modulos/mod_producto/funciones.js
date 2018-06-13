@@ -954,7 +954,7 @@ function comprobarReferencia(idProducto){
 		success    :  function (response) {
 				console.log('Respuesta de comprobar la referencia escrita en el producto ');
 				var resultado = $.parseJSON(response);
-				
+				alert(resultado);
 				 
 		}	
 	});
