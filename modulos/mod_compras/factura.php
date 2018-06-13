@@ -264,7 +264,13 @@ if ($idProveedor==0){
       }
 </script>
 <div class="container">
-			 <a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>'  ,configuracion, 0,<?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<?php 
+	if($idFactura>0){
+		?>
+		 <a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>'  ,configuracion, 0,<?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+<?php
+	}
+	?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
