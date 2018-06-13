@@ -325,7 +325,14 @@ if ($idCliente===0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
-		<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion,0, <?php echo $idPedido ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<?php 
+	if($idPedido>0){
+		?>
+		<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idPedido ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
+
+		<?php
+	}
+	?>
 
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
