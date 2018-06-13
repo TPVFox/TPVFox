@@ -154,4 +154,36 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	return $html;
 	 
 }
+function htmlTablaGeneral($datos, $HostNombre, $dedonde){
+	if(count($datos)>0){
+
+	$html=$resumen.'	<table class="table table-striped">
+		<thead>
+			<tr>
+				
+				<td>Nombre Modulo</td>
+				<td>Fecha</td>
+				<td>Eliminar</td>
+			</tr>
+		</thead>
+		<tbody>';
+	$i=0;
+		foreach($datos as $dato){
+			$html.='<tr>'.
+				'<td>'.$dato['nombre_modulo'].'</td>'.
+				'<td>'.$dato['fecha'].'</td>'.
+				'<td><a class="glyphicon glyphicon-trash" onclick="eliminarConfiguracionModulo('.$dato['idusuario'].', '."'".$dato['nombre_modulo']."'".')"></a></td>'.
+			'</tr>';
+			$i++;
+			if($i==10){
+				break;
+			}
+		}
+		$html.='</tbody></table>';
+	}else{
+		$html='<div class="alert alert-info">Este Usuario no tiene configuración de modulos</div>';
+	}
+	
+	return $html;
+}
 ?>

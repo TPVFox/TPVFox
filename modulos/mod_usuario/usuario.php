@@ -5,8 +5,10 @@
 		// Reinicio variables
         include './../../head.php';
         include './funciones.php';
+        include_once ('clases/claseUsuarios.php');
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
 		//include ("./ObjetoRecambio.php");
+		$Cusuario=new ClaseUsuarios($BDTpv);
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
 		}
@@ -53,7 +55,13 @@
 						}
 					$i++;
 					}
-				} 
+				}
+				$configuracionesUsuario=$Cusuario->getConfiguracionModulo($id);
+				echo '<pre>';
+				print_r($configuracionesUsuario);
+				echo '</pre>';
+				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
+				 
 			}
 		} else {
 			// Creamos ficha Usuario.
@@ -193,7 +201,7 @@
 						 <?php 
 						$num = 1 ; // Numero collapse;
 						$titulo = 'Configuración Modulos';
-						echo htmlPanelDesplegable($num,$titulo,$htmlConMod);
+						echo htmlPanelDesplegable($num,$titulo,$htmlConfiguracion);
 						?>
 					</div>
 				</div>
