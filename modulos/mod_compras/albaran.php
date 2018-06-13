@@ -273,12 +273,12 @@
 	}
 	if($idAlbaran>0){
 		?>
-		<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' ,  configuracion , 0,<?php echo $idAlbaran ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idAlbaran ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
 		<?php
 	}
 	if($inciden>0){
 		?>
-		<input class="btn btn-primary" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_compras', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_compras', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
 		<?php
 	}
 	?>

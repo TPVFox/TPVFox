@@ -269,12 +269,12 @@ if ($idProveedor==0){
 	<?php 
 	if($idFactura>0){
 		?>
-		 <a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>'  ,configuracion, 0,<?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+	<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idFactura ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
 <?php
 	}
 	if($inciden>0){
 		?>
-		<input class="btn btn-primary" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_compras', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_compras', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
 		<?php
 	}
 	?>
