@@ -58,7 +58,7 @@ function metodoClick(pulsado,adonde){
 		
 	 }
 } 
-function abrirModalIndicencia(dedonde, configuracion,numIncidencia=0){
+function abrirModalIndicencia(dedonde, configuracion,numIncidencia=0, numReal){
 	// @ Objetivo 
 	// 	Preparar el html para mostrar modal de incidencia.
 	// @ Parametros:
@@ -75,6 +75,7 @@ function abrirModalIndicencia(dedonde, configuracion,numIncidencia=0){
 		"dedonde" : dedonde,
 		"numIncidencia":numIncidencia,
 		"configuracion":configuracion,
+		"idReal":numReal
 	};
 	console.log(configuracion);
 		$.ajax({
