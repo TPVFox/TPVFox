@@ -59,6 +59,9 @@ function controladorAcciones(caja,accion, tecla){
 			if(caja.darParametro('dedonde')=='factura'){
 				var d_focus = 'suNumero';
 			}
+			if(caja.darParametro('dedonde')=='pedidos'){
+				var d_focus = 'id_proveedor';
+			}
 			
 			ponerFocus(d_focus);
 		break;
