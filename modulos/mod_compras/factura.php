@@ -95,6 +95,8 @@
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
 		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
+		$incidenciasAdjuntas=incidenciasAdjuntas($idFactura, "mod_compras", $BDTpv, "factura");
+		$inciden=count($incidenciasAdjuntas['datos']);
 	}else{
 		$fecha=date('d-m-Y');
 		$fechaCab="'".$fecha."'";
@@ -269,6 +271,11 @@ if ($idProveedor==0){
 		?>
 		 <a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>'  ,configuracion, 0,<?php echo $idFactura ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 <?php
+	}
+	if($inciden>0){
+		?>
+		<input class="btn btn-primary" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_compras', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+		<?php
 	}
 	?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>

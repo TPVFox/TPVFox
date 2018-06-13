@@ -62,6 +62,8 @@
 			$productos=json_decode(json_encode($productosMod));
 			$Datostotales = recalculoTotales($productos);
 			$productos=json_decode(json_encode($productosMod), true);
+			$incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
+			$inciden=count($incidenciasAdjuntas['datos']);
 		}else{
 			$bandera=1;
 			if (isset($_GET['tActual'])){
@@ -181,7 +183,11 @@ if ($idProveedor===0){
 	<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idPedido ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
 		<?php
 	}
-	
+	if($inciden>0){
+		?>
+		<input class="btn btn-primary" onclick="abrirIncidenciasAdjuntas(<?php echo $idPedido;?>, 'mod_compras', 'pedidos')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+		<?php
+	}
 	?>
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
 	
