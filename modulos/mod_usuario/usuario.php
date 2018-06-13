@@ -189,7 +189,13 @@
 					
 				</div>
 				<div class="col-md-4">
-					
+					 <div class="panel-group">
+						 <?php 
+						$num = 1 ; // Numero collapse;
+						$titulo = 'Configuración Modulos';
+						echo htmlPanelDesplegable($num,$titulo,$htmlConMod);
+						?>
+					</div>
 				</div>
 				<div class="col-md-12">
 <!--
