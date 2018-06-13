@@ -175,7 +175,14 @@ if ($idProveedor===0){
 	include '../../header.php';
 ?>
 <div class="container">
+	<?php 
+	if($idPedido>0){
+		?>
 	<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idPedido ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+		<?php
+	}
+	
+	?>
 	<h2 class="text-center"> <?php echo $titulo;?></h2>
 	
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
