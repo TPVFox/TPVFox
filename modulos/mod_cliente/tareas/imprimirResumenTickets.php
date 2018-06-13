@@ -134,7 +134,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 		$html.='</table>';
 		$nombreTmp="Resumen.pdf";
 		require_once('../../lib/tcpdf/tcpdf.php');
-		include ('../../clases/imprimir.php');
+		require_once  ('../../clases/imprimir.php');
 		include('../../controllers/planImprimir.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 		$resultado=$ficheroCompleto;

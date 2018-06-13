@@ -56,6 +56,10 @@ function controladorAcciones(caja,accion, tecla){
 				cabecera.fecha=caja.darValor();
 			}
 			var d_focus = 'hora';
+			if(caja.darParametro('dedonde')=='factura'){
+				var d_focus = 'suNumero';
+			}
+			
 			ponerFocus(d_focus);
 		break;
 		
