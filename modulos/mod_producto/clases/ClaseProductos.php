@@ -103,7 +103,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 		parent::GetProducto($id);
 		// Ahora hacemos nuestra comprobaciones.
 		$producto = $this->ArrayPropiedades();
-                                        
 		// Ahora comprobamos si el ultimo_coste es realmente el ultimo coste.
 		// Se considera ultimo_coste a :
 		//    - A la ultimo precio de coste de un albaran o factura de compra.
