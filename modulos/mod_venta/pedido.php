@@ -83,6 +83,8 @@ include './../../head.php';
 		$Datostotales = recalculoTotales($productos);
 		$productos=json_decode(json_encode($productos), true);
 		$total=$Datostotales['total'];
+		$incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_ventas", $BDTpv, "pedidos");
+		$inciden=count($incidenciasAdjuntas['datos']);
 	}else{
 		
 			if (isset($_GET['tActual'])){//Si recibe un id de un temporal 
@@ -330,6 +332,11 @@ if ($idCliente===0){
 		?>
 		<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idPedido ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
 
+		<?php
+	}
+		if($inciden>0){
+		?>
+		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idPedido;?>, 'mod_ventas', 'pedidos')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
 		<?php
 	}
 	?>

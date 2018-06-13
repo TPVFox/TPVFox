@@ -88,6 +88,8 @@
 				}
 			
 			}
+		$incidenciasAdjuntas=incidenciasAdjuntas($idAlbaran, "mod_ventas", $BDTpv, "albaran");
+		$inciden=count($incidenciasAdjuntas['datos']);
 	}else{
 		$bandera=1;
 			if (isset($_GET['tActual'])){//Recibido un albarán temporal
@@ -246,6 +248,11 @@ if (isset($_GET['tActual'])){
 		?>
 		<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idAlbaran ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
 
+		<?php
+	}
+		if($inciden>0){
+		?>
+		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_ventas', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
 		<?php
 	}
 	?>

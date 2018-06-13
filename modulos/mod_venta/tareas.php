@@ -227,7 +227,7 @@ switch ($pulsado) {
 			$fecha= $_POST['fecha'];
 			$datos= $_POST['datos'];
 			//~ $dedonde= $_POST['dedonde'];
-			$dedonde="mos_ventas";
+			$dedonde="mod_ventas";
 			$estado= $_POST['estado'];
 			$mensaje= $_POST['mensaje'];
 			$usuarioSelect=0;
@@ -264,6 +264,19 @@ switch ($pulsado) {
 					$cancelar=cancelarFactura( $idTemporal, $BDTpv);
 				break;
 			 }
+		break;
+		case 'abrirIncidenciasAdjuntas':
+			$idReal=$_POST['id'];
+			$modulo=$_POST['modulo'];
+			$dedonde=$_POST['dedonde'];
+			$datosIncidencia=$CIncidencia->incidenciasAdjuntas($idReal, $modulo,  $dedonde);
+			if(isset($datosIncidencia['error'])){
+				$respuesta['error']=$datosIncidencia['error'];
+				$respuesta['consulta']=$datosIncidencia['consulta'];
+			}else{
+					$html=modalIncidenciasAdjuntas($datosIncidencia);
+					$respuesta['html']=$html;
+			}
 		break;
 	
 		

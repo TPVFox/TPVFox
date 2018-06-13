@@ -1411,3 +1411,31 @@ function pornerFocusEnOpcionSalto(){
 	}
 	ponerFocus(d_focus);
 }
+function abrirIncidenciasAdjuntas(id, modulo, dedonde){
+		var parametros = {
+				"pulsado"    : 'abrirIncidenciasAdjuntas',
+				"id" : id,
+				"modulo"      : modulo,
+				"dedonde": dedonde
+			};
+			$.ajax({
+				data       : parametros,
+				url        : 'tareas.php',
+				type       : 'post',
+				beforeSend : function () {
+					console.log('*********  Entre en cancelar archivos temporales  ****************');
+				},
+				success    :  function (response) {
+					console.log('REspuesta de cancelar temporales');
+					var resultado =  $.parseJSON(response);
+					console.log(resultado);
+					if(resultado.error){
+						alert(resultado.consulta);
+					}else{
+						var titulo = 'Listado de incidencias ';
+						abrirModal(titulo,resultado.html);
+					}
+				}
+				
+			});
+}

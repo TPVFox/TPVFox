@@ -101,7 +101,8 @@
 		
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
-		
+		$incidenciasAdjuntas=incidenciasAdjuntas($idFactura, "mod_ventas", $BDTpv, "factura");
+		$inciden=count($incidenciasAdjuntas['datos']);
 		
 	}else{// si no recibe un id de una factura ya creada ponemos los datos de la temporal en caso de que tenga 
 		//Si no dejamos todo en blanco para poder cubrir
@@ -382,6 +383,11 @@ if ($idCliente==0){
 		?>
 		<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idFactura ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
 
+		<?php
+	}
+		if($inciden>0){
+		?>
+		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_ventas', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
 		<?php
 	}
 	?>
