@@ -651,10 +651,14 @@ function ImprimirA8($productos){
 		}
 		$imprimir['html'].='<td align="center">';
 		$imprimir['html'].='<font size="9 em"><b>'.$producto['articulo_name'].'</b></font><br>';
+		if($producto['estado']=="Nuevo"){
+			$imprimir['html'].="<i><u><b>NUEVO</b></u></i>";
+		}
 		$imprimir['html'].='<b><font size="30 em">'.number_format($producto['pvpCiva'],2,',','').'</font><font size="6.5 em" >€</font></b><br>';
 		if(strlen ($producto['articulo_name'])<=30){
 			$imprimir['html'].='<br>';
 		}
+		
 		$imprimir['html'].='<font size="6.5 em">  Fecha: '.date('Y-m-d').'</font>';
 		$imprimir['html'].='<font size="6.5 em" >  Codbarras: ';
 		foreach($producto['codBarras'] as $codigo){
