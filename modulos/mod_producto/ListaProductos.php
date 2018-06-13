@@ -81,7 +81,7 @@
             // Queremos filtrar o no. 
             if ($configuracion['filtro']->valor === 'Si') {
                 if ($prod_seleccion['NItems'] > 0) {
-                    if ($filtro !== '') {
+                    if ( trim($filtro) !== '') {
                         $filtro .= ' AND (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
                     } else {
                         $filtro = ' WHERE (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
