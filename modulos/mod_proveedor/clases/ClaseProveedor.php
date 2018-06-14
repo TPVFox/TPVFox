@@ -10,17 +10,17 @@ class ClaseProveedor extends modelo{
 	}
 	
 	public function getFacturas($id){
-		$sql='SELECT Numfacpro  as num, Fecha as fecha, total, id FROM facprot WHERE idProveedor='.$id;
+		$sql='SELECT Numfacpro  as num, Fecha as fecha, total, id , idProveedor FROM facprot WHERE idProveedor='.$id;
 		return $this->consulta($sql);
 	}
 	
 	public function getAlbaranes($id){
-		$sql='SELECT Numalbpro as num, Fecha as fecha, total , id FROM albprot WHERE idProveedor='.$id;
+		$sql='SELECT Numalbpro as num, Fecha as fecha, total , id , idProveedor  FROM albprot WHERE idProveedor='.$id;
 		return $this->consulta($sql);
 	}
 	
 	public function getPedidos($id){
-		$sql='SELECT Numpedpro as num, FechaPedido as fecha , total, id FROM pedprot WHERE idProveedor='.$id;
+		$sql='SELECT Numpedpro as num, FechaPedido as fecha , total, id, idProveedor  FROM pedprot WHERE idProveedor='.$id;
 		return $this->consulta($sql);
 	}
 	public function adjuntosProveedor($id){

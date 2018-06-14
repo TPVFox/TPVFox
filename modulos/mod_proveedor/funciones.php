@@ -128,7 +128,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 			break;
 			case 'albaran':
 				$url=$HostNombre.'/modulos/mod_compras/albaran.php?id=';
-				$resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['id'].')" value="Resumen" name="Resumen" ></td>';
+				$resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idProveedor'].')" value="Resumen" name="Resumen" ></td>';
 			break;
 			case 'pedido':
 				$url=$HostNombre.'/modulos/mod_compras/pedido.php?id=';
