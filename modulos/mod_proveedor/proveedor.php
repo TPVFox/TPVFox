@@ -120,6 +120,7 @@
 	</head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
 		 <script type="text/javascript" >
 			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
 		</script>
