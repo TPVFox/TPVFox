@@ -240,4 +240,21 @@ function guardarProveedor($datosPost, $BDTpv){
 	}
 	return $mod;
 }
+function comprobarFechas($fechaIni, $fechaFin){
+	//@Objetivo: comprobar las fechas de busqueda de resumen 
+	//@Comprobaciones:
+	//comprobar si las dos fechas están cubiertas 
+	//comprobar el formato de las fechas de año mes y dia
+	$resultado=array();
+	if($fechaIni=="" ||$fechaFin==""){
+		$resultado['error']='Error';
+		$resultado['consulta']='Una de las fechas está sin cubrir';
+	}else{
+		$fechaIni =date_format(date_create($fechaIni), 'Y-m-d');
+		$fechaFin =date_format(date_create($fechaFin), 'Y-m-d');
+		$resultado['fechaIni']=$fechaIni;
+		$resultado['fechaFin']=$fechaFin;
+	}
+	return $resultado;
+}
 ?>

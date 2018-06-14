@@ -69,6 +69,52 @@ class ClaseProveedor extends modelo{
 			}
 		}
 	}
+	function albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin){
+		$respuesta=array();
+		$productos=array();
+		$resumenBases=array();
+		if($fechaIni=="" & $fechaFin==""){
+			$sql='SELECT Numalbpro , id FROM albprot WHERE  idProveedor ='.$idProveedor;
+		}else{
+			$sql='SELECT Numalbpro , id FROM albprot WHERE idProveedor ='.$idProveedor.' and `Fecha` BETWEEN 
+		"'.$fechaIni.'" and  "'.$fechaFin.'"';
+		}
+		$albaranes=$this->consulta($sql);
+		if(isset($albaranes['error'])){
+			$respuesta=$albaranes;
+		}else{
+			$ids=implode(', ', array_column($albaranes['datos'], 'id'));
+			
+			$sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`albprolinea`	WHERE idalbpro  IN('.$ids.') and 
+			`estadoLinea` <> "Eliminado" GROUP BY idArticulo + costeSiva';
+			
+			$productos=$this->consulta($sql);
+			if(isset($albaranes['error'])){
+				$respuesta=$productos;
+			}else{
+				$respuesta['productos']=$productos['datos'];
+			}
+			$sql='SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
+			as sumarIva, t.Fecha as fecha   from albproIva as i  
+			left JOIN albprot as t on t.id=i.idalbpro   where idalbpro  
+			in ('.$ids.')  GROUP BY idalbpro ;';
+			$resumenBases=$this->consulta($sql);
+			if(isset($resumenBases['error'])){
+				$respuesta=$resumenBases;
+			}else{
+				$respuesta['resumenBases']=$resumenBases['datos'];
+			}
+			$sql='SELECT *, sum(importeIva) as sumiva , sum(totalbase) as sumBase from albproIva where idalbpro 
+			in ('.$ids.')  GROUP BY iva;';
+			$desglose=$this->consulta($sql);
+			if(isset($desglose['error'])){
+				$respuesta=$desglose;
+			}else{
+				$respuesta['desglose']=$desglose['datos'];
+			}
+		}
+		return $respuesta;
+	}
 }
 
 ?>
