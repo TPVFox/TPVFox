@@ -954,7 +954,13 @@ function comprobarReferencia(idProducto){
 		success    :  function (response) {
 				console.log('Respuesta de comprobar la referencia escrita en el producto ');
 				var resultado = $.parseJSON(response);
-				alert(resultado);
+				if(resultado.error){
+					alert("Error de SQL: "+resultado.error+" "+resultado.copnsulta);
+				}else{
+					if(resultado!=""){
+						alert("Esa referencia de producto ya está registrada");
+					}
+				}
 				 
 		}	
 	});

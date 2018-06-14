@@ -134,7 +134,6 @@ switch ($pulsado) {
 	case 'comprobarReferencia':
 		$idProducto=$_POST['idProducto'];
 		$referencia=$_POST['referencia'];
-		//~ $tienda=$_SESSION['tiendaTpv']['idTienda'];
 		$comprobacion=$NCArticulo->comprobarReferenciaProductoTienda($idProducto, $referencia);
 		
 		$respuesta=$comprobacion;
