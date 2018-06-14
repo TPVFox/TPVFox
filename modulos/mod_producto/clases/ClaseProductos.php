@@ -499,7 +499,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 			$sql='UPDATE `articulosTiendas` SET `crefTienda`='.$referenciaTienda.' WHERE `idArticulo`='.$id.' and idTienda='.$this->idTienda;
 			$comprobaciones['modificado'][]=$this->Consulta_insert_update($sql);
 		}else{
-			
+			$sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, `estado`) VALUES ('.$id.', '.$this->idTienda.', "'.$referenciaTienda.'", "Nuevo")';
+			$comprobaciones['nuevo'][]=$this->Consulta_insert_update($sql);
 		}
 		return $comprobaciones;
 	}

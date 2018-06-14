@@ -26,7 +26,7 @@ Numero tecla:
 				<action tecla="40">controlReferencia</action>
 			</teclas>
 		</caja_input>
-			
+		
 		<caja_input>
 			<nombre id_input="nombre">cajaNombre</nombre>
 			<teclas>

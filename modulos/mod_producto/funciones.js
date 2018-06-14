@@ -562,6 +562,7 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		
 		case 'controlReferencia':
+		comprobarReferencia();
 			console.log("Estoy en buscar controladorAcciones-> controlReferencia");
 			
 		break;
