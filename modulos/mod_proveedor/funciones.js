@@ -34,5 +34,24 @@ function resumen(dedonde, idProveedor){
 	window.location.href = './Resumenes/resumenAlbaranes.php?id='+idProveedor;
 }
 
-
+function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
+		  var parametros = {
+			'pulsado' : 'imprimirResumenAlbaran',
+            idProveedor: id,
+            fechaInicial: fechaInicial,
+            fechaFinal: fechaFinal
+           
+        };
+         $.ajax({
+            data: parametros,
+            url: './../tareas.php',
+            type: 'post',
+            success: function (response) {
+              var resultado =  $.parseJSON(response); 
+				console.log(resultado);
+				 window.open(resultado);
+            },
+           
+        });
+}
 

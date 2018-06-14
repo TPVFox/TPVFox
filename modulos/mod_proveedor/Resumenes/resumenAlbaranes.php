@@ -71,7 +71,7 @@
 		?>
 	</head>
 	<body>
-
+<script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
 	<?php
         include './../../../header.php';
        
@@ -91,7 +91,7 @@
 			</div>
 			<div class="col-md-12" >
 				<div class="col-md-3 " >
-					<a  onclick="imprimirResumen('ticket', '<?php echo $id; ?>', '<?php echo $fechaInicial;?>', '<?php echo $fechaFinal;?>')">Imprimir resumen</a>
+					<a  onclick="imprimirResumen('albaran', '<?php echo $id; ?>', '<?php echo $fechaInicial;?>', '<?php echo $fechaFinal;?>')">Imprimir resumen</a>
 					<h4><u>DATOS DEL PROVEEDOR</u></h4>
 					<b>ID: </b><?php echo $id;?></br>
 					<b>Nombre: </b><?php echo $datosProveedor['datos'][0]['nombrecomercial'];?></br>
