@@ -124,15 +124,18 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 	switch($dedonde){
 			case 'factura':
 				$url=$HostNombre.'/modulos/mod_compras/factura.php?id=';
+				$resumen="";
 			break;
 			case 'albaran':
 				$url=$HostNombre.'/modulos/mod_compras/albaran.php?id=';
+				$resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['id'].')" value="Resumen" name="Resumen" ></td>';
 			break;
 			case 'pedido':
 				$url=$HostNombre.'/modulos/mod_compras/pedido.php?id=';
+				$resumen="";
 			break;
 	}
-	$html='<table class="table table-striped">
+	$html=$resumen.'<table class="table table-striped">
 		<thead>
 			<tr>
 				<td>Fecha</td>

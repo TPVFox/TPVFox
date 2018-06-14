@@ -29,7 +29,10 @@ function metodoClick(pulsado){
 	 }
 } 
 
+function resumen(dedonde, idProveedor){
 
+	window.location.href = './Resumenes/resumenAlbaranes.php?id='+idProveedor;
+}
 
 
 
