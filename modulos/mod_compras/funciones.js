@@ -752,7 +752,9 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 				if (resultado['datos'][0]['coste']>0){
 					var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
 				}else{
+					
 					var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
+					alert("¡OJO!\nEste producto es NUEVO para este proveedor");
 				}
 				datos.ultimoCoste=ultimoCoste.toFixed(4);
 				datos.importe=ultimoCoste.toFixed(2);
