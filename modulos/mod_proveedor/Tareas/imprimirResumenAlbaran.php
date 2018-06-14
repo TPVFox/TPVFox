@@ -13,8 +13,8 @@ $fechaInicial=$_POST['fechaInicial'];
 $fechaFinal=$_POST['fechaFinal'];
 $errores=array();
 $textoFechas="";
-if(isset($idCliente)){
-	$datosProveedor=$CProveedor->getProveedor($id);
+if(isset($idProveedor)){
+	$datosProveedor=$CProveedor->getProveedor($idProveedor);
 	if(isset($datosProveedor['error'])){
 	 $resultado['error']=array ( 'tipo'=>'DANGER!',
 		 'dato' => $datosProveedor['consulta'],
@@ -54,7 +54,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 			'<font size="12">'.$Tienda['direccion'].'</font><br>'.
 			'<font size="9"><b>NIF: </b>'.$Tienda['nif'].'</font><br>'.
 			'<font size="9"><b>Teléfono: </b>'.$Tienda['telefono'].'</font><br>'.
-			'<font size="17">Factura de Tickets '.$textoFechas.'</font>'.
+			'<font size="17">Resumen de albaranes '.$textoFechas.'</font>'.
 			'<hr>'.
 			'<font size="20">'.$datosProveedor['nombrecomercial'].'</font><br>'.
 			'<table><tr><td><font size="12">'.$datosProveedor['razonsocial'].'</font></td>
@@ -108,7 +108,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 				<td><b>'.$totalDesglose.'</b></td>
 				</tr>
 				</table>	
-				<h3>Facturas simplificadas (Tickets)</h3>
+				<h3>Facturas simplificadas (Albaranes)</h3>
 				<table  WIDTH="75%" border="1px">'.
 				'<tr>
 				<td  WIDTH="50%">Fecha</td>
