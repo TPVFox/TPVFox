@@ -936,11 +936,10 @@ function ponerSelect (destino_focus){
 	}, 50); 
 
 }
-function comprobarReferencia(idProducto){
+function comprobarReferencia(){
 		var referencia=$("#referencia").val();
 		var parametros = {
 		"pulsado"    	: 'comprobarReferencia',
-		"idProducto"	:idProducto,
 		"referencia"	:referencia
 		
 		};

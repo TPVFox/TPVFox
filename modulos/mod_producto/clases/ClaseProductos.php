@@ -96,9 +96,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $respuesta['Items'];
 
 	}
-	public function buscarReferenciaProductoTienda($idProducto, $referencia){
-		$consulta="SELECT * FROM articulosTiendas WHERE idTienda=".$this->idTienda.' and idArticulo='.$idProducto
-		.' and crefTienda="'.$referencia.'"';
+	public function buscarReferenciaProductoTienda($referencia){
+		$consulta="SELECT * FROM articulosTiendas WHERE idTienda=".$this->idTienda.'  and crefTienda="'.$referencia.'"';
 		$respuesta = parent::Consulta($consulta);
 		if (isset($respuesta['error'])){
 			// Si existe error devolvemos todo el array

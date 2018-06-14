@@ -132,9 +132,8 @@ switch ($pulsado) {
 		include('./tareas/obtenerCostesProveedor.php');
 	break;
 	case 'comprobarReferencia':
-		$idProducto=$_POST['idProducto'];
 		$referencia=$_POST['referencia'];
-		$comprobacion=$NCArticulo->buscarReferenciaProductoTienda($idProducto, $referencia);
+		$comprobacion=$NCArticulo->buscarReferenciaProductoTienda( $referencia);
 		
 		$respuesta=$comprobacion;
 		
