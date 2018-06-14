@@ -306,6 +306,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			
 			// ----         Insertamos codbarras  del producto nuevo 											----- //
 			$comprobaciones['codbarras']=$this->ComprobarCodbarrasUnProducto($datos['id'],$datos['codBarras']);
+			$comprobaciones['RefTienda']= $this->ComprobarRefrenciaProductoTienda($datos['id'], $datos['refProducto']);
 		}
 		return $comprobaciones;
 		
@@ -495,14 +496,23 @@ class ClaseProductos extends ClaseTablaArticulos{
 	
 	public function ComprobarRefrenciaProductoTienda($id, $referenciaTienda){
 		$comprobaciones=array();
-		if($id>0){
-			$sql='UPDATE `articulosTiendas` SET `crefTienda`='.$referenciaTienda.' WHERE `idArticulo`='.$id.' and idTienda='.$this->idTienda;
-			$comprobaciones['modificado'][]=$this->Consulta_insert_update($sql);
-		}else{
+		$sql='SELECT * FROM articulosTiendas WHERE idArticulo='.$id.' and idTienda='.$this->idTienda;
+		$respuesta = parent::Consulta($sql);
+		if (isset($respuesta['error'])){
+			return $respuesta;
+		}
+		if ($respuesta['NItems'] === 0){
 			$sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, `estado`) VALUES ('.$id.', '.$this->idTienda.', "'.$referenciaTienda.'", "Nuevo")';
 			$comprobaciones['nuevo'][]=$this->Consulta_insert_update($sql);
+			return $comprobaciones;
+			
+		}else{
+			$sql='UPDATE `articulosTiendas` SET `crefTienda`='.$referenciaTienda.' WHERE `idArticulo`='.$id.' and idTienda='.$this->idTienda;
+			$comprobaciones['modificado'][]=$this->Consulta_insert_update($sql);
+			return $comprobaciones;
 		}
-		return $comprobaciones;
+		
+		
 	}
 	public function ComprobarNuevosDatosProducto($id,$DatosPostProducto){
 		// @ Objetivo

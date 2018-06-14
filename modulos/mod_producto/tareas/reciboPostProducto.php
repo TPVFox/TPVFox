@@ -153,6 +153,9 @@ if ($id >0 ){
 				if (isset($anhadir['codbarras'])){
 					$preparados['codbarras'] = $anhadir['codbarras'];
 				}
+				if(isset($anhadir['RefTienda'])){
+					$preparados['RefTienda']=$anhadir['RefTienda'];
+				}
 
 			} 
 		}else {
