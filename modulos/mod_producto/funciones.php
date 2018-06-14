@@ -650,13 +650,13 @@ function ImprimirA8($productos){
 			$i=0;
 			$imprimir['html'].='<tr>';
 		}
-		$imprimir['html'].='<td align="center">';
+		$imprimir['html'].='<td >';
 		
-		$imprimir['html'].='<font size="9 em"><b>'.$producto['articulo_name'].'</b></font><br>';
+		$imprimir['html'].='<font size="9 em" align="center"><b>'.$producto['articulo_name'].'</b></font><br>';
 		if($producto['estado']=="Nuevo"){
 			$imprimir['html'].='<img src="../../css/img/NUEVO.png"  width="70" style="float: left;">';
 		}
-		$imprimir['html'].='<b><font size="30 em">'.number_format($producto['pvpCiva'],2,',','').'</font><font size="6.5 em" >€</font></b><br>';
+		$imprimir['html'].='<font size="30 em" align="center"><b>'.number_format($producto['pvpCiva'],2,',','').'</b></font><font size="6.5 em" align="center">€</font><br>';
 		if(strlen ($producto['articulo_name'])<=30){
 			$imprimir['html'].='<br>';
 		}
