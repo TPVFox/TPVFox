@@ -651,9 +651,10 @@ function ImprimirA8($productos){
 			$imprimir['html'].='<tr>';
 		}
 		$imprimir['html'].='<td align="center">';
+		
 		$imprimir['html'].='<font size="9 em"><b>'.$producto['articulo_name'].'</b></font><br>';
 		if($producto['estado']=="Nuevo"){
-			$imprimir['html'].="<i><u><b>NUEVO</b></u></i>";
+			$imprimir['html'].='<img src="../../css/img/NUEVO.png"  width="70" style="float: left;">';
 		}
 		$imprimir['html'].='<b><font size="30 em">'.number_format($producto['pvpCiva'],2,',','').'</font><font size="6.5 em" >€</font></b><br>';
 		if(strlen ($producto['articulo_name'])<=30){
