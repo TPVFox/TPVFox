@@ -133,7 +133,7 @@
         ?>
         <?php
 	//~ echo '<pre>';
-	//~ print_r($tickets);	
+	//~ print_r($Tickets);	
 	//~ echo '</pre>';
 		?>
        
@@ -228,7 +228,7 @@
 						<th>ESTADO</th>
 						<th>FORMA PAGO</th>
 						<th>TOTAL</th>
-						<th>ID CIERRE</th>
+						<th>Entregado</th>
 					</tr>
 				</thead>
 	
@@ -252,7 +252,7 @@
 					<td><?php echo $ticket['formaPago']; ?></td>
 					<td><?php echo $ticket['total']; ?></td>
 					<td><?php 
-						echo (isset($ticket['idCierre']) ? $ticket['idCierre']['idCierre']:''); ?>
+						echo (isset($ticket['entregado']) ? $ticket['entregado']:''); ?>
 					</td>
 					
 				</tr>
