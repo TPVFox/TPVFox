@@ -494,7 +494,16 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $comprobaciones;
 	}
 	
-	
+	public function ComprobarRefrenciaProductoTienda($id, $referenciaTienda){
+		$comprobaciones=array();
+		if($id>0){
+			$sql='UPDATE `articulosTiendas` SET `crefTienda`='.$referenciaTienda.' WHERE `idArticulo`='.$id.' and idTienda='.$this->idTienda;
+			$comprobaciones['modificado'][]=$this->Consulta_insert_update($sql);
+		}else{
+			
+		}
+		return $comprobaciones;
+	}
 	public function ComprobarNuevosDatosProducto($id,$DatosPostProducto){
 		// @ Objetivo
 		// Comprobar que datos son distintos y grabarlos.

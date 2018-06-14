@@ -12,6 +12,9 @@ if (isset($_POST['id'])){
 	exit();
 }
 // Comprobamos los datos y grabamos.
+//~ echo '<pre>';
+//~ print_r($_POST);
+//~ echo '</pre>';
 $DatosPostProducto= prepararandoPostProducto($_POST,$CTArticulos);
 // Ahora vemos si hay advertencias de campos
 if (isset($DatosPostProducto['comprobaciones'])){
@@ -71,6 +74,8 @@ if ($id >0 ){
 		$preparados['codbarras'] = $comprobaciones;
 		// ---	Comprobamos y grabamos los proveedores . ---//
 		$comprobaciones = $CTArticulos->ComprobarProveedoresCostes($id,$DatosPostProducto['proveedores_costes']);
+		
+		$comprobaciones= $CTArticulos->ComprobarRefrenciaProductoTienda($id, $DatosPostProducto['refProducto']);
 		foreach ($comprobaciones as $key => $comprobacion){
 			
 			if ($key === 'nuevo'){

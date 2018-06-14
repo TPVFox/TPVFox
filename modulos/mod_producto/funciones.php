@@ -375,6 +375,7 @@ function prepararandoPostProducto($array,$claseArticulos){
 	$DatosProducto['familias'] = array();
 	// Primero de todo obtengo idTienda.
 	$DatosProducto['idTienda'] = $claseArticulos->GetIdTienda();
+	$DatosProducto['refProducto']=$array['cref_tienda_principal'];
 	foreach ($Post as $key){
 		switch ($key) {
 			case 'articulo_name':
