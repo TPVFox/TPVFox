@@ -560,13 +560,15 @@ function controladorAcciones(caja,accion, tecla){
 		case 'revisar_contenido':
 			validarEntradaNombre(caja);
 		break;
-		
+
 		case 'controlReferencia':
-		comprobarReferencia();
-			console.log("Estoy en buscar controladorAcciones-> controlReferencia");
-			
+            console.log('valor Parametro' + cajaReferencia.parametros.pulsado_intro );
+            if (cajaReferencia.parametros.pulsado_intro === 'No'){
+                cajaReferencia.parametros.pulsado_intro = 'Si';
+            }
+            comprobarReferencia();
 		break;
-		
+
 		case 'salto':
 			console.log("Estoy en buscar controladorAcciones-> salto + caja:");
 			console.log(caja);
@@ -937,6 +939,8 @@ function ponerSelect (destino_focus){
 	}, 50); 
 
 }
+
+
 function comprobarReferencia(){
 		var referencia=$("#referencia").val();
 		var parametros = {
@@ -949,7 +953,7 @@ function comprobarReferencia(){
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-		console.log('*********  comprobar la refrencia escrita en el producto  **************');
+		console.log('*********  Envio para comprobar la referencia escrita en el producto  **************');
 		},
 		success    :  function (response) {
 				console.log('Respuesta de comprobar la referencia escrita en el producto ');
@@ -958,9 +962,12 @@ function comprobarReferencia(){
 					alert("Error de SQL: "+resultado.error+" "+resultado.copnsulta);
 				}else{
 					if(resultado!=""){
-						alert("Esa referencia de producto ya está registrada");
-					}
+						alert("Ojo Esa referencia de producto ya está registrada");
+                    }
+
 				}
+                jQuery('#nombre').focus(); 
+                
 				 
 		}	
 	});
