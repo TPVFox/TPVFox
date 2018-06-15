@@ -50,3 +50,25 @@ function leerChecked(clase) {
     });
     return checks;
 }
+
+function BarraProceso(lineaA,lineaF, idbar) {
+// Esta funcion debería ser una funcion comun , por lo que se debería cargar el javascript comun y ejecutar...
+// Script para generar la barra de proceso.
+// Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
+// que ya estan añadidas.
+// NOTA:
+// lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
+if (lineaA == 0 ) {
+lineaA = 1;
+}
+if (lineaF == 0) {
+alert( 'Linea Final es 0 ');
+return;
+}
+var progreso =  Math.round(( lineaA *100 )/lineaF);
+$('#bar'+idbar).css('width', progreso + '%');
+// Añadimos numero linea en resultado.
+document.getElementById("bar"+idbar).innerHTML = progreso + '%';  // Agrego nueva linea antes 
+return;
+
+}

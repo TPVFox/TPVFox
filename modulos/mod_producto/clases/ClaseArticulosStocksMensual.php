@@ -14,14 +14,17 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
  *
  * @author alagoro
  */
-class alArticulosStocks extends ModeloP { // hereda de clase modelo. 
+class alArticulosStocksMensual extends ModeloP { // hereda de clase modelo. 
 
-    protected static $tabla = 'articulosStocks';
+    protected static $tabla = 'articulosStocksMensual';
 
-    public static function leer($idArticulo, $idTienda, $creaSiNoExiste = false) {
+    public static function leer($idArticulo, $anho=0, $idTienda=1, $creaSiNoExiste = false) {
         if ($creaSiNoExiste) {
-            if (!self::existe($idArticulo, $idTienda)) {
-                self::crearStock([$idArticulo, $idTienda, 0, 0, 0]);
+            if($anho == 0){
+              $anho = getdate()['year'];
+            }
+            if (!self::existe($idArticulo, $idTienda, $anho)) {
+                self::crearStock([$idArticulo, $idTienda, $anho]);
             }
         }
         $sql = 'SELECT * '
@@ -91,17 +94,13 @@ class alArticulosStocks extends ModeloP { // hereda de clase modelo.
         ]);
     }
 
-    public static function limpiaStock($idTienda = 1) {
-        $sql = 'DELETE FROM articulosStocks '                
-                . ' WHERE idTienda = ' . $idTienda;
-        return self::_consultaDML($sql);
-    }
-    
-    
-    
     private static function _actualizarStock($idarticulostock, $nunidades, $operador) {
+//            $sql='UPDATE articulosStocks SET '
+//                    . ' stockOn = '.($nunidades * $operador) // operador {1, -1} = {SUMA, RESTA}
+//                . ' WHERE id =' . $idarticulostock;
+//            return $this->consultaDML($sql);
         $stockon = self::leerStockXId($idarticulostock);
-        return alArticulosStocks::_update(alArticulosStocks::$tabla, ['stockOn' => $stockon + ($nunidades * $operador)], ['id =' . $idarticulostock]);
+        return alArticulosStocks::update(alArticulosStocks::$tabla, ['stockOn' => $stockon + ($nunidades * $operador)], ['id =' . $idarticulostock]);
     }
 
     public static function actualizarStock($idArticulo, $idTienda, $nunidades, $operador) {

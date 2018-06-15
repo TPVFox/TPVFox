@@ -16,12 +16,19 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
  */
 class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase articulos que hizo Ricardo & Co.
 
-    public function leer($idArticulo) {
+    
+//    Si no se lee articulo por id, se leen múltiples articulos $pagina o menos
+// empezando en $inicio 
+    public function leer($idArticulo = 0, $inicio=1, $pagina=100) {
         $sql = 'SELECT * '
-                . 'FROM articulos '
-                . ' WHERE idArticulo =' . $idArticulo
-                . ' LIMIT 1';
-        return $this->consulta($sql);
+                . 'FROM articulos ';
+        if ($idArticulo != 0) {
+            $sql .= ' WHERE idArticulo =' . $idArticulo
+                    . ' LIMIT 1';
+        } else {
+            $sql .= ' LIMIT ' . $inicio . ', ' . $pagina;
+        }
+        return ModeloP::_consulta($sql);
     }
 
     public function existe($idArticulo) {
@@ -31,7 +38,14 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ' LIMIT 1';
 
         $resultado = $this->consulta($sql);
-        return $resultado['datos'][0]['contador']==1;
+        return $resultado['datos'][0]['contador'] == 1;
+    }
+
+    public function contar() {
+        $sql = 'SELECT COUNT(idArticulo) AS contador '
+                . 'FROM articulos ';
+        $resultado = $this->consulta($sql);
+        return $resultado['datos'][0]['contador'];
     }
 
     public function leerPrecio($idArticulo, $idTienda = 1) {
@@ -150,7 +164,7 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
         return $this->consulta($sql);
     }
 
-    public function calculaMayor($parametros){
+    public function calculaMayor($parametros) {
         $sqlprepare = [];
         $sqlprepare['sqlAlbcli'] = 'SELECT alb.fecha'
                 . ', "0" as entrega'
@@ -160,29 +174,29 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ', " " as tipodoc '
                 . ', alb.Numalbcli as numdocu '
                 . ', cli.Nombre as nombre'
-                . ', alb.estado as estado'                
+                . ', alb.estado as estado'
                 . ' FROM albclit as alb '
                 . ' JOIN albclilinea as linalb ON (alb.id=linalb.idalbcli) '
                 . ' JOIN clientes as cli ON (alb.idCliente = cli.idClientes) '
-                . ' WHERE DATE(alb.Fecha) >= "'.$parametros['fechadesde'].'"'
-                . ' AND DATE(alb.Fecha) <= "'.$parametros['fechahasta'].'"'
-                . ' AND linalb.idArticulo = '.$parametros['idArticulo'];
-        
+                . ' WHERE DATE(alb.Fecha) >= "' . $parametros['fechadesde'] . '"'
+                . ' AND DATE(alb.Fecha) <= "' . $parametros['fechahasta'] . '"'
+                . ' AND linalb.idArticulo = ' . $parametros['idArticulo'];
+
         $sqlprepare['sqlTiccli'] = 'SELECT tic.fecha'
                 . ', "0" as entrega'
                 . ', "0" as precioentrada'
                 . ', lintic.nunidades as salida'
                 . ', lintic.precioCiva as preciosalida'
-                . ', "T'.$parametros['Tienda']['idTienda'].'-'.$parametros['Usuario']['id'].'-" as tipodoc '
+                . ', "T' . $parametros['Tienda']['idTienda'] . '-' . $parametros['Usuario']['id'] . '-" as tipodoc '
                 . ', tic.Numticket as numdocu '
                 . ', cli.Nombre as nombre'
-                . ', tic.estado as estado'                
+                . ', tic.estado as estado'
                 . ' FROM ticketst as tic '
                 . ' JOIN ticketslinea as lintic ON (tic.id=lintic.idticketst) '
                 . ' JOIN clientes as cli ON (tic.idCliente = cli.idClientes) '
-                . ' WHERE DATE(tic.Fecha) >= "'.$parametros['fechadesde'].'"'
-                . ' AND DATE(tic.Fecha) <= "'.$parametros['fechahasta'].'"'
-                . ' AND lintic.idArticulo = '.$parametros['idArticulo']
+                . ' WHERE DATE(tic.Fecha) >= "' . $parametros['fechadesde'] . '"'
+                . ' AND DATE(tic.Fecha) <= "' . $parametros['fechahasta'] . '"'
+                . ' AND lintic.idArticulo = ' . $parametros['idArticulo']
                 . ' AND lintic.estadoLinea = "Activo"';
 
         $sqlprepare['sqlAlbpro'] = 'SELECT alb.fecha'
@@ -193,19 +207,57 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ', " " as tipodoc '
                 . ', alb.Numalbpro as numdocu '
                 . ', pro.razonsocial as nombre'
-                . ', alb.estado as estado'                
+                . ', alb.estado as estado'
                 . ' FROM albprot as alb '
                 . ' JOIN albprolinea as linalb ON (alb.id=linalb.idalbpro) '
                 . ' JOIN proveedores as pro ON (alb.idProveedor = pro.idProveedor) '
-                . ' WHERE DATE(alb.Fecha) >= "'.$parametros['fechadesde'].'"'
-                . ' AND DATE(alb.Fecha) <= "'.$parametros['fechahasta'].'"'
-                . ' AND linalb.idArticulo = '.$parametros['idArticulo'];
+                . ' WHERE DATE(alb.Fecha) >= "' . $parametros['fechadesde'] . '"'
+                . ' AND DATE(alb.Fecha) <= "' . $parametros['fechahasta'] . '"'
+                . ' AND linalb.idArticulo = ' . $parametros['idArticulo'];
         $sql = implode(' UNION ', $sqlprepare);
         $sql .= ' ORDER BY fecha ';
         $sqldata = $this->consulta($sql);
         return $sqldata;
-                
     }
-    
-    
+
+    public function calculaStock($idArticulo, $idTienda = 1) {
+        $ventas = 0;
+        $sql = 'SELECT SUM( linalb.nunidades) as ventas'
+                . ' FROM albclit as alb '
+                . ' JOIN albclilinea as linalb ON (alb.id=linalb.idalbcli) '
+                . ' WHERE linalb.idArticulo = ' . $idArticulo
+                . ' AND alb.idTienda = ' . $idTienda;
+        $sqldata = $this->consulta($sql);
+        
+        if ($sqldata) {
+            $ventasalbc = $sqldata['datos'][0]['ventas'];
+        }
+                    
+        $sql = 'SELECT SUM( lintic.nunidades) as ventas'                                 
+                . ' FROM ticketst as tic '
+                . ' JOIN ticketslinea as lintic ON (tic.id=lintic.idticketst) '
+                . ' WHERE lintic.idArticulo = '.$idArticulo
+                . ' AND lintic.estadoLinea = "Activo"'
+                . ' AND tic.idTienda = '.$idTienda;
+        $sqldata = $this->consulta($sql);
+        if ($sqldata) {
+            $ventastick = $sqldata['datos'][0]['ventas'];
+        }
+
+        $sql = 'SELECT SUM( linalb.nunidades ) as compras'
+                . ' FROM albprot as alb '
+                . ' JOIN albprolinea as linalb ON (alb.id=linalb.idalbpro) '
+                . ' WHERE linalb.idArticulo = '.$idArticulo
+                . ' AND alb.idTienda = ' . $idTienda;
+        $sqldata = $this->consulta($sql);
+        if ($sqldata) {
+            $comprasalbp = $sqldata['datos'][0]['compras'];
+        }
+        
+        $stock = $comprasalbp - $ventasalbc - $ventastick;
+        
+//        $sql = implode(' UNION ', $sqlprepare);
+        return $stock;
+    }
+
 }

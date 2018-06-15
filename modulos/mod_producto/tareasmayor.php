@@ -82,7 +82,8 @@ switch ($pulsado) {
         $articulo = new alArticulos();
         if ($articulo->existe($idArticulo)) {
             $miarticulo = $articulo->leer($idArticulo);
-            $nombreArticulo = $miarticulo['datos'][0]['idArticulo'] . ' ' . $miarticulo['datos'][0]['articulo_name'];
+            
+            $nombreArticulo = $miarticulo[0]['idArticulo'] . ' ' . $miarticulo[0]['articulo_name'];
 
             $fecha = explode('/', $fechainicio);
             $fechadesde = $fecha[2] . '/' . $fecha[1] . '/' . $fecha[0];
@@ -90,9 +91,9 @@ switch ($pulsado) {
             $fecha = explode('/', $fechafinal);
             $fechahasta = $fecha[2] . '/' . $fecha[1] . '/' . $fecha[0];
 
-                    $Tienda = $_SESSION['tiendaTpv'];
-        $Usuario = $_SESSION['usuarioTpv'];
-            $sqldata = $articulo->calculaMayor(compact("fechadesde", "fechahasta", "idArticulo","Tienda","Usuario"));
+            $Tienda = $_SESSION['tiendaTpv'];
+            $Usuario = $_SESSION['usuarioTpv'];
+            $sqldata = $articulo->calculaMayor(compact("fechadesde", "fechahasta", "idArticulo", "Tienda", "Usuario"));
 
             if ($sqldata['datos']) {
                 $sumastock = $stockinicial;
