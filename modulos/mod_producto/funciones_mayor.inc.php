@@ -40,10 +40,12 @@ function datamayor2html($sqldata, $sumas) {
                     . ' </tr>';
 
         foreach ($sqldata as $linea) {
+            // Modifico array evitar errores.
+            $linea['entrega'] = $linea['entrega'] != 0.0 ? number_format($linea['entrega'], 3) : ' ';
+
             $resultado .= '<tr height="20px"> ';
             $resultado .= ' <td>' . $linea['fecha'] . ' </td>';
-            $a = $linea['entrega'] != 0.0 ? number_format($linea['entrega'], 3) : ' ';
-            $resultado .= ' <td  align="right">' . $a . ' </td>';
+            $resultado .= ' <td  align="right">' . $linea['entrega'] . ' </td>';
             $a = $linea['precioentrada'] != 0.0 ? number_format($linea['precioentrada'], 3) : ' ';
             $resultado .= ' <td  align="right">' . $a . ' </td>';
 
