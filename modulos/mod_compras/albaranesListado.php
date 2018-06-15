@@ -44,11 +44,11 @@ $todosTemporal=array_reverse($todosTemporal);
 //~ print_r($NPaginado);
 //~ echo '</pre>';
 	// --- Ahora contamos registro que hay para es filtro --- //
-	$filtro= $NPaginado->GetFiltroWhere('or'); // mando operador para montar filtro ya que por defecto es AND
+	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 	$CantidadRegistros=0;
 	// Obtenemos la cantidad registros 
 	$a = $CAlb->TodosAlbaranesLimite($filtro);
-		//~ echo $filtro;
+		
 	$CantidadRegistros = count($a['Items']);
 	
 	// --- Ahora envio a NPaginado la cantidad registros --- //
@@ -56,7 +56,7 @@ $todosTemporal=array_reverse($todosTemporal);
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
-	//~ echo $filtro;
+	
 	 //~ $albaranesDef=array_reverse($a['Items']);
 	 $albaranesDef=$a['Items'];
 	if (isset($a['error'])){
