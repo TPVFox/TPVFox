@@ -651,24 +651,25 @@ function ImprimirA8($productos){
 			$imprimir['html'].='<tr>';
 		}
 		$imprimir['html'].='<td >';
-		
+		$imprimir['html'].='<font size="6.5 em" align="center">  Fecha: '.date('Y-m-d').'</font>';
+		$imprimir['html'].='<font size="6.5 em" align="center">  Id: '.$producto['idArticulo'].'</font><br>';
 		$imprimir['html'].='<font size="9 em" align="center"><b>'.$producto['articulo_name'].'</b></font><br>';
 		if($producto['estado']=="Nuevo"){
 			$imprimir['html'].='<img src="../../css/img/NUEVO.png"  width="70" style="float: left;">';
 		}
 		$imprimir['html'].='<font size="30 em" align="center"><b>'.number_format($producto['pvpCiva'],2,',','').'</b></font><font size="6.5 em" align="center">€</font><br>';
-		if(strlen ($producto['articulo_name'])<=30){
+		if(strlen ($producto['articulo_name'])<=31){
 			$imprimir['html'].='<br>';
 		}
 		
-		$imprimir['html'].='<font size="6.5 em">  Fecha: '.date('Y-m-d').'</font>';
-		$imprimir['html'].='<font size="6.5 em" >  Codbarras: ';
+		
+		$imprimir['html'].='<font size="6.5 em" align="center">  Codbarras: ';
 		foreach($producto['codBarras'] as $codigo){
 				$imprimir['html'].=$codigo.' ';
 		}
 		$imprimir['html'].='</font>';
-		$imprimir['html'].='<font size="6.5 em">  Ref: '.$producto['cref_tienda_principal'].'</font>';
-		$imprimir['html'].='<font size="6.5 em">  Id: '.$producto['idArticulo'].'</font>';
+		$imprimir['html'].='<font size="6.5 em" align="center">  Ref: '.$producto['cref_tienda_principal'].'</font>';
+		
 		//~ $imprimir['html'].=' RefProv:</font><br>';
 		
 		

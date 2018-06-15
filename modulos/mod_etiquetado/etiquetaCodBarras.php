@@ -2,13 +2,15 @@
 <html>
     <head>
 		<?php
-        include './../../head.php';
-        include ("./../../controllers/Controladores.php");
-        include '../../clases/articulos.php';
-        include 'clases/modulo_etiquetado.php';
-        include 'funciones.php';
+		include_once './../../inicial.php';
 		
-		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+        include_once $URLCom.'/head.php';
+        include_once $URLCom."/controllers/Controladores.php";
+        include_once $URLCom.'/clases/articulos.php';
+        include_once $URLCom.'/modulos/mod_etiquetado/clases/modulo_etiquetado.php';
+        include_once $URLCom.'/modulos/mod_etiquetado/funciones.php';
+		include_once ( $URLCom.'/controllers/parametros.php');
+		
 		$ClasesParametros = new ClaseParametros('parametros.xml');
         
         $Controler = new ControladorComun; 

@@ -1,12 +1,11 @@
 <?php 
 
 $pulsado = $_POST['pulsado'];
-
-include_once ("./../../configuracion.php");
 include_once ("./../../inicial.php");
-include_once ("./funciones.php");
-include_once "../../clases/articulos.php";
-include_once "clases/modulo_etiquetado.php";
+include_once $URLCom.'/configuracion.php';
+include_once $URLCom.'/modulos/mod_etiquetado/funciones.php';
+include_once $URLCom.'/clases/articulos.php';
+include_once $URLCom.'/modulos/mod_etiquetado/clases/modulo_etiquetado.php';
 
 $CArticulos=new Articulos($BDTpv);
 $CEtiquetado= new Modulo_etiquetado($BDTpv);

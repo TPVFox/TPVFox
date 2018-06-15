@@ -2,13 +2,14 @@
 <html>
 	<head>
 		<?php 
-			include './../../head.php';
-			include './funciones.php';
-			//~ include ("./../../plugins/paginacion/paginacion.php");
-			include ("./../../plugins/paginacion/ClasePaginacion.php");
-			include ("./../../controllers/Controladores.php");
-			include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-			include 'clases/modulo_etiquetado.php';
+			include_once './../../inicial.php';
+			 include_once $URLCom.'/head.php';
+			include_once $URLCom.'/modulos/mod_etiquetado/funciones.php';
+			include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+			include_once $URLCom.'/controllers/Controladores.php';
+			include_once ($URLCom.'/controllers/parametros.php');
+			include_once $URLCom.'/modulos/mod_etiquetado/clases/modulo_etiquetado.php';
+			
 			$Controler = new ControladorComun; 
 			$Controler->loadDbtpv($BDTpv);
 			$CEtiquetas=new Modulo_etiquetado($BDTpv);
