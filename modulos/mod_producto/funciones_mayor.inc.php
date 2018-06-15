@@ -28,27 +28,33 @@ function datamayor2html($sqldata, $sumas) {
                     . '</thead>'
                     . '<tbody>'
                     . ' <tr>'
-                    . '  <td  width="50%" align="left"><b>Stock inicial</b></td>'
-                    . '  <td width="10%" align="right">' . $sumas['stockinicial'] . '</td>'
-                    . '  <td  width="40%"></td>'
+                    . '  <td style="width:16%;"><b>Stock inicial</b></td>'
+                    . '  <td style="width:7%;"></td>'
+                    . '  <td style="width:10%;"></td>'
+                    . '  <td style="width:7%;"></td>'
+                    . '  <td style="width:10%;"></td>'
+                    . '  <td align="right" style="width:10%;">' . $sumas['stockinicial'] . '</td>'
+                    . '  <td style="width:10%;"></td>'
+                    . '  <td style="width:20%;" ></td>'
+                    . '  <td style="width:10%;"></td>'
                     . ' </tr>';
 
         foreach ($sqldata as $linea) {
             $resultado .= '<tr height="20px"> ';
-            $resultado .= ' <td width="16%">' . $linea['fecha'] . ' </td>';
+            $resultado .= ' <td>' . $linea['fecha'] . ' </td>';
             $a = $linea['entrega'] != 0.0 ? number_format($linea['entrega'], 3) : ' ';
-            $resultado .= ' <td width="7%"  align="right">' . $a . ' </td>';
+            $resultado .= ' <td  align="right">' . $a . ' </td>';
             $a = $linea['precioentrada'] != 0.0 ? number_format($linea['precioentrada'], 3) : ' ';
-            $resultado .= ' <td width="10%"  align="right">' . $a . ' </td>';
+            $resultado .= ' <td  align="right">' . $a . ' </td>';
 
             $a = $linea['salida'] != 0.0 ? number_format($linea['salida'], 3) : ' ';
             $resultado .= ' <td width="7%" align="right">' . $a . ' </td>';
             $a = $linea['preciosalida'] != 0.0 ? number_format($linea['preciosalida'], 3) : ' ';
-            $resultado .= ' <td width="10%" align="right">' . $a . '</td>';
-            $resultado .= ' <td width="10%" align="right">' . number_format($linea['stock'], 3) . ' </td>';
-            $resultado .= ' <td width="10%" align="right">' . $linea['tipodoc'] . ' ' . $linea['numdocu'] . ' </td>';
-            $resultado .= ' <td width="20%">' . substr($linea['nombre'], 0, 15) . '</td>';
-            $resultado .= ' <td width="10%" align="right"';
+            $resultado .= ' <td  align="right">' . $a . '</td>';
+            $resultado .= ' <td>' . number_format($linea['stock'], 3) . ' </td>';
+            $resultado .= ' <td  align="right">' . $linea['tipodoc'] . ' ' . $linea['numdocu'] . ' </td>';
+            $resultado .= ' <td>' . substr($linea['nombre'], 0, 15) . '</td>';
+            $resultado .= ' <td align="right"';
             $resultado .= $linea['estado']=='Sin Guardar'? ' style="background-color:red;color:white">':'>';
             $resultado .= $linea['estado'] . ' </td>';
             $resultado .= ' </tr>';
