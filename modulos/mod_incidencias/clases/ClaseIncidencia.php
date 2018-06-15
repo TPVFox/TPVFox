@@ -224,6 +224,12 @@ class ClaseIncidencia{
 		
 	}
 	public function incidenciasAdjuntas($idReal, $dedonde, $vista){
+		//OBjetivo: cargar las incidencias adjuntas de un documento (compras : albaranes, pedidos y facturas , ventas :
+		//albaranes, pedidos y facturas)
+		//Parametros: 
+		//idReal: id del documento 
+		//dedonde: el módulo del documento ej: compras, ventas ...
+		//vista: vista del documento ej albaran, pedidos , facturas
 		$db = $this->db;
 		$sql='SELECT * FROM `modulo_incidencia` WHERE `dedonde`="'.$dedonde.'" and datos like '."'".'%"vista":"'.$vista.'","idReal":"'.$idReal.'"%'."'";
 		//~ error_log($sql);
