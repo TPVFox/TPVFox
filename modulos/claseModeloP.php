@@ -84,11 +84,11 @@ class ModeloP {
         return $respuesta;
     }
 
-    protected function consultaDML($sql){
+    protected function consultaDML($sql) {
         return ModeloP::_consultaDML($sql);
     }
 
-    protected static function _insert($tabla,$datos, $soloSQL = false) {
+    protected static function _insert($tabla, $datos, $soloSQL = false) {
         $respuesta = false;
         $updateStr = [];
         if (is_array($datos)) {
@@ -115,9 +115,10 @@ class ModeloP {
 
         return $respuesta;
     }
-    protected function insert($tabla,$datos, $soloSQL = false) {
-        return ModeloP::_insert($tabla,$datos, $soloSQL);
-    }
+
+//    protected function insert($tabla,$datos, $soloSQL = false) {
+//        return ModeloP::_insert($tabla,$datos, $soloSQL);
+//    }
 
     protected static function _update($tabla, $datos, $condicion, $soloSQL = false) {
         $respuesta = false;
@@ -152,9 +153,9 @@ class ModeloP {
         return $respuesta;
     }
 
-        protected function update($tabla, $datos, $condicion, $soloSQL = false) {
-            return ModeloP::_update($tabla, $datos, $condicion, $soloSQL);
-        }
+//    protected function update($tabla, $datos, $condicion, $soloSQL = false) {
+//        return ModeloP::_update($tabla, $datos, $condicion, $soloSQL);
+//    }
 
     public static function hayErrorConsulta() {
         return ModeloP::$resultado['error'] !== 0;

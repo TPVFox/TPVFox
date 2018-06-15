@@ -46,7 +46,7 @@ class Modelo extends ModeloP {
 
     protected function insert( $datos, $soloSQL = false) {
 
-        parent::insert($this->tabla, $datos, $soloSQL);
+        parent::_insert($this->tabla, $datos, $soloSQL);
 
         return $this->getSQLConsulta();
     }
