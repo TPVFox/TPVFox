@@ -5,25 +5,38 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
 class ClaseProveedor extends modelo{
 	
 	public function getProveedor($id){
+		//@Objetivo: cargar todos los datos de un proveedor 
+		//@Parametros: 
+		//id: id del proveedor
 		$sql='SELECT * from proveedores where idProveedor='.$id;
 		return $this->consulta($sql);
 	}
 	
 	public function getFacturas($id){
+		//@Objetivo: cargar todas las facturas de compras de un proveedor determinado
+		//@Parametros:
+		//id: id del proveedor
 		$sql='SELECT Numfacpro  as num, Fecha as fecha, total, id , idProveedor FROM facprot WHERE idProveedor='.$id;
 		return $this->consulta($sql);
 	}
 	
 	public function getAlbaranes($id){
+		//@OBjetivo: cargar todos los albaranes de compras de un proveedor 
+		//@Prametros: 
+		//id : id del proveedor
 		$sql='SELECT Numalbpro as num, Fecha as fecha, total , id , idProveedor  FROM albprot WHERE idProveedor='.$id;
 		return $this->consulta($sql);
 	}
 	
 	public function getPedidos($id){
+		//@Objetivo: cargar todos los pedidos de compras de un proveedor
+		//@Parametros:
+		//id: id del proveedor
 		$sql='SELECT Numpedpro as num, FechaPedido as fecha , total, id, idProveedor  FROM pedprot WHERE idProveedor='.$id;
 		return $this->consulta($sql);
 	}
 	public function adjuntosProveedor($id){
+		//@OBjetivo: cargar todos los pedidos, albaranes y facturas de una sola vez
 		$respuesta=array();
 		$respuesta['facturas']=$this->getFacturas($id);
 		$respuesta['albaranes']=$this->getAlbaranes($id);
@@ -31,6 +44,9 @@ class ClaseProveedor extends modelo{
 		return $respuesta;
 	}
 	public function modificarDatosProveedor($datos){
+		//@Objetivo: modificar los datos de un proveedor determinado
+		//@Paramatros: 
+		//datos: datos a modificar del provvedor 
 		$sql='UPDATE `proveedores` SET `nombrecomercial`="'.$datos['nombrecomercial'].'",
 		`razonsocial`="'.$datos['razonsocial'].'",`nif`="'.$datos['nif'].'",`direccion`="'.$datos['direccion'].'",
 		`telefono`="'.$datos['telefono'].'",`fax`="'.$datos['fax'].'",`movil`="'.$datos['movil'].'",
@@ -41,6 +57,10 @@ class ClaseProveedor extends modelo{
 		}
 	}
 	public function addProveedorNuevo($datos){
+		//@Objetivo:
+		//Añadir un proveedor nuevo
+		//Parametros: 
+		//datos del proveedor 
 		$sql='INSERT INTO `proveedores`( `nombrecomercial`, `razonsocial`, 
 		`nif`, `direccion`, `telefono`, `fax`, `movil`, `email`, `fecha_creado`, 
 		`estado`) VALUES ("'.$datos['nombrecomercial'].'","'.$datos['razonsocial'].'",
@@ -53,6 +73,8 @@ class ClaseProveedor extends modelo{
 	}
 	
 	public function comprobarExistenDatos($datos){
+		//@Objetivo:
+		//comprobar que el nif que vamos a guardar en el proveedor no lo tiene otro proveedor
 		$respuesta=array();
 		$sql='select nif , idProveedor FROM proveedores where nif="'.$datos['nif'].'"';
 		$consulta=$this->consulta($sql);
