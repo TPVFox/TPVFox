@@ -2,8 +2,11 @@
 <html>
     <head>
         <?php
-	include './../../head.php';
-	include './funciones.php';
+    include_once './../../inicial.php';
+    
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_usuario/funciones.php';
+
 	$usuarios = obtenerUsuarios($BDTpv);
 	
 	?>

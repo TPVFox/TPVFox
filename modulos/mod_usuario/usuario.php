@@ -3,9 +3,10 @@
     <head>
         <?php
 		// Reinicio variables
-        include './../../head.php';
-        include './funciones.php';
-        include_once ('clases/claseUsuarios.php');
+		include_once './../../inicial.php';
+		include_once $URLCom.'/head.php';
+		include_once $URLCom.'/modulos/mod_usuario/funciones.php';
+		include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
 		//include ("./ObjetoRecambio.php");
 		$Cusuario=new ClaseUsuarios($BDTpv);

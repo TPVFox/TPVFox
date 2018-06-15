@@ -4,8 +4,9 @@ include_once ("./../../configuracion.php");
 // Crealizamos conexion a la BD Datos
 include_once ("./../../inicial.php");
 // Incluimos funciones
-include_once ("./funciones.php");
-include_once ('clases/claseUsuarios.php');
+include_once $URLCom.'/modulos/mod_usuario/funciones.php';
+include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
+
 $Cusuario=new ClaseUsuarios($BDTpv);
 // Obtenemos funcion que nos envia... 
 
