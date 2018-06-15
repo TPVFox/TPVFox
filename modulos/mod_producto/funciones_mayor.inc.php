@@ -12,37 +12,26 @@ include_once '../../clases/claseimprimir.php';
 function datamayor2html($sqldata, $sumas) {
     $resultado = '';
     if (count($sqldata) > 0) {
-        $resultado .= '<table border="1px" style="width:100%;">';
-//        $resultado .= '<col style="width:29%" />';
-//        $resultado .= '<col style="width:10%">';
-//        $resultado .= '<col style="width:10%">';
-//        $resultado .= '<col style="width:10%">';
-//        $resultado .= '<col style="width:10%">';
-//        $resultado .= '<col style="width:10%">';
-//        $resultado .= '<col style="width:1%">';
-//        $resultado .= '<col style="width:10%">';
-//        $resultado .= '<col style="width:20%">';
-        $resultado .= ' <thead>';
-        $resultado .= '<tr > ';
-        $resultado .= ' <th width="16%"><b>Fecha</b></th>';
-        $resultado .= ' <th width="7%"> entrada </th>';
-        $resultado .= ' <th width="10%"> coste </th>';
-        $resultado .= ' <th width="7%"> salida </th>';
-        $resultado .= ' <th width="10%"> PVP </th>';
-        $resultado .= ' <th width="10%"> Stock </th>';
-//        $resultado .= ' <th>  </th>';
-        $resultado .= ' <th width="10%"> doc </th>';
-        $resultado .= ' <th width="20%"> nombre </th>';
-        $resultado .= ' <th width="10%"> estado </th>';
-        $resultado .= ' </tr>';
-        $resultado .= ' </thead>';
-
-        $resultado .= ' <tbody>';
-        $resultado .= ' <tr>';
-        $resultado .= '<td  width="50%" align="left"><b>Stock inicial</b></td>';
-        $resultado .= '<td width="10%" align="right">' . $sumas['stockinicial'] . '</td>';
-        $resultado .= '<td  width="40%"></td>';
-        $resultado .= ' </tr>';
+        $resultado .= '<table border="1px" style="width:100%;">'
+                    . ' <thead>'
+                    . '<tr > '
+                    . '  <th width="16%"><b>Fecha</b></th>'
+                    . '  <th width="7%"> entrada </th>'
+                    . '  <th width="10%"> coste </th>'
+                    . '  <th width="7%"> salida </th>'
+                    . '  <th width="10%"> PVP </th>'
+                    . '  <th width="10%"> Stock </th>'
+                    . '  <th width="10%"> doc </th>'
+                    . '  <th width="20%"> nombre </th>'
+                    . '  <th width="10%"> estado </th>'
+                    . ' </tr>'
+                    . '</thead>'
+                    . '<tbody>'
+                    . ' <tr>'
+                    . '  <td  width="50%" align="left"><b>Stock inicial</b></td>'
+                    . '  <td width="10%" align="right">' . $sumas['stockinicial'] . '</td>'
+                    . '  <td  width="40%"></td>'
+                    . ' </tr>';
 
         foreach ($sqldata as $linea) {
             $resultado .= '<tr height="20px"> ';
@@ -64,47 +53,44 @@ function datamayor2html($sqldata, $sumas) {
             $resultado .= $linea['estado'] . ' </td>';
             $resultado .= ' </tr>';
         }
-        $resultado .= '<tr height="2px" > ';
-        $resultado .= ' <td > </td>';
-        $resultado .= ' <td align="right" style="background-color:black"> </td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' <td align="right" style="background-color:black"> </td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' <td align="right" style="background-color:black"> </td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' </tr>';
-        $resultado .= '<tr > ';
-        $resultado .= ' <td align="right"><b>TOTALES:</b></td>';
-        $resultado .= ' <td align="right">' . number_format($sumas['totalEntrada'], 3) . '</td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' <td align="right">' . number_format($sumas['totalSalida'], 3) . '</td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' <td align="right">' . number_format($sumas['sumastock'], 3) . '</td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' <td> </td>';
-        $resultado .= ' </tr>';
-        $resultado .= ' </tbody>';
-
-        $resultado .= ' </table>';
+        $resultado .= ' <tr height="2px" > '
+                    . '   <td > </td>'
+                    . '   <td align="right" style="background-color:black"> </td>'
+                    . '   <td> </td>'
+                    . '   <td align="right" style="background-color:black"> </td>'
+                    . '   <td> </td>'
+                    . '   <td align="right" style="background-color:black"> </td>'
+                    . '   <td> </td>'
+                    . '   <td> </td>'
+                    . '   <td> </td>'
+                    .  '</tr>'
+                    . ' <tr > '
+                    . '   <td align="right"><b>TOTALES:</b></td>'
+                    . '   <td align="right">' . number_format($sumas['totalEntrada'], 3) . '</td>'
+                    . '   <td> </td>'
+                    . '   <td align="right">' . number_format($sumas['totalSalida'], 3) . '</td>'
+                    . '   <td> </td>'
+                    . '   <td align="right">' . number_format($sumas['sumastock'], 3) . '</td>'
+                    . '   <td> </td>'
+                    . '   <td> </td>'
+                    . ' </tr>'
+                    . '</tbody>'
+                    . '</table>';
     }
     return $resultado;
 }
 
 function cabeceramayor2html($datoscabecera) {
-    $resultado = '<h2 align="center">' . $datoscabecera['titulo'] . '</h2>';
-    $resultado .= '<table width="100%" border="1px">';
-    $resultado .= '<col style="width:80%">';
-    $resultado .= '<col style="width:20%">';
-
-    $resultado .= '<tr><td> <b>Empresa</b> ' . $datoscabecera['empresa'] . '</td>';
-    $resultado .= '<td> Fecha informe:' . date('d-m-Y') . '</td></tr>';
-    $resultado .= ' <tr>';
-    $resultado .= '<td colspan="2">Producto: <b>' . $datoscabecera['producto'] . '</b></td>';
-    $resultado .= '</tr>';
-    $resultado .= '<tr><td colspan="2">' . $datoscabecera['condiciones'] . '</td></tr>';
-
-    $resultado .= '</table>';
+    $resultado = '<h2 align="center">' . $datoscabecera['titulo'] . '</h2>'
+                .'<table width="100%" border="1px">'
+                .'<col style="width:80%">'
+                .'<col style="width:20%">'
+                .'<tr><td> <b>Empresa</b> ' . $datoscabecera['empresa'] . '</td>'
+                .'<td> Fecha informe:' . date('d-m-Y') . '</td></tr>'
+                .' <tr>'
+                .'<td colspan="2">Producto: <b>' . $datoscabecera['producto'] . '</b></td>'
+                .'</tr>'
+                .'<tr><td colspan="2">' . $datoscabecera['condiciones'] . '</td></tr>'
+                .'</table>';
     return $resultado;
 }
