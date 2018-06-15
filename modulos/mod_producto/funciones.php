@@ -634,6 +634,12 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 
 
 function ImprimirA8($productos){
+	//@objetivo: imprimir las etiquetas de tamaño A8 , controlando que las etiquetas nuevas se 
+	//cargue la imagen de nuevo
+	//@Parametros: 
+	//Productos: listado de productos que vamos a imprimir
+	//@Return:
+	//html montado para imprimir
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
@@ -696,6 +702,11 @@ function ImprimirA8($productos){
 	return $imprimir;
 }
 function ImprimirA9($productos){
+	//@objetivo: imprimir las etiquetas de tamaño A9 
+	//@Parametros: 
+	//Productos: listado de productos que vamos a imprimir
+	//@Return:
+	//html montado para imprimir
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
@@ -752,6 +763,13 @@ function ImprimirA9($productos){
 	return $imprimir;
 }
 function ImprimirA7($productos){
+	//@objetivo: imprimir las etiquetas de tamaño A7 , controlando que a las nuevas
+	//les cargue la imagen de producto nuevo
+	//@Parametros: 
+	//Productos: listado de productos que vamos a imprimir
+	
+	//@Return:
+	//html montado para imprimir
 $imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
@@ -802,6 +820,11 @@ $imprimir=array(
 
 }
 function ImprimirA5($productos){
+	//@objetivo: imprimir las etiquetas de tamaño A5 
+	//@Parametros: 
+	//Productos: listado de productos que vamos a imprimir
+	//@Return:
+	//html montado para imprimir
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
