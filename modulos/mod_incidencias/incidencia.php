@@ -2,12 +2,15 @@
 <html>
 <head>
 	<?php 
-	include './../../head.php';
-	include ("./../../controllers/Controladores.php");
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	include_once ("./../../inicial.php");
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once ( $URLCom.'/controllers/parametros.php');
+	include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
 	$ClasesParametros = new ClaseParametros('parametros.xml');
+	
 	$Controler = new ControladorComun; 
-	include './clases/ClaseIncidencia.php';
+	
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
 	$CIncidencia= new ClaseIncidencia($BDTpv);

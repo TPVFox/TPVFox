@@ -1,11 +1,10 @@
 <?php 
 $pulsado = $_POST['pulsado'];
 
-//~ include_once ("./../../configuracion.php");
 include_once ("./../../inicial.php");
-include_once ("./clases/ClaseIncidencia.php");
+include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
 $Cincidencias = new ClaseIncidencia($BDTpv);
-//~ include_once ("./popup_incidencias.php");
+
 
 switch ($pulsado) {
 	case 'abririncidencia':
@@ -35,7 +34,6 @@ switch ($pulsado) {
 		
 		if($usuarioSelect>0){
 			$datos=json_decode($datos);
-			//~ error.log($datos);
 			$datos->usuarioSelec=$usuarioSelect;
 			$datos=json_encode($datos);
 		}

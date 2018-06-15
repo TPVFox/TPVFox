@@ -1,8 +1,6 @@
 <?php 
-include_once ("./../../configuracion.php");
-
-// Crealizamos conexion a la BD Datos
 include_once ("./../../inicial.php");
+include_once ("./../../configuracion.php");
 // Incluimos funciones
 include_once $URLCom.'/modulos/mod_usuario/funciones.php';
 include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
