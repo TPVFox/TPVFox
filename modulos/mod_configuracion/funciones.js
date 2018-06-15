@@ -32,7 +32,7 @@ function modificarTabla(dedonde){
 		var iva="";
 		var recargo="";
 	}
-	if(dedonde="vencimiento"){
+	if(dedonde=="vencimiento"){
 		var dias=($("#dias").val());
 	}else{
 		var dias=0;
@@ -61,7 +61,7 @@ function modificarTabla(dedonde){
 			var resultado =  $.parseJSON(response);
 			console.log(resultado);
 			if(resultado.error==0){
-				//~ cerrarPopUp();
+				cerrarPopUp();
 				location.reload(true);
 			}else{
 				alert(resultado.consulta);

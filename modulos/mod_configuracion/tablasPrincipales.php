@@ -2,12 +2,14 @@
 <html>
     <head>
 <?php 
-include './../../head.php';
-include ("./../../controllers/Controladores.php");
-include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseIva.php';
-include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseFormasPago.php';
-include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/clases/ClaseVencimiento.php';
-include_once $RutaServidor . $HostNombre .'/modulos/mod_configuracion/funciones.php';
+include_once './../../inicial.php';
+include_once $URLCom.'/head.php';
+include_once $URLCom.'/controllers/Controladores.php';
+
+include_once $URLCom.'/modulos/mod_configuracion/clases/ClaseIva.php';
+include_once $URLCom.'/modulos/mod_configuracion/clases/ClaseFormasPago.php';
+include_once $URLCom.'/modulos/mod_configuracion/clases/ClaseVencimiento.php';
+include_once $URLCom.'/modulos/mod_configuracion/funciones.php';
 $iva=new ClaseIva($BDTpv);
 $formas=new ClaseFormasPago($BDTpv);
 $Vencimiento=new ClaseVencimiento($BDTpv);

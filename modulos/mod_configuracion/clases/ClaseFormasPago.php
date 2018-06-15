@@ -1,5 +1,5 @@
 <?php 
-include_once '../../modulos/claseModelo.php';
+include_once  $URLCom.'/modulos/claseModelo.php';
 
 
 class ClaseFormasPago extends modelo{

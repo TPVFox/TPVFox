@@ -1,11 +1,10 @@
 <?php 
-
+include_once './../../inicial.php';
 $pulsado = $_POST['pulsado'];
-include_once 'clases/ClaseIva.php';
-include_once 'clases/ClaseFormasPago.php';
-include_once 'clases/ClaseVencimiento.php';
-include_once 'funciones.php';
-include_once ("./../../inicial.php");
+include_once $URLCom.'/modulos/mod_configuracion/clases/ClaseIva.php';
+include_once $URLCom.'/modulos/mod_configuracion/clases/ClaseFormasPago.php';
+include_once $URLCom.'/modulos/mod_configuracion/clases/ClaseVencimiento.php';
+include_once $URLCom.'/modulos/mod_configuracion/funciones.php';
 switch ($pulsado) {
 	case 'abrirModalModificar':
 		$html=abrirModal($_POST['id'], $_POST['dedonde'], $BDTpv);
@@ -17,7 +16,12 @@ switch ($pulsado) {
 		$datos['descripcion']=$_POST['descripcion'];
 		$datos['iva']=$_POST['iva'];
 		$datos['recargo']=$_POST['recargo'];
-		$datos['dias']=$_POST['dias'];
+		if(isset($_POST['dias'])){
+			$datos['dias']=$_POST['dias'];
+		}else{
+			$datos['dias']=0;
+		}
+		
 		$dedonde=$_POST['dedonde'];
 		switch($dedonde){
 			case 'iva':
