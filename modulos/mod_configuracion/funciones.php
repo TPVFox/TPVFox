@@ -1,7 +1,11 @@
 <?php 
 include '../../configuracion.php';
 function abrirModal($id, $dedonde, $BDTpv){
-		switch($dedonde){
+	//Objetivo: crear la tabla para mostrar en el modal,
+	//@Parametros: 
+	//id: id del registro , puede contener id o ser 0
+	//dedonde: nombre de la tabla que vamos a utilizar 
+			switch($dedonde){
 			case 'iva':
 				$html=crearModalIva($id, $BDTpv);
 			break;
