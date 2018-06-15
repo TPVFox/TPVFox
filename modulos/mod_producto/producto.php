@@ -154,7 +154,7 @@
 					<div class="col-md-12">
 						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
-							<input type="text" id="referencia" onblur="comprobarReferencia()" name="cref_tienda_principal" size="10" placeholder="referencia producto" data-obj= "cajaReferencia" value="<?php echo $Producto['cref_tienda_principal'];?>" onkeydown="controlEventos(event)"  >
+							<input type="text" id="referencia" name="cref_tienda_principal" size="10" placeholder="referencia producto" data-obj= "cajaReferencia" value="<?php echo $Producto['cref_tienda_principal'];?>" onkeydown="controlEventos(event)"  >
 						</div>
 						<div class="form-group col-md-9 ">	
 							<label class="control-label " > Nombre producto:</label>

@@ -25,9 +25,6 @@ Numero tecla:
 				<action tecla="13">controlReferencia</action>
 				<action tecla="40">controlReferencia</action>
 			</teclas>
-            <parametros>
-				<parametro nombre="pulsado_intro">No</parametro>
-			</parametros> 
 			
 		</caja_input>
 		

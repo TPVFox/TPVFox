@@ -544,28 +544,22 @@ function before_constructor(caja){
 	//  Ejecutar procesos para obtener datos despues del construtor de caja. ( SI DESPUES ) :-)
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
-	console.log(caja);
 	if (caja.id_input.indexOf('pvpRecomendado_') >-1){
 		caja.fila = caja.id_input.slice(15);
 	}
-	return caja;	
+    return caja;	
 }
 
 
 
 function controladorAcciones(caja,accion, tecla){
-	console.log(tecla);
-	console.log(caja);
+	console.log('Entro en controlador de acciones');
 	switch(accion) {
 		case 'revisar_contenido':
 			validarEntradaNombre(caja);
 		break;
 
 		case 'controlReferencia':
-            console.log('valor Parametro' + cajaReferencia.parametros.pulsado_intro );
-            if (cajaReferencia.parametros.pulsado_intro === 'No'){
-                cajaReferencia.parametros.pulsado_intro = 'Si';
-            }
             comprobarReferencia();
 		break;
 
@@ -640,7 +634,10 @@ function controladorAcciones(caja,accion, tecla){
 			mover_up(nueva_fila,caja.darParametro('prefijo'));
 			
 		break;
-		
+
+        default:
+            console.log( ' No hubo accion a realizar,accion pedida '+accion);
+        break;
 	}
 		
 }
@@ -945,13 +942,13 @@ function comprobarReferencia(){
 		var referencia=$("#referencia").val();
 		var parametros = {
 		"pulsado"    	: 'comprobarReferencia',
-		"referencia"	:referencia
-		
+		"referencia"	: referencia
 		};
+
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
-		type       : 'post',
+        type       : 'post',
 		beforeSend : function () {
 		console.log('*********  Envio para comprobar la referencia escrita en el producto  **************');
 		},
@@ -959,17 +956,16 @@ function comprobarReferencia(){
 				console.log('Respuesta de comprobar la referencia escrita en el producto ');
 				var resultado = $.parseJSON(response);
 				if(resultado.error){
-					alert("Error de SQL: "+resultado.error+" "+resultado.copnsulta);
+					alert("Error de SQL: "+resultado.error+" "+resultado.consulta);
 				}else{
 					if(resultado!=""){
 						alert("Ojo Esa referencia de producto ya está registrada");
                     }
 
 				}
-                jQuery('#nombre').focus(); 
-                
 				 
 		}	
 	});
+    console.log('Fin de comprobarReferencia');
 		
 }
