@@ -13,10 +13,10 @@
 		<caja_input>
 			<nombre id_input="fecha">cajaFecha</nombre>
 			<teclas>
-				<action tecla="40">Saltar_idProveedorAbajo</action>
-				<action tecla="39">Saltar_idProveedor</action>
+				<action tecla="40">Saltar_desde_fecha</action>
+				<action tecla="38">Saltar_hora</action>
 				<action tecla="13">Saltar_hora</action>
-				<action tecla="9">Saltar_idProveedor</action>
+				<action tecla="9">Saltar_hora</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -25,10 +25,10 @@
 		<caja_input>
 			<nombre id_input="hora">cajaHora</nombre>
 			<teclas>
-				<action tecla="40">Saltar_idProveedorAbajo</action>
-				<action tecla="39">Saltar_idProveedor</action>
-				<action tecla="13">Saltar_idProveedor</action>
-				<action tecla="9">Saltar_idProveedor</action>
+				<action tecla="40">Saltar_desde_Hora</action>
+   				<action tecla="37">Saltar_desde_Hora</action>
+				<action tecla="13">Saltar_desde_Hora</action>
+				<action tecla="9">Saltar_desde_Hora</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -37,11 +37,10 @@
 		<caja_input>
 			<nombre id_input="suNumero">CajaSuNumero</nombre>
 			<teclas>
-				<action tecla="40">Saltar_idProveedor</action>
-				<action tecla="37">Saltar_fecha</action>
-				<action tecla="39">Saltar_idProveedor</action>
-				<action tecla="13">Saltar_idProveedor</action>
-				<action tecla="9">Saltar_idProveedor</action>
+				<action tecla="40">Saltar_desde_SuNumero</action>
+   				<action tecla="38">Saltar_fecha</action>
+				<action tecla="13">Saltar_desde_SuNumero</action>
+				<action tecla="9">Saltar_desde_SuNumero</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>

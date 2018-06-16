@@ -1,7 +1,8 @@
 //Función que controla las acciones que llegan del xml
 
 function controladorAcciones(caja,accion, tecla){
-    console.log (' Estoy en control de acciones con accion' +accion);
+    console.log (' Controlador Acciones: ' +accion);
+	console.log(caja.darParametro('dedonde'));
     console.log(caja);
     switch(accion) {
 		case 'buscarProveedor':
@@ -16,7 +17,6 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		case 'buscarProducto':
 			console.log("Pulse buscar Producto");
-			console.log(caja.darParametro('dedonde'));
 			
 			buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.id_input , caja.darValor(),caja.darParametro('dedonde'));
 		break;
@@ -108,44 +108,64 @@ function controladorAcciones(caja,accion, tecla){
 			var coste =productos[nfila].ultimoCoste
 			addProveedorProducto(productos[nfila].idArticulo, nfila , productos[nfila].crefProveedor, coste, caja.darParametro('dedonde'));
 		break;
-		case 'Saltar_idProveedor':
-            console.log('Estoy en Saltar a idProveedor');
+        
+        case 'Saltar_desde_Hora':
+            cabecera.hora = dato; // Guardamos el dato, tanto tenga datos , como no.
+            var d_focus = "suNumero";
+            if (caja.tecla === '37'){
+                // Quiere volver a fecha
+                d_focus = 'fecha';
+            }
+            ponerFocus(d_focus);
+        break;
+
+        case 'Saltar_desde_SuNumero':
+            console.log('Estoy en Saltar desde SuNumero');
+            cabecera.suNumero=caja.darValor();
+            var d_focus = "id_proveedor";
+            // Comprobamos que si esta disabled o no .
+            if ($('#id_proveedor').prop("disabled") == true) {
+                // Ya ponemos focus a entrada productos ( campo por defecto)
+                  d_focus = ObtenerFocusDefectoEntradaLinea();
+            }
+            if ( caja.tecla === '9'){
+                // Quiere volver a fecha
+                d_focus = 'formaVenci';
+            }
+            ponerFocus(d_focus);
+        break;
+        
+        case 'Saltar_idProveedor':
+            console.log('Voy a saltar a idProveedor');
             console.log('Parametros cajas.' + caja.parametros);
             var dato = caja.darValor();
-			var d_focus = 'id_proveedor';
-            var controlSalto = 'Si' ; // variable que utilizo para indicar si salto o no, por defecto si.
-            // Como los nombres de las cajas son las misma tanto para facturas, albaranes y pedidos.
-            // se tiene que controlar dedonde ya que puede variar donde queremos poner el focus.
-            if (caja.darParametro('dedonde') == "albaran" || caja.darParametro('dedonde') == "factura"){
-                if (caja.id_input == "fecha"){
-                    var d_focus = "suNumero";
-                }
-                if (caja.id_input=="hora"){
-                    cabecera.hora = dato; // Realmente se debe guardar el dato hora si esta vacio. ???
-                    var d_focus = "suNumero";
-                }
+            var d_focus = 'id_proveedor';
+            // Tenemos que saber primero si esta disabled o no .
+            if ($('#id_proveedor').prop("disabled") == true) {
+                // Ya ponemos focus a entrada productos ( campo por defecto)
+                d_focus = ObtenerFocusDefectoEntradaLinea();
             }
-
-           
-			if (caja.id_input=="suNumero"){
-				cabecera.suNumero=caja.darValor();
-			}
-			
-			if (caja.id_input=="fecha"){
-				cabecera.fecha=caja.darValor();
-                
-			}
+            var controlSalto = 'Si' ; // variable que utilizo para indicar si salto o no, por defecto si.
+            
 			if (caja.id_input=="Proveedor"){
 				if ( dato.length !== 0){
 					controlSalto = 'No'; // No salto
 				}
 			}
-			
 			ponerFocus(d_focus);
 		break;
 
-        case 'Saltar_idProveedorAbajo':
-			var d_focus = 'id_proveedor';
+        case 'Saltar_desde_fecha':
+            console.log('Saltar desde fecha');
+            cabecera.fecha=caja.darValor();
+            var d_focus = 'id_proveedor';
+            // Comprobamos de donde ( albaran, factura, pedido )
+            if (caja.darParametro('dedonde') == "albaran" ){
+                d_focus = "hora";
+            }
+            if (caja.darParametro('dedonde') == "factura"){
+                d_focus = "suNumero";
+            }
 			ponerFocus(d_focus);
 		break;
 
@@ -224,7 +244,8 @@ function controladorAcciones(caja,accion, tecla){
 				var costeAnt=productos[nfila].ultimoCoste;
 				var idArticulo=productos[nfila].idArticulo;
 					if (costeAnt===caja.darValor()){
-                        pornerFocusEnOpcionSalto();
+                        ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                        //~ pornerFocusEnOpcionSalto();
 					}else {
 						if(valor=""){
                         alert("NO HAS INTRODUCIDO NINGÚN COSTE");
@@ -232,7 +253,8 @@ function controladorAcciones(caja,accion, tecla){
                             productos[nfila].CosteAnt=costeAnt;
                             addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
                             if (caja.tipo_event !== "blur"){
-                                pornerFocusEnOpcionSalto();
+                                ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                                //~ pornerFocusEnOpcionSalto();
                             }
                         }
                     }
@@ -242,13 +264,13 @@ function controladorAcciones(caja,accion, tecla){
 	}
 }
 function addCosteProveedor(idArticulo, valor, nfila, dedonde){
-	//~ @Objetivo: Añadir o modificar el coste de un producto
-	//~ @Parametros: 
-	//~ idArticulo: el id del articulo del producto
-	//~ idProveedor: el id del proveedor
-	//~ valor: valor nuevo 
-	//~ dedonde: donde estamos, si en albaranes o facturas 
-	//~ nfila: número de la fila que estamos cambiando
+	// @ Objetivo: Añadir o modificar el coste de un producto
+	// @ Parametros: 
+	//      idArticulo: el id del articulo del producto
+	//      idProveedor: el id del proveedor
+	//      valor: valor nuevo 
+	//      dedonde: donde estamos, si en albaranes o facturas 
+	//      nfila: número de la fila que estamos cambiando
 	console.log("Entre en addCosteProveedor");
 	productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
 	var id = '#N'+productos[nfila].nfila+'_Importe';
@@ -656,8 +678,8 @@ function comprobarAdjunto(dedonde){
 						$('#tablaPedidos').css("display", "block");
 						ponerFocus('numPedido');
 					}else{
-						pornerFocusEnOpcionSalto();
-						//~ ponerFocus('idArticulo');
+                        ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                        //~ pornerFocusEnOpcionSalto();
 					}
 				}
 				
@@ -895,7 +917,7 @@ function addTemporal(dedonde=""){
 function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
-	console.log('Entro en enviar focus de :'+destino_focus);
+	console.log('Pongo focus a:'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
 	}, 50); 
@@ -904,7 +926,7 @@ function ponerFocus (destino_focus){
 function ponerSelect (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
-	console.log('Entro en ponerselects de :'+destino_focus);
+	console.log('Pongo select a :'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).select(); 
 	}, 50); 
@@ -1203,9 +1225,8 @@ function mostrarFila(){
 	//@Objetivo: Mostrar la fila principal de articulos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
-	
-	pornerFocusEnOpcionSalto();
-	//~ $('#idArticulo').focus();
+	ponerFocus( ObtenerFocusDefectoEntradaLinea());
+	//~ pornerFocusEnOpcionSalto();
 }
 
 function mover_up(fila,prefijo){
@@ -1378,7 +1399,35 @@ function mensajeCancelar(idTemporal, dedonde){
 		}
 	}
 }
-function pornerFocusEnOpcionSalto(){
+//~ function pornerFocusEnOpcionSalto(){
+	//~ var valor = $("#salto").val();
+	//~ switch(valor){
+		//~ case '0':
+			//~ d_focus='Referencia';
+		//~ break;
+		//~ case '1':
+			//~ d_focus='idArticulo';
+		//~ break;
+		//~ case '2':
+			//~ d_focus='Referencia';
+		//~ break;
+		//~ case '3':
+			//~ d_focus='ReferenciaPro';
+		//~ break;
+		//~ case '4':
+			//~ d_focus='Codbarras';
+		//~ break;
+		//~ case '5':
+			//~ d_focus='Descripcion';
+		//~ break;
+		//~ default:
+			//~ d_focus='Referencia';
+		//~ break;
+		
+	//~ }
+	//~ ponerFocus(d_focus);
+//~ }
+function ObtenerFocusDefectoEntradaLinea(){
 	var valor = $("#salto").val();
 	switch(valor){
 		case '0':
@@ -1404,7 +1453,7 @@ function pornerFocusEnOpcionSalto(){
 		break;
 		
 	}
-	ponerFocus(d_focus);
+    return d_focus;
 }
 function abrirIncidenciasAdjuntas(id, modulo, dedonde){
 		var parametros = {
