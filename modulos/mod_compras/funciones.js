@@ -7,13 +7,15 @@ function controladorAcciones(caja,accion, tecla){
     switch(accion) {
 		case 'buscarProveedor':
 			console.log("Estoy en buscar proveedor");
-			if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
+
+            if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
 				// Entramos cuando venimos de id de proveedor.
 				var d_focus="Proveedor";
-				ponerFocus(d_focus);
-			}else{
+                ponerFocus(d_focus);
+            }else{
 				buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			}
+            
 		break;
 		case 'buscarProducto':
 			console.log("Pulse buscar Producto");
@@ -693,111 +695,114 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 	// Buscar producto es una función que llamamos desde las distintas cajas de busquedas de los productos
 	//Entra en la función de tareas de buscar productos y le envia los parametros
 	//Esta función devuelve el número de busquedas
-	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
-	var parametros = {
-		"pulsado"    : 'buscarProductos',
-		"id_input"	 : id_input,
-		"valorCampo" : busqueda,
-		"campo"      : campo,
-		"idcaja"	 :idcaja,
-		"idProveedor": cabecera.idProveedor,
-		"dedonde":dedonde
-	};
-	if (busqueda==""){
-		alert("ERROR NO HAS ESCRITO NADA");
-	}else{
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  Envio datos para Buscar Producto  ****************');
-		},
-		success    :  function (response) {
-			console.log('Repuesta de FUNCION -> buscarProducto');
-			var resultado =  $.parseJSON(response);
-		if (resultado['Nitems']===2){
-				alert("El elemento buscado no está relacionado con ningún producto");
-		}else{
-			if (resultado['Nitems']===1){
-				// Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
-				//Llamamos a la función de add pedido temporal y agregar la fila de producto
-				var datos = new Object();			
-				datos.ccodbar=resultado['datos'][0]['codBarras'];
-				datos.cdetalle=resultado['datos'][0]['articulo_name'];
-				datos.cref=resultado['datos'][0]['crefTienda'];
-				datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
-				datos.estado="Activo";
-				datos.idArticulo=resultado['datos'][0]['idArticulo'];
-				
-				datos.iva=resultado['datos'][0]['iva'];
-				datos.ncant=1;
-				datos.nfila=productos.length+1;
-				n_item=parseInt(productos.length)+1;
-				datos.nunidades=1;
-				
-				if (resultado['datos'][0]['coste']>0){
-					var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
-				}else{
-					
-					var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
-					alert("¡OJO!\nEste producto es NUEVO para este proveedor");
-				}
-				datos.ultimoCoste=ultimoCoste.toFixed(4);
-				datos.importe=ultimoCoste.toFixed(2);
-				productos.push(datos);
-				var campo='Unidad_Fila_'+n_item;
-				addTemporal(dedonde)
-				document.getElementById(id_input).value='';
-				AgregarFilaProductos(datos, dedonde, campo);
-				console.log("muestro fecha");
-				console.log(resultado['datos'][0]);
-				//~ console.log(cabecera.fecha);
-				 if(resultado['datos'][0]['fechaActualizacion']!=null){
-					 
-					//~ fechaProducto= new Date(resultado['datos'][0]['fechaActualizacion']);
-					fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
-					fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
-					fechaCabecera= cabecera.fecha.split("-");
-					fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
-				console.log(fechaCabecera);
-					if(fechaProducto>fechaCabecera)
-					{
-						 alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
-					}
-				}
-				ponerSelect(campo);
-				if (dedonde=="factura"){
-					$("#tablaAl").hide();
-				}
-			}else{
-				// Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
-				console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-			
-				var busqueda = resultado.listado; 
-				
-				var HtmlProductos=busqueda['html']; 
-				
-				console.log(HtmlProductos);
-				var titulo = 'Listado productos encontrados ';
-				abrirModal(titulo,HtmlProductos);
-				focusAlLanzarModal('cajaBusqueda');
-				console.log(id_input);
-				console.log(resultado.Nitems);
-				if (resultado.html.encontrados >0 ){
-					// Quiere decir que hay resultados por eso apuntamos al primero
-					// focus a primer producto.
-					if(id_input=="Descripcion"){
-						var d_focus = 'N_0';
-						ponerFocus(d_focus);
-					}
-					
-				 }
-			}
-		}
-	}
-	});
-}
+	console.log('FUNCION buscarProductos JS- Para buscar con el campo '+idcaja);
+   	if (busqueda !== "" || idcaja === "Descripcion"){
+        // Solo ejecutamos si hay datos de busqueda.
+        var parametros = {
+            "pulsado"    : 'buscarProductos',
+            "id_input"	 : id_input,
+            "valorCampo" : busqueda,
+            "campo"      : campo,
+            "idcaja"	 :idcaja,
+            "idProveedor": cabecera.idProveedor,
+            "dedonde":dedonde
+        };
+        $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+                console.log('*********  Envio datos para Buscar Producto  ****************');
+            },
+            success    :  function (response) {
+                console.log('Repuesta de FUNCION -> buscarProducto');
+                var resultado =  $.parseJSON(response);
+                if (resultado['Nitems']===2){
+                        alert("El elemento buscado no está relacionado con ningún producto");
+                }else{
+                    if (resultado['Nitems']===1){
+                        // Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
+                        //Llamamos a la función de add pedido temporal y agregar la fila de producto
+                        var datos = new Object();			
+                        datos.ccodbar=resultado['datos'][0]['codBarras'];
+                        datos.cdetalle=resultado['datos'][0]['articulo_name'];
+                        datos.cref=resultado['datos'][0]['crefTienda'];
+                        datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
+                        datos.estado="Activo";
+                        datos.idArticulo=resultado['datos'][0]['idArticulo'];
+                        
+                        datos.iva=resultado['datos'][0]['iva'];
+                        datos.ncant=1;
+                        datos.nfila=productos.length+1;
+                        n_item=parseInt(productos.length)+1;
+                        datos.nunidades=1;
+                        
+                        if (resultado['datos'][0]['coste']>0){
+                            var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
+                        }else{
+                            
+                            var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
+                            alert("¡OJO!\nEste producto es NUEVO para este proveedor");
+                        }
+                        datos.ultimoCoste=ultimoCoste.toFixed(4);
+                        datos.importe=ultimoCoste.toFixed(2);
+                        productos.push(datos);
+                        var campo='Unidad_Fila_'+n_item;
+                        addTemporal(dedonde)
+                        document.getElementById(id_input).value='';
+                        AgregarFilaProductos(datos, dedonde, campo);
+                        console.log("muestro fecha");
+                        console.log(resultado['datos'][0]);
+                        //~ console.log(cabecera.fecha);
+                         if(resultado['datos'][0]['fechaActualizacion']!=null){
+                             
+                            //~ fechaProducto= new Date(resultado['datos'][0]['fechaActualizacion']);
+                            fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
+                            fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
+                            fechaCabecera= cabecera.fecha.split("-");
+                            fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
+                        console.log(fechaCabecera);
+                            if(fechaProducto>fechaCabecera)
+                            {
+                                 alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+                            }
+                        }
+                        ponerSelect(campo);
+                        if (dedonde=="factura"){
+                            $("#tablaAl").hide();
+                        }
+                    }else{
+                        // Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
+                        console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
+                    
+                        var busqueda = resultado.listado; 
+                        
+                        var HtmlProductos=busqueda['html']; 
+                        
+                        console.log(HtmlProductos);
+                        var titulo = 'Listado productos encontrados ';
+                        abrirModal(titulo,HtmlProductos);
+                        focusAlLanzarModal('cajaBusqueda');
+                        console.log(id_input);
+                        console.log(resultado.Nitems);
+                        if (resultado.html.encontrados >0 ){
+                            // Quiere decir que hay resultados por eso apuntamos al primero
+                            // focus a primer producto.
+                            if(id_input=="Descripcion"){
+                                var d_focus = 'N_0';
+                                ponerFocus(d_focus);
+                            }
+                            
+                         }
+                    }
+                }
+            }
+        });
+    } else {
+        // No hay contenido en la caja por lo que ponemos focus a siguiente caja.
+        console.log('Saltamos a ' + ObtenerCajaSiguiente(idcaja));
+        ponerFocus(ObtenerCajaSiguiente(idcaja));
+    }
 }
 function AgregarFilaProductos(productos, dedonde='', campo=''){
 	//@objetivo: 
@@ -1427,6 +1432,35 @@ function mensajeCancelar(idTemporal, dedonde){
 	//~ }
 	//~ ponerFocus(d_focus);
 //~ }
+function ObtenerCajaSiguiente(idCaja){
+    // @ Objetivo
+    //  Obtener cual es la caja siguiente salto 
+    // @ Parametro
+    //   idcaja -> la caja actual.
+    // @ Devolvemos
+    //   d_focus -> string con id caja siguiente.
+    var d_focus = '';
+    switch(idCaja){
+        case 'idArticulo':
+            d_focus = 'Referencia';
+        break;
+        
+        case 'Referencia':
+            d_focus = 'ReferenciaPro';
+        break;
+
+        case 'ReferenciaPro':
+            d_focus = 'Codbarras';
+        break;
+
+        case 'Codbarras':
+            d_focus = 'Descripcion';
+        break;
+    }
+    return d_focus;
+}
+
+
 function ObtenerFocusDefectoEntradaLinea(){
 	var valor = $("#salto").val();
 	switch(valor){
