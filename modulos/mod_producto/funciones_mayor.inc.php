@@ -57,7 +57,7 @@ function datamayor2html($sqldata, $sumas) {
                         . ' <td  align="right">' . $linea['preciosalida'] . '</td>'
                         . ' <td>' . number_format($linea['stock'], 3) . ' </td>'
                         . ' <td  align="right">' . $linea['tipodoc'] . ' ' . $linea['numdocu'] . ' </td>'
-                        . ' <td>' . substr($linea['nombre'], 0, 15) . '</td>';
+                        . ' <td>' . substr($linea['nombre'], 0, 15) . '</td>'
                         . ' <td align="right"'.$stylo. '>' . $linea['estado'] . ' </td>'
                         . '</tr>';
         }
