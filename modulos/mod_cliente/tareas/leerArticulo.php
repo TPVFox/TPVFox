@@ -8,9 +8,9 @@
  */
 
 
-require_once ($URLCom.'/modulos/mod_producto/clases/ClaseProductos.php');
-require_once ($URLCom.'/modulos/mod_cliente/clases/claseTarifaCliente.php');
-require_once ($URLCom.'/controllers/Controladores.php');
+//~ require_once ($URLCom.'/modulos/mod_producto/clases/ClaseProductos.php');
+//~ require_once ($URLCom.'/modulos/mod_cliente/clases/claseTarifaCliente.php');
+//~ require_once ($URLCom.'/controllers/Controladores.php');
 // Cargamos funcion html de busar producto.
 $Ccontrolador = new ControladorComun();
 $CArticulo = new ClaseProductos($BDTpv);

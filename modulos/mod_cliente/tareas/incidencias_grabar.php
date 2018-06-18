@@ -1,7 +1,7 @@
 <?php
 // Llegamos aquí de tareas , donde mostramos grabamos incidencia.
-include_once ($URLCom."/modulos/mod_incidencias/clases/ClaseIncidencia.php");
-include_once ($URLCom."/modulos/mod_cliente/funciones.php");
+//~ include_once ($URLCom."/modulos/mod_incidencias/clases/ClaseIncidencia.php");
+//~ include_once ($URLCom."/modulos/mod_cliente/funciones.php");
 $CIncidencia=new ClaseIncidencia($BDTpv);
 $usuario= $_POST['usuario'];
 $fecha= $_POST['fecha'];

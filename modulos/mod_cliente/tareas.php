@@ -2,8 +2,12 @@
 $pulsado = $_POST['pulsado'];
 
 include_once './../../inicial.php';
-include $URLCom.'/modulos/mod_cliente/funciones.php';
-
+include_once $URLCom.'/modulos/mod_cliente/funciones.php';
+include_once $URLCom.'/modulos/mod_cliente/clases/claseTarifaCliente.php';
+include_once $URLCom."/modulos/mod_cliente/clases/ClaseCliente.php";
+include_once $URLCom."/modulos/mod_incidencias/clases/ClaseIncidencia.php";
+require_once ($URLCom.'/modulos/mod_producto/clases/ClaseProductos.php');
+require_once ($URLCom.'/controllers/Controladores.php');
 switch ($pulsado) {
 	case 'abririncidencia':
 		include_once $URLCom.'/modulos/mod_cliente/tareas/incidencias_popup.php';

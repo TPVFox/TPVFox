@@ -8,7 +8,7 @@
  */
 
 
-require_once $URLCom.'/modulos/mod_clientes/clases/claseTarifaCliente.php';
+//~ require_once $URLCom.'/modulos/mod_clientes/clases/claseTarifaCliente.php';
 
 $idarticulo = $_POST['idarticulo'];
 $idcliente = $_POST['idcliente'];
