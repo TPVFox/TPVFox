@@ -834,8 +834,11 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
-			if(albaranes.length>0){
-				bloquearInput();
+			//~ console.log(albaranes);
+			if(dedonde=="factura"){
+				if(albaranes.length>0){
+					bloquearInput();
+				}
 			}
 
 		}
