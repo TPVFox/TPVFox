@@ -1,3 +1,14 @@
+$(function () {
+    $(".boton-regularizar").on("click", function (event) {
+//        event.stopPropagation();
+//        event.preventDefault();
+
+        var data = $(event.currentTarget).data();
+        RegularizarStock(data.idarticulo);
+    });
+
+});
+
 //recogemos valor de la caja de busqueda que tenemos en Listado tickets o productos
 function BuscarProducto (){
 	$(document).ready(function()
@@ -968,4 +979,8 @@ function comprobarReferencia(){
 	});
     console.log('Fin de comprobarReferencia');
 		
+}
+
+function RegularizarStock(idarticulo){
+    alert('Regularizar stock de: '+idarticulo);
 }

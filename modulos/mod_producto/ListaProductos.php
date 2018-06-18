@@ -215,6 +215,7 @@ echo $htmlConfiguracion['htmlCheck'];
                                     <th>IVA</th>
                                     <th>P.V.P</th>
                                     <th>Estado</th>
+                                    <th>Reg.Stock</th>
 
                                 </tr>
                             </thead>
@@ -275,7 +276,7 @@ echo $htmlConfiguracion['htmlCheck'];
                                         <td><?php echo $producto['iva']; ?></td>
                                         <td style="text-align:right;"><?php echo number_format($producto['pvpCiva'], 2); ?><small>€</small></td>
                                         <td><?php echo $producto['estado']; ?></td>
-
+                                        <td><button class="btn btn-sm boton-regularizar" data-idarticulo="<?php echo $producto['idArticulo']; ?>">regularizar</button></td>
                                     </tr>
 
                                     <?php

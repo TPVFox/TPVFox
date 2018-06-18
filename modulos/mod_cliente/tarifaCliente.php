@@ -26,8 +26,8 @@ if (isset($tarifaCliente['error'])) {
     // ¿ que hacemos?
     echo $tarifaCliente['error'] . '<--<br>-->' . $tarifaCliente['consulta'];
 } else {
-    $datos = $tarifaCliente['datos'];
-//    var_dump($datos);
+    $datos = isset($tarifaCliente['datos'])? $tarifaCliente['datos']:[];
+
 }
 include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun;

@@ -14,9 +14,10 @@ require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
  *
  * @author alagoro
  */
-class Modelo extends ModeloP {   
-    protected  $tabla;
-    
+class Modelo extends ModeloP {
+
+    protected $tabla;
+
     protected function consulta($sql) {
         // Realizamos la consulta.
         $smt = parent::consulta($sql);
@@ -25,10 +26,9 @@ class Modelo extends ModeloP {
         if ($smt) {
             $respuesta['datos'] = $smt;
         } else {
-			if($this->getErrorConsulta()!='0'){
-				$respuesta['error'] = $this->getErrorConsulta();
-			}
-            
+            if ($this->getErrorConsulta() != '0') {
+                $respuesta['error'] = $this->getErrorConsulta();
+            }
         }
         return $respuesta;
     }
@@ -44,7 +44,7 @@ class Modelo extends ModeloP {
         return $respuesta;
     }
 
-    protected function insert( $datos, $soloSQL = false) {
+    protected function insert($datos, $soloSQL = false) {
 
         parent::_insert($this->tabla, $datos, $soloSQL);
 
