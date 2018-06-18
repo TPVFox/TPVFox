@@ -13,7 +13,7 @@ if(isset($idCliente)){
 }else{
 	$resultado['error']='Error no se ha enviado el id del cliente';
 }
-$tarifaCliente = (new TarifaCliente($BDTpv))->leer($idCliente);
+$tarifaCliente = (new TarifaCliente())->leer($idCliente);
 if(isset($tarifaCliente['error'])){
 	$resultado['error']=$tarifaCliente['consulta'];
 }else{

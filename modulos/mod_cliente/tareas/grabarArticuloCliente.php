@@ -23,13 +23,13 @@ $tarifaCliente = new TarifaCliente($BDTpv);
 $existetarifa = $tarifaCliente->existeArticulo($idcliente, $idarticulo);
 
 if ($existetarifa) {
-    $resultado = $tarifaCliente->update($idcliente, $idarticulo, [
+    $resultado = $tarifaCliente->update([
         'estado' => '1'
         , 'pvpSiva' => $pvpSiva
         , 'pvpCiva' => $pvpCiva
         , 'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
         'estado'=>K_TARIFACLIENTE_ESTADO_ACTIVO
-    ]);
+    ], ['idArticulo= ' . $idarticulo, 'idClientes= ' . $idcliente]);
 } else {
     $resultado = $tarifaCliente->insert( [
         'idArticulo' => $idarticulo,

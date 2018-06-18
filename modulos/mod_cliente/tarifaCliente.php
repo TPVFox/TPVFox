@@ -19,7 +19,7 @@ $idcliente = $_GET['id'];
 $cliente = new Cliente($BDTpv);
 $uncliente = $cliente->DatosClientePorId($idcliente);
 
-$tarifaCliente = (new TarifaCliente($BDTpv))->leer($uncliente['idClientes']);
+$tarifaCliente = (new TarifaCliente())->leer($uncliente['idClientes']);
 
 if (isset($tarifaCliente['error'])) {
     // hay un error en la consulta

@@ -13,6 +13,8 @@ include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
 
 class TarifaCliente extends modelo {
 
+    protected $tabla = 'articulosClientes';
+    
     public function leer($idcliente) {
 		//Objetivo: buscar todos los datos de las tarifas que tiene un cliente
 		//Parametros: 
@@ -60,77 +62,6 @@ class TarifaCliente extends modelo {
             $resultado = $obj[0]['contador'];
         }
         return $resultado;
-    }
-
-    public function update($idcliente, $idarticulo, $modificaciones) {
-		//@Objetivo: modificar los datos de una tarifa
-		//@Parametros: 
-		//idcliente: id del cliente
-		//idarticulo: id del articulo al que se le va a modificar la tarifa
-		//modificaciones: array con las modificaciones a la tarifa
-
-        $updateStr = [];
-        if (is_array($modificaciones)) {
-            foreach ($modificaciones as $key => $value) {
-                $updateStr[] = $key . ' = ' . $value;
-            }
-        } else {
-            $updateStr[] = $modificaciones;
-        }
-        $updateString = implode(', ', $updateStr);
-
-        $sql = 'UPDATE articulosClientes '
-                . ' SET ' . $updateString
-                . ' WHERE idArticulo= ' . $idarticulo . ' AND idClientes= ' . $idcliente;
-
-        $consulta = $this->consultaDML($sql);
-
-        return $consulta; //['error'];
-    }
-
-    public function insert($datos) {
-		//@Objetivo: insertar una nueva tarifa
-		//@Parametros:
-		//Datos: array de datos, con todos los datos de la tarifa nueva
-
-        $updateStr = [];
-        if (is_array($datos)) {
-            foreach ($datos as $key => $value) {
-                $updateStr[] = $key . ' = ' . $value;
-            }
-        } else {
-            $updateStr[] = $datos;
-        }
-        $updateString = implode(', ', $updateStr);
-
-        $sql = 'INSERT articulosClientes '
-                . ' SET ' . $updateString;
-
-        $consulta = $this->consultaDML($sql);
-
-        return $consulta['consulta'];
-    }
-
-    public function replace($idcliente, $idarticulo, $datos) {
-//queda esto por comentar
-        $updateStr = [];
-        $updateStr[] = ' idArticulo= ' . $idarticulo;
-        $updateStr[] = ' idClientes= ' . $idcliente;
-        if (is_array($datos)) {
-            foreach ($datos as $key => $value) {
-                $updateStr[] = $key . ' = ' . $value;
-            }
-        } else {
-            $updateStr[] = $datos;
-        }
-        $updateString = implode(', ', $updateStr);
-
-        $sql = 'REPLACE articulosClientes '
-                . ' SET ' . $updateString;
-
-        $consulta = $this->consultaDML($sql);
-
-        return $consulta['error'];
     }
 
 }

@@ -20,10 +20,10 @@ $tarifaCliente = new TarifaCliente($BDTpv);
 $existetarifa = $tarifaCliente->existeArticulo($idcliente, $idarticulo);
 
 if ($existetarifa) {
-    $resultado = $tarifaCliente->update($idcliente, $idarticulo, [
+    $resultado = $tarifaCliente->update([
         'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
         'estado'=> K_TARIFACLIENTE_ESTADO_BORRADO
-    ]);
+    ],['idArticulo= ' . $idarticulo, 'idClientes= ' . $idcliente]);
 }
 
 //~ $resultado['existe'] = $existetarifa 
