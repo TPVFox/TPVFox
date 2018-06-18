@@ -498,6 +498,8 @@ if ($idProveedor==0){
 				</tbody>
 			</table>
 		</div>
+</div>
+
 </form>
 </div>
 <?php // Incluimos paginas modales
