@@ -1,6 +1,6 @@
 <?php 
-include_once ($RutaServidor . $HostNombre."/modulos/mod_cliente/clases/ClaseCliente.php");
-require_once ($RutaServidor . $HostNombre.'/modulos/mod_cliente/clases/claseTarifaCliente.php');
+include_once ($URLCom."/modulos/mod_cliente/clases/ClaseCliente.php");
+require_once ($URLCom.'/modulos/mod_cliente/clases/claseTarifaCliente.php');
 $Cliente= new ClaseCliente($BDTpv);
 $idCliente=$_POST['idCliente'];
 if(isset($idCliente)){

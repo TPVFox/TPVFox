@@ -1,7 +1,7 @@
 <?php 
 
 
-include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
+include_once $URLCom.'/modulos/claseModelo.php';
 
 
 class ClaseCliente extends modelo{

@@ -2,10 +2,11 @@
 <html>
     <head>
         <?php
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
+    include_once './../../inicial.php';
+	include $URLCom.'/head.php';
+	include $URLCom.'/modulos/mod_cliente/funciones.php';
+	include $URLCom.'/plugins/paginacion/paginacion.php';
+	include $URLCom.'/controllers/Controladores.php';
 	
 	
 	//INICIALIZAMOS variables para el plugin de paginado:
@@ -87,7 +88,7 @@
 
 <body>
         <?php
-        include './../../header.php';
+      include_once  $URLCom.'/head.php';
         ?>
        
 	<div class="container">

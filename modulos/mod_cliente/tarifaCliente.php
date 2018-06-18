@@ -10,9 +10,8 @@ include_once './../../inicial.php';
 
 //~ require_once './../../lib/btemplate/bTemplate.php';
 
-include_once './../../clases/cliente.php';
-
-require_once './clases/claseTarifaCliente.php';
+include_once  $URLCom.'/clases/cliente.php';
+include_once  $URLCom.'/modulos/mod_cliente/clases/claseTarifaCliente.php';
 
 $idcliente = $_GET['id'];
 
@@ -29,11 +28,12 @@ if (isset($tarifaCliente['error'])) {
     $datos = isset($tarifaCliente['datos'])? $tarifaCliente['datos']:[];
 
 }
-include ("./../../controllers/Controladores.php");
+include_once $URLCom.'/controllers/Controladores.php';
+
 $Controler = new ControladorComun;
 
 // Mostramos formulario si no tiene acceso.
-include_once ($RutaServidor . $HostNombre . '/controllers/parametros.php');
+include_once ($URLCom .'/controllers/parametros.php');
 
 $ClasesParametros = new ClaseParametros('parametros.xml');
 $parametros = $ClasesParametros->getRoot();
@@ -50,7 +50,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
     <head>
 
         <?php
-        include './../../head.php';
+        include_once  $URLCom.'/head.php';
         ?>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/jquery.bootpag.min.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>

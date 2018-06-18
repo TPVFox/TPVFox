@@ -2,12 +2,14 @@
 <html>
     <head>
 		 <?php
-        include './../../../head.php';
-         include './../funciones.php';
-        include ("./../../../controllers/Controladores.php");
-        include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-        $ClasesParametros = new ClaseParametros('../parametros.xml');  
-        include '../clases/ClaseCliente.php';
+		include_once './../../../inicial.php';
+		include $URLCom.'/head.php';
+		include $URLCom.'/modulos/mod_cliente/funciones.php';
+		include $URLCom.'/controllers/Controladores.php';
+        include_once ($URLCom.'/controllers/parametros.php');
+        $ClasesParametros = new ClaseParametros('../parametros.xml'); 
+        include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
+        
 		$Cliente= new ClaseCliente($BDTpv);
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
@@ -84,7 +86,7 @@
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 		<?php
-        include './../../../header.php';
+        include_once  $URLCom.'/head.php';
        
 				
 				if (isset($errores)){

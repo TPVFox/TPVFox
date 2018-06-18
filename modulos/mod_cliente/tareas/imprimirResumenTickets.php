@@ -4,7 +4,7 @@
 //@Objetivo: Generar el documento de impresión de un resumen de tickets
 
 
-include_once ($RutaServidor . $HostNombre."/modulos/mod_cliente/clases/ClaseCliente.php");
+include_once ($URLCom ."/modulos/mod_cliente/clases/ClaseCliente.php");
 $Cliente= new ClaseCliente($BDTpv);
 $Tienda = $_SESSION['tiendaTpv'];
 $resultado['tienda']=$Tienda;

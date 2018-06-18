@@ -1,7 +1,7 @@
 <?php
 // Llegamos aquí de tareas , donde necesitamos creamos incidencia.
-include_once ($RutaServidor . $HostNombre."/modulos/mod_incidencias/clases/ClaseIncidencia.php");
-include_once ($RutaServidor . $HostNombre."/modulos/mod_cliente/funciones.php");
+include_once ($URLCom."/modulos/mod_incidencias/clases/ClaseIncidencia.php");
+include_once ($URLCom."/modulos/mod_cliente/funciones.php");
 $CIncidencia=new ClaseIncidencia($BDTpv);
 $dedonde=$_POST['dedonde'];
 $usuario=$_POST['usuario'];

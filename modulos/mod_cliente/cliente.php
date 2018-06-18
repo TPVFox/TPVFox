@@ -2,21 +2,21 @@
 <html>
     <head>
         <?php
-		// Reinicio variables
-        include './../../head.php';
-        include './funciones.php';
-        include ("./../../controllers/Controladores.php");
-        include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+        include_once './../../inicial.php';
+        include $URLCom.'/head.php';
+        include $URLCom.'/modulos/mod_cliente/funciones.php';
+        include $URLCom.'/controllers/Controladores.php';
+        include_once $URLCom.'/controllers/parametros.php';
+        include_once $URLCom.'/clases/FormasPago.php';
+        include_once $URLCom.'/clases/TiposVencimiento.php';
+        include_once $URLCom.'/clases/cliente.php';
+        include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
         $ClasesParametros = new ClaseParametros('parametros.xml');  
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
-		include_once '../../clases/FormasPago.php';
 		$CFormasPago=new FormasPago($BDTpv);
-		include_once '../../clases/TiposVencimiento.php';
 		$CtiposVen=new TiposVencimientos($BDTpv);
-		include_once '../../clases/cliente.php';
 		$Ccliente=new Cliente($BDTpv);
-		include_once 'clases/ClaseCliente.php';
 		$Cliente=new ClaseCliente($BDTpv);		
 		$dedonde="cliente";
 		$id=0;
@@ -141,7 +141,7 @@
 			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
 		</script>
 		<?php
-        include './../../header.php';
+        include $URLCom.'/header.php';
 		?>
      
 		<div class="container">
@@ -171,7 +171,7 @@
 				<div class="col-md-1">
 					<?php 
 					// UrlImagen
-					$img = './../../css/img/imgUsuario.png';
+					$img = $HostNombre.'/css/img/imgUsuario.png';
 					?>
 					<img src="<?php echo $img;?>" style="width:100%;">
 				</div>
