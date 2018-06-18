@@ -88,7 +88,7 @@
 
 <body>
         <?php
-      include_once  $URLCom.'/head.php';
+      include_once  $URLCom.'/header.php';
         ?>
        
 	<div class="container">
