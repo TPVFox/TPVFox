@@ -64,4 +64,13 @@ class TarifaCliente extends modelo {
         return $resultado;
     }
 
+        public function update($datos, $condicion, $soloSQL = false) {
+            return parent::update($datos, $condicion, $soloSQL);
+        }
+
+        public function insert($datos, $soloSQL = false) {
+            return parent::insert($datos, $soloSQL);
+        }
+
+    
 }
