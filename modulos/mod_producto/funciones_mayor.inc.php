@@ -45,6 +45,7 @@ function datamayor2html($sqldata, $sumas) {
             $linea['precioentrada'] = $linea['precioentrada'] != 0.0 ? number_format($linea['precioentrada'], 3) : ' ';
             $linea['salida'] = $linea['salida'] != 0.0 ? number_format($linea['salida'], 3) : ' ';
             $linea['preciosalida'] = $linea['preciosalida'] != 0.0 ? number_format($linea['preciosalida'], 3) : ' ';
+            $stylo = '';
             if ( $linea['estado']=='Sin Guardar'){
                 $stylo = ' style="background-color:red;color:white">';
             }
