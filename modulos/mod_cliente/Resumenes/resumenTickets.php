@@ -100,9 +100,11 @@
 			<div class="col-md-12 text-center" >
 					<h2 class="text-center"> <?php echo $titulo;?></h2>
 			</div>
+		
 			<div class="col-md-12" >
 				<div class="col-md-3 " >
-					<a  onclick="imprimirResumen('ticket', '<?php echo $id; ?>', '<?php echo $fechaInicial;?>', '<?php echo $fechaFinal;?>')">Imprimir resumen</a>
+					<a href="<?php echo $HostNombre.'/modulos/mod_cliente/cliente.php?id='.$id;?>">Volver Atrás</a>
+					<a class="btn btn-primary" onclick="imprimirResumen('ticket', '<?php echo $id; ?>', '<?php echo $fechaInicial;?>', '<?php echo $fechaFinal;?>')">Imprimir resumen</a>
 					<h4><u>DATOS DEL CLIENTE</u></h4>
 					<b>ID: </b><?php echo $id;?></br>
 					<b>Nombre: </b><?php echo $datosCliente['datos'][0]['Nombre'];?></br>
