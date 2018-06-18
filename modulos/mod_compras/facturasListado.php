@@ -2,17 +2,15 @@
 <html>
 <head>
 <?php
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/ClasePaginacion.php");
-	
-
-	include ("./../../controllers/Controladores.php");
+	include_once './../../inicial.php';
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_compras/funciones.php';
+	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once $URLCom.'/clases/Proveedores.php';
+	include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
 	$Controler = new ControladorComun; 
-
-	include '../../clases/Proveedores.php';
 	$CProv= new Proveedores($BDTpv);
-	include 'clases/facturasCompras.php';
 	$CFac=new FacturasCompras($BDTpv);
 	//Guardamos en un array todos los datos de las facturas temporales
 	$todosTemporal=$CFac->TodosTemporal();

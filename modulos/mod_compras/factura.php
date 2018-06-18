@@ -2,16 +2,16 @@
 <html>
 <head>
 <?php
+	include_once './../../inicial.php';
 	//llamadas  a archivos php 
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-	include '../../clases/Proveedores.php';
-	include 'clases/albaranesCompras.php';
-	include_once 'clases/facturasCompras.php';
-	include_once '../../clases/FormasPago.php';
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_compras/funciones.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once ($URLCom.'/controllers/parametros.php');
+	include_once $URLCom.'/clases/Proveedores.php';
+	include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
+	include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
+	include_once $URLCom.'/clases/FormasPago.php';
 	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Cprveedor=new Proveedores($BDTpv);

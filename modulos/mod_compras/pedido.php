@@ -3,13 +3,15 @@
 <head>
 <?php
 	//llamadas  a archivos php 
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
-	include 'clases/pedidosCompras.php';
-	include '../../clases/Proveedores.php';
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	include_once './../../inicial.php';
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_compras/funciones.php';
+	include_once $URLCom.'/plugins/paginacion/paginacion.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
+	include_once $URLCom.'/clases/Proveedores.php';
+	include_once ($URLCom.'/controllers/parametros.php');
+	
 	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Cpedido=new PedidosCompras($BDTpv);
@@ -175,7 +177,7 @@ if ($idProveedor===0){
 </head>
 <body>
 <?php
-	include '../../header.php';
+	include_once $URLCom.'/header.php';
 ?>
 <div class="container">
 	<?php 

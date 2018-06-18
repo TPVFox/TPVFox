@@ -2,14 +2,15 @@
 <html>
 <head>
 <?php
+	include_once './../../inicial.php';
 	//Carga de archivos php necesarios
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../controllers/Controladores.php");
-	include '../../clases/Proveedores.php';
-	include 'clases/albaranesCompras.php';
-	include_once 'clases/pedidosCompras.php';
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_compras/funciones.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once $URLCom.'/clases/Proveedores.php';
+	include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
+	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
+	include_once ($URLCom.'/controllers/parametros.php');
 	//cargar las clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Cprveedor=new Proveedores($BDTpv);
@@ -238,7 +239,7 @@
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <?php
-	include '../../header.php';
+	  include $URLCom.'/header.php';
 ?>
 <script type="text/javascript">
 	<?php

@@ -1,22 +1,16 @@
 <?php 
-
-/* Fichero de tareas a realizar.
- * 
- * 
- * Con el switch al final y variable $pulsado
- * 
- *  */
+include_once './../../inicial.php';
 $pulsado = $_POST['pulsado'];
-include_once ("./../../configuracion.php");
-include_once ("./../../inicial.php");
-include_once ("./funciones.php");
-//~ include_once ("../mod_incidencias/popup_incidencias.php");
-include_once "clases/pedidosCompras.php";
-include_once '../../clases/Proveedores.php';
-include_once "clases/albaranesCompras.php";
-include_once "clases/facturasCompras.php";
-include_once "../../clases/articulos.php";
-include_once '../mod_incidencias/clases/ClaseIncidencia.php';
+include_once $URLCom.'/configuracion.php';
+include_once $URLCom.'/modulos/mod_compras/tareas.php';
+include_once $URLCom.'/modulos/mod_compras/funciones.php';
+include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
+include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
+include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
+include_once $URLCom.'/clases/Proveedores.php';
+include_once $URLCom.'/clases/articulos.php';
+include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
+
 $CIncidencia=new ClaseIncidencia($BDTpv);
 $CProveedores=new Proveedores($BDTpv);
 $CPed=new PedidosCompras($BDTpv);
@@ -26,10 +20,10 @@ $CArticulos=new Articulos($BDTpv);
 $respuesta=array();
 switch ($pulsado) {
 	case 'buscarProveedor':
-		include ('tareas/buscarProveedor.php');
+		include_once  $URLCom.'/modulos/mod_compras/tareas/buscarProveedor.php';
 	break;
 	case 'buscarProductos':
-		include ('tareas/buscarProducto.php');
+		include_once  $URLCom.'/modulos/mod_compras/tareas/buscarProducto.php';
 	break;	
 	
 	case 'htmlAgregarFilasProductos':
@@ -51,28 +45,31 @@ switch ($pulsado) {
 		break;
 		
 		case 'addProveedorArticulo':
-			include ('tareas/addProveedorArticulo.php');
+			include_once  $URLCom.'/modulos/mod_compras/tareas/addProveedorArticulo.php';
 		break;
 		
 		case 'comprobarAdjunto':
-			include ('tareas/comprobarAdjunto.php');
+			include_once  $URLCom.'/modulos/mod_compras/tareas/comprobarAdjunto.php';
 		break;
 	
 		case 'buscarAdjunto':
-			include ('tareas/buscarAdjunto.php');
+			include_once  $URLCom.'/modulos/mod_compras/tareas/buscarAdjunto.php';
 		break;
 		
 		case 'addPedidoTemporal';
-			include ('tareas/addPedidoTemporal.php');
+			include_once  $URLCom.'/modulos/mod_compras/tareas/addPedidoTemporal.php';
+			
 		break;
 		
 
 		case 'addAlbaranTemporal':
-			include ('tareas/addAlbaranTemporal.php');
+			include_once  $URLCom.'/modulos/mod_compras/tareas/addAlbaranTemporal.php';
+			
 		break;
 		
 		case 'addFacturaTemporal':
-			include ('tareas/addFacturaTemporal.php');
+			include_once  $URLCom.'/modulos/mod_compras/tareas/addFacturaTemporal.php';
+			
 		break;
 		
 		case 'modificarEstado':
@@ -118,14 +115,15 @@ switch ($pulsado) {
 			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
 			$cabecera=$htmlImprimir['cabecera'];
 			$html=$htmlImprimir['html'];
-			require_once('../../lib/tcpdf/tcpdf.php');
-			include ('../../clases/imprimir.php');
-			include('../../controllers/planImprimir.php');
+			include_once $URLCom.'/lib/tcpdf/tcpdf.php';
+			include_once $URLCom.'/clases/imprimir.php';
+			include_once $URLCom.'/controllers/planImprimir.php';
 			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 			$respuesta=$ficheroCompleto;
 		break;
 		case 'insertarImporte':
-			include ('tareas/insertarImporte.php');
+			include_once  $URLCom.'/modulos/mod_compras/tareas/insertarImporte.php';
+			
 		break;
 		case 'abririncidencia':
 		//@OBJETIVO:

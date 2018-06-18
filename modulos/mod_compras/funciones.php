@@ -1,9 +1,10 @@
 <?php 
+include_once './../../inicial.php';
+include_once $URLCom.'/configuracion.php';
+include_once $URLCom.'/clases/FormasPago.php';
+include_once $URLCom.'/clases/articulos.php';
+include_once $URLCom.'/clases/ClaseTablaTienda.php';
 
-include '../../configuracion.php';
-include_once '../../clases/FormasPago.php';
-include_once '../../clases/articulos.php';
-include_once '../../clases/ClaseTablaTienda.php';
 
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:

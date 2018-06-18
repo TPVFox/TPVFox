@@ -3,15 +3,14 @@
 <html>
 <head>
 <?php
-
-	include './../../head.php';
-	include './funciones.php';
-	//~ include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../plugins/paginacion/ClasePaginacion.php");
-	include ("./../../controllers/Controladores.php");
-	include 'clases/pedidosCompras.php';
-	include '../../clases/Proveedores.php';
-
+	include_once './../../inicial.php';
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_compras/funciones.php';
+	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
+	include_once $URLCom.'/clases/Proveedores.php';
+	
 	// Creamos el objeto de controlador.
 	$Controler = new ControladorComun; 
 
@@ -77,7 +76,7 @@
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
-	include '../../header.php';
+	include $URLCom'/header.php';
 	if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'
