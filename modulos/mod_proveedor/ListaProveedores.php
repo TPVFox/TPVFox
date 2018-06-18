@@ -2,11 +2,11 @@
 <html>
     <head>
         <?php
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
-	
+    include_once './../../inicial.php';
+    include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
+    include_once $URLCom.'/plugins/paginacion/paginacion.php';
+    include_once $URLCom.'/controllers/Controladores.php';
 	
 	//INICIALIZAMOS variables para el plugin de paginado:
 	//$PgActual = 1 por defecto
@@ -85,7 +85,7 @@
 
 <body>
         <?php
-        include './../../header.php';
+        include_once $URLCom.'/header.php';
         ?>
        
 	<div class="container">

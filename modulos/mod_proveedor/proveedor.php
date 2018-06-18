@@ -2,20 +2,20 @@
 <html>
     <head>
         <?php
-		// Reinicio variables
-        include './../../head.php';
-        include './funciones.php';
-        //~ include ("./../mod_conexion/conexionBaseDatos.php");
-        include ("./../../controllers/Controladores.php");
-        include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+		
+        include_once './../../inicial.php';
+        include $URLCom.'/head.php';
+        include_once  $URLCom.'/modulos/mod_proveedor/funciones.php';
+        include_once $URLCom.'/controllers/Controladores.php';
+        include_once ($URLCom.'/controllers/parametros.php');
+        include_once ($URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php');
+        
         $ClasesParametros = new ClaseParametros('parametros.xml');  
 		$Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
-		include_once ('clases/ClaseProveedor.php');
 		$CProveedor= new ClaseProveedor($BDTpv);
 		$dedonde="proveedor";
 		$idProveedor=0;
-		
 			// ===========  datos proveedor segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$Usuario = $_SESSION['usuarioTpv'];
@@ -125,8 +125,7 @@
 			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
 		</script>
 		<?php
-        include './../../header.php';
-	
+        include $URLCom.'/header.php';
 		?>
      
 		<div class="container">

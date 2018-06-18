@@ -1,11 +1,12 @@
 <?php 
+include_once './../../inicial.php';
+
 $pulsado = $_POST['pulsado'];
-include_once ("./../../configuracion.php");
-include_once ("./../../inicial.php");
-include_once ("./funciones.php");
-//~ include_once ("../mod_incidencias/popup_incidencias.php");
-include_once '../mod_incidencias/clases/ClaseIncidencia.php';
-include_once ($RutaServidor . $HostNombre."/modulos/mod_proveedor/clases/ClaseProveedor.php");
+include_once $URLCom.'/configuracion.php';
+include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
+include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
+include_once ($URLCom ."/modulos/mod_proveedor/clases/ClaseProveedor.php");
+
 $CProveedor= new ClaseProveedor($BDTpv);
 $CIncidencia=new ClaseIncidencia($BDTpv);
 $respuesta=array();
@@ -60,7 +61,7 @@ switch ($pulsado) {
 	
 	break;
 	case 'imprimirResumenAlbaran':
-		include_once ("./Tareas/imprimirResumenAlbaran.php");
+        include_once $URLCom.'/modulos/mod_proveedor/Tareas/imprimirResumenAlbaran.php';
 		$respuesta=$resultado;
 	break;
 }

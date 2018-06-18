@@ -2,12 +2,14 @@
 <html>
     <head>
 		 <?php
-        include './../../../head.php';
-         include './../funciones.php';
-        include ("./../../../controllers/Controladores.php");
-        include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+        include_once './../../../inicial.php';
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
+        include_once $URLCom.'controllers/Controladores.php';
+        include_once ($URLCom.'/controllers/parametros.php');
         $ClasesParametros = new ClaseParametros('../parametros.xml');  
-        include_once ('../clases/ClaseProveedor.php');
+        include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
+        
 		$CProveedor= new ClaseProveedor($BDTpv);
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
