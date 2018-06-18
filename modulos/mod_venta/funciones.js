@@ -1108,9 +1108,12 @@ function AgregarFilaProductosAl(productosAl, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
-			if(albaranes.length>0){
+			if(dedonde=="factura"){
+				if(albaranes.length>0){
 				bloquearInput();
 			}
+			}
+			
 			
 		}
 	});
