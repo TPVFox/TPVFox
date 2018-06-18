@@ -36,6 +36,7 @@
 	$fechaImporte=date('Y-d-m');
 	$numAdjunto=0;
 	$suNumero="";
+	$inciden=0;
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){

@@ -36,7 +36,7 @@
 	$style1="";
 	$Datostotales=array();
 	$textoNum="";
-	
+	$inciden=0;
 	
 	//Cargamos la configuración por defecto y las acciones de las cajas 
 	$parametros = $ClasesParametros->getRoot();	

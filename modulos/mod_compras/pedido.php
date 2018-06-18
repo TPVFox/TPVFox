@@ -30,6 +30,7 @@
 	$nombreProveedor="";
 	$Datostotales=array();
 	$textoNum="";
+	$inciden=0;
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);

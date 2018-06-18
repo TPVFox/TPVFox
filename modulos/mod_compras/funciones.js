@@ -1136,6 +1136,7 @@ function after_constructor(padre_caja,event){
 		padre_caja.id_input = event.originalTarget.id;
 	}
 	if (padre_caja.id_input.indexOf('Fila_') >-1){
+		console.log("Entro en el after de fila");
 		padre_caja.id_input = event.originalTarget.id;
 	}
 	if (padre_caja.id_input.indexOf('Proveedor_Fila') >-1){
