@@ -2,19 +2,19 @@
 <html>
     <head>
         <?php
-		// Reinicio variables
-        include './../../head.php';
-        include './funciones.php';
-       	include ("./../../controllers/Controladores.php");
+        include_once './../../inicial.php';
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_tpv/funciones.php';
+		include_once $URLCom.'/controllers/Controladores.php';
+       	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
         $Controler = new ControladorComun; 
 		// Añado la conexion
 		$Controler->loadDbtpv($BDTpv);
 		// Cargamos clase y creamos objeto de tickets
-		include ("./clases/ClaseTickets.php");
 		$CTickets = new ClaseTickets();
 		
         // Cargamos los fichero parametros.
-		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+		include_once ($URLCom.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
 		$parametros = $ClasesParametros->getRoot();
 		
@@ -52,7 +52,8 @@
 	</head>
 	<body>
 		<?php
-        include './../../header.php';
+        include_once $URLCom.'/header.php';
+       
 		?>
 		
      

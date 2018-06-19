@@ -14,10 +14,11 @@
 <html>
     <head>
         <?php
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
+    include_once './../../inicial.php';
+	include_once $URLCom.'/head.php';
+    include_once $URLCom.'/modulos/mod_tpv/funciones.php';
+	include_once $URLCom.'/plugins/paginacion/paginacion.php';
+    include_once $URLCom.'/controllers/Controladores.php';
 	// Creamos objeto controlado comun, para obtener numero de registros. 
 	$Controler = new ControladorComun; 
 			
@@ -138,7 +139,7 @@
 
 <body>
         <?php
-        include './../../header.php';
+        include_once $URLCom.'/header.php';
         ?>
         <?php
 	//~ echo '<pre>';

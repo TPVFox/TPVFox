@@ -11,17 +11,12 @@
 
 $pulsado = $_POST['pulsado'];
 //~ use Mike42\Escpos\Printer;
-
-include_once ("./../../configuracion.php");
-
-// Crealizamos conexion a la BD Datos
-include_once ("./../../inicial.php");
-
-// Incluimos funciones
-include_once ("./funciones.php");
+include_once './../../inicial.php';
+include_once $URLCom.'/configuracion.php';
+include_once $URLCom.'/modulos/mod_tpv/funciones.php';
+include_once $URLCom.'/controllers/Controladores.php';
 
 // Incluimos controlador.
-include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun; 
 $Controler->loadDbtpv($BDTpv); // Añado la conexion a controlador.
 
@@ -32,17 +27,16 @@ $parametros = $ClasesParametros->getRoot();
 // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 $configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
-
+include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
 // Creamos clase de ticket
-include ("./clases/ClaseTickets.php");
-$CTickets = new ClaseTickets();
 
-include_once '../mod_incidencias/clases/ClaseIncidencia.php';
+$CTickets = new ClaseTickets();
+include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
 $CIncidencia=new ClaseIncidencia($BDTpv);
 switch ($pulsado) {
     
     case 'buscarProductos':
-		include ('tareas/buscarProducto.php');
+        include_once $URLCom.'/modulos/mod_tpv/tareas/buscarProducto.php';
 	break;	
 	
 	case 'cobrar':
@@ -71,7 +65,8 @@ switch ($pulsado) {
 		$respuesta['conf_peso'] =$CONF_campoPeso;
 		break;
 	case 'CerrarTicket';
-		include ('tareas/CerrarTicket.php');
+        include_once $URLCom.'/modulos/mod_tpv/tareas/CerrarTicket.php';
+		
 		break;
 	
 	case 'ImprimirTicketCerrados';

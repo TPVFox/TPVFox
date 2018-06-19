@@ -7,8 +7,8 @@
  * @author      Ricardo Carpintero ,
  * @Descripcion	Funciones en php para modulo TPV
  * */
-
-include_once '../mod_producto/clases/ClaseArticulosStocks.php';
+include_once './../../inicial.php';
+include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulosStocks.php';
 
 function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
     // @ Objetivo:
