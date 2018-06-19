@@ -2,8 +2,10 @@
 <html>
     <head>
         <?php
-	include './../../head.php';
-	include './funciones.php';
+        include_once './../../inicial.php';
+		
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_tienda/funciones.php';
 	$tiendas = obtenerTiendas($BDTpv);
 	
 	?>
@@ -23,7 +25,7 @@
 
 <body>
         <?php
-        include './../../header.php';
+       include_once $URLCom.'/header.php';
         ?>
        
 	<div class="container">

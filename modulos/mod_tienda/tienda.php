@@ -2,12 +2,14 @@
 <html>
     <head>
         <?php
+        include_once './../../inicial.php';
 		// Reinicio variables
-        include './../../head.php';
-        include './funciones.php';
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_tienda/funciones.php';
+        
 		// Variables por defecto:
 		$titulo = "Crear Tienda";
-		$img = './../../css/img/tienda.svg'; // Url imagen por defecto.
+		$img = $HostNombre.'/css/img/tienda.svg'; // Url imagen por defecto.
 		// Nombre tabla que vamos utilizar.
 		$tabla= 'tiendas';
 		// Array por defecto.
@@ -273,7 +275,7 @@
 	</head>
 	<body>
 		<?php
-        include './../../header.php';
+        include_once $URLCom.'/header.php';
 		?>
      
 		<div class="container">
