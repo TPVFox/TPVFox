@@ -30,7 +30,7 @@
             $prod_seleccion['NItems'] = count($prod_seleccion['Items']);
         }
         if ($prod_seleccion['NItems'] === 0) {
-            // No hay productos seleccionados, diplay none y No en parametro filtro.
+            // No hay productos seleccionados, display none y No en parametro filtro.
             $prod_seleccion['display'] = 'style="display:none"';
             $conf_defecto['filtro']->valor = 'No';
         }
@@ -64,7 +64,8 @@
         // --- Ahora contamos registro que hay para es filtro --- //
         $filtro = $NPaginado->GetFiltroWhere();
         $CantidadRegistros = 0;
-        if ($NPaginado->GetFiltroWhere() !== '') {
+        if (trim($NPaginado->GetFiltroWhere()) !== '') {
+            // Solo contamos si tenemos filtro.
             $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro));
         } else {
             $CantidadRegistros = $CTArticulos->GetNumRows();

@@ -74,9 +74,8 @@ if ($id >0 ){
 		$preparados['codbarras'] = $comprobaciones;
 		// ---	Comprobamos y grabamos los proveedores . ---//
 		$comprobaciones = $CTArticulos->ComprobarProveedoresCostes($id,$DatosPostProducto['proveedores_costes']);
-		
-		$comprobaciones= $CTArticulos->ComprobarRefrenciaProductoTienda($id, $DatosPostProducto['refProducto']);
-		foreach ($comprobaciones as $key => $comprobacion){
+
+        foreach ($comprobaciones as $key => $comprobacion){
 			
 			if ($key === 'nuevo'){
 				foreach ($comprobacion as $nuevo){
@@ -114,10 +113,8 @@ if ($id >0 ){
 			
 		}
 		
-		
-		//~ echo '<pre>';
-		//~ print_r($preparados);
-		//~ echo '</pre>';
+		$comprobaciones= $CTArticulos->ComprobarReferenciaProductoTienda($id, $DatosPostProducto['refProducto']);
+
 } else {
 		// ----------------------------  			NUEVO 				  ------------------------  //
 		
