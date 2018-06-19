@@ -8,6 +8,7 @@
  */
 
 include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
+include_once 'ClaseArticulosStocks.php';
 
 /**
  * Description of ClaseArticulos
@@ -16,7 +17,6 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
  */
 class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase articulos que hizo Ricardo & Co.
 
-    
 //    Si no se lee articulo por id, se leen múltiples articulos $pagina o menos
 // empezando en $inicio 
     public function leer($idArticulo = 0, $inicio=1, $pagina=100) {
@@ -260,4 +260,7 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
         return $stock;
     }
 
+    public function getStock($idArticulo, $idTienda = 1){
+        return alArticulosStocks::leer($idArticulo, $idTienda, TRUE); //si no existe lo crea
+    }
 }

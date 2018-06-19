@@ -81,7 +81,7 @@
             // Queremos filtrar o no. 
             if ($configuracion['filtro']->valor === 'Si') {
                 if ($prod_seleccion['NItems'] > 0) {
-                    if ( trim($filtro) !== '') {
+                    if (trim($filtro) !== '') {
                         $filtro .= ' AND (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
                     } else {
                         $filtro = ' WHERE (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
@@ -101,13 +101,14 @@
         <script>
             // Declaramos variables globales
             var checkID = [];
-        
-         
+
+
 
         </script> 
         <!-- Cargamos fuciones de modulo. -->
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+        <script src="<?php echo $HostNombre; ?>/plugins/modal/func_modal_reutilizables.js"></script>';
     </head>
 
     <body>
@@ -121,19 +122,19 @@ include_once $URLCom.'/header.php';
 ?>
 
         <div class="container">
-<?php
+            <?php
 // Control de errores..
-$comprobaciones = $CTArticulos->GetComprobaciones();
-if (count($comprobaciones) > 0) {
-    foreach ($comprobaciones as $comprobacion) {
-        echo '<div class="alert alert-' . $comprobacion['tipo'] . '">' . $comprobacion['mensaje'] . '</div>';
-        if ($comprobacion['tipo'] === 'danger') {
-            // No permito continuar.
-            exit();
-        }
-    }
-}
-?>
+            $comprobaciones = $CTArticulos->GetComprobaciones();
+            if (count($comprobaciones) > 0) {
+                foreach ($comprobaciones as $comprobacion) {
+                    echo '<div class="alert alert-' . $comprobacion['tipo'] . '">' . $comprobacion['mensaje'] . '</div>';
+                    if ($comprobacion['tipo'] === 'danger') {
+                        // No permito continuar.
+                        exit();
+                    }
+                }
+            }
+            ?>
 
             <div class="row">
                 <div class="col-md-12 text-center">
@@ -144,9 +145,9 @@ if (count($comprobaciones) > 0) {
                         <h4> Productos</h4>
                         <h5> Opciones para una selección</h5>
                         <ul class="nav nav-pills nav-stacked"> 
-<?php
-if ($Usuario['group_id'] > '0') {
-    ?>
+                            <?php
+                            if ($Usuario['group_id'] > '0') {
+                                ?>
                                 <li><a href="#section2" onclick="metodoClick('AgregarProducto');";>Añadir</a></li>
                                 <?php
                             }
@@ -167,9 +168,9 @@ if ($Usuario['group_id'] > '0') {
                     <div class ="nav">
                         <h4>Configuracion de usuario</h4>
                         <h5>Marca que campos quieres mostrar y por lo quieres buscar.</h5>
-<?php
-echo $htmlConfiguracion['htmlCheck'];
-?>
+                        <?php
+                        echo $htmlConfiguracion['htmlCheck'];
+                        ?>
                     </div>
 
                 </div>
@@ -177,13 +178,13 @@ echo $htmlConfiguracion['htmlCheck'];
                 <div class="col-md-10">
                     <p>
                         -Productos encontrados BD local filtrados:
-<?php echo $CantidadRegistros; ?>
+                        <?php echo $CantidadRegistros; ?>
                     </p>
-                        <?php
-                        // Mostramos paginacion 
-                        echo $htmlPG;
-                        //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
-                        ?>
+                    <?php
+                    // Mostramos paginacion 
+                    echo $htmlPG;
+                    //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
+                    ?>
                     <form action="./ListaProductos.php" method="GET" name="formBuscar">
                         <div class="form-group ClaseBuscar">
                             <label>Buscar por:</label>
@@ -295,6 +296,42 @@ echo $htmlConfiguracion['htmlCheck'];
             //~ echo count($_SESSION['productos_seleccionados']);
             ?>
         </div>
-
+        <!-- Modal -->
+        <div id="regularizaStockModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title text-center">Titulo configurable</h3>
+                    </div>
+                    <form id="fregulariza" action="javascript:grabarRegularizacion();">
+                        <div class="modal-body">
+                            <table>
+                                <tr>
+                                    <td colspan="3">
+                                        <h5>Articulo a regularizar:<p id="nombre" > </p> </h5></td>                                    
+                                </tr>
+                                <tr>
+                                    <td>Stock Actual</td>
+                                    <td>Stock a colocar</td>
+                                    <td>SUMAR al stock</td>
+                                </tr>
+                                <tr>
+                                    <td><input type="text" id="stockactual" value="000" readonly="readonly"/></td>
+                                    <td><input type="text" id="stockcolocar" value="000" /></td>
+                                    <td><input type="text" id="stocksumar" value="000" /></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-default" >Guardar</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        </div>
+                        <input type="hidden" id="articuloid" value="000" />
+                    </form>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
