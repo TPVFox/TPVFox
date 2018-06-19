@@ -29,11 +29,10 @@
 /* ===============  REALIZAMOS CONEXIONES  =============== */
 
 
-
-include_once ("./../../configuracion.php");
-
-// Crealizamos conexion a la BD Datos
-include_once ("./../mod_conexion/conexionBaseDatos.php");
+include_once './../../inicial.php';
+include_once $URLCom.'/configuracion.php';
+include_once $URLCom.'/modulos/mod_conexion/conexionBaseDatos.php';
+include_once $URLCom.'/controllers/Controladores.php';
 
 
 $rutaCompleta = $RutaServidor . $HostNombre;
@@ -42,7 +41,6 @@ $rutaCompleta = $RutaServidor . $HostNombre;
 //$CSession = new ClaseSession();
 
 // Incluimos controlador.
-include ("./../../controllers/Controladores.php");
 $Controler = new ControladorComun;
 // Incluimos funciones
 //include_once ("./funciones.php");
@@ -60,9 +58,9 @@ $Controler->loadDbtpv($BDTpv);
 //
 //include_once('../../clases/Proveedores.php');
 //$CProveedor = new Proveedores($BDTpv);
+include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
+include_once $URLCom.'/modulos/mod_familia/funciones_familia.inc.php';
 
-include_once './clases/ClaseFamilias.php';
-include_once './funciones_familia.inc.php';
 //include_once './clases/ClaseArticulos.php';
 //include_once './funciones_mayor.inc.php';
 

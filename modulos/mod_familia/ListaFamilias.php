@@ -7,15 +7,16 @@
  */
 
 include_once './../../inicial.php';
+require_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
+include_once $URLCom.'/controllers/Controladores.php';
 
-require_once './clases/ClaseFamilias.php';
 
 
-include ("./../../controllers/Controladores.php");
+
 $Controler = new ControladorComun;
 
 // Mostramos formulario si no tiene acceso.
-include_once ($RutaServidor . $HostNombre . '/controllers/parametros.php');
+include_once ($URLCom .'/controllers/parametros.php');
 
 $ClasesParametros = new ClaseParametros('parametros.xml');
 $parametros = $ClasesParametros->getRoot();
@@ -29,7 +30,8 @@ $familias = new ClaseFamilias($BDTpv);
     <head>
 
         <?php
-        include './../../head.php';
+        include_once $URLCom.'/head.php';
+       
         ?>
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
 
