@@ -2,13 +2,13 @@
 <html>
 <head>
 <?php
-include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
-	include 'clases/pedidosVentas.php';
-	include '../../clases/cliente.php';
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+    include_once './../../inicial.php';
+    include $URLCom.'/head.php';
+    include_once $URLCom.'/modulos/mod_venta/funciones.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
+	include_once $URLCom.'/clases/cliente.php';
+    include_once $URLCom.'/controllers/parametros.php';
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	
 	$Cpedido=new PedidosVentas($BDTpv);

@@ -7,49 +7,47 @@
  *  */
 /* ===============  REALIZAMOS CONEXIONES  ===============*/
 $pulsado = $_POST['pulsado'];
-include_once ("./../../configuracion.php");
-// Crealizamos conexion a la BD Datos
 include_once ("./../../inicial.php");
-// Incluimos funciones
-include_once ("./funciones.php");
-//~ include_once ("../mod_incidencias/popup_incidencias.php");
-include_once '../mod_incidencias/clases/ClaseIncidencia.php';
+include_once $URLCom.'/configuracion.php';
+include_once $URLCom.'/modulos/mod_venta/funciones.php';
+include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
+include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
+include_once $URLCom.'/clases/producto.php';
+include_once $URLCom.'/modulos/mod_venta/clases/albaranesVentas.php';
+include_once $URLCom.'/modulos/mod_venta/clases/facturasVentas.php';
+include_once $URLCom.'/clases/cliente.php';
+
 $CIncidencia=new ClaseIncidencia($BDTpv);
-include_once("clases/pedidosVentas.php");
 $CcliPed=new PedidosVentas($BDTpv);
-include_once("../../clases/producto.php");
 $Cprod=new Producto($BDTpv);
-include_once ("clases/albaranesVentas.php");
 $CalbAl=new AlbaranesVentas($BDTpv);
-include_once("../../clases/cliente.php");
 $Ccliente=new Cliente($BDTpv);
-include_once("clases/facturasVentas.php");
 $CFac=new FacturasVentas($BDTpv);
 switch ($pulsado) {
   
 		case 'buscarProductos':
-			include 'tareas/BuscarProductos.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/BuscarProductos.php';
 		break;
 		
 	    case 'buscarClientes':
-			include 'tareas/BuscarClientes.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/BuscarClientes.php';
 		break;	
 		
 		case 'buscarPedido':
-			include 'tareas/BuscarPedido.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/BuscarPedido.php';
 		break;
 		
 		case 'buscarAlbaran':
-			include 'tareas/BuscarAlbaran.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/BuscarAlbaran.php';
 		break;
 		case 'anhadirPedidoTemp':
-			include 'tareas/AddPedidoTemporal.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/AddPedidoTemporal.php';
 		break;
 		case 'anhadirAlbaranTemporal':
-			include 'tareas/AddAlbaranTemporal.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/AddAlbaranTemporal.php';
 		break;
 		case 'anhadirfacturaTemporal':
-			include 'tareas/AddFacturaTemporal.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/AddFacturaTemporal.php';
 		break;
 			case 'modificarEstadoPedido':
 		//Objetivo:
@@ -66,10 +64,10 @@ switch ($pulsado) {
 		break;
 		
 		case 'comprobarPedidos':
-			include 'tareas/comprobarPedidos.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/comprobarPedidos.php';
 		break;
 		case 'comprobarAlbaran':
-			include 'tareas/comprobarAlbaranes.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/comprobarAlbaranes.php';
 		break;
 		
 		
@@ -180,7 +178,7 @@ switch ($pulsado) {
 		break;
 		
 		case 'insertarImporte':
-			include 'tareas/insertarImporte.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/insertarImporte.php';
 		break;
 		
 		case 'datosImprimir':
@@ -193,9 +191,9 @@ switch ($pulsado) {
 			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $tienda);
 			$cabecera=$htmlImprimir['cabecera'];
 			$html=$htmlImprimir['html'];
-			require_once('../../lib/tcpdf/tcpdf.php');
-			include ('../../clases/imprimir.php');
-			include('../../controllers/planImprimir.php');
+            include_once $URLCom.'/lib/tcpdf/tcpdf.php';
+			include_once $URLCom.'/clases/imprimir.php';
+			include_once $URLCom.'/controllers/planImprimir.php';
 			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 			$respuesta=$ficheroCompleto;
 		break;

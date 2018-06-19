@@ -1,5 +1,7 @@
 <?php 
-include_once ('./clases/ClaseVentas.php');
+include_once ("./../../../inicial.php");
+include_once $URLCom.'/modulos/mod_venta/clases/ClaseVentas.php';
+
 class FacturasVentas extends ClaseVentas{
 	
 	public function __construct($conexion){

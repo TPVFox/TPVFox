@@ -6,8 +6,9 @@
  * @author      Ricardo Carpintero ,
  * @Descripcion	Funciones en php para modulo TPV
  * */
-	include_once '../../clases/FormasPago.php';
-	include_once '../../clases/TiposVencimiento.php';
+    include_once './../../inicial.php';
+    include_once $URLCom.'/clases/FormasPago.php';
+    include_once $URLCom.'/clases/TiposVencimiento.php';
  
 function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idCliente) {
 	// @ Objetivo:

@@ -3,14 +3,13 @@
 <html>
 <head>
 <?php
-	include './../../head.php';
-	include './funciones.php';
-	//~ include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../plugins/paginacion/ClasePaginacion.php");
-	include ("./../../controllers/Controladores.php");
-
-	include '../../clases/cliente.php';
-	include 'clases/albaranesVentas.php';
+    include_once './../../inicial.php';
+    include $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_venta/funciones.php';
+	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once $URLCom.'/clases/cliente.php';
+    include_once $URLCom.'/modulos/mod_venta/clases/albaranesVentas.php';
 	$Ccliente=new Cliente($BDTpv);
 	$Calbaran=new AlbaranesVentas($BDTpv);
 	$Controler = new ControladorComun; 

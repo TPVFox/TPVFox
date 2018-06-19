@@ -2,24 +2,23 @@
 <html>
 <head>
 <?php
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+    include_once './../../inicial.php';
+    include $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_venta/funciones.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once ($URLCom.'/controllers/parametros.php');
+	include_once $URLCom.'/clases/cliente.php';
+    include_once $URLCom.'/modulos/mod_venta/clases/albaranesVentas.php';
+    include_once $URLCom.'/modulos/mod_venta/clases/facturasVentas.php';
+    include_once $URLCom.'/clases/FormasPago.php';
+    
 	$ClasesParametros = new ClaseParametros('parametros.xml');
-	
-	include '../../clases/cliente.php';
 	$Ccliente=new Cliente($BDTpv);
-	include 'clases/albaranesVentas.php';
 	$Calbcli=new AlbaranesVentas($BDTpv);
-	include_once 'clases/pedidosVentas.php';
-	$Cped = new PedidosVentas($BDTpv);
-	include_once 'clases/facturasVentas.php';
 	$Cfaccli=new FacturasVentas($BDTpv);
-	include_once '../../clases/FormasPago.php';
 	$CforPago=new FormasPago($BDTpv);
 	$Controler = new ControladorComun; 
+    
 	$Controler->loadDbtpv($BDTpv);
 	$Tienda = $_SESSION['tiendaTpv'];
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
