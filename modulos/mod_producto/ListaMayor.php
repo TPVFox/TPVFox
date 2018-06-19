@@ -2,12 +2,13 @@
 <html>
     <head>
         <?php
-        include './../../head.php';
-        include './funciones.php';
-        include ("./../../plugins/paginacion/paginacion.php");
-        include ("./../../controllers/Controladores.php");
-        include ("./clases/ClaseProductos.php");
-        include ('../../clases/articulos.php');
+        include_once './../../inicial.php';
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_producto/funciones.php';
+        include_once $URLCom.'/plugins/paginacion/paginacion.php';
+        include_once $URLCom.'/controllers/Controladores.php';
+      	include_once $URLCom.'/modulos/mod_producto/clases/ClaseProducto.php';
+        include_once $URLCom.'/clases/articulos.php';
 
         $CArticulos = new Articulos($BDTpv);
         $Tienda = $_SESSION['tiendaTpv'];
@@ -22,7 +23,7 @@
     <body>
 
         <?php
-        include './../../header.php';
+        include_once $URLCom.'/header.php';
 //~ echo $_POST['tamanhos'];
 //~ echo '<pre>';
 //~ print_r($_SESSION['productos_seleccionados']);

@@ -2,15 +2,15 @@
 <html>
 	<head>
 		<?php 
-		include './../../head.php';
-        include './funciones.php';
-        //~ include ("./../mod_conexion/conexionBaseDatos.php");
-        include ("./../../controllers/Controladores.php");
-        
-		include '../mod_compras/clases/albaranesCompras.php';
-		include '../../clases/articulos.php';
-		include_once('../../clases/Proveedores.php');
-		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+        include_once './../../inicial.php';
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_producto/funciones.php';
+        include_once $URLCom.'/controllers/Controladores.php';
+        include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
+		include_once $URLCom.'/clases/articulos.php';
+		include_once $URLCom.'/clases/Proveedores.php';
+		
+		include_once ($URLCom.'/controllers/parametros.php');
 		$Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
 		$ClasesParametros = new ClaseParametros('parametros.xml');
@@ -112,7 +112,7 @@
 	</head>
 	<body>
 	<?php
-	include '../../header.php';
+	 include_once $URLCom.'/header.php';
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 	<script type="text/javascript">

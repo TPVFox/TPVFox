@@ -24,15 +24,15 @@
 $pulsado = $_POST['pulsado'];
 
 include_once ("./../../inicial.php");
-
+include_once $URLCom.'/controllers/Controladores.php';
 // Crealizamos conexion a la BD Datos
-include ("./../../controllers/Controladores.php");
+
 $Controler = new ControladorComun;
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
 
-include_once './clases/ClaseArticulos.php';
-include_once './funciones_mayor.inc.php';
+include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulos.php';
+include_once $URLCom.'/modulos/mod_producto/funciones_mayor.inc.php';
 
 $inicio = microtime(true);
 switch ($pulsado) {

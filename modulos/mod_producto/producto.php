@@ -2,17 +2,17 @@
 <html>
     <head>
         <?php
-        include './../../head.php';
-        include './funciones.php';
-        //~ include ("./../mod_conexion/conexionBaseDatos.php");
-        include ("./../../controllers/Controladores.php");
+        include_once './../../inicial.php';
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_producto/funciones.php';
+        include_once $URLCom.'/controllers/Controladores.php';
+        include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         // Creo objeto de controlador comun.
 		$Controler = new ControladorComun; 
 		// Añado la conexion
 		$Controler->loadDbtpv($BDTpv);
-        include ("./clases/ClaseProductos.php");
 		// Cargamos los fichero parametros y creamos objeto parametros..
-		include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
+		include_once ($URLCom.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
 		$parametros = $ClasesParametros->getRoot();
 		// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
@@ -114,7 +114,7 @@
 	</head>
 	<body>
 		<?php     
-        include './../../header.php';
+       include_once $URLCom.'/header.php';
 		?>
 
      

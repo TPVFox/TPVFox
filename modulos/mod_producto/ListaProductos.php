@@ -2,15 +2,14 @@
 <html>
     <head>
         <?php
-        include './../../head.php';
-        include './funciones.php';
-        //~ include ("./../../plugins/paginacion/paginacion.php");
-        include ("./../../plugins/paginacion/ClasePaginacion.php");
-
-
-        include ("./../../controllers/Controladores.php");
-        include ("./clases/ClaseProductos.php");
-        include_once ($RutaServidor . $HostNombre . '/controllers/parametros.php');
+        include_once './../../inicial.php';
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_producto/funciones.php';
+        include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+        include_once $URLCom.'/controllers/Controladores.php';
+        include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+        include_once ($URLCom .'/controllers/parametros.php');
+        
         $CTArticulos = new ClaseProductos($BDTpv);
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
@@ -118,7 +117,7 @@
 	}, 50);
 		</script>
 <?php
-include './../../header.php';
+include_once $URLCom.'/header.php';
 ?>
 
         <div class="container">

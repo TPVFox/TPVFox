@@ -9,12 +9,10 @@
 
 
 $pulsado = $_POST['pulsado'];
-
-include_once ("./../../configuracion.php");
+include_once ("./../../inicial.php");
+include_once $URLCom.'/configuracion.php';
 
 // Crealizamos conexion a la BD Datos
-include_once ("./../../inicial.php");
-
 
 $rutaCompleta = $RutaServidor.$HostNombre;
 include_once($rutaCompleta.'/clases/ClaseSession.php');
@@ -22,23 +20,20 @@ include_once($rutaCompleta.'/clases/ClaseSession.php');
 $CSession =  new ClaseSession();
 
 // Incluimos controlador.
-include ("./../../controllers/Controladores.php");
+include_once $URLCom.'/controllers/Controladores.php';
 $Controler = new ControladorComun; 
 // Incluimos funciones
-include_once ("./funciones.php");
+include_once $URLCom.'/modulos/mod_producto/funciones.php';
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
 // Nueva clase 
-include ("./clases/ClaseProductos.php");
+include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
 $NCArticulo = new ClaseProductos($BDTpv);
-
-include_once('../../clases/articulos.php');
+include_once $URLCom.'/clases/articulos.php';
 $CArticulo=new Articulos($BDTpv);
-
-include_once ('../mod_compras/clases/albaranesCompras.php');
+include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
 $CAlbaran=new AlbaranesCompras($BDTpv);
-
-include_once('../../clases/Proveedores.php');
+include_once $URLCom.'/clases/Proveedores.php';
 $CProveedor=new Proveedores($BDTpv);
 
 switch ($pulsado) {
@@ -97,12 +92,13 @@ switch ($pulsado) {
 		}
 		$cabecera=$htmlImprimir['cabecera'];
 		$html=$htmlImprimir['html'];
-		require_once('../../lib/tcpdf/tcpdf.php');
-		include ('../../clases/imprimir.php');
-		include('../../controllers/planImprimirRe.php');
+        require_once $URLCom.'/lib/tcpdf/tcpdf.php';
+		include_once $URLCom.'/clases/imprimir.php';
+        include_once $URLCom.'/controllers/planImprimirRe.php';
+		
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 		$respuesta['fichero']=$ficheroCompleto;
-		//~ echo json_encode($ficheroCompleto);
+		
 	break;
 	
 	case 'ComprobarSiExisteCodbarras':
@@ -117,11 +113,11 @@ switch ($pulsado) {
 	break;
 	
 	case 'imprimirEtiquetas':
-		include('./tareas/imprimirEtiquetas.php');
+        include_once $URLCom.'/modulos/mod_producto/tareas/imprimirEtiquetas.php';
 	break;
 	
 	case 'HtmlCajaBuscarProveedor':
-		include ('./tareas/htmlCajaBuscarProveedor.php');
+        include_once $URLCom.'/modulos/mod_producto/tareas/htmlCajaBuscarProveedor.php';
 	break;
 	
 	case 'eliminarSeleccion':
@@ -129,14 +125,12 @@ switch ($pulsado) {
 	break;
 	
 	case 'obtenerCostesProveedor':
-		include('./tareas/obtenerCostesProveedor.php');
+        include_once $URLCom.'/modulos/mod_producto/tareas/obtenerCostesProveedor.php';
 	break;
 	case 'comprobarReferencia':
 		$referencia=$_POST['referencia'];
 		$comprobacion=$NCArticulo->buscarReferenciaProductoTienda( $referencia);
-		
 		$respuesta=$comprobacion;
-		
 	break;
 }
 echo json_encode($respuesta);

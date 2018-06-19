@@ -6,8 +6,9 @@
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
  * @Descripción	
  */
+include_once './../../inicial.php';
+include $URLCom.'/clases/claseimprimir.php';
 
-include_once '../../clases/claseimprimir.php';
 
 function datamayor2html($sqldata, $sumas) {
     $resultado = '';
