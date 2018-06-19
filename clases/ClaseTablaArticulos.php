@@ -284,7 +284,7 @@ class ClaseTablaArticulos{
 		// Obtener los datos principal del proveedor del que indiquemos
 		// @ Parametro: 
 		//   $id_proveedor -> (int) Id del proveedor 
-		if (isset($id_proveedor) && $id_proveedor !== 0 ) {
+		if (isset($id_proveedor) && $id_proveedor > 0 ) {
 			$Sql = 'SELECT * FROM `proveedores` WHERE `idProveedor`='.$id_proveedor;
 			$respuesta = $this->Consulta($Sql);
 			if ($respuesta['NItems'] === 1){
@@ -342,7 +342,9 @@ class ClaseTablaArticulos{
 		// Aqui podemos obtener varios registros.
 		if (isset($consulta['Items'])){
 			$this->ref_tiendas = $consulta['Items'];
-		}
+		} else {
+            $this->ref_tiendas = array();
+        }
 	}
 	
 	public function ObtenerFamiliasProducto($id){
