@@ -37,7 +37,8 @@ function controladorAcciones(caja,accion, tecla){
 				if (caja.darParametro('dedonde') == "pedidos"){
 					//~ d_focus="Referencia";
 					//~ ponerFocus(d_focus);
-					pornerFocusEnOpcionSalto();
+					//~ pornerFocusEnOpcionSalto();
+                    ponerFocus( ObtenerFocusDefectoEntradaLinea());
 				}else{
 					d_focus='ultimo_coste_'+parseInt(caja.fila);
 					ponerSelect(d_focus);
