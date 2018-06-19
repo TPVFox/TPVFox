@@ -46,7 +46,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 			ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosClientes` AS ap 
 			ON a.idArticulo = ap.idArticulo  LEFT JOIN `articulosTiendas` 
 			AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE ap.idClientes='.$idCliente.' and ap.estado=1 and 
-			'.$buscar.' LIMIT 0 , 30';
+			'.$buscar.' group by a.idArticulo LIMIT 0 , 30';
 		$res = $BDTpv->query($sql1);
 		$resultado['Nitems']= $res->num_rows;
 		if($resultado['Nitems']==0){
@@ -54,7 +54,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
 			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
-			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' LIMIT 0 , 30 ';
+			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' group by a.idArticulo LIMIT 0 , 30 ';
 		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
 		$resultado['Nitems']= $res->num_rows;
