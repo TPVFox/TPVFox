@@ -13,15 +13,15 @@
 <html>
 <head>
 <?php
-	include './../../head.php';
-	
-	include_once ("funciones.php");
-	include ("./../../controllers/Controladores.php");
+    include_once './../../inicial.php';
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_tpv/funciones.php';
+	include_once $URLCom.'/controllers/Controladores.php';
+	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
 	
 	$Controler = new ControladorComun; 
 	// Añado la conexion
 	$Controler->loadDbtpv($BDTpv);
-	include ("./clases/ClaseTickets.php");
 	$Tickets = new ClaseTickets();
 	
 	
