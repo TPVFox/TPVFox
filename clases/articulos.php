@@ -128,7 +128,7 @@ class Articulos{
 			
 		public function modificarEstadosHistorico($idAlbaran, $dedonde){
 				$db=$this->db;
-				$smt=$db->query('UPDATE  historico_precios set estado="Revisado"  where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'"');
+				$smt=$db->query('UPDATE  historico_precios set estado="Revisado"  where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'" and estado <> "Sin revisar"');
 		}
 				
 		public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
@@ -191,7 +191,8 @@ class Articulos{
 	}
     public function ComprobarFechasHistorico($idArticulo, $fecha){
         $db=$this->db;
-        $sql='SELECT * from historico_precios WHERE idArticulo='.$idArticulo.' and Fecha_Creacion > "'.$fecha.'"';
+        $sql='SELECT * from historico_precios WHERE idArticulo='.$idArticulo.' and Fecha_Creacion > "'.$fecha.'"
+         and estado="Pendiente" and Dedonde="albaran" and Tipo="Compras"';
         $smt=$this->consulta($sql);
         if (gettype($smt)==='array'){
             $respuesta['error']=$smt['error'];
