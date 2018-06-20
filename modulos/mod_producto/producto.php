@@ -21,7 +21,14 @@
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
-		
+		// Cargamos el plugin que nos interesa.
+		if (count($CTArticulos->GetPlugins())>0){
+			foreach ($CTArticulos->GetPlugins() as $plugin){
+				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+					$ObjVersiones = $plugin['clase'];
+				}
+			}
+		}
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
@@ -32,6 +39,7 @@
 			// Modificar Ficha Producto
 			$id=$_GET['id']; // Obtenemos id producto para modificar.
 			$titulo .= "Modificar";
+            
 		} else {
 			// Quiere decir que no hay id, por lo que es nuevo
 			$titulo .= "Crear";
@@ -99,9 +107,15 @@
 							}
 						}
 					}
-					$ObjVirtuemart = $plugin['clase'];
+					$ObjVirtuemart = $plugin['clase'];      
 					if ($idVirtuemart>0 ){
+                        
 						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($idVirtuemart);
+                        // Monto html de vehiculos.
+                        $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
+                        if (isset($vehiculos['Datos'])) {
+                            $htmlVehiculos = $vehiculos['Datos']['html'];
+                        }
 					}
 				}
 			}
@@ -114,7 +128,7 @@
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
 		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
-		?>
+        ?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -263,11 +277,18 @@
 						$num = 4; // Numero collapse;
 						$titulo = 'Productos en otras tiendas.';
 						echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
-						if (isset($htmlLinkVirtuemart)){
+						
+                        if (isset($htmlVehiculos)){
+                            $num = 5; // Numero collapse;
+                            $titulo = 'Vehiculos que montan este productos.';
+                            echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
+                        }
+                        if (isset($htmlLinkVirtuemart)){
 							echo $htmlLinkVirtuemart;
 						}
-						?>
-						
+                        
+                    	?>
+                    
 						<!-- Inicio collapse de Referencias Tiendas --> 
 
 					<!-- Fin de panel-group -->
