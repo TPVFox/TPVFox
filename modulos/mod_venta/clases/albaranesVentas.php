@@ -1,5 +1,5 @@
 <?php
-include_once ("./../../../inicial.php");
+//~ include_once ("./../../../inicial.php");
 include_once $URLCom.'/modulos/mod_venta/clases/ClaseVentas.php';
 include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulosStocks.php';
 
