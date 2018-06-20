@@ -36,6 +36,13 @@ class ModeloP {
 //        return self::$instance;
 //    }
 
+
+/*
+ * Método getDbo()
+ * Devuelve la propiedad $db si contiene un valor distinto de nulo.
+ * Si es la primera ejecución, $db será nulo, entonces obtiene la conexión 
+ * a la base de datos de la clase conexión y la guarda en la propiedad $db
+ */
     public static function getDbo() {
         if (is_null(self::$db)) {
             $objConexion = new ClaseConexion();
@@ -169,4 +176,30 @@ class ModeloP {
         return ModeloP::$resultado['consulta'];
     }
 
+    
+    public static function leer($tabla, $condicion, $columnas = [],$limit=0) {
+        
+        $columnasSql = count($columnas) > 0 ? implode(',', $columnas): '*';
+        
+        if (!is_array($condicion)) {
+            $updateWhere = $condicion;
+        } else {
+            $updateWhere = implode(' AND ', $condicion);
+        }
+        
+        $sql = 'SELECT '.$columnasSql
+                . 'FROM ' . $tabla
+                . ' WHERE  ' . $updateWhere;
+        if($limit == 0){
+            $sql .= ' LIMIT '.$limit;
+        }
+                
+        $resultado = self::_consulta($sql);
+        return $resultado;
+    }
+
+    
+    
+    
+    
 }

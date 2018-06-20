@@ -1019,6 +1019,10 @@ function grabarRegularizacion() {
         stocksumar: $('#stocksumar').val()
     }
     ajaxRegularizar(parametros, function (response) {
+        var resultado = JSON.parse(response);
+        if(!resultado){
+            alert('error al grabar');
+        } else 
         cerrarPopUp('regularizaStockModal');
     })
 }

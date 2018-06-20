@@ -117,4 +117,13 @@ class alArticulosStocks extends ModeloP { // hereda de clase modelo.
         return $resultado;
     }
 
+    public static function regularizaStock($idArticulo, $idTienda, $nunidades, $idUsuario) {        
+        $resultado = self::actualizarStock($idArticulo, $idTienda, $nunidades, K_STOCKARTICULO_SUMA);
+        if($resultado){
+            $resultado =  alArticulosStocks::_update(alArticulosStocks::$tabla, [
+                'fechaRegularizacion' => date(FORMATO_FECHA_MYSQL)
+                , 'usuarioRegularizacion' => $idUsuario], ['id =' . self::getIdbyArticulo($idArticulo, $idTienda)]);            
+        }
+        return $resultado;
+    }
 }
