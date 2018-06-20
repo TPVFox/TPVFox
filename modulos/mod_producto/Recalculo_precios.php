@@ -16,13 +16,7 @@
 		$ClasesParametros = new ClaseParametros('parametros.xml');
 		$parametros = $ClasesParametros->getRoot();
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		//~ echo $VarJS;
-		
-		//~ echo '<pre>';
-		//~ print_r($parametros);
-		//~ echo '</pre>';
 		$CProveedor=new Proveedores($BDTpv);
-		//~ $volver = 
 		$CAlbaran=new AlbaranesCompras($BDTpv);
 		$CArticulo=new Articulos($BDTpv);
 		$ruta_volver= $HostNombre.'/modulos/mod_compras/albaranesListado.php';
@@ -40,8 +34,13 @@
 			$fecha=date_format($fecha, 'Y-m-d');
 			
 			$productosHistoricos=$CArticulo->historicoCompras($id, "albaran", "compras");
+            
+            $productosHistoricos=comprobarRecalculosSuperiores($productosHistoricos, $CArticulo );
+            
 			$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
-			
+			//~ echo '<pre>';
+            //~ print_r($productosHistoricos);
+            //~ echo '</pre>';
 		}
 		if (isset($_POST['Guardar'])){
 			$id=$_GET['id'];
@@ -98,11 +97,7 @@
 				$i++;
 				$estado="";
 			}
-			
 			 $modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
-			
-			// header('Location: ../mod_compras/albaranesListado.php');
-			
 		}
 		
 		
@@ -193,6 +188,7 @@
 				<?php 
 				$i=1;
 				foreach ($productosHistoricos as $producto){
+                  
 					if ($producto['estado']<>"Revisado"){
 					$datosArticulo=$CArticulo->datosPrincipalesArticulo($producto['idArticulo']);
 					$datosPrecios=$CArticulo->articulosPrecio($producto['idArticulo']);
@@ -203,9 +199,12 @@
 					$beneficio=$datosArticulo['beneficio']/100;
 					$beneficioArticulo=$precioProducto*$beneficio;
 					$pvpRecomendado=$beneficioArticulo+$precioProducto;
+                    
 					if ($producto['estado']=="Pendiente"){
 						$class="";
-					}else{
+					}else if($producto['estado']=="Sin revisar"){
+                        $class="class='bg-danger'";
+                    }else{
 						$class="class='tachado'";
 					}
 					echo '<tr id="Row'.$i.'" '.$class.'>';
@@ -217,12 +216,21 @@
 					echo '<td>'.$datosArticulo['beneficio'].'</td>';
 					echo '<td>'.$datosArticulo['iva'].'</td>';
 					echo '<td>'.number_format($datosPrecios['pvpCiva'],4).'</td>';
-					echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"  onkeydown="controlEventos(event)" data-obj="pvpRecomendado" value="'.number_format($pvpRecomendado,2).'" size="5"></td>';
-					if ($producto['estado']=="Pendiente"){
-						echo '<td class="eliminar"><a onclick="eliminarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-trash"></span></a></td>';
-					}else{
-						echo '<td class="eliminar"><a onclick="retornarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-export"></span></a></td>';
-					}
+                    if($producto['estado']=="Sin revisar"){
+                          echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"  onkeydown="controlEventos(event)" data-obj="pvpRecomendado" value="'.number_format($pvpRecomendado,2).'" size="5" disabled></td>';
+                    }else{
+                        echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"  onkeydown="controlEventos(event)" data-obj="pvpRecomendado" value="'.number_format($pvpRecomendado,2).'" size="5"></td>';
+                    }
+					if($producto['estado']=="Sin revisar"){
+                        echo '<td></td>';
+                    }else{
+                        if ($producto['estado']=="Pendiente" ){
+                            echo '<td class="eliminar"><a onclick="eliminarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-trash"></span></a></td>';
+                        }else{
+                            echo '<td class="eliminar"><a onclick="retornarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-export"></span></a></td>';
+                        }
+                    }
+					
 					
 					
 					echo '</tr>';

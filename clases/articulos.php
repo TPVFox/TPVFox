@@ -189,7 +189,33 @@ class Articulos{
 				return $articulosPrincipal;
 			}
 	}
-	
+    public function ComprobarFechasHistorico($idArticulo, $fecha){
+        $db=$this->db;
+        $sql='SELECT * from historico_precios WHERE idArticulo='.$idArticulo.' and Fecha_Creacion > "'.$fecha.'"';
+        $smt=$this->consulta($sql);
+        if (gettype($smt)==='array'){
+            $respuesta['error']=$smt['error'];
+            $respuesta['consulta']=$smt['consulta'];
+            return $respuesta;
+        }else{
+            $articulosPrincipal=array();
+            while ($result = $smt->fetch_assoc () ){
+                array_push($articulosPrincipal,$result);
+            }
+            return $articulosPrincipal;
+        }
+    }
+
+	public function modificarRegHistorico($idRegistro, $estado){
+         $db=$this->db;
+         $sql='UPDATE historico_precios SET estado="'.$estado.'" where id='.$idRegistro;
+         $smt=$this->consulta($sql);
+         if (gettype($smt)==='array'){
+            $respuesta['error']=$smt['error'];
+            $respuesta['consulta']=$smt['consulta'];
+            return $respuesta;
+        }
+    }
 	
 	
 }

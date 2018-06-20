@@ -884,5 +884,25 @@ function comprobarUltimaCompraProveedor($Pro_costes){
 	$respuesta['coste_ultimo'] = $ultimo_coste;
 	return $respuesta;
 }
-
+function comprobarRecalculosSuperiores($productos, $CArticulo){
+    $i=0;
+    foreach ($productos as $producto){
+        $datosHistorico=$CArticulo->ComprobarFechasHistorico($producto['idArticulo'], $producto['Fecha_Creacion']);
+        if(isset($datosHistorico['error'])){
+            $productos['error']=$datosHistorico['error'];
+            $productos['consulta']=$datosHistorico['consulta'];
+        }else{
+            if(count($datosHistorico)>1){
+                $productos[$i]['estado']="Sin revisar";
+                $modHistorico=$CArticulo->modificarRegHistorico($producto['id'], "Sin revisar");
+                  if(isset($modHistorico['error'])){
+                    $productos['error']=$modHistorico['error'];
+                    $productos['consulta']=$modHistorico['consulta'];
+                }
+            }
+        }
+        $i++;
+    }
+    return $productos;
+}
 ?>
