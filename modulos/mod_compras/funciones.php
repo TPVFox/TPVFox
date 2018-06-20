@@ -661,6 +661,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$imprimir['html'] .='<table WIDTH="80%">';
 	$i=0;
 	$numAdjunto=0;
+    $numAdjuntoProd=0;
 	foreach($productosDEF as $producto){
 		if($dedonde=="factura"){
 			$numAdjuntoProd=$producto['numAlbaran'];

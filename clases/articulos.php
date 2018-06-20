@@ -69,7 +69,6 @@ class Articulos{
 			$respuesta['consulta']=$smt['consulta'];
 			return $respuesta;
 		}
-		return $respuesta;
 	}
 	public function modificarCosteProveedorArticulo($datos){
 		$db=$this->db;
