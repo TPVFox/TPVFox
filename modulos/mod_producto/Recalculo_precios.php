@@ -21,6 +21,7 @@
 		$CArticulo=new Articulos($BDTpv);
 		$ruta_volver= $HostNombre.'/modulos/mod_compras/albaranesListado.php';
 		$titulo="Recalculo precios PVP ";
+        $comprobar="";
 		$Usuario = $_SESSION['usuarioTpv'];
         if (isset($_GET['id'])){
 			$id=$_GET['id'];
@@ -38,9 +39,16 @@
             $productosHistoricos=comprobarRecalculosSuperiores($productosHistoricos, $CArticulo );
             
 			$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
-			//~ echo '<pre>';
+            //~ echo '<pre>';
             //~ print_r($productosHistoricos);
             //~ echo '</pre>';
+            
+            
+            //~ if(in_array('Sin revisar', array_column($productosHistoricos, 'estado'))){
+               
+            //~ }
+			
+          
 		}
 		if (isset($_POST['Guardar'])){
 			$id=$_GET['id'];
@@ -150,17 +158,17 @@
 				</div>
 				<div class="col-md-2">
 					<strong>ID Proveedor:</strong><br>
-					<!-- Deberíamos mostrar tanto ID-NombreComercial-RazonSocial  -->
+					
 					<input type="text" name="idProveedor" id="idProveedor" size="10"   value="<?php echo $datosAlbaran['idProveedor'];?>" readonly >
 				</div>
 				<div class="col-md-3">
 					<strong>Proveedor:</strong><br>
-					<!-- Deberíamos mostrar tanto ID-NombreComercial-RazonSocial  -->
+				
 					<input type="text" name="nombreProveedor" id="nombreProveedor" size="10"   value="<?php echo $datosProveedor['nombrecomercial'];?>" readonly >
 				</div>
 				<div class="col-md-3">
 					<strong>Proveedor:</strong><br>
-					<!-- Deberíamos mostrar tanto ID-NombreComercial-RazonSocial  -->
+					
 					<input type="text" name="razonsocial" id="razonsocial" size="10"   value="<?php echo $datosProveedor['razonsocial'];?>" readonly >
 				</div>
 				<div class="col-md-2">
@@ -200,11 +208,9 @@
 					$beneficioArticulo=$precioProducto*$beneficio;
 					$pvpRecomendado=$beneficioArticulo+$precioProducto;
                     
-					if ($producto['estado']=="Pendiente"){
+					if ($producto['estado']=="Pendiente" || $producto['estado']=="Sin revisar"){
 						$class="";
-					}else if($producto['estado']=="Sin revisar"){
-                        $class="class='bg-danger'";
-                    }else{
+					}else{
 						$class="class='tachado'";
 					}
 					echo '<tr id="Row'.$i.'" '.$class.'>';
@@ -217,7 +223,11 @@
 					echo '<td>'.$datosArticulo['iva'].'</td>';
 					echo '<td>'.number_format($datosPrecios['pvpCiva'],4).'</td>';
                     if($producto['estado']=="Sin revisar"){
-                          echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"  onkeydown="controlEventos(event)" data-obj="pvpRecomendado" value="'.number_format($pvpRecomendado,2).'" size="5" disabled></td>';
+                          echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"  
+                          onkeydown="controlEventos(event)" data-obj="pvpRecomendado" 
+                          value="'.number_format($pvpRecomendado,2).'" size="5" disabled>
+                          <span class="glyphicon glyphicon-ban-circle" style="color:red"  title="Este producto tiene recalculos de precio posteriores"></span>
+                          </td>';
                     }else{
                         echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"  onkeydown="controlEventos(event)" data-obj="pvpRecomendado" value="'.number_format($pvpRecomendado,2).'" size="5"></td>';
                     }
