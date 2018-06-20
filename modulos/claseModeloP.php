@@ -177,7 +177,7 @@ class ModeloP {
     }
 
     
-    public static function leer($tabla, $condicion, $columnas = [],$limit=0) {
+    public static function _leer($tabla, $condicion, $columnas = [],$limit=0) {
         
         $columnasSql = count($columnas) > 0 ? implode(',', $columnas): '*';
         
