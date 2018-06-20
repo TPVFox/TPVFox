@@ -1,7 +1,12 @@
 <?php
+  /*  Objetivo de este plugin:
+   *  Es poder interacturar con los productos de la tienda Virtuemart.
+  * */ 
 class PluginClaseVirtuemart extends ClaseConexion{
-	
-	
+    
+	public $ruta_producto = '';// Es la ruta al producto de la tienda.
+
+    public $TiendaWeb = array() ; // Datos de la tienda web .. solo puede haber una.
 	
 	public function __construct($dedonde ='') {
 		parent::__construct(); // Inicializamos la conexion.
@@ -10,10 +15,14 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		$tiendasWebs = $this->ObtenerTiendasWeb();
 		if (count($tiendasWebs['items'])>1){
 			// Quiere decir que hay mas de una tienda web,, no podemos continuar.
+            echo '<pre>';
+            print_r('Error hay mas de una empresa tipo web');
+            echo '</pre>';
 			exit();
 		} else {
-			$tiendaWeb = $tiendasWebs['items'][0];
-			$this->ruta_producto = $tiendaWeb['dominio']."/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=";
+			$this->TiendaWeb = $tiendasWebs['items'][0];
+            // Esto no es correcto ya que si no es virtuemart, seguro que hay que poner otro link...  :-)
+			$this->ruta_producto = $this->TiendaWeb['dominio']."/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=";
 		}
 	}
 	public function obtenerRutaProyecto(){
@@ -28,6 +37,10 @@ class PluginClaseVirtuemart extends ClaseConexion{
 	public function getRutaPlugin(){
 		return $this->Ruta_plugin; 
 	}
+    public function getTiendaWeb(){
+        return $this->TiendaWeb;
+
+    }
 		
 	public function ObtenerTiendasWeb(){
 		// Objetivo obtener datos de la tabla tienda para poder cargar el select de tienda On Line.
@@ -65,5 +78,25 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		return $html;
 		
 	}
+
+    public function obtenerIdVirtuemart($ref_tiendas){
+        // @ Objetivo:
+        // Obtener el idVirtuermart de la tienda web.
+        // @ Parametros:
+        //  Array de arrays donde tenemos [crefTienda],[idTienda],[idVirtuemart],[pvpCiva],[pvpSiva],[tipoTienda] ,[dominio]
+        // Recorremos ese array buscando idTienda coincida con id de TiendaWeb y devolvemos id virtuemart.
+        $respuesta = '';
+        if ( gettype($ref_tiendas) === 'array'){
+            foreach ($ref_tiendas as $tiendas){
+                
+                if ($tiendas['idTienda']  === $this->TiendaWeb['idTienda']){
+                    // Existe tienda , obtenemos idVirtuemart
+                    
+                    $respuesta = $tiendas['idVirtuemart'] ;
+                }
+            }
+        }
+        return $respuesta ;
+    }
 }
 ?>

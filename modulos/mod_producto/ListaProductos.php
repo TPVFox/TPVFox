@@ -7,11 +7,19 @@
         //~ include ("./../../plugins/paginacion/paginacion.php");
         include ("./../../plugins/paginacion/ClasePaginacion.php");
 
-
         include ("./../../controllers/Controladores.php");
         include ("./clases/ClaseProductos.php");
         include_once ($RutaServidor . $HostNombre . '/controllers/parametros.php');
         $CTArticulos = new ClaseProductos($BDTpv);
+// Cargamos el plugin que nos interesa.
+		if (count($CTArticulos->GetPlugins())>0){
+			foreach ($CTArticulos->GetPlugins() as $plugin){
+				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+					$ObjVersiones = $plugin['clase'];
+				}
+			}
+		}
+
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
@@ -34,7 +42,7 @@
             $prod_seleccion['display'] = 'style="display:none"';
             $conf_defecto['filtro']->valor = 'No';
         }
-
+       
         // Obtenemos la configuracion del usuario o la por defecto
         $configuracion = $Controler->obtenerConfiguracion($conf_defecto, 'mod_productos', $Usuario['id']);
         // Compruebo que solo halla un campo por el que buscar por defecto.
@@ -70,12 +78,14 @@
         } else {
             $CantidadRegistros = $CTArticulos->GetNumRows();
         }
+       
         // --- Ahora envio a NPaginado la cantidad registros --- //
         if ($prod_seleccion['NItems'] > 0 && $configuracion['filtro']->valor === 'Si') {
             $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
         } else {
             $NPaginado->SetCantidadRegistros($CantidadRegistros);
         }
+		
         $htmlPG = '';
         if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
             $htmlPG = $NPaginado->htmlPaginado();
@@ -98,6 +108,7 @@
         . 'var configuracion = ' . json_encode($configuracion);
         echo '</script>';
         ?>
+
 
         <script>
             // Declaramos variables globales
@@ -176,6 +187,12 @@ echo $htmlConfiguracion['htmlCheck'];
                 </div>
 
                 <div class="col-md-10">
+					<div>
+					<?php $formVersion = $ObjVersiones->htmlFormularioSeleccionVehiculo();
+							echo $formVersion['html'];
+					?>
+					</div>
+					<div>
                     <p>
                         -Productos encontrados BD local filtrados:
 <?php echo $CantidadRegistros; ?>
