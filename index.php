@@ -179,12 +179,17 @@
 				<div class="col-md-12">
 				</div>
 			</div>
+<!--
 			<div id="col-md-12">
 				<p>Está aplicación es OPEN SOURCE, con ello queremos decir que puedes utilizar este código en otras aplicaciones y modificarlo sin problemas.</p>
 			</div>
+-->
 			
 		</div>
 	</div>
 	</section>
+    <?php 
+    include_once $URLCom.'/pie.php';
+    ?>
 </body>
 </html>

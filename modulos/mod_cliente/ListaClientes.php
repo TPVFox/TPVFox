@@ -180,6 +180,8 @@
 		</div>
 	</div>
     </div>
-		
+	<?php 
+    include_once $URLCom.'/pie.php';
+    ?>	
 </body>
 </html>
