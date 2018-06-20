@@ -14,10 +14,11 @@
 <html>
     <head>
         <?php
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
+	include_once './../../inicial.php';
+    include $URLCom.'/head.php';
+    include_once $URLCom.'/modulos/mod_cierres/funciones.php';
+	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+	include_once $URLCom.'/controllers/Controladores.php';
 	// Creamos objeto controlado comun, para obtener numero de registros. 
 	$Controler = new ControladorComun; 
 	// Esto esta en header.. pienso que deberíamos pasarlo para head

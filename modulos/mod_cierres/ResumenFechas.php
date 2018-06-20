@@ -2,9 +2,10 @@
 <html>
     <head>
 		<?php
-			include './../../head.php';
-			include './funciones.php';
-			include '../../clases/iva.php';
+			include_once './../../inicial.php';
+            include $URLCom.'/head.php';
+            include_once $URLCom.'/modulos/mod_cierres/funciones.php';
+            include_once $URLCom.'/clases/iva.php';
 			$Civas = new iva($BDTpv);
 			//LLega mediente get las dos fechas  
 		if (isset($_GET['fecha1'])& isset($_GET['fecha2'])) {
@@ -33,7 +34,7 @@
 	<body>
 		
 	<?php
-		include './../../header.php';
+        include_once $URLCom.'/header.php';
 		$rutaVolver = '../mod_cierres/ListaCierres.php';
 		
 	?>

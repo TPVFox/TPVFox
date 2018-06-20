@@ -2,11 +2,11 @@
 <html>
 	<head>
 	<?php
-	include './../../head.php';
-	include './funciones.php';
-	include ("./../../plugins/paginacion/paginacion.php");
-	include ("./../../controllers/Controladores.php");
-	
+    include_once './../../inicial.php';
+    include $URLCom.'/head.php';
+    include_once $URLCom.'/modulos/mod_cierres/funciones.php';
+	include_once $URLCom.'/plugins/paginacion/paginacion.php';
+	include_once $URLCom.'/controllers/Controladores.php';
 	// Variables de control:
 		$mensajes = array(); // Lo utilizo para los mensajes de advertencias,errores..
 		$dedonde='';  // Indica de donde viene, ya que puede venir lista cierres y de tickets, por defecto viene de Lista Cierres
@@ -174,7 +174,7 @@
 	</head>
 	<body>
 	<?php
-	include './../../header.php';
+    include_once $URLCom.'/header';
 	
 	?>
 <div class="container">		

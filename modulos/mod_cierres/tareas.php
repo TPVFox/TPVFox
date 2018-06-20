@@ -8,14 +8,9 @@
 
 
 $pulsado = $_POST['pulsado'];
-include_once ("./../../configuracion.php");
-
-// Crealizamos conexion a la BD Datos
 include_once ("./../../inicial.php");
-
-// Incluimos funciones
-include_once ("./funciones.php");
-
+include_once $URLCom.'/configuracion.php';
+include_once $URLCom.'/modulos/mod_cierres/funciones.php';
  switch ($pulsado) {
      
     case 'insertarCierre':

@@ -2,8 +2,9 @@
 <html>
     <head>
 		<?php
-			include './../../head.php';
-			include './funciones.php';
+        include_once './../../inicial.php';
+        include $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_cierres/funciones.php';
 		if (isset($_GET['id'])) {
 			$idCierre=$_GET['id'];
 			
@@ -16,7 +17,7 @@
 	<body>
 		
 	<?php
-		include './../../header.php';
+		 include_once $URLCom.'/header.php';
 		// debug
 		//~ echo '<pre>';
 			//~ print_r($cierreUnico);

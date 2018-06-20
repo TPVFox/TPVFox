@@ -3,8 +3,9 @@
     <head>
         <?php
 		// Reinicio variables
-        include './../../head.php';
-        include './funciones.php';
+       include_once './../../inicial.php';
+        include $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_cierres/funciones.php';
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
 		?>
 		<script type="text/javascript">
@@ -44,7 +45,7 @@
 	</head>
 	<body>
 		<?php
-        include './../../header.php';
+        include_once $URLCom.'/header.php';
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$tabla= 'ticketst'; // Tablas que voy utilizar.
