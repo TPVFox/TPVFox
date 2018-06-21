@@ -46,7 +46,6 @@ class ClaseCompras
 			$respuesta['consulta']=$smt['consulta'];
 			return $respuesta;
 		}else{
-		//~ $smt=$db->query('SELECT * from '.$tabla.' where '.$where);
 			if ($result = $smt->fetch_assoc () ){
 				$resultado=$result;
 			}
@@ -57,7 +56,6 @@ class ClaseCompras
 		$db=$this->db;
 		$sql='SELECT * from '.$tabla.' where '.$where;
 		$smt=$this->consulta($sql);
-		//~ $smt=$db->query('SELECT * from '.$tabla.' where '.$where);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];

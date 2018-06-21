@@ -42,7 +42,6 @@
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>  
 <?php
-
 	include '../../header.php';
 	?>
 		<div class="container">
@@ -187,4 +186,3 @@
     </div>
 	</body>
 </html>
-

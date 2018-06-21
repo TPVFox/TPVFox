@@ -24,7 +24,7 @@
 	$dedonde="albaran";
 	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
-	//~ $fecha=date('Y-m-d');
+	
 	$fecha=date('d-m-Y');
 	$hora="";
 	$idAlbaranTemporal=0;
@@ -115,10 +115,8 @@
 					$idAlbaran=0;
 				}
 				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
-					//~ $fecha=date('Y-m-d');
 					$fecha=date('d-m-Y');
 				}else{
-					//~ $fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
 					$hora=date_format(date_create($datosAlbaran['fechaInicio']),'H:i');
 				}
@@ -251,7 +249,6 @@
 		  <?php
 	  }
 	  ?>
-// Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;

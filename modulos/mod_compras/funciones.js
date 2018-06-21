@@ -1,5 +1,4 @@
 //Función que controla las acciones que llegan del xml
-
 function controladorAcciones(caja,accion, tecla){
     console.log (' Controlador Acciones: ' +accion);
 	console.log(caja.darParametro('dedonde'));
@@ -27,7 +26,6 @@ function controladorAcciones(caja,accion, tecla){
 			// recuerda que lo productos empizan 0 y las filas 1
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
-			//~ productos.[nfila].unidad = caja.darValor();
 			productos[nfila].nunidades = caja.darValor();
 			productos[nfila].ncant = caja.darValor();
 			console.log(caja.fila);
@@ -35,9 +33,6 @@ function controladorAcciones(caja,accion, tecla){
 			console.log(caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
 				if (caja.darParametro('dedonde') == "pedidos"){
-					//~ d_focus="Referencia";
-					//~ ponerFocus(d_focus);
-					//~ pornerFocusEnOpcionSalto();
                     ponerFocus( ObtenerFocusDefectoEntradaLinea());
 				}else{
 					d_focus='ultimo_coste_'+parseInt(caja.fila);
@@ -45,7 +40,6 @@ function controladorAcciones(caja,accion, tecla){
 					
 				}
 			}
-			
 		break;
 		case  'saltar_productos':
 			if (productos.length >0){
@@ -248,7 +242,6 @@ function controladorAcciones(caja,accion, tecla){
 				var idArticulo=productos[nfila].idArticulo;
 					if (costeAnt===caja.darValor()){
                         ponerFocus( ObtenerFocusDefectoEntradaLinea());
-                        //~ pornerFocusEnOpcionSalto();
 					}else {
 						if(valor=""){
                         alert("NO HAS INTRODUCIDO NINGÚN COSTE");
@@ -257,7 +250,6 @@ function controladorAcciones(caja,accion, tecla){
                             addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
                             if (caja.tipo_event !== "blur"){
                                 ponerFocus( ObtenerFocusDefectoEntradaLinea());
-                                //~ pornerFocusEnOpcionSalto();
                             }
                         }
                     }
@@ -339,12 +331,9 @@ function buscarAdjunto(dedonde, valor=""){
 								bandera=bandera+1;
 							}
 						}
-						
 							if (bandera==0){
-							
 								var datos = [];
 								datos = resultado['datos'];
-								
 								var datos = [];
 								datos = resultado['datos'];
 								n_item=parseInt(adjuntos.length)+1;
@@ -498,7 +487,6 @@ function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 						$('#enlaceCambio'+fila).css("display", "inline");
 						var d_focus='idArticulo';
 						ponerFocus(d_focus);
-					
 					}
 					addTemporal(dedonde);
 				}
@@ -682,7 +670,6 @@ function comprobarAdjunto(dedonde){
 						ponerFocus('numPedido');
 					}else{
                         ponerFocus( ObtenerFocusDefectoEntradaLinea());
-                        //~ pornerFocusEnOpcionSalto();
 					}
 				}
 				
@@ -754,10 +741,8 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
                         AgregarFilaProductos(datos, dedonde, campo);
                         console.log("muestro fecha");
                         console.log(resultado['datos'][0]);
-                        //~ console.log(cabecera.fecha);
                          if(resultado['datos'][0]['fechaActualizacion']!=null){
                              
-                            //~ fechaProducto= new Date(resultado['datos'][0]['fechaActualizacion']);
                             fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
                             fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
                             fechaCabecera= cabecera.fecha.split("-");
@@ -834,7 +819,6 @@ function AgregarFilaProductos(productos, dedonde='', campo=''){
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
 			ponerSelect(campo);
-			//~ console.log(albaranes);
 			if(dedonde=="factura"){
 				if(albaranes.length>0){
 					bloquearInput();
@@ -1236,7 +1220,6 @@ function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 	ponerFocus( ObtenerFocusDefectoEntradaLinea());
-	//~ pornerFocusEnOpcionSalto();
 }
 
 function mover_up(fila,prefijo){
@@ -1409,34 +1392,6 @@ function mensajeCancelar(idTemporal, dedonde){
 		}
 	}
 }
-//~ function pornerFocusEnOpcionSalto(){
-	//~ var valor = $("#salto").val();
-	//~ switch(valor){
-		//~ case '0':
-			//~ d_focus='Referencia';
-		//~ break;
-		//~ case '1':
-			//~ d_focus='idArticulo';
-		//~ break;
-		//~ case '2':
-			//~ d_focus='Referencia';
-		//~ break;
-		//~ case '3':
-			//~ d_focus='ReferenciaPro';
-		//~ break;
-		//~ case '4':
-			//~ d_focus='Codbarras';
-		//~ break;
-		//~ case '5':
-			//~ d_focus='Descripcion';
-		//~ break;
-		//~ default:
-			//~ d_focus='Referencia';
-		//~ break;
-		
-	//~ }
-	//~ ponerFocus(d_focus);
-//~ }
 function ObtenerCajaSiguiente(idCaja){
     // @ Objetivo
     //  Obtener cual es la caja siguiente salto 

@@ -52,14 +52,10 @@
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	
-	
-	
 	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
 		$textoNum=$idFactura;
-		//~ $titulo="Modificar factura De Proveedor";
 		$datosFactura=$CFac->datosFactura($idFactura);
 		$productosFactura=$CFac->ProductosFactura($idFactura);
 		$ivasFactura=$CFac->IvasFactura($idFactura);
@@ -69,7 +65,6 @@
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
-		//~ $fecha=date_format($date,'Y-m-d');
 		$fecha=date_format($date,'d-m-Y');
 		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;

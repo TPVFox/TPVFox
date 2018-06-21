@@ -7,7 +7,6 @@ class PedidosCompras extends ClaseCompras{
 	
 	public function __construct($conexion){
 		parent::__construct($conexion);
-		//~ $this->db = $conexion;
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM pedprot';
 		$respuesta = $this->consulta($sql);

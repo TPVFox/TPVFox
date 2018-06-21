@@ -433,7 +433,6 @@ class FacturasCompras extends ClaseCompras{
 	public function modFechaNumero($id, $fecha, $suNumero){
 		$db=$this->db;
 		$sql='UPDATE facprot set Su_num_factura ="'.$suNumero.'" , Fecha="'.$fecha.'" where id='.$id;
-		//~ error_log($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];

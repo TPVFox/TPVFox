@@ -20,8 +20,6 @@
 				if (isset($rest['error'])){
 						$respuesta['error']=$rest['error'];
 						$respuesta['consulta']=$rest['consulta'];
-						//~ echo json_encode($respuesta);
-						//~ break;
 				}else{
 					$existe=1;
 				}
@@ -31,8 +29,6 @@
 				if (isset($rest['error'])){// Control de errores
 						$respuesta['error']=$rest['error'];
 						$respuesta['consulta']=$rest['consulta'];
-						//~ echo json_encode($respuesta);
-						//~ break;
 				}else{
 					$existe=0;
 					$numPedidoTemp=$rest['id'];
@@ -47,7 +43,6 @@
 				if (isset($modId['error'])){
 						$respuesta['error']=$modId['error'];
 						$respuesta['consulta']=$modId['consulta'];
-						//~ break;
 				}
 				$estado="Sin Guardar";
 				// Se modifica el estado del pedido real a sin guardar
@@ -55,7 +50,6 @@
 				if (isset($modId['error'])){
 						$respuesta['error']=$modEstado['error'];
 						$respuesta['consulta']=$modEstado['consulta'];
-						//~ break;
 				}
 			 }
 			if ($productos){

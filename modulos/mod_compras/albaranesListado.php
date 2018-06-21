@@ -39,9 +39,6 @@ $todosTemporal=array_reverse($todosTemporal);
 
 	$NPaginado->SetCamposControler($Controler,$campos);
 	$NPaginado->SetOrderConsulta('a.Numalbpro');
-	//~ echo '<pre>';
-//~ print_r($NPaginado);
-//~ echo '</pre>';
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 	$CantidadRegistros=0;

@@ -23,7 +23,6 @@
 	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Pedido De Proveedor";
 	$dedonde="pedidos";
-	//~ $fecha=date('Y-m-d');
 	$fecha=date('d-m-Y');
 	$idPedido=0;
 	$numPedidoTemp=0;
@@ -56,7 +55,6 @@
 			}
 			$productosPedido=$Cpedido->ProductosPedidos($idPedido);
 			$ivasPedido=$Cpedido->IvasPedidos($idPedido);
-			//~ $fecha=$datosPedido['FechaPedido'];
 			$fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
 			$idProveedor=$datosPedido['idProveedor'];
 			$datosProveedor=$Cprveedor->buscarProveedorId($idProveedor);
@@ -80,7 +78,6 @@
 				}
 				if ($pedido['fechaInicio']){
 					$bandera=new DateTime($pedido['fechaInicio']);
-					//~ $fecha=$bandera->format('Y-m-d');
 					$fecha=$bandera->format('d-m-Y');
 				}
 				$productos = json_decode( $pedido['Productos']); // Array de objetos

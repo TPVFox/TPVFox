@@ -136,11 +136,6 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 		//fetch_assoc es un boleano..
 		while ($fila = $res->fetch_assoc()) {
 			$products[] = $fila;
-			//~ if(isset($products['fechaActualizacion'])){
-				//~ $fecha =date_format(date_create($products['fechaActualizacion']), 'd-m-Y');
-				//~ $products[$i]['fechaActualizacion']=$fecha;
-			//~ }
-			
 			$resultado['datos']=$products;
 			$i++;
 			
@@ -666,9 +661,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		if($dedonde=="factura"){
 			$numAdjuntoProd=$producto['numAlbaran'];
 		}
-		//~ if($dedonde=="albaran"){
-			//~ $numAdjuntoProd=$producto['numPedido'];
-		//~ }
 		if($numAdjuntoProd<>$numAdjunto){
 			$imprimir['html'] .= $alb_html[$i];
 			$numAdjunto=$numAdjuntoProd;
@@ -802,7 +794,6 @@ function guardarPedido($datosPost, $datosGet, $BDTpv, $Datostotales){
 						break;
 					}else{
 						 if (isset($datosPost['fecha'])){
-							//~ $fecha=$datosPost['fecha'];
 							$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 						}else{
 							if (isset($pedidoTemporal['fechaInicio'])){
@@ -1129,7 +1120,6 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 			$datosPost['estado']='Sin guardar';
 	}
 	$suNumero="";
-	//~ $fecha=date('Y-m-d');
 	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 	$estado="Guardado";
 	$entregado=0;
@@ -1282,7 +1272,6 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 						'mensaje' => 'Has dejado el campo fecha sin cubrir !'
 						);
 					}else{
-						 //~ error_log($suNumero);
 						 $fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
 						$mod=$CFac->modFechaNumero($datosGet['id'], $fecha, $suNumero);
 						if (isset($mod['error'])){
@@ -1546,7 +1535,6 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 function modificarArraysImportes($importes, $total){
 	
 	$importesDef= array();
-	//~ error_log($total);
 	foreach ($importes as $importe){
 		
 		$nuevo= array();
@@ -1557,9 +1545,6 @@ function modificarArraysImportes($importes, $total){
 		
 		$imp=floatval($importe['importe']);
 		$total=$total-$imp;
-		//~ if($total<0){
-			//~ $total=0;
-		//~ }
 		$nuevo['pendiente']=$total;
 		$total=number_format((float)$total,2, '.', '');
 		
@@ -1570,16 +1555,11 @@ function modificarArraysImportes($importes, $total){
 function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fecha, $idUsuario){
 	$errores=array();
 	$CArt=new Articulos($BDTpv);
-	//~ $fechaCreacion=date('Y-m-d');
 	$datos=array(
 	'dedonde'=>$dedonde,
 	'numDoc'=>$numDoc,
 	'tipo'=>"compras"
-	//~ 'fechaCreacion'=>$fechaCreacion
 	);
-	 //~ $fecha=date_format($fecha, 'Y-m-d H:i:s');
-	//~ $resultado['datos']=$productos;
-	//~ $error=0;
 	$productos = json_decode($productos, true);
 	if (count($productos)>0){
 		foreach ($productos as $producto){
