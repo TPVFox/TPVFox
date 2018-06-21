@@ -255,7 +255,8 @@ function controladorAcciones(caja,accion, tecla){
 			if (caja.tipo_event !== "blur"){
 				//~ var d_focus = 'idArticulo';
 				//~ ponerFocus(d_focus);
-				pornerFocusEnOpcionSalto();
+				//~ pornerFocusEnOpcionSalto();
+                  ponerFocus( ObtenerFocusDefectoEntradaLinea());
 			}
 			
 			
@@ -505,6 +506,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	//  2.- Un listado de productos.
 	//  3.- O nada un error.
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
+    	if (busqueda !== "" || idcaja === "Descripcion"){
 	var parametros = {
 		"pulsado"    : 'buscarProductos',
 		"cajaInput"	 : id_input,
@@ -514,9 +516,9 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		'dedonde'	:dedonde,
 		'idCliente'	:cabecera.idCliente
 	};
-	if (busqueda==""){
-		alert("ERROR NO HAS ESCRITO NADA");
-	}else{
+	//~ if (busqueda==""){
+		//~ alert("ERROR NO HAS ESCRITO NADA");
+	//~ }else{
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -581,6 +583,10 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 			}
 
 	});
+
+}else{
+     console.log('Saltamos a ' + ObtenerCajaSiguiente(idcaja));
+        ponerFocus(ObtenerCajaSiguiente(idcaja));
 }
 }
 function resetCampo(campo){
@@ -719,7 +725,8 @@ function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 	//~ $('#Referencia').focus();
-	pornerFocusEnOpcionSalto();
+	//~ pornerFocusEnOpcionSalto();
+    ponerFocus( ObtenerFocusDefectoEntradaLinea());
 }
 
 function buscarPedido(dedonde, idcaja, valor=''){
@@ -1386,34 +1393,34 @@ function mensajeCancelar(idTemporal, dedonde){
 		}
 	}
 }
-function pornerFocusEnOpcionSalto(){
-	var valor = $("#salto").val();
-	switch(valor){
-		case '0':
-			d_focus='Referencia';
-		break;
-		case '1':
-			d_focus='idArticulo';
-		break;
-		case '2':
-			d_focus='Referencia';
-		break;
-		case '3':
-			d_focus='ReferenciaPro';
-		break;
-		case '4':
-			d_focus='Codbarras';
-		break;
-		case '5':
-			d_focus='Descripcion';
-		break;
-		default:
-			d_focus='Referencia';
-		break;
+//~ function pornerFocusEnOpcionSalto(){
+	//~ var valor = $("#salto").val();
+	//~ switch(valor){
+		//~ case '0':
+			//~ d_focus='Referencia';
+		//~ break;
+		//~ case '1':
+			//~ d_focus='idArticulo';
+		//~ break;
+		//~ case '2':
+			//~ d_focus='Referencia';
+		//~ break;
+		//~ case '3':
+			//~ d_focus='ReferenciaPro';
+		//~ break;
+		//~ case '4':
+			//~ d_focus='Codbarras';
+		//~ break;
+		//~ case '5':
+			//~ d_focus='Descripcion';
+		//~ break;
+		//~ default:
+			//~ d_focus='Referencia';
+		//~ break;
 		
-	}
-	ponerFocus(d_focus);
-}
+	//~ }
+	//~ ponerFocus(d_focus);
+//~ }
 function abrirIncidenciasAdjuntas(id, modulo, dedonde){
 		var parametros = {
 				"pulsado"    : 'abrirIncidenciasAdjuntas',
@@ -1441,4 +1448,55 @@ function abrirIncidenciasAdjuntas(id, modulo, dedonde){
 				}
 				
 			});
+}
+function ObtenerCajaSiguiente(idCaja){
+    // @ Objetivo
+    //  Obtener cual es la caja siguiente salto 
+    // @ Parametro
+    //   idcaja -> la caja actual.
+    // @ Devolvemos
+    //   d_focus -> string con id caja siguiente.
+    var d_focus = '';
+    switch(idCaja){
+        case 'idArticulo':
+            d_focus = 'Referencia';
+        break;
+        
+        case 'Referencia':
+            d_focus = 'Codbarras';
+        break;
+
+        case 'Codbarras':
+            d_focus = 'Descripcion';
+        break;
+    }
+    return d_focus;
+}
+
+
+function ObtenerFocusDefectoEntradaLinea(){
+	var valor = $("#salto").val();
+	switch(valor){
+		case '0':
+			d_focus='Referencia';
+		break;
+		case '1':
+			d_focus='idArticulo';
+		break;
+		case '2':
+			d_focus='Referencia';
+		break;
+		
+		case '3':
+			d_focus='Codbarras';
+		break;
+		case '4':
+			d_focus='Descripcion';
+		break;
+		default:
+			d_focus='Referencia';
+		break;
+		
+	}
+    return d_focus;
 }

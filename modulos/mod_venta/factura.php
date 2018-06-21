@@ -460,9 +460,8 @@ if ($idCliente==0){
 						<option value="0">Seleccionar</option>
 						<option value="1">Id Articulo</option>
 						<option value="2">Referencia</option>
-						<option value="3">Referencia Proveedor</option>
-						<option value="4">Cod Barras</option>
-						<option value="5">Descripción</option>
+						<option value="3">Cod Barras</option>
+						<option value="4">Descripción</option>
 					</select>
 			</div>
 		</div>
