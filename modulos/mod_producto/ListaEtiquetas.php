@@ -7,7 +7,7 @@
 	include_once $URLCom.'/modulos/mod_producto/funciones.php';
     include_once $URLCom.'/plugins/paginacion/paginacion.php';
     include_once $URLCom.'/controllers/Controladores.php';
-	include_once $URLCom.'/modulos/mod_producto/clases/ClaseProducto.php';
+	include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
     include_once $URLCom.'/clases/articulos.php';
 
 	

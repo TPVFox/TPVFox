@@ -5,8 +5,11 @@ $respuesta = array();
 		$tamano=$_POST['tamano'];
 		$productos = array();
 		foreach ($IdsProductos as $id){
-			$productos[]= $NCArticulo->getProducto($id);	
+			$productos[]= $NCArticulo->getProducto($id);
 		}
+        //~ echo '<pre>';
+        //~ print_r($productos);
+        //~ echo '</pre>';
 		$dedonde="Etiqueta";
 		$nombreTmp=$dedonde."etiquetas.pdf";
 		switch ($tamano){
