@@ -132,7 +132,11 @@ class Articulos{
 				
 		public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
 					$db=$this->db;
+                    $sql='UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo;
 					$smt=$db->query('UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
+                    error_log($sql);
+                    return $sql;
+                    
 		}
 					
 		public function modEstadoArticuloHistorico($idArticulo, $idAlbaran, $dedonde, $tipo, $estado){
