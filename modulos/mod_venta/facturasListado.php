@@ -10,7 +10,6 @@
     include_once $URLCom.'/modulos/mod_venta/clases/facturasVentas.php';
 	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 	include_once $URLCom.'/controllers/Controladores.php';
-    
     $Controler = new ControladorComun; 
 	$Ccliente=new Cliente($BDTpv);
 	$Cfactura=new FacturasVentas($BDTpv);
@@ -211,5 +210,3 @@ if (isset($errores)){
     </div>
 	</body>
 </html>
-
-

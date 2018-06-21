@@ -141,7 +141,6 @@
 				$textoFecha=htmlVencimiento($fechave, $BDTpv);
 			}
 	}
-	//~ echo $comprobarAlbaran;
 		if(isset($factura['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
@@ -177,10 +176,6 @@
 				}else{
 					 header('Location: facturasListado.php');
 				}
-				//~ echo '<pre>';
-				//~ print_r($modFecha);
-				//~ echo '</pre>';
-				//~ echo $fecha;
 			}else{
 				
 			
@@ -276,13 +271,6 @@
 								}else{
 									header('Location: facturasListado.php');
 								}
-					
-				
-				
-					
-					
-				
-				
 		}
 			
 		}
@@ -339,9 +327,6 @@ $titulo .= ' '.$textoNum.': '.$estado;
 			}
 		}
 	}	
-	
-	//$es=str_replace("'",'',$estadoCab);  
-	
 ?>
 </script>
 <?php 
@@ -367,7 +352,6 @@ if ($idCliente==0){
 		  <?php
 	  }
 	  ?>
-// Objetos cajas de tpv
 <?php echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -623,7 +607,6 @@ if ($idCliente==0){
 <?php // Incluimos paginas modales
 echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-
 ?>
 <script type="text/javascript">
 	$('#fecha').focus();
@@ -647,8 +630,6 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#fila0").show();
 		<?php
 }
-	
-
 if ($estado=="Pagado total"){
 	?>
 	$("#fila0").hide();
@@ -663,13 +644,10 @@ if (count($albaranes)>0){
 		 $('.unidad').attr("readonly","readonly");
 		<?php
 }
-
 if($estado=="Guardado"){
 	?>
 	$("#tablaImporte").show();
 	$("#fila0").show();
-	//~ $("#Cancelar").hide();
-	//~ $("#Guardar").hide();
 	<?php
 }
 if (isset($productos) & $albaranes==null & $comprobarAlbaran==2){
@@ -677,10 +655,7 @@ if (isset($productos) & $albaranes==null & $comprobarAlbaran==2){
 	$("#tablaAl").hide();
 	<?php
 }
-
 	?>
-	
-	
 </script>
 	</body>
 </html>

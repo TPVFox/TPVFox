@@ -48,12 +48,9 @@ function formasVenciCliente(formasVenci){
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de html formas pago vencimiento factura');
 			var resultado =  $.parseJSON(response); 
-			//$("#formaVenci").prepend(resultado.html1);
 			console.log(resultado);
 			$("#formaVenci").html(resultado.html1);
 			$("#fechaVencimiento").prepend(resultado.html2);
-				//~ $("#fechaVencimiento").prepend(resultado.fecha);
-			
 		}
 	});
 }
@@ -172,7 +169,6 @@ function controladorAcciones(caja,accion, tecla){
 	switch(accion) {
 		
 		case 'buscarClientes':
-		
 			// Esta funcion necesita el valor.
 			console.log("Estoy en buscarClientes");
 			console.log(caja);
@@ -253,10 +249,7 @@ function controladorAcciones(caja,accion, tecla){
 			productos[nfila].ncant=caja.darValor();
 			recalculoImporte(productos[nfila].nunidades,nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
-				//~ var d_focus = 'idArticulo';
-				//~ ponerFocus(d_focus);
-				//~ pornerFocusEnOpcionSalto();
-                  ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                ponerFocus( ObtenerFocusDefectoEntradaLinea());
 			}
 			
 			
@@ -516,9 +509,6 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 		'dedonde'	:dedonde,
 		'idCliente'	:cabecera.idCliente
 	};
-	//~ if (busqueda==""){
-		//~ alert("ERROR NO HAS ESCRITO NADA");
-	//~ }else{
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -543,7 +533,6 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 							datos.ncant=1;
 							datos.nfila=productos.length+1;
 							datos.nunidades=1;
-							//~ var importe =resultado['datos'][0]['pvpCiva']*1;
 							var importe =resultado['datos'][0]['pvpSiva']*1;
 							datos.importe=importe.toFixed(2);
 							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
@@ -573,10 +562,6 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 								// focus a primer producto.
 								var d_focus = 'N_0';
 								 ponerFocus(d_focus);
-								 //~ focusAlLanzarModal('cajaBusqueda');
-							} else {
-							// No hay resultado pero apuntamos a caj
-							//~ ponerFocus(id_input);
 							}
 						}
 					
@@ -608,41 +593,6 @@ function escribirClienteSeleccionado(id, nombre ,dedonde=''){
 	 cerrarPopUp();
 	 mostrarFila();
 }
-//~ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id, dedonde){
-	//~ // @ Objetivo:
-	//~ //   Realizamos cuando venimos popUp de Productos.
-	//~ // @ Parametros:
-	//~ // 	 Caja -> Indica la caja queremos que ponga focus
-	//~ //   datos -> Es el array que vamos enviar para añadir fila.
-	//~ console.log( '--- FUNCION escribirProductoSeleccionado  --- ');
-	//~ var datos = new Object();
-	//~ if (dedonde=="factura"){
-		//~ datos.Numalbcli=0;
-		//~ datos.idalbcli=0;
-		//~ $("#tablaAl").hide();
-	//~ }
-	//~ if (dedonde=="albaran"){
-		//~ datos.Numpedcli=0;
-		//~ datos.idpedcli=0;
-	//~ }
-	//~ datos.ccodbar=ccodebar;
-	//~ datos.cdetalle=cdetalle;
-	//~ datos.cref=cref;
-	//~ datos.estadoLinea="Activo";
-	//~ datos.iva=ctipoIva;
-	//~ datos.idArticulo=id;
-	//~ datos.ncant=1;
-	//~ datos.nunidades=1;
-	//~ datos.nfila=productos.length+1;
-	//~ datos.importe=npconiva.toFixed(2);
-	//~ var pvpCiva= parseFloat(npconiva);
-	//~ datos.precioCiva=pvpCiva.toFixed(2);
-	//~ productos.push(datos);
-	//~ addTemporal(dedonde);
-	//~ AgregarFilaProductosAl(datos, dedonde);
-	//~ resetCampo(campo);
-	//~ cerrarPopUp(campo);	
-//~ }
 function eliminarFila(num_item, valor=""){
 	//@Objetivo
 	//Función para cambiar el estado del producto
@@ -690,7 +640,6 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		}
 		productos[num_item].nunidades = cantidad;
 		productos[num_item].ncant = cantidad;
-		//~ var importe = cantidad*productos[num_item].precioCiva;
 		var importe = cantidad*productos[num_item].pvpSiva;
 		var id = '#N'+productos[num_item].nfila+'_Importe';
 		importe = importe.toFixed(2);
@@ -724,8 +673,6 @@ function mostrarFila(){
 	//Mostrar la fila de inputs para añadir nuevos productos
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
-	//~ $('#Referencia').focus();
-	//~ pornerFocusEnOpcionSalto();
     ponerFocus( ObtenerFocusDefectoEntradaLinea());
 }
 
@@ -802,8 +749,6 @@ function buscarPedido(dedonde, idcaja, valor=''){
 		}
 	});
 }
-
-
 function buscarAlbaran(dedonde, idcaja, valor=''){
 	//Objetivos:
 	//Buscar los pedidos de un cliente que tenga el estado guardado
@@ -837,7 +782,6 @@ function buscarAlbaran(dedonde, idcaja, valor=''){
 						var bandera=0;
 						for(i=0; i<albaranes.length; i++){//recorre todo el array de arrays de pedidos
 							var numeroAlbaran=albaranes[i].Numalbcli;
-							//~ var numeroNuevo=resultado['datos'].Numalbcli;
 							var numeroNuevo=resultado['datos'].Numalbcli;
 							if (numeroAlbaran == numeroNuevo){
 								bandera=bandera+1;
@@ -958,8 +902,6 @@ function addTemporal(dedonde){
 	});
 	
 }
-
-
 function comprobarPedidosExis(){
 	//@Objetivo:
 	//comprobar que un cliente tiene pedidos con estado guardado
@@ -1027,8 +969,6 @@ function comprobarAlbaranesExis(){
 		}
 	});
 }
-
-
 function AgregarFilaPedido(datos , dedonde=""){
 	//@Objetivo:
 	//Agregar html con el pedido seleccionado
@@ -1393,34 +1333,6 @@ function mensajeCancelar(idTemporal, dedonde){
 		}
 	}
 }
-//~ function pornerFocusEnOpcionSalto(){
-	//~ var valor = $("#salto").val();
-	//~ switch(valor){
-		//~ case '0':
-			//~ d_focus='Referencia';
-		//~ break;
-		//~ case '1':
-			//~ d_focus='idArticulo';
-		//~ break;
-		//~ case '2':
-			//~ d_focus='Referencia';
-		//~ break;
-		//~ case '3':
-			//~ d_focus='ReferenciaPro';
-		//~ break;
-		//~ case '4':
-			//~ d_focus='Codbarras';
-		//~ break;
-		//~ case '5':
-			//~ d_focus='Descripcion';
-		//~ break;
-		//~ default:
-			//~ d_focus='Referencia';
-		//~ break;
-		
-	//~ }
-	//~ ponerFocus(d_focus);
-//~ }
 function abrirIncidenciasAdjuntas(id, modulo, dedonde){
 		var parametros = {
 				"pulsado"    : 'abrirIncidenciasAdjuntas',

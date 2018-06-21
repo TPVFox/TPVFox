@@ -21,7 +21,6 @@
 	$titulo="Pedido De Cliente ";
 	$estado='Abierto';
 	$bandera=0;
-	//~ $fecha=date('Y-m-d');
 	$fecha=date('d-m-Y');
 	$idTemporal = 0;
 	$idPedido=0;
@@ -30,7 +29,6 @@
 	$errores=array();
 	$textoNum="";
 	$parametros = $ClasesParametros->getRoot();
-	//~ $parametros = simplexml_load_file('parametros.xml');
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_ventas',$Usuario['id']);
@@ -70,7 +68,6 @@
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 		}
-		//~ $fecha=$datosPedido['FechaPedido'];
 		$fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
 		$idCliente=$datosPedido['idCliente'];
 		if ($idCliente){
