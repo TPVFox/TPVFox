@@ -41,6 +41,13 @@ $CAlbaran=new AlbaranesCompras($BDTpv);
 include_once('../../clases/Proveedores.php');
 $CProveedor=new Proveedores($BDTpv);
 
+if (count($NCArticulo->GetPlugins())>0){
+    foreach ($NCArticulo->GetPlugins() as $plugin){
+        if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+            $ObjVersiones = $plugin['clase'];
+        }
+    }
+}
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
@@ -138,6 +145,17 @@ switch ($pulsado) {
 		$respuesta=$comprobacion;
 		
 	break;
+    case 'buscarMarcasVehiculos':
+        $marcas= $ObjVersiones->ObtenerMarcasVehiculoWeb();
+        $marcasNuevas=$marcas['items'];
+        //~ $respuesta['marcas']=$marcasNuevas;
+        foreach ($marcasNuevas['items'] as $dato) {
+                 $respuesta [] = ['label' => $dato['nombre'], 'valor' => $dato['id']];
+           
+                //~ $respuesta[]=$dato['nombre'];
+            }
+        
+    break;
 }
 echo json_encode($respuesta);
 ?>

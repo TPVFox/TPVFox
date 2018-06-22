@@ -984,3 +984,37 @@ function comprobarReferencia(){
 function RegularizarStock(idarticulo){
     alert('Regularizar stock de: '+idarticulo);
 }
+
+  $( function() {
+    var arrayMarcas = nombresMarcas();
+    console.log(arrayMarcas);
+    $( "#marca" ).autocomplete({
+      source: arrayMarcas
+    });
+  } );
+
+var result=null;
+
+function nombresMarcas(){
+    
+    var parametros = {
+		"pulsado"    	: 'buscarMarcasVehiculos'
+		};
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Envio para obtener los marcas de los vehiculos  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de marcas de vehiculos ');
+                result=[response];
+                 console.log(result);
+              
+                
+		}
+       	
+	});
+   return result;
+}

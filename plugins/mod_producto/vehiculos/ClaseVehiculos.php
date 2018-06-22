@@ -64,7 +64,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.'			<!-- Cargamos select con marcas -->'
 				.'			<select name="myMarca" id="myMarca" onchange="SeleccionMarca(event)">';
 		$options = $this->ObtenerMarcasVehiculoWeb();
-		$html .= $options;		
+		$html .= $options['options_html'];		
 		$html .='			</select>'
 				.'		</div>'
 				.'		<!-- Presentacion de modelo -->'
@@ -114,10 +114,10 @@ class PluginClaseVehiculos extends ClaseConexion{
 		//~ echo '<pre>';
 		//~ print_r($respuesta);
 		//~ echo '</pre>';
-		return $respuesta['Datos']['options_html'];
+		return $respuesta['Datos'];
 	
 	}
-	
+		
 	
 	public function ObtenerModelosUnaMarcaWeb($idMarca){
 		// @Objetivo es obtener los mosdelos de una marca que tenemos en el componente de la web. ('SELECT * FROM `prefijo_vehiculo_modelos` where idmarca = ? )

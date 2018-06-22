@@ -19,7 +19,9 @@
 				}
 			}
 		}
-
+        //~ echo '<pre>';
+        //~ print_r($ObjVersiones);
+        //~ echo '</pre>';
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
@@ -193,8 +195,9 @@ echo $htmlConfiguracion['htmlCheck'];
 							echo $formVersion['html'];
 					?>
 					</div>
-                    <div>
-                    
+                    <div class="ui-widget">
+                        <label for="tags">Marca: </label>
+                    <input id="marca">
                     </div>
 					<div>
                     <p>
