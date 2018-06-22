@@ -109,7 +109,8 @@
         echo '</script>';
         ?>
 
-
+        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+        <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <script>
             // Declaramos variables globales
             var checkID = [];
@@ -192,6 +193,9 @@ echo $htmlConfiguracion['htmlCheck'];
 							echo $formVersion['html'];
 					?>
 					</div>
+                    <div>
+                    
+                    </div>
 					<div>
                     <p>
                         -Productos encontrados BD local filtrados:
