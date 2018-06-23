@@ -17,6 +17,9 @@ define('K_TARIFACLIENTE_ESTADO_BORRADO', '2');
 define('K_STOCKARTICULO_SUMA', 1);
 define('K_STOCKARTICULO_RESTA', -1);
 
+define('K_STOCKREGULARIZACION_ESTADO_ACTIVO', '1');
+define('K_STOCKREGULARIZACION_ESTADO_BORRADO', '2');
+
 /**
  * Description of claseModelo
  *
@@ -37,12 +40,12 @@ class ModeloP {
 //    }
 
 
-/*
- * Método getDbo()
- * Devuelve la propiedad $db si contiene un valor distinto de nulo.
- * Si es la primera ejecución, $db será nulo, entonces obtiene la conexión 
- * a la base de datos de la clase conexión y la guarda en la propiedad $db
- */
+    /*
+     * Método getDbo()
+     * Devuelve la propiedad $db si contiene un valor distinto de nulo.
+     * Si es la primera ejecución, $db será nulo, entonces obtiene la conexión 
+     * a la base de datos de la clase conexión y la guarda en la propiedad $db
+     */
     public static function getDbo() {
         if (is_null(self::$db)) {
             $objConexion = new ClaseConexion();
@@ -176,30 +179,45 @@ class ModeloP {
         return ModeloP::$resultado['consulta'];
     }
 
-    
-    public static function _leer($tabla, $condicion, $columnas = [],$limit=0) {
-        
-        $columnasSql = count($columnas) > 0 ? implode(',', $columnas): '*';
-        
-        if (!is_array($condicion)) {
-            $updateWhere = $condicion;
+    protected static function _leer($tabla, $condiciones, $columnas = [], 
+            $joins = [], $limit = 0, $offset = 0, $soloSQL = false) {
+
+        $columnasSql = count($columnas) > 0 ? implode(',', $columnas) : '*';
+
+        if (!is_array($condiciones)) {
+            $updateWhere = $condiciones;
         } else {
-            $updateWhere = implode(' AND ', $condicion);
+            $updateWhere = implode(' AND ', $condiciones);
         }
-        
-        $sql = 'SELECT '.$columnasSql
-                . 'FROM ' . $tabla
-                . ' WHERE  ' . $updateWhere;
-        if($limit == 0){
-            $sql .= ' LIMIT '.$limit;
+
+        $sql = 'SELECT ' . $columnasSql
+                . ' FROM ' . $tabla;
+        if ($joins) {
+            if (!is_array($joins)) {
+                $selectjoin = $joins;
+            } else {
+                $selectjoin = implode(', ', $joins);
+            }
+            $sql .= ' JOIN ' . $selectjoin;
         }
-                
-        $resultado = self::_consulta($sql);
+
+        $sql .= ' WHERE  ' . $updateWhere;
+
+        if ($limit != 0) {
+            $sql .= ' LIMIT ' . $limit;
+        }
+        if ($offset != 0) {
+            $sql .= ' OFFSET ' . $offset;
+        }
+
+        ModeloP::setResult($sql, 0);
+
+
+        if ($soloSQL) {
+            $resultado = true;
+        } else
+            $resultado = self::_consulta($sql);
         return $resultado;
     }
 
-    
-    
-    
-    
 }

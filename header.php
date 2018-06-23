@@ -39,6 +39,7 @@
 							<span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaProductos.php';?>">Productos</a></li>
+								<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaArticulosRegularizacion.php';?>">Articulos con stock regularizable</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_familia/ListaFamilias.php';?>">Familias</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_etiquetado/ListadoEtiquetas.php';?>">Lotes (Etiquetado)</a></li>
 							</ul></li>
