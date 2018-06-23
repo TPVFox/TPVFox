@@ -801,25 +801,31 @@ function ObtenerRefWebProductos($BDTpv, $productos, $idWeb) {
     // Obtener el idVirtuemart del producto que utilizamos en virtuemart
     // @ Parametros
     // 	 $productos-> Array de objetos.
-    // Montamos where para buscar los id de los productos.
+    // Montamos where para buscar los idArticulo de los productos.
     $resultado = array();
     $wheres = array();
     foreach ($productos as $producto) {
-        $wheres[] = $producto->id;
+        $wheres[] = $producto['idArticulo'];
     }
     $where = '(' . implode(',', $wheres) . ')';
 
     $consulta = 'SELECT idArticulo,idVirtuemart FROM articulosTiendas WHERE `idTienda` =' . $idWeb . ' AND idArticulo IN ' . $where;
     if ($query = $BDTpv->query($consulta)) {
         while ($dato = $query->fetch_assoc()) {
-            $resultado['idVirtuemart'][] = array($dato['idArticulo'] => $dato['idVirtuemart']);
+            $key_id_producto = $dato['idArticulo'];
+            foreach ($productos as $key=>$producto) {
+                if ($producto['idArticulo'] === $key_id_producto){
+                    $productos[$key]['idVirtuemart'] = $dato['idVirtuemart'];
+                }
+            }
         }
     } else {
         $resultado['error'] = ' Error en la consulta';
         $resultado['consulta'] = $consulta;
-        return $resultado;
     }
-
+    // Montamos productos con idVirtuemart.
+   
+    $resultado['productos'] = $productos;
     return $resultado;
 }
 

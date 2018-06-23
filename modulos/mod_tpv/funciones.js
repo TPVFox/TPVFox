@@ -827,7 +827,7 @@ function recalculoImporte(cantidad,num_item){
 	grabarTicketsTemporal();
 }
 
-function PrepararEnviarStockWeb(){
+function PrepararEnviarStockWeb(idTicket){
 	// @ Objetivo:
 	//  Enviar URl de servidor productos para cambiar stock
 	//  [OJO]
@@ -837,9 +837,12 @@ function PrepararEnviarStockWeb(){
 	//  Inicializamos Variables:
 	var tienda_web = [];	
 	console.log('PREPARAMOS DATOS PARA ENVIAR');
+    //  Obtenemos productos del ticket en cuestion.
+    
+    
 	var parametros = {
 		"pulsado" : 'ObtenerRefTiendaWeb',
-		"productos"    : JSON.stringify(productos),
+		"idTicket"    : idTicket,
 		"web"		 : '2'
 	};
 	$.ajax({
@@ -854,35 +857,29 @@ function PrepararEnviarStockWeb(){
 		},
 		success    :  function (response) {
 			console.log('Respuesta de envio de datos');
-			var resultado =  $.parseJSON(response); 
+			var resultado =  $.parseJSON(response);
+            console.log (resultado);
 			// Ponemos datos de tienda_web en variable
 			tienda_web = resultado.tienda;
 			// Recuerda que el repción de los datos no es el mismo que envio, por debemos asociar key con valor.
-			if (typeof resultado.idVirtuemart !== 'undefined'){;
-				// Hubo resultado, recorremos para añadir a productos.
-				var idsVirtuemart = resultado.idVirtuemart;
-				var Key;
-				for (i = 0; i < idsVirtuemart.length ; i ++){
-					key = Object.keys(idsVirtuemart[i]);	
-					// Buscamos key en producto
-					for ( x=0; x < productos.length ; x ++){
-						if (productos[x].id == key){
-							productos[x].idVirtuemart = parseInt(idsVirtuemart[i][key]);
-						}
-					}
-				}
-				// Ahora aquellos productos que tiene idVirtuemart
-				EnviarStockWeb(tienda_web,productos);
-			} else {
-				alert( 'No hay idVirtuemart para los productos, o hubo un error');
-				return;
+            productos = resultado.productos;
+            // Buscamos key en producto que no tenga virtuemart no los mandamos.
+            for ( x=0; x < productos.length ; x ++){
+				if (productos[x].idVirtuemart >0 ){
+					// Correcto..
+                    console.log(productos[x]);
+				} else {
+                    delete productos[x]; // Eliminamos ese producto ya que no tiene virtuemart.
+                }
 			}
+            // Ahora aquellos productos que tiene idVirtuemart
+            EnviarStockWeb(tienda_web,productos,idTicket);
 		}
 	});
 	
 }
 
-function EnviarStockWeb(tienda_web,productos){
+function EnviarStockWeb(tienda_web,productos,idTicket){
 	// @Objetivo :
 	// Ejecutar en servidor de web funcion que reste stock de productos
 	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
@@ -910,13 +907,13 @@ function EnviarStockWeb(tienda_web,productos){
 					alert(' Error, algo salio mal.');
 				}
 				// Ahora registramos en tpv ( importar_virtuemart_ticketst el resultado)
-				RegistrarRestarStockTicket(resultado['Datos']);
+				RegistrarRestarStockTicket(resultado['Datos'],idTicket);
 			}
 			
 	});
 }  
 
-function RegistrarRestarStockTicket(respuesta){
+function RegistrarRestarStockTicket(respuesta,id_ticketst){
 	// Ejecutar en servidor local (tpv) registro de que ya se resto stock.
 	var parametros = {
 		"pulsado"    		: 'RegistrarRestaStock',

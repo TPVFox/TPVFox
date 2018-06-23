@@ -28,6 +28,16 @@
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
 			$ticket = $CTickets->obtenerUnTicket($id);
+            // Debía controlar si hay virtumart o no .. antes mostralo.
+            $enviado_stock = ObtenerEnvioIdTickets($BDTpv,$id);
+            $permitir_envio = 'Si';
+            if (isset($enviado_stock['tickets'])){
+             // Hay resultado consulta.
+                if ($enviado_stock['tickets']['respuesta_envio_rows'] >= 1){
+                // Quiere decir que se envio ...
+                    $permitir_envio = 'No';
+                }
+            }
 		}
 			
 		$titulo = 'Ticket '.$ticket['cabecera']['estado'];
@@ -84,7 +94,7 @@
 				<ul class="nav nav-pills nav-stacked"> 
 				 <?php
 				 if ($permitir_envio === 'Si'){?>
-				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb();" >Descontar Stock en Web</button>
+				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb(<?php echo $id;?>);" >Descontar Stock en Web</button>
 				 <?php } ?>
 				 	<li><a onclick="imprimirTicketCerrado(<?php echo $id;?>);">Imprimir</a></li>
 				</ul>
