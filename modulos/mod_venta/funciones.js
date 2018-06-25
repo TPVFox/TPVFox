@@ -172,7 +172,11 @@ function controladorAcciones(caja,accion, tecla){
 			// Esta funcion necesita el valor.
 			console.log("Estoy en buscarClientes");
 			console.log(caja);
-			if(caja.name_cja!="filacliente"){
+			if( caja.darValor()=="" && caja.id_input=="id_cliente"){
+				// Entramos cuando venimos de id de proveedor.
+				var d_focus="Cliente";
+                ponerFocus(d_focus);
+            }else{
 				buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			}
 			
