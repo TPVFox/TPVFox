@@ -177,7 +177,12 @@
 			$estiloTablaProductos="display:none;";
 		}
 	
-		$titulo .= $textoNum.' : '.$estado;
+		
+        if(isset($numFactura)){
+				$titulo .= $textoNum.' : '.$estado." ".$idAlbaran;
+        }else{
+            $titulo .= $textoNum.' : '.$estado;
+        }
 		
 ?>
 	<script type="text/javascript">
@@ -280,7 +285,9 @@
 		<?php
 	}
 	?>
-	
+	<?php 
+			
+			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
@@ -362,11 +369,7 @@
 			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
 			<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" placeholder="Nombre del Proveedor" onkeydown="controlEventos(event)" value="<?php echo $nombreProveedor; ?>" size="60">
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('albaran')"></a>
-			<?php 
-			if(isset($numFactura)){
-				echo '<b>Número de factura asociado: '.$numFactura['numFactura'].'</b>';
-			}
-			?>
+			
 		</div>
 	</div>
 	<div class="col-md-4" >
