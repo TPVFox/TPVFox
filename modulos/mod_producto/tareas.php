@@ -147,12 +147,16 @@ switch ($pulsado) {
 	break;
     case 'buscarMarcasVehiculos':
         $marcas= $ObjVersiones->ObtenerMarcasVehiculoWeb();
+        $nombre=$_POST['nombre'];
         $marcasNuevas=$marcas['items'];
-        //~ $respuesta['marcas']=$marcasNuevas;
-        foreach ($marcasNuevas['items'] as $dato) {
+        $arraydeNombres=array();
+        foreach ($marcasNuevas['items'] as $marca){
+            if(strstr($marca['nombre'], $nombre) || $marca['nombre']==$nombre || strstr($marca['nombre'], strtoupper($nombre))){
+                array_push($arraydeNombres, $marca);
+            }
+        }
+        foreach ($arraydeNombres as $dato) {
                  $respuesta [] = ['label' => $dato['nombre'], 'valor' => $dato['id']];
-           
-                //~ $respuesta[]=$dato['nombre'];
             }
         
     break;

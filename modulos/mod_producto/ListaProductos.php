@@ -197,7 +197,9 @@ echo $htmlConfiguracion['htmlCheck'];
 					</div>
                     <div class="ui-widget">
                         <label for="tags">Marca: </label>
-                    <input id="marca">
+                    <input id="marca" class="form-control ui-autocomplete-input" autocomplete="off">
+                    <input id="inputIdMarcas" value="-1" type="hidden">
+                    <ul id="ui-id-1" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" tabindex="0" style="display: none;"></ul>
                     </div>
 					<div>
                     <p>

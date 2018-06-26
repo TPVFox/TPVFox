@@ -986,10 +986,30 @@ function RegularizarStock(idarticulo){
 }
 
   $( function() {
-    var arrayMarcas = nombresMarcas();
-    console.log(arrayMarcas);
-    $( "#marca" ).autocomplete({
-      source: arrayMarcas
+    $('#marca').autocomplete({
+        minLength: 1,
+        source: function (request, response) {
+            // Fetch data
+            $.ajax({
+                url: "tareas.php",
+                type: 'post',
+                data: {
+                    pulsado: 'buscarMarcasVehiculos',
+                    nombre: request.term
+                },
+                success: function (data) {
+                    var obj = JSON.parse(data);
+                    response(obj);
+                }
+            });
+        },
+        select: function (event, ui) {
+            console.log(event);
+            if (ui) {
+                $('#inputIdMarcas').val(ui.item.label);
+                $('#inputIdMarcas').val(ui.item.valor);
+            }
+        }
     });
   } );
 
