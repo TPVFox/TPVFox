@@ -65,7 +65,7 @@
         
        //~ echo count($abaranesFactura);
        //~ if(count($abaranesFactura)==0){
-           //~ $albaranesFactura=addAlbaranesFacturas($productosFactura, $idFactura, $BDTpv);
+           $albaranesFactura=addAlbaranesFacturas($productosFactura, $idFactura, $BDTpv);
         //~ echo '<pre>';
         //~ print_r($albaranesFactura);
         //~ echo '</pre>';
