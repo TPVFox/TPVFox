@@ -221,7 +221,7 @@ if ($idProveedor===0){
 			</div>
 			<div class="col-md-3">
 				<label>Fecha Pedido:</label>
-				<input type="date" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+				<input type="text" name="fecha" id="fecha" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 			</div>
 				<div class="col-md-3">
 					<strong>Escoger casilla de salto:</strong><br>
