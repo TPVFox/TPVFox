@@ -19,9 +19,7 @@
 				}
 			}
 		}
-        //~ echo '<pre>';
-        //~ print_r($ObjVersiones);
-        //~ echo '</pre>';
+ 
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
@@ -31,6 +29,7 @@
 
         $ClasesParametros = new ClaseParametros('parametros.xml');
         $parametros = $ClasesParametros->getRoot();
+        
         // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
         $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
         // Ahora compruebo productos_seleccion:
@@ -122,11 +121,19 @@
         </script> 
         <!-- Cargamos fuciones de modulo. -->
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+        <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+         
+		?>	
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+        <script type="text/javascript">
+        <?php echo $VarJS;?>
+        </script>
+        <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     </head>
 
     <body>
-		<script>
+		<script type="text/javascript">
 			setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#buscar').focus(); 
 	}, 50);
@@ -195,12 +202,34 @@ echo $htmlConfiguracion['htmlCheck'];
 							echo $formVersion['html'];
 					?>
 					</div>
-                    <div class="ui-widget">
-                        <label for="tags">Marca: </label>
-                    <input id="marca" class="form-control ui-autocomplete-input" autocomplete="off">
-                    <input id="inputIdMarcas" value="-1" type="hidden">
-                    <ul id="ui-id-1" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" tabindex="0" style="display: none;"></ul>
+                    <div class="col-md-12">
+                        <div class="col-md-4">
+                            <div class="ui-widget">
+                                <label for="tags">Marca: </label>
+                                <input id="marca" class="form-control ui-autocomplete-input"  autocomplete="off" data-obj= "cajaMarca" onkeydown="controlEventos(event)"  name="marca">
+                                <input id="inputIdMarcas" value="-1" type="hidden">
+                                <ul id="ui-id-1" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" tabindex="0" style="display: none;"></ul>
+                            </div>
+                            
+                        </div>
+                        <div class="col-md-4" style="display:none;" id="divModelo">
+                            <div class="ui-widget">
+                                <label for="tags">Modelo: </label>
+                                <input id="modelo" class="form-control ui-autocomplete-input"  autocomplete="off" data-obj= "cajaMarca" onkeydown="controlEventos(event)"  name="marca">
+                                <input id="inputIdModelo" value="-1" type="hidden">
+                                <ul id="ui-id-1" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" tabindex="0" style="display: none;"></ul>
+                            </div>
+                        </div>
+                         <div class="col-md-4">
+                            <div class="ui-widget" style="display:none;" >
+                                <label for="tags">Vensiones: </label>
+                                <input id="version" class="form-control ui-autocomplete-input"  autocomplete="off" data-obj= "cajaMarca" onkeydown="controlEventos(event)"  name="marca">
+                                <input id="inputIdversion" value="-1" type="hidden">
+                                <ul id="ui-id-1" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" tabindex="0" style="display: none;"></ul>
+                            </div>
+                        </div>
                     </div>
+                  
 					<div>
                     <p>
                         -Productos encontrados BD local filtrados:

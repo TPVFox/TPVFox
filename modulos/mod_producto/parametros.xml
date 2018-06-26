@@ -123,6 +123,14 @@ Numero tecla:
 				<estado>Si</estado>
 			</before>			
 		</caja_input>
+		<caja_input>
+			<nombre id_input="marca">cajaMarca</nombre>
+			<teclas>
+				<action tecla="13">guardarMarca</action>
+				
+			</teclas>
+		</caja_input>
+		
 		
 	</cajas_input>
 	

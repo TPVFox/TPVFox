@@ -645,7 +645,17 @@ function controladorAcciones(caja,accion, tecla){
 			mover_up(nueva_fila,caja.darParametro('prefijo'));
 			
 		break;
-
+        case 'guardarMarca':
+            console.log("Entro en guardar Marca");
+            setTimeout(function() {  
+                marca=$("#inputIdMarcas").val();
+                console.log(marca);
+                $("#marca").prop('disabled', true);
+                $("#divModelo").show();
+                $("#modelo").focus();
+            }, 50);
+    
+        break;
         default:
             console.log( ' No hubo accion a realizar,accion pedida '+accion);
         break;
@@ -1006,35 +1016,9 @@ function RegularizarStock(idarticulo){
         select: function (event, ui) {
             console.log(event);
             if (ui) {
-                $('#inputIdMarcas').val(ui.item.label);
+                $('#marca').val(ui.item.label);
                 $('#inputIdMarcas').val(ui.item.valor);
             }
         }
     });
   } );
-
-var result=null;
-
-function nombresMarcas(){
-    
-    var parametros = {
-		"pulsado"    	: 'buscarMarcasVehiculos'
-		};
-    $.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-        type       : 'post',
-		beforeSend : function () {
-		console.log('*********  Envio para obtener los marcas de los vehiculos  **************');
-		},
-		success    :  function (response) {
-				console.log('Respuesta de marcas de vehiculos ');
-                result=[response];
-                 console.log(result);
-              
-                
-		}
-       	
-	});
-   return result;
-}
