@@ -440,6 +440,17 @@ class FacturasCompras extends ClaseCompras{
 			return $respuesta;
 		}
 	}
+    public function AddFacturaAlbaran($idFactura, $idAlbaran){
+        $db=$this->db;
+        $sql='INSERT INTO `albprofac`( `idFactura`, `numFactura`, `idAlbaran`, `numAlbaran`) 
+        VALUES ('.$idFactura.', '.$idFactura.', '.$idAlbaran.', '.$idAlbaran.')';
+        $smt=$this->consulta($sql);
+		if (gettype($smt)==='array'){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+			return $respuesta;
+		}
+    }
 }
 
 ?>

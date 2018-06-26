@@ -1803,4 +1803,19 @@ function modalIncidenciasAdjuntas($datos){
 	}
 	return $html;
 }
+function addAlbaranesFacturas($productos, $idFactura, $BDTpv){
+    $idAlbaranes=array();
+    foreach ($productos as $producto){
+        if(!in_array($producto['Numalbpro'], $idAlbaranes)){
+            array_push($idAlbaranes, $producto['Numalbpro']);
+        }
+    }
+    if(count($idAlbaranes)>0){
+        $facturas=new FacturasCompras($BDTpv);
+        foreach($idAlbaranes as $idAlbaran){
+            $insert=$facturas->AddFacturaAlbaran($idFactura, $idAlbaran);
+        }
+    }
+    return $idAlbaranes;
+}
 ?>

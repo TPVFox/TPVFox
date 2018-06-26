@@ -62,6 +62,16 @@
 		$abaranesFactura=$CFac->albaranesFactura($idFactura);
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		$datosImportes=$CFac->importesFactura($idFactura);
+        
+       //~ echo count($abaranesFactura);
+       //~ if(count($abaranesFactura)==0){
+           //~ $albaranesFactura=addAlbaranesFacturas($productosFactura, $idFactura, $BDTpv);
+        //~ echo '<pre>';
+        //~ print_r($albaranesFactura);
+        //~ echo '</pre>';
+       //~ }
+        
+        
 		$estado=$datosFactura['estado'];
 		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
