@@ -92,7 +92,7 @@
 						$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
 						$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
                        
-                        echo $modPrecios;
+                       
                       
 					}
 					
