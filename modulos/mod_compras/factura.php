@@ -147,7 +147,7 @@
 				$productos =  json_decode($datosFactura['Productos']) ;
 				$albaranes=json_decode($datosFactura['Albaranes']);
 				$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
-				echo $suNumero;
+				
 				
 		}
 		
@@ -179,7 +179,7 @@
 		}else{
 			$style="display:none;";
 		}
-		echo $style;
+		
 	
 		if(isset($_GET['id']) || isset($_GET['tActual'])){
 			$estiloTablaProductos="";

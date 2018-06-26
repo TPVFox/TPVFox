@@ -92,7 +92,7 @@
 		}
 		$incidenciasAdjuntas=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, "albaran");
 		$inciden=count($incidenciasAdjuntas['datos']);
-		echo $inciden;
+		
 	}else{
 	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
 	// o recargamos uno extraemos sus datos de la misma manera que el if de id
