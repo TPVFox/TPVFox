@@ -160,6 +160,9 @@ switch ($pulsado) {
             }
         
     break;
+    case 'buscarModelosVehiculos':
+    
+    break;
 }
 echo json_encode($respuesta);
 ?>

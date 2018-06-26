@@ -995,30 +995,63 @@ function RegularizarStock(idarticulo){
     alert('Regularizar stock de: '+idarticulo);
 }
 
-  $( function() {
-    $('#marca').autocomplete({
-        minLength: 1,
-        source: function (request, response) {
-            // Fetch data
-            $.ajax({
-                url: "tareas.php",
-                type: 'post',
-                data: {
-                    pulsado: 'buscarMarcasVehiculos',
-                    nombre: request.term
-                },
-                success: function (data) {
-                    var obj = JSON.parse(data);
-                    response(obj);
-                }
-            });
-        },
-        select: function (event, ui) {
-            console.log(event);
-            if (ui) {
-                $('#marca').val(ui.item.label);
-                $('#inputIdMarcas').val(ui.item.valor);
-            }
-        }
-    });
-  } );
+  //~ $( function() {
+    //~ $('#marca').autocomplete({
+        //~ minLength: 1,
+        //~ source: function (request, response) {
+            //~ // Fetch data
+            //~ $.ajax({
+                //~ url: "tareas.php",
+                //~ type: 'post',
+                //~ data: {
+                    //~ pulsado: 'buscarMarcasVehiculos',
+                    //~ nombre: request.term
+                //~ },
+                //~ success: function (data) {
+                    //~ var obj = JSON.parse(data);
+                    //~ response(obj);
+                //~ }
+            //~ });
+        //~ },
+        //~ select: function (event, ui) {
+            //~ console.log(event);
+            //~ if (ui) {
+                //~ $('#marca').val(ui.item.label);
+                //~ $('#inputIdMarcas').val(ui.item.valor);
+            //~ }
+        //~ }
+    //~ });
+    
+    
+        //~ $('#modelo').autocomplete({
+        //~ minLength: 1,
+        //~ source: function (request, response) {
+            //~ // Fetch data
+            //~ $.ajax({
+                //~ url: "tareas.php",
+                //~ type: 'post',
+                //~ data: {
+                    //~ pulsado: 'buscarModelosVehiculos',
+                    //~ nombre: request.term,
+                    //~ idMarca: $("#inputIdMarcas").val()
+                //~ },
+                //~ success: function (data) {
+                    //~ var obj = JSON.parse(data);
+                    //~ response(obj);
+                //~ }
+            //~ });
+        //~ },
+        //~ select: function (event, ui) {
+            //~ console.log(event);
+            //~ if (ui) {
+                //~ $('#modelo').val(ui.item.label);
+                //~ $('#inputIdModelo').val(ui.item.valor);
+            //~ }
+        //~ }
+    //~ });
+  //~ } );
+  
+
+$( function() {
+      
+});
