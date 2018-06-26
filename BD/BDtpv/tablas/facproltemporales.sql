@@ -37,9 +37,9 @@ CREATE TABLE `facproltemporales` (
   `idProveedor` int(11) DEFAULT NULL,
   `total` decimal(17,6) DEFAULT NULL,
   `total_ivas` varchar(250) DEFAULT NULL,
-  `Productos` varbinary(50000) DEFAULT NULL,
-  `Albaranes` varbinary(5000) DEFAULT NULL,
-  `Su_numero` int(100) DEFAULT NULL,
+  `Productos` mediumblob,
+  `Albaranes` varbinary(50000) DEFAULT NULL,
+  `Su_numero` varchar(20) DEFAULT NULL,
   `FacCobros` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
