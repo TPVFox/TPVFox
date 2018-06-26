@@ -1804,6 +1804,7 @@ function modalIncidenciasAdjuntas($datos){
 	return $html;
 }
 function addAlbaranesFacturas($productos, $idFactura, $BDTpv){
+    //OBjetivo: crear inserts de albaranes facturas para solucionar error de tabla
     $idAlbaranes=array();
     foreach ($productos as $producto){
         if(!in_array($producto['Numalbpro'], $idAlbaranes)){
