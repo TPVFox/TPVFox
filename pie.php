@@ -1,16 +1,15 @@
-<footer class=" mb-2 piePagina">
-  <div class="container-fluid text-center text-md-left ">
-    <div class="row">
-      <div class="col-md-4 mt-md-0 mt-3 ">
+<footer class="page-footer mt-4 piePagina">
+    <div class="container">
+    <div class="col-md-12" >
+      <div class="col-md-4">
         <p>licence: GPL2_1.0</p>
       </div>
-      <div class="col-md-4 mt-md-0 mt-3">
+      <div class="col-md-4">
         <p>Tpvfox - Gestión de empresas</p>
       </div>
-      <div class="col-md-4 mt-md-0 mt-3">
+      <div class="col-md-4">
         <a href="<?php echo $HostNombre;?>/estatico"> Créditos</a>
       </div>
     </div>
-  </div>
+    </div>
 </footer>
-

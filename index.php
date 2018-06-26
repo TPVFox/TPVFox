@@ -127,7 +127,7 @@
 				);
 	?>
 	
-	<section>
+	
 		<div class="container">
 			<div class="col-md-8">
 				<h1>TPVfox</h1>
@@ -176,8 +176,7 @@
 				?>
 				</div>
 				</div>
-				<div class="col-md-12">
-				</div>
+				
 			</div>
 <!--
 			<div id="col-md-12">
@@ -186,8 +185,9 @@
 -->
 			
 		</div>
+        
 	</div>
-	</section>
+
     <?php 
     include_once $URLCom.'/pie.php';
     ?>
