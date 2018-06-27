@@ -347,7 +347,7 @@ function controladorAcciones(caja,accion, tecla){
 		
 		break;
 		case 'buscarAlbaran':
-		console.log("Entre en buscar pedido");
+		console.log("Entre en buscar albaran");
 		buscarAlbaran(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		
 		break;
