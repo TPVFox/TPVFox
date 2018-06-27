@@ -995,63 +995,201 @@ function RegularizarStock(idarticulo){
     alert('Regularizar stock de: '+idarticulo);
 }
 
-  //~ $( function() {
-    //~ $('#marca').autocomplete({
-        //~ minLength: 1,
-        //~ source: function (request, response) {
-            //~ // Fetch data
-            //~ $.ajax({
-                //~ url: "tareas.php",
-                //~ type: 'post',
-                //~ data: {
-                    //~ pulsado: 'buscarMarcasVehiculos',
-                    //~ nombre: request.term
-                //~ },
-                //~ success: function (data) {
-                    //~ var obj = JSON.parse(data);
-                    //~ response(obj);
-                //~ }
-            //~ });
-        //~ },
-        //~ select: function (event, ui) {
-            //~ console.log(event);
-            //~ if (ui) {
-                //~ $('#marca').val(ui.item.label);
-                //~ $('#inputIdMarcas').val(ui.item.valor);
-            //~ }
-        //~ }
-    //~ });
-    
-    
-        //~ $('#modelo').autocomplete({
-        //~ minLength: 1,
-        //~ source: function (request, response) {
-            //~ // Fetch data
-            //~ $.ajax({
-                //~ url: "tareas.php",
-                //~ type: 'post',
-                //~ data: {
-                    //~ pulsado: 'buscarModelosVehiculos',
-                    //~ nombre: request.term,
-                    //~ idMarca: $("#inputIdMarcas").val()
-                //~ },
-                //~ success: function (data) {
-                    //~ var obj = JSON.parse(data);
-                    //~ response(obj);
-                //~ }
-            //~ });
-        //~ },
-        //~ select: function (event, ui) {
-            //~ console.log(event);
-            //~ if (ui) {
-                //~ $('#modelo').val(ui.item.label);
-                //~ $('#inputIdModelo').val(ui.item.valor);
-            //~ }
-        //~ }
-    //~ });
-  //~ } );
-  
+  $( function() {
+    $.widget( "custom.combobox", {
+      _create: function() {
+        this.wrapper = $( "<span>" )
+          .addClass( "custom-combobox" )
+          .insertAfter( this.element );
+ 
+        this.element.hide();
+        this._createAutocomplete();
+       
+       this._createShowAllButton();
+      },
+ //crea el autocomplete y pone la opción seleccionada con selected
+      _createAutocomplete: function() {
+        var selected = this.element.children( ":selected" ),
+          value = selected.val() ? selected.text() : "";
+        this.input = $( "<input>" )
+          .appendTo( this.wrapper )
+          .val( value )
+          .attr( "title", "" )
+          .addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+          .autocomplete({
+            delay: 0,
+            minLength: 0,
+            source: $.proxy( this, "_source" )
+          })
+          .tooltip({
+            classes: {
+              "ui-tooltip": "ui-state-highlight"
+            }
+          });
+ 
+        this._on( this.input, {
+          autocompleteselect: function( event, ui ) {
+            ui.item.option.selected = true;
+            //~ alert(ui.item.value);
+            this._trigger( "select", event, {
+              item: ui.item.option
+            });
+          },
+ 
+          autocompletechange: "_removeIfInvalid"
+        });
+      },
+ //Muestra el botón de ver todos
+      _createShowAllButton: function() {
+        var input = this.input,
+          wasOpen = false;
+ 
+        $( "<a>" )
+          .attr( "tabIndex", -1 )
+          .attr( "title", "Ver todos" )
+          .tooltip()
+          .appendTo( this.wrapper )
+          .button({
+            icons: {
+              primary: "ui-icon-triangle-1-s"
+            },
+            text: false
+          })
+          .removeClass( "ui-corner-all" )
+          .addClass( "custom-combobox-toggle ui-corner-right" )
+          .on( "mousedown", function() {
+            wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+          })
+          .on( "click", function() {
+            input.trigger( "focus" );
+            //Cerrar si está visible
+            if ( wasOpen ) {
+              return;
+            }
+ 
+            //cuando la cadena está vacía muestra todas las opciones
+            input.autocomplete( "search", "" );
+          });
+      },
+ //Monta el select con la busqueda
+      _source: function( request, response ) {
+        var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+        response( this.element.children( "option" ).map(function() {
+          var text = $( this ).text();
+          if ( this.value && ( !request.term || matcher.test(text) ) )
+            return {
+              label: text,
+              value: text,
+              option: this
+            };
+           
+        }) );
+      },
+ 
+      _removeIfInvalid: function( event, ui ) {
+ 
+        if ( ui.item ) {
+            
+          return;
+        }
+        // Busca una coincidencia (no distingue entre mayúsculas y minúsculas)
+        var value = this.input.val(),
+       
+          valueLowerCase = value.toLowerCase(),
+          valid = false;
+        this.element.children( "option" ).each(function() {
+          if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+            this.selected = valid = true;
+            return false;
+          }
+        });
+ 
+        // Cuando no encuentra nada
+        if ( valid ) {
+          return;
+        }
+ 
+        // eliminar un valor que no existe
+        this.input
+          .val( "" )
+          .attr( "title", value + " didn't match any item" )
+          .tooltip( "open" );
+        this.element.val( "" );
+        this._delay(function() {
+          this.input.tooltip( "close" ).attr( "title", "" );
+        }, 2500 );
+        this.input.autocomplete( "instance" ).term = "";
+      },
+ 
+      _destroy: function() {
+        this.wrapper.remove();
+        this.element.show();
+      }
+        
+    });
+ 
+    $( ".marca" ).combobox({
+        select : function(event, ui){ 
+            //~ alert(ui.item.value); 
+            mostrarSelectModelos(ui.item.value);
+        }
+    });
+    $( ".modelo" ).combobox({
+        select : function(event, ui){ 
+             alert(ui.item.value); 
+            mostrarSelectVersiones(ui.item.value);
+        }
+    });
+     $( ".version" ).combobox({
+        
+    });
+    $( "#toggle" ).on( "click", function() {
+       
+    $( "#combobox" ).toggle();
+    });
+  } );
 
-$( function() {
-      
-});
+function mostrarSelectModelos(marca){
+    	var parametros = {
+		"pulsado"    	: 'modelosDeMarca',
+		"marca"	: marca
+		};
+        $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* Envio para devolver el html con las opciones de marcas  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de html con las opciones de marcas ');
+				var resultado = $.parseJSON(response);
+				$("#divModelo").show();
+                //~ $('#combobox').removeAttr('disabled');
+                $('.modelo').html(resultado.html);
+				 
+		}	
+	});
+}
+function mostrarSelectVersiones(modelo){
+    var parametros = {
+		"pulsado"    	: 'versionesModelo',
+		"modelo"	: modelo
+		};
+        $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* Envio para devolver el html con las opciones de marcas  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de html con las opciones de marcas ');
+				var resultado = $.parseJSON(response);
+				$("#divVersion").show();
+                $('#combobox').removeAttr('disabled');
+                $('.version').html(resultado.html);
+				 
+		}	
+        });
+}

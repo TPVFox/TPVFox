@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        
         <?php
         include './../../head.php';
         include './funciones.php';
@@ -206,29 +207,36 @@ echo $htmlConfiguracion['htmlCheck'];
                         <div class="col-md-4">
                             <div class="ui-widget">
                                 <label for="tags">Marca: </label>
-                                <input id="marca" class="form-control ui-autocomplete-input"  autocomplete="off" data-obj= "cajaMarca" onkeydown="controlEventos(event)"  name="marca">
-                                <input id="inputIdMarcas" value="-1" type="hidden">
-                                <ul id="ui-id-1" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" tabindex="0" style="display: none;"></ul>
+                                <select id="combobox" class="marca">
+                                   <option value="0"></option>
+                                    <?php 
+                                    $marcas=$ObjVersiones->ObtenerMarcasVehiculoWeb();
+                                    foreach ($marcas['items']['items'] as $marca){
+                                        echo '<option value="'.$marca['id'].'">'.$marca['nombre'].'</option>';
+                                    }
+                                    ?>
+                                </select>
+                               
                             </div>
-                            
                         </div>
                         <div class="col-md-4" style="display:none;" id="divModelo">
                             <div class="ui-widget">
                                 <label for="tags">Modelo: </label>
-                                <input id="modelo" class="form-control ui-autocomplete-input"  autocomplete="off" data-obj= "cajaMarca" onkeydown="controlEventos(event)"  name="marca">
-                                <input id="inputIdModelo" value="-1" type="hidden">
-                                <ul id="ui-id-1" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" tabindex="0" style="display: none;"></ul>
+                                   <select id="combobox" class="modelo">
+                                   
+                                    </select>
                             </div>
                         </div>
-                         <div class="col-md-4">
-                            <div class="ui-widget" style="display:none;" >
-                                <label for="tags">Vensiones: </label>
-                                <input id="version" class="form-control ui-autocomplete-input"  autocomplete="off" data-obj= "cajaMarca" onkeydown="controlEventos(event)"  name="marca">
-                                <input id="inputIdversion" value="-1" type="hidden">
-                                <ul id="ui-id-1" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" tabindex="0" style="display: none;"></ul>
+                        <div class="col-md-4" style="display:none;" id="divVersion">
+                            <div class="ui-widget">
+                                <label for="tags">Versiones: </label>
+                                   <select id="combobox" class="version">
+                                   
+                                    </select>
                             </div>
                         </div>
                     </div>
+                </div>
                   
 					<div>
                     <p>

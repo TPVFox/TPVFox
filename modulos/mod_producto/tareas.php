@@ -145,23 +145,27 @@ switch ($pulsado) {
 		$respuesta=$comprobacion;
 		
 	break;
-    case 'buscarMarcasVehiculos':
-        $marcas= $ObjVersiones->ObtenerMarcasVehiculoWeb();
-        $nombre=$_POST['nombre'];
-        $marcasNuevas=$marcas['items'];
-        $arraydeNombres=array();
-        foreach ($marcasNuevas['items'] as $marca){
-            if(strstr($marca['nombre'], $nombre) || $marca['nombre']==$nombre || strstr($marca['nombre'], strtoupper($nombre))){
-                array_push($arraydeNombres, $marca);
-            }
+    case 'modelosDeMarca':
+        $marca=$_POST['marca'];
+        $modelos=$ObjVersiones->ObtenerModelosUnaMarcaWeb($marca);
+        $modelos=$modelos['Datos']['items']['items'];
+        $html='<option value=""></option>';
+        foreach($modelos as $modelo){
+            $html.='<option value="'.$modelo['id'].'">'.$modelo['nombre'].'</option>';
         }
-        foreach ($arraydeNombres as $dato) {
-                 $respuesta [] = ['label' => $dato['nombre'], 'valor' => $dato['id']];
-            }
-        
+        $respuesta['marcas']=$modelos;
+        $respuesta['html']=$html;
     break;
-    case 'buscarModelosVehiculos':
-    
+    case 'versionesModelo':
+        $modelo=$_POST['modelo'];
+        $versiones=$ObjVersiones->ObtenerVersionesUnModeloWeb($modelo);
+        $versiones=$versiones['Datos']['items']['items'];
+        $html='<option value=""></option>';
+        foreach($versiones as $version){
+            $html.='<option value="'.$version['id'].'">'.$version['nombre'].'</option>';
+        }
+        $respuesta['marcas']=$versiones;
+        $respuesta['html']=$html;
     break;
 }
 echo json_encode($respuesta);

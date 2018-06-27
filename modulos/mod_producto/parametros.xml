@@ -124,7 +124,7 @@ Numero tecla:
 			</before>			
 		</caja_input>
 		<caja_input>
-			<nombre id_input="marca">cajaMarca</nombre>
+			<nombre id_input="combobox">cajaMarca</nombre>
 			<teclas>
 				<action tecla="13">guardarMarca</action>
 				
