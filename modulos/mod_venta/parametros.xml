@@ -183,7 +183,18 @@
 				<parametro nombre="dedonde">albaran</parametro>
 			</parametros> 
 		</caja_input>
-		
+		<caja_input>
+			<nombre id_input="numAlbaran">numAlbaran</nombre>
+			<teclas>
+				<action tecla="39">saltar_idCliente</action>
+				<action tecla="37">saltarFechaAl</action>
+				<action tecla="9">saltar_idCliente</action>
+				<action tecla="13">buscarAlbaran</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">albaran</parametro>
+			</parametros> 
+		</caja_input>
 		<caja_input>
 			<nombre id_input="fechaVenci">fechaVenci</nombre>
 			<teclas>

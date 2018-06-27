@@ -60,6 +60,7 @@
 		$ivasFactura=$Cfaccli->IvasFactura($idFactura);//De la tabla de ivas
 		$albaranFactura=$Cfaccli->AlbaranesFactura($idFactura);//Los albaranes de las facturas añadidos
 		$datosImportes=$Cfaccli->importesFactura($idFactura);
+      
 		$estado=$datosFactura['estado'];
 		$fecha =date_format(date_create($datosFactura['Fecha']), 'd-m-Y');
 		$numFactura=$datosFactura['Numfaccli'];
@@ -97,7 +98,6 @@
 			 $modificaralbaran=modificarArrayAlbaranes($albaranFactura, $BDTpv);
 			 $albaranes=json_decode(json_encode($modificaralbaran), true);
 		}
-		
 		$total=$Datostotales['total'];
 		$importesFactura=modificarArraysImportes($datosImportes, $total);
 		$incidenciasAdjuntas=incidenciasAdjuntas($idFactura, "mod_ventas", $BDTpv, "factura");
