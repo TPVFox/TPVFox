@@ -17,8 +17,6 @@
 
 .container {
 	width:100%;
-height: auto !important;
-height: 100%
 }
 
 . btn-toolbar{
@@ -96,8 +94,6 @@ tbody tr.FilaModal:hover{
 .piePagina {
 background-color: #616a6b ;
 color:  #fdfefe ;
-
-
 }
 .piePagina a{
 color:  #fdfefe ;
