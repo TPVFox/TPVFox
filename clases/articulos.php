@@ -134,7 +134,7 @@ class Articulos{
 					$db=$this->db;
                     $sql='UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo;
 					$smt=$db->query('UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
-                    error_log($sql);
+                    //~ error_log($sql);
                     return $sql;
                     
 		}
