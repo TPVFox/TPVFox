@@ -38,7 +38,8 @@
 	$textoNum="";
 	$fechaImp=date('Y-m-d');
 	$comprobarAlbaran=0;
-		$parametros = $ClasesParametros->getRoot();
+    $parametros = $ClasesParametros->getRoot();
+    $inciden="";
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="factura";
 		}
