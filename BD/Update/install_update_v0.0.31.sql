@@ -18,3 +18,5 @@ CREATE TABLE `stocksRegularizacion` (
   `actualizado_en` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+ALTER TABLE stocksRegularizacion ADD PRIMARY KEY (`id`);
+ALTER TABLE stocksRegularizacion MODIFY id int(11) NOT NULL AUTO_INCREMENT;
