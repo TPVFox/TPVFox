@@ -1583,7 +1583,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 					if (isset($buscar['fechaActualizacion'])){
 						if ($buscar['fechaActualizacion']>$fecha){
 							$errores['error']='Warning';
-							$errores['consulta']='La fecha de la tabla articulos proveedor es mayor que la del albarán';
+							$errores['consulta']='La fecha de la tabla articulos proveedor es mayor que la del albarán'.$producto['idArticulo'];
 						}else{
 							$mod=$CArt->modificarCosteProveedorArticulo($datosNuevos);
 							if (isset($mod['error'])){
