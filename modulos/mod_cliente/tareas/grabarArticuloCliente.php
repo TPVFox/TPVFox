@@ -25,7 +25,7 @@ if ($existetarifa) {
         'estado' => '1'
         , 'pvpSiva' => $pvpSiva
         , 'pvpCiva' => $pvpCiva
-        , 'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
+        , 'fechaActualizacion' =>  date(FORMATO_FECHA_MYSQL),
         'estado'=>K_TARIFACLIENTE_ESTADO_ACTIVO
     ], ['idArticulo= ' . $idarticulo, 'idClientes= ' . $idcliente]);
 } else {
@@ -34,7 +34,7 @@ if ($existetarifa) {
         'idClientes' => $idcliente,
         'pvpSiva' => $pvpSiva,
         'pvpCiva' => $pvpCiva,
-        'fechaActualizacion' => '"'. date(FORMATO_FECHA_MYSQL).'"',
+        'fechaActualizacion' => date(FORMATO_FECHA_MYSQL),
         'estado' => K_TARIFACLIENTE_ESTADO_ACTIVO
     ]);
 }

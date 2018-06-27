@@ -234,15 +234,16 @@ function borrarArticulo(idarticulo) {
 		success    :  function (response) {
 				console.log('Respuesta despues de eliminar producto de tarifa.');
 				var resultado = $.parseJSON(response);
-				//~ var resultado = response;
-				if (resultado.error === "0" ){
+                console.log('--- Pendiente solucionar para devolver resultado --- ');
+                //~ var resultado = response;
+				//~ if (resultado.error === "0" ){
 					//quiere decir que elimino correctamente
 	                window.location.href = './tarifaCliente.php?id=' + cliente.idClientes;
-				} else {
-					alert( ' Hubo un error al eliminarlo ');
-					console.log(resultado);
+				//~ } else {
+					//~ alert( ' Hubo un error al eliminarlo ');
+					//~ console.log(resultado);
 
-				}
+				//~ }
 			}
     });
 }
