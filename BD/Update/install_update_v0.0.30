@@ -1,1 +1,0 @@
-ALTER TABLE `facproltemporales` CHANGE `Albaranes` `Albaranes` VARBINARY(50000) NULL DEFAULT NULL;
