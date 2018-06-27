@@ -92,8 +92,12 @@ tbody tr.FilaModal:hover{
     to { -moz-transform: rotate(360deg);}
 }
 .piePagina {
-background-color: #616a6b ;
-color:  #fdfefe ;
+    background-color: #616a6b ;
+    color:  #fdfefe ;
+    bottom: 0px !important;
+    position: absolute;
+    width: 100%;
+
 }
 .piePagina a{
 color:  #fdfefe ;
