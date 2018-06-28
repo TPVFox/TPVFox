@@ -204,26 +204,18 @@ echo $htmlConfiguracion['htmlCheck'];
                     </div>
 
                 </div>
-
                 <div class="col-md-10">
-<!--
-					<div>
-
-					<?php 
-                    //~ $formVersion = $ObjVersiones->htmlFormularioSeleccionVehiculo();
-
-							//~ echo $formVersion['html'];
-					?>
-					</div>
--->
                     <div class="col-md-12">
                         <div class="col-md-4">
                             <div class="ui-widget">
-                                <label for="tags">Marca: </label>
+                                <?php 
+                                $marcas=$ObjVersiones->ObtenerMarcasVehiculoWeb();
+                                $cantidad=count($marcas['items']['items']);
+                                ?>
+                                <label for="tags">Marca: <?php echo $cantidad; ?></label>
                                 <select id="combobox" class="marca">
                                    <option value="0"></option>
                                     <?php 
-                                    $marcas=$ObjVersiones->ObtenerMarcasVehiculoWeb();
                                     foreach ($marcas['items']['items'] as $marca){
                                         echo '<option value="'.$marca['id'].'">'.$marca['nombre'].'</option>';
                                     }
@@ -233,7 +225,7 @@ echo $htmlConfiguracion['htmlCheck'];
                         </div>
                         <div class="col-md-4"  id="divModelo">
                             <div class="ui-widget">
-                                <label for="tags">Modelo: </label>
+                                <label for="tags" id="modeloLabel">Modelo: </label>
                                    <select id="combobox" class="modelo">
                                    
                                     </select>
@@ -241,7 +233,7 @@ echo $htmlConfiguracion['htmlCheck'];
                         </div>
                         <div class="col-md-4"  id="divVersion">
                             <div class="ui-widget">
-                                <label for="tags">Versiones: </label>
+                                <label for="tags" id="versionesLabel">Versiones: </label>
                                    <select id="combobox" class="version">
                                    
                                     </select>

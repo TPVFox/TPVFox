@@ -1004,7 +1004,6 @@ function RegularizarStock(idarticulo){
     });
     $( ".modelo" ).combobox({
         select : function(event, ui){ 
-             alert(ui.item.value); 
             mostrarSelectVersiones(ui.item.value);
         }
     });
@@ -1031,9 +1030,8 @@ function mostrarSelectModelos(marca){
 		success    :  function (response) {
 				console.log('Respuesta de html con las opciones de marcas ');
 				var resultado = $.parseJSON(response);
-				$("#divModelo").show();
-                //~ $('#combobox').removeAttr('disabled');
                 $('.modelo').html(resultado.html);
+                $('#modeloLabel').html("Modelo : "+resultado.items);
 				 
 		}	
 	});
@@ -1056,7 +1054,9 @@ function mostrarSelectVersiones(modelo){
 				$("#divVersion").show();
                 $('#combobox').removeAttr('disabled');
                 $('.version').html(resultado.html);
+                 $('#versionesLabel').html("Version : "+resultado.items);
 				 
 		}	
         });
 }
+

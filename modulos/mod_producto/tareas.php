@@ -153,6 +153,7 @@ switch ($pulsado) {
         foreach($modelos as $modelo){
             $html.='<option value="'.$modelo['id'].'">'.$modelo['nombre'].'</option>';
         }
+        $respuesta['items']=count($modelos);
         $respuesta['marcas']=$modelos;
         $respuesta['html']=$html;
     break;
@@ -163,7 +164,7 @@ switch ($pulsado) {
         $html='<option value=""></option>';
         foreach($versiones as $version){
             $html.='<option value="'.$version['id'].'">'.$version['nombre'].'</option>';
-        }
+        } $respuesta['items']=count($versiones);
         $respuesta['marcas']=$versiones;
         $respuesta['html']=$html;
     break;
