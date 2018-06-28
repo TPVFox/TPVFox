@@ -64,7 +64,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.'			<!-- Cargamos select con marcas -->'
 				.'			<select name="myMarca" id="myMarca" onchange="SeleccionMarca(event)">';
 		$options = $this->ObtenerMarcasVehiculoWeb();
-		$html .= $options;		
+		$html .= $options['Datos']['options_html'];		
 		$html .='			</select>'
 				.'		</div>'
 				.'		<!-- Presentacion de modelo -->'
@@ -89,6 +89,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 				.'		</div>'
 				.'</div>';
 		$respuesta['html'] = $html;
+		$respuesta['completa'] = $options ; // Me devuelvo toda la respuesta para ver error.
 		return $respuesta;
 	}
 	
@@ -114,7 +115,8 @@ class PluginClaseVehiculos extends ClaseConexion{
 		//~ echo '<pre>';
 		//~ print_r($respuesta);
 		//~ echo '</pre>';
-		return $respuesta['Datos']['options_html'];
+		
+		return $respuesta;
 	
 	}
 	
