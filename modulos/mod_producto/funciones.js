@@ -996,6 +996,7 @@ function RegularizarStock(idarticulo){
 }
 
   $( function() {
+      //@Objetivo: llamar a la librería autocomplete 
     $( ".marca" ).combobox({
         select : function(event, ui){ 
             mostrarSelectModelos(ui.item.value);
@@ -1011,8 +1012,7 @@ function RegularizarStock(idarticulo){
         
     });
     $( "#toggle" ).on( "click", function() {
-       
-    $( "#combobox" ).toggle();
+        $( "#combobox" ).toggle();
     });
   } );
 

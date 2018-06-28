@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        
+          
         <?php
         include './../../head.php';
         include './funciones.php';
@@ -111,7 +111,9 @@
         echo '</script>';
         ?>
 
-        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+      <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/ui_1.12.1_themes_base_jquery-ui.css" type="text/css">
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <script>
             // Declaramos variables globales
@@ -128,11 +130,15 @@
          
 		?>	
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+<!--
+        <script src="<?php //echo $HostNombre; ?>/jquery/jquery-ui.js"></script>
+-->
         <script type="text/javascript">
         <?php echo $VarJS;?>
         </script>
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
+        
     </head>
 
     <body>
@@ -200,11 +206,16 @@ echo $htmlConfiguracion['htmlCheck'];
                 </div>
 
                 <div class="col-md-10">
+<!--
 					<div>
-					<?php $formVersion = $ObjVersiones->htmlFormularioSeleccionVehiculo();
-							echo $formVersion['html'];
+
+					<?php 
+                    //~ $formVersion = $ObjVersiones->htmlFormularioSeleccionVehiculo();
+
+							//~ echo $formVersion['html'];
 					?>
 					</div>
+-->
                     <div class="col-md-12">
                         <div class="col-md-4">
                             <div class="ui-widget">
@@ -218,10 +229,9 @@ echo $htmlConfiguracion['htmlCheck'];
                                     }
                                     ?>
                                 </select>
-                               
                             </div>
                         </div>
-                        <div class="col-md-4" style="display:none;" id="divModelo">
+                        <div class="col-md-4"  id="divModelo">
                             <div class="ui-widget">
                                 <label for="tags">Modelo: </label>
                                    <select id="combobox" class="modelo">
@@ -229,7 +239,7 @@ echo $htmlConfiguracion['htmlCheck'];
                                     </select>
                             </div>
                         </div>
-                        <div class="col-md-4" style="display:none;" id="divVersion">
+                        <div class="col-md-4"  id="divVersion">
                             <div class="ui-widget">
                                 <label for="tags">Versiones: </label>
                                    <select id="combobox" class="version">
@@ -238,7 +248,7 @@ echo $htmlConfiguracion['htmlCheck'];
                             </div>
                         </div>
                     </div>
-                </div>
+               
                   
 					<div>
                     <p>
@@ -361,6 +371,11 @@ echo $htmlConfiguracion['htmlCheck'];
             //~ echo count($_SESSION['productos_seleccionados']);
             ?>
         </div>
+<style>
+#enlaceIcon{
+    height: 2.2em;
+}
 
+</style>
     </body>
 </html>
