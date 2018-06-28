@@ -50,11 +50,13 @@
                     <!-- TABLA DE PRODUCTOS -->
                     <div>
                         <form action="ordenar">
+<!--
                             <table class="table table-bordered table-hover">
                                 <tr>
-                                    <td><button class="btn btn-sm boton-ordenar" data-idarticulo="<?php echo $producto['idArticulo']; ?>">Ordenar</button></td>
+                                    <td><button class="btn btn-sm boton-ordenar" data-idarticulo="<?php //echo $producto['idArticulo']; ?>">Ordenar</button></td>
                                 </tr>
                             </table>
+-->
                         </form>
                         <table class="table table-bordered table-hover">
                             <thead>
