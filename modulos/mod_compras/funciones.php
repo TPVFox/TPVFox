@@ -326,6 +326,7 @@ function htmlLineaProducto($productos, $dedonde){
 								.'</a></td>';
 				}
 			}
+            $codBarra="";
 			if (isset ($producto['ccodbar'])){
 				if ($producto['ccodbar']>0){
 					$codBarra=$producto['ccodbar'];
