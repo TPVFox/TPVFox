@@ -95,7 +95,7 @@ tbody tr.FilaModal:hover{
     background-color: #616a6b ;
     color:  #fdfefe ;
     bottom: 0px !important;
-    position: absolute;
+    position: fixed;
     width: 100%;
 
 }
