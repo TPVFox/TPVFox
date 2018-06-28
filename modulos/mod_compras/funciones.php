@@ -662,8 +662,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			$numAdjuntoProd=$producto['numAlbaran'];
 		}
 		if($numAdjuntoProd<>$numAdjunto){
+            if(isset($alb_html[$i])){
 			$imprimir['html'] .= $alb_html[$i];
 			$numAdjunto=$numAdjuntoProd;
+        }
 			$i++;
 		}
 		if ($producto['estado']=='Activo'){
