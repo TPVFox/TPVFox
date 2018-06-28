@@ -121,6 +121,7 @@
 
         </script> 
         <!-- Cargamos fuciones de modulo. -->
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -131,6 +132,7 @@
         <?php echo $VarJS;?>
         </script>
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
     </head>
 
     <body>
