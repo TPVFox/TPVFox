@@ -1080,9 +1080,9 @@ $( function() {
   } );
 function guardarProductoFamilia(idfamilia, idProducto){
     var parametros = {
-        pulsado: 'guardarProductoFamilia',
-        idProducto: idProducto,
-        idfamilia:idfamilia
+        pulsado: 'buscarNombreFammilia',
+        idfamilia:idfamilia,
+        idProducto:idProducto
     }
     $.ajax({
 		data       : parametros,
@@ -1093,8 +1093,18 @@ function guardarProductoFamilia(idfamilia, idProducto){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de guardar el registro de productos familia');
-				location.reload(true);
+              
+                var resultado = $.parseJSON(response);
+                if(resultado.error==1){
+                    alert("No puedes añadir esa familia al producto ya que ya está añadida");
+                }else{
+                      cerrarPopUp();
+                      var nuevafila = resultado['html'];
+                    $("#tfamilias").prepend(nuevafila);
+                }
+				//cerrar modal y añadir la fila
 				 
 		}	
 	});
+    
 }
