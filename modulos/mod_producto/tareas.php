@@ -140,10 +140,29 @@ switch ($pulsado) {
         $respuesta['familias']=$familias;
         $respuesta['html']=$modal;
     break;
-    case 'guardarProductoFamilia':
-    $idProducto=$_POST['idProducto'];
+    case 'buscarNombreFammilia':
+    //~ $idProducto=$_POST['idProducto'];
+    //~ $idFamilia=$_POST['idfamilia'];
+    //~ $add=$CFamilia->guardarProductoFamilia($idProducto, $idFamilia);
     $idFamilia=$_POST['idfamilia'];
-    $add=$CFamilia->guardarProductoFamilia($idProducto, $idFamilia);
+    $idProducto=$_POST['idProducto'];
+    $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
+    $respuesta['comprobar']=$comprobar;
+    if(isset($comprobar['datos'])){
+        $respuesta['error']=1;
+    }else{
+        $nombreFamilia=$CFamilia->buscarPorId($idFamilia);
+        $nuevaFila = '<tr>'
+				. '<td><input type="hidden" id="idFamilias_'.$idFamilia
+				.'" name="idFamilias_'.$idFamilia.'" value="'.$idFamilia.'">'
+				.$idFamilia.'</td>'
+				.'<td>'.$nombreFamilia['datos'][0]['familiaNombre'].'</td>'
+				.'<td><a id="eliminar_'.$idFamilia
+				.'" class="glyphicon glyphicon-trash" onclick="eliminarFamiliaProducto(this)"></a>'
+				.'</td>'.'</tr>';
+        $respuesta['html']=$nuevaFila;
+        $respuesta['nombre']=$nombreFamilia;
+    }
     break;
 }
 echo json_encode($respuesta);

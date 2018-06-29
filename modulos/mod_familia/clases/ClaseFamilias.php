@@ -85,5 +85,15 @@ class ClaseFamilias extends Modelo {
 			return $consulta;
 		}
     }
+    public function buscarPorId($idFamilia){
+        $sql='select familiaNombre from familias where idFamilia='.$idFamilia;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
+    public function comprobarRegistro($idProducto, $idFamilia){
+        $sql='select idArticulo, idFamilia from articulosFamilias where idFamilia='.$idFamilia.' and idArticulo='.$idProducto;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
 
 }

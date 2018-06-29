@@ -1,5 +1,5 @@
 <?php 
-function htmlLineaFamilias($item,$familia=''){
+function htmlLineaFamilias($item, $idProducto, $familia=''){
 	// @Objetivo:
 	// Montar linea de codbarras , para añadir o para modificar.
 	$nuevaFila = '<tr>'
@@ -8,7 +8,7 @@ function htmlLineaFamilias($item,$familia=''){
 				.$familia['idFamilia'].'</td>'
 				.'<td>'.$familia['familiaNombre'].'</td>'
 				.'<td><a id="eliminar_'.$familia['idFamilia']
-				.'" class="glyphicon glyphicon-trash" onclick="eliminarCodBarras(this)"></a>'
+				.'" class="glyphicon glyphicon-trash" onclick="eliminarFamiliaProducto(this)"></a>'
 				.'</td>'.'</tr>';
 	return $nuevaFila;
 }
@@ -160,7 +160,7 @@ function  htmlTablaFamilias($familias, $idProducto){
 			.'		</thead>';
 	if (count($familias)>0){
 		foreach ($familias as $item=>$valor){
-			$html .= htmlLineaFamilias($item,$valor);
+			$html .= htmlLineaFamilias($item, $idProducto, $valor);
 		}
 	}
 	$html .= '</table>	';
