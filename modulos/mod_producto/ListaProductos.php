@@ -207,7 +207,7 @@ echo $htmlConfiguracion['htmlCheck'];
                 </div>
                 <div class="col-md-10">
                     <div class="col-md-12">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="ui-widget" id="divmarca">
                                 <?php 
                                 $marcas=$ObjVersiones->ObtenerMarcasVehiculoWeb();
@@ -224,7 +224,7 @@ echo $htmlConfiguracion['htmlCheck'];
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4"  id="divModelo">
+                        <div class="col-md-3"  id="divModelo">
                             <div class="ui-widget">
                                 <label for="tags" id="modeloLabel">Modelo: </label>
                                    <select id="combobox" class="modelo">
@@ -232,14 +232,17 @@ echo $htmlConfiguracion['htmlCheck'];
                                     </select>
                             </div>
                         </div>
-                        <div class="col-md-4"  id="divVersion">
+                        <div class="col-md-6"  id="divVersion">
                             <div class="ui-widget">
                                 <label for="tags" id="versionesLabel">Versiones: </label>
                                    <select id="combobox" class="version">
                                    
                                     </select>
+                                    
                             </div>
+                            <p id="botonVer"></p>
                         </div>
+                        
                     </div>
                
                   

@@ -62,12 +62,13 @@ function  SeleccionModelo(event){
 	
 } 
 
-function  SeleccionVersion(event,dedonde){
+function  SeleccionVersion(event="",dedonde=""){
 	// @Objetivo :
 	// Ejecutar en servidor de web funcion que reste stock de productos
 	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
 	console.log(event.target);
-	var idVersion = $('select[id=myVersion]').val();
+	//~ var idVersion = $('select[id=myVersion]').val();
+    var idVersion =event;
 	console.log(idVersion);
 	var parametros = {
 		"pulsado" :  'BuscarVehiculo',

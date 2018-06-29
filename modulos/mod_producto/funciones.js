@@ -1009,7 +1009,11 @@ function RegularizarStock(idarticulo){
         }
     });
      $( ".version" ).combobox({
-        
+         select : function(event, ui){
+             
+        var botonhtml='<button class="btn btn-primary" onclick="SeleccionVersion('+ui.item.value+')">Seleccionar</button>';
+          $('#botonVer').html(botonhtml);   
+        }
     });
     $( "#toggle" ).on( "click", function() {
         $( "#combobox" ).toggle();
