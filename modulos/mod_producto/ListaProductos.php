@@ -207,7 +207,7 @@ echo $htmlConfiguracion['htmlCheck'];
                 <div class="col-md-10">
                     <div class="col-md-12">
                         <div class="col-md-4">
-                            <div class="ui-widget">
+                            <div class="ui-widget" id="divmarca">
                                 <?php 
                                 $marcas=$ObjVersiones->ObtenerMarcasVehiculoWeb();
                                 $cantidad=count($marcas['items']['items']);

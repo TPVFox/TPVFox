@@ -1032,6 +1032,7 @@ function mostrarSelectModelos(marca){
 				var resultado = $.parseJSON(response);
                 $('.modelo').html(resultado.html);
                 $('#modeloLabel').html("Modelo : "+resultado.items);
+                $('#divModelo').find('input').focus();
 				 
 		}	
 	});
@@ -1054,7 +1055,8 @@ function mostrarSelectVersiones(modelo){
 				$("#divVersion").show();
                 $('#combobox').removeAttr('disabled');
                 $('.version').html(resultado.html);
-                 $('#versionesLabel').html("Version : "+resultado.items);
+                $('#versionesLabel').html("Version : "+resultado.items);
+                $('#divVersion').find('input').focus()
 				 
 		}	
         });
