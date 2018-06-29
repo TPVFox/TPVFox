@@ -956,10 +956,10 @@ function comprobarRecalculosSuperiores($productos, $CArticulo){
     }
     return $productos;
 }
-function modalAutocompleteFamilias($familias){
+function modalAutocompleteFamilias($familias, $idProducto){
     $cantidad=count($familias);
     $html="";
-    $html.=' 
+    $html.=' <input type="text" value="'.$idProducto.'" id="idProductoModal" style="visibility:hidden">
             <div class="ui-widget" id="divFamilias">
             <label for="tags">Familias: '.$cantidad.'</label>
             <select id="combobox" class="familias">
@@ -968,6 +968,8 @@ function modalAutocompleteFamilias($familias){
         $html.='<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
     }
     $html.='</select></div>';
+    
+    $html.='<p id="botonEnviar"></p>';
     return $html;
 }
 ?>

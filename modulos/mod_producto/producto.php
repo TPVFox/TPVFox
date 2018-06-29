@@ -286,23 +286,6 @@
                 
 			</div>
 			</form>
-            <?php 
-            
-            include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
-$CFamilia=new ClaseFamilias($BDTpv);
-              $familias=$CFamilia->todoslosPadres();
-              
-            ?>
-            <div class="ui-widget">
-            <label for="tags">Familias: </label>
-            <select id="combobox" class="familias">
-            <option value="0"></option>
-            <?php 
-            foreach($familias['datos'] as $familia){
-        echo '<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
-    }
-            ?>
-            </select></div>
 		<!--fin de div container-->
 		<?php // Incluimos paginas modales
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
