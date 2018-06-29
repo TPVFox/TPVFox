@@ -140,6 +140,11 @@ switch ($pulsado) {
         $respuesta['familias']=$familias;
         $respuesta['html']=$modal;
     break;
+    case 'guardarProductoFamilia':
+    $idProducto=$_POST['idProducto'];
+    $idFamilia=$_POST['idfamilia'];
+    $add=$CFamilia->guardarProductoFamilia($idProducto, $idFamilia);
+    break;
 }
 echo json_encode($respuesta);
 ?>

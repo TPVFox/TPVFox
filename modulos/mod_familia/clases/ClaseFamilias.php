@@ -78,5 +78,12 @@ class ClaseFamilias extends Modelo {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+    public function guardarProductoFamilia($idProducto, $idFamilia){
+        $sql='INSERT INTO `articulosFamilias`(`idArticulo`, `idFamilia`) VALUES ('.$idProducto.', '.$idFamilia.') ';
+        $consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+    }
 
 }

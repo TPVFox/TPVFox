@@ -1078,3 +1078,23 @@ $( function() {
         $( "#combobox" ).toggle();
     });
   } );
+function guardarProductoFamilia(idfamilia, idProducto){
+    var parametros = {
+        pulsado: 'guardarProductoFamilia',
+        idProducto: idProducto,
+        idfamilia:idfamilia
+    }
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* envio para guardar el registro de productos familia **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de guardar el registro de productos familia');
+				
+				 
+		}	
+	});
+}
