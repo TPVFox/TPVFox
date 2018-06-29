@@ -1093,7 +1093,7 @@ function guardarProductoFamilia(idfamilia, idProducto){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de guardar el registro de productos familia');
-				
+				location.reload(true);
 				 
 		}	
 	});
