@@ -329,7 +329,7 @@ $CFamilia=new ClaseFamilias($BDTpv);
     padding: 5px 10px;
   }
   ul.ui-autocomplete {
-    z-index: 1100;
+    z-index: 1050;
 }
 </style>
     </body>

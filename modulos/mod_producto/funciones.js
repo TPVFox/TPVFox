@@ -1062,13 +1062,16 @@ function modalFamiliaProducto(idProducto){
 	});
 }
 $( function() {
+     $('#busquedaModal').on('shown.bs.modal', function() {
       //@Objetivo: llamar a la librería autocomplete 
     $( ".familias" ).combobox({
         select : function(event, ui){ 
             alert(ui.item.value);
-        }
+        },
+       
        
     });
+});
      $( "#toggle" ).on( "click", function() {
         $( "#combobox" ).toggle();
     });
