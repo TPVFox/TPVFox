@@ -93,11 +93,18 @@
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
 		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
 		?>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+		
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		?>	
+		?>
+         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
+          <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
+       
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+        <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
@@ -108,8 +115,7 @@
 			echo  'var ivas='.json_encode($ivas).';';
 		?>
 		</script>
-
-		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        
 
 	</head>
 	<body>
@@ -277,13 +283,54 @@
 					</div> 
 				<!-- Fin div col-md-6 -->
 				</div>
+                
 			</div>
 			</form>
+            <?php 
+            
+            include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
+$CFamilia=new ClaseFamilias($BDTpv);
+              $familias=$CFamilia->todoslosPadres();
+              
+            ?>
+            <div class="ui-widget">
+            <label for="tags">Familias: </label>
+            <select id="combobox" class="familias">
+            <option value="0"></option>
+            <?php 
+            foreach($familias['datos'] as $familia){
+        echo '<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
+    }
+            ?>
+            </select></div>
 		<!--fin de div container-->
 		<?php // Incluimos paginas modales
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		?>
         </div> 
+        <style>
+#enlaceIcon{
+    height: 2.2em;
+}
+ .custom-combobox {
+    position: relative;
+    display: inline-block;
+  }
+  .custom-combobox-toggle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -1px;
+    padding: 0;
+  }
+  .custom-combobox-input {
+    margin: 0;
+    padding: 5px 10px;
+  }
+  ul.ui-autocomplete {
+    z-index: 1100;
+}
+</style>
     </body>
 </html>
