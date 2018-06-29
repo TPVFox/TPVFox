@@ -953,5 +953,18 @@ function comprobarRecalculosSuperiores($productos, $CArticulo){
     }
     return $productos;
 }
-
+function modalAutocompleteFamilias($familias){
+    $cantidad=count($familias);
+    $html="";
+    $html.=' 
+            <div class="ui-widget" id="divFamilias">
+            <label for="tags">Familias: '.$cantidad.'</label>
+            <select id="combobox" class="familias">
+            <option value="0"></option>';
+    foreach($familias as $familia){
+        $html.='<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
+    }
+    $html.='</select></div>';
+    return $html;
+}
 ?>

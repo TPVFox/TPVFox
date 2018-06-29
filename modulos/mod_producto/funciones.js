@@ -1043,7 +1043,7 @@ function ajaxRegularizar(parametros, callback) {
 function modalFamiliaProducto(idProducto){
     var parametros = {
         pulsado: 'modalFamiliaProducto',
-        idarticulo: idProducto
+        idProducto: idProducto
     }
     $.ajax({
 		data       : parametros,
@@ -1055,8 +1055,21 @@ function modalFamiliaProducto(idProducto){
 		success    :  function (response) {
 				console.log('Respuesta de mostrar modal de añadir producto a familia ');
 				var resultado = $.parseJSON(response);
-				
+				var titulo = 'Añadir familia '+idProducto;
+                abrirModal(titulo,resultado.html);
 				 
 		}	
 	});
 }
+$( function() {
+      //@Objetivo: llamar a la librería autocomplete 
+    $( ".familias" ).combobox({
+        select : function(event, ui){ 
+            alert(ui.item.value);
+        }
+       
+    });
+     $( "#toggle" ).on( "click", function() {
+        $( "#combobox" ).toggle();
+    });
+  } );
