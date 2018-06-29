@@ -89,7 +89,7 @@
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
 		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
 		$htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
-		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
+		$htmlFamilias =  htmlTablaFamilias($Producto['familias'], $id);
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
 		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
 		?>

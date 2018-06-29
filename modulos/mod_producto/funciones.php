@@ -142,7 +142,7 @@ function  htmlTablaCodBarras($codBarras){
 	return $html;
 } 
 
-function  htmlTablaFamilias($familias){
+function  htmlTablaFamilias($familias, $idProducto){
 	// @ Objetivo
 	// Montar la tabla html de familias del producto
 	// @ Parametros
@@ -152,7 +152,7 @@ function  htmlTablaFamilias($familias){
 			.'			<tr>'
 			.'				<th>idFamilias</th>'
 			.'				<th>Nombre de Familia</th>'
-			.'				<th>'.'<a id="agregar" onclick="comprobarVacio()">Añadir'
+			.'				<th>'.'<a id="agregar" onclick="modalFamiliaProducto('.$idProducto.')">Añadir'
 			.'					<span class="glyphicon glyphicon-plus"></span>'
 			.'					</a>'
 			.'				</th>'
@@ -953,4 +953,5 @@ function comprobarRecalculosSuperiores($productos, $CArticulo){
     }
     return $productos;
 }
+
 ?>
