@@ -1066,7 +1066,9 @@ $( function() {
       //@Objetivo: llamar a la librería autocomplete 
     $( ".familias" ).combobox({
         select : function(event, ui){ 
-            alert(ui.item.value);
+            var idProducto= $( "#idProductoModal" ).val();
+             var botonhtml='<button class="btn btn-primary" onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto+')">Guardar</button>';
+          $('#botonEnviar').html(botonhtml);   
         },
        
        

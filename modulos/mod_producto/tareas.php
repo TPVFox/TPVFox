@@ -136,7 +136,7 @@ switch ($pulsado) {
     case 'modalFamiliaProducto':
         $idProducto=$_POST['idProducto'];
         $familias=$CFamilia->todoslosPadres();
-        $modal=modalAutocompleteFamilias($familias['datos']);
+        $modal=modalAutocompleteFamilias($familias['datos'], $idProducto);
         $respuesta['familias']=$familias;
         $respuesta['html']=$modal;
     break;
