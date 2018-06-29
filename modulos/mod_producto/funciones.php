@@ -933,6 +933,9 @@ function comprobarUltimaCompraProveedor($Pro_costes){
 	return $respuesta;
 }
 function comprobarRecalculosSuperiores($productos, $CArticulo){
+    // @ Objetivo:
+    // Comprobar si hay registros con fecha superior.
+    
     $i=0;
     foreach ($productos as $producto){
         $datosHistorico=$CArticulo->ComprobarFechasHistorico($producto['idArticulo'], $producto['Fecha_Creacion']);
