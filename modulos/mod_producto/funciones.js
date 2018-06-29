@@ -1001,6 +1001,7 @@ function RegularizarStock(idarticulo){
         select : function(event, ui){ 
             mostrarSelectModelos(ui.item.value);
         }
+       
     });
     $( ".modelo" ).combobox({
         select : function(event, ui){ 

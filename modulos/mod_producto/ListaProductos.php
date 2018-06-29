@@ -111,9 +111,10 @@
         echo '</script>';
         ?>
 
-      <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
-        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.css" type="text/css">
-        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/ui_1.12.1_themes_base_jquery-ui.css" type="text/css">
+<!--
+      <link rel="stylesheet" href="<?php// echo$HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+      <link rel="stylesheet" href="<?php //echo $HostNombre;?>/css/bootstrap.min.css" type="text/css">
+-->
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <script>
             // Declaramos variables globales
