@@ -35,7 +35,8 @@ include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
 $CAlbaran=new AlbaranesCompras($BDTpv);
 include_once $URLCom.'/clases/Proveedores.php';
 $CProveedor=new Proveedores($BDTpv);
-
+include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
+$CFamilia=new ClaseFamilias($BDTpv);
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
@@ -132,6 +133,12 @@ switch ($pulsado) {
 		$comprobacion=$NCArticulo->buscarReferenciaProductoTienda( $referencia);
 		$respuesta=$comprobacion;
 	break;
+    case 'modalFamiliaProducto':
+        $idProducto=$_POST['idProducto'];
+        $familias=$CFamilia->todoslosPadres();
+        
+        $respuesta=$familias;
+    break;
 }
 echo json_encode($respuesta);
 ?>

@@ -1040,3 +1040,23 @@ function ajaxRegularizar(parametros, callback) {
         }
     });
 }
+function modalFamiliaProducto(idProducto){
+    var parametros = {
+        pulsado: 'modalFamiliaProducto',
+        idarticulo: idProducto
+    }
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* envio para mostrar el modal de añadir familia **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de mostrar modal de añadir producto a familia ');
+				var resultado = $.parseJSON(response);
+				
+				 
+		}	
+	});
+}

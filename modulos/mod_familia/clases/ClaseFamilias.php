@@ -73,5 +73,10 @@ class ClaseFamilias extends Modelo {
 
         return $datos;
     }
+    public function todoslosPadres(){
+        $sql = 'SELECT idFamilia, familiaNombre FROM familias';
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
 
 }
