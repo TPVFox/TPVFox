@@ -193,9 +193,10 @@ class Articulos{
 			}
 	}
     public function ComprobarFechasHistorico($idArticulo, $fecha){
+        //@ Objetivo :
+        // Obtener registros historico de un producto que sean superiores a una fecha.
         $db=$this->db;
-        $sql='SELECT * from historico_precios WHERE idArticulo='.$idArticulo.' and Fecha_Creacion > "'.$fecha.'"
-         and estado="Pendiente" and Dedonde="albaran" and Tipo="Compras"';
+        $sql='SELECT * from historico_precios WHERE idArticulo='.$idArticulo.' and Fecha_Creacion > "'.$fecha.'"';
         $smt=$this->consulta($sql);
         if (gettype($smt)==='array'){
             $respuesta['error']=$smt['error'];
