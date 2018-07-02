@@ -83,7 +83,7 @@ $todosTemporal=array_reverse($todosTemporal);
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Albaranes Compras: Editar y Añadir albaranes </h2>
+					<h2>Compras: Editar y Añadir albaranes</h2>
 				</div>
 					<nav class="col-sm-4">
 				<h4> Albaranes</h4>
