@@ -307,6 +307,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			
 			// ----         Insertamos codbarras  del producto nuevo 											----- //
 			$comprobaciones['codbarras']=$this->ComprobarCodbarrasUnProducto($datos['id'],$datos['codBarras']);
+            $comprobaciones['familias']=$this->ComprobarFamiliasProducto($datos['id'],$datos['familias']);
 			$comprobaciones['RefTienda']= $this->ComprobarReferenciaProductoTienda($datos['id'], $datos['refProducto']);
 		}
 		return $comprobaciones;

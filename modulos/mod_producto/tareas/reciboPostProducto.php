@@ -76,6 +76,7 @@ if ($id >0 ){
         //~ print_r($_POST);
         //~ echo '</pre>';
         $comprobaciones=$CTArticulos->ComprobarFamiliasProducto($id, $DatosPostProducto['familias']);
+        $preparados['familias'] = $comprobaciones;
 		// ---	Comprobamos y grabamos los proveedores . ---//
 		$comprobaciones = $CTArticulos->ComprobarProveedoresCostes($id,$DatosPostProducto['proveedores_costes']);
 

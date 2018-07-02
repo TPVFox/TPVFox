@@ -54,6 +54,11 @@
 				$CTArticulos->SetComprobaciones($comprobacion);
 			}
 		}
+        if (isset($preparados['familias'])){
+			foreach ($preparados['familias'] as $comprobacion){
+				$CTArticulos->SetComprobaciones($comprobacion);
+			}
+		}
 		if (isset($preparados['insert_articulos'])){
 			foreach ($preparados['insert_articulos'] as $comprobacion){
 				$CTArticulos->SetComprobaciones($comprobacion);
