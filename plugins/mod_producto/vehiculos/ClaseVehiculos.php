@@ -289,6 +289,25 @@ class PluginClaseVehiculos extends ClaseConexion{
 		return $respuesta;
 		
 	}
+    
+    function ObtenerDatosDeProducto($idVirtuemart){
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'ObtenerProducto',
+							'id_virtuemart'	=>$idVirtuemart
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		return $respuesta;
+    }
 	
 	
 }
