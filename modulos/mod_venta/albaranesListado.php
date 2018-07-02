@@ -73,7 +73,7 @@ if (isset($errores)){
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Albaranes de clientes: Editar y Añadir pedidos </h2>
+					<h2>Ventas: Editar y Añadir albaranes </h2>
 				</div>
 					<nav class="col-sm-4">
 				<h4> Albaranes </h4>

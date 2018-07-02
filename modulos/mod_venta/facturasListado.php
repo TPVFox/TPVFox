@@ -72,7 +72,7 @@ if (isset($errores)){
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2> Facturas de clientes: Editar y Añadir facturas </h2>
+					<h2>Ventas: Editar y Añadir facturas </h2>
 				</div>
 					<nav class="col-sm-4">
 				<h4> Facturas </h4>
