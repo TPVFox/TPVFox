@@ -1061,7 +1061,11 @@ function modalFamiliaProducto(idProducto){
 				var resultado = $.parseJSON(response);
 				var titulo = 'Añadir familia '+idProducto;
                 abrirModal(titulo,resultado.html);
-				 
+                //~ $( ".custom-combobox-input" ).focus();
+				setTimeout(function(){
+                        $( ".custom-combobox-input" ).focus();
+                       
+                },3000);
 		}	
 	});
 }
