@@ -349,7 +349,29 @@ class ClaseProductos extends ClaseTablaArticulos{
 			
 	}	
 	
-	
+	function AnhadirFamilias($id,$familias = array()){
+        $respuesta = array();
+			$values = array();
+			if ($id > 0){
+				if (count($familias)>0){
+               
+					foreach ($familias as $key=>$cd){
+                      
+						$values[]= '('.$id.',"'.$cd.'")';
+					}
+                 
+				}
+				$stringValues = implode(',',$values);
+				$sql = 'INSERT INTO `articulosFamilias`(`idArticulo`, `idFamilia`) VALUES '.$stringValues;
+          
+				$respuesta = $this->Consulta_insert_update($sql);
+				
+				$respuesta['consulta'] = $sql;
+				
+			}
+			$respuesta['consulta'] = $sql;
+			return $respuesta;
+    }
 	
 	function EliminarCodbarras($id,$codbarras = array()){
 			// @ Objetivo 
@@ -385,7 +407,33 @@ class ClaseProductos extends ClaseTablaArticulos{
 			
 	}
 	
-	
+	function EliminarFamilia($id,$familias = array()){
+        $respuesta = array();
+			if ($id > 0){
+				if (count($familias)>0){
+					// Entonces eliminamos solo el codbarras que indicamos.
+					foreach ($familias as $key=>$cd){
+						$familias[$key]= 'idFamilia="'.$cd.'"';
+					}
+					$stringfamilias = ' AND ('.implode(' OR ',$familias).')'; 
+				}
+				$sql = 'DELETE FROM `articulosFamilias` WHERE `idArticulo`='.$id.$stringfamilias;
+				$DB = parent::GetDb();
+				$smt = $DB->query($sql);
+				if ($smt) {
+					$respuesta['NEliminados'] = $DB->affected_rows;
+					// Hubo resultados
+				} else {
+					// Quiere decir que hubo error en la consulta.
+					$respuesta['consulta'] = $sql;
+					$respuesta['error'] = $DB->connect_errno;
+				}
+				$respuesta['consulta'] = $sql;
+				
+			}
+			$respuesta['consulta'] = $sql;
+			return $respuesta;
+    }
 	function ComprobarCodbarrasUnProducto($id_pro,$Pro_Nuevo_codBarras){
 		// @ Objetivo:
 		// Que codigo de barras hay que añadir, modificar o eliminar.
@@ -396,7 +444,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		//   comprobaciones : (array) con tipo,mensaje,dato para poder mostrar.
 		$producto_sin_modificar = $this->getProducto($id_pro);
 		$Pro_codBarras = $producto_sin_modificar['codBarras'];// (array) con los codbarras que tenía ante de modificar.
-		
+		//~ var_dump($producto_sin_modificar['codBarras']);
 		$comprobaciones = array(); // Array que utilizamos para informar de lo que hicimos
 		// ---       	    Ahora empezamos con CodBarras por partes   						--- //
 		// Obtengo aquellos codbarras que no este el el Post, estos son los que tengo eliminar.
@@ -432,7 +480,54 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 		return $comprobaciones;
 	}
-	
+	public function ComprobarFamiliasProducto($id_pro,$familiasNuevas){
+        $producto_sin_modificar = $this->getProducto($id_pro);
+       
+        $familiasNoGuardadas=array();
+        foreach ($familiasNuevas as $familia){
+            array_push($familiasNoGuardadas, $familia['idFamilia']);
+        }
+         //~ echo '<pre>';
+        //~ print_r($familiasNoGuardadas);
+        //~ echo '</pre>';
+        $familiasGuardadas=array();
+        $familiasGuardadas = $producto_sin_modificar['familias'];
+        $Pro_familias=array();
+       foreach ($familiasGuardadas as $familia){
+           array_push($Pro_familias, $familia['idFamilia']);
+       }
+        $comprobaciones = array();
+        $familias_eliminar = array_diff($Pro_familias,$familiasNoGuardadas);
+        if (count($familias_eliminar)>0){
+			$Sqls['eliminados'] = $this->EliminarFamilia($id_pro, $familias_eliminar);
+			if ($Sqls['eliminados']['NEliminados']===count($familias_eliminar)){
+				$comprobaciones[0]['tipo']= 'warning';
+				$comprobaciones[0]['mensaje']= 'Eliminamos los siguientes familias para este producto:'.implode(',',$familias_eliminar);
+			} else {
+				$comprobaciones[0]['tipo']= 'dargen';
+				$comprobaciones[0]['mensaje']= 'Error no coincide el numero eliminado de idFamilia: '.implode(',',$familias_eliminar);
+			}
+			$comprobaciones[0]['dato']= json_encode($Sqls['eliminados']);
+		}
+        $familias_nuevos = array_diff($familiasNoGuardadas,$Pro_familias);
+          //~ echo '<pre>';
+        //~ print_r($familias_nuevos);
+        //~ echo '</pre>';
+		if (count($familias_nuevos)>0){
+             //~ print_r($familias_nuevos);
+			$Sqls['anhadidos'] = $this->AnhadirFamilias($id_pro,$familias_nuevos);
+			if ($Sqls['anhadidos']['NAfectados']===count($familias_nuevos)){
+				$comprobaciones[1]['tipo']= 'success';
+				$comprobaciones[1]['mensaje']= 'Añadimos los siguientes familias: '.implode(',',$familias_nuevos);
+			} else {
+				$comprobaciones[1]['tipo']= 'danger';
+				$comprobaciones[1]['mensaje']= 'Error no coincide el numero insertado con las familias que iba añadir idFamilia: '.implode(',',$familias_nuevos);
+			}
+			$comprobaciones[1]['dato'] = json_encode($Sqls['anhadidos']);
+		}	
+		
+		return $comprobaciones;
+    }
 	public function ComprobarProveedoresCostes($id,$datosProveedores){
 		// @ Objetivos
 		//  Comprobar que proveedores son nuevos, existen o hay que modificarlos.
