@@ -72,6 +72,10 @@ if ($id >0 ){
 		// ---			Comprobamos  y grabamos los codbarras .				---//
 		$comprobaciones = $CTArticulos->ComprobarCodbarrasUnProducto($id,$DatosPostProducto['codBarras']);
 		$preparados['codbarras'] = $comprobaciones;
+        //~ echo '<pre>';
+        //~ print_r($_POST);
+        //~ echo '</pre>';
+        $comprobaciones=$CTArticulos->ComprobarFamiliasProducto($id, $DatosPostProducto['familias']);
 		// ---	Comprobamos y grabamos los proveedores . ---//
 		$comprobaciones = $CTArticulos->ComprobarProveedoresCostes($id,$DatosPostProducto['proveedores_costes']);
 

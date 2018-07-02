@@ -355,6 +355,10 @@ class ClaseTablaArticulos{
 		$Sql = 'SELECT f.*, artfam.idFamilia FROM `familias` as f '
 			.' LEFT JOIN articulosFamilias as artfam ON f.idFamilia = artfam.idFamilia '
 			.' WHERE artfam.idArticulo= '.$id;
+        
+        //~ $Sql = 'SELECT f.idFamilia FROM `familias` as f '
+			//~ .' LEFT JOIN articulosFamilias as artfam ON f.idFamilia = artfam.idFamilia '
+			//~ .' WHERE artfam.idArticulo= '.$id;
 		$consulta = $this->Consulta($Sql);
 		// Aqui podemos obtener varios registros.
 		if (isset($consulta['Items'])){
