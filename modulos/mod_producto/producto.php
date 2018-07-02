@@ -116,6 +116,12 @@
                         if (isset($vehiculos['Datos'])) {
                             $htmlVehiculos = $vehiculos['Datos']['html'];
                         }
+                        
+                        
+                        $datosProductoVirtual=$ObjVersiones->ObtenerDatosDeProducto($idVirtuemart);
+                        echo '<pre>';
+                        print_r($datosProductoVirtual);
+                        echo '</pre>';
 					}
 				}
 			}
