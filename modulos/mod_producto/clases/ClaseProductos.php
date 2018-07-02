@@ -594,7 +594,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 	public function ComprobarReferenciaProductoTienda($id, $referenciaTienda){
 		$comprobaciones=array();
 		$sql='SELECT * FROM articulosTiendas WHERE idArticulo='.$id.' and idTienda='.$this->idTienda;
-        echo 'consulta:'.$referenciaTienda;
+        //~ echo 'consulta:'.$referenciaTienda;
         $respuesta = parent::Consulta($sql);
 		if (isset($respuesta['error'])){
 			return $respuesta;
