@@ -223,8 +223,12 @@ function controlCodBarras(caja){
 	});
 	
 }
-
-
+function eliminarFamiliaProducto(e){
+    var padre=e.parentNode; 
+	var abuelo=padre.parentNode; 
+	var bisa=abuelo.parentNode; 
+	bisa.removeChild(abuelo);
+}
 
 
 function anular(e) {
