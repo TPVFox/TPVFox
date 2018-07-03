@@ -488,7 +488,8 @@ function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProv
 	
 	$imprimir['html'] .='<table  WIDTH="100%">';
 	$imprimir['html'] .='<tr>';
-	$imprimir['html'] .='<td WIDTH="50%">NOMBRE</td>';
+	$imprimir['html'] .='<td WIDTH="35%">NOMBRE</td>';
+    $imprimir['html'] .='<td>REFERENCIA</td>';
 	$imprimir['html'] .='<td>PRECIO ANTERIOR</td>';
 	$imprimir['html'] .='<td>PRECIO NUEVO</td>';
 	$imprimir['html'] .='</tr>';
@@ -497,7 +498,8 @@ function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProv
 	foreach ($datosHistorico as $prod){
 		$datosArticulo=$CArticulo->datosPrincipalesArticulo($prod['idArticulo']);
 		$imprimir['html'].='<tr>';
-		$imprimir['html'].='<td WIDTH="50%">'.$datosArticulo['articulo_name'].'</td>';
+		$imprimir['html'].='<td WIDTH="35%">'.$datosArticulo['articulo_name'].'</td>';
+        $imprimir['html'].='<td>'.$datosArticulo['crefTienda'].'</td>';
 		$imprimir['html'].='<td>'.$prod['Antes'].'</td>';
 		$imprimir['html'].='<td>'.$prod['Nuevo'].'</td>';
 		$imprimir['html'].='</tr>';

@@ -49,6 +49,7 @@
 			$id=$_GET['id'];
 			$estado="";
 			$fechaCreacion=date('Y-m-d');
+           
 			foreach ($productosHistoricos as $producto){
 				if ($producto['estado']=="Pendiente"){
                    
