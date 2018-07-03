@@ -52,7 +52,7 @@
 				$AtributoLogin='readonly';
 				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
 				if (count($_POST) ===0){
-				echo 'Entoro';
+				
 				$i = 0;
 					foreach ($estados as $estado){
 						if ($UsuarioUnico['estado'] == $estado['valor']){
