@@ -109,11 +109,13 @@ class Articulos{
 	}
 	public function datosPrincipalesArticulo($idArticulo){
 		$db=$this->db;
-		$smt=$db->query('SELECT idArticulo, iva , articulo_name, beneficio FROM articulos where idArticulo='.$idArticulo);
+		$smt=$db->query('SELECT a.idArticulo, a.iva , a.articulo_name, a.beneficio , b.crefTienda
+        FROM articulos as a left join articulosTiendas as b on a.idArticulo=b.idArticulo where a.idArticulo='.$idArticulo);
 		if ($result = $smt->fetch_assoc () ){
 			$articulo=$result;
+            return $articulo;
 		}
-		return $articulo;
+		
 		}
 		
 		public function articulosPrecio($idArticulo){
