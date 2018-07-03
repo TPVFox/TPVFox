@@ -119,9 +119,9 @@
                         
                         
                         $datosProductoVirtual=$ObjVersiones->ObtenerDatosDeProducto($idVirtuemart);
-                        echo '<pre>';
-                        print_r($datosProductoVirtual);
-                        echo '</pre>';
+                        //~ echo '<pre>';
+                        //~ print_r($datosProductoVirtual);
+                        //~ echo '</pre>';
 					}
 				}
 			}
@@ -282,6 +282,51 @@
                                        value="<?php echo number_format($Producto['stocks']['stockOn'], 2, '.', ''); ?>"   >
                             </div>
                         </div>
+                        <?php 
+                        if(isset($datosProductoVirtual['Datos']['items']['item'])){
+                            $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
+                        ?>
+                        <div class="col-md-12">
+                         <h4> Datos del producto en la tienda Web </h4>
+                         <div class="col-md-3 ">
+                         <label>Referencia</label>
+                         <input type="text" id="referenciaWeb" 
+                                name="cref_tienda_principal_web" size="10" 
+                                placeholder="referencia producto" data-obj= "cajaReferenciaWeb" 
+                                value="<?php echo $datosWeb['refTienda'];?>" onkeydown="controlEventos(event)"  >
+
+                         </div>
+                         <div class="col-md-8 ">
+                          <label>Nombre del producto</label>
+                           <input type="text" id="nombreWeb" 
+                                name="nombre_web"  size="50"
+                                placeholder="nombreWeb" data-obj= "cajaNombreWeb" 
+                                value="<?php echo $datosWeb['articulo_name'];?>" onkeydown="controlEventos(event)"  >
+                         </div>
+                        </div>
+                         <div class="col-md-12">
+                            <div class="col-md-4 ">
+                                 <label>Código de  barras</label>
+                                  <input type="text" id="codBarrasWeb" 
+                                    name="cod_barras_web"  size="10"
+                                    placeholder="codBarrasWeb" data-obj= "cajaCodBarrasWeb" 
+                                    value="<?php echo $datosWeb['codBarra'];?>" onkeydown="controlEventos(event)"  >
+                            </div>
+                            <div class="col-md-4 ">
+                                 <label>Precio Sin iva</label>
+                                  <input type="text" id="precioSivaWeb" 
+                                    name="PrecioSiva_web"  size="10"
+                                    placeholder="codBarrasWeb" data-obj= "cajaPrecioSivaWeb" 
+                                    value="<?php echo $datosWeb['precioSiva'];?>" onkeydown="controlEventos(event)"  >
+                            </div>
+                            <div class="col-md-12">
+                                <br>
+                                <input class="btn btn-primary" type="button" value="Modificar en Web" name="modifWeb">
+                            </div>
+                        </div>
+                        <?php 
+                        }
+                        ?>
                     </div>
                     <div class="col-md-6 text-center">
 					 <div class="panel-group">
