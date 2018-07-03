@@ -7,9 +7,11 @@
 		include_once $URLCom.'/head.php';
 		include_once $URLCom.'/modulos/mod_usuario/funciones.php';
 		include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
+        include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
 		//include ("./ObjetoRecambio.php");
 		$Cusuario=new ClaseUsuarios($BDTpv);
+        $Cincidencias=new ClaseIncidencia($BDTpv);
 		if ($Usuario['estado'] === "Incorrecto"){
 			return;	
 		}
@@ -60,11 +62,9 @@
 					}
 				}
 				$configuracionesUsuario=$Cusuario->getConfiguracionModulo($id);
-				//~ echo '<pre>';
-				//~ print_r($configuracionesUsuario);
-				//~ echo '</pre>';
+				$incidenciasUsuario=$Cincidencias->incidenciasSinResolverUsuario($id);
 				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
-				 
+                $htmlInicidenciasDesplegable=htmlTablaIncidencias($incidenciasUsuario);
 			}
 		} else {
 			// Creamos ficha Usuario.
@@ -205,6 +205,9 @@
 						$num = 1 ; // Numero collapse;
 						$titulo = 'Configuración Modulos';
 						echo htmlPanelDesplegable($num,$titulo,$htmlConfiguracion);
+                        $num=2;
+                        $titulo='Incidencias Sin Resolver';
+                        echo htmlPanelDesplegable($num, $titulo, $htmlInicidenciasDesplegable);
 						?>
 					</div>
 				</div>

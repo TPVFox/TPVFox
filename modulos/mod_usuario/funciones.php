@@ -186,4 +186,37 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 	
 	return $html;
 }
+function htmlTablaIncidencias($incidenciasUsuario){
+    if(count($incidenciasUsuario)>0){
+        $html='	<table class="table table-striped">
+		<thead>
+			<tr>
+				
+				<td>Número</td>
+				<td>Fecha</td>
+				<td>Dedonde</td>
+                <td>Mensaje</td>
+			</tr>
+		</thead>
+		<tbody>';
+	$i=0;
+        foreach($incidenciasUsuario as $dato){
+            $html.='<tr>
+                <td>'.$dato['num_incidencia'].'</td>
+                <td>'.$dato['fecha_creacion'].'</td>
+                <td>'.$dato['dedonde'].'</td>
+                <td>'.$dato['mensaje'].'</td>
+            </tr>';
+            $i++;
+                if($i==10){
+                    break;
+                }
+        }
+        $html.='</tbody></table>';
+    }else{
+        $html='<div class="alert alert-info">Este Usuario no tiene incidencias sin Revisar</div>';
+    }
+    return $html;
+    
+}
 ?>

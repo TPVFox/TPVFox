@@ -248,6 +248,21 @@ class ClaseIncidencia{
 		}
 		
 	}
+    public function incidenciasSinResolverUsuario($idUsuario){
+        $sql='SELECT * from modulo_incidencia where id_usuario='.$idUsuario.' and estado="No resuelto"';
+        $smt=$this->consulta($sql);
+        if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$incidenciaPrincipal=array();
+				while ( $result = $smt->fetch_assoc () ) {
+					array_push($incidenciaPrincipal,$result);
+				}
+				return $incidenciaPrincipal;
+		}
+    }
 	
 }
 
