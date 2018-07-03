@@ -938,6 +938,7 @@ function comprobarRecalculosSuperiores($productos, $CArticulo){
     
     $i=0;
     foreach ($productos as $producto){
+		//producto['idArticulo'] es el id del articulo
         $datosHistorico=$CArticulo->ComprobarFechasHistorico($producto['idArticulo'], $producto['Fecha_Creacion']);
         if(isset($datosHistorico['error'])){
             $productos['error']=$datosHistorico['error'];
@@ -945,6 +946,7 @@ function comprobarRecalculosSuperiores($productos, $CArticulo){
         }else{
             if(count($datosHistorico)>1){
                 $productos[$i]['estado']="Sin revisar";
+                //producto['id'] es el id del regitro de historico precio de ese producto
                 $modHistorico=$CArticulo->modificarRegHistorico($producto['id'], "Sin revisar");
                   if(isset($modHistorico['error'])){
                     $productos['error']=$modHistorico['error'];
