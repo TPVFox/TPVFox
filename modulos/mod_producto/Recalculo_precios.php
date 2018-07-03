@@ -95,19 +95,25 @@
 						);
 						$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
 						$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
-                       
+                       //~ echo '<pre>';
+                       //~ print_r($nuevoHistorico);
+                       //~ echo '</pre>';
                        
                       
 					}
 					
 				}
-                if($producto['estado']=="Pendiente" || $producto['estado']=="Sin revisar"){
+                if($producto['estado']=="Pendiente" || $producto['estado']=="Sin revisar" || $producto['estado']=="Sin Cambios"){
                     $i++;
                 }
 				
 				$estado="";
 			}
 			 $modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
+             
+             //~ echo '<pre>';
+             //~ print_r($productosHistoricos);
+             //~ echo '</pre>';
 		}
 		
 		
@@ -129,7 +135,7 @@
       <?php 
       if (isset($_POST['Guardar'])){
 		  ?>
-		  mensajeImprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
+		  //~ mensajeImprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
 		
 		 
 		  <?php
