@@ -161,6 +161,9 @@
 			array_push($Control_Error,$error);
 		}
 	}
+    //~ echo '<pre>';
+    //~ print_r($Usuario);
+    //~ echo '</pre>';
 	// Si hay errores danger no continuamos.
 	if (count($Control_Error)>0){
 		foreach ( $Control_Error as $error){
@@ -279,7 +282,7 @@ if (count($Control_Error)>0){
 					<tr>
 						<td>
 							<?php // Si es el mismo usuario tiene permitido modificarlo, ponemos link
-							if ($Usuario['id'] === $item['idUsuario']){
+							if ($Usuario['id'] === $item['idUsuario'] || $Usuario['group_id']==9){
 								echo '<a href="tpv.php?tAbierto='.$item['numticket'].'">'.$item['numticket'].'</a>';
 							} else {
 								echo $item['numticket'].' <span class="glyphicon glyphicon-info-sign" title="Este ticket abierto no es tuyo, es de '.$item['usuario'].'"></span>';
