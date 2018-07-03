@@ -132,7 +132,12 @@
 			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
 			<form action="" method="post" name="formUsuario">
-			<a class="text-ritght" href="./ListaUsuarios.php">Volver Atrás</a>
+                <?php if(!isset($_GET['inicio'])){
+                    ?>
+                    <a class="text-ritght" href="./ListaUsuarios.php">Volver Atrás</a>
+                    <?php
+                }?>
+			
 			<input type="submit" value="Guardar">
 			<div class="col-md-12">
 				
