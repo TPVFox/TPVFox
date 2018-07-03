@@ -37,7 +37,11 @@
 			$fecha=date_format($fecha, 'Y-m-d');
 			
 			$productosHistoricos=$CArticulo->historicoCompras($id, "albaran", "compras");
+			 //~ echo '<pre>';
+            //~ print_r($productosHistoricos);
+            //~ echo '</pre>';
             $productosHistoricos=comprobarRecalculosSuperiores($productosHistoricos, $CArticulo );
+           
 			$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
 
 		}
