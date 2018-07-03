@@ -170,14 +170,14 @@
 						</div>
 						<div class="col-md-6 form-group">
 							<label for="sel1">Grupo permisos:</label>
-							<select class="form-control" name="grupo" id="sel1">
+							<select class="form-control" name="grupo" id="sel1"  style="width: 100px;">
 								<option value="<?php echo $UsuarioUnico['group_id'];?>" selected><?php echo $UsuarioUnico['group_id'];?></option>
 							</select>
 							
 						</div>
 						<div class="col-md-6 form-group">
 							<label for="sel1">Estado:</label>
-							<select class="form-control" name="estado" id="sel1">
+							<select class="form-control" name="estado" id="sel1"  style="width: 150px;">
 								<?php 
 								foreach ($estados as $estado){
 								?>
@@ -192,7 +192,7 @@
 						</div>
 						<div class="col-md-6 form-group">
 							<label for="pwd">Contraseña:</label>
-							<input type="password" class="form-control" id="pwd" name="password" placeholder="contraseña" value="<?php echo $passwrd ;?>" required>
+							<input type="password" class="form-control"  style="width: 150px;" id="pwd" name="password" placeholder="contraseña" value="<?php echo $passwrd ;?>" required>
 						</div>
 						
 						
