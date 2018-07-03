@@ -135,7 +135,7 @@
       <?php 
       if (isset($_POST['Guardar'])){
 		  ?>
-		  //~ mensajeImprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
+		  mensajeImprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
 		
 		 
 		  <?php
