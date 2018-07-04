@@ -285,7 +285,14 @@
                         <?php 
                         if(isset($datosProductoVirtual['Datos']['items']['item'])){
                             $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
-                            echo $datosWeb['estado'];
+                            echo '<pre>';
+                            print_r($datosWeb);
+                            echo '</pre>';
+                           
+                            $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
+                            $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
+                            
+                            
                         ?>
                         <div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
                          <div class="col-md-12">
@@ -306,9 +313,9 @@
                                 }
                                 echo $htmlEstado;
                                 ?>
+                            </div>
                          </div>
-                         </div>
-                        
+                         <div class="col-md-12">
                          <div class="col-md-3 ">
                          <label>Referencia</label>
                          <input type="text" id="referenciaWeb" 
@@ -323,7 +330,13 @@
                                 name="nombre_web"  size="50"
                                 placeholder="nombreWeb" data-obj= "cajaNombreWeb" 
                                 value="<?php echo $datosWeb['articulo_name'];?>" onkeydown="controlEventos(event)"  >
+                                 <div class="invalid-tooltip-articulo_name" display="none">
+								No permitimos la doble comilla (") 
+							</div>
                          </div>
+                        </div>
+                        <div class="col-md-12">
+                            <h4> Precios de venta en Web </h4>
                         </div>
                          <div class="col-md-12">
                             <div class="col-md-4 ">
@@ -338,7 +351,14 @@
                                   <input type="text" id="precioSivaWeb" 
                                     name="PrecioSiva_web"  size="10"
                                     placeholder="codBarrasWeb" data-obj= "cajaPrecioSivaWeb" 
-                                    value="<?php echo $datosWeb['precioSiva'];?>" onkeydown="controlEventos(event)"  >
+                                    value="<?php echo round($datosWeb['precioSiva'],2);?>" onkeydown="controlEventos(event)"  >
+                            </div>
+                             <div class="col-md-4 ">
+                                 <label>Precio Con iva</label>
+                                  <input type="text" id="precioCivaWeb" 
+                                    name="PrecioCiva_web"  size="10"
+                                    placeholder="codBarrasWeb" data-obj= "cajaPrecioCivaWeb" 
+                                    value="<?php echo round($precioCivaWeb,2);?>" onkeydown="controlEventos(event)"  >
                             </div>
                             
                         </div>
