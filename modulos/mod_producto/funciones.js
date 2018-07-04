@@ -1100,3 +1100,15 @@ function mostrarSelectVersiones(modelo){
         });
 }
 
+function modificarProductoWeb(){
+    console.log("entre en modificar producto web ");
+    var datos={
+        'estado':       $('#estadosWeb').val(),
+        'referencia':   $('#referenciaWeb').val(),
+        'nombre':       $('#nombreWeb').val(),
+        'codBarras':    $('#codBarrasWeb').val(),
+        'precioSiva':   $('#precioSivaWeb').val(),
+        'iva':          $('#ivasWeb').val()
+    };
+    console.log(datos);
+}

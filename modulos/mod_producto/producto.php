@@ -296,6 +296,7 @@
                                        value="<?php echo number_format($Producto['stocks']['stockOn'], 2, '.', ''); ?>"   >
                             </div>
                         </div>
+                       
                         <?php 
                         if(isset($datosProductoVirtual['Datos']['items']['item'])){
                             
@@ -306,7 +307,7 @@
                         ?>
                         <div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
                          <div class="col-md-12">
-                                <input class="btn btn-primary" type="button" value="Modificar en Web" name="modifWeb">
+                                <input class="btn btn-primary" type="button" value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">
                         </div>
                         <div class="col-md-12">
                             <div class="col-md-7">
@@ -315,10 +316,10 @@
                             <div class="col-md-5">
                                 <?php
                                 if($datosWeb['estado']==1){
-                                    $htmlEstado='<label>Estado: <select name="estadosWeb"><option value="1">Publicado</option>
+                                    $htmlEstado='<label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
                                     <option value="0">Sin publicar</option></select></label>';
                                 }else{
-                                     $htmlEstado='<label>Estado: <select name="estadosWeb"><option value="0">Sin publicar</option>
+                                     $htmlEstado='<label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="0">Sin publicar</option>
                                     <option value="1">Publicado</option></select></label>';
                                 }
                                 echo $htmlEstado;
@@ -384,6 +385,8 @@
                         }
                         ?>
                     </div>
+                   
+                    
                     <div class="col-md-6 text-center">
 					 <div class="panel-group">
 						<!-- Inicio collapse de CobBarras --> 
