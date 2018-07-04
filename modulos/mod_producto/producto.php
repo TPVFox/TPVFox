@@ -32,6 +32,9 @@
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
+       echo '<pre>';
+       print_r($ivas);
+       echo '</pre>';
 		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
 	
 		$titulo = 'Productos:';
@@ -285,10 +288,7 @@
                         <?php 
                         if(isset($datosProductoVirtual['Datos']['items']['item'])){
                             $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
-                            echo '<pre>';
-                            print_r($datosWeb);
-                            echo '</pre>';
-                           
+                            $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
                             $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
                             $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
                             
@@ -365,10 +365,15 @@
                         <div class="col-md-12">
                             <div class="col-md-4 ">
                                  <label>IVA</label>
+                                 <select name="ivasWeb">
+                                    <?php echo $htmlIvasWeb;?>
+                                 </select >
+<!--
                                   <input type="text" id="ivaWeb" 
                                     name="iva_web"  size="10"
                                     placeholder="iva" data-obj= "cajaIvaWeb" 
-                                    value="<?php echo $datosWeb['iva'];?>" onkeydown="controlEventos(event)"  >
+                                    value="<?php //echo $datosWeb['iva'];?>" onkeydown="controlEventos(event)"  >
+-->
                             </div>
                         </div>
                         <?php 
