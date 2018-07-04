@@ -260,6 +260,7 @@ function recalcularPrecioSegunCosteBeneficio (caja){
 
 }
 
+
 function destacarCambioCaja(idcaja){
 	$("#"+idcaja).css("outline-style","solid");
 	$("#"+idcaja).css("outline-color","coral");
@@ -304,6 +305,23 @@ function recalcularPvp(dedonde){
 	$('#pvpCiva').val(precioCiva.toFixed(2));
 	
 	
+}
+function recalcularPvpWeb(dedonde){
+    var iva=parseFloat($('#ivaWeb').val(),2);
+    iva= iva/100;
+    if (dedonde === 'precioSivaWeb'){
+		var precioSiva = parseFloat($('#precioSivaWeb').val(),2);
+		var precioCiva = precioSiva+(precioSiva*iva);
+		// Ahora destacamos los input que cambiamos.		
+		destacarCambioCaja('precioCivaWeb');
+	}else{
+        var precioCiva = parseFloat($('#precioCivaWeb').val(),2);
+        iva = iva +1;
+        var precioSiva = precioCiva/iva;
+        destacarCambioCaja('precioSivaWeb');
+    }
+    $('#precioSivaWeb').val(precioSiva.toFixed(2));
+	$('#precioCivaWeb').val(precioCiva.toFixed(2));
 }
 
 function obtenerIva(){
@@ -593,7 +611,12 @@ function controladorAcciones(caja,accion, tecla){
 				recalcularPvp(caja.id_input);
 			}
 		break
-		
+		case 'recalcularPvpWeb':
+            var re= comprobarNumero(caja.darValor());
+                if ( re === true){
+                    recalcularPvpWeb(caja.id_input);
+			}
+        break;
 		case 'controlCosteProv':
 			caja.id_input = caja.name_cja;
 			console.log(caja.darValor());

@@ -351,14 +351,14 @@
                                   <input type="text" id="precioSivaWeb" 
                                     name="PrecioSiva_web"  size="10"
                                     placeholder="precioSiva" data-obj= "cajaPrecioSivaWeb" 
-                                    value="<?php echo round($datosWeb['precioSiva'],2);?>" onkeydown="controlEventos(event)"  >
+                                    value="<?php echo round($datosWeb['precioSiva'],2);?>" onkeydown="controlEventos(event)" onblur="controlEventos(event)" >
                             </div>
                              <div class="col-md-4 ">
                                  <label>Precio Con iva</label>
                                   <input type="text" id="precioCivaWeb" 
                                     name="PrecioCiva_web"  size="10"
                                     placeholder="precioCiva" data-obj= "cajaPrecioCivaWeb" 
-                                    value="<?php echo round($precioCivaWeb,2);?>" onkeydown="controlEventos(event)"  >
+                                    value="<?php echo round($precioCivaWeb,2);?>" onkeydown="controlEventos(event)"  onblur="controlEventos(event)">
                             </div>
                             
                         </div>
