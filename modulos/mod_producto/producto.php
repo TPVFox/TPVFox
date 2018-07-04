@@ -285,9 +285,30 @@
                         <?php 
                         if(isset($datosProductoVirtual['Datos']['items']['item'])){
                             $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
+                            echo $datosWeb['estado'];
                         ?>
+                        <div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
+                         <div class="col-md-12">
+                                <input class="btn btn-primary" type="button" value="Modificar en Web" name="modifWeb">
+                        </div>
                         <div class="col-md-12">
-                         <h4> Datos del producto en la tienda Web </h4>
+                            <div class="col-md-7">
+                                <h4> Datos del producto en la tienda Web </h4>
+                            </div>
+                            <div class="col-md-5">
+                                <?php
+                                if($datosWeb['estado']==1){
+                                    $htmlEstado='<label>Estado: <select name="estadosWeb"><option value="1">Publicado</option>
+                                    <option value="0">Sin publicar</option></select></label>';
+                                }else{
+                                     $htmlEstado='<label>Estado: <select name="estadosWeb"><option value="0">Sin publicar</option>
+                                    <option value="1">Publicado</option></select></label>';
+                                }
+                                echo $htmlEstado;
+                                ?>
+                         </div>
+                         </div>
+                        
                          <div class="col-md-3 ">
                          <label>Referencia</label>
                          <input type="text" id="referenciaWeb" 
@@ -319,10 +340,7 @@
                                     placeholder="codBarrasWeb" data-obj= "cajaPrecioSivaWeb" 
                                     value="<?php echo $datosWeb['precioSiva'];?>" onkeydown="controlEventos(event)"  >
                             </div>
-                            <div class="col-md-12">
-                                <br>
-                                <input class="btn btn-primary" type="button" value="Modificar en Web" name="modifWeb">
-                            </div>
+                            
                         </div>
                         <?php 
                         }
