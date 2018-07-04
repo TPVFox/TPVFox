@@ -256,7 +256,7 @@ function htmlOptionIvasWeb($ivas, $ivaProducto){
                 if ($ivaProducto === $item['iva']){
                     $es_seleccionado = ' selected';
                 }
-                $htmlIvas .= '<option value="'.$item['idIva'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
+                $htmlIvas .= '<option value="'.$item['iva'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
             }
 		}
 	return $htmlIvas;	

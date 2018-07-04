@@ -323,7 +323,17 @@ function recalcularPvpWeb(dedonde){
     $('#precioSivaWeb').val(precioSiva.toFixed(2));
 	$('#precioCivaWeb').val(precioCiva.toFixed(2));
 }
-
+function modificarIvaWeb(){
+    var iva=$( "#ivasWeb" ).val();
+    console.log(iva);
+    var precioSiva = parseFloat($('#precioSivaWeb').val(),2);
+    iva=iva/100;
+    console.log(iva);
+    var precioCiva=precioSiva+(precioSiva*iva);
+    console.log(precioCiva);
+    destacarCambioCaja('precioCivaWeb');
+    $('#precioCivaWeb').val(precioCiva.toFixed(2));
+}
 function obtenerIva(){
 	// @ Objetivo
 	// Obtener el iva a aplicar según el que tengamos seleccionado.

@@ -365,7 +365,7 @@
                         <div class="col-md-12">
                             <div class="col-md-4 ">
                                  <label>IVA</label>
-                                 <select name="ivasWeb">
+                                 <select name="ivasWeb" id="ivasWeb" onchange="modificarIvaWeb()">
                                     <?php echo $htmlIvasWeb;?>
                                  </select >
 <!--
