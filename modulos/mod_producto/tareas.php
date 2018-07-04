@@ -168,6 +168,9 @@ switch ($pulsado) {
         $respuesta['marcas']=$versiones;
         $respuesta['html']=$html;
     break;
+    case 'modificarDatosWeb':
+        include('./tareas/modificarDatosWeb.php');
+    break;
 }
 echo json_encode($respuesta);
 ?>

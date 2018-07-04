@@ -258,7 +258,7 @@ function htmlOptionIvasWeb($ivas, $ivaProducto){
                     
                     $es_seleccionado = ' selected';
                 }
-                $htmlIvas .= '<option value="'.$item['iva'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
+                $htmlIvas .= '<option value="'.$item['id_virtualmart'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
             }
 		}
 	return $htmlIvas;	

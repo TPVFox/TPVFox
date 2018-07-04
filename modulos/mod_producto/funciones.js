@@ -324,7 +324,8 @@ function recalcularPvpWeb(dedonde){
 	$('#precioCivaWeb').val(precioCiva.toFixed(2));
 }
 function modificarIvaWeb(){
-    var iva=$( "#ivasWeb" ).val();
+    //~ var iva=$( "#ivasWeb" ).val();
+    var iva=parseFloat($( "#ivasWeb option:selected" ).html(),2);
     console.log(iva);
     var precioSiva = parseFloat($('#precioSivaWeb').val(),2);
     iva=iva/100;
@@ -1111,4 +1112,22 @@ function modificarProductoWeb(){
         'iva':          $('#ivasWeb').val()
     };
     console.log(datos);
+     var parametros = {
+		"pulsado"    	: 'modificarDatosWeb',
+		"datos"	: datos
+		};
+     $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* Envio los datos para modificar el producto en la web  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de modificar los datos de la web  ');
+				var resultado = $.parseJSON(response);
+			
+				 
+		}	
+        });
 }
