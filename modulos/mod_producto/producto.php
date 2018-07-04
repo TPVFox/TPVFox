@@ -32,9 +32,7 @@
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
-       echo '<pre>';
-       print_r($ivas);
-       echo '</pre>';
+     
 		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
 	
 		$titulo = 'Productos:';
@@ -137,6 +135,19 @@
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
 		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
+          if(isset($datosProductoVirtual['Datos']['items']['item'])){
+            $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
+            $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
+           
+            if($Producto['iva']!=$datosWeb['iva']){
+                
+                $comprobacionIva=array(
+                'tipo'=>'warning',
+                'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
+                );
+               $Producto['comprobaciones'][]= $comprobacionIva;
+            }
+          } 
         ?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
@@ -287,8 +298,7 @@
                         </div>
                         <?php 
                         if(isset($datosProductoVirtual['Datos']['items']['item'])){
-                            $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
-                            $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
+                            
                             $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
                             $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
                             
@@ -368,12 +378,6 @@
                                  <select name="ivasWeb" id="ivasWeb" onchange="modificarIvaWeb()">
                                     <?php echo $htmlIvasWeb;?>
                                  </select >
-<!--
-                                  <input type="text" id="ivaWeb" 
-                                    name="iva_web"  size="10"
-                                    placeholder="iva" data-obj= "cajaIvaWeb" 
-                                    value="<?php //echo $datosWeb['iva'];?>" onkeydown="controlEventos(event)"  >
--->
                             </div>
                         </div>
                         <?php 

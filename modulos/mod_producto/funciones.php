@@ -253,7 +253,9 @@ function htmlOptionIvasWeb($ivas, $ivaProducto){
 	foreach ($ivas as $item){
             if($item['id_virtualmart']>0){
                 $es_seleccionado = '';
-                if ($ivaProducto === $item['iva']){
+                
+                if ($ivaProducto == $item['iva']){
+                    
                     $es_seleccionado = ' selected';
                 }
                 $htmlIvas .= '<option value="'.$item['iva'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
