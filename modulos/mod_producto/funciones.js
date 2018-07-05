@@ -307,8 +307,10 @@ function recalcularPvp(dedonde){
 	
 }
 function recalcularPvpWeb(dedonde){
-    var iva=parseFloat($('#ivaWeb').val(),2);
+    //~ var iva=parseFloat($('#ivaWeb').val(),2);
+    var iva=parseFloat($( "#ivasWeb option:selected" ).html(),2);
     iva= iva/100;
+    console.log(iva);
     if (dedonde === 'precioSivaWeb'){
 		var precioSiva = parseFloat($('#precioSivaWeb').val(),2);
 		var precioCiva = precioSiva+(precioSiva*iva);
@@ -623,8 +625,11 @@ function controladorAcciones(caja,accion, tecla){
 			}
 		break
 		case 'recalcularPvpWeb':
+            console.log("entre en recalcular web");
             var re= comprobarNumero(caja.darValor());
+            
                 if ( re === true){
+                    console.log(caja.darValor());
                     recalcularPvpWeb(caja.id_input);
 			}
         break;
@@ -1101,33 +1106,4 @@ function mostrarSelectVersiones(modelo){
         });
 }
 
-function modificarProductoWeb(){
-    console.log("entre en modificar producto web ");
-    var datos={
-        'estado':       $('#estadosWeb').val(),
-        'referencia':   $('#referenciaWeb').val(),
-        'nombre':       $('#nombreWeb').val(),
-        'codBarras':    $('#codBarrasWeb').val(),
-        'precioSiva':   $('#precioSivaWeb').val(),
-        'iva':          $('#ivasWeb').val()
-    };
-    console.log(datos);
-     var parametros = {
-		"pulsado"    	: 'modificarDatosWeb',
-		"datos"	: datos
-		};
-     $.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-        type       : 'post',
-		beforeSend : function () {
-		console.log('********* Envio los datos para modificar el producto en la web  **************');
-		},
-		success    :  function (response) {
-				console.log('Respuesta de modificar los datos de la web  ');
-				var resultado = $.parseJSON(response);
-			
-				 
-		}	
-        });
-}
+

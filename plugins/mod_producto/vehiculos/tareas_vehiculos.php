@@ -87,6 +87,14 @@ $ObjVehiculos = new PluginClaseVehiculos();
 			}
 			
 		break;
+        case 'modificarDatosWeb':
+            $datos = $_POST['datos'];
+            
+			$respuesta = array();
+			$modificarProducto = $ObjVehiculos->modificarProducto($datos);
+            $respuesta['datos']=$datos;
+			$respuesta['resul']= $modificarProducto;
+        break;
 		
 	}
 // Devolvemos.

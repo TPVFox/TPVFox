@@ -43,20 +43,22 @@ class PluginClaseVehiculos extends ClaseConexion{
 	}
 	public function htmlDatosProductoSeleccionado($idProducto, $ivas){
         $respuesta=array();
+        $HostNombre = $this->HostNombre;
         $datosProductoVirtual=$this->ObtenerDatosDeProducto($idProducto);
         $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
         $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
         $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
         $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
-        
-        $html='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
+         $html	='<script>var ruta_plg_vehiculos = "'.$this->Ruta_plugin.'"</script>'
+				.'<script src="'.$HostNombre.'/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>';
+        $html.='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
                         value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">'
         .'      </div>'
         .'      <div class="col-md-12">'
         .'          <div class="col-md-7">'
-        .'                <h4> Datos del producto en la tienda Web </h4>'
+        .'                <h4> Datos del producto en la tienda Web </h4><p id="idWeb">'.$idProducto.'</p>'
         .'           </div>'
         .'           <div class="col-md-5">';
          if($datosWeb['estado']==1){
@@ -378,6 +380,25 @@ class PluginClaseVehiculos extends ClaseConexion{
 		$parametros = array('key' 			=>$this->key_api,
 							'action'		=>'ObtenerProducto',
 							'id_virtuemart'	=>$idVirtuemart
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		return $respuesta;
+    }
+    
+    function modificarProducto($datos){
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'ModificarProducto',
+							'datos'	=>$datos
 						);
 		// [CONEXION CON SERVIDOR REMOTO] 
 		// Primero comprobamos si existe curl en nuestro servidor.
