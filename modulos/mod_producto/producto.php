@@ -324,14 +324,7 @@
 						$titulo = 'Productos en otras tiendas.';
 						echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
 						
-                        if (isset($htmlVehiculos)){
-                            $num = 5; // Numero collapse;
-                            $titulo = 'Vehiculos que montan este productos.';
-                            echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
-                        }
-                        if (isset($htmlLinkVirtuemart)){
-							echo $htmlLinkVirtuemart;
-						}
+                        
                         
                     	?>
                     
@@ -348,6 +341,23 @@
                                echo $datosProductoWeb['html']; 
                         }
                         ?>
+                        
+                         <div class="col-md-6 text-center">
+                            
+                                <div class="panel-group">
+                                    <?php
+                                    if (isset($htmlVehiculos)){
+                                            $num = 5; // Numero collapse;
+                                            $titulo = 'Vehiculos que montan este productos.';
+                                            echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
+                                    }
+                                    if (isset($htmlLinkVirtuemart)){
+                                            echo $htmlLinkVirtuemart;
+                                    }
+                                    
+                                     ?>
+                                </div>
+                         </div>
 			
 		<!--fin de div container-->
 		<?php // Incluimos paginas modales

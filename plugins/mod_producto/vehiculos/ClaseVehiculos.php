@@ -49,7 +49,7 @@ class PluginClaseVehiculos extends ClaseConexion{
         $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
         $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
         
-        $html='<div class="col-md-6"><div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>'
+        $html='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
                         value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">'
