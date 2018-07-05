@@ -119,7 +119,8 @@
                         }
                         
                         
-                        $datosProductoVirtual=$ObjVersiones->ObtenerDatosDeProducto($idVirtuemart);
+                        //~ $datosProductoVirtual=$ObjVersiones->ObtenerDatosDeProducto($idVirtuemart);
+                        $datosProductoWeb=$ObjVersiones->htmlDatosProductoSeleccionado($idVirtuemart, $ivas);
                         //~ echo '<pre>';
                         //~ print_r($datosProductoVirtual);
                         //~ echo '</pre>';
@@ -135,19 +136,19 @@
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
 		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
-          if(isset($datosProductoVirtual['Datos']['items']['item'])){
-            $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
-            $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
+          //~ if(isset($datosProductoVirtual['Datos']['items']['item'])){
+            //~ $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
+            //~ $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
            
-            if($Producto['iva']!=$datosWeb['iva']){
+            //~ if($Producto['iva']!=$datosWeb['iva']){
                 
-                $comprobacionIva=array(
-                'tipo'=>'warning',
-                'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
-                );
-               $Producto['comprobaciones'][]= $comprobacionIva;
-            }
-          } 
+                //~ $comprobacionIva=array(
+                //~ 'tipo'=>'warning',
+                //~ 'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
+                //~ );
+               //~ $Producto['comprobaciones'][]= $comprobacionIva;
+            //~ }
+          //~ } 
         ?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
@@ -298,90 +299,8 @@
                         </div>
                        
                         <?php 
-                        if(isset($datosProductoVirtual['Datos']['items']['item'])){
-                            
-                            $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
-                            $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
-                            
-                            
-                        ?>
-                        <div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
-                         <div class="col-md-12">
-                                <input class="btn btn-primary" type="button" value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">
-                        </div>
-                        <div class="col-md-12">
-                            <div class="col-md-7">
-                                <h4> Datos del producto en la tienda Web </h4>
-                            </div>
-                            <div class="col-md-5">
-                                <?php
-                                if($datosWeb['estado']==1){
-                                    $htmlEstado='<label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
-                                    <option value="0">Sin publicar</option></select></label>';
-                                }else{
-                                     $htmlEstado='<label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="0">Sin publicar</option>
-                                    <option value="1">Publicado</option></select></label>';
-                                }
-                                echo $htmlEstado;
-                                ?>
-                            </div>
-                         </div>
-                         <div class="col-md-12">
-                         <div class="col-md-3 ">
-                         <label>Referencia</label>
-                         <input type="text" id="referenciaWeb" 
-                                name="cref_tienda_principal_web" size="10" 
-                                placeholder="referencia producto" data-obj= "cajaReferenciaWeb" 
-                                value="<?php echo $datosWeb['refTienda'];?>" onkeydown="controlEventos(event)"  >
-
-                         </div>
-                         <div class="col-md-8 ">
-                          <label>Nombre del producto</label>
-                           <input type="text" id="nombreWeb" 
-                                name="nombre_web"  size="50"
-                                placeholder="nombreWeb" data-obj= "cajaNombreWeb" 
-                                value="<?php echo $datosWeb['articulo_name'];?>" onkeydown="controlEventos(event)"  >
-                                 <div class="invalid-tooltip-articulo_name" display="none">
-								No permitimos la doble comilla (") 
-							</div>
-                         </div>
-                        </div>
-                        <div class="col-md-12">
-                            <h4> Precios de venta en Web </h4>
-                        </div>
-                         <div class="col-md-12">
-                            <div class="col-md-4 ">
-                                 <label>Código de  barras</label>
-                                  <input type="text" id="codBarrasWeb" 
-                                    name="cod_barras_web"  size="10"
-                                    placeholder="codBarrasWeb" data-obj= "cajaCodBarrasWeb" 
-                                    value="<?php echo $datosWeb['codBarra'];?>" onkeydown="controlEventos(event)"  >
-                            </div>
-                            <div class="col-md-4 ">
-                                 <label>Precio Sin iva</label>
-                                  <input type="text" id="precioSivaWeb" 
-                                    name="PrecioSiva_web"  size="10"
-                                    placeholder="precioSiva" data-obj= "cajaPrecioSivaWeb" 
-                                    value="<?php echo round($datosWeb['precioSiva'],2);?>" onkeydown="controlEventos(event)" onblur="controlEventos(event)" >
-                            </div>
-                             <div class="col-md-4 ">
-                                 <label>Precio Con iva</label>
-                                  <input type="text" id="precioCivaWeb" 
-                                    name="PrecioCiva_web"  size="10"
-                                    placeholder="precioCiva" data-obj= "cajaPrecioCivaWeb" 
-                                    value="<?php echo round($precioCivaWeb,2);?>" onkeydown="controlEventos(event)"  onblur="controlEventos(event)">
-                            </div>
-                            
-                        </div>
-                        <div class="col-md-12">
-                            <div class="col-md-4 ">
-                                 <label>IVA</label>
-                                 <select name="ivasWeb" id="ivasWeb" onchange="modificarIvaWeb()">
-                                    <?php echo $htmlIvasWeb;?>
-                                 </select >
-                            </div>
-                        </div>
-                        <?php 
+                        if(isset($datosProductoWeb['html'])){
+                               echo $datosProductoWeb['html']; 
                         }
                         ?>
                     </div>
