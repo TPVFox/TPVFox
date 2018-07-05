@@ -26,91 +26,47 @@
 		
 	//INICIALIZAMOS variables para el plugin de paginado:
 	$mensaje_error = array();
-	$campos = array();
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$filtro = ''; // por defecto
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
-	$LinkBase = './ListaTickets.php?';
-	$OtrosParametros = '';
-	$desde = 0;
-	$sufijo = '';
-	$prefijo = '';
-	$htmlPG = '';
-	$idUsuario = 0;
-	$idCierre = 0;
+	//~ $campos = array();
+	//~ $palabraBuscar=array();
+	//~ $stringPalabras='';
+	//~ $filtro = ''; // por defecto
+	//~ $PgActual = 1; // por defecto.
+	//~ $LimitePagina = 40; // por defecto.
+	//~ $LinkBase = './ListaTickets.php?';
+	//~ $OtrosParametros = '';
+	//~ $desde = 0;
+	//~ $sufijo = '';
+	//~ $prefijo = '';
+	//~ $htmlPG = '';
+	//~ $idUsuario = 0;
+	//~ $idCierre = 0;
 	$idTienda = $Tienda['idTienda'];
-	
+    
+
+
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
 	if (count($_GET)>0 ){
 		// Quiere decir que hay algún get
 		$estado_ticket 	= $_GET['estado'];
 		$idUsuario 		= $_GET['idUsuario'];
 		$idCierre 		= $_GET['idCierre'];
-		$LinkBase .= 'estado='.$estado_ticket.'&idUsuario='.$idUsuario.'&idCierre='.$idCierre.'&';
-		if (isset($_GET['pagina']) || isset($_GET['buscar'])){
-			if (isset($_GET['pagina'])) {
-				// En que pagina estamos.
-				$PgActual = $_GET['pagina'];
-			}
-			if (isset($_GET['buscar'])) {
-				//recibo un string con 1 o mas palabras
-				$stringPalabras = $_GET['buscar'];
-				$palabraBuscar = explode(' ',$_GET['buscar']); 
-				// Montamos array de campos
-				$campos = array (
-					'0' => array(
-						'nombre_campo'		=> 'formaPago',
-						'tipo_comparador'	=> 'LIKE'
-					),
-					'1' => array(
-						'nombre_campo'		=> 'Numticket',
-						'tipo_comparador'	=> 'LIKE'
-					),
-					'2' => array(
-						'nombre_campo'		=> 'Nombre',//nombre cliente
-						'tipo_comparador'	=> 'LIKE'
-					)
-				);
-				
-			}
-		}
-		
-	}
-	
-	$OtrosParametros=$stringPalabras;	// Lo necesitamos en paginacion.
-	// Creamos filtro para contar.	
-	$filtroContar = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
-	// Obtenemos tickets para ese usuario y de ese cierre.
-	$Tickets = obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$filtroContar);
-	// Contamos Registros.	
-	$CantidadRegistros = count($Tickets);
-	
-	if (gettype($CantidadRegistros) !== 'integer'){
-		// Quiere decir que hubo un error en la consulta.
-		$mensaje_error = ' Algo salio mal en la primera consulta... ';
-	}
-	
-	// Obtenemos paginación si $CantidadRegistros es mayo al Limite
-	if ( $CantidadRegistros > $LimitePagina){
-		$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-		// Enviamos desde donde buscamos.
-		$desde = (($PgActual-1) * $LimitePagina); 
-		// Montamos $sufijo...
-		$sufijo = ' LIMIT '.$LimitePagina.' OFFSET '.$desde;
-	}
-	
-	
-	// Creamos filtro pero con sufijo para mostrar solo los registros de la pagina.
-	$filtro = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
-	//~ echo '<pre>';
-	//~ echo $filtro;
-	//~ echo '</pre>';
-	
-	
-	$Tickets = obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$filtro);
-	
+        // ===========    Paginacion  ====================== //
+        $NPaginado = new PluginClasePaginacion(__FILE__);
+        $campos = array ('formaPago','Numticket','Nombre');
+        $NPaginado->SetCamposControler($Controler,$campos);
+        //~ $NPaginado->SetOrderConsulta('a.Numalbpro');
+        $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+        $Tickets =  obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$filtro);;
+        $CantidadRegistros = count($Tickets );
+        $NPaginado->SetCantidadRegistros($CantidadRegistros);
+        $htmlPG = $NPaginado->htmlPaginado();
+            
+        //~ echo '<pre>';
+        //~ print_r($NPaginado);
+        //~ echo '</pre>';
+
+        // El paginado creo que no funciona , ya que no ponemos link base, los get idUsuario y idCierre
+        
 	
 	?>
 	
