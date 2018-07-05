@@ -14,7 +14,7 @@ Numero tecla:
 		<mostrar_lista nombre="articulo_name" buscar_default="Si" descripcion="Nombre del producto" >Si</mostrar_lista>
 		<mostrar_lista nombre="crefTienda" descripcion="Referencia propia">Si</mostrar_lista>
 		<mostrar_lista nombre="codBarras" descripcion="Codigo Barras">Si</mostrar_lista>
-		<filtro nombre="seleccion_productos">No</filtro>
+		<filtro nombre="seleccion_productos">Si</filtro>
 	</configuracion>
 	
 	

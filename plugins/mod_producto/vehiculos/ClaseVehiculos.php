@@ -42,14 +42,61 @@ class PluginClaseVehiculos extends ClaseConexion{
 		return $this->Ruta_plugin; 
 	}
 	
+	//~ public function htmlFormularioSeleccionVehiculo(){ 
+		//~ //@ Objetivo: 
+		//~ // Crear formulario html para selecciona Vehiculo
+		//~ $respuesta = array();
+		//~ $HostNombre = $this->HostNombre;
+		//~ $html	='<script>var ruta_plg_vehiculos = "'.$this->Ruta_plugin.'"</script>'
+				//~ .'<script src="'.$HostNombre.'/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>'
+				//~ .'<div class="row" id="SeleccionarVersion">'
+				//~ .'<div id="vehiculos_seleccionados">';
+		//~ if (isset($_SESSION['coches_seleccionados'])){
+			//~ foreach ($_SESSION['coches_seleccionados'] as $key=>$coche){
+				//~ $html.= $this->HtmlVehiculo($coche,$key);
+
+			//~ }
+		//~ }
+		//~ $html  .='</div>'
+				//~ .'	<!-- Presentacion de marca -->'
+				//~ .'		<div class="col-md-3 form-group marca">'
+				//~ .' 		<label class="marca">Marca</label>'
+				//~ .'			<!-- Cargamos select con marcas -->'
+				//~ .'			<select name="myMarca" id="myMarca" onchange="SeleccionMarca(event)">';
+		//~ $options = $this->ObtenerMarcasVehiculoWeb();
+		//~ $html .= $options['options_html'];		
+		//~ $html .='			</select>'
+				//~ .'		</div>'
+				//~ .'		<!-- Presentacion de modelo -->'
+				//~ .'		<div class="col-md-3 form-group nodelo">'
+				//~ .'			<label class="nodelo">Modelo</label>'
+				//~ .'			<!-- Cargamos select con marcas -->'
+				//~ .'			<select disabled name="Minodelo" id="myModelo" onchange="SeleccionModelo(event)">'
+				//~ .'				<option value="0">Seleccione una modelo</option>'
+				//~ .'			</select>'
+				//~ .'		</div>'
+				//~ .'		<!-- Presentacion de version -->'
+				//~ .'		<div class="col-md-3 form-group versiones">'
+				//~ .'			<label class="versiones">Versiones</label>'
+				//~ .'			<!-- Cargamos select con marcas -->'
+				//~ .'			<select disabled name="MiVersiones" id="myVersion">'
+				//~ .'				<option value="0">Seleccione una modelo</option>'
+				//~ .'			</select>'
+				//~ .'		</div>'
+				//~ .'		<div class="col-md-3 form-group enviar" style="margin-top:20px">'
+				//~ .'			<button class="btn btn-primary" onclick="SeleccionVersion(event,'
+				//~ ."'".$this->dedonde."'".')">Seleccionar</button>'
+				//~ .'		</div>'
+				//~ .'</div>';
+		//~ $respuesta['html'] = $html;
+		//~ return $respuesta;
+	//~ }
 	public function htmlFormularioSeleccionVehiculo(){ 
-		//@ Objetivo: 
-		// Crear formulario html para selecciona Vehiculo
-		$respuesta = array();
-		$HostNombre = $this->HostNombre;
-		$html	='<script>var ruta_plg_vehiculos = "'.$this->Ruta_plugin.'"</script>'
+        $respuesta = array();
+        $HostNombre = $this->HostNombre;
+        $html	='<script>var ruta_plg_vehiculos = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>'
-				.'<div class="row" id="SeleccionarVersion">'
+                .'<div class="row" id="SeleccionarVersion">'
 				.'<div id="vehiculos_seleccionados">';
 		if (isset($_SESSION['coches_seleccionados'])){
 			foreach ($_SESSION['coches_seleccionados'] as $key=>$coche){
@@ -58,40 +105,38 @@ class PluginClaseVehiculos extends ClaseConexion{
 			}
 		}
 		$html  .='</div>'
-				.'	<!-- Presentacion de marca -->'
-				.'		<div class="col-md-3 form-group marca">'
-				.' 		<label class="marca">Marca</label>'
-				.'			<!-- Cargamos select con marcas -->'
-				.'			<select name="myMarca" id="myMarca" onchange="SeleccionMarca(event)">';
-		$options = $this->ObtenerMarcasVehiculoWeb();
-		$html .= $options['options_html'];		
-		$html .='			</select>'
-				.'		</div>'
-				.'		<!-- Presentacion de modelo -->'
-				.'		<div class="col-md-3 form-group nodelo">'
-				.'			<label class="nodelo">Modelo</label>'
-				.'			<!-- Cargamos select con marcas -->'
-				.'			<select disabled name="Minodelo" id="myModelo" onchange="SeleccionModelo(event)">'
-				.'				<option value="0">Seleccione una modelo</option>'
-				.'			</select>'
-				.'		</div>'
-				.'		<!-- Presentacion de version -->'
-				.'		<div class="col-md-3 form-group versiones">'
-				.'			<label class="versiones">Versiones</label>'
-				.'			<!-- Cargamos select con marcas -->'
-				.'			<select disabled name="MiVersiones" id="myVersion">'
-				.'				<option value="0">Seleccione una modelo</option>'
-				.'			</select>'
-				.'		</div>'
-				.'		<div class="col-md-3 form-group enviar" style="margin-top:20px">'
-				.'			<button class="btn btn-primary" onclick="SeleccionVersion(event,'
-				."'".$this->dedonde."'".')">Seleccionar</button>'
-				.'		</div>'
-				.'</div>';
-		$respuesta['html'] = $html;
+                .'<div class="col-md-3">'
+                .   '<div class="ui-widget" id="divmarca">';
+        $options = $this->ObtenerMarcasVehiculoWeb();
+        $cantidad=count($options['items']['items']);
+        $html.='<label for="tags">Marca: '.$cantidad.'</label>'
+                .'<select id="combobox" class="marca">'
+                .'  <option value="0"></option>';
+        foreach ($options['items']['items'] as $marca){
+                $html.= '<option value="'.$marca['id'].'">'.$marca['nombre'].'</option>';
+        }
+        $html.='</select>'
+            .'</div>'
+            .' </div>'
+            .'<div class="col-md-3"  id="divModelo">'
+            .'   <div class="ui-widget">'
+            .'      <label for="tags" id="modeloLabel">Modelo: </label>'
+            .'      <select id="combobox" class="modelo">'
+            .'       </select>'
+            .'   </div>'
+            .'</div>'
+            .'<div class="col-md-6"  id="divVersion">'
+            .'  <div class="ui-widget">'
+            .'      <label for="tags" id="versionesLabel">Versiones: </label>'
+            .'      <select id="combobox" class="version">'
+            .'       </select>'
+            .'  </div>'
+            .'  <p id="botonVer"></p>'
+            .'</div>';
+            
+        $respuesta['html'] = $html;
 		return $respuesta;
-	}
-	
+    }
 	
 	public function ObtenerMarcasVehiculoWeb(){
 		// @Objetivo es obtener la marca que tenemos en el componente de la web. ('SELECT * FROM `prefijo_vehiculo_marcas` )

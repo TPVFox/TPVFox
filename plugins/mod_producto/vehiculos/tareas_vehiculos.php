@@ -43,8 +43,8 @@ $ObjVehiculos = new PluginClaseVehiculos();
 		case 'BuscarVehiculo':
 			$idVersion = $_POST['idVersion'];
 			$respuesta = array();
-			
 			$datosUnVehiculo = $ObjVehiculos->ObtenerUnVehiculo($idVersion);
+            
 			$respuesta= $datosUnVehiculo;
 		break;
 

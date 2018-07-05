@@ -92,7 +92,7 @@ function  SeleccionVersion(event="",dedonde=""){
 				GuardoVehiculoSeleccionado(resultado['Datos'].item,resultado['Datos'].recambios);
 				console.log(resultado['Datos'].item);
 				// Ahora tendría que redireccionar pero no se adonde, porque no tengo el dato en que pagina estoy...
-				location.href =dedonde;
+				 location.href =dedonde;
 			}
 			
 		}

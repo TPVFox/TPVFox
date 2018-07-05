@@ -208,19 +208,20 @@ echo $htmlConfiguracion['htmlCheck'];
                 </div>
                 <div class="col-md-10">
                     <div class="col-md-12">
+<!--
                         <div class="col-md-3">
                             <div class="ui-widget" id="divmarca">
                                 <?php 
-                                $marcas=$ObjVersiones->ObtenerMarcasVehiculoWeb();
-                                $cantidad=count($marcas['items']['items']);
+                                //~ $marcas=$ObjVersiones->ObtenerMarcasVehiculoWeb();
+                                //~ $cantidad=count($marcas['items']['items']);
                                 ?>
-                                <label for="tags">Marca: <?php echo $cantidad; ?></label>
+                                <label for="tags">Marca: <?php //echo $cantidad; ?></label>
                                 <select id="combobox" class="marca">
                                    <option value="0"></option>
                                     <?php 
-                                    foreach ($marcas['items']['items'] as $marca){
-                                        echo '<option value="'.$marca['id'].'">'.$marca['nombre'].'</option>';
-                                    }
+                                    //~ foreach ($marcas['items']['items'] as $marca){
+                                        //~ echo '<option value="'.$marca['id'].'">'.$marca['nombre'].'</option>';
+                                    //~ }
                                     ?>
                                 </select>
                             </div>
@@ -231,7 +232,7 @@ echo $htmlConfiguracion['htmlCheck'];
                                    <select id="combobox" class="modelo">
                                    
                                     </select>
-                            </div>
+                        </div>
                         </div>
                         <div class="col-md-6"  id="divVersion">
                             <div class="ui-widget">
@@ -243,7 +244,11 @@ echo $htmlConfiguracion['htmlCheck'];
                             </div>
                             <p id="botonVer"></p>
                         </div>
-                        
+-->
+                      <?php 
+                      $htmlconbobox=$ObjVersiones->htmlFormularioSeleccionVehiculo();
+                      echo $htmlconbobox['html'];
+                      ?>  
                     </div>
                
                   
