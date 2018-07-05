@@ -434,7 +434,6 @@ function obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$fil
 	// @ Objetivo : 
 	// Obtener listado de ticket cerrados de un cajero de un cierre
 	$resultado = array();
-	
 	// Obtenemos rango tickets para un cierre de un usuario
 	$rango = obtenerRangoTicketsUsuarioCierre($BDTpv,$idUsuario,$idCierre,$idTienda);
 	if (!isset($rango['error'])){
@@ -444,23 +443,21 @@ function obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$fil
 			// lo y la sustituimos por AND
 			$filtro =  str_replace('WHERE','AND',$filtro);
 			$sqlTickets .= ' '.$filtro;
+           
 		}
 		// Obtenemos los ticket para ese usuario y ese cierre.
 		$tickets = $BDTpv->query($sqlTickets);
 		if ($BDTpv->error !== true){
 			//~ error_log($sqlTickets);
 			while ($ticket = $tickets->fetch_assoc()){
-				$resultado[] = $ticket;
+				$resultado['tickets'][] = $ticket;
 			}
 		} else {
 			$resultado['error'] = ' No hay tickets para ese usuario y ese cierre';
-			$resultado['consulta2'] = $sqlTickets;
 		}
-	} else {
-		// Quiere decir que hubo un error.
-		$resultado = $rango; // 'La consulta o conexion dio un error';
-	}
-
+	} 
+	$resultado['rango'] = $rango; // 'La consulta o conexion dio un error';
+	$resultado['consulta2'] = $sqlTickets;
 	return $resultado;
 	
 }

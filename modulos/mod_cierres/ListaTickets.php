@@ -26,20 +26,7 @@
 		
 	//INICIALIZAMOS variables para el plugin de paginado:
 	$mensaje_error = array();
-	//~ $campos = array();
-	//~ $palabraBuscar=array();
-	//~ $stringPalabras='';
-	//~ $filtro = ''; // por defecto
-	//~ $PgActual = 1; // por defecto.
-	//~ $LimitePagina = 40; // por defecto.
-	//~ $LinkBase = './ListaTickets.php?';
-	//~ $OtrosParametros = '';
-	//~ $desde = 0;
-	//~ $sufijo = '';
-	//~ $prefijo = '';
-	//~ $htmlPG = '';
-	//~ $idUsuario = 0;
-	//~ $idCierre = 0;
+	
 	$idTienda = $Tienda['idTienda'];
     
 
@@ -52,22 +39,27 @@
 		$idCierre 		= $_GET['idCierre'];
         // ===========    Paginacion  ====================== //
         $NPaginado = new PluginClasePaginacion(__FILE__);
+        // Ahora añadimos parametros estado,idusuario,idCierre para que en todas las paginas se envie tb.
+        $otrosParametros = 'estado='.$_GET['estado'].'&idUsuario='.$_GET['idUsuario'].'&idCierre='. $_GET['idCierre'].'&';
+        $NPaginado->AnahadirLinkBase($otrosParametros);
         $campos = array ('formaPago','Numticket','Nombre');
         $NPaginado->SetCamposControler($Controler,$campos);
         //~ $NPaginado->SetOrderConsulta('a.Numalbpro');
         $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
-        $Tickets =  obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$filtro);;
-        $CantidadRegistros = count($Tickets );
+        $t =  obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda);
+        $CantidadRegistros = count($t['tickets']);
         $NPaginado->SetCantidadRegistros($CantidadRegistros);
+        $t =  obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$filtro.$NPaginado->GetLimitConsulta());
+        $Tickets = $t['tickets'];
         $htmlPG = $NPaginado->htmlPaginado();
             
         //~ echo '<pre>';
-        //~ print_r($NPaginado);
+        //~ print_r($t);
         //~ echo '</pre>';
 
         // El paginado creo que no funciona , ya que no ponemos link base, los get idUsuario y idCierre
         
-	
+	}
 	?>
 	
 	<script>
