@@ -41,96 +41,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 	public function getRutaPlugin(){
 		return $this->Ruta_plugin; 
 	}
-	public function htmlDatosProductoSeleccionado($idProducto, $ivas){
-        $respuesta=array();
-        $HostNombre = $this->HostNombre;
-        $datosProductoVirtual=$this->ObtenerDatosDeProducto($idProducto);
-        $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
-        $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
-        $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
-        $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
-         $html	='<script>var ruta_plg_vehiculos = "'.$this->Ruta_plugin.'"</script>'
-				.'<script src="'.$HostNombre.'/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>';
-        $html.='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
-        .'      <div class="col-md-12">'
-        .'          <input class="btn btn-primary" type="button" 
-                        value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">'
-        .'      </div>'
-        .'      <div class="col-md-12">'
-        .'          <div class="col-md-7">'
-        .'                <h4> Datos del producto en la tienda Web </h4><p id="idWeb">'.$idProducto.'</p>'
-        .'           </div>'
-        .'           <div class="col-md-5">';
-         if($datosWeb['estado']==1){
-        $html.='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
-                                    <option value="0">Sin publicar</option></select></label>';
-        }else{
-        $html.='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="0">Sin publicar</option>
-                                    <option value="1">Publicado</option></select></label>';
-        }
-        $html.='    </div>'
-        .'      </div>'
-        .'       <div class="col-md-12">'
-        .'           <div class="col-md-3 ">'
-        .'               <label>Referencia</label>'
-        .'               <input type="text" id="referenciaWeb" 
-                                name="cref_tienda_principal_web" size="10" 
-                                placeholder="referencia producto" data-obj= "cajaReferenciaWeb" 
-                                value="'.$datosWeb['refTienda'].'" onkeydown="controlEventos(event)"  >'
-        .'          </div>'
-        .'          <div class="col-md-8 ">'
-        .'              <label>Nombre del producto</label>'
-        .'              <input type="text" id="nombreWeb" 
-                                name="nombre_web"  size="50"
-                                placeholder="nombreWeb" data-obj= "cajaNombreWeb" 
-                                value="'. $datosWeb['articulo_name'].'" onkeydown="controlEventos(event)"  >
-                                 <div class="invalid-tooltip-articulo_name" display="none">
-                                    No permitimos la doble comilla (") 
-                                </div>'
-        .'          </div>'
-        .'      </div>'
-        .'      <div class="col-md-12">'
-        .'          <h4> Precios de venta en Web </h4>'
-        .'       </div>'
-        .'       <div class="col-md-12">'
-        .'           <div class="col-md-4 ">'
-        .'               <label>Código de  barras</label>'
-        .'               <input type="text" id="codBarrasWeb" 
-                                    name="cod_barras_web"  size="10"
-                                    placeholder="codBarrasWeb" data-obj= "cajaCodBarrasWeb" 
-                                    value="'.$datosWeb['codBarra'].'" onkeydown="controlEventos(event)"  >'
-        .'          </div>'
-        .'          <div class="col-md-4 ">'
-        .'              <label>Precio Sin iva</label>'
-        .'              <input type="text" id="precioSivaWeb" 
-                                    name="PrecioSiva_web"  size="10"
-                                    placeholder="precioSiva" data-obj= "cajaPrecioSivaWeb" 
-                                    value="'.round($datosWeb['precioSiva'],2).'" 
-                                    onkeydown="controlEventos(event)" onblur="controlEventos(event)" >'
-        .'          </div>'
-        .'          <div class="col-md-4 ">'
-        .'              <label>Precio Con iva</label>'
-        .'              <input type="text" id="precioCivaWeb" 
-                                    name="PrecioCiva_web"  size="10"
-                                    placeholder="precioCiva" data-obj= "cajaPrecioCivaWeb" 
-                                    value="'.round($precioCivaWeb,2).'" onkeydown="controlEventos(event)" 
-                                     onblur="controlEventos(event)">'
-        .'          </div>'
-        .'      </div>'
-        .'      <div class="col-md-12">'
-        .'          <div class="col-md-4 ">'
-        .'              <label>IVA</label>'
-        .'              <select name="ivasWeb" id="ivasWeb" onchange="modificarIvaWeb()">'
-        .'                  '.$htmlIvasWeb
-        .'              </select >'   
-        .'          </div>'
-        .'      </div>'
-        .'  </div>';
-        
-        $respuesta['html']=$html;
-        return $respuesta;
-        
-    }
+	
 	public function htmlFormularioSeleccionVehiculo(){ 
         $respuesta = array();
         $HostNombre = $this->HostNombre;
@@ -375,43 +286,7 @@ class PluginClaseVehiculos extends ClaseConexion{
 		
 	}
     
-    function ObtenerDatosDeProducto($idVirtuemart){
-        $ruta =$this->ruta_web;
-		$parametros = array('key' 			=>$this->key_api,
-							'action'		=>'ObtenerProducto',
-							'id_virtuemart'	=>$idVirtuemart
-						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
-		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
-		return $respuesta;
-    }
-    
-    function modificarProducto($datos){
-        $ruta =$this->ruta_web;
-		$parametros = array('key' 			=>$this->key_api,
-							'action'		=>'ModificarProducto',
-							'datos'	=>$datos
-						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
-		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
-		return $respuesta;
-    }
+  
 	
 	
 }

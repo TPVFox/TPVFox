@@ -117,8 +117,8 @@
                         if (isset($vehiculos['Datos'])) {
                             $htmlVehiculos = $vehiculos['Datos']['html'];
                         }
-                        $datosProductoWeb=$ObjVersiones->htmlDatosProductoSeleccionado($idVirtuemart, $ivas);
-                       
+                        $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas);
+                      
 					}
 				}
 			}
@@ -162,7 +162,7 @@
 		</script>
 
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
- <script src="<?php echo $HostNombre; ?>/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>
+ <script src="<?php echo $HostNombre; ?>/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>
 	</head>
 	<body>
 		<?php     
