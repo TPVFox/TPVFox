@@ -946,7 +946,9 @@ function comprobarRecalculosSuperiores($productos, $CArticulo){
             $productos['error']=$datosHistorico['error'];
             $productos['consulta']=$datosHistorico['consulta'];
         }else{
-            if(count($datosHistorico)>1){
+            // Si encuentra uno superior entonces cambiamos estado "Sin revisar" ya que o se va revisar o ya esta revisado
+            // con fecha superior.
+            if(count($datosHistorico)>0){
                 $productos[$i]['estado']="Sin revisar";
                 //producto['id'] es el id del regitro de historico precio de ese producto
                 $modHistorico=$CArticulo->modificarRegHistorico($producto['id'], "Sin revisar");
