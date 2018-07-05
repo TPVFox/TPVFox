@@ -289,6 +289,13 @@ class PluginClasePaginacion {
 		// Calculamos el total paginas.
 		$this->CuantasPaginas();
 	}
+
+    public function AnahadirLinkBase($otrosParametros){
+        // @Objetivo
+        // Es añadir al linkbase otros parametros que podemos necesitar enviar por get
+        // $otrosParametros -> (string) con los parametros queremos enviar a mayores pagina y buscar.
+        $this->LinkBase = $this->LinkBase.$otrosParametros;
+    }
 	
 }
 
