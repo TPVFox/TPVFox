@@ -297,15 +297,7 @@
                                        value="<?php echo number_format($Producto['stocks']['stockOn'], 2, '.', ''); ?>"   >
                             </div>
                         </div>
-                       
-                        <?php 
-                        if(isset($datosProductoWeb['html'])){
-                               echo $datosProductoWeb['html']; 
-                        }
-                        ?>
                     </div>
-                   
-                    
                     <div class="col-md-6 text-center">
 					 <div class="panel-group">
 						<!-- Inicio collapse de CobBarras --> 
@@ -350,7 +342,13 @@
 				<!-- Fin div col-md-6 -->
 				</div>
 			</div>
-			</form>
+            </form>
+            <?php 
+                        if(isset($datosProductoWeb['html'])){
+                               echo $datosProductoWeb['html']; 
+                        }
+                        ?>
+			
 		<!--fin de div container-->
 		<?php // Incluimos paginas modales
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
