@@ -30,6 +30,7 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                 .'<h4>Enviar correo a :'.$datos['nombreUsuario'].'</h4>
                 <div class="col-md-12">
                     Id del producto: <p id="idProducto">'.$datos['id'].'</p>
+                    <input type="text" id="idNotificacion" value="'.$datos['idNotificacion'].'" style="display:none">
                 </div>
                 '
                 .'<div class="col-md-12">
@@ -71,8 +72,10 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                    $respuesta['error']=$mail->ErrorInfo;
                    
             } else {
+                
                    $respuesta['mail']= 2;
-                   
+                   $modificarEstadoNotificacion = $ObjViruemart->modificarNotificacion($datos['idNotificacion']);
+                   $respuesta['modificacion']=$modificarEstadoNotificacion;
                    
             }
         break;

@@ -37,9 +37,11 @@ function ModalNotificacion(numLinea){
         'nombreProducto': $('#nombreWeb').val(),
         'id':             $('#idWeb').html(),
         'correo':         $('#mail_'+numLinea).html(),
-        'nombreUsuario':  $('#nombre_'+numLinea).html()
+        'nombreUsuario':  $('#nombre_'+numLinea).html(),
+        'idNotificacion':  $('#idNotificacion_'+numLinea).val(), 
         
     };
+    console.log(datos);
      var parametros = {
 		"pulsado"    	: 'mostrarModalNotificacion',
 		"datos"	: datos
@@ -71,7 +73,8 @@ function enviarCorreoNotificacion(){
         'email':$('#email').val(),
         'asunto':$('#asunto').val(),
         'mensaje':$('#mensaje').val(),
-        'idProducto':$('#idProducto').html()
+        'idProducto':$('#idProducto').html(),
+        'idNotificacion':  $('#idNotificacion').val(), 
     };
       var parametros = {
 		"pulsado"    	: 'enviarCorreoNotificacion',
@@ -88,8 +91,13 @@ function enviarCorreoNotificacion(){
 				console.log('Respuesta de mostrar el modal de notificaciones  ');
 				var resultado = $.parseJSON(response);
                 console.log(resultado);
-               
-                cerrarModal();
+               if(resultado.mail==1){
+                   alert(resultado.error);
+               }else{
+                   
+                     cerrarModal();
+               }
+              
                 
 				 
 		}	

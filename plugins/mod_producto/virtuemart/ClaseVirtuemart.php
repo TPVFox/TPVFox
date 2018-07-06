@@ -271,6 +271,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
                     <tr>
                         <td>Nombre</td>
                         <td>Correo</td>
+                        <td></td>
                         <td>Enviar</td>
                     </tr>
                 </thead>
@@ -279,9 +280,11 @@ class PluginClaseVirtuemart extends ClaseConexion{
                     $html.='<tr>
                         <td id="nombre_'.$i.'">'.$dato['nombreUsuario'].'</td>
                         <td id="mail_'.$i.'">'.$dato['email'].'</td>
+                         <td><input type="text" id="idNotificacion_'.$i.'" value="'.$dato['idNotificacion'].'" style="display:none"></td>
                         <td> <a  onclick="ModalNotificacion('.$i.')">
                             <span class="glyphicon glyphicon-envelope"></span>
                         </a></td>
+                       
                     </tr>';
                     $i++;
                 }
@@ -291,6 +294,27 @@ class PluginClaseVirtuemart extends ClaseConexion{
         }
         return $html;
        
+    }
+       function modificarNotificacion($idNotificacion){
+        //@Objetivo: Modificar un producto en la web con los datos que el usuario 
+        //añada en el tpv
+        //@Parametros: datos principales del producto
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'modificarNotificacion',
+							'idNotificacion'	=>$idNotificacion
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		return $respuesta;
     }
 }
 ?>
