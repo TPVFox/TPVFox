@@ -184,15 +184,15 @@ class PluginClaseVirtuemart extends ClaseConexion{
         .'               <label>Referencia</label>'
         .'               <input type="text" id="referenciaWeb" 
                                 name="cref_tienda_principal_web" size="10" 
-                                placeholder="referencia producto" data-obj= "cajaReferenciaWeb" 
-                                value="'.$datosWeb['refTienda'].'" onkeydown="controlEventos(event)"  >'
+                                placeholder="referencia producto"
+                                value="'.$datosWeb['refTienda'].'"  >'
         .'          </div>'
         .'          <div class="col-md-8 ">'
         .'              <label>Nombre del producto</label>'
         .'              <input type="text" id="nombreWeb" 
                                 name="nombre_web"  size="50"
-                                placeholder="nombreWeb" data-obj= "cajaNombreWeb" 
-                                value="'. $datosWeb['articulo_name'].'" onkeydown="controlEventos(event)"  >
+                                placeholder="nombreWeb" 
+                                value="'. $datosWeb['articulo_name'].'"  >
                                  <div class="invalid-tooltip-articulo_name" display="none">
                                     No permitimos la doble comilla (") 
                                 </div>'
@@ -206,8 +206,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
         .'               <label>Código de  barras</label>'
         .'               <input type="text" id="codBarrasWeb" 
                                     name="cod_barras_web"  size="10"
-                                    placeholder="codBarrasWeb" data-obj= "cajaCodBarrasWeb" 
-                                    value="'.$datosWeb['codBarra'].'" onkeydown="controlEventos(event)"  >'
+                                    placeholder="codBarrasWeb" 
+                                    value="'.$datosWeb['codBarra'].'"  >'
         .'          </div>'
         .'          <div class="col-md-4 ">'
         .'              <label>Precio Sin iva</label>'
@@ -260,12 +260,13 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
     public function htmlNotificacionesProducto($idProducto){
         $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
+       
         $respuesta=array();
         if(count($datosNotificaciones['Datos']['items'])==0){
            $html='<div class="alert alert-info">Este producto no tiene notificaciones de Clientes</div>';
         }else{
-             $datos=$datosNotificaciones['Datos']['items']['item'];
-             $html='<table>
+             $datos=$datosNotificaciones['Datos']['items'];
+             $html='<table class="table table-striped">
                 <thead>
                     <tr>
                         <td>Nombre</td>
@@ -278,7 +279,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
                     $html.='<tr>
                         <td>'.$dato['nombreUsuario'].'</td>
                         <td>'.$dato['email'].'</td>
-                        <td> <a href="#" onclick="enviarCorreoNotificacion()">
+                        <td> <a  onclick="enviarCorreoNotificacion()">
                             <span class="glyphicon glyphicon-envelope"></span>
                         </a></td>
                     </tr>';
