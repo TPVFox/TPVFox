@@ -114,10 +114,18 @@
 						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($idVirtuemart);
                         // Monto html de vehiculos.
                         $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
+                        //~ echo '<pre>';
+                        //~ print_r($vehiculos);
+                        //~ echo '</pre>';
                         if (isset($vehiculos['Datos'])) {
                             $htmlVehiculos = $vehiculos['Datos']['html'];
                         }
                         $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas);
+                        $htmlnotificaciones=$ObjVirtuemart->htmlNotificacionesProducto($idVirtuemart);
+                        //~ echo '<pre>';
+                        //~ print_r($notificaciones);
+                        //~ echo '<pre>';
+                        
                       
 					}
 				}
@@ -346,9 +354,15 @@
                                             $titulo = 'Vehiculos que montan este productos.';
                                             echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
                                     }
+                                    if(isset( $htmlnotificaciones)){
+                                         $num = 6; // Numero collapse;
+                                            $titulo = 'Notificaciones de clientes.';
+                                            echo  htmlPanelDesplegable($num,$titulo,$htmlnotificaciones);
+                                    }
                                     if (isset($htmlLinkVirtuemart)){
                                             echo $htmlLinkVirtuemart;
                                     }
+                                    
                                     
                                      ?>
                                 </div>

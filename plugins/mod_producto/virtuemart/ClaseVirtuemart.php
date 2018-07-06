@@ -240,5 +240,55 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $respuesta;
         
     }
+    public function ObtenerNotificacionesProducto($idProducto){
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'ObtenerNotificacionesProducto',
+							'idProducto'	=>$idProducto
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		return $respuesta;
+    }
+    public function htmlNotificacionesProducto($idProducto){
+        $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
+        $respuesta=array();
+        if(count($datosNotificaciones['Datos']['items'])==0){
+           $html='<div class="alert alert-info">Este producto no tiene notificaciones de Clientes</div>';
+        }else{
+             $datos=$datosNotificaciones['Datos']['items']['item'];
+             $html='<table>
+                <thead>
+                    <tr>
+                        <td>Nombre</td>
+                        <td>Correo</td>
+                        <td>Enviar</td>
+                    </tr>
+                </thead>
+                <tbody>';
+                foreach($datos as $dato){
+                    $html.='<tr>
+                        <td>'.$dato['nombreUsuario'].'</td>
+                        <td>'.$dato['email'].'</td>
+                        <td> <a href="#" onclick="enviarCorreoNotificacion()">
+                            <span class="glyphicon glyphicon-envelope"></span>
+                        </a></td>
+                    </tr>';
+                }
+                
+                $html.='</tbody>
+             </table>';
+        }
+        return $html;
+       
+    }
 }
 ?>
