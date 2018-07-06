@@ -120,8 +120,14 @@
                         if (isset($vehiculos['Datos'])) {
                             $htmlVehiculos = $vehiculos['Datos']['html'];
                         }
-                        $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas);
-                        $htmlnotificaciones=$ObjVirtuemart->htmlNotificacionesProducto($idVirtuemart);
+                         $htmlnotificaciones=$ObjVirtuemart->htmlNotificacionesProducto($idVirtuemart);
+                         //~ echo $htmlnotificaciones['email'];
+                         
+                        $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas, $htmlnotificaciones['email']);
+                        $htmlnotificaciones=$htmlnotificaciones['html'];
+                       
+                       
+                       
                         //~ echo '<pre>';
                         //~ print_r($notificaciones);
                         //~ echo '<pre>';
@@ -355,6 +361,7 @@
                                             echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
                                     }
                                     if(isset( $htmlnotificaciones)){
+                                        
                                          $num = 6; // Numero collapse;
                                             $titulo = 'Notificaciones de clientes.';
                                             echo  htmlPanelDesplegable($num,$titulo,$htmlnotificaciones);

@@ -145,7 +145,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
-    public function htmlDatosProductoSeleccionado($idProducto, $ivas){
+    public function htmlDatosProductoSeleccionado($idProducto, $ivas, $email){
         //@Objetivo: Mostrar el html de los datos de los productos de la web
         //@Parametros: idProducto: id de virtuemart
         //ivas: todos los ivas los necesito para saber cuales tiene el id de virtuemart
@@ -163,7 +163,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $html.='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
-                        value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">'
+                        value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">
+                    <input type="text" id="emailW"  style="display:none" value="'.$email.'">'
         .'      </div>'
         .'      <div class="col-md-12">'
         .'          <div class="col-md-7">'
@@ -260,6 +261,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
     public function htmlNotificacionesProducto($idProducto){
         $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
+        $resultado['email']=$datosNotificaciones['Datos']['email'];
        $i=1;
         $respuesta=array();
         if(count($datosNotificaciones['Datos']['items'])==0){
@@ -292,7 +294,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
                 $html.='</tbody>
              </table>';
         }
-        return $html;
+        $resultado['html']=$html;
+        return $resultado;
        
     }
        function modificarNotificacion($idNotificacion){

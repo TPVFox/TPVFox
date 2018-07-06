@@ -39,6 +39,7 @@ function ModalNotificacion(numLinea){
         'correo':         $('#mail_'+numLinea).html(),
         'nombreUsuario':  $('#nombre_'+numLinea).html(),
         'idNotificacion':  $('#idNotificacion_'+numLinea).val(), 
+        'emailEnvio':  $('#emailW').val()
         
     };
     console.log(datos);
@@ -74,7 +75,8 @@ function enviarCorreoNotificacion(){
         'asunto':$('#asunto').val(),
         'mensaje':$('#mensaje').val(),
         'idProducto':$('#idProducto').html(),
-        'idNotificacion':  $('#idNotificacion').val(), 
+        'idNotificacion':  $('#idNotificacion').val(),
+        'emailEnvio':  $('#emailW').val()
     };
       var parametros = {
 		"pulsado"    	: 'enviarCorreoNotificacion',
@@ -94,8 +96,8 @@ function enviarCorreoNotificacion(){
                if(resultado.mail==1){
                    alert(resultado.error);
                }else{
-                   
-                     cerrarModal();
+                    cerrarPopUp();
+                    location.reload(true);
                }
               
                 

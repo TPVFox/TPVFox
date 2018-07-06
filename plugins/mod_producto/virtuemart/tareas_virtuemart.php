@@ -31,6 +31,7 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                 <div class="col-md-12">
                     Id del producto: <p id="idProducto">'.$datos['id'].'</p>
                     <input type="text" id="idNotificacion" value="'.$datos['idNotificacion'].'" style="display:none">
+                    <input type="text" id="emailW"  style="display:none" value="'.$datos['emailEnvio'].'">
                 </div>
                 '
                 .'<div class="col-md-12">
@@ -63,7 +64,7 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
             
             $mail->isSendmail();
             //Poner direccion de multifrenos
-            $mail->setFrom('nataliaglez92@gmail.com', 'Nombre empresa');
+            $mail->setFrom($datos['emailEnvio'], $datos['emailEnvio']);
             $mail->addAddress($datos['email'], 'Nombre prueba');
             $mail->Subject = $datos['asunto'];
             $mail->Body = $datos['mensaje'];
