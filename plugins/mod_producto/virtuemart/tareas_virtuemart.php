@@ -8,11 +8,12 @@ include_once ("./../../../configuracion.php");
 //~ include_once ("./../mod_conexion/conexionBaseDatos.php");
 include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
 
+
 	// Solo creamos objeto si no existe.
 	$thisTpv = new ClaseSession();
 	$BDTpv = $thisTpv->getConexion();
-include ($RutaServidor.$HostNombre."/plugins/mod_producto/virtuemart/ClaseVirtuemart.php");
-$ObjViruemart = new PluginClaseVirtuemart();
+    include ($RutaServidor.$HostNombre."/plugins/mod_producto/virtuemart/ClaseVirtuemart.php");
+    $ObjViruemart = new PluginClaseVirtuemart();
 
 	switch ($pulsado) {
         case 'modificarDatosWeb':
@@ -48,9 +49,32 @@ $ObjViruemart = new PluginClaseVirtuemart();
                 .'<textarea id="mensaje" cols="60" name="mensaje"></textarea>'
                 .'</div>'
                 .'</div>
-                <button type="button" class="btn btn-success">Enviar Correo</button>';
+                <button type="button" class="btn btn-success" onclick="enviarCorreoNotificacion()">Enviar Correo</button>';
             $respuesta['html']=$html;
             
+        break;
+        case 'enviarCorreoNotificacion':
+        include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/PHPMailer.php");
+       include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/Exception.php");
+
+            $mail=new PHPMailer\PHPMailer\PHPMailer(true);
+            $datos=$_POST['datos'];
+            
+            $mail->isSendmail();
+            //Poner direccion de multifrenos
+            $mail->setFrom('nataliaglez92@gmail.com', 'Nombre empresa');
+            $mail->addAddress($datos['email'], 'Nombre prueba');
+            $mail->Subject = $datos['asunto'];
+            $mail->Body = $datos['mensaje'];
+            if (!$mail->send()) {
+                   $respuesta['mail']= 1;
+                   $respuesta['error']=$mail->ErrorInfo;
+                   
+            } else {
+                   $respuesta['mail']= 2;
+                   
+                   
+            }
         break;
     
     

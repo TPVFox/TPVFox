@@ -65,3 +65,33 @@ function ModalNotificacion(numLinea){
     
     
 }
+function enviarCorreoNotificacion(){
+    console.log("entre en enviar correo de notificacion");
+    var datos={
+        'email':$('#email').val(),
+        'asunto':$('#asunto').val(),
+        'mensaje':$('#mensaje').val(),
+        'idProducto':$('#idProducto').html()
+    };
+      var parametros = {
+		"pulsado"    	: 'enviarCorreoNotificacion',
+		"datos"	: datos
+		};
+         $.ajax({
+		data       : parametros,
+		url        : ruta_plg_virtuemart+'tareas_virtuemart.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* Envio los datos para mostrar el modal de notificaciones  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de mostrar el modal de notificaciones  ');
+				var resultado = $.parseJSON(response);
+                console.log(resultado);
+               
+                cerrarModal();
+                
+				 
+		}	
+        });
+}
