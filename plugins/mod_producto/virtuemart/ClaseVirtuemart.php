@@ -260,7 +260,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
     public function htmlNotificacionesProducto($idProducto){
         $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
-       
+       $i=1;
         $respuesta=array();
         if(count($datosNotificaciones['Datos']['items'])==0){
            $html='<div class="alert alert-info">Este producto no tiene notificaciones de Clientes</div>';
@@ -277,12 +277,13 @@ class PluginClaseVirtuemart extends ClaseConexion{
                 <tbody>';
                 foreach($datos as $dato){
                     $html.='<tr>
-                        <td>'.$dato['nombreUsuario'].'</td>
-                        <td>'.$dato['email'].'</td>
-                        <td> <a  onclick="enviarCorreoNotificacion()">
+                        <td id="nombre_'.$i.'">'.$dato['nombreUsuario'].'</td>
+                        <td id="mail_'.$i.'">'.$dato['email'].'</td>
+                        <td> <a  onclick="ModalNotificacion('.$i.')">
                             <span class="glyphicon glyphicon-envelope"></span>
                         </a></td>
                     </tr>';
+                    $i++;
                 }
                 
                 $html.='</tbody>
