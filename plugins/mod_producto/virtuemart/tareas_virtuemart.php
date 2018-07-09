@@ -35,6 +35,7 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                     <input type="text" id="hostW"  style="display:none" value="'.$datos['hostEnvio'].'">
                     <input type="text" id="passwordW"  style="display:none" value="'.$datos['passwordEnvio'].'">
                     <input type="text" id="puertoW"  style="display:none" value="'.$datos['puertoEnvio'].'">
+                    <input type="text" id="numLinea"  style="display:none" value="'.$datos['numLinea'].'">
                 </div>
                 '
                 .'<div class="col-md-12">
@@ -69,32 +70,33 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
            
             $mail->SMTPDebug = 3;
             
-            //~ $mail->Host ='hl309.hosteurope.es';
+          
             $mail->Host=$datos['hostEnvio'];
-            //~ $mail->Port = 465;
+           
             $mail->Port=$datos['puertoEnvio'];
             $mail->SMTPAuth = true;
             $mail->SMTPSecure = 'ssl';
             $mail->Username ='web@multipiezas.es';
-            //~ $mail->Password ='0fFaqiERXdLn';
+          
             $mail->Password=$datos['passwordEnvio'];
           
-            //Poner direccion de multifrenos
+           
             $mail->setFrom($datos['emailEnvio'], $datos['emailEnvio']);
             $mail->addAddress($datos['email'], 'Nombre prueba');
             $mail->Subject = $datos['asunto'];
             $mail->Body = $datos['mensaje'];
             $mail->smtpClose();
+            $mail->SMTPDebug = 0;
             if (!$mail->send()) {
-                   $respuesta['mail']= 1;
-                   //~ $respuesta['error']=$mail->ErrorInfo;
+                $respuesta['mail']= 1;
+                $respuesta['error']=$mail->ErrorInfo;
                   
                    
             } else {
-                
-                   $respuesta['mail']= 2;
-                   $modificarEstadoNotificacion = $ObjViruemart->modificarNotificacion($datos['idNotificacion']);
-                   $respuesta['modificacion']=$modificarEstadoNotificacion;
+                    $respuesta['mail']= 2;
+                    $modificarEstadoNotificacion = $ObjViruemart->modificarNotificacion($datos['idNotificacion']);
+                    $respuesta['modificacion']=$modificarEstadoNotificacion;
+                    $respuesta['numLinea']=$datos['numLinea'];
                    
             }
         break;

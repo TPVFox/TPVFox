@@ -42,7 +42,8 @@ function ModalNotificacion(numLinea){
         'emailEnvio':  $('#emailW').val(),
         'hostEnvio':$('#hostW').val(),
         'passwordEnvio':$('#passwordW').val(),
-        'puertoEnvio':$('#puertoW').val()
+        'puertoEnvio':$('#puertoW').val(),
+        'numLinea':numLinea
     };
     console.log(datos);
      var parametros = {
@@ -81,7 +82,8 @@ function enviarCorreoNotificacion(){
         'emailEnvio':  $('#emailW').val(),
         'hostEnvio':$('#hostW').val(),
         'passwordEnvio':$('#passwordW').val(),
-        'puertoEnvio':$('#puertoW').val()
+        'puertoEnvio':$('#puertoW').val(),
+        'numLinea':$('#numLinea').val(),
     };
     console.log(datos);
       var parametros = {
@@ -103,11 +105,14 @@ function enviarCorreoNotificacion(){
                    alert(resultado.error);
                }else{
                     cerrarPopUp();
-                    location.reload(true);
+                    console.log(resultado.numLinea);
+                    $("#Linea_"+resultado.numLinea).remove();
+                  
                }
               
                 
 				 
 		}	
         });
+        
 }

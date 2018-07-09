@@ -93,9 +93,7 @@
 			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
 		}
 		// Cargamos el plugin que nos interesa.
-		//~ echo '<pre>';
-		//~ print_r($Producto);
-		//~ echo '</pre>';
+		
 		if (count($CTArticulos->GetPlugins())>0){
 			foreach ($CTArticulos->GetPlugins() as $plugin){
 				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVirtuemart'){
@@ -114,24 +112,14 @@
 						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($idVirtuemart);
                         // Monto html de vehiculos.
                         $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
-                        //~ echo '<pre>';
-                        //~ print_r($vehiculos);
-                        //~ echo '</pre>';
+                       
                         if (isset($vehiculos['Datos'])) {
                             $htmlVehiculos = $vehiculos['Datos']['html'];
                         }
-                         $htmlnotificaciones=$ObjVirtuemart->htmlNotificacionesProducto($idVirtuemart);
-                          echo $htmlnotificaciones['puerto'];
-                        
+                        $htmlnotificaciones=$ObjVirtuemart->htmlNotificacionesProducto($idVirtuemart);
+            
                         $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas, $htmlnotificaciones['email'], $htmlnotificaciones['host'], $htmlnotificaciones['password'], $htmlnotificaciones['puerto']);
                         $htmlnotificaciones=$htmlnotificaciones['html'];
-                       
-                       
-                       
-                        //~ echo '<pre>';
-                        //~ print_r($notificaciones);
-                        //~ echo '<pre>';
-                        
                       
 					}
 				}

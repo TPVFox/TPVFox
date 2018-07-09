@@ -267,7 +267,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $resultado['email']=$datosNotificaciones['Datos']['email'];
         $resultado['host']=$datosNotificaciones['Datos']['host'];
         $resultado['password']=$datosNotificaciones['Datos']['password'];
-         $resultado['puerto']=$datosNotificaciones['Datos']['puerto'];
+        $resultado['puerto']=$datosNotificaciones['Datos']['puerto'];
        $i=1;
         $respuesta=array();
         if(count($datosNotificaciones['Datos']['items'])==0){
@@ -285,7 +285,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
                 </thead>
                 <tbody>';
                 foreach($datos as $dato){
-                    $html.='<tr>
+                    $html.='<tr id="Linea_'.$i.'">
                         <td id="nombre_'.$i.'">'.$dato['nombreUsuario'].'</td>
                         <td id="mail_'.$i.'">'.$dato['email'].'</td>
                          <td><input type="text" id="idNotificacion_'.$i.'" value="'.$dato['idNotificacion'].'" style="display:none"></td>
