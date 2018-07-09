@@ -21,14 +21,17 @@
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
-		// Cargamos el plugin que nos interesa.
-		if (count($CTArticulos->GetPlugins())>0){
-			foreach ($CTArticulos->GetPlugins() as $plugin){
-				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
-					$ObjVersiones = $plugin['clase'];
-				}
-			}
-		}
+		//~ // Cargamos el plugin que nos interesa.
+		//~ if (count($CTArticulos->GetPlugins())>0){
+			//~ foreach ($CTArticulos->GetPlugins() as $plugin){
+				//~ if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+					//~ $ObjVersiones = $plugin['clase'];
+				//~ }
+			//~ }
+		//~ }
+        if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+           $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
+        }
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
@@ -94,21 +97,21 @@
 		}
 		// Cargamos el plugin que nos interesa.
 		
-		if (count($CTArticulos->GetPlugins())>0){
-			foreach ($CTArticulos->GetPlugins() as $plugin){
-				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVirtuemart'){
-					// Ahora obtenemos el idVirtuemart si lo tiene el producto.
-					$idVirtuemart= 0;
+		//~ if (count($CTArticulos->GetPlugins())>0){
+			//~ foreach ($CTArticulos->GetPlugins() as $plugin){
+				//~ if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVirtuemart'){
+					//~ // Ahora obtenemos el idVirtuemart si lo tiene el producto.
+					//~ $idVirtuemart= 0;
 					if( isset($Producto['ref_tiendas'])){
+                        // Esto no es del todo correcto... ?
 						foreach ($Producto['ref_tiendas'] as $ref){
 							if ($ref['idVirtuemart'] >0){
 								$idVirtuemart = $ref['idVirtuemart'];
 							}
 						}
 					}
-					$ObjVirtuemart = $plugin['clase'];      
 					if ($idVirtuemart>0 ){
-                        
+                        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');                    
 						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($idVirtuemart);
                         // Monto html de vehiculos.
                         $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
@@ -122,9 +125,9 @@
                         $htmlnotificaciones=$htmlnotificaciones['html'];
                       
 					}
-				}
-			}
-		}
+				//~ }
+			//~ }
+		//~ }
 		
 		// ==========		Montamos  html que mostramos. 			============ //
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);

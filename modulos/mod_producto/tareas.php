@@ -41,13 +41,7 @@ $CAlbaran=new AlbaranesCompras($BDTpv);
 include_once('../../clases/Proveedores.php');
 $CProveedor=new Proveedores($BDTpv);
 
-if (count($NCArticulo->GetPlugins())>0){
-    foreach ($NCArticulo->GetPlugins() as $plugin){
-        if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
-            $ObjVersiones = $plugin['clase'];
-        }
-    }
-}
+
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
@@ -147,6 +141,7 @@ switch ($pulsado) {
 	break;
     case 'modelosDeMarca':
         $marca=$_POST['marca'];
+        $ObjVersiones = $CTArticulos->SetPlugin('ClaseVehiculos');
         $modelos=$ObjVersiones->ObtenerModelosUnaMarcaWeb($marca);
         $modelos=$modelos['Datos']['items']['items'];
         $html='<option value=""></option>';
@@ -159,6 +154,7 @@ switch ($pulsado) {
     break;
     case 'versionesModelo':
         $modelo=$_POST['modelo'];
+        $ObjVersiones = $CTArticulos->SetPlugin('ClaseVehiculos');
         $versiones=$ObjVersiones->ObtenerVersionesUnModeloWeb($modelo);
         $versiones=$versiones['Datos']['items']['items'];
         $html='<option value=""></option>';
