@@ -80,7 +80,7 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
             $mail->Port=$datos['puertoEnvio'];//puerto del servidor smtp 
             $mail->SMTPAuth = true;//Utilizamos la autentificación de smtp
             $mail->SMTPSecure = 'ssl';//Conexión segura
-            $mail->Username ='web@multipiezas.es';//Nombre de usuario
+            $mail->Username =$datos['emailEnvio'];//Nombre de usuario
           
             $mail->Password=$datos['passwordEnvio'];//Contraseña del servidor
           
