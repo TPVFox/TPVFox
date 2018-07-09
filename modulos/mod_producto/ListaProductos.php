@@ -111,10 +111,6 @@
         echo '</script>';
         ?>
 
-<!--
-      <link rel="stylesheet" href="<?php// echo$HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
-      <link rel="stylesheet" href="<?php //echo $HostNombre;?>/css/bootstrap.min.css" type="text/css">
--->
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <script>
             // Declaramos variables globales
@@ -125,16 +121,12 @@
         </script> 
         <!-- Cargamos fuciones de modulo. -->
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
-        <script src="<?php echo $HostNombre; ?>/plugins/mod_producto/vehiculos/func_plg_producto_vehiculo.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
          
 		?>	
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-<!--
-        <script src="<?php //echo $HostNombre; ?>/jquery/jquery-ui.js"></script>
--->
         <script type="text/javascript">
         <?php echo $VarJS;?>
         </script>
@@ -208,43 +200,6 @@ echo $htmlConfiguracion['htmlCheck'];
                 </div>
                 <div class="col-md-10">
                     <div class="col-md-12">
-<!--
-                        <div class="col-md-3">
-                            <div class="ui-widget" id="divmarca">
-                                <?php 
-                                //~ $marcas=$ObjVersiones->ObtenerMarcasVehiculoWeb();
-                                //~ $cantidad=count($marcas['items']['items']);
-                                ?>
-                                <label for="tags">Marca: <?php //echo $cantidad; ?></label>
-                                <select id="combobox" class="marca">
-                                   <option value="0"></option>
-                                    <?php 
-                                    //~ foreach ($marcas['items']['items'] as $marca){
-                                        //~ echo '<option value="'.$marca['id'].'">'.$marca['nombre'].'</option>';
-                                    //~ }
-                                    ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3"  id="divModelo">
-                            <div class="ui-widget">
-                                <label for="tags" id="modeloLabel">Modelo: </label>
-                                   <select id="combobox" class="modelo">
-                                   
-                                    </select>
-                        </div>
-                        </div>
-                        <div class="col-md-6"  id="divVersion">
-                            <div class="ui-widget">
-                                <label for="tags" id="versionesLabel">Versiones: </label>
-                                   <select id="combobox" class="version">
-                                   
-                                    </select>
-                                    
-                            </div>
-                            <p id="botonVer"></p>
-                        </div>
--->
                       <?php 
                       $htmlconbobox=$ObjVersiones->htmlFormularioSeleccionVehiculo();
                       echo $htmlconbobox['html'];
