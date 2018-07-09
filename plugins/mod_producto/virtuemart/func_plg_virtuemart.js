@@ -1,4 +1,6 @@
 function modificarProductoWeb(){
+    //@Objetivo:
+    //MOdificar los datos del producto en la web 
     console.log("entre en modificar producto web ");
     var datos={
         'estado':       $('#estadosWeb').val(),
@@ -31,6 +33,7 @@ function modificarProductoWeb(){
         });
 }
 function ModalNotificacion(numLinea){
+    //@Objetivo: mostrar el modal para enviar el correo de la notificación
     console.log("entre en enviar modal notificacion");
    
     var datos={
@@ -72,6 +75,7 @@ function ModalNotificacion(numLinea){
     
 }
 function enviarCorreoNotificacion(){
+    //@Objetivo : Enviar el correo con la respuesta de la notificación
     console.log("entre en enviar correo de notificacion");
     var datos={
         'email':$('#email').val(),
