@@ -121,9 +121,9 @@
                             $htmlVehiculos = $vehiculos['Datos']['html'];
                         }
                          $htmlnotificaciones=$ObjVirtuemart->htmlNotificacionesProducto($idVirtuemart);
-                         //~ echo $htmlnotificaciones['email'];
-                         
-                        $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas, $htmlnotificaciones['email']);
+                          echo $htmlnotificaciones['puerto'];
+                        
+                        $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas, $htmlnotificaciones['email'], $htmlnotificaciones['host'], $htmlnotificaciones['password'], $htmlnotificaciones['puerto']);
                         $htmlnotificaciones=$htmlnotificaciones['html'];
                        
                        

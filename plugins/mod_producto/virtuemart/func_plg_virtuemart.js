@@ -39,8 +39,10 @@ function ModalNotificacion(numLinea){
         'correo':         $('#mail_'+numLinea).html(),
         'nombreUsuario':  $('#nombre_'+numLinea).html(),
         'idNotificacion':  $('#idNotificacion_'+numLinea).val(), 
-        'emailEnvio':  $('#emailW').val()
-        
+        'emailEnvio':  $('#emailW').val(),
+        'hostEnvio':$('#hostW').val(),
+        'passwordEnvio':$('#passwordW').val(),
+        'puertoEnvio':$('#puertoW').val()
     };
     console.log(datos);
      var parametros = {
@@ -76,8 +78,12 @@ function enviarCorreoNotificacion(){
         'mensaje':$('#mensaje').val(),
         'idProducto':$('#idProducto').html(),
         'idNotificacion':  $('#idNotificacion').val(),
-        'emailEnvio':  $('#emailW').val()
+        'emailEnvio':  $('#emailW').val(),
+        'hostEnvio':$('#hostW').val(),
+        'passwordEnvio':$('#passwordW').val(),
+        'puertoEnvio':$('#puertoW').val()
     };
+    console.log(datos);
       var parametros = {
 		"pulsado"    	: 'enviarCorreoNotificacion',
 		"datos"	: datos

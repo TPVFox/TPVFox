@@ -32,6 +32,9 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                     Id del producto: <p id="idProducto">'.$datos['id'].'</p>
                     <input type="text" id="idNotificacion" value="'.$datos['idNotificacion'].'" style="display:none">
                     <input type="text" id="emailW"  style="display:none" value="'.$datos['emailEnvio'].'">
+                    <input type="text" id="hostW"  style="display:none" value="'.$datos['hostEnvio'].'">
+                    <input type="text" id="passwordW"  style="display:none" value="'.$datos['passwordEnvio'].'">
+                    <input type="text" id="puertoW"  style="display:none" value="'.$datos['puertoEnvio'].'">
                 </div>
                 '
                 .'<div class="col-md-12">
@@ -58,19 +61,34 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
         case 'enviarCorreoNotificacion':
         include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/PHPMailer.php");
        include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/Exception.php");
+        include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/SMTP.php");
 
             $mail=new PHPMailer\PHPMailer\PHPMailer(true);
             $datos=$_POST['datos'];
+             $mail->isSMTP();
+           
+            $mail->SMTPDebug = 3;
             
-            $mail->isSendmail();
+            //~ $mail->Host ='hl309.hosteurope.es';
+            $mail->Host=$datos['hostEnvio'];
+            //~ $mail->Port = 465;
+            $mail->Port=$datos['puertoEnvio'];
+            $mail->SMTPAuth = true;
+            $mail->SMTPSecure = 'ssl';
+            $mail->Username ='web@multipiezas.es';
+            //~ $mail->Password ='0fFaqiERXdLn';
+            $mail->Password=$datos['passwordEnvio'];
+          
             //Poner direccion de multifrenos
             $mail->setFrom($datos['emailEnvio'], $datos['emailEnvio']);
             $mail->addAddress($datos['email'], 'Nombre prueba');
             $mail->Subject = $datos['asunto'];
             $mail->Body = $datos['mensaje'];
+            $mail->smtpClose();
             if (!$mail->send()) {
                    $respuesta['mail']= 1;
-                   $respuesta['error']=$mail->ErrorInfo;
+                   //~ $respuesta['error']=$mail->ErrorInfo;
+                  
                    
             } else {
                 

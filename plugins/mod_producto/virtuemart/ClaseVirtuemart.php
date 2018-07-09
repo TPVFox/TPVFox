@@ -145,7 +145,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
-    public function htmlDatosProductoSeleccionado($idProducto, $ivas, $email){
+    public function htmlDatosProductoSeleccionado($idProducto, $ivas, $email, $host, $password, $puerto){
         //@Objetivo: Mostrar el html de los datos de los productos de la web
         //@Parametros: idProducto: id de virtuemart
         //ivas: todos los ivas los necesito para saber cuales tiene el id de virtuemart
@@ -164,7 +164,10 @@ class PluginClaseVirtuemart extends ClaseConexion{
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
                         value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">
-                    <input type="text" id="emailW"  style="display:none" value="'.$email.'">'
+                    <input type="text" id="emailW"  style="display:none" value="'.$email.'">
+                    <input type="text" id="hostW"  style="display:none" value="'.$host.'">
+                    <input type="text" id="passwordW"  style="display:none" value="'.$password.'">
+                     <input type="text" id="puertoW"  style="display:none" value="'.$puerto.'">'
         .'      </div>'
         .'      <div class="col-md-12">'
         .'          <div class="col-md-7">'
@@ -262,6 +265,9 @@ class PluginClaseVirtuemart extends ClaseConexion{
     public function htmlNotificacionesProducto($idProducto){
         $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
         $resultado['email']=$datosNotificaciones['Datos']['email'];
+        $resultado['host']=$datosNotificaciones['Datos']['host'];
+        $resultado['password']=$datosNotificaciones['Datos']['password'];
+         $resultado['puerto']=$datosNotificaciones['Datos']['puerto'];
        $i=1;
         $respuesta=array();
         if(count($datosNotificaciones['Datos']['items'])==0){
