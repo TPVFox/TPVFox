@@ -87,6 +87,29 @@ $ObjVehiculos = new PluginClaseVehiculos();
 			}
 			
 		break;
+        case 'modelosDeMarca':
+        $marca=$_POST['marca'];
+        $modelos=$ObjVehiculos->ObtenerModelosUnaMarcaWeb($marca);
+        $modelos=$modelos['Datos']['items']['items'];
+        $html='<option value=""></option>';
+        foreach($modelos as $modelo){
+            $html.='<option value="'.$modelo['id'].'">'.$modelo['nombre'].'</option>';
+        }
+        $respuesta['items']=count($modelos);
+        $respuesta['marcas']=$modelos;
+        $respuesta['html']=$html;
+    break;
+    case 'versionesModelo':
+        $modelo=$_POST['modelo'];
+        $versiones=$ObjVehiculos->ObtenerVersionesUnModeloWeb($modelo);
+        $versiones=$versiones['Datos']['items']['items'];
+        $html='<option value=""></option>';
+        foreach($versiones as $version){
+            $html.='<option value="'.$version['id'].'">'.$version['nombre'].'</option>';
+        } $respuesta['items']=count($versiones);
+        $respuesta['marcas']=$versiones;
+        $respuesta['html']=$html;
+    break;
        
 		
 	}

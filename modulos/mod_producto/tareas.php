@@ -139,31 +139,6 @@ switch ($pulsado) {
 		$respuesta=$comprobacion;
 		
 	break;
-    case 'modelosDeMarca':
-        $marca=$_POST['marca'];
-        $ObjVersiones = $CTArticulos->SetPlugin('ClaseVehiculos');
-        $modelos=$ObjVersiones->ObtenerModelosUnaMarcaWeb($marca);
-        $modelos=$modelos['Datos']['items']['items'];
-        $html='<option value=""></option>';
-        foreach($modelos as $modelo){
-            $html.='<option value="'.$modelo['id'].'">'.$modelo['nombre'].'</option>';
-        }
-        $respuesta['items']=count($modelos);
-        $respuesta['marcas']=$modelos;
-        $respuesta['html']=$html;
-    break;
-    case 'versionesModelo':
-        $modelo=$_POST['modelo'];
-        $ObjVersiones = $CTArticulos->SetPlugin('ClaseVehiculos');
-        $versiones=$ObjVersiones->ObtenerVersionesUnModeloWeb($modelo);
-        $versiones=$versiones['Datos']['items']['items'];
-        $html='<option value=""></option>';
-        foreach($versiones as $version){
-            $html.='<option value="'.$version['id'].'">'.$version['nombre'].'</option>';
-        } $respuesta['items']=count($versiones);
-        $respuesta['marcas']=$versiones;
-        $respuesta['html']=$html;
-    break;
     case 'modificarDatosWeb':
         include('./tareas/modificarDatosWeb.php');
     break;

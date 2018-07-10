@@ -153,3 +153,74 @@ function EliminarVehiculoSeleccionado(event,item,dedonde){
 	
 }
 
+ $( function() {
+      //@Objetivo: llamar a la librería autocomplete 
+    $( ".marca" ).combobox({
+        select : function(event, ui){ 
+            mostrarSelectModelos(ui.item.value);
+        }
+       
+    });
+    $( ".modelo" ).combobox({
+        select : function(event, ui){ 
+            mostrarSelectVersiones(ui.item.value);
+        }
+    });
+     $( ".version" ).combobox({
+         select : function(event, ui){
+             
+        var botonhtml='<button class="btn btn-primary" onclick="SeleccionVersion('+ui.item.value+')">Seleccionar</button>';
+          $('#botonVer').html(botonhtml);   
+        }
+    });
+    $( "#toggle" ).on( "click", function() {
+        $( "#combobox" ).toggle();
+    });
+  } );
+
+function mostrarSelectModelos(marca){
+    	var parametros = {
+		"pulsado"    	: 'modelosDeMarca',
+		"marca"	: marca
+		};
+        $.ajax({
+		data       : parametros,
+		url        : ruta_plg_vehiculos+'tareas_vehiculos.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* Envio para devolver el html con las opciones de marcas  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de html con las opciones de marcas ');
+				var resultado = $.parseJSON(response);
+                $('.modelo').html(resultado.html);
+                $('#modeloLabel').html("Modelo : "+resultado.items);
+                $('#divModelo').find('input').focus();
+				 
+		}	
+	});
+}
+function mostrarSelectVersiones(modelo){
+    var parametros = {
+		"pulsado"    	: 'versionesModelo',
+		"modelo"	: modelo
+		};
+        $.ajax({
+		data       : parametros,
+		url        : ruta_plg_vehiculos+'tareas_vehiculos.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* Envio para devolver el html con las opciones de marcas  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de html con las opciones de marcas ');
+				var resultado = $.parseJSON(response);
+				$("#divVersion").show();
+                $('#combobox').removeAttr('disabled');
+                $('.version').html(resultado.html);
+                $('#versionesLabel').html("Version : "+resultado.items);
+                $('#divVersion').find('input').focus()
+				 
+		}	
+        });
+}

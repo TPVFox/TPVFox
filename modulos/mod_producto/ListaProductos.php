@@ -328,11 +328,6 @@ echo $htmlConfiguracion['htmlCheck'];
             //~ echo count($_SESSION['productos_seleccionados']);
             ?>
         </div>
-<style>
-#enlaceIcon{
-    height: 2.2em;
-}
 
-</style>
     </body>
 </html>
