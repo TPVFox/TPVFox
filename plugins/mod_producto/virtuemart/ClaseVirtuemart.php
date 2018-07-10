@@ -281,6 +281,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
     public function htmlNotificacionesProducto($idProducto){
         $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
+        
         $resultado['email']=$datosNotificaciones['Datos']['email'];
         $resultado['host']=$datosNotificaciones['Datos']['host'];
         $resultado['password']=$datosNotificaciones['Datos']['password'];

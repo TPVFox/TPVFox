@@ -117,7 +117,7 @@
                         }
                         $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart, $ivas,  $Producto['iva']);
                         if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-                            $Producto['comprobaciones'][]= $comprobarIvas['comprobaciones'];
+                            $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
                         }
                        
                       
