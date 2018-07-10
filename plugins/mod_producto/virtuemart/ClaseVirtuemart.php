@@ -288,7 +288,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 
     public function htmlNotificacionesProducto($idProducto){
         $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
-        $respuesta=array();
+        $resultado=array();
         if (isset ($datosNotificaciones['Datos']['items'])){
             // Si existe es que fue correcta consulta.
             if(count($datosNotificaciones['Datos']['items'])==0){
