@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 03, 2017 at 09:42 AM
+-- Generation Time: Jul 10, 2018 at 09:34 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- PHP Version: 7.0.30-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tpv`
+-- Database: `tpvfox_multifrenos`
 --
 
 -- --------------------------------------------------------
@@ -30,7 +30,8 @@ CREATE TABLE `iva` (
   `idIva` int(11) NOT NULL,
   `descripcionIva` varchar(25) DEFAULT NULL,
   `iva` decimal(4,2) DEFAULT NULL,
-  `recargo` decimal(4,2) DEFAULT NULL
+  `recargo` decimal(4,2) DEFAULT NULL,
+  `id_virtualmart` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
