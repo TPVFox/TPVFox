@@ -43,12 +43,12 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                 .'<h4>Enviar correo a :'.$datos['nombreUsuario'].'</h4>
                 <div class="col-md-12">
                     Id del producto: <p id="idProducto">'.$datos['id'].'</p>
-                    <input type="text" id="idNotificacion" value="'.$datos['idNotificacion'].'" style="display:none">
-                    <input type="text" id="emailW"  style="display:none" value="'.$datos['emailEnvio'].'">
-                    <input type="text" id="hostW"  style="display:none" value="'.$datos['hostEnvio'].'">
-                    <input type="text" id="passwordW"  style="display:none" value="'.$datos['passwordEnvio'].'">
-                    <input type="text" id="puertoW"  style="display:none" value="'.$datos['puertoEnvio'].'">
-                    <input type="text" id="numLinea"  style="display:none" value="'.$datos['numLinea'].'">
+                    <input type="text" id="idNotificacion" value="'.$datos['idNotificacion'].'" style="display:none">'
+                 //~ .   '<input type="text" id="emailW"  style="display:none" value="'.$datos['emailEnvio'].'">
+                    //~ <input type="text" id="hostW"  style="display:none" value="'.$datos['hostEnvio'].'">
+                    //~ <input type="text" id="passwordW"  style="display:none" value="'.$datos['passwordEnvio'].'">
+                    //~ <input type="text" id="puertoW"  style="display:none" value="'.$datos['puertoEnvio'].'">'
+                 .   '<input type="text" id="numLinea"  style="display:none" value="'.$datos['numLinea'].'">
                 </div>
                 '
                 .'<div class="col-md-12">
@@ -76,9 +76,7 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
         //Objetivo: enviar el correo de notificación
         //Primero cargamos la libreria
         $respuesta = array();
-    
-      
-        
+        $datos=$_POST['datos'];
         $enviarCorreo = $ObjViruemart->enviarCorreo($_POST['datos']);
         if($enviarCorreo['Datos']['mailer']==true){
             $respuesta['mail']= 2;
