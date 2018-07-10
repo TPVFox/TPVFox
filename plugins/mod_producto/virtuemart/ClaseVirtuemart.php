@@ -169,6 +169,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
                     <input type="text" id="passwordW"  style="display:none" value="'.$password.'">
                      <input type="text" id="puertoW"  style="display:none" value="'.$puerto.'">'
         .'      </div>'
+        .'      <div class="col-md-12" id="alertasWeb">'
+        .'      </div>'
         .'      <div class="col-md-12">'
         .'          <div class="col-md-7">'
         .'                <h4> Datos del producto en la tienda Web </h4><p id="idWeb">'.$idProducto.'</p>'

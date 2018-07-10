@@ -23,7 +23,18 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
 			$respuesta = array();
 			$modificarProducto = $ObjViruemart->modificarProducto($datos);
             $respuesta['datos']=$datos;
+            
 			$respuesta['resul']= $modificarProducto;
+            if(strlen($modificarProducto['Datos']['error']) == 0){
+                $respuesta['htmlAlerta']='<div class="alert alert-success">
+                                            <strong>Success!</strong> Has modificados los datos del producto.
+                                        </div>';
+            }else{
+                $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                            <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['consulta'].'
+                                        </div>';
+            }
+           
         break;
         case 'mostrarModalNotificacion':
         //@Objetivo: montar el modal de la notificación de clientes
