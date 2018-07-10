@@ -256,7 +256,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         .'          </div>'
         .'      </div>'
         .'  </div>';
-        
+        $respuesta['ivaProducto']=$datosWeb['iva'];
         $respuesta['html']=$html;
         return $respuesta;
         
@@ -342,5 +342,18 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
+   public function comprobarIvas($ivaProducto, $ivaWeb){
+      
+        if($ivaProducto!=$ivaWeb){
+                
+                $comprobacionIva=array(
+                'tipo'=>'warning',
+                'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
+                );
+                $resultado=array();
+                $resultado['comprobaciones']= $comprobacionIva;
+                return $resultado;
+            }
+   }
 }
 ?>

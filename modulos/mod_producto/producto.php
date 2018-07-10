@@ -127,6 +127,12 @@
             
                         $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas, $htmlnotificaciones['email'], $htmlnotificaciones['host'], $htmlnotificaciones['password'], $htmlnotificaciones['puerto']);
                         $htmlnotificaciones=$htmlnotificaciones['html'];
+                        
+                        $comprobarIvas=$ObjVirtuemart->comprobarIvas($Producto['iva'], $datosProductoWeb['ivaProducto']);
+                        if(isset($comprobarIvas['comprobaciones'])){
+                              $Producto['comprobaciones'][]= $comprobarIvas['comprobaciones'];
+                        }
+                      
                       
 					}
 				//~ }
@@ -140,19 +146,7 @@
 		$htmlFamilias =  htmlTablaFamilias($Producto['familias']);
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
 		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
-          //~ if(isset($datosProductoVirtual['Datos']['items']['item'])){
-            //~ $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
-            //~ $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
-           
-            //~ if($Producto['iva']!=$datosWeb['iva']){
-                
-                //~ $comprobacionIva=array(
-                //~ 'tipo'=>'warning',
-                //~ 'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
-                //~ );
-               //~ $Producto['comprobaciones'][]= $comprobacionIva;
-            //~ }
-          //~ } 
+          
         ?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
