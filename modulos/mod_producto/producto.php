@@ -21,10 +21,10 @@
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
-		
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
+     
 		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
 	
 		$titulo = 'Productos:';
@@ -32,6 +32,7 @@
 			// Modificar Ficha Producto
 			$id=$_GET['id']; // Obtenemos id producto para modificar.
 			$titulo .= "Modificar";
+            
 		} else {
 			// Quiere decir que no hay id, por lo que es nuevo
 			$titulo .= "Crear";
@@ -88,7 +89,48 @@
 			// Ahora cambiamos el coste_ultimo
 			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
 		}
-		
+		// Cargamos el plugin que nos interesa.
+        if( isset($Producto['ref_tiendas'])){
+            // Esto no es del todo correcto... ?
+            foreach ($Producto['ref_tiendas'] as $ref){
+                if ($ref['idVirtuemart'] >0){
+                    $idVirtuemart = $ref['idVirtuemart'];
+                }
+            }
+        }
+        $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+                  
+        if ($idVirtuemart>0 ){
+          
+            if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+                // Creo el objeto de plugin Virtuemart.
+                $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+                // Cargo caja_input de parametros de plugin de virtuemart.
+                $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
+                $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
+                $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
+                // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
+                $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart, $ivas,  $Producto['iva']);
+                
+                // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+                if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+                    $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+                }
+
+            }   
+            
+            // Cargamos el plugin de Vehiculos
+
+            if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+               $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
+               $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
+                if (isset($vehiculos['Datos'])) {
+                    $htmlVehiculos = $vehiculos['Datos']['html'];
+                }
+            }
+            
+        }
+				
 		
 		// ==========		Montamos  html que mostramos. 			============ //
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
@@ -110,9 +152,18 @@
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+
+          
+        ?>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
+		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+			//~ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		?>	
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
+        <?php echo $VarJSVirtuemart;?>
 		<?php 
 			echo  'var producto='.json_encode($Producto).';';
 		?>
@@ -121,6 +172,8 @@
 		?>
 		</script>
         
+
+
 
 	</head>
 	<body>
@@ -277,11 +330,11 @@
 						$num = 4; // Numero collapse;
 						$titulo = 'Productos en otras tiendas.';
 						echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
-						if (isset($htmlLinkVirtuemart)){
-							echo $htmlLinkVirtuemart;
-						}
-						?>
 						
+                        
+                        
+                    	?>
+                    
 						<!-- Inicio collapse de Referencias Tiendas --> 
 
 					<!-- Fin de panel-group -->
@@ -290,7 +343,37 @@
 				</div>
                 
 			</div>
-			</form>
+            </form>
+            <?php 
+                        if(isset($datosWebCompletos['datosProductoWeb']['html'])){
+                               echo $datosWebCompletos['datosProductoWeb']['html']; 
+                        }
+                        ?>
+                        
+                         <div class="col-md-6 text-center">
+                            
+                                <div class="panel-group">
+                                    <?php
+                                    if (isset($htmlVehiculos)){
+                                            $num = 5; // Numero collapse;
+                                            $titulo = 'Vehiculos que montan este productos.';
+                                            echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
+                                    }
+                                    if(isset( $datosWebCompletos['htmlnotificaciones']['html'])){
+                                        
+                                         $num = 6; // Numero collapse;
+                                            $titulo = 'Notificaciones de clientes.';
+                                            echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']['html']);
+                                    }
+                                    if (isset($datosWebCompletos['htmlLinkVirtuemart'])){
+                                            echo $datosWebCompletos['htmlLinkVirtuemart'];
+                                    }
+                                    
+                                    
+                                     ?>
+                                </div>
+                         </div>
+			
 		<!--fin de div container-->
 		<?php // Incluimos paginas modales
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';

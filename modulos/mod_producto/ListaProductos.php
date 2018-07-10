@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+          
         <?php
         include_once './../../inicial.php';
         include_once $URLCom.'/head.php';
@@ -11,7 +12,17 @@
         include_once ($URLCom .'/controllers/parametros.php');
         
         $CTArticulos = new ClaseProductos($BDTpv);
+// Cargamos el plugin que nos interesa.
+		
+        if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+           $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
+        }
+        $ClasesParametrosPluginVehiculos = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/vehiculos/parametros.xml');
+        $parametrosVehiculos = $ClasesParametrosPluginVehiculos->getRoot();
+                        
+         
         $Controler = new ControladorComun; // Controlado comun..
+        $VarJSVehiculos = $Controler->ObtenerCajasInputParametros($parametrosVehiculos);
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
         // Inicializo varibles por defecto.
@@ -20,6 +31,7 @@
 
         $ClasesParametros = new ClaseParametros('parametros.xml');
         $parametros = $ClasesParametros->getRoot();
+        
         // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
         $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
         // Ahora compruebo productos_seleccion:
@@ -33,7 +45,7 @@
             $prod_seleccion['display'] = 'style="display:none"';
             $conf_defecto['filtro']->valor = 'No';
         }
-
+       
         // Obtenemos la configuracion del usuario o la por defecto
         $configuracion = $Controler->obtenerConfiguracion($conf_defecto, 'mod_productos', $Usuario['id']);
         // Compruebo que solo halla un campo por el que buscar por defecto.
@@ -69,12 +81,14 @@
         } else {
             $CantidadRegistros = $CTArticulos->GetNumRows();
         }
+       
         // --- Ahora envio a NPaginado la cantidad registros --- //
         if ($prod_seleccion['NItems'] > 0 && $configuracion['filtro']->valor === 'Si') {
             $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
         } else {
             $NPaginado->SetCantidadRegistros($CantidadRegistros);
         }
+		
         $htmlPG = '';
         if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
             $htmlPG = $NPaginado->htmlPaginado();
@@ -98,6 +112,7 @@
         echo '</script>';
         ?>
 
+        <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <script>
             // Declaramos variables globales
             var checkID = [];
@@ -106,13 +121,25 @@
 
         </script> 
         <!-- Cargamos fuciones de modulo. -->
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+        <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+         
+		?>	
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/plugins/modal/func_modal_reutilizables.js"></script>
+        <script type="text/javascript">
+        <?php echo $VarJS;?>
+        <?php echo $VarJSVehiculos;?>
+        </script>
+        <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
+        
     </head>
 
     <body>
-		<script>
+		<script type="text/javascript">
 			setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#buscar').focus(); 
 	}, 50);
@@ -174,8 +201,16 @@ include_once $URLCom.'/header.php';
                     </div>
 
                 </div>
-
                 <div class="col-md-10">
+                    <div class="col-md-12">
+                      <?php 
+                      $htmlconbobox=$ObjVersiones->htmlFormularioSeleccionVehiculo();
+                      echo $htmlconbobox['html'];
+                      ?>  
+                    </div>
+               
+                  
+					<div>
                     <p>
                         -Productos encontrados BD local filtrados:
                         <?php echo $CantidadRegistros; ?>

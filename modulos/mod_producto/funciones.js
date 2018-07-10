@@ -665,7 +665,17 @@ function controladorAcciones(caja,accion, tecla){
 			mover_up(nueva_fila,caja.darParametro('prefijo'));
 			
 		break;
-
+        case 'guardarMarca':
+            console.log("Entro en guardar Marca");
+            setTimeout(function() {  
+                marca=$("#inputIdMarcas").val();
+                console.log(marca);
+                $("#marca").prop('disabled', true);
+                $("#divModelo").show();
+                $("#modelo").focus();
+            }, 50);
+    
+        break;
         default:
             console.log( ' No hubo accion a realizar,accion pedida '+accion);
         break;

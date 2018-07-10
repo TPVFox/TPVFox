@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+	<datos_generales>
+		<nombre_fichero_clase>ClaseVehiculos</nombre_fichero_clase>
+		<version>1.0</version>
+	</datos_generales>
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="combobox">cajaMarca</nombre>
+			<teclas>
+				<action tecla="13">guardarMarca</action>
+				
+			</teclas>
+		</caja_input>
+	</cajas_input>
+</parametros>
