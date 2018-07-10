@@ -355,5 +355,15 @@ class PluginClaseVirtuemart extends ClaseConexion{
                 return $resultado;
             }
    }
+   
+   public function datosTiendaWeb($idVirtuemart, $ivas,  $ivaProducto){
+       $respuesta=array();
+       $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
+       $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
+       $respuesta['htmlnotificaciones']=$htmlnotificaciones;
+       $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart, $ivas, $htmlnotificaciones['email'], $htmlnotificaciones['host'], $htmlnotificaciones['password'], $htmlnotificaciones['puerto']);
+       $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $respuesta['datosProductoWeb']['ivaProducto']);
+       return $respuesta;
+   }
 }
 ?>

@@ -90,12 +90,6 @@
 			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
 		}
 		// Cargamos el plugin que nos interesa.
-		
-		//~ if (count($CTArticulos->GetPlugins())>0){
-			//~ foreach ($CTArticulos->GetPlugins() as $plugin){
-				//~ if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVirtuemart'){
-					//~ // Ahora obtenemos el idVirtuemart si lo tiene el producto.
-					//~ $idVirtuemart= 0;
 					if( isset($Producto['ref_tiendas'])){
                         // Esto no es del todo correcto... ?
 						foreach ($Producto['ref_tiendas'] as $ref){
@@ -114,30 +108,22 @@
                         $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
                     
                         $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
-                               
-                               
-						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($idVirtuemart);
+                        
                         // Monto html de vehiculos.
                         $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
                        
                         if (isset($vehiculos['Datos'])) {
                             $htmlVehiculos = $vehiculos['Datos']['html'];
                         }
-                        $htmlnotificaciones=$ObjVirtuemart->htmlNotificacionesProducto($idVirtuemart);
-            
-                        $datosProductoWeb=$ObjVirtuemart->htmlDatosProductoSeleccionado($idVirtuemart, $ivas, $htmlnotificaciones['email'], $htmlnotificaciones['host'], $htmlnotificaciones['password'], $htmlnotificaciones['puerto']);
-                        $htmlnotificaciones=$htmlnotificaciones['html'];
-                        
-                        $comprobarIvas=$ObjVirtuemart->comprobarIvas($Producto['iva'], $datosProductoWeb['ivaProducto']);
-                        if(isset($comprobarIvas['comprobaciones'])){
-                              $Producto['comprobaciones'][]= $comprobarIvas['comprobaciones'];
+                        $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart, $ivas,  $Producto['iva']);
+                        if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+                            $Producto['comprobaciones'][]= $comprobarIvas['comprobaciones'];
                         }
+                       
                       
                       
 					}
-				//~ }
-			//~ }
-		//~ }
+				
 		
 		// ==========		Montamos  html que mostramos. 			============ //
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
@@ -336,8 +322,8 @@
 			</div>
             </form>
             <?php 
-                        if(isset($datosProductoWeb['html'])){
-                               echo $datosProductoWeb['html']; 
+                        if(isset($datosWebCompletos['datosProductoWeb']['html'])){
+                               echo $datosWebCompletos['datosProductoWeb']['html']; 
                         }
                         ?>
                         
@@ -350,14 +336,14 @@
                                             $titulo = 'Vehiculos que montan este productos.';
                                             echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
                                     }
-                                    if(isset( $htmlnotificaciones)){
+                                    if(isset( $datosWebCompletos['htmlnotificaciones']['html'])){
                                         
                                          $num = 6; // Numero collapse;
                                             $titulo = 'Notificaciones de clientes.';
-                                            echo  htmlPanelDesplegable($num,$titulo,$htmlnotificaciones);
+                                            echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']['html']);
                                     }
-                                    if (isset($htmlLinkVirtuemart)){
-                                            echo $htmlLinkVirtuemart;
+                                    if (isset($datosWebCompletos['htmlLinkVirtuemart'])){
+                                            echo $datosWebCompletos['htmlLinkVirtuemart'];
                                     }
                                     
                                     
