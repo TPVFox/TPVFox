@@ -4,4 +4,18 @@
 		<nombre_fichero_clase>ClaseVirtuemart</nombre_fichero_clase>
 		<version>1.0</version>
 	</datos_generales>
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="precioSivaWeb">cajaPrecioSivaWeb</nombre>
+			<teclas>
+				<action tecla="13">recalcularPvpWeb</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="precioCivaWeb">cajaPrecioCivaWeb</nombre>
+			<teclas>
+				<action tecla="13">recalcularPvpWeb</action>
+			</teclas>
+		</caja_input>
+	</cajas_input>
 </parametros>
