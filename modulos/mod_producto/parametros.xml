@@ -130,19 +130,6 @@ Numero tecla:
 				
 			</teclas>
 		</caja_input>
-		<!--<caja_input>
-			<nombre id_input="precioSivaWeb">cajaPrecioSivaWeb</nombre>
-			<teclas>
-				<action tecla="13">recalcularPvpWeb</action>
-			</teclas>
-		</caja_input>
-		<caja_input>
-			<nombre id_input="precioCivaWeb">cajaPrecioCivaWeb</nombre>
-			<teclas>
-				<action tecla="13">recalcularPvpWeb</action>
-			</teclas>
-		</caja_input>-->
-		
 		
 	</cajas_input>
 	
