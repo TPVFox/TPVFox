@@ -12,7 +12,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
 	public $HostNombre; // (string) Ruta desde servidor a proyecto..
 	public $Ruta_plugin; // (string) Ruta desde servidor a plugin.
 	public $dedonde; 
-	public function __construct($dedonde ='') {
+
+    public function __construct($dedonde ='') {
 		parent::__construct(); // Inicializamos la conexion.
 		$this->dedonde = $dedonde;
 		$this->obtenerRutaProyecto();
@@ -32,7 +33,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
             $this->ruta_web = $tiendaWeb['dominio'].'/administrator/apisv/tareas.php';
         }
 	}
-	public function obtenerRutaProyecto(){
+
+    public function obtenerRutaProyecto(){
 		// Objectivo
 		// Obtener rutas del servidor y del proyecto.
 		$this->RutaServidor 	= $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
@@ -44,6 +46,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 	public function getRutaPlugin(){
 		return $this->Ruta_plugin; 
 	}
+
     public function getTiendaWeb(){
         return $this->TiendaWeb;
 
@@ -105,7 +108,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
         }
         return $respuesta ;
     }
-      function ObtenerDatosDeProducto($idVirtuemart){
+
+    public function ObtenerDatosDeProducto($idVirtuemart){
         $ruta =$this->ruta_web;
 		$parametros = array('key' 			=>$this->key_api,
 							'action'		=>'ObtenerProducto',
@@ -124,7 +128,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		return $respuesta;
     }
     
-    function modificarProducto($datos){
+    public function modificarProducto($datos){
         //@Objetivo: Modificar un producto en la web con los datos que el usuario 
         //añada en el tpv
         //@Parametros: datos principales del producto
@@ -145,6 +149,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
+
     public function htmlOptionIvasWeb($ivas, $ivaProducto){
         $htmlIvas = '';
         foreach ($ivas as $item){
@@ -158,31 +163,31 @@ class PluginClaseVirtuemart extends ClaseConexion{
                 $htmlIvas .= '<option value="'.$item['id_virtualmart'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
             }
 		}
-	return $htmlIvas;	
+        return $htmlIvas;	
     }
+
     public function htmlDatosProductoSeleccionado($idProducto, $ivas){
-        //@Objetivo: Mostrar el html de los datos de los productos de la web
-        //@Parametros: idProducto: id de virtuemart
-        //ivas: todos los ivas los necesito para saber cuales tiene el id de virtuemart
+        //@Objetivo
+        // Mostrar el html de los datos de los productos de la web
+        //@Parametros
+        //  $idProducto: (int) id de virtuemart
+        //  $ivas: (array) con todos los ivas ,para saber cuales tiene el id de virtuemart
         $respuesta=array();
         $HostNombre = $this->HostNombre;
         $datosProductoVirtual=$this->ObtenerDatosDeProducto($idProducto);
         $respuesta['datosProductoVirtual']=$datosProductoVirtual;
-        $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
+        $datosWeb=$datosProductoVirtual['Datos']['item'];
         $htmlIvasWeb=$this->htmlOptionIvasWeb($ivas, $datosWeb['iva']);
+    
         $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
         $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
         
-         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
+        $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
-        $html.='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
+        $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
                         value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">'
-         //~ .          ' <input type="text" id="emailW"  style="display:none" value="'.$email.'">
-                    //~ <input type="text" id="hostW"  style="display:none" value="'.$host.'">
-                    //~ <input type="text" id="passwordW"  style="display:none" value="'.$password.'">
-                     //~ <input type="text" id="puertoW"  style="display:none" value="'.$puerto.'">'
         .'      </div>'
         .'      <div class="col-md-12" id="alertasWeb">'
         .'      </div>'
@@ -192,13 +197,13 @@ class PluginClaseVirtuemart extends ClaseConexion{
         .'           </div>'
         .'           <div class="col-md-5">';
          if($datosWeb['estado']==1){
-        $html.='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
+        $html   .='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
                                     <option value="0">Sin publicar</option></select></label>';
         }else{
-        $html.='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="0">Sin publicar</option>
+        $html   .='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="0">Sin publicar</option>
                                     <option value="1">Publicado</option></select></label>';
         }
-        $html.='    </div>'
+        $html   .='    </div>'
         .'      </div>'
         .'       <div class="col-md-12">'
         .'           <div class="col-md-3 ">'
@@ -261,6 +266,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $respuesta;
         
     }
+
     public function ObtenerNotificacionesProducto($idProducto){
         $ruta =$this->ruta_web;
 		$parametros = array('key' 			=>$this->key_api,
@@ -272,57 +278,57 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		$existe_curl =function_exists('curl_version');
 		if ($existe_curl === FALSE){
 			echo '<pre>';
-			print_r(' No exite curl');
+			print_r(' No existe curl');
 			echo '</pre>';
 			exit();
 		}
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
+
     public function htmlNotificacionesProducto($idProducto){
         $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
-        
-        //~ $resultado['email']=$datosNotificaciones['Datos']['email'];
-        //~ $resultado['host']=$datosNotificaciones['Datos']['host'];
-        //~ $resultado['password']=$datosNotificaciones['Datos']['password'];
-        //~ $resultado['puerto']=$datosNotificaciones['Datos']['puerto'];
-       $i=1;
         $respuesta=array();
-        if(count($datosNotificaciones['Datos']['items'])==0){
-           $html='<div class="alert alert-info">Este producto no tiene notificaciones de Clientes</div>';
-        }else{
-             $datos=$datosNotificaciones['Datos']['items'];
-             $html='<table class="table table-striped">
-                <thead>
-                    <tr>
-                        <td>Nombre</td>
-                        <td>Correo</td>
-                        <td></td>
-                        <td>Enviar</td>
-                    </tr>
-                </thead>
-                <tbody>';
-                foreach($datos as $dato){
-                    $html.='<tr id="Linea_'.$i.'">
-                        <td id="nombre_'.$i.'">'.$dato['nombreUsuario'].'</td>
-                        <td id="mail_'.$i.'">'.$dato['email'].'</td>
-                         <td><input type="text" id="idNotificacion_'.$i.'" value="'.$dato['idNotificacion'].'" style="display:none"></td>
-                        <td> <a  onclick="ModalNotificacion('.$i.')">
-                            <span class="glyphicon glyphicon-envelope"></span>
-                        </a></td>
-                       
-                    </tr>';
-                    $i++;
-                }
-                
-                $html.='</tbody>
-             </table>';
+        if (isset ($datosNotificaciones['Datos']['items'])){
+            // Si existe es que fue correcta consulta.
+            if(count($datosNotificaciones['Datos']['items'])==0){
+               $html='<div class="alert alert-info">Este producto no tiene notificaciones de Clientes</div>';
+            }else{
+                 $datos=$datosNotificaciones['Datos']['items'];
+                 $html='<table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>Nombre</td>
+                            <td>Correo</td>
+                            <td></td>
+                            <td>Enviar</td>
+                        </tr>
+                    </thead>
+                    <tbody>';
+                   $i=1;
+                   foreach($datos as $dato){
+                        $html.='<tr id="Linea_'.$i.'">
+                            <td id="nombre_'.$i.'">'.$dato['nombreUsuario'].'</td>
+                            <td id="mail_'.$i.'">'.$dato['email'].'</td>
+                             <td><input type="text" id="idNotificacion_'.$i.'" value="'.$dato['idNotificacion'].'" style="display:none"></td>
+                            <td> <a  onclick="ModalNotificacion('.$i.')">
+                                <span class="glyphicon glyphicon-envelope"></span>
+                            </a></td>
+                           
+                        </tr>';
+                        $i++;
+                    }
+                    
+                    $html.='</tbody>
+                 </table>';
+            }
+            $resultado['html']=$html;
         }
-        $resultado['html']=$html;
         return $resultado;
        
     }
-       function modificarNotificacion($idNotificacion){
+
+   public function modificarNotificacion($idNotificacion){
         //@Objetivo: Modificar un producto en la web con los datos que el usuario 
         //añada en el tpv
         //@Parametros: datos principales del producto
@@ -343,7 +349,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
-   public function comprobarIvas($ivaProducto, $ivaWeb){
+
+    public function comprobarIvas($ivaProducto, $ivaWeb){
       
         if($ivaProducto!=$ivaWeb){
                 
@@ -357,7 +364,10 @@ class PluginClaseVirtuemart extends ClaseConexion{
             }
    }
    
-   public function datosTiendaWeb($idVirtuemart, $ivas,  $ivaProducto){
+    public function datosTiendaWeb($idVirtuemart, $ivas,  $ivaProducto){
+        // Objetivo
+        // Es obtener los datos necesarios del producto web.
+        
        $respuesta=array();
        $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
        $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
@@ -365,8 +375,9 @@ class PluginClaseVirtuemart extends ClaseConexion{
        $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart, $ivas);
        $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $respuesta['datosProductoWeb']['ivaProducto']);
        return $respuesta;
-   }
-    function enviarCorreo($datos){
+    }
+
+    public function enviarCorreo($datos){
         $ruta =$this->ruta_web;
 		$parametros = array('key' 			=>$this->key_api,
 							'action'		=>'enviarCorreo',

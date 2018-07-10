@@ -21,11 +21,6 @@
 		// Creamos objeto de productos		
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
-		//~ // Cargamos el plugin que nos interesa.
-		
-        if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
-           $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
-        }
 		$id = 0 ; // Por  defecto el id a buscar es 0
 				
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
@@ -90,39 +85,46 @@
 			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
 		}
 		// Cargamos el plugin que nos interesa.
-					if( isset($Producto['ref_tiendas'])){
-                        // Esto no es del todo correcto... ?
-						foreach ($Producto['ref_tiendas'] as $ref){
-							if ($ref['idVirtuemart'] >0){
-								$idVirtuemart = $ref['idVirtuemart'];
-							}
-						}
-					}
-                    $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+        if( isset($Producto['ref_tiendas'])){
+            // Esto no es del todo correcto... ?
+            foreach ($Producto['ref_tiendas'] as $ref){
+                if ($ref['idVirtuemart'] >0){
+                    $idVirtuemart = $ref['idVirtuemart'];
+                }
+            }
+        }
+        $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                   
-					if ($idVirtuemart>0 ){
-                      
-                        $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
-                        $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
-                         
-                        $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
-                    
-                        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
-                        
-                        // Monto html de vehiculos.
-                        $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
-                       
-                        if (isset($vehiculos['Datos'])) {
-                            $htmlVehiculos = $vehiculos['Datos']['html'];
-                        }
-                        $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart, $ivas,  $Producto['iva']);
-                        if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-                            $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
-                        }
-                       
-                      
-                      
-					}
+        if ($idVirtuemart>0 ){
+          
+            if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+                // Creo el objeto de plugin Virtuemart.
+                $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+                // Cargo caja_input de parametros de plugin de virtuemart.
+                $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
+                $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
+                $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
+                // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
+                $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart, $ivas,  $Producto['iva']);
+                
+                // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+                if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+                    $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+                }
+
+            }   
+            
+            // Cargamos el plugin de Vehiculos
+
+            if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+               $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
+               $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
+                if (isset($vehiculos['Datos'])) {
+                    $htmlVehiculos = $vehiculos['Datos']['html'];
+                }
+            }
+            
+        }
 				
 		
 		// ==========		Montamos  html que mostramos. 			============ //
