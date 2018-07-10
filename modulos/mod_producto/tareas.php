@@ -41,7 +41,6 @@ $CAlbaran=new AlbaranesCompras($BDTpv);
 include_once('../../clases/Proveedores.php');
 $CProveedor=new Proveedores($BDTpv);
 
-
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
@@ -139,9 +138,6 @@ switch ($pulsado) {
 		$respuesta=$comprobacion;
 		
 	break;
-    //~ case 'modificarDatosWeb':
-        //~ include('./tareas/modificarDatosWeb.php');
-    //~ break;
 }
 echo json_encode($respuesta);
 ?>

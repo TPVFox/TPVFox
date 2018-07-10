@@ -260,7 +260,6 @@ function recalcularPrecioSegunCosteBeneficio (caja){
 
 }
 
-
 function destacarCambioCaja(idcaja){
 	$("#"+idcaja).css("outline-style","solid");
 	$("#"+idcaja).css("outline-color","coral");
@@ -306,37 +305,7 @@ function recalcularPvp(dedonde){
 	
 	
 }
-//~ function recalcularPvpWeb(dedonde){
-    //~ var iva=parseFloat($('#ivaWeb').val(),2);
-    //~ var iva=parseFloat($( "#ivasWeb option:selected" ).html(),2);
-    //~ iva= iva/100;
-    //~ console.log(iva);
-    //~ if (dedonde === 'precioSivaWeb'){
-		//~ var precioSiva = parseFloat($('#precioSivaWeb').val(),2);
-		//~ var precioCiva = precioSiva+(precioSiva*iva);
-		//~ // Ahora destacamos los input que cambiamos.		
-		//~ destacarCambioCaja('precioCivaWeb');
-	//~ }else{
-        //~ var precioCiva = parseFloat($('#precioCivaWeb').val(),2);
-        //~ iva = iva +1;
-        //~ var precioSiva = precioCiva/iva;
-        //~ destacarCambioCaja('precioSivaWeb');
-    //~ }
-    //~ $('#precioSivaWeb').val(precioSiva.toFixed(2));
-	//~ $('#precioCivaWeb').val(precioCiva.toFixed(2));
-//~ }
-//~ function modificarIvaWeb(){
-    //~ var iva=$( "#ivasWeb" ).val();
-    //~ var iva=parseFloat($( "#ivasWeb option:selected" ).html(),2);
-    //~ console.log(iva);
-    //~ var precioSiva = parseFloat($('#precioSivaWeb').val(),2);
-    //~ iva=iva/100;
-    //~ console.log(iva);
-    //~ var precioCiva=precioSiva+(precioSiva*iva);
-    //~ console.log(precioCiva);
-    //~ destacarCambioCaja('precioCivaWeb');
-    //~ $('#precioCivaWeb').val(precioCiva.toFixed(2));
-//~ }
+
 function obtenerIva(){
 	// @ Objetivo
 	// Obtener el iva a aplicar según el que tengamos seleccionado.
@@ -1025,5 +994,3 @@ function comprobarReferencia(){
 function RegularizarStock(idarticulo){
     alert('Regularizar stock de: '+idarticulo);
 }
-
-
