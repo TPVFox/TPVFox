@@ -17,7 +17,12 @@
         if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
            $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
         }
+        $ClasesParametrosPluginVehiculos = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/vehiculos/parametros.xml');
+        $parametrosVehiculos = $ClasesParametrosPluginVehiculos->getRoot();
+                        
+         
         $Controler = new ControladorComun; // Controlado comun..
+        $VarJSVehiculos = $Controler->ObtenerCajasInputParametros($parametrosVehiculos);
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
         // Inicializo varibles por defecto.
@@ -125,6 +130,7 @@
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script type="text/javascript">
         <?php echo $VarJS;?>
+        <?php echo $VarJSVehiculos;?>
         </script>
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
