@@ -75,6 +75,8 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
         case 'enviarCorreoNotificacion':
         //Objetivo: enviar el correo de notificación
         //Primero cargamos la libreria
+        //~ $enviarCorreo = $ObjViruemart->enviarCorreo();
+        //~ $respuesta['correo']= $enviarCorreo;
         include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/PHPMailer.php");
         include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/Exception.php");
         include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/SMTP.php");
