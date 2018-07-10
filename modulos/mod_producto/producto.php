@@ -110,8 +110,18 @@
 							}
 						}
 					}
+                    $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+                  
 					if ($idVirtuemart>0 ){
-                        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');                    
+                      
+                        $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
+                        $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
+                         
+                        $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
+                    
+                        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+                               
+                               
 						$htmlLinkVirtuemart = $ObjVirtuemart->btnLinkProducto($idVirtuemart);
                         // Monto html de vehiculos.
                         $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
@@ -153,11 +163,12 @@
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+			//~ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		?>	
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
+        <?php echo $VarJSVirtuemart;?>
 		<?php 
 			echo  'var producto='.json_encode($Producto).';';
 		?>

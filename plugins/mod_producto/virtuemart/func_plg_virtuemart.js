@@ -1,3 +1,21 @@
+function controladorAcciones(caja,accion, tecla){
+	console.log('Entro en controlador de acciones');
+	switch(accion) {
+        case 'recalcularPvpWeb':
+            console.log("entre en recalcular web");
+            var re= comprobarNumero(caja.darValor());
+            
+                if ( re === true){
+                    console.log(caja.darValor());
+                    recalcularPvpWeb(caja.id_input);
+			}
+        break;
+    }
+}
+
+
+
+
 function modificarProductoWeb(){
     //@Objetivo:
     //MOdificar los datos del producto en la web 

@@ -624,15 +624,15 @@ function controladorAcciones(caja,accion, tecla){
 				recalcularPvp(caja.id_input);
 			}
 		break
-		case 'recalcularPvpWeb':
-            console.log("entre en recalcular web");
-            var re= comprobarNumero(caja.darValor());
+		//~ case 'recalcularPvpWeb':
+            //~ console.log("entre en recalcular web");
+            //~ var re= comprobarNumero(caja.darValor());
             
-                if ( re === true){
-                    console.log(caja.darValor());
-                    recalcularPvpWeb(caja.id_input);
-			}
-        break;
+                //~ if ( re === true){
+                    //~ console.log(caja.darValor());
+                    //~ recalcularPvpWeb(caja.id_input);
+			//~ }
+        //~ break;
 		case 'controlCosteProv':
 			caja.id_input = caja.name_cja;
 			console.log(caja.darValor());

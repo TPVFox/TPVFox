@@ -13,14 +13,16 @@
         include_once ($RutaServidor . $HostNombre . '/controllers/parametros.php');
         $CTArticulos = new ClaseProductos($BDTpv);
 // Cargamos el plugin que nos interesa.
-		if (count($CTArticulos->GetPlugins())>0){
-			foreach ($CTArticulos->GetPlugins() as $plugin){
-				if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
-					$ObjVersiones = $plugin['clase'];
-				}
-			}
-		}
- 
+		//~ if (count($CTArticulos->GetPlugins())>0){
+			//~ foreach ($CTArticulos->GetPlugins() as $plugin){
+				//~ if ($plugin['datos_generales']['nombre_fichero_clase'] === 'ClaseVehiculos'){
+					//~ $ObjVersiones = $plugin['clase'];
+				//~ }
+			//~ }
+		//~ }
+        if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+           $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
+        }
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
