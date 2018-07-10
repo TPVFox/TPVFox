@@ -2,12 +2,10 @@
 <html>
     <head>
         <?php
+        include './../../inicial.php';
         include './../../head.php';
         include './funciones.php';
         include './clases/ClaseRegularizaciones.php';
-
-        $Tienda = $_SESSION['tiendaTpv'];
-        $Usuario = $_SESSION['usuarioTpv'];
 
         $alArticulo = new alArticulosRegularizacion();
         $Productos = $alArticulo->leerTodos(['regu.estado=' . K_STOCKREGULARIZACION_ESTADO_ACTIVO], ['regu.*', 'arts.articulo_name']);
@@ -24,11 +22,7 @@
     </head>
 
     <body>
-        <script>
-            setTimeout(function () {   //pongo un tiempo de focus ya que sino no funciona correctamente
-                jQuery('#buscar').focus();
-            }, 50);
-        </script>
+        
         <?php
         include './../../header.php';
         ?>
