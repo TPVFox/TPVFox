@@ -145,6 +145,21 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
+    public function htmlOptionIvasWeb($ivas, $ivaProducto){
+        $htmlIvas = '';
+        foreach ($ivas as $item){
+            if($item['id_virtualmart']>0){
+                $es_seleccionado = '';
+                
+                if ($ivaProducto == $item['iva']){
+                    
+                    $es_seleccionado = ' selected';
+                }
+                $htmlIvas .= '<option value="'.$item['id_virtualmart'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
+            }
+		}
+	return $htmlIvas;	
+    }
     public function htmlDatosProductoSeleccionado($idProducto, $ivas, $email, $host, $password, $puerto){
         //@Objetivo: Mostrar el html de los datos de los productos de la web
         //@Parametros: idProducto: id de virtuemart
@@ -154,7 +169,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $datosProductoVirtual=$this->ObtenerDatosDeProducto($idProducto);
         $respuesta['datosProductoVirtual']=$datosProductoVirtual;
         $datosWeb=$datosProductoVirtual['Datos']['items']['item'][0];
-        $htmlIvasWeb=htmlOptionIvasWeb($ivas, $datosWeb['iva']);
+        $htmlIvasWeb=$this->htmlOptionIvasWeb($ivas, $datosWeb['iva']);
         $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
         $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
         

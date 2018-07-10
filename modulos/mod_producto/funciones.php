@@ -248,21 +248,7 @@ function htmlOptionIvas($ivas,$ivaProducto){
 	return $htmlIvas;	
 	
 }
-function htmlOptionIvasWeb($ivas, $ivaProducto){
-    $htmlIvas = '';
-	foreach ($ivas as $item){
-            if($item['id_virtualmart']>0){
-                $es_seleccionado = '';
-                
-                if ($ivaProducto == $item['iva']){
-                    
-                    $es_seleccionado = ' selected';
-                }
-                $htmlIvas .= '<option value="'.$item['id_virtualmart'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
-            }
-		}
-	return $htmlIvas;	
-}
+
 
 function htmlOptionEstados($posibles_estados,$estado=''){
 	//  Objetivo :
