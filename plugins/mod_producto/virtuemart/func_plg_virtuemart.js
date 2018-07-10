@@ -126,6 +126,7 @@ function enviarCorreoNotificacion(){
 				console.log('Respuesta de mostrar el modal de notificaciones  ');
 				var resultado = $.parseJSON(response);
                 console.log(resultado);
+                
                if(resultado.mail==1){
                    alert(resultado.error);
                    alert("Error no ha enviado la notificación por correo");

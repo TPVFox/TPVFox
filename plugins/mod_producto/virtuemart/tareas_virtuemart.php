@@ -75,48 +75,62 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
         case 'enviarCorreoNotificacion':
         //Objetivo: enviar el correo de notificación
         //Primero cargamos la libreria
-        //~ $enviarCorreo = $ObjViruemart->enviarCorreo();
-        //~ $respuesta['correo']= $enviarCorreo;
-        include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/PHPMailer.php");
-        include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/Exception.php");
-        include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/SMTP.php");
+        $respuesta = array();
+    
+      
         
-            $mail=new PHPMailer\PHPMailer\PHPMailer(true);
-            $datos=$_POST['datos'];     //recibimos las datos
-             $mail->isSMTP();
+        $enviarCorreo = $ObjViruemart->enviarCorreo($_POST['datos']);
+        if($enviarCorreo['Datos']['mailer']==true){
+            $respuesta['mail']= 2;
+            $modificarEstadoNotificacion = $ObjViruemart->modificarNotificacion($datos['idNotificacion']);
+            $respuesta['modificacion']=$modificarEstadoNotificacion;
+            $respuesta['numLinea']=$datos['numLinea'];
+        }else{
+            $respuesta['mail']= 1;
+            $respuesta['error']=$enviarCorreo['Datos']['mensaje'];
+        }
+        $respuesta['correo']= $enviarCorreo;
+     
+        //~ include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/PHPMailer.php");
+        //~ include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/Exception.php");
+        //~ include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/SMTP.php");
+        
+            //~ $mail=new PHPMailer\PHPMailer\PHPMailer(true);
+            //~ $datos=$_POST['datos'];     //recibimos las datos
+             //~ $mail->isSMTP();
            
-            $mail->SMTPDebug = 0;//no mostramos el mensaje de salida
+            //~ $mail->SMTPDebug = 0;//no mostramos el mensaje de salida
             
           
-            $mail->Host=$datos['hostEnvio'];//host del servidor que lo obtenemos de joomla
+            //~ $mail->Host=$datos['hostEnvio'];//host del servidor que lo obtenemos de joomla
            
-            $mail->Port=$datos['puertoEnvio'];//puerto del servidor smtp 
-            $mail->SMTPAuth = true;//Utilizamos la autentificación de smtp
-            $mail->SMTPSecure = 'ssl';//Conexión segura
-            $mail->Username =$datos['emailEnvio'];//Nombre de usuario
+            //~ $mail->Port=$datos['puertoEnvio'];//puerto del servidor smtp 
+            //~ $mail->SMTPAuth = true;//Utilizamos la autentificación de smtp
+            //~ $mail->SMTPSecure = 'ssl';//Conexión segura
+            //~ $mail->Username =$datos['emailEnvio'];//Nombre de usuario
           
-            $mail->Password=$datos['passwordEnvio'];//Contraseña del servidor
+            //~ $mail->Password=$datos['passwordEnvio'];//Contraseña del servidor
           
            
-            $mail->setFrom($datos['emailEnvio'], $datos['emailEnvio']);//Cuenta de la que vamos a enviar el correo
-            $mail->addAddress($datos['email'], '');//A quien le vamos a enviar el correo
-            $mail->Subject = $datos['asunto'];//Asunto del correo
-            $mail->Body = $datos['mensaje'];//Mensaje del correo
-            $mail->smtpClose();//Cerramos la conexion
-           //Si al enviar obtenemos un error envia un error 
-            if (!$mail->send()) {
-                $respuesta['mail']= 1;
-                $respuesta['error']=$mail->ErrorInfo;
+            //~ $mail->setFrom($datos['emailEnvio'], $datos['emailEnvio']);//Cuenta de la que vamos a enviar el correo
+            //~ $mail->addAddress($datos['email'], '');//A quien le vamos a enviar el correo
+            //~ $mail->Subject = $datos['asunto'];//Asunto del correo
+            //~ $mail->Body = $datos['mensaje'];//Mensaje del correo
+            //~ $mail->smtpClose();//Cerramos la conexion
+           //~ //Si al enviar obtenemos un error envia un error 
+            //~ if (!$mail->send()) {
+                //~ $respuesta['mail']= 1;
+                //~ $respuesta['error']=$mail->ErrorInfo;
                   
                    
-            } else {
-                //Si no modificamos el registro de la notificación
-                    $respuesta['mail']= 2;
-                    $modificarEstadoNotificacion = $ObjViruemart->modificarNotificacion($datos['idNotificacion']);
-                    $respuesta['modificacion']=$modificarEstadoNotificacion;
-                    $respuesta['numLinea']=$datos['numLinea'];
+            //~ } else {
+                //~ //Si no modificamos el registro de la notificación
+                    //~ $respuesta['mail']= 2;
+                    //~ $modificarEstadoNotificacion = $ObjViruemart->modificarNotificacion($datos['idNotificacion']);
+                    //~ $respuesta['modificacion']=$modificarEstadoNotificacion;
+                    //~ $respuesta['numLinea']=$datos['numLinea'];
                    
-            }
+            //~ }
         break;
     
     
