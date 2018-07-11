@@ -176,7 +176,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $HostNombre = $this->HostNombre;
         $datosProductoVirtual=$this->ObtenerDatosDeProducto($idProducto);
         $respuesta['datosProductoVirtual']=$datosProductoVirtual;
-        $datosWeb=$datosProductoVirtual['Datos']['item'];
+        $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
         $htmlIvasWeb=$this->htmlOptionIvasWeb($ivas, $datosWeb['iva']);
     
         $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
