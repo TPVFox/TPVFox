@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 10, 2018 at 09:34 PM
+-- Generation Time: Jul 11, 2018 at 05:20 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.30-0+deb9u1
 
@@ -30,8 +30,7 @@ CREATE TABLE `iva` (
   `idIva` int(11) NOT NULL,
   `descripcionIva` varchar(25) DEFAULT NULL,
   `iva` decimal(4,2) DEFAULT NULL,
-  `recargo` decimal(4,2) DEFAULT NULL,
-  `id_virtualmart` int(11) DEFAULT NULL
+  `recargo` decimal(4,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
