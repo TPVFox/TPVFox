@@ -249,7 +249,6 @@ function htmlOptionIvas($ivas,$ivaProducto){
 	
 }
 
-
 function htmlOptionEstados($posibles_estados,$estado=''){
 	//  Objetivo :
 	// Montar html Option para selecciona Estados, poniendo seleccionado el estado enviado

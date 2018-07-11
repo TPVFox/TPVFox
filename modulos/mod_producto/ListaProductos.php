@@ -10,21 +10,23 @@
         include_once $URLCom.'/controllers/Controladores.php';
         include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         include_once ($URLCom .'/controllers/parametros.php');
-        
+        $OtrosVarJS ='';
+        $htmlplugins = array();
         $CTArticulos = new ClaseProductos($BDTpv);
-// Cargamos el plugin que nos interesa.
-		
-        if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
-           $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
-        }
-        $ClasesParametrosPluginVehiculos = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/vehiculos/parametros.xml');
-        $parametrosVehiculos = $ClasesParametrosPluginVehiculos->getRoot();
-                        
-         
-        $Controler = new ControladorComun; // Controlado comun..
-        $VarJSVehiculos = $Controler->ObtenerCajasInputParametros($parametrosVehiculos);
-        // Añado la conexion
+		$Controler = new ControladorComun; // Controlado comun..
         $Controler->loadDbtpv($BDTpv);
+
+        // Cargamos el plugin que nos interesa.
+        if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+            $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
+            $ClasesParametrosPluginVehiculos = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/vehiculos/parametros.xml');
+            $parametrosVehiculos = $ClasesParametrosPluginVehiculos->getRoot();
+            $OtrosVarJS .= $Controler->ObtenerCajasInputParametros($parametrosVehiculos);
+            $Ov=$ObjVersiones->htmlFormularioSeleccionVehiculo();
+            $htmlplugins['html'] = $Ov['html'];
+        }
+        //  Fin de carga de plugins.
+
         // Inicializo varibles por defecto.
         $Tienda = $_SESSION['tiendaTpv'];
         $Usuario = $_SESSION['usuarioTpv'];
@@ -124,14 +126,13 @@
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+			$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
          
 		?>	
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/plugins/modal/func_modal_reutilizables.js"></script>
         <script type="text/javascript">
         <?php echo $VarJS;?>
-        <?php echo $VarJSVehiculos;?>
         </script>
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
@@ -204,8 +205,7 @@ include_once $URLCom.'/header.php';
                 <div class="col-md-10">
                     <div class="col-md-12">
                       <?php 
-                      $htmlconbobox=$ObjVersiones->htmlFormularioSeleccionVehiculo();
-                      echo $htmlconbobox['html'];
+                      echo $htmlplugins['html'];
                       ?>  
                     </div>
                
