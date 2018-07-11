@@ -150,18 +150,18 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		return $respuesta;
     }
 
-    public function htmlOptionIvasWeb($ivas, $ivaProducto){
+    public function htmlOptionIvasWeb($ivas, $ivaProductoWeb){
         $htmlIvas = '';
         foreach ($ivas as $item){
-            if($item['id_virtualmart']>0){
+            //~ if($item['id_virtualmart']>0){
                 $es_seleccionado = '';
                 
-                if ($ivaProducto == $item['iva']){
+                if ($ivaProductoWeb == $item['virtuemart_calc_id']){
                     
                     $es_seleccionado = ' selected';
                 }
-                $htmlIvas .= '<option value="'.$item['id_virtualmart'].'" '.$es_seleccionado.'>'.$item['iva'].'%'.'</option>';
-            }
+                $htmlIvas .= '<option value="'.$item['virtuemart_calc_id'].'" '.$es_seleccionado.'>'.number_format ($item['calc_value'],2).'%'.'</option>';
+            //~ }
 		}
         return $htmlIvas;	
     }
@@ -177,7 +177,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $datosProductoVirtual=$this->ObtenerDatosDeProducto($idProducto);
         $respuesta['datosProductoVirtual']=$datosProductoVirtual;
         $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
-        $htmlIvasWeb=$this->htmlOptionIvasWeb($ivas, $datosWeb['iva']);
+        $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
+        $htmlIvasWeb=$this->htmlOptionIvasWeb($ivasWeb, $datosWeb['idIva']);
     
         $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
         $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
