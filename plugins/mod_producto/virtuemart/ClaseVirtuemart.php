@@ -166,7 +166,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $htmlIvas;	
     }
 
-    public function htmlDatosProductoSeleccionado($idProducto, $ivas){
+    public function htmlDatosProductoSeleccionado($idProducto){
         //@Objetivo
         // Mostrar el html de los datos de los productos de la web
         //@Parametros
@@ -177,6 +177,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $datosProductoVirtual=$this->ObtenerDatosDeProducto($idProducto);
         $respuesta['datosProductoVirtual']=$datosProductoVirtual;
         $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
+        $respuesta['datosWeb']=$datosWeb;
         $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
         $htmlIvasWeb=$this->htmlOptionIvasWeb($ivasWeb, $datosWeb['idIva']);
     
@@ -353,7 +354,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 
     public function comprobarIvas($ivaProducto, $ivaWeb){
       
-        if($ivaProducto!=$ivaWeb){
+        if($ivaProducto!=number_format($ivaWeb,2)){
                 
                 $comprobacionIva=array(
                 'tipo'=>'warning',
@@ -365,7 +366,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
             }
    }
    
-    public function datosTiendaWeb($idVirtuemart, $ivas,  $ivaProducto){
+    public function datosTiendaWeb($idVirtuemart,  $ivaProducto){
         // Objetivo
         // Es obtener los datos necesarios del producto web.
         
@@ -373,8 +374,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
        $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
        $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
        $respuesta['htmlnotificaciones']=$htmlnotificaciones;
-       $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart, $ivas);
-       $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $respuesta['datosProductoWeb']['ivaProducto']);
+       $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart);
+       $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $respuesta['datosProductoWeb']['datosWeb']['iva']);
        return $respuesta;
     }
 

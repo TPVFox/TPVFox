@@ -110,10 +110,10 @@
                 $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
                 $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
                 // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
-                $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart, $ivas,  $Producto['iva']);
-                echo '<pre>';
-                print_r($datosWebCompletos['datosProductoWeb']['datosProductoVirtual']);
-                echo '</pre>';
+                $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva']);
+                //~ echo '<pre>';
+                //~ print_r($Producto);
+                //~ echo '</pre>';
                 // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
                 if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
                     $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
