@@ -59,7 +59,7 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                 <div class="col-md-12">'
                 .'<div class="col-md-12">
                     <label>Asunto</label>'
-                .'<input type="text" id="asunto" name="asuno" size="60" value="Respuesta de notificación '.$datos['nombreProducto'].'">'
+                .'<input type="text" id="asunto" name="asuno" size="60" value="Contestacion a pregunta sobre '.$datos['nombreProducto'].'">'
                 .'</div>'
                 .'</div>'
                 .'<div class="col-md-12">'
