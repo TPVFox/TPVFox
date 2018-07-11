@@ -156,7 +156,6 @@
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 
           
-        ?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
