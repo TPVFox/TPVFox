@@ -102,27 +102,3 @@ tbody tr.FilaModal:hover{
 .piePagina a{
 color:  #fdfefe ;
 }
-.custom-combobox {
-    position: relative;
-    display: inline-block;
-}
-.custom-combobox-toggle {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    margin-left: -1px;
-    padding: 0;
-}
-.custom-combobox-input {
-    margin: 0;
-    padding: 5px 10px;
- }
-
-#botonVer{
-    display: inline;
-    margin-left: 50px;
-}
-#divVersion>div{
-   display: inline;
-
-}

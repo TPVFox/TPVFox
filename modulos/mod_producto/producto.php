@@ -7,6 +7,7 @@
         include_once $URLCom.'/modulos/mod_producto/funciones.php';
         include_once $URLCom.'/controllers/Controladores.php';
         include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+        $OtrosVarJS ='';
         // Creo objeto de controlador comun.
 		$Controler = new ControladorComun; 
 		// Añado la conexion
@@ -32,7 +33,6 @@
 			// Modificar Ficha Producto
 			$id=$_GET['id']; // Obtenemos id producto para modificar.
 			$titulo .= "Modificar";
-            
 		} else {
 			// Quiere decir que no hay id, por lo que es nuevo
 			$titulo .= "Crear";
@@ -98,8 +98,7 @@
                 }
             }
         }
-        $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-                  
+       
         if ($idVirtuemart>0 ){
           
             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
@@ -108,12 +107,9 @@
                 // Cargo caja_input de parametros de plugin de virtuemart.
                 $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
                 $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
-                $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
+                $OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
                 // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
                 $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva']);
-                //~ echo '<pre>';
-                //~ print_r($Producto);
-                //~ echo '</pre>';
                 // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
                 if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
                     $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
@@ -121,15 +117,6 @@
 
             }   
             
-            // Cargamos el plugin de Vehiculos
-
-            if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
-               $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
-               $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
-                if (isset($vehiculos['Datos'])) {
-                    $htmlVehiculos = $vehiculos['Datos']['html'];
-                }
-            }
             
         }
 				
@@ -145,10 +132,10 @@
 		
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+            $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
 		?>
          <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-          <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
          <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
        
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -156,15 +143,10 @@
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 
           
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
-		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-			//~ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		?>	
+		
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
-        <?php echo $VarJSVirtuemart;?>
 		<?php 
 			echo  'var producto='.json_encode($Producto).';';
 		?>
@@ -355,11 +337,6 @@
                             
                                 <div class="panel-group">
                                     <?php
-                                    if (isset($htmlVehiculos)){
-                                            $num = 5; // Numero collapse;
-                                            $titulo = 'Vehiculos que montan este productos.';
-                                            echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
-                                    }
                                     if(isset( $datosWebCompletos['htmlnotificaciones']['html'])){
                                         
                                          $num = 6; // Numero collapse;
