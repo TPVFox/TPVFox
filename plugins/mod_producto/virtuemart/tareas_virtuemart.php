@@ -29,6 +29,7 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                                             por que el nombre es superior a 180 caracteres.
                                         </div>';
             }else{
+                
                 $modificarProducto = $ObjViruemart->modificarProducto($datos);
                 $respuesta['datos']=$datos;
                 
