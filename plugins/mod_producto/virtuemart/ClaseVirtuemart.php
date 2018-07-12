@@ -230,7 +230,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
          .'      <div class="col-md-12">'
         .'          <div class="col-md-5">'
         .'              <label>Alias de producto</label>'
-        .'              <input type="text" id="alias" name="alias" value="">
+        .'              <input type="text" id="alias" name="alias" value="'.$datosWeb['alias'].'">
                              <div class="invalid-tooltip-articulo_name" display="none">
                                     No permitimos la doble comilla (") 
                             </div>'
