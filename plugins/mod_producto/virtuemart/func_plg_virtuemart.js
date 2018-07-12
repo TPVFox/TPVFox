@@ -27,7 +27,8 @@ function modificarProductoWeb(){
         'codBarras':    $('#codBarrasWeb').val(),
         'precioSiva':   $('#precioSivaWeb').val(),
         'iva':          $('#ivasWeb').val(),
-        'id':           $('#idWeb').html()
+        'id':           $('#idWeb').html(),
+        'alias':        $('#alias').val()
     };
     
     console.log(datos);
