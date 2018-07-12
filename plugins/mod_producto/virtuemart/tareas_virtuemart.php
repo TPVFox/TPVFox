@@ -21,18 +21,27 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
             $datos = $_POST['datos'];
             
 			$respuesta = array();
-			$modificarProducto = $ObjViruemart->modificarProducto($datos);
-            $respuesta['datos']=$datos;
-            
-			$respuesta['resul']= $modificarProducto;
-            if(strlen($modificarProducto['Datos']['error']) == 0){
-                $respuesta['htmlAlerta']='<div class="alert alert-success">
-                                            <strong>Success!</strong> Has modificados los datos del producto.
+            $datosComprobaciones=json_decode($datos, true);
+            $respuesta['caracteres']=strlen($datosComprobaciones['nombre']);
+            if(strlen($datosComprobaciones['nombre'])>180){
+                $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                            <strong>Danger!</strong> No se puede modificar el producto 
+                                            por que el nombre es superior a 180 caracteres.
                                         </div>';
             }else{
-                $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                            <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['consulta'].'
-                                        </div>';
+                $modificarProducto = $ObjViruemart->modificarProducto($datos);
+                $respuesta['datos']=$datos;
+                
+                $respuesta['resul']= $modificarProducto;
+                if(strlen($modificarProducto['Datos']['error']) == 0){
+                    $respuesta['htmlAlerta']='<div class="alert alert-success">
+                                                <strong>Success!</strong> Has modificados los datos del producto.
+                                            </div>';
+                }else{
+                    $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                                <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['consulta'].'
+                                            </div>';
+                }
             }
            
         break;
