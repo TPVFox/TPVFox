@@ -207,6 +207,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         }
         $html   .='    </div>'
         .'      </div>'
+       
         .'       <div class="col-md-12">'
         .'           <div class="col-md-3 ">'
         .'               <label>Referencia</label>'
@@ -224,6 +225,16 @@ class PluginClaseVirtuemart extends ClaseConexion{
                                  <div class="invalid-tooltip-articulo_name" display="none">
                                     No permitimos la doble comilla (") 
                                 </div>'
+        .'          </div>'
+        .'      </div>'
+         .'      <div class="col-md-12">'
+        .'          <div class="col-md-5">'
+        .'              <label>Alias de producto</label>'
+        .'              <input type="text" id="alias" name="alias" value="">
+                             <div class="invalid-tooltip-articulo_name" display="none">
+                                    No permitimos la doble comilla (") 
+                            </div>'
+        
         .'          </div>'
         .'      </div>'
         .'      <div class="col-md-12">'
