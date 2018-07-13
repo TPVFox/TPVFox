@@ -176,7 +176,14 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// en la clase extendida, seguira haciendolo en la tienda asignada en la clase extendida.
 		$this->idTienda= $id;
 	}
-	
+	public function addTiendaProducto($idProducto, $idTienda, $idVirtuemart){
+        $sql='INSERT INTO articulosTiendas (idArticulo, idTienda, idVirtuemart, estado)VALUES
+        ('.$idProducto.', '.$idTienda.', '.$idVirtuemart.', "Activo")';
+        error_log($sql);
+        $respuesta = $this->Consulta_insert_update($sql);
+        $respuesta['consulta'] = $sql;
+        return $respuesta;
+    }
 	public function posiblesEstados($tabla){
 		// @Objetivo
 		// Obtener los estados posibles para la tabla que indicamos en parametro.

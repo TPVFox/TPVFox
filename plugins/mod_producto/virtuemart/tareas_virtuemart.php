@@ -7,12 +7,14 @@ include_once ("./../../../configuracion.php");
 // Crealizamos conexion a la BD Datos
 //~ include_once ("./../mod_conexion/conexionBaseDatos.php");
 include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
+include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProductos.php';
 
 
 	// Solo creamos objeto si no existe.
 	$thisTpv = new ClaseSession();
 	$BDTpv = $thisTpv->getConexion();
-    include ($RutaServidor.$HostNombre."/plugins/mod_producto/virtuemart/ClaseVirtuemart.php");
+    $CTArticulos = new ClaseProductos($BDTpv);
+    include_once ($RutaServidor.$HostNombre."/plugins/mod_producto/virtuemart/ClaseVirtuemart.php");
     $ObjViruemart = new PluginClaseVirtuemart();
 
 	switch ($pulsado) {
@@ -61,7 +63,10 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                 $datosComprobaciones['product_currency']=47;
                 $datos=json_encode($datosComprobaciones);
                 $addProducto = $ObjViruemart->addProducto($datos);
-                
+                if($addProducto['Datos']['id']>0){
+                    $addRegistro=$CTArticulos->addTiendaProducto( $datosComprobaciones['idProducto'], $datosComprobaciones['idTienda'], $addProducto['Datos']['id']);
+                    $respuesta['registro']=$addRegistro;
+                }
                 $respuesta['resul']= $addProducto;
             }
            

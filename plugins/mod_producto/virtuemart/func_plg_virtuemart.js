@@ -12,7 +12,7 @@ function controladorAcciones(caja,accion, tecla){
         break;
     }
 }
-function modificarProductoWeb(){
+function modificarProductoWeb(idProducto="", idTienda=""){
     //@Objetivo:
     //MOdificar los datos del producto en la web 
     console.log("entre en modificar producto web ");
@@ -24,7 +24,9 @@ function modificarProductoWeb(){
         'precioSiva':   $('#precioSivaWeb').val(),
         'iva':          $('#ivasWeb').val(),
         'id':           $('#idWeb').html(),
-        'alias':        $('#alias').val()
+        'alias':        $('#alias').val(),
+        'idProducto':   idProducto, 
+        'idTienda':     idTienda
     };
     
     console.log(datos);

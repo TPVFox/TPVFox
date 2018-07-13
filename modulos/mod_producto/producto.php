@@ -119,7 +119,11 @@
                 }else{
                     
                     if($ObjVirtuemart->getTiendaWeb()!=false){
-                        $datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios();
+                        $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+                        echo '<pre>';
+                        print_r($tiendaWeb);
+                        echo '</pre>';
+                        $datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $tiendaWeb['idTienda']);
                     }
                      
                 }

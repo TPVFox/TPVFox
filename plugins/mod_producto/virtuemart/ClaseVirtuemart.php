@@ -361,7 +361,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $resultado;
        
     }
-    public function htmlDatosVacios(){
+    public function htmlDatosVacios($idProducto, $idTienda){
         $respuesta=array();
         $HostNombre = $this->HostNombre;
         $datosProductoVirtual=$this->ObtenerDatosDeProducto(0);
@@ -371,7 +371,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
-                        value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb()">'
+                        value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">'
         .'      </div>'
         .'      <div class="col-md-12" id="alertasWeb">'
         .'      </div>'
