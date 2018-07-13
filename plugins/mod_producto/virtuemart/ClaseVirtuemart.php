@@ -149,6 +149,27 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
+    public function addProducto($datos){
+        //@Objetivo: Modificar un producto en la web con los datos que el usuario 
+        //añada en el tpv
+        //@Parametros: datos principales del producto
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'AddProducto',
+							'datos'	=>$datos
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		return $respuesta;
+    }
 
     public function htmlOptionIvasWeb($ivas, $ivaProductoWeb){
         $htmlIvas = '';
@@ -340,7 +361,103 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $resultado;
        
     }
-
+    public function htmlDatosVacios(){
+        $respuesta=array();
+        $HostNombre = $this->HostNombre;
+        $datosProductoVirtual=$this->ObtenerDatosDeProducto(0);
+        $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
+        $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
+				.'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
+        $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
+        .'      <div class="col-md-12">'
+        .'          <input class="btn btn-primary" type="button" 
+                        value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb()">'
+        .'      </div>'
+        .'      <div class="col-md-12" id="alertasWeb">'
+        .'      </div>'
+        .'      <div class="col-md-12">'
+        .'          <div class="col-md-7">'
+        .'                <h4> Datos del producto en la tienda Web </h4><p id="idWeb"></p>'
+        .'           </div>'
+        .'           <div class="col-md-5">';
+        $html   .='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
+                                    <option value="0">Sin publicar</option></select></label>';
+       
+        $html   .='    </div>'
+        .'      </div>'
+       
+        .'       <div class="col-md-12">'
+        .'           <div class="col-md-3 ">'
+        .'               <label>Referencia</label>'
+        .'               <input type="text" id="referenciaWeb" 
+                                name="cref_tienda_principal_web" size="10" 
+                                placeholder="referencia producto"
+                                value=""  >'
+        .'          </div>'
+        .'          <div class="col-md-8 ">'
+        .'              <label>Nombre del producto</label>'
+        .'              <input type="text" id="nombreWeb" 
+                                name="nombre_web"  size="50"
+                                placeholder="nombreWeb" 
+                                value=""  >
+                                 <div class="invalid-tooltip-articulo_name" display="none">
+                                    No permitimos la doble comilla (") 
+                                </div>'
+        .'          </div>'
+        .'      </div>'
+         .'      <div class="col-md-12">'
+        .'          <div class="col-md-5">'
+        .'              <label>Alias de producto</label>'
+        .'              <input type="text" id="alias" name="alias" value=""  disabled>
+                             <div class="invalid-tooltip-articulo_name" display="none">
+                                    No permitimos la doble comilla (") 
+                            </div>'
+        
+        .'          </div>'
+        .'      </div>'
+        .'      <div class="col-md-12">'
+        .'          <h4> Precios de venta en Web </h4>'
+        .'       </div>'
+        .'       <div class="col-md-12">'
+        .'           <div class="col-md-4 ">'
+        .'               <label>Código de  barras</label>'
+        .'               <input type="text" id="codBarrasWeb" 
+                                    name="cod_barras_web"  size="10"
+                                    placeholder="codBarrasWeb" 
+                                    value=""  >'
+        .'          </div>'
+        .'          <div class="col-md-4 ">'
+        .'              <label>Precio Sin iva</label>'
+        .'              <input type="text" id="precioSivaWeb" 
+                                    name="PrecioSiva_web"  size="10"
+                                    placeholder="precioSiva" data-obj= "cajaPrecioSivaWeb" 
+                                    value="" 
+                                    onkeydown="controlEventos(event)" onblur="controlEventos(event)" >'
+        .'          </div>'
+        .'          <div class="col-md-4 ">'
+        .'              <label>Precio Con iva</label>'
+        .'              <input type="text" id="precioCivaWeb" 
+                                    name="PrecioCiva_web"  size="10"
+                                    placeholder="precioCiva" data-obj= "cajaPrecioCivaWeb" 
+                                    value="" onkeydown="controlEventos(event)" 
+                                     onblur="controlEventos(event)">'
+        .'          </div>'
+        .'      </div>'
+        .'      <div class="col-md-12">'
+        .'          <div class="col-md-4 ">'
+        .'              <label>IVA</label>'
+        .'              <select name="ivasWeb" id="ivasWeb" onchange="modificarIvaWeb()">'
+        .'                  ';
+        
+        foreach($ivasWeb as $iva){
+            $html.='<option value="'.$iva['virtuemart_calc_id'].'">'.number_format($iva['calc_value'],2).'%</option>';
+        }
+         $html   .='      </select >'   
+        .'          </div>'
+        .'      </div>'
+        .'  </div>';
+        return $html;
+    }
    public function modificarNotificacion($idNotificacion){
         //@Objetivo: Modificar un producto en la web con los datos que el usuario 
         //añada en el tpv

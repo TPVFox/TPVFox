@@ -22,7 +22,9 @@
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
 		$id = 0 ; // Por  defecto el id a buscar es 0
-				
+		$idVirtuemart=0;	
+        $VarJSVirtuemart="";
+       
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
      
 		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
@@ -99,30 +101,32 @@
             }
         }
         $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-                  
-        if ($idVirtuemart>0 ){
-          
+        $datosWebCompletos=array();
             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
-                // Creo el objeto de plugin Virtuemart.
-                $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
-                // Cargo caja_input de parametros de plugin de virtuemart.
-                $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
-                $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
-                $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
-                // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
-                $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva']);
-                //~ echo '<pre>';
-                //~ print_r($Producto);
-                //~ echo '</pre>';
-                // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-                if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-                    $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+                    // Creo el objeto de plugin Virtuemart.
+                    $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');  
+                     // Cargo caja_input de parametros de plugin de virtuemart.
+                    $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
+                    $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
+                    $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart); 
+                    if ($idVirtuemart>0 ){ 
+                    // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
+                    $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva']);
+                    // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+                    if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+                        $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+                    }
+                }else{
+                    
+                    if($ObjVirtuemart->getTiendaWeb()!=false){
+                        $datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios();
+                    }
+                     
                 }
 
             }   
-            
+            if ($idVirtuemart>0 ){ 
             // Cargamos el plugin de Vehiculos
-
             if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
                $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
                $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
@@ -130,8 +134,9 @@
                     $htmlVehiculos = $vehiculos['Datos']['html'];
                 }
             }
+            }
             
-        }
+        
 				
 		
 		// ==========		Montamos  html que mostramos. 			============ //

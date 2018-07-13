@@ -12,10 +12,6 @@ function controladorAcciones(caja,accion, tecla){
         break;
     }
 }
-
-
-
-
 function modificarProductoWeb(){
     //@Objetivo:
     //MOdificar los datos del producto en la web 
@@ -173,3 +169,4 @@ function modificarIvaWeb(){
     destacarCambioCaja('precioCivaWeb');
     $('#precioCivaWeb').val(precioCiva.toFixed(2));
 }
+

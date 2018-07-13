@@ -22,28 +22,49 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
             
 			$respuesta = array();
             $datosComprobaciones=json_decode($datos, true);
-            $respuesta['caracteres']=strlen($datosComprobaciones['nombre']);
-            if(strlen($datosComprobaciones['nombre'])>180){
-                $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                            <strong>Danger!</strong> No se puede modificar el producto 
-                                            por que el nombre es superior a 180 caracteres.
-                                        </div>';
-            }else{
-                
-                $modificarProducto = $ObjViruemart->modificarProducto($datos);
-                $respuesta['datos']=$datos;
-                
-                $respuesta['resul']= $modificarProducto;
-                if(strlen($modificarProducto['Datos']['error']) == 0){
-                    $respuesta['htmlAlerta']='<div class="alert alert-success">
-                                                <strong>Success!</strong> Has modificados los datos del producto.
+            if(isset($datosComprobaciones['idWeb'])){
+                 $respuesta['caracteres']=strlen($datosComprobaciones['nombre']);
+                if(strlen($datosComprobaciones['nombre'])>180){
+                    $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                                <strong>Danger!</strong> No se puede modificar el producto 
+                                                por que el nombre es superior a 180 caracteres.
                                             </div>';
                 }else{
-                    $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                                <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['consulta'].'
-                                            </div>';
+                    
+                    $modificarProducto = $ObjViruemart->modificarProducto($datos);
+                    $respuesta['datos']=$datos;
+                    
+                    $respuesta['resul']= $modificarProducto;
+                    if(strlen($modificarProducto['Datos']['error']) == 0){
+                        $respuesta['htmlAlerta']='<div class="alert alert-success">
+                                                    <strong>Success!</strong> Has modificados los datos del producto.
+                                                </div>';
+                    }else{
+                        $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                                    <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['consulta'].'
+                                                </div>';
+                    }
                 }
+            }else{
+                $datosComprobaciones['usuario']=365;
+                $datosComprobaciones['peso']='KG';
+                $datosComprobaciones['parametros']='min_order_level=""|max_order_level=""|step_order_level=""|product_box=""|';
+                $datosComprobaciones['s_desc']="";
+                $datosComprobaciones['desc']="";
+                $datosComprobaciones['metadesc']="";
+                $datosComprobaciones['metakey']="";
+                $datosComprobaciones['title']="";
+                $datosComprobaciones['vendor']=1;
+                $datosComprobaciones['override']=0;
+                $datosComprobaciones['product_override_price ']="0.00000";
+                $datosComprobaciones['product_discount_id']=0;
+                $datosComprobaciones['product_currency']=47;
+                $datos=json_encode($datosComprobaciones);
+                $addProducto = $ObjViruemart->addProducto($datos);
+                
+                $respuesta['resul']= $addProducto;
             }
+           
            
         break;
         case 'mostrarModalNotificacion':
