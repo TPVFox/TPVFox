@@ -117,13 +117,11 @@
                         $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
                     }
                 }else{
-                    
-                    if($ObjVirtuemart->getTiendaWeb()!=false){
-                        $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-                        echo '<pre>';
-                        print_r($tiendaWeb);
-                        echo '</pre>';
-                        $datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $tiendaWeb['idTienda']);
+                    if($id>0){
+                        if($ObjVirtuemart->getTiendaWeb()!=false){
+                            $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+                            $datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $tiendaWeb['idTienda']);
+                        }
                     }
                      
                 }

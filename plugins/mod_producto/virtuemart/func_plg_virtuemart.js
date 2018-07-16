@@ -172,3 +172,11 @@ function modificarIvaWeb(){
     $('#precioCivaWeb').val(precioCiva.toFixed(2));
 }
 
+function ObtenerDatosProducto(){
+ 
+    
+    $('#referenciaWeb').val($('#referencia').val());
+    $('#nombreWeb').val($('#nombre').val());
+    $('#precioSivaWeb').val($('#pvpSiva').val());
+    $('#precioCivaWeb').val($('#pvpCiva').val());
+}

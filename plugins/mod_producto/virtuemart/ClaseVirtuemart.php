@@ -372,6 +372,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
                         value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">'
+        .'          <a onclick="ObtenerDatosProducto()">Obtener datos producto</a>'
         .'      </div>'
         .'      <div class="col-md-12" id="alertasWeb">'
         .'      </div>'
