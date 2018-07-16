@@ -208,7 +208,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
-                        value="Modificar en Web" name="modifWeb" onclick="modificarProductoWeb()">'
+                        value="Modificar en Web" id="botonWeb" name="modifWeb" onclick="modificarProductoWeb()">'
         .'      </div>'
         .'      <div class="col-md-12" id="alertasWeb">'
         .'      </div>'
@@ -368,7 +368,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
         $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
         .'      <div class="col-md-12">'
-        .'          <input class="btn btn-primary" type="button" 
+        .'          <input class="btn btn-primary" id="botonWeb" type="button" 
                         value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">'
         .'          <a onclick="ObtenerDatosProducto()">Obtener datos producto</a>'
         .'      </div>'

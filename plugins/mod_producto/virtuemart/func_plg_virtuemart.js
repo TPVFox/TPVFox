@@ -50,7 +50,9 @@ function modificarProductoWeb(idProducto="", idTienda=""){
                 }
                 if(resultado.resul.Datos.id){
                     $('#idWeb').html(resultado.resul.Datos.id);
+                    $('#botonWeb').val("Modificar en Web");
                 }
+                
 				 
 		}	
         });
