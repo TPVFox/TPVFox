@@ -62,10 +62,6 @@ function ModalNotificacion(numLinea){
         'correo':         $('#mail_'+numLinea).html(),
         'nombreUsuario':  $('#nombre_'+numLinea).html(),
         'idNotificacion':  $('#idNotificacion_'+numLinea).val(), 
-        //~ 'emailEnvio':  $('#emailW').val(),
-        //~ 'hostEnvio':$('#hostW').val(),
-        //~ 'passwordEnvio':$('#passwordW').val(),
-        //~ 'puertoEnvio':$('#puertoW').val(),
         'numLinea':numLinea
     };
     console.log(datos);
@@ -103,10 +99,6 @@ function enviarCorreoNotificacion(){
         'mensaje':$('#mensaje').val(),
         'idProducto':$('#idProducto').html(),
         'idNotificacion':  $('#idNotificacion').val(),
-        //~ 'emailEnvio':  $('#emailW').val(),
-        //~ 'hostEnvio':$('#hostW').val(),
-        //~ 'passwordEnvio':$('#passwordW').val(),
-        //~ 'puertoEnvio':$('#puertoW').val(),
         'numLinea':$('#numLinea').val(),
     };
     console.log(datos);

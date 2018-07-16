@@ -129,13 +129,13 @@
             }   
             if ($idVirtuemart>0 ){ 
             // Cargamos el plugin de Vehiculos
-            if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
-               $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
-               $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
-                if (isset($vehiculos['Datos'])) {
-                    $htmlVehiculos = $vehiculos['Datos']['html'];
+                if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+                   $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
+                   $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
+                    if (isset($vehiculos['Datos'])) {
+                        $htmlVehiculos = $vehiculos['Datos']['html'];
+                    }
                 }
-            }
             }
             
         
@@ -368,7 +368,6 @@
                                             echo  htmlPanelDesplegable($num,$titulo,$htmlVehiculos);
                                     }
                                     if(isset( $datosWebCompletos['htmlnotificaciones']['html'])){
-                                        
                                          $num = 6; // Numero collapse;
                                             $titulo = 'Notificaciones de clientes.';
                                             echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']['html']);

@@ -174,7 +174,6 @@ class PluginClaseVirtuemart extends ClaseConexion{
     public function htmlOptionIvasWeb($ivas, $ivaProductoWeb){
         $htmlIvas = '';
         foreach ($ivas as $item){
-            //~ if($item['id_virtualmart']>0){
                 $es_seleccionado = '';
                 
                 if ($ivaProductoWeb == $item['virtuemart_calc_id']){
@@ -182,7 +181,6 @@ class PluginClaseVirtuemart extends ClaseConexion{
                     $es_seleccionado = ' selected';
                 }
                 $htmlIvas .= '<option value="'.$item['virtuemart_calc_id'].'" '.$es_seleccionado.'>'.number_format ($item['calc_value'],2).'%'.'</option>';
-            //~ }
 		}
         return $htmlIvas;	
     }
