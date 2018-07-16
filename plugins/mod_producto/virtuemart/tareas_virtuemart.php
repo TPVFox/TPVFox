@@ -5,14 +5,15 @@ $pulsado = $_POST['pulsado'];
 include_once ("./../../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos
-//~ include_once ("./../mod_conexion/conexionBaseDatos.php");
 include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
+include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProductos.php';
 
 
 	// Solo creamos objeto si no existe.
 	$thisTpv = new ClaseSession();
 	$BDTpv = $thisTpv->getConexion();
-    include ($RutaServidor.$HostNombre."/plugins/mod_producto/virtuemart/ClaseVirtuemart.php");
+    $CTArticulos = new ClaseProductos($BDTpv);
+    include_once ($RutaServidor.$HostNombre."/plugins/mod_producto/virtuemart/ClaseVirtuemart.php");
     $ObjViruemart = new PluginClaseVirtuemart();
 
 	switch ($pulsado) {
@@ -21,19 +22,65 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
             $datos = $_POST['datos'];
             
 			$respuesta = array();
-			$modificarProducto = $ObjViruemart->modificarProducto($datos);
-            $respuesta['datos']=$datos;
-            
-			$respuesta['resul']= $modificarProducto;
-            if(strlen($modificarProducto['Datos']['error']) == 0){
-                $respuesta['htmlAlerta']='<div class="alert alert-success">
-                                            <strong>Success!</strong> Has modificados los datos del producto.
-                                        </div>';
+            $datosComprobaciones=json_decode($datos, true);
+            if($datosComprobaciones['id']>0){
+                 $respuesta['caracteres']=strlen($datosComprobaciones['nombre']);
+                if(strlen($datosComprobaciones['nombre'])>180){
+                    $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                                <strong>Danger!</strong> No se puede modificar el producto 
+                                                por que el nombre es superior a 180 caracteres.
+                                            </div>';
+                }else{
+                    
+                    $modificarProducto = $ObjViruemart->modificarProducto($datos);
+                    $respuesta['datos']=$datos;
+                    
+                    $respuesta['resul']= $modificarProducto;
+                    if(strlen($modificarProducto['Datos']['error']) == 0){
+                        $respuesta['htmlAlerta']='<div class="alert alert-success">
+                                                    <strong>Success!</strong> Has modificados los datos del producto.
+                                                </div>';
+                    }else{
+                        $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                                    <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['consulta'].'
+                                                </div>';
+                    }
+                }
             }else{
-                $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                            <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['consulta'].'
-                                        </div>';
+                $datosComprobaciones['usuario']=365;
+                $datosComprobaciones['peso']='KG';
+                $datosComprobaciones['parametros']='min_order_level=""|max_order_level=""|step_order_level=""|product_box=""|';
+                $datosComprobaciones['s_desc']="";
+                $datosComprobaciones['desc']="";
+                $datosComprobaciones['metadesc']="";
+                $datosComprobaciones['metakey']="";
+                $datosComprobaciones['title']="";
+                $datosComprobaciones['vendor']=1;
+                $datosComprobaciones['override']=0;
+                $datosComprobaciones['product_override_price ']="0.00000";
+                $datosComprobaciones['product_discount_id']=0;
+                $datosComprobaciones['product_currency']=47;
+                $datos=json_encode($datosComprobaciones);
+                $addProducto = $ObjViruemart->addProducto($datos);
+                if($addProducto['Datos']['error']==""){
+                    if($addProducto['Datos']['id']>0){
+                        $addRegistro=$CTArticulos->addTiendaProducto( $datosComprobaciones['idProducto'], $datosComprobaciones['idTienda'], $addProducto['Datos']['id']);
+                        $respuesta['registro']=$addRegistro;
+                         $respuesta['htmlAlerta']='<div class="alert alert-success">
+                                                    <strong>Success!</strong> Has añadido el producto a la web 
+                                                    </div>';
+                                                    
+                    }
+                }else{
+                    $respuesta['error']=$addProducto['Datos']['error'];
+                     $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                                    <strong>Danger!</strong> Error al añadir el producto a la web. '.$addProducto['Datos']['consulta'].'
+                                                </div>';
+                }
+                
+                $respuesta['resul']= $addProducto;
             }
+           
            
         break;
         case 'mostrarModalNotificacion':
@@ -44,10 +91,6 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
                 <div class="col-md-12">
                     Id del producto: <p id="idProducto">'.$datos['id'].'</p>
                     <input type="text" id="idNotificacion" value="'.$datos['idNotificacion'].'" style="display:none">'
-                 //~ .   '<input type="text" id="emailW"  style="display:none" value="'.$datos['emailEnvio'].'">
-                    //~ <input type="text" id="hostW"  style="display:none" value="'.$datos['hostEnvio'].'">
-                    //~ <input type="text" id="passwordW"  style="display:none" value="'.$datos['passwordEnvio'].'">
-                    //~ <input type="text" id="puertoW"  style="display:none" value="'.$datos['puertoEnvio'].'">'
                  .   '<input type="text" id="numLinea"  style="display:none" value="'.$datos['numLinea'].'">
                 </div>
                 '
@@ -88,47 +131,6 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
             $respuesta['error']=$enviarCorreo['Datos']['mensaje'];
         }
         $respuesta['correo']= $enviarCorreo;
-     
-        //~ include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/PHPMailer.php");
-        //~ include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/Exception.php");
-        //~ include_once ($RutaServidor.$HostNombre. "/lib/PHPMailer/src/SMTP.php");
-        
-            //~ $mail=new PHPMailer\PHPMailer\PHPMailer(true);
-            //~ $datos=$_POST['datos'];     //recibimos las datos
-             //~ $mail->isSMTP();
-           
-            //~ $mail->SMTPDebug = 0;//no mostramos el mensaje de salida
-            
-          
-            //~ $mail->Host=$datos['hostEnvio'];//host del servidor que lo obtenemos de joomla
-           
-            //~ $mail->Port=$datos['puertoEnvio'];//puerto del servidor smtp 
-            //~ $mail->SMTPAuth = true;//Utilizamos la autentificación de smtp
-            //~ $mail->SMTPSecure = 'ssl';//Conexión segura
-            //~ $mail->Username =$datos['emailEnvio'];//Nombre de usuario
-          
-            //~ $mail->Password=$datos['passwordEnvio'];//Contraseña del servidor
-          
-           
-            //~ $mail->setFrom($datos['emailEnvio'], $datos['emailEnvio']);//Cuenta de la que vamos a enviar el correo
-            //~ $mail->addAddress($datos['email'], '');//A quien le vamos a enviar el correo
-            //~ $mail->Subject = $datos['asunto'];//Asunto del correo
-            //~ $mail->Body = $datos['mensaje'];//Mensaje del correo
-            //~ $mail->smtpClose();//Cerramos la conexion
-           //~ //Si al enviar obtenemos un error envia un error 
-            //~ if (!$mail->send()) {
-                //~ $respuesta['mail']= 1;
-                //~ $respuesta['error']=$mail->ErrorInfo;
-                  
-                   
-            //~ } else {
-                //~ //Si no modificamos el registro de la notificación
-                    //~ $respuesta['mail']= 2;
-                    //~ $modificarEstadoNotificacion = $ObjViruemart->modificarNotificacion($datos['idNotificacion']);
-                    //~ $respuesta['modificacion']=$modificarEstadoNotificacion;
-                    //~ $respuesta['numLinea']=$datos['numLinea'];
-                   
-            //~ }
         break;
     
     

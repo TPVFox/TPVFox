@@ -23,7 +23,7 @@
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
 		$id = 0 ; // Por  defecto el id a buscar es 0
-				
+       
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
      
 		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
@@ -114,11 +114,28 @@
                 if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
                     $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
                 }
-
-            }   
+            }else{
+                    if($id>0){
+                        if($ObjVirtuemart->getTiendaWeb()!=false){
+                            $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+                            $datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $tiendaWeb['idTienda']);
+                        }
+                    }
+                     
+            }
+	   // Cargamos el plugin de Vehiculos
+            if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+                   $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
+                   $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
+                    if (isset($vehiculos['Datos'])) {
+                        $htmlVehiculos = $vehiculos['Datos']['html'];
+                    }
+             }
+           
+       }   
             
             
-        }
+        
 				
 		
 		// ==========		Montamos  html que mostramos. 			============ //
@@ -338,7 +355,6 @@
                                 <div class="panel-group">
                                     <?php
                                     if(isset( $datosWebCompletos['htmlnotificaciones']['html'])){
-                                        
                                          $num = 6; // Numero collapse;
                                             $titulo = 'Notificaciones de clientes.';
                                             echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']['html']);

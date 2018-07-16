@@ -12,14 +12,16 @@ function controladorAcciones(caja,accion, tecla){
         break;
     }
 }
-
-
-
-
-function modificarProductoWeb(){
+function modificarProductoWeb(idProducto="", idTienda=""){
     //@Objetivo:
     //MOdificar los datos del producto en la web 
     console.log("entre en modificar producto web ");
+    
+        
+    if($('#referenciaWeb').val()=="" || $('#nombreWeb').val()=="" || $('#precioSivaWeb').val()==""){
+        alert("Campos necesarios vacios, Referencia, Nombre y Precio sin iva");
+    }else{
+    
     var datos={
         'estado':       $('#estadosWeb').val(),
         'referencia':   $('#referenciaWeb').val(),
@@ -27,31 +29,41 @@ function modificarProductoWeb(){
         'codBarras':    $('#codBarrasWeb').val(),
         'precioSiva':   $('#precioSivaWeb').val(),
         'iva':          $('#ivasWeb').val(),
-        'id':           $('#idWeb').html()
+        'id':           $('#idWeb').html(),
+        'alias':        $('#alias').val(),
+        'idProducto':   idProducto, 
+        'idTienda':     idTienda
     };
     
     console.log(datos);
-     var parametros = {
-		"pulsado"    	: 'modificarDatosWeb',
-		"datos"	: JSON.stringify(datos)
-		};
-     $.ajax({
-		data       : parametros,
-		url        : ruta_plg_virtuemart+'tareas_virtuemart.php',
-        type       : 'post',
-		beforeSend : function () {
-		console.log('********* Envio los datos para modificar el producto en la web  **************');
-		},
-		success    :  function (response) {
-				console.log('Respuesta de modificar los datos de la web  ');
-				var resultado = $.parseJSON(response);
-                console.log(resultado);
-                if(resultado.htmlAlerta){
-                    $('#alertasWeb').html(resultado.htmlAlerta);
-                }
-				 
-		}	
-        });
+        var parametros = {
+            "pulsado"    	: 'modificarDatosWeb',
+            "datos"	: JSON.stringify(datos)
+            };
+        $.ajax({
+            data       : parametros,
+            url        : ruta_plg_virtuemart+'tareas_virtuemart.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* Envio los datos para modificar el producto en la web  **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de modificar los datos de la web  ');
+                    var resultado = $.parseJSON(response);
+                    console.log(resultado);
+                    if(resultado.htmlAlerta){
+                        $('#alertasWeb').html(resultado.htmlAlerta);
+                    }
+                    if(resultado.resul.Datos.id){
+                        $('#idWeb').html(resultado.resul.Datos.id);
+                        $('#botonWeb').val("Modificar en Web");
+                    }
+                    
+                     
+                }	
+            });
+    }
+    
 }
 function ModalNotificacion(numLinea){
     //@Objetivo: mostrar el modal para enviar el correo de la notificación
@@ -63,10 +75,6 @@ function ModalNotificacion(numLinea){
         'correo':         $('#mail_'+numLinea).html(),
         'nombreUsuario':  $('#nombre_'+numLinea).html(),
         'idNotificacion':  $('#idNotificacion_'+numLinea).val(), 
-        //~ 'emailEnvio':  $('#emailW').val(),
-        //~ 'hostEnvio':$('#hostW').val(),
-        //~ 'passwordEnvio':$('#passwordW').val(),
-        //~ 'puertoEnvio':$('#puertoW').val(),
         'numLinea':numLinea
     };
     console.log(datos);
@@ -104,10 +112,6 @@ function enviarCorreoNotificacion(){
         'mensaje':$('#mensaje').val(),
         'idProducto':$('#idProducto').html(),
         'idNotificacion':  $('#idNotificacion').val(),
-        //~ 'emailEnvio':  $('#emailW').val(),
-        //~ 'hostEnvio':$('#hostW').val(),
-        //~ 'passwordEnvio':$('#passwordW').val(),
-        //~ 'puertoEnvio':$('#puertoW').val(),
         'numLinea':$('#numLinea').val(),
     };
     console.log(datos);
@@ -171,4 +175,13 @@ function modificarIvaWeb(){
     console.log(precioCiva);
     destacarCambioCaja('precioCivaWeb');
     $('#precioCivaWeb').val(precioCiva.toFixed(2));
+}
+
+function ObtenerDatosProducto(){
+ 
+    
+    $('#referenciaWeb').val($('#referencia').val());
+    $('#nombreWeb').val($('#nombre').val());
+    $('#precioSivaWeb').val($('#pvpSiva').val());
+    $('#precioCivaWeb').val($('#pvpCiva').val());
 }
