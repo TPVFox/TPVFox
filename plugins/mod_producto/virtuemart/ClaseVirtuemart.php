@@ -205,7 +205,10 @@ class PluginClaseVirtuemart extends ClaseConexion{
         
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
-        $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
+        $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
+        <h2 class="text-center">Datos Producto Web</h2>
+        <div class="col-md-6">
+                '
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
                         value="Modificar en Web" id="botonWeb" name="modifWeb" onclick="modificarProductoWeb()">'
@@ -214,7 +217,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         .'      </div>'
         .'      <div class="col-md-12">'
         .'          <div class="col-md-7">'
-        .'                <h4> Datos del producto en la tienda Web </h4><p id="idWeb">'.$idProducto.'</p>'
+        .'                <h4> Datos del producto :</h4><p id="idWeb">'.$idProducto.'</p>'
         .'           </div>'
         .'           <div class="col-md-5">';
          if($datosWeb['estado']==1){
@@ -366,7 +369,10 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
-        $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div><div class="col-md-6">'
+        $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
+        <h2 class="text-center">Datos Producto Web</h2>
+        <div class="col-md-6">
+                '
         .'      <div class="col-md-12">'
         .'          <input class="btn btn-primary" id="botonWeb" type="button" 
                         value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">'
