@@ -16,6 +16,12 @@ function modificarProductoWeb(idProducto="", idTienda=""){
     //@Objetivo:
     //MOdificar los datos del producto en la web 
     console.log("entre en modificar producto web ");
+    
+        
+    if($('#referenciaWeb').val()=="" || $('#nombreWeb').val()=="" || $('#precioSivaWeb').val()==""){
+        alert("Campos necesarios vacios, Referencia, Nombre y Precio sin iva");
+    }else{
+    
     var datos={
         'estado':       $('#estadosWeb').val(),
         'referencia':   $('#referenciaWeb').val(),
@@ -56,6 +62,8 @@ function modificarProductoWeb(idProducto="", idTienda=""){
 				 
 		}	
         });
+    }
+    
 }
 function ModalNotificacion(numLinea){
     //@Objetivo: mostrar el modal para enviar el correo de la notificación
