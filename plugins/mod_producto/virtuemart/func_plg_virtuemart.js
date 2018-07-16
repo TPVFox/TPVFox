@@ -36,32 +36,32 @@ function modificarProductoWeb(idProducto="", idTienda=""){
     };
     
     console.log(datos);
-     var parametros = {
-		"pulsado"    	: 'modificarDatosWeb',
-		"datos"	: JSON.stringify(datos)
-		};
-     $.ajax({
-		data       : parametros,
-		url        : ruta_plg_virtuemart+'tareas_virtuemart.php',
-        type       : 'post',
-		beforeSend : function () {
-		console.log('********* Envio los datos para modificar el producto en la web  **************');
-		},
-		success    :  function (response) {
-				console.log('Respuesta de modificar los datos de la web  ');
-				var resultado = $.parseJSON(response);
-                console.log(resultado);
-                if(resultado.htmlAlerta){
-                    $('#alertasWeb').html(resultado.htmlAlerta);
-                }
-                if(resultado.resul.Datos.id){
-                    $('#idWeb').html(resultado.resul.Datos.id);
-                    $('#botonWeb').val("Modificar en Web");
-                }
-                
-				 
-		}	
-        });
+        var parametros = {
+            "pulsado"    	: 'modificarDatosWeb',
+            "datos"	: JSON.stringify(datos)
+            };
+        $.ajax({
+            data       : parametros,
+            url        : ruta_plg_virtuemart+'tareas_virtuemart.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* Envio los datos para modificar el producto en la web  **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de modificar los datos de la web  ');
+                    var resultado = $.parseJSON(response);
+                    console.log(resultado);
+                    if(resultado.htmlAlerta){
+                        $('#alertasWeb').html(resultado.htmlAlerta);
+                    }
+                    if(resultado.resul.Datos.id){
+                        $('#idWeb').html(resultado.resul.Datos.id);
+                        $('#botonWeb').val("Modificar en Web");
+                    }
+                    
+                     
+                }	
+            });
     }
     
 }

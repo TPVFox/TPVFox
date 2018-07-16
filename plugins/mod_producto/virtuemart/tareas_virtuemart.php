@@ -5,7 +5,6 @@ $pulsado = $_POST['pulsado'];
 include_once ("./../../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos
-//~ include_once ("./../mod_conexion/conexionBaseDatos.php");
 include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
 include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProductos.php';
 
@@ -103,7 +102,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 <div class="col-md-12">'
                 .'<div class="col-md-12">
                     <label>Asunto</label>'
-                .'<input type="text" id="asunto" name="asuno" size="60" value="Respuesta de notificación '.$datos['nombreProducto'].'">'
+                .'<input type="text" id="asunto" name="asuno" size="60" value="Contestacion a pregunta sobre '.$datos['nombreProducto'].'">'
                 .'</div>'
                 .'</div>'
                 .'<div class="col-md-12">'

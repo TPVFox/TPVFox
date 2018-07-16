@@ -7,6 +7,7 @@
         include_once $URLCom.'/modulos/mod_producto/funciones.php';
         include_once $URLCom.'/controllers/Controladores.php';
         include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+        $OtrosVarJS ='';
         // Creo objeto de controlador comun.
 		$Controler = new ControladorComun; 
 		// Añado la conexion
@@ -22,8 +23,6 @@
 		$CTArticulos = new ClaseProductos($BDTpv);
 		
 		$id = 0 ; // Por  defecto el id a buscar es 0
-		$idVirtuemart=0;	
-        $VarJSVirtuemart="";
        
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
      
@@ -100,23 +99,23 @@
                 }
             }
         }
-        $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-        $datosWebCompletos=array();
+       
+        if ($idVirtuemart>0 ){
+          
             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
-                    // Creo el objeto de plugin Virtuemart.
-                    $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');  
-                     // Cargo caja_input de parametros de plugin de virtuemart.
-                    $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
-                    $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
-                    $VarJSVirtuemart = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart); 
-                    if ($idVirtuemart>0 ){ 
-                    // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
-                    $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva']);
-                    // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-                    if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-                        $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
-                    }
-                }else{
+                // Creo el objeto de plugin Virtuemart.
+                $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+                // Cargo caja_input de parametros de plugin de virtuemart.
+                $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
+                $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
+                $OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
+                // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
+                $datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva']);
+                // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+                if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+                    $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+                }
+            }else{
                     if($id>0){
                         if($ObjVirtuemart->getTiendaWeb()!=false){
                             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
@@ -124,19 +123,18 @@
                         }
                     }
                      
-                }
-
-            }   
-            if ($idVirtuemart>0 ){ 
-            // Cargamos el plugin de Vehiculos
-                if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
+            }
+	   // Cargamos el plugin de Vehiculos
+            if ($CTArticulos->SetPlugin('ClaseVehiculos') !== false){
                    $ObjVersiones= $CTArticulos->SetPlugin('ClaseVehiculos');
                    $vehiculos =$ObjVersiones->ObtenerVehiculosUnProducto($idVirtuemart);
                     if (isset($vehiculos['Datos'])) {
                         $htmlVehiculos = $vehiculos['Datos']['html'];
                     }
-                }
-            }
+             }
+           
+       }   
+            
             
         
 				
@@ -152,7 +150,7 @@
 		
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-			$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+            $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
 		?>
          <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
           <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
@@ -163,15 +161,9 @@
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 
           
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
-		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-			//~ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		?>	
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
-        <?php echo $VarJSVirtuemart;?>
 		<?php 
 			echo  'var producto='.json_encode($Producto).';';
 		?>

@@ -14,6 +14,7 @@
         $htmlplugins = array();
         $CTArticulos = new ClaseProductos($BDTpv);
 		$Controler = new ControladorComun; // Controlado comun..
+        // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
 
         // Cargamos el plugin que nos interesa.
@@ -83,14 +84,12 @@
         } else {
             $CantidadRegistros = $CTArticulos->GetNumRows();
         }
-       
         // --- Ahora envio a NPaginado la cantidad registros --- //
         if ($prod_seleccion['NItems'] > 0 && $configuracion['filtro']->valor === 'Si') {
             $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
         } else {
             $NPaginado->SetCantidadRegistros($CantidadRegistros);
         }
-		
         $htmlPG = '';
         if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
             $htmlPG = $NPaginado->htmlPaginado();
@@ -115,15 +114,8 @@
         ?>
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-        <script>
-            // Declaramos variables globales
-            var checkID = [];
-
-
-
-        </script> 
+   
         <!-- Cargamos fuciones de modulo. -->
-        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 			$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
@@ -132,6 +124,8 @@
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/plugins/modal/func_modal_reutilizables.js"></script>
         <script type="text/javascript">
+            // Declaramos variables globales
+            var checkID = [];
         <?php echo $VarJS;?>
         </script>
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
@@ -202,6 +196,7 @@ include_once $URLCom.'/header.php';
                     </div>
 
                 </div>
+
                 <div class="col-md-10">
                     <div class="col-md-12">
                       <?php 
