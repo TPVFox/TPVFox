@@ -190,8 +190,10 @@ include_once $URLCom.'/header.php';
 
                 <div class="col-md-10">
                     <div class="col-md-12">
-                      <?php 
-                      echo $htmlplugins['html'];
+                      <?php
+                      if (isset($htmlplugins['html'])){
+                        echo $htmlplugins['html'];
+                      }
                       ?>  
                     </div>
                

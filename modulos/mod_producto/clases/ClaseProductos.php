@@ -779,8 +779,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 		$comprobaciones['pvpCiva_nuevo'] =$precioCIva_post;
 		$comprobaciones['pvpCiva_recalculado'] =$precio_recalculado;		
 		$comprobaciones['estado'] =$estado;		
-		$comprobaciones['Sql_articulosPrecios'] =$sql;		
-		$comprobaciones['Sql_'] =$estado;		
+		//~ $comprobaciones['Sql_articulosPrecios'] =$sql;		
+		//~ $comprobaciones['Sql_'] =$estado;		
 
 		return $comprobaciones;
 	}
