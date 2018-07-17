@@ -14,7 +14,6 @@
 				<ul class="nav navbar-nav navbar-left ">
 <?php 
 $xml=simplexml_load_file($URLCom.'/modulos/mod_menu/parametrosMenu.xml');
-
 foreach ($xml->item_nivel_1 as $nivel1){
     if(isset($nivel1['vista'])){
         if(isset($nivel1['modulo'])){

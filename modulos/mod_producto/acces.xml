@@ -4,5 +4,4 @@
         <accion nombre="crear" descripcion="Crear Producto" permiso="0"></accion>
         <accion nombre="modificar" descripcion="Modificar Producto" permiso="0"></accion>
     </vista>
-    
 </modulo>

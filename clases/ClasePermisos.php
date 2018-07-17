@@ -13,7 +13,7 @@ class ClasePermisos{
 	{   
         $this->BDTpv=$conexion;
         $this->usuario=$Usuario;
-        //~ $this->permisos=$this->getPermisosUsuario();
+        $this->permisos=$this->getPermisosUsuario();
        $this->obtenerRutaProyecto();
        $this->ObtenerDir();
     }
@@ -27,17 +27,45 @@ class ClasePermisos{
         if($res->num_rows>0){
           $respuesta['resultado']=$res->fetch_assoc();
         }else{
+            $respuesta['permisos']=$this->InicializarPermisosUsuario();
             
         }
+        return $respuesta;
     }
     
     public function InicializarPermisosUsuario(){
         //buscar todas las carpetas de modulo , buscar los acces de cada modulo y hacer insert de usuario con los permisos del acces
         //si tiene grupo 9 crearlo pero todos los permisos true
+        $this->obtenerRutaProyecto();
+        $this->ObtenerDir();
+        $modulos=$this->modulos;
+        foreach($modulos as $modulo){
+            if(is_file($this->RutaModulos.'/'.$modulo.'/acces.xml')){
+                $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');
+                $xml=$this->crearPermisos($xml);
+            }
+        }
+        return $xml;
+        
    }
-   public function obtenerModulos(){
+   public function crearPermisos($xml){
+       if($this->usuario['group_id']==9){
+           $xml['permiso']=1;
+           foreach ($xml->vista as $vista){
+               $vista['permiso']=1;
+               foreach ($vista->accion as $accion){
+                   $accion['permiso']=1;
+               }
+           }
+           
+       }
+       return $xml;
+      
+   }
+   //~ public function obtenerModulos(){
        
-   }
+   //~ }
+   
    public function obtenerRutaProyecto(){
 		// Objectivo
 		// Obtener rutas del servidor y del proyecto.

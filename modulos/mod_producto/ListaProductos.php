@@ -29,6 +29,9 @@
         $parametros = $ClasesParametros->getRoot();
         // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
         $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+        //~ echo '<pre>';
+        //~ print_r($conf_defecto);
+        //~ echo '</pre>';
         // Ahora compruebo productos_seleccion:
         $prod_seleccion = array('NItems' => 0, 'display' => '');
         if (isset($_SESSION['productos_seleccionados'])) {
