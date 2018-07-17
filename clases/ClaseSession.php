@@ -20,7 +20,7 @@ class ClaseSession extends ClaseConexion{
        
 		$this->comprobarEstado(); 
         include ('ClasePermisos.php');
-        $this->permisos =new ClasePermisos($this->Usuario['id'], $this->BDTpv);
+        $this->permisos =new ClasePermisos($this->Usuario, $this->BDTpv);
 	}
 	
 	public function GetSession(){

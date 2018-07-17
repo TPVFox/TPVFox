@@ -3,26 +3,68 @@
 class ClasePermisos{
     public $permisos=array(); //todos los permisos
     public $BDTpv;
+    public $usuario=array();
+    public $ruta;
+    public $RutaServidor;
+    public $HostNombre;
+    public $RutaModulos;
     
-    public function __construct($idUsuario, $conexion)
+    public function __construct($Usuario, $conexion)
 	{   
         $this->BDTpv=$conexion;
-        $this->permisos=$this->getPermisosUsuario($idUsuario);
-        
+        $this->usuario=$Usuario;
+        //~ $this->permisos=$this->getPermisosUsuario();
+       $this->obtenerRutaProyecto();
+       $this->ObtenerDir();
     }
     
-    public function getPermisosUsuario($idUsuario){
+    public function getPermisosUsuario(){
         $respuesta=array();
         $BDTpv = $this->BDTpv;
-        $sql='SELECT * from permisos where idUsuario='.$idUsuario;
+        $sql='SELECT * from permisos where idUsuario='.$this->usuario;
         $res = $BDTpv->query($sql);
         //~ $pwdBD = $res->fetch_assoc();
         if($res->num_rows>0){
-          
+          $respuesta['resultado']=$res->fetch_assoc();
         }else{
             
         }
     }
+    
+    public function InicializarPermisosUsuario(){
+        //buscar todas las carpetas de modulo , buscar los acces de cada modulo y hacer insert de usuario con los permisos del acces
+        //si tiene grupo 9 crearlo pero todos los permisos true
+   }
+   public function obtenerModulos(){
+       
+   }
+   public function obtenerRutaProyecto(){
+		// Objectivo
+		// Obtener rutas del servidor y del proyecto.
+		$this->ruta 			=  __DIR__; // Sabemos el directorio donde esta fichero plugins
+		$this->RutaServidor 	= $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
+		$RutaProyectoCompleta 	= str_replace('clases','', __DIR__);
+		$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
+        $this->RutaModulos=$this->RutaServidor.$this->HostNombre.'modulos';
+		
+	}
+    public function ObtenerDir(){
+		// Objetivo scanear directorio y cuales son directorios
+		$respuesta = array();
+		$scans = scandir($this->RutaModulos);
+		foreach ( $scans as $scan){
+			$ruta_completa = $this->RutaModulos.'/'.$scan;
+			if (filetype($ruta_completa) === 'dir'){
+				if (($scan === '.') || ($scan === '..')){ 
+					// Descartamos los directorios . y ..
+				} else {	
+					$respuesta[] =$scan;
+				}
+			}
+		}
+        $this->modulos=$respuesta;
+	}
+	
 }
 
 
