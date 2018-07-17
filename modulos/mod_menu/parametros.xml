@@ -1,0 +1,35 @@
+<items>
+    <item_nivel_1 descripcion="Home" vista="index.php"></item_nivel_1>
+    <item_nivel_1 descripcion="Almacen">
+        <item_nivel_2 descripcion="Producto" modulo="mod_producto" vista="ListaProductos.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Articulos_con_stock_regularizable" modulo="mod_producto" vista="ListaArticulosRegularizacion.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Familias" modulo="mod_familia" vista="ListaFamilias.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Lotes_(etiquetado)" modulo="mod_etiquetado" vista="ListadoEtiquetas.php"></item_nivel_2>
+    </item_nivel_1>
+    <item_nivel_1 descripcion="Clientes" modulo="mod_cliente" vista="ListaClientes.php"></item_nivel_1>
+    <item_nivel_1 descripcion="Proveedores" modulo="mod_proveedor" vista="ListaProveedores.php"></item_nivel_1>
+    <item_nivel_1 descripcion="Cierres" modulo="mod_cierres" vista="ListaCierres.php"></item_nivel_1>
+    <item_nivel_1 descripcion="Documentación"></item_nivel_1>
+    <item_nivel_1 descripcion="Compras">
+        <item_nivel_2 descripcion="Pedidos" modulo="mod_compras" vista="pedidosListado.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Albaranes" modulo="mod_compras" vista="albaranesListado.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Facturas" modulo="mod_compras" vista="facturasListado.php"></item_nivel_2>
+    </item_nivel_1>
+    <item_nivel_1 descripcion="Ventas">
+        <item_nivel_2 descripcion="Tickets" modulo="mod_tpv" vista="tpv.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Pedidos" modulo="mod_venta" vista="pedidosListado.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Albaranes" modulo="mod_venta" vista="albaranesListado.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Facturas" modulo="mod_venta" vista="facturasListado.php"></item_nivel_2>
+    </item_nivel_1>
+    <item_nivel_1 descripcion="Sistema">
+        <item_nivel_2 descripcion="Importar_SPPG" modulo="mod_importar_sppg" vista="Importar_sppg.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Importar_Virtuemart" modulo="mod_importar_virtuemart" vista="Importar_virtuemart.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Usuarios" modulo="mod_usuario" vista="ListaUsuarios.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Tiendas" modulo="mod_tienda" vista="ListaTiendas.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Copia_seguridad" modulo="mod_copia_seguridad" vista="CopiaSeguridad.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Incidencias" modulo="mod_incidencias" vista="ListadoIncidencias.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Tablas_principales" modulo="mod_configuracion" vista="tablasPrincipales.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Reorganizar" modulo="mod_reorganizacion" vista="ListadoReorganizar.php"></item_nivel_2>
+    </item_nivel_1>
+    
+</items>
