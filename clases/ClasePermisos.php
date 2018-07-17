@@ -21,7 +21,7 @@ class ClasePermisos{
     public function getPermisosUsuario(){
         $respuesta=array();
         $BDTpv = $this->BDTpv;
-        $sql='SELECT * from permisos where idUsuario='.$this->usuario;
+        $sql='SELECT * from permisos where idUsuario='.$this->usuario['id'];
         $res = $BDTpv->query($sql);
         //~ $pwdBD = $res->fetch_assoc();
         if($res->num_rows>0){
@@ -30,7 +30,7 @@ class ClasePermisos{
             $respuesta['permisos']=$this->InicializarPermisosUsuario();
             
         }
-        return $respuesta;
+        return $res;
     }
     
     public function InicializarPermisosUsuario(){
@@ -42,14 +42,17 @@ class ClasePermisos{
         foreach($modulos as $modulo){
             if(is_file($this->RutaModulos.'/'.$modulo.'/acces.xml')){
                 $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');
-                $xml=$this->crearPermisos($xml);
+                if($this->usuario['group_id']==9){
+                    $xml=$this->ModificarPermisos($xml);
+                }
+                return $this->insertarPermisos($xml);
+                
             }
         }
-        return $xml;
+        //~ return $xml;
         
    }
-   public function crearPermisos($xml){
-       if($this->usuario['group_id']==9){
+   public function ModificarPermisos($xml){
            $xml['permiso']=1;
            foreach ($xml->vista as $vista){
                $vista['permiso']=1;
@@ -57,10 +60,15 @@ class ClasePermisos{
                    $accion['permiso']=1;
                }
            }
-           
-       }
        return $xml;
       
+   }
+   public function insertarPermisos($xml){
+        $respuesta=array();
+        $BDTpv = $this->BDTpv;
+        $sql='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'", '.$xml['permiso'].')';
+        $res = $BDTpv->query($sql);
+        return $sql;
    }
    //~ public function obtenerModulos(){
        
