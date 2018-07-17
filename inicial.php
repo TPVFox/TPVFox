@@ -35,7 +35,10 @@ $Ruta = __DIR__.'/';
 	// [PENDIENTE ] Eliminar mod_conexion/conexionBaseDatos , falta arreglar mod_importar
 	//~ $thisTpv->comprobarEstado();
 
-	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('group_id'=>0,'login' =>'invitado'));
+	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('id'=>0, 'group_id'=>0,'login' =>'invitado'));
+    echo '<pre>';
+    print_r($thisTpv);
+    echo '</pre>';
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
 
 	

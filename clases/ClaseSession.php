@@ -12,12 +12,15 @@ class ClaseSession extends ClaseConexion{
 	public $Usuario; 					// (array) Contiene array con los datos del Usuario de la session.
     public $TiendaWeb = array();		// (array) Obtenemos los datos tienda web activa  ( solo puede haber una activa )
     public $comprobaciones = array(); 	// (array) Errores o advertencias.
-    	
+    public $permisos;                   // (Objeto) Es objeto de la clase de permisos
 	public function __construct()
 	{
 		parent::__construct();
 		$this->BDTpv	= parent::getConexion();
+       
 		$this->comprobarEstado(); 
+        include ('ClasePermisos.php');
+        $this->permisos =new ClasePermisos($this->Usuario['id'], $this->BDTpv);
 	}
 	
 	public function GetSession(){
@@ -195,7 +198,10 @@ class ClaseSession extends ClaseConexion{
 		}
 		if (isset( $_SESSION['usuarioTpv'])){
 			$Estado['usuario'] = $_SESSION['usuarioTpv'];
-		}
+            $this->Usuario=$_SESSION['usuarioTpv'];
+		}else{
+            $this->Usuario=array('id'=>0, 'group_id'=>0,'login' =>'invitado');
+        }
 		$control = 0;
 		// Comprobamos que exista los parametros de la session. 
 		// la variable control no puede sumar se mayor 0

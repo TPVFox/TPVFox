@@ -1,5 +1,4 @@
 <header>
-<!-- Debería generar un fichero de php que se cargue automaticamente el menu -->
 	<nav class="navbar navbar-default">
 		<div class="container-fluid">
 			<div class="navbar-header">
