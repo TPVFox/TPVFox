@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <items>
     <item_nivel_1 descripcion="Home" vista="index.php"></item_nivel_1>
     <item_nivel_1 descripcion="Almacen">
@@ -9,7 +10,7 @@
     <item_nivel_1 descripcion="Clientes" modulo="mod_cliente" vista="ListaClientes.php"></item_nivel_1>
     <item_nivel_1 descripcion="Proveedores" modulo="mod_proveedor" vista="ListaProveedores.php"></item_nivel_1>
     <item_nivel_1 descripcion="Cierres" modulo="mod_cierres" vista="ListaCierres.php"></item_nivel_1>
-    <item_nivel_1 descripcion="Documentación"></item_nivel_1>
+    <item_nivel_1 descripcion="Documentación"  vista="estatico"></item_nivel_1>
     <item_nivel_1 descripcion="Compras">
         <item_nivel_2 descripcion="Pedidos" modulo="mod_compras" vista="pedidosListado.php"></item_nivel_2>
         <item_nivel_2 descripcion="Albaranes" modulo="mod_compras" vista="albaranesListado.php"></item_nivel_2>

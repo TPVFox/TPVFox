@@ -42,7 +42,8 @@
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_producto/ListaArticulosRegularizacion.php';?>">Articulos con stock regularizable</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_familia/ListaFamilias.php';?>">Familias</a></li>
 								<li><a href="<?php echo $HostNombre.'/modulos/mod_etiquetado/ListadoEtiquetas.php';?>">Lotes (Etiquetado)</a></li>
-							</ul></li>
+							</ul>
+                        </li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_cliente/ListaClientes.php';?>">Clientes</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_proveedor/ListaProveedores.php';?>">Proveedores</a></li>
 					<li><a href="<?php echo $HostNombre.'/modulos/mod_cierres/ListaCierres.php';?>">Cierres</a></li>
