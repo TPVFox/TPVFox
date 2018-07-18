@@ -39,9 +39,9 @@ $Ruta = __DIR__.'/';
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('id'=>0, 'group_id'=>0,'login' =>'invitado'));
     $ClasePermisos=$thisTpv->permisos;
     $Permisos=$thisTpv->permisos->permisos;
-    echo '<pre>';
-    print_r($Permisos['resultado']);
-    echo '</pre>';
+    //~ echo '<pre>';
+    //~ print_r($Permisos['resultado']);
+    //~ echo '</pre>';
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
 
 	

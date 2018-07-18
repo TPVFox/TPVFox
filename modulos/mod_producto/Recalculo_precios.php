@@ -124,7 +124,8 @@
 	</head>
 	<body>
 	<?php
-	 include_once $URLCom.'/header.php';
+	 //~ include_once $URLCom.'/header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 	<script type="text/javascript">

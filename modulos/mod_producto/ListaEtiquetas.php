@@ -25,7 +25,8 @@
 <body>
 		
         <?php
-        include_once $URLCom.'/header.php';
+        //~ include_once $URLCom.'/header.php';
+        include_once $URLCom.'/modulos/mod_menu/menu.php';
         //~ echo $_POST['tamanhos'];
         //~ echo '<pre>';
         //~ print_r($_SESSION['productos_seleccionados']);
