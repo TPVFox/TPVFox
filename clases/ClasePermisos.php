@@ -23,17 +23,20 @@ class ClasePermisos{
         $BDTpv = $this->BDTpv;
         $sql='SELECT * from permisos where idUsuario='.$this->usuario['id'];
         $res = $BDTpv->query($sql);
-        //~ $pwdBD = $res->fetch_assoc();
         if($res->num_rows>0){
-          //~ $respuesta['resultado']=$res->fetch_all(MYSQLI_ASSOC);
           $resultadoPrincipal=array();
 			while ( $result = $res->fetch_assoc () ) {
 				array_push($resultadoPrincipal,$result);
 			}
 			 $respuesta['resultado']=$resultadoPrincipal;
         }else{
-            $respuesta['permisos']=$this->InicializarPermisosUsuario();
-            
+            $this->InicializarPermisosUsuario();
+            $res = $BDTpv->query($sql);
+            $resultadoPrincipal=array();
+            while ( $result = $res->fetch_assoc () ) {
+				array_push($resultadoPrincipal,$result);
+			}
+			 $respuesta['resultado']=$resultadoPrincipal;
         }
         return $respuesta;
     }
@@ -51,7 +54,6 @@ class ClasePermisos{
                     $xml=$this->ModificarPermisos($xml);
                 }
                 $this->insertarPermisos($xml);
-                
             }
         }
         return $xml;
