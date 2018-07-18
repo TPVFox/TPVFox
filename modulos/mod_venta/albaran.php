@@ -215,7 +215,8 @@ if (isset($_GET['tActual'])){
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
-	include '../../header.php';
+	//~ include '../../header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
 <script type="text/javascript">
 		<?php
