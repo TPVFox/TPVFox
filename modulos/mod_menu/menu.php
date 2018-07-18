@@ -33,9 +33,10 @@ foreach ($xml->item_nivel_1 as $nivel1){
         foreach ($nivel1->item_nivel_2 as $nivel2){
              
             if(isset($nivel2['modulo'])){
-              
-                echo '<li><a href="'.$HostNombre.'/modulos/'.$nivel2['modulo'].'/'.$nivel2['vista'].'">'.$nivel2['descripcion'].'</a></li>';
-               
+               $comprobar=$ClasePermisos->comprobarPermisos($nivel2, $Permisos);
+                 if($comprobar==1){
+                    echo '<li><a href="'.$HostNombre.'/modulos/'.$nivel2['modulo'].'/'.$nivel2['vista'].'">'.$nivel2['descripcion'].'</a></li>';
+               }
             }else{
                 echo '<li><a href="'.$HostNombre.'/'.$nivel2['vista'].'"></a>'.$nivel2['descripcion'].'</li>';
             }
