@@ -174,8 +174,8 @@
 	</head>
 	<body>
 	<?php
-    include_once $URLCom.'/header';
-	
+    //~ include_once $URLCom.'/header';
+	include_once $URLCom.'/modulos/mod_menu/menu.php';
 	?>
 <div class="container">		
 	<div class="row">

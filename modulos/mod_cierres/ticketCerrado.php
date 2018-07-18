@@ -45,7 +45,8 @@
 	</head>
 	<body>
 		<?php
-        include_once $URLCom.'/header.php';
+        //~ include_once $URLCom.'/header.php';
+        include_once $URLCom.'/modulos/mod_menu/menu.php';
 		// ===========  datos cliente segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$tabla= 'ticketst'; // Tablas que voy utilizar.

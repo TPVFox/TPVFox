@@ -34,7 +34,8 @@
 	<body>
 		
 	<?php
-        include_once $URLCom.'/header.php';
+        //~ include_once $URLCom.'/header.php';
+        include_once $URLCom.'/modulos/mod_menu/menu.php';
 		$rutaVolver = '../mod_cierres/ListaCierres.php';
 		
 	?>
