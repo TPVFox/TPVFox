@@ -25,7 +25,8 @@
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_usuario/funciones.js"></script>
 		<?php
-        include './../../header.php';
+        //~ include './../../header.php';
+         include_once $URLCom.'/modulos/mod_menu/menu.php';
 		// ===========  datos usuario segun id enviado por url============= //
 		$idTienda = $Tienda['idTienda'];
 		$tabla= 'usuarios'; // Tablas que voy utilizar.
