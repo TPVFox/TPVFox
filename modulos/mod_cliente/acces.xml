@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<modulo nombre="mod_cliente" descripcion="Cliente" permiso="1">
-    <vista nombre="ListaClientes.php" descipcion="Listadoclientes" permiso="1">
+<modulo nombre="mod_cliente" descripcion="Cliente" permiso="0">
+    <vista nombre="ListaClientes.php" descipcion="Listadoclientes" permiso="0">
         <accion nombre="crear" descripcion="Crear Cliente" permiso="0"></accion>
         <accion nombre="modificar" descripcion="Modificar Cliente" permiso="0"></accion>
     </vista>

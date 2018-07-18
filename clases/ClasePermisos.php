@@ -120,6 +120,24 @@ class ClasePermisos{
 		}
         $this->modulos=$respuesta;
 	}
+    
+    public function comprobarPermisos($nivel, $permisos){
+        $this->obtenerRutaProyecto();
+        foreach ($permisos['resultado'] as $permiso){
+           if($permiso['modulo']==$nivel['modulo'] & $permiso['vista']==$nivel['vista']){
+                if(is_file($this->RutaModulos.'/'.$nivel['modulo'].'/acces.xml')){
+                    $permisoUsuario=$permiso['permiso'];
+                    break;
+                }else{
+                    $permisoUsuario=1;
+                    break;
+                }
+            }else{
+                $permisoUsuario=1;
+            }
+        }
+        return $permisoUsuario;
+    }
 	
 }
 

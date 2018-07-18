@@ -17,7 +17,10 @@ $xml=simplexml_load_file($URLCom.'/modulos/mod_menu/parametrosMenu.xml');
 foreach ($xml->item_nivel_1 as $nivel1){
     if(isset($nivel1['vista'])){
         if(isset($nivel1['modulo'])){
-            echo '<li><a href="'.$HostNombre.'/modulos/'.$nivel1['modulo'].'/'.$nivel1['vista'].'">'.$nivel1['descripcion'].'</a></li>';
+            $comprobar=$ClasePermisos->comprobarPermisos($nivel1, $Permisos);
+            if($comprobar==1){
+                 echo '<li><a href="'.$HostNombre.'/modulos/'.$nivel1['modulo'].'/'.$nivel1['vista'].'">'.$nivel1['descripcion'].'</a></li>';
+            }
         }else{
             echo '<li><a href="'.$HostNombre.'/'.$nivel1['vista'].'">'.$nivel1['descripcion'].'</a></li>';
         }
