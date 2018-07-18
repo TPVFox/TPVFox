@@ -63,7 +63,10 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
     </head>
 
     <body>
-        <?php include '../../header.php'; ?>
+        <?php
+         //~ include '../../header.php'; 
+          include_once $URLCom.'/modulos/mod_menu/menu.php';
+         ?>
 
         <div class="container">
             <h2 class="text-center"> Tarifa de Cliente </h2>

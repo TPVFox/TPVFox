@@ -141,7 +141,8 @@
 			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
 		</script>
 		<?php
-        include $URLCom.'/header.php';
+        //~ include $URLCom.'/header.php';
+         include_once $URLCom.'/modulos/mod_menu/menu.php';
 		?>
      
 		<div class="container">

@@ -19,7 +19,7 @@ class ClaseSession extends ClaseConexion{
 		$this->BDTpv	= parent::getConexion();
        
 		$this->comprobarEstado(); 
-        include ('ClasePermisos.php');
+        include_once ('ClasePermisos.php');
         $this->permisos =new ClasePermisos($this->Usuario, $this->BDTpv);
 	}
 	
