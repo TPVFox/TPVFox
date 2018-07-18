@@ -25,12 +25,17 @@ class ClasePermisos{
         $res = $BDTpv->query($sql);
         //~ $pwdBD = $res->fetch_assoc();
         if($res->num_rows>0){
-          $respuesta['resultado']=$res->fetch_assoc();
+          //~ $respuesta['resultado']=$res->fetch_all(MYSQLI_ASSOC);
+          $resultadoPrincipal=array();
+			while ( $result = $res->fetch_assoc () ) {
+				array_push($resultadoPrincipal,$result);
+			}
+			 $respuesta['resultado']=$resultadoPrincipal;
         }else{
             $respuesta['permisos']=$this->InicializarPermisosUsuario();
             
         }
-        return $res;
+        return $respuesta;
     }
     
     public function InicializarPermisosUsuario(){
