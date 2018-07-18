@@ -42,7 +42,8 @@
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>  
 <?php
-	include '../../header.php';
+	//~ include '../../header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	?>
 		<div class="container">
 		<div class="row">

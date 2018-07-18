@@ -63,7 +63,8 @@
 	</script>
      <?php
 
-	include '../../header.php';
+	//~ include '../../header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	//Mostrar los errores que tiene los sql;
 	if (isset($errores)){
 		foreach($errores as $error){

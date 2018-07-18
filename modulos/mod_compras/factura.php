@@ -255,7 +255,8 @@ if ($idProveedor==0){
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <?php
-	include '../../header.php';
+	//~ include '../../header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
 <script type="text/javascript">
 		<?php

@@ -155,7 +155,8 @@
 </head>
 <body>
 <?php 
-	include './../../header.php';
+	//~ include './../../header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	//-- Montamos html para select de empresas -- //
 	// [RECUERDA]: Que en header generamos una variable llamada tienda que es la tienda principal
 	// 			  la eliminamos...

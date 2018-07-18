@@ -155,7 +155,8 @@ echo '</script>';
 </head>
  <body>
 	<?php
-	include './../../header.php';
+	//~ include './../../header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 		// Debug
 	
 	// [ SI HUBO ALGUN ERROR NO DEJAMOS CONTINUAR ]

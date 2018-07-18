@@ -57,7 +57,8 @@
 	<body>
 		<?php
 
-	include '../../header.php';
+	//~ include '../../header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'

@@ -44,7 +44,10 @@ $familias = new ClaseFamilias($BDTpv);
     </head>
 
     <body>
-        <?php include '../../header.php'; ?>
+        <?php 
+        //~ include '../../header.php'; 
+         include_once $URLCom.'/modulos/mod_menu/menu.php';
+        ?>
 
         <div class="container">
             <div class="row">

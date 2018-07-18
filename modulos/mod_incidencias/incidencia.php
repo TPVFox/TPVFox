@@ -40,7 +40,8 @@
 </head>
 <body>
 	<?php
-	include '../../header.php';
+	//~ include '../../header.php';
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	?>
 	<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 	<div class="container">

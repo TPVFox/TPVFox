@@ -27,7 +27,8 @@
 
 <body>
         <?php
-        include './../../header.php';
+        //~ include './../../header.php';
+         include_once $URLCom.'/modulos/mod_menu/menu.php';
         include './ClaseBackup.php';
 		define("DB_USER", $usuarioMysql);
 		define("DB_PASSWORD", $passwordMysql);
