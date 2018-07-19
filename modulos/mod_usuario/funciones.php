@@ -219,4 +219,7 @@ function htmlTablaIncidencias($incidenciasUsuario){
     return $html;
     
 }
+function htmlPermisosUsuario($idUsuario){
+    
+}
 ?>

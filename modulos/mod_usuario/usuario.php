@@ -66,6 +66,7 @@
 				$incidenciasUsuario=$Cincidencias->incidenciasSinResolverUsuario($id);
 				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
                 $htmlInicidenciasDesplegable=htmlTablaIncidencias($incidenciasUsuario);
+                $htmlPermisosUsuario=htmlPermisosUsuario($id);
 			}
 		} else {
 			// Creamos ficha Usuario.
