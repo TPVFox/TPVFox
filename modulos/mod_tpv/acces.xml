@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_tpv" descripcion="Tpv" permiso="1">
+    <vista nombre="tpv.php" descripcion="Tpv" permiso="1">
+        
+    </vista>
+    <vista nombre="ListaTickets.php" descripcion="Listado tickets" permiso="1">
+        <accion nombre="ver" descripcion="Ver ticket" permiso="1"></accion>
+        <accion nombre="imprimir" descripcion="Imprimir" permiso="1"></accion>
+    </vista>
+    <vista nomnbre="ticketCobrado.php" descripcion="Ticket Cobrado" permiso="1">
+        <accion nombre="imprimir" descripcion="Imprimir" permiso="1"></accion>
+        <accion nombre="descontarStock" descripcion="Descontar Stock" permiso="1"></accion>
+    </vista>
+</modulo>
