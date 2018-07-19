@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <modulo nombre="mod_etiquetado" descripcion="Etiquetado" permiso="1">
+        <vista nombre="ListadoEtiquetas.php" descripcion="Listado Etiquetado" permiso="1">
+            <accion nombre="crear" descripcion="Añadir etiquetas" permiso="1"></accion>
+            <accion nombre="modificar" descripcion="Modificar etiquetas" permiso="1"></accion>
+            <accion nombre="imprimir" descripcion="Imprimir" permiso="1"></accion>
+        </vista>
+        <vista nombre="etiquetaCodBarras.php" descripcion="Etiqueta" permiso="1"></vista>
+    </modulo>
