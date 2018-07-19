@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_tienda" descripcion="Tiendas" permiso="0">
+    <vista nombre="ListaTiendas.php" decripcion="Listado Tiendas" permiso="0">
+        <accion nombre="crear" descripcion="Crear Tienda" permiso="0"></accion>
+        <accion nombre="modificar" descripcion="Modificar Tienda" permiso="0"></accion>
+    </vista>
+    <vista nombre="tienda.php" descripcion="Tienda" permiso="0"></vista>
+
+</modulo>
