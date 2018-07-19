@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <modulo nombre="mod_configuracion" descripcion="Configuracion" permiso="0">
+        <vista nombre="tablasPrincipales.php" descripcion="Tablas Principales" permiso="0"></vista>
+    </modulo>
