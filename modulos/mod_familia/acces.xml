@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_familia" descripcion="Familias" permiso="1">
+    <vista nombre="ListaFamilias.php" descripcion="Listado Familias" permiso="1">
+        <accion nombre="crear" descripcion="Añadir Familia"></accion>
+        <accion nombre="modificar" descripcion="Modificar Familia"></accion>
+    </vista>
+</modulo>
