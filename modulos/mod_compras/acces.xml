@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <modulo nombre="mod_compras" descripcion="Compras" permiso="1">
+        <vista nombre="albaranesListado.php" descripcion="Listado albaranes" permisos="1">
+            <accion nombre="Crear" descripcion="Crear albarán" permisos="1"></accion>
+            <accion nombre="Modificar" descripcion="Modificar albarán" permisos="1"></accion>
+        </vista>
+        <vista nombre="albaran.php" descripcion="Albarán" permisos="1"></vista>
+         <vista nombre="facturasListado.php" descripcion="Listado facturas" permisos="1">
+            <accion nombre="Crear" descripcion="Crear factura" permisos="1"></accion>
+            <accion nombre="Modificar" descripcion="Modificar factura" permisos="1"></accion>
+        </vista>
+        <vista nombre="factura.php" descripcion="Factura" permisos="1"></vista>
+        <vista nombre="pedidosLIstado.php" descripcion="Listado pedidos" permisos="1">
+            <accion nombre="Crear" descripcion="Crear pedido" permisos="1"></accion>
+            <accion nombre="Modificar" descripcion="Modificar pedido" permisos="1"></accion>
+        </vista>
+        <vista nombre="pedido.php" descripcion="Pedido" permisos="1"></vista>
+        
+    </modulo>
