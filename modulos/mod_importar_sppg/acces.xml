@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_importar_sppg" descripcion="Importar SPPG" permiso="0">
+    <vista nombre="Importar_sppg.php" descripcion="importar" permiso="0"></vista>
+</modulo>
