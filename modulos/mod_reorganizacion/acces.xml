@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_reorganizacion" descripcion="Reorganizacion" permiso="0">
+    <vista nombre="ListadoReorganizar.php" descripcion="Listado Reorganizacion" permiso="0">
+        <accion nombre="reorganizar" descripcion="reorganizar" permiso="0"></accion>
+    </vista>
+</modulo>
