@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_venta" descripcion="Ventas" permisos="1">
+    <vista nombre="albaranesListado.php" descripcion="Listado Albaranes" permisos="1"></vista>
+    <vista nombre="albaran.php" descripcion="Albarane" permisos="1"></vista>
+    <vista nombre="pedidosListado.php" descripcion="Listado Pedidos" permisos="1"></vista>
+    <vista nombre="pedido.php" descripcion="Pedido" permisos="1"></vista>
+    <vista nombre="facturasListado.php" descripcion="Listado Factura" permisos="1"></vista>
+    <vista nombre="factura.php" descripcion="Factura" permisos="1"></vista>
+</modulo>
