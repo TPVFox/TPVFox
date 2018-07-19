@@ -1,16 +1,12 @@
-function controladorAcciones(caja,accion, tecla){
-	console.log('Entro en controlador de acciones');
-	switch(accion) {
-        case 'recalcularPvpWeb':
-            console.log("entre en recalcular web");
-            var re= comprobarNumero(caja.darValor());
-            
-                if ( re === true){
-                    console.log(caja.darValor());
-                    recalcularPvpWeb(caja.id_input);
-			}
-        break;
+function AccionRecalcularPvpWeb(caja,tecla){
+	console.log('Entro en controlador de recalcularPvpWeb');
+
+    var re= comprobarNumero(caja.darValor());
+        if ( re === true){
+            console.log(re);
+            recalcularPvpWeb(caja.id_input);
     }
+
 }
 function modificarProductoWeb(idProducto="", idTienda=""){
     //@Objetivo:
