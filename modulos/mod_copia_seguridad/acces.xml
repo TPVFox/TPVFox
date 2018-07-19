@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_copia_seguridad" descripcion="Copia Seguridad" permiso="0">
+    <vista nombre="CopiaSeguridad.php" descripcion="Copia Seguridad" permiso="0">
+        <accion nombre="nuevaCopia" descripcion="Hacer Copia Seguridad" permiso="0"></accion>
+        <accion nombre="restaurar" descripcion="Restaurar" permiso="0"></accion>
+    </vista>
+</modulo>
