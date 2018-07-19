@@ -2,11 +2,15 @@
 <modulo nombre="mod_producto" descripcion="Producto" permiso="1">
     <vista nombre="ListaProductos.php" descipcion="Listadoproductos" permiso="1">
         <accion nombre="crear" descripcion="Crear Producto" permiso="0"></accion>
-        <accion nombre="modificar" descripcion="Modificar Producto" permiso="0"></accion>
-	<accion nombre="filtrarSeleccion" descripcion="Filtrar Seleccion" permiso="1"></accion>
-	<accion nombre="eliminarSeleccion" descripcion="Eliminar Seleccion" permiso="1"></accion>
-	<accion nombre="imprimirEtiquetas" descripcion="Imprimir Etiquetas" permiso="1"></accion>
-	<accion nombre="imprimirMayor" descripcion="Imprimir Mayor" permiso="1"></accion>
-	<accion nombre="regularizar" descripcion="regularizar" permiso="0"></accion>
+        <accion nombre="modificar" descripcion="Modificar Producto" permiso="1"></accion>
+        <accion nombre="filtrarSeleccion" descripcion="Filtrar Seleccion" permiso="1"></accion>
+        <accion nombre="eliminarSeleccion" descripcion="Eliminar Seleccion" permiso="1"></accion>
+        <accion nombre="imprimirEtiquetas" descripcion="Imprimir Etiquetas" permiso="1"></accion>
+        <accion nombre="imprimirMayor" descripcion="Imprimir Mayor" permiso="1"></accion>
+        <accion nombre="regularizar" descripcion="regularizar" permiso="0"></accion>
     </vista>
+    <vista nombre="producto.php" descipcion="Listadoproductos" permiso="1">
+        <accion nombre="Guardar" descripcion="Guardar Producto" permiso="1"></accion>
+    </vista>
+	
 </modulo>
