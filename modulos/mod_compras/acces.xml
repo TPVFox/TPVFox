@@ -10,7 +10,7 @@
             <accion nombre="Modificar" descripcion="Modificar factura" permisos="1"></accion>
         </vista>
         <vista nombre="factura.php" descripcion="Factura" permisos="1"></vista>
-        <vista nombre="pedidosLIstado.php" descripcion="Listado pedidos" permisos="1">
+        <vista nombre="pedidosListado.php" descripcion="Listado pedidos" permisos="1">
             <accion nombre="Crear" descripcion="Crear pedido" permisos="1"></accion>
             <accion nombre="Modificar" descripcion="Modificar pedido" permisos="1"></accion>
         </vista>
