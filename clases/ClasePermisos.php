@@ -21,7 +21,7 @@ class ClasePermisos{
     public function getPermisosUsuario(){
         $respuesta=array();
         $BDTpv = $this->BDTpv;
-        $sql='SELECT * from permisos where idUsuario='.$this->usuario['id'];
+        $sql='SELECT * from permisos where idUsuario='.$this->usuario['id'].' ORDER BY modulo , vista, accion asc ';
         $res = $BDTpv->query($sql);
         if($res->num_rows>0){
           $resultadoPrincipal=array();
@@ -138,6 +138,16 @@ class ClasePermisos{
         }
         return $permisoUsuario;
     }
+    
+    //~ public function cargarPermisosUsuario($permisosUsuario){
+        //~ $BDTpv = $this->BDTpv;
+        //~ $sql='SELECT * from permisos where idUsuario='.$idUsuario;
+        //~ $resultadoPrincipal=array();
+        //~ while ( $result = $res->fetch_assoc () ) {
+				//~ array_push($resultadoPrincipal,$result);
+        //~ }
+        //~ return $resultadoPrincipal;
+    //~ }
 	
 }
 

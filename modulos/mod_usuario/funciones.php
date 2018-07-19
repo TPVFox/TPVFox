@@ -219,7 +219,40 @@ function htmlTablaIncidencias($incidenciasUsuario){
     return $html;
     
 }
-function htmlPermisosUsuario($idUsuario){
+function htmlPermisosUsuario($permisosUsuario){
+    $permisos=array();
+    $modulo="";
+    $vista="";
+    $accion="";
+    $html="";
+    foreach ($permisosUsuario as $permiso){
+        $i++;
+        if($modulo<>$permiso['modulo']){
+            $modulo=$permiso['modulo'];
+            $html.='<input type="checkbox" id=modulo >'.$modulo.'<br>';
+        }else{
+            if($vista<>$permiso['vista']){
+            $vista=$permiso['vista'];
+            $html.='<input type="checkbox" id=vista >'.$vista.'<br>';
+            }else{
+                $accion=$permiso['accion'];
+                $html.='<input type="checkbox" id=accion >'.$accion.'<br>';
+            }
+           
+        }
+         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    }
     
+    
+    return $html;
 }
 ?>

@@ -8,6 +8,8 @@
 		include_once $URLCom.'/modulos/mod_usuario/funciones.php';
 		include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
         include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
+        include_once $URLCom.'/clases/ClasePermisos.php';
+      
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
 		//include ("./ObjetoRecambio.php");
 		$Cusuario=new ClaseUsuarios($BDTpv);
@@ -39,8 +41,15 @@
 		
 		
 		if (isset($_GET['id'])) {
+            
 			// Modificar Ficha Usuario
 			$id=$_GET['id']; // Obtenemos id para modificar.
+            $ClasePermisos=new ClasePermisos($id, $BDTpv);
+           
+            $permisosUsuario=$ClasePermisos->permisos['resultado'];
+             //~ echo '<pre>';
+            //~ print_r($permisosUsuario);
+            //~ echo '</pre>';
 			$UsuarioUnico = verSelec($BDTpv,$id,$tabla);
 			$titulo = "Modificar Usuario";
 			$passwrd= 'password'; // Para mostrar ***** en password
@@ -66,7 +75,10 @@
 				$incidenciasUsuario=$Cincidencias->incidenciasSinResolverUsuario($id);
 				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
                 $htmlInicidenciasDesplegable=htmlTablaIncidencias($incidenciasUsuario);
-                $htmlPermisosUsuario=htmlPermisosUsuario($id);
+                $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario);
+                echo '<pre>';
+                print_r($permisosUsuario);
+                echo '</pre>';
 			}
 		} else {
 			// Creamos ficha Usuario.
@@ -215,6 +227,9 @@
                         $num=2;
                         $titulo='Incidencias Sin Resolver';
                         echo htmlPanelDesplegable($num, $titulo, $htmlInicidenciasDesplegable);
+                        $num=3;
+                        $titulo='Permisos';
+                        echo htmlPanelDesplegable($num, $titulo, $htmlPermisosUsuario);
 						?>
 					</div>
 				</div>
