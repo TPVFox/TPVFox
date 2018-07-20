@@ -225,18 +225,25 @@ function htmlPermisosUsuario($permisosUsuario){
     $vista="";
     $accion="";
     $html="";
+    $permiso=0;
+    $checked="";
     foreach ($permisosUsuario as $permiso){
+        if($permiso['permiso']==1){
+            $checked="checked";
+        }else{
+             $checked="";
+        }
         $i++;
         if($modulo<>$permiso['modulo']){
             $modulo=$permiso['modulo'];
-            $html.='<input type="checkbox" id=modulo >'.$modulo.'<br>';
+            $html.='<input type="checkbox" id=modulo '.$checked.'><b>'.$permiso['modulo'].'</b><br>';
         }else{
             if($vista<>$permiso['vista']){
             $vista=$permiso['vista'];
-            $html.='<input type="checkbox" id=vista >'.$vista.'<br>';
+            $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" id=vista '.$checked.'>'.$vista.'<br>';
             }else{
                 $accion=$permiso['accion'];
-                $html.='<input type="checkbox" id=accion >'.$accion.'<br>';
+                $html.='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id=accion '.$checked.'>'.$accion.'<br>';
             }
            
         }

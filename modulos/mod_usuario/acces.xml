@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<modulo nombre="mos_usuario" descripcion="Usuarios" permiso="0">
+<modulo nombre="mod_usuario" descripcion="Usuarios" permiso="0">
     <vista nombre="ListaUsuarios.php" descipcion="Listado Usuario" permiso="0"></vista>
     <vista nombre="usuario.php" descripccion="usuario" permiso="1"></vista>
 </modulo>
