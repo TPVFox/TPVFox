@@ -148,6 +148,23 @@ class ClasePermisos{
         //~ }
         //~ return $resultadoPrincipal;
     //~ }
+    
+    public function modificarPermisoUsuario($datos, $permiso, $usuario){
+        $BDTpv = $this->BDTpv;
+        if($datos['vista']==""){
+            $vista="IS NULL";
+        }else{
+            $vista='="'.$datos['vista'].'"';
+        }
+        if($datos['accion']==""){
+            $accion="IS NULL";
+        }else{
+            $accion='="'.$datos['accion'].'"';
+        }
+        $sql='UPDATE `permisos` SET permiso='.$permiso.' where idUsuario='.$usuario.' and modulo="'.$datos['modulo'].'" and vista '.$vista.' and accion '.$accion.'';
+        $res = $BDTpv->query($sql);
+        return $sql;
+    }
 	
 }
 

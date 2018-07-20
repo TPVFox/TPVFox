@@ -227,28 +227,30 @@ function htmlPermisosUsuario($permisosUsuario){
     $html="";
     $permiso=0;
     $checked="";
+    $i=0;
+    $html.='<button type="button" class="btn btn-info">Guardar Permisos</button><br>';
     foreach ($permisosUsuario as $permiso){
         if($permiso['permiso']==1){
             $checked="checked";
         }else{
              $checked="";
         }
-        $i++;
+       
         if($modulo<>$permiso['modulo']){
             $modulo=$permiso['modulo'];
-            $html.='<input type="checkbox" id=modulo '.$checked.'><b>'.$permiso['modulo'].'</b><br>';
+            $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 name="permiso_'.$i.'" '.$checked.'><b>'.$permiso['modulo'].'</b><br>';
         }else{
             if($vista<>$permiso['vista']){
             $vista=$permiso['vista'];
-            $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" id=vista '.$checked.'>'.$vista.'<br>';
+            $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.'>'.$vista.'<br>';
             }else{
                 $accion=$permiso['accion'];
-                $html.='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id=accion '.$checked.'>'.$accion.'<br>';
+                $html.='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 id="accion_'.$i.'" name="permiso_'.$i.'" '.$checked.'>'.$accion.'<br>';
             }
            
         }
          
-        
+         $i++;
         
         
         

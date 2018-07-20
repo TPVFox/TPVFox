@@ -76,9 +76,10 @@
 				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
                 $htmlInicidenciasDesplegable=htmlTablaIncidencias($incidenciasUsuario);
                 $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario);
-                echo '<pre>';
-                print_r($permisosUsuario);
-                echo '</pre>';
+                echo count($permisosUsuario);
+                //~ echo '<pre>';
+                //~ print_r($permisosUsuario);
+                //~ echo '</pre>';
 			}
 		} else {
 			// Creamos ficha Usuario.
@@ -122,7 +123,29 @@
 						$mensaje = "Su registro de usuario fue editado.";
 					}
 				};
+                $i=0;
+                foreach($permisosUsuario as $permisos){
+                     
+                    if(isset($_POST['permiso_'.$i])){
+                           $permiso=1;
+                            //~ $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $_POST['permiso_'.$i], $id);
+                            //~ echo '<pre>';
+                            //~ print_r($mod);
+                            //~ echo '</pre>';
+                    }else{
+                        $permiso=0;
+                        //~ $mod=$ClasePermisos->modificarPermisoUsuario($permisos, 0, $id);
+                    }
+                    $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $permiso, $id);
+                    $i++;
+                    echo '<pre>';
+                    print_r($mod);
+                    echo '</pre>';
+                }
 			}
+            //~ echo '<pre>';
+            //~ print_r($permisosUsuario);
+            //~ echo '</pre>';
 		}
 		
 		?>
@@ -237,9 +260,9 @@
 <!--
 					<input type="submit" value="Guardar">
 -->
-				
+	</form>			
 				<div class="col-md-9">
-				</form>
+				
 			</div>
 			
 		</div>
