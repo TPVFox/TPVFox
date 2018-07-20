@@ -57,7 +57,9 @@ class ClaseProductos extends ClaseTablaArticulos{
 				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo`  ".$filtro;
+				."ON (p.`idArticulo` = a.`idArticulo`) AND  "
+                ."(p.idTienda =".$this->idTienda.") "
+                .$filtro;
 				break;
 			
 			case 'crefTienda':
