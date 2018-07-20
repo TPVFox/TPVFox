@@ -27,12 +27,10 @@ $Ruta = __DIR__.'/';
 	}
 	
     include_once ($URLCom. "/clases/ClaseSession.php");
-     //~ include_once ($URLCom."/clases/ClasePermisos.php");
+
 	// Solo creamos objeto si no existe.
 	
 	$thisTpv = new ClaseSession();
-    
-    //~ $ClasePermisos=new ClasePermisos();
 	$BDTpv = $thisTpv->getConexion(); // Para la antigua conexion. 
    
 	// [PENDIENTE ] Eliminar mod_conexion/conexionBaseDatos , falta arreglar mod_importar
@@ -40,11 +38,6 @@ $Ruta = __DIR__.'/';
 
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('id'=>0, 'group_id'=>0,'login' =>'invitado'));
     $ClasePermisos=$thisTpv->permisos;
-    $Permisos=$thisTpv->permisos->permisos;
-     //~ $ClasePermisos=new ClasePermisos($Usuario['id'], $BDTpv);
-    //~ echo '<pre>';
-    //~ print_r($Permisos['resultado']);
-    //~ echo '</pre>';
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
     
 	

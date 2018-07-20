@@ -13,23 +13,32 @@ class ClasePermisos{
 	{   
         $this->BDTpv=$conexion;
         $this->usuario=$Usuario;
-        $this->permisos=$this->getPermisosUsuario();
-       $this->obtenerRutaProyecto();
-       $this->ObtenerDir();
+        $this->permisos=$this->getPermisosUsuario($Usuario);
+        $this->obtenerRutaProyecto();
+        $this->ObtenerDir();
     }
     
-    public function getPermisosUsuario(){
+    public function getPermisosUsuario($Usuario){
+        // @ Objetivo:
+        // Obtener array con los permisos de un usuario.
+        // @ Parametro
+        //     $Usuario -> array() Datos del usuario. ( no haría falt enviarlo, porque esta como propiedad
+        //                  // pero así podemos utilizarla para obtener los permisos de un usuario.
         $respuesta=array();
         $BDTpv = $this->BDTpv;
-        $sql='SELECT * from permisos where idUsuario='.$this->usuario['id'].' ORDER BY modulo , vista, accion asc ';
+        $sql='SELECT * from permisos where idUsuario='.$Usuario['id'].' ORDER BY modulo , vista, accion asc ';
         $res = $BDTpv->query($sql);
         if($res->num_rows>0){
-          $resultadoPrincipal=array();
+            // Obtuvo permisos que tiene en la BD de ese usuario
+            $resultadoPrincipal=array();
 			while ( $result = $res->fetch_assoc () ) {
 				array_push($resultadoPrincipal,$result);
 			}
-			 $respuesta['resultado']=$resultadoPrincipal;
+			$respuesta['resultado']=$resultadoPrincipal;
+            // Ahora deberíamos comprobar que están todos los permisos, es decir si no le falta un modulo,una vista o una accion.
+            
         }else{
+            // Si no obtiene datos, inicializamos los permisos para ese usuario.
             $this->InicializarPermisosUsuario();
             $res = $BDTpv->query($sql);
             $resultadoPrincipal=array();
@@ -90,9 +99,7 @@ class ClasePermisos{
        
         return $sql;
    }
-   //~ public function obtenerModulos(){
-       
-   //~ }
+  
    
    public function obtenerRutaProyecto(){
 		// Objectivo
@@ -139,16 +146,7 @@ class ClasePermisos{
         return $permisoUsuario;
     }
     
-    //~ public function cargarPermisosUsuario($permisosUsuario){
-        //~ $BDTpv = $this->BDTpv;
-        //~ $sql='SELECT * from permisos where idUsuario='.$idUsuario;
-        //~ $resultadoPrincipal=array();
-        //~ while ( $result = $res->fetch_assoc () ) {
-				//~ array_push($resultadoPrincipal,$result);
-        //~ }
-        //~ return $resultadoPrincipal;
-    //~ }
-    
+        
     public function modificarPermisoUsuario($datos, $permiso, $usuario){
         $BDTpv = $this->BDTpv;
         if($datos['vista']==""){

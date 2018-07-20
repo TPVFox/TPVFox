@@ -1,3 +1,8 @@
+<?php
+    // No creo que debe ser así.. de momento lo dejamos..
+    $Permisos=$thisTpv->permisos->permisos;
+?>
+
 <header>
 	<nav class="navbar navbar-default">
 		<div class="container-fluid">

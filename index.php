@@ -10,17 +10,11 @@
 <html>
 <head>
 <?php
-	include 'head.php';
-    //~ include_once './../../inicial.php';
-    //~ echo '<pre>';
-    //~ print_r($Permisos);
-    //~ echo '</pre>';
-    ?>
+	include 'head.php';?>
 </head>
 <body>
 	<?php 
      include_once $URLCom.'/modulos/mod_menu/menu.php';
-	//~ include 'header.php';
 	$titulos=array('Almacén', 'Compras', 'Ventas', 'Tickets', 'Contactos', 'Sistema');
 	$links=array( '0'=>array(
 					'icono'=>'css/img/productosP.png',
@@ -202,7 +196,6 @@
                        
                     }
                 }
-			 //~ if ($Usuario['group_id'] >=$link['permmiso'] ){
              if($perm==1){
             
 				echo '<a class="text-center" title="'.$link['texto'].'" href="'.$link['link'].'"><img  src="'.$link['icono'].'" alt="'.$link['texto'].'" /></a>';
