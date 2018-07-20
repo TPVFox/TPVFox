@@ -10,9 +10,11 @@
         include_once $URLCom.'/controllers/Controladores.php';
         include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         include_once ($URLCom .'/controllers/parametros.php');
+       
         $OtrosVarJS ='';
         $htmlplugins = array();
         $CTArticulos = new ClaseProductos($BDTpv);
+        
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
@@ -163,11 +165,17 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <h5> Opciones para una selección</h5>
                         <ul class="nav nav-pills nav-stacked"> 
                             <?php
-                            if ($Usuario['group_id'] > '0') {
+                            //~ if ($Usuario['group_id'] > '0') {
+                            $permiso=$ClasePermisos->getAccion("crear");
+                            echo $permiso;
+                           //~ echo '<pre>';
+                           //~ print_r($Permisos);
+                           //~ echo '</pre>';
+                           if($permiso==1){
                                 ?>
                                 <li><a href="#section2" onclick="metodoClick('AgregarProducto');";>Añadir</a></li>
                                 <?php
-                            }
+                           }
                             ?>
                             <li><a href="#section2" onclick="metodoClick('VerProducto', 'producto');";>Modificar</a></li>
                         </ul>

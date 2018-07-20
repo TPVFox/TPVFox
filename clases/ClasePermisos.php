@@ -165,6 +165,33 @@ class ClasePermisos{
         $res = $BDTpv->query($sql);
         return $sql;
     }
+    
+    public function getAccion($accion){
+        //recibe la accion para poder sacar el permiso de esa accion en en el modulo
+        $permisos=$this->permisos['resultado'];
+       
+        $ruta=str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);
+       
+        $vista=basename($ruta);
+        
+        $rutas=explode('/', dirname($ruta));
+        
+        $modulo=end($rutas);
+        
+        $perm="";
+        foreach ($permisos as $permiso){
+            if($permiso['modulo']==$modulo && $permiso['vista']==$vista && $permiso['accion']==$accion){
+                $perm=$permiso['permiso'];
+                
+                break;
+            }
+        }
+        
+        return $perm;
+        
+        
+    }
+    
 	
 }
 

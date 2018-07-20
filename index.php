@@ -12,9 +12,9 @@
 <?php
 	include 'head.php';
     //~ include_once './../../inicial.php';
-    echo '<pre>';
-    print_r($Permisos);
-    echo '</pre>';
+    //~ echo '<pre>';
+    //~ print_r($Permisos);
+    //~ echo '</pre>';
     ?>
 </head>
 <body>
