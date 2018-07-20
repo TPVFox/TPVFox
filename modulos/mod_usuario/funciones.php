@@ -228,7 +228,7 @@ function htmlPermisosUsuario($permisosUsuario){
     $permiso=0;
     $checked="";
     $i=0;
-    $html.='<button type="button" class="btn btn-info">Guardar Permisos</button><br>';
+   
     foreach ($permisosUsuario as $permiso){
         if($permiso['permiso']==1){
             $checked="checked";
