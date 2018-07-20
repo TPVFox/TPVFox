@@ -138,10 +138,15 @@
                     }
                     $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $permiso, $id);
                     $i++;
-                    echo '<pre>';
-                    print_r($mod);
-                    echo '</pre>';
+                    //~ echo '<pre>';
+                    //~ print_r($mod);
+                    //~ echo '</pre>';
                 }
+                $ClasePermisos=new ClasePermisos($id, $BDTpv);
+           
+            $permisosUsuario=$ClasePermisos->permisos['resultado'];
+                 $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario);
+                
 			}
             //~ echo '<pre>';
             //~ print_r($permisosUsuario);
