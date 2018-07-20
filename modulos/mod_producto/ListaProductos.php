@@ -165,13 +165,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <h5> Opciones para una selección</h5>
                         <ul class="nav nav-pills nav-stacked"> 
                             <?php
-                            //~ if ($Usuario['group_id'] > '0') {
-                            $permiso=$ClasePermisos->getAccion("crear");
-                            echo $permiso;
-                           //~ echo '<pre>';
-                           //~ print_r($Permisos);
-                           //~ echo '</pre>';
-                           if($permiso==1){
+                          if($ClasePermisos->getAccion("crear")==1){
                                 ?>
                                 <li><a href="#section2" onclick="metodoClick('AgregarProducto');";>Añadir</a></li>
                                 <?php
