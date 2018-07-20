@@ -11,7 +11,7 @@
 <head>
 <?php
 	include 'head.php';
-    include_once './../../inicial.php';
+    //~ include_once './../../inicial.php';
     echo '<pre>';
     print_r($Permisos);
     echo '</pre>';
@@ -180,6 +180,7 @@
 				$t=0;
 				$i=0;
 				$c=0;
+                $perm=0;
 				foreach ($links as $link){
 					if($c==0){
 						echo '<div class="col-md-12 row">';
@@ -193,7 +194,17 @@
 				echo '<div class="col-md-4 text-center ">
 						<h6 class="text-center">'.$link['texto'].'</h6>';
 				
-			if ($Usuario['group_id'] >=$link['permmiso'] ){
+                foreach ($Permisos['resultado'] as $permiso){
+                   
+                    if($link['vista']==$permiso['vista'] & $permiso['accion']==''){
+                       //~ echo $permiso['accion'];
+                        $perm=$permiso['permiso'];
+                       
+                    }
+                }
+			 //~ if ($Usuario['group_id'] >=$link['permmiso'] ){
+             if($perm==1){
+            
 				echo '<a class="text-center" title="'.$link['texto'].'" href="'.$link['link'].'"><img  src="'.$link['icono'].'" alt="'.$link['texto'].'" /></a>';
 			}else{
 				echo '<img  style="opacity:0.2" src="'.$link['icono'].'" alt="'.$link['texto'].'" />';
