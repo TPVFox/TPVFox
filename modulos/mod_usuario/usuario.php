@@ -5,6 +5,9 @@
 		// Reinicio variables
 		include_once './../../inicial.php';
 		include_once $URLCom.'/head.php';
+        //~ echo '<pre>';
+        //~ print_r($ClasePermisos);
+        //~ echo '</pre>';
 		include_once $URLCom.'/modulos/mod_usuario/funciones.php';
 		include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
         include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
@@ -77,7 +80,7 @@
                 if($ClasePermisos->getAccion("permiso")==1){
                     $admin=1;
                 }
-                $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin);
+                $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos);
                
 			}
 		} else {
@@ -133,10 +136,15 @@
                     $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $permiso, $id);
                     $i++;
                 }
-                $ClasePermisos=new ClasePermisos($id, $BDTpv);
-           
-                $permisosUsuario=$ClasePermisos->permisos['resultado'];
-                 $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario);
+                //~ $ClasePermisos=new ClasePermisos($id, $BDTpv);
+                $Usuario=array('id'=>$id);
+                $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
+                //~ $permisosUsuario=$ClasePermisos->permisos['resultado'];
+                 $permisosUsuario=$permisosUsuario['resultado'];
+                  if($ClasePermisos->getAccion("permiso")==1){
+                    $admin=1;
+                }
+                 $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin,  $ClasePermisos);
 			}
 		}
 		

@@ -63,10 +63,13 @@ class ClasePermisos{
         foreach($modulos as $modulo){//Recorrer todos los modulos
             if(is_file($this->RutaModulos.'/'.$modulo.'/acces.xml')){//Si en  el modulo existe el archivo acces
                 $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');//lo cargamos
-                if($this->usuario['group_id']==9){//Si el usuario es del grupo 9 moficamos el xml para que todos los permisos 
+               if(isset($this->usuario['group_id'])){
+                    if($this->usuario['group_id']==9){//Si el usuario es del grupo 9 moficamos el xml para que todos los permisos 
                                                     //sean 1
                     $xml=$this->ModificarPermisos($xml);
                 }
+               }
+               
                 $this->insertarPermisos($xml);//Cuando esté el xml listo insertamos los permisos
             }
         }
@@ -220,6 +223,18 @@ class ClasePermisos{
         return $perm;
         
         
+    }
+    public function ObtenerDescripcion($nombre, $permiso){
+         if(is_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml')){
+             $xml=simplexml_load_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml');
+             foreach ($xml as $doc){
+                 
+                 if($doc['nombre']==$nombre){
+                    return $doc['descripcion'];
+                 }
+             }
+           
+         }
     }
     
 	

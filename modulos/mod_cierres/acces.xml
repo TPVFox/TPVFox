@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
     <modulo nombre="mod_cierres" descripcion="Cierres" permiso="1">
-        <vista nombre="ListaCierres.php" descipcion="Listado cierres" permiso="1">
-            <accion nombre="ver" descipcion="Ver Cierre" permiso="1"> </accion>
-            <accion nombre="cierre" descipcion="Cierre caja" permiso="1"> </accion>
+        <vista nombre="ListaCierres.php" descripcion="Listado cierres" permiso="1">
+            <accion nombre="ver" descripcion="Ver Cierre" permiso="1"> </accion>
+            <accion nombre="cierre" descripcion="Cierre caja" permiso="1"> </accion>
         </vista>
-        <vista nombre="VistaCierre.php" descipcion="Ver cierre" permiso="1"></vista>
+        <vista nombre="VistaCierre.php" descripcion="Ver cierre" permiso="1"></vista>
         <vista nombre="CierreCaja.php" descripcion="Cierre caja" permiso="1"></vista>
         <vista nombre="ListaTickets.php" descripcion="listado tickets" permiso="1">
             <accion nombre="verTicket" descripcion="Ver ticket" permiso="1"></accion>

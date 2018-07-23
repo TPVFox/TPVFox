@@ -1,6 +1,4 @@
 <?php 
-
-
 // Funciones para vista Recambio unico.
 function obtenerUsuarios($BDTpv) {
 	// Function para obtener usuarios y listarlos
@@ -157,7 +155,7 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 	if(count($datos)>0){
 
-	$html=$resumen.'	<table class="table table-striped">
+	$html='	<table class="table table-striped">
 		<thead>
 			<tr>
 				
@@ -219,7 +217,7 @@ function htmlTablaIncidencias($incidenciasUsuario){
     return $html;
     
 }
-function htmlPermisosUsuario($permisosUsuario, $admin){
+function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
     $permisos=array();
     $modulo="";
     $vista="";
@@ -239,16 +237,22 @@ function htmlPermisosUsuario($permisosUsuario, $admin){
             }else{
                  $checked="";
             }
-       
+           
             if($modulo<>$permiso['modulo']){
+                
                 $modulo=$permiso['modulo'];
-                $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$permiso['modulo'].'</b><br>';
+                //~ $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['modulo'], $permiso);
+                //~ var_dump($modulo);
+                $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$modulo.'</b><br>';
             }else{
                 if($vista<>$permiso['vista']){
+                
                 $vista=$permiso['vista'];
-                $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 class="permiso" id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$vista.'<br>';
+                $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['vista'], $permiso);
+                $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 class="permiso" id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$descripcion.'<br>';
                 }else{
                     $accion=$permiso['accion'];
+                    //~ $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['accion'], $permiso);
                     $html.='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" class="permiso" value=1 id="accion_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$accion.'<br>';
                 }
                
