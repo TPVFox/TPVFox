@@ -54,24 +54,27 @@ class ClasePermisos{
     }
     
     public function InicializarPermisosUsuario(){
-        //buscar todas las carpetas de modulo , buscar los acces de cada modulo y hacer insert de usuario con los permisos del acces
-        //si tiene grupo 9 crearlo pero todos los permisos true
+        //@Objetivo: Inicializar los permisos de un usuario, si es del grupo
+        //9 quiere decir que es un administrador entonces modificamos los el xml para que el permiso sea siempre 1
+       
         $this->obtenerRutaProyecto();
         $this->ObtenerDir();
         $modulos=$this->modulos;
-        foreach($modulos as $modulo){
-            if(is_file($this->RutaModulos.'/'.$modulo.'/acces.xml')){
-                $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');
-                if($this->usuario['group_id']==9){
+        foreach($modulos as $modulo){//Recorrer todos los modulos
+            if(is_file($this->RutaModulos.'/'.$modulo.'/acces.xml')){//Si en  el modulo existe el archivo acces
+                $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');//lo cargamos
+                if($this->usuario['group_id']==9){//Si el usuario es del grupo 9 moficamos el xml para que todos los permisos 
+                                                    //sean 1
                     $xml=$this->ModificarPermisos($xml);
                 }
-                $this->insertarPermisos($xml);
+                $this->insertarPermisos($xml);//Cuando esté el xml listo insertamos los permisos
             }
         }
         return $xml;
         
    }
    public function ModificarPermisos($xml){
+       //@Objetivo: recorrer el xml para que los permisos de todo el documento sea igual a 1
            $xml['permiso']=1;
            foreach ($xml->vista as $vista){
                $vista['permiso']=1;
@@ -79,10 +82,16 @@ class ClasePermisos{
                    $accion['permiso']=1;
                }
            }
-       return $xml;
+       return $xml; //Devolvemos el xml con los permisos cambiados
       
    }
    public function insertarPermisos($xml){
+       //Objetivo: inserta los permisos a un usuario
+       //Como esta acción la hacemos siempre comprobamos que el ese permisos expecifico existe o no 
+       //Si no existe lo creamos
+       //Este proceso se hace en todos los aparatados dql xml (modulos, vistas, acciones).
+       
+       
         $respuesta=array();
         $BDTpv = $this->BDTpv;
         $sql='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista IS NULL and accion IS NULL';
@@ -148,6 +157,8 @@ class ClasePermisos{
 	}
     
     public function comprobarPermisos($nivel, $permisos){
+        //Objetico: comprobar permisos para el menú superior de la aplicación 
+        //Comprobamos el permiso del usuario con el permiso del xml del menu
         $this->obtenerRutaProyecto();
         foreach ($permisos['resultado'] as $permiso){
            if($permiso['modulo']==$nivel['modulo'] & $permiso['vista']==$nivel['vista']){
@@ -167,13 +178,15 @@ class ClasePermisos{
     
         
     public function modificarPermisoUsuario($datos, $permiso, $usuario){
+        //Objetivo: Modificar los permisos , modificar los permisos a un usuario, esta tarea sólo la puede 
+        //hacer el administrador
         $BDTpv = $this->BDTpv;
-        if($datos['vista']==""){
+        if($datos['vista']==""){//Si vista está vacia tenemos que poner el texto is null 
             $vista="IS NULL";
         }else{
             $vista='="'.$datos['vista'].'"';
         }
-        if($datos['accion']==""){
+        if($datos['accion']==""){//Lo mismo que el if anterior 
             $accion="IS NULL";
         }else{
             $accion='="'.$datos['accion'].'"';
