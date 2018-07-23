@@ -86,10 +86,9 @@ class ClasePermisos{
         $respuesta=array();
         $BDTpv = $this->BDTpv;
         $sql='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista IS NULL and accion IS NULL';
-                //~ error_log($sql);
+               
         $res = $BDTpv->query($sql);  
-        //~ if($res->fetch_assoc ()){
-        //~ if(!isset($res)){
+        
         if($res->num_rows==0){    
             $sql='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'",
                     '.$xml['permiso'].')';
@@ -99,22 +98,18 @@ class ClasePermisos{
                 $sql2='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista ="'.$vista['nombre'].'" and accion IS NULL';
                 $res = $BDTpv->query($sql2);    
                 if($res->num_rows==0){ 
-                //~ if($res->fetch_assoc ()){
-                        //~ error_log($sql2);
-                       //~ error_log($res->num_rows);     
+                  
                  $sql2='INSERT INTO permisos(idUsuario, modulo, vista, permiso) VALUES ('.$this->usuario['id'].', 
                         "'.$xml['nombre'].'", "'.$vista['nombre'].'", '.$vista['permiso'].')';
                  $res = $BDTpv->query($sql2);
                 }
                  foreach($vista->accion as $accion){
                      $sql3='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'"  and vista ="'.$vista['nombre'].'" and accion ="'.$accion['nombre'].'"' ;
-                        $res = $BDTpv->query($sql3);  
-                        error_log($sql3);
-                       error_log($res->num_rows);  
+                    $res = $BDTpv->query($sql3);  
                        if($res->num_rows==0){ 
                                
                         $sql3='INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'", "'.$vista['nombre'].'", "'.$accion['nombre'].'", '.$accion['permiso'].')';
-                        error_log($sql3);
+                        
                         $res = $BDTpv->query($sql3);
                     }
                  }
