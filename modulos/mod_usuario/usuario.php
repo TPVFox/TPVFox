@@ -45,7 +45,8 @@
 			// Modificar Ficha Usuario
 			$id=$_GET['id']; // Obtenemos id para modificar.
             //~ $ClasePermisos=new ClasePermisos($id, $BDTpv);
-          $permisosUsuario=$ClasePermisos->getPermisosUsuario($id);
+            $Usuario=array('id'=>$id);
+          $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
          $permisosUsuario=$permisosUsuario['resultado'];
             //~ $permisosUsuario=$ClasePermisos->permisos['resultado'];
              //~ echo '<pre>';

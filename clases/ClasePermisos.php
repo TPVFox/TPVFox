@@ -26,10 +26,13 @@ class ClasePermisos{
         //                  // pero así podemos utilizarla para obtener los permisos de un usuario.
         $respuesta=array();
         $BDTpv = $this->BDTpv;
+        $this->usuario=$Usuario;
+         $this->InicializarPermisosUsuario();
         $sql='SELECT * from permisos where idUsuario='.$Usuario['id'].' ORDER BY modulo , vista, accion asc ';
         $res = $BDTpv->query($sql);
-        if($res->num_rows>0){
+        //~ if($res->num_rows>0){
             // Obtuvo permisos que tiene en la BD de ese usuario
+            //~ $this->InicializarPermisosUsuario();
             $resultadoPrincipal=array();
 			while ( $result = $res->fetch_assoc () ) {
 				array_push($resultadoPrincipal,$result);
@@ -37,16 +40,16 @@ class ClasePermisos{
 			$respuesta['resultado']=$resultadoPrincipal;
             // Ahora deberíamos comprobar que están todos los permisos, es decir si no le falta un modulo,una vista o una accion.
             
-        }else{
+        //~ }else{
             // Si no obtiene datos, inicializamos los permisos para ese usuario.
-            $this->InicializarPermisosUsuario();
-            $res = $BDTpv->query($sql);
-            $resultadoPrincipal=array();
-            while ( $result = $res->fetch_assoc () ) {
-				array_push($resultadoPrincipal,$result);
-			}
-			 $respuesta['resultado']=$resultadoPrincipal;
-        }
+            //~ $this->InicializarPermisosUsuario();
+            //~ $res = $BDTpv->query($sql);
+            //~ $resultadoPrincipal=array();
+            //~ while ( $result = $res->fetch_assoc () ) {
+				//~ array_push($resultadoPrincipal,$result);
+			//~ }
+			 //~ $respuesta['resultado']=$resultadoPrincipal;
+        //~ }
         return $respuesta;
     }
     
@@ -82,21 +85,42 @@ class ClasePermisos{
    public function insertarPermisos($xml){
         $respuesta=array();
         $BDTpv = $this->BDTpv;
-        $sql='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'",
-                '.$xml['permiso'].')';
-        $res = $BDTpv->query($sql);
-        foreach ($xml->vista as $vista){
-             $sql2='INSERT INTO permisos(idUsuario, modulo, vista, permiso) VALUES ('.$this->usuario['id'].', 
-                    "'.$xml['nombre'].'", "'.$vista['nombre'].'", '.$vista['permiso'].')';
-             $res = $BDTpv->query($sql2);
-             foreach($vista->accion as $accion){
-                 $sql3='INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'",
-                  "'.$vista['nombre'].'", "'.$accion['nombre'].'", '.$accion['permiso'].')';
-                   $res = $BDTpv->query($sql3);
-             }
-             
+        $sql='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista IS NULL and accion IS NULL';
+                //~ error_log($sql);
+        $res = $BDTpv->query($sql);  
+        //~ if($res->fetch_assoc ()){
+        //~ if(!isset($res)){
+        if($res->num_rows==0){    
+            $sql='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'",
+                    '.$xml['permiso'].')';
+            $res = $BDTpv->query($sql);
         }
-       
+            foreach ($xml->vista as $vista){
+                $sql2='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista ="'.$vista['nombre'].'" and accion IS NULL';
+                $res = $BDTpv->query($sql2);    
+                if($res->num_rows==0){ 
+                //~ if($res->fetch_assoc ()){
+                        //~ error_log($sql2);
+                       //~ error_log($res->num_rows);     
+                 $sql2='INSERT INTO permisos(idUsuario, modulo, vista, permiso) VALUES ('.$this->usuario['id'].', 
+                        "'.$xml['nombre'].'", "'.$vista['nombre'].'", '.$vista['permiso'].')';
+                 $res = $BDTpv->query($sql2);
+                }
+                 foreach($vista->accion as $accion){
+                     $sql3='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'"  and vista ="'.$vista['nombre'].'" and accion ="'.$accion['nombre'].'"' ;
+                        $res = $BDTpv->query($sql3);  
+                        error_log($sql3);
+                       error_log($res->num_rows);  
+                       if($res->num_rows==0){ 
+                               
+                        $sql3='INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'", "'.$vista['nombre'].'", "'.$accion['nombre'].'", '.$accion['permiso'].')';
+                        error_log($sql3);
+                        $res = $BDTpv->query($sql3);
+                    }
+                 }
+                 
+            }
+
         return $sql;
    }
   
