@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 17, 2018 at 07:33 PM
+-- Generation Time: Jul 23, 2018 at 05:52 PM
 -- Server version: 10.1.26-MariaDB-0+deb9u1
 -- PHP Version: 7.0.30-0+deb9u1
 
@@ -29,9 +29,9 @@ SET time_zone = "+00:00";
 CREATE TABLE `permisos` (
   `id` int(11) NOT NULL,
   `idUsuario` int(11) NOT NULL,
-  `modulo` varchar(20) DEFAULT NULL,
-  `vista` varchar(20) DEFAULT NULL,
-  `accion` varchar(20) DEFAULT NULL,
+  `modulo` varchar(50) DEFAULT NULL,
+  `vista` varchar(50) DEFAULT NULL,
+  `accion` varchar(50) DEFAULT NULL,
   `permiso` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
