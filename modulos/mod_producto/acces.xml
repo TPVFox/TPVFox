@@ -11,6 +11,7 @@
     </vista>
     <vista nombre="producto.php" descipcion="Listadoproductos" permiso="1">
         <accion nombre="Guardar" descripcion="Guardar Producto" permiso="1"></accion>
+	<accion nombre="Modificar" descripcion="Modificar Producto" permiso="1"></accion>
         <accion nombre="CrearProductoWeb" descripcion="CrearProductoWeb" permiso="0"></accion>
 
     </vista>
