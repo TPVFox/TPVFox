@@ -9,7 +9,7 @@
 		include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
         include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
         include_once $URLCom.'/clases/ClasePermisos.php';
-      
+        $admin=0;
         //~ include ("./../mod_conexion/conexionBaseDatos.php");
 		//include ("./ObjetoRecambio.php");
 		$Cusuario=new ClaseUsuarios($BDTpv);
@@ -73,7 +73,11 @@
 				$incidenciasUsuario=$Cincidencias->incidenciasSinResolverUsuario($id);
 				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
                 $htmlInicidenciasDesplegable=htmlTablaIncidencias($incidenciasUsuario);
-                $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario);
+              
+                if($ClasePermisos->getAccion("permiso")==1){
+                    $admin=1;
+                }
+                $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin);
                
 			}
 		} else {
@@ -236,11 +240,11 @@
                         $titulo='Incidencias Sin Resolver';
                         echo htmlPanelDesplegable($num, $titulo, $htmlInicidenciasDesplegable);
                       
-                        if($ClasePermisos->getAccion("permiso")==1){
+                        
                             $num=3;
                             $titulo='Permisos';
                             echo htmlPanelDesplegable($num, $titulo, $htmlPermisosUsuario);
-                        }
+                        
 						?>
 					</div>
 				</div>

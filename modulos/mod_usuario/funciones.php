@@ -219,7 +219,7 @@ function htmlTablaIncidencias($incidenciasUsuario){
     return $html;
     
 }
-function htmlPermisosUsuario($permisosUsuario){
+function htmlPermisosUsuario($permisosUsuario, $admin){
     $permisos=array();
     $modulo="";
     $vista="";
@@ -228,6 +228,10 @@ function htmlPermisosUsuario($permisosUsuario){
     $permiso=0;
     $checked="";
     $i=0;
+    $bloquear="";
+    if($admin == 0){
+        $bloquear='readonly="readonly" disabled';
+    }
    if(count($permisosUsuario)>0){
         foreach ($permisosUsuario as $permiso){
             if($permiso['permiso']==1){
@@ -238,14 +242,14 @@ function htmlPermisosUsuario($permisosUsuario){
        
             if($modulo<>$permiso['modulo']){
                 $modulo=$permiso['modulo'];
-                $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 name="permiso_'.$i.'" '.$checked.'><b>'.$permiso['modulo'].'</b><br>';
+                $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$permiso['modulo'].'</b><br>';
             }else{
                 if($vista<>$permiso['vista']){
                 $vista=$permiso['vista'];
-                $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.'>'.$vista.'<br>';
+                $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 class="permiso" id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$vista.'<br>';
                 }else{
                     $accion=$permiso['accion'];
-                    $html.='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 id="accion_'.$i.'" name="permiso_'.$i.'" '.$checked.'>'.$accion.'<br>';
+                    $html.='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" class="permiso" value=1 id="accion_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$accion.'<br>';
                 }
                
             }
