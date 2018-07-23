@@ -37,21 +37,17 @@
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
 		// Obtenemos id
-		//~ print_r($_GET);
+		
 		
 		
 		if (isset($_GET['id'])) {
             
 			// Modificar Ficha Usuario
 			$id=$_GET['id']; // Obtenemos id para modificar.
-            //~ $ClasePermisos=new ClasePermisos($id, $BDTpv);
             $Usuario=array('id'=>$id);
-          $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
-         $permisosUsuario=$permisosUsuario['resultado'];
-            //~ $permisosUsuario=$ClasePermisos->permisos['resultado'];
-             //~ echo '<pre>';
-            //~ print_r($permisosUsuario);
-            //~ echo '</pre>';
+            $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
+            $permisosUsuario=$permisosUsuario['resultado'];
+           
 			$UsuarioUnico = verSelec($BDTpv,$id,$tabla);
 			$titulo = "Modificar Usuario";
 			$passwrd= 'password'; // Para mostrar ***** en password
@@ -78,10 +74,7 @@
 				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
                 $htmlInicidenciasDesplegable=htmlTablaIncidencias($incidenciasUsuario);
                 $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario);
-                echo count($permisosUsuario);
-                //~ echo '<pre>';
-                //~ print_r($permisosUsuario);
-                //~ echo '</pre>';
+               
 			}
 		} else {
 			// Creamos ficha Usuario.
@@ -129,30 +122,18 @@
                 foreach($permisosUsuario as $permisos){
                      
                     if(isset($_POST['permiso_'.$i])){
-                           $permiso=1;
-                            //~ $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $_POST['permiso_'.$i], $id);
-                            //~ echo '<pre>';
-                            //~ print_r($mod);
-                            //~ echo '</pre>';
+                        $permiso=1;
                     }else{
                         $permiso=0;
-                        //~ $mod=$ClasePermisos->modificarPermisoUsuario($permisos, 0, $id);
                     }
                     $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $permiso, $id);
                     $i++;
-                    //~ echo '<pre>';
-                    //~ print_r($mod);
-                    //~ echo '</pre>';
                 }
                 $ClasePermisos=new ClasePermisos($id, $BDTpv);
            
-            $permisosUsuario=$ClasePermisos->permisos['resultado'];
+                $permisosUsuario=$ClasePermisos->permisos['resultado'];
                  $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario);
-                
 			}
-            //~ echo '<pre>';
-            //~ print_r($permisosUsuario);
-            //~ echo '</pre>';
 		}
 		
 		?>
@@ -160,9 +141,6 @@
 		<div class="container">
 				
 			<?php 
-			//~ echo '<pre>';
-			//~ print_r($_POST);
-			//~ echo '</pre>';
 			if (isset($mensaje) || isset($error)){   ?> 
 				<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
 				<?php 
