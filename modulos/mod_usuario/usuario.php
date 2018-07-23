@@ -235,9 +235,12 @@
                         $num=2;
                         $titulo='Incidencias Sin Resolver';
                         echo htmlPanelDesplegable($num, $titulo, $htmlInicidenciasDesplegable);
-                        $num=3;
-                        $titulo='Permisos';
-                        echo htmlPanelDesplegable($num, $titulo, $htmlPermisosUsuario);
+                      
+                        if($ClasePermisos->getAccion("permiso")==1){
+                            $num=3;
+                            $titulo='Permisos';
+                            echo htmlPanelDesplegable($num, $titulo, $htmlPermisosUsuario);
+                        }
 						?>
 					</div>
 				</div>
