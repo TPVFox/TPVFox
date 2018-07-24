@@ -227,14 +227,29 @@ class ClasePermisos{
     public function ObtenerDescripcion($nombre, $permiso){
          if(is_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml')){
              $xml=simplexml_load_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml');
-             foreach ($xml as $doc){
-                 
+             
+            if($xml['nombre']==$nombre){
+                $descripcion=$xml['descripcion'];
+            }else{
+                foreach ($xml as $doc){
                  if($doc['nombre']==$nombre){
-                    return $doc['descripcion'];
+                    $descripcion=$doc['descripcion'];
+                    break;
+                 }else{
+                     if($doc['nombre']==$permiso['vista']){
+                         foreach ($doc as $accion){
+                             if($accion['nombre']==$nombre){
+                                 $descripcion=$accion['descripcion'];
+                             }
+                         }
+                     }
                  }
              }
-           
+            }
+            
+            return $descripcion;
          }
+         
     }
     
 	
