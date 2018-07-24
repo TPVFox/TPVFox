@@ -133,11 +133,11 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 			}
 		$html.='</table>';
 		$nombreTmp="Resumen.pdf";
-		require_once('../../lib/tcpdf/tcpdf.php');
+		require_once($URLCom.'/lib/tcpdf/tcpdf.php');
 		
-		require_once  ('../../clases/imprimir.php');
+		require_once  ($URLCom.'/clases/imprimir.php');
 	
-		require_once('../../controllers/planImprimir.php');
+		require_once($URLCom.'/controllers/planImprimir.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 		$resultado=$ficheroCompleto;
 				
