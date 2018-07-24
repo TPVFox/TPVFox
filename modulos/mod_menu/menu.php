@@ -1,5 +1,6 @@
 <?php
     // No creo que debe ser así.. de momento lo dejamos..
+    //Cargamos los permisos;
     $Permisos=$thisTpv->permisos->permisos;
 ?>
 
@@ -18,8 +19,11 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
 				<ul class="nav navbar-nav navbar-left ">
 <?php 
+//Cargamos el xml de parametros
 $xml=simplexml_load_file($URLCom.'/modulos/mod_menu/parametrosMenu.xml');
-foreach ($xml->item_nivel_1 as $nivel1){
+foreach ($xml->item_nivel_1 as $nivel1){//Recorremos el xml comprobando si el usuario tiene permisos o no
+                                        //Si tiene se lo muestra y si no tiene no lo muestra
+                                        //Esto lo hacemos con todos los niveles
     if(isset($nivel1['vista'])){
         if(isset($nivel1['modulo'])){
             $comprobar=$ClasePermisos->comprobarPermisos($nivel1, $Permisos);
