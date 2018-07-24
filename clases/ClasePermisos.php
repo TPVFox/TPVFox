@@ -3,11 +3,11 @@
 class ClasePermisos{
     public $permisos=array(); //todos los permisos
     public $BDTpv;
-    public $usuario=array();
-    public $ruta;
-    public $RutaServidor;
-    public $HostNombre;
-    public $RutaModulos;
+    public $usuario=array();//Datos del usuario
+    public $ruta;//Ruta del directorio
+    public $RutaServidor;//Ruta del servidor
+    public $HostNombre;//Nombre del host
+    public $RutaModulos;//Rura de los modulos
     
     public function __construct($Usuario, $conexion)
 	{   
@@ -30,26 +30,11 @@ class ClasePermisos{
          $this->InicializarPermisosUsuario();
         $sql='SELECT * from permisos where idUsuario='.$Usuario['id'].' ORDER BY modulo , vista, accion asc ';
         $res = $BDTpv->query($sql);
-        //~ if($res->num_rows>0){
-            // Obtuvo permisos que tiene en la BD de ese usuario
-            //~ $this->InicializarPermisosUsuario();
-            $resultadoPrincipal=array();
-			while ( $result = $res->fetch_assoc () ) {
-				array_push($resultadoPrincipal,$result);
-			}
-			$respuesta['resultado']=$resultadoPrincipal;
-            // Ahora deberíamos comprobar que están todos los permisos, es decir si no le falta un modulo,una vista o una accion.
-            
-        //~ }else{
-            // Si no obtiene datos, inicializamos los permisos para ese usuario.
-            //~ $this->InicializarPermisosUsuario();
-            //~ $res = $BDTpv->query($sql);
-            //~ $resultadoPrincipal=array();
-            //~ while ( $result = $res->fetch_assoc () ) {
-				//~ array_push($resultadoPrincipal,$result);
-			//~ }
-			 //~ $respuesta['resultado']=$resultadoPrincipal;
-        //~ }
+        $resultadoPrincipal=array();
+        while ( $result = $res->fetch_assoc () ) {
+            array_push($resultadoPrincipal,$result);
+        }
+        $respuesta['resultado']=$resultadoPrincipal;
         return $respuesta;
     }
     
@@ -93,8 +78,6 @@ class ClasePermisos{
        //Como esta acción la hacemos siempre comprobamos que el ese permisos expecifico existe o no 
        //Si no existe lo creamos
        //Este proceso se hace en todos los aparatados dql xml (modulos, vistas, acciones).
-       
-       
         $respuesta=array();
         $BDTpv = $this->BDTpv;
         $sql='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista IS NULL and accion IS NULL';
@@ -200,18 +183,19 @@ class ClasePermisos{
     }
     
     public function getAccion($accion){
-        //recibe la accion para poder sacar el permiso de esa accion en en el modulo
+        //OBjetivo: comprobar que la acción que vamos a realizar tenemos permisos o no
         $permisos=$this->permisos['resultado'];
        
-        $ruta=str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);
+        $ruta=str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);//Ruta en la que estamos situados
        
-        $vista=basename($ruta);
+        $vista=basename($ruta);//nos quedamos con la vista.php
         
         $rutas=explode('/', dirname($ruta));
         
-        $modulo=end($rutas);
+        $modulo=end($rutas);//Nombre del modulo en el que estamos
         
         $perm="";
+        //recorremos los permisos y devolvemos el permiso que tenemos en el modulo, vista y accion
         foreach ($permisos as $permiso){
             if($permiso['modulo']==$modulo && $permiso['vista']==$vista && $permiso['accion']==$accion){
                 $perm=$permiso['permiso'];
@@ -225,18 +209,19 @@ class ClasePermisos{
         
     }
     public function ObtenerDescripcion($nombre, $permiso){
-         if(is_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml')){
-             $xml=simplexml_load_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml');
+        //@OBjetivo: Obtener la descripcion del nombre que estamos buscando en los acces
+         if(is_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml')){//Comprobamos que en el modulo tenemos acces
+             $xml=simplexml_load_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml');//Lo guardamos en una variable
              
-            if($xml['nombre']==$nombre){
+            if($xml['nombre']==$nombre){//Comprobamos si en <modulo nombre=""> el nombre es el mismo que estamos buscando
                 $descripcion=$xml['descripcion'];
             }else{
-                foreach ($xml as $doc){
+                foreach ($xml as $doc){//Recorremos las vistas y comprobamos el nombre de la vista 
                  if($doc['nombre']==$nombre){
                     $descripcion=$doc['descripcion'];
                     break;
                  }else{
-                     if($doc['nombre']==$permiso['vista']){
+                     if($doc['nombre']==$permiso['vista']){//Si el nombre de la vista no coincide entonces recorremos las acciones
                          foreach ($doc as $accion){
                              if($accion['nombre']==$nombre){
                                  $descripcion=$accion['descripcion'];
