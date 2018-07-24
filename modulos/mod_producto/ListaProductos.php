@@ -182,7 +182,13 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <h4>Seleccionados <span class="label label-default textoCantidad"><?php echo $prod_seleccion['NItems']; ?></span></h4>
                         <p>Opcion de seleccion:</p>
                         <ul class="nav nav-pills nav-stacked"> 
+                            <?php 
+                             if($ClasePermisos->getAccion("filtrarSeleccion")==1){
+                            ?>
                             <li><a onclick="filtrarSeleccionProductos();">Filtrar Seleccion</a></li>
+                            <?php 
+                        }
+                            ?>
                             <li><a onclick="eliminarSeleccionProductos();">Eliminar Selección</a></li>
                             <li><a href='ListaEtiquetas.php' onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');";>Imprimir Etiquetas</a></li>
                             <li><a href='ListaMayor.php'>Imprimir Mayor</a></li>                                                
