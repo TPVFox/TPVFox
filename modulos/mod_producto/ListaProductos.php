@@ -170,8 +170,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                 <li><a href="#section2" onclick="metodoClick('AgregarProducto');";>Añadir</a></li>
                                 <?php
                            }
+                            if($ClasePermisos->getAccion("modificar")==1){
                             ?>
                             <li><a href="#section2" onclick="metodoClick('VerProducto', 'producto');";>Modificar</a></li>
+                            <?php 
+                        }
+                            ?>
                         </ul>
                     </div>
                     <div class="nav productos_seleccionados" <?php echo $prod_seleccion['display']; ?>>
