@@ -328,7 +328,15 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         <td><?php echo $producto['iva']; ?></td>
                                         <td style="text-align:right;"><?php echo number_format($producto['pvpCiva'], 2); ?><small>€</small></td>
                                         <td><?php echo $producto['estado']; ?></td>
-                                        <td><button class="btn btn-sm boton-regularizar" data-idarticulo="<?php echo $producto['idArticulo']; ?>">regularizar</button></td>
+                                        <td>
+                                            <?php 
+                                             if($ClasePermisos->getAccion("regularizar")==1){
+                                            ?>
+                                            <button class="btn btn-sm boton-regularizar" data-idarticulo="<?php echo $producto['idArticulo']; ?>">regularizar</button>
+                                            <?php 
+                                        }
+                                            ?>
+                                            </td>
                                     </tr>
 
                                     <?php
