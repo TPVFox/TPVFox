@@ -5,16 +5,13 @@
 		// Reinicio variables
 		include_once './../../inicial.php';
 		include_once $URLCom.'/head.php';
-        //~ echo '<pre>';
-        //~ print_r($ClasePermisos);
-        //~ echo '</pre>';
+       
 		include_once $URLCom.'/modulos/mod_usuario/funciones.php';
 		include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
         include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
         include_once $URLCom.'/clases/ClasePermisos.php';
         $admin=0;
-        //~ include ("./../mod_conexion/conexionBaseDatos.php");
-		//include ("./ObjetoRecambio.php");
+       
 		$Cusuario=new ClaseUsuarios($BDTpv);
         $Cincidencias=new ClaseIncidencia($BDTpv);
 		if ($Usuario['estado'] === "Incorrecto"){
@@ -136,10 +133,10 @@
                     $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $permiso, $id);
                     $i++;
                 }
-                //~ $ClasePermisos=new ClasePermisos($id, $BDTpv);
+                
                 $Usuario=array('id'=>$id);
                 $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
-                //~ $permisosUsuario=$ClasePermisos->permisos['resultado'];
+                
                  $permisosUsuario=$permisosUsuario['resultado'];
                   if($ClasePermisos->getAccion("permiso")==1){
                     $admin=1;
