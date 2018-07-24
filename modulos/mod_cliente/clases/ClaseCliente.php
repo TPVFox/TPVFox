@@ -130,7 +130,7 @@ class ClaseCliente extends modelo{
 			$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente.' and `Fecha` BETWEEN 
 		"'.$fechaIni.'" and  "'.$fechaFin.' 23:00:00"';
 		}
-		error_log($sql);
+		//~ error_log($sql);
 		$tickets=$this->consulta($sql);
 		if(isset($tickets['error'])){
 			$respuesta=$tickets;
