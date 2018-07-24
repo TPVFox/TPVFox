@@ -4,7 +4,7 @@
 //@Objetivo: Generar el documento de impresión de un resumen de tickets
 
 
-include_once ($RutaServidor . $HostNombre."/modulos/mod_proveedor/clases/ClaseProveedor.php");
+include_once ($URLCom."/modulos/mod_proveedor/clases/ClaseProveedor.php");
 $CProveedor= new ClaseProveedor($BDTpv);
 $Tienda = $_SESSION['tiendaTpv'];
 $resultado['tienda']=$Tienda;
@@ -133,11 +133,11 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 			}
 		$html.='</table>';
 		$nombreTmp="Resumen.pdf";
-		require_once('../../lib/tcpdf/tcpdf.php');
+		require_once($URLCom.'/lib/tcpdf/tcpdf.php');
 		
-		require_once  ('../../clases/imprimir.php');
+		require_once  ($URLCom.'/clases/imprimir.php');
 	
-		require_once('../../controllers/planImprimir.php');
+		require_once($URLCom.'/controllers/planImprimir.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 		$resultado=$ficheroCompleto;
 				

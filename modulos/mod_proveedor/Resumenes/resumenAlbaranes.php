@@ -5,7 +5,7 @@
         include_once './../../../inicial.php';
         include_once $URLCom.'/head.php';
         include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
-        include_once $URLCom.'controllers/Controladores.php';
+        include_once $URLCom.'/controllers/Controladores.php';
         include_once ($URLCom.'/controllers/parametros.php');
         $ClasesParametros = new ClaseParametros('../parametros.xml');  
         include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
@@ -75,8 +75,8 @@
 	<body>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
 	<?php
-        include './../../../header.php';
-       
+        //~ include $URLCom.'/header.php';
+       include_once $URLCom.'/modulos/mod_menu/menu.php';
 				
 				if (isset($errores)){
 				foreach($errores as $error){
