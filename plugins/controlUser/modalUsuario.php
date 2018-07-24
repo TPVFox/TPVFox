@@ -19,12 +19,14 @@
 		<html>
 			<head>
 			<?php
+            include_once './../../inicial.php';
 			include './../../head.php';
 			?>
 			</head>
 			<body>
 			<?php
-			include '../../header.php';
+			//~ include '../../header.php';
+            include_once $URLCom.'/modulos/mod_menu/menu.php';
 	} else {
 	?>
 		<meta name="language" content="es">
@@ -36,7 +38,8 @@
 		</head>
 		<body>
 	<?php
-		include $URLCom.'/header.php';
+		//~ include $URLCom.'/header.php';
+         include_once $URLCom.'/modulos/mod_menu/menu.php';
 	}
 		
 	
