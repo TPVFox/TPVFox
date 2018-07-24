@@ -218,6 +218,7 @@ function htmlTablaIncidencias($incidenciasUsuario){
     
 }
 function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
+    //OBjetivo: Mostrar los inputs con los permisos anidados
     $permisos=array();
     $modulo="";
     $vista="";
@@ -227,12 +228,12 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
     $checked="";
     $i=0;
     $bloquear="";
-    if($admin == 0){
+    if($admin == 0){ //Si no es administrador tiene los inputs bloqueados
         $bloquear='readonly="readonly" disabled';
     }
    if(count($permisosUsuario)>0){
-        foreach ($permisosUsuario as $permiso){
-            if($permiso['permiso']==1){
+        foreach ($permisosUsuario as $permiso){ //Recorremos todos los permisos
+            if($permiso['permiso']==1){ //Si el permiso es 1 es input está marcado
                 $checked="checked";
             }else{
                  $checked="";
@@ -240,6 +241,7 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
            
             if($modulo<>$permiso['modulo']){
                 $modulo=$permiso['modulo'];
+                //De todos vamos obteniendo la descripción del acces
                 $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['modulo'], $permiso);
                 $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$descripcion.'</b><br>';
             }else{
