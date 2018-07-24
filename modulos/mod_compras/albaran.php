@@ -179,7 +179,7 @@
 	
 		
         if(isset($numFactura)){
-				$titulo .= $textoNum.' : '.$estado." ".$idAlbaran;
+				$titulo .= $textoNum.' : '.$estado." ".$numFactura['idFactura'];
         }else{
             $titulo .= $textoNum.' : '.$estado;
         }
