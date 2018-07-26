@@ -8,6 +8,8 @@ class ClasePermisos{
     public $RutaServidor;//Ruta del servidor
     public $HostNombre;//Nombre del host
     public $RutaModulos;//Rura de los modulos
+    public $RutaPlugin;//Ruta del plugin
+    public $plugins=array();//Array con los plugins que tiene el proyecto
     
     public function __construct($Usuario, $conexion)
 	{   
@@ -16,8 +18,13 @@ class ClasePermisos{
         $this->permisos=$this->getPermisosUsuario($Usuario);
         $this->obtenerRutaProyecto();
         $this->ObtenerDir();
+        //~ $this->ObtenerPlugins();
+        //~ $this->getRutaPlugin();
+        
     }
-    
+    //~ public function getRutaPlugin(){
+        //~ $this->RutaPlugin='/plugins';
+    //~ }
     public function getPermisosUsuario($Usuario){
         // @ Objetivo:
         // Obtener array con los permisos de un usuario.
@@ -57,6 +64,28 @@ class ClasePermisos{
                
                 $this->insertarPermisos($xml);//Cuando esté el xml listo insertamos los permisos
             }
+            if (file_exists($this->RutaPlugin.'/'.$modulo)){
+                //~ error_log($this->RutaPlugin.'/'.$modulo);
+               $this->ObtenerPlugins($modulo);
+                //~ var_dump($this->plugins);
+                foreach ($this->plugins as $plugin){
+                     if(is_file($this->RutaPlugin.'/'.$modulo.'/'.$plugin.'/acces.xml')){
+                        $xml=simplexml_load_file($this->RutaPlugin.'/'.$modulo.'/'.$plugin.'/acces.xml');//lo cargamos
+                   
+                         if(isset($this->usuario['group_id'])){
+                                if($this->usuario['group_id']==9){//Si el usuario es del grupo 9 moficamos el xml para que todos los permisos 
+                                                            //sean 1
+                                $xml=$this->ModificarPermisos($xml);
+                                }
+                        }
+               
+                        $this->insertarPermisos($xml);//Cuando esté el xml listo insertamos los permisos
+                    }
+                }
+                
+            }
+          
+           
         }
         return $xml;
         
@@ -123,6 +152,7 @@ class ClasePermisos{
 		$RutaProyectoCompleta 	= str_replace('clases','', __DIR__);
 		$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
         $this->RutaModulos=$this->RutaServidor.$this->HostNombre.'modulos';
+        $this->RutaPlugin=$this->RutaServidor.$this->HostNombre.'plugins';
 		
 	}
     public function ObtenerDir(){
@@ -141,7 +171,25 @@ class ClasePermisos{
 		}
         $this->modulos=$respuesta;
 	}
-    
+    public function ObtenerPlugins($modulo){
+        $respuesta = array();
+		$scans = scandir($this->RutaPlugin.'/'.$modulo.'/');
+      
+        foreach ( $scans as $scan){
+			$ruta_completa = $this->RutaPlugin.'/'.$modulo.'/'.$scan;
+            //~ error_log($ruta_completa);
+			if (filetype($ruta_completa) === 'dir'){
+				if (($scan === '.') || ($scan === '..')){ 
+					// Descartamos los directorios . y ..
+				} else {	
+					$respuesta[] =$scan;
+                      
+				}
+			}
+		}
+        $this->plugins=$respuesta;
+        //~ var_dump($this->plugins);
+    }
     public function comprobarPermisos($nivel, $permisos){
         //Objetico: comprobar permisos para el menú superior de la aplicación 
         //Comprobamos el permiso del usuario con el permiso del xml del menu
