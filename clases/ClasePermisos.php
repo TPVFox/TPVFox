@@ -34,7 +34,7 @@ class ClasePermisos{
         $respuesta=array();
         $BDTpv = $this->BDTpv;
         $this->usuario=$Usuario;
-         $this->InicializarPermisosUsuario();
+        $this->InicializarPermisosUsuario();
         $sql='SELECT * from permisos where idUsuario='.$Usuario['id'].' ORDER BY modulo , vista, accion asc ';
         $res = $BDTpv->query($sql);
         $resultadoPrincipal=array();
@@ -273,6 +273,27 @@ class ClasePermisos{
                          foreach ($doc as $accion){
                              if($accion['nombre']==$nombre){
                                  $descripcion=$accion['descripcion'];
+                             }else{
+                                 $this->ObtenerPlugins($permiso['modulo']);
+                                 foreach ($this->plugins as $plugin){
+                                      if(is_file($this->RutaPlugin.'/'.$permiso['modulo'].'/'.$plugin.'/acces.xml')){
+                                           $xml=simplexml_load_file($this->RutaPlugin.'/'.$permiso['modulo'].'/'.$plugin.'/acces.xml');
+                                           foreach ($xml as $doc){
+                                                if($doc['nombre']==$nombre){
+                                                    $descripcion=$doc['descripcion'];
+                                                    break;
+                                                }else{
+                                                     foreach ($doc as $accion){
+                                                         if($accion['nombre']==$nombre){
+                                                                $descripcion=$accion['descripcion'];
+                                                                break;
+                                                            }
+                                                     }
+                                                }
+                                           }
+                                      }
+                                 }
+                                
                              }
                          }
                      }
