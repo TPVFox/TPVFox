@@ -173,8 +173,8 @@ class ClasePermisos{
 	}
     public function ObtenerPlugins($modulo){
         $respuesta = array();
-		$scans = scandir($this->RutaPlugin.'/'.$modulo.'/');
-      
+        if(file_exists($this->RutaPlugin.'/'.$modulo)){
+		$scans = scandir($this->RutaPlugin.'/'.$modulo);
         foreach ( $scans as $scan){
 			$ruta_completa = $this->RutaPlugin.'/'.$modulo.'/'.$scan;
             //~ error_log($ruta_completa);
@@ -188,6 +188,7 @@ class ClasePermisos{
 			}
 		}
         $this->plugins=$respuesta;
+    }
         //~ var_dump($this->plugins);
     }
     public function comprobarPermisos($nivel, $permisos){
@@ -274,6 +275,7 @@ class ClasePermisos{
                              if($accion['nombre']==$nombre){
                                  $descripcion=$accion['descripcion'];
                              }else{
+                                 
                                  $this->ObtenerPlugins($permiso['modulo']);
                                  foreach ($this->plugins as $plugin){
                                       if(is_file($this->RutaPlugin.'/'.$permiso['modulo'].'/'.$plugin.'/acces.xml')){
@@ -293,6 +295,7 @@ class ClasePermisos{
                                            }
                                       }
                                  }
+                             
                                 
                              }
                          }

@@ -77,6 +77,9 @@
                 if($ClasePermisos->getAccion("permiso")==1){
                     $admin=1;
                 }
+                //~ echo '<pre>';
+                //~ print_r($permisosUsuario);
+                //~ echo '</pre>';
                 $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos);
                
 			}
