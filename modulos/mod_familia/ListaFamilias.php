@@ -61,10 +61,20 @@ $familias = new ClaseFamilias($BDTpv);
                         <h4> Familias</h4>
                         <h5> Opciones para una selección</h5>
                         <ul class="nav nav-pills nav-stacked"> 
+                              <?php
+                          if($ClasePermisos->getAccion("crear")==1){
+                                ?>
                             <li><button class="btn btn-link" id="botonnuevo-hijo-0"
                                         data-alabuelo="0">Añadir</button></li>
+                                        <?php 
+                            }
+                        if($ClasePermisos->getAccion("modificar")==1){
+                                        ?>
                             <li><button class="btn btn-link" id="boton-cambiarpadre"
                                         data-alabuelo="0">Modificar</button></li>
+                        <?php 
+                        }
+                        ?>
                         </ul>
                     </div>
                     <div id="menuseleccion" class="nav" style="display: none">
