@@ -185,7 +185,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $htmlIvas;	
     }
 
-    public function htmlDatosProductoSeleccionado($idProducto){
+    public function htmlDatosProductoSeleccionado($idProducto, $permiso){
         //@Objetivo
         // Mostrar el html de los datos de los productos de la web
         //@Parametros
@@ -208,12 +208,14 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
         <h2 class="text-center">Datos Producto Web</h2>
         <div class="col-md-6">
-                '
-        .'      <div class="col-md-12">'
+                ';
+        if($permiso==1){
+        $html   .='      <div class="col-md-12">'
         .'          <input class="btn btn-primary" type="button" 
                         value="Modificar en Web" id="botonWeb" name="modifWeb" onclick="modificarProductoWeb()">'
-        .'      </div>'
-        .'      <div class="col-md-12" id="alertasWeb">'
+        .'      </div>';
+    }
+        $html   .='      <div class="col-md-12" id="alertasWeb">'
         .'      </div>'
         .'      <div class="col-md-12">'
         .'          <div class="col-md-7">'
@@ -362,7 +364,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $resultado;
        
     }
-    public function htmlDatosVacios($idProducto, $idTienda){
+    public function htmlDatosVacios($idProducto, $idTienda, $permiso){
         $respuesta=array();
         $HostNombre = $this->HostNombre;
         $datosProductoVirtual=$this->ObtenerDatosDeProducto(0);
@@ -372,13 +374,15 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
         <h2 class="text-center">Datos Producto Web</h2>
         <div class="col-md-6">
-                '
-        .'      <div class="col-md-12">'
+                ';
+        if($permiso==1){
+        $html   .=' <div class="col-md-12">'
         .'          <input class="btn btn-primary" id="botonWeb" type="button" 
                         value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">'
         .'          <a onclick="ObtenerDatosProducto()">Obtener datos producto</a>'
-        .'      </div>'
-        .'      <div class="col-md-12" id="alertasWeb">'
+        .'      </div>';
+        }
+        $html   .='<div class="col-md-12" id="alertasWeb">'
         .'      </div>'
         .'      <div class="col-md-12">'
         .'          <div class="col-md-7">'
@@ -499,7 +503,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
             }
    }
    
-    public function datosTiendaWeb($idVirtuemart,  $ivaProducto){
+    public function datosTiendaWeb($idVirtuemart,  $ivaProducto, $permiso){
         // Objetivo
         // Es obtener los datos necesarios del producto web.
         
@@ -507,7 +511,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
        $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
        $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
        $respuesta['htmlnotificaciones']=$htmlnotificaciones;
-       $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart);
+       $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart, $permiso);
        $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $respuesta['datosProductoWeb']['datosWeb']['iva']);
        return $respuesta;
     }

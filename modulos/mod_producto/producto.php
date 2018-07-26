@@ -109,7 +109,7 @@
 			$OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
 			if ($idVirtuemart>0 ){ 
 			// Obtengo se conecta a la web y obtiene los datos de producto cruzado.
-				$datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva']);
+				$datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva'], $ClasePermisos->getAccion("VerProductoWeb"));
 				// Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
 				if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
 					$Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
@@ -118,7 +118,7 @@
 				if($id>0){
 					if($ObjVirtuemart->getTiendaWeb()!=false){
 						$tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-						$datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $tiendaWeb['idTienda']);
+						$datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $tiendaWeb['idTienda'], $ClasePermisos->getAccion("VerProductoWeb"));
 					}
 				}
 				 
@@ -336,6 +336,7 @@
 			</div>
             </form>
             <?php 
+             if($ClasePermisos->getAccion("VerProductoWeb")==1){
                         if(isset($datosWebCompletos['datosProductoWeb']['html'])){
                                echo $datosWebCompletos['datosProductoWeb']['html']; 
                         }
@@ -354,7 +355,7 @@
                                             echo $datosWebCompletos['htmlLinkVirtuemart'];
                                     }
                                     
-                                    
+            }
                                      ?>
                                 </div>
                          </div>
