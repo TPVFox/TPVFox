@@ -14,13 +14,7 @@ $(function () {
         event.stopPropagation();
         event.preventDefault();
 
-        var data = $(event.currentTarget).data();
-        $('#selectFamiliaPadre').html('<option value="0" '
-                + ' selected="selected" > Familia Raíz </option>');
-        $('#familiaPadre').val(data.alpadre);
-        $('#inputNombreModal').val('');
-        $('#familiasModal').modal('show');
-        $('#inputNombreModal').focus();
+        window.location.href='familia.php?id=0';
     });
 
     $("#boton-cambiarpadre").on("click", function (event) {

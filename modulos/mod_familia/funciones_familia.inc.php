@@ -17,7 +17,7 @@ function familias2Html($familias) {
             $resultado .= '<td> <input type="checkbox" class="form-check-input"'
                     . ' name="checkFamilia" id="check' . $familia['idFamilia'] . '"> </td>';
             $resultado .= '<td>' . $familia['idFamilia'] . '</td>';
-            $resultado .= '<td>' . $familia['familiaNombre'] . '(' . $familia['hijos'] . ')' . '</td>';
+            $resultado .= '<td> <button type="button" class="btn btn-link" onclick="window.location.href=\'familia.php?id='.$familia['idFamilia'].'\'">' . $familia['familiaNombre'] . '</button> (' . $familia['hijos'] . ')' . '</td>';
             $resultado .= $familia['familiaPadre'] == 0 ? '<td> </td>' : '<td> ' . $familia['familiaPadre'] . ' (' . $familia['nombrepadre'] . ')</td>';
             $resultado .= '<td>';
             $resultado .= '<button name="btn-nuevo" id="botonnuevo-hijo-' . $familia['idFamilia'].'" '

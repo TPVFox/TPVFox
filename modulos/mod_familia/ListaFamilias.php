@@ -79,7 +79,7 @@ $familias = new ClaseFamilias($BDTpv);
                     </div>
                     <div id="menuseleccion" class="nav" style="display: none">
                         <h5> Opciones para una selección</h5>
-                        <ul class="nav nav-pills nav-stacked"> 
+                        <ul> 
                             <li><button class="btn btn-link" id="boton-eliminarseccionados"
                                         data-alabuelo="0">Quitar seleccion todos</button></li>
                         </ul>
