@@ -14,7 +14,7 @@ $(function () {
         event.stopPropagation();
         event.preventDefault();
 
-        window.location.href='familia.php?id=0';
+        window.location.href = 'familia.php?id=0';
     });
 
     $("#boton-cambiarpadre").on("click", function (event) {
@@ -212,17 +212,27 @@ function capturaevento_click(botones) {
             event.stopPropagation();
             event.preventDefault();
 
-            var data = $(event.currentTarget).data();
-            $('#selectFamiliaPadre').html('<option value="' + data.alpadre
-                    + '" selected="selected" >' + data.altexto + '</option>');
-            $('#familiaPadre').val(data.alpadre);
-            $('#inputNombreModal').val('');
 
-            $('#familiasModal').modal('show');
-            $('#inputNombreModal').focus();
+
+            var data = $(event.currentTarget).data();
+
+            var parametros = {
+                pulsado: 'descendientes',
+                idfamilia: data.alpadre
+            };
+
+            ajaxCall(parametros, function (respuesta) {
+                var obj = JSON.parse(respuesta);
+                var datos = obj.datos;
+                var tabla = obj.html;
+                console.log(obj);
+            }
+            );
+
         });
     }
 }
+;
 
 function leerFamilias(idpadre, callback) {
     var parametros = {
@@ -282,6 +292,19 @@ function grabarPadres(datos, callback) {
         idpadre: datos.idpadre,
         idsfamilia: datos.idsfamilia
     };
+
+    $.ajax({
+        data: parametros,
+        url: './tareasfamilias.php',
+        type: 'post',
+        success: callback,
+        error: function (request, textStatus, error) {
+            console.log(textStatus);
+        }
+    });
+}
+
+function ajaxCall(parametros, callback) {
 
     $.ajax({
         data: parametros,

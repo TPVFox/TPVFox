@@ -76,13 +76,14 @@ switch ($pulsado) {
         $idpadre = $_POST['idpadre'];
         $resultado = [];
         $resultado['padre'] = $idpadre;
+            $objfamilia = new ClaseFamilias($BDTpv);
         if ($idpadre >= 0) {
-            $familias = (new ClaseFamilias($BDTpv))->leerUnPadre($idpadre);
+        $familias = $objfamilia->leerUnPadre($idpadre);
         } else {
             $familias['datos'] = [];
         }
         $resultado['datos'] = $familias['datos'];
-        $resultado['html'] = familias2Html($familias['datos']);
+        $resultado['html'] = familias2Html($objfamilia, $familias['datos']);
         echo json_encode($resultado);
         break;
 
@@ -127,7 +128,13 @@ switch ($pulsado) {
         $familia = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
         echo json_encode($familia);
         break;
-
+    
+    case 'descendientes':
+        $idfamilia = $_POST['idfamilia'];
+        $familia = new ClaseFamilias($BDTpv);
+        $resultado = $familia->familiasSinDescendientes($idfamilia);
+        echo json_encode($resultado);
+        break;
 }
 
 

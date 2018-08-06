@@ -18,6 +18,25 @@ class ClaseFamilias extends Modelo {
 
     protected $tabla = 'familias';
 
+    private function buscardescendientes($idfamilia) {
+        $resultado = [];
+        $descendientes = $this->descendientes($idfamilia);
+        if (count($descendientes['datos']) > 0) {
+            foreach ($descendientes['datos'] as $descendiente) {
+                $nuevo = $descendiente['idFamilia'];
+                $resultado[] = $nuevo;
+                $nuevos = $this->buscardescendientes($nuevo);
+//            if ($nuevos ) {
+                foreach ($nuevos as $valor) {
+                    $resultado[] = $valor;
+                }
+//            }
+            }
+        }
+//        return implode(', ',$resultado). count($nuevos>0)? implode(', ',$nuevos):'';
+        return $resultado;
+    }
+
     protected function cuentaHijos($padres) {
         $nuestros = $padres;
         $sql = 'SELECT count(idFamilia) as contador '
@@ -73,27 +92,71 @@ class ClaseFamilias extends Modelo {
 
         return $datos;
     }
-    public function todoslosPadres(){
+
+    public function todoslosPadres($orden = '', $addRoot = false) {
         $sql = 'SELECT idFamilia, familiaNombre FROM familias';
+        if ($orden) {
+            $sql .= ' ORDER BY ' . $orden;
+        }
         $resultado = $this->consulta($sql);
+        if ($resultado['datos']) {
+            if ($addRoot) {
+                array_unshift($resultado['datos'], ['idFamilia' => 0, 'familiaNombre' => 'Raíz: la madre de todas las familias']);
+            }
+        }
+
         return $resultado;
     }
-    public function guardarProductoFamilia($idProducto, $idFamilia){
-        $sql='INSERT INTO `articulosFamilias`(`idArticulo`, `idFamilia`) VALUES ('.$idProducto.', '.$idFamilia.') ';
-        $consulta=$this->consultaDML($sql);
-		if(isset($consulta['error'])){
-			return $consulta;
-		}
+
+    public function guardarProductoFamilia($idProducto, $idFamilia) {
+        $sql = 'INSERT INTO `articulosFamilias`(`idArticulo`, `idFamilia`) VALUES (' . $idProducto . ', ' . $idFamilia . ') ';
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
     }
-    public function buscarPorId($idFamilia){
-        $sql='select familiaNombre from familias where idFamilia='.$idFamilia;
-        $resultado = $this->consulta($sql);
-        return $resultado;
-    }
-    public function comprobarRegistro($idProducto, $idFamilia){
-        $sql='select idArticulo, idFamilia from articulosFamilias where idFamilia='.$idFamilia.' and idArticulo='.$idProducto;
+
+    public function buscarPorId($idFamilia) {
+        $sql = 'select familiaNombre from familias where idFamilia=' . $idFamilia;
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
+    public function comprobarRegistro($idProducto, $idFamilia) {
+        $sql = 'select idArticulo, idFamilia from articulosFamilias where idFamilia=' . $idFamilia . ' and idArticulo=' . $idProducto;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
+
+    public function descendientes($idfamilia) {
+        $ascendientes = ($idfamilia);
+        $sql = 'SELECT idFamilia FROM familias where familiaPadre = ' . $idfamilia;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
+
+    public function familiasSinDescendientes($idfamilia, $addRoot = false) {
+        $resultado = $this->buscardescendientes($idfamilia);
+        $resultado[] = $idfamilia;
+        $descendientes = implode(',', $resultado);
+        $sql = 'SELECT idFamilia, familiaNombre FROM familias WHERE idfamilia not IN (' . $descendientes . ')';
+        $resultado = $this->consulta($sql);
+
+        if ($resultado['datos']) {
+            if ($addRoot) {
+                array_unshift($resultado['datos'], ['idFamilia' => 0, 'familiaNombre' => 'Raíz: la madre de todas las familias']);
+            }
+        }
+        return $resultado;
+    }
+
+    public function contarProductos($idfamilia){
+        $sql = 'SELECT count(idArticulo) AS contador FROM articulosFamilias where idFamilia=' . $idfamilia; 
+        $resultado = $this->consulta($sql);
+        if($resultado['datos']){
+            $resultado = $resultado['datos'][0]['contador'];
+        }
+        return $resultado;
+    }
+    
 }

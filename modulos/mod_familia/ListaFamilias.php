@@ -97,6 +97,7 @@ $familias = new ClaseFamilias($BDTpv);
                                     <th>Nombre</th>
                                     <th >padre</th>
                                     <th></th>
+                                    <th>Productos</th>
                                 </tr>
                             </thead>
                             <tbody id="seccion-0" >

@@ -7,7 +7,7 @@
  * @Descripción	
  */
 
-function familias2Html($familias) {
+function familias2Html($objfamilia, $familias) {
     $resultado = '';
     if (count($familias) > 0) {
         $indices = [];
@@ -17,15 +17,10 @@ function familias2Html($familias) {
             $resultado .= '<td> <input type="checkbox" class="form-check-input"'
                     . ' name="checkFamilia" id="check' . $familia['idFamilia'] . '"> </td>';
             $resultado .= '<td>' . $familia['idFamilia'] . '</td>';
-            $resultado .= '<td> <button type="button" class="btn btn-link" onclick="window.location.href=\'familia.php?id='.$familia['idFamilia'].'\'">' . $familia['familiaNombre'] . '</button> (' . $familia['hijos'] . ')' . '</td>';
+            $resultado .= '<td> <button type="button" class="btn btn-link" onclick="window.location.href=\'familia.php?id=' . $familia['idFamilia'] . '\'">' . $familia['familiaNombre'] . '</button> </td>';
             $resultado .= $familia['familiaPadre'] == 0 ? '<td> </td>' : '<td> ' . $familia['familiaPadre'] . ' (' . $familia['nombrepadre'] . ')</td>';
             $resultado .= '<td>';
-            $resultado .= '<button name="btn-nuevo" id="botonnuevo-hijo-' . $familia['idFamilia'].'" '
-                        . ' data-alpadre="' . $familia['idFamilia'].'"'
-                        . ' data-alabuelo="' . $familia['familiaPadre'].'"'
-                        . ' data-altexto ="' . $familia['familiaNombre'].'"'
-                        . ' class="btn btn-secundary btn-sm">'
-                        . '<span class="glyphicon glyphicon-plus"></span> Hijos</button> ';
+            $resultado .= $familia['hijos'] . ' Hijos ';
             if ($familia['hijos'] > 0) {
                 $resultado .= '<button name="btn-expandir" id="botonexpandir-' . $familia['idFamilia']
                         . '" data-alseccion="' . $familia['idFamilia']
@@ -37,13 +32,16 @@ function familias2Html($familias) {
                         . '<span class="glyphicon glyphicon-minus"></span> compactar </button> ';
             }
             $resultado .= '</td>';
+            $resultado .= '<td>'. $objfamilia->contarProductos($familia['idFamilia']).' productos </td>';
+            
             $resultado .= '</tr>';
             $resultado .= '<tr id="fila-' . $familia['idFamilia'] . '" style="display:none"><td colspan=5><table class="table table-bordered table-hover table-striped"><tbody id="seccion-' . $familia['idFamilia'] . '"  > </tbody></table></td></tr>';
         }
-        $indices_str = implode(", ",$indices);
+        $indices_str = implode(", ", $indices);
         $resultado .= '<script language="javascript">' .
-                'capturaevento_click(['.$indices_str.']);' .
+                'capturaevento_click([' . $indices_str . ']);' .
                 '</script>';
     }
     return $resultado;
 }
+
