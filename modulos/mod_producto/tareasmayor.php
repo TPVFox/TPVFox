@@ -106,8 +106,9 @@ switch ($pulsado) {
                     $sqldata['datos'][$indice]['stock'] = $sumastock;
                 }
                 $sumas = compact('stockinicial', 'totalEntrada', 'totalSalida', 'sumastock');
+                $empresa = $Tienda['idTienda'].$Tienda['razonsocial'];
                 $cabecera = cabeceramayor2html(['titulo' => 'Mayor productos'
-                    , 'empresa' => '01 Alimentaria Longueicap 2018'
+                    , 'empresa' => $empresa
                     , 'condiciones' => 'Periódo: ' . $fechainicio . ' / ' . $fechafinal
                     , 'producto' => $nombreArticulo
                 ]);
