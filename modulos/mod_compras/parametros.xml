@@ -90,7 +90,7 @@
 		<caja_input>
 			<nombre id_input="idArticulo">cajaidArticulo</nombre>
 			<teclas>
-				<action tecla="13">buscarProducto</action>
+				<action tecla="13">AccionBuscarProductos</action>
 				<action tecla="39">Saltar_Referencia</action>
 				<action tecla="38">Saltar_idProveedor</action>
 				<action tecla=" 9">Saltar_Referencia</action>
@@ -124,7 +124,7 @@
 			<teclas>
 				<action tecla="40">mover_down</action>
 				<action tecla="38">mover_up</action>
-				<action tecla="13">addRefProveedor</action>
+				<action tecla="13">AccionAddProveedorProducto</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -141,8 +141,7 @@
 		<caja_input>
 			<nombre id_input="Referencia">cajaReferencia</nombre>
 			<teclas>
-				<action tecla="13">buscarProducto</action>
-				<action tecla="38">Saltar_Proveedor</action>
+				<action tecla="13">AccionBuscarProductos</action>
 				<action tecla=" 9">Saltar_ReferenciaPro</action>
 				<action tecla="37">Saltar_idArticulo</action>
 				<action tecla="39">Saltar_ReferenciaPro</action>
@@ -156,8 +155,7 @@
 		<caja_input>
 			<nombre id_input="ReferenciaPro">cajaReferenciaPro</nombre>
 			<teclas>
-				<action tecla="13">buscarProducto</action>
-				<action tecla="38">Saltar_Proveedor</action>
+				<action tecla="13">AccionBuscarProductos</action>
 				<action tecla=" 9">Saltar_CodBarras</action>
 				<action tecla="37">Saltar_Referencia</action>
 				<action tecla="39">Saltar_CodBarras</action>
@@ -171,8 +169,7 @@
 		<caja_input>
 			<nombre id_input="Codbarras">cajaCodBarras</nombre>
 			<teclas>
-				<action tecla="13">buscarProducto</action>
-				<action tecla="38">Saltar_idProveedor</action>
+				<action tecla="13">AccionBuscarProductos</action>
 				<action tecla=" 9">Saltar_Descripcion</action>
 				<action tecla="37">Saltar_ReferenciaPro</action>
 				<action tecla="39">Saltar_Descripcion</action>
@@ -186,7 +183,7 @@
 		<caja_input>
 			<nombre id_input="Descripcion">cajaDescripcion</nombre>
 			<teclas>
-				<action tecla="13">buscarProducto</action>
+				<action tecla="13">AccionBuscarProductos</action>
 				<action tecla="38">Saltar_idProveedor</action>
 				<action tecla="37">Saltar_CodBarras</action>
 				<action tecla="40">saltar_productos</action>
@@ -216,16 +213,7 @@
 				<estado>Si</estado>
 			</before>
 		</caja_input>					
-		<caja_input>
-			<nombre id_input="inputCambioRef">inputCambioRef</nombre>
-			<teclas>
-				<action tecla="13">addRefProveedor</action>
-			</teclas>
-			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
-				<parametro nombre="campo"></parametro>
-			</parametros>
-		</caja_input>	
+
 		<caja_input>
 			<nombre id_input="numPedido">numPedido</nombre>
 			<teclas>
@@ -258,7 +246,7 @@
 		<caja_input>
 			<nombre id_input="cajaBusqueda">cajaBusquedaproductos</nombre>
 			<teclas>
-				<action tecla="13">buscarProducto</action>
+				<action tecla="13">AccionBuscarProductos</action>
 				<action tecla="40">mover_down</action>
 				<action tecla=" 9">mover_down</action>
 			</teclas>

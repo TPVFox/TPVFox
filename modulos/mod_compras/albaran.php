@@ -19,8 +19,6 @@
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
 	//Inicializar las variables
-	$Tienda = $_SESSION['tiendaTpv'];
-	$Usuario = $_SESSION['usuarioTpv'];
 	$dedonde="albaran";
 	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
@@ -29,7 +27,7 @@
 	$hora="";
 	$idAlbaranTemporal=0;
 	$idAlbaran=0;
-	$idProveedor=0;
+	$idProveedor="";
 	$suNumero="";
 	$nombreProveedor="";
 	$formaPago=0;
@@ -197,7 +195,7 @@
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = '<?php echo $fecha;?>';
 		cabecera['hora'] = '<?php echo $hora;?>';
-		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
+		cabecera['idProveedor'] =' <?php echo $idProveedor ;?>';
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
@@ -264,7 +262,6 @@
 
 <div class="container">
 	<?php
-	
 	if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'
@@ -272,71 +269,75 @@
 				. '</div>';
 		}
 	}
-	if($idProveedor==0){
-			$idProveedor="";
-	}
-	if($idAlbaran>0){
-		?>
-	<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idAlbaran ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
-		<?php
-	}
-	if($inciden>0){
-		?>
-		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_compras', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
-		<?php
-	}
 	?>
-	<?php 
-			
-			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<div class="col-md-12">
 				<div class="col-md-8" >
-						<a  href="./albaranesListado.php">Volver Atrás</a>
-						<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+                    <a href="./albaranesListado.php">Volver Atrás</a>
+                    <?php
+                    // Botones de incidencias.
+                    if($idAlbaran>0){
+                        echo '<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('."'".$dedonde
+                            ."'".' , configuracion, 0 ,'.$idAlbaran
+                            .');" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
+                    }
+                    if($inciden>0){
+                        echo ' <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas('
+                            .$idAlbaran." ,'mod_compras', 'albaran'"
+                            .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj"> ';
+                    }
+                    ?>
+                    
+					<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
 				</div>
-				<div class="col-md-4 " >
-						<input type="submit" class="pull-right btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
-						<?php
-					if ($idAlbaranTemporal>0){
-						?>
-						<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
-						<?php
-					}
-						?>
-					</div>
-				</div>
+				<div class="col-md-4 text-right" >
+                    <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+                    <select  title="Escoje casilla de salto" id="salto" name="salto">
+                        <option value="0">Seleccionar</option>
+                        <option value="1">Id Articulo</option>
+                        <option value="2">Referencia</option>
+                        <option value="3">Referencia Proveedor</option>
+                        <option value="4">Cod Barras</option>
+                        <option value="5">Descripción</option>
+                    </select>
+                    <input type="submit" class="btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
+                    <?php
+                if ($idAlbaranTemporal>0){
+                    ?>
+                    <input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
+                    <?php
+                }
+                    ?>
+                </div>
+            </div>
 <div class="row" >
-	<div class="col-md-8">
+	<div class="col-md-7">
 		<div class="col-md-12">
-				<div class="col-md-3">
+				<div class="col-md-4">
 					<strong>Fecha albarán:</strong><br>
 					<input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 					
 				</div>
-				<div class="col-md-3">
+				<div class="col-md-4">
 					<strong>Hora de entrega:</strong><br>
 					<input type="time" id="hora" value="<?php echo $hora;?>"  data-obj= "cajaHora" onkeydown="controlEventos(event)"  name="hora" size="5" max="24:00" min="00:00" pattern="[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}" placeholder='HH:MM' title=" Formato de entrada HH:MM">
 					
 				</div>
-				<div class="col-md-3">
-					<strong>Estado:</strong><br>
-					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
-				</div>
+
 			
-				<div class="col-md-3">
+				<div class="col-md-4">
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
 				</div>
 		</div>
 		<div class="col-md-12">
-			<div class="col-md-3">
+			<div class="col-md-4">
 				<strong>Su número:</strong><br>
 				<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-4">
 				<strong>Forma de pago:</strong><br>
 				<p id="formaspago">
 					<select name='formaVenci' id='formaVenci'>
@@ -349,21 +350,11 @@
 				</select>
 				</p>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-4">
 					<strong>Fecha vencimiento:</strong><br>
 					<input type="date" name="fechaVenci" id="fechaVenci" size="10"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="<?php echo $fechaVencimiento;?>"placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 			</div>
-			<div class="col-md-3">
-					<strong>Escoger casilla de salto:</strong><br>
-					<select id="salto" name="salto">
-						<option value="0">Seleccionar</option>
-						<option value="1">Id Articulo</option>
-						<option value="2">Referencia</option>
-						<option value="3">Referencia Proveedor</option>
-						<option value="4">Cod Barras</option>
-						<option value="5">Descripción</option>
-					</select>
-			</div>
+			
 		</div>
 		<div class="form-group">
 			<label>Proveedor:</label>
@@ -373,10 +364,9 @@
 			
 		</div>
 	</div>
-	<div class="col-md-4" >
+	<div class="col-md-5" >
 	<div>
 		<div>
-			<div style="margin-top:-20x;">
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
 			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
@@ -400,7 +390,6 @@
 				}
 				?>
 			</table>
-			</div>
 		</div>
 	</div>
 	</div>

@@ -154,37 +154,35 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
 	$resultado = array();
-	$resultado['html']=" ";
 	$resultado['encontrados'] = count($productos);
-	$resultado['html'] = "<script type='text/javascript'>
-					// Ahora debemos añadir parametro campo a objeto de cajaBusquedaProductos".
-						"cajaBusquedaproductos.parametros.campo.__defineSetter__ ="."'".$campoAbuscar."';
-						idN.parametros.campo.__defineSetter__ ="."'".$campoAbuscar."';
-						</script>";
-	$resultado['html'] .= '<label>Busqueda por '.$id_input.'</label>';
-	// Utilizo el metodo onkeydown ya que encuentro que onKeyup no funciona en igual con todas las teclas.
-	
-	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" 
-					data-obj="cajaBusquedaproductos" size="13" value="'
-					.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
+    $html = '';
+    //~ $resultado['html'] = " ";
+    $html = "<script type='text/javascript'>
+			// Ahora debemos añadir parametro campo a objeto de cajaBusquedaProductos".
+			"cajaBusquedaproductos.parametros.campo.__defineSetter__ ="."'".$campoAbuscar."';
+			idN.parametros.campo.__defineSetter__ ="."'".$campoAbuscar."';
+			</script>";
+	$html .= '<label>Busqueda por '.$id_input.'</label>'.
+            '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" 
+			data-obj="cajaBusquedaproductos" size="13" value="'
+			.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 	if (count($productos)>10){
-		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
+		$html .= '<span>10 productos de '.count($productos).'</span>';
 	}
 	if ($resultado['encontrados'] === 0){
 			// Hay que tener en cuenta tambien si la caja tiene datos ya que sino no es lo mismo.
 			if (strlen($busqueda) === 0 ) {
 				// Si no encontro resultados, entonces debemos porne una alert y incluso sonorá era guay...
-				$resultado['html'] .= '<div class="alert alert-info">';
-				$resultado['html'] .=' <strong>Buscar!</strong> Pon las palabras para buscar productos 
-										que consideres.</div>';
+				$html .= '<div class="alert alert-info">'.
+                        ' <strong>Buscar!</strong> Pon las palabras para buscar productos que consideres.</div>';
 			} else {
 				// Si no encontro resultados, entonces debemos porne una alert y incluso sonorá era guay...
-				$resultado['html'] .= '<div class="alert alert-warning">';
-				$resultado['html'] .=' <strong>Error!</strong> No se encontrado nada con esa busqueda.</div>';
+				$html .= '<div class="alert alert-warning">'.
+				$html .=' <strong>Error!</strong> No se encontrado nada con esa busqueda.</div>';
 			}
 	} else {
 	
-		$resultado['html'] .= '<table class="table table-striped"><thead><th></th></thead><tbody>';
+		$html .= '<table class="table table-striped"><thead><th></th></thead><tbody>';
 		$contad = 0;
 		foreach ($productos as $producto){
 			$datos = 	"'".$id_input."',".
@@ -193,26 +191,25 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
 						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
 						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal"  
-						onclick="escribirProductoSeleccionado('.$datos.');">';
-			
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.'" 
-									name="filaproducto" data-obj="idN" 	onkeydown="controlEventos(event)" type="image"  alt="">'
-								.'<span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+			$html .= '<tr id="Fila_'.$contad.'" class="FilaModal" '.
+                     ' onclick="escribirProductoSeleccionado('.$datos.');">'.
+                     '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.
+                     '" name="filaproducto" data-obj="idN" 	onkeydown="controlEventos(event)" '.
+                     ' type="image"  alt=""><span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			if ($id_input=="ReferenciaPro"){
-				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
+				$html .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
 			}else{
-				$resultado['html'] .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';	
+				$html .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';	
 			}		
-			$resultado['html'] .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
-			. '<td>'.$producto['ultimoCoste'].'</td>'
-			. '</tr>';
+			$html   .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
+                    . '<td>'.$producto['ultimoCoste'].'</td>'
+                    . '</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;
 			}
 		}
-		$resultado['html'] .='</tbody></table>';
+		$resultado['html'] =$html.'</tbody></table>';
 	}
 	$resultado['campo'] = $campoAbuscar;
 	return $resultado;		
