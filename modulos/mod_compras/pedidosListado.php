@@ -31,7 +31,6 @@
 	}
 	
 	$todoTemporal=array_reverse($todoTemporal);
-	$Tienda = $_SESSION['tiendaTpv'];
 		
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
@@ -76,8 +75,7 @@
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
-	//~ include $URLCom.'/header.php';
-     include_once $URLCom.'/modulos/mod_menu/menu.php';
+    include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'
@@ -91,132 +89,131 @@
 	
 	?>
 	
-		<div class="container">
-		<div class="row">
-			<div class="col-md-12 text-center">
-				<h2>Compras: Editar y Añadir pedidos </h2>
-			</div>
-			<nav class="col-sm-4">
-				<h4> Pedidos</h4> 
-				<h5> Opciones para una selección</h5>
-				<ul class="nav nav-pills nav-stacked"> 
-				<?php 
-					if ($Usuario['group_id'] > '0'){
-				?>
-					<li><a href="#section2" onclick="metodoClick('AgregarPedido');";>Añadir</a></li>
-					<?php 
-				}
-					?>
-					<li><a href="#section2" onclick="metodoClick('Ver','pedido');";>Modificar</a></li>
-				
-				</ul>
-				<div class="col-md-12">
-					<h4 class="text-center"> Pedidos Abiertos</h4>
-					<table class="table table-striped table-hover">
-						<thead>
-							<tr>
-								<th WIDTH="4" >Nº Temp</th>
-								<th WIDTH="4" >Nº Ped</th>
-								<th WIDTH="110" >Pro.</th>
-								<th WIDTH="4" >Total</th>
-							</tr>
-							
-						</thead>
-						<tbody>
-							<?php 
-							if (isset ($todoTemporal)){
-								foreach ($todoTemporal as $pedidoTemp){
-									if ($pedidoTemp['idPedpro']){
-										$numPed=$pedidoTemp['Numpedpro'];
-								}else{
-									$numPed="";
-								}
-								?>
-									<tr>
-									<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
-									<td><?php echo $numPed;?></td>
-									<td><?php echo $pedidoTemp['nombrecomercial'];?></td>
-									<td><?php echo number_format($pedidoTemp['total'],2);?></td>
-									</tr>
-									<?php
-								}
-							}
-							?>
-						</tbody>
-					</table>
-				</div>	
-			</nav>
-			<div class="col-md-8">
-					<p>
-					 -Pedidos encontrados BD local filtrados:
-						<?php echo $CantidadRegistros; ?>
-					</p>
-					<?php 	// Mostramos paginacion 
-						echo $htmlPG;
-				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
-					?>
-					<form action="./pedidosListado.php" method="GET" name="formBuscar">
-					<div class="form-group ClaseBuscar">
-						<label>Buscar por nombre de proveedor o número de pedido</label>
-						<input type="text" name="buscar" value="">
-						<input type="submit" value="buscar">
-					</div>
-				</form>
-						<div>
-			<table class="table table-bordered table-hover">
-				<thead>
-					<tr>
-						<th></th>
-						
-						<th>Nª PEDIDO</th>
-						<th>FECHA</th>
-						<th>PROVEEDOR</th>
-						<th>BASE</th>
-						<th>IVA</th>
-						<th>TOTAL</th>
-						<th>ESTADO</th>
-					<?php
-							$checkUser = 0;
-							
-							foreach($pedidosDef as $pedido){
-								$checkUser = $checkUser + 1;
-								$totaliva=$Cpedido->sumarIva($pedido['Numpedpro']);
-						?>
-						<tr>
-						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">
-						<td><?php echo $pedido['Numpedpro'];?></td>
-						<td><?php echo $pedido['FechaPedido'];?></td>
-						<td><?php echo $pedido['nombrecomercial'];?></td>
-						<td><?php echo $totaliva['totalbase'];?></td>
-						<td><?php echo $totaliva['importeIva'];?></td>
-						<td><?php echo $pedido['total'];?></td>
-						<?php 
-						if ($pedido['estado']=="Sin Guardar"){
-							?>
-							<td><?php echo $pedido['estado'];?></td>
-							<?php
-						}else{
-							?>
-						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $_SESSION['tiendaTpv']['idTienda'];?>)'></a></td>
-
-							
-							<?php
-						}
-						
-						?>
-						
-						
-						</tr>
-						<?php
-					
-				}
-					?>
-					</tr>
-				</thead>
-				</table>
-			</div>
-		</div>
-	</div>
+    <div class="container">
+        <div class="col-md-12 text-center">
+            <h2>Pedidos de proveedores </h2>
+        </div>
+        <nav class="col-sm-3">
+            <h4> Pedidos</h4> 
+            <h5> Opciones para una selección</h5>
+            <ul class="nav nav-pills nav-stacked"> 
+            <?php 
+                if ($Usuario['group_id'] > '0'){
+            ?>
+                <li><a href="#section2" onclick="metodoClick('AgregarPedido');";>Añadir</a></li>
+                <?php 
+            }
+                ?>
+                <li><a href="#section2" onclick="metodoClick('Ver','pedido');";>Modificar</a></li>
+            
+            </ul>
+            <div class="col-md-12">
+                <h4 class="text-center"> Pedidos Abiertos</h4>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nº Ped</th>
+                            <th>Pro.</th>
+                            <th>Total</th>
+                        </tr>
+                        
+                    </thead>
+                    <tbody>
+                        <?php 
+                        if (isset ($todoTemporal)){
+                            foreach ($todoTemporal as $pedidoTemp){
+                                if ($pedidoTemp['idPedpro']){
+                                    $numPed=$pedidoTemp['Numpedpro'];
+                            }else{
+                                $numPed="";
+                            }
+                            $url = 'pedido.php?tActual='.$pedidoTemp['id'];
+                            ?>
+                                <tr>
+                                 <tr style="cursor:pointer" onclick="redireccionA('<?php echo $url;?>')" title="Pedido con numero temporal: <?php echo $pedidoTemp['id'];?>">
+                                <td><?php echo $numPed;?></td>
+                                <td><?php echo $pedidoTemp['nombrecomercial'];?></td>
+                                <td><?php echo number_format($pedidoTemp['total'],2);?></td>
+                                </tr>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>	
+        </nav>
+        <div class="col-md-9">
+            <p>
+             -Pedidos encontrados BD local filtrados:
+                <?php echo $CantidadRegistros; ?>
+            </p>
+            <?php 	// Mostramos paginacion 
+            echo $htmlPG;
+            //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
+            ?>
+            <form action="./pedidosListado.php" method="GET" name="formBuscar">
+                <div class="form-group ClaseBuscar">
+                    <label>Buscar por nombre de proveedor o número de pedido</label>
+                    <input type="text" name="buscar" value="">
+                    <input type="submit" value="buscar">
+                </div>
+            </form>
+            <div>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        
+                        <th>Nª PEDIDO</th>
+                        <th>FECHA</th>
+                        <th>PROVEEDOR</th>
+                        <th>BASE</th>
+                        <th>IVA</th>
+                        <th>TOTAL</th>
+                        <th>ESTADO</th>
+                    </tr>
+                </thead>
+                <?php
+                $checkUser = 0;
+                foreach($pedidosDef as $pedido){
+                    $linkPedido= '';
+                    $checkUser ++;
+                    $totaliva=$Cpedido->sumarIva($pedido['Numpedpro']);
+                    ?>
+                    <tr>
+                        <td class="rowUsuario">
+                            <?php
+                            $check_name = 'checkUsu'.$checkUser;
+                            echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" value="'.$pedido['id'].'" class="check_pedido">';
+                            ?>
+                        </td>
+                        
+                        <td><?php echo $pedido['Numpedpro'];?></td>
+                        <td><?php echo $pedido['FechaPedido'];?></td>
+                        <td><?php echo $pedido['nombrecomercial'];?></td>
+                        <td><?php echo $totaliva['totalbase'];?></td>
+                        <td><?php echo $totaliva['importeIva'];?></td>
+                        <td><?php echo $pedido['total'];?></td>
+                        <?php 
+                        if ($pedido['estado']!=="Sin Guardar"){
+                            $linkPedido = ' <a class="glyphicon glyphicon-print" '.
+                                    "onclick='imprimir(".$pedido['id'].
+                                    ' , "pedido" , '.$Tienda['idTienda'].")'></a>";
+                            
+                        }
+                        ?>
+                        <td>
+                         <?php echo  $pedido['estado'].$linkPedido; ?>
+                        </td>
+                        
+                    </tr>
+                <?php
+                }
+                ?>
+            </table>
+            </div>
+        </div>
     </div>
-	</body>
+</body>
 </html>

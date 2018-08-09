@@ -259,8 +259,8 @@ function controladorAcciones(caja,accion, tecla){
 	}
 }
 function addCosteProveedor(idArticulo, valor, nfila, dedonde){
-	// @ Objetivo: Añadir o modificar el coste de un producto
-	// @ Parametros: 
+	// @Objetivo: Añadir o modificar el coste de un producto
+	// @Parametros: 
 	//      idArticulo: el id del articulo del producto
 	//      idProveedor: el id del proveedor
 	//      valor: valor nuevo 
@@ -276,11 +276,12 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 }
 
 function buscarAdjunto(dedonde, valor=""){
-	//@Objetivo: cada vez que vamos a adjuntar un pedido o un albaran a una factura o albaran ejecutamos esta función que 
-	//carga tanto los productos del adjunto como realiza la comprobación de si ya existe ....
-	//@parametros: 
-	//dedonde:desde donde estamos ejecutando la función
-	//valor: numero de pedido o albarán que vamos a adjuntar
+	//@Objetivo:
+    //  Cada vez que vamos a adjuntar un pedido/albarann a un albaran/factura ejecutamos esta función que 
+	//  carga tanto los productos del adjunto como realiza la comprobación de si ya existe ....
+	//@Parametros: 
+	//  dedonde:desde donde estamos ejecutando la función
+	//  valor: numero de pedido o albarán que vamos a adjuntar
 	console.log("Entre en buscarAdjunto");
 	
 	var parametros ={
@@ -448,12 +449,12 @@ function modificarEstado(dedonde, estado, id=""){
 }
 function addProveedorProducto(idArticulo, nfila, valor, coste, dedonde){
 	//@Objetivo: añadir una referencia a un proveedor articulo o cambiarla en caso de que exista
-	//@parametros;
-	//idArticulo: id del articulo
-	//nfila:Número de la fila
-	//valor: referencia que le vamos a poner 
-	//coste : coste de la referencia
-	//dedonde: de donde venimos di pedidos , albaranes o facturas
+	//@Parametros;
+	//  idArticulo: id del articulo
+	//  nfila:Número de la fila
+	//  valor: referencia que le vamos a poner 
+	//  coste : coste de la referencia
+	//  dedonde: de donde venimos di pedidos , albaranes o facturas
 	console.log("ESTOY EN LA FUNCION ADD PROVEEDOR PRODUCTO");
 	console.log(nfila);
 	var parametros = {
@@ -498,15 +499,15 @@ function metodoClick(pulsado,adonde){
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
 		case 'Ver':
-			console.log('Entro en Ver pedido');
+			console.log('Entro en Ver'+adonde);
 			// Cargamos variable global ar checkID = [];
-			VerIdSeleccionado ();
+			checkID = leerChecked('check_'+ adonde);
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
 			}
-			// Ahora redireccionamos 
-			window.location.href = './'+adonde+'.php?id='+checkID[0];
+			// Ahora Redirijo a  
+            window.location.href = './'+adonde+'.php?id='+$('#'+checkID[0]).val();
 			break;
 		case 'AgregarPedido':
 			console.log('entro en agregar producto');
@@ -519,27 +520,15 @@ function metodoClick(pulsado,adonde){
 		case 'AgregarFactura':
 			window.location.href = './factura.php';
 			break;
-		case 'NuevaBusquedaPedido':
-			// Obtenemos puesto en input de Buscar
-			Buscar();
-			// Ahora redireccionamos 
-			if (BPedido !== ''){
-				window.location.href = './'+adonde+'.php?buscar='+BPedido;
-			} else {
-				// volvemos sin mas..
-				return;
-			}
-			console.log('Resultado Buscar:'+BPedido);
-			break;
 		
 	 }
 } 
 function imprimir(id, dedonde, idTienda){
-	//~ @Objetivo: Imprimir el documento que se ha seleccionado
-	//~ @parametros: 
-		//~ id: id del documento
-		//~ dedonde: de donde es para poder filtrar
-		//~ idTienda : id de la tienda 
+	// @Objetivo: Imprimir el documento que se ha seleccionado
+	// @parametros: 
+		// id: id del documento
+		// dedonde: de donde es para poder filtrar
+		// idTienda : id de la tienda 
 	var parametros = {
 		"pulsado"    : 'datosImprimir',
 		"dedonde":dedonde,
@@ -563,14 +552,15 @@ function imprimir(id, dedonde, idTienda){
 		
 }
 function buscarProveedor(dedonde, idcaja, valor='', popup=''){
-	//~ @Objetivo: Buscar y comprobar que la busqueda de proveedor es correcta 
-	//~ @parametros: 
-	//~ dedonde->De donde venimos 
-	//~ idCaja->LAutilizamos en tareas para comprobaciones
-	//~ valor-> valor que vamos a buscar
-	// popup-> si viene de popup cerramos la ventana modal
+	// @Objetivo: Buscar y comprobar que la busqueda de proveedor es correcta 
+	// @parametros: 
+	//      dedonde -> De donde venimos 
+	//      idCaja  -> La utilizamos en tareas para comprobaciones
+	//      valor   -> valor que vamos a buscar
+	//      popup   -> si viene de popup cerramos la ventana modal
 	console.log('FUNCION buscarProveedores JS-AJAX');
-	var parametros = {
+    
+    var parametros = {
 		"pulsado"    : 'buscarProveedor',
 		"busqueda" : valor,
 		"dedonde":dedonde,
@@ -680,9 +670,9 @@ function comprobarAdjunto(dedonde){
 
 function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
 	//@Objetivo: 
-	// Buscar producto es una función que llamamos desde las distintas cajas de busquedas de los productos
-	//Entra en la función de tareas de buscar productos y le envia los parametros
-	//Esta función devuelve el número de busquedas
+	//  Buscar producto es una función que llamamos desde las distintas cajas de busquedas de los productos
+	//  Entra en la función de tareas de buscar productos y le envia los parametros
+	//  Esta función devuelve el número de busquedas
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo '+idcaja);
    	if (busqueda !== "" || idcaja === "Descripcion"){
         // Solo ejecutamos si hay datos de busqueda.
@@ -709,7 +699,7 @@ function buscarProductos (id_input,campo, idcaja, busqueda,dedonde){
                         alert("El elemento buscado no está relacionado con ningún producto");
                 }else{
                     if (resultado['Nitems']===1){
-                        // Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que ya están
+                        // Si recibe un solo resultado cargamos el objeto de productos y lo añadimos a los que hay
                         //Llamamos a la función de add pedido temporal y agregar la fila de producto
                         var datos = new Object();			
                         datos.ccodbar=resultado['datos'][0]['codBarras'];
@@ -1113,22 +1103,18 @@ function after_constructor(padre_caja,event){
 	// Traemos 
 	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
 	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
-	if (padre_caja.id_input.indexOf('N_') >-1){
-		padre_caja.id_input = event.originalTarget.id;
-	}
-	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
-		padre_caja.id_input = event.originalTarget.id;
-	}
-	if (padre_caja.id_input.indexOf('Fila_') >-1){
-		console.log("Entro en el after de fila");
-		padre_caja.id_input = event.originalTarget.id;
-	}
-	if (padre_caja.id_input.indexOf('Proveedor_Fila') >-1){
-		padre_caja.id_input = event.originalTarget.id;
-	}
-	if (padre_caja.id_input.indexOf('ultimo_coste') >-1){
-		padre_caja.id_input = event.originalTarget.id;
-	}
+    if (padre_caja.parametros.prefijo){
+        // Si tiene prefijo quiere decir que es una lista, obtenemos id.
+        var id = ObtenerIdString(padre_caja.parametros.prefijo,padre_caja.id_input);
+        if (id > -1){
+            padre_caja.id_input = event.originalTarget.id;
+        } else {
+            console.log('ERROR_After: No se encontro el prefijo:'+ padre_caja.parametros.prefijo );
+            console.log('en el id:'+padre_caja.id_input);
+        }
+    }
+    
+
 	return padre_caja;
 }
 function before_constructor(caja){
@@ -1136,6 +1122,16 @@ function before_constructor(caja){
 	//  Ejecutar procesos para obtener datos despues del construtor de caja.
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
+    if (caja.parametros.prefijo){
+        // Si tiene prefijo quiere decir que es una lista, obtenemos id.
+        var id = ObtenerIdString(caja.parametros.prefijo,caja.id_input);
+        if (id > -1){
+            caja.fila = id;
+        } else {
+            console.log('ERROR_Before: No se encontro el prefijo:'+ caja.parametros.prefijo );
+            console.log('en el id:'+caja.id_input);
+        }
+    }
 	if (caja.id_input ==='cajaBusqueda'){
 		if (caja.name_cja ==='Codbarras'){
 			caja.parametros.campo = cajaCodBarras.parametros.campo;
@@ -1147,36 +1143,14 @@ function before_constructor(caja){
 			caja.parametros.campo = cajaDescripcion.parametros.campo;
 		}
 	}
-	if (caja.id_input.indexOf('N_') >-1){
-		console.log(' Entro en Before de '+caja.id_input)
-		caja.fila = caja.id_input.slice(2);
-		console.log(caja.fila);
-	}
-	if (caja.id_input.indexOf('Fila_') >-1){
-		console.log(' Entro en Before de '+caja.id_input)
-		caja.fila = caja.id_input.slice(5);
-		console.log(caja.fila);
-	}
-	if (caja.id_input.indexOf('Unidad_Fila') >-1){
-		console.log("entro en unidad fila");
-		
-		caja.parametros.item_max = productos.length;
-		caja.fila = caja.id_input.slice(12);
-	}
-	if (caja.id_input.indexOf('Proveedor_Fila') >-1){
-		console.log("entro en Proveedor_Fila_");
-		console.log("entre aqui");
-		caja.parametros.item_max = productos.length;
-		caja.fila = caja.id_input.slice(15);
-		console.log(caja);
-	}
 	if (caja.id_input.indexOf('ultimo_coste') >-1){
 		console.log("entro en ultimo_coste_");
-		caja.fila = caja.id_input.slice(13);
+		//~ No entiendo muy bien porque hace esto.
 		caja.parametros.item_max = productos.length;
 		
 	}
-	
+
+	console.log('Return caja');
 	return caja;	
 }
 function buscarReferencia(idinput){
@@ -1450,30 +1424,30 @@ function ObtenerFocusDefectoEntradaLinea(){
     return d_focus;
 }
 function abrirIncidenciasAdjuntas(id, modulo, dedonde){
-		var parametros = {
-				"pulsado"    : 'abrirIncidenciasAdjuntas',
-				"id" : id,
-				"modulo"      : modulo,
-				"dedonde": dedonde
-			};
-			$.ajax({
-				data       : parametros,
-				url        : 'tareas.php',
-				type       : 'post',
-				beforeSend : function () {
-					console.log('*********  Entre en cancelar archivos temporales  ****************');
-				},
-				success    :  function (response) {
-					console.log('REspuesta de cancelar temporales');
-					var resultado =  $.parseJSON(response);
-					console.log(resultado);
-					if(resultado.error){
-						alert(resultado.consulta);
-					}else{
-						var titulo = 'Listado de incidencias ';
-						abrirModal(titulo,resultado.html);
-					}
-				}
-				
-			});
+    var parametros = {
+            "pulsado"    : 'abrirIncidenciasAdjuntas',
+            "id" : id,
+            "modulo"      : modulo,
+            "dedonde": dedonde
+        };
+    $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  Entre en cancelar archivos temporales  ****************');
+        },
+        success    :  function (response) {
+            console.log('REspuesta de cancelar temporales');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
+            if(resultado.error){
+                alert(resultado.consulta);
+            }else{
+                var titulo = 'Listado de incidencias ';
+                abrirModal(titulo,resultado.html);
+            }
+        }
+        
+    });
 }

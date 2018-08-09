@@ -120,7 +120,7 @@
 			</before>
 		</caja_input>
 		<caja_input>
-			<nombre id_input="Proveedor_Fila">Proveedor_Fila</nombre>
+			<nombre id_input="Proveedor_Fila_">Proveedor_Fila</nombre>
 			<teclas>
 				<action tecla="40">mover_down</action>
 				<action tecla="38">mover_up</action>
@@ -198,7 +198,7 @@
 			</parametros> 
 		</caja_input>	
 		<caja_input>
-			<nombre id_input="Unidad_Fila">Unidad_Fila</nombre>
+			<nombre id_input="Unidad_Fila_">Unidad_Fila</nombre>
 			<teclas>
 				<action tecla="13">recalcular_totalProducto</action>
 				<action tecla="40">mover_up</action>
@@ -237,7 +237,7 @@
 			</parametros>
 		</caja_input>	
 		<caja_input>
-			<nombre id_input="ultimo_coste">ultimo_coste</nombre>
+			<nombre id_input="ultimo_coste_">ultimo_coste</nombre>
 			<teclas>
 				<action tecla="13">buscarUltimoCoste</action>
 				<action tecla="40">mover_up</action>
