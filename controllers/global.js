@@ -45,13 +45,11 @@ function leerChecked(clase) {
     // @ Devuelve -> (array) Nombres completos de los ids que tiene marcado el check.
     
     var checks = [];
-    console.log('clase'+clase);
     $('.' + clase).each(function (indice) {
         indice++;
         //todos los que sean de la clase row1
         console.log($(this)[0]);
         if ($(this)[0].checked) {
-            console.log(indice);
             // cant cuenta los que está seleccionado.
             var id = $(this)[0].id;
             checks.push(id);
@@ -94,12 +92,18 @@ function ObtenerIdString(base,string){
     // Si devuelve id -1 es que no encontro la base.
     var id;
     if (string.indexOf(base) >-1){
-		console.log(' Encontro base');
 		id = string.slice(base.length);
-		console.log(id);
 	} else {
         // No encontro.
         id = -1;
     }
+    console.log('Estoy ObtenerIdString');
     return id
+}
+
+
+function redireccionA(url){
+    // @ Objetivo
+    // Redireccionar a la url indicada.
+    window.location.href = url;
 }
