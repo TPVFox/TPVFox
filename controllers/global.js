@@ -36,39 +36,70 @@ function VerIdSeleccionado (){
 // ¿Pero que coño hace un .js en la carpeta de controllers?
 //
 function leerChecked(clase) {
-    var checks = [];
+    // @ Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
+    // @ Objetivo
+    //  Obtener los id checks que tenemos seleccionados con la clase indicada,
+    //  esto implica que tenemos que poner la misma clase a todos los checks queremos controlar.
+    // @ Parametros:
+    //      clase -> (string) Nombre de la clase queremos buscar los ids de los checks seleccionados.
+    // @ Devuelve -> (array) Nombres completos de los ids que tiene marcado el check.
     
+    var checks = [];
+    console.log('clase'+clase);
     $('.' + clase).each(function (indice) {
         indice++;
         //todos los que sean de la clase row1
+        console.log($(this)[0]);
         if ($(this)[0].checked) {
+            console.log(indice);
             // cant cuenta los que está seleccionado.
             var id = $(this)[0].id;
             checks.push(id);
         }
 
     });
+   console.log('ID de checks seleccionados:'+checks);
+
     return checks;
 }
 
 function BarraProceso(lineaA,lineaF, idbar) {
-// Esta funcion debería ser una funcion comun , por lo que se debería cargar el javascript comun y ejecutar...
-// Script para generar la barra de proceso.
-// Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
-// que ya estan añadidas.
-// NOTA:
-// lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
-if (lineaA == 0 ) {
-lineaA = 1;
-}
-if (lineaF == 0) {
-alert( 'Linea Final es 0 ');
-return;
-}
-var progreso =  Math.round(( lineaA *100 )/lineaF);
-$('#bar'+idbar).css('width', progreso + '%');
-// Añadimos numero linea en resultado.
-document.getElementById("bar"+idbar).innerHTML = progreso + '%';  // Agrego nueva linea antes 
-return;
+    // Esta funcion debería ser una funcion comun , por lo que se debería cargar el javascript comun y ejecutar...
+    // Script para generar la barra de proceso.
+    // Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
+    // que ya estan añadidas.
+    // NOTA:
+    // lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
+    if (lineaA == 0 ) {
+    lineaA = 1;
+    }
+    if (lineaF == 0) {
+    alert( 'Linea Final es 0 ');
+    return;
+    }
+    var progreso =  Math.round(( lineaA *100 )/lineaF);
+    $('#bar'+idbar).css('width', progreso + '%');
+    // Añadimos numero linea en resultado.
+    document.getElementById("bar"+idbar).innerHTML = progreso + '%';  // Agrego nueva linea antes 
+    return;
 
+}
+
+function ObtenerIdString(base,string){
+    // @ Objetivo
+    //  Leer un string y obtener el id que contiene, es ideal para:
+    //      Ejemplo: ((base) row,string) row1
+    //          obtenemos objeto con :
+    //                  [id] = (int) 1
+    // Si devuelve id -1 es que no encontro la base.
+    var id;
+    if (string.indexOf(base) >-1){
+		console.log(' Encontro base');
+		id = string.slice(base.length);
+		console.log(id);
+	} else {
+        // No encontro.
+        id = -1;
+    }
+    return id
 }
