@@ -282,6 +282,7 @@ class ControladorComun
 	}
 	
 	function ObtenerCajasInputParametros($parametros){
+            if($parametros){
 		$VarJS = array();
 		foreach ($parametros->cajas_input->caja_input as $caja_input){
 			// Montamos acciones de teclas
@@ -330,6 +331,7 @@ class ControladorComun
 		$htmlVarJS = implode(' 
 								',$VarJS);
 		return $htmlVarJS;
+        }
 	}
 	
 	function GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion){

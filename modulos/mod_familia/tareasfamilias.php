@@ -4,7 +4,6 @@
  * @Copyright 2018, Alagoro Software. 
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripció
  */
 
 
@@ -15,11 +14,6 @@
  * Con el switch al final y variable $pulsado
  * 
  *
- * 
- * OPTIMIZADO DE CARALLO!!! : se instancian al inicio, 
- * objetos innecesarios para todas las opctiones del case
- * 
- * 
  *   
  */
 
@@ -67,23 +61,20 @@ include_once $URLCom.'/modulos/mod_familia/funciones_familia.inc.php';
 
 $pulsado = $_POST['pulsado'];
 
-
-
 switch ($pulsado) {
-
-
     case 'leerFamilias':
         $idpadre = $_POST['idpadre'];
-        $resultado = [];
-        $resultado['padre'] = $idpadre;
-            $objfamilia = new ClaseFamilias($BDTpv);
-        if ($idpadre >= 0) {
-        $familias = $objfamilia->leerUnPadre($idpadre);
-        } else {
-            $familias['datos'] = [];
-        }
-        $resultado['datos'] = $familias['datos'];
-        $resultado['html'] = familias2Html($objfamilia, $familias['datos']);
+        $resultado = leerFamilias($idpadre);        
+//        $resultado = [];
+//        $resultado['padre'] = $idpadre;
+//            $objfamilia = new ClaseFamilias($BDTpv);
+//        if ($idpadre >= 0) {
+//        $familias = $objfamilia->leerUnPadre($idpadre);
+//        } else {
+//            $familias['datos'] = [];
+//        }
+//        $resultado['datos'] = $familias['datos'];
+//        $resultado['html'] = familias2Html($objfamilia, $familias['datos']);
         echo json_encode($resultado);
         break;
 

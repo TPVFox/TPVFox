@@ -18,11 +18,11 @@ class ClaseFamilias extends Modelo {
 
     protected $tabla = 'familias';
 
-    private function buscardescendientes($idfamilia) {
+    public function buscardescendientes($idfamilia) {
         $resultado = [];
-        $descendientes = $this->descendientes($idfamilia);
-        if (count($descendientes['datos']) > 0) {
-            foreach ($descendientes['datos'] as $descendiente) {
+        $descs = $this->descendientes($idfamilia);
+        if (isset($descs['datos'])) {
+            foreach ($descs['datos'] as $descendiente) {
                 $nuevo = $descendiente['idFamilia'];
                 $resultado[] = $nuevo;
                 $nuevos = $this->buscardescendientes($nuevo);
@@ -37,7 +37,7 @@ class ClaseFamilias extends Modelo {
         return $resultado;
     }
 
-    protected function cuentaHijos($padres) {
+    public function cuentaHijos($padres) {        
         $nuestros = $padres;
         $sql = 'SELECT count(idFamilia) as contador '
                 . ' FROM familias as FAM '
@@ -45,6 +45,17 @@ class ClaseFamilias extends Modelo {
         foreach ($padres as $indice => $padre) {
             $resultado = $this->consulta($sql . $padre['idFamilia']);
             $nuestros[$indice]['hijos'] = $resultado['datos'][0]['contador'];
+        }
+        return $nuestros;
+    }
+
+    public function cuentaProductos($padres) {
+        $nuestros = $padres;
+        $sql = 'SELECT count(idArticulo) AS contador '
+                . 'FROM articulosFamilias where idFamilia='; 
+        foreach ($padres as $indice => $padre) {
+            $resultado = $this->consulta($sql . $padre['idFamilia']);
+            $nuestros[$indice]['productos'] = $resultado['datos'][0]['contador'];
         }
 
         return $nuestros;
@@ -67,7 +78,7 @@ class ClaseFamilias extends Modelo {
                 . ' WHERE FAM.familiaPadre =' . $idpadre
                 . ' ORDER BY FAM.familiaNombre';
         $resultado = $this->consulta($sql);
-        $resultado['datos'] = $this->cuentaHijos($resultado['datos']);
+//        $resultado['datos'] = $this->cuentaHijos($resultado['datos']);
         return $resultado;
     }
 

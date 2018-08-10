@@ -6,8 +6,33 @@
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
  * @Descripción	
  */
+include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
+include_once $URLCom . '/modulos/mod_producto/clases/ClaseArticulos.php';
 
-function familias2Html($objfamilia, $familias) {
+function _leerFamilias($idpadre) {
+    $resultado = [];
+    $resultado['padre'] = $idpadre;
+    $objfamilia = new ClaseFamilias();
+    if ($idpadre >= 0) {
+        $familias = $objfamilia->leerUnPadre($idpadre);
+        $familias['datos'] = $objfamilia->cuentaHijos($familias['datos']);
+        $familias['datos'] = $objfamilia->cuentaProductos($familias['datos']);
+    } else {
+        $familias['datos'] = [];
+    }
+    $resultado['datos'] = $familias['datos'];
+
+    return $resultado;
+}
+
+function leerFamilias($idpadre) {
+    $resultado = _leerFamilias($idpadre);
+    $resultado['html'] = familias2Html($resultado['datos']);
+
+    return $resultado;
+}
+
+function familias2Html($familias) {
     $resultado = '';
     if (count($familias) > 0) {
         $indices = [];
@@ -32,8 +57,8 @@ function familias2Html($objfamilia, $familias) {
                         . '<span class="glyphicon glyphicon-minus"></span> compactar </button> ';
             }
             $resultado .= '</td>';
-            $resultado .= '<td>'. $objfamilia->contarProductos($familia['idFamilia']).' productos </td>';
-            
+            $resultado .= '<td>' . $familia['productos'] . ' productos </td>';
+
             $resultado .= '</tr>';
             $resultado .= '<tr id="fila-' . $familia['idFamilia'] . '" style="display:none"><td colspan=5><table class="table table-bordered table-hover table-striped"><tbody id="seccion-' . $familia['idFamilia'] . '"  > </tbody></table></td></tr>';
         }
@@ -45,3 +70,84 @@ function familias2Html($objfamilia, $familias) {
     return $resultado;
 }
 
+function leerFamiliasHijas($idpadre) {
+    $resultado = [];
+    $resultado['padre'] = $idpadre;
+    $objfamilia = new ClaseFamilias();
+    if ($idpadre >= 0) {
+        $familias = $objfamilia->leerUnPadre($idpadre);
+    } else {
+        $familias['datos'] = [];
+    }
+    $resultado['datos'] = $familias['datos'];
+    $resultado['html'] = familias2Html($objfamilia, $familias['datos']);
+    return $resultado;
+}
+
+function familias2Html2($familias) {
+    $resultado = '';
+    if (count($familias) > 0) {
+        foreach ($familias as $indice => $familia) {
+            $indices[] = $familia['idFamilia'];
+            $resultado .= '<tr>';
+            $resultado .= '<td>' . $familia['idFamilia'] . '</td>';
+            $resultado .= '<td> ' . $familia['familiaNombre'] . ' </td>';
+            $resultado .= '<td> ' . $familia['hijos'] . '</td>';
+            $resultado .= '<td>' . $familia['productos'] . '</td>';
+
+            $resultado .= '</tr>';
+        }
+    }
+    return $resultado;
+}
+
+function htmlTablaFamiliasHijas($idfamilia) {
+    // @ Objetivo
+    // Montar la tabla html de familias descendientes
+    // @ Parametros
+    // 		$idfamilia
+
+    $familias = leerFamilias($idfamilia);
+
+    $htmlFamilias = familias2Html2($familias['datos']);
+    $html = '<table id="tfamilias" class="table table-striped">'
+            . '<thead>'
+            . '<tr>'
+            . '<th>idfamilia</th>'
+            . '<th>Nombre de Familia</th>'
+            . '<th>Hijos</th>'
+            . '<th>Productos</th>'
+            . '</tr>'
+            . '</thead>';
+    $html .= $htmlFamilias;
+    $html .= '</table>	';
+    return $html;
+}
+
+function htmlTablaFamiliaProductos($idfamilia) {
+    // @ Objetivo
+    // Montar la tabla html de familias descendientes
+    // @ Parametros
+    // 		$idfamilia
+
+    
+    $productos = alArticulos::leerArticulosXFamilia($idfamilia);
+    
+    $html = '<table id="tfamilias" class="table table-striped">'
+            . '<thead>'
+            . '<tr>'
+            . '<th>id</th>'
+            . '<th>Nombre</th>'
+            . '</tr>'
+            . '</thead>';
+    if (count($productos) > 0) {
+        foreach ($productos as $indice => $producto) {
+            $html .= '<tr>';
+            $html .= '<td>' . $producto['idArticulo'] . '</td>';
+            $html .= '<td> ' . $producto['articulo_name'] . ' </td>';
+            $html .= '</tr>';
+        }
+    }
+    $html .= '</table>	';
+    return $html;
+}

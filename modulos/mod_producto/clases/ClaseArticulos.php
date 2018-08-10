@@ -263,4 +263,15 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
     public function getStock($idArticulo, $idTienda = 1){
         return alArticulosStocks::leer($idArticulo, $idTienda, TRUE); //si no existe lo crea
     }
+    
+    public static function leerArticulosXFamilia($idfamilia){
+        $sql = 'SELECT art.idArticulo, art.articulo_name  '
+                . ' FROM articulos as art '
+                . ' JOIN articulosFamilias as artfam ON (art.idArticulo=artfam.idArticulo) '
+                . ' WHERE artfam.idFamilia = '.$idfamilia;
+           
+        $sqldata = self::_consulta($sql);
+        
+        return $sqldata;
+    }
 }

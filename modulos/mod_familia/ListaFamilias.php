@@ -10,9 +10,6 @@ include_once './../../inicial.php';
 require_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
 include_once $URLCom.'/controllers/Controladores.php';
 
-
-
-
 $Controler = new ControladorComun;
 
 // Mostramos formulario si no tiene acceso.
@@ -30,12 +27,11 @@ $familias = new ClaseFamilias($BDTpv);
     <head>
 
         <?php
-        include_once $URLCom.'/head.php';
-       
+        include_once $URLCom.'/head.php';       
         ?>
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
 
-<script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
+        <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
 
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
@@ -59,7 +55,6 @@ $familias = new ClaseFamilias($BDTpv);
                 <div class="col-md-2">
                     <div class="nav">
                         <h4> Familias</h4>
-                        <h5> Opciones para una selección</h5>
                         <ul class="nav nav-pills nav-stacked"> 
                               <?php
                           if($ClasePermisos->getAccion("crear")==1){
@@ -106,65 +101,6 @@ $familias = new ClaseFamilias($BDTpv);
                         </table>
                     </div>
 
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div id="familiasModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header btn-primary">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title text-center">Familias</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div id="formularioFamiliaModal" >
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <input id="inputNombreModal" type="text" value="">
-                                </div>                            
-                                <div class="col-md-2">
-                                    <select id="selectFamiliaPadre">
-                                        <option value="-1">--- ningún padre ---</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="btn-fam-grabar" class="btn btn-primary" >
-                            <span class="glyphicon glyphicon-save"> </span>Grabar</button>&nbsp;
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Modal -->
-        <div id="cambioPadreModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header btn-primary">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title text-center">Familias: cambiar padre</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div id="formularioFamiliaModal" >
-                            <div class="row  ui-front">
-                                Cambiar padre a: <input class="form-control" id="inputNombreFamiliaModal" 
-                                                        value="--- Padre raíz ---"/>
-                                <input id="inputIdFamiliaModal" type="hidden" value="0">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="btn-padre-grabar" class="btn btn-primary" >
-                            <span class="glyphicon glyphicon-save"> </span>Grabar</button>&nbsp;
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                    </div>
                 </div>
             </div>
         </div>
