@@ -4,7 +4,7 @@
  * */
 $rutaCompleta = $RutaServidor.$HostNombre;
 include ($rutaCompleta.'/clases/ClaseConexion.php');
-
+include_once ('ClasePermisos.php');
 class ClaseSession extends ClaseConexion{
 	public $BDTpv ; 					// (object) Conexion a BD tpv.
 	private $session ;					// (array) Datos de $_SESSION actuales.
@@ -17,9 +17,7 @@ class ClaseSession extends ClaseConexion{
 	{
 		parent::__construct();
 		$this->BDTpv	= parent::getConexion();
-       
 		$this->comprobarEstado(); 
-        include_once ('ClasePermisos.php');
         $this->permisos =new ClasePermisos($this->Usuario, $this->BDTpv);
 	}
 	
