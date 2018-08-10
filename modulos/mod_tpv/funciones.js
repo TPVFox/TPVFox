@@ -460,7 +460,7 @@ function ObjProducto(datos)
 {
     console.log('Estoy creando objeto producto');
     this.id = datos.idArticulo;
-    this.cref = datos.crefTienda
+    this.cref = datos.crefTienda;
     this.cdetalle = datos.articulo_name;
     this.pvpconiva = parseFloat(datos.pvpCiva).toFixed(2);
     this.ccodebar = datos.codBarras;
