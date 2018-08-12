@@ -64,8 +64,11 @@ $todosTemporal=array_reverse($todosTemporal);
 </head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+   	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+
 <?php
     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
@@ -87,11 +90,11 @@ $todosTemporal=array_reverse($todosTemporal);
             <?php 
                 if ($Usuario['group_id'] > '0'){
             ?>
-                <li><a href="#section2" onclick="metodoClick('AgregarAlbaran');";>Añadir</a></li>
+                <li><a href="#section2" onclick="metodoClick('AgregarAlbaran');">Añadir</a></li>
                 <?php 
             }
                 ?>
-                <li><a href="#section2" onclick="metodoClick('Ver','albaran');";>Modificar</a></li>
+                <li><a href="#section2" onclick="metodoClick('Ver','albaran');">Modificar</a></li>
             
             </ul>
             <div class="col-md-12">

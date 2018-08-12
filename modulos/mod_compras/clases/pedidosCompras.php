@@ -330,10 +330,10 @@ class PedidosCompras extends ClaseCompras{
 	}
 	
 	public function ProductosPedidos($idPedido){
-	//@Objetivo:
-	//Buscar todos los productos que tenga un id de pedido real
-	//@Parametros :
-	//idPedido-> id del pedido real
+        //@Objetivo:
+        //Buscar todos los productos que tenga un id de pedido real
+        //@Parametros :
+        //idPedido-> id del pedido real
 		$tabla='pedprolinea';
 		$where='idpedpro= '.$idPedido;
 		$pedido = parent::SelectVariosResult($tabla, $where);

@@ -27,7 +27,7 @@
 	$idPedido=0;
 	$numPedidoTemp=0;
 	$estado='Abierto';
-	$idProveedor=0;
+	$idProveedor='';
 	$nombreProveedor="";
 	$Datostotales=array();
 	$textoNum="";
@@ -115,10 +115,7 @@ if (isset($_POST['Guardar'])){
 	}
 }
 ?>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+
 <script type="text/javascript">
 	<?php
 	 if (isset($_POST['Cancelar'])){
@@ -141,7 +138,7 @@ if (isset($_POST['Guardar'])){
 		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
 		cabecera['idTemporal'] = <?php echo $numPedidoTemp ;?>;
 		cabecera['idReal'] = <?php echo $idPedido ;?>;
-		cabecera['idProveedor']=<?php echo $idProveedor ;?>;
+		cabecera['idProveedor']='<?php echo $idProveedor ;?>';
 		cabecera['fecha']='<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
@@ -166,11 +163,12 @@ if (isset($_POST['Guardar'])){
 	 }
 	?>
 </script>
-<?php 
-if ($idProveedor===0){
-	 $idProveedor="";
-}
-?>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+
 </head>
 <body>
 <?php

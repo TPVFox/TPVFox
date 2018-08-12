@@ -22,11 +22,8 @@
 	$CforPago=new FormasPago($BDTpv);
 	//iniciación de las variables
 	$dedonde="factura";
-	$Tienda = $_SESSION['tiendaTpv'];
-	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
 	$titulo="Factura De Proveedor";
 	$estado='Abierto';
-	$estadoCab="'".'Abierto'."'";
 	$formaPago=0;
 	$comprobarAlbaran=0;
 	$importesFactura=array();
@@ -36,6 +33,7 @@
 	$fechaImporte=date('Y-d-m');
 	$numAdjunto=0;
 	$suNumero="";
+    $idProveedor="";
 	$inciden=0;
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
@@ -63,27 +61,18 @@
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		$datosImportes=$CFac->importesFactura($idFactura);
         
-       //~ echo count($abaranesFactura);
-       //~ if(count($abaranesFactura)==0){
-           $albaranesFactura=addAlbaranesFacturas($productosFactura, $idFactura, $BDTpv);
-        //~ echo '<pre>';
-        //~ print_r($albaranesFactura);
-        //~ echo '</pre>';
-       //~ }
+        $albaranesFactura=addAlbaranesFacturas($productosFactura, $idFactura, $BDTpv);
+        
         
         
 		$estado=$datosFactura['estado'];
-		$estadoCab="'".$datosFactura['estado']."'";
 		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'d-m-Y');
-		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;
 		$numFactura=$datosFactura['Numfacpro'];
 		$idProveedor=$datosFactura['idProveedor'];
 		if (isset($datosFactura['Su_num_factura'])){
 			$suNumero=$datosFactura['Su_num_factura'];
-		}else{
-			$suNumero="";
 		}
 		if ($idProveedor){
 			$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
@@ -104,13 +93,9 @@
 		$incidenciasAdjuntas=incidenciasAdjuntas($idFactura, "mod_compras", $BDTpv, "factura");
 		$inciden=count($incidenciasAdjuntas['datos']);
 	}else{
-		$fecha=date('d-m-Y');
-		$fechaCab="'".$fecha."'";
 		$idFacturaTemporal=0;
 		$idFactura=0;
 		$numFactura=0;
-		$idProveedor=0;
-		$suNumero="";
 		$nombreProveedor="";
 	//Si recibe los datos de un temporal
 		if (isset($_GET['tActual'])){
@@ -140,9 +125,8 @@
 				$idProveedor=$datosFactura['idProveedor'];
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
-				$fechaCab="'".$fecha."'";
+				
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
-				$estadoCab="'".'Abierto'."'";
 				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
 				$albaranes=json_decode($datosFactura['Albaranes']);
@@ -193,13 +177,13 @@
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; 
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] =<?php echo $estadoCab ;?>; // Si no hay datos GET es 'Nuevo'
+		cabecera['estado'] ='<?php echo $estadoCab ;?>'; 
 		cabecera['idTemporal'] = <?php echo $idFacturaTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
-		cabecera['fecha'] = <?php echo $fechaCab ;?>;
-		cabecera['idProveedor'] = <?php echo $idProveedor ;?>;
+		cabecera['fecha'] ='<?php echo $fechaCab ;?>';
+		cabecera['idProveedor'] = '<?php echo $idProveedor ;?>';
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		
 		
@@ -241,19 +225,16 @@
 
 ?>
 </script>
-<?php 
-if ($idProveedor==0){
-	$idProveedor="";
-	
-}
 
-?>
 </head>
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+
+
 <?php
 	//~ include '../../header.php';
      include_once $URLCom.'/modulos/mod_menu/menu.php';
