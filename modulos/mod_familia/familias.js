@@ -33,12 +33,28 @@ $(function () {
     });
 
 
+    $("#btn-fam-volver").on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        var data = $(event.currentTarget).data();
+        if (data.href) {
+            window.location.href = data.href;
+        }
+    });
+
     $("#btn-fam-grabar").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
-        //var data = $(event.currentTarget).data();
+
+        var data = $(event.currentTarget).data();
+
+        var id = $('#id').val();
         var idpadre = $('#combopadre').val();
         var nombrefamilia = $('#inputnombre').val();
+        var beneficiomedio = $('#inputbeneficio').val();
+        var volvera = data.href;
+
         var mensajes = [];
         if (idpadre == -1) {
             mensajes.push('Por favor seccione un padre de la lista');
@@ -46,45 +62,34 @@ $(function () {
         if (nombrefamilia.length == 0) {
             mensajes.push('Por favor da un nombre a la familia');
         }
-        
-        console.log(idpadre);
-        console.log(mensajes);
-        
+
+
         if (mensajes.length > 0) {
             //errores
-            alert('error');
+            for (var i = 0; i < mensajes.length; i++) {
+                alert(mensajes[i]);
+            }
         } else {
-            alert('grabar');
-//            grabarFamilia({idpadre: idpadre, nombrefamilia: nombrefamilia}, function (response) {
-//                if ($("#fila-" + idpadre).hasClass('al-filavisible')) {
-//                    leerFamilias(idpadre, function (respuesta) {
-//                        var obj = JSON.parse(respuesta);
-//                        var datos = obj.datos;
-//                        var tabla = obj.html;
-//
-//                        $('#seccion-' + obj.padre).html(tabla);
-//                    });
-//                } else {
-//                    if ($("#botonexpandir-" + idpadre).length === 0) {
-//                        //repintar abuelo
-//                        var idabuelo = $("#botonnuevo-hijo-" + idpadre).data('alabuelo');
-//                        leerFamilias(idabuelo, function (respuesta) {
-//                            var obj = JSON.parse(respuesta);
-//                            var datos = obj.datos;
-//                            var tabla = obj.html;
-//
-//                            $("#botonexpandir-" + obj.padre).hide();
-//                            $("#botoncompactar-" + obj.padre).show();
-//                            $("#fila-" + obj.padre).show();
-//                            $("#fila-" + obj.padre).addClass('al-filavisible');
-//                            $('#seccion-' + obj.padre).html(tabla);
-//                        });
-//                    }
-//                }
-//                $('#inputNombreModal').val('');
-//                $('#familiasModal').modal('hide');
-//            });
+            ajaxCall({ pulsado: 'grabarFamilia',
+                id: id,
+                nombrefamilia: nombrefamilia,
+                idpadre: idpadre,
+                beneficiomedio: beneficiomedio,
+                href: volvera}, function (respuesta) {
+                var obj = JSON.parse(respuesta);
+                var error = obj.error;
+
+                if (error == '0') {
+                    var href = obj.href;
+                    alert('Grabado correctamente');
+                    window.location.href = href;
+                } else {
+                    alert(error+' '+obj.insert);
+                }
+            }
+            );
         }
+
     });
 
     $("#btn-padre-grabar").on("click", function (event) {

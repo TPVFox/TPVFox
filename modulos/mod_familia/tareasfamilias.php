@@ -97,18 +97,20 @@ switch ($pulsado) {
     case 'grabarFamilia':
 
         // comprobar datos en el lado servidor    
-        $idpadre = $_POST['idpadre'];
-        $nombre = $_POST['nombre'];
+        $idFamilia = $_POST['id'];
+        $familiaNombre = $_POST['nombrefamilia'];
+        $familiaPadre = $_POST['idpadre'];
+        $beneficiomedio = $_POST['beneficiomedio'];
         // Que no estan vacios
         // que idpadre es >= 0 y un id existente
         // generar $resultado['error']
-
+        $camposfamilia = compact('idFamilia','familiaNombre','familiaPadre','beneficiomedio');
         $resultado = [];
-        $resultado['familiaPadre'] = $idpadre;
-        $resultado['familiaNombre'] = $nombre;
+        $resultado['href'] = $_POST['href'];
         if ($idpadre >= 0) {
             $familia = new ClaseFamilias($BDTpv);
-            $resultado['insert'] = $familia->grabar($resultado);
+            $resultado['insert'] = $familia->grabar($camposfamilia);
+            $resultado['error'] = $familia->hayErrorConsulta() ? $familia->getErrorConsulta() : '0';
         }
         echo json_encode($resultado);
         break;

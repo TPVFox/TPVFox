@@ -66,11 +66,11 @@
             
             <!-- columna formulario -->
             <div class="col-md-8">
-                <form action="" method="post" name="formFamilia" >
+                <form action="javascript:guardarClick();" method="post" name="formFamilia" >
                     <div class="col-md-12">
                         <div class="btn-toolbar">
-                            <a class="text-right" href="./ListaFamilias.php">Volver Atrás</a>
-                            <button class="btn-link" id="btn-fam-grabar">Guardar</button>
+                            <button class="btn btn-link" id="btn-fam-volver" data-href="./ListaFamilias.php">Volver Atrás</button>
+                            <button class="btn btn-primary" id="btn-fam-grabar" data-href="./ListaFamilias.php">Guardar</button>
                         </div>
                         <div class=" Datos">
                             <?php // si es nuevo mostramos Nuevo   ?>
@@ -103,6 +103,7 @@
                             <div class="form-label-group">
                                 <label for="inputbeneficio">Beneficio medio: </label>
                                 <input type="text" name="beneficio" id="inputbeneficio" 
+                                       value="<?php echo $familia['beneficiomedio']; ?>"
                                        class="form-control" placeholder="Beneficio medio unitario >= 0,01"  autofocus>
                             </div>
                         </div>

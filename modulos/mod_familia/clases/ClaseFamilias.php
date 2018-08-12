@@ -37,7 +37,7 @@ class ClaseFamilias extends Modelo {
         return $resultado;
     }
 
-    public function cuentaHijos($padres) {        
+    public function cuentaHijos($padres) {
         $nuestros = $padres;
         $sql = 'SELECT count(idFamilia) as contador '
                 . ' FROM familias as FAM '
@@ -52,7 +52,7 @@ class ClaseFamilias extends Modelo {
     public function cuentaProductos($padres) {
         $nuestros = $padres;
         $sql = 'SELECT count(idArticulo) AS contador '
-                . 'FROM articulosFamilias where idFamilia='; 
+                . 'FROM articulosFamilias where idFamilia=';
         foreach ($padres as $indice => $padre) {
             $resultado = $this->consulta($sql . $padre['idFamilia']);
             $nuestros[$indice]['productos'] = $resultado['datos'][0]['contador'];
@@ -92,7 +92,11 @@ class ClaseFamilias extends Modelo {
     }
 
     public function grabar($datos) {
-        return $this->insert($datos);
+        if (isset($datos['idFamilia']) && $datos['idFamilia'] != 0) {
+            return $this->update($datos, ['idFamilia=' . $datos['idFamilia']]);
+        } else {
+            return $this->insert($datos);
+        }
     }
 
     public function actualizarpadre($idpadre, $idfamilias) {
@@ -161,13 +165,13 @@ class ClaseFamilias extends Modelo {
         return $resultado;
     }
 
-    public function contarProductos($idfamilia){
-        $sql = 'SELECT count(idArticulo) AS contador FROM articulosFamilias where idFamilia=' . $idfamilia; 
+    public function contarProductos($idfamilia) {
+        $sql = 'SELECT count(idArticulo) AS contador FROM articulosFamilias where idFamilia=' . $idfamilia;
         $resultado = $this->consulta($sql);
-        if($resultado['datos']){
+        if ($resultado['datos']) {
             $resultado = $resultado['datos'][0]['contador'];
         }
         return $resultado;
     }
-    
+
 }
