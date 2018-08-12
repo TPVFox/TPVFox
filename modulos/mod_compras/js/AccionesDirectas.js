@@ -109,36 +109,15 @@ function AccionBuscarProductos (caja,event){
                         console.log (' Entramos en AccionBuscarProducto->Añadir un resultado ');
                         console.log(resultado['datos'][0]);
                         var datos = new ObjProducto(resultado['datos'][0]);
-                        //~ var datos = new Object();			
-                        //~ datos.ccodbar=resultado['datos'][0]['codBarras'];
-                        //~ datos.cdetalle=resultado['datos'][0]['articulo_name'];
-                        //~ datos.cref=resultado['datos'][0]['crefTienda'];
-                        //~ datos.crefProveedor=resultado['datos'][0]['crefProveedor'];
-                        //~ datos.estado="Activo";
-                        //~ datos.idArticulo=resultado['datos'][0]['idArticulo'];
-                        
-                        //~ datos.iva=resultado['datos'][0]['iva'];
-                        //~ datos.ncant=1;
-                        //~ datos.nfila=productos.length+1;
-                        //~ n_item=parseInt(productos.length)+1;
-                        //~ datos.nunidades=1;
-                        
-                        //~ if (resultado['datos'][0]['coste']>0){
-                            //~ var ultimoCoste= parseFloat(resultado['datos'][0]['coste']);
-                        //~ }else{
-                            //~ var ultimoCoste= parseFloat(resultado['datos'][0]['ultimoCoste']);
-                            //~ alert("¡OJO!\nEste producto es NUEVO para este proveedor");
-                        //~ }
+                       
                         
                         if (resultado['datos'][0]['coste']<=0){
                             datos.getCoste(resultado['datos'][0]['ultimoCoste']);
                             alert("¡OJO!\nEste producto es NUEVO para este proveedor");
                         }
-                        //~ datos.ultimoCoste=ultimoCoste.toFixed(4);
-                        //~ datos.importe=ultimoCoste.toFixed(2);
+                        
                         
                         productos.push(datos);
-                        //~ var campo='Unidad_Fila_'+n_item;
                         addTemporal(dedonde)
                         document.getElementById(id_input).value='';
                         console.log("muestro fecha");

@@ -707,16 +707,17 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
 	//Y dependiendo de donde venga el modal llamamos a una función u otra de esta manera utilizamos esta función estemos donde estemo
 	
     var objDatos = {
-        'ccodbar'       : ccodebar.toString(),
+        'codBarras'     : ccodebar.toString(),
         'articulo_name' : cdetalle.toString(),
         'crefTienda'    : cref.toString(),
         'idArticulo'    : id.toString(),
         'iva'           : ctipoIva.toString(),
         'crefProveedor' : crefProveedor.toString(),
-        'ultimoCoste'   : ultimoCoste.toString()
+        'coste'         : ultimoCoste.toString()
     };
     var datos = new ObjProducto(objDatos);
-     
+    console.log ('Ultimo coste desde listado:'+ultimoCoste);
+    // Falta controlar si tiene coste ese proveedor o no , es decir si es nuevo para ese proveedor.
     productos.push(datos);
     addTemporal(dedonde);
     AgregarFilasProductos(datos, dedonde);
@@ -919,7 +920,7 @@ function before_constructor(caja){
 	console.log('Return caja');
 	return caja;	
 }
-function buscarReferencia(idinput){
+function permitirModificarReferenciaProveedor(idinput){
 	//@Objetivo:
 	// modificar el input del id para que se pueda modificar la referencia del proveedor articulo
 	console.log("Entre en buscar referencia");
