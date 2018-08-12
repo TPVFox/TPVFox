@@ -510,39 +510,41 @@ function lineaAdjunto($adjunto, $dedonde){
 	}
 	return $respuesta;
 }
+
 function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 	$respuesta=array();
 	$i=1;
-	foreach ($adjuntos as $adjunto){
-	if ($dedonde =="albaran"){
-		$datosAdjunto=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$adjunto['idPedido'] );
-	}else{
-		//~ $datosAdjunto=$BDTpv->query('SELECT * FROM albprot WHERE id= '.$adjunto['idAlbaran'] );
-		$datosAdjunto=$BDTpv->query('SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total,
-		a.id , a.FechaVencimiento, a.idProveedor , a.formaPago , sum(b.totalbase) as 
-		totalSiva FROM albprot as a INNER JOIN albproIva as b on a.
-		`id`=b.idalbpro where a.Numalbpro='.$adjunto['idAlbaran'].' GROUP by a.id ');
-	}
-	while ($fila = $datosAdjunto->fetch_assoc()) {
-			$adj = $fila;
-	}
-	if ($dedonde=="albaran"){
-		$res['NumAdjunto']=$adjunto['numPedido'];
-		$res['fecha']=$adj['FechaPedido'];
-	}else{
-		$res['NumAdjunto']=$adjunto['numAlbaran'];
-		$res['fecha']=$adj['Fecha'];
-		$res['totalSiva']=$adj['totalSiva'];
-		$res['Su_numero']=$adj['Su_numero'];
-	}
-		$res['idAdjunto']=$adj['id'];
-		$res['idPePro']=$adj['idProveedor'];
-		$res['total']=$adj['total'];
-		$res['estado']="activo";
-		$res['nfila']=$i;
-		array_push($respuesta,$res);
-		$i++;
-		
+    $res= array();
+    foreach ($adjuntos as $adjunto){
+        if ($dedonde =="albaran"){
+            $res['NumAdjunto']=$adjunto['numPedido'];
+            $datosAdjunto=$BDTpv->query('SELECT * FROM pedprot WHERE id= '.$adjunto['idPedido'] );
+        }else{
+            $res['NumAdjunto']=$adjunto['numAlbaran'];
+            $datosAdjunto=$BDTpv->query('SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total,
+            a.id , a.FechaVencimiento, a.idProveedor , a.formaPago , sum(b.totalbase) as 
+            totalSiva FROM albprot as a INNER JOIN albproIva as b on a.
+            `id`=b.idalbpro where a.Numalbpro='.$adjunto['idAlbaran'].' GROUP by a.id ');
+        }
+
+        while ($fila = $datosAdjunto->fetch_assoc()) {
+            $adj = $fila;
+            $res['idAdjunto']=$adj['id'];
+            $res['idPePro']=$adj['idProveedor'];
+            $res['total']=$adj['total'];
+            if ($dedonde == "albaran"){
+                $res['fecha']=$adj['FechaPedido'];
+            }else{
+                $res['fecha']=$adj['Fecha'];
+                $res['totalSiva']=$adj['totalSiva'];
+                $res['Su_numero']=$adj['Su_numero'];
+            }
+        }
+        $res['estado']="activo";
+        $res['nfila']=$i;
+        array_push($respuesta,$res);
+        $i++;
+            
 	}
 	return $respuesta;
 	

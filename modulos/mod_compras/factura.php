@@ -179,10 +179,10 @@
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; 
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] ='<?php echo $estadoCab ;?>'; 
+		cabecera['estado'] ='<?php echo $estado ;?>'; 
 		cabecera['idTemporal'] = <?php echo $idFacturaTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
-		cabecera['fecha'] ='<?php echo $fechaCab ;?>';
+		cabecera['fecha'] ='<?php echo $fecha ;?>';
 		cabecera['idProveedor'] = '<?php echo $idProveedor ;?>';
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		

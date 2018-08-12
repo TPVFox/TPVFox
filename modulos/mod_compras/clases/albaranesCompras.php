@@ -488,7 +488,8 @@ class AlbaranesCompras extends ClaseCompras {
             return $respuesta;
         }
     }
-public function NumfacturaDeAlbaran($numAlbaran){	
+    
+    public function NumfacturaDeAlbaran($numAlbaran){	
 		$db=$this->db;
 		$tabla='albprofac';
 		$where='`numAlbaran`='.$numAlbaran;
