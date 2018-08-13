@@ -193,7 +193,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			if(strlen($producto['crefProveedor'])==0){
                 $style='style="opacity:0.5;"';
             }
-            error_log($producto['crefProveedor']);
+           
             $html .= '<tr id="Fila_'.$contad.'" '. $style.' class="FilaModal" '.
                      ' onclick="escribirProductoSeleccionado('.$datos.');">'.
                      '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.
