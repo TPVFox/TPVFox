@@ -190,7 +190,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
 						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
-						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."'";
+						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."' , '".$producto['coste']."'";
 			$html .= '<tr id="Fila_'.$contad.'" class="FilaModal" '.
                      ' onclick="escribirProductoSeleccionado('.$datos.');">'.
                      '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.

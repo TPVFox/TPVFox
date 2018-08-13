@@ -699,7 +699,7 @@ function ponerSelect (destino_focus){
 
 }
 
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, crefProveedor){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, crefProveedor, coste){
 	//@Objetivo:
 	//Función para escribir el producto seleccionado del modal
 	//LO que hacemos en la función es que recibimos los campos del producto que hemos seleccionado y creamos un objeto
@@ -717,6 +717,10 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
     };
     var datos = new ObjProducto(objDatos);
     console.log ('Ultimo coste desde listado:'+ultimoCoste);
+    if(coste <= 0){
+        alert("¡OJO!\nEste producto es NUEVO para este proveedor");
+    }
+    
     // Falta controlar si tiene coste ese proveedor o no , es decir si es nuevo para ese proveedor.
     productos.push(datos);
     addTemporal(dedonde);

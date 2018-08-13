@@ -114,6 +114,7 @@ function AccionBuscarProductos (caja,event){
                         if (resultado['datos'][0]['coste']<=0){
                             datos.getCoste(resultado['datos'][0]['ultimoCoste']);
                             alert("¡OJO!\nEste producto es NUEVO para este proveedor");
+                             //~ alert(resultado['datos'][0]['ultimoCoste']);
                         }
                         
                         
