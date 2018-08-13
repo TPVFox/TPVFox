@@ -45,7 +45,7 @@ $error = curl_error($ch);
 //~ echo '<pre>';
 //~ print_r($respuesta);
 //~ echo '</pre>';
- 
+   $info=curl_getinfo($ch);
 //y finalmente cerramos curl
 curl_close ($ch);
 
@@ -56,6 +56,11 @@ if (isset($error)){
 	}
 }
 // [ OBTENEMOS ARRAY DE DATOS DE TMP ARTICULOS COMPLETA ]
-$respuesta = json_decode($respuesta,true);
+//~ $respuesta = json_decode($respuesta,true);
+if($info['http_code']=='200'){
+    $respuesta = json_decode($respuesta,true);
+}else{
+    $respuesta['error']='Error de conexión con la API';
+}
 ?>
 
