@@ -404,6 +404,14 @@ class ControladorComun
 	function loadDbtpv($BD){
 		$this->BDTpv = $BD;
 	}
+    
+    public static function insertTd($contenido=''){
+        $resultado='<td></td>';
+        if(strlen($contenido)>0){
+            $resultado='<td>'.$contenido.'</td>';
+        }
+        return $resultado;
+    }
 	
 }
 	

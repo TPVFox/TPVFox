@@ -422,11 +422,12 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 				$textformaPago=$datosFormaPago['descripcion'];
 			}
 			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
-            $bandera='';
-			if(isset($adjunto['Su_numero'])){
-                $bandera=$adjunto['Su_numero'];
-			}
-            $respuesta['html']	.='<td>'.$bandera.'</td>';
+            //~ $bandera='';
+			//~ if(isset($adjunto['Su_numero'])){
+                //~ $bandera=$adjunto['Su_numero'];
+			//~ }
+            //~ $respuesta['html']	.='<td>'.$bandera.'</td>';
+            $respuesta['html'].=ControladorComun::insertTd($adjunto['Su_numero']);
 			
 		}
 		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
@@ -477,21 +478,23 @@ function lineaAdjunto($adjunto, $dedonde){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
 		if($dedonde=="factura"){
-            $bandera='';
-			if(isset($adjunto['Su_numero'])){
-                $bandera=$adjunto['Su_numero'];
-			}
-            $respuesta['html'] .='<td>'.$bandera.'</td>';
+            //~ $bandera='';
+			//~ if(isset($adjunto['Su_numero'])){
+                //~ $bandera=$adjunto['Su_numero'];
+			//~ }
+            //~ $respuesta['html'] .='<td>'.$bandera.'</td>';
+              $respuesta['html'].=ControladorComun::insertTd($adjunto['Su_numero']);
 		}
 		$date=date_create($adjunto['fecha']);
 		$fecha=date_format($date,'d-m-Y');
 		$respuesta['html'] .='<td>'.$fecha.'</td>'
 		.'<td>'.$adjunto['total'].'</td>';
-        $bandera='';
-		if(isset($adjunto['totalSiva'])){
-            $bandera=$adjunto['totalSiva'];
-		}
-        $respuesta['html'] .='<td>'.$bandera.'</td>';
+        //~ $bandera='';
+		//~ if(isset($adjunto['totalSiva'])){
+            //~ $bandera=$adjunto['totalSiva'];
+		//~ }
+        //~ $respuesta['html'] .='<td>'.$bandera.'</td>';
+          $respuesta['html'].=ControladorComun::insertTd($adjunto['totalSiva']);
 		$respuesta['html'].=$btnELiminar_Retornar.'</tr>';
 	}
 	return $respuesta;

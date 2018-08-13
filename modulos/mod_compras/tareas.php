@@ -10,7 +10,7 @@ include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
 include_once $URLCom.'/clases/Proveedores.php';
 include_once $URLCom.'/clases/articulos.php';
 include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
-
+include_once $URLCom.'/controllers/Controladores.php';
 $CIncidencia=new ClaseIncidencia($BDTpv);
 $CProveedores=new Proveedores($BDTpv);
 $CPed=new PedidosCompras($BDTpv);
