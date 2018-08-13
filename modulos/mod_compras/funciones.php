@@ -183,13 +183,18 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 		$html .= '<table class="table table-striped"><thead><th></th></thead><tbody>';
 		$contad = 0;
 		foreach ($productos as $producto){
+            $style="";
 			$datos = 	"'".$id_input."',".
 						"'".addslashes(htmlspecialchars($producto['crefTienda'],ENT_COMPAT))."','"
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
 						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
 						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."' , '".$producto['coste']."'";
-			$html .= '<tr id="Fila_'.$contad.'" class="FilaModal" '.
+			if(strlen($producto['crefProveedor'])==0){
+                $style='style="opacity:0.5;"';
+            }
+            error_log($producto['crefProveedor']);
+            $html .= '<tr id="Fila_'.$contad.'" '. $style.' class="FilaModal" '.
                      ' onclick="escribirProductoSeleccionado('.$datos.');">'.
                      '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.
                      '" name="filaproducto" data-obj="idN" 	onkeydown="controlEventos(event)" '.
@@ -199,8 +204,12 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			}else{
 				$html .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';	
 			}		
+            if(strlen($producto['coste'])==0){
+                $style='style="opacity:0.5;"';
+            }
+            
 			$html   .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
-                    . '<td>'.$producto['ultimoCoste'].'</td>'
+                    . '<td '.$style.'>'.$producto['ultimoCoste'].'</td>'
                     . '</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
