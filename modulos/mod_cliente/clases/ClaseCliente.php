@@ -136,6 +136,10 @@ class ClaseCliente extends modelo{
 			$respuesta=$tickets;
 		}else{
 			$ids=implode(', ', array_column($tickets['datos'], 'id'));
+            if($ids==0){
+                $respuesta['error']=1;
+                $respuesta['consulta']='No existen ids entre estas fechas';
+            }else{
 			$sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`ticketslinea`	WHERE`idticketst` IN('.$ids.') and 
 			`estadoLinea` <> "Eliminado" GROUP BY idArticulo + `precioCiva`';
 			$productos=$this->consulta($sql);
@@ -162,6 +166,7 @@ class ClaseCliente extends modelo{
 			}else{
 				$respuesta['desglose']=$desglose['datos'];
 			}
+        }
 		}
 		return $respuesta;
 	}
