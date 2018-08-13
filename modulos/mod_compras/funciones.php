@@ -156,7 +156,6 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	$resultado = array();
 	$resultado['encontrados'] = count($productos);
     $html = '';
-    //~ $resultado['html'] = " ";
     $html = "<script type='text/javascript'>
 			// Ahora debemos añadir parametro campo a objeto de cajaBusquedaProductos".
 			"cajaBusquedaproductos.parametros.campo.__defineSetter__ ="."'".$campoAbuscar."';
@@ -181,7 +180,6 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 				$html .=' <strong>Error!</strong> No se encontrado nada con esa busqueda.</div>';
 			}
 	} else {
-	
 		$html .= '<table class="table table-striped"><thead><th></th></thead><tbody>';
 		$contad = 0;
 		foreach ($productos as $producto){
@@ -293,8 +291,6 @@ function htmlLineaProducto($productos, $dedonde){
             $numeroDoc.= '</td>';
             
         } 
-        
-       
         //Si tiene referencia del proveedor
         $displayRefProv = 'display:none'; // Por defecto si no existe.
         $ref_prov = 'value="" placeholder="ref"'; // Por defecto si no existe.
@@ -324,7 +320,6 @@ function htmlLineaProducto($productos, $dedonde){
         $cant=number_format($producto['nunidades'],2);
         $importe=$producto['ultimoCoste']*$producto['nunidades'];	
         $importe = number_format($importe,2);
-
         $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>'
                             .'<td class="linea">'.$producto['nfila'].'</td>'
                             . $numeroDoc
@@ -422,13 +417,7 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 				$textformaPago=$datosFormaPago['descripcion'];
 			}
 			$respuesta['html']	.= '<td>'.$fechaVenci.'</td><td>'.$textformaPago.'</td>';
-            //~ $bandera='';
-			//~ if(isset($adjunto['Su_numero'])){
-                //~ $bandera=$adjunto['Su_numero'];
-			//~ }
-            //~ $respuesta['html']	.='<td>'.$bandera.'</td>';
             $respuesta['html'].=ControladorComun::insertTd($adjunto['Su_numero']);
-			
 		}
 		$respuesta['html']	.= '<td>'.$adjunto['total'].'</td>';
 		if ($dedonde=="factura"){
@@ -478,23 +467,13 @@ function lineaAdjunto($adjunto, $dedonde){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
 		if($dedonde=="factura"){
-            //~ $bandera='';
-			//~ if(isset($adjunto['Su_numero'])){
-                //~ $bandera=$adjunto['Su_numero'];
-			//~ }
-            //~ $respuesta['html'] .='<td>'.$bandera.'</td>';
-              $respuesta['html'].=ControladorComun::insertTd($adjunto['Su_numero']);
+            $respuesta['html'].=ControladorComun::insertTd($adjunto['Su_numero']);
 		}
 		$date=date_create($adjunto['fecha']);
 		$fecha=date_format($date,'d-m-Y');
 		$respuesta['html'] .='<td>'.$fecha.'</td>'
 		.'<td>'.$adjunto['total'].'</td>';
-        //~ $bandera='';
-		//~ if(isset($adjunto['totalSiva'])){
-            //~ $bandera=$adjunto['totalSiva'];
-		//~ }
-        //~ $respuesta['html'] .='<td>'.$bandera.'</td>';
-          $respuesta['html'].=ControladorComun::insertTd($adjunto['totalSiva']);
+        $respuesta['html'].=ControladorComun::insertTd($adjunto['totalSiva']);
 		$respuesta['html'].=$btnELiminar_Retornar.'</tr>';
 	}
 	return $respuesta;
@@ -536,7 +515,6 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
             
 	}
 	return $respuesta;
-	
 }
 
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
@@ -611,7 +589,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	if (isset ($date)){
 		$fecha=date_format($date,'Y-m-d');
 	}
-	
 	$imprimir=array('cabecera'=>'',
                     'html'=>''
             );
@@ -705,7 +682,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	
 	return $imprimir;
 }
-
 
 function comprobarPedidos($idProveedor, $BDTpv ){
 	$Cped=new PedidosCompras($BDTpv);
@@ -1334,7 +1310,6 @@ function cancelarFactura( $idFacturaTemporal,$BDTpv){
 	$CFac = new FacturasCompras($BDTpv);
 	$CAlb=new AlbaranesCompras($BDTpv);
 	if ($idFacturaTemporal>0){
-		//~ $idFacturaTemporal=$datosGet['tActual'];
 		$idFactura=0;
 		$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
 		if (isset($datosFactura['error'])){
