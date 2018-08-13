@@ -100,6 +100,7 @@ class ClaseProveedor extends modelo{
 		}else{
 			$sql='SELECT Numalbpro , id FROM albprot WHERE idProveedor ='.$idProveedor.' and `Fecha` BETWEEN 
 		 "'.$fechaIni.'" and  "'.$fechaFin.'"';
+         error_log($sql);
         //~ $sql='SELECT Numalbpro, id FROM albprot WHERE idProveedor='.$idProveedor.' and Fecha >= "'.$fechaIni.'" AND Fecha <= "'.$fechaFin.'"';
 		}
 		$albaranes=$this->consulta($sql);
@@ -107,7 +108,11 @@ class ClaseProveedor extends modelo{
 			$respuesta=$albaranes;
 		}else{
 			$ids=implode(', ', array_column($albaranes['datos'], 'id'));
-			
+			if($ids==0){
+                $respuesta['error']=1;
+                $respuesta['consulta']='No hay resumen entre las fechas seleccionadas';
+            }else{
+            
 			$sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`albprolinea`	WHERE idalbpro  IN('.$ids.') and 
 			`estadoLinea` <> "Eliminado" GROUP BY idArticulo + costeSiva';
 			
@@ -135,7 +140,8 @@ class ClaseProveedor extends modelo{
 			}else{
 				$respuesta['desglose']=$desglose['datos'];
 			}
-		}
+            }
+        }
 		return $respuesta;
 	}
 }
