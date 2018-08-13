@@ -100,7 +100,7 @@ class ClaseProveedor extends modelo{
 		}else{
 			$sql='SELECT Numalbpro , id FROM albprot WHERE idProveedor ='.$idProveedor.' and `Fecha` BETWEEN 
 		 "'.$fechaIni.'" and  "'.$fechaFin.'"';
-         error_log($sql);
+         
         //~ $sql='SELECT Numalbpro, id FROM albprot WHERE idProveedor='.$idProveedor.' and Fecha >= "'.$fechaIni.'" AND Fecha <= "'.$fechaFin.'"';
 		}
 		$albaranes=$this->consulta($sql);
