@@ -163,10 +163,9 @@
 		}
 		if (isset($idProveedor)){
 			$comprobarPedidos=comprobarPedidos($idProveedor, $BDTpv);
+            $style="display:none;";
 			if ($comprobarPedidos==1){
 				$style="";
-			}else{
-				$style="display:none;";
 			}
 		}
 		if (isset ($_GET['id']) || isset ($_GET['tActual'])){
