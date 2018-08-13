@@ -176,6 +176,10 @@
 					<?php 
 						$totalProductos=0;
 						if(isset($arrayNums['productos'])){
+                            foreach ($arrayNums['productos'] as $key => $row) {
+                                    $aux[$key] = $row['cdetalle'];
+                                }
+                                array_multisort($aux, SORT_ASC, $arrayNums['productos']);
 							foreach($arrayNums['productos'] as $producto){
 								$precio=$producto['totalUnidades']*$producto['costeSiva'];
 								echo '<tr>'
