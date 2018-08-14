@@ -146,7 +146,7 @@ if (isset($errores)){
 				<thead>
 					<tr>
 						<th></th>
-						
+						<th></th>
 						<th>Nª FACTURA</th>
 						<th>FECHA</th>
 						<th>CLIENTE</th>
@@ -176,7 +176,9 @@ if (isset($errores)){
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $factura['id'];?>">
-					
+                         <td>
+                            <a class="glyphicon glyphicon-pencil" href='./factura.php?id=<?php echo $factura['id'];?>'>
+                        </td>
 						<td><?php echo $factura['Numfaccli'];?></td>
 						<td><?php echo date_format($date,'Y-m-d');?></td>
 						<td><?php echo $factura['Nombre'];?></td>
