@@ -52,14 +52,13 @@
             <h5> Opciones para una selección</h5>
             <ul class="nav nav-pills nav-stacked"> 
             <?php 
-                if ($Usuario['group_id'] > '0'){
-            ?>
-                <li><a href="#section2" onclick="metodoClick('AgregarFactura');";>Añadir</a></li>
-                <?php 
-            }
+                if($ClasePermisos->getAccion("Crear")==1){
+                    echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarFactura'."'".');";>Añadir</a></li>';
+                }
+                if($ClasePermisos->getAccion("Modificar")==1){
+                    echo '<li><a href="#section2" onclick="metodoClick('."'".'Ver'."'".', '."'".'factura'."'".');";>Modificar</a></li>';
+                }
                 ?>
-                <li><a href="#section2" onclick="metodoClick('Ver','factura');";>Modificar</a></li>
-            
             </ul>
             <div class="col-md-12">
             <h4 class="text-center"> Facturas Abiertas</h4>
@@ -157,7 +156,13 @@
                             ?>
                         </td>
                          <td>
-                            <a class="glyphicon glyphicon-pencil" href='./factura.php?id=<?php echo $factura['id'];?>'>
+                             <?php 
+                              if($ClasePermisos->getAccion("Modificar")==1){
+                             ?>
+                                <a class="glyphicon glyphicon-pencil" href='./factura.php?id=<?php echo $factura['id'];?>'>
+                            <?php 
+                                }
+                            ?>
                         </td>
                         <td><?php echo $factura['Numfacpro'];?></td>
                         <td><?php echo date_format($date,'Y-m-d');?></td>
