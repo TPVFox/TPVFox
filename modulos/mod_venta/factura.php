@@ -178,60 +178,55 @@
 					 header('Location: facturasListado.php');
 				}
 			}else{
-				
-			
-								$estado="Guardado";
-								if (isset($_POST['idTemporal'])){
-									$idTemporal=$_POST['idTemporal'];
-								}else if(isset($_GET['tActual'])){
-									$idTemporal=$_GET['tActual'];
-								}else{
-									$idTemporal=0;
-								}
-								$total=0;
-								$formaVenci="";
-								$entregado=0;
-								$idFactura=0;
-								$errores=array();
-								$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
-								if($datosFactura['total']){
-									$total=$datosFactura['total'];
-								}
-								$fechaActual=date('Y-m-d');
-								if ($_POST['formaVenci']){
-									$formaVenci=$_POST['formaVenci'];
-								}
-								
-								
-								if (is_array($importesFactura)){
-									
-									foreach ($importesFactura as $import){
-										$entregado=$entregado+$import['importe'];
-									}
-									if ($total==$entregado){
-										$estado="Pagado total";
-									}else{
-										$estado="Pagado Parci";
-									}
-								}
-								$fecha=date_format(date_create($_POST['fecha']), 'Y-m-d');
-								$datos=array(
-								'Numtemp_faccli'=>$idTemporal,
-								'Fecha'=>$fecha,
-								'idTienda'=>$Tienda['idTienda'],
-								'idUsuario'=>$Usuario['id'],
-								'idCliente'=>$idCliente,
-								'estado'=>$estado,
-								'total'=>$total,
-								'DatosTotales'=>$Datostotales,
-								'productos'=>$datosFactura['Productos'],
-								'albaranes'=>$datosFactura['Albaranes'],
-								'fechaCreacion'=>$fechaActual,
-								'formapago'=>$formaVenci,
-								'fechaVencimiento'=>$_POST['fechaVenci'],
-								'importes'=>$importesFactura,
-								'fechaModificacion'=>$fechaActual
-								);
+                $estado="Guardado";
+                if (isset($_POST['idTemporal'])){
+                    $idTemporal=$_POST['idTemporal'];
+                }else if(isset($_GET['tActual'])){
+                    $idTemporal=$_GET['tActual'];
+                }else{
+                    $idTemporal=0;
+                }
+                $total=0;
+                $formaVenci="";
+                $entregado=0;
+                $idFactura=0;
+                $errores=array();
+                $datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idFacturaTemporal);
+                if($datosFactura['total']){
+                    $total=$datosFactura['total'];
+                }
+                $fechaActual=date('Y-m-d');
+                if ($_POST['formaVenci']){
+                    $formaVenci=$_POST['formaVenci'];
+                }
+                if (is_array($importesFactura)){
+                    foreach ($importesFactura as $import){
+                        $entregado=$entregado+$import['importe'];
+                    }
+                    if ($total==$entregado){
+                        $estado="Pagado total";
+                    }else{
+                        $estado="Pagado Parci";
+                    }
+                }
+                $fecha=date_format(date_create($_POST['fecha']), 'Y-m-d');
+                $datos=array(
+                    'Numtemp_faccli'=>$idTemporal,
+                    'Fecha'=>$fecha,
+                    'idTienda'=>$Tienda['idTienda'],
+                    'idUsuario'=>$Usuario['id'],
+                    'idCliente'=>$idCliente,
+                    'estado'=>$estado,
+                    'total'=>$total,
+                    'DatosTotales'=>$Datostotales,
+                    'productos'=>$datosFactura['Productos'],
+                    'albaranes'=>$datosFactura['Albaranes'],
+                    'fechaCreacion'=>$fechaActual,
+                    'formapago'=>$formaVenci,
+                    'fechaVencimiento'=>$_POST['fechaVenci'],
+                    'importes'=>$importesFactura,
+                    'fechaModificacion'=>$fechaActual
+                    );
 								if($datosFactura['numfaccli']>0){
 									$idFactura=$datosFactura['numfaccli'];
 									$eliminarTablasPrincipal=$Cfaccli->eliminarFacturasTablas($idFactura);

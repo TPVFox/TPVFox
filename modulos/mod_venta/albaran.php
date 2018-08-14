@@ -258,7 +258,7 @@ if (isset($_GET['tActual'])){
                             }
                             ?>
                     </div>
-				<div class="col-md-4 " >
+				<div class="col-md-4 text-right" >
                      <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
                      <select  title="Escoje casilla de salto" id="salto" name="salto">
                         <option value="0">Seleccionar</option>
@@ -267,7 +267,7 @@ if (isset($_GET['tActual'])){
 						<option value="3">Cod Barras</option>
 						<option value="4">Descripción</option>
 					</select>
-					<input type="submit"  class="pull-right btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
+					<input type="submit"  class="btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
 					</div>
 					<?php
 					if (isset($idAlbaranTemporal)){
