@@ -43,7 +43,6 @@ class ClaseVentas{
 		$db=$this->db;
 		$sql='SELECT * from '.$tabla.' where '.$where;
 		$smt = $db->query($sql);
-		//~ $smt=$db->query('SELECT * from '.$tabla.' where '.$where);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];

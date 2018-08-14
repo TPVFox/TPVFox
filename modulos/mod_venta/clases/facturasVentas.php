@@ -1,5 +1,4 @@
 <?php 
-//~ include_once ("./../../../inicial.php");
 include_once $URLCom.'/modulos/mod_venta/clases/ClaseVentas.php';
 
 class FacturasVentas extends ClaseVentas{
@@ -72,7 +71,6 @@ class FacturasVentas extends ClaseVentas{
 			$respuesta = array();
 			$respuesta['Items'] = $facturaPrincipal;
 			$respuesta['consulta'] = $sql;
-			//~ $respuesta['limite']=$limite;
 			return $respuesta;
 		}
 	}
@@ -143,15 +141,6 @@ class FacturasVentas extends ClaseVentas{
 		}
 		
 	}
-	//~ public function buscarTemporalNumReal($idFactura){
-		//~ //@Objetivo:
-		//~ //Buscar un temporal por número de factura real
-		//~ $tabla='faccliltemporales';
-		//~ $where='numfaccli='.$idFactura;
-		//~ $factura = parent::SelectUnResult($tabla, $where);
-		//~ return $factura;
-	//~ }
-	
 	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idTemporal, $productos){
 		//@Objetivo:
 		//Modificar los datos de una factura temporal
@@ -194,7 +183,6 @@ class FacturasVentas extends ClaseVentas{
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
-				//~ return $respuesta;
 		}else{
 			$id=$db->insert_id;
 			$respuesta['id']=$id;

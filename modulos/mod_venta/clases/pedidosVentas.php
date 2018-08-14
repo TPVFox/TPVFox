@@ -1,5 +1,4 @@
 <?php 
-//~ include_once ("./../../../inicial.php");
 include_once $URLCom.'/modulos/mod_venta/clases/ClaseVentas.php';
 class PedidosVentas extends ClaseVentas{
 	
@@ -129,7 +128,6 @@ class PedidosVentas extends ClaseVentas{
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
-				//~ return $respuesta;
 			}else{
 				$id=$idPedido;
 			}
@@ -143,7 +141,6 @@ class PedidosVentas extends ClaseVentas{
 			if (gettype($smt)==='array'){
 					$respuesta['error']=$smt['error'];
 					$respuesta['consulta']=$smt['consulta'];
-					//~ return $respuesta;
 			}else{
 				$id=$db->insert_id;
 				$sql='UPDATE pedclit SET Numpedcli  = '.$id.' WHERE id ='.$id;
@@ -151,7 +148,6 @@ class PedidosVentas extends ClaseVentas{
 				if (gettype($smt)==='array'){
 					$respuesta['error']=$smt['error'];
 					$respuesta['consulta']=$smt['consulta'];
-					//~ return $respuesta;
 				}
 			}
 		}
@@ -211,7 +207,6 @@ class PedidosVentas extends ClaseVentas{
 			$respuesta = array();
 			$respuesta['Items'] = $pedidosPrincipal;
 			$respuesta['consulta'] = $sql;
-			//~ $respuesta['limite']=$limite;
 			return $respuesta;
 		}
 	}
@@ -281,17 +276,6 @@ class PedidosVentas extends ClaseVentas{
 		
 	}
 	
-	//~ public function contarPedidosTemporal($idPedido){
-		//~ //@Objetivo:
-		//~ //Contar los registros temporales que tiene un id real
-		//~ $db=$this->db;
-		//~ $smt=$db->query('Select count(id) as numPedTemp FROM pedcliltemporales where idPedcli='.$idPedido );
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $pedido=$result;
-		//~ }
-		//~ return $pedido;
-		//~ }
-		
 	public function sumarIva($numPedido){
 		//@Objetivo:
 		//Suma importe iva y totoal base de todos los registro de un pedido determinado
@@ -303,18 +287,7 @@ class PedidosVentas extends ClaseVentas{
 		}
 		return $pedido;
 	}
-	
-	//~ public function buscarNumPedidoId($idTemporal){
-		//~ //@Objetivo:
-		//~ //buscar el id de un número de pedido determinado
-		//~ $db=$this->db;
-		//~ $smt=$db->query('select  Numpedcli, id from pedclit where Numpedcli='.$idTemporal);
-		//~ if ($result = $smt->fetch_assoc () ){
-			//~ $pedido=$result;
-		//~ }
-		//~ $pedido['Nitems']= $smt->num_rows;
-		//~ return $pedido;
-	//~ }
+
 	public function PedidosClienteGuardado($busqueda, $idCliente){
 		//@Objetivo:
 		//Buscar algunos datos de un pedido guardado
@@ -366,7 +339,6 @@ class PedidosVentas extends ClaseVentas{
 				$resultado['consulta']=$smt['consulta'];
 				return $resultado;
 		}
-		//~ return $resultado;
 	}
 	
 	public function ComprobarPedidos($idCliente, $estado){
