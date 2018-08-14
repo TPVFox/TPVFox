@@ -158,7 +158,7 @@ $todosTemporal=array_reverse($todosTemporal);
                 <thead>
                     <tr>
                         <th></th>
-                        
+                        <th></th>
                         <th>Nª ALBARÁN</th>
                         <th>FECHA</th>
                         <th>PROVEEDOR</th>
@@ -193,7 +193,9 @@ $todosTemporal=array_reverse($todosTemporal);
                             echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" value="'.$albaran['id'].'" class="check_albaran">';
                             ?>
                         </td>
-                    
+                        <td>
+                            <a class="glyphicon glyphicon-pencil" href='./albaran.php?id=<?php echo $albaran['id'];?>'>
+                        </td>
                         <td><?php echo $albaran['Numalbpro'];?></td>
                         <td><?php echo date_format($date,'Y-m-d');?></td>
                         <td><?php echo $albaran['nombrecomercial'];?></td>
