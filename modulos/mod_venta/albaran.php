@@ -11,7 +11,7 @@
 	include_once ($URLCom.'/controllers/parametros.php');
     include_once $URLCom.'/clases/cliente.php';
     include_once $URLCom.'/modulos/mod_venta/clases/albaranesVentas.php';
-     include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
+    include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
      
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Ccliente=new Cliente($BDTpv);
@@ -237,27 +237,36 @@ if (isset($_GET['tActual'])){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
-	<?php 
-	if($idAlbaran>0){
-		?>
-		<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idAlbaran ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
-
-		<?php
-	}
-		if($inciden>0){
-		?>
-		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_ventas', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
-		<?php
-	}
-	?>
+	
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
-				<div class="col-md-8" >
-					<a  href="./albaranesListado.php">Volver Atrás</a>
-					<input  class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
-					</div>
+                    <div class="col-md-8" >
+                        <a  href="./albaranesListado.php">Volver Atrás</a>
+                        <input  class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+                        <?php 
+                            if($idAlbaran>0){
+                                ?>
+                                <input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idAlbaran ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
+
+                                <?php
+                            }
+                                if($inciden>0){
+                                ?>
+                                <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_ventas', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+                                <?php
+                            }
+                            ?>
+                    </div>
 				<div class="col-md-4 " >
+                     <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+                     <select  title="Escoje casilla de salto" id="salto" name="salto">
+                        <option value="0">Seleccionar</option>
+						<option value="1">Id Articulo</option>
+						<option value="2">Referencia</option>
+						<option value="3">Cod Barras</option>
+						<option value="4">Descripción</option>
+					</select>
 					<input type="submit"  class="pull-right btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
 					</div>
 					<?php
@@ -285,17 +294,6 @@ if (isset($_GET['tActual'])){
 					<strong>Empleado:</strong><br>
 					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
 				</div>
-				<div class="col-md-3">
-					<strong>Escoger casilla de salto:</strong><br>
-					<select id="salto" name="salto">
-                        <option value="0">Seleccionar</option>
-						<option value="1">Id Articulo</option>
-						<option value="2">Referencia</option>
-						<option value="3">Cod Barras</option>
-						<option value="4">Descripción</option>
-					</select>
-			</div>
-			
 		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
@@ -310,7 +308,7 @@ if (isset($_GET['tActual'])){
 		</div>
 	</div>
 	<div class="col-md-4" >
-			<div style="margin-top:-50px;">
+			<div>
 			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
 			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
 			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
