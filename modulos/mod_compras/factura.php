@@ -60,11 +60,7 @@
 		$abaranesFactura=$CFac->albaranesFactura($idFactura);
 		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 		$datosImportes=$CFac->importesFactura($idFactura);
-        
         $albaranesFactura=addAlbaranesFacturas($productosFactura, $idFactura, $BDTpv);
-        
-        
-        
 		$estado=$datosFactura['estado'];
 		$date=date_create($datosFactura['Fecha']);
 		$fecha=date_format($date,'d-m-Y');
@@ -254,28 +250,38 @@
       }
 </script>
 <div class="container">
-	<?php 
-	if($idFactura>0){
-		?>
-	<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idFactura ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
-<?php
-	}
-	if($inciden>0){
-		?>
-		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_compras', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
-		<?php
-	}
-	?>
+	
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
 				<div class="col-md-8" >
-				<a  href="./facturasListado.php">Volver Atrás</a>
+                    <a  href="./facturasListado.php">Volver Atrás</a>
 					<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+                    <?php 
+                    if($idFactura>0){
+                    ?>
+                        <input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idFactura ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
+                    <?php
+                    }
+                    if($inciden>0){
+                    ?>
+                        <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_compras', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+                    <?php
+                    }
+                    ?>
 				</div>
 				<div class="col-md-4 " >
 					<input type="submit" class="pull-right btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
-					</div>
+                    <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+					 <select  title="Escoje casilla de salto" id="salto" name="salto">
+						<option value="0">Seleccionar</option>
+						<option value="1">Id Articulo</option>
+						<option value="2">Referencia</option>
+						<option value="3">Referencia Proveedor</option>
+						<option value="4">Cod Barras</option>
+						<option value="5">Descripción</option>
+					</select>
+                </div>
 					<?php
 				if ($idFacturaTemporal>0){
 					?>
@@ -305,19 +311,6 @@
 				
 			
 		</div>
-		<div class="col-md-12">
-			<div class="col-md-3">
-					<strong>Escoger casilla de salto:</strong><br>
-					<select id="salto" name="salto">
-						<option value="0">Seleccionar</option>
-						<option value="1">Id Articulo</option>
-						<option value="2">Referencia</option>
-						<option value="3">Referencia Proveedor</option>
-						<option value="4">Cod Barras</option>
-						<option value="5">Descripción</option>
-					</select>
-			</div>
-		</div>
 		<div class="form-group">
 			<label>Proveedor:</label>
 			<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
@@ -328,7 +321,7 @@
 	<div class="col-md-5" >
 	<div class="row">
 		<div>
-			<div style="margin-top:-50px;" id="tablaAl" style="<?php echo $style;?>">
+			<div style="margin-top:0px;" id="tablaAl" style="<?php echo $style;?>">
 			<label  id="numPedidoT">Número del albarán:</label>
 			<input  type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
 			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
