@@ -66,7 +66,7 @@
 			$incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
 			$inciden=count($incidenciasAdjuntas['datos']);
 		}else{
-			$bandera=1;
+			//~ $bandera=1;
 			if (isset($_GET['tActual'])){
 				$numPedidoTemp=$_GET['tActual'];
 				$pedido=$Cpedido->DatosTemporal($numPedidoTemp);
