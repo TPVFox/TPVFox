@@ -127,11 +127,8 @@ class AlbaranesVentas extends ClaseVentas {
         //Eliminar todas los registros de un id de albarán real 
         $respuesta = array();
         $db = $this->db;
-
         $albaran = $this->datosAlbaran($idAlbaran);
         $lineasAlbaran = $this->ProductosAlbaran($idAlbaran);
-
-
         $sql[0] = 'DELETE FROM albclit where id=' . $idAlbaran;
         $sql[1] = 'DELETE FROM albclilinea where idalbcli =' . $idAlbaran;
         $sql[2] = 'DELETE FROM albcliIva where idalbcli =' . $idAlbaran;
@@ -218,7 +215,6 @@ class AlbaranesVentas extends ClaseVentas {
                         . $prod['ncant'] . ' , ' . $prod['nunidades'] . ', ' . $prod['precioCiva'] . ' , '
                         . $prod['iva'] . ', ' . $i . ', "' . $prod['estadoLinea'] . '" , ' . $numPed . ', ' . $prod['pvpSiva'] . ')';
                 $smt = $this->consulta($sql);
-                //~ error_log('sql '.$sql);
                 if (gettype($smt) === 'array') {
                     $respuesta['error'] = $smt['error'];
                     $respuesta['consulta'] = $smt['consulta'];
@@ -286,7 +282,6 @@ class AlbaranesVentas extends ClaseVentas {
             $respuesta = array();
             $respuesta['Items'] = $albaranesPrincipal;
             $respuesta['consulta'] = $sql;
-            //~ $respuesta['limite']=$limite;
             return $respuesta;
         }
     }
