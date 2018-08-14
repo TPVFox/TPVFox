@@ -98,14 +98,13 @@
             <h5> Opciones para una selección</h5>
             <ul class="nav nav-pills nav-stacked"> 
             <?php 
-                if ($Usuario['group_id'] > '0'){
-            ?>
-                <li><a href="#section2" onclick="metodoClick('AgregarPedido');";>Añadir</a></li>
-                <?php 
-            }
+                if($ClasePermisos->getAccion("Crear")==1){
+                   echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a></li>';
+                }
+                if($ClasePermisos->getAccion("Modificar")==1){
+                    echo '<li><a href="#section2" onclick="metodoClick('."'".'Ver'."'".','."'".'pedido'."'".');";>Modificar</a></li>';
+                }
                 ?>
-                <li><a href="#section2" onclick="metodoClick('Ver','pedido');";>Modificar</a></li>
-            
             </ul>
             <div class="col-md-12">
                 <h4 class="text-center"> Pedidos Abiertos</h4>
@@ -189,7 +188,13 @@
                             ?>
                         </td>
                         <td>
+                            <?php 
+                            if($ClasePermisos->getAccion("Modificar")==1){
+                            ?>
                             <a class="glyphicon glyphicon-pencil" href='./pedido.php?id=<?php echo $pedido['id'];?>'>
+                            <?php 
+                            }
+                            ?>
                         </td>
                         <td><?php echo $pedido['Numpedpro'];?></td>
                         <td><?php echo $pedido['FechaPedido'];?></td>
