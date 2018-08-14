@@ -358,29 +358,37 @@ if ($idCliente==0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
-	<?php 
-	if($idFactura>0){
-		?>
-		<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idFactura ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
-
-		<?php
-	}
-		if($inciden>0){
-		?>
-		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_ventas', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
-		<?php
-	}
-	?>
+	
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
 				<div class="col-md-8" >
-			<a  href="./facturasListado.php">Volver Atrás</a>
-			
+                    <a  href="./facturasListado.php">Volver Atrás</a>
+                    <?php 
+                        if($idFactura>0){
+                            ?>
+                            <input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idFactura ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
+
+                            <?php
+                        }
+                            if($inciden>0){
+                            ?>
+                            <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_ventas', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+                            <?php
+                        }
+                        ?>
 					<input type="submit"  class="btn btn-primary" value="Guardar" id="Guardar" name="Guardar">
 					</div>
-				<div class="col-md-4 " >
-					<input type="submit" class="pull-right btn btn-danger" value="Cancelar" id="Cancelar" name="Cancelar">
+				<div class="col-md-4 text-right" >
+                     <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+                     <select  title="Escoje casilla de salto" id="salto" name="salto">
+                        <option value="0">Seleccionar</option>
+						<option value="1">Id Articulo</option>
+						<option value="2">Referencia</option>
+						<option value="3">Cod Barras</option>
+						<option value="4">Descripción</option>
+					</select>
+					<input type="submit" class="btn btn-danger" value="Cancelar" id="Cancelar" name="Cancelar">
 					</div>
 					<?php
 				if ($idFacturaTemporal>0){
@@ -394,7 +402,7 @@ if ($idCliente==0){
 		<div class="col-md-12">
 			
 				<div class="col-md-2">
-					<strong>Fecha Factura:</strong><br>
+					<strong>Fecha Fact:</strong><br>
 					<input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
 				</div>
 				<div class="col-md-2">
@@ -434,18 +442,6 @@ if ($idCliente==0){
 			</div>
 			
 		</div>
-		<div class="col-md-12">
-		<div class="col-md-4">
-					<strong>Escoger casilla de salto:</strong><br>
-					<select id="salto" name="salto">
-						<option value="0">Seleccionar</option>
-						<option value="1">Id Articulo</option>
-						<option value="2">Referencia</option>
-						<option value="3">Cod Barras</option>
-						<option value="4">Descripción</option>
-					</select>
-			</div>
-		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
 			<input type="text" id="id_cliente" name="id_cliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
@@ -456,7 +452,7 @@ if ($idCliente==0){
 	<div class="col-md-4" >
 	
 		<div>
-			<div style="margin-top:-50px;" id="tablaAl">
+			<div style="margin-top:0;" id="tablaAl">
 			<label  id="numAlbaranT">Número del albaran:</label>
 			<input  type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' data-obj= "numAlbaran" onkeydown="controlEventos(event)">
 			<a  id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAlbaran('albaran')"></a>
