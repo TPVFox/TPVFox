@@ -151,7 +151,7 @@ if (isset($errores)){
 				<thead>
 					<tr>
 						<th></th>
-						
+						<th></th>
 						<th>Nª ALBARÁN</th>
 						<th>FECHA</th>
 						<th>CLIENTE</th>
@@ -172,7 +172,9 @@ if (isset($errores)){
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $albaran['id'];?>">
-					
+                        <td>
+                            <a class="glyphicon glyphicon-pencil" href='./albaran.php?id=<?php echo $albaran['id'];?>'>
+                        </td>
 						<td><?php echo $albaran['Numalbcli'];?></td>
 						<td><?php echo date_format($date,'Y-m-d');?></td>
 						<td><?php echo $albaran['Nombre'];?></td>
