@@ -48,10 +48,9 @@
 			$idPedido=$_GET['id'];
 			$textoNum=$idPedido;
 			$datosPedido=$Cpedido->DatosPedido($idPedido);
+            $estado='Modificado';
 			if ($datosPedido['estado']=='Facturado'){
 				$estado=$datosPedido['estado'];
-			}else{
-				$estado='Modificado';
 			}
 			$productosPedido=$Cpedido->ProductosPedidos($idPedido);
 			$ivasPedido=$Cpedido->IvasPedidos($idPedido);
@@ -66,7 +65,6 @@
 			$incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
 			$inciden=count($incidenciasAdjuntas['datos']);
 		}else{
-			//~ $bandera=1;
 			if (isset($_GET['tActual'])){
 				$numPedidoTemp=$_GET['tActual'];
 				$pedido=$Cpedido->DatosTemporal($numPedidoTemp);
@@ -104,8 +102,6 @@ if (isset($_POST['Guardar'])){
 	$guardar=guardarPedido($_POST, $_GET, $BDTpv, $Datostotales);
 	if (count($guardar)==0){
 		header('Location: pedidosListado.php');
-		
-
 	}else{
 		foreach ($guardar as $error){
 				echo '<div class="'.$error['class'].'">'
@@ -114,6 +110,7 @@ if (isset($_POST['Guardar'])){
 			}
 	}
 }
+$htmlIvas=htmlTotales($Datostotales);
 ?>
 
 <script type="text/javascript">
@@ -297,7 +294,6 @@ if (isset($_POST['Guardar'])){
 		</thead>
 		<tbody>
 			<?php 
-			$htmlIvas=htmlTotales($Datostotales);
 			echo $htmlIvas['html']; ?>
 		</tbody>
 		</table>
