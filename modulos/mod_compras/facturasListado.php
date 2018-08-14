@@ -117,8 +117,8 @@
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                    <th></th>
-                
+                        <th></th>
+                        <th></th>
                         <th>Nª FACTURA</th>
                         <th>FECHA</th>
                         <th>PROVEEDOR</th>
@@ -155,6 +155,9 @@
                             $check_name = 'checkUsu'.$checkUser;
                             echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" value="'.$factura['id'].'" class="check_factura">';
                             ?>
+                        </td>
+                         <td>
+                            <a class="glyphicon glyphicon-pencil" href='./factura.php?id=<?php echo $factura['id'];?>'>
                         </td>
                         <td><?php echo $factura['Numfacpro'];?></td>
                         <td><?php echo date_format($date,'Y-m-d');?></td>
