@@ -83,7 +83,6 @@
 		$incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_ventas", $BDTpv, "pedidos");
 		$inciden=count($incidenciasAdjuntas['datos']);
 	}else{
-		
 			if (isset($_GET['tActual'])){//Si recibe un id de un temporal 
 			$idTemporal=$_GET['tActual'];
 			$pedidoTemporal= $Cpedido->BuscarIdTemporal($idTemporal);//Buscamos los datos del temporal
@@ -325,19 +324,7 @@ if ($idCliente===0){
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <div class="container">
-	<?php 
-	if($idPedido>0){
-		?>
-		<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idPedido ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
-
-		<?php
-	}
-		if($inciden>0){
-		?>
-		<input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idPedido;?>, 'mod_ventas', 'pedidos')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
-		<?php
-	}
-	?>
+	
 
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
@@ -346,13 +333,34 @@ if ($idCliente===0){
 				<div class="col-md-8" >
 			
 				<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
+                <?php 
+                    if($idPedido>0){
+                        ?>
+                        <input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idPedido ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
+
+                        <?php
+                    }
+                        if($inciden>0){
+                        ?>
+                        <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idPedido;?>, 'mod_ventas', 'pedidos')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+                        <?php
+                    }
+                    ?>
 					<?php 
 						if($estado<>"Facturado"){
 					?>
 						<input type="submit" value="Guardar" class="btn btn-primary" name="Guardar">
 						</div>
-				<div class="col-md-4 " >
-						<input class="pull-right btn btn-danger" type="submit" value="Cancelar" name="Cancelar" id="Cancelar">
+				<div class="col-md-4 text-right " >
+                         <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+                         <select  title="Escoje casilla de salto" id="salto" name="salto">
+                            <option value="0">Seleccionar</option>
+                            <option value="1">Id Articulo</option>
+                            <option value="2">Referencia</option>
+                            <option value="3">Cod Barras</option>
+                            <option value="4">Descripción</option>
+                        </select>
+						<input class="btn btn-danger" type="submit" value="Cancelar" name="Cancelar" id="Cancelar">
 					<?php
 					}
 					?>
@@ -383,18 +391,6 @@ if ($idCliente===0){
 			<div class="col-md-3">
 				<label>Empleado:</label>
 				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="25" readonly>
-			</div>
-		</div>
-		<div class="col-md-12">
-		<div class="col-md-4">
-					<strong>Escoger casilla de salto:</strong><br>
-					<select id="salto" name="salto">
-						<option value="0">Seleccionar</option>
-						<option value="1">Id Articulo</option>
-						<option value="2">Referencia</option>
-						<option value="3">Cod Barras</option>
-						<option value="4">Descripción</option>
-					</select>
 			</div>
 		</div>
 		<div class="form-group">
