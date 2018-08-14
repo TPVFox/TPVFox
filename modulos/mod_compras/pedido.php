@@ -209,7 +209,7 @@ if (isset($_POST['Guardar'])){
                     <option value="4">Cod Barras</option>
                     <option value="5">Descripción</option>
                 </select>
-               <input type="submit"class="pull-right btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
+               <input type="submit"class=" btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
                 <?php
                 if (isset($numPedidoTemp)){
                 ?>

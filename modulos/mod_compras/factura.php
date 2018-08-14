@@ -270,8 +270,8 @@
                     }
                     ?>
 				</div>
-				<div class="col-md-4 " >
-					<input type="submit" class="pull-right btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
+				<div class="col-md-4 text-right" >
+					
                     <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
 					 <select  title="Escoje casilla de salto" id="salto" name="salto">
 						<option value="0">Seleccionar</option>
@@ -281,6 +281,7 @@
 						<option value="4">Cod Barras</option>
 						<option value="5">Descripción</option>
 					</select>
+                    <input type="submit" class=" btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
                 </div>
 					<?php
 				if ($idFacturaTemporal>0){
