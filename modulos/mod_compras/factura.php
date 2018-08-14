@@ -97,31 +97,27 @@
 		if (isset($_GET['tActual'])){
 				$idFacturaTemporal=$_GET['tActual'];
 				$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+                $numFactura=0;
+                $idFactura=0;
+                $fecha1=date_create($datosFactura['fechaInicio']);
+                $fecha =date_format($fecha1, 'd-m-Y');
+                $suNumero="";
 				if (isset ($datosFactura['numfacpro'])){
 					$numFactura=$datosFactura['numfacpro'];
 					$datosReal=$CFac->buscarFacturaNumero($numFactura);
 					$idFactura=$datosReal['id'];
 					$textoNum=$idFactura;
-				}else{
-					$numFactura=0;
-					$idFactura=0;
 				}
 				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
 					$fecha=date('d-m-Y');
-				}else{
-					$fecha1=date_create($datosFactura['fechaInicio']);
-					$fecha =date_format($fecha1, 'd-m-Y');
 				}
 				if (isset($datosFactura['Su_numero'])){
 					$suNumero=$datosFactura['Su_numero'];
-				}else{
-					$suNumero="";
 				}
 				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 				$idProveedor=$datosFactura['idProveedor'];
 				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
-				
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
 				$factura=$datosFactura;
 				$productos =  json_decode($datosFactura['Productos']) ;
@@ -181,8 +177,6 @@
 		cabecera['fecha'] ='<?php echo $fecha ;?>';
 		cabecera['idProveedor'] = '<?php echo $idProveedor ;?>';
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
-		
-		
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	var albaranes =[];
@@ -221,7 +215,6 @@
 
 ?>
 </script>
-
 </head>
 <body>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
@@ -229,10 +222,7 @@
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
-
-
 <?php
-	//~ include '../../header.php';
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
 <script type="text/javascript">
@@ -250,7 +240,6 @@
       }
 </script>
 <div class="container">
-	
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
@@ -259,19 +248,18 @@
 					<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
                     <?php 
                     if($idFactura>0){
-                    ?>
-                        <input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idFactura ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
-                    <?php
+                        echo '<input class="btn btn-warning" size="12" 
+                        onclick="abrirModalIndicencia('."'".$dedonde."'".' , configuracion, 0,'.$idFactura.');"
+                        value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
                     }
                     if($inciden>0){
-                    ?>
-                        <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idFactura;?>, 'mod_compras', 'factura')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
-                    <?php
+                        echo ' <input class="btn btn-info" size="15" 
+                        onclick="abrirIncidenciasAdjuntas('.$idFactura.', '."'".'mod_compras'."'".', '."'".'factura'."'".')" 
+                        value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
                     }
                     ?>
 				</div>
 				<div class="col-md-4 text-right" >
-					
                     <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
 					 <select  title="Escoje casilla de salto" id="salto" name="salto">
 						<option value="0">Seleccionar</option>
@@ -377,7 +365,6 @@
 		  </tr>
 		  <tr id="Row0" style=<?php echo $estiloTablaProductos;?>>  
 			<td id="C0_Linea" ></td>
-			
 			<td id="C0_Linea" ></td>
 			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)"></td>
 			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)"></td>
@@ -391,7 +378,6 @@
 			$i=0;
 			if (isset($productos)){
 				foreach (array_reverse($productos) as $producto){
-				
 					if($producto['numAlbaran']<>$numAdjunto){
 						echo $alb_html[$i];
 						$numAdjunto=$producto['numAlbaran'];
@@ -481,7 +467,6 @@
 			</table>
 		</div>
 </div>
-
 </form>
 </div>
 <?php // Incluimos paginas modales
