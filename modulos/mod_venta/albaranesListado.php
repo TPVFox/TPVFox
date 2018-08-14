@@ -81,14 +81,13 @@ if (isset($errores)){
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php 
-					if ($Usuario['group_id'] > '0'){
-				?>
-					<li><a href="#section2" onclick="metodoClick('AgregarAlbaran', 'albaran');";>Añadir</a></li>
-					<?php 
-				}
+					 if($ClasePermisos->getAccion("Crear")==1){
+                         echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarAlbaran'."'".', '."'".'albaran'."'".');";>Añadir</a></li>';
+                    }
+                    if($ClasePermisos->getAccion("Modificar")==1){
+                        echo '<li><a href="#section2" onclick="metodoClick('."'".'Ver'."'".','."'".'albaran'."'".');";>Modificar</a></li>';
+                    }
 					?>
-					<li><a href="#section2" onclick="metodoClick('Ver','albaran');";>Modificar</a></li>
-				
 				</ul>	
 					<div class="col-md-12">
 		<h4 class="text-center"> Albaranes Abiertos</h4>
@@ -173,7 +172,13 @@ if (isset($errores)){
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $albaran['id'];?>">
                         <td>
-                            <a class="glyphicon glyphicon-pencil" href='./albaran.php?id=<?php echo $albaran['id'];?>'>
+                            <?php 
+                             if($ClasePermisos->getAccion("Modificar")==1){
+                            ?>
+                                <a class="glyphicon glyphicon-pencil" href='./albaran.php?id=<?php echo $albaran['id'];?>'>
+                            <?php 
+                            }
+                            ?>
                         </td>
 						<td><?php echo $albaran['Numalbcli'];?></td>
 						<td><?php echo date_format($date,'Y-m-d');?></td>
