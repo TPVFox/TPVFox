@@ -643,7 +643,7 @@ if($estado=="Guardado"){
 	$("#fila0").show();
 	<?php
 }
-if (isset($productos) & $albaranes==null & $comprobarAlbaran==2){
+if (isset($productos) & $albaranes==null & $comprobarAlbaran==0){
 	?>
 	$("#tablaAl").hide();
 	<?php

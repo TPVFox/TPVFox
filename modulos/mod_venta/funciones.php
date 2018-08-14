@@ -464,21 +464,16 @@ function modalAdjunto($adjuntos){
 	$respuesta['html'] .='</th>';
 	$respuesta['html'] .= '</thead><tbody>';
 	foreach ($adjuntos as $adjunto){
-		
+		$num=$adjunto['Numpedcli'];
+        $onclick="buscarDatosPedido";
+        $fecha=$adjunto['FechaPedido'];
 		if (isset($adjunto['Numalbcli'])){
 			$onclick="buscarDatosAlbaran";
 			$num=$adjunto['Numalbcli'];
-		}else{
-			$num=$adjunto['Numpedcli'];
-			$onclick="buscarDatosPedido";
 		}
-		
 		if(isset($adjunto['Fecha'])){
 			$fecha=$adjunto['Fecha'];
-		}else{
-			$fecha=$adjunto['FechaPedido'];
 		}
-		
 		$respuesta['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="'.$onclick.'('.$num.');">'
 							.'<td id="C'.$contad.'_Lin" >'
 							.'<input id="N_'.$contad.'" name="filapedido" data-obj="idN" '
@@ -506,10 +501,9 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 			while ($fila = $datosPedido->fetch_assoc()) {
 				$ped= $fila;
 			}
+            $numPedido=$pedido['Numpedcli'];
 			if ($pedido['numPedido']){
 				$numPedido=$pedido['numPedido'];
-			}else{
-				$numPedido=$pedido['Numpedcli'];
 			}
 			$res['Numpedcli']=$numPedido;
 			$res['idPedido']=$ped['id'];
@@ -571,6 +565,7 @@ function htmlVencimiento($nuevafecha, $BDTpv){
     
 }
 function fechaVencimiento($fecha, $BDTpv){
+    $nuevafecha = date('Y-m-d');
 	if ($fecha>0){
 		$vencimiento=new TiposVencimientos($BDTpv);
 		$principal=$vencimiento->datosPrincipal($fecha);
@@ -579,8 +574,6 @@ function fechaVencimiento($fecha, $BDTpv){
 		$fecha = date('Y-m-j');
 		$nuevafecha = strtotime($fecha.$string);
 		$nuevafecha = date ( 'Y-m-d' , $nuevafecha );
-	}else{
-		 $nuevafecha = date('Y-m-d');
 	}
 	return $nuevafecha;
 	
@@ -655,14 +648,13 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 			 foreach ($albaranes as $adjunto){ 
 				 
 				$total=0;
+                $fecha1="";
 				if(isset($adjunto['total'])){
 					$total=$adjunto['total'];
 				}
 				if (isset ($adjunto['fecha'])){
 					$fecha1=date_create($adjunto['fecha']);
 					$fecha1=date_format($fecha1,'Y-m-d');
-				}else{
-					$fecha1="";
 				}
 				$alb_html[]='<tr><td><b><font size="9">Nun Alb:'.$adjunto['Numalbcli'].'</font></b></td><td WIDTH="50%"><b><font size="9">'.$fecha1.'</font></b></td>
 				<td colspan="4"><b><font size="9">Total  : '.$total.'€</font></b></td></tr>';
@@ -670,12 +662,11 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		}
 		$alb_html=array_reverse($alb_html);
 	}
+    $fecha="";
 	if (isset ($date)){
 		$fecha=date_format($date,'Y-m-d');
-	}else{
-		$fecha="";
 	}
-		$productos=array_reverse($productos);
+    $productos=array_reverse($productos);
 	$imprimir['cabecera'].='<p></p><font size="20">Super Oliva </font><br>
 		<font size="12">'.$tienda['razonsocial'].'</font><br>'.
 		'<font size="12">'.$tienda['direccion'].'</font><br>'.
@@ -724,8 +715,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 		}
 		$imprimir['html'].='</table>';
 		$imprimir['html'].='<hr/><hr/>';
-			if (isset($Datostotales)){
-		foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
+        if (isset($Datostotales)){
+            foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
 				switch ($iva){
 					case 4 :
 						$base4 = $basesYivas['base'];
@@ -874,10 +865,9 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 						break;
 					}
 					$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
+                    $fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					if (isset ($datosPost['fecha'])){
 						$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
-					}else{
-						$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
 					}
 					if (isset ($datosAlbaran['Productos'])){
 						$productos=$datosAlbaran['Productos'];
@@ -1094,11 +1084,10 @@ function cancelarFactura($idTemporal, $BDTpv){
 function comprobarAlbaran($idCliente, $BDTpv){
 	$Calb=new AlbaranesVentas($BDTpv);
 	$busqueda="";
+    $bandera=0;
 	$con=$Calb->AlbaranClienteGuardado($busqueda, $idCliente);
 	if (count($con)>0){
 		$bandera=1;
-	}else{
-		$bandera=2;
 	}
 	return $bandera;
 }
