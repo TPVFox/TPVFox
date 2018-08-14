@@ -146,7 +146,7 @@ if (isset($errores)){
 				<thead>
 					<tr>
 						<th></th>
-						
+						<th></th>
 						<th>Nª PEDIDO</th>
 						<th>FECHA</th>
 						<th>CLIENTE</th>
@@ -167,7 +167,9 @@ if (isset($errores)){
 						?>
 						<tr>
 						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">
-					
+                         <td>
+                            <a class="glyphicon glyphicon-pencil" href='./pedido.php?id=<?php echo $pedido['id'];?>'>
+                        </td>
 						<td><?php echo $pedido['Numpedcli'];?></td>
 						<td><?php echo $pedido['FechaPedido'];?></td>
 						<td><?php echo $pedido['Nombre'];?></td>
