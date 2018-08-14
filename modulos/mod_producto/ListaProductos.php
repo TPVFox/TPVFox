@@ -268,6 +268,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                     <th>P.V.P</th>
                                     <th>Estado</th>
                                     <th>Reg.Stock</th>
+                                    <th>WEB</th>
 
                                 </tr>
                             </thead>
@@ -337,6 +338,20 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         }
                                             ?>
                                             </td>
+                                        <td>
+                                        <?php
+                                        if(isset($refTiendas)){
+                                            foreach ($refTiendas as $ref){
+                                                if($ref['idVirtuemart']>0){
+                                                    echo '  <span class="glyphicon glyphicon-globe"></span>';
+                                                }
+                                            }
+                                        } 
+                                     
+                                        
+                                        ?>
+                                        
+                                        </td>
                                     </tr>
 
                                     <?php
