@@ -14,6 +14,7 @@ function obtenerTiendas($BDTpv) {
 	while ($tienda = $res->fetch_assoc()) {
 			$tiendas['items'][$i]['idTienda'] = $tienda['idTienda'];
 			$tiendas['items'][$i]['NombreComercial'] = $tienda['NombreComercial'];
+            $tiendas['items'][$i]['tipoTienda'] = $tienda['tipoTienda'];
 			$tiendas['items'][$i]['razonsocial'] = $tienda['razonsocial'];
 			$tiendas['items'][$i]['nif'] = $tienda['nif'];
 			$tiendas['items'][$i]['direccion'] = $tienda['direccion'];			

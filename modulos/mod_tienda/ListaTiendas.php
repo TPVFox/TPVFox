@@ -67,6 +67,7 @@
 						<th></th>
 						<th>ID</th>
 						<th>NOMBRE COMERCIAL</th>
+                        <th>TIPO</th>
 						<th>RAZON SOCIAL</th>
 						<th>NIF</th>
 						<th>DIRECCION</th>
@@ -87,6 +88,7 @@
 					</td>
 					<td><?php echo $tienda['idTienda']; ?></td>
 					<td><?php echo $tienda['NombreComercial']; ?></td>
+                    <td><?php echo $tienda['tipoTienda']; ?></td>
 					<td><?php echo $tienda['razonsocial']; ?></td>
 					<td><?php echo $tienda['nif']; ?></td>
 					<td><?php echo $tienda['direccion']; ?></td>
