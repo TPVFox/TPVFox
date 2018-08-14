@@ -164,7 +164,7 @@
                 <thead>
                     <tr>
                         <th></th>
-                        
+                        <th></th>
                         <th>Nª PEDIDO</th>
                         <th>FECHA</th>
                         <th>PROVEEDOR</th>
@@ -188,7 +188,9 @@
                             echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" value="'.$pedido['id'].'" class="check_pedido">';
                             ?>
                         </td>
-                        
+                        <td>
+                            <a class="glyphicon glyphicon-pencil" href='./pedido.php?id=<?php echo $pedido['id'];?>'>
+                        </td>
                         <td><?php echo $pedido['Numpedpro'];?></td>
                         <td><?php echo $pedido['FechaPedido'];?></td>
                         <td><?php echo $pedido['nombrecomercial'];?></td>
