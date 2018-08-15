@@ -2,6 +2,12 @@
     // No creo que debe ser así.. de momento lo dejamos..
     //Cargamos los permisos;
     $Permisos=$thisTpv->permisos->permisos;
+    include_once $URLCom.'/modulos/mod_menu/clases/ClaseMenu.php';
+    $Cmenu = new ClaseMenu;
+    $xml = $Cmenu->items;
+    //~ echo '<pre>';
+    //~ print_r($Permisos);
+    //~ echo '</pre>';
 ?>
 
 <header>
@@ -19,41 +25,41 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
 				<ul class="nav navbar-nav navbar-left ">
 <?php 
-//Cargamos el xml de parametros
-$xml=simplexml_load_file($URLCom.'/modulos/mod_menu/parametrosMenu.xml');
-foreach ($xml->item_nivel_1 as $nivel1){//Recorremos el xml comprobando si el usuario tiene permisos o no
-                                        //Si tiene se lo muestra y si no tiene no lo muestra
-                                        //Esto lo hacemos con todos los niveles
-    if(isset($nivel1['vista'])){
-        if(isset($nivel1['modulo'])){
-            $comprobar=$ClasePermisos->comprobarPermisos($nivel1, $Permisos);
-            if($comprobar==1){
-                 echo '<li><a href="'.$HostNombre.'/modulos/'.$nivel1['modulo'].'/'.$nivel1['vista'].'">'.$nivel1['descripcion'].'</a></li>';
-            }
-        }else{
-            echo '<li><a href="'.$HostNombre.'/'.$nivel1['vista'].'">'.$nivel1['descripcion'].'</a></li>';
+
+foreach ($xml->item_nivel_1 as $nivel1){
+    $items_nivel2 = count($nivel1); // Contamos si tiene hijos (nivel2)
+    $tipo = (isset($nivel1['vista'])) ? 'vista' : 'separador';
+    if ($tipo == 'vista'){
+        // Ahora tendría comprobar si tiene permiso.
+        $comprobar=$ClasePermisos->comprobarPermisos($Permisos,$nivel1['modulo'],$nivel1['vista']);
+        if ($comprobar['permiso'] == 'Ok'){
+            echo '<li><a href="'.$HostNombre.'/'.$comprobar['link'].'">'.$nivel1['descripcion'].'</a>';
         }
-        
-    }else{
-         echo '<li class="dropdown">
+    } else {
+        echo '<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#">'.$nivel1['descripcion'].'
 							<span class="caret"></span></a>
 							<ul class="dropdown-menu">';
-        foreach ($nivel1->item_nivel_2 as $nivel2){
-             
-            if(isset($nivel2['modulo'])){
-               $comprobar=$ClasePermisos->comprobarPermisos($nivel2, $Permisos);
-                 if($comprobar==1){
-                    echo '<li><a href="'.$HostNombre.'/modulos/'.$nivel2['modulo'].'/'.$nivel2['vista'].'">'.$nivel2['descripcion'].'</a></li>';
-               }
-            }else{
-                echo '<li><a href="'.$HostNombre.'/'.$nivel2['vista'].'"></a>'.$nivel2['descripcion'].'</li>';
-            }
-           
-        }
-          echo'</ul>
-                        </li>';
     }
+    if ($items_nivel2 > 0){
+           // Entonces recorremos items de nivel 2
+            foreach ($nivel1->item_nivel_2 as $nivel2){
+                // Ahora tendría comprobar si tiene permiso.
+                $comprobar=$ClasePermisos->comprobarPermisos($Permisos,$nivel2['modulo'],$nivel2['vista']);
+                if ($comprobar['permiso'] == 'Ok'){
+                    echo '<li><a href="'.$HostNombre.'/'.$comprobar['link'].'">'.$nivel2['descripcion'].'</a></li>';
+                }
+            }
+
+            echo'</ul>';
+    
+    }
+        // Cierro li nivel 1
+        if ($comprobar['permiso'] == 'Ok'){
+            //Solo cierro li de nivel 1 , si se creo..
+            echo '</li>';
+        }
+    
 }
 ?>
 	</ul>

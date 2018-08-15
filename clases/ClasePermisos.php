@@ -191,24 +191,41 @@ class ClasePermisos{
     }
         //~ var_dump($this->plugins);
     }
-    public function comprobarPermisos($nivel, $permisos){
+    public function comprobarPermisos($permisos, $modulo, $vista){
         //Objetico: comprobar permisos para el menú superior de la aplicación 
         //Comprobamos el permiso del usuario con el permiso del xml del menu
-        $this->obtenerRutaProyecto();
-        foreach ($permisos['resultado'] as $permiso){
-           if($permiso['modulo']==$nivel['modulo'] & $permiso['vista']==$nivel['vista']){
-                if(is_file($this->RutaModulos.'/'.$nivel['modulo'].'/acces.xml')){
-                    $permisoUsuario=$permiso['permiso'];
-                    break;
-                }else{
-                    $permisoUsuario=1;
-                    break;
+        $respuesta = array();
+        $permisoModulo = 0;
+        $permisoVista = 0;
+        $Link ='';
+        if ($modulo == ''){
+            // NO es un modulo, es un link directo ( Home,Documentacion... )
+            $permiso = 2 ;
+            $link = $vista;
+        } else { 
+            // Es  un modulo...
+            foreach ($permisos['resultado'] as $permiso){
+                if($permiso['modulo']==$modulo && $permiso['vista'] == '') {
+                    // Este es el permiso para este modulo
+                    $permisoModulo = $permiso['permiso'];
                 }
-            }else{
-                $permisoUsuario=1;
+                if($permiso['modulo']==$modulo && $permiso['vista'] == '') {
+                    // Este es el permiso para vista.
+                    $permisoVista =  $permiso['permiso'];
+                    $link = '/modulos/'.$modulo.'/'.$vista;
+                    
+                }
             }
+            $permiso = $permisoModulo + $permisoVista;
+
         }
-        return $permisoUsuario;
+        // Ahora montamos link
+        if ($permiso ==2){
+            // tiene permiso
+            $respuesta['permiso'] = 'Ok';
+            $respuesta['link'] = $link;
+        }
+        return $respuesta;
     }
     
         
