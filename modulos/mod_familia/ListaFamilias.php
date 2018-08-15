@@ -15,9 +15,9 @@ $Controler = new ControladorComun;
 // Mostramos formulario si no tiene acceso.
 include_once ($URLCom .'/controllers/parametros.php');
 
-$ClasesParametros = new ClaseParametros('parametros.xml');
-$parametros = $ClasesParametros->getRoot();
-$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+//$ClasesParametros = new ClaseParametros('parametros.xml');
+//$parametros = $ClasesParametros->getRoot();
+$VarJS = ""; //$Controler->ObtenerCajasInputParametros($parametros);
 
 $familias = new ClaseFamilias($BDTpv);
 // Obtenemos la configuracion del usuario o la por defecto
@@ -61,12 +61,6 @@ $familias = new ClaseFamilias($BDTpv);
                                 ?>
                             <li><button class="btn btn-link" id="botonnuevo-hijo-0"
                                         data-alabuelo="0">Añadir</button></li>
-                                        <?php 
-                            }
-                        if($ClasePermisos->getAccion("modificar")==1){
-                                        ?>
-                            <li><button class="btn btn-link" id="boton-cambiarpadre"
-                                        data-alabuelo="0">Modificar</button></li>
                         <?php 
                         }
                         ?>

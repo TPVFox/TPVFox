@@ -86,7 +86,7 @@ function leerFamiliasHijas($idpadre) {
 
 function familias2Html2($familias) {
     $resultado = '';
-    if (count($familias) > 0) {
+    if($familias && (count($familias) > 0)) {
         foreach ($familias as $indice => $familia) {
             $indices[] = $familia['idFamilia'];
             $resultado .= '<tr>';

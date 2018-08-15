@@ -65,16 +65,6 @@ switch ($pulsado) {
     case 'leerFamilias':
         $idpadre = $_POST['idpadre'];
         $resultado = leerFamilias($idpadre);        
-//        $resultado = [];
-//        $resultado['padre'] = $idpadre;
-//            $objfamilia = new ClaseFamilias($BDTpv);
-//        if ($idpadre >= 0) {
-//        $familias = $objfamilia->leerUnPadre($idpadre);
-//        } else {
-//            $familias['datos'] = [];
-//        }
-//        $resultado['datos'] = $familias['datos'];
-//        $resultado['html'] = familias2Html($objfamilia, $familias['datos']);
         echo json_encode($resultado);
         break;
 
@@ -101,13 +91,17 @@ switch ($pulsado) {
         $familiaNombre = $_POST['nombrefamilia'];
         $familiaPadre = $_POST['idpadre'];
         $beneficiomedio = $_POST['beneficiomedio'];
+
+
+// COMPROBAR:
         // Que no estan vacios
         // que idpadre es >= 0 y un id existente
         // generar $resultado['error']
+
         $camposfamilia = compact('idFamilia','familiaNombre','familiaPadre','beneficiomedio');
         $resultado = [];
         $resultado['href'] = $_POST['href'];
-        if ($idpadre >= 0) {
+        if ($familiaPadre >= 0) {
             $familia = new ClaseFamilias($BDTpv);
             $resultado['insert'] = $familia->grabar($camposfamilia);
             $resultado['error'] = $familia->hayErrorConsulta() ? $familia->getErrorConsulta() : '0';
