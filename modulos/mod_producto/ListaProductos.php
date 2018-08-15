@@ -24,9 +24,7 @@
         //  Fin de carga de plugins.
 
         // Inicializo varibles por defecto.
-        $Tienda = $_SESSION['tiendaTpv'];
-        $Usuario = $_SESSION['usuarioTpv'];
-
+        
         $ClasesParametros = new ClaseParametros('parametros.xml');
         $parametros = $ClasesParametros->getRoot();
         // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
@@ -103,21 +101,15 @@
             $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro . $NPaginado->GetLimitConsulta());
         }
 
-
+        // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
         // Añadimos a JS la configuracion
         echo '<script type="application/javascript"> '
         . 'var configuracion = ' . json_encode($configuracion);
         echo '</script>';
         ?>
-
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-   
-        <!-- Cargamos fuciones de modulo. -->
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-        <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-			$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
-         
-		?>	
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/plugins/modal/func_modal_reutilizables.js"></script>
         <script type="text/javascript">
@@ -174,7 +166,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             ?>
                             <li><a href="#section2" onclick="metodoClick('VerProducto', 'producto');";>Modificar</a></li>
                             <?php 
-                        }
+                            }
                             ?>
                         </ul>
                     </div>
@@ -323,10 +315,10 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         }
                                         ?>
 
-                                        <td><?php echo number_format($producto['ultimoCoste'], 2); ?></td>
-                                        <td><?php echo $producto['beneficio']; ?></td>
-                                        <td style="text-align:right;"><?php echo number_format($producto['pvpSiva'], 2); ?><small>€</small></td>
-                                        <td><?php echo $producto['iva']; ?></td>
+                                        <td><?= number_format($producto['ultimoCoste'], 2)?></td>
+                                        <td><?= $producto['beneficio']?></td>
+                                        <td style="text-align:right;"><?= number_format($producto['pvpSiva'], 2)?><small>€</small></td>
+                                        <td><?=$producto['iva']?></td>
                                         <td style="text-align:right;"><?php echo number_format($producto['pvpCiva'], 2); ?><small>€</small></td>
                                         <td><?php echo $producto['estado']; ?></td>
                                         <td>
@@ -363,12 +355,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                     </div>
                 </div>
             </div>
-            <?php
-            //~ echo '<pre>';
-            //~ print_r($_SESSION['productos_seleccionados']);
-            //~ echo '</pre>';
-            //~ echo count($_SESSION['productos_seleccionados']);
-            ?>
         </div>
         <!-- Modal -->
         <div id="regularizaStockModal" class="modal fade" role="dialog">
