@@ -514,6 +514,20 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#Guardar").hide();
 		<?php
 	}
+    if ($_GET['estado']=="ver"){
+        ?>
+        $("#fila0").hide();	
+		$("#bCancelar").hide();
+		$("#bGuardar").hide();
+        $("#tabla").find('input').attr("disabled", "disabled");
+        $("#tabla").find('a').css("display", "none");
+        $("#suNumero").prop('disabled', true);
+        $("#fecha").prop('disabled', true);
+        $("#numPedido").css("display", "none");
+        $("#buscarPedido").css("display", "none");
+         $(".eliminar").css("display", "none");
+        <?php
+    }
 	?>
 </script>
 </body>

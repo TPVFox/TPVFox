@@ -118,6 +118,7 @@
                     <tr>
                         <th></th>
                         <th></th>
+                        <th></th>
                         <th>Nª FACTURA</th>
                         <th>FECHA</th>
                         <th>PROVEEDOR</th>
@@ -162,6 +163,15 @@
                                 <a class="glyphicon glyphicon-pencil" href='./factura.php?id=<?php echo $factura['id'];?>'>
                             <?php 
                                 }
+                            ?>
+                            </td>
+                           <td>
+                               <?php 
+                             if($ClasePermisos->getAccion("Ver")==1){
+                            ?>
+                            <a class="glyphicon glyphicon-eye-open" href='./factura.php?id=<?php echo $factura['id'];?>&estado=ver'>
+                            <?php 
+                            }
                             ?>
                         </td>
                         <td><?php echo $factura['Numfacpro'];?></td>
