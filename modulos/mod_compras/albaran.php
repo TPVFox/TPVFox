@@ -484,7 +484,7 @@
 		<?php
 	}
 	if (isset($datosAlbaran['estado'])){
-		if ($datosAlbaran['estado']=="Facturado"){
+		if ($datosAlbaran['estado']=="Facturado" || $_GET['estado']=="ver"){
 			?>
 			$("#tabla").find('input').attr("disabled", "disabled");
 			$("#tabla").find('a').css("display", "none");
