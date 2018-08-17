@@ -327,7 +327,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#Row0").css("display", "none");
 		<?php
 	}
-	if ($estado=="Facturado"){
+	if ($estado=="Facturado" || $_GET['estado']=="ver"){
 		?>
 		$("#tabla").find('input').attr("disabled", "disabled");
 		$("#tabla").find('a').css("display", "none");
