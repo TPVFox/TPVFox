@@ -2,6 +2,7 @@
     <modulo nombre="mod_compras" descripcion="Compras" permiso="1">
         <vista nombre="albaranesListado.php" descripcion="Listado albaranes" permiso="1">
             <accion nombre="Crear" descripcion="Crear albarán" permiso="1"></accion>
+	 <accion nombre="Ver" descripcion="Ver albarán" permiso="1"></accion>
             <accion nombre="Modificar" descripcion="Modificar albarán" permiso="1"></accion>
         </vista>
         <vista nombre="albaran.php" descripcion="Albarán" permiso="1"></vista>

@@ -36,6 +36,7 @@ class ClasePermisos{
         $this->usuario=$Usuario;
         $this->InicializarPermisosUsuario();
         $sql='SELECT * from permisos where idUsuario='.$Usuario['id'].' ORDER BY modulo , vista, accion asc ';
+     
         $res = $BDTpv->query($sql);
         $resultadoPrincipal=array();
         while ( $result = $res->fetch_assoc () ) {
@@ -53,6 +54,7 @@ class ClasePermisos{
         $this->ObtenerDir();
         $modulos=$this->modulos;
         foreach($modulos as $modulo){//Recorrer todos los modulos
+           
             if(is_file($this->RutaModulos.'/'.$modulo.'/acces.xml')){//Si en  el modulo existe el archivo acces
                 $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');//lo cargamos
                if(isset($this->usuario['group_id'])){
@@ -110,14 +112,16 @@ class ClasePermisos{
         $respuesta=array();
         $BDTpv = $this->BDTpv;
         $sql='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista IS NULL and accion IS NULL';
-               
+       
         $res = $BDTpv->query($sql);  
         
-        if($res->num_rows==0){    
-            $sql='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'",
-                    '.$xml['permiso'].')';
+        if($res->num_rows==0){  
+          
+            $sql='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'",'.$xml['permiso'].')';
+                    
             $res = $BDTpv->query($sql);
         }
+        
             foreach ($xml->vista as $vista){
                 $sql2='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista ="'.$vista['nombre'].'" and accion IS NULL';
                 $res = $BDTpv->query($sql2);    
@@ -125,6 +129,7 @@ class ClasePermisos{
                   
                  $sql2='INSERT INTO permisos(idUsuario, modulo, vista, permiso) VALUES ('.$this->usuario['id'].', 
                         "'.$xml['nombre'].'", "'.$vista['nombre'].'", '.$vista['permiso'].')';
+                       
                  $res = $BDTpv->query($sql2);
                 }
                  foreach($vista->accion as $accion){
@@ -133,7 +138,7 @@ class ClasePermisos{
                        if($res->num_rows==0){ 
                                
                         $sql3='INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'", "'.$vista['nombre'].'", "'.$accion['nombre'].'", '.$accion['permiso'].')';
-                        
+
                         $res = $BDTpv->query($sql3);
                     }
                  }
@@ -198,6 +203,7 @@ class ClasePermisos{
         $permisoModulo = 0;
         $permisoVista = 0;
         $Link ='';
+        $permiso=0;
         if ($modulo == ''){
             // NO es un modulo, es un link directo ( Home,Documentacion... )
             $permiso = 2 ;
@@ -209,7 +215,7 @@ class ClasePermisos{
                     // Este es el permiso para este modulo
                     $permisoModulo = $permiso['permiso'];
                 }
-                if($permiso['modulo']==$modulo && $permiso['vista'] == '') {
+                if($permiso['modulo']==$modulo && $permiso['vista'] == $vista) {
                     // Este es el permiso para vista.
                     $permisoVista =  $permiso['permiso'];
                     $link = '/modulos/'.$modulo.'/'.$vista;
@@ -224,6 +230,8 @@ class ClasePermisos{
             // tiene permiso
             $respuesta['permiso'] = 'Ok';
             $respuesta['link'] = $link;
+        }else{
+             $respuesta['permiso'] = 'No Ok';
         }
         return $respuesta;
     }

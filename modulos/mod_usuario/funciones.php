@@ -238,7 +238,7 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
             }else{
                  $checked="";
             }
-           
+            
             if($modulo<>$permiso['modulo']){
                 $modulo=$permiso['modulo'];
                 //De todos vamos obteniendo la descripción del acces
@@ -246,6 +246,7 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
                 $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$descripcion.'</b><br>';
             }else{
                 if($vista<>$permiso['vista']){
+                   
                 $vista=$permiso['vista'];
                 $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['vista'], $permiso);
                 $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 class="permiso" id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$descripcion.'<br>';

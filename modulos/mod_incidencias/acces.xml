@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<modulo nombre="mod_incidencias" descripcion="Incidencias" permisos="0">
-    <vista nombre="ListadoIncidencias.php" descripcion="Listado incidencias" permisos="0">
-        <accion nombre="crear" descripcion="Añadir" permisos="1"></accion>
-        <accion nombre="modificar" descripcion="Modificar" permisos="0"></accion>
+<modulo nombre="mod_incidencias" descripcion="Incidencias" permiso="0">
+    <vista nombre="ListadoIncidencias.php" descripcion="Listado incidencias" permiso="0">
+        <accion nombre="crear" descripcion="Añadir" permiso="1"></accion>
+        <accion nombre="modificar" descripcion="Modificar" permiso="0"></accion>
     </vista>
     <vista nombre="incidencia.php" descripcion="incidencia" permiso="0">
         <accion nombre="responder" descripcion="responder" permiso="0"></accion>

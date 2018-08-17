@@ -47,7 +47,9 @@
             $Usuario=array('id'=>$id);
             $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
             $permisosUsuario=$permisosUsuario['resultado'];
-           
+           //~ echo '<pre>';
+           //~ print_r($permisosUsuario);
+           //~ echo '</pre>';
 			$UsuarioUnico = verSelec($BDTpv,$id,$tabla);
 			$titulo = "Modificar Usuario";
 			$passwrd= 'password'; // Para mostrar ***** en password

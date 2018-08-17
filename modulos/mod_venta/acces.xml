@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<modulo nombre="mod_venta" descripcion="Ventas" permisos="1">
-    <vista nombre="albaranesListado.php" descripcion="Listado Albaranes" permisos="1">
-	 <accion nombre="Crear" descripcion="Crear albarán" permiso="1"></accion>
-         <accion nombre="Modificar" descripcion="Modificar albarán" permiso="1"></accion>
-    </vista>
-    <vista nombre="albaran.php" descripcion="Albarane" permisos="1"></vista>
-    <vista nombre="pedidosListado.php" descripcion="Listado Pedidos" permisos="1">
-	<accion nombre="Crear" descripcion="Crear pedido" permiso="1"></accion>
-        <accion nombre="Modificar" descripcion="Modificar pedido" permiso="1"></accion>
-    </vista>
-    <vista nombre="pedido.php" descripcion="Pedido" permisos="1"></vista>
-    <vista nombre="facturasListado.php" descripcion="Listado Factura" permisos="1">
-	    <accion nombre="Crear" descripcion="Crear factura" permiso="1"></accion>
+<modulo nombre="mod_venta" descripcion="Ventas" permiso="1">
+  <vista nombre="albaranesListado.php" descripcion="Listado albaranes" permiso="1">
+          <accion nombre="Crear" descripcion="Crear albarán" permiso="1"></accion>
+	 <accion nombre="Ver" descripcion="Ver albarán" permiso="1"></accion>
+          <accion nombre="Modificar" descripcion="Modificar albarán" permiso="1"></accion>
+        </vista>
+        <vista nombre="albaran.php" descripcion="Albarán" permiso="1"></vista>
+         <vista nombre="facturasListado.php" descripcion="Listado facturas" permiso="1">
+            <accion nombre="Crear" descripcion="Crear factura" permiso="1"></accion>
             <accion nombre="Modificar" descripcion="Modificar factura" permiso="1"></accion>
-    </vista>
-    <vista nombre="factura.php" descripcion="Factura" permisos="1"></vista>
+        </vista>
+       <vista nombre="factura.php" descripcion="Factura" permiso="1"></vista>
+        <vista nombre="pedidosListado.php" descripcion="Listado pedidos" permiso="1">
+            <accion nombre="Crear" descripcion="Crear pedido" permiso="1"></accion>
+            <accion nombre="Modificar" descripcion="Modificar pedido" permiso="1"></accion>
+        </vista>
+
+ 
+        <vista nombre="pedido.php" descripcion="Pedido" permiso="1"></vista>
 </modulo>
