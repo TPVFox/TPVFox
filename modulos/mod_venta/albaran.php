@@ -434,7 +434,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		<?php
 	}
 	if (isset ($datosAlbaran['estado'])){
-		if ($datosAlbaran['estado']=="Facturado"){
+		if ($datosAlbaran['estado']=="Facturado" || $_GET['estado']=="ver"){
 			?>
 			$("#tabla").find('input').attr("disabled", "disabled");
 			$("#tabla").find('a').css("display", "none");
@@ -444,6 +444,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 			$("#buscarPedido").css("display", "none");
 			$("#bGuardar").css("display", "none");
 			$("#bCancelar").css("display", "none");
+            $("#fecha").attr("disabled", "disabled");
 			<?php
 		}
 	}

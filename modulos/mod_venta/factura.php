@@ -82,10 +82,10 @@
 		if (isset($datosFactura['fechaVencimiento'])){
 			$date=date_create($datosFactura['fechaVencimiento']);
 			$fechave=date_format($date,'Y-m-d');
-			echo $datosFactura['fechaVencimiento'];
+			
 		}else{
 			$fec=date('Y-m-d');
-			echo $fec;
+			
 			$fechave=fechaVencimiento($fec, $BDTpv);
 		}
 		$textoFecha=htmlVencimiento($fechave, $BDTpv);
@@ -631,6 +631,7 @@ if ($estado=="Pagado total"){
 	$("#Guardar").hide();
 	<?php
 }
+
 if (count($albaranes)>0){
 		?>
 		 $('#Row0').css('display', 'none');
@@ -647,6 +648,20 @@ if (isset($productos) & $albaranes==null & $comprobarAlbaran==0){
 	?>
 	$("#tablaAl").hide();
 	<?php
+}
+if($_GET['estado']=="ver"){
+    ?>
+    $("#fila0").hide();
+	$("#Cancelar").hide();
+	$("#Guardar").hide();
+    $("#tabla").find('input').attr("disabled", "disabled");
+    $("#tabla").find('a').css("display", "none");
+     $("#fecha").attr("disabled", "disabled");
+    $("#fechaVenci").attr("disabled", "disabled");
+    $("#numAlbaran").css("display", "none");
+    $("#buscarAlbaran").css("display", "none");
+        $(".eliminar").css("display", "none");
+    <?php 
 }
 	?>
 </script>

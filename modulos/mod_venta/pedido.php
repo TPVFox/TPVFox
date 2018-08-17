@@ -490,9 +490,12 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	if($estado=="Facturado"){
+	if($estado=="Facturado" || $_GET['estado']=="ver"){
 		?>
 		$("#Row0").css("display", "none");
+        $("#fecha").attr("disabled", "disabled");
+        $("#tabla").find('input').attr("disabled", "disabled");
+        $("#tabla").find('a').css("display", "none");
 		<?php
 	}
 	?>

@@ -146,6 +146,7 @@ if (isset($errores)){
 					<tr>
 						<th></th>
 						<th></th>
+                        <th></th>
 						<th>Nª PEDIDO</th>
 						<th>FECHA</th>
 						<th>CLIENTE</th>
@@ -171,6 +172,15 @@ if (isset($errores)){
                               if($ClasePermisos->getAccion("Modificar")==1){
                              ?>
                                 <a class="glyphicon glyphicon-pencil" href='./pedido.php?id=<?php echo $pedido['id'];?>'>
+                            <?php 
+                            }
+                            ?>
+                        </td>
+                        <td>
+                            <?php 
+                            if($ClasePermisos->getAccion("Ver")==1){
+                            ?>
+                            <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&estado=ver'>
                             <?php 
                             }
                             ?>

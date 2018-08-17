@@ -151,6 +151,7 @@ if (isset($errores)){
 					<tr>
 						<th></th>
 						<th></th>
+                        <th></th>
 						<th>Nª ALBARÁN</th>
 						<th>FECHA</th>
 						<th>CLIENTE</th>
@@ -176,6 +177,15 @@ if (isset($errores)){
                              if($ClasePermisos->getAccion("Modificar")==1){
                             ?>
                                 <a class="glyphicon glyphicon-pencil" href='./albaran.php?id=<?php echo $albaran['id'];?>'>
+                            <?php 
+                            }
+                            ?>
+                        </td>
+                        <td>
+                               <?php 
+                             if($ClasePermisos->getAccion("Ver")==1){
+                            ?>
+                            <a class="glyphicon glyphicon-eye-open" href='./albaran.php?id=<?php echo $albaran['id'];?>&estado=ver'>
                             <?php 
                             }
                             ?>
