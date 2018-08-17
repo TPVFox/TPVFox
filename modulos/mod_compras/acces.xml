@@ -9,11 +9,13 @@
          <vista nombre="facturasListado.php" descripcion="Listado facturas" permiso="1">
             <accion nombre="Crear" descripcion="Crear factura" permiso="1"></accion>
             <accion nombre="Modificar" descripcion="Modificar factura" permiso="1"></accion>
+	    <accion nombre="Ver" descripcion="Ver factura" permiso="1"></accion>
         </vista>
         <vista nombre="factura.php" descripcion="Factura" permiso="1"></vista>
         <vista nombre="pedidosListado.php" descripcion="Listado pedidos" permiso="1">
             <accion nombre="Crear" descripcion="Crear pedido" permiso="1"></accion>
             <accion nombre="Modificar" descripcion="Modificar pedido" permiso="1"></accion>
+	    <accion nombre="Ver" descripcion="Ver pedido" permiso="1"></accion>
         </vista>
         <vista nombre="pedido.php" descripcion="Pedido" permiso="1"></vista>
         
