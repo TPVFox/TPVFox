@@ -332,6 +332,7 @@ function buscarAdjunto(dedonde, valor=""){
                                             'unidades'      : productosAdd[i].nunidades,
                                             'estado'        : productosAdd[i].estadoLinea
                                     }
+                                    //~ console.log(productosAdd[i].nunidades);
                                     prod = new ObjProducto(prod);
                                     console.log(prod);
                                     if (dedonde=="albaran"){
@@ -1229,7 +1230,8 @@ function ObjProducto(datos)
     this.ccodbar = datos.codBarras;
     this.cdetalle = datos.articulo_name;
     this.iva = datos.iva;
-    if (datos.nunidades === undefined){
+    console.log(datos.unidades);
+    if (datos.unidades === undefined){
 		this.nunidades = '1.00'; // Valor por defecto.
    		this.ncant = '1.00'; // Valor por defecto.
 
