@@ -565,7 +565,7 @@ function comprobarAdjunto(dedonde){
 }
 
 
-function AgregarFilasProductos(datos, dedonde, fila, cabecera ='NO'){
+function AgregarFilasProductos(datos, dedonde, cabecera ='NO'){
 	//@objetivo: 
 	//Agregar la fila de productos
 	console.log("Estoy en agregar fila productos albaran");
@@ -598,7 +598,7 @@ function AgregarFilasProductos(datos, dedonde, fila, cabecera ='NO'){
                     bloquearInput();
                 }
             }
-            ponerSelect('Unidad_Fila_'+fila);
+            ponerSelect('Unidad_Fila_'+datos.nfila);
 
         }
 	});

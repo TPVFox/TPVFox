@@ -137,7 +137,7 @@ function AccionBuscarProductos (caja,event){
                         }
                          
                         //  Añado linea de producto.
-                        AgregarFilasProductos(datos, dedonde, datos.nfila);
+                        AgregarFilasProductos(datos, dedonde);
                         //  Pongo focus.
                        //~ ponerSelect('Unidad_Fila_'+datos.nfila);
                        
@@ -145,8 +145,8 @@ function AccionBuscarProductos (caja,event){
                         if (dedonde=="factura"){
                             $("#tablaAl").hide();
                         }
-                        jQuery('#'+'Unidad_Fila_'+datos.nfila).select(); 
-                        console.log('Unidad_Fila_'+datos.nfila);
+                        //~ jQuery('#'+'Unidad_Fila_'+datos.nfila).select(); 
+                        //~ console.log('Unidad_Fila_'+datos.nfila);
                         
                     }else{
                         // Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
