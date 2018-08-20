@@ -135,14 +135,18 @@ function AccionBuscarProductos (caja,event){
                                  alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
                             }
                         }
+                         
                         //  Añado linea de producto.
-                        AgregarFilasProductos(datos, dedonde);
+                        AgregarFilasProductos(datos, dedonde, datos.nfila);
                         //  Pongo focus.
-                        ponerSelect('Unidad_Fila_'+datos.nfila);
+                       //~ ponerSelect('Unidad_Fila_'+datos.nfila);
+                       
                         // ¿¿¿ Creo que no permitimos entonces tabla para añadir albaranes... 
                         if (dedonde=="factura"){
                             $("#tablaAl").hide();
                         }
+                        jQuery('#'+'Unidad_Fila_'+datos.nfila).select(); 
+                        console.log('Unidad_Fila_'+datos.nfila);
                         
                     }else{
                         // Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados
