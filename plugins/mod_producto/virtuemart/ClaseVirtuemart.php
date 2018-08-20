@@ -125,9 +125,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 			exit();
 		}
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
-        //~ echo '<pre>';
-        //~ print_r($respuesta);
-        //~ echo '</pre>';
+      
 		return $respuesta;
     }
     
@@ -201,8 +199,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
         $respuesta['datosWeb']=$datosWeb;
         $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
+        error_log(count($ivasWeb));
         $htmlIvasWeb=$this->htmlOptionIvasWeb($ivasWeb, $datosWeb['idIva']);
-    
         $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
         $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
         
@@ -371,10 +369,10 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $respuesta=array();
         $HostNombre = $this->HostNombre;
         $datosProductoVirtual=$this->ObtenerDatosDeProducto(0);
-        echo '<pre>';
-        print_r($datosProductoVirtual);
-        echo '</pre>';
-        $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
+        //~ echo '<pre>';
+        //~ print_r($datosProductoVirtual);
+        //~ echo '</pre>';
+        $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb'];
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
         $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
