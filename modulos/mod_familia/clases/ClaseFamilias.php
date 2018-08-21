@@ -177,10 +177,7 @@ class ClaseFamilias extends Modelo {
     public function buscarProductosFamilias($idFamilia){
         $sql='SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia='.$idFamilia;
         $resultado = $this->consulta($sql);
-        if ($resultado['datos']) {
-            array_unshift($resultado['datos'], ['idFamilia' => 0, 'idArticulo' => 0]);
-           
-        }
+        
         return $resultado;
     }
 

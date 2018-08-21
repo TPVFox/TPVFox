@@ -164,6 +164,15 @@ switch ($pulsado) {
         $respuesta['nombre']=$nombreFamilia;
     }
     break;
+    case 'buscarProductosDeFamilia':
+    
+        $productos=$CFamilia->buscarProductosFamilias($_POST['idfamilia']);
+        $idsProductos=array();
+        foreach ($productos['datos'] as $producto){
+            array_push($idsProductos, $producto['idArticulo']);
+        }
+        $respuesta['Productos']=$idsProductos;
+    break;
 }
 echo json_encode($respuesta);
 ?>
