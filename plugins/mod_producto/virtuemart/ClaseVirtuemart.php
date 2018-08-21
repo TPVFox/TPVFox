@@ -125,17 +125,22 @@ class PluginClaseVirtuemart extends ClaseConexion{
 			exit();
 		}
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
-       if(isset($respuesta['Datos']['ivasWeb']['error'])){
-           echo '<pre>';
-           print_r($respuesta['Datos']['ivasWeb']['error']);
-           echo '</pre>';
-       }
-           //~ return $respuesta;
-       
-            echo '<pre>';
-           print_r($respuesta);
-           echo '</pre>';
-		return $respuesta;
+        if (!isset($respuesta['error_conexion'])){
+            // La respuesta curl (http-code = 200) 
+            if(isset($respuesta['Datos']['ivasWeb']['error'])){
+               echo '<pre>';
+               print_r($respuesta['Datos']['ivasWeb']['error']);
+               echo '</pre>';
+            } else {
+                echo '<pre>';
+                print_r($respuesta);
+                echo '</pre>';
+            }
+        } else {
+            
+
+        }
+        return $respuesta;
     }
     
     public function modificarProducto($datos){
@@ -375,109 +380,122 @@ class PluginClaseVirtuemart extends ClaseConexion{
        
     }
     public function htmlDatosVacios($idProducto, $idTienda, $permiso){
+        // @ Objetivo :
+        // Entiendo que es obtener los datos vacios.
         $respuesta=array();
         $HostNombre = $this->HostNombre;
+        // Esto lo haces para obtener los ivas.
         $datosProductoVirtual=$this->ObtenerDatosDeProducto(0);
         //~ echo '<pre>';
         //~ print_r($datosProductoVirtual);
         //~ echo '</pre>';
-        $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
-				.'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
-        $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
-        <h2 class="text-center">Datos Producto Web</h2>
-        <div class="col-md-6">
-                ';
-        if($permiso==1){
-        $html   .=' <div class="col-md-12">'
-        .'          <input class="btn btn-primary" id="botonWeb" type="button" 
-                        value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">'
-        .'          <a onclick="ObtenerDatosProducto()">Obtener datos producto</a>'
-        .'      </div>';
-        }
-        $html   .='<div class="col-md-12" id="alertasWeb">'
-        .'      </div>'
-        .'      <div class="col-md-12">'
-        .'          <div class="col-md-7">'
-        .'                <h4> Datos del producto en la tienda Web </h4><p id="idWeb"></p>'
-        .'           </div>'
-        .'           <div class="col-md-5">';
-        $html   .='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
-                                    <option value="0">Sin publicar</option></select></label>';
-       
-        $html   .='    </div>'
-        .'      </div>'
-       
-        .'       <div class="col-md-12">'
-        .'           <div class="col-md-3 ">'
-        .'               <label>Referencia</label>'
-        .'               <input type="text" id="referenciaWeb" 
-                                name="cref_tienda_principal_web" size="10" 
-                                placeholder="referencia producto"
-                                value=""  >'
-        .'          </div>'
-        .'          <div class="col-md-8 ">'
-        .'              <label>Nombre del producto</label>'
-        .'              <input type="text" id="nombreWeb" 
-                                name="nombre_web"  size="50"
-                                placeholder="nombreWeb" 
-                                value=""  >
-                                 <div class="invalid-tooltip-articulo_name" display="none">
-                                    No permitimos la doble comilla (") 
-                                </div>'
-        .'          </div>'
-        .'      </div>'
-         .'      <div class="col-md-12">'
-        .'          <div class="col-md-5">'
-        .'              <label>Alias de producto</label>'
-        .'              <input type="text" id="alias" name="alias" value=""  disabled>
-                             <div class="invalid-tooltip-articulo_name" display="none">
-                                    No permitimos la doble comilla (") 
-                            </div>'
-        
-        .'          </div>'
-        .'      </div>'
-        .'      <div class="col-md-12">'
-        .'          <h4> Precios de venta en Web </h4>'
-        .'       </div>'
-        .'       <div class="col-md-12">'
-        .'           <div class="col-md-4 ">'
-        .'               <label>Código de  barras</label>'
-        .'               <input type="text" id="codBarrasWeb" 
-                                    name="cod_barras_web"  size="10"
-                                    placeholder="codBarrasWeb" 
+                    .'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
+        $html   .='<div class="col-xs-12 hrspacing">'
+                .'<hr class="hrcolor"></div>'
+                .'<h2 class="text-center">Datos Producto Web</h2>';
+        if ($datosProductoVirtual['error_conexion']){
+            // Quiere decir que hubo error de conexion
+            // No permito continuar
+            $html   .= '<div class="col-md-12">'
+                    . 'Error de conesion ...'
+                    .$datosProductoVirtual['error_conexion'].'</div>';
+        } else {
+    
+            $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
+            
+            $html   .= '<div class="col-md-6">';
+            if($permiso==1){
+            $html   .=' <div class="col-md-12">'
+            .'          <input class="btn btn-primary" id="botonWeb" type="button" 
+                            value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">'
+            .'          <a onclick="ObtenerDatosProducto()">Obtener datos producto</a>'
+            .'      </div>';
+            }
+            $html   .='<div class="col-md-12" id="alertasWeb">'
+            .'      </div>'
+            .'      <div class="col-md-12">'
+            .'          <div class="col-md-7">'
+            .'                <h4> Datos del producto en la tienda Web </h4><p id="idWeb"></p>'
+            .'           </div>'
+            .'           <div class="col-md-5">';
+            $html   .='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
+                                        <option value="0">Sin publicar</option></select></label>';
+           
+            $html   .='    </div>'
+            .'      </div>'
+           
+            .'       <div class="col-md-12">'
+            .'           <div class="col-md-3 ">'
+            .'               <label>Referencia</label>'
+            .'               <input type="text" id="referenciaWeb" 
+                                    name="cref_tienda_principal_web" size="10" 
+                                    placeholder="referencia producto"
                                     value=""  >'
-        .'          </div>'
-        .'          <div class="col-md-4 ">'
-        .'              <label>Precio Sin iva</label>'
-        .'              <input type="text" id="precioSivaWeb" 
-                                    name="PrecioSiva_web"  size="10"
-                                    placeholder="precioSiva" data-obj= "cajaPrecioSivaWeb" 
-                                    value="" 
-                                    onkeydown="controlEventos(event)" onblur="controlEventos(event)" >'
-        .'          </div>'
-        .'          <div class="col-md-4 ">'
-        .'              <label>Precio Con iva</label>'
-        .'              <input type="text" id="precioCivaWeb" 
-                                    name="PrecioCiva_web"  size="10"
-                                    placeholder="precioCiva" data-obj= "cajaPrecioCivaWeb" 
-                                    value="" onkeydown="controlEventos(event)" 
-                                     onblur="controlEventos(event)">'
-        .'          </div>'
-        .'      </div>'
-        .'      <div class="col-md-12">'
-        .'          <div class="col-md-4 ">'
-        .'              <label>IVA</label>'
-        .'              <select name="ivasWeb" id="ivasWeb" onchange="modificarIvaWeb()">'
-        .'                  ';
-        
-        foreach($ivasWeb as $iva){
-            $html.='<option value="'.$iva['virtuemart_calc_id'].'">'.number_format($iva['calc_value'],2).'%</option>';
+            .'          </div>'
+            .'          <div class="col-md-8 ">'
+            .'              <label>Nombre del producto</label>'
+            .'              <input type="text" id="nombreWeb" 
+                                    name="nombre_web"  size="50"
+                                    placeholder="nombreWeb" 
+                                    value=""  >
+                                     <div class="invalid-tooltip-articulo_name" display="none">
+                                        No permitimos la doble comilla (") 
+                                    </div>'
+            .'          </div>'
+            .'      </div>'
+             .'      <div class="col-md-12">'
+            .'          <div class="col-md-5">'
+            .'              <label>Alias de producto</label>'
+            .'              <input type="text" id="alias" name="alias" value=""  disabled>
+                                 <div class="invalid-tooltip-articulo_name" display="none">
+                                        No permitimos la doble comilla (") 
+                                </div>'
+            
+            .'          </div>'
+            .'      </div>'
+            .'      <div class="col-md-12">'
+            .'          <h4> Precios de venta en Web </h4>'
+            .'       </div>'
+            .'       <div class="col-md-12">'
+            .'           <div class="col-md-4 ">'
+            .'               <label>Código de  barras</label>'
+            .'               <input type="text" id="codBarrasWeb" 
+                                        name="cod_barras_web"  size="10"
+                                        placeholder="codBarrasWeb" 
+                                        value=""  >'
+            .'          </div>'
+            .'          <div class="col-md-4 ">'
+            .'              <label>Precio Sin iva</label>'
+            .'              <input type="text" id="precioSivaWeb" 
+                                        name="PrecioSiva_web"  size="10"
+                                        placeholder="precioSiva" data-obj= "cajaPrecioSivaWeb" 
+                                        value="" 
+                                        onkeydown="controlEventos(event)" onblur="controlEventos(event)" >'
+            .'          </div>'
+            .'          <div class="col-md-4 ">'
+            .'              <label>Precio Con iva</label>'
+            .'              <input type="text" id="precioCivaWeb" 
+                                        name="PrecioCiva_web"  size="10"
+                                        placeholder="precioCiva" data-obj= "cajaPrecioCivaWeb" 
+                                        value="" onkeydown="controlEventos(event)" 
+                                         onblur="controlEventos(event)">'
+            .'          </div>'
+            .'      </div>'
+            .'      <div class="col-md-12">'
+            .'          <div class="col-md-4 ">'
+            .'              <label>IVA</label>'
+            .'              <select name="ivasWeb" id="ivasWeb" onchange="modificarIvaWeb()">'
+            .'                  ';
+            
+            foreach($ivasWeb as $iva){
+                $html.='<option value="'.$iva['virtuemart_calc_id'].'">'.number_format($iva['calc_value'],2).'%</option>';
+            }
+             $html   .='      </select >'   
+            .'          </div>'
+            .'      </div>'
+            .'  </div>';
         }
-         $html   .='      </select >'   
-        .'          </div>'
-        .'      </div>'
-        .'  </div>';
         return $html;
     }
    public function modificarNotificacion($idNotificacion){

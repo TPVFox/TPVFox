@@ -37,7 +37,7 @@ curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
 
 
 //recogemos la respuesta
-$respuesta = curl_exec ($ch);
+$resultado = curl_exec ($ch);
 
  
 //o el error, por si falla
@@ -45,22 +45,28 @@ $error = curl_error($ch);
 //~ echo '<pre>';
 //~ print_r($respuesta);
 //~ echo '</pre>';
-   $info=curl_getinfo($ch);
+$info=curl_getinfo($ch);
 //y finalmente cerramos curl
 curl_close ($ch);
 
 //[ ANALIZAMOS Y MOSTRAMOS POSIBLES ERRORES ]
-if (isset($error)){
-	if ($error !==''){
-		$respuesta['error'] = $error;
-	}
-}
+
 // [ OBTENEMOS ARRAY DE DATOS DE TMP ARTICULOS COMPLETA ]
 //~ $respuesta = json_decode($respuesta,true);
-if($info['http_code']=='200'){
-    $respuesta = json_decode($respuesta,true);
-}else{
-    $respuesta['error']='Error de conexión con la API';
+if($info['http_code']==200){
+    $respuesta = json_decode($resultado,true);
+
+} else {
+    $respuesta = array();
+    $respuesta['error_conexion'] = 'Respuesta http:'.$info['http_code'];
+    if (isset($error)){
+        if ($error !==''){
+            $respuesta['error_conexion'] = $error;
+        }
+    }
+    $respuesta['info'] =$info;
 }
+   //~ $respuesta = gettype($info['http_code']);
+
 ?>
 

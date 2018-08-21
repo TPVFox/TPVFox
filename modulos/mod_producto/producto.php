@@ -99,15 +99,19 @@
             }
           
 		}  
-		if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
-			$datosWebCompletos=array();
+		if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("VerProductoWeb") == 1){
+            // Sino tiene permisos ya no hacemos consulta a la web.
+            $datosWebCompletos=array();
 			// Creo el objeto de plugin Virtuemart.
 			$ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
 			// Cargo caja_input de parametros de plugin de virtuemart.
 			$ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
 			$parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
 			$OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
-			if ($idVirtuemart>0 ){ 
+            //~ echo '<pre>';
+            //~ print_r($idVirtuemart);
+            //~ echo '<pre>';
+            if ($idVirtuemart>0 ) { 
 			// Obtengo se conecta a la web y obtiene los datos de producto cruzado.
 				$datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva'], $ClasePermisos->getAccion("VerProductoWeb"));
 				// Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
