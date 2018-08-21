@@ -1087,8 +1087,8 @@ $( function() {
     $( ".familiasLista" ).combobox({
         select : function(event, ui){ 
             //~ var idProducto= $( "#idProductoModal" ).val();
-             //~ var botonhtml='<button class="btn btn-primary" onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto+')">Guardar</button>';
-          //~ $('#botonEnviar').html(botonhtml);   
+             var botonhtml='<button class="btn btn-primary" onclick="buscarProductosFamilia('+ui.item.value+')">Buscar</button>';
+           $('#botonEnviar').html(botonhtml);   
         },
        
        
@@ -1127,4 +1127,30 @@ function guardarProductoFamilia(idfamilia, idProducto){
 		}	
 	});
     
+}
+function buscarProductosFamilia(idFamilia){
+    if(idFamilia=="00"){
+        //dejar volver a seleccionar una familia
+    }else{
+        var parametros = {
+            pulsado: 'buscarProductosDeFamilia',
+            idfamilia:idFamilia
+        }
+          $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* envio para buscar los productos de las familias **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de buscar productos de la familia');
+                  
+                    var resultado = $.parseJSON(response);
+                    
+                    
+                     
+            }	
+        });
+    }
 }
