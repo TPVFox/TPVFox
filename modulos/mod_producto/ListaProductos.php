@@ -251,7 +251,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                              <label for="tags">Buscar por Familias:</label>
                              <select id="combobox" class="familiasLista">
                                   <option value="0"></option>
-                                  <option value="00">Seleccionar Familia</option>
+                                 
                                  <?php 
                                  foreach ($familias['datos'] as $familia){
                                      echo '<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';

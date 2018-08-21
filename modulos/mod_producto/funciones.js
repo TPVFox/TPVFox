@@ -1129,9 +1129,7 @@ function guardarProductoFamilia(idfamilia, idProducto){
     
 }
 function buscarProductosFamilia(idFamilia){
-    if(idFamilia=="00"){
-        //dejar volver a seleccionar una familia
-    }else{
+   
         var parametros = {
             pulsado: 'buscarProductosDeFamilia',
             idfamilia:idFamilia
@@ -1158,5 +1156,5 @@ function buscarProductosFamilia(idFamilia){
                      
             }	
         });
-    }
+    
 }
