@@ -1082,6 +1082,18 @@ $( function() {
        
     });
 });
+
+      //@Objetivo: llamar a la librería autocomplete 
+    $( ".familiasLista" ).combobox({
+        select : function(event, ui){ 
+            //~ var idProducto= $( "#idProductoModal" ).val();
+             //~ var botonhtml='<button class="btn btn-primary" onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto+')">Guardar</button>';
+          //~ $('#botonEnviar').html(botonhtml);   
+        },
+       
+       
+    });
+
      $( "#toggle" ).on( "click", function() {
         $( "#combobox" ).toggle();
     });

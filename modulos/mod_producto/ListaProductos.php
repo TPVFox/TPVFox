@@ -10,21 +10,22 @@
         include_once $URLCom.'/controllers/Controladores.php';
         include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         include_once ($URLCom .'/controllers/parametros.php');
-       
+        include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
+      
         $OtrosVarJS ='';
         $htmlplugins = array();
         $CTArticulos = new ClaseProductos($BDTpv);
-        
+        $CFamilia=new ClaseFamilias($BDTpv);
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
-
+        
         // Cargamos el plugin que nos interesa.
 
         //  Fin de carga de plugins.
 
         // Inicializo varibles por defecto.
-        
+       
         $ClasesParametros = new ClaseParametros('parametros.xml');
         $parametros = $ClasesParametros->getRoot();
         // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
@@ -101,6 +102,11 @@
             $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro . $NPaginado->GetLimitConsulta());
         }
 
+         
+         $familias=$CFamilia->todoslosPadres();
+         //~ echo '<pre>';
+         //~ print_r($familias);
+         //~ echo '</pre>';
         // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
         // Añadimos a JS la configuracion
@@ -108,10 +114,15 @@
         . 'var configuracion = ' . json_encode($configuracion);
         echo '</script>';
         ?>
+      
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-        <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+       
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>   
+          <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/plugins/modal/func_modal_reutilizables.js"></script>
+         
+        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
         <script type="text/javascript">
             // Declaramos variables globales
             var checkID = [];
@@ -229,11 +240,25 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                     //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
                     ?>
                     <form action="./ListaProductos.php" method="GET" name="formBuscar">
-                        <div class="form-group ClaseBuscar">
+                        <div class="form-group ClaseBuscar col-md-6">
                             <label>Buscar por:</label>
                             <select onchange="GuardarBusqueda(event);" name="SelectBusqueda" id="sel1"> <?php echo $htmlConfiguracion['htmlOption']; ?> </select>
                             <input id="buscar" type="text" name="buscar" value="<?php echo $NPaginado->GetBusqueda(); ?>">
                             <input type="submit" value="buscar">
+                        </div>
+                        <div id="familiasDiv" class="col-md-6">
+                            <div class="ui-widget">
+                             <label for="tags">Buscar por Familias:</label>
+                             <select id="combobox" class="familiasLista">
+                                  <option value="0"></option>
+                                 <?php 
+                                 foreach ($familias['datos'] as $familia){
+                                     echo '<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
+                                 }
+                                 
+                                 ?>
+                            </select>
+                            </div>
                         </div>
                     </form>
                     <!-- TABLA DE PRODUCTOS -->
@@ -393,5 +418,28 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                 </div>
             </div>
         </div>
+         <style>
+#enlaceIcon{
+    height: 2.2em;
+}
+ .custom-combobox {
+    position: relative;
+    display: inline-block;
+  }
+  .custom-combobox-toggle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -1px;
+    padding: 0;
+  }
+  .custom-combobox-input {
+    margin: 0;
+    padding: 5px 10px;
+  }
+  ul.ui-autocomplete {
+    z-index: 1050;
+}
+</style>
     </body>
 </html>
