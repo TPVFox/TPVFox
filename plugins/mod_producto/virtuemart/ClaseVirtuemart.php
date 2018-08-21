@@ -129,13 +129,13 @@ class PluginClaseVirtuemart extends ClaseConexion{
            echo '<pre>';
            print_r($respuesta['Datos']['ivasWeb']['error']);
            echo '</pre>';
-       }else{
-           return $respuesta;
        }
-            //~ echo '<pre>';
-           //~ print_r($respuesta);
-           //~ echo '</pre>';
-		//~ return $respuesta;
+           //~ return $respuesta;
+       
+            echo '<pre>';
+           print_r($respuesta);
+           echo '</pre>';
+		return $respuesta;
     }
     
     public function modificarProducto($datos){
