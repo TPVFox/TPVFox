@@ -1237,7 +1237,7 @@ function ObjProducto(datos)
 
     } else {
 		this.nunidades = datos.unidades;
-   		this.ncant = datos.unidad; // Valor por defecto.
+   		this.ncant = datos.unidades; // Valor por defecto.
 	}
     if (datos.estado === undefined){
 		this.estado= 'Activo'; // Valor por defecto.
