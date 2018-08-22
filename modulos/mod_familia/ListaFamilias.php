@@ -35,7 +35,7 @@ $familias = new ClaseFamilias($BDTpv);
 
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
-        <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+      
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.js"></script>
     </head>
 
