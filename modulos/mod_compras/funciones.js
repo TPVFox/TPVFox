@@ -213,7 +213,7 @@ function controladorAcciones(caja,accion, tecla){
 			if (caja.tipo_event !== "blur"){
 				var costeAnt=productos[nfila].ultimoCoste;
 				var idArticulo=productos[nfila].idArticulo;
-					if (costeAnt===caja.darValor()){
+					if (parseFloat(costeAnt)===parseFloat(caja.darValor())){
                         ponerFocus( ObtenerFocusDefectoEntradaLinea());
 					}else {
 						if(valor=""){
