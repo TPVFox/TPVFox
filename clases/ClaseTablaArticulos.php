@@ -31,6 +31,7 @@ class ClaseTablaArticulos{
 	public $proveedores_costes; // Array de proveedores para ese producto ( costes,referencias)
 	public $familias; // Array de familias de ese producto
 	public $proveedor_principal; // Array con datos del proveedor principal
+    public $productos_historico;
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
 	public $ref_tiendas ; // (array) No inicializado, se utiliza para guardar las referencias distintas tiendas.
         public $stocks = [];
@@ -143,6 +144,8 @@ class ClaseTablaArticulos{
 			$this->ObtenerCostesProveedores($this->idArticulo);
 			// Obtenemos familias a las que pertenece ese producto
 			$this->ObtenerFamiliasProducto($this->idArticulo);
+            //Obtener el historico precio de ese producto
+            $this->ObtenerHistoricoPrecio($this->idArticulo);
 			// Obtenemos Codbarras a las que pertenece ese producto
 			$this->ObtenerCodbarrasProducto($this->idArticulo);
                         $this->stocks = alArticulosStocks::leer($this->idArticulo, $this->idTienda,true);                       
@@ -366,6 +369,19 @@ class ClaseTablaArticulos{
 		}
 	}
 	
+    public function ObtenerHistoricoPrecio($id){
+        //@Objetivo:
+        //Obtener historico precios de un producto
+        //@Parametro:
+        //$id -> (int) Id del producto
+        $sql=' SELECT * FROM historico_precios WHERE idArticulo='.$id;
+        $consulta = $this->Consulta($sql);
+        if(isset($consulta['Items'])){
+            $this->productos_historico=$consulta['Items'];
+        }
+        
+    }
+    
 	public function ObtenerCodbarrasProducto($id){
 		// Objetivo:
 		// Obtener codbarras para ese producto.

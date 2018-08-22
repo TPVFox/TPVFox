@@ -233,6 +233,34 @@ function  htmlTablaRefTiendas($crefTiendas){
 	return $html;
 } 
 
+function htmlTablaHistoricoPrecios($historicoPrecios){
+    $html =	 '<table id="thitorico" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>Fecha</th>'
+			.'				<th>Antes</th>'
+			.'				<th>Nuevo</th>'
+			.'				<th>NumDoc</th>'
+			.'				<th>De donde</th>'
+			.'				<th>Tipo</th>'
+			.'			</tr>'
+			.'		</thead>';
+            if(count($historicoPrecios)>0){
+                $historicoPrecios=array_reverse ($historicoPrecios);
+                foreach ($historicoPrecios as $historico){
+                    $html.='<tr>'
+                            .'<td>'.date_format(date_create($historico['Fecha_Creacion']), 'd-m-Y').'</td>'
+                            .'<td>'.$historico['Antes'].'</td>'
+                            .'<td>'.$historico['Nuevo'].'</td>'
+                            .'<td>'.$historico['NumDoc'].'</td>'
+                            .'<td>'.$historico['Dedonde'].'</td>'
+                            .'<td>'.$historico['Tipo'].'</td>'
+                    .'</tr>';
+                }
+            }
+            $html .= '</table>	';
+	return $html;
+}
 
 function htmlOptionIvas($ivas,$ivaProducto){
 	//  Objetivo :

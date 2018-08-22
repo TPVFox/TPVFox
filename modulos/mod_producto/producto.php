@@ -42,7 +42,7 @@
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->GetProducto($id);
 		
-		
+	
 				
 		if (isset($preparados['comprobaciones'])){
 			foreach ($preparados['comprobaciones'] as $comprobacion){
@@ -147,6 +147,9 @@
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
         if($ClasePermisos->getAccion("verProductosTienda")==1){
             $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
+        }
+        if($ClasePermisos->getAccion("verHistoricoPrecios")==1){ 
+            $htmlHistoricoPrecios=htmlTablaHistoricoPrecios($Producto['productos_historico']);
         }
 		?>
 		
@@ -341,6 +344,11 @@
                             $num = 4; // Numero collapse;
                             $titulo = 'Productos en otras tiendas.';
                             echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
+                        }
+                        if($ClasePermisos->getAccion("verHistoricoPrecios")==1){
+                            $num = 5; // Numero collapse;
+                            $titulo = 'Historico Precios.';
+                            echo htmlPanelDesplegable($num,$titulo,$htmlHistoricoPrecios);
                         }
                     	?>
                     
