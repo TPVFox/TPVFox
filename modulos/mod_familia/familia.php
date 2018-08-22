@@ -33,6 +33,8 @@
             // Quiere decir que no hay id, por lo que es nuevo
             $padres = $familias->todoslosPadres('familiaNombre', TRUE);
             $titulo .= "Crear";
+            $familia = [];
+            $familia['beneficiomedio'] = 25.00; // cuando haya configuración, que salga de la configuracion
         }
 
         $combopadres = ' <select name="padre" class="form-control" id="combopadre">';
