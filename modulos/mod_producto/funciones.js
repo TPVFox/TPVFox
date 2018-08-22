@@ -1084,16 +1084,17 @@ $( function() {
 });
 
       //@Objetivo: llamar a la librería autocomplete 
-    $( ".familiasLista" ).combobox({
-        select : function(event, ui){ 
-            //~ var idProducto= $( "#idProductoModal" ).val();
-             var botonhtml='<a class="btn btn-primary" onclick="buscarProductosFamilia('+ui.item.value+')">Buscar</a>';
-           $('#botonEnviar').html(botonhtml);   
-        },
-       
-       
-    });
-
+     if( $("select").hasClass("familiasLista")){
+        $( ".familiasLista" ).combobox({
+            select : function(event, ui){ 
+                //~ var idProducto= $( "#idProductoModal" ).val();
+                 var botonhtml='<a class="btn btn-primary" onclick="buscarProductosFamilia('+ui.item.value+')">Buscar</a>';
+               $('#botonEnviar').html(botonhtml);   
+            },
+           
+           
+        });
+    }
      $( "#toggle" ).on( "click", function() {
         $( "#combobox" ).toggle();
     });
