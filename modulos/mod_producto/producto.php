@@ -134,11 +134,20 @@
 		
 		// ==========		Montamos  html que mostramos. 			============ //
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
-		$htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
-		$htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
-		$htmlFamilias =  htmlTablaFamilias($Producto['familias'], $id);
+        if($ClasePermisos->getAccion("verCodBarras")==1){
+            $htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
+        }
+        if($ClasePermisos->getAccion("verProveedores")==1){
+            $htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
+        }
+        if($ClasePermisos->getAccion("verFamilias")==1){
+            $htmlFamilias =  htmlTablaFamilias($Producto['familias'], $id);
+        }
+       
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
-		$htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
+        if($ClasePermisos->getAccion("verProductosTienda")==1){
+            $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
+        }
 		?>
 		
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
@@ -304,30 +313,35 @@
 					 <div class="panel-group">
 						<!-- Inicio collapse de CobBarras --> 
 						<?php 
-						$num = 1 ; // Numero collapse;
-						$titulo = 'Códigos de Barras';
-						echo htmlPanelDesplegable($num,$titulo,$htmlCodBarras);
+                        if($ClasePermisos->getAccion("verCodBarras")==1){
+                            $num = 1 ; // Numero collapse;
+                            $titulo = 'Códigos de Barras';
+                            echo htmlPanelDesplegable($num,$titulo,$htmlCodBarras);
+                        }
 						?>
 						<!-- Inicio collapse de Proveedores --> 
 						<?php 
-						$num = 2 ; // Numero collapse;
-						$titulo = 'Proveedores - Costes';
-						echo htmlPanelDesplegable($num,$titulo,$htmlProveedoresCostes);
+                        if($ClasePermisos->getAccion("verProveedores")==1){
+                            $num = 2 ; // Numero collapse;
+                            $titulo = 'Proveedores - Costes';
+                            echo htmlPanelDesplegable($num,$titulo,$htmlProveedoresCostes);
+                        }
 						?>
 						<!-- Inicio collapse de Familias --> 
 						<?php 
-						$num = 3; // Numero collapse;
-						$titulo = 'Familias';
-						echo htmlPanelDesplegable($num,$titulo,$htmlFamilias);
+                        if($ClasePermisos->getAccion("verFamilias")==1){
+                            $num = 3; // Numero collapse;
+                            $titulo = 'Familias';
+                            echo htmlPanelDesplegable($num,$titulo,$htmlFamilias);
+                        }
 						?>
 						<!-- Inicio collapse de Tiendas --> 
 						<?php 
-						$num = 4; // Numero collapse;
-						$titulo = 'Productos en otras tiendas.';
-						echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
-						
-                        
-                        
+                        if($ClasePermisos->getAccion("verProductosTienda")==1){
+                            $num = 4; // Numero collapse;
+                            $titulo = 'Productos en otras tiendas.';
+                            echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
+                        }
                     	?>
                     
 						<!-- Inicio collapse de Referencias Tiendas --> 

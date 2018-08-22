@@ -16,8 +16,8 @@
 	<accion nombre="verCodBarras" descripcion="Ver Codigo De Barras" permiso="1"></accion>
 	<accion nombre="verProveedores" descripcion="Ver Proveedores" permiso="1"></accion>
 	<accion nombre="verFamilias" descripcion="Ver Familias Producto" permiso="0"></accion>
-	<accion nombre="verProductosTienda" descripcion="Ver Productos otras Tiendas" permiso="1"></accion>	
-	<accion nombre="verHistoricoPrecios" descripcion="Ver Historico Precios" permiso="1"></accion>
+	<accion nombre="verProductosTienda" descripcion="Ver Productos otras Tiendas" permiso="0"></accion>	
+	<accion nombre="verHistoricoPrecios" descripcion="Ver Historico Precios" permiso="0"></accion>
     </vista>
 	
 </modulo>
