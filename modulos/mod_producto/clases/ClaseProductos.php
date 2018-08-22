@@ -599,11 +599,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 				$datosProveedores[$k]['estado'] = 'Activo';
 				$datosProveedores[$k]['se_hizo'] = 'nuevo';
 				// Montamos Sql insert ya que es nuevo.
-				$sql = 'INSERT INTO `articulosProveedores`(`idArticulo`, `idProveedor`,'
-						.' `crefProveedor`, `coste`, `fechaActualizacion`, `estado`) VALUES ('
-						.$datos['idArticulo'].','.$datos['idProveedor'].',"'
-						.$datos['creProveedor'].'","'.$datos['coste'].'",NOW(),"'
-						.'Tarifa'.'")';
+				$sql = 'INSERT INTO `articulosProveedores`(`idArticulo`, `idProveedor`, `crefProveedor`,
+                 `coste`, `fechaActualizacion`, `estado`) VALUES ('.$datos['idArticulo'].','
+                 .$datos['idProveedor'].',"'.$datos['crefProveedor'].'","'.$datos['coste']
+                 .'",NOW(),"'.'Tarifa'.'")';
+                error_log($sql);
 				$comprobaciones['nuevo'][]=$this->Consulta_insert_update($sql);
 			} else {
 				// Es modificado montamos sql update

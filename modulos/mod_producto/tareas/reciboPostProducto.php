@@ -79,7 +79,9 @@ if ($id >0 ){
         $preparados['familias'] = $comprobaciones;
 		// ---	Comprobamos y grabamos los proveedores . ---//
 		$comprobaciones = $CTArticulos->ComprobarProveedoresCostes($id,$DatosPostProducto['proveedores_costes']);
-
+//~ echo '<pre>';
+//~ print_r($DatosPostProducto);
+//~ echo '</pre>';
         foreach ($comprobaciones as $key => $comprobacion){
 			
 			if ($key === 'nuevo'){
