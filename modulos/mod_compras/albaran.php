@@ -141,6 +141,9 @@
 		//Guardar el albarán para ello buscamos los datos en el albarán temporal, los almacenamos todos en un array
 		
 	if (isset($_POST['Guardar'])){
+        echo '<pre>';
+        print_r($_POST);
+        echo '</pre>';
 		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
 		//si el resultado es  quiere decir que no hay errores y fue todo correcto
 		//si no es así muestra mensaje de error
@@ -316,6 +319,7 @@
     <div class="row" >
         <div class="col-md-7">
             <div class="col-md-12">
+                <input type="text" name="estado" id="estado" style="display:none;" value="<?php echo $estado;?>">
                     <div class="col-md-4">
                         <strong>Fecha albarán:</strong><br>
                         <input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
