@@ -55,7 +55,6 @@ curl_close ($ch);
 //~ $respuesta = json_decode($respuesta,true);
 if($info['http_code']==200){
     $respuesta = json_decode($resultado,true);
-
 } else {
     $respuesta = array();
     $respuesta['error_conexion'] = 'Respuesta http:'.$info['http_code'];
@@ -67,6 +66,5 @@ if($info['http_code']==200){
     $respuesta['info'] =$info;
 }
    //~ $respuesta = gettype($info['http_code']);
-
 ?>
 

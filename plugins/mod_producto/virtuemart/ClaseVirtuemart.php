@@ -125,20 +125,15 @@ class PluginClaseVirtuemart extends ClaseConexion{
 			exit();
 		}
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+       
+      
         if (!isset($respuesta['error_conexion'])){
             // La respuesta curl (http-code = 200) 
             if(isset($respuesta['Datos']['ivasWeb']['error'])){
                echo '<pre>';
                print_r($respuesta['Datos']['ivasWeb']['error']);
                echo '</pre>';
-            } else {
-                echo '<pre>';
-                print_r($respuesta);
-                echo '</pre>';
             }
-        } else {
-            
-
         }
         return $respuesta;
     }
@@ -183,6 +178,9 @@ class PluginClaseVirtuemart extends ClaseConexion{
 			exit();
 		}
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+        //~ echo '<pre>';
+        //~ print_r($respuesta);
+        //~ echo '</pre>';
 		return $respuesta;
     }
 
@@ -212,6 +210,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $respuesta['datosProductoVirtual']=$datosProductoVirtual;
         $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
         $respuesta['datosWeb']=$datosWeb;
+         
         $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
        
         $htmlIvasWeb=$this->htmlOptionIvasWeb($ivasWeb, $datosWeb['idIva']);

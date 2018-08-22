@@ -62,9 +62,9 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 $datosComprobaciones['product_currency']=47;
                 $datos=json_encode($datosComprobaciones);
                 $addProducto = $ObjViruemart->addProducto($datos);
-                if($addProducto['Datos']['error']==""){
-                    if($addProducto['Datos']['id']>0){
-                        $addRegistro=$CTArticulos->addTiendaProducto( $datosComprobaciones['idProducto'], $datosComprobaciones['idTienda'], $addProducto['Datos']['id']);
+                //~ if($addProducto['Datos']['error']==""){
+                    if($addProducto['Datos']['idArticulo']>0){
+                        $addRegistro=$CTArticulos->addTiendaProducto( $datosComprobaciones['idProducto'], $datosComprobaciones['idTienda'], $addProducto['Datos']['idArticulo']);
                        
                         $respuesta['registro']=$addRegistro;
                         $respuesta['htmlAlerta']='<div class="alert alert-success">
@@ -72,12 +72,12 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                                                     </div>';
                                                     
                     }
-                }else{
-                    $respuesta['error']=$addProducto['Datos']['error'];
-                    $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                                    <strong>Danger!</strong> Error al añadir el producto a la web. '.$addProducto['Datos']['consulta'].'
-                                                </div>';
-                }
+                //~ }else{
+                    //~ $respuesta['error']=$addProducto['Datos']['error'];
+                    //~ $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                                    //~ <strong>Danger!</strong> Error al añadir el producto a la web. '.$addProducto['Datos']['consulta'].'
+                                                //~ </div>';
+                //~ }
                 
                 $respuesta['resul']= $addProducto;
                 
