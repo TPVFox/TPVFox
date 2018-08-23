@@ -363,7 +363,9 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         if(isset($refTiendas)){
                                             foreach ($refTiendas as $ref){
                                                 if($ref['idVirtuemart']>0){
-                                                    echo '  <span class="glyphicon glyphicon-globe"></span>';
+                                                    $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+                                                    $link=  $ObjVirtuemart->ruta_producto.$ref['idVirtuemart'];
+                                                    echo '  <a target="_blank" class="glyphicon glyphicon-globe" href="'.$link.'"></a>';
                                                 }
                                             }
                                         } 
