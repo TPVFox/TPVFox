@@ -141,9 +141,9 @@
 		//Guardar el albarán para ello buscamos los datos en el albarán temporal, los almacenamos todos en un array
 		
 	if (isset($_POST['Guardar'])){
-        echo '<pre>';
-        print_r($_POST);
-        echo '</pre>';
+        //~ echo '<pre>';
+        //~ print_r($_POST);
+        //~ echo '</pre>';
 		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
 		//si el resultado es  quiere decir que no hay errores y fue todo correcto
 		//si no es así muestra mensaje de error
