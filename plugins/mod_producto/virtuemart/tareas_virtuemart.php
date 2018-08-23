@@ -42,7 +42,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                                                 </div>';
                     }else{
                         $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                                    <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['consulta'].'
+                                                    <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['error'].' consulta: '.$modificarProducto['Datos']['consulta'].'
                                                 </div>';
                     }
                 }
