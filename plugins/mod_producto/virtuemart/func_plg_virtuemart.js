@@ -206,6 +206,9 @@ function subirProductosWeb(idTienda){
                 if(resultado.productoEnWeb.length >0){
                    alert("Producto que YA ESTABAN y NO se subieron: "+JSON.stringify(resultado.productoEnWeb));
                 }
+                if(resultado.error){
+                    alert("Error de SQL: " + resultado.error);
+                }
 				//~ location.href="ListaProductos.php";
 				 
 		}	

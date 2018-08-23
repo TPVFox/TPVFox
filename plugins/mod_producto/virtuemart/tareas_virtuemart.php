@@ -141,6 +141,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
             $productosSeleccionados=$_SESSION['productos_seleccionados'];
             $tiendaWeb=$_POST['idTienda'];
             $productoEnWeb=array();
+            $productosError=array();
             foreach ($productosSeleccionados as $producto){
                 $idVirtuemart=0;
                 $datosProducto = $CTArticulos->GetProducto($producto);
@@ -177,6 +178,11 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                         );
                         $datos=json_encode($datos);
                         $addProducto = $ObjViruemart->addProducto($datos);
+                        if(isset($addProducto['Datos']['error'])){
+                            $respuesta['errores']=$addProducto;
+                            $respuesta['error']=$addProducto['Datos']['consulta'];
+                            array_push($productosError, $datosProducto['idArticulo']);
+                        }
                         if($addProducto['Datos']['idArticulo']>0){
                             $addRegistro=$CTArticulos->addTiendaProducto( $producto, $tiendaWeb, $addProducto['Datos']['idArticulo']);
                             $respuesta['registro']=$addRegistro;
@@ -194,6 +200,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 }
                 $respuesta['datos']=$datosProducto;
             }
+            $respuesta['productosError']=$productosError;
             $respuesta['productoEnWeb']=$productoEnWeb;
             $respuesta['productos']=$productosSeleccionados;
         break;
