@@ -50,8 +50,9 @@ function modificarProductoWeb(idProducto="", idTienda=""){
                     if(resultado.htmlAlerta){
                         $('#alertasWeb').html(resultado.htmlAlerta);
                     }
-                    if(resultado.resul.Datos.id){
-                        $('#idWeb').html(resultado.resul.Datos.id);
+                  
+                    if(resultado.resul.Datos.idArticulo){
+                        $('#idWeb').html(resultado.resul.Datos.idArticulo);
                         $('#botonWeb').val("Modificar en Web");
                     }
                     
