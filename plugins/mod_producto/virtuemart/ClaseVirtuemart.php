@@ -520,6 +520,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 			exit();
 		}
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+        
 		return $respuesta;
     }
 

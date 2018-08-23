@@ -126,6 +126,9 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
         if($enviarCorreo['Datos']['mailer']==true){
             $respuesta['mail']= 2;
             $modificarEstadoNotificacion = $ObjViruemart->modificarNotificacion($datos['idNotificacion']);
+            if(isset ($modificarEstadoNotificacion['Datos']['error'])){
+                $respuesta['errorModificacion']=$modificarEstadoNotificacion['Datos']['error'];
+            }
             $respuesta['modificacion']=$modificarEstadoNotificacion;
             $respuesta['numLinea']=$datos['numLinea'];
         }else{
