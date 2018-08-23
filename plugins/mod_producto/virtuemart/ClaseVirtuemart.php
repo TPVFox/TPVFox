@@ -374,8 +374,11 @@ class PluginClaseVirtuemart extends ClaseConexion{
                     $html.='</tbody>
                  </table>';
             }
-            $resultado['html']=$html;
+            
+        }else{
+             $html='<div class="alert alert-danger">Error de SQL: '.$datosNotificaciones['Datos']['error'].'</div>';
         }
+        $resultado['html']=$html;
         return $resultado;
        
     }
