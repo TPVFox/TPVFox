@@ -137,6 +137,66 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
         }
         $respuesta['correo']= $enviarCorreo;
         break;
+        case 'subirProductosWeb':
+            $productosSeleccionados=$_SESSION['productos_seleccionados'];
+            $tiendaWeb=$_POST['idTienda'];
+            $productoEnWeb=array();
+            foreach ($productosSeleccionados as $producto){
+                $idVirtuemart=0;
+                $datosProducto = $CTArticulos->GetProducto($producto);
+                if(count($datosProducto['ref_tiendas'])>0){
+                    foreach ($datosProducto['ref_tiendas'] as $refTienda){
+                        if ($refTienda['idVirtuemart'] >0){
+                            $idVirtuemart = $refTienda['idVirtuemart'];
+                        }
+                    }
+                    if($idVirtuemart==0){
+                        $datos=array(
+                            'estado'=> 1,
+                            'referencia'=> $datosProducto['cref_tienda_principal'],
+                            'nombre'=> $datosProducto['articulo_name'],
+                            'codBarras'=> "",
+                            'precioSiva'=>number_format($datosProducto['pvpSiva'],2, '.', ''),
+                            'iva'=> $datosProducto['iva'],
+                            'id'=> $idVirtuemart,
+                            'alias'=>"",
+                            'idProducto'=>$datosProducto['idArticulo'],
+                            'idTienda'=>$tiendaWeb,
+                            'usuario'=>365,
+                            'peso'=>'KG',
+                            'parametros'=>'min_order_level=""|max_order_level=""|step_order_level=""|product_box=""|',
+                            's_desc'=>"",
+                            'metadesc'=>"",
+                            'metakey'=>"",
+                            'title'=>"",
+                            'vendor'=>1,
+                            'override'=>0,
+                            'product_override_price'=>"0.00000",
+                            'product_discount_id'=>0,
+                            'product_currency'=>47
+                        );
+                        $datos=json_encode($datos);
+                        $addProducto = $ObjViruemart->addProducto($datos);
+                        if($addProducto['Datos']['idArticulo']>0){
+                            $addRegistro=$CTArticulos->addTiendaProducto( $producto, $tiendaWeb, $addProducto['Datos']['idArticulo']);
+                            $respuesta['registro']=$addRegistro;
+                        }else{
+                            $respuesta['error']="error en el insert";
+                        }
+                        
+                    }else{
+                        $datos=array(
+                            'id'=>$datosProducto['idArticulo'],
+                            'nombre'=>$datosProducto['articulo_name']
+                        );
+                        array_push($productoEnWeb, $datos);
+                    }
+                }
+                $respuesta['datos']=$datosProducto;
+            }
+            $respuesta['productoEnWeb']=$productoEnWeb;
+            $respuesta['productos']=$productosSeleccionados;
+        break;
     
     
     }

@@ -197,7 +197,11 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		}
         return $htmlIvas;	
     }
-
+    public function htmlJava(){
+           $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
+				.'<script src="'.$this->HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
+            return $html;
+    }
     public function htmlDatosProductoSeleccionado($idProducto, $permiso){
         //@Objetivo
         // Mostrar el html de los datos de los productos de la web

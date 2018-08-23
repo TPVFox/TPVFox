@@ -104,6 +104,12 @@
 
          
          $familias=$CFamilia->todoslosPadres();
+         
+         if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+            $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
+            echo $ObjVirtuemart->htmlJava();
+            $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+         }
          //~ echo '<pre>';
          //~ print_r($familias);
          //~ echo '</pre>';
@@ -206,7 +212,8 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <li><a href='ListaMayor.php'>Imprimir Mayor</a></li>  
                             <?php 
                             }
-                            ?>                                              
+                            ?>      
+                            <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>                                   
                         </ul>
                     </div>
                     <div class ="nav">

@@ -185,3 +185,26 @@ function ObtenerDatosProducto(){
     $('#precioSivaWeb').val($('#pvpSiva').val());
     $('#precioCivaWeb').val($('#pvpCiva').val());
 }
+
+function subirProductosWeb(idTienda){
+    
+    var parametros = {
+		"pulsado"    	: 'subirProductosWeb',
+        "idTienda"      :idTienda
+		};
+        $.ajax({
+		data       : parametros,
+		url        :  ruta_plg_virtuemart+'tareas_virtuemart.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Subir conjunto de productos a la web **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de subir conjunto de productos a la web ');
+				var resultado = $.parseJSON(response);
+                console.log(resultado);
+				//~ location.href="ListaProductos.php";
+				 
+		}	
+	});
+}

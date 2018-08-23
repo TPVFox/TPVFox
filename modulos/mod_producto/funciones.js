@@ -934,6 +934,7 @@ function eliminarSeleccionProductos(){
 	});
 }
 
+
 function UnProductoClick(id){
 	// @ Objetivo:
 	// Hizo click en id o Nombre de producto, por lo que lo mostramos.
@@ -1157,5 +1158,6 @@ function buscarProductosFamilia(idFamilia){
                      
             }	
         });
+    
     
 }

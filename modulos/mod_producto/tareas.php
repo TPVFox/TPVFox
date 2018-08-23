@@ -173,6 +173,7 @@ switch ($pulsado) {
         }
         $respuesta['Productos']=$idsProductos;
     break;
+   
 }
 echo json_encode($respuesta);
 ?>
