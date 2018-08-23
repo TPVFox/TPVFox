@@ -212,8 +212,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <li><a href='ListaMayor.php'>Imprimir Mayor</a></li>  
                             <?php 
                             }
+                            if($ClasePermisos->getAccion("subirProductosWeb")==1){
                             ?>      
                             <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>                                   
+                            <?php 
+                            }
+                            ?>
                         </ul>
                     </div>
                     <div class ="nav">

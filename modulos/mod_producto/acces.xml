@@ -8,6 +8,7 @@
         <accion nombre="imprimirEtiquetas" descripcion="Imprimir Etiquetas" permiso="1"></accion>
         <accion nombre="imprimirMayor" descripcion="Imprimir Mayor" permiso="1"></accion>
         <accion nombre="regularizar" descripcion="regularizar" permiso="0"></accion>
+	<accion nombre="subirProductosWeb" descripcion="Subir Productos Web" permiso="0"></accion>
     </vista>
     <vista nombre="producto.php" descripcion="Producto" permiso="1">
         <accion nombre="Guardar" descripcion="Guardar Producto" permiso="1"></accion>
