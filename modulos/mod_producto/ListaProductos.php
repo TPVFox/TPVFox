@@ -217,8 +217,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>                                   
                             <?php 
                             }
+                            if($ClasePermisos->getAccion("agregarProductosFamilia")==1){
                             ?>
-                             <li><a onclick="modalFamiliaProducto();">Guardar por familia</a></li>                                   
+                             <li><a onclick="modalFamiliaProducto();">Guardar por familia</a></li>   
+                            <?php 
+                            }
+                             ?>                                
                         </ul>
                     </div>
                     <div class ="nav">
