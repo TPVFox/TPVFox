@@ -304,7 +304,14 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                     <th>P.V.P</th>
                                     <th>Estado</th>
                                     <th>Reg.Stock</th>
-                                    <th>WEB</th>
+                                    <?php 
+                                    if(isset($tiendaWeb)){
+                                        ?>
+                                        <th>WEB</th>
+                                        <?php
+                                    }
+                                    ?>
+                                    
 
                                 </tr>
                             </thead>
@@ -374,6 +381,9 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         }
                                             ?>
                                             </td>
+                                            <?php 
+                                             if(isset($tiendaWeb)){
+                                            ?>
                                         <td>
                                         <?php
                                         if(isset($refTiendas)){
@@ -390,6 +400,9 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         ?>
                                         
                                         </td>
+                                        <?php 
+                                    }
+                                        ?>
                                     </tr>
 
                                     <?php
