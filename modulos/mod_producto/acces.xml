@@ -9,6 +9,7 @@
         <accion nombre="imprimirMayor" descripcion="Imprimir Mayor" permiso="1"></accion>
         <accion nombre="regularizar" descripcion="regularizar" permiso="0"></accion>
 	<accion nombre="subirProductosWeb" descripcion="Subir Productos Web" permiso="0"></accion>
+	<accion nombre="agregarProductosFamilia" descripcion="Agregar Productos Familias" permiso="0"></accion>
     </vista>
     <vista nombre="producto.php" descripcion="Producto" permiso="1">
         <accion nombre="Guardar" descripcion="Guardar Producto" permiso="1"></accion>
@@ -19,7 +20,7 @@
 	<accion nombre="verFamilias" descripcion="Ver Familias Producto" permiso="0"></accion>
 	<accion nombre="verProductosTienda" descripcion="Ver Productos otras Tiendas" permiso="0"></accion>	
 	<accion nombre="verHistoricoPrecios" descripcion="Ver Historico Precios" permiso="0"></accion>
-	<accion nombre="agregarProductosFamilia" descripcion="Agregar Productos Familias" permiso="0"></accion>
+	
     </vista>
 	
 </modulo>
