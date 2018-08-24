@@ -1136,7 +1136,7 @@ function buscarProductosFamilia(idFamilia){
             pulsado: 'buscarProductosDeFamilia',
             idfamilia:idFamilia
         }
-          $.ajax({
+        $.ajax({
             data       : parametros,
             url        : 'tareas.php',
             type       : 'post',
@@ -1159,5 +1159,40 @@ function buscarProductosFamilia(idFamilia){
             }	
         });
     
+    
+}
+function EliminarHistorico(idHistorico, e){
+   
+    
+    var parametros = {
+        pulsado: 'eliminarHistorico',
+        idHistorico:idHistorico
+    }
+     $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* eliminar registro indicado de historico precio **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de eliminar historico precio');
+                   
+                    var resultado = $.parseJSON(response);
+                    console.log (resultado);
+                   //QUEDA ELIMINAR LINEA
+                   if(resultado.error==0){
+                       alert("Error de sql: "+resultado.consulta);
+                   }else{
+                        var padre=e.parentNode; 
+                        var abuelo=padre.parentNode; 
+                        var bisa=abuelo.parentNode; 
+                        bisa.removeChild(abuelo);
+                   }
+                   
+                  
+                     
+            }	
+        });
     
 }

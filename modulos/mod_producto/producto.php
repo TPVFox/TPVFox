@@ -148,6 +148,9 @@
         if($ClasePermisos->getAccion("verProductosTienda")==1){
             $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
         }
+        //~ echo '<pre>';
+        //~ print_r($Producto['productos_historico']);
+        //~ echo '</pre>';
         if($ClasePermisos->getAccion("verHistoricoPrecios")==1){ 
             $htmlHistoricoPrecios=htmlTablaHistoricoPrecios($Producto['productos_historico']);
         }

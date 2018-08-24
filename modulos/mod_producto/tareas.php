@@ -173,6 +173,11 @@ switch ($pulsado) {
         }
         $respuesta['Productos']=$idsProductos;
     break;
+    case 'eliminarHistorico':
+        $idHistorico=$_POST['idHistorico'];
+        $eliminar=$NCArticulo->EliminarHistorico($idHistorico);
+        $respuesta=$eliminar;
+    break;
    
 }
 echo json_encode($respuesta);

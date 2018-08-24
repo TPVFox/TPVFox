@@ -888,6 +888,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 		return $consulta;
 	}
+    public function EliminarHistorico($id){
+        $sql='DELETE FROM historico_precios WHERE id='.$id;
+        $consulta =$this->Consulta_insert_update($sql);
+        return $consulta;
+    }
 	
 	public function precioCivaRecalculado(){
 		// @ Objetivo

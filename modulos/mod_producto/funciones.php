@@ -234,6 +234,7 @@ function  htmlTablaRefTiendas($crefTiendas){
 } 
 
 function htmlTablaHistoricoPrecios($historicoPrecios){
+    $lineas=0;
     $html =	 '<table id="thitorico" class="table table-striped">'
 			.'		<thead>'
 			.'			<tr>'
@@ -243,9 +244,11 @@ function htmlTablaHistoricoPrecios($historicoPrecios){
 			.'				<th>NumDoc</th>'
 			.'				<th>De donde</th>'
 			.'				<th>Tipo</th>'
+            .'              <th></th>'
 			.'			</tr>'
 			.'		</thead>';
             if(count($historicoPrecios)>0){
+                $lineas=$lineas+1;
                 $historicoPrecios=array_reverse ($historicoPrecios);
                 foreach ($historicoPrecios as $historico){
                     $html.='<tr>'
@@ -255,6 +258,7 @@ function htmlTablaHistoricoPrecios($historicoPrecios){
                             .'<td>'.$historico['NumDoc'].'</td>'
                             .'<td>'.$historico['Dedonde'].'</td>'
                             .'<td>'.$historico['Tipo'].'</td>'
+                            .'<td><a class="glyphicon glyphicon-trash" id="eliminarHist_'.$lineas.'" onclick="EliminarHistorico('.$historico['id'].', this)"></a></td>'
                     .'</tr>';
                 }
             }
