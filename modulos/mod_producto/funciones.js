@@ -1045,7 +1045,7 @@ function ajaxRegularizar(parametros, callback) {
         }
     });
 }
-function modalFamiliaProducto(idProducto){
+function modalFamiliaProducto(idProducto=""){
     var parametros = {
         pulsado: 'modalFamiliaProducto',
         idProducto: idProducto
@@ -1075,9 +1075,18 @@ $( function() {
       //@Objetivo: llamar a la librería autocomplete 
     $( ".familias" ).combobox({
         select : function(event, ui){ 
-            var idProducto= $( "#idProductoModal" ).val();
-             var botonhtml='<button class="btn btn-primary" onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto+')">Guardar</button>';
-          $('#botonEnviar').html(botonhtml);   
+            
+        var idProducto= $( "#idProductoModal" ).val();
+          
+        var botonhtml='<button class="btn btn-primary" onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto+')">Guardar</button>';
+         if(idProducto==0){
+            $('#botonEnviar2').html(botonhtml);  
+         }else{
+             $('#botonEnviar').html(botonhtml);  
+         }
+          
+          
+         
         },
        
        
@@ -1117,13 +1126,26 @@ function guardarProductoFamilia(idfamilia, idProducto){
 				console.log('Respuesta de guardar el registro de productos familia');
               
                 var resultado = $.parseJSON(response);
-                if(resultado.error==1){
-                    alert("No puedes añadir esa familia al producto ya que ya está añadida");
+                console.log(resultado);
+                if(idProducto==0){
+                    if(resultado.productosEnFamilia.length>0){
+                       alert("Producto que YA ESTABAN : "+JSON.stringify(resultado.productosEnFamilia));
+                    }
+                    if(resultado.error){
+                        alert(resultado.error);
+                    }
+                    alert("Productos guardados en familia: "+resultado.contadorProductos );
+                     cerrarPopUp();
                 }else{
-                      cerrarPopUp();
-                      var nuevafila = resultado['html'];
-                    $("#tfamilias").prepend(nuevafila);
+                    if(resultado.error==1){
+                        alert("No puedes añadir esa familia al producto ya que ya está añadida");
+                    }else{
+                          cerrarPopUp();
+                          var nuevafila = resultado['html'];
+                        $("#tfamilias").prepend(nuevafila);
+                    }
                 }
+                
 				//cerrar modal y añadir la fila
 				 
 		}	

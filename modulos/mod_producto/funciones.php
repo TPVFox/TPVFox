@@ -1006,8 +1006,12 @@ function modalAutocompleteFamilias($familias, $idProducto){
         $html.='<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
     }
     $html.='</select></div>';
-    
-    $html.='<p id="botonEnviar"></p>';
+    if($idProducto>0){
+         $html.='<p id="botonEnviar"></p>';
+    }else{
+         $html.='<p id="botonEnviar2"></p>';
+    }
+   
     return $html;
 }
 ?>

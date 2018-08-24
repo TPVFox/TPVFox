@@ -218,6 +218,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <?php 
                             }
                             ?>
+                             <li><a onclick="modalFamiliaProducto();">Guardar por familia</a></li>                                   
                         </ul>
                     </div>
                     <div class ="nav">
@@ -398,6 +399,10 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
             </div>
         </div>
         <!-- Modal -->
+        <?php // Incluimos paginas modales
+		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		?>
         <div id="regularizaStockModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <!-- Modal content-->
@@ -432,7 +437,11 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <input type="hidden" id="articuloid" value="000" />
                     </form>
                 </div>
+                
             </div>
+            	
+        </div>
+        
         </div>
          <style>
 #enlaceIcon{

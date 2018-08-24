@@ -134,7 +134,12 @@ switch ($pulsado) {
 		$respuesta=$comprobacion;
 	break;
     case 'modalFamiliaProducto':
-        $idProducto=$_POST['idProducto'];
+        if($_POST['idProducto']==""){
+            $idProducto=0;
+        }else{
+             $idProducto=$_POST['idProducto'];
+        }
+       
         $familias=$CFamilia->todoslosPadres();
         $modal=modalAutocompleteFamilias($familias['datos'], $idProducto);
         $respuesta['familias']=$familias;
@@ -146,23 +151,48 @@ switch ($pulsado) {
     //~ $add=$CFamilia->guardarProductoFamilia($idProducto, $idFamilia);
     $idFamilia=$_POST['idfamilia'];
     $idProducto=$_POST['idProducto'];
-    $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
-    $respuesta['comprobar']=$comprobar;
-    if(isset($comprobar['datos'])){
-        $respuesta['error']=1;
+    if($idProducto==0){
+        
+        $productosEnFamilia=array();
+        $productos=$_SESSION['productos_seleccionados'];
+        $respuesta['productos']=$productos;
+        $contadorProductos=0;
+        foreach ($productos as $idProducto){
+             $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
+             $respuesta['datos']=$comprobar['datos'];
+            if(isset($comprobar['datos'])){
+               array_push($productosEnFamilia, $idProducto);
+            }else{
+               $addFamilia=$CFamilia->guardarProductoFamilia($idProducto, $idFamilia);
+               if($addFamilia['error']){
+                    $respuesta['error']=$addFamilia;
+               }else{
+                   $contadorProductos=$contadorProductos+1;
+               }
+            }
+        }
+            $respuesta['contadorProductos']=$contadorProductos;
+            $respuesta['productosEnFamilia']=$productosEnFamilia;
     }else{
-        $nombreFamilia=$CFamilia->buscarPorId($idFamilia);
-        $nuevaFila = '<tr>'
-				. '<td><input type="hidden" id="idFamilias_'.$idFamilia
-				.'" name="idFamilias_'.$idFamilia.'" value="'.$idFamilia.'">'
-				.$idFamilia.'</td>'
-				.'<td>'.$nombreFamilia['datos'][0]['familiaNombre'].'</td>'
-				.'<td><a id="eliminar_'.$idFamilia
-				.'" class="glyphicon glyphicon-trash" onclick="eliminarFamiliaProducto(this)"></a>'
-				.'</td>'.'</tr>';
-        $respuesta['html']=$nuevaFila;
-        $respuesta['nombre']=$nombreFamilia;
+        $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
+        $respuesta['comprobar']=$comprobar;
+        if(isset($comprobar['datos'])){
+            $respuesta['error']=1;
+        }else{
+            $nombreFamilia=$CFamilia->buscarPorId($idFamilia);
+            $nuevaFila = '<tr>'
+                    . '<td><input type="hidden" id="idFamilias_'.$idFamilia
+                    .'" name="idFamilias_'.$idFamilia.'" value="'.$idFamilia.'">'
+                    .$idFamilia.'</td>'
+                    .'<td>'.$nombreFamilia['datos'][0]['familiaNombre'].'</td>'
+                    .'<td><a id="eliminar_'.$idFamilia
+                    .'" class="glyphicon glyphicon-trash" onclick="eliminarFamiliaProducto(this)"></a>'
+                    .'</td>'.'</tr>';
+            $respuesta['html']=$nuevaFila;
+            $respuesta['nombre']=$nombreFamilia;
+        }
     }
+    
     break;
     case 'buscarProductosDeFamilia':
     
