@@ -153,6 +153,9 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                         }
                     }
                     if($idVirtuemart==0){
+                        $stockMin=number_format($datosProducto['stocks']['stockMin'], 0, '.', '');
+                        $stockReal=number_format($datosProducto['stocks']['stockOn'], 0, '.', '');
+                        $stockWeb=$stockReal-$stockMin;
                         $datos=array(
                             'estado'=> 1,
                             'referencia'=> $datosProducto['cref_tienda_principal'],
@@ -166,6 +169,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                             'idTienda'=>$tiendaWeb,
                             'usuario'=>365,
                             'peso'=>'KG',
+                            'stock'=>$stockWeb,
                             'parametros'=>'min_order_level=""|max_order_level=""|step_order_level=""|product_box=""|',
                             's_desc'=>"",
                             'metadesc'=>"",
