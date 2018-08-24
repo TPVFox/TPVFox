@@ -185,6 +185,11 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
 
     public function htmlOptionIvasWeb($ivas, $ivaProductoWeb){
+        //@OBjetivo: crear el html con las opciones de iva
+        //@Parametros: 
+        //ivas: todos los ivas de la web
+        //ivaProductoWeb: iva que tiene el producto en la web
+        //@Return: html con la estructura de las opciones de iva
         $htmlIvas = '';
         foreach ($ivas as $item){
                 $es_seleccionado = '';
@@ -198,6 +203,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $htmlIvas;	
     }
     public function htmlJava(){
+        //@Objetivo: imprimir el js con los datos del plugin
            $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$this->HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
             return $html;
@@ -342,6 +348,10 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
 
     public function htmlNotificacionesProducto($idProducto){
+        //@Objetivo: MOstrar una tabla con las notificaciones del producto en la web
+        //@Parametros:
+        //idProducto: id del producto
+        //Return: html con las tabla de notificaciones
         $datosNotificaciones=$this->ObtenerNotificacionesProducto($idProducto);
        
         $resultado=array();
@@ -393,9 +403,6 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $HostNombre = $this->HostNombre;
         // Esto lo haces para obtener los ivas.
         $datosProductoVirtual=$this->ObtenerDatosDeProducto(0);
-        //~ echo '<pre>';
-        //~ print_r($datosProductoVirtual);
-        //~ echo '</pre>';
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
                     .'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
         $html   .='<div class="col-xs-12 hrspacing">'
@@ -529,7 +536,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
 
     public function comprobarIvas($ivaProducto, $ivaWeb){
-      
+      //@OBjetivo: comprobar el iva del producto en el tpv y en la web
+      //Si no es el mismo muestra una alerta
         if($ivaProducto!=number_format($ivaWeb,2)){
                 
                 $comprobacionIva=array(
@@ -556,6 +564,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
 
     public function enviarCorreo($datos){
+        //@Objetivo : conextarnos a la api para enviar correo al usuario que envió
+        //una notificación
         $ruta =$this->ruta_web;
 		$parametros = array('key' 			=>$this->key_api,
 							'action'		=>'enviarCorreo',
