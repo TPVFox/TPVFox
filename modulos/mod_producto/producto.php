@@ -410,7 +410,7 @@
             ?>
             $("#stockmin").removeAttr("readonly");
             $("#stockmax").removeAttr("readonly");
-            $("#stockon").removeAttr("readonly");
+           
         <?php 
         }
         ?>
