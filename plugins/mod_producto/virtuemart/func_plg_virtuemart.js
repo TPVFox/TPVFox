@@ -209,6 +209,9 @@ function subirProductosWeb(idTienda){
                 if(resultado.error){
                     alert("Error de SQL: " + resultado.error);
                 }
+                if(resultado.contadorProductos>0){
+                    alert("Se han subido a la web :"+ resultado.contadorProductos+" Productos");
+                }
 				//~ location.href="ListaProductos.php";
 				 
 		}	

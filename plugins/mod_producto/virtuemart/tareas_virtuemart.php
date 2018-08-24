@@ -142,6 +142,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
             $tiendaWeb=$_POST['idTienda'];
             $productoEnWeb=array();
             $productosError=array();
+            $contadorProductos=0;
             foreach ($productosSeleccionados as $producto){
                 $idVirtuemart=0;
                 $datosProducto = $CTArticulos->GetProducto($producto);
@@ -186,6 +187,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                         if($addProducto['Datos']['idArticulo']>0){
                             $addRegistro=$CTArticulos->addTiendaProducto( $producto, $tiendaWeb, $addProducto['Datos']['idArticulo']);
                             $respuesta['registro']=$addRegistro;
+                            $contadorProductos=$contadorProductos+1;
                         }else{
                             $respuesta['error']="error en el insert";
                         }
@@ -200,6 +202,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 }
                 $respuesta['datos']=$datosProducto;
             }
+            $respuesta['contadorProductos']=$contadorProductos;
             $respuesta['productosError']=$productosError;
             $respuesta['productoEnWeb']=$productoEnWeb;
             $respuesta['productos']=$productosSeleccionados;
