@@ -178,7 +178,15 @@
 		?>
 		<?php 
 			echo  'var ivas='.json_encode($ivas).';';
-		?>
+		
+        if($ClasePermisos->getAccion("modificarStock")==1){ 
+            ?>
+            $("#stockmin").removeAttr("readonly");
+        <?php 
+        }
+        ?>
+            
+   
 		</script>
         
 
@@ -296,8 +304,9 @@
                                 <label class="control-label-inline " > Mínimo:</label>
                                 <input type="text" id="stockmin" size="5" 
                                        name="stockmin" placeholder="Stock mínimo" 
+                                       readonly="readonly" 
                                        data-obj= "cajaStockMin" 
-                                       readonly="readonly" value="<?php echo number_format($Producto['stocks']['stockMin'], 2, '.', ''); ?>"   > 
+                                        value="<?php echo number_format($Producto['stocks']['stockMin'], 2, '.', ''); ?>"   > 
                             </div>
                             <div class="col-md-4 ">	
                                 <label class="control-label " > Máximo:</label>
@@ -395,7 +404,19 @@
 		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 		?>
         </div> 
+     <script type="text/javascript">
+        <?php 
+        if($ClasePermisos->getAccion("modificarStock")==1){ 
+            ?>
+            $("#stockmin").removeAttr("readonly");
+            $("#stockmax").removeAttr("readonly");
+            $("#stockon").removeAttr("readonly");
+        <?php 
+        }
+        ?>
+    </script> 
         <style>
+           
 #enlaceIcon{
     height: 2.2em;
 }
