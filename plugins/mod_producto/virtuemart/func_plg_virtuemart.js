@@ -18,6 +18,8 @@ function modificarProductoWeb(idProducto="", idTienda=""){
         alert("Campos necesarios vacios, Referencia, Nombre y Precio sin iva");
     }else{
     
+    stock=parseInt($('#stockon').val())-parseInt($('#stockmin').val());
+    //~ console.log(stock);
     var datos={
         'estado':       $('#estadosWeb').val(),
         'referencia':   $('#referenciaWeb').val(),
@@ -27,6 +29,7 @@ function modificarProductoWeb(idProducto="", idTienda=""){
         'iva':          $('#ivasWeb').val(),
         'id':           $('#idWeb').html(),
         'alias':        $('#alias').val(),
+        'stock':        stock,
         'idProducto':   idProducto, 
         'idTienda':     idTienda
     };
