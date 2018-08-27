@@ -222,7 +222,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                              <li><a onclick="modalFamiliaProducto();">Guardar por familia</a></li>   
                             <?php 
                             }
-                             ?>                                
+                             if($ClasePermisos->getAccion("eliminarProductos")==1){
+                             ?>     
+                                <li><a onclick="eliminarProductos();">Eliminar Productos</a></li>        
+                            <?php 
+                            }
+                            ?>              
                         </ul>
                     </div>
                     <div class ="nav">

@@ -1220,3 +1220,31 @@ function EliminarHistorico(idHistorico, e){
     }
     
 }
+
+function eliminarProductos(){
+     var mensaje = confirm("¿Estás seguro que quieres eliminar los productos seleccionado?");
+	if (mensaje) {
+         var parametros = {
+            pulsado: 'eliminarProductos'
+        }
+          $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* eliminar productos **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de eliminar productos');
+                   
+                    var resultado = $.parseJSON(response);
+                    console.log (resultado);
+                   
+                   
+                   
+                  
+                     
+            }	
+        });
+    }
+}
