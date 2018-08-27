@@ -256,7 +256,7 @@ function buscarAdjunto(dedonde, valor=""){
 	//  dedonde:desde donde estamos ejecutando la función
 	//  valor: numero de pedido o albarán que vamos a adjuntar
 	console.log("Entre en buscarAdjunto");
-	
+	console.log(dedonde);
 	var parametros ={
 		'pulsado':'buscarAdjunto',
 		'numReal':valor,
@@ -273,6 +273,7 @@ function buscarAdjunto(dedonde, valor=""){
         success    :  function (response) {
             console.log('Llegue devuelta respuesta de buscar pedido');
             var resultado =  $.parseJSON(response); 
+            console.log(resultado);
             var HtmlPedidos=resultado.html;
             if (resultado.error){
                 alert('Error de SQL'+respuesta.consulta);
@@ -351,7 +352,8 @@ function buscarAdjunto(dedonde, valor=""){
                                 modificarEstado(dedonde, "Facturado",  idAdjunto);
                                 //Agregamos una nueva fila con los datos principales de pedidos
                                 AgregarAdjunto(datos, dedonde);
-                                
+                                    console.log(prodArray);
+                                    console.log(dedonde);
                                 AgregarFilasProductos(prodArray, dedonde,datos);
 
                                 //Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion

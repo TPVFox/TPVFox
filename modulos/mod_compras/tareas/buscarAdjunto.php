@@ -18,7 +18,9 @@
 				if (isset($datosAdjunto['error'])){
 					$respuesta['error']=$datosAdjunto['error'];
 					$respuesta['consola']=$datosAdjunto['consulta'];
-				}
+				}else{
+                    $respuesta['productosAlbaran']=$datosAdjunto;
+                }
 			}
 			if (isset($datosAdjunto['Nitem'])){
 				$respuesta['temporales']=1;
