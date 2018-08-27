@@ -911,6 +911,12 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $precio_recalculado;
 		
 	}
+    
+    public function ComprobarEliminar($id){
+        //Comprobar que el id del producto no este en ninguna linea de albaranes
+        $sql='count(id) from albprolinea where idArticulo='.$id;
+        
+    }
 	// Fin de clase.
 }
 

@@ -148,7 +148,7 @@ class ClaseTablaArticulos{
             $this->ObtenerHistoricoPrecio($this->idArticulo);
 			// Obtenemos Codbarras a las que pertenece ese producto
 			$this->ObtenerCodbarrasProducto($this->idArticulo);
-                        $this->stocks = alArticulosStocks::leer($this->idArticulo, $this->idTienda,true);                       
+            $this->stocks = alArticulosStocks::leer($this->idArticulo, $this->idTienda,true);                       
                         
 			// Por ultimo realizamos comprobaciones.
 			$this->Comprobaciones();

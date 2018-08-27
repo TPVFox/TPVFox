@@ -208,6 +208,26 @@ switch ($pulsado) {
         $eliminar=$NCArticulo->EliminarHistorico($idHistorico);
         $respuesta=$eliminar;
     break;
+    case 'eliminarProductos':
+        $productos=$_SESSION['productos_seleccionados'];
+        $productosNoEliminados=array();
+        $productosEliminados=array();
+        foreach ($productos as $idProducto){
+            $carga=$NCArticulo->GetProducto($idProducto);
+            $datosProducto=$NCArticulo->ArrayPropiedades();
+            if($datosProducto['estado']=="Baja"){
+                
+            }else{
+                $datos=array(
+                        'nombre'=>$datosProducto['articulo_name'],
+                        'id'=>$idProducto
+                );
+                array_push( $productosNoEliminados, $datos);
+            }
+           
+        }
+        $respuesta['productos']=$productosEliminados;
+    break;
    
 }
 echo json_encode($respuesta);
