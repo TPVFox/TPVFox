@@ -108,45 +108,47 @@ function AccionBuscarProductos (caja,event){
                         // Agremamos fila de producto.
                         console.log (' Entramos en AccionBuscarProducto->Añadir un resultado ');
                         console.log(resultado['datos'][0]);
-                        var datos = new ObjProducto(resultado['datos'][0]);
-                       
+                        if(resultado['datos'][0]['estadoTabla']=="Baja"){
+                            alert("Este producto no se puede adjuntar ya que el estado del producto es BAJA");
+                        }else{
+                            
                         
-                        if (resultado['datos'][0]['coste']<=0){
-                            datos.getCoste(resultado['datos'][0]['ultimoCoste']);
-                            alert("¡OJO!\nEste producto es NUEVO para este proveedor");
-                             //~ alert(resultado['datos'][0]['ultimoCoste']);
-                        }
-                        
-                        
-                        productos.push(datos);
-                        addTemporal(dedonde)
-                        document.getElementById(id_input).value='';
-                        console.log("muestro fecha");
-                        console.log(resultado['datos'][0]);
-                         if(resultado['datos'][0]['fechaActualizacion']!=null){
+                            var datos = new ObjProducto(resultado['datos'][0]);
+                           
+                            
+                            if (resultado['datos'][0]['coste']<=0){
+                                datos.getCoste(resultado['datos'][0]['ultimoCoste']);
+                                alert("¡OJO!\nEste producto es NUEVO para este proveedor");
+                                 //~ alert(resultado['datos'][0]['ultimoCoste']);
+                            }
+                            
+                            
+                            productos.push(datos);
+                            addTemporal(dedonde)
+                            document.getElementById(id_input).value='';
+                            console.log("muestro fecha");
+                            console.log(resultado['datos'][0]);
+                             if(resultado['datos'][0]['fechaActualizacion']!=null){
+                                 
+                                fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
+                                fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
+                                fechaCabecera= cabecera.fecha.split("-");
+                                fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
+                                console.log(fechaCabecera);
+                                if(fechaProducto>fechaCabecera)
+                                {
+                                     alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+                                }
+                            }
                              
-                            fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
-                            fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
-                            fechaCabecera= cabecera.fecha.split("-");
-                            fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
-                            console.log(fechaCabecera);
-                            if(fechaProducto>fechaCabecera)
-                            {
-                                 alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+                            //  Añado linea de producto.
+                            AgregarFilasProductos(datos, dedonde);
+                            // ¿¿¿ Creo que no permitimos entonces tabla para añadir albaranes... 
+                            if (dedonde=="factura"){
+                                $("#tablaAl").hide();
                             }
                         }
-                         
-                        //  Añado linea de producto.
-                        AgregarFilasProductos(datos, dedonde);
-                        //  Pongo focus.
-                       //~ ponerSelect('Unidad_Fila_'+datos.nfila);
-                       
-                        // ¿¿¿ Creo que no permitimos entonces tabla para añadir albaranes... 
-                        if (dedonde=="factura"){
-                            $("#tablaAl").hide();
-                        }
-                        //~ jQuery('#'+'Unidad_Fila_'+datos.nfila).select(); 
-                        //~ console.log('Unidad_Fila_'+datos.nfila);
+                        
                         
                     }else{
                         // Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados

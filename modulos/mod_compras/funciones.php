@@ -95,24 +95,24 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$i = 0;
 	foreach ($busquedas as $buscar){
 
-			$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste,
-			 at.crefTienda ,p.`crefProveedor`, p.coste, p.fechaActualizacion,  a.`iva` '
+        $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste,
+			 at.crefTienda ,p.`crefProveedor`, p.coste, p.fechaActualizacion,  a.`iva` , a.estado as estadoTabla'
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo '
 			.'  LEFT JOIN `articulosTiendas` '
 			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores 
 			as p on a.idArticulo=p.`idArticulo` and p.idProveedor='.$idProveedor.' WHERE '
 			.$buscar.' group by  a.idArticulo LIMIT 0 , 30 ';
-		$resultado['sql'] = $sql;
-		$res = $BDTpv->query($sql);
-		$resultado['Nitems']= $res->num_rows;
-		//si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
-		if ($i === 0){
-			if ($res->num_rows >0){
-				$resultado['Estado'] = 'Correcto';
-				break;
-			}
-		}
+        $resultado['sql'] = $sql;
+        $res = $BDTpv->query($sql);
+        $resultado['Nitems']= $res->num_rows;
+            //si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
+        if ($i === 0){
+            if ($res->num_rows >0){
+                $resultado['Estado'] = 'Correcto';
+                break;
+            }
+        }
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)){
 			$resultado['consulta'] = $sql;
@@ -193,9 +193,15 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			if(strlen($producto['crefProveedor'])==0){
                 $style='style="opacity:0.5;"';
             }
-           
-            $html .= '<tr id="Fila_'.$contad.'" '. $style.' class="FilaModal" '.
-                     ' onclick="escribirProductoSeleccionado('.$datos.');">'.
+            if($producto['estadoTabla']=="Baja"){
+                $style='style="background-color:#f5b7b1;"';
+                error_log($style);
+                $onclick="";
+            }else{
+                $onclick='onclick="escribirProductoSeleccionado('.$datos.');"';
+            }
+            $html .= '<tr id="Fila_'.$contad.'" '. $style.' class="FilaModal" '.$onclick.
+                     ' >'.
                      '<td id="C'.$contad.'_Lin" ><input id="N_'.$contad.
                      '" name="filaproducto" data-obj="idN" 	onkeydown="controlEventos(event)" '.
                      ' type="image"  alt=""><span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
