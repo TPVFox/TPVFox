@@ -58,16 +58,15 @@ function eliminarConfiguracionModulo(idUsuario, modulo){
 	}
 }
 
-function copiarPermisosUsuario(permisos){
+function copiarPermisosUsuario(){
  
-    usuarioAnt=$('#idUsuario').val();
+    
     usuarioNuevo= $('#usuario').val();
-    console.log(usuarioAnt);
-    console.log(permisos);
+   
     var parametros = {
 		"pulsado"    		: 'copiarPermisosUsuario',
-		"usuarioNuevo"			:usuarioNuevo,
-		"usuarioAnt"				:usuarioAnt
+		"usuarioNuevo"			:usuarioNuevo
+		
 		
 		};
     $.ajax({
