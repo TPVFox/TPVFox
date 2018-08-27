@@ -1184,7 +1184,8 @@ function buscarProductosFamilia(idFamilia){
     
 }
 function EliminarHistorico(idHistorico, e){
-   
+   var mensaje = confirm("¿Estás seguro que quieres eliminar este registro de historico?");
+	if (mensaje) {
     
     var parametros = {
         pulsado: 'eliminarHistorico',
@@ -1216,5 +1217,6 @@ function EliminarHistorico(idHistorico, e){
                      
             }	
         });
+    }
     
 }
