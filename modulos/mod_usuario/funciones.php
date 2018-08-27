@@ -217,7 +217,7 @@ function htmlTablaIncidencias($incidenciasUsuario){
     return $html;
     
 }
-function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
+function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $Usuarios){
     //OBjetivo: Mostrar los inputs con los permisos anidados
     $permisos=array();
     $modulo="";
@@ -230,7 +230,15 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
     $bloquear="";
     if($admin == 0){ //Si no es administrador tiene los inputs bloqueados
         $bloquear='readonly="readonly" disabled';
+    }else{
+         $html.='Copiar permisos de : <select id="usuario">';
+         foreach ($Usuarios['datos'] as $usuario){
+             $html.='<option value="'.$usuario['id'].'">'.$usuario['username'].'</option>';
+         }
+         
+         $html.='</select> <a class="btn btn-primary" onclick="copiarPermisosUsuario()" >Copiar Permisos</a><br>';
     }
+   
    if(count($permisosUsuario)>0){
         foreach ($permisosUsuario as $permiso){ //Recorremos todos los permisos
             if($permiso['permiso']==1){ //Si el permiso es 1 es input está marcado
@@ -243,17 +251,17 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos){
                 $modulo=$permiso['modulo'];
                 //De todos vamos obteniendo la descripción del acces
                 $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['modulo'], $permiso);
-                $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$descripcion.'</b><br>';
+                $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$descripcion.'</b><br>';
             }else{
                 if($vista<>$permiso['vista']){
                    
                 $vista=$permiso['vista'];
                 $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['vista'], $permiso);
-                $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 class="permiso" id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$descripcion.'<br>';
+                $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 class="permiso_'.$i.'" id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$descripcion.'<br>';
                 }else{
                     $accion=$permiso['accion'];
                     $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['accion'], $permiso);
-                    $html.='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" class="permiso" value=1 id="accion_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$descripcion.'<br>';
+                    $html.='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" class="permiso_'.$i.'" value=1 id="accion_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$descripcion.'<br>';
                 }
                
             }

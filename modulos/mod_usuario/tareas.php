@@ -34,6 +34,12 @@ $pulsado = $_POST['pulsado'];
 			$respuesta=array();
 		}
 	break;
+    case 'copiarPermisosUsuario':
+        $usuarioNuevo=$_POST['usuarioNuevo'];
+        $usuarioAnt=$_POST['usuarioAnt'];
+        $permisosUsuario=$ClasePermisos->getPermisosUsuario($usuarioNuevo);
+        $respuesta['permisosUsuario']=$permisosUsuario;
+    break;
 }
 echo json_encode($respuesta);
 return $respuesta;

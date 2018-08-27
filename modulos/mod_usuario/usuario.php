@@ -72,6 +72,7 @@
 					}
 				}
 				$configuracionesUsuario=$Cusuario->getConfiguracionModulo($id);
+                $usuarios=$Cusuario->todosUsuarios();
 				$incidenciasUsuario=$Cincidencias->incidenciasSinResolverUsuario($id);
 				$htmlConfiguracion=htmlTablaGeneral($configuracionesUsuario['datos'], $HostNombre, "configuracion");
                 $htmlInicidenciasDesplegable=htmlTablaIncidencias($incidenciasUsuario);
@@ -79,7 +80,8 @@
                 if($ClasePermisos->getAccion("permiso")==1){
                     $admin=1;
                 }
-                $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos);
+                
+                $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $usuarios);
                
 			}
 		} else {

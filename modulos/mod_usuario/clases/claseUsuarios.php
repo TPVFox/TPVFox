@@ -21,6 +21,10 @@ class ClaseUsuarios extends modelo{
 			return $consulta;
 		}
 	}
+    public function todosUsuarios(){
+        $sql='SELECT id, username FROM usuarios';
+        return $this->consulta($sql);
+    }
 	
 }
 
