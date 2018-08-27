@@ -79,11 +79,11 @@ function copiarPermisosUsuario(){
 		success    :  function (response) {
 				console.log('Respuesta Copiar los permisos de un usuario a otro ');
 				 var resultado = $.parseJSON(response);
-				console.log(resultado);
+				
                 for(i=0;i<resultado.permisosUsuario.resultado.length;i++){
-                   console.log("entro en el for");
+                  
                      permiso=resultado.permisosUsuario.resultado[i]['permiso'];
-                     console.log(permiso);
+                   
                      if(permiso==1){
                          $('.permiso_'+i).prop( "checked", true );
                      }else{
