@@ -68,6 +68,11 @@ switch ($pulsado) {
         echo json_encode($resultado);
         break;
 
+    case 'leerTodasFamilias':
+        $familias = (new ClaseFamilias())->todoslosPadres('',true);
+        echo json_encode($familias['datos']);
+        break;
+
     case 'BuscaNombreFamilia':
         $nombre = $_POST['nombre'];
 

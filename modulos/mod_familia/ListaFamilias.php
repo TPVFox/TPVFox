@@ -7,13 +7,13 @@
  */
 
 include_once './../../inicial.php';
-require_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
-include_once $URLCom.'/controllers/Controladores.php';
+require_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
+include_once $URLCom . '/controllers/Controladores.php';
 
 $Controler = new ControladorComun;
 
 // Mostramos formulario si no tiene acceso.
-include_once ($URLCom .'/controllers/parametros.php');
+include_once ($URLCom . '/controllers/parametros.php');
 
 //$ClasesParametros = new ClaseParametros('parametros.xml');
 //$parametros = $ClasesParametros->getRoot();
@@ -27,22 +27,22 @@ $familias = new ClaseFamilias($BDTpv);
     <head>
 
         <?php
-        include_once $URLCom.'/head.php';       
+        include_once $URLCom . '/head.php';
         ?>
-        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.css" type="text/css">
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
 
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
-       
+
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.js"></script>
     </head>
 
     <body>
-        <?php 
+        <?php
         //~ include '../../header.php'; 
-         include_once $URLCom.'/modulos/mod_menu/menu.php';
+        include_once $URLCom . '/modulos/mod_menu/menu.php';
         ?>
 
         <div class="container">
@@ -56,14 +56,14 @@ $familias = new ClaseFamilias($BDTpv);
                     <div class="nav">
                         <h4> Familias</h4>
                         <ul class="nav nav-pills nav-stacked"> 
-                              <?php
-                          if($ClasePermisos->getAccion("crear")==1){
+                            <?php
+                            if ($ClasePermisos->getAccion("crear") == 1) {
                                 ?>
-                            <li><button class="btn btn-link" id="botonnuevo-hijo-0"
-                                        data-alabuelo="0">Añadir</button></li>
-                        <?php 
-                        }
-                        ?>
+                                <li><button class="btn btn-link" id="botonnuevo-hijo-0"
+                                            data-alabuelo="0">Añadir</button></li>
+                                    <?php
+                                }
+                                ?>
                         </ul>
                     </div>
                     <div id="menuseleccion" class="nav" style="display: none">
@@ -98,5 +98,6 @@ $familias = new ClaseFamilias($BDTpv);
                 </div>
             </div>
         </div>
+
     </body>
 </html>

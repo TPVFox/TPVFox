@@ -1,0 +1,39 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 22-ago-2018, 17:28:32
+    Author     : alagoro
+*/
+
+.seleccionado {
+    text-transform: lowercase;
+    font-family: 'Open Sans','Helvetica Neue',Arial,sans-serif;
+    font-weight: 700;
+    background-color: #aff;
+    color: #ed1a00;
+}
+
+#enlaceIcon{
+    height: 2.2em;
+}
+.custom-combobox {
+    position: relative;
+    display: inline-block;
+}
+.custom-combobox-toggle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -1px;
+    padding: 0;
+}
+.custom-combobox-input {
+    margin: 0;
+    padding: 5px 10px;
+}
+ul.ui-autocomplete {
+    z-index: 1050;
+}

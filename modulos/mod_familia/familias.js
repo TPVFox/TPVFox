@@ -17,15 +17,20 @@ $(function () {
         window.location.href = 'familia.php?id=0';
     });
 
-    $("#boton-cambiarpadre").on("click", function (event) {
+    $("#btn-cambiarpadre").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
 
-        var checksChecked = leerChecked('form-check-input');
-        if (checksChecked.length > 0) {
+
+        if (contarSeleccionados() > 0) {
+            var familiaactual = $('#idfamilia').val() + ': ' + $('#inputnombre').val();
+            $('#inputFamiliaActualModal').val(familiaactual);
             $('#inputNombreFamiliaModal').val('');
             $('#inputIdFamiliaModal').val('-1');
-            $('#cambioPadreModal').modal('show');
+            
+            $('#inputIdNuevaModal').val($('#combopadremodal').val());
+            
+            $('#cambioFamiliaModal').modal('show');
             $('#inputNombreFamiliaModal').focus();
         } else {
             alert('Antes de modificar, por favor selecciona un elemento')
@@ -50,7 +55,7 @@ $(function () {
         var data = $(event.currentTarget).data();
 
         var id = $('#id').val();
-        var idpadre = $('#combopadre').val();
+        var idpadre = $('#inputidpadre').val();
         var nombrefamilia = $('#inputnombre').val();
         var beneficiomedio = $('#inputbeneficio').val();
         var volvera = data.href;
@@ -70,7 +75,7 @@ $(function () {
                 alert(mensajes[i]);
             }
         } else {
-            ajaxCall({ pulsado: 'grabarFamilia',
+            ajaxCall({pulsado: 'grabarFamilia',
                 id: id,
                 nombrefamilia: nombrefamilia,
                 idpadre: idpadre,
@@ -84,7 +89,7 @@ $(function () {
                     alert('Grabado correctamente');
                     window.location.href = href;
                 } else {
-                    alert(error+' '+obj.insert);
+                    alert(error + ' ' + obj.insert);
                 }
             }
             );
@@ -96,32 +101,8 @@ $(function () {
         event.stopPropagation();
         event.preventDefault();
         //var data = $(event.currentTarget).data();
-        var idpadre = $('#inputIdFamiliaModal').val();
-
-        var idsfamilia = $('#tablafamilias input:checked[name="checkFamilia"]')
-                .map(function () {
-                    var id = ($(this)[0].id).slice(5);
-                    return id;
-                }).get();
-
-
-
-        var mensajes = [];
-        if (idpadre == -1) {
-            mensajes.push('Por favor seccione un padre de la lista');
-        }
-        if (mensajes.length > 0) {
-            //errores
-            for (var i = 0; i < mensajes.length; i++) {
-                alert(mensajes[i]);
-            }
-        } else {
-            grabarPadres({idpadre: idpadre, idsfamilia: idsfamilia}, function (response) {
-                leerfamiliaspadre0();
-                $('#inputNombreModal').val('');
-                $('#cambioPadreModal').modal('hide');
-            });
-        }
+        
+        alert(seleccionados());
     });
 
 //    $('#inputNombreFamiliaModal').typeahead({
@@ -169,6 +150,41 @@ $(function () {
             //return false;
         }
     });
+
+    $(".btn-seleccionar").on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        var data = $(event.currentTarget).data();
+        if (data.idproducto) {
+            idtr = "tr_" + data.idproducto;
+            if ($('#' + idtr).hasClass('seleccionado')) {
+                $('#' + idtr).removeClass('seleccionado');
+            } else {
+                $('#' + idtr).addClass('seleccionado');
+            }
+        }
+        var cuenta = contarSeleccionados();
+        if (cuenta > 0) {
+            $('#btn-cambiarpadre').show();
+        } else {
+            $('#btn-cambiarpadre').hide()
+        }
+
+    });
+
+        $( "#combopadre" ).combobox({
+            select : function(event, ui){ 
+                 $('#inputidpadre').val(ui.item.value);
+            },
+        });
+
+    $( "#combopadremodal" ).combobox({
+            select : function(event, ui){ 
+                 $('#inputIdNuevaModal').val(ui.item.value);
+            },
+        });
+
 });
 
 function leerfamiliaspadre0() {
@@ -327,3 +343,17 @@ function ajaxCall(parametros, callback) {
         }
     });
 }
+
+function contarSeleccionados() {
+    return $('.seleccionado').length;
+}
+
+function seleccionados(){
+
+ var ids = [];
+ $('.seleccionado').each(function (key, element) {
+ ids.push($(element).attr('id'));
+ });
+ return ids;
+ }
+ 

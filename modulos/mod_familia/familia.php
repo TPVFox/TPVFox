@@ -11,6 +11,7 @@
 
         $titulo = 'Familias:';
         $familias = new ClaseFamilias();
+        $TodasFamilias = $familias->todoslosPadres('familiaNombre', TRUE);
         // Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
         if (isset($_GET['id'])) {
             // Modificar Ficha 
@@ -31,25 +32,29 @@
             $htmlProductos = htmlTablaFamiliaProductos($id);
         } else {
             // Quiere decir que no hay id, por lo que es nuevo
-            $padres = $familias->todoslosPadres('familiaNombre', TRUE);
+            $padres = $TodasFamilias;
             $titulo .= "Crear";
             $familia = [];
             $familia['beneficiomedio'] = 25.00; // cuando haya configuración, que salga de la configuracion
         }
-
-        $combopadres = ' <select name="padre" class="form-control" id="combopadre">';
+        $vp = '';
+        $combopadres = ' <select name="padre" class="form-control " '
+                . 'id="combopadre">';
         foreach ($padres['datos'] as $padre) {
             $combopadres .= '<option value=' . $padre['idFamilia'];
             if (($id != 0) && ($familia['familiaPadre'] == $padre['idFamilia'])) {
                 $combopadres .= ' selected = "selected" ';
+                $vp = $padre['idFamilia'];
             }
             $combopadres .= '>' . $padre['familiaNombre'] . '</option>';
         }
         $combopadres .= '</select>';
+        $combopadres .= '<input type="hidden" name="idpadre" id="inputidpadre" value="'.$vp.'">'; 
         ?>
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <link rel="stylesheet" href="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.css" type="text/css">
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
 
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
@@ -58,31 +63,30 @@
     <body>
         <?php
 //        include_once $URLCom . '/header.php';
-       include_once $URLCom.'/modulos/mod_menu/menu.php';
+        include_once $URLCom . '/modulos/mod_menu/menu.php';
         ?>
 
 
         <div class="container">
 
             <h2 class="text-center"> <?php echo $titulo; ?></h2>
-            
-            
+
+
             <!-- columna formulario -->
             <div class="col-md-8">
                 <form action="javascript:guardarClick();" method="post" name="formFamilia" >
                     <div class="col-md-12">
                         <div class="btn-toolbar">
-                            <button class="btn btn-link" id="btn-fam-volver" data-href="./ListaFamilias.php">Volver Atrás</button>
-                            <button class="btn btn-primary" id="btn-fam-grabar" data-href="./ListaFamilias.php">Guardar</button>
+                            <button class="btn btn-link" type="button" id="btn-fam-volver" data-href="./ListaFamilias.php">Volver Atrás</button>
+                            <button class="btn btn-primary" type="button" id="btn-fam-grabar" data-href="./ListaFamilias.php">Guardar</button>
                         </div>
                         <div class=" Datos">
                             <?php // si es nuevo mostramos Nuevo   ?>
                             <div class="col-md-7">
                                 <h4>Datos de la familia con ID:<?php echo $id == 0 ? 'nueva' : $id; ?></h4>
                             </div>
-                            <div class="col-md-5">
-                                <input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id; ?>" >
-                            </div>
+                            <input type="hidden" id="idfamilia" name="idfamilia" value="<?php echo $id; ?>" >
+
                         </div>
                     </div>
                     <div class="row">
@@ -95,9 +99,10 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-label-group">
+                            <div class="ui-widget">
                                 <label for="inputpadre">Padre: </label>
                                 <?php echo $combopadres ?>
+                                
                             </div>
                         </div>
                     </div>
@@ -138,7 +143,7 @@
                     <!-- Inicio collapse de Proveedores --> 
                     <?php
                     $num = 2; // Numero collapse;
-                    $titulo = 'Poductos';
+                    $titulo = 'Productos';
                     echo htmlPanelDesplegable($num, $titulo, $htmlProductos);
                     ?>
 
@@ -152,29 +157,52 @@
 
         </div>
 
-        <style>
-            #enlaceIcon{
-                height: 2.2em;
+        <!-- Modal -->
+        <?php
+        $combofamilias = ' <select name="padre" class="form-control" id="combopadremodal">';
+        foreach ($padres['datos'] as $padre) {
+            $combofamilias .= '<option value=' . $padre['idFamilia'];
+            if (($id != 0) && ($familia['familiaPadre'] == $padre['idFamilia'])) {
+                $combofamilias .= ' selected = "selected" ';
             }
-            .custom-combobox {
-                position: relative;
-                display: inline-block;
-            }
-            .custom-combobox-toggle {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                margin-left: -1px;
-                padding: 0;
-            }
-            .custom-combobox-input {
-                margin: 0;
-                padding: 5px 10px;
-            }
-            ul.ui-autocomplete {
-                z-index: 1050;
-            }
-        </style>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.js"></script>        
+            $combofamilias .= '>' . $padre['familiaNombre'] . '</option>';
+        }
+        $combofamilias .= '</select>';
+        ?>        
+
+
+
+        <div id="cambioFamiliaModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title text-center">Cambiar Familia de productos Seleccionados</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row  ui-front">
+                            Familia actual: <input class="form-control" id="inputFamiliaActualModal" 
+                                                   value="--- Padre raíz ---"/>
+                            <input id="inputIdactualModal" type="hidden" value="0">
+                        </div>
+                        <div id="formularioFamiliaModal" >
+                            <div class="row  ui-front">
+                                Cambiar familia a: <?php echo $combofamilias ?>
+
+                                <input id="inputIdNuevaModal" type="hidden" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-padre-grabar" class="btn btn-primary" >
+                            <span class="glyphicon glyphicon-save"> </span>Grabar</button>&nbsp;
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.js"></script>        
     </body>
 </html>
