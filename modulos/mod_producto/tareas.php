@@ -209,6 +209,7 @@ switch ($pulsado) {
         $respuesta=$eliminar;
     break;
     case 'eliminarProductos':
+        $tiendaWeb=$_POST['idTiendaWeb'];
         $productos=$_SESSION['productos_seleccionados'];
         $productosNoEliminados=array();
         $productosEliminados=array();
@@ -220,7 +221,7 @@ switch ($pulsado) {
                 'id'=>$idProducto
                 );
             if($datosProducto['estado']=="Baja"){
-                $comprobacionesEliminar=$NCArticulo->ComprobarEliminar($idProducto);
+                $comprobacionesEliminar=$NCArticulo->ComprobarEliminar($idProducto, $tiendaWeb);
                 if($comprobacionesEliminar['bandera']==1){
                     array_push( $productosNoEliminados, $datos);
                 }else{

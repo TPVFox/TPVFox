@@ -1221,10 +1221,11 @@ function EliminarHistorico(idHistorico, e){
     
 }
 
-function eliminarProductos(){
+function eliminarProductos(idTiendaWeb){
      var mensaje = confirm("¿Estás seguro que quieres eliminar los productos seleccionado?");
 	if (mensaje) {
          var parametros = {
+             idTiendaWeb: idTiendaWeb,
             pulsado: 'eliminarProductos'
         }
           $.ajax({

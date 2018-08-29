@@ -912,7 +912,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 	}
     
-    public function ComprobarEliminar($id){
+    public function ComprobarEliminar($id, $idTienda){
         //Comprobar que el id del producto no este en ninguna linea de albaranes
         $sql=array();
         $sql[1]='select count(id) as cant from albprolinea where idArticulo='.$id;
@@ -922,6 +922,7 @@ class ClaseProductos extends ClaseTablaArticulos{
         $sql[5]='select count(id) as cant from albclilinea where idArticulo='.$id;
         $sql[6]='select count(id) as cant from pedclilinea where idArticulo='.$id;
         $sql[7]='select count(id) as cant from facclilinea where idArticulo='.$id;
+        $sql[8]='select count(idArticulo) as cant from articulosTiendas where idArticulo='.$id.' and idTienda='.$idTienda;
         $bandera=0;
         foreach ($sql as $consulta){
              $items = parent::Consulta($consulta);
