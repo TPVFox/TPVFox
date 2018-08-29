@@ -215,18 +215,28 @@ switch ($pulsado) {
         foreach ($productos as $idProducto){
             $carga=$NCArticulo->GetProducto($idProducto);
             $datosProducto=$NCArticulo->ArrayPropiedades();
+            $datos=array(
+                'nombre'=>$datosProducto['articulo_name'],
+                'id'=>$idProducto
+                );
             if($datosProducto['estado']=="Baja"){
+                $comprobacionesEliminar=$NCArticulo->ComprobarEliminar($idProducto);
+                if($comprobacionesEliminar['bandera']==1){
+                    array_push( $productosNoEliminados, $datos);
+                }else{
+                    array_push( $productosEliminados, $datos);
+                }
+                if(isset($comprobacionesEliminar['error'])){
+                    $respuesta['error']=$comprobacionesEliminar['consulta'];
+                }
                 
             }else{
-                $datos=array(
-                        'nombre'=>$datosProducto['articulo_name'],
-                        'id'=>$idProducto
-                );
                 array_push( $productosNoEliminados, $datos);
             }
            
         }
-        $respuesta['productos']=$productosEliminados;
+        $respuesta['NoEliminados']= $productosNoEliminados;
+        $respuesta['Eliminados']=$productosEliminados;
     break;
    
 }

@@ -914,8 +914,45 @@ class ClaseProductos extends ClaseTablaArticulos{
     
     public function ComprobarEliminar($id){
         //Comprobar que el id del producto no este en ninguna linea de albaranes
-        $sql='count(id) from albprolinea where idArticulo='.$id;
+        $sql=array();
+        $sql[1]='select count(id) as cant from albprolinea where idArticulo='.$id;
+        $sql[2]='select count(id) as cant from pedprolinea where idArticulo='.$id;
+        $sql[3]='select count(id) as cant from facprolinea where idArticulo='.$id;
+        $sql[4]='select count(id) as cant from ticketslinea where idArticulo='.$id;
+        $sql[5]='select count(id) as cant from albclilinea where idArticulo='.$id;
+        $sql[6]='select count(id) as cant from pedclilinea where idArticulo='.$id;
+        $sql[7]='select count(id) as cant from facclilinea where idArticulo='.$id;
+        $bandera=0;
+        foreach ($sql as $consulta){
+             $items = parent::Consulta($consulta);
+             if($items['Items'][0]['cant']>0){
+                 $bandera=1;
+                 break;
+             }
+        }
+        if($bandera==0){
+            $sql=array();
+            $sql[1]='delete from articulos where idArticulo='.$id;
+            $sql[2]='delete from articulosTiendas where idArticulo='.$id;
+            $sql[3]='delete from articulosClientes where idArticulo='.$id;
+            $sql[4]='delete from articulosCodigoBarras where idArticulo='.$id;
+            $sql[5]='delete from articulosFamilias where idArticulo='.$id;
+            $sql[6]='delete from articulosPrecios where idArticulo='.$id;
+            $sql[7]='delete from articulosProveedores where idArticulo='.$id;
+            $sql[8]='delete from articulosStocks where idArticulo='.$id;
+            foreach ($sql as $consulta){
+                $eliminar =$this->Consulta_insert_update($consulta);
+                if($eliminar['error']){
+                    $resultado['consulta']=$eliminar['consulta'];
+                    $resultado['error']=$eliminar['error'];
+                }
+            }
+        }
+        $resultado['bandera']=$bandera;
         
+        return $resultado;
+        
+       
     }
 	// Fin de clase.
 }

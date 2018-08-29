@@ -1239,8 +1239,15 @@ function eliminarProductos(){
                    
                     var resultado = $.parseJSON(response);
                     console.log (resultado);
-                   
-                   
+                   if(resultado.Eliminados.length>0){
+                       alert("Se han eliminado: "+JSON.stringify(resultado.Eliminados));
+                   }
+                   if(resultado.NoEliminados.length>0){
+                       alert("No se han eliminado: "+ JSON.stringify(resultado.NoEliminados));
+                   }
+                   if(resultado.error){
+                       alert("Error de sql: "+resultado.error);
+                   }
                    
                   
                      
