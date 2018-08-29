@@ -12,8 +12,8 @@ function modificarProductoWeb(idProducto="", idTienda=""){
     //@Objetivo:
     //MOdificar los datos del producto en la web 
     console.log("entre en modificar producto web ");
-    
-        
+      var mensaje = confirm("¿Estás seguro que quieres AÑADIR / MODIFICAR el producto en la web?");
+     	if (mensaje) {   
     if($('#referenciaWeb').val()=="" || $('#nombreWeb').val()=="" || $('#precioSivaWeb').val()==""){
         alert("Campos necesarios vacios, Referencia, Nombre y Precio sin iva");
     }else{
@@ -63,7 +63,7 @@ function modificarProductoWeb(idProducto="", idTienda=""){
                 }	
             });
     }
-    
+}
 }
 function ModalNotificacion(numLinea){
     //@Objetivo: mostrar el modal para enviar el correo de la notificación
