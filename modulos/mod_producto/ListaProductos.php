@@ -104,6 +104,10 @@
 
          
          $familias=$CFamilia->todoslosPadres();
+         //~ echo '<pre>';
+         //~ print_r($familias);
+         //~ echo '</pre>';
+         //~ $htmlFamilias=selectFamilias($familias['datos']);
          
          if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
@@ -271,9 +275,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <div class="ui-widget">
                              <label for="tags">Buscar por Familias:</label>
                              <select id="combobox" class="familiasLista">
-                                  <option value="0"></option>
-                                 
+                                <option value="0"></option>
                                  <?php 
+                                   //~ $arbolfamilias=selectFamilias(0, '-', array(), $BDTpv);
+                                   //~ foreach($arbolfamilias as $familia){
+                                       //~ echo '<option value="'.$familia['id'].'">'.$familia['name'].'</option>';
+                                   //~ }
                                  foreach ($familias['datos'] as $familia){
                                      echo '<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
                                  }

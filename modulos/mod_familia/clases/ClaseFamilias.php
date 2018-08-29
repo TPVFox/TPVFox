@@ -109,14 +109,14 @@ class ClaseFamilias extends Modelo {
     }
 
     public function todoslosPadres($orden = '', $addRoot = false) {
-        $sql = 'SELECT idFamilia, familiaNombre FROM familias';
+        $sql = 'SELECT idFamilia, familiaNombre , familiaPadre FROM familias';
         if ($orden) {
             $sql .= ' ORDER BY ' . $orden;
         }
         $resultado = $this->consulta($sql);
         if ($resultado['datos']) {
             if ($addRoot) {
-                array_unshift($resultado['datos'], ['idFamilia' => 0, 'familiaNombre' => 'Raíz: la madre de todas las familias']);
+                array_unshift($resultado['datos'], ['idFamilia' => 0, 'familiaNombre' => 'Raíz: la madre de todas las familias', 'familiaPadre'=>'Raíz: el padre de las familias']);
             }
         }
 
@@ -180,5 +180,4 @@ class ClaseFamilias extends Modelo {
         
         return $resultado;
     }
-
 }
