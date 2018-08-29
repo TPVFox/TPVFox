@@ -942,7 +942,7 @@ class ClaseProductos extends ClaseTablaArticulos{
             $sql[8]='delete from articulosStocks where idArticulo='.$id;
             foreach ($sql as $consulta){
                 $eliminar =$this->Consulta_insert_update($consulta);
-                if($eliminar['error']){
+                if(isset($eliminar['error'])){
                     $resultado['consulta']=$eliminar['consulta'];
                     $resultado['error']=$eliminar['error'];
                 }
