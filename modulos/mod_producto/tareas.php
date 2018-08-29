@@ -209,6 +209,7 @@ switch ($pulsado) {
         $respuesta=$eliminar;
     break;
     case 'eliminarProductos':
+        $respuesta=array();
         $tiendaWeb=$_POST['idTiendaWeb'];
         $productos=$_SESSION['productos_seleccionados'];
         $productosNoEliminados=array();
@@ -225,7 +226,9 @@ switch ($pulsado) {
                 if($comprobacionesEliminar['bandera']==1){
                     array_push( $productosNoEliminados, $datos);
                 }else{
+                    
                     array_push( $productosEliminados, $datos);
+                    productosSesion($idProducto);
                 }
                 if(isset($comprobacionesEliminar['error'])){
                     $respuesta['error']=$comprobacionesEliminar['consulta'];
