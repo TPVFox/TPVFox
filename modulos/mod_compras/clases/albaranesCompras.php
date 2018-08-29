@@ -277,7 +277,7 @@ class AlbaranesCompras extends ClaseCompras {
                         //~ exit;
                     }
                     // ¿Donde se guarda el error si no actualiza stock? ????
-                    $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['ncant'], K_STOCKARTICULO_SUMA);
+                    $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['nunidades'], K_STOCKARTICULO_SUMA);
                     $i++;
                 }
                 
