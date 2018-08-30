@@ -148,7 +148,7 @@
 			<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
             <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia </a>
-			<input type="submit" value="Guardar" name="Guardar" id="Guardar">
+			<input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
 			<div class="col-md-12">
 				
 				<h4>Datos del proveedor con ID:<?php echo $id?></h4>
