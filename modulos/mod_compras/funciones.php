@@ -5,7 +5,6 @@ include_once $URLCom.'/clases/FormasPago.php';
 include_once $URLCom.'/clases/articulos.php';
 include_once $URLCom.'/clases/ClaseTablaTienda.php';
 
-
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.
@@ -72,17 +71,11 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$likes = array();
 	$whereIdentico = array();
 	foreach($palabras as $palabra){
-	
-		
 		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
 		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
-	
 	}
-	
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
-	
 	$busquedas = array();
-	
 	if ($palabra !== ''){ 
 		if ($idcaja=="cajaBusqueda"){
 			$busquedas[] = implode(' and ',$likes);
@@ -94,7 +87,6 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	}
 	$i = 0;
 	foreach ($busquedas as $buscar){
-
         $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste,
 			 at.crefTienda ,p.`crefProveedor`, p.coste, p.fechaActualizacion,  a.`iva` , a.estado as estadoTabla'
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
@@ -138,7 +130,6 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 			$products[] = $fila;
 			$resultado['datos']=$products;
 			$i++;
-			
 		}
 		if($resultado['Nitems']==1){
 			$fecha=$resultado['datos'][0]['fechaActualizacion'];
@@ -177,7 +168,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			} else {
 				// Si no encontro resultados, entonces debemos porne una alert y incluso sonorá era guay...
 				$html .= '<div class="alert alert-warning">'.
-				$html .=' <strong>Error!</strong> No se encontrado nada con esa busqueda.</div>';
+				' <strong>Error!</strong> No se encontrado nada con esa busqueda.</div>';
 			}
 	} else {
 		$html .= '<table class="table table-striped"><thead><th></th></thead><tbody>';
@@ -195,7 +186,6 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
             }
             if($producto['estadoTabla']=="Baja"){
                 $style='style="background-color:#f5b7b1;"';
-                error_log($style);
                 $onclick="";
             }else{
                 $onclick='onclick="escribirProductoSeleccionado('.$datos.');"';
@@ -304,7 +294,6 @@ function htmlLineaProducto($productos, $dedonde){
                 }
             }
             $numeroDoc.= '</td>';
-            
         } 
         //Si tiene referencia del proveedor
         $displayRefProv = 'display:none'; // Por defecto si no existe.
@@ -1712,7 +1701,6 @@ function incidenciasAdjuntas($id, $dedonde, $BDTpv, $vista){
 		$respuesta['error']=$incidenciasAdjuntas['error'];
 		$respuesta['consulta']=$incidenciasAdjuntas['consulta'];
 	}else{
-		
 		$respuesta['datos']=$incidenciasAdjuntas;
 	}
 	return $respuesta;
@@ -1720,38 +1708,21 @@ function incidenciasAdjuntas($id, $dedonde, $BDTpv, $vista){
 function modalIncidenciasAdjuntas($datos){
 	$html="";
 	foreach($datos as $dato){
-		$html.='<div class="col-md-12">'
-					.'<h4>Incidencia:</h4>'
-					.'<div class="col-md-6">'
-						.'<label>Fecha:</label>'
-						.'<input type="date" name="inci_fecha" id="inci_fecha" value="'.$dato['fecha_creacion'].'" readonly="">'
-					.'</div>'
-					.'<div class="col-md-6">'
-						.'<label>Dedonde:</label>'
-						.'<input type="text" name="inci_dedonde" id="inci_dedonde" value="'.$dato['dedonde'].'" readonly="">'
-					.'</div>'
-				.'</div>'
-				.'<div class="col-md-12">'
-					.'<div class="col-md-6">'
-						.'<label>Estado:</label>'
-						.'<input type="text" name="estado" id="estado" value="'.$dato['estado'].'" readonly="">'
-					.'</div>'
-					.'<div class="col-md-6">'
-						.'<label>Usuario:</label>'
-						.'<input type="text" name="usuario" id="usuario" value="'.$dato['id_usuario'].'" readonly="">'
-					.'</div>'
-				.'</div>'
-				.'<div class="col-md-12">'
-					.'<div class="col-md-6">'
-						.'<label>Datos:</label>'
-						.'<textarea rows="4" cols="20" readonly> '.$dato['datos'].'</textarea>'
-					.'</div>'
-					.'<div class="col-md-6">'
-						.'<label>Mensaje:</label>'
-						.'<textarea rows="4" cols="20" readonly> '.$dato['mensaje'].'</textarea>'
-					.'</div>'
-				.'</div>';
-				
+		$html.=<<<EOD
+<div class="col-md-12"><h4>Incidencia:</h4><div class="col-md-6"><label>Fecha:</label>
+<input type="date" name="inci_fecha" id="inci_fecha" value="$dato[fecha_creacion]" readonly=""></div>
+<div class="col-md-6"><label>Dedonde:</label>
+<input type="text" name="inci_dedonde" id="inci_dedonde" value="$dato[dedonde]" readonly=""></div></div>
+<div class="col-md-12"><div class="col-md-6"><label>Estado:</label>
+<input type="text" name="estado" id="estado" value="$dato[estado]" readonly=""></div>
+<div class="col-md-6"><label>Usuario:</label>
+<input type="text" name="usuario" id="usuario" value="$dato[id_usuario]" readonly=""></div></div>
+<div class="col-md-12"><div class="col-md-6"><label>Datos:</label>
+<textarea rows="4" cols="20" readonly> $dato[datos]</textarea>'</div>
+<div class="col-md-6"><label>Mensaje:</label>
+<textarea rows="4" cols="20" readonly> $dato[mensaje]</textarea>
+</div></div>
+EOD;
 					
 	}
 	return $html;
