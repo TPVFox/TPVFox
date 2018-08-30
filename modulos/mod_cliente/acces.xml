@@ -4,6 +4,7 @@
         <accion nombre="crear" descripcion="Crear Cliente" permiso="0"></accion>
         <accion nombre="modificar" descripcion="Modificar Cliente" permiso="0"></accion>
 	<accion nombre="ver" descripcion="Ver Cliente" permiso="0"></accion>
+	<accion nombre="tarifa" descripcion="Ver Tarifas" permiso="0"></accion>
     </vista>
     <vista nombre="cliente.php" descripcion="Cliente" permiso="0"></vista>
 

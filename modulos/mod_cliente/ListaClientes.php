@@ -113,9 +113,24 @@
 				<h4> Clientes</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
+                    <?php
+                     if($ClasePermisos->getAccion("crear")==1){
+                    ?>
 					<li><a href="#section1" onclick="metodoClick('AgregarCliente');">Añadir</a></li>
+                    <?php 
+                    }
+                    
+                    if($ClasePermisos->getAccion("modificar")==1){
+                        ?>
 					<li><a href="#section2" onclick="metodoClick('VerCliente');">Modificar</a></li>
+                    <?php 
+                }
+                if($ClasePermisos->getAccion("tarifa")==1){
+                    ?>
 					<li><a href="#" onclick="metodoClick('TarificarCliente');">Tarifa</a></li>
+                    <?php 
+                }
+                    ?>
 									<?php //metodoClick js case pulsado 
 									//agregarUsuario nos lleva a formulario usuario
 									//verUsuario si esta checkado nos lleva vista usuario de ese id
