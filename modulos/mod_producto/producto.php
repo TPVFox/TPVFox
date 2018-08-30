@@ -216,9 +216,9 @@
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<div class="col-md-12">
-				<div class="col-md-12 btn-toolbar">
+				<div class="col-md-12 ">
 					<a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
-					<input type="submit" value="Guardar">
+					<input type="submit" value="Guardar" class="btn btn-primary">
 				</div>
 				<div class="col-md-6 Datos">
 					<?php // si es nuevo mostramos Nuevo ?>
