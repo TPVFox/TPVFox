@@ -60,7 +60,7 @@ EOD;
 			foreach($arrayNums['productos'] as $producto){
 				$precio=number_format ($producto['totalUnidades']*$producto['costeSiva'],2);
                 $unidades=number_format ($producto['totalUnidades'],2);
-                $costeiva=number_format ($producto[costeSiva],2);
+                $costeiva=number_format ($producto['costeSiva'],2);
 				$html.=<<<EOD
 <tr><td WIDTH="50%"><font size="8">$producto[cdetalle].'</font></td>
 <td style="text-align:center;"><font size="8"> $unidades </font></td>
