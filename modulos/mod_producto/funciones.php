@@ -1015,22 +1015,22 @@ function modalAutocompleteFamilias($familias, $idProducto){
     return $html;
 }
 
-//~ function selectFamilias($padre=0, $espacio, $array_familias, $conexion){
+function selectFamilias($padre=0, $espacio, $array_familias, $conexion){
     
-        //~ $sql = 'select idFamilia, familiaNombre, familiaPadre  FROM familias where familiaPadre='.$padre.' ORDER BY idFamilia ASC';
-        //~ $res = $conexion->query($sql);
-        
-      
-        //~ $total= $res->num_rows;
-       
-        //~ if($total>0){
+        $sql = 'select idFamilia, familiaNombre, familiaPadre  FROM familias where familiaPadre='.$padre.' ORDER BY idFamilia ASC';
+        $res = $conexion->query($sql);
+        $espacio.='--';
+      error_log($sql);
+        $total= $res->num_rows;
+       error_log($total);
+        if($total>0){
             
-            //~ while ($row = $res->fetch_assoc()) {
-                //~ $array_familias[]=array("id" => $row['idFamilia'], "name" => $espacio . $row['familiaNombre']);
+            while ($row = $res->fetch_assoc()) {
+                $array_familias[]=array("id" => $row['idFamilia'], "name" => $espacio . $row['familiaNombre']);
                
-               //~ $array_familias=selectFamilias($row['familiaPadre'], $espacio.'--', $array_familias , $conexion);
-            //~ }
-        //~ }
-        //~ return $array_familias;
-//~ }
+                 $array_familias= selectFamilias($row['idFamilia'], $espacio, $array_familias , $conexion);
+            }
+        }
+        return $array_familias;
+}
 ?>

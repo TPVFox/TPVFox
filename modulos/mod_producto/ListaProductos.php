@@ -277,13 +277,13 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                              <select id="combobox" class="familiasLista">
                                 <option value="0"></option>
                                  <?php 
-                                   //~ $arbolfamilias=selectFamilias(0, '-', array(), $BDTpv);
-                                   //~ foreach($arbolfamilias as $familia){
-                                       //~ echo '<option value="'.$familia['id'].'">'.$familia['name'].'</option>';
-                                   //~ }
-                                 foreach ($familias['datos'] as $familia){
-                                     echo '<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
-                                 }
+                                   $arbolfamilias=selectFamilias(0, '', array(), $BDTpv);
+                                   foreach($arbolfamilias as $familia){
+                                       echo '<option value="'.$familia['id'].'">'.$familia['name'].'</option>';
+                                   }
+                                 //~ foreach ($familias['datos'] as $familia){
+                                     //~ echo '<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
+                                 //~ }
                                  ?>
                             </select>
                             
