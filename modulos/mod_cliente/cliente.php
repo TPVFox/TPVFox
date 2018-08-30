@@ -164,7 +164,7 @@
 					
 			<a class="text-ritght" href="./ListaClientes.php">Volver Atrás</a>
             <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
-			<input type="submit" value="Guardar" name="Guardar" id="Guardar">
+			<input type="submit" class="btn btn-primary" value="Guardar" name="Guardar" id="Guardar">
 			
 			<div class="col-md-12">
 				
