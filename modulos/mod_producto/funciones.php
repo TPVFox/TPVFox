@@ -1015,7 +1015,7 @@ function modalAutocompleteFamilias($familias, $idProducto){
     return $html;
 }
 
-function selectFamilias($padre=0, $espacio, $array_familias, $conexion){
+function selectFamilias($padre=0, $espacio, $array_familias, $conexion,$nombre_completo = ''){
     
         $sql = 'select idFamilia, familiaNombre, familiaPadre  FROM familias where familiaPadre='.$padre.' ORDER BY idFamilia ASC';
         $res = $conexion->query($sql);
@@ -1028,10 +1028,17 @@ function selectFamilias($padre=0, $espacio, $array_familias, $conexion){
         if($total>0){
             
             while ($row = $res->fetch_assoc()) {
+                if (strlen($nombre_completo) >0){
+                    $nombre_completo = $nombre_completo.'&#187;'.$row['familiaNombre'];
+                } else {
+                    $nombre_completo = $row['familiaNombre'];
+                }
+                $array_familias[]=array(
+                                    "id" => $row['idFamilia'],
+                                    "name" => $espacio . $row['familiaNombre'],
+                                    "title" => $nombre_completo );
                
-                $array_familias[]=array("id" => $row['idFamilia'], "name" => $espacio . $row['familiaNombre']);
-               
-                 $array_familias= selectFamilias($row['idFamilia'], $espacio, $array_familias , $conexion);
+                 $array_familias= selectFamilias($row['idFamilia'], $espacio, $array_familias , $conexion,$nombre_completo);
             }
         }
         

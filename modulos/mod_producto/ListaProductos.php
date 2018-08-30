@@ -276,7 +276,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                  <?php 
                                    $arbolfamilias=selectFamilias(0, '', array(), $BDTpv);
                                    foreach($arbolfamilias as $familia){
-                                       echo '<option value="'.$familia['id'].'">'.$familia['name'].'</option>';
+                                       echo '<option title ="'.$familia['title'].'" value="'.$familia['id'].'">'.$familia['name'].'</option>';
                                    }
                                 
                                  ?>
