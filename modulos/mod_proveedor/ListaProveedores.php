@@ -104,8 +104,18 @@
 				<h4> Proveedores</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
+                    <?php 
+                      if($ClasePermisos->getAccion("crear")==1){
+                    ?>
 					<li><a href="#section1" onclick="metodoClick('AgregarProveedor');";>Añadir</a></li>
+                    <?php 
+                    }
+                    if($ClasePermisos->getAccion("modificar")==1){
+                    ?>
 					<li><a href="#section2" onclick="metodoClick('VerProveedor');";>Modificar</a></li>
+                    <?php 
+                    }
+                    ?>
 									<?php //metodoClick js case pulsado 
 									//agregarUsuario nos lleva a formulario usuario
 									//verUsuario si esta checkado nos lleva vista usuario de ese id
