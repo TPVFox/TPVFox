@@ -143,11 +143,12 @@
 				//~ return;
 				}
 				?>
-			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+			
 			<h1 class="text-center"> Proveedor: <?php echo $titulo;?></h1>
 			<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
-			<input type="submit" value="Guardar" name="Guardar">
+            <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia </a>
+			<input type="submit" value="Guardar" name="Guardar" id="Guardar">
 			<div class="col-md-12">
 				
 				<h4>Datos del proveedor con ID:<?php echo $id?></h4>
@@ -262,5 +263,19 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 // hacemos comprobaciones de estilos 
 ?>
 		</div>
+        <script type="text/javascript">
+        <?php 
+        if(isset($_GET['estado'])){
+            if($_GET['estado']=="ver"){
+                ?>
+                $(".container").find('input').attr("disabled", "disabled");
+                 $("#Guardar").css("display", "none");
+                <?php
+            }
+        }
+        
+        ?>
+        
+        </script>
 	</body>
 </html>
