@@ -197,7 +197,7 @@ switch ($pulsado) {
     
     break;
     case 'buscarProductosDeFamilia':
-    
+        $respuesta=array();
         $productos=$CFamilia->buscarProductosFamilias($_POST['idfamilia']);
         $idsProductos=array();
         foreach ($productos['datos'] as $producto){
@@ -206,6 +206,7 @@ switch ($pulsado) {
         $respuesta['Productos']=$idsProductos;
     break;
     case 'buscarProductosProveedor':
+        $respuesta=array();
         $productos=$CProveedor->buscarProductosProveedor($_POST['idProveedor']);
         $idsProductos=array();
         foreach ($productos['datos'] as $producto){
