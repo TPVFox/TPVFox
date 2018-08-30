@@ -158,12 +158,13 @@
 				}
 				?>
 			
-			<a  onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia <span class="glyphicon glyphicon-pencil"></span></a>
+			
 			<h1 class="text-center"> Cliente: <?php echo $titulo;?></h1>
 			<form action="" method="post" name="formCliente">
 					
 			<a class="text-ritght" href="./ListaClientes.php">Volver Atrás</a>
-			<input type="submit" value="Guardar" name="Guardar">
+            <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
+			<input type="submit" value="Guardar" name="Guardar" id="Guardar">
 			
 			<div class="col-md-12">
 				
@@ -329,6 +330,20 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 
 include_once $URLCom.'/pie.php';
 ?>
-
+ <script type="text/javascript">
+        <?php 
+        if(isset($_GET['estado'])){
+            if($_GET['estado']=="ver"){
+                ?>
+                $(".container").find('input').attr("disabled", "disabled");
+                $(".container").find('select').attr("disabled", "disabled");
+                 $("#Guardar").css("display", "none");
+                <?php
+            }
+        }
+        
+        ?>
+        
+        </script>
 	</body>
 </html>

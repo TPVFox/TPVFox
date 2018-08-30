@@ -141,10 +141,12 @@
 				</form>
                  <!-- TABLA DE PRODUCTOS -->
 			<div>
-			<table class="table table-striped">
+			<table class="table table-bordered table-hover">
 				<thead>
 					<tr>
 						<th></th>
+                        <th></th>
+                        <th></th>
 						<th>ID</th>
 						<th>NOMBRE</th>
 						<th>RAZON SOCIAL</th>
@@ -164,6 +166,24 @@
 						<td class="rowUsuario">
 							<input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $cliente['idClientes'];?>">
 						</td>
+                        <td>
+                        <?php 
+                        if($ClasePermisos->getAccion("modificar")==1){
+                        ?>
+                            <a class="glyphicon glyphicon-pencil" href='./cliente.php?id=<?php echo $cliente['idClientes'];?>'>
+                        <?php 
+                        }
+                        ?>
+                        </td>
+                        <td>
+                        <?php 
+                        if($ClasePermisos->getAccion("ver")==1){
+                        ?>
+                        <a class="glyphicon glyphicon-eye-open" href='./cliente.php?id=<?php echo $cliente['idClientes'];?>&estado=ver'>
+                        <?php 
+                        }
+                        ?>
+                        </td>
 						<td><?php echo $cliente['idClientes']; ?></td>
 						<td><?php echo $cliente['Nombre']; ?></td>
 						<td><?php echo $cliente['razonsocial']; ?></td>
