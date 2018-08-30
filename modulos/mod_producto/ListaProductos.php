@@ -106,9 +106,7 @@
          
         
         $todosProveedores= $CProveedor->todosProveedores();
-        echo '<pre>';
-        print_r($todosProveedores);
-        echo '</pre>';
+     
          
          if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');

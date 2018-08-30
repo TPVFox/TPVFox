@@ -37,6 +37,8 @@ include_once $URLCom.'/clases/Proveedores.php';
 $CProveedor=new Proveedores($BDTpv);
 include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
 $CFamilia=new ClaseFamilias($BDTpv);
+include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
+$CProveedor=new ClaseProveedor($BDTpv);
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
@@ -199,6 +201,15 @@ switch ($pulsado) {
         $productos=$CFamilia->buscarProductosFamilias($_POST['idfamilia']);
         $idsProductos=array();
         foreach ($productos['datos'] as $producto){
+            array_push($idsProductos, $producto['idArticulo']);
+        }
+        $respuesta['Productos']=$idsProductos;
+    break;
+    case 'buscarProductosProveedor':
+        $productos=$CProveedor->buscarProductosProveedor($_POST['idProveedor']);
+        $idsProductos=array();
+        foreach ($productos['datos'] as $producto){
+            
             array_push($idsProductos, $producto['idArticulo']);
         }
         $respuesta['Productos']=$idsProductos;

@@ -150,6 +150,11 @@ class ClaseProveedor extends modelo{
         $consulta=$this->consulta($sql);
         return $consulta;
     }
+    public function buscarProductosProveedor($idProveedor){
+        $sql='SELECT * from articulosProveedores where idProveedor='.$idProveedor;
+        $consulta=$this->consulta($sql);
+        return $consulta;
+    }
 }
 
 ?>

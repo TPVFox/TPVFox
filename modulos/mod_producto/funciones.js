@@ -1192,6 +1192,30 @@ function buscarProductosFamilia(idFamilia){
     
     
 }
+function buscarProductosProveedor(idProveedor){
+      var parametros = {
+            pulsado: 'buscarProductosProveedor',
+            idProveedor:idProveedor
+        }
+        $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* envio para buscar los productos de un proveedor **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de buscar productos de un proveedor');
+                   
+                    var resultado = $.parseJSON(response);
+                    productos=resultado['Productos'];
+                       for(i=0;i<productos.length; i++){
+                          
+                           selecionarItemProducto(productos[i], "listaProductos");
+                       }
+            }	
+        });
+}
 function EliminarHistorico(idHistorico, e){
    var mensaje = confirm("¿Estás seguro que quieres eliminar este registro de historico?");
 	if (mensaje) {
