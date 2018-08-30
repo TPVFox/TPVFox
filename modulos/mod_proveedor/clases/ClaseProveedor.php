@@ -144,6 +144,12 @@ class ClaseProveedor extends modelo{
         }
 		return $respuesta;
 	}
+    
+    public function todosProveedores(){
+        $sql='SELECT idProveedor, nombrecomercial FROM proveedores';
+        $consulta=$this->consulta($sql);
+        return $consulta;
+    }
 }
 
 ?>

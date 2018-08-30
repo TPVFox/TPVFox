@@ -1104,6 +1104,15 @@ $( function() {
            
            
         });
+     $( ".proveedoresLista" ).combobox({
+            select : function(event, ui){ 
+                //~ var idProducto= $( "#idProductoModal" ).val();
+                 var botonhtml='<a class="btn btn-primary" onclick="buscarProductosProveedor('+ui.item.value+')">Buscar</a>';
+               $('#botonEnviarPro').html(botonhtml);   
+            },
+           
+           
+        });
     }
      $( "#toggle" ).on( "click", function() {
         $( "#combobox" ).toggle();

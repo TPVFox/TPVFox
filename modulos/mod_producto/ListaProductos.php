@@ -11,11 +11,12 @@
         include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         include_once ($URLCom .'/controllers/parametros.php');
         include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
-      
+        include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
         $OtrosVarJS ='';
         $htmlplugins = array();
         $CTArticulos = new ClaseProductos($BDTpv);
         $CFamilia=new ClaseFamilias($BDTpv);
+        $CProveedor=new ClaseProveedor($BDTpv);
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
@@ -104,7 +105,10 @@
 
          
         
-        
+        $todosProveedores= $CProveedor->todosProveedores();
+        echo '<pre>';
+        print_r($todosProveedores);
+        echo '</pre>';
          
          if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
@@ -260,13 +264,13 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                     //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
                     ?>
                     <form action="./ListaProductos.php" method="GET" name="formBuscar">
-                        <div class="form-group ClaseBuscar col-md-6">
+                        <div class="form-group ClaseBuscar col-md-5">
                             <label>Buscar por:</label>
                             <select onchange="GuardarBusqueda(event);" name="SelectBusqueda" id="sel1"> <?php echo $htmlConfiguracion['htmlOption']; ?> </select>
-                            <input id="buscar" type="text" name="buscar" value="<?php echo $NPaginado->GetBusqueda(); ?>">
+                            <input id="buscar" type="text" name="buscar" size="10" value="<?php echo $NPaginado->GetBusqueda(); ?>">
                             <input type="submit" value="buscar">
                         </div>
-                        <div id="familiasDiv" class="col-md-6">
+                        <div id="familiasDiv" class="col-md-3">
                             <div class="ui-widget">
                              <label for="tags">Buscar por Familias:</label>
                              <select id="combobox" class="familiasLista">
@@ -283,6 +287,21 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             </div>
                             <p id="botonEnviar"></p>
                             
+                        </div>
+                         <div id="ProveedoresDiv" class="col-md-3">
+                             <div class="ui-widget">
+                                  <label for="tags">Buscar por Proveedores:</label>
+                                   <select id="combobox" class="proveedoresLista">
+                                        <option value="0"></option>
+                                       <?php 
+                                       
+                                       foreach ($todosProveedores['datos'] as $pro){
+                                            echo '<option value="'.$pro['idProveedor'].'">'.$pro['nombrecomercial'].'</option>';
+                                       }
+                                       ?>
+                                    </select>
+                            </div>
+                            <p id="botonEnviarPro"></p>
                         </div>
                     </form>
                     <!-- TABLA DE PRODUCTOS -->
