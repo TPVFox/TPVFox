@@ -42,11 +42,17 @@ foreach ($xml->item_nivel_1 as $nivel1){
 							<ul class="dropdown-menu">';
     }
     if ($items_nivel2 > 0){
+        //~ echo '<pre>';
+        //~ print_r($nivel1->item_nivel_2);
+        //~ echo '</pre>';
            // Entonces recorremos items de nivel 2
             foreach ($nivel1->item_nivel_2 as $nivel2){
+                
                 // Ahora tendría comprobar si tiene permiso.
                 $comprobar=$ClasePermisos->comprobarPermisos($Permisos,$nivel2['modulo'],$nivel2['vista']);
+                //~ error_log($comprobar['permiso']);
                 if ($comprobar['permiso'] == 'Ok'){
+                    
                     echo '<li><a href="'.$HostNombre.'/'.$comprobar['link'].'">'.$nivel2['descripcion'].'</a></li>';
                 }
             }

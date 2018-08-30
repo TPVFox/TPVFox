@@ -1019,18 +1019,22 @@ function selectFamilias($padre=0, $espacio, $array_familias, $conexion){
     
         $sql = 'select idFamilia, familiaNombre, familiaPadre  FROM familias where familiaPadre='.$padre.' ORDER BY idFamilia ASC';
         $res = $conexion->query($sql);
-        $espacio.='--';
-     
+       if($padre>0){
+           $espacio.='-';
+       }
+        
         $total= $res->num_rows;
       
         if($total>0){
             
             while ($row = $res->fetch_assoc()) {
+               
                 $array_familias[]=array("id" => $row['idFamilia'], "name" => $espacio . $row['familiaNombre']);
                
                  $array_familias= selectFamilias($row['idFamilia'], $espacio, $array_familias , $conexion);
             }
         }
+        
         return $array_familias;
 }
 ?>
