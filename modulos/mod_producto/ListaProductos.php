@@ -103,20 +103,15 @@
         }
 
          
-         $familias=$CFamilia->todoslosPadres();
-         //~ echo '<pre>';
-         //~ print_r($familias);
-         //~ echo '</pre>';
-         //~ $htmlFamilias=selectFamilias($familias['datos']);
+        
+        
          
          if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
             echo $ObjVirtuemart->htmlJava();
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
          }
-         //~ echo '<pre>';
-         //~ print_r($familias);
-         //~ echo '</pre>';
+        
         // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
         // Añadimos a JS la configuracion
@@ -281,9 +276,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                    foreach($arbolfamilias as $familia){
                                        echo '<option value="'.$familia['id'].'">'.$familia['name'].'</option>';
                                    }
-                                 //~ foreach ($familias['datos'] as $familia){
-                                     //~ echo '<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
-                                 //~ }
+                                
                                  ?>
                             </select>
                             

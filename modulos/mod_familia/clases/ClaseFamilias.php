@@ -109,7 +109,7 @@ class ClaseFamilias extends Modelo {
     }
 
     public function todoslosPadres($orden = '', $addRoot = false) {
-        $sql = 'SELECT idFamilia, familiaNombre , familiaPadre FROM familias';
+        $sql = 'SELECT idFamilia, familiaNombre  FROM familias';
         if ($orden) {
             $sql .= ' ORDER BY ' . $orden;
         }
