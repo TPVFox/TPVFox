@@ -1097,6 +1097,7 @@ $( function() {
      if( $("select").hasClass("familiasLista")){
         $( ".familiasLista" ).combobox({
             select : function(event, ui){ 
+              
                 //~ var idProducto= $( "#idProductoModal" ).val();
                  var botonhtml='<a class="btn btn-primary" onclick="buscarProductosFamilia('+ui.item.value+')">Buscar</a>';
                $('#botonEnviar').html(botonhtml);   
@@ -1107,6 +1108,7 @@ $( function() {
      $( ".proveedoresLista" ).combobox({
             select : function(event, ui){ 
                 //~ var idProducto= $( "#idProductoModal" ).val();
+                
                  var botonhtml='<a class="btn btn-primary" onclick="buscarProductosProveedor('+ui.item.value+')">Buscar</a>';
                $('#botonEnviarPro').html(botonhtml);   
             },
