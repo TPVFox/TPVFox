@@ -23,5 +23,7 @@
 	<accion nombre="verHistoricoPrecios" descripcion="Ver Historico Precios" permiso="0"></accion>
 	<accion nombre="modificarStock" descripcion="Modificar stock Productos" permiso="0"></accion>
     </vista>
+    <vista nombre="ListaArticulosRegularizacion.php" descripcion="Articulos con stock regularizable" permiso="1">
+    </vista>	
 	
 </modulo>
