@@ -61,6 +61,13 @@ class ClaseFamilias extends Modelo {
         return $nuestros;
     }
 
+    public function productosXFamilia($idfamilia) {
+        $sql = 'SELECT count(idArticulo) AS contador '
+                . 'FROM articulosFamilias where idFamilia=' . $idfamilia;
+        $resultado = $this->consulta($sql);
+        return $resultado['datos'][0]['contador'];
+    }
+
     public function leer($idfamilia) {
         $sql = 'SELECT FAM.*'
                 . ' FROM familias as FAM '
@@ -173,11 +180,25 @@ class ClaseFamilias extends Modelo {
         }
         return $resultado;
     }
+
+    public function contarHijos($idfamilia) {
+        $sql = 'SELECT count(idFamilia) as contador '
+                . ' FROM familias as FAM '
+                . ' WHERE FAM.familiaPadre = ';
+            $resultado = $this->consulta($sql . $idfamilia);
+            return $resultado['datos'][0]['contador'];
+    }
     
-    public function buscarProductosFamilias($idFamilia){
-        $sql='SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia='.$idFamilia;
+    public function Borrar($idfamilia) {
+        $sql = 'DELETE FROM familias '
+                . ' WHERE idFamilia = ' . $idfamilia;
+            return $this->consultaDML($sql);
+    }
+    
+    public function buscarProductosFamilias($idFamilia) {
+        $sql = 'SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia=' . $idFamilia;
         $resultado = $this->consulta($sql);
-        
+
         return $resultado;
     }
 }

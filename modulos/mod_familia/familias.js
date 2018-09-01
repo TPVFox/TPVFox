@@ -27,9 +27,9 @@ $(function () {
             $('#inputFamiliaActualModal').val(familiaactual);
             $('#inputNombreFamiliaModal').val('');
             $('#inputIdFamiliaModal').val('-1');
-            
+
             $('#inputIdNuevaModal').val($('#combopadremodal').val());
-            
+
             $('#cambioFamiliaModal').modal('show');
             $('#inputNombreFamiliaModal').focus();
         } else {
@@ -101,9 +101,54 @@ $(function () {
         event.stopPropagation();
         event.preventDefault();
         //var data = $(event.currentTarget).data();
-        
+
         alert(seleccionados());
     });
+
+    $("#btn-eliminar").on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        var seleccion = seleccionados();
+//        var idfamilia = $(event.currentTarget).data('alseccion');
+//        var productos = $(event.currentTarget).data('productos');
+
+        if (seleccion.length > 0) {
+            ajaxCall({pulsado: 'borrarFamilias',
+                idsfamilias: seleccion,
+            }, function (respuesta) {
+                var obj = JSON.parse(respuesta);
+                if (!obj.error) {
+                    alert('borrado correctamente');
+                    location.reload();
+//                    $("#fila0-" + seccion).hide();
+                } else {
+                    alert('Error al borrar');
+                }
+            }
+            );
+
+        }
+    });
+
+    $("#btn-expandirtodo").on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        var quedan = expandirTodos();
+        alert('quedan por expandir ' + quedan);
+
+    });
+
+    $("#btn-compactartodo").on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        compactarTodos();
+
+
+    });
+
 
 //    $('#inputNombreFamiliaModal').typeahead({
 //        source: function (request, response) {
@@ -173,17 +218,18 @@ $(function () {
 
     });
 
-        $( "#combopadre" ).combobox({
-            select : function(event, ui){ 
-                 $('#inputidpadre').val(ui.item.value);
-            },
-        });
 
-    $( "#combopadremodal" ).combobox({
-            select : function(event, ui){ 
-                 $('#inputIdNuevaModal').val(ui.item.value);
-            },
-        });
+    $("#combopadre").combobox({
+        select: function (event, ui) {
+            $('#inputidpadre').val(ui.item.value);
+        },
+    });
+
+    $("#combopadremodal").combobox({
+        select: function (event, ui) {
+            $('#inputIdNuevaModal').val(ui.item.value);
+        },
+    });
 
 });
 
@@ -215,8 +261,10 @@ function capturaevento_click(botones) {
                 var datos = obj.datos;
                 var tabla = obj.html;
 
+                $("#botonexpandir-" + obj.padre).removeClass('btn-expandir')
                 $("#botonexpandir-" + obj.padre).hide();
                 $("#botoncompactar-" + obj.padre).show();
+                $("#botoncompactar-" + obj.padre).addClass('btn-compactar');
                 $("#fila-" + obj.padre).show();
                 $("#fila-" + obj.padre).addClass('al-filavisible');
                 $('#seccion-' + obj.padre).html(tabla);
@@ -229,8 +277,10 @@ function capturaevento_click(botones) {
 
             var seccion = $(event.currentTarget).data('alseccion');
 
+            $("#botoncompactar-" + seccion).removeClass('btn-compactar')
             $("#botoncompactar-" + seccion).hide();
             $("#botonexpandir-" + seccion).show();
+            $("#botonexpandir-" + seccion).addClass('btn-expandir');
             $("#fila-" + seccion).removeClass('al-filavisible');
             $("#fila-" + seccion).hide();
         });
@@ -257,9 +307,47 @@ function capturaevento_click(botones) {
             );
 
         });
+
+        $("#botonMarcaEliminar-" + botones[i]).on("click", function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+
+
+            var idfamilia = $(event.currentTarget).data('alseccion');
+            var productos = $(event.currentTarget).data('productos');
+
+            if (productos === 0) {
+                if ($('#fila0-' + idfamilia).hasClass('seleccionado')) {
+                    $('#fila0-' + idfamilia).removeClass('seleccionado');
+                    $('#check' + idfamilia).prop("checked", false);
+                } else {
+                    $('#fila0-' + idfamilia).addClass('seleccionado');
+                    $('#check' + idfamilia).prop("checked", true);
+                }
+                var contador = contarSeleccionados();
+                if (contador > 0) {
+                    if ($('#btn-eliminar')) {
+                        $('#btn-eliminar').show();
+                    }
+                } else {
+                    if ($('#btn-eliminar')) {
+                        $('#btn-eliminar').hide();
+                    }
+
+                }
+
+            } else {
+                alert('Si quieres dejar huerfanos ' + productos + ' productos, pídele permiso al Riiichard');
+            }
+        });
     }
 }
-;
+
+
+
+
+
+
 
 function leerFamilias(idpadre, callback) {
     var parametros = {
@@ -348,12 +436,28 @@ function contarSeleccionados() {
     return $('.seleccionado').length;
 }
 
-function seleccionados(){
+function seleccionados() {
 
- var ids = [];
- $('.seleccionado').each(function (key, element) {
- ids.push($(element).attr('id'));
- });
- return ids;
- }
- 
+    var ids = [];
+    $('.seleccionado').each(function (key, element) {
+        var idfamilia = $(element).data('idfamilia');
+        ids.push(idfamilia);
+    });
+    return ids;
+}
+
+function expandirTodos() {
+    $('.btn-expandir').each(function (key, element) {
+        var idboton = $(element).attr('id');
+        $('#' + idboton).click();
+    });
+    return $('.btn-expandir').length;
+}
+
+function compactarTodos() {
+    $('.btn-compactar').each(function (key, element) {
+        var idboton = $(element).attr('id');
+        $('#' + idboton).click();
+    });
+    return $('.btn-compactar').length;
+}

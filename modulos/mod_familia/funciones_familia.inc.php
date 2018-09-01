@@ -36,9 +36,13 @@ function familias2Html($familias) {
     $resultado = '';
     if (count($familias) > 0) {
         $indices = [];
+        $contador = 0;
         foreach ($familias as $indice => $familia) {
             $indices[] = $familia['idFamilia'];
-            $resultado .= '<tr>';
+            $resultado .= '<tr id="fila0-' . $familia['idFamilia'] . '" '
+                    . ' data-idfamilia="' . $familia['idFamilia'] . '"'
+                    . '>';
+            $contador += 1;
             $resultado .= '<td> <input type="checkbox" class="form-check-input"'
                     . ' name="checkFamilia" id="check' . $familia['idFamilia'] . '"> </td>';
             $resultado .= '<td>' . $familia['idFamilia'] . '</td>';
@@ -49,12 +53,20 @@ function familias2Html($familias) {
             if ($familia['hijos'] > 0) {
                 $resultado .= '<button name="btn-expandir" id="botonexpandir-' . $familia['idFamilia']
                         . '" data-alseccion="' . $familia['idFamilia']
-                        . '" class="btn btn-primary btn-sm">'
+                        . '" class="btn btn-primary btn-sm btn-expandir">'
                         . '<span class="glyphicon glyphicon-plus"></span> expandir </button> ';
                 $resultado .= '<button name="btn-compactar" id="botoncompactar-' . $familia['idFamilia']
                         . '" data-alseccion="' . $familia['idFamilia']
                         . '" class="btn btn-primary btn-sm " style="display:none">'
                         . '<span class="glyphicon glyphicon-minus"></span> compactar </button> ';
+            } else {
+//                if ($ClasePermisos->getAccion("eliminar") == 1) {
+                $resultado .= '<button name="btn-marcaeliminar" id="botonMarcaEliminar-' . $familia['idFamilia'] . '" '
+                        . ' data-alseccion="' . $familia['idFamilia'] . '"'
+                        . ' data-productos="' . $familia['productos'] . '"'
+                        . ' class="btn btn-primary btn-sm ">'
+                        . '<span class="glyphicon glyphicon-trash"></span> </button> ';
+//                }
             }
             $resultado .= '</td>';
             $resultado .= '<td>' . $familia['productos'] . ' productos </td>';
@@ -86,7 +98,7 @@ function leerFamiliasHijas($idpadre) {
 
 function familias2Html2($familias) {
     $resultado = '';
-    if($familias && (count($familias) > 0)) {
+    if ($familias && (count($familias) > 0)) {
         foreach ($familias as $indice => $familia) {
             $indices[] = $familia['idFamilia'];
             $resultado .= '<tr>';
@@ -130,9 +142,9 @@ function htmlTablaFamiliaProductos($idfamilia) {
     // @ Parametros
     // 		$idfamilia
 
-    
+
     $productos = alArticulos::leerArticulosXFamilia($idfamilia);
-    
+
     $html = '<table id="tfamilias" class="table table-striped">'
             . '<thead>'
             . '<tr>'
@@ -144,11 +156,11 @@ function htmlTablaFamiliaProductos($idfamilia) {
             . '</thead>';
     if (count($productos) > 0) {
         foreach ($productos as $indice => $producto) {
-            $html .= '<tr id="tr_'. $producto['idArticulo'].'" >';
+            $html .= '<tr id="tr_' . $producto['idArticulo'] . '" >';
             $html .= '<td>' . $producto['idArticulo'] . '</td>';
             $html .= '<td> ' . $producto['articulo_name'] . ' </td>';
-            $html .= '<td> <button type="button" class="btn btn-seleccionar" id="selproducto'. $producto['idArticulo']
-                    .'" data-idproducto="'.$producto['idArticulo'].'"> select </button> </td>';
+            $html .= '<td> <button type="button" class="btn btn-seleccionar" id="selproducto' . $producto['idArticulo']
+                    . '" data-idproducto="' . $producto['idArticulo'] . '"> select </button> </td>';
             $html .= '</tr>';
         }
     }

@@ -24,16 +24,14 @@
 
 
 include_once './../../inicial.php';
-include_once $URLCom.'/configuracion.php';
-include_once $URLCom.'/modulos/mod_conexion/conexionBaseDatos.php';
-include_once $URLCom.'/controllers/Controladores.php';
+include_once $URLCom . '/configuracion.php';
+include_once $URLCom . '/modulos/mod_conexion/conexionBaseDatos.php';
+include_once $URLCom . '/controllers/Controladores.php';
 
 
 $rutaCompleta = $RutaServidor . $HostNombre;
 //include_once($rutaCompleta . '/clases/ClaseSession.php');
-
 //$CSession = new ClaseSession();
-
 // Incluimos controlador.
 $Controler = new ControladorComun;
 // Incluimos funciones
@@ -43,7 +41,6 @@ $Controler->loadDbtpv($BDTpv);
 // Nueva clase 
 //include ("./clases/ClaseProductos.php");
 //$NCArticulo = new ClaseProductos($BDTpv);
-
 //include_once('../../clases/articulos.php');
 //$CArticulo = new Articulos($BDTpv);
 //
@@ -52,8 +49,8 @@ $Controler->loadDbtpv($BDTpv);
 //
 //include_once('../../clases/Proveedores.php');
 //$CProveedor = new Proveedores($BDTpv);
-include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
-include_once $URLCom.'/modulos/mod_familia/funciones_familia.inc.php';
+include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
+include_once $URLCom . '/modulos/mod_familia/funciones_familia.inc.php';
 
 //include_once './clases/ClaseArticulos.php';
 //include_once './funciones_mayor.inc.php';
@@ -64,12 +61,12 @@ $pulsado = $_POST['pulsado'];
 switch ($pulsado) {
     case 'leerFamilias':
         $idpadre = $_POST['idpadre'];
-        $resultado = leerFamilias($idpadre);        
+        $resultado = leerFamilias($idpadre);
         echo json_encode($resultado);
         break;
 
     case 'leerTodasFamilias':
-        $familias = (new ClaseFamilias())->todoslosPadres('',true);
+        $familias = (new ClaseFamilias())->todoslosPadres('', true);
         echo json_encode($familias['datos']);
         break;
 
@@ -103,7 +100,7 @@ switch ($pulsado) {
         // que idpadre es >= 0 y un id existente
         // generar $resultado['error']
 
-        $camposfamilia = compact('idFamilia','familiaNombre','familiaPadre','beneficiomedio');
+        $camposfamilia = compact('idFamilia', 'familiaNombre', 'familiaPadre', 'beneficiomedio');
         $resultado = [];
         $resultado['href'] = $_POST['href'];
         if ($familiaPadre >= 0) {
@@ -120,12 +117,48 @@ switch ($pulsado) {
         $familia = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
         echo json_encode($familia);
         break;
-    
+
     case 'descendientes':
         $idfamilia = $_POST['idfamilia'];
         $familia = new ClaseFamilias($BDTpv);
         $resultado = $familia->familiasSinDescendientes($idfamilia);
         echo json_encode($resultado);
+        break;
+
+    case 'borrarFamiliaDProductos':
+        $idfamilia = $_POST['idfamilia'];
+        $idsproductos = $_POST['idsproductos'];
+
+        $productos = explode(',', $idsproductos);
+        $producto = new alArticulos();
+        foreach ($idsProductos as $idproducto) {
+            
+        }
+        echo json_encode($familia);
+        break;
+
+    case 'borrarFamilias':
+        $familias = $_POST['idsfamilias'];
+        $listaError = [];
+//        $familias = explode(',', $idsfamilias);
+        
+        $familia = new ClaseFamilias();
+        foreach ($familias as $idfamilia) {
+            $productos = $familia->contarProductos($idfamilia);
+            $descendientes = $familia->cuentaHijos($idfamilia);
+            if(($productos == 0) && ($descendientes==0)){
+                $resultado = $familia->Borrar($idfamilia);
+                if($resultado['error']<>0){
+                    $listaError[] = $idfamilia;
+                $listaError[] = $resultado;
+                }
+            } else {
+                $listaError[] = $idfamilia;
+                $listaError[] = [$productos,$descendientes];
+            }
+        }
+        $error = count($listaError) > 0;
+        echo json_encode(compact(['error', 'listaError']));
         break;
 }
 

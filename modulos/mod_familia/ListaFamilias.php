@@ -30,6 +30,7 @@ $familias = new ClaseFamilias($BDTpv);
         include_once $URLCom . '/head.php';
         ?>
         <link rel="stylesheet" href="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.css" type="text/css">
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
 
@@ -56,11 +57,24 @@ $familias = new ClaseFamilias($BDTpv);
                     <div class="nav">
                         <h4> Familias</h4>
                         <ul class="nav nav-pills nav-stacked"> 
+                                <li><button class="btn btn-link" 
+                                            id="btn-expandirtodo">expandir Nivel</button></li>
+                                <li><button class="btn btn-link" 
+                                            id="btn-compactartodo">compactar Todo</button></li>
+                            
                             <?php
                             if ($ClasePermisos->getAccion("crear") == 1) {
                                 ?>
                                 <li><button class="btn btn-link" id="botonnuevo-hijo-0"
                                             data-alabuelo="0">Añadir</button></li>
+                                    <?php
+                                }
+                                ?>
+                            <?php
+                            if ($ClasePermisos->getAccion("eliminar") == 1) {
+                                ?>
+                                <li><button class="btn btn-link" id="btn-eliminar" style="display: none"
+                                            data-alabuelo="0">Eliminar marcados</button></li>
                                     <?php
                                 }
                                 ?>
