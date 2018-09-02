@@ -38,6 +38,8 @@ class ClaseFamilias extends Modelo {
     }
 
     public function cuentaHijos($padres) {
+        // Se puede optimizar con un group by ????
+        
         $nuestros = $padres;
         $sql = 'SELECT count(idFamilia) as contador '
                 . ' FROM familias as FAM '
@@ -184,8 +186,8 @@ class ClaseFamilias extends Modelo {
     public function contarHijos($idfamilia) {
         $sql = 'SELECT count(idFamilia) as contador '
                 . ' FROM familias as FAM '
-                . ' WHERE FAM.familiaPadre = ';
-            $resultado = $this->consulta($sql . $idfamilia);
+                . ' WHERE FAM.familiaPadre = '. $idfamilia;
+            $resultado = $this->consulta($sql);
             return $resultado['datos'][0]['contador'];
     }
     

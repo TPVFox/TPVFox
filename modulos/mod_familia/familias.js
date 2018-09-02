@@ -54,7 +54,7 @@ $(function () {
 
         var data = $(event.currentTarget).data();
 
-        var id = $('#id').val();
+        var id = $('#idfamilia').val();
         var idpadre = $('#inputidpadre').val();
         var nombrefamilia = $('#inputnombre').val();
         var beneficiomedio = $('#inputbeneficio').val();
@@ -118,6 +118,7 @@ $(function () {
                 idsfamilias: seleccion,
             }, function (respuesta) {
                 var obj = JSON.parse(respuesta);
+                console.log(obj);
                 if (!obj.error) {
                     alert('borrado correctamente');
                     location.reload();
@@ -260,7 +261,6 @@ function capturaevento_click(botones) {
                 var obj = JSON.parse(respuesta);
                 var datos = obj.datos;
                 var tabla = obj.html;
-
                 $("#botonexpandir-" + obj.padre).removeClass('btn-expandir')
                 $("#botonexpandir-" + obj.padre).hide();
                 $("#botoncompactar-" + obj.padre).show();

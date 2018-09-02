@@ -88,7 +88,7 @@ switch ($pulsado) {
 
     case 'grabarFamilia':
 
-        // comprobar datos en el lado servidor    
+// comprobar datos en el lado servidor    
         $idFamilia = $_POST['id'];
         $familiaNombre = $_POST['nombrefamilia'];
         $familiaPadre = $_POST['idpadre'];
@@ -96,9 +96,9 @@ switch ($pulsado) {
 
 
 // COMPROBAR:
-        // Que no estan vacios
-        // que idpadre es >= 0 y un id existente
-        // generar $resultado['error']
+// Que no estan vacios
+// que idpadre es >= 0 y un id existente
+// generar $resultado['error']
 
         $camposfamilia = compact('idFamilia', 'familiaNombre', 'familiaPadre', 'beneficiomedio');
         $resultado = [];
@@ -141,20 +141,19 @@ switch ($pulsado) {
         $familias = $_POST['idsfamilias'];
         $listaError = [];
 //        $familias = explode(',', $idsfamilias);
-        
+
         $familia = new ClaseFamilias();
         foreach ($familias as $idfamilia) {
             $productos = $familia->contarProductos($idfamilia);
-            $descendientes = $familia->cuentaHijos($idfamilia);
-            if(($productos == 0) && ($descendientes==0)){
+            $descendientes = $familia->contarHijos($idfamilia);
+            if (($productos == 0) && ($descendientes == 0)) {
                 $resultado = $familia->Borrar($idfamilia);
-                if($resultado['error']<>0){
+                if ($resultado['error'] <> 0) {
                     $listaError[] = $idfamilia;
-                $listaError[] = $resultado;
+                    $listaError[] = $resultado;
                 }
             } else {
-                $listaError[] = $idfamilia;
-                $listaError[] = [$productos,$descendientes];
+                $listaError[] = [$idfamilia, $productos, $descendientes];
             }
         }
         $error = count($listaError) > 0;
