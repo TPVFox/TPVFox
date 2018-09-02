@@ -211,24 +211,19 @@ class ClasePermisos{
         } else { 
             // Es  un modulo...
             foreach ($permisos['resultado'] as $permiso){
-               
                 if($permiso['modulo']==$modulo && $permiso['vista'] == '') {
                     // Este es el permiso para este modulo
                     $permisoModulo = $permiso['permiso'];
-                   
                 }
-                 
                 if($permiso['modulo']==$modulo && $permiso['vista'] == $vista) {
-                   
                     // Este es el permiso para vista.
                     $permisoVista =  $permiso['permiso'];
                     $link = '/modulos/'.$modulo.'/'.$vista;
                     
                 }
             }
-           
             $permiso = $permisoModulo + $permisoVista;
-            
+
         }
         // Ahora montamos link
         if ($permiso ==2){
