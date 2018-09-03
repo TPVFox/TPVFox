@@ -39,9 +39,17 @@
 								 'mensaje' => 'NO HAS SELECCIONADO NINGUNA ACCIÓN!'
 								 );
         }
-        echo '<pre>';
-        print_r($_POST);
-        echo '</pre>';
+       if(count($comprobaciones)==0){
+           switch ($_POST['accionesWeb']){
+                case 1:
+                    $nuevos=bajarProductosNuevosWeb();
+                break;
+                case 2:
+                    $modificaciones=modificarProductosWeb();
+                break;
+                
+           }
+       }
     }
 ?>
 </head>
