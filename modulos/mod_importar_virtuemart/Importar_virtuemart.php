@@ -11,6 +11,7 @@
     
     $ClaseTienda=new ClaseTienda($BDTpv);
 	$tiendasWeb=$ClaseTienda->tiendasWeb();
+    $comprobaciones=array();
     $acciones=array(
         array(
             'valor'=>1,
@@ -21,6 +22,27 @@
             'accion'=>'Modificar los productos TPV según la web'
         )
     );
+    if(isset($_POST['enviar'])){
+       
+        
+        if($_POST['tiendaWeb']==0){
+            $comprobaciones[1]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'NO HAS SELECCIONADO UNA TIENDA WEB!'
+								 );
+        }
+        if($_POST['accionesWeb']==0){
+            $comprobaciones[2]=array ( 'tipo'=>'Danger!',
+								 'dato' => '',
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'NO HAS SELECCIONADO NINGUNA ACCIÓN!'
+								 );
+        }
+        echo '<pre>';
+        print_r($_POST);
+        echo '</pre>';
+    }
 ?>
 </head>
 <body>
@@ -28,6 +50,17 @@
             include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
     <div class="container">
+        <?php 
+        if(count($comprobaciones>0)){
+            foreach($comprobaciones as $comprobacion){
+                  echo '<div class="'.$comprobacion['class'].'">'
+				. '<strong>'.$comprobacion['tipo'].' </strong> '.$comprobacion['mensaje'].' <br> '.$comprobacion['dato']
+				. '</div>';
+            }
+          
+        }
+        
+        ?>
       <form action="Importar_virtuemart.php" method="POST">
         <h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
         <div class="col-md-5">
@@ -61,6 +94,7 @@
         <div class="col-md-7">
             <h3>Proceso</h3>
             <div class="col-md-12">
+                
             </div>
         </div>
         </form>
