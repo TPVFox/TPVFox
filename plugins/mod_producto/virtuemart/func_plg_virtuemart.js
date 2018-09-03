@@ -220,3 +220,27 @@ function subirProductosWeb(idTienda){
 		}	
 	});
 }
+function contarProductosWeb(callback){
+       var parametros = {
+            "pulsado"   : 'contarProductosWeb',
+        };
+    $.ajax({
+		data       : parametros,
+		url        :  ruta_plg_virtuemart+'tareas_virtuemart.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  contar productos web**************');
+		},
+		success    :callback
+        //~ function (response) {
+				//~ console.log('Respuesta de contar los productos web ');
+				//~ var resultado = $.parseJSON(response);
+                //~ console.log(resultado['Datos']['item']['productosWeb']);
+                //~ cantProductos=resultado['Datos']['item']['productosWeb'];
+                
+				 
+		//~ }	
+	});
+ 
+}
+

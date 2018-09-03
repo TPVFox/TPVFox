@@ -8,49 +8,62 @@
     include ($URLCom.'/controllers/Controladores.php');
     include_once ($URLCom.'/modulos/mod_importar_virtuemart/funciones.php');
     include_once ($URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php');
-    
+    include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+    $CTArticulos = new ClaseProductos($BDTpv);
     $ClaseTienda=new ClaseTienda($BDTpv);
 	$tiendasWeb=$ClaseTienda->tiendasWeb();
-    $comprobaciones=array();
-    $acciones=array(
-        array(
-            'valor'=>1,
-            'accion'=>'Bajar de la web los productos nuevos a TPV'   
-        ),
-        array(
-            'valor'=>2,
-            'accion'=>'Modificar los productos TPV según la web'
-        )
-    );
-    if(isset($_POST['enviar'])){
+   
+    //~ $comprobaciones=array();
+    //~ $acciones=array(
+        //~ array(
+            //~ 'valor'=>1,
+            //~ 'accion'=>'Bajar de la web los productos nuevos a TPV'   
+        //~ ),
+        //~ array(
+            //~ 'valor'=>2,
+            //~ 'accion'=>'Modificar los productos TPV según la web'
+        //~ )
+    //~ );
+    //~ if(isset($_POST['enviar'])){
        
         
-        if($_POST['tiendaWeb']==0){
-            $comprobaciones[1]=array ( 'tipo'=>'Danger!',
-								 'dato' => '',
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'NO HAS SELECCIONADO UNA TIENDA WEB!'
-								 );
-        }
-        if($_POST['accionesWeb']==0){
-            $comprobaciones[2]=array ( 'tipo'=>'Danger!',
-								 'dato' => '',
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'NO HAS SELECCIONADO NINGUNA ACCIÓN!'
-								 );
-        }
-       if(count($comprobaciones)==0){
-           switch ($_POST['accionesWeb']){
-                case 1:
-                    $nuevos=bajarProductosNuevosWeb();
-                break;
-                case 2:
-                    $modificaciones=modificarProductosWeb();
-                break;
+        //~ if($_POST['tiendaWeb']==0){
+            //~ $comprobaciones[1]=array ( 'tipo'=>'Danger!',
+								 //~ 'dato' => '',
+								 //~ 'class'=>'alert alert-danger',
+								 //~ 'mensaje' => 'NO HAS SELECCIONADO UNA TIENDA WEB!'
+								 //~ );
+        //~ }
+        //~ if($_POST['accionesWeb']==0){
+            //~ $comprobaciones[2]=array ( 'tipo'=>'Danger!',
+								 //~ 'dato' => '',
+								 //~ 'class'=>'alert alert-danger',
+								 //~ 'mensaje' => 'NO HAS SELECCIONADO NINGUNA ACCIÓN!'
+								 //~ );
+        //~ }
+       //~ if(count($comprobaciones)==0){
+           //~ switch ($_POST['accionesWeb']){
+                //~ case 1:
+                    //~ $nuevos=bajarProductosNuevosWeb();
+                //~ break;
+                //~ case 2:
+                    //~ $modificaciones=modificarProductosWeb();
+                //~ break;
                 
-           }
-       }
+           //~ }
+       //~ }
+    //~ }
+?>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/controllers/funcionesComunes.js"></script>
+<?php 
+ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
+        echo $ObjVirtuemart->htmlJava();
+          
     }
+
+
 ?>
 </head>
 <body>
@@ -69,7 +82,7 @@
         }
         
         ?>
-      <form action="Importar_virtuemart.php" method="POST">
+     
         <h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
         <div class="col-md-5">
             <h3>Parametros a configurar</h3>
@@ -84,28 +97,37 @@
                   ?>
                 </select>
             </div>
-            <div class="col-md-12">
-                <label>Selecciona una acción:</label>
-                <select id="accionesWeb" name="accionesWeb">
-                  <option value="0">Selecciona una acción</option>  
-                  <?php 
-                  foreach ($acciones as $accion){
-                      echo '<option value="'.$accion['valor'].'">'.$accion['accion'].'</option>';
-                  }
-                  ?>
-                </select>
-            </div>
              <div class="col-md-12">
-                 <button type="submit" name="enviar" class="btn btn-success pull-right" >Enviar</button>
+                 <button type="submit" name="enviar" class="btn btn-success pull-right" onclick="enviarFormulario()">Actualizar</button>
             </div>
         </div>
         <div class="col-md-7">
             <h3>Proceso</h3>
             <div class="col-md-12">
-                
+                <table>
+                <tr>
+                    <th>Productos</th>
+                    <th>Nuevos</th>
+                </tr>
+                <tr>
+                    <td>Web</td>
+                </tr>
+                <tr>
+                    <td>TPV</td>
+                </tr>
+                </table>
+            </div>
+            <div class="col-md-12">
+                <div class="progress" style="margin:0 100px">
+                                        <div id="bar" class="progress-bar progress-bar-info" 
+                                             role="progressbar" aria-valuenow="0" 
+                                             aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                            0 % completado
+                                        </div>
+                                    </div>
             </div>
         </div>
-        </form>
+       
     </div>
 
 </body>
