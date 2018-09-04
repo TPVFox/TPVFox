@@ -12,7 +12,16 @@ switch ($pulsado) {
         $productosTpv=$NCArticulo->contarProductosTpv();
         $respuesta['productosTpv']=$productosTpv;
     break;
-    
+    case 'nuevosEnTpv':
+        $idTienda=$_POST['tiendaWeb'];
+        $productosTpv=$NCArticulo->productosEnTpvNoWeb($idTienda);
+        $respuesta['productos']=$productosTpv;
+    break;
+    case 'nuevosEnWeb':
+         $idTienda=$_POST['tiendaWeb'];
+         $productosWeb=$NCArticulo->productosTienda($idTienda);
+          $respuesta['productos']=$productosWeb;
+    break; 
     
     
 }

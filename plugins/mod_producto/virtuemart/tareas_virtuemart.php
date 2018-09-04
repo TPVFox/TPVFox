@@ -214,6 +214,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
         case 'contarProductosWeb':
             $respuesta=$ObjViruemart->contarProductos();
         break;
+       
     
     
     }

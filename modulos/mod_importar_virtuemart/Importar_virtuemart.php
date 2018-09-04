@@ -104,16 +104,21 @@
         <div class="col-md-7">
             <h3>Proceso</h3>
             <div class="col-md-12">
-                <table>
+                <table class="col-md-6 table table-striped">
                 <tr>
                     <th>Productos</th>
+                    <th>Total</th>
                     <th>Nuevos</th>
                 </tr>
                 <tr>
                     <td>Web</td>
+                    <td id="totalWeb"></td>
+                    <td id="NuevosWeb"></td>
                 </tr>
                 <tr>
                     <td>TPV</td>
+                    <td id="totalTpv"></td>
+                    <td id="NuevosTpv"></td>
                 </tr>
                 </table>
             </div>

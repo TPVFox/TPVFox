@@ -812,7 +812,7 @@ class ClaseProductos extends ClaseTablaArticulos{
     
     public function contarProductosTpv(){
        $respuesta = array();
-       $sql='SELECT count(idArticulo) as cantTpv from articulos ';
+       $sql='SELECT count(idArticulo) as cantTpv from articulos';
        $resp = $this->Consulta($sql);
        if ($resp['NItems'] > 0){
             $respuesta = $resp['Items']; 
@@ -826,6 +826,38 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $respuesta;
     }
 	
+    public function productosEnTpvNoWeb($idTienda){
+         $respuesta = array();
+         $sql='select count(idArticulo) as cantArticulo FROM articulosTiendas WHERE idTienda !='.$idTienda.' and 
+         idArticulo NOT in (select idArticulo from articulosTiendas where idTienda='.$idTienda.')';
+         $resp = $this->Consulta($sql); 
+         if ($resp['NItems'] > 0){
+            $respuesta = $resp['Items']; 
+           }else {
+                $error = array ( 'tipo'=>'success',
+                                 'dato' => $sql,
+                                 'mensaje' => 'No se encontró nungun producto.'
+                                 );
+                $respuesta['error'] = $error;
+            }
+		return $respuesta;
+    }
+    
+    public function productosTienda($idTienda){
+         $respuesta = array();
+         $sql='select count(idArticulo) as cantArticulo from articulosTiendas where idTienda='.$idTienda;
+          $resp = $this->Consulta($sql); 
+         if ($resp['NItems'] > 0){
+            $respuesta = $resp['Items']; 
+           }else {
+                $error = array ( 'tipo'=>'success',
+                                 'dato' => $sql,
+                                 'mensaje' => 'No se encontró nungun producto.'
+                                 );
+                $respuesta['error'] = $error;
+            }
+		return $respuesta;
+    }
 	public function comprobacionCamposObligatoriosProducto($datos){
 		// Objetivo es comprobar que los datos enviados son correctos.
 		// @ Parametros

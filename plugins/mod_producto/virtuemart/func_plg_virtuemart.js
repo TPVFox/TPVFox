@@ -232,15 +232,8 @@ function contarProductosWeb(callback){
 		console.log('*********  contar productos web**************');
 		},
 		success    :callback
-        //~ function (response) {
-				//~ console.log('Respuesta de contar los productos web ');
-				//~ var resultado = $.parseJSON(response);
-                //~ console.log(resultado['Datos']['item']['productosWeb']);
-                //~ cantProductos=resultado['Datos']['item']['productosWeb'];
-                
-				 
-		//~ }	
 	});
  
 }
+
 
