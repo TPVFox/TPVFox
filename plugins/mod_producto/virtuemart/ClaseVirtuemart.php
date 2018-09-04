@@ -608,6 +608,35 @@ class PluginClaseVirtuemart extends ClaseConexion{
          $respuesta['parametros']=$parametros;
 		return $respuesta;
     }
+    public function productosInicioFinal($inicio, $final){
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'productosInicioFinal',
+							'inicio'	    =>$inicio,
+                            'final'         =>$final
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+       
+      
+        if (!isset($respuesta['error_conexion'])){
+            // La respuesta curl (http-code = 200) 
+            if(isset($respuesta['Datos']['ivasWeb']['error'])){
+               echo '<pre>';
+               print_r($respuesta['Datos']['ivasWeb']['error']);
+               echo '</pre>';
+            }
+        }
+        return $respuesta;
+    }
     
 }
 ?>

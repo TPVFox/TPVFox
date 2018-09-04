@@ -235,5 +235,28 @@ function contarProductosWeb(callback){
 	});
  
 }
-
+function actualizarProductosWeb(inicio){
+    final=regWeb-inicio;
+     var parametros = {
+            "pulsado"   : 'actualizarProductosWeb',
+            inicio: inicio,
+            final: final
+    };
+      $.ajax({
+		data       : parametros,
+		url        :  ruta_plg_virtuemart+'tareas_virtuemart.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  actualizar productos Web **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta actualizar ProductosWeb ');
+				var resultado = $.parseJSON(response);
+             
+				
+				 
+		}	
+	});
+    BarraProceso(inicio, final);
+}
 

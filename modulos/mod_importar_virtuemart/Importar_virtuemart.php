@@ -14,16 +14,16 @@
 	$tiendasWeb=$ClaseTienda->tiendasWeb();
    
     //~ $comprobaciones=array();
-    $acciones=array(
-        array(
-            'valor'=>1,
-            'accion'=>'Bajar de la web los productos nuevos a TPV'   
-        ),
-        array(
-            'valor'=>2,
-            'accion'=>'Modificar los productos TPV según la web'
-        )
-    );
+    //~ $acciones=array(
+        //~ array(
+            //~ 'valor'=>1,
+            //~ 'accion'=>'Bajar de la web los productos nuevos a TPV'   
+        //~ ),
+        //~ array(
+            //~ 'valor'=>2,
+            //~ 'accion'=>'Modificar los productos TPV según la web'
+        //~ )
+    //~ );
     //~ if(isset($_POST['enviar'])){
        
         
@@ -60,10 +60,7 @@
  if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
         $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
         echo $ObjVirtuemart->htmlJava();
-          
     }
-
-
 ?>
 </head>
 <body>
@@ -78,11 +75,8 @@
 				. '<strong>'.$comprobacion['tipo'].' </strong> '.$comprobacion['mensaje'].' <br> '.$comprobacion['dato']
 				. '</div>';
             }
-          
         }
-        
         ?>
-     
         <h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
         <div class="col-md-5">
             <h3>Parametros a configurar</h3>
@@ -123,16 +117,7 @@
                 </table>
             </div>
              <div class="col-md-12" id="DivOpciones">
-                 <label>Acción a realizar</label>
-                 <select id="accion">
-                    <?php 
-                    foreach ($acciones as $accion){
-                        echo '<option value='.$accion['valor'].'>'.$accion['accion'].'</option>';
-                    }
-                    
-                    ?>
-                 </select>
-                 <a class="btn btn-primary" onclick="opcionRealizar()">Enviar</a>
+                 <a class="btn btn-primary" onclick="actualizarProductosWeb(0)">Actualizar Web</a>
             </div>
             <div class="col-md-12">
             <hr/>
