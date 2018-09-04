@@ -12,46 +12,38 @@ function enviarFormulario(){
         regWeb=cantProductos;
     }
     contarProductosWeb(returnCantProductos);
-    //~ if(regWeb==0){
-        bandera = setInterval(comprobarDatos(), 3000);
-    //~ }
-   
-      console.log("Numero de productos:"+regWeb);
-     
+    if(regWeb==0){
+      bandera=setInterval(function(){ comprobarDatos(); }, 200);
+    }
+    contarProductosTpv();
   }
 }
 function comprobarDatos(){
     console.log("entro en comprobar datos"+regWeb);
-   alert("entro en comprobar");
-    //~ if(regWeb>0){
-        //~ console.log(regWeb);
-         
-        //~ clearInterval(bandera);
-        
-    //~ }
+    if(typeof regWeb=='string'){
+        clearInterval(bandera);
+    }
 }
-function cierraLaBandera(){
-    clearInterval(bandera);
-}
-//~ function contarProductosTpv(){
-      //~ var parametros = {
-            //~ "pulsado"   : 'contarProductostpv',
+
+function contarProductosTpv(){
+      var parametros = {
+            "pulsado"   : 'contarProductostpv',
            
-        //~ };
-    //~ $.ajax({
-        //~ data       : parametros,
-        //~ url        : 'tareas.php',
-        //~ type       : 'post',
-        //~ beforeSend : function () {
-            //~ console.log('*********  entre en contar productos tpv  ****************');
-        //~ },
-        //~ success    :  function (response) {
-            //~ console.log('REspuesta contar productos tpv');
-            //~ var resultado =  $.parseJSON(response);
-            //~ console.log(resultado);
+        };
+    $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  entre en contar productos tpv  ****************');
+        },
+        success    :  function (response) {
+            console.log('REspuesta contar productos tpv');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
            
-        //~ }
+        }
         
-    //~ });
-//~ }
+    });
+}
 

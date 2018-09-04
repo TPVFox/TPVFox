@@ -809,6 +809,22 @@ class ClaseProductos extends ClaseTablaArticulos{
 		}
 		return $respuesta;
 	}
+    
+    public function contarProductosTpv(){
+       $respuesta = array();
+       $sql='SELECT count(idArticulo) as cantTpv from articulos ';
+       $resp = $this->Consulta($sql);
+       if ($resp['NItems'] > 0){
+            $respuesta = $resp['Items']; 
+       }else {
+			$error = array ( 'tipo'=>'success',
+							 'dato' => '',
+							 'mensaje' => 'No se encontró ningun articulo.'
+							 );
+			$respuesta['error'] = $error;
+		}
+		return $respuesta;
+    }
 	
 	public function comprobacionCamposObligatoriosProducto($datos){
 		// Objetivo es comprobar que los datos enviados son correctos.
