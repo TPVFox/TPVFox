@@ -1,31 +1,27 @@
 var regWeb=0;
-var bandera=0;
+var regTPV=0;
+var callbackContarRegistrosWeb= function (response) {
+				console.log('Respuesta de contar los productos web ');
+				var resultado = $.parseJSON(response);
+                cantProductos=resultado['Datos']['item']['productosWeb'];
+                regWeb=cantProductos;
+                contarProductosTpv( cantProductos);
+}
+
 function enviarFormulario(){
   var tiendaWeb=$("#tiendaWeb").val();
  
   if(tiendaWeb==0){
       alert("NO HAS SELECCIONADO UNA TIENDA WEB!");
   }
- 
   if(tiendaWeb>0){
-    function returnCantProductos(cantProductos){
-        regWeb=cantProductos;
-    }
-    contarProductosWeb(returnCantProductos);
-    if(regWeb==0){
-      bandera=setInterval(function(){ comprobarDatos(); }, 200);
-    }
-    contarProductosTpv();
+    contarProductosWeb(callbackContarRegistrosWeb);
   }
-}
-function comprobarDatos(){
-    console.log("entro en comprobar datos"+regWeb);
-    if(typeof regWeb=='string'){
-        clearInterval(bandera);
-    }
+  
 }
 
-function contarProductosTpv(){
+function contarProductosTpv(callback){
+    console.log(regWeb);
       var parametros = {
             "pulsado"   : 'contarProductostpv',
            
@@ -37,11 +33,13 @@ function contarProductosTpv(){
         beforeSend : function () {
             console.log('*********  entre en contar productos tpv  ****************');
         },
-        success    :  function (response) {
+        success    :  
+        function (response) {
             console.log('REspuesta contar productos tpv');
             var resultado =  $.parseJSON(response);
-            console.log(resultado);
-           
+            regTPV=resultado['productosTpv'][0]['cantTpv'];
+            console.log(regTPV);
+            
         }
         
     });
