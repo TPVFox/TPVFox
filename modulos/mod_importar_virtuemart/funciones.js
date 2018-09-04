@@ -98,7 +98,7 @@ function nuevosEnWeb(){
             console.log(resultado);
             total=parseInt(regWeb)-parseInt(resultado['productos'][0]['cantArticulo'])
              $( "#NuevosWeb" ).html(total);
-            
+             $("#DivOpciones").show();
         }
         
     });

@@ -14,16 +14,16 @@
 	$tiendasWeb=$ClaseTienda->tiendasWeb();
    
     //~ $comprobaciones=array();
-    //~ $acciones=array(
-        //~ array(
-            //~ 'valor'=>1,
-            //~ 'accion'=>'Bajar de la web los productos nuevos a TPV'   
-        //~ ),
-        //~ array(
-            //~ 'valor'=>2,
-            //~ 'accion'=>'Modificar los productos TPV según la web'
-        //~ )
-    //~ );
+    $acciones=array(
+        array(
+            'valor'=>1,
+            'accion'=>'Bajar de la web los productos nuevos a TPV'   
+        ),
+        array(
+            'valor'=>2,
+            'accion'=>'Modificar los productos TPV según la web'
+        )
+    );
     //~ if(isset($_POST['enviar'])){
        
         
@@ -122,6 +122,21 @@
                 </tr>
                 </table>
             </div>
+             <div class="col-md-12" id="DivOpciones">
+                 <label>Acción a realizar</label>
+                 <select id="accion">
+                    <?php 
+                    foreach ($acciones as $accion){
+                        echo '<option value='.$accion['valor'].'>'.$accion['accion'].'</option>';
+                    }
+                    
+                    ?>
+                 </select>
+                 <a class="btn btn-primary" onclick="opcionRealizar()">Enviar</a>
+            </div>
+            <div class="col-md-12">
+            <hr/>
+            </div>
             <div class="col-md-12">
                 <div class="progress" style="margin:0 100px">
                                         <div id="bar" class="progress-bar progress-bar-info" 
@@ -134,6 +149,8 @@
         </div>
        
     </div>
-
+<script type="text/javascript">
+    $("#DivOpciones").hide();
+</script>
 </body>
 </html>
