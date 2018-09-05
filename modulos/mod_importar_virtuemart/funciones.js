@@ -123,6 +123,7 @@ function comprobarProductos(productos){
             console.log('Respuesta de comprobar productos');
             var resultado =  $.parseJSON(response);
             console.log(resultado);
+            $("#productosNuevos").html(resultado['htmlNuevos']);
             
         }
         

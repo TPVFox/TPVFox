@@ -134,12 +134,9 @@
         </div>
         <div class="col-md-12">
             <hr/>
-           <table  class="col-md-12">
-                <tr>
-                <th>Datos Tpv</th>
-                <th>Datos Web</th>
-                <th>Acciones</th>
-                </tr>
+           <table  class="col-md-6 table-bordered table-hover" id="productosNuevos">
+               
+                
            </table>
         </div>
        
