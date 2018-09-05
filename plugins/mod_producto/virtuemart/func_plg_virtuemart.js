@@ -269,7 +269,8 @@ function actualizarProductosWeb(inicio){
                          'idIva'        :producto['idIva'],
                          'iva'          :producto['iva'],
                          'nombre'       :producto['articulo_name'],
-                         'precioSiva'   :producto['precioSiva']
+                         'precioSiva'   :producto['precioSiva'],
+                         'id'           :producto['idVirtual']
                        };
                         productos.push(nuevoProducto);
                     }
@@ -280,6 +281,8 @@ function actualizarProductosWeb(inicio){
                 if(final<regWeb){
                     
                       actualizarProductosWeb(final);
+                }else{
+                    comprobarProductos(productos);
                 }
               
 				 
@@ -287,4 +290,6 @@ function actualizarProductosWeb(inicio){
 	});
    
 }
+
+
 

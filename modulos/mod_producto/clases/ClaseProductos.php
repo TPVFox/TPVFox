@@ -858,6 +858,23 @@ class ClaseProductos extends ClaseTablaArticulos{
             }
 		return $respuesta;
     }
+    
+    public function comprobarIdWebTpv($idTienda, $idProducto){
+        $respuesta = array();
+         $sql='select idArticulo from articulosTiendas
+          where idTienda='.$idTienda.' and idVirtuemart='.$idProducto;
+          $resp = $this->Consulta($sql); 
+         if ($resp['NItems'] > 0){
+            $respuesta = $resp['Items']; 
+           }else {
+                $error = array ( 'tipo'=>'success',
+                                 'dato' => $sql,
+                                 'mensaje' => 'No se encontró nungun producto.'
+                                 );
+                $respuesta['error'] = $error;
+            }
+		return $respuesta;
+    }
 	public function comprobacionCamposObligatoriosProducto($datos){
 		// Objetivo es comprobar que los datos enviados son correctos.
 		// @ Parametros

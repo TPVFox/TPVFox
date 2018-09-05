@@ -22,6 +22,25 @@ switch ($pulsado) {
          $productosWeb=$NCArticulo->productosTienda($idTienda);
           $respuesta['productos']=$productosWeb;
     break; 
+    case 'comprobarProductos':
+        $productos=$_POST['productos'];
+        $idTienda=$_POST['idTienda'];
+        $productosModificados=array();
+        $productosNuevos=array();
+       
+        foreach ($productos as $producto){
+            
+            $comprobar=$NCArticulo->comprobarIdWebTpv($idTienda, $producto['id']);
+            
+            if(isset($comprobar[0])){
+                array_push($productosModificados, $producto);
+            }else{
+                array_push($productosNuevos, $producto);
+            }
+        }
+       $respuesta['productosModificados']=$productosModificados;
+       $respuesta['productosNuevos']=$productosNuevos;
+    break;
     
     
 }

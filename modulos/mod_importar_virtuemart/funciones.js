@@ -104,4 +104,28 @@ function nuevosEnWeb(){
     });
 }
 
+function comprobarProductos(productos){
+    var tiendaWeb=$("#tiendaWeb").val();
+    var parametros = {
+            "pulsado"   : 'comprobarProductos',
+            "productos" : productos,
+            "idTienda"  :tiendaWeb
+    };
+     $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  comprobar productos ****************');
+        },
+        success    :  
+        function (response) {
+            console.log('Respuesta de comprobar productos');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
+            
+        }
+        
+    });
+}
 
