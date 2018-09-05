@@ -33,11 +33,14 @@ switch ($pulsado) {
             $comprobar=$NCArticulo->comprobarIdWebTpv($idTienda, $producto['id']);
             
             if(isset($comprobar[0])){
+                $arrayDatos=array();
                 $datosProductoTpv=$NCArticulo->GetProducto($comprobar[0]['idArticulo']);
                 
                 $comprobacion=comparacionesProductos($producto, $datosProductoTpv['datos']);
                 if($comprobacion==1){
-                    array_push($productosModificados, $producto);
+                    array_push($arrayDatos, $producto);
+                    array_push($arrayDatos,$datosProductoTpv);
+                    array_push($productosModificados, $arrayDatos);
                 }
                 
             }else{
@@ -47,6 +50,10 @@ switch ($pulsado) {
         if(count ($productosNuevos)>0){
             $htmlNuevos=lineaProductosNuevos($productosNuevos);
             $respuesta['htmlNuevos']=$htmlNuevos;
+        }
+        if(count($productosModificados)>0){
+            $htmlMod=lineaProductosModificador($productosModificados);
+            $respuesta['htmlMod']=$htmlMod;
         }
        $respuesta['productosModificados']=$productosModificados;
        $respuesta['productosNuevos']=$productosNuevos;

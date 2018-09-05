@@ -138,6 +138,10 @@
                
                 
            </table>
+           <table  class="col-md-6 table-bordered table-hover" id="productosMod">
+               
+                
+           </table>
         </div>
        
     </div>

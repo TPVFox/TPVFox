@@ -124,11 +124,11 @@ function comprobarProductos(productos){
             var resultado =  $.parseJSON(response);
             console.log(resultado);
             $("#productosNuevos").html(resultado['htmlNuevos']);
-            
+            $("#productosMod").html(resultado['htmlMod']);
         }
         
     });
 }
-function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, linea){
+//~ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, linea){
     
-}
+//~ }
