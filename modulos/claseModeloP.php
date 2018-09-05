@@ -84,6 +84,8 @@ class ModeloP {
         return ModeloP::_consulta($sql);
     }
 
+    //devuelve 0 se es correcto y un código de error si hubo error
+    // el mensaje y la consulta se obtienen con funciones: getSQLConsulta y getErrorConsulta.
     protected static function _consultaDML($sql) {
         $db = self::getDbo();
 
@@ -121,6 +123,29 @@ class ModeloP {
             if (ModeloP::_consultaDML($sql)) {
                 $respuesta = self::$db->insert_id;
             }
+        }
+
+        return $respuesta;
+    }
+
+    protected static function _delete($tabla, $condicion, $soloSQL = false) {
+        $respuesta = false;
+        $updateStr = [];
+        if (!is_array($condicion)) {
+            $updateWhere = $condicion;
+        } else {
+            $updateWhere = implode(' AND ', $condicion);
+        }
+
+        $sql = 'DELETE FROM ' . $tabla
+                . ' WHERE ' . $updateWhere;
+
+        ModeloP::setResult($sql, 0);
+
+        if ($soloSQL) {
+            $respuesta = ($sql !== '');
+        } else {
+            $respuesta = ModeloP::_consultaDML($sql);
         }
 
         return $respuesta;
@@ -179,8 +204,7 @@ class ModeloP {
         return ModeloP::$resultado['consulta'];
     }
 
-    protected static function _leer($tabla, $condiciones, $columnas = [], 
-            $joins = [], $limit = 0, $offset = 0, $soloSQL = false) {
+    protected static function _leer($tabla, $condiciones, $columnas = [], $joins = [], $limit = 0, $offset = 0, $soloSQL = false) {
 
         $columnasSql = count($columnas) > 0 ? implode(',', $columnas) : '*';
 

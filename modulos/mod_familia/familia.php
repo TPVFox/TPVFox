@@ -101,8 +101,7 @@
                         <div class="col-md-6">
                             <div class="ui-widget">
                                 <label for="inputpadre">Padre: </label>
-                                <?php echo $combopadres ?>
-                                
+                                <?php echo $combopadres ?>                                
                             </div>
                         </div>
                     </div>

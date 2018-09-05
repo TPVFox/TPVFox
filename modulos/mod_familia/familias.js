@@ -17,26 +17,6 @@ $(function () {
         window.location.href = 'familia.php?id=0';
     });
 
-    $("#btn-cambiarpadre").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-
-
-        if (contarSeleccionados() > 0) {
-            var familiaactual = $('#idfamilia').val() + ': ' + $('#inputnombre').val();
-            $('#inputFamiliaActualModal').val(familiaactual);
-            $('#inputNombreFamiliaModal').val('');
-            $('#inputIdFamiliaModal').val('-1');
-
-            $('#inputIdNuevaModal').val($('#combopadremodal').val());
-
-            $('#cambioFamiliaModal').modal('show');
-            $('#inputNombreFamiliaModal').focus();
-        } else {
-            alert('Antes de modificar, por favor selecciona un elemento')
-        }
-    });
-
 
     $("#btn-fam-volver").on("click", function (event) {
         event.stopPropagation();
@@ -102,7 +82,29 @@ $(function () {
         event.preventDefault();
         //var data = $(event.currentTarget).data();
 
-        alert(seleccionados());
+        var seleccion = seleccionados('idproducto');
+        var idfamilia = $('#idfamilia').val();
+        var idnuevafamilia = $('#inputIdNuevaModal').val();
+        if(seleccion.length > 0) {
+            ajaxCall({pulsado: 'cambiarFamiliaProducto',
+                idfamilia: idfamilia,
+                idnuevafamilia: idnuevafamilia,
+                idsproductos : seleccion,
+            }, function (respuesta) {
+                var obj = JSON.parse(respuesta);
+                console.log(obj);
+                if (!obj.error) {
+                    alert('cambiados correctamente');
+                    
+                    location.reload();
+                } else {
+                    alert('Error al borrar');
+                }
+            }
+            );
+
+        }
+        
     });
 
     $("#btn-eliminar").on("click", function (event) {
@@ -138,7 +140,6 @@ $(function () {
 
         var quedan = expandirTodos();
         alert('quedan por expandir ' + quedan);
-
     });
 
     $("#btn-compactartodo").on("click", function (event) {
@@ -149,26 +150,6 @@ $(function () {
 
 
     });
-
-
-//    $('#inputNombreFamiliaModal').typeahead({
-//        source: function (request, response) {
-//            $.ajax({
-//                url: "tareasfamilias.php",
-//                data: {
-//                    pulsado: 'BuscaNombreFamilia',
-//                    nombre : request
-//                },
-//                dataType: "json",
-//                type: "POST",
-//                success: function (response) {
-//                    result($.map(response, function (item) {
-//                        return item;
-//                    }));
-//                }
-//            });
-//        }
-//    });
 
     $('#inputNombreFamiliaModal').autocomplete({
         minLength: 3,
@@ -197,7 +178,72 @@ $(function () {
         }
     });
 
-    $(".btn-seleccionar").on("click", function (event) {
+    capturaSeleccionar();
+
+    $("#combopadre").combobox({
+        select: function (event, ui) {
+            $('#inputidpadre').val(ui.item.value);
+        },
+    });
+
+    $("#combopadremodal").combobox({
+        select: function (event, ui) {
+            $('#inputIdNuevaModal').val(ui.item.value);
+        },
+    });
+
+});
+
+
+function capturaSeleccionar() {
+//    $("#btn-cambiarpadre").on("click", function (event) {
+//        event.stopPropagation();
+//        event.preventDefault();
+//
+//
+//        if (contarSeleccionados() > 0) {
+//            var familiaactual = $('#idfamilia').val() + ': ' + $('#inputnombre').val();
+//            $('#inputFamiliaActualModal').val(familiaactual);
+//            $('#inputNombreFamiliaModal').val('');
+//            $('#inputIdFamiliaModal').val('-1');
+//
+//            $('#inputIdNuevaModal').val($('#combopadremodal').val());
+//
+//            $('#cambioFamiliaModal').modal('show');
+//            $('#inputNombreFamiliaModal').focus();
+//        } else {
+//            alert('Antes de modificar, por favor selecciona un elemento')
+//        }
+//    });
+
+    $("#btn-borrarfamilia").on("click", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        var seleccion = seleccionados('idproducto');
+        var idfamilia = $('#idfamilia').val();
+
+        if(seleccion.length > 0) {
+            ajaxCall({pulsado: 'borrarFamiliaProducto',
+                idfamilia: idfamilia,
+                idsproductos : seleccion,
+            }, function (respuesta) {
+                var obj = JSON.parse(respuesta);
+                console.log(obj);
+                if (!obj.error) {
+                    alert('borrado correctamente');
+                    $('#tproductos').parent().html(obj.html);
+                    capturaSeleccionar(); // ¡¡OJO se llama a si mismo!!. ¿Y funciona?
+                } else {
+                    alert('Error al borrar');
+                }
+            }
+            );
+
+        }
+    });
+
+        $(".btn-seleccionar").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
 
@@ -213,26 +259,17 @@ $(function () {
         var cuenta = contarSeleccionados();
         if (cuenta > 0) {
             $('#btn-cambiarpadre').show();
+            $('#btn-borrarfamilia').show();
         } else {
             $('#btn-cambiarpadre').hide()
+            $('#btn-borrarfamilia').hide()
         }
 
     });
 
+}
 
-    $("#combopadre").combobox({
-        select: function (event, ui) {
-            $('#inputidpadre').val(ui.item.value);
-        },
-    });
 
-    $("#combopadremodal").combobox({
-        select: function (event, ui) {
-            $('#inputIdNuevaModal').val(ui.item.value);
-        },
-    });
-
-});
 
 function leerfamiliaspadre0() {
     leerFamilias(0, function (respuesta) {
@@ -436,12 +473,11 @@ function contarSeleccionados() {
     return $('.seleccionado').length;
 }
 
-function seleccionados() {
-
+function seleccionados(propiedad='idfamilia') {   
     var ids = [];
     $('.seleccionado').each(function (key, element) {
-        var idfamilia = $(element).data('idfamilia');
-        ids.push(idfamilia);
+        var valores = $(element).data(propiedad);
+        ids.push(valores);
     });
     return ids;
 }

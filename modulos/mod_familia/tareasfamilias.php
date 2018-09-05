@@ -125,16 +125,46 @@ switch ($pulsado) {
         echo json_encode($resultado);
         break;
 
-    case 'borrarFamiliaDProductos':
+    case 'cambiarFamiliaProducto':
+        $idfamilia = $_POST['idfamilia'];
+        $idnuevafamilia = $_POST['idnuevafamilia'];
+        $idsproductos = $_POST['idsproductos'];
+
+//        $productos = explode(',', $idsproductos);
+        $resultado = [];
+        $listaerror = [];
+        foreach ($idsproductos as $idproducto) {
+            $todobien = alArticulos::borrarArticuloFamilia($idproducto, $idfamilia);
+            if (($todobien) && (!alArticulos::existeArticuloFamilia($idproducto, $idnuevafamilia))) {
+                $todobien = alArticulos::grabarArticuloFamilia($idproducto, $idnuevafamilia);
+                if (!$todobien) {
+                    $listaerror[] = [$idproducto, $idnuevafamilia];
+                }
+            } else {
+                $listaerror[] = 'existe???' . $idproducto;
+            }
+        }
+
+        $resultado['html'] = htmlTablaFamiliaProductos($idfamilia);
+        $resultado['error'] = count($listaerror) > 0; // no hay errores. ¿Para que devolver la lista de errores? :-)
+        echo json_encode($resultado);
+        break;
+
+    case 'borrarFamiliaProducto':
         $idfamilia = $_POST['idfamilia'];
         $idsproductos = $_POST['idsproductos'];
 
-        $productos = explode(',', $idsproductos);
-        $producto = new alArticulos();
-        foreach ($idsProductos as $idproducto) {
-            
+        $listaerror = [];
+        $resultado = [];
+        foreach ($idsproductos as $idproducto) {
+            $todobien = alArticulos::borrarArticuloFamilia($idproducto, $idfamilia);
+            if (!$todobien) {
+                $listaerror[] = $idproducto;
+            }
         }
-        echo json_encode($familia);
+        $resultado['html'] = htmlTablaFamiliaProductos($idfamilia);
+        $resultado['error'] = count($listaerror) > 0; // no hay errores. ¿Para que devolver la lista de errores? :-)
+        echo json_encode($resultado);
         break;
 
     case 'borrarFamilias':

@@ -16,10 +16,10 @@ include_once 'ClaseArticulosStocks.php';
  * @author alagoro
  */
 class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase articulos que hizo Ricardo & Co.
-
 //    Si no se lee articulo por id, se leen múltiples articulos $pagina o menos
 // empezando en $inicio 
-    public function leer($idArticulo = 0, $inicio=1, $pagina=100) {
+
+    public function leer($idArticulo = 0, $inicio = 1, $pagina = 100) {
         $sql = 'SELECT * '
                 . 'FROM articulos ';
         if ($idArticulo != 0) {
@@ -228,17 +228,17 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ' WHERE linalb.idArticulo = ' . $idArticulo
                 . ' AND alb.idTienda = ' . $idTienda;
         $sqldata = $this->consulta($sql);
-        
+
         if ($sqldata) {
             $ventasalbc = $sqldata['datos'][0]['ventas'];
         }
-                    
-        $sql = 'SELECT SUM( lintic.nunidades) as ventas'                                 
+
+        $sql = 'SELECT SUM( lintic.nunidades) as ventas'
                 . ' FROM ticketst as tic '
                 . ' JOIN ticketslinea as lintic ON (tic.id=lintic.idticketst) '
-                . ' WHERE lintic.idArticulo = '.$idArticulo
+                . ' WHERE lintic.idArticulo = ' . $idArticulo
                 . ' AND lintic.estadoLinea = "Activo"'
-                . ' AND tic.idTienda = '.$idTienda;
+                . ' AND tic.idTienda = ' . $idTienda;
         $sqldata = $this->consulta($sql);
         if ($sqldata) {
             $ventastick = $sqldata['datos'][0]['ventas'];
@@ -247,31 +247,60 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
         $sql = 'SELECT SUM( linalb.nunidades ) as compras'
                 . ' FROM albprot as alb '
                 . ' JOIN albprolinea as linalb ON (alb.id=linalb.idalbpro) '
-                . ' WHERE linalb.idArticulo = '.$idArticulo
+                . ' WHERE linalb.idArticulo = ' . $idArticulo
                 . ' AND alb.idTienda = ' . $idTienda;
         $sqldata = $this->consulta($sql);
         if ($sqldata) {
             $comprasalbp = $sqldata['datos'][0]['compras'];
         }
-        
+
         $stock = $comprasalbp - $ventasalbc - $ventastick;
-        
+
 //        $sql = implode(' UNION ', $sqlprepare);
         return $stock;
     }
 
-    public function getStock($idArticulo, $idTienda = 1){
+    public function getStock($idArticulo, $idTienda = 1) {
         return alArticulosStocks::leer($idArticulo, $idTienda, TRUE); //si no existe lo crea
     }
-    
-    public static function leerArticulosXFamilia($idfamilia){
+
+    public static function leerArticulosXFamilia($idfamilia) {
         $sql = 'SELECT art.idArticulo, art.articulo_name  '
                 . ' FROM articulos as art '
                 . ' JOIN articulosFamilias as artfam ON (art.idArticulo=artfam.idArticulo) '
-                . ' WHERE artfam.idFamilia = '.$idfamilia;
-           
+                . ' WHERE artfam.idFamilia = ' . $idfamilia;
+
         $sqldata = self::_consulta($sql);
-        
+
         return $sqldata;
     }
+
+    public static function existeArticuloFamilia($idarticulo, $idfamilia) {
+        $sql = 'SELECT count(idArticulo) as contador '
+                . ' FROM articulosFamilias  '
+                . ' WHERE idFamilia = ' . $idfamilia . ' AND idArticulo=' . $idarticulo;
+
+        $sqldata = self::_consulta($sql);
+        
+        if ($sqldata) {
+            $resultado = $sqldata[0]['contador'];
+        } else {
+            $resultado = -1;
+        }
+        
+        return $resultado;
+    }
+
+    public static function grabarArticuloFamilia($idarticulo, $idfamilia) {
+        $resultado = parent::_insert('articulosFamilias', ['idFamilia => ' . $idfamilia, 'idArticulo=>' . $idarticulo]);
+
+        return $resultado;
+    }
+
+    public static function borrarArticuloFamilia($idarticulo, $idfamilia) {
+        $resultado = parent::_delete('articulosFamilias', ['idFamilia = ' . $idfamilia, 'idArticulo=' . $idarticulo]);
+
+        return $resultado;
+    }
+
 }

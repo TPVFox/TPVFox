@@ -145,18 +145,21 @@ function htmlTablaFamiliaProductos($idfamilia) {
 
     $productos = alArticulos::leerArticulosXFamilia($idfamilia);
 
-    $html = '<table id="tfamilias" class="table table-striped">'
+    $html = '<table id="tproductos" class="table table-striped">'
             . '<thead>'
             . '<tr>'
             . '<th>id</th>'
             . '<th>Nombre</th>'
-            . '<th><button id="btn-cambiarpadre" type="button" >'
-            . '<span class="glyphicon glyphicon-refresh"> </span>padre</button> </th>'
+            . '<th>'
+//            . '<button id="btn-cambiarpadre" type="button" >'
+//            . '<span class="glyphicon glyphicon-refresh"> </span> Cambiar de familia</button>'
+            . '<button id="btn-borrarfamilia" type="button" >'
+            . '<span class="glyphicon glyphicon-trash"> </span> Eliminar de esta familia</button> </th>'
             . '</tr>'
             . '</thead>';
     if (count($productos) > 0) {
         foreach ($productos as $indice => $producto) {
-            $html .= '<tr id="tr_' . $producto['idArticulo'] . '" >';
+            $html .= '<tr id="tr_' . $producto['idArticulo'] . '" data-idproducto="' . $producto['idArticulo'] . '">';
             $html .= '<td>' . $producto['idArticulo'] . '</td>';
             $html .= '<td> ' . $producto['articulo_name'] . ' </td>';
             $html .= '<td> <button type="button" class="btn btn-seleccionar" id="selproducto' . $producto['idArticulo']
