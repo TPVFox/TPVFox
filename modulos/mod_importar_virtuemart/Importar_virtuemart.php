@@ -132,6 +132,16 @@
                                     </div>
             </div>
         </div>
+        <div class="col-md-12">
+            <hr/>
+           <table  class="col-md-12">
+                <tr>
+                <th>Datos Tpv</th>
+                <th>Datos Web</th>
+                <th>Acciones</th>
+                </tr>
+           </table>
+        </div>
        
     </div>
 <script type="text/javascript">

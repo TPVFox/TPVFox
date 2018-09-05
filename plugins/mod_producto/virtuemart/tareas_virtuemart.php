@@ -218,7 +218,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
             $inicio=$_POST['inicio'];
             $final=$_POST['final'];
             
-            $productos=$ObjVirtuemart->productosInicioFinal($inicio, $final);
+            $productos=$ObjViruemart->productosInicioFinal($inicio, $final);
             $respuesta['productos']=$productos;
             
        break;

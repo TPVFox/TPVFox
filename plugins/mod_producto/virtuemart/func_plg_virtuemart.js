@@ -1,3 +1,5 @@
+var productos = new Array();
+
 function AccionRecalcularPvpWeb(caja,tecla){
 	console.log('Entro en controlador de recalcularPvpWeb');
 
@@ -236,7 +238,12 @@ function contarProductosWeb(callback){
  
 }
 function actualizarProductosWeb(inicio){
-    final=regWeb-inicio;
+    if(inicio==0){
+        final=100;
+    }else{
+        final=inicio+100;
+    }
+    
      var parametros = {
             "pulsado"   : 'actualizarProductosWeb',
             inicio: inicio,
@@ -252,11 +259,32 @@ function actualizarProductosWeb(inicio){
 		success    :  function (response) {
 				console.log('Respuesta actualizar ProductosWeb ');
 				var resultado = $.parseJSON(response);
-             
+                if(resultado['productos']['Datos']['item'].length>0){
+                    for(i=0;i<resultado['productos']['Datos']['item'].length;i++){
+                        producto=resultado['productos']['Datos']['item'][i];
+                       
+                       nuevoProducto={
+                         'refTienda'    :producto['refTienda'],
+                         'codBarra'     :producto['codBarra'],
+                         'idIva'        :producto['idIva'],
+                         'iva'          :producto['iva'],
+                         'nombre'       :producto['articulo_name'],
+                         'precioSiva'   :producto['precioSiva']
+                       };
+                        productos.push(nuevoProducto);
+                    }
+                }
+               
+                BarraProceso(inicio, final);
 				
+                if(final<regWeb){
+                    
+                      actualizarProductosWeb(final);
+                }
+              
 				 
 		}	
 	});
-    BarraProceso(inicio, final);
+   
 }
 
