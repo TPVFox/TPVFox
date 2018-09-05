@@ -1289,3 +1289,10 @@ function eliminarProductos(idTiendaWeb){
         });
     }
 }
+function seleccionarTodo(){
+   for (i=1;i==40;i++){
+       $("#checkUsu"+i).checked=1;
+   }
+      
+        
+} 
