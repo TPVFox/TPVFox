@@ -30,8 +30,9 @@ function lineaProductosNuevos($productosNuevos){
                     <th>Datos Web</th>
                     <th>Acciones</th>
                 </tr>';
+                $i=0;
     foreach ($productosNuevos as $nuevo){
-        $html.='<tr>
+        $html.='<tr id="nuevo_'.$i.'">
             
             <td>Nombre:'.$nuevo['nombre'].'<br>
             Referencia Tienda '.$nuevo['refTienda'].'<br>
@@ -39,8 +40,10 @@ function lineaProductosNuevos($productosNuevos){
             precio sin IVA : '.$nuevo['precioSiva'].'<br>
             Cod Barras:'.$nuevo['codBarra'].'
             </td>
-            <td><a class="glyphicon glyphicon-plus" onckick="addProductoWeb('.$nuevo['id'].')"></a></td>
+            <td><a class="glyphicon glyphicon-plus" onckick="addProductoWeb("'.$nuevo['nombre'].'", 
+            "'.$nuevo['refTienda'].'","'.$nuevo['iva'].'", "'.$nuevo['precioSiva'].'", "'.$nuevo['codBarra'].'"'.$i.')"></a></td>
         </tr>';
+        $i++;
     }
     return $html;
     

@@ -129,4 +129,6 @@ function comprobarProductos(productos){
         
     });
 }
-
+function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, linea){
+    
+}
