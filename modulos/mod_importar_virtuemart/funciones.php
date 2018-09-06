@@ -66,8 +66,14 @@ function lineaProductosModificador($productos, $idTienda){
             <b>Referencia Tienda</b> '.$producto[0]['refTienda'].'<br>
             <b>IVA:</b> '.$producto[0]['iva'].'<br>
             <b>precio sin IVA :</b> '.$producto[0]['precioSiva'].'<br>
-            <b>Cod Barras:</b>'.$producto[0]['codBarra'].'
-            </td>
+            
+            <b>Cod Barras:</b>';
+            $codBarras=explode(";",$producto[0]['codBarra']);
+            foreach ($codBarras as $cod){
+                $html.=$cod.'  ';
+            }
+           
+           $html.='</td>
              <td><b>Nombre:</b>'.$producto[1]['articulo_name'].'<br>
             <b>Referencia Tienda :</b> ';
              
