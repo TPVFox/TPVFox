@@ -1290,9 +1290,14 @@ function eliminarProductos(idTiendaWeb){
     }
 }
 function seleccionarTodo(){
-   for (i=1;i==40;i++){
-       $("#checkUsu"+i).checked=1;
+    //~ var productos = new Array();
+   for (i=1;i<41;i++){
+        console.log("entro");
+        $("#checkUsu"+i).prop( "checked", true );
+     
+        //~ productos.push($("#checkUsu"+i).val());
+        selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos");
    }
-      
+     //~ console.log(productos); 
         
 } 
