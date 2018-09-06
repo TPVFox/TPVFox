@@ -24,7 +24,7 @@ function comparacionesProductos($productoWeb, $productoTpv){
 }
 function lineaProductosNuevos($productosNuevos){
     $html="";
-    $html='<h4>Productos Nuevos</h4>
+    $html='<h4><b>Productos Nuevos</b></h4>
                 <tr>
                    
                     <th>Datos Web</th>
@@ -33,15 +33,14 @@ function lineaProductosNuevos($productosNuevos){
                 $i=0;
     foreach ($productosNuevos as $nuevo){
         $html.='<tr id="nuevo_'.$i.'">
-            
-            <td>Nombre:'.$nuevo['nombre'].'<br>
-            Referencia Tienda '.$nuevo['refTienda'].'<br>
-            IVA: '.$nuevo['iva'].'<br>
-            precio sin IVA : '.$nuevo['precioSiva'].'<br>
-            Cod Barras:'.$nuevo['codBarra'].'
+            <td><b>Nombre:</b>'.$nuevo['nombre'].'<br>
+           <b>Referencia Tienda</b> '.$nuevo['refTienda'].'<br>
+            <b>IVA:</b> '.$nuevo['iva'].'<br>
+           <b>precio sin IVA :</b> '.$nuevo['precioSiva'].'<br>
+            <b>Cod Barras:</b>'.$nuevo['codBarra'].'
             </td>
-            <td><a class="glyphicon glyphicon-plus" onckick="addProductoWeb("'.$nuevo['nombre'].'", 
-            "'.$nuevo['refTienda'].'","'.$nuevo['iva'].'", "'.$nuevo['precioSiva'].'", "'.$nuevo['codBarra'].'"'.$i.')"></a></td>
+            <td><a class="btn btn-info" onckick="addProductoWeb("'.$nuevo['nombre'].'", 
+            "'.$nuevo['refTienda'].'","'.$nuevo['iva'].'", "'.$nuevo['precioSiva'].'", "'.$nuevo['codBarra'].'"'.$i.')">Insertar Productos a TPV</a></td>
         </tr>';
         $i++;
     }
@@ -50,7 +49,7 @@ function lineaProductosNuevos($productosNuevos){
 }
 function lineaProductosModificador($productos, $idTienda){
      $html="";
-    $html='<h4>Productos MOdificados</h4>
+    $html='<h4><b>Productos Modificados</b></h4>
                 <tr>
                     <th>Datos Web</th>
                      <th>Datos tpv</th>
@@ -59,14 +58,14 @@ function lineaProductosModificador($productos, $idTienda){
                 $i=0;
     foreach ($productos as $producto){
         $html.='<tr id="mod_'.$i.'">
-             <td>Nombre:'.$producto[0]['nombre'].'<br>
-            Referencia Tienda '.$producto[0]['refTienda'].'<br>
-            IVA: '.$producto[0]['iva'].'<br>
-            precio sin IVA : '.$producto[0]['precioSiva'].'<br>
-            Cod Barras:'.$producto[0]['codBarra'].'
+             <td><b>Nombre:</b>'.$producto[0]['nombre'].'<br>
+            <b>Referencia Tienda</b> '.$producto[0]['refTienda'].'<br>
+            <b>IVA:</b> '.$producto[0]['iva'].'<br>
+            <b>precio sin IVA :</b> '.$producto[0]['precioSiva'].'<br>
+            <b>Cod Barras:</b>'.$producto[0]['codBarra'].'
             </td>
-             <td>Nombre:'.$producto[1]['articulo_name'].'<br>
-            Referencia Tienda : ';
+             <td><b>Nombre:</b>'.$producto[1]['articulo_name'].'<br>
+            <b>Referencia Tienda :</b> ';
              
              foreach ($producto[1]['ref_tiendas'] as $ref){
                  if($ref['idTienda'] ==$idTienda){
@@ -77,17 +76,21 @@ function lineaProductosModificador($productos, $idTienda){
              }
              
            
-           $html.=' IVA: '.$producto[1]['iva'].'<br>
-            precio sin IVA : '.$producto[1]['pvpSiva'].'<br>
-            Cod Barras:';
+           $html.=' <b>IVA:</b> '.$producto[1]['iva'].'<br>
+            <b>precio sin IVA :</b> '.$producto[1]['pvpSiva'].'<br>
+            <b>Cod Barras:</b>';
             
             foreach ($producto[1]['codBarras'] as $cod){
                 $html.=$cod.'  ';
             }
             $html.='
             </td>
-            <td><a class="glyphicon glyphicon-pencil"></a></td>
+            <td><a class="btn btn-info" onclick="modificarProductosTpvWeb('."'".$producto[0]['nombre']."'".', 
+            '."'".$producto[0]['refTienda']."'".','."'".$producto[0]['iva']."'".', '."'".$producto[0]['precioSiva']."'".',
+             '."'".$producto[0]['codBarra']."'".', '."'".$producto[1]['idArticulo']."'".', '.$i.')">
+            Modificar datos Tpv con los datos Web</a></td>
         </tr>';
+        $i++;
     }
     return $html;
 }

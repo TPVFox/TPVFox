@@ -58,6 +58,23 @@ switch ($pulsado) {
        $respuesta['productosModificados']=$productosModificados;
        $respuesta['productosNuevos']=$productosNuevos;
     break;
+    case 'modificarProducto':
+        //~ $nombre=;
+        //~ $refTienda=;
+        //~ $iva=$_POST['iva'];
+        //~ $precioSiva=$_POST['precioSiva'];
+        //~ $codBarras=$_POST['codBarras'];
+        $datos=array(
+            'nombre'=>$_POST['nombre'],
+            'refTienda'=>$_POST['refTienda'],
+            'iva'=>$_POST['iva'],
+            'precioSiva'=>$_POST['precioSiva'],
+            'codBarras'=>$_POST['codBarras'],
+            'id'=>$_POST['id']
+        );
+        $modificar=$NCArticulo->modificarProductoTPVWeb($datos);
+        $respuesta['modificar']=$modificar;
+    break;
     
     
 }

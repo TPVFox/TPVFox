@@ -1020,6 +1020,21 @@ class ClaseProductos extends ClaseTablaArticulos{
         
        
     }
+    
+    
+    public function modificarProductoTPVWeb($datos){
+       
+        $sql='UPDATE articulos SET iva="'.floatval ($datos['iva']).'", articulo_name="'.$datos['nombre'].'", 
+        fecha_modificado="'.date("Y-m-d H:i:s").'" where idArticulo='.$datos['id'];
+        
+        $respuesta['PrimeraConsulta']=$this->Consulta_insert_update($sql);
+        
+        $sql='UPDATE articulosPrecios SET pvpSiva="'.floatval ($datos['precioSiva']).'" where idArticulo='.$datos['id'];
+        
+        $respuesta['SegundaConsulta']=$this->Consulta_insert_update($sql);
+        
+        return $respuesta;
+    }
 	// Fin de clase.
 }
 

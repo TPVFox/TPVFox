@@ -129,6 +129,37 @@ function comprobarProductos(productos){
         
     });
 }
-//~ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, linea){
-    
-//~ }
+
+function modificarProductosTpvWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea){
+    console.log("Entre en modificar pro");
+    var parametros = {
+            "pulsado"   : 'modificarProducto',
+            "nombre"    : nombre,
+            "refTienda" :refTienda,
+            "iva"       :iva,
+            "precioSiva":precioSiva,
+            "codBarras":codBarras,
+            "id"        :id
+    };
+      $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  modificar producto ****************');
+        },
+        success    :  
+        function (response) {
+            console.log('Respuesta modificar producto');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
+            if(resultado['modificar']['PrimeraConsulta']['NAfectados']>=0 && resultado['modificar']['SegundaConsulta']['NAfectados']>=0){
+                 $("#mod_" + linea).remove();   
+            }else{
+                alert(resultado['modificar']['PrimeraConsulta']['error']+ resultado['modificar']['PrimeraConsulta']['consulta']) ;
+            }
+          
+        }
+        
+    });
+}

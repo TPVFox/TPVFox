@@ -134,11 +134,11 @@
         </div>
         <div class="col-md-12">
             <hr/>
-           <table  class="col-md-6 table-bordered table-hover" id="productosNuevos">
+           <table  class="col-md-4 table-bordered table-hover" id="productosNuevos">
                
                 
            </table>
-           <table  class="col-md-6 table-bordered table-hover" id="productosMod">
+           <table  class="col-md-8 table-bordered table-hover" id="productosMod">
                
                 
            </table>
