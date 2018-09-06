@@ -14,11 +14,15 @@ function comparacionesProductos($productoWeb, $productoTpv){
     if(floatval ($productoWeb['precioSiva']) <> floatval($productoTpv['pvpSiva'])){
         $comprobacion=1;
     }
-    //~ foreach ($productoTpv['codBarras'] as $cod){
-        //~ if(int($cod)<>$productoWeb['codBarra']){
-            //~ $comprobacion=1;
-        //~ }
-    //~ }
+    $codBarras=explode(";",$productoWeb['codBarra']);
+    foreach ($productoTpv['codBarras'] as $cod){
+        foreach ($codBarras as $codBarra){
+            if($cod<>$codBarra){
+                $comprobacion=1;
+            }
+        }
+       
+    }
     
     return $comprobacion;
 }
