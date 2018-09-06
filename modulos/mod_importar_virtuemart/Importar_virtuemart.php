@@ -69,13 +69,13 @@
         ?>
     <div class="container">
         <?php 
-        if(count($comprobaciones>0)){
-            foreach($comprobaciones as $comprobacion){
-                  echo '<div class="'.$comprobacion['class'].'">'
-				. '<strong>'.$comprobacion['tipo'].' </strong> '.$comprobacion['mensaje'].' <br> '.$comprobacion['dato']
-				. '</div>';
-            }
-        }
+        //~ if(count($comprobaciones>0)){
+            //~ foreach($comprobaciones as $comprobacion){
+                  //~ echo '<div class="'.$comprobacion['class'].'">'
+				//~ . '<strong>'.$comprobacion['tipo'].' </strong> '.$comprobacion['mensaje'].' <br> '.$comprobacion['dato']
+				//~ . '</div>';
+            //~ }
+        //~ }
         ?>
         <h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
         <div class="col-md-5">

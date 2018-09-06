@@ -14,11 +14,11 @@ function comparacionesProductos($productoWeb, $productoTpv){
     if(floatval ($productoWeb['precioSiva']) <> floatval($productoTpv['pvpSiva'])){
         $comprobacion=1;
     }
-    foreach ($productoTpv['codBarras'] as $cod){
-        if(int($cod)<>$productoWeb['codBarra']){
-            $comprobacion=1;
-        }
-    }
+    //~ foreach ($productoTpv['codBarras'] as $cod){
+        //~ if(int($cod)<>$productoWeb['codBarra']){
+            //~ $comprobacion=1;
+        //~ }
+    //~ }
     
     return $comprobacion;
 }
@@ -68,15 +68,15 @@ function lineaProductosModificador($productos, $idTienda){
             <b>Referencia Tienda :</b> ';
              
              foreach ($producto[1]['ref_tiendas'] as $ref){
-                 if($ref['idTienda'] ==$idTienda){
-                     $html.=$ref['idTienda'].'<br>';
-                 }else{
-                     $html.='<br>';
+                 
+                 if($ref['idTienda'] == $idTienda){
+                   
+                     $html.= $ref['crefTienda'];
                  }
              }
              
            
-           $html.=' <b>IVA:</b> '.$producto[1]['iva'].'<br>
+           $html.=' <br><b>IVA:</b> '.$producto[1]['iva'].'<br>
             <b>precio sin IVA :</b> '.$producto[1]['pvpSiva'].'<br>
             <b>Cod Barras:</b>';
             
