@@ -189,6 +189,13 @@ function ObtenerDatosProducto(){
     $('#nombreWeb').val($('#nombre').val());
     $('#precioSivaWeb').val($('#pvpSiva').val());
     $('#precioCivaWeb').val($('#pvpCiva').val());
+    NumCodBarras=$("[id*=codBarras_]:input").length;
+    var CodBarras="";
+    for(i=0;i<NumCodBarras;i++){
+        CodBarras=CodBarras.concat($('#codBarras_'+i).val()+";");
+    }
+     $('#codBarrasWeb').val(CodBarras);
+    console.log(CodBarras);
 }
 
 function subirProductosWeb(idTienda){
