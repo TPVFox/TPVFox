@@ -34,13 +34,19 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                     
                     $modificarProducto = $ObjViruemart->modificarProducto($datos);
                     $respuesta['datos']=$datos;
-                    
+                     if($datosComprobaciones['estado']==1){
+                            $estado="Sin Publicar";
+                        }else{
+                            $estado="Publicado";
+                        }
+                    $modificarArticulosTienda=$CTArticulos->modificarEstadoWeb($datosComprobaciones['idProducto'], $datosComprobaciones['idTienda'], $estado);
+              
                     $respuesta['resul']= $modificarProducto;
                     if(strlen($modificarProducto['Datos']['error']) == 0){
                         $respuesta['htmlAlerta']='<div class="alert alert-success">
                                                     <strong>Success!</strong> Has modificados los datos del producto.
                                                 </div>';
-                    }else{
+                             }else{
                         $respuesta['htmlAlerta']='<div class="alert alert-danger">
                                                     <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['error'].' consulta: '.$modificarProducto['Datos']['consulta'].'
                                                 </div>';
@@ -64,7 +70,12 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 $addProducto = $ObjViruemart->addProducto($datos);
               
                     if($addProducto['Datos']['idArticulo']>0){
-                        $addRegistro=$CTArticulos->addTiendaProducto( $datosComprobaciones['idProducto'], $datosComprobaciones['idTienda'], $addProducto['Datos']['idArticulo']);
+                        if($addProducto['Datos']['estado']==1){
+                            $estado="Sin Publicar";
+                        }else{
+                            $estado="Publicado";
+                        }
+                        $addRegistro=$CTArticulos->addTiendaProducto( $datosComprobaciones['idProducto'], $datosComprobaciones['idTienda'], $addProducto['Datos']['idArticulo'], $estado);
                        
                         $respuesta['registro']=$addRegistro;
                         $respuesta['htmlAlerta']='<div class="alert alert-success">

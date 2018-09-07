@@ -118,6 +118,11 @@
 				if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
 					$Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
 				}
+                $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+                $comprobarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosProductoWeb']['datosWeb']['estado'], $tiendaWeb['idTienda']);
+                //~ echo '<pre>';
+                //~ print_r($comprobarEstado);
+                //~ echo '</pre>';
 			}else{
 				if($id>0){
 					if($ObjVirtuemart->getTiendaWeb()!=false){

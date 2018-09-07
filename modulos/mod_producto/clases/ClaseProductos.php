@@ -179,11 +179,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		$this->idTienda= $id;
 	}
     
-	public function addTiendaProducto($idProducto, $idTienda, $idVirtuemart){
+	public function addTiendaProducto($idProducto, $idTienda, $idVirtuemart, $estado){
         // @Objetivo
         // Añadir a la tabla articulosTiendas la relacion con otra tienda.
         $sql='INSERT INTO articulosTiendas (idArticulo, idTienda, idVirtuemart, estado)VALUES
-        ('.$idProducto.', '.$idTienda.', '.$idVirtuemart.', "Activo")';
+        ('.$idProducto.', '.$idTienda.', '.$idVirtuemart.', "'.$estado.'")';
         error_log($sql);
         $respuesta = $this->Consulta_insert_update($sql);
         $respuesta['consulta'] = $sql;
@@ -1036,6 +1036,17 @@ class ClaseProductos extends ClaseTablaArticulos{
         return $respuesta;
     }
 	// Fin de clase.
+    
+    public function modificarEstadoWeb($idProducto, $idEstado, $idTienda){
+        if($idEstado==1){
+            $estado="Sin Publicar";
+        }else{
+            $estado="Publicado";
+        }
+        $sql='UPDATE articulosTiendas SET estado="'.$estado.'" where idArticulo='.$idProducto.' and idTienda='.$idTienda;
+        $respuesta['Consulta']=$this->Consulta_insert_update($sql);
+        return $respuesta;
+    }
 }
 
 

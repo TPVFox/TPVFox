@@ -577,15 +577,17 @@ class PluginClaseVirtuemart extends ClaseConexion{
         // Objetivo
         // Es obtener los datos necesarios del producto web.
         
-       $respuesta=array();
-       $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
-       $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
-       $respuesta['htmlnotificaciones']=$htmlnotificaciones;
-       $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart, $permiso);
-       $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $respuesta['datosProductoWeb']['datosWeb']['iva']);
+        $respuesta=array();
+        $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
+        $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
+        $respuesta['htmlnotificaciones']=$htmlnotificaciones;
+        $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart, $permiso);
+        $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $respuesta['datosProductoWeb']['datosWeb']['iva']);
+      
        return $respuesta;
     }
-
+    
+   
     public function enviarCorreo($datos){
         //@Objetivo : conextarnos a la api para enviar correo al usuario que envió
         //una notificación
