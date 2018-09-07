@@ -9,12 +9,30 @@ var callbackContarRegistrosWeb= function (response) {
 }
 
 function enviarFormulario(){
-  var tiendaWeb=$("#tiendaWeb").val();
- 
+    var tiendaWeb=$("#tiendaWeb").val();
+    var sukWeb=$("#sukWeb").val();
+    var refWeb=$("#refWeb").val();
+    var publicado=$("#estadoPublicado").val();
+    var noPublicado=$("#estadoNoPublicado").val();
   if(tiendaWeb==0){
       alert("NO HAS SELECCIONADO UNA TIENDA WEB!");
   }
-  if(tiendaWeb>0){
+  if(sukWeb==0){
+      alert("NO HAS SELECCIONADO UNA OPCIÓN VALIDA DE CÓDIGO DE BARRAS!");
+  }
+  if(refWeb==0){
+      alert("NO HAS SELECCIONADO UNA OPCIÓN VALIDA DE REFERENCIA WEB!");
+  }
+  if(refWeb==0){
+      alert("NO HAS SELECCIONADO UNA OPCIÓN VALIDA DE REFERENCIA WEB!");
+  }
+  if(publicado==0){
+      alert("NO HAS SELECCIONADO UNA OPCIÓN PARA EL ESTADO PUBLICADO!");
+  }
+  if(noPublicado==0){
+      alert("NO HAS SELECCIONADO UNA OPCIÓN PARA EL ESTADO NO PUBLICADO!");
+  }
+  if(tiendaWeb>0 && sukWeb>0 && refWeb>0 && publicado>0 && noPublicado>0){
     contarProductosWeb(callbackContarRegistrosWeb);
   }
   

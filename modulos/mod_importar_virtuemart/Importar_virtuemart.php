@@ -12,47 +12,6 @@
     $CTArticulos = new ClaseProductos($BDTpv);
     $ClaseTienda=new ClaseTienda($BDTpv);
 	$tiendasWeb=$ClaseTienda->tiendasWeb();
-   
-    //~ $comprobaciones=array();
-    //~ $acciones=array(
-        //~ array(
-            //~ 'valor'=>1,
-            //~ 'accion'=>'Bajar de la web los productos nuevos a TPV'   
-        //~ ),
-        //~ array(
-            //~ 'valor'=>2,
-            //~ 'accion'=>'Modificar los productos TPV según la web'
-        //~ )
-    //~ );
-    //~ if(isset($_POST['enviar'])){
-       
-        
-        //~ if($_POST['tiendaWeb']==0){
-            //~ $comprobaciones[1]=array ( 'tipo'=>'Danger!',
-								 //~ 'dato' => '',
-								 //~ 'class'=>'alert alert-danger',
-								 //~ 'mensaje' => 'NO HAS SELECCIONADO UNA TIENDA WEB!'
-								 //~ );
-        //~ }
-        //~ if($_POST['accionesWeb']==0){
-            //~ $comprobaciones[2]=array ( 'tipo'=>'Danger!',
-								 //~ 'dato' => '',
-								 //~ 'class'=>'alert alert-danger',
-								 //~ 'mensaje' => 'NO HAS SELECCIONADO NINGUNA ACCIÓN!'
-								 //~ );
-        //~ }
-       //~ if(count($comprobaciones)==0){
-           //~ switch ($_POST['accionesWeb']){
-                //~ case 1:
-                    //~ $nuevos=bajarProductosNuevosWeb();
-                //~ break;
-                //~ case 2:
-                    //~ $modificaciones=modificarProductosWeb();
-                //~ break;
-                
-           //~ }
-       //~ }
-    //~ }
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/controllers/funcionesComunes.js"></script>
@@ -68,15 +27,6 @@
             include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
     <div class="container">
-        <?php 
-        //~ if(count($comprobaciones>0)){
-            //~ foreach($comprobaciones as $comprobacion){
-                  //~ echo '<div class="'.$comprobacion['class'].'">'
-				//~ . '<strong>'.$comprobacion['tipo'].' </strong> '.$comprobacion['mensaje'].' <br> '.$comprobacion['dato']
-				//~ . '</div>';
-            //~ }
-        //~ }
-        ?>
         <h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
         <div class="col-md-5">
             <h3>Parametros a configurar</h3>
@@ -89,6 +39,45 @@
                       echo '<option value="'.$tienda['idTienda'].'">'.$tienda['razonsocial'].'</option>';
                   }
                   ?>
+                </select>
+            </div>
+            <div class="col-md-12">
+                 <label>Selecciona que accción quieres realizar con SKU(Código de barras en web):</label>
+                <select id="sukWeb" name="sukWeb">
+                    <option value="0">Selecciona Una Acción</option>
+                    <option value="1">No importar</option>
+                    <option value="2">Importar SKU web a Códigos de barras tpv</option>
+                </select>
+            </div>
+             <div class="col-md-12">
+                 <label>Selecciona que accción quieres realizar con la Ref. del producto :</label>
+                <select id="refWeb" name="refWeb">
+                    <option value="0">Selecciona Una Acción</option>
+                    <option value="1">Importar como referencia de Tienda Principal</option>
+                    <option value="2">Importar como referencia de Tienda Web</option>
+                    <option value="3">Las dos opciones anteriores</option>
+                </select>
+            </div>
+            <div class="col-md-12">
+                <label>Estado del producto cuando tiene estado PUBLICADO en Web :</label>
+                <select id="estadoPublicado" name="estadoPublicado">
+                      <option value="0">Selecciona Un Estado</option>
+                      <option value="1">Activo</option>
+                      <option value="2">Nuevo</option>
+                      <option value="3">Temporal</option>
+                      <option value="4">Baja</option>
+                      <option value="5">Importado</option>
+                </select>
+            </div>
+            <div class="col-md-12">
+                <label>Estado del producto cuando tiene estado NO PUBLICADO en Web :</label>
+                <select id="estadoNoPublicado" name="estadoNoPublicado">
+                      <option value="0">Selecciona Un Estado</option>
+                      <option value="1">Activo</option>
+                      <option value="2">Nuevo</option>
+                      <option value="3">Temporal</option>
+                      <option value="4">Baja</option>
+                      <option value="5">Importado</option>
                 </select>
             </div>
              <div class="col-md-12">
