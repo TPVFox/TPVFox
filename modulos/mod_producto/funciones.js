@@ -1281,6 +1281,8 @@ function eliminarProductos(idTiendaWeb){
                    }
                    if(resultado.error){
                        alert("Error de sql: "+resultado.error);
+                   }else{
+                       location.reload(true);
                    }
                    
                   
