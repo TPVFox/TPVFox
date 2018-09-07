@@ -1266,7 +1266,7 @@ function eliminarProductos(idTiendaWeb){
             url        : 'tareas.php',
             type       : 'post',
             beforeSend : function () {
-            console.log('********* eliminar productos **************');
+                console.log('********* eliminar productos **************');
             },
             success    :  function (response) {
                     console.log('Respuesta de eliminar productos');
