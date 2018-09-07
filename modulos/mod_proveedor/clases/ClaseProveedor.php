@@ -155,6 +155,7 @@ class ClaseProveedor extends modelo{
         $consulta=$this->consulta($sql);
         return $consulta;
     }
+    
 }
 
 ?>

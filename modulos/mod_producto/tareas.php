@@ -39,6 +39,8 @@ include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
 $CFamilia=new ClaseFamilias($BDTpv);
 include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
 $CProveedor=new ClaseProveedor($BDTpv);
+include_once $URLCom.'/clases/Proveedores.php';
+$CProveedorGen=new Proveedores($BDTpv);
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
