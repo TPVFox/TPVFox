@@ -231,8 +231,8 @@ function capturaSeleccionar() {
                 var obj = JSON.parse(respuesta);
                 console.log(obj);
                 if (!obj.error) {
-                    alert('borrado correctamente');
                     $('#tproductos').parent().html(obj.html);
+                    alert('borrado correctamente');
                     capturaSeleccionar(); // ¡¡OJO se llama a si mismo!!. ¿Y funciona?
                 } else {
                     alert('Error al borrar');
