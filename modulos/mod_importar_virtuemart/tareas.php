@@ -6,6 +6,8 @@ include_once $URLCom.'/configuracion.php';
 include_once $URLCom.'/modulos/mod_importar_virtuemart/funciones.php';
 
 include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
+$Ctienda=new ClaseTienda($BDTpv);
 $NCArticulo = new ClaseProductos($BDTpv);
 switch ($pulsado) {
     case 'contarProductostpv':
@@ -71,6 +73,45 @@ switch ($pulsado) {
         $respuesta['modificar']=$modificar;
     break;
     case 'addProductoTpv':
+        $ultimoCoste=0;
+        $precioCiva=0;
+        $codBarras=array();
+        if($_POST['ultimoCoste']==1){
+            $beneficio=$_POST['beneficio']/100;
+            $ultimoCoste=$_POST['precioSiva']-$beneficio;
+        }
+        if($_POST['optCodBarra']==1){
+             $codBarrasTexto=explode(";",$_POST['codBarras']);
+             foreach($codBarrasTexto as $cod){
+                 array_push($codBarras , $cod);
+             }
+        }
+        $iva=$_POST['iva']/100;
+        $precioCiva=$iva+$_POST['precioSiva'];
+       $tiendaPrincipal=$Ctienda->tiendaPrincipal();
+       $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
+       $respuesta['tienda']=$tiendaPrincipal;
+       $estadoWeb="Publicado";
+        $datosProducto=array( 
+             'nombre'=>$_POST['nombre'],
+              'iva'=>$_POST['iva'],
+              'id'=>$_POST['id'],
+              'ultimoCoste'=>$ultimoCoste,
+              'beneficio'=>$_POST['beneficio'],
+              'estado'=>$_POST['optEstado'],
+              'costePromedio'=>$_POST['costePromedio'],
+              'codBarras'=>$codBarras,
+              'precioCiva'=>$precioCiva,
+              'precioSiva'=>$_POST['precioSiva'],
+              'tiendaPrincipal'=>$tiendaPrincipal,
+              'tiendaWeb'=>$_POST['tiendaWeb'],
+              'optRefWeb'=>$_POST['optRefWeb'],
+              'refTienda'=>$_POST['refTienda'],
+              'estadoWeb'=>$estadoWeb
+              
+        );
+        $respuesta['datos']=$datosProducto;
+        
         
        
         

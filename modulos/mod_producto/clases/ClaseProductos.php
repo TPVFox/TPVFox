@@ -1035,7 +1035,76 @@ class ClaseProductos extends ClaseTablaArticulos{
         
         return $respuesta;
     }
-	// Fin de clase.
+    
+    public function addProductoWebTPV($datos){
+        $fecha_ahora= date("Y-m-d H:i:s");   
+		$sqlArticulo = 'INSERT INTO `articulos`(iva, articulo_name, estado,ultimoCoste, fecha_creado,beneficio) VALUES ("'
+						.$datos['iva'].'","'.$datos['nombre'].'","'.$datos['estado'].'","'
+						.$datos['costePromedio'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
+		
+		$respuesta = array();
+		$DB = parent::GetDb();
+		$smt = $DB->query($sqlArticulo);
+		if ($smt) {
+			$respuesta['idInsert'] = $DB->insert_id;
+            $id=$respuesta['idInsert'];
+			// Hubo resultados
+		} else {
+			// Quiere decir que hubo error en la consulta.
+			$respuesta['error'] = $DB->connect_errno;
+			$error = array ( 'tipo'=>'danger',
+						 'mensaje' =>'Error al insertar en tabla Articulos '.json_encode($respuesta['error']),
+						 'dato' => $sqlArticulo
+					);
+			$comprobaciones['insert_articulos'] = $error;
+		}
+        if (!isset($respuesta['error'])){
+            switch ($datos['optRefWeb']){
+                case '1':
+                    $sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
+                    `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaWeb'].',"'.$datos['refTienda'].'",
+                    '.$datos['id'].', "'.$datos['estadoWeb'].'")';
+                break;
+                case '2':
+                     $sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
+                    `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaPrincipal'].',"'.$datos['refTienda'].'",
+                    '.$datos['id'].', "'.$datos['estadoWeb'].'")';
+                break;
+                case '3':
+                    $sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
+                    `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaWeb'].',"'.$datos['refTienda'].'",
+                    '.$datos['id'].', "'.$datos['estadoWeb'].'") 
+                    INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
+                    `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaPrincipal'].',"'.$datos['refTienda'].'",
+                    '.$datos['id'].', "'.$datos['estadoWeb'].'")';
+                break;
+                
+            }
+            $smt = $DB->query($sql);
+            $respuesta['sqlArticulosTienda']=$sql;
+            $sql='INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) 
+            VALUES ('.$id.','.$datos['precioCiva'].','.$datos['precioSiva'].','.$datos['tiendaPrincipal'].')';
+            $smt = $DB->query($sql);
+            $respuesta['sqlArticuloPrecios']=$sql;
+            if(count($datos['codBarras']>0)){
+                $bandera=0;
+                foreach($datos['codBarras'] as $cod){
+                    if($cod<>""){
+                    $sql='INSERT INTO `articulosCodigoBarras`(`idArticulo`, `codBarras`) VALUES ('.$id.',"'.$cod.'")';
+                    $smt = $DB->query($sql);
+                    $respuesta['sqlcodBar'.$bandera]=$sql;
+                    $bandera++;
+                    }
+                   
+                }
+                
+            }
+            
+            
+        }
+        return $respuesta;
+        
+    }
     
     public function modificarEstadoWeb($idProducto, $idEstado, $idTienda){
         if($idEstado==1){

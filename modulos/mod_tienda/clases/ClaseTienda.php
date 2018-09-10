@@ -11,6 +11,11 @@ class ClaseTienda extends Modelo  {
         return $respuesta;
         
     }
+    public function tiendaPrincipal(){
+         $sql='SELECT * FROM tiendas where tipoTienda="principal"';
+        $respuesta = parent::Consulta($sql);
+        return $respuesta;
+    }
 }
 
 

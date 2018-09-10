@@ -131,7 +131,7 @@ function comprobarProductos(productos){
 }
 
 
-function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, linea){
+function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea){
     console.log("Entre en añadir producto");
     var tiendaWeb=$("#tiendaWeb").val();
     var optCodBarra=$("#codBarras").val();
@@ -148,9 +148,14 @@ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, linea){
             "iva"       :iva,
             "precioSiva":precioSiva,
             "codBarras":codBarras,
-            "optCodBarra":sukWeb,
-            "optRefWeb":refWeb,
-            "optPublicado": publicado
+            "optCodBarra":optCodBarra,
+            "optRefWeb":optRef,
+            "optEstado": optEstado,
+            'beneficio':beneficio,
+            'costePromedio':costePromedio,
+            'ultimoCoste':ultimoCoste,
+            'tiendaWeb':tiendaWeb,
+            'id':id
     };
      $.ajax({
         data       : parametros,

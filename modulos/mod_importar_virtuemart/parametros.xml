@@ -7,6 +7,6 @@
 		<defecto nombre="estado_modificado" default="Activo" descripcion="Estado por defecto cuando el producto es modificado"></defecto>
 		<defecto nombre="beneficio" default="25" descripcion="Beneficio por defecto"></defecto>
 		<defecto nombre="coste_promedio" default="0" descripcion="Coste promedio por defecto"></defecto>
-		<defecto nombre="ultimo_coste" default="No" descripcion="No se calcula el último coste"></defecto>
+		<defecto nombre="ultimo_coste" default="Si" descripcion="No se calcula el último coste"></defecto>
 	</configuracion>
 </parametros>
