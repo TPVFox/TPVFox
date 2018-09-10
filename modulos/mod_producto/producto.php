@@ -139,28 +139,20 @@
 		
 		// ==========		Montamos  html que mostramos. 			============ //
 		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
-        if($ClasePermisos->getAccion("verCodBarras")==1){
             $htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
-        }
-        if($ClasePermisos->getAccion("verProveedores")==1){
+       
             $htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
-        }
-        if($ClasePermisos->getAccion("verFamilias")==1){
+    
             $htmlFamilias =  htmlTablaFamilias($Producto['familias'], $id);
-        }
+   
        
 		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
-        if($ClasePermisos->getAccion("verProductosTienda")==1){
+       
             $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
-        }
-        //~ echo '<pre>';
-        //~ print_r($Producto['productos_historico']);
-        //~ echo '</pre>';
-        if($ClasePermisos->getAccion("verHistoricoPrecios")==1){ 
+        
             $htmlHistoricoPrecios=htmlTablaHistoricoPrecios($Producto['productos_historico']);
-        }
+     
 		?>
-		
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
             $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
@@ -333,42 +325,29 @@
 					 <div class="panel-group">
 						<!-- Inicio collapse de CobBarras --> 
 						<?php 
-                        if($ClasePermisos->getAccion("verCodBarras")==1){
+                      
                             $num = 1 ; // Numero collapse;
                             $titulo = 'Códigos de Barras';
                             echo htmlPanelDesplegable($num,$titulo,$htmlCodBarras);
-                        }
-						?>
-						<!-- Inicio collapse de Proveedores --> 
-						<?php 
-                        if($ClasePermisos->getAccion("verProveedores")==1){
+                     
                             $num = 2 ; // Numero collapse;
                             $titulo = 'Proveedores - Costes';
                             echo htmlPanelDesplegable($num,$titulo,$htmlProveedoresCostes);
-                        }
-						?>
-						<!-- Inicio collapse de Familias --> 
-						<?php 
-                        if($ClasePermisos->getAccion("verFamilias")==1){
+                     
                             $num = 3; // Numero collapse;
                             $titulo = 'Familias';
                             echo htmlPanelDesplegable($num,$titulo,$htmlFamilias);
-                        }
-						?>
-						<!-- Inicio collapse de Tiendas --> 
-						<?php 
-                        if($ClasePermisos->getAccion("verProductosTienda")==1){
+                       
                             $num = 4; // Numero collapse;
                             $titulo = 'Productos en otras tiendas.';
                             echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
-                        }
-                        if($ClasePermisos->getAccion("verHistoricoPrecios")==1){
+                      
                             $num = 5; // Numero collapse;
                             $titulo = 'Historico Precios.';
                             echo htmlPanelDesplegable($num,$titulo,$htmlHistoricoPrecios);
-                        }
-                    	?>
+                       
                     
+                    ?>
 						<!-- Inicio collapse de Referencias Tiendas --> 
 
 					<!-- Fin de panel-group -->
@@ -418,6 +397,33 @@
            
         <?php 
         }
+        if($ClasePermisos->getAccion("verCodBarras")==0){
+            ?>
+            $("#tcodigo a").hide();
+            $("#tcodigo input").attr("readonly","readonly");
+              <?php
+        }
+        if($ClasePermisos->getAccion("verProveedores")==0){
+            ?>
+             $("#tproveedor a").hide();
+            $("#tproveedor input").attr("readonly","readonly");
+            <?php
+        } 
+        if($ClasePermisos->getAccion("verFamilias")==0){
+            ?>
+              $("#tfamilias a").hide();
+            <?php
+        }
+         if($ClasePermisos->getAccion("verProductosTienda")==0){
+             ?>
+              $("#tproveedor a").hide();
+            <?php
+         }
+           if($ClasePermisos->getAccion("verHistoricoPrecios")==0){
+              ?>
+                $("#thitorico a").hide();
+              <?php 
+           }
         ?>
     </script> 
         <style>
