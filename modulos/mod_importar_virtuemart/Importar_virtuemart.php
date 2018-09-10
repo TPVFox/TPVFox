@@ -92,15 +92,15 @@
                     $podEstadoNuevo= array_search('estado_nuevo', array_column($conf_defecto, 'nombre'));
                     if($conf_defecto[$podEstadoNuevo]->default=="Activo"){
                         echo '<option value="1">'.$conf_defecto[$podEstadoNuevo]->default.'</option>';
-                        echo '<option value="2">Nuevo</option>';
-                        echo '<option value="3">Temporal</option>';
-                        echo '<option value="3">Baja</option>';
-                        echo '<option value="4">imprtado</option>';
+                       echo '<option value="Nuevo">Nuevo</option>';
+                        echo '<option value="Temporal">Temporal</option>';
+                        echo '<option value="Baja">Baja</option>';
+                        echo '<option value="importado">importado</option>';
                     }else{
-                        echo '<option value="2">Nuevo</option>';
-                        echo '<option value="3">Temporal</option>';
-                        echo '<option value="3">Baja</option>';
-                        echo '<option value="4">imprtado</option>';
+                       echo '<option value="Nuevo">Nuevo</option>';
+                        echo '<option value="Temporal">Temporal</option>';
+                        echo '<option value="Baja">Baja</option>';
+                        echo '<option value="importado">importado</option>';
                         echo '<option value="1">'.$conf_defecto[$porRefProv]->default.'</option>';
                        
                     }
@@ -113,17 +113,17 @@
                  <?php 
                     $podEstadoMod= array_search('estado_modificado', array_column($conf_defecto, 'nombre'));
                     if($conf_defecto[$podEstadoMod]->default=="Activo"){
-                        echo '<option value="1">'.$conf_defecto[$podEstadoMod]->default.'</option>';
-                        echo '<option value="2">Nuevo</option>';
-                        echo '<option value="3">Temporal</option>';
-                        echo '<option value="3">Baja</option>';
-                        echo '<option value="4">imprtado</option>';
+                        echo '<option value="Activo">'.$conf_defecto[$podEstadoMod]->default.'</option>';
+                        echo '<option value="Nuevo">Nuevo</option>';
+                        echo '<option value="Temporal">Temporal</option>';
+                        echo '<option value="Baja">Baja</option>';
+                        echo '<option value="importado">importado</option>';
                     }else{
-                        echo '<option value="2">Nuevo</option>';
-                        echo '<option value="3">Temporal</option>';
-                        echo '<option value="3">Baja</option>';
-                        echo '<option value="4">imprtado</option>';
-                        echo '<option value="1">'.$conf_defecto[$porRefProv]->default.'</option>';
+                        echo '<option value="Nuevo">Nuevo</option>';
+                        echo '<option value="Temporal">Temporal</option>';
+                        echo '<option value="Baja">Baja</option>';
+                        echo '<option value="importado">importado</option>';
+                        echo '<option value="Activo">'.$conf_defecto[$porRefProv]->default.'</option>';
                        
                     }
                  ?>
