@@ -72,7 +72,8 @@ function contarProductosTpv(callback){
 }
 function nuevosEnTpv(){
     var tiendaWeb=$("#tiendaWeb").val();
-     var parametros = {
+   
+    var parametros = {
             "pulsado"   : 'nuevosEnTpv',
             tiendaWeb: tiendaWeb
            
@@ -147,6 +148,46 @@ function comprobarProductos(productos){
         
     });
 }
+
+
+function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, linea){
+    console.log("Entre en añadir producto");
+    var tiendaWeb=$("#tiendaWeb").val();
+    var sukWeb=$("#sukWeb").val();
+    var refWeb=$("#refWeb").val();
+    var publicado=$("#estadoPublicado").val();
+    //~ var noPublicado=$("#estadoNoPublicado").val();
+     var parametros = {
+            "pulsado"   : 'addProductoTpv',
+            "nombre"    : nombre,
+            "refTienda" :refTienda,
+            "iva"       :iva,
+            "precioSiva":precioSiva,
+            "codBarras":codBarras,
+            "optCodBarra":sukWeb,
+            "optRefWeb":refWeb,
+            "optPublicado": publicado
+    };
+     $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  add producto ****************');
+        },
+        success    :  
+        function (response) {
+            console.log('Respuesta add Producto');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
+            
+          
+        }
+        
+    });
+    
+}
+
 
 function modificarProductosTpvWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea){
     console.log("Entre en modificar pro");

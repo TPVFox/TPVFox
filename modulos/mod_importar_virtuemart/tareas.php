@@ -59,11 +59,6 @@ switch ($pulsado) {
        $respuesta['productosNuevos']=$productosNuevos;
     break;
     case 'modificarProducto':
-        //~ $nombre=;
-        //~ $refTienda=;
-        //~ $iva=$_POST['iva'];
-        //~ $precioSiva=$_POST['precioSiva'];
-        //~ $codBarras=$_POST['codBarras'];
         $datos=array(
             'nombre'=>$_POST['nombre'],
             'refTienda'=>$_POST['refTienda'],
@@ -75,6 +70,29 @@ switch ($pulsado) {
         $modificar=$NCArticulo->modificarProductoTPVWeb($datos);
         $respuesta['modificar']=$modificar;
     break;
+    case 'addProductoTpv':
+        $optPublicado=$_POST['optPublicado'];
+        switch ($optPublicado) {
+            case '1':
+                $estado="Activo";
+            break;
+            case '2':
+                $estado="Nuevo";
+            break;
+            case '3':
+                $estado="Temporal";
+            break;
+            case '4':
+                $estado="Baja";
+            break;
+            case '5':
+                $estado="Importado";
+            break;
+        }
+        
+    
+    break;
+    
     
     
 }

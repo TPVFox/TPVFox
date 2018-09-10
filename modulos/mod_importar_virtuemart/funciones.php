@@ -43,8 +43,8 @@ function lineaProductosNuevos($productosNuevos){
            <b>precio sin IVA :</b> '.$nuevo['precioSiva'].'<br>
             <b>Cod Barras:</b>'.$nuevo['codBarra'].'
             </td>
-            <td><a class="btn btn-info" onckick="addProductoWeb("'.$nuevo['nombre'].'", 
-            "'.$nuevo['refTienda'].'","'.$nuevo['iva'].'", "'.$nuevo['precioSiva'].'", "'.$nuevo['codBarra'].'"'.$i.')">Insertar Productos a TPV</a></td>
+            <td><a class="btn btn-info" onckick="addProductoWeb('."'".$nuevo['nombre']."'".', 
+            '."'".$nuevo['refTienda']."'".','."'".$nuevo['iva']."'".', '."'".$nuevo['precioSiva']."'".', '."'".$nuevo['codBarra']."'".',  '.$i.')">Insertar Productos a TPV</a></td>
         </tr>';
         $i++;
     }
