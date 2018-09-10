@@ -108,9 +108,6 @@
 			$ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
 			$parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
 			$OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
-            //~ echo '<pre>';
-            //~ print_r($idVirtuemart);
-            //~ echo '<pre>';
             if ($idVirtuemart>0 ) { 
 			// Obtengo se conecta a la web y obtiene los datos de producto cruzado.
 				$datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva'], $ClasePermisos->getAccion("VerProductoWeb"));
@@ -120,9 +117,6 @@
 				}
                 $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
                 $comprobarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosProductoWeb']['datosWeb']['estado'], $tiendaWeb['idTienda']);
-                //~ echo '<pre>';
-                //~ print_r($comprobarEstado);
-                //~ echo '</pre>';
 			}else{
 				if($id>0){
 					if($ObjVirtuemart->getTiendaWeb()!=false){
