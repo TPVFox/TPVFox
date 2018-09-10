@@ -71,24 +71,8 @@ switch ($pulsado) {
         $respuesta['modificar']=$modificar;
     break;
     case 'addProductoTpv':
-        $optPublicado=$_POST['optPublicado'];
-        switch ($optPublicado) {
-            case '1':
-                $estado="Activo";
-            break;
-            case '2':
-                $estado="Nuevo";
-            break;
-            case '3':
-                $estado="Temporal";
-            break;
-            case '4':
-                $estado="Baja";
-            break;
-            case '5':
-                $estado="Importado";
-            break;
-        }
+        
+       
         
     
     break;

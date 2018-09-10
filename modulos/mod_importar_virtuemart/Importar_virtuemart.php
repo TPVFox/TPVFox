@@ -12,9 +12,20 @@
     $CTArticulos = new ClaseProductos($BDTpv);
     $ClaseTienda=new ClaseTienda($BDTpv);
 	$tiendasWeb=$ClaseTienda->tiendasWeb();
+    include_once ($URLCom.'/controllers/parametros.php');
+    $ClasesParametros = new ClaseParametros('parametros.xml');
+    $parametros = $ClasesParametros->getRoot();
+    $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+    $conf_defecto=$conf_defecto['defecto'];
+    $pruebaCod= array_search('estado_nuevo', array_column($conf_defecto, 'nombre'));
+    echo $pruebaCod;
+    echo '<pre>';
+    print_r($conf_defecto);
+    echo '</pre>';
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/controllers/funcionesComunes.js"></script>
+
 <?php 
  if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
         $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
@@ -41,45 +52,122 @@
                   ?>
                 </select>
             </div>
-            <div class="col-md-12">
-                 <label>Selecciona que accción quieres realizar con SKU(Código de barras en web):</label>
-                <select id="sukWeb" name="sukWeb">
-                    <option value="0">Selecciona Una Acción</option>
-                    <option value="1">No importar</option>
-                    <option value="2">Importar SKU web a Códigos de barras tpv</option>
-                </select>
+             <div class="col-md-12">
+                 <label>Selecciona Acción a realizar con los Código de Barras</label>
+                 <select id="codBarras">
+                 <?php 
+                    $posCodBarras= array_search('cod_barras', array_column($conf_defecto, 'nombre'));
+                    if($conf_defecto[$posCodBarras]->default=="Si"){
+                        echo '<option value="1">'.$conf_defecto[$posCodBarras]->descripcion.'</option>';
+                        echo '<option value="2">No importar</option>';
+                    }else{
+                        echo '<option value="2">No importar</option>';
+                        echo '<option value="1">'.$conf_defecto[$posCodBarras]->descripcion.'</option>';
+                    }
+                 ?>
+                 </select >
             </div>
              <div class="col-md-12">
-                 <label>Selecciona que accción quieres realizar con la Ref. del producto :</label>
-                <select id="refWeb" name="refWeb">
-                    <option value="0">Selecciona Una Acción</option>
-                    <option value="1">Importar como referencia de Tienda Principal</option>
-                    <option value="2">Importar como referencia de Tienda Web</option>
-                    <option value="3">Las dos opciones anteriores</option>
-                </select>
+                 <label>Selecciona Acción a realizar con los Referencia de Proveedor</label>
+                 <select id="refProv">
+                 <?php 
+                    $porRefProv= array_search('ref_producto', array_column($conf_defecto, 'nombre'));
+                    if($conf_defecto[$porRefProv]->default=="Si"){
+                        echo '<option value="1">'.$conf_defecto[$porRefProv]->descripcion.'</option>';
+                        echo '<option value="2">Importar como referencia Principal</option>';
+                        echo '<option value="3">Las dos anteriores</option>';
+                    }else{
+                        echo '<option value="2">Importar como referencia Principal</option>';
+                        echo '<option value="1">'.$conf_defecto[$porRefProv]->descripcion.'</option>';
+                        echo '<option value="3">Las dos anteriores</option>';
+                    }
+                 ?>
+                 </select >
             </div>
-            <div class="col-md-12">
-                <label>Estado del producto cuando tiene estado PUBLICADO en Web :</label>
-                <select id="estadoPublicado" name="estadoPublicado">
-                      <option value="0">Selecciona Un Estado</option>
-                      <option value="1">Activo</option>
-                      <option value="2">Nuevo</option>
-                      <option value="3">Temporal</option>
-                      <option value="4">Baja</option>
-                      <option value="5">Importado</option>
-                </select>
+              <div class="col-md-12">
+                   <div class="col-md-6">
+                 <label>Selecciona Acción cuando  es nuevo</label>
+                 <select id="estadoNuevo">
+                 <?php 
+                    $podEstadoNuevo= array_search('estado_nuevo', array_column($conf_defecto, 'nombre'));
+                    if($conf_defecto[$podEstadoNuevo]->default=="Activo"){
+                        echo '<option value="1">'.$conf_defecto[$podEstadoNuevo]->default.'</option>';
+                        echo '<option value="2">Nuevo</option>';
+                        echo '<option value="3">Temporal</option>';
+                        echo '<option value="3">Baja</option>';
+                        echo '<option value="4">imprtado</option>';
+                    }else{
+                        echo '<option value="2">Nuevo</option>';
+                        echo '<option value="3">Temporal</option>';
+                        echo '<option value="3">Baja</option>';
+                        echo '<option value="4">imprtado</option>';
+                        echo '<option value="1">'.$conf_defecto[$porRefProv]->default.'</option>';
+                       
+                    }
+                 ?>
+                 </select >
+                 </div>
+                  <div class="col-md-6">
+                 <label>Selecciona Acción cuando  se va a Modificar</label>
+                 <select id="estadoMod">
+                 <?php 
+                    $podEstadoMod= array_search('estado_modificado', array_column($conf_defecto, 'nombre'));
+                    if($conf_defecto[$podEstadoMod]->default=="Activo"){
+                        echo '<option value="1">'.$conf_defecto[$podEstadoMod]->default.'</option>';
+                        echo '<option value="2">Nuevo</option>';
+                        echo '<option value="3">Temporal</option>';
+                        echo '<option value="3">Baja</option>';
+                        echo '<option value="4">imprtado</option>';
+                    }else{
+                        echo '<option value="2">Nuevo</option>';
+                        echo '<option value="3">Temporal</option>';
+                        echo '<option value="3">Baja</option>';
+                        echo '<option value="4">imprtado</option>';
+                        echo '<option value="1">'.$conf_defecto[$porRefProv]->default.'</option>';
+                       
+                    }
+                 ?>
+                 </select >
+                </div>
+                 </div>
+                   <div class="col-md-12">
+                          <div class="col-md-6">
+                 <label>Beneficio por defecto</label>
+                
+                 <?php 
+                    $podBeneficio= array_search('beneficio', array_column($conf_defecto, 'nombre'));
+                   
+                 ?>
+                 <input type="text" id="beneficio" value="<?php echo $conf_defecto[$podBeneficio]->default;?> " readonly=”readonly” size="5px">%
+                 </div>
+                    <div class="col-md-6">
+                 <label>Coste Promedio por defecto</label>
+                
+                 <?php 
+                    $podCostProm= array_search('coste_promedio', array_column($conf_defecto, 'nombre'));
+                   
+                 ?>
+                 <input type="text" id="costePromedio" value="<?php echo $conf_defecto[$podCostProm]->default;?> " readonly=”readonly” size="5px">%
+                 </div>
+                  <div class="col-md-12">
+                 <label>Selecciona Acción cuando con el ultimo Coste</label>
+                 <select id="estadoMod">
+                 <?php 
+                    $podUltimoCoste= array_search('ultimo_coste', array_column($conf_defecto, 'nombre'));
+                    if($conf_defecto[$podUltimoCoste]->default=="Activo"){
+                        echo '<option value="1">'.$conf_defecto[$podUltimoCoste]->descripcion.'</option>';
+                        echo '<option value="2">Si se calcula el último coste</option>';
+                      
+                    }else{
+                        echo '<option value="2">Si se calcula el último coste</option>';
+                        echo '<option value="1">'.$conf_defecto[$podUltimoCoste]->descripcion.'</option>';
+                       
+                    }
+                 ?>
+                 </select >
+                </div>
             </div>
-            <div class="col-md-12">
-                <label>Estado del producto cuando tiene estado NO PUBLICADO en Web :</label>
-                <select id="estadoNoPublicado" name="estadoNoPublicado">
-                      <option value="0">Selecciona Un Estado</option>
-                      <option value="1">Activo</option>
-                      <option value="2">Nuevo</option>
-                      <option value="3">Temporal</option>
-                      <option value="4">Baja</option>
-                      <option value="5">Importado</option>
-                </select>
-            </div>
+            
              <div class="col-md-12">
                  <button type="submit" name="enviar" class="btn btn-success pull-right" onclick="enviarFormulario()">Actualizar</button>
             </div>

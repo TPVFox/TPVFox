@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <parametros>
 	<configuracion>
-		<defecto nombre="cod_barras" default="Si" descripción="Importar el código de barras de web a tpv"></defecto>
-		<defecto nombre="ref_producto" default="Si" descripción="Importar referencia del producto en referencia tienda web"></defecto>
-		<defecto nombre="estado_nuevo" default="Activo" descripción="Estado por defecto cuando el producto es nuevo"></defecto>
-		<defecto nombre="estado_modificado" default="Activo" descripción="Estado por defecto cuando el producto es modificado"></defecto>
-		<defecto nombre="beneficio" default="25" descripción="Beneficio por defecto"></defecto>
-		<defecto nombre="coste_promedio" default="0" descripción="Coste promedio por defecto"></defecto>
-		<defecto nombre="ultimo_coste" default="No" descripción="Si se calcula o no el ultimo coste"></defecto>
+		<defecto nombre="cod_barras" default="Si" descripcion="Importar el código de barras de web a tpv"></defecto>
+		<defecto nombre="ref_producto" default="Si" descripcion="Importar referencia del producto en referencia tienda web"></defecto>
+		<defecto nombre="estado_nuevo" default="Activo" descripcion="Estado por defecto cuando el producto es nuevo"></defecto>
+		<defecto nombre="estado_modificado" default="Activo" descripcion="Estado por defecto cuando el producto es modificado"></defecto>
+		<defecto nombre="beneficio" default="25" descripcion="Beneficio por defecto"></defecto>
+		<defecto nombre="coste_promedio" default="0" descripcion="Coste promedio por defecto"></defecto>
+		<defecto nombre="ultimo_coste" default="No" descripcion="No se calcula el último coste"></defecto>
 	</configuracion>
 </parametros>
