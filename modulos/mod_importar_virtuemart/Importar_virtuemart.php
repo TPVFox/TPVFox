@@ -68,8 +68,8 @@
                  </select >
             </div>
              <div class="col-md-12">
-                 <label>Selecciona Acción a realizar con los Referencia de Proveedor</label>
-                 <select id="refProv">
+                 <label>Selecciona Acción a realizar con los Referencia de Tienda</label>
+                 <select id="refTienda">
                  <?php 
                     $porRefProv= array_search('ref_producto', array_column($conf_defecto, 'nombre'));
                     if($conf_defecto[$porRefProv]->default=="Si"){
@@ -133,25 +133,21 @@
                    <div class="col-md-12">
                           <div class="col-md-6">
                  <label>Beneficio por defecto</label>
-                
                  <?php 
                     $podBeneficio= array_search('beneficio', array_column($conf_defecto, 'nombre'));
-                   
                  ?>
                  <input type="text" id="beneficio" value="<?php echo $conf_defecto[$podBeneficio]->default;?> " readonly=”readonly” size="5px">%
                  </div>
                     <div class="col-md-6">
                  <label>Coste Promedio por defecto</label>
-                
                  <?php 
                     $podCostProm= array_search('coste_promedio', array_column($conf_defecto, 'nombre'));
-                   
                  ?>
-                 <input type="text" id="costePromedio" value="<?php echo $conf_defecto[$podCostProm]->default;?> " readonly=”readonly” size="5px">%
+                 <input type="text" id="costePromedio" value="<?php echo $conf_defecto[$podCostProm]->default;?> " readonly=”readonly” size="5px">
                  </div>
                   <div class="col-md-12">
                  <label>Selecciona Acción cuando con el ultimo Coste</label>
-                 <select id="estadoMod">
+                 <select id="ultimoCoste">
                  <?php 
                     $podUltimoCoste= array_search('ultimo_coste', array_column($conf_defecto, 'nombre'));
                     if($conf_defecto[$podUltimoCoste]->default=="Activo"){

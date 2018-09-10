@@ -134,6 +134,13 @@ function comprobarProductos(productos){
 function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, linea){
     console.log("Entre en añadir producto");
     var tiendaWeb=$("#tiendaWeb").val();
+    var optCodBarra=$("#codBarras").val();
+    var optRef=$("#refTienda").val();
+    var optEstado=$("#estadoNuevo").val();
+    var beneficio=$("#beneficio").val();
+    var costePromedio=$("#costePromedio").val();
+    var ultimoCoste=$("#ultimoCoste").val();
+    
      var parametros = {
             "pulsado"   : 'addProductoTpv',
             "nombre"    : nombre,
