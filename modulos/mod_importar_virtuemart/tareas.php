@@ -78,6 +78,7 @@ switch ($pulsado) {
         $codBarras=array();
         if($_POST['ultimoCoste']==1){
             $beneficio=$_POST['beneficio']/100;
+            $respuesta['beneficio']=$_POST['beneficio'];
             $ultimoCoste=$_POST['precioSiva']-$beneficio;
         }
         if($_POST['optCodBarra']==1){
@@ -110,6 +111,8 @@ switch ($pulsado) {
               'estadoWeb'=>$estadoWeb
               
         );
+        $add=$NCArticulo->addProductoWebTPV($datosProducto);
+        $respuesta['add']=$add;
         $respuesta['datos']=$datosProducto;
         
         

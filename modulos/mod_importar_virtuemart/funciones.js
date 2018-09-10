@@ -140,7 +140,7 @@ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea
     var beneficio=$("#beneficio").val();
     var costePromedio=$("#costePromedio").val();
     var ultimoCoste=$("#ultimoCoste").val();
-    
+    console.log(refTienda);
      var parametros = {
             "pulsado"   : 'addProductoTpv',
             "nombre"    : nombre,

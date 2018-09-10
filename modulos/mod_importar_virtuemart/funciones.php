@@ -41,7 +41,7 @@ function lineaProductosNuevos($productosNuevos){
            <b>Referencia Tienda</b> '.$nuevo['refTienda'].'<br>
             <b>IVA:</b> '.$nuevo['iva'].'<br>
            <b>precio sin IVA :</b> '.$nuevo['precioSiva'].'<br>
-            <b>Cod Barras:</b>'.$nuevo['codBarra'].$nuevo['estado'].'
+            <b>Cod Barras:</b>'.$nuevo['codBarra'].'
             </td>
             <td><a class="btn btn-info" onclick="addProductoWeb('."'".$nuevo['nombre']."'".', 
             '."'".$nuevo['refTienda']."'".','."'".$nuevo['iva']."'".', '."'".$nuevo['precioSiva']."'".', 

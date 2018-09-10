@@ -1059,6 +1059,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			$comprobaciones['insert_articulos'] = $error;
 		}
         if (!isset($respuesta['error'])){
+            if($datos['refTienda']<>""){
             switch ($datos['optRefWeb']){
                 case '1':
                     $sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
@@ -1082,6 +1083,7 @@ class ClaseProductos extends ClaseTablaArticulos{
             }
             $smt = $DB->query($sql);
             $respuesta['sqlArticulosTienda']=$sql;
+        }
             $sql='INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) 
             VALUES ('.$id.','.$datos['precioCiva'].','.$datos['precioSiva'].','.$datos['tiendaPrincipal'].')';
             $smt = $DB->query($sql);
