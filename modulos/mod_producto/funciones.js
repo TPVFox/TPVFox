@@ -1180,9 +1180,10 @@ function buscarProductosFamilia(idFamilia){
                     var resultado = $.parseJSON(response);
                     productos=resultado['Productos'];
                        for(i=0;i<productos.length; i++){
-                          
                            selecionarItemProducto(productos[i], "listaProductos");
+                           $("#botonEnviar").hide();
                        }
+                       
                    //~ filtrarSeleccionProductos();
                    
                     
