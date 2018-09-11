@@ -1254,7 +1254,7 @@ function EliminarHistorico(idHistorico, e){
     
 }
 
-function eliminarProductos(idTiendaWeb){
+function eliminarProductos(idTiendaWeb=0){
      var mensaje = confirm("¿Estás seguro que quieres eliminar los productos seleccionado?");
 	if (mensaje) {
          var parametros = {
