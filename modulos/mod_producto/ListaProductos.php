@@ -12,11 +12,13 @@
         include_once ($URLCom .'/controllers/parametros.php');
         include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
         include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
+        include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
         $OtrosVarJS ='';
         $htmlplugins = array();
         $CTArticulos = new ClaseProductos($BDTpv);
         $CFamilia=new ClaseFamilias($BDTpv);
         $CProveedor=new ClaseProveedor($BDTpv);
+        $CTienda=new ClaseTienda($BDTpv);
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
@@ -380,10 +382,15 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'codBarras') === 'Si') {
                                             $CTArticulos->ObtenerReferenciasTiendas($producto['idArticulo']);
                                             $refTiendas = $CTArticulos->GetReferenciasTiendas();
+                                            $tiendaPrincipal=$CTienda->tiendaPrincipal();
+                                            
                                             echo '<td>';
                                             if ($refTiendas) {
                                                 foreach ($refTiendas as $ref) {
-                                                    echo $ref['crefTienda'];
+                                                    if($ref['idTienda']==$tiendaPrincipal['datos'][0]['idTienda']){
+                                                        echo $ref['crefTienda'];
+                                                    }
+                                                    
                                                 }
                                             }
                                             echo '</td>';
