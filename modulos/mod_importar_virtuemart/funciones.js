@@ -169,8 +169,15 @@ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea
             console.log('Respuesta add Producto');
             var resultado =  $.parseJSON(response);
             console.log(resultado);
-            //queda eliminar la linea si no hay ningun error;
-          
+            if(resultado['add']['error']){
+                alert("Error de SQL "+resultado['add']['error']);
+            }else{
+                $("#nuevo_"+linea).remove();  
+                console.log("entre aquí"); 
+                console.log(linea);
+            }
+           
+           
         }
         
     });

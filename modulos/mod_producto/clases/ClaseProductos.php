@@ -1083,10 +1083,16 @@ class ClaseProductos extends ClaseTablaArticulos{
             }
             $smt = $DB->query($sql);
             $respuesta['sqlArticulosTienda']=$sql;
+            if($DB->connect_errno){
+                $respuesta['error']=$sql;
+            }
         }
             $sql='INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) 
             VALUES ('.$id.','.$datos['precioCiva'].','.$datos['precioSiva'].','.$datos['tiendaPrincipal'].')';
             $smt = $DB->query($sql);
+              if($DB->connect_errno){
+                $respuesta['error']=$sql;
+            }
             $respuesta['sqlArticuloPrecios']=$sql;
             if(count($datos['codBarras']>0)){
                 $bandera=0;
@@ -1094,6 +1100,9 @@ class ClaseProductos extends ClaseTablaArticulos{
                     if($cod<>""){
                     $sql='INSERT INTO `articulosCodigoBarras`(`idArticulo`, `codBarras`) VALUES ('.$id.',"'.$cod.'")';
                     $smt = $DB->query($sql);
+                    if($DB->connect_errno){
+                        $respuesta['error']=$sql;
+                    }
                     $respuesta['sqlcodBar'.$bandera]=$sql;
                     $bandera++;
                     }

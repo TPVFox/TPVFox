@@ -17,11 +17,6 @@
     $parametros = $ClasesParametros->getRoot();
     $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
     $conf_defecto=$conf_defecto['defecto'];
-    $pruebaCod= array_search('estado_nuevo', array_column($conf_defecto, 'nombre'));
-    echo $pruebaCod;
-    echo '<pre>';
-    print_r($conf_defecto);
-    echo '</pre>';
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/controllers/funcionesComunes.js"></script>
