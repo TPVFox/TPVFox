@@ -186,7 +186,13 @@ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea
 
 
 function modificarProductosTpvWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea){
+    
     console.log("Entre en modificar pro");
+    var tiendaWeb=$("#tiendaWeb").val();
+    var optCodBarra=$("#codBarras").val();
+    var optRef=$("#refTienda").val();
+    var optEstado=$("#estadoMod").val();
+    
     var parametros = {
             "pulsado"   : 'modificarProducto',
             "nombre"    : nombre,
@@ -194,7 +200,11 @@ function modificarProductosTpvWeb(nombre, refTienda, iva, precioSiva, codBarras,
             "iva"       :iva,
             "precioSiva":precioSiva,
             "codBarras":codBarras,
-            "id"        :id
+            "id"        :id,
+            "tiendaWeb" :tiendaWeb,
+            "optCodBarra":optCodBarra,
+            'optRef':optRef,
+            'optEstado':optEstado
     };
       $.ajax({
         data       : parametros,
@@ -208,10 +218,10 @@ function modificarProductosTpvWeb(nombre, refTienda, iva, precioSiva, codBarras,
             console.log('Respuesta modificar producto');
             var resultado =  $.parseJSON(response);
             console.log(resultado);
-            if(resultado['modificar']['PrimeraConsulta']['NAfectados']>=0 && resultado['modificar']['SegundaConsulta']['NAfectados']>=0){
-                 $("#mod_" + linea).remove();   
+            if(resultado['modificar']['error']){
+                alert(resultado['modificar']['error']);
             }else{
-                alert(resultado['modificar']['PrimeraConsulta']['error']+ resultado['modificar']['PrimeraConsulta']['consulta']) ;
+                $("#mod_" + linea).remove();   
             }
           
         }

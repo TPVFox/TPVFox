@@ -37,8 +37,8 @@ switch ($pulsado) {
             if(isset($comprobar[0])){
                 $arrayDatos=array();
                 $datosProductoTpv=$NCArticulo->GetProducto($comprobar[0]['idArticulo']);
-                
-                $comprobacion=comparacionesProductos($producto, $datosProductoTpv);
+                $respuesta['productostpv']=$datosProductoTpv;
+                $comprobacion=comparacionesProductos($producto, $datosProductoTpv, $idTienda);
                 if($comprobacion==1){
                     array_push($arrayDatos, $producto);
                     array_push($arrayDatos,$datosProductoTpv);
@@ -61,13 +61,30 @@ switch ($pulsado) {
        $respuesta['productosNuevos']=$productosNuevos;
     break;
     case 'modificarProducto':
+        $codBarras=array();
+        $precioCiva=0;
+        $estadoWeb="Publicado";
+        if($_POST['optCodBarra']==1){
+             $codBarrasTexto=explode(";",$_POST['codBarras']);
+             foreach($codBarrasTexto as $cod){
+                 array_push($codBarras , $cod);
+             }
+        }
+        $iva=$_POST['iva']/100;
+        $precioCiva=$iva+$_POST['precioSiva'];
+        $tiendaPrincipal=$Ctienda->tiendaPrincipal();
+       $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
         $datos=array(
             'nombre'=>$_POST['nombre'],
             'refTienda'=>$_POST['refTienda'],
             'iva'=>$_POST['iva'],
             'precioSiva'=>$_POST['precioSiva'],
-            'codBarras'=>$_POST['codBarras'],
-            'id'=>$_POST['id']
+            'codBarras'=>$codBarras,
+            'id'=>$_POST['id'],
+            'precioCiva'=>$precioCiva,
+            'tiendaPrincipal'=>$tiendaPrincipal,
+            'optRefWeb'=>$_POST['optRef'],
+            'tiendaWeb'=>$_POST['tiendaWeb'],
         );
         $modificar=$NCArticulo->modificarProductoTPVWeb($datos);
         $respuesta['modificar']=$modificar;
@@ -76,6 +93,8 @@ switch ($pulsado) {
         $ultimoCoste=0;
         $precioCiva=0;
         $codBarras=array();
+        $tiendaPrincipal=$Ctienda->tiendaPrincipal();
+       $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
         if($_POST['ultimoCoste']==1){
             $beneficio=$_POST['beneficio']/100;
             $respuesta['beneficio']=$_POST['beneficio'];

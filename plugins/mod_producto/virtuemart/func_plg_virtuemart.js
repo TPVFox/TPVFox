@@ -282,14 +282,18 @@ function actualizarProductosWeb(inicio){
                         productos.push(nuevoProducto);
                     }
                 }
-               
-                BarraProceso(inicio, final);
+               console.log(inicio);
+               console.log(final);
+                BarraProceso(inicio, regWeb);
 				
                 if(final<regWeb){
-                    
                       actualizarProductosWeb(final);
+                       //~ alert("terminame barra");
                 }else{
                     comprobarProductos(productos);
+                     BarraProceso(regWeb, regWeb);
+                      //~ alert("terminame barra");
+                   
                 }
               
 				 

@@ -22,6 +22,8 @@ function BarraProceso(lineaA,lineaF) {
 	var progreso =  Math.round(( lineaA *100 )/lineaF);
 	$('#bar').css('width', progreso + '%');
 	// Añadimos numero linea en resultado.
+    console.log("final :"+lineaF);
+     console.log("inicio :"+lineaA);
 	document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
 	return;
 	

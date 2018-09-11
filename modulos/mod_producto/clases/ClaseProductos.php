@@ -1026,13 +1026,55 @@ class ClaseProductos extends ClaseTablaArticulos{
        
         $sql='UPDATE articulos SET iva="'.floatval ($datos['iva']).'", articulo_name="'.$datos['nombre'].'", 
         fecha_modificado="'.date("Y-m-d H:i:s").'" where idArticulo='.$datos['id'];
+        $respuesta = array();
+		$DB = parent::GetDb();
+		$smt = $DB->query($sql);
+        if($DB->connect_errno){
+                $respuesta['error']=$sql;
+        }else{
+            $sql='UPDATE articulosPrecios SET pvpSiva="'.floatval ($datos['precioSiva']).'" , pvpCiva="'.floatval ($datos['precioCiva']).'" where idArticulo='.$datos['id'];
+            $smt = $DB->query($sql);
+            if($DB->connect_errno){
+                $respuesta['error']=$sql;
+            }
+            if($datos['refTienda']<>""){
+            switch ($datos['optRefWeb']){
+                case '1':
+                    $sql='UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['refTienda'].'" where idTienda='.$datos['tiendaWeb'].' and idArticulo='.$datos['id'];
+                    
+                break;
+                case '2':
+                     $sql='UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['tiendaPrincipal'].'" where idTienda='.$datos['tiendaWeb'].' and idArticulo='.$datos['id'];
+                break;
+                case 3:
+                    $sql='UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['refTienda'].'" where idTienda='.$datos['tiendaWeb'].' and idArticulo='.$datos['id'].
+                    '  UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['refTienda'].'" where idTienda='.$datos['tiendaPrincipal'].' and idArticulo='.$datos['id'];
+                break;
+            }
+            $smt = $DB->query($sql);
+            if($DB->connect_errno){
+                $respuesta['error']=$sql;
+            }
+        }
+            if(count($datos['codBarras']>0)){
+                $sql='DELETE FROM `articulosCodigoBarras` WHERE idArticulo='.$datos['id'];
+                $smt = $DB->query($sql);
+                        if($DB->connect_errno){
+                            $respuesta['error']=$sql;
+                        }
+                foreach($datos['codBarras'] as $cod){
+                    if($cod<>""){
+                         $sql='INSERT INTO `articulosCodigoBarras`(`idArticulo`, `codBarras`) VALUES ('.$datos['id'].',"'.$cod.'")';
+                    $smt = $DB->query($sql);
+                        if($DB->connect_errno){
+                            $respuesta['error']=$sql;
+                        }
+                    }
+                    
+                }
+            }
         
-        $respuesta['PrimeraConsulta']=$this->Consulta_insert_update($sql);
-        
-        $sql='UPDATE articulosPrecios SET pvpSiva="'.floatval ($datos['precioSiva']).'" where idArticulo='.$datos['id'];
-        
-        $respuesta['SegundaConsulta']=$this->Consulta_insert_update($sql);
-        
+    }
         return $respuesta;
     }
     

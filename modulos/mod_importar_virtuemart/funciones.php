@@ -1,28 +1,44 @@
 <?php 
 
-function comparacionesProductos($productoWeb, $productoTpv){
+function comparacionesProductos($productoWeb, $productoTpv, $idTienda){
     $comprobacion=0;
     if($productoWeb['nombre'] <> $productoTpv['articulo_name']){
+        error_log("nombre");
         $comprobacion=1;
     }
-    if($productoWeb['refTienda'] <> $productoTpv['cref_tienda_principal']){
+    foreach ($productoTpv['ref_tiendas'] as $ref){
+         if($ref['idTienda'] == $idTienda){
+             if($ref['crefTienda'] <> $productoWeb['refTienda']){
+                 $comprobacion=1;
+                  error_log("ref");
+             }
+         }
+    }
+    $ivaWeb=floatval($productoWeb['iva']);
+    $ivaTpv=floatval($productoTpv['iva']);
+    
+    if(number_format($ivaWeb, 2) <> number_format($ivaTpv, 2)){
+      error_log("iva");
         $comprobacion=1;
     }
-    if($productoWeb['iva'] <> $productoTpv['iva']){
-        $comprobacion=1;
-    }
-    if(floatval ($productoWeb['precioSiva']) <> floatval($productoTpv['pvpSiva'])){
+    if(floatval($productoWeb['precioSiva']) <> floatval($productoTpv['pvpSiva'])){
+         error_log("precio");
         $comprobacion=1;
     }
     $codBarras=explode(";",$productoWeb['codBarra']);
-    foreach ($productoTpv['codBarras'] as $cod){
-        foreach ($codBarras as $codBarra){
-            if($cod<>$codBarra){
-                $comprobacion=1;
-            }
-        }
-       
-    }
+    $dif=array_diff($codBarras, $productoTpv['codBarras']);
+    
+       if(count($dif)>0){
+           foreach ($dif as $cod){
+               error_log(count($cod));
+               if($cod<>""){
+                   $comprobacion=1;
+               }
+           }
+           
+       }
+    
+  
     
     return $comprobacion;
 }
@@ -76,8 +92,8 @@ function lineaProductosModificador($productos, $idTienda){
            
            $html.='</td>
              <td><b>Nombre:</b>'.$producto[1]['articulo_name'].'<br>
-            <b>Referencia Tienda :</b> ';
-             
+            <b>Referencia Tienda Web :</b> ';
+             //~ $html.= $producto[1]['cref_tienda_principal'];
              foreach ($producto[1]['ref_tiendas'] as $ref){
                  
                  if($ref['idTienda'] == $idTienda){
