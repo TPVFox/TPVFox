@@ -163,7 +163,7 @@ function htmlTablaFamiliaProductos($idfamilia) {
             . '<th>id</th>'
             . '<th>Nombre</th>'
             . '<th>'
-            . '<button id="btn-borrarfamilia" type="button" >'
+            . '<button id="btn-borrarfamilia" type="button" onclick="borrarProductoFamilia()">'
             . '<span class="glyphicon glyphicon-trash"> </span> Eliminar de esta familia</button> </th>'
             . '</tr>'
             . '</thead>';

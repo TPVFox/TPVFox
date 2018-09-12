@@ -193,32 +193,32 @@ $(function () {
 
 
 function capturaSeleccionar() {
-    $("#btn-borrarfamilia").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+    //~ $("#btn-borrarfamilia").on("click", function (event) {
+        //~ event.stopPropagation();
+        //~ event.preventDefault();
 
-        var seleccion = seleccionados('idproducto');
-        var idfamilia = $('#idfamilia').val();
+        //~ var seleccion = seleccionados('idproducto');
+        //~ var idfamilia = $('#idfamilia').val();
 
-        if(seleccion.length > 0) {
-            ajaxCall({pulsado: 'borrarFamiliaProducto',
-                idfamilia: idfamilia,
-                idsproductos : seleccion,
-            }, function (respuesta) {
-                var obj = JSON.parse(respuesta);
-                console.log(obj);
-                if (!obj.error) {
-                    $('#tproductos').parent().html(obj.html);
-                    alert('borrado correctamente');
-                    capturaSeleccionar(); // ¡¡OJO se llama a si mismo!!. ¿Y funciona?
-                } else {
-                    alert('Error al borrar');
-                }
-            }
-            );
+        //~ if(seleccion.length > 0) {
+            //~ ajaxCall({pulsado: 'borrarFamiliaProducto',
+                //~ idfamilia: idfamilia,
+                //~ idsproductos : seleccion,
+            //~ }, function (respuesta) {
+                //~ var obj = JSON.parse(respuesta);
+                //~ console.log(obj);
+                //~ if (!obj.error) {
+                    //~ $('#tproductos').parent().html(obj.html);
+                    //~ alert('borrado correctamente');
+                    //~ capturaSeleccionar(); // ¡¡OJO se llama a si mismo!!. ¿Y funciona?
+                //~ } else {
+                    //~ alert('Error al borrar');
+                //~ }
+            //~ }
+            //~ );
 
-        }
-    });
+        //~ }
+    //~ });
 
         $(".btn-seleccionar").on("click", function (event) {
         event.stopPropagation();
@@ -246,7 +246,30 @@ function capturaSeleccionar() {
 
 }
 
+function borrarProductoFamilia(){
+    console.log("Entre en borrar familia");
+    var seleccion = seleccionados('idproducto');
+        var idfamilia = $('#idfamilia').val();
 
+        if(seleccion.length > 0) {
+            ajaxCall({pulsado: 'borrarFamiliaProducto',
+                idfamilia: idfamilia,
+                idsproductos : seleccion,
+            }, function (respuesta) {
+                var obj = JSON.parse(respuesta);
+                console.log(obj);
+                if (!obj.error) {
+                    $('#tproductos').parent().html(obj.html);
+                    alert('borrado correctamente');
+                    borrarFamilia(); // ¡¡OJO se llama a si mismo!!. ¿Y funciona?
+                } else {
+                    alert('Error al borrar');
+                }
+            }
+            );
+
+        }
+}
 
 //~ function leerfamiliaspadre0() {
     //~ leerFamilias(0, function (respuesta) {
