@@ -5,7 +5,7 @@
         include_once './../../inicial.php';
         include_once $URLCom . '/head.php';
         include_once $URLCom . '/modulos/mod_producto/funciones.php';
-        include_once $URLCom . '/modulos/mod_familia/funciones_familia.inc.php';
+        include_once $URLCom . '/modulos/mod_familia/funciones.php';
 //        include_once $URLCom.'/controllers/Controladores.php';
         include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 

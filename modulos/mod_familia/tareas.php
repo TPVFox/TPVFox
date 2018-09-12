@@ -50,7 +50,7 @@ $Controler->loadDbtpv($BDTpv);
 //include_once('../../clases/Proveedores.php');
 //$CProveedor = new Proveedores($BDTpv);
 include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
-include_once $URLCom . '/modulos/mod_familia/funciones_familia.inc.php';
+include_once $URLCom . '/modulos/mod_familia/funciones.php';
 
 //include_once './clases/ClaseArticulos.php';
 //include_once './funciones_mayor.inc.php';
