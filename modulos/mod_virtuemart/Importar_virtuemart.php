@@ -6,7 +6,7 @@
     include_once './../../inicial.php';
     include_once $URLCom.'/head.php';
     include ($URLCom.'/controllers/Controladores.php');
-    include_once ($URLCom.'/modulos/mod_importar_virtuemart/funciones.php');
+    include_once ($URLCom.'/modulos/mod_virtuemart/funciones.php');
     include_once ($URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php');
     include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
     $CTArticulos = new ClaseProductos($BDTpv);
@@ -18,7 +18,7 @@
     $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
     $conf_defecto=$conf_defecto['defecto'];
 ?>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_importar_virtuemart/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_virtuemart/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/controllers/funcionesComunes.js"></script>
 
 <?php 

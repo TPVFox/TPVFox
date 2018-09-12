@@ -3,7 +3,7 @@
 $pulsado = $_POST['pulsado'];
 include_once ("./../../inicial.php");
 include_once $URLCom.'/configuracion.php';
-include_once $URLCom.'/modulos/mod_importar_virtuemart/funciones.php';
+include_once $URLCom.'/modulos/mod_virtuemart/funciones.php';
 
 include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
 include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';

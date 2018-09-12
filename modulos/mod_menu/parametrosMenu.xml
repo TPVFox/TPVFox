@@ -24,7 +24,7 @@
     </item_nivel_1>
     <item_nivel_1 descripcion="Sistema">
         <item_nivel_2 descripcion="Importar SPPG" modulo="mod_importar_sppg" vista="Importar_sppg.php"></item_nivel_2>
-        <item_nivel_2 descripcion="Importar Virtuemart" modulo="mod_importar_virtuemart" vista="Importar_virtuemart.php"></item_nivel_2>
+        <item_nivel_2 descripcion="Virtuemart" modulo="mod_virtuemart" vista="Importar_virtuemart.php"></item_nivel_2>
         <item_nivel_2 descripcion="Usuarios" modulo="mod_usuario" vista="ListaUsuarios.php"></item_nivel_2>
         <item_nivel_2 descripcion="Tiendas" modulo="mod_tienda" vista="ListaTiendas.php"></item_nivel_2>
         <item_nivel_2 descripcion="Copia seguridad" modulo="mod_copia_seguridad" vista="CopiaSeguridad.php"></item_nivel_2>

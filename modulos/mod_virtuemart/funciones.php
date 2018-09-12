@@ -3,14 +3,14 @@
 function comparacionesProductos($productoWeb, $productoTpv, $idTienda){
     $comprobacion=0;
     if($productoWeb['nombre'] <> $productoTpv['articulo_name']){
-        error_log("nombre");
+      
         $comprobacion=1;
     }
     foreach ($productoTpv['ref_tiendas'] as $ref){
          if($ref['idTienda'] == $idTienda){
              if($ref['crefTienda'] <> $productoWeb['refTienda']){
                  $comprobacion=1;
-                  error_log("ref");
+                
              }
          }
     }
@@ -18,11 +18,11 @@ function comparacionesProductos($productoWeb, $productoTpv, $idTienda){
     $ivaTpv=floatval($productoTpv['iva']);
     
     if(number_format($ivaWeb, 2) <> number_format($ivaTpv, 2)){
-      error_log("iva");
+    
         $comprobacion=1;
     }
     if(floatval($productoWeb['precioSiva']) <> floatval($productoTpv['pvpSiva'])){
-         error_log("precio");
+      
         $comprobacion=1;
     }
     $codBarras=explode(";",$productoWeb['codBarra']);
@@ -30,7 +30,7 @@ function comparacionesProductos($productoWeb, $productoTpv, $idTienda){
     
        if(count($dif)>0){
            foreach ($dif as $cod){
-               error_log(count($cod));
+              
                if($cod<>""){
                    $comprobacion=1;
                }
