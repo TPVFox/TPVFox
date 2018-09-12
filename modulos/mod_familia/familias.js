@@ -156,7 +156,7 @@ $(function () {
         source: function (request, response) {
             // Fetch data
             $.ajax({
-                url: "tareasfamilias.php",
+                url: "tareas.php",
                 type: 'post',
                 data: {
                     pulsado: 'BuscaNombreFamilia',
@@ -394,7 +394,7 @@ function leerFamilias(idpadre, callback) {
 
     $.ajax({
         data: parametros,
-        url: './tareasfamilias.php',
+        url: './tareas.php',
         type: 'post',
         success: callback,
         error: function (request, textStatus, error) {
@@ -411,7 +411,7 @@ function leerFamiliaPadre(idpadre, callback) {
 
     $.ajax({
         data: parametros,
-        url: './tareasfamilias.php',
+        url: './tareas.php',
         type: 'post',
         success: callback,
         error: function (request, textStatus, error) {
@@ -429,7 +429,7 @@ function grabarFamilia(datos, callback) {
 
     $.ajax({
         data: parametros,
-        url: './tareasfamilias.php',
+        url: './tareas.php',
         type: 'post',
         success: callback,
         error: function (request, textStatus, error) {
@@ -447,7 +447,7 @@ function grabarPadres(datos, callback) {
 
     $.ajax({
         data: parametros,
-        url: './tareasfamilias.php',
+        url: './tareas.php',
         type: 'post',
         success: callback,
         error: function (request, textStatus, error) {
@@ -460,7 +460,7 @@ function ajaxCall(parametros, callback) {
 
     $.ajax({
         data: parametros,
-        url: './tareasfamilias.php',
+        url: './tareas.php',
         type: 'post',
         success: callback,
         error: function (request, textStatus, error) {
