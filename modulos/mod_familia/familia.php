@@ -202,6 +202,6 @@
             </div>
         </div>
 
-        <script src="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.js"></script>        
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_familia/funciones.js"></script>        
     </body>
 </html>
