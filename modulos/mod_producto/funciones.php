@@ -1015,18 +1015,20 @@ function modalAutocompleteFamilias($familias, $idProducto){
     return $html;
 }
 
-function modalAutocompleteEstadoProductos(){
+function modalAutocompleteEstadoProductos($productos){
+    $stringProductos=implode(",", $productos);
+    
      $html="";
-    $html.='
+    $html.='<input type="text" value="'.$stringProductos.'" id="idProductosModal" style="visibility:hidden">
             <div class="ui-widget" id="divEstados">
             <label for="tags">Estados: </label>
             <select id="combobox" class="estados">
                 <option value="0"></option>
-                <option value="1">Activo</option>
-                <option value="2">Nuevo</option>
-                <option value="3">Temporal</option>
-                <option value="4">Baja</option>
-                <option value="5">importado</option>
+                <option value="Activo">Activo</option>
+                <option value="Nuevo">Nuevo</option>
+                <option value="Temporal">Temporal</option>
+                <option value="Baja">Baja</option>
+                <option value="importado">importado</option>
             </select>
             ';
         $html.='<p id="botonEnviarEstados"></p>';

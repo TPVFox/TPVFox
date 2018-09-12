@@ -87,7 +87,7 @@ switch ($pulsado) {
 		$id=$_POST['id'];
 		$dedonde="Recalculo";
 		$nombreTmp=$dedonde."recalculo.pdf";
-		//~ $htmlImprimir['cabecera']="";
+		
 		if ($_POST['bandera']==1){
 			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
 		}else{
@@ -150,13 +150,12 @@ switch ($pulsado) {
         $respuesta['html']=$modal;
     break;
     case 'modalEstadoProductos':
-        $modal=modalAutocompleteEstadoProductos();
+     $productos=$_SESSION['productos_seleccionados'];
+        $modal=modalAutocompleteEstadoProductos($productos);
         $respuesta['html']=$modal;
     break;
+    
     case 'buscarNombreFammilia':
-    //~ $idProducto=$_POST['idProducto'];
-    //~ $idFamilia=$_POST['idfamilia'];
-    //~ $add=$CFamilia->guardarProductoFamilia($idProducto, $idFamilia);
     $idFamilia=$_POST['idfamilia'];
     $idProducto=$_POST['idProducto'];
     if($idProducto==0){
@@ -260,6 +259,16 @@ switch ($pulsado) {
         $respuesta['NoEliminados']= $productosNoEliminados;
         $respuesta['Eliminados']=$productosEliminados;
     break;
+    case 'cambiarEstadoProductos':
+    $respuesta=array();
+        $productos=$_POST['productos'];
+        $estado=$_POST['estado'];
+         $modEstado=$NCArticulo->modificarVariosEstados($estado, $productos);
+         $respuesta['consulta']=$modEstado;
+        $respuesta['productos']=$productos;
+        $respuesta['estado']=$estado;
+    break;
+    
    
 }
 echo json_encode($respuesta);

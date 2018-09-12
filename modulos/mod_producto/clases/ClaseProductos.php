@@ -1169,6 +1169,12 @@ class ClaseProductos extends ClaseTablaArticulos{
         $respuesta['Consulta']=$this->Consulta_insert_update($sql);
         return $respuesta;
     }
+    
+    public function modificarVariosEstados($estado, $productos){
+        $sql='UPDATE articulos SET estado="'.$estado.'" WHERE idArticulo IN ('.$productos.')';
+         $respuesta['Consulta']=$this->Consulta_insert_update($sql);
+        return $respuesta;
+    }
 }
 
 

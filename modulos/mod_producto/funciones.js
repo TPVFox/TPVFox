@@ -1087,10 +1087,10 @@ function modalEstadoProductos(){
 				var titulo = 'Modificar Producto ';
                 abrirModal(titulo,resultado.html);
                
-				setTimeout(function(){
+				//~ setTimeout(function(){
                         $( ".custom-combobox-input" ).focus();
                        
-                },3000);
+                //~ },3000);
 		}	
 	});
 }
@@ -1118,7 +1118,8 @@ $( function() {
     });
      $( ".estados" ).combobox({
         select : function(event, ui){ 
-        var botonhtml='<button class="btn btn-primary" onclick="modificarEstadoProductos('+ui.item.value+')">Guardar</button>';
+        var idProductos= $( "#idProductosModal" ).val();  
+        var botonhtml='<button class="btn btn-primary" onclick="modificarEstadoProductos('+"'"+ui.item.value+"'"+', '+"'"+idProductos+"'"+')">Guardar</button>';
          
             $('#botonEnviarEstados').html(botonhtml);  
          
@@ -1156,6 +1157,33 @@ $( function() {
         $( "#combobox" ).toggle();
     });
   } );
+  
+function modificarEstadoProductos(estado, productos){
+    var parametros = {
+        pulsado: 'cambiarEstadoProductos',
+        estado: estado,
+        productos:productos
+    }
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* envio para cambiar el estado a los productos de sesion **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de cambiar el estado a los productos de sesion ');
+				var resultado = $.parseJSON(response);
+				console.log(resultado);
+                if(resultado['consulta']['Consulta']['error']){
+                    alert(resultado['consulta']['Consulta']['consulta']);
+                }else{
+                    cerrarPopUp();
+                    location.reload(true);
+                }
+		}	
+	});
+}
 function guardarProductoFamilia(idfamilia, idProducto){
     var parametros = {
         pulsado: 'buscarNombreFammilia',
