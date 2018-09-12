@@ -112,8 +112,6 @@ $(function () {
         event.preventDefault();
 
         var seleccion = seleccionados();
-//        var idfamilia = $(event.currentTarget).data('alseccion');
-//        var productos = $(event.currentTarget).data('productos');
 
         if (seleccion.length > 0) {
             ajaxCall({pulsado: 'borrarFamilias',
@@ -124,7 +122,6 @@ $(function () {
                 if (!obj.error) {
                     alert('borrado correctamente');
                     location.reload();
-//                    $("#fila0-" + seccion).hide();
                 } else {
                     alert('Error al borrar');
                 }
@@ -196,26 +193,6 @@ $(function () {
 
 
 function capturaSeleccionar() {
-//    $("#btn-cambiarpadre").on("click", function (event) {
-//        event.stopPropagation();
-//        event.preventDefault();
-//
-//
-//        if (contarSeleccionados() > 0) {
-//            var familiaactual = $('#idfamilia').val() + ': ' + $('#inputnombre').val();
-//            $('#inputFamiliaActualModal').val(familiaactual);
-//            $('#inputNombreFamiliaModal').val('');
-//            $('#inputIdFamiliaModal').val('-1');
-//
-//            $('#inputIdNuevaModal').val($('#combopadremodal').val());
-//
-//            $('#cambioFamiliaModal').modal('show');
-//            $('#inputNombreFamiliaModal').focus();
-//        } else {
-//            alert('Antes de modificar, por favor selecciona un elemento')
-//        }
-//    });
-
     $("#btn-borrarfamilia").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
