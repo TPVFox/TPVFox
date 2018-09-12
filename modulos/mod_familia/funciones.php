@@ -10,6 +10,13 @@ include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 include_once $URLCom . '/modulos/mod_producto/clases/ClaseArticulos.php';
 
 function _leerFamilias($idpadre) {
+    //@objetivo: leer todas lod hijos y productos de un padre.
+    //Funcionamiento:
+    //1-Al llamar a la función se le indica el id del padre
+    //2-Si el padre es mayor o igual a 0
+    //  -Lee los datos de esa familia
+    //  -Cuenta el número de hijos 
+    //  -Cuenta el número de productos de esa familia
     $resultado = [];
     $resultado['padre'] = $idpadre;
     $objfamilia = new ClaseFamilias();
@@ -26,6 +33,8 @@ function _leerFamilias($idpadre) {
 }
 
 function leerFamilias($idpadre) {
+    //@Objetivo: leer las familias y montar el html
+    
     $resultado = _leerFamilias($idpadre);
     $resultado['html'] = familias2Html($resultado['datos']);
 
@@ -33,6 +42,7 @@ function leerFamilias($idpadre) {
 }
 
 function familias2Html($familias) {
+    //@objetivo: mostrar el html con los datos de las familias as entran por cabecera
     $resultado = '';
     if (count($familias) > 0) {
         $indices = [];
@@ -60,13 +70,12 @@ function familias2Html($familias) {
                         . '" class="btn btn-primary btn-sm " style="display:none">'
                         . '<span class="glyphicon glyphicon-minus"></span> compactar </button> ';
             } else {
-//                if ($ClasePermisos->getAccion("eliminar") == 1) {
+
                 $resultado .= '<button name="btn-marcaeliminar" id="botonMarcaEliminar-' . $familia['idFamilia'] . '" '
                         . ' data-alseccion="' . $familia['idFamilia'] . '"'
                         . ' data-productos="' . $familia['productos'] . '"'
                         . ' class="btn btn-primary btn-sm ">'
                         . '<span class="glyphicon glyphicon-trash"></span> </button> ';
-//                }
             }
             $resultado .= '</td>';
             $resultado .= '<td>' . $familia['productos'] . ' productos </td>';
@@ -83,6 +92,8 @@ function familias2Html($familias) {
 }
 
 function leerFamiliasHijas($idpadre) {
+    //esta funcion creo que se puede cambiar por otra anterior
+    
     $resultado = [];
     $resultado['padre'] = $idpadre;
     $objfamilia = new ClaseFamilias();
@@ -97,6 +108,7 @@ function leerFamiliasHijas($idpadre) {
 }
 
 function familias2Html2($familias) {
+    //objetivo: imprimir lineas de tabla con los datos de las familias
     $resultado = '';
     if ($familias && (count($familias) > 0)) {
         foreach ($familias as $indice => $familia) {
@@ -151,8 +163,6 @@ function htmlTablaFamiliaProductos($idfamilia) {
             . '<th>id</th>'
             . '<th>Nombre</th>'
             . '<th>'
-//            . '<button id="btn-cambiarpadre" type="button" >'
-//            . '<span class="glyphicon glyphicon-refresh"> </span> Cambiar de familia</button>'
             . '<button id="btn-borrarfamilia" type="button" >'
             . '<span class="glyphicon glyphicon-trash"> </span> Eliminar de esta familia</button> </th>'
             . '</tr>'
