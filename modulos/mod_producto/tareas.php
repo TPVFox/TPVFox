@@ -113,7 +113,8 @@ switch ($pulsado) {
 	
 	case 'productosSesion':
 		$respuesta=array();
-		$respuesta=productosSesion($_POST['id']);
+        
+		$respuesta=productosSesion($_POST['id'], $_POST['seleccionar']);
 		
 	break;
 	

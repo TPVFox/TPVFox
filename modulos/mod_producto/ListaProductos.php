@@ -316,7 +316,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <table class="table table-bordered table-hover tablaPrincipal">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" name="checkUsuTodos" onclick="seleccionarTodo()"></th>
+                                    <th><input type="checkbox" id="checkUsuTodos" name="checkUsuTodos" onclick="seleccionarTodo()"></th>
                                     <th>ID</th>
                                     <th>PRODUCTO</th>
                                     <?php

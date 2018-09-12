@@ -858,7 +858,7 @@ function seleccionProveedor(dedonde,idproveedor){
 
 }
 
-function selecionarItemProducto(id, dedonde=""){
+function selecionarItemProducto(id, dedonde="", seleccionar=""){
 	// @ Objetivo:
 	// 		Al seleccionar un check comprueba si existes productos_seleccionado de session.
 	//	si existe lo elimina y si no lo añade.
@@ -874,7 +874,8 @@ function selecionarItemProducto(id, dedonde=""){
 	console.log('Selecciono Item de producto, lo añadimos a session');
 	var parametros = {
 		"pulsado"    	: 'productosSesion',
-		"id"			:id
+		"id"			:id,
+        "seleccionar": seleccionar
 		
 	};
 	$.ajax({
@@ -900,7 +901,10 @@ function selecionarItemProducto(id, dedonde=""){
 						$(".productos_seleccionados").css("display", "block");
 						$(".textoCantidad").html(resultado.Nitems);
 					}else{
-						location.href=dedonde+".php";
+                        if(seleccionar==""){
+                            location.href=dedonde+".php";
+                        }
+						
 					}
 					
 				}
@@ -1360,12 +1364,28 @@ function eliminarProductos(idTiendaWeb=0){
 }
 function seleccionarTodo(){
     //~ var productos = new Array();
+    
    for (i=1;i<41;i++){
-        console.log("entro");
-        $("#checkUsu"+i).prop( "checked", true );
+        //~ console.log("entro");
+        //~ $("#checkUsu"+i).prop( "checked", true );
      
-        //~ productos.push($("#checkUsu"+i).val());
-        selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos");
+     
+        //~ selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos");
+        if( $("#checkUsuTodos").prop('checked') ) {
+            $("#checkUsu"+i).prop( "checked", true );
+             selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos", "seleccionar");
+           
+        }else{
+            selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos", "NoSeleccionar");
+            $("#checkUsu"+i).prop( "checked", false );
+           
+        }
+        //~ if( $("#checkUsu"+i).prop('checked') ) {
+                //~ console.log('Seleccionado');
+            //~ }else{
+                //~ console.log('No Seleccionado');
+            //~ }
+            //~ console.log(i);
    }
      //~ console.log(productos); 
         

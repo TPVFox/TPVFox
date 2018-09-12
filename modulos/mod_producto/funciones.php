@@ -574,7 +574,7 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	return $imprimir;
 	
 }
-function productosSesion($idProducto){
+function productosSesion($idProducto, $seleccionar){
 	// @ Objetivo
 	// Guardar en la session los productos seleccionados.
 	// @ Parametro:
@@ -586,16 +586,42 @@ function productosSesion($idProducto){
 		// Si no existe lo creamos como un array
 		$_SESSION['productos_seleccionados'] = array();
 	}
-	if (!in_array($idProducto, $_SESSION['productos_seleccionados'])){
-		array_push($_SESSION['productos_seleccionados'], $idProducto);
-	}else{
-		foreach($_SESSION['productos_seleccionados'] as $key=>$prod){
-			if($prod==$idProducto){
-				$respuesta['prod']=$prod;
-				unset($_SESSION['productos_seleccionados'][$key]);
-			}
-		}
+    
+    switch ($seleccionar) {
+        case 'seleccionar':
+            if (!in_array($idProducto, $_SESSION['productos_seleccionados'])){
+                array_push($_SESSION['productos_seleccionados'], $idProducto);
+            }
+        break;
+        case 'NoSeleccionar':
+            foreach($_SESSION['productos_seleccionados'] as $key=>$prod){
+                    if($prod==$idProducto){
+                        $respuesta['prod']=$prod;
+                        unset($_SESSION['productos_seleccionados'][$key]);
+                    }
+                }
+        break;
+        default:
+            if (!in_array($idProducto, $_SESSION['productos_seleccionados'])){
+                array_push($_SESSION['productos_seleccionados'], $idProducto);
+            }else{
+                foreach($_SESSION['productos_seleccionados'] as $key=>$prod){
+                    if($prod==$idProducto){
+                        $respuesta['prod']=$prod;
+                        unset($_SESSION['productos_seleccionados'][$key]);
+                    }
+                }
 	}
+        break;
+        
+    }
+    
+    
+    
+    
+    
+    
+	
 	
 	if(count($_SESSION['productos_seleccionados'])>0){
 			$respuesta['Nitems']=count($_SESSION['productos_seleccionados']);
