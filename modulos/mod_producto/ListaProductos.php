@@ -232,7 +232,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                 <li><a onclick="eliminarProductos(<?php echo $tiendaWeb['idTienda'];?>);">Eliminar Productos</a></li>        
                             <?php 
                             }
-                            ?>              
+                             if($ClasePermisos->getAccion("cambiarEstado")==1){
+                            ?> 
+                            <li><a onclick="modalEstadoProductos();">Cambiar estado productos</a></li>   
+                            <?php 
+                            }
+                            ?>             
                         </ul>
                     </div>
                     <div class ="nav">

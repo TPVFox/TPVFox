@@ -1070,6 +1070,31 @@ function modalFamiliaProducto(idProducto=""){
 		}	
 	});
 }
+function modalEstadoProductos(){
+     var parametros = {
+        pulsado: 'modalEstadoProductos'
+    }
+      $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* envio para mostrar el modal de modificar estado productos **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de mostrar modal de modificar estado productos ');
+				var resultado = $.parseJSON(response);
+				var titulo = 'Modificar Producto ';
+                abrirModal(titulo,resultado.html);
+               
+				setTimeout(function(){
+                        $( ".custom-combobox-input" ).focus();
+                       
+                },3000);
+		}	
+	});
+}
+
 $( function() {
      $('#busquedaModal').on('shown.bs.modal', function() {
       //@Objetivo: llamar a la librería autocomplete 
@@ -1084,6 +1109,19 @@ $( function() {
          }else{
              $('#botonEnviar').html(botonhtml);  
          }
+          
+          
+         
+        },
+       
+       
+    });
+     $( ".estados" ).combobox({
+        select : function(event, ui){ 
+        var botonhtml='<button class="btn btn-primary" onclick="modificarEstadoProductos('+ui.item.value+')">Guardar</button>';
+         
+            $('#botonEnviarEstados').html(botonhtml);  
+         
           
           
          

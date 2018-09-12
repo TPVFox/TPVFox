@@ -11,6 +11,7 @@
 	<accion nombre="subirProductosWeb" descripcion="Subir Productos Web" permiso="0"></accion>
 	<accion nombre="agregarProductosFamilia" descripcion="Agregar Productos Familias" permiso="0"></accion>
 	<accion nombre="eliminarProductos" descripcion="Eliminar Productos" permiso="0"></accion>
+	<accion nombre="cambiarEstado" descripcion="Modificar Estado Productos" permiso="0"></accion>
     </vista>
     <vista nombre="producto.php" descripcion="Producto" permiso="1">
         <accion nombre="Guardar" descripcion="Guardar Producto" permiso="1"></accion>

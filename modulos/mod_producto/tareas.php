@@ -149,6 +149,10 @@ switch ($pulsado) {
         $respuesta['familias']=$familias;
         $respuesta['html']=$modal;
     break;
+    case 'modalEstadoProductos':
+        $modal=modalAutocompleteEstadoProductos();
+        $respuesta['html']=$modal;
+    break;
     case 'buscarNombreFammilia':
     //~ $idProducto=$_POST['idProducto'];
     //~ $idFamilia=$_POST['idfamilia'];

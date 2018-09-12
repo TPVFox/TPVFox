@@ -1015,6 +1015,23 @@ function modalAutocompleteFamilias($familias, $idProducto){
     return $html;
 }
 
+function modalAutocompleteEstadoProductos(){
+     $html="";
+    $html.='
+            <div class="ui-widget" id="divEstados">
+            <label for="tags">Estados: </label>
+            <select id="combobox" class="estados">
+                <option value="0"></option>
+                <option value="1">Activo</option>
+                <option value="2">Nuevo</option>
+                <option value="3">Temporal</option>
+                <option value="4">Baja</option>
+                <option value="5">importado</option>
+            </select>
+            ';
+        $html.='<p id="botonEnviarEstados"></p>';
+        return $html;
+}
 function selectFamilias($padre=0, $espacio, $array_familias, $conexion,$nombre_completo = ''){
     
         $sql = 'select idFamilia, familiaNombre, familiaPadre  FROM familias where familiaPadre='.$padre.' ORDER BY idFamilia ASC';
