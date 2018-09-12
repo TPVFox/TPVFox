@@ -473,5 +473,5 @@ function compactarTodos() {
         var idboton = $(element).attr('id');
         $('#' + idboton).click();
     });
-    return $('.btn-compactar').length;
+    //~ return $('.btn-compactar').length;
 }
