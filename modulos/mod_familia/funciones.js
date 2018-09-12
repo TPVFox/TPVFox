@@ -131,22 +131,22 @@ $(function () {
         }
     });
 
-    $("#btn-expandirtodo").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+    //~ $("#btn-expandirtodo").on("click", function (event) {
+        //~ event.stopPropagation();
+        //~ event.preventDefault();
 
-        var quedan = expandirTodos();
-        alert('quedan por expandir ' + quedan);
-    });
+        //~ var quedan = expandirTodos();
+        //~ alert('quedan por expandir ' + quedan);
+    //~ });
 
-    $("#btn-compactartodo").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+    //~ $("#btn-compactartodo").on("click", function (event) {
+        //~ event.stopPropagation();
+        //~ event.preventDefault();
 
-        compactarTodos();
+        //~ compactarTodos();
 
 
-    });
+    //~ });
 
     $('#inputNombreFamiliaModal').autocomplete({
         minLength: 3,
@@ -464,7 +464,8 @@ function expandirTodos() {
         var idboton = $(element).attr('id');
         $('#' + idboton).click();
     });
-    return $('.btn-expandir').length;
+    //~ return $('.btn-expandir').length;
+    alert('quedan por expandir ' + $('.btn-expandir').length);
 }
 
 function compactarTodos() {

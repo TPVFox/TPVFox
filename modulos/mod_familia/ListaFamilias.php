@@ -65,10 +65,10 @@ $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales[
                     <div class="nav">
                         <h4> Familias</h4>
                         <ul class="nav nav-pills nav-stacked"> 
-                                <li><button class="btn btn-link" 
-                                            id="btn-expandirtodo">expandir Nivel</button></li>
-                                <li><button class="btn btn-link" 
-                                            id="btn-compactartodo">compactar Todo</button></li>
+                                <li><a class="btn btn-link" 
+                                            id="btn-expandirtodo" onclick="expandirTodos()">expandir Nivel</a></li>
+                                <li><a class="btn btn-link" 
+                                            id="btn-compactartodo" onclick="compactarTodos()">compactar Todo</a></li>
                             
                             <?php
                             if ($ClasePermisos->getAccion("crear") == 1) {
