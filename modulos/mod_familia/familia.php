@@ -77,7 +77,7 @@
                 <form action="javascript:guardarClick();" method="post" name="formFamilia" >
                     <div class="col-md-12">
                         <div class="btn-toolbar">
-                            <button class="btn btn-link" type="button" id="btn-fam-volver" data-href="./ListaFamilias.php">Volver Atrás</button>
+                            <a class="btn btn-link"  id="btn-fam-volver"  href="ListaFamilias.php">Volver Atrás</a>
                             <button class="btn btn-primary" type="button" id="btn-fam-grabar" data-href="./ListaFamilias.php">Guardar</button>
                         </div>
                         <div class=" Datos">

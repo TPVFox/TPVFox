@@ -18,15 +18,15 @@ $(function () {
     //~ });
 
 
-    $("#btn-fam-volver").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+    //~ $("#btn-fam-volver").on("click", function (event) {
+        //~ event.stopPropagation();
+        //~ event.preventDefault();
 
-        var data = $(event.currentTarget).data();
-        if (data.href) {
-            window.location.href = data.href;
-        }
-    });
+        //~ var data = $(event.currentTarget).data();
+        //~ if (data.href) {
+            //~ window.location.href = data.href;
+        //~ }
+    //~ });
 
     $("#btn-fam-grabar").on("click", function (event) {
         event.stopPropagation();
