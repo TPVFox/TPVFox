@@ -10,12 +10,12 @@ $(function () {
 
     //~ leerfamiliaspadre0();
 
-    $("#botonnuevo-hijo-0").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+    //~ $("#botonnuevo-hijo-0").on("click", function (event) {
+        //~ event.stopPropagation();
+        //~ event.preventDefault();
 
-        window.location.href = 'familia.php?id=0';
-    });
+        //~ window.location.href = 'familia.php?id=0';
+    //~ });
 
 
     $("#btn-fam-volver").on("click", function (event) {

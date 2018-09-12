@@ -73,8 +73,8 @@ $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales[
                             <?php
                             if ($ClasePermisos->getAccion("crear") == 1) {
                                 ?>
-                                <li><button class="btn btn-link" id="botonnuevo-hijo-0"
-                                            data-alabuelo="0">Añadir</button></li>
+                                <li><a class="btn btn-link" id="botonnuevo-hijo-0"
+                                            data-alabuelo="0" href="familia.php?id=0">Añadir</a></li>
                                     <?php
                                 }
                                 ?>
