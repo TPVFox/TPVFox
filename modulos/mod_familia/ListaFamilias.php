@@ -9,7 +9,7 @@
 include_once './../../inicial.php';
 require_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 include_once $URLCom . '/controllers/Controladores.php';
-
+require_once $URLCom . '/modulos/mod_familia/funciones.php';
 $Controler = new ControladorComun;
 
 // Mostramos formulario si no tiene acceso.
@@ -21,6 +21,14 @@ $VarJS = ""; //$Controler->ObtenerCajasInputParametros($parametros);
 
 $familias = new ClaseFamilias($BDTpv);
 // Obtenemos la configuracion del usuario o la por defecto
+$idpadre=0;
+$familiasPrincipales = $familias->leerUnPadre($idpadre);
+
+$familiasPrincipales['datos'] = $familias->cuentaHijos($familiasPrincipales['datos']);
+//~ echo '<pre>';
+//~ print_r($familiasPrincipales);
+//~ echo '</pre>';
+$familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales['datos']);
 ?>
 <!DOCTYPE html>
 <html>
@@ -104,7 +112,10 @@ $familias = new ClaseFamilias($BDTpv);
                                 </tr>
                             </thead>
                             <tbody id="seccion-0" >
-
+                            <?php 
+                            echo familias2Html($familiasPrincipales['datos']);
+                            
+                            ?>
                             </tbody>
                         </table>
                     </div>

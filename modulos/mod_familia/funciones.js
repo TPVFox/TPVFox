@@ -8,7 +8,7 @@
 
 $(function () {
 
-    leerfamiliaspadre0();
+    //~ leerfamiliaspadre0();
 
     $("#botonnuevo-hijo-0").on("click", function (event) {
         event.stopPropagation();
@@ -248,15 +248,15 @@ function capturaSeleccionar() {
 
 
 
-function leerfamiliaspadre0() {
-    leerFamilias(0, function (respuesta) {
-        var obj = JSON.parse(respuesta);
-        var datos = obj.datos;
-        var tabla = obj.html;
+//~ function leerfamiliaspadre0() {
+    //~ leerFamilias(0, function (respuesta) {
+        //~ var obj = JSON.parse(respuesta);
+        //~ var datos = obj.datos;
+        //~ var tabla = obj.html;
 
-        $('#seccion-' + obj.padre).html(tabla);
-    });
-}
+        //~ $('#seccion-' + obj.padre).html(tabla);
+    //~ });
+//~ }
 
 
 
