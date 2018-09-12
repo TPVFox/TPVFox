@@ -16,48 +16,16 @@
  *
  *   
  */
-
-
-
-
 /* ===============  REALIZAMOS CONEXIONES  =============== */
-
-
 include_once './../../inicial.php';
 include_once $URLCom . '/configuracion.php';
 include_once $URLCom . '/modulos/mod_conexion/conexionBaseDatos.php';
 include_once $URLCom . '/controllers/Controladores.php';
-
-
-$rutaCompleta = $RutaServidor . $HostNombre;
-//include_once($rutaCompleta . '/clases/ClaseSession.php');
-//$CSession = new ClaseSession();
-// Incluimos controlador.
 $Controler = new ControladorComun;
-// Incluimos funciones
-//include_once ("./funciones.php");
-// Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
-// Nueva clase 
-//include ("./clases/ClaseProductos.php");
-//$NCArticulo = new ClaseProductos($BDTpv);
-//include_once('../../clases/articulos.php');
-//$CArticulo = new Articulos($BDTpv);
-//
-//include_once ('../mod_compras/clases/albaranesCompras.php');
-//$CAlbaran = new AlbaranesCompras($BDTpv);
-//
-//include_once('../../clases/Proveedores.php');
-//$CProveedor = new Proveedores($BDTpv);
 include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 include_once $URLCom . '/modulos/mod_familia/funciones.php';
-
-//include_once './clases/ClaseArticulos.php';
-//include_once './funciones_mayor.inc.php';
-
-
 $pulsado = $_POST['pulsado'];
-
 switch ($pulsado) {
     case 'leerFamilias':
         $idpadre = $_POST['idpadre'];
@@ -129,8 +97,6 @@ switch ($pulsado) {
         $idfamilia = $_POST['idfamilia'];
         $idnuevafamilia = $_POST['idnuevafamilia'];
         $idsproductos = $_POST['idsproductos'];
-
-//        $productos = explode(',', $idsproductos);
         $resultado = [];
         $listaerror = [];
         foreach ($idsproductos as $idproducto) {
@@ -170,8 +136,6 @@ switch ($pulsado) {
     case 'borrarFamilias':
         $familias = $_POST['idsfamilias'];
         $listaError = [];
-//        $familias = explode(',', $idsfamilias);
-
         $familia = new ClaseFamilias();
         foreach ($familias as $idfamilia) {
             $productos = $familia->contarProductos($idfamilia);
