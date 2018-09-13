@@ -70,7 +70,6 @@ switch ($pulsado) {
 
         $camposfamilia = compact('idFamilia', 'familiaNombre', 'familiaPadre', 'beneficiomedio');
         $resultado = [];
-        //~ $resultado['href'] = $_POST['href'];
         if ($familiaPadre >= 0) {
             $familia = new ClaseFamilias($BDTpv);
             $resultado['insert'] = $familia->grabar($camposfamilia);
