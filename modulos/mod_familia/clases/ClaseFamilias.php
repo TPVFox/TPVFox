@@ -26,14 +26,12 @@ class ClaseFamilias extends Modelo {
                 $nuevo = $descendiente['idFamilia'];
                 $resultado[] = $nuevo;
                 $nuevos = $this->buscardescendientes($nuevo);
-//            if ($nuevos ) {
                 foreach ($nuevos as $valor) {
                     $resultado[] = $valor;
                 }
-//            }
             }
         }
-//        return implode(', ',$resultado). count($nuevos>0)? implode(', ',$nuevos):'';
+
         return $resultado;
     }
 
@@ -63,13 +61,6 @@ class ClaseFamilias extends Modelo {
         return $nuestros;
     }
 
-    public function productosXFamilia($idfamilia) {
-        $sql = 'SELECT count(idArticulo) AS contador '
-                . 'FROM articulosFamilias where idFamilia=' . $idfamilia;
-        $resultado = $this->consulta($sql);
-        return $resultado['datos'][0]['contador'];
-    }
-
     public function leer($idfamilia) {
         $sql = 'SELECT FAM.*'
                 . ' FROM familias as FAM '
@@ -87,16 +78,6 @@ class ClaseFamilias extends Modelo {
                 . ' WHERE FAM.familiaPadre =' . $idpadre
                 . ' ORDER BY FAM.familiaNombre';
         $resultado = $this->consulta($sql);
-//        $resultado['datos'] = $this->cuentaHijos($resultado['datos']);
-        return $resultado;
-    }
-
-    public function buscaXNombre($nombre) {
-        $sql = 'SELECT FAM.* '
-                . ' FROM familias as FAM '
-                . ' WHERE FAM.familiaNombre LIKE "%' . $nombre . '%"'
-                . ' ORDER BY FAM.familiaNombre';
-        $resultado = $this->consulta($sql);
         return $resultado;
     }
 
@@ -106,15 +87,6 @@ class ClaseFamilias extends Modelo {
         } else {
             return $this->insert($datos);
         }
-    }
-
-    public function actualizarpadre($idpadre, $idfamilias) {
-        $datos = [];
-        foreach ($idfamilias as $idfamilia) {
-            $datos[] = $this->update(['familiaPadre' => $idpadre], ['idFamilia=' . $idfamilia]);
-        }
-
-        return $datos;
     }
 
     public function todoslosPadres($orden = '', $addRoot = false) {
