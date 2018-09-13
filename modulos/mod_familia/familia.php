@@ -78,7 +78,7 @@
                     <div class="col-md-12">
                         <div class="btn-toolbar">
                             <a class="btn btn-link"  id="btn-fam-volver"  href="ListaFamilias.php">Volver Atrás</a>
-                            <button class="btn btn-primary" type="button" id="btn-fam-grabar" data-href="./ListaFamilias.php">Guardar</button>
+                            <button class="btn btn-primary" type="button" id="btn-fam-grabar" onclick="guardarFamilia()" data-href="./ListaFamilias.php">Guardar</button>
                         </div>
                         <div class=" Datos">
                             <?php // si es nuevo mostramos Nuevo   ?>
