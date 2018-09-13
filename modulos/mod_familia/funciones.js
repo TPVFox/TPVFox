@@ -192,7 +192,7 @@ $(function () {
 });
 
 
-function capturaSeleccionar() {
+//~ function capturaSeleccionar() {
     //~ $("#btn-borrarfamilia").on("click", function (event) {
         //~ event.stopPropagation();
         //~ event.preventDefault();
@@ -220,31 +220,31 @@ function capturaSeleccionar() {
         //~ }
     //~ });
 
-        $(".btn-seleccionar").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+        //~ $(".btn-seleccionar").on("click", function (event) {
+        //~ event.stopPropagation();
+        //~ event.preventDefault();
 
-        var data = $(event.currentTarget).data();
-        if (data.idproducto) {
-            idtr = "tr_" + data.idproducto;
-            if ($('#' + idtr).hasClass('seleccionado')) {
-                $('#' + idtr).removeClass('seleccionado');
-            } else {
-                $('#' + idtr).addClass('seleccionado');
-            }
-        }
-        var cuenta = contarSeleccionados();
-        if (cuenta > 0) {
-            $('#btn-cambiarpadre').show();
-            $('#btn-borrarfamilia').show();
-        } else {
-            $('#btn-cambiarpadre').hide()
-            $('#btn-borrarfamilia').hide()
-        }
+        //~ var data = $(event.currentTarget).data();
+        //~ if (data.idproducto) {
+            //~ idtr = "tr_" + data.idproducto;
+            //~ if ($('#' + idtr).hasClass('seleccionado')) {
+                //~ $('#' + idtr).removeClass('seleccionado');
+            //~ } else {
+                //~ $('#' + idtr).addClass('seleccionado');
+            //~ }
+        //~ }
+        //~ var cuenta = contarSeleccionados();
+        //~ if (cuenta > 0) {
+            //~ $('#btn-cambiarpadre').show();
+            //~ $('#btn-borrarfamilia').show();
+        //~ } else {
+            //~ $('#btn-cambiarpadre').hide()
+            //~ $('#btn-borrarfamilia').hide()
+        //~ }
 
-    });
+    //~ });
 
-}
+//~ }
 
 function borrarProductoFamilia(){
     console.log("Entre en borrar familia");
@@ -271,6 +271,25 @@ function borrarProductoFamilia(){
         }
 }
 
+function seleccionarProductos(idProducto){
+      //~ var data = $(event.currentTarget).data();
+        //~ if (data.idproducto) {
+            idtr = "tr_" + idProducto;
+            if ($('#' + idtr).hasClass('seleccionado')) {
+                $('#' + idtr).removeClass('seleccionado');
+            } else {
+                $('#' + idtr).addClass('seleccionado');
+            }
+        //~ }
+        var cuenta = contarSeleccionados();
+        if (cuenta > 0) {
+            $('#btn-cambiarpadre').show();
+            $('#btn-borrarfamilia').show();
+        } else {
+            $('#btn-cambiarpadre').hide()
+            $('#btn-borrarfamilia').hide()
+        }
+}
 //~ function leerfamiliaspadre0() {
     //~ leerFamilias(0, function (respuesta) {
         //~ var obj = JSON.parse(respuesta);

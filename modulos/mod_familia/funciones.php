@@ -172,7 +172,7 @@ function htmlTablaFamiliaProductos($idfamilia) {
             $html .= '<tr id="tr_' . $producto['idArticulo'] . '" data-idproducto="' . $producto['idArticulo'] . '">';
             $html .= '<td>' . $producto['idArticulo'] . '</td>';
             $html .= '<td> ' . $producto['articulo_name'] . ' </td>';
-            $html .= '<td> <button type="button" class="btn btn-seleccionar" id="selproducto' . $producto['idArticulo']
+            $html .= '<td> <button type="button" class="btn btn-seleccionar" onclick="seleccionarProductos('.$producto['idArticulo'].')" id="selproducto' . $producto['idArticulo']
                     . '" data-idproducto="' . $producto['idArticulo'] . '"> select </button> </td>';
             $html .= '</tr>';
         }
