@@ -63,7 +63,7 @@ function familias2Html($familias) {
             if ($familia['hijos'] > 0) {
                 $resultado .= '<button name="btn-expandir" id="botonexpandir-' . $familia['idFamilia']
                         . '" data-alseccion="' . $familia['idFamilia']
-                        . '" class="btn btn-primary btn-sm btn-expandir">'
+                        . '" class="btn btn-primary btn-sm btn-expandir" onclick="expandir('.$familia['idFamilia'].')">'
                         . '<span class="glyphicon glyphicon-plus"></span> expandir </button> ';
                 $resultado .= '<button name="btn-compactar" id="botoncompactar-' . $familia['idFamilia']
                         . '" data-alseccion="' . $familia['idFamilia']

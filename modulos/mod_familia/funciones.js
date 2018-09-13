@@ -105,6 +105,20 @@ function compactar(idFamilia){
             $("#fila-" + idFamilia).removeClass('al-filavisible');
             $("#fila-" + idFamilia).hide();
 }
+function expandir(idFamilia){
+        leerFamilias(idFamilia, function (respuesta) {
+                var obj = JSON.parse(respuesta);
+                var datos = obj.datos;
+                var tabla = obj.html;
+                $("#botonexpandir-" + obj.padre).removeClass('btn-expandir')
+                $("#botonexpandir-" + obj.padre).hide();
+                $("#botoncompactar-" + obj.padre).show();
+                $("#botoncompactar-" + obj.padre).addClass('btn-compactar');
+                $("#fila-" + obj.padre).show();
+                $("#fila-" + obj.padre).addClass('al-filavisible');
+                $('#seccion-' + obj.padre).html(tabla);
+            });
+}
 function seleccionarProductos(idProducto){
             idtr = "tr_" + idProducto;
             if ($('#' + idtr).hasClass('seleccionado')) {
@@ -120,35 +134,6 @@ function seleccionarProductos(idProducto){
             $('#btn-cambiarpadre').hide()
             $('#btn-borrarfamilia').hide()
         }
-}
-
-function capturaevento_click(botones) {
-    for (var i = 0; i <= botones.length - 1; i++) {
-        $("#botonexpandir-" + botones[i]).on("click", function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-
-
-            boton = $(event.currentTarget);
-
-            var seccion = boton.data('alseccion');
-
-            leerFamilias(seccion, function (respuesta) {
-                var obj = JSON.parse(respuesta);
-                var datos = obj.datos;
-                var tabla = obj.html;
-                $("#botonexpandir-" + obj.padre).removeClass('btn-expandir')
-                $("#botonexpandir-" + obj.padre).hide();
-                $("#botoncompactar-" + obj.padre).show();
-                $("#botoncompactar-" + obj.padre).addClass('btn-compactar');
-                $("#fila-" + obj.padre).show();
-                $("#fila-" + obj.padre).addClass('al-filavisible');
-                $('#seccion-' + obj.padre).html(tabla);
-            });
-        });
-
-       
-    }
 }
 function marcarFamiliaEliminar(productos, idfamilia){
             if (productos === 0) {
