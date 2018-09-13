@@ -32,11 +32,12 @@ $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales[
         <?php
         include_once $URLCom . '/head.php';
         ?>
+        
         <link rel="stylesheet" href="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.css" type="text/css">
         <link rel="stylesheet" href="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.css" type="text/css">
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-
+ <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>  
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script type="text/javascript" src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
 
