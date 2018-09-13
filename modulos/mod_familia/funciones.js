@@ -8,26 +8,6 @@
 
 $(function () {
 
-    //~ leerfamiliaspadre0();
-
-    //~ $("#botonnuevo-hijo-0").on("click", function (event) {
-        //~ event.stopPropagation();
-        //~ event.preventDefault();
-
-        //~ window.location.href = 'familia.php?id=0';
-    //~ });
-
-
-    //~ $("#btn-fam-volver").on("click", function (event) {
-        //~ event.stopPropagation();
-        //~ event.preventDefault();
-
-        //~ var data = $(event.currentTarget).data();
-        //~ if (data.href) {
-            //~ window.location.href = data.href;
-        //~ }
-    //~ });
-
     $("#btn-fam-grabar").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
@@ -80,8 +60,6 @@ $(function () {
     $("#btn-padre-grabar").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
-        //var data = $(event.currentTarget).data();
-
         var seleccion = seleccionados('idproducto');
         var idfamilia = $('#idfamilia').val();
         var idnuevafamilia = $('#inputIdNuevaModal').val();
@@ -131,23 +109,6 @@ $(function () {
         }
     });
 
-    //~ $("#btn-expandirtodo").on("click", function (event) {
-        //~ event.stopPropagation();
-        //~ event.preventDefault();
-
-        //~ var quedan = expandirTodos();
-        //~ alert('quedan por expandir ' + quedan);
-    //~ });
-
-    //~ $("#btn-compactartodo").on("click", function (event) {
-        //~ event.stopPropagation();
-        //~ event.preventDefault();
-
-        //~ compactarTodos();
-
-
-    //~ });
-
     $('#inputNombreFamiliaModal').autocomplete({
         minLength: 3,
         source: function (request, response) {
@@ -191,61 +152,6 @@ $(function () {
 
 });
 
-
-//~ function capturaSeleccionar() {
-    //~ $("#btn-borrarfamilia").on("click", function (event) {
-        //~ event.stopPropagation();
-        //~ event.preventDefault();
-
-        //~ var seleccion = seleccionados('idproducto');
-        //~ var idfamilia = $('#idfamilia').val();
-
-        //~ if(seleccion.length > 0) {
-            //~ ajaxCall({pulsado: 'borrarFamiliaProducto',
-                //~ idfamilia: idfamilia,
-                //~ idsproductos : seleccion,
-            //~ }, function (respuesta) {
-                //~ var obj = JSON.parse(respuesta);
-                //~ console.log(obj);
-                //~ if (!obj.error) {
-                    //~ $('#tproductos').parent().html(obj.html);
-                    //~ alert('borrado correctamente');
-                    //~ capturaSeleccionar(); // ¡¡OJO se llama a si mismo!!. ¿Y funciona?
-                //~ } else {
-                    //~ alert('Error al borrar');
-                //~ }
-            //~ }
-            //~ );
-
-        //~ }
-    //~ });
-
-        //~ $(".btn-seleccionar").on("click", function (event) {
-        //~ event.stopPropagation();
-        //~ event.preventDefault();
-
-        //~ var data = $(event.currentTarget).data();
-        //~ if (data.idproducto) {
-            //~ idtr = "tr_" + data.idproducto;
-            //~ if ($('#' + idtr).hasClass('seleccionado')) {
-                //~ $('#' + idtr).removeClass('seleccionado');
-            //~ } else {
-                //~ $('#' + idtr).addClass('seleccionado');
-            //~ }
-        //~ }
-        //~ var cuenta = contarSeleccionados();
-        //~ if (cuenta > 0) {
-            //~ $('#btn-cambiarpadre').show();
-            //~ $('#btn-borrarfamilia').show();
-        //~ } else {
-            //~ $('#btn-cambiarpadre').hide()
-            //~ $('#btn-borrarfamilia').hide()
-        //~ }
-
-    //~ });
-
-//~ }
-
 function borrarProductoFamilia(){
     console.log("Entre en borrar familia");
     var seleccion = seleccionados('idproducto');
@@ -272,15 +178,12 @@ function borrarProductoFamilia(){
 }
 
 function seleccionarProductos(idProducto){
-      //~ var data = $(event.currentTarget).data();
-        //~ if (data.idproducto) {
             idtr = "tr_" + idProducto;
             if ($('#' + idtr).hasClass('seleccionado')) {
                 $('#' + idtr).removeClass('seleccionado');
             } else {
                 $('#' + idtr).addClass('seleccionado');
             }
-        //~ }
         var cuenta = contarSeleccionados();
         if (cuenta > 0) {
             $('#btn-cambiarpadre').show();
@@ -290,17 +193,6 @@ function seleccionarProductos(idProducto){
             $('#btn-borrarfamilia').hide()
         }
 }
-//~ function leerfamiliaspadre0() {
-    //~ leerFamilias(0, function (respuesta) {
-        //~ var obj = JSON.parse(respuesta);
-        //~ var datos = obj.datos;
-        //~ var tabla = obj.html;
-
-        //~ $('#seccion-' + obj.padre).html(tabla);
-    //~ });
-//~ }
-
-
 
 function capturaevento_click(botones) {
     for (var i = 0; i <= botones.length - 1; i++) {
@@ -506,7 +398,6 @@ function expandirTodos() {
         var idboton = $(element).attr('id');
         $('#' + idboton).click();
     });
-    //~ return $('.btn-expandir').length;
     alert('quedan por expandir ' + $('.btn-expandir').length);
 }
 
@@ -515,5 +406,4 @@ function compactarTodos() {
         var idboton = $(element).attr('id');
         $('#' + idboton).click();
     });
-    //~ return $('.btn-compactar').length;
 }
