@@ -152,55 +152,7 @@
                 </div> 
                 <!-- Fin div col-md-6 -->
             </div>
-
-
-        </div>
-
-        <!-- Modal -->
-        <?php
-        $combofamilias = ' <select name="padre" class="form-control" id="combopadremodal">';
-        foreach ($padres['datos'] as $padre) {
-            $combofamilias .= '<option value=' . $padre['idFamilia'];
-            if (($id != 0) && ($familia['familiaPadre'] == $padre['idFamilia'])) {
-                $combofamilias .= ' selected = "selected" ';
-            }
-            $combofamilias .= '>' . $padre['familiaNombre'] . '</option>';
-        }
-        $combofamilias .= '</select>';
-        ?>        
-
-
-
-        <div id="cambioFamiliaModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header btn-primary">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title text-center">Cambiar Familia de productos Seleccionados</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row  ui-front">
-                            Familia actual: <input class="form-control" id="inputFamiliaActualModal" 
-                                                   value="--- Padre raíz ---"/>
-                            <input id="inputIdactualModal" type="hidden" value="0">
-                        </div>
-                        <div id="formularioFamiliaModal" >
-                            <div class="row  ui-front">
-                                Cambiar familia a: <?php echo $combofamilias ?>
-
-                                <input id="inputIdNuevaModal" type="hidden" value="0">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="btn-padre-grabar" class="btn btn-primary" >
-                            <span class="glyphicon glyphicon-save"> </span>Grabar</button>&nbsp;
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div>      
 
         <script src="<?php echo $HostNombre; ?>/modulos/mod_familia/funciones.js"></script>        
     </body>

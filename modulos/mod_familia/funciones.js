@@ -7,73 +7,10 @@
 
 
 $(function () {
-    $("#btn-padre-grabar").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-        var seleccion = seleccionados('idproducto');
-        var idfamilia = $('#idfamilia').val();
-        var idnuevafamilia = $('#inputIdNuevaModal').val();
-        if(seleccion.length > 0) {
-            ajaxCall({pulsado: 'cambiarFamiliaProducto',
-                idfamilia: idfamilia,
-                idnuevafamilia: idnuevafamilia,
-                idsproductos : seleccion,
-            }, function (respuesta) {
-                var obj = JSON.parse(respuesta);
-                console.log(obj);
-                if (!obj.error) {
-                    alert('cambiados correctamente');
-                    
-                    location.reload();
-                } else {
-                    alert('Error al borrar');
-                }
-            }
-            );
-
-        }
-        
-    });
-
-    $('#inputNombreFamiliaModal').autocomplete({
-        minLength: 3,
-        source: function (request, response) {
-            // Fetch data
-            $.ajax({
-                url: "tareas.php",
-                type: 'post',
-                data: {
-                    pulsado: 'BuscaNombreFamilia',
-                    nombre: request.term
-                },
-                success: function (data) {
-                    var obj = JSON.parse(data);
-                    response(obj);
-                }
-            });
-        },
-        select: function (event, ui) {
-            console.log(event);
-            if (ui) {
-                $('#nombreFamilia').val(ui.item.label);
-                $('#inputIdFamiliaModal').val(ui.item.valor);
-            }
-            //return false;
-        }
-    });
-
-    //~ capturaSeleccionar();
-
     $("#combopadre").combobox({
         select: function (event, ui) {
             console.log(ui.item.value);
             $('#inputidpadre').val(ui.item.value);
-        },
-    });
-
-    $("#combopadremodal").combobox({
-        select: function (event, ui) {
-            $('#inputIdNuevaModal').val(ui.item.value);
         },
     });
 
@@ -135,8 +72,6 @@ function guardarFamilia(){
             );
         }
 }
-
-
 
 function borrarProductoFamilia(){
     console.log("Entre en borrar familia");
@@ -222,9 +157,6 @@ function capturaevento_click(botones) {
         $("#botonnuevo-hijo-" + botones[i]).on("click", function (event) {
             event.stopPropagation();
             event.preventDefault();
-
-
-
             var data = $(event.currentTarget).data();
 
             var parametros = {
@@ -276,12 +208,6 @@ function capturaevento_click(botones) {
         });
     }
 }
-
-
-
-
-
-
 
 function leerFamilias(idpadre, callback) {
     var parametros = {
