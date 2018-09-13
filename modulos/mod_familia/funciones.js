@@ -155,18 +155,10 @@ $(function () {
 
 
 function guardarFamilia(){
-      //~ event.stopPropagation();
-        //~ event.preventDefault();
-        //~ var data = $(event.currentTarget).data();
-
         var id = $('#idfamilia').val();
         var idpadre = $('#inputidpadre').val();
-        //~ var idpadre=$('#combopadre').val();
         var nombrefamilia = $('#inputnombre').val();
         var beneficiomedio = $('#inputbeneficio').val();
-        
-        console.log(idpadre);
-        //~ var volvera = data.href;
 
         var mensajes = [];
         if (idpadre == -1) {
@@ -185,17 +177,15 @@ function guardarFamilia(){
                 nombrefamilia: nombrefamilia,
                 idpadre: idpadre,
                 beneficiomedio: beneficiomedio
-                //~ href: volvera
                 }, function (respuesta) {
-                var obj = JSON.parse(respuesta);
-                var error = obj.error;
+                var respuesta = JSON.parse(respuesta);
+                var error = respuesta.error;
 
                 if (error == '0') {
-                    //~ var href = obj.href;
                     alert('Grabado correctamente');
                     window.location.href = './ListaFamilias.php';
                 } else {
-                    alert(error + ' ' + obj.insert);
+                    alert(error + ' ' + respuesta.insert);
                 }
             }
             );
