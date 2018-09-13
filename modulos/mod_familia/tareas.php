@@ -37,23 +37,6 @@ switch ($pulsado) {
         $familias = (new ClaseFamilias())->todoslosPadres('', true);
         echo json_encode($familias['datos']);
         break;
-
-    //~ case 'BuscaNombreFamilia':
-        //~ $nombre = $_POST['nombre'];
-
-        //~ $resultado = [];
-        //~ $familias = (new ClaseFamilias($BDTpv))->buscaXNombre($nombre);
-        //~ if (!isset($familias['error'])) {
-            //~ $datos = $familias['datos'];
-            //~ foreach ($datos as $dato) {
-                //~ $resultado [] = ['label' => $dato['familiaNombre'], 'valor' => $dato['idFamilia']];
-            //~ }
-        //~ } else {
-            //~ $resultado = $familias['error'];
-        //~ }
-        //~ echo json_encode($resultado);
-        //~ break;
-
     case 'grabarFamilia':
 
 // comprobar datos en el lado servidor    
@@ -77,44 +60,6 @@ switch ($pulsado) {
         }
         echo json_encode($resultado);
         break;
-
-    //~ case 'grabarPadres':
-        //~ $idpadre = $_POST['idpadre'];
-        //~ $idsfamilia = $_POST['idsfamilia'];
-        //~ $familia = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
-        //~ echo json_encode($familia);
-        //~ break;
-
-    case 'descendientes':
-        $idfamilia = $_POST['idfamilia'];
-        $familia = new ClaseFamilias($BDTpv);
-        $resultado = $familia->familiasSinDescendientes($idfamilia);
-        echo json_encode($resultado);
-        break;
-
-    case 'cambiarFamiliaProducto':
-        $idfamilia = $_POST['idfamilia'];
-        $idnuevafamilia = $_POST['idnuevafamilia'];
-        $idsproductos = $_POST['idsproductos'];
-        $resultado = [];
-        $listaerror = [];
-        foreach ($idsproductos as $idproducto) {
-            $todobien = alArticulos::borrarArticuloFamilia($idproducto, $idfamilia);
-            if (($todobien) && (!alArticulos::existeArticuloFamilia($idproducto, $idnuevafamilia))) {
-                $todobien = alArticulos::grabarArticuloFamilia($idproducto, $idnuevafamilia);
-                if (!$todobien) {
-                    $listaerror[] = [$idproducto, $idnuevafamilia];
-                }
-            } else {
-                $listaerror[] = 'existe???' . $idproducto;
-            }
-        }
-
-        $resultado['html'] = htmlTablaFamiliaProductos($idfamilia);
-        $resultado['error'] = count($listaerror) > 0; // no hay errores. ¿Para que devolver la lista de errores? :-)
-        echo json_encode($resultado);
-        break;
-
     case 'borrarFamiliaProducto':
         $idfamilia = $_POST['idfamilia'];
         $idsproductos = $_POST['idsproductos'];
