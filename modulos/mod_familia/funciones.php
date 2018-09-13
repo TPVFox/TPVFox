@@ -67,7 +67,7 @@ function familias2Html($familias) {
                         . '<span class="glyphicon glyphicon-plus"></span> expandir </button> ';
                 $resultado .= '<button name="btn-compactar" id="botoncompactar-' . $familia['idFamilia']
                         . '" data-alseccion="' . $familia['idFamilia']
-                        . '" class="btn btn-primary btn-sm " style="display:none">'
+                        . '" class="btn btn-primary btn-sm " style="display:none" onclick="compactar('.$familia['idFamilia'].')">'
                         . '<span class="glyphicon glyphicon-minus"></span> compactar </button> ';
             } else {
 

@@ -97,7 +97,14 @@ function borrarProductoFamilia(){
 
         }
 }
-
+function compactar(idFamilia){
+            $("#botoncompactar-" + idFamilia).removeClass('btn-compactar')
+            $("#botoncompactar-" + idFamilia).hide();
+            $("#botonexpandir-" + idFamilia).show();
+            $("#botonexpandir-" + idFamilia).addClass('btn-expandir');
+            $("#fila-" + idFamilia).removeClass('al-filavisible');
+            $("#fila-" + idFamilia).hide();
+}
 function seleccionarProductos(idProducto){
             idtr = "tr_" + idProducto;
             if ($('#' + idtr).hasClass('seleccionado')) {
@@ -140,19 +147,7 @@ function capturaevento_click(botones) {
             });
         });
 
-        $("#botoncompactar-" + botones[i]).on("click", function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-
-            var seccion = $(event.currentTarget).data('alseccion');
-
-            $("#botoncompactar-" + seccion).removeClass('btn-compactar')
-            $("#botoncompactar-" + seccion).hide();
-            $("#botonexpandir-" + seccion).show();
-            $("#botonexpandir-" + seccion).addClass('btn-expandir');
-            $("#fila-" + seccion).removeClass('al-filavisible');
-            $("#fila-" + seccion).hide();
-        });
+       
     }
 }
 function marcarFamiliaEliminar(productos, idfamilia){
