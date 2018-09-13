@@ -7,56 +7,6 @@
 
 
 $(function () {
-
-    //~ $("#btn-fam-grabar").on("click", function (event) {
-        //~ event.stopPropagation();
-        //~ event.preventDefault();
-
-        //~ var data = $(event.currentTarget).data();
-
-        //~ var id = $('#idfamilia').val();
-        //~ var idpadre = $('#inputidpadre').val();
-        //~ var nombrefamilia = $('#inputnombre').val();
-        //~ var beneficiomedio = $('#inputbeneficio').val();
-        //~ var volvera = data.href;
-
-        //~ var mensajes = [];
-        //~ if (idpadre == -1) {
-            //~ mensajes.push('Por favor seccione un padre de la lista');
-        //~ }
-        //~ if (nombrefamilia.length == 0) {
-            //~ mensajes.push('Por favor da un nombre a la familia');
-        //~ }
-
-
-        //~ if (mensajes.length > 0) {
-            //~ //errores
-            //~ for (var i = 0; i < mensajes.length; i++) {
-                //~ alert(mensajes[i]);
-            //~ }
-        //~ } else {
-            //~ ajaxCall({pulsado: 'grabarFamilia',
-                //~ id: id,
-                //~ nombrefamilia: nombrefamilia,
-                //~ idpadre: idpadre,
-                //~ beneficiomedio: beneficiomedio,
-                //~ href: volvera}, function (respuesta) {
-                //~ var obj = JSON.parse(respuesta);
-                //~ var error = obj.error;
-
-                //~ if (error == '0') {
-                    //~ var href = obj.href;
-                    //~ alert('Grabado correctamente');
-                    //~ window.location.href = href;
-                //~ } else {
-                    //~ alert(error + ' ' + obj.insert);
-                //~ }
-            //~ }
-            //~ );
-        //~ }
-
-    //~ });
-
     $("#btn-padre-grabar").on("click", function (event) {
         event.stopPropagation();
         event.preventDefault();
