@@ -74,7 +74,7 @@ function familias2Html($familias) {
                 $resultado .= '<button name="btn-marcaeliminar" id="botonMarcaEliminar-' . $familia['idFamilia'] . '" '
                         . ' data-alseccion="' . $familia['idFamilia'] . '"'
                         . ' data-productos="' . $familia['productos'] . '"'
-                        . ' class="btn btn-primary btn-sm ">'
+                        . ' class="btn btn-primary btn-sm " onclick="marcarFamiliaEliminar('.$familia['productos'].', '.$familia['idFamilia'].')">'
                         . '<span class="glyphicon glyphicon-trash"></span> </button> ';
             }
             $resultado .= '</td>';

@@ -38,21 +38,21 @@ switch ($pulsado) {
         echo json_encode($familias['datos']);
         break;
 
-    case 'BuscaNombreFamilia':
-        $nombre = $_POST['nombre'];
+    //~ case 'BuscaNombreFamilia':
+        //~ $nombre = $_POST['nombre'];
 
-        $resultado = [];
-        $familias = (new ClaseFamilias($BDTpv))->buscaXNombre($nombre);
-        if (!isset($familias['error'])) {
-            $datos = $familias['datos'];
-            foreach ($datos as $dato) {
-                $resultado [] = ['label' => $dato['familiaNombre'], 'valor' => $dato['idFamilia']];
-            }
-        } else {
-            $resultado = $familias['error'];
-        }
-        echo json_encode($resultado);
-        break;
+        //~ $resultado = [];
+        //~ $familias = (new ClaseFamilias($BDTpv))->buscaXNombre($nombre);
+        //~ if (!isset($familias['error'])) {
+            //~ $datos = $familias['datos'];
+            //~ foreach ($datos as $dato) {
+                //~ $resultado [] = ['label' => $dato['familiaNombre'], 'valor' => $dato['idFamilia']];
+            //~ }
+        //~ } else {
+            //~ $resultado = $familias['error'];
+        //~ }
+        //~ echo json_encode($resultado);
+        //~ break;
 
     case 'grabarFamilia':
 

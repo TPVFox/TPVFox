@@ -153,35 +153,9 @@ function capturaevento_click(botones) {
             $("#fila-" + seccion).removeClass('al-filavisible');
             $("#fila-" + seccion).hide();
         });
-
-        $("#botonnuevo-hijo-" + botones[i]).on("click", function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-            var data = $(event.currentTarget).data();
-
-            var parametros = {
-                pulsado: 'descendientes',
-                idfamilia: data.alpadre
-            };
-
-            ajaxCall(parametros, function (respuesta) {
-                var obj = JSON.parse(respuesta);
-                var datos = obj.datos;
-                var tabla = obj.html;
-                console.log(obj);
-            }
-            );
-
-        });
-
-        $("#botonMarcaEliminar-" + botones[i]).on("click", function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-
-
-            var idfamilia = $(event.currentTarget).data('alseccion');
-            var productos = $(event.currentTarget).data('productos');
-
+    }
+}
+function marcarFamiliaEliminar(productos, idfamilia){
             if (productos === 0) {
                 if ($('#fila0-' + idfamilia).hasClass('seleccionado')) {
                     $('#fila0-' + idfamilia).removeClass('seleccionado');
@@ -199,22 +173,17 @@ function capturaevento_click(botones) {
                     if ($('#btn-eliminar')) {
                         $('#btn-eliminar').hide();
                     }
-
                 }
-
             } else {
                 alert('Si quieres dejar huerfanos ' + productos + ' productos, pídele permiso al Riiichard');
             }
-        });
-    }
+    
 }
-
 function leerFamilias(idpadre, callback) {
     var parametros = {
         pulsado: 'leerFamilias',
         idpadre: idpadre
     };
-
     $.ajax({
         data: parametros,
         url: './tareas.php',
