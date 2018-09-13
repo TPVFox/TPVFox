@@ -35,30 +35,6 @@ $(function () {
         
     });
 
-    //~ $("#btn-eliminar").on("click", function (event) {
-        //~ event.stopPropagation();
-        //~ event.preventDefault();
-
-        //~ var seleccion = seleccionados();
-
-        //~ if (seleccion.length > 0) {
-            //~ ajaxCall({pulsado: 'borrarFamilias',
-                //~ idsfamilias: seleccion,
-            //~ }, function (respuesta) {
-                //~ var obj = JSON.parse(respuesta);
-                //~ console.log(obj);
-                //~ if (!obj.error) {
-                    //~ alert('borrado correctamente');
-                    //~ location.reload();
-                //~ } else {
-                    //~ alert('Error al borrar');
-                //~ }
-            //~ }
-            //~ );
-
-        //~ }
-    //~ });
-
     $('#inputNombreFamiliaModal').autocomplete({
         minLength: 3,
         source: function (request, response) {
@@ -104,11 +80,7 @@ $(function () {
 });
 
 function EliminarFamiliasSeleccionadas(){
-     //~ event.stopPropagation();
-        //~ event.preventDefault();
-
         var seleccion = seleccionados();
-
         if (seleccion.length > 0) {
             ajaxCall({pulsado: 'borrarFamilias',
                 idsfamilias: seleccion,
