@@ -75,8 +75,8 @@ $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales[
                             <?php
                             if ($ClasePermisos->getAccion("eliminar") == 1) {
                                 ?>
-                                <li><button class="btn btn-link" id="btn-eliminar" style="display: none"
-                                            data-alabuelo="0">Eliminar marcados</button></li>
+                                <li><a class="btn btn-link" id="btn-eliminar" style="display: none"
+                                            data-alabuelo="0" onclick="EliminarFamiliasSeleccionadas()">Eliminar marcados</a></li>
                                     <?php
                                 }
                                 ?>
