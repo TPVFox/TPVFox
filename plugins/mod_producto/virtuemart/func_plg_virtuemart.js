@@ -302,5 +302,26 @@ function actualizarProductosWeb(inicio){
    
 }
 
+function enviarStockWeb(tienda_web,productos,idTicket){
+    $("#DescontarStock").prop("disabled", true);
+      var parametros = {
+            "pulsado"   : 'RestarStock',
+            productos: productos
+    };
+    console.log(parametros);
+      $.ajax({
+		data       : parametros,
+		url        :  ruta_plg_virtuemart+'tareas_virtuemart.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  restar stock en la web **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de restar stock en la web ');
+				var resultado = $.parseJSON(response);
+                console.log(resultado);
+		}	
+	});
+}
 
 

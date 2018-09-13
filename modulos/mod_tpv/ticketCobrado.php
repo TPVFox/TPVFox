@@ -7,8 +7,10 @@
         include_once $URLCom.'/modulos/mod_tpv/funciones.php';
 		include_once $URLCom.'/controllers/Controladores.php';
        	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
+        include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         $Controler = new ControladorComun; 
 		// Añado la conexion
+          $CTArticulos = new ClaseProductos($BDTpv);
 		$Controler->loadDbtpv($BDTpv);
 		// Cargamos clase y creamos objeto de tickets
 		$CTickets = new ClaseTickets();
@@ -41,7 +43,11 @@
 		}
 			
 		$titulo = 'Ticket '.$ticket['cabecera']['estado'];
-		
+		if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+            $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
+            echo $ObjVirtuemart->htmlJava();
+            $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+         }
 		// Añadimos productos a JS
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);

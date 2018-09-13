@@ -863,6 +863,7 @@ function PrepararEnviarStockWeb(idTicket){
 			tienda_web = resultado.tienda;
 			// Recuerda que el repción de los datos no es el mismo que envio, por debemos asociar key con valor.
             productos = resultado.productos;
+            console.log(productos);
             // Buscamos key en producto que no tenga virtuemart no los mandamos.
             for ( x=0; x < productos.length ; x ++){
 				if (productos[x].idVirtuemart >0 ){
@@ -873,45 +874,46 @@ function PrepararEnviarStockWeb(idTicket){
                 }
 			}
             // Ahora aquellos productos que tiene idVirtuemart
-            EnviarStockWeb(tienda_web,productos,idTicket);
+            //~ EnviarStockWeb(tienda_web,productos,idTicket);
+            enviarStockWeb(tienda_web,productos,idTicket);
 		}
 	});
 	
 }
 
-function EnviarStockWeb(tienda_web,productos,idTicket){
-	// @Objetivo :
-	// Ejecutar en servidor de web funcion que reste stock de productos
-	// Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
-	$("#DescontarStock").prop("disabled", true);
-	var url_ruta = tienda_web.dominio + '/administrator/apisv/tareas.php';
-	var parametros = {
-		"key" :  tienda_web.key_api,
-		"action"    : 'RestarStock',
-		"productos"	: JSON.stringify(productos)
-	};
-	$.ajax({
-		data       : parametros,
-		url        : url_ruta,
-		type       : 'post',
-		beforeSend : function () {
-		console.log('*********  Envio datos para Buscar Producto  ****************');
-		},
-		success    :  function (response) {
-				console.log('Respuesta de envio de datos');
-				//~ var resultado = $.parseJSON(response);
-				var resultado = response;
+//~ function EnviarStockWeb(tienda_web,productos,idTicket){
+	//~ // @Objetivo :
+	//~ // Ejecutar en servidor de web funcion que reste stock de productos
+	//~ // Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
+	//~ $("#DescontarStock").prop("disabled", true);
+	//~ var url_ruta = tienda_web.dominio + '/administrator/apisv/tareas.php';
+	//~ var parametros = {
+		//~ "key" :  tienda_web.key_api,
+		//~ "action"    : 'RestarStock',
+		//~ "productos"	: JSON.stringify(productos)
+	//~ };
+	//~ $.ajax({
+		//~ data       : parametros,
+		//~ url        : url_ruta,
+		//~ type       : 'post',
+		//~ beforeSend : function () {
+		//~ console.log('*********  Envio datos para Buscar Producto  ****************');
+		//~ },
+		//~ success    :  function (response) {
+				//~ console.log('Respuesta de envio de datos');
+
+				//~ var resultado = response;
 	
-				if (resultado['Datos'].estado !== 'Correcto'){
-					// Quiere decir que algo salio mal.. por lo que debemos guardalo en registro como error.
-					alert(' Error, algo salio mal.');
-				}
-				// Ahora registramos en tpv ( importar_virtuemart_ticketst el resultado)
-				RegistrarRestarStockTicket(resultado['Datos'],idTicket);
-			}
+				//~ if (resultado['Datos'].estado !== 'Correcto'){
+					//~ // Quiere decir que algo salio mal.. por lo que debemos guardalo en registro como error.
+					//~ alert(' Error, algo salio mal.');
+				//~ }
+				//~ // Ahora registramos en tpv ( importar_virtuemart_ticketst el resultado)
+				//~ RegistrarRestarStockTicket(resultado['Datos'],idTicket);
+			//~ }
 			
-	});
-}  
+	//~ });
+//~ }  
 
 function RegistrarRestarStockTicket(respuesta,id_ticketst){
 	// Ejecutar en servidor local (tpv) registro de que ya se resto stock.

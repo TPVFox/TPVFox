@@ -138,6 +138,28 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $respuesta;
     }
     
+    public function modificarStock($productos){
+        $ruta =$this->ruta_web;
+        $produc="'".json_encode($productos, true)."'";
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'descontarStock',
+							'productos'	=>$produc
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+
+        return $respuesta;
+    }
+    
+    
     public function modificarProducto($datos){
         //@Objetivo: Modificar un producto en la web con los datos que el usuario 
         //añada en el tpv
