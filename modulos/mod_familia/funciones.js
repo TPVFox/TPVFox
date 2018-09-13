@@ -192,42 +192,6 @@ function leerFamiliaPadre(idpadre, callback) {
     });
 }
 
-function grabarFamilia(datos, callback) {
-    var parametros = {
-        pulsado: 'grabarFamilia',
-        idpadre: datos.idpadre,
-        nombre: datos.nombrefamilia
-    };
-
-    $.ajax({
-        data: parametros,
-        url: './tareas.php',
-        type: 'post',
-        success: callback,
-        error: function (request, textStatus, error) {
-            console.log(textStatus);
-        }
-    });
-}
-
-function grabarPadres(datos, callback) {
-    var parametros = {
-        pulsado: 'grabarPadres',
-        idpadre: datos.idpadre,
-        idsfamilia: datos.idsfamilia
-    };
-
-    $.ajax({
-        data: parametros,
-        url: './tareas.php',
-        type: 'post',
-        success: callback,
-        error: function (request, textStatus, error) {
-            console.log(textStatus);
-        }
-    });
-}
-
 function ajaxCall(parametros, callback) {
 
     $.ajax({

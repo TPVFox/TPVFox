@@ -78,12 +78,12 @@ switch ($pulsado) {
         echo json_encode($resultado);
         break;
 
-    case 'grabarPadres':
-        $idpadre = $_POST['idpadre'];
-        $idsfamilia = $_POST['idsfamilia'];
-        $familia = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
-        echo json_encode($familia);
-        break;
+    //~ case 'grabarPadres':
+        //~ $idpadre = $_POST['idpadre'];
+        //~ $idsfamilia = $_POST['idsfamilia'];
+        //~ $familia = (new ClaseFamilias($BDTpv))->actualizarpadre($idpadre, $idsfamilia);
+        //~ echo json_encode($familia);
+        //~ break;
 
     case 'descendientes':
         $idfamilia = $_POST['idfamilia'];
