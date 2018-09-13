@@ -59,15 +59,15 @@ $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales[
                     <div class="nav">
                         <h4> Familias</h4>
                         <ul class="nav nav-pills nav-stacked"> 
-                                <li><a class="btn btn-link" 
+                                <li><a class="" 
                                             id="btn-expandirtodo" onclick="expandirTodos()">expandir Nivel</a></li>
-                                <li><a class="btn btn-link" 
+                                <li><a class="" 
                                             id="btn-compactartodo" onclick="compactarTodos()">compactar Todo</a></li>
                             
                             <?php
                             if ($ClasePermisos->getAccion("crear") == 1) {
                                 ?>
-                                <li><a class="btn btn-link" id="botonnuevo-hijo-0"
+                                <li><a class="" id="botonnuevo-hijo-0"
                                             data-alabuelo="0" href="familia.php?id=0">Añadir</a></li>
                                     <?php
                                 }
@@ -75,7 +75,7 @@ $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales[
                             <?php
                             if ($ClasePermisos->getAccion("eliminar") == 1) {
                                 ?>
-                                <li><a class="btn btn-link" id="btn-eliminar" style="display: none"
+                                <li><a class="" id="btn-eliminar" style="display: none"
                                             data-alabuelo="0" onclick="EliminarFamiliasSeleccionadas()">Eliminar marcados</a></li>
                                     <?php
                                 }
@@ -85,7 +85,7 @@ $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales[
                     <div id="menuseleccion" class="nav" style="display: none">
                         <h5> Opciones para una selección</h5>
                         <ul> 
-                            <li><button class="btn btn-link" id="boton-eliminarseccionados"
+                            <li><button class="" id="boton-eliminarseccionados"
                                         data-alabuelo="0">Quitar seleccion todos</button></li>
                         </ul>
                     </div>
