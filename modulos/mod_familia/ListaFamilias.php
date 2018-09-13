@@ -15,9 +15,7 @@ $Controler = new ControladorComun;
 // Mostramos formulario si no tiene acceso.
 include_once ($URLCom . '/controllers/parametros.php');
 
-//$ClasesParametros = new ClaseParametros('parametros.xml');
-//$parametros = $ClasesParametros->getRoot();
-$VarJS = ""; //$Controler->ObtenerCajasInputParametros($parametros);
+$VarJS = ""; 
 
 $familias = new ClaseFamilias($BDTpv);
 // Obtenemos la configuracion del usuario o la por defecto
@@ -25,9 +23,6 @@ $idpadre=0;
 $familiasPrincipales = $familias->leerUnPadre($idpadre);
 
 $familiasPrincipales['datos'] = $familias->cuentaHijos($familiasPrincipales['datos']);
-//~ echo '<pre>';
-//~ print_r($familiasPrincipales);
-//~ echo '</pre>';
 $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales['datos']);
 ?>
 <!DOCTYPE html>
@@ -50,7 +45,6 @@ $familiasPrincipales['datos'] = $familias->cuentaProductos($familiasPrincipales[
 
     <body>
         <?php
-        //~ include '../../header.php'; 
         include_once $URLCom . '/modulos/mod_menu/menu.php';
         ?>
 
