@@ -91,22 +91,6 @@ function familias2Html($familias) {
     return $resultado;
 }
 
-function leerFamiliasHijas($idpadre) {
-    //esta funcion creo que se puede cambiar por otra anterior
-    
-    $resultado = [];
-    $resultado['padre'] = $idpadre;
-    $objfamilia = new ClaseFamilias();
-    if ($idpadre >= 0) {
-        $familias = $objfamilia->leerUnPadre($idpadre);
-    } else {
-        $familias['datos'] = [];
-    }
-    $resultado['datos'] = $familias['datos'];
-    $resultado['html'] = familias2Html($objfamilia, $familias['datos']);
-    return $resultado;
-}
-
 function familias2Html2($familias) {
     //objetivo: imprimir lineas de tabla con los datos de las familias
     $resultado = '';
