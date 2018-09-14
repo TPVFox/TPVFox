@@ -992,13 +992,13 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
     return $resultado;
 }
 
-function RegistrarRestaStock($BDTpv, $id, $respuesta_servidor) {
+function RegistrarRestaStock($BDTpv, $id) {
     // @ Objetivo:
     // Registrar aquellos tickets que hemos ya descontado stock en la web.
     $resultado = array();
-    if ($respuesta_servidor['estado'] === 'Correcto') {
-        $respuesta_servidor['registro_cambiados'] = 'Registros cambiados ' . $respuesta_servidor['registro_cambiados'];
-    }
+    //~ if ($respuesta_servidor['estado'] === 'Correcto') {
+        //~ $respuesta_servidor['registro_cambiados'] = 'Registros cambiados ' . $respuesta_servidor['registro_cambiados'];
+    //~ }
     $sql = 'INSERT INTO `importar_virtuemart_tickets`(`idTicketst`, `Fecha`, `estado`, `respuesta`) VALUES (' . $id . ',now(),"' . $respuesta_servidor['estado'] . '","' . $respuesta_servidor['registro_cambiados'] . '")';
 
     $BDTpv->query($sql);

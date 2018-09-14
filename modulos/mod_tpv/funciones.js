@@ -915,12 +915,13 @@ function PrepararEnviarStockWeb(idTicket){
 	//~ });
 //~ }  
 
-function RegistrarRestarStockTicket(respuesta,id_ticketst){
+function RegistrarRestarStockTicket(id_ticketst){
 	// Ejecutar en servidor local (tpv) registro de que ya se resto stock.
+    console.log("entre en registrar restar stock ticket");
 	var parametros = {
 		"pulsado"    		: 'RegistrarRestaStock',
-		"id_ticketst"		: id_ticketst,
-		"respuesta_servidor": respuesta
+		"id_ticketst"		: id_ticketst
+
 	};
 	$.ajax({
 		data       : parametros,
