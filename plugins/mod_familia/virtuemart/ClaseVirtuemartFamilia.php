@@ -79,7 +79,7 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
 		
 		return $resultado;
 	}
-    public function btnLinkProducto($idVirtuemart, $combopadres){
+    public function btnLinkProducto($idVirtuemart){
 		// @ Objetivo :
 		// Crear un link al pagina detalle del producto.
 		$html = '<a target="_blank" href="'.$this->ruta_producto.$idVirtuemart.'">Link web del producto</a>';

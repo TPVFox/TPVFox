@@ -68,7 +68,7 @@
                 if($id>0){
                     if($ObjVirtuemart->getTiendaWeb()!=false){
 						$tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-                       $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $combopadres, $tiendaWeb);
+                       $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $combopadres, $idTienda);
                     }
                 }
             }
@@ -81,9 +81,13 @@
         <link rel="stylesheet" href="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.css" type="text/css">
         <link rel="stylesheet" href="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.css" type="text/css">
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
-
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <?php 
+        
+        
+        
+        ?>
     </head>
     <body>
         <?php
