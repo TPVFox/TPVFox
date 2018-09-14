@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<modulo nombre="mod_familia" descripcion="Familia" permiso="1">
+<modulo nombre="mod_familia" descripcion="Familias" permiso="1">
     <vista nombre="familia.php" descripcion="Familia" permiso="1">
         <accion nombre="CrearFamiliaWeb" descripcion="Crear Familia Web" permiso="0"></accion>
         <accion nombre="VerFamiliaWeb" descripcion="Ver Familia Web" permiso="0"></accion>

@@ -41,8 +41,10 @@ class ClasePlugins{
 			$respuesta[$contador]['datos_generales'] =$parametros->ArrayElementos('datos_generales'); 
 			// Ahora creamos la clase para cada plugin.
 			$ruta_clase = $ruta_plugin.'/'.$respuesta[$contador]['datos_generales']['nombre_fichero_clase'].'.php';
-			include ($ruta_clase);
+			include_once ($ruta_clase);
+           
 			$nombre_clase = 'Plugin'.$respuesta[$contador]['datos_generales']['nombre_fichero_clase'];
+            
 			$clase = new $nombre_clase($this->dedonde);
 			$respuesta[$contador]['clase']= $clase;
 			$contador++;

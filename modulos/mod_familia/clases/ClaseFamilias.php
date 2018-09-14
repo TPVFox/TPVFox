@@ -14,10 +14,24 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
  *
  * @author alagoro
  */
+ include ($RutaServidor.$HostNombre.'/plugins/plugins.php');
 class ClaseFamilias extends Modelo {
 
     protected $tabla = 'familias';
-
+    public $plugins;
+    public $view ; 
+	public $idTienda ;
+    public function __construct($conexion='')
+	{
+		// Solo realizamos asignamos 
+		//~ if (gettype($conexion) === 'object'){
+			//~ parent::__construct($conexion);
+			//~ $this->idTienda = parent::GetIdTienda();
+		//~ }
+		$this->view = str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);
+		$plugins = new ClasePlugins('mod_familia',$this->view);
+		$this->plugins = $plugins->GetParametrosPlugins();
+	}
     public function buscardescendientes($idfamilia) {
         $resultado = [];
         $descs = $this->descendientes($idfamilia);
@@ -34,7 +48,23 @@ class ClaseFamilias extends Modelo {
 
         return $resultado;
     }
+    public function SetPlugin($nombre_plugin){
+            // @ Objetivo
+            // Devolver el Object del plugin en cuestion.
+            // @ nombre_plugin -> (string) Es el nombre del plugin que hay parametros de este.
+            // Devuelve:
+            // Puede devolcer Objeto  o boreano false.
+            $Obj = false;
+            if (count($this->plugins)>0){
+                foreach ($this->plugins as $plugin){
+                    if ($plugin['datos_generales']['nombre_fichero_clase'] === $nombre_plugin){
+                        $Obj = $plugin['clase'];
+                    }
+                }
+            }
+        return $Obj;
 
+    }
     public function cuentaHijos($padres) {
         // Se puede optimizar con un group by ????
         
@@ -173,6 +203,11 @@ class ClaseFamilias extends Modelo {
         $sql = 'SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia=' . $idFamilia;
         $resultado = $this->consulta($sql);
 
+        return $resultado;
+    }
+    public function buscarIdTiendaFamilia($idTienda, $idFamilia){
+        $sql='SELECT  idFamilia_tienda FROM familiasTienda where idFamilia='.$idFamilia.' and idTienda='.$idTienda;
+        $resultado = $this->consulta($sql);
         return $resultado;
     }
 }

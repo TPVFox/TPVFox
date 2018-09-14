@@ -7,9 +7,10 @@
         include_once $URLCom . '/modulos/mod_producto/funciones.php';
         include_once $URLCom . '/modulos/mod_familia/funciones.php';
         include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
-
+        include_once $URLCom. '/modulos/mod_tienda/clases/ClaseTienda.php';
         $titulo = 'Familias:';
         $familias = new ClaseFamilias();
+        $CTienda=new ClaseTienda();
         $TodasFamilias = $familias->todoslosPadres('familiaNombre', TRUE);
         // Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
         if (isset($_GET['id'])) {
@@ -49,6 +50,31 @@
         }
         $combopadres .= '</select>';
         $combopadres .= '<input type="hidden" name="idpadre" id="inputidpadre" value="'.$vp.'">'; 
+        
+        ////PLUGIN 
+        $tiendaWeb=$CTienda->tiendasWeb();
+       
+        if(isset($tiendaWeb['datos'])){
+            $idTienda=$tiendaWeb['datos'][0]['idTienda'];
+            $idFamiliaTienda=$familias->buscarIdTiendaFamilia($idTienda, $id);
+            $datosWebCompletos=array();
+            $ObjVirtuemart = $familias->SetPlugin('ClaseVirtuemartFamilia');
+            //~ echo '<pre>';
+            //~ print_r($ObjVirtuemart);
+            //~ echo '</pre>';
+            if(isset($idFamiliaTienda['datos'])){
+                
+            }else{
+                if($id>0){
+                    if($ObjVirtuemart->getTiendaWeb()!=false){
+						$tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+                       $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $combopadres, $tiendaWeb);
+                    }
+                }
+            }
+               
+        }
+       
         ?>
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
@@ -68,7 +94,7 @@
         <div class="container">
 
             <h2 class="text-center"> <?php echo $titulo; ?></h2>
-
+ <div class="col-md-12">
 
             <!-- columna formulario -->
             <div class="col-md-8">
@@ -149,7 +175,17 @@
                     <!-- Fin de panel-group -->
                 </div> 
                 <!-- Fin div col-md-6 -->
+                
             </div>
+            </div>
+            <div class="col-md-12">
+            <?php 
+            
+            echo $datosWebCompletos['datosFamiliaWeb']['html'];
+            ?>
+            </div>
+            
+          
         </div>      
 
         <script src="<?php echo $HostNombre; ?>/modulos/mod_familia/funciones.js"></script>        
