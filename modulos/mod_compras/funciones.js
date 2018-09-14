@@ -213,8 +213,12 @@ function controladorAcciones(caja,accion, tecla){
 			if (caja.tipo_event !== "blur"){
 				var costeAnt=productos[nfila].ultimoCoste;
 				var idArticulo=productos[nfila].idArticulo;
+                console.log("Número de productos:"+productos.length);
+                console.log("Esto en la fila:"+parseInt(caja.fila));
 					if (parseFloat(costeAnt)===parseFloat(caja.darValor())){
-                        ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                        if(parseInt(caja.fila)==productos.length){
+                             ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                        }
 					}else {
 						if(valor=""){
                         alert("NO HAS INTRODUCIDO NINGÚN COSTE");
@@ -222,7 +226,9 @@ function controladorAcciones(caja,accion, tecla){
                             productos[nfila].CosteAnt=costeAnt;
                             addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
                             if (caja.tipo_event !== "blur"){
-                                ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                                if(parseInt(caja.fila)==productos.length){
+                                    ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                                }
                             }
                         }
                     }
