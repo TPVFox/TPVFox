@@ -99,6 +99,8 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
             .'          <input class="btn btn-primary" id="botonWeb" type="button" 
                             value="Añadir a la web" name="modifWeb" onclick="modificarFamiliaWeb('.$idFamilia.', '.$idTienda.')">'
             .'          <a onclick="ObtenerDatosFamilia()">Obtener datos familia</a>'
+            .'          <input type="text" id="idFamiliaweb" value="0" style="visibility:hidden">
+                   '
             .'      </div>';
                 
          $html   .='<div class="col-md-12" id="alertasWeb">'
@@ -126,6 +128,32 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
             ';
             return $html;
      }
+     
+     
+       public function addFamilia($datos){
+        //@Objetivo: Modificar un producto en la web con los datos que el usuario 
+        //añada en el tpv
+        //@Parametros: datos principales del producto
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'AddFamilia',
+							'datos'	=>$datos
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+        //~ echo '<pre>';
+        //~ print_r($respuesta);
+        //~ echo '</pre>';
+		return $respuesta;
+    }
 }
 
 

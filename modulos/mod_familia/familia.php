@@ -68,6 +68,9 @@
                 if($id>0){
                     if($ObjVirtuemart->getTiendaWeb()!=false){
 						$tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+                        //~ echo '<pre>';
+                        //~ print_r($tiendaWeb);
+                        //~ echo '</pre>';
                        $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $combopadres, $idTienda);
                     }
                 }

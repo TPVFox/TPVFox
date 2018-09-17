@@ -210,4 +210,18 @@ class ClaseFamilias extends Modelo {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+    public function addFamiliaTiendaWeb($idTienda, $idFamilia, $idWeb){
+        $sql='INSERT INTO `familiasTienda`(`idFamilia`, `idTienda`, `idFamilia_tienda`) 
+        VALUES ('.$idFamilia.','.$idTienda.','.$idWeb.')';
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+    }
+    
+    public function comprobarPadreWeb($idTienda, $idPadre){
+        $sql='SELECT idFamilia_tienda FROM `familiasTienda` WHERE idFamilia='.$idPadre.' and idTienda='.$idTienda;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
 }
