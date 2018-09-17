@@ -1,5 +1,6 @@
 function  ObtenerDatosFamilia(){
     $('#nombreFamilia').val($('#inputnombre').val());
+    $('#inputpadreWeb #combopadre').val($('#inputPadre #combopadre').val());
 }
 $(function () {
     $("#combopadre").combobox({

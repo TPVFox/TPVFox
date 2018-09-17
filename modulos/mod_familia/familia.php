@@ -127,7 +127,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="ui-widget">
+                            <div class="ui-widget" id="inputPadre">
                                 <label for="inputpadre">Padre: </label>
                                 <?php echo $combopadres ?>                                
                             </div>
@@ -182,7 +182,7 @@
                 
             </div>
             </div>
-            <div class="col-md-12">
+            <div class="col-md-12" >
             <?php 
             
             echo $datosWebCompletos['datosFamiliaWeb']['html'];

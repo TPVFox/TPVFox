@@ -116,7 +116,7 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
                         </div>
                    
                       <div class="col-md-6">
-                            <div class="ui-widget">
+                            <div class="ui-widget" id="inputpadreWeb">
                                 <label for="inputpadre">Padre: </label>
                                 '.$combopadres.'                             
                             </div>
