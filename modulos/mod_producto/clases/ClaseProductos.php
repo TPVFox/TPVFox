@@ -28,8 +28,8 @@
  * */
 
 
-include ($RutaServidor.$HostNombre.'/clases/ClaseTablaArticulos.php');
-include ($RutaServidor.$HostNombre.'/plugins/plugins.php');
+include_once ($RutaServidor.$HostNombre.'/clases/ClaseTablaArticulos.php');
+require_once ($RutaServidor.$HostNombre.'/plugins/plugins.php');
 class ClaseProductos extends ClaseTablaArticulos{
 	public $view ; //string ruta de la vista que estamos
 	public $idTienda ; // Obtenemos el idTienda de la clase extendida.

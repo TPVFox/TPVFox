@@ -14,7 +14,7 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
  *
  * @author alagoro
  */
- include ($RutaServidor.$HostNombre.'/plugins/plugins.php');
+ include_once ($RutaServidor.$HostNombre.'/plugins/plugins.php');
 class ClaseFamilias extends Modelo {
 
     protected $tabla = 'familias';
