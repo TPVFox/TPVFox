@@ -17,20 +17,40 @@ switch ($pulsado) {
         $datosComprobaciones=json_decode($datos, true);
         if($datosComprobaciones['idFamiliaPadre']=="0"){
             $comprobarPadre['datos']['idFamilia_tienda']=0;
+            $padre=0;
         }else{
             $comprobarPadre=$CFamilia->comprobarPadreWeb($datosComprobaciones['idTienda'], $datosComprobaciones['idFamiliaPadre']);
+          
+            $padre=$comprobarPadre['datos'][0]['idFamilia_tienda'];
+            
         }
-        if(isset($comprobarPadre['datos']['idFamilia_tienda'])){
-       
+        if(isset($comprobarPadre['datos'][0]['idFamilia_tienda']) || $padre==0){
+     
         if($datosComprobaciones['idFamiliaWeb']>0){
              $respuesta['caracteres']=strlen($datosComprobaciones['nombreFamilia']);
-              if(strlen($datosComprobaciones['nombre'])>180){
+              if(strlen($datosComprobaciones['nombreFamilia'])>180){
                     $respuesta['htmlAlerta']='<div class="alert alert-danger">
                                                 <strong>Danger!</strong> No se puede modificar el producto 
                                                 por que el nombre es superior a 180 caracteres.
                                             </div>';
                 }else{
-                    //MOdificar datos de producto
+                    $datosMod=array(
+                        'nombre'=>$datosComprobaciones['nombreFamilia'],
+                        'idPadre'=>$padre,
+                        'id'=>$datosComprobaciones['idFamiliaWeb']
+                    );
+                     $datosMod=json_encode($datosMod);
+                    $modificar=$ObjViruemart->modificarFamiliaWeb($datosMod);
+                    $respuesta['mod']=$modificar;
+                    if(strlen($modificar['Datos']['error']) == 0){
+                        $respuesta['htmlAlerta']='<div class="alert alert-success">
+                                                    <strong>Success!</strong> Has modificados los datos del producto.
+                                                </div>';
+                             }else{
+                        $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                                    <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['error'].' consulta: '.$modificarProducto['Datos']['consulta'].'
+                                                </div>';
+                    }
                 }
         }else{
             $datosComprobaciones['vendor']=1;
@@ -42,7 +62,7 @@ switch ($pulsado) {
             $datosComprobaciones['usuario']='911';
             $datosComprobaciones['locked_by']=0;
             $datosComprobaciones['alias']=str_replace(' ', '-', $datosComprobaciones['nombreFamilia']);
-            
+            $datosComprobaciones['padre']=$padre;
             
             
             $datos=json_encode($datosComprobaciones);

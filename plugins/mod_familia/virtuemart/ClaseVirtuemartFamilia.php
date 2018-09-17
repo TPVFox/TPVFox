@@ -141,7 +141,7 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
         $html   .= '<div class="col-md-6">';
         $html   .=' <div class="col-md-12">'
             .'          <input class="btn btn-primary" id="botonWeb" type="button" 
-                            value="Añadir a la web" name="modifWeb" onclick="modificarFamiliaWeb('.$idFamilia.', '.$idTienda.')">'
+                            value="Modificar en la web" name="modifWeb" onclick="modificarFamiliaWeb('.$idFamilia.', '.$idTienda.')">'
             .'          <a onclick="ObtenerDatosFamilia()">Obtener datos familia</a>'
             .'          <input type="text" id="idFamiliaweb" value="'.$idWeb.'" style="visibility:hidden">
                    '
@@ -167,7 +167,7 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
                                 <select name="padre" class="form-control " id="combopadre">';
                 foreach ($padres as $padre) {
                         $html .= '<option value=' . $padre['idFamilia'];
-                        if (($idWeb != 0) && ($datos['idPadre'] == $padre['idFamilia'])) {
+                        if (($idWeb != 0) && ($datos['padre'] == $padre['idFamilia'])) {
                             $html .= ' selected = "selected" ';
                             $vp = $padre['idFamilia'];
                         }
@@ -214,6 +214,33 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
         $ruta =$this->ruta_web;
 		$parametros = array('key' 			=>$this->key_api,
 							'action'		=>'AddFamilia',
+							'datos'	=>$datos
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+        //~ echo '<pre>';
+        //~ print_r($respuesta);
+        //~ echo '</pre>';
+		return $respuesta;
+    }
+    
+    
+    
+      public function modificarFamiliaWeb($datos){
+        //@Objetivo: Modificar un producto en la web con los datos que el usuario 
+        //añada en el tpv
+        //@Parametros: datos principales del producto
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'modificarFamilia',
 							'datos'	=>$datos
 						);
 		// [CONEXION CON SERVIDOR REMOTO] 
