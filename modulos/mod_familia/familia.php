@@ -59,18 +59,16 @@
             $idFamiliaTienda=$familias->buscarIdTiendaFamilia($idTienda, $id);
             $datosWebCompletos=array();
             $ObjVirtuemart = $familias->SetPlugin('ClaseVirtuemartFamilia');
-            //~ echo '<pre>';
-            //~ print_r($ObjVirtuemart);
-            //~ echo '</pre>';
+            
             if(isset($idFamiliaTienda['datos'])){
-                
+                $datosFamilia=$ObjVirtuemart->obtenerDatosDeFamilia($idFamiliaTienda['datos'][0]['idFamilia_tienda']);
+     
+                $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->datosWebdeFamilia($datosFamilia['Datos']['item'], $idFamiliaTienda['datos'][0]['idFamilia_tienda'], $idTienda, $padres['datos'], $id);
             }else{
                 if($id>0){
                     if($ObjVirtuemart->getTiendaWeb()!=false){
 						$tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-                        //~ echo '<pre>';
-                        //~ print_r($tiendaWeb);
-                        //~ echo '</pre>';
+                       
                        $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $combopadres, $idTienda);
                     }
                 }
