@@ -229,4 +229,11 @@ class ClaseFamilias extends Modelo {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+    public function familiaDeProducto($idProducto){
+        $sql='SELECT a.familiaNombre as nombreFamilia FROM `familias` as a inner join  
+        articulosFamilias as b on b.idFamilia=a.idFamilia WHERE b.idArticulo='.$idProducto;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+        
+    }
 }

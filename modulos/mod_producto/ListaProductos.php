@@ -362,6 +362,13 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                             $checked = "checked";
                                         }
                                     }
+                                    $textoFamilia="";
+                                    $familia=$CFamilia->familiaDeProducto($producto['idArticulo']);
+                                    if(isset($familia['datos'])){
+                                        foreach ($familia['datos'] as $nombreFamilia){
+                                            $textoFamilia.=' '.$nombreFamilia['nombreFamilia'];
+                                        }
+                                    }
                                     ?>
 
                                     <tr>
@@ -371,7 +378,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         <?php
                                         $htmltd = '<td style="cursor:pointer" onclick="UnProductoClick(' . "'" . $producto['idArticulo'] . "'" . ');">';
                                         echo $htmltd . $producto['idArticulo'] . '</td>';
-                                        echo $htmltd . $producto['articulo_name'] . '</td>';
+                                        echo $htmltd . $producto['articulo_name'] . '<br><SUB>'.$textoFamilia.'</SUB></td>';
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'crefTienda') === 'Si') {
                                             $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
                                             $codBarrasProd = $CTArticulos->GetCodbarras();
