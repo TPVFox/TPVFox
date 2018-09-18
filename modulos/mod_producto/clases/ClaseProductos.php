@@ -305,9 +305,9 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// 				-> errores (array) con tipo,mensaje,dato.
 		$fecha_ahora= date("Y-m-d H:i:s");   // Obtenemos la fecha sistema 
 		// ---- 		Insertamos un producto nuevo en tabla articulos 		----- //
-		$sqlArticulo = 'INSERT INTO `articulos`(iva, articulo_name, estado,ultimoCoste, fecha_creado,beneficio) VALUES ("'
+		$sqlArticulo = 'INSERT INTO `articulos`(iva, articulo_name, estado,ultimoCoste, fecha_creado,beneficio, tipo) VALUES ("'
 						.$datos['iva'].'","'.$datos['articulo_name'].'","'.$datos['estado'].'","'
-						.$datos['coste'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
+						.$datos['coste'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'", "'.$datos['tipo'].'")';
 		// De momento inserto ultimoCoste, pero no deberíamos... :-) ya que no se compro.	
 		$respuesta = array();
 		$DB = parent::GetDb();
@@ -677,7 +677,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 							'estado'					=> $DatosPostProducto['estado'],
 							'ultimoCoste'				=> $DatosPostProducto['ultimoCoste'],
 							'beneficio'					=> $DatosPostProducto['beneficio'],
-                            'tipo'                      => $DatosPostProducto['tipoProducto']
+                            'tipo'                      => $DatosPostProducto['tipo']
 							);
 		
 		// Obtenemos id de proveedor principal
@@ -881,7 +881,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// Objetivo es comprobar que los datos enviados son correctos.
 		// @ Parametros
 		// 		$datos = (array asociativo) 
-		$campos_obligatorios = array('articulo_name','estado','iva','pvpSiva','pvpCiva','coste','beneficio');
+		$campos_obligatorios = array('articulo_name','estado','iva','pvpSiva','pvpCiva','coste','beneficio', 'tipo');
 		$comprobaciones = array(); // Lo utilizo para guardar resultado de comprobaciones o errores.
 		// ---- 	Comprobamos que existe campo y tiene dato correcto.		--------- //
 		foreach ($campos_obligatorios as $key){

@@ -1093,19 +1093,19 @@ function selectFamilias($padre=0, $espacio, $array_familias, $conexion,$nombre_c
 function htmlTipoProducto($tipo){
         switch($tipo){
             case 'unidad':
-             $html='<select name="tipoProducto">
+             $html='<select name="tipo">
                 <option value="unidad" selected="">Unidad</option>
                 <option value="peso">Peso</option>
                 </select>';
             break;
             case 'peso':
-             $html='<select name="tipoProducto">
+             $html='<select name="tipo">
                 <option value="peso" selected="">peso</option>
                 <option value="unidad">Unidad</option>
                 </select>';
             break;
             default: 
-             $html='<select name="tipoProducto">
+             $html='<select name="tipo">
                 <option value="unidad" selected="">Unidad</option>
                 <option value="peso">Peso</option>
                 </select>';

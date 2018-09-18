@@ -124,9 +124,10 @@ if ($id >0 ){
 
 } else {
 		// ----------------------------  			NUEVO 				  ------------------------  //
-		
+	
 		$comprobaciones = $CTArticulos->comprobacionCamposObligatoriosProducto($DatosPostProducto);
 		if (count($comprobaciones)=== 0){
+          
 			$anhadir = $CTArticulos->AnhadirProductoNuevo($DatosPostProducto);
 			$DatosPostProducto['Sqls']['NuevoProducto']=$anhadir;
 			// Se creo uno NUEVO fijo.
