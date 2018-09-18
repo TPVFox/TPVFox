@@ -87,13 +87,13 @@
             $CantidadRegistros = $CTArticulos->GetNumRows();
         }
         // --- Ahora envio a NPaginado la cantidad registros --- //
+       
         if ($prod_seleccion['NItems'] > 0 && $configuracion['filtro']->valor === 'Si') {
             $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
         } else {
             $NPaginado->SetCantidadRegistros($CantidadRegistros);
         }
         $htmlPG = '';
-  
         if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
             $htmlPG = $NPaginado->htmlPaginado();
             // Queremos filtrar o no. 

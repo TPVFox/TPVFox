@@ -1378,7 +1378,13 @@ function seleccionProductos(){
         filtrarSeleccionProductos();
         $("#checkSeleccion").prop( "checked", true );
     }else{
+         busquedaSinCheck();
         //~ eliminarSeleccionProductos();
         $("#checkSeleccion").prop( "checked", false );
     }
+}
+function busquedaSinCheck(){
+    configuracion.filtro.valor='No';
+    AjaxGuardarConfiguracion();
+    location.href="ListaProductos.php";
 }
