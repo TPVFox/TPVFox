@@ -1372,3 +1372,13 @@ function seleccionarTodo(){
         }
    }
 } 
+
+function seleccionProductos(){
+    if( $("#checkSeleccion").prop('checked') ) {
+        filtrarSeleccionProductos();
+        $("#checkSeleccion").prop( "checked", true );
+    }else{
+        eliminarSeleccionProductos();
+        $("#checkSeleccion").prop( "checked", false );
+    }
+}

@@ -37,17 +37,20 @@
         //~ print_r($conf_defecto);
         //~ echo '</pre>';
         // Ahora compruebo productos_seleccion:
+        $botonSeleccion=0;
         $prod_seleccion = array('NItems' => 0, 'display' => '');
         if (isset($_SESSION['productos_seleccionados'])) {
             $prod_seleccion['Items'] = $_SESSION['productos_seleccionados'];
             $prod_seleccion['NItems'] = count($prod_seleccion['Items']);
+            
         }
         if ($prod_seleccion['NItems'] === 0) {
             // No hay productos seleccionados, display none y No en parametro filtro.
             $prod_seleccion['display'] = 'style="display:none"';
             $conf_defecto['filtro']->valor = 'No';
+            
         }
-       
+      
         // Obtenemos la configuracion del usuario o la por defecto
         $configuracion = $Controler->obtenerConfiguracion($conf_defecto, 'mod_productos', $Usuario['id']);
         // Compruebo que solo halla un campo por el que buscar por defecto.
@@ -90,11 +93,13 @@
             $NPaginado->SetCantidadRegistros($CantidadRegistros);
         }
         $htmlPG = '';
+  
         if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
             $htmlPG = $NPaginado->htmlPaginado();
             // Queremos filtrar o no. 
             if ($configuracion['filtro']->valor === 'Si') {
                 if ($prod_seleccion['NItems'] > 0) {
+                    $botonSeleccion=1;
                     if (trim($filtro) !== '') {
                         $filtro .= ' AND (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
                     } else {
@@ -102,10 +107,11 @@
                     }
                 }
             }
+            
             $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro . $NPaginado->GetLimitConsulta());
         }
 
-         
+       
         
         $todosProveedores= $CProveedor->todosProveedores();
      
@@ -196,6 +202,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <h4>Seleccionados <span class="label label-default textoCantidad"><?php echo $prod_seleccion['NItems']; ?></span></h4>
                         <p>Opcion de seleccion:</p>
                         <ul class="nav nav-pills nav-stacked"> 
+                            <input type="checkbox" id="checkSeleccion" name="checkSeleccion" onclick="seleccionProductos()"> Selección Productos
                             <?php 
                              if($ClasePermisos->getAccion("filtrarSeleccion")==1){
                             ?>
@@ -505,6 +512,22 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
         
         </div>
         <div class="loader"></div>
+        <script>
+        <?php 
+        if($botonSeleccion==1){
+            ?>
+             $("#checkSeleccion").prop( "checked", true );
+            <?php
+        }else{
+            ?>
+             $("#checkSeleccion").prop( "checked", false );
+            <?php
+        }
+        
+        ?>
+        
+        
+        </script>
          <style>
 #enlaceIcon{
     height: 2.2em;
