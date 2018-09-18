@@ -16,7 +16,6 @@ $Controler = new ControladorComun;
 include_once ($URLCom . '/controllers/parametros.php');
 
 $VarJS = ""; 
-
 $familias = new ClaseFamilias($BDTpv);
 // Obtenemos la configuracion del usuario o la por defecto
 $idpadre=0;

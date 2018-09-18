@@ -5,4 +5,8 @@
         <accion nombre="modificar" descripcion="Modificar Familia" permiso="1"></accion>
         <accion nombre="eliminar" descripcion="Eliminar Familia" permiso="1"></accion>
     </vista>
+    <vista nombre="familia.php" descripcion="Familia" permiso="0">
+        <accion nombre="CrearFamiliaWeb" descripcion="Crear Familia Web" permiso="0"></accion>
+        <accion nombre="VerFamiliaWeb" descripcion="Ver Familia Web" permiso="0"></accion>
+   </vista>
 </modulo>

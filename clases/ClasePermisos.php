@@ -300,18 +300,25 @@ class ClasePermisos{
                              if($accion['nombre']==$nombre){
                                  $descripcion=$accion['descripcion'];
                              }else{
-                                 
                                  $this->ObtenerPlugins($permiso['modulo']);
+                                
                                  foreach ($this->plugins as $plugin){
+                                     
                                       if(is_file($this->RutaPlugin.'/'.$permiso['modulo'].'/'.$plugin.'/acces.xml')){
+                                          
                                            $xml=simplexml_load_file($this->RutaPlugin.'/'.$permiso['modulo'].'/'.$plugin.'/acces.xml');
+                                           
                                            foreach ($xml as $doc){
+                                                error_log($nombre);
                                                 if($doc['nombre']==$nombre){
+                                                   
                                                     $descripcion=$doc['descripcion'];
                                                     break;
                                                 }else{
                                                      foreach ($doc as $accion){
+                                                        
                                                          if($accion['nombre']==$nombre){
+                                                              
                                                                 $descripcion=$accion['descripcion'];
                                                                 break;
                                                             }
