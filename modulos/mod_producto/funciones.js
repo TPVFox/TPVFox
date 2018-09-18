@@ -908,6 +908,7 @@ function selecionarItemProducto(id, dedonde="", seleccionar=""){
 					}
 					
 				}
+                  $("#checkSeleccion").prop( "checked", false );
 				 
 		}	
 	});
@@ -1361,7 +1362,6 @@ function eliminarProductos(idTiendaWeb=0){
 }
 function seleccionarTodo(){
     console.log("entre en seleccionar todo");
-  
    for (i=1;i<41;i++){
         if( $("#checkUsuTodos").prop('checked') ) {
             $("#checkUsu"+i).prop( "checked", true );
@@ -1378,7 +1378,7 @@ function seleccionProductos(){
         filtrarSeleccionProductos();
         $("#checkSeleccion").prop( "checked", true );
     }else{
-        eliminarSeleccionProductos();
+        //~ eliminarSeleccionProductos();
         $("#checkSeleccion").prop( "checked", false );
     }
 }

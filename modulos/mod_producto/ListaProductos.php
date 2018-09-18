@@ -211,13 +211,11 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
 -->
                             <?php 
                             //~ }
-                             //~ if($ClasePermisos->getAccion("eliminarSeleccion")==1){
+                             if($ClasePermisos->getAccion("eliminarSeleccion")==1){
                             ?>
-<!--
                             <li><a onclick="eliminarSeleccionProductos();">Eliminar Selección</a></li>
--->
                             <?php
-                            //~ }
+                            }
                             if($ClasePermisos->getAccion("imprimirEtiquetas")==1){
                              ?>
                             <li><a href='ListaEtiquetas.php' onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');";>Imprimir Etiquetas</a></li>
