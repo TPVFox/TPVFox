@@ -204,16 +204,20 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <ul class="nav nav-pills nav-stacked"> 
                             <input type="checkbox" id="checkSeleccion" name="checkSeleccion" onclick="seleccionProductos()"> Selección Productos
                             <?php 
-                             if($ClasePermisos->getAccion("filtrarSeleccion")==1){
+                             //~ if($ClasePermisos->getAccion("filtrarSeleccion")==1){
                             ?>
+<!--
                             <li><a onclick="filtrarSeleccionProductos();">Filtrar Seleccion</a></li>
+-->
                             <?php 
-                            }
-                             if($ClasePermisos->getAccion("eliminarSeleccion")==1){
+                            //~ }
+                             //~ if($ClasePermisos->getAccion("eliminarSeleccion")==1){
                             ?>
+<!--
                             <li><a onclick="eliminarSeleccionProductos();">Eliminar Selección</a></li>
+-->
                             <?php
-                            }
+                            //~ }
                             if($ClasePermisos->getAccion("imprimirEtiquetas")==1){
                              ?>
                             <li><a href='ListaEtiquetas.php' onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');";>Imprimir Etiquetas</a></li>
