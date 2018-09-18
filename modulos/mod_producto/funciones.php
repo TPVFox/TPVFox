@@ -1089,4 +1089,10 @@ function selectFamilias($padre=0, $espacio, $array_familias, $conexion,$nombre_c
         
         return $array_familias;
 }
+
+//~ function htmlTipoProducto($tipo){
+    //~ if($tipo==""){
+        //~ $html='<selec'
+    //~ }
+//~ }
 ?>

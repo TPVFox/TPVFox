@@ -140,12 +140,17 @@
             $htmlFamilias =  htmlTablaFamilias($Producto['familias'], $id);
    
        
-		$htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
+            $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
        
             $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
         
             $htmlHistoricoPrecios=htmlTablaHistoricoPrecios($Producto['productos_historico']);
-     
+            
+            
+            
+     //~ echo '<pre>';
+     //~ print_r($Producto);
+     //~ echo '</pre>';
 		?>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -237,6 +242,12 @@
 							</div>
 						</div>
 					</div>
+                    <div class="col-md-12">
+<!--
+                        <label class="control-label " > Tipo producto:</label>
+-->
+                        
+                    </div>
 					<div class="col-md-12">
 						<h4> Costes del Producto</h4>
 						<div class="form-group col-md-4">
