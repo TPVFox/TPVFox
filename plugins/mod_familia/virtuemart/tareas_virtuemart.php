@@ -20,11 +20,11 @@ switch ($pulsado) {
             $padre=0;
         }else{
             $comprobarPadre=$CFamilia->comprobarPadreWeb($datosComprobaciones['idTienda'], $datosComprobaciones['idFamiliaPadre']);
-          
             $padre=$comprobarPadre['datos'][0]['idFamilia_tienda'];
             
         }
-        if(isset($comprobarPadre['datos'][0]['idFamilia_tienda']) || $padre==0){
+        $respuesta['padre']=$padre;
+        if(!is_null($padre)){
      
         if($datosComprobaciones['idFamiliaWeb']>0){
              $respuesta['caracteres']=strlen($datosComprobaciones['nombreFamilia']);
