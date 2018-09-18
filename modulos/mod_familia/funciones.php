@@ -1,5 +1,4 @@
 <?php
-
 /*
  * @Copyright 2018, Alagoro Software. 
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
@@ -84,9 +83,6 @@ function familias2Html($familias) {
             $resultado .= '<tr id="fila-' . $familia['idFamilia'] . '" style="display:none"><td colspan=5><table class="table table-bordered table-hover table-striped"><tbody id="seccion-' . $familia['idFamilia'] . '"  > </tbody></table></td></tr>';
         }
         $indices_str = implode(", ", $indices);
-        //~ $resultado .= '<script language="javascript">' .
-                //~ 'capturaevento_click([' . $indices_str . ']);' .
-                //~ '</script>';
     }
     return $resultado;
 }
