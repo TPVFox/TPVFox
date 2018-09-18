@@ -1360,30 +1360,15 @@ function eliminarProductos(idTiendaWeb=0){
     }
 }
 function seleccionarTodo(){
-    //~ var productos = new Array();
-    
+    console.log("entre en seleccionar todo");
+  
    for (i=1;i<41;i++){
-        //~ console.log("entro");
-        //~ $("#checkUsu"+i).prop( "checked", true );
-     
-     
-        //~ selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos");
         if( $("#checkUsuTodos").prop('checked') ) {
             $("#checkUsu"+i).prop( "checked", true );
              selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos", "seleccionar");
-           
         }else{
             selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos", "NoSeleccionar");
             $("#checkUsu"+i).prop( "checked", false );
-           
         }
-        //~ if( $("#checkUsu"+i).prop('checked') ) {
-                //~ console.log('Seleccionado');
-            //~ }else{
-                //~ console.log('No Seleccionado');
-            //~ }
-            //~ console.log(i);
    }
-     //~ console.log(productos); 
-        
 } 
