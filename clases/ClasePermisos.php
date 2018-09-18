@@ -18,13 +18,8 @@ class ClasePermisos{
         $this->permisos=$this->getPermisosUsuario($Usuario);
         $this->obtenerRutaProyecto();
         $this->ObtenerDir();
-        //~ $this->ObtenerPlugins();
-        //~ $this->getRutaPlugin();
-        
     }
-    //~ public function getRutaPlugin(){
-        //~ $this->RutaPlugin='/plugins';
-    //~ }
+   
     public function getPermisosUsuario($Usuario){
         // @ Objetivo:
         // Obtener array con los permisos de un usuario.
@@ -67,9 +62,9 @@ class ClasePermisos{
                 $this->insertarPermisos($xml);//Cuando esté el xml listo insertamos los permisos
             }
             if (file_exists($this->RutaPlugin.'/'.$modulo)){
-                //~ error_log($this->RutaPlugin.'/'.$modulo);
+                
                $this->ObtenerPlugins($modulo);
-                //~ var_dump($this->plugins);
+               
                 foreach ($this->plugins as $plugin){
                      if(is_file($this->RutaPlugin.'/'.$modulo.'/'.$plugin.'/acces.xml')){
                         $xml=simplexml_load_file($this->RutaPlugin.'/'.$modulo.'/'.$plugin.'/acces.xml');//lo cargamos
@@ -182,7 +177,7 @@ class ClasePermisos{
 		$scans = scandir($this->RutaPlugin.'/'.$modulo);
         foreach ( $scans as $scan){
 			$ruta_completa = $this->RutaPlugin.'/'.$modulo.'/'.$scan;
-            //~ error_log($ruta_completa);
+           
 			if (filetype($ruta_completa) === 'dir'){
 				if (($scan === '.') || ($scan === '..')){ 
 					// Descartamos los directorios . y ..
@@ -194,7 +189,7 @@ class ClasePermisos{
 		}
         $this->plugins=$respuesta;
     }
-        //~ var_dump($this->plugins);
+       
     }
     public function comprobarPermisos($permisos, $modulo, $vista){
         //Objetico: comprobar permisos para el menú superior de la aplicación 
@@ -309,7 +304,7 @@ class ClasePermisos{
                                            $xml=simplexml_load_file($this->RutaPlugin.'/'.$permiso['modulo'].'/'.$plugin.'/acces.xml');
                                            
                                            foreach ($xml as $doc){
-                                                error_log($nombre);
+                                              
                                                 if($doc['nombre']==$nombre){
                                                    
                                                     $descripcion=$doc['descripcion'];
