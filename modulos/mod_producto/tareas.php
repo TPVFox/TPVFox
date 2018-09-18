@@ -204,7 +204,12 @@ switch ($pulsado) {
     break;
     case 'buscarProductosDeFamilia':
         $respuesta=array();
-        $productos=$CFamilia->buscarProductosFamilias($_POST['idfamilia']);
+        if($_POST['idfamilia']=="01"){
+             $productos=$CFamilia->buscarProductosSinFamilias();
+        }else{
+            $productos=$CFamilia->buscarProductosFamilias($_POST['idfamilia']);
+        }
+       
         $idsProductos=array();
         foreach ($productos['datos'] as $producto){
             array_push($idsProductos, $producto['idArticulo']);

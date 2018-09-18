@@ -1253,11 +1253,6 @@ function buscarProductosFamilia(idFamilia){
                            selecionarItemProducto(productos[i], "listaProductos");
                            $("#botonEnviar").hide();
                        }
-                       
-                   //~ filtrarSeleccionProductos();
-                   
-                    
-                     
             }	
         });
     

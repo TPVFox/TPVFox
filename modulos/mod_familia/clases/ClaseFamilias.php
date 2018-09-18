@@ -205,6 +205,11 @@ class ClaseFamilias extends Modelo {
 
         return $resultado;
     }
+    public function buscarProductosSinFamilias(){
+        $sql='SELECT idArticulo FROM articulos WHERE idArticulo NOT IN (SELECT idArticulo  FROM articulosFamilias)';
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
     public function buscarIdTiendaFamilia($idTienda, $idFamilia){
         $sql='SELECT  idFamilia_tienda FROM familiasTienda where idFamilia='.$idFamilia.' and idTienda='.$idTienda;
         $resultado = $this->consulta($sql);
