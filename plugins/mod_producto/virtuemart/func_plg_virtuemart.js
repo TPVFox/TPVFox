@@ -199,7 +199,7 @@ function ObtenerDatosProducto(){
 }
 
 function subirProductosWeb(idTienda){
-    
+     $('.loader').show();
     var parametros = {
 		"pulsado"    	: 'subirProductosWeb',
         "idTienda"      :idTienda
@@ -215,6 +215,7 @@ function subirProductosWeb(idTienda){
 				console.log('Respuesta de subir conjunto de productos a la web ');
 				var resultado = $.parseJSON(response);
                 console.log(resultado);
+                 $('.loader').hide();
                 if(resultado.productoEnWeb.length >0){
                    alert("Producto que YA ESTABAN y NO se subieron: "+JSON.stringify(resultado.productoEnWeb));
                 }
