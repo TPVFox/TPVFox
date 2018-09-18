@@ -661,7 +661,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 								'iva'					=> $this->iva,
 								'estado'				=> $this->estado,
 								'ultimoCoste'			=> number_format($this->ultimoCoste,2),
-								'beneficio'				=> $this->beneficio
+								'beneficio'				=> $this->beneficio,
+                                'tipo'                  =>$this->tipo
 								);
 		// Obtenemos id de proveedor principal
 		if (gettype($this->proveedor_principal) === 'array'){
@@ -675,7 +676,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 							'iva'						=> $DatosPostProducto['iva'],
 							'estado'					=> $DatosPostProducto['estado'],
 							'ultimoCoste'				=> $DatosPostProducto['ultimoCoste'],
-							'beneficio'					=> $DatosPostProducto['beneficio']
+							'beneficio'					=> $DatosPostProducto['beneficio'],
+                            'tipo'                      => $DatosPostProducto['tipoProducto']
 							);
 		
 		// Obtenemos id de proveedor principal
@@ -687,7 +689,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			// Montamos sql para guardar...
 			$d =$datosgenerales_post;
 			$sql =	'UPDATE `articulos` SET `iva`="'.$d['iva'].'",`idProveedor`="'
-					.$d['idProveedor'].'",`articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'.$d['estado'].'",`fecha_modificado`=NOW(),`ultimoCoste`="'.$d['ultimoCoste'].'" WHERE idArticulo = '.$d['idArticulo'];
+					.$d['idProveedor'].'",`articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'.$d['estado'].'",`fecha_modificado`=NOW(),`ultimoCoste`="'.$d['ultimoCoste'].'", tipo="'.$d['tipo'].'" WHERE idArticulo = '.$d['idArticulo'];
 			$comprobaciones['datos_generales']=$this->Consulta_insert_update($sql);
 		}
 		return $comprobaciones;

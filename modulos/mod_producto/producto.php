@@ -132,25 +132,14 @@
 				
 		
 		// ==========		Montamos  html que mostramos. 			============ //
-		$htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
+            $htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
             $htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
-       
             $htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
-    
             $htmlFamilias =  htmlTablaFamilias($Producto['familias'], $id);
-   
-       
             $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
-       
             $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
-        
             $htmlHistoricoPrecios=htmlTablaHistoricoPrecios($Producto['productos_historico']);
-            
-            
-            
-     //~ echo '<pre>';
-     //~ print_r($Producto);
-     //~ echo '</pre>';
+            $htmlTipo=htmlTipoProducto($Producto['tipo']);
 		?>
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
@@ -218,17 +207,25 @@
 				</div>
 				<div class="col-md-6 Datos">
 					<?php // si es nuevo mostramos Nuevo ?>
-					<div class="col-md-7">
+					<div class="col-md-6">
 						<h4>Datos del producto con ID:<?php echo $id?></h4>
 					</div>
-					<div class="col-md-5">
+					<div class="col-md-3">
 					<label>Estado
 						<select id="idEstado" name="estado" onchange="">
 							<?php echo $htmlEstadosProducto; ?>
 						</select>
 					</label>
+                    
 					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id;?>" >
 					</div>
+                    <div class="col-md-3">
+                        <label class="control-label " > Tipo:</label>
+                        <?php 
+                            echo $htmlTipo;
+                        ?>
+                    </div>
+                 
 					<div class="col-md-12">
 						<div class="form-group col-md-3 ">	
 							<label class="control-label " > Referencia:</label>
@@ -242,12 +239,6 @@
 							</div>
 						</div>
 					</div>
-                    <div class="col-md-12">
-<!--
-                        <label class="control-label " > Tipo producto:</label>
--->
-                        
-                    </div>
 					<div class="col-md-12">
 						<h4> Costes del Producto</h4>
 						<div class="form-group col-md-4">

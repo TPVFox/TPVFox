@@ -1090,9 +1090,27 @@ function selectFamilias($padre=0, $espacio, $array_familias, $conexion,$nombre_c
         return $array_familias;
 }
 
-//~ function htmlTipoProducto($tipo){
-    //~ if($tipo==""){
-        //~ $html='<selec'
-    //~ }
-//~ }
+function htmlTipoProducto($tipo){
+        switch($tipo){
+            case 'unidad':
+             $html='<select name="tipoProducto">
+                <option value="unidad" selected="">Unidad</option>
+                <option value="peso">Peso</option>
+                </select>';
+            break;
+            case 'peso':
+             $html='<select name="tipoProducto">
+                <option value="peso" selected="">peso</option>
+                <option value="unidad">Unidad</option>
+                </select>';
+            break;
+            default: 
+             $html='<select name="tipoProducto">
+                <option value="unidad" selected="">Unidad</option>
+                <option value="peso">Peso</option>
+                </select>';
+            break;
+        }
+    return $html;
+}
 ?>
