@@ -34,7 +34,8 @@ class ClaseTablaArticulos{
     public $productos_historico;
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
 	public $ref_tiendas ; // (array) No inicializado, se utiliza para guardar las referencias distintas tiendas.
-        public $stocks = [];
+    public $stocks = [];
+    public $tipo='unidad';
 	
 	public function __construct($conexion='')
 	{
