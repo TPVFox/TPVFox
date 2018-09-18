@@ -504,6 +504,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
         </div>
         
         </div>
+        <div class="loader"></div>
          <style>
 #enlaceIcon{
     height: 2.2em;
@@ -525,6 +526,17 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
   }
   ul.ui-autocomplete {
     z-index: 1050;
+}
+.loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('imagenes/loading.gif') 50% 50% no-repeat rgb(249,249,249);
+    opacity: .8;
+    display:none;
 }
 </style>
     </body>

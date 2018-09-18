@@ -1323,6 +1323,7 @@ function EliminarHistorico(idHistorico, e){
 function eliminarProductos(idTiendaWeb=0){
      var mensaje = confirm("¿Estás seguro que quieres eliminar los productos seleccionado?");
 	if (mensaje) {
+        $('.loader').show();
          var parametros = {
              idTiendaWeb: idTiendaWeb,
             pulsado: 'eliminarProductos'
@@ -1339,6 +1340,7 @@ function eliminarProductos(idTiendaWeb=0){
                    
                     var resultado = $.parseJSON(response);
                     console.log (resultado);
+                    $('.loader').hide();
                    if(resultado.Eliminados.length>0){
                        alert("Se han eliminado: "+JSON.stringify(resultado.Eliminados));
                    }
