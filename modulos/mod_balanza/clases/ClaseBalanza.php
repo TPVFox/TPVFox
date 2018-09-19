@@ -20,6 +20,12 @@ class ClaseBalanza extends Modelo  {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+    
+    public function pluDeBalanza($idBalanza){
+         $sql='SELECT * from modulo_balanza_plus where idBalanza='.$idBalanza;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
 }
 
 

@@ -5,12 +5,13 @@
             include_once './../../inicial.php';
             include_once $URLCom.'/head.php';
             include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
+            include_once $URLCom . '/modulos/mod_balanza/funciones.php';
             $CBalanza=new ClaseBalanza($BDTpv);
             $titulo="Crear Balanza";
             $id=0;
             $nombreBalanza="";
             $modeloBalanza="";
-           
+            $plus=array();
        
        
             $puls=array();
@@ -21,7 +22,13 @@
                 $nombreBalanza=$datosBalanza['datos'][0]['nombreBalanza'];
                 $modeloBalanza=$datosBalanza['datos'][0]['modelo'];
                 //faltra select con las opciones de tecla
+                
+                $buscarPlus=$CBalanza->pluDeBalanza($id);
+                if(isset($buscarPlus['datos'])){
+                    $plus=$buscarPlus['datos'];
+                }
             }
+             $htmlplus = htmlTablaPlus($plus);
           ?>
           <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
     </head>
@@ -76,7 +83,7 @@
                         <?php 
                         $num = 1 ; // Numero collapse;
                         $titulo = 'PLUs';
-                        echo htmlPanelDesplegable($num,$titulo,$htmlPLUS);
+                        echo htmlPanelDesplegable($num,$titulo,$htmlplus);
                         
                         ?>
                     </div>

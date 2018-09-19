@@ -26,5 +26,42 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	return $html;
 	 
 }
+function  htmlTablaPlus($plus){
+	// @ Objetivo
+	// Montar la tabla html de codbarras
+	// @ Parametros
+	// 		$codBarras -> (array) con los codbarras del producto.
+	$html =	 '<table id="tPlus" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>Plus</th>'
+			.'				<th>'.'<a id="agregar" onclick="addPlus()">Añadir'
+			.'					<span class="glyphicon glyphicon-plus"></span>'
+			.'					</a>'
+			.'				</th>'
+			.'			</tr>'
+			.'		</thead>'
+			.'		<tbody>';
+	if (count($plus)>0){
+		foreach ($plus as $item=>$valor){
+			$html .= htmlLineaPlu($item,$valor);
+		}
+	}
+	$html .= '</tbody> </table>	';
+	return $html;
+} 
 
+function htmlLineaPlu($item, $plu){
+    $nuevaFila = '<tr>'
+				. '<td><input type="hidden" id="idPlu_'.$plu['plu']
+				.'" name="idPlu'.$plu['plu'].'" value="'.$plu['plu'].'">'
+				.$plu['plu'].'</td>'
+				.'<td>'.$plu['plu'].'</td>'
+                .'<td>'.$plu['tecla'].'</td>'
+                .'<td>'.$plu['idArticulo'].'</td>'
+				.'<td><a id="eliminar_'.$plu['plu']
+				.'" class="glyphicon glyphicon-trash" onclick="eliminarPlu(this)"></a>'
+				.'</td>'.'</tr>';
+	return $nuevaFila;
+}
 ?>
