@@ -32,7 +32,8 @@ function AgregarBalanza(){
 		success    :  function (response) {
 			console.log('Repuesta de add balanzas');
 			var resultado =  $.parseJSON(response);
-			
+			console.log(resultado);
+            $('#errores').html(resultado['html']);
 		}
 	});
     }

@@ -23,6 +23,8 @@
                 <input type="submit" value="Guardar" class="btn btn-primary" onclick="AgregarBalanza();">
             </div>
             <div class="col-md-6 Datos">
+                <div class="col-md-12" id="errores">
+                </div>
                  <div class="col-md-12">
                     <h4>Datos de la balanza con ID:<?php echo $id?></h4>
                 </div>
