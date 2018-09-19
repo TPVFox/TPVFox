@@ -9,6 +9,7 @@
           $nombreBalanza="";
           $modeloBalanza="";
           ?>
+          <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
     </head>
     <body>
     <?php     
@@ -19,7 +20,7 @@
       
             <div class="col-md-12 ">
                 <a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
-                <input type="submit" value="Guardar" class="btn btn-primary">
+                <input type="submit" value="Guardar" class="btn btn-primary" onclick="AgregarBalanza();">
             </div>
             <div class="col-md-6 Datos">
                  <div class="col-md-12">
