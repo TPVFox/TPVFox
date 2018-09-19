@@ -5,25 +5,14 @@
         include_once './../../inicial.php';
         include_once $URLCom.'/head.php';
         include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
-        include_once $URLCom.'/controllers/Controladores.php';
-        include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
-        $Controler = new ControladorComun; 
+       
         $CBalanza=new ClaseBalanza($BDTpv);
+        $balanzas=$CBalanza->todasBalanzas();
+        $balanzas=$balanzas['datos'];
+        
+      
         
         
-        $NPaginado = new PluginClasePaginacion(__FILE__);
-        $campos = array( 'nombreBalanza');
-        $NPaginado->SetCamposControler($Controler,$campos);
-        $NPaginado->SetOrderConsulta('nombreBalanza');
-        $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
-        $CantidadRegistros=0;
-        $a =$CBalanza->todasBalanzasLimite($filtro);
-        $CantidadRegistros = count($a['datos']);
-        $NPaginado->SetCantidadRegistros($CantidadRegistros);
-        $htmlPG = $NPaginado->htmlPaginado();
-        $a=$CBalanza->todasBalanzasLimite($filtro.$NPaginado->GetLimitConsulta());
-        
-        $balanzas=$a['datos'];
 ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
 </head>
@@ -47,6 +36,20 @@
                           <li><a href="#section2" onclick="metodoClick('VerBalanza', 'balanza');";>Modificar</a></li>
                     </ul>
                 </div>
+                <div class="nav">
+                    Selecciona una balanza:
+                    <ul class="nav nav-pills nav-stacked">
+                    <?php 
+                    foreach ($balanzas as $balanza){
+                        ?>
+                        <li><a href="#section2" onclick="mostrarDatosBalanza(<?php echo $balanza['idBalanza'];?>)";><?php echo $balanza['nombreBalanza'];?></a></li> 
+                        <?php 
+                        
+                    }
+                    
+                    ?>
+                    </ul>
+                </div>
             </div>
             <div class="col-md-10">
                 <p>
@@ -59,36 +62,9 @@
                 ?>
                 <table class="table table-bordered table-hover tablaPrincipal">
                     <thead>
-                        <tr>
-                            <td></td>
-                            <td>Id</td>
-                            <td>Nombre</td>
-                            <td>Modelo</td>
-                            <td>Tecla</td>
-                        </tr>
                     </thead>
                     <tbody>
-                    <?php
-                     $checkUser = 0;
-                    foreach ($balanzas as $balanza){
-                       $checkUser++;  
-                       ?>
-                       <tr>
-                        <td class="rowUsuario">
-                       <?php 
-                        $check_name = 'checkUsu'.$checkUser;
-                        echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" 
-                            value="'.$balanza['id'].'" class="check_balanza">';
-                            ?>
-                            </td>
-                            <td><?php echo $balanza['idBalanza']?></td>
-                            <td><?php echo $balanza['nombreBalanza']?></td>
-                            <td><?php echo $balanza['modelo']?></td>
-                            <td><?php echo $balanza['conTecla']?></td>
-                            </tr>
-                            <?php
-                    }
-                    ?>
+                   
                     </tbody>
                 </table>
             </div>
