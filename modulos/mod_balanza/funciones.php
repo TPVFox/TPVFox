@@ -35,7 +35,7 @@ function  htmlTablaPlus($plus){
 			.'		<thead>'
 			.'			<tr>'
 			.'				<th>Plus</th>'
-			.'				<th>'.'<a id="agregar" onclick="addPlus()">Añadir'
+			.'				<th>'.'<a id="agregar" onclick="htmlPlu()">Añadir'
 			.'					<span class="glyphicon glyphicon-plus"></span>'
 			.'					</a>'
 			.'				</th>'
@@ -64,4 +64,22 @@ function htmlLineaPlu($item, $plu){
 				.'</td>'.'</tr>';
 	return $nuevaFila;
 }
+function htmlModalPlu($tecla){
+    $html.='<div class="col-md-12">'
+					.'<div class="col-md-6">'
+						.'<label>Plu:</label>'
+						.'<input type="text" name="plu" id="plu" value="" >'
+					.'</div>';
+    if($tecla=='si'){
+        $html.='<div class="col-md-6">'
+        .'<label>Tecla:</label>'
+        .'<input type="text" name="teclaPlu" id="teclaPlu" value="" >'
+        .'</div>';
+    }
+    $html.='</div>';
+  
+  
+    
+}
+
 ?>

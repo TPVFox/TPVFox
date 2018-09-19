@@ -1,7 +1,10 @@
 <?php 
 include_once './../../inicial.php';
 include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
+include_once $URLCom . '/modulos/mod_balanza/funciones.php';
+include_once $URLCom . '/modulos/mod_producto/clases/ClaseProductos.php';
 $CBalanza=new ClaseBalanza($BDTpv);
+$CProducto=new ClaseProductos($BDTpv);
 $pulsado = $_POST['pulsado'];
 $respuesta=array();
 switch ($pulsado) {
@@ -24,6 +27,13 @@ switch ($pulsado) {
         }
         $respuesta['html']=$html;
         $respuesta['balanza']=$addBalanza;
+    break;
+    case 'htmlPlu':
+        $tecla=$_POST['teclas'];
+       
+    
+        $html=htmlModalPlu($tecla);
+        $respuesta['html']=$html;
     break;
 }
 echo json_encode($respuesta);

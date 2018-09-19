@@ -43,3 +43,32 @@ function AgregarBalanza(){
 	});
     }
 }
+
+
+function htmlPlu(){
+    var teclas=$('#teclas').val();
+    var parametros={
+            "pulsado"    	: 'htmlPlu',
+            'teclas'    :teclas
+        }
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  enviando datos para html balanzas ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de html balanzas');
+			var resultado =  $.parseJSON(response);
+			console.log(resultado);
+            var titulo = 'Añadir plu ';
+            abrirModal(titulo,resultado.html);
+                //~ $( ".custom-combobox-input" ).focus();
+				setTimeout(function(){
+                        $( ".custom-combobox-input" ).focus();
+                       
+                },3000);
+		}
+	});
+}

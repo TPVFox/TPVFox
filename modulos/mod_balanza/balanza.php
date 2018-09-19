@@ -30,6 +30,9 @@
             }
              $htmlplus = htmlTablaPlus($plus);
           ?>
+          <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
+         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
           <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
     </head>
     <body>
@@ -88,7 +91,35 @@
                         ?>
                     </div>
             </div>
-       
+        <?php // Incluimos paginas modales
+    echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+    include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+    // hacemos comprobaciones de estilos 
+    ?>
     </div>
+    <style>
+           
+#enlaceIcon{
+    height: 2.2em;
+}
+ .custom-combobox {
+    position: relative;
+    display: inline-block;
+  }
+  .custom-combobox-toggle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -1px;
+    padding: 0;
+  }
+  .custom-combobox-input {
+    margin: 0;
+    padding: 5px 10px;
+  }
+  ul.ui-autocomplete {
+    z-index: 1050;
+}
+</style>
     </body>
 </html>

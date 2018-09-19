@@ -1177,6 +1177,7 @@ class ClaseProductos extends ClaseTablaArticulos{
          $respuesta['Consulta']=$this->Consulta_insert_update($sql);
         return $respuesta;
     }
+    
 }
 
 
