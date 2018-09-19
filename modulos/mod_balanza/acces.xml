@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_balanza" descripcion="Familias" permiso="1">
+    <vista nombre="ListaBalanzas.php" descripcion="Listado Balanzas" permiso="0">
+        <accion nombre="crear" descripcion="Añadir Balanza" permiso="1"></accion>
+        <accion nombre="modificar" descripcion="Modificar Balanza" permiso="1"></accion>
+    </vista>
+</modulo>
