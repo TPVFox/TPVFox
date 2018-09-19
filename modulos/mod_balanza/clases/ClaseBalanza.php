@@ -10,6 +10,11 @@ class ClaseBalanza extends Modelo  {
             return $consulta;
         }
     }
+    public function todasBalanzasLimite($filtro){
+        $sql='SELECT * from modulo_balanza '.$filtro;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
 }
 
 
