@@ -5,6 +5,7 @@
         include_once './../../inicial.php';
         include_once $URLCom.'/head.php';
 ?>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
 </head>
 
 <body>

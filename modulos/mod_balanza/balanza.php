@@ -4,8 +4,10 @@
           <?php 
             include_once './../../inicial.php';
             include_once $URLCom.'/head.php';
-          $titulos="Crear Balanza";
+          $titulo="Crear Balanza";
           $id=0;
+          $nombreBalanza="";
+          $modeloBalanza="";
           ?>
     </head>
     <body>
@@ -14,20 +16,37 @@
     ?>
     <div class="container">
         <h2 class="text-center"> <?php echo $titulo;?></h2>
-        <form action="" method="post" name="formBalanza" onkeypress="return anular(event)">
+      
             <div class="col-md-12 ">
                 <a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
                 <input type="submit" value="Guardar" class="btn btn-primary">
             </div>
             <div class="col-md-6 Datos">
                  <div class="col-md-12">
-                    <h4>Datos del producto con ID:<?php echo $id?></h4>
+                    <h4>Datos de la balanza con ID:<?php echo $id?></h4>
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        <label>Nombre de la balanza</label>
+                        <input type="text" name="nombreBalanza" id="nombreBalanza" value="<?php echo $nombreBalanza;?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Modelo de la balanza</label>
+                        <input type="text" name="modeloBalanza" id="modeloBalanza" value="<?php echo $modeloBalanza;?>">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <label>Teclas en la balanza</label>
+                    <select id="teclas" name="teclas">
+                        <option value="si">Si</option>
+                        <option value="no">No</option>
+                    </select>
                 </div>
             </div>
             <div class="col-md-6 text-center">
                
             </div>
-        </form>
+       
     </div>
     </body>
 </html>
