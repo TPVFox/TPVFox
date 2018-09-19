@@ -15,6 +15,11 @@ class ClaseBalanza extends Modelo  {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+    public function datosBalanza($idBalanza){
+        $sql='SELECT * from modulo_balanza where idBalanza='.$idBalanza;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
 }
 
 

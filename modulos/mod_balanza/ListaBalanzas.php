@@ -14,6 +14,7 @@
         
         
 ?>
+<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
 </head>
 
@@ -38,17 +39,33 @@
                 </div>
                 <div class="nav">
                     Selecciona una balanza:
-                    <ul class="nav nav-pills nav-stacked">
+                   <table class="table table-striped table-hover">
+                       <tr>
+                       <td>Id</td>
+                       
+                       <td>Nombre</td>
+                       </tr>
                     <?php 
+                    $checkUser = 0;
+                    
                     foreach ($balanzas as $balanza){
+                        $checkUser = $checkUser + 1; 
                         ?>
-                        <li><a href="#section2" onclick="mostrarDatosBalanza(<?php echo $balanza['idBalanza'];?>)";><?php echo $balanza['nombreBalanza'];?></a></li> 
+                        
+                            <td>
+                             <?php
+                            $check_name = 'checkUsu'.$checkUser;
+                            echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" value="'.$balanza['idBalanza'].'" class="check_balanza">';
+                            ?>    
+                            </td>
+                            <td onclick="mostrarDatosBalanza(<?php echo $balanza['idBalanza'];?>)"><?php echo $balanza['nombreBalanza'];?></td>
+                      
                         <?php 
                         
                     }
                     
                     ?>
-                    </ul>
+                   </table>
                 </div>
             </div>
             <div class="col-md-10">

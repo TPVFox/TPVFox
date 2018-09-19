@@ -4,7 +4,12 @@ function metodoClick(pulsado,adonde){
             window.location.href = './balanza.php';
         break;
         case 'VerBalanza':
-        
+        checkID = leerChecked('check_'+ adonde);
+			if (checkID.length >1 || checkID.length=== 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return
+			}
+			  window.location.href = './'+adonde+'.php?id='+$('#'+checkID[0]).val();
         break;
     }
 }

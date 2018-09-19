@@ -4,10 +4,24 @@
           <?php 
             include_once './../../inicial.php';
             include_once $URLCom.'/head.php';
-          $titulo="Crear Balanza";
-          $id=0;
-          $nombreBalanza="";
-          $modeloBalanza="";
+            include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
+            $CBalanza=new ClaseBalanza($BDTpv);
+            $titulo="Crear Balanza";
+            $id=0;
+            $nombreBalanza="";
+            $modeloBalanza="";
+           
+       
+       
+            $puls=array();
+            if(isset($_GET['id'])){
+                $titulo="Modificar Balanza";
+                $id=$_GET['id'];
+                $datosBalanza=$CBalanza->datosBalanza($id);
+                $nombreBalanza=$datosBalanza['datos'][0]['nombreBalanza'];
+                $modeloBalanza=$datosBalanza['datos'][0]['modelo'];
+                //faltra select con las opciones de tecla
+            }
           ?>
           <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
     </head>
@@ -20,7 +34,17 @@
       
             <div class="col-md-12 ">
                 <a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
+                <?php 
+                if($id>0){
+                ?>
+                 <input type="submit" value="Modificar" class="btn btn-primary" onclick="ModificarBalanza();">
+                <?php 
+                }else{
+                ?>
                 <input type="submit" value="Guardar" class="btn btn-primary" onclick="AgregarBalanza();">
+                <?php 
+                }
+                ?>
             </div>
             <div class="col-md-6 Datos">
                 <div class="col-md-12" id="errores">
@@ -47,7 +71,15 @@
                 </div>
             </div>
             <div class="col-md-6 text-center">
-               
+              
+                    <div class="panel-group">
+                        <?php 
+                        $num = 1 ; // Numero collapse;
+                        $titulo = 'PLUs';
+                        echo htmlPanelDesplegable($num,$titulo,$htmlPLUS);
+                        
+                        ?>
+                    </div>
             </div>
        
     </div>
