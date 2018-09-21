@@ -79,7 +79,27 @@ function htmlAddPLU($tecla){
         .'<input type="text" name="teclaPlu" id="teclaPlu" value="" >'
         .'</div>';
     }
+    $html.='<div class="col-md-12">'
+    .'<label>Opciones de busqueda de los productos:</label>'
+    .'<div class="col-md-1">'
+    .'<label>Id:</label>'
+    .'<input type="text" name="idArticulo id="idArticulo" value="" size="2px">'
+    .'</div>'
+    .'<div class="col-md-5">'
+    .'<label>Nombre:</label>'
+    .'<input type="text" name="nombreProducto id="nombreProducto" value="" size="20px">'
+    .'</div>'
+    .'<div class="col-md-3">'
+    .'<label>Referencia:</label>'
+    .'<input type="text" name="referencia id="referencia" value="" size="10px">'
+    .'</div>'
+    .'<div class="col-md-3">'
+     .'<label>Cod Barras:</label>'
+    .'<input type="text" name="codBarras id="codBarras" value="" size="10px">'
+    .'</div>'
+    .'</div>';
     $html.='</div>';
+    return $html;
 }
 
 ?>

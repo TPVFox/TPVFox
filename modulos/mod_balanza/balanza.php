@@ -56,7 +56,7 @@
                 }
                 ?>
             </div>
-            <div class="col-md-6 Datos">
+            <div class="col-md-5 Datos">
                 <div class="col-md-12" id="errores">
                 </div>
                  <div class="col-md-12">
@@ -80,7 +80,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-md-6 text-center">
+            <div class="col-md-7 text-center">
               
                     <div class="panel-group">
                         <?php 
