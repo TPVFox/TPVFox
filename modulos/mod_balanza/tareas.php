@@ -30,9 +30,7 @@ switch ($pulsado) {
     break;
     case 'htmlPlu':
         $tecla=$_POST['teclas'];
-       
-    
-        $html=htmlModalPlu($tecla);
+        $html=htmlAddPLU($tecla);
         $respuesta['html']=$html;
     break;
 }

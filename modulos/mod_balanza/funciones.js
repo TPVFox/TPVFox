@@ -62,13 +62,7 @@ function htmlPlu(){
 			console.log('Repuesta de html balanzas');
 			var resultado =  $.parseJSON(response);
 			console.log(resultado);
-            var titulo = 'Añadir plu ';
-            abrirModal(titulo,resultado.html);
-                //~ $( ".custom-combobox-input" ).focus();
-				setTimeout(function(){
-                        $( ".custom-combobox-input" ).focus();
-                       
-                },3000);
+           $('#addPlu').html(resultado['html']);
 		}
 	});
 }

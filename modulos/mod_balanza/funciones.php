@@ -40,6 +40,9 @@ function  htmlTablaPlus($plus){
 			.'					</a>'
 			.'				</th>'
 			.'			</tr>'
+            .'          <tr  id="addPlu">
+                        
+                        </tr>' 
 			.'		</thead>'
 			.'		<tbody>';
 	if (count($plus)>0){
@@ -64,8 +67,8 @@ function htmlLineaPlu($item, $plu){
 				.'</td>'.'</tr>';
 	return $nuevaFila;
 }
-function htmlModalPlu($tecla){
-    $html.='<div class="col-md-12">'
+function htmlAddPLU($tecla){
+    $html='<div class="col-md-12">'
 					.'<div class="col-md-6">'
 						.'<label>Plu:</label>'
 						.'<input type="text" name="plu" id="plu" value="" >'
@@ -77,9 +80,6 @@ function htmlModalPlu($tecla){
         .'</div>';
     }
     $html.='</div>';
-  
-  
-    
 }
 
 ?>
