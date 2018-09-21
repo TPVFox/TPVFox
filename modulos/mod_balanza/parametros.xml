@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+    <cajas_input data-obj="id_input">
+        <caja_input>
+            <nombre id_input="idArticulo">cajaidArticulo</nombre>
+            <action tecla="13">BuscarProducto</action>
+        </caja_input>
+        <caja_input>
+            <nombre id_input="nombreProducto">cajanombreProducto</nombre>
+            <action tecla="13">BuscarProducto</action>
+        </caja_input>
+        <caja_input>
+            <nombre id_input="referencia">cajareferencia</nombre>
+            <action tecla="13">BuscarProducto</action>
+        </caja_input>
+         <caja_input>
+            <nombre id_input="codBarras">cajacodBarras</nombre>
+            <action tecla="13">BuscarProducto</action>
+        </caja_input>
+    </cajas_input>
+</parametros>
