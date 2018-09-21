@@ -6,14 +6,19 @@
             include_once $URLCom.'/head.php';
             include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
             include_once $URLCom . '/modulos/mod_balanza/funciones.php';
+            include_once ($URLCom.'/controllers/parametros.php');
+            include_once $URLCom.'/controllers/Controladores.php';
+            $ClasesParametros = new ClaseParametros('parametros.xml');
+            $Controler = new ControladorComun; 
+            $Controler->loadDbtpv($BDTpv);
             $CBalanza=new ClaseBalanza($BDTpv);
             $titulo="Crear Balanza";
             $id=0;
             $nombreBalanza="";
             $modeloBalanza="";
             $plus=array();
-       
-       
+            $parametros = $ClasesParametros->getRoot();	
+            $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
             $puls=array();
             if(isset($_GET['id'])){
                 $titulo="Modificar Balanza";
@@ -30,10 +35,14 @@
             }
              $htmlplus = htmlTablaPlus($plus);
           ?>
-          <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
-         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
-          <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
+        <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
+        <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <script type="text/javascript">
+              <?php echo $VarJS;?>
+        </script>
     </head>
     <body>
     <?php     
