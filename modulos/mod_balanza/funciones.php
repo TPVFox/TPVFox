@@ -97,6 +97,12 @@ function htmlAddPLU($tecla){
      .'<label>Cod Barras:</label>'
     .'<input type="text" name="codBarras id="codBarras" value="" size="10px">'
     .'</div>'
+    .'</div>'
+    .'<div class="col-md-12">'
+    .'<div class="col-md-8"></div>'
+    .'<div class="col-md-4"><label></label>'
+    .'<a class="btn btn-success" onclick="addPlu">Añadir</a>'
+    .'</div>'
     .'</div>';
     $html.='</div>';
     return $html;
