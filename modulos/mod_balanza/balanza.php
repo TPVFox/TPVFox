@@ -38,8 +38,8 @@
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
-        <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
         <script type="text/javascript">
               <?php echo $VarJS;?>
         </script>

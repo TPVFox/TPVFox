@@ -66,3 +66,11 @@ function htmlPlu(){
 		}
 	});
 }
+function controladorAcciones(caja,accion, tecla){
+     console.log (' Controlador Acciones: ' +accion);
+      switch(accion) {
+          case 'BuscarProducto':
+            console.log("entre en buscar producto");
+          break;
+      }
+}
