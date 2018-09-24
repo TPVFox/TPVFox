@@ -63,6 +63,9 @@ switch ($pulsado) {
             $addPlu=$CBalanza->addPlu($plu, $idBalanza, $tecla, $idArticulo);
         }
     break;
+    case 'eliminarPlu':
+        $eliminar=$CBalanza->eliminarplu($_POST['idBalanza'], $_POST['plu']);
+    break;
 }
 echo json_encode($respuesta);
 ?>

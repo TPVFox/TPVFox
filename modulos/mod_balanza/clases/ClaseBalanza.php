@@ -48,6 +48,13 @@ class ClaseBalanza extends Modelo  {
             return $consulta;
         }
     }
+    public function eliminarplu($idBalanza, $plu){
+        $sql='DELETE FROM `modulo_balanza_plus` WHERE idBalanza='.$idBalanza.' and plu="'.$plu.'"';
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+    }
 }
 
 

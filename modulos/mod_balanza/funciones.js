@@ -119,7 +119,7 @@ function addPlu(idBalanza){
     var plu=$('#plu').val();
     var tecla=$('#teclaPlu').val();
     if(id=="" || plu =="" || tecla==""){
-        
+        alert("Quedan campos sin cubrir");
     }else{
         var parametros = {
             "pulsado"   : 'addPlu',
@@ -145,4 +145,25 @@ function addPlu(idBalanza){
 	});
     
     }
+}
+function eliminarPlu(plu, idBalanza){
+    var parametros = {
+            "pulsado"   : 'eliminarPlu',
+            "plu"    : plu,
+            "idBalanza": idBalanza
+        };
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  enviando add plu ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de add plu');
+			var resultado =  $.parseJSON(response);
+            
+		}
+	});
+       
 }
