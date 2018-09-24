@@ -66,11 +66,40 @@ function htmlPlu(){
 		}
 	});
 }
-function controladorAcciones(caja,accion, tecla){
+function controladorAcciones(caja, accion, tecla){
      console.log (' Controlador Acciones: ' +accion);
       switch(accion) {
           case 'BuscarProducto':
             console.log("entre en buscar producto");
+            console.log(caja);
+            var valor=$('#'+caja.id_input).val();
+            buscarProducto(caja.id_input, valor);
           break;
       }
+}
+
+function buscarProducto(idInput, valor){
+    var parametros = {
+		"pulsado"   : 'buscarProducto',
+		"busqueda"  : valor,
+		"idcaja"    : idInput
+	};
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  enviando datos para buscar productos ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de buscar productos');
+			var resultado =  $.parseJSON(response);
+            if(resultado['datos']){
+                
+            }else{
+                var titulo = 'Listado Productos ';
+                abrirModal(titulo,resultado.html);
+            }
+		}
+	});
 }

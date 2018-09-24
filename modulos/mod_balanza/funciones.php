@@ -83,19 +83,19 @@ function htmlAddPLU($tecla){
     .'<label>Opciones de busqueda de los productos:</label>'
     .'<div class="col-md-1">'
     .'<label>Id:</label>'
-    .'<input type="text" name="idArticulo id="idArticulo" data-obj="cajaidArticulo" onkeydown="controlEventos(event)" value="" size="2px">'
+    .'<input type="text" name="idArticulo" id="idArticulo" data-obj="cajaidArticulo" onkeydown="controlEventos(event)" value="" size="2px">'
     .'</div>'
     .'<div class="col-md-5">'
     .'<label>Nombre:</label>'
-    .'<input type="text" name="nombreProducto id="nombreProducto" data-obj="cajanombreProducto" onkeydown="controlEventos(event)" value="" size="20px">'
+    .'<input type="text" name="nombreProducto" id="nombreProducto" data-obj="cajanombreProducto" onkeydown="controlEventos(event)" value="" size="20px">'
     .'</div>'
     .'<div class="col-md-3">'
     .'<label>Referencia:</label>'
-    .'<input type="text" name="referencia id="referencia" data-obj="cajareferencia" onkeydown="controlEventos(event)" value="" size="10px">'
+    .'<input type="text" name="referencia" id="referencia" data-obj="cajareferencia" onkeydown="controlEventos(event)" value="" size="10px">'
     .'</div>'
     .'<div class="col-md-3">'
      .'<label>Cod Barras:</label>'
-    .'<input type="text" name="codBarras id="codBarras" data-obj="cajacodBarras" onkeydown="controlEventos(event)" value="" size="10px">'
+    .'<input type="text" name="codBarras" id="codBarras" data-obj="cajacodBarras" onkeydown="controlEventos(event)" value="" size="10px">'
     .'</div>'
     .'</div>'
     .'<div class="col-md-12">'
@@ -107,5 +107,60 @@ function htmlAddPLU($tecla){
     $html.='</div>';
     return $html;
 }
+function camposBuscar($idInput, $busqueda){
+    $campo="";
+    switch ($idInput){
+        case 'idArticulo':
+            $campo='a.idArticulo='.$busqueda;
+        break;
+        case 'nombreProducto':
+            $campo='a.articulo_name like "%'.$busqueda.'%"';
+        break;
+        case 'referencia':
+            $campo='b.crefTienda like "%'.$busqueda.'%"';
+        break;
+        case 'codBarras':
+            $campo='c.codBarras like "%'.$busqueda.'%"';
+        break;
+    }
+    return $campo;
+}
 
+function modalProductos($busqueda, $productos){
+    $resultado = array();
+	$resultado['encontrados'] = count($productos);
+	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
+	$resultado['html'] .= '<input id="cajaBusquedaProducto" name="valorProducto" placeholder="Buscar"'.
+				'size="13" data-obj="cajaBusquedaProducto" value="'.$busqueda.'"
+				 onkeydown="controlEventos(event)" type="text">';
+				
+	if (count($productos)>10){
+		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
+	}
+	$resultado['html'] .= '<table class="table table-striped"><thead>'
+	. ' <th></th> <th>id</th><th>Nombre</th><th>Referencia</th></thead><tbody>';
+	if (count($productos)>0){
+		$contad = 0;
+		foreach ($productos as $producto){  
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarProductosModal('.
+            $producto['idArticulo'].', '."'".$producto['articulo_name']."'".', '."'".$producto['crefTienda']."'".', '.
+            "'".$producto['codBarras']."'".');" >';
+		
+			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
+			$resultado['html'] .= '<input id="N_'.$contad.'" name="filaProducto" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
+			. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+            .'<td>'.$producto['idArticulo'].'</td>'
+			. '<td>'.htmlspecialchars($producto['articulo_name'],ENT_QUOTES).'</td>'
+			. '<td>'.htmlentities($producto['crefTienda'],ENT_QUOTES).'</td>'
+			.'</tr>';
+			$contad = $contad +1;
+			if ($contad === 10){
+				break;
+			}
+			
+		}
+	} 
+	$resultado['html'] .='</tbody></table>';
+	return $resultado;
+}
 ?>

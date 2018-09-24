@@ -33,6 +33,23 @@ switch ($pulsado) {
         $html=htmlAddPLU($tecla);
         $respuesta['html']=$html;
     break;
+    case 'buscarProducto':
+        $campo=camposBuscar($_POST['idcaja'], $_POST['busqueda']);
+        $result=$CBalanza->buscarArticuloCampo($campo);
+        if(count($result['datos'])==1){
+            $datos=array(
+            'idArticulo'=>$result['datos'][0]['idArticulo'],
+            'nombre'=>$result['datos'][0]['articulo_name'],
+            'referencia'=>$result['datos'][0]['crefTienda'],
+            'codBarras'=>$result['datos'][0]['codBarras']
+            );
+            $respuesta['datos']=$datos;
+        }else{
+            $html=modalProductos($_POST['busqueda'], $result['datos']);
+            $respuesta['html']=$html['html'];
+        }
+        $respuesta['buscar']=$result;
+    break;
 }
 echo json_encode($respuesta);
 ?>

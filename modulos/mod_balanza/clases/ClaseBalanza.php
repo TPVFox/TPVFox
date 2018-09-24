@@ -26,6 +26,14 @@ class ClaseBalanza extends Modelo  {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+    public function buscarArticuloCampo($campo){
+        $sql='SELECT a.idArticulo, a.articulo_name, b.crefTienda, c.codBarras 
+        from articulos as a INNER JOIN articulosTiendas as b on a.idArticulo=b.idArticulo inner JOIN
+        articulosCodigoBarras as c on a.idArticulo=c.idArticulo inner join tiendas as d on 
+        b.idTienda=d.idTienda where d.tipoTienda="principal" and '.$campo;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
 }
 
 
