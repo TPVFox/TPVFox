@@ -43,6 +43,12 @@ function  htmlTablaPlus($plus, $id){
             .'          <tr  id="addPlu">
                         
                         </tr>' 
+            .'          <tr>'
+            .'          <td>PLU</td>'
+            .'          <td>Tecla</td>'
+            .'          <td>idArticulo</td>'
+            .'          <td></td>'
+            .'          </tr>' 
 			.'		</thead>'
 			.'		<tbody>';
 	if (count($plus)>0){
@@ -59,7 +65,7 @@ function htmlLineaPlu($item, $plu){
 				. '<td><input type="hidden" id="idPlu_'.$plu['plu']
 				.'" name="idPlu'.$plu['plu'].'" value="'.$plu['plu'].'">'
 				.$plu['plu'].'</td>'
-				.'<td>'.$plu['plu'].'</td>'
+				
                 .'<td>'.$plu['tecla'].'</td>'
                 .'<td>'.$plu['idArticulo'].'</td>'
 				.'<td><a id="eliminar_'.$plu['plu']
