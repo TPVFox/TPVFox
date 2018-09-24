@@ -45,11 +45,12 @@ function AgregarBalanza(){
 }
 
 
-function htmlPlu(){
+function htmlPlu(idBalanza){
     var teclas=$('#teclas').val();
     var parametros={
             "pulsado"    	: 'htmlPlu',
-            'teclas'    :teclas
+            'teclas'    :teclas,
+            'idBalanza':idBalanza
         }
     $.ajax({
 		data       : parametros,
@@ -112,4 +113,36 @@ function datosEnInput(id, nombre, ref, codBarras){
 function buscarProductosModal(id, nombre, ref, codBarras){
     datosEnInput(id, nombre, ref, codBarras);
     cerrarPopUp();
+}
+function addPlu(idBalanza){
+    var id=$('#idArticulo').val();
+    var plu=$('#plu').val();
+    var tecla=$('#teclaPlu').val();
+    if(id=="" || plu =="" || tecla==""){
+        
+    }else{
+        var parametros = {
+            "pulsado"   : 'addPlu',
+            "idArticulo"  : id,
+            "plu"    : plu,
+            "tecla": tecla,
+            "idBalanza": idBalanza
+        };
+         $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  enviando add plu ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de add plu');
+			var resultado =  $.parseJSON(response);
+            if(resultado['error']){
+                alert(resultado['error']);
+            }
+		}
+	});
+    
+    }
 }

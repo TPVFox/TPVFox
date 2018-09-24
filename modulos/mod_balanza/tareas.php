@@ -30,7 +30,7 @@ switch ($pulsado) {
     break;
     case 'htmlPlu':
         $tecla=$_POST['teclas'];
-        $html=htmlAddPLU($tecla);
+        $html=htmlAddPLU($tecla, $_POST['idBalanza']);
         $respuesta['html']=$html;
     break;
     case 'buscarProducto':
@@ -49,6 +49,19 @@ switch ($pulsado) {
             $respuesta['html']=$html['html'];
         }
         $respuesta['buscar']=$result;
+    break;
+    case 'addPlu':
+    
+        $idBalanza=$_POST['idBalanza'];
+        $plu=$_POST['plu'];
+        $tecla=$_POST['tecla'];
+        $idArticulo=$_POST['idArticulo'];
+        $buscarPlu=$CBalanza->buscarPluEnBalanza($plu, $idBalanza);
+        if(isset($buscarPlu['datos'])){
+            $respuesta['error']="Ya existe ese mismo plu en la balanza";
+        }else{
+            $addPlu=$CBalanza->addPlu($plu, $idBalanza, $tecla, $idArticulo);
+        }
     break;
 }
 echo json_encode($respuesta);

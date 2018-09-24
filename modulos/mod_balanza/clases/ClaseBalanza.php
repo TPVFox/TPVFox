@@ -34,6 +34,20 @@ class ClaseBalanza extends Modelo  {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+    
+    public function buscarPluEnBalanza($plu, $idBalanza){
+        $sql='select * from modulo_balanza_plus where idBalanza='.$idBalanza.' and plu="'.$plu.'"';
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
+    public function addPlu($plu, $idBalanza, $tecla, $idArticulo){
+        $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `tecla`, `idArticulo`) VALUES ('.$idBalanza.', 
+        "'.$plu.'", "'.$tecla.'", '.$idArticulo.')';
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+    }
 }
 
 

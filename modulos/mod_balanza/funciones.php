@@ -26,7 +26,7 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	return $html;
 	 
 }
-function  htmlTablaPlus($plus){
+function  htmlTablaPlus($plus, $id){
 	// @ Objetivo
 	// Montar la tabla html de codbarras
 	// @ Parametros
@@ -35,7 +35,7 @@ function  htmlTablaPlus($plus){
 			.'		<thead>'
 			.'			<tr>'
 			.'				<th>Plus</th>'
-			.'				<th>'.'<a id="agregar" onclick="htmlPlu()">Añadir'
+			.'				<th>'.'<a id="agregar" onclick="htmlPlu('.$id.')">Añadir'
 			.'					<span class="glyphicon glyphicon-plus"></span>'
 			.'					</a>'
 			.'				</th>'
@@ -67,7 +67,7 @@ function htmlLineaPlu($item, $plu){
 				.'</td>'.'</tr>';
 	return $nuevaFila;
 }
-function htmlAddPLU($tecla){
+function htmlAddPLU($tecla, $idBalanza){
     $html='<div class="col-md-12">'
 					.'<div class="col-md-6">'
 						.'<label>Plu:</label>'
@@ -101,7 +101,7 @@ function htmlAddPLU($tecla){
     .'<div class="col-md-12">'
     .'<div class="col-md-8"></div>'
     .'<div class="col-md-4"><label></label>'
-    .'<a class="btn btn-success" onclick="addPlu">Añadir</a>'
+    .'<a class="btn btn-success" onclick="addPlu('.$idBalanza.')">Añadir</a>'
     .'</div>'
     .'</div>';
     $html.='</div>';

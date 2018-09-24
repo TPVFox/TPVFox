@@ -33,7 +33,7 @@
                     $plus=$buscarPlus['datos'];
                 }
             }
-             $htmlplus = htmlTablaPlus($plus);
+             $htmlplus = htmlTablaPlus($plus, $id);
           ?>
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
