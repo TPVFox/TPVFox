@@ -129,7 +129,7 @@ function camposBuscar($idInput, $busqueda){
 function modalProductos($busqueda, $productos){
     $resultado = array();
 	$resultado['encontrados'] = count($productos);
-	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>';
+	$resultado['html'] = '<label>Busqueda Producto </label>';
 	$resultado['html'] .= '<input id="cajaBusquedaProducto" name="valorProducto" placeholder="Buscar"'.
 				'size="13" data-obj="cajaBusquedaProducto" value="'.$busqueda.'"
 				 onkeydown="controlEventos(event)" type="text">';

@@ -95,11 +95,21 @@ function buscarProducto(idInput, valor){
 			console.log('Repuesta de buscar productos');
 			var resultado =  $.parseJSON(response);
             if(resultado['datos']){
-                
+                datosEnInput(resultado['datos']['idArticulo'], resultado['datos']['nombre'], resultado['datos']['referencia'], resultado['datos']['codBarras']);
             }else{
                 var titulo = 'Listado Productos ';
                 abrirModal(titulo,resultado.html);
             }
 		}
 	});
+}
+function datosEnInput(id, nombre, ref, codBarras){
+    $('#idArticulo').val(id);
+    $('#nombreProducto').val(nombre);
+    $('#referencia').val(ref);
+    $('#codBarras').val(codBarras);
+}
+function buscarProductosModal(id, nombre, ref, codBarras){
+    datosEnInput(id, nombre, ref, codBarras);
+    cerrarPopUp();
 }
