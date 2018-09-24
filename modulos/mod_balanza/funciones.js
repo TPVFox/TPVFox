@@ -140,6 +140,8 @@ function addPlu(idBalanza){
 			var resultado =  $.parseJSON(response);
             if(resultado['error']){
                 alert(resultado['error']);
+            }else{
+                $('#tPlus tr:last').after(resultado['html']);
             }
 		}
 	});
@@ -162,7 +164,8 @@ function eliminarPlu(plu, idBalanza){
 		success    :  function (response) {
 			console.log('Repuesta de add plu');
 			var resultado =  $.parseJSON(response);
-            
+            $('#plu_'+plu).remove();
+            console.log('#plu_'+plu);
 		}
 	});
        

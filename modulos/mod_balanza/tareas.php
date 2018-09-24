@@ -61,6 +61,13 @@ switch ($pulsado) {
             $respuesta['error']="Ya existe ese mismo plu en la balanza";
         }else{
             $addPlu=$CBalanza->addPlu($plu, $idBalanza, $tecla, $idArticulo);
+            $datos=array(
+            'plu'=> $plu,
+            'tecla'=> $tecla,
+            'idArticulo'=>$idArticulo
+            );
+            $html=htmlLineaPlu($datos, $idBalanza);
+            $respuesta['html']=$html;
         }
     break;
     case 'eliminarPlu':

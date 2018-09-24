@@ -53,15 +53,15 @@ function  htmlTablaPlus($plus, $id){
 			.'		<tbody>';
 	if (count($plus)>0){
 		foreach ($plus as $item=>$valor){
-			$html .= htmlLineaPlu($item,$valor , $id);
+			$html .= htmlLineaPlu($valor , $id);
 		}
 	}
 	$html .= '</tbody> </table>	';
 	return $html;
 } 
 
-function htmlLineaPlu($item, $plu, $idBalanza){
-    $nuevaFila = '<tr>'
+function htmlLineaPlu( $plu, $idBalanza){
+    $nuevaFila = '<tr id="plu_'.$plu['plu'].'">'
 				. '<td><input type="hidden" id="idPlu_'.$plu['plu']
 				.'" name="idPlu'.$plu['plu'].'" value="'.$plu['plu'].'">'
 				.$plu['plu'].'</td>'
