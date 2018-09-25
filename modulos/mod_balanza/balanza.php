@@ -52,7 +52,7 @@
         <h2 class="text-center"> <?php echo $titulo;?></h2>
       
             <div class="col-md-12 ">
-                <a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
+                <a class="text-ritght" href="./ListaBalanzas.php">Volver Atrás</a>
                 <?php 
                 if($id>0){
                 ?>
