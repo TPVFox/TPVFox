@@ -190,3 +190,34 @@ function mostrarDatosBalanza(idBalanza){
 		}
 	});
 }
+
+
+function ModificarBalanza(id){
+      var nombreBalanza=$('#nombreBalanza').val();
+    var modeloBalanza=$('#modeloBalanza').val();
+    if(nombreBalanza=="" || modeloBalanza==""){
+        alert("Quedan campos IMPORTANTES sin cubrir!!");
+    }else{
+        var teclas=$('#teclas').val();
+        var parametros = {
+            "pulsado"   : 'modificarBalanza',
+            "idBalanza": id,
+            "nombre":nombreBalanza,
+            "modelo":modeloBalanza,
+            'tecla':teclas
+        };
+         $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  enviando modificar datos balanzas ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de modificar datos balanza');
+			var resultado =  $.parseJSON(response);
+            window.location="ListaBalanzas.php";
+		}
+	});
+    }
+}

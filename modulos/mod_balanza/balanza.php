@@ -56,7 +56,7 @@
                 <?php 
                 if($id>0){
                 ?>
-                 <input type="submit" value="Modificar" class="btn btn-primary" onclick="ModificarBalanza();">
+                 <input type="submit" value="Modificar" class="btn btn-primary" onclick="ModificarBalanza(<?php echo $id;?>);">
                 <?php 
                 }else{
                 ?>

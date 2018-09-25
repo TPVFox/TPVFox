@@ -7,8 +7,7 @@ class ClaseBalanza  extends Modelo  {
         $sql='INSERT INTO `modulo_balanza`(`nombreBalanza`, `modelo`, `conTecla`) VALUES ("'.$datos['nombreBalanza'].'", 
         "'.$datos['modeloBalanza'].'", "'.$datos['teclas'].'")';
         $consulta = $this->consultaDML($sql);
-        $balanza=$this->ultimaBalanza();
-        $consulta['id']=$balanza['datos'][0]['idBalanza'];
+       
         if (isset($consulta['error'])) {
             return $consulta;
         }
@@ -60,10 +59,13 @@ class ClaseBalanza  extends Modelo  {
             return $consulta;
         }
     }
-    public function ultimaBalanza(){
-        $sql='select idBalanza from modulo_balanza order by idBalanza desc limit 1 ';
-        $resultado = $this->consulta($sql);
-        return $resultado;
+    public function modificarBalanza($id, $nombre, $modelo, $tecla){
+        $sql='UPDATE `modulo_balanza` SET `nombreBalanza`="'.$nombre.'",`modelo`="'.$modelo.'",`conTecla`="'.$tecla.'"
+         WHERE `idBalanza`='.$id;
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
     }
 }
 

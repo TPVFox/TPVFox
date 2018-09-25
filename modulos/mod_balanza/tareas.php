@@ -85,6 +85,10 @@ switch ($pulsado) {
             }
         }
     break;
+    case 'modificarBalanza':
+        $modificarBalanza=$CBalanza->modificarBalanza($_POST['idBalanza'], $_POST['nombre'], $_POST['modelo'], $_POST['tecla']);
+        $respuesta['modif']=$modificarBalanza;
+    break;
 }
 echo json_encode($respuesta);
 ?>
