@@ -51,6 +51,7 @@
                     foreach ($balanzas as $balanza){
                         $checkUser = $checkUser + 1; 
                         ?>
+                        <tr>
                         
                             <td>
                              <?php
@@ -59,7 +60,7 @@
                             ?>    
                             </td>
                             <td onclick="mostrarDatosBalanza(<?php echo $balanza['idBalanza'];?>)"><?php echo $balanza['nombreBalanza'];?></td>
-                      
+                      </tr>
                         <?php 
                         
                     }
@@ -69,14 +70,6 @@
                 </div>
             </div>
             <div class="col-md-10">
-                <p>
-                    -Balanzas encontradas BD local filtrados:
-                    <?php echo $CantidadRegistros; ?>
-                </p>
-                <?php 	// Mostramos paginacion 
-                echo $htmlPG;
-                //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
-                ?>
                 <table class="table table-bordered table-hover tablaPrincipal">
                     <thead>
                     </thead>

@@ -170,3 +170,22 @@ function eliminarPlu(plu, idBalanza){
 	});
        
 }
+function mostrarDatosBalanza(idBalanza){
+    var parametros = {
+            "pulsado"   : 'mostrarDatosBalanza',
+            "idBalanza": idBalanza
+        };
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  enviando mostrar datos balanza ****************');
+		},
+		success    :  function (response) {
+			console.log('Repuesta de mostrar datos balanza');
+			var resultado =  $.parseJSON(response);
+            $('.tablaPrincipal').html(resultado['html']);
+		}
+	});
+}

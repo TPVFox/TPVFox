@@ -16,15 +16,15 @@ switch ($pulsado) {
         );
         $html="";
         $addBalanza=$CBalanza->addBalanza($datos);
-        if(isset($addBalanza['error'])){
-            $html='<div class="alert alert-danger">
-                <strong>Danger!</strong> Error de sql: '.$addBalanza['consulta'].'.
-                </div>';
-        }else{
-            $html='<div class="alert alert-success">
-                  <strong>Success!</strong> Balanza registrada.
-                </div>';
-        }
+        //~ if(isset($addBalanza['error'])){
+            //~ $html='<div class="alert alert-danger">
+                //~ <strong>Danger!</strong> Error de sql: '.$addBalanza['consulta'].'.
+                //~ </div>';
+        //~ }else{
+            //~ $html='<div class="alert alert-success">
+                  //~ <strong>Success!</strong> Balanza registrada.
+                //~ </div>';
+        //~ }
         $respuesta['html']=$html;
         $respuesta['balanza']=$addBalanza;
     break;
@@ -72,6 +72,16 @@ switch ($pulsado) {
     break;
     case 'eliminarPlu':
         $eliminar=$CBalanza->eliminarplu($_POST['idBalanza'], $_POST['plu']);
+    break;
+    case 'mostrarDatosBalanza':
+        $datosBalanza=$CBalanza->datosBalanza($_POST['idBalanza']);
+        if(isset($datosBalanza['datos'])){
+            $datosplu=$CBalanza->pluDeBalanza($_POST['idBalanza']);
+            if(isset($datosplu['datos'])){
+                $html=htmlDatosListadoPrincipal($datosBalanza['datos'][0], $datosplu['datos']);
+                $respuesta['html']=$html;
+            }
+        }
     break;
 }
 echo json_encode($respuesta);

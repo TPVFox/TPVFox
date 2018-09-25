@@ -22,7 +22,8 @@ class ClaseBalanza extends Modelo  {
     }
     
     public function pluDeBalanza($idBalanza){
-         $sql='SELECT * from modulo_balanza_plus where idBalanza='.$idBalanza;
+         $sql='select a.*, b.articulo_name from modulo_balanza_plus as a 
+         inner join articulos as b on a.idArticulo=b.idArticulo where a.idBalanza='.$idBalanza;
         $resultado = $this->consulta($sql);
         return $resultado;
     }

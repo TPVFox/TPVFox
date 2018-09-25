@@ -169,4 +169,30 @@ function modalProductos($busqueda, $productos){
 	$resultado['html'] .='</tbody></table>';
 	return $resultado;
 }
+
+function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
+    $html="";
+    $html.='<tr>
+        <td><b>Nombre</b></td>
+        <td>'.$datosBalanza['nombreBalanza'].'</td>
+        <td><b>Modelo</b></td>
+        <td>'.$datosBalanza['modelo'].'</td>
+        </tr>
+        <tr>
+            <td><b>PLU</b></td>
+            <td><b>Tecla</b></td>
+            <td><b>idArticulo</b></td>
+            <td><b>Descripción</b></td>
+        </tr>';
+    foreach ($datosplu as $plu){
+        $html.='<tr>
+            <td>'.$plu['plu'].'</td>
+            <td>'.$plu['tecla'].'</td>
+            <td>'.$plu['idArticulo'].'</td>
+            <td>'.$plu['articulo_name'].'</td>
+        </tr>';
+    }
+    
+    return $html;
+}
 ?>
