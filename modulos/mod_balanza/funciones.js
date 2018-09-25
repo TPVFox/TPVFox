@@ -39,6 +39,8 @@ function AgregarBalanza(){
 			var resultado =  $.parseJSON(response);
 			console.log(resultado);
             $('#errores').html(resultado['html']);
+            //~ location.href="balanza.php?id="+resultado['balanza']['id'];
+            history.pushState(null,'','?id='+resultado['balanza']['id']);
 		}
 	});
     }

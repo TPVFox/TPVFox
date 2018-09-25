@@ -1,14 +1,18 @@
 <?php 
 include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
 
-class ClaseBalanza extends Modelo  {
+class ClaseBalanza  extends Modelo  {
+
     public function addBalanza($datos){
         $sql='INSERT INTO `modulo_balanza`(`nombreBalanza`, `modelo`, `conTecla`) VALUES ("'.$datos['nombreBalanza'].'", 
         "'.$datos['modeloBalanza'].'", "'.$datos['teclas'].'")';
         $consulta = $this->consultaDML($sql);
+        $balanza=$this->ultimaBalanza();
+        $consulta['id']=$balanza['datos'][0]['idBalanza'];
         if (isset($consulta['error'])) {
             return $consulta;
         }
+       
     }
     public function todasBalanzas(){
         $sql='SELECT * from modulo_balanza ';
@@ -55,6 +59,11 @@ class ClaseBalanza extends Modelo  {
         if (isset($consulta['error'])) {
             return $consulta;
         }
+    }
+    public function ultimaBalanza(){
+        $sql='select idBalanza from modulo_balanza order by idBalanza desc limit 1 ';
+        $resultado = $this->consulta($sql);
+        return $resultado;
     }
 }
 

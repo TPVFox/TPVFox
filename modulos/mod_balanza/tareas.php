@@ -16,15 +16,16 @@ switch ($pulsado) {
         );
         $html="";
         $addBalanza=$CBalanza->addBalanza($datos);
-        //~ if(isset($addBalanza['error'])){
-            //~ $html='<div class="alert alert-danger">
-                //~ <strong>Danger!</strong> Error de sql: '.$addBalanza['consulta'].'.
-                //~ </div>';
-        //~ }else{
-            //~ $html='<div class="alert alert-success">
-                  //~ <strong>Success!</strong> Balanza registrada.
-                //~ </div>';
-        //~ }
+        if($addBalanza['error']<>"0"){
+            $html='<div class="alert alert-danger">
+                <strong>Danger!</strong> Error de sql: '.$addBalanza['consulta'].'.
+                </div>';
+        }else{
+            $html='<div class="alert alert-success">
+                  <strong>Success!</strong> Balanza registrada.
+                </div>';
+        }
+        
         $respuesta['html']=$html;
         $respuesta['balanza']=$addBalanza;
     break;
