@@ -31,7 +31,8 @@ switch ($pulsado) {
     break;
     case 'htmlPlu':
         $tecla=$_POST['teclas'];
-        $html=htmlAddPLU($tecla, $_POST['idBalanza']);
+        $idBalanza=$_GET['id'];
+        $html=htmlAddPLU($tecla, $idBalanza);
         $respuesta['html']=$html;
     break;
     case 'buscarProducto':
