@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="17cm" height="34cm" viewBox="216 -188 339 665" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g id="Fondo">
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="385.689" y1="-144.994" x2="387.37" y2="-93.7174"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="387.616,-86.2214 382.291,-96.0522 387.37,-93.7174 392.285,-96.3799 "/>
+    </g>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="137.925" y="881.5">
+      <tspan x="137.925" y="881.5"></tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="674.426" y="773">
+      <tspan x="674.426" y="773"></tspan>
+    </text>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #0d0b0b" x="255.725" y="-83" width="266.55" height="78" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="389" y="-48.1">
+        <tspan x="389" y="-48.1">JS modulo</tspan>
+        <tspan x="389" y="-32.1">funciones.js</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="387.422" y1="-4.06689" x2="383.859" y2="86.0715"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="383.563,93.5657 378.962,83.376 383.859,86.0715 388.954,83.7709 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="450.112" y1="95.8" x2="455.105" y2="4.72148"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="455.515,-2.76728 459.96,7.49138 455.105,4.72148 449.975,6.94408 "/>
+    </g>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="1126.5" y="745.5">
+      <tspan x="1126.5" y="745.5"></tspan>
+    </text>
+    <g>
+      <path style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" d="M 273.667 -186 L 496.333,-186 C 527.077,-186 552,-177.046 552,-166 C 552,-154.954 527.077,-146 496.333,-146 L 273.667,-146 C 242.923,-146 218,-154.954 218,-166 C 218,-177.046 242.923,-186 273.667,-186z"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="385" y="-170">
+        <tspan x="385" y="-170">Inicio</tspan>
+        <tspan x="385" y="-154">Importar_virtuemart.php</tspan>
+      </text>
+    </g>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="143" y="-146">
+      <tspan x="143" y="-146"></tspan>
+    </text>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="385" y="-166">
+      <tspan x="385" y="-166"></tspan>
+    </text>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #0d0b0b" x="250.2" y="95.8" width="266.55" height="78" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="383.475" y="122.7">
+        <tspan x="383.475" y="122.7">JS plugin/mod_productos/virtuemart</tspan>
+        <tspan x="383.475" y="138.7">func_plg_virtuemart.js</tspan>
+        <tspan x="383.475" y="154.7"></tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="455.638" y1="-83" x2="442.918" y2="-136.528"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="441.184,-143.825 448.36,-135.251 442.918,-136.528 438.631,-132.939 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #0d0b0b" x="234.4" y="239.8" width="298.15" height="78" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="383.475" y="274.7">
+        <tspan x="383.475" y="274.7">plugin/mod_producto/virtuemart</tspan>
+        <tspan x="383.475" y="290.7"></tspan>
+      </text>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #0d0b0b" x="237.2" y="397.8" width="298.15" height="78" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="386.275" y="424.7">
+        <tspan x="386.275" y="424.7">WEB </tspan>
+        <tspan x="386.275" y="440.7">APISV</tspan>
+        <tspan x="386.275" y="456.7"></tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="383.475" y1="173.8" x2="383.475" y2="230.064"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="383.475,237.564 378.475,227.564 383.475,230.064 388.475,227.564 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="463" y1="238" x2="452.029" y2="183.346"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="450.553,175.992 457.423,184.813 452.029,183.346 447.619,186.781 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="460.812" y1="397.8" x2="458.353" y2="327.53"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="458.091,320.035 463.437,329.854 458.353,327.53 453.444,330.203 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="383.475" y1="317.8" x2="385.934" y2="388.07"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="386.197,395.565 380.85,385.746 385.934,388.07 390.844,385.397 "/>
+    </g>
+  </g>
+</svg>

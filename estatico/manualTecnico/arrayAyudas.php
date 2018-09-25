@@ -8,9 +8,9 @@
 							'fichero'		=> 'index.php'
 							),
 					'2' => array(
-							'titulo_cuadro'	=> 'Ayuda Importar Virtuemart',
-							'introduccion'	=> 'El modulo de importar desde Virtuemart, una ayuda tecnica como para ejecutarlos.',
-							'ruta'			=> '/help_import_virtuemart/',
+							'titulo_cuadro'	=> 'Ayuda Modulo Virtuemart',
+							'introduccion'	=> 'El modulo de Virtuemart nos facilita la conexion con la web con virtuemart, una ayuda tecnica como para ejecutarlos.',
+							'ruta'			=> '/help_virtuemart/',
 							'fichero'		=> 'index.php'
 							),
 					'3' => array(
