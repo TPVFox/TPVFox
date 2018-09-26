@@ -45,8 +45,8 @@ class ClaseBalanza  extends Modelo  {
         return $resultado;
     }
     public function addPlu($plu, $idBalanza, $tecla, $idArticulo){
-        $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `tecla`, `idArticulo`) VALUES ('.$idBalanza.', 
-        "'.$plu.'", "'.$tecla.'", '.$idArticulo.')';
+        $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `tecla`, `idArticulo`) VALUES ('.$idBalanza.', "'.$plu.'", "'.$tecla.'", '.$idArticulo.')';
+       error_log($sql);
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;

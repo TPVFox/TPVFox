@@ -119,6 +119,7 @@ function addPlu(idBalanza){
     var id=$('#idArticulo').val();
     var plu=$('#plu').val();
     var tecla=$('#teclaPlu').val();
+  
     if(id=="" || plu =="" || tecla==""){
         alert("Quedan campos sin cubrir");
     }else{
