@@ -5,6 +5,7 @@
             include_once './../../inicial.php';
             include_once $URLCom.'/head.php';
             include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
+           
             include_once $URLCom . '/modulos/mod_balanza/funciones.php';
             include_once ($URLCom.'/controllers/parametros.php');
             include_once $URLCom.'/controllers/Controladores.php';
@@ -20,12 +21,15 @@
             $parametros = $ClasesParametros->getRoot();	
             $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
             $puls=array();
+            $htmlTecla=htmlTecla("si");
             if(isset($_GET['id'])){
                 $titulo="Modificar Balanza";
                 $id=$_GET['id'];
                 $datosBalanza=$CBalanza->datosBalanza($id);
                 $nombreBalanza=$datosBalanza['datos'][0]['nombreBalanza'];
                 $modeloBalanza=$datosBalanza['datos'][0]['modelo'];
+                $htmlTecla=htmlTecla($datosBalanza['datos'][0]['tecla']);
+                
                 //faltra select con las opciones de tecla
                 
                 $buscarPlus=$CBalanza->pluDeBalanza($id);
@@ -84,8 +88,7 @@
                 <div class="col-md-12">
                     <label>Teclas en la balanza</label>
                     <select id="teclas" name="teclas">
-                        <option value="si">Si</option>
-                        <option value="no">No</option>
+                        <?php echo $htmlTecla;?>
                     </select>
                 </div>
             </div>

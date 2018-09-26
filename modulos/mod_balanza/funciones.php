@@ -195,4 +195,14 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
     
     return $html;
 }
+function htmlTecla($tecla){
+    if($tecla=="si"){
+        $html='<option value="si">Si</option>
+            <option value="no">No</option>';
+    }else{
+         $html='<option value="no">No</option>
+            <option value="si">Si</option>';
+    }
+    return $html;
+}
 ?>
