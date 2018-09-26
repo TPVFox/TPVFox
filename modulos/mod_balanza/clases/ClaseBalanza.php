@@ -52,7 +52,6 @@ class ClaseBalanza  extends Modelo  {
          $sql='Select a.*,  t.crefTienda,b.articulo_name from modulo_balanza_plus as a 
          inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t on t.idArticulo=b.idArticulo and t.idTienda = '.$this->idTienda. ' where a.idBalanza='.$idBalanza;
         $resultado = $this->consulta($sql);
-        echo $sql;
         return $resultado;
     }
     public function buscarArticuloCampo($campo){
@@ -71,7 +70,7 @@ class ClaseBalanza  extends Modelo  {
     }
     public function addPlu($plu, $idBalanza, $tecla, $idArticulo){
         $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `tecla`, `idArticulo`) VALUES ('.$idBalanza.', "'.$plu.'", "'.$tecla.'", '.$idArticulo.')';
-       error_log($sql);
+       //~ error_log($sql);
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;

@@ -118,17 +118,21 @@ function buscarProductosModal(id, nombre, ref, codBarras){
 function addPlu(idBalanza){
     var id=$('#idArticulo').val();
     var plu=$('#plu').val();
+    var cref=$('#referencia').val();
+    var articulo_name=$('#nombreProducto').val();
     var tecla=$('#teclaPlu').val();
   
-    if(id=="" || plu =="" || tecla==""){
+    if(id=="" || plu =="" ){
         alert("Quedan campos sin cubrir");
     }else{
         var parametros = {
-            "pulsado"   : 'addPlu',
-            "idArticulo"  : id,
-            "plu"    : plu,
-            "tecla": tecla,
-            "idBalanza": idBalanza
+            "pulsado"       : 'addPlu',
+            "idArticulo"    : id,
+            "plu"           : plu,
+            "cref"          : cref,
+            "articulo_name" : articulo_name,
+            "tecla"         : tecla,
+            "idBalanza"     : idBalanza
         };
          $.ajax({
 		data       : parametros,

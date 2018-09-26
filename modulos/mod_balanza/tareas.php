@@ -53,13 +53,14 @@ switch ($pulsado) {
         $respuesta['buscar']=$result;
     break;
     case 'addPlu':
-    
-        $idBalanza=$_POST['idBalanza'];
-        $plu=$_POST['plu'];
+        $idBalanza = $_POST['idBalanza'];
+        $plu = $_POST['plu'];
+        $crefTienda = $_POST['cref'];
+        $articulo_name = $_POST['articulo_name'];
         if(isset($_POST['tecla'])){
-            $tecla=$_POST['tecla'];
+            $tecla = $_POST['tecla'];
         }else{
-            $tecla="";
+            $tecla = "";
         }
         
         $idArticulo=$_POST['idArticulo'];
@@ -68,12 +69,14 @@ switch ($pulsado) {
             $respuesta['error']="Ya existe ese mismo plu en la balanza";
         }else{
             $addPlu=$CBalanza->addPlu($plu, $idBalanza, $tecla, $idArticulo);
-            
             $datos=array(
             'plu'=> $plu,
             'tecla'=> $tecla,
-            'idArticulo'=>$idArticulo
+            'idArticulo'=>$idArticulo,
+            'articulo_name' => $articulo_name,
+            'crefTienda' => $crefTienda
             );
+            //~ $datos = $CBalanza->buscarPluEnBalanza($plu, $idBalanza);
             $html=htmlLineaPlu($datos, $idBalanza);
             $respuesta['html']=$html;
         }

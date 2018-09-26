@@ -3,27 +3,27 @@
     <cajas_input data-obj="id_input">
         <caja_input>
             <nombre id_input="idArticulo">cajaidArticulo</nombre>
-	    <teclas>		
-            	<action tecla="13">BuscarProducto</action>
-	    </teclas>
+            <teclas>		
+                    <action tecla="13">BuscarProducto</action>
+            </teclas>
         </caja_input>
         <caja_input>
             <nombre id_input="nombreProducto">cajanombreProducto</nombre>
-	    <teclas>
-            	<action tecla="13">BuscarProducto</action>
-	    </teclas>
+            <teclas>
+                    <action tecla="13">BuscarProducto</action>
+            </teclas>
         </caja_input>
         <caja_input>
             <nombre id_input="referencia">cajareferencia</nombre>
-	    <teclas>
-            	<action tecla="13">BuscarProducto</action>
-	    </teclas>
+            <teclas>
+                    <action tecla="13">BuscarProducto</action>
+            </teclas>
         </caja_input>
          <caja_input>
             <nombre id_input="codBarras">cajacodBarras</nombre>
-	    <teclas>
-            	<action tecla="13">BuscarProducto</action>
-	   </teclas>
+            <teclas>
+                    <action tecla="13">BuscarProducto</action>
+           </teclas>
         </caja_input>
     </cajas_input>
 </parametros>

@@ -44,12 +44,12 @@ function  htmlTablaPlus($plus, $id){
                         
                         </tr>' 
             .'          <tr>'
-            .'          <td>PLU</td>'
-            .'          <td>Tecla</td>'
-            .'          <td>idArticulo</td>'
-            .'          <td>Referencia</td>'
-            .'          <td>Nombre</td>'
-            .'          <td></td>'
+            .'          <th>PLU</td>'
+            .'          <th>Tecla</td>'
+            .'          <th>idArticulo</td>'
+            .'          <th>Referencia</td>'
+            .'          <th>Nombre</td>'
+            .'          <th></td>'
             .'          </tr>' 
 			.'		</thead>'
 			.'		<tbody>';
@@ -79,43 +79,45 @@ function htmlLineaPlu( $plu, $idBalanza){
 	return $nuevaFila;
 }
 function htmlAddPLU($tecla, $idBalanza){
-    $html='<div class="col-md-12">'
-					.'<div class="col-md-6">'
-						.'<label>Plu:</label>'
-						.'<input type="text" name="plu" id="plu" value="" >'
-					.'</div>';
-    if($tecla=='si'){
-        $html.='<div class="col-md-6">'
-        .'<label>Tecla:</label>'
-        .'<input type="text" name="teclaPlu" id="teclaPlu" value="" >'
-        .'</div>';
+    $style_none = ' ';
+    if($tecla=='no'){
+        $style_none = 'style="display:none"';
     }
-    $html.='<div class="col-md-12">'
-    .'<label>Opciones de busqueda de los productos:</label>'
-    .'<div class="col-md-1">'
-    .'<label>Id:</label>'
-    .'<input type="text" name="idArticulo" id="idArticulo" data-obj="cajaidArticulo" onkeydown="controlEventos(event)" value="" size="2px">'
-    .'</div>'
-    .'<div class="col-md-5">'
-    .'<label>Nombre:</label>'
-    .'<input type="text" name="nombreProducto" id="nombreProducto" data-obj="cajanombreProducto" onkeydown="controlEventos(event)" value="" size="20px">'
-    .'</div>'
-    .'<div class="col-md-3">'
-    .'<label>Referencia:</label>'
-    .'<input type="text" name="referencia" id="referencia" data-obj="cajareferencia" onkeydown="controlEventos(event)" value="" size="10px">'
-    .'</div>'
-    .'<div class="col-md-3">'
-     .'<label>Cod Barras:</label>'
-    .'<input type="text" name="codBarras" id="codBarras" data-obj="cajacodBarras" onkeydown="controlEventos(event)" value="" size="10px">'
-    .'</div>'
-    .'</div>'
-    .'<div class="col-md-12">'
-    .'<div class="col-md-8"></div>'
-    .'<div class="col-md-4"><label></label>'
-    .'<a class="btn btn-success" onclick="addPlu('.$idBalanza.')">Añadir</a>'
-    .'</div>'
-    .'</div>';
-    $html.='</div>';
+
+    $html='<th colspan="5">'
+            .'<div class="col-md-12">'
+                .'<label>Plu:</label>'
+				.'<input type="text" name="plu" id="plu" value="" >'
+            .'</div>'
+            .'<div class="col-md-12" '.$style_none.'>'
+               .'<label>Tecla:</label>'
+               .'<input type="text" name="teclaPlu" id="teclaPlu" value="" >';
+    
+    $html.='</div>'
+            .'<div>'
+                .'<label>Opciones de busqueda de los productos:</label>'
+                .'<div class="col-md-1">'
+                    .'<label>Id:</label>'
+                    .'<input type="text" name="idArticulo" id="idArticulo" data-obj="cajaidArticulo" onkeydown="controlEventos(event)" value="" size="2px">'
+                .'</div>'
+                .'<div class="col-md-5">'
+                    .'<label>Nombre:</label>'
+                    .'<input type="text" name="nombreProducto" id="nombreProducto" data-obj="cajanombreProducto" onkeydown="controlEventos(event)" value="" size="20px">'
+                .'</div>'
+                .'<div class="col-md-3">'
+                    .'<label>Referencia:</label>'
+                    .'<input type="text" name="referencia" id="referencia" data-obj="cajareferencia" onkeydown="controlEventos(event)" value="" size="10px">'
+                .'</div>'
+                .'<div class="col-md-3">'
+                    .'<label>Cod Barras:</label>'
+                    .'<input type="text" name="codBarras" id="codBarras" data-obj="cajacodBarras" onkeydown="controlEventos(event)" value="" size="10px">'
+                .'</div>'
+            .'</div>'
+        .'<div>'
+            .'<div class="col-md-4"><label></label>'
+            .'<a class="btn btn-success" onclick="addPlu('.$idBalanza.')">Añadir</a>'
+            .'</div>'
+        .'</div>';
     return $html;
 }
 function camposBuscar($idInput, $busqueda){
@@ -202,11 +204,16 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
 }
 function htmlTecla($tecla){
     if($tecla=="si"){
-        $html='<option value="si">Si</option>
-            <option value="no">No</option>';
+        $html ='<option value="si" selected="selected">Si</option>';
+  
     }else{
-         $html='<option value="no">No</option>
-            <option value="si">Si</option>';
+        $html ='<option value="si">Si</option>';
+    }
+    if($tecla=="no"){
+         $html .='<option value="no" selected="selected">No</option>';
+    } else {
+         $html .='<option value="no">No</option>';
+
     }
     return $html;
 }
