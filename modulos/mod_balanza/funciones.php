@@ -40,13 +40,15 @@ function  htmlTablaPlus($plus, $id){
 			.'					</a>'
 			.'				</th>'
 			.'			</tr>'
-            .'          <tr  id="addPlu">
+            .'          <tr  id="addPlu" colspan="2">
                         
                         </tr>' 
             .'          <tr>'
             .'          <td>PLU</td>'
             .'          <td>Tecla</td>'
             .'          <td>idArticulo</td>'
+            .'          <td>Referencia</td>'
+            .'          <td>Nombre</td>'
             .'          <td></td>'
             .'          </tr>' 
 			.'		</thead>'
@@ -68,7 +70,10 @@ function htmlLineaPlu( $plu, $idBalanza){
 				
                 .'<td>'.$plu['tecla'].'</td>'
                 .'<td>'.$plu['idArticulo'].'</td>'
-				.'<td><a id="eliminar_'.$plu['plu']
+                .'<td>'.$plu['crefTienda'].'</td>'
+                .'<td>'.$plu['articulo_name'].'</td>'
+
+                .'<td><a id="eliminar_'.$plu['plu']
 				.'" class="glyphicon glyphicon-trash" onclick="eliminarPlu('."'".$plu['plu']."'".', '.$idBalanza.')"></a>'
 				.'</td>'.'</tr>';
 	return $nuevaFila;

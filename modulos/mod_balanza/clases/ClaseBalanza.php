@@ -3,6 +3,28 @@ include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
 
 class ClaseBalanza  extends Modelo  {
 
+    public $idTienda; // (int) Id de la tienda , por defecto es la principal, pero se podrá cambiar.
+    
+    public function __construct($conexion='')
+	{
+        // Obtenemos la tienda principal
+        $this->ObtenerTiendaPrincipal();
+    }
+
+    public function ObtenerTiendaPrincipal(){
+		// Objetivo:
+		// Obtener la tienda principal y guardarla en propiedad tienda.
+		// [NOTA] -> Asi no hace falta mandar siempre idTienda
+		$Sql = "SELECT idTienda FROM `tiendas` WHERE `tipoTienda`='Principal'";
+		$respuesta = $this->consulta($Sql);
+		if (count($respuesta['datos']) === 1){
+			// Quiere decir que obtuvo un dato solo..
+			$this->idTienda = $respuesta['datos'][0]['idTienda'];
+           
+		}
+	}
+
+
     public function addBalanza($datos){
         $sql='INSERT INTO `modulo_balanza`(`nombreBalanza`, `modelo`, `conTecla`) VALUES ("'.$datos['nombreBalanza'].'", 
         "'.$datos['modeloBalanza'].'", "'.$datos['teclas'].'")';
@@ -13,6 +35,8 @@ class ClaseBalanza  extends Modelo  {
         }
        
     }
+
+   
     public function todasBalanzas(){
         $sql='SELECT * from modulo_balanza ';
         $resultado = $this->consulta($sql);
@@ -25,9 +49,10 @@ class ClaseBalanza  extends Modelo  {
     }
     
     public function pluDeBalanza($idBalanza){
-         $sql='select a.*, b.articulo_name from modulo_balanza_plus as a 
-         inner join articulos as b on a.idArticulo=b.idArticulo where a.idBalanza='.$idBalanza;
+         $sql='Select a.*,  t.crefTienda,b.articulo_name from modulo_balanza_plus as a 
+         inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t on t.idArticulo=b.idArticulo and t.idTienda = '.$this->idTienda. ' where a.idBalanza='.$idBalanza;
         $resultado = $this->consulta($sql);
+        echo $sql;
         return $resultado;
     }
     public function buscarArticuloCampo($campo){
