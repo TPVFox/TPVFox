@@ -88,8 +88,8 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
     if (isset($res->num_rows)) {
         // Si existe resultado entramos.
         if ($res->num_rows > 0) {
-            if (!isset($resultado['Estado'])) {
-                // Quiere decir que no encontro uno igual, sino que encontro LIKE
+            if (!isset($resultado['Estado']) || $resultado['Nitems'] >1) {
+                // Quiere decir que no encontro ninguno o encontro mas de uno igual, sino que encontro LIKE
                 // es posible el resultado busqueda sea uno solo, pero lo hizo con LIKE
                 // mostramos listado (popup) igualmente.
                 $resultado['Estado'] = 'Listado';
