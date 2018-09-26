@@ -52,7 +52,7 @@ switch ($pulsado) {
                     array_push($productosNuevos, $producto);
             }
         }
-        if(count ($productosNuevos)>0){
+        if(count($productosNuevos)>0){
             $htmlNuevos=lineaProductosNuevos($productosNuevos, $_POST['prodNuevos']);
             $respuesta['htmlNuevos']=$htmlNuevos;
         }

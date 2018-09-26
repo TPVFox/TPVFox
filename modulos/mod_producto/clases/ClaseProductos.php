@@ -863,13 +863,12 @@ class ClaseProductos extends ClaseTablaArticulos{
     
     public function comprobarIdWebTpv($idTienda, $idProducto){
         $respuesta = array();
-         $sql='select idArticulo from articulosTiendas
-          where idTienda='.$idTienda.' and idVirtuemart='.$idProducto;
+         $sql='select idArticulo from articulosTiendas where idTienda='.$idTienda.' and idVirtuemart='.$idProducto;
           
           $resp = $this->Consulta($sql); 
-        
-            //~ if ($resp['NItems'] > 0){
+       
         if(isset($resp['NItems'])){
+           
             $respuesta['res']=$resp;
             $respuesta = $resp['Items']; 
             

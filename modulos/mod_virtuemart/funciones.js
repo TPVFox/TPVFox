@@ -99,14 +99,14 @@ function nuevosEnWeb(){
             var resultado =  $.parseJSON(response);
             console.log(resultado);
             total=parseInt(regWeb)-parseInt(resultado['productos'][0]['cantArticulo'])
-             $( "#NuevosWeb" ).html(total);
+             //~ $( "#NuevosWeb" ).html(total);
              $("#DivOpciones").show();
         }
         
     });
 }
 
-function comprobarProductos(productos){
+function comprobarProductos(productos, final, bandera=""){
     var tiendaWeb=$("#tiendaWeb").val();
     var parametros = {
             "pulsado"   : 'comprobarProductos',
@@ -127,12 +127,16 @@ function comprobarProductos(productos){
             console.log('Respuesta de comprobar productos');
             var resultado =  $.parseJSON(response);
             console.log(resultado);
-            $("#productosNuevos").html(resultado['htmlNuevos']);
-            $("#productosMod").html(resultado['htmlMod']);
-            prodModif=resultado['totalModificados'];
-            prodNuevos=resultado['totalNuevos'];
-             $("#modifTpv").html(resultado['totalModificados']);
-            actualizarProductosWeb(final);
+            $("#productosNuevos").append(resultado['htmlNuevos']);
+            $("#productosMod").append(resultado['htmlMod']);
+            prodModif=prodModif+resultado['totalModificados'];
+            prodNuevos=prodNuevos+resultado['totalNuevos'];
+             $("#modifTpv").html(prodModif);
+              $("#NuevosWeb").html(prodNuevos);
+             if(bandera==""){
+                  actualizarProductosWeb(final);
+             }
+           
         }
         
     });

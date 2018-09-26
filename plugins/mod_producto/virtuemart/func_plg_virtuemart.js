@@ -274,8 +274,8 @@ function actualizarProductosWeb(inicio){
 				var resultado = $.parseJSON(response);
              
                 if(resultado['productos']['Datos']['item'].length>0){
-                     productos.length = 0;
-                        console.log(productos);
+                    productos.length = 0;
+                    console.log(productos);
                     console.log("Productos en vuelta"+resultado['productos']['Datos']['item'].length);
                     for(i=0;i<resultado['productos']['Datos']['item'].length;i++){
                         producto=resultado['productos']['Datos']['item'][i];
@@ -302,6 +302,7 @@ function actualizarProductosWeb(inicio){
                        //~ alert("terminame barra");
                 }else{
                     //~ comprobarProductos(productos);
+                    comprobarProductos(productos, final, 1);
                      BarraProceso(regWeb, regWeb);
                       //~ alert("terminame barra");
                 }
