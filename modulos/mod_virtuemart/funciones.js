@@ -125,6 +125,7 @@ function comprobarProductos(productos){
             console.log(resultado);
             $("#productosNuevos").html(resultado['htmlNuevos']);
             $("#productosMod").html(resultado['htmlMod']);
+            actualizarProductosWeb(final);
         }
         
     });
