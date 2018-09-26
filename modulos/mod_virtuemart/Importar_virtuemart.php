@@ -163,24 +163,29 @@
                  <button type="submit" name="enviar" class="btn btn-success pull-right" onclick="enviarFormulario()">Actualizar</button>
             </div>
         </div>
-        <div class="col-md-7">
+        <div class="col-md-5">
             <h3>Proceso</h3>
             <div class="col-md-12">
                 <table class="col-md-6 table table-striped">
                 <tr>
                     <th>Productos</th>
-                    <th>Total</th>
-                    <th>Nuevos</th>
+                    <th>Web</th>
+                    <th>TPV</th>
                 </tr>
                 <tr>
-                    <td>Web</td>
+                    <td>Total</td>
                     <td id="totalWeb"></td>
-                    <td id="NuevosWeb"></td>
+                    <td id="totalTpv"></td>
+                </tr>
+                <tr>
+                    <th>Productos</th>
+                    <th>Nuevos</th>
+                    <th>Modificados</th>
                 </tr>
                 <tr>
                     <td>TPV</td>
-                    <td id="totalTpv"></td>
-                    <td id="NuevosTpv"></td>
+                    <td id="NuevosWeb"></td>
+                    <td id="modifTpv"></td>
                 </tr>
                 </table>
             </div>
@@ -200,6 +205,19 @@
                                     </div>
             </div>
         </div>
+       <div class="col-md-2">
+           <h3></h3>
+            <div class="col-md-12">
+            <table class="col-md-12 table table-striped">
+                <tr>
+                    <td><b>Productos en TPV sin Web</b></td>
+                </tr>
+                <tr>
+                    <td id="NuevosTpv"></td>
+                </tr>
+            </table>
+        </div>
+       </div>
         <div class="col-md-12">
             <hr/>
             <div class="col-md-5">
