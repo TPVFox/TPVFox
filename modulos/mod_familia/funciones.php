@@ -125,6 +125,7 @@ function htmlTablaFamiliasHijas($idfamilia) {
             . '</thead>';
     $html .= $htmlFamilias;
     $html .= '</table>	';
+    $html.='<a class="btn btn-info" onclick="subirHijosWeb('.$idfamilia.')">Subir Hijos Web</a>';
     return $html;
 }
 
