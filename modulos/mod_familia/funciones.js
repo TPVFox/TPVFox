@@ -234,23 +234,4 @@ function compactarTodos() {
 }
 
 
-function subirHijosWeb(idPadre){
-    var parametros = {
-        pulsado: 'subirHijosWeb',
-        'idPadre': idPadre
-    };
-      $.ajax({
-        data       : parametros,
-        url        : 'tareas.php',
-        type       : 'post',
-        beforeSend : function () {
-            console.log('*********  entre en subir hijos a web ****************');
-        },
-        success    :  
-        function (response) {
-            console.log('REspuesta de subir hijos a web');
-            var resultado =  $.parseJSON(response);
-        }
-        
-    });
-}
+

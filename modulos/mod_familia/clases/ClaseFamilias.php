@@ -236,4 +236,6 @@ class ClaseFamilias extends Modelo {
         return $resultado;
         
     }
+    
+    
 }

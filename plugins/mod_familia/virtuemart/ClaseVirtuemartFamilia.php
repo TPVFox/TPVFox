@@ -261,4 +261,5 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
 }
 
 
+
 ?>

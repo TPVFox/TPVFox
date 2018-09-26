@@ -95,6 +95,44 @@ switch ($pulsado) {
     }
     
     break;
+    case 'subirHijosWeb':
+        $idPadre=$_POST['idPadre'];
+        $idTienda=$_POST['idTienda'];
+        $descendientes=$CFamilia->descendientes($idPadre);
+        $padreWeb=$CFamilia->comprobarPadreWeb($idTienda, $idPadre);
+        $respuesta['descendientes']=$descendientes;
+        $respuesta['padre']=$padreWeb;
+        $idPadreWeb=$padreWeb['datos'][0]['idFamilia_tienda'];
+        $idsDescendientes=$descendientes['datos'];
+        $datosFamilias=array();
+        $familiasNoSubidas=array();
+        $familiasSubidas=array();
+        foreach ($idsDescendientes as $des){
+            $nombreFamilia=$CFamilia->buscarPorId($des['idFamilia']);
+            $datosComprobaciones=array()
+            $datosComprobaciones['vendor']=1;
+            $datosComprobaciones['limit']=0;
+            $datosComprobaciones['hits']=0;
+            $datosComprobaciones['parametros']='show_store_desc=""|showcategory_desc=""|showcategory=""|categories_per_row=""|showproducts=""|omitLoaded=""|showsearch=""|productsublayout=""|featured=""|featured_rows=""|omitLoaded_featured=""|discontinued=""|discontinued_rows=""|omitLoaded_discontinued=""|latest=""|latest_rows=""|omitLoaded_latest=""|topten=""|topten_rows=""|omitLoaded_topten=""|recent=""|recent_rows=""|omitLoaded_recent=""|';
+            $datosComprobaciones['publicado']=1;
+            $datosComprobaciones['fecha']=date("Y-m-d H:i:s");
+            $datosComprobaciones['usuario']='911';
+            $datosComprobaciones['locked_by']=0;
+            $datosComprobaciones['alias']=str_replace(' ', '-', $nombreFamilia['datos'][0]['familiaNombre']);
+            $datosComprobaciones['padre']=$idPadreWeb;
+            $datos=json_encode($datosComprobaciones);
+            $addFamilia = $ObjViruemart->addFamilia($datos);
+            if($addFamilia['Datos']['idFamilia']>0){
+                
+            }else{
+                array_push($familiasNoSubidas, $nombreFamilia['datos'][0]['familiaNombre']);
+            }
+            
+        }
+        
+        
+    
+    break;
 }
  echo json_encode($respuesta);
 ?>

@@ -19,6 +19,11 @@
         } else {
             $id = 0;
         }
+        
+          ////PLUGIN 
+        $tiendaWeb=$CTienda->tiendasWeb();
+        $idTienda=$tiendaWeb['datos'][0]['idTienda'];
+        
         if ($id != 0) {
             $titulo .= "Modificar";
             $familia = $familias->leer($id);
@@ -28,7 +33,7 @@
             }
             $familia['productos'] = $familias->contarProductos($id);
             $padres = $familias->familiasSinDescendientes($id, TRUE);
-            $htmlFamiliasHijas = htmlTablaFamiliasHijas($id);
+            $htmlFamiliasHijas = htmlTablaFamiliasHijas($id, $idTienda);
             $htmlProductos = htmlTablaFamiliaProductos($id);
         } else {
             // Quiere decir que no hay id, por lo que es nuevo
@@ -51,10 +56,7 @@
         $combopadres .= '</select>';
         $combopadres .= '<input type="hidden" name="idpadre" id="inputidpadre" value="'.$vp.'">'; 
         
-        ////PLUGIN 
-        $tiendaWeb=$CTienda->tiendasWeb();
-       
-        if(isset($tiendaWeb['datos'])){
+       if(isset($tiendaWeb['datos'])){
             $idTienda=$tiendaWeb['datos'][0]['idTienda'];
             $idFamiliaTienda=$familias->buscarIdTiendaFamilia($idTienda, $id);
             $datosWebCompletos=array();
@@ -72,9 +74,7 @@
                     }
                 }
             }
-               
-        }
-       
+}
         ?>
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
@@ -84,7 +84,7 @@
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <?php 
-        
+     
         
         
         ?>
@@ -184,14 +184,10 @@
             </div>
             <div class="col-md-12" >
             <?php 
-            
-            echo $datosWebCompletos['datosFamiliaWeb']['html'];
+                echo $datosWebCompletos['datosFamiliaWeb']['html'];
             ?>
             </div>
-            
-          
-        </div>      
-
+        </div>   
         <script src="<?php echo $HostNombre; ?>/modulos/mod_familia/funciones.js"></script>        
     </body>
 </html>

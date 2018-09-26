@@ -60,3 +60,27 @@ function modificarFamiliaWeb(idFamilia="", idTienda=""){
         }
     }
 }
+
+function subirHijosWeb(idPadre, idTienda){
+    var parametros = {
+        pulsado: 'subirHijosWeb',
+        'idPadre': idPadre,
+        'idTienda': idTienda
+    };
+    console.log(parametros);
+      $.ajax({
+        data       : parametros,
+        url        :  ruta_plg_virtuemart+'tareas_virtuemart.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  entre en subir hijos a web ****************');
+        },
+        success    :  
+        function (response) {
+            console.log('REspuesta de subir hijos a web');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
+        }
+        
+    });
+}
