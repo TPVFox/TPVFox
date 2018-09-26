@@ -75,8 +75,8 @@ switch ($pulsado) {
                  array_push($codBarras , $cod);
              }
         }
-        $iva=$_POST['iva']/100;
-        $precioCiva=$iva+$_POST['precioSiva'];
+        $caliva=($_POST['iva']/100)+1;
+        $precioCiva=$_POST['precioSiva']*$caliva;
         $tiendaPrincipal=$Ctienda->tiendaPrincipal();
        $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
         $datos=array(
@@ -101,9 +101,9 @@ switch ($pulsado) {
         $tiendaPrincipal=$Ctienda->tiendaPrincipal();
        $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
         if($_POST['ultimoCoste']==1){
-            $beneficio=$_POST['beneficio']/100;
+            $beneficio=($_POST['beneficio']/100)+1;
             $respuesta['beneficio']=$_POST['beneficio'];
-            $ultimoCoste=$_POST['precioSiva']-$beneficio;
+            $ultimoCoste=$_POST['precioSiva']/$beneficio;
         }
         if($_POST['optCodBarra']==1){
              $codBarrasTexto=explode(";",$_POST['codBarras']);
@@ -111,8 +111,8 @@ switch ($pulsado) {
                  array_push($codBarras , $cod);
              }
         }
-        $iva=$_POST['iva']/100;
-        $precioCiva=$iva+$_POST['precioSiva'];
+        $caliva=($_POST['iva']/100)+1;
+        $precioCiva=$_POST['precioSiva']*$caliva;
        $tiendaPrincipal=$Ctienda->tiendaPrincipal();
        $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
        $respuesta['tienda']=$tiendaPrincipal;
