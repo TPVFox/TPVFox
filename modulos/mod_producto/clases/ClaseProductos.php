@@ -865,9 +865,14 @@ class ClaseProductos extends ClaseTablaArticulos{
         $respuesta = array();
          $sql='select idArticulo from articulosTiendas
           where idTienda='.$idTienda.' and idVirtuemart='.$idProducto;
+          
           $resp = $this->Consulta($sql); 
-         if ($resp['NItems'] > 0){
+        
+            //~ if ($resp['NItems'] > 0){
+        if(isset($resp['NItems'])){
+            $respuesta['res']=$resp;
             $respuesta = $resp['Items']; 
+            
            }else {
                 $error = array ( 'tipo'=>'success',
                                  'dato' => $sql,

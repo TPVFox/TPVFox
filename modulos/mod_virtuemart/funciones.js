@@ -1,5 +1,7 @@
 var regWeb=0;
 var regTPV=0;
+var prodModif=0;
+var prodNuevos=0;
 var callbackContarRegistrosWeb= function (response) {
 				console.log('Respuesta de contar los productos web ');
 				var resultado = $.parseJSON(response);
@@ -109,7 +111,9 @@ function comprobarProductos(productos){
     var parametros = {
             "pulsado"   : 'comprobarProductos',
             "productos" : productos,
-            "idTienda"  :tiendaWeb
+            "idTienda"  :tiendaWeb,
+            "prodModif" :prodModif,
+            "prodNuevos":prodNuevos
     };
      $.ajax({
         data       : parametros,
@@ -125,6 +129,9 @@ function comprobarProductos(productos){
             console.log(resultado);
             $("#productosNuevos").html(resultado['htmlNuevos']);
             $("#productosMod").html(resultado['htmlMod']);
+            prodModif=resultado['totalModificados'];
+            prodNuevos=resultado['totalNuevos'];
+             $("#modifTpv").html(resultado['totalModificados']);
             actualizarProductosWeb(final);
         }
         

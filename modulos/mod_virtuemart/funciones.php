@@ -42,7 +42,7 @@ function comparacionesProductos($productoWeb, $productoTpv, $idTienda){
     
     return $comprobacion;
 }
-function lineaProductosNuevos($productosNuevos){
+function lineaProductosNuevos($productosNuevos, $cantProdNuevos){
     $html="";
     $html='<h4><b>Productos Nuevos</b></h4>
                 <tr>
@@ -50,9 +50,13 @@ function lineaProductosNuevos($productosNuevos){
                     <th>Datos Web</th>
                     <th>Acciones</th>
                 </tr>';
-                $i=0;
+                //~ $i=0;
+                if($cantProdNuevos==""){
+                    $cantProdNuevos=0;
+                }
     foreach ($productosNuevos as $nuevo){
-        $html.='<tr id="nuevo_'.$i.'">
+       
+        $html.='<tr id="nuevo_'.$cantProdNuevos.'">
             <td><b>Nombre:</b>'.$nuevo['nombre'].'<br>
            <b>Referencia Tienda</b> '.$nuevo['refTienda'].'<br>
             <b>IVA:</b> '.$nuevo['iva'].'<br>
@@ -61,24 +65,27 @@ function lineaProductosNuevos($productosNuevos){
             </td>
             <td><a class="btn btn-info" onclick="addProductoWeb('."'".$nuevo['nombre']."'".', 
             '."'".$nuevo['refTienda']."'".','."'".$nuevo['iva']."'".', '."'".$nuevo['precioSiva']."'".', 
-            '."'".$nuevo['codBarra']."'".', '.$nuevo['id']. ', '.$i.')">Insertar Productos a TPV</a></td>
+            '."'".$nuevo['codBarra']."'".', '.$nuevo['id']. ', '.$cantProdNuevos.')">Insertar Productos a TPV</a></td>
         </tr>';
-        $i++;
+        $cantProdNuevos++;
     }
     return $html;
     
 }
-function lineaProductosModificador($productos, $idTienda){
-     $html="";
+function lineaProductosModificador($productos, $idTienda, $cantProdModif){
+    $html="";
     $html='<h4><b>Productos Modificados</b></h4>
                 <tr>
                     <th>Datos Web</th>
                      <th>Datos tpv</th>
                     <th>Acciones</th>
                 </tr>';
-                $i=0;
+                //~ $i=0;
+   if($cantProdModif==""){
+        $cantProdModif=0;
+    }
     foreach ($productos as $producto){
-        $html.='<tr id="mod_'.$i.'">
+        $html.='<tr id="mod_'.$cantProdModif.'">
              <td><b>Nombre:</b>'.$producto[0]['nombre'].'<br>
             <b>Referencia Tienda</b> '.$producto[0]['refTienda'].'<br>
             <b>IVA:</b> '.$producto[0]['iva'].'<br>
@@ -114,10 +121,10 @@ function lineaProductosModificador($productos, $idTienda){
             </td>
             <td><a class="btn btn-info" onclick="modificarProductosTpvWeb('."'".$producto[0]['nombre']."'".', 
             '."'".$producto[0]['refTienda']."'".','."'".$producto[0]['iva']."'".', '."'".$producto[0]['precioSiva']."'".',
-             '."'".$producto[0]['codBarra']."'".', '."'".$producto[1]['idArticulo']."'".', '.$i.')">
+             '."'".$producto[0]['codBarra']."'".', '."'".$producto[1]['idArticulo']."'".', '.$cantProdModif.')">
             Modificar datos Tpv con los datos Web</a></td>
         </tr>';
-        $i++;
+        $cantProdModif++;
     }
     return $html;
 }

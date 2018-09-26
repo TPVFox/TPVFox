@@ -29,36 +29,41 @@ switch ($pulsado) {
         $idTienda=$_POST['idTienda'];
         $productosModificados=array();
         $productosNuevos=array();
-       
+       $respuesta['productos']=$productos;
         foreach ($productos as $producto){
-            
-            $comprobar=$NCArticulo->comprobarIdWebTpv($idTienda, $producto['id']);
-            
-            if(isset($comprobar[0])){
-                $arrayDatos=array();
-                $datosProductoTpv=$NCArticulo->GetProducto($comprobar[0]['idArticulo']);
-                $respuesta['productostpv']=$datosProductoTpv;
-                $comprobacion=comparacionesProductos($producto, $datosProductoTpv, $idTienda);
-                if($comprobacion==1){
-                    array_push($arrayDatos, $producto);
-                    array_push($arrayDatos,$datosProductoTpv);
-                    array_push($productosModificados, $arrayDatos);
+            if(isset($producto['id'])){
+                $comprobar=$NCArticulo->comprobarIdWebTpv($idTienda, $producto['id']);
+                $respuesta['comprobar']=$comprobar;
+                if(isset($comprobar[0])){
+                    $arrayDatos=array();
+                    $datosProductoTpv=$NCArticulo->GetProducto($comprobar[0]['idArticulo']);
+                    $respuesta['productostpv']=$datosProductoTpv;
+                    $comprobacion=comparacionesProductos($producto, $datosProductoTpv, $idTienda);
+                    if($comprobacion==1){
+                        array_push($arrayDatos, $producto);
+                        array_push($arrayDatos,$datosProductoTpv);
+                        array_push($productosModificados, $arrayDatos);
+                    }
+                    
+                }else{
+                    array_push($productosNuevos, $producto);
                 }
-                
             }else{
-                array_push($productosNuevos, $producto);
+                    array_push($productosNuevos, $producto);
             }
         }
         if(count ($productosNuevos)>0){
-            $htmlNuevos=lineaProductosNuevos($productosNuevos);
+            $htmlNuevos=lineaProductosNuevos($productosNuevos, $_POST['prodNuevos']);
             $respuesta['htmlNuevos']=$htmlNuevos;
         }
         if(count($productosModificados)>0){
-            $htmlMod=lineaProductosModificador($productosModificados,  $idTienda);
+            $htmlMod=lineaProductosModificador($productosModificados,  $idTienda, $_POST['prodModif']);
             $respuesta['htmlMod']=$htmlMod;
         }
-       $respuesta['productosModificados']=$productosModificados;
-       $respuesta['productosNuevos']=$productosNuevos;
+        $respuesta['totalNuevos']=count($productosNuevos);
+        $respuesta['totalModificados']=count($productosModificados);
+        $respuesta['productosModificados']=$productosModificados;
+        $respuesta['productosNuevos']=$productosNuevos;
     break;
     case 'modificarProducto':
         $codBarras=array();
