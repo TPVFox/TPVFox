@@ -189,13 +189,26 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
             <td><b>idArticulo</b></td>
             <td><b>Descripción</b></td>
         </tr>';
+        $indice=0;
     foreach ($datosplu as $plu){
+        $espacio="";
+        $sigIndice=$indice+1;
+        
         $html.='<tr>
             <td>'.$plu['plu'].'</td>
             <td>'.$plu['tecla'].'</td>
             <td>'.$plu['idArticulo'].'</td>
             <td>'.$plu['articulo_name'].'</td>
         </tr>';
+        if(isset($datosplu[$sigIndice])){
+             $resta=$datosplu[$sigIndice]['plu']-$datosplu[$indice]['plu'];
+             error_log($datosplu[$sigIndice]['plu']);
+            if($resta>1){
+                 $html.='<tr><td COLSPAN="4" class="warning">Faltan números entre el anterior y el siguiente</td></tr>';
+            }
+        }
+        $indice++;
+       
     }
     $resultado['html']=$html;
     $resultado['htmlBalanza']= $htmlBalanza;
