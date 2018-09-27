@@ -80,6 +80,12 @@ function subirHijosWeb(idPadre, idTienda){
             console.log('REspuesta de subir hijos a web');
             var resultado =  $.parseJSON(response);
             console.log(resultado);
+            if(resultado.familiasSubidas.length >0){
+                   alert("Familias subidas : "+JSON.stringify(resultado.familiasSubidas));
+            }
+            if(resultado.familiasNoSubidas.length >0){
+                   alert("Familias NO subidas : "+JSON.stringify(resultado.familiasNoSubidas));
+            }
         }
         
     });

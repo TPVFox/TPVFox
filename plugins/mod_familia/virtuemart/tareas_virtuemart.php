@@ -103,13 +103,15 @@ switch ($pulsado) {
         $respuesta['descendientes']=$descendientes;
         $respuesta['padre']=$padreWeb;
         $idPadreWeb=$padreWeb['datos'][0]['idFamilia_tienda'];
+        error_log($idPadreWeb);
+        error_log($idPadre);
         $idsDescendientes=$descendientes['datos'];
         $datosFamilias=array();
         $familiasNoSubidas=array();
         $familiasSubidas=array();
         foreach ($idsDescendientes as $des){
             $nombreFamilia=$CFamilia->buscarPorId($des['idFamilia']);
-            $datosComprobaciones=array()
+            $datosComprobaciones=array();
             $datosComprobaciones['vendor']=1;
             $datosComprobaciones['limit']=0;
             $datosComprobaciones['hits']=0;
@@ -119,17 +121,23 @@ switch ($pulsado) {
             $datosComprobaciones['usuario']='911';
             $datosComprobaciones['locked_by']=0;
             $datosComprobaciones['alias']=str_replace(' ', '-', $nombreFamilia['datos'][0]['familiaNombre']);
+            $datosComprobaciones['nombreFamilia']=$nombreFamilia['datos'][0]['familiaNombre'];
             $datosComprobaciones['padre']=$idPadreWeb;
+            error_log($idPadreWeb);
             $datos=json_encode($datosComprobaciones);
             $addFamilia = $ObjViruemart->addFamilia($datos);
             if($addFamilia['Datos']['idFamilia']>0){
-                
+                $addRegistro=$CFamilia->addFamiliaTiendaWeb($idTienda, $des['idFamilia'], $addFamilia['Datos']['idFamilia']);
+                if(!isset($addFamilia['Datos']['error'])){
+                    array_push($familiasSubidas, $nombreFamilia['datos'][0]['familiaNombre']); 
+                }
             }else{
                 array_push($familiasNoSubidas, $nombreFamilia['datos'][0]['familiaNombre']);
             }
             
         }
-        
+        $respuesta['familiasSubidas']=$familiasSubidas;
+        $respuesta['familiasNoSubidas']=$familiasNoSubidas;
         
     
     break;
