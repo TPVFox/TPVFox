@@ -75,17 +75,22 @@ function controladorAcciones(caja, accion, tecla){
             console.log("entre en buscar producto");
             console.log(caja);
             var valor=$('#'+caja.id_input).val();
-            buscarProducto(caja.id_input, valor);
+            buscarProducto(caja, valor);
           break;
       }
 }
 
-function buscarProducto(idInput, valor){
+function buscarProducto(caja, valor){
+    idcaja = caja.id_input;
+    campo = caja.darParametro('campo');
+    console.log(caja);
     var parametros = {
 		"pulsado"   : 'buscarProducto',
 		"busqueda"  : valor,
-		"idcaja"    : idInput
+		"idcaja"    : idcaja,
+        "campo"     :campo
 	};
+    console.log(parametros);
     $.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -100,7 +105,8 @@ function buscarProducto(idInput, valor){
                 datosEnInput(resultado['datos']['idArticulo'], resultado['datos']['nombre'], resultado['datos']['referencia'], resultado['datos']['codBarras']);
             }else{
                 var titulo = 'Listado Productos ';
-                abrirModal(titulo,resultado.html);
+               
+                abrirModal(titulo,resultado['html']);
             }
 		}
 	});

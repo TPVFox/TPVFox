@@ -36,7 +36,7 @@ switch ($pulsado) {
         $respuesta['html']=$html;
     break;
     case 'buscarProducto':
-        $campo=camposBuscar($_POST['idcaja'], $_POST['busqueda']);
+        $campo=camposBuscar($_POST['campo'], $_POST['busqueda']);
         $result=$CBalanza->buscarArticuloCampo($campo);
         if(count($result['datos'])==1){
             $datos=array(
@@ -47,7 +47,7 @@ switch ($pulsado) {
             );
             if($_POST['idcaja']=='codBarras'){
                 if($result['datos'][0]['codBarras']<>$_POST['busqueda']){
-                    $html=modalProductos($_POST['busqueda'], $result['datos']);
+                    $html=modalProductos($_POST['busqueda'], $result['datos'], $_POST['campo']);
                     $respuesta['html']=$html['html'];
                 }else{
                     $respuesta['datos']=$datos;
@@ -58,7 +58,7 @@ switch ($pulsado) {
             
             
         }else{
-            $html=modalProductos($_POST['busqueda'], $result['datos']);
+            $html=modalProductos($_POST['busqueda'], $result['datos'], $_POST['campo']);
             $respuesta['html']=$html['html'];
         }
         $respuesta['buscar']=$result;

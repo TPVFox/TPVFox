@@ -121,29 +121,41 @@ function htmlAddPLU($tecla, $idBalanza){
         .'</div>';
     return $html;
 }
-function camposBuscar($idInput, $busqueda){
-    $campo="";
-    switch ($idInput){
-        case 'idArticulo':
-            $campo='a.idArticulo='.$busqueda;
-        break;
-        case 'nombreProducto':
-            $campo='a.articulo_name like "%'.$busqueda.'%"';
-        break;
-        case 'referencia':
-            $campo='b.crefTienda like "%'.$busqueda.'%"';
-        break;
-        case 'codBarras':
-            $campo='c.codBarras like "%'.$busqueda.'%"';
-        break;
+function camposBuscar($campo, $busqueda){
+    if($campo=='a.idArticulo'){
+        $campo='a.idArticulo='.$busqueda;
+    }else{
+        $campo=$campo.' like "%'.$busqueda.'%"';
     }
+    
+    //~ $campo="";
+    //~ switch ($campo){
+        //~ case 'a.idArticulo':
+            //~ $campo='a.idArticulo='.$busqueda;
+        //~ break;
+        //~ case 'nombreProducto':
+            //~ $campo='a.articulo_name like "%'.$busqueda.'%"';
+        //~ break;
+        //~ case 'referencia':
+            //~ $campo='b.crefTienda like "%'.$busqueda.'%"';
+        //~ break;
+        //~ case 'codBarras':
+            //~ $campo='c.codBarras like "%'.$busqueda.'%"';
+        //~ break;
+        
+    //~ }
     return $campo;
 }
 
-function modalProductos($busqueda, $productos){
+function modalProductos($busqueda, $productos, $campoAbuscar){
     $resultado = array();
 	$resultado['encontrados'] = count($productos);
-	$resultado['html'] = '<label>Busqueda Producto </label>';
+    $resultado['html'] =  "<script type='text/javascript'>
+			 ".
+			 "cajaBusquedaProducto.parametros.campo="."'".$campoAbuscar."';
+			idN.parametros.campo.__defineSetter__ ="."'".$campoAbuscar."';
+			</script>";
+	$resultado['html'] .= '<label>Busqueda Producto </label>';
 	$resultado['html'] .= '<input id="cajaBusquedaProducto" name="valorProducto" placeholder="Buscar"'.
 				'size="13" data-obj="cajaBusquedaProducto" value="'.$busqueda.'"
 				 onkeydown="controlEventos(event)" type="text">';

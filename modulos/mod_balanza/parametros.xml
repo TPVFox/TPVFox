@@ -6,30 +6,64 @@
             <teclas>		
                     <action tecla="13">BuscarProducto</action>
             </teclas>
+	    <parametros>
+		<parametro nombre="campo">a.idArticulo</parametro>  
+	   </parametros> 
         </caja_input>
         <caja_input>
             <nombre id_input="nombreProducto">cajanombreProducto</nombre>
             <teclas>
                     <action tecla="13">BuscarProducto</action>
             </teclas>
+	    <parametros>
+		<parametro nombre="campo">a.articulo_name</parametro>  
+	   </parametros> 
         </caja_input>
         <caja_input>
             <nombre id_input="referencia">cajareferencia</nombre>
             <teclas>
                     <action tecla="13">BuscarProducto</action>
             </teclas>
+	    <parametros>
+		<parametro nombre="campo">b.crefTienda</parametro>  
+	   </parametros> 
         </caja_input>
          <caja_input>
             <nombre id_input="codBarras">cajacodBarras</nombre>
             <teclas>
                     <action tecla="13">BuscarProducto</action>
            </teclas>
+	    <parametros>
+		<parametro nombre="campo">c.codBarras</parametro>  
+	   </parametros> 
         </caja_input>
 	<caja_input>
             <nombre id_input="cajaBusquedaProducto">cajaBusquedaProducto</nombre>
             <teclas>
                     <action tecla="13">BuscarProducto</action>
+
            </teclas>
+           <parametros>
+		   <parametro nombre="campo"></parametro>  
+	   </parametros>
         </caja_input>
+	<caja_input>
+			<nombre id_input="N_">idN</nombre>
+			<teclas>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">cerrados</parametro>
+				<parametro nombre="campo"></parametro>
+				<parametro nombre="prefijo">N_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
     </cajas_input>
 </parametros>
