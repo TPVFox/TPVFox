@@ -66,9 +66,11 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 $datosComprobaciones['product_override_price ']="0.00000";
                 $datosComprobaciones['product_discount_id']=0;
                 $datosComprobaciones['product_currency']=47;
+                $familiasProducto=$CTArticulos->buscarFamiliasProducto($datosComprobaciones['idProducto'], $datosComprobaciones['idTienda']);
+                $respuesta['familiaProducto']=$familiasProducto;
+                $datosComprobaciones['familias']=$familiasProducto;
                 $datos=json_encode($datosComprobaciones);
                 $addProducto = $ObjViruemart->addProducto($datos);
-              
                     if($addProducto['Datos']['idArticulo']>0){
                         if($addProducto['Datos']['estado']==1){
                             $estado="Sin Publicar";
@@ -88,10 +90,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                                                     <strong>Danger!</strong> Error al añadir el producto a la web. '.$addProducto['Datos']['error'].' Consulta: '.$addProducto['Datos']['consulta'].'
                                                 </div>';
                     }
-               
-                
                 $respuesta['resul']= $addProducto;
-                
             }
            
            

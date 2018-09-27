@@ -1182,6 +1182,24 @@ class ClaseProductos extends ClaseTablaArticulos{
         return $respuesta;
     }
     
+    public function buscarFamiliasProducto($idProducto, $idTienda){
+        $respuesta=array();
+        $sql='Select a.idFamilia, b.idFamilia_tienda from articulosFamilias as a 
+        inner join familiasTienda as b on a.idFamilia=b.idFamilia where b.idTienda='.$idTienda.' and 
+        a.idArticulo='.$idProducto.' ';
+        $resp = $this->Consulta($sql); 
+         if ($resp['NItems'] > 0){
+            $respuesta = $resp['Items']; 
+           }else {
+                $error = array ( 'tipo'=>'success',
+                                 'dato' => $sql,
+                                 'mensaje' => 'No se encontró nungun producto.'
+                                 );
+                $respuesta['error'] = $error;
+            }
+		return $respuesta;
+    }
+    
 }
 
 
