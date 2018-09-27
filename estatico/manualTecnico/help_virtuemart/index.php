@@ -14,14 +14,17 @@
         <ul><li>Acciones
                 <ul>
                     <li><b>Importamos codbarras:</b>
-                        La opcion que hay es importar a tpv o no.
-                        <br/>El campo que aparece en la ficha del producto en la web -GTIN (EAN,ISBN) es el codbarras, para meter varios codbarras los separamos por ";" lo cual tenemos que tener en cuenta, a la hora de comprobar o añadir en tpvFox.</li>
-                    <li><b>Referencia de producto:</b> Nos permite:<br/>
-                        Copiar solo en el registro de la tabla articulosTienda y de la tienda web<br/>
-                        Copiar la referencia de la web en la tienda principal de la tabla articulosTienda.<br/>
-                        Copiar en las dos , en la tienda principal y en tienda web.</li>
-                    <li><b>Estado cuando es nuevo</b>Podemos asignar un estado cuando es un producto nuevo</li>
-                    <li><b>Estado cuando es Modificado</b>Podemos asignar un estado cuando es un modificado</li>
+                        En la web el campo que aparece en la ficha del producto en la web -GTIN (EAN,ISBN) es el codbarras, para meter en la WEB varios codbarras los separamos por ";".<br/>
+                        Las opciones tiene:
+                        <br/>-Añadir codbarras:
+                        <br/>-Ignorar: No se tiene encuenta tanto para añadir ,como para modificar.. y  tampoco se tiene en cuenta a la hora comprobar diferencias.</li>
+                    <li><b>Referencia de producto:</b> Las referencias de los productos se anotan <b>tabla articulosTienda</b>.<br/>
+                        Las opciones que tienes:<br/>
+                        -Copiar solo en el registro de tienda Web con refencia<br/>
+                        -Copiar copiar la referencia en las dos tiendas (Web y principal).<br/>
+                        -Ignorar: Donde no se copia , ni se tiene en cuanta a la hora hacer comprobaciones.</li>
+                    <li><b>Estado cuando es nuevo:</b> Que estado quieres ponerle cuando creamos un producto nuevo en Tpv que ya existe en la Web</li>
+                    <li><b>Estado cuando es Modificado:</b>Que estado quieres ponerle cuando modifiamos un producto y ponemos los datos de la Web</li>
                     <li><b>Ultimo coste:</b>Nos permite calcular o no el coste y ponerlo.</li>
                 </ul>
             </li>
