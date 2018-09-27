@@ -45,7 +45,18 @@ switch ($pulsado) {
             'referencia'=>$result['datos'][0]['crefTienda'],
             'codBarras'=>$result['datos'][0]['codBarras']
             );
-            $respuesta['datos']=$datos;
+            if($_POST['idcaja']=='codBarras'){
+                if($result['datos'][0]['codBarras']<>$_POST['busqueda']){
+                    $html=modalProductos($_POST['busqueda'], $result['datos']);
+                    $respuesta['html']=$html['html'];
+                }else{
+                    $respuesta['datos']=$datos;
+                }
+            }else{
+                $respuesta['datos']=$datos;
+            }
+            
+            
         }else{
             $html=modalProductos($_POST['busqueda'], $result['datos']);
             $respuesta['html']=$html['html'];

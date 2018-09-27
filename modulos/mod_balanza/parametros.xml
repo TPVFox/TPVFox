@@ -25,5 +25,11 @@
                     <action tecla="13">BuscarProducto</action>
            </teclas>
         </caja_input>
+	<caja_input>
+            <nombre id_input="cajaBusquedaProducto">cajaBusquedaProducto</nombre>
+            <teclas>
+                    <action tecla="13">BuscarProducto</action>
+           </teclas>
+        </caja_input>
     </cajas_input>
 </parametros>
