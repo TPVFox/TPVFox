@@ -195,7 +195,11 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
     $html="";
     $htmlBalanza="";
     $htmlBalanza.='<p><b>Nombre de balanza: </b>'.$datosBalanza['nombreBalanza'].'</p>
-    <p><b>Modelo de Balanza: </b>'.$datosBalanza['modelo'].'</p>';
+    <p><b>Modelo de Balanza: </b>'.$datosBalanza['modelo'].'</p>
+    <p><label>Filtrar por: </label><select id="filtroBalanza" >
+    <option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
+    <option value="a.tecla" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
+    </select></p>';
     $html.='<tr>
             <td><b>PLU</b></td>
             <td><b>Tecla</b></td>

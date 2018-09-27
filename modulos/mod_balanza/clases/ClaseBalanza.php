@@ -48,12 +48,13 @@ class ClaseBalanza  extends Modelo  {
         return $resultado;
     }
     
-    public function pluDeBalanza($idBalanza){
+    public function pluDeBalanza($idBalanza, $filtro){
          $sql='Select a.*,  t.crefTienda,b.articulo_name , p.pvpCiva from modulo_balanza_plus as a 
          inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t 
          on t.idArticulo=b.idArticulo and t.idTienda = '.$this->idTienda. ' inner join articulosPrecios as p on p.idArticulo=a.idArticulo  
          where a.idBalanza='.$idBalanza.' 
-         order by a.plu asc';
+         order by '.$filtro.' asc';
+        
         $resultado = $this->consulta($sql);
         return $resultado;
     }

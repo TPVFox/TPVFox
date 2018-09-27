@@ -190,9 +190,17 @@ function eliminarPlu(plu, idBalanza){
        
 }
 function mostrarDatosBalanza(idBalanza){
+     
+     if($('#filtroBalanza').val()){
+         var filtro=$('#filtroBalanza').val();
+     }else{
+         var filtro='a.plu';
+     }
+     console.log(filtro);
     var parametros = {
             "pulsado"   : 'mostrarDatosBalanza',
-            "idBalanza": idBalanza
+            "idBalanza": idBalanza,
+            "filtro"    :filtro
         };
     $.ajax({
 		data       : parametros,
@@ -204,6 +212,7 @@ function mostrarDatosBalanza(idBalanza){
 		success    :  function (response) {
 			console.log('Repuesta de mostrar datos balanza');
 			var resultado =  $.parseJSON(response);
+            $('.tablaPrincipal tbody tr').remove();
             $('#infoBalanza').html(resultado['htmlDatosBalanza']);
             $( "#infoBalanza" ).addClass( "bg-success" )
             $('.tablaPrincipal tbody').append(resultado['html']);
@@ -241,3 +250,4 @@ function ModificarBalanza(id){
 	});
     }
 }
+

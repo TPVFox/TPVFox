@@ -98,7 +98,7 @@ switch ($pulsado) {
     case 'mostrarDatosBalanza':
         $datosBalanza=$CBalanza->datosBalanza($_POST['idBalanza']);
         if(isset($datosBalanza['datos'])){
-            $datosplu=$CBalanza->pluDeBalanza($_POST['idBalanza']);
+            $datosplu=$CBalanza->pluDeBalanza($_POST['idBalanza'], $_POST['filtro']);
             if(isset($datosplu['datos'])){
                 $html=htmlDatosListadoPrincipal($datosBalanza['datos'][0], $datosplu['datos']);
                 $respuesta['html']=$html['html'];

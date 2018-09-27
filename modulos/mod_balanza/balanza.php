@@ -32,7 +32,7 @@
                 
                 //faltra select con las opciones de tecla
                 
-                $buscarPlus=$CBalanza->pluDeBalanza($id);
+                $buscarPlus=$CBalanza->pluDeBalanza($id, 'a.plu');
                 if(isset($buscarPlus['datos'])){
                     $plus=$buscarPlus['datos'];
                 }
