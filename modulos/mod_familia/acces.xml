@@ -8,5 +8,6 @@
     <vista nombre="familia.php" descripcion="Familia" permiso="0">
         <accion nombre="CrearFamiliaWeb" descripcion="Crear Familia Web" permiso="0"></accion>
         <accion nombre="VerFamiliaWeb" descripcion="Ver Familia Web" permiso="0"></accion>
+	<accion nombre="SubirFamiliasHijasWeb" descripcion="Subir Familias Hijas Web" permiso="0"></accion>
    </vista>
 </modulo>

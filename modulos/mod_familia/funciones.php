@@ -105,7 +105,7 @@ function familias2Html2($familias) {
     return $resultado;
 }
 
-function htmlTablaFamiliasHijas($idfamilia, $idTienda) {
+function htmlTablaFamiliasHijas($idfamilia, $idTienda, $permiso) {
     // @ Objetivo
     // Montar la tabla html de familias descendientes
     // @ Parametros
@@ -125,7 +125,12 @@ function htmlTablaFamiliasHijas($idfamilia, $idTienda) {
             . '</thead>';
     $html .= $htmlFamilias;
     $html .= '</table>	';
-    $html.='<a class="btn btn-info" onclick="subirHijosWeb('.$idfamilia.', '.$idTienda.')">Subir Hijos Web</a>';
+    if($permiso==1){
+        if(count($familias['datos'])>0){
+         $html.='<a class="btn btn-info" onclick="subirHijosWeb('.$idfamilia.', '.$idTienda.')">Subir Hijos Web</a>';
+     }
+    }
+   
     return $html;
 }
 

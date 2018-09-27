@@ -33,7 +33,7 @@
             }
             $familia['productos'] = $familias->contarProductos($id);
             $padres = $familias->familiasSinDescendientes($id, TRUE);
-            $htmlFamiliasHijas = htmlTablaFamiliasHijas($id, $idTienda);
+            $htmlFamiliasHijas = htmlTablaFamiliasHijas($id, $idTienda, $ClasePermisos->getAccion("SubirFamiliasHijasWeb"));
             $htmlProductos = htmlTablaFamiliaProductos($id);
         } else {
             // Quiere decir que no hay id, por lo que es nuevo
