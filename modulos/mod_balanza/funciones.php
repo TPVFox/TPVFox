@@ -49,6 +49,7 @@ function  htmlTablaPlus($plus, $id){
             .'          <th>idArticulo</td>'
             .'          <th>Referencia</td>'
             .'          <th>Nombre</td>'
+            .'          <th>PVP</td>'
             .'          <th></td>'
             .'          </tr>' 
 			.'		</thead>'
@@ -72,7 +73,7 @@ function htmlLineaPlu( $plu, $idBalanza){
                 .'<td>'.$plu['idArticulo'].'</td>'
                 .'<td>'.$plu['crefTienda'].'</td>'
                 .'<td>'.$plu['articulo_name'].'</td>'
-
+                .'<td>'.number_format($plu['pvpCiva'],2).'</td>'
                 .'<td><a id="eliminar_'.$plu['plu']
 				.'" class="glyphicon glyphicon-trash" onclick="eliminarPlu('."'".$plu['plu']."'".', '.$idBalanza.')"></a>'
 				.'</td>'.'</tr>';
@@ -183,11 +184,13 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
     $htmlBalanza="";
     $htmlBalanza.='<p><b>Nombre de balanza: </b>'.$datosBalanza['nombreBalanza'].'</p>
     <p><b>Modelo de Balanza: </b>'.$datosBalanza['modelo'].'</p>';
-    $html.=' <tr>
+    $html.='<tr>
             <td><b>PLU</b></td>
             <td><b>Tecla</b></td>
             <td><b>idArticulo</b></td>
             <td><b>Descripción</b></td>
+            <td><b>Referencia</b></td>
+            <td><b>PVP</b></td>
         </tr>';
         $indice=0;
     foreach ($datosplu as $plu){
@@ -199,6 +202,8 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
             <td>'.$plu['tecla'].'</td>
             <td>'.$plu['idArticulo'].'</td>
             <td>'.$plu['articulo_name'].'</td>
+            <td>'.$plu['crefTienda'].'</td>
+            <td>'.number_format($plu['pvpCiva'],2).'</td>
         </tr>';
         if(isset($datosplu[$sigIndice])){
              $resta=$datosplu[$sigIndice]['plu']-$datosplu[$indice]['plu'];
