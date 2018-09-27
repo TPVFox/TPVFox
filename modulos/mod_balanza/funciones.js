@@ -148,6 +148,13 @@ function addPlu(idBalanza){
                 alert(resultado['error']);
             }else{
                 $('#tPlus tr:last').after(resultado['html']);
+                $('#idArticulo').val("");
+                $('#nombreProducto').val("");
+                $('#referencia').val("");
+                $('#codBarras').val("");
+                $('#plu').val("");
+                $('#teclaPlu').val("");
+                
             }
 		}
 	});
