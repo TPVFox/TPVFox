@@ -70,11 +70,15 @@
                 </div>
             </div>
             <div class="col-md-10">
+                <div class="col-md-12" id="infoBalanza">
+                    
+                </div>
                 <table class="table table-bordered table-hover tablaPrincipal">
                     <thead>
+                    
                     </thead>
                     <tbody>
-                   
+                    
                     </tbody>
                 </table>
             </div>

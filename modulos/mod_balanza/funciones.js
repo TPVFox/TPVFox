@@ -191,7 +191,9 @@ function mostrarDatosBalanza(idBalanza){
 		success    :  function (response) {
 			console.log('Repuesta de mostrar datos balanza');
 			var resultado =  $.parseJSON(response);
-            $('.tablaPrincipal').html(resultado['html']);
+            $('#infoBalanza').html(resultado['htmlDatosBalanza']);
+            $( "#infoBalanza" ).addClass( "bg-success" )
+            $('.tablaPrincipal tbody').append(resultado['html']);
 		}
 	});
 }

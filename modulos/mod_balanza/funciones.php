@@ -178,14 +178,12 @@ function modalProductos($busqueda, $productos){
 }
 
 function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
+    $resultado=array();
     $html="";
-    $html.='<tr>
-        <td><b>Nombre</b></td>
-        <td>'.$datosBalanza['nombreBalanza'].'</td>
-        <td><b>Modelo</b></td>
-        <td>'.$datosBalanza['modelo'].'</td>
-        </tr>
-        <tr>
+    $htmlBalanza="";
+    $htmlBalanza.='<p><b>Nombre de balanza: </b>'.$datosBalanza['nombreBalanza'].'</p>
+    <p><b>Modelo de Balanza: </b>'.$datosBalanza['modelo'].'</p>';
+    $html.=' <tr>
             <td><b>PLU</b></td>
             <td><b>Tecla</b></td>
             <td><b>idArticulo</b></td>
@@ -199,8 +197,9 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
             <td>'.$plu['articulo_name'].'</td>
         </tr>';
     }
-    
-    return $html;
+    $resultado['html']=$html;
+    $resultado['htmlBalanza']= $htmlBalanza;
+    return $resultado;
 }
 function htmlTecla($tecla){
     if($tecla=="si"){
