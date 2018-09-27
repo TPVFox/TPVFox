@@ -64,8 +64,8 @@
             
             if(isset($idFamiliaTienda['datos'])){
                 $datosFamilia=$ObjVirtuemart->obtenerDatosDeFamilia($idFamiliaTienda['datos'][0]['idFamilia_tienda']);
-     
-                $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->datosWebdeFamilia($datosFamilia['Datos']['item'], $idFamiliaTienda['datos'][0]['idFamilia_tienda'], $idTienda, $padres['datos'], $id);
+                $padreWeb=$familias->padreWebTpv($idTienda, $datosFamilia['Datos']['item']['padre']);
+                $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->datosWebdeFamilia($datosFamilia['Datos']['item'], $idFamiliaTienda['datos'][0]['idFamilia_tienda'], $idTienda, $padres['datos'], $id, $padreWeb['datos'][0]['idFamilia']);
             }else{
                 if($id>0){
                     if($ObjVirtuemart->getTiendaWeb()!=false){
@@ -75,6 +75,7 @@
                 }
             }
 }
+
         ?>
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>

@@ -236,6 +236,11 @@ class ClaseFamilias extends Modelo {
         return $resultado;
         
     }
+    public function padreWebTpv($idTienda, $idPadre){
+        $sql='SELECT idFamilia FROM `familiasTienda` WHERE idFamilia_tienda='.$idPadre.' and idTienda='.$idTienda;
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
     
     
 }

@@ -130,7 +130,7 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
      }
      
      
-     public function datosWebdeFamilia($datos, $idWeb, $idTienda, $padres, $idFamilia){
+     public function datosWebdeFamilia($datos, $idWeb, $idTienda, $padres, $idFamilia, $padreTpv){
         $vp='';
         $HostNombre = $this->HostNombre;
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
@@ -167,7 +167,7 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
                                 <select name="padre" class="form-control " id="combopadre">';
                 foreach ($padres as $padre) {
                         $html .= '<option value=' . $padre['idFamilia'];
-                        if (($idWeb != 0) && ($datos['padre'] == $padre['idFamilia'])) {
+                        if (($idWeb != 0) && ($padreTpv == $padre['idFamilia'])) {
                             $html .= ' selected = "selected" ';
                             $vp = $padre['idFamilia'];
                         }
