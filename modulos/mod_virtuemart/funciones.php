@@ -1,6 +1,7 @@
 <?php 
 
 function comparacionesProductos($productoWeb, $productoTpv, $idTienda){
+    //@Objetivo: comparar un el producto web con el tpv
     $comprobacion=0;
     if($productoWeb['nombre'] <> $productoTpv['articulo_name']){
       
@@ -43,14 +44,9 @@ function comparacionesProductos($productoWeb, $productoTpv, $idTienda){
     return $comprobacion;
 }
 function lineaProductosNuevos($productosNuevos, $cantProdNuevos){
+    //Objetivo: imprimir la linea cuando el producto es nuevo en tpv
     $html="";
-    //~ $html='<h4><b>Productos Nuevos</b></h4>
-                //~ <tr>
-                   
-                    //~ <th>Datos Web</th>
-                    //~ <th>Acciones</th>
-                //~ </tr>';
-                //~ $i=0;
+   
                 if($cantProdNuevos==""){
                     $cantProdNuevos=0;
                 }
@@ -73,14 +69,9 @@ function lineaProductosNuevos($productosNuevos, $cantProdNuevos){
     
 }
 function lineaProductosModificador($productos, $idTienda, $cantProdModif){
+     //Objetivo: imprimir la linea cuando el producto es modificado
     $html="";
-    //~ $html='<h4><b>Productos Modificados</b></h4>
-                //~ <tr>
-                    //~ <th>Datos Web</th>
-                     //~ <th>Datos tpv</th>
-                    //~ <th>Acciones</th>
-                //~ </tr>';
-                //~ $i=0;
+   
    if($cantProdModif==""){
         $cantProdModif=0;
     }
@@ -100,7 +91,6 @@ function lineaProductosModificador($productos, $idTienda, $cantProdModif){
            $html.='</td>
              <td><b>Nombre:</b>'.$producto[1]['articulo_name'].'<br>
             <b>Referencia Tienda Web :</b> ';
-             //~ $html.= $producto[1]['cref_tienda_principal'];
              foreach ($producto[1]['ref_tiendas'] as $ref){
                  
                  if($ref['idTienda'] == $idTienda){
