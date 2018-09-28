@@ -1113,4 +1113,6 @@ function htmlTipoProducto($tipo){
         }
     return $html;
 }
+
+
 ?>

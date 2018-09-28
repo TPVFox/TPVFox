@@ -1017,7 +1017,7 @@ function RegularizarStock(idarticulo) {
         $('#stockactual').val(resultado.stock);
         $('#stockcolocar').val(resultado.stock);
         $('#stocksumar').val(0);
-        abrirModal('regularizaStockModal', 'Regularización de Stock');
+        abrirDivModal('regularizaStockModal', 'Regularización de Stock');
         SelectAlLanzarModal('regularizaStockModal', 'stockcolocar');
     });
 

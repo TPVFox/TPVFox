@@ -1,7 +1,7 @@
 // Funciones necesarias para plugin de modal.
 // Pero con parámetros para no tener que trabajar n veces
 
-function abrirModal(iddivmodal, titulo) {
+function abrirDivModal(iddivmodal, titulo) {
     // @ Objetivo :
     // Abril modal con texto buscado y con titulo que le indiquemos.
     console.log('Estamos en abrir modal de func_modal_reutilizable');
