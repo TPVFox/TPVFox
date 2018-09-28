@@ -107,8 +107,8 @@
 				<form action="./ListaCierres.php" method="GET" name="formBuscar">
 					<div class=" ClaseBuscar">
 						<label>Buscar por fechas</label>
-						<input type="date" name="fecha1" id="fecha1" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd'  title=" Formato de entrada yyyy-mm-dd">
-						<input type="date" name="fecha2" id="fecha2" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
+						<input type="text" name="fecha1" id="fecha1" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd'  title=" Formato de entrada yyyy-mm-dd">
+						<input type="text" name="fecha2" id="fecha2" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder='yyyy-mm-dd' title=" Formato de entrada yyyy-mm-dd">
 						<input type="submit" value="buscar">
 					</div>
 				</form>

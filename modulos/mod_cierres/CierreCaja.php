@@ -225,16 +225,16 @@
 			<form action="./CierreCaja.php?dedonde=<?php echo $dedonde;?>" method="post"> 
 				<div class="col-md-3 ">	
 					<label class="control-label " > Fecha Cierre Caja:</label>
-					<input type="date" name="fecha" <?php echo $estados['fecha'].$pattern;?> value=<?php  echo $fechas['Cierre']['String_d-m-y']; //cojo la fecha del actual del dia?> >
+					<input type="text" name="fecha" <?php echo $estados['fecha'].$pattern;?> value=<?php  echo $fechas['Cierre']['String_d-m-y']; //cojo la fecha del actual del dia?> >
 				</div>
 				<!-- inicio de fechas max y min -->			
 				<div class="col-md-3"> 
 					<label>Fecha Inicial:</label>
-					<input type="date" name="fechaInicial"  disabled value="<?php  echo $fechas['fechaMin']['String_d-m-y'];?>" >								
+					<input type="text" name="fechaInicial"  disabled value="<?php  echo $fechas['fechaMin']['String_d-m-y'];?>" >								
 				</div>
 				<div class="col-md-3"> 
 					<label>Fecha Final:</label>
-					<input type="date" name="fechaFinal" <?php echo $estados['fechaFinal'].$pattern;?> value="<?php  echo $fechas['fechaMax']['String_d-m-y'];?>" > 
+					<input type="text" name="fechaFinal" <?php echo $estados['fechaFinal'].$pattern;?> value="<?php  echo $fechas['fechaMax']['String_d-m-y'];?>" > 
 				</div>
 				<div class="col-md-3">
 					<label>(*) Si cambiaste algún dato.</label>
