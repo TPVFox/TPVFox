@@ -148,6 +148,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
         $respuesta['correo']= $enviarCorreo;
         break;
         case 'subirProductosWeb':
+        //@objetivo: subir varios productos a la web 
             $productosSeleccionados=$_SESSION['productos_seleccionados'];
             $tiendaWeb=$_POST['idTienda'];
             $productoEnWeb=array();
