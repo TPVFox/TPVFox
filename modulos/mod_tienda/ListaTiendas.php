@@ -54,11 +54,6 @@
 				</div>	
 			</nav>		
 			<div class="col-md-10">
-				<?php
-				//~ echo '<pre>';
-					//~ print_r($usuarios);
-				//~ echo '</pre>';
-				?>
                  <!-- TABLA DE PRODUCTOS -->
 			<div>
 			<table class="table table-striped">
