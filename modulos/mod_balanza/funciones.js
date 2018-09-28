@@ -14,6 +14,11 @@ function metodoClick(pulsado,adonde){
     }
 }
 function AgregarBalanza(){
+    //@Objetivo: Agregar una nueva balanza
+    //@Proceso: 
+    //  1- Recoger los datos de los imput y el select 
+    //  2- Mandar los datos por ajax 
+    //  3-Cuando envia la respuesta del ajax redirige al listado
     var nombreBalanza=$('#nombreBalanza').val();
     var modeloBalanza=$('#modeloBalanza').val();
     if(nombreBalanza=="" || modeloBalanza==""){
@@ -38,7 +43,6 @@ function AgregarBalanza(){
 			console.log('Repuesta de add balanzas');
 			var resultado =  $.parseJSON(response);
 			console.log(resultado);
-            //~ $('#errores').html(resultado['html']);
             window.location="ListaBalanzas.php";
 		}
 	});
@@ -47,6 +51,7 @@ function AgregarBalanza(){
 
 
 function htmlPlu(idBalanza){
+    //@Objetivo: Generar el html con los campos para añadir un plu
     var teclas=$('#teclas').val();
     var parametros={
             "pulsado"    	: 'htmlPlu',
@@ -81,6 +86,7 @@ function controladorAcciones(caja, accion, tecla){
 }
 
 function buscarProducto(caja, valor){
+    //@Objetivo: buscar producto
     idcaja = caja.id_input;
     campo = caja.darParametro('campo');
     console.log(caja);
@@ -112,22 +118,24 @@ function buscarProducto(caja, valor){
 	});
 }
 function datosEnInput(id, nombre, ref, codBarras){
+    //@Objetivo: cuando se tengan los datos del producto se introducen en los respectivos inputs
     $('#idArticulo').val(id);
     $('#nombreProducto').val(nombre);
     $('#referencia').val(ref);
     $('#codBarras').val(codBarras);
 }
 function buscarProductosModal(id, nombre, ref, codBarras){
+    //@OBjetivo:  cuando se obtienen los datos del producto desde el modal se introducen en los respectivos inputs
     datosEnInput(id, nombre, ref, codBarras);
     cerrarPopUp();
 }
 function addPlu(idBalanza){
+    //@OBjetivo: añadir plu
     var id=$('#idArticulo').val();
     var plu=$('#plu').val();
     var cref=$('#referencia').val();
     var articulo_name=$('#nombreProducto').val();
     var tecla=$('#teclaPlu').val();
-  
     if(id=="" || plu =="" ){
         alert("Quedan campos sin cubrir");
     }else{
@@ -153,6 +161,7 @@ function addPlu(idBalanza){
             if(resultado['error']){
                 alert(resultado['error']);
             }else{
+                //Si no hay error se borrar los campos y se añade la nueva linea
                 $('#tPlus tr:last').after(resultado['html']);
                 $('#idArticulo').val("");
                 $('#nombreProducto').val("");
@@ -168,6 +177,7 @@ function addPlu(idBalanza){
     }
 }
 function eliminarPlu(plu, idBalanza){
+    //@Objetivo_eliminar plu
     var parametros = {
             "pulsado"   : 'eliminarPlu',
             "plu"    : plu,
@@ -190,6 +200,7 @@ function eliminarPlu(plu, idBalanza){
        
 }
 function mostrarDatosBalanza(idBalanza){
+    //@Objetivo: MOstrar los datos de un balanza(todos los plu y datos del articulo)
      
      if($('#filtroBalanza').val()){
          var filtro=$('#filtroBalanza').val();
@@ -222,6 +233,7 @@ function mostrarDatosBalanza(idBalanza){
 
 
 function ModificarBalanza(id){
+    //@Objetivo: Modificar los datos de una balanza
       var nombreBalanza=$('#nombreBalanza').val();
     var modeloBalanza=$('#modeloBalanza').val();
     if(nombreBalanza=="" || modeloBalanza==""){
