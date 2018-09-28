@@ -9,6 +9,7 @@ $pulsado = $_POST['pulsado'];
 $respuesta=array();
 switch ($pulsado) {
     case 'addBalanza':
+        //@Objetivo: Añadir una balanza nueva
         $datos=array(
             'nombreBalanza'=>$_POST['nombreBalanza'],
             'modeloBalanza'=>$_POST['modeloBalanza'],
@@ -30,12 +31,15 @@ switch ($pulsado) {
         $respuesta['balanza']=$addBalanza;
     break;
     case 'htmlPlu':
+    //OBjetivo: OBjetivo llamar a la función htmlAddPlu que devuelve el html para añadir un plu
         $tecla=$_POST['teclas'];
         $idBalanza=$_POST['idBalanza'];
         $html=htmlAddPLU($tecla, $idBalanza);
         $respuesta['html']=$html;
     break;
     case 'buscarProducto':
+    //@Objetivo: buscar producto
+    //Devuelve o los datos de un  producto o el html del modal
         $campo=camposBuscar($_POST['campo'], $_POST['busqueda']);
         $result=$CBalanza->buscarArticuloCampo($campo);
         if(count($result['datos'])==1){
@@ -64,6 +68,7 @@ switch ($pulsado) {
         $respuesta['buscar']=$result;
     break;
     case 'addPlu':
+    //@Objetivo: añadir plu
         $idBalanza = $_POST['idBalanza'];
         $plu = $_POST['plu'];
         $crefTienda = $_POST['cref'];
@@ -87,15 +92,16 @@ switch ($pulsado) {
             'articulo_name' => $articulo_name,
             'crefTienda' => $crefTienda
             );
-            //~ $datos = $CBalanza->buscarPluEnBalanza($plu, $idBalanza);
             $html=htmlLineaPlu($datos, $idBalanza);
             $respuesta['html']=$html;
         }
     break;
     case 'eliminarPlu':
+    //@OBjetivo: eliminar plu
         $eliminar=$CBalanza->eliminarplu($_POST['idBalanza'], $_POST['plu']);
     break;
     case 'mostrarDatosBalanza':
+    //@Objetivo: Mostrar los datos de una balanza con los plu
         $datosBalanza=$CBalanza->datosBalanza($_POST['idBalanza']);
         if(isset($datosBalanza['datos'])){
             $datosplu=$CBalanza->pluDeBalanza($_POST['idBalanza'], $_POST['filtro']);
@@ -107,6 +113,7 @@ switch ($pulsado) {
         }
     break;
     case 'modificarBalanza':
+    //@OBjetivo: Modificar los datos de la balanza
         $modificarBalanza=$CBalanza->modificarBalanza($_POST['idBalanza'], $_POST['nombre'], $_POST['modelo'], $_POST['tecla']);
         $respuesta['modif']=$modificarBalanza;
     break;
