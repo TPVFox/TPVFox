@@ -11,20 +11,26 @@ $Ctienda=new ClaseTienda($BDTpv);
 $NCArticulo = new ClaseProductos($BDTpv);
 switch ($pulsado) {
     case 'contarProductostpv':
+    //@Objetivo_ contar los productos de tpv
         $productosTpv=$NCArticulo->contarProductosTpv();
         $respuesta['productosTpv']=$productosTpv;
     break;
     case 'nuevosEnTpv':
+     //@Objetivo_ contar los productos nuevo en tpv
         $idTienda=$_POST['tiendaWeb'];
         $productosTpv=$NCArticulo->productosEnTpvNoWeb($idTienda);
         $respuesta['productos']=$productosTpv;
     break;
     case 'nuevosEnWeb':
+     //@Objetivo_ contar los productos de web
          $idTienda=$_POST['tiendaWeb'];
          $productosWeb=$NCArticulo->productosTienda($idTienda);
           $respuesta['productos']=$productosWeb;
     break; 
     case 'comprobarProductos':
+    //@Objetivo: comprobaciones de productos
+    //dividir en dos arrays uno los nuevos y otros los modificados
+    //devolver los html
         $productos=$_POST['productos'];
         $idTienda=$_POST['idTienda'];
         $productosModificados=array();
@@ -66,6 +72,7 @@ switch ($pulsado) {
         $respuesta['productosNuevos']=$productosNuevos;
     break;
     case 'modificarProducto':
+    //@Objetivo: modificar los productos en tpv
         $codBarras=array();
         $precioCiva=0;
         $estadoWeb="Publicado";
@@ -95,6 +102,7 @@ switch ($pulsado) {
         $respuesta['modificar']=$modificar;
     break;
     case 'addProductoTpv':
+     //@Objetivo: añadir los productos en tpv
         $ultimoCoste=0;
         $precioCiva=0;
         $codBarras=array();
