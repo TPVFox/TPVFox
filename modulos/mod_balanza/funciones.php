@@ -64,6 +64,7 @@ function  htmlTablaPlus($plus, $id){
 } 
 
 function htmlLineaPlu( $plu, $idBalanza){
+    //@OBjetivo: imprimir las lineas de plus de una balanza con los datos de un articulo
     $nuevaFila = '<tr id="plu_'.$plu['plu'].'">'
 				. '<td><input type="hidden" id="idPlu_'.$plu['plu']
 				.'" name="idPlu'.$plu['plu'].'" value="'.$plu['plu'].'">'
@@ -80,6 +81,7 @@ function htmlLineaPlu( $plu, $idBalanza){
 	return $nuevaFila;
 }
 function htmlAddPLU($tecla, $idBalanza){
+    //@OBjetivo_: devolver html con los datos para poder añadir plu
     $style_none = ' ';
     if($tecla=='no'){
         $style_none = 'style="display:none"';
@@ -122,32 +124,17 @@ function htmlAddPLU($tecla, $idBalanza){
     return $html;
 }
 function camposBuscar($campo, $busqueda){
+    //@objetivo: devolver el string con el campo y busqueda preparado para el sql
     if($campo=='a.idArticulo'){
         $campo='a.idArticulo='.$busqueda;
     }else{
         $campo=$campo.' like "%'.$busqueda.'%"';
     }
-    
-    //~ $campo="";
-    //~ switch ($campo){
-        //~ case 'a.idArticulo':
-            //~ $campo='a.idArticulo='.$busqueda;
-        //~ break;
-        //~ case 'nombreProducto':
-            //~ $campo='a.articulo_name like "%'.$busqueda.'%"';
-        //~ break;
-        //~ case 'referencia':
-            //~ $campo='b.crefTienda like "%'.$busqueda.'%"';
-        //~ break;
-        //~ case 'codBarras':
-            //~ $campo='c.codBarras like "%'.$busqueda.'%"';
-        //~ break;
-        
-    //~ }
     return $campo;
 }
 
 function modalProductos($busqueda, $productos, $campoAbuscar){
+    //@OBjetivo: devolver html con los datos del modal
     $resultado = array();
 	$resultado['encontrados'] = count($productos);
     $resultado['html'] =  "<script type='text/javascript'>
@@ -191,6 +178,7 @@ function modalProductos($busqueda, $productos, $campoAbuscar){
 }
 
 function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
+    //Objetivo: devolver html con los datos de una balanza y plus para el listado principal
     $resultado=array();
     $html="";
     $htmlBalanza="";
@@ -243,6 +231,7 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
     return $resultado;
 }
 function htmlTecla($tecla){
+    //@Objetivo: html con las opciones de la tecla
     if($tecla=="si"){
         $html ='<option value="si" selected="selected">Si</option>';
   
