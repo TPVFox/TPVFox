@@ -11,6 +11,7 @@ var callbackContarRegistrosWeb= function (response) {
 }
 
 function enviarFormulario(){
+    //@OBjetivo: validar si hay tienda marcada y llamar a la función de contar productos
     var tiendaWeb=$("#tiendaWeb").val();
   if(tiendaWeb==0){
       alert("NO HAS SELECCIONADO UNA TIENDA WEB!");
@@ -22,6 +23,8 @@ function enviarFormulario(){
 }
 
 function contarProductosTpv(callback){
+    //@Objetivo:
+    //Contar todos los productos de tpv
     console.log(regWeb);
       var parametros = {
             "pulsado"   : 'contarProductostpv',
@@ -54,6 +57,7 @@ function contarProductosTpv(callback){
     });
 }
 function nuevosEnTpv(){
+    //@Objetivo: contar los productos nuevos en tpv
     var tiendaWeb=$("#tiendaWeb").val();
    
     var parametros = {
@@ -81,6 +85,7 @@ function nuevosEnTpv(){
     });
 }
 function nuevosEnWeb(){
+    //@Objetivo: contar los productos nuevos en web
      var tiendaWeb=$("#tiendaWeb").val();
      var parametros = {
             "pulsado"   : 'nuevosEnWeb',
@@ -99,14 +104,14 @@ function nuevosEnWeb(){
             var resultado =  $.parseJSON(response);
             console.log(resultado);
             total=parseInt(regWeb)-parseInt(resultado['productos'][0]['cantArticulo'])
-             //~ $( "#NuevosWeb" ).html(total);
-             $("#DivOpciones").show();
+            $("#DivOpciones").show();
         }
         
     });
 }
 
 function comprobarProductos(productos, final, bandera=""){
+    //@Objetivo: comprobar productos, dividir entre los nuevos en tpv y los modificados
     var tiendaWeb=$("#tiendaWeb").val();
     var parametros = {
             "pulsado"   : 'comprobarProductos',
@@ -144,6 +149,8 @@ function comprobarProductos(productos, final, bandera=""){
 
 
 function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea){
+    //@OBjetivo: añadir producto nuevo en tpv
+    
     console.log("Entre en añadir producto");
     var tiendaWeb=$("#tiendaWeb").val();
     var optCodBarra=$("#codBarras").val();
@@ -198,7 +205,7 @@ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea
 
 
 function modificarProductosTpvWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea){
-    
+    //@OBjetivo: modificar producto de web a tpv
     console.log("Entre en modificar pro");
     var tiendaWeb=$("#tiendaWeb").val();
     var optCodBarra=$("#codBarras").val();
