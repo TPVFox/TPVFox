@@ -100,7 +100,7 @@ switch ($pulsado) {
         if(isset($datosBalanza['datos'])){
             $datosplu=$CBalanza->pluDeBalanza($_POST['idBalanza'], $_POST['filtro']);
             if(isset($datosplu['datos'])){
-                $html=htmlDatosListadoPrincipal($datosBalanza['datos'][0], $datosplu['datos']);
+                $html=htmlDatosListadoPrincipal($datosBalanza['datos'][0], $datosplu['datos'], $_POST['filtro']);
                 $respuesta['html']=$html['html'];
                 $respuesta['htmlDatosBalanza']=$html['htmlBalanza'];
             }

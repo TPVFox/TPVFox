@@ -190,16 +190,23 @@ function modalProductos($busqueda, $productos, $campoAbuscar){
 	return $resultado;
 }
 
-function htmlDatosListadoPrincipal($datosBalanza, $datosplu){
+function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
     $resultado=array();
     $html="";
     $htmlBalanza="";
     $htmlBalanza.='<p><b>Nombre de balanza: </b>'.$datosBalanza['nombreBalanza'].'</p>
     <p><b>Modelo de Balanza: </b>'.$datosBalanza['modelo'].'</p>
-    <p><label>Filtrar por: </label><select id="filtroBalanza" >
-    <option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
-    <option value="a.tecla" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
-    </select></p>';
+    <p><label>Filtrar por: </label><select id="filtroBalanza" >';
+    if($opcionSelect=='a.plu'){
+        $htmlBalanza.='<option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
+            <option value="a.tecla" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
+        </select></p>';
+    }else{
+         $htmlBalanza.='<option value="a.tecla" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
+        <option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
+        </select></p>';
+    }
+   
     $html.='<tr>
             <td><b>PLU</b></td>
             <td><b>Tecla</b></td>
