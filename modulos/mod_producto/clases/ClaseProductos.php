@@ -1029,40 +1029,49 @@ class ClaseProductos extends ClaseTablaArticulos{
     
     
     public function modificarProductoTPVWeb($datos){
+        // Objetivo es modificar los productos con los datos de la web)
+        // Esta funcion realmente no debería estar aquí.
+        
        
         $sql='UPDATE articulos SET iva="'.floatval ($datos['iva']).'", articulo_name="'.$datos['nombre'].'", 
         fecha_modificado="'.date("Y-m-d H:i:s").'" where idArticulo='.$datos['id'];
         $respuesta = array();
 		$DB = parent::GetDb();
 		$smt = $DB->query($sql);
+        
         if($DB->connect_errno){
-                $respuesta['error']=$sql;
-        }else{
+            $respuesta['error']=$sql;
+
+        } else {  
+
             $sql='UPDATE articulosPrecios SET pvpSiva="'.floatval ($datos['precioSiva']).'" , pvpCiva="'.floatval ($datos['precioCiva']).'" where idArticulo='.$datos['id'];
             $smt = $DB->query($sql);
+
+            
             if($DB->connect_errno){
                 $respuesta['error']=$sql;
             }
-            if($datos['refTienda']<>""){
-            switch ($datos['optRefWeb']){
-                case '1':
-                    $sql='UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['refTienda'].'" where idTienda='.$datos['tiendaWeb'].' and idArticulo='.$datos['id'];
-                    
-                break;
-                case '2':
-                     $sql='UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['tiendaPrincipal'].'" where idTienda='.$datos['tiendaWeb'].' and idArticulo='.$datos['id'];
-                break;
-                case 3:
-                    $sql='UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['refTienda'].'" where idTienda='.$datos['tiendaWeb'].' and idArticulo='.$datos['id'].
-                    '  UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['refTienda'].'" where idTienda='.$datos['tiendaPrincipal'].' and idArticulo='.$datos['id'];
-                break;
+            if($datos['refTienda']<>"" && $datos['optRefWeb'] <> '3' ){
+                // Ahora comprobamos que opcion seleccionamos para hacer.
+                // Ya que podemos seleccionar tres opcion:
+                //     1- Option accion de Referencia en tienda web
+                //     2- Option accion de Referencia en tienda principal
+                //     3- Option accion de Referencia no importa.
+                // La primera es grabar referencia en tienda web, esta opcion se hace siempre...
+                $sql='UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['refTienda'].'" where idTienda='.$datos['tiendaWeb'].' and idArticulo='.$datos['id'];
+                if ( $datos['optRefWeb'] == '2'){
+                    // La segunda es grabar tambien en tienda principal
+                    $sql .=';
+                            UPDATE `articulosTiendas` SET `crefTienda`="'.$datos['tiendaPrincipal'].'" where idTienda='.$datos['tiendaWeb'].' and idArticulo='.$datos['id'];
+
+                }
+                $smt = $DB->query($sql);
+                if($DB->connect_errno){
+                    $respuesta['error']=$sql;
+                }
             }
-            $smt = $DB->query($sql);
-            if($DB->connect_errno){
-                $respuesta['error']=$sql;
-            }
-        }
-            if(count($datos['codBarras']>0)){
+            if(count($datos['codBarras']) >0 ){
+                error_log('Count Codbarras '.count($datos['codBarras']));
                 $sql='DELETE FROM `articulosCodigoBarras` WHERE idArticulo='.$datos['id'];
                 $smt = $DB->query($sql);
                         if($DB->connect_errno){
@@ -1080,7 +1089,7 @@ class ClaseProductos extends ClaseTablaArticulos{
                 }
             }
         
-    }
+        }
         return $respuesta;
     }
     
