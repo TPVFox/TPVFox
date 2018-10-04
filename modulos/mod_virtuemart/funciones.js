@@ -32,7 +32,7 @@ function contarProductosTpv(callback){
         };
     $.ajax({
         data       : parametros,
-        url        : 'tareas.php',
+        url        : './tareas.php',
         type       : 'post',
         beforeSend : function () {
             console.log('*********  entre en contar productos tpv  ****************');
@@ -113,16 +113,25 @@ function nuevosEnWeb(){
 function comprobarProductos(productos, final, bandera=""){
     //@Objetivo: comprobar productos, dividir entre los nuevos en tpv y los modificados
     var tiendaWeb=$("#tiendaWeb").val();
+    var sel_codigoBarras = $("#codBarras option:selected").val();
+    var sel_referencia = $("#refTienda option:selected").val();
+
+    console.log('Seleccion codbarras:'+ sel_codigoBarras);
+    console.log('Seleccion referencia:'+ sel_referencia);
+
     var parametros = {
             "pulsado"   : 'comprobarProductos',
             "productos" : productos,
             "idTienda"  :tiendaWeb,
             "prodModif" :prodModif,
-            "prodNuevos":prodNuevos
+            "prodNuevos":prodNuevos,
+            "sel_codigoBarras":sel_codigoBarras,
+            "sel_referencia" : sel_referencia
     };
+    console.log(productos);
      $.ajax({
         data       : parametros,
-        url        : 'tareas.php',
+        url        : './tareas.php',
         type       : 'post',
         beforeSend : function () {
             console.log('*********  comprobar productos ****************');
@@ -142,6 +151,7 @@ function comprobarProductos(productos, final, bandera=""){
                   actualizarProductosWeb(final);
              }
            
+
         }
         
     });

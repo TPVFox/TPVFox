@@ -33,9 +33,13 @@ switch ($pulsado) {
     //devolver los html
         $productos=$_POST['productos'];
         $idTienda=$_POST['idTienda'];
+        $conf = array (
+                'Sel_codBarras' => $_POST['sel_codigoBarras'],
+                'Sel_referencia'=> $_POST['sel_referencia']
+                );
         $productosModificados=array();
         $productosNuevos=array();
-       $respuesta['productos']=$productos;
+        $respuesta['productos']=$productos;
         foreach ($productos as $producto){
             if(isset($producto['id'])){
                 $comprobar=$NCArticulo->comprobarIdWebTpv($idTienda, $producto['id']);
@@ -44,7 +48,7 @@ switch ($pulsado) {
                     $arrayDatos=array();
                     $datosProductoTpv=$NCArticulo->GetProducto($comprobar[0]['idArticulo']);
                     $respuesta['productostpv']=$datosProductoTpv;
-                    $comprobacion=comparacionesProductos($producto, $datosProductoTpv, $idTienda);
+                    $comprobacion=comparacionesProductos($producto, $datosProductoTpv, $idTienda,$conf);
                     if($comprobacion==1){
                         array_push($arrayDatos, $producto);
                         array_push($arrayDatos,$datosProductoTpv);
@@ -85,7 +89,7 @@ switch ($pulsado) {
         $caliva=($_POST['iva']/100)+1;
         $precioCiva=$_POST['precioSiva']*$caliva;
         $tiendaPrincipal=$Ctienda->tiendaPrincipal();
-       $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
+        $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
         $datos=array(
             'nombre'=>$_POST['nombre'],
             'refTienda'=>$_POST['refTienda'],
@@ -107,7 +111,7 @@ switch ($pulsado) {
         $precioCiva=0;
         $codBarras=array();
         $tiendaPrincipal=$Ctienda->tiendaPrincipal();
-       $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
+        $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
         if($_POST['ultimoCoste']==1){
             $beneficio=($_POST['beneficio']/100)+1;
             $respuesta['beneficio']=$_POST['beneficio'];
@@ -121,10 +125,10 @@ switch ($pulsado) {
         }
         $caliva=($_POST['iva']/100)+1;
         $precioCiva=$_POST['precioSiva']*$caliva;
-       $tiendaPrincipal=$Ctienda->tiendaPrincipal();
-       $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
-       $respuesta['tienda']=$tiendaPrincipal;
-       $estadoWeb="Publicado";
+        $tiendaPrincipal=$Ctienda->tiendaPrincipal();
+        $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
+        $respuesta['tienda']=$tiendaPrincipal;
+        $estadoWeb="Publicado";
         $datosProducto=array( 
              'nombre'=>$_POST['nombre'],
               'iva'=>$_POST['iva'],
