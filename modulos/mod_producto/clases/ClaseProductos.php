@@ -1097,7 +1097,7 @@ class ClaseProductos extends ClaseTablaArticulos{
         $fecha_ahora= date("Y-m-d H:i:s");   
 		$sqlArticulo = 'INSERT INTO `articulos`(iva, articulo_name, estado,ultimoCoste, fecha_creado,beneficio) VALUES ("'
 						.$datos['iva'].'","'.$datos['nombre'].'","'.$datos['estado'].'","'
-						.$datos['costePromedio'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
+						.$datos['ultimoCoste'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'")';
 		
 		$respuesta = array();
 		$DB = parent::GetDb();
@@ -1116,42 +1116,38 @@ class ClaseProductos extends ClaseTablaArticulos{
 			$comprobaciones['insert_articulos'] = $error;
 		}
         if (!isset($respuesta['error'])){
-            if($datos['refTienda']<>""){
-            switch ($datos['optRefWeb']){
-                case '1':
-                    $sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
-                    `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaWeb'].',"'.$datos['refTienda'].'",
-                    '.$datos['id'].', "'.$datos['estadoWeb'].'")';
-                break;
-                case '2':
-                     $sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
-                    `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaPrincipal'].',"'.$datos['refTienda'].'",
-                    '.$datos['id'].', "'.$datos['estadoWeb'].'")';
-                break;
-                case '3':
-                    $sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
-                    `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaWeb'].',"'.$datos['refTienda'].'",
-                    '.$datos['id'].', "'.$datos['estadoWeb'].'") 
-                    INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
-                    `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaPrincipal'].',"'.$datos['refTienda'].'",
-                    '.$datos['id'].', "'.$datos['estadoWeb'].'")';
-                break;
-                
+            // Ahora comprobamos que opcion seleccionamos para hacer.
+            // Ya que podemos seleccionar tres opcion:
+            //     1- Option accion de Referencia en tienda web
+            //     2- Option accion de Referencia en tienda principal
+            //     3- Option accion de Ignorar...
+            // La primera es grabar referencia en tienda web, esta opcion se hace siempre ...
+             $sql='INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
+                `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaWeb'].',"'.$datos['refTienda'].'",
+                '.$datos['id'].', "'.$datos['estadoWeb'].'")';
+             if ( $datos['optRefWeb'] == '2'){
+                // La segunda es grabar tambien en tienda principal
+                $sql .=';
+                        INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`, 
+                        `idVirtuemart`, `estado`) VALUES ('.$id.','.$datos['tiendaPrincipal']
+                        .',"'.$datos['refTienda'].'",'.$datos['id'].', "'.$datos['estadoWeb'].'")';
             }
+
             $smt = $DB->query($sql);
             $respuesta['sqlArticulosTienda']=$sql;
             if($DB->connect_errno){
                 $respuesta['error']=$sql;
             }
-        }
+            // Ahora insertamos los precios .
             $sql='INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) 
             VALUES ('.$id.','.$datos['precioCiva'].','.$datos['precioSiva'].','.$datos['tiendaPrincipal'].')';
             $smt = $DB->query($sql);
-              if($DB->connect_errno){
+             if($DB->connect_errno){
                 $respuesta['error']=$sql;
             }
             $respuesta['sqlArticuloPrecios']=$sql;
-            if(count($datos['codBarras']>0)){
+            // Ahora insertamos los codbarras
+            if(count($datos['codBarras'])>0){
                 $bandera=0;
                 foreach($datos['codBarras'] as $cod){
                     if($cod<>""){

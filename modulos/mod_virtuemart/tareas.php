@@ -112,12 +112,13 @@ switch ($pulsado) {
         $codBarras=array();
         $tiendaPrincipal=$Ctienda->tiendaPrincipal();
         $tiendaPrincipal=$tiendaPrincipal['datos'][0]['idTienda'];
-        if($_POST['ultimoCoste']==1){
-            $beneficio=($_POST['beneficio']/100)+1;
-            $respuesta['beneficio']=$_POST['beneficio'];
-            $ultimoCoste=$_POST['precioSiva']/$beneficio;
+        if($_POST['optCoste']=="1"){
+            // Si la opcion selecciona fue calcular coste
+            $respuesta['beneficio']= (int) $_POST['beneficio'];
+            $beneficio=($respuesta['beneficio']/100)+1;
+            $ultimoCoste=(int)$_POST['precioSiva']/$beneficio;
         }
-        if($_POST['optCodBarra']==1){
+        if($_POST['optCodBarra']=="1"){
              $codBarrasTexto=explode(";",$_POST['codBarras']);
              foreach($codBarrasTexto as $cod){
                  array_push($codBarras , $cod);
@@ -136,7 +137,6 @@ switch ($pulsado) {
               'ultimoCoste'=>$ultimoCoste,
               'beneficio'=>$_POST['beneficio'],
               'estado'=>$_POST['optEstado'],
-              'costePromedio'=>$_POST['costePromedio'],
               'codBarras'=>$codBarras,
               'precioCiva'=>$precioCiva,
               'precioSiva'=>$_POST['precioSiva'],

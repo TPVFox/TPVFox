@@ -167,7 +167,6 @@ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea
     var optRef=$("#refTienda").val();
     var optEstado=$("#estadoNuevo").val();
     var beneficio=$("#beneficio").val();
-    var costePromedio=$("#costePromedio").val();
     var ultimoCoste=$("#ultimoCoste").val();
     console.log(refTienda);
      var parametros = {
@@ -181,8 +180,7 @@ function addProductoWeb(nombre, refTienda, iva, precioSiva, codBarras, id, linea
             "optRefWeb":optRef,
             "optEstado": optEstado,
             'beneficio':beneficio,
-            'costePromedio':costePromedio,
-            'ultimoCoste':ultimoCoste,
+            'optCoste':ultimoCoste,
             'tiendaWeb':tiendaWeb,
             'id':id
     };
