@@ -112,7 +112,7 @@
                     $index= array_search('beneficio', array_column($defecto, 'nombre'));
                     
                     ?>
-                    <input type="text" id="beneficio" value="<?php echo $defecto[$index]->valor;?> " readonly=”readonly” size="5px">%
+                    <input type="text" id="beneficio" value="<?php echo $defecto[$index]->valor;?> " size="5px">%
                  </div>
                 <div class="col-md-4">
                     <label>¿Estado que quieres poner?</label>
