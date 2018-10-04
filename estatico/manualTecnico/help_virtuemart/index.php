@@ -11,27 +11,34 @@
     	<h4>1.-Configuracion de opciones</h4>
 		<p>Lo primero seleccionamos la tienda web queremos importar.Se podría tener varias webs</p>
         <p>Luego escogemos y asignamos:</p>
-        <ul><li>Acciones
+        <ul><li>Acciones a realizar NUEVOS/MODIFICADOS y COMPROBACIONES
                 <ul>
                     <li><b>Importamos codbarras:</b>
                         En la web el campo que aparece en la ficha del producto en la web -GTIN (EAN,ISBN) es el codbarras, para meter en la WEB varios codbarras los separamos por ";".<br/>
                         Las opciones tiene:
-                        <br/>-Añadir codbarras:
+                        <br/>-Añadir codbarras:Añadir los codbarras que hay en la web , si no existen en tpv.
                         <br/>-Ignorar: No se tiene encuenta tanto para añadir ,como para modificar.. y  tampoco se tiene en cuenta a la hora comprobar diferencias.</li>
                     <li><b>Referencia de producto:</b> Las referencias de los productos se anotan <b>tabla articulosTienda</b>.<br/>
                         Las opciones que tienes:<br/>
-                        -Copiar solo en el registro de tienda Web con refencia<br/>
-                        -Copiar copiar la referencia en las dos tiendas (Web y principal).<br/>
-                        -Ignorar: Donde no se copia , ni se tiene en cuanta a la hora hacer comprobaciones.</li>
-                    <li><b>Estado cuando es nuevo:</b> Que estado quieres ponerle cuando creamos un producto nuevo en Tpv que ya existe en la Web</li>
-                    <li><b>Estado cuando es Modificado:</b>Que estado quieres ponerle cuando modifiamos un producto y ponemos los datos de la Web</li>
-                    <li><b>Ultimo coste:</b>Nos permite calcular o no el coste y ponerlo.</li>
+                        -Añadir a tienda Web solo: Se copiar solo en el registro de tienda Web con su refencia y id<br/>
+                        -Añadir a tienda principal tambien: A parte de añadir referencia a registro tienda Web, lo añadimos o lo cambiamos en tienda principal.<br/>
+                        -Ignorar: Ignoramos referencia tanto a la hora añadir, modifica e incluso de comprobar.</li>
                 </ul>
             </li>
-            <li><b>Beneficio por defecto:</b>El beneficio que ponemos por defecto a productos nuevos. Ha producto modificados ?????<br/>
-            Debería poder permitir una cantidad.</li>
-            <li><b>Coste promedio</b>????</li>
-		</ul>
+            <li>Acciones a realizar solo en Nuevos.
+                <ul>
+                    <li><b>Estado de Nuevo:</b> Que estado quieres ponerle cuando creamos un producto nuevo en Tpv que ya existe en la Web</li>
+                    <li><b>Ultimo coste:</b>Nos permite calcular o no el coste y ponerlo.</li>
+                    <li><b>Beneficio por defecto:</b>El beneficio que ponemos por defecto a productos nuevos.<br/>
+                </ul>
+            </li>
+            <li>Acciones a realizar solo esta Modificado.
+                <ul>
+                    <li><b>Estado aquellos modificados:</b>Seleccionamos estado que ponemos si modificamos</li>
+                
+                </ul>
+            </li>
+        </ul>
 	</div>
     <div class="col-md-6">
 		<h4>2.-Obtenemos los productos de la web de 100 en 100</h4>
