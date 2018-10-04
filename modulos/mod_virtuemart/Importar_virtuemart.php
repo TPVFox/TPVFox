@@ -16,8 +16,7 @@
     $ClasesParametros = new ClaseParametros('parametros.xml');
     $parametros = $ClasesParametros->getRoot();
     $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-    $conf_defecto=$conf_defecto['defecto'];
-?>
+   ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_virtuemart/funciones.js"></script>
 <script src="<?php echo $HostNombre; ?>/controllers/funcionesComunes.js"></script>
 
@@ -31,6 +30,7 @@
 <body>
       <?php
             include_once $URLCom.'/modulos/mod_menu/menu.php';
+            
         ?>
     <div class="container">
         <h2 class="text-center">Importación o Actualizacion de datos de Virtuemart a TPV.</h2>
@@ -48,116 +48,125 @@
                 </select>
             </div>
              <div class="col-md-12">
-                 <label>Selecciona Acción a realizar con los Código de Barras</label>
-                 <select id="codBarras">
-                 <?php 
-                    $posCodBarras= array_search('cod_barras', array_column($conf_defecto, 'nombre'));
-                    if($conf_defecto[$posCodBarras]->default=="Si"){
-                        echo '<option value="1">'.$conf_defecto[$posCodBarras]->descripcion.'</option>';
-                        echo '<option value="2">No importar</option>';
-                    }else{
-                        echo '<option value="2">No importar</option>';
-                        echo '<option value="1">'.$conf_defecto[$posCodBarras]->descripcion.'</option>';
-                    }
-                 ?>
-                 </select >
-            </div>
-             <div class="col-md-12">
-                 <label>Selecciona Acción a realizar con los Referencia de Tienda</label>
+                <h4>Acciones a realiza en NUEVOS/MODIFICADOS y comprobaciones</h4>
+                <div class ="col-md-6">
+                    <label>¿ Que quieres hacer con Codigo Barras de la Web?</label>
+                     <select id="codBarras">
+                     <?php
+                        foreach ($conf_defecto['option_cod_barras'] as $opt){
+                            $default ="";
+                            if ( isset($opt->default)){
+                                // Si tiene default siempre es si... por lo que
+                                $default = "selected";
+                            }
+                            echo '<option value="'.$opt->valor.'" title="'.$opt->descripcion.'" '.$default.'>'
+                                .$opt->nombre.'</span>'
+                                .'</option>';
+                        }           
+                     ?>
+                     </select >
+                </div>
+                <div class="col-md-6">
+                 <label>¿ Que vas hacer con Referencia de la Web ?</label>
                  <select id="refTienda">
-                 <?php 
-                    $porRefProv= array_search('ref_producto', array_column($conf_defecto, 'nombre'));
-                    if($conf_defecto[$porRefProv]->default=="Si"){
-                        echo '<option value="1">'.$conf_defecto[$porRefProv]->descripcion.'</option>';
-                        echo '<option value="2">Importar como referencia Principal</option>';
-                        echo '<option value="3">Las dos anteriores</option>';
-                    }else{
-                        echo '<option value="2">Importar como referencia Principal</option>';
-                        echo '<option value="1">'.$conf_defecto[$porRefProv]->descripcion.'</option>';
-                        echo '<option value="3">Las dos anteriores</option>';
-                    }
+                 <?php
+                    foreach ($conf_defecto['option_referencia'] as $opt){
+                        $default ="";
+                        if ( isset($opt->default)){
+                            // Si tiene default siempre es si... por lo que
+                            $default = "selected";
+                        }
+                        echo '<option value="'.$opt->valor.'" title="'.$opt->descripcion.'" '.$default.'>'
+                            .$opt->nombre.'</span>'
+                            .'</option>';
+                    }           
                  ?>
                  </select >
+                </div>
+            </div>
+             
+            <div class="col-md-12">
+                <h4>Acciones a realiza solo en NUEVOS</h4>
+                <div class="col-md-4">
+                    <label>¿ Calculamos el ultimo coste ?</label>
+                    <select id="ultimoCoste">
+                    <?php 
+                       foreach ($conf_defecto['option_coste'] as $opt){
+                           $default ="";
+                           if ( isset($opt->default)){
+                               // Si tiene default siempre es si... por lo que
+                               $default = "selected";
+                           }
+                           echo '<option value="'.$opt->valor.'" title="'.$opt->descripcion.'" '.$default.'>'
+                               .$opt->nombre.'</span>'
+                               .'</option>';
+                       }           
+                    ?>
+                    </select >
+                </div>
+                <div class="col-md-4">
+                    <label>Beneficio por defecto</label>
+                    <?php
+                    $defecto = $conf_defecto['defecto'];
+                    // Obtenemos el indice del objeto que tiene nombre beneficio.
+                    $index= array_search('beneficio', array_column($defecto, 'nombre'));
+                    
+                    ?>
+                    <input type="text" id="beneficio" value="<?php echo $defecto[$index]->valor;?> " readonly=”readonly” size="5px">%
+                 </div>
+                <div class="col-md-4">
+                    <label>¿Estado que quieres poner?</label>
+                    <select id="estadoNuevo">
+                        <?php 
+                        // Obtenemos el indice del objeto que tiene nombre estado_nuevo.
+                        $index= array_search('estado_nuevo', array_column($defecto, 'nombre'));
+                        // Creamos array de estados posibles.
+                        $estados_posibles = array ( 0 => 'Activo',
+                                                    1 => 'Nuevo',
+                                                    2 => 'Temporal',
+                                                    3 => 'Baja',
+                                                    4 => 'importado'
+                                                );
+                        foreach ($estados_posibles as $estado) {
+                            $default = 's';
+                            if ($estado === $defecto[$index]->valor){
+                                // El estado que pusimos por defecto.
+                                $default = "selected";
+                            }
+                            echo '<option value="'.$estado.'"'.$default.'>'.$estado.'</option>';
+
+                        }
+                        ?>
+                    </select >
+                 </div>
+
+
+                 
             </div>
               <div class="col-md-12">
-                   <div class="col-md-6">
-                 <label>Selecciona Acción cuando  es nuevo</label>
-                 <select id="estadoNuevo">
-                 <?php 
-                    $podEstadoNuevo= array_search('estado_nuevo', array_column($conf_defecto, 'nombre'));
-                    if($conf_defecto[$podEstadoNuevo]->default=="Activo"){
-                        echo '<option value="Activo">'.$conf_defecto[$podEstadoNuevo]->default.'</option>';
-                       echo '<option value="Nuevo">Nuevo</option>';
-                        echo '<option value="Temporal">Temporal</option>';
-                        echo '<option value="Baja">Baja</option>';
-                        echo '<option value="importado">importado</option>';
-                    }else{
-                       echo '<option value="Nuevo">Nuevo</option>';
-                        echo '<option value="Temporal">Temporal</option>';
-                        echo '<option value="Baja">Baja</option>';
-                        echo '<option value="importado">importado</option>';
-                        echo '<option value="Activo">'.$conf_defecto[$porRefProv]->default.'</option>';
-                       
-                    }
-                 ?>
-                 </select >
-                 </div>
-                  <div class="col-md-6">
-                 <label>Selecciona Acción cuando  se va a Modificar</label>
-                 <select id="estadoMod">
-                 <?php 
-                    $podEstadoMod= array_search('estado_modificado', array_column($conf_defecto, 'nombre'));
-                    if($conf_defecto[$podEstadoMod]->default=="Activo"){
-                        echo '<option value="Activo">'.$conf_defecto[$podEstadoMod]->default.'</option>';
-                        echo '<option value="Nuevo">Nuevo</option>';
-                        echo '<option value="Temporal">Temporal</option>';
-                        echo '<option value="Baja">Baja</option>';
-                        echo '<option value="importado">importado</option>';
-                    }else{
-                        echo '<option value="Nuevo">Nuevo</option>';
-                        echo '<option value="Temporal">Temporal</option>';
-                        echo '<option value="Baja">Baja</option>';
-                        echo '<option value="importado">importado</option>';
-                        echo '<option value="Activo">'.$conf_defecto[$porRefProv]->default.'</option>';
-                       
-                    }
-                 ?>
-                 </select >
-                </div>
-                 </div>
-                   <div class="col-md-12">
-                          <div class="col-md-6">
-                 <label>Beneficio por defecto</label>
-                 <?php 
-                    $podBeneficio= array_search('beneficio', array_column($conf_defecto, 'nombre'));
-                 ?>
-                 <input type="text" id="beneficio" value="<?php echo $conf_defecto[$podBeneficio]->default;?> " readonly=”readonly” size="5px">%
-                 </div>
-                    <div class="col-md-6">
-                 <label>Coste Promedio por defecto</label>
-                 <?php 
-                    $podCostProm= array_search('coste_promedio', array_column($conf_defecto, 'nombre'));
-                 ?>
-                 <input type="text" id="costePromedio" value="<?php echo $conf_defecto[$podCostProm]->default;?> " readonly=”readonly” size="5px">
-                 </div>
-                  <div class="col-md-12">
-                 <label>Selecciona Acción cuando con el ultimo Coste</label>
-                 <select id="ultimoCoste">
-                 <?php 
-                    $podUltimoCoste= array_search('ultimo_coste', array_column($conf_defecto, 'nombre'));
-                    if($conf_defecto[$podUltimoCoste]->default=="Activo"){
-                        echo '<option value="1">'.$conf_defecto[$podUltimoCoste]->descripcion.'</option>';
-                        echo '<option value="2">Si se calcula el último coste</option>';
-                      
-                    }else{
-                        echo '<option value="2">Si se calcula el último coste</option>';
-                        echo '<option value="1">'.$conf_defecto[$podUltimoCoste]->descripcion.'</option>';
-                       
-                    }
-                 ?>
-                 </select >
+                <h4>Acciones a realiza solo en MODIFICADOS</h4>
+
+                 <div class="col-md-6">
+                     <label>¿Estado que quieres poner?</label>
+                     <select id="estadoMod">
+                     <?php 
+                        // Obtenemos el indice del objeto que tiene nombre estado_nuevo.
+                        $index= array_search('estado_modificado', array_column($defecto, 'nombre'));
+                        // Los estados posibles son los mismos que los nuevos
+                        foreach ($estados_posibles as $estado) {
+                            $default = 's';
+                            if ($estado === $defecto[$index]->valor){
+                                // El estado que pusimos por defecto.
+                                $default = "selected";
+                            }
+                            echo '<option value="'.$estado.'"'.$default.'>'.$estado.'</option>';
+
+                        }
+                        ?>
+                     </select >
                 </div>
             </div>
+                  
             
              <div class="col-md-12">
                  <button type="submit" name="enviar" class="btn btn-success pull-right" onclick="enviarFormulario()">Actualizar</button>

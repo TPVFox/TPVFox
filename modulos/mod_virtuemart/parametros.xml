@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <parametros>
 	<configuracion>
-		<defecto nombre="cod_barras" default="Si" descripcion="Importar el código de barras de web a tpv"></defecto>
-		<defecto nombre="ref_producto" default="Si" descripcion="Importar referencia del producto en referencia tienda web"></defecto>
-		<defecto nombre="estado_nuevo" default="Activo" descripcion="Estado por defecto cuando el producto es nuevo"></defecto>
-		<defecto nombre="estado_modificado" default="Activo" descripcion="Estado por defecto cuando el producto es modificado"></defecto>
-		<defecto nombre="beneficio" default="25" descripcion="Beneficio por defecto"></defecto>
-		<defecto nombre="coste_promedio" default="0" descripcion="Coste promedio por defecto"></defecto>
-		<defecto nombre="ultimo_coste" default="Si" descripcion="No se calcula el último coste"></defecto>
+		
+        <!-- Ahora opciones de codbarras -->
+        <option_cod_barras nombre="Añadir codbarras" descripcion="Añadir codbarras que hay en la web, separados ; y no existen tpv">1</option_cod_barras>
+        <option_cod_barras nombre="Ignorar codbarras" descripcion="Ignorar codbarras de la web tanto al añadir, modificar y comparar" default="Si">2</option_cod_barras>
+        <!-- Ahora opciones de referencia -->
+        <option_referencia nombre="Añadir en tienda Web solo" descripcion="Añadimos la relacion de id entre tiendas y la referencia en la tienda web">1</option_referencia>
+        <option_referencia nombre="Añadir en tienda principal tambien" descripcion="A parte de lo mismo que en la opcion tambien añadimos o sustituimos la referencia en la tienda principal">2</option_referencia>
+        <option_referencia nombre="Ignorar" descripcion="Ignorar referencia , tanto a la hora añadir, modificar como de comparar" default="Si">3</option_referencia>
+        <!-- Ahora opciones de coste -->
+        <option_coste nombre="Calcular" descripcion="Se calcula el coste descontando del precio de la web el beneficio indicado y se añadde como coste ultimo.">1</option_coste>
+        <option_coste nombre="No calcular" descripcion="No se calcula el coste y tampoco se modifica coste ultimo en tpv">2</option_coste>
+        <!-- Otros valores por defecto -->
+        <defecto nombre="estado_nuevo" default="Si" descripcion="Estado por defecto cuando el producto es nuevo">Nuevo</defecto>
+		<defecto nombre="estado_modificado" default="Si" descripcion="Estado por defecto cuando el producto es modificado">Activo</defecto>
+		<defecto nombre="beneficio" descripcion="Beneficio por defecto">25</defecto>
+        
 	</configuracion>
 </parametros>
