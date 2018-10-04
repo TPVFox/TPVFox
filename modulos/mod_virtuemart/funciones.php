@@ -1,43 +1,49 @@
 <?php 
 
-function comparacionesProductos($productoWeb, $productoTpv, $idTienda){
+function comparacionesProductos($productoWeb, $productoTpv, $idTienda,$conf){
     //@Objetivo: comparar un el producto web con el tpv
     $comprobacion=0;
-    if($productoWeb['nombre'] <> $productoTpv['articulo_name']){
-      
+    if(trim($productoWeb['nombre']) <> trim($productoTpv['articulo_name'])){
+        error_log('Diferencia por Nombre'.'nombre web:'.$productoWeb['nombre'].'nombre tpv:'.$productoTpv['articulo_name']);
         $comprobacion=1;
     }
-    foreach ($productoTpv['ref_tiendas'] as $ref){
-         if($ref['idTienda'] == $idTienda){
-             if($ref['crefTienda'] <> $productoWeb['refTienda']){
-                 $comprobacion=1;
-                
-             }
-         }
+    if ($conf['Sel_referencia']!== '3'){
+        // Seleciono opcion 3, que no importa.. es decir que no comprueba y no guarda en referencia principal
+        if($productoTpv['cref_tienda_principal'] <> $productoWeb['refTienda']){
+            error_log('cref_tienda_principal:'.$productoTpv['cref_tienda_principal'].'Diferencia por Creferencua');
+            $comprobacion=1;
+            
+        }
     }
     $ivaWeb=floatval($productoWeb['iva']);
     $ivaTpv=floatval($productoTpv['iva']);
     
     if(number_format($ivaWeb, 2) <> number_format($ivaTpv, 2)){
-    
+        error_log('Iva:'.$productoWeb['$ivaWeb'].'Diferencia por iva');
+
         $comprobacion=1;
     }
-    if(floatval($productoWeb['precioSiva']) <> floatval($productoTpv['pvpSiva'])){
-      
+    if( round(floatval($productoWeb['precioSiva']),2) <> round(floatval($productoTpv['pvpSiva']),2) ){
+        error_log('Precio:'.$productoWeb['precioSiva'].'Diferencia por precio');
+
         $comprobacion=1;
     }
-    $codBarras=explode(";",$productoWeb['codBarra']);
-    $dif=array_diff($codBarras, $productoTpv['codBarras']);
-    
-       if(count($dif)>0){
-           foreach ($dif as $cod){
-              
-               if($cod<>""){
-                   $comprobacion=1;
+    if ($conf['Sel_codBarras']!== '2'){
+        // Option seleccionada no es "No importa" 
+        $codBarras=explode(";",$productoWeb['codBarra']);
+        $dif=array_diff($codBarras, $productoTpv['codBarras']);
+        
+           if(count($dif)>0){
+               foreach ($dif as $cod){
+                  
+                   if($cod<>""){
+                    error_log('codigoBarras:'.$cod.'Diferencia por codigo Barras');
+                       $comprobacion=1;
+                   }
                }
+               
            }
-           
-       }
+    }
     
   
     
@@ -71,10 +77,10 @@ function lineaProductosNuevos($productosNuevos, $cantProdNuevos){
 function lineaProductosModificador($productos, $idTienda, $cantProdModif){
      //Objetivo: imprimir la linea cuando el producto es modificado
     $html="";
-   
    if($cantProdModif==""){
         $cantProdModif=0;
     }
+
     foreach ($productos as $producto){
         $html.='<tr id="mod_'.$cantProdModif.'">
              <td><b>Nombre:</b>'.$producto[0]['nombre'].'<br>
