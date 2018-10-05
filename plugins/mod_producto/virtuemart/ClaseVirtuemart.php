@@ -448,21 +448,36 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $HostNombre = $this->HostNombre;
         // Esto lo haces para obtener los ivas.
         $datosProductoVirtual=$this->ObtenerDatosDeProducto(0);
+        $error = '';
+        if ( isset($datosProductoVirtual['error_conexion'])){
+            // Quiere decir que hubo error de conexion
+            // Este no se si realmente llega alguna vex...
+            $error  = $datosProductoVirtual['error_conexion'];
+        }
+        if (  isset($datosProductoVirtual['error']) ){
+            // Hubo error en la conexion.
+            $error  .= $datosProductoVirtual['error'];
+
+        }
+
+       
+
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
                     .'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
         $html   .='<div class="col-xs-12 hrspacing">'
                 .'<hr class="hrcolor"></div>'
                 .'<h2 class="text-center">Datos Producto Web</h2>';
-        if ($datosProductoVirtual['error_conexion']){
+
+            
+        if ( $error <> '' ){
             // Quiere decir que hubo error de conexion
             // No permito continuar
             $html   .= '<div class="col-md-12">'
                     . 'Error de conesion ...'
-                    .$datosProductoVirtual['error_conexion'].'</div>';
+                    .$error.'</div>';
         } else {
-    
             $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
-            
+
             $html   .= '<div class="col-md-6">';
             if($permiso==1){
             $html   .=' <div class="col-md-12">'
@@ -471,6 +486,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
             .'          <a onclick="ObtenerDatosProducto()">Obtener datos producto</a>'
             .'      </div>';
             }
+
+
             $html   .='<div class="col-md-12" id="alertasWeb">'
             .'      </div>'
             .'      <div class="col-md-12">'

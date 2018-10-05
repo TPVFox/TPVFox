@@ -68,13 +68,17 @@
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		
 		// Antes de montar html de proveedores añado array de proveedores cual es pricipal
-		foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
-			if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
-				// Indicamos que es le principal
-				$Producto['proveedores_costes'][$key]['principal'] = 'Si';
-			}
-		}
-		// ==========		 Comprobamso el ultimo coste y que proveedor		====  ===== //
+        if ( isset($Producto['proveedores_costes'])){
+            foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
+                if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
+                    // Indicamos que es le principal
+                    $Producto['proveedores_costes'][$key]['principal'] = 'Si';
+                }
+            }
+        } else {
+            $Producto['proveedores_costes']= array();
+        }
+        // ==========		 Comprobamso el ultimo coste y que proveedor		====  ===== //
 		$proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
 		
 		// Ahora comprobamos si el coste ultimo es correcto.

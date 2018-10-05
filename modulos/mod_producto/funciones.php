@@ -247,7 +247,7 @@ function htmlTablaHistoricoPrecios($historicoPrecios){
             .'              <th></th>'
 			.'			</tr>'
 			.'		</thead>';
-            if(count($historicoPrecios)>0){
+            if(isset($historicoPrecios)){
                 $lineas=$lineas+1;
                 $historicoPrecios=array_reverse ($historicoPrecios);
                 foreach ($historicoPrecios as $historico){
@@ -974,10 +974,10 @@ function comprobarUltimaCompraProveedor($Pro_costes){
 	// @Parametros
 	// 		$Pro_costes -> Array con los proveedores y los costes que se compro es te producto.
 	$respuesta = array();
+    $ultimo_coste = 0;
 	if (count($Pro_costes) > 0){
 		$id_proveedor_ultimo = 0;
-		$ultimo_coste = 0;
-		$fecha_ultima = "0000-00-00";
+        $fecha_ultima = "0000-00-00";
 		foreach ($Pro_costes as $key =>$proveedor){
 			if ($proveedor['fechaActualizacion']>$fecha_ultima){
 				$id_proveedor_ultimo = $proveedor['idProveedor'];
