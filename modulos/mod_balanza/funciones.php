@@ -217,8 +217,8 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
             <td>'.number_format($plu['pvpCiva'],2).'</td>
         </tr>';
         if(isset($datosplu[$sigIndice])){
-             $resta=$datosplu[$sigIndice]['plu']-$datosplu[$indice]['plu'];
-             error_log($datosplu[$sigIndice]['plu']);
+            // Si hay plu no utilizados mostramos advertencia.
+            $resta=$datosplu[$sigIndice]['plu']-$datosplu[$indice]['plu'];
             if($resta>1){
                  $html.='<tr><td COLSPAN="4" class="warning">Faltan números entre el anterior y el siguiente</td></tr>';
             }
