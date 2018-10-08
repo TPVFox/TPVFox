@@ -296,7 +296,6 @@ function recalculoTotales($productos) {
             //~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
         }
     }
-    //~ $respuesta['ivas'] = $ivas;
     $respuesta['desglose'] = $desglose;
     $respuesta['total'] = number_format($subtotal, 2);
     return $respuesta;
@@ -317,7 +316,6 @@ function ControlEstadoTicketsAbierto($BDTpv, $idUsuario, $idTienda) {
     }
     // Si fue correcto comprobamos a cuantos afectos, que sería los tickets abiertos.
     $respuesta['num_afectados'] = $BDTpv->affected_rows;
-    //~ $respuesta['consulta'] = $sql;
     return $respuesta;
 }
 
@@ -774,7 +772,6 @@ function ivas($BDTpv) {
     } else {
         $resultado = 0;
     }
-    //$resultado['sql'] = $sql;
     return $resultado;
 }
 
@@ -1004,9 +1001,6 @@ function RegistrarRestaStock($BDTpv, $id, $estado) {
     // @ Objetivo:
     // Registrar aquellos tickets que hemos ya descontado stock en la web.
     $resultado = array();
-    //~ if ($respuesta_servidor['estado'] === 'Correcto') {
-        //~ $respuesta_servidor['registro_cambiados'] = 'Registros cambiados ' . $respuesta_servidor['registro_cambiados'];
-    //~ }
     $sql = 'INSERT INTO `importar_virtuemart_tickets`(`idTicketst`, `Fecha`, `estado`) VALUES (' . $id . ',now(),"' . $estado . '")';
 
     $BDTpv->query($sql);
@@ -1016,7 +1010,6 @@ function RegistrarRestaStock($BDTpv, $id, $estado) {
         error_log(' Rotura en funcion RegistrarRestaSoctk funcion.php de mod_tpv linea 1034');
         error_log($BDTpv->error_list);
         // Rompemos programa..
-        //exit();
     } else {
         // Enviamos datos que cuantos registros fueron añadidos o modificados por cada consulta..
         // aunque no lo utilizamos.
