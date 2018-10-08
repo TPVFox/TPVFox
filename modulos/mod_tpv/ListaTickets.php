@@ -86,9 +86,6 @@
 	$filtroContar = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
 	// Contamos Registros.	
 	$CantidadRegistros = $Controler->contarRegistro($BDTpv,'ticketst',$filtroContar);
-	//~ echo '<pre>';
-	//~ print_r($CantidadRegistros);
-	//~ echo '</pre>';
 	if (gettype($CantidadRegistros) !== 'integer'){
 		// Quiere decir que hubo un error en la consulta.
 		$mensaje_error = ' Algo salio mal en la primera consulta... ';
@@ -111,16 +108,13 @@
 	
 	// Creamos filtro pero con sufijo para mostrar solo los registros de la pagina.
 	$filtro = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
-	//~ echo $filtro;
 	$Obtenertickets = ObtenerTickets($BDTpv,$filtro);
 	$tickets = $Obtenertickets['tickets'];
-	//~ echo $tickets['sql'];
 	
 	//esta MAL // si la busqueda es menos de 40 lo siguiente es un apaño..
 	if (!isset($CantidadRegistros)){
 		$CantidadRegistros = count($tickets);
 	}
-	
 	?>
 	
 	<script>
@@ -139,15 +133,8 @@
 
 <body>
         <?php
-        //~ include_once $URLCom.'/header.php';
          include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
-        <?php
-	//~ echo '<pre>';
-	//~ print_r($Obtenertickets);	
-	//~ echo '</pre>';
-		?>
-       
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
@@ -218,7 +205,6 @@
 	
 				<?php
 				$checkUser = 0;
-				//
 				$i=0;
 				$tickets = array_reverse($tickets);
 				foreach ($tickets as $ticket){ 
