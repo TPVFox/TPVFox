@@ -9,8 +9,6 @@ $cabecera['estadoTicket'] 	=$_POST['estadoTicket'];
 $cabecera['numTicket'] 		=$_POST['numTicket'];
 
 // Ahora recalculamos nuevamente
-//~ $productos_para_recalculo = json_decode( json_encode( $_POST['productos'] ));
-//~ $CalculoTotales = recalculoTotales($productos_para_recalculo);
 $CalculoTotales = recalculoTotales($productos);
 
 $nuevoArray = array(

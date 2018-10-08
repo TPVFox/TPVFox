@@ -94,7 +94,6 @@ switch ($pulsado) {
 		$respuesta = array();
 		$id_ticketst =$_POST['id_ticketst'];
         $estado=$_POST['estado'];
-		//~ $respuesta_servidor = $_POST['respuesta_servidor'];
 		$respuesta = RegistrarRestaStock($BDTpv,$id_ticketst, $estado);
 		break;
 	
@@ -106,7 +105,6 @@ switch ($pulsado) {
 		//funcion de buscar clientes
 		//luego html mostrar modal 
 		if ($busqueda != ''){
-			//$res = BusquedaClientes($busqueda);
 			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
 		} 
 		if (!isset($res['datos'])){

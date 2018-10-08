@@ -19,8 +19,6 @@ use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\CapabilityProfile;
 use Mike42\Escpos\CapabilityProfiles\DefaultCapabilityProfile;
 $profile = DefaultCapabilityProfile::getInstance();
-//~ $profile = CapabilityProfile::load("HOP-E801");
-//~ $profile = CapabilityProfile::load("SP2000");
 
 $connector = new FilePrintConnector($ruta_impresora);
 

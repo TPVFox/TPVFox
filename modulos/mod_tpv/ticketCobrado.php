@@ -53,9 +53,6 @@
 		// Añadimos productos a JS
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-		//~ echo '<pre>';
-		//~ print_r($ticket);
-		//~ echo '</pre>';
 		?>
 		<script type="text/javascript">
 		// Objetos cajas de tpv
@@ -131,7 +128,6 @@
 						<span id="Usuario"><?php echo $ticket['cabecera']['username'];?></span><br/>
 					</div>
 				</div> 
-				<?php //Cliente  ?>
 				<div class="form-group">
 					<label>Cliente:</label>
 					<?php 

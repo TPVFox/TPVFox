@@ -47,10 +47,8 @@
 	
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-	//~ $configuracion = $Controler->obtenerConfiguracionModulo('mod_tpv',$Usuario['id']);
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
-	
-	
+
 	// Creamos checkin de configuracion
 	$checkin = array();
 	// Añadimos a JS la configuracion
@@ -117,8 +115,6 @@
 <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 ?>
-
-
 <script type="text/javascript">
 // Objetos cajas de tpv
 <?php echo $VarJS;?>
@@ -126,14 +122,9 @@
 
 <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-
-
 </head>
-
 <body>
 <?php
-
-	//~ include '../../header.php';
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 	// Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
 	if ($ticket_numero > 0){
@@ -162,9 +153,6 @@
 			array_push($Control_Error,$error);
 		}
 	}
-    //~ echo '<pre>';
-    //~ print_r($Usuario);
-    //~ echo '</pre>';
 	// Si hay errores danger no continuamos.
 	if (count($Control_Error)>0){
 		foreach ( $Control_Error as $error){
@@ -208,7 +196,6 @@
 	cabecera['idCliente'] = <?php echo $idCliente;?>;
 	datos = [];
 	<?php
-	//~ $i= 0;
 	foreach($ticket['productos'] as $product){
 	?>
 		// Añadimos datos de productos a variable productos Javascript
@@ -403,12 +390,7 @@ if (count($Control_Error)>0){
 		// Si es un ticket abierto o que existe..
 		if (isset($ticket['productos'])){
 			$htmllineas = anhadirLineasTicket(array_reverse($ticket['productos']),$CONF_campoPeso);
-			
-			//~ echo '<pre>';
-			//~ print_r($htmllineas[0]);
-			//~ echo '</pre>';
 			echo implode(' ',$htmllineas);
-
 		}
 		?>
 		</tbody>
@@ -443,9 +425,6 @@ if (count($Control_Error)>0){
 			total = <?php echo $Datostotales['total'];?>;
 			</script>
 			<?php
-			//~ echo '<pre>';
-			//~ print_r($Datostotales );
-			//~ echo '</pre>';
 		}
 	?>
 
