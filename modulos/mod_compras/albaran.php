@@ -141,6 +141,7 @@
 		//Guardar el albarán para ello buscamos los datos en el albarán temporal, los almacenamos todos en un array
 		
 	if (isset($_POST['Guardar'])){
+       
         //~ echo '<pre>';
         //~ print_r($_POST);
         //~ echo '</pre>';
@@ -258,6 +259,7 @@
 		 
 		  <?php
 	  }
+
 	  ?>
 <?php echo $VarJS;?>
      function anular(e) {
