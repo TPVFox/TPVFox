@@ -171,6 +171,15 @@ switch ($pulsado) {
 			$respuesta=$nuevo;
 		}
 		break;
+        case 'cambiarClienteTicketGuardado':
+            $modCliente=$CTickets->modificarClienteTicket($_POST['id_ticketst'], $_POST['idCliente']);
+            if(isset($modCliente['error'])){
+                $mensaje="Error al modificar el cliente";
+            }else{
+                $mensaje="Cliente Modificado con Éxito";
+            }
+            $respuesta['mensaje']=$mensaje;
+        break;
 		
 		
 }

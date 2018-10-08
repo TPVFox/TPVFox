@@ -106,6 +106,7 @@
 				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb(<?php echo $id;?>);" >Descontar Stock en Web</button>
 				 <?php } ?>
 				 	<li><a onclick="imprimirTicketCerrado(<?php echo $id;?>);">Imprimir</a></li>
+                    <li><a id="cambioCliente" onclick="cambioCliente(<?php echo $id;?>);" style="display:none;">Cambio Cliente</a></li>
 				</ul>
 				</div>	
 			</nav>

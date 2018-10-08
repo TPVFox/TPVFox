@@ -532,7 +532,10 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 	$('#Cliente').val(nombre);
 	// Cerramos modal  y le indicamos destino focus.
 	cerrarPopUp(); // Destino no indicamo ya que no sabes...
-	if (dedonde ='tpv'){
+    if(dedonde == 'cobrados'){
+        $('#cambioCliente').show();
+    }
+	if (dedonde =='tpv'){
 		// Cambiamos el id del cliente.
 		cabecera.idCliente = id;
 		if ( productos.length>0){
@@ -542,6 +545,7 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
 		// Ponemos focus por defecto.
 		ponerFocus('Codbarras');
 	} 
+    
 	
 }
 
@@ -1046,4 +1050,30 @@ function comprobarNumero(valor){
         return false;
     }
 	
+}
+
+function cambioCliente(idTicket){
+    var id=$('#id_cliente').val();
+    var parametros = {
+		"pulsado"    		: 'cambiarClienteTicketGuardado',
+		"id_ticketst"		: idTicket,
+        "idCliente"            :id
+
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  MOdificar datos cliente en el tickets seleccionado **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de modificar datos de clientes');
+				 var resultado = $.parseJSON(response);
+				//~ var resultado = response;
+                
+                alert(resultado.mensaje);
+			}
+			
+	});
 }

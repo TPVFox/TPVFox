@@ -61,6 +61,21 @@ class ClaseTickets extends ClaseSession {
 		
 		return $respuesta;
 	}
+    public function consultaInsert($sql) {
+        // Realizamos la consulta.
+        // Esta consulta no tiene sentido teniendo la del padre...
+
+        $db = $this->BDTpv;
+        $smt = $db->query($sql);
+        if ($smt) {
+            return $smt;
+        } else {
+            $respuesta = array();
+            $respuesta['consulta'] = $sql;
+            $respuesta['error'] = $db->error;
+            return $respuesta;
+        }
+    }
 	
 	public function ObtenerTicketsAbiertos($numTicket=0){
 		// @ Objetivo es obtener las cabeceras de los ticketAbiertos.
@@ -315,6 +330,14 @@ class ClaseTickets extends ClaseSession {
 		}
 		return $respuesta;
 	}
+    
+    
+    public function modificarClienteTicket($idTicket, $idCliente){
+       
+		$consulta = 'UPDATE `ticketst` SET idCliente='.$idCliente.' where id='.$idTicket;
+        $resp = $this->consultaInsert($consulta);
+        return $resp;
+    }
 	// Fin de clase.
 }
 
