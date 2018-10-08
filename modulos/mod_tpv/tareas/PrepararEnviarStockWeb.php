@@ -14,6 +14,8 @@ foreach ($ticket['lineas'] as $key =>$dato) {
         $productos[] = $dato;
     }
 }
-$respuesta = ObtenerRefWebProductos($BDTpv,$productos,$idweb);
+$obtener = ObtenerRefWebProductos($BDTpv,$productos,$idweb);
+$respuesta['productos']=$obtener['productos'];
+$respuesta['productoWeb']=$obtener['productoWeb'];
 $respuesta['tienda'] = $tienda;
 ?>

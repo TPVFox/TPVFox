@@ -331,9 +331,9 @@ function enviarStockWeb(tienda_web,productos,idTicket){
 				console.log('Respuesta de restar stock en la web ');
 				var resultado = $.parseJSON(response);
                 console.log(resultado);
-                if(resultado['productos']['Datos']['sql']['error'].length>0){
+                if(resultado['productos']['Datos']['sql']['error']){
                     alert("Error al modificar el stock en la web");
-                    estado="Incorrecto";
+                    estado="";
                 }else{
                     estado="Correcto";
                 }

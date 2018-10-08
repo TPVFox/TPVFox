@@ -862,20 +862,29 @@ function PrepararEnviarStockWeb(idTicket){
 			// Ponemos datos de tienda_web en variable
 			tienda_web = resultado.tienda;
 			// Recuerda que el repción de los datos no es el mismo que envio, por debemos asociar key con valor.
-            productos = resultado.productos;
+            productos = resultado['productos'];
             console.log(productos);
-            // Buscamos key en producto que no tenga virtuemart no los mandamos.
-            for ( x=0; x < productos.length ; x ++){
+            if(resultado['productoWeb']==1){
+                for ( x=0; x < productos.length ; x ++){
+                console.log(x);
 				if (productos[x].idVirtuemart >0 ){
 					// Correcto..
                     console.log(productos[x]);
 				} else {
                     delete productos[x]; // Eliminamos ese producto ya que no tiene virtuemart.
                 }
-			}
-            // Ahora aquellos productos que tiene idVirtuemart
-            //~ EnviarStockWeb(tienda_web,productos,idTicket);
-            enviarStockWeb(tienda_web,productos,idTicket);
+                }
+                // Ahora aquellos productos que tiene idVirtuemart
+                //~ EnviarStockWeb(tienda_web,productos,idTicket);
+                enviarStockWeb(tienda_web,productos,idTicket);
+            }else{
+                alert("Los productos de este ticket no están en la web");
+                 RegistrarRestarStockTicket(idTicket, "Correcto");
+            }
+            // Buscamos key en producto que no tenga virtuemart no los mandamos.
+           
+           
+            
 		}
 	});
 	
@@ -916,6 +925,7 @@ function PrepararEnviarStockWeb(idTicket){
 //~ }  
 
 function RegistrarRestarStockTicket(id_ticketst, estado){
+      $("#DescontarStock").prop("disabled", true);
 	// Ejecutar en servidor local (tpv) registro de que ya se resto stock.
     console.log("entre en registrar restar stock ticket");
 	var parametros = {
