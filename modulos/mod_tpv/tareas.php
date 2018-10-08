@@ -93,8 +93,9 @@ switch ($pulsado) {
 	case 'RegistrarRestaStock':
 		$respuesta = array();
 		$id_ticketst =$_POST['id_ticketst'];
+        $estado=$_POST['estado'];
 		//~ $respuesta_servidor = $_POST['respuesta_servidor'];
-		$respuesta = RegistrarRestaStock($BDTpv,$id_ticketst);
+		$respuesta = RegistrarRestaStock($BDTpv,$id_ticketst, $estado);
 		break;
 	
 	case 'buscarClientes':

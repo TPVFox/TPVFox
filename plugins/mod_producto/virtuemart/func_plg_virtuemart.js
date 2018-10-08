@@ -331,10 +331,13 @@ function enviarStockWeb(tienda_web,productos,idTicket){
 				console.log('Respuesta de restar stock en la web ');
 				var resultado = $.parseJSON(response);
                 console.log(resultado);
-                if(resultado['productos']['Datos']['error']){
+                if(resultado['productos']['Datos']['sql']['error'].length>0){
                     alert("Error al modificar el stock en la web");
+                    estado="Incorrecto";
+                }else{
+                    estado="Correcto";
                 }
-                RegistrarRestarStockTicket(idTicket);
+                RegistrarRestarStockTicket(idTicket, estado);
 		}	
 	});
 }
