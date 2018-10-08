@@ -146,7 +146,9 @@
         //~ echo '</pre>';
 		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
 		//si el resultado es  quiere decir que no hay errores y fue todo correcto
+        
 		//si no es así muestra mensaje de error
+       
 		 $guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
 		if (count($guardar)==0){
 			header('Location: albaranesListado.php');
