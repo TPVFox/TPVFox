@@ -32,14 +32,13 @@ function cobrarF1(){
 			success:  function (response) {
 				console.log('Respuesta ajax - CobrarF1 ');
 				var resultado =  $.parseJSON(response);
-				//HtmlCobrar = resultado;
-				//busqueda = resultado.cobrar;
+				
 				
 				var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
 				var titulo = 'COBRAR ';
 				abrirModal(titulo,HtmlCobrar);
 				SelectAlLanzarModal('entrega');
-				//alert('cobrar');
+				
 				
 			}
 		});
@@ -158,10 +157,6 @@ function agregarFila(datos,campo=''){
 			
 			var resultado =  $.parseJSON(response);
 			var nuevafila = resultado['html'];
-			//~ console.log(nuevafila);
-			
-			//$ signifca jQuery 
-			//$("#tabla").append(nuevaFila);
 			$("#tabla").prepend(nuevafila);
 			console.log('algun campo:'+typeof campo);
 			if (campo ==='') {
@@ -198,8 +193,6 @@ function retornarFila(num_item){
 	line = "#Row" +productos[num_item].nfila;
 	// Nueva Objeto de productos.
 	productos[num_item].estado= 'Activo';
-	//~ var pvp =productos[num_item].pvpconiva;
-
 	$(line).removeClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+');"><span class="glyphicon glyphicon-trash"></span></a>');
 	if (productos[num_item].unidad == 0) {
@@ -265,7 +258,6 @@ function grabarTicketsTemporal(){
 		},
 		success    :  function (response) {
 			console.log('Respuesta de grabar');
-			//~ console.log(response);
 			var resultado =  $.parseJSON(response); 
 			// Cambiamos el estado :
 			cabecera.estadoTicket = resultado.estadoTicket;
@@ -822,10 +814,8 @@ function recalculoImporte(cantidad,num_item){
 		eliminarFila(num_item);
 	}
 	productos[num_item].unidad = cantidad;
-	//alert('DentroReclaculo:'+producto[nfila]['NPCONIVA']);
 	var importe = cantidad*productos[num_item].pvpconiva;
 	var id = '#N'+productos[num_item].nfila+'_Importe';
-	//alert('recalcular'+id);
 	importe = importe.toFixed(2);
 	$(id).html(importe);
 	grabarTicketsTemporal();
@@ -879,7 +869,6 @@ function PrepararEnviarStockWeb(idTicket){
                 }
                 }
                 // Ahora aquellos productos que tiene idVirtuemart
-                //~ EnviarStockWeb(tienda_web,productos,idTicket);
                 enviarStockWeb(tienda_web,productos,idTicket);
             }else{
                 alert("Los productos de este ticket no están en la web");
@@ -893,41 +882,7 @@ function PrepararEnviarStockWeb(idTicket){
 	});
 	
 }
-
-//~ function EnviarStockWeb(tienda_web,productos,idTicket){
-	//~ // @Objetivo :
-	//~ // Ejecutar en servidor de web funcion que reste stock de productos
-	//~ // Pendiente el que no lo haga dos vez , si hace clic o intro muy rapido.
-	//~ $("#DescontarStock").prop("disabled", true);
-	//~ var url_ruta = tienda_web.dominio + '/administrator/apisv/tareas.php';
-	//~ var parametros = {
-		//~ "key" :  tienda_web.key_api,
-		//~ "action"    : 'RestarStock',
-		//~ "productos"	: JSON.stringify(productos)
-	//~ };
-	//~ $.ajax({
-		//~ data       : parametros,
-		//~ url        : url_ruta,
-		//~ type       : 'post',
-		//~ beforeSend : function () {
-		//~ console.log('*********  Envio datos para Buscar Producto  ****************');
-		//~ },
-		//~ success    :  function (response) {
-				//~ console.log('Respuesta de envio de datos');
-
-				//~ var resultado = response;
-	
-				//~ if (resultado['Datos'].estado !== 'Correcto'){
-					//~ // Quiere decir que algo salio mal.. por lo que debemos guardalo en registro como error.
-					//~ alert(' Error, algo salio mal.');
-				//~ }
-				//~ // Ahora registramos en tpv ( importar_virtuemart_ticketst el resultado)
-				//~ RegistrarRestarStockTicket(resultado['Datos'],idTicket);
-			//~ }
-			
-	//~ });
-//~ }  
-
+ 
 function RegistrarRestarStockTicket(id_ticketst, estado){
       $("#DescontarStock").prop("disabled", true);
 	// Ejecutar en servidor local (tpv) registro de que ya se resto stock.
@@ -947,7 +902,6 @@ function RegistrarRestarStockTicket(id_ticketst, estado){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de registro resta de stock en tpv');
-				//~ var resultado = $.parseJSON(response);
 				var resultado = response;
 			}
 			
@@ -982,7 +936,6 @@ function GuardarConfiguracion(){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de grabar configuracion');
-				//~ var resultado = $.parseJSON(response);
 				var resultado = response;
 			}
 			
@@ -991,30 +944,6 @@ function GuardarConfiguracion(){
 
 	
 }
-//~ function abrirIndicencia(dedonde){
-	//~ var parametros = {
-		//~ "pulsado"    : 'abririncidencia',
-		//~ "dedonde" : dedonde,
-		//~ "usuario":cabecera.idUsuario,
-		//~ "idReal":cabecera.idReal
-	//~ };
-		//~ $.ajax({
-		//~ data       : parametros,
-		//~ url        : 'tareas.php',
-		//~ type       : 'post',
-		//~ beforeSend : function () {
-			//~ console.log('*********  Modificando los importes de la factura  ****************');
-		//~ },
-		//~ success    :  function (response) {
-			//~ console.log('Respuesta de la modificación de los importes');
-			//~ var resultado =  $.parseJSON(response);
-			//~ titulo="Crear incidencia";
-			//~ html=resultado.html;
-			//~ abrirModal(titulo, html);
-		//~ }
-	//~ });
-//~ }
-
 
 function ActivarPrecioCIva(event,nfila){
 	// Objetivo:
@@ -1034,7 +963,6 @@ function bloquearCajaProveedor(caja){
 function comprobarNumero(valor){
 	// Objetivo validar un numero decimal tanto positivo , como negativo.
 	var RE = /^\-?\d*\.?\d*$/;
-	//~ var RE=  new RegExp('^([0-9]\.[0-9]*|[1-9][0-9]+\.[0-9]*)');
 	console.log(typeof valor);
 	if (typeof valor === 'string'){
 		if (valor.substr(-10,1) === '0'){
@@ -1070,8 +998,6 @@ function cambioCliente(idTicket){
 		success    :  function (response) {
 				console.log('Respuesta de modificar datos de clientes');
 				 var resultado = $.parseJSON(response);
-				//~ var resultado = response;
-                
                 alert(resultado.mensaje);
 			}
 			
