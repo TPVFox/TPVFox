@@ -19,7 +19,9 @@
 		include_once ($URLCom.'/controllers/parametros.php');
 		$ClasesParametros = new ClaseParametros('parametros.xml');
 		$parametros = $ClasesParametros->getRoot();
-		
+		foreach($parametros->cajas_input->caja_input as $caja){
+            $caja->parametros->parametro[0]="cobrados";
+        }
 		// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
