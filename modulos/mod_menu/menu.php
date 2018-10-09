@@ -33,7 +33,7 @@ foreach ($xml->item_nivel_1 as $nivel1){
         // Ahora tendría comprobar si tiene permiso.
         $comprobar=$ClasePermisos->comprobarPermisos($Permisos,$nivel1['modulo'],$nivel1['vista']);
         if ($comprobar['permiso'] == 'Ok'){
-            echo '<li><a href="'.$HostNombre.'/'.$comprobar['link'].'">'.$nivel1['descripcion'].'</a>';
+            echo '<li><a href="'.$HostNombre.$comprobar['link'].'">'.$nivel1['descripcion'].'</a>';
         }
     } else {
         echo '<li class="dropdown">
@@ -53,7 +53,7 @@ foreach ($xml->item_nivel_1 as $nivel1){
                 //~ error_log($comprobar['permiso']);
                 if ($comprobar['permiso'] == 'Ok'){
                     
-                    echo '<li><a href="'.$HostNombre.'/'.$comprobar['link'].'">'.$nivel2['descripcion'].'</a></li>';
+                    echo '<li><a href="'.$HostNombre.$comprobar['link'].'">'.$nivel2['descripcion'].'</a></li>';
                 }
             }
 
@@ -77,7 +77,7 @@ foreach ($xml->item_nivel_1 as $nivel1){
 					if ($_SESSION['estadoTpv'] == "Correcto"){
 					?>
 
-					<a href="<?php echo $HostNombre.'/plugins/controlUser/modalUsuario.php?tipo=cerrar';?>">Cerrar</a>
+					<a href="<?php echo $HostNombre.'plugins/controlUser/modalUsuario.php?tipo=cerrar';?>">Cerrar</a>
 					<?php
 			}
 				

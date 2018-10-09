@@ -3,7 +3,6 @@
     <head>
         <?php
     include_once './../../inicial.php';
-    
 	include_once $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_usuario/funciones.php';
 
