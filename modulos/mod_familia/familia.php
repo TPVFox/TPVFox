@@ -64,8 +64,14 @@
             
             if(isset($idFamiliaTienda['datos'])){
                 $datosFamilia=$ObjVirtuemart->obtenerDatosDeFamilia($idFamiliaTienda['datos'][0]['idFamilia_tienda']);
-        
-                $padreWeb=$familias->padreWebTpv($idTienda, $datosFamilia['Datos']['item']['padre']);
+                if ($datosFamilia['Datos']['item']['padre'] <>0){
+                    // Buscamos el padre
+                    $padreWeb=$familias->padreWebTpv($idTienda, $datosFamilia['Datos']['item']['padre']);
+                } else {
+                    // El id del padre es 0;
+                    $padreWeb['datos'][0]['idFamilia'] = 0;
+                }
+                
                 $datosWebCompletos['datosFamiliaWeb']['html']=$ObjVirtuemart->datosWebdeFamilia($datosFamilia['Datos']['item'], $idFamiliaTienda['datos'][0]['idFamilia_tienda'], $idTienda, $padres['datos'], $id, $padreWeb['datos'][0]['idFamilia']);
             }else{
                 if($id>0){
