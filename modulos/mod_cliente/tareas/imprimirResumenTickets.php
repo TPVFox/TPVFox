@@ -112,7 +112,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 				<table  WIDTH="75%" border="1px">'.
 				'<tr>
 				<td  WIDTH="50%">Fecha</td>
-				<td>Ticket</td>
+				<td>Factura</td>
 				<td>Base</td>
 				<td>Iva</td>
 				<td>Total</td>
