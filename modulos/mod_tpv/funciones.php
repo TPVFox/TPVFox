@@ -50,7 +50,7 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
     //si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
     $busquedas = array();
 
-    if (count($palabras > 0)) {
+    if (count($palabras) > 0) {
         $busquedas[] = implode(' and ', $whereIdentico);
 
         $busquedas[] = implode(' and ', $likes);
