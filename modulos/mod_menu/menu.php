@@ -77,7 +77,7 @@ foreach ($xml->item_nivel_1 as $nivel1){
 					if ($_SESSION['estadoTpv'] == "Correcto"){
 					?>
 
-					<a href="<?php echo $HostNombre.'plugins/controlUser/modalUsuario.php?tipo=cerrar';?>">Cerrar</a>
+					<a href="<?php echo $HostNombre.'/plugins/controlUser/modalUsuario.php?tipo=cerrar';?>">Cerrar</a>
 					<?php
 			}
 				
