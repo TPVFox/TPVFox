@@ -576,14 +576,15 @@ class PluginClaseVirtuemart extends ClaseConexion{
         }
         return $html;
     }
-   public function modificarNotificacion($idNotificacion){
+   public function modificarNotificacion($idProducto, $email){
         //@Objetivo: Modificar un producto en la web con los datos que el usuario 
         //añada en el tpv
         //@Parametros: datos principales del producto
         $ruta =$this->ruta_web;
 		$parametros = array('key' 			=>$this->key_api,
 							'action'		=>'modificarNotificacion',
-							'idNotificacion'	=>$idNotificacion
+							'idProducto'	=>$idProducto,
+                            'email'=>$email
 						);
 		// [CONEXION CON SERVIDOR REMOTO] 
 		// Primero comprobamos si existe curl en nuestro servidor.
