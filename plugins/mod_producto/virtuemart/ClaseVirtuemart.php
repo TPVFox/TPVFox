@@ -413,6 +413,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
                             <td>Correo</td>
                             <td></td>
                             <td>Enviar</td>
+                            <td>Cantidad</td>
                         </tr>
                     </thead>
                     <tbody>';
@@ -425,6 +426,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
                             <td> <a  onclick="ModalNotificacion('.$i.')">
                                 <span class="glyphicon glyphicon-envelope"></span>
                             </a></td>
+                            <td>'.$dato['cant'].'</td>
                            
                         </tr>';
                         $i++;
