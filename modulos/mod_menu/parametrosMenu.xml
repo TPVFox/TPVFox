@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <items>
-    <item_nivel_1 descripcion="Home" vista="index.php"></item_nivel_1>
+    <item_nivel_1 descripcion="Home" vista="/index.php"></item_nivel_1>
     <item_nivel_1 descripcion="Almacen">
         <item_nivel_2 descripcion="Producto" modulo="mod_producto" vista="ListaProductos.php"></item_nivel_2>
         <item_nivel_2 descripcion="Articulos con stock regularizable" modulo="mod_producto" vista="ListaArticulosRegularizacion.php"></item_nivel_2>
