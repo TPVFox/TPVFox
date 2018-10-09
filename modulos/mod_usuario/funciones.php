@@ -153,8 +153,7 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	 
 }
 function htmlTablaGeneral($datos, $HostNombre, $dedonde){
-	if(count($datos)>0){
-
+	if($datos<>0){
 	$html='	<table class="table table-striped">
 		<thead>
 			<tr>
