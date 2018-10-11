@@ -11,11 +11,12 @@ $tienda = BuscarTienda($BDTpv,$idweb);
 $productos = array();
 foreach ($ticket['lineas'] as $key =>$dato) {
     if ($dato['estadoLinea'] !== 'Eliminado'){
+        // Eliminamos de array productos los eliminados.
         $productos[] = $dato;
     }
 }
 $obtener = ObtenerRefWebProductos($BDTpv,$productos,$idweb);
 $respuesta['productos']=$obtener['productos'];
-$respuesta['productoWeb']=$obtener['productoWeb'];
+$respuesta['obtener'] = $obtener;
 $respuesta['tienda'] = $tienda;
 ?>

@@ -807,29 +807,23 @@ function ObtenerRefWebProductos($BDTpv, $productos, $idWeb) {
     $where = '(' . implode(',', $wheres) . ')';
 
     $consulta = 'SELECT idArticulo,idVirtuemart FROM articulosTiendas WHERE `idTienda` =' . $idWeb . ' AND idArticulo IN ' . $where;
-  
-    if ($query = $BDTpv->query($consulta)) {
-        if($query->fetch_assoc()){
-            $resultado['productoWeb']=1;
-            while ($dato = $query->fetch_assoc()) {
+    $res = $BDTpv->query($consulta);
+    if ( mysqli_error($BDTpv)) {
+        $resultado['error'] = ' Error en la consulta';
+        $resultado['consulta'] = $consulta;
+    } else {
+            while ($dato = $res->fetch_assoc()) {
             $key_id_producto = $dato['idArticulo'];
                 foreach ($productos as $key=>$producto) {
+                    // Montamos productos con idVirtuemart.
                     if ($producto['idArticulo'] === $key_id_producto){
                         $productos[$key]['idVirtuemart'] = $dato['idVirtuemart'];
                         
                     }
                 }
             }
-        }else{
-            $resultado['productoWeb']=0;
-        }
-       
-    } else {
-        $resultado['error'] = ' Error en la consulta';
-        $resultado['consulta'] = $consulta;
-    }
-    // Montamos productos con idVirtuemart.
    
+    } 
     $resultado['productos'] = $productos;
     return $resultado;
 }

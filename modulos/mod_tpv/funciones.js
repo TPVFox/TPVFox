@@ -830,7 +830,6 @@ function PrepararEnviarStockWeb(idTicket){
 
 	//  Inicializamos Variables:
 	var tienda_web = [];	
-	console.log('PREPARAMOS DATOS PARA ENVIAR');
     //  Obtenemos productos del ticket en cuestion.
     
     
@@ -847,33 +846,38 @@ function PrepararEnviarStockWeb(idTicket){
 			// Debería tener un sitio para meter barra proceso, ya que puede tardar..
 			// Este proceso no,pero el siguiente si..
 			// De momento utilizo alert
-			console.log('*********  Preparando datos para enviar... ****************');
+			console.log('*********  Preparando Obtener Referencias tienda web ****************');
 		},
 		success    :  function (response) {
-			console.log('Respuesta de envio de datos');
-			var resultado =  $.parseJSON(response);
-            console.log (resultado);
-			// Ponemos datos de tienda_web en variable
+			console.log('**********  Respuesta de Obtener Referencias tienda web **************');
+            
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
+            // Ponemos datos de tienda_web en variable
 			tienda_web = resultado.tienda;
 			// Recuerda que el repción de los datos no es el mismo que envio, por debemos asociar key con valor.
-            productos = resultado['productos'];
-            console.log(productos);
-            if(resultado['productoWeb']==1){
-                for ( x=0; x < productos.length ; x ++){
-                console.log(x);
-				if (productos[x].idVirtuemart >0 ){
-					// Correcto..
-                    console.log(productos[x]);
-				} else {
-                    delete productos[x]; // Eliminamos ese producto ya que no tiene virtuemart.
+            productos_enviar = resultado['productos'];
+            console.log(' Ahora recorremos los productos y comprobamos que tiene idVirtuemart');
+            for ( x=0; x < productos_enviar.length ; x ++){
+                console.log('Cantidad de productos:'+productos_enviar.length);
+                console.log('tipo dato idvrituemart para producto['+x+']:'+typeof productos_enviar[x].idVirtuemart );
+                if (productos_enviar[x].idVirtuemart == undefined ){
+                   alert("Este producto:"+ productos_enviar[x].cdetalle +" \n No tiene relacion con en la web de momento no continuamos");
+                   delete productos_enviar[x]; // Eliminamos ese producto ya que no tiene virtuemart.
+                   return ;
                 }
-                }
-                // Ahora aquellos productos que tiene idVirtuemart
-                enviarStockWeb(tienda_web,productos,idTicket);
-            }else{
-                alert("Los productos de este ticket no están en la web");
-                 RegistrarRestarStockTicket(idTicket, "Correcto");
+                // Ahota borramos datos que no necesitamos enviar
+                // Evitar errores al enviar post y por curl
+                delete productos_enviar[x].cdetalle;
+                delete productos_enviar[x].estadoLinea;
+                delete productos_enviar[x].cdetalle;
+                delete productos_enviar[x].ccodbar;
             }
+            // Ahora aquellos productos que tiene idVirtuemart
+            console.log('Voy a ir a enviar Stock');
+            console.log(productos_enviar);
+            enviarStockWeb(tienda_web,productos_enviar,idTicket);
+
             // Buscamos key en producto que no tenga virtuemart no los mandamos.
            
            
