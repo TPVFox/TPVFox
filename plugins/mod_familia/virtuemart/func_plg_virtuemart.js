@@ -46,6 +46,7 @@ function modificarFamiliaWeb(idFamilia="", idTienda=""){
                     var resultado = $.parseJSON(response);
                     console.log(resultado);
                     if(resultado.htmlAlerta){
+                        
                         $('#alertasWeb').html(resultado.htmlAlerta);
                     }
                   
