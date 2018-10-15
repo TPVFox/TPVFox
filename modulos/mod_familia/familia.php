@@ -71,7 +71,6 @@
             // Obtenemos todas las familias que existen en la web con su id, nombre y id padre en la web
             $todasFamiliasWeb = array(); // Por defecto es un array vacio...
             $t = $ObjVirtuemart->todasFamilias();
-            
             if ( isset ($t['Datos']['item'])){
                 $todasFamiliasWeb = $t['Datos']['item'];
                 foreach ($todasFamiliasWeb as $key => $familiaWeb){
@@ -99,30 +98,30 @@
                             }
             
                         }
-
-
-                        
-                    }
-                    
-                    
-                }
-                
-            }
-            // Obtenemos el html de familia en la web para mostrar.
-            $htmlFamiliasWeb='';
-            if(isset($idsFamiliaTiendaWeb['datos'])){
-                $htmlFamiliasWeb=$ObjVirtuemart->datosWebdeFamilia($datosFamilia, $idTiendaWeb, $todasFamiliasWeb, $id);
-            }else{
-                // Si NO existe relacion es que esta familia no esta en la web.
-                // Por lo tanto creamos Html para apoder añadir , no modificar.
-                // Solo si ya esta grabado, no permitimos si su id es 0
-                if($id>0){
-                    if($ObjVirtuemart->getTiendaWeb()!=false){
-                        $htmlFamiliasWeb=$ObjVirtuemart->htmlDatosVacios($id, $combopadres, $idTiendaWeb);
                     }
                 }
-            }
-        
+            } 
+                if (!isset($t['htmlAlerta'])){
+                    // No hubo error de conexion por lo que continuamos.
+                    
+                    // Obtenemos el html de familias en la web para mostrar.
+                    $htmlFamiliasWeb='';
+                    if(isset($idsFamiliaTiendaWeb['datos'])){
+                        $htmlFamiliasWeb=$ObjVirtuemart->datosWebdeFamilia($datosFamilia, $idTiendaWeb, $todasFamiliasWeb, $id);
+                    }else{
+                        // Si NO existe relacion es que esta familia no esta en la web.
+                        // Por lo tanto creamos Html para apoder añadir , no modificar.
+                        // Solo si ya esta grabado, no permitimos si su id es 0
+                        if($id>0){
+                            if($ObjVirtuemart->getTiendaWeb()!=false){
+                                $htmlFamiliasWeb=$ObjVirtuemart->htmlDatosVacios($id, $combopadres, $idTiendaWeb);
+                            }
+                        }
+                    }
+                } else {
+                    $htmlFamiliasWeb = $t['htmlAlerta'];
+                }
+
         }
         // Ahora montamos el html del desplegable de familias hijos.
         $bottonSubir = ' ';    //  Boton de subir hijos si hay web

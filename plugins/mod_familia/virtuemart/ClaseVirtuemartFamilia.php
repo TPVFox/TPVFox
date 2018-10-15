@@ -271,12 +271,20 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
 		$existe_curl =function_exists('curl_version');
 		if ($existe_curl === FALSE){
 			echo '<pre>';
-			print_r(' No exite curl');
+			print_r(' No existe curl');
 			echo '</pre>';
 			exit();
 		}
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
-
+        if (isset($respuesta['error_conexion'])){
+            $respuesta['error']=$respuesta['info'];
+            $respuesta['htmlAlerta']='<div class="alert alert-danger">
+                                     <strong>Danger!</strong> Error 2 al añadir la familia a la web.<br/>'
+                                     .$respuesta['error_conexion'].'<br/>Url: '
+                                     .$respuesta['info']['url']
+                                     .'</div>';
+            
+        }
 		return $respuesta;
      }
 
