@@ -36,7 +36,7 @@ switch ($pulsado) {
             $comprobarPadre['datos']['idFamilia_tienda']=0;
             $padre=0;
         }else{
-            $comprobarPadre=$CFamilia->comprobarPadreWeb($datosComprobaciones['idTienda'], $datosComprobaciones['idFamiliaPadre']);
+            $comprobarPadre=$CFamilia->obtenerRelacionFamilia($datosComprobaciones['idTienda'], $datosComprobaciones['idFamiliaPadre']);
             $padre=$comprobarPadre['datos'][0]['idFamilia_tienda'];
             
         }
@@ -125,32 +125,30 @@ switch ($pulsado) {
     case 'subirHijosWeb':
         $idPadre=$_POST['idPadre'];
         $idTienda=$_POST['idTienda'];
+        // Obtenemos los hijos del padre.
         $descendientes=$CFamilia->descendientes($idPadre);
-        $padreWeb=$CFamilia->comprobarPadreWeb($idTienda, $idPadre);
+        $padreWeb=$CFamilia->obtenerRelacionFamilia($idTienda, $idPadre);
         $respuesta['descendientes']=$descendientes;
         $respuesta['padre']=$padreWeb;
         $idPadreWeb=$padreWeb['datos'][0]['idFamilia_tienda'];
-        error_log($idPadreWeb);
-        error_log($idPadre);
+        error_log('En tarea_virtuemar linea 132:'.$idPadreWeb);
+        error_log('En tarea_virtuemar linea 133:'.$idPadre);
         $idsDescendientes=$descendientes['datos'];
         $datosFamilias=array();
         $familiasNoSubidas=array();
         $familiasSubidas=array();
         foreach ($idsDescendientes as $des){
-            $nombreFamilia=$CFamilia->buscarPorId($des['idFamilia']);
-            $datosComprobaciones=array();
-            $datosComprobaciones['vendor']=1;
-            $datosComprobaciones['limit']=0;
-            $datosComprobaciones['hits']=0;
-            $datosComprobaciones['parametros']=$conf_virtuemart['parametros'];
-            $datosComprobaciones['publicado']=1;
-            $datosComprobaciones['fecha']=date("Y-m-d H:i:s");
-            $datosComprobaciones['usuario']='911';
-            $datosComprobaciones['locked_by']=0;
-            $datosComprobaciones['alias']=str_replace(' ', '-', $nombreFamilia['datos'][0]['familiaNombre']);
-            $datosComprobaciones['nombreFamilia']=$nombreFamilia['datos'][0]['familiaNombre'];
+            // Inicializo variable con los datos configuracion por defecto.
+            $datosComprobaciones=$conf_virtuemart;
+            // Ya ponemos el dato del padre que lo sabemos.
             $datosComprobaciones['padre']=$idPadreWeb;
-            error_log('marca de idPadreWeb.'.$idPadreWeb);
+            // Busco el nombre
+            $nombreFamilia=$CFamilia->buscarPorId($des['idFamilia']);
+            $datosComprobaciones['nombreFamilia']=$nombreFamilia['datos'][0]['familiaNombre'];
+            $datosComprobaciones['alias']=str_replace(' ', '-', $nombreFamilia['datos'][0]['familiaNombre']);
+            // Comprobamos que no exista ya relacion para esa familia.
+            $comprobarSiExiste=$CFamilia->obtenerRelacionFamilia($idTienda,$des['idFamilia']);
+            $respuesta['comprobacionSiExiste'] = $comprobarSiExiste;
             $datos=json_encode($datosComprobaciones);
             $addFamilia = $ObjViruemart->addFamilia($datos);
             if($addFamilia['Datos']['idFamilia']>0){

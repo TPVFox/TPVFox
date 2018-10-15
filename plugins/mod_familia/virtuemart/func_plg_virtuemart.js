@@ -16,6 +16,7 @@ $(function () {
 });
 
 function modificarFamiliaWeb(idFamilia="", idTienda=""){
+    // Llegamos aquí tanto al modificar como al añadir nueva familia.
     console.log("entre en modificar tienda web ");
     var mensaje = confirm("¿Estás seguro que quieres AÑADIR / MODIFICAR la tienda en la web?");
     if (mensaje) {   

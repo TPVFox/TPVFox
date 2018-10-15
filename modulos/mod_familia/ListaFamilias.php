@@ -8,9 +8,9 @@
 
 include_once './../../inicial.php';
 require_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
-include_once $URLCom . '/controllers/Controladores.php';
+//~ include_once $URLCom . '/controllers/Controladores.php';
 require_once $URLCom . '/modulos/mod_familia/funciones.php';
-$Controler = new ControladorComun;
+//~ $Controler = new ControladorComun;
 
 // Mostramos formulario si no tiene acceso.
 include_once ($URLCom . '/controllers/parametros.php');

@@ -16,6 +16,7 @@ function _leerFamilias($idpadre) {
     //  -Lee los datos de esa familia
     //  -Cuenta el número de hijos 
     //  -Cuenta el número de productos de esa familia
+    // Devuelto todo, datos y el total hijos y productos.
     $resultado = [];
     $resultado['padre'] = $idpadre;
     $objfamilia = new ClaseFamilias();
@@ -87,49 +88,58 @@ function familias2Html($familias) {
     return $resultado;
 }
 
-function familias2Html2($familias) {
-    //objetivo: imprimir lineas de tabla con los datos de las familias
-    $resultado = '';
+function familias2Html2($familias,$idTiendaWeb) {
+    // @ Objetivo
+    // Obtener el html lineas de tabla con los datos de las familias
+    // [PENDIENTE]
+    // Si hay tiendaWeb comprobar que todos los hijos estan subido o no.
+    // Si estan todos subido en vez del boton ponemos texto advertencia.
+    
+    $html = '';
     if ($familias && (count($familias) > 0)) {
         foreach ($familias as $indice => $familia) {
-            $indices[] = $familia['idFamilia'];
-            $resultado .= '<tr>';
-            $resultado .= '<td>' . $familia['idFamilia'] . '</td>';
-            $resultado .= '<td> ' . $familia['familiaNombre'] . ' </td>';
-            $resultado .= '<td> ' . $familia['hijos'] . '</td>';
-            $resultado .= '<td>' . $familia['productos'] . '</td>';
-
-            $resultado .= '</tr>';
+            $html .= '<tr>';
+            $html .= '<td>' . $familia['idFamilia'] . '</td>';
+            $html .= '<td> '. $familia['familiaNombre'] . ' </td>';
+            $html .= '<td> '. $familia['hijos'] . '</td>';
+            $html .= '<td>' . $familia['productos'] . '</td>';
+            if ($idTiendaWeb >0 ){
+                foreach ($familia['familiaTienda'] as $tienda){
+                    if ( $tienda['idTienda'] === $idTiendaWeb ) {
+                        $html .= '<td><span title="Id de familia web '.$tienda['idFamilia_tienda'].'" class="glyphicon glyphicon-globe">  </span></td>';
+                    }
+                }
+            }
+            $html .= '</tr>';
         }
     }
-    return $resultado;
+    
+    return $html;
 }
 
-function htmlTablaFamiliasHijas($idfamilia, $idTienda, $permiso) {
+function htmlTablaFamiliasHijas($familiasHijos,$idTienda, $bottonSubir) {
     // @ Objetivo
     // Montar la tabla html de familias descendientes
     // @ Parametros
-    // 		$idfamilia
-
-    $familias = leerFamilias($idfamilia);
-
-    $htmlFamilias = familias2Html2($familias['datos']);
+    // 		$familiasHijos -> (array) con todos los datos del hijo
+    
+   
+    $htmlFamilias = familias2Html2($familiasHijos,$idTienda);
     $html = '<table id="tfamilias" class="table table-striped">'
             . '<thead>'
             . '<tr>'
             . '<th>idfamilia</th>'
             . '<th>Nombre de Familia</th>'
             . '<th>Hijos</th>'
-            . '<th>Productos</th>'
-            . '</tr>'
+            . '<th>Productos</th>';
+    if( $idTienda > 0 ){
+        $html .= '<th title="Tienda Web '.$idTienda.'"> Web</th>';
+    }
+    $html .='</tr>'
             . '</thead>';
     $html .= $htmlFamilias;
     $html .= '</table>	';
-    if($permiso==1){
-        if(count($familias['datos'])>0){
-         $html.='<a class="btn btn-info" onclick="subirHijosWeb('.$idfamilia.', '.$idTienda.')">Subir Hijos Web</a>';
-     }
-    }
+    $html .= $bottonSubir;
    
     return $html;
 }
@@ -166,3 +176,4 @@ function htmlTablaFamiliaProductos($idfamilia) {
     $html .= '</table>	';
     return $html;
 }
+

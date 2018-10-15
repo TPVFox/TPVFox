@@ -130,61 +130,61 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
      }
      
      
-     public function datosWebdeFamilia($datos, $idWeb, $idTienda, $padres, $idFamilia, $padreTpv){
+     public function datosWebdeFamilia($datosFamilia, $idTiendaWeb, $todasFamiliasWeb, $id){
         $vp='';
         $HostNombre = $this->HostNombre;
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
-                    .'<script src="'.$HostNombre.'/plugins/mod_familia/virtuemart/func_plg_virtuemart.js"></script>';
-        $html   .='<div class="col-xs-12 hrspacing">'
+                .'<script src="'.$HostNombre.'/plugins/mod_familia/virtuemart/func_plg_virtuemart.js"></script>'
+                .'<div class="col-xs-12 hrspacing">'
                 .'<hr class="hrcolor"></div>'
-                .'<h2 class="text-center">Datos Familia Web</h2>';
-        $html   .= '<div class="col-md-6">';
-        $html   .=' <div class="col-md-12">'
-            .'          <input class="btn btn-primary" id="botonWeb" type="button" 
-                            value="Modificar en la web" name="modifWeb" onclick="modificarFamiliaWeb('.$idFamilia.', '.$idTienda.')">'
-            .'          <a onclick="ObtenerDatosFamilia()">Obtener datos familia</a>'
-            .'          <input type="text" id="idFamiliaweb" value="'.$idWeb.'" style="visibility:hidden">
-                   '
-            .'      </div>';
-                
-         $html   .='<div class="col-md-12" id="alertasWeb">'
-            .'      </div>'
-            .'      <div class="col-md-12">'
-            .'          <div class="col-md-7">'
-            .'                <h4> Datos de la familia  en la tienda Web </h4><p id="idWeb"></p>'
-            .'           </div>'
-            .'           
-                    </div>
+                .'<h2 class="text-center">Datos Familia Web</h2>'
+                .'<div class="col-md-6">'
+                .'  <div class="col-md-12">'
+                .'     <input class="btn btn-primary" id="botonWeb" type="button" 
+                       value="Modificar en la web" name="modifWeb" onclick="modificarFamiliaWeb('.$datosFamilia['virtuemart_category_id'].','.$idTiendaWeb.')">'
+                .'     <a onclick="ObtenerDatosFamilia()">Obtener datos familia</a>'
+                .'     <input type="text" id="idFamiliaweb" value="'.$datosFamilia['virtuemart_category_id'].'" style="visibility:hidden">'
+                .'  </div>'
+                .'  <div class="col-md-12" id="alertasWeb">'
+                .'  </div>'
+                .'  <div class="col-md-12">'
+                .'     <div class="col-md-7">'
+                .'        <h4> Datos de la familia  en la tienda Web </h4><p id="idWeb"></p>'
+                .'     </div>'
+                .'  </div>
                     <div class="col-md-12">
                     <div class="col-md-5">
                     <label for="inputnombre">Nombre: </label>
-                            <input type="text" nombre="nombreFamilia" id="nombreFamilia" value="'.$datos['nombre'].'"/>
+                            <input type="text" nombre="nombreFamilia" id="nombreFamilia" value="'.$datosFamilia['nombre'].'"/>
                         </div>
                    
                       <div class="col-md-6">
                             <div class="ui-widget" id="inputpadreWeb">
                                 <label for="inputpadre">Padre: </label>
-                                <select name="padre" class="form-control " id="combopadre">';
-                foreach ($padres as $padre) {
-                        $html .= '<option value=' . $padre['idFamilia'];
-                        if (($idWeb != 0) && ($padreTpv == $padre['idFamilia'])) {
-                            $html .= ' selected = "selected" ';
-                            $vp = $padre['idFamilia'];
-                        }
-                        $html .= '>' . $padre['familiaNombre'] . '</option>';
-                    }
-                    $html .= '</select>';
-                    $html .= '<input type="hidden" name="idpadre" id="inputidpadre" value="'.$vp.'">'; 
-            $html.='</div>
-                        </div>
+                                <select name="padre" class="form-control " id="combopadre">
+                                <option value=0 >Raiz la madre todas</option>
+                                ';
+                                foreach ($todasFamiliasWeb as $padre) {
+                                        $html .= '<option value=' . $padre['idFamilia'];
+                                        if (($datosFamilia['padre'] != 0) && ($datosFamilia['padre'] == $padre['virtuemart_category_id'])) {
+                                            $html .= ' selected = "selected" ';
+                                            $vp = $padre['idFamilia'];
+                                        }
+                                        $html .= '>' . $padre['nombre'] . '</option>';
+                                    }
+                                    $html .= '</select>';
+            $html .= '          <input type="hidden" name="idpadre" id="inputidpadre" value="'.$vp.'">'; 
+            $html .= '      </div>
+                       </div>
                     </div>
-                    </div>
+                </div>
+    
             ';
             return $html;
          
      }
      
-     public function obtenerDatosDeFamilia($idWeb){
+    public function obtenerDatosDeFamilia($idWeb){
         //@Objetivo: OBtener los datos de la familia
         //añada en el tpv
         //@Parametros: id de la familia
@@ -207,7 +207,7 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
 		return $respuesta;
      }
      
-       public function addFamilia($datos){
+    public function addFamilia($datos){
         //@Objetivo: Modificar un producto en la web con los datos que el usuario 
         //añada en el tpv
         //@Parametros: datos principales del producto
@@ -234,10 +234,10 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
     
     
     
-      public function modificarFamiliaWeb($datos){
-        //@Objetivo: Modificar un producto en la web con los datos que el usuario 
+    public function modificarFamiliaWeb($datos){
+        //@Objetivo: Modificar una familia en la web con los datos que el usuario 
         //añada en el tpv
-        //@Parametros: datos principales del producto
+        //@Parametros: datos principales dela familia
         $ruta =$this->ruta_web;
 		$parametros = array('key' 			=>$this->key_api,
 							'action'		=>'modificarFamilia',
@@ -258,6 +258,30 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
         //~ echo '</pre>';
 		return $respuesta;
     }
+
+     public function todasFamilias(){
+        //@Objetivo: Obtener todas las familias de la web
+        //@Parametros: id de la web
+        $ruta =$this->ruta_web;
+		$parametros = array('key' 			=>$this->key_api,
+							'action'		=>'todasFamilias'
+						);
+		// [CONEXION CON SERVIDOR REMOTO] 
+		// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
+		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+
+		return $respuesta;
+     }
+
+
+
 }
 
 
