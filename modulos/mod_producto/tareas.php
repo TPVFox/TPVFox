@@ -251,7 +251,7 @@ switch ($pulsado) {
                 }else{
                     
                     array_push( $productosEliminados, $datos);
-                    productosSesion($idProducto,$productos);
+                    productosSesion($idProducto,'NoSeleccionar');
                 }
                 if(isset($comprobacionesEliminar['error'])){
                     $respuesta['error']=$comprobacionesEliminar['consulta'];
