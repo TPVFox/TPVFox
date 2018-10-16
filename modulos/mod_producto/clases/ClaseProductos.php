@@ -250,7 +250,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 	}
 	
-	function comprobacionesEstado($producto){
+	public function comprobacionesEstado($producto){
 		// @ Objetivo 
 		// Comprobar que el estado que enviamos sea correcta.
 		// @ Parametros:
@@ -295,7 +295,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 	}
 	
 
-	function AnhadirProductoNuevo($datos){
+	public function AnhadirProductoNuevo($datos){
 		// @ Objetivo
 		// Crear un producto nuevo con los datos que tengamos.
 		// @ Parametros:
@@ -345,7 +345,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 	}
 		
-	function AnhadirCodbarras($id,$codbarras = array()){
+    public function AnhadirCodbarras($id,$codbarras = array()){
 			// @ Objetivo 
 			// Una funcion para añadir uno o mas codBarras al producto que enviamos.
 			// @ parametros:
@@ -381,7 +381,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			
 	}	
 	
-	function AnhadirFamilias($id,$familias = array()){
+	public function AnhadirFamilias($id,$familias = array()){
         $respuesta = array();
 			$values = array();
 			if ($id > 0){
@@ -405,7 +405,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			return $respuesta;
     }
 	
-	function EliminarCodbarras($id,$codbarras = array()){
+	public function EliminarCodbarras($id,$codbarras = array()){
 			// @ Objetivo 
 			// Una funcion para eliminar uno o todos los codBarras del producto que enviamos.
 			// @ parametros:
@@ -439,7 +439,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			
 	}
 	
-	function EliminarFamilia($id,$familias = array()){
+	public function EliminarFamilia($id,$familias = array()){
         $respuesta = array();
 			if ($id > 0){
 				if (count($familias)>0){
@@ -466,7 +466,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			$respuesta['consulta'] = $sql;
 			return $respuesta;
     }
-	function ComprobarCodbarrasUnProducto($id_pro,$Pro_Nuevo_codBarras){
+	public function ComprobarCodbarrasUnProducto($id_pro,$Pro_Nuevo_codBarras){
 		// @ Objetivo:
 		// Que codigo de barras hay que añadir, modificar o eliminar.
 		// @ Parametros: 
