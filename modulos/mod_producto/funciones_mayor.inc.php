@@ -51,6 +51,7 @@ function datamayor2html($sqldata, $sumas) {
                 $stylo = ' style="background-color:red;color:white">';
             }
             // Continuamos montando resultado (Html de lineas )
+            error_log(html_entity_decode ($linea['nombre']));
             $resultado .= '<tr height="20px"> '
                         . ' <td>' . $linea['fecha'] . ' </td>'
                         . ' <td  align="right">' . $linea['entrega'] . ' </td>'
@@ -59,7 +60,7 @@ function datamayor2html($sqldata, $sumas) {
                         . ' <td  align="right">' . $linea['preciosalida'] . '</td>'
                         . ' <td>' . number_format($linea['stock'], 3) . ' </td>'
                         . ' <td  align="right">' . $linea['tipodoc'] . ' ' . $linea['numdocu'] . ' </td>'
-                        . ' <td>' . substr($linea['nombre'], 0, 15) . '</td>'
+                        . ' <td>' . mb_substr($linea['nombre'], 0, 15) . '</td>'
                         . ' <td align="right"'.$stylo. '>' . $linea['estado'] . ' </td>'
                         . '</tr>';
         }

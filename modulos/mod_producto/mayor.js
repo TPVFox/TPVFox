@@ -33,7 +33,7 @@ function MayorProductos() {
             fechafin: $('#inputFechahasta').val(),
         }
         ajaxMayor(parametros, function (response) {
-            var resultado = JSON.parse(response);
+            var resultado = $.parseJSON(response);
             if (resultado['html']) {
                 console.log(resultado['tiempo'])
                 $('#multiCollapseExample' + resultado['idproducto']).html(resultado['html']);
