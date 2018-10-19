@@ -461,8 +461,14 @@ class PluginClaseVirtuemart extends ClaseConexion{
             $error  .= $datosProductoVirtual['error'];
 
         }
-
-       
+        if (count($datosProductoVirtual['Datos']['ivasWeb']['items']) === 0){
+            // Quiere decir que hizo la consulta pero no hay ivas en la web.
+            $error .=  ' No hay ivas en la web';
+        }
+        echo '<pre>';
+        print_r($datosProductoVirtual['Datos']['ivasWeb']['items']);
+        echo '</pre>';
+        
 
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
                     .'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
@@ -681,6 +687,33 @@ class PluginClaseVirtuemart extends ClaseConexion{
         }
         return $respuesta;
     }
-    
+    public function error_string($datos){
+        // @ Objetivo
+        // Comprobamos que a laoras Obtener datos no se produce un error y si es asi devolvemos el string del error
+        // @ Parametros
+        //      $datos -> (array) respuesta de conexion
+        // @ Devolvemos:
+        //   (string) Errores...
+        $error = '';
+        if ( isset($datos['error_conexion'])){
+            // Quiere decir que hubo error de conexion
+            // Este no se si realmente llega alguna vex...
+            $error  = $datos['error_conexion'];
+            return $error;
+        }
+        if (  isset($datosProductoVirtual['error']) ){
+            // Hubo error en la conexion.
+            $error  .= $datosProductoVirtual['error'];
+            return $error ; // No hice pruebas de esto...
+        }
+        if ( isset ($datosProductoVirtual['Datos']['ivasWeb']['items'] )){
+            if (count($datosProductoVirtual['Datos']['ivasWeb']['items']) === 0){
+                // Quiere decir que hizo la consulta pero no hay ivas en la web.
+                $error .=  ' No hay ivas en la web';
+                return $error;
+            }
+        }
+
+    }
 }
 ?>

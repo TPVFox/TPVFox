@@ -15,11 +15,20 @@ function modificarProductoWeb(idProducto="", idTienda=""){
     //MOdificar los datos del producto en la web 
     console.log("entre en modificar producto web ");
       var mensaje = confirm("¿Estás seguro que quieres AÑADIR / MODIFICAR el producto en la web?");
-    if (mensaje) {   
-    if($('#referenciaWeb').val()=="" || $('#nombreWeb').val()=="" || $('#precioSivaWeb').val()==""){
-        alert("Campos necesarios vacios, Referencia, Nombre y Precio sin iva");
-    }else{
+    var iva =$('#ivasWeb').val();
     
+    
+    if (mensaje === false || iva === null || $('#nombreWeb').val()=="" || $('#precioSivaWeb').val()=="" ) {   
+        // El usuario no acepto,  o hay campo vacios. No continuamos
+        if ( $('#nombreWeb').val()=="" || $('#precioSivaWeb').val()=="" ){
+            alert("Campos necesarios vacios, Referencia, Nombre y Precio sin iva");
+        }
+        if (iva === null){
+        alert("No hay iva .... algo salio mal.");
+        }
+        return;
+    }
+        
     stock=parseInt($('#stockon').val())-parseInt($('#stockmin').val());
     //~ console.log(stock);
     var datos={
@@ -64,8 +73,7 @@ function modificarProductoWeb(idProducto="", idTienda=""){
                      
                 }	
             });
-    }
-}
+      
 }
 function ModalNotificacion(numLinea){
     //@Objetivo: mostrar el modal para enviar el correo de la notificación
@@ -198,13 +206,13 @@ function ObtenerDatosProducto(){
     console.log(CodBarras);
 }
 
-function subirProductosWeb(idTienda){
+function subirProductosWeb(idTiendaWeb){
      $('.loader').show();
     var parametros = {
 		"pulsado"    	: 'subirProductosWeb',
-        "idTienda"      :idTienda
-		};
-        $.ajax({
+        "idTiendaWeb"      :idTiendaWeb
+	};
+    $.ajax({
 		data       : parametros,
 		url        :  ruta_plg_virtuemart+'tareas_virtuemart.php',
 		type       : 'post',
@@ -220,14 +228,12 @@ function subirProductosWeb(idTienda){
                    alert("Producto que YA ESTABAN y NO se subieron: "+JSON.stringify(resultado.productoEnWeb));
                 }
                 if(resultado.error){
-                    alert("Error de SQL: " + resultado.error);
+                    alert(resultado.error);
                 }
                 if(resultado.contadorProductos>0){
                     alert("Se han subido a la web :"+ resultado.contadorProductos+" Productos");
                 }
-				//~ location.href="ListaProductos.php";
-				 
-		}	
+        }
 	});
 }
 function contarProductosWeb(callback){

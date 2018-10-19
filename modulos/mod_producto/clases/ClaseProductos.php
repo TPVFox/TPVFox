@@ -1198,7 +1198,7 @@ class ClaseProductos extends ClaseTablaArticulos{
            }else {
                 $error = array ( 'tipo'=>'success',
                                  'dato' => $sql,
-                                 'mensaje' => 'No se encontró nungun producto.'
+                                 'mensaje' => 'No se encontró ninguna familia web para ese producto.'
                                  );
                 $respuesta['error'] = $error;
             }
