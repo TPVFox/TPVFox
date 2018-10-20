@@ -176,107 +176,134 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 $ivas_web = $datosProductoVirtual['Datos']['ivasWeb']['items'];
             }
             $error = $ObjViruemart->error_string($datosProductoVirtual);
-            if ( $error == ''){
-                // Comprobamos si existen los ivas de los productos en la web.
-                $ivas_productos = array_column($productosSeleccionados,'iva');
-                foreach ($ivas_web as $ivaWeb){
-                    error_log(' Valor iva a buscar es :'.number_format($ivaWeb['calc_value'],2));
-                    $r= count($ivas_productos);
-                    error_log('Buscar en :'.$r);
-                }
-                foreach ($productosSeleccionados as $producto){
-                    $idVirtuemart=0;
-                    // Obtenemos los dato del un producto seleccionado.
-                    $datosProducto = $CTArticulos->GetProducto($producto);
-                    if(count($datosProducto['ref_tiendas'])>0){
-                        foreach ($datosProducto['ref_tiendas'] as $refTienda){
-                            // Ahora comprobamos si tiene datos de la tienda Web producto.
-                            if ($refTienda['idTienda'] == $tiendaWeb){
-                                $idVirtuemart = $refTienda['idVirtuemart'];
-                            }
-                        }
-                        if($idVirtuemart==0){
-                            // Este producto no tiene relacion con tienda Web , por lo que es nuevo para Web
-                            $stockMin=number_format($datosProducto['stocks']['stockMin'], 0, '.', '');
-                            $stockReal=number_format($datosProducto['stocks']['stockOn'], 0, '.', '');
-                            $stockWeb=$stockReal-$stockMin;
-                            // Ahora comprobamos que el iva que tiene el producto existe en la web.
-                            // Comprobamos si existen los ivas de los productos en la web.
-                            $error_iva = 'KO';
-                            foreach ($ivas_web as $ivaWeb){
-                                if (number_format($ivaWeb['calc_value'],2) == number_format($datosProducto['iva'],2)){;
-                                    $error_iva = 'OK';
-                                    error_log('Comprobado iva, por lo que continuamos');
-                                    break;
-                                }
-                            }
-                            if ($error_iva == 'OK'){
-                                // Ahora debería buscar los idFamilias de la Web de las familias de este producto.
-                                $familiasProducto=$CTArticulos->buscarFamiliasProducto($producto['idProducto'], $tiendaWeb);
-                                if (isset($familiasProducto['error'])){
-                                    $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                                <strong>Danger!</strong> Hubo un error al obtener la relacion de la familia en la web de este producto.</div>';
-                                    // No continuamos, ya que esta mal...
-                                    break;
-                                }
-                                $respuesta['familiaProducto']=$familiasProducto;
-                                $datos=array(
-                                    'estado'=> 1,
-                                    'referencia'=> $datosProducto['cref_tienda_principal'],
-                                    'nombre'=> $datosProducto['articulo_name'],
-                                    'codBarras'=> "",
-                                    'precioSiva'=>number_format($datosProducto['pvpSiva'],2, '.', ''),
-                                    'iva'=> $datosProducto['iva'],
-                                    'id'=> $idVirtuemart,
-                                    'alias'=>"",
-                                    'idProducto'=>$datosProducto['idArticulo'],
-                                    'idTienda'=>$tiendaWeb,
-                                    'usuario'=>365,
-                                    'peso'=>'KG',
-                                    'stock'=>$stockWeb,
-                                    'parametros'=>'min_order_level=""|max_order_level=""|step_order_level=""|product_box=""|',
-                                    's_desc'=>"",
-                                    'desc'=>"",
-                                    'metadesc'=>"",
-                                    'metakey'=>"",
-                                    'title'=>"",
-                                    'vendor'=>1,
-                                    'override'=>0,
-                                    'product_override_price'=>"0.00000",
-                                    'product_discount_id'=>0,
-                                    'product_currency'=>47,
-                                    'familias' => $familiasProducto
-                                );
-                                $datos=json_encode($datos);
-                                $addProducto = $ObjViruemart->addProducto($datos);
-                                if(isset($addProducto['Datos']['error'])){
-                                    $respuesta['errores']=$addProducto;
-                                    $respuesta['error']=$addProducto['Datos']['consulta'];
-                                    array_push($productosError, $datosProducto['idArticulo']);
-                                }
-                                if($addProducto['Datos']['idArticulo']>0){
-                                    $addRegistro=$CTArticulos->addTiendaProducto( $producto, $tiendaWeb, $addProducto['Datos']['idArticulo']);
-                                    $respuesta['registro']=$addRegistro;
-                                    $contadorProductos=$contadorProductos+1;
-                                }else{
-                                    $respuesta['error']="error en el insert";
-                                }
-                            } else {
-                                // Error en iva por lo que no se añade a tienda web.
-                                $respuesta['error'] = 'Error de iva no encontrado en la web';
-                            }
-                            
-                        }else{
-                            $datos=array(
-                                'id'=>$datosProducto['idArticulo'],
-                                'nombre'=>$datosProducto['articulo_name']
-                            );
-                            array_push($productoEnWeb, $datos);
+            if ($error <>''){
+                // Hubo error al obtener los ivas.
+                $resultado['errores'] = array('tipo'    => 'danger',
+                                            'mensaje'   => 'No se pudo obtener ivas, o fallo conexion',
+                                            'dato'      => $error
+                                        )
+                // podemos continuar
+                break;
+            }
+            foreach ($productosSeleccionados as $producto){
+                $idVirtuemart=0;
+                // Obtenemos los dato del un producto seleccionado.
+                $datosProducto = $CTArticulos->GetProducto($producto);
+  
+                if(count($datosProducto['ref_tiendas'])>0){
+                    // Si tiene relaciones de tienda  tenemos que comproba que no exista
+                    // relacion con la tiendaWeb.
+                    foreach ($datosProducto['ref_tiendas'] as $refTienda){
+                        // Ahora comprobamos si tiene datos de la tienda Web producto.
+                        if ($refTienda['idTienda'] == $tiendaWeb){
+                            $idVirtuemart = $refTienda['idVirtuemart'];
                         }
                     }
-                    $respuesta['datos']=$datosProducto;
+                    if($idVirtuemart==0){
+                        // Este producto no tiene relacion con tienda Web , por lo que es nuevo para Web
+                        $estado = 'Publicado' ; // Al ser nuevo le pongo ese estado.
+                        $stockMin=number_format($datosProducto['stocks']['stockMin'], 0, '.', '');
+                        $stockReal=number_format($datosProducto['stocks']['stockOn'], 0, '.', '');
+                        $stockWeb=$stockReal-$stockMin;
+                        // Ahora comprobamos que el iva que tiene el producto existe en la web.
+                        / Comprobamos si existen los ivas de los productos en la web.
+                        $error_iva = 'OK';
+                        foreach ($ivas_web as $ivaWeb){
+                            if (number_format($ivaWeb['calc_value'],2) == number_format($datosProducto['iva'],2)){
+                                // Existe el iva del producto en la web.
+                                $error_iva = 'KO';
+                                // Montamo array de errores, pero ahora al estar en foreach, puede haber varios
+                                // errores, uno o varios por cada productoSeleccionado.
+                                $resultado['errores'][] = array('tipo'    => 'danger',
+                                                    'mensaje'   => 'No existe el iva ('.$datosProducto['iva'].') del producto ('. $datosProducto['idArticulo'].')No se pudo obtener ivas, o fallo conexion',
+                                                    'dato'      => $datosProducto
+                                                )
+                                // No tiene sentido continuar buscando.
+                                break;
+                            }
+                        }
+                        if ($error_iva == 'OK'){
+                            // Ahora debería buscar los idFamilias de la Web de las familias de este producto.
+                            
+                            $familiasProducto=$CTArticulos->buscarFamiliasProducto($datosProducto['idArticulo'], $tiendaWeb);
+                            if (isset($familiasProducto['error'])){
+                                // Si hay error entonces, tenemos que ir al siguiente producto.
+                                // Tambien debemos indicar que ese producto no se subio.
+                                
+                                $respuesta['error']='Hubo un error al obtener la relacion de la familia en la web de este producto';
+                                $respuesta['errores'] = 
+                                // No continuamos, ya que esta mal...
+                                break;
+                            }
+                            $respuesta['familiaProducto']=$familiasProducto;
+                            $datos=array(
+                                'estado'=> 1,
+                                'referencia'=> $datosProducto['cref_tienda_principal'],
+                                'nombre'=> $datosProducto['articulo_name'],
+                                'codBarras'=> "",
+                                'precioSiva'=>number_format($datosProducto['pvpSiva'],2, '.', ''),
+                                'iva'=> $datosProducto['iva'],
+                                'id'=> $idVirtuemart,
+                                'alias'=>"",
+                                'idProducto'=>$datosProducto['idArticulo'],
+                                'idTienda'=>$tiendaWeb,
+                                'usuario'=>365,
+                                'peso'=>'KG',
+                                'stock'=>$stockWeb,
+                                'parametros'=>'min_order_level=""|max_order_level=""|step_order_level=""|product_box=""|',
+                                's_desc'=>"",
+                                'desc'=>"",
+                                'metadesc'=>"",
+                                'metakey'=>"",
+                                'title'=>"",
+                                'vendor'=>1,
+                                'override'=>0,
+                                'product_override_price'=>"0.00000",
+                                'product_discount_id'=>0,
+                                'product_currency'=>47,
+                                'familias' => $familiasProducto
+                            );
+                            $datos=json_encode($datos);
+                            $addProducto = $ObjViruemart->addProducto($datos);
+
+
+                            if(isset ($addProducto['Datos']['idArticulo']){
+                                // Hubo respuesta.
+                                if($addProducto['Datos']['idArticulo']>0){
+                                // Inserto correctamente.
+                                    $addRegistro=$CTArticulos->addTiendaProducto( $producto, $tiendaWeb, $addProducto['Datos']['idArticulo'],$estado);
+                                    
+                                    error_log('Linea 274 de tareas_virtuemart añado valor registro que no se que es.. '.$addRegistro);
+                                    
+                                    $respuesta['registro']=$addRegistro;
+                                    $contadorProductos=$contadorProductos+1;
+                                }
+                            }
+
+                            if(isset($addProducto['Datos']['error'])){
+                                // Hubo un error en la consulta o conexion al insertar
+                                $respuesta['errores'][]= array( 'tipo' => 'warning',
+                                                                'mensaje' =>' Error al insertar producto ('
+                                                                .$datosProducto[idArticulo].')',
+                                                                'dato' =>$addProducto['Datos']['consulta']
+                                                                );
+                                array_push($productosError, $datosProducto['idArticulo']);
+                            } 
+                        }
+                        
+                    }else{
+                        // Existe ya relacion de este producto en la Web.
+                        // Añadimos a array de productoEnWeb
+                        $datos=array(
+                            'id'=>$datosProducto['idArticulo'],
+                            'nombre'=>$datosProducto['articulo_name']
+                        );
+                        array_push($productoEnWeb, $datos);
+                    }
                 }
-            }
+           
+                $respuesta['datos']=$datosProducto;
+            } // Fin de foreach
             $respuesta['contadorProductos']=$contadorProductos;
             $respuesta['productosError']=$productosError;
             $respuesta['productoEnWeb']=$productoEnWeb;

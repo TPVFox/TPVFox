@@ -184,7 +184,6 @@ class ClaseProductos extends ClaseTablaArticulos{
         // Añadir a la tabla articulosTiendas la relacion con otra tienda.
         $sql='INSERT INTO articulosTiendas (idArticulo, idTienda, idVirtuemart, estado)VALUES
         ('.$idProducto.', '.$idTienda.', '.$idVirtuemart.', "'.$estado.'")';
-        error_log($sql);
         $respuesta = $this->Consulta_insert_update($sql);
         $respuesta['consulta'] = $sql;
         return $respuesta;
@@ -1071,7 +1070,6 @@ class ClaseProductos extends ClaseTablaArticulos{
                 }
             }
             if(count($datos['codBarras']) >0 ){
-                error_log('Count Codbarras '.count($datos['codBarras']));
                 $sql='DELETE FROM `articulosCodigoBarras` WHERE idArticulo='.$datos['id'];
                 $smt = $DB->query($sql);
                         if($DB->connect_errno){

@@ -51,7 +51,6 @@ function datamayor2html($sqldata, $sumas) {
                 $stylo = ' style="background-color:red;color:white">';
             }
             // Continuamos montando resultado (Html de lineas )
-            error_log(html_entity_decode ($linea['nombre']));
             $resultado .= '<tr height="20px"> '
                         . ' <td>' . $linea['fecha'] . ' </td>'
                         . ' <td  align="right">' . $linea['entrega'] . ' </td>'

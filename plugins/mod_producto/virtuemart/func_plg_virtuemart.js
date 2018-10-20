@@ -224,13 +224,13 @@ function subirProductosWeb(idTiendaWeb){
 				var resultado = $.parseJSON(response);
                 console.log(resultado);
                  $('.loader').hide();
-                if(resultado.productoEnWeb.length >0){
+                if(resultado.productoEnWeb.length > 0){
                    alert("Producto que YA ESTABAN y NO se subieron: "+JSON.stringify(resultado.productoEnWeb));
                 }
-                if(resultado.error){
-                    alert(resultado.error);
+                if(resultado.errores){
+                    alert("¡¡¡ ERRORES !!! Hubo los siguientes errores"+JSON.stringify(resultado.errores);
                 }
-                if(resultado.contadorProductos>0){
+                if(resultado.contadorProductos > 0){
                     alert("Se han subido a la web :"+ resultado.contadorProductos+" Productos");
                 }
         }
