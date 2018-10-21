@@ -229,11 +229,11 @@ class PluginClaseVirtuemart extends ClaseConexion{
         //~ echo '</pre>';
 		return $respuesta;
     }
-    public function htmlOptionIvasWeb($ivas, $ivaProductoWeb){
+    public function htmlOptionIvasWeb($ivas, $ivaProductoWeb='0'){
         //@OBjetivo: crear el html con las opciones de iva
         //@Parametros: 
-        //ivas: todos los ivas de la web
-        //ivaProductoWeb: iva que tiene el producto en la web
+        //ivas: (array) todos los ivas de la web
+        //ivaProductoWeb: (int) iva que tiene el producto en la web, si No envia entonces 0
         //@Return: html con la estructura de las opciones de iva
         $htmlIvas = '';
         foreach ($ivas as $item){
@@ -253,42 +253,54 @@ class PluginClaseVirtuemart extends ClaseConexion{
 				.'<script src="'.$this->HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
             return $html;
     }
-    public function htmlDatosProductoSeleccionado($idProducto, $permiso){
+    public function htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTienda,$ivaProducto){
         //@Objetivo
         // Mostrar el html de los datos de los productos de la web
         //@Parametros
-        //  $idProducto: (int) id de virtuemart
+        //  $datosWeb: (array) Con los datos del producto en la Web
         //  $ivas: (array) con todos los ivas ,para saber cuales tiene el id de virtuemart
+        //  $idProducto : (int) El id del producto en tpv
+        //  $idTienda:  (int) El id de... 
         $respuesta=array();
         $HostNombre = $this->HostNombre;
-        $datosProductoVirtual=$this->ObtenerDatosDeProducto($idProducto);
-        $respuesta['datosProductoVirtual']=$datosProductoVirtual;
-        $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
-        $respuesta['datosWeb']=$datosWeb;
-         
-        $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
-       
+        // Obtenemos html de ivas.
         $htmlIvasWeb=$this->htmlOptionIvasWeb($ivasWeb, $datosWeb['idIva']);
-        $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
-        $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
+        // Calculamos precios con iva si tiene idVirtual
+        if ($datosWeb['idVirtual'] >0 ){
+            $precioCivaWeb=$datosWeb['iva']/100*$datosWeb['precioSiva'];
+            $precioCivaWeb=$precioCivaWeb+$datosWeb['precioSiva'];
+          
+        } else {
+            $precioCivaWeb=0;
+        }
+        // Montamos html ( formulario de productos de la web. )
         
         $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
 				.'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
         $html   .='<div class="col-xs-12 hrspacing"><hr class="hrcolor"></div>
-        <h2 class="text-center">Datos Producto Web</h2>
+        <h2 class="text-center">Datos del Producto en la Web</h2>
         <div class="col-md-6">
                 ';
-        if($permiso==1){
-        $html   .='      <div class="col-md-12">'
-        .'          <input class="btn btn-primary" type="button" 
-                        value="Modificar en Web" id="botonWeb" name="modifWeb" onclick="modificarProductoWeb()">'
-        .'      </div>';
-    }
+        if ($datosWeb['idVirtual'] >0 ){
+            $html   .='      <div class="col-md-12">'
+            .'          <input class="btn btn-primary" type="button" 
+                        value="Modificar en Web" id="botonWeb" name="modifWeb" onclick="modificarProductoWeb()">';
+        } else {
+            $html   .=' <div class="col-md-12">'
+            .'          <input class="btn btn-primary" id="botonWeb" type="button" 
+                            value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">';
+        }
+        $html   .='          <a onclick="ObtenerDatosProducto()">Obtener datos producto</a>'
+            .'      </div>';
+
+
+
+
         $html   .='      <div class="col-md-12" id="alertasWeb">'
         .'      </div>'
         .'      <div class="col-md-12">'
         .'          <div class="col-md-7">'
-        .'                <h4> Datos del producto :</h4><p id="idWeb">'.$idProducto.'</p>'
+        .'                <h4> Id del producto en Web :</h4><p id="idWeb">'.$datosWeb['idVirtual'].'</p>'
         .'           </div>'
         .'           <div class="col-md-5">';
          if($datosWeb['estado']==1){
@@ -367,7 +379,6 @@ class PluginClaseVirtuemart extends ClaseConexion{
         .'          </div>'
         .'      </div>'
         .'  </div>';
-        $respuesta['ivaProducto']=$datosWeb['iva'];
         $respuesta['html']=$html;
         return $respuesta;
         
@@ -443,145 +454,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         return $resultado;
        
     }
-    public function htmlDatosVacios($idProducto, $idTienda, $permiso){
-        // @ Objetivo :
-        // Entiendo que es obtener los datos vacios.
-        $respuesta=array();
-        $HostNombre = $this->HostNombre;
-        // Esto lo haces para obtener los ivas.
-        $datosProductoVirtual=$this->ObtenerDatosDeProducto(0);
-        $error = '';
-        if ( isset($datosProductoVirtual['error_conexion'])){
-            // Quiere decir que hubo error de conexion
-            // Este no se si realmente llega alguna vex...
-            $error  = $datosProductoVirtual['error_conexion'];
-        }
-        if (  isset($datosProductoVirtual['error']) ){
-            // Hubo error en la conexion.
-            $error  .= $datosProductoVirtual['error'];
-
-        }
-        if (count($datosProductoVirtual['Datos']['ivasWeb']['items']) === 0){
-            // Quiere decir que hizo la consulta pero no hay ivas en la web.
-            $error .=  ' No hay ivas en la web';
-        }
-        echo '<pre>';
-        print_r($datosProductoVirtual['Datos']['ivasWeb']['items']);
-        echo '</pre>';
-        
-
-        $html	='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>'
-                    .'<script src="'.$HostNombre.'/plugins/mod_producto/virtuemart/func_plg_virtuemart.js"></script>';
-        $html   .='<div class="col-xs-12 hrspacing">'
-                .'<hr class="hrcolor"></div>'
-                .'<h2 class="text-center">Datos Producto Web</h2>';
-
-            
-        if ( $error <> '' ){
-            // Quiere decir que hubo error de conexion
-            // No permito continuar
-            $html   .= '<div class="col-md-12">'
-                    . 'Error de conesion ...'
-                    .$error.'</div>';
-        } else {
-            $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
-
-            $html   .= '<div class="col-md-6">';
-            if($permiso==1){
-            $html   .=' <div class="col-md-12">'
-            .'          <input class="btn btn-primary" id="botonWeb" type="button" 
-                            value="Añadir a la web" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">'
-            .'          <a onclick="ObtenerDatosProducto()">Obtener datos producto</a>'
-            .'      </div>';
-            }
-
-
-            $html   .='<div class="col-md-12" id="alertasWeb">'
-            .'      </div>'
-            .'      <div class="col-md-12">'
-            .'          <div class="col-md-7">'
-            .'                <h4> Datos del producto en la tienda Web </h4><p id="idWeb"></p>'
-            .'           </div>'
-            .'           <div class="col-md-5">';
-            $html   .='            <label>Estado: <select name="estadosWeb" id="estadosWeb"><option value="1">Publicado</option>
-                                        <option value="0">Sin publicar</option></select></label>';
-           
-            $html   .='    </div>'
-            .'      </div>'
-           
-            .'       <div class="col-md-12">'
-            .'           <div class="col-md-3 ">'
-            .'               <label>Referencia</label>'
-            .'               <input type="text" id="referenciaWeb" 
-                                    name="cref_tienda_principal_web" size="10" 
-                                    placeholder="referencia producto"
-                                    value=""  >'
-            .'          </div>'
-            .'          <div class="col-md-8 ">'
-            .'              <label>Nombre del producto</label>'
-            .'              <input type="text" id="nombreWeb" 
-                                    name="nombre_web"  size="50"
-                                    placeholder="nombreWeb" 
-                                    value=""  >
-                                     <div class="invalid-tooltip-articulo_name" display="none">
-                                        No permitimos la doble comilla (") 
-                                    </div>'
-            .'          </div>'
-            .'      </div>'
-             .'      <div class="col-md-12">'
-            .'          <div class="col-md-5">'
-            .'              <label>Alias de producto</label>'
-            .'              <input type="text" id="alias" name="alias" value=""  disabled>
-                                 <div class="invalid-tooltip-articulo_name" display="none">
-                                        No permitimos la doble comilla (") 
-                                </div>'
-            
-            .'          </div>'
-            .'      </div>'
-            .'      <div class="col-md-12">'
-            .'          <h4> Precios de venta en Web </h4>'
-            .'       </div>'
-            .'       <div class="col-md-12">'
-            .'           <div class="col-md-4 ">'
-            .'               <label>Código de  barras</label>'
-            .'               <input type="text" id="codBarrasWeb" 
-                                        name="cod_barras_web"  size="10"
-                                        placeholder="codBarrasWeb" 
-                                        value=""  >'
-            .'          </div>'
-            .'          <div class="col-md-4 ">'
-            .'              <label>Precio Sin iva</label>'
-            .'              <input type="text" id="precioSivaWeb" 
-                                        name="PrecioSiva_web"  size="10"
-                                        placeholder="precioSiva" data-obj= "cajaPrecioSivaWeb" 
-                                        value="" 
-                                        onkeydown="controlEventos(event)" onblur="controlEventos(event)" >'
-            .'          </div>'
-            .'          <div class="col-md-4 ">'
-            .'              <label>Precio Con iva</label>'
-            .'              <input type="text" id="precioCivaWeb" 
-                                        name="PrecioCiva_web"  size="10"
-                                        placeholder="precioCiva" data-obj= "cajaPrecioCivaWeb" 
-                                        value="" onkeydown="controlEventos(event)" 
-                                         onblur="controlEventos(event)">'
-            .'          </div>'
-            .'      </div>'
-            .'      <div class="col-md-12">'
-            .'          <div class="col-md-4 ">'
-            .'              <label>IVA</label>'
-            .'              <select name="ivasWeb" id="ivasWeb" onchange="modificarIvaWeb()">'
-            .'                  ';
-            
-            foreach($ivasWeb as $iva){
-                $html.='<option value="'.$iva['virtuemart_calc_id'].'">'.number_format($iva['calc_value'],2).'%</option>';
-            }
-             $html   .='      </select >'   
-            .'          </div>'
-            .'      </div>'
-            .'  </div>';
-        }
-        return $html;
-    }
+    
    public function modificarNotificacion($idProducto, $email){
         //@Objetivo: Modificar un producto en la web con los datos que el usuario 
         //añada en el tpv
@@ -607,30 +480,71 @@ class PluginClaseVirtuemart extends ClaseConexion{
     }
 
     public function comprobarIvas($ivaProducto, $ivaWeb){
-      //@OBjetivo: comprobar el iva del producto en el tpv y en la web
-      //Si no es el mismo muestra una alerta
+        //@OBjetivo:
+        // Comprobar el iva del producto en el tpv y en la web
+        // Si no es el mismo enviamo array con error para mostra como alerta
+        
         if($ivaProducto!=number_format($ivaWeb,2)){
-                
-                $comprobacionIva=array(
-                'tipo'=>'warning',
-                'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
-                );
-                $resultado=array();
-                $resultado['comprobaciones']= $comprobacionIva;
-                return $resultado;
-            }
+            $resultado=array();
+            $comprobacionIva=array(
+            'tipo'=>'warning',
+            'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
+            );
+            $resultado['comprobaciones']= $comprobacionIva;
+            return $resultado;
+        }
+       
    }
    
-    public function datosTiendaWeb($idVirtuemart,  $ivaProducto, $permiso){
+    public function datosCompletosTiendaWeb($idVirtuemart,$ivaProducto,$idProducto,$idTiendaWeb){
         // Objetivo
-        // Es obtener los datos necesarios del producto web.
-        
+        // Es obtener todos los datos del producto en la web.
+        // Los html necesarios para mostrar en ficha de producto.
+        // Hacer comprobaciones iva.
+        // A este modulo solo se llama desde vista productos... una vez :-)
+
         $respuesta=array();
+        // Ahora obtengo datos del producto de la web.
+        $datosProductoVirtual=$this->ObtenerDatosDeProducto($idVirtuemart);
+        // Tambien obtenemos todos los ivas de la  web.
+        $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
+        $respuesta['ivasWeb'] = $ivasWeb; 
+        if ($idVirtuemart == 0) {
+            $id_iva_web= 0;
+            $iva = 0;
+            foreach ($ivasWeb as $iva_web){
+                // buscamos el iva que tiene el producto, para enviar id del iva de la web.
+                if ( number_format($iva_web['calc_value'],2) == number_format($ivaProducto,2)){
+                    $id_iva_web = $iva_web['virtuemart_calc_id'];
+                    $iva = number_format($ivaProducto,2);
+                }
+            }
+
+            $datosWeb = array(
+                            'idVirtual'     => 0,
+                            'estado'        => 1,
+                            'articulo_name' => "",
+                            'refTienda'     => "",
+                            'codBarra'      => "",
+                            'precioSiva'    => 0,
+                            'idIva'         => $id_iva_web,
+                            'alias'         => "",
+                            'iva'           =>".$iva."
+                        );
+        } else {
+            $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
+            // Comprobamos si el iva del producto es el mismo en tpv que en la web
+            // Asi advertimos al usuario que algo esta mal..
+            $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $datosWeb['iva']);
+        }
+        $respuesta['datosWeb'] = $datosWeb; // Nos lo devolvemos.
+        
+        
         $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
         $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
         $respuesta['htmlnotificaciones']=$htmlnotificaciones;
-        $respuesta['datosProductoWeb']=$this->htmlDatosProductoSeleccionado($idVirtuemart, $permiso);
-        $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $respuesta['datosProductoWeb']['datosWeb']['iva']);
+        $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);
+        
       
        return $respuesta;
     }

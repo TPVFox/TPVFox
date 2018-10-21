@@ -10,9 +10,11 @@ function AccionRecalcularPvpWeb(caja,tecla){
     }
 
 }
-function modificarProductoWeb(idProducto="", idTienda=""){
-    //@Objetivo:
-    //MOdificar los datos del producto en la web 
+function modificarProductoWeb(idProducto="", idTiendaWeb=""){
+    //@ Objetivo:
+    // Modificar los datos del producto en la web
+    // Llegamos aquí , tanto al pulsa Modificar como añadir producto.
+    // Los dos botones se montan en ClaseVirtuemart del plugin.
     console.log("entre en modificar producto web ");
       var mensaje = confirm("¿Estás seguro que quieres AÑADIR / MODIFICAR el producto en la web?");
     var iva =$('#ivasWeb').val();
@@ -42,7 +44,7 @@ function modificarProductoWeb(idProducto="", idTienda=""){
         'alias':        $('#alias').val(),
         'stock':        stock,
         'idProducto':   idProducto, 
-        'idTienda':     idTienda
+        'idTiendaWeb':     idTiendaWeb
     };
     
     console.log(datos);
@@ -191,7 +193,8 @@ function modificarIvaWeb(){
 }
 
 function ObtenerDatosProducto(){
- 
+    // @ Objetivo:
+    // Obtener los datos de tpv y ponerlos en formulario producto web, para poder enviar o modificar.
     
     $('#referenciaWeb').val($('#referencia').val());
     $('#nombreWeb').val($('#nombre').val());
@@ -199,11 +202,17 @@ function ObtenerDatosProducto(){
     $('#precioCivaWeb').val($('#pvpCiva').val());
     NumCodBarras=$("[id*=codBarras_]:input").length;
     var CodBarras="";
+    var separador = "";
     for(i=0;i<NumCodBarras;i++){
-        CodBarras=CodBarras.concat($('#codBarras_'+i).val()+";");
+        // Separamos los codbarras con ;
+        if ( i >0){
+            separador = ';';
+        }
+        CodBarras=CodBarras.concat(separador + $('#codBarras_'+i).val());
     }
      $('#codBarrasWeb').val(CodBarras);
     console.log(CodBarras);
+    
 }
 
 function subirProductosWeb(idTiendaWeb){
@@ -228,7 +237,7 @@ function subirProductosWeb(idTiendaWeb){
                    alert("Producto que YA ESTABAN y NO se subieron: "+JSON.stringify(resultado.productoEnWeb));
                 }
                 if(resultado.errores){
-                    alert("¡¡¡ ERRORES !!! Hubo los siguientes errores"+JSON.stringify(resultado.errores);
+                    alert("¡¡¡ ERRORES !!! Hubo los siguientes errores"+JSON.stringify(resultado.errores));
                 }
                 if(resultado.contadorProductos > 0){
                     alert("Se han subido a la web :"+ resultado.contadorProductos+" Productos");

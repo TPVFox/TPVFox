@@ -112,27 +112,20 @@
 			$ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
 			$parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
 			$OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
-            if ($idVirtuemart>0 ) { 
-			// Obtengo se conecta a la web y obtiene los datos de producto cruzado.
-				$datosWebCompletos=$ObjVirtuemart->datosTiendaWeb($idVirtuemart,  $Producto['iva'], $ClasePermisos->getAccion("VerProductoWeb"));
-				// Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-				if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-					$Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
-				}
-                $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-                $comprobarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosProductoWeb']['datosWeb']['estado'], $tiendaWeb['idTienda']);
-			}else{
-				if($id>0){
-					if($ObjVirtuemart->getTiendaWeb()!=false){
-						$tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-						$datosWebCompletos['datosProductoWeb']['html']=$ObjVirtuemart->htmlDatosVacios($id, $tiendaWeb['idTienda'], $ClasePermisos->getAccion("VerProductoWeb"));
-					}
-				}
-				 
-			}                      
-		}   
+            // Obtengo el id de la tienda Web
+            $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+            // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
+            $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
 
-        
+            // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+            if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+                $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+            }
+            
+            if ($idVirtuemart>0 ) { 
+			   $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
+			}                  
+		}
 				
 		
 		// ==========		Montamos  html que mostramos. 			============ //
@@ -359,8 +352,8 @@
             </form>
             <?php 
              if($ClasePermisos->getAccion("VerProductoWeb")==1){
-                        if(isset($datosWebCompletos['datosProductoWeb']['html'])){
-                               echo $datosWebCompletos['datosProductoWeb']['html']; 
+                        if(isset($datosWebCompletos['htmlproducto']['html'])){
+                               echo $datosWebCompletos['htmlproducto']['html']; 
                         }
                         ?>
                         

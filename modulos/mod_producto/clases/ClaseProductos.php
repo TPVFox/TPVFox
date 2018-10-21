@@ -1186,6 +1186,7 @@ class ClaseProductos extends ClaseTablaArticulos{
     }
     
     public function buscarFamiliasProducto($idProducto, $idTienda){
+        // Objetivo buscar las familias de un producto.
         $respuesta=array();
         $sql='Select a.idFamilia, b.idFamilia_tienda from articulosFamilias as a 
         inner join familiasTienda as b on a.idFamilia=b.idFamilia where b.idTienda='.$idTienda.' and 
