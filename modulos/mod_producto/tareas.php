@@ -127,7 +127,8 @@ switch ($pulsado) {
 	break;
 	
 	case 'eliminarSeleccion':
-		$eliminar=eliminarSeleccion();
+		$deseleccionar=eliminarSeleccion();
+        $respuesta['deseleccionado'] = ' Se deselecciono '.$deseleccionar;
 	break;
 	
 	case 'obtenerCostesProveedor':
