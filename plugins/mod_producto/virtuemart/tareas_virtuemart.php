@@ -321,10 +321,17 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                                     // Inserto correctamente.
                                         $addRegistro=$CTArticulos->addTiendaProducto( $producto, $tiendaWeb, $addProducto['Datos']['idArticulo'],$estado);
                                         
-                                        error_log('Linea 274 de tareas_virtuemart añado valor registro que no se que es.. '.$addRegistro);
-                                        
-                                        $respuesta['registro']=$addRegistro;
-                                        $contadorProductos=$contadorProductos+1;
+                                        if ($addRegistro['NAfectados'] == 1){
+                                            // Cambio correctamente en articulosTienda la referencia
+                                            $respuesta['registro']=$addRegistro;
+                                            $contadorProductos=$contadorProductos+$addRegistro['NAfectados'];
+                                        } else {
+                                            $respuesta['error']='Hubo un error inserta la referencia en articulosTienda';
+                                            $respuesta['errores'][] = array('tipo'    => 'warning',
+                                                    'mensaje'   => 'Hubo error al obtener la relacion de la familia web con este producto('. $datosProducto['idArticulo'].')',
+                                                    'dato'      => $addRegistro
+                                                );
+                                        }
                                     }
                                 }
 
