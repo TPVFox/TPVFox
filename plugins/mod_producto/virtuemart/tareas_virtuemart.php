@@ -282,7 +282,6 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                                 array_push($productosError, $datosProducto['idArticulo']);
                             } else {
                                 // No hubo error continuamos ..
-                                error_log('iva a subir:'.$datosProducto['iva'].'de :'.json_encode($datosProducto));
                                 $respuesta['familiaProducto']=$familiasProducto;
                                 $datos=array(
                                     'estado'=> 1,
