@@ -252,9 +252,8 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                         
                         foreach ($ivas_web as $ivaWeb){
                             if (number_format($ivaWeb['calc_value'],2) == number_format($datosProducto['iva'],2)){
-                                //~ error_log('iva web = '.number_format($ivaWeb['calc_value'],2). ' tipo:'.gettype(number_format($ivaWeb['calc_value'],2)));
-                                //~ error_log('iva web = '.number_format($datosProducto['iva'],2). ' tipo:'.gettype(number_format($datosProducto['iva'],2)));
-                                // Existe el iva del producto en la web.
+                                // Existe iva por lo que tenemos que poner en iva el id del iva de la web.
+                                $datosProducto['iva']=$ivaWeb['virtuemart_calc_id'];
                                 $error_iva = 'OK';
                             }
                         }
@@ -283,6 +282,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                                 array_push($productosError, $datosProducto['idArticulo']);
                             } else {
                                 // No hubo error continuamos ..
+                                error_log('iva a subir:'.$datosProducto['iva'].'de :'.json_encode($datosProducto));
                                 $respuesta['familiaProducto']=$familiasProducto;
                                 $datos=array(
                                     'estado'=> 1,
@@ -346,7 +346,8 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                                 }
                             }
                         
-                        }else{
+                        }
+                    } else{
                             // Existe ya relacion de este producto en la Web.
                             // Añadimos a array de productoEnWeb
                             $datos=array(
@@ -354,7 +355,6 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                                 'nombre'=>$datosProducto['articulo_name']
                             );
                             array_push($productoEnWeb, $datos);
-                        }
                     }
                 }
            

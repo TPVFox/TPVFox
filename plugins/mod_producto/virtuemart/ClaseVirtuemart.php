@@ -284,7 +284,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         if ($datosWeb['idVirtual'] >0 ){
             $html   .='      <div class="col-md-12">'
             .'          <input class="btn btn-primary" type="button" 
-                        value="Modificar en Web" id="botonWeb" name="modifWeb" onclick="modificarProductoWeb()">';
+                        value="Modificar en Web" id="botonWeb" name="modifWeb" onclick="modificarProductoWeb('.$idProducto.', '.$idTienda.')">';
         } else {
             $html   .=' <div class="col-md-12">'
             .'          <input class="btn btn-primary" id="botonWeb" type="button" 
@@ -484,7 +484,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         // Comprobar el iva del producto en el tpv y en la web
         // Si no es el mismo enviamo array con error para mostra como alerta
         
-        if($ivaProducto!=number_format($ivaWeb,2)){
+        if(number_format($ivaProducto,2)!=number_format($ivaWeb,2)){
             $resultado=array();
             $comprobacionIva=array(
             'tipo'=>'warning',
@@ -510,6 +510,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
         $respuesta['ivasWeb'] = $ivasWeb; 
         if ($idVirtuemart == 0) {
+            // Cuando no existe la relacion en tpv con la tienda (articuloTienda)
             $id_iva_web= 0;
             $iva = 0;
             foreach ($ivasWeb as $iva_web){
