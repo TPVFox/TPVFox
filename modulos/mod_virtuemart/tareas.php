@@ -5,26 +5,26 @@ include_once ("./../../inicial.php");
 include_once $URLCom.'/configuracion.php';
 include_once $URLCom.'/modulos/mod_virtuemart/funciones.php';
 
-include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+include_once $URLCom.'/modulos/mod_virtuemart/clases/ClaseVirtuemart.php';
 include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
 $Ctienda=new ClaseTienda($BDTpv);
-$NCArticulo = new ClaseProductos($BDTpv);
+$CVirtuemart = new ClaseVirtuemart($BDTpv);
 switch ($pulsado) {
     case 'contarProductostpv':
     //@Objetivo_ contar los productos de tpv
-        $productosTpv=$NCArticulo->contarProductosTpv();
+        $productosTpv=$CVirtuemart->contarProductosTpv();
         $respuesta['productosTpv']=$productosTpv;
     break;
     case 'nuevosEnTpv':
      //@Objetivo_ contar los productos nuevo en tpv
         $idTienda=$_POST['tiendaWeb'];
-        $productosTpv=$NCArticulo->productosEnTpvNoWeb($idTienda);
+        $productosTpv=$CVirtuemart->productosEnTpvNoWeb($idTienda);
         $respuesta['productos']=$productosTpv;
     break;
     case 'nuevosEnWeb':
      //@Objetivo_ contar los productos de web
          $idTienda=$_POST['tiendaWeb'];
-         $productosWeb=$NCArticulo->productosTienda($idTienda);
+         $productosWeb=$CVirtuemart->productosTienda($idTienda);
           $respuesta['productos']=$productosWeb;
     break; 
     case 'comprobarProductos':
@@ -42,11 +42,11 @@ switch ($pulsado) {
         $respuesta['productos']=$productos;
         foreach ($productos as $producto){
             if(isset($producto['id'])){
-                $comprobar=$NCArticulo->comprobarIdWebTpv($idTienda, $producto['id']);
+                $comprobar=$CVirtuemart->comprobarIdWebTpv($idTienda, $producto['id']);
                 $respuesta['comprobar']=$comprobar;
                 if(isset($comprobar[0])){
                     $arrayDatos=array();
-                    $datosProductoTpv=$NCArticulo->GetProducto($comprobar[0]['idArticulo']);
+                    $datosProductoTpv=$CVirtuemart->GetProducto($comprobar[0]['idArticulo']);
                     $respuesta['productostpv']=$datosProductoTpv;
                     $comprobacion=comparacionesProductos($producto, $datosProductoTpv, $idTienda,$conf);
                     if($comprobacion==1){
@@ -102,7 +102,7 @@ switch ($pulsado) {
             'optRefWeb'=>$_POST['optRef'],
             'tiendaWeb'=>$_POST['tiendaWeb'],
         );
-        $modificar=$NCArticulo->modificarProductoTPVWeb($datos);
+        $modificar=$CVirtuemart->modificarProductoTPVWeb($datos);
         $respuesta['modificar']=$modificar;
     break;
     case 'addProductoTpv':
@@ -147,17 +147,32 @@ switch ($pulsado) {
               'estadoWeb'=>$estadoWeb
               
         );
-        $add=$NCArticulo->addProductoWebTPV($datosProducto);
+        $add=$CVirtuemart->addProductoWebTPV($datosProducto);
         $respuesta['add']=$add;
         $respuesta['datos']=$datosProducto;
-        
-        
-       
-        
-    
     break;
     
-    
+    case 'obtenerProductosRelacionados':
+        // Obtenemos los registros de articulosTienda
+        // solo los que nos indica reg_inicial  y reg_final incluidos.
+        $respuesta = array();
+        $reg_inicial    = $_POST['reg_inicial'];
+        $reg_final      = $_POST['reg_final'];
+        $r = $CVirtuemart->obtenerIdVirtuemartRelacionado($reg_inicial,$reg_final);
+        if ( $r['Items'] > 0){
+            // Se obtuvo registros.. ahora tenemos que buscar el idCategoria
+            // Aunque se podría hacer una consulta y obtenerlo, de momento lo hago asi.
+            // Uno a uno..
+            foreach ($r['Items'] as $key=>$Item){
+                $p = $CVirtuemart->GetProducto($Item['idArticulo']);
+                // Aunque tenga mas de una familia solo va buscar en carpeta de la primera familia.
+                $r['Items'][$key]['IdFamilia'] = $p['familias'][0]['idFamilia'];
+
+            }
+        $respuesta = $r['Items'];
+        }
+        
+    break;
     
 }
 echo json_encode($respuesta);

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modulo nombre="mod_virtuemart" descripcion="Virtuemart" permiso="0">
+    <vista nombre ="Acciones_virtuemart.php" descripcion="Virtuemart Acciones" permiso="0"></vista>
     <vista nombre ="Importar_virtuemart.php" descripcion="Importar" permiso="0"></vista>
+    <vista nombre ="Relacionar_imagenes_virtuemart.php" descripcion="Relacionar Imagenes Productos" permiso="0"></vista>
+
 </modulo>

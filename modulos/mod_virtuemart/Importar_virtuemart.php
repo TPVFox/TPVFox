@@ -60,8 +60,7 @@
                                 $default = "selected";
                             }
                             echo '<option value="'.$opt->valor.'" title="'.$opt->descripcion.'" '.$default.'>'
-                                .$opt->nombre.'</span>'
-                                .'</option>';
+                                .$opt->nombre.'</option>';
                         }           
                      ?>
                      </select >
@@ -77,8 +76,7 @@
                             $default = "selected";
                         }
                         echo '<option value="'.$opt->valor.'" title="'.$opt->descripcion.'" '.$default.'>'
-                            .$opt->nombre.'</span>'
-                            .'</option>';
+                            .$opt->nombre.'</option>';
                     }           
                  ?>
                  </select >
@@ -98,8 +96,7 @@
                                $default = "selected";
                            }
                            echo '<option value="'.$opt->valor.'" title="'.$opt->descripcion.'" '.$default.'>'
-                               .$opt->nombre.'</span>'
-                               .'</option>';
+                               .$opt->nombre.'</option>';
                        }           
                     ?>
                     </select >
@@ -133,7 +130,7 @@
                                 // El estado que pusimos por defecto.
                                 $default = "selected";
                             }
-                            echo '<option value="'.$estado.'"'.$default.'>'.$estado.'</option>';
+                            echo '<option value="'.$estado.'" '.$default.'>'.$estado.'</option>';
 
                         }
                         ?>
@@ -159,7 +156,7 @@
                                 // El estado que pusimos por defecto.
                                 $default = "selected";
                             }
-                            echo '<option value="'.$estado.'"'.$default.'>'.$estado.'</option>';
+                            echo '<option value="'.$estado.'" '.$default.'>'.$estado.'</option>';
 
                         }
                         ?>

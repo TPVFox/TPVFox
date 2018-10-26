@@ -27,8 +27,7 @@ function contarProductosTpv(callback){
     //Contar todos los productos de tpv
     console.log(regWeb);
       var parametros = {
-            "pulsado"   : 'contarProductostpv',
-           
+            "pulsado"   : 'contarProductostpv'
         };
     $.ajax({
         data       : parametros,
@@ -254,4 +253,58 @@ function modificarProductosTpvWeb(nombre, refTienda, iva, precioSiva, codBarras,
         }
         
     });
+}
+
+
+function BuscarImagenes_producto(){
+    // @ Objetivo
+    // Iniciar el ciclo para buscar los productos que tenemos relacionado con la web,
+    // ver si tiene imagen, y si NO tienen entonces buscar en registro media de virtuemart
+    // por si ya existe la imagen.
+    
+
+    obtenerProductosRelacionados();
+
+}
+
+
+function  obtenerProductosRelacionados() {
+    // @ Objetivo.
+    // Obtener los primeros registros o todos si son menos de cien, de tabla articulosTienda:
+    if ( totalReferenciasWeb == reg_inicial){
+        alert ( 'Algo salio mal o no hay productos relacionas en la web');
+        // No continuo.
+        return;
+    }
+    var reg_final = reg_inicial + 100; // reg_final no es una variable global
+    
+    if (reg_final > totalReferenciasWeb){
+        // Si el registro fianl es mayor totalRegistros para evitar error
+        // solo pedimos hasta total.
+        reg_final = totalReferenciasWeb;
+    }
+    
+    var parametros = {
+            "pulsado"       : 'obtenerProductosRelacionados',
+            "reg_inicial"   : reg_inicial,
+            "reg_final"     : reg_final
+    };
+      $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  Obtener los datos de la tabla articuloTienda ****************');
+        },
+        success    :  
+        function (response) {
+            console.log('Termino la respuesta obtener datos de tabla articuloTienda');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
+            
+          
+        }
+        
+    });
+
 }
