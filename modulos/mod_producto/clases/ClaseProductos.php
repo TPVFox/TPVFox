@@ -169,8 +169,13 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 	}
 		
-	
-	
+	public function GetConsulta($sql){
+        // Objetivo:
+        // Para realizar consulta y ademas los hijos de esta clase puedan tb realizar consultas.
+        $respuesta =  parent::Consulta($sql);
+		return $respuesta;
+        
+	}
 	public function cambiarTienda($id){
 		// @Objetivo
 		// Cambiar el id de la tienda , por si queremos buscar en otras tiendas simplemente.
