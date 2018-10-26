@@ -30,13 +30,13 @@ class ClaseVirtuemart extends ClaseProductos{
     
     }
     
-	public function obtenerIdVirtuemartRelacionado($reg_inicial,$reg_final){
+	public function obtenerIdVirtuemartRelacionado($reg_inicial){
         // @ Objetivo
         // Obtener los registros articulosTienda
         $respuesta = array();
-   		$sql='SELECT * FROM articulosTiendas WHERE  idTienda='.$this->idTiendaWeb.' limit '.$reg_inicial.','.$reg_final;
+   		$sql='SELECT * FROM articulosTiendas WHERE  idTienda='.$this->idTiendaWeb.' limit '.$reg_inicial.',100';
         $respuesta = parent::GetConsulta($sql);
-
+        $respuesta['consulta'] = $sql;
         
         return $respuesta;
 
@@ -49,13 +49,14 @@ class ClaseVirtuemart extends ClaseProductos{
     }
 
 
-    public function buscarImagenes($datos){
+    public function buscarImagenesParaRelacionar($datos){
         // @ Objetivo : Enviar registros relaciones para buscar imagen y añadir a producto
         // @ Parametros:
         // Enviamos los datos de 100 registros como máximo para no saturar servidor.
         $ruta =$this->ObjVirtuemart->ruta_web;
-		$parametros = array('key' 			=>$this->ObjVirtuemart->key_api,
-							'action'		=>'buscarImagenes',
+        $ruta_proyecto = $this->ObjVirtuemart->ruta_proyecto;
+        $parametros = array('key' 			=>$this->ObjVirtuemart->key_api,
+							'action'		=>'buscarImagenesParaRelacionar',
                             'datos'         =>json_encode($datos)
 							
 						);
@@ -68,7 +69,7 @@ class ClaseVirtuemart extends ClaseProductos{
 			echo '</pre>';
 			exit();
 		}
-		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+		include ($ruta_proyecto.'/lib/curl/conexion_curl.php');
         $respuesta['parametros']=$parametros;
 		return $respuesta;
     }

@@ -36,6 +36,7 @@
         echo '<script type="text/javascript">'
             .'var totalReferenciasWeb = '.$TotalProd_Web_conRelacion.';'
             .'var reg_inicial = 0;'
+            .'var img_encontradas = 0;'
             .'</script>'
    ?>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_virtuemart/funciones.js"></script>
@@ -67,12 +68,18 @@
 				}
 			}
 
-            echo '<pre>';
-            print_r($CVirtuemart->ObjVirtuemart->ruta_web);
-            echo '</pre>';ruta_web; ?>
+            //~ echo '<pre>';
+            //~ print_r($CVirtuemart->ObjVirtuemart->ruta_web);
+            //~ echo '</pre>';ruta_web; ?>
 
         <h2 class="text-center">Relacionar imagenes con productos en virtuemart.</h2>
-        <p>Los producto que vamos a revisar si tiene imagen son : <?php echo $TotalProd_Web_conRelacion; ?></p>
+        <div class="col-md-6">
+            <p>Los producto que vamos a revisar si tiene imagen son : <?php echo $TotalProd_Web_conRelacion;?>
+            /<span id="reg_actual">0</span></p>
+        </div>
+        <div class="col-md-6">
+            <p>Imagenes encontradas:<span id="img_encontradas"></span></p>
+        </div>
         <div class="col-md-12">
             <div class="progress" style="margin:10px 100px">
                 <div id="bar" class="progress-bar progress-bar-info" 

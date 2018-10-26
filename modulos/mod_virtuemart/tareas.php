@@ -158,7 +158,8 @@ switch ($pulsado) {
         $respuesta = array();
         $reg_inicial    = $_POST['reg_inicial'];
         $reg_final      = $_POST['reg_final'];
-        $r = $CVirtuemart->obtenerIdVirtuemartRelacionado($reg_inicial,$reg_final);
+        $r = $CVirtuemart->obtenerIdVirtuemartRelacionado($reg_inicial);
+        $respuesta['obtener'] = $r;
         if ( $r['Items'] > 0){
             // Se obtuvo registros.. ahora tenemos que buscar el idCategoria
             // Aunque se podría hacer una consulta y obtenerlo, de momento lo hago asi.
@@ -169,7 +170,8 @@ switch ($pulsado) {
                 $r['Items'][$key]['IdFamilia'] = $p['familias'][0]['idFamilia'];
 
             }
-        $respuesta = $r['Items'];
+        // Ahora enviamos los registros por curl
+        $respuesta['imagenes'] = $CVirtuemart->buscarImagenesParaRelacionar($r['Items']);
         }
         
     break;

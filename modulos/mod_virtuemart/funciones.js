@@ -276,7 +276,9 @@ function  obtenerProductosRelacionados() {
         // No continuo.
         return;
     }
+    BarraProceso(reg_inicial,totalReferenciasWeb);
     var reg_final = reg_inicial + 100; // reg_final no es una variable global
+
     
     if (reg_final > totalReferenciasWeb){
         // Si el registro fianl es mayor totalRegistros para evitar error
@@ -300,9 +302,26 @@ function  obtenerProductosRelacionados() {
         function (response) {
             console.log('Termino la respuesta obtener datos de tabla articuloTienda');
             var resultado =  $.parseJSON(response);
-            console.log(resultado);
-            
-          
+            var Datos = resultado.imagenes.Datos;
+            contador= 0;
+            Datos.forEach(function(dato) {
+                contador = contador+1;
+                console.log(reg_inicial+contador);
+                $("#reg_actual").html(reg_inicial+contador); 
+                if ( dato.imagenes_insert !== undefined ){
+                    img_encontradas = img_encontradas+1;
+                    $("#img_encontradas").html(img_encontradas); 
+                }
+            });
+            reg_inicial = reg_inicial + contador;
+            if (reg_inicial == reg_final){
+                if (reg_final < totalReferenciasWeb){
+                    obtenerProductosRelacionados();
+                } else {
+                    // termino
+                    BarraProceso(reg_inicial,totalReferenciasWeb);
+                }
+            }
         }
         
     });
