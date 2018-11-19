@@ -107,11 +107,10 @@
                     }
                 }
             }
-            
+            //~ if ($fi
             $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro . $NPaginado->GetLimitConsulta());
         }
 
-       
         
         $todosProveedores= $CProveedor->todosProveedores();
      

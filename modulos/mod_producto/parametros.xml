@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- En parametros configuracion , si cambiar alguno por defecto o añades alguno , es conveniente que elimines de 
+<!--
+NOTA:
+En parametros configuracion , si cambiar alguno por defecto o añades alguno , es conveniente que elimines de 
 de la tabla modulos_configuracion los registros de este modulo
-Numero tecla:
- 13 -> Intro
- 40 -> Fecha abajo
-
 
 -->
 
@@ -14,7 +12,8 @@ Numero tecla:
 		<mostrar_lista nombre="articulo_name" buscar_default="Si" descripcion="Nombre del producto" >Si</mostrar_lista>
 		<mostrar_lista nombre="crefTienda" descripcion="Referencia propia">Si</mostrar_lista>
 		<mostrar_lista nombre="codBarras" descripcion="Codigo Barras">Si</mostrar_lista>
-		<filtro nombre="seleccion_productos">No</filtro>
+   		<mostrar_lista nombre="a.idArticulo" descripcion="Id de producto">Si</mostrar_lista>
+        <filtro nombre="seleccion_productos">No</filtro>
 	</configuracion>
 	
 	

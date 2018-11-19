@@ -51,7 +51,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// @ Objetivo 
 		// Obtener los campos idArticulo,articulo_name,ultimoCoste,beneficio,iva,pvpCiva,estado productos según con el filtro indicado.
 		switch ($campo) {
-			case 'articulo_name':
+			case ('articulo_name' || 'crefTienda'):
 				// Buscamos por nombre de articulo..
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
 				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
@@ -62,19 +62,29 @@ class ClaseProductos extends ClaseTablaArticulos{
                 .$filtro;
 				break;
 			
-			case 'crefTienda':
-				// Buscamos por Referencia de tienda.
+			//~ case 'crefTienda':
+				//~ // Buscamos por Referencia de tienda.
+				//~ $consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
+				//~ ." ,atiendas.crefTienda as crefTienda,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
+				//~ ." FROM `articulos` AS a "
+				//~ ."LEFT JOIN `articulosPrecios` AS p "
+				//~ ."ON p.`idArticulo` = a.`idArticulo` "
+				//~ ."LEFT JOIN `articulosTiendas` AS atiendas ON (atiendas.idArticulo = a.idArticulo) AND "
+				//~ ."(atiendas.idTienda =".$this->idTienda.") "
+				//~ .$filtro;
+				//~ break;
+			
+			case 'codBarras':
+				// Buscamos por Codbarras.
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
-				." ,atiendas.crefTienda as crefTienda,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
+				." ,aCodBarras.codBarras as codBarras,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
 				."ON p.`idArticulo` = a.`idArticulo` "
-				."LEFT JOIN `articulosTiendas` AS atiendas ON (atiendas.idArticulo = a.idArticulo) AND "
-				."(atiendas.idTienda =".$this->idTienda.") "
+				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
 				.$filtro;
-				break;
-			
-			case 'codBarras':
+
+            case 'a.idArticulo':
 				// Buscamos por Codbarras.
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
 				." ,aCodBarras.codBarras as codBarras,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
