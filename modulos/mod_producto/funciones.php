@@ -367,7 +367,7 @@ function HtmlListadoCheckMostrar($mostrar_lista){
 			// Solo lo podemos cambiar fichero parametros.xml.
 			$c= ' onchange="GuardarConfiguracion(this)"';
 			if ($mostrar->valor==='Si'){
-				$c ='checked '.$c;
+				$c =' checked '.$c;
 				$respuesta['htmlOption'] .= '<option value="'.$mostrar->nombre.'">'.$mostrar->descripcion.'</option>';
 			}
 			$respuesta['htmlCheck'] .= '<input class="configuracion" type="checkbox" name="'.$mostrar->nombre.'" value="'.$mostrar->valor.'"'.$c.'>'.$mostrar->descripcion.'<br>';

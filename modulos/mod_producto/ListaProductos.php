@@ -187,12 +187,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <?php
                           if($ClasePermisos->getAccion("crear")==1){
                                 ?>
-                                <li><a href="#section2" onclick="metodoClick('AgregarProducto');";>Añadir</a></li>
+                                <li><a href="#section2" onclick="metodoClick('AgregarProducto');">Añadir</a></li>
                                 <?php
                            }
                             if($ClasePermisos->getAccion("modificar")==1){
                             ?>
-                            <li><a href="#section2" onclick="metodoClick('VerProducto', 'producto');";>Modificar</a></li>
+                            <li><a href="#section2" onclick="metodoClick('VerProducto', 'producto');">Modificar</a></li>
                             <?php 
                             }
                             ?>
@@ -218,7 +218,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             }
                             if($ClasePermisos->getAccion("imprimirEtiquetas")==1){
                              ?>
-                            <li><a href='ListaEtiquetas.php' onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');";>Imprimir Etiquetas</a></li>
+                            <li><a href='ListaEtiquetas.php' onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');">Imprimir Etiquetas</a></li>
                            <?php 
                             }
                             if($ClasePermisos->getAccion("imprimirMayor")==1){
