@@ -51,7 +51,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// @ Objetivo 
 		// Obtener los campos idArticulo,articulo_name,ultimoCoste,beneficio,iva,pvpCiva,estado productos según con el filtro indicado.
 		switch ($campo) {
-			case ('articulo_name' || 'crefTienda'):
+			case 'articulo_name':
 				// Buscamos por nombre de articulo..
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
 				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
@@ -61,19 +61,16 @@ class ClaseProductos extends ClaseTablaArticulos{
                 ."(p.idTienda =".$this->idTienda.") "
                 .$filtro;
 				break;
-			
-			//~ case 'crefTienda':
-				//~ // Buscamos por Referencia de tienda.
-				//~ $consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
-				//~ ." ,atiendas.crefTienda as crefTienda,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
-				//~ ." FROM `articulos` AS a "
-				//~ ."LEFT JOIN `articulosPrecios` AS p "
-				//~ ."ON p.`idArticulo` = a.`idArticulo` "
-				//~ ."LEFT JOIN `articulosTiendas` AS atiendas ON (atiendas.idArticulo = a.idArticulo) AND "
-				//~ ."(atiendas.idTienda =".$this->idTienda.") "
-				//~ .$filtro;
-				//~ break;
-			
+			case  'crefTienda':
+				// Buscamos por nombre de articulo..
+				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
+				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
+				." FROM `articulos` AS a "
+				."LEFT JOIN `articulosPrecios` AS p "
+				."ON (p.`idArticulo` = a.`idArticulo`) AND  "
+                ."(p.idTienda =".$this->idTienda.") "
+                .$filtro;
+				break;
 			case 'codBarras':
 				// Buscamos por Codbarras.
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
@@ -83,6 +80,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."ON p.`idArticulo` = a.`idArticulo` "
 				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
 				.$filtro;
+                break;
 
             case 'a.idArticulo':
 				// Buscamos por Codbarras.
@@ -93,11 +91,25 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."ON p.`idArticulo` = a.`idArticulo` "
 				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
 				.$filtro;
-				
+                break;
+                
+            case 't.idVirtuemart':
+				// Buscamos por Codbarras.
+				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
+				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
+				." FROM `articulos` AS a "
+				."LEFT JOIN `articulosPrecios` AS p "
+				."ON p.`idArticulo` = a.`idArticulo` "
+				."LEFT JOIN `articulosTiendas` AS t ON (t.idArticulo = a.idArticulo)"
+				.$filtro;
+                break;
 			
 		}
 		
 		$respuesta = parent::Consulta($consulta);
+        //~ echo '<pre>';
+        //~ echo $consulta;
+        //~ echo '</pre>';
 		if (isset($respuesta['error'])){
 			// Si existe error devolvemos todo el array
 			return $respuesta;

@@ -1,2 +1,4 @@
-Llamamos plugin aquello que se puede utilizar en varios modulos o herramienta para relacionarlo con otro.
+Llamamos plugin clases que cargamos en una clase de un modulo pero no tiene porque tener en todas las instalaciones.
+Los plungin debe tener :
+
 

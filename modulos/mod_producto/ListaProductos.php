@@ -12,17 +12,15 @@
         include_once ($URLCom .'/controllers/parametros.php');
         include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
         include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
-        include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
         $OtrosVarJS ='';
         $htmlplugins = array();
         $CTArticulos = new ClaseProductos($BDTpv);
         $CFamilia=new ClaseFamilias($BDTpv);
         $CProveedor=new ClaseProveedor($BDTpv);
-        $CTienda=new ClaseTienda($BDTpv);
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
-        
+        $id_tienda_principal = $Tienda['idTienda'];
         // Cargamos el plugin que nos interesa.
 
         //  Fin de carga de plugins.
@@ -33,9 +31,7 @@
         $parametros = $ClasesParametros->getRoot();
         // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
         $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-        //~ echo '<pre>';
-        //~ print_r($conf_defecto);
-        //~ echo '</pre>';
+        
         // Ahora compruebo productos_seleccion:
         $botonSeleccion=0;
         $prod_seleccion = array('NItems' => 0, 'display' => '');
@@ -107,10 +103,9 @@
                     }
                 }
             }
-            //~ if ($fi
             $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro . $NPaginado->GetLimitConsulta());
         }
-
+        
         
         $todosProveedores= $CProveedor->todosProveedores();
      
@@ -155,7 +150,6 @@
 	}, 50);
 		</script>
 <?php
-//~ include_once $URLCom.'/header.php';
 include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
 
@@ -403,12 +397,11 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'codBarras') === 'Si') {
                                             $CTArticulos->ObtenerReferenciasTiendas($producto['idArticulo']);
                                             $refTiendas = $CTArticulos->GetReferenciasTiendas();
-                                            $tiendaPrincipal=$CTienda->tiendaPrincipal();
                                             
                                             echo '<td>';
                                             if ($refTiendas) {
                                                 foreach ($refTiendas as $ref) {
-                                                    if($ref['idTienda']==$tiendaPrincipal['datos'][0]['idTienda']){
+                                                    if($ref['idTienda']==$id_tienda_principal){
                                                         echo $ref['crefTienda'];
                                                     }
                                                     
