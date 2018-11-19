@@ -7,7 +7,7 @@ $respuesta 		= array();
 		$descartados = array();
 		if ($busqueda !==''){
 			// Realizamos la busqueda todos los proveedores menos los que tiene añadidos en el producto..
-			$proveedores = $CProveedorGen->buscarProveedorNombre($busqueda);
+			$proveedores = $CProveedor->buscarProveedorNombre($busqueda);
 			// Ahora tengo que quitar del array proveedores[datos], aquellos que no ya estan añadidos para que no se muestre.
 			foreach ($proveedores['datos'] as $key=>$proveedor){
 				$idProveedor = $proveedor['idProveedor'];
