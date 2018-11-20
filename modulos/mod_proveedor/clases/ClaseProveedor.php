@@ -112,49 +112,38 @@ class ClaseProveedor extends modelo{
                 $respuesta['error']=1;
                 $respuesta['consulta']='No hay resumen entre las fechas seleccionadas';
             }else{
-            
-			$sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`albprolinea`	WHERE idalbpro  IN('.$ids.') and 
-			`estadoLinea` <> "Eliminado" GROUP BY idArticulo + costeSiva';
-			
-			$productos=$this->consulta($sql);
-			if(isset($albaranes['error'])){
-				$respuesta=$productos;
-			}else{
-				$respuesta['productos']=$productos['datos'];
-			}
-			$sql='SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
-			as sumarIva, t.Fecha as fecha   from albproIva as i  
-			left JOIN albprot as t on t.id=i.idalbpro   where idalbpro  
-			in ('.$ids.')  GROUP BY idalbpro ;';
-			$resumenBases=$this->consulta($sql);
-			if(isset($resumenBases['error'])){
-				$respuesta=$resumenBases;
-			}else{
-				$respuesta['resumenBases']=$resumenBases['datos'];
-			}
-			$sql='SELECT *, sum(importeIva) as sumiva , sum(totalbase) as sumBase from albproIva where idalbpro 
-			in ('.$ids.')  GROUP BY iva;';
-			$desglose=$this->consulta($sql);
-			if(isset($desglose['error'])){
-				$respuesta=$desglose;
-			}else{
-				$respuesta['desglose']=$desglose['datos'];
-			}
+                $sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`albprolinea`	WHERE idalbpro  IN('.$ids.') and 
+                `estadoLinea` <> "Eliminado" GROUP BY idArticulo + costeSiva';
+                
+                $productos=$this->consulta($sql);
+                if(isset($albaranes['error'])){
+                    $respuesta=$productos;
+                }else{
+                    $respuesta['productos']=$productos['datos'];
+                }
+                $sql='SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
+                as sumarIva, t.Fecha as fecha   from albproIva as i  
+                left JOIN albprot as t on t.id=i.idalbpro   where idalbpro  
+                in ('.$ids.')  GROUP BY idalbpro ;';
+                $resumenBases=$this->consulta($sql);
+                if(isset($resumenBases['error'])){
+                    $respuesta=$resumenBases;
+                }else{
+                    $respuesta['resumenBases']=$resumenBases['datos'];
+                }
+                $sql='SELECT *, sum(importeIva) as sumiva , sum(totalbase) as sumBase from albproIva where idalbpro 
+                in ('.$ids.')  GROUP BY iva;';
+                $desglose=$this->consulta($sql);
+                if(isset($desglose['error'])){
+                    $respuesta=$desglose;
+                }else{
+                    $respuesta['desglose']=$desglose['datos'];
+                }
             }
         }
 		return $respuesta;
 	}
     
-    public function todosProveedores(){
-        $sql='SELECT idProveedor, nombrecomercial FROM proveedores';
-        $consulta=$this->consulta($sql);
-        return $consulta;
-    }
-    public function buscarProductosProveedor($idProveedor){
-        $sql='SELECT * from articulosProveedores where idProveedor='.$idProveedor;
-        $consulta=$this->consulta($sql);
-        return $consulta;
-    }
     
 }
 

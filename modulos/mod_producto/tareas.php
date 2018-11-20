@@ -219,7 +219,7 @@ switch ($pulsado) {
         $respuesta=array();
         $productos=$CProveedor->buscarProductosProveedor($_POST['idProveedor']);
         $idsProductos=array();
-        foreach ($productos['datos'] as $producto){
+        foreach ($productos as $producto){
             
             array_push($idsProductos, $producto['idArticulo']);
         }

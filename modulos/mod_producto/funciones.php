@@ -508,8 +508,9 @@ function prepararandoPostProducto($array,$claseArticulos){
 function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor){
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "Productos");
 	$datosAlbaran=$CAlbaran->datosAlbaran($id);
-	$datosProveedor=$CProveedor->getProveedor($datosAlbaran['idProveedor']);
-	$imprimir['html']="";
+  	$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
+
+    $imprimir['html']="";
 	$imprimir['cabecera']="";
 	$imprimir['html'] .='<p> ALBARÁN NÚMERO : '.$id.'</p>';
 	$date = date_create($datosAlbaran['Fecha']);
@@ -544,7 +545,7 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	
 	$datosHistorico=$CArticulo->historicoCompras($id, $dedonde, "compras");
 	$datosAlbaran=$CAlbaran->datosAlbaran($id);
-	$datosProveedor=$CProveedor->getProveedor($datosAlbaran['idProveedor']);
+	$datosProveedor=$CProveedor->buscarProveedorId($datosAlbaran['idProveedor']);
 	$imprimir['html']="";
 	$imprimir['cabecera']="";
 	$imprimir['html'] .='<p> ALBARÁN NÚMERO : '.$id.'</p>';

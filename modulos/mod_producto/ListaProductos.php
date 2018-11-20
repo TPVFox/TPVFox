@@ -11,12 +11,12 @@
         include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         include_once ($URLCom .'/controllers/parametros.php');
         include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
-        include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
+        include_once $URLCom.'/clases/Proveedores.php';
         $OtrosVarJS ='';
         $htmlplugins = array();
         $CTArticulos = new ClaseProductos($BDTpv);
         $CFamilia=new ClaseFamilias($BDTpv);
-        $CProveedor=new ClaseProveedor($BDTpv);
+        $CProveedor=new Proveedores($BDTpv);
         $Controler = new ControladorComun; // Controlado comun..
         // Añado la conexion
         $Controler->loadDbtpv($BDTpv);
@@ -114,9 +114,9 @@
             );
             $CTArticulos->SetComprobaciones($error);
         }
-        
+        // Obtenemos todos los proveedores para realizar la busqueda producto por proveedores.
         $todosProveedores= $CProveedor->todosProveedores();
-     
+        
          
          if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
@@ -312,8 +312,8 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                    <select id="combobox" class="proveedoresLista">
                                         <option value="0"></option>
                                        <?php 
-                                       
-                                       foreach ($todosProveedores['datos'] as $pro){
+                                    
+                                       foreach ($todosProveedores as $pro){
                                             echo '<option value="'.$pro['idProveedor'].'">'.$pro['nombrecomercial'].'</option>';
                                        }
                                        ?>

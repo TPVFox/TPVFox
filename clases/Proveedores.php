@@ -1,6 +1,6 @@
 <?php 
 
-class Proveedores{
+class Proveedores {
 	private $idProveedor;
 	private $nombreComercial;
 	private $razonSocial;
@@ -70,6 +70,36 @@ class Proveedores{
 		}
 			return $respuesta;
 	}
+
+
+    public function todosProveedores(){
+        $sql='SELECT idProveedor, nombrecomercial FROM proveedores';
+        $smt=$this->consulta($sql);
+
+		if ($smt->fetch_assoc()) {
+            while ($fila = $smt->fetch_assoc()){
+				$proveedores[] = $fila;
+			}
+		} else {
+            $proveedores['error']=$smt['error'];
+			$proveedores['consulta']=$smt['consulta'];
+        }
+        return $proveedores;
+    }
+
+    public function buscarProductosProveedor($idProveedor){
+        $sql='SELECT * from articulosProveedores where idProveedor='.$idProveedor;
+        $smt=$this->consulta($sql);
+        if ($smt->fetch_assoc()) {
+            while ($fila = $smt->fetch_assoc()){
+				$productos_provedor[] = $fila;
+			}
+		} else {
+            $productos_provedor['error']=$smt['error'];
+			$productos_provedor['consulta']=$smt['consulta'];
+        }
+        return $productos_provedor;
+    }
 	
 }
 
