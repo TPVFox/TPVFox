@@ -50,7 +50,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 	public function obtenerProductos($campo,$filtro=''){
 		// @ Objetivo 
 		// Obtener los campos idArticulo,articulo_name,ultimoCoste,beneficio,iva,pvpCiva,estado productos según con el filtro indicado.
-		switch ($campo) {
+        $respuesta = array();
+        switch ($campo) {
 			case 'articulo_name':
 				// Buscamos por nombre de articulo..
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
@@ -61,7 +62,7 @@ class ClaseProductos extends ClaseTablaArticulos{
                 ."(p.idTienda =".$this->idTienda.") "
                 .$filtro;
 				break;
-			case  'crefTienda':
+			case  't.crefTienda':
 				// Buscamos por nombre de articulo..
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
 				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
@@ -69,6 +70,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."LEFT JOIN `articulosPrecios` AS p "
 				."ON (p.`idArticulo` = a.`idArticulo`) AND  "
                 ."(p.idTienda =".$this->idTienda.") "
+                ."LEFT JOIN `articulosTiendas` AS t ON (t.idArticulo = a.idArticulo)"
                 .$filtro;
 				break;
 			case 'codBarras':
@@ -103,13 +105,20 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."LEFT JOIN `articulosTiendas` AS t ON (t.idArticulo = a.idArticulo)"
 				.$filtro;
                 break;
+
+            default :
+                // Hubo un error, no podemos continuar, ya que campo no es correcto.
+                $consulta="KO";
 			
 		}
-		
-		$respuesta = parent::Consulta($consulta);
-        //~ echo '<pre>';
-        //~ echo $consulta;
-        //~ echo '</pre>';
+		if ($consulta !== 'KO'){
+            // Obtenemos items de los productos.
+            $respuesta = parent::Consulta($consulta);
+        } else {
+            $respuesta['error'] = 'Error en campo';
+            $respuesta['consulta'] = ' No se realizo consulta, ya que el campo: '.$campo. '<br/> El campo selecionado y puesto en parametros no es correcto. Recuerda borrar la configuracion de modulo de productos en cada usuario para que vaya correcto.';
+        } 
+        
 		if (isset($respuesta['error'])){
 			// Si existe error devolvemos todo el array
 			return $respuesta;

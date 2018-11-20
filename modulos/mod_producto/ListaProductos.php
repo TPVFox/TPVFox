@@ -106,6 +106,14 @@
             $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro . $NPaginado->GetLimitConsulta());
         }
         
+        if (isset($productos['error'])){
+            //Hubo un error a la ahora obtener los datos de los productos.
+            $error = array('tipo' => 'danger',
+                'dato' => $productos['error'],
+                'mensaje' => $productos['consulta']
+            );
+            $CTArticulos->SetComprobaciones($error);
+        }
         
         $todosProveedores= $CProveedor->todosProveedores();
      
