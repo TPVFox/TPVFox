@@ -73,10 +73,15 @@ class Proveedores {
 
 
     public function todosProveedores(){
+        // @ Objetivo:
+        // Buscar todos los proveedores y obtener los campos idProveedo y nombrecomercial
+        // @ Devolvemos:
+        // Siempre devolvemos un array ...
+        // Podemos devolver proveedores o error.
+        $proveedores = array();
         $sql='SELECT idProveedor, nombrecomercial FROM proveedores';
         $smt=$this->consulta($sql);
-
-		if ($smt->fetch_assoc()) {
+		if (gettype($smt) == 'object') {
             while ($fila = $smt->fetch_assoc()){
 				$proveedores[] = $fila;
 			}

@@ -116,7 +116,14 @@
         }
         // Obtenemos todos los proveedores para realizar la busqueda producto por proveedores.
         $todosProveedores= $CProveedor->todosProveedores();
-        
+        if (isset( $todosProveedores['error'])){
+            //Hubo un error a la ahora obtener los datos de los productos.
+            $error = array('tipo' =>'warning',
+                'dato' => $todosProveedores['error'],
+                'mensaje' => $todosProveedores['error'].' :'.$todosProveedores['consulta']
+            );
+            $CTArticulos->SetComprobaciones($error);
+        }
          
          if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
