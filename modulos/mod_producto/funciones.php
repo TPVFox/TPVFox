@@ -515,7 +515,7 @@ function montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProv
 	$imprimir['html'] .='<p> ALBARÁN NÚMERO : '.$id.'</p>';
 	$date = date_create($datosAlbaran['Fecha']);
 	$imprimir['html'] .='<p> FECHA : '.date_format($date, 'Y-m-d').'</p>';
-	$imprimir['html'] .='<p> PROVEEDOR : '.$datosProveedor['datos'][0]['nombrecomercial'].'</p>';
+	$imprimir['html'] .='<p> PROVEEDOR : '.$datosProveedor['nombrecomercial'].'</p>';
 	$imprimir['html'] .='<br>';
 	
 	
@@ -551,7 +551,7 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	$imprimir['html'] .='<p> ALBARÁN NÚMERO : '.$id.'</p>';
 	$date = date_create($datosAlbaran['Fecha']);
 	$imprimir['html'] .='<p> FECHA : '.date_format($date, 'Y-m-d').'</p>';
-	$imprimir['html'] .='<p> PROVEEDOR : '.$datosProveedor['datos'][0]['nombrecomercial'].'</p>';
+	$imprimir['html'] .='<p> PROVEEDOR : '.$datosProveedor['nombrecomercial'].'</p>';
 	$imprimir['html'] .='<br>';
 	
 	$imprimir['html'] .='<table  WIDTH="100%">';
