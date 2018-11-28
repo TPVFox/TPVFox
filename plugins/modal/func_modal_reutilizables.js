@@ -11,7 +11,7 @@ function abrirDivModal(iddivmodal, titulo) {
     $('#' + iddivmodal).modal('show');
 }
 
-function cerrarPopUp(iddivmodal) {
+function cerrarDivPopUp(iddivmodal) {
     // @ Objetivo :
     // Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
     //cerrar modal busqueda

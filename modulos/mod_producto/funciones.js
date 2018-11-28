@@ -1034,7 +1034,7 @@ function grabarRegularizacion() {
         if(!resultado){
             alert('error al grabar');
         } else 
-        cerrarPopUp('regularizaStockModal');
+        cerrarDivPopUp('regularizaStockModal');
     })
 }
 
