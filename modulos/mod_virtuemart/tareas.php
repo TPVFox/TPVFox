@@ -175,6 +175,25 @@ switch ($pulsado) {
         }
         
     break;
+
+    case 'obtenerIdVirtuemart':
+        // Obtenemos el idVirtuemar del producto que idTpv que recibimos.
+        $idTpv = $_POST['idProductoTpv'];
+        $producto = $CVirtuemart->GetProducto($idTpv);
+        $respuesta['idVirtuemart'] = $CVirtuemart->GetIdVirtuemartRefTiendas($producto['ref_tiendas']);
+    break;
+
+    case 'anhadirCamposIdVirtuemart':
+        // @ Objetivo
+        // Añadimos los campos personalizados de 100grs, 200grs y 500grs  al idvirtuemar que nos indica, pero
+        // solo si no tiene ningun campo personalizado peso ya creado para ese id.
+        // NOTA:
+        // Hay que tener en cuenta que id del campo personalizado ahora lo pongo por defecto el 3, pero esto
+        // tendría que ser un parametro de configuracion ,sino no tiene sentido..
+        $idVirtuemart = $_POST['idVirtuemart'];
+        $respuesta = $CVirtuemart->AnhadirCamposPersonalizadosIdVirtuemart($idVirtuemart);
+
+    break;
     
 }
 echo json_encode($respuesta);

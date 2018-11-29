@@ -327,3 +327,95 @@ function  obtenerProductosRelacionados() {
     });
 
 }
+
+function AnhadirCamposPersonalidosIdPeso(){
+    // @ Objetivo
+    // Iniciar el ciclo para añadir los campos personalizados a los productos tipo peso.
+    // Va hacer uno a uno..
+    // Si no existe referencia en tienda lo salta.
+    if ( totaProductoPeso == reg_inicial){
+        alert ( 'Algo salio mal o no hay productos relacionas en la web');
+        // No continuo.
+        return;
+    }
+    cicloCamposPersonalizado();
+
+}
+
+
+function cicloCamposPersonalizado(){
+    // Iniciamos el ciclo.
+    // Recuerda que el array empieza 0, por eso empezamos obteniendo el reg_inicial 0.
+    BarraProceso(reg_inicial,totaProductoPeso);
+    $("#reg_actual").html(reg_inicial); 
+    var parametros = {
+            "pulsado"       : 'obtenerIdVirtuemart',
+            "idProductoTpv" : Ids[reg_inicial]
+    };
+    $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  Obtener idVirtuemar del producto ****************');
+        },
+        success    :  
+        function (response) {
+            console.log('*** Estoy devuelta de obtenerIdVirtuemart ***');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado.idVirtuemart);
+            if (parseInt(resultado.idVirtuemart) > 0) {
+                AnhadimosCamposVirtuemart(resultado.idVirtuemart);
+            } else {
+                // NO hay idVirtuemart por lo que continuamos con el siguiente del bucle.. ciclo...
+                SinIDVirtuemart = SinIDVirtuemart +1;
+                $("#SinIdVirtuemar").html(SinIDVirtuemart); 
+                reg_inicial = reg_inicial +1 ;
+                if ( totaProductoPeso > reg_inicial){
+                    // Repetimos ciclo.
+                    cicloCamposPersonalizado();
+                } else {
+                    alert ( 'Termino');
+                    // No continuo.
+                
+                }
+            }
+        }
+    });
+}
+
+function AnhadimosCamposVirtuemart(idVirtuemart) {
+    // Objetivo
+    // Vamos a la web y añadimos los campos personalizado si no existen ya claro..
+    if ( totaProductoPeso => reg_inicial){
+        // Debemos añadir ya los campos
+        var parametros = {
+            "pulsado"       : 'anhadirCamposIdVirtuemart',
+            "idVirtuemart" : idVirtuemart
+        };
+        $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+                console.log('*********  Añadir campos personalizadso de peso a los productos ****************');
+            },
+            success    :  
+            function (response) {
+                console.log('*** Estoy devuelta de Añadir Campos en virtuemart ***');
+                var resultado =  $.parseJSON(response);
+                console.log(resultado.Datos);
+                reg_inicial = reg_inicial +1 ;
+                if ( totaProductoPeso > reg_inicial){
+                    // Solo repito ciclo si es menor.
+
+                    cicloCamposPersonalizado();
+                }
+            }
+        });
+        
+    }
+
+
+    
+}

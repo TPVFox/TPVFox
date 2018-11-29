@@ -1240,6 +1240,11 @@ class ClaseProductos extends ClaseTablaArticulos{
             }
 		return $respuesta;
     }
+
+    
+
+
+    
     
 }
 

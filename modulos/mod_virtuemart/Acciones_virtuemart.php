@@ -53,6 +53,14 @@
                 <p><a href="Relacionar_imagenes_virtuemart.php">Empezar</a></p>
             </div>
         </div>
+        <div class="col-md-3">
+            <div style="margin: 1%;padding:3%;border-radius:10px;background-color:#f3f3f6;">
+                <h3>Campo personalizado a los producto que son peso</h3>
+                <p> Obtener los productos de tpv que son peso</p>
+                <p> Marcamos los pesos por los queremos venderlos en la tienda online, al procesar comprobamos si existe o no, si no existe entonceslo lo creamos.</p>
+                <p><a href="Subir_campospersonalizado_peso_virtuemart.php">Empezar</a></p>
+            </div>
+        </div>
         
     </div>
 </body>
