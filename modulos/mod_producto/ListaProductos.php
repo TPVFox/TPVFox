@@ -125,11 +125,11 @@
             $CTArticulos->SetComprobaciones($error);
         }
          
-         if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+        if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
             echo $ObjVirtuemart->htmlJava();
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-         }
+        }
         
         // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
