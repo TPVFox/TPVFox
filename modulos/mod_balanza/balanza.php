@@ -39,9 +39,6 @@
             }
              $htmlplus = htmlTablaPlus($plus, $id);
           ?>
-        <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
-        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
         <script type="text/javascript">
@@ -69,21 +66,19 @@
                 }
                 ?>
             </div>
-            <div class="col-md-5 Datos">
+            <div class="col-md-3 Datos">
                 <div class="col-md-12" id="errores">
                 </div>
                  <div class="col-md-12">
                     <h4>Datos de la balanza con ID:<?php echo $id?></h4>
                 </div>
                 <div class="col-md-12">
-                    <div class="col-md-6">
-                        <label>Nombre de la balanza</label>
-                        <input type="text" name="nombreBalanza" id="nombreBalanza" value="<?php echo $nombreBalanza;?>">
-                    </div>
-                    <div class="col-md-6">
-                        <label>Modelo de la balanza</label>
-                        <input type="text" name="modeloBalanza" id="modeloBalanza" value="<?php echo $modeloBalanza;?>">
-                    </div>
+                    <label>Nombre de la balanza</label>
+                    <input type="text" name="nombreBalanza" id="nombreBalanza" value="<?php echo $nombreBalanza;?>">
+                </div>
+                 <div class="col-md-12">
+                    <label>Modelo de la balanza</label>
+                    <input type="text" name="modeloBalanza" id="modeloBalanza" value="<?php echo $modeloBalanza;?>">
                 </div>
                 <div class="col-md-12">
                     <label>Teclas en la balanza</label>
@@ -92,7 +87,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-md-7 text-center">
+            <div class="col-md-9 text-center">
               
                     <div class="panel-group">
                         <?php 
@@ -109,29 +104,6 @@
     // hacemos comprobaciones de estilos 
     ?>
     </div>
-    <style>
-           
-#enlaceIcon{
-    height: 2.2em;
-}
- .custom-combobox {
-    position: relative;
-    display: inline-block;
-  }
-  .custom-combobox-toggle {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    margin-left: -1px;
-    padding: 0;
-  }
-  .custom-combobox-input {
-    margin: 0;
-    padding: 5px 10px;
-  }
-  ul.ui-autocomplete {
-    z-index: 1050;
-}
-</style>
+  
     </body>
 </html>

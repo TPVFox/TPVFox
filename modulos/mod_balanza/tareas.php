@@ -40,8 +40,8 @@ switch ($pulsado) {
     case 'buscarProducto':
     //@Objetivo: buscar producto
     //Devuelve o los datos de un  producto o el html del modal
-        $campo=camposBuscar($_POST['campo'], $_POST['busqueda']);
-        $result=$CBalanza->buscarArticuloCampo($campo);
+        $busqueda=camposBuscar($_POST['campo'], $_POST['busqueda']);
+        $result=$CBalanza->buscarArticuloCampo($busqueda);
         if(count($result['datos'])==1){
             $datos=array(
             'idArticulo'=>$result['datos'][0]['idArticulo'],
@@ -73,6 +73,7 @@ switch ($pulsado) {
         $plu = $_POST['plu'];
         $crefTienda = $_POST['cref'];
         $articulo_name = $_POST['articulo_name'];
+        $pvpCiva = $_POST['pvpCiva'];
         if(isset($_POST['tecla'])){
             $tecla = $_POST['tecla'];
         }else{
@@ -90,7 +91,8 @@ switch ($pulsado) {
             'tecla'=> $tecla,
             'idArticulo'=>$idArticulo,
             'articulo_name' => $articulo_name,
-            'crefTienda' => $crefTienda
+            'crefTienda' => $crefTienda,
+            'pvpCiva' => $pvpCiva
             );
             $html=htmlLineaPlu($datos, $idBalanza);
             $respuesta['html']=$html;

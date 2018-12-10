@@ -117,16 +117,18 @@ function buscarProducto(caja, valor){
 		}
 	});
 }
-function datosEnInput(id, nombre, ref, codBarras){
+function datosEnInput(id, nombre, ref, codBarras,precioCiva){
     //@Objetivo: cuando se tengan los datos del producto se introducen en los respectivos inputs
     $('#idArticulo').val(id);
     $('#nombreProducto').val(nombre);
     $('#referencia').val(ref);
     $('#codBarras').val(codBarras);
+    $('#precioCIva').val(precioCiva);
+
 }
-function buscarProductosModal(id, nombre, ref, codBarras){
+function seleccionProductoModal(id, nombre, ref, codBarras,precioCiva){
     //@OBjetivo:  cuando se obtienen los datos del producto desde el modal se introducen en los respectivos inputs
-    datosEnInput(id, nombre, ref, codBarras);
+    datosEnInput(id, nombre, ref, codBarras,precioCiva);
     cerrarPopUp();
 }
 function addPlu(idBalanza){
@@ -136,6 +138,7 @@ function addPlu(idBalanza){
     var cref=$('#referencia').val();
     var articulo_name=$('#nombreProducto').val();
     var tecla=$('#teclaPlu').val();
+    var pvpCiva = $('#precioCIva').val();
     if(id=="" || plu =="" ){
         alert("Quedan campos sin cubrir");
     }else{
@@ -146,7 +149,8 @@ function addPlu(idBalanza){
             "cref"          : cref,
             "articulo_name" : articulo_name,
             "tecla"         : tecla,
-            "idBalanza"     : idBalanza
+            "idBalanza"     : idBalanza,
+            "pvpCiva"       : pvpCiva
         };
          $.ajax({
 		data       : parametros,

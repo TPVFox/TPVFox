@@ -53,7 +53,7 @@ class ClaseBalanza  extends Modelo  {
     }
     
     public function pluDeBalanza($idBalanza, $filtro){
-        //Objetivo: MOstrar los datos de cada plu y del articulo que lo compone
+        //Objetivo: Obtener los plu de la balanza con todos los datos que necesitamos para mostrar
         //Parametros:
         //  idBalanza: id de la balanza
         //  filtro: Filtro por el que vamos a ordenar, puede ser por tecla o por número de plu
@@ -66,13 +66,15 @@ class ClaseBalanza  extends Modelo  {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
-    public function buscarArticuloCampo($campo){
-        //@Objetivo: buscar los datos de un articulo en concreto indicandi por que campo buscar
-        $sql='SELECT a.idArticulo, a.articulo_name, b.crefTienda, c.codBarras 
-        from articulos as a INNER JOIN articulosTiendas as b on a.idArticulo=b.idArticulo inner JOIN
-        articulosCodigoBarras as c on a.idArticulo=c.idArticulo inner join tiendas as d on 
-        b.idTienda=d.idTienda 
-        where d.tipoTienda="principal" and '.$campo;
+    public function buscarArticuloCampo($busqueda){
+        //@ Objetivo:
+        // Buscar Articulos según el campo
+                $sql='SELECT a.idArticulo, a.articulo_name, b.crefTienda, c.codBarras,p.pvpCiva
+                from articulos as a LEFT JOIN articulosTiendas as b on a.idArticulo=b.idArticulo LEFT JOIN
+                articulosCodigoBarras as c on a.idArticulo=c.idArticulo LEFT join tiendas as d on 
+                b.idTienda=d.idTienda  left join articulosPrecios as p on p.idArticulo=a.idArticulo 
+                where d.tipoTienda="principal" and '.$busqueda;
+
         $resultado = $this->consulta($sql);
         return $resultado;
     }
