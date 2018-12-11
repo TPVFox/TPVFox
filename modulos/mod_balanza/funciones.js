@@ -173,7 +173,7 @@ function addPlu(idBalanza){
                 $('#codBarras').val("");
                 $('#plu').val("");
                 $('#teclaPlu').val("");
-                
+                $('#precioConIva').val("");
             }
 		}
 	});

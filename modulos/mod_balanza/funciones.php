@@ -28,9 +28,8 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 }
 function  htmlTablaPlus($plus, $id){
 	// @ Objetivo
-	// Montar la tabla html de codbarras
+	// Montar la tabla html de plu
 	// @ Parametros
-	// 		$codBarras -> (array) con los codbarras del producto.
 	$html =	 '<table id="tPlus" class="table table-striped">'
 			.'		<thead>'
 			.'			<tr>'
@@ -65,6 +64,10 @@ function  htmlTablaPlus($plus, $id){
 
 function htmlLineaPlu( $plu, $idBalanza){
     //@OBjetivo: imprimir las lineas de plus de una balanza con los datos de un articulo
+    $imagen= '';
+    if ($plu['tipo'] === 'peso'){
+        $imagen='<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
+    }
    $nuevaFila = '<tr id="plu_'.$plu['plu'].'">'
 				. '<td><input type="hidden" id="idPlu_'.$plu['plu']
 				.'" name="idPlu'.$plu['plu'].'" value="'.$plu['plu'].'">'
@@ -75,6 +78,7 @@ function htmlLineaPlu( $plu, $idBalanza){
                 .'<td>'.$plu['crefTienda'].'</td>'
                 .'<td>'.$plu['articulo_name'].'</td>'
                 .'<td>'.number_format($plu['pvpCiva'],2).'</td>'
+                .'<td>'.$imagen.'</td>'
                 .'<td><a id="eliminar_'.$plu['plu']
 				.'" class="glyphicon glyphicon-trash" onclick="eliminarPlu('."'".$plu['plu']."'".', '.$idBalanza.')"></a>'
 				.'</td>'.'</tr>';
@@ -213,20 +217,31 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
             <td><b>Descripción</b></td>
             <td><b>Referencia</b></td>
             <td><b>PVP</b></td>
+            <td><b>Tipo</b></td>
         </tr>';
         $indice=0;
     foreach ($datosplu as $plu){
         $espacio="";
-        $sigIndice=$indice+1;
         
-        $html.='<tr>
+        $imagen= '';
+        $class = '';
+        if ($plu['tipo'] === 'peso'){
+            $imagen='<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
+        }
+        if (isset($plu['duplicado'])){
+            $class='class="alert alert-danger" title="Producto duplicado en esta balanza"';
+        }
+        $html.='<tr '.$class.'>
             <td>'.$plu['plu'].'</td>
             <td>'.$plu['tecla'].'</td>
             <td>'.$plu['idArticulo'].'</td>
             <td>'.$plu['articulo_name'].'</td>
             <td>'.$plu['crefTienda'].'</td>
             <td>'.number_format($plu['pvpCiva'],2).'</td>
+            <td>'.$imagen.'</td>
         </tr>';
+        // Comprobamos que va correlatio plu, pero esto es valido plu, pero para tecla ???
+        $sigIndice=$indice+1;
         if(isset($datosplu[$sigIndice])){
             // Si hay plu no utilizados mostramos advertencia.
             $resta=$datosplu[$sigIndice]['plu']-$datosplu[$indice]['plu'];
