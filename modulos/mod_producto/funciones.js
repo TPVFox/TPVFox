@@ -1388,3 +1388,28 @@ function busquedaSinCheck(){
     AjaxGuardarConfiguracion();
     location.href="ListaProductos.php";
 }
+
+function obtenerFechas(){
+    // Objetivo :
+    // Obtener las fechas de inicio y final que hay en cajas de las vistas mayor
+    // Devuelve fechas en array
+    if ( $("#fecha_inicio").val() > $("#fecha_final").val()){
+        alert("La fecha inicio no puede ser mayor que la fecha final");
+        return;
+    }
+    Fechas = [ $("#fecha_inicio").val(), $("#fecha_final").val()];
+    console.log(Fechas);
+    return Fechas;
+
+}
+
+function redirecionarMayor(idArticulo,adonde){
+    // Objetivo:
+    // El objetivo es redireccionar a la vista de Mayor o generar el informe
+
+    // Obtenemos Fechas de cajas:
+    Fechas = obtenerFechas();
+    if (adonde === 'DetalleMayor'){
+        location.href ="./DetalleMayor.php?idArticulo="+idArticulo+"&fecha_inicial="+Fechas[0]+"&fecha_final="+Fechas[1];
+    }
+}

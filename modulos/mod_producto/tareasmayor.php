@@ -68,7 +68,8 @@ switch ($pulsado) {
         break;
 
     case 'imprimemayor':
-
+        // Aqui venía cuando pulsabamos en generar mayor despues escoger la fechas.
+        
         $idArticulo = $_POST['idproducto'];
         $stockinicial = $_POST['stockinicial'];
         $fechainicio = $_POST['fechainicio'];

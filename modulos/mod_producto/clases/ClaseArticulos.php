@@ -165,21 +165,24 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
     }
 
     public function calculaMayor($parametros) {
+        // Campo tipodoc indica si es (C) Compra ,(T) Ticket o (V) albaran de venta 
         $sqlprepare = [];
         $sqlprepare['sqlAlbcli'] = 'SELECT alb.fecha'
                 . ', "0" as entrega'
                 . ', "0" as precioentrada'
                 . ', linalb.nunidades as salida'
                 . ', linalb.precioCiva as preciosalida'
-                . ', " " as tipodoc '
+                . ', "V" as tipodoc '
+                . ', " " as serie'
                 . ', alb.Numalbcli as numdocu '
+                . ', alb.Numalbcli as numid'
                 . ', cli.Nombre as nombre'
                 . ', alb.estado as estado'
                 . ' FROM albclit as alb '
                 . ' JOIN albclilinea as linalb ON (alb.id=linalb.idalbcli) '
                 . ' JOIN clientes as cli ON (alb.idCliente = cli.idClientes) '
-                . ' WHERE DATE(alb.Fecha) >= "' . $parametros['fechadesde'] . '"'
-                . ' AND DATE(alb.Fecha) <= "' . $parametros['fechahasta'] . '"'
+                . ' WHERE DATE(alb.Fecha) >= "' . $parametros['fecha_inicial'] . '"'
+                . ' AND DATE(alb.Fecha) <= "' . $parametros['fecha_final'] . '"'
                 . ' AND linalb.idArticulo = ' . $parametros['idArticulo'];
 
         $sqlprepare['sqlTiccli'] = 'SELECT tic.fecha'
@@ -187,15 +190,17 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ', "0" as precioentrada'
                 . ', lintic.nunidades as salida'
                 . ', lintic.precioCiva as preciosalida'
-                . ', CONCAT("T", tic.idTienda,"-",tic.idUsuario,"-") as tipodoc '
+                . ', "T" as tipodoc '
+                . ', CONCAT("T", tic.idTienda,"-",tic.idUsuario,"-") as serie '
                 . ', tic.Numticket as numdocu '
+                . ', tic.id as numid'
                 . ', cli.Nombre as nombre'
                 . ', tic.estado as estado'
                 . ' FROM ticketst as tic '
                 . ' JOIN ticketslinea as lintic ON (tic.id=lintic.idticketst) '
                 . ' JOIN clientes as cli ON (tic.idCliente = cli.idClientes) '
-                . ' WHERE DATE(tic.Fecha) >= "' . $parametros['fechadesde'] . '"'
-                . ' AND DATE(tic.Fecha) <= "' . $parametros['fechahasta'] . '"'
+                . ' WHERE DATE(tic.Fecha) >= "' . $parametros['fecha_inicial'] . '"'
+                . ' AND DATE(tic.Fecha) <= "' . $parametros['fecha_final'] . '"'
                 . ' AND lintic.idArticulo = ' . $parametros['idArticulo']
                 . ' AND lintic.estadoLinea = "Activo"';
 
@@ -204,20 +209,22 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
                 . ', linalb.costeSiva as precioentrada'
                 . ', "0" as salida'
                 . ', "0" as preciosalida'
-                . ', " " as tipodoc '
+                . ', "C" as tipodoc '
+                . ', " " as serie '
                 . ', alb.Numalbpro as numdocu '
+                . ', alb.Numalbpro as numid'
                 . ', pro.razonsocial as nombre'
                 . ', alb.estado as estado'
                 . ' FROM albprot as alb '
                 . ' JOIN albprolinea as linalb ON (alb.id=linalb.idalbpro) '
                 . ' JOIN proveedores as pro ON (alb.idProveedor = pro.idProveedor) '
-                . ' WHERE DATE(alb.Fecha) >= "' . $parametros['fechadesde'] . '"'
-                . ' AND DATE(alb.Fecha) <= "' . $parametros['fechahasta'] . '"'
+                . ' WHERE DATE(alb.Fecha) >= "' . $parametros['fecha_inicial'] . '"'
+                . ' AND DATE(alb.Fecha) <= "' . $parametros['fecha_final'] . '"'
                 . ' AND linalb.idArticulo = ' . $parametros['idArticulo'];
-        $sql = implode(' UNION ', $sqlprepare);
+        $sql = implode(' UNION ALL ', $sqlprepare);
         $sql .= ' ORDER BY fecha ';
-        $sqldata = $this->consulta($sql);
-        return $sqldata;
+        $datos = $this->consulta($sql);
+        return $datos;
     }
 
     public function calculaStock($idArticulo, $idTienda = 1) {
