@@ -125,6 +125,7 @@
 </head>
 <body>
 <?php
+
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 	// Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
 	if ($ticket_numero > 0){
@@ -215,7 +216,18 @@
 	</script>
 <?php } ?>
 <div class="container">
-<?php 
+
+<audio id="sonido_selecionaProducto" style="display:none;">
+<source type="audio/mpeg" src="/superoliva/tpvfox_provincial/lib/sonidos/seleccionaProducto.mp3">
+</audio>
+<audio id="sonido_alerta" style="display:none;">
+<source type="audio/mpeg" src="/superoliva/tpvfox_provincial/lib/sonidos/buscar.mp3">
+</audio>
+<script>
+var sonido_selecionaProducto = document.getElementById("sonido_selecionaProducto");
+var sonido_alerta = document.getElementById("sonido_alerta");
+</script>
+<?php
 // Si hubo errores entonces los mostramos:
 if (count($Control_Error)>0){
 	foreach ( $Control_Error as $error){

@@ -55,9 +55,8 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
 
         $busquedas[] = implode(' and ', $likes);
     }
-    $i = 0;
-    foreach ($busquedas as $buscar) {
-        /* Buscamos identico primero y luego likes */
+    foreach ($busquedas as $key=>$buscar) {
+        /* Bandera ($key) nos va indicar si busco por identico o por like */
         $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
                 . ' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
                 . ' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
@@ -68,7 +67,7 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
 
         $resultado['Nitems'] = $res->num_rows;
         // Al ser identicos, es correcto, eso en la primera busqueda
-        if ($i === 0) {
+        if ($key === 0) {
             if ($res->num_rows > 0) {
                 $resultado['Estado'] = 'Correcto';
                 // No volvemos a buscar posibles (LIKE)
@@ -82,7 +81,6 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
             error_log('Error_buscar_producto:' . json_encode($resultado['error']) . '  Consulta:' . $sql);
             return $resultado;
         }
-        $i++;
     }
 
     if (isset($res->num_rows)) {
@@ -105,7 +103,7 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
             $resultado['datos'] = $products;
         }
     }
-
+    $resultado['tipo_busqueda'] = $key; // 0 es identico y 1 es por like
     return $resultado;
 }
 

@@ -110,7 +110,20 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 			}
 			// Se ejecuta tanto sea un listado como un error.
 			console.log('===== Entro en Estado Listado de funcion buscarProducto =====');
-			var busqueda = resultado.listado;   
+            var advertencia = resultado.tipo_busqueda;
+            if (id_input === 'Codbarras' && resultado['dedonde'] !== 'popup'){
+                // Si venimos de caja Codbarras y no estamos popup.
+                // como vamos listar , hacemos una advertencia.
+                if (advertencia === 0 ){
+                // Si llega aquí es que busco por igualdad y encontro mas de un resultado
+                sonido_selecionaProducto.play();
+                }
+                if (advertencia ===1){
+                // Se busco contenga. Es un posible error.
+                sonido_alerta.play();
+                }
+            }
+            var busqueda = resultado.listado;   
 			var HtmlProductos=busqueda.html;   
 			var titulo = 'Listado productos encontrados ';
 			// Abrimos modal de productos.
