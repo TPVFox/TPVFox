@@ -218,10 +218,10 @@
 <div class="container">
 
 <audio id="sonido_selecionaProducto" style="display:none;">
-<source type="audio/mpeg" src="<?php echo $HostNombre:?>/lib/sonidos/seleccionaProducto.mp3">
+<source type="audio/mpeg" src="<?php echo $HostNombre;?>/lib/sonidos/seleccionaProducto.mp3">
 </audio>
 <audio id="sonido_alerta" style="display:none;">
-<source type="audio/mpeg" src="<?php echo $HostNombre:?>/lib/sonidos/buscar.mp3">
+<source type="audio/mpeg" src="<?php echo $HostNombre;?>/lib/sonidos/buscar.mp3">
 </audio>
 <script>
 var sonido_selecionaProducto = document.getElementById("sonido_selecionaProducto");
