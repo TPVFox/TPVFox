@@ -1410,6 +1410,8 @@ function redirecionarMayor(idArticulo,adonde){
     // Obtenemos Fechas de cajas:
     Fechas = obtenerFechas();
     if (adonde === 'DetalleMayor'){
-        location.href ="./DetalleMayor.php?idArticulo="+idArticulo+"&fecha_inicial="+Fechas[0]+"&fecha_final="+Fechas[1];
+        var href ="./DetalleMayor.php?idArticulo="+idArticulo+"&fecha_inicial="+Fechas[0]+"&fecha_final="+Fechas[1];
+        window.open(href,'_blank')
+
     }
 }
