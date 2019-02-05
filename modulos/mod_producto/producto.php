@@ -407,16 +407,12 @@
               $("#tfamilias a").hide();
             <?php
         }
-         if($ClasePermisos->getAccion("verProductosTienda")==0){
-             ?>
-              $("#tproveedor a").hide();
-            <?php
-         }
-           if($ClasePermisos->getAccion("verHistoricoPrecios")==0){
-              ?>
-                $("#thitorico a").hide();
-              <?php 
-           }
+        
+        if($ClasePermisos->getAccion("verHistoricoPrecios")==0){
+            ?>
+               $("#thitorico a").hide();
+             <?php 
+        }
         ?>
     </script> 
         <style>
