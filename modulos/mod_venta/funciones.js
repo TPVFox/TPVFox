@@ -1,17 +1,19 @@
 function metodoClick(pulsado,adonde){
 	console.log("Inicimos switch de control pulsar");
-	switch(pulsado) {
+    console.log('Adonde:'+adonde);
+    switch(pulsado) {
 		case 'Ver':
 			console.log('Entro en Ver pedido');
 			// Cargamos variable global ar checkID = [];
 			//~ VerIdSeleccionado ();
+            
             checkID = leerChecked('check_'+ adonde);
 			if (checkID.length >1 || checkID.length=== 0) {
-				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				alert ('Que ver items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
 			}
 			// Ahora redireccionamos 
-			window.location.href = './'+adonde+'.php?id='+checkID[0];
+			window.location.href = './'+adonde+'.php?id='+$('#'+checkID[0]).val();
 			break;
 		case 'AgregarPedido':
 			console.log('entro en agregar producto');
