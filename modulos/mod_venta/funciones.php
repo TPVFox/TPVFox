@@ -274,7 +274,7 @@ function recalculoTotales($productos) {
 	
 	$respuesta['desglose'] = $desglose;
 	$respuesta['subivas']=$subivas;
-	$respuesta['total'] = number_format($subtotal,2);
+	$respuesta['total'] = $subtotal;
 	return $respuesta;
 }
 
@@ -874,7 +874,7 @@ function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
 						$productos_para_recalculo = json_decode( $productos );
 						if(count($productos_para_recalculo)>0){
 							$CalculoTotales = recalculoTotales($productos_para_recalculo);
-							$total=round($CalculoTotales['total'],2);
+                            $total=round($CalculoTotales['total'],2);
 						}else{
 							$errores[0]=array ( 'tipo'=>'Warning!',
 								 'dato' => '',
