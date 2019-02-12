@@ -22,9 +22,6 @@
 								 );
 	}
 	$todosTemporal=array_reverse($todosTemporal);
-	
-	$Tienda = $_SESSION['tiendaTpv'];
-		
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numalbcli','b.Nombre');
@@ -45,7 +42,7 @@
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$a=$Calbaran->TodosAlbaranesFiltro($filtro.$NPaginado->GetLimitConsulta());
-	$albaranesDef=$a['Items'];
+    $albaranesDef=$a['Items'];
 if (isset($a['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $a['consulta'],
@@ -163,15 +160,17 @@ if (isset($errores)){
 				</thead>
 				<tbody>
 					<?php 
-						$checkUser = 0;
+						$c = 0;
 						foreach ($albaranesDef as $albaran){
-						
-							$checkUser = $checkUser + 1;
+                            $c = $c+1;
+							$checkUser = '<input class="check_albaran" type="checkbox" name="checkUsu'.$c
+                                        .'" value="'.$albaran['id'].'" id="checkUsu'.$c.'">';
 							$totaliva=$Calbaran->sumarIva($albaran['Numalbcli']);
 							$date=date_create($albaran['Fecha']);
 						?>
 						<tr>
-						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $albaran['id'];?>">
+						<td class="rowUsuario">
+                            <?php echo $checkUser;?>
                         <td>
                             <?php 
                              if($ClasePermisos->getAccion("Modificar")==1){
@@ -202,10 +201,11 @@ if (isset($errores)){
 							<td><?php echo $albaran['estado'];?></td>
 							<?php
 						}else{
-							$tienda=json_encode($_SESSION['tiendaTpv']);
+							$onclick=" onclick='imprimir(".$albaran['id'].',"albaran",'.json_encode($_SESSION['tiendaTpv']).")'";
 							
 							?>
-						<td><?php echo $albaran['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $albaran['id'];?>, "albaran", <?php echo $tienda;?>)'></a></td>
+						<td><?php echo $albaran['estado'];?>  <a class="glyphicon glyphicon-print" <?php echo $onclick;?> ></a>
+                        </td>
 
 							
 							<?php
