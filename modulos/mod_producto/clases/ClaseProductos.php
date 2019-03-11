@@ -250,6 +250,10 @@ class ClaseProductos extends ClaseTablaArticulos{
 									'5' =>  array(
 											'estado'      =>'importado',
 											'Descripcion' =>'Producto importado, de alguna tienda. Se creo forma automatica. Se cambia el estado, cuando ya lo compremos o cuando lo modifiquemos en ficha de producto'
+											),
+                                    '6' =>  array(
+											'estado'      =>'actualizado',
+											'Descripcion' =>'Producto que actualizado a traves de una importación.'
 											)
 									);
 		// Añado en todas la tablas menos en la articulos ya que son los por defecto.

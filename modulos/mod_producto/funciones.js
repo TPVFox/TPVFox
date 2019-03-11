@@ -491,6 +491,22 @@ function GuardarBusqueda(event){
 	
 }
 
+function GuardarFiltroEstado(event){
+	// @ Objetivo :
+	// Guardar el campo el que se busca en la configuracion del usuario y del modulo.
+	// @ Parametro:
+	// 		event-> Es select....
+	console.log("GuardarFiltroEstado");
+    if (event.target.value !== 'Sin Filtrar'){
+        configuracion.estado_filtro = event.target.value;
+    } else {
+        delete configuracion.estado_filtro;
+    }
+    // Ahora creamos grabamos configuracion en usuario
+    AjaxGuardarConfiguracion();
+    // Redireccionamos
+    setTimeout(refresh,1000);
+}
 
 function refresh() {
 	// Funcion para recargar pagina.
@@ -808,9 +824,6 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 				 var resultado = $.parseJSON(response);
 				 console.log(resultado);
 				 window.open(resultado['fichero']);
-				 //~ if (bandera==1){
-					//~ location.href="ListaProductos.php";
-				//~ }
 				 
 		}	
 	});
@@ -1092,10 +1105,8 @@ function modalEstadoProductos(){
 				var titulo = 'Modificar Producto ';
                 abrirModal(titulo,resultado.html);
                
-				//~ setTimeout(function(){
                         $( ".custom-combobox-input" ).focus();
                        
-                //~ },3000);
 		}	
 	});
 }
@@ -1225,9 +1236,6 @@ function guardarProductoFamilia(idfamilia, idProducto){
                         $("#tfamilias").prepend(nuevafila);
                     }
                 }
-                
-				//cerrar modal y añadir la fila
-				 
 		}	
 	});
     
@@ -1256,8 +1264,6 @@ function buscarProductosFamilia(idFamilia){
                        }
             }	
         });
-    
-    
 }
 function buscarProductosProveedor(idProveedor){
       var parametros = {
@@ -1280,9 +1286,10 @@ function buscarProductosProveedor(idProveedor){
                           
                            selecionarItemProducto(productos[i], "listaProductos");
                        }
-            }	
+            }
         });
 }
+
 function EliminarHistorico(idHistorico, e){
    var mensaje = confirm("¿Estás seguro que quieres eliminar este registro de historico?");
 	if (mensaje) {
@@ -1312,13 +1319,9 @@ function EliminarHistorico(idHistorico, e){
                         var bisa=abuelo.parentNode; 
                         bisa.removeChild(abuelo);
                    }
-                   
-                  
-                     
-            }	
+            }
         });
     }
-    
 }
 
 function eliminarProductos(idTiendaWeb=0){
@@ -1353,10 +1356,7 @@ function eliminarProductos(idTiendaWeb=0){
                    }else{
                        location.reload(true);
                    }
-                   
-                  
-                     
-            }	
+            }
         });
     }
 }

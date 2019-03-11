@@ -203,7 +203,7 @@ switch ($pulsado) {
     break;
     case 'buscarProductosDeFamilia':
         $respuesta=array();
-        if($_POST['idfamilia']=="01"){
+        if($_POST['idfamilia']=="0"){
              $productos=$CFamilia->buscarProductosSinFamilias();
         }else{
             $productos=$CFamilia->buscarProductosFamilias($_POST['idfamilia']);
