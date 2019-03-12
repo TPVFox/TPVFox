@@ -262,8 +262,8 @@ class PluginClasePaginacion {
 	}
 	
 	
-	public function SetCamposControler($controler,$campos){
-		$this->controler = $controler;
+	public function SetCamposControler($campos){
+		//~ $this->controler = $controler;
 		$this->campos = $campos;
 		if ($this->Busqueda !==''){
 			$this->SetFiltroWhere();
@@ -271,13 +271,13 @@ class PluginClasePaginacion {
 	}
 	
 	public function SetFiltroWhere($operador='AND'){
-		$controler =$this->controler;
+		//~ $controler =$this->controler;
 		$campos = $this->campos;
-		$this->filtroWhere = 'WHERE ('.$controler->ConstructorLike($campos,$this->Busqueda,$operador).') ';
+		$this->filtroWhere = 'WHERE ('.$this->ConstructorLike($campos,$this->Busqueda,$operador).') ';
 		
 	}
-	public function  SetOrderConsulta($campoOrd=''){
-		$controler =$this->controler;
+	public function SetOrderConsulta($campoOrd=''){
+		//~ $controler =$this->controler;
 		if($campoOrd != ''){
 			$this->filtroOrd=' ORDER BY '.$campoOrd.' DESC ';
 		}
@@ -295,6 +295,40 @@ class PluginClasePaginacion {
         // Es añadir al linkbase otros parametros que podemos necesitar enviar por get
         // $otrosParametros -> (string) con los parametros queremos enviar a mayores pagina y buscar.
         $this->LinkBase = $this->LinkBase.$otrosParametros;
+    }
+
+
+    public function ConstructorLike($campos,$a_buscar,$operador='AND'){
+        // @ Objetivo:
+        // Construir un where con like de palabras y el campo indicado
+        // Si contiene simbolos extranos les ponemos espacios para buscar palabras sin ellos.
+        // @ Parametros:
+        //  $campos -> (array) Campos los que buscar..
+        //  $a_buscar-> (String) Que puede contener varias palabras.
+        // 	$operador -> (String) puede ser OR o AND.. no mas...
+        
+        $buscar = array(',',';','(',')','-','"');
+        $sustituir = array(' , ',' ; ',' ( ',' ) ',' - ',' ');
+        $string  = str_replace($buscar, $sustituir, trim($a_buscar));
+        $palabras = explode(' ',$string);
+        $likes = array();
+        // La palabras queremos descartar , la ponemos en mayusculas
+        foreach($palabras as $palabra){
+            if (trim($palabra) !== '' && strlen(trim($palabra))){
+                // Entra si la palabra tiene mas 3 caracteres.
+                // Aplicamos filtro de palabras descartadas
+                
+                    foreach ($campos as $campo){
+                        $likes[] =  $campo.' LIKE "%'.$palabra.'%" ';
+                    }
+                    
+                
+            }
+        }
+        // Montamos busqueda con el operador indicado o el por defecto
+        $operador = ' '.$operador.' ';
+        $busqueda = implode($operador,$likes);
+        return $busqueda;
     }
 	
 }

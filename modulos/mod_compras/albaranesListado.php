@@ -34,7 +34,7 @@ $todosTemporal=array_reverse($todosTemporal);
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numalbpro','b.nombrecomercial');
 
-	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetCamposControler($campos);
 	$NPaginado->SetOrderConsulta('a.Numalbpro');
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND

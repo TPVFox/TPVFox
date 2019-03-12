@@ -29,7 +29,7 @@
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'b.articulo_name','a.num_lote');
 
-	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetCamposControler($campos);
     $NPaginado->SetOrderConsulta('a.num_lote');
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND

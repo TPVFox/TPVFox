@@ -90,7 +90,7 @@
         // --- Inicializamos objeto de Paginado --- //
         $NPaginado = new PluginClasePaginacion(__FILE__);
         $campos = array($htmlConfiguracion['campo_defecto']);
-        $NPaginado->SetCamposControler($Controler, $campos);
+        $NPaginado->SetCamposControler($campos);
         // --- Ahora contamos registro que hay para es filtro --- //
         $filtro = $NPaginado->GetFiltroWhere();
         $CantidadRegistros = 0;

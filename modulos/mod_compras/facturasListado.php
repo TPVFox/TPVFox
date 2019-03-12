@@ -20,7 +20,7 @@
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numfacpro','b.nombrecomercial');
 	$NPaginado->SetOrderConsulta('a.Numfacpro');
-	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetCamposControler($campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 	$CantidadRegistros=0;

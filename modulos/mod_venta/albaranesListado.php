@@ -26,7 +26,7 @@
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numalbcli','b.Nombre');
 
-	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetCamposControler($campos);
 	$NPaginado->SetOrderConsulta('a.Numalbcli');
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
