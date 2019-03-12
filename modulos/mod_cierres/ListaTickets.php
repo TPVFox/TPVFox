@@ -43,7 +43,7 @@
         $otrosParametros = 'estado='.$_GET['estado'].'&idUsuario='.$_GET['idUsuario'].'&idCierre='. $_GET['idCierre'].'&';
         $NPaginado->AnahadirLinkBase($otrosParametros);
         $campos = array ('formaPago','Numticket','Nombre');
-        $NPaginado->SetCamposControler($Controler,$campos);
+        $NPaginado->SetCamposControler($campos);
         //~ $NPaginado->SetOrderConsulta('a.Numalbpro');
         $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
         $t =  obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda);

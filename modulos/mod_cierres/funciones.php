@@ -99,29 +99,29 @@ function nombreUsuario($BDTpv,$idUsuario){
 
 
 
-function obtenerCierres($BDTpv ,$filtro='',$limite='') {
-	// Function para obtener cierres y listarlos
-	//tablas usadas: - cierres
-				//	 - usuarios
-	$resultado = array();
-	if (trim($filtro) !=''){
-		$filtro = ' '.$filtro;
-	}
-	$consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
-				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro.$limite; 
+//~ function obtenerCierres($BDTpv ,$filtro='',$limite='') {
+	//~ // Function para obtener cierres y listarlos
+	//~ //tablas usadas: - cierres
+				//~ //	 - usuarios
+	//~ $resultado = array();
+	//~ if (trim($filtro) !=''){
+		//~ $filtro = ' '.$filtro;
+	//~ }
+	//~ $consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
+				//~ ." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro.$limite; 
 	
-	$Resql = $BDTpv->query($consulta);	
-	if ($Resql){
-		while ($datos = $Resql->fetch_assoc()) {
-			$resultado[]=$datos;
-		}
-	} else  {
-		$resultado['consulta'] = $consulta;
-		$resultado['error'] = $BDTpv->error;
-	}
-	//$resultado ['sql'] = $consulta;
-	return $resultado;
-}
+	//~ $Resql = $BDTpv->query($consulta);	
+	//~ if ($Resql){
+		//~ while ($datos = $Resql->fetch_assoc()) {
+			//~ $resultado[]=$datos;
+		//~ }
+	//~ } else  {
+		//~ $resultado['consulta'] = $consulta;
+		//~ $resultado['error'] = $BDTpv->error;
+	//~ }
+	//~ //$resultado ['sql'] = $consulta;
+	//~ return $resultado;
+//~ }
 
 function fechaMaxMinTickets($BDTpv){
 	//Objetivo:

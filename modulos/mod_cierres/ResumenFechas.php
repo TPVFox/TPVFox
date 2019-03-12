@@ -2,12 +2,14 @@
 <html>
     <head>
 		<?php
-			include_once './../../inicial.php';
-            include $URLCom.'/head.php';
-            include_once $URLCom.'/modulos/mod_cierres/funciones.php';
-            include_once $URLCom.'/clases/iva.php';
-			$Civas = new iva($BDTpv);
-			//LLega mediente get las dos fechas  
+        include_once './../../inicial.php';
+        include $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_cierres/funciones.php';
+        include_once $URLCom.'/clases/iva.php';
+        include_once $URLCom.'/modulos/mod_cierres/clases/ClaseCierres.php';
+        $CCierres = new ClaseCierres;
+        $Civas = new iva($BDTpv);
+        //LLega mediente get las dos fechas  
 		if (isset($_GET['fecha1'])& isset($_GET['fecha2'])) {
 			$fecha1=$_GET['fecha1'];
 			$fecha2=$_GET['fecha2'];
@@ -17,7 +19,7 @@
 		$total=0;
 		$fecha_dmY = 'd-m-Y';
 		//Obterer los cierres entre dos fechas
-		$cierres = obtenerCierres($BDTpv,$filtro);
+		$cierres =$CCierres->obtenerCierres($BDTpv,$filtro);
 		foreach ($cierres as $cierre){ 
 			// almacenamos en una variable el total de los cierres seleccionados 
 				$total=$total+$cierre['Total'];

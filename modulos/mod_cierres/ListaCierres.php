@@ -4,35 +4,25 @@
 	<?php
 	include_once './../../inicial.php';
     include $URLCom.'/head.php';
+    include_once $URLCom.'/modulos/mod_cierres/clases/ClaseCierres.php';
     include_once $URLCom.'/modulos/mod_cierres/funciones.php';
 	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
-	include_once $URLCom.'/controllers/Controladores.php';
-	$Controler = new ControladorComun; 
-	$Controler->loadDbtpv($BDTpv);
+    $CCierres = new ClaseCierres;
+    
+    
+   
 	$fecha_dmYHora = 'd-m-Y H:m:s';
 	$linkResumen = '<span title="Pon la fechas en filtro" class="glyphicon glyphicon-info-sign"> Ver Resumen </span>';
 	$vista = 'cierres';
 	// --- Inicializamos objteto de Paginado --- //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'idCierre');
-	$NPaginado->SetCamposControler($Controler,$campos);
+	$NPaginado->SetCamposControler($campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere();
-	$CantidadRegistros=0;
-	if ( $NPaginado->GetFiltroWhere() !== ''){
-		// Contar con  filtro..
-		$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-
-	} else {
-		// Obtengo num_registros sin filtro.
-		$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	}
-	$NPaginado->SetCantidadRegistros($CantidadRegistros);
-	$htmlPG = $NPaginado->htmlPaginado();
-	$limite = $NPaginado->GetLimitConsulta(); // Me hace falta limite para obtener cierre.
-	// -- Fin de paginado -- //
-
-	if (isset ($_GET['fecha1']) & isset($_GET['fecha2'])){
+	
+	
+    if (isset ($_GET['fecha1']) & isset($_GET['fecha2'])){
 		$fecha1=$_GET['fecha1'];
 		$fecha2=$_GET['fecha2'];
 		// Montamos link para mostrar para poder ver resumen
@@ -40,9 +30,14 @@
 		// SI recibe por get las fechas añade el filtro a la consulta
 		$filtro=' WHERE FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
 	}
-
-	$cierres = obtenerCierres($BDTpv,$filtro,$limite);
+    $CantidadRegistros=count($CCierres->obtenerCierres($filtro,$limite));
+    
+	$NPaginado->SetCantidadRegistros($CantidadRegistros);
+	$htmlPG = $NPaginado->htmlPaginado();
+	$limite = $NPaginado->GetLimitConsulta(); // Me hace falta limite para obtener cierre.
+	// -- Fin de paginado -- //
 	
+	$cierres = $CCierres->obtenerCierres($filtro,$limite);
 	
 	?>
 	<script>
@@ -153,11 +148,7 @@
 				?>
 				
 			</table>
-			<?php 
-			//~ echo '<pre>';
-			//~ print_r($cierres);
-			//~ echo '</pre>';
-			?>
+			
 			</div>
 		</div>
 	</div>
