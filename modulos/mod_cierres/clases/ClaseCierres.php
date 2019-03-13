@@ -65,8 +65,12 @@ class ClaseCierres extends ClaseConexion{
             $sql = 'SELECT * FROM `cierres_usuarios_tickets` WHERE idCierre = '.$idCierre;
             $resultado = $BDTpv->query($sql);	
             while ($datos = $resultado->fetch_assoc()) {
-                // Ahora debemos montar las consultas para cambiar estado de tickets
-                $respuesta['tickets'][]=$datos;
+                // Ahora debemos montar las consultas para cambiar estado de tickets de cada usuario
+                $respuesta['sql'][]='UPDATE `ticketst` SET `estado`="Cobrado"'
+                                .'  WHERE `idTienda`='.$datos['idTienda']
+                                .' and `idUsuario`='.$datos['idUsuario']
+                                .' and (Numticket>='.$datos['Num_ticket_inicial']
+                                .' and Numticket <='.$datos['Num_ticket_final'].')';
             }
             // -- Eliminamos el registros
             $tablas = array('cierres',
@@ -78,6 +82,7 @@ class ClaseCierres extends ClaseConexion{
                 $sql = 'DELETE FROM '.$tabla.' WHERE idCierre='.$idCierre;
                 $respuesta['sql'][] =$sql;
             }
+            
             // Ahora volvemos obtener el ultimo registro y le sumamos uno para poner autoincremento.
             // pero solo modificamos el auto_increment de la tabla cierres.
             $idAuto = $this->UltimoIdCierre()+1;
