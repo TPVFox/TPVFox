@@ -11,6 +11,9 @@ $pulsado = $_POST['pulsado'];
 include_once ("./../../inicial.php");
 include_once $URLCom.'/configuracion.php';
 include_once $URLCom.'/modulos/mod_cierres/funciones.php';
+include_once $URLCom.'/modulos/mod_cierres/clases/ClaseCierres.php';
+$CCierres = new ClaseCierres;
+
  switch ($pulsado) {
      
     case 'insertarCierre':
@@ -43,8 +46,14 @@ include_once $URLCom.'/modulos/mod_cierres/funciones.php';
 	
 		echo json_encode($respuesta);
 		break;
-    
-    
+
+
+    case 'BorrarCierre':
+        // Obtenemos el ultimos idCierre
+        $idSeleccionado = $_POST['idSeleccionado'];
+        $respuesta= $CCierres->borrarDatos_tablasCierres($idSeleccionado);
+        echo json_encode($respuesta);
+		break;
 }
 
 

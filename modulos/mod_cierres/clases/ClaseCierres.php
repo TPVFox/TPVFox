@@ -22,30 +22,89 @@ class ClaseCierres extends ClaseConexion{
 
 
     public function obtenerCierres($filtro='',$limite='') {
-	// Function para obtener cierres y listarlos
-	//tablas usadas: - cierres
-				//	 - usuarios
-    $BDTpv = $this->BDTpv;
-    $resultado = array();
-	if (trim($filtro) !=''){
-		$filtro = ' '.$filtro;
-	}
-	$consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
-				." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro.$limite; 
-	
-	$Resql = $BDTpv->query($consulta);	
-	if ($Resql){
-		while ($datos = $Resql->fetch_assoc()) {
-			$resultado[]=$datos;
-		}
-	} else  {
-		$resultado['consulta'] = $consulta;
-		$resultado['error'] = $BDTpv->error;
-	}
-	//$resultado ['sql'] = $consulta;
-	return $resultado;
-}
+        // Function para obtener cierres y listarlos
+        //tablas usadas: - cierres
+                    //	 - usuarios
+        $BDTpv = $this->BDTpv;
+        $resultado = array();
+        if (trim($filtro) !=''){
+            $filtro = ' '.$filtro;
+        }
+        $consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
+                    ." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro.$limite; 
+        
+        $Resql = $BDTpv->query($consulta);	
+        if ($Resql){
+            while ($datos = $Resql->fetch_assoc()) {
+                $resultado[]=$datos;
+            }
+        } else  {
+            $resultado['consulta'] = $consulta;
+            $resultado['error'] = $BDTpv->error;
+        }
+        //$resultado ['sql'] = $consulta;
+        return $resultado;
+    }
+
+    public function borrarDatos_tablasCierres($idCierre){
+        // Si el idCierre que recibe es el ultimos entonces
+        // Eliminamos un registro de cierre en las tablas
+        //      -cierres
+        //      -cierres_ivas
+        //      -cierres_usuarios_tickets
+        //      -cierres_usuariosFormasPago
+        // A parte cambia el estado a la tabla de ticketst
+        $respuesta = array();
+        $respuesta['estado'] = 'KO';
+        $BDTpv = $this->BDTpv;
 
 
+        // -- Comprobamos que idCierre es el ultimo --- //
+        if ($this->UltimoIdCierre() === "$idCierre"){
+            // -- Obtenemos los tickets de los usuarios de ese cierre -- //
+            $sql = 'SELECT * FROM `cierres_usuarios_tickets` WHERE idCierre = '.$idCierre;
+            $resultado = $BDTpv->query($sql);	
+            while ($datos = $resultado->fetch_assoc()) {
+                // Ahora debemos montar las consultas para cambiar estado de tickets
+                $respuesta['tickets'][]=$datos;
+            }
+            // -- Eliminamos el registros
+            $tablas = array('cierres',
+                            'cierres_ivas',
+                            'cierres_usuariosFormasPago',
+                            'cierres_usuarios_tickets'
+                            );
+            foreach ($tablas as $tabla){
+                $sql = 'DELETE FROM '.$tabla.' WHERE idCierre='.$idCierre;
+                $respuesta['sql'][] =$sql;
+            }
+            // Ahora volvemos obtener el ultimo registro y le sumamos uno para poner autoincremento.
+            // pero solo modificamos el auto_increment de la tabla cierres.
+            $idAuto = $this->UltimoIdCierre()+1;
+            $sql = 'ALTER TABLE cierres AUTO_INCREMENT ='.$idAuto;
+            $respuesta['sql'][] =$sql;
+            // -- Cambiamos AUTO_INCREMENT de las tabla cierre -- //
+            $respuesta['estado'] = 'Ok';
+        }
+        
+
+        
+        return $respuesta;
+    
+    }
+
+    public function UltimoIdCierre(){
+        // @Objetivo
+        // Obtener el id del ultimos registro de cierre.
+        // @ Devuelve
+        // id-> (int) Ultimos registro de cierre.
+        $BDTpv = $this->BDTpv;
+        $consulta = 'SELECT idCierre from cierres order by idCierre desc  limit 1';
+        $resultado= $BDTpv->query($consulta);
+        $id= $resultado->fetch_row();
+        return $id[0];
+
+
+    }
 
 }

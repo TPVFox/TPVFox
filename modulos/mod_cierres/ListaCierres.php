@@ -30,7 +30,7 @@
 		// SI recibe por get las fechas añade el filtro a la consulta
 		$filtro=' WHERE FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
 	}
-    $CantidadRegistros=count($CCierres->obtenerCierres($filtro,$limite));
+    $CantidadRegistros=count($CCierres->obtenerCierres($filtro));
     
 	$NPaginado->SetCantidadRegistros($CantidadRegistros);
 	$htmlPG = $NPaginado->htmlPaginado();
@@ -53,6 +53,10 @@
 <body>
         <?php
         include_once $URLCom.'/modulos/mod_menu/menu.php';
+        echo '<pre>';
+        print_r($CCierres->borrarDatos_tablasCierres(407));
+        echo '</pre>';
+
         ?>
        
 	<div class="container">
@@ -73,10 +77,16 @@
 						<li><?php echo $linkResumen;?></li>
 					</ul>
 				</div>
-				<div class="col-md-12">
+                <?php
+                if ($Usuario['group_id'] === '9'){
+                ?>    
+                <div class="col-md-12">
 					<h4>Opciones administrador:</h4>
-					
+					<li><a href="#section2" onclick="metodoClick('EliminarCierre');";>Eliminar Cierre</a></li>
 				</div>
+                <?php
+                }
+                ?>
 			</div>
 			<div class="col-md-10">
 					<p>
@@ -126,7 +136,7 @@
 	
 				<?php
 				$check = 0;
-				foreach (array_reverse($cierres) as $cierre){ 
+				foreach ($cierres as $cierre){ 
 					$check ++ ; 
 				?>
 

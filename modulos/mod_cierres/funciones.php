@@ -58,19 +58,9 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$fechaFinal){
 			$resultado['rangoTickets'][$i]= $fila['id']; 
 			$i++;
 		}
-		
-		
-		
 	}
-	
-	
 	// === Devolvemos tambien los ticketsAbiertos.
-	$resultado['tickets_abiertos'] = obtenerTicketAbiertos($BDTpv,$fechaInicio,$fechaFinal);
-	
-	
-	
-	
-	
+    $resultado['tickets_abiertos'] = obtenerTicketAbiertos($BDTpv,$fechaInicio,$fechaFinal);
 	$resultado['formasPago']=array_unique($formasPago);
 	$resultado['sql'] = $sql;
 	return $resultado;
@@ -96,32 +86,6 @@ function nombreUsuario($BDTpv,$idUsuario){
 	return $resultado;
 }
 
-
-
-
-//~ function obtenerCierres($BDTpv ,$filtro='',$limite='') {
-	//~ // Function para obtener cierres y listarlos
-	//~ //tablas usadas: - cierres
-				//~ //	 - usuarios
-	//~ $resultado = array();
-	//~ if (trim($filtro) !=''){
-		//~ $filtro = ' '.$filtro;
-	//~ }
-	//~ $consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
-				//~ ." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro.$limite; 
-	
-	//~ $Resql = $BDTpv->query($consulta);	
-	//~ if ($Resql){
-		//~ while ($datos = $Resql->fetch_assoc()) {
-			//~ $resultado[]=$datos;
-		//~ }
-	//~ } else  {
-		//~ $resultado['consulta'] = $consulta;
-		//~ $resultado['error'] = $BDTpv->error;
-	//~ }
-	//~ //$resultado ['sql'] = $consulta;
-	//~ return $resultado;
-//~ }
 
 function fechaMaxMinTickets($BDTpv){
 	//Objetivo:
@@ -717,20 +681,5 @@ function cantMOdPago($BDTpv, $fecha1, $fecha2){
 
 }
 
-//~ function borrarDatos_tablasCierres(){
-//~ //cambia estado tickets de cerrados a Cobrados, seria indicarle fecha campo=Fecha
-//~ UPDATE ticketst SET `estado`= "Cobrado" WHERE `estado` = "Cerrado";
 
- //~ //Borramos datos de las 4 tablas de cierres, poniendo un rango de id
-//~ DELETE FROM `cierres` WHERE `idCierre` BETWEEN "0" AND "150";
-//~ DELETE FROM `cierres_ivas` WHERE `idCierre` BETWEEN "0" AND "150";
-//~ DELETE FROM `cierres_usuarios_tickets` WHERE `idCierre` BETWEEN "0" AND "150";
-//~ DELETE FROM `cierres_usuariosFormasPago` WHERE `idCierre` BETWEEN "0" AND "150";
-
-//~ //inicializamos el id =1 . auto incremental
-//~ ALTER TABLE `cierres_usuariosFormasPago` auto_increment = 1; 
-//~ ALTER TABLE `cierres_usuarios_tickets` auto_increment = 1; 
-//~ ALTER TABLE `cierres_ivas` auto_increment = 1; 
-//~ ALTER TABLE `cierres` auto_increment = 1; 
-//~ }
 ?>

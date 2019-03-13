@@ -19,7 +19,7 @@
 		$total=0;
 		$fecha_dmY = 'd-m-Y';
 		//Obterer los cierres entre dos fechas
-		$cierres =$CCierres->obtenerCierres($BDTpv,$filtro);
+		$cierres =$CCierres->obtenerCierres($filtro);
 		foreach ($cierres as $cierre){ 
 			// almacenamos en una variable el total de los cierres seleccionados 
 				$total=$total+$cierre['Total'];
