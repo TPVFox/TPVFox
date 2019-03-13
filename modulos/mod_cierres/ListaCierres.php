@@ -53,9 +53,6 @@
 <body>
         <?php
         include_once $URLCom.'/modulos/mod_menu/menu.php';
-        echo '<pre>';
-        print_r($CCierres->borrarDatos_tablasCierres(407));
-        echo '</pre>';
 
         ?>
        

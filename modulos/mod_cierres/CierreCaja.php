@@ -276,6 +276,9 @@
 				<?php 
 				foreach ($ResumenTicketsCierre['usuarios'] as $keyUsuario =>$usuario){ 
 					$Ccierre['modoPago'][$keyUsuario]['nombre']=$usuario['nombre'];
+                    //~ echo '<pre>';
+                        //~ print_r($usuario['formasPago']);
+                        //~ echo '</pre>';
 					?>
 					<table class="table table-striped">
 						<thead>
@@ -284,12 +287,17 @@
 							<th>Importe</th>
 						</thead>						
 						<tbody>
-						<tr><td rowspan="0"><?php echo $usuario['nombre'];?></td></tr>
+						<tr>
+                            <td rowspan="0"><?php echo $usuario['nombre'];?></td>
+                        </tr>
 						<?php //key id forma de pago, tarjeta o contado						
-						foreach ($usuario['formasPago'] as $key =>$fPago){ ?>
+                        
+                        foreach ($usuario['formasPago'] as $key =>$fPago){
+                            $fPago = str_replace(",","",$fPago);
+                            ?>
 							<tr>
 								<td><?php echo $key; ?></td>
-								<td><?php echo number_format($fPago,2); ?></td>
+								<td><?php echo $fPago; ?></td>
 							</tr>
 							<?php 	
 							if (!isset($suma[$key])){
@@ -316,12 +324,12 @@
 						</tr>
 					</thead>
 					<?php
-				$totalFpago = '0.00';
-				foreach ($suma as $nombre=>$importe){
-					echo '<tr><td>'.$nombre.'</td><td>'.number_format($importe,2).'</td></tr>';
-					$totalFpago += number_format($importe,2);
+				$totalFpago = 0;
+                foreach ($suma as $nombre=>$importe){
+					echo '<tr><td>'.$nombre.'</td><td>'.number_format($importe,2,'.','').'</td></tr>';
+					$totalFpago += $importe;
 				}
-					echo '<tr><td><b>Total:</b></td><td><b>'.number_format($totalFpago,2).'</b></td></tr>'; ?>
+					echo '<tr><td><b>Total:</b></td><td><b>'.number_format($totalFpago,2, '.','').'</b></td></tr>'; ?>
 				</table>
 			</div> 
 				<!-- IVAS -->
@@ -364,8 +372,8 @@
 						?>
 						<tr class="info">
 							<td><b><?php echo 'Subtotal: ';?></b></td>
-							<td><?php echo number_format($sumaBase,2); ?></td>
-							<td><?php echo number_format($sumaIvas,2);  ?></td>
+							<td><?php echo number_format($sumaBase,2,'.',''); ?></td>
+							<td><?php echo number_format($sumaIvas,2, '.','');  ?></td>
 						</tr>
 						<tr>
 							<td></td>

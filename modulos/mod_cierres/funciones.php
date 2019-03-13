@@ -138,7 +138,7 @@ function InsertarProceso1Cierres($BDTpv,$datosCierre){
 	$insertCierre = 'INSERT INTO '.$tabla.' (idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion) VALUES ("'
 			.$idTienda.'" , "'.$idUsuario.'" ,  '.$formateoFechaInicio.' , '.$formateoFechaFinal.' , '
 			.' "'.$total.'" , '.$formateoFechaCierre.' , '.$formateoFechaCreacion.' )';
-	
+
 	//actualizar tickets estado = Cobrado a estado = Cerrado
 	$updateEstado = 'UPDATE ticketst SET `estado`= "'.$estadoCierre.'" WHERE `estado` = "Cobrado"'
 					.' AND DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fInicSinHora.'"'
@@ -146,7 +146,7 @@ function InsertarProceso1Cierres($BDTpv,$datosCierre){
 	//insertamos datos para cierre, si es correcto se Actualiza estado de tickets a 'Cerrado'
 	if ($BDTpv->query($insertCierre) === true){
 		$idCierre = $BDTpv->insert_id; //crea id en bbddd 
-		$resultado['insertarCierre']='Correcto';
+        $resultado['insertarCierre']='Correcto';
 		$resultado['idCierre']=$idCierre;
 	} else {
 		// Quiere decir que hubo error en insertar en cierres
@@ -228,17 +228,17 @@ function insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre){
 		//******** Inicio insertar por usuario FormasPago ***********//
 		//si es correcto insertamos formas de pago en otra tabla
 		$resultado['ArrayFormasPago'] = $formasPago;
-
+        
 		foreach ($formasPago as $nombre=>$importe){
-			//~ $importe= $formasPago[$nombre]['importe']; 
-			
+            $importe = str_replace(",","",$importe);
 			//inserto en FormasPago
 			//x es contador por cada usuario, nombre= nombreFpago
 			$sqlFpagoCierres[$x][$nombre]='INSERT INTO `cierres_usuariosFormasPago` '
 				.' ( `idCierre`, `idTienda`, `idUsuario`, `FormasPago`, `importe`) '
-				.' VALUES ('.$idCierre.','.$idTienda.','.$idUsuario.',"'.$nombre.'",'.$importe.')';
+				.' VALUES ('.$idCierre.','.$idTienda.','.$idUsuario.',"'.$nombre.'","'.$importe.'")';
 				
 			$resultado['sqlFormaPago'][$x] = $sqlFpagoCierres[$x][$nombre];
+                error_log($sqlFpagoCierres[$x][$nombre]);
 
 			if ($BDTpv->query($sqlFpagoCierres[$x][$nombre]) === true){
 				$resultado['insertar_FpagoCierres']='Correcto';
@@ -248,10 +248,11 @@ function insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre){
 			
 			}
 			//cogemos sumaImportes por usuario para insertar en cierres_usuarios_tickets
-			if (!isset($sumaImporte[$idUsuario])){
+            $importe = str_replace(",","",$importe);
+            if (!isset($sumaImporte[$idUsuario])){
 				$sumaImporte[$idUsuario]=$importe;
-			} else{				
-				$sumaImporte[$idUsuario]+=$importe;
+			} else{
+                $sumaImporte[$idUsuario]=$sumaImporte[$idUsuario]+$importe;
 			}
 		}
 		

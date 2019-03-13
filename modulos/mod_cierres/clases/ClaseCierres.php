@@ -58,9 +58,9 @@ class ClaseCierres extends ClaseConexion{
         $respuesta['estado'] = 'KO';
         $BDTpv = $this->BDTpv;
 
-
         // -- Comprobamos que idCierre es el ultimo --- //
         if ($this->UltimoIdCierre() === "$idCierre"){
+            // -------        CREAMOS LOS SQL QUE VAMOS EJECTUAR      --------  //
             // -- Obtenemos los tickets de los usuarios de ese cierre -- //
             $sql = 'SELECT * FROM `cierres_usuarios_tickets` WHERE idCierre = '.$idCierre;
             $resultado = $BDTpv->query($sql);	
@@ -85,9 +85,14 @@ class ClaseCierres extends ClaseConexion{
             
             // Ahora volvemos obtener el ultimo registro y le sumamos uno para poner autoincremento.
             // pero solo modificamos el auto_increment de la tabla cierres.
-            $idAuto = $this->UltimoIdCierre()+1;
-            $sql = 'ALTER TABLE cierres AUTO_INCREMENT ='.$idAuto;
+            $sql = 'ALTER TABLE cierres AUTO_INCREMENT =1'; // Ya coje el ultimo que tenga... 
             $respuesta['sql'][] =$sql;
+            // Ahora ejecutamos la consultas.
+            foreach ($respuesta['sql'] as $sql){
+                if ($BDTpv->query($sql)){
+                    $respuesta['resultado'] = $BDTpv->affected_rows ;
+                } 
+            }
             // -- Cambiamos AUTO_INCREMENT de las tabla cierre -- //
             $respuesta['estado'] = 'Ok';
         }

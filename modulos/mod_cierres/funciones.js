@@ -51,7 +51,7 @@ function guardarCierreCaja(){
 			//~ } else {				
 				//~ console.log('ERROR en insercion '+response);
 			//~ }
-			document.location.href='ListaCierres.php';
+            document.location.href='ListaCierres.php';
 
 			
 		}
@@ -285,22 +285,35 @@ function controladorAcciones(caja,accion){
 }
 function BorrarCierre(idseleccionado){
     // Borramos el ultimo cierre si es el seleccionado
-    var parametros = {
-		"pulsado"       : 'BorrarCierre',
-        "idSeleccionado": idseleccionado
-	};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** Estoy obteniendo el ultimo id Cierre ****************');
-		},
-		success    :  function (response) {
-			var resultado =  $.parseJSON(response); 
-            console.log(resultado);
-		}
-	});
+
+    var opcion = confirm("Vas borrar eliminar el ultimo cierre ?");
+    if (opcion == true) {
+            var parametros = {
+            "pulsado"       : 'BorrarCierre',
+            "idSeleccionado": idseleccionado
+        };
+        $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+                console.log('******** Estoy obteniendo el ultimo id Cierre ****************');
+            },
+            success    :  function (response) {
+                var resultado =  $.parseJSON(response); 
+                console.log(resultado);
+                // Aqui deberíamos analizar el resultado y crear un mensaje antes de redireccionar.
+                document.location.href='ListaCierres.php';
+
+            }
+        });
+	} 
+
+
+
+
+
+    
 
 }
 
