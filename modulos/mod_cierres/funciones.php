@@ -138,7 +138,7 @@ function InsertarProceso1Cierres($BDTpv,$datosCierre){
 	$insertCierre = 'INSERT INTO '.$tabla.' (idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion) VALUES ("'
 			.$idTienda.'" , "'.$idUsuario.'" ,  '.$formateoFechaInicio.' , '.$formateoFechaFinal.' , '
 			.' "'.$total.'" , '.$formateoFechaCierre.' , '.$formateoFechaCreacion.' )';
-
+    error_log($insertCierre);
 	//actualizar tickets estado = Cobrado a estado = Cerrado
 	$updateEstado = 'UPDATE ticketst SET `estado`= "'.$estadoCierre.'" WHERE `estado` = "Cobrado"'
 					.' AND DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fInicSinHora.'"'
@@ -196,7 +196,7 @@ function insertarCierre_IVAS($BDTpv,$datosCierre,$idCierre){
 		
 		//~ //inserto por cada iva, su sumaBase y su sumaIva
 		$sql[$i] = 'INSERT INTO `cierres_ivas`(`idCierre`, `idTienda`, `tipo_iva`, `importe_base`, `importe_iva`) '
-			.' VALUES ('.$idCierre.' , '.$idTienda.' , '.$iva[$key].' , '.$sumaBase[$key].' , '.$sumaIva[$key].')';
+			.' VALUES ('.$idCierre.' , '.$idTienda.' , "'.$iva[$key].'" , "'.$sumaBase[$key].'" , "'.$sumaIva[$key].'")';
 		if ($BDTpv->query($sql[$i]) === true){
 			$resultado['insertar_ivas_cierre'] = 'Correcto';
 		} else {
@@ -238,7 +238,6 @@ function insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre){
 				.' VALUES ('.$idCierre.','.$idTienda.','.$idUsuario.',"'.$nombre.'","'.$importe.'")';
 				
 			$resultado['sqlFormaPago'][$x] = $sqlFpagoCierres[$x][$nombre];
-                error_log($sqlFpagoCierres[$x][$nombre]);
 
 			if ($BDTpv->query($sqlFpagoCierres[$x][$nombre]) === true){
 				$resultado['insertar_FpagoCierres']='Correcto';
@@ -259,7 +258,7 @@ function insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre){
 		//$resultado['pr']=$sumaImporte[$idUsuario];
 		$sqlUsuariosCierre[$x] = 'INSERT INTO `cierres_usuarios_tickets` '
 			.' ( `idCierre`, `idUsuario`, `idTienda`, `Importe`, `Num_ticket_inicial`, `Num_ticket_final`) '
-			.' VALUES ('.$idCierre.' ,  '.$idUsuario.', '.$idTienda.' , '.$sumaImporte[$idUsuario].' ,'.$num_ticket_inicial.','.$num_ticket_final.')';
+			.' VALUES ('.$idCierre.' ,  '.$idUsuario.', '.$idTienda.' , "'.$sumaImporte[$idUsuario].'" ,'.$num_ticket_inicial.','.$num_ticket_final.')';
 		$resultado['sqlUsuarios'][$x] = $sqlUsuariosCierre[$x];
 		if ($BDTpv->query($sqlUsuariosCierre[$x]) === true){
 				$resultado['insertarTickets_usuarios']='Correcto';

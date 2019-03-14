@@ -148,12 +148,13 @@
 								</tr>
 							</thead>
 							<?php
-							$totalFpago = '0.00';
+							$totalFpago = 0;
 							foreach ($suma as $nombre=>$importe){
-								echo '<tr><td>'.$nombre.'</td><td>'.number_format($importe,2).'</td></tr>';
-								$totalFpago += number_format($importe,2);
+                                //~ $importe = str_replace(",","",$importe);
+                                echo '<tr><td>'.$nombre.'</td><td>'.number_format($importe,2,',','').'</td></tr>';
+								$totalFpago += $importe;
 							}
-							echo '<tr><td><b>Total:</b></td><td><b>'.number_format($totalFpago,2).'</b></td></tr>';
+							echo '<tr><td><b>Total:</b></td><td><b>'.number_format($totalFpago,2,',','').'</b></td></tr>';
 							?>
 						</table>
 					</div>   <!-- fin col 4  2º-->				
