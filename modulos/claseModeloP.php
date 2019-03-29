@@ -14,6 +14,7 @@ define('ARTICULOS_MAXLINPAG', 12);
 define('K_TARIFACLIENTE_ESTADO_ACTIVO', '1');
 define('K_TARIFACLIENTE_ESTADO_BORRADO', '2');
 
+define('K_STOCKARTICULO_REGULARIZA', 0);
 define('K_STOCKARTICULO_SUMA', 1);
 define('K_STOCKARTICULO_RESTA', -1);
 
@@ -124,7 +125,7 @@ class ModeloP {
                 $respuesta = self::$db->insert_id;
             }
         }
-
+        
         return $respuesta;
     }
 
@@ -204,7 +205,7 @@ class ModeloP {
         return ModeloP::$resultado['consulta'];
     }
 
-    protected static function _leer($tabla, $condiciones, $columnas = [], $joins = [], $limit = 0, $offset = 0, $soloSQL = false) {
+    protected static function _leer($tabla, $condiciones='', $columnas = [], $joins = [], $limit = 0, $offset = 0, $soloSQL = false) {
 
         $columnasSql = count($columnas) > 0 ? implode(',', $columnas) : '*';
 
@@ -225,7 +226,9 @@ class ModeloP {
             $sql .= ' JOIN ' . $selectjoin;
         }
 
+        if($updateWhere){
         $sql .= ' WHERE  ' . $updateWhere;
+        }
 
         if ($limit != 0) {
             $sql .= ' LIMIT ' . $limit;
