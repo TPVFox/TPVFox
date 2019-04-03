@@ -103,12 +103,6 @@ function htmlLineaRefTienda($item,$crefTienda){
 	$nuevaFila .='<small>'.$crefTienda['crefTienda'].'/'.$crefTienda['idVirtuemart'].'</small>';
 	$nuevaFila .='</td>';
 	$nuevaFila .= '<td>';
-	$nuevaFila .= $crefTienda['pvpSiva'];
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>';
-	$nuevaFila .= $crefTienda['pvpSiva'];
-	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>';
 	$nuevaFila .= $crefTienda['tipoTienda'];
 	$nuevaFila .='</td>';
 	$nuevaFila .= '<td>'.$crefTienda['dominio'].'</td>'; 		
@@ -158,7 +152,7 @@ function  htmlTablaFamilias($familias, $idProducto){
 			.'				</th>'
 			.'			</tr>'
 			.'		</thead>';
-	if (count($familias)>0){
+    if (isset($familias)){
 		foreach ($familias as $item=>$valor){
 			$html .= htmlLineaFamilias($item, $idProducto, $valor);
 		}
@@ -215,8 +209,6 @@ function  htmlTablaRefTiendas($crefTiendas){
 			.'			<tr>'
 			.'				<th>idTienda</th>'
 			.'				<th>Cref / id </th>'
-			.'				<th>PvpCIva</th>'
-			.'				<th>PvpSIva</th>'
 			.'				<th>Tipo Tienda</th>'
 			.'				<th>dominio</th>'
 			.'			</tr>'

@@ -88,19 +88,16 @@ class ClaseTablaArticulos{
 		// El campo ultimoCoste, tendría que llamarse coste_ultimo
 		// El campo costepromedio -> coste_promedio ...
 		
-		if ($id !=0){                    
+        
+        if ($id !=0){                    
 			$Sql = 'SELECT a.*, prec.* FROM articulos as a '
 				.'  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
 				.'  WHERE a.idArticulo ='.$id.' AND '
 				.'  prec.idArticulo='.$id.' AND prec.idTienda= '.$this->idTienda;
 			$consulta = $this->Consulta($Sql);
-					
+				
 			if (isset ($consulta['NItems'])){
-				if ($consulta['NItems'] === 1){
-					$respuesta = $consulta['Items'][0];
-					$this->MontarProducto($respuesta);
-//                                        var_dump($respuesta);
-				} else {
+				if ($consulta['NItems'] !== 1){ 
 				// Hubo un error o encontro mas de uno o 0, es decir no existe.
 						if ($consulta['NItems'] > 1){
 							$error = array ( 'tipo'=>'danger',
@@ -109,18 +106,53 @@ class ClaseTablaArticulos{
 									 );
 							$this->SetComprobaciones($error);
 						} else {
-							$error = array ( 'tipo'=>'danger',
-							 'dato' =>$Sql,
-							 'mensaje' => 'No encontro ningun registro con ese ID:'.$id.' , ponerse en contacto con programador'
-							 );
-							$this->SetComprobaciones($error);
+                            // No obtuvo Item en la consulta.
+                            // El motivo puedo ser porque no tiene registro de precio, por lo que  realizo consulta
+                            // de nuevo, pero solo de la tabla principal.
+                            $SoloSql = 'SELECT * FROM articulos '
+                            .'  WHERE idArticulo ='.$id;
+                            $consulta = $this->Consulta($SoloSql);
+                            $marco_error = 'No' ;// lo normal es que no exista.
+                            if ($consulta['NItems'] !== 1){ 
+                                 $error = array ( 'tipo'=>'danger',
+                                 'dato' =>$SoloSql,
+                                 'mensaje' => 'No encontro ningun registro con ese ID:'.$id.' , ponerse en contacto con programador'
+                                 );
+                                $this->SetComprobaciones($error);
+                            } else {
+                                $error = array ( 'tipo'=>'warning',
+                                 'dato' =>$Sql,
+                                 'mensaje' => 'El producto con ID:'.$id.' , no tiene registro de precio, por lo creo en cero, para evitar problemas al guardar.'
+                                 );
+                                $this->SetComprobaciones($error);
+                                $marco_error = 'Si';
+                            }
 						}
 					}
 				}
+                if ($consulta['NItems'] === 1){
+					$respuesta = $consulta['Items'][0];
+					$this->MontarProducto($respuesta);
+				}
+                if ($marco_error === 'Si'){
+                    // Existe registro , pero no existe registro precios, lo creo en 0
+                    $datos = $this->ArrayPropiedades();
+                    // Ahora tengo que crear elemento id, ya que es el que utiliza en funcion de insertar
+                    $datos['id'] = $datos['idArticulo'];
+                    $this->InsertarPreciosVentas($datos);
+                    
+                }
+
+
+
+
+                
 		} else {
 			// Se monta tanto id sea 0 como si no existe id.
 			$this->MontarProducto();
 		}
+
+        
 		return $this->ArrayPropiedades();
 	}
 	
@@ -337,11 +369,10 @@ class ClaseTablaArticulos{
 		// Obtener los referencias de todas tiendas de ese producto y los precios con iva y sin iva de esas tiendas.
 		// @Parametro
 		// $id -> (int) Id del producto.
-		$Sql = 'SELECT ati.crefTienda, ati.idTienda, ati.idVirtuemart, prec.pvpCiva, prec.pvpSiva, t.tipoTienda , t.dominio FROM `articulosTiendas` as ati '
-			.' LEFT JOIN articulosPrecios as prec'
-			.' ON (prec.idTienda = ati.idTienda) and (prec.idArticulo=ati.idArticulo)'
+		$Sql = 'SELECT ati.crefTienda, ati.idTienda, ati.idVirtuemart, t.tipoTienda , t.dominio '
+            .' FROM `articulosTiendas` as ati '
 			.' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
-			.' WHERE  ati.idArticulo= '.$id.' GROUP BY prec.idTienda';
+			.' WHERE  ati.idArticulo= '.$id;
 		$consulta = $this->Consulta($Sql);
 		// Aqui podemos obtener varios registros.
 		if (isset($consulta['Items'])){
@@ -440,7 +471,9 @@ class ClaseTablaArticulos{
 		//  Esto puede ser valido para algunas tienda, pero no para otras, ya que no otras necesitan los dos datos y correctos.
 		// @ Devuelve:
 		// 		$respuesta -> (array) donde envimamos la cantidad de registro insertados
-		if ($datos['id'] >0 ){
+
+
+        if ($datos['id'] >0 ){
 			// Solo compruebo que se aun numero y superior a 0;
 			$sql= 'INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) VALUES ('.$datos['id'].',"'.$datos['pvpCiva'].'","'.$datos['pvpSiva'].'",'.$datos['idTienda'].')';
 			$respuesta= array();

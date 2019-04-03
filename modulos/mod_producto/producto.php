@@ -26,7 +26,7 @@
 		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
      
 		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
-	
+        
 		$titulo = 'Productos:';
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Producto
@@ -92,6 +92,7 @@
 			// Ahora cambiamos el coste_ultimo
 			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
 		}
+        
 		// Cargamos el plugin que nos interesa.
         if( isset($Producto['ref_tiendas'])){
             // Esto no es del todo correcto... ?

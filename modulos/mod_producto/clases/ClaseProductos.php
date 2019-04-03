@@ -149,7 +149,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		parent::GetProducto($id);
 		// Ahora hacemos nuestra comprobaciones.
 		$producto = $this->ArrayPropiedades();
-                                        
+       
 		// Ahora comprobamos si el ultimo_coste es realmente el ultimo coste.
 		// Se considera ultimo_coste a :
 		//    - A la ultimo precio de coste de un albaran o factura de compra.
@@ -559,14 +559,19 @@ class ClaseProductos extends ClaseTablaArticulos{
             array_push($familiasNoGuardadas, $familia['idFamilia']);
         }
          //~ echo '<pre>';
-        //~ print_r($familiasNoGuardadas);
+        //~ print_r(gettype($producto_sin_modificar['familias']));
         //~ echo '</pre>';
-        $familiasGuardadas=array();
-        $familiasGuardadas = $producto_sin_modificar['familias'];
+        if (isset($producto_sin_modificar['familias'])){
+            $familiasGuardadas = $producto_sin_modificar['familias'];
+        } else {
+            $familiasGuardadas=array();
+
+        }
+
         $Pro_familias=array();
-       foreach ($familiasGuardadas as $familia){
-           array_push($Pro_familias, $familia['idFamilia']);
-       }
+        foreach ($familiasGuardadas as $familia){
+            array_push($Pro_familias, $familia['idFamilia']);
+        }
         $comprobaciones = array();
         $familias_eliminar = array_diff($Pro_familias,$familiasNoGuardadas);
         if (count($familias_eliminar)>0){
@@ -610,26 +615,29 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// Eliminamos del array los elementos que no vamos comprobar.
 		$elementos_descartados = array('fechaActualizacion','estado','nombrecomercial','razonsocial');
 		// --- 		Comprobamos si se modifico			  --- //
-		foreach ($proveedores_costes_sin as $key=>$p){
-			foreach ($elementos_descartados as $elemento){
-				unset($p[$elemento]);
-			}
-			// Ahora tenemos que buscar el mismo proveedor en los datos recibidos.
-			foreach ($datosProveedores as $k=>$datos){
-				if ($datos['idProveedor'] === $p['idProveedor']){
-					// Es el mismo proveedor, comprobamos si tiene los mismos datos.
-					if ( serialize($p) === serialize($datos) ){
-						// tiene los mismos datos por lo que debemos eliminarlo de $datosProveedores.
-						// ya que no vamos hacer nada.
-						unset($datosProveedores[$k]);
-					} else {
-						// Se modifico el proveedor...
-						$datosProveedores[$k]['estado'] =$proveedores_costes_sin[$key]['estado']; // Mantengo el mismo estado.
-						$datosProveedores[$k]['se_hizo'] = 'modificado';
-					}
-				}
-			}
-		}
+        
+        if (isset($proveedores_costes_sin)){
+            foreach ($proveedores_costes_sin as $key=>$p){
+                foreach ($elementos_descartados as $elemento){
+                    unset($p[$elemento]);
+                }
+                // Ahora tenemos que buscar el mismo proveedor en los datos recibidos.
+                foreach ($datosProveedores as $k=>$datos){
+                    if ($datos['idProveedor'] === $p['idProveedor']){
+                        // Es el mismo proveedor, comprobamos si tiene los mismos datos.
+                        if ( serialize($p) === serialize($datos) ){
+                            // tiene los mismos datos por lo que debemos eliminarlo de $datosProveedores.
+                            // ya que no vamos hacer nada.
+                            unset($datosProveedores[$k]);
+                        } else {
+                            // Se modifico el proveedor...
+                            $datosProveedores[$k]['estado'] =$proveedores_costes_sin[$key]['estado']; // Mantengo el mismo estado.
+                            $datosProveedores[$k]['se_hizo'] = 'modificado';
+                        }
+                    }
+                }
+            }
+        }
 		//  ----  Ahora monstamos SQL  para grabar ----- //
 		$comprobaciones = array();
 		foreach ($datosProveedores as $k=>$datos){
@@ -720,9 +728,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 							);
 		
 		// Obtenemos id de proveedor principal
-		if (gettype($DatosPostProducto['proveedor_principal']) === 'array'){
-			$datosgenerales_post['idProveedor'] = $DatosPostProducto['proveedor_principal']['idProveedor'];
-		}
+        if (isset($DatosPostProducto['proveedor_principal'])){
+            if (gettype($DatosPostProducto['proveedor_principal']) === 'array'){
+                $datosgenerales_post['idProveedor'] = $DatosPostProducto['proveedor_principal']['idProveedor'];
+            }
+        }
 		// Ahora comparamos si no es igual guardamos cambios, sino no hacemos nada.
 		if (serialize($datosgenerales_actual) !== serialize($datosgenerales_post) ){
 			// Montamos sql para guardar...
@@ -738,7 +748,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 	
 	public function ComprobarNuevosPreciosProducto($id,$DatosPostProducto,$idUsuario){
 		// @ Objetivo
-		// Comprobar si los precios cambiaron y grabarlos.
+		// Comprobar si los precios cambiaron y los grabamos.
 		// @ Parametros 
 		//  	id -> (int) id producto queremos modificar 
 		//		datosProveedores -> (array) de arrays que contienen los datos costes, referencia y id de producto.
@@ -749,7 +759,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		$comprobaciones['mensajes'] = [];
 		$estado = '';
 		parent::GetProducto($id); // Obtenemos los datos de producto actual.
-		$precio_recalculado = number_format($this->precioCivaRecalculado(),2);
+        //~ echo '<pre>';
+        //~ print_r($this->ArrayPropiedades());
+        //~ echo '</pre>';
+
+        $precio_recalculado = number_format($this->precioCivaRecalculado(),2);
 				
 		if ($this->idArticulo >0 ){
 			$precioCIva_post = number_format($DatosPostProducto['pvpCiva'],2);
@@ -776,7 +790,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 					$comprobaciones['mensajes'][] = $success;
 				} else {
 					$success = array ( 'tipo'=>'danger',
-							 'mensaje' =>'Hubo un error en la consulta '.$slq,
+							 'mensaje' =>'Hubo un error en la consulta '.$sql,
 							 'dato' => $consulta
 							);
 					$comprobaciones['mensajes'][] = $success;
