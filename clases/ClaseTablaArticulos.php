@@ -95,7 +95,7 @@ class ClaseTablaArticulos{
 				.'  WHERE a.idArticulo ='.$id.' AND '
 				.'  prec.idArticulo='.$id.' AND prec.idTienda= '.$this->idTienda;
 			$consulta = $this->Consulta($Sql);
-				
+            $marco_error = 'No' ;// Control si hubo error en consulta , lo normal es que no exista.	
 			if (isset ($consulta['NItems'])){
 				if ($consulta['NItems'] !== 1){ 
 				// Hubo un error o encontro mas de uno o 0, es decir no existe.
@@ -112,7 +112,6 @@ class ClaseTablaArticulos{
                             $SoloSql = 'SELECT * FROM articulos '
                             .'  WHERE idArticulo ='.$id;
                             $consulta = $this->Consulta($SoloSql);
-                            $marco_error = 'No' ;// lo normal es que no exista.
                             if ($consulta['NItems'] !== 1){ 
                                  $error = array ( 'tipo'=>'danger',
                                  'dato' =>$SoloSql,
