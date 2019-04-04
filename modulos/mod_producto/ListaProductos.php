@@ -61,7 +61,6 @@
             $CTArticulos->SetComprobaciones($error);
         }
         $htmlConfiguracion = HtmlListadoCheckMostrar($configuracion['mostrar_lista']);
-        
         if (isset($htmlConfiguracion['error'])) {
             // quiere decir que hubo error en la configuracion.
             $error = array('tipo' => 'danger',
@@ -372,7 +371,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                     if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'codBarras') === 'Si') {
                                         echo '<th>CODIGO BARRAS</th>';
                                     }
-                                    if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'crefTienda') === 'Si') {
+                                    if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.crefTienda') === 'Si') {
                                         echo '<th>REFERENCIA</th>';
                                     }
                                     ?>
@@ -427,7 +426,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         $htmltd = '<td style="cursor:pointer" onclick="UnProductoClick(' . "'" . $producto['idArticulo'] . "'" . ');">';
                                         echo $htmltd . $producto['idArticulo'] . '</td>';
                                         echo $htmltd . $producto['articulo_name'] . '<br><SUB>'.$textoFamilia.'</SUB></td>';
-                                        if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'crefTienda') === 'Si') {
+                                        if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'codBarras') === 'Si') {
                                             $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
                                             $codBarrasProd = $CTArticulos->GetCodbarras();
                                             echo '<td>';
@@ -440,7 +439,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         }
                                         ?>
                                         <?php
-                                        if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'codBarras') === 'Si') {
+                                        if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.crefTienda') === 'Si') {
                                             $CTArticulos->ObtenerReferenciasTiendas($producto['idArticulo']);
                                             $refTiendas = $CTArticulos->GetReferenciasTiendas();
                                             
