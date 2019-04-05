@@ -156,6 +156,7 @@
             echo $ObjVirtuemart->htmlJava();
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
         }
+
         
         // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
@@ -361,6 +362,27 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                     </form>
                     <!-- TABLA DE PRODUCTOS -->
                     <div>
+                        <?php
+                        // Generamos array con los productos de esta pagina para poder ejecutar ajax
+                        // para comprobar el estado en la web.
+                        if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart')==='Si'){
+                            if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+                                if (isset($productos)) {
+                            // Si existen productos.
+                                $ids= array_column($productos, 'idArticulo')
+                                ?>
+                                <script type="text/javascript">
+                                    <?php
+                                    echo 'var ids_productos='.json_encode($ids).';';
+                                    echo 'var id_tiendaWeb ='.$tiendaWeb['idTienda'].';';
+                                    ?>
+                                
+                                </script>
+                            <?php
+                                }
+                            }
+                        }
+                        ?>
                         <table class="table table-bordered table-hover tablaPrincipal">
                             <thead>
                                 <tr>
@@ -474,7 +496,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                             <?php 
                                              if(isset($tiendaWeb)){
                                             ?>
-                                        <td>
+                                        <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>">
                                         <?php
                                         if(isset($refTiendas)){
                                             foreach ($refTiendas as $ref){
@@ -564,7 +586,21 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
         }
         
         ?>
-        
+        <?php
+        // Solo ejecutamos si hay producto y hay web,
+        if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
+            if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+                if (isset($productos)) {
+            ?>
+                    $(document).ready(function() {
+                        obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb);
+                    });
+            <?php
+                }
+            }
+        }
+        ?>
+
         
         </script>
          <style>

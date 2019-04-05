@@ -1360,6 +1360,48 @@ function eliminarProductos(idTiendaWeb=0){
         });
     }
 }
+
+function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
+    // Objetivo es obtener el estado de los productos que enviemos a la web.
+    // @ Parametros:
+    //      ids_productos = (array) ids de la los productos de tpv.
+    //      id_web = (int) con el id de la tienda web.
+
+	
+	var parametros = {
+		"pulsado"       : 'obtenerEstadoProductoWeb',
+		"ids_productos" : ids_productos,
+        "id_tiendaWeb"  : id_tiendaWeb
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('*********  Obteniendo Estado de productos de la web  ****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta de Obtener Estado de productos de la web');
+			
+			var resultado =  $.parseJSON(response);
+			resultado.forEach(function(producto) {
+                // Los estado 0 son sin publicar.
+                if (producto.estado === "0"){
+
+                    $("#idProducto_estadoWeb_"+producto.idArticulo).addClass( "icono_web despublicado" );
+                    //~ console.log(producto.idArticulo);
+                }
+            });
+			
+			
+		}
+	});
+	
+}
+
+
+
+
 function seleccionarTodo(){
     console.log("entre en seleccionar todo");
    for (i=1;i<41;i++){

@@ -98,6 +98,7 @@
             // Esto no es del todo correcto... ?
             $idVirtuemart = 0;
             foreach ($Producto['ref_tiendas'] as $ref){
+                // Debemos comprobar que es la referencia de la tienda web.. FALTA
                 if ($ref['idVirtuemart'] >0){
                     $idVirtuemart = $ref['idVirtuemart'];
                 }

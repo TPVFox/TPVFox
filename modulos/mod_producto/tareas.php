@@ -268,13 +268,40 @@ switch ($pulsado) {
     $respuesta=array();
         $productos=$_POST['productos'];
         $estado=$_POST['estado'];
-         $modEstado=$NCArticulo->modificarVariosEstados($estado, $productos);
-         $respuesta['consulta']=$modEstado;
+        $modEstado=$NCArticulo->modificarVariosEstados($estado, $productos);
+        $respuesta['consulta']=$modEstado;
         $respuesta['productos']=$productos;
         $respuesta['estado']=$estado;
     break;
-    
-   
+
+    case 'obtenerEstadoProductoWeb';
+        // Objetivo es obtener el estado de los productos que enviemos a la web.
+        // @ Parametros:
+        //      ids_productos = (array) ids de la los productos de tpv.
+        //      id_web = (int) con el id de la tienda web.
+        $ids_productos  = $_POST['ids_productos'];
+        $id_tiendaWeb   = $_POST['id_tiendaWeb'];
+        // @ Devolvemos:
+        // array con los ids_productos y si estado
+		$ObjVirtuemart = $NCArticulo->SetPlugin('ClaseVirtuemart');         // Creo el objeto de plugin Virtuemart.
+        $respuesta = array();
+        // Lo  ideal sería mandar solo una petición ya que así no saturamos la red...
+        // pero de momento lo dejo..
+        foreach ($ids_productos as $key=>$idProducto){
+             $producto=$NCArticulo->GetProducto($idProducto);
+            foreach ($producto['ref_tiendas'] as $ref){
+                // Debemos comprobar que es la referencia de la tienda web.. FALTA
+                if ($ref['idVirtuemart'] >0) {
+                    $idVirtuemart = $ref['idVirtuemart'];
+                }
+            }
+            $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$producto['iva'],$producto['idArticulo'],$id_tiendaWeb);
+            $respuesta[$key]= array(
+                    'estado'=>$datosWebCompletos['datosWeb']['estado'],
+                    'idArticulo' => $idProducto
+                    );
+        }
+    break;
 }
 echo json_encode($respuesta);
 ?>

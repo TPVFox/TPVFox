@@ -101,3 +101,8 @@ tbody tr.FilaModal:hover{
 .piePagina a{
 color:  #fdfefe ;
 }
+
+
+.icono_web.despublicado > a{
+    color:#c6cbc6;
+}
