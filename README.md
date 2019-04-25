@@ -17,7 +17,7 @@ Una aplicacion web para gestionar una pequeña y mediana empresa.
 ## Lenguajes de programción utilizados
 Principalmente esta basada en php,html,css y javascript.
 Pero tambien utilizamos:
-1. Php 7.2 y MYSQL ( Mariba BD)
+1. Php 7.2 y MYSQL ( Maria BD)
 2. Html y CSS
 3. Bootstrap 3 (framework)
 3. Python -> Para modulo importar de SPPG ( obsoleto)
