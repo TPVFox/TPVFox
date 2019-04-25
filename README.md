@@ -31,4 +31,5 @@ Pero tambien utilizamos:
 - Actualizas los submodule que tenemos:
       - Submodule lib/tcpdf
       - Submodule lib/PHPMailer
-En ayuda.svigo.es es donde tenemos mucha mas información.
+      
+En ayuda.svigo.es es donde tenemos mucha mas información y te damos ayudamos.
