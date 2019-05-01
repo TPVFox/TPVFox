@@ -54,10 +54,11 @@
 		//~ echo '</pre>';
 		// ========= Obtenemos tickets usuarios Cobrados y Abiertos ======================== //.
 		
-		$ResumenTicketsCierre = ticketsPorFechaUsuario($fechas['fechaMin']['String_d-m-y'],$BDTpv,$fechas['fechaMax']['String_d-m-y']);
+		$ResumenTicketsCierre = ticketsPorFechaUsuario($fechas['fechaMin']['String_y-m-d'],$BDTpv,$fechas['fechaMax']['String_y-m-d']);
 		
 		// Añadimos nombre usuarios a ResumenTicketsCierre
-		foreach ($ResumenTicketsCierre['usuarios'] as $key => $user){
+
+        foreach ($ResumenTicketsCierre['usuarios'] as $key => $user){
 			$nombreUser=nombreUsuario($BDTpv,$key); 	//Obtenemos nombre del usuario, 
 			$ResumenTicketsCierre['usuarios'][$key]['nombre'] = $nombreUser['datos']['nombre'];
 		}
