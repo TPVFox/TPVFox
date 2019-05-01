@@ -32,29 +32,29 @@ function guardarCierreCaja(){
 			console.log('recibiendo datos id '+resultado);
 			
 			//si hay error nos mostrara un mensaje, sino es que todo va bien.
-			//if (typeof(resultado['error']) === 'undefined') { //mejorar, no vale ultima tabla falla y no me entero
-			//~ var tabla1 = resultado['insertarCierre'];
-			//~ var tabla2 = resultado['update_estado'];
-			//~ var tabla3 = resultado['insertarIvas']['insertar_ivas_cierre'];
-			//~ var tabla4 = resultado['insertarUsuarios']['insertar_FpagoCierres'];
-			//~ var tabla5 = resultado['insertarUsuarios']['insertarTickets_usuarios'];
-			
-			//~ if ((tabla1 === 'Correcto') && (tabla2 === 'Correcto') &&  (tabla3 === 'Correcto') ){
-				//~ if ( (tabla4 === 'Correcto') &&  (tabla5 === 'Correcto')){
-				//~ console.log('Inserte de cierres correcto.');
-				
-				//~ } else{
-					//~ console.log('resultado '+resultado['sql']);
-					//~ console.log('ERROR en alguna insercion de Cierres.'+response);
-				//~ }
-				
-			//~ } else {				
-				//~ console.log('ERROR en insercion '+response);
-			//~ }
-            document.location.href='ListaCierres.php';
-
-			
-		}
+            var errores = 0;
+            if (typeof(resultado['Proceso1']['error']) !== 'undefined') {
+                //Entonces hubo un error en el proceso 1.
+                alert(resultado['Proceso1']);
+                ++errores ;
+            }
+             if (typeof(resultado['Proceso2']['error']) !== 'undefined') {
+                //Entonces hubo un error en el proceso 1.
+                alert(resultado['Proceso2']);
+                ++errores ;
+            }
+             if (typeof(resultado['Proceso2']['error']) !== 'undefined') {
+                //Entonces hubo un error en el proceso 1.
+                alert(resultado['Proceso2']);
+                ++errores ;
+            }
+                
+            if (errores === 0 ){
+                // Todo fue correcto.
+                document.location.href='ListaCierres.php';
+        
+            }
+        }
 	});
 	
 	

@@ -116,15 +116,21 @@
 		$Ccierre= array();
 		$Ccierre['tienda']						= $_SESSION['tiendaTpv']['idTienda']; //recoger idTienda
 		$Ccierre['idUsuarioLogin'] 				= $_SESSION['usuarioTpv']['id']; // Quien realiza el cierre
-		$Ccierre['fechaInicio_tickets'] 		= $fechas['fechaMin']['String_d-m-y_hora'];
+        $Ccierre['sumasIvas']					= $sumasIvasBases['items']; //iva, importeIva, importeBase
+		$Ccierre['totalcaja']	 				= $ResumenTicketsCierre['totalcaja'];
+		$Ccierre['rangoTickets']				= $ResumenTicketsCierre['rangoTickets'];
+        $Ccierre['fechaCierre']					= $fechas['Cierre']['String_d-m-y'];
+		$Ccierre['fechaCreacion'] 				= $fechas['Creacion']['String_d-m-y_hora'];
+        $Ccierre['FI_unix']                     = $fechas['fechaMin']['Epoch-Unix'] ; 
+        $Ccierre['FF_unix']                     = $fechas['fechaMax']['Epoch-Unix'] ; 
+        // Las siguiente fechas la mantengo, pero ya no deberían hacer falta, ya que UNIX ya podemos obtener todos
+        // los datos.
+        $Ccierre['fechaInicio_tickets'] 		= $fechas['fechaMin']['String_d-m-y_hora'];
 		$Ccierre['fechaFinal_tickets'] 			= $fechas['fechaMax']['String_d-m-y_hora'];
 		$Ccierre['FinicioSINhora']				= $fechas['fechaMin']['String_d-m-y'];
 		$Ccierre['FfinalSINhora']				= $fechas['fechaMax']['String_d-m-y'];
-		$Ccierre['fechaCierre']					= $fechas['Cierre']['String_d-m-y'];
-		$Ccierre['fechaCreacion'] 				= $fechas['Creacion']['String_d-m-y_hora'];
-		$Ccierre['sumasIvas']					= $sumasIvasBases['items']; //iva, importeIva, importeBase
-		$Ccierre['totalcaja']	 				= $ResumenTicketsCierre['totalcaja'];
-		$Ccierre['rangoTickets']				= $ResumenTicketsCierre['rangoTickets'];
+		
+		
 		
 		foreach ($ResumenTicketsCierre['usuarios'] as $keyId => $usuario){
 			$Ccierre['usuarios'][$keyId]['nombre']		=$usuario['nombre'];
