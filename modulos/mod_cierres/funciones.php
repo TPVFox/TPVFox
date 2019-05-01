@@ -10,7 +10,7 @@ function ticketsPorFechaUsuario($fechaInicio,$BDTpv,$fechaFinal){
 	//Obtenemos los ticket Abiertos 
 	
 	//muestro datos del ticket donde fecha mayor fecha inicio y menor que nueva fecha (fecha+1)
-	$sql ='SELECT * FROM `ticketst` WHERE DATE_FORMAT(`Fecha`,"%d-%m-%Y") BETWEEN "'.$fechaInicio.'"'
+	$sql ='SELECT * FROM `ticketst` WHERE DATE_FORMAT(`Fecha`,"%Y-%m-%d") BETWEEN "'.$fechaInicio.'"'
 		.' AND "'.$fechaFinal.'" and `estado`="Cobrado"';
 	
 	$resp = $BDTpv->query($sql);
@@ -358,10 +358,12 @@ function ArrayFechaUnix ($Unix,$nombre){
 	$resultado = array();
 	$fecha_dmYHora = '%d-%m-%Y %H:%M:%S';
 	$fecha_dmY = '%d-%m-%Y';
+	$fecha_Ymd = '%Y-%m-%d';
 
 	$resultado[$nombre]['Epoch-Unix']=$Unix;
 	$resultado[$nombre]['String_d-m-y_hora'] = strftime($fecha_dmYHora,$Unix);
 	$resultado[$nombre]['String_d-m-y'] = strftime($fecha_dmY,$Unix);
+	$resultado[$nombre]['String_y-m-d'] = strftime($fecha_Ymd,$Unix);
 
 	$resultado[$nombre]['date'] = date_parse($resultado[$nombre]['String_d-m-y_hora']);
 
