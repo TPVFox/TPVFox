@@ -288,14 +288,20 @@ switch ($pulsado) {
         // Lo  ideal sería mandar solo una petición ya que así no saturamos la red...
         // pero de momento lo dejo..
         foreach ($ids_productos as $key=>$idProducto){
-             $producto=$NCArticulo->GetProducto($idProducto);
+            $producto=$NCArticulo->GetProducto($idProducto);
+            $idVirtuemart = 0;
             foreach ($producto['ref_tiendas'] as $ref){
                 // Debemos comprobar que es la referencia de la tienda web.. FALTA
                 if ($ref['idVirtuemart'] >0) {
                     $idVirtuemart = $ref['idVirtuemart'];
                 }
             }
-            $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$producto['iva'],$producto['idArticulo'],$id_tiendaWeb);
+            if ($idVirtuemart > 0) {
+                $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$producto['iva'],$producto['idArticulo'],$id_tiendaWeb);
+            } else {
+                    $datosWebCompletos = array ( 'datosWeb' => array('estado' =>'NoExiste') );
+            }
+            
             $respuesta[$key]= array(
                     'estado'=>$datosWebCompletos['datosWeb']['estado'],
                     'idArticulo' => $idProducto

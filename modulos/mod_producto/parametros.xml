@@ -13,7 +13,7 @@ de la tabla modulos_configuracion los registros de este modulo
 		<mostrar_lista nombre="t.crefTienda" descripcion="Referencia propia">Si</mostrar_lista>
 		<mostrar_lista nombre="codBarras" descripcion="Codigo Barras">Si</mostrar_lista>
    		<mostrar_lista nombre="a.idArticulo" descripcion="Id de producto">Si</mostrar_lista>
-        <mostrar_lista nombre="t.idVirtuemart" descripcion="Id de la web">Si</mostrar_lista>
+        <mostrar_lista nombre="t.idVirtuemart" descripcion="Id de la web">No</mostrar_lista>
 
         <filtro nombre="seleccion_productos">No</filtro>
 	</configuracion>

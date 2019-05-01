@@ -407,9 +407,11 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                     <th>Reg.Stock</th>
                                     <?php 
                                     if(isset($tiendaWeb)){
+                                        if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
                                         ?>
                                         <th>WEB</th>
                                         <?php
+                                        }
                                     }
                                     ?>
                                     
@@ -494,27 +496,28 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                             ?>
                                             </td>
                                             <?php 
-                                             if(isset($tiendaWeb)){
+                                        if(isset($tiendaWeb)){
+                                            if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
                                             ?>
-                                        <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>">
-                                        <?php
-                                        if(isset($refTiendas)){
-                                            foreach ($refTiendas as $ref){
-                                                if($ref['idVirtuemart']>0){
-                                                    $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
-                                                    $link=  $ObjVirtuemart->ruta_producto.$ref['idVirtuemart'];
-                                                    echo '  <a target="_blank" class="glyphicon glyphicon-globe" href="'.$link.'"></a>';
+                                            <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>">
+                                            <?php
+                                            if(isset($refTiendas)){
+                                                foreach ($refTiendas as $ref){
+                                                    if($ref['idVirtuemart']>0){
+                                                        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+                                                        $link=  $ObjVirtuemart->ruta_producto.$ref['idVirtuemart'];
+                                                        echo '  <a target="_blank" class="glyphicon glyphicon-globe" href="'.$link.'"></a>';
+                                                    }
                                                 }
-                                            }
-                                        } 
+                                            } 
                                      
-                                        
-                                        ?>
-                                        
-                                        </td>
-                                        <?php 
-                                    }
-                                        ?>
+                                            ?>
+                                            
+                                            </td>
+                                            <?php
+                                            }
+                                        }
+                                            ?>
                                     </tr>
 
                                     <?php
