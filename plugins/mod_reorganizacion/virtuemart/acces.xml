@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_producto" descripcion="Producto" permiso="1">
+    <vista nombre="producto.php" descripcion="Producto" permiso="1">
+        <accion nombre="CrearProductoWeb" descripcion="Crear Producto Web" permiso="0"></accion>
+        <accion nombre="VerProductoWeb" descripcion="Ver Producto Web" permiso="0"></accion>
+    </vista>
+</modulo>

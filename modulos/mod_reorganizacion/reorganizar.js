@@ -5,30 +5,34 @@
  * @Descripción	
  */
 
-
-$(function () {
-
-    $("#boton-stock").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        contarProductosEstoqueables(function (respuesta) {
-            var obj = JSON.parse(respuesta);
+function contarProductosWeb(){
+    var callback = function (respuesta){
+        var obj = JSON.parse(respuesta);
             if (obj.totalProductos > 0) {
                 var totalProductos = obj.totalProductos;
-                $("#bar0").show();
-                $("#boton-stock").prop("disabled",true);
-                RegenerarStock(0, 100, totalProductos,'0');
+                $("#bar1").show();
+                $("#boton_subir_stock").prop("disabled",true);
+                var cantidad=100;
+                if (obj.totalProductos <= 100){
+                    cantidad= obj.totalProductos
+                }
+                SubirStockWeb(0,cantidad, totalProductos,'1');
             }
+        }   
+    var parametros = {
+        pulsado: 'contarproductos',
+        tipo:'web'
+    }
 
-        });
-    });
+    ajaxStock(parametros, callback);
 
-});
+}
+
 
 function contarProductosEstoqueables(callback) {
     var parametros = {
-        pulsado: 'contarproductos'
+        pulsado: 'contarproductos',
+        tipo:'tpv'
     }
     ajaxStock(parametros, callback);
 }
@@ -61,6 +65,67 @@ function RegenerarStock(inicio, pagina, total,idBar) {
         }
     });
 }
+
+
+
+function SubirStockWeb(inicio, cantidad, total,idBar) {
+
+    var parametros = {
+        pulsado : 'subirStock',
+        inicial : parseInt(inicio),
+        cantidad : cantidad,
+        totalProductos : total
+    };
+
+    BarraProceso(inicio,total,idBar);
+    ajaxStock(parametros, function (response) {
+        var obj = JSON.parse(response);
+        if (obj) {
+            elementos = obj.elementos;
+            actual = obj.actual;
+            totalProductos = obj.totalProductos;
+            if (actual < totalProductos){
+                cantidad = totalProductos-actual;
+                if (cantidad >100){
+                    cantidad= 100;
+                }
+                console.log('elementos:'+elementos.length + ' Cantidad:'+cantidad+' Actual:'+actual);
+                if (elementos.length > 0) {
+                    SubirStockWeb(actual, cantidad, totalProductos, idBar);
+                }
+            } else {
+            // fin
+            BarraProceso(total,total,idBar);
+
+            }
+        } 
+    });
+}
+
+
+
+function limpiarPermisosModulos() {
+    var parametros = {
+        pulsado : 'limpiarPermisosModulos',
+    };
+    ajaxStock(parametros, function (response) {
+        
+        var obj = JSON.parse(response);
+        var n_elementos = Object.keys(obj.eliminado);
+        console.log(obj);
+        $("#boton_limpiar_permisos").prop("disabled",false);
+        alert ( 'Eliminamos '+ n_elementos.length + ' modulos \n'+  'Pendiente continuar maquetando resultado');
+        
+     });
+
+}
+
+
+
+
+
+
+
 
 
 function ajaxStock(parametros, callback) {
