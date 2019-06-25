@@ -41,12 +41,7 @@ class alArticulos extends Modelo { // hereda de clase modelo. Hay una clase arti
         return $resultado['datos'][0]['contador'] == 1;
     }
 
-    public function contar() {
-        $sql = 'SELECT COUNT(idArticulo) AS contador '
-                . 'FROM articulos ';
-        $resultado = $this->consulta($sql);
-        return $resultado['datos'][0]['contador'];
-    }
+ 
 
     public function leerPrecio($idArticulo, $idTienda = 1) {
         $sql = 'SELECT pre.* '

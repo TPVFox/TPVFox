@@ -305,7 +305,8 @@ class ClaseTablaArticulos{
 	public function ObtenerTiendaPrincipal(){
 		// Objetivo:
 		// Obtener la tienda principal y guardarla en propiedad tienda.
-		// [NOTA] -> Asi no hace falta mandar siempre idTienda
+		// [NOTA]
+        // Ahora ya no hace falta esta función ya que ya la obtenemos al cargar la session en el inicial.php
 		$Sql = "SELECT idTienda FROM `tiendas` WHERE `tipoTienda`='Principal'";
 		$respuesta = $this->Consulta($Sql);
 		if ($respuesta['NItems'] === 1){

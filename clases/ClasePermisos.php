@@ -46,18 +46,20 @@ class ClasePermisos{
         //9 quiere decir que es un administrador entonces modificamos los el xml para que el permiso sea siempre 1
        
         $this->obtenerRutaProyecto();
-        $this->ObtenerDir();
+        $this->ObtenerDir(); // Obtenemos los modulos que existen $this->modulos
         $modulos=$this->modulos;
-        foreach($modulos as $modulo){//Recorrer todos los modulos
+        foreach($modulos as $modulo){
+            //Recorrer todos los modulos
            
             if(is_file($this->RutaModulos.'/'.$modulo.'/acces.xml')){//Si en  el modulo existe el archivo acces
                 $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');//lo cargamos
-               if(isset($this->usuario['group_id'])){
-                    if($this->usuario['group_id']==9){//Si el usuario es del grupo 9 moficamos el xml para que todos los permisos 
-                                                    //sean 1
-                    $xml=$this->ModificarPermisos($xml);
+                if(isset($this->usuario['group_id'])){
+                    if($this->usuario['group_id']==9){
+                        //Si el usuario es del grupo 9 moficamos el xml para que todos los permisos 
+                        //sean 1
+                        $xml=$this->ModificarPermisos($xml);
+                    }
                 }
-               }
                
                 $this->insertarPermisos($xml);//Cuando esté el xml listo insertamos los permisos
             }
@@ -191,7 +193,7 @@ class ClasePermisos{
     }
        
     }
-    public function comprobarPermisos($permisos, $modulo, $vista){
+     public function comprobarPermisos($permisos, $modulo, $vista){
         //Objetico: comprobar permisos para el menú superior de la aplicación 
         //Comprobamos el permiso del usuario con el permiso del xml del menu
         $respuesta = array();
@@ -210,12 +212,14 @@ class ClasePermisos{
                     // Este es el permiso para este modulo
                     $permisoModulo = $permiso['permiso'];
                 }
-                if($permiso['modulo']==$modulo && $permiso['vista'] == $vista) {
+                if($permiso['modulo']==$modulo && $permiso['vista'] == $vista && $permiso['accion'] == '') {
                     // Este es el permiso para vista.
+                    // La accion no la contamos.. por eso la igualamos ''
                     $permisoVista =  $permiso['permiso'];
                     $link = '/modulos/'.$modulo.'/'.$vista;
                     
                 }
+            
             }
             $permiso = $permisoModulo + $permisoVista;
 
@@ -334,6 +338,40 @@ class ClasePermisos{
             return $descripcion;
          }
          
+    }
+
+    public function limpiarPermisosModulosInexistentes() {
+        // Objetivo:
+        // Limpiar registros de la tabla , aquellos permisos de modulos que no existen en el proyecto.
+        // Se limpian a todos los usuarios.
+        // Se ejecuta en reorganizacion.
+               
+        $this->obtenerRutaProyecto();
+        $this->ObtenerDir(); // Obtenemos los modulos que existen $this->modulos
+        $modulos=$this->modulos;
+        
+        // Obtenemos los distintos modulos que hay creados en la tabla permisos
+        $BDTpv = $this->BDTpv;
+        $sql='SELECT DISTINCT modulo FROM permisos ';
+     
+        $res = $BDTpv->query($sql);
+        $modulos_tabla=array();
+        
+        while ( $result = $res->fetch_assoc () ) {
+            array_push($modulos_tabla,$result['modulo']);
+        }
+        // Obtenemos array con los modulos que existen tabla permiso , no existen el codigo.
+        $no_existe = array_diff($modulos_tabla,$modulos);
+        $respuesta = array();
+        foreach ($no_existe as $m){
+            // Eliminamos registros para esos modulos.
+            $sql = 'DELETE FROM permisos WHERE modulo="'.$m.'"';
+            $res = $BDTpv->query($sql);
+            $respuesta['eliminado'][$m] = $BDTpv->affected_rows;
+        }
+        
+        return $respuesta;
+
     }
     
 	
