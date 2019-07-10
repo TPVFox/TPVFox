@@ -35,8 +35,8 @@
                         <tbody>
                             <tr>
                                 <td><button id="boton-stock" class="btn"  >
-                                        <span class="glyphicon glyphicon-save"> </span>Regenerar</button></td>
-                                <td>Stock</td>
+                                        <span class="glyphicon glyphicon-save"> </span>Regenerar Stock</button></td>
+                                <td>Regenerar Stock según ventas y entradas tpv</td>
                                 <td><div class="progress" style="margin:0 100px">
                                         <div id="bar0" class="progress-bar progress-bar-info" 
                                              role="progressbar" aria-valuenow="0" 
@@ -50,8 +50,8 @@
                                 ?>
                             <tr>
                                 <td><button id="boton_subir_stock" class="btn"  >
-                                        <span class="glyphicon glyphicon-save"> </span>Subir Stock</button></td>
-                                <td>Subir Stock a web</td>
+                                        <span class="glyphicon glyphicon-save"> </span>Subir Stock y Precios</button></td>
+                                <td>Subir Stock y precios a web</td>
                                 <td><div class="progress" style="margin:0 100px">
                                         <div id="bar1" class="progress-bar progress-bar-info" 
                                              role="progressbar" aria-valuenow="0" 

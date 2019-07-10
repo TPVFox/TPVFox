@@ -48,7 +48,13 @@ class ClaseReorganizar extends TFModelo  {
     }
 
     public function obtenerIdsWeb($inicio,$cantidad){
-        $sql = 'SELECT T.idArticulo,T.idVirtuemart,ifNull(S.stockOn,0) as stockOn FROM `articulosTiendas` as T LEFT join articulosStocks AS S ON S.idArticulo=T.idArticulo WHERE T.idTienda ='.$this->idTiendaWeb.' LIMIT '.$inicio.','.$cantidad; 
+        //~ $sql = 'SELECT T.idArticulo,T.idVirtuemart,ifNull(S.stockOn,0) as stockOn FROM `articulosTiendas` as T LEFT join articulosStocks AS S ON S.idArticulo=T.idArticulo WHERE T.idTienda ='.$this->idTiendaWeb.' LIMIT '.$inicio.','.$cantidad;
+
+        $sql = 'SELECT T.idArticulo,T.idVirtuemart,ifNull(S.stockOn,0) as stockOn,p.pvpSiva as pvpSiva '
+                .'FROM `articulosTiendas` as T LEFT join articulosStocks AS S ON S.idArticulo=T.idArticulo '
+                .'LEFT JOIN articulosPrecios as p ON S.idArticulo=p.idArticulo WHERE T.idTienda ='
+                .$this->idTiendaWeb.' LIMIT '.$inicio.','.$cantidad;
+
         $resultado = $this->consulta($sql);
         return $resultado;
 
