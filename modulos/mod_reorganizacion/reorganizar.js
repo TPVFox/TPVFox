@@ -12,8 +12,8 @@ function contarProductosWeb(){
                 var totalProductos = obj.totalProductos;
                 $("#bar1").show();
                 $("#boton_subir_stock").prop("disabled",true);
-                var cantidad=100;
-                if (obj.totalProductos <= 100){
+                var cantidad=900;
+                if (obj.totalProductos <= 900){
                     cantidad= obj.totalProductos
                 }
                 SubirStockWeb(0,cantidad, totalProductos,'1');
@@ -71,7 +71,7 @@ function RegenerarStock(inicio, pagina, total,idBar) {
 function SubirStockWeb(inicio, cantidad, total,idBar) {
 
     var parametros = {
-        pulsado : 'subirStock',
+        pulsado : 'subirStockYPrecio',
         inicial : parseInt(inicio),
         cantidad : cantidad,
         totalProductos : total
@@ -86,8 +86,8 @@ function SubirStockWeb(inicio, cantidad, total,idBar) {
             totalProductos = obj.totalProductos;
             if (actual < totalProductos){
                 cantidad = totalProductos-actual;
-                if (cantidad >100){
-                    cantidad= 100;
+                if (cantidad >900){
+                    cantidad= 900;
                 }
                 console.log('elementos:'+elementos.length + ' Cantidad:'+cantidad+' Actual:'+actual);
                 if (elementos.length > 0) {

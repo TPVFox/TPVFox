@@ -142,13 +142,13 @@ class PluginClaseVirtuemart extends ClaseConexion{
     
     
     
-    public function enviarStock($datos){
+    public function enviarStockYPrecio($datos){
         //@Objetivo: Modificar un producto en la web con los datos que el usuario 
         //añada en el tpv
         //@Parametros: datos principales del producto
         $ruta =$this->ruta_web;
 		$parametros = array('key' 			=>$this->key_api,
-							'action'		=>'cambiarStock',
+							'action'		=>'cambiarStockYPrecios',
 							'datos'	=>$datos
 						);
 		// [CONEXION CON SERVIDOR REMOTO] 

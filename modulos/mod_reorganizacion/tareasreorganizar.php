@@ -77,7 +77,7 @@ switch ($pulsado) {
         echo json_encode($resultado);
         break;
 
-    case 'subirStock':
+    case 'subirStockYPrecio':
         $inicial = $_POST['inicial'];
         $cantidad = $_POST['cantidad'];
         $totalProductos = $_POST['totalProductos'];
@@ -92,8 +92,9 @@ switch ($pulsado) {
         $idsWeb =$CReorganizar->obtenerIdsWeb($inicial,$cantidad);
         // Ahora enviamos a la web.
         $productos= json_encode($idsWeb['datos']);
-        $r =$CVirtuemart->enviarStock($productos);
-        $resultado = array ( 'elementos' => $r['Datos']['consultas'],
+        $r =$CVirtuemart->enviarStockYPrecio($productos);
+        $resultado = array ( 'elementos' => $r['Datos']['consulta1'],
+                             'elementos_precios' => $r['Datos']['consulta2'],
                              'actual'=> $inicial+ count($idsWeb['datos']) + 1,
                              'totalProductos' => $totalProductos
                             );
