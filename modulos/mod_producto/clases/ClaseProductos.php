@@ -1052,6 +1052,8 @@ class ClaseProductos extends ClaseTablaArticulos{
              $items = parent::Consulta($consulta);
              if($items['Items'][0]['cant']>0){
                  $bandera=1;
+                 $resultado['consulta']=$consulta;
+                 $resultado['haydatos']=$items['Items'][0]['cant'];
                  break;
              }
         }

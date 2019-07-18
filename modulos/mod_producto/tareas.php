@@ -247,6 +247,9 @@ switch ($pulsado) {
                 $comprobacionesEliminar=$NCArticulo->ComprobarEliminar($idProducto, $tiendaWeb);
                 if($comprobacionesEliminar['bandera']==1){
                     array_push( $productosNoEliminados, $datos);
+                    $respuesta['consulta_con_datos'] = $comprobacionesEliminar['consulta'];
+                    $respuesta['haydatos'] = $comprobacionesEliminar['haydatos'];
+
                 }else{
                     
                     array_push( $productosEliminados, $datos);
