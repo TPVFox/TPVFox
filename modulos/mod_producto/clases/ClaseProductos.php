@@ -79,7 +79,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 				." ,aCodBarras.codBarras as codBarras,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo` "
+				."ON p.`idArticulo` = a.`idArticulo` AND "
+                ."(p.idTienda =".$this->idTienda.") "
 				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
 				.$filtro;
                 break;
@@ -90,7 +91,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 				." ,aCodBarras.codBarras as codBarras,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo` "
+				."ON p.`idArticulo` = a.`idArticulo` AND "
+                ."(p.idTienda =".$this->idTienda.") "
 				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
 				.$filtro;
                 break;
@@ -101,7 +103,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo` "
+				."ON p.`idArticulo` = a.`idArticulo` AND "
+                ."(p.idTienda =".$this->idTienda.") "
 				."LEFT JOIN `articulosTiendas` AS t ON (t.idArticulo = a.idArticulo)"
 				.$filtro;
                 break;
