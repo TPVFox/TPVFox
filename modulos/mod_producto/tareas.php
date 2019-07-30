@@ -60,16 +60,6 @@ switch ($pulsado) {
 		
 		break;
 		
-	case 'eliminarCoste':
-		$respuesta = array();
-		$idArticulo=$_POST['idArticulo'];
-		$dedonde=$_POST['dedonde'];
-		$id=$_POST['id'];
-		$tipo=$_POST['tipo'];
-		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo,'Sin Cambios');
-		$respuesta['sql']=$mod;
-		break;
-		
 	case 'retornarCoste':
 		$idArticulo=$_POST['idArticulo'];
 		$dedonde=$_POST['dedonde'];
@@ -122,11 +112,6 @@ switch ($pulsado) {
 	
 	case 'HtmlCajaBuscarProveedor':
         include_once $URLCom.'/modulos/mod_producto/tareas/htmlCajaBuscarProveedor.php';
-	break;
-	
-	case 'eliminarSeleccion':
-		$deseleccionar=eliminarSeleccion();
-        $respuesta['deseleccionado'] = ' Se deselecciono '.$deseleccionar;
 	break;
 	
 	case 'obtenerCostesProveedor':
@@ -225,10 +210,30 @@ switch ($pulsado) {
         }
         $respuesta['Productos']=$idsProductos;
     break;
+    case 'eliminarCoste':
+		$respuesta = array();
+		$idArticulo=$_POST['idArticulo'];
+		$dedonde=$_POST['dedonde'];
+		$id=$_POST['id'];
+		$tipo=$_POST['tipo'];
+		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo,'Sin Cambios');
+		$respuesta['sql']=$mod;
+    break;
+
+    case 'eliminarSeleccion':
+		$deseleccionar=eliminarSeleccion();
+        $respuesta['deseleccionado'] = ' Se deselecciono '.$deseleccionar;
+	break;
+    
     case 'eliminarHistorico':
         $idHistorico=$_POST['idHistorico'];
         $eliminar=$NCArticulo->EliminarHistorico($idHistorico);
         $respuesta=$eliminar;
+    break;
+    case 'eliminarReferenciaTienda':
+        $idCruce=$_POST['idCruce'];
+        $eliminar_cruce_tienda=$NCArticulo->EliminarCruceTienda($idCruce);
+        $respuesta=$eliminar_cruce_tienda;
     break;
     case 'eliminarProductos':
         $respuesta=array();

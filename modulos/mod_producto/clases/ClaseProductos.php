@@ -1017,6 +1017,13 @@ class ClaseProductos extends ClaseTablaArticulos{
         $consulta =$this->Consulta_insert_update($sql);
         return $consulta;
     }
+
+    public function EliminarCruceTienda($idCruce){
+        $sql='DELETE FROM articulosTiendas WHERE id='.$idCruce;
+        $consulta =$this->Consulta_insert_update($sql);
+        return $consulta;
+
+    }
 	
 	public function precioCivaRecalculado(){
 		// @ Objetivo

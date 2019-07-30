@@ -231,6 +231,7 @@ function eliminarFamiliaProducto(e){
 }
 
 
+
 function anular(e) {
     // Objetivo:
     // Evitar recargar el formulario al pulsar intro, ya que sino lo recarga.
@@ -1314,6 +1315,7 @@ function EliminarHistorico(idHistorico, e){
                    if(resultado.error==0){
                        alert("Error de sql: "+resultado.consulta);
                    }else{
+                        // Codigo repetido que se puede poner en una funcion
                         var padre=e.parentNode; 
                         var abuelo=padre.parentNode; 
                         var bisa=abuelo.parentNode; 
@@ -1323,6 +1325,46 @@ function EliminarHistorico(idHistorico, e){
         });
     }
 }
+
+function EliminarReferenciaTienda(idCruce,e){
+    var mensaje = confirm("¿Estás seguro que quieres eliminar este la relacion de este producto entre  esta tienda?");
+	if (mensaje) {
+    var parametros = {
+        pulsado: 'eliminarReferenciaTienda',
+        idCruce:idCruce
+    }
+     $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* eliminar registro indicado de historico precio **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de eliminar historico precio');
+                   
+                    var resultado = $.parseJSON(response);
+                    console.log (resultado);
+                   //QUEDA ELIMINAR LINEA
+                   if(resultado.error==0){
+                       alert("Error de sql: "+resultado.consulta);
+                   }else{
+                        // Codigo repetido que es puede poner en una funcion
+                        var padre=e.parentNode; 
+                        var abuelo=padre.parentNode; 
+                        var bisa=abuelo.parentNode; 
+                        bisa.removeChild(abuelo);
+                   }
+            }
+        });
+    }
+
+}
+
+
+
+
+
 
 function eliminarProductos(idTiendaWeb=0){
      var mensaje = confirm("¿Estás seguro que quieres eliminar los productos seleccionado?");

@@ -97,7 +97,7 @@ function htmlLineaRefTienda($item,$crefTienda){
 	
 	
 	
-	$nuevaFila = '<tr>';
+	$nuevaFila = '<tr id="ref_tienda_'.$item.'">';
 	$nuevaFila .= '<td>'.$crefTienda['idTienda'].'</td>';
 	$nuevaFila .= '<td>';
 	$nuevaFila .='<small>'.$crefTienda['crefTienda'].'/'.$crefTienda['idVirtuemart'].'</small>';
@@ -105,8 +105,9 @@ function htmlLineaRefTienda($item,$crefTienda){
 	$nuevaFila .= '<td>';
 	$nuevaFila .= $crefTienda['tipoTienda'];
 	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>'.$crefTienda['dominio'].'</td>'; 		
-	$nuevaFila .= '</tr>';
+	$nuevaFila .= '<td>'.$crefTienda['dominio'].'</td>';
+    $nuevaFila .= '<td>'.'<a id="eliminarref_tienda_'.$item.'" class="glyphicon glyphicon-trash" onclick="EliminarReferenciaTienda('.$crefTienda['id'].',this)"></a></td>'; 
+    $nuevaFila .= '</tr>';
 	return $nuevaFila;
 }
 
@@ -205,14 +206,15 @@ function  htmlTablaRefTiendas($crefTiendas){
 	// @ Parametros
 	// 		// 		$crefTiendas-> (array) de Arrays con datos de productos en otras tiendas.
 	$html =	 '<table id="tproveedor" class="table table-striped">'
-			.'		<thead>'
-			.'			<tr>'
-			.'				<th>idTienda</th>'
-			.'				<th>Cref / id </th>'
-			.'				<th>Tipo Tienda</th>'
-			.'				<th>dominio</th>'
-			.'			</tr>'
-			.'		</thead>';
+            .'  <thead>'
+            .'      <tr>'
+            .'          <th>idTienda</th>'
+            .'          <th>Cref / id </th>'
+            .'          <th>Tipo Tienda</th>'
+            .'          <th>dominio</th>'
+            .'          <th></th>'
+            .'      </tr>'
+            .'  </thead>';
 	if (count($crefTiendas)>0){
 		foreach ($crefTiendas as $item=>$crefTienda){
 			if ($crefTienda['tipoTienda'] !=='principal'){
