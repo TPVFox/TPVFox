@@ -86,7 +86,7 @@ class ClaseTickets extends ClaseSession {
 		$idTienda = $this->Tienda['idTienda'];
 		$respuesta = array();
 		// Montamos consulta
-		$sql = 'SELECT t.idUsuario, u.nombre as usuario, t.`numticket`,t.`idClientes`,t.`fechaInicio`,t.`fechaFinal`,t.`total`,t.`total_ivas`,c.Nombre, c.razonsocial FROM `ticketstemporales` as t LEFT JOIN clientes as c ON t.idClientes=c.idClientes LEFT JOIN usuarios as u ON t.idUsuario= u.id WHERE t.idTienda ='.$idTienda.' AND estadoTicket="Abierto"';
+		$sql = 'SELECT t.idUsuario, u.nombre as usuario, t.`numticket`,t.`idClientes`,t.`fechaInicio`,t.`fechaFinal`,t.`total`,c.Nombre, c.razonsocial FROM `ticketstemporales` as t LEFT JOIN clientes as c ON t.idClientes=c.idClientes LEFT JOIN usuarios as u ON t.idUsuario= u.id WHERE t.idTienda ='.$idTienda.' AND estadoTicket="Abierto"';
 		if ($res = $BDTpv->query($sql)) {
 			/* obtener un array asociativo */
 				$i= 0;

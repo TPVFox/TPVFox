@@ -191,29 +191,29 @@
 ?>
 
 <?php if (isset($ticket)){
-	// Solo cargamos estas lineas javascript si es un ticket Abierto
- ?>
-	<script type="text/javascript">
-	cabecera['idCliente'] = <?php echo $idCliente;?>;
-	datos = [];
-	<?php
-	foreach($ticket['productos'] as $product){
-	?>
-		// Añadimos datos de productos a variable productos Javascript
-		datos['idArticulo'] 	= <?php echo $product->id;?>;
-		datos['crefTienda'] 	= <?php echo '"'.$product->cref.'"';?>;
-		datos['articulo_name'] 	= <?php echo '"'.$product->cdetalle.'"';?>;
-		datos['pvpCiva'] 		= <?php echo '"'.$product->pvpconiva.'"';?>;
-		datos['iva'] 			= <?php echo '"'.$product->ctipoiva.'"';?>;
-		datos['codBarras']		= <?php echo '"'.$product->ccodebar.'"';?>;
-		datos['unidad']		= <?php echo '"'.$product->unidad.'"';?>;
-		datos['estado']		= <?php echo '"'.$product->estado.'"';?>;
-		productos.push(new ObjProducto(datos));
-	<?php	
-	}
-	?>
+        // Solo cargamos estas lineas javascript si es un ticket Abierto
+     ?>
+        <script type="text/javascript">
+        cabecera['idCliente'] = <?php echo $idCliente;?>;
+        datos = [];
+        <?php
+        foreach($ticket['productos'] as $product){
+        ?>
+            // Añadimos datos de productos a variable productos Javascript
+            datos['idArticulo'] 	= <?php echo $product->id;?>;
+            datos['crefTienda'] 	= <?php echo '"'.$product->cref.'"';?>;
+            datos['articulo_name'] 	= <?php echo '"'.$product->cdetalle.'"';?>;
+            datos['pvpCiva'] 		= <?php echo '"'.$product->pvpconiva.'"';?>;
+            datos['iva'] 			= <?php echo '"'.$product->ctipoiva.'"';?>;
+            datos['codBarras']		= <?php echo '"'.$product->ccodebar.'"';?>;
+            datos['unidad']		= <?php echo '"'.$product->unidad.'"';?>;
+            datos['estado']		= <?php echo '"'.$product->estado.'"';?>;
+            productos.push(new ObjProducto(datos));
+        <?php	
+        }
+        ?>
 
-	</script>
+        </script>
 <?php } ?>
 <div class="container">
 

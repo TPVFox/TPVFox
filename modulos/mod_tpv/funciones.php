@@ -242,9 +242,9 @@ function grabarTicketsTemporales($BDTpv, $productos, $cabecera, $total) {
         // Insertamos el nuevo tickettemporal
         $SQL = 'INSERT INTO `ticketstemporales`(`numticket`,`estadoTicket`, `idTienda`, `idUsuario`, `fechaInicio`, `idClientes`, `total`, `Productos`) VALUES (' . $numTicket . ',"' . $resultado['estadoTicket'] . '",' . $idTienda . ',' . $idUsuario . ',"' . $fecha . '",' . $idCliente . ',' . $total . ',"' . $PrepProductos . '")';
         $BDTpv->query($SQL);
+        $resultado['consulta'][] = $SQL;
         if (mysqli_error($BDTpv)) {
-            $resultado['consulta'] = $SQL;
-            $resultado['error'] = $BDTpv->error_list;
+            $resultado['error'][] = $BDTpv->error_list;
         }
     } else {
         // Si NO es Nuevo entonces se hace UPDATE
@@ -257,9 +257,9 @@ function grabarTicketsTemporales($BDTpv, $productos, $cabecera, $total) {
 
         $resultado['estadoTicket'] = 'Actual';
         $resultado['fechaFinal'] = $fecha;
+        $resultado['consulta'][] = $SQL;
         if (mysqli_error($BDTpv)) {
-            $resultado['consulta3'] = $SQL;
-            $resultado['error3'] = $BDTpv->error_list;
+            $resultado['error'][]= $BDTpv->error_list;
         }
     }
     $resultado['NumeroTicket'] = $numTicket;
@@ -323,7 +323,7 @@ function ObtenerUnTicketTemporal($BDTpv, $idTienda, $idUsuario, $numero_ticket) 
     // Hay que tener en cuenta que todos los productos del tickets esta en un campo unico, en un array JSON
     $respuesta = array();
     $productos = array();
-    $Sql = 'SELECT t.`id` , t.`numticket` , t.`estadoTicket` , t.`idTienda` , t.`idUsuario` , t.`fechaInicio` , t.`fechaFinal` , t.`idClientes` , t.`total` , t.`total_ivas` , c.`Nombre` , c.`razonsocial`,t.`Productos` FROM `ticketstemporales` AS t LEFT JOIN `clientes` AS c ON c.`idClientes` = t.`idClientes` WHERE `idTienda` =' . $idTienda . ' AND `idUsuario` =' . $idUsuario . ' AND `numticket` =' . $numero_ticket;
+    $Sql = 'SELECT t.`id` , t.`numticket` , t.`estadoTicket` , t.`idTienda` , t.`idUsuario` , t.`fechaInicio` , t.`fechaFinal` , t.`idClientes` , t.`total` , c.`Nombre` , c.`razonsocial`,t.`Productos` FROM `ticketstemporales` AS t LEFT JOIN `clientes` AS c ON c.`idClientes` = t.`idClientes` WHERE `idTienda` =' . $idTienda . ' AND `idUsuario` =' . $idUsuario . ' AND `numticket` =' . $numero_ticket;
 
 
     if ($resp = $BDTpv->query($Sql)) {
