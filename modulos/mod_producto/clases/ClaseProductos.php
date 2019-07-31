@@ -98,14 +98,22 @@ class ClaseProductos extends ClaseTablaArticulos{
                 break;
                 
             case 't.idVirtuemart':
-				// Buscamos por Codbarras.
+				// Buscamos por idVirtuemart.
+                if ($this->SetPlugin('ClaseVirtuemart') !== false){
+                    $ObjVirtuemart = $this->SetPlugin('ClaseVirtuemart');
+                    $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+                    $idTiendaWeb = $tiendaWeb['idTienda'];
+                }
+
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
 				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
 				."LEFT JOIN `articulosPrecios` AS p "
 				."ON p.`idArticulo` = a.`idArticulo` AND "
                 ."(p.idTienda =".$this->idTienda.") "
-				."LEFT JOIN `articulosTiendas` AS t ON (t.idArticulo = a.idArticulo)"
+				."LEFT JOIN `articulosTiendas` AS t "
+                ."ON (t.idArticulo = a.idArticulo) AND "
+                ."(t.idTienda =". $idTiendaWeb.") "
 				.$filtro;
                 break;
 
