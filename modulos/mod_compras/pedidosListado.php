@@ -64,7 +64,7 @@
 		$errores[0]=array ( 'tipo'=>'Warning!',
 								 'dato' => '',
 								 'class'=>'alert alert-warning',
-								 'mensaje' => 'No tienes albaranes guardados!'
+								 'mensaje' => 'No tienes pedidos guardados!'
 								 );
 	}
 	?>

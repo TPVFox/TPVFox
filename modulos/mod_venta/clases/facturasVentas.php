@@ -182,6 +182,7 @@ class FacturasVentas extends ClaseVentas{
 		 $smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
+                error_log('facturaVentas en insertarDatosFacturaTemporal:'.implode(' ',$smt));
 				$respuesta['consulta']=$smt['consulta'];
 		}else{
 			$id=$db->insert_id;
@@ -261,6 +262,7 @@ class FacturasVentas extends ClaseVentas{
 			$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
+                error_log('facturaVentas en AddFacturaGuardado1:'.implode(' ',$smt['error']));
 				$respuesta['consulta']=$smt['consulta'];
 				return $respuesta;
 			}else{
@@ -277,6 +279,7 @@ class FacturasVentas extends ClaseVentas{
 			 $smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
+                error_log('facturaVentas en AddFacturaGuardado2:'.$smt['error']);
 				$respuesta['consulta']=$smt['consulta'];
 				return $respuesta;
 			}else{

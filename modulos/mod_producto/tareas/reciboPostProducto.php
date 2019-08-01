@@ -5,6 +5,7 @@
  * */
  
 $preparados = array();
+
 if (isset($_POST['id'])){
 	$id= $_POST['id'];
 } else {
@@ -86,7 +87,7 @@ if ($id >0 ){
 			
 			if ($key === 'nuevo'){
 				foreach ($comprobacion as $nuevo){
-					if ($nuevo['error']){
+					if (isset($nuevo['error'])){
 					   $success = array ( 'tipo'=>'danger',
 							 'mensaje' =>'Hubo un error al añadir un coste ,referencia de proveedor.',
 							 'dato' => $nuevo
@@ -124,12 +125,17 @@ if ($id >0 ){
 
 } else {
 		// ----------------------------  			NUEVO 				  ------------------------  //
-	
+        
 		$comprobaciones = $CTArticulos->comprobacionCamposObligatoriosProducto($DatosPostProducto);
+       
 		if (count($comprobaciones)=== 0){
           
 			$anhadir = $CTArticulos->AnhadirProductoNuevo($DatosPostProducto);
-			$DatosPostProducto['Sqls']['NuevoProducto']=$anhadir;
+            //~ echo '<pre>';
+            //~ print_r($anhadir);
+            //~ echo '</pre>';
+
+            $DatosPostProducto['Sqls']['NuevoProducto']=$anhadir;
 			// Se creo uno NUEVO fijo.
 			if (isset($anhadir['insert_articulos']['id_producto_nuevo'])){
 				// Ponemos el id para poder mostrar los datos ya grabados.
@@ -162,7 +168,10 @@ if ($id >0 ){
 					$preparados['RefTienda']=$anhadir['RefTienda'];
 				}
 
-			} 
+			}  else {
+                    // Quiere decir que hubo un error al insertar.
+                   $preparados['comprobaciones'][] =  $anhadir['insert_articulos'];
+            }
 		}else {
 			// Quiere decir que hubo un error al principio
 			$preparados['comprobaciones'][] = $comprobaciones;

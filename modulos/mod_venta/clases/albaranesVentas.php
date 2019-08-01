@@ -63,12 +63,13 @@ class AlbaranesVentas extends ClaseVentas {
         $PrepProductos = $db->real_escape_string($UnicoCampoProductos);
         $PrepPedidos = $db->real_escape_string($UnicoCampoPedidos);
         $sql = 'UPDATE albcliltemporales SET idUsuario=' . $idUsuario
-                . ' , idTienda=' . $idTienda . ' , estadoAlbCli="' . $estadoAlbaran . '" , fechaInicio='
-                . $fecha . ' , Pedidos="' . $PrepPedidos . '" ,Productos="' . $PrepProductos
+                . ' , idTienda=' . $idTienda . ' , estadoAlbCli="' . $estadoAlbaran . '" , fechaInicio="'
+                . $fecha . '" , Pedidos="' . $PrepPedidos . '" ,Productos="' . $PrepProductos
                 . '"  WHERE id=' . $idTemporal;
         $smt = $this->consulta($sql);
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
+            error_log('Error en clase albaranesVentas en modificarDatosAlbaranTemporal'.$smt['error']);
             $respuesta['consulta'] = $smt['consulta'];
         } else {
             $respuesta['idTemporal'] = $idTemporal;
@@ -113,7 +114,7 @@ class AlbaranesVentas extends ClaseVentas {
         //@Objetivo:
         //Modificar el total de un albarán temporal
         $db = $this->db;
-        $sql = 'UPDATE albcliltemporales set total=' . $total . ' , total_ivas=' . $totalivas . ' where id=' . $res;
+        $sql = 'UPDATE albcliltemporales set total="' . $total . '" , total_ivas="' . $totalivas . '" where id=' . $res;
         $smt = $this->consulta($sql);
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
@@ -182,6 +183,7 @@ class AlbaranesVentas extends ClaseVentas {
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
                 $respuesta['error'] = $smt['error'];
+                error_log('en albaranesVentas modificarDatosAlbaranesTemporal:'.$smt['error']);
                 $respuesta['consulta'] = $smt['consulta'];
             } else {
                 $id = $db->insert_id;
@@ -226,11 +228,12 @@ class AlbaranesVentas extends ClaseVentas {
         }
         foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
             $sql = 'INSERT INTO albcliIva (idalbcli  ,  Numalbcli  , iva ,
-				importeIva, totalbase) VALUES (' . $id . ', ' . $id . ' , ' . $iva . ', '
-                    . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
+				importeIva, totalbase) VALUES ("' . $id . '", "' . $id . '" , "' . $iva . '", "'
+                    . $basesYivas['iva'] . '" , "' . $basesYivas['base'] . '")';
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
                 $respuesta['error'] = $smt['error'];
+                error_log('Error albaranesVentas en modificarDatosAlbaranTemporal:'.$smt['error']);
                 $respuesta['consulta'] = $smt['consulta'];
                 break;
             }

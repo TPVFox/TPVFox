@@ -367,9 +367,9 @@ class ClaseProductos extends ClaseTablaArticulos{
 			// Hubo resultados
 		} else {
 			// Quiere decir que hubo error en la consulta.
-			$respuesta['error'] = $DB->connect_errno;
+			$respuesta['error'] = $DB->error;
 			$error = array ( 'tipo'=>'danger',
-						 'mensaje' =>'Error al insertar en tabla Articulos '.json_encode($respuesta['error']),
+						 'mensaje' =>'Error al insertar en tabla Articulos: '.$respuesta['error'],
 						 'dato' => $sqlArticulo
 					);
 			$comprobaciones['insert_articulos'] = $error;

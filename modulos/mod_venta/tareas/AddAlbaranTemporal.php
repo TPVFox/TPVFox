@@ -8,6 +8,7 @@
 			$fecha=$_POST['fecha'];
 			$fecha = new DateTime($fecha);
 			$fecha = $fecha->format('Y-m-d');
+            $res= 0;
 			if (isset($_POST['pedidos'])){
 				$pedidos=$_POST['pedidos'];
 			}else{
@@ -34,6 +35,7 @@
 				$rest=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoAlbaran, $fecha , $pedidos, $productos, $idCliente);
 				if (isset($rest['error'])){
 					$respuesta['error']=$rest['error'];
+                    error_log('Error en tareas/AddAlbaranTemporal'); 
 					$respuesta['consulta']=$rest['consulta'];
 				}else{
 					$existe=0;

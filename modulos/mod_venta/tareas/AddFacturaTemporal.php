@@ -7,6 +7,8 @@
 			$estadoFactura=$_POST['estado'];
 			$numFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
+            $fecha = new DateTime($fecha);
+			$fecha = $fecha->format('Y-m-d');
 			$productos=json_decode($_POST['productos']);
 			$idCliente=$_POST['idCliente'];
 			if(isset($_POST['albaranes'])){

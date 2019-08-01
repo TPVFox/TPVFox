@@ -203,13 +203,16 @@ class AlbaranesCompras extends ClaseCompras {
         //Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
         $respuesta = array();
         $db = $this->db;
+        // Aquí tenemos que validar las fechas son correctas
+        $datos['fechaVenci'] = $this->ComprobarFecha($datos['fechaVenci']);
+        
         //~ error_log('fecha de clase'.$datos['fecha']);
         if ($idAlbaran > 0) {
             $sql = 'INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , 
 			idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('
                     . $idAlbaran . ' , ' . $idAlbaran . ', "' . $datos['fecha'] . '", ' . $datos['idTienda'] . ', '
-                    . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ', "' . $datos['estado'] . '", ' . $datos['total']
-                    . ', "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
+                    . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ', "' . $datos['estado'] . '", "' . $datos['total']
+                    . '", "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
             $smt = $this->consultaAlbaran($sql);
             if (gettype($smt) === 'array') {
                 $respuesta['error'] = $smt['error'];
@@ -222,11 +225,12 @@ class AlbaranesCompras extends ClaseCompras {
             $sql = 'INSERT INTO  albprot  (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , 
 			total, Su_numero, formaPago, FechaVencimiento) VALUES ('
                     . $datos['Numtemp_albpro'] . ' , "' . $datos['fecha'] . '", ' . $datos['idTienda'] . ', '
-                    . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ' , "' . $datos['estado'] . '", ' . $datos['total']
-                    . ', "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
+                    . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ' , "' . $datos['estado'] . '", "' . $datos['total']
+                    . '", "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
             $smt = $this->consultaAlbaran($sql);
             if (gettype($smt) === 'array') {
                 $respuesta['error'] = $smt['error'];
+                error_log('Error AlbaranesCompras AddAlbaranGuardado:'.$smt['error']);
                 $respuesta['consulta'] = $smt['consulta'];
             } else {
                 $id = $db->insert_id;
@@ -504,6 +508,16 @@ class AlbaranesCompras extends ClaseCompras {
 		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
+
+    public function ComprobarFecha($fecha){
+        // @Objetivo:
+        // Comprobar si la fecha (string) es correcta, si no es devuelve una fecha 0000-00-00
+        // @Devolvemos string
+        if (strlen(trim($fecha)) === 0){
+            $fecha="0000-00-00";
+        }
+        return $fecha;
+    }
 
 
 }

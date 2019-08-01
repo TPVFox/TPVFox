@@ -271,6 +271,7 @@ class FacturasCompras extends ClaseCompras{
 			$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
+                error_log('Error en facturasCompras en AddFacturaGuardado:'.$smt['error']);
 				$respuesta['consulta']=$smt['consulta'];
 			}else{
 				$id=$db->insert_id;

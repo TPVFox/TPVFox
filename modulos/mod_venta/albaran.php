@@ -32,6 +32,7 @@
 	$dedonde="albaran";
 	$Datostotales=array();
 	$textoNum="";
+    $inciden= 0;
 	$parametros = $ClasesParametros->getRoot();
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="albaran";
@@ -45,8 +46,6 @@
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	
-	
 	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
 		$idAlbaran=$_GET['id'];
 		$textoNum=$idAlbaran;
@@ -91,16 +90,18 @@
 		$inciden=count($incidenciasAdjuntas['datos']);
 	}else{
 		$bandera=1;
-			if (isset($_GET['tActual'])){//Recibido un albarán temporal
+			if (isset($_GET['tActual'])){
+                //Recibido un albarán temporal
 				$idAlbaranTemporal=$_GET['tActual'];
-				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);//Recogemos todos los datos del albarán temporal 
+                //Recogemos todos los datos del albarán temporal 
+				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
 				if (isset($datosAlbaran['numalbcli'])){
 					$numAlbaran=$datosAlbaran['numalbcli'];
 					$id=$Calbcli->datosAlbaranNum($numAlbaran);
 					$idAlbaran=$id['id'];
 					$textoNum=$idAlbaran;
 				}
-				echo $numAlbaran;
+				//~ echo $numAlbaran;
 				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
 					$fecha=date('d-m-Y');
 				}else{
@@ -118,7 +119,7 @@
 			}
 		
 	}
-		if(isset($albaran['Productos'])){
+	if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
 			// convertimos el objeto productos en array
 			$Datostotales = recalculoTotales($productos);
@@ -151,6 +152,7 @@
 			$style="display:none;";
 		}
 $titulo .= ' '.$textoNum.': '.$estado;
+
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -201,7 +203,7 @@ $titulo .= ' '.$textoNum.': '.$estado;
 	
 ?>
 </script>
-<?php 
+<?php
 if ($idCliente==0){
 	$idCliente="";
 	$nombreCliente="";
