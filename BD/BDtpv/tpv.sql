@@ -2,10 +2,10 @@
 -- version 4.6.6deb4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Nov 03, 2017 at 11:22 AM
--- Server version: 10.1.26-MariaDB-0+deb9u1
--- PHP Version: 7.0.19-1
+-- Servidor: localhost:3306
+-- Tiempo de generación: 02-08-2019 a las 19:37:42
+-- Versión del servidor: 10.3.15-MariaDB-1
+-- Versión de PHP: 7.2.20-2+0~20190725.24+debian10~1.gbp69697c
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,31 +17,239 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tpv`
+-- Base de datos: `tpvfox`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `articulos`
+-- Estructura de tabla para la tabla `albclifac`
+--
+
+CREATE TABLE `albclifac` (
+  `id` int(11) NOT NULL,
+  `idFactura` int(11) DEFAULT NULL,
+  `numFactura` int(11) DEFAULT NULL,
+  `idAlbaran` int(11) DEFAULT NULL,
+  `numAlbaran` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albcliIva`
+--
+
+CREATE TABLE `albcliIva` (
+  `id` int(11) NOT NULL,
+  `idalbcli` int(11) NOT NULL,
+  `Numalbcli` int(11) NOT NULL,
+  `iva` int(11) DEFAULT NULL,
+  `importeIva` decimal(17,2) DEFAULT NULL,
+  `totalbase` decimal(17,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albclilinea`
+--
+
+CREATE TABLE `albclilinea` (
+  `id` int(11) NOT NULL,
+  `idalbcli` int(11) NOT NULL,
+  `Numalbcli` int(11) NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `cref` varchar(18) DEFAULT NULL,
+  `ccodbar` varchar(18) DEFAULT NULL,
+  `cdetalle` varchar(100) DEFAULT NULL,
+  `ncant` decimal(17,6) DEFAULT NULL,
+  `nunidades` decimal(17,6) DEFAULT NULL,
+  `precioCiva` decimal(17,2) DEFAULT NULL,
+  `iva` decimal(4,2) DEFAULT NULL,
+  `nfila` int(11) DEFAULT NULL,
+  `estadoLinea` varchar(12) DEFAULT NULL,
+  `NumpedCli` int(100) DEFAULT NULL,
+  `pvpSiva` decimal(17,6) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albcliltemporales`
+--
+
+CREATE TABLE `albcliltemporales` (
+  `id` int(11) NOT NULL,
+  `numalbcli` int(11) DEFAULT NULL,
+  `estadoAlbCli` varchar(12) DEFAULT NULL,
+  `idTienda` int(11) DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `fechaInicio` datetime DEFAULT NULL,
+  `fechaFinal` datetime DEFAULT NULL,
+  `idClientes` int(11) DEFAULT NULL,
+  `total` decimal(17,6) DEFAULT NULL,
+  `total_ivas` varchar(250) DEFAULT NULL,
+  `Productos` mediumblob DEFAULT NULL,
+  `Pedidos` varbinary(5000) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albclit`
+--
+
+CREATE TABLE `albclit` (
+  `id` int(11) NOT NULL,
+  `Numalbcli` int(11) DEFAULT NULL,
+  `Numtemp_albcli` int(11) DEFAULT NULL,
+  `Fecha` datetime NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `idCliente` int(11) NOT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `formaPago` varchar(12) DEFAULT NULL,
+  `entregado` decimal(17,2) DEFAULT NULL,
+  `total` decimal(17,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albprofac`
+--
+
+CREATE TABLE `albprofac` (
+  `id` int(11) NOT NULL,
+  `idFactura` int(11) DEFAULT NULL,
+  `numFactura` int(11) DEFAULT NULL,
+  `idAlbaran` int(11) DEFAULT NULL,
+  `numAlbaran` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albproIva`
+--
+
+CREATE TABLE `albproIva` (
+  `id` int(11) NOT NULL,
+  `idalbpro` int(11) NOT NULL,
+  `Numalbpro` int(11) NOT NULL,
+  `iva` int(11) DEFAULT NULL,
+  `importeIva` decimal(17,2) DEFAULT NULL,
+  `totalbase` decimal(17,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albprolinea`
+--
+
+CREATE TABLE `albprolinea` (
+  `id` int(11) NOT NULL,
+  `idalbpro` int(11) NOT NULL,
+  `Numalbpro` int(11) NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `cref` varchar(18) DEFAULT NULL,
+  `ccodbar` varchar(18) DEFAULT NULL,
+  `cdetalle` varchar(100) DEFAULT NULL,
+  `ncant` decimal(17,6) DEFAULT NULL,
+  `nunidades` decimal(17,6) DEFAULT NULL,
+  `costeSiva` decimal(17,4) DEFAULT NULL,
+  `iva` decimal(4,2) DEFAULT NULL,
+  `nfila` int(11) DEFAULT NULL,
+  `estadoLinea` varchar(12) DEFAULT NULL,
+  `ref_prov` varchar(18) NOT NULL,
+  `Numpedpro` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albproltemporales`
+--
+
+CREATE TABLE `albproltemporales` (
+  `id` int(11) NOT NULL,
+  `numalbpro` int(11) DEFAULT NULL,
+  `Su_numero` varchar(20) NOT NULL,
+  `estadoAlbPro` varchar(12) DEFAULT NULL,
+  `idTienda` int(11) DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `fechaInicio` datetime DEFAULT NULL,
+  `fechaFinal` datetime DEFAULT NULL,
+  `idProveedor` int(11) DEFAULT NULL,
+  `total` decimal(17,6) DEFAULT NULL,
+  `total_ivas` varchar(250) DEFAULT NULL,
+  `Productos` mediumblob DEFAULT NULL,
+  `Pedidos` varbinary(5000) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `albprot`
+--
+
+CREATE TABLE `albprot` (
+  `id` int(11) NOT NULL,
+  `Numalbpro` int(11) DEFAULT NULL,
+  `Numtemp_albpro` int(11) DEFAULT NULL,
+  `Su_numero` varchar(20) DEFAULT NULL,
+  `Fecha` datetime NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `idProveedor` int(11) NOT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `formaPago` varchar(12) DEFAULT NULL,
+  `entregado` decimal(17,2) DEFAULT NULL,
+  `total` decimal(17,2) DEFAULT NULL,
+  `FechaVencimiento` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `articulos`
 --
 
 CREATE TABLE `articulos` (
   `idArticulo` int(11) NOT NULL,
   `iva` decimal(4,2) DEFAULT NULL,
   `idProveedor` varchar(6) CHARACTER SET utf8 DEFAULT NULL,
-  `articulo_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `articulo_name` varchar(100) CHARACTER SET utf8 NOT NULL,
   `beneficio` decimal(5,2) DEFAULT NULL,
   `costepromedio` decimal(17,6) DEFAULT NULL,
   `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
   `fecha_creado` datetime NOT NULL,
-  `fecha_modificado` datetime NOT NULL
+  `fecha_modificado` datetime DEFAULT NULL,
+  `ultimoCoste` float(8,2) NOT NULL,
+  `tipo` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `articulosCodigoBarras`
+-- Estructura de tabla para la tabla `articulosClientes`
+--
+
+CREATE TABLE `articulosClientes` (
+  `idArticulo` int(11) NOT NULL,
+  `idClientes` int(11) NOT NULL,
+  `pvpSiva` decimal(17,6) NOT NULL,
+  `pvpCiva` decimal(17,6) NOT NULL,
+  `fechaActualizacion` date NOT NULL,
+  `estado` varchar(12) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `articulosCodigoBarras`
 --
 
 CREATE TABLE `articulosCodigoBarras` (
@@ -52,7 +260,7 @@ CREATE TABLE `articulosCodigoBarras` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `articulosFamilias`
+-- Estructura de tabla para la tabla `articulosFamilias`
 --
 
 CREATE TABLE `articulosFamilias` (
@@ -63,21 +271,7 @@ CREATE TABLE `articulosFamilias` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `articulosImagenes`
---
-
-CREATE TABLE `articulosImagenes` (
-  `id` int(11) NOT NULL,
-  `idArticulo` int(11) NOT NULL,
-  `cref` varchar(18) NOT NULL,
-  `file_url` varchar(900) NOT NULL,
-  `virtuemart_media_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `articulosPrecios`
+-- Estructura de tabla para la tabla `articulosPrecios`
 --
 
 CREATE TABLE `articulosPrecios` (
@@ -90,7 +284,7 @@ CREATE TABLE `articulosPrecios` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `articulosProveedores`
+-- Estructura de tabla para la tabla `articulosProveedores`
 --
 
 CREATE TABLE `articulosProveedores` (
@@ -98,25 +292,47 @@ CREATE TABLE `articulosProveedores` (
   `idProveedor` int(11) NOT NULL,
   `crefProveedor` varchar(24) DEFAULT NULL,
   `coste` decimal(17,6) NOT NULL,
-  `fechaActualizacion` date NOT NULL
+  `fechaActualizacion` date NOT NULL,
+  `estado` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `articulosTiendas`
+-- Estructura de tabla para la tabla `articulosStocks`
+--
+
+CREATE TABLE `articulosStocks` (
+  `id` int(11) NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `stockMin` decimal(17,6) NOT NULL,
+  `stockMax` decimal(17,6) NOT NULL,
+  `stockOn` decimal(17,6) NOT NULL,
+  `fecha_modificado` datetime NOT NULL DEFAULT current_timestamp(),
+  `fechaRegularizacion` datetime DEFAULT NULL,
+  `usuarioRegularizacion` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `articulosTiendas`
 --
 
 CREATE TABLE `articulosTiendas` (
+  `id` int(11) NOT NULL,
   `idArticulo` int(11) NOT NULL,
   `idTienda` int(11) NOT NULL,
-  `crefTienda` varchar(18) NOT NULL
+  `crefTienda` varchar(18) NOT NULL,
+  `idVirtuemart` int(11) NOT NULL,
+  `estado` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cierres`
+-- Estructura de tabla para la tabla `cierres`
 --
 
 CREATE TABLE `cierres` (
@@ -133,7 +349,7 @@ CREATE TABLE `cierres` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cierres_ivas`
+-- Estructura de tabla para la tabla `cierres_ivas`
 --
 
 CREATE TABLE `cierres_ivas` (
@@ -148,7 +364,7 @@ CREATE TABLE `cierres_ivas` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cierres_usuariosFormasPago`
+-- Estructura de tabla para la tabla `cierres_usuariosFormasPago`
 --
 
 CREATE TABLE `cierres_usuariosFormasPago` (
@@ -163,7 +379,7 @@ CREATE TABLE `cierres_usuariosFormasPago` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cierres_usuarios_tickets`
+-- Estructura de tabla para la tabla `cierres_usuarios_tickets`
 --
 
 CREATE TABLE `cierres_usuarios_tickets` (
@@ -179,7 +395,7 @@ CREATE TABLE `cierres_usuarios_tickets` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `clientes`
+-- Estructura de tabla para la tabla `clientes`
 --
 
 CREATE TABLE `clientes` (
@@ -193,37 +409,301 @@ CREATE TABLE `clientes` (
   `movil` varchar(11) NOT NULL,
   `fax` varchar(11) NOT NULL,
   `email` varchar(100) CHARACTER SET utf8 NOT NULL,
-  `estado` varchar(12) CHARACTER SET utf8 NOT NULL
+  `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
+  `fomasVenci` varchar(250) DEFAULT NULL,
+  `fecha_creado` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT;
+
+--
+-- Volcado de datos para la tabla `clientes`
+--
+
+INSERT INTO `clientes` (`idClientes`, `Nombre`, `razonsocial`, `nif`, `direccion`, `codpostal`, `telefono`, `movil`, `fax`, `email`, `estado`, `fomasVenci`, `fecha_creado`) VALUES
+(1, 'Sin identificar', 'Sin identificar', '', '', '', '', '', '', '', '', NULL, '0000-00-00 00:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `Cli_FroPa_TipoVen`
+--
+
+CREATE TABLE `Cli_FroPa_TipoVen` (
+  `id` int(11) NOT NULL,
+  `idCliente` int(11) NOT NULL,
+  `idFormasPago` int(11) NOT NULL,
+  `idTiposVencimiento` int(11) NOT NULL,
+  `Predeterminado` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `familias`
+-- Estructura de tabla para la tabla `faccliIva`
+--
+
+CREATE TABLE `faccliIva` (
+  `id` int(11) NOT NULL,
+  `idfaccli` int(11) NOT NULL,
+  `Numfaccli` int(11) NOT NULL,
+  `iva` int(11) DEFAULT NULL,
+  `importeIva` decimal(17,2) DEFAULT NULL,
+  `totalbase` decimal(17,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `facclilinea`
+--
+
+CREATE TABLE `facclilinea` (
+  `id` int(11) NOT NULL,
+  `idfaccli` int(11) NOT NULL,
+  `Numfaccli` int(11) NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `cref` varchar(18) DEFAULT NULL,
+  `ccodbar` varchar(18) DEFAULT NULL,
+  `cdetalle` varchar(100) DEFAULT NULL,
+  `ncant` decimal(17,6) DEFAULT NULL,
+  `nunidades` decimal(17,6) DEFAULT NULL,
+  `precioCiva` decimal(17,2) DEFAULT NULL,
+  `iva` decimal(4,2) DEFAULT NULL,
+  `nfila` int(11) DEFAULT NULL,
+  `estadoLinea` varchar(12) DEFAULT NULL,
+  `NumalbCli` int(100) DEFAULT NULL,
+  `pvpSiva` decimal(17,6) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `faccliltemporales`
+--
+
+CREATE TABLE `faccliltemporales` (
+  `id` int(11) NOT NULL,
+  `numfaccli` int(11) DEFAULT NULL,
+  `estadoFacCli` varchar(12) DEFAULT NULL,
+  `idTienda` int(11) DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `fechaInicio` datetime DEFAULT NULL,
+  `fechaFinal` datetime DEFAULT NULL,
+  `idClientes` int(11) DEFAULT NULL,
+  `total` decimal(17,6) DEFAULT NULL,
+  `total_ivas` varchar(250) DEFAULT NULL,
+  `Productos` mediumblob DEFAULT NULL,
+  `Albaranes` varbinary(5000) DEFAULT NULL,
+  `FacCobros` varbinary(5000) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `facclit`
+--
+
+CREATE TABLE `facclit` (
+  `id` int(11) NOT NULL,
+  `Numfaccli` int(11) DEFAULT NULL,
+  `Numtemp_faccli` int(11) DEFAULT NULL,
+  `Fecha` datetime NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `idCliente` int(11) NOT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `formaPago` varchar(12) DEFAULT NULL,
+  `total` decimal(17,2) DEFAULT NULL,
+  `fechaCreacion` datetime DEFAULT NULL,
+  `fechaVencimiento` datetime DEFAULT NULL,
+  `fechaModificacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `facProCobros`
+--
+
+CREATE TABLE `facProCobros` (
+  `id` int(11) NOT NULL,
+  `idFactura` int(11) NOT NULL,
+  `idFormasPago` int(11) NOT NULL,
+  `FechaPago` date NOT NULL,
+  `importe` float NOT NULL,
+  `Referencia` varchar(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `facproIva`
+--
+
+CREATE TABLE `facproIva` (
+  `id` int(11) NOT NULL,
+  `idfacpro` int(11) NOT NULL,
+  `Numfacpro` int(11) NOT NULL,
+  `iva` int(11) DEFAULT NULL,
+  `importeIva` decimal(17,2) DEFAULT NULL,
+  `totalbase` decimal(17,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `facprolinea`
+--
+
+CREATE TABLE `facprolinea` (
+  `id` int(11) NOT NULL,
+  `idfacpro` int(11) NOT NULL,
+  `Numfacpro` int(11) NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `cref` varchar(18) DEFAULT NULL,
+  `ccodbar` varchar(18) DEFAULT NULL,
+  `cdetalle` varchar(100) DEFAULT NULL,
+  `ncant` decimal(17,6) DEFAULT NULL,
+  `nunidades` decimal(17,6) DEFAULT NULL,
+  `costeSiva` decimal(17,4) DEFAULT NULL,
+  `iva` decimal(4,2) DEFAULT NULL,
+  `nfila` int(11) DEFAULT NULL,
+  `estadoLinea` varchar(12) DEFAULT NULL,
+  `ref_prov` varchar(250) DEFAULT NULL,
+  `Numalbpro` int(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `facproltemporales`
+--
+
+CREATE TABLE `facproltemporales` (
+  `id` int(11) NOT NULL,
+  `numfacpro` int(11) DEFAULT NULL,
+  `estadoFacPro` varchar(12) DEFAULT NULL,
+  `idTienda` int(11) DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `fechaInicio` datetime DEFAULT NULL,
+  `fechaFinal` datetime DEFAULT NULL,
+  `idProveedor` int(11) DEFAULT NULL,
+  `total` decimal(17,6) DEFAULT NULL,
+  `total_ivas` varchar(250) DEFAULT NULL,
+  `Productos` mediumblob DEFAULT NULL,
+  `Albaranes` varbinary(50000) DEFAULT NULL,
+  `Su_numero` varchar(20) DEFAULT NULL,
+  `FacCobros` varchar(500) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `facprot`
+--
+
+CREATE TABLE `facprot` (
+  `id` int(11) NOT NULL,
+  `Numfacpro` int(11) DEFAULT NULL,
+  `Numtemp_facpro` int(11) DEFAULT NULL,
+  `Su_num_factura` varchar(20) DEFAULT NULL,
+  `Fecha` datetime NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `idProveedor` int(11) NOT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `formaPago` varchar(12) DEFAULT NULL,
+  `entregado` decimal(17,2) DEFAULT NULL,
+  `total` decimal(17,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `fac_cobros`
+--
+
+CREATE TABLE `fac_cobros` (
+  `id` int(11) NOT NULL,
+  `idFactura` int(11) NOT NULL,
+  `idFormasPago` int(11) NOT NULL,
+  `FechaPago` date NOT NULL,
+  `importe` float NOT NULL,
+  `Referencia` varchar(25) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `familias`
 --
 
 CREATE TABLE `familias` (
   `idFamilia` int(11) NOT NULL,
   `familiaNombre` varchar(100) NOT NULL DEFAULT '',
-  `familiaPadre` int(11) NOT NULL
+  `familiaPadre` int(11) NOT NULL,
+  `beneficiomedio` decimal(5,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `familiasTienda`
+-- Estructura de tabla para la tabla `familiasTienda`
 --
 
 CREATE TABLE `familiasTienda` (
   `idFamilia` int(11) NOT NULL,
   `idTienda` int(11) NOT NULL,
-  `ref_familia_tienda` varchar(18) NOT NULL
+  `idFamilia_tienda` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `indices`
+-- Estructura de tabla para la tabla `formasPago`
+--
+
+CREATE TABLE `formasPago` (
+  `id` int(11) NOT NULL,
+  `descripcion` varchar(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `historico_precios`
+--
+
+CREATE TABLE `historico_precios` (
+  `id` int(11) NOT NULL,
+  `idArticulo` int(10) NOT NULL,
+  `Antes` decimal(17,4) NOT NULL,
+  `Nuevo` decimal(17,4) NOT NULL,
+  `Fecha_Creacion` datetime NOT NULL,
+  `NumDoc` int(11) NOT NULL,
+  `Dedonde` varchar(50) NOT NULL,
+  `Tipo` varchar(50) NOT NULL,
+  `idUsuario` int(5) DEFAULT NULL,
+  `estado` varchar(60) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `importar_virtuemart_tickets`
+--
+
+CREATE TABLE `importar_virtuemart_tickets` (
+  `id` int(11) NOT NULL,
+  `idTicketst` int(11) NOT NULL,
+  `Fecha` datetime NOT NULL,
+  `estado` varchar(12) NOT NULL,
+  `respuesta` varchar(250) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `indices`
 --
 
 CREATE TABLE `indices` (
@@ -235,16 +715,16 @@ CREATE TABLE `indices` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `indices`
+-- Volcado de datos para la tabla `indices`
 --
 
 INSERT INTO `indices` (`id`, `idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES
-(1, 1, 1, 0, 0);
+(1, 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `iva`
+-- Estructura de tabla para la tabla `iva`
 --
 
 CREATE TABLE `iva` (
@@ -254,10 +734,331 @@ CREATE TABLE `iva` (
   `recargo` decimal(4,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Volcado de datos para la tabla `iva`
+--
+
+INSERT INTO `iva` (`idIva`, `descripcionIva`, `iva`, `recargo`) VALUES
+(1, 'Exento de Iva', '0.00', '0.00'),
+(2, 'Iva Super Reduccido', '4.00', '0.50'),
+(3, 'Iva Reduccido', '10.00', '1.00'),
+(4, 'Iva General', '21.00', '4.00');
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `proveedores`
+-- Estructura de tabla para la tabla `migraciones`
+--
+
+CREATE TABLE `migraciones` (
+  `version` bigint(20) NOT NULL,
+  `migration_name` varchar(100) DEFAULT NULL,
+  `start_time` timestamp NULL DEFAULT NULL,
+  `end_time` timestamp NULL DEFAULT NULL,
+  `breakpoint` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modulos_configuracion`
+--
+
+CREATE TABLE `modulos_configuracion` (
+  `idusuario` int(11) NOT NULL,
+  `nombre_modulo` varchar(50) NOT NULL,
+  `configuracion` varbinary(50000) NOT NULL,
+  `fecha` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modulo_balanza`
+--
+
+CREATE TABLE `modulo_balanza` (
+  `idBalanza` int(11) NOT NULL,
+  `nombreBalanza` varchar(100) NOT NULL,
+  `modelo` varchar(100) NOT NULL,
+  `conTecla` varchar(3) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modulo_balanza_plus`
+--
+
+CREATE TABLE `modulo_balanza_plus` (
+  `idBalanza` int(11) NOT NULL,
+  `plu` int(10) NOT NULL,
+  `tecla` int(100) NOT NULL,
+  `idArticulo` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modulo_etiquetado`
+--
+
+CREATE TABLE `modulo_etiquetado` (
+  `id` int(11) NOT NULL,
+  `num_lote` int(11) NOT NULL,
+  `tipo` varchar(12) NOT NULL,
+  `fecha_env` datetime NOT NULL,
+  `fecha_cad` date NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `numAlb` int(11) NOT NULL,
+  `estado` varchar(12) NOT NULL,
+  `productos` varbinary(50000) NOT NULL,
+  `idUsuario` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modulo_etiquetado_temporal`
+--
+
+CREATE TABLE `modulo_etiquetado_temporal` (
+  `id` int(11) NOT NULL,
+  `num_lote` int(11) NOT NULL,
+  `tipo` varchar(12) NOT NULL,
+  `fecha_env` datetime NOT NULL,
+  `fecha_cad` date NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `numAlb` int(11) NOT NULL,
+  `estado` varchar(12) NOT NULL,
+  `productos` varbinary(50000) NOT NULL,
+  `idUsuario` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modulo_incidencia`
+--
+
+CREATE TABLE `modulo_incidencia` (
+  `id` int(11) NOT NULL,
+  `num_incidencia` int(11) NOT NULL,
+  `fecha_creacion` datetime NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `dedonde` varchar(15) NOT NULL,
+  `mensaje` varchar(255) NOT NULL,
+  `datos` varbinary(10000) NOT NULL,
+  `estado` varchar(12) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedcliAlb`
+--
+
+CREATE TABLE `pedcliAlb` (
+  `id` int(11) NOT NULL,
+  `idAlbaran` int(11) DEFAULT NULL,
+  `numAlbaran` int(11) DEFAULT NULL,
+  `idPedido` int(11) DEFAULT NULL,
+  `numPedido` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedcliIva`
+--
+
+CREATE TABLE `pedcliIva` (
+  `id` int(11) NOT NULL,
+  `idpedcli` int(11) NOT NULL,
+  `Numpedcli` int(11) NOT NULL,
+  `iva` int(11) NOT NULL,
+  `importeIva` decimal(17,2) NOT NULL,
+  `totalbase` decimal(17,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedclilinea`
+--
+
+CREATE TABLE `pedclilinea` (
+  `id` int(11) NOT NULL,
+  `idpedcli` int(11) NOT NULL,
+  `Numpedcli` int(11) NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `cref` varchar(18) DEFAULT NULL,
+  `ccodbar` varchar(18) DEFAULT NULL,
+  `cdetalle` varchar(100) NOT NULL,
+  `ncant` decimal(17,6) DEFAULT NULL,
+  `nunidades` decimal(17,6) DEFAULT NULL,
+  `precioCiva` decimal(17,2) NOT NULL,
+  `iva` decimal(4,2) NOT NULL,
+  `nfila` int(11) NOT NULL,
+  `estadoLinea` varchar(12) NOT NULL,
+  `pvpSiva` decimal(17,6) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedcliltemporales`
+--
+
+CREATE TABLE `pedcliltemporales` (
+  `id` int(11) NOT NULL,
+  `estadoPedCli` varchar(12) DEFAULT NULL,
+  `idTienda` int(11) DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `fechaInicio` datetime DEFAULT NULL,
+  `fechaFinal` datetime DEFAULT NULL,
+  `idClientes` int(11) DEFAULT NULL,
+  `total` decimal(17,6) DEFAULT NULL,
+  `total_ivas` varchar(250) DEFAULT NULL,
+  `Productos` mediumblob DEFAULT NULL,
+  `idPedcli` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedclit`
+--
+
+CREATE TABLE `pedclit` (
+  `id` int(11) NOT NULL,
+  `Numpedcli` int(11) DEFAULT NULL,
+  `Numtemp_pedcli` int(11) NOT NULL,
+  `FechaPedido` date NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `idCliente` int(11) NOT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `formaPago` varchar(12) DEFAULT NULL,
+  `entregado` decimal(17,2) DEFAULT NULL,
+  `total` decimal(17,2) DEFAULT NULL,
+  `fechaCreacion` datetime DEFAULT NULL,
+  `fechaModificacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedproAlb`
+--
+
+CREATE TABLE `pedproAlb` (
+  `id` int(11) NOT NULL,
+  `idAlbaran` int(11) DEFAULT NULL,
+  `numAlbaran` int(11) DEFAULT NULL,
+  `idPedido` int(11) DEFAULT NULL,
+  `numPedido` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedproIva`
+--
+
+CREATE TABLE `pedproIva` (
+  `id` int(11) NOT NULL,
+  `idpedpro` int(11) NOT NULL,
+  `Numpedpro` int(11) NOT NULL,
+  `iva` int(11) NOT NULL,
+  `importeIva` decimal(17,2) NOT NULL,
+  `totalbase` decimal(17,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedprolinea`
+--
+
+CREATE TABLE `pedprolinea` (
+  `id` int(11) NOT NULL,
+  `idpedpro` int(11) NOT NULL,
+  `Numpedpro` int(11) NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `cref` varchar(18) DEFAULT NULL,
+  `ref_prov` varchar(18) NOT NULL,
+  `ccodbar` varchar(18) DEFAULT NULL,
+  `cdetalle` varchar(100) NOT NULL,
+  `ncant` decimal(17,6) DEFAULT NULL,
+  `nunidades` decimal(17,6) DEFAULT NULL,
+  `costeSiva` decimal(17,4) NOT NULL,
+  `iva` decimal(4,2) NOT NULL,
+  `nfila` int(11) NOT NULL,
+  `estadoLinea` varchar(12) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedprot`
+--
+
+CREATE TABLE `pedprot` (
+  `id` int(11) NOT NULL,
+  `Numpedpro` int(11) DEFAULT NULL,
+  `Numtemp_pedpro` int(11) NOT NULL,
+  `FechaPedido` date NOT NULL,
+  `idTienda` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `idProveedor` int(11) NOT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `formaPago` varchar(12) DEFAULT NULL,
+  `entregado` decimal(17,2) DEFAULT NULL,
+  `total` decimal(17,2) DEFAULT NULL,
+  `fechaCreacion` datetime DEFAULT NULL,
+  `fechaModificacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedprotemporales`
+--
+
+CREATE TABLE `pedprotemporales` (
+  `id` int(11) NOT NULL,
+  `estadoPedPro` varchar(12) DEFAULT NULL,
+  `idTienda` int(11) DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `fechaInicio` datetime DEFAULT NULL,
+  `fechaFinal` datetime DEFAULT NULL,
+  `idProveedor` int(11) DEFAULT NULL,
+  `total` decimal(17,6) DEFAULT NULL,
+  `total_ivas` varchar(250) DEFAULT NULL,
+  `Productos` mediumblob DEFAULT NULL,
+  `idPedpro` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `permisos`
+--
+
+CREATE TABLE `permisos` (
+  `id` int(11) NOT NULL,
+  `idUsuario` int(11) NOT NULL,
+  `modulo` varchar(50) DEFAULT NULL,
+  `vista` varchar(50) DEFAULT NULL,
+  `accion` varchar(50) DEFAULT NULL,
+  `permiso` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `proveedores`
 --
 
 CREATE TABLE `proveedores` (
@@ -270,15 +1071,36 @@ CREATE TABLE `proveedores` (
   `fax` varchar(11) NOT NULL,
   `movil` varchar(11) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `fechaalta` date NOT NULL,
-  `idusuario` int(11) NOT NULL,
-  `estado` varchar(12) NOT NULL
+  `estado` varchar(12) NOT NULL,
+  `fecha_creado` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ticketslinea`
+-- Estructura de tabla para la tabla `stocksRegularizacion`
+--
+
+CREATE TABLE `stocksRegularizacion` (
+  `id` int(11) NOT NULL,
+  `idArticulo` int(11) NOT NULL,
+  `idTienda` int(11) NOT NULL DEFAULT 1,
+  `fechaRegularizacion` datetime NOT NULL DEFAULT current_timestamp(),
+  `stockActual` decimal(17,6) NOT NULL,
+  `stockModif` decimal(17,6) NOT NULL,
+  `stockFinal` decimal(17,6) NOT NULL,
+  `stockOperacion` int(1) NOT NULL DEFAULT 1,
+  `idUsuario` int(11) NOT NULL,
+  `idAlbaran` int(11) NOT NULL DEFAULT 0,
+  `estado` int(11) NOT NULL DEFAULT 1,
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ticketslinea`
 --
 
 CREATE TABLE `ticketslinea` (
@@ -300,7 +1122,7 @@ CREATE TABLE `ticketslinea` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ticketst`
+-- Estructura de tabla para la tabla `ticketst`
 --
 
 CREATE TABLE `ticketst` (
@@ -320,7 +1142,7 @@ CREATE TABLE `ticketst` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ticketstemporales`
+-- Estructura de tabla para la tabla `ticketstemporales`
 --
 
 CREATE TABLE `ticketstemporales` (
@@ -330,17 +1152,16 @@ CREATE TABLE `ticketstemporales` (
   `idTienda` int(11) NOT NULL,
   `idUsuario` int(11) NOT NULL,
   `fechaInicio` datetime NOT NULL,
-  `fechaFinal` datetime NOT NULL,
+  `fechaFinal` datetime DEFAULT NULL,
   `idClientes` int(11) NOT NULL,
   `total` decimal(17,6) NOT NULL,
-  `total_ivas` varchar(250) NOT NULL,
-  `Productos` varbinary(50000) NOT NULL
+  `Productos` mediumblob DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ticketstIva`
+-- Estructura de tabla para la tabla `ticketstIva`
 --
 
 CREATE TABLE `ticketstIva` (
@@ -355,31 +1176,46 @@ CREATE TABLE `ticketstIva` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tiendas`
+-- Estructura de tabla para la tabla `tiendas`
 --
 
 CREATE TABLE `tiendas` (
   `idTienda` int(2) NOT NULL,
-  `NombreComercial` varchar(100) DEFAULT NULL,
+  `tipoTienda` varchar(10) NOT NULL,
   `razonsocial` varchar(100) NOT NULL,
   `nif` varchar(10) NOT NULL,
   `telefono` varchar(11) NOT NULL,
+  `estado` varchar(12) DEFAULT NULL,
+  `NombreComercial` varchar(100) DEFAULT NULL,
   `direccion` varchar(100) NOT NULL,
   `ano` varchar(4) DEFAULT NULL,
-  `estado` varchar(12) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `dominio` varchar(100) NOT NULL,
+  `key_api` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `tiendas`
+-- Volcado de datos para la tabla `tiendas`
 --
 
-INSERT INTO `tiendas` (`idTienda`, `NombreComercial`, `razonsocial`, `nif`, `telefono`, `direccion`, `ano`, `estado`) VALUES
-(1, 'Nombre Comercial tienda', 'Razon Social tienda', 'A36361361', '66666666', 'Direccion sin poner de empresa', '2017', 'activo');
+INSERT INTO `tiendas` (`idTienda`, `tipoTienda`, `razonsocial`, `nif`, `telefono`, `estado`, `NombreComercial`, `direccion`, `ano`, `dominio`, `key_api`) VALUES
+(1, 'principal', 'Tienda Principal', '999999999', '99999999', 'activo', 'Nombre Comercial', 'Direccion', '2019', '', '');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `usuarios`
+-- Estructura de tabla para la tabla `tiposVencimiento`
+--
+
+CREATE TABLE `tiposVencimiento` (
+  `id` int(11) NOT NULL,
+  `descripcion` varchar(20) NOT NULL,
+  `dias` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios`
 --
 
 CREATE TABLE `usuarios` (
@@ -390,28 +1226,94 @@ CREATE TABLE `usuarios` (
   `group_id` int(11) NOT NULL COMMENT 'id grupo permisos',
   `estado` varchar(12) NOT NULL COMMENT 'estado',
   `nombre` varchar(150) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `usuarios`
+-- Volcado de datos para la tabla `usuarios`
 --
 
 INSERT INTO `usuarios` (`id`, `username`, `password`, `fecha`, `group_id`, `estado`, `nombre`) VALUES
-(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', '2017-09-06', 1, 'activo', 'admin');
+(1, 'admin', '', '2017-09-06', 9, 'activo', 'admin');
 
 --
--- Indexes for dumped tables
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `articulos`
+-- Indices de la tabla `albclifac`
+--
+ALTER TABLE `albclifac`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albcliIva`
+--
+ALTER TABLE `albcliIva`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albclilinea`
+--
+ALTER TABLE `albclilinea`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albcliltemporales`
+--
+ALTER TABLE `albcliltemporales`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albclit`
+--
+ALTER TABLE `albclit`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albprofac`
+--
+ALTER TABLE `albprofac`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albproIva`
+--
+ALTER TABLE `albproIva`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albprolinea`
+--
+ALTER TABLE `albprolinea`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albproltemporales`
+--
+ALTER TABLE `albproltemporales`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `albprot`
+--
+ALTER TABLE `albprot`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `articulos`
 --
 ALTER TABLE `articulos`
   ADD PRIMARY KEY (`idArticulo`),
   ADD KEY `idProveedor` (`idProveedor`);
 
 --
--- Indexes for table `articulosFamilias`
+-- Indices de la tabla `articulosClientes`
+--
+ALTER TABLE `articulosClientes`
+  ADD PRIMARY KEY (`idArticulo`,`idClientes`);
+
+--
+-- Indices de la tabla `articulosFamilias`
 --
 ALTER TABLE `articulosFamilias`
   ADD PRIMARY KEY (`idArticulo`,`idFamilia`),
@@ -419,190 +1321,604 @@ ALTER TABLE `articulosFamilias`
   ADD KEY `fk_articulos` (`idArticulo`);
 
 --
--- Indexes for table `articulosImagenes`
---
-ALTER TABLE `articulosImagenes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `articulosProveedores`
+-- Indices de la tabla `articulosProveedores`
 --
 ALTER TABLE `articulosProveedores`
   ADD PRIMARY KEY (`idArticulo`,`idProveedor`);
 
 --
--- Indexes for table `articulosTiendas`
+-- Indices de la tabla `articulosStocks`
 --
-ALTER TABLE `articulosTiendas`
-  ADD PRIMARY KEY (`idArticulo`,`idTienda`),
-  ADD KEY `idTienda` (`idTienda`);
+ALTER TABLE `articulosStocks`
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `cierres`
+-- Indices de la tabla `articulosTiendas`
+--
+ALTER TABLE `articulosTiendas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idTienda` (`idTienda`),
+  ADD KEY `idTienda_idArticulo` (`idArticulo`,`idTienda`) USING BTREE;
+
+--
+-- Indices de la tabla `cierres`
 --
 ALTER TABLE `cierres`
   ADD PRIMARY KEY (`idCierre`);
 
 --
--- Indexes for table `cierres_ivas`
+-- Indices de la tabla `cierres_ivas`
 --
 ALTER TABLE `cierres_ivas`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `cierres_usuariosFormasPago`
+-- Indices de la tabla `cierres_usuariosFormasPago`
 --
 ALTER TABLE `cierres_usuariosFormasPago`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `cierres_usuarios_tickets`
+-- Indices de la tabla `cierres_usuarios_tickets`
 --
 ALTER TABLE `cierres_usuarios_tickets`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `clientes`
+-- Indices de la tabla `clientes`
 --
 ALTER TABLE `clientes`
   ADD PRIMARY KEY (`idClientes`);
 
 --
--- Indexes for table `familias`
+-- Indices de la tabla `Cli_FroPa_TipoVen`
+--
+ALTER TABLE `Cli_FroPa_TipoVen`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `faccliIva`
+--
+ALTER TABLE `faccliIva`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `facclilinea`
+--
+ALTER TABLE `facclilinea`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `faccliltemporales`
+--
+ALTER TABLE `faccliltemporales`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `facclit`
+--
+ALTER TABLE `facclit`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `facProCobros`
+--
+ALTER TABLE `facProCobros`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `facproIva`
+--
+ALTER TABLE `facproIva`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `facprolinea`
+--
+ALTER TABLE `facprolinea`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `facproltemporales`
+--
+ALTER TABLE `facproltemporales`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `facprot`
+--
+ALTER TABLE `facprot`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `fac_cobros`
+--
+ALTER TABLE `fac_cobros`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `familias`
 --
 ALTER TABLE `familias`
   ADD PRIMARY KEY (`idFamilia`);
 
 --
--- Indexes for table `indices`
+-- Indices de la tabla `formasPago`
+--
+ALTER TABLE `formasPago`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `historico_precios`
+--
+ALTER TABLE `historico_precios`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `importar_virtuemart_tickets`
+--
+ALTER TABLE `importar_virtuemart_tickets`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `indices`
 --
 ALTER TABLE `indices`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `iva`
+-- Indices de la tabla `iva`
 --
 ALTER TABLE `iva`
   ADD PRIMARY KEY (`idIva`);
 
 --
--- Indexes for table `proveedores`
+-- Indices de la tabla `migraciones`
+--
+ALTER TABLE `migraciones`
+  ADD PRIMARY KEY (`version`);
+
+--
+-- Indices de la tabla `modulo_balanza`
+--
+ALTER TABLE `modulo_balanza`
+  ADD PRIMARY KEY (`idBalanza`);
+
+--
+-- Indices de la tabla `modulo_etiquetado`
+--
+ALTER TABLE `modulo_etiquetado`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `modulo_etiquetado_temporal`
+--
+ALTER TABLE `modulo_etiquetado_temporal`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `modulo_incidencia`
+--
+ALTER TABLE `modulo_incidencia`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedcliAlb`
+--
+ALTER TABLE `pedcliAlb`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedcliIva`
+--
+ALTER TABLE `pedcliIva`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedclilinea`
+--
+ALTER TABLE `pedclilinea`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedcliltemporales`
+--
+ALTER TABLE `pedcliltemporales`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedclit`
+--
+ALTER TABLE `pedclit`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedproAlb`
+--
+ALTER TABLE `pedproAlb`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedproIva`
+--
+ALTER TABLE `pedproIva`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedprolinea`
+--
+ALTER TABLE `pedprolinea`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedprot`
+--
+ALTER TABLE `pedprot`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pedprotemporales`
+--
+ALTER TABLE `pedprotemporales`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `permisos`
+--
+ALTER TABLE `permisos`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `proveedores`
 --
 ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`idProveedor`);
+ALTER TABLE `proveedores` ADD FULLTEXT KEY `nombrecomercial` (`nombrecomercial`);
 
 --
--- Indexes for table `ticketslinea`
+-- Indices de la tabla `stocksRegularizacion`
+--
+ALTER TABLE `stocksRegularizacion`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `ticketslinea`
 --
 ALTER TABLE `ticketslinea`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `ticketst`
+-- Indices de la tabla `ticketst`
 --
 ALTER TABLE `ticketst`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `ticketstemporales`
+-- Indices de la tabla `ticketstemporales`
 --
 ALTER TABLE `ticketstemporales`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `ticketstIva`
+-- Indices de la tabla `ticketstIva`
 --
 ALTER TABLE `ticketstIva`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `tiendas`
+-- Indices de la tabla `tiendas`
 --
 ALTER TABLE `tiendas`
   ADD PRIMARY KEY (`idTienda`);
 
 --
--- Indexes for table `usuarios`
+-- Indices de la tabla `tiposVencimiento`
+--
+ALTER TABLE `tiposVencimiento`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT for table `articulos`
+-- AUTO_INCREMENT de la tabla `albclifac`
+--
+ALTER TABLE `albclifac`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albcliIva`
+--
+ALTER TABLE `albcliIva`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albclilinea`
+--
+ALTER TABLE `albclilinea`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albcliltemporales`
+--
+ALTER TABLE `albcliltemporales`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albclit`
+--
+ALTER TABLE `albclit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albprofac`
+--
+ALTER TABLE `albprofac`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albproIva`
+--
+ALTER TABLE `albproIva`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albprolinea`
+--
+ALTER TABLE `albprolinea`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albproltemporales`
+--
+ALTER TABLE `albproltemporales`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `albprot`
+--
+ALTER TABLE `albprot`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `articulos`
 --
 ALTER TABLE `articulos`
   MODIFY `idArticulo` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `articulosImagenes`
+-- AUTO_INCREMENT de la tabla `articulosStocks`
 --
-ALTER TABLE `articulosImagenes`
+ALTER TABLE `articulosStocks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `cierres`
+-- AUTO_INCREMENT de la tabla `articulosTiendas`
+--
+ALTER TABLE `articulosTiendas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `cierres`
 --
 ALTER TABLE `cierres`
   MODIFY `idCierre` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `cierres_ivas`
+-- AUTO_INCREMENT de la tabla `cierres_ivas`
 --
 ALTER TABLE `cierres_ivas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `cierres_usuariosFormasPago`
+-- AUTO_INCREMENT de la tabla `cierres_usuariosFormasPago`
 --
 ALTER TABLE `cierres_usuariosFormasPago`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `cierres_usuarios_tickets`
+-- AUTO_INCREMENT de la tabla `cierres_usuarios_tickets`
 --
 ALTER TABLE `cierres_usuarios_tickets`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `clientes`
+-- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `idClientes` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idClientes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
--- AUTO_INCREMENT for table `indices`
+-- AUTO_INCREMENT de la tabla `Cli_FroPa_TipoVen`
+--
+ALTER TABLE `Cli_FroPa_TipoVen`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `faccliIva`
+--
+ALTER TABLE `faccliIva`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `facclilinea`
+--
+ALTER TABLE `facclilinea`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `faccliltemporales`
+--
+ALTER TABLE `faccliltemporales`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `facclit`
+--
+ALTER TABLE `facclit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `facProCobros`
+--
+ALTER TABLE `facProCobros`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `facproIva`
+--
+ALTER TABLE `facproIva`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `facprolinea`
+--
+ALTER TABLE `facprolinea`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `facproltemporales`
+--
+ALTER TABLE `facproltemporales`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `facprot`
+--
+ALTER TABLE `facprot`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `fac_cobros`
+--
+ALTER TABLE `fac_cobros`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `familias`
+--
+ALTER TABLE `familias`
+  MODIFY `idFamilia` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `formasPago`
+--
+ALTER TABLE `formasPago`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `historico_precios`
+--
+ALTER TABLE `historico_precios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `importar_virtuemart_tickets`
+--
+ALTER TABLE `importar_virtuemart_tickets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `indices`
 --
 ALTER TABLE `indices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
--- AUTO_INCREMENT for table `iva`
+-- AUTO_INCREMENT de la tabla `iva`
 --
 ALTER TABLE `iva`
-  MODIFY `idIva` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idIva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
--- AUTO_INCREMENT for table `ticketslinea`
+-- AUTO_INCREMENT de la tabla `modulo_balanza`
+--
+ALTER TABLE `modulo_balanza`
+  MODIFY `idBalanza` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `modulo_etiquetado`
+--
+ALTER TABLE `modulo_etiquetado`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `modulo_etiquetado_temporal`
+--
+ALTER TABLE `modulo_etiquetado_temporal`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `modulo_incidencia`
+--
+ALTER TABLE `modulo_incidencia`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedcliAlb`
+--
+ALTER TABLE `pedcliAlb`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedcliIva`
+--
+ALTER TABLE `pedcliIva`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedclilinea`
+--
+ALTER TABLE `pedclilinea`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedcliltemporales`
+--
+ALTER TABLE `pedcliltemporales`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedclit`
+--
+ALTER TABLE `pedclit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedproAlb`
+--
+ALTER TABLE `pedproAlb`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedproIva`
+--
+ALTER TABLE `pedproIva`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedprolinea`
+--
+ALTER TABLE `pedprolinea`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedprot`
+--
+ALTER TABLE `pedprot`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `pedprotemporales`
+--
+ALTER TABLE `pedprotemporales`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `permisos`
+--
+ALTER TABLE `permisos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `proveedores`
+--
+ALTER TABLE `proveedores`
+  MODIFY `idProveedor` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `stocksRegularizacion`
+--
+ALTER TABLE `stocksRegularizacion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `ticketslinea`
 --
 ALTER TABLE `ticketslinea`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `ticketst`
+-- AUTO_INCREMENT de la tabla `ticketst`
 --
 ALTER TABLE `ticketst`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `ticketstemporales`
+-- AUTO_INCREMENT de la tabla `ticketstemporales`
 --
 ALTER TABLE `ticketstemporales`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `ticketstIva`
+-- AUTO_INCREMENT de la tabla `ticketstIva`
 --
 ALTER TABLE `ticketstIva`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `tiendas`
+-- AUTO_INCREMENT de la tabla `tiendas`
 --
 ALTER TABLE `tiendas`
   MODIFY `idTienda` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
--- AUTO_INCREMENT for table `usuarios`
+-- AUTO_INCREMENT de la tabla `tiposVencimiento`
+--
+ALTER TABLE `tiposVencimiento`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
