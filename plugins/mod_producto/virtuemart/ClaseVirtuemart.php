@@ -115,15 +115,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 							'action'		=>'ObtenerProducto',
 							'id_virtuemart'	=>$idVirtuemart
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		//Curl
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
        
       
@@ -145,15 +137,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 							'action'		=>'descontarStock',
 							'productos'	=>$produc
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		//Curl
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 
         return $respuesta;
@@ -169,15 +153,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 							'action'		=>'ModificarProducto',
 							'datos'	=>$datos
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		// Curl
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
 		return $respuesta;
     }
@@ -190,19 +166,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
 							'action'		=>'AddProducto',
 							'datos'	=>$datos
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		//Curl;
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
-        //~ echo '<pre>';
-        //~ print_r($respuesta);
-        //~ echo '</pre>';
 		return $respuesta;
     }
     public function contarProductos(){
@@ -214,19 +179,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
 							'action'		=>'contarProductos'
 						
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		// Curl
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
-        //~ echo '<pre>';
-        //~ print_r($respuesta);
-        //~ echo '</pre>';
 		return $respuesta;
     }
     public function htmlOptionIvasWeb($ivas, $ivaProductoWeb='0'){
@@ -465,15 +419,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 							'idProducto'	=>$idProducto,
                             'email'=>$email
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		//Curl
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
         
 		return $respuesta;
@@ -560,15 +506,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
                             'datos'         =>json_encode($datos)
 							
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		//Curl
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
          $respuesta['parametros']=$parametros;
 		return $respuesta;
@@ -580,15 +518,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 							'inicio'	    =>$inicio,
                             'final'         =>$final
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		//Curl
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
        
       

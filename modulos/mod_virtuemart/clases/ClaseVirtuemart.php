@@ -60,15 +60,7 @@ class ClaseVirtuemart extends ClaseProductos{
                             'datos'         =>json_encode($datos)
 							
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		// Curl
 		include ($ruta_proyecto.'/lib/curl/conexion_curl.php');
         $respuesta['parametros']=$parametros;
 		return $respuesta;
@@ -130,15 +122,7 @@ class ClaseVirtuemart extends ClaseProductos{
                             'idVirtuemart'         =>$idVirtuemart
 							
 						);
-		// [CONEXION CON SERVIDOR REMOTO] 
-		// Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+		// Curl
 		include ($ruta_proyecto.'/lib/curl/conexion_curl.php');
         $respuesta['parametros']=$parametros;
 		return $respuesta;

@@ -20,8 +20,17 @@
  // https://cybmeta.com/comprobar-en-php-si-existe-un-archivo-o-una-url
  
 // Obtenemos los datos de la conexion con servidor remoto.
+// Primero comprobamos si existe curl en nuestro servidor.
+		$existe_curl =function_exists('curl_version');
+		if ($existe_curl === FALSE){
+			echo '<pre>';
+			print_r(' No exite curl');
+			echo '</pre>';
+			exit();
+		}
 
-//Lo primerito, creamos una variable iniciando curl, pasándole la url
+
+//Creamos una variable iniciando curl, pasándole la url
 
 $ch = curl_init($ruta);
  
