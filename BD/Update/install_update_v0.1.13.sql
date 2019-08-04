@@ -25,4 +25,5 @@ ALTER TABLE `facclit` CHANGE `idTienda` `idTienda` INT(11) NOT NULL;
 ALTER TABLE `facclit` CHANGE `idUsuario` `idUsuario` INT(11) NOT NULL;
 ALTER TABLE `facclit` CHANGE `idCliente` `idCliente` INT(11) NOT NULL;
 ALTER TABLE `articulos` CHANGE `fecha_modificado` `fecha_modificado` DATETIME NULL;
-ALTER TABLE `articulos` CHANGE `articulo_name` `articulo_name` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL; 
+ALTER TABLE `articulos` CHANGE `articulo_name` `articulo_name` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE `modulo_etiquetado` CHANGE `num_lote` `num_lote` INT(11) NULL; 
