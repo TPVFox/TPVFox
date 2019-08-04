@@ -1,7 +1,9 @@
 ALTER TABLE `articulosTiendas` DROP PRIMARY KEY, ADD INDEX `idTienda_idArticulo` (`idArticulo`, `idTienda`) USING BTREE;
 ALTER TABLE `articulosTiendas` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
-ALTER TABLE `ticketstemporales` CHANGE `fechaFinal` `fechaFinal` DATETIME NULL;
 ALTER TABLE `ticketstemporales` DROP `total_ivas`;
+# Las anteriores instrucciones no se puede repetir su ya se hizo, pero las siguiente no hay problema en repetir.
+# por eso si van apareciendo mas change , mientras no haga mas versiones, seguire añadiendo.
+ALTER TABLE `ticketstemporales` CHANGE `fechaFinal` `fechaFinal` DATETIME NULL;
 ALTER TABLE `albprot` CHANGE `Su_numero` `Su_numero` VARCHAR(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 ALTER TABLE `albprot` CHANGE `Fecha` `Fecha` DATETIME NOT NULL;
 ALTER TABLE `albprot` CHANGE `Numalbpro` `Numalbpro` INT(11) NULL;
