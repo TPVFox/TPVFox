@@ -393,8 +393,7 @@ function obtenerTicketAbiertos($BDTpv,$fechaInicio,$fechaFinal) {
 	$sqlAbiertos = 'SELECT count(t.`numticket`) as suma, t.`idUsuario`, u.username as username '
 				.' FROM `ticketstemporales` as t '
 				.' LEFT JOIN usuarios as u ON u.id=t.idUsuario'
-				.' WHERE  DATE_FORMAT(t.`fechaInicio`,"%d-%m-%Y") >= "'.$fechaInicio.'" AND  '
-				. 'DATE_FORMAT(t.`fechaFinal`,"%d-%m-%Y") <= "'.$fechaFinal.'" and t.`estadoTicket`="Abierto" GROUP BY `idUsuario` ';
+				.' WHERE  t.`estadoTicket`="Abierto" GROUP BY `idUsuario` ';
 	
 	$respAbiertos =$BDTpv->query($sqlAbiertos);
 	if($respAbiertos->num_rows > 0){
