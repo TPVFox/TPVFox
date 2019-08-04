@@ -121,9 +121,10 @@ function lineasProductos($productos){
 	//Cargar las líneas de los productos cuando recargamos la página o accedemos a ella
 	//@Retorna;
 	//el  html con los datos de los productos;
-	$nFila=1;
+	
 	$html="";
-	foreach($productos as $producto){
+	foreach(array_reverse($productos) as $producto){
+        $nFila=$producto['Nfila'];
 			if ($producto['estado'] !=='Activo'){
 				$classtr = ' class="tachado" ';
 				$estadoInput = 'disabled';

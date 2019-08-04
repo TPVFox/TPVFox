@@ -400,35 +400,33 @@ function before_constructor(caja){
 	//~ console.log(d_focus);
 	//~ ponerSelect(d_focus);
 //~ }
-function eliminarFila(num_item, dedonde){
+function eliminarFila(linea, dedonde){
 	//@Objetivo :
 	//Cambiar a estado eliminado , para dar la sensación de que el producto está eliminado
 	console.log("Entro en eliminar Filas");
-	var line;
-	num=num_item-1;
-	line = "#Row" + productos[num].Nfila;
-	console.log(line);
+	line = "#Row" + linea;
+    var num = findWithAttr(productos, 'Nfila', linea);
+    console.log(num);
 	productos[num].estado= 'Eliminado';
 	$(line).addClass('tachado');
-	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+', '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
-	 $('#nombre_'+productos[num].Nfila ).prop("disabled", true);
-	 $('#peso_'+productos[num].Nfila ).prop("disabled", true);
-	 $('#numAlb_'+productos[num].Nfila ).prop("disabled", true);
+	$(line + "> .eliminar").html('<a onclick="retornarFila('+linea+', '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
+	 $('#nombre_'+linea).prop("disabled", true);
+	 $('#peso_'+linea).prop("disabled", true);
+	 $('#numAlb_'+linea).prop("disabled", true);
 	 addEtiquetadoTemporal();
 }
-function retornarFila(num_item, dedonde){
+function retornarFila(linea, dedonde){
 	//@Objetivo: cambiar el estado de eliminado a activo
-	console.log("Entro en eliminar Filas");
-	var line;
-	num=num_item-1;
-	line = "#Row" + productos[num].Nfila;
-	console.log(line);
+	console.log("Entro en retornar Filas");
+	line = "#Row" + linea;
+	var num = findWithAttr(productos, 'Nfila', linea);
+    console.log(num);
 	productos[num].estado= 'Activo';
 	$(line).removeClass('tachado');
-	$(line + "> .eliminar").html('<a onclick="eliminarFila('+num_item+' , '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-trash"></span></a>');
-	$('#nombre_'+productos[num].Nfila ).prop("disabled", false);
-	 $('#peso_'+productos[num].Nfila ).prop("disabled", false);
-	 $('#numAlb_'+productos[num].Nfila ).prop("disabled", false);
+	$(line + "> .eliminar").html('<a onclick="eliminarFila('+linea+' , '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-trash"></span></a>');
+	$('#nombre_'+linea).prop("disabled", false);
+	 $('#peso_'+linea).prop("disabled", false);
+	 $('#numAlb_'+linea).prop("disabled", false);
 	 addEtiquetadoTemporal();
 }
 function validarCaja(valor){
@@ -518,3 +516,17 @@ function volverMostrar(idcaja){
 		 },1000);
 	$("#"+idcaja).css("outline-color","transparent")
 }
+
+function findWithAttr(array, attr, value) {
+    for(var i = 0; i < (array.length); i += 1) {
+        console.log('atributo:'+array[i][attr]);
+        console.log(value);
+        
+        if(array[i][attr] == value) {
+             console.log('Entro');
+            return i;
+        }
+    }
+    return -1;
+}
+
