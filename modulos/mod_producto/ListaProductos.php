@@ -211,11 +211,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
             ?>
 
             <div class="row">
-                <div class="col-md-12 text-center">
+                <div class="col-sm-12 text-center">
                     <h2> Productos: Editar y Añadir Productos </h2>
                 </div>
-                <div class="col-sm-2">
-                    <div class="nav">
+                
+                <div class="col-sm-2 col-xs-12">
+                    <div>
                         <h4> Productos</h4>
                         <h5> Opciones para una selección</h5>
                         <ul class="nav nav-pills nav-stacked"> 
@@ -233,10 +234,10 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             ?>
                         </ul>
                     </div>
-                    <div class="nav productos_seleccionados" <?php echo $prod_seleccion['display']; ?>>
+                    <div class="productos_seleccionados" <?php echo $prod_seleccion['display']; ?>>
                         <h4>Seleccionados <span class="label label-default textoCantidad"><?php echo $prod_seleccion['NItems']; ?></span></h4>
                         <p>Opcion de seleccion:</p>
-                        <ul class="nav nav-pills nav-stacked"> 
+                        <ul class=""> 
                             <input type="checkbox" id="checkSeleccion" name="checkSeleccion" onclick="seleccionProductos()"> Selección Productos
                             <?php 
                              //~ if($ClasePermisos->getAccion("filtrarSeleccion")==1){
@@ -284,7 +285,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             ?>             
                         </ul>
                     </div>
-                    <div class ="nav">
+                    <div class ="nav_configuracion">
                         <h4>Configuracion de usuario</h4>
                         <h5>Marca que campos quieres mostrar y por lo quieres buscar.</h5>
                         <?php
@@ -294,7 +295,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
 
                 </div>
 
-                <div class="col-md-10">
+                <div class="col-sm-10 col-xs-12">
                     <div class="col-md-12">
                       <?php
                       if (isset($htmlplugins['html'])){

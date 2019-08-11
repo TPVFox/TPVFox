@@ -53,16 +53,6 @@ switch ($pulsado) {
             'idUsuario' => $idUsuario
         ]);
 
-//                ->addColumn('fechaRegularizacion', 'datetime', ['default' => 'CURRENT_TIMESTAMP'])
-//                ->addColumn('stockActual', 'decimal', ['precision' => 17, 'scale' => 6])
-//                ->addColumn('stockModif', 'decimal', ['precision' => 17, 'scale' => 6])
-//                ->addColumn('stockFinal', 'decimal', ['precision' => 17, 'scale' => 6])
-//                ->addColumn('stockOperacion', 'integer', ['limit' => 1, 'default' => 1])
-//                ->addColumn('idUsuario', 'integer', ['limit' => 11])
-
-
-
-
         echo json_encode($respuesta);
         break;
     default : echo json_encode([]);
