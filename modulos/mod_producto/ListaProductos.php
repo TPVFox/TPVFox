@@ -236,9 +236,11 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                     </div>
                     <div class="productos_seleccionados" <?php echo $prod_seleccion['display']; ?>>
                         <h4>Seleccionados <span class="label label-default textoCantidad"><?php echo $prod_seleccion['NItems']; ?></span></h4>
-                        <p>Opcion de seleccion:</p>
+                        <p>Opciones de seleccion:
+                        <input type="checkbox" id="checkSeleccion" name="checkSeleccion" onclick="seleccionProductos()">
+                        </p>
                         <ul class=""> 
-                            <input type="checkbox" id="checkSeleccion" name="checkSeleccion" onclick="seleccionProductos()"> Selección Productos
+                            
                             <?php 
                              //~ if($ClasePermisos->getAccion("filtrarSeleccion")==1){
                             ?>
