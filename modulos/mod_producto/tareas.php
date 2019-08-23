@@ -265,7 +265,7 @@ switch ($pulsado) {
                 }
                 
             }else{
-                $respuesta['advertencia']='Revisa estado producto, tiene que esta baja' 
+                $respuesta['advertencia']='Revisa estado producto, tiene que esta baja'; 
                 array_push( $productosNoEliminados, $datos);
             }
            
