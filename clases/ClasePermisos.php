@@ -150,17 +150,25 @@ class ClasePermisos{
 		// Objectivo
 		// Obtener rutas del servidor y del proyecto.
 		$this->ruta 			=  __DIR__; // Sabemos el directorio donde esta fichero plugins
+		
 		$this->RutaServidor 	= $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
 		$RutaProyectoCompleta 	= str_replace('clases','', __DIR__);
-		$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
-        $this->RutaModulos=$this->RutaServidor.$this->HostNombre.'modulos';
+		$this->ruta = str_replace('\\', '/', $this->ruta);
+		//$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
+		$this->HostNombre=$RutaProyectoCompleta;
+       // $this->RutaModulos=$this->RutaServidor.$this->HostNombre.'modulos';
+       $this->RutaModulos=$this->HostNombre.'modulos';
         $this->RutaPlugin=$this->RutaServidor.$this->HostNombre.'plugins';
 		
 	}
     public function ObtenerDir(){
 		// Objetivo scanear directorio y cuales son directorios
 		$respuesta = array();
-		$scans = scandir($this->RutaModulos);
+		$ruta = str_replace('\\', '/', $this->RutaModulos);
+		$scans = scandir($ruta);
+		$i=json_encode($scans);
+		
+		
 		foreach ( $scans as $scan){
 			$ruta_completa = $this->RutaModulos.'/'.$scan;
 			if (filetype($ruta_completa) === 'dir'){
