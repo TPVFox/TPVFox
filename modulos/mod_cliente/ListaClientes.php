@@ -169,6 +169,7 @@
 						<th>TELEFONO</th>
 						<th>EMAIL</th>
 						<th>ESTADO</th>
+						<th>IMPRIMIR</th>
 
 					</tr>
 				</thead>	
@@ -206,6 +207,10 @@
 						<td><?php echo $cliente['telefono']; ?></td>
 						<td><?php echo $cliente['email']; ?></td>
 						<td><?php echo $cliente['estado']; ?></td>
+						<?php
+                            $linkImprimir= '&nbsp;<a style="cursor:pointer" class="glyphicon glyphicon-print" '."onclick='imprimir(".$cliente['idClientes'].', '.$Tienda['idTienda'].")'></a>";
+                        ?>
+                        <td><?php echo $linkImprimir;?>  
 					</tr>
 					<?php 
 				} //fin de foreach ckeckUser
