@@ -5,7 +5,18 @@ class ClaseMenu {
 
     function __construct(){
         $this->obtenerRutaProyecto();
-        $this->items = simplexml_load_file($this->RutaServidor.$this->HostNombre.'/modulos/mod_menu/parametrosMenu.xml');
+        
+        if(php_uname('s')=="Windows NT"){
+			$this->ruta = str_replace('\\', '/',$this->RutaServidor );
+			
+			$this->items = simplexml_load_file($this->ruta.'/solVigo/tpvfox/modulos/mod_menu/parametrosMenu.xml');
+			
+			}else{
+				$this->items = simplexml_load_file($this->RutaServidor.$this->HostNombre.'/modulos/mod_menu/parametrosMenu.xml');
+				}
+        
+    
+        
     }
     
     public function obtenerRutaProyecto(){
@@ -14,7 +25,11 @@ class ClaseMenu {
 		$this->ruta 			=  __DIR__; // Sabemos el directorio donde esta fichero plugins
 		$this->RutaServidor 	= $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
 		$RutaProyectoCompleta 	= str_replace('modulos/mod_menu/clases','', __DIR__);
+	
 		$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
+		
+		
+
 		
 	}
     
