@@ -483,3 +483,30 @@ function imprimirTarifa(idCliente){
            
         });
 }
+
+
+function imprimirFicha(idCliente){
+	console.log(idCliente);
+	
+	var parametros = {
+		"pulsado"   : 'imprimirFichaCliente',
+		"idCliente"        : idCliente
+		
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en datos Imprimir JS****************');
+			},
+			success    :  function (response) {
+				 var resultado =  $.parseJSON(response); 
+				
+				 window.open(resultado);// Abre una nueva pestaña con el documento pdf que se generó anteriormente
+		}
+		
+	});
+	
+	
+	}

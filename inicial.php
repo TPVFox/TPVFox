@@ -39,5 +39,7 @@ $Ruta = __DIR__.'/';
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('id'=>0, 'group_id'=>0,'login' =>'invitado'));
     $ClasePermisos=$thisTpv->permisos;
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
-    
+    if(php_uname('s')=="Windows NT"){
+
+}
 	

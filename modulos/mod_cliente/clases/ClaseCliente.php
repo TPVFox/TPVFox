@@ -12,6 +12,7 @@ class ClaseCliente extends modelo{
 		//@Parametros: 
 		//id => recibe el id del cliente que queremos buscar
 		$sql= 'SELECT * FROM clientes WHERE idClientes='.$id;
+		
 		return $this->consulta($sql);
 	}
 	public function getTicket($id){

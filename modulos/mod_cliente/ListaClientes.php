@@ -73,8 +73,9 @@
 		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
 	}
 
-	//echo '</br>'.$filtro.' ';
+	
 	$clientes = obtenerClientes($BDTpv,$filtro);
+	
 	?>
 	<script>
 	// Declaramos variables globales
@@ -88,6 +89,7 @@
 
 <body>
         <?php
+        echo $HostNombre;
        include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
        
@@ -135,6 +137,7 @@
 									//agregarUsuario nos lleva a formulario usuario
 									//verUsuario si esta checkado nos lleva vista usuario de ese id
 												//si NO nos indica que tenemos que elegir uno de la lista ?>
+				<li><a href="#" onclick="imprimirFicha('0');">Imprimir ficha</a></li>
 				</ul>
 				</div>	
 			</nav>		
@@ -208,7 +211,7 @@
 						<td><?php echo $cliente['email']; ?></td>
 						<td><?php echo $cliente['estado']; ?></td>
 						<?php
-                            $linkImprimir= '&nbsp;<a style="cursor:pointer" class="glyphicon glyphicon-print" '."onclick='imprimir(".$cliente['idClientes'].', '.$Tienda['idTienda'].")'></a>";
+                            $linkImprimir= '&nbsp;<a style="cursor:pointer" class="glyphicon glyphicon-print" '."onclick='imprimirFicha(".$cliente['idClientes'].")'></a>";
                         ?>
                         <td><?php echo $linkImprimir;?>  
 					</tr>
