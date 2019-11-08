@@ -40,18 +40,8 @@ switch ($pulsado) {
 		$respuesta=$resultado;
 		break;
 	case 'imprimirFichaCliente':
-		$idCliente=$_POST['idCliente'];
-        $nombreTmp="fichaCliente.pdf";
-        $htmlImprimir=montarHTMLimprimir($idCliente, $BDTpv);
-       
-        $cabecera=$htmlImprimir['cabecera'];
-        $html=$htmlImprimir['html'];
-        include_once $URLCom.'/lib/tcpdf/tcpdf.php';
-        include_once $URLCom.'/clases/imprimir.php';
-        include_once $URLCom.'/controllers/planImprimir.php';
-        $ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-        $respuesta=$ficheroCompleto;
-       
+        include_once $URLCom.'/modulos/mod_cliente/tareas/imprimirFichaCliente.php';
+        $respuesta=$resultado;
 		break;
 
 }

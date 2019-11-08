@@ -300,68 +300,6 @@ function comprobarFechas($fechaIni, $fechaFin){
 
 
 
-function montarHTMLimprimir($id, $BDTpv){
-	$Ccli= new ClaseCliente($BDTpv);
-	if($id>0){
-		$datosCliente=$Ccli->getCliente($id);
-		$nombre=$datosCliente['datos'][0]['Nombre'];
-		$razonsocial=$datosCliente['datos'][0]['razonsocial'];
-		$nif=$datosCliente['datos'][0]['nif'];
-		$direccion=$datosCliente['datos'][0]['direccion'];
-		$telefono=$datosCliente['datos'][0]['telefono'];
-		$movil=$datosCliente['datos'][0]['movil'];
-		$fax=$datosCliente['datos'][0]['fax'];
-		$email=$datosCliente['datos'][0]['email'];
-	}else{
-		$nombre="";
-		$razonsocial="";
-		$nif="";
-		$direccion="";
-		$telefono="";
-		$movil="";
-		$fax="";
-		$email="";
-	}
-	
-	$textolegal="En aras a dar cumplimiento al Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo, de 27 de abril de 2016,
-relativo a la protección de las personas físicas en lo que respecta al tratamiento de datos personales y a la libre circulación de
-estos datos, y siguiendo las Recomendaciones e Instrucciones emitidas por la Agencia Española de Protección de Datos
-(A.E.P.D.), SE INFORMA:
-- Los datos de carácter personal solicitados y facilitados por usted, son incorporados un fichero de titularidad privada
-cuyo responsable y único destinatario es XXXEMPRESAXXX.
-- Solo serán solicitados aquellos datos estrictamente necesarios para prestar adecuadamente los servicios solicitados,
-pudiendo ser necesario recoger datos de contacto de terceros, tales como representantes legales, tutores, o personas
-a cargo designadas por los mismos.
-- Todos los datos recogidos cuentan con el compromiso de confidencialidad, con las medidas de seguridad establecidas
-legalmente, y bajo ningún concepto son cedidos o tratados por terceras personas, físicas o jurídicas, sin el previo
-consentimiento del cliente, tutor o representante legal, salvo en aquellos casos en los que fuere imprescindible para
-la correcta prestación del servicio.
-- Una vez finalizada la relación entre la empresa y el cliente los datos serán archivados y conservados, durante un
-periodo tiempo mínimo de _________________________, tras lo cual seguirá archivado o en su defecto serán
-devueltos íntegramente al cliente o autorizado legal.
-- Los datos que facilito serán incluidos en el Tratamiento denominado Clientes de XXXEMPRESAXXX, con la finalidad de
-gestión del servicio contratado, emisión de facturas, contacto..., todas las gestiones relacionadas con los clientes y
-manifiesto mi consentimiento. También se me ha informado de la posibilidad de ejercitar los derechos de acceso,
-rectificación, cancelación y oposición, indicándolo por escrito a XXXEMPRESAXXX con domicilio en
-________________________________________________________.
-- Los datos personales sean cedidos por XXXEMPRESAXXX a las entidades que prestan servicios a la misma. ";
-	$imprimir['cabecera']= <<<EOD
-	<br></br>
-	<font size="15">Nombre de la empresa </font><br>
-	<font size="15">Ficha de Cliente $nombre</font><br>
-	<font size="15">Razón social $razonsocial</font><br>
-	<font size="15">NIF $nif</font><br>
-	<font size="15">Dirección $direccion</font><br>
-	<font size="15">Teléfono $telefono</font><br>
-	<font size="15">Móvil $movil</font><br>
-	<font size="15">Fax $fax</font><br>
-	<font size="15">Email $email</font><br><br>
-	<font size="10">$textolegal</font><br>
-	<font>Firma Cliente</font>
-	
-EOD;
-	$imprimir['html'] .='<table WIDTH="80%"></table>';
-	return $imprimir;
-	}
+
 
 ?>

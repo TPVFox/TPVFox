@@ -153,18 +153,15 @@ class ClasePermisos{
 		
 		$this->RutaServidor 	= $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
 		$RutaProyectoCompleta 	= str_replace('clases','', __DIR__);
-		 if(php_uname()=="WINDOWS NT"){
+		if(php_uname()=="WINDOWS NT"){
 			$this->ruta = str_replace('\\', '/', $this->ruta);
-			$this->HostNombre=$RutaProyectoCompleta;
-		}else{
-			$this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
-			$this->RutaModulos=$this->RutaServidor.$this->HostNombre.'modulos';
-		}
-      
-       $this->RutaModulos=$this->HostNombre.'modulos';
-       $this->RutaPlugin=$this->RutaServidor.$this->HostNombre.'plugins';
-       
-		
+            $RutaProyectoCompleta 	=  str_replace('\\', '/',$RutaProyectoCompleta);
+            //~ $this->HostNombre   =  $RutaProyectoCompleta;
+        }
+        $this->HostNombre		= str_replace($this->RutaServidor,'',$RutaProyectoCompleta);
+        $this->RutaModulos=$this->RutaServidor.$this->HostNombre.'modulos';
+        //~ $this->RutaModulos=$this->HostNombre.'modulos';
+        $this->RutaPlugin=$this->RutaServidor.$this->HostNombre.'plugins';
 	}
 	
 	
@@ -174,16 +171,11 @@ class ClasePermisos{
     public function ObtenerDir(){
 		// Objetivo scanear directorio y cuales son directorios
 		$respuesta = array();
-		 if(php_uname()=="WINDOWS NT"){
-			$ruta = str_replace('\\', '/', $this->RutaModulos);
-			$scans = scandir($ruta);
-			$i=json_encode($scans);
-		}else{
-			$scans = scandir($this->RutaModulos);
+        $ruta = $this->RutaModulos;
+        if(php_uname()=="WINDOWS NT"){
+			$ruta = str_replace('\\', '/', $ruta);
 		}
-		
-		
-		
+        $scans = scandir($ruta);
 		foreach ( $scans as $scan){
 			$ruta_completa = $this->RutaModulos.'/'.$scan;
 			if (filetype($ruta_completa) === 'dir'){
