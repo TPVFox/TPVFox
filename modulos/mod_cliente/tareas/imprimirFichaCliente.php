@@ -25,10 +25,10 @@ if($idCliente>0){
     $datos = $datosCliente['datos'][0];        
 }
 	
-	$textolegal='<b>Ptotección de datos personales</b><br/>
-    En relación con los datos personales,le infromamos que el responsable del tratamiento somos nosotros.<br/>
+	$textolegal='<b>Protección de datos personales</b><br/>
+    En relación con los datos personales,le informamos que el responsable del tratamiento somos nosotros unicamente.<br/>
     La finalidad principal para recabar los datos es para la gestion de la relación comercial.<br/>
-    Nosotros no cederemos los datos personales a terceros que no pertenezca al grupo de '.$resultado['tienda']['NombreComercial'].' , los términos estableciods en la POLÍTICA DE PRIVACIDAD publicada en el apartado de la pagina WEB.<br/>
+    Nosotros no cederemos los datos personales a terceros que no pertenezca al grupo de '.$resultado['tienda']['NombreComercial'].' , los términos establecidos en la POLÍTICA DE PRIVACIDAD publicada en el apartado de la pagina WEB.<br/>
     El titular dispone de los derechos de acceso, rectificación , supresión y derecho al olivdo, oposición, limitación del tratamiento y portabilidad.<br/>
     El titular que podrá ejercitar dicho derecho acreditando su identidad, mediante una comunicación escrita al Delegado de Protección de Datos designado, a través de su dirección de '.$resultado['tienda']['direccion'].'.';
 	$cabecera= 
