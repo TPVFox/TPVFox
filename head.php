@@ -21,6 +21,4 @@ include_once 'inicial.php';
 		echo '</html>';
 		exit;	
 	}
-
-	
 ?>

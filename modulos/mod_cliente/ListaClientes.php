@@ -89,7 +89,6 @@
 
 <body>
         <?php
-        echo $HostNombre;
        include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
        
