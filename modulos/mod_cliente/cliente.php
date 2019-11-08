@@ -9,14 +9,12 @@
         include_once $URLCom.'/controllers/parametros.php';
         include_once $URLCom.'/clases/FormasPago.php';
         include_once $URLCom.'/clases/TiposVencimiento.php';
-        include_once $URLCom.'/clases/cliente.php';
         include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
         $ClasesParametros = new ClaseParametros('parametros.xml');  
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
 		$CFormasPago=new FormasPago($BDTpv);
 		$CtiposVen=new TiposVencimientos($BDTpv);
-		$Ccliente=new Cliente($BDTpv);
 		$Cliente=new ClaseCliente($BDTpv);		
 		$dedonde="cliente";
 		$id=0;
@@ -28,6 +26,20 @@
 		$estados = array(); // Creo los estados de usuarios ( para select)
 		$estados[0]['valor'] = 'inactivo'; // Por defecto
 		$estados[1]['valor'] = 'activo';
+        // Inicializamos variables como si fueramos crear ficha Usuario nuevo
+			$titulo = "Crear";
+			$ClienteUnico = array();
+			$ClienteUnico['Nombre'] = '';
+			$ClienteUnico['razonsocial'] = '';
+			$ClienteUnico['nif'] = '';
+			$ClienteUnico['direccion'] = '';
+			$ClienteUnico['telefono'] = '';
+			$ClienteUnico['movil'] = '';
+			$ClienteUnico['fax'] = '';
+			$ClienteUnico['email'] = '';			
+			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
+			$formasPago=$CFormasPago->todas();
+			$tiposVen=$CtiposVen->todos();
 		// Obtenemos id
 		if (isset($_GET['id'])) {
 			$id=$_GET['id']; // Obtenemos id para modificar.
@@ -43,31 +55,25 @@
 				$ClienteUnico=$ClienteUnico['datos'][0];
 				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
 				if (count($_POST) ===0){
-				$i = 0;
-					foreach ($estados as $estado){
+					foreach ($estados as $i=>$estado){
 						if ($ClienteUnico['estado'] === $estado['valor']){
 						$estados[$i]['porDefecto'] = "selected"; // Indicamos por defecto
 						}
-					$i++;
 					}
 				} 
 				$formaPago=json_decode($ClienteUnico['fomasVenci'], true);
+                echo $formaPago
 				if(count($formaPago)>0){
+                    $principalForma=0;
+                    $principalVenci=0;
 					$formasPago=$CFormasPago->formadePagoSinPrincipal($formaPago['formapago']);
 					$tiposVen=$CtiposVen->MenosPrincipal($formaPago['vencimiento']);
 					if ($formaPago['formapago']>0){
 						$principalForma=$CFormasPago->datosPrincipal($formaPago['formapago']);
-					}else{
-						$principalForma=0;
 					}
 					if ($formaPago['vencimiento']>0){
 						$principalVenci=$CtiposVen->datosPrincipal($formaPago['vencimiento']);
-					}else{
-						$principalVenci=0;
 					}
-				}else{
-					$formasPago=$CFormasPago->todas();
-					$tiposVen=$CtiposVen->todos();
 				}
 			}
 			$adjuntos=$Cliente->adjuntosCliente($id);
@@ -90,47 +96,28 @@
 			$htmlAlbaranes=htmlTablaGeneral($adjuntos['albaranes']['datos'], $HostNombre, "albaran");
 				
 			$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
-			
-			
-			
-		} else {
-			// Creamos ficha Usuario.
-			$titulo = "Crear";
-			$ClienteUnico = array();
-			$ClienteUnico['Nombre'] = '';
-			$ClienteUnico['razonsocial'] = '';
-			$ClienteUnico['nif'] = '';
-			$ClienteUnico['direccion'] = '';
-			$ClienteUnico['telefono'] = '';
-			$ClienteUnico['movil'] = '';
-			$ClienteUnico['fax'] = '';
-			$ClienteUnico['email'] = '';			
-			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
-			$formasPago=$CFormasPago->todas();
-			$tiposVen=$CtiposVen->todos();
-		}
-	
-			if(isset($_POST['Guardar'])){
-			$guardar=guardarCliente($_POST, $BDTpv);
-			if($guardar['cliente']['error']=="0"){
-				if($guardar['buscarCliente']['error']=="Existe"){
-					$errores[7]=array ( 'tipo'=>'Info!',
-								 'dato' => $guardar['buscarCliente']['consulta'],
-								 'class'=>'alert alert-info',
-								 'mensaje' => 'COINCIDENCIA!'
-								 );
-				}else{
-					 header('Location: ListaClientes.php');
-				}
-				
-			}else{
-				$errores[7]=array ( 'tipo'=>'Danger!',
-								 'dato' => $guardar['cliente']['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-			}
-		}
+        }
+        if(isset($_POST['Guardar'])){
+            $guardar=guardarCliente($_POST, $BDTpv);
+            if($guardar['cliente']['error']=="0"){
+                if($guardar['buscarCliente']['error']=="Existe"){
+                    $errores[7]=array ( 'tipo'=>'Info!',
+                                 'dato' => $guardar['buscarCliente']['consulta'],
+                                 'class'=>'alert alert-info',
+                                 'mensaje' => 'COINCIDENCIA!'
+                                 );
+                }else{
+                     header('Location: ListaClientes.php');
+                }
+                
+            }else{
+                $errores[7]=array ( 'tipo'=>'Danger!',
+                                 'dato' => $guardar['cliente']['consulta'],
+                                 'class'=>'alert alert-danger',
+                                 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+                                 );
+            }
+        }
 		
 		?>
 	</head>
@@ -141,24 +128,19 @@
 			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
 		</script>
 		<?php
-        //~ include $URLCom.'/header.php';
          include_once $URLCom.'/modulos/mod_menu/menu.php';
 		?>
      
 		<div class="container">
-			
-				<?php 
-				
-				if (isset($errores)){
-				foreach($errores as $error){
-						echo '<div class="'.$error['class'].'">'
-						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-						. '</div>';
-				}
-				}
-				?>
-			
-			
+            <?php 
+            if (isset($errores)){
+                foreach($errores as $error){
+                        echo '<div class="'.$error['class'].'">'
+                        . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+                        . '</div>';
+                }
+            }
+            ?>
 			<h1 class="text-center"> Cliente: <?php echo $titulo;?></h1>
 			<form action="" method="post" name="formCliente">
 					

@@ -101,7 +101,7 @@ EOD;
 			}
 		$html.='</table>';
 		$nombreTmp="Resumen.pdf";
-		require_once($URLCom.'/lib/tcpdf/tcpdf.php');
+		//~ require_once($URLCom.'/lib/tcpdf/tcpdf.php');
 		require_once  ($URLCom.'/clases/imprimir.php');
 		require_once($URLCom.'/controllers/planImprimir.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;

@@ -16,10 +16,10 @@ class ClaseCliente extends modelo{
 		return $this->consulta($sql);
 	}
 	public function getTicket($id){
-		//@Objetivo: Cargar todos los tickes de un cliente determinado en orden descendente
+		//@Objetivo: Cargar los ultimos 15 tickets de un cliente en orden descendente
 		//@Parametros:
 		//id -> id del cliente
-		$sql='SELECT Numticket as num , Fecha as fecha , total ,id, idCliente , estado FROM ticketst WHERE idCliente= '.$id.' order by Numticket desc';
+		$sql='SELECT Numticket as num , Fecha as fecha , total ,id, idCliente , estado FROM ticketst WHERE idCliente= '.$id.' order by Numticket desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function getFacturas($id){

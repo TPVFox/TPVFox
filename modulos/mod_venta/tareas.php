@@ -189,7 +189,7 @@ switch ($pulsado) {
 			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $tienda);
 			$cabecera=$htmlImprimir['cabecera'];
 			$html=$htmlImprimir['html'];
-            include_once $URLCom.'/lib/tcpdf/tcpdf.php';
+            //~ include_once $URLCom.'/lib/tcpdf/tcpdf.php';
 			include_once $URLCom.'/clases/imprimir.php';
 			include_once $URLCom.'/controllers/planImprimir.php';
 			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;

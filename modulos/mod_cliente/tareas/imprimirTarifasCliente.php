@@ -56,7 +56,7 @@ if(isset($tarifaCliente['error'])){
 		
 		$html.='</table>';
 		$nombreTmp="TarifaCliente.pdf";
-		require_once('../../lib/tcpdf/tcpdf.php');
+		//~ require_once('../../lib/tcpdf/tcpdf.php');
 		require_once ('../../clases/imprimir.php');
 		include_once('../../controllers/planImprimir.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;

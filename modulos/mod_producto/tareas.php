@@ -85,7 +85,7 @@ switch ($pulsado) {
 		}
 		$cabecera=$htmlImprimir['cabecera'];
 		$html=$htmlImprimir['html'];
-        require_once $URLCom.'/lib/tcpdf/tcpdf.php';
+        //~ require_once $URLCom.'/lib/tcpdf/tcpdf.php';
 		include_once $URLCom.'/clases/imprimir.php';
         include_once $URLCom.'/controllers/planImprimirRe.php';
 		

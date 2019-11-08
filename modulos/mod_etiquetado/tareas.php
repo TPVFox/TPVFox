@@ -165,7 +165,7 @@ switch ($pulsado) {
 	//@OBjetivo: imprimir las etiquetas
 		$lotes=$_POST['lotes'];
 		$nombreTmp="etiquetas.pdf";
-		include('../../lib/tcpdf/tcpdf.php');
+		//~ include('../../lib/tcpdf/tcpdf.php');
 		include ('../../clases/imprimir.php');
 		include('../../controllers/planImprimirCodBarras.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;

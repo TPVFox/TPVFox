@@ -1,5 +1,5 @@
 <?php
-//require_once('../lib/tcpdf/tcpdf.php');
+require_once($RutaServidor.$HostNombre.'/lib/tcpdf/tcpdf.php');
 class imprimir extends TCPDF {
 	//~ //Datos de la cabecera 
         //~ public function Cabecera() {
