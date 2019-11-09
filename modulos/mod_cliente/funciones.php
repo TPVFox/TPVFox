@@ -156,25 +156,26 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 		//-Facturas
 		//-Albaranes
 		//-Pedidos
+    $resumen= '';
 	if(count($datos)>0){
-	switch($dedonde){
-			case 'ticket':
-				$url=$HostNombre.'/modulos/mod_tpv/ticketCobrado.php?id=';
-				$resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idCliente'].')" value="Resumen" name="Resumen" ></td>';
-			break;
-			case 'factura':
-				$url=$HostNombre.'/modulos/mod_venta/factura.php?id=';
-				$resumen="";
-			break;
-			case 'albaran':
-				$url=$HostNombre.'/modulos/mod_venta/albaran.php?id=';
-				$resumen="";
-			break;
-			case 'pedido':
-				$url=$HostNombre.'/modulos/mod_venta/pedido.php?id=';
-				$resumen="";
-			break;
-	}
+        switch($dedonde){
+                case 'tickets':
+                    $url=$HostNombre.'/modulos/mod_tpv/ticketCobrado.php?id=';
+                    $resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idCliente'].')" value="Resumen" name="Resumen" ></td>';
+                break;
+                case 'facturas':
+                    $url=$HostNombre.'/modulos/mod_venta/factura.php?id=';
+                    $resumen="";
+                break;
+                case 'albaranes':
+                    $url=$HostNombre.'/modulos/mod_venta/albaran.php?id=';
+                    $resumen="";
+                break;
+                case 'pedidos':
+                    $url=$HostNombre.'/modulos/mod_venta/pedido.php?id=';
+                    $resumen="";
+                break;
+        }
 	$html=$resumen.'	<table class="table table-striped">
 		<thead>
 			<tr>

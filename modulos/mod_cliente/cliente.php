@@ -67,7 +67,8 @@
 			}
 			$adjuntos=$Cliente->adjuntosCliente($id);
 			$i=2;
-			foreach($adjuntos as $adjunto){
+            $tablaHtml= array();
+            foreach($adjuntos as $key =>$adjunto){
 				if(isset($adjunto['error'])){
 					$errores[$i]=array ( 'tipo'=>'Danger!',
 								 'dato' => $adjunto['consulta'],
@@ -76,15 +77,12 @@
 								 );
 								 $i++;
 				}
+                if (!isset($adjunto['datos'])){
+                    $adjunto['datos'] = array();
+                }
+                $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
+                
 			}
-			
-			$htmlTickets=htmlTablaGeneral($adjuntos['tickets']['datos'], $HostNombre, "ticket");
-				
-			$htmlFacturas=htmlTablaGeneral($adjuntos['facturas']['datos'], $HostNombre, "factura");
-				
-			$htmlAlbaranes=htmlTablaGeneral($adjuntos['albaranes']['datos'], $HostNombre, "albaran");
-				
-			$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
         }
         
         // Ahora grabamos si pulso guardar.
@@ -264,22 +262,22 @@
 						 <?php 
 						$num = 1 ; // Numero collapse;
 						$titulo = 'Tickets';
-						echo htmlPanelDesplegable($num,$titulo,$htmlTickets);
+						echo htmlPanelDesplegable($num,$titulo,$tablaHtml[0]);
 						?>
 						<?php 
 						$num = 2 ; // Numero collapse;
 						$titulo = 'Facturas';
-						echo htmlPanelDesplegable($num,$titulo,$htmlFacturas);
+						echo htmlPanelDesplegable($num,$titulo,$tablaHtml[1]);
 						?>
 						<?php 
 						$num = 3 ; // Numero collapse;
 						$titulo = 'Albaranes';
-						echo htmlPanelDesplegable($num,$titulo,$htmlAlbaranes);
+						echo htmlPanelDesplegable($num,$titulo,$tablaHtml[2]);
 						?>
 						<?php 
 						$num = 4 ; // Numero collapse;
 						$titulo = 'Pedidos';
-						echo htmlPanelDesplegable($num,$titulo,$htmlPedidos);
+						echo htmlPanelDesplegable($num,$titulo,$tablaHtml[3]);
 						?>
 						 </div>
 					<!-- Aquí irá el código de los grupos-->
