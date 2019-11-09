@@ -33,14 +33,6 @@ class ModeloP {
 //    protected static $tabla;
     protected static $resultado = ['error' => 0, 'consulta' => ''];
 
-//    public static function getInstance() {
-//        if (is_null(self::$instance)) {
-//            self::$instance = new ModeloP();
-//        }
-//        return self::$instance;
-//    }
-
-
     /*
      * Método getDbo()
      * Devuelve la propiedad $db si contiene un valor distinto de nulo.
@@ -152,9 +144,6 @@ class ModeloP {
         return $respuesta;
     }
 
-//    protected function insert($tabla,$datos, $soloSQL = false) {
-//        return ModeloP::_insert($tabla,$datos, $soloSQL);
-//    }
 
     protected static function _update($tabla, $datos, $condicion, $soloSQL = false) {
         $respuesta = false;
@@ -189,9 +178,6 @@ class ModeloP {
         return $respuesta;
     }
 
-//    protected function update($tabla, $datos, $condicion, $soloSQL = false) {
-//        return ModeloP::_update($tabla, $datos, $condicion, $soloSQL);
-//    }
 
     public static function hayErrorConsulta() {
         return ModeloP::$resultado['error'] !== 0;

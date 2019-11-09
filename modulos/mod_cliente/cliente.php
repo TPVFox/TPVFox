@@ -15,7 +15,7 @@
 		$Controler->loadDbtpv($BDTpv);
 		$CFormasPago=new FormasPago($BDTpv);
 		$CtiposVen=new TiposVencimientos($BDTpv);
-		$Cliente=new ClaseCliente($BDTpv);		
+		$Cliente=new ClaseCliente();		
 		$dedonde="cliente";
 		$id=0;
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
@@ -37,9 +37,10 @@
 			$ClienteUnico['movil'] = '';
 			$ClienteUnico['fax'] = '';
 			$ClienteUnico['email'] = '';			
-			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
 			$formasPago=$CFormasPago->todas();
-			$tiposVen=$CtiposVen->todos();
+            $defaultPago = 0;
+            $tiposVen=$CtiposVen->todos();
+            $defaultVenci = "0";
 		// Obtenemos id
 		if (isset($_GET['id'])) {
 			$id=$_GET['id']; // Obtenemos id para modificar.
@@ -53,26 +54,14 @@
 								 );
 			} else {
 				$ClienteUnico=$ClienteUnico['datos'][0];
-				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
-				if (count($_POST) ===0){
-					foreach ($estados as $i=>$estado){
-						if ($ClienteUnico['estado'] === $estado['valor']){
-						$estados[$i]['porDefecto'] = "selected"; // Indicamos por defecto
-						}
+				// Ahora anotamos cual es pago y vencimiento por defecto.
+				$vencimiento_pago=json_decode($ClienteUnico['fomasVenci'], true);
+				if(isset($vencimiento_pago)){
+					if ($vencimiento_pago['formapago']>0){
+						$defaultPago=$vencimiento_pago['formapago'];
 					}
-				} 
-				$formaPago=json_decode($ClienteUnico['fomasVenci'], true);
-                echo $formaPago
-				if(count($formaPago)>0){
-                    $principalForma=0;
-                    $principalVenci=0;
-					$formasPago=$CFormasPago->formadePagoSinPrincipal($formaPago['formapago']);
-					$tiposVen=$CtiposVen->MenosPrincipal($formaPago['vencimiento']);
-					if ($formaPago['formapago']>0){
-						$principalForma=$CFormasPago->datosPrincipal($formaPago['formapago']);
-					}
-					if ($formaPago['vencimiento']>0){
-						$principalVenci=$CtiposVen->datosPrincipal($formaPago['vencimiento']);
+					if ($vencimiento_pago['vencimiento']>0){
+						$defaultVenci=$vencimiento_pago['vencimiento'];
 					}
 				}
 			}
@@ -97,6 +86,8 @@
 				
 			$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
         }
+        
+        // Ahora grabamos si pulso guardar.
         if(isset($_POST['Guardar'])){
             $guardar=guardarCliente($_POST, $BDTpv);
             if($guardar['cliente']['error']=="0"){
@@ -118,7 +109,40 @@
                                  );
             }
         }
-		
+        // Montamos html Option de forma de pago,vencimiento y estado con el valor por default
+            $html_optionPago = '<option value="0">	Seleccione una forma </option>';
+            foreach ($formasPago as $formaPago){
+                $es_seleccionado = '';
+                if ($defaultPago === $formaPago['id']){
+                    $es_seleccionado = ' selected';
+                }
+                $html_optionPago .='<option value="'.$formaPago['id'].'"'.$es_seleccionado.'>'.$formaPago['descripcion'].'</option>';
+            }
+
+            $html_optionVenci = '<option value="0">	Seleccione vencimiento </option>';
+            foreach ($tiposVen as $vencimiento){
+                $es_seleccionado = '';
+                if ($defaultVenci === $vencimiento['id']){
+                    $es_seleccionado = ' selected';
+                }
+                $html_optionVenci .='<option value="'.$vencimiento['id'].'"'.$es_seleccionado.'>'.$vencimiento['descripcion'].'</option>';
+            }
+            $html_optionEstado= '';
+            foreach ($estados as $i=>$estado){
+                $es_seleccionado = '';
+                if (isset($ClienteUnico['estado'])){
+                    if($ClienteUnico['estado'] === $estado['valor']){
+                        $es_seleccionado = ' selected';
+                    }
+                } else {
+                    if ($i ===1){
+                        $es_seleccionado = ' selected'; // Valor por defecto si no hay dato estad en cliente.
+                    } 
+
+                }
+                $html_optionEstado .='<option value="'.$estado['valor'].'"'.$es_seleccionado.'>'.$estado['valor'].'</option>';
+            }
+            
 		?>
 	</head>
 	<body>
@@ -150,7 +174,7 @@
 			
 			<div class="col-md-12">
 				
-				<h4>Datos del cliente con ID:<?php echo $id?></h4>
+				<h4>Datos del cliente con ID: <input size=3 type="text" id="idCliente" name="idCliente" value="<?php echo $ClienteUnico['idClientes'];?>"   readonly></h4>
 
 				<div class="col-md-1">
 					<?php 
@@ -172,19 +196,14 @@
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
-							<input  type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>"  required >
+							<input  type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>">
 							 <div class="invalid-tooltip-nombre" display="none">
 								No permitimos la doble comilla (") 
 							</div>
 						</div>
 						<div class="col-md-6 form-group">
 							<label>NIF:</label>
-							<input type="text"	id="nif" name="nif" value="<?php echo $ClienteUnico['nif'];?>" required>
-						</div>
-						<div class="col-md-6 form-group">
-							<label>Id del cliente:</label>
-							<input type="text" id="idCliente" name="idCliente" value="<?php echo $ClienteUnico['idClientes'];?>"   readonly>
-							
+							<input type="text"	id="nif" name="nif" value="<?php echo $ClienteUnico['nif'];?>">
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Direccion:</label>
@@ -211,22 +230,7 @@
 							<label for="sel1">Forma de pago por defecto: </label>
 							<select class="form-control" name="formapago" id="sel1" style="width: 15em;">
 								<?php 
-								if (isset($principalForma)){
-								?>
-								<option value="<?php echo $principalForma['id'];?>" ><?php echo $principalForma['descripcion'];?></option>
-								<?php 
-							}else{
-								?>
-								<option value="0" >	Seleccione una forma </option>
-								<?php 
-							}
-								foreach ($formasPago as $forma){
-								?>
-									<option value="<?php echo $forma['id'];?>" >
-									<?php echo $forma['descripcion'];?>
-									</option>
-								<?php
-								}
+								echo $html_optionPago;
 								?>
 								
 							</select>
@@ -237,13 +241,7 @@
 							<label for="sel1">Estado:</label>
 							<select class="form-control" name="estado" id="sel1" style="width: 14em;">
 								<?php 
-								foreach ($estados as $estado){
-								?>
-									<option value="<?php echo $estado['valor'];?>" <?php echo (isset($estado['porDefecto']) ? $estado['porDefecto'] : '');?> >
-									<?php echo $estado['valor'];?>
-									</option>
-								<?php
-								}
+								echo $html_optionEstado;
 								?>
 								
 							</select>
@@ -251,25 +249,9 @@
 						<div class="col-md-6 form-group">
 							<label for="sel1">Vencimiento por defecto:</label>
 							<select class="form-control" name="vencimiento" id="sel1" style="width: 15em;">
-								<?php 
-								if (isset($principalVenci)){
-								?>
-								<option value="<?php echo $principalVenci['id'];?>" ><?php echo $principalVenci['descripcion'];?></option>
-								<?php 	
-								}else{
-								?>
-								<option value="0" >Seleccione un tipo 	</option>
-								<?php 
-							}
-								foreach ($tiposVen as $tipo){
-								?>
-									<option value="<?php echo $tipo['id'];?>" >
-									<?php echo $tipo['descripcion'];?>
-									</option>
 								<?php
-								}
+                                echo $html_optionVenci;
 								?>
-								
 							</select>
 						</div>
 						
