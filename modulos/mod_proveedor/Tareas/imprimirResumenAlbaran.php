@@ -27,10 +27,10 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 	if($fechaIni<>"" & $fechaFin<>""){
 		$fechaInicial =date_format(date_create($fechaIni), 'Y-m-d');
 		$fechaFinal =date_format(date_create($fechaFin), 'Y-m-d');
-		$textoFechas= 'entre las fechas '.$fechaInicial.' y '.$fechaFinal;
+		$textoFechas= 'entre las fechas '.$fechaIni.' y '.$fechaFin;
 	}
 	$resultado['post']=$fechaInicial;
-	$arrayNums=$CProveedor->albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin);
+	$arrayNums=$CProveedor->albaranesProveedoresFechas($idProveedor, $fechaInicial, $fechaFinal);
 	if(isset($arrayNums['error'])){
 		$resultado['error']=array ( 'tipo'=>'DANGER!','dato' => $arrayNums['consulta'],
 		 'class'=>'alert alert-danger','mensaje' => 'Error de sql');
@@ -41,7 +41,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 <font size="12">$Tienda[direccion]</font><br>
 <font size="9"><b>NIF: </b>$Tienda[nif]</font><br>
 <font size="9"><b>Teléfono: </b>$Tienda[telefono]</font><br>
-<font size="17">Resumen de albaranes $textoFechas</font><hr>
+<font size="15">Resumen de albaranes $textoFechas</font><hr>
 <font size="20">$datosProveedor[nombrecomercial]</font><br>
 <table><tr><td><font size="12">$datosProveedor[razonsocial]</font></td>
 <td><font>Dirección de entrega :</font></td></tr>

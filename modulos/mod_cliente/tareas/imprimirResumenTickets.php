@@ -37,7 +37,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 	if($fechaIni<>"" & $fechaFin<>""){
 		$fechaInicial =date_format(date_create($fechaIni), 'Y-m-d');
 		$fechaFinal =date_format(date_create($fechaFin), 'Y-m-d');
-		$textoFechas= 'entre las fechas '.$fechaInicial.' y '.$fechaFinal;
+		$textoFechas= 'entre las fechas '.$fechaIni.' y '.$fechaFin;
 	}
 	$resultado['post']=$fechaInicial;
 	$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaInicial, $fechaFinal);
@@ -54,7 +54,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 			'<font size="12">'.$Tienda['direccion'].'</font><br>'.
 			'<font size="9"><b>NIF: </b>'.$Tienda['nif'].'</font><br>'.
 			'<font size="9"><b>Teléfono: </b>'.$Tienda['telefono'].'</font><br>'.
-			'<font size="17">Factura de Tickets '.$textoFechas.'</font>'.
+			'<font size="15">Factura de Tickets '.$textoFechas.'</font>'.
 			'<hr>'.
 			'<font size="20">'.$datosCliente['Nombre'].'</font><br>'.
 			'<table><tr><td><font size="12">'.$datosCliente['razonsocial'].'</font></td>

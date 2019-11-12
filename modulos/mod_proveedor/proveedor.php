@@ -38,8 +38,8 @@
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 			} else {
-			$ProveedorUnico=$ProveedorUnico['datos'][0];
-			$titulo = "Modificar";
+                $ProveedorUnico=$ProveedorUnico['datos'][0];
+                $titulo = "Modificar";
 				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
 				if (count($_POST) ===0){
 				$i = 0;
@@ -52,7 +52,8 @@
 				} 
 				$adjuntos=$CProveedor->adjuntosProveedor($id);
 				$i=2;
-				foreach($adjuntos as $adjunto){
+                $tablaHtml= array();
+				foreach($adjuntos as $key=>$adjunto){
 					if(isset($adjunto['error'])){
 						$errores[$i]=array ( 'tipo'=>'Danger!',
 									 'dato' => $adjunto['consulta'],
@@ -61,15 +62,12 @@
 									 );
 									 $i++;
 					}
-				
-				}
-					
-				$htmlFacturas=htmlTablaGeneral($adjuntos['facturas']['datos'], $HostNombre, "factura");
-					
-				$htmlAlbaranes=htmlTablaGeneral($adjuntos['albaranes']['datos'], $HostNombre, "albaran");
-					
-				$htmlPedidos=htmlTablaGeneral($adjuntos['pedidos']['datos'], $HostNombre, "pedido");
-				
+                     if (!isset($adjunto['datos'])){
+                        $adjunto['datos'] = array();
+                    }
+                    $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
+                
+                }
 			}
 			
 			
@@ -85,16 +83,13 @@
 			$ProveedorUnico['movil'] = '';
 			$ProveedorUnico['fax'] = '';
 			$ProveedorUnico['email'] = '';	
-			$ProveedorUnico['fechaalta'] = date('Y-m-d');
+			$ProveedorUnico['fecha_creado'] = date('Y-m-d');
 			$ProveedorUnico['idUsuario'] = $Usuario['id'];
 			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
 		}
 		if(isset($_POST['Guardar'])){
 			
 			$guardar=guardarProveedor($_POST, $BDTpv);
-			//~ echo '<pre>';
-			//~ print_r($guardar);
-			//~ echo '</pre>';
 			if($guardar['Proveedor']['error']=="0"){
 				if($guardar['comprobar']['error']=="Existe"){
 					$errores[7]=array ( 'tipo'=>'Info!',
@@ -126,7 +121,6 @@
 		</script>
 		<?php
         include_once $URLCom.'/modulos/mod_menu/menu.php';
-        //~ include $URLCom.'/header.php';
 		?>
      
 		<div class="container">
@@ -207,7 +201,7 @@
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Fecha alta:</label>
-							<input type="text" id="fechaalta" name="fechaalta" value="<?php echo $ProveedorUnico['fechaalta'];?>" readonly >
+							<input type="text" id="fechaalta" name="fechaalta" value="<?php echo $ProveedorUnico['fecha_creado'];?>" readonly >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Id Usuario:</label>
@@ -240,17 +234,17 @@
 						<?php 
 						$num = 1 ; // Numero collapse;
 						$titulo = 'Facturas';
-						echo htmlPanelDesplegable($num,$titulo,$htmlFacturas);
+						echo htmlPanelDesplegable($num,$titulo, $tablaHtml[0]);
 						?>
 						<?php 
 						$num = 2 ; // Numero collapse;
 						$titulo = 'Albaranes';
-						echo htmlPanelDesplegable($num,$titulo,$htmlAlbaranes);
+						echo htmlPanelDesplegable($num,$titulo, $tablaHtml[1]);
 						?>
 						<?php 
 						$num = 3 ; // Numero collapse;
 						$titulo = 'Pedidos';
-						echo htmlPanelDesplegable($num,$titulo,$htmlPedidos);
+						echo htmlPanelDesplegable($num,$titulo, $tablaHtml[2]);
 						?>
 						 </div>
 				</div>

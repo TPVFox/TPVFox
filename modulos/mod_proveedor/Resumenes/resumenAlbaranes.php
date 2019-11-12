@@ -11,10 +11,13 @@
         include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
         
 		$CProveedor= new ClaseProveedor($BDTpv);
+        $fechaInicial="";
+        $fechaFinal="";
+        $style='style="display:none;"';
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
 			$datosProveedor=$CProveedor->getProveedor($id);
-			if($datosProveedor['error']){
+			if(isset($datosProveedor['error'])){
 				$errores[1]=array ( 'tipo'=>'DANGER!',
 								 'dato' => $datosProveedor['consulta'],
 								 'class'=>'alert alert-danger',
