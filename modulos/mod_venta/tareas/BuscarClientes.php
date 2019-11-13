@@ -16,7 +16,7 @@
 					$respuesta['id']=$res['idClientes'];
 					$respuesta['nombre']=$res['Nombre'];
 					$respuesta['Nitems']=1;
-					$respuesta['formasVenci']=$res['fomasVenci'];
+					$respuesta['formasVenci']=$res['formasVenci'];
 				}else{
 					$respuesta['Nitems']=2;
 				}

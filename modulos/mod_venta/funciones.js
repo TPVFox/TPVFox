@@ -38,7 +38,7 @@ function formasVenciCliente(formasVenci){
 	console.log("Estoy en formas pago vencimiento factura");
 
 	var parametros = {
-		"pulsado"    : 'htmlFomasVenci',
+		"pulsado"    : 'htmlFormasVenci',
 		"formasVenci" : formasVenci
 	};
 		$.ajax({

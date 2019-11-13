@@ -63,9 +63,9 @@ class Cliente{
 	}
 	public function mofificarFormaPagoVenci($idCliente, $formasVenci){
 		$db=$this->db;
-		$smt=$db->query('UPDATE clientes SET fomasVenci='."'".$formasVenci."'".' WHERE idClientes='.$idCliente);
-		$sql='UPDATE clientes SET fomasVenci="'.$formasVenci.'" WHERE idClientes='.$idCliente;
-		$resultado['sql']=$sql;
+		$sql='UPDATE clientes SET formasVenci="'.$formasVenci.'" WHERE idClientes='.$idCliente;
+        $smt=$db->query($sql);
+        $resultado['sql']=$sql;
 		return $resultado;
 	}
 	public function BuscarClientePorNombre($nombreCliente){

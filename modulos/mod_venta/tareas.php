@@ -109,7 +109,7 @@ switch ($pulsado) {
 		 }
 		break;
 		
-		case 'htmlFomasVenci':
+		case 'htmlFormasVenci':
 			//@Objetivo:
 			//MUestra las formas de vencimiento de esa factura
 			$formasVenci=$_POST['formasVenci'];

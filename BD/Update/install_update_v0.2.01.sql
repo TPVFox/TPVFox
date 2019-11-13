@@ -8,3 +8,4 @@ ALTER TABLE `clientes` CHANGE `codpostal` `codpostal` VARCHAR(32) CHARACTER SET 
 ALTER TABLE `clientes` CHANGE `direccion` `direccion` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL; 
 ALTER TABLE `clientes` CHANGE `nif` `nif` VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 ALTER TABLE `clientes` CHANGE `razonsocial` `razonsocial` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL; 
+ALTER TABLE `clientes` CHANGE `fomasVenci` `formasVenci` VARCHAR(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL; 
