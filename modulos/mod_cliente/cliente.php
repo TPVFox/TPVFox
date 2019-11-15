@@ -32,7 +32,7 @@
         $ClienteUnico=$Cliente->getClienteCompleto($id);        
         foreach($ClienteUnico['adjuntos'] as $key =>$adjunto){
             if (isset($adjunto['error'])){
-                $errores[]=array ( 'tipo'=>'danger!',
+                $errores[]=array ( 'tipo'=>'danger',
                              'mensaje' => 'ERROR EN LA BASE DE !<br/>Consulta:'. $adjunto['consulta']
                              );
             } else {

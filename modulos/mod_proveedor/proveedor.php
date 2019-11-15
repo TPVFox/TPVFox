@@ -4,25 +4,18 @@
         <?php
 		
         include_once './../../inicial.php';
-        include $URLCom.'/head.php';
-        include_once  $URLCom.'/modulos/mod_proveedor/funciones.php';
+        include_once $URLCom.'/head.php';
+        include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
         include_once $URLCom.'/controllers/Controladores.php';
-        include_once ($URLCom.'/controllers/parametros.php');
-        include_once ($URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php');
-        
+        include_once $URLCom.'/controllers/parametros.php';
+        include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
         $ClasesParametros = new ClaseParametros('parametros.xml');  
 		$Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
 		$CProveedor= new ClaseProveedor($BDTpv);
 		$dedonde="proveedor";
 		$idProveedor=0;
-			// ===========  datos proveedor segun id enviado por url============= //
-		$idTienda = $Tienda['idTienda'];
-		$Usuario = $_SESSION['usuarioTpv'];
-	
-		$estados = array(); // Creo los estados de usuarios ( para select)
-		$estados[0]['valor'] = 'inactivo'; // Por defecto
-		$estados[1]['valor'] = 'activo';
+		$estados = array('Activo','inactivo');
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_proveedor',$Usuario['id']);
 		$configuracion=$configuracion['incidencias'];
@@ -40,16 +33,6 @@
 			} else {
                 $ProveedorUnico=$ProveedorUnico['datos'][0];
                 $titulo = "Modificar";
-				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
-				if (count($_POST) ===0){
-				$i = 0;
-					foreach ($estados as $estado){
-						if ($ProveedorUnico['estado'] === $estado['valor']){
-						$estados[$i]['porDefecto'] = "selected"; // Indicamos por defecto
-						}
-					$i++;
-					}
-				} 
 				$adjuntos=$CProveedor->adjuntosProveedor($id);
 				$i=2;
                 $tablaHtml= array();
@@ -85,7 +68,6 @@
 			$ProveedorUnico['email'] = '';	
 			$ProveedorUnico['fecha_creado'] = date('Y-m-d');
 			$ProveedorUnico['idUsuario'] = $Usuario['id'];
-			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
 		}
 		if(isset($_POST['Guardar'])){
 			
@@ -126,16 +108,13 @@
 		<div class="container">
 			
 				<?php 
-				
 				if (isset($errores)){
-				foreach($errores as $error){
-						echo '<div class="'.$error['class'].'">'
-						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-						. '</div>';
-				}
-	
-				//~ return;
-				}
+                    foreach($errores as $error){
+                            echo '<div class="'.$error['class'].'">'
+                            . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+                            . '</div>';
+                    }
+                }
 				?>
 			
 			<h1 class="text-center"> Proveedor: <?php echo $titulo;?></h1>
@@ -154,8 +133,6 @@
 					?>
 					<img src="<?php echo $img;?>" style="width:100%;">
 				</div>
-
-				
 
 				<div class="col-md-7">
 					<div class="Datos">
@@ -205,11 +182,12 @@
                             <select class="form-control" name="estado" id="sel1">
 								<?php 
 								foreach ($estados as $estado){
-								?>
-									<option size="10" value="<?php echo $estado['valor'];?>" <?php echo (isset($estado['porDefecto']) ? $estado['porDefecto'] : '');?> >
-									<?php echo $estado['valor'];?>
-									</option>
-								<?php
+                                    $default ='';
+                                    if($ProveedorUnico['estado']===$estado){
+                                        $default = "selected";
+                                    }
+								    echo '<option size="10" value="'.$estado
+                                        .'" '.$default.'>'.$estado.'</option>';
 								}
 								?>
 								
@@ -244,23 +222,22 @@
 				
 				</form>
 			</div>
-			<?php // Incluimos paginas modales
-echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-// hacemos comprobaciones de estilos 
-?>
+		<?php // Incluimos paginas modales
+        echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+        include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+        // hacemos comprobaciones de estilos 
+        ?>
 		</div>
         <script type="text/javascript">
         <?php 
         if(isset($_GET['estado'])){
             if($_GET['estado']=="ver"){
-                ?>
+            ?>
                 $(".container").find('input').attr("disabled", "disabled");
-                 $("#Guardar").css("display", "none");
-                <?php
+                $("#Guardar").css("display", "none");
+            <?php
             }
         }
-        
         ?>
         
         </script>
