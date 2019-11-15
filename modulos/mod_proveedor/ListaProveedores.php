@@ -5,71 +5,22 @@
     include_once './../../inicial.php';
     include_once $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
-    include_once $URLCom.'/plugins/paginacion/paginacion.php';
-    include_once $URLCom.'/controllers/Controladores.php';
-	
-	//INICIALIZAMOS variables para el plugin de paginado:
-	//$PgActual = 1 por defecto
-	//$CantidadRegistros , usamos la funcion contarRegistro de la class controladorComun /controllers/Controladores  
-	//$LimitePagina = 40 o los que queramos
-	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
-	//$OtrosParametros
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$filtro = ''; // por defecto
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
-	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-		if (isset($_GET['pagina'])) {
-			$PgActual = $_GET['pagina'];
-		}
-		if (isset($_GET['buscar'])) {  
-			//recibo un string con 1 o mas palabras
-			$stringPalabras = $_GET['buscar'];
-			$palabraBuscar = explode(' ',$_GET['buscar']);
-		} 
+    include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
+    include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 
-	// Creamos objeto controlado comun, para obtener numero de registros. 
-	//parametro necesario para plugin de paginacion
-	//funcion contarRegistro necesita:
-	//$BDTpv 
-	//$vista --> es la tabla en la que trabajamos
-	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
-	
-	$Controler = new ControladorComun; 
-	
-	$vista = 'proveedores';
-	$LinkBase = './ListaProveedores.php?';
-	$OtrosParametros = '';
-	$paginasMulti = $PgActual-1;
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
-	} else {
-		$desde = 0;
-	}
-	//si hay palabras para buscar
-	if ($stringPalabras !== '' ){
-		$campoBD='razonsocial';
-		$campo2BD='nombrecomercial';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD);
-		$filtro=$WhereLimite['filtro'];
-		$OtrosParametros=$stringPalabras;
-	}
-	
-	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	
-		
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
-	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}
-	$proveedores = obtenerProveedores($BDTpv,$filtro);
-	//~ echo '<pre>';
-	//~ print_r($proveedores);
-	//~ echo '</pre>';
+    $CProveedor= new ClaseProveedor($BDTpv);
+    // --- Inicializamos objeto de Paginado --- //
+    $NPaginado = new PluginClasePaginacion(__FILE__);
+    $campos = array('razonsocial','nombrecomercial','nif');
+    $NPaginado->SetCamposControler($campos);
+    $filtro = $NPaginado->GetFiltroWhere('OR');
+    
+    // --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
+    $NPaginado->SetCantidadRegistros($CProveedor->contarRegistros($filtro));
+    $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
+
+	$proveedores =  $CProveedor->obtenerProveedores($filtro . $NPaginado->GetLimitConsulta());
+
 	?>
 	<script>
 	// Declaramos variables globales
@@ -126,7 +77,7 @@
 			<div class="col-md-10">
 					<p>
 					 -Proveedores encontrados BD local filtrados:
-						<?php echo $CantidadRegistros;?>
+						<?php echo $CProveedor->contarRegistros($filtro);?>
 					</p>
 					<?php 	// Mostramos paginacion 
 						echo $htmlPG;
@@ -160,7 +111,7 @@
 	
 				<?php
 				$checkUser = 0;
-				foreach ($proveedores['items'] as $proveedor){ 
+				foreach ($proveedores as $proveedor){ 
 					$checkUser = $checkUser + 1; 
 					// Para evitar notice
 					if (!isset($proveedor['fechaalta'])){

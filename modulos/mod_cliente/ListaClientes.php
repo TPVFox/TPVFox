@@ -3,78 +3,23 @@
     <head>
         <?php
     include_once './../../inicial.php';
-	include $URLCom.'/head.php';
-	include $URLCom.'/modulos/mod_cliente/funciones.php';
-	include $URLCom.'/plugins/paginacion/paginacion.php';
-	include $URLCom.'/controllers/Controladores.php';
-	
-	
-	//INICIALIZAMOS variables para el plugin de paginado:
-	//$PgActual = 1 por defecto
-	//$CantidadRegistros , usamos la funcion contarRegistro de la class controladorComun /controllers/Controladores  
-	//$LimitePagina = 40 o los que queramos
-	//$LinkBase --> en la vista que estamos trabajando ListaProductos.php? para moverse por las distintas paginas
-	//$OtrosParametros
-	
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$filtro = ''; // por defecto
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
-	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-		if (isset($_GET['pagina'])) {
-			$PgActual = $_GET['pagina'];
-		}
-		if (isset($_GET['buscar'])) {  
-			//recibo un string con 1 o mas palabras
-			$stringPalabras = $_GET['buscar'];
-			$palabraBuscar = explode(' ',$_GET['buscar']); 
-		} 
+	include_once $URLCom.'/head.php';
+	include_once $URLCom.'/modulos/mod_cliente/funciones.php';
+    include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
+    include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 
-	// Creamos objeto controlado comun, para obtener numero de registros. 
-	//parametro necesario para plugin de paginacion
-	//funcion contarRegistro necesita:
-	//$BDTpv 
-	//$vista --> es la tabla en la que trabajamos
-	//$filtro --> por defecto es vacio, suele ser WHERE x like %buscado%, caja de busqueda
-	
-	$Controler = new ControladorComun; 
-	
-	$vista = 'clientes';
-	$LinkBase = './ListaClientes.php?';
-	$OtrosParametros = '';
-	//$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	
-
-	$paginasMulti = $PgActual-1;
-	if ($paginasMulti > 0) {
-		$desde = ($paginasMulti * $LimitePagina); 
-	} else {
-		$desde = 0;
-	}
-	//si hay palabras a buscar
-	if ($stringPalabras !== '' ){
-		$campoBD='razonsocial';
-		$campo2BD = 'Nombre';
-		$campo3BD = 'nif';
-		$WhereLimite= $Controler->paginacionFiltroBuscar($stringPalabras,$LimitePagina,$desde,$campoBD,$campo2BD,$campo3BD);
-		$filtro=$WhereLimite['filtro'];
-		$OtrosParametros=$stringPalabras;
-	}
-	
-	//consultamos 2 veces: 1 para obtner numero de registros y el otro los datos.
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,$vista,$filtro);
-	//echo 'pgactual: '.$PgActual.' cantidadReg : '.$CantidadRegistros.' lmtPag :'.$LimitePagina.' linkBase :'.$LinkBase.' OtrosParametros: '.$OtrosParametros;
-
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	if ($stringPalabras !== '' ){
-		$filtro = $WhereLimite['filtro'].$WhereLimite['rango'];
-	} else {
-		$filtro= " LIMIT ".$LimitePagina." OFFSET ".$desde;
-	}
-
-	
-	$clientes = obtenerClientes($BDTpv,$filtro);
+	$Cliente=new ClaseCliente();
+    // --- Inicializamos objeto de Paginado --- //
+    $NPaginado = new PluginClasePaginacion(__FILE__);
+    $campos = array('razonsocial','Nombre','nif');
+    $NPaginado->SetCamposControler($campos);
+    $filtro = $NPaginado->GetFiltroWhere('OR');
+    
+    // --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
+    $NPaginado->SetCantidadRegistros($Cliente->contarRegistros($filtro));
+    $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
+    // Obtenemos clientes con filtro busqueda y la pagina que estamos.	
+	$clientes = $Cliente->obtenerClientes($filtro . $NPaginado->GetLimitConsulta());
 	
 	?>
 	<script>
@@ -97,17 +42,9 @@
 			<div class="col-md-12 text-center">
 					<h2> Clientes: Editar y Añadir Clientes </h2>
 					<?php 
-					//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
-					//~ echo '<pre class="text-left">';
-					//~ print_r($Familias);
-					//~ 
-					//~ echo '</pre>';
+					
 					?>
 				</div>
-	        <!--=================  Sidebar -- Menu y filtro =============== 
-				Efecto de que permanezca fixo con Scroll , el problema es en
-				movil
-	        -->
 	       
 			<nav class="col-sm-2" id="myScrollspy">
 				<div data-offset-top="505">
@@ -143,7 +80,7 @@
 			<div class="col-md-10">
 					<p>
 					 -Clientes encontrados BD local filtrados:
-						<?php echo $CantidadRegistros;?>
+						<?php echo $Cliente->contarRegistros($filtro);?>
 					</p>
 					<?php 	// Mostramos paginacion 
 						echo $htmlPG;

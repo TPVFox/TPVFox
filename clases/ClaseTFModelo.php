@@ -35,12 +35,14 @@ class TFModelo extends ModeloP {
 
     protected function consultaDML($sql) {
         // Realizamos la consulta.
+        // Aquí la diferencia que hay con el anterior modelo es que no
+        // devuelve error , si no hay.
         $smt = parent::consultaDML($sql);
         $respuesta = [];
         $respuesta['consulta'] = $sql;
-
-        $respuesta['error'] = $smt ? '0' : $this->getErrorConsulta();
-
+        if ($this->getErrorConsulta() != '0') {
+                $respuesta['error'] = $this->getErrorConsulta();
+        }
         return $respuesta;
     }
 

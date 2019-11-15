@@ -1,23 +1,6 @@
 <?php 
 
 
-function obtenerClientes($BDTpv,$filtro) {
-	// Function para obtener clientes y listarlos
-
-	$clientes = array();
-	$consulta = "Select * from clientes ".$filtro;//.$filtroFinal.$rango; 
-	//$clientes['NItems'] = $Resql->num_rows;
-	$i = 0;
-	if ($Resql = $BDTpv->query($consulta)){			
-		while ($fila = $Resql->fetch_assoc()) {
-			$clientes[] = $fila;
-		}
-	}
-
-	//$clientes ['consulta'] = $consulta;
-	return $clientes;
-}
-
 function htmlProductos($total_productos,$productos,$busqueda_por,$campoAbuscar,$busqueda){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
@@ -100,24 +83,6 @@ function htmlProductos($total_productos,$productos,$busqueda_por,$campoAbuscar,$
 	$resultado['campo'] = $campoAbuscar;
 	
 	return $resultado;
-// Funcion para obtener html de busqueda de producto. ( Lo ideal seria hacer fuera un plugin  )
-// Para un correcto funcionamiento de la caja busqueda tenemos que tener creado cajaBusquedaproductos en xml 
-// Ejemplo de configuracion input en xml 
-// 		<caja_input>
-//			<nombre id_input="cajaBusqueda">cajaBusquedaproductos</nombre>
-//			<teclas>
-//				<action tecla="13">buscarProducto</action>
-//			</teclas>
-//			<parametros>
-//				<parametro nombre="dedonde">popup</parametro>
-//				<parametro nombre="campo"></parametro>  
-//			</parametros> 
-//			<before>
-//				<estado>Si</estado>
-//			</before>
-//		</caja_input>
-// Tambien las clases de N_ son necesarias...
-
 
 }
 function htmlPanelDesplegable($num_desplegable,$titulo,$body){
@@ -207,80 +172,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 	return $html;
 }
 
-function guardarCliente($datosPost, $BDTpv){
-	//@objetivo:
-	//Guardar los datos de un cliente
-	//Primero realiza comprobaciones de todos los campos y dependiendo si tiene id de cliente o no
-	//modifica o crear un nuevo cliente
-	//Paramtros:
-	//datosPost: datos que recibimos del formulario
-	$Cliente=new ClaseCliente($BDTpv);
-	$nif="";
-	$direccion="";
-	$codpostal="";
-	$telefono="";
-	$movil="";
-	$fax="";
-	$email="";
-	$mod=array();
-	if ($datosPost['formapago']>0||$datosPost['vencimiento']>0){
-			$datosForma=array();
-			$datosForma['formapago']=$datosPost['formapago'];
-			$datosForma['vencimiento']=$datosPost['vencimiento'];
-			$datosForma=json_encode($datosForma);
-	}else{
-		$datosForma=null;
-	}
-	if(isset($datosPost['nif'])){
-		$nif=$datosPost['nif'];
-	}
-	if(isset($datosPost['direccion'])){
-		$direccion=$datosPost['direccion'];
-	}
-	if(isset($datosPost['codpostal'])){
-		$codpostal=$datosPost['codpostal'];
-	}
-	if(isset($datosPost['telefono'])){
-		$telefono=$datosPost['telefono'];
-	}
-	if(isset($datosPost['movil'])){
-		$movil=$datosPost['movil'];
-	}
-	if(isset($datosPost['fax'])){
-		$fax=$datosPost['fax'];
-	}
-	if(isset($datosPost['email'])){
-		$email=$datosPost['email'];
-	}
-	$datosNuevos=array(
-		'nombre'=>$datosPost['nombre'],
-		'razonsocial'=>$datosPost['razonsocial'],
-		'nif'=>$nif,
-		'direccion'=>$direccion,
-		'codpostal'=>$codpostal,
-		'telefono'=>$telefono,
-		'movil'=>$movil,
-		'fax'=>$fax,
-		'email'=>$email,
-		'estado'=>$datosPost['estado'],
-		'formasVenci'=>$datosForma,
-		'idCliente'=>$datosPost['idCliente']
-	);
-	
-	$comprobar=$Cliente->comprobarExistenDatos($datosNuevos);
-	if($comprobar['error']){
-			$mod['buscarCliente']=$comprobar;
-	}
-		
-	if($datosPost['idCliente']>0){
-		
-			$mod['cliente']=$Cliente->modificarDatosCliente($datosNuevos, $datosPost['idCliente']);
-		
-	}else{
-		$mod['cliente']=$Cliente->addcliente($datosNuevos);
-	}
-	return $mod;
-}
+
 function comprobarFechas($fechaIni, $fechaFin){
 	//@Objetivo: comprobar las fechas de busqueda de resumen 
 	//@Comprobaciones:
@@ -298,7 +190,25 @@ function comprobarFechas($fechaIni, $fechaFin){
 	}
 	return $resultado;
 }
-
+function getHtmlOptions($datos,$valor=0){
+    // @Objetivo:
+    // Crear el html de opciones para mostrar en select y si hay alguno por defecto la ponemos como predeterminada.
+    // @Parametro:
+    //   $datos -> Array (  id => Es el valor que vamos poner, puede ser tanto int como string
+    //                      descripcion=> string es el texto que muestra el select
+    //                   )
+    //   $valor (varchar/int)-> funciona tanto con varchar como con int , es el pondría por defecto.
+   
+    $html_options = '<option value="0">	Seleccione opción </option>';
+        foreach ($datos as $dato){
+            $es_seleccionado = '';
+            if ($valor === $dato['id']){
+                $es_seleccionado = ' selected';
+            }
+            $html_options .='<option value="'.$dato['id'].'"'.$es_seleccionado.'>'.$dato['descripcion'].'</option>';
+        }
+    return $html_options;
+}
 
 
 

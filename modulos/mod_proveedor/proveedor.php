@@ -145,7 +145,7 @@
 			<input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
 			<div class="col-md-12">
 				
-				<h4>Datos del proveedor con ID:<?php echo $id?></h4>
+				<h4>Datos del proveedor con ID:<input size="5" type="text" id="idProveedor" name="idProveedor" value="<?php echo $ProveedorUnico['idProveedor'];?>"   readonly></h4>
 
 				<div class="col-md-1">
 					<?php 
@@ -175,11 +175,6 @@
 							<input type="text"	id="nif" name="nif" value="<?php echo $ProveedorUnico['nif'];?>" required>
 						</div>
 						<div class="col-md-6 form-group">
-							<label>Id del proveedor:</label>
-							<input type="text" id="idProveedor" name="idProveedor" value="<?php echo $ProveedorUnico['idProveedor'];?>"   readonly>
-							
-						</div>
-						<div class="col-md-6 form-group">
 							<label>Direccion:</label>
 							<input type="text" id="direccion" name="direccion" value="<?php echo $ProveedorUnico['direccion'];?>"   >
 						</div>
@@ -203,18 +198,15 @@
 							<label>Fecha alta:</label>
 							<input type="text" id="fechaalta" name="fechaalta" value="<?php echo $ProveedorUnico['fecha_creado'];?>" readonly >
 						</div>
-						<div class="col-md-6 form-group">
-							<label>Id Usuario:</label>
-							<input type="text" id="idusuario" name="idusuario" value="<?php echo $Usuario['id'];?>"  readonly>
-						</div>
 						
-						<div class="col-md-4 form-group">
+						<div class="col-md-6 form-group">
 							<label for="sel1">Estado:</label>
-							<select class="form-control" name="estado" id="sel1">
+                            <div class="col-md-6">
+                            <select class="form-control" name="estado" id="sel1">
 								<?php 
 								foreach ($estados as $estado){
 								?>
-									<option value="<?php echo $estado['valor'];?>" <?php echo (isset($estado['porDefecto']) ? $estado['porDefecto'] : '');?> >
+									<option size="10" value="<?php echo $estado['valor'];?>" <?php echo (isset($estado['porDefecto']) ? $estado['porDefecto'] : '');?> >
 									<?php echo $estado['valor'];?>
 									</option>
 								<?php
@@ -222,6 +214,7 @@
 								?>
 								
 							</select>
+                            </div>
 						</div>
 						
 						

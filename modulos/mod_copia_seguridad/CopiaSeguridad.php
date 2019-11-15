@@ -3,7 +3,6 @@
     <head>
         <?php
 	include './../../head.php';
-	include ("./../../plugins/paginacion/paginacion.php");
 	include ("./../../controllers/Controladores.php");
 	
 	

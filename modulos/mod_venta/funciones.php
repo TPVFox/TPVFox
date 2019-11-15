@@ -558,7 +558,7 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 }
 
 function htmlVencimiento($nuevafecha, $BDTpv){
-	$vencimiento=new TiposVencimientos($BDTpv);
+	$vencimiento=new TiposVencimientos();
 		$html='<input type="date" name="fechaVenci" id="fechaVenci" data-obj= "fechaVenci" onBlur="selectFormas()" value='.$nuevafecha.' >';
 		$respuesta['html']=$html;
 		return $respuesta;
@@ -567,7 +567,7 @@ function htmlVencimiento($nuevafecha, $BDTpv){
 function fechaVencimiento($fecha, $BDTpv){
     $nuevafecha = date('Y-m-d');
 	if ($fecha>0){
-		$vencimiento=new TiposVencimientos($BDTpv);
+		$vencimiento=new TiposVencimientos();
 		$principal=$vencimiento->datosPrincipal($fecha);
 		$dias=$principal['dias'];
 		$string=" +".$dias." day ";

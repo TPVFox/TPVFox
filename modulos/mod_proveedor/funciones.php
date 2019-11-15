@@ -1,27 +1,6 @@
 <?php 
 
 
-function obtenerProveedores($BDTpv,$filtro) {
-	// Function para obtener proveedores y listarlos
-	//tener en cuenta el  paginado con parametros:  ,$filtro
-
-	$proveedores = array();
-	$consulta = "Select * from proveedores ".$filtro; 
-	$Resql = $BDTpv->query($consulta);
-	$proveedores['NItems'] = $Resql->num_rows;
-	$i = 0;
-//~ echo '<pre>';
-//~ echo $consulta;
-//~ echo '</pre>';	
-	while ($proveedor = $Resql->fetch_assoc()) {			
-		$clientes['items'][$i] = $proveedor;
-		$i++;
-	}
-
-	$clientes ['consulta'] = $consulta;
-	return $clientes;
-}
-
 function verSelec($BDTpv,$idSelec,$tabla){
 	//ver seleccionado en check listado	
 	// Obtener datos de un id de usuario.
@@ -35,7 +14,7 @@ function verSelec($BDTpv,$idSelec,$tabla){
 		if ($unaOpc->num_rows > 0){
 			$fila = $unaOpc->fetch_assoc();
 		} else {
-			$fila['error']= ' No se a encontrado cliente';
+			$fila['error']= ' No se a encontrado proveedor';
 		}
 	}
 	$fila['Nrow']= $unaOpc->num_rows;

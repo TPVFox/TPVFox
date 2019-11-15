@@ -6,7 +6,6 @@
     include_once './../../inicial.php';
     include $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_venta/funciones.php';
-    include_once $URLCom.'/plugins/paginacion/paginacion.php';
 	include_once $URLCom.'/controllers/Controladores.php';
 	include_once ($URLCom.'/controllers/parametros.php');
     include_once $URLCom.'/clases/cliente.php';

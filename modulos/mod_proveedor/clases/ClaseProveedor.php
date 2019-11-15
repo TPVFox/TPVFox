@@ -3,8 +3,23 @@
 include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
 
 class ClaseProveedor extends modelo{
-	
-	public function getProveedor($id){
+
+    public function obtenerProveedores($filtro) {
+        // Function para obtener proveedores y listarlos
+        //tener en cuenta el  paginado con parametros:  ,$filtro
+        $proveedores = array();
+        $sql = "Select * from proveedores ".$filtro; 
+        $proveedores = $this->consulta($sql);
+        return $proveedores['datos'];
+    }
+
+    public function contarRegistros($filtro='') {
+        $proveedores = $this->obtenerProveedores($filtro);
+        return count($proveedores);
+    }
+
+
+    public function getProveedor($id){
 		//@Objetivo: cargar todos los datos de un proveedor 
 		//@Parametros: 
 		//id: id del proveedor

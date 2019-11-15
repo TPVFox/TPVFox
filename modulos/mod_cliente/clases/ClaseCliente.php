@@ -1,14 +1,92 @@
 <?php 
+include_once $URLCom.'/clases/FormasPago.php';
+include_once $URLCom.'/clases/TiposVencimiento.php';
+include_once $URLCom.'/clases/ClaseTFModelo.php';
 
 
-include_once $URLCom.'/modulos/claseModelo.php';
+class ClaseCliente extends TFModelo{
+    protected $tabla = 'clientes';
+    public $adjuntos = array('tickets'  => array(),
+                             'facturas' => array(),
+                             'albaranes'=> array(),
+                             'pedidos'  => array()
+                             );  // Los ultimos 15 movimientos de ese cliente.
+    public $arrayCliente = array (
+                            'idClientes'    => '',
+                            'Nombre'        => '',
+                            'razonsocial'   => '',
+                            'codpostal'     => '',
+                            'direccion'     => '',
+                            'nif'           => '',
+                            'telefono'      => '',
+                            'movil'         => '',
+                            'fax'           => '',
+                            'email'         => '',
+                            'formasVenci'   => '{"vencimiento":"0","formapago":"0"}'
+                        );
+                        
 
+    public function getClienteCompleto($id){
+        // @ Objetivo:
+        // Obtener los datos de un cliente completo:
+        //   - Tabla Cliente.
+        //   - Obtener de ese cliente los ultimos 15 movimientos, le llamo adjuntos
+        //          -Tickets
+        //          -Albaranes
+        //          -Facturas
+        //          -Pedidos.
+        if ($id > 0) {
+            $ClienteUnico =$this->getCliente($id);
+            if (!isset($ClienteUnico['error'])){
+                if (count($ClienteUnico['datos']) >1){
+                    // Hay mas de uno por lo que hay error grabe.
+                    $mensaje='Para este id:'.$id.' se encontrado '.count($ClienteUnico['datos']).' registros';
+                    $ClienteUnico['error'] =$this->montarAdvertencia('danger',$mensaje);
 
-class ClaseCliente extends modelo{
-	
-	public function getCliente($id){
+                } else {
+                    if (count($ClienteUnico['datos'])===1){
+                        $ClienteUnico=$ClienteUnico['datos'][0];
+                        $ClienteUnico['adjuntos']=$this->adjuntosCliente($id);
+                    } else {
+                        // No hay datos para ese id, por lo que debemos informar
+                        error_log(json_encode($ClienteUnico));
+                        $mensaje = 'Para este id:'.$id.' no hay datos';
+                        $ClienteUnico['error'] =$this->montarAdvertencia('danger',$mensaje);
+
+                    }
+                }
+            }
+        } else {
+            // Debe ser nuevo porque id es 0
+            $ClienteUnico = $this->arrayCliente;
+            // Tambien devolvemos los vacios de los adjuntos.
+            foreach ($this->adjuntos as $key=>$adjunto){
+                $ClienteUnico['adjuntos'][$key]['datos'] = array();
+            }
+        }
+        return $ClienteUnico;
+
+    }
+
+    public function obtenerClientes($filtro='') {
+	// Function para obtener clientes y listarlos
+
+	$clientes = array();
+	$sql = "Select * from clientes ".$filtro; //.$filtroFinal.$rango; 
+	$clientes = $this->consulta($sql);
+
+	//$clientes ['consulta'] = $consulta;
+	return $clientes['datos'];
+    }
+
+    public function contarRegistros($filtro='') {
+        $clientes = $this->obtenerClientes ($filtro);
+        return count($clientes);
+    }
+
+    public function getCliente($id){
 		//@Objetivo:
-		//Cargar todos los datos de un cliente
+		//Obtener los datos de un cliente de la tabla clientes.
 		//@Parametros: 
 		//id => recibe el id del cliente que queremos buscar
 		$sql= 'SELECT * FROM clientes WHERE idClientes='.$id;
@@ -50,64 +128,111 @@ class ClaseCliente extends modelo{
 		//@Objetivo: 
 		//Cargar todos los adjunto de un cliente , tickets, facturas, albaranes y pedidos
 		//@Parametros:
-		//id-> id del cliente 
-		$respuesta=array();
-		$respuesta['tickets']=$this->getTicket($id);
-		$respuesta['facturas']=$this->getFacturas($id);
-		$respuesta['albaranes']=$this->getAlbaranes($id);
-		$respuesta['pedidos']=$this->getPedidos($id);
-		return $respuesta;
+		//id-> id del cliente
+
+        // Obtenemos los adjuntos, si hay error devuelve array[error] ,si tene datos arrya['datos']
+
+		$adjuntos=array( 'tickets'  => $this->getTicket($id),
+                         'facturas' => $this->getFacturas($id),
+                         'albaranes'=> $this->getAlbaranes($id),
+                         'pedidos'  => $this->getPedidos($id)
+                         );
+        foreach ($adjuntos as $key=>$adjunto){
+            if (isset($adjunto['error'])){
+                // Hubo un error en la consulta.
+                $adjuntos[$key]= $this->montarAdvertencia('danger',$adjunto['error']) ;
+            } else {
+                if (!isset($adjunto['datos'])){
+                    // No obtubo datos
+                    $adjuntos[$key]['datos'] = array();
+                }
+            }
+        }
+		return $adjuntos;
 	}
+
+    public function montarAdvertencia($tipo,$mensaje){
+        // @ Objetivo:
+        // Montar array para error
+        $advertencia = array ( 'tipo'    =>$tipo,
+                          'mensaje' => $mensaje
+                        );
+        return $advertencia;
+
+
+    }
 	public function modificarDatosCliente($datos, $id){
 		//@Objetivo:
 		//Modificar los datos de un cliente determinado
 		//@Parametros:
 		//Datos-> array con todos los datos del cliente
 		//id-> id del cliente que se va a modificar
-		$sql='UPDATE `clientes` SET Nombre="'.$datos['nombre'].'" , razonsocial="'.$datos['razonsocial'].'" , 
+        $respuesta = array();
+        $sql='UPDATE `clientes` SET Nombre="'.$datos['Nombre'].'" , razonsocial="'.$datos['razonsocial'].'" , 
 		nif="'.$datos['nif'].'" , direccion="'.$datos['direccion'].'" , codpostal="'.$datos['codpostal'].'" , telefono="'.$datos['telefono']
 		.'" , movil="'.$datos['movil'].'" , fax="'.$datos['fax'].'" , email="'.$datos['email'].'" , estado="'.$datos['estado'].'" ,
-		fomasVenci='."'".$datos['formasVenci']."'".' WHERE idClientes='.$id;
-		$consulta=$this->consultaDML($sql);
+		formasVenci='."'".$datos['formasVenci']."'".' WHERE idClientes='.$id;
+        $consulta=$this->consultaDML($sql);
 		if(isset($consulta['error'])){
-			return $consulta;
-		}
+			$respuesta['error']= $consulta;
+		} 
+        return $respuesta;
 	}
 	public function addcliente($datos){
 		//@Objetivo:
 		//Añadir un cliente nuevo
 		//@Parametros:
 		//datos-> todos los datos que se recogen de la ficha de clientes 
-		$sql='INSERT INTO `clientes`( `Nombre`, `razonsocial`, 
+        $respuesta = array();
+        $sql='INSERT INTO `clientes`( `Nombre`, `razonsocial`, 
 		`nif`, `direccion`, `codpostal`, `telefono`, `movil`, `fax`, `email`, 
-		`estado`, `fomasVenci`, `fecha_creado`) VALUES ("'.$datos['nombre'].'", "'.$datos['razonsocial'].'", 
+		`estado`, `formasVenci`, `fecha_creado`) VALUES ("'.$datos['Nombre'].'", "'.$datos['razonsocial'].'", 
 		"'.$datos['nif'].'", "'.$datos['direccion'].'", "'.$datos['codpostal'].'", "'.$datos['telefono'].'",
 		 "'.$datos['movil'].'", "'.$datos['fax'].'", "'.$datos['email'].'", "'.$datos['estado'].'", '."'".$datos['formasVenci']."'".', NOW())';
-		$consulta=$this->consultaDML($sql);
+   		$consulta=$this->consultaDML($sql);
+
 		if(isset($consulta['error'])){
-			return $consulta;
-		}
+            $respuesta['error'] = $consulta;
+		} else {
+             // Fue bien , devolvemos el id insertado.
+             $respuesta = ModeloP::$db->insert_id;
+        }
+        return $respuesta;
 	}
         
 	public function comprobarExistenDatos($datos){
-		//Objetivo:
+		//@ Objetivo:
 		//Comprobar cuando guardamos que le nif del cliente no es el mismo que otro cliente
-		//Parametros:
+		//@ Parametros:
 		//Los datos del cliente
+        //@ Devuelve:
+        // Siempre devuelve array con datos o sin datos.
+        // Indicando tipo error.
 		$respuesta=array();
-		$sql='select nif , idClientes  FROM clientes where nif="'.$datos['nif'].'"';
-		$consulta=$this->consulta($sql);
-		if(isset($consulta['error'])){
-			return $consulta;
-		}else{
-			if($consulta['datos']>0){
-				if($consulta['datos'][0]['idClientes'] != $datos['idCliente']){
-				$respuesta['error']="Existe";
-				$respuesta['consulta']="Ese nif ya existe";
-				return $respuesta;
-			}
-			}
-		}
+
+        if (isset($datos['nif']) & $datos['nif']<>''){
+            // Solo hacemos la comprobación si trae datos nif
+            $sql='select nif , idClientes  FROM clientes where nif="'.$datos['nif'].'"';
+            $consulta=$this->consulta($sql);
+            if(isset($consulta['error'])){
+                $comprobacion = array(  'tipo'=>"danger",
+                                        'mensaje'=>$consulta['error']
+                                    );
+            } else {
+                if (isset($consulta['datos'])){  
+                    if($consulta['datos']>0){
+                        if($consulta['datos'][0]['idClientes'] != $datos['idCliente']){
+                            $comprobacion = array(  'tipo'=>"warning",
+                                                    'mensaje'=>"Este nif ya existe"
+                                                );
+                            $respuesta[]= $comprobacion;
+                        }   
+                    }
+                }
+            }
+        }
+        return $respuesta;
+
 	}
 	public function ticketClienteFechas($idCliente, $fechaIni, $fechaFin){
 		//@Objetivo:
@@ -125,11 +250,9 @@ class ClaseCliente extends modelo{
 		$respuesta=array();
 		$productos=array();
 		$resumenBases=array();
-		if($fechaIni=="" & $fechaFin==""){
-			$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente;
-		}else{
-			$sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente.' and `Fecha` BETWEEN 
-		"'.$fechaIni.'" and  "'.$fechaFin.' 23:00:00"';
+        $sql='SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`='.$idCliente;
+		if (!$fechaIni=="" & !$fechaFin==""){
+			$sql .=' and `Fecha` BETWEEN "'.$fechaIni.'" and  "'.$fechaFin.' 23:00:00"';
 		}
 		//~ error_log($sql);
 		$tickets=$this->consulta($sql);
@@ -141,38 +264,105 @@ class ClaseCliente extends modelo{
                 $respuesta['error']=1;
                 $respuesta['consulta']='No existen ids entre estas fechas';
             }else{
-			$sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`ticketslinea`	WHERE`idticketst` IN('.$ids.') and 
-			`estadoLinea` <> "Eliminado" GROUP BY idArticulo + `precioCiva`';
-			$productos=$this->consulta($sql);
-			if(isset($tickets['error'])){
-				$respuesta=$productos;
-			}else{
-				$respuesta['productos']=$productos['datos'];
-			}
-			$sql='SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
-			as sumarIva, t.Fecha as fecha   from ticketstIva as i  
-			left JOIN ticketst as t on t.id=i.idticketst  where idticketst 
-			in ('.$ids.')  GROUP BY idticketst;';
-			$resumenBases=$this->consulta($sql);
-			if(isset($resumenBases['error'])){
-				$respuesta=$resumenBases;
-			}else{
-				$respuesta['resumenBases']=$resumenBases['datos'];
-			}
-			$sql='SELECT *, sum(importeIva) as sumiva , sum(totalbase) as sumBase from ticketstIva where idticketst 
-			in ('.$ids.')  GROUP BY iva;';
-			$desglose=$this->consulta($sql);
-			if(isset($desglose['error'])){
-				$respuesta=$desglose;
-			}else{
-				$respuesta['desglose']=$desglose['datos'];
-			}
-        }
+                $sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`ticketslinea`	WHERE`idticketst` IN('.$ids.') and 
+                `estadoLinea` <> "Eliminado" GROUP BY idArticulo + `precioCiva`';
+                $productos=$this->consulta($sql);
+                if(isset($tickets['error'])){
+                    $respuesta=$productos;
+                }else{
+                    $respuesta['productos']=$productos['datos'];
+                }
+                $sql='SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
+                as sumarIva, t.Fecha as fecha   from ticketstIva as i  
+                left JOIN ticketst as t on t.id=i.idticketst  where idticketst 
+                in ('.$ids.')  GROUP BY idticketst;';
+                $resumenBases=$this->consulta($sql);
+                if(isset($resumenBases['error'])){
+                    $respuesta=$resumenBases;
+                }else{
+                    $respuesta['resumenBases']=$resumenBases['datos'];
+                }
+                $sql='SELECT *, sum(importeIva) as sumiva , sum(totalbase) as sumBase from ticketstIva where idticketst 
+                in ('.$ids.')  GROUP BY iva;';
+                $desglose=$this->consulta($sql);
+                if(isset($desglose['error'])){
+                    $respuesta=$desglose;
+                }else{
+                    $respuesta['desglose']=$desglose['datos'];
+                }
+            }
 		}
 		return $respuesta;
 	}
-	
-	
+
+    public function getVencimientos(){
+        // @Objetivo:
+        // Crear el objeto de vencimientos y poder:
+        // - Obtener todos los tipos vencimiento que tenemos.
+        // @Notas:
+        // Creo que lo ideal sería que fuera una propiedad
+        $CtiposVen=new TiposVencimientos();
+        $tiposVen=$CtiposVen->todos();
+        return $tiposVen;
+
+    }
+
+    public function getFormasPago(){
+        // @Objetivo:
+        // Crear el objeto de vencimientos y poder:
+        // - Obtener todos los tipos vencimiento que tenemos.
+        // @Notas:
+        // Creo que lo ideal sería que fuera una propiedad
+        $CFormasPago=new FormasPago();
+        $FormasPago=$CFormasPago->todas();
+        return $FormasPago;
+
+    }
+
+ public function guardarCliente($datosPost){
+        //@objetivo:
+        //Guardar los datos de un cliente
+        //Primero realiza comprobaciones de todos los campos y dependiendo si tiene id de cliente o no
+        //modifica o crear un nuevo cliente
+        //Paramtros:
+        //datosPost: datos que recibimos del formulario
+        $respuesta=array();
+        $datosNuevos = $this->arrayCliente;
+        $datosForma=array(
+                        'formapago'     =>$datosPost['formapago'],
+                        'vencimiento'   =>$datosPost['vencimiento']
+                        );
+        $datosForma=json_encode($datosForma);
+        
+        foreach ($datosPost as $key=>$datos){
+            $datosNuevos[$key]=$datos;
+        }
+        $datosNuevos['formasVenci']= $datosForma;
+        
+        $comprobar=$this->comprobarExistenDatos($datosNuevos);
+            
+        if($datosPost['idCliente']>0){
+            // Cuando ya existe de modifica
+             $respuesta=$this->modificarDatosCliente($datosNuevos, $datosPost['idCliente']);
+             $respuesta['id'] =  $datosPost['idCliente'];
+        }else{
+            // Cuando no existe de añade.
+            $respuesta['id']=$this->addcliente($datosNuevos);
+        }
+        // Si hubo error en la consulta lo creamos la alert como comprobación , asi solo tenemos que trabajar comprobaciones.
+        if (isset($respuesta['error'])){
+                // Comprobar siempre debería devuelver array ..
+                 $comprobar[] = array(  'tipo'=>"danger",
+                                        'mensaje'=>$respuesta['error']
+                                    );
+        }
+        if(count($comprobar) > 0){
+            // Solo envio comprobaciones si hay alguna.
+            $respuesta['comprobaciones']=$comprobar;
+        }
+        return $respuesta;
+    }
+  
 }
 
 
