@@ -166,59 +166,7 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	 
 }
 
-function guardarProveedor($datosPost, $BDTpv){
-	$Proveedor= new ClaseProveedor($BDTpv);
-	$direccion="";
-	$telefono="";
-	$fax="";
-	$movil="";
-	$email="";
-	$estado="";
-	$mod=array();
-	if(isset($datosPost['direccion'])){
-		$direccion=$datosPost['direccion'];
-	}
-	if(isset($datosPost['telefono'])){
-		$telefono=$datosPost['telefono'];
-	}
-	if(isset($datosPost['fax'])){
-		$fax=$datosPost['fax'];
-	}
-	if(isset($datosPost['movil'])){
-		$movil=$datosPost['movil'];
-	}
-	if(isset($datosPost['email'])){
-		$email=$datosPost['email'];
-	}
-	if(isset($datosPost['estado'])){
-		$estado=$datosPost['estado'];
-	}
-	$datos=array(
-		'nombrecomercial'=>$datosPost['nombrecomercial'],
-		'razonsocial'=>$datosPost['razonsocial'],
-		'nif'=>$datosPost['nif'],
-		'direccion'=>$direccion,
-		'telefono'=>$telefono,
-		'fax'=>$fax,
-		'movil'=>$movil,
-		'email'=>$email,
-		'estado'=>$estado,
-		'idProveedor'=>$datosPost['idProveedor']
-	);
-		
-	$comprobar=$Proveedor->comprobarExistenDatos($datos);
-			if($comprobar['error']){
-				$mod['comprobar']=$comprobar;
-			}
-		
-	if($datosPost['idProveedor']>0){
-		
-		$mod['Proveedor']=$Proveedor->modificarDatosProveedor($datos);
-	}else{
-		$mod['Proveedor']=$Proveedor->addProveedorNuevo($datos);
-	}
-	return $mod;
-}
+
 function comprobarFechas($fechaIni, $fechaFin){
 	//@Objetivo: comprobar las fechas de busqueda de resumen 
 	//@Comprobaciones:

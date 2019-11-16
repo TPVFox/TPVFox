@@ -12,7 +12,7 @@
         $ClasesParametros = new ClaseParametros('parametros.xml');  
 		$Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
-		$CProveedor= new ClaseProveedor($BDTpv);
+		$CProveedor= new ClaseProveedor();
 		$dedonde="proveedor";
 		$idProveedor=0;
 		$estados = array('Activo','inactivo');
@@ -71,7 +71,7 @@
 		}
 		if(isset($_POST['Guardar'])){
 			
-			$guardar=guardarProveedor($_POST, $BDTpv);
+			$guardar=$CProveedor->guardarProveedor($_POST);
 			if($guardar['Proveedor']['error']=="0"){
 				if($guardar['comprobar']['error']=="Existe"){
 					$errores[7]=array ( 'tipo'=>'Info!',

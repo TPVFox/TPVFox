@@ -1,8 +1,8 @@
 <?php 
 
-include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
+include_once $URLCom.'/clases/ClaseTFModelo.php';
 
-class ClaseProveedor extends modelo{
+class ClaseProveedor extends TFModelo{
 
     public function obtenerProveedores($filtro) {
         // Function para obtener proveedores y listarlos
@@ -106,13 +106,12 @@ class ClaseProveedor extends modelo{
 			}
 		}
 	}
-	function albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin){
+	public function albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin){
 		$respuesta=array();
 		$productos=array();
 		$resumenBases=array();
-		if($fechaIni=="" & $fechaFin==""){
-			$sql='SELECT Numalbpro , id FROM albprot WHERE  idProveedor ='.$idProveedor;
-		}else{
+        $sql='SELECT Numalbpro , id FROM albprot WHERE  idProveedor ='.$idProveedor;
+		if(!$fechaIni=="" & !$fechaFin==""){
 			$sql='SELECT Numalbpro , id FROM albprot WHERE idProveedor ='.$idProveedor.' and `Fecha` BETWEEN 
 		 "'.$fechaIni.'" and  "'.$fechaFin.'"';
 		}
@@ -156,6 +155,60 @@ class ClaseProveedor extends modelo{
         }
 		return $respuesta;
 	}
+
+
+    public function guardarProveedor($datosPost){
+        $direccion="";
+        $telefono="";
+        $fax="";
+        $movil="";
+        $email="";
+        $estado="";
+        $mod=array();
+        if(isset($datosPost['direccion'])){
+            $direccion=$datosPost['direccion'];
+        }
+        if(isset($datosPost['telefono'])){
+            $telefono=$datosPost['telefono'];
+        }
+        if(isset($datosPost['fax'])){
+            $fax=$datosPost['fax'];
+        }
+        if(isset($datosPost['movil'])){
+            $movil=$datosPost['movil'];
+        }
+        if(isset($datosPost['email'])){
+            $email=$datosPost['email'];
+        }
+        if(isset($datosPost['estado'])){
+            $estado=$datosPost['estado'];
+        }
+        $datos=array(
+            'nombrecomercial'=>$datosPost['nombrecomercial'],
+            'razonsocial'=>$datosPost['razonsocial'],
+            'nif'=>$datosPost['nif'],
+            'direccion'=>$direccion,
+            'telefono'=>$telefono,
+            'fax'=>$fax,
+            'movil'=>$movil,
+            'email'=>$email,
+            'estado'=>$estado,
+            'idProveedor'=>$datosPost['idProveedor']
+        );
+            
+        $comprobar=$this->comprobarExistenDatos($datos);
+                if($comprobar['error']){
+                    $mod['comprobar']=$comprobar;
+                }
+            
+        if($datosPost['idProveedor']>0){
+            
+            $mod['Proveedor']=$this->modificarDatosProveedor($datos);
+        }else{
+            $mod['Proveedor']=$this->addProveedorNuevo($datos);
+        }
+        return $mod;
+    }
     
     
 }
