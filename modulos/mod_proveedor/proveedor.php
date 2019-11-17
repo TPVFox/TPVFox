@@ -25,10 +25,8 @@
 			$id=$_GET['id']; // Obtenemos id para modificar.
 			$ProveedorUnico=$CProveedor->getProveedor($id);
 			if (isset($ProveedorUnico['error'])){
-				$errores[1]=array ( 'tipo'=>'Danger!',
-								 'dato' => $ProveedorUnico['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+				$errores[1]=array ( 'tipo'=>'danger',
+								 'mensaje' => $ProveedorUnico['consulta']
 								 );
 			} else {
                 $ProveedorUnico=$ProveedorUnico['datos'][0];
@@ -38,10 +36,8 @@
                 $tablaHtml= array();
 				foreach($adjuntos as $key=>$adjunto){
 					if(isset($adjunto['error'])){
-						$errores[$i]=array ( 'tipo'=>'Danger!',
-									 'dato' => $adjunto['consulta'],
-									 'class'=>'alert alert-danger',
-									 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+						$errores[$i]=array ( 'tipo'=>'danger',
+									 'mensaje' => $adjunto
 									 );
 									 $i++;
 					}
@@ -67,28 +63,22 @@
 			$ProveedorUnico['fax'] = '';
 			$ProveedorUnico['email'] = '';	
 			$ProveedorUnico['fecha_creado'] = date('Y-m-d');
-			$ProveedorUnico['idUsuario'] = $Usuario['id'];
 		}
+        
 		if(isset($_POST['Guardar'])){
-			
 			$guardar=$CProveedor->guardarProveedor($_POST);
-			if($guardar['Proveedor']['error']=="0"){
-				if($guardar['comprobar']['error']=="Existe"){
-					$errores[7]=array ( 'tipo'=>'Info!',
-								 'dato' => $guardar['comprobar']['consulta'],
-								 'class'=>'alert alert-info',
-								 'mensaje' => 'COINCIDENCIA!'
-								 );
-				}else{
-					 header('Location: ListaProveedores.php');
-				}
+            if(isset ($guardar['comprobaciones']) && count($guardar['comprobaciones'])>0){
+                $errores= $guardar['comprobaciones'];
+                //  Fallo al guardar, cargamos formularios con los datos POST
+                $ProveedorUnico=$_POST;
+                $id= $ProveedorUnico['idProveedor'];// El $id lo utiliamos para marcar que usuario estam
 			}else{
-				$errores[7]=array ( 'tipo'=>'Danger!',
-								 'dato' => $guardar['Proveedor']['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-			}
+                // Todo fue bien , volvemos a listado.
+                    // Dos posibles opciones.
+                    // 1.- Redirecionar
+                    // header('Location: ListaProveedores.php');
+                    // 2.- Recargar datos modificados.
+				}
 		}
 		?>
 		<!-- Cargamos libreria control de teclado -->
@@ -108,13 +98,20 @@
 		<div class="container">
 			
 				<?php 
-				if (isset($errores)){
-                    foreach($errores as $error){
-                            echo '<div class="'.$error['class'].'">'
-                            . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-                            . '</div>';
+				if (isset($errores) && count($errores)>0){
+                foreach($errores as $error){
+                    echo '<div class="alert alert-'.$error['tipo'].'">'
+                    . '<strong>'.$error['tipo'].' </strong><br/> ';
+                    if (is_array($error['mensaje'])){
+                        echo '<pre>';
+                        print_r($error['mensaje']);
+                        echo '</pre>';
+                    } else {
+                        echo $error['mensaje'];
                     }
+                    echo '</div>';
                 }
+            }
 				?>
 			
 			<h1 class="text-center"> Proveedor: <?php echo $titulo;?></h1>

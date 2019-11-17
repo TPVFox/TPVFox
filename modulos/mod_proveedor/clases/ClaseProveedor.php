@@ -4,6 +4,17 @@ include_once $URLCom.'/clases/ClaseTFModelo.php';
 
 class ClaseProveedor extends TFModelo{
 
+    public $arrayProveedor = array( 'nombrecomercial'   =>'',
+                                    'razonsocial'       =>'',
+                                    'nif'               =>'',
+                                    'direccion'         =>'',
+                                    'telefono'          =>'',
+                                    'fax'               =>'',
+                                    'movil'             =>'',
+                                    'email'             =>'',
+                                    'estado'            =>''
+                                );
+
     public function obtenerProveedores($filtro) {
         // Function para obtener proveedores y listarlos
         //tener en cuenta el  paginado con parametros:  ,$filtro
@@ -68,8 +79,11 @@ class ClaseProveedor extends TFModelo{
 		`email`="'.$datos['email'].'",`estado`="'.$datos['estado'].'" WHERE idProveedor='.$datos['idProveedor'];
 		$consulta=$this->consultaDML($sql);
 		if(isset($consulta['error'])){
-			return $consulta;
-		}
+			$respuesta['error']= $consulta;
+		} else {
+             // Fue bien , devolvemos la cantidad de filas modificadas.
+             $respuesta = ModeloP::$db->affected_rows;
+        }
 	}
 	public function addProveedorNuevo($datos){
 		//@Objetivo:
@@ -83,8 +97,11 @@ class ClaseProveedor extends TFModelo{
 		"'.$datos['movil'].'","'.$datos['email'].'",NOW() , "'.$datos['estado'].'" )';
 		$consulta=$this->consultaDML($sql);
 		if(isset($consulta['error'])){
-			return $consulta;
-		}
+			$respuesta['error']= $consulta;
+		} else {
+             // Fue bien , devolvemos la cantidad de filas modificadas.
+             $respuesta = ModeloP::$db->affected_rows;
+        }
 	}
 	
 	public function comprobarExistenDatos($datos){
@@ -158,54 +175,36 @@ class ClaseProveedor extends TFModelo{
 
 
     public function guardarProveedor($datosPost){
-        $direccion="";
-        $telefono="";
-        $fax="";
-        $movil="";
-        $email="";
-        $estado="";
+        
         $mod=array();
-        if(isset($datosPost['direccion'])){
-            $direccion=$datosPost['direccion'];
+        $datosNuevos = $this->arrayProveedor;
+        foreach ($datosPost as $key=>$datos){
+            $datosNuevos[$key]=$datos;
         }
-        if(isset($datosPost['telefono'])){
-            $telefono=$datosPost['telefono'];
-        }
-        if(isset($datosPost['fax'])){
-            $fax=$datosPost['fax'];
-        }
-        if(isset($datosPost['movil'])){
-            $movil=$datosPost['movil'];
-        }
-        if(isset($datosPost['email'])){
-            $email=$datosPost['email'];
-        }
-        if(isset($datosPost['estado'])){
-            $estado=$datosPost['estado'];
-        }
-        $datos=array(
-            'nombrecomercial'=>$datosPost['nombrecomercial'],
-            'razonsocial'=>$datosPost['razonsocial'],
-            'nif'=>$datosPost['nif'],
-            'direccion'=>$direccion,
-            'telefono'=>$telefono,
-            'fax'=>$fax,
-            'movil'=>$movil,
-            'email'=>$email,
-            'estado'=>$estado,
-            'idProveedor'=>$datosPost['idProveedor']
-        );
-            
-        $comprobar=$this->comprobarExistenDatos($datos);
+        // Ahora se debería validar los datos.
+                   
+        $comprobar=$this->comprobarExistenDatos($datosNuevos);
                 if($comprobar['error']){
                     $mod['comprobar']=$comprobar;
                 }
             
         if($datosPost['idProveedor']>0){
-            
-            $mod['Proveedor']=$this->modificarDatosProveedor($datos);
+            // Cuando ya existe de modifica
+            $respuesta= $this->modificarDatosProveedor($datosPost);
+            $mod['id'] =  $datosPost['idCliente'];
         }else{
-            $mod['Proveedor']=$this->addProveedorNuevo($datos);
+            $mod['id']=$this->addProveedorNuevo($datosPost);
+        }
+
+        if (isset($mod['error'])){
+                // Comprobar siempre debería devuelver array ..
+                 $comprobar[] = array(  'tipo'=>"danger",
+                                        'mensaje'=>$respuesta['error']
+                                    );
+        }
+        if(count($comprobar) > 0){
+            // Solo envio comprobaciones si hay alguna.
+            $mod['comprobaciones']=$comprobar;
         }
         return $mod;
     }
