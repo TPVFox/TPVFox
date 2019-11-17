@@ -106,6 +106,7 @@
 						<th>RAZON SOCIAL</th>
 						<th>NIF</th>
 						<th>TELEFONO</th>
+                        <th>MOVILO</th>
 						<th>EMAIL</th>
 						<th>ESTADO</th>
 						<th>IMPRIMIR</th>
@@ -144,7 +145,17 @@
 						<td><?php echo $cliente['razonsocial']; ?></td>
 						<td><?php echo $cliente['nif']; ?></td>
 						<td><?php echo $cliente['telefono']; ?></td>
-						<td><?php echo $cliente['email']; ?></td>
+                        <td><?php echo $cliente['movil']; ?></td>
+                        <?php
+                            // Mostrar email
+                            
+                            if ($cliente['email']<>''){
+                                $email ='<a href="mailto:'.$cliente['email'].'"><span class="glyphicon glyphicon-envelope"></span><a>';
+                            } else {
+                                $email = '';
+                            }
+                        ?>
+                        <td><?php echo $email; ?></td>
 						<td><?php echo $cliente['estado']; ?></td>
 						<?php
                             $linkImprimir= '&nbsp;<a style="cursor:pointer" class="glyphicon glyphicon-print" '."onclick='imprimirFicha(".$cliente['idClientes'].")'></a>";
