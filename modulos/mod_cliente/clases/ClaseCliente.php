@@ -175,7 +175,12 @@ class ClaseCliente extends TFModelo{
         $consulta=$this->consultaDML($sql);
 		if(isset($consulta['error'])){
 			$respuesta['error']= $consulta;
-		} 
+		} else {
+             // Fue bien , devolvemos la cantidad de filas modificadas.
+             $respuesta = ModeloP::$db->affected_rows;
+             // OJ0:
+             // Aunque no de error, si hacer un update y tiene lo mismos datos que tenía, la respuesta es 0
+        }
         return $respuesta;
 	}
 	public function addcliente($datos){
@@ -221,9 +226,9 @@ class ClaseCliente extends TFModelo{
             } else {
                 if (isset($consulta['datos'])){  
                     if($consulta['datos']>0){
-                        if($consulta['datos'][0]['idClientes'] != $datos['idCliente']){
+                        if($consulta['datos'][0]['idClientes'] != $datos['idClientes']){
                             $comprobacion = array(  'tipo'=>"warning",
-                                                    'mensaje'=>"Este nif ya existe"
+                                                    'mensaje'=>$consulta
                                                 );
                             $respuesta[]= $comprobacion;
                         }   
@@ -320,12 +325,15 @@ class ClaseCliente extends TFModelo{
     }
 
  public function guardarCliente($datosPost){
-        //@objetivo:
+        //@ Objetivo:
         //Guardar los datos de un cliente
         //Primero realiza comprobaciones de todos los campos y dependiendo si tiene id de cliente o no
         //modifica o crear un nuevo cliente
-        //Paramtros:
+        //@ Parametros:
         //datosPost: datos que recibimos del formulario
+        //@ Devolvemos respuesta (array):
+        //  ['id'] => (int) id del cliente añadido o modificado. ( Si hay error puede que no lo devuelva.
+        //  ['comprobaciones'] = (Array) con errores , tanto graves como no.
         $respuesta=array();
         $datosNuevos = $this->arrayCliente;
         $datosForma=array(
@@ -341,25 +349,30 @@ class ClaseCliente extends TFModelo{
         
         $comprobar=$this->comprobarExistenDatos($datosNuevos);
             
-        if($datosPost['idCliente']>0){
+        if($datosPost['idClientes']>0){
             // Cuando ya existe de modifica
-             $respuesta=$this->modificarDatosCliente($datosNuevos, $datosPost['idCliente']);
-             $respuesta['id'] =  $datosPost['idCliente'];
+            $modificar =$this->modificarDatosCliente($datosNuevos, $datosPost['idClientes']);
+            // Devolvemos el id que devolvimos.
+            $respuesta['id'] =  $datosPost['idClientes'];
+            if ($modificar <> 1){
+              // hubo un error , por lo que lo enviamos 
+            $respuesta['error'] = 'Se modifico '.$modificar. ' clientes.';
+            }
         }else{
             // Cuando no existe de añade.
             $respuesta['id']=$this->addcliente($datosNuevos);
         }
-        // Si hubo error en la consulta lo creamos la alert como comprobación , asi solo tenemos que trabajar comprobaciones.
+        // Si hubo error en la consulta 
         if (isset($respuesta['error'])){
-                // Comprobar siempre debería devuelver array ..
-                 $comprobar[] = array(  'tipo'=>"danger",
-                                        'mensaje'=>$respuesta['error']
-                                    );
+            // Comprobar siempre debería devuelver array ..
+             $comprobar[] = array(  'tipo'=>"danger",
+                                    'mensaje'=>$respuesta['error']
+                                );
         }
-        if(count($comprobar) > 0){
-            // Solo envio comprobaciones si hay alguna.
-            $respuesta['comprobaciones']=$comprobar;
-        }
+        // Se devuelve siempre comprobaciones, ya que alguna puede ser necesaria con OK
+        // Si no hay nada , ya se manda un array vacio.
+        $respuesta['comprobaciones']=$comprobar;
+
         return $respuesta;
     }
   

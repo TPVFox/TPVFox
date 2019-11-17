@@ -29,6 +29,7 @@
                 $titulo= "Modificar";
             }
         }
+        
         $ClienteUnico=$Cliente->getClienteCompleto($id);        
         foreach($ClienteUnico['adjuntos'] as $key =>$adjunto){
             if (isset($adjunto['error'])){
@@ -40,18 +41,23 @@
             }
         }
         
-        // Ahora grabamos si pulso guardar.
+        // Solo permitimos guarfar si realmente no hay errores.
+        // ya que consideramos que son grabes y no podermo continuar. ( bueno a lo mejor.. :-)
         if (count($errores) === 0){
             // Solo guardamos si no hay errores.
             if(isset($_POST['Guardar'])){
                 $guardar=$Cliente->guardarCliente($_POST);
+                
                 if(isset ($guardar['comprobaciones']) && count($guardar['comprobaciones'])>0){
                     $errores= $guardar['comprobaciones'];
                     // Fallo debo meter los datos del POST para que no tenga que volver a meterlos.
                     $ClienteUnico = $_POST;
+                    $id= $ClienteUnico['idClientes'];// El $id lo utiliamos para marcar que usuario estamos.
+                    //Eliminadmo el $ClienteUnico['guardar'] que se creo, ya que no debemos tenerlo.
+                    unset($ClienteUnico['guardar']);
                 } else{
                     // Todo fue bien , volvemos a listado.
-                    // Dos posibles opciones.
+                    // Dos posibles opciones deberíamos tener un parametro configuracion.
                     // 1.- Redirecionar
                     //~ header('Location: ListaClientes.php');
                     // 2.- Recargar datos modificados.
@@ -62,7 +68,14 @@
             }
         }
         // Montamos html Option de forma de pago,vencimiento y estado con el valor por default
-            $DefaultVenci = json_decode($ClienteUnico['formasVenci']); // obtenemos un objeto con vencimiento y formapago
+                    
+            if (!isset($Defaultvenci)){ 
+                // No se obtuvo formas vencimiento y de pago
+                // Creamos objeto con valores por defecto, necesario mostrar formulario.
+                $DefaultVenci =(object) array('vencimiento' => '0','formapago' => '0');
+            } else {
+                $DefaultVenci = json_decode($ClienteUnico['formasVenci']); // obtenemos un objeto con vencimiento y formapago
+            }
             $vencimientos = $Cliente->getVencimientos();
             $html_optionVenci =  getHtmlOptions($vencimientos['datos'],$DefaultVenci->vencimiento);
             $formasPago = $Cliente->getFormasPago();
@@ -92,6 +105,7 @@
      
 		<div class="container">
             <?php
+            
             if (isset($errores) && count($errores)>0){
                 foreach($errores as $error){
                     echo '<div class="alert alert-'.$error['tipo'].'">'
@@ -116,7 +130,7 @@
 			
 			<div class="col-md-12">
 				
-				<h4>Datos del cliente con ID: <input size=3 type="text" id="idCliente" name="idCliente" value="<?php echo $ClienteUnico['idClientes'];?>"   readonly></h4>
+				<h4>Datos del cliente con ID: <input size=3 type="text" id="idClientes" name="idClientes" value="<?php echo $ClienteUnico['idClientes'];?>"   readonly></h4>
 
 				<div class="col-md-1">
 					<?php 
