@@ -26,6 +26,8 @@
 			$id=$_GET['id']; // Obtenemos id para modificar.
             if ($id> 0){
                 $titulo= "Modificar";
+            } else {
+                $titulo= "Crear";
             }
         }
 		$ProveedorUnico=$CProveedor->getProveedorCompleto($id);
@@ -40,31 +42,26 @@
         }
 
         // Solo permitimos guarfar si realmente no hay errores.
-        // ya que consideramos que son grabes y no podermo continuar. ( bueno a lo mejor.. :-)
+        // ya que consideramos que son graves y no podemos continuar. ( bueno a lo mejor.. :-)
         if (count($errores) === 0){
             if(isset($_POST['Guardar'])){
                 $guardar=$CProveedor->guardarProveedor($_POST);
-                if(isset ($guardar['comprobaciones']) && count($guardar['comprobaciones'])>0){
-                    $errores= $guardar['comprobaciones'];
-                    //  Fallo al guardar, cargamos formularios con los datos POST
-                    $ProveedorUnico=$_POST;
-                    $id= $ProveedorUnico['idProveedor'];// El $id lo utiliamos para marcar que usuario estam
-                }else{
+                $ProveedorUnico=$guardar['datos'];
+                if($guardar['estado'] === 'OK'){
                         // Todo fue bien , volvemos a listado.
                         // Dos posibles opciones deberíamos tener un parametro configuracion.
                         // 1.- Redirecionar
                         // header('Location: ListaProveedores.php');
                         // 2.- Recargar datos modificados.
-                        $ProveedorUnico=$CProveedor->getProveedorCompleto($guardar['id']);
                         $mensaje = 'Fue guardo correctamente';
                         $errores[]=$CProveedor->montarAdvertencia('info',$mensaje);
-                        
-                    }
+                } else {
+                    // Hubo error grave, estado = KO
+                    $errores[] = $CProveedor->montarAdvertencia('danger','No se grabo por un error grave');
+                    $errores[] = $CProveedor->montarAdvertencia('danger',$guardar['error']);
+                }
             }
         }
-        echo '<pre>';
-        print_r($errores);
-        echo '</pre>';
 		?>
 		
 		

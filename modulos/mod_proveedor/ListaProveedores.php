@@ -95,17 +95,18 @@
 			<table class="table table-bordered table-hover">
 				<thead>
 					<tr>
-						<th></th>
                         <th></th>
                         <th></th>
-						<th>ID</th>
-						<th>NOMBRE COMERCIAL</th>
-						<th>RAZON SOCIAL</th>
-						<th>NIF</th>
-						<th>TELEFONO</th>
-						<th>EMAIL</th>
-						<th>FECHA ALTA</th>
-						<th>ESTADO</th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>NOMBRE COMERCIAL</th>
+                        <th>RAZON SOCIAL</th>
+                        <th>NIF</th>
+                        <th>TELEFONO</th>
+                        <th>MOVIL</th>
+                        <th>EMAIL</th>
+                        <th>FECHA ALTA</th>
+                        <th>ESTADO</th>
 					</tr>
 				</thead>
 	
@@ -146,8 +147,18 @@
 					<td><?php echo $proveedor['nombrecomercial']; ?></td>
 					<td><?php echo $proveedor['razonsocial']; ?></td>
 					<td><?php echo $proveedor['nif']; ?></td>
-					<td><?php echo $proveedor['telefono']; ?></td>
-					<td><?php echo $proveedor['email']; ?></td>
+                    <td><?php echo $proveedor['telefono']; ?></td>
+                    <td><?php echo $proveedor['movil']; ?></td>
+                    <?php
+                    // Mostrar email
+                    
+                    if ($proveedor['email']<>''){
+                        $email ='<a href="mailto:'.$proveedor['email'].'"><span class="glyphicon glyphicon-envelope"></span><a>';
+                    } else {
+                        $email = '';
+                    }
+                    ?>
+					<td><?php echo $email; ?></td>
 					<td><?php echo $proveedor['fecha_creado']; ?></td>
 					<td><?php echo $proveedor['estado']; ?></td>
 					

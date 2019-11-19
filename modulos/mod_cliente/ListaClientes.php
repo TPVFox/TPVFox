@@ -106,7 +106,7 @@
 						<th>RAZON SOCIAL</th>
 						<th>NIF</th>
 						<th>TELEFONO</th>
-                        <th>MOVILO</th>
+                        <th>MOVIL</th>
 						<th>EMAIL</th>
 						<th>ESTADO</th>
 						<th>IMPRIMIR</th>
