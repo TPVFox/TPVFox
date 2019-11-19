@@ -14,74 +14,58 @@
 		$Controler->loadDbtpv($BDTpv);
 		$CProveedor= new ClaseProveedor();
 		$dedonde="proveedor";
-		$idProveedor=0;
-		$estados = array('Activo','inactivo');
+		$id=0;
+		$errores = array();
+        $tablaHtml= array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_proveedor',$Usuario['id']);
 		$configuracion=$configuracion['incidencias'];
+        $estados = array('Activo','inactivo');
 		if (isset($_GET['id'])) {
-			$idProveedor=$_GET['id'];
 			// Modificar Ficha fichero
 			$id=$_GET['id']; // Obtenemos id para modificar.
-			$ProveedorUnico=$CProveedor->getProveedor($id);
-			if (isset($ProveedorUnico['error'])){
-				$errores[1]=array ( 'tipo'=>'danger',
-								 'mensaje' => $ProveedorUnico['consulta']
-								 );
-			} else {
-                $ProveedorUnico=$ProveedorUnico['datos'][0];
-                $titulo = "Modificar";
-				$adjuntos=$CProveedor->adjuntosProveedor($id);
-				$i=2;
-                $tablaHtml= array();
-				foreach($adjuntos as $key=>$adjunto){
-					if(isset($adjunto['error'])){
-						$errores[$i]=array ( 'tipo'=>'danger',
-									 'mensaje' => $adjunto
-									 );
-									 $i++;
-					}
-                     if (!isset($adjunto['datos'])){
-                        $adjunto['datos'] = array();
+            if ($id> 0){
+                $titulo= "Modificar";
+            }
+        }
+		$ProveedorUnico=$CProveedor->getProveedorCompleto($id);
+        foreach($ProveedorUnico['adjuntos'] as $key =>$adjunto){
+            if (isset($adjunto['error'])){
+                $errores[]=array ( 'tipo'=>'danger',
+                             'mensaje' => 'ERROR EN LA BASE DE !<br/>Consulta:'. $adjunto['consulta']
+                             );
+            } else {
+                $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
+            }
+        }
+
+        // Solo permitimos guarfar si realmente no hay errores.
+        // ya que consideramos que son grabes y no podermo continuar. ( bueno a lo mejor.. :-)
+        if (count($errores) === 0){
+            if(isset($_POST['Guardar'])){
+                $guardar=$CProveedor->guardarProveedor($_POST);
+                if(isset ($guardar['comprobaciones']) && count($guardar['comprobaciones'])>0){
+                    $errores= $guardar['comprobaciones'];
+                    //  Fallo al guardar, cargamos formularios con los datos POST
+                    $ProveedorUnico=$_POST;
+                    $id= $ProveedorUnico['idProveedor'];// El $id lo utiliamos para marcar que usuario estam
+                }else{
+                        // Todo fue bien , volvemos a listado.
+                        // Dos posibles opciones deberíamos tener un parametro configuracion.
+                        // 1.- Redirecionar
+                        // header('Location: ListaProveedores.php');
+                        // 2.- Recargar datos modificados.
+                        $ProveedorUnico=$CProveedor->getProveedorCompleto($guardar['id']);
+                        $mensaje = 'Fue guardo correctamente';
+                        $errores[]=$CProveedor->montarAdvertencia('info',$mensaje);
+                        
                     }
-                    $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
-                
-                }
-			}
-			
-			
-		} else {
-			// Creamos ficha Usuario.
-			$titulo = "Crear";
-			$ProveedorUnico = array();
-			$ProveedorUnico['nombrecomercial'] = '';
-			$ProveedorUnico['razonsocial'] = '';
-			$ProveedorUnico['nif'] = '';
-			$ProveedorUnico['direccion'] = '';
-			$ProveedorUnico['telefono'] = '';
-			$ProveedorUnico['movil'] = '';
-			$ProveedorUnico['fax'] = '';
-			$ProveedorUnico['email'] = '';	
-			$ProveedorUnico['fecha_creado'] = date('Y-m-d');
-		}
-        
-		if(isset($_POST['Guardar'])){
-			$guardar=$CProveedor->guardarProveedor($_POST);
-            if(isset ($guardar['comprobaciones']) && count($guardar['comprobaciones'])>0){
-                $errores= $guardar['comprobaciones'];
-                //  Fallo al guardar, cargamos formularios con los datos POST
-                $ProveedorUnico=$_POST;
-                $id= $ProveedorUnico['idProveedor'];// El $id lo utiliamos para marcar que usuario estam
-			}else{
-                // Todo fue bien , volvemos a listado.
-                    // Dos posibles opciones.
-                    // 1.- Redirecionar
-                    // header('Location: ListaProveedores.php');
-                    // 2.- Recargar datos modificados.
-				}
-		}
+            }
+        }
+        echo '<pre>';
+        print_r($errores);
+        echo '</pre>';
 		?>
-		<!-- Cargamos libreria control de teclado -->
 		
 		
 	</head>
@@ -97,27 +81,27 @@
      
 		<div class="container">
 			
-				<?php 
+				<?php
 				if (isset($errores) && count($errores)>0){
-                foreach($errores as $error){
-                    echo '<div class="alert alert-'.$error['tipo'].'">'
-                    . '<strong>'.$error['tipo'].' </strong><br/> ';
-                    if (is_array($error['mensaje'])){
-                        echo '<pre>';
-                        print_r($error['mensaje']);
-                        echo '</pre>';
-                    } else {
-                        echo $error['mensaje'];
+                    foreach($errores as $error){
+                        echo '<div class="alert alert-'.$error['tipo'].'">'
+                        . '<strong>'.$error['tipo'].' </strong><br/> ';
+                        if (is_array($error['mensaje'])){
+                            echo '<pre>';
+                            print_r($error['mensaje']);
+                            echo '</pre>';
+                        } else {
+                            echo $error['mensaje'];
+                        }
+                        echo '</div>';
                     }
-                    echo '</div>';
                 }
-            }
 				?>
 			
 			<h1 class="text-center"> Proveedor: <?php echo $titulo;?></h1>
 			<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
-            <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $idProveedor ;?>);">Añadir Incidencia </a>
+            <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
 			<input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
 			<div class="col-md-12">
 				
@@ -141,12 +125,12 @@
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
-							<input type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ProveedorUnico['razonsocial'];?>"   required>
+							<input type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ProveedorUnico['razonsocial'];?>">
 							
 						</div>
 						<div class="col-md-6 form-group">
 							<label>NIF:</label>
-							<input type="text"	id="nif" name="nif" value="<?php echo $ProveedorUnico['nif'];?>" required>
+							<input type="text"	id="nif" name="nif" value="<?php echo $ProveedorUnico['nif'];?>">
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Direccion:</label>
@@ -170,7 +154,7 @@
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Fecha alta:</label>
-							<input type="text" id="fechaalta" name="fechaalta" value="<?php echo $ProveedorUnico['fecha_creado'];?>" readonly >
+							<input type="text" id="fechaalta" name="fecha_creado" value="<?php echo $ProveedorUnico['fecha_creado'];?>" readonly >
 						</div>
 						
 						<div class="col-md-6 form-group">

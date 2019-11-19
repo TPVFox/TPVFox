@@ -105,7 +105,7 @@ class ClaseCliente extends TFModelo{
 		//Cargar todas las facturas de un cliente detrerminado en orden descendente
 		//@Parametros:
 		//id -> id del cliente
-		$sql='SELECT Numfaccli as num, Fecha as fecha, total, id , idCliente , estado FROM facclit WHERE idCliente='.$id.' order by id desc';
+		$sql='SELECT Numfaccli as num, Fecha as fecha, total, id , idCliente , estado FROM facclit WHERE idCliente='.$id.' order by Numfaccli desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function getAlbaranes($id){
@@ -113,7 +113,7 @@ class ClaseCliente extends TFModelo{
 		//Cargar todos los albaranes de clientes de un cliente determinado en ordes descendente
 		//@Parametros:
 		//id->id del cliente
-		$sql='SELECT Numalbcli as  num, Fecha as fecha, total, id , idCliente, estado FROM albclit WHERE idCliente='.$id.' order by id desc';
+		$sql='SELECT Numalbcli as  num, Fecha as fecha, total, id , idCliente, estado FROM albclit WHERE idCliente='.$id.' order by Numalbcli desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function getPedidos($id){
@@ -121,7 +121,7 @@ class ClaseCliente extends TFModelo{
 		//Cargar todos los pedidos de clientes de un cliente determinado en orden descendente
 		//@Parametros:
 		//id-> id del cliente
-		$sql='SELECT Numpedcli as num, FechaPedido as fecha, total, id , idCliente , estado FROM pedclit WHERE idCliente='.$id.' order by id desc';
+		$sql='SELECT Numpedcli as num, FechaPedido as fecha, total, id , idCliente , estado FROM pedclit WHERE idCliente='.$id.' order by Numpedcli desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function adjuntosCliente($id){
@@ -130,7 +130,7 @@ class ClaseCliente extends TFModelo{
 		//@Parametros:
 		//id-> id del cliente
 
-        // Obtenemos los adjuntos, si hay error devuelve array[error] ,si tene datos arrya['datos']
+        // Obtenemos los adjuntos, si hay error devuelve array[error] ,si tene datos array['datos']
 
 		$adjuntos=array( 'tickets'  => $this->getTicket($id),
                          'facturas' => $this->getFacturas($id),
@@ -151,16 +151,6 @@ class ClaseCliente extends TFModelo{
 		return $adjuntos;
 	}
 
-    public function montarAdvertencia($tipo,$mensaje){
-        // @ Objetivo:
-        // Montar array para error
-        $advertencia = array ( 'tipo'    =>$tipo,
-                          'mensaje' => $mensaje
-                        );
-        return $advertencia;
-
-
-    }
 	public function modificarDatosCliente($datos, $id){
 		//@Objetivo:
 		//Modificar los datos de un cliente determinado
@@ -205,40 +195,7 @@ class ClaseCliente extends TFModelo{
         return $respuesta;
 	}
         
-	public function comprobarExistenDatos($datos){
-		//@ Objetivo:
-		//Comprobar cuando guardamos que le nif del cliente no es el mismo que otro cliente
-		//@ Parametros:
-		//Los datos del cliente
-        //@ Devuelve:
-        // Siempre devuelve array con datos o sin datos.
-        // Indicando tipo error.
-		$respuesta=array();
 
-        if (isset($datos['nif']) & $datos['nif']<>''){
-            // Solo hacemos la comprobación si trae datos nif
-            $sql='select nif , idClientes  FROM clientes where nif="'.$datos['nif'].'"';
-            $consulta=$this->consulta($sql);
-            if(isset($consulta['error'])){
-                $comprobacion = array(  'tipo'=>"danger",
-                                        'mensaje'=>$consulta['error']
-                                    );
-            } else {
-                if (isset($consulta['datos'])){  
-                    if($consulta['datos']>0){
-                        if($consulta['datos'][0]['idClientes'] != $datos['idClientes']){
-                            $comprobacion = array(  'tipo'=>"warning",
-                                                    'mensaje'=>$consulta
-                                                );
-                            $respuesta[]= $comprobacion;
-                        }   
-                    }
-                }
-            }
-        }
-        return $respuesta;
-
-	}
 	public function ticketClienteFechas($idCliente, $fechaIni, $fechaFin){
 		//@Objetivo:
 		//MOstrar los datos para el resumen tanto si tienen fechas como si selecciona todos
@@ -375,6 +332,58 @@ class ClaseCliente extends TFModelo{
 
         return $respuesta;
     }
+
+    // ------------------- METODOS COMUNES ----------------------  //
+    // -  Al final de cada clase suelo poner aquellos metodos   -  //
+    // - que considero que puede ser añadimos algun controlador -  //
+    // - comun del core, ya que pienso son necesarios para mas  -  //
+    // - modulos.                                                  //
+    // ----------------------------------------------------------  //
+    
+     public function montarAdvertencia($tipo,$mensaje){
+        // @ Objetivo:
+        // Montar array para error
+        $advertencia = array ( 'tipo'    =>$tipo,
+                          'mensaje' => $mensaje
+                        );
+        return $advertencia;
+
+
+    }
+    public function comprobarExistenDatos($datos){
+		//@ Objetivo:
+		//Comprobar cuando guardamos que le nif del cliente no es el mismo que otro cliente
+		//@ Parametros:
+		//Los datos del cliente
+        //@ Devuelve:
+        // Siempre devuelve array con datos o sin datos.
+        // Indicando tipo error.
+		$respuesta=array();
+
+        if (isset($datos['nif']) & $datos['nif']<>''){
+            // Solo hacemos la comprobación si trae datos nif
+            $sql='select nif , idClientes  FROM clientes where nif="'.$datos['nif'].'"';
+            $consulta=$this->consulta($sql);
+            if(isset($consulta['error'])){
+                $comprobacion = array(  'tipo'=>"danger",
+                                        'mensaje'=>$consulta['error']
+                                    );
+            } else {
+                if (isset($consulta['datos'])){  
+                    if($consulta['datos']>0){
+                        if($consulta['datos'][0]['idClientes'] != $datos['idClientes']){
+                            $comprobacion = array(  'tipo'=>"warning",
+                                                    'mensaje'=>$consulta
+                                                );
+                            $respuesta[]= $comprobacion;
+                        }   
+                    }
+                }
+            }
+        }
+        return $respuesta;
+
+	}
   
 }
 

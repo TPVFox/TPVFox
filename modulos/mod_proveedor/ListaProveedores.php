@@ -114,8 +114,8 @@
 				foreach ($proveedores as $proveedor){ 
 					$checkUser = $checkUser + 1; 
 					// Para evitar notice
-					if (!isset($proveedor['fechaalta'])){
-						$proveedor['fechaalta'] = "";
+					if (!isset($proveedor['fecha_creado'])){
+						$proveedor['fecha_creado'] = "";
 					}
 				?>
 
@@ -148,7 +148,7 @@
 					<td><?php echo $proveedor['nif']; ?></td>
 					<td><?php echo $proveedor['telefono']; ?></td>
 					<td><?php echo $proveedor['email']; ?></td>
-					<td><?php echo $proveedor['fechaalta']; ?></td>
+					<td><?php echo $proveedor['fecha_creado']; ?></td>
 					<td><?php echo $proveedor['estado']; ?></td>
 					
 				</tr>
