@@ -23,10 +23,6 @@
 		if (isset($_GET['id'])) {
 			$id=$_GET['id']; // Obtenemos id para modificar.
         }
-        $titulo= "Crear";
-        if ($id> 0){
-            $titulo= "Modificar";
-        }
 		$ProveedorUnico=$CProveedor->getProveedorCompleto($id);
         foreach($ProveedorUnico['adjuntos'] as $key =>$adjunto){
             if (isset($adjunto['error'])){
@@ -58,6 +54,14 @@
                     $errores[] = $CProveedor->montarAdvertencia('danger',$guardar['error']);
                 }
             }
+        }
+        // Montamos titulo y campos que no se cubren cuando es nuevo.
+        if ($id> 0){
+            $titulo= "Modificar";
+        } else {
+            $titulo= "Crear";
+            $ProveedorUnico['idProveedor']  ='';
+            $ProveedorUnico['fecha_creado'] ='';
         }
 		?>
 		
@@ -99,7 +103,7 @@
 			<input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
 			<div class="col-md-12">
 				
-				<h4>Datos del proveedor con ID:<input size="5" type="text" id="idProveedor" name="idProveedor" value="<?php echo $ProveedorUnico['idProveedor'];?>"   readonly></h4>
+				<h4>Datos del proveedor con ID:<input size="5" type="text" id="idProveedor" name="idProveedor" value="<?php echo $$ProveedorUnico['idProveedor'];?>"   readonly></h4>
 
 				<div class="col-md-1">
 					<?php 

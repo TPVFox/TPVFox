@@ -302,12 +302,12 @@ class ClaseCliente extends TFModelo{
         // Creamos array con todos los datos, ya que puede que no vengan todos.
         $datosNuevos = $this->arrayCliente;
         
-        $datosForma=json_encode($datosForma);
-        // Añadimos ahora la forma pago y vencimiento, no lo mande a validar.
+        // Añadimos ahora obtenemos los datos forma pago y vencimiento y convertimos json.
         $datosForma=array(
                         'formapago'     =>$datosPost['formapago'],
                         'vencimiento'   =>$datosPost['vencimiento']
                         );
+        $datosForma=json_encode($datosForma);
         $datosNuevos['formasVenci']= $datosForma;
 
         
@@ -368,11 +368,18 @@ class ClaseCliente extends TFModelo{
         //    ['comprobaciones']-> Siempre lo devolvemos , aunque se vacio, montamos warning
         $respuesta=array();
         $comprobaciones = array();
-        $generales = array('tabla' => 'clientes','campo_obtener' => 'idClientes','limite' => 15);
-        $descarte = array ('idClientes' =>$datos['idClientes']);
-        // Elimino campos formpago vencimiento ya que no quiero validarlos de momento.
+        // Elimino los campos que de momento no voy a validar
+        //   campo formarVenci que es generado al cargar arrayCliente.
+        //   campo formapago que trae el POST
+        //   campo vencimiento que trae el POST
+        unset($datos['formasVenci']);
         unset($datos['formapago']);
         unset($datos['vencimiento']);
+
+        // Enviamos campos para comprobar si existe el mismo valor en otro registo.
+        $generales = array('tabla' => 'clientes','campo_obtener' => 'idClientes','limite' => 15);
+        $descarte = array ('idClientes' =>$datos['idClientes']);
+        
         $comprobar = $this->comprobarExisteValorCampo($generales,$datos,$descarte);
         foreach ($comprobar as $campo =>$c){
             if (isset($c['error'])){
