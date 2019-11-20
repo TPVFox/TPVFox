@@ -20,16 +20,13 @@
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
 		$configuracion=$configuracion['incidencias']; 
 		$estados = array ('Activo','inactivo');
-        // Inicializamos variables como si fueramos crear ficha Usuario nuevo
-        $titulo = "Crear";       
-		// Obtenemos id
 		if (isset($_GET['id'])) {
 			$id=$_GET['id']; // Obtenemos id para modificar.
-            if ($id> 0){
-                $titulo= "Modificar";
-            }
         }
-        
+        $titulo= "Crear";
+        if ($id> 0){
+            $titulo= "Modificar";
+        }
         $ClienteUnico=$Cliente->getClienteCompleto($id);        
         foreach($ClienteUnico['adjuntos'] as $key =>$adjunto){
             if (isset($adjunto['error'])){
@@ -44,29 +41,25 @@
         // Solo permitimos guarfar si realmente no hay errores.
         // ya que consideramos que son grabes y no podermo continuar. ( bueno a lo mejor.. :-)
         if (count($errores) === 0){
-            // Solo guardamos si no hay errores.
             if(isset($_POST['Guardar'])){
                 $guardar=$Cliente->guardarCliente($_POST);
-                
-                if(isset ($guardar['comprobaciones']) && count($guardar['comprobaciones'])>0){
-                    $errores= $guardar['comprobaciones'];
-                    // Fallo debo meter los datos del POST para que no tenga que volver a meterlos.
-                    $ClienteUnico = $_POST;
-                    $id= $ClienteUnico['idClientes'];// El $id lo utiliamos para marcar que usuario estamos.
-                    //Eliminadmo el $ClienteUnico['guardar'] que se creo, ya que no debemos tenerlo.
-                    unset($ClienteUnico['guardar']);
-                } else{
-                    // Todo fue bien , volvemos a listado.
-                    // Dos posibles opciones deberíamos tener un parametro configuracion.
-                    // 1.- Redirecionar
-                    //~ header('Location: ListaClientes.php');
-                    // 2.- Recargar datos modificados.
-                    $ClienteUnico=$Cliente->getClienteCompleto($guardar['id']);
-                    $mensaje = 'Fue guardo correctamente';
-                    $errores[]=$Cliente->montarAdvertencia('info',$mensaje);
-                }  
+                $ClienteUnico = $guardar['datos'];
+                if($guardar['estado'] === 'OK'){
+                        // Todo fue bien , volvemos a listado.
+                        // Dos posibles opciones deberíamos tener un parametro configuracion.
+                        // 1.- Redirecionar
+                        // header('Location: ListaProveedores.php');
+                        // 2.- Recargar datos modificados.
+                        $mensaje = 'Fue guardo correctamente';
+                        $errores[]=$Cliente->montarAdvertencia('info',$mensaje);
+                } else {
+                    // Hubo error grave, estado = KO
+                    $errores[] = $Cliente->montarAdvertencia('danger','No se grabo por un error grave');
+                    $errores[] = $Cliente->montarAdvertencia('danger',$guardar['error']);
+                }
             }
         }
+
         // Montamos html Option de forma de pago,vencimiento y estado con el valor por default
                     
             if (!isset($Defaultvenci)){ 

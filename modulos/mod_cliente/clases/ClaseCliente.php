@@ -6,10 +6,10 @@ include_once $URLCom.'/clases/ClaseTFModelo.php';
 
 class ClaseCliente extends TFModelo{
     protected $tabla = 'clientes';
-    public $adjuntos = array('tickets'  => array(),
-                             'facturas' => array(),
-                             'albaranes'=> array(),
-                             'pedidos'  => array()
+    public $adjuntos = array('tickets'  => array('datos' =>array()),
+                             'facturas' => array('datos' =>array()),
+                             'albaranes'=> array('datos' =>array()),
+                             'pedidos'  => array('datos' =>array())
                              );  // Los ultimos 15 movimientos de ese cliente.
     public $arrayCliente = array (
                             'idClientes'    => '',
@@ -24,7 +24,31 @@ class ClaseCliente extends TFModelo{
                             'email'         => '',
                             'formasVenci'   => '{"vencimiento":"0","formapago":"0"}'
                         );
-                        
+    public function obtenerClientes($filtro='') {
+        // Function para obtener clientes y listarlos
+
+        $clientes = array();
+        $sql = "Select * from clientes ".$filtro; //.$filtroFinal.$rango; 
+        $clientes = $this->consulta($sql);
+
+        //$clientes ['consulta'] = $consulta;
+        return $clientes['datos'];
+    }
+
+    public function contarRegistros($filtro='') {
+        $clientes = $this->obtenerClientes ($filtro);
+        return count($clientes);
+    }                    
+
+    public function getCliente($id){
+		//@Objetivo:
+		//Obtener los datos de un cliente de la tabla clientes.
+		//@Parametros: 
+		//id => recibe el id del cliente que queremos buscar
+		$sql= 'SELECT * FROM clientes WHERE idClientes='.$id;
+		
+		return $this->consulta($sql);
+	}
 
     public function getClienteCompleto($id){
         // @ Objetivo:
@@ -60,39 +84,15 @@ class ClaseCliente extends TFModelo{
             // Debe ser nuevo porque id es 0
             $ClienteUnico = $this->arrayCliente;
             // Tambien devolvemos los vacios de los adjuntos.
-            foreach ($this->adjuntos as $key=>$adjunto){
-                $ClienteUnico['adjuntos'][$key]['datos'] = array();
-            }
+            $ClienteUnico['adjuntos']=$this->adjuntos;
         }
         return $ClienteUnico;
 
     }
 
-    public function obtenerClientes($filtro='') {
-	// Function para obtener clientes y listarlos
+    
 
-	$clientes = array();
-	$sql = "Select * from clientes ".$filtro; //.$filtroFinal.$rango; 
-	$clientes = $this->consulta($sql);
-
-	//$clientes ['consulta'] = $consulta;
-	return $clientes['datos'];
-    }
-
-    public function contarRegistros($filtro='') {
-        $clientes = $this->obtenerClientes ($filtro);
-        return count($clientes);
-    }
-
-    public function getCliente($id){
-		//@Objetivo:
-		//Obtener los datos de un cliente de la tabla clientes.
-		//@Parametros: 
-		//id => recibe el id del cliente que queremos buscar
-		$sql= 'SELECT * FROM clientes WHERE idClientes='.$id;
-		
-		return $this->consulta($sql);
-	}
+   
 	public function getTicket($id){
 		//@Objetivo: Cargar los ultimos 15 tickets de un cliente en orden descendente
 		//@Parametros:
@@ -151,7 +151,7 @@ class ClaseCliente extends TFModelo{
 		return $adjuntos;
 	}
 
-	public function modificarDatosCliente($datos, $id){
+	public function modificarDatosCliente($datos){
 		//@Objetivo:
 		//Modificar los datos de un cliente determinado
 		//@Parametros:
@@ -161,7 +161,7 @@ class ClaseCliente extends TFModelo{
         $sql='UPDATE `clientes` SET Nombre="'.$datos['Nombre'].'" , razonsocial="'.$datos['razonsocial'].'" , 
 		nif="'.$datos['nif'].'" , direccion="'.$datos['direccion'].'" , codpostal="'.$datos['codpostal'].'" , telefono="'.$datos['telefono']
 		.'" , movil="'.$datos['movil'].'" , fax="'.$datos['fax'].'" , email="'.$datos['email'].'" , estado="'.$datos['estado'].'" ,
-		formasVenci='."'".$datos['formasVenci']."'".' WHERE idClientes='.$id;
+		formasVenci='."'".$datos['formasVenci']."'".' WHERE idClientes='.$datos['idClientes'];
         $consulta=$this->consultaDML($sql);
 		if(isset($consulta['error'])){
 			$respuesta['error']= $consulta;
@@ -282,55 +282,140 @@ class ClaseCliente extends TFModelo{
     }
 
  public function guardarCliente($datosPost){
-        //@ Objetivo:
-        //Guardar los datos de un cliente
-        //Primero realiza comprobaciones de todos los campos y dependiendo si tiene id de cliente o no
-        //modifica o crear un nuevo cliente
-        //@ Parametros:
-        //datosPost: datos que recibimos del formulario
-        //@ Devolvemos respuesta (array):
-        //  ['id'] => (int) id del cliente añadido o modificado. ( Si hay error puede que no lo devuelva.
-        //  ['comprobaciones'] = (Array) con errores , tanto graves como no.
-        $respuesta=array();
+        // @ Objetivo:
+        // Añadir un cliente o modificar los datos.
+        // Devolver las comprobaciones ( advertencias de la comprobaciones).
+        // Devolver datos nuevos o antiguos si no fue modificado.
+        // estado OK o KO si fue creado o modificado (grabado).
+        // @ Parametros:
+        //  Array post con los datos para añadir o modificar.
+        // @ Devuelve:
+        // Array con :
+        //     ['datos']            ->Se devuelve datos modificados o grabados en caso OK, KO se devuelve los mismos que nos mando.
+        //     ['comprobaciones']   -> Advertencias de la comprobaciones.
+        //     ['estado']           -> KO o OK , si fue creado o modificado.
+        //     ['errores']          -> Solo se devuelve en caso KO, y se devuelve array no string.
+        $respuesta = array();
+        $errores   = array();
+        // Eliminamos el campos de btn de ficha.
+        $datosPost = $this->eliminarBtnFichaPost($datosPost);
+        // Creamos array con todos los datos, ya que puede que no vengan todos.
         $datosNuevos = $this->arrayCliente;
+        
+        $datosForma=json_encode($datosForma);
+        // Añadimos ahora la forma pago y vencimiento, no lo mande a validar.
         $datosForma=array(
                         'formapago'     =>$datosPost['formapago'],
                         'vencimiento'   =>$datosPost['vencimiento']
                         );
-        $datosForma=json_encode($datosForma);
+        $datosNuevos['formasVenci']= $datosForma;
+
         
         foreach ($datosPost as $key=>$datos){
+            // Se hace por si No vienen todos para montar array completo.
+            // ya que es necesario validar todos los campos.
             $datosNuevos[$key]=$datos;
         }
-        $datosNuevos['formasVenci']= $datosForma;
-        
-        $comprobar=$this->comprobarExistenDatos($datosNuevos);
-            
-        if($datosPost['idClientes']>0){
-            // Cuando ya existe de modifica
-            $modificar =$this->modificarDatosCliente($datosNuevos, $datosPost['idClientes']);
-            // Devolvemos el id que devolvimos.
-            $respuesta['id'] =  $datosPost['idClientes'];
-            if ($modificar <> 1){
-              // hubo un error , por lo que lo enviamos 
-            $respuesta['error'] = 'Se modifico '.$modificar. ' clientes.';
+        // Ahora se debería validar los datos.
+        $comprobar=$this->validarDatos($datosNuevos);
+        $respuesta['datos'] = $datosPost; // Por si no guarda devolvemos los mismos datos que envio.
+        $respuesta['estado'] = 'KO';
+        if (!isset($comprobar['errores'])){    
+             if($datosPost['idClientes']>0){
+                // Cuando ya existe de modifica
+                $modificar =$this->modificarDatosCliente($datosNuevos);
+                if (isset($modificar['error'])){
+                    // Hubo error grave.
+                    $respuesta['error'] = $modificar['error'];
+                } else {
+                    if ($modificar <> 1){
+                        // Si se modifico mas uno o 0 es un error grave. 
+                        $respuesta['error'] = 'Se ha modificado los datos de '.$modificar.' clientes.[ERROR:clientes 1]';
+                    } else {
+                        $respuesta['datos'] = $this->getClienteCompleto( $datosPost['idClientes']);
+                        $respuesta['estado'] = 'OK';
+                    }
+                }
+            }else{
+                $guardar= $this->addcliente($datosNuevos);
+                if (isset($modificar['error'])){
+                    // Hubo error grave.
+                    $respuesta['error'] = $modificar['error'];
+                } else {
+                    $respuesta['datos'] = $this->getClienteCompleto($guardar);
+                    $respuesta['estado'] = 'OK';
+
+                }
+
             }
-        }else{
-            // Cuando no existe de añade.
-            $respuesta['id']=$this->addcliente($datosNuevos);
+        } else {
+            $respuesta['error'] = $comprobar['errores'];
         }
-        // Si hubo error en la consulta 
-        if (isset($respuesta['error'])){
-            // Comprobar siempre debería devuelver array ..
-             $comprobar[] = array(  'tipo'=>"danger",
-                                    'mensaje'=>$respuesta['error']
-                                );
-        }
-        // Se devuelve siempre comprobaciones, ya que alguna puede ser necesaria con OK
-        // Si no hay nada , ya se manda un array vacio.
-        $respuesta['comprobaciones']=$comprobar;
+        $respuesta['comprobaciones']=$comprobar['comprobaciones'];
+
 
         return $respuesta;
+    }
+    public function validarDatos($datos){
+        // @ Objetivo:
+        // Hacer las validaciones de los campos correpondientes antes de guardar o modificar.
+        // @ Parametros:
+        //  $datos -> Array de campos a validar.
+        // @ Devuelve:
+        // Un array con:
+        //    ['datos']         -> Siempre devuelve array con datos o vacio.
+        //    ['errores']       -> No siempre lo tiene que devolver, solo si queremos indicar errores graves.
+        //    ['comprobaciones']-> Siempre lo devolvemos , aunque se vacio, montamos warning
+        $respuesta=array();
+        $comprobaciones = array();
+        $generales = array('tabla' => 'clientes','campo_obtener' => 'idClientes','limite' => 15);
+        $descarte = array ('idClientes' =>$datos['idClientes']);
+        // Elimino campos formpago vencimiento ya que no quiero validarlos de momento.
+        unset($datos['formapago']);
+        unset($datos['vencimiento']);
+        $comprobar = $this->comprobarExisteValorCampo($generales,$datos,$descarte);
+        foreach ($comprobar as $campo =>$c){
+            if (isset($c['error'])){
+                // Hubo uno o varios errores en la consulta, es un error grave.
+                $respuesta['errores'][] =$c['error'];
+            } else{
+                // Validamos aquí los campos que tienen valor y encontro registros iguales.
+                if ($datos[$campo]<>'' && count($c['datos'])>0){
+                    // Validamos campos que no estan vacios y tiene datos.
+                    if ($campo === 'nif'){
+                        // Si existe nif otro no permito continuar grabando/modificarlo, se manda error.
+                        $respuesta['errores'][] = $this-> montarAdvertencia('danger',$c['datos']);
+                    }
+                    if ($campo === 'telefono'){
+                        // Si existe telefono envio un warning
+                        $comprobaciones[] = $this-> montarAdvertencia('warning',$c['datos']);   
+                    }
+
+                }
+                
+            }
+
+        }
+        // Otras validaciones:
+        if ($datos['Nombre']==='' && $datos['razonsocial']===''){
+            // Damos error ya que no tiene sentido no cubrir cualquiera de estos campos.
+            $respuesta['errores'][] = $this-> montarAdvertencia('danger','Debe poner Nombre o razon social');
+
+        }
+        $respuesta['comprobaciones'] = $comprobaciones;
+        return $respuesta;
+        
+	}
+    public function eliminarBtnFichaPost($datos){
+        // Eliminamos el campos de btn de ficha.
+        if (isset($datos['Guardar'])){
+            unset($datos['Guardar']);
+        }
+        // Si existe tb eliminamos el campo Resumen que envia el post.
+        if (isset($datos['Resumen'])){
+            unset($datos['Resumen']);
+        }
+        return $datos;
     }
 
     // ------------------- METODOS COMUNES ----------------------  //
@@ -350,41 +435,53 @@ class ClaseCliente extends TFModelo{
 
 
     }
-    public function comprobarExistenDatos($datos){
-		//@ Objetivo:
-		//Comprobar cuando guardamos que le nif del cliente no es el mismo que otro cliente
-		//@ Parametros:
-		//Los datos del cliente
-        //@ Devuelve:
-        // Siempre devuelve array con datos o sin datos.
-        // Indicando tipo error.
-		$respuesta=array();
 
-        if (isset($datos['nif']) & $datos['nif']<>''){
-            // Solo hacemos la comprobación si trae datos nif
-            $sql='select nif , idClientes  FROM clientes where nif="'.$datos['nif'].'"';
+
+    public function comprobarExisteValorCampo($generales,$campos,$descarte=array()){
+        // @Objetivo
+        // Comprobar varios campos si existen con el mismo valor en algun registros de la tabla indicada.
+        // Puede ser necesario que enviemos un campo con un valor para descartar, por ejemplo al modificar
+        // un registro queremos descartar el propio registro.
+        //
+        // @Parametros
+        //   $generales -> Array ( tabla         => (string) Nombre de tabla que donde buscamos,
+        //                         campo_obtener => (string) nombre campo obtener,
+        //                         limite        => (int) 0 ->todos, n -> trae cantidad registros
+        //   $campos    -> Array de arrays [0]{ "nombre_campo' => 'valor_campo'}
+        //                             ...               
+        //   $descarte  -> Array ( nombre_campo_descartar => Valor que vamos descartar)
+        //                       
+        //
+        // @Devolvemos
+        // Array => NombreCampo => Array ( 'datos'=>  Siempre se devuelve aunque sea  vacio,
+        //                                 'error'=> En caso de que la consulta de un error.
+        $respuesta = array();
+        $descarte_limite = '';
+        if ($generales['limite'] >0){
+            $descarte_limite = ' limit 0,'.$generales['limite'];
+        }
+        if (count($descarte)>0){
+            $campo_descarte = key($descarte);
+            $valor_descarte = $descarte[$campo_descarte];
+            $descarte_limite = ' AND '.$campo_descarte.'<>"'.$valor_descarte.'"'.$descarte_limite;
+        }
+        foreach ($campos as $nombre_campo=>$valor_campo){
+            $sql='SELECT '.$generales['campo_obtener'].' FROM '.$generales['tabla'].' where '.$nombre_campo.'="'.$valor_campo.'"'.$descarte_limite;
             $consulta=$this->consulta($sql);
+
             if(isset($consulta['error'])){
-                $comprobacion = array(  'tipo'=>"danger",
-                                        'mensaje'=>$consulta['error']
-                                    );
-            } else {
-                if (isset($consulta['datos'])){  
-                    if($consulta['datos']>0){
-                        if($consulta['datos'][0]['idClientes'] != $datos['idClientes']){
-                            $comprobacion = array(  'tipo'=>"warning",
-                                                    'mensaje'=>$consulta
-                                                );
-                            $respuesta[]= $comprobacion;
-                        }   
-                    }
-                }
+                $respuesta[$nombre_campo]['error'] = $consulta['error'];
+            } 
+            if (!isset($consulta['datos'])) {
+                // No se relamente es necesario, ya que si la consulta es correcta devuelve algo?
+                $consulta['datos']= array();
             }
+            $respuesta[$nombre_campo]['datos']= $consulta['datos'];
+
         }
         return $respuesta;
-
-	}
-  
+    }
+    
 }
 
 

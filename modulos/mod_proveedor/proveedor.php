@@ -2,7 +2,6 @@
 <html>
     <head>
         <?php
-		
         include_once './../../inicial.php';
         include_once $URLCom.'/head.php';
         include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
@@ -22,13 +21,11 @@
 		$configuracion=$configuracion['incidencias'];
         $estados = array('Activo','inactivo');
 		if (isset($_GET['id'])) {
-			// Modificar Ficha fichero
 			$id=$_GET['id']; // Obtenemos id para modificar.
-            if ($id> 0){
-                $titulo= "Modificar";
-            } else {
-                $titulo= "Crear";
-            }
+        }
+        $titulo= "Crear";
+        if ($id> 0){
+            $titulo= "Modificar";
         }
 		$ProveedorUnico=$CProveedor->getProveedorCompleto($id);
         foreach($ProveedorUnico['adjuntos'] as $key =>$adjunto){

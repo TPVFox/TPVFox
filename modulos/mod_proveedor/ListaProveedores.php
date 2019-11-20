@@ -36,7 +36,6 @@
 
 <body>
         <?php
-        //~ include_once $URLCom.'/header.php';
          include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
        
@@ -45,10 +44,6 @@
 			<div class="col-md-12 text-center">
 					<h2> Proveedores: Editar y Añadir Proveedor </h2>
 			</div>
-	        <!--=================  Sidebar -- Menu y filtro =============== 
-				Efecto de que permanezca fixo con Scroll , el problema es en
-				movil
-	        -->
 	       
 			<nav class="col-sm-2" id="myScrollspy">
 				<div data-offset-top="505">

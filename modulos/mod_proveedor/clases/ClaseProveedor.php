@@ -3,7 +3,10 @@
 include_once $URLCom.'/clases/ClaseTFModelo.php';
 
 class ClaseProveedor extends TFModelo{
-
+    public $adjuntos = array('facturas' => array('datos' =>array()),
+                             'albaranes'=> array('datos' =>array()),
+                             'pedidos'  => array('datos' =>array())
+                             );  // Los ultimos 15 movimientos de ese proveedor.
     public $arrayProveedor = array( 'nombrecomercial'   =>'',
                                     'razonsocial'       =>'',
                                     'nif'               =>'',
@@ -72,9 +75,8 @@ class ClaseProveedor extends TFModelo{
             // Debe ser nuevo porque id es 0
             $ProveedorUnico = $this->arrayProveedor;
             // Tambien devolvemos los vacios de los adjuntos.
-            foreach ($this->adjuntos as $key=>$adjunto){
-                $ProveedorUnico['adjuntos'][$key]['datos'] = array();
-            }
+            $ProveedorUnico['adjuntos']=$this->adjuntos;
+            
         }
         return $ProveedorUnico;
 
@@ -143,6 +145,8 @@ class ClaseProveedor extends TFModelo{
 		} else {
              // Fue bien , devolvemos la cantidad de filas modificadas.
              $respuesta = ModeloP::$db->affected_rows;
+             // OJ0:
+             // Aunque no de error, si hacer un update y tiene lo mismos datos que tenía, la respuesta es 0
         }
         return $respuesta;
 	}
@@ -239,8 +243,8 @@ class ClaseProveedor extends TFModelo{
         // Creamos array con todos los datos, ya que puede que no vengan todos.
         $datosNuevos = $this->arrayProveedor;
         foreach ($datosPost as $key=>$datos){
-            // Se hace por si no vienen todos para montar array completo.
-            // ya es necesario validar todos los campos.
+            // Se hace por si No vienen todos para montar array completo.
+            // ya que es necesario validar todos los campos.
             $datosNuevos[$key]=$datos;
         }
         // Ahora se debería validar los datos.
@@ -323,7 +327,7 @@ class ClaseProveedor extends TFModelo{
 
         }
         // Otras validaciones:
-        if ($datos['nombrecomercial']==='' && $datos['nombrecomercial']===''){
+        if ($datos['nombrecomercial']==='' && $datos['razonsocial']===''){
             // Damos error ya que no tiene sentido no cubrir cualquiera de estos campos.
             $respuesta['errores'][] = $this-> montarAdvertencia('danger','Debe poner nombre comercial o razon social');
 

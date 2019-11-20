@@ -9,17 +9,7 @@ $Cliente= new ClaseCliente($BDTpv);
 $idCliente=$_POST['idCliente'];
 $Tienda = $_SESSION['tiendaTpv'];
 $resultado['tienda']=$Tienda;
-error_log(json_encode($resultado));
-$datos = array(
-                'Nombre'        =>"",
-                'razonsocial'   =>"",
-                'nif'           =>"",
-                'direccion'     =>"",
-                'telefono'      =>"",
-                'movil'         =>"",
-                'fax'           =>"",
-                'email'         =>""
-            );
+$datos = $Cliente->arrayCliente;
 if($idCliente>0){
     $datosCliente=$Cliente->getCliente($idCliente);
     $datos = $datosCliente['datos'][0];        
