@@ -82,11 +82,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."ON p.`idArticulo` = a.`idArticulo` AND "
                 ."(p.idTienda =".$this->idTienda.") "
 				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
-				.$filtro;
+				.$filtro.  ' GROUP BY a.idArticulo';
                 break;
 
             case 'a.idArticulo':
-				// Buscamos por Codbarras.
+				// Buscamos idArticulo.
 				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
 				." ,aCodBarras.codBarras as codBarras,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
 				." FROM `articulos` AS a "
@@ -94,7 +94,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."ON p.`idArticulo` = a.`idArticulo` AND "
                 ."(p.idTienda =".$this->idTienda.") "
 				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
-				.$filtro;
+				.$filtro. ' GROUP BY a.idArticulo';
                 break;
                 
             case 't.idVirtuemart':

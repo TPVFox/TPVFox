@@ -239,36 +239,29 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <ul class=""> 
                             
                             <?php 
-                             //~ if($ClasePermisos->getAccion("filtrarSeleccion")==1){
-                            ?>
-<!--
-                            <li><a onclick="filtrarSeleccionProductos();">Filtrar Seleccion</a></li>
--->
-                            <?php 
-                            //~ }
                              if($ClasePermisos->getAccion("eliminarSeleccion")==1){
                             ?>
-                            <li><a onclick="eliminarSeleccionProductos();">Eliminar Selección</a></li>
+                                <li><a onclick="eliminarSeleccionProductos();">Eliminar Selección</a></li>
                             <?php
                             }
                             if($ClasePermisos->getAccion("imprimirEtiquetas")==1){
                              ?>
-                            <li><a href='ListaEtiquetas.php' onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');">Imprimir Etiquetas</a></li>
+                                <li><a href='ListaEtiquetas.php' onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');">Imprimir Etiquetas</a></li>
                            <?php 
                             }
                             if($ClasePermisos->getAccion("imprimirMayor")==1){
                            ?>
-                            <li><a href='ListaMayor.php'>Imprimir Mayor</a></li>  
+                                <li><a href='ListaMayor.php'>Imprimir Mayor</a></li>  
                             <?php 
                             }
                             if($ClasePermisos->getAccion("subirProductosWeb")==1){
                             ?>      
-                            <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>                                   
+                                <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>                                   
                             <?php 
                             }
                             if($ClasePermisos->getAccion("agregarProductosFamilia")==1){
                             ?>
-                             <li><a onclick="modalFamiliaProducto();">Guardar por familia</a></li>   
+                                <li><a onclick="modalFamiliaProducto();">Guardar por familia</a></li>   
                             <?php 
                             }
                              if($ClasePermisos->getAccion("eliminarProductos")==1){
