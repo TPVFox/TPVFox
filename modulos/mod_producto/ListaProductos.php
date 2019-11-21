@@ -98,12 +98,12 @@
             if ($filtro_estado !== ''){
                 $filtro = $filtro.' AND '.$filtro_estado;
             }
-            $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro));
+            $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],compact("filtro")));
         } else {
             if ($filtro_estado !== ''){
                 // Si filtramos por estado.
                 $filtro = 'WHERE '.$filtro_estado;
-                $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro));
+                $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro")));
             } else {
                 $CantidadRegistros = $CTArticulos->GetNumRows();
             }
@@ -130,7 +130,8 @@
                     }
                 }
             }
-            $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], $filtro . $NPaginado->GetLimitConsulta());
+            $limite = $NPaginado->GetLimitConsulta();
+            $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro","limite"));
         }
         if (isset($productos['error'])){
             //Hubo un error a la ahora obtener los datos de los productos.

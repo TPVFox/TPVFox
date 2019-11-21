@@ -47,10 +47,18 @@ class ClaseProductos extends ClaseTablaArticulos{
 		$this->plugins = $plugins->GetParametrosPlugins();
 	}
 	
-	public function obtenerProductos($campo,$filtro=''){
+	public function obtenerProductos($campo,$filtro_limite=array()){
 		// @ Objetivo 
 		// Obtener los campos idArticulo,articulo_name,ultimoCoste,beneficio,iva,pvpCiva,estado productos según con el filtro indicado.
         $respuesta = array();
+        $filtro ='';
+        $limite ='';
+        if (isset($filtro_limite['filtro'])){
+            $filtro = $filtro_limite['filtro'];
+        }
+        if (isset($filtro_limite['limite'])){
+            $limite = $filtro_limite['limite'];
+        }
         switch ($campo) {
 			case 'articulo_name':
 				// Buscamos por nombre de articulo..
@@ -60,7 +68,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."LEFT JOIN `articulosPrecios` AS p "
 				."ON (p.`idArticulo` = a.`idArticulo`) AND  "
                 ."(p.idTienda =".$this->idTienda.") "
-                .$filtro;
+                .$filtro.$limite;
 				break;
 			case  't.crefTienda':
 				// Buscamos por nombre de articulo..
@@ -71,7 +79,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."ON (p.`idArticulo` = a.`idArticulo`) "
                 ."LEFT JOIN `articulosTiendas` AS t ON (t.idArticulo = a.idArticulo) AND "
                 ."(t.idTienda =".$this->idTienda.") "
-                .$filtro;
+                .$filtro.$limite;
 				break;
 			case 'codBarras':
 				// Buscamos por Codbarras.
@@ -82,7 +90,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."ON p.`idArticulo` = a.`idArticulo` AND "
                 ."(p.idTienda =".$this->idTienda.") "
 				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
-				.$filtro.  ' GROUP BY a.idArticulo';
+				.$filtro.  ' GROUP BY a.idArticulo '.$limite;
                 break;
 
             case 'a.idArticulo':
@@ -94,7 +102,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."ON p.`idArticulo` = a.`idArticulo` AND "
                 ."(p.idTienda =".$this->idTienda.") "
 				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
-				.$filtro. ' GROUP BY a.idArticulo';
+				.$filtro. ' GROUP BY a.idArticulo '.$limite;
                 break;
                 
             case 't.idVirtuemart':
@@ -114,7 +122,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 				."LEFT JOIN `articulosTiendas` AS t "
                 ."ON (t.idArticulo = a.idArticulo) AND "
                 ."(t.idTienda =". $idTiendaWeb.") "
-				.$filtro;
+				.$filtro.$limite;
                 break;
 
             default :

@@ -53,7 +53,7 @@ if ($caja) {
             $campos= array('atiendas.crefTienda');
             $filtro=' WHERE ('.$Ccontrolador->ConstructorLike($campos,$valor).')';
             $limite = ' LIMIT 10';
-            $articulos['datos'] = $CArticulo->obtenerProductos('crefTienda',$filtro.$limite);
+            $articulos['datos'] = $CArticulo->obtenerProductos('crefTienda',compact("filtro"."limite"));
             if (count($articulos['datos'])>0) { 
 				$total_productos = count($articulos['datos']);
                 $articulos['NItems'] = $total_productos;
@@ -72,7 +72,7 @@ if ($caja) {
             $campos= array('a.articulo_name');
             $filtro=' WHERE ('.$Ccontrolador->ConstructorLike($campos,$valor).')';
             $limite = ' LIMIT 10';
-            $articulos['datos'] = $CArticulo->obtenerProductos('articulo_name',$filtro.$limite);
+            $articulos['datos'] = $CArticulo->obtenerProductos('articulo_name',compact("filtro","limite"));
             if (count($articulos['datos'])>0) { 
 				$total_productos = count($articulos['datos']);
                 $articulos['NItems'] = $total_productos;
@@ -91,7 +91,7 @@ if ($caja) {
             $campos= array('aCodBarras.codBarras');
             $filtro=' WHERE ('.$Ccontrolador->ConstructorLike($campos,$valor).')';
             $limite = ' LIMIT 10';
-            $articulos['datos'] = $CArticulo->obtenerProductos('codBarras',$filtro.$limite);
+            $articulos['datos'] = $CArticulo->obtenerProductos('codBarras',compact("filtro","limite"));
             if (count($articulos['datos'])>0) { 
 				$total_productos = count($articulos['datos']);
                 $articulos['NItems'] = $total_productos;
