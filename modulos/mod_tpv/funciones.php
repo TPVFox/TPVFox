@@ -703,58 +703,7 @@ function ImprimirTicket($productos, $cabecera, $desglose, $tienda) {
     return $respuesta;
 }
 
-function ObtenerTickets($BDTpv, $filtro) {
-    //obtenemos tickets cobrados / cerrados
-    // Function para obtener productos y listarlos
-    //tener en cuenta el  paginado con parametros: $desde,$filtro
-    //varias tablas:	ticketst
-    //		clientes
-    //		cierres_usuarios_tickets --> para conseguir el idCierre de cada ticket cerrado
-    $resultado = array();
-    $idCierre = 0; // Valor por defecto para evitar advertencia en log.
-    $consulta = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
-            . 'LEFT JOIN `clientes` AS c '
-            . 'ON c.`idClientes` = t.`idCliente` ' . $filtro;
 
-
-    $ResConsulta = $BDTpv->query($consulta);
-
-    $resultado = array();
-    $i = 0;
-    while ($fila = $ResConsulta->fetch_assoc()) {
-        $numTicket = $fila['Numticket'];
-        $resultado['tickets'][] = $fila;
-        // Ahora consultamos si esta o no enviado stock a la web.
-        $sql_envio_stock = 'SELECT * FROM `importar_virtuemart_tickets` WHERE `idTicketst`=' . $fila['id'];
-        $Consulta_envio_stock = $BDTpv->query($sql_envio_stock);
-        if (mysqli_error($BDTpv)) {
-            $resultado['consulta'] = $sql;
-            $resultado['error'] = $BDTpv->error_list;
-            error_log(' Rotura en funcion ObtenerTickets funcion.php de mod_tpv linea 720');
-            error_log($BDTpv->error_list);
-            // Rompemos programa..
-            //exit();
-        } else {
-            // Quiere decir que la consulta fue correcta.
-            // Ahora comprobamos cuantos registros, ya que solo debería haber uno.
-            if ($Consulta_envio_stock->num_rows === 1) {
-                while ($fila_envio_stock = $Consulta_envio_stock->fetch_assoc()) {
-                    $resultado['tickets'][$i]['enviado_stock'] = $fila_envio_stock['estado'];
-                    $resultado['tickets'][$i]['respuesta_envio'] = $fila_envio_stock['Fecha'] . '(' . $Consulta_envio_stock->num_rows . ')';
-                }
-            } else {
-                // Quiere decir que hubo 0 a mas 1 resultado.
-                $resultado['tickets'][$i]['enviado_stock'] = 'Erroneo';
-                $resultado['tickets'][$i]['respuesta_envio'] = '(' . $Consulta_envio_stock->num_rows . ')';
-                $resultado['tickets'][$i]['respuesta_envio_rows'] = $Consulta_envio_stock->num_rows;
-            }
-        }
-        $i ++;
-    }
-
-    $resultado['sql1'] = $consulta;
-    return $resultado;
-}
 
 function ivas($BDTpv) {
     //recojo array de ivas

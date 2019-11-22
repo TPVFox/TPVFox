@@ -18,102 +18,64 @@
 	include_once $URLCom.'/head.php';
     include_once $URLCom.'/modulos/mod_tpv/funciones.php';
     include_once $URLCom.'/controllers/Controladores.php';
+    include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
+
 	// Creamos objeto controlado comun, para obtener numero de registros. 
-	$Controler = new ControladorComun; 
-			
+	$Controler = new ControladorComun;
+    $Controler->loadDbtpv($BDTpv);
+	$Tickets = new ClaseTickets();
+	$NPaginado = new PluginClasePaginacion(__FILE__);		
 	//INICIALIZAMOS variables para el plugin de paginado:
 	$mensaje_error = array();
-	$campos = array();
-	$palabraBuscar=array();
-	$stringPalabras='';
-	$filtro = ''; // por defecto
-	$PgActual = 1; // por defecto.
-	$LimitePagina = 40; // por defecto.
 	$LinkBase = './ListaTickets.php?';
-	$OtrosParametros = '';
-	$desde = 0;
-	$sufijo = '';
-	$prefijo = '';
-	$estado_ticket  = '';
-	$htmlPG = '';
-	// Obtenemos datos si hay GET y cambiamos valores por defecto.
-	if (count($_GET)>0 ){
-		// Quiere decir que hay algún get
-		if (isset($_GET['estado'])){
-			$estado_ticket = $_GET['estado']; // Este va indicar si filtramos por algun estado.
-		}
-		if (isset($_GET['pagina'])) {
-			// En que pagina estamos.
-			$PgActual = $_GET['pagina'];
-		}
-		if (isset($_GET['buscar'])) {
-			//recibo un string con 1 o mas palabras
-			$stringPalabras = $_GET['buscar'];
-			$palabraBuscar = explode(' ',$_GET['buscar']); 
-			// Montamos array de campos
-			$campos = array (
-				'0' => array(
-					'nombre_campo'		=> 'formaPago',
-					'tipo_comparador'	=> 'LIKE'
-				),
-				'1' => array(
-					'nombre_campo'		=> 'Numticket',
-					'tipo_comparador'	=> 'LIKE'
-				),
-				'2' => array(
-					'nombre_campo'		=> 'Nombre',//nombre cliente
-					'tipo_comparador'	=> 'LIKE'
-				)
-			);
-			// Enviamos desde donde buscamos.
-			$desde = (($PgActual-1) * $LimitePagina); 
-		}
-		
-	}
+    $campos = array('t.Numticket','c.Nombre','c.razonsocial','t.total');
 	
-	$OtrosParametros=$stringPalabras;	// Lo necesitamos en paginacion.
-			
-	if ($estado_ticket !== ''){
-		$prefijo = 'estado="'.$estado_ticket.'" ';
-		$OtrosParametros .= '&estado='.$estado_ticket; // Lo necesitamos en paginado.
+    $NPaginado->SetCamposControler($campos);
+    $filtro = $NPaginado->GetFiltroWhere('OR');
+    // Definir estado
+    $estado_ticket  = 'Cobrado';
+    if (isset($_GET['estado'])){
+        $estado_ticket  = $_GET['estado'];
+    }    
+    // Falta definir fechas
+    if (isset($_GET['fecha_inicio']) && $_GET['fecha_final']){
+        $fechas = array( 'inicio' => $_GET['fecha_inicio'],
+                         'final' => $_GET['fecha_final']
+                         );
+                         
+    }
+    
+    if (!isset($fechas)) {
+        // Debería obtener la fecha del ultimo ticket y mostar $fechas
+        $obtenerFecha = $Tickets->getUltimoTicket($estado_ticket);
+        
+        $fecha_final = DateTime::createFromFormat('Y-m-d H:i:s', $obtenerFecha['fecha']);
+        
+        
+        $fechas =array( 'inicio' => $fecha_final->format('Y-m-d').' 00:00:00',
+                        'final'  => $fecha_final->format('Y-m-d').' 23:59:59'
+                        );
 
-	}
-	if ($stringPalabras != ''){
-		$prefijo .= ' AND  '; 
-	}
-	// Creamos filtro para contar.	
-	$filtroContar = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
-	// Contamos Registros.	
-	$CantidadRegistros = $Controler->contarRegistro($BDTpv,'ticketst',$filtroContar);
-	if (gettype($CantidadRegistros) !== 'integer'){
-		// Quiere decir que hubo un error en la consulta.
-		$mensaje_error = ' Algo salio mal en la primera consulta... ';
-	}
+    }
+   
+    $Obtenertickets = $Tickets->obtenerTickets($estado_ticket ,$fechas,$filtro);
+   
+    $CantidadRegistros = count($Obtenertickets['datos']);
+    
+	// --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
+    $NPaginado->SetCantidadRegistros($CantidadRegistros);
+    $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
+    // Obtenemos clientes con filtro busqueda y la pagina que estamos.	
+	$Obtenertickets = $Tickets->obtenerTickets('Cobrado',$fechas,$filtro , $NPaginado->GetLimitConsulta());
+    $tickets = $Obtenertickets['datos'];
+    
 	
-	// Obtenemos paginación si $CantidadRegistros es mayo al Limite
-	if ( $CantidadRegistros > $LimitePagina){
-		$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
-	}
-	if ($desde > 0 ){
-		// Montamos $sufijo...
-		$sufijo = ' LIMIT '.$LimitePagina.' OFFSET '.$desde;
-	}
-	if ($estado_ticket !== ''){
-		$prefijo = 't.estado ="'.$estado_ticket.'" ';
-	}
-	if ($stringPalabras != ''){
-		$prefijo .= ' AND  '; 
-	}
 	
-	// Creamos filtro pero con sufijo para mostrar solo los registros de la pagina.
-	$filtro = $Controler->paginacionFiltro($campos,$stringPalabras,$prefijo,$sufijo);
-	$Obtenertickets = ObtenerTickets($BDTpv,$filtro);
-	$tickets = $Obtenertickets['tickets'];
+	//~ echo '<pre>';
+    //~ print_r($Obtenertickets );
+    //~ echo '</pre>';
 	
-	//esta MAL // si la busqueda es menos de 40 lo siguiente es un apaño..
-	if (!isset($CantidadRegistros)){
-		$CantidadRegistros = count($tickets);
-	}
 	?>
 	
 	<script>
@@ -156,17 +118,10 @@
 				</div>	
 			</nav>
 			<div class="col-md-10">
-					<p>
-					 -Tickets cerrados encontrados BD local filtrados:
-						<?php echo $CantidadRegistros;?>
-					</p>
+                    <?php
+                    echo '<p>'.$CantidadRegistros.' tickets '.$estado_ticket.'s encontrados entre fecha '.$fechas['inicio'].' a '.$fechas['final'].'.</p>'
+                    ?>
 					<div>
-						<div class="alert-info" style="width:30%" >
-						<?php 	// Mostramos paginacion 
-							$mensaje='Pulsar <strong>Ultima</strong> para ver <strong>ultimos tickets</strong> cobrados.';
-							echo $mensaje; 
-						?>
-						</div>
 						<div>
 							<?php
 								echo $htmlPG;
@@ -178,7 +133,7 @@
 						<form action="./ListaTickets.php" method="GET" name="formBuscar">
 							<div class="form-group ClaseBuscar">
 								<label>Buscar en Formas de pago, en Num Ticket y por Nombre Cliente.</label>
-								<input type="text" name="buscar" value="<?php echo $stringPalabras;?>">
+								<input type="text" name="buscar" value="<?php echo $NPaginado->GetBusqueda()?>">
 								<input type="hidden" name ="estado" value="<?php echo $estado_ticket;?>">
 								<input type="submit" value="buscar">
 								
@@ -204,8 +159,6 @@
 	
 				<?php
 				$checkUser = 0;
-				$i=0;
-				$tickets = array_reverse($tickets);
 				foreach ($tickets as $ticket){ 
 					$checkUser = $checkUser + 1; 
 				?>
@@ -226,7 +179,7 @@
 					</td>
 					<td>
 						<?php 
-							if (!isset($ticket['respuesta_envio_rows'])){
+							if (isset($ticket['respuesta_envio_rows'])){
 								// Quiere decir que se encontro registro
 								echo '<span title="'.$ticket['respuesta_envio'].'">'.$ticket['enviado_stock'].'</span>';
 							}  ;?>
@@ -235,7 +188,7 @@
 				</tr>
 
 				<?php 
-				$i++;
+
 				}
 				?>
 				

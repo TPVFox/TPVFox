@@ -184,8 +184,87 @@ class ClaseTickets extends ClaseSession {
 		return $resultado ;	
 	}
 	
-	
-	
+	public function obtenerTickets($estado,$fechas=array(),$filtro='',$limite=''){
+        // @ Objetivo:
+        // Es obtener listado de los tickets en un intervalo de fechas de en un estado determinado. (Cerrado o Cobrado)
+        // la diferencia entres esos estado, cerrado es que ya se hizo cierre y cobrado que ya se cobro, pero aun no se hizo
+        // cierre.
+        // @ Parametros:
+        //    $estado-> (string) Cerrado  o Cobrado
+        //    $fechas-> (array) fecha_inicio y fecha_final en string formato: Y-m-d
+        //    $filtro -> ($tring) donde puede filtrar por fechas, nombre o incluso numero ticket, importe.
+        // @ Devuelve:
+        //    $datos -> Array con los datos de los tickets obtenidos con los campos:
+        //          (c.`Nombre`        => Nombre de cliente,
+        //           c.`razonsocial`   => Razon social del cliente.
+        //           t.*               => Todos los campos de tabla tickett
+        //          )
+        //    
+        //    $error -> En caso de error
+
+        // Analizamos fechas para evitar error
+        if (count($fechas) === 0){
+            $fechas =array( 'inicio' => new DateTime(date('Y-m-d')),
+                           'final'  => new DateTime(date('Y-m-d').' 23:59:59')
+                        );
+        } else {
+            $fechas['inicio'] =  new DateTime($fechas['inicio']);
+            $fechas['final'] =  new DateTime($fechas['final']);
+        }
+        if (strlen(trim($filtro)) <>0){
+            $filtro .=' AND ';
+        } else {
+            $filtro  =' WHERE ';
+        }
+        
+        $filtro =$filtro. ' t.estado="'.$estado.'" AND t.fecha >="'. $fechas['inicio']->format('Y-m-d H:i:s')
+                . '" AND t.fecha <="'.$fechas['final']->format('Y-m-d H:i:s').'"';
+                
+        // Calculamos la intervalo de tiempo.
+        $intervalo = date_diff($fechas['inicio'], $fechas['final']);
+        // Solo ejecutamos consulta si hay un intervalo de 5 dias, ya daría un error por exceso memoria.
+        if ($intervalo->d <5 and $intervalo->d >-1 ){
+            
+            $sql = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
+                . 'LEFT JOIN `clientes` AS c '
+                . 'ON c.`idClientes` = t.`idCliente` ' . $filtro.' ORDER BY t.Fecha DESC'.$limite;
+            $consulta = $this->Consulta($sql);
+            if (isset($consulta['NItems']) && $consulta['NItems'] > 0) {
+                $respuesta['datos'] = $consulta['Items'];
+            } else {
+                $respuesta['error'] = $consulta['error'];
+                $respuesta['consulta']=$sql;
+
+            }
+        } else {
+            //~ $respuesta['error'] = 'La fechas estan mal. Fecha Inicio:'.$fecha_inicio.' Fecha Final:'.$fecha_final.' Intervalo:'.json_decode($intervalo);
+            $respuesta['filtro']= $filtro;
+            
+        }
+
+        return $respuesta;
+    }
+	public function getUltimoTicket($estado_ticket) {
+        // @ Objetivo
+        // Obtener la fecha del ultimo ticket del estado indicado.
+        $resultado = array();
+        $sql= 'SELECT Fecha FROM ticketst WHERE estado="'.$estado_ticket.'" ORDER by id ASC LIMIT 1';
+        $consulta = $this->Consulta($sql);
+        if ($consulta['NItems'] === 1) {
+            // Tubo resultados
+            $resultado['fecha'] = $consulta['Items'][0]['Fecha'];
+        }
+        if (isset($consulta['error'])){
+            // Error en la consulta
+            $resultado['error'] = array( 'error' => $consulta['error'],
+                                         'consulta' =>$sql
+                                        );
+        } else {
+            // No hubo resultados
+            $resultado['NItems'] = 0;
+        }
+        return $resultado;
+    }
 	public function obtenerBaseIvaTicket($idticketst){
 		//@ Objetivo:
 		//Obtener los registros del iva y bases de ese ticket
