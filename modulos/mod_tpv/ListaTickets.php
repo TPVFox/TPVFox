@@ -20,15 +20,26 @@
     include_once $URLCom.'/controllers/Controladores.php';
     include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
-
+    include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
+    $Tickets = new ClaseTickets();
+    $link_volver ='<a class="text-ritght" href="./tpv.php">Volver Atrás</a>';
+    $otrosParametros= '';
+    if (isset($_GET['idCierre'])){
+        include_once $URLCom.'/modulos/mod_cierres/clases/ClaseCierres.php';
+        $CCierres = new ClaseCierres;
+        $link_volver = '<a class="text-right" href="'.$HostNombre.'/modulos/mod_cierres/VistaCierre.php?id='.$_GET['idCierre'].'" > Volver a Cierre </a>';
+        $otrosParametros = 'estado=Cerrado&idUsuario='.$_GET['idUsuario'].'&idCierre='. $_GET['idCierre'].'&';
+    }
+    
 	// Creamos objeto controlado comun, para obtener numero de registros. 
 	$Controler = new ControladorComun;
     $Controler->loadDbtpv($BDTpv);
-	$Tickets = new ClaseTickets();
-	$NPaginado = new PluginClasePaginacion(__FILE__);		
+	$NPaginado = new PluginClasePaginacion(__FILE__);
 	//INICIALIZAMOS variables para el plugin de paginado:
+    if ($otrosParametros <>''){
+        $NPaginado->AnahadirLinkBase($otrosParametros);
+    }
 	$mensaje_error = array();
-	$LinkBase = './ListaTickets.php?';
     $campos = array('t.Numticket','c.Nombre','c.razonsocial','t.total');
 	
     $NPaginado->SetCamposControler($campos);
@@ -43,31 +54,51 @@
         $fechas = array( 'inicio' => $_GET['fecha_inicio'],
                          'final' => $_GET['fecha_final']
                          );
-                         
     }
     
     if (!isset($fechas)) {
-        // Debería obtener la fecha del ultimo ticket y mostar $fechas
+        // Debería obtener la fecha del ultimo ticket con el estado que le indicamos
+        // obtenemos fecha , para montar fecha inicio y final de ese mismo dia.
         $obtenerFecha = $Tickets->getUltimoTicket($estado_ticket);
+        if ( isset( $obtenerFecha['NItems'])){
+            if ($obtenerFecha['NItems']<>1){
+                // No hay tickets con ese estado o obtuvo mas uno ( esto ultimo imposible..).
+                $mensaje_error[] = 'No hay tickets con el estado '.$estado_ticket;
+            }
+        } else {
+            // Hubo en error al obtener ultimo ticket.
+                $mensaje_error[] = 'No hay tickets con el estado '.$estado_ticket;
+
+        }
+        if (isset( $obtenerFecha['fecha'])){
+            $fecha_final = DateTime::createFromFormat('Y-m-d H:i:s', $obtenerFecha['fecha']);
+        }
         
-        $fecha_final = DateTime::createFromFormat('Y-m-d H:i:s', $obtenerFecha['fecha']);
-        
-        
-        $fechas =array( 'inicio' => $fecha_final->format('Y-m-d').' 00:00:00',
+        if (isset($fecha_final)){
+            $fechas =array( 'inicio' => $fecha_final->format('Y-m-d').' 00:00:00',
                         'final'  => $fecha_final->format('Y-m-d').' 23:59:59'
                         );
-
+        } 
     }
-   
-    $Obtenertickets = $Tickets->obtenerTickets($estado_ticket ,$fechas,$filtro);
-   
+    if (isset($_GET['idCierre'])){
+        $Obtenertickets = $CCierres->obtenerTicketsUsuariosCierre($_GET['idUsuario'],$_GET['idCierre'],$Tienda['idTienda']);
+    } else {
+        $Obtenertickets = $Tickets->obtenerTickets($estado_ticket ,$fechas,$filtro);
+    }
     $CantidadRegistros = count($Obtenertickets['datos']);
-    
+    if ($CantidadRegistros === 0){
+        // No se obtuvo registros por lo que mostramos aviso.
+        $mensaje_error[] = 'No se encontro ningun tickets';
+    }
 	// --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
     $NPaginado->SetCantidadRegistros($CantidadRegistros);
     $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
-    // Obtenemos clientes con filtro busqueda y la pagina que estamos.	
-	$Obtenertickets = $Tickets->obtenerTickets('Cobrado',$fechas,$filtro , $NPaginado->GetLimitConsulta());
+    // Obtenemos clientes con filtro busqueda y la pagina que estamos.
+    if (isset($_GET['idCierre'])){
+        $Obtenertickets = $CCierres->obtenerTicketsUsuariosCierre($_GET['idUsuario'],$_GET['idCierre'],$Tienda['idTienda'],$filtro.$NPaginado->GetLimitConsulta());
+    } else {
+        $Obtenertickets = $Tickets->obtenerTickets('Cobrado',$fechas,$filtro , $NPaginado->GetLimitConsulta());
+    }
     $tickets = $Obtenertickets['datos'];
     
 	
@@ -107,7 +138,7 @@
 	        -->
 	       
 			<nav class="col-sm-2" id="myScrollspy">
-				<a class="text-ritght" href="./tpv.php">Volver Atrás</a>
+				<?php echo $link_volver;?>
 				<div data-offset-top="505">
 				<h4> Tickets <?php echo $estado_ticket;?>s</h4>
 				<h5> Opciones para una selección</h5>
@@ -188,7 +219,6 @@
 				</tr>
 
 				<?php 
-
 				}
 				?>
 				

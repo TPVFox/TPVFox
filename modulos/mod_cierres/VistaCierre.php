@@ -88,7 +88,7 @@
 					<td><?php echo $usuario['nombreUsuario'];  ?></td>
 					<td><?php echo $usuario['Num_ticket_inicial']; ?></td>
 					<td><?php echo $usuario['Num_ticket_final']; ?></td>
-					<?php $linkTickets= 'ListaTickets.php?estado=Cerrado&idUsuario='.$usuario['idUsuario'].'&idCierre='.$idCierre;?>
+					<?php $linkTickets= $HostNombre.'/modulos/mod_tpv/ListaTickets.php?estado=Cerrado&idUsuario='.$usuario['idUsuario'].'&idCierre='.$idCierre;?>
 					<td><a class="text-ritght" href="<?php echo $linkTickets ;?>"><span class="glyphicon glyphicon-list-alt"></span></a></td>
 				</tr>
 				<?php

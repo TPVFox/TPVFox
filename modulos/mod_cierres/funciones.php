@@ -406,37 +406,6 @@ function obtenerTicketAbiertos($BDTpv,$fechaInicio,$fechaFinal) {
 }
 
 
-function obtenerTicketsUsuariosCierre($BDTpv,$idUsuario,$idCierre,$idTienda,$filtro=''){
-	// @ Objetivo : 
-	// Obtener listado de ticket cerrados de un cajero de un cierre
-	$resultado = array();
-	// Obtenemos rango tickets para un cierre de un usuario
-	$rango = obtenerRangoTicketsUsuarioCierre($BDTpv,$idUsuario,$idCierre,$idTienda);
-	if (!isset($rango['error'])){
-		$sqlTickets = 'SELECT t.*,c.Nombre,c.razonsocial FROM `ticketst` AS t LEFT JOIN clientes AS c ON c.idClientes = t.idCliente WHERE (t.`Numticket` between '.$rango['Num_ticket_inicial'].' AND '.$rango['Num_ticket_final'].' AND t.`idTienda`='.$idTienda.' AND t.`idUsuario`='.$idUsuario.')';
-		if ($filtro !== ''){
-			// Ahora comprobamos si nos viene un filtro, si es así debemos quitarle WHERE, ya que nuestra consulta ya tiene WHERE
-			// lo y la sustituimos por AND
-			$filtro =  str_replace('WHERE','AND',$filtro);
-			$sqlTickets .= ' '.$filtro;
-           
-		}
-		// Obtenemos los ticket para ese usuario y ese cierre.
-		$tickets = $BDTpv->query($sqlTickets);
-		if ($BDTpv->error !== true){
-			//~ error_log($sqlTickets);
-			while ($ticket = $tickets->fetch_assoc()){
-				$resultado['tickets'][] = $ticket;
-			}
-		} else {
-			$resultado['error'] = ' No hay tickets para ese usuario y ese cierre';
-		}
-	} 
-	$resultado['rango'] = $rango; // 'La consulta o conexion dio un error';
-	$resultado['consulta2'] = $sqlTickets;
-	return $resultado;
-	
-}
 
 function obtenerRangoTicketsUsuarioCierre($BDTpv,$idUsuario,$idCierre,$idTienda){
 	// @ Objetivo :

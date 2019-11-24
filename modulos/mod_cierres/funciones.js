@@ -78,19 +78,6 @@ function metodoClick(pulsado){
 			
 		break;
 
-        case 'VerTicket':
-			console.log('Entro en Ver Ticket Cobrado');
-			// Cargamos variable global ar checkID = [];
-			//Funcion global en jquery
-			VerIdSeleccionado ();
-			if (checkID.length >1 || checkID.length=== 0) {
-				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
-				return
-			}
-				
-			window.location.href = './ticketCerrado.php?id='+checkID[0];
-        break;
-
         case 'EliminarCierre':
 			// Cargamos variable global ar checkID = [];
 			//Funcion global en jquery

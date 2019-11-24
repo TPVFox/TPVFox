@@ -10,7 +10,7 @@
         include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         $Controler = new ControladorComun; 
 		// Añado la conexion
-          $CTArticulos = new ClaseProductos($BDTpv);
+        $CTArticulos = new ClaseProductos($BDTpv);
 		$Controler->loadDbtpv($BDTpv);
 		// Cargamos clase y creamos objeto de tickets
 		$CTickets = new ClaseTickets();
@@ -26,8 +26,7 @@
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
 	
-		
-				
+
 		if (isset($_GET['id'])) {
 			// Modificar Ficha Cliente
 			$id=$_GET['id']; // Obtenemos id para modificar.
@@ -94,7 +93,7 @@
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
 			 
 			<nav class="col-sm-2">
-				<a href="./ListaTickets.php?estado=Cobrado">Volver Atrás</a>
+				<?php echo $Controler->getHtmlLinkVolver();?>
 				<div class="col-md-12">
 				<h4> Opciones de Ticket</h4>
 				<ul class="nav nav-pills nav-stacked"> 
