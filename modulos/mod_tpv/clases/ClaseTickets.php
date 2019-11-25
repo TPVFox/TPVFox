@@ -244,9 +244,9 @@ class ClaseTickets extends ClaseSession {
 
         return $respuesta;
     }
-	public function getUltimoTicket($estado_ticket) {
+	public function getPrimerTicket($estado_ticket) {
         // @ Objetivo
-        // Obtener la fecha del ultimo ticket del estado indicado.
+        // Obtener la fecha del primer ticket del estado indicado.
         $resultado = array();
         $sql= 'SELECT Fecha FROM ticketst WHERE estado="'.$estado_ticket.'" ORDER by id ASC LIMIT 1';
         $consulta = $this->Consulta($sql);

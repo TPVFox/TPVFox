@@ -59,7 +59,7 @@
     if (!isset($fechas)) {
         // Debería obtener la fecha del ultimo ticket con el estado que le indicamos
         // obtenemos fecha , para montar fecha inicio y final de ese mismo dia.
-        $obtenerFecha = $Tickets->getUltimoTicket($estado_ticket);
+        $obtenerFecha = $Tickets->getPrimerTicket($estado_ticket);
         if ( isset( $obtenerFecha['NItems'])){
             if ($obtenerFecha['NItems']<>1){
                 // No hay tickets con ese estado o obtuvo mas uno ( esto ultimo imposible..).
@@ -71,12 +71,14 @@
 
         }
         if (isset( $obtenerFecha['fecha'])){
-            $fecha_final = DateTime::createFromFormat('Y-m-d H:i:s', $obtenerFecha['fecha']);
+            $fecha_inicio = DateTime::createFromFormat('Y-m-d H:i:s', $obtenerFecha['fecha']);
         }
         
-        if (isset($fecha_final)){
-            $fechas =array( 'inicio' => $fecha_final->format('Y-m-d').' 00:00:00',
-                        'final'  => $fecha_final->format('Y-m-d').' 23:59:59'
+        if (isset($fecha_inicio)){
+            // Creamos fecha:   Inicio es la que obtenimos.
+            //                  Final es la actual
+            $fechas =array( 'inicio' => $fecha_inicio->format('Y-m-d').' 00:00:00',
+                        'final'  => date('Y-m-d').' 23:59:59'
                         );
         } 
     }
