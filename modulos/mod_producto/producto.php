@@ -338,7 +338,7 @@
                             echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
                       
                             $num = 5; // Numero collapse;
-                            $titulo = 'Historico Precios.';
+                            $titulo = 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>';
                             echo htmlPanelDesplegable($num,$titulo,$htmlHistoricoPrecios);
                        
                     

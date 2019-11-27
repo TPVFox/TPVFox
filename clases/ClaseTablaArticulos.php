@@ -141,10 +141,6 @@ class ClaseTablaArticulos{
                     $this->InsertarPreciosVentas($datos);
                     
                 }
-
-
-
-
                 
 		} else {
 			// Se monta tanto id sea 0 como si no existe id.
@@ -406,7 +402,7 @@ class ClaseTablaArticulos{
         //Obtener historico precios de un producto
         //@Parametro:
         //$id -> (int) Id del producto
-        $sql=' SELECT * FROM historico_precios WHERE idArticulo='.$id;
+        $sql=' SELECT * FROM historico_precios WHERE idArticulo='.$id.' order by `Fecha_Creacion` desc limit 0,15';
         $consulta = $this->Consulta($sql);
         if(isset($consulta['Items'])){
             $this->productos_historico=$consulta['Items'];
