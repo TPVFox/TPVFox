@@ -13,6 +13,12 @@ $(function () {
             $('#inputidpadre').val(ui.item.value);
         },
     });
+    $("#combopadreWeb").combobox({
+        select: function (event, ui) {
+            console.log(ui.item.value);
+            $('#inputidpadreWeb').val(ui.item.value);
+        },
+    });
 
 });
 

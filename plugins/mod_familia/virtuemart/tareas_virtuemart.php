@@ -9,104 +9,127 @@ $thisTpv = new ClaseSession();
 $BDTpv = $thisTpv->getConexion();
 $CFamilia = new ClaseFamilias($BDTpv);
 include_once ($RutaServidor.$HostNombre."/plugins/mod_familia/virtuemart/ClaseVirtuemartFamilia.php");
-$ObjViruemart = new PluginClaseVirtuemartFamilia();
+$ObjVirtuemart = new PluginClaseVirtuemartFamilia();
 // ---------------   CONFIGURACION DE VIRTUEMART ----------------------------------  //
 // Esta configuracion deberíamos obtenerla de virtuemart, ahora la ponemos nosotros a mano.
-$conf_virtuemart = array();
-$conf_virtuemart['parametros'] =
-'show_store_desc=""|showcategory_desc=""|showcategory=""|categories_per_row=""|showproducts=""|omitLoaded=""|showsearch=""|productsublayout=""|featured=""|featured_rows=""|omitLoaded_featured=""|discontinued=""|discontinued_rows=""|omitLoaded_discontinued=""|latest=""|latest_rows=""|omitLoaded_latest=""|topten=""|topten_rows=""|omitLoaded_topten=""|recent=""|recent_rows=""|omitLoaded_recent=""|';
+$parametros = 'show_store_desc=""|showcategory_desc=""|showcategory=""|categories_per_row=""|showproducts=""|omitLoaded=""|showsearch=""|productsublayout=""|featured=""|featured_rows=""|omitLoaded_featured=""|discontinued=""|discontinued_rows=""|omitLoaded_discontinued=""|latest=""|latest_rows=""|omitLoaded_latest=""|topten=""|topten_rows=""|omitLoaded_topten=""|recent=""|recent_rows=""|omitLoaded_recent=""|';
 
-$conf_virtuemart['vendor'] = 1;
-$conf_virtuemart['limit'] = 0;
-$conf_virtuemart['hits']=0;
-$conf_virtuemart['publicado']=1;
-$conf_virtuemart['fecha']=date("Y-m-d H:i:s");
-$conf_virtuemart['usuario']='911';
-$conf_virtuemart['locked_by']=0;
-
-
-
+$conf_virtuemart = array(   'parametros'=> $parametros,
+                            'vendor'    => 1,
+                            'limit'     => 0,
+                            'hits'      => 0,
+                            'publicado' => 1,
+                            'fecha'     => date("Y-m-d H:i:s"),
+                            'usuario'   => '911',
+                            'locked_by' => 0
+                        );
 
 switch ($pulsado) {
+    case 'obtenerIdFamiliaWeb':
+        // Obtenemos el IDFamiliaWeb de tabla familiaTiendas recibiendo el idFamilia tpv
+        // Devolvemos id y una advertencia, si no existiera devolvemos 0 como id
+        $idFamiliaTpv = $_POST['idFamiliaTpv'];
+        $TiendaWeb = $ObjVirtuemart->getTiendaWeb();
+        $idFamiliaWeb = $CFamilia->obtenerRelacionFamilia($TiendaWeb['idTienda'],$idFamiliaTpv);
+        //~ error_log(json_encode($idFamiliaWeb));
+        if (isset($idFamiliaWeb['datos'])){
+           
+            if (count($idFamiliaWeb['datos']) == 1){
+                // Correcta la obtencion de idfamiliaWeb
+                $respuesta['idFamiliaWeb'] = $idFamiliaWeb['datos'][0]['idFamilia_tienda'];
+            } else {
+                // Hay mas una familia relaciona en la web para idFamiliaTpv
+                $tipo    = 'danger';
+                $mensaje = ' Hubo un error en la consulta , no se obtuvo datoa';    
+                $respuesta['html_alerta'] = $CFamilia->montarAdvertencia($tipo,$mensaje,$html='OK');
+            }
+
+        } else {
+            // No obtuvo nada puede ser un error
+            $tipo    = 'danger';
+            $mensaje = ' Hubo un error en la consulta , no se obtuvo id de familia web relacionada';    
+            $respuesta['html_alerta'] = $CFamilia->montarAdvertencia($tipo,$mensaje,$html='OK');
+             
+        }
+        
+    break;
+
     case 'modificarFamiliaWeb':
-        $datos = $_POST['datos'];
+         // Objetivo es modificar o añadir familia
         $respuesta = array();
-        $datosComprobaciones=json_decode($datos, true);
-        if($datosComprobaciones['idFamiliaPadre']=="0"){
+        $datos=json_decode($_POST['datos'], true);
+        if($datos['idFamiliaPadreWeb']=="0"){
             $comprobarPadre['datos']['idFamilia_tienda']=0;
             $padre=0;
         }else{
-            $comprobarPadre=$CFamilia->obtenerRelacionFamilia($datosComprobaciones['idTienda'], $datosComprobaciones['idFamiliaPadre']);
+            $comprobarPadre=$CFamilia->obtenerRelacionFamilia_tienda($datos['idTienda'], $datos['idFamiliaPadreWeb']);
             $padre=$comprobarPadre['datos'][0]['idFamilia_tienda'];
-            
         }
         $respuesta['padre']=$padre;
         if(!is_null($padre)){
+            
             // Si existe padre continuamos.
-            if($datosComprobaciones['idFamiliaWeb']>0){
+            if($datos['idFamiliaWeb']>0){
                 // Modificamos ya que no es nuevo.
-                 $respuesta['caracteres']=strlen($datosComprobaciones['nombreFamilia']);
-                  if(strlen($datosComprobaciones['nombreFamilia'])>180){
-                        $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                                    <strong>Danger!</strong> No se puede modificar el producto 
-                                                    por que el nombre es superior a 180 caracteres.
-                                                </div>';
+                 $respuesta['caracteres']=strlen($datos['nombreFamilia']);
+                  if(strlen($datos['nombreFamilia'])>180){
+                      $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('danger',
+                                                    'No se puede modificar el producto por que el nombre es superior a 180 caracteres.'
+                                                    ,'OK');
                     }else{
-                        $datosMod=array(
-                            'nombre'=>$datosComprobaciones['nombreFamilia'],
+                        $datosMod = array (
+                            'nombre'=>$datos['nombreFamilia'],
                             'idPadre'=>$padre,
-                            'id'=>$datosComprobaciones['idFamiliaWeb']
+                            'id'=>$datos['idFamiliaWeb']
                         );
-                         $datosMod=json_encode($datosMod);
-                        $modificar=$ObjViruemart->modificarFamiliaWeb($datosMod);
+                        $datosMod=json_encode($datosMod);
+                        $modificar=$ObjVirtuemart->modificarFamiliaWeb($datosMod);
                         $respuesta['mod']=$modificar;
-                        if(strlen($modificar['Datos']['error']) == 0){
-                            $respuesta['htmlAlerta']='<div class="alert alert-success">
-                                                        <strong>Success!</strong> Has modificados los datos del producto.
-                                                    </div>';
-                                 }else{
-                            $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                                        <strong>Danger!</strong> Error de sql : '.$modificarProducto['Datos']['error'].' consulta: '.$modificarProducto['Datos']['consulta'].'
-                                                    </div>';
+                        if(isset($modificar['Datos']['error'])){
+                             $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('danger',
+                                                            'Error de sql : '.$modificarProducto['Datos']['error']
+                                                            .' consulta: '.$modificarProducto['Datos']['consulta']
+                                                            ,'OK');
+                           
+                        }else{
+                            $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('success',
+                                                            'Has modificados los datos del producto'
+                                                            ,'OK');
                         }
                     }
             }else{
-                $datosComprobaciones['vendor']=1;
-                $datosComprobaciones['limit']=0;
-                $datosComprobaciones['hits']=0;
-                $datosComprobaciones['parametros']=$conf_virtuemart['parametros'];
-                $datosComprobaciones['publicado']=1;
-                $datosComprobaciones['fecha']=date("Y-m-d H:i:s");
-                $datosComprobaciones['usuario']='911';
-                $datosComprobaciones['locked_by']=0;
-                $datosComprobaciones['alias']=str_replace(' ', '-', $datosComprobaciones['nombreFamilia']);
-                $datosComprobaciones['padre']=$padre;
+                $datos += $conf_virtuemart;
+                $datos['alias']=str_replace(' ', '-', $datosComprobaciones['nombreFamilia']);
+                $datos['padre']=$padre;        
                 
-                
-                $datos=json_encode($datosComprobaciones);
-                $respuesta['datos']=$datosComprobaciones;
-                $addFamilia = $ObjViruemart->addFamilia($datos);
+                $datosAdd=json_encode($datos);
+                $respuesta['datos']=$datos;
+                $addFamilia = $ObjVirtuemart->addFamilia($datosAdd);
                 $respuesta['addFamilia']=$addFamilia;
                 if(isset ($addFamilia['Datos']['idFamilia'])){
                     // Hubo datos por lo que la conexion es correcta.
-                    $addRegistro=$CFamilia->addFamiliaTiendaWeb($datosComprobaciones['idTienda'], $datosComprobaciones['idFamiliaTpv'], $addFamilia['Datos']['idFamilia']);
+                    $addRegistro=$CFamilia->addFamiliaTiendaWeb($datos['idTienda'],
+                                                                $datos['idFamiliaTpv'],
+                                                                $addFamilia['Datos']['idFamilia']);
                     if(isset($addFamilia['Datos']['error'])){
-                         $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                                    <strong>Danger!</strong> Error 1 al añadir la familia a la web. '.$addFamilia['Datos']['error'].' Consulta: '.$addProducto['Datos']['consulta'].'
-                                                </div>';
+                        $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('danger',
+                                                        'Error 1 al añadir la familia a la web. '
+                                                        .$addFamilia['Datos']['error'].' Consulta: '
+                                                        .$addFamilia['Datos']['consulta']
+                                                        ,'OK');
                     }else{
-                         $respuesta['htmlAlerta']='<div class="alert alert-success">
-                                                    <strong>Exito!</strong> Subida Familia a la web correctamente
-                                                </div>';
+                        $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('success',
+                                                            'Subida Familia a la web correctamente'
+                                                            ,'OK');
                     }
                 }else{
                     if (isset ($addFamilia['error_conexion'])){
                         $respuesta['error']=$addFamilia['info'];
-                        $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                             <strong>Danger!</strong> Error 2 al añadir la familia a la web.<br/>'
-                                             .$addFamilia['error_conexion'].'<br/>Url: '
-                                             .$addFamilia['info']['url']
-                                             .'</div>';
+                        $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('danger',
+                                                        'Error 2 al añadir la familia a la web.<br/>'
+                                                        .$addFamilia['error_conexion'].'<br/>Url: '
+                                                        .$addFamilia['info']['url']
+                                                        ,'OK');
                     } else {
                         // Pienso que no llega nunca sin error conexion
                         // por si acaso lo marco.
@@ -115,11 +138,11 @@ switch ($pulsado) {
                 }
                   
             }
-    }else{
-        $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                                    <strong>Danger!</strong> NO puedes añadir/modificar esta familia ya que el padre seleccionado no esta subido
-                                                </div>';
-    }
+        }else{
+            $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('danger',
+                                                'NO puedes añadir/modificar esta familia ya que el padre seleccionado no esta subido'
+                                                ,'OK');
+        }
     
     break;
     case 'subirHijosWeb':
@@ -131,8 +154,6 @@ switch ($pulsado) {
         $respuesta['descendientes']=$descendientes;
         $respuesta['padre']=$padreWeb;
         $idPadreWeb=$padreWeb['datos'][0]['idFamilia_tienda'];
-        error_log('En tarea_virtuemar linea 132:'.$idPadreWeb);
-        error_log('En tarea_virtuemar linea 133:'.$idPadre);
         $idsDescendientes=$descendientes['datos'];
         $datosFamilias=array();
         $familiasNoSubidas=array();
@@ -150,7 +171,7 @@ switch ($pulsado) {
             $comprobarSiExiste=$CFamilia->obtenerRelacionFamilia($idTienda,$des['idFamilia']);
             $respuesta['comprobacionSiExiste'] = $comprobarSiExiste;
             $datos=json_encode($datosComprobaciones);
-            $addFamilia = $ObjViruemart->addFamilia($datos);
+            $addFamilia = $ObjVirtuemart->addFamilia($datos);
             if($addFamilia['Datos']['idFamilia']>0){
                 $addRegistro=$CFamilia->addFamiliaTiendaWeb($idTienda, $des['idFamilia'], $addFamilia['Datos']['idFamilia']);
                 if(!isset($addFamilia['Datos']['error'])){

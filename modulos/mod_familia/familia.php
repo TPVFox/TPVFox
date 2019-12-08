@@ -12,8 +12,11 @@
         $id = 0;
         $idTiendaWeb= 0;
         $htmlProductos= '';
+        $htmlFamiliasWeb='';
+        $bottonSubirHijos = ' ';    //  Boton de subir hijos si hay web
+        $nombre_familia_web = '';
         $Cfamilias = new ClaseFamilias();
-        $TodasFamilias = $Cfamilias->todoslosPadres('familiaNombre', TRUE);
+        $padres = $Cfamilias->todoslosPadres('familiaNombre', TRUE);
         // Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
         if (isset($_GET['id'])) {
             // Modificar Ficha 
@@ -22,123 +25,147 @@
         if ($id != 0) {
             $titulo .= "Modificar";
             $familia = $Cfamilias->datosFamilia($id);//$Cfamilias->leer($id);
+            // Obtenemos los padres pero sin los hijos de la familia actual.
             $padres = $Cfamilias->familiasSinDescendientes($id, TRUE);
             $htmlProductos = htmlTablaFamiliaProductos($id);
         } else {
-            // Quiere decir que no hay id, por lo que es nuevo
-            $padres = $TodasFamilias;
+            // Quiere decir que no hay id, por lo que es nuevo          
             $titulo .= "Crear";
-            $familia = [];
-            $familia['familiaNombre'] = '';
-            $familia['productos'] = 0;
-
-            $familia['beneficiomedio'] = 25.00; // cuando haya configuración, que salga de la configuracion
+            $familia = array (  'familiaNombre' => '',
+                                'productos'     => 0,
+                                'familiaPadre'  => 0,
+                                'beneficiomedio'=> 25.00 // cuando haya configuración, que salga de la configuracion
+                                );
         }
-        // Montamos el combo ( esto debería haber una funcion )
-        $vp = '';
-        $combopadres = ' <select name="padre" class="form-control " '
-                . 'id="combopadre">';
-        foreach ($padres['datos'] as $padre) {
-            $combopadres .= '<option value=' . $padre['idFamilia'];
-            if (($id != 0) && ($familia['familiaPadre'] == $padre['idFamilia'])) {
-                $combopadres .= ' selected = "selected" ';
-                $vp = $padre['idFamilia'];
-            }
-            $combopadres .= '>' . $padre['familiaNombre'] . '</option>';
-        }
-        $combopadres .= '</select>';
-        $combopadres .= '<input type="hidden" name="idpadre" id="inputidpadre" value="'.$vp.'">'; 
-
+        
+        // Montamos el combo 
+        $combopadres = $Cfamilias->htmlComboFamilias($padres['datos'], $familia['familiaPadre']);
+       
         // Cargamos la clase virtuemart plugin
         $ObjVirtuemart = $Cfamilias->SetPlugin('ClaseVirtuemartFamilia');
               
         if(isset($ObjVirtuemart->TiendaWeb)){
             // Obtenemos los datos de la tienda Web del plugin
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-            
             $idTiendaWeb=$tiendaWeb['idTienda'];
             // Obtenemos el id de la familia en tpv y id familia en la web
             $idsFamiliaTiendaWeb=$Cfamilias->obtenerRelacionFamilia($idTiendaWeb, $id);
             if (isset($idsFamiliaTiendaWeb['datos'])){
-                if ( count($idsFamiliaTiendaWeb['datos'])> 1){
-                    $errores[] =
-                            array ( 'tipo'=>'danger',
-                                     'mensaje' =>'Esta familia tienes varias relaciones en tpv, es un error grabe',
-                                     'dato' => $idsFamiliaTiendaWeb['datos']
-                                    );
+                if (count($idsFamiliaTiendaWeb['datos'])> 1){
+                    $errores[] = $Cfamilias->montarAdvertencia('danger'
+                                        ,'Esta familia tienes varias relaciones en tpv, es un error grabe'
+                                        );
                 }
             }
-            // Obtenemos todas las familias que existen en la web con su id, nombre y id padre en la web
-            $todasFamiliasWeb = array(); // Por defecto es un array vacio...
-            $t = $ObjVirtuemart->todasFamilias();
-            if ( isset ($t['Datos']['item'])){
-                $todasFamiliasWeb = $t['Datos']['item'];
-                foreach ($todasFamiliasWeb as $key => $familiaWeb){
-                    $existe = $Cfamilias->obtenerRelacionFamilia_tienda($idTiendaWeb,$familiaWeb['virtuemart_category_id']);
-                    //~ echo '<pre>';
-                    //~ print_r($existe);
-                    //~ echo '</pre>';
-                    if (!isset($existe['datos'])){
-                        // Si no hay datos, es que no existe.. por lo que la borramos, pero mostramos un error.
-                        $errores[] =
-                        array ( 'tipo'=>'warning',
-								 'mensaje' =>'No existe la relacion en tpv con la familia '.$familiaWeb['nombre'].' de la web, por eso no aparece en el select',
-								 'dato' => $familiaWeb
-								);
-                        unset($todasFamiliasWeb[$key]);
+        }
+        if (isset($idsFamiliaTiendaWeb['datos'])){
+            // Solo ejecutamos si existe familia relacionada en tpv con la web
+            if(isset($ObjVirtuemart->TiendaWeb) && count($errores) === 0){
+                // No hubo error y obtuvo id de tienda we, continuamos obteniendo todas las familias que existen en la web
+                $todasFamiliasWeb = array(); // Por defecto es un array vacio...
+                $t = $ObjVirtuemart->todasFamilias();
+                if ( isset ($t['Datos']['item'])){
+                    $idsFamilias = array_column($padres['datos'],'idFamilia'); // Array con ids familias tpv sin descendientes
+                    $todasFamiliasWeb = $t['Datos']['item'];
+                    foreach ($todasFamiliasWeb as $key => $familiaWeb){
+                        // Comprobamos si existe relacion de todas las familias Web 
+                        $existe = $Cfamilias->obtenerRelacionFamilia_tienda($idTiendaWeb,$familiaWeb['virtuemart_category_id']);
+                        if (!isset($existe['datos'])){
+                            
+                            // Si no existe relacion de esa familia web la eliminamos del array y mostramos un error.
+                            $errores[] =  $Cfamilias->montarAdvertencia('warning',
+                                            'No existe la relacion en tpv con la familia '
+                                            .$familiaWeb['nombre'].' de la web, por eso no aparece en el select'
+                                            );
+                            unset($todasFamiliasWeb[$key]);
+                        } else {
+                            // Existe relacion familia web con tppv.
+                            // Añadimos a todasFamiliasWeb el idFamilia de tpv
+                            $todasFamiliasWeb[$key]['idFamilia'] = $existe['datos'][0]['idFamilia'];
+                            if ($idsFamiliaTiendaWeb['datos']['0']['idFamilia'] == $existe['datos'][0]['idFamilia']){
+                                // Obtenemos el nombre para cubrir en el formulario
+                                $nombre_familia_web =  $todasFamiliasWeb[$key]['nombre'];
+                                $id_padre_web = $familiaWeb['padre'];
+                            }
+                            // El nombre familia puede ser distinto, por lo tomamos el nombre familia de la web
+                            // la referencia en el array "familiaNombre" hace falta para el combo.
+                            $todasFamiliasWeb[$key]['familiaNombre'] = $todasFamiliasWeb[$key]['nombre']; 
+                            // Ahora tenemos que comprobar:
+                            //     1.- Tenemos que quitar las familias hijas de la familia Padre seleccionada.
+                            //        ya que un hijo no puede ser padre de su padre.
+                            $OK = in_array($todasFamiliasWeb[$key]['idFamilia'], $idsFamilias);
+                            if ($OK === FALSE){
+                                // Eliminamos ya que puede ser descendente o no existe en tpv
+                                 unset($todasFamiliasWeb[$key]);
+                            }
+                            
+                        }
+                    }
+                    if ($nombre_familia_web === ''){
+                        // No se encontro el nombre de la familia en la web para familia o esta en la web tiene titulo blanco (ojo)
+                        $errores[] =  $Cfamilias->montarAdvertencia('danger',
+                                            'Error intentar obtener virtuemart_category_id:'
+                                            .$idsFamiliaTiendaWeb['datos']['0']['idFamilia'] .' o esta el titulo en blanco en la web.'
+                                            );
                     } else {
-                        // Existe relacion que con idFamilia_tienda.
-                        // Añadimos a todasFamiliasWbe el idFamilia de tpv
-                        $todasFamiliasWeb[$key]['idFamilia'] = $existe['datos'][0]['idFamilia'];
+                        // Fue correcto por lo que ejecutamos htmlComboFamilias
+                        
+                        $combopadresWeb = $Cfamilias->htmlComboFamilias($todasFamiliasWeb, $id_padre_web,'virtuemart_category_id');
+                    }
 
-                        if(isset($idsFamiliaTiendaWeb['datos'])){
-                            // Ahora comprobamos que si es el mismo idFamiliaTienda para crear $datosFamilia
-                            if ($idsFamiliaTiendaWeb['datos']['0']['idFamilia'] === $todasFamiliasWeb[$key]['idFamilia']){
-                                $datosFamilia = $todasFamiliasWeb[$key];
-                            }
-            
-                        }
-                    }
-                }
-            } 
-                if (!isset($t['htmlAlerta'])){
-                    // No hubo error de conexion por lo que continuamos.
-                    
-                    // Obtenemos el html de familias en la web para mostrar.
-                    $htmlFamiliasWeb='';
-                    if(isset($idsFamiliaTiendaWeb['datos'])){
-                        $htmlFamiliasWeb=$ObjVirtuemart->datosWebdeFamilia($datosFamilia, $idTiendaWeb, $todasFamiliasWeb, $id);
-                    }else{
-                        // Si NO existe relacion es que esta familia no esta en la web.
-                        // Por lo tanto creamos Html para apoder añadir , no modificar.
-                        // Solo si ya esta grabado, no permitimos si su id es 0
-                        if($id>0){
-                            if($ObjVirtuemart->getTiendaWeb()!=false){
-                                $htmlFamiliasWeb=$ObjVirtuemart->htmlDatosVacios($id, $combopadres, $idTiendaWeb);
-                            }
-                        }
-                    }
                 } else {
-                    $htmlFamiliasWeb = $t['htmlAlerta'];
+                        // Si conecto,pero no obtuvo items, por lo que debesmos informar que no se obtuvo ninguna familia
+                        $errores[] = $Cfamilias->montarAdvertencia('warning',
+                                            'No se pudo obtener ninguna familia.'
+                                            );
                 }
+                
+                if (isset($t['htmlAlerta'])){
+                    // Si hubo un error en conexion lo mostramos.
+                    $htmlFamiliasWeb = $t['htmlAlerta'];
+                } else {
+                    // Ahora montamos htmlFamiliasWeb si no htmlAlert ( elimino if id > 0 ya que no debería entrar nunca )
+                    $datos_familia_web = $idsFamiliaTiendaWeb['datos']['0'];
+                    $datos_familia_web += array( 'nombre' =>$nombre_familia_web,
+                                                 'accion' =>'modificar',
+                                                 'id_padre' => $familia['familiaPadre'],
+                                                 'id_padre_web' =>$id_padre_web
+                                                );
+                    // Montamos  html de formulario de familia web
+                    $htmlFamiliasWeb = $ObjVirtuemart->htmlDatosFamiliaWeb($datos_familia_web, $combopadresWeb,'virtuemart_category_id');
+                }
+                // Si existe plugin de virtuemart  y tiene permisos montamos boton Subir hijos juntos.
+                if ($ClasePermisos->getAccion("SubirFamiliasHijasWeb") == 1){
+                    $bottonSubirHijos='<a class="btn btn-info" onclick="subirHijosWeb('.$id.', '.$idTiendaWeb.')">Subir Hijos Web</a>';
+                    
+                } 
+            }
+        } else {
+            // No esta creada familia web
+            if ($id > 0){
+                // No es nuevo, pero no tiene relacion en la con la web.
+                $errores[] = $Cfamilias->montarAdvertencia('warning'
+                                        ,'No esta creada esta familia en la web o no existe registro en tabla familiasTienda.'
+                                        );
+                // Montamos array $datos_familia_web ya que no esta montado:
+                $datos_familia_web = array ('idFamilia' => $id,
+                                            'idFamilia_tienda' => 0,
+                                            'nombre' => $familia['familiaNombre'],
+                                            'accion' => 'add',
+                                            'id_padre' => $familia['familiaPadre'],
+                                            'id_padre_web' =>$id_padre_web
+                                            );
+                //NO Creamos formulario de familia web si no existe.
+                $htmlFamiliasWeb = $ObjVirtuemart->htmlDatosFamiliaWeb($datos_familia_web, $combopadres);
+            }
 
         }
         // Ahora montamos el html del desplegable de familias hijos.
-        $bottonSubir = ' ';    //  Boton de subir hijos si hay web
-        if (isset($ObjVirtuemart->TiendaWeb)){
-            // Si existe plugin de virtuemart  y tiene permisos montamos boton Subir
-            if ($ClasePermisos->getAccion("SubirFamiliasHijasWeb") == 1){
-                $bottonSubir='<a class="btn btn-info" onclick="subirHijosWeb('.$id.', '.$idTiendaWeb.')">Subir Hijos Web</a>';
-                
-            } 
-        }
-        
-        
         // La variable idTiendaWeb indica la tienda web, es la que enviamos a htmlFamiliasHijas
         // Si no hubiera obtenido idTiendaWeb entonces el valor 0.
         $htmlFamiliasHijas = '';
-        if (isset ($familia['hijos'])){    
-        $htmlFamiliasHijas = htmlTablaFamiliasHijas($familia['hijos'], $idTiendaWeb,$bottonSubir);
+        if (isset ($familia['hijos']) && count($familia['hijos'])>0){    
+            $htmlFamiliasHijas = htmlTablaFamiliasHijas($familia['hijos'], $idTiendaWeb,$bottonSubirHijos);
         }
         ?>
 
@@ -161,14 +188,23 @@
 
 
 <div class="container">
-    <?php 
+    <?php
+        
         if (isset($familia['errores'])){
             foreach ($familia['errores'] as $comprobaciones){
-                echo '<div class="alert alert-'.$comprobaciones['tipo'].'">'.$comprobaciones['mensaje'].'</div>';
+                echo $Cfamilias->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
+                // No permito continuar, ya que hubo error grabe.
+                exit;
             }
-            echo '<div class="alert alert-danger">No permito continuar, ponte en contacto con administrador sistemas</div>';
-            // No permito continuar, ya que hubo error grabe.
-            exit;
+        }
+        if (isset($errores) && count($errores)>0){
+            foreach ($errores as $error){
+                echo $Cfamilias->montarAdvertencia($error['tipo'],$error['mensaje'],'OK');
+                if ($error['tipo'] === 'danger'){
+                    // No permito continuar ya que es un error grabe.
+                    exit;
+                }
+            }
         }
     ?>
 
@@ -205,7 +241,10 @@
                     <div class="col-md-6">
                         <div class="ui-widget" id="inputPadre">
                             <label for="inputpadre">Padre: </label>
-                            <?php echo $combopadres ?>                                
+                             <select name="padre" class="form-control " id="combopadre">
+                            <?php echo $combopadres ?>
+                            </select>
+                            <input type="hidden" name="idpadre" id="inputidpadre" value="<?php echo $familia['familiaPadre'];?>">                               
                         </div>
                     </div>
                 </div>
@@ -259,7 +298,7 @@
         </div>
     </div>
         <div class="col-md-12" >
-        <?php 
+        <?php
             echo $htmlFamiliasWeb;
         ?>
         </div>

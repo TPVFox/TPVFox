@@ -28,7 +28,7 @@ class ClaseFamilias extends Modelo {
 		$this->plugins = $plugins->GetParametrosPlugins();
 	}
 
-     public function SetPlugin($nombre_plugin){
+    public function SetPlugin($nombre_plugin){
             // @ Objetivo
             // Devolver el Object del plugin en cuestion.
             // @ nombre_plugin -> (string) Es el nombre del plugin que hay parametros de este.
@@ -126,6 +126,7 @@ class ClaseFamilias extends Modelo {
         $resultado = $this->consulta($sql);
         if ($resultado['datos']) {
             if ($addRoot) {
+                // Añadimos al inicio del array el valor 0 como Raiz
                 array_unshift($resultado['datos'], ['idFamilia' => 0, 'familiaNombre' => 'Raíz: la madre de todas las familias', 'familiaPadre'=>'Raíz: el padre de las familias']);
             }
         }
@@ -172,6 +173,7 @@ class ClaseFamilias extends Modelo {
 
         if ($resultado['datos']) {
             if ($addRoot) {
+                // Añadimos al inicio del array el valor 0 como Raiz
                 array_unshift($resultado['datos'], ['idFamilia' => 0, 'familiaNombre' => 'Raíz: la madre de todas las familias']);
             }
         }
@@ -338,6 +340,69 @@ class ClaseFamilias extends Modelo {
             }
         }
         return  $datosFamilia;
+    }
+
+    public function htmlComboFamilias($elementos, $id_seleccionado,$nombreid='idFamilia'){
+        // @ Objetivo:
+        // Obtener el html combo de las familias con la familias selecciona si se la enviamos.
+        // @ Parametros
+        //  $elementos => Array de elementos (familias) un campo tiene que familiaNombre
+        //                                              el otro si no indica nombreId tiene ser idFamilia.
+        //  $id_seleccionado  => ID del que esta seleccionado 
+
+
+        // Montamos el combo ( esto debería haber una funcion )
+        $vp = '';
+        $combo = '';
+        foreach ($elementos as $elemento) {
+            $combo .= '<option value=' . $elemento[$nombreid];
+            if ($id_seleccionado == $elemento[$nombreid]) {
+                $combo .= ' selected = "selected" ';
+                $vp = $elemento[$nombreid];
+            }
+            $combo .= '>' . $elemento['familiaNombre'] . '</option>';
+        }
+        //~ $combo .= '<input type="hidden" name="idpadre" id="inputidpadre" value="'.$vp.'">';
+        //~ $combo .= '<input type="hidden" name="idpadre" id="inputidpadre" value="">'; 
+
+
+        return $combo;
+    }
+
+    // ------------------- METODOS COMUNES ----------------------  //
+    // -  Al final de cada clase suelo poner aquellos metodos   -  //
+    // - que considero que puede ser añadimos algun controlador -  //
+    // - comun del core, ya que pienso son necesarios para mas  -  //
+    // - modulos.                                                  //
+    // ----------------------------------------------------------  //
+
+
+    public function montarAdvertencia($tipo,$mensaje,$html='KO'){
+        // @ Objetivo:
+        // Montar array para error/advertencia , tb podemos devolver el html
+        // @ Parametros
+        //  $tipo -> (string) Indica tipo error/advertencia puede ser : danger,warning,success y info
+        //  $mensaje -> puede ser string o array. Este ultimos es comodo por ejemplo en las cosultas.
+        //  $html -> (string) Indicamos si queremos que devuelva html en vez del array.
+        // @ Devolvemos
+        //  Array ( tipo, mensaje ) o html con advertencia o error.
+        $advertencia = array ( 'tipo'    =>$tipo,
+                          'mensaje' => $mensaje
+                        );
+        if ($html === 'OK'){
+            $advertencia = '<div class="alert alert-'.$tipo.'">'
+                          . '<strong>'.$tipo.' </strong><br/> ';
+                    if (is_array($mensaje)){
+                        $p = print_r($mensaje,TRUE);
+                        $advertencia .= '<pre>'.$p.'</pre>';
+                    } else {
+                        $advertencia .= $mensaje;
+                    }
+                    $advertencia .= '</div>';
+
+        }
+                        
+        return $advertencia;
     }
     
 }

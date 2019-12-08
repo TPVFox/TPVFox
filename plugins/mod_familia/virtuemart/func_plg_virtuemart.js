@@ -1,19 +1,48 @@
 function  ObtenerDatosFamilia(){
     $('#nombreFamilia').val($('#inputnombre').val());
-    $('#inputpadreWeb #combopadre').val($('#inputPadre #combopadre').val());
-    $("#inputpadreWeb #combopadre option:selected").text($("#inputPadre #combopadre option:selected").text());
-    console.log($('#inputpadreWeb #combopadre').val());
+    var parametros = {
+            "pulsado"    	: 'obtenerIdFamiliaWeb',
+            "idFamiliaTpv"	: $('#inputPadre #combopadre').val()
+            };
+
+    $.ajax({
+        data       : parametros,
+        url        : ruta_plg_virtuemart+'tareas_virtuemart.php',
+        type       : 'post',
+        beforeSend : function () {
+        console.log('********* Envio solicitud de dato id Familia  **************');
+        },
+        success    :  function (response) {
+                console.log('Respuesta de obtener idfamilia relacionada');
+                var resultado = $.parseJSON(response);
+                if (!resultado['idFamiliaWeb']){
+                   // Tuvo que haber un error , por lo que idFamilia
+                    resultado['idFamiliaWeb'] = 0;
+                    if (resultado['html_alerta']){
+                         $('#alertasWeb').html(resultado.html_alerta);
+                    }
+                } else {
+                    var obtengoIndexSelect = $("#combopadreWeb").prop("selectedIndex");
+                    var valorIndexSelect = $("#combopadreWeb option");
+                    var id = resultado['idFamiliaWeb'];
+                    if (valorIndexSelect[obtengoIndexSelect].value !== id){
+                        // Elimino selected de actual seleccion.
+                        $("#combopadreWeb option:selected").removeAttr("selected");
+                        // Añado selected a valor obtenido.
+                        $("#combopadreWeb option[value="+id+"]").attr("selected","selected");
+                        alert ( 'La familia obtenida no es la misma que la que tienes ahora seleccionada \nno se actualiza en esta pantalla, deberas refrescar');
+                    }
+                }
+                console.log(resultado);
+                $('#inputidpadreWeb').val(resultado['idFamiliaWeb']);
+            }
+        });
+    // Ahora debemos llamar a funcion obtener select de combo ya que tiene select que no pertenece.
+    
+    console.log($('#inputpadreWeb #combopadreWeb').val());
     console.log($('#inputPadre #combopadre').val());
 }
-$(function () {
-    //~ $("#inputpadreWeb #combopadre").combobox({
-        //~ select: function (event, ui) {
-            //~ console.log("valor de input"+ui.item.value);
-            //~ $('#inputpadreWeb #inputidpadre').val(ui.item.value);
-        //~ },
-    //~ });
 
-});
 
 function modificarFamiliaWeb(idFamilia="", idTienda=""){
     // Llegamos aquí tanto al modificar como al añadir nueva familia.
@@ -24,13 +53,13 @@ function modificarFamiliaWeb(idFamilia="", idTienda=""){
             alert("NO has introducido ningún nombre de familia");
         }else{
             var datos={
-                'idFamiliaPadre': $('#inputpadreWeb #combopadre').val(),
+                'idFamiliaPadreWeb': $('#inputidpadreWeb').val(),
                 'idFamiliaTpv': idFamilia,
                 'idFamiliaWeb':$('#idFamiliaweb').val(),
                 'idTienda': idTienda,
                 'nombreFamilia': $('#nombreFamilia').val()
             };
-            console.log(datos);
+            console.log(ruta_plg_virtuemart);
             var parametros = {
             "pulsado"    	: 'modificarFamiliaWeb',
             "datos"	: JSON.stringify(datos)
@@ -47,13 +76,17 @@ function modificarFamiliaWeb(idFamilia="", idTienda=""){
                     var resultado = $.parseJSON(response);
                     console.log(resultado);
                     if(resultado.htmlAlerta){
-                        
                         $('#alertasWeb').html(resultado.htmlAlerta);
                     }
-                  
-                    if(resultado.resul.Datos.idArticulo){
-                        $('#idWeb').html(resultado.resul.Datos.idArticulo);
-                        $('#botonWeb').val("Modificar en Web");
+                    var addFamilia = resultado.addFamilia;
+                    if (addFamilia){
+                        if(resultado.addFamilia.Datos.idFamilia){
+                            // Ponemos en input el idFamilia creado, para que no pueda volver a crear ( duplicado)
+                            $('#idFamiliaweb').val(resultado.addFamilia.Datos.idFamilia);
+                            $('#botonWeb').val("Modificar en Web");
+                            $("#botonWeb").attr('class', 'btn btn-primary');
+                            
+                        }
                     }
                     
                      
@@ -92,3 +125,7 @@ function subirHijosWeb(idPadre, idTienda){
         
     });
 }
+
+
+
+

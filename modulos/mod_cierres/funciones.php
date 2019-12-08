@@ -71,16 +71,11 @@ function nombreUsuario($BDTpv,$idUsuario){
 	//$sql='SELECT username,nombre FROM `usuarios` WHERE `id`='.$idUsuario;
 	$sql=' SELECT u.username, u.nombre, t.Numticket FROM `usuarios` AS u '
 		.'LEFT JOIN `ticketst` AS t  ON t.idUsuario = u.id WHERE t.idUsuario='.$idUsuario;
-		
-//		SELECT u.username, u.nombre, t.* FROM `usuarios` AS u LEFT JOIN `ticketst` AS t ON t.idUsuario = u.id WHERE t.idUsuario=12 AND t.Fecha>'2017-10-01' AND t.Fecha<='2017-10-02' 
 	$resp = $BDTpv->query($sql);
 	$resultado=array();
 	if ($resp->num_rows > 0) {
 		while($fila = $resp->fetch_assoc()) {
 			$resultado['datos']=$fila;
-			//~ $resultado['rangoTickets'][$i]= $fila['Numticket'];
-			//~ $resultado['numTicket'] = $fila['Numticket'];
-			//~ $i++;
 		}
 	}
 	return $resultado;
@@ -555,9 +550,10 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 	$resultado['encontrados'] = count($clientes);
 	// Creamos objeto en javascript de caja busqeuda.
 	
-	$resultado['html'] = '<label>Busqueda Cliente</label>';
-	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
-				'size="13" data-obj="cajaBusquedacliente" value="'.$busqueda.'" onkeydown="controlEventos(event,'."'".'cajaBusquedacliente'."'".')" type="text">';
+	$resultado['html'] = '<label>Busqueda Cliente</label>'
+                        .'<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'
+                        .'size="13" data-obj="cajaBusquedacliente" value="'
+                        .$busqueda.'" onkeydown="controlEventos(event,'."'".'cajaBusquedacliente'."'".')" type="text">';
 				
 	if (count($clientes)>10){
 		$resultado['html'] .= '<span>10 productos de '.count($clientes).'</span>';
@@ -573,14 +569,17 @@ function htmlClientes($busqueda,$dedonde,$clientes = array()){
 		foreach ($clientes as $cliente){  
 			$razonsocial_nombre=$cliente['nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="cerrarModalClientes('.$datos.','.$n_dedonde.');">';
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" class="FilaModal" name="filacliente" data-obj="idN" onkeydown="controlEventos(event,'."'".'N_'.$contad."'".')"  type="image"  alt="">';
-			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
-			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';
-			$resultado['html'] .= '</tr>';
+			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="cerrarModalClientes('
+                                .$datos.','.$n_dedonde.');">'
+                                .'<td id="C'.$contad.'_Lin" >'
+                                .'<input id="N_'.$contad
+                                .'" class="FilaModal" name="filacliente" data-obj="idN" onkeydown="controlEventos(event,'
+                                ."'".'N_'.$contad."'".')"  type="image"  alt="">'
+                                .'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+                                .'<td>'.htmlspecialchars($cliente['nombre'],ENT_QUOTES).'</td>'
+                                .'<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>'
+                                .'<td>'.$cliente['nif'].'</td>'
+                                .'</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
 				break;

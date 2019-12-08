@@ -126,7 +126,7 @@
                             if ($movimiento['tipodoc']=== 'T'){
                                 // Es un ticket
                                 $url= $HostNombre
-                                    .'/modulos/mod_cierres/ticketCerrado.php?id='.$movimiento['numid'];
+                                    .'/modulos/mod_tpv/ticketCobrado.php?id='.$movimiento['numid'];
                             }
                             if ($movimiento['tipodoc']=== 'V'){
                                 // Es un albaran de venta
