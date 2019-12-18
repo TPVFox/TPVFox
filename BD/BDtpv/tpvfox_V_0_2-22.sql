@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 02-08-2019 a las 19:37:42
--- Versión del servidor: 10.3.15-MariaDB-1
--- Versión de PHP: 7.2.20-2+0~20190725.24+debian10~1.gbp69697c
+-- Tiempo de generación: 08-12-2019 a las 19:04:15
+-- Versión del servidor: 10.3.17-MariaDB-0+deb10u1
+-- Versión de PHP: 7.3.9-1+0~20190902.44+debian10~1.gbpf8534c
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `tpvfox`
+-- Base de datos: `tpvfox_provincial`
 --
 
 -- --------------------------------------------------------
@@ -164,7 +164,7 @@ CREATE TABLE `albprolinea` (
   `nfila` int(11) DEFAULT NULL,
   `estadoLinea` varchar(12) DEFAULT NULL,
   `ref_prov` varchar(18) NOT NULL,
-  `Numpedpro` int(11) DEFAULT NULL
+  `Numpedpro` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -227,7 +227,7 @@ CREATE TABLE `articulos` (
   `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
   `fecha_creado` datetime NOT NULL,
   `fecha_modificado` datetime DEFAULT NULL,
-  `ultimoCoste` float(8,2) NOT NULL,
+  `ultimoCoste` float NOT NULL,
   `tipo` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -242,7 +242,7 @@ CREATE TABLE `articulosClientes` (
   `idClientes` int(11) NOT NULL,
   `pvpSiva` decimal(17,6) NOT NULL,
   `pvpCiva` decimal(17,6) NOT NULL,
-  `fechaActualizacion` date NOT NULL,
+  `fechaActualizacion` datetime NOT NULL,
   `estado` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -324,7 +324,7 @@ CREATE TABLE `articulosTiendas` (
   `id` int(11) NOT NULL,
   `idArticulo` int(11) NOT NULL,
   `idTienda` int(11) NOT NULL,
-  `crefTienda` varchar(18) NOT NULL,
+  `crefTienda` varchar(18) DEFAULT NULL,
   `idVirtuemart` int(11) NOT NULL,
   `estado` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -401,39 +401,25 @@ CREATE TABLE `cierres_usuarios_tickets` (
 CREATE TABLE `clientes` (
   `idClientes` int(11) NOT NULL,
   `Nombre` varchar(100) CHARACTER SET utf8 NOT NULL,
-  `razonsocial` varchar(100) CHARACTER SET utf8 NOT NULL,
-  `nif` varchar(10) CHARACTER SET utf8 NOT NULL,
-  `direccion` varchar(100) CHARACTER SET utf8 NOT NULL,
-  `codpostal` varchar(32) NOT NULL,
-  `telefono` varchar(11) NOT NULL,
-  `movil` varchar(11) NOT NULL,
-  `fax` varchar(11) NOT NULL,
-  `email` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `razonsocial` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `nif` varchar(10) CHARACTER SET utf8 DEFAULT NULL,
+  `direccion` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `codpostal` varchar(32) DEFAULT NULL,
+  `telefono` varchar(11) DEFAULT NULL,
+  `movil` varchar(11) DEFAULT NULL,
+  `fax` varchar(11) DEFAULT NULL,
+  `email` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
-  `fomasVenci` varchar(250) DEFAULT NULL,
+  `formasVenci` varchar(250) DEFAULT NULL,
   `fecha_creado` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `clientes`
 --
 
-INSERT INTO `clientes` (`idClientes`, `Nombre`, `razonsocial`, `nif`, `direccion`, `codpostal`, `telefono`, `movil`, `fax`, `email`, `estado`, `fomasVenci`, `fecha_creado`) VALUES
+INSERT INTO `clientes` (`idClientes`, `Nombre`, `razonsocial`, `nif`, `direccion`, `codpostal`, `telefono`, `movil`, `fax`, `email`, `estado`, `formasVenci`, `fecha_creado`) VALUES
 (1, 'Sin identificar', 'Sin identificar', '', '', '', '', '', '', '', '', NULL, '0000-00-00 00:00:00');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `Cli_FroPa_TipoVen`
---
-
-CREATE TABLE `Cli_FroPa_TipoVen` (
-  `id` int(11) NOT NULL,
-  `idCliente` int(11) NOT NULL,
-  `idFormasPago` int(11) NOT NULL,
-  `idTiposVencimiento` int(11) NOT NULL,
-  `Predeterminado` tinyint(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -651,6 +637,7 @@ CREATE TABLE `familias` (
 --
 
 CREATE TABLE `familiasTienda` (
+  `id` int(11) NOT NULL,
   `idFamilia` int(11) NOT NULL,
   `idTienda` int(11) NOT NULL,
   `idFamilia_tienda` int(11) NOT NULL
@@ -739,10 +726,10 @@ CREATE TABLE `iva` (
 --
 
 INSERT INTO `iva` (`idIva`, `descripcionIva`, `iva`, `recargo`) VALUES
-(1, 'Exento de Iva', '0.00', '0.00'),
-(2, 'Iva Super Reduccido', '4.00', '0.50'),
-(3, 'Iva Reduccido', '10.00', '1.00'),
-(4, 'Iva General', '21.00', '4.00');
+(1, 'I.V.A. al cero', '0.00', '0.00'),
+(2, 'Super Reducido', '4.00', '0.50'),
+(3, 'Reducido', '10.00', '1.00'),
+(4, 'General', '21.00', '4.00');
 
 -- --------------------------------------------------------
 
@@ -805,7 +792,7 @@ CREATE TABLE `modulo_balanza_plus` (
 
 CREATE TABLE `modulo_etiquetado` (
   `id` int(11) NOT NULL,
-  `num_lote` int(11) NOT NULL,
+  `num_lote` int(11) DEFAULT NULL,
   `tipo` varchar(12) NOT NULL,
   `fecha_env` datetime NOT NULL,
   `fecha_cad` date NOT NULL,
@@ -1071,8 +1058,8 @@ CREATE TABLE `proveedores` (
   `fax` varchar(11) NOT NULL,
   `movil` varchar(11) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `estado` varchar(12) NOT NULL,
-  `fecha_creado` datetime NOT NULL
+  `fecha_creado` datetime NOT NULL,
+  `estado` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1191,14 +1178,14 @@ CREATE TABLE `tiendas` (
   `ano` varchar(4) DEFAULT NULL,
   `dominio` varchar(100) NOT NULL,
   `key_api` varchar(30) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `tiendas`
 --
 
 INSERT INTO `tiendas` (`idTienda`, `tipoTienda`, `razonsocial`, `nif`, `telefono`, `estado`, `NombreComercial`, `direccion`, `ano`, `dominio`, `key_api`) VALUES
-(1, 'principal', 'Tienda Principal', '999999999', '99999999', 'activo', 'Nombre Comercial', 'Direccion', '2019', '', '');
+(1, 'principal', 'Tienda Prueba SL', 'B99999999', '999999999', 'activo', 'Tienda Prueba', 'Una direccion, 52 -bajo', '2020', '', '');
 
 -- --------------------------------------------------------
 
@@ -1211,6 +1198,17 @@ CREATE TABLE `tiposVencimiento` (
   `descripcion` varchar(20) NOT NULL,
   `dias` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `tiposVencimiento`
+--
+
+INSERT INTO `tiposVencimiento` (`id`, `descripcion`, `dias`) VALUES
+(1, 'Contado', 1),
+(2, 'Semanal', 7),
+(3, 'Quincenal', 15),
+(4, 'Mensual', 30),
+(5, 'Semestral', 181);
 
 -- --------------------------------------------------------
 
@@ -1226,14 +1224,14 @@ CREATE TABLE `usuarios` (
   `group_id` int(11) NOT NULL COMMENT 'id grupo permisos',
   `estado` varchar(12) NOT NULL COMMENT 'estado',
   `nombre` varchar(150) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
 INSERT INTO `usuarios` (`id`, `username`, `password`, `fecha`, `group_id`, `estado`, `nombre`) VALUES
-(1, 'admin', '', '2017-09-06', 9, 'activo', 'admin');
+(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', '2017-09-06', 9, 'activo', 'admin');
 
 --
 -- Índices para tablas volcadas
@@ -1321,6 +1319,12 @@ ALTER TABLE `articulosFamilias`
   ADD KEY `fk_articulos` (`idArticulo`);
 
 --
+-- Indices de la tabla `articulosPrecios`
+--
+ALTER TABLE `articulosPrecios`
+  ADD PRIMARY KEY (`idArticulo`,`idTienda`);
+
+--
 -- Indices de la tabla `articulosProveedores`
 --
 ALTER TABLE `articulosProveedores`
@@ -1369,12 +1373,6 @@ ALTER TABLE `cierres_usuarios_tickets`
 --
 ALTER TABLE `clientes`
   ADD PRIMARY KEY (`idClientes`);
-
---
--- Indices de la tabla `Cli_FroPa_TipoVen`
---
-ALTER TABLE `Cli_FroPa_TipoVen`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `faccliIva`
@@ -1441,6 +1439,12 @@ ALTER TABLE `fac_cobros`
 --
 ALTER TABLE `familias`
   ADD PRIMARY KEY (`idFamilia`);
+
+--
+-- Indices de la tabla `familiasTienda`
+--
+ALTER TABLE `familiasTienda`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `formasPago`
@@ -1716,12 +1720,7 @@ ALTER TABLE `cierres_usuarios_tickets`
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `idClientes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
---
--- AUTO_INCREMENT de la tabla `Cli_FroPa_TipoVen`
---
-ALTER TABLE `Cli_FroPa_TipoVen`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idClientes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=210;
 --
 -- AUTO_INCREMENT de la tabla `faccliIva`
 --
@@ -1778,6 +1777,11 @@ ALTER TABLE `fac_cobros`
 ALTER TABLE `familias`
   MODIFY `idFamilia` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT de la tabla `familiasTienda`
+--
+ALTER TABLE `familiasTienda`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT de la tabla `formasPago`
 --
 ALTER TABLE `formasPago`
@@ -1796,7 +1800,7 @@ ALTER TABLE `importar_virtuemart_tickets`
 -- AUTO_INCREMENT de la tabla `indices`
 --
 ALTER TABLE `indices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 --
 -- AUTO_INCREMENT de la tabla `iva`
 --
@@ -1911,17 +1915,17 @@ ALTER TABLE `ticketstIva`
 -- AUTO_INCREMENT de la tabla `tiendas`
 --
 ALTER TABLE `tiendas`
-  MODIFY `idTienda` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idTienda` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT de la tabla `tiposVencimiento`
 --
 ALTER TABLE `tiposVencimiento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
