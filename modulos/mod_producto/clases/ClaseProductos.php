@@ -174,7 +174,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 		//    - A la ultimo precio de coste de un albaran o factura de compra.
 		// No se considera ultimo coste a:
 		// 	  - A un precio tarifa puesto en un proveedor.
-		// [NO PUEDO CONTINUAR MIENTRAS NO SE ARREGLE ISSUE 31 ]
 		
 		// Reinicio comprobacionesEstado.
 		$this->comprobaciones = array();
@@ -314,14 +313,15 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// @ Parametros:
 		// 		$producto-> (array) Con los datos del producto
 		// @ Responde :
-		// 		Si hubiera un error crea una comprobación y le añade a la propiedad comprobaciones y tb la devuelve.
+		// 		Si hubiera un error crea una comprobación y le añade a la propiedad comprobaciones.
+        //      No devuelve nada.
 		$estado = $producto['estado'];
+        $datetime1 = date_create($producto['fecha_creado']);
+        $datetime2 = date_create();
+		$interval = date_diff($datetime1, $datetime2);
 		switch ($estado) {
 			case 'Nuevo':
 				// Debemos saber si la fecha_actualizacion ultima es superior a un mes.
-				$datetime1 = date_create($producto['fecha_creado']);
-				$datetime2 = date_create();
-				$interval = date_diff($datetime1, $datetime2);
 				if ($interval->days >20){
 					// Creamos la advertencia.
 					$error = array ( 'tipo'=>'warning',
@@ -334,9 +334,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 				break;
 			case 'importado':
 				// Debemos saber si la fecha_actualizacion ultima es superior a un mes.
-				$datetime1 = date_create($producto['fecha_creado']);
-				$datetime2 = date_create();
-				$interval = date_diff($datetime1, $datetime2);
 				if ($interval->days >20){
 					// Creamos la advertencia.
 					$error = array ( 'tipo'=>'warning',

@@ -26,15 +26,15 @@ class ClaseTablaArticulos{
 	public $estado ='Nuevo'; // Estado del producto en la tabla articulos al crear.
 	public $fecha_creado;
 	public $fecha_modificado;
-	public $codBarras; // Array de codbarras para ese producto.
+	public $codBarras = array(); // Array de codbarras para ese producto.
 	public $precios_tiendas; // Array de referencias de las tiendas.
 	public $proveedores_costes; // Array de proveedores para ese producto ( costes,referencias)
 	public $familias; // Array de familias de ese producto
 	public $proveedor_principal; // Array con datos del proveedor principal
     public $productos_historico;
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
-	public $ref_tiendas ; // (array) No inicializado, se utiliza para guardar las referencias distintas tiendas.
-    public $stocks = [];
+	public $ref_tiendas = array() ; // (array) Se utiliza para guardar las referencias distintas tiendas.
+    public $stocks = array('stockMin' =>0,'stockMax'=>0,'stockOn'=>0);
     public $tipo='unidad';
 	
 	public function __construct($conexion='')

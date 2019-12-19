@@ -42,28 +42,6 @@
 		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 		$Producto = $CTArticulos->GetProducto($id);
 		
-	
-				
-		if (isset($preparados['comprobaciones'])){
-			foreach ($preparados['comprobaciones'] as $comprobacion){
-				$CTArticulos->SetComprobaciones($comprobacion);
-			}
-		}
-		if (isset($preparados['codbarras'])){
-			foreach ($preparados['codbarras'] as $comprobacion){
-				$CTArticulos->SetComprobaciones($comprobacion);
-			}
-		}
-        if (isset($preparados['familias'])){
-			foreach ($preparados['familias'] as $comprobacion){
-				$CTArticulos->SetComprobaciones($comprobacion);
-			}
-		}
-		if (isset($preparados['insert_articulos'])){
-			foreach ($preparados['insert_articulos'] as $comprobacion){
-				$CTArticulos->SetComprobaciones($comprobacion);
-			}
-		}
 		
 		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
 		
@@ -94,9 +72,9 @@
 		}
         
 		// Cargamos el plugin que nos interesa.
+        $idVirtuemart = 0;
         if( isset($Producto['ref_tiendas'])){
             // Esto no es del todo correcto... ?
-            $idVirtuemart = 0;
             foreach ($Producto['ref_tiendas'] as $ref){
                 // Debemos comprobar que es la referencia de la tienda web.. FALTA
                 if ($ref['idVirtuemart'] >0){
@@ -116,7 +94,7 @@
 			$OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
             // Obtengo el id de la tienda Web
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-            // Obtengo se conecta a la web y obtiene los datos de producto cruzado.
+            // Se conecta a la web y obtiene los datos de producto cruzado.
             $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
 
             // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
@@ -139,7 +117,8 @@
             $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
             $htmlHistoricoPrecios=htmlTablaHistoricoPrecios($Producto['productos_historico']);
             $htmlTipo=htmlTipoProducto($Producto['tipo']);
-		?>
+    	?>
+    
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
 		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
             $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;

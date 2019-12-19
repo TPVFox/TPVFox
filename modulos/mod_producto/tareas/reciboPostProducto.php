@@ -13,9 +13,6 @@ if (isset($_POST['id'])){
 	exit();
 }
 // Comprobamos los datos y grabamos.
-//~ echo '<pre>';
-//~ print_r($_POST);
-//~ echo '</pre>';
 $DatosPostProducto= prepararandoPostProducto($_POST,$CTArticulos);
 // Ahora vemos si hay advertencias de campos
 if (isset($DatosPostProducto['comprobaciones'])){
@@ -30,9 +27,6 @@ if (isset($DatosPostProducto['comprobaciones'])){
 	}
 	
 }
-//~ echo '<pre>';
-//~ print_r($DatosPostProducto);
-//~ echo '</pre>';
 
 //~ // --- Ahora comprobamos y grabamos ---- //
 
@@ -50,9 +44,6 @@ if ($id >0 ){
 							 'dato' => ' No controlo que cambios realizaron por separador en ComprobarNuevosDatosProducto'
 							);
 				$preparados['comprobaciones'][] = $success;
-				//~ echo '<pre>';
-				//~ print_r($preparados);
-				//~ echo '</pre>';
 			
 			}
 			if (isset($comprobacion['error'])){
@@ -73,16 +64,11 @@ if ($id >0 ){
 		// ---			Comprobamos  y grabamos los codbarras .				---//
 		$comprobaciones = $CTArticulos->ComprobarCodbarrasUnProducto($id,$DatosPostProducto['codBarras']);
 		$preparados['codbarras'] = $comprobaciones;
-        //~ echo '<pre>';
-        //~ print_r($_POST);
-        //~ echo '</pre>';
         $comprobaciones=$CTArticulos->ComprobarFamiliasProducto($id, $DatosPostProducto['familias']);
         $preparados['familias'] = $comprobaciones;
 		// ---	Comprobamos y grabamos los proveedores . ---//
 		$comprobaciones = $CTArticulos->ComprobarProveedoresCostes($id,$DatosPostProducto['proveedores_costes']);
-//~ echo '<pre>';
-//~ print_r($DatosPostProducto);
-//~ echo '</pre>';
+
         foreach ($comprobaciones as $key => $comprobacion){
 			
 			if ($key === 'nuevo'){
@@ -131,10 +117,6 @@ if ($id >0 ){
 		if (count($comprobaciones)=== 0){
           
 			$anhadir = $CTArticulos->AnhadirProductoNuevo($DatosPostProducto);
-            //~ echo '<pre>';
-            //~ print_r($anhadir);
-            //~ echo '</pre>';
-
             $DatosPostProducto['Sqls']['NuevoProducto']=$anhadir;
 			// Se creo uno NUEVO fijo.
 			if (isset($anhadir['insert_articulos']['id_producto_nuevo'])){
@@ -143,7 +125,7 @@ if ($id >0 ){
 				// Montamos comprobaciones para enviar despues de cargar de nuevo producto.
 				$success = array ( 'tipo'=>'success',
 							 'mensaje' =>'Se creo el producto con id '.$id.' nuevo',
-							 'dato' => $anhadir['consulta']
+							 'dato' => json_encode($anhadir)
 							);
 				$preparados['comprobaciones'][] = $success;
 				// Ahora comprobamos si añadio mas cosas en el articulo nuevo. 
@@ -153,7 +135,7 @@ if ($id >0 ){
 						$success = array ( 'tipo'=>'success',
 							 'mensaje' =>'Se añadieron precios correctos en '
 										.$anhadir['insert_articulos_precios']['Afectados'].' registros',
-							 'dato' => $anhadir['consulta']
+							 'dato' => json_encode($anhadir)
 							);
 						$preparados['comprobaciones'][] = $success;
 					} else {
@@ -178,7 +160,27 @@ if ($id >0 ){
 		}
 		
 }
-//~ echo '<pre>';
-//~ print_r($preparados);
-//~ echo '</pre>';
+	
+// Preparados viene de 		
+if (isset($preparados['comprobaciones'])){
+    foreach ($preparados['comprobaciones'] as $comprobacion){
+        $CTArticulos->SetComprobaciones($comprobacion);
+    }
+}
+if (isset($preparados['codbarras'])){
+    foreach ($preparados['codbarras'] as $comprobacion){
+        $CTArticulos->SetComprobaciones($comprobacion);
+    }
+}
+if (isset($preparados['familias'])){
+    foreach ($preparados['familias'] as $comprobacion){
+        $CTArticulos->SetComprobaciones($comprobacion);
+    }
+}
+if (isset($preparados['insert_articulos'])){
+    foreach ($preparados['insert_articulos'] as $comprobacion){
+        $CTArticulos->SetComprobaciones($comprobacion);
+    }
+}
+
 ?>
