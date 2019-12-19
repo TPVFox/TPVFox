@@ -228,7 +228,15 @@
 								</a>
 							</label>
 							<div>
-								<input type="text" pattern="[-+]?[0-9]*[.]?[0-9]+" id="coste" size="8" name="ultimoCoste" value="<?php echo number_format($Producto['ultimoCoste'],2, '.', '');?>"  data-obj= "cajaCoste" onkeydown="controlEventos(event)"   readonly> 
+                                <?php
+                                    // Si es nuevo el producto permitimos de entrada poder editarlo.
+                                    $solo_lectura = '';
+                                    if ( $id > 0) {
+                                        $solo_lectura =  ' readonly';
+                                    }
+                                ?>
+                                
+								<input type="text" pattern="[-+]?[0-9]*[.]?[0-9]+" id="coste" size="8" name="ultimoCoste" value=<?php echo '"'.number_format($Producto['ultimoCoste'],2, '.', '').'" '.$solo_lectura;?>  data-obj= "cajaCoste" onkeydown="controlEventos(event)"> 
 								<span class="Euro_grande">€</span> 
 							</div>
 						</div>
