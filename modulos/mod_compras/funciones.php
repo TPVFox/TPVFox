@@ -249,10 +249,10 @@ function recalculoTotales($productos) {
 	return $respuesta;
 }
 
-function htmlLineaProducto($productos, $dedonde){
+function htmlLineaProducto($productos, $dedonde,$solo_lectura=''){
         //@Objetivo:
         // html de la linea de los productos tanto para pedido, albaran y factura
-         $respuesta=array('html'=>'');
+        $respuesta=array('html'=>'');
         if(!is_array($productos)) {
             // Comprobamos si product no es objeto lo convertimos.
             $productos = (array)$productos;		
@@ -275,11 +275,13 @@ function htmlLineaProducto($productos, $dedonde){
 
         $numeroDoc=""; // Pedido no muestra nada.
         $coste= number_format($producto['ultimoCoste'], 4); // Pedidos no se permite modificar.
+        $html_coste = $coste;
+            
         if ($dedonde =="albaran" || $dedonde=="factura"){
             // El coste en albaran y facturas se puede modificar.
-            $coste  ='<input type="text" id="ultimo_coste_'.$producto['nfila']
+            $html_coste  ='<input type="text" id="ultimo_coste_'.$producto['nfila']
                     .'" data-obj="ultimo_coste" onkeydown="controlEventos(event)"'
-                    .' name="ultimo" onBlur="controlEventos(event)" value="'.$coste.'" size="4">';
+                    .' name="ultimo" onBlur="controlEventos(event)" value="'.$coste.'" '.$solo_lectura.' size="4">';
             
             // Ahora montamos td de numDoc
             $numeroDoc = '<td class="idArticulo">';
@@ -305,15 +307,19 @@ function htmlLineaProducto($productos, $dedonde){
                 $ref_prov = 'value="'.$producto['crefProveedor'].'"';
             }
         } 
-        $filaProveedor='<td><input id="Proveedor_Fila_'
+        $filaProveedor ='<td><input id="Proveedor_Fila_'
                         .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
                         .'name="proveedor" '.$ref_prov.' size="7"  onkeydown="controlEventos(event)" '
-                        .'onBlur="controlEventos(event)">'
-                        .'<a onclick=permitirModificarReferenciaProveedor("Proveedor_Fila_'
-                        .$producto['nfila'].'") style="'.$displayRefProv.'" id="enlaceCambio'
-                        .$producto['nfila'].'">'
-                        .'<span class="glyphicon glyphicon-cog"></span>'
-                        .'</a></td>';
+                        .'onBlur="controlEventos(event)"'.$solo_lectura.'>';
+        if ($solo_lectura !=''){
+            $filaProveedor .= '<a onclick=permitirModificarReferenciaProveedor("Proveedor_Fila_'
+                            .$producto['nfila'].'") style="'.$displayRefProv.'" id="enlaceCambio'
+                            .$producto['nfila'].'">'
+                            .'<span class="glyphicon glyphicon-cog"></span>'
+                            .'</a>';
+        }
+                        
+        $filaProveedor .= '</td>';
         
         $codBarra="";
         if (isset ($producto['ccodbar'])){
@@ -334,10 +340,10 @@ function htmlLineaProducto($productos, $dedonde){
                             .'<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
                             .'" type="text" data-obj="Unidad_Fila"  '
                             .' pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad"'
-                            .'size="3"  value="'.$cant.'"  '
+                            .'size="3"  value="'.$cant.'" '.$solo_lectura.' '
                             .$estadoInput.' onkeydown="controlEventos(event)" '
                             .' onBlur="controlEventos(event)"></td>'
-                            .'<td class="pvp">'.$coste.'</td>'
+                            .'<td class="pvp">'.$html_coste.'</td>'
                             . '<td class="tipoiva">'.$producto['iva'].'%</td>'
                             .'<td id="N'.$producto['nfila'].'_Importe" class="importe" >'
                             .$importe.'</td>'. $btnELiminar_Retornar.'</tr>';
