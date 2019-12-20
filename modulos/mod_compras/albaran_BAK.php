@@ -22,6 +22,7 @@
 	$dedonde="albaran";
 	$titulo="Albarán De Proveedor ";
 	$estado='Abierto';
+	
 	$fecha=date('d-m-Y');
 	$hora="";
 	$idAlbaranTemporal=0;
@@ -35,7 +36,7 @@
 	$Datostotales=array();
 	$textoNum="";
 	$inciden=0;
-	$errores = array();
+	
 	//Cargamos la configuración por defecto y las acciones de las cajas 
 	$parametros = $ClasesParametros->getRoot();	
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -51,83 +52,86 @@
 			array_push($configuracionArchivo, $config);
 		}
 	}
-
-	if (isset($_GET['id']) || $_GET['tActual']) {
-        // Si existe id o tActual es que no es nuevo
-        if (isset($_GET['id'])){
-            // Si exite id estamos modificando directamente un albaran.
-            // Obtenemos la incidencias, por si había.
-            // Deberíamos comprobar que no exista ningun temporal.... 
-            $incidenciasAdjuntas=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, "albaran");
-            $inciden=count($incidenciasAdjuntas['datos']);
-            //~ $datosAlbaran=DatosIdAlbaran($_GET['id'], $CAlb, $Cprveedor, $BDTpv );
-            $datosAlbaran = $CAlb->GetAlbaran($_GET['id']);
-            if (isset($datosAlbaran['error'])){
-                $errores=$datosAlbaran['error'];
-            } else {
-                if(isset($datosAlbaran['estado']) ){
-                    $estado=$datosAlbaran['estado'];
-                    if ($datosAlbaran['estado']=="Facturado"){
-                        $numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
-                        if(isset($numFactura['error'])){
-                            array_push($errores,$this->montarAdvertencia(
-                                            'danger',
-                                            'Error 1.1 en base datos.Consulta:'.json_encode($numFactura['consulta'])
-                                    )
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        if (isset($_GET['tActual'])){
-            // Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
-            // o recargamos uno extraemos sus datos de la misma manera que el if de id
-                $idAlbaranTemporal=$_GET['tActual'];
-                $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-                if (isset($datosAlbaran['error'])){
-                        array_push($errores,$this->montarAdvertencia(
-                                        'danger',
-                                        'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
-                                )
-                        );
-                } else {
-                    // Datos que no obtenemos que nos hacen falta
-                    $datosAlbaran['fechaVencimiento'] ='';
-                }
-                
-        }
-        if (count($errores) == 0){
-            $idAlbaran=0;
-            if (isset ($datosAlbaran['Numalbpro'])){
-                $d=$CAlb->buscarAlbaranNumero($datosAlbaran['Numalbpro']);
-                $idAlbaran=$d['id'];
-                $textoNum=$idAlbaran;
-            }
-            $fecha = ($datosAlbaran['Fecha']=="0000-00-00 00:00:00")
-                                    ? date('d-m-Y'):date_format(date_create($datosAlbaran['Fecha']),'d-m-Y');
-            $hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
-            if ($datosAlbaran['Su_numero']!==""){
-                $suNumero=$datosAlbaran['Su_numero'];
-            }
-            echo '<pre>';
-            print_r($datosAlbaran);
-            echo '</pre>';
-            $idProveedor=$datosAlbaran['idProveedor'];
-            $proveedor=$Cprveedor->buscarProveedorId($idProveedor);
-            $nombreProveedor=$proveedor['nombrecomercial'];
-            $albaran=$datosAlbaran;
-            $productos =$datosAlbaran['Productos'];
-            $pedidos=json_decode($datosAlbaran['Pedidos']);
-            $formaPago=$datosAlbaran['formaPago'];
-            $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
-            $fechaVencimiento=$datosAlbaran['fechaVencimiento'];
-        }
+	
+	// Si recibe un id es que vamos a modificar un albarán que ya está creado 
+	//Para ello tenbemos que buscar los datos del albarán para poder mostrarlos 
+	if (isset($_GET['id'])){
+		$datosAlbaran=DatosIdAlbaran($_GET['id'], $CAlb, $Cprveedor, $BDTpv );
+		if (isset($datosAlbaran['error'])){
+			$errores=$datosAlbaran['error'];
+		}else{
+			$idAlbaran=$datosAlbaran['idAlbaran'];
+			$estado=$datosAlbaran['estado'];
+			$fecha =date_format(date_create($datosAlbaran['fecha']), 'd-m-Y');
+			$formaPago=$datosAlbaran['formaPago'];
+			$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
+			$fechaVencimiento=$datosAlbaran['fechaVencimiento'];
+			$idProveedor=$datosAlbaran['idProveedor'];
+			$suNumero=$datosAlbaran['suNumero'];
+			$nombreProveedor=$datosAlbaran['nombreProveedor'];
+			$productos=$datosAlbaran['productos'];
+			$Datostotales=$datosAlbaran['DatosTotales'];
+			$pedidos=$datosAlbaran['pedidos'];
+			$textoNum=$idAlbaran;
+			$hora=$datosAlbaran['hora'];
+			
+			if($estado=="Facturado"){
+				$numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
+				if(isset($numFactura['error'])){
+					$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $numFactura['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}
+			
+			}
+		}
+		$incidenciasAdjuntas=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, "albaran");
+		$inciden=count($incidenciasAdjuntas['datos']);
+		
+	}else{
+	// Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
+	// o recargamos uno extraemos sus datos de la misma manera que el if de id
+		if (isset($_GET['tActual'])){
+				$idAlbaranTemporal=$_GET['tActual'];
+				$datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+				if (isset($datosAlbaran['error'])){
+						$errores[0]=array ( 'tipo'=>'Danger!',
+								 'dato' => $datosAlbaran['consulta'],
+								 'class'=>'alert alert-danger',
+								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+								 );
+				}else{
+				if (isset ($datosAlbaran['Numalbpro'])){
+					$numAlbaran=$datosAlbaran['Numalbpro'];
+					$datosReal=$CAlb->buscarAlbaranNumero($numAlbaran);
+					$idAlbaran=$datosReal['id'];
+					$textoNum=$idAlbaran;
+				}else{
+					$idAlbaran=0;
+				}
+				if ($datosAlbaran['Fecha']=="0000-00-00 00:00:00"){
+					$fecha=date('d-m-Y');
+				}else{
+					$fecha =date_format(date_create($datosAlbaran['Fecha']), 'd-m-Y');
+					$hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
+				}
+				if ($datosAlbaran['Su_numero']!==""){
+					$suNumero=$datosAlbaran['Su_numero'];
+				}
+				$idProveedor=$datosAlbaran['idProveedor'];
+				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+				$nombreProveedor=$proveedor['nombrecomercial'];
+				$albaran=$datosAlbaran;
+				$productos =json_decode($datosAlbaran['Productos']);
+				$pedidos=json_decode($datosAlbaran['Pedidos']);
+			}
+		}
 		
 	}
 	
-	if(isset($albaran['productos'])){
+	if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ;
 			// convertimos el objeto productos en array
 			$Datostotales = recalculoTotales($productos);
@@ -136,12 +140,16 @@
 		//Guardar el albarán para ello buscamos los datos en el albarán temporal, los almacenamos todos en un array
 		
 	if (isset($_POST['Guardar'])){
+       
+        //~ echo '<pre>';
+        //~ print_r($_POST);
+        //~ echo '</pre>';
 		//@Objetivo: enviar los datos principales a la funcion guardarAlabaran
 		//si el resultado es  quiere decir que no hay errores y fue todo correcto
         
 		//si no es así muestra mensaje de error
        
-        $guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
+		 $guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
 		if (count($guardar)==0){
 			header('Location: albaranesListado.php');
 		}else{
@@ -165,8 +173,9 @@
 				$style="";
 			}
 		}
-        $estiloTablaProductos="";
-		if (!isset ($_GET['id']) && !isset ($_GET['tActual'])){
+		if (isset ($_GET['id']) || isset ($_GET['tActual'])){
+			$estiloTablaProductos="";
+		}else{
 			$estiloTablaProductos="display:none;";
 		}
 	
@@ -206,8 +215,8 @@
 	
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
-				if ($product['estadoLinea'] !== 'Activo'){
-				?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estadoLinea'].'"';?>;
+				if ($product['estado'] !== 'Activo'){
+				?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 				<?php
 				}
 				$i++;
@@ -421,10 +430,6 @@
                     //Recorremos los productos y vamos escribiendo las lineas.
                     if (isset($productos)){
                         foreach (array_reverse($productos) as $producto){
-                            // Propiedades por compatibilizar version anterior.
-                            $producto['estado']     = $producto['estadoLinea'];
-                            $producto['ultimoCoste']= $producto['costeSiva'];
-                            
                             $html=htmlLineaProducto($producto, "albaran");
                             echo $html['html'];
                         }

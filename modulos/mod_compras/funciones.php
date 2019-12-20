@@ -966,9 +966,9 @@ function guardarAlbaran($datosPost, $datosGet , $BDTpv, $Datostotales){
 						'formaPago'=>$formaPago,
 						'fechaVenci'=>$fechaVenci
 					);
-					if ($datosAlbaran['numalbpro']){
-						$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($datosAlbaran['numalbpro']);
-						$idAlbaran=$datosAlbaran['numalbpro'];
+					if ($datosAlbaran['Numalbpro']){
+						$eliminarTablasPrincipal=$CAlb->eliminarAlbaranTablas($datosAlbaran['Numalbpro']);
+						$idAlbaran=$datosAlbaran['Numalbpro'];
 					}
 					if (isset($eliminarTablasPrincipal['error'])){
 						$errores[1]=array ( 'tipo'=>'Danger!',

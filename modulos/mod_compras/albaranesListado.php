@@ -115,8 +115,8 @@ $todosTemporal=array_reverse($todosTemporal);
                     if (isset($todosTemporal)){
                         foreach ($todosTemporal as $temporal){
                             
-                            if ($temporal['numalbpro']){
-                                $numTemporal=$temporal['numalbpro'];
+                            if ($temporal['Numalbpro']){
+                                $numTemporal=$temporal['Numalbpro'];
                             }else{
                                 $numTemporal="";
                             }

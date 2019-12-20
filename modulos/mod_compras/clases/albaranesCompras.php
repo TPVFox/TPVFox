@@ -1,13 +1,13 @@
 <?php
 
-//~ include_once ('./clases/ClaseCompras.php');
 include_once('../mod_compras/clases/ClaseCompras.php');
 include_once '../mod_producto/clases/ClaseArticulosStocks.php';
 
 class AlbaranesCompras extends ClaseCompras {
 
     public $db; //(object) -> Conexion mysqli.
-
+    public $errores = array(); // (array) con los errores de comprobaciones.
+    
     public function __construct($conexion) {
         $this->db = $conexion;
         // Obtenemos el numero registros.
@@ -53,7 +53,7 @@ class AlbaranesCompras extends ClaseCompras {
 
         $PrepPedidos = $db->real_escape_string($UnicoCampoPedidos);
         $sql = 'UPDATE albproltemporales SET idUsuario =' . $idUsuario . ' , idTienda='
-                . $idTienda . ' , estadoAlbPro="' . $estadoPedido . '" , fechaInicio="' . $fecha . '"  ,Productos="'
+                . $idTienda . ' , estadoAlbPro="' . $estadoPedido . '" , Fecha="' . $fecha . '"  ,Productos="'
                 . $PrepProductos . '", Pedidos="' . $PrepPedidos . '" , Su_numero="'
                 . $suNumero . '" WHERE id=' . $idAlbaranTemporal;
         $smt = $this->consultaAlbaran($sql);
@@ -78,7 +78,7 @@ class AlbaranesCompras extends ClaseCompras {
 
         $UnicoCampoPedidos = json_encode($pedidos);
         $PrepPedidos = $db->real_escape_string($UnicoCampoPedidos);
-        $sql = 'INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , fechaInicio, 
+        $sql = 'INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , Fecha, 
 		idProveedor,  Productos, Pedidos , Su_numero) VALUES 
 		(' . $idUsuario . ' , ' . $idTienda . ' , "' . $estadoPedido . '" , "' . $fecha . '", ' . $idProveedor . ' , "'
                 . $PrepProductos . '" , "' . $PrepPedidos . '", "' . $suNumero . '")';
@@ -99,7 +99,7 @@ class AlbaranesCompras extends ClaseCompras {
         //Objetivo:
         //Modificar el albarán tempoal en el caso de que tengamos un numeroReal
         $db = $this->db;
-        $sql = 'UPDATE albproltemporales set numalbpro =' . $idReal . '  where id=' . $idTemporal;
+        $sql = 'UPDATE albproltemporales set Numalbpro =' . $idReal . '  where id=' . $idTemporal;
         $smt = $this->consultaAlbaran($sql);
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
@@ -321,7 +321,7 @@ class AlbaranesCompras extends ClaseCompras {
         //Cadas vez que añadimos un albarán como guardado tenemos que eliminar el registro temporal
         $db = $this->db;
         if ($idAlbaran > 0) {
-            $sql = 'DELETE FROM albproltemporales WHERE numalbpro =' . $idAlbaran;
+            $sql = 'DELETE FROM albproltemporales WHERE Numalbpro =' . $idAlbaran;
         } else {
             $sql = 'DELETE FROM albproltemporales WHERE id=' . $idTemporal;
         }
@@ -337,7 +337,7 @@ class AlbaranesCompras extends ClaseCompras {
         //@Objetivo:
         //Mostramos todos los albaranes temporales
         $db = $this->db;
-        $sql = 'SELECT tem.numalbpro, tem.id , tem.idProveedor, tem.total, 
+        $sql = 'SELECT tem.Numalbpro, tem.id , tem.idProveedor, tem.total, 
 			b.nombrecomercial from albproltemporales as tem left JOIN proveedores 
 			as b on tem.idProveedor=b.idProveedor';
         $smt = $this->consultaAlbaran($sql);
@@ -356,7 +356,7 @@ class AlbaranesCompras extends ClaseCompras {
 
     public function TodosAlbaranesLimite($limite) {
         //@Objetivo:
-        //MOstramos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
+        //Obtenemos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
         $db = $this->db;
         $sql = 'SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, 
 		a.estado  from `albprot` as a LEFT JOIN proveedores as b on 
@@ -387,6 +387,55 @@ class AlbaranesCompras extends ClaseCompras {
 
         return $albaran;
     }
+
+    public function GetAlbaran($id){
+        $datos = $this->datosAlbaran($id);
+        if (isset($datos['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 1 en base datos.Consulta:'.json_encode($datos['consulta'])
+                                )
+                        );
+        }
+        $productos =$this->ProductosAlbaran($id);
+        if (isset($productos['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 2 en base datos.Consulta:'.json_encode($productos['consulta'])
+                                )
+                        );
+        } 
+        $ivas=$this->IvasAlbaran($id);
+        if (isset($ivas['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 3 en base datos.Consulta:'.json_encode($ivas['consulta'])
+                                )
+                        );
+        }
+        $pedidos=$this->PedidosAlbaranes($id);
+		if (isset($pedidos['error'])){
+			array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 4 en base datos.Consulta:'.json_encode($ivas['consulta'])
+                                )
+                        );
+		}
+
+        if (count($this->errores)===0 ){
+            // Si no hubo errores añadimos datos y formateamos datos fecha.
+            //~ $datos['fecha'] = date_format(date_create($datos['Fecha']),'Y-m-d');
+			//~ $datos['hora']  = date_format(date_create($datos['Fecha']),'H:i');
+            //~ $datos['fechaVencimiento'] =($datos['FechaVencimiento']!=0000-00-00) ? date_format(date_create($datos['FechaVencimiento']),'Y-m-d') :'';
+    
+            $datos['Productos']=$productos;
+        
+
+        }
+        return $datos;
+
+    }
+
 
     public function datosAlbaran($idAlbaran) {
         //@Objetivo:
@@ -461,16 +510,12 @@ class AlbaranesCompras extends ClaseCompras {
                     error_log("entre aqui");
                     $albaran = $result;
                     $albaran['Nitem'] = 1;
-                    
                 }
                 
               
                 
             }
         } else {
-            //~ $sql='SELECT Numalbpro, Fecha, total, id , FechaVencimiento , 
-            //~ formaPago  FROM albprot WHERE idProveedor= '.$idProveedor.'  and estado="'
-            //~ .$estado.'"';
             $sql = 'SELECT a.Su_numero , a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento , 
 			a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a  INNER JOIN albproIva as b 
 			on a.`id`=b.idalbpro where  a.idProveedor=' . $idProveedor . ' and a.estado="' . $estado . '" GROUP by a.id';
@@ -518,6 +563,44 @@ class AlbaranesCompras extends ClaseCompras {
         }
         return $fecha;
     }
+
+    // ------------------- METODOS COMUNES ----------------------  //
+    // -  Al final de cada clase suelo poner aquellos metodos   -  //
+    // - que considero que puede ser añadimos algun controlador -  //
+    // - comun del core, ya que pienso son necesarios para mas  -  //
+    // - modulos.                                                  //
+    // ----------------------------------------------------------  //
+
+
+    public function montarAdvertencia($tipo,$mensaje,$html='KO'){
+        // @ Objetivo:
+        // Montar array para error/advertencia , tb podemos devolver el html
+        // @ Parametros
+        //  $tipo -> (string) Indica tipo error/advertencia puede ser : danger,warning,success y info
+        //  $mensaje -> puede ser string o array. Este ultimos es comodo por ejemplo en las cosultas.
+        //  $html -> (string) Indicamos si queremos que devuelva html en vez del array.
+        // @ Devolvemos
+        //  Array ( tipo, mensaje ) o html con advertencia o error.
+        $advertencia = array ( 'tipo'    =>$tipo,
+                          'mensaje' => $mensaje
+                        );
+        if ($html === 'OK'){
+            $advertencia = '<div class="alert alert-'.$tipo.'">'
+                          . '<strong>'.$tipo.' </strong><br/> ';
+                    if (is_array($mensaje)){
+                        $p = print_r($mensaje,TRUE);
+                        $advertencia .= '<pre>'.$p.'</pre>';
+                    } else {
+                        $advertencia .= $mensaje;
+                    }
+                    $advertencia .= '</div>';
+
+        }
+                        
+        return $advertencia;
+    }
+
+    
 
 
 }
