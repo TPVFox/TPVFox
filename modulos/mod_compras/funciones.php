@@ -239,7 +239,7 @@ function recalculoTotales($productos,$campo_estado = 'estado') {
                 // Por comtabilidad con versiones anterires.
                 $importe = $product->ncant*$product->costeSiva;
             } else {
-                $product->importe;
+                $importe= $product->importe;
             }
 			if (isset($desglose[$product->iva])){
 			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $importe,3, '.', '');
