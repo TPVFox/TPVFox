@@ -2,7 +2,7 @@
 
 include_once('../mod_compras/clases/ClaseCompras.php');
 include_once '../mod_producto/clases/ClaseArticulosStocks.php';
-
+include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
 class AlbaranesCompras extends ClaseCompras {
 
     public $db; //(object) -> Conexion mysqli.
@@ -142,13 +142,12 @@ class AlbaranesCompras extends ClaseCompras {
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
             $respuesta['consulta'] = $smt['consulta'];
-            return $respuesta;
         } else {
             if ($result = $smt->fetch_assoc()) {
-                $albaran = $result;
+                $respuesta = $result;
             }
-            return $albaran;
         }
+        return $respuesta;
     }
 
     public function buscarAlbaranNumero($numAlbaran) {
@@ -464,13 +463,39 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-    public function PedidosAlbaranes($idAlbaran) {
-        //@Objetivo:
-        //MUestra los pedidos de un número de albarán
+    public function PedidosAlbaranes($idAlbaran,$completo ='KO') {
+        // @ Objetivo:
+        //Obtenemos los pedidos que estan añadidos en albaran.
+        // @ Parametros
+        // $idAlbaran -> (int) Id de albaran
+        // $completo -> (string) KO, no hace nada mas . OK -> Obtiene los datos del pedido (fecha y totales)
+        // @ Devuelve:
+        // Sin ser completo:
+        // Los datos que obtenemos tabla pedproAlb ( id,idAlbaran,numAlbaran,idPedido,numPedido)
+        // Completo:
+        // Devuelve todos los datos pedido:
+        //   [id],[Numpedpro],[Numtemp_pedpro],[FechaPedido]
+        //  ,[idTienda],[idUsuario],[idProveedor],[estado],[formaPago],[entregado],[total]
+        //  ,[fechaCreacion],[fechaModificacion]
+
+        
         $tabla = 'pedproAlb';
         $where = 'idAlbaran= ' . $idAlbaran;
-        $albaran = parent::SelectVariosResult($tabla, $where);
-        return $albaran;
+        $pedidos = parent::SelectVariosResult($tabla, $where);
+        if ($completo === 'OK'){
+            if (is_array($pedidos) && count($pedidos) >0){
+                // Pide completo y tiene datos.
+                $Cped = new PedidosCompras($this->db);
+                foreach ($pedidos as $key=>$pedido){   
+                    $d = $Cped->DatosPedido($pedido['idPedido']);
+                    $pedidos[$key]['Numpedpro'] = $d ['Numpedpro'];
+                    $pedidos[$key]['estado'] = $d['estado'];
+                    $pedidos[$key]['total']  = $d['total'];
+                    $pedidos[$key]['fecha'] = $d['FechaPedido'];               
+                }
+            }
+        }
+        return $pedidos;
     }
 
     public function albaranesProveedorGuardado($idProveedor, $estado) {

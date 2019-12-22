@@ -217,24 +217,36 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 	$resultado['campo'] = $campoAbuscar;
 	return $resultado;		
 }
-function recalculoTotales($productos) {
+function recalculoTotales($productos,$campo_estado = 'estado') {
 	// @ Objetivo recalcular los totales y desglose del ticket
 	// @ Parametro:
 	// 	$productos (array) de objetos.
+    //  $campo_estado -> (string) por compatibilidad de versiones anteriores
 	$respuesta = array();
 	$desglose = array();
 	$subivas = 0;
-	$subtotal = 0;	
-	foreach ($productos as $product){
+	$subtotal = 0;
+    foreach ($productos as $product){
+        // Comprobamos que producto es un objeto
+        if ( gettype($product) !== 'object' ){
+            // Por compatibilidad con versiones anteriores
+            $product = (object)$product;
+        }
 		// Si la linea esta eliminada, no se pone.
-		if ($product->estado === 'Activo'){
-			$bandera=$product->iva/100;
+        if ($product->$campo_estado === 'Activo'){
+			$b=$product->iva/100;
+            if (!isset($product->importe)){
+                // Por comtabilidad con versiones anterires.
+                $importe = $product->ncant*$product->costeSiva;
+            } else {
+                $product->importe;
+            }
 			if (isset($desglose[$product->iva])){
-			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $product->importe,3, '.', '');
-			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva']+ ($product->importe*$bandera),3, '.', '');
+			$desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $importe,3, '.', '');
+			$desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva']+ ($importe*$b),3, '.', '');
 			}else{
-			$desglose[$product->iva]['base'] = number_format((float)$product->importe,3, '.', '');
-			$desglose[$product->iva]['iva'] =number_format((float)$product->importe*$bandera, 3, '.', '');
+			$desglose[$product->iva]['base'] = number_format((float)$importe,3, '.', '');
+			$desglose[$product->iva]['iva'] =number_format((float)$importe*$b, 3, '.', '');
 			}
 			$desglose[$product->iva]['BaseYiva'] =number_format((float)$desglose[$product->iva]['base']+$desglose[$product->iva]['iva'], 3, '.', '');	
 		}			
@@ -676,17 +688,6 @@ EOD;
 	return $imprimir;
 }
 
-function comprobarPedidos($idProveedor, $BDTpv ){
-	$Cped=new PedidosCompras($BDTpv);
-	$estado="Guardado";
-    $bandera=0;
-	$con=$Cped->pedidosProveedorGuardado($idProveedor, $estado);
-	if(count($con)>0){
-		$bandera=1;
-	}
-	return $bandera;
-	
-}
 function comprobarAlbaran($idProveedor, $BDTpv){
 	$Calb=new AlbaranesCompras($BDTpv);
 	$estado="Guardado";
