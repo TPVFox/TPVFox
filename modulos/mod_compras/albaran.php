@@ -67,10 +67,6 @@
                 if(isset($datosAlbaran['estado']) ){
                     $estado=$datosAlbaran['estado'];
                     $idAlbaran = $datosAlbaran['id'];
-                   echo '<pre>';
-            print_r($idAlbaran);
-            echo '</pre>';
-                    
                     if ($datosAlbaran['estado']=="Facturado"){
                         $numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
                         if(isset($numFactura['error'])){

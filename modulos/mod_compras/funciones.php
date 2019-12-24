@@ -495,7 +495,8 @@ function lineaAdjunto($adjunto, $dedonde){
 		$fecha=date_format($date,'d-m-Y');
 		$respuesta['html'] .='<td>'.$fecha.'</td>'
 		.'<td>'.$adjunto['total'].'</td>';
-        $respuesta['html'].=ControladorComun::insertTd($adjunto['totalSiva']);
+        $totalSiva = (isset($adjunto['totalSiva']))? $adjunto['totalSiva'] : '';
+        $respuesta['html'].='<td>'.$totalSiva.'</td>';
 		$respuesta['html'].=$btnELiminar_Retornar.'</tr>';
 	}
 	return $respuesta;
