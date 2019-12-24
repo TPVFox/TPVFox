@@ -27,6 +27,7 @@
 	$idAlbaranTemporal=0;
 	$idAlbaran=0;
 	$idProveedor="";
+    $formaPago= 0;
 	$suNumero="";
 	$nombreProveedor="";
 	$fechaVencimiento="";
@@ -50,7 +51,7 @@
 		}
 	}
 
-	if (isset($_GET['id']) || $_GET['tActual']) {
+	if (isset($_GET['id']) || isset($_GET['tActual'])) {
         // Si existe id o tActual es que no es nuevo
         if (isset($_GET['id'])){
             // Si exite id estamos modificando directamente un albaran.
@@ -65,6 +66,11 @@
             } else {
                 if(isset($datosAlbaran['estado']) ){
                     $estado=$datosAlbaran['estado'];
+                    $idAlbaran = $datosAlbaran['id'];
+                   echo '<pre>';
+            print_r($idAlbaran);
+            echo '</pre>';
+                    
                     if ($datosAlbaran['estado']=="Facturado"){
                         $numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
                         if(isset($numFactura['error'])){
@@ -80,8 +86,12 @@
         }
 
         if (isset($_GET['tActual'])){
-            // Cuando recibe tArtual quiere decir que ya hay un albarán temporal registrado, lo que hacemos es que cada vez que seleccionamos uno 
-            // o recargamos uno extraemos sus datos de la misma manera que el if de id
+            // Viene de albaran temporal, o esta editando y recargo mientras editamos.
+            
+            // $producto['estado']         = $producto['estadoLinea'];
+            // $producto['ultimoCoste']    = $producto['costeSiva'];
+            // $producto['crefProveedor']  = $producto['ref_prov'];
+            
                 $idAlbaranTemporal=$_GET['tActual'];
                 $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
                 if (isset($datosAlbaran['error'])){
@@ -97,55 +107,57 @@
                 }
                 
         }
-        if (count($errores) == 0){
-            // Si no hay errores grabes continuamos.
-            $idAlbaran=0;
+    }
+    if (count($errores) == 0){
+        // Si no hay errores graves continuamos.
+        if (!isset($datosAlbaran)){
+            // Es que nuevo.
+            $datosAlbaran = array();
+            $datosAlbaran['Fecha']="0000-00-00 00:00:00";
+            $datosAlbaran['Su_numero'] = '';
+            $datosAlbaran['idProveedor'] = 0;
+        } else {
+            // Si no es nuevo
+            $idProveedor=$datosAlbaran['idProveedor'];
+            $proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+            $nombreProveedor=$proveedor['nombrecomercial'];
+            $productos =$datosAlbaran['Productos'];
+            
+            $fecha = ($datosAlbaran['Fecha']=="0000-00-00 00:00:00")
+                                ? date('d-m-Y'):date_format(date_create($datosAlbaran['Fecha']),'d-m-Y');
+            $hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
+            // Un albaran puede tener ser generado por varios pedidos del mismo proveedor.
+            // por ello podemos obtener un array de arrays.
+            $pe = $CAlb->PedidosAlbaranes($idAlbaran,'OK');
+            
+            $datosAlbaran['Pedidos'] = '';
+            if (count($pe) >0){
+                $datosAlbaran['Pedidos'] = $pe;
+            }
+            $formaPago=(isset($datosAlbaran['formaPago']))? $datosAlbaran['formaPago'] : 0;
+            $fechaVencimiento=$datosAlbaran['FechaVencimiento'];
             if (isset ($datosAlbaran['Numalbpro'])){
                 $d=$CAlb->buscarAlbaranNumero($datosAlbaran['Numalbpro']);
                 $idAlbaran=$d['id'];
                 $textoNum=$idAlbaran;
             }
-            $fecha = ($datosAlbaran['Fecha']=="0000-00-00 00:00:00")
-                                    ? date('d-m-Y'):date_format(date_create($datosAlbaran['Fecha']),'d-m-Y');
-            $hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
             if ($datosAlbaran['Su_numero']!==""){
                 $suNumero=$datosAlbaran['Su_numero'];
             }
-            $idProveedor=$datosAlbaran['idProveedor'];
-            $proveedor=$Cprveedor->buscarProveedorId($idProveedor);
-            $nombreProveedor=$proveedor['nombrecomercial'];
-            $productos =$datosAlbaran['Productos'];
-            if ( $datosAlbaran['id'] >0){
-                // Un albaran puede tener ser generado por varios pedidos del mismo proveedor.
-                // por ello podemos obtener un array de arrays.
-                $pe = $CAlb->PedidosAlbaranes($idAlbaran,'OK');
-                $datosAlbaran['Pedidos'] = '';
-                if (count($pe) >0){
-                    $datosAlbaran['Pedidos'] = $pe;
-                }
-            }
-            
-            $formaPago=$datosAlbaran['formaPago'];
-            if ($formaPago === '') {
-                $formaPago=0;
-            }
-            $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
-
-            $fechaVencimiento=$datosAlbaran['FechaVencimiento'];
-            $albaran=$datosAlbaran;
-            
         }
-		
-	}
-
-	if(isset($albaran['Productos'])){
+        
+        $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
+        if(isset($datosAlbaran['Productos'])){
 			// Obtenemos los datos totales ;
 			// convertimos el objeto productos en array
             $p = (object)$productos;
-            $Datostotales = recalculoTotales($p,'estadoLinea');
-           
-            //~ $productos = json_decode(json_encode($productos), true); // Array de arrays	
-	}
+            $Datostotales = recalculoTotales($p);
+        }
+        
+    }
+		
+	
+	
 	if (isset($_POST['Guardar'])){
 		//@Objetivo:
         // Enviamos los datos de guardarAlbaran , si el resultado 0 ,
@@ -175,9 +187,11 @@
     }else{
         $titulo .= $textoNum.' : '.$estado;
     }
-	echo '<pre>';
+
+    echo '<pre>';
     print_r($datosAlbaran);
     echo '</pre>';
+	
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -191,7 +205,7 @@
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = '<?php echo $fecha;?>';
 		cabecera['hora'] = '<?php echo $hora;?>';
-		cabecera['idProveedor'] =' <?php echo $idProveedor ;?>';
+		cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
@@ -201,14 +215,15 @@
 	$i= 0;
 		if (isset($productos)){
 			foreach($productos as $product){
+                
 ?>	
 				datos=<?php echo json_encode($product); ?>;
 				productos.push(datos);
 	
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
-				if ($product['estadoLinea'] !== 'Activo'){
-				?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estadoLinea'].'"';?>;
+				if ($product['estado'] !== 'Activo'){
+				?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 				<?php
 				}
 				$i++;
@@ -294,9 +309,15 @@
                     .$idAlbaran." ,'mod_compras', 'albaran'"
                     .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj"> ';
             }
+            // Boton de guardar
+            echo '<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">';
+
+            // Caja con numero de temporal
+            if ($idAlbaranTemporal>0){
+                echo '<input type="text" readonly size ="4" name="idTemporal" value="'.$idAlbaranTemporal.'">';
+            }           
             ?>
             
-            <input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
         </div>
         <div class="col-md-4 text-right" >
             <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
@@ -309,13 +330,7 @@
                 <option value="5">Descripción</option>
             </select>
             <input type="submit" class="btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
-            <?php
-        if ($idAlbaranTemporal>0){
-            ?>
-            <input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
-            <?php
-        }
-            ?>
+       
         </div>
     </div>
     <div class="row" >
@@ -367,8 +382,9 @@
                 <label>Proveedor:</label>
                 <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="<?php echo $idProveedor;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
                 <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" placeholder="Nombre del Proveedor" onkeydown="controlEventos(event)" value="<?php echo $nombreProveedor; ?>" size="60">
-                <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('albaran')"></a>
+                <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('albaran',Proveedor.value)"></a>
                 
+
             </div>
         </div>
         <div class="col-md-5" >
@@ -431,9 +447,6 @@
                     if (isset($productos)){
                         foreach (array_reverse($productos) as $producto){
                             // Propiedades por compatibilizar version anterior.
-                            $producto['estado']         = $producto['estadoLinea'];
-                            $producto['ultimoCoste']    = $producto['costeSiva'];
-                            $producto['crefProveedor']  = $producto['ref_prov'];
                             $html=htmlLineaProducto($producto, "albaran");
                             echo $html['html'];
                         }

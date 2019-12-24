@@ -53,20 +53,20 @@ class ClaseCompras
 		}
 	}
 	public function SelectVariosResult($tabla, $where){
-		$db=$this->db;
+        $respuesta = array();
+        $db=$this->db;
 		$sql='SELECT * from '.$tabla.' where '.$where;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
-			return $respuesta;
 		}else{
-			$resultadoPrincipal=array();
 			while ( $result = $smt->fetch_assoc () ) {
-				array_push($resultadoPrincipal,$result);
+				array_push($respuesta,$result);
 			}
-			return $resultadoPrincipal;
 		}
+        return $respuesta;
+
 	}
 }
 ?>

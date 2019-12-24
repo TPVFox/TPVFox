@@ -396,7 +396,7 @@ class AlbaranesCompras extends ClaseCompras {
                                 )
                         );
         }
-        $productos =$this->ProductosAlbaran($id);
+        $productos =$this->ProductosAlbaranFormulario($id);
         if (isset($productos['error'])){
             array_push($this->errores,$this->montarAdvertencia(
                                         'danger',
@@ -413,6 +413,7 @@ class AlbaranesCompras extends ClaseCompras {
                         );
         }
         $pedidos=$this->PedidosAlbaranes($id);
+        
 		if (isset($pedidos['error'])){
 			array_push($this->errores,$this->montarAdvertencia(
                                         'danger',
@@ -423,12 +424,9 @@ class AlbaranesCompras extends ClaseCompras {
 
         if (count($this->errores)===0 ){
             // Si no hubo errores añadimos datos y formateamos datos fecha.
-            //~ $datos['fecha'] = date_format(date_create($datos['Fecha']),'Y-m-d');
-			//~ $datos['hora']  = date_format(date_create($datos['Fecha']),'H:i');
-            //~ $datos['fechaVencimiento'] =($datos['FechaVencimiento']!=0000-00-00) ? date_format(date_create($datos['FechaVencimiento']),'Y-m-d') :'';
     
             $datos['Productos']=$productos;
-        
+            $datos['Pedidos'] = $pedidos;
 
         }
         return $datos;
@@ -452,6 +450,26 @@ class AlbaranesCompras extends ClaseCompras {
         $where = 'idalbpro= ' . $idAlbaran;
         $albaran = parent::SelectVariosResult($tabla, $where);
         return $albaran;
+    }
+
+    public function ProductosAlbaranFormulario($idAlbaran) {
+        //@ Objetivo:
+        // Es igual que el metodo ProductosAlbaran pero cambiando nombre campos para funciones correctamente.
+        $productos = [];
+        $where = 'idalbpro= ' . $idAlbaran;
+        $sql =  'SELECT `id`, `idalbpro`, `Numalbpro`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `costeSiva` as ultimoCoste, `iva`, `nfila`, `estadoLinea` as estado, `ref_prov`, `Numpedpro` FROM `albprolinea` WHERE '.$where;
+        $smt = parent::consulta($sql);
+
+        if (is_array($smt)) {
+            $productos['error'] = $smt['error'];
+            $productos['consulta'] = $smt['consulta'];
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                $productos[] = $result;
+			}
+
+        }
+        return $productos;
     }
 
     public function IvasAlbaran($idAlbaran) {

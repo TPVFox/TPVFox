@@ -9,7 +9,7 @@ class FormasPago extends TFModelo{
 		return $formasPagoPrincipal['datos'];
 	}
 	public function formadePagoSinPrincipal($id){
-        $respuesta = 0;
+        $respuesta = array();
         $sql = 'SELECT * from formasPago where id<>'.$id;
         $r = $this->consulta($sql);
         if (isset($r['datos'])){

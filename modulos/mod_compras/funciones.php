@@ -237,7 +237,7 @@ function recalculoTotales($productos,$campo_estado = 'estado') {
 			$b=$product->iva/100;
             if (!isset($product->importe)){
                 // Por comtabilidad con versiones anterires.
-                $importe = $product->ncant*$product->costeSiva;
+                $importe = $product->ncant*$product->ultimoCoste;
             } else {
                 $importe= $product->importe;
             }
@@ -1474,9 +1474,9 @@ function htmlImporteFactura($datos, $BDTpv){
 function htmlFormasVenci($formaVenci, $BDTpv){
 	$html="";
 	$formasPago=new FormasPago($BDTpv);
-	$principal=$formasPago->datosPrincipal($formaVenci);
+	$principal=$formasPago->datosPrincipal(intval ($formaVenci));
 	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
-	$otras=$formasPago->formadePagoSinPrincipal($formaVenci);
+	$otras=$formasPago->formadePagoSinPrincipal(intval ($formaVenci));
 	foreach ($otras as $otra){
 		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
 }
