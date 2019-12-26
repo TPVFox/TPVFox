@@ -114,38 +114,36 @@ function AccionBuscarProductos (caja,event){
                             
                         
                             var datos = new ObjProducto(resultado['datos'][0]);
-                           
-                            
+                            var opcion = true;
                             if (resultado['datos'][0]['coste']<=0){
                                 datos.getCoste(resultado['datos'][0]['ultimoCoste']);
-                                alert("¡OJO!\nEste producto es NUEVO para este proveedor");
-                                 //~ alert(resultado['datos'][0]['ultimoCoste']);
+                                opcion = confirm("¡OJO!\nEste producto es NUEVO para este proveedor \n Si (cancelas) no lo añade al "+ txtDonde);
+
                             }
-                            
-                            
-                            productos.push(datos);
-                            addTemporal(dedonde)
-                            document.getElementById(id_input).value='';
-                            console.log("muestro fecha");
-                            console.log(resultado['datos'][0]);
-                             if(resultado['datos'][0]['fechaActualizacion']!=null){
-                                 
-                                fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
-                                fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
-                                fechaCabecera= cabecera.fecha.split("-");
-                                fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
-                                console.log(fechaCabecera);
-                                if(fechaProducto>fechaCabecera)
-                                {
-                                     alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+                            if (opcion === true){                          
+                                productos.push(datos);
+                                addTemporal(dedonde)
+                                document.getElementById(id_input).value='';
+                                console.log("muestro fecha");
+                                console.log(resultado['datos'][0]);
+                                if(resultado['datos'][0]['fechaActualizacion']!=null){
+                                     
+                                    fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
+                                    fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
+                                    fechaCabecera= cabecera.fecha.split("-");
+                                    fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
+                                    console.log(fechaCabecera);
+                                    if(fechaProducto>fechaCabecera)
+                                    {
+                                         alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+                                    }
+                                }   
+                                //  Añado linea de producto.
+                                AgregarFilasProductos(datos, dedonde);
+                                // ¿¿¿ Creo que no permitimos entonces tabla para añadir albaranes... 
+                                if (dedonde=="factura"){
+                                    $("#tablaAl").hide();
                                 }
-                            }
-                             
-                            //  Añado linea de producto.
-                            AgregarFilasProductos(datos, dedonde);
-                            // ¿¿¿ Creo que no permitimos entonces tabla para añadir albaranes... 
-                            if (dedonde=="factura"){
-                                $("#tablaAl").hide();
                             }
                         }
                         

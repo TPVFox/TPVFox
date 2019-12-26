@@ -23,6 +23,7 @@ function controladorAcciones(caja,accion, tecla){
 			// Comprobamos si cambio valor , sino no hacemos nada.
 			productos[nfila].nunidades = caja.darValor();
 			productos[nfila].ncant = caja.darValor();
+            console.log(caja);
 			recalculoImporte(productos[nfila].nunidades, nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
 				if (caja.darParametro('dedonde') == "pedidos"){
@@ -657,7 +658,7 @@ function addTemporal(dedonde=""){
 		type       : 'post',
 		
 		beforeSend : function () {
-			console.log('******** estoy en añadir PEDIDO temporal JS****************');
+			console.log('******** Estoy funciones.js y voy añadir PEDIDO temporal JS****************');
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de añadir  temporal');
@@ -665,12 +666,13 @@ function addTemporal(dedonde=""){
 			if (resultado.error){
 				alert(resultado.consulta);
 			}else{
-				var HtmlClientes=resultado.html;//$resultado['html'] de montaje html
-				console.log(resultado.id.id);
+				console.log(resultado);
 				if (resultado.existe == 0){
 					history.pushState(null,'','?tActual='+resultado.id);
-					cabecera.idTemporal=resultado.id;
+                    $('#idTemporal').value = resultado.id;
+                    cabecera.idTemporal=resultado.id;
 				}
+                
 				// Creo funcion para restear totales.	
 				resetearTotales();
 				
@@ -727,15 +729,21 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
     };
     var datos = new ObjProducto(objDatos);
     console.log ('Ultimo coste desde listado:'+ultimoCoste);
+    var opcion = true;
     if(coste <= 0){
-        alert("¡OJO!\nEste producto es NUEVO para este proveedor");
+        // Si contesta NO, no lo añade al dedonde
+        var nlen = dedonde.length-1; // le quito la ultima letra, para que no ponga (s)
+        var txtDonde = dedonde.substring(0, nlen);
+        // Confirmar cuando es un producto Nuevo para ese proveedor lo ideal sería que fuera un opcion
+        // de momento lo pongo fijo.
+        opcion = confirm("¡OJO!\nEste producto es NUEVO para este proveedor \n Si (cancelas) no lo añade al "+ txtDonde);
     }
-    
-    // Falta controlar si tiene coste ese proveedor o no , es decir si es nuevo para ese proveedor.
-    productos.push(datos);
-    addTemporal(dedonde);
-    AgregarFilasProductos(datos, dedonde);
-    document.getElementById(campo).value='';
+    if (opcion === true){
+        productos.push(datos);
+        addTemporal(dedonde);
+        AgregarFilasProductos(datos, dedonde);
+        document.getElementById(campo).value='';
+    }
 
 
     cerrarPopUp();

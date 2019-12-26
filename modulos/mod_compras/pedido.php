@@ -189,8 +189,16 @@ if (!isset ($_GET['id']) && !isset ($_GET['tActual'])){
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
 <div class="container">
-	<h2 class="text-center"> <?php echo $titulo;?></h2>
+	
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
+        <h2 class="text-center">
+        <?php
+        echo $titulo;
+        // Se debe imprimir siempre el pedido para que no se repita.
+        echo  ' temporal:<input  readonly size="4" type="text" name="idTemporal" value='.$numPedidoTemp.'>';
+
+        ?>    
+        </h2>
 		<div class="col-md-12">
 			<div class="col-md-8" >
 				<a  href="pedidosListado.php" onclick="ModificarEstadoPedido(pedido, Pedido);">Volver Atrás</a>
@@ -228,9 +236,6 @@ if (!isset ($_GET['id']) && !isset ($_GET['tActual'])){
                 </select>
                <input type="submit"class=" btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
                 <?php
-                if (isset($numPedidoTemp)){
-                    echo  '<input  type="text" style="display:none;" name="idTemporal" value='.$numPedidoTemp.'>';
-                }
             }
             ?>
             </div>

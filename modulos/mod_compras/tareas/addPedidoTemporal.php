@@ -25,6 +25,7 @@
 				}
 			}else{
 				//Si no existe crea un temporal nuevo
+                
 				$rest=$CPed->insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor);
 				if (isset($rest['error'])){// Control de errores
 						$respuesta['error']=$rest['error'];

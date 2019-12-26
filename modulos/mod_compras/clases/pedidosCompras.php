@@ -1,6 +1,6 @@
 <?php 
 
-include_once ('./clases/ClaseCompras.php');
+include_once $URLCom.'/modulos/mod_compras/clases/ClaseCompras.php';
 
 class PedidosCompras extends ClaseCompras{
 	private $num_rows; // (array) El numero registros qure tiene la tabal pedprot
