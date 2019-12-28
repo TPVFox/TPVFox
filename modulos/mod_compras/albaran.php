@@ -184,10 +184,6 @@
         $titulo .= $textoNum.' : '.$estado;
     }
 
-    echo '<pre>';
-    print_r($datosAlbaran);
-    echo '</pre>';
-	
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.

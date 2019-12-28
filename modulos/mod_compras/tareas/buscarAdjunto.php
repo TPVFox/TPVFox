@@ -12,14 +12,20 @@
 				if (isset($datosAdjunto['error'])){
 					$respuesta['error']=$datosAdjunto['error'];
 					$respuesta['consola']=$datosAdjunto['consulta'];
-				}
+				} else {
+                    // Respuesta correcta.
+                    $fecha =$datosAdjunto['FechaPedido'];
+                }
 			}else{
+                // De factura
 				$datosAdjunto=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAdjunto, $estado);
 				if (isset($datosAdjunto['error'])){
 					$respuesta['error']=$datosAdjunto['error'];
 					$respuesta['consola']=$datosAdjunto['consulta'];
 				}else{
                     $respuesta['productosAlbaran']=$datosAdjunto;
+                    $fecha =$datosAdjunto['Fecha'];
+
                 }
 			}
 			if (isset($datosAdjunto['Nitem'])){
@@ -47,7 +53,7 @@
 						$respuesta['productos']=$productosAdjunto;
 					}
 				}
-				$date = new DateTime($datosAdjunto['Fecha']);
+				$date = new DateTime($fecha);
 				$respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
 				$respuesta['datos']['total']=$datosAdjunto['total'];
 				$respuesta['datos']['estado']="activo";
