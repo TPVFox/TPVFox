@@ -22,6 +22,7 @@ switch ($pulsado) {
 	case 'buscarProveedor':
 		include_once  $URLCom.'/modulos/mod_compras/tareas/buscarProveedor.php';
 	break;
+    
 	case 'buscarProductos':
 		include_once  $URLCom.'/modulos/mod_compras/tareas/buscarProducto.php';
 	break;	
@@ -39,7 +40,6 @@ switch ($pulsado) {
             $html= htmlDatosAdjuntoProductos($_POST['cabecera']);
             $respuesta['html'].=$html;
         }
-
         foreach($productos as $producto){
             if (!is_array($producto)){ 
                  $res=htmlLineaProducto($productos, $dedonde);
@@ -50,8 +50,6 @@ switch ($pulsado) {
                 $respuesta['html'].=$res['html'];
             }
         }
-        
-        
     break;
     
     case 'addProveedorArticulo':
@@ -105,6 +103,7 @@ switch ($pulsado) {
             }
         }
     break;
+    
     case 'htmlAgregarFilaAdjunto':
     //OBjetivo: agregar la fila con los datos del albaran o pedido adjunto
         $res=lineaAdjunto($_POST['datos'], $_POST['dedonde']);
@@ -131,10 +130,12 @@ switch ($pulsado) {
         $ficheroCompleto=$rutatmp.'/'.$nombreTmp;
         $respuesta=$ficheroCompleto;
     break;
+    
     case 'insertarImporte':
         include_once  $URLCom.'/modulos/mod_compras/tareas/insertarImporte.php';
         
     break;
+    
     case 'abririncidencia':
     //@OBJETIVO:
     //Mostrar el modal de incidencias con los datos de compras, según en el archivo en el que está 
@@ -187,6 +188,7 @@ switch ($pulsado) {
             $respuesta=$nuevo;
         }
     break;
+    
     case 'cancelarTemporal':
     //@Objetivo: cancelar el archivo temporal , cuando cancelamos un temporal muestra de primeros una alert
     //donde aceptamos en caso de querrer eliminar, a  continuación dependiendo de del archivo donde estemos

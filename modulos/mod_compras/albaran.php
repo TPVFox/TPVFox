@@ -32,8 +32,8 @@
 	$nombreProveedor="";
 	$fechaVencimiento="";
 	$Datostotales=array();
-	$textoNum="";
 	$inciden=0;
+    $style_none = 'style="display:none;"';
 	$errores = array();
 	//Cargamos la configuración por defecto y las acciones de las cajas 
 	$parametros = $ClasesParametros->getRoot();	
@@ -83,25 +83,22 @@
 
         if (isset($_GET['tActual'])){
             // Viene de albaran temporal, o esta editando y recargo mientras editamos.
-            
             // $producto['estado']         = $producto['estadoLinea'];
             // $producto['ultimoCoste']    = $producto['costeSiva'];
             // $producto['crefProveedor']  = $producto['ref_prov'];
-            
-                $idAlbaranTemporal=$_GET['tActual'];
-                $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-                if (isset($datosAlbaran['error'])){
-                        array_push($errores,$this->montarAdvertencia(
-                                        'danger',
-                                        'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
-                                )
-                        );
-                } else {
-                    // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
-                    $datosAlbaran['FechaVencimiento'] ='0000-00-00';
-                    $datosAlbaran['Productos'] = json_decode($datosAlbaran['Productos'],true);
-                }
-                
+            $idAlbaranTemporal=$_GET['tActual'];
+            $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+            if (isset($datosAlbaran['error'])){
+                    array_push($errores,$this->montarAdvertencia(
+                                    'danger',
+                                    'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
+                            )
+                    );
+            } else {
+                // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
+                $datosAlbaran['FechaVencimiento'] ='0000-00-00';
+                $datosAlbaran['Productos'] = json_decode($datosAlbaran['Productos'],true);
+            }
         }
     }
     if (count($errores) == 0){
@@ -135,7 +132,6 @@
             if (isset ($datosAlbaran['Numalbpro'])){
                 $d=$CAlb->buscarAlbaranNumero($datosAlbaran['Numalbpro']);
                 $idAlbaran=$d['id'];
-                $textoNum=$idAlbaran;
             }
             if ($datosAlbaran['Su_numero']!==""){
                 $suNumero=$datosAlbaran['Su_numero'];
@@ -179,9 +175,9 @@
 	}
     
     if(isset($numFactura)){
-        $titulo .= $textoNum.' : '.$estado." ".$numFactura['idFactura'];
+        $titulo .= $idAlbaran.' : '.$estado." ".$numFactura['idFactura'];
     }else{
-        $titulo .= $textoNum.' : '.$estado;
+        $titulo .= $idAlbaran.' : '.$estado;
     }
 
 ?>
@@ -283,9 +279,15 @@
 		}
 	}
 	?>
-    <h2 class="text-center"> <?php echo $titulo;?></h2>
-    
     <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+    <?php 
+    // Controlamos si existe temporal, entonces mostramos , sino no.
+    $style_idtemporal = ($idAlbaranTemporal === 0 )? 'style ="display:none;"' : ''; 
+    echo '<h3 class="text-center">'.$titulo
+            .'<input type="text" readonly size ="4" name="idTemporal" value="'.$idAlbaranTemporal.'" '.$style_idtemporal.'>'
+         .'</h3>';  
+    ?>
+    
     <div class="col-md-12">
         <div class="col-md-8" >
             <a href="./albaranesListado.php">Volver Atrás</a>
@@ -303,24 +305,12 @@
             }
             // Boton de guardar
             echo '<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">';
-
-            // Caja con numero de temporal
-            if ($idAlbaranTemporal>0){
-                echo '<input type="text" readonly size ="4" name="idTemporal" value="'.$idAlbaranTemporal.'">';
-            }           
             ?>
             
         </div>
         <div class="col-md-4 text-right" >
             <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-            <select  title="Escoje casilla de salto" id="salto" name="salto">
-                <option value="0">Seleccionar</option>
-                <option value="1">Id Articulo</option>
-                <option value="2">Referencia</option>
-                <option value="3">Referencia Proveedor</option>
-                <option value="4">Cod Barras</option>
-                <option value="5">Descripción</option>
-            </select>
+            <?php echo htmlSelectConfiguracionSalto();?>
             <input type="submit" class="btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
        
         </div>
@@ -379,19 +369,16 @@
 
             </div>
         </div>
-        <div class="col-md-5" >
+        <div class="col-md-5 div_adjunto" <?php echo $style_none;?>>
             <label id="numPedidoT">Número del pedido:</label>
             <input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
             <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
             <table class="col-md-12" id="tablaPedidos"> 
                 <thead>
-                
-                <td><b>Número</b></td>
-                <td><b>Fecha</b></td>
-                <td><b>Total</b></td>
-                
+                    <td><b>Número</b></td>
+                    <td><b>Fecha</b></td>
+                    <td><b>Total</b></td>
                 </thead>
-                
                 <?php 
                 if (isset($datosAlbaran['Pedidos'])){
                     if (is_array($datosAlbaran['Pedidos'])){
@@ -423,7 +410,7 @@
                     <th>Importe</th>
                     <th></th>
                   </tr>
-                  <tr id="Row0">  
+                  <tr id="Row0"  <?php echo $style_none;?>>  
                     <td id="C0_Linea" ></td>
                     <td id="C0_Linea" ></td>
                     <td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)"></td>

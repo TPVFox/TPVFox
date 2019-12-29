@@ -3,11 +3,10 @@
 <head>
 <?php
 	include_once './../../inicial.php';
-	//llamadas  a archivos php 
 	include_once $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_compras/funciones.php';
 	include_once $URLCom.'/controllers/Controladores.php';
-	include_once ($URLCom.'/controllers/parametros.php');
+	include_once $URLCom.'/controllers/parametros.php';
 	include_once $URLCom.'/clases/Proveedores.php';
 	include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
 	include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
@@ -240,8 +239,8 @@
       }
 </script>
 <div class="container">
-			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+                <h3 class="text-center"> <?php echo $titulo;?></h3>
 				<div class="col-md-12">
 				<div class="col-md-8" >
                     <a  href="./facturasListado.php">Volver Atrás</a>
@@ -261,14 +260,7 @@
 				</div>
 				<div class="col-md-4 text-right" >
                     <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-					 <select  title="Escoje casilla de salto" id="salto" name="salto">
-						<option value="0">Seleccionar</option>
-						<option value="1">Id Articulo</option>
-						<option value="2">Referencia</option>
-						<option value="3">Referencia Proveedor</option>
-						<option value="4">Cod Barras</option>
-						<option value="5">Descripción</option>
-					</select>
+					 <?php echo htmlSelectConfiguracionSalto();?>
                     <input type="submit" class=" btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
                 </div>
 					<?php
@@ -307,7 +299,7 @@
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProveedor('factura')"></a>
 		</div>
 	</div>
-	<div class="col-md-5" >
+	<div class="col-md-5 adjunto" >
 	<div class="row">
 		<div>
 			<div style="margin-top:0px;" id="tablaAl" style="<?php echo $style;?>">

@@ -51,8 +51,9 @@
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$p=$Cpedido->TodosPedidosLimite($filtro.$NPaginado->GetLimitConsulta());
-	$pedidosDef=$p['Items'];
-	 $pedidosDef=$p['Items'];
+
+
+    $pedidosDef=$p['Items'];
 	if (isset($p['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $p['consulta'],
@@ -177,9 +178,8 @@
                 <?php
                 $checkUser = 0;
                 foreach($pedidosDef as $pedido){
-                    $linkPedido= '';
                     $checkUser ++;
-                    $totaliva=$Cpedido->sumarIva($pedido['Numpedpro']);
+                    $totaliva=$Cpedido->sumarIva($pedido['id']);
                     ?>
                     <tr>
                         <td class="rowUsuario">
@@ -201,7 +201,7 @@
                             <?php 
                             if($ClasePermisos->getAccion("Ver")==1){
                             ?>
-                            <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&estado=ver'>
+                            <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&accion=ver'>
                             <?php 
                             }
                             ?>
@@ -212,17 +212,18 @@
                         <td><?php echo $totaliva['totalbase'];?></td>
                         <td><?php echo $totaliva['importeIva'];?></td>
                         <td><?php echo $pedido['total'];?></td>
-                        <?php 
+                        <?php
+                        $clas_estado ='';
                         if ($pedido['estado']!=="Sin Guardar"){
                             $linkPedido = ' <a class="glyphicon glyphicon-print" '.
                                     "onclick='imprimir(".$pedido['id'].
                                     ' , "pedido" , '.$Tienda['idTienda'].")'></a>";
-                            
+                        } else {
+                            $clas_estado = ' class="alert-danger"';
+                            $linkPedido= '';
                         }
+                        echo '<td'.$clas_estado.'>'.$pedido['estado'].$linkPedido.'</td>';
                         ?>
-                        <td>
-                         <?php echo  $pedido['estado'].$linkPedido; ?>
-                        </td>
                         
                     </tr>
                 <?php

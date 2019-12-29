@@ -5,7 +5,7 @@ function controladorAcciones(caja,accion, tecla){
     switch(accion) {
 		case 'buscarProveedor':
             if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
-				// Entramos cuando venimos de id de proveedor.
+				// Cuando el valor no tiene datos y estamos id_input pasamos a cja Proveedor
 				var d_focus="Proveedor";
                 ponerFocus(d_focus);
             }else{
@@ -409,7 +409,6 @@ function metodoClick(pulsado,adonde){
 
 		case 'AgregarPedido':
 			window.location.href = './pedido.php';
-			
 		break;
 
 		case 'AgregarAlbaran':
@@ -493,10 +492,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                     $("#buscar").css("display", "none");
                     
                     //Dendiendo de donde venga realizamos unas funciones u otras
-                    if (dedonde=="albaran"){
-                        comprobarAdjunto(dedonde);
-                    }
-                    if (dedonde=="factura"){
+                    if (dedonde=="albaran" || dedonde=="factura" ){
                         comprobarAdjunto(dedonde);
                     }
                     if (dedonde=="pedidos"){
@@ -521,7 +517,8 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 }
 
 function comprobarAdjunto(dedonde){
-	//@Objetivo: comprobar si el proveedor tiene algun pedido o albaran Guardado que se pueda adjuntar tanto a la factura como al albaran
+	//@Objetivo:
+    // Comprobamos si el proveedor seleccionado tiene algun pedido o albaran, en estado Guardado que se pueda adjuntar.
 	console.log("Entre en adjunto proveedor");
 	var parametros = {
 		"pulsado"       :'comprobarAdjunto',
@@ -533,21 +530,17 @@ function comprobarAdjunto(dedonde){
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** estoy en buscar clientes JS****************');
+				console.log('******** Voy acomprobarAdjunto ****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar clientes');
+				console.log('Llegue de comprobar adjunto');
 				var resultado =  $.parseJSON(response); 
 				if (resultado.error){
 					alert(resultado.error);
 				}else{
 					if (resultado.bandera == 1){
-						console.log("entre en las opciones");
-						$('#tablaAl').css("display", "block");
-						$('#numPedidoT').css("display", "block");
-						$('#numPedido').css("display", "block");
-						$('#buscarPedido').css("display", "block");
-						$('#tablaPedidos').css("display", "block");
+                        // Ponemos focus en entrada adjunto.
+                        mostrarDivAdjunto();
 						ponerFocus('numPedido');
 					}else{
                         ponerFocus( ObtenerFocusDefectoEntradaLinea());
@@ -960,6 +953,10 @@ function mostrarFila(){
 	console.log("mostrar fila");
 	$("#Row0").removeAttr("style") ;
 	ponerFocus( ObtenerFocusDefectoEntradaLinea());
+}
+
+function mostrarDivAdjunto(){
+    $(".div_adjunto").removeAttr("style") ;
 }
 
 function mover_up(fila,prefijo){
