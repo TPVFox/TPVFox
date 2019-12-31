@@ -64,12 +64,13 @@
             $numPedidoTemp = $c['idTemporal'];
             $idPedido = 0 ; // Lo pongo en 0 para ejecute la parte temporal
             $_GET['tActual'] = $numPedidoTemp;
-        }
-        if (count($c)>0){
-             $errores= $c;
+        } else {
+            if (count($c)>0){
+                 $errores= $c;
+            }
         }
     }
-    if (isset($_GET['id']) && $idPedido> 0){
+    if (isset($_GET['id']) && $idPedido> 0 && count($errores) === 0){
         // Si idPedido es 0, quiere decir que existe un temporal de $GET['id'] por lo que no entro aquí
         $datosPedido=$Cpedido->DatosPedido($idPedido);
         $estado=$datosPedido['estado'];
@@ -91,21 +92,40 @@
     }
     
     
-    if (isset($_GET['tActual'])){           
+    if (isset($_GET['tActual']) && $numPedidoTemp >0 && count($errores) === 0){           
         $datosPedido=$Cpedido->DatosTemporal($numPedidoTemp);
-        $estado=$datosPedido['estadoPedPro'];
-        $idProveedor=$datosPedido['idProveedor'];
         if (isset($datosPedido['idPedpro'])){
             $idPedido=$datosPedido['idPedpro'];	
+            // Si $idPedido >0 compruebo que no existan mas pedidotemporales de ese pedido para evitar errores.
+            if ($idPedido > 0){
+                $c = $Cpedido->comprobarTemporalIdPedpro($idPedido);
+                if (isset($c['idTemporal'])){
+                    // Existe un temporal de este pedido por lo que cargo ese temporal.
+                    if ($_GET['tActual'] !== $c['idTemporal']){
+                        // Hay un error grabe.
+                        echo 'Error grabe';
+                        exit();
+                    }
+                } else {
+                    if (count($c)>0){
+                         $errores= $c;
+                    }
+                }
+            }
         }
-        if ($datosPedido['fechaInicio']){
-            $bandera=new DateTime($datosPedido['fechaInicio']);
-            $fecha=$bandera->format('d-m-Y');
-        }
-        $productos = json_decode( $datosPedido['Productos']); // Array de objetos
-        if ($idProveedor){
-            $datosProveedor=$Cproveedor->buscarProveedorId($idProveedor);
-            $nombreProveedor=$datosProveedor['nombrecomercial'];
+        if ( count($errores) === 0) {
+            $estado=$datosPedido['estadoPedPro'];
+            $idProveedor=$datosPedido['idProveedor'];
+            
+            if ($datosPedido['fechaInicio']){
+                $bandera=new DateTime($datosPedido['fechaInicio']);
+                $fecha=$bandera->format('d-m-Y');
+            }
+            $productos = json_decode( $datosPedido['Productos']); // Array de objetos
+            if ($idProveedor){
+                $datosProveedor=$Cproveedor->buscarProveedorId($idProveedor);
+                $nombreProveedor=$datosProveedor['nombrecomercial'];
+            }
         }
     }
     
