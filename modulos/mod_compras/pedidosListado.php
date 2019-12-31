@@ -87,26 +87,20 @@
 				}
 		}
 	}
-	
 	?>
-	
     <div class="container">
         <div class="col-md-12 text-center">
             <h2>Pedidos de proveedores </h2>
         </div>
         <nav class="col-sm-3">
-            <h4> Pedidos</h4> 
-            <h5> Opciones para una selección</h5>
-            <ul class="nav nav-pills nav-stacked"> 
+            <h4> Opcion general</h4> 
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                   echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a></li>';
+                   echo '<a href="#section2" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a>';
                 }
-                if($ClasePermisos->getAccion("Modificar")==1){
-                    echo '<li><a href="#section2" onclick="metodoClick('."'".'Ver'."'".','."'".'pedido'."'".');";>Modificar</a></li>';
-                }
-                ?>
-            </ul>
+            ?>
+            <h4> Opciones para una selección</h4>
+
             <div class="col-md-12">
                 <h4 class="text-center"> Pedidos Abiertos</h4>
                 <table class="table table-striped table-hover">
@@ -191,18 +185,20 @@
                         <td>
                             <?php 
                             if($ClasePermisos->getAccion("Modificar")==1){
-                            ?>
-                            <a class="glyphicon glyphicon-pencil" href='./pedido.php?id=<?php echo $pedido['id'];?>'>
-                            <?php 
+                                $accion='';
+                                if ($pedido['estado']==="Sin Guardar"){
+                                    $accion ='&accion=temporal';
+                                }
+                                echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id='.$pedido['id'].$accion.'">';
                             }
                             ?>
                          </td>
                         <td>
                             <?php 
                             if($ClasePermisos->getAccion("Ver")==1){
-                            ?>
-                            <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&accion=ver'>
-                            <?php 
+                                ?>
+                                <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&accion=ver'>
+                                <?php 
                             }
                             ?>
                         </td>

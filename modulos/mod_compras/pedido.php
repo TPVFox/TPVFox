@@ -25,12 +25,14 @@
 	$idProveedor='';
 	$nombreProveedor='';
 	$Datostotales=array();
+    $errores = array();
 	$inciden=0;
     // Valores por defecto de estado y accion.
     // [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
     // [accion] -> editar,ver
     $estado='Nuevo';
-    $accion = 'editar'; 
+    // Si existe accion, variable es $accion , sino es "editar"
+    $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -47,13 +49,33 @@
     //  [tActual] cuando pulsamos en cuadro pedidos temporales.
     //  [accion] cuando indicamos que accion vamos hacer.
     if (isset($_GET['id'])){
-        $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
-        $idPedido=$_GET['id'];
+        $idPedido=$_GET['id'];  // Id real de pedido
+    }
+    if (isset($_GET['tActual'])){
+        $numPedidoTemp=$_GET['tActual']; // Id de pedido temporal
+    }
+    // ---------- Posible errores o advertencias mostrar     ------------------- //
+    if ($idPedido > 0 && $accion === 'temporal'){
+        // Estos parametros de GET no indica que es un pedido ya guardado y tiene temporal, pero no sabemos cual.
+        // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
+        $c = $Cpedido->comprobarTemporalIdPedpro($idPedido);
+        if (isset($c['idTemporal'])){
+            // Existe un temporal de este pedido por lo que cargo ese temporal.
+            $numPedidoTemp = $c['idTemporal'];
+            $idPedido = 0 ; // Lo pongo en 0 para ejecute la parte temporal
+            $_GET['tActual'] = $numPedidoTemp;
+        }
+        if (count($c)>0){
+             $errores= $c;
+        }
+    }
+    if (isset($_GET['id']) && $idPedido> 0){
+        // Si idPedido es 0, quiere decir que existe un temporal de $GET['id'] por lo que no entro aquí
         $datosPedido=$Cpedido->DatosPedido($idPedido);
         $estado=$datosPedido['estado'];
         if ($estado=='Facturado'){
             $accion = 'ver'; // Con estado facturado la accion es solo ver.
-        }
+        } 
         $productosPedido=$Cpedido->ProductosPedidos($idPedido);
         $ivasPedido=$Cpedido->IvasPedidos($idPedido);
         $fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
@@ -66,26 +88,27 @@
         $productos=json_decode(json_encode($productosMod), true);
         $incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
         $inciden=count($incidenciasAdjuntas['datos']);
-    }else{
-        if (isset($_GET['tActual'])){           
-            $numPedidoTemp=$_GET['tActual'];
-            $datosPedido=$Cpedido->DatosTemporal($numPedidoTemp);
-            $estado=$datosPedido['estadoPedPro'];
-            $idProveedor=$datosPedido['idProveedor'];
-            if (isset($datosPedido['idPedpro'])){
-                $idPedido=$datosPedido['idPedpro'];	
-            }
-            if ($datosPedido['fechaInicio']){
-                $bandera=new DateTime($datosPedido['fechaInicio']);
-                $fecha=$bandera->format('d-m-Y');
-            }
-            $productos = json_decode( $datosPedido['Productos']); // Array de objetos
-            if ($idProveedor){
-                $datosProveedor=$Cproveedor->buscarProveedorId($idProveedor);
-                $nombreProveedor=$datosProveedor['nombrecomercial'];
-            }
+    }
+    
+    
+    if (isset($_GET['tActual'])){           
+        $datosPedido=$Cpedido->DatosTemporal($numPedidoTemp);
+        $estado=$datosPedido['estadoPedPro'];
+        $idProveedor=$datosPedido['idProveedor'];
+        if (isset($datosPedido['idPedpro'])){
+            $idPedido=$datosPedido['idPedpro'];	
+        }
+        if ($datosPedido['fechaInicio']){
+            $bandera=new DateTime($datosPedido['fechaInicio']);
+            $fecha=$bandera->format('d-m-Y');
+        }
+        $productos = json_decode( $datosPedido['Productos']); // Array de objetos
+        if ($idProveedor){
+            $datosProveedor=$Cproveedor->buscarProveedorId($idProveedor);
+            $nombreProveedor=$datosProveedor['nombrecomercial'];
         }
     }
+    
 	// Añadimos al titulo el estado
 	$titulo .= ' '.$idPedido.' - '.$accion;
     if(isset($datosPedido['Productos'])){
@@ -94,51 +117,39 @@
         $Datostotales = recalculoTotales($productos);
         $productos = json_decode(json_encode($productos), true); // Array de arrays	
     }
-    // ---------- Posible errores o advertencias mostrar     ------------------- //
-    // Compruebo que solo hay un pedido temporarl para ese idPedpro si mayor 0
-    if ($idPedido > 0){
-        $posible_duplicado = $Cpedido->TodosTemporal($idPedido);
-        if (!isset($posible_duplicado['error'])){
-            $OK ='OK';
-            if (count($posible_duplicado)>1){
-                 $OK = 'Hay mas de un temporarl con el mismo numero albaran.';
-            } else {
-                // Puede que haya uno solo.
-                if (isset($posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] !== $numPedidoTemp){
-                    $OK = 'Hay un temporar y no coincide el idtemporal.';
-                }
-            }
-            if ($OK !== 'OK' ){
-                // Existe un registro o el que existe es distinto al actual.
-                 echo '<div class="warning">'
-                . '<strong>Ojo posible duplicidad en albaran temporal !! </strong>  <br> '.$OK
-                . '</div>';
-
-            }
-        }
-    }
+    
     //  ---------  Control y procesos para guardar el pedido. ------------------ //
-    if (isset($_POST['Guardar'])){
+    if (isset($_POST['Guardar']) && count($errores)>0){
+        // Cuando el estado es pedido que recibimos por POST es "Guardado"
+        // puede ser que no modificará nada o que exista un temporal, recien creado.
+        // lo compruebo.
         $guardar = $Cpedido->guardarPedido();
         if (!isset($guardar['errores']) || count($guardar['errores'])===0){
-            if (isset($guardar['id_guardo']) &&  $guardar['id_guardo'] >0){
                 // Fue todo correcto.
                 // Aunque si hubiera errores o advertencias nunca lo mostraría ya que redirecciono directamente.
                 header('Location: pedidosListado.php');
-            }
         } else {
-            if (!isset($guardar['id_guardo'])){
-                // Hay que indicar que se guardo, aunque hay errores.
-                echo '<div class="success">'
-                    . '<strong>Se guardo el id:'.$guardar['id_guardar'].' </strong>  <br> '
-                    . 'Ojo que puede generar un duplicado'
-                    . '</div>';
+            if (isset($guardar['errores']) || is_array($guardar['errores'])){
+                $errores = $guardar['errores'];
             }
-            foreach ($guardar['errores'] as $error){
-                    echo '<div class="'.$error['class'].'">'
-                    . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
-                    . '</div>';
-                }
+            if (isset($guardar['id_guardo'])){
+                // Hay que indicar que se guardo, aunque hay errores.
+                array_push($errores,$Cpedido->montarAdvertencia('warning',
+                                    '<strong>Se guardo el id:'.$guardar['id_guardar'].' </strong>  <br>'
+                                    .'Ojo que puede generar un duplicado'
+                                    )
+                        );
+            }
+            if (isset($guardar['modPedido'])){
+                // Se modifico todo o algo, pero hubo un error.
+                array_push($errores,$Cpedido->montarAdvertencia('warning',
+                                    '<strong>Se modifico algo pero hubo un error.</strong><br/>'
+                                    .'Ojo que puede generar un duplicado'
+                                    .json_encode($guardar['modPedido'])
+                                    )
+                        );
+        
+            }
         }
     }
     $htmlIvas=htmlTotales($Datostotales);
@@ -146,7 +157,9 @@
     $estilos = array ( 'readonly'       => '',
                        'styleNo'        => '',
                        'pro_readonly'   => '',
-                       'pro_styleNo'    => ''
+                       'pro_styleNo'    => '',
+                       'btn_guardar'    => '',
+                       'btn_cancelar'   => ''
                     );
     if (isset ($_GET['id']) || isset ($_GET['tActual'])){
         // Quiere decir que ya inicio , ya tuvo que meter proveedor.
@@ -221,6 +234,16 @@
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
 <div class="container">
+    <?php
+	if (isset($errores)){
+        foreach ($errores as $comprobaciones){
+            echo $Cpedido->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
+            if ($comprobaciones['tipo'] === 'danger'){
+                exit; // No continuo.
+            }
+        }
+    }
+    ?>
 	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
         <h3 class="text-center">
         <?php
@@ -244,19 +267,31 @@
                    onclick="abrirIncidenciasAdjuntas('.$idPedido.', '."'".'mod_compras'."'".', '."'".'pedidos'."'".')"
                    value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
                 }
-                if ($estado != "Facturado" && $accion != "ver"){?>
-                    <input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
-                <?php
+                if ($estado != "Facturado" || $accion != "ver"){
+                    // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
+                    // pero solo se muestra si el estado es "Sin Guardar"
+                    if ($estado != "Sin Guardar" ){
+                        $estilos['btn_guardar'] = 'style="display:none;"';
+                        // Una vez se cree temporal, con javascript se quita style
+                    }
+                    echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
+                            .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
                 }
                 ?>
 			</div>
             <div class="col-md-4 text-right" >
             <?php
-            if ($estado != "Facturado" && $accion != "ver"){?>
+            if ($estado != "Facturado" || $accion != "ver"){?>
                 <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-                <?php echo htmlSelectConfiguracionSalto();?>
-               <input type="submit"class=" btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
-                <?php
+                <?php echo htmlSelectConfiguracionSalto();
+                // El btn cancelar solo se crea si el estado es "Nuevo"
+                // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal
+                if ($estado != "Nuevo"){
+                    $estilos['btn_cancelar'] = 'style="display:none;"';
+                    // Se cambia con javascript cuando creamos el temporal y el estado es Nuevo.
+                }
+                echo '<input type="submit" class="btn btn-danger"'
+                    .$estilos['btn_cancelar']. 'value="Cancelar" name="Cancelar" id="bCancelar">';
             }
             ?>
             </div>

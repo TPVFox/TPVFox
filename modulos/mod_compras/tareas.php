@@ -68,7 +68,6 @@ switch ($pulsado) {
         include_once  $URLCom.'/modulos/mod_compras/tareas/addPedidoTemporal.php';
         
     break;
-    
 
     case 'addAlbaranTemporal':
         include_once  $URLCom.'/modulos/mod_compras/tareas/addAlbaranTemporal.php';

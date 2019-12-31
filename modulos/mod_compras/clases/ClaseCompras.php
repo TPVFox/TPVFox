@@ -54,16 +54,17 @@ class ClaseCompras
 		$db=$this->db;
 		$sql='SELECT * from '.$tabla.' where '.$where;
 		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-			$respuesta['error']=$smt['error'];
-			$respuesta['consulta']=$smt['consulta'];
+        $resultado  = array();
+        if (gettype($smt)==='array'){
+			$resultado['error']=$smt['error'];
+			$resultado['consulta']=$smt['consulta'];
 			return $respuesta;
 		}else{
 			if ($result = $smt->fetch_assoc () ){
 				$resultado=$result;
 			}
-			return $resultado;
 		}
+        return $resultado;
 	}
     
 	public function SelectVariosResult($tabla, $where){
@@ -128,7 +129,40 @@ class ClaseCompras
         return $respuesta;
     }
 
+    // ------------------- METODOS COMUNES ----------------------  //
+    // -  Al final de cada clase suelo poner aquellos metodos   -  //
+    // - que considero que puede ser añadimos algun controlador -  //
+    // - comun del core, ya que pienso son necesarios para mas  -  //
+    // - modulos.                                                  //
+    // ----------------------------------------------------------  //
 
+    public function montarAdvertencia($tipo,$mensaje,$html='KO'){
+        // @ Objetivo:
+        // Montar array para error/advertencia , tb podemos devolver el html
+        // @ Parametros
+        //  $tipo -> (string) Indica tipo error/advertencia puede ser : danger,warning,success y info
+        //  $mensaje -> puede ser string o array. Este ultimos es comodo por ejemplo en las cosultas.
+        //  $html -> (string) Indicamos si queremos que devuelva html en vez del array.
+        // @ Devolvemos
+        //  Array ( tipo, mensaje ) o html con advertencia o error.
+        $advertencia = array ( 'tipo'    =>$tipo,
+                          'mensaje' => $mensaje
+                        );
+        if ($html === 'OK'){
+            $advertencia = '<div class="alert alert-'.$tipo.'">'
+                          . '<strong>'.$tipo.' </strong><br/> ';
+                    if (is_array($mensaje)){
+                        $p = print_r($mensaje,TRUE);
+                        $advertencia .= '<pre>'.$p.'</pre>';
+                    } else {
+                        $advertencia .= $mensaje;
+                    }
+                    $advertencia .= '</div>';
+
+        }
+                        
+        return $advertencia;
+    }
     
 }
 ?>
