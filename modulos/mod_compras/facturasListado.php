@@ -38,8 +38,10 @@
 </head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>  
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>   
 <?php
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 	?>

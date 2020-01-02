@@ -1,240 +1,5 @@
 //Función que controla las acciones que llegan del xml
 
-function controladorAcciones(caja,accion, tecla){
-    console.log (' Controlador Acciones: ' +accion);
-    switch(accion) {
-		case 'buscarProveedor':
-            if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
-				// Cuando el valor no tiene datos y estamos id_input pasamos a cja Proveedor
-				var d_focus="Proveedor";
-                ponerFocus(d_focus);
-            }else{
-				buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
-			}
-		break;
-		
-		case 'recalcular_totalProducto':
-			// recuerda que lo productos empizan 0 y las filas 1
-			var nfila = parseInt(caja.fila)-1;
-            var valor_anterior = productos[nfila].nunidades;
-            productos[nfila].nunidades = caja.darValor();
-			productos[nfila].ncant = caja.darValor();
-            if (valor_anterior !== productos[nfila].nunidades){
-                // Comprobamos si cambio valor , sino no hacemos nada.
-                recalculoImporte(productos[nfila].nunidades, nfila, caja.darParametro('dedonde'));
-                addTemporal(caja.darParametro('dedonde'));
-            }
-            if (caja.tipo_event !== "blur"){
-                if (caja.darParametro('dedonde') == "pedidos"){
-                    ponerFocus( ObtenerFocusDefectoEntradaLinea());
-				}else{
-					d_focus='ultimo_coste_'+parseInt(caja.fila);
-					ponerSelect(d_focus);
-				}
-			}
-		break;
-
-		case  'saltar_productos':
-			if (productos.length >0){
-                // Debería añadir al caja N cuantos hay
-				console.log ( 'Entro en saltar a producto que hay '+ productos.length);
-				ponerSelect('Unidad_Fila_'+productos.length);
-			} else {
-			   console.log( ' No nos movemos ya que no hay productos');
-			}
-        break;
-
-		case 'Saltar_hora':
-			if (caja.id_input=="fecha"){
-				cabecera.fecha=caja.darValor();
-			}
-			var d_focus = 'hora';
-			if(caja.darParametro('dedonde')=='factura'){
-				var d_focus = 'suNumero';
-			}
-			if(caja.darParametro('dedonde')=='pedidos'){
-				var d_focus = 'id_proveedor';
-			}
-			ponerFocus(d_focus);
-		break;
-		
-		case 'mover_down':
-			// Controlamos si numero fila es correcto.
-			var nueva_fila = 0;
-			if(caja.id_input=="cajaBusquedaproveedor" || caja.id_input=="cajaBusqueda"){
-				ponerFocus('N_0');
-			}else{
-                if ( isNaN(caja.fila) === false){
-                    nueva_fila = parseInt(caja.fila)+1;
-                } 
-                console.log('mover_down:'+nueva_fila);
-                mover_down(nueva_fila,caja.darParametro('prefijo'));
-			}
-		break;
-
-		case 'mover_up':
-			console.log( 'Accion subir 1 desde fila'+caja.fila);
-			var nueva_fila = 0;
-			if(caja.fila=='0'){
-				if(cabecera.idProveedor>0){
-					ponerSelect('cajaBusqueda');
-				}else{
-					$("#cajaBusquedaproveedor").select();
-				}
-			}else{
-				if ( isNaN(caja.fila) === false){
-					nueva_fila = parseInt(caja.fila)-1;
-				}
-				mover_up(nueva_fila,caja.darParametro('prefijo'));
-			}
-		break;
-        
-        case 'Saltar_desde_Hora':
-            cabecera.hora = dato; // Guardamos el dato, tanto tenga datos , como no.
-            var d_focus = "suNumero";
-            if (caja.tecla === '37'){
-                // Quiere volver a fecha
-                d_focus = 'fecha';
-            }
-            ponerFocus(d_focus);
-        break;
-
-        case 'Saltar_desde_SuNumero':
-            console.log('Estoy en Saltar desde SuNumero');
-            cabecera.suNumero=caja.darValor();
-            var d_focus = "id_proveedor";
-            // Comprobamos que si esta disabled o no .
-            if ($('#id_proveedor').prop("disabled") == true) {
-                // Ya ponemos focus a entrada productos ( campo por defecto)
-                  d_focus = ObtenerFocusDefectoEntradaLinea();
-            }
-            if ( caja.tecla === '9'){
-                // Quiere volver a fecha
-                d_focus = 'formaVenci';
-            }
-            ponerFocus(d_focus);
-        break;
-        
-        case 'Saltar_idProveedor':
-            console.log('Voy a saltar a idProveedor');
-            console.log('Parametros cajas.' + caja.parametros);
-            var dato = caja.darValor();
-            var d_focus = 'id_proveedor';
-            // Tenemos que saber primero si esta disabled o no .
-            if ($('#id_proveedor').prop("disabled") == true) {
-                // Ya ponemos focus a entrada productos ( campo por defecto)
-                d_focus = ObtenerFocusDefectoEntradaLinea();
-            }
-            var controlSalto = 'Si' ; // variable que utilizo para indicar si salto o no, por defecto si.
-            
-			if (caja.id_input=="Proveedor"){
-				if ( dato.length !== 0){
-					controlSalto = 'No'; // No salto
-				}
-			}
-			ponerFocus(d_focus);
-		break;
-
-        case 'Saltar_desde_fecha':
-            console.log('Saltar desde fecha');
-            cabecera.fecha=caja.darValor();
-            var d_focus = 'id_proveedor';
-            // Comprobamos de donde ( albaran, factura, pedido )
-            if (caja.darParametro('dedonde') == "albaran" ){
-                d_focus = "hora";
-            }
-            if (caja.darParametro('dedonde') == "factura"){
-                d_focus = "suNumero";
-            }
-			ponerFocus(d_focus);
-		break;
-
-        case 'Saltar_Proveedor':
-			var dato = caja.darValor();
-            if(dato==0){
-                var d_focus = 'Proveedor';
-                ponerFocus(d_focus);
-            }
-		break;
-
-        case 'Saltar_idArticulo':
-			var dato = caja.darValor();
-			if(dato==0){
-					var d_focus = 'idArticulo';
-					ponerFocus(d_focus);
-			}
-		break;
-
-        case 'Saltar_fecha':
-			var dato = caja.darValor();
-			var d_focus = 'fecha';
-			ponerFocus(d_focus);
-		break;
-
-        case 'Saltar_Referencia':
-			var dato = caja.darValor();
-			if(dato==0){
-				var d_focus = 'Referencia';
-				ponerFocus(d_focus);
-			}
-		break;
-
-        case 'Saltar_ReferenciaPro':
-			var dato = caja.darValor();
-			if(dato==0){
-				var d_focus = 'ReferenciaPro';
-				ponerFocus(d_focus);
-			}
-		break;
-        
-		case 'Saltar_CodBarras':
-			var dato = caja.darValor();
-			if(dato==0){
-				var d_focus = 'Codbarras';
-				ponerFocus(d_focus);
-			}
-		break;
-
-        case 'Saltar_Descripcion':
-			var dato = caja.darValor();
-			if(dato==0){
-				var d_focus = 'Descripcion';
-				ponerFocus(d_focus);
-			}
-		break;
-
-        case 'addPedidoAlbaran':
-			buscarAdjunto(caja.darParametro('dedonde'), caja.darValor());
-		break;
-		
-		case 'buscarUltimoCoste':
-			var nfila = parseInt(caja.fila)-1;
-			if (caja.tipo_event !== "blur"){
-				var costeAnt=productos[nfila].ultimoCoste;
-				var idArticulo=productos[nfila].idArticulo;
-                console.log("Número de productos:"+productos.length);
-                console.log("Esto en la fila:"+parseInt(caja.fila));
-					if (parseFloat(costeAnt)===parseFloat(caja.darValor())){
-                        if(parseInt(caja.fila)==productos.length){
-                             ponerFocus( ObtenerFocusDefectoEntradaLinea());
-                        }
-					}else {
-						if(valor=""){
-                        alert("NO HAS INTRODUCIDO NINGÚN COSTE");
-                        }else{
-                            productos[nfila].CosteAnt=costeAnt;
-                            addCosteProveedor(idArticulo, caja.darValor(), nfila, caja.darParametro('dedonde'));
-                            if (caja.tipo_event !== "blur"){
-                                if(parseInt(caja.fila)==productos.length){
-                                    ponerFocus( ObtenerFocusDefectoEntradaLinea());
-                                }
-                            }
-                        }
-                    }
-            }
-		break;
-	}
-}
 
 function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	// @Objetivo: Añadir o modificar el coste de un producto
@@ -352,11 +117,10 @@ function buscarAdjunto(dedonde, valor=""){
                                 AgregarAdjunto(datos, dedonde);
                                 AgregarFilasProductos(prodArray, dedonde,datos);
 
-                                //Cierro el modal aqui por que cuando selecciono un pedido del modal llamo a esta misma funcion
-                                //Pero metiendo el numero del pedido de esta manera el valor de busqueda ya es un numero y no vuelve 
-                                // a mostrar el modal si no que entra en la segunda parte del if que tenemos mas arriba 
+                                //Cierro el modal aqui porque cuando selecciono un pedido del modal llamo a esta misma funcion
+                                //Cuando se mete el numero del pedido de esta manera el valor de busqueda ya es un numero
+                                // y no vuelve a mostrar el modal,no entra en la segunda parte del if que tenemos mas arriba 
                                 cerrarPopUp();
-                                
                             }
                     }
                 }
@@ -604,6 +368,7 @@ function addTemporal(dedonde=""){
 	if (dedonde=="factura"){
 		var pulsado='addFacturaTemporal';
 	};
+    
 	var parametros = {
 		"pulsado"       : pulsado,
 		"idTemporal"    : cabecera.idTemporal,
@@ -642,7 +407,17 @@ function addTemporal(dedonde=""){
                     console.log('Voy poner tActual y idtemporal');
 					history.pushState(null,'','?tActual='+resultado.id);
                     $("input[name='idTemporal']").val(resultado.id);
+                    if (cabecera.idTemporal === 0) {
+                        // En estado Nuevo de pedido, hay que quitar el style atributo btn-guardar.
+                        $("#bGuardar").removeAttr("style") ;
+                    }
                     cabecera.idTemporal=resultado.id;
+                    if (cabecera.estado === "Guardado"){
+                        // En estado Guardado, cambiamos el estado a "Sin Guardar", tanto en variable como en caja.
+                        cabecera.estado = "Sin Guardar";
+                        document.getElementById('estado').value="Sin Guardar";
+                    }
+                    
 				}
 				// Creo funcion para restear totales.	
 				resetearTotales();
@@ -658,6 +433,7 @@ function addTemporal(dedonde=""){
 			}
 		}
 	});
+    
 }
 
 function ponerFocus (destino_focus){
@@ -733,6 +509,8 @@ function cambioEstadoFila(producto,dedonde=""){
     }
 }
 
+
+
 function eliminarFila(num_item, dedonde=""){
 	//@Objetivo:
 	//Función para cambiar el estado del producto , deja en estado Eliminado el producto
@@ -772,6 +550,37 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
     // Creamos temporal para quede guardado
     addTemporal(dedonde);
 }
+
+function eliminarTemporal(id_temporal,dedonde){
+    // @ Objetivo:
+    // Eliminarle temporal que indicamos, llega de lista de pedido,albaranes o facturas.
+    var parametros = {
+		"pulsado"   : 'eliminarTemporal',
+		"id_temporal"     : id_temporal,
+		"dedonde"   : dedonde
+	};
+    console.log(dedonde);
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** Estoy en eliminar temporal****************');
+		},
+		success    :  function (response) {
+			console.log('Llegue devuelta de eliminar temporal');
+            var resultado =  $.parseJSON(response);
+            if (resultado.valores_insert){
+                alert('Fue eliminado correctamente');
+                // Funcion para recargar pagina.
+                location.reload(true);
+            } else {
+                alert('Ocurrio un error'+resultado);
+            }            
+        }
+    });
+}
+
 
 function retornarFila(num_item, dedonde=""){
 	// @Objetivo :
@@ -870,7 +679,9 @@ function after_constructor(padre_caja,event){
         // Si tiene prefijo quiere decir que es una lista, obtenemos id.
         var id = ObtenerIdString(padre_caja.parametros.prefijo,padre_caja.id_input);
         if (id > -1){
-            padre_caja.id_input = event.originalTarget.id;
+            //padre_caja.id_input = event.originalTarget.id; // Solo funciona en Mozilla
+            padre_caja.id_input = event.target.id;
+
         } else {
             console.log('ERROR_After: No se encontro el prefijo:'+ padre_caja.parametros.prefijo );
             console.log('en el id:'+padre_caja.id_input);

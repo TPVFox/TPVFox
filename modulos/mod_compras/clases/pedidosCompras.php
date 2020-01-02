@@ -4,12 +4,11 @@ include_once $URLCom.'/modulos/mod_compras/clases/ClaseCompras.php';
 
 class PedidosCompras extends ClaseCompras{
 	private $num_rows; // (array) El numero registros que tiene la tabal pedprot
-	public $affected_rows; // Propiedad que guardamos cuando hacemos una consulta, para indicar filas afectadas.
 	public function __construct($conexion){
 		parent::__construct($conexion);
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM pedprot';
-		$respuesta = $this->consulta($sql);
+		$respuesta = parent::consulta($sql);
 		if (gettype($respuesta)==='object'){
 			$this->num_rows = $respuesta->fetch_object()->num_reg;
 		} else {
@@ -21,35 +20,18 @@ class PedidosCompras extends ClaseCompras{
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
     
-	public function consulta($sql){
-		// Realizamos la consulta.
-		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
-			$respuesta = $smt;
-		} else {
-			$respuesta = array( 'consulta'  => $sql,
-                                'error'     => $db->error
-                            );
-		}
-        // Guardamos la filas afectadas.
-        $this->affected_rows = $db->affected_rows;
-        return $respuesta;
-	}
-	
 	public function modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos){
 		// @ Objetivo:
 		//Modificar los datos de pedidos temporal cada vez que hacemos agregamos un producto, modificamos una candidad ...
 		// @ Parametros:
 		//Todos los datos del pedido temporal
-		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
-		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepProductos = $this->db->real_escape_string($UnicoCampoProductos);
 		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda
 		.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos="'
 		.$PrepProductos.'"  WHERE id='.$numPedidoTemp;
-		$smt=$this->consulta($sql);
+		$smt=parent::consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
@@ -62,50 +44,23 @@ class PedidosCompras extends ClaseCompras{
 		// Insertar un pedido temporal , cuando el pedido temporal no exste lo insertamos
 		//@ Parametros:
 		// Todos los parametros que tenemos incialmente cuando creamos el pedido temporal
-		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
-		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepProductos = $this->db->real_escape_string($UnicoCampoProductos);
 		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , 
 		fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'
 		.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , "'.$PrepProductos.'")';
-		//~ $smt = $db->query ($sql);
-		$smt=$this->consulta($sql);
+		$smt=parent::consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 		}else{
-			$id=$db->insert_id;
+			$id=$this->insert_id;
 			$respuesta['id']=$id;
 			$respuesta['sql']=$sql;
 			$respuesta['productos']=$productos;
 		}
 		return $respuesta;
-	}
-    
-	public function modTotales($res, $total, $totalivas){
-		//@ Objetivo:
-		// El objetico principal es que cada vez que modificamos una cantidad o añadimos un producto nuevo , modificar en el pedido temporal los datos de total
-		//@ Parametros:
-		// $res-> id del pedido temporal
-		//$total->El total del pedido
-		//$total_ivas->la suma de todos los ivas 
-		$db=$this->db;
-		$sql='UPDATE pedprotemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
-		$smt=$db->query($sql);
-		$resultado['sql']=$sql;
-		return $resultado;
-	}
-    
-	public function addNumRealTemporal($idTemporal, $idReal){
-		// @Objetivo: Si el pedido es modificado en el temporal tenemos que registrar el id del pedido real 
-		// @Parametros:
-		// $idTemporal-> id del pedido temporal que hemos creado anteriormente
-		// $idReal-> id del pedido real que estamos modificando
-		$db=$this->db;
-		$sql='UPDATE pedprotemporales set idPedpro='.$idReal .'  where id='.$idTemporal;
-		$smt=$db->query($sql);
-		//~ return $resultado;
 	}
     
 	public function modEstadoPedido($idPedido, $estado){
@@ -117,9 +72,8 @@ class PedidosCompras extends ClaseCompras{
 		//@Parametros : 
 		// $idPedido-> id del pedio real
 		// $estado-> string del estado
-		$db=$this->db;
 		$sql='UPDATE pedprot set estado="'.$estado .'"  where id='.$idPedido;
-		$smt=$this->consulta($sql);
+		$smt=parent::consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
@@ -174,8 +128,8 @@ class PedidosCompras extends ClaseCompras{
         }
         if ($idPedido > 0){
             // Solo ejecuto si hay un idPedido y esta OK
-            if ($OK = 'OK'){
-                $where = 'where id='.$idPedido;
+            if ($OK === 'OK'){
+                $where = 'where idpedpro='.$idPedido;
                 foreach($tablas as $tabla){
                     $respuesta[$tabla] = parent::deleteRegistrosTabla($tabla,$where);
                 }
@@ -191,18 +145,17 @@ class PedidosCompras extends ClaseCompras{
 		//pedprot->tabla donde se almacenan los pedidos guardados
 		//pedprolinea->tabla que contiene las lineas de los productos
 		//pedproIva->tabla que contiene los registros de los distintos ivas de los productos
-		$db = $this->db;
         $sql='INSERT INTO pedprot'
             .' ( Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion)'
             .' VALUES ('.$datos['Numtemp_pedpro']
             .', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '
             .$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado']
             .'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")';
-        $smt=$this->consulta($sql);
+        $smt=parent::consulta($sql);
         if (gettype($smt)==='array'){
             $respuesta =$smt;
         }else{
-            $id=$db->insert_id;
+            $id=$this->insert_id;
             // Ahora añadimos es valor a campo Numpredpro, aunque los correcto sería
             // obtener el numero que va y continuar el numero siguiente.
             // Aunque en PROVEEDORES no es necesario, ya que no lo obliga en ningun sitio.
@@ -210,7 +163,7 @@ class PedidosCompras extends ClaseCompras{
             if (isset($id)){
                 $respuesta['id']=$id;
                 $sql='UPDATE pedprot set Numpedpro='.$id.' WHERE id='.$id;
-                $smt=$this->consulta($sql);
+                $smt=parent::consulta($sql);
                 if (gettype($smt)==='array'){
                     $respuesta =$smt;
                 }
@@ -285,7 +238,7 @@ class PedidosCompras extends ClaseCompras{
         }
         // Hacemos una sola consulta con inserccion de todos los productos.
         $sql .= ' VALUES '.implode(',',$values);
-        $smt=$this->consulta($sql);
+        $smt=parent::consulta($sql);
         if (gettype($smt)==='array'){
             $respuesta['error']=$smt['error'];
             $respuesta['consulta']=$smt['consulta'];
@@ -306,7 +259,7 @@ class PedidosCompras extends ClaseCompras{
         }
         $sql .= ' VALUES '.implode(',',$values);
         // Hacemos una sola consulta con insercion de todos registros subtotales de ivas.
-        $smt=$this->consulta($sql);
+        $smt=parent::consulta($sql);
         if (gettype($smt)==='array'){
             $respuesta['error']=$smt['error'];
             $respuesta['consulta']=$smt['consulta'];
@@ -332,7 +285,6 @@ class PedidosCompras extends ClaseCompras{
         //      [2] => [pedproIva] => (int) Nº registros ELIMINADOS EN pedproIva, subtotales ivas y bases, maximo 3 registros
         //      [3] => [productoInsertados] => (int) Nº registros añadido a pedprolines, las nuevas lineas del pedido
         //      [4] => [subtotalIvasInsertados] => (int) Nº registros de pedproIva, subtotales ivas y bases, maximo 3 registros
-		$db = $this->db;
         if (isset($datos['idPedpro']) && $datos['idPedpro'] >0){
             $id = $datos['idPedpro'];
             $sql='UPDATE pedprot SET Numtemp_pedpro='.$datos['Numtemp_pedpro']
@@ -342,7 +294,7 @@ class PedidosCompras extends ClaseCompras{
                 .', modify_by="'.$datos['idUsuario'].'"'
                 .', fechaModificacion=NOW()'
                 .'  WHERE id = '.$id;
-            $smt=$this->consulta($sql);
+            $smt=parent::consulta($sql);
             if (gettype($smt)==='array'){
                 $respuesta[] =$smt;
             } else {
@@ -373,19 +325,19 @@ class PedidosCompras extends ClaseCompras{
 	public function eliminarTemporal($idTemporal, $idPedido =0){
 		//@Objetivo :
         // Eliminar temporal, tanto si recibe idTemporal o idPedido
-		$db=$this->db;
 		if ($idPedido>0){
 			$sql='DELETE FROM pedprotemporales WHERE idPedpro='.$idPedido;
 		}else{
 			$sql='DELETE FROM pedprotemporales WHERE id='.$idTemporal;
 		}
-		$smt=$this->consulta($sql);
+		$smt=parent::consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-		}
-		
+		}else {
+            $respuesta['valores_insert'] = $this->affected_rows;
+        }
+        return $respuesta;
 	}
     
 	public function TodosTemporal($idPedpro = 0){
@@ -393,7 +345,6 @@ class PedidosCompras extends ClaseCompras{
         // Obtener los pedidostemporales (todos) o de un pedido de terminado, ya que puede suceder que
         // se este editando el mismo pedido a la vez.
         $respuesta = array();
-        $db = $this->db;
 		$Sql= 'SELECT tem.idPedpro, tem.id , tem.idProveedor, tem.total, b.nombrecomercial, 
 		c.Numpedpro from pedprotemporales as tem left JOIN proveedores as b on 
 		tem.idProveedor=b.idProveedor left JOIN pedprot as c on tem.idPedpro=c.id';
@@ -401,7 +352,7 @@ class PedidosCompras extends ClaseCompras{
             // buscamos solos temporales para ese pedido.
             $Sql .= ' where tem.idPedpro='.$idPedpro;
         }
-		$smt=$this->consulta($Sql);
+		$smt=parent::consulta($Sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
@@ -415,11 +366,10 @@ class PedidosCompras extends ClaseCompras{
 	
 	public function TodosPedidosLimite($limite = ''){
 		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
-		$db	=$this->db;
 		$sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, 
 		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on 
 		a.idProveedor=b.idProveedor   '. $limite ;
-		$smt=$this->consulta($sql);
+		$smt=parent::consulta($sql);
 		$pedidosPrincipal=array();
 		if (gettype($smt)==='array'){
 			$respuesta = array( 'error'     => $smt['error'],
@@ -479,12 +429,11 @@ class PedidosCompras extends ClaseCompras{
 	}
 	
 	public function buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado){
-		$db=$this->db;
 		if ($numPedido>0){
 			$sql='SELECT Numpedpro, FechaPedido, total, id FROM pedprot 
 			WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'"
 			.' and Numpedpro='.$numPedido;
-			$smt=$this->consulta($sql);
+			$smt=parent::consulta($sql);
 			if (gettype($smt)==='array'){
 				$pedido['error']=$smt['error'];
 				$pedido['consulta']=$smt['consulta'];
@@ -498,7 +447,7 @@ class PedidosCompras extends ClaseCompras{
 		}else{
 			$sql='SELECT Numpedpro, FechaPedido, total, id FROM pedprot
 			 WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'";
-			$smt=$this->consulta($sql);
+			$smt=parent::consulta($sql);
 			if (gettype($smt)==='array'){
 				$pedido['error']=$smt['error'];
 				$pedido['consulta']=$smt['consulta'];
@@ -514,9 +463,8 @@ class PedidosCompras extends ClaseCompras{
 	}
     
 	public function modFechaPedido($fecha, $idPedido){
-		$db=$this->db;
 		$sql='UPDATE pedprot SET FechaPedido= "'.$fecha.'" where id='.$idPedido;
-		$smt=$this->consulta($sql);
+		$smt=parent::consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
@@ -663,12 +611,12 @@ class PedidosCompras extends ClaseCompras{
                     if ($control_error_modPedido === 'OK'){
                         // No hubo errores por lo que elimina temporales de ese pedido
                         $eliminarTemporal=$this->eliminarTemporal($_POST['idTemporal'], $idPedido);
-                            if (isset($eliminarTemporal['error'])){
-                                array_push($errores,$this->montarAdvertencia('danger',
-                                    'No se puedo eliminar el temporal.Error de SQL:'.$eliminarTemporal['consulta']
-                                    )
-                                );
-                            }
+                        if (isset($eliminarTemporal['error'])){
+                            array_push($errores,$this->montarAdvertencia('danger',
+                                'No se puedo eliminar el temporal.Error de SQL:'.$eliminarTemporal['consulta']
+                                )
+                            );
+                        }
                     }
                 }
             }
@@ -698,7 +646,10 @@ class PedidosCompras extends ClaseCompras{
                             $OK = 'Hay un temporal y no coincide el idtemporal.';
                         }
                     } else {
-                        $errores['idTemporal'] = $posible_duplicado[0]['id'];
+                        if (isset( $posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] >0 ){
+                            // Solo devuelvo idTemporal si id > 0    
+                            $errores['idTemporal'] = $posible_duplicado[0]['id'];
+                        }
                     }
                 }
                 if ($OK !== 'OK' ){
@@ -713,6 +664,34 @@ class PedidosCompras extends ClaseCompras{
         }
         return $errores;
     }
+
+    /* ===================     Metodos antiguos que no toque    ========================
+     *  Utiliza $this->db
+     * */
+    	public function modTotales($res, $total, $totalivas){
+		//@ Objetivo:
+		// El objetico principal es que cada vez que modificamos una cantidad o añadimos un producto nuevo , modificar en el pedido temporal los datos de total
+		//@ Parametros:
+		// $res-> id del pedido temporal
+		//$total->El total del pedido
+		//$total_ivas->la suma de todos los ivas 
+		$db=$this->db;
+		$sql='UPDATE pedprotemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
+		$smt=$db->query($sql);
+		$resultado['sql']=$sql;
+		return $resultado;
+	}
+    
+	public function addNumRealTemporal($idTemporal, $idReal){
+		// @Objetivo: Si el pedido es modificado en el temporal tenemos que registrar el id del pedido real 
+		// @Parametros:
+		// $idTemporal-> id del pedido temporal que hemos creado anteriormente
+		// $idReal-> id del pedido real que estamos modificando
+		$db=$this->db;
+		$sql='UPDATE pedprotemporales set idPedpro='.$idReal .'  where id='.$idTemporal;
+		$smt=$db->query($sql);
+		//~ return $resultado;
+	}
     
 }
 ?>

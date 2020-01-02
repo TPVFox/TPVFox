@@ -55,15 +55,23 @@
         $numPedidoTemp=$_GET['tActual']; // Id de pedido temporal
     }
     // ---------- Posible errores o advertencias mostrar     ------------------- //
-    if ($idPedido > 0 && $accion === 'temporal'){
+    //~ if ($idPedido > 0 && $accion === 'temporal'){
+    if ($idPedido > 0){
         // Estos parametros de GET no indica que es un pedido ya guardado y tiene temporal, pero no sabemos cual.
         // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
         $c = $Cpedido->comprobarTemporalIdPedpro($idPedido);
-        if (isset($c['idTemporal'])){
+        if (isset($c['idTemporal']) && $c['idTemporal'] !== NULL){
             // Existe un temporal de este pedido por lo que cargo ese temporal.
             $numPedidoTemp = $c['idTemporal'];
             $idPedido = 0 ; // Lo pongo en 0 para ejecute la parte temporal
             $_GET['tActual'] = $numPedidoTemp;
+            if ($accion !== 'temporal'){
+                // Si entro sin accion temporal, NO PERMITO EDITAR.
+                // YA PROVABLEMENTE ESTAN EDITANDO.
+                $accion = 'ver';
+                // Creo alert
+                echo '<script>alert("No se permite editar, ya que alguien esta editandolo, hay un temporal");</script>';
+            }
         } else {
             if (count($c)>0){
                  $errores= $c;
@@ -139,7 +147,7 @@
     }
     
     //  ---------  Control y procesos para guardar el pedido. ------------------ //
-    if (isset($_POST['Guardar']) && count($errores)>0){
+    if (isset($_POST['Guardar']) && count($errores)===0){
         // Cuando el estado es pedido que recibimos por POST es "Guardado"
         // puede ser que no modificará nada o que exista un temporal, recien creado.
         // lo compruebo.
@@ -168,14 +176,13 @@
                                     .json_encode($guardar['modPedido'])
                                     )
                         );
-        
             }
         }
     }
     $htmlIvas=htmlTotales($Datostotales);
     // Ahora ponemos valores estilos para cada estado y accion.
     $estilos = array ( 'readonly'       => '',
-                       'styleNo'        => '',
+                       'styleNo'        => 'style="display:none;',
                        'pro_readonly'   => '',
                        'pro_styleNo'    => '',
                        'btn_guardar'    => '',
@@ -186,10 +193,17 @@
         // no se permite cambiar proveedor.
         $estilos['pro_readonly']   = ' readonly';
         $estilos['pro_styleNo']    = ' style="display:none;"';
+        $estilos['styleNo']    = '';
+
     }
     if ($accion === 'ver'){
         $estilos['readonly']   = ' readonly';
         $estilos['styleNo']     = ' style="display:none;"';
+    }
+    if ($numPedidoTemp === 0){
+        // Solo se muestra cuando el numPedidoTemp es 0
+        $estilos['btn_guardar'] = 'style="display:none;"';
+        // Una vez se cree temporal, con javascript se quita style
     }
     
 ?>
@@ -234,11 +248,7 @@
 	 }
 	?>
 </script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+
 <script type="text/javascript">
     <?php
 	 if (isset($_POST['Cancelar'])){
@@ -250,6 +260,11 @@
 </script>
 </head>
 <body>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <?php
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
@@ -289,11 +304,6 @@
                 }
                 if ($estado != "Facturado" || $accion != "ver"){
                     // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
-                    // pero solo se muestra si el estado es "Sin Guardar"
-                    if ($estado != "Sin Guardar" ){
-                        $estilos['btn_guardar'] = 'style="display:none;"';
-                        // Una vez se cree temporal, con javascript se quita style
-                    }
                     echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
                             .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
                 }

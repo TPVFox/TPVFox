@@ -10,16 +10,12 @@
 	include_once $URLCom.'/controllers/Controladores.php';
 	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
 	include_once $URLCom.'/clases/Proveedores.php';
-	
 	// Creamos el objeto de controlador.
 	$Controler = new ControladorComun; 
-
 	// Creamos el objeto de pedido
 	$Cpedido=new PedidosCompras($BDTpv);
-
 	// Creamos el objeto de proveedor
 	$Cproveedor=new Proveedores($BDTpv);
-	
 	//Obtenemos los registros temporarles
 	$todoTemporal=$Cpedido->TodosTemporal();
 	if (isset($todoTemporal['error'])){
@@ -29,9 +25,7 @@
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 	}
-	
 	$todoTemporal=array_reverse($todoTemporal);
-		
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numpedpro','b.nombrecomercial');
@@ -39,20 +33,15 @@
 	$NPaginado->SetCamposControler($campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
-
 	$CantidadRegistros=0;
 	// Obtenemos la cantidad registros 
 	$p= $Cpedido->TodosPedidosLimite($filtro);
-		
 	$CantidadRegistros = count($p['Items']);
-	
 	// --- Ahora envio a NPaginado la cantidad registros --- //
 	$NPaginado->SetCantidadRegistros($CantidadRegistros);
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$p=$Cpedido->TodosPedidosLimite($filtro.$NPaginado->GetLimitConsulta());
-
-
     $pedidosDef=$p['Items'];
 	if (isset($p['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
@@ -69,12 +58,12 @@
 								 );
 	}
 	?>
-
 </head>
-
 <body>
+	<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 <?php
     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
@@ -100,7 +89,6 @@
                 }
             ?>
             <h4> Opciones para una selección</h4>
-
             <div class="col-md-12">
                 <h4 class="text-center"> Pedidos Abiertos</h4>
                 <table class="table table-striped table-hover">
@@ -110,7 +98,6 @@
                             <th>Pro.</th>
                             <th>Total</th>
                         </tr>
-                        
                     </thead>
                     <tbody>
                         <?php 
@@ -122,12 +109,26 @@
                                 $numPed="";
                             }
                             $url = 'pedido.php?tActual='.$pedidoTemp['id'];
+                            $tdl = '<td style="cursor:pointer" onclick="redireccionA('
+                                    ."'".$url."'".')" title="Pedido con numero temporal:'
+                                    .$pedidoTemp['id'].'">';
+                            $td_Pedido_temporal = $tdl.$numPed.'</td>'
+                                                 .$tdl.$pedidoTemp['nombrecomercial'].'</td>'
+                                                 .$tdl.number_format($pedidoTemp['total'],2).'</td>';
                             ?>
                                 <tr>
-                                 <tr style="cursor:pointer" onclick="redireccionA('<?php echo $url;?>')" title="Pedido con numero temporal: <?php echo $pedidoTemp['id'];?>">
-                                <td><?php echo $numPed;?></td>
-                                <td><?php echo $pedidoTemp['nombrecomercial'];?></td>
-                                <td><?php echo number_format($pedidoTemp['total'],2);?></td>
+                                    <?php echo $td_Pedido_temporal;
+                                    // Solo mostramos la opcion de eliminar temporal si tiene permisos.
+                                    if($ClasePermisos->getAccion("EliminarTemporal")==1){
+                                    ?>
+                                    <td>
+                                        <a onclick="eliminarTemporal(<?php echo $pedidoTemp['id']; ?>, 'ListadoPedidos')">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </a>
+                                    </td>
+                                    <?php
+                                    }
+                                    ?>
                                 </tr>
                                 <?php
                             }
@@ -220,7 +221,6 @@
                         }
                         echo '<td'.$clas_estado.'>'.$pedido['estado'].$linkPedido.'</td>';
                         ?>
-                        
                     </tr>
                 <?php
                 }

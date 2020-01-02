@@ -4,7 +4,8 @@
 class ClaseCompras
 {
 	public $db; //(Objeto) Es la conexion;
-	public $affected_rows; // Propiedad que guardamos cuando hacemos una consulta, para indicar filas afectadas.
+	public $affected_rows; // Numero filas que afecto la consulta, se guarda cuando hacemos una consulta.
+    public $insert_id; // id del registro insertado. ( ojo.. como sabe que el campo es id)
 	public function consulta($sql){
 		// Realizamos la consulta.
 		$db = $this->db;
@@ -18,6 +19,7 @@ class ClaseCompras
 		}
         // Guardamos la filas afectadas.
         $this->affected_rows = $db->affected_rows;
+        $this->insert_id = $db->insert_id;
         return $respuesta;
 	}
      
