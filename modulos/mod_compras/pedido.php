@@ -55,7 +55,6 @@
         $numPedidoTemp=$_GET['tActual']; // Id de pedido temporal
     }
     // ---------- Posible errores o advertencias mostrar     ------------------- //
-    //~ if ($idPedido > 0 && $accion === 'temporal'){
     if ($idPedido > 0){
         // Estos parametros de GET no indica que es un pedido ya guardado y tiene temporal, pero no sabemos cual.
         // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
@@ -81,25 +80,20 @@
     if (isset($_GET['id']) && $idPedido> 0 && count($errores) === 0){
         // Si idPedido es 0, quiere decir que existe un temporal de $GET['id'] por lo que no entro aquí
         $datosPedido=$Cpedido->DatosPedido($idPedido);
+        $datosPedido['Productos'] = $Cpedido->ProductosPedidos($idPedido);
         $estado=$datosPedido['estado'];
         if ($estado=='Facturado'){
             $accion = 'ver'; // Con estado facturado la accion es solo ver.
+            // Obtenemos el numero albaran que tiene este pedido.
+            $Albaran_creado = $Cpedido->NumAlbaranDePedido($idPedido);
         } 
-        $productosPedido=$Cpedido->ProductosPedidos($idPedido);
-        $ivasPedido=$Cpedido->IvasPedidos($idPedido);
         $fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
-        $idProveedor=$datosPedido['idProveedor'];
-        $datosProveedor=$Cproveedor->buscarProveedorId($idProveedor);
-        $nombreProveedor=$datosProveedor['nombrecomercial'];
-        $productosMod=modificarArrayProductos($productosPedido);
-        $productos=json_decode(json_encode($productosMod));
+        $productos=modificarArrayProductos($datosPedido['Productos']);
         $Datostotales = recalculoTotales($productos);
-        $productos=json_decode(json_encode($productosMod), true);
+        // Obtenemos la incidencias si hay.
         $incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
         $inciden=count($incidenciasAdjuntas['datos']);
     }
-    
-    
     if (isset($_GET['tActual']) && $numPedidoTemp >0 && count($errores) === 0){           
         $datosPedido=$Cpedido->DatosTemporal($numPedidoTemp);
         if (isset($datosPedido['idPedpro'])){
@@ -122,28 +116,25 @@
             }
         }
         if ( count($errores) === 0) {
-            $estado=$datosPedido['estadoPedPro'];
-            $idProveedor=$datosPedido['idProveedor'];
-            
+            $estado=$datosPedido['estadoPedPro'];         
             if ($datosPedido['fechaInicio']){
                 $bandera=new DateTime($datosPedido['fechaInicio']);
                 $fecha=$bandera->format('d-m-Y');
             }
             $productos = json_decode( $datosPedido['Productos']); // Array de objetos
-            if ($idProveedor){
-                $datosProveedor=$Cproveedor->buscarProveedorId($idProveedor);
-                $nombreProveedor=$datosProveedor['nombrecomercial'];
-            }
+            $datosPedido['Productos'] = $productos;
         }
     }
-    
-	// Añadimos al titulo el estado
-	$titulo .= ' '.$idPedido.' - '.$accion;
+    //  Obtenemos los datos del proveedor:
+    if (isset ($datosPedido['idProveedor']) && $datosPedido['idProveedor'] > 0){
+        $idProveedor=$datosPedido['idProveedor'];
+        $datosProveedor=$Cproveedor->buscarProveedorId($idProveedor);
+        $nombreProveedor=$datosProveedor['nombrecomercial'];
+    }
     if(isset($datosPedido['Productos'])){
         // Obtenemos los datos totales;
         // convertimos el objeto productos en array
-        $Datostotales = recalculoTotales($productos);
-        $productos = json_decode(json_encode($productos), true); // Array de arrays	
+        $Datostotales = $Cpedido->recalculoTotales($productos);
     }
     
     //  ---------  Control y procesos para guardar el pedido. ------------------ //
@@ -180,7 +171,16 @@
         }
     }
     $htmlIvas=htmlTotales($Datostotales);
-    // Ahora ponemos valores estilos para cada estado y accion.
+    // ============                 Montamos el titulo                      ==================== //
+    $html_albaran='';
+    if(isset($Albaran_creado)){
+        $html_albaran = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label label-default">';
+        $html_albaran .= 'albaran:'.$Albaran_creado['numAlbaran'];
+        $html_albaran .='</span>';
+    }
+    // Añadimos al titulo el estado
+	$titulo .= ' '.$idPedido.$html_albaran.' - '.$accion;
+    // ============= Creamos variables de estilos para cada estado y accion =================== //
     $estilos = array ( 'readonly'       => '',
                        'styleNo'        => 'style="display:none;',
                        'pro_readonly'   => '',

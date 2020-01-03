@@ -9,16 +9,13 @@ include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
 include_once $URLCom.'/clases/Proveedores.php';
 include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
-
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
-
 $CArticulo=new Articulos($BDTpv);
 // Creamos el objeto de proveedor
 $CProv= new Proveedores($BDTpv);
 // Creamos el objeto de albarán
 $CAlb=new AlbaranesCompras($BDTpv);
-
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
 if (isset($todosTemporal['error'])){
@@ -29,11 +26,9 @@ if (isset($todosTemporal['error'])){
 								 );
 }
 $todosTemporal=array_reverse($todosTemporal);
-	
 	// ===========    Paginacion  ====================== //
 	$NPaginado = new PluginClasePaginacion(__FILE__);
 	$campos = array( 'a.Numalbpro','b.nombrecomercial');
-
 	$NPaginado->SetCamposControler($campos);
 	$NPaginado->SetOrderConsulta('a.Numalbpro');
 	// --- Ahora contamos registro que hay para es filtro --- //
@@ -41,17 +36,13 @@ $todosTemporal=array_reverse($todosTemporal);
 	$CantidadRegistros=0;
 	// Obtenemos la cantidad registros 
 	$a = $CAlb->TodosAlbaranesLimite($filtro);
-		
 	$CantidadRegistros = count($a['Items']);
-	
 	// --- Ahora envio a NPaginado la cantidad registros --- //
 	$NPaginado->SetCantidadRegistros($CantidadRegistros);
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
-	
-	 //~ $albaranesDef=array_reverse($a['Items']);
-	 $albaranesDef=$a['Items'];
+    $albaranesDef=$a['Items'];
 	if (isset($a['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $a['consulta'],
@@ -59,16 +50,20 @@ $todosTemporal=array_reverse($todosTemporal);
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 	}
+    if (count($albaranesDef)==0){
+		$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes albaranes guardados!'
+								 );
+	}
 ?>
-
 </head>
-
 <body>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
    	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
-
 <?php
     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
@@ -84,21 +79,12 @@ $todosTemporal=array_reverse($todosTemporal);
             <h2>Albaranes de proveedores</h2>
         </div>
         <div class="col-sm-3">
-            <h4> Albaranes</h4>
-            <h5> Opciones para una selección</h5>
-            <ul class="nav nav-pills nav-stacked"> 
+            <h4> Opción general</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                    echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarAlbaran'."'".');">
-                    Añadir</a></li>';
-            }
-            if($ClasePermisos->getAccion("Modificar")==1){
-                echo '  <li><a href="#section2" onclick="metodoClick('."'".'Ver'."'".','."'".'albaran'."'".');">
-                Modificar</a></li>';
-            }    
-            ?>
-            
-            </ul>
+                   echo '<a class="anhadir" onclick="metodoClick('."'".'AgregarAlbaran'."'".');";>Añadir</a>';
+                }
+            ?>          
             <div class="col-md-12">
                 <h4 class="text-center"> Albaranes Abiertos</h4>
                 <table class="table table-striped table-hover">
@@ -108,7 +94,6 @@ $todosTemporal=array_reverse($todosTemporal);
                             <th>Pro.</th>
                             <th>Total</th>
                         </tr>
-                        
                     </thead>
                     <tbody>
                         <?php
@@ -130,11 +115,8 @@ $todosTemporal=array_reverse($todosTemporal);
                             
                             <?php
                         }
-                        
-                        
                     }
-                        
-                        ?>
+                    ?>
                     </tbody>
                 </table>
                 </div>	
@@ -161,7 +143,7 @@ $todosTemporal=array_reverse($todosTemporal);
                     <tr>
                         <th></th>
                         <th></th>
-                         <th></th>
+                        <th></th>
                         <th>Nª ALBARÁN</th>
                         <th>FECHA</th>
                         <th>PROVEEDOR</th>
@@ -174,16 +156,15 @@ $todosTemporal=array_reverse($todosTemporal);
                 <tbody>
                     <?php 
                     $checkUser = 0;
-                    $iconoCostes=0;
                     foreach ($albaranesDef as $albaran){
-                        $linkImprimir='';
+                        $iconoCostes='';
                         $checkUser++;
                         $totaliva=$CAlb->sumarIva($albaran['Numalbpro']);
                         if ($albaran['estado']<>"Sin Guardar"){
                             $historico=$CArticulo->historicoCompras($albaran['Numalbpro'], "albaran", "compras");
                             foreach ($historico as $his){
                                 if($his['estado']=="Pendiente"){
-                                    $iconoCostes=1;
+                                    $iconoCostes=' <a class="glyphicon glyphicon-th-list" style="color:red" href="../mod_producto/Recalculo_precios.php?id='.$albaran['id'].'"></a>';
                                 }
                             }
                         }
@@ -197,23 +178,22 @@ $todosTemporal=array_reverse($todosTemporal);
                             ?>
                         </td>
                         <td>
-                            <?php 
-                             if($ClasePermisos->getAccion("Modificar")==1){
-                            ?>
-                                <a class="glyphicon glyphicon-pencil" href='./albaran.php?id=<?php echo $albaran['id'];?>'>
-                            <?php 
-                            }
-                          
-                            ?>
-                           </td>
-                           <td>
-                               <?php 
-                             if($ClasePermisos->getAccion("Ver")==1){
-                            ?>
-                            <a class="glyphicon glyphicon-eye-open" href='./albaran.php?id=<?php echo $albaran['id'];?>&estado=ver'>
-                            <?php 
+                            <?php
+                            if($ClasePermisos->getAccion("Modificar")==1 && $albaran['estado']!=='Facturado'){
+                                $accion='';
+                                if ($albaran['estado']==="Sin Guardar"){
+                                    $accion ='&accion=temporal';
+                                }
+                                echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id='.$albaran['id'].$accion.'">';
                             }
                             ?>
+                        </td>
+                        <td>
+                        <?php 
+                        if($ClasePermisos->getAccion("Ver") == 1){
+                            echo '<a class="glyphicon glyphicon-eye-open" href="./albaran.php?id='.$albaran['id'].'&accion=ver">';
+                        }
+                        ?>
                         </td>
                         <td><?php echo $albaran['Numalbpro'];?></td>
                         <td><?php echo date_format($date,'Y-m-d');?></td>
@@ -222,24 +202,19 @@ $todosTemporal=array_reverse($todosTemporal);
                         <td><?php echo $totaliva['importeIva'];?></td>
                         <td><?php echo $albaran['total'];?></td>
                         <?php
-                        if ($albaran['estado'] !== "Sin Guardar"){
-                            $linkImprimir= '&nbsp;<a style="cursor:pointer" class="glyphicon glyphicon-print" '."onclick='imprimir(".$albaran['id'].', "albaran", '.$Tienda['idTienda'].")'></a>";
-                        }
+                        $clas_estado ='';
+                        if ($albaran['estado']!=="Sin Guardar"){
+                            $linkImprimir = ' <a style="cursor:pointer" class="glyphicon glyphicon-print" '.
+                                    "onclick='imprimir(".$albaran['id'].
+                                    ' , "albaran" , '.$Tienda['idTienda'].")'></a>";
+                        } else {
+                            $clas_estado = ' class="alert-danger"';
+                            $linkImprimir= '';
+                        }                    
+                        echo '<td'.$clas_estado.'>'
+                                .$albaran['estado'].$linkImprimir.$iconoCostes;
+                        echo '</td>';
                         ?>
-                        <td><?php echo $albaran['estado'].$linkImprimir;?>  
-                        &nbsp;
-                        <?php 
-                        if($iconoCostes==1){
-                        ?>
-                        <a class="glyphicon glyphicon-th-list" style="color:red" href="../mod_producto/Recalculo_precios.php?id=<?php echo $albaran['id'];?>"></a></td>
-
-                            <?php
-                        }
-                        $iconoCostes=0;
-                        
-                        
-                        ?>
-                        
                         </tr>
                         <?php
                     }

@@ -6,3 +6,5 @@ ALTER TABLE `pedproIva` CHANGE `Numpedpro` `Numpedpro` INT(11) NULL;
 ALTER TABLE `pedprolinea` CHANGE `Numpedpro` `Numpedpro` INT(11) NULL; 
 # Añado campos para controlar quien modifica un pedido, albaran o factura de un proveedor.
 ALTER TABLE `pedprot` ADD `modify_by` INT NULL AFTER `fechaModificacion`; 
+# Si hay albaranes temporales hay que cubvrir el campo fecha.
+UPDATE `albproltemporales` SET `Fecha`=fechaInicio WHERE 1;

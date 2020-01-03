@@ -93,7 +93,8 @@ class PedidosCompras extends ClaseCompras{
 	}
     
 	public function DatosPedido($idPedido){
-		//@Objetivo : Mostrar todo los datos de un pedido de la tabla pedprot
+		//@Objetivo :
+        // Obtner los datos de un pedido de la tabla pedprot
 		//@Parametros:
 		//idPedido: id del pedido
 		$tabla='pedprot';
@@ -320,6 +321,13 @@ class PedidosCompras extends ClaseCompras{
             }
         }
         return $respuesta;
+    }
+
+    public function NumAlbaranDePedido($idPedido){
+		$tabla='pedproAlb';
+		$where='idPedido='.$idPedido;
+		$relacion_alb_pedido = parent::SelectUnResult($tabla, $where);
+		return $relacion_alb_pedido;
     }
 
 	public function eliminarTemporal($idTemporal, $idPedido =0){

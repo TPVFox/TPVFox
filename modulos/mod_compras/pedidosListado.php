@@ -85,7 +85,7 @@
             <h4> Opcion general</h4> 
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                   echo '<a href="#section2" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a>';
+                   echo '<a class="anhadir" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a>';
                 }
             ?>
             <h4> Opciones para una selección</h4>
@@ -185,7 +185,7 @@
                         </td>
                         <td>
                             <?php 
-                            if($ClasePermisos->getAccion("Modificar")==1){
+                            if($ClasePermisos->getAccion("Modificar")==1 && $pedido['estado']!=='Facturado'){
                                 $accion='';
                                 if ($pedido['estado']==="Sin Guardar"){
                                     $accion ='&accion=temporal';
@@ -212,14 +212,14 @@
                         <?php
                         $clas_estado ='';
                         if ($pedido['estado']!=="Sin Guardar"){
-                            $linkPedido = ' <a class="glyphicon glyphicon-print" '.
+                            $linkImprimir = ' <a class="glyphicon glyphicon-print" '.
                                     "onclick='imprimir(".$pedido['id'].
                                     ' , "pedido" , '.$Tienda['idTienda'].")'></a>";
                         } else {
                             $clas_estado = ' class="alert-danger"';
-                            $linkPedido= '';
+                            $linkImprimir= '';
                         }
-                        echo '<td'.$clas_estado.'>'.$pedido['estado'].$linkPedido.'</td>';
+                        echo '<td'.$clas_estado.'>'.$pedido['estado'].$linkImprimir.'</td>';
                         ?>
                     </tr>
                 <?php

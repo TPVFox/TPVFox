@@ -362,25 +362,25 @@ function modificarArrayProductos($productos){
 	// Modificar el array de productos para poder trabajar en facturas , pedidos y albaranes
 	$respuesta=array();
 	foreach ($productos as $producto){
-		$pro['ccodbar']=$producto['ccodbar'];
-		$pro['cdetalle']=$producto['cdetalle'];
-		$pro['cref']=$producto['cref'];
-		$pro['crefProveedor']=$producto['ref_prov'];
-		$pro['estado']=$producto['estadoLinea'];
-		$pro['idArticulo']=$producto['idArticulo'];
-		if (isset($producto['Numpedpro'])){
+        $pro = array(   'ccodbar'       =>$producto['ccodbar'],
+                        'cdetalle'      =>$producto['cdetalle'],
+                        'cref'          =>$producto['cref'],
+                        'crefProveedor' =>$producto['ref_prov'],
+                        'estado'        =>$producto['estadoLinea'],
+                        'idArticulo'    =>$producto['idArticulo'],
+                        'importe'       =>$producto['costeSiva']*$producto['nunidades'],
+                        'iva'           =>$producto['iva'],
+                        'ncant'         =>$producto['ncant'],
+                        'nfila'         =>$producto['nfila'],
+                        'nunidades'     =>$producto['nunidades'],
+                        'ultimoCoste'   =>$producto['costeSiva']
+                    );
+        if (isset($producto['Numpedpro'])){
 			$pro['numPedido']=$producto['Numpedpro'];
 		}
 		if (isset ($producto['Numalbpro'])){
 			$pro['numAlbaran']=$producto['Numalbpro'];
 		}
-		$importe=$producto['costeSiva']*$producto['nunidades'];
-		$pro['importe']=$importe;
-		$pro['iva']=$producto['iva'];
-		$pro['ncant']=$producto['ncant'];
-		$pro['nfila']=$producto['nfila'];
-		$pro['nunidades']=$producto['nunidades'];
-		$pro['ultimoCoste']=$producto['costeSiva'];
 		array_push($respuesta,$pro);
 	}
 	return $respuesta;
