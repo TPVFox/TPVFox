@@ -216,6 +216,9 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 }
 
 function recalculoTotales($productos,$campo_estado = 'estado') {
+    // === Funcion ya creada en claseCompras =====
+    // Pendiente cambiarlo en facturas para eliminarlo.
+    
 	// @ Objetivo recalcular los totales y desglose del ticket
 	// @ Parametro:
 	// 	$productos (array) de objetos.
@@ -285,24 +288,33 @@ function htmlLineaProducto($productos, $dedonde,$solo_lectura=''){
         $coste= number_format($producto['ultimoCoste'], 4); // Pedidos no se permite modificar.
         $html_coste = $coste;
         if ($dedonde =="albaran" || $dedonde=="factura"){
-            // El coste en albaran y facturas se puede modificar.
+            // En albaran y factura se puede cambiar el coste.
+            // Ademas se tiene que obtener numdocumento, ya que pudieron ser añadido los productos
+            // con un adjunto.
             $html_coste  ='<input type="text" id="ultimo_coste_'.$producto['nfila']
                     .'" data-obj="ultimo_coste" onkeydown="controlEventos(event)"'
                     .' name="ultimo" onBlur="controlEventos(event)" value="'.$coste.'" '.$solo_lectura.' size="4">';
             
             // Ahora montamos td de numDoc
-            $numeroDoc = '<td class="idArticulo">';
-            if (isset($producto['numAlbaran'])){
-                if ($producto['numAlbaran']>0){
-                    $numeroDoc.= $producto['numAlbaran'];
+            $numeroDoc = '';
+            if ($dedonde =="albaran"){
+                if (isset($producto['Numpedpro']) && $producto['Numpedpro']>0){
+                    // Si obtuvo con metodo de la clase AlbCompra
+                    $numeroDoc= $producto['Numpedpro'];
+                } else {
+                    // Viene temporal o es 0 Numpedpro
+                    if (isset($producto['numPedido'])){
+                        $numeroDoc= $producto['numPedido'];
+                    }
                 }
+                
             }
-            if (isset($producto['numPedido'])){
-                if ($producto['numPedido']>0){
-                    $numeroDoc.= $producto['numPedido'];
-                }
-            }
-            $numeroDoc.= '</td>';
+            if (isset($producto['Numalbpro']) && $producto['Numalbpro']>0 && $dedonde=="factura"){
+                // El array de producto, puede traer los dos campos: NumpedPro o Numalbpro
+                // por eso se comprueba dedonde.
+                $numeroDoc= $producto['Numalbpro'];
+             }
+            $html_numeroDoc='<td class="Ndocumento">'.$numeroDoc.'</td>';
         } 
         //Si tiene referencia del proveedor
         $displayRefProv = 'display:none'; // Por defecto si no existe.
@@ -337,7 +349,7 @@ function htmlLineaProducto($productos, $dedonde,$solo_lectura=''){
         $importe = number_format($importe,2);
         $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>'
                             .'<td class="linea">'.$producto['nfila'].'</td>'
-                            . $numeroDoc
+                            . $html_numeroDoc
                             .'<td class="idArticulo">'.$producto['idArticulo'].'</td>'
                             .'<td class="referencia">'.$producto['cref'].'</td>'.$filaProveedor
                             .'<td class="codbarras">'.$codBarra.'</td>'
@@ -1038,6 +1050,7 @@ function guardarFactura($datosPost, $datosGet , $BDTpv, $Datostotales, $importes
 				'mensaje' => 'No puedes guardar la factura ya que tiene estado Pagado Total !'
 			);
 		break;
+        
 		case 'Guardado':
             if ($datosGet['id']){
                 if (isset($datosPost['suNumero'])){
@@ -1100,7 +1113,6 @@ function htmlTotales($Datostotales){
 			.'<td id="base'.$key.'"> '.number_format ($basesYivas['base'],2).'</td>'
 			.'<td id="iva'.$key.'">'.number_format ($basesYivas['iva'],2).'</td>'
 			.'</tr>';
-		
 		$totalBase=$totalBase+$basesYivas['base'];
 		$totaliva=$totaliva+$basesYivas['iva'];
 		}
@@ -1231,7 +1243,6 @@ function cancelarAlbaran( $idTemporal, $BDTpv){
 	//				si es así le mosdifico el estado para que se puedan adjuntar en otro
 	//EliminarRegistroTemporal: Por último elimino el registro temporal y como en los 
 	//					anteriores compruebo los errores de sql
-	
 	$CAlb=new AlbaranesCompras($BDTpv);
 	$Cped = new PedidosCompras($BDTpv);
 	$error=array();
@@ -1270,8 +1281,6 @@ function cancelarAlbaran( $idTemporal, $BDTpv){
 								'mensaje' => 'Error de SQL '
 								);
 			}
-
-			
 		}
 	}else{
 		$error=array ( 'tipo'=>'Info!',
@@ -1297,6 +1306,7 @@ function htmlImporteFactura($datos, $BDTpv){
 	return $respuesta;
 	
 }
+
 function htmlSelectConfiguracionSalto(){
     $html = '<select  title="Escoje casilla de salto" id="salto" name="salto">'
                 .'<option value="0">Seleccionar</option>'
@@ -1308,7 +1318,6 @@ function htmlSelectConfiguracionSalto(){
             .'</select>';
     return $html;
 }
-
 
 function htmlFormasVenci($formaVenci, $BDTpv){
 	$html="";
@@ -1378,7 +1387,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 								$errores['consulta']=$mod['consulta'];
 								break;
 							}
-						}				
+						}
 					}else{
 						$datosNuevos['refProveedor']="";
 						$add=$CArt->addArticulosProveedores($datosNuevos);
@@ -1388,7 +1397,6 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 							break;
 						}
 					}
-					
 					$datos['idArticulo']=$producto['idArticulo'];
 					$datos['antes']=$producto['CosteAnt'];
 					$datos['nuevo']=$producto['ultimoCoste'];

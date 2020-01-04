@@ -59,10 +59,6 @@
         if (isset($_GET['id'])){
             // Si exite id estamos modificando directamente un albaran.
             // Deberíamos comprobar que no exista ningun temporal....
-
-            // Obtenemos la incidencias, por si había.
-            $incidenciasAdjuntas=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, "albaran");
-            $inciden=count($incidenciasAdjuntas['datos']);
             $datosAlbaran = $CAlb->GetAlbaran($_GET['id']);
             if (isset($datosAlbaran['error'])){
                 $errores=$datosAlbaran['error'];
@@ -104,6 +100,7 @@
             }
         }
     }
+    
     if (count($errores) == 0){
         // Si no hay errores graves continuamos.
         if (!isset($datosAlbaran)){
@@ -122,24 +119,39 @@
                                 ? date('d-m-Y'):date_format(date_create($datosAlbaran['Fecha']),'d-m-Y');
             $hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
             // Un albaran puede tener ser generado por varios pedidos del mismo proveedor.
-            // por ello podemos obtener un array de arrays.
-            $pe = $CAlb->PedidosAlbaranes($idAlbaran,'OK');
-            
-            $datosAlbaran['Pedidos'] = '';
-            if (count($pe) >0){
-                $datosAlbaran['Pedidos'] = $pe;
+            echo '<pre>';
+            print_r($datosAlbaran);
+            echo '</pre>';
+            if (isset($datosAlbaran['Pedidos'])){
+                // Cuando viene de tActual obtenemos .
+                // Solo convertimos Json a array de arrays, si count > 0
+                if (count($datosAlbaran['Pedidos']) >0){ 
+                    $datosAlbaran['Pedidos'] = json_decode($datosAlbaran['Pedidos'],true);
+                } 
+            } else {
+                // Entonces buscamos en el albaran que ya esta creado.
+                if ( $idAlbaran > 0){
+                    $datosAlbaran['Pedidos'] = array(); // Por defecto
+                    $pe = $CAlb->PedidosAlbaranes($idAlbaran,'OK');
+                    // Obtenemos un array de arrays
+                    if (!isset($pe['error']) && count($pe) >0){
+                        $datosAlbaran['Pedidos'] = $pe;
+                    }
+                }
             }
             $formaPago=(isset($datosAlbaran['formaPago']))? $datosAlbaran['formaPago'] : 0;
             $fechaVencimiento=$datosAlbaran['FechaVencimiento'];
             if (isset ($datosAlbaran['Numalbpro'])){
                 $d=$CAlb->buscarAlbaranNumero($datosAlbaran['Numalbpro']);
                 $idAlbaran=$d['id'];
+                // Debemos saber si debemos tener incidencias para ese albaran, ya que el boton incidencia es distinto.
+                $incidencias=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, "albaran");
+                $inciden=count($incidencias['datos']);
             }
             if ($datosAlbaran['Su_numero']!==""){
                 $suNumero=$datosAlbaran['Su_numero'];
             }
         }
-        
         $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
         if(isset($datosAlbaran['Productos'])){
 			// Obtenemos los datos totales ;
@@ -224,34 +236,31 @@
 	var pedidos =[];
 <?php 
 	if (isset($albaranTemporal)|| isset($idAlbaran)){ 
-	$i= 0;
 		if (isset($productos)){
-			foreach($productos as $product){
+			foreach($productos as $k =>$product){
 ?>	
 				datos=<?php echo json_encode($product); ?>;
 				productos.push(datos);
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
 				if ($product['estado'] !== 'Activo'){
-				?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
+				?>	productos[<?php echo $k;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 				<?php
 				}
-				$i++;
 			}
 		}
 		if (isset ($datosAlbaran['Pedidos'])){
-			if (is_array($datosAlbaran['Pedidos']) && count($datosAlbaran['Pedidos'])>0){
+			if (count($datosAlbaran['Pedidos'])>0){
                 // Si es un array y tiene datos
-                $i = 0;
 				foreach ($datosAlbaran['Pedidos'] as $key=>$pedi ){
-                    // Ahora tengo añadir cada pedido el estado,Numpedpro
-                    // por contabilidad con version anterior y lo utilizamos en htmllineaadjunto
-                    $i ++;
-                    $datosAlbaran['Pedidos'][$key]['NumAdjunto'] = $pedi['numPedido'];
-                    $datosAlbaran['Pedidos'][$key]['nfila'] = $i;
-                    // Estado no tiene nada que ver con el estado pedido, ya que se entiende que el estado puede ser
-                    // Guardado , Sin guardar o Facturado, pero este estado no referimos a si esta añadido o no.
-                    $datosAlbaran['Pedidos'][$key]['estado'] = 'activo';
+                    if (isset($pedi['numPedido'])){
+                        // Cuando los pedidos adjuntos los cargo con el metodo $CAlb->PedidosAlbaranes 
+                        $datosAlbaran['Pedidos'][$key]['NumAdjunto'] = $pedi['numPedido'];
+                        $datosAlbaran['Pedidos'][$key]['nfila'] = $key+1;
+                        // Estado del adjunto puede ser Activo, o Eliminado.
+                        // Aunque cuando obtenemos por metodo, el estado siempre es activo.
+                        $datosAlbaran['Pedidos'][$key]['estado'] = 'activo';
+                    } 
 					?>
 					datos=<?php echo json_encode($datosAlbaran['Pedidos'][$key]);?>;
 					pedidos.push(datos);

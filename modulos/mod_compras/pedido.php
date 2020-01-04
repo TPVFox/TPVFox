@@ -89,7 +89,7 @@
         } 
         $fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
         $productos=modificarArrayProductos($datosPedido['Productos']);
-        $Datostotales = recalculoTotales($productos);
+        $Datostotales = $Cpedido->recalculoTotales($productos);
         // Obtenemos la incidencias si hay.
         $incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
         $inciden=count($incidenciasAdjuntas['datos']);
@@ -220,7 +220,7 @@
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Abierto'
+		cabecera['estado'] ='<?php echo $estado ;?>'; 
 		cabecera['idTemporal'] = <?php echo $numPedidoTemp ;?>;
 		cabecera['idReal'] = <?php echo $idPedido ;?>;
 		cabecera['idProveedor']='<?php echo $idProveedor ;?>';

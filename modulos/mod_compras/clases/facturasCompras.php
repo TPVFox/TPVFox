@@ -158,12 +158,11 @@ class FacturasCompras extends ClaseCompras{
 	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $albaranes, $suNumero){
 		//@Objetivo:
 		//Insertar los datos de una factura temporal nueva
-		$db = $this->db;
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
-		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$PrepProductos = $this->db->real_escape_string($UnicoCampoProductos);
 		$UnicoCampoAlbaranes=json_encode($albaranes);
-		$PreAlbaran = $db->real_escape_string($UnicoCampoAlbaranes);
+		$PreAlbaran = $this->db->real_escape_string($UnicoCampoAlbaranes);
 		$sql='INSERT INTO facproltemporales ( idUsuario , idTienda , 
 		estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , 
 		Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'
@@ -174,7 +173,7 @@ class FacturasCompras extends ClaseCompras{
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
 		}else{
-			$id=$db->insert_id;
+			$id=$this->insert_id;
 			$respuesta['id']=$id;
 			$respuesta['productos']=$productos;
 		}

@@ -75,8 +75,8 @@ class ClaseCompras
 		$sql='SELECT * from '.$tabla.' where '.$where;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
-			$respuesta['error']=$smt['error'];
-			$respuesta['consulta']=$smt['consulta'];
+            // Devuelve array con error y consulta
+			$respuesta=$smt;
 		}else{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($respuesta,$result);

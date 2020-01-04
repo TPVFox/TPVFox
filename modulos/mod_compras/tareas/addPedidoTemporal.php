@@ -60,7 +60,7 @@
     }
     if ($productos){
     //Recalcula el valor de los productos
-        $CalculoTotales = recalculoTotales($productos);
+        $CalculoTotales = $CPed->recalculoTotales($productos);
         $respuesta['total']=round($CalculoTotales['total'],2);
         $respuesta['totales']=$CalculoTotales;
         $modTotal=$CPed->modTotales($numPedidoTemp, $respuesta['total'], $CalculoTotales['subivas']);
