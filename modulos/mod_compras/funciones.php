@@ -262,31 +262,40 @@ function recalculoTotales($productos,$campo_estado = 'estado') {
 	return $respuesta;
 }
 
-function htmlLineaProducto($productos, $dedonde,$solo_lectura=''){
+function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
         //@Objetivo:
         // html de la linea de los productos tanto para pedido, albaran y factura
         $respuesta=array('html'=>'');
-        if(!is_array($productos)) {
-            // Comprobamos si product no es objeto lo convertimos.
-            $productos = (array)$productos;		
+        if(!is_array($producto)) {
+            // Comprobamos si product es objeto lo convertimos en array.
+            $producto = (array)$producto;		
         } 
-        $producto = $productos;
+        // Valores por defecto o calculo.
+        $codBarra="";
+        $cant=number_format($producto['nunidades'],2);
+        $importe=$producto['ultimoCoste']*$producto['nunidades'];	
+        $importe = number_format($importe,2);
+        $classtr = '';
+        $estadoInput = '';
+        $funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
+        $iconE_R = '<span class="glyphicon glyphicon-trash"></span>';
+        $html_numeroDoc='<td class="Ndocumento"></td>'; // Valor por defecto.
+        $coste= number_format($producto['ultimoCoste'], 4); // Pedidos no se permite modificar.
+        $html_coste = $coste;
+        // Si hay valor de ccodbar lo ponemos en variable.
+        if (isset ($producto['ccodbar'])){
+            if ($producto['ccodbar']>0){
+                $codBarra=$producto['ccodbar'];
+            }
+        }
         // Si el estado es activo lo muestra normal con el boton de eleminar producto si no la linea esta desactivada con el botón de retornar
         if ($producto['estado'] !=='Activo'){
             $classtr = ' class="tachado" ';
             $estadoInput = 'disabled';
             $funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".$dedonde."'".');';
             $iconE_R = '<span class="glyphicon glyphicon-export"></span>';
-        } else {
-            $classtr = '';
-            $estadoInput = '';
-            $funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
-            $iconE_R = '<span class="glyphicon glyphicon-trash"></span>';
-        }
+        } 
         $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">'.$iconE_R.'</a></td>';
-        $numeroDoc=""; // Pedido no muestra nada.
-        $coste= number_format($producto['ultimoCoste'], 4); // Pedidos no se permite modificar.
-        $html_coste = $coste;
         if ($dedonde =="albaran" || $dedonde=="factura"){
             // En albaran y factura se puede cambiar el coste.
             // Ademas se tiene que obtener numdocumento, ya que pudieron ser añadido los productos
@@ -307,7 +316,6 @@ function htmlLineaProducto($productos, $dedonde,$solo_lectura=''){
                         $numeroDoc= $producto['numPedido'];
                     }
                 }
-                
             }
             if (isset($producto['Numalbpro']) && $producto['Numalbpro']>0 && $dedonde=="factura"){
                 // El array de producto, puede traer los dos campos: NumpedPro o Numalbpro
@@ -338,15 +346,6 @@ function htmlLineaProducto($productos, $dedonde,$solo_lectura=''){
                             .'</a>';
         }
         $filaProveedor .= '</td>';   
-        $codBarra="";
-        if (isset ($producto['ccodbar'])){
-            if ($producto['ccodbar']>0){
-                $codBarra=$producto['ccodbar'];
-            }
-        }
-        $cant=number_format($producto['nunidades'],2);
-        $importe=$producto['ultimoCoste']*$producto['nunidades'];	
-        $importe = number_format($importe,2);
         $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>'
                             .'<td class="linea">'.$producto['nfila'].'</td>'
                             . $html_numeroDoc
@@ -361,7 +360,7 @@ function htmlLineaProducto($productos, $dedonde,$solo_lectura=''){
                             .$estadoInput.' onkeydown="controlEventos(event)" '
                             .' onBlur="controlEventos(event)"></td>'
                             .'<td class="pvp">'.$html_coste.'</td>'
-                            . '<td class="tipoiva">'.$producto['iva'].'%</td>'
+                            .'<td class="tipoiva">'.$producto['iva'].'%</td>'
                             .'<td id="N'.$producto['nfila'].'_Importe" class="importe" >'
                             .$importe.'</td>'. $btnELiminar_Retornar.'</tr>';
                         
@@ -1436,7 +1435,7 @@ function historicoCoste($productos, $dedonde, $numDoc, $BDTpv, $idProveedor, $fe
 	return $errores;
 }
 
-function htmlDatosAdjuntoProductos($datos){
+function htmlDatosAdjuntoProductos($datos,$dedonde){
 	$total=0;
 	$totalSiva=0;
 	$suNumero="";
@@ -1449,8 +1448,14 @@ function htmlDatosAdjuntoProductos($datos){
     if(isset($datos['Su_numero'])){
         $suNumero=$datos['Su_numero'];
     }
+    if ($dedonde === 'albaran'){
+        $n_adjunto = '<strong>NºPedido';
+    } else {
+        $n_adjunto = '<strong>NºAlbaran';
+    }
+    $n_adjunto .= $datos['NumAdjunto'].'</strong>';
         $respuesta='<tr class="success">
-            <td colspan="2"><strong>Número de albarán:'.$datos['NumAdjunto'].'</strong></td>
+            <td colspan="2">'.$n_adjunto .'</td>
             <td colspan="2"><strong>Su número:'.$suNumero.'</strong></td>
             <td colspan="2"><strong>Fecha:'.$datos['fecha'].'</strong></td>
             <td colspan="2"><strong>Total con IVA:'.$total.'</strong></td>

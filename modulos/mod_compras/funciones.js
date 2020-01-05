@@ -55,6 +55,8 @@ function buscarAdjunto(dedonde, valor=""){
                     abrirModal(titulo, HtmlPedidos);
                 }else{
                     if (resultado.Nitems>0){
+                        // Comprobamos que el adjunto que vamos añadir, no este ya añadido en este pedido.
+                        // Ya que podríamos tenermo como marcado eliminado.
                         var bandera=0;
                         if (dedonde=="albaran"){
                             var adjuntos=pedidos;
@@ -65,14 +67,11 @@ function buscarAdjunto(dedonde, valor=""){
                             var numeroReal=adjuntos[i].NumAdjunto;
                             var numeroNuevo=resultado['datos'].NumAdjunto;
                             if (numeroReal == numeroNuevo){
-                                // Si el número del pedido introducido es igual que el número de pedido
-                                //del array pedidos entonces la bandera es igual a 1
-                                bandera=bandera+1;
+                                bandera=bandera+1;// Para que no añada adjunto , ni productos.
+                                alert( ' Ya existe este adjunto en este '+dedonde);
                             }
                         }
                             if (bandera==0){
-                                var datos = [];
-                                datos = resultado['datos'];
                                 var datos = [];
                                 datos = resultado['datos'];
                                 n_item=parseInt(adjuntos.length)+1;
@@ -112,9 +111,11 @@ function buscarAdjunto(dedonde, valor=""){
                                     prodArray.push(prod);
                                 }
                                 addTemporal(dedonde);
+                                //  Cambiamos el estado del adjunto, para ponerlo como Facturado, para que no puedas ser añadido.
                                 modificarEstado(dedonde, "Facturado",  idAdjunto);
-                                //Agregamos una nueva fila con los datos principales de pedidos
+                                //Agregamos una nueva fila en adjunto con los datos principales
                                 AgregarAdjunto(datos, dedonde);
+                                // Agregamos filas de productos pero con la cabecera del adjunto.
                                 AgregarFilasProductos(prodArray, dedonde,datos);
 
                                 //Cierro el modal aqui porque cuando selecciono un pedido del modal llamo a esta misma funcion
@@ -544,8 +545,9 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
     var line = "#lineaP" + num_fila;
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
+    // Ahora cambiamos estado poniendo 'Eliminando' de todos los productos de ese adjunto.
     cambiarEstadoProductosAdjunto(dedonde,'Eliminado',numRegistro);
-	// Ahora cambiamos estado de adjunto 
+	// Ahora cambiamos estado de adjunto a Guardado, ya que debería tener como facturado.
     modificarEstado(dedonde, "Guardado", numRegistro, idAdjunto);
     // Creamos temporal para quede guardado
     addTemporal(dedonde);

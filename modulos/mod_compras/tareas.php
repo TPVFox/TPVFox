@@ -164,7 +164,7 @@ switch ($pulsado) {
             // Controlo si hay viene de un adjunto.
             // Mira que el adjunto puedo tener solo un producto, por ello no podemos controlar numero productos.
              //OBjetivo: agregar la fila con los datos del albaran o pedido adjunto
-            $html= htmlDatosAdjuntoProductos($_POST['cabecera']);
+            $html= htmlDatosAdjuntoProductos($_POST['cabecera'],$dedonde);
             $respuesta['html'].=$html;
         }
         foreach($productos as $producto){

@@ -89,7 +89,6 @@
         } 
         $fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
         $productos=modificarArrayProductos($datosPedido['Productos']);
-        $Datostotales = $Cpedido->recalculoTotales($productos);
         // Obtenemos la incidencias si hay.
         $incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
         $inciden=count($incidenciasAdjuntas['datos']);

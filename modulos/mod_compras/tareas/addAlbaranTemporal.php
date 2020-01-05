@@ -5,7 +5,14 @@
     $idAlbaranTemporal=$_POST['idTemporal'];
     $idUsuario=$_POST['idUsuario'];
     $idTienda=$_POST['idTienda'];
-    $estado=$_POST['estado'];
+    // Ahora compruebo estado, ya que si esta Guardado, tengo que pasarlo a Sin Guardar.
+    if ($_POST['estado'] === 'Guardado'){
+        // No cambio los que son estado Nuevo ,ya que esos no estan grabado, por lo que
+        // los dejamos como Nuevo en temporal.
+        $estado = 'Sin Guardar';
+    } else {
+        $estado=$_POST['estado'];               
+    }
     $idAlbaran=$_POST['idReal'];
     $fecha=$_POST['fecha'];
     $fecha = new DateTime($fecha);

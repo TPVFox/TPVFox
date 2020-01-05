@@ -325,7 +325,7 @@
 						}
 						$html=lineaAdjunto($albaran, "factura");
 						echo $html['html'];
- 						$alb_html[]=htmlDatosAdjuntoProductos($albaran);
+ 						$alb_html[]=htmlDatosAdjuntoProductos($albaran,$dedonde);
 
 						$i++;
 					}
