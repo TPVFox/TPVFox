@@ -170,6 +170,18 @@
         }
     }
     $htmlIvas=htmlTotales($Datostotales);
+    // ============          Otros controles posibles errores               ==================== //
+    // Controlamos que el estado sea uno de los tres posibles.
+    $posibles_estados = array ('Sin Guardar','Guardado','Nuevo','Facturado');
+    if (!in_array($estado, $posibles_estados)){
+        // No existe ese estado.
+        array_push($errores,$Cpedido->montarAdvertencia('warning',
+                                    '<strong>El estado que tiene no es corrrecto.</strong><br/>'
+                                    .'El estado:'.$estado.' no existe en los posibles estados para un pedido.'
+                                    )
+                        );
+    }
+    
     // ============                 Montamos el titulo                      ==================== //
     $html_albaran='';
     if(isset($Albaran_creado)){
@@ -181,7 +193,7 @@
 	$titulo .= ' '.$idPedido.$html_albaran.' - '.$accion;
     // ============= Creamos variables de estilos para cada estado y accion =================== //
     $estilos = array ( 'readonly'       => '',
-                       'styleNo'        => 'style="display:none;',
+                       'styleNo'        => 'style="display:none;"',
                        'pro_readonly'   => '',
                        'pro_styleNo'    => '',
                        'btn_guardar'    => '',
@@ -370,13 +382,13 @@
 				<th></th>
 			</tr>
             <tr id="Row0"<?php echo $estilos['styleNo'];?>>  
-                <td id="C0_Linea" ></td>
-				<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)"></td>
+                <td id="C0_Linea" > </td>
+				<td class="algo"><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)"></td>
 				<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)"></td>
 				<td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)"></td>
 				<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
 				<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)"></td>
-			  </tr>
+            </tr>
 			</thead>
 			<tbody>
 				<?php 

@@ -86,7 +86,10 @@
             }
         }
         if (isset($_GET['tActual'])){
-            // Viene de albaran temporal, o esta editando y recargo mientras editamos.¡
+            // Puede entrar cuando :
+            //   -Viene de albaran temporal
+            //   -Se recargo mientras editamos.
+            //   -Cuando pulsamos guardar.
             $idAlbaranTemporal=$_GET['tActual'];
             $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
             if (isset($datosAlbaran['error'])){
@@ -99,7 +102,7 @@
                 // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
                 $datosAlbaran['FechaVencimiento'] ='0000-00-00';
                 $datosAlbaran['Productos'] = json_decode($datosAlbaran['Productos'],true);
-                $idAlbaran = $datosAlbaran['numalbpro'];
+                $idAlbaran = $datosAlbaran['Numalbpro'];
                 $estado=$datosAlbaran['estadoAlbPro'];
             }
         }
@@ -186,7 +189,7 @@
     }
 	if (isset($_POST['Guardar'])){
 		//@Objetivo:
-        // Enviamos los datos de guardarAlbaran , si el resultado 0 ,
+        // Guardar los datos que recibimos.
         // todo fue OK , pero sino mostramos el error.
         if ($_POST['fechaVenci'] === ''){
             $_POST['fechaVenci'] = '0000-00-00';
@@ -212,7 +215,7 @@
     $titulo .= ' '.$idAlbaran.$html_facturado.' - '.$accion;
     // ============= Creamos variables de estilos para cada estado y accion =================== //
     $estilos = array ( 'readonly'       => '',
-                       'styleNo'        => 'style="display:none;',
+                       'styleNo'        => 'style="display:none;"',
                        'pro_readonly'   => '',
                        'pro_styleNo'    => '',
                        'btn_guardar'    => '',
