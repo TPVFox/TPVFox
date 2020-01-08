@@ -366,7 +366,6 @@ function AccionBuscarProductos (caja,event){
                                 console.log("muestro fecha");
                                 console.log(resultado['datos'][0]);
                                 if(resultado['datos'][0]['fechaActualizacion']!=null){
-                                     
                                     fechaProducto= resultado['datos'][0]['fechaActualizacion'].split("-");
                                     fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
                                     fechaCabecera= cabecera.fecha.split("-");

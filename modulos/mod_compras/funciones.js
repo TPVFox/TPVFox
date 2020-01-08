@@ -28,7 +28,7 @@ function buscarAdjunto(dedonde, valor=""){
 	console.log("Entre en buscarAdjunto");
 	var parametros ={
 		'pulsado':'buscarAdjunto',
-		'numReal':valor,
+		'numAdjunto':valor,
 		'idProveedor':cabecera.idProveedor,
 		'dedonde':dedonde
 	};
@@ -42,17 +42,19 @@ function buscarAdjunto(dedonde, valor=""){
         success    :  function (response) {
             console.log('Llegue devuelta respuesta de buscar pedido');
             var resultado =  $.parseJSON(response); 
-            var HtmlPedidos=resultado.html;
+            var HtmlAdjuntos=resultado.html;
             if (resultado.error){
-                alert('Error de SQL'+respuesta.consulta);
+                alert(resultado.error +'\n'+resultado.consulta);
             } else {
-                if (valor==""){ // Si el valor esta vacio mostramos el modal con los pedidos de ese proveedor
+                if (valor==""){
+                    // Si cja adjunto esta vacia o pulsos en lupa.
+                    // Debemos mostrar el modal con los datos qumostramos el modal con los pedidos de ese proveedor
                     if (dedonde=="albaran"){
                         var titulo = 'Listado Pedidos ';
                     }else{
                         var titulo= 'Listado Albaranes';
                     }
-                    abrirModal(titulo, HtmlPedidos);
+                    abrirModal(titulo, HtmlAdjuntos);
                 }else{
                     if (resultado.Nitems>0){
                         // Comprobamos que el adjunto que vamos añadir, no este ya añadido en este pedido.
@@ -63,10 +65,11 @@ function buscarAdjunto(dedonde, valor=""){
                         }else{
                             var adjuntos=albaranes;
                         }
-                        for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
-                            var numeroReal=adjuntos[i].NumAdjunto;
+                        for(i=0; i<adjuntos.length; i++){
+                            // Recorre todo el array de arrays de pedidos que existan actualmente en pedido.
+                            var num_adjunto_actual=adjuntos[i].NumAdjunto;
                             var numeroNuevo=resultado['datos'].NumAdjunto;
-                            if (numeroReal == numeroNuevo){
+                            if (num_adjunto_actual == numeroNuevo){
                                 bandera=bandera+1;// Para que no añada adjunto , ni productos.
                                 alert( ' Ya existe este adjunto en este '+dedonde);
                             }
@@ -468,9 +471,8 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
         'idArticulo'    : id.toString(),
         'iva'           : ctipoIva.toString(),
         'crefProveedor' : crefProveedor.toString(),
-        'coste'         : ultimoCoste.toString()
+        'coste'         : coste.toString()
     };
-    var datos = new ObjProducto(objDatos);
     var opcion = true;
     if(coste <= 0){
         // Si contesta NO, no lo añade al dedonde
@@ -478,8 +480,11 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
         var txtDonde = dedonde.substring(0, nlen);
         // Confirmar cuando es un producto Nuevo para ese proveedor lo ideal sería que fuera un opcion
         // de momento lo pongo fijo.
-        opcion = confirm("¡OJO!\nEste producto es NUEVO para este proveedor \n Si (cancelas) no lo añade al "+ txtDonde);
+        objDatos.coste = ultimoCoste.toString();
+        opcion = confirm("¡OJO!\nEste producto es NUEVO por lo que no tenemos coste correcto, para este proveedor \n Vamos poner el ultimo coste del productos:" + objDatos.coste + "\n Si (cancelas) no lo añade al "+ txtDonde);
+        objDatos.coste = ultimoCoste.toString();
     }
+    var datos = new ObjProducto(objDatos);
     if (opcion === true){
         productos.push(datos);
         addTemporal(dedonde);
@@ -509,8 +514,6 @@ function cambioEstadoFila(producto,dedonde=""){
         $("#N" + producto.nfila + "_Unidad").val(producto.nunidades);
     }
 }
-
-
 
 function eliminarFila(num_item, dedonde=""){
 	//@Objetivo:

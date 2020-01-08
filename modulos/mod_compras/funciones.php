@@ -203,6 +203,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
             
 			$html   .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
                     . '<td '.$style.'>'.$producto['ultimoCoste'].'</td>'
+                    . '<td '.$style.'>'.number_format ($producto['coste'],2, '.', '').'</td>'
                     . '</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){

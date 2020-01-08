@@ -252,7 +252,7 @@
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
-		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
+		cabecera['idReal'] ='<?php echo $idAlbaran ;?>';
 		cabecera['fecha'] = '<?php echo $fecha;?>';
 		cabecera['hora'] = '<?php echo $hora;?>';
 		cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
@@ -496,12 +496,13 @@
                         $num_pedido_anterior ='0';
                         foreach (array_reverse($productos) as $producto){
                             // Ahora tengo que controlar si son lineas de adjunto, para añadir linea de adjunto.
-                            if ($producto['Numpedpro'] !==$num_pedido_anterior) {
+                            if (isset($producto['Numpedpro']) && $producto['Numpedpro'] !==$num_pedido_anterior) {
                                 // Si numero pedido es distinto a $num_pedido_anterior,
                                 // entonces debemos obtener linea de adjunto para poner en productos.
                                 echo $pedido_html_linea_producto[$producto['Numpedpro']];
                             }
-                            $num_pedido_anterior = $producto['Numpedpro'];
+                            // Si existe index Numpedpro entonces lo pongo como valor, sino dejo 0;
+                            $num_pedido_anterior = (isset($producto['Numpedpro']))? $producto['Numpedpro'] : '0';
                             $html=htmlLineaProducto($producto, "albaran",$estilos['readonly']);
                             echo $html['html'];
                         }

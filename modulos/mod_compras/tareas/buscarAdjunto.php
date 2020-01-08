@@ -3,7 +3,7 @@
     //  Es buscar los adjuntos o el adjunto para ese albaran o factura.
     // Cargando los datos principales y sus productos
     $respuesta=array();
-    $numAdjunto=$_POST['numReal'];
+    $numAdjunto=$_POST['numAdjunto'];
     $idProveedor=$_POST['idProveedor'];
     $estado="Guardado";
     $dedonde=$_POST['dedonde'];
@@ -55,8 +55,15 @@
         }
      } else {
         // Hubo un error en la consulta.
-        $respuesta['error']=$datosAdjunto['error'];
-        $respuesta['consola']=$datosAdjunto['consulta'];
+        if ($idProveedor !=''){
+            // Deberia ser un array con indices de [error] y [consulta]
+            $respuesta = $datosAdjunto;
+        } else {
+            // Quiere decir que no se envio id de proveedor a buscar pedido o albaranes, por lo que la respuesta es
+            $respuesta['error'] = 'No envias id de proveedor';
+            $respuesta['consulta'] = 'Debe indicar proveedor primero';
+        }
+           
     }
 
 
