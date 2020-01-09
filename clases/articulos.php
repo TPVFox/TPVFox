@@ -12,13 +12,13 @@ class Articulos{
 		$db = $this->db;
 		$smt = $db->query($sql);
 		if ($smt) {
-			return $smt;
+			$respuesta = $smt;
 		} else {
 			$respuesta = array();
 			$respuesta['consulta'] = $sql;
 			$respuesta['error'] = $db->error;
-			return $respuesta;
 		}
+        return $respuesta;
 	}
 	
 	public function addArticulosProveedores($datos){
@@ -35,6 +35,7 @@ class Articulos{
 		}
 	}
 	public function buscarReferencia($idArticulo, $idProveedor){
+        // Este metodo no esta correcto.. por doble return
 		$db=$this->db;
 		$sql='SELECT * FROM articulosProveedores WHERE idArticulo='.$idArticulo.' and idProveedor='.$idProveedor;
 		$smt=$this->consulta($sql);
@@ -116,101 +117,99 @@ class Articulos{
             return $articulo;
 		}
 		
-		}
+    }
 		
-		public function articulosPrecio($idArticulo){
-			$db=$this->db;
-			$smt=$db->query('SELECT * FROM 	articulosPrecios where idArticulo='.$idArticulo);
-			if ($result = $smt->fetch_assoc () ){
-			$articulo=$result;
-		}
+    public function articulosPrecio($idArticulo){
+        $db=$this->db;
+        $smt=$db->query('SELECT * FROM 	articulosPrecios where idArticulo='.$idArticulo);
+        if ($result = $smt->fetch_assoc () ){
+        $articulo=$result;
+        }
 		return $articulo;
-			}
+    }
 			
-		public function modificarEstadosHistorico($idAlbaran, $dedonde){
-				$db=$this->db;
-				$smt=$db->query('UPDATE  historico_precios set estado="Revisado"  where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'" and estado <> "Sin revisar"');
-		}
+    public function modificarEstadosHistorico($idAlbaran, $dedonde){
+        $db=$this->db;
+        $smt=$db->query('UPDATE  historico_precios set estado="Revisado"  where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'" and estado <> "Sin revisar"');
+    }
 				
-		public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
-					$db=$this->db;
-                    $sql='UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo;
-					$smt=$db->query('UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
-                    //~ error_log($sql);
-                    return $sql;
-                    
-		}
+    public function modArticulosPrecio($nuevoCiva, $nuevoSiva, $idArticulo){
+        $db=$this->db;
+        $sql='UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo;
+        $smt=$db->query('UPDATE articulosPrecios SET pvpCiva='.$nuevoCiva.' , pvpSiva='.$nuevoSiva.' where idArticulo='.$idArticulo);
+        //~ error_log($sql);
+        return $sql;
+                
+    }
 					
-		public function modEstadoArticuloHistorico($idArticulo, $idAlbaran, $dedonde, $tipo, $estado){
-				$db=$this->db;
-				$smt=$db->query('UPDATE historico_precios set estado='."'".$estado."'".' where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'" and idArticulo='.$idArticulo.' and Tipo="'.$tipo.'"');
-	$sql='UPDATE historico_precios set estado='."'".$estado."'".' where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde.'" and idArticulo='.$idArticulo.' and Tipo="'.$tipo.'"';
-	return $sql;
-		}
-		public function datosArticulosPrincipal($idArticulo, $idTienda){
+    public function modEstadoArticuloHistorico($idArticulo, $idAlbaran, $dedonde, $tipo, $estado){
+        $db=$this->db;
+        $smt=$db->query('UPDATE historico_precios set estado='."'".$estado."'"
+                        .' where NumDoc='.$idAlbaran.' and Dedonde="'.$dedonde
+                        .'" and idArticulo='.$idArticulo.' and Tipo="'.$tipo.'"');
+        $sql = 'UPDATE historico_precios set estado='."'".$estado."'".' where NumDoc='
+                .$idAlbaran.' and Dedonde="'.$dedonde.'" and idArticulo='.$idArticulo.' and Tipo="'.$tipo.'"';
+        return $sql;
+    }
+    public function datosArticulosPrincipal($idArticulo, $idTienda){
 		$db=$this->db;
 		$sql='select a.articulo_name , pre.pvpCiva , t.crefTienda, a.idArticulo
 				FROM articulos as a 
 				inner join articulosPrecios as pre on a.idArticulo=pre.idArticulo 
-				
 				inner join articulosTiendas as t on a.idArticulo=t.idArticulo
 				where a.idArticulo='.$idArticulo.' and t.idTienda='.$idTienda;
 		$smt=$this->consulta($sql);
 		$articulo['sql']=$sql;
-			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-			}else{
-				if ($result = $smt->fetch_assoc () ){
-				$articulo=$result;
-				
-				}
-				return $articulo;
-			}
-		
-		}
-		
-	public function buscarPorNombre($valor, $idTienda){
-		$db=$this->db;
-		$sql='select a.articulo_name,  pre.pvpCiva , t.crefTienda, a.idArticulo
-				FROM articulos as a 
-				inner join articulosPrecios as pre on a.idArticulo=pre.idArticulo 
-				
-				inner join articulosTiendas as t on a.idArticulo=t.idArticulo
-				where a.articulo_name like "%'.$valor.'%" and t.idTienda='.$idTienda.' group by  a.idArticulo LIMIT 0 , 30';
-		
-		
-		$smt=$this->consulta($sql);
-			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-			}else{
-				$articulosPrincipal=array();
-				while ($result = $smt->fetch_assoc () ){
-					array_push($articulosPrincipal,$result);
-				}
-				return $articulosPrincipal;
-			}
-	}
-    public function ComprobarFechasHistorico($idArticulo, $fecha){
-        //@ Objetivo :
-        // Obtener registros historico de un producto que sean superiores a una fecha.
-        $db=$this->db;
-        $sql='SELECT * from historico_precios WHERE idArticulo='.$idArticulo.' and Fecha_Creacion > "'.$fecha.'"';
-        $smt=$this->consulta($sql);
         if (gettype($smt)==='array'){
             $respuesta['error']=$smt['error'];
             $respuesta['consulta']=$smt['consulta'];
             return $respuesta;
         }else{
+            if ($result = $smt->fetch_assoc () ){
+            $articulo=$result;
+            }
+            return $articulo;
+        }
+    }
+
+	public function buscarPorNombre($valor, $idTienda){
+		$db=$this->db;
+        $respuesta=array();
+		$sql='select a.articulo_name,  pre.pvpCiva , t.crefTienda, a.idArticulo
+				FROM articulos as a 
+				inner join articulosPrecios as pre on a.idArticulo=pre.idArticulo 
+				inner join articulosTiendas as t on a.idArticulo=t.idArticulo
+				where a.articulo_name like "%'.$valor.'%" and t.idTienda='.$idTienda.' group by  a.idArticulo LIMIT 0 , 30';
+		$smt=$this->consulta($sql);
+        if (gettype($smt)==='array'){
+            // Hubo error, devolvemos error y consulta.
+            $respuesta= $smt;
+        }else{
+            while ($result = $smt->fetch_assoc () ){
+                array_push($respuesta,$result);
+            }
+        }
+        return $respuesta;
+
+	}
+    public function ComprobarFechasHistorico($idArticulo, $fecha){
+        //@ Objetivo :
+        // Obtener registros historico de un producto que sean superiores a una fecha.
+        $db=$this->db;
+        $respuesta = array();
+        $sql='SELECT * from historico_precios WHERE idArticulo='.$idArticulo.' and Fecha_Creacion > "'.$fecha.'"';
+        $smt=$this->consulta($sql);
+        if (gettype($smt)==='array'){
+            // Hubo error, devolvemos array con error y consulta.
+            $respuesta = $smt;
+        }else{
             $articulosPrincipal=array();
             while ($result = $smt->fetch_assoc () ){
-                array_push($articulosPrincipal,$result);
+                array_push($respuesta,$result);
             }
-            return $articulosPrincipal;
         }
+        return $respuesta;
+
     }
 
 	public function modificarRegHistorico($idRegistro, $estado){
@@ -223,8 +222,6 @@ class Articulos{
             return $respuesta;
         }
     }
-	
-	
 }
 
 

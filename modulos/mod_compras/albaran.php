@@ -92,6 +92,9 @@
             //   -Cuando pulsamos guardar.
             $idAlbaranTemporal=$_GET['tActual'];
             $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+            echo '<pre>';
+            print_r($datosAlbaran);
+            echo '</pre>';
             if (isset($datosAlbaran['error'])){
                     array_push($errores,$this->montarAdvertencia(
                                     'danger',
@@ -194,14 +197,15 @@
         if ($_POST['fechaVenci'] === ''){
             $_POST['fechaVenci'] = '0000-00-00';
         }
-        $guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
+        $guardar=$CAlb->guardarAlbaran($Datostotales);
+       
 		if (count($guardar)==0){
-			header('Location: albaranesListado.php');
+			//header('Location: albaranesListado.php');
+            exit;
 		}else{
+            // Hubo errores o advertencias.
 			foreach ($guardar as $error){
-				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
-				. '</div>';
+				array_push($errores,$error);
 			}
 		}
 	}
@@ -309,25 +313,24 @@
 </script>
 <div class="container">
 	<?php
-    //~ echo '<pre>';
-    //~ print_r($pedido_html_linea_producto);
-    //~ echo '</pre>';
 	if (isset($errores)){
-		foreach($errores as $error){
-				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-				. '</div>';
-		}
-	}
-	?>
+        foreach ($errores as $comprobaciones){
+            echo $CAlb->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
+            if ($comprobaciones['tipo'] === 'danger'){
+                exit; // No continuo.
+            }
+        }
+    }
+    ?>
     <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
     <?php 
     echo '<h3 class="text-center">'.$titulo;
     if ($accion !=='ver'){
-    echo ' temporal:'.'<input type="text" readonly size ="4" name="idTemporal" value="'.$idAlbaranTemporal.'">';
+        echo ' temporal:'.'<input type="text" readonly size ="4" name="idTemporal" value="'.$idAlbaranTemporal.'">';
     }
-    echo '</h3>';  
-    ?>
+    echo '</h3>';
+	?>
+    
     <div class="col-md-12">
         <div class="col-md-8" >
             <a href="./albaranesListado.php">Volver Atrás</a>

@@ -1,5 +1,6 @@
 <?php
 // Clase base para modulo de compras.
+include_once $URLCom.'/clases/articulos.php';
 
 class ClaseCompras
 {
@@ -130,6 +131,116 @@ class ClaseCompras
         $respuesta['total'] = $subtotal;
         return $respuesta;
     }
+
+    public function comprobarHistoricoCoste($productos, $dedonde, $numDoc,  $idProveedor, $fecha, $idUsuario){
+        // Objetivo:
+        //  Añade coste de ese articulo de ese proveedor.
+        //  Añado a historico costes si fuera necesario,ver NOTA ***
+        // [NOTA ***]
+        // Se añade registro a tabla historico_precios, cuando al buscar el producto en la tabla articulosProveedores de ese
+        // proveedor  la fecha actualizacion es menos a la fecha que traemos como parametro.
+        $errores=array();
+        $BDTpv= $this->db;
+        $CArt=new Articulos($BDTpv);
+        $datos=array(
+                    'dedonde'=>$dedonde,
+                    'numDoc'=>$numDoc,
+                    'tipo'=>"compras"
+                );
+        $productos = json_decode($productos, true);
+        if (count($productos)>0){
+            foreach ($productos as $producto){
+                $buscar=$CArt->buscarReferencia($producto['idArticulo'], $idProveedor);
+                if (isset($buscar['error'])){
+                        array_push($errores,$this->montarAdvertencia('danger',
+                                            'Error en $CArt->buscarReferencia. <br>'
+                                            .$buscar['error'].'<br>'
+                                            .$buscar['consulta']
+                                            )
+                                );
+                }else{
+                    if (isset($producto['CosteAnt'])){
+                        // Cuando existe precios coste anterior, se modifica coste en articulosproveedor
+                        // pero solo si la fechaActualizacion es menor a fecha (parametro)
+                        $datosNuevos=array(
+                            'coste'=>$producto['ultimoCoste'],
+                            'idArticulo'=>$producto['idArticulo'],
+                            'idProveedor'=>$idProveedor,
+                            'fecha'=>$fecha,
+                            'estado'=>"activo"
+                        );
+                        if (isset($buscar['fechaActualizacion'])){
+                            if ($buscar['fechaActualizacion'] > $fecha){
+                                array_push($errores,$this->montarAdvertencia('warning',
+                                            'La fecha de la tabla articulos proveedor es mayor que la del producto'
+                                            .$producto['idArticulo']
+                                            )
+                                );
+                            }else{
+                                $mod=$CArt->modificarCosteProveedorArticulo($datosNuevos);
+                                if (isset($mod['error'])){
+                                    array_push($errores,$this->montarAdvertencia('danger',
+                                            'Error en $CAart->modificarCosteProveedorArticulo. <br/>'
+                                            .$mod['error'].'<br/>'
+                                            .$mod['consulta']
+                                            )
+                                    );
+                                }
+                            }
+                        }
+                        if ( count($errores) > 0 ) {
+                            // Solo añado al historico si no hay errores.
+                            $datos['idArticulo']=$producto['idArticulo'];
+                            $datos['antes']=$producto['CosteAnt'];
+                            $datos['nuevo']=$producto['ultimoCoste'];
+                            $datos['estado']="Pendiente";
+                            $datos['idUsuario']=$idUsuario;
+                            $nuevoHistorico=$CArt->addHistorico($datos);
+                            if (isset($nuevoHistorico['error'])){
+                                array_push($errores,$this->montarAdvertencia('danger',
+                                                'Error en $CArt->addHistorico. <br/>'
+                                                .$nuevoHistorico['error'].'<br/>'
+                                                .$nuevoHistorico['consulta']
+                                                )
+                                        );
+                            }
+                        }
+                    }else{
+                        // Cuando no existe en tabla articulosProveedores el producto para ese proveedor.
+                        // [PENDIENTE]
+                        // Pienso que debemos añadir al historico tambien ese precio, para revisarlo.
+                        if (!isset($buscar['idArticulo'])){
+                            $datosNuevos=array(
+                                'coste'=>$producto['ultimoCoste'],
+                                'idArticulo'=>$producto['idArticulo'],
+                                'idProveedor'=>$idProveedor,
+                                'fecha'=>$fecha,
+                                'estado'=>"activo",
+                                'refProveedor'=>""
+                            );	
+                            $add=$CArt->addArticulosProveedores($datosNuevos);
+                            if (isset($add['error'])){
+                                array_push($errores,$this->montarAdvertencia('danger',
+                                            'Error en $CArt->addHistorico. <br/>'
+                                            .$add['error'].'<br/>'
+                                            .$add['consulta']
+                                            )
+                                    );
+                            }
+                        }
+                    }
+                }
+            }
+        }else{
+            array_push($errores,$this->montarAdvertencia('danger',
+                                            'Error no tiene productos'
+                                            )
+                                    );
+        }
+        return $errores;
+    }
+
+
 
     // ------------------- METODOS COMUNES ----------------------  //
     // -  Al final de cada clase suelo poner aquellos metodos   -  //

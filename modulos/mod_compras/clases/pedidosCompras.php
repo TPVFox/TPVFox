@@ -110,7 +110,7 @@ class PedidosCompras extends ClaseCompras{
 		//@Parametros:
 			//$idPedido->(int) id del pedido real
             //$tabla -> (string) nombre de la tabla queremos borra los datos del pedido.
-        $tablas = array( 'pedprot','pedprolinea','pedproIva');
+        $tablas = array( 'pedprot'=>'id','pedprolinea'=>'idpedpro','pedproIva'=>'idpedpro');
         $respuesta=array();
         $OK = 'KO';
         if ($tabla !==''){
@@ -130,8 +130,8 @@ class PedidosCompras extends ClaseCompras{
         if ($idPedido > 0){
             // Solo ejecuto si hay un idPedido y esta OK
             if ($OK === 'OK'){
-                $where = 'where idpedpro='.$idPedido;
-                foreach($tablas as $tabla){
+                foreach($tablas as $tabla => $campo){
+                    $where = 'where '.$campo.' = '.$idPedido;
                     $respuesta[$tabla] = parent::deleteRegistrosTabla($tabla,$where);
                 }
             }

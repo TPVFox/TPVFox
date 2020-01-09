@@ -111,8 +111,15 @@ class AlbaranesCompras extends ClaseCompras {
         if (gettype($smt)==='array') {
            $respuesta = $smt;
         } else {
-            if ($result = $smt->fetch_assoc()) {
-                $respuesta = $result;
+            if ($this->affected_rows > 0){
+                // Hubo resultados
+                if ($result = $smt->fetch_assoc()) {
+                    $respuesta = $result;
+                }
+            } else {
+                // No hubo resultado.
+                $respuesta['error'] = 'No se encontro temporal. affect_rows:'.$this->affected_rows;
+                $respuesta['consulta'] = $sql;
             }
         }
         return $respuesta;
@@ -127,34 +134,53 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-    public function eliminarAlbaranTablas($idAlbaran) {
-        //@Objetivo:
-        //Eliminamos todos los registros de un albarán determinado. Lo hacemos cuando vamos a crear uno nuevo
+    public function eliminarAlbaranTablas($idAlbaran,$tabla = '') {
+        //@ Objetivo:
+        //Eliminamos todos los registros de un albarán determinado.
+        //Tambien descontamos el stock 
         $albaran = $this->datosAlbaran($idAlbaran);
         $lineasAlbaran = $this->ProductosAlbaran($idAlbaran);
-
-        $sql = array();
         $respuesta = array();
-        $sql[0] = 'DELETE FROM albprot where id=' . $idAlbaran;
-        $sql[1] = 'DELETE FROM albprolinea where idalbpro =' . $idAlbaran;
-        $sql[2] = 'DELETE FROM albproIva where idalbpro =' . $idAlbaran;
-        $sql[3] = 'DELETE FROM pedproAlb where idAlbaran =' . $idAlbaran;
-        foreach ($sql as $consulta) {
-            $smt = parent::consulta($consulta);
-            if (gettype($smt)==='array') {
-                $respuesta = $smt;
-                break;
-            } 
-        }
-        if($albaran && $lineasAlbaran && (count($respuesta)==0)){
-            $stock = new alArticulosStocks();
-            foreach($lineasAlbaran as $linea){
-                $idArticulo = $linea['idArticulo'];
-                $idTienda = $albaran['idTienda'];
-                $cantidad = $linea['ncant'];
-                $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_RESTA);
+        $tablas = array( 'albprot'=>'id','albprolinea'=>'idalbpro','albproIva'=>'idalbpro','pedproAlb'=>'idAlbaran');
+        $OK = 'KO';
+        if ($tabla !==''){
+            // Controlamos que la tabla indicada exista en array
+            foreach ($tablas as $key=>$t){
+                if ($t === $tabla) {
+                    $OK ='OK';
+                } else {
+                    // ELimino de array los nombres tablas que no son .
+                    unset($tablas[$key]);
+                }
             }
-        }        
+        } else {
+            // Pongo en OK porque queremos eliminar las 3 tablas.
+            $OK = 'OK';
+        }
+        if ($idAlbaran > 0){
+            // Solo ejecuto si hay un idPedido y esta OK
+            if ($OK === 'OK'){
+                foreach($tablas as $tabla =>$campo){
+                    $where = 'where '.$campo.' = '.$idAlbaran;
+                    $respuesta[$tabla] = parent::deleteRegistrosTabla($tabla,$where);
+                }
+            }
+            echo '<pre>';
+            print_r($respuesta);
+            echo '</pre>';
+            // Ahora elimino stock de las lineas eliminadas.
+            if (count($respuesta) === 0 ){
+                if($albaran && $lineasAlbaran ){
+                    $stock = new alArticulosStocks();
+                    foreach($lineasAlbaran as $linea){
+                        $idArticulo = $linea['idArticulo'];
+                        $idTienda = $albaran['idTienda'];
+                        $cantidad = $linea['ncant'];
+                        $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_RESTA);
+                    }
+                }
+            }
+        }
         return $respuesta;
     }
 
@@ -523,6 +549,155 @@ class AlbaranesCompras extends ClaseCompras {
             $fecha="0000-00-00";
         }
         return $fecha;
+    }
+
+    public function guardarAlbaran(){
+        //@ Objetivo:
+        // Se comprueba si no hay errroes, se Guardar un albarán, eliminar el temporal y comprobar cambio de precios 
+        // para insertarlos en el historico
+        //@ Parámetros:
+        //  No recibe ya que no necesita, ya lo tiene todo de sistema. (POST,GET ...)
+        //[NOTA]
+        // - Si es nuevo, es decir no existe idAlbaran, se inserta.
+        // - Si se esta modificando entonces , se modifica tabla albprot y resto de tablas se elimina los registros de ese
+        // albaran y se vuelven insertar.
+       
+        $errores=array();
+        $Tienda = $_SESSION['tiendaTpv'];
+        $Usuario = $_SESSION['usuarioTpv'];
+        if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
+             array_push($errores,$this->montarAdvertencia('danger',
+                                    'ERROR NO HAY DATOS DE SESIÓN!'
+                                    )
+                        );
+        }
+        // Inicializo variables.
+        if (isset($_POST['idTemporal']) ){    
+            // Compruebo que tengamos temporal, y obtenemos datos del temporal.
+            $idAlbaranTemporal=$_POST['idTemporal'];
+            $datosAlbaran=$this->buscarAlbaranTemporal($idAlbaranTemporal);
+            if (isset($datosAlbaran['error'])){
+                    array_push($errores,$this->montarAdvertencia(
+                                    'danger',
+                                    'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
+                            )
+                    );
+            }
+
+        } else {
+             array_push($errores,$this->montarAdvertencia('warning',
+                                            'No enviarte que albaran temporal es no puede modificarlo.'
+                                            )
+                                );
+        }
+        if (count($errores) === 0){
+            // Continuamos que no hubo error
+            $idAlbaran = 0; // valor por defecto.
+            if (isset($_GET['id']) && $_POST['estado'] === 'Sin Guardar'){
+                $idAlbaran  = $_GET['id'];
+            }
+            $suNumero   = (isset($_POST['suNumero'])) ? $_POST['suNumero']: '';
+            $formaPago  = (isset($_POST['formaVenci'])) ? $_POST['formaVenci'] : '';
+            $fechaVenci = (isset($_POST['fechaVenci'])) ? $_POST['fechaVenci'] : '';
+            
+            if (isset($_POST['hora']) && $_POST['hora'] !=''){
+                $f=$_POST['fecha'].' '.$_POST['hora'].':00';
+                $fecha=date_format(date_create($f), 'Y-m-d H:i:s');
+            } else {
+                $fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
+            }               
+            // ======            Montamos productos y hacemos recalculo de totales         ======= //
+            if (isset ($datosAlbaran['Productos'])){
+                $productos=$datosAlbaran['Productos'];
+                $productos_para_recalculo = json_decode( $productos );
+                if(count($productos_para_recalculo)>0){
+                    $CalculoTotales = $this->recalculoTotales($productos_para_recalculo);
+                    $total=round($CalculoTotales['total'],2);
+                } else {
+                    // Hay $datosAlbaran['Productos'], pero no tiene productos.
+                    array_push($errores,$this->montarAdvertencia('warning',
+                                        'Se obtuvo $datoAlbaran[productos] pero tiene datos !!'
+                                        )
+                            );
+
+                }
+            }else{
+                    // No obtuvo $datosAlbaran['Productos'], algo esta mal.
+                    array_push($errores,$this->montarAdvertencia('warning',
+                                        'No tienes productos  ! !!'
+                                        )
+                            );
+            }
+            // ======               Montamos array para insertar        ======= //
+            $datos=array(
+                'Numtemp_albpro'=>$idAlbaranTemporal,
+                'fecha'=>$fecha,
+                'idTienda'=>$Tienda['idTienda'],
+                'idUsuario'=>$Usuario['id'],
+                'idProveedor'=>$datosAlbaran['idProveedor'],
+                'estado'=>"Guardado",
+                'total'=>$total,
+                'DatosTotales'=>$CalculoTotales,
+                'productos'=>$productos,
+                'pedidos'=>$datosAlbaran['Pedidos'],
+                'suNumero'=>$suNumero,
+                'formaPago'=>$formaPago,
+                'fechaVenci'=>$fechaVenci
+            );
+            if (isset($datosAlbaran['Numalbpro']) && $datosAlbaran['Numalbpro']>0){
+                $idAlbaran = $datosAlbaran['Numalbpro'];
+                    // Solo elimino tablas para volver inserta despues.
+                    $eliminarTablasPrincipal=$this->eliminarAlbaranTablas($datosAlbaran['Numalbpro']);
+                    if (isset($eliminarTablasPrincipal['error'])){
+                        // Hubo un error a la hora eliminar tablas principales.
+                        array_push($errores,$this->montarAdvertencia('danger',
+                                            'Error al eliminar las tablas principales!<br/>'
+                                            .$eliminarTablasPrincipal['consulta']
+                                            )
+                                );
+                    }   
+            }
+            
+            $addNuevo=$this->AddAlbaranGuardado($datos, $idAlbaran);
+            if (isset($addNuevo['error'])){
+                // Hubo un error a la hora eliminar tablas principales.
+                    array_push($errores,$this->montarAdvertencia('danger',
+                                        'Error añadir un nuevo albarán !!<br/>'
+                                        .$addNuevo['consulta']
+                                        )
+                            );
+            }else{
+                if(isset($addNuevo['id'])){
+                    $dedonde="albaran";
+                    $historico=parent::comprobarHistoricoCoste($productos,
+                                                $dedonde, $addNuevo['id'],
+                                                $datosAlbaran['idProveedor'],
+                                                $fecha, $Usuario['id']
+                                            );
+                    if (isset($historico['error'])){
+                        array_push($errores,$this->montarAdvertencia('warning',
+                                        'Error en al modificar los coste de los productos !!<br/>'
+                                        .$historico['consulta']
+                                        )
+                            );
+                    }
+                    $eliminarTemporal=$this->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+                    if (isset($eliminarTemporal['error'])){
+                        array_push($errores,$this->montarAdvertencia('dander',
+                                        'Error al eliminar las tablas temporales !!<br/>'
+                                        .$eliminarTemporal['consulta']
+                                        )
+                            );
+                    }
+                }else{
+                    array_push($errores,$this->montarAdvertencia('dander',
+                                        'Error al generar id nuevo de la función AddAlbaranGuardado!'
+                                        )
+                            );
+                }
+            }
+        }
+        return $errores;
     }
 
     
