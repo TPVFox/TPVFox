@@ -188,7 +188,7 @@ class ClaseCompras
                                 }
                             }
                         }
-                        if ( count($errores) > 0 ) {
+                        if ( count($errores) === 0 ) {
                             // Solo añado al historico si no hay errores.
                             $datos['idArticulo']=$producto['idArticulo'];
                             $datos['antes']=$producto['CosteAnt'];

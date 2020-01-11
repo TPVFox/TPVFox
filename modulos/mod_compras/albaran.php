@@ -92,9 +92,6 @@
             //   -Cuando pulsamos guardar.
             $idAlbaranTemporal=$_GET['tActual'];
             $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-            echo '<pre>';
-            print_r($datosAlbaran);
-            echo '</pre>';
             if (isset($datosAlbaran['error'])){
                     array_push($errores,$this->montarAdvertencia(
                                     'danger',
