@@ -197,8 +197,7 @@
         $guardar=$CAlb->guardarAlbaran($Datostotales);
        
 		if (count($guardar)==0){
-			//header('Location: albaranesListado.php');
-            exit;
+			header('Location: albaranesListado.php');
 		}else{
             // Hubo errores o advertencias.
 			foreach ($guardar as $error){
@@ -493,16 +492,16 @@
                     <?php 
                     //Recorremos los productos y vamos escribiendo las lineas.
                     if (isset($productos)){
-                        $num_pedido_anterior ='0';
+                        $id_pedido_anterior ='0';
                         foreach (array_reverse($productos) as $producto){
                             // Ahora tengo que controlar si son lineas de adjunto, para añadir linea de adjunto.
-                            if (isset($producto['Numpedpro']) && $producto['Numpedpro'] !==$num_pedido_anterior) {
-                                // Si numero pedido es distinto a $num_pedido_anterior,
+                            if (isset($producto['idpedpro']) && $producto['idpedpro'] !==$id_pedido_anterior) {
+                                // Si numero pedido es distinto a $id_pedido_anterior,
                                 // entonces debemos obtener linea de adjunto para poner en productos.
-                                echo $pedido_html_linea_producto[$producto['Numpedpro']];
+                                echo $pedido_html_linea_producto[$producto['idpedpro']];
                             }
                             // Si existe index Numpedpro entonces lo pongo como valor, sino dejo 0;
-                            $num_pedido_anterior = (isset($producto['Numpedpro']))? $producto['Numpedpro'] : '0';
+                            $id_pedido_anterior = (isset($producto['idpedpro']))? $producto['idpedpro'] : '0';
                             $html=htmlLineaProducto($producto, "albaran",$estilos['readonly']);
                             echo $html['html'];
                         }

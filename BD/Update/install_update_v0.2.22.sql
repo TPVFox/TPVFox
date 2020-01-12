@@ -8,3 +8,4 @@ ALTER TABLE `pedprolinea` CHANGE `Numpedpro` `Numpedpro` INT(11) NULL;
 ALTER TABLE `pedprot` ADD `modify_by` INT NULL AFTER `fechaModificacion`; 
 # Si hay albaranes temporales hay que cubvrir el campo fecha.
 UPDATE `albproltemporales` SET `Fecha`=fechaInicio WHERE 1;
+ALTER TABLE `albprolinea` CHANGE `Numpedpro` `idpedpro` INT(10) NULL DEFAULT NULL; 

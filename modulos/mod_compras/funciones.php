@@ -308,14 +308,15 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
             // Ahora montamos td de numDoc
             $numeroDoc = '';
             if ($dedonde =="albaran"){
-                if (isset($producto['Numpedpro']) && $producto['Numpedpro']>0){
+                if (isset($producto['idpedpro']) && $producto['idpedpro']>0){
                     // Si obtuvo con metodo de la clase AlbCompra
-                    $numeroDoc= $producto['Numpedpro'];
+                    $numeroDoc= $producto['idpedpro'];
                 } else {
                     // Viene temporal o es 0 Numpedpro
-                    if (isset($producto['numPedido'])){
-                        $numeroDoc= $producto['numPedido'];
-                    }
+                    error_log('Entro ya que no existe idpedpro en funciones en htmlLineaProductos, tengo lineas comentadas.')
+                    //~ if (isset($producto['numPedido'])){
+                        //~ $numeroDoc= $producto['numPedido'];
+                    //~ }
                 }
             }
             if (isset($producto['Numalbpro']) && $producto['Numalbpro']>0 && $dedonde=="factura"){

@@ -236,23 +236,23 @@ class AlbaranesCompras extends ClaseCompras {
             foreach ($productos as $prod) {
                 if ($prod['estado'] == 'Activo' || $prod['estado'] == 'activo') {
                     $codBarras = null;
-                    $numPed = 0;
+                    $idPed = 0;
                     $refProveedor = " ";
                     if (isset($prod['ccodbar'])) {
                         $codBarras = $prod['ccodbar'];
                     }
-                    if (isset($prod['numPedido'])) {
-                        $numPed = $prod['numPedido'];
+                    if (isset($prod['idpedpro'])) {
+                        $idPed = $prod['idpedpro'];
                     }
                     if (isset($prod['crefProveedor'])) {
                         $refProveedor = $prod['crefProveedor'];
                     }
                     $sql = 'INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, 
-					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , Numpedpro )
+					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idpedpro )
 					 VALUES (' . $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
                             . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
                             . $prod['ultimoCoste'] . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
-                            . $refProveedor . "'" . ', ' . $numPed . ')';
+                            . $refProveedor . "'" . ', ' . $idPed . ')';
                     $smt = parent::consulta($sql);
                     if (gettype($smt)==='array') {
                        $respuesta = $smt;
