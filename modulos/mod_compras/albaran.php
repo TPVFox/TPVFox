@@ -42,6 +42,7 @@
     $pedido_html_linea_productos = array();
     $JS_datos_pedidos = '';
     $html_adjuntos = '';
+    $creado_por = array(); 
 	//Cargamos la configuración por defecto y las acciones de las cajas 
 	$parametros = $ClasesParametros->getRoot();	
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -115,8 +116,10 @@
             $datosAlbaran['Fecha']="0000-00-00 00:00:00";
             $datosAlbaran['Su_numero'] = '';
             $datosAlbaran['idProveedor'] = 0;
+            $creado_por = $Usuario;
         } else {
             // Si no es nuevo
+            
             $idProveedor=$datosAlbaran['idProveedor'];
             $proveedor=$Cproveedor->buscarProveedorId($idProveedor);
             $nombreProveedor=$proveedor['nombrecomercial'];
@@ -124,6 +127,7 @@
             $fecha = ($datosAlbaran['Fecha']=="0000-00-00 00:00:00")
                                 ? date('d-m-Y'):date_format(date_create($datosAlbaran['Fecha']),'d-m-Y');
             $hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
+            $creado_por = $CAlb->obtenerDatosUsuario($datosAlbaran['idUsuario']);
             // Un albaran ya viene con pedidos, si tiene. Puede venir JSON si es temporal
             if (isset($datosAlbaran['Pedidos'])){
                 if ($idAlbaranTemporal >0){
@@ -248,7 +252,7 @@
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+		cabecera['idUsuario'] = <?php echo $creado_por['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
@@ -395,8 +399,8 @@
                         <input type="text" id="estado" name="estado" size="9" value="<?php echo $estado;?>" readonly>
                     </div>
                     <div class="col-md-3">
-                        <label>Empleado:</label>
-                        <input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="8" readonly>
+                        <label>Creado por:</label>
+                        <input type="text" id="Usuario" name="Usuario" value="<?php echo $creado_por['nombre'];?>" size="8" readonly>
                     </div>
             </div>
             <div class="col-md-12">

@@ -313,7 +313,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                     $numeroDoc= $producto['idpedpro'];
                 } else {
                     // Viene temporal o es 0 Numpedpro
-                    error_log('Entro ya que no existe idpedpro en funciones en htmlLineaProductos, tengo lineas comentadas.')
+                    error_log('Entro ya que no existe idpedpro en funciones en htmlLineaProductos, tengo lineas comentadas.');
                     //~ if (isset($producto['numPedido'])){
                         //~ $numeroDoc= $producto['numPedido'];
                     //~ }

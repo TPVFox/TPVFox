@@ -186,17 +186,24 @@ class AlbaranesCompras extends ClaseCompras {
 
     public function AddAlbaranGuardado($datos, $idAlbaran) {
         //@Objetivo:
-        //Añadimos los registro de un albarán nuevo, cada uno en una respectiva tabla
+        //Añadimos los registro de un albarán.
+        //Si $idAlbaran es mayor 0, entonces no es nuevo, solo se modifica albprot, donde los campos:
+        // FechaCreacion y idUsuario no modifican, ya que se pone fechaModificacion y modify_by
+        //El resto tablas se insertan, ya que con anterioridad se borraron los registros para es idAlbaran.
         $respuesta = array();
         $db = $this->db;
         // Aquí tenemos que validar las fechas son correctas
         $datos['fechaVenci'] = $this->ComprobarFecha($datos['fechaVenci']);
         if ($idAlbaran > 0) {
-            $sql = 'INSERT INTO albprot (id, Numalbpro, Fecha, idTienda , idUsuario , 
-			idProveedor , estado , total, Su_numero, formaPago,FechaVencimiento) VALUES ('
-                    . $idAlbaran . ' , ' . $idAlbaran . ', "' . $datos['fecha'] . '", ' . $datos['idTienda'] . ', '
-                    . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ', "' . $datos['estado'] . '", "' . $datos['total']
-                    . '", "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
+            $sql = 'UPDATE albprot SET Numalbpro ="'. $idAlbaran. '"'
+                    .', Fecha ="'. $datos['fecha']. '"'
+                    .', modify_by ="'.$datos['idUsuario'].'"'
+                    .', estado ="'. $datos['estado'] . '"'
+                    .', total ="'. $datos['total']. '"'
+                    .', Su_numero ="'. $datos['suNumero'] . '"'
+                    .', formaPago ="'. $datos['formaPago'] . '"'
+                    .', FechaVencimiento ="'. $datos['fechaVenci'] . '"'
+                    .', fechaModificacion = NOW() WHERE id="'. $idAlbaran. '"';
             $smt = parent::consulta($sql);
             if (gettype($smt)==='array') {
                 $respuesta = $smt;
@@ -233,6 +240,9 @@ class AlbaranesCompras extends ClaseCompras {
             $i = 1;
             $numAlbaran = $id;
             $stock = new alArticulosStocks();
+            $values = array();
+            $sql = 'INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, 
+					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idpedpro )';
             foreach ($productos as $prod) {
                 if ($prod['estado'] == 'Activo' || $prod['estado'] == 'activo') {
                     $codBarras = null;
@@ -247,44 +257,51 @@ class AlbaranesCompras extends ClaseCompras {
                     if (isset($prod['crefProveedor'])) {
                         $refProveedor = $prod['crefProveedor'];
                     }
-                    $sql = 'INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, 
-					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idpedpro )
-					 VALUES (' . $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
+                    $values[] ='('. $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
                             . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
                             . $prod['ultimoCoste'] . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
                             . $refProveedor . "'" . ', ' . $idPed . ')';
+                            
+                    
+                    // ¿Donde se guarda el error si no actualiza stock? ????
+                    $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['nunidades'], K_STOCKARTICULO_SUMA);
+                    $i++;
+                }
+            }
+            // Ahora insertamos todos los productos a la vez.
+            $valores =' VALUES '.implode(',',$values);
+            $sql .= $valores;
+            $smt = parent::consulta($sql);
+            if (gettype($smt)==='array') {
+               $respuesta = $smt;
+               // Si hay un error grave, lo registramos en log, ya que hay arreglarlo a mano.
+               error_log('Error a la hora insertar productos en albaran '.$idalbpro.' el error:'.json_encode($smt));
+            }
+            if (!isset($respuesta['error'])){
+                foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
+                    $sql = 'INSERT INTO albproIva'
+                           .' (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('
+                           . $id . ', ' . $numAlbaran . ' , ' . $iva . ', '
+                           . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
                     $smt = parent::consulta($sql);
                     if (gettype($smt)==='array') {
                        $respuesta = $smt;
                        break;
                     } 
-                    // ¿Donde se guarda el error si no actualiza stock? ????
-                    $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['nunidades'], K_STOCKARTICULO_SUMA);
-                    $i++;
                 }
-                
-            }
-            foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
-                $sql = 'INSERT INTO albproIva (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('
-                        . $id . ', ' . $numAlbaran . ' , ' . $iva . ', ' . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
-                $smt = parent::consulta($sql);
-                if (gettype($smt)==='array') {
-                   $respuesta = $smt;
-                   break;
-                } 
-            }
-            $pedidos = json_decode($datos['pedidos'], true);
-            if (count($pedidos) > 0) {
-                foreach ($pedidos as $pedido) {
-                    if ($pedido['estado'] == 'activo') {
-                        $sql = 'INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) 
-						VALUES (' . $id . ', ' . $numAlbaran . ' ,  ' . $pedido['idAdjunto'] . ' , '
-                                . $pedido['NumAdjunto'] . ')';
-                        $smt = parent::consulta($sql);
-                        if (gettype($smt)==='array') {
-                            $respuesta = $smt;
-                            break;
-                        } 
+                $pedidos = json_decode($datos['pedidos'], true);
+                if (count($pedidos) > 0) {
+                    foreach ($pedidos as $pedido) {
+                        if ($pedido['estado'] == 'activo') {
+                            $sql = 'INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) 
+                            VALUES (' . $id . ', ' . $numAlbaran . ' ,  ' . $pedido['idAdjunto'] . ' , '
+                                    . $pedido['NumAdjunto'] . ')';
+                            $smt = parent::consulta($sql);
+                            if (gettype($smt)==='array') {
+                                $respuesta = $smt;
+                                break;
+                            } 
+                        }
                     }
                 }
             }
@@ -421,7 +438,7 @@ class AlbaranesCompras extends ClaseCompras {
         // Es igual que el metodo ProductosAlbaran pero cambiando nombre campos para funciones correctamente.
         $respuesta = [];
         $where = 'idalbpro= ' . $idAlbaran;
-        $sql =  'SELECT `id`, `idalbpro`, `Numalbpro`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `costeSiva` as ultimoCoste, `iva`, `nfila`, `estadoLinea` as estado, `ref_prov`, `Numpedpro` FROM `albprolinea` WHERE '.$where;
+        $sql =  'SELECT `id`, `idalbpro`, `Numalbpro`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `costeSiva` as ultimoCoste, `iva`, `nfila`, `estadoLinea` as estado, `ref_prov`, `idpedpro` FROM `albprolinea` WHERE '.$where;
         $smt = parent::consulta($sql);
         if (gettype($smt)==='array') {
             $respuesta = $smt; 
@@ -646,16 +663,22 @@ class AlbaranesCompras extends ClaseCompras {
             );
             if (isset($datosAlbaran['Numalbpro']) && $datosAlbaran['Numalbpro']>0){
                 $idAlbaran = $datosAlbaran['Numalbpro'];
-                    // Solo elimino tablas para volver inserta despues.
-                    $eliminarTablasPrincipal=$this->eliminarAlbaranTablas($datosAlbaran['Numalbpro']);
-                    if (isset($eliminarTablasPrincipal['error'])){
-                        // Hubo un error a la hora eliminar tablas principales.
-                        array_push($errores,$this->montarAdvertencia('danger',
-                                            'Error al eliminar las tablas principales!<br/>'
-                                            .$eliminarTablasPrincipal['consulta']
-                                            )
-                                );
-                    }   
+                // Solo elimino tablas para volver inserta despues.
+                $tablas = array('albprolinea','albproIva','pedproAlb');
+                foreach ($tablas as $tabla){
+                    $eliminarTablasPrincipal=$this->eliminarAlbaranTablas($datosAlbaran['Numalbpro'],$tabla);
+                }
+                if (isset($eliminarTablasPrincipal['error'])){
+                    // Hubo un error a la hora eliminar tablas principales.
+                    array_push($errores,$this->montarAdvertencia('danger',
+                                        'Error al eliminar las tablas principales!<br/>'
+                                        .$eliminarTablasPrincipal['consulta']
+                                        )
+                            );
+                } else {
+                    // No hubo errores al eliminar tabla
+
+                } 
             }
             
             $addNuevo=$this->AddAlbaranGuardado($datos, $idAlbaran);
@@ -663,13 +686,12 @@ class AlbaranesCompras extends ClaseCompras {
                 // Hubo un error a la hora eliminar tablas principales.
                     array_push($errores,$this->montarAdvertencia('danger',
                                         'Error añadir un nuevo albarán !!<br/>'
-                                        .$addNuevo['consulta']
+                                        .'Error:'.$addNuevo['error'].' consulta:'.$addNuevo['consulta']
                                         )
                             );
             }else{
                 if(isset($addNuevo['id'])){
                     $dedonde="albaran";
-                    
                     $historico=parent::comprobarHistoricoCoste($productos,
                                                 $dedonde, $addNuevo['id'],
                                                 $datosAlbaran['idProveedor'],
