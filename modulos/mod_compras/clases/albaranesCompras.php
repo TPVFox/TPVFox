@@ -50,17 +50,17 @@ class AlbaranesCompras extends ClaseCompras {
         return $respuesta;
     }
 
-    public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha, $productos, $idProveedor, $pedidos, $suNumero) {
+    public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha, $productos, $idProveedor, $pedidos, $suNumero) {
         //Objetivo:
         //insertar un nuevo albaran temporal
         $productos_json = json_encode($productos);
-        $UnicoCampoProductos = $productos_json;
-        $PrepProductos = $this->db->real_escape_string($UnicoCampoProductos);
-        $UnicoCampoPedidos = json_encode($pedidos);
-        $PrepPedidos = $this->db->real_escape_string($UnicoCampoPedidos);
+        $U = $productos_json;
+        $PrepProductos = $this->db->real_escape_string($U);
+        $U = json_encode($pedidos);
+        $PrepPedidos = $this->db->real_escape_string($U);
         $sql = 'INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , Fecha, 
 		idProveedor,  Productos, Pedidos , Su_numero) VALUES 
-		(' . $idUsuario . ' , ' . $idTienda . ' , "' . $estadoPedido . '" , "' . $fecha . '", ' . $idProveedor . ' , "'
+		(' . $idUsuario . ' , ' . $idTienda . ' , "' . $estado . '" , "' . $fecha . '", ' . $idProveedor . ' , "'
                 . $PrepProductos . '" , "' . $PrepPedidos . '", "' . $suNumero . '")';
         $smt= parent::consulta($sql);
         if (gettype($smt)!=='array') {

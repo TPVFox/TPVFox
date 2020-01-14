@@ -362,11 +362,11 @@
                 // El btn cancelar solo se crea si el estado es "Nuevo"
                 // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal
                 if ($estado != "Nuevo"){
-                    $estilos['btn_cancelar'] = 'style="display:none;"';
+                    $estilos['btn_cancelar'] = ' style="display:none;"';
                     // Se cambia con javascript cuando creamos el temporal y el estado es Nuevo.
                 }
                 echo '<input type="submit" class="btn btn-danger"'
-                    .$estilos['btn_cancelar']. 'value="Cancelar" name="Cancelar" id="bCancelar">';
+                    .$estilos['btn_cancelar']. ' value="Cancelar" name="Cancelar" id="bCancelar">';
             }
             ?>
         </div>
@@ -374,15 +374,14 @@
     <div class="row" >
         <div class="col-md-7">
             <div class="col-md-12">
-                <input type="text" name="estado" id="estado" style="display:none;" value="<?php echo $estado;?>">
                     <div class="col-md-3">
                         <label>Fecha albarán:</label>
                         <?php
                             $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
-                            $title_fecha =' placeholder="dd-mm-yyyy" title " Formato de entrada dd-mm-yyyy"';
+                            $title_fecha =' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
                             echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
                                 . $estilos['input_factur'].' value="'.$fecha.'" onkeydown="controlEventos(event)" '
-                                . $pattern_numerico.$title_fecha.'>';
+                                . $pattern_numerico.$title_fecha.'/>';
                         ?>
                     </div>
                     <div class="col-md-3">
