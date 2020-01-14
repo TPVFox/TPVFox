@@ -311,19 +311,13 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                 if (isset($producto['idpedpro']) && $producto['idpedpro']>0){
                     // Si obtuvo con metodo de la clase AlbCompra
                     $numeroDoc= $producto['idpedpro'];
-                } else {
-                    // Viene temporal o es 0 Numpedpro
-                    error_log('Entro ya que no existe idpedpro en funciones en htmlLineaProductos, tengo lineas comentadas.');
-                    //~ if (isset($producto['numPedido'])){
-                        //~ $numeroDoc= $producto['numPedido'];
-                    //~ }
-                }
+                } 
             }
             if (isset($producto['Numalbpro']) && $producto['Numalbpro']>0 && $dedonde=="factura"){
                 // El array de producto, puede traer los dos campos: NumpedPro o Numalbpro
                 // por eso se comprueba dedonde.
                 $numeroDoc= $producto['Numalbpro'];
-             }
+            }
             $html_numeroDoc='<td class="Ndocumento">'.$numeroDoc.'</td>';
         } 
         //Si tiene referencia del proveedor

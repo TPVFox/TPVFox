@@ -146,7 +146,7 @@ class AlbaranesCompras extends ClaseCompras {
         if ($tabla !==''){
             // Controlamos que la tabla indicada exista en array
             foreach ($tablas as $key=>$t){
-                if ($t === $tabla) {
+                if ($key === $tabla) {
                     $OK ='OK';
                 } else {
                     // ELimino de array los nombres tablas que no son .
@@ -165,9 +165,6 @@ class AlbaranesCompras extends ClaseCompras {
                     $respuesta[$tabla] = parent::deleteRegistrosTabla($tabla,$where);
                 }
             }
-            echo '<pre>';
-            print_r($respuesta);
-            echo '</pre>';
             // Ahora elimino stock de las lineas eliminadas.
             if (count($respuesta) === 0 ){
                 if($albaran && $lineasAlbaran ){
@@ -661,6 +658,7 @@ class AlbaranesCompras extends ClaseCompras {
                 'formaPago'=>$formaPago,
                 'fechaVenci'=>$fechaVenci
             );
+            
             if (isset($datosAlbaran['Numalbpro']) && $datosAlbaran['Numalbpro']>0){
                 $idAlbaran = $datosAlbaran['Numalbpro'];
                 // Solo elimino tablas para volver inserta despues.

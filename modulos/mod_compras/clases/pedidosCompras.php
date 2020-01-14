@@ -116,7 +116,7 @@ class PedidosCompras extends ClaseCompras{
         if ($tabla !==''){
             // Controlamos que la tabla indicada exista en array
             foreach ($tablas as $key=>$t){
-                if ($t === $tabla) {
+                if ($key === $tabla) {
                     $OK ='OK';
                 } else {
                     // ELimino de array los nombres tablas que no son .
