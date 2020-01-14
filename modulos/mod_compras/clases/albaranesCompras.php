@@ -321,21 +321,28 @@ class AlbaranesCompras extends ClaseCompras {
         }
     }
 
-    public function TodosTemporal() {
+    public function TodosTemporal($idAlbaran = 0) {
         //@Objetivo:
         //Mostramos todos los albaranes temporales
+        $respuesta = array();
         $sql = 'SELECT tem.Numalbpro, tem.id , tem.idProveedor, tem.total, 
 			b.nombrecomercial from albproltemporales as tem left JOIN proveedores 
 			as b on tem.idProveedor=b.idProveedor';
+        if ($idAlbaran > 0){
+            // buscamos solos temporales para ese albaran.
+            // [OJO] El campo que tenemos en temporal es NumalbPro pero debe se idalbpro
+            // ya el día de mañana que pongamos en funcionamiento el poder distinto numero que id
+            // dejaría funciona.
+            $sql .= ' where tem.NumalbPro='.$idAlbaran;
+        }
         $smt = parent::consulta($sql);
         if (gettype($smt)==='array') {
-            $respuesta = $smt;        
+            // Hubo error devolvemos array (error,consulta)
+            $respuesta = $smt;       
         } else {
-            $albaranPrincipal = array();
             while ($result = $smt->fetch_assoc()) {
-                array_push($albaranPrincipal, $result);
+                array_push($respuesta, $result);
             }
-            $respuesta=$albaranPrincipal;
         }
        return $respuesta;
 
@@ -575,7 +582,6 @@ class AlbaranesCompras extends ClaseCompras {
         // - Si es nuevo, es decir no existe idAlbaran, se inserta.
         // - Si se esta modificando entonces , se modifica tabla albprot y resto de tablas se elimina los registros de ese
         // albaran y se vuelven insertar.
-       
         $errores=array();
         $Tienda = $_SESSION['tiendaTpv'];
         $Usuario = $_SESSION['usuarioTpv'];
@@ -633,7 +639,6 @@ class AlbaranesCompras extends ClaseCompras {
                                         'Se obtuvo $datoAlbaran[productos] pero tiene datos !!'
                                         )
                             );
-
                 }
             }else{
                     // No obtuvo $datosAlbaran['Productos'], algo esta mal.
@@ -658,7 +663,6 @@ class AlbaranesCompras extends ClaseCompras {
                 'formaPago'=>$formaPago,
                 'fechaVenci'=>$fechaVenci
             );
-            
             if (isset($datosAlbaran['Numalbpro']) && $datosAlbaran['Numalbpro']>0){
                 $idAlbaran = $datosAlbaran['Numalbpro'];
                 // Solo elimino tablas para volver inserta despues.
@@ -678,7 +682,6 @@ class AlbaranesCompras extends ClaseCompras {
 
                 } 
             }
-            
             $addNuevo=$this->AddAlbaranGuardado($datos, $idAlbaran);
             if (isset($addNuevo['error'])){
                 // Hubo un error a la hora eliminar tablas principales.
@@ -721,6 +724,42 @@ class AlbaranesCompras extends ClaseCompras {
         return $errores;
     }
 
+    public function comprobarTemporalIdAlbpro($idAlbaran,$numAlbaranTemp = 0){
+        // @Objetivo:
+        // Compruebo que solo hay un pedido temporal para ese idPedpro 
+        // @Devuelvo:
+        //  Array con o sin errores.
+        $errores = array();
+        if ($idAlbaran > 0){
+            $posible_duplicado = $this->TodosTemporal($idAlbaran);
+            if (!isset($posible_duplicado['error'])){
+                $OK ='OK';
+                if (count($posible_duplicado)>1){
+                     $OK = 'Hay mas de un temporal con el mismo numero pedido.';
+                } else {
+                    // Hay uno solo.
+                    if ($numAlbaranTemp > 0) {
+                        if (isset($posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] !== $numAlbaranTemp){
+                            $OK = 'Hay un temporal y no coincide el idtemporal.';
+                        }
+                    } else {
+                        if (isset( $posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] >0 ){
+                            // Solo devuelvo idTemporal si id > 0    
+                            $errores['idTemporal'] = $posible_duplicado[0]['id'];
+                        }
+                    }
+                }
+                if ($OK !== 'OK' ){
+                    // Existe un registro o el que existe es distinto al actual.
+                    array_push($errores,$this->montarAdvertencia('danger',
+                                         '<strong>Ojo posible duplicidad en pedido temporal !! </strong>  <br> '.$OK
+                                        )
+                            );
+                }
+            }
+        }
+        return $errores;
+    }
     
 
     

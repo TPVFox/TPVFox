@@ -58,56 +58,86 @@
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	if (isset($_GET['id']) || isset($_GET['tActual'])) {
-        // Si existe id o tActual es que no es nuevo
-        if (isset($_GET['id'])){
-            // Si exite id estamos modificando directamente un albaran.
-            // Deberíamos comprobar que no exista ningun temporal....
-            $datosAlbaran = $CAlb->GetAlbaran($_GET['id']);
-            if (isset($datosAlbaran['error'])){
-                $errores=$datosAlbaran['error'];
-            } else {
-                if(isset($datosAlbaran['estado']) ){
-                    $estado=$datosAlbaran['estado'];
-                    $idAlbaran = $datosAlbaran['id'];
-                    if ($datosAlbaran['estado']=="Facturado"){
-                        // Cambiamos accion, ya que solo puede ser ver.
-                        $accion = 'ver';
-                        // Obtenemos los datos de factura.
-                        $numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
-                        if(isset($numFactura['error'])){
-                            array_push($errores,$this->montarAdvertencia(
-                                            'danger',
-                                            'Error 1.1 en base datos.Consulta:'.json_encode($numFactura['consulta'])
-                                    )
-                            );
-                        }
+    // Por GET recibimos uno o varios parametros:
+    //  [id] cuando editamos o vemos un albaran pulsando en listado.
+    //  [tActual] cuando pulsamos en cuadro albaranes temporales.
+    //  [accion] cuando indicamos que accion vamos hacer.
+    if (isset($_GET['id'])){
+        $idAlbaran=$_GET['id'];  // Id real de pedido
+    }
+    if (isset($_GET['tActual'])){
+        $idAlbaranTemporal=$_GET['tActual']; // Id de albaran temporal
+    }
+    // ---------- Posible errores o advertencias mostrar     ------------------- //
+    if ($idAlbaran > 0){
+        // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
+        $c = $CAlb->comprobarTemporalIdAlbpro($idAlbaran);
+        if (isset($c['idTemporal']) && $c['idTemporal'] !== NULL){
+            // Existe un temporal de este pedido por lo que cargo ese temporal.
+            $idAlbaranTemporal = $c['idTemporal'];
+            $idAlbaran = 0 ; // Lo pongo en 0 para ejecute la parte temporal
+            $_GET['tActual'] = $idAlbaranTemporal;
+            if ($accion !== 'temporal'){
+                // Si entro sin accion temporal, NO PERMITO EDITAR.
+                // YA PROVABLEMENTE ESTAN EDITANDO.
+                $accion = 'ver';
+                // Creo alert
+                echo '<script>alert("No se permite editar, ya que alguien esta editandolo, hay un temporal");</script>';
+            }
+        } else {
+            if (count($c)>0){
+                 $errores= $c;
+            }
+        }
+    }
+    
+    if ( $idAlbaran > 0 && count($errores) === 0){
+        // Si exite id estamos modificando directamente un albaran.
+        // Deberíamos comprobar que no exista ningun temporal....
+        $datosAlbaran = $CAlb->GetAlbaran($_GET['id']);
+        if (isset($datosAlbaran['error'])){
+            $errores=$datosAlbaran['error'];
+        } else {
+            if(isset($datosAlbaran['estado']) ){
+                $estado=$datosAlbaran['estado'];
+                $idAlbaran = $datosAlbaran['id'];
+                if ($datosAlbaran['estado']=="Facturado"){
+                    // Cambiamos accion, ya que solo puede ser ver.
+                    $accion = 'ver';
+                    // Obtenemos los datos de factura.
+                    $numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
+                    if(isset($numFactura['error'])){
+                        array_push($errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 1.1 en base datos.Consulta:'.json_encode($numFactura['consulta'])
+                                )
+                        );
                     }
                 }
             }
         }
-        if (isset($_GET['tActual'])){
-            // Puede entrar cuando :
-            //   -Viene de albaran temporal
-            //   -Se recargo mientras editamos.
-            //   -Cuando pulsamos guardar.
-            $idAlbaranTemporal=$_GET['tActual'];
-            $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
-            if (isset($datosAlbaran['error'])){
-                    array_push($errores,$this->montarAdvertencia(
-                                    'danger',
-                                    'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
-                            )
-                    );
-            } else {
-                // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
-                $datosAlbaran['FechaVencimiento'] ='0000-00-00';
-                $datosAlbaran['Productos'] = json_decode($datosAlbaran['Productos'],true);
-                $idAlbaran = $datosAlbaran['Numalbpro'];
-                $estado=$datosAlbaran['estadoAlbPro'];
-            }
+    }
+    if ($idAlbaranTemporal > 0 && count($errores) === 0){
+        // Puede entrar cuando :
+        //   -Viene de albaran temporal
+        //   -Se recargo mientras editamos.
+        //   -Cuando pulsamos guardar.
+        $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
+        if (isset($datosAlbaran['error'])){
+                array_push($errores,$this->montarAdvertencia(
+                                'danger',
+                                'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
+                        )
+                );
+        } else {
+            // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
+            $datosAlbaran['FechaVencimiento'] ='0000-00-00';
+            $datosAlbaran['Productos'] = json_decode($datosAlbaran['Productos'],true);
+            $idAlbaran = $datosAlbaran['Numalbpro'];
+            $estado=$datosAlbaran['estadoAlbPro'];
         }
     }
+    
     if (count($errores) == 0){
         // Si no hay errores graves continuamos.
         if (!isset($datosAlbaran)){

@@ -56,7 +56,6 @@
     }
     // ---------- Posible errores o advertencias mostrar     ------------------- //
     if ($idPedido > 0){
-        // Estos parametros de GET no indica que es un pedido ya guardado y tiene temporal, pero no sabemos cual.
         // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
         $c = $Cpedido->comprobarTemporalIdPedpro($idPedido);
         if (isset($c['idTemporal']) && $c['idTemporal'] !== NULL){
@@ -77,23 +76,31 @@
             }
         }
     }
-    if (isset($_GET['id']) && $idPedido> 0 && count($errores) === 0){
+    if ( $idPedido > 0 && count($errores) === 0){
         // Si idPedido es 0, quiere decir que existe un temporal de $GET['id'] por lo que no entro aquí
         $datosPedido=$Cpedido->DatosPedido($idPedido);
-        $datosPedido['Productos'] = $Cpedido->ProductosPedidos($idPedido);
-        $estado=$datosPedido['estado'];
-        if ($estado=='Facturado'){
-            $accion = 'ver'; // Con estado facturado la accion es solo ver.
-            // Obtenemos el numero albaran que tiene este pedido.
-            $Albaran_creado = $Cpedido->NumAlbaranDePedido($idPedido);
-        } 
-        $fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
-        $productos=modificarArrayProductos($datosPedido['Productos']);
-        // Obtenemos la incidencias si hay.
-        $incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
-        $inciden=count($incidenciasAdjuntas['datos']);
+        if (isset($datosPedido['error'])){
+                array_push($errores,$this->montarAdvertencia(
+                                'danger',
+                                'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
+                        )
+                );
+        } else {
+            $datosPedido['Productos'] = $Cpedido->ProductosPedidos($idPedido);
+            $estado=$datosPedido['estado'];
+            if ($estado=='Facturado'){
+                $accion = 'ver'; // Con estado facturado la accion es solo ver.
+                // Obtenemos el numero albaran que tiene este pedido.
+                $Albaran_creado = $Cpedido->NumAlbaranDePedido($idPedido);
+            } 
+            $fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
+            $productos=modificarArrayProductos($datosPedido['Productos']);
+            // Obtenemos la incidencias si hay.
+            $incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
+            $inciden=count($incidenciasAdjuntas['datos']);
+        }
     }
-    if (isset($_GET['tActual']) && $numPedidoTemp >0 && count($errores) === 0){           
+    if ( $numPedidoTemp >0 && count($errores) === 0){           
         $datosPedido=$Cpedido->DatosTemporal($numPedidoTemp);
         if (isset($datosPedido['idPedpro'])){
             $idPedido=$datosPedido['idPedpro'];	
@@ -124,8 +131,8 @@
             $datosPedido['Productos'] = $productos;
         }
     }
-    //  Obtenemos los datos del proveedor:
     if (isset ($datosPedido['idProveedor']) && $datosPedido['idProveedor'] > 0){
+        //  Obtenemos los datos del proveedor:
         $idProveedor=$datosPedido['idProveedor'];
         $datosProveedor=$Cproveedor->buscarProveedorId($idProveedor);
         $nombreProveedor=$datosProveedor['nombrecomercial'];

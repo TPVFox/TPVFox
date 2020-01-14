@@ -362,8 +362,8 @@ class PedidosCompras extends ClaseCompras{
         }
 		$smt=parent::consulta($Sql);
 		if (gettype($smt)==='array'){
-			$respuesta['error']=$smt['error'];
-			$respuesta['consulta']=$smt['consulta'];
+            // Hubo error devolvemos array (error,consulta)
+            $respuesta = $smt;
 		}else{
 			while ( $result = $smt->fetch_assoc () ) {
 				array_push($respuesta,$result);
@@ -646,7 +646,7 @@ class PedidosCompras extends ClaseCompras{
             if (!isset($posible_duplicado['error'])){
                 $OK ='OK';
                 if (count($posible_duplicado)>1){
-                     $OK = 'Hay mas de un temporarl con el mismo numero pedido.';
+                     $OK = 'Hay mas de un temporal con el mismo numero pedido.';
                 } else {
                     // Hay uno solo.
                     if ($numPedidoTemp > 0) {
