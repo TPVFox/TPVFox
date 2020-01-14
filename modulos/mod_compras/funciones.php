@@ -303,7 +303,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
             // con un adjunto.
             $html_coste  ='<input type="text" id="ultimo_coste_'.$producto['nfila']
                     .'" data-obj="ultimo_coste" onkeydown="controlEventos(event)"'
-                    .' name="ultimo" onBlur="controlEventos(event)" value="'.$coste.'" '.$solo_lectura.' size="4">';
+                    .' name="ultimo[]" onBlur="controlEventos(event)" value="'.$coste.'" '.$solo_lectura.' size="4">';
             
             // Ahora montamos td de numDoc
             $numeroDoc = '';
@@ -332,7 +332,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
         } 
         $filaProveedor ='<td><input id="Proveedor_Fila_'
                         .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
-                        .'name="proveedor" '.$ref_prov.' size="7"  onkeydown="controlEventos(event)" '
+                        .'name="proveedor_fila[]" '.$ref_prov.' size="7"  onkeydown="controlEventos(event)" '
                         .'onBlur="controlEventos(event)"'.$solo_lectura.'>';
         if ($solo_lectura !=''){
             $filaProveedor .= '<a onclick=permitirModificarReferenciaProveedor("Proveedor_Fila_'
@@ -351,7 +351,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                             .'<td class="detalle">'.$producto['cdetalle'].'</td>'
                             .'<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
                             .'" type="text" data-obj="Unidad_Fila"  '
-                            .' pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad"'
+                            .' pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad[]" placeholder="unidad"'
                             .'size="3"  value="'.$cant.'" '.$solo_lectura.' '
                             .$estadoInput.' onkeydown="controlEventos(event)" '
                             .' onBlur="controlEventos(event)"></td>'

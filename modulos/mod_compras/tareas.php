@@ -167,16 +167,18 @@ switch ($pulsado) {
             $html= htmlDatosAdjuntoProductos($_POST['cabecera'],$dedonde);
             $respuesta['html'].=$html;
         }
-        foreach($productos as $producto){
-            if (!is_array($producto)){ 
-                 $res=htmlLineaProducto($productos, $dedonde);
-                 $respuesta['html'].=$res['html'];
-                 break;
-            }else{
+        if (!is_array($producto)){
+             // Solo es un producto.
+             $res=htmlLineaProducto($productos, $dedonde);
+             $respuesta['html'].=$res['html'];
+             break;
+        }else{
+            foreach($productos as $producto){
                 $res=htmlLineaProducto($producto, $dedonde);
                 $respuesta['html'].=$res['html'];
             }
         }
+
     break;
 
     case 'insertarImporte':
