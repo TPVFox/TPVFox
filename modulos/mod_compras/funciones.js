@@ -120,6 +120,8 @@ function buscarAdjunto(dedonde, valor=""){
                                 AgregarAdjunto(datos, dedonde);
                                 // Agregamos filas de productos pero con la cabecera del adjunto.
                                 AgregarFilasProductos(prodArray, dedonde,datos);
+                                // Hago la alerta para que espere un poco
+                                alert('Fijate que esten todas las lineas del producto, sino refresca.');
 
                                 //Cierro el modal aqui porque cuando selecciono un pedido del modal llamo a esta misma funcion
                                 //Cuando se mete el numero del pedido de esta manera el valor de busqueda ya es un numero
