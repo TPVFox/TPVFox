@@ -404,6 +404,25 @@
     <div class="row" >
         <div class="col-md-7">
             <div class="col-md-12">
+                    <label class="text-center">Proveedor</label>
+                    <?php
+                    echo '<div class="col-md-2">
+                            <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
+                            .$idProveedor.'" '.$estilos['pro_readonly'].' size="2" onkeydown="controlEventos(event)" placeholder="id">
+                        </div>';
+                    echo '<div class="col-md-8">
+                            <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
+                            .'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
+                            .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" >
+                         </div>';
+                         
+                    echo   '<div class="col-md-2">
+                                <a id="buscar" '.$estilos['pro_styleNo'].' class="btn glyphicon glyphicon-search buscar"'
+                                .'onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>
+                          </div>';
+                    ?>
+            </div>
+            <div class="col-md-12">
                     <div class="col-md-3">
                         <label>Fecha albarán:</label>
                         <?php
@@ -460,19 +479,7 @@
                 
                 
             </div>
-            <div class="form-group">
-                <label>Proveedor:</label>
-                <?php
-                echo '<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
-                    .$idProveedor.'" '.$estilos['pro_readonly'].' size="2" onkeydown="controlEventos(event)" placeholder="id">';
-                echo '<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
-                    .'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
-                    .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" >';
-                echo '<a id="buscar" '.$estilos['pro_styleNo'].' class="glyphicon glyphicon-search buscar"'
-                    .'onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>';
-                ?>
-
-            </div>
+            
         </div>
         <div class="col-md-5 div_adjunto">
             <label id="numPedidoT">Número del pedido:</label>

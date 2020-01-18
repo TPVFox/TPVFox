@@ -149,7 +149,9 @@ switch ($pulsado) {
     break;
 
     case 'htmlAgregarFilaAdjunto':
-    //OBjetivo: agregar la fila con los datos del albaran o pedido adjunto
+        //@ Objetivo:
+        // Agregar la fila con los datos del albaran o pedido adjunto
+        // en caja superior, donde se añade adjuntos.
         $res=lineaAdjunto($_POST['datos'], $_POST['dedonde']);
         $respuesta['html']=$res['html'];
     break;
@@ -167,18 +169,18 @@ switch ($pulsado) {
             $html= htmlDatosAdjuntoProductos($_POST['cabecera'],$dedonde);
             $respuesta['html'].=$html;
         }
-        if (!is_array($producto)){
-             // Solo es un producto.
-             $res=htmlLineaProducto($productos, $dedonde);
-             $respuesta['html'].=$res['html'];
-             break;
-        }else{
-            foreach($productos as $producto){
+        
+        foreach($productos as $producto){
+            if (!is_array($producto)){
+                // Solo viene un producto... por eso no es array producto.
+                $res=htmlLineaProducto($productos, $dedonde);
+                $respuesta['html'].=$res['html'];
+                break;
+            }else{
                 $res=htmlLineaProducto($producto, $dedonde);
                 $respuesta['html'].=$res['html'];
             }
         }
-
     break;
 
     case 'insertarImporte':

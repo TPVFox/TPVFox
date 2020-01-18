@@ -1149,6 +1149,7 @@ function modificarArraysImportes($importes, $total){
 
 
 function htmlDatosAdjuntoProductos($datos,$dedonde){
+    error_log('htmlDatosAdjuntoProductos:Muestro JSON de datos:'.json_encode($datos));
 	$total=0;
 	$totalSiva=0;
 	$suNumero="";
