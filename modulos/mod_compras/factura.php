@@ -13,7 +13,7 @@
 	include_once $URLCom.'/clases/FormasPago.php';
 	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
-	$Cprveedor=new Proveedores($BDTpv);
+	$Cproveedor=new Proveedores($BDTpv);
 	$CAlb=new AlbaranesCompras($BDTpv);
 	$CFac = new FacturasCompras($BDTpv);
 	$Controler = new ControladorComun; 
@@ -22,7 +22,11 @@
 	//iniciación de las variables
 	$dedonde="factura";
 	$titulo="Factura De Proveedor";
-	$estado='Abierto';
+    // Valores por defecto de estado y accion.
+    // [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
+    // [accion] -> editar,ver
+    $estado='Nuevo';
+    $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
 	$formaPago=0;
 	$comprobarAlbaran=0;
 	$importesFactura=array();
@@ -70,7 +74,7 @@
 			$suNumero=$datosFactura['Su_num_factura'];
 		}
 		if ($idProveedor){
-			$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+			$proveedor=$Cproveedor->buscarProveedorId($idProveedor);
 			$nombreProveedor=$proveedor['nombrecomercial'];
 		}
 		$productosFactura=modificarArrayProductos($productosFactura);
@@ -115,7 +119,7 @@
 				}
 				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
 				$idProveedor=$datosFactura['idProveedor'];
-				$proveedor=$Cprveedor->buscarProveedorId($idProveedor);
+				$proveedor=$Cproveedor->buscarProveedorId($idProveedor);
 				$nombreProveedor=$proveedor['nombrecomercial'];
 				$importesFactura=json_decode($datosFactura['FacCobros'], true);
 				$factura=$datosFactura;
@@ -465,62 +469,6 @@
  echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
-<script type="text/javascript">
-	$('#fecha').focus();
-	<?php
-	if ($idProveedor>0){
-		?>
-		$('#Proveedor').prop('disabled', true);
-		$('#id_proveedor').prop('disabled', true);
-		$("#buscar").css("display", "none");
-		<?php
-	}
-	if (count($albaranes)>0){
-		?>
-		 $('#Row0').css('display', 'none');
-		 $('.unidad').attr("readonly","readonly");
-		<?php
-	}
-	if ($estado=="Guardado"){
-		?>
-		$('#divImportes').show();
-		<?php
-	}
-	if (count($albaranes)==0 & $comprobarAlbaran==0){
-		?>
-		$('#tablaAl').hide();
-		<?php
-	}
-	if (count($importesFactura)>0){
-		?>
-		$("#tabla").find('input').attr("disabled", "disabled");
-		$("#tabla").find('a').css("display", "none");
-		$("#tablaImporte").show();
-		$("#fila0").show();
-		<?php
-	}
-	if ($estado=="Pagado total"){
-		?>
-		$("#fila0").hide();	
-		$("#Cancelar").hide();
-		$("#Guardar").hide();
-		<?php
-	}
-    if ($_GET['estado']=="ver"){
-        ?>
-        $("#fila0").hide();	
-		$("#bCancelar").hide();
-		$("#bGuardar").hide();
-        $("#tabla").find('input').attr("disabled", "disabled");
-        $("#tabla").find('a').css("display", "none");
-        $("#suNumero").prop('disabled', true);
-        $("#fecha").prop('disabled', true);
-        $("#numPedido").css("display", "none");
-        $("#buscarPedido").css("display", "none");
-         $(".eliminar").css("display", "none");
-        <?php
-    }
-	?>
-</script>
+
 </body>
 </html>

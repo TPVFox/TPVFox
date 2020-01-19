@@ -11,11 +11,12 @@ include_once $URLCom.'/clases/Proveedores.php';
 include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
-$CArticulo=new Articulos($BDTpv);
 // Creamos el objeto de proveedor
 $CProv= new Proveedores($BDTpv);
 // Creamos el objeto de albarán
 $CAlb=new AlbaranesCompras($BDTpv);
+// Creamos el objeto de Articulos, por que lo necesitamos para historico.
+$CArticulo=new Articulos($BDTpv);
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
 if (isset($todosTemporal['error'])){
@@ -26,32 +27,32 @@ if (isset($todosTemporal['error'])){
 								 );
 }
 $todosTemporal=array_reverse($todosTemporal);
-	// ===========    Paginacion  ====================== //
-	$NPaginado = new PluginClasePaginacion(__FILE__);
-	$campos = array( 'a.Numalbpro','b.nombrecomercial');
-	$NPaginado->SetCamposControler($campos);
-	$NPaginado->SetOrderConsulta('a.Numalbpro');
-	// --- Ahora contamos registro que hay para es filtro --- //
-	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
-	$CantidadRegistros=0;
-	// Obtenemos la cantidad registros 
-	$a = $CAlb->TodosAlbaranesLimite($filtro);
-	$CantidadRegistros = count($a['Items']);
-	// --- Ahora envio a NPaginado la cantidad registros --- //
-	$NPaginado->SetCantidadRegistros($CantidadRegistros);
-	$htmlPG = $NPaginado->htmlPaginado();
-	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-	$a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
-    $albaranesDef=$a['Items'];
+// ===========    Paginacion  ====================== //
+$NPaginado = new PluginClasePaginacion(__FILE__);
+$campos = array( 'a.Numalbpro','b.nombrecomercial');
+$NPaginado->SetCamposControler($campos);
+$NPaginado->SetOrderConsulta('a.Numalbpro');
+// --- Ahora contamos registro que hay para es filtro --- //
+$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+$CantidadRegistros=0;
+// Obtenemos la cantidad registros 
+$a = $CAlb->TodosAlbaranesLimite($filtro);
+$CantidadRegistros = count($a['Items']);
+// --- Ahora envio a NPaginado la cantidad registros --- //
+$NPaginado->SetCantidadRegistros($CantidadRegistros);
+$htmlPG = $NPaginado->htmlPaginado();
+//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
+$a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
+$albaranesDef=$a['Items'];
 	if (isset($a['error'])){
-		$errores[1]=array ( 'tipo'=>'Danger!',
+		$errores[]=array ( 'tipo'=>'Danger!',
 								 'dato' => $a['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 	}
     if (count($albaranesDef)==0){
-		$errores[0]=array ( 'tipo'=>'Warning!',
+		$errores[]=array ( 'tipo'=>'Warning!',
 								 'dato' => '',
 								 'class'=>'alert alert-warning',
 								 'mensaje' => 'No tienes albaranes guardados!'
@@ -84,7 +85,7 @@ $todosTemporal=array_reverse($todosTemporal);
                 if($ClasePermisos->getAccion("Crear")==1){
                    echo '<a class="anhadir" onclick="metodoClick('."'".'AgregarAlbaran'."'".');";>Añadir</a>';
                 }
-            ?>          
+            ?>
             <div class="col-md-12">
                 <h4 class="text-center"> Albaranes Abiertos</h4>
                 <table class="table table-striped table-hover">
@@ -99,17 +100,15 @@ $todosTemporal=array_reverse($todosTemporal);
                         <?php
                     if (isset($todosTemporal)){
                         foreach ($todosTemporal as $temporal){
-                            
+                            $numTemporal="";
                             if ($temporal['Numalbpro']){
                                 $numTemporal=$temporal['Numalbpro'];
-                            }else{
-                                $numTemporal="";
                             }
                             $url = 'albaran.php?tActual='.$temporal['id'];
                             ?>
                             <tr style="cursor:pointer" onclick="redireccionA('<?php echo $url;?>')" title="Albaran temporal con numero <?php echo $temporal['id'];?>">
                                 <td><?php echo $numTemporal;?></td>
-                                <td ><?php echo $temporal['nombrecomercial'];?></td>
+                                <td><?php echo $temporal['nombrecomercial'];?></td>
                                 <td><?php echo number_format($temporal['total'],2);?></td>
                             </tr>
                             
@@ -173,7 +172,7 @@ $todosTemporal=array_reverse($todosTemporal);
                         <tr>
                         <td class="rowUsuario">
                             <?php
-                            $check_name = 'checkUsu'.$checkUser;
+                            $check_name = 'checkUsu'.$checkUser; // El prefijo esta mal, debería corregirlo en todas la aplicacion
                             echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" value="'.$albaran['id'].'" class="check_albaran">';
                             ?>
                         </td>
@@ -184,14 +183,14 @@ $todosTemporal=array_reverse($todosTemporal);
                                 if ($albaran['estado']==="Sin Guardar"){
                                     $accion ='&accion=temporal';
                                 }
-                                echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id='.$albaran['id'].$accion.'">';
+                                echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id='.$albaran['id'].$accion.'"></a>';
                             }
                             ?>
                         </td>
                         <td>
                         <?php 
                         if($ClasePermisos->getAccion("Ver") == 1){
-                            echo '<a class="glyphicon glyphicon-eye-open" href="./albaran.php?id='.$albaran['id'].'&accion=ver">';
+                            echo '<a class="glyphicon glyphicon-eye-open" href="./albaran.php?id='.$albaran['id'].'&accion=ver"></a>';
                         }
                         ?>
                         </td>
@@ -208,6 +207,7 @@ $todosTemporal=array_reverse($todosTemporal);
                                     "onclick='imprimir(".$albaran['id'].
                                     ' , "albaran" , '.$Tienda['idTienda'].")'></a>";
                         } else {
+                            // Color danger cuando es Sin Guardar
                             $clas_estado = ' class="alert-danger"';
                             $linkImprimir= '';
                         }                    

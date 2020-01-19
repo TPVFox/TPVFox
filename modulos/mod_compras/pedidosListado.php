@@ -190,7 +190,7 @@
                                 if ($pedido['estado']==="Sin Guardar"){
                                     $accion ='&accion=temporal';
                                 }
-                                echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id='.$pedido['id'].$accion.'">';
+                                echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id='.$pedido['id'].$accion.'"></a>';
                             }
                             ?>
                          </td>
@@ -198,7 +198,7 @@
                             <?php 
                             if($ClasePermisos->getAccion("Ver")==1){
                                 ?>
-                                <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&accion=ver'>
+                                <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&accion=ver'></a>
                                 <?php 
                             }
                             ?>
