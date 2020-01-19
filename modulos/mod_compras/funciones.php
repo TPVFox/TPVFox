@@ -280,7 +280,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
         $estadoInput = '';
         $funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
         $iconE_R = '<span class="glyphicon glyphicon-trash"></span>';
-        $html_numeroDoc='<td class="Ndocumento"></td>'; // Valor por defecto.
+        $html_numeroDoc=''; // Valor por defecto.
         $coste= number_format($producto['ultimoCoste'], 4); // Pedidos no se permite modificar.
         $html_coste = $coste;
         // Si hay valor de ccodbar lo ponemos en variable.
@@ -1149,7 +1149,6 @@ function modificarArraysImportes($importes, $total){
 
 
 function htmlDatosAdjuntoProductos($datos,$dedonde){
-    error_log('htmlDatosAdjuntoProductos:Muestro JSON de datos:'.json_encode($datos));
 	$total=0;
 	$totalSiva=0;
 	$suNumero="";

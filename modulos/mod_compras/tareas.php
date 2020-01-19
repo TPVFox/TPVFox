@@ -157,10 +157,12 @@ switch ($pulsado) {
     break;
     
     case 'htmlAgregarFilasProductos':
-        //@objetivo:
-        //Agrega la fila de productos : crea las filas de los productos para posteriormente insertar en la tabla 
-        $productos=$_POST['productos'];
-        $dedonde=$_POST['dedonde'];
+        //@ Objetivo:
+        //Agrega las filas de productos , para insertar en vista productos.
+        //@ Parametros:
+        // $_POST[Productos] -> Es un strign ( json con array de los productos)
+        $productos=json_decode($_POST['productos'],true);
+        $dedonde=$_POST['dedonde']; 
         $respuesta=array('html'=>"");
         if ($_POST['cabecera'] !=='NO'){
             // Controlo si hay viene de un adjunto.
@@ -169,10 +171,10 @@ switch ($pulsado) {
             $html= htmlDatosAdjuntoProductos($_POST['cabecera'],$dedonde);
             $respuesta['html'].=$html;
         }
-        
         foreach($productos as $producto){
+            // $producto puede ser un array con todos datos del producto o simplemente el primer campo de un producto.
+            // por lo que si $producto no es array , quiere decir que $productos ( es solo un producto).
             if (!is_array($producto)){
-                // Solo viene un producto... por eso no es array producto.
                 $res=htmlLineaProducto($productos, $dedonde);
                 $respuesta['html'].=$res['html'];
                 break;

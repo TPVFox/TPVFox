@@ -118,8 +118,6 @@ function buscarAdjunto(dedonde, valor=""){
                                 modificarEstado(dedonde, "Facturado",  idAdjunto);
                                 //Agregamos una nueva fila en adjunto con los datos principales
                                 AgregarAdjunto(datos, dedonde);
-                                alert('Antes de enviar agregar filas.');
-
                                 // Agregamos filas de productos pero con la cabecera del adjunto.
                                 AgregarFilasProductos(prodArray, dedonde,datos);
                                 // Hago la alerta para que espere un poco
@@ -330,9 +328,9 @@ function AgregarFilasProductos(datos, dedonde, cabecera ='NO'){
 	if (datos.length>1){
 		datos = datos.reverse();
 	}
-	var parametros = {
+    var parametros = {
 		"pulsado"   : 'htmlAgregarFilasProductos',
-		"productos" : datos,
+		"productos" : JSON.stringify(datos),
 		"dedonde"   : dedonde,
         "cabecera"  : cabecera
 	};
