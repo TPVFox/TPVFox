@@ -3,14 +3,15 @@
 <head>
 <?php
 	include_once './../../inicial.php';
-	include_once $URLCom.'/head.php';
-	include_once $URLCom.'/modulos/mod_compras/funciones.php';
-	include_once $URLCom.'/controllers/Controladores.php';
-	include_once $URLCom.'/controllers/parametros.php';
-	include_once $URLCom.'/clases/Proveedores.php';
-	include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
-	include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
-	include_once $URLCom.'/clases/FormasPago.php';
+	//Carga de archivos php necesarios
+    include_once $URLCom.'/head.php';
+    include_once $URLCom.'/modulos/mod_compras/funciones.php';
+    include_once $URLCom.'/controllers/Controladores.php';
+    include_once $URLCom.'/clases/Proveedores.php';
+    include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
+    include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
+    include_once $URLCom.'/clases/FormasPago.php';
+    include_once $URLCom.'/controllers/parametros.php';
 	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Cproveedor=new Proveedores($BDTpv);
@@ -26,6 +27,7 @@
     // [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
     // [accion] -> editar,ver
     $estado='Nuevo';
+    // Si existe accion, variable es $accion , sino es "editar"
     $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
 	$formaPago=0;
 	$comprobarAlbaran=0;
@@ -43,7 +45,6 @@
 	foreach($parametros->cajas_input->caja_input as $caja){
 		$caja->parametros->parametro[0]="factura";
 	}
-	
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
@@ -98,46 +99,42 @@
 		$nombreProveedor="";
 	//Si recibe los datos de un temporal
 		if (isset($_GET['tActual'])){
-				$idFacturaTemporal=$_GET['tActual'];
-				$datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-                $numFactura=0;
-                $idFactura=0;
-                $fecha1=date_create($datosFactura['fechaInicio']);
-                $fecha =date_format($fecha1, 'd-m-Y');
-                $suNumero="";
-				if (isset ($datosFactura['numfacpro'])){
-					$numFactura=$datosFactura['numfacpro'];
-					$datosReal=$CFac->buscarFacturaNumero($numFactura);
-					$idFactura=$datosReal['id'];
-					$textoNum=$idFactura;
-				}
-				if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('d-m-Y');
-				}
-				if (isset($datosFactura['Su_numero'])){
-					$suNumero=$datosFactura['Su_numero'];
-				}
-				$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
-				$idProveedor=$datosFactura['idProveedor'];
-				$proveedor=$Cproveedor->buscarProveedorId($idProveedor);
-				$nombreProveedor=$proveedor['nombrecomercial'];
-				$importesFactura=json_decode($datosFactura['FacCobros'], true);
-				$factura=$datosFactura;
-				$productos =  json_decode($datosFactura['Productos']) ;
-				$albaranes=json_decode($datosFactura['Albaranes']);
-				$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
-				
-				
+            $idFacturaTemporal=$_GET['tActual'];
+            $datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+            $numFactura=0;
+            $idFactura=0;
+            $fecha1=date_create($datosFactura['fechaInicio']);
+            $fecha =date_format($fecha1, 'd-m-Y');
+            $suNumero="";
+            if (isset ($datosFactura['numfacpro'])){
+                $numFactura=$datosFactura['numfacpro'];
+                $datosReal=$CFac->buscarFacturaNumero($numFactura);
+                $idFactura=$datosReal['id'];
+                $textoNum=$idFactura;
+            }
+            if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
+                $fecha=date('d-m-Y');
+            }
+            if (isset($datosFactura['Su_numero'])){
+                $suNumero=$datosFactura['Su_numero'];
+            }
+            $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
+            $idProveedor=$datosFactura['idProveedor'];
+            $proveedor=$Cproveedor->buscarProveedorId($idProveedor);
+            $nombreProveedor=$proveedor['nombrecomercial'];
+            $importesFactura=json_decode($datosFactura['FacCobros'], true);
+            $factura=$datosFactura;
+            $productos =  json_decode($datosFactura['Productos']) ;
+            $albaranes=json_decode($datosFactura['Albaranes']);
+            $comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
 		}
-		
 	}
 	if(isset($factura['Productos'])){
-			// Obtenemos los datos totales ( fin de ticket);
-			// convertimos el objeto productos en array
-			$Datostotales = recalculoTotales($productos);
-			$productos = json_decode(json_encode($productos), true); // Array de arrays
-		}
-		
+        // Obtenemos los datos totales ( fin de ticket);
+        // convertimos el objeto productos en array
+        $Datostotales = recalculoTotales($productos);
+        $productos = json_decode(json_encode($productos), true); // Array de arrays
+    }
 	if (isset($_POST['Guardar'])){
 			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales, $importesFactura);
 			if (count($guardar)==0){
@@ -150,22 +147,20 @@
 				}
 			}
 	}
-		if (isset($factura['Albaranes'])){
-			$albaranes=json_decode(json_encode($albaranes), true);
-		}
-		if (isset($albaranes) || $comprobarAlbaran==1){
-			$style="";
-		}else{
-			$style="display:none;";
-		}
-		
-	
-		if(isset($_GET['id']) || isset($_GET['tActual'])){
-			$estiloTablaProductos="";
-		}else{
-			$estiloTablaProductos="display:none;";
-		}
-		$titulo .= ' '.$textoNum.': '.$estado;
+    if (isset($factura['Albaranes'])){
+        $albaranes=json_decode(json_encode($albaranes), true);
+    }
+    if (isset($albaranes) || $comprobarAlbaran==1){
+        $style="";
+    }else{
+        $style="display:none;";
+    }
+    if(isset($_GET['id']) || isset($_GET['tActual'])){
+        $estiloTablaProductos="";
+    }else{
+        $estiloTablaProductos="display:none;";
+    }
+    $titulo .= ' '.$textoNum.': '.$estado;
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
@@ -191,7 +186,6 @@
 ?>	
 				datos=<?php echo json_encode($product); ?>;
 				productos.push(datos);
-	
 <?php 
 		// cambiamos estado y cantidad de producto creado si fuera necesario.
 			if ($product['estado'] !== 'Activo'){
@@ -213,9 +207,7 @@
 				$i++;
 			}
 		}
-	}	
-	
-
+	}
 ?>
 </script>
 </head>
@@ -229,52 +221,52 @@
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
 <script type="text/javascript">
-		<?php
-	 if (isset($_POST['Cancelar'])){
-		  ?>
+    <?php
+	if (isset($_POST['Cancelar'])){
+	?>
 		 mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>); 
 		  <?php
-	  }
-	  ?>
-<?php echo $VarJS;?>
-     function anular(e) {
-          tecla = (document.all) ? e.keyCode : e.which;
-          return (tecla != 13);
-      }
+	}
+	?>
+    <?php echo $VarJS;?>
+    function anular(e) {
+        tecla = (document.all) ? e.keyCode : e.which;
+        return (tecla != 13);
+    }
 </script>
 <div class="container">
-			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-                <h3 class="text-center"> <?php echo $titulo;?></h3>
-				<div class="col-md-12">
-				<div class="col-md-8" >
-                    <a  href="./facturasListado.php">Volver Atrás</a>
-					<input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
-                    <?php 
-                    if($idFactura>0){
-                        echo '<input class="btn btn-warning" size="12" 
-                        onclick="abrirModalIndicencia('."'".$dedonde."'".' , configuracion, 0,'.$idFactura.');"
-                        value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
-                    }
-                    if($inciden>0){
-                        echo ' <input class="btn btn-info" size="15" 
-                        onclick="abrirIncidenciasAdjuntas('.$idFactura.', '."'".'mod_compras'."'".', '."'".'factura'."'".')" 
-                        value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
-                    }
-                    ?>
-				</div>
-				<div class="col-md-4 text-right" >
-                    <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-					 <?php echo htmlSelectConfiguracionSalto();?>
-                    <input type="submit" class=" btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
-                </div>
-					<?php
-				if ($idFacturaTemporal>0){
-					?>
-					<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idFacturaTemporal;?>">
-					<?php
-				}
-					?>
-<div class="col-md-12" >
+    <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+        <h3 class="text-center"> <?php echo $titulo;?></h3>
+        <div class="col-md-12">
+        <div class="col-md-8" >
+            <a  href="./facturasListado.php">Volver Atrás</a>
+            <input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
+            <?php 
+            if($idFactura>0){
+                echo '<input class="btn btn-warning" size="12" 
+                onclick="abrirModalIndicencia('."'".$dedonde."'".' , configuracion, 0,'.$idFactura.');"
+                value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
+            }
+            if($inciden>0){
+                echo ' <input class="btn btn-info" size="15" 
+                onclick="abrirIncidenciasAdjuntas('.$idFactura.', '."'".'mod_compras'."'".', '."'".'factura'."'".')" 
+                value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
+            }
+            ?>
+        </div>
+        <div class="col-md-4 text-right" >
+            <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+             <?php echo htmlSelectConfiguracionSalto();?>
+            <input type="submit" class=" btn btn-danger"  value="Cancelar" name="Cancelar" id="bCancelar">
+        </div>
+            <?php
+        if ($idFacturaTemporal>0){
+            ?>
+            <input type="text" style="display:none;" name="idTemporal" value="<?php echo $idFacturaTemporal;?>">
+            <?php
+        }
+            ?>
+    <div class="col-md-12" >
 	<div class="col-md-7">
 		<div class="col-md-12">
 				<div class="col-md-2">
@@ -293,8 +285,6 @@
 					<strong>Su número:</strong><br>
 					<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
 				</div>
-				
-			
 		</div>
 		<div class="form-group">
 			<label>Proveedor:</label>
@@ -469,6 +459,5 @@
  echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
-
 </body>
 </html>

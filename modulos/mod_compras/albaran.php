@@ -4,13 +4,13 @@
 <?php
 	include_once './../../inicial.php';
 	//Carga de archivos php necesarios
-	include_once $URLCom.'/head.php';
-	include_once $URLCom.'/modulos/mod_compras/funciones.php';
-	include_once $URLCom.'/controllers/Controladores.php';
-	include_once $URLCom.'/clases/Proveedores.php';
-	include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
-	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
-	include_once ($URLCom.'/controllers/parametros.php');
+    include_once $URLCom.'/head.php';
+    include_once $URLCom.'/modulos/mod_compras/funciones.php';
+    include_once $URLCom.'/controllers/Controladores.php';
+    include_once $URLCom.'/clases/Proveedores.php';
+    include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
+    include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
+    include_once ($URLCom.'/controllers/parametros.php');
 	//cargar las clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Cproveedor=new Proveedores($BDTpv);
