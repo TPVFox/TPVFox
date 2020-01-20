@@ -10,7 +10,6 @@
     include_once $URLCom.'/clases/Proveedores.php';
     include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
     include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
-    include_once $URLCom.'/clases/FormasPago.php';
     include_once $URLCom.'/controllers/parametros.php';
 	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
@@ -19,7 +18,6 @@
 	$CFac = new FacturasCompras($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
-	$CforPago=new FormasPago($BDTpv);
 	//iniciación de las variables
 	$dedonde="factura";
 	$titulo="Factura De Proveedor";
@@ -29,20 +27,26 @@
     $estado='Nuevo';
     // Si existe accion, variable es $accion , sino es "editar"
     $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
-	$formaPago=0;
-	$comprobarAlbaran=0;
-	$importesFactura=array();
-	$albaranes=array();
-	$textoNum="";
+	
 	$fecha=date('d-m-Y');
 	$fechaImporte=date('Y-d-m');
+    $idFacturaTemporal=0;
+	$idFactura=0;
 	$numAdjunto=0;
 	$suNumero="";
     $idProveedor="";
 	$inciden=0;
+    $errores = array();
+    $albaranes_html_linea_productos = array();
+    $JS_datos_albaranes = '';
+    $formaPago=0;
+	$comprobarAlbaran=0;
+	$importesFactura=array();
+	$albaranes=array();
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();		
 	foreach($parametros->cajas_input->caja_input as $caja){
+        // Ahora cambiamos el parametros por defecto que tiene dedonde = pedido y le ponemos albaran
 		$caja->parametros->parametro[0]="factura";
 	}
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -54,82 +58,130 @@
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	//Si recibe un id de una factura que ya está creada cargamos sus datos para posibles modificaciones 
+    // Por GET recibimos uno o varios parametros:
+    //  [id] cuando editamos o vemos un albaran pulsando en listado.
+    //  [tActual] cuando pulsamos en cuadro albaranes temporales.
+    //  [accion] cuando indicamos que accion vamos hacer.
 	if (isset($_GET['id'])){
 		$idFactura=$_GET['id'];
-		$textoNum=$idFactura;
-		$datosFactura=$CFac->datosFactura($idFactura);
-		$productosFactura=$CFac->ProductosFactura($idFactura);
-		$ivasFactura=$CFac->IvasFactura($idFactura);
-		$abaranesFactura=$CFac->albaranesFactura($idFactura);
-		$textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
-		$datosImportes=$CFac->importesFactura($idFactura);
-        $albaranesFactura=addAlbaranesFacturas($productosFactura, $idFactura, $BDTpv);
-		$estado=$datosFactura['estado'];
-		$date=date_create($datosFactura['Fecha']);
-		$fecha=date_format($date,'d-m-Y');
-		$idFacturaTemporal=0;
-		$numFactura=$datosFactura['Numfacpro'];
-		$idProveedor=$datosFactura['idProveedor'];
-		if (isset($datosFactura['Su_num_factura'])){
-			$suNumero=$datosFactura['Su_num_factura'];
-		}
-		if ($idProveedor){
-			$proveedor=$Cproveedor->buscarProveedorId($idProveedor);
-			$nombreProveedor=$proveedor['nombrecomercial'];
-		}
-		$productosFactura=modificarArrayProductos($productosFactura);
-		$productos=json_decode(json_encode($productosFactura));
-		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productosFactura), true);
-			
-		if ($abaranesFactura){
-			 $modificarAlbaran=modificarArrayAdjunto($abaranesFactura, $BDTpv, "factura");
-			 $albaranes=json_decode(json_encode($modificarAlbaran), true);
-		}
-		$total=$Datostotales['total'];
-		$importesFactura=modificarArraysImportes($datosImportes, $total);
-		$comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
-		$incidenciasAdjuntas=incidenciasAdjuntas($idFactura, "mod_compras", $BDTpv, "factura");
-		$inciden=count($incidenciasAdjuntas['datos']);
-	}else{
-		$idFacturaTemporal=0;
-		$idFactura=0;
-		$numFactura=0;
-		$nombreProveedor="";
-	//Si recibe los datos de un temporal
-		if (isset($_GET['tActual'])){
-            $idFacturaTemporal=$_GET['tActual'];
-            $datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
-            $numFactura=0;
-            $idFactura=0;
-            $fecha1=date_create($datosFactura['fechaInicio']);
-            $fecha =date_format($fecha1, 'd-m-Y');
-            $suNumero="";
-            if (isset ($datosFactura['numfacpro'])){
-                $numFactura=$datosFactura['numfacpro'];
-                $datosReal=$CFac->buscarFacturaNumero($numFactura);
-                $idFactura=$datosReal['id'];
-                $textoNum=$idFactura;
+    }
+     if (isset($_GET['tActual'])){
+        $idFacturaTemporal=$_GET['tActual']; // Id de albaran temporal
+    }
+     // ---------- Posible errores o advertencias mostrar     ------------------- //
+    if ($idFactura > 0){
+    // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
+        $c = $CFac->comprobarTemporalIdAlbpro($idFactura);
+        if (isset($c['idTemporal']) && $c['idTemporal'] !== NULL){
+            // Existe un temporal de este pedido por lo que cargo ese temporal.
+            $idFacturaTemporal = $c['idTemporal'];
+            $idFactura = 0 ; // Lo pongo en 0 para ejecute la parte temporal
+            $_GET['tActual'] = $idFacturaTemporal;
+            if ($accion !== 'temporal'){
+                // Si entro sin accion temporal, NO PERMITO EDITAR.
+                // YA PROVABLEMENTE ESTAN EDITANDO.
+                $accion = 'ver';
+                // Creo alert
+                echo '<script>alert("No se permite editar, ya que alguien esta editandolo, hay un temporal");</script>';
             }
-            if ($datosFactura['fechaInicio']=="0000-00-00 00:00:00"){
-                $fecha=date('d-m-Y');
+        } else {
+            if (count($c)>0){
+                 $errores= $c;
             }
-            if (isset($datosFactura['Su_numero'])){
-                $suNumero=$datosFactura['Su_numero'];
+        }
+    }
+    if ( $idFactura > 0 && count($errores) === 0){
+        // Si exite id estamos y no hay errores modificando directamente un albaran.
+		$datosFactura=$CFac->GetFactura($idFactura);
+        if (isset($datosFactura['error'])){
+            $errores=$datosFactura['error'];
+        } else {
+            if(isset($datosFactura['estado']) ){
+                $estado=$datosFactura['estado'];
+                $idFactura = $datosFactura['id'];
+                if ($datosFactura['estado']=="Facturado"){
+                    // Cambiamos accion, ya que solo puede ser ver.
+                    $accion = 'ver';
+                    // Obtenemos los datos de factura.
+                    //~ $numFactura=$CFac->NumfacturaDeAlbaran($idFactura);
+                    //~ if(isset($numFactura['error'])){
+                        //~ array_push($errores,$this->montarAdvertencia(
+                                        //~ 'danger',
+                                        //~ 'Error 1.1 en base datos.Consulta:'.json_encode($numFactura['consulta'])
+                                //~ )
+                        //~ );
+                    //~ }
+                }
             }
-            $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv);
+        }
+    }
+    if ($idFacturaTemporal > 0 && count($errores) === 0){
+        // Puede entrar cuando :
+        //   -Viene de albaran temporal
+        //   -Se recargo mientras editamos.
+        //   -Cuando pulsamos guardar.
+        $datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
+        if (isset($datosFactura['error'])){
+                array_push($errores,$this->montarAdvertencia(
+                                'danger',
+                                'Error 1.1 en base datos.Consulta:'.json_encode($datosFactura['consulta'])
+                        )
+                );
+        } else {
+            // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
+            $datosFactura['FechaVencimiento'] ='0000-00-00';
+            $datosFactura['Productos'] = json_decode($datosFactura['Productos'],true);
+            $idFactura = $datosFactura['numfacpro'];
+            $estado=$datosFactura['estadoFacPro'];
+        }
+    }
+
+    if (count($errores) == 0){
+        // Si no hay errores graves continuamos.
+        if (!isset($datosFactura)){
+            // Es que nuevo.
+            $datosFactura = array();
+            $datosFactura['Fecha']="0000-00-00 00:00:00";
+            $datosFactura['Su_numero'] = '';
+            $datosFactura['idProveedor'] = 0;
+            $creado_por = $Usuario;
+        }else {
             $idProveedor=$datosFactura['idProveedor'];
             $proveedor=$Cproveedor->buscarProveedorId($idProveedor);
             $nombreProveedor=$proveedor['nombrecomercial'];
-            $importesFactura=json_decode($datosFactura['FacCobros'], true);
-            $factura=$datosFactura;
-            $productos =  json_decode($datosFactura['Productos']) ;
-            $albaranes=json_decode($datosFactura['Albaranes']);
-            $comprobarAlbaran=comprobarAlbaran($idProveedor, $BDTpv);
-		}
+            $productos =$datosFactura['Productos'];
+            $fecha = ($datosFactura['Fecha']=="0000-00-00 00:00:00")
+                                ? date('d-m-Y'):date_format(date_create($datosFactura['Fecha']),'d-m-Y');
+            $creado_por = $CFac->obtenerDatosUsuario($datosFactura['idUsuario']);
+            if (isset($datosFactura['Albaranes'])){
+                // Pendiente por montar... 
+                echo '<pre>';
+                print_r($datosFactura['Albaranes']);
+                echo '</pre>';
+            }
+            $formaPago=(isset($datosFactura['formaPago']))? $datosFactura['formaPago'] : 0;
+            $fechaVencimiento=$datosFactura['FechaVencimiento'];
+            if (isset ($datosFactura['numfacpro'])){
+                $d=$CFac->buscarFacturaNumero($datosFactura['numfacpro']);
+                $idFactura=$d['id'];
+                // Debemos saber si debemos tener incidencias para ese albaran, ya que el boton incidencia es distinto.
+                $incidencias=incidenciasAdjuntas($idFactura, "mod_compras", $BDTpv, $dedonde);
+                $inciden=count($incidencias['datos']);
+            }
+            if ($datosFactura['Su_numero']!==""){
+                $suNumero=$datosFactura['Su_numero'];
+            }
+        }
+        $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
+        if(isset($datosFactura['Productos'])){
+			// Obtenemos los datos totales ;
+			// convertimos el objeto productos en array
+            $p = (object)$productos;
+            $Datostotales = $CFac->recalculoTotales($p);
+        }
+
 	}
-	if(isset($factura['Productos'])){
+	if(isset($datosFactura['Productos'])){
         // Obtenemos los datos totales ( fin de ticket);
         // convertimos el objeto productos en array
         $Datostotales = recalculoTotales($productos);
@@ -147,31 +199,54 @@
 				}
 			}
 	}
-    if (isset($factura['Albaranes'])){
-        $albaranes=json_decode(json_encode($albaranes), true);
+    // ============                 Montamos el titulo                      ==================== //
+    $html_facturado='';
+    if(isset($numFactura)){
+        $html_facturado = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label label-default">';
+        $html_facturado .= 'factura:'.$numFactura['idFactura'];
+        $html_facturado .='</span>';
     }
-    if (isset($albaranes) || $comprobarAlbaran==1){
-        $style="";
-    }else{
-        $style="display:none;";
+    $titulo .= ' '.$idFactura.$html_facturado.' - '.$accion;
+    // ============= Creamos variables de estilos para cada estado y accion =================== //
+    $estilos = array ( 'readonly'       => '',
+                       'styleNo'        => 'style="display:none;"',
+                       'pro_readonly'   => '',
+                       'pro_styleNo'    => '',
+                       'btn_guardar'    => '',
+                       'btn_cancelar'   => '',
+                       'input_factur'   => '',
+                       'select_factur'  => ''
+                    );
+    if (isset ($_GET['id']) || isset ($_GET['tActual'])){
+        // Quiere decir que ya inicio , ya tuvo que meter proveedor.
+        // no se permite cambiar proveedor.
+        $estilos['pro_readonly']   = ' readonly';
+        $estilos['pro_styleNo']    = ' style="display:none;"';
+        $estilos['styleNo']    = '';
+
     }
-    if(isset($_GET['id']) || isset($_GET['tActual'])){
-        $estiloTablaProductos="";
-    }else{
-        $estiloTablaProductos="display:none;";
+    if ($accion === 'ver'){
+        $estilos['readonly']   = ' readonly';
+        $estilos['styleNo']     = ' style="display:none;"';
+        $estilos['input_factur'] = ' readonly';
+        $estilos['select_factur'] = 'disabled="true"';       
     }
-    $titulo .= ' '.$textoNum.': '.$estado;
+    if ($idFacturaTemporal === 0){
+        // Solo se muestra cuando el numPedidoTemp es 0
+        $estilos['btn_guardar'] = 'style="display:none;"';
+        // Una vez se cree temporal, con javascript se quita style
+    }
 ?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; 
+		cabecera['idUsuario'] = <?php echo $creado_por['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] ='<?php echo $estado ;?>'; 
+		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idFacturaTemporal ;?>;
-		cabecera['idReal'] = <?php echo $idFactura ;?>;
+		cabecera['idReal'] = '<?php echo $idFactura ;?>';
 		cabecera['fecha'] ='<?php echo $fecha ;?>';
 		cabecera['idProveedor'] = '<?php echo $idProveedor ;?>';
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
@@ -179,33 +254,24 @@
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	var albaranes =[];
 <?php 
-	if (isset($facturaTemporal)| isset($idFactura)){ 
-	$i= 0;
+	if (isset($idFacturaTemporal)|| isset($idFactura)){ 
 		if (isset($productos)){
-			foreach($productos as $product){
+			foreach($productos as $k => $product){
 ?>	
-				datos=<?php echo json_encode($product); ?>;
-				productos.push(datos);
+                datos=<?php echo json_encode($product); ?>;
+                productos.push(datos);
 <?php 
-		// cambiamos estado y cantidad de producto creado si fuera necesario.
-			if ($product['estado'] !== 'Activo'){
-			?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
-			<?php
+                // cambiamos estado y cantidad de producto creado si fuera necesario.
+                if ($product['estado'] !== 'Activo'){
+                ?>	productos[<?php echo $k;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
+                <?php
+                }
 			}
-			$i++;
-			}
-	
 		}
-		$i= 0;
-		if (isset($albaranes)){
-			foreach ($albaranes as $alb){
-				?>
-				datos=<?php echo json_encode($alb);?>;
-				albaranes.push(datos);
-				albaranes[<?php echo $i;?>],estado="activo";
-				<?php
-				$i++;
-			}
+        if (isset ($datosFactura['Pedidos'])){
+            if ($JS_datos_albaranes != ''){
+                echo $JS_datos_albaranes;
+            }
 		}
 	}
 ?>
@@ -235,22 +301,39 @@
     }
 </script>
 <div class="container">
+	<?php
+    echo '<pre>';
+    print_r($datosFactura);
+    echo '</pre>';
+	if (isset($errores)){
+        foreach ($errores as $comprobaciones){
+            echo $CAlb->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
+            if ($comprobaciones['tipo'] === 'danger'){
+                exit; // No continuo.
+            }
+        }
+    }
+    ?>
     <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
         <h3 class="text-center"> <?php echo $titulo;?></h3>
         <div class="col-md-12">
         <div class="col-md-8" >
-            <a  href="./facturasListado.php">Volver Atrás</a>
-            <input class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
-            <?php 
+            <?php echo $Controler->getHtmlLinkVolver('Volver');
+            // Botones de incidencias.
             if($idFactura>0){
                 echo '<input class="btn btn-warning" size="12" 
                 onclick="abrirModalIndicencia('."'".$dedonde."'".' , configuracion, 0,'.$idFactura.');"
                 value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
             }
             if($inciden>0){
-                echo ' <input class="btn btn-info" size="15" 
-                onclick="abrirIncidenciasAdjuntas('.$idFactura.', '."'".'mod_compras'."'".', '."'".'factura'."'".')" 
-                value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
+                echo ' <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas('
+                .$idFactura.', '."'mod_compras','factura'"
+                .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
+            }
+            if ($estado != "Facturado" || $accion != "ver"){
+                    // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
+                 echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
+                            .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
             }
             ?>
         </div>
@@ -302,12 +385,14 @@
 			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
 			<table  class="col-md-12" id="tablaPedidos"> 
 				<thead>
-				<td><b>Número</b></td>
-				<td><b>Su Número</b></td>
-				<td><b>Fecha</b></td>
-				<td><b>TotalCiva</b></td>
-				<td><b>TotalSiva</b></td>
-				<td></td>
+                <tr>
+                    <td><b>Número</b></td>
+                    <td><b>Su Número</b></td>
+                    <td><b>Fecha</b></td>
+                    <td><b>TotalCiva</b></td>
+                    <td><b>TotalSiva</b></td>
+                    <td></td>
+                </tr>
 				</thead>
 				<?php 
 				$i=1;

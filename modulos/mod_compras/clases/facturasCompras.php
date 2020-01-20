@@ -21,18 +21,30 @@ class FacturasCompras extends ClaseCompras{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	public function TodosTemporal(){
+	public function TodosTemporal($idFactura = 0){
 		//@Objetivo:
-		//Mostrar tod los temporales para el listado principal
-		$db = $this->db;
-		$smt=$db->query('SELECT tem.numfacpro, tem.id , tem.idProveedor, 
+		//Obtener todos las facturas temporales o las de una sola factura
+        $respuesta = array();
+        $sql = 'SELECT tem.numfacpro, tem.id , tem.idProveedor, 
 		tem.total, b.nombrecomercial from facproltemporales as tem left 
-		JOIN proveedores as b on tem.idProveedor=b.idProveedor ');
-			$facturaPrincipal=array();
-		while ( $result = $smt->fetch_assoc () ) {
-			array_push($facturaPrincipal,$result);
-		}
-		return $facturaPrincipal;	
+		JOIN proveedores as b on tem.idProveedor=b.idProveedor ';
+         if ($idFactura > 0){
+            // buscamos solos temporales para ese albaran.
+            // [OJO] El campo que tenemos en temporal es numfacpro pero debe se idfacpro
+            // ya el día de mañana que pongamos en funcionamiento el poder distinto numero que id
+            // dejaría funciona.
+            $sql .= ' where tem.numfacpro='.$idFactura;
+        }
+		$smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+            // Hubo error devolvemos array (error,consulta)
+            $respuesta = $smt;       
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                array_push($respuesta, $result);
+            }
+        }
+		return $respuesta;	
 	}
 	
 	public function TodosFactura(){
@@ -457,6 +469,88 @@ class FacturasCompras extends ClaseCompras{
             }
         }
     }
+
+    public function comprobarTemporalIdAlbpro($idFactura,$numFacturaTemp = 0){
+        // @Objetivo:
+        // Compruebo que solo hay un pedido temporal para ese idPedpro 
+        // @Devuelvo:
+        //  Array con o sin errores.
+        $errores = array();
+        if ($idFactura > 0){
+            $posible_duplicado = $this->TodosTemporal($idFactura);
+            if (!isset($posible_duplicado['error'])){
+                $OK ='OK';
+                if (count($posible_duplicado)>1){
+                     $OK = 'Hay mas de un temporal con el mismo numero factura.';
+                } else {
+                    // Hay uno solo.
+                    if ($numFacturaTemp > 0) {
+                        if (isset($posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] !== $numFacturaTemp){
+                            $OK = 'Hay un temporal y no coincide el idtemporal.';
+                        }
+                    } else {
+                        if (isset( $posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] >0 ){
+                            // Solo devuelvo idTemporal si id > 0    
+                            $errores['idTemporal'] = $posible_duplicado[0]['id'];
+                        }
+                    }
+                }
+                if ($OK !== 'OK' ){
+                    // Existe un registro o el que existe es distinto al actual.
+                    array_push($errores,$this->montarAdvertencia('danger',
+                                         '<strong>Ojo posible duplicidad en factura temporal !! </strong>  <br> '.$OK
+                                        )
+                            );
+                }
+            }
+        }
+        return $errores;
+    }
+
+       public function GetFactura($id){
+        $datos = $this->datosFactura($id);
+        if (isset($datos['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 1 en base datos.Consulta:'.json_encode($datos['consulta'])
+                                )
+                        );
+        }
+        $productos =$this->ProductosFactura($id);
+        if (isset($productos['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 2 en base datos.Consulta:'.json_encode($productos['consulta'])
+                                )
+                        );
+        } 
+        $ivas=$this->IvasFactura($id);
+        if (isset($ivas['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 3 en base datos.Consulta:'.json_encode($ivas['consulta'])
+                                )
+                        );
+        }
+        $albaranes=$this->albaranesFactura($id);
+		if (isset($albaranes['error'])){
+			array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 4 en base datos.Consulta:'.json_encode($albaranes['consulta'])
+                                )
+                        );
+		}
+        if (count($this->errores)===0 ){
+            // Si no hubo errores añadimos datos y formateamos datos fecha.
+            $datos['Productos']=$productos;
+            $datos['Albaranes'] = $albaranes;
+        }
+        return $datos;
+    }
+
+
+
+    
 }
 
 ?>

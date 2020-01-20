@@ -303,9 +303,9 @@ class ControladorComun
         // @ Objetivo
         // Obtener html de link para volver de donde viene.
         $Link_volver =  $_SERVER['HTTP_REFERER'];
-        $html =  '<a href="'.$Link_volver.'">';
+        $html =  '<a class="glyphicon glyphicon-circle-arrow-left" href="'.$Link_volver.'">';
         if ($anchor <> ''){
-           $html = '<a href="'.$Link_volver.'">'.$anchor.'</a>';
+           $html .= $anchor.'</a>';
         } else {
            $nombre = $this->getNombreFichero($Link_volver);
            $html .= 'Volver a:'.$nombre.'</a>';

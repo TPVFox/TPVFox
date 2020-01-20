@@ -352,9 +352,9 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                             .'<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
                             .'" type="text" data-obj="Unidad_Fila"  '
                             .' pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad[]" placeholder="unidad"'
-                            .'size="3"  value="'.$cant.'" '.$solo_lectura.' '
+                            .' size="3"  value="'.$cant.'" '.$solo_lectura.' '
                             .$estadoInput.' onkeydown="controlEventos(event)" '
-                            .' onBlur="controlEventos(event)"></td>'
+                            .' onBlur="controlEventos(event)"/></td>'
                             .'<td class="pvp">'.$html_coste.'</td>'
                             .'<td class="tipoiva">'.$producto['iva'].'%</td>'
                             .'<td id="N'.$producto['nfila'].'_Importe" class="importe" >'
@@ -1211,21 +1211,5 @@ EOD;
 					
 	}
 	return $html;
-}
-function addAlbaranesFacturas($productos, $idFactura, $BDTpv){
-    //OBjetivo: crear inserts de albaranes facturas para solucionar error de tabla
-    $idAlbaranes=array();
-    foreach ($productos as $producto){
-        if(!in_array($producto['Numalbpro'], $idAlbaranes)){
-            array_push($idAlbaranes, $producto['Numalbpro']);
-        }
-    }
-    if(count($idAlbaranes)>0){
-        $facturas=new FacturasCompras($BDTpv);
-        foreach($idAlbaranes as $idAlbaran){
-            $insert=$facturas->AddFacturaAlbaran($idFactura, $idAlbaran);
-        }
-    }
-    return $idAlbaranes;
 }
 ?>

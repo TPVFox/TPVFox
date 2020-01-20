@@ -307,9 +307,7 @@
         </h3>
 		<div class="col-md-12">
 			<div class="col-md-8" >
-				<a  href="pedidosListado.php">Volver Atrás</a>
-				
-                <?php 
+                <?php echo $Controler->getHtmlLinkVolver('Volver');
                 if($idPedido>0){
                     echo '<input class="btn btn-warning" size="12" 
                     onclick="abrirModalIndicencia('."'".$dedonde."'".' , configuracion, 0, '.$idPedido.');" 

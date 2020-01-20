@@ -137,7 +137,8 @@ function buscarAdjunto(dedonde, valor=""){
 }
 
 function modificarEstado(dedonde, estado, id=""){
-	//~ @Objetivo: Modificar el estado según el id que llegue y de donde para poder filtrar
+	//~ @Objetivo:
+    // Modificar el estado según el id que llegue y de donde para poder filtrar
 	//~ @Parametros : el estado se envia en la función
     console.log("Entre en modificar estado pedido");
     var parametros = {
@@ -503,6 +504,7 @@ function cambioEstadoFila(producto,dedonde=""){
     // @Parametros
     //    producto -> objeto del producto queremos cambiar ( YA viene cambiado el estado solo pintamos. )
     //    dedonde  -> indicando si es pedido, albaran o factura.
+    console.log('Entro en cambiar Estado Fila');
     line = "#Row" + producto.nfila;
     if (producto.estado === 'Eliminado'){
         $(line).addClass('tachado');
@@ -643,9 +645,10 @@ function cambiarEstadoProductosAdjunto(dedonde,estado,numRegistro){
     // dedonde -> Si estoy en albaranes o facturas
     // estado -> Que queremos poner a los productos de ese adjunto. (Activo o Eliminado)
     // numRegistro -> Numero de del adjunto.
+    console.log('Entro en cambiarEstadoProductosAdjuntos:'+numRegistro);
     for(i=0;i<productos.length; i++){
         if (dedonde=="albaran"){
-            var numAdjunto_Producto=productos[i].Numpedpro;
+            var numAdjunto_Producto=productos[i].idpedpro;
         }else{
             var numAdjunto_Producto=productos[i].Numalbpro;
         }

@@ -26,13 +26,12 @@ switch ($pulsado) {
         //envía en 0
         //@Retornar: devuelve el html para insertar en el js del modal
         $dedonde=$_POST['dedonde'];
-        $usuario=$_POST['usuario'];
         $idReal=0;
         if(isset($_POST['idReal'])){
             $idReal=$_POST['idReal'];
         }
         $configuracion=$_POST['configuracion'];
-        $numInicidencia=0;
+        $numIncidencia=0;
         $tipo="mod_compras";
         $datos=array(
         'vista'=>$dedonde,
@@ -192,7 +191,7 @@ switch ($pulsado) {
     
     case 'modificarEstado':
         //@Objetivo: 
-        //Modificar el estado dependiento de donde venga 
+        //Modificar el estado adjunto dependiento de donde venga 
         //@Parámetros que recibe: 
         //id -> id que recibimos , puede ser id de pedido o id de albaran
         //dedonde->Para poder filtrar que función tenemos que ejecutar	
@@ -215,11 +214,10 @@ switch ($pulsado) {
     break;
     
     case 'nuevaIncidencia':
-        //@Objetivo: Agregar una nueva incidencia, dirigimos los datos a la función addIncidencia
+        //@ Objetivo:
+        // Agregar una nueva incidencia, dirigimos los datos a la función addIncidencia
         //esta está situada en el modulo de incidencias e inserta una nueva fila a la tabla de módulo
         //de incidencias con los datos seleccionado en el modal.
-        $usuario= $_POST['usuario'];
-        $fecha= $_POST['fecha'];
         $datos= $_POST['datos'];
         $dedonde="mod_compras";
         $estado= $_POST['estado'];

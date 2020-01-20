@@ -323,7 +323,7 @@ class AlbaranesCompras extends ClaseCompras {
 
     public function TodosTemporal($idAlbaran = 0) {
         //@Objetivo:
-        //Mostramos todos los albaranes temporales
+        //Obtener todos los albaranes temporales o la de un solo albaran
         $respuesta = array();
         $sql = 'SELECT tem.Numalbpro, tem.id , tem.idProveedor, tem.total, 
 			b.nombrecomercial from albproltemporales as tem left JOIN proveedores 
@@ -407,7 +407,7 @@ class AlbaranesCompras extends ClaseCompras {
 		if (isset($pedidos['error'])){
 			array_push($this->errores,$this->montarAdvertencia(
                                         'danger',
-                                        'Error 4 en base datos.Consulta:'.json_encode($ivas['consulta'])
+                                        'Error 4 en base datos.Consulta:'.json_encode($pedidos['consulta'])
                                 )
                         );
 		}
@@ -735,7 +735,7 @@ class AlbaranesCompras extends ClaseCompras {
             if (!isset($posible_duplicado['error'])){
                 $OK ='OK';
                 if (count($posible_duplicado)>1){
-                     $OK = 'Hay mas de un temporal con el mismo numero pedido.';
+                     $OK = 'Hay mas de un temporal con el mismo numero albaran.';
                 } else {
                     // Hay uno solo.
                     if ($numAlbaranTemp > 0) {
@@ -752,7 +752,7 @@ class AlbaranesCompras extends ClaseCompras {
                 if ($OK !== 'OK' ){
                     // Existe un registro o el que existe es distinto al actual.
                     array_push($errores,$this->montarAdvertencia('danger',
-                                         '<strong>Ojo posible duplicidad en pedido temporal !! </strong>  <br> '.$OK
+                                         '<strong>Ojo posible duplicidad en albaran temporal !! </strong>  <br> '.$OK
                                         )
                             );
                 }

@@ -90,10 +90,8 @@
             }
         }
     }
-    
     if ( $idAlbaran > 0 && count($errores) === 0){
-        // Si exite id estamos modificando directamente un albaran.
-        // Deberíamos comprobar que no exista ningun temporal....
+        // Si exite id estamos y no hay errores modificando directamente un albaran.
         $datosAlbaran = $CAlb->GetAlbaran($_GET['id']);
         if (isset($datosAlbaran['error'])){
             $errores=$datosAlbaran['error'];
@@ -165,6 +163,9 @@
                     // Solo convertimos $idAlbaranTemporal >0 , ya que es cuando viene json
                     $datosAlbaran['Pedidos'] = json_decode($datosAlbaran['Pedidos'],true);
                 }
+                //~ echo '<pre>';
+                //~ print_r( $datosAlbaran['Pedidos']);
+                //~ echo '</pre>';
                 if (count($datosAlbaran['Pedidos'])>0){
                     // Ahora obtengo todos los datos de ese pedido.
                     foreach ($datosAlbaran['Pedidos'] as $key =>$pedido){
@@ -190,6 +191,10 @@
                         // ========                 JS_datos_pedidos                    ======== //
                         $JS_datos_pedidos .=  'datos='.json_encode($datosAlbaran['Pedidos'][$key]).';'
                                             .'pedidos.push(datos);';
+
+                        //~ echo '<pre>';
+                        //~ print_r($JS_datos_pedidos);
+                        //~ echo '</pre>';
                         // ========               $html_adjuntos                        ======== //
                         $h =lineaAdjunto($datosAlbaran['Pedidos'][$key], "albaran");
                         $html_adjuntos .= $h['html'];
@@ -294,15 +299,15 @@
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	var pedidos =[];
-<?php 
-	if (isset($albaranTemporal)|| isset($idAlbaran)){ 
+<?php
+	if (isset($idAlbaranTemporal)|| isset($idAlbaran)){
 		if (isset($productos)){
 			foreach($productos as $k =>$product){
 ?>	
-				datos=<?php echo json_encode($product); ?>;
-				productos.push(datos);
+                datos=<?php echo json_encode($product); ?>;
+                productos.push(datos);
 <?php 
-		// cambiamos estado y cantidad de producto creado si fuera necesario.
+                // cambiamos estado y cantidad de producto creado si fuera necesario.
 				if ($product['estado'] !== 'Activo'){
 				?>	productos[<?php echo $k;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 				<?php
@@ -363,8 +368,7 @@
     
     <div class="col-md-12">
         <div class="col-md-8" >
-            <a href="./albaranesListado.php">Volver Atrás</a>
-            <?php
+            <?php echo $Controler->getHtmlLinkVolver('Volver');
             // Botones de incidencias.
             if($idAlbaran>0){
                 echo '<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('."'".$dedonde
@@ -418,7 +422,7 @@
                          
                     echo   '<div class="col-md-2">
                                 <a id="buscar" '.$estilos['pro_styleNo'].' class="btn glyphicon glyphicon-search buscar"'
-                                .'onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>
+                                .' onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>
                           </div>';
                     ?>
             </div>
@@ -487,9 +491,11 @@
             <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
             <table class="col-md-12" id="tablaPedidos"> 
                 <thead>
+                <tr>
                     <td><b>Número</b></td>
                     <td><b>Fecha</b></td>
                     <td><b>Total</b></td>
+                </tr>
                 </thead>
                 <?php 
                 if (isset($datosAlbaran['Pedidos'])){
