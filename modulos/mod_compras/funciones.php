@@ -95,46 +95,43 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
         $resultado['sql'] = $sql;
         $res = $BDTpv->query($sql);
         $resultado['Nitems']= $res->num_rows;
-        //si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
+        // "$i" es el contador busquedas, ya podemos buscar de varias formas, identico o like.
         if ($i === 0){
-            if ($res->num_rows >0){
+            // Es la primera busqueda ( es decir puede ser la identico, no volvemos a buscar. )
+            if (isset($res->num_rows) && $res->num_rows > 0){
                 $resultado['Estado'] = 'Correcto';
                 break;
             }
         }
-		//compruebo error en consulta
 		if (mysqli_error($BDTpv)){
+            //compruebo error en consulta
 			$resultado['consulta'] = $sql;
 			$resultado['error'] = $BDTpv->error_list;
+            // Volvemo y salimos de bucle ya que hubo un error.
 			return $resultado;
 		} 
 		$i++;
 	}	
-	//si hay muchos resultados y si es mas de 1, mostrara un listado
-	if ($res->num_rows > 0){
-		if ($res->num_rows > 1){
-			$resultado['Estado'] = 'Listado';
-		}
-	} else { 
-		$resultado['Estado'] = 'Noexiste';
-	}
-	//si hay muchos resultados, recogera los datos para mostrarlos
-	$i=0;
-	if ($res->num_rows > 0){
-		//fetch_assoc es un boleano..
+	if (isset($res->num_rows) && $res->num_rows > 0){
+        //fetch_assoc es un boleano..
 		while ($fila = $res->fetch_assoc()) {
 			$products[] = $fila;
 			$resultado['datos']=$products;
-			$i++;
 		}
-		if($resultado['Nitems']==1){
+		if ($res->num_rows > 1){
+            //si hay muchos resultados y si es mas de 1, mostrara un listado
+			$resultado['Estado'] = 'Listado';
+		} else {
+            // Hay un solo resultado.
 			$fecha=$resultado['datos'][0]['fechaActualizacion'];
 			if($fecha!=null){
 				$fecha =date_format(date_create($fecha), 'd-m-Y');
 				$resultado['datos'][0]['fechaActualizacion']=$fecha;
 			}
-		}
-	} 
+        }
+	} else { 
+		$resultado['Estado'] = 'Noexiste';
+	}
 	return $resultado;
 }
 

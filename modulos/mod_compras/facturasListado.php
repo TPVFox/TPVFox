@@ -178,9 +178,9 @@ $facturasDef=$f['Items'];
                         </td>
                         <td>
                         <?php 
-                        if($ClasePermisos->getAccion("Modificar")==1 && $albaran['estado']!=='Facturado'){
+                        if($ClasePermisos->getAccion("Modificar")==1 ){
                             $accion='';
-                            if ($albaran['estado']==="Sin Guardar"){
+                            if ($factura['estado']==="Sin Guardar"){
                                 $accion ='&accion=temporal';
                             }
                             echo '<a class="glyphicon glyphicon-pencil" href="./factura.php?id='.$factura['id'].$accion.'"></a>';

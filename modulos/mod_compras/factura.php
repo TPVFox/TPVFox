@@ -27,7 +27,6 @@
     $estado='Nuevo';
     // Si existe accion, variable es $accion , sino es "editar"
     $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
-	
 	$fecha=date('d-m-Y');
 	$fechaImporte=date('Y-d-m');
     $idFacturaTemporal=0;
@@ -35,7 +34,6 @@
 	$numAdjunto=0;
 	$suNumero="";
     $idProveedor="";
-	$inciden=0;
     $errores = array();
     $albaranes_html_linea_productos = array();
     $JS_datos_albaranes = '';
@@ -68,7 +66,7 @@
      if (isset($_GET['tActual'])){
         $idFacturaTemporal=$_GET['tActual']; // Id de albaran temporal
     }
-     // ---------- Posible errores o advertencias mostrar     ------------------- //
+    // ---------- Posible errores o advertencias mostrar     ------------------- //
     if ($idFactura > 0){
     // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
         $c = $CFac->comprobarTemporalIdAlbpro($idFactura);
@@ -135,7 +133,6 @@
             $estado=$datosFactura['estadoFacPro'];
         }
     }
-
     if (count($errores) == 0){
         // Si no hay errores graves continuamos.
         if (!isset($datosFactura)){
@@ -166,7 +163,6 @@
                 $idFactura=$d['id'];
                 // Debemos saber si debemos tener incidencias para ese albaran, ya que el boton incidencia es distinto.
                 $incidencias=incidenciasAdjuntas($idFactura, "mod_compras", $BDTpv, $dedonde);
-                $inciden=count($incidencias['datos']);
             }
             if ($datosFactura['Su_numero']!==""){
                 $suNumero=$datosFactura['Su_numero'];
@@ -179,7 +175,6 @@
             $p = (object)$productos;
             $Datostotales = $CFac->recalculoTotales($p);
         }
-
 	}
 	if(isset($datosFactura['Productos'])){
         // Obtenemos los datos totales ( fin de ticket);
@@ -325,15 +320,15 @@
                 onclick="abrirModalIndicencia('."'".$dedonde."'".' , configuracion, 0,'.$idFactura.');"
                 value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
             }
-            if($inciden>0){
+            if( isset($incidencias) && count( $incidencias)> 0){
                 echo ' <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas('
                 .$idFactura.', '."'mod_compras','factura'"
                 .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
             }
             if ($estado != "Facturado" || $accion != "ver"){
-                    // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
-                 echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
-                            .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
+                // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
+                echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
+                    .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
             }
             ?>
         </div>
@@ -541,7 +536,7 @@
 </form>
 </div>
 <?php // Incluimos paginas modales
- echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 ?>
 </body>

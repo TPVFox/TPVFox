@@ -37,7 +37,6 @@
 	$nombreProveedor="";
 	$fechaVencimiento="";
 	$Datostotales=array();
-	$inciden=0;
 	$errores = array();
     $pedido_html_linea_productos = array();
     $JS_datos_pedidos = '';
@@ -135,7 +134,6 @@
             $estado=$datosAlbaran['estadoAlbPro'];
         }
     }
-    
     if (count($errores) == 0){
         // Si no hay errores graves continuamos.
         if (!isset($datosAlbaran)){
@@ -147,7 +145,6 @@
             $creado_por = $Usuario;
         } else {
             // Si no es nuevo
-            
             $idProveedor=$datosAlbaran['idProveedor'];
             $proveedor=$Cproveedor->buscarProveedorId($idProveedor);
             $nombreProveedor=$proveedor['nombrecomercial'];
@@ -163,9 +160,6 @@
                     // Solo convertimos $idAlbaranTemporal >0 , ya que es cuando viene json
                     $datosAlbaran['Pedidos'] = json_decode($datosAlbaran['Pedidos'],true);
                 }
-                //~ echo '<pre>';
-                //~ print_r( $datosAlbaran['Pedidos']);
-                //~ echo '</pre>';
                 if (count($datosAlbaran['Pedidos'])>0){
                     // Ahora obtengo todos los datos de ese pedido.
                     foreach ($datosAlbaran['Pedidos'] as $key =>$pedido){
@@ -191,10 +185,6 @@
                         // ========                 JS_datos_pedidos                    ======== //
                         $JS_datos_pedidos .=  'datos='.json_encode($datosAlbaran['Pedidos'][$key]).';'
                                             .'pedidos.push(datos);';
-
-                        //~ echo '<pre>';
-                        //~ print_r($JS_datos_pedidos);
-                        //~ echo '</pre>';
                         // ========               $html_adjuntos                        ======== //
                         $h =lineaAdjunto($datosAlbaran['Pedidos'][$key], "albaran");
                         $html_adjuntos .= $h['html'];
@@ -211,7 +201,6 @@
                 $idAlbaran=$d['id'];
                 // Debemos saber si debemos tener incidencias para ese albaran, ya que el boton incidencia es distinto.
                 $incidencias=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, $dedonde);
-                $inciden=count($incidencias['datos']);
             }
             if ($datosAlbaran['Su_numero']!==""){
                 $suNumero=$datosAlbaran['Su_numero'];
@@ -334,17 +323,17 @@
 ?>
 <script type="text/javascript">
 	<?php
-	 if (isset($_POST['Cancelar'])){
-		  ?>
-		 mensajeCancelar(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
-		  <?php
-	  }
-	  ?>
-<?php echo $VarJS;?>
-     function anular(e) {
-          tecla = (document.all) ? e.keyCode : e.which;
-          return (tecla != 13);
-      }
+	if (isset($_POST['Cancelar'])){
+	?>
+        mensajeCancelar(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+    <?php
+	}
+    echo $VarJS;
+    ?>
+    function anular(e) {
+        tecla = (document.all) ? e.keyCode : e.which;
+        return (tecla != 13);
+    }
 </script>
 <div class="container">
 	<?php
@@ -375,7 +364,7 @@
                     ."'".' , configuracion, 0 ,'.$idAlbaran
                     .');" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
             }
-            if($inciden>0){
+            if( isset($incidencias) && count( $incidencias)> 0){
                 echo ' <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas('
                     .$idAlbaran." ,'mod_compras', 'albaran'"
                     .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj"> ';

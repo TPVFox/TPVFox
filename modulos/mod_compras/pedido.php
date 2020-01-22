@@ -127,7 +127,7 @@
                 $bandera=new DateTime($datosPedido['fechaInicio']);
                 $fecha=$bandera->format('d-m-Y');
             }
-            $productos = json_decode( $datosPedido['Productos']); // Array de objetos
+            $productos = json_decode( $datosPedido['Productos'],true); // Array de objetos
             $datosPedido['Productos'] = $productos;
         }
     }
@@ -227,14 +227,11 @@
 ?>
 
 <script type="text/javascript">
-<?php echo $VarJS;?>
-     function anular(e) {
-          tecla = (document.all) ? e.keyCode : e.which;
-          return (tecla != 13);
-      }
-	// Esta variable global la necesita para montar la lineas.
+    <?php
+    // Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
-	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
+	echo 'var configuracion='.json_encode($configuracionArchivo).';';
+    ?>	
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
@@ -255,8 +252,9 @@
 			productos.push(datos);
 	<?php //cambiamos estado y cantidad de producto creado si fuera necesario.
 				if (isset ($product->estado)){
-					if ($product->estado !== 'Activo'){
-					?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
+					if ($product['estado'] !== 'Activo'){
+					?>
+                        productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
 					<?php
 					}
 				}
@@ -265,16 +263,6 @@
 		 }	
 	 }
 	?>
-</script>
-
-<script type="text/javascript">
-    <?php
-	 if (isset($_POST['Cancelar'])){
-		  ?>
-		 mensajeCancelar(<?php echo $numPedidoTemp;?>, <?php echo "'".$dedonde."'"; ?>);
-		  <?php
-	  }
-	  ?>
 </script>
 </head>
 <body>
@@ -286,6 +274,20 @@
 <?php
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
+<script type="text/javascript">
+    <?php
+	if (isset($_POST['Cancelar'])){
+	?>
+        mensajeCancelar(<?php echo $numPedidoTemp;?>, <?php echo "'".$dedonde."'"; ?>);
+    <?php
+	}
+    echo $VarJS;
+    ?>
+    function anular(e) {
+        tecla = (document.all) ? e.keyCode : e.which;
+        return (tecla != 13);
+    }
+</script>
 <div class="container">
     <?php
 	if (isset($errores)){
