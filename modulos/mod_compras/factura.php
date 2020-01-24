@@ -285,11 +285,11 @@
     <?php
 	if (isset($_POST['Cancelar'])){
 	?>
-		 mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>); 
-		  <?php
+        mensajeCancelar(<?php echo $idFacturaTemporal;?>, <?php echo "'".$dedonde."'"; ?>); 
+        <?php
 	}
-	?>
-    <?php echo $VarJS;?>
+	echo $VarJS;
+    ?>
     function anular(e) {
         tecla = (document.all) ? e.keyCode : e.which;
         return (tecla != 13);
@@ -297,9 +297,6 @@
 </script>
 <div class="container">
 	<?php
-    echo '<pre>';
-    print_r($datosFactura);
-    echo '</pre>';
 	if (isset($errores)){
         foreach ($errores as $comprobaciones){
             echo $CAlb->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
@@ -372,9 +369,6 @@
 		</div>
 	</div>
 	<div class="col-md-5 adjunto" >
-	<div class="row">
-		<div>
-			<div style="margin-top:0px;" id="tablaAl" style="<?php echo $style;?>">
 			<label  id="numPedidoT">Número del albarán:</label>
 			<input  type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
 			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
@@ -407,9 +401,6 @@
 				$alb_html=array_reverse($alb_html);
 				?>
 			</table>
-			</div>
-		</div>
-	</div>
 	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
