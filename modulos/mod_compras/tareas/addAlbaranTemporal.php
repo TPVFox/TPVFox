@@ -21,16 +21,14 @@
     if(isset($_POST['hora'])){
         $hora=$_POST['hora'];
     }
-    //~ $hora=$_POST['hora'];
     if($hora !=""){
         $fecha1=$fecha.' '.$hora.':00';
         $fecha=date_format(date_create($fecha1), 'Y-m-d H:i:s');
     }
     $productos=json_decode($_POST['productos']);
+    $pedidos=array();
     if (isset($_POST['pedidos'])){
         $pedidos=$_POST['pedidos'];
-    }else{
-        $pedidos=array();
     }
     $suNumero=$_POST['suNumero'];
     $idProveedor=$_POST['idProveedor'];

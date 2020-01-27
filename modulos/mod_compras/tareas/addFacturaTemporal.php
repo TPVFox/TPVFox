@@ -12,15 +12,12 @@
 			$fecha = $fecha->format('Y-m-d');
 			$respuesta=array();
 			$productos=json_decode($_POST['productos']);
+            $albaranes=array();
 			if(isset ($_POST['albaranes'])){
 				$albaranes=$_POST['albaranes'];
-			}else{
-				$albaranes=array();
 			}
 			$idProveedor=$_POST['idProveedor'];
 			$suNumero=$_POST['suNumero'];
-			
-			
 			if ($idFacturaTemp>0){
 				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idFacturaTemp, $productos, $albaranes, $suNumero);
 				if(isset($rest['error'])){

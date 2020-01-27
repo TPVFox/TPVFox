@@ -127,10 +127,23 @@ class FacturasCompras extends ClaseCompras{
 	public function buscarFacturaTemporal($idFacturaTemporal){
 		//@Objetivo:
 		//Buscar los datos de una factura temporal
-		$tabla='facproltemporales';
-		$where='id='.$idFacturaTemporal;
-		$factura = parent::SelectUnResult($tabla, $where);
-		return $factura;
+        $sql = 'SELECT * FROM facproltemporales WHERE id=' . $idFacturaTemporal;
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+           $respuesta = $smt;
+        } else {
+            if ($this->affected_rows > 0){
+                // Hubo resultados
+                if ($result = $smt->fetch_assoc()) {
+                    $respuesta = $result;
+                }
+            } else {
+                // No hubo resultado.
+                $respuesta['error'] = 'No se encontro temporal. affect_rows:'.$this->affected_rows;
+                $respuesta['consulta'] = $sql;
+            }
+        }
+        return $respuesta;
 	}
 	
 	public function buscarFacturaNumero($numFactura){

@@ -11,7 +11,7 @@
     include_once $URLCom.'/modulos/mod_compras/clases/albaranesCompras.php';
     include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
     include_once ($URLCom.'/controllers/parametros.php');
-	//cargar las clases necesarias
+	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Cproveedor=new Proveedores($BDTpv);
 	$CAlb=new AlbaranesCompras($BDTpv);
@@ -367,7 +367,7 @@
             if( isset($incidencias) && count( $incidencias)> 0){
                 echo ' <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas('
                     .$idAlbaran." ,'mod_compras', 'albaran'"
-                    .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj"> ';
+                    .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
             }
             if ($estado != "Facturado" || $accion != "ver"){
                     // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
@@ -375,7 +375,6 @@
                             .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
             }
             ?>
-            
         </div>
         <div class="col-md-4 text-right" >
             <?php

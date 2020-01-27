@@ -304,16 +304,21 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
             
             // Ahora montamos td de numDoc
             $numeroDoc = '';
+            // El array de producto, puede traer los dos campos: NumpedPro o Numalbpro
+            // por eso se comprueba dedonde.
             if ($dedonde =="albaran"){
                 if (isset($producto['idpedpro']) && $producto['idpedpro']>0){
                     // Si obtuvo con metodo de la clase AlbCompra
                     $numeroDoc= $producto['idpedpro'];
                 } 
             }
-            if (isset($producto['Numalbpro']) && $producto['Numalbpro']>0 && $dedonde=="factura"){
-                // El array de producto, puede traer los dos campos: NumpedPro o Numalbpro
-                // por eso se comprueba dedonde.
-                $numeroDoc= $producto['Numalbpro'];
+            if ( $dedonde=="factura") {
+                if (isset($producto['Numalbpro']) && $producto['Numalbpro']>0 ){
+                    $numeroDoc= $producto['Numalbpro'];
+                }
+                if (isset($producto['numAlbaran']) && $producto['numAlbaran'] > 0){
+                    $numeroDoc= $producto['numAlbaran'];
+                }
             }
             $html_numeroDoc='<td class="Ndocumento">'.$numeroDoc.'</td>';
         } 
@@ -1159,9 +1164,9 @@ function htmlDatosAdjuntoProductos($datos,$dedonde){
         $suNumero=$datos['Su_numero'];
     }
     if ($dedonde === 'albaran'){
-        $n_adjunto = '<strong>NºPedido';
+        $n_adjunto = '<strong>NºPedido:';
     } else {
-        $n_adjunto = '<strong>NºAlbaran';
+        $n_adjunto = '<strong>NºAlbaran:';
     }
     $n_adjunto .= $datos['NumAdjunto'].'</strong>';
         $respuesta='<tr class="success">

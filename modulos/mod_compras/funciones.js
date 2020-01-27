@@ -650,7 +650,7 @@ function cambiarEstadoProductosAdjunto(dedonde,estado,numRegistro){
         if (dedonde=="albaran"){
             var numAdjunto_Producto=productos[i].idpedpro;
         }else{
-            var numAdjunto_Producto=productos[i].Numalbpro;
+            var numAdjunto_Producto=productos[i].idalbpro;
         }
         if (numRegistro == numAdjunto_Producto){
             productos[i].estado= estado;
