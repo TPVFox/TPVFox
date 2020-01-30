@@ -1,6 +1,8 @@
 <?php 
 include_once ('./clases/ClaseCompras.php');
 class FacturasCompras extends ClaseCompras{
+    public $errores = array(); // (array) con los errores de comprobaciones.
+    
 	public function consulta($sql){
 		$db = $this->db;
 		$smt = $db->query($sql);
@@ -105,6 +107,24 @@ class FacturasCompras extends ClaseCompras{
 		$factura = parent::SelectVariosResult($tabla, $where);
 		return $factura;
 	}
+
+    public function ProductosFacturaFormulario($idFactura) {
+        //@ Objetivo:
+        // Es igual que el metodo ProductosFactura pero cambiando nombre campos para funciones correctamente.
+        $respuesta = [];
+        $where = 'idfacpro= ' . $idFactura;
+        $sql =  'SELECT `id`, `idfacpro`, `Numfacpro`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `costeSiva` as ultimoCoste, `iva`, `nfila`, `estadoLinea` as estado, `ref_prov`, `idalbpro` FROM `facprolinea` WHERE '.$where;
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+            $respuesta = $smt; 
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                $respuesta[] = $result;
+			}
+        }
+        return $respuesta;
+    }
+
 	
 	public function IvasFactura($idFactura){
 		//@Objetivo:
@@ -529,7 +549,7 @@ class FacturasCompras extends ClaseCompras{
                                 )
                         );
         }
-        $productos =$this->ProductosFactura($id);
+        $productos =$this->ProductosFacturaFormulario($id);
         if (isset($productos['error'])){
             array_push($this->errores,$this->montarAdvertencia(
                                         'danger',

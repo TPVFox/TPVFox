@@ -127,6 +127,7 @@
             $estado=$datosFactura['estadoFacPro'];
         }
     }
+    
     if (count($errores) == 0){
         // Si no hay errores graves continuamos.
         if (!isset($datosFactura)){
@@ -155,11 +156,19 @@
                     // Ahora obtengo todos los datos de ese albaran.
                     foreach ($datosFactura['Albaranes'] as $key =>$albaran){
                         // ========             Ahora obtenemos todos los datos         ======== //
-                        $e = $CAlb->DatosAlbaran($albaran['idAdjunto']);
+                        if ( isset($albaran['idAlbaran'])){
+                            $idAlbaran = $albaran['idAlbaran'];
+                        } else {
+                            // Esto sucede cuando se añadio temporal , pero no se guardo, solo creo temporal.
+                            $idAlbaran = $albaran['idAdjunto'];
+                            $datosFactura['Albaranes'][$key]['idAlbaran'] =$idAlbaran; 
+                        }
+
+                        $e = $CAlb->DatosAlbaran($idAlbaran);
                         $datosFactura['Albaranes'][$key]['fecha'] = $e['Fecha'];
                         $datosFactura['Albaranes'][$key]['total'] = $e['total'];
                         $datosFactura['Albaranes'][$key]['NumAdjunto'] = $e['Numalbpro'];
-                        $datosFactura['Albaranes'][$key]['idAdjunto'] = $albaran['idAdjunto'];
+                        $datosFactura['Albaranes'][$key]['idAdjunto'] = $idAlbaran;
                         $datosFactura['Albaranes'][$key]['nfila'] = $key+1;
                         // Estado del adjunto puede ser Activo, o Eliminado.
                         // Aunque cuando obtenemos por metodo, el estado siempre es activo.
@@ -172,7 +181,7 @@
                         $html_adjuntos .= $h['html'];
                         // ========  Array para mostrar en lineas productos de adjuntos ======== //
                         $h =htmlDatosAdjuntoProductos($datosFactura['Albaranes'][$key],$dedonde);
-                        $albaran_html_linea_producto[$albaran['idAdjunto']] = $h;
+                        $albaran_html_linea_producto[$idAlbaran] = $h;
                     }
                 }
             }
@@ -184,8 +193,8 @@
                 // Debemos saber si debemos tener incidencias para ese albaran, ya que el boton incidencia es distinto.
                 $incidencias=incidenciasAdjuntas($idFactura, "mod_compras", $BDTpv, $dedonde);
             }
-            if ($datosFactura['Su_numero']!==""){
-                $suNumero=$datosFactura['Su_numero'];
+            if ($datosFactura['Su_num_factura']!==""){
+                $suNumero=$datosFactura['Su_num_factura'];
             }
         }
         $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
@@ -499,9 +508,9 @@
                 $numAdjunto=0;
                 foreach (array_reverse($productos) as $producto){
                     // Ahora tengo que controlar si son lineas de adjunto, para añadir linea de adjunto.
-                    $numeroDoC = 0;
-                    if (isset($producto['Numalbpro']) && $producto['Numalbpro']>0 ){
-                        $numeroDoc= $producto['Numalbpro'];
+                    $numeroDoc = 0;
+                    if (isset($producto['idalbpro']) && $producto['idalbpro']>0 ){
+                        $numeroDoc= $producto['idalbpro'];
                     }
                     if (isset($producto['numAlbaran']) && $producto['numAlbaran'] > 0){
                         $numeroDoc= $producto['numAlbaran'];

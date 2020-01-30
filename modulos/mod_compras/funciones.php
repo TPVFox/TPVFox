@@ -491,7 +491,8 @@ function lineaAdjunto($adjunto, $dedonde){
 		$respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
 		}
 		if($dedonde=="factura"){
-            $respuesta['html'].=ControladorComun::insertTd($adjunto['Su_numero']);
+            $a = (isset($adjunto['Su_numero']))? $adjunto['Su_numero'] : '';
+            $respuesta['html'].=ControladorComun::insertTd($a);
 		}
 		$date=date_create($adjunto['fecha']);
 		$fecha=date_format($date,'d-m-Y');
