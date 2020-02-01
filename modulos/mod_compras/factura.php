@@ -72,7 +72,7 @@
     // ---------- Posible errores o advertencias mostrar     ------------------- //
     if ($idFactura > 0){
     // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
-        $c = $CFac->comprobarTemporalIdAlbpro($idFactura);
+        $c = $CFac->comprobarTemporalIdFacpro($idFactura);
         if (isset($c['idTemporal']) && $c['idTemporal'] !== NULL){
             // Existe un temporal de este pedido por lo que cargo ese temporal.
             $idFacturaTemporal = $c['idTemporal'];
@@ -114,7 +114,7 @@
         //   -Cuando pulsamos guardar.
         $datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
         if (isset($datosFactura['error'])){
-                array_push($errores,$this->montarAdvertencia(
+                array_push($errores,$CFac->montarAdvertencia(
                                 'danger',
                                 'Error 1.1 en base datos.Consulta:'.json_encode($datosFactura['consulta'])
                         )
@@ -159,7 +159,7 @@
                         if ( isset($albaran['idAlbaran'])){
                             $idAlbaran = $albaran['idAlbaran'];
                         } else {
-                            // Esto sucede cuando se añadio temporal , pero no se guardo, solo creo temporal.
+                            // Entra aquí cuando se añadio facturatemporal un albaran , pero no se guardo, solo creo temporal.
                             $idAlbaran = $albaran['idAdjunto'];
                             $datosFactura['Albaranes'][$key]['idAlbaran'] =$idAlbaran; 
                         }

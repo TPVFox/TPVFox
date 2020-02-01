@@ -104,7 +104,7 @@
                     // Obtenemos los datos de factura.
                     $numFactura=$CAlb->NumfacturaDeAlbaran($idAlbaran);
                     if(isset($numFactura['error'])){
-                        array_push($errores,$this->montarAdvertencia(
+                        array_push($errores,$CAlb->montarAdvertencia(
                                         'danger',
                                         'Error 1.1 en base datos.Consulta:'.json_encode($numFactura['consulta'])
                                 )
@@ -121,7 +121,7 @@
         //   -Cuando pulsamos guardar.
         $datosAlbaran=$CAlb->buscarAlbaranTemporal($idAlbaranTemporal);
         if (isset($datosAlbaran['error'])){
-                array_push($errores,$this->montarAdvertencia(
+                array_push($errores,$CAlb->montarAdvertencia(
                                 'danger',
                                 'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
                         )
@@ -168,20 +168,37 @@
                         if ( isset($pedido['idPedido'])){
                             $idPedido = $pedido['idPedido'];
                         } else {
-                            // Esto sucede cuando se añadio temporal , pero no se guardo, solo creo temporal.
+                            // Entra aquí cuando se añadio a albarantemporal un pedido, pero no se guardo, solo creo temporal.
                             $idPedido = $pedido['idAdjunto'];
                             $datosAlbaran['Pedidos'][$key]['idPedido'] =$idPedido; 
                         }
                         $e = $Cped->DatosPedido($idPedido);
+                        // El indice 'estado' es el estado del pedido que puede ser "Sin Guardar", "Guardado","Facturado"
+                        // Ahora vamos a crear el estado del adjunto, pero teniendo en cuenta
+                        // Que si estado_pedido es "Sin Guardar" tenemos que enviar un error.
+                        // Si estado_pedido es "Guardado" entonces el estado adjunto es 'Eliminado'.
+                        // Si estado_pedido es "Facturado" entonces el estado ajunto es 'activo'.
+                        echo '<pre>';
+                        print_r($e);
+                        echo '</pre>';
+                        if ($e['estado'] === 'Facturado'){
+                            $estado_adjunto = 'activo';
+                        } else {
+                            $estado_adjunto = 'Eliminado';
+                            if ($e['estado'] !== 'Guardado'){
+                                // Informo posible error, ya que el estado pedido no es Guardado , ni Facturado..
+                                array_push($errores,$CAlb->montarAdvertencia(
+                                    'dannger',
+                                    'Posible error, el pedido con id:'.$idPedido.' tiene estado '.$e['estado'])
+                                );
+                            }
+                        }
+                        $datosAlbaran['Pedidos'][$key]['estado'] = $estado_adjunto;
                         $datosAlbaran['Pedidos'][$key]['fecha'] = $e['FechaPedido'];
                         $datosAlbaran['Pedidos'][$key]['total'] = $e['total'];
                         $datosAlbaran['Pedidos'][$key]['NumAdjunto'] = $e['Numpedpro'];
                         $datosAlbaran['Pedidos'][$key]['idAdjunto'] = $idPedido;
-
                         $datosAlbaran['Pedidos'][$key]['nfila'] = $key+1;
-                        // Estado del adjunto puede ser Activo, o Eliminado.
-                        // Aunque cuando obtenemos por metodo, el estado siempre es activo.
-                        $datosAlbaran['Pedidos'][$key]['estado'] = 'activo';
                         // ========                 JS_datos_pedidos                    ======== //
                         $JS_datos_pedidos .=  'datos='.json_encode($datosAlbaran['Pedidos'][$key]).';'
                                             .'pedidos.push(datos);';

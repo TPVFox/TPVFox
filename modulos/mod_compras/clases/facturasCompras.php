@@ -503,9 +503,9 @@ class FacturasCompras extends ClaseCompras{
         }
     }
 
-    public function comprobarTemporalIdAlbpro($idFactura,$numFacturaTemp = 0){
+    public function comprobarTemporalIdFacpro($idFactura,$numFacturaTemp = 0){
         // @Objetivo:
-        // Compruebo que solo hay un pedido temporal para ese idPedpro 
+        // Compruebo que solo hay un factura temporal para ese idPedpro 
         // @Devuelvo:
         //  Array con o sin errores.
         $errores = array();

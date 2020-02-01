@@ -726,7 +726,7 @@ class AlbaranesCompras extends ClaseCompras {
 
     public function comprobarTemporalIdAlbpro($idAlbaran,$numAlbaranTemp = 0){
         // @Objetivo:
-        // Compruebo que solo hay un pedido temporal para ese idPedpro 
+        // Compruebo que solo hay un albaran temporal para ese idPedpro 
         // @Devuelvo:
         //  Array con o sin errores.
         $errores = array();
