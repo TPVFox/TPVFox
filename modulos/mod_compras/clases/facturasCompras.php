@@ -3,18 +3,6 @@ include_once ('./clases/ClaseCompras.php');
 class FacturasCompras extends ClaseCompras{
     public $errores = array(); // (array) con los errores de comprobaciones.
     
-	public function consulta($sql){
-		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
-			return $smt;
-		} else {
-			$respuesta = array();
-			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $db->error;
-			return $respuesta;
-		}
-	}
 	public function __construct($conexion){
 		$this->db = $conexion;
 		// Obtenemos el numero registros.

@@ -425,7 +425,6 @@ function addTemporal(dedonde=""){
                         cabecera.estado = "Sin Guardar";
                         document.getElementById('estado').value="Sin Guardar";
                     }
-                    
 				}
 				// Creo funcion para restear totales.	
 				resetearTotales();

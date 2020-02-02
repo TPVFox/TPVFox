@@ -302,6 +302,9 @@ class ControladorComun
     public function getHtmlLinkVolver($anchor=''){
         // @ Objetivo
         // Obtener html de link para volver de donde viene.
+        // Le falta logica a este metodo, ya si lo queremos ejecutar siempre, falla:
+        //    Cuando la ruta es directa.
+        //    Cuando pulsamos en guardar, ya tiene como HTTP_REFER la misma ruta.
         $Link_volver =  $_SERVER['HTTP_REFERER'];
         $html =  '<a class="glyphicon glyphicon-circle-arrow-left" href="'.$Link_volver.'">';
         if ($anchor <> ''){
