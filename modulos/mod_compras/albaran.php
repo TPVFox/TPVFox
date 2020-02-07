@@ -178,9 +178,6 @@
                         // Que si estado_pedido es "Sin Guardar" tenemos que enviar un error.
                         // Si estado_pedido es "Guardado" entonces el estado adjunto es 'Eliminado'.
                         // Si estado_pedido es "Facturado" entonces el estado ajunto es 'activo'.
-                        echo '<pre>';
-                        print_r($e);
-                        echo '</pre>';
                         if ($e['estado'] === 'Facturado'){
                             $estado_adjunto = 'activo';
                         } else {

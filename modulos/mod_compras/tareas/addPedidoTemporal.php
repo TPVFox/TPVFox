@@ -2,6 +2,8 @@
 //@Objetivo:
 //Añadir un pedido temporal, recibe los campos necesarios para añadir el pedido
     //Si ya existe modifica el registro si no lo crea, devuelve siempre el id del temporal
+    $respuesta 	= array();
+    $errores    = array();
     $numPedidoTemp=$_POST['idTemporal'];
     $idUsuario=$_POST['idUsuario'];
     $idTienda=$_POST['idTienda'];
@@ -22,7 +24,7 @@
     $existe=0; // Variable para devolver y saber si modifico o insert.
     //Existe la utilizo como bandera para que el javascript solo me cree una vez la url del temporal
     if ($numPedidoTemp>0){
-        //Si existe el número temporal se modifica el temporal
+        // El temporal ya esta creado.
         $rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $numPedidoTemp, $productos);
         if (isset($rest['error'])){
                 $respuesta['error']=$rest['error'];
@@ -31,32 +33,40 @@
             $existe=1;
         }
     }else{
-        //Si no existe crea un temporal nuevo
+        //Si no existe el temporal se crea , con control de errores 
         $rest=$CPed->insertarDatosPedidoTemporal($idUsuario, $idTienda, $estadoPedido, $fecha ,  $productos, $idProveedor);
-        if (isset($rest['error'])){// Control de errores
-                $respuesta['error']=$rest['error'];
-                $respuesta['consulta']=$rest['consulta'];
+        if(isset($rest['error'])){
+            array_push($errores,$CFac->montarAdvertencia(
+                                'danger',
+                                'Error add 2:'.$rest['error'].' .Consulta:'.$rest['consulta']
+                                ,'KO')
+                        );
         }else{
             $existe=0;
             $numPedidoTemp=$rest['id'];
         }
     }
     $pro=$rest['productos'];
-    if ($idPedido>0){
-        //Si existe un pedido real se modifica el temporal para indicarle que tiene un numero temporal
-        //Existe idPedido, estamos modificacion de un pedido,añadimos el número del pedido real al registro temporal
-        //y modificamos el estado del pedido real a sin guardar.
+    if ($idPedido>0 && count($errores)===0){
+        // Agregamos el numero de la pedido si ya existe y no hubo errores
         $modId=$CPed->addNumRealTemporal($numPedidoTemp, $idPedido);
         if (isset($modId['error'])){
-                $respuesta['error']=$modId['error'];
-                $respuesta['consulta']=$modId['consulta'];
-        }
+            array_push($errores,$CFac->montarAdvertencia(
+                                'danger',
+                                'Error add 3:'.$modId['error'].' .Consulta:'.$modId['consulta']
+                                ,'KO')
+                        );
+        } else {
         // Se modifica el estado del pedido real a sin guardar
         $modEstado=$CPed->modEstadoPedido($idPedido, $estadoPedido);
-        if (isset($modId['error'])){
-                $respuesta['error']=$modEstado['error'];
-                $respuesta['consulta']=$modEstado['consulta'];
-        }
+            if (isset($modEstado['error'])){
+                array_push($errores,$CFac->montarAdvertencia(
+                                'danger',
+                                'Error add 4:'.$modEstado['error'].' .Consulta:'.$modEstado['consulta']
+                                ,'KO')
+                        );
+            }
+	}
     }
     if ($productos){
     //Recalcula el valor de los productos
@@ -64,10 +74,21 @@
         $respuesta['total']=round($CalculoTotales['total'],2);
         $respuesta['totales']=$CalculoTotales;
         $modTotal=$CPed->modTotales($numPedidoTemp, $respuesta['total'], $CalculoTotales['subivas']);
+        if (isset($modTotal['error'])){
+            array_push($errores,$CFac->montarAdvertencia(
+                                'danger',
+                                'Error add 5:'.$modTotal['error'].' .Consulta:'.$modTotal['consulta']
+                                ,'KO')
+                        );
+        }
         $respuesta['sqlmodtotal']=$modTotal['sql'];
         $htmlTotales=htmlTotales($CalculoTotales);
         $respuesta['htmlTabla']=$htmlTotales['html'];
     }
+    if (count($errores)> 0){
+        $respuesta['error'] = $errores; // Devolvemos array no html.
+    }
+    
     $respuesta['id']=$numPedidoTemp;
     $respuesta['existe']=$existe;
     $respuesta['productos']=$_POST['productos']; 

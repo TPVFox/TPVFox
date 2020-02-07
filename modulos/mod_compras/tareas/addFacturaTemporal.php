@@ -1,6 +1,7 @@
 <?php 
 //@Objetivo:
-    //Añadir factura temporal 
+    //Añadir los datos de factura a temporal , cuando lo añadimos o modificamos, cada dato que introduzcamos
+    //ya que en caso perder conexion siempre estan los datos.
     $respuesta  = array();
     $albaranes  = array();
     $errores    = array();
@@ -31,18 +32,19 @@
         if(isset($rest['error'])){
             array_push($errores,$CFac->montarAdvertencia(
                                 'danger',
-                                'Error add 1.1:'.$rest['error'].' .Consulta:'.$rest['consulta'])
+                                'Error add 1:'.$rest['error'].' .Consulta:'.$rest['consulta']
+                                ,'KO')
                         );
         }else{
             $existe=1;
         }
     }else{
-        // No existe temporal, vamos a crearlo.
+        //Si no existe el temporal se crea , con control de errores 
         $rest=$CFac->insertarDatosFacturaTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $albaranes, $suNumero);
         if(isset($rest['error'])){
             array_push($errores,$CFac->montarAdvertencia(
                                 'danger',
-                                'Error add 1.1:'.$rest['error'].' .Consulta:'.$rest['consulta']
+                                'Error add 2:'.$rest['error'].' .Consulta:'.$rest['consulta']
                                 ,'KO')
                         );
         }else{
@@ -53,11 +55,11 @@
     if ($idFactura>0 && count($errores)===0){
         // Agregamos el numero de la factura si ya existe y no hubo errores
         $modId=$CFac->addNumRealTemporal($idFacturaTemp, $idFactura);
-        if(isset($rest['error'])){
+        if(isset($modId['error'])){
             array_push($errores,$CFac->montarAdvertencia(
                                 'danger',
-                                'Error add 1.1:'.$modId['error'].' .Consulta:'.$modId['consulta']
-                                'KO')
+                                'Error add 3:'.$modId['error'].' .Consulta:'.$modId['consulta']
+                                ,'KO')
                         );
         }else{
             $estado="Sin Guardar";
@@ -65,8 +67,8 @@
             if (isset($modEstado['error'])){
                 array_push($errores,$CFac->montarAdvertencia(
                                 'danger',
-                                'Error add 1.1:'.$modEstado['error'].' .Consulta:'.$modEstado['consulta']
-                                'KO')
+                                'Error add 4:'.$modEstado['error'].' .Consulta:'.$modEstado['consulta']
+                                ,'KO')
                         );
             }
         }
@@ -81,8 +83,8 @@
         if (isset($modTotal['error'])){
             array_push($errores,$CFac->montarAdvertencia(
                                 'danger',
-                                'Error add 1.1:'.$modTotal['error'].' .Consulta:'.$modTotal['consulta']
-                                'KO')
+                                'Error add 5:'.$modTotal['error'].' .Consulta:'.$modTotal['consulta']
+                                ,'KO')
                         );
         }
         $respuesta['sqlmodtotal']=$modTotal['sql'];

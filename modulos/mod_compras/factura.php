@@ -22,7 +22,7 @@
 	$dedonde="factura";
 	$titulo="Factura De Proveedor";
     // Valores por defecto de estado y accion.
-    // [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
+    // [estado] -> Nuevo,Sin Guardar,Guardado,Contabilizado.
     // [accion] -> editar,ver
     $estado='Nuevo';
     // Si existe accion, variable es $accion , sino es "editar"
@@ -41,7 +41,6 @@
     $albaran_html_linea_producto = array();
     $JS_datos_albaranes = '';
     $html_adjuntos = '';
-	$importesFactura=array();
 	$albaranes=array();
     $creado_por = array();
 	//Cargamos la configuración por defecto y las acciones de las cajas 
@@ -100,7 +99,7 @@
             if(isset($datosFactura['estado']) ){
                 $estado=$datosFactura['estado'];
                 $idFactura = $datosFactura['id'];
-                if ($datosFactura['estado']=="Facturado"){
+                if ($datosFactura['estado']=="Contabilizado"){
                     // Cambiamos accion, ya que solo puede ser ver.
                     $accion = 'ver';
                 }
@@ -163,16 +162,30 @@
                             $idAlbaran = $albaran['idAdjunto'];
                             $datosFactura['Albaranes'][$key]['idAlbaran'] =$idAlbaran; 
                         }
-
                         $e = $CAlb->DatosAlbaran($idAlbaran);
+                        // El indice 'estado' es el estado del albaran puede ser "Sin Guardar", "Guardado","Facturado"
+                        // Ahora vamos a crear el estado del adjunto, pero teniendo en cuenta
+                        // Que si estado_pedido es "Sin Guardar" tenemos que enviar un error.
+                        // Si estado_pedido es "Guardado" entonces el estado adjunto es 'Eliminado'.
+                        // Si estado_pedido es "Facturado" entonces el estado ajunto es 'activo'.
+                        if ($e['estado'] === 'Facturado'){
+                            $estado_adjunto = 'activo';
+                        } else {
+                            $estado_adjunto = 'Eliminado';
+                            if ($e['estado'] !== 'Guardado'){
+                                // Informo posible error, ya que el estado pedido no es Guardado , ni Facturado..
+                                array_push($errores,$CFac->montarAdvertencia(
+                                    'dannger',
+                                    'Posible error, el pedido con id:'.$idPedido.' tiene estado '.$e['estado'])
+                                );
+                            }
+                        }
+                        $datosFactura['Albaranes'][$key]['estado'] = $estado_adjunto;
                         $datosFactura['Albaranes'][$key]['fecha'] = $e['Fecha'];
                         $datosFactura['Albaranes'][$key]['total'] = $e['total'];
                         $datosFactura['Albaranes'][$key]['NumAdjunto'] = $e['Numalbpro'];
                         $datosFactura['Albaranes'][$key]['idAdjunto'] = $idAlbaran;
                         $datosFactura['Albaranes'][$key]['nfila'] = $key+1;
-                        // Estado del adjunto puede ser Activo, o Eliminado.
-                        // Aunque cuando obtenemos por metodo, el estado siempre es activo.
-                        $datosFactura['Albaranes'][$key]['estado'] = 'activo';
                         // ========                 JS_datos_pedidos                    ======== //
                         $JS_datos_albaranes .=  'datos='.json_encode($datosFactura['Albaranes'][$key]).';'
                                             .'albaranes.push(datos);';
@@ -212,25 +225,24 @@
         $productos = json_decode(json_encode($productos), true); // Array de arrays
     }
 	if (isset($_POST['Guardar'])){
-			$guardar=guardarFactura($_POST, $_GET, $BDTpv, $Datostotales, $importesFactura);
+			$guardar=$CFac->guardarFactura();
 			if (count($guardar)==0){
-				header('Location: facturasListado.php');
-			}else{
-				foreach ($guardar as $error){
-					echo '<div class="'.$error['class'].'">'
-					. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
-					. '</div>';
-				}
-			}
+                header('Location: albaranesListado.php');
+            }else{
+                // Hubo errores o advertencias.
+                foreach ($guardar as $error){
+                    array_push($errores,$error);
+                }
+            }
 	}
     // ============                 Montamos el titulo                      ==================== //
-    $html_facturado='';
+    $html_f='';
     if(isset($numFactura)){
-        $html_facturado = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label label-default">';
-        $html_facturado .= 'factura:'.$numFactura['idFactura'];
-        $html_facturado .='</span>';
+        $html_f = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label label-default">';
+        $html_f .= 'factura:'.$numFactura['idFactura'];
+        $html_f .='</span>';
     }
-    $titulo .= ' '.$idFactura.$html_facturado.' - '.$accion;
+    $titulo .= ' '.$idFactura.$html_f.' - '.$accion;
     // ============= Creamos variables de estilos para cada estado y accion =================== //
     $estilos = array ( 'readonly'       => '',
                        'styleNo'        => 'style="display:none;"',
@@ -327,6 +339,9 @@
 <div class="container">
 	<?php
 	if (isset($errores)){
+        echo '<pre>';
+        print_r($errores);
+        echo '</pre>';
         foreach ($errores as $comprobaciones){
             echo $CAlb->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
             if ($comprobaciones['tipo'] === 'danger'){
@@ -357,7 +372,7 @@
                 .$idFactura.', '."'mod_compras','factura'"
                 .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
             }
-            if ($estado != "Facturado" || $accion != "ver"){
+            if ($estado != "Contabilizado" || $accion != "ver"){
                 // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                 echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
                     .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
@@ -366,7 +381,7 @@
         </div>
         <div class="col-md-4 text-right" >
             <?php
-            if ($estado != "Facturado" || $accion != "ver"){?>
+            if ($estado != "Contabilizado" || $accion != "ver"){?>
             <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
              <?php echo htmlSelectConfiguracionSalto();
                 // El btn cancelar solo se crea si el estado es "Nuevo"
@@ -566,45 +581,6 @@
 			</div>
 		</div>
 	</div>
-	<div class ="col-md-6" id="divImportes">
-			<h3>Entregas</h3>
-			<table  id="tablaImporte" class="table table-striped">
-				<thead>
-					<tr>
-						<td>Importe</td>
-						<td>Fecha</td>
-						<td>Forma de Pago</td>
-						<td>Referencia</td>
-						<td>Pendiente</td>
-					</tr>
-				</thead>
-				<tbody>
-					 <tr id="fila0">  
-						<td><input id="Eimporte" name="Eimporte" type="text" placeholder="importe" data-obj= "cajaEimporte" size="13" value=""  onkeydown="controlEventos(event)"></td>
-						<td><input id="Efecha" name="Efecha" type="date" placeholder="fecha"    value="<?php echo $fechaImporte;?>"  placeholder="yyyy-mm-dd" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"  title=" Formato de entrada yyyy-mm-dd"></td>
-						<td>
-						<select name='Eformas' id='Eformas'>
-						<?php 
-						if(isset($textoFormaPago['html'])){
-							echo $textoFormaPago['html'];
-						}
-						?>
-						</select>
-						</td>
-						<td><input id="Ereferencia" name="Ereferencia" type="text" placeholder="referencia" data-obj= "Ereferencia"  onkeydown="controlEventos(event)" value="" onkeydown="controlEventos(event)"></td>
-						<td><a onclick="addTemporal('factura')" class="glyphicon glyphicon-ok"></a></td>
-					</tr>
-				<?php //Si esa factura ya tiene importes los mostramos 
-				if (isset($importesFactura)){
-					foreach (array_reverse($importesFactura) as $importe){
-						$htmlImporte=htmlImporteFactura($importe, $BDTpv);	
-						echo $htmlImporte['html'];
-					}
-				}			
-				?>
-				</tbody>
-			</table>
-		</div>
 </div>
 </form>
 </div>

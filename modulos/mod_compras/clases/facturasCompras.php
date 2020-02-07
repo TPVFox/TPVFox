@@ -175,7 +175,7 @@ class FacturasCompras extends ClaseCompras{
 		$sql='UPDATE facproltemporales SET idUsuario ='.$idUsuario.' , 
 		idTienda='.$idTienda.' , estadoFacPro="'.$estado.'" , fechaInicio="'.$fecha.'"  
 		,Productos="'.$PrepProductos.'", Albaranes="'.$PreAlbaran.'" 
-		, Su_numero="'.$suNumero.'" WHERE id='.$idFacturaTemp;
+		, Su_num_factura="'.$suNumero.'" WHERE id='.$idFacturaTemp;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -198,7 +198,7 @@ class FacturasCompras extends ClaseCompras{
 		$PreAlbaran = $this->db->real_escape_string($UnicoCampoAlbaranes);
 		$sql='INSERT INTO facproltemporales ( idUsuario , idTienda , 
 		estadoFacPro , fechaInicio, idProveedor,  Productos, Albaranes , 
-		Su_numero) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'
+		Su_num_factura) VALUES ('.$idUsuario.' , '.$idTienda.' , "'.$estado.'" , "'
 		.$fecha.'", '.$idProveedor.' , "'.$PrepProductos.'" , "'
 		.$PreAlbaran.'", "'.$suNumero.'")';
 		$smt=$this->consulta($sql);
@@ -569,6 +569,161 @@ class FacturasCompras extends ClaseCompras{
         return $datos;
     }
 
+
+    public function guardarFactura(){
+        $errores=array();
+        $Tienda = $_SESSION['tiendaTpv'];
+        $Usuario = $_SESSION['usuarioTpv'];
+        if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
+             array_push($errores,$this->montarAdvertencia('danger',
+                                    'ERROR NO HAY DATOS DE SESIÓN!'
+                                    )
+                        );
+        }
+        if (isset($_GET['tActual'])){
+                $_POST['estado']='Sin guardar';
+        }
+        $estado="Guardado";
+        $entregado=0;
+        $dedonde="factura";
+        $idFactura=0;
+        // Comprobamos que exista temporal, ya que si no existe no continuamos
+        if (isset($_GET['tActual']) && $_GET['tActual']>0){
+            $idFacturaTemporal=$_GET['tActual'];
+            // Ahora buscamos datos de temporal
+            $datosFactura=$this->buscarFacturaTemporal($idFacturaTemporal);
+            if (isset($datosFactura['error'])){
+                array_push($errores,$this->montarAdvertencia('danger',
+                                'Error de SQL en buscarFacturaTemporal: '.$datosFactura['consulta']
+                                )
+                    );
+            }
+        }else{
+            array_push($errores,$this->montarAdvertencia('warning',
+                            'El temporal ya no existe  !'
+                            )
+                );
+        }
+        // Obtenemos fecha y formateamos , si no es correcta damos error.
+        if (isset($_POST['fecha'])){
+            if ($_POST['fecha']==""){
+                array_push($errores,$this->montarAdvertencia('warning',
+                        'Has dejado el campo fecha sin cubrir !'
+                        )
+                );
+            }else{
+                $fecha=$_POST['fecha'];
+                $fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
+            }
+        }
+        // Obtenemos su numero
+        $suNumero="";
+        if (isset($_POST['suNumero'])){
+            $suNumero=$_POST['suNumero'];
+        }
+        // Recalculamos totales.
+        if (isset($datosFactura['Productos'])){
+            $productos_para_recalculo = json_decode( $datosFactura['Productos'] );
+            $CalculoTotales = recalculoTotales($productos_para_recalculo);
+            $total=round($CalculoTotales['total'],2);
+        }else{
+            array_push($errores,$this->montarAdvertencia('danger',
+                        'Error no tienes productos !'
+                        )
+            );
+        }
+            
+        if (count($errores) === 0){
+            
+            // Ahora comprobamos estado y realizamos acción segun estado.
+            switch($_POST['estado']){
+                case 'Pepe':
+                        $datos=array(
+                            'Numtemp_facpro'=>$idFacturaTemporal,
+                            'fecha'=>$fecha,
+                            'idTienda'=>$Tienda['idTienda'],
+                            'idUsuario'=>$Usuario['id'],
+                            'idProveedor'=>$datosFactura['idProveedor'],
+                            'estado'=>$estado,
+                            'total'=>$total,
+                            'DatosTotales'=>$Datostotales,
+                            'productos'=>$datosFactura['Productos'],
+                            'albaranes'=>$datosFactura['Albaranes'],
+                            'importes'=>$importesFactura,
+                            'suNumero'=>$suNumero
+                        );
+                        if ($datosFactura['numfacpro']){
+                            $idFactura=$datosFactura['numfacpro'];
+                            $eliminarTablasPrincipal=$this->eliminarFacturasTablas($idFactura);
+                            if (isset($eliminarTablasPrincipal['error'])){
+                                array_push($errores,$this->montarAdvertencia('danger',
+                                        'Error de SQL en eliminarFacturasTablas:'.$eliminarTablasPrincipal['consulta']
+                                        )
+                                );
+                                break;
+                            }
+                        }
+                        $addNuevo=$this->AddFacturaGuardado($datos, $idFactura);
+                        if (isset($addNuevo['error'])){
+                            array_push($errores,$this->montarAdvertencia('danger',
+                                        'Error de SQL en AddFacturaGuardado:'.$addNuevo['consulta']
+                                        )
+                                );
+                            break;
+                        }else{
+                            if (isset($addNuevo['id'])){
+                                $eliminarTemporal=$this->EliminarRegistroTemporal($idFacturaTemporal,  $idFactura);
+                                if (isset($eliminarTemporal['error'])){
+                                    array_push($errores,$this->montarAdvertencia('danger',
+                                        'Error de SQL en EliminarRegistroTemporal:'.$eliminarTemporal['consulta']
+                                        )
+                                    );
+                                    break;
+                                }
+                            }else{
+                                array_push($errores,$this->montarAdvertencia('danger',
+                                        'Error no hizo el inset de nuevo albarán correctamente'
+                                        )
+                                    );
+                                break;
+                              
+                            }
+                        }
+                    
+                break;
+                
+                case 'GuardadoKO':
+                    if ($_GET['id']){
+                        $fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
+                        $mod=$this->modFechaNumero($_GET['id'], $fecha, $suNumero);
+                        if (isset($mod['error'])){
+                            array_push($errores,$this->montarAdvertencia('danger',
+                                'Error de SQL en modFechaNumero:'.$mod['consulta']
+                                )
+                            );
+                        break;
+                        }
+                                
+                        
+                       
+                    }else{
+                        array_push($errores,$this->montarAdvertencia('warning',
+                                        'No has realizado ninguna modificación !'
+                                        )
+                                    );
+                    }
+                break;
+                
+                default:
+                    array_push($errores,$this->montarAdvertencia('warning',
+                                        'Estado no esta definido correctamente... !'
+                                        )
+                                    );
+                break;
+            }
+        }
+        return $errores;
+    }
 
 
     

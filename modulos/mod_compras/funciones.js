@@ -37,11 +37,12 @@ function buscarAdjunto(dedonde, valor=""){
         url        : 'tareas.php',
         type       : 'post',
         beforeSend : function () {
-            console.log('******** estoy en buscar pedido JS****************');
+            console.log('******** estoy en buscar adjunto JS****************');
         },
         success    :  function (response) {
-            console.log('Llegue devuelta respuesta de buscar pedido');
-            var resultado =  $.parseJSON(response); 
+            console.log('Llegue devuelta respuesta de buscar adjunto');
+            var resultado =  $.parseJSON(response);
+            console.log(resultado);
             var HtmlAdjuntos=resultado.html;
             if (resultado.error){
                 alert(resultado.error +'\n'+resultado.consulta);
@@ -406,9 +407,14 @@ function addTemporal(dedonde=""){
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de añadir  temporal-> numero idTemporal'+cabecera.idTemporal);
-			var resultado =  $.parseJSON(response); 
+			var resultado =  $.parseJSON(response);
 			if (resultado.error){
-				alert(resultado.consulta);
+                // Error puede ser array
+                var errores = resultado.error;
+                errores.forEach(function(error) {
+                    console.log(error.mensaje);
+                });
+				alert(JSON.stringify(resultado.error));
 			}else{
 				console.log(resultado);
 				if (resultado.existe == 0){
@@ -431,12 +437,7 @@ function addTemporal(dedonde=""){
 				total = parseFloat(resultado['totales']['total'])
 				$('.totalImporte').html(total.toFixed(2));
 				$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
-				if (dedonde=="factura"){
-					var importe= document.getElementById("Eimporte").value;
-					if (importe>0){
-						insertarImporte(total);
-					}
-				}
+				
 			}
 		}
 	});
@@ -839,53 +840,6 @@ function pintamosTotales (DesgloseTotal) {
 	});
 }
 
-function insertarImporte(total){
-	//@Objetivo: insertar importe de pago 
-	//Parametros: recibe el total de la factura
-	//Recogemos primero los valores de entrada , se calcula y se escribe el nuevo registro
-    var importe= document.getElementById("Eimporte").value;
-    var fecha=document.getElementById("Efecha").value;
-    var forma=document.getElementById("Eformas").value;
-    var referencia=document.getElementById("Ereferencia").value;
-    if (forma==0){
-        alert("NO HAS SELECCIONADO UNA FORMA DE PAGO");
-    }else{
-        var parametros = {
-            "pulsado"   : 'insertarImporte',
-            "importe"   : importe,
-            "fecha"     : fecha,
-            'forma'     : forma,
-            'referencia': referencia,
-            'total'     : total,
-            "idTemporal": cabecera.idTemporal,
-            "idReal"    : cabecera.idReal
-        };
-        $.ajax({
-            data       : parametros,
-            url        : 'tareas.php',
-            type       : 'post',
-            beforeSend : function () {
-                console.log('*********  Modificando los importes de la factura  ****************');
-            },
-            success    :  function (response) {
-                console.log('Respuesta de la modificación de los importes');
-                var resultado =  $.parseJSON(response);
-                if (resultado.error){
-                    alert('Error de SQL '+resultado.consulta);
-                }else{
-                    if (resultado.mensaje==1){
-                        //Se muestra el mensaje cuando el importe es superior al de la factura
-                        alert("El importe introducido no es correcto");
-                    }else{
-                        $("#tablaImporte #fila0").after(resultado.html);
-                        $("#tabla").find('input').attr("disabled", "disabled");
-                        $("#tabla").find('a').css("display", "none");
-                    }
-                }
-             }
-        });
-    }
-}
 
 function mensajeCancelar(idTemporal, dedonde){
 	var mensaje = confirm("Estas  seguro que quieres cancelar");
