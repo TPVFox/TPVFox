@@ -200,7 +200,7 @@
                         $JS_datos_pedidos .=  'datos='.json_encode($datosAlbaran['Pedidos'][$key]).';'
                                             .'pedidos.push(datos);';
                         // ========               $html_adjuntos                        ======== //
-                        $h =lineaAdjunto($datosAlbaran['Pedidos'][$key], "albaran");
+                        $h =lineaAdjunto($datosAlbaran['Pedidos'][$key], "albaran",$accion);
                         $html_adjuntos .= $h['html'];
                         // ========  Array para mostrar en lineas productos de adjuntos ======== //
                         $h =htmlDatosAdjuntoProductos($datosAlbaran['Pedidos'][$key],$dedonde);
@@ -488,9 +488,14 @@
             
         </div>
         <div class="col-md-5 div_adjunto">
-            <label id="numPedidoT">Número del pedido:</label>
-            <input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)" <?php echo $estilos['input_factur'];?>>
-            <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
+            <?php
+            if ($accion !=='ver'){
+            ?>
+                <label id="numPedidoT">Número del pedido:</label>
+                <input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)" <?php echo $estilos['input_factur'];?>>
+                <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
+            <?php
+            } ?>
             <table class="col-md-12" id="tablaPedidos"> 
                 <thead>
                 <tr>

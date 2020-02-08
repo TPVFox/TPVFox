@@ -190,7 +190,7 @@
                         $JS_datos_albaranes .=  'datos='.json_encode($datosFactura['Albaranes'][$key]).';'
                                             .'albaranes.push(datos);';
                         // ========               $html_adjuntos                        ======== //
-                        $h =lineaAdjunto($datosFactura['Albaranes'][$key], "factura");
+                        $h =lineaAdjunto($datosFactura['Albaranes'][$key], "factura",$accion);
                         $html_adjuntos .= $h['html'];
                         // ========  Array para mostrar en lineas productos de adjuntos ======== //
                         $h =htmlDatosAdjuntoProductos($datosFactura['Albaranes'][$key],$dedonde);
@@ -465,10 +465,15 @@
             </div>
 	</div>
 	<div class="col-md-5 adjunto" >
-			<label  id="numPedidoT">Número del albarán:</label>
-			<input  type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
-			<table  class="col-md-12" id="tablaPedidos"> 
+        <?php
+        if ($accion !=='ver'){
+        ?>
+            <label  id="numPedidoT">Número del albarán:</label>
+            <input  type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
+            <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
+        <?php
+        } ?>
+            <table  class="col-md-12" id="tablaPedidos"> 
 				<thead>
                 <tr>
                     <td><b>Número</b></td>

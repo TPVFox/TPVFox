@@ -457,12 +457,13 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
 }
-function lineaAdjunto($adjunto, $dedonde){
+function lineaAdjunto($adjunto, $dedonde,$accion ='editar'){
 	//@Objetivo:
 	//Retornar el html de la linea de adjuntos(esto puede ser un pedido en albarán o un albarán en factura).
 	//@Parametros:
 	//adjunto: los datos del albarán o pedido a adjuntar
 	//dedonde: de donde venimos si de albarán o de factura
+    //accion : que puede hacer.
     $respuesta['html']="";
 	if(isset($adjunto)){
 		if ($adjunto['estado']){
@@ -500,7 +501,10 @@ function lineaAdjunto($adjunto, $dedonde){
 		.'<td>'.$adjunto['total'].'</td>';
         $totalSiva = (isset($adjunto['totalSiva']))? $adjunto['totalSiva'] : '';
         $respuesta['html'].='<td>'.$totalSiva.'</td>';
-		$respuesta['html'].=$btnELiminar_Retornar.'</tr>';
+        if ($accion !=='ver'){
+            $respuesta['html'].=$btnELiminar_Retornar;
+        }
+        $respuesta['html'].='</tr>';
 	}
 	return $respuesta;
 }
