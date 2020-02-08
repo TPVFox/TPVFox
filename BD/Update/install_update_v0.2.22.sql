@@ -17,6 +17,8 @@ ALTER TABLE `albprolinea` CHANGE `Numpedpro` `idpedpro` INT(10) NULL DEFAULT NUL
 ALTER TABLE `facprolinea` CHANGE `Numalbpro` `idalbpro` INT(10) NULL DEFAULT NULL;
 # Cambio `Su_numero` ya que en facturas es  Su_num_factura
 ALTER TABLE `facproltemporales` CHANGE `Su_numero` `Su_num_factura` VARCHAR(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+# Cambio tipo campo en facprot
+ALTER TABLE `facprot` CHANGE `FechaVencimiento` `FechaVencimiento` DATE NULL DEFAULT NULL;
 # Añado campos para controlar quien modifica un pedido, albaran o factura de un proveedor.
 ALTER TABLE `pedprot` ADD `modify_by` INT NULL AFTER `fechaModificacion`; 
 ALTER TABLE `albprot` ADD `fechaModificacion` DATETIME NULL AFTER `FechaVencimiento`;

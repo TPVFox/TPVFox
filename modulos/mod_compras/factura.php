@@ -225,7 +225,10 @@
         $productos = json_decode(json_encode($productos), true); // Array de arrays
     }
 	if (isset($_POST['Guardar'])){
-			$guardar=$CFac->guardarFactura();
+            if ($_POST['fechaVenci'] === ''){
+                $_POST['fechaVenci'] = '0000-00-00';
+            }
+            $guardar=$CFac->guardarFactura();
 			if (count($guardar)==0){
                 header('Location: facturasListado.php');
             }else{

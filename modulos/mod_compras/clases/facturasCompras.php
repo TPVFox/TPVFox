@@ -613,7 +613,7 @@ class FacturasCompras extends ClaseCompras{
             // Obtenemos su numero
             $suNumero   = (isset($_POST['suNumero'])) ? $_POST['suNumero']: '';
             $formaPago  = (isset($_POST['formaVenci'])) ? $_POST['formaVenci'] : '';
-            $fechaVenci = (isset($_POST['fechaVenci'])) ? $_POST['fechaVenci'] : '';
+            $fechaVenci = (isset($_POST['fechaVenci'])) ? $_POST['fechaVenci'] : '0000-00-00';
 
             // ======            Montamos productos y hacemos recalculo de totales         ======= //
             if (isset($datosFactura['Productos'])){
@@ -637,7 +637,9 @@ class FacturasCompras extends ClaseCompras{
                         'DatosTotales'=>$CalculoTotales,
                         'productos'=>$datosFactura['Productos'],
                         'albaranes'=>$datosFactura['Albaranes'],
-                        'suNumero'=>$suNumero
+                        'suNumero'=>$suNumero,
+                        'formaPago'=>$formaPago,
+                        'fechaVenci'=>$fechaVenci
                     );
                 
             if (count($errores) === 0){
