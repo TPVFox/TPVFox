@@ -227,7 +227,7 @@
 	if (isset($_POST['Guardar'])){
 			$guardar=$CFac->guardarFactura();
 			if (count($guardar)==0){
-                header('Location: albaranesListado.php');
+                header('Location: facturasListado.php');
             }else{
                 // Hubo errores o advertencias.
                 foreach ($guardar as $error){
@@ -339,9 +339,6 @@
 <div class="container">
 	<?php
 	if (isset($errores)){
-        echo '<pre>';
-        print_r($errores);
-        echo '</pre>';
         foreach ($errores as $comprobaciones){
             echo $CAlb->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
             if ($comprobaciones['tipo'] === 'danger'){

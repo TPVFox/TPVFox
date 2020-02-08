@@ -254,143 +254,137 @@ class FacturasCompras extends ClaseCompras{
 	}
 	
 	public function eliminarFacturasTablas($idFactura){
-		//@Objetivo:
-		//Eliminar todos los datos de una determinada factura
-		$sql=array();
-		$respuesta=array();
-		$db=$this->db;
-		$sql[0]='DELETE FROM facprot where id='.$idFactura ;
-		$sql[1]='DELETE FROM facprolinea where 	idfacpro ='.$idFactura;
-		$sql[2]='DELETE FROM facproIva where idfacpro ='.$idFactura;
-		$sql[3]='DELETE FROM albprofac where idFactura ='.$idFactura;
-		
-		foreach($sql as $consulta){
-			$smt=$this->consulta($consulta);
-			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				break;
-			}
-		}
-		return $respuesta;
+        //@ Objetivo:
+        //Eliminamos todos los registros de una factura determinado.
+        $respuesta = array();
+        $tablas = array( 'facprot'=>'id','facprolinea'=>'idfacpro','facproIva'=>'idfacpro','albprofac'=>'idFactura');
+        $OK = 'KO';
+        if ($tabla !==''){
+            // Controlamos que la tabla indicada exista en array
+            foreach ($tablas as $key=>$t){
+                if ($key === $tabla) {
+                    $OK ='OK';
+                } else {
+                    // ELimino de array los nombres tablas que no son .
+                    unset($tablas[$key]);
+                }
+            }
+        } else {
+            // Pongo en OK porque queremos eliminar las 3 tablas.
+            $OK = 'OK';
+        }
+        if ($idFactura > 0){
+            // Solo ejecuto si hay un idPedido y esta OK
+            if ($OK === 'OK'){
+                foreach($tablas as $tabla =>$campo){
+                    $where = 'where '.$campo.' = '.$idFactura;
+                    $respuesta[$tabla] = parent::deleteRegistrosTabla($tabla,$where);
+                }
+            }
+        }
+        return $respuesta;
 	}
 	
 	public function AddFacturaGuardado($datos, $idFactura){
 		//@Objetivo:
 		//Añadir todos los datos de una factura nueva en las diferentes tablas
-		$db = $this->db;
 		$respuesta=array();
-		if ($idFactura>0){
-			$sql='INSERT INTO facprot (id, Numfacpro, Fecha,
-			 idTienda , idUsuario , idProveedor , estado , total, Su_num_factura ) 
-			 VALUES ('.$idFactura.' , '.$idFactura.', "'.$datos['fecha'].'", '
-			 .$datos['idTienda'].', '.$datos['idUsuario'].', '.$datos['idProveedor']
-			 .', "'.$datos['estado'].'", '.$datos['total'].', "'.$datos['suNumero'].'")';
-			 $smt=$this->consulta($sql);
-			 if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
+        if ($idFactura > 0) {
+            $sql = 'UPDATE facprot SET Numfacpro ="'. $idFactura. '"'
+                    .', Fecha ="'. $datos['fecha']. '"'
+                    .', modify_by ="'.$datos['idUsuario'].'"'
+                    .', estado ="'. $datos['estado'] . '"'
+                    .', total ="'. $datos['total']. '"'
+                    .', Su_num_factura ="'. $datos['suNumero'] . '"'
+                    .', formaPago ="'. $datos['formaPago'] . '"'
+                    .', FechaVencimiento ="'. $datos['fechaVenci'] . '"'
+                    .', fechaModificacion = NOW() WHERE id="'. $idFactura. '"';
+            $smt = parent::consulta($sql);
+            if (gettype($smt)==='array'){
+				 $respuesta = $smt;
 			}else{
 				$id=$idFactura;
 				$respuesta['id']=$id;
 			}
 		}else{
-			$sql='INSERT INTO facprot (Numtemp_facpro, Fecha, idTienda , 
-			idUsuario , idProveedor , estado , total, Su_num_factura ) VALUES ('
-			.$datos['Numtemp_facpro'].' , "'.$datos['fecha'].'", '.$datos['idTienda']
-			. ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado']
-			.'", '.$datos['total'].', "'.$datos['suNumero'].'")';
-			$smt=$this->consulta($sql);
+			$sql='INSERT INTO facprot ( Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_num_factura ) VALUES ("'
+                    .$datos['fecha'].'", '.$datos['idTienda']
+                    . ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado']
+                    .'", '.$datos['total'].', "'.$datos['suNumero'].'")';
+            $smt = parent::consulta($sql);
 			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
+                $respuesta = $smt;
                 error_log('Error en facturasCompras en AddFacturaGuardado:'.$smt['error']);
-				$respuesta['consulta']=$smt['consulta'];
 			}else{
-				$id=$db->insert_id;
+				$id=$this->insert_id;
 				$respuesta['id']=$id;
-				$sql='UPDATE facprot SET Numfacpro  = '.$id.' WHERE id ='.$id;
-				$smt=$this->consulta($sql);
-				if (gettype($smt)==='array'){
-					$respuesta['error']=$smt['error'];
-					$respuesta['consulta']=$smt['consulta'];
-				}
+                if (isset($id)) {
+                    $sql='UPDATE facprot SET Numfacpro  = '.$id.' WHERE id ='.$id;
+                    $smt = parent::consulta($sql);
+                    if (gettype($smt)==='array') {
+                       $respuesta = $smt;
+                    } 
+                } else {
+                    $respuesta['error'] = "No existe id";
+                    $respuesta['consulta'] = "El realiza el insert";
+                }
 			}
 		}
 		if (!isset($respuesta['error'])){
 			$productos = json_decode($datos['productos'], true);
 			$i=1;
+            $numFactura = $id;
+            $values = array();
+            $sql = 'INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idalbpro )';
 			foreach ( $productos as $prod){
 				if ($prod['estado']=='Activo' || $prod['estado']=='activo'){
-						$codBarras="";
-						$numPed=0;
-						$refProveedor="";
-					if (isset($prod['ccodbar'])){
-						$codBarras=$prod['ccodbar'];
-					}
-					if (isset($prod['numAlbaran'])){
-						$numPed=$prod['numAlbaran'];
-					}
-					if (isset($prod['crefProveedor'])){
-						$refProveedor=$prod['crefProveedor'];
-					}
-					$sql='INSERT INTO facprolinea (idfacpro  , Numfacpro  , idArticulo , cref,
-					 ccodbar, cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea,
-					  ref_prov , Numalbpro ) VALUES ('.$id.', '.$id.' , '.$prod['idArticulo']
-					  .', '."'".$prod['cref']."'".', "'.$codBarras.'", "'.$prod['cdetalle']
-					  .'", '.$prod['ncant'].' , "'.$prod['nunidades'].'", "'.$prod['ultimoCoste']
-					  .'" , '.$prod['iva'].', '.$i.', "'. $prod['estado'].'" , '."'".$refProveedor."'"
-					  .', '.$numPed.')';
-					$smt=$this->consulta($sql);
-					if (gettype($smt)==='array'){
-							$respuesta['error']=$smt['error'];
-							$respuesta['consulta']=$smt['consulta'];
-							break;
-					}
+                    $codBarras = (isset($prod['ccodbar'])) ? $prod['ccodbar']: null;
+                    $idAlb = (isset($prod['idalbpro']))? $prod['idalbpro'] : 0;
+                    $refProveedor =(isset($prod['crefProveedor']))?  $prod['crefProveedor'] : " ";
+                    $values[] ='('. $id . ', ' . $numFactura . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref']
+                            . "'" . ', "' . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "'
+                            . $prod['nunidades'] . '", "' . $prod['ultimoCoste'] . '" , ' . $prod['iva'] . ', '
+                            . $i . ', "' . $prod['estado'] . '" , ' . "'" . $refProveedor . "'" . ', ' . $idAlb . ')';
+                            
 					$i++;
 				}
-				
-			} 
-			foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
-				$sql='INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , 
-				importeIva, totalbase) VALUES ('.$id.', '.$id
-				.' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
-				$smt=$this->consulta($sql);
-				if (gettype($smt)==='array'){
-					$respuesta['error']=$smt['error'];
-					$respuesta['consulta']=$smt['consulta'];
-					break;
-				}
 			}
-			if (isset($datos['albaranes'])){
-				$albaranes = json_decode($datos['albaranes'], true); 
-				foreach ($albaranes as $albaran){
-					if ($albaran['estado']=='activo'){
-						$sql='INSERT INTO albprofac (idFactura  ,  numFactura   ,
-						 idAlbaran , numAlbaran) VALUES ('.$id.', '.$id
-						 .' ,  '.$albaran['idAdjunto'].' , '.$albaran['NumAdjunto'].')';
-						$smt=$this->consulta($sql);
-						if (gettype($smt)==='array'){
-							$respuesta['error']=$smt['error'];
-							$respuesta['consulta']=$smt['consulta'];
-							break;
-						}
-					}
-				}
-			}
-			if(isset($datos['importes'])){
-				foreach ($datos['importes'] as $importe){
-					$sql='INSERT INTO facProCobros (idFactura, idFormasPago,
-					 FechaPago, importe, Referencia) VALUES ('.$id.' , '
-					 .$importe['forma'].' , "'.$importe['fecha'].'", '
-					 .$importe['importe'].', '."'".$importe['referencia']."'".')';
-					$smt=$this->consulta($sql);
-					if (gettype($smt)==='array'){
-						$respuesta['error']=$smt['error'];
-						$respuesta['consulta']=$smt['consulta'];
-						break;
-					}
-				}
-			}
+            // Ahora insertamos todos los productos a la vez.
+            $valores =' VALUES '.implode(',',$values);
+            $sql .= $valores;
+            $smt = parent::consulta($sql);
+            if (gettype($smt)==='array') {
+               $respuesta = $smt;
+               // Si hay un error grave, lo registramos en log, ya que hay arreglarlo a mano.
+               error_log('Error a la hora insertar productos en factura '.$idFactura.' el error:'.json_encode($smt));
+            }
+            if (!isset($respuesta['error'])){
+                foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
+                    $sql='INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , 
+                    importeIva, totalbase) VALUES ('.$id.', '.$id
+                    .' , '.$iva.', '.$basesYivas['iva'].' , '.$basesYivas['base'].')';
+                    $smt = parent::consulta($sql);
+                    if (gettype($smt)==='array'){
+                        $respuesta = $smt;
+                        break;
+                    }
+                }
+                if (isset($datos['albaranes'])){
+                    $albaranes = json_decode($datos['albaranes'], true); 
+                    foreach ($albaranes as $albaran){
+                        if ($albaran['estado']=='activo'){
+                            $sql='INSERT INTO albprofac (idFactura  ,  numFactura   ,
+                             idAlbaran , numAlbaran) VALUES ('.$id.', '.$id
+                             .' ,  '.$albaran['idAdjunto'].' , '.$albaran['NumAdjunto'].')';
+                            $smt = parent::consulta($sql);
+                            if (gettype($smt)==='array'){
+                                $respuesta = $smt;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 		}
 		return $respuesta;
 	}
@@ -583,9 +577,6 @@ class FacturasCompras extends ClaseCompras{
         if (isset($_GET['tActual'])){
                 $_POST['estado']='Sin guardar';
         }
-        $estado="Guardado";
-        $entregado=0;
-        $dedonde="factura";
         $idFactura=0;
         // Comprobamos que exista temporal, ya que si no existe no continuamos
         if (isset($_GET['tActual']) && $_GET['tActual']>0){
@@ -604,6 +595,7 @@ class FacturasCompras extends ClaseCompras{
                             )
                 );
         }
+        
         // Obtenemos fecha y formateamos , si no es correcta damos error.
         if (isset($_POST['fecha'])){
             if ($_POST['fecha']==""){
@@ -616,115 +608,81 @@ class FacturasCompras extends ClaseCompras{
                 $fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
             }
         }
-        // Obtenemos su numero
-        $suNumero="";
-        if (isset($_POST['suNumero'])){
-            $suNumero=$_POST['suNumero'];
-        }
-        // Recalculamos totales.
-        if (isset($datosFactura['Productos'])){
-            $productos_para_recalculo = json_decode( $datosFactura['Productos'] );
-            $CalculoTotales = recalculoTotales($productos_para_recalculo);
-            $total=round($CalculoTotales['total'],2);
-        }else{
-            array_push($errores,$this->montarAdvertencia('danger',
-                        'Error no tienes productos !'
-                        )
-            );
-        }
-            
         if (count($errores) === 0){
-            
-            // Ahora comprobamos estado y realizamos acción segun estado.
-            switch($_POST['estado']){
-                case 'Pepe':
-                        $datos=array(
-                            'Numtemp_facpro'=>$idFacturaTemporal,
-                            'fecha'=>$fecha,
-                            'idTienda'=>$Tienda['idTienda'],
-                            'idUsuario'=>$Usuario['id'],
-                            'idProveedor'=>$datosFactura['idProveedor'],
-                            'estado'=>$estado,
-                            'total'=>$total,
-                            'DatosTotales'=>$Datostotales,
-                            'productos'=>$datosFactura['Productos'],
-                            'albaranes'=>$datosFactura['Albaranes'],
-                            'importes'=>$importesFactura,
-                            'suNumero'=>$suNumero
-                        );
-                        if ($datosFactura['numfacpro']){
-                            $idFactura=$datosFactura['numfacpro'];
-                            $eliminarTablasPrincipal=$this->eliminarFacturasTablas($idFactura);
-                            if (isset($eliminarTablasPrincipal['error'])){
-                                array_push($errores,$this->montarAdvertencia('danger',
-                                        'Error de SQL en eliminarFacturasTablas:'.$eliminarTablasPrincipal['consulta']
-                                        )
-                                );
-                                break;
-                            }
-                        }
-                        $addNuevo=$this->AddFacturaGuardado($datos, $idFactura);
-                        if (isset($addNuevo['error'])){
-                            array_push($errores,$this->montarAdvertencia('danger',
-                                        'Error de SQL en AddFacturaGuardado:'.$addNuevo['consulta']
-                                        )
-                                );
-                            break;
-                        }else{
-                            if (isset($addNuevo['id'])){
-                                $eliminarTemporal=$this->EliminarRegistroTemporal($idFacturaTemporal,  $idFactura);
-                                if (isset($eliminarTemporal['error'])){
-                                    array_push($errores,$this->montarAdvertencia('danger',
-                                        'Error de SQL en EliminarRegistroTemporal:'.$eliminarTemporal['consulta']
-                                        )
-                                    );
-                                    break;
-                                }
-                            }else{
-                                array_push($errores,$this->montarAdvertencia('danger',
-                                        'Error no hizo el inset de nuevo albarán correctamente'
-                                        )
-                                    );
-                                break;
-                              
-                            }
-                        }
-                    
-                break;
+            // Continuamos que no hubo error
+            // Obtenemos su numero
+            $suNumero   = (isset($_POST['suNumero'])) ? $_POST['suNumero']: '';
+            $formaPago  = (isset($_POST['formaVenci'])) ? $_POST['formaVenci'] : '';
+            $fechaVenci = (isset($_POST['fechaVenci'])) ? $_POST['fechaVenci'] : '';
+
+            // ======            Montamos productos y hacemos recalculo de totales         ======= //
+            if (isset($datosFactura['Productos'])){
+                $productos_para_recalculo = json_decode( $datosFactura['Productos'] );
+                $CalculoTotales = recalculoTotales($productos_para_recalculo);
+                $total=round($CalculoTotales['total'],2);
+            }else{
+                array_push($errores,$this->montarAdvertencia('danger',
+                            'Error no tienes productos !'
+                            )
+                );
+            }
+            // ======               Montamos array para insertar        ======= //
+            $datos=array(
+                        'fecha'=>$fecha,
+                        'idTienda'=>$Tienda['idTienda'],
+                        'idUsuario'=>$Usuario['id'],
+                        'idProveedor'=>$datosFactura['idProveedor'],
+                        'estado'=>"Guardado",
+                        'total'=>$total,
+                        'DatosTotales'=>$CalculoTotales,
+                        'productos'=>$datosFactura['Productos'],
+                        'albaranes'=>$datosFactura['Albaranes'],
+                        'suNumero'=>$suNumero
+                    );
                 
-                case 'GuardadoKO':
-                    if ($_GET['id']){
-                        $fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
-                        $mod=$this->modFechaNumero($_GET['id'], $fecha, $suNumero);
-                        if (isset($mod['error'])){
+            if (count($errores) === 0){
+                if (isset ($datosFactura['numfacpro']) && $datosFactura['numfacpro']>0) {
+                    $idFactura=$datosFactura['numfacpro'];
+                    $tablas = array('facprolinea','facproIva','albprofac');
+                    foreach ($tablas as $tabla){
+                        $eliminarTablasPrincipal=$this->eliminarFacturasTablas($datosFactura['numfacpro'],$tabla);
+                    }
+                    if (isset($eliminarTablasPrincipal['error'])){
+                        // Hubo un error a la hora eliminar tablas principales.
+                        array_push($errores,$this->montarAdvertencia('danger',
+                                            'Error al eliminar las tablas principales!<br/>'
+                                            .$eliminarTablasPrincipal['consulta']
+                                            )
+                                );
+                    } 
+                }
+                $addNuevo=$this->AddFacturaGuardado($datos, $idFactura);
+                if (isset($addNuevo['error'])){
+                    array_push($errores,$this->montarAdvertencia('danger',
+                                'Error de SQL en AddFacturaGuardado:'.$addNuevo['consulta']
+                                )
+                        );
+                }else{
+                    if (isset($addNuevo['id'])){
+                        $eliminarTemporal=$this->EliminarRegistroTemporal($idFacturaTemporal,  $idFactura);
+                        if (isset($eliminarTemporal['error'])){
                             array_push($errores,$this->montarAdvertencia('danger',
-                                'Error de SQL en modFechaNumero:'.$mod['consulta']
+                                'Error de SQL en EliminarRegistroTemporal:'.$eliminarTemporal['consulta']
                                 )
                             );
-                        break;
                         }
-                                
-                        
-                       
                     }else{
-                        array_push($errores,$this->montarAdvertencia('warning',
-                                        'No has realizado ninguna modificación !'
-                                        )
-                                    );
+                        array_push($errores,$this->montarAdvertencia('danger',
+                                'Error no hizo el inset de nuevo albarán correctamente'
+                                )
+                            );
+                      
                     }
-                break;
-                
-                default:
-                    array_push($errores,$this->montarAdvertencia('warning',
-                                        'Estado no esta definido correctamente... !'
-                                        )
-                                    );
-                break;
+                }
             }
         }
         return $errores;
     }
-
 
     
 }

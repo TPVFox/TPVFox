@@ -209,9 +209,9 @@ class AlbaranesCompras extends ClaseCompras {
                 $respuesta['id'] = $id;
             }
         } else {
-            $sql = 'INSERT INTO  albprot  (Numtemp_albpro, Fecha, idTienda , idUsuario , idProveedor , estado , 
+            $sql = 'INSERT INTO  albprot  ( Fecha, idTienda , idUsuario , idProveedor , estado , 
 			total, Su_numero, formaPago, FechaVencimiento) VALUES ('
-                    . $datos['Numtemp_albpro'] . ' , "' . $datos['fecha'] . '", ' . $datos['idTienda'] . ', '
+                    .' "' . $datos['fecha'] . '", ' . $datos['idTienda'] . ', '
                     . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ' , "' . $datos['estado'] . '", "' . $datos['total']
                     . '", "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
             $smt = parent::consulta($sql);
@@ -242,18 +242,9 @@ class AlbaranesCompras extends ClaseCompras {
 					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idpedpro )';
             foreach ($productos as $prod) {
                 if ($prod['estado'] == 'Activo' || $prod['estado'] == 'activo') {
-                    $codBarras = null;
-                    $idPed = 0;
-                    $refProveedor = " ";
-                    if (isset($prod['ccodbar'])) {
-                        $codBarras = $prod['ccodbar'];
-                    }
-                    if (isset($prod['idpedpro'])) {
-                        $idPed = $prod['idpedpro'];
-                    }
-                    if (isset($prod['crefProveedor'])) {
-                        $refProveedor = $prod['crefProveedor'];
-                    }
+                    $codBarras = (isset($prod['ccodbar'])) ? $prod['ccodbar']: null;
+                    $idPed = (isset($prod['idpedpro']))? $prod['idpedpro'] : 0;
+                    $refProveedor =(isset($prod['crefProveedor'])) ?  $prod['crefProveedor'] : " ";
                     $values[] ='('. $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
                             . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
                             . $prod['ultimoCoste'] . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
@@ -599,7 +590,7 @@ class AlbaranesCompras extends ClaseCompras {
             if (isset($datosAlbaran['error'])){
                     array_push($errores,$this->montarAdvertencia(
                                     'danger',
-                                    'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
+                                    'Error 1.1 en buscarAlbaranTemporal.Consulta:'.json_encode($datosAlbaran['consulta'])
                             )
                     );
             }
@@ -628,8 +619,7 @@ class AlbaranesCompras extends ClaseCompras {
             }               
             // ======            Montamos productos y hacemos recalculo de totales         ======= //
             if (isset ($datosAlbaran['Productos'])){
-                $productos=$datosAlbaran['Productos'];
-                $productos_para_recalculo = json_decode( $productos );
+                $productos_para_recalculo = json_decode($datosAlbaran['Productos'] );
                 if(count($productos_para_recalculo)>0){
                     $CalculoTotales = $this->recalculoTotales($productos_para_recalculo);
                     $total=round($CalculoTotales['total'],2);
@@ -657,7 +647,7 @@ class AlbaranesCompras extends ClaseCompras {
                 'estado'=>"Guardado",
                 'total'=>$total,
                 'DatosTotales'=>$CalculoTotales,
-                'productos'=>$productos,
+                'productos'=>$datosAlbaran['Productos'],
                 'pedidos'=>$datosAlbaran['Pedidos'],
                 'suNumero'=>$suNumero,
                 'formaPago'=>$formaPago,
@@ -677,9 +667,6 @@ class AlbaranesCompras extends ClaseCompras {
                                         .$eliminarTablasPrincipal['consulta']
                                         )
                             );
-                } else {
-                    // No hubo errores al eliminar tabla
-
                 } 
             }
             $addNuevo=$this->AddAlbaranGuardado($datos, $idAlbaran);
