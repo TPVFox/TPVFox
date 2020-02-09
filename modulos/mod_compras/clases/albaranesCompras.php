@@ -680,7 +680,7 @@ class AlbaranesCompras extends ClaseCompras {
             }else{
                 if(isset($addNuevo['id'])){
                     $dedonde="albaran";
-                    $historico=parent::comprobarHistoricoCoste($productos,
+                    $historico=parent::comprobarHistoricoCoste($datosAlbaran['Productos'],
                                                 $dedonde, $addNuevo['id'],
                                                 $datosAlbaran['idProveedor'],
                                                 $fecha, $Usuario['id']

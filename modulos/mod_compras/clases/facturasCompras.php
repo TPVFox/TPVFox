@@ -253,7 +253,7 @@ class FacturasCompras extends ClaseCompras{
 		}
 	}
 	
-	public function eliminarFacturasTablas($idFactura){
+	public function eliminarFacturasTablas($idFactura, $tabla=''){
         //@ Objetivo:
         //Eliminamos todos los registros de una factura determinado.
         $respuesta = array();
