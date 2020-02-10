@@ -28,4 +28,6 @@ ALTER TABLE `facprot` ADD `modify_by` INT NULL AFTER `fechaModificacion`;
 # Si hay temporales hay que cubrir el campo fecha.
 UPDATE `albproltemporales` SET `Fecha`=fechaInicio WHERE 1;
 UPDATE `facproltemporales` SET `Fecha`=fechaInicio WHERE 1;
-
+# Cambio en tabla tienda, ya que al reiniciar BD no obliga poner dominio y key , y no es correcto.
+ALTER TABLE `tiendas` CHANGE `dominio` `dominio` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `tiendas` CHANGE `key_api` `key_api` VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL; 
