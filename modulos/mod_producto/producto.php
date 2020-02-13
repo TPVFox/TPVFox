@@ -94,17 +94,19 @@
 			$OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
             // Obtengo el id de la tienda Web
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-            // Se conecta a la web y obtiene los datos de producto cruzado.
-            $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
+            if (count($tiendaWeb) >0){
+                // Se conecta a la web y obtiene los datos de producto cruzado.
+                $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
 
-            // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-            if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-                $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+                // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+                if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+                    $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+                }
+                
+                if ($idVirtuemart>0 ) { 
+                   $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
+                }
             }
-            
-            if ($idVirtuemart>0 ) { 
-			   $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
-			}                  
 		}
 				
 		
