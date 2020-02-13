@@ -102,8 +102,7 @@
             <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
 			<input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
 			<div class="col-md-12">
-				
-				<h4>Datos del proveedor con ID:<input size="5" type="text" id="idProveedor" name="idProveedor" value="<?php echo $$ProveedorUnico['idProveedor'];?>"   readonly></h4>
+				<h4>Datos del proveedor con ID:<input size="5" type="text" id="idProveedor" name="idProveedor" value="<?php echo $ProveedorUnico['idProveedor'];?>"   readonly></h4>
 
 				<div class="col-md-1">
 					<?php 
