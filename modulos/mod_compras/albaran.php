@@ -68,6 +68,7 @@
         $idAlbaranTemporal=$_GET['tActual']; // Id de albaran temporal
     }
     // ---------- Posible errores o advertencias mostrar     ------------------- //
+
     if ($idAlbaran > 0){
         // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
         $c = $CAlb->comprobarTemporalIdAlbpro($idAlbaran);
@@ -76,7 +77,8 @@
             $idAlbaranTemporal = $c['idTemporal'];
             $idAlbaran = 0 ; // Lo pongo en 0 para ejecute la parte temporal
             $_GET['tActual'] = $idAlbaranTemporal;
-            if ($accion !== 'temporal'){
+
+            if ($accion !== 'temporal' && $accion !=='ver'){
                 // Si entro sin accion temporal, NO PERMITO EDITAR.
                 // YA PROVABLEMENTE ESTAN EDITANDO.
                 $accion = 'ver';
@@ -383,7 +385,7 @@
                     .$idAlbaran." ,'mod_compras', 'albaran'"
                     .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
             }
-            if ($estado != "Facturado" || $accion != "ver"){
+            if ($estado != "Facturado" && $accion != "ver"){
                     // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                  echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
                             .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';

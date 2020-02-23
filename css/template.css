@@ -106,3 +106,9 @@ color:  #fdfefe ;
 .icono_web.despublicado > a{
     color:#c6cbc6;
 }
+
+input[disabled],input[readonly] {
+    background-color:#ededed;
+    padding: 1px 5px;
+
+}

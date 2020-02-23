@@ -737,8 +737,8 @@ function before_constructor(caja){
 function permitirModificarReferenciaProveedor(idinput){
 	//@Objetivo:
 	// modificar el input del id para que se pueda modificar la referencia del proveedor articulo
-	console.log("Entre en buscar referencia");
-	$("#"+idinput).prop('disabled', false);
+	console.log("Entre en permitirModificarReferenciaProveedor" );
+	$("#"+idinput).removeAttr("disabled");
 }
 
 function AgregarAdjunto(datos, dedonde){

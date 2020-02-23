@@ -381,7 +381,7 @@
         </div>
         <div class="col-md-4 text-right" >
             <?php
-            if ($estado != "Contabilizado" || $accion != "ver"){?>
+            if ($estado != "Contabilizado" && $accion != "ver"){?>
             <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
              <?php echo htmlSelectConfiguracionSalto();
                 // El btn cancelar solo se crea si el estado es "Nuevo"

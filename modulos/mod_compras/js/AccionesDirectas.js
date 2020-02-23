@@ -279,10 +279,10 @@ function AccionAddProveedorProducto(caja,event){
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** estoy en buscar clientes JS****************');
+				console.log('******** estoy en AccionAddProveedorProducto JS****************');
 			},
 			success    :  function (response) {
-				console.log('Llegue devuelta respuesta de buscar clientes');
+				console.log('Llegue devuelta respuesta de addProveedorArticulo');
 				var resultado =  $.parseJSON(response); //Muestra el modal con el resultado html
 				if (resultado.error){
 					alert('ERROR DE SQL: '+resultado.error);

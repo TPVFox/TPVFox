@@ -320,7 +320,7 @@
                    onclick="abrirIncidenciasAdjuntas('.$idPedido.', '."'".'mod_compras'."'".', '."'".'pedidos'."'".')"
                    value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
                 }
-                if ($estado != "Facturado" || $accion != "ver"){
+                if ($estado != "Facturado" && $accion != "ver"){
                     // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                     echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
                             .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';

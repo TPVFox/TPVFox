@@ -261,8 +261,10 @@ function recalculoTotales($productos,$campo_estado = 'estado') {
 }
 
 function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
-        //@Objetivo:
-        // html de la linea de los productos tanto para pedido, albaran y factura
+        //@ Objetivo:
+        // Objetivo montar el html de la linea de los productos tanto para pedido, albaran y factura
+        //@ Parametros
+        // $solo_lectura = No es obligatorio, y si vienes es readonly
         $respuesta=array('html'=>'');
         if(!is_array($producto)) {
             // Comprobamos si product es objeto lo convertimos en array.
@@ -322,28 +324,36 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
             }
             $html_numeroDoc='<td class="Ndocumento">'.$numeroDoc.'</td>';
         } 
-        //Si tiene referencia del proveedor
+        // ================== Montamos td de referencia de filaProveedor ========================
+        // Montamos td de referencia proveedor,
+        // Es input, que puede ser solo lectura si $solo_lectura = readonly y no montamos btn_ref_prov ( esto es estado ver)
+        // Montamos btn_ref_prov siempre que $solo_lectura esta vacio, aunque no lo mostramos siempre.
+        // Solo mostramos btn_ref_prov cuando contienes datos $producto[ref_prov], asi identificamos aquellos que metimos nuevos en ese momento.
+        $btn_ref_prov = '';
         $displayRefProv = 'display:none'; // Por defecto si no existe.
         $ref_prov = 'value="" placeholder="ref"'; // Por defecto si no existe.
         if( isset ($producto['ref_prov'])){
             // Existe -- Ahora compruebo si tiene datos.
             if (strlen($producto['ref_prov']) > 0){
-                $displayRefProv = 'text-align: right';
+                $displayRefProv = 'text-align: right'; // Para mostrar btn_ref_prov
                 $ref_prov = 'value="'.$producto['ref_prov'].'"';
             }
-        } 
-        $filaProveedor ='<td><input id="Proveedor_Fila_'
-                        .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
-                        .'name="proveedor_fila[]" '.$ref_prov.' size="7"  onkeydown="controlEventos(event)" '
-                        .'onBlur="controlEventos(event)"'.$solo_lectura.'>';
-        if ($solo_lectura !=''){
-            $filaProveedor .= '<a onclick=permitirModificarReferenciaProveedor("Proveedor_Fila_'
-                            .$producto['nfila'].'") style="'.$displayRefProv.'" id="enlaceCambio'
+        }
+        if ($solo_lectura ===''){
+            // Montamos btn_ref_prov referencia proveedor.
+            $btn_ref_prov= '<a onclick="permitirModificarReferenciaProveedor('."'".'Proveedor_Fila_'
+                            .$producto['nfila']."'".')" style="'.$displayRefProv.'" id="enlaceCambio'
                             .$producto['nfila'].'">'
                             .'<span class="glyphicon glyphicon-cog"></span>'
                             .'</a>';
         }
-        $filaProveedor .= '</td>';   
+        $filaProveedor ='<td><input id="Proveedor_Fila_'
+                        .$producto['nfila'].'" type="text" data-obj="Proveedor_Fila" '
+                        .'name="proveedor_fila[]" '.$ref_prov.' size="7"  onkeydown="controlEventos(event)" '
+                        .'onBlur="controlEventos(event)"'.$solo_lectura.'>'.$btn_ref_prov;
+        $filaProveedor .= '</td>';
+        // =================  FIN de montar td de referencia de filaProveedor  ==============================
+        
         $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>'
                             .'<td class="linea">'.$producto['nfila'].'</td>'
                             . $html_numeroDoc
