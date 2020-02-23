@@ -244,7 +244,7 @@ class AlbaranesCompras extends ClaseCompras {
                 if ($prod['estado'] == 'Activo' || $prod['estado'] == 'activo') {
                     $codBarras = (isset($prod['ccodbar'])) ? $prod['ccodbar']: null;
                     $idPed = (isset($prod['idpedpro']))? $prod['idpedpro'] : 0;
-                    $refProveedor =(isset($prod['crefProveedor'])) ?  $prod['crefProveedor'] : " ";
+                    $refProveedor =(isset($prod['ref_prov'])) ?  $prod['ref_prov'] : " ";
                     $values[] ='('. $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
                             . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
                             . $prod['ultimoCoste'] . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"

@@ -93,7 +93,7 @@ function buscarAdjunto(dedonde, valor=""){
                                     var prod = {
                                             'articulo_name' : productosAdd[i].cdetalle,
                                             'codBarras'     : productosAdd[i].ccodbar,
-                                            'crefProveedor' : productosAdd[i].ref_prov,
+                                            'ref_prov' : productosAdd[i].ref_prov,
                                             'crefTienda'    : productosAdd[i].cref,
                                             'idArticulo'    : productosAdd[i].idArticulo,
                                             'iva'           : productosAdd[i].iva,
@@ -462,7 +462,7 @@ function ponerSelect (destino_focus){
 	}, 50); 
 }
 
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, crefProveedor, coste){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, ref_prov, coste){
 	//@ Objetivo:
 	// Escribir y añadir el producto seleccionado en el modal
     //@ Parametos:
@@ -474,7 +474,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
         'crefTienda'    : cref.toString(),
         'idArticulo'    : id.toString(),
         'iva'           : ctipoIva.toString(),
-        'crefProveedor' : crefProveedor.toString(),
+        'ref_prov' : ref_prov.toString(),
         'coste'         : coste.toString()
     };
     var opcion = true;
@@ -988,7 +988,7 @@ function ObjProducto(datos)
     console.log('Estoy creando objeto producto');
     this.idArticulo = datos.idArticulo;
     this.cref = datos.crefTienda;
-    this.crefProveedor = datos.crefProveedor;
+    this.ref_prov = datos.ref_prov;
     this.ccodbar = datos.codBarras;
     this.cdetalle = datos.articulo_name;
     this.iva = datos.iva;

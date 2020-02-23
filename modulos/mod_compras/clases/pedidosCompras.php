@@ -225,8 +225,8 @@ class PedidosCompras extends ClaseCompras{
                 if ($prod['ccodbar']){
                     $codBarras=$prod['ccodbar'];
                 }
-                if ($prod['crefProveedor']){
-                    $refProveedor=$prod['crefProveedor'];
+                if ($prod['ref_prov']){
+                    $refProveedor=$prod['ref_prov'];
                 }
                 $values[]='('.$id.', '.$prod['idArticulo'].', '
                 ."'".$prod['cref']."'".', '

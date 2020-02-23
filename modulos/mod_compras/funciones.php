@@ -85,7 +85,7 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 	$i = 0;
 	foreach ($busquedas as $buscar){
         $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , a.ultimoCoste,
-			 at.crefTienda ,p.`crefProveedor`, p.coste, p.fechaActualizacion,  a.`iva` , a.estado as estadoTabla'
+			 at.crefTienda ,p.`crefProveedor` as ref_prov, p.coste, p.fechaActualizacion,  a.`iva` , a.estado as estadoTabla'
 			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
 			.' ON a.idArticulo = ac.idArticulo '
 			.'  LEFT JOIN `articulosTiendas` '
@@ -174,8 +174,8 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
 						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
-						"'".addslashes(htmlspecialchars($producto['crefProveedor'],ENT_COMPAT))."' , '".$producto['coste']."'";
-			if(strlen($producto['crefProveedor'])==0){
+						"'".addslashes(htmlspecialchars($producto['ref_prov'],ENT_COMPAT))."' , '".$producto['coste']."'";
+			if(strlen($producto['ref_prov'])==0){
                 $style='style="opacity:0.5;"';
             }
             if($producto['estadoTabla']=="Baja"){
@@ -190,7 +190,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
                      '" name="filaproducto" data-obj="idN" 	onkeydown="controlEventos(event)" '.
                      ' type="image"  alt=""><span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			if ($id_input=="ReferenciaPro"){
-				$html .= '<td>'.htmlspecialchars($producto['crefProveedor'], ENT_QUOTES).'</td>';	
+				$html .= '<td>'.htmlspecialchars($producto['ref_prov'], ENT_QUOTES).'</td>';	
 			}else{
 				$html .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';	
 			}		
@@ -325,11 +325,11 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
         //Si tiene referencia del proveedor
         $displayRefProv = 'display:none'; // Por defecto si no existe.
         $ref_prov = 'value="" placeholder="ref"'; // Por defecto si no existe.
-        if( isset ($producto['crefProveedor'])){
+        if( isset ($producto['ref_prov'])){
             // Existe -- Ahora compruebo si tiene datos.
-            if (strlen($producto['crefProveedor']) > 0){
+            if (strlen($producto['ref_prov']) > 0){
                 $displayRefProv = 'text-align: right';
-                $ref_prov = 'value="'.$producto['crefProveedor'].'"';
+                $ref_prov = 'value="'.$producto['ref_prov'].'"';
             }
         } 
         $filaProveedor ='<td><input id="Proveedor_Fila_'
@@ -374,7 +374,7 @@ function modificarArrayProductos($productos){
         $pro = array(   'ccodbar'       =>$producto['ccodbar'],
                         'cdetalle'      =>$producto['cdetalle'],
                         'cref'          =>$producto['cref'],
-                        'crefProveedor' =>$producto['ref_prov'],
+                        'ref_prov'       =>$producto['ref_prov'],
                         'estado'        =>$producto['estadoLinea'],
                         'idArticulo'    =>$producto['idArticulo'],
                         'importe'       =>$producto['costeSiva']*$producto['nunidades'],
@@ -654,8 +654,8 @@ EOD;
 				}	
 			}
             $refPro="";
-            if ($producto['crefProveedor']>0){
-				$refPro=$producto['crefProveedor'];
+            if ($producto['ref_prov']>0){
+				$refPro=$producto['ref_prov'];
 			}
             $iva=$producto['iva']/100;
 			$imprimir['html'] .='<td><font size="8">('.$producto['idArticulo'].') '.$refPro.'</font></td>'

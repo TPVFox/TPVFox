@@ -287,7 +287,7 @@ function AccionAddProveedorProducto(caja,event){
 				if (resultado.error){
 					alert('ERROR DE SQL: '+resultado.error);
 				}else{
-					productos[nfila].crefProveedor=valor;// pone le valor en el input 
+					productos[nfila].ref_prov=valor;// pone le valor en el input 
 					fila=nfila+1;//sumamos uno a la fila
 					var id="#Proveedor_Fila_"+fila;
 					if (valor){
