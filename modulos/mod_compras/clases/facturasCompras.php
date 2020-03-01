@@ -294,6 +294,7 @@ class FacturasCompras extends ClaseCompras{
                     .', Fecha ="'. $datos['fecha']. '"'
                     .', modify_by ="'.$datos['idUsuario'].'"'
                     .', estado ="'. $datos['estado'] . '"'
+                    .', total_siniva ="'. $datos['total_siniva']. '"'
                     .', total ="'. $datos['total']. '"'
                     .', Su_num_factura ="'. $datos['suNumero'] . '"'
                     .', formaPago ="'. $datos['formaPago'] . '"'
@@ -307,10 +308,10 @@ class FacturasCompras extends ClaseCompras{
 				$respuesta['id']=$id;
 			}
 		}else{
-			$sql='INSERT INTO facprot ( Fecha, idTienda , idUsuario , idProveedor , estado , total, Su_num_factura ) VALUES ("'
+			$sql='INSERT INTO facprot ( Fecha, idTienda , idUsuario , idProveedor , estado , total_siniva, total, Su_num_factura ) VALUES ("'
                     .$datos['fecha'].'", '.$datos['idTienda']
                     . ', '.$datos['idUsuario'].', '.$datos['idProveedor'].' , "'.$datos['estado']
-                    .'", '.$datos['total'].', "'.$datos['suNumero'].'")';
+                    .'", "'.$datos['total_siniva'].'", "'.$datos['total'].'", "'.$datos['suNumero'].'")';
             $smt = parent::consulta($sql);
 			if (gettype($smt)==='array'){
                 $respuesta = $smt;
@@ -619,7 +620,7 @@ class FacturasCompras extends ClaseCompras{
             if (isset($datosFactura['Productos'])){
                 $productos_para_recalculo = json_decode( $datosFactura['Productos'] );
                 $CalculoTotales = recalculoTotales($productos_para_recalculo);
-                $total=round($CalculoTotales['total'],2);
+                $total_siniva = $CalculoTotales['total']-$CalculoTotales['subivas'];
             }else{
                 array_push($errores,$this->montarAdvertencia('danger',
                             'Error no tienes productos !'
@@ -633,7 +634,8 @@ class FacturasCompras extends ClaseCompras{
                         'idUsuario'=>$Usuario['id'],
                         'idProveedor'=>$datosFactura['idProveedor'],
                         'estado'=>"Guardado",
-                        'total'=>$total,
+                        'total'=>round($CalculoTotales['total'],2),
+                        'total_siniva' => round($total_siniva,2),
                         'DatosTotales'=>$CalculoTotales,
                         'productos'=>$datosFactura['Productos'],
                         'albaranes'=>$datosFactura['Albaranes'],

@@ -147,11 +147,11 @@ class PedidosCompras extends ClaseCompras{
 		//pedprolinea->tabla que contiene las lineas de los productos
 		//pedproIva->tabla que contiene los registros de los distintos ivas de los productos
         $sql='INSERT INTO pedprot'
-            .' ( Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total, fechaCreacion)'
+            .' ( Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total_siniva, total, fechaCreacion)'
             .' VALUES ('.$datos['Numtemp_pedpro']
             .', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '
             .$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado']
-            .'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")';
+            .'", '.$datos['total_siniva'].'", "'.$datos['total'].', "'.$datos['fechaCreacion'].'")';
         $smt=parent::consulta($sql);
         if (gettype($smt)==='array'){
             $respuesta =$smt;
@@ -291,6 +291,7 @@ class PedidosCompras extends ClaseCompras{
             $sql='UPDATE pedprot SET Numtemp_pedpro='.$datos['Numtemp_pedpro']
                 .', FechaPedido ="'.$datos['FechaPedido'].'"'
                 .', estado ="'.$datos['estado'].'"'
+                .', total_siniva="'.$datos['total_siniva'].'"'
                 .', total="'.$datos['total'].'"'
                 .', modify_by="'.$datos['idUsuario'].'"'
                 .', fechaModificacion=NOW()'
@@ -438,7 +439,8 @@ class PedidosCompras extends ClaseCompras{
 	
 	public function buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado){
 		if ($numPedido>0){
-			$sql='SELECT Numpedpro, FechaPedido, total, id FROM pedprot 
+            // Si buscamos un numero en concreto.
+			$sql='SELECT Numpedpro, FechaPedido, total_siniva,total, id FROM pedprot 
 			WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'"
 			.' and Numpedpro='.$numPedido;
 			$smt=parent::consulta($sql);
@@ -453,7 +455,7 @@ class PedidosCompras extends ClaseCompras{
 				$pedido['Nitem']=1; // No lo entiendo , y si la consulta obtiene mas.
 			}
 		}else{
-			$sql='SELECT Numpedpro, FechaPedido, total, id FROM pedprot
+			$sql='SELECT Numpedpro, FechaPedido, total_siniva, total, id FROM pedprot
 			 WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'";
 			$smt=parent::consulta($sql);
 			if (gettype($smt)==='array'){
@@ -541,7 +543,8 @@ class PedidosCompras extends ClaseCompras{
             $productos = json_decode($pedidoTemporal['Productos']);
             if (count($productos)>0){
                 $CalculoTotales = parent::recalculoTotales($productos);
-                $total=round($CalculoTotales['total'],2);
+                $total_siniva = $CalculoTotales['total']-$CalculoTotales['subivas'];
+
             }
             // Creamos array con los datos del pedido para AÑADIR O MODIFICAR
             $datosPedido=array(
@@ -551,7 +554,8 @@ class PedidosCompras extends ClaseCompras{
                         'idUsuario'=>$Usuario['id'],
                         'idProveedor'=>$pedidoTemporal['idProveedor'],
                         'estado'=>"Guardado",
-                        'total'=>$total,
+                        'total_siniva' => round($total_siniva,2),
+                        'total'=>round($CalculoTotales['total'],2),
                         'fechaCreacion'=>$fechaCreacion,
                         'Productos'=>$productos_json,
                         'DatosTotales'=>$CalculoTotales
@@ -598,7 +602,7 @@ class PedidosCompras extends ClaseCompras{
                     $datosPedido['idPedpro'] = $pedidoTemporal['idPedpro'];
                     $modPedido=$this->ModPedidoGuardado($datosPedido);
                     $respuesta['modPedido'] = $modPedido;
-                    // Lo posobles errores que podemos obtener.
+                    // Lo posibles errores que podemos obtener.
                     $e = array ( 0 => 'Error update en pedprot:',
                                  1 => 'Error al eliminar tabla pedprolinea:',
                                  2 => 'Error al eliminar tabla pedproIva:',

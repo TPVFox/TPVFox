@@ -507,10 +507,11 @@ function lineaAdjunto($adjunto, $dedonde,$accion ='editar'){
 		}
 		$date=date_create($adjunto['fecha']);
 		$fecha=date_format($date,'d-m-Y');
-		$respuesta['html'] .='<td>'.$fecha.'</td>'
-		.'<td>'.$adjunto['total'].'</td>';
         $totalSiva = (isset($adjunto['totalSiva']))? $adjunto['totalSiva'] : '';
-        $respuesta['html'].='<td>'.$totalSiva.'</td>';
+		$respuesta['html'] .='<td>'.$fecha.'</td>'.
+                             '<td>'.$totalSiva.'</td>'.
+                            '<td>'.$adjunto['total'].'</td>';
+        
         if ($accion !=='ver'){
             $respuesta['html'].=$btnELiminar_Retornar;
         }
@@ -976,10 +977,10 @@ function htmlDatosAdjuntoProductos($datos,$dedonde){
     $n_adjunto .= $datos['NumAdjunto'].'</strong>';
         $respuesta='<tr class="success">
             <td colspan="2">'.$n_adjunto .'</td>
-            <td colspan="2"><strong>Su número:'.$suNumero.'</strong></td>
+            <td colspan="3"><strong>Su número:'.$suNumero.'</strong></td>
             <td colspan="2"><strong>Fecha:'.$datos['fecha'].'</strong></td>
-            <td colspan="2"><strong>Total con IVA:'.$total.'</strong></td>
-            <td colspan="4"><strong>Total sin IVA:'.$totalSiva.'</strong></td>
+            <td colspan="2"><strong>Total sin IVA:'.$totalSiva.'</strong></td>
+            <td><strong>Total con IVA:'.$total.'</strong></td>
             </tr>';
 	return $respuesta;
 }

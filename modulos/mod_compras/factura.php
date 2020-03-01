@@ -182,6 +182,7 @@
                         }
                         $datosFactura['Albaranes'][$key]['estado'] = $estado_adjunto;
                         $datosFactura['Albaranes'][$key]['fecha'] = $e['Fecha'];
+                        $datosAlbaran['Albaranes'][$key]['total_siniva'] = $e['total_siniva'];
                         $datosFactura['Albaranes'][$key]['total'] = $e['total'];
                         $datosFactura['Albaranes'][$key]['NumAdjunto'] = $e['Numalbpro'];
                         $datosFactura['Albaranes'][$key]['idAdjunto'] = $idAlbaran;

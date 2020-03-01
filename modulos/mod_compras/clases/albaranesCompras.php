@@ -182,11 +182,17 @@ class AlbaranesCompras extends ClaseCompras {
     }
 
     public function AddAlbaranGuardado($datos, $idAlbaran) {
-        //@Objetivo:
+        //@ Objetivo:
         //Añadimos los registro de un albarán.
         //Si $idAlbaran es mayor 0, entonces no es nuevo, solo se modifica albprot, donde los campos:
         // FechaCreacion y idUsuario no modifican, ya que se pone fechaModificacion y modify_by
         //El resto tablas se insertan, ya que con anterioridad se borraron los registros para es idAlbaran.
+        // @ Devolvemos:
+        // Un array con :
+        // ['error'] -> Si hubo error
+        // ['id'] -> Con el numero de id que insertamos o hicimos update.
+        // ['n_productos_insertados'] -> Con el numero de productos que insertamos, ya que eliminados no los insertamos.
+        //                              y devolvemos 0, si realmente no inserto ninguno.
         $respuesta = array();
         $db = $this->db;
         // Aquí tenemos que validar las fechas son correctas
@@ -196,6 +202,7 @@ class AlbaranesCompras extends ClaseCompras {
                     .', Fecha ="'. $datos['fecha']. '"'
                     .', modify_by ="'.$datos['idUsuario'].'"'
                     .', estado ="'. $datos['estado'] . '"'
+                    .', total_siniva ="'. $datos['total_siniva']. '"'
                     .', total ="'. $datos['total']. '"'
                     .', Su_numero ="'. $datos['suNumero'] . '"'
                     .', formaPago ="'. $datos['formaPago'] . '"'
@@ -209,10 +216,9 @@ class AlbaranesCompras extends ClaseCompras {
                 $respuesta['id'] = $id;
             }
         } else {
-            $sql = 'INSERT INTO  albprot  ( Fecha, idTienda , idUsuario , idProveedor , estado , 
-			total, Su_numero, formaPago, FechaVencimiento) VALUES ('
+            $sql = 'INSERT INTO  albprot  ( Fecha, idTienda , idUsuario , idProveedor , estado ,total_siniva, total, Su_numero, formaPago, FechaVencimiento) VALUES ('
                     .' "' . $datos['fecha'] . '", ' . $datos['idTienda'] . ', '
-                    . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ' , "' . $datos['estado'] . '", "' . $datos['total']
+                    . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ' , "' . $datos['estado'] .'", "' . $datos['total_siniva'].'", "' . $datos['total']
                     . '", "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
             $smt = parent::consulta($sql);
             if (gettype($smt)==='array') {
@@ -234,7 +240,7 @@ class AlbaranesCompras extends ClaseCompras {
         }
         if (!isset($respuesta['error'])) {
             $productos = json_decode($datos['productos'], true);
-            $i = 1;
+            $i = 0;
             $numAlbaran = $id;
             $stock = new alArticulosStocks();
             $values = array();
@@ -242,6 +248,7 @@ class AlbaranesCompras extends ClaseCompras {
 					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idpedpro )';
             foreach ($productos as $prod) {
                 if ($prod['estado'] == 'Activo' || $prod['estado'] == 'activo') {
+                    $i++;
                     $codBarras = (isset($prod['ccodbar'])) ? $prod['ccodbar']: null;
                     $idPed = (isset($prod['idpedpro']))? $prod['idpedpro'] : 0;
                     $refProveedor =(isset($prod['ref_prov'])) ?  $prod['ref_prov'] : " ";
@@ -253,18 +260,20 @@ class AlbaranesCompras extends ClaseCompras {
                     
                     // ¿Donde se guarda el error si no actualiza stock? ????
                     $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['nunidades'], K_STOCKARTICULO_SUMA);
-                    $i++;
                 }
             }
-            // Ahora insertamos todos los productos a la vez.
-            $valores =' VALUES '.implode(',',$values);
-            $sql .= $valores;
-            $smt = parent::consulta($sql);
-            if (gettype($smt)==='array') {
-               $respuesta = $smt;
-               // Si hay un error grave, lo registramos en log, ya que hay arreglarlo a mano.
-               error_log('Error a la hora insertar productos en albaran '.$idalbpro.' el error:'.json_encode($smt));
-            }
+            $respuesta['n_productos_insertados'] = $i; // Si es 0, lo controlamos para dar una advertencia.
+            if ($i > 0){
+                // Ahora insertamos todos los productos a la vez.
+                $valores =' VALUES '.implode(',',$values);
+                $sql .= $valores;
+                $smt = parent::consulta($sql);
+                if (gettype($smt)==='array') {
+                   $respuesta = $smt;
+                   // Si hay un error grave, lo registramos en log, ya que hay arreglarlo a mano.
+                   error_log('Error a la hora insertar productos en albaran '.$idalbpro.' el error:'.json_encode($smt));
+                }
+            } 
             if (!isset($respuesta['error'])){
                 foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
                     $sql = 'INSERT INTO albproIva'
@@ -622,7 +631,7 @@ class AlbaranesCompras extends ClaseCompras {
                 $productos_para_recalculo = json_decode($datosAlbaran['Productos'] );
                 if(count($productos_para_recalculo)>0){
                     $CalculoTotales = $this->recalculoTotales($productos_para_recalculo);
-                    $total=round($CalculoTotales['total'],2);
+                    $total_siniva = $CalculoTotales['total']-$CalculoTotales['subivas'];
                 } else {
                     // Hay $datosAlbaran['Productos'], pero no tiene productos.
                     array_push($errores,$this->montarAdvertencia('warning',
@@ -645,7 +654,8 @@ class AlbaranesCompras extends ClaseCompras {
                 'idUsuario'=>$Usuario['id'],
                 'idProveedor'=>$datosAlbaran['idProveedor'],
                 'estado'=>"Guardado",
-                'total'=>$total,
+                'total'=>round($CalculoTotales['total'],2),
+                'total_siniva' => $total_siniva,
                 'DatosTotales'=>$CalculoTotales,
                 'productos'=>$datosAlbaran['Productos'],
                 'pedidos'=>$datosAlbaran['Pedidos'],
@@ -692,20 +702,31 @@ class AlbaranesCompras extends ClaseCompras {
                                         )
                             );
                     }
-                    $eliminarTemporal=$this->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-                    if (isset($eliminarTemporal['error'])){
-                        array_push($errores,$this->montarAdvertencia('dander',
-                                        'Error al eliminar las tablas temporales !!<br/>'
-                                        .$eliminarTemporal['consulta']
+                    // Ahora comprobamos que no grabo , pero con productos en 0
+                    if ($addNuevo['n_productos_insertados']=== 0){
+                         array_push($errores,$this->montarAdvertencia('warning',
+                                        'No permite guardar un albaran sin productos.</br>'.
+                                        'Se deja abierto el temporal en 0. Habla con el administrador para que lo elimine!!<br/>'
                                         )
                             );
+                    } else {
+                        $eliminarTemporal=$this->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+                        if (isset($eliminarTemporal['error'])){
+                            array_push($errores,$this->montarAdvertencia('dander',
+                                            'Error al eliminar las tablas temporales !!<br/>'
+                                            .$eliminarTemporal['consulta']
+                                            )
+                                );
+                        }
                     }
-                }else{
+                }
+                if (!isset($addNuevo['id'])){
+                    // No existe id
                     array_push($errores,$this->montarAdvertencia('dander',
                                         'Error al generar id nuevo de la función AddAlbaranGuardado!'
                                         )
                             );
-                }
+                } 
             }
         }
         return $errores;
