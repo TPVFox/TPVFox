@@ -362,7 +362,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// ---- 		Insertamos un producto nuevo en tabla articulos 		----- //
 		$sqlArticulo = 'INSERT INTO `articulos`(iva, articulo_name, estado,ultimoCoste, fecha_creado,beneficio, tipo) VALUES ("'
 						.$datos['iva'].'","'.$datos['articulo_name'].'","'.$datos['estado'].'","'
-						.$datos['coste'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'", "'.$datos['tipo'].'")';
+						.$datos['ultimoCoste'].'","'.$fecha_ahora.'","'.$datos['beneficio'].'", "'.$datos['tipo'].'")';
 		// De momento inserto ultimoCoste, pero no deberíamos... :-) ya que no se compro.	
 		$respuesta = array();
 		$DB = parent::GetDb();
@@ -954,7 +954,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// Objetivo es comprobar que los datos enviados son correctos.
 		// @ Parametros
 		// 		$datos = (array asociativo) 
-		$campos_obligatorios = array('articulo_name','estado','iva','pvpSiva','pvpCiva','coste','beneficio', 'tipo');
+		$campos_obligatorios = array('articulo_name','estado','iva','pvpSiva','pvpCiva','beneficio', 'tipo');
 		$comprobaciones = array(); // Lo utilizo para guardar resultado de comprobaciones o errores.
 		// ---- 	Comprobamos que existe campo y tiene dato correcto.		--------- //
 		foreach ($campos_obligatorios as $key){

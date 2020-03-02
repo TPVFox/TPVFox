@@ -256,9 +256,11 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <?php 
                             }
                             if($ClasePermisos->getAccion("subirProductosWeb")==1){
+                                if( isset($tiendaWeb['idTienda'])){
                             ?>      
                                 <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>                                   
-                            <?php 
+                            <?php
+                                }
                             }
                             if($ClasePermisos->getAccion("agregarProductosFamilia")==1){
                             ?>

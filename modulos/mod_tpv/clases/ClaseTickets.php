@@ -220,7 +220,7 @@ class ClaseTickets extends ClaseSession {
         $filtro =$filtro. ' t.estado="'.$estado.'" AND t.fecha >="'. $fechas['inicio']->format('Y-m-d H:i:s')
                 . '" AND t.fecha <="'.$fechas['final']->format('Y-m-d H:i:s').'"';
                 
-        // Calculamos la intervalo de tiempo.
+        // Calculamos array de intervalo de tiempo.
         $intervalo = date_diff($fechas['inicio'], $fechas['final']);
         // Solo ejecutamos consulta si hay un intervalo de 5 dias, ya daría un error por exceso memoria.
         if ($intervalo->d <5 and $intervalo->d >-1 ){
@@ -237,7 +237,8 @@ class ClaseTickets extends ClaseSession {
 
             }
         } else {
-            //~ $respuesta['error'] = 'La fechas estan mal. Fecha Inicio:'.$fecha_inicio.' Fecha Final:'.$fecha_final.' Intervalo:'.json_decode($intervalo);
+            // No permite obtener tantos tickets.
+            $respuesta['error'] = 'Hay mas cinco dias entre las fecha '.$fechas['inicio']->format('Y-m-d H:i:s').' y la ficha final:'.$fechas['final']->format('Y-m-d H:i:s');
             $respuesta['filtro']= $filtro;
             
         }

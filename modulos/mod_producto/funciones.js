@@ -520,8 +520,6 @@ function desActivarCoste(event){
 	// Cambiamo el nombre de la caja para no cambiar el coste_ultimo en post.
 	console.log(event.target);
 	$('#coste').removeAttr('readonly', '');
-	$('#coste').attr('name','coste');
-
 }
 
 function desActivarCajasProveedor(obj){

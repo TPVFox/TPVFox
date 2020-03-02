@@ -8,4 +8,8 @@ ALTER TABLE `proveedores` CHANGE `email` `email` VARCHAR(100) CHARACTER SET utf8
 ALTER TABLE `proveedores` CHANGE `telefono` `telefono` VARCHAR(11) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 ALTER TABLE `articulosCodigoBarras` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
 ALTER TABLE `articulosPrecios` DROP PRIMARY KEY, ADD INDEX (`idArticulo`, `idTienda`) USING BTREE;
-ALTER TABLE `articulosPrecios` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`); 
+ALTER TABLE `articulosPrecios` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
+ALTER TABLE `articulosFamilias` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
+ALTER TABLE `tpvfox_ondasyperfil`.`articulosFamilias` ADD UNIQUE (`idArticulo`, `idFamilia`); 
+
+ALTER TABLE `articulosTiendas` CHANGE `idVirtuemart` `idVirtuemart` INT(11) NULL;

@@ -22,12 +22,12 @@
 	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
     include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
     $Tickets = new ClaseTickets();
-    $link_volver ='<a class="text-ritght" href="./tpv.php">Volver Atrás</a>';
+    //~ $link_volver ='<a class="text-ritght" href="./tpv.php">Volver Atrás</a>';
     $otrosParametros= '';
     if (isset($_GET['idCierre'])){
         include_once $URLCom.'/modulos/mod_cierres/clases/ClaseCierres.php';
         $CCierres = new ClaseCierres;
-        $link_volver = '<a class="text-right" href="'.$HostNombre.'/modulos/mod_cierres/VistaCierre.php?id='.$_GET['idCierre'].'" > Volver a Cierre </a>';
+        //~ $link_volver = '<a class="text-right" href="'.$HostNombre.'/modulos/mod_cierres/VistaCierre.php?id='.$_GET['idCierre'].'" > Volver a Cierre </a>';
         $otrosParametros = 'estado=Cerrado&idUsuario='.$_GET['idUsuario'].'&idCierre='. $_GET['idCierre'].'&';
     }
     
@@ -57,41 +57,41 @@
     }
     
     if (!isset($fechas)) {
-        // Debería obtener la fecha del ultimo ticket con el estado que le indicamos
-        // obtenemos fecha , para montar fecha inicio y final de ese mismo dia.
+        // Creamo la fecha inicial y final de los tickets que tenemos de un estado determinado
+        // sino recibimos fechas
         $obtenerFecha = $Tickets->getPrimerTicket($estado_ticket);
-        if ( isset( $obtenerFecha['NItems'])){
-            if ($obtenerFecha['NItems']<>1){
-                // No hay tickets con ese estado o obtuvo mas uno ( esto ultimo imposible..).
-                $mensaje_error[] = 'No hay tickets con el estado '.$estado_ticket;
-            }
-        } else {
-            // Hubo en error al obtener ultimo ticket.
-                $mensaje_error[] = 'No hay tickets con el estado '.$estado_ticket;
-
-        }
         if (isset( $obtenerFecha['fecha'])){
             $fecha_inicio = DateTime::createFromFormat('Y-m-d H:i:s', $obtenerFecha['fecha']);
-        }
-        
-        if (isset($fecha_inicio)){
             // Creamos fecha:   Inicio es la que obtenimos.
-            //                  Final es la actual
+            //                  Final es la actual.. Esto puede generar un problema si hay muchos dias.
             $fechas =array( 'inicio' => $fecha_inicio->format('Y-m-d').' 00:00:00',
                         'final'  => date('Y-m-d').' 23:59:59'
                         );
-        } 
+        } else {
+            $mensaje_error[] = 'No obtuvo fecha del Primer Ticket de este estado:'.$estado_ticket;
+        }
     }
     if (isset($_GET['idCierre'])){
         $Obtenertickets = $CCierres->obtenerTicketsUsuariosCierre($_GET['idUsuario'],$_GET['idCierre'],$Tienda['idTienda']);
     } else {
         $Obtenertickets = $Tickets->obtenerTickets($estado_ticket ,$fechas,$filtro);
     }
-    $CantidadRegistros = count($Obtenertickets['datos']);
-    if ($CantidadRegistros === 0){
-        // No se obtuvo registros por lo que mostramos aviso.
-        $mensaje_error[] = 'No se encontro ningun tickets';
+    if (isset($Obtenertickets['datos'])){
+            $CantidadRegistros = count($Obtenertickets['datos']);
+            if ($CantidadRegistros === 0){
+                // No se obtuvo registros por lo que mostramos aviso.
+                $mensaje_error[] = 'No se encontro ningun tickets';
+            }
+    } else {
+        // hubo un error a la hora obtener el los tickets
+        $mensaje_error[] = ' No se permite obtener tanto tickets.'.$filtro.'<br/>'. $Obtenertickets ['error'];
     }
+    if (count($mensaje_error)>0){
+        echo '<pre>';
+        print_r($mensaje_error);
+        echo '</pre>';
+    }
+    
 	// --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
     $NPaginado->SetCantidadRegistros($CantidadRegistros);
     $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
@@ -140,7 +140,8 @@
 	        -->
 	       
 			<nav class="col-sm-2" id="myScrollspy">
-				<?php echo $link_volver;?>
+                <?php echo $Controler->getHtmlLinkVolver('Volver');?>
+                <?php //echo $link_volver;?>
 				<div data-offset-top="505">
 				<h4> Tickets <?php echo $estado_ticket;?>s</h4>
 				<h5> Opciones para una selección</h5>
@@ -152,7 +153,7 @@
 			</nav>
 			<div class="col-md-10">
                     <?php
-                    echo '<p>'.$CantidadRegistros.' tickets '.$estado_ticket.'s encontrados entre fecha '.$fechas['inicio'].' a '.$fechas['final'].'.</p>'
+                    echo '<p><strong>'.$CantidadRegistros.' tickets '.$estado_ticket.'s </strong> encontrados entre fecha '.$fechas['inicio'].' a '.$fechas['final'].'.</p>'
                     ?>
 					<div>
 						<div>

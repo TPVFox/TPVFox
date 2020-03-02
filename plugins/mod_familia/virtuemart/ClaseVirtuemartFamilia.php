@@ -17,20 +17,21 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
 		$this->obtenerRutaProyecto();
 		$tiendasWebs = $this->ObtenerTiendasWeb();
       
-		if (count($tiendasWebs['items'])>1){
+		if (isset($tiendasWebs['items']) && count($tiendasWebs['items'])>1){
 			// Quiere decir que hay mas de una tienda web,, no podemos continuar.
             echo '<pre>';
             print_r('Error hay mas de una empresa tipo web');
             echo '</pre>';
 			exit();
 		} else {
-			$this->TiendaWeb = $tiendasWebs['items'][0];
-            $tiendaWeb=$tiendasWebs['items'][0];
-            // Esto no es correcto ya que si no es virtuemart, seguro que hay que poner otro link...  :-)
-			$this->ruta_categoria = $this->TiendaWeb['dominio']
-                                    ."/index.php?option=com_virtuemart&view=category&virtuemart_category_id=";
-            $this->key_api 	= $tiendaWeb['key_api'];
-            $this->ruta_web = $tiendaWeb['dominio'].'/administrator/apisv/tareas.php';
+             if ( isset($tiendasWebs['items'][0])){
+                $this->TiendaWeb = $tiendasWebs['items'][0];
+                $tiendaWeb=$tiendasWebs['items'][0];
+                // Esto no es correcto ya que si no es virtuemart, seguro que hay que poner otro link...  :-)
+                $this->ruta_categoria = $this->TiendaWeb['dominio']."/index.php?option=com_virtuemart&view=category&virtuemart_category_id=";
+                $this->key_api 	= $tiendaWeb['key_api'];
+                $this->ruta_web = $tiendaWeb['dominio'].'/administrator/apisv/tareas.php';
+            }
         }
 	}
     public function obtenerRutaProyecto(){
