@@ -308,7 +308,7 @@ if (count($Control_Error)>0){
 	?>
 	<div>
 		<h4 class="text-center">Configuracion</h4>
-		<input type="checkbox" <?php echo $checkin[1];?>>Imprimitr Tickets por defecto<br>
+		<input type="checkbox" <?php echo $checkin[1];?>>Imprimitr Tickets<br>
 	</div>
 </div>
 <div class="col-md-10" >

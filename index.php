@@ -101,7 +101,7 @@
 					'link'=>'modulos/mod_cierres/CierreCaja.php?dedonde=tpv',
                      'modulo'=>'mod_cierres',
                     'vista'=>'CierreCaja.php',
-					'texto'=>'Cierres',
+					'texto'=>'Cierre',
 					'permmiso'=>0
 					),
 				'11'=>array(
@@ -109,7 +109,7 @@
 					'link'=>'modulos/mod_tpv/ListaTickets.php?estado=Cobrado',
                      'modulo'=>'mod_tpv',
                     'vista'=>'ListaTickets.php',
-					'texto'=>'Tickets',
+					'texto'=>'Cobrados',
 					'permmiso'=>0
 					),	
 				'12'=>array(
