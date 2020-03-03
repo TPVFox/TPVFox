@@ -43,8 +43,6 @@
 	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$parametros = $ClasesParametros->getRoot();
-	
-	
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
@@ -171,9 +169,7 @@
 		// Si estamos en un ticket abierto.
 		// Ahora ponemos fecha Inicio
 		$fechaInicio = MaquetarFecha ($ticket['fechaInicio'],'dmy');
-		$fechaFinal = MaquetarFecha ($ticket['fechaFinal'],'dmy');
 		$horaInicio= MaquetarFecha($ticket['fechaInicio'],'HM');
-		$horaFinal= MaquetarFecha($ticket['fechaFinal'],'HM');
 		$cliente = $ticket['Nombre'].'-'.$ticket['razonsocial'];
 		$idCliente =$ticket['idClientes'];
 	} else {
@@ -240,10 +236,10 @@ if (count($Control_Error)>0){
 	}
 }
 ?>
-<nav class="col-md-2">
+<div class="col-md-2">
 		<div>
-			<h3 class="text-center"> TpvFox Tickets</h3>
-			<h4>Otros opciones</h4>
+			<h4 class="text-center"> Tickets</h4>
+			<h5>Opciones</h5>
 			<ul class="nav nav-pills nav-stacked">
 				<li><a href="tpv.php">Nuevo ticket</a></li>
 				<li><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></li>
@@ -251,7 +247,7 @@ if (count($Control_Error)>0){
 			</ul>
 		</div>
 		<div>
-			<h4>Este ticket</h4>
+			<h5>Este ticket</h5>
 			<ul class="nav nav-pills nav-stacked">
 				<li><a onclick="buscarClientes('tpv')">Cliente</a></li>
 				<li><a href="#section3">Abrir Cajon</a></li>
@@ -262,8 +258,8 @@ if (count($Control_Error)>0){
 
 	<?php //===== TICKETS ABIERTOS LATERAL
 	if (isset($ticketsAbiertos['items'])){ ?>
-	<div class="col-md-12">
-		<h3 class="text-center"> Tickets Abiertos</h3>
+	<div>
+		<h4 class="text-center"> Tickets Abiertos</h4>
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -283,16 +279,14 @@ if (count($Control_Error)>0){
 						<td>
 							<?php // Si es el mismo usuario tiene permitido modificarlo, ponemos link
 							if ($Usuario['id'] === $item['idUsuario'] || $Usuario['group_id']==9){
-								echo '<a href="tpv.php?tAbierto='.$item['numticket'].'">'.$item['numticket'].'</a>';
+								echo '<a class="btn" href="tpv.php?tAbierto='.$item['numticket'].'">'.$item['numticket'].'</a>';
 							} else {
 								echo $item['numticket'].' <span class="glyphicon glyphicon-info-sign" title="Este ticket abierto no es tuyo, es de '.$item['usuario'].'"></span>';
 							}
 							?>
-							
 						</td>
 						<td>
-							<?php echo $item['Nombre']; ?><br/>
-							<small><?php echo $item['razonsocial']; ?></small>
+							<?php echo $item['Nombre']; ?><span class="glyphicon glyphicon-briefcase" title="<?php echo $item['razonsocial']; ?>"></span>
 						</td>
 						<td class="text-right">
 							<?php echo number_format ($item['total'],2); ?>
@@ -312,11 +306,11 @@ if (count($Control_Error)>0){
 		<?php
 	}// Cerramos if de mostrar tickets abiertos o no.
 	?>
-	<div class="col-md-12">
-		<h3 class="text-center">Configuracion</h3>
+	<div>
+		<h4 class="text-center">Configuracion</h4>
 		<input type="checkbox" <?php echo $checkin[1];?>>Imprimitr Tickets por defecto<br>
 	</div>
-</nav>
+</div>
 <div class="col-md-10" >
 	<div class="col-md-8">
 		<div class="col-md-12">
@@ -328,10 +322,8 @@ if (count($Control_Error)>0){
 					if ( $ticket_numero != 0){
 						?>
 						<div style="background-color:#f9f3f3;">
-						<strong>Hora Inicio:</strong>
+						<strong><span class="glyphicon glyphicon-time"></span>:</strong>
 						<span id="HoraInicio"><?php echo $horaInicio;?></span><br/>
-						<strong><span class="glyphicon glyphicon-calendar"></span>:</strong>
-						<span id="FechaFinal"><?php echo $fechaFinal;?></span><br/>
 						</div>
 						<?php 
 					}
@@ -340,9 +332,8 @@ if (count($Control_Error)>0){
 				<div class="col-md-6">
 					<strong>Estado:</strong>
 					<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span><br/>
-					<strong>NºT_temp:</strong>
+					<strong>NºTemp:</strong>
 					<span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
-					<span id="EstadoImpresion">	SIN IMPRIMIR</span>
 				</div>
 			</div>
 			<div class="col-md-5">
@@ -357,7 +348,7 @@ if (count($Control_Error)>0){
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('tpv')"></a>
 		</div>
 	</div>
-	<div class="visor fondoNegro col-md-4" style="color:#0ade0a;background-color:black;height:150px;">
+	<div class="visor fondoNegro col-md-4">
 		<div class="col-md-4">
 		<h3>TOTAL</h3>
 		</div>
@@ -503,12 +494,18 @@ if (count($Control_Error)>0){
 // Añadimos JS necesario para modal.
 echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-
+// Montamos javascript para focus
+$string_focus='#'.$conf_defecto['input_pordefecto'];
 ?>
 <script type="text/javascript">
 
-$('#Codbarras').focus();
+$('<?php echo $string_focus;?>').focus();
 </script>
+<?php
+//~ echo '<pre>';
+//~ print_r($conf_defecto);
+//~ echo '</pre>';
+?>
 </body>
 
 </html>

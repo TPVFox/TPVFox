@@ -22,6 +22,11 @@
 .btn-toolbar{
 
 }
+.visor.fondoNegro{
+    color: #0ade0a;
+    background-color: black;
+    height: 150px;
+}
 
 label {
     display: block;

@@ -13,3 +13,4 @@ ALTER TABLE `articulosFamilias` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD 
 ALTER TABLE `tpvfox_ondasyperfil`.`articulosFamilias` ADD UNIQUE (`idArticulo`, `idFamilia`); 
 
 ALTER TABLE `articulosTiendas` CHANGE `idVirtuemart` `idVirtuemart` INT(11) NULL;
+ALTER TABLE `modulos_configuracion` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
