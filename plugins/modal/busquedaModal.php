@@ -26,18 +26,11 @@
         <h3 class="modal-title text-center">	Titulo Provisorio...</h3>
       </div>
       <div class="modal-body">
-		  
 		  <?php // Ahora dentro cargamos otro fichero , segun el titulo ?>
-		  
-		  
-<!--
-        <p>Some text in the modal.</p>
--->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
-
   </div>
 </div>

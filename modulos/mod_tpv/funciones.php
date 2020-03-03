@@ -425,7 +425,7 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
             . '<a onclick="ActivarPrecioCIva(event,' . $product->nfila . ')">'
             . '<span class="glyphicon glyphicon-cog"></span>'
             . '</a></td>'
-            . '<td class="tipoiva">' . $product->ctipoiva . '%</td>'
+            . '<td class="tipoiva">' .(int) $product->ctipoiva . '%</td>'
             . '<td id="N' . $product->nfila . '_Importe" class="importe" >' . $importe . '</td>' //importe 
             . $btnELiminar_Retornar // Mostramos btn eliminar o retornar
             . '</tr>';
@@ -958,6 +958,20 @@ function RegistrarRestaStock($BDTpv, $id, $estado) {
         $resultado['mensaje'] = 'Registrado correctamente en tabla importar_virtuemart_tickets';
     }
     return $resultado;
+}
+
+function htmlSelectConfiguracionSalto($campo){
+    $campos = array('Referencia','Codbarras','Descripcion');
+    $html = '<select  onchange="CambiarSaltoCampo()" title="Escoje casilla de salto" id="salto" name="salto">';
+    foreach ($campos as $c){
+        $select='';
+        if ( $c === $campo ){
+            $select ='selected';
+        }
+        $html.= '<option value="'.$c.'" '.$select.'>'.$c.'</option>';
+    }
+        $html.='</select>';
+    return $html;
 }
 
 ?>

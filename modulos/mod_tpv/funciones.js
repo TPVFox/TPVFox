@@ -135,10 +135,7 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
 				var d_focus = 'N_0';
 				ponerFocus(d_focus);
 			} 
-			
 		}
-		
-
 	});
 }
 
@@ -173,8 +170,8 @@ function agregarFila(datos,campo=''){
 			$("#tabla").prepend(nuevafila);
 			console.log('algun campo:'+typeof campo);
 			if (campo ==='') {
-				// Si no viene dato campo, por lo que focus por defectoe es Codbarras
-				$('#Codbarras').focus();  
+				// Si no viene dato campo, por lo que focus por defectoe de configuracion
+				$('#'+configuracion.input_pordefecto).focus();  
 			} else {
 				// Ponemos focus el campo que le indicamos en parametro campo.
 				$(campo).focus();
@@ -182,8 +179,6 @@ function agregarFila(datos,campo=''){
 			grabarTicketsTemporal();
 		}
 	});
-
-	
 };
  
  
@@ -223,7 +218,6 @@ function retornarFila(num_item){
 //~ //fin funcion que agrega o elimina linea
 //************************************************************
 
-
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
 	// @ Objetivo:
 	//   Realizamos cuando venimos popUp de Productos.
@@ -242,8 +236,6 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	agregarFila(datos);
 	// Eliminamos contenido de cja destino y ponemos focus.
 	resetCampo(campo);
-
-	
 }
 
 
@@ -921,24 +913,39 @@ function RegistrarRestarStockTicket(id_ticketst, estado){
 				console.log('Respuesta de registro resta de stock en tpv');
 				var resultado = response;
 			}
-			
 	});
-	
-	
 }
+
+function CambiarEstadoImpresion(){
+    // @ Objetivo:
+    // Cambiar el valor configuracion de impresion.
+    console.log(configuracion);
+	if (configuracion.impresion_ticket==='Si'){
+		configuracion.impresion_ticket = 'No';
+	} else {
+		configuracion.impresion_ticket = 'Si';
+	}
+	console.log ('Despues de cambio');
+	console.log(configuracion);
+    GuardarConfiguracion();
+}
+
+function CambiarSaltoCampo(){
+    // @ Objetivo:
+    // Cambiar el valor configuracion de impresion.
+    var campo_seleccionado = document.getElementById("salto").value;
+    configuracion.input_pordefecto = campo_seleccionado;
+
+    
+    GuardarConfiguracion();
+}
+
 
 function GuardarConfiguracion(){
 	// Si llega aquí es porque cambio el valor de check impresion...
 	// por lo que cambiamos el valor en configuracion.
 	alert('Grabar configuracion');
-	console.log(configuracion);
-	if (configuracion.impresion_ticket==='Si'){
-		configuracion.impresion_ticket = 'No'
-	} else {
-		configuracion.impresion_ticket = 'Si'
-	}
-	console.log ('Despues de cambio');
-	console.log(configuracion);
+	
 	
 	var parametros = {
 		"pulsado"    		: 'Grabar_configuracion',
@@ -955,11 +962,7 @@ function GuardarConfiguracion(){
 				console.log('Respuesta de grabar configuracion');
 				var resultado = response;
 			}
-			
 	});
-	
-
-	
 }
 
 function ActivarPrecioCIva(event,nfila){

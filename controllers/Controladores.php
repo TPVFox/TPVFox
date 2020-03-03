@@ -323,13 +323,7 @@ class ControladorComun
         $i = count($array);
         $nombre_extension = $array[$i-1];
         $desglose_nombre = explode(".",$nombre_extension);
-
         return $desglose_nombre[0];
-        
-        
-
     }
-	
 }
-	
 ?>

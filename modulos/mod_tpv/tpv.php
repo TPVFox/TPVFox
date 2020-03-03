@@ -46,32 +46,29 @@
 	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
-
-	// Creamos checkin de configuracion
+	// --- Creamos checkin de configuracion --- //
 	$checkin = array();
+    $checkin_valor ='value="No"';
+	if ($configuracion['impresion_ticket'] ==='Si'){
+        $checkin_valor ='value="Si" checked';
+		// Ahora comprobamos si la impresora_ticket definida es correcta.
+		$comprobacion_impresora_ticket = ComprobarImpresoraTickets($configuracion['impresora_ticket']);
+		if ($comprobacion_impresora_ticket === false){
+            $configuracion['impresion_ticket'] ='No';
+            $error = array ( 'tipo'=>'warning',
+								 'mensaje' =>'La impresora de tickets esta mal configurada, en la ruta:'.$configuracion['impresora_ticket'].'. Cambia la configuracion para No imprimir<br/>',
+								 'dato' => $configuracion['impresora_ticket']
+					);
+			array_push($Control_Error,$error);
+		};
+	} 
+    $checkin[1] = 'name="impresion_ticket" '.$checkin_valor.' onchange="CambiarEstadoImpresion()"';
+    $select_campos = htmlSelectConfiguracionSalto($configuracion['input_pordefecto']);
+
 	// Añadimos a JS la configuracion
 		echo '<script type="application/javascript"> '
 		. 'var configuracion = '. json_encode($configuracion);
 		echo '</script>';
-	if ($configuracion['impresion_ticket'] ==='Si'){
-		$checkin[1] = 'name="impresion_ticket" value="Si" checked onchange="GuardarConfiguracion()"';
-		// Ahora comprobamos si la impresora_ticket definida es correcta.
-		$comprobacion_impresora_ticket = ComprobarImpresoraTickets($configuracion['impresora_ticket']);
-		if ($comprobacion_impresora_ticket === false){
-			$error = array ( 'tipo'=>'warning',
-								 'mensaje' =>'La impresora de tickets esta mal configurada, en la ruta:'.$configuracion['impresora_ticket'].'. Vete a ficha usuario y cambia la configuracion<br/>',
-								 'dato' => $configuracion['impresora_ticket']
-					);
-			
-			
-			array_push($Control_Error,$error);
-		};
-		
-	} else {
-		$checkin[1] = 'name="impresion_ticket" value="No" onchange="GuardarConfiguracion()"';
-
-	}
-	
 	
 	// Cambio datos si es un tiche Abierto
 	if (isset($_GET['tAbierto'])) {
@@ -309,6 +306,8 @@ if (count($Control_Error)>0){
 	<div>
 		<h4 class="text-center">Configuracion</h4>
 		<input type="checkbox" <?php echo $checkin[1];?>>Imprimitr Tickets<br>
+        <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+        <?php echo $select_campos;?>
 	</div>
 </div>
 <div class="col-md-10" >
@@ -383,8 +382,8 @@ if (count($Control_Error)>0){
 		<tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
 			<td id="C0_Linea" ></td>
 			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="10" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="20" value="" onkeydown="controlEventos(event)">
+			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)"></td>
+			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="18" value="" onkeydown="controlEventos(event)">
 			</td>
 		</tr>
 		</thead>
@@ -488,24 +487,22 @@ if (count($Control_Error)>0){
 			</div>
 		</div>
 	</div>
-
-</div>
-<?php // Incluimos paginas modales
+<?php
+// Montamos javascript para focus
+$string_focus='#'.$configuracion['input_pordefecto'];
+?>
+<script type="text/javascript">
+    $("<?php echo $string_focus;?>").focus();
+</script>
+<?php
+// Incluimos paginas modales
 // Añadimos JS necesario para modal.
 echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
-// Montamos javascript para focus
-$string_focus='#'.$conf_defecto['input_pordefecto'];
-?>
-<script type="text/javascript">
 
-$('<?php echo $string_focus;?>').focus();
-</script>
-<?php
-//~ echo '<pre>';
-//~ print_r($conf_defecto);
-//~ echo '</pre>';
 ?>
+
+</div>
 </body>
 
 </html>
