@@ -10,7 +10,7 @@ ALTER TABLE `articulosCodigoBarras` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, 
 ALTER TABLE `articulosPrecios` DROP PRIMARY KEY, ADD INDEX (`idArticulo`, `idTienda`) USING BTREE;
 ALTER TABLE `articulosPrecios` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
 ALTER TABLE `articulosFamilias` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
-ALTER TABLE `tpvfox_ondasyperfil`.`articulosFamilias` ADD UNIQUE (`idArticulo`, `idFamilia`); 
+ALTER TABLE `articulosFamilias` ADD UNIQUE (`idArticulo`, `idFamilia`); 
 
 ALTER TABLE `articulosTiendas` CHANGE `idVirtuemart` `idVirtuemart` INT(11) NULL;
 ALTER TABLE `modulos_configuracion` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
