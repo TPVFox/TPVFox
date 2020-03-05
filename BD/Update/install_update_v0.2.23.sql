@@ -9,6 +9,8 @@ ALTER TABLE `proveedores` CHANGE `telefono` `telefono` VARCHAR(11) CHARACTER SET
 ALTER TABLE `articulosCodigoBarras` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
 ALTER TABLE `articulosPrecios` DROP PRIMARY KEY, ADD INDEX (`idArticulo`, `idTienda`) USING BTREE;
 ALTER TABLE `articulosPrecios` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
+# Esta instruccion puede ser util.. si ya tenemos el indice creado primary
+ALTER TABLE `articulosFamilias` DROP PRIMARY KEY, ADD UNIQUE (`idArticulo`, `idFamilia`) USING BTREE; 
 ALTER TABLE `articulosFamilias` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
 ALTER TABLE `articulosFamilias` ADD UNIQUE (`idArticulo`, `idFamilia`); 
 
