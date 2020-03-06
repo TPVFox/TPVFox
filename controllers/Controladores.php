@@ -246,12 +246,12 @@ class ControladorComun
 		
 	}
 	public function obtenerConfiguracion($conf_defecto,$nombre_modulo,$idUsuario){
-		//Objetivo:
+		// @ Objetivo:
 		//Obtener la configuracion del modulo.
 		//Tenienedo encuenta la configuracion por defecto del modulo y la configuracion que hay en la tabla modulo.
 		//nos quedamos con la de la tabla
-		//Aunque la compramos por si falta algun parametro configuracion por defecto, si falta deberíamos añadirlo.
-
+		//Aunque la comprabamos por si falta algun parametro configuracion por defecto, si falta deberíamos añadirlo a la tabla, pero no hacemos.
+        // @ Devolvemos un array con la configuracion. 
 		$respuesta = $conf_defecto;
 		$res = $this->obtenerConfiguracionModuloTabla($nombre_modulo,$idUsuario);
 		if ($res['NItems'] === 1){

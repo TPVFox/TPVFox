@@ -238,7 +238,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         <input type="checkbox" id="checkSeleccion" name="checkSeleccion" onclick="seleccionProductos()">
                         </p>
                         <ul class=""> 
-                            
                             <?php 
                              if($ClasePermisos->getAccion("eliminarSeleccion")==1){
                             ?>
@@ -258,7 +257,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             if($ClasePermisos->getAccion("subirProductosWeb")==1){
                                 if( isset($tiendaWeb['idTienda'])){
                             ?>      
-                                <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>                                   
+                                <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>
                             <?php
                                 }
                             }
@@ -287,7 +286,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         echo $htmlConfiguracion['htmlCheck'];
                         ?>
                     </div>
-
                 </div>
 
                 <div class="col-sm-10 col-xs-12">
@@ -328,21 +326,17 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                    foreach($arbolfamilias as $familia){
                                        echo '<option title ="'.$familia['title'].'" value="'.$familia['id'].'">'.$familia['name'].'</option>';
                                    }
-                                
                                  ?>
                             </select>
-                            
                             </div>
                             <p id="botonEnviar"></p>
-                            
                         </div>
                          <div id="ProveedoresDiv" class="col-md-3">
-                             <div class="ui-widget">
-                                  <label for="tags">Buscar por Proveedores:</label>
+                            <div class="ui-widget">
+                                <label for="tags">Buscar por Proveedores:</label>
                                    <select id="combobox" class="proveedoresLista">
                                         <option value="0"></option>
-                                       <?php 
-                                    
+                                       <?php
                                        foreach ($todosProveedores as $pro){
                                             echo '<option value="'.$pro['idProveedor'].'">'.$pro['nombrecomercial'].'</option>';
                                        }
@@ -353,7 +347,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         </div>
                         <div id="EstadoDiv" class="col-md-2">
                             <label>Filtrar estado</label>
-                             <select onchange="GuardarFiltroEstado(event);" name="FiltroEstado" id="sel1"> <?php echo $htmlEstadosProducto; ?> </select>
+                            <select onchange="GuardarFiltroEstado(event);" name="FiltroEstado" id="sel1"> <?php echo $htmlEstadosProducto; ?> </select>
                         </div>
                     </form>
                     <!-- TABLA DE PRODUCTOS -->
@@ -410,8 +404,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         }
                                     }
                                     ?>
-                                    
-
                                 </tr>
                             </thead>
 
@@ -461,11 +453,11 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         <?php
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.crefTienda') === 'Si') {
                                             $CTArticulos->ObtenerReferenciasTiendas($producto['idArticulo']);
-                                            $refTiendas = $CTArticulos->GetReferenciasTiendas();
+                                            //~ $refTiendas = $CTArticulos->GetReferenciasTiendas();
                                             
                                             echo '<td>';
-                                            if ($refTiendas) {
-                                                foreach ($refTiendas as $ref) {
+                                            if ($CTArticulos->GetReferenciasTiendas()) {
+                                                foreach ($CTArticulos->GetReferenciasTiendas() as $ref) {
                                                     if($ref['idTienda']==$id_tienda_principal){
                                                         echo $ref['crefTienda'];
                                                     }
@@ -497,8 +489,8 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                             ?>
                                             <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>">
                                             <?php
-                                            if(isset($refTiendas)){
-                                                foreach ($refTiendas as $ref){
+                                            if($CTArticulos->GetReferenciasTiendas()){
+                                                foreach ($CTArticulos->GetReferenciasTiendas() as $ref){
                                                     if($ref['idVirtuemart']>0){
                                                         $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
                                                         $link=  $ObjVirtuemart->ruta_producto.$ref['idVirtuemart'];
