@@ -295,7 +295,12 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
             $funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".$dedonde."'".');';
             $iconE_R = '<span class="glyphicon glyphicon-export"></span>';
         } 
-        $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">'.$iconE_R.'</a></td>';
+        if ($solo_lectura ==='') {
+            // Si es solo lectura no se muestra , para evitar que lo elimine
+            $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'">'.$iconE_R.'</a></td>';
+        } else {
+            $btnELiminar_Retornar='<td></td>';
+        }
         if ($dedonde =="albaran" || $dedonde=="factura"){
             // En albaran y factura se puede cambiar el coste.
             // Ademas se tiene que obtener numdocumento, ya que pudieron ser añadido los productos
@@ -370,7 +375,8 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                             .'<td class="pvp">'.$html_coste.'</td>'
                             .'<td class="tipoiva">'.$producto['iva'].'%</td>'
                             .'<td id="N'.$producto['nfila'].'_Importe" class="importe" >'
-                            .$importe.'</td>'. $btnELiminar_Retornar.'</tr>';
+                            .$importe.'</td>'
+                            . $btnELiminar_Retornar.'</tr>';
                         
         $respuesta['productos']=$producto;
 	 return $respuesta;
