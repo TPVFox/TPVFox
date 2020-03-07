@@ -93,7 +93,7 @@
 				<action tecla="13">AccionBuscarProductos</action>
 				<action tecla="39">Saltar_Referencia</action>
 				<action tecla="38">Saltar_idProveedor</action>
-				<action tecla=" 9">Saltar_Referencia</action>
+				<action tecla=" 9">AccionBuscarProductos</action>
 				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
@@ -142,7 +142,7 @@
 			<nombre id_input="Referencia">cajaReferencia</nombre>
 			<teclas>
 				<action tecla="13">AccionBuscarProductos</action>
-				<action tecla=" 9">Saltar_ReferenciaPro</action>
+				<action tecla=" 9">AccionBuscarProductos</action>
 				<action tecla="37">Saltar_idArticulo</action>
 				<action tecla="39">Saltar_ReferenciaPro</action>
 				<action tecla="40">saltar_productos</action>
@@ -156,7 +156,7 @@
 			<nombre id_input="ReferenciaPro">cajaReferenciaPro</nombre>
 			<teclas>
 				<action tecla="13">AccionBuscarProductos</action>
-				<action tecla=" 9">Saltar_CodBarras</action>
+				<action tecla=" 9">AccionBuscarProductos</action>
 				<action tecla="37">Saltar_Referencia</action>
 				<action tecla="39">Saltar_CodBarras</action>
 				<action tecla="40">saltar_productos</action>
@@ -170,7 +170,7 @@
 			<nombre id_input="Codbarras">cajaCodBarras</nombre>
 			<teclas>
 				<action tecla="13">AccionBuscarProductos</action>
-				<action tecla=" 9">Saltar_Descripcion</action>
+				<action tecla=" 9">AccionBuscarProductos</action>
 				<action tecla="37">Saltar_ReferenciaPro</action>
 				<action tecla="39">Saltar_Descripcion</action>
 				<action tecla="40">saltar_productos</action>
@@ -184,6 +184,7 @@
 			<nombre id_input="Descripcion">cajaDescripcion</nombre>
 			<teclas>
 				<action tecla="13">AccionBuscarProductos</action>
+                <action tecla=" 9">AccionBuscarProductos</action>
 				<action tecla="38">Saltar_idProveedor</action>
 				<action tecla="37">Saltar_CodBarras</action>
 				<action tecla="40">saltar_productos</action>

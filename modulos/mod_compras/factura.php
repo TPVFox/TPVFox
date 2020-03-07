@@ -263,6 +263,7 @@
         $estilos['pro_readonly']   = ' readonly';
         $estilos['pro_styleNo']    = ' style="display:none;"';
         $estilos['styleNo']    = '';
+        $evento_cambio = 'onchange ="addTemporal('."'".$dedonde."'".')"'; // Lo utilizo para crear temporal cuando cambia valor.
 
     }
     if ($accion === 'ver'){
@@ -425,7 +426,7 @@
                         $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
                         $title_fecha =' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
                         echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
-                            . $estilos['input_factur'].' value="'.$fecha.'" onkeydown="controlEventos(event)" '
+                                . $estilos['input_factur'].' value="'.$fecha.'" '.$evento_cambio.' onkeydown="controlEventos(event)" '
                             . $pattern_numerico.$title_fecha.'/>';
                     ?>
 				</div>
@@ -441,8 +442,8 @@
             <div class="col-md-12">
                 <div class="col-md-4">
 					<label>Su número:</label>
-					<input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero">
-				</div>
+                    <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" <?php echo $evento_cambio;?> onkeydown="controlEventos(event)" data-obj= "CajaSuNumero" <?php echo $estilos['input_factur'];?>>
+                </div>
                 <div class="col-md-4">
                         <label>Fecha vencimiento:</label>
                         <?php

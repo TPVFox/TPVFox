@@ -7,8 +7,9 @@
 	include_once $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_compras/funciones.php';
 	include_once $URLCom.'/controllers/Controladores.php';
-	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
 	include_once $URLCom.'/clases/Proveedores.php';
+
+	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
 	include_once ($URLCom.'/controllers/parametros.php');
 	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
@@ -16,23 +17,25 @@
 	$Cproveedor=new Proveedores($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
-	// Valores por defecto de variables
-	$titulo="Pedido de Proveedor:";
+	//Inicializar las variables
 	$dedonde="pedidos";
+	$titulo="Pedido de Proveedor:";
+	// Valores por defecto de estado y accion.
+	// [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
+	// [accion] -> editar,ver
+    $estado='Nuevo';
+    // Si existe accion, variable es $accion , sino es "editar"
+    $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
 	$fecha=date('d-m-Y');
-	$idPedido=0;
-	$numPedidoTemp=0;
+	$idPedidoTemporal=0;
+    $idPedido=0;
 	$idProveedor='';
 	$nombreProveedor='';
 	$Datostotales=array();
     $errores = array();
 	$inciden=0;
-    // Valores por defecto de estado y accion.
-    // [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
-    // [accion] -> editar,ver
-    $estado='Nuevo';
-    // Si existe accion, variable es $accion , sino es "editar"
-    $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
+   
+    
 	//Carga de los parametros de configuración y las acciones de las cajas
 	$parametros = $ClasesParametros->getRoot();
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
@@ -52,7 +55,7 @@
         $idPedido=$_GET['id'];  // Id real de pedido
     }
     if (isset($_GET['tActual'])){
-        $numPedidoTemp=$_GET['tActual']; // Id de pedido temporal
+        $idPedidoTemporal=$_GET['tActual']; // Id de pedido temporal
     }
     // ---------- Posible errores o advertencias mostrar     ------------------- //
     if ($idPedido > 0){
@@ -60,10 +63,10 @@
         $c = $Cpedido->comprobarTemporalIdPedpro($idPedido);
         if (isset($c['idTemporal']) && $c['idTemporal'] !== NULL){
             // Existe un temporal de este pedido por lo que cargo ese temporal.
-            $numPedidoTemp = $c['idTemporal'];
+            $idPedidoTemporal = $c['idTemporal'];
             $idPedido = 0 ; // Lo pongo en 0 para ejecute la parte temporal
-            $_GET['tActual'] = $numPedidoTemp;
-            if ($accion !== 'temporal'){
+            $_GET['tActual'] = $idPedidoTemporal;
+            if ($accion !== 'temporal' && $accion !=='ver'){
                 // Si entro sin accion temporal, NO PERMITO EDITAR.
                 // YA PROVABLEMENTE ESTAN EDITANDO.
                 $accion = 'ver';
@@ -100,8 +103,8 @@
             $inciden=count($incidenciasAdjuntas['datos']);
         }
     }
-    if ( $numPedidoTemp >0 && count($errores) === 0){           
-        $datosPedido=$Cpedido->DatosTemporal($numPedidoTemp);
+    if ( $idPedidoTemporal >0 && count($errores) === 0){           
+        $datosPedido=$Cpedido->DatosTemporal($idPedidoTemporal);
         if (isset($datosPedido['idPedpro'])){
             $idPedido=$datosPedido['idPedpro'];	
             // Si $idPedido >0 compruebo que no existan mas pedidotemporales de ese pedido para evitar errores.
@@ -212,14 +215,15 @@
         $estilos['pro_readonly']   = ' readonly';
         $estilos['pro_styleNo']    = ' style="display:none;"';
         $estilos['styleNo']    = '';
+        $evento_cambio = 'onchange ="addTemporal('."'".$dedonde."'".')"'; // Lo utilizo para crear temporal cuando cambia valor.
 
     }
     if ($accion === 'ver'){
         $estilos['readonly']   = ' readonly';
         $estilos['styleNo']     = ' style="display:none;"';
     }
-    if ($numPedidoTemp === 0){
-        // Solo se muestra cuando el numPedidoTemp es 0
+    if ($idPedidoTemporal === 0){
+        // Solo se muestra cuando el idPedidoTemporal es 0
         $estilos['btn_guardar'] = 'style="display:none;"';
         // Una vez se cree temporal, con javascript se quita style
     }
@@ -236,7 +240,7 @@
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estado'] ='<?php echo $estado ;?>'; 
-		cabecera['idTemporal'] = <?php echo $numPedidoTemp ;?>;
+		cabecera['idTemporal'] = <?php echo $idPedidoTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idPedido ;?>;
 		cabecera['idProveedor']='<?php echo $idProveedor ;?>';
 		cabecera['fecha']='<?php echo $fecha;?>';
@@ -278,7 +282,7 @@
     <?php
 	if (isset($_POST['Cancelar'])){
 	?>
-        mensajeCancelar(<?php echo $numPedidoTemp;?>, <?php echo "'".$dedonde."'"; ?>);
+        mensajeCancelar(<?php echo $idPedidoTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
     <?php
 	}
     echo $VarJS;
@@ -299,17 +303,19 @@
         }
     }
     ?>
-	<form class="form-group" action="" method="post" name="formProducto" onkeypress="return anular(event)">
-        <h3 class="text-center">
-        <?php
-        echo $titulo;
-        // Se debe imprimir siempre el pedido para que no se repita.
-        echo  ' temporal:<input  readonly size="4" type="text" name="idTemporal" value='.$numPedidoTemp.'>';
-        ?>    
-        </h3>
+	<form  action="" method="post" name="formProducto" onkeypress="return anular(event)">
+    <?php 
+    echo '<h3 class="text-center">'.$titulo;
+    if ($accion !=='ver'){
+        echo ' temporal:'.'<input type="text" readonly size ="4" name="idTemporal" value="'.$idPedidoTemporal.'">';
+    }
+    echo '</h3>';
+	?>
+    
 		<div class="col-md-12">
 			<div class="col-md-8" >
                 <?php echo $Controler->getHtmlLinkVolver('Volver');
+            // Botones de incidencias.
                 if($idPedido>0){
                     echo '<input class="btn btn-warning" size="12" 
                     onclick="abrirModalIndicencia('."'".$dedonde."'".' , configuracion, 0, '.$idPedido.');" 
@@ -345,34 +351,63 @@
             </div>
            
 		</div>
-	<div class="col-md-8">
+    <div class="row" >
+	<div class="col-md-7">
+	            <div class="col-md-12">
+                    <label class="text-center">Proveedor</label>
+                    <?php
+                    echo '<div class="col-md-2">
+                            <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
+                            .$idProveedor.'" '.$estilos['pro_readonly'].' size="2" onkeydown="controlEventos(event)" placeholder="id">
+                        </div>';
+                    echo '<div class="col-md-10">
+                            <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
+                            .'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
+                            .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" >'
+                            .'<a id="buscar" '.$estilos['pro_styleNo'].' class="btn glyphicon glyphicon-search buscar"'
+                            .' onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>
+                         </div>';
+                    ?>
+            </div>
+	            <div class="col-md-12">
+			<div class="col-md-3">
+				<label>Fecha Pedido:</label>
+				<input type="text" name="fecha" id="fecha" data-obj= "cajaFecha"  value=<?php echo '"'.$fecha.'"'.' ';?> onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+			</div>
 			<div class="col-md-3">
 				<label>Estado:</label>
 				<input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly>
 			</div>
 			<div class="col-md-3">
-				<label>Usuario:</label>
+				<label>Creado por:</label>
 				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="13" readonly>
 			</div>
-			<div class="col-md-3">
-				<label>Fecha Pedido:</label>
-				<input type="text" name="fecha" id="fecha" data-obj= "cajaFecha"  value=<?php echo '"'.$fecha.'"'.' ';?> onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
-			</div>
-		<div class="col-md-12">
-			<label>Proveedor:</label>
-            <?php
-                echo '<input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
-                    .$idProveedor.'" '.$estilos['pro_readonly'].' size="2" onkeydown="controlEventos(event)">';
-                echo '<input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
-                    .'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
-                    .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" >';
-                echo '<a id="buscar" '.$estilos['pro_styleNo'].' class="glyphicon glyphicon-search buscar"'
-                    .'onclick="buscarProveedor('."'".'pedidos'."'".')"></a>';
-            ?>
+			
 		</div>
+		
 	</div>
 	<!-- Tabla de lineas de productos -->
-	<div class="row">
+	<div>
+            <div>
+                <div class="col-md-12 form-inline bg-success" id="Row0" <?php echo $estilos['styleNo'];?>>  
+                    <div class="form-group">
+                        <input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value=""onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)">
+                    </div>
+                </div>
+
+            </div>
 		<table id="tabla" class="table table-striped" >
 			<thead>
             <tr>
@@ -388,14 +423,6 @@
 				<th>Importe</th>
 				<th></th>
 			</tr>
-            <tr id="Row0"<?php echo $estilos['styleNo'];?>>  
-                <td id="C0_Linea" > </td>
-				<td class="algo"><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)"></td>
-				<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)"></td>
-				<td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)"></td>
-				<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-				<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)"></td>
-            </tr>
 			</thead>
 			<tbody>
 				<?php 

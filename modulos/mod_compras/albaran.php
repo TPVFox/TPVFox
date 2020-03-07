@@ -274,6 +274,7 @@
         $estilos['pro_readonly']   = ' readonly';
         $estilos['pro_styleNo']    = ' style="display:none;"';
         $estilos['styleNo']    = '';
+        $evento_cambio = 'onchange ="addTemporal('."'".$dedonde."'".')"'; // Lo utilizo para crear temporal cuando cambia valor.
 
     }
     if ($accion === 'ver'){
@@ -283,7 +284,7 @@
         $estilos['select_factur'] = 'disabled="true"';       
     }
     if ($idAlbaranTemporal === 0){
-        // Solo se muestra cuando el numPedidoTemp es 0
+        // Solo se muestra cuando el idAlbaranTemporal es 0
         $estilos['btn_guardar'] = 'style="display:none;"';
         // Una vez se cree temporal, con javascript se quita style
     }
@@ -419,16 +420,13 @@
                             <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
                             .$idProveedor.'" '.$estilos['pro_readonly'].' size="2" onkeydown="controlEventos(event)" placeholder="id">
                         </div>';
-                    echo '<div class="col-md-8">
+                    echo '<div class="col-md-10">
                             <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
                             .'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
-                            .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" >
+                            .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" >'
+                            .' <a id="buscar" '.$estilos['pro_styleNo'].' class="btn glyphicon glyphicon-search buscar"'
+                            .' onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>
                          </div>';
-                         
-                    echo   '<div class="col-md-2">
-                                <a id="buscar" '.$estilos['pro_styleNo'].' class="btn glyphicon glyphicon-search buscar"'
-                                .' onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>
-                          </div>';
                     ?>
             </div>
             <div class="col-md-12">
@@ -438,7 +436,7 @@
                             $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
                             $title_fecha =' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
                             echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
-                                . $estilos['input_factur'].' value="'.$fecha.'" onkeydown="controlEventos(event)" '
+                                . $estilos['input_factur'].' value="'.$fecha.'" '.$evento_cambio.' onkeydown="controlEventos(event)" '
                                 . $pattern_numerico.$title_fecha.'/>';
                         ?>
                     </div>
@@ -446,7 +444,7 @@
                         <label>Hora de entrega:</label>
                         <?php
                             echo '<input type="time" id="hora" '.$estilos['input_factur'].' value="'.$hora.'" '
-                                .' data-obj= "cajaHora" onkeydown="controlEventos(event)"  name="hora" size="5"'
+                                .' data-obj= "cajaHora" '.$evento_cambio.' onkeydown="controlEventos(event)"  name="hora" size="5"'
                                 .' max="24:00" min="00:00" '
                                 . $pattern_numerico.' placeholder="HH:MM" title=" Formato de entrada HH:MM">';
                         ?>
@@ -463,7 +461,7 @@
             <div class="col-md-12">
                 <div class="col-md-4">
                     <label>Su número:</label>
-                    <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" onkeydown="controlEventos(event)" data-obj= "CajaSuNumero" <?php echo $estilos['input_factur'];?>>
+                    <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" <?php echo $evento_cambio;?> onkeydown="controlEventos(event)" data-obj= "CajaSuNumero" <?php echo $estilos['input_factur'];?>>
                 </div>
                 <div class="col-md-4">
                         <label>Fecha vencimiento:</label>
@@ -490,7 +488,7 @@
             </div>
             
         </div>
-        <div class="col-md-5 div_adjunto">
+        <div class="col-md-5 bg-warning div_adjunto">
             <?php
             if ($accion !=='ver'){
             ?>
@@ -499,7 +497,7 @@
                 <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
             <?php
             } ?>
-            <table class="col-md-12" id="tablaPedidos"> 
+            <table class="table" id="tablaPedidos"> 
                 <thead>
                 <tr>
                     <td><b>Número</b></td>
@@ -517,7 +515,27 @@
             </table>
         </div>
         <!-- Tabla de lineas de productos -->
-        <div>
+	<div>
+            <div>
+                <div class="col-md-12 form-inline bg-success" id="Row0" <?php echo $estilos['styleNo'];?>>  
+                    <div class="form-group">
+                        <input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value=""onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)">
+                    </div>
+                </div>
+
+            </div>
             <table id="tabla" class="table table-striped">
                 <thead>
                   <tr>
@@ -534,15 +552,7 @@
                     <th>Importe</th>
                     <th></th>
                   </tr>
-                  <tr id="Row0" <?php echo $estilos['styleNo'];?>>  
-                    <td id="C0_Linea" ></td>
-                    <td id="C0_Linea" ></td>
-                    <td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)"></td>
-                    <td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)"></td>
-                    <td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)"></td>
-                    <td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-                    <td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)"></td>
-                </tr>
+                  
                 </thead>
                 <tbody>
                     <?php 

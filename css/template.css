@@ -65,7 +65,9 @@ span.circulo {
 td.pvp{
     min-width: 100px;
 }
-
+#Row0 {
+    padding:10px;
+}
 
 /** CSS para tabla de buscardo **/
 tbody tr.FilaModal:focus-within{
