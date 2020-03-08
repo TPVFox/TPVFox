@@ -28,20 +28,20 @@
     // Si existe accion, variable es $accion , sino es "editar"
     $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
 	$fecha=date('d-m-Y');
-	$hora="";
 	$idAlbaranTemporal=0;
-	$idAlbaran=0;
-	$idProveedor="";
+    $idAlbaran=0;
+    $idProveedor="";
+    $nombreProveedor="";
+    $Datostotales=array();
+	$errores = array();
+    $creado_por = array(); 
+    $hora="";
     $formaPago= 0;
 	$suNumero="";
-	$nombreProveedor="";
 	$fechaVencimiento="";
-	$Datostotales=array();
-	$errores = array();
     $pedido_html_linea_productos = array();
     $JS_datos_pedidos = '';
     $html_adjuntos = '';
-    $creado_por = array(); 
 	//Cargamos la configuración por defecto y las acciones de las cajas 
 	$parametros = $ClasesParametros->getRoot();	
 	foreach($parametros->cajas_input->caja_input as $caja){
@@ -92,7 +92,7 @@
         }
     }
     if ( $idAlbaran > 0 && count($errores) === 0){
-        // Si exite id estamos y no hay errores modificando directamente un albaran.
+        // Si existe id y no hay errores estamos modificando directamente un albaran.
         $datosAlbaran = $CAlb->GetAlbaran($_GET['id']);
         if (isset($datosAlbaran['error'])){
             $errores=$datosAlbaran['error'];
@@ -130,23 +130,24 @@
                 );
         } else {
             // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
-            $datosAlbaran['FechaVencimiento'] ='0000-00-00';
             $datosAlbaran['Productos'] = json_decode($datosAlbaran['Productos'],true);
             $idAlbaran = $datosAlbaran['Numalbpro'];
             $estado=$datosAlbaran['estadoAlbPro'];
+            $datosAlbaran['FechaVencimiento'] ='0000-00-00';
+
         }
     }
     if (count($errores) == 0){
         // Si no hay errores graves continuamos.
         if (!isset($datosAlbaran)){
-            // Es que nuevo.
+            // SI es NUEVO.
             $datosAlbaran = array();
             $datosAlbaran['Fecha']="0000-00-00 00:00:00";
             $datosAlbaran['Su_numero'] = '';
             $datosAlbaran['idProveedor'] = 0;
             $creado_por = $Usuario;
         } else {
-            // Si no es nuevo
+            // No es NUEVO
             $idProveedor=$datosAlbaran['idProveedor'];
             $proveedor=$Cproveedor->buscarProveedorId($idProveedor);
             $nombreProveedor=$proveedor['nombrecomercial'];
@@ -155,8 +156,19 @@
                                 ? date('d-m-Y'):date_format(date_create($datosAlbaran['Fecha']),'d-m-Y');
             $hora=date_format(date_create($datosAlbaran['Fecha']),'H:i');
             $creado_por = $CAlb->obtenerDatosUsuario($datosAlbaran['idUsuario']);
-            // Un albaran ya viene con pedidos, si tiene. Puede venir JSON si es temporal
+            $formaPago=(isset($datosAlbaran['formaPago']))? $datosAlbaran['formaPago'] : 0;
+            $fechaVencimiento=$datosAlbaran['FechaVencimiento'];
+            if (isset ($datosAlbaran['Numalbpro'])){
+                $d=$CAlb->buscarAlbaranNumero($datosAlbaran['Numalbpro']);
+                $idAlbaran=$d['id'];
+                // Debemos saber si debemos tener incidencias para ese albaran, ya que el boton incidencia es distinto.
+                $incidencias=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, $dedonde);
+            }
+            if ($datosAlbaran['Su_numero']!==""){
+                $suNumero=$datosAlbaran['Su_numero'];
+            }
             if (isset($datosAlbaran['Pedidos'])){
+            // Un albaran ya viene con pedidos, si tiene. Puede venir JSON si es temporal
                 if ($idAlbaranTemporal >0){
                     // Cuando viene de tActual obtenemos .
                     // Solo convertimos $idAlbaranTemporal >0 , ya que es cuando viene json
@@ -174,7 +186,7 @@
                             $idPedido = $pedido['idAdjunto'];
                             $datosAlbaran['Pedidos'][$key]['idPedido'] =$idPedido; 
                         }
-                        $e = $Cped->DatosPedido($idPedido);
+                        $e = $Cped->datosPedido($idPedido);
                         // El indice 'estado' es el estado del pedido que puede ser "Sin Guardar", "Guardado","Facturado"
                         // Ahora vamos a crear el estado del adjunto, pero teniendo en cuenta
                         // Que si estado_pedido es "Sin Guardar" tenemos que enviar un error.
@@ -211,18 +223,9 @@
                     }
                 }
             }
-            $formaPago=(isset($datosAlbaran['formaPago']))? $datosAlbaran['formaPago'] : 0;
-            $fechaVencimiento=$datosAlbaran['FechaVencimiento'];
-            if (isset ($datosAlbaran['Numalbpro'])){
-                $d=$CAlb->buscarAlbaranNumero($datosAlbaran['Numalbpro']);
-                $idAlbaran=$d['id'];
-                // Debemos saber si debemos tener incidencias para ese albaran, ya que el boton incidencia es distinto.
-                $incidencias=incidenciasAdjuntas($idAlbaran, "mod_compras", $BDTpv, $dedonde);
-            }
-            if ($datosAlbaran['Su_numero']!==""){
-                $suNumero=$datosAlbaran['Su_numero'];
-            }
+            
         }
+        // Cargamos forma pago y ponemos seleccina si tiene.
         $textoFormaPago=htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
         if(isset($datosAlbaran['Productos'])){
 			// Obtenemos los datos totales ;
@@ -299,9 +302,9 @@
 		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
 		cabecera['idReal'] ='<?php echo $idAlbaran ;?>';
+		cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
 		cabecera['fecha'] = '<?php echo $fecha;?>';
 		cabecera['hora'] = '<?php echo $hora;?>';
-		cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
 		cabecera['suNumero']='<?php echo $suNumero; ?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array

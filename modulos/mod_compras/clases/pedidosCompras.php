@@ -4,6 +4,8 @@ include_once $URLCom.'/modulos/mod_compras/clases/ClaseCompras.php';
 
 class PedidosCompras extends ClaseCompras{
 	private $num_rows; // (array) El numero registros que tiene la tabal pedprot
+    public $errores = array(); // (array) con los errores de comprobaciones.
+
 	public function __construct($conexion){
 		parent::__construct($conexion);
 		// Obtenemos el numero registros.
@@ -91,8 +93,39 @@ class PedidosCompras extends ClaseCompras{
 		$pedido = parent::SelectUnResult($tabla, $where);
 		return $pedido;
 	}
+
+    public function buscarPedidoTemporal($idPedidoTemporal) {
+        //@Objetivo:
+        //Buscar los datos del un albarán temporal
+        $sql = 'SELECT * FROM pedproltemporales WHERE id=' . $idPedidoTemporal;
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+           $respuesta = $smt;
+        } else {
+            if ($this->affected_rows > 0){
+                // Hubo resultados
+                if ($result = $smt->fetch_assoc()) {
+                    $respuesta = $result;
+                }
+            } else {
+                // No hubo resultado.
+                $respuesta['error'] = 'No se encontro temporal. affect_rows:'.$this->affected_rows;
+                $respuesta['consulta'] = $sql;
+            }
+        }
+        return $respuesta;
+    }
     
-	public function DatosPedido($idPedido){
+    public function buscarPedidoNumero($numPedido) {
+        //@Objetivo:
+        //Buscamos los datos de un albarán real según el número del albarán.
+        $tabla = 'pedprot';
+        $where = 'Numpedpro=' . $numPedido;
+        $pedido = parent::SelectUnResult($tabla, $where); // Funciona sin haber metido al padre db..
+        return $pedido;
+    }
+    
+	public function datosPedido($idPedido){
 		//@Objetivo :
         // Obtner los datos de un pedido de la tabla pedprot
 		//@Parametros:
@@ -395,14 +428,52 @@ class PedidosCompras extends ClaseCompras{
 		}
 		return $respuesta;
 	}
-	
+
+  public function GetPedido($id){
+        $datos = $this->datosPedido($id);
+        if (isset($datos['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 1 en base datos.Consulta:'.json_encode($datos['consulta'])
+                                )
+                        );
+        }
+        $productos =$this->ProductosPedidoFormulario($id);
+        if (isset($productos['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 2 en base datos.Consulta:'.json_encode($productos['consulta'])
+                                )
+                        );
+        }
+        $ivas=$this->IvasPedidos($id);
+        // Lo dejo de momento, pero pienso que no hace falta ya que hago recalculo y ademas no lo devuelvo...
+        // Lo unico par aindicar que hubo un error.
+        if (isset($ivas['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
+                                        'danger',
+                                        'Error 3 en base datos.Consulta:'.json_encode($ivas['consulta'])
+                                )
+                        );
+        }
+        if (count($this->errores)===0 ){
+            // Si no hubo errores añadimos datos y formateamos datos fecha.
+            $datos['Productos']=$productos;
+        } else {
+            // Si hubo errores los devolvemos.
+            $datos['error'] = $this->errores;
+        }
+        return $datos;
+    }
+
+    
 	public function sumarIva($idpedpro){
 		//Función para sumar los ivas de un pedido
 		$from_where= 'from pedproIva where idpedpro ='.$idpedpro;
 		$pedido = parent::sumarIvaBases($from_where);
 		return $pedido;
 	}
-	
+    
 	public function ProductosPedidos($idPedido){
         //@Objetivo:
         //Buscar todos los productos que tenga un id de pedido real
@@ -413,7 +484,22 @@ class PedidosCompras extends ClaseCompras{
 		$pedido = parent::SelectVariosResult($tabla, $where);
 		return $pedido;
 	}
-    
+    public function ProductosPedidoFormulario($idPedido) {
+        //@ Objetivo:
+        // Es igual que el metodo ProductosPedidos pero cambiando nombre campos para funciones correctamente.
+        $respuesta = [];
+        $where = 'idpedpro= ' . $idPedido;
+        $sql =  'SELECT `id`, `idpedpro`, `Numpedpro`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `costeSiva` as ultimoCoste, `iva`, `nfila`, `estadoLinea` as estado, `ref_prov` FROM `pedprolinea` WHERE '.$where;
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+            $respuesta = $smt; 
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                $respuesta[] = $result;
+			}
+        }
+        return $respuesta;
+    }
 	public function IvasPedidos($idPedido){
 		//@Objetivo:
 		//Extraer todos los ivas que tengamos de un pedido ya guardado

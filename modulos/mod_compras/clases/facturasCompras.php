@@ -541,6 +541,8 @@ class FacturasCompras extends ClaseCompras{
                         );
         } 
         $ivas=$this->IvasFactura($id);
+        // Lo dejo de momento, pero pienso que no hace falta ya que hago recalculo y ademas no lo devuelvo...
+        // Lo unico par aindicar que hubo un error.
         if (isset($ivas['error'])){
             array_push($this->errores,$this->montarAdvertencia(
                                         'danger',
@@ -560,6 +562,9 @@ class FacturasCompras extends ClaseCompras{
             // Si no hubo errores añadimos datos y formateamos datos fecha.
             $datos['Productos']=$productos;
             $datos['Albaranes'] = $albaranes;
+        } else {
+            // Si hubo errores los devolvemos.
+            $datos['error'] = $this->errores;
         }
         return $datos;
     }

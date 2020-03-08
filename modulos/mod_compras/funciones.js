@@ -268,7 +268,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                     if (dedonde=="albaran" || dedonde=="factura" ){
                         comprobarAdjunto(dedonde);
                     }
-                    if (dedonde=="pedidos"){
+                    if (dedonde=="pedido"){
                         // Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
                         //Para poder empezar a meter articulos
                         ponerFocus("idArticulo");
@@ -368,7 +368,7 @@ function addTemporal(dedonde=""){
 	//@parámetros:
 	//dedonde: de donde venimos , pedidos, albaran, factura
 	console.log('FUNCION Añadir temporal JS-AJAX');
-	if (dedonde=="pedidos"){
+	if (dedonde=="pedido"){
 		var pulsado='addPedidoTemporal';
 	};
 	if (dedonde=="albaran"){
@@ -882,7 +882,7 @@ function mensajeCancelar(idTemporal, dedonde){
 		}
 	}else{
 		switch(dedonde){
-			case 'pedidos':
+			case 'pedido':
 				location.href="pedidosListado.php";
 			break;
 			case 'albaran':

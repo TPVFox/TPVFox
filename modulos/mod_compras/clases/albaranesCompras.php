@@ -28,12 +28,10 @@ class AlbaranesCompras extends ClaseCompras {
         //@Objetivo;
         //Modificamos los datos del pedido temporal, cada vez que hacemos cualquier modificación en el albarán,
         // modificamos el temporal
-
         $productos_json = json_encode($productos);
         $UnicoCampoProductos = $productos_json;
         $PrepProductos = $this->db->real_escape_string($UnicoCampoProductos);
         $UnicoCampoPedidos = json_encode($pedidos);
-
         $PrepPedidos = $this->db->real_escape_string($UnicoCampoPedidos);
         $sql = 'UPDATE albproltemporales SET idUsuario =' . $idUsuario . ' , idTienda='
                 . $idTienda . ' , estadoAlbPro="' . $estadoPedido . '" , Fecha="' . $fecha . '"  ,Productos="'
@@ -370,14 +368,6 @@ class AlbaranesCompras extends ClaseCompras {
         return $respuesta;
     }
 
-    public function sumarIva($numAlbaran) {
-        //@Objetivo:
-        //Sumamos los importes iva y el total de la base de un número de albarán
-        $from_where = 'from albproIva where  Numalbpro  =' . $numAlbaran;
-        $albaran = parent::sumarIvaBases($from_where);
-        return $albaran;
-    }
-
     public function GetAlbaran($id){
         $datos = $this->datosAlbaran($id);
         if (isset($datos['error'])){
@@ -396,6 +386,8 @@ class AlbaranesCompras extends ClaseCompras {
                         );
         } 
         $ivas=$this->IvasAlbaran($id);
+        // Lo dejo de momento, pero pienso que no hace falta ya que hago recalculo y ademas no lo devuelvo...
+        // Lo unico par aindicar que hubo un error.
         if (isset($ivas['error'])){
             array_push($this->errores,$this->montarAdvertencia(
                                         'danger',
@@ -415,6 +407,9 @@ class AlbaranesCompras extends ClaseCompras {
             // Si no hubo errores añadimos datos y formateamos datos fecha.
             $datos['Productos']=$productos;
             $datos['Pedidos'] = $pedidos;
+        } else {
+            // Si hubo errores los devolvemos.
+            $datos['error'] = $this->errores;
         }
         return $datos;
     }
@@ -427,6 +422,16 @@ class AlbaranesCompras extends ClaseCompras {
         $albaran = parent::SelectUnResult($tabla, $where);
         return $albaran;
     }
+
+    public function sumarIva($numAlbaran) {
+        //@Objetivo:
+        //Sumamos los importes iva y el total de la base de un número de albarán
+        $from_where = 'from albproIva where  Numalbpro  =' . $numAlbaran;
+        $albaran = parent::sumarIvaBases($from_where);
+        return $albaran;
+    }
+
+ 
 
     public function ProductosAlbaran($idAlbaran) {
         //@Objetivo:
@@ -486,7 +491,7 @@ class AlbaranesCompras extends ClaseCompras {
                 // Pide completo y tiene datos.
                 $Cped = new PedidosCompras($this->db);
                 foreach ($pedidos as $key=>$pedido){   
-                    $d = $Cped->DatosPedido($pedido['idPedido']);
+                    $d = $Cped->datosPedido($pedido['idPedido']);
                     $pedidos[$key]['Numpedpro'] = $d ['Numpedpro'];
                     $pedidos[$key]['estado'] = $d['estado'];
                     $pedidos[$key]['total']  = $d['total'];

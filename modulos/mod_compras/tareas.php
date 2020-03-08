@@ -95,7 +95,7 @@ switch ($pulsado) {
         $dedonde=$_POST['dedonde'];
         $respuesta=array();
         switch($dedonde){
-            case 'pedidos':
+            case 'pedido':
                 $cancelar=cancelarPedido( $idTemporal, $BDTpv);
                 $respuesta=$cancelar;
             break;

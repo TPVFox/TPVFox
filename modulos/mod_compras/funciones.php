@@ -611,7 +611,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	}
 	if ($dedonde=="pedido"){
 		$Cpedido=new PedidosCompras($BDTpv);
-		$datos=$Cpedido->DatosPedido($id);
+		$datos=$Cpedido->datosPedido($id);
 		$productosAdjuntos=$Cpedido->ProductosPedidos($id);
 		$texto="Pedido Proveedor";
 		$numero=$datos['Numpedpro'];

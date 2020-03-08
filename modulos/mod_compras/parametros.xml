@@ -3,10 +3,10 @@
 	<configuracion>
 		<incidencias descripcion="mostrar_Select" dedonde="albaran">Si</incidencias>
 		<incidencias descripcion="mostrar_Select" dedonde="factura">Si</incidencias>
-		<incidencias descripcion="mostrar_Select" dedonde="pedidos">Si</incidencias>
+		<incidencias descripcion="mostrar_Select" dedonde="pedido">Si</incidencias>
 		<incidencias descripcion="usuario_Defecto" dedonde="albaran">1</incidencias>
 		<incidencias descripcion="usuario_Defecto" dedonde="factura">1</incidencias>
-		<incidencias descripcion="usuario_Defecto" dedonde="pedidos">1</incidencias>
+		<incidencias descripcion="usuario_Defecto" dedonde="pedido">1</incidencias>
 		
 	</configuracion>
 	<cajas_input data-obj="id_input">
@@ -19,7 +19,7 @@
 				<action tecla="9">Saltar_hora</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 			</parametros> 
 		</caja_input>
 		<caja_input>
@@ -31,7 +31,7 @@
 				<action tecla="9">Saltar_desde_Hora</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 			</parametros> 
 		</caja_input>
 		<caja_input>
@@ -43,7 +43,7 @@
 				<action tecla="9">Saltar_desde_SuNumero</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 			</parametros> 
 		</caja_input>
 		<caja_input>
@@ -56,7 +56,7 @@
 				<action tecla="40">Saltar_idArticulo</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 			</parametros> 
 		</caja_input>
 		<caja_input>
@@ -70,7 +70,7 @@
 				<action tecla="40">Saltar_idArticulo</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 			</parametros> 
 		</caja_input>
 		<caja_input>
@@ -83,7 +83,7 @@
 
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 			</parametros> 
 			
 		</caja_input>
@@ -97,7 +97,7 @@
 				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 				<parametro nombre="campo">a.idArticulo</parametro>  
 			</parametros> 
 		</caja_input>	
@@ -127,7 +127,7 @@
 				<action tecla="13">AccionAddProveedorProducto</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 				<parametro nombre="campo"></parametro>
 				<parametro nombre="prefijo">Proveedor_Fila_</parametro>
 			</parametros>
@@ -148,7 +148,7 @@
 				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 				<parametro nombre="campo">at.crefTienda</parametro>  
 			</parametros> 
 		</caja_input>	
@@ -162,7 +162,7 @@
 				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 				<parametro nombre="campo">p.crefProveedor</parametro>  
 			</parametros> 
 		</caja_input>
@@ -176,7 +176,7 @@
 				<action tecla="40">saltar_productos</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 				<parametro nombre="campo">ac.codBarras</parametro>  
 			</parametros> 
 		</caja_input>	
@@ -191,7 +191,7 @@
 				
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 				<parametro nombre="campo">a.articulo_name</parametro>  
 			</parametros> 
 		</caja_input>	
@@ -203,7 +203,7 @@
 				<action tecla="38">mover_down</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 				<parametro nombre="campo"></parametro>
 				<parametro nombre="prefijo">Unidad_Fila_</parametro>
 			</parametros>
@@ -252,7 +252,7 @@
 				<action tecla=" 9">mover_down</action>
 			</teclas>
 			<parametros>
-				<parametro nombre="dedonde">pedidos</parametro>
+				<parametro nombre="dedonde">pedido</parametro>
 				<parametro nombre="campo"></parametro>  
 			</parametros>
 			<before>

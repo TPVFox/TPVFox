@@ -2,8 +2,8 @@
 <html>
 <head>
 <?php
-	//llamadas  a archivos php 
 	include_once './../../inicial.php';
+	//Carga de archivos php necesarios
 	include_once $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_compras/funciones.php';
 	include_once $URLCom.'/controllers/Controladores.php';
@@ -13,12 +13,12 @@
 	include_once ($URLCom.'/controllers/parametros.php');
 	//Carga de clases necesarias
 	$ClasesParametros = new ClaseParametros('parametros.xml');
-	$Cpedido=new PedidosCompras($BDTpv);
 	$Cproveedor=new Proveedores($BDTpv);
+	$Cpedido=new PedidosCompras($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
 	//Inicializar las variables
-	$dedonde="pedidos";
+	$dedonde="pedido";
 	$titulo="Pedido de Proveedor:";
 	// Valores por defecto de estado y accion.
 	// [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
@@ -34,9 +34,7 @@
 	$Datostotales=array();
     $errores = array();
 	$inciden=0;
-   
-    
-	//Carga de los parametros de configuración y las acciones de las cajas
+	//Cargamos la configuración por defecto y las acciones de las cajas 
 	$parametros = $ClasesParametros->getRoot();
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
@@ -80,58 +78,71 @@
         }
     }
     if ( $idPedido > 0 && count($errores) === 0){
-        // Si idPedido es 0, quiere decir que existe un temporal de $GET['id'] por lo que no entro aquí
-        $datosPedido=$Cpedido->DatosPedido($idPedido);
+        // Si existe id y no hay errores estamos modificando directamente un pedido.
+        $datosPedido=$Cpedido->GetPedido($_GET['id']);
         if (isset($datosPedido['error'])){
-                array_push($errores,$this->montarAdvertencia(
+            $errores=$datosPedido['error'];
+        } else {
+            if(isset($datosPedido['estado'])){
+                $estado=$datosPedido['estado'];
+                if ($estado=='Facturado'){
+                    $accion = 'ver'; // Con estado facturado la accion es solo ver.
+                    // Obtenemos el numero albaran que tiene este pedido.
+                    $Albaran_creado = $Cpedido->NumAlbaranDePedido($idPedido);
+                    if(isset($Albaran_creado['error'])){
+                        array_push($errores,$CAlb->montarAdvertencia(
+                                        'danger',
+                                        'Error 1.1 en base datos.Consulta:'.json_encode($numFactura['consulta'])
+                                )
+                        );
+                    }
+                } 
+            }
+        }
+    }
+    if ( $idPedidoTemporal >0 && count($errores) === 0){
+        // Puede entrar cuando :
+        //   -Viene de albaran temporal
+        //   -Se recargo mientras editamos.
+        //   -Cuando pulsamos guardar.
+        $datosPedido=$Cpedido->buscarPedidoTemporal($idPedidoTemporal);
+        if (isset($datosPedido['error'])){
+                array_push($errores,$Cpedido->montarAdvertencia(
                                 'danger',
-                                'Error 1.1 en base datos.Consulta:'.json_encode($datosAlbaran['consulta'])
+                                'Error 1.1 en base datos.Consulta:'.json_encode($datosPedido['consulta'])
                         )
                 );
         } else {
-            $datosPedido['Productos'] = $Cpedido->ProductosPedidos($idPedido);
-            $estado=$datosPedido['estado'];
-            if ($estado=='Facturado'){
-                $accion = 'ver'; // Con estado facturado la accion es solo ver.
-                // Obtenemos el numero albaran que tiene este pedido.
-                $Albaran_creado = $Cpedido->NumAlbaranDePedido($idPedido);
-            } 
-            $fecha =date_format(date_create($datosPedido['FechaPedido']), 'd-m-Y');
-            $productos=modificarArrayProductos($datosPedido['Productos']);
-            // Obtenemos la incidencias si hay.
-            $incidenciasAdjuntas=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, "pedidos");
-            $inciden=count($incidenciasAdjuntas['datos']);
+            // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
+            $datosPedido['Productos'] = json_decode($datosPedido['Productos'],true);
+            $idPedido = $datosAlbaran['Numpedpro'];
+            $estado=$datosPedido['estadoPedPro'];
         }
     }
-    if ( $idPedidoTemporal >0 && count($errores) === 0){           
-        $datosPedido=$Cpedido->DatosTemporal($idPedidoTemporal);
-        if (isset($datosPedido['idPedpro'])){
-            $idPedido=$datosPedido['idPedpro'];	
-            // Si $idPedido >0 compruebo que no existan mas pedidotemporales de ese pedido para evitar errores.
-            if ($idPedido > 0){
-                $c = $Cpedido->comprobarTemporalIdPedpro($idPedido);
-                if (isset($c['idTemporal'])){
-                    // Existe un temporal de este pedido por lo que cargo ese temporal.
-                    if ($_GET['tActual'] !== $c['idTemporal']){
-                        // Hay un error grabe.
-                        echo 'Error grabe';
-                        exit();
-                    }
-                } else {
-                    if (count($c)>0){
-                         $errores= $c;
-                    }
-                }
+    if (count($errores) == 0){
+        // Si no hay errores graves continuamos.
+        if (!isset($datosPedido)){
+            // SI es NUEVO.
+            $datosPedido = array();
+            $datosPedido['Fecha']="0000-00-00 00:00:00";
+            $datosPedido['idProveedor'] = 0;
+            $creado_por = $Usuario;
+       } else {
+            // No es NUEVO
+            $idProveedor=$datosPedido['idProveedor'];
+            $proveedor=$Cproveedor->buscarProveedorId($idProveedor);
+            $nombreProveedor=$proveedor['nombrecomercial'];
+            $productos =$datosPedido['Productos'];
+            $fecha = ($datosPedido['Fecha']=="0000-00-00 00:00:00")
+                                ? date('d-m-Y'):date_format(date_create($datosPedido['Fecha']),'d-m-Y');
+            $hora=date_format(date_create($datosPedido['Fecha']),'H:i');
+            $creado_por = $Cpedido->obtenerDatosUsuario($datosPedido['idUsuario']);
+            if (isset ($datosPedido['Numpedpro'])){
+                $d=$Cpedido->buscarPedidoNumero($datosPedido['Numpedpro']);
+                $idPedido=$d['id'];
+                // Debemos saber si debemos tener incidencias para ese albaran, ya que el boton incidencia es distinto.
+                $incidencias=incidenciasAdjuntas($idPedido, "mod_compras", $BDTpv, $dedonde);
             }
-        }
-        if ( count($errores) === 0) {
-            $estado=$datosPedido['estadoPedPro'];         
-            if ($datosPedido['fechaInicio']){
-                $bandera=new DateTime($datosPedido['fechaInicio']);
-                $fecha=$bandera->format('d-m-Y');
-            }
-            $productos = json_decode( $datosPedido['Productos'],true); // Array de objetos
-            $datosPedido['Productos'] = $productos;
         }
     }
     if (isset ($datosPedido['idProveedor']) && $datosPedido['idProveedor'] > 0){
@@ -242,8 +253,8 @@
 		cabecera['estado'] ='<?php echo $estado ;?>'; 
 		cabecera['idTemporal'] = <?php echo $idPedidoTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idPedido ;?>;
-		cabecera['idProveedor']='<?php echo $idProveedor ;?>';
-		cabecera['fecha']='<?php echo $fecha;?>';
+		cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
+		cabecera['fecha'] = '<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	<?php 
@@ -323,7 +334,7 @@
                 }
                 if($inciden>0){
                    echo '<input class="btn btn-info" size="15" 
-                   onclick="abrirIncidenciasAdjuntas('.$idPedido.', '."'".'mod_compras'."'".', '."'".'pedidos'."'".')"
+                   onclick="abrirIncidenciasAdjuntas('.$idPedido.', '."'".'mod_compras'."'".', '."'".'pedido'."'".')"
                    value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
                 }
                 if ($estado != "Facturado" && $accion != "ver"){
@@ -428,7 +439,7 @@
 				<?php 
 				if (isset($productos)){
 					foreach (array_reverse($productos) as $producto){
-						$h=htmlLineaProducto($producto, "pedidos",$estilos['readonly']);
+						$h=htmlLineaProducto($producto, "pedido",$estilos['readonly']);
 						echo $h['html'];
 					}
 				}

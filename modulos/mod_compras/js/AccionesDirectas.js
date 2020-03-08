@@ -67,7 +67,7 @@ function controladorAcciones(caja,accion, tecla){
                 addTemporal(caja.darParametro('dedonde'));
             }
             if (caja.tipo_event !== "blur"){
-                if (caja.darParametro('dedonde') == "pedidos"){
+                if (caja.darParametro('dedonde') == "pedido"){
                     ponerFocus( ObtenerFocusDefectoEntradaLinea());
 				}else{
 					d_focus='ultimo_coste_'+parseInt(caja.fila);
@@ -125,7 +125,7 @@ function controladorAcciones(caja,accion, tecla){
 			if(caja.darParametro('dedonde')=='factura'){
 				var d_focus = 'suNumero';
 			}
-			if(caja.darParametro('dedonde')=='pedidos'){
+			if(caja.darParametro('dedonde')=='pedido'){
 				var d_focus = 'id_proveedor';
 			}
 			ponerFocus(d_focus);
