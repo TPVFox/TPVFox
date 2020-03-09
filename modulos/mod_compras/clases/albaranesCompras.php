@@ -479,7 +479,7 @@ class AlbaranesCompras extends ClaseCompras {
         // Los datos que obtenemos tabla pedproAlb ( id,idAlbaran,numAlbaran,idPedido,numPedido)
         // Completo:
         // Devuelve todos los datos pedido:
-        //   [id],[Numpedpro],[Numtemp_pedpro],[FechaPedido]
+        //   [id],[Numpedpro],[Numtemp_pedpro],[Fecha]
         //  ,[idTienda],[idUsuario],[idProveedor],[estado],[formaPago],[entregado],[total]
         //  ,[fechaCreacion],[fechaModificacion]
         $tabla = 'pedproAlb';
@@ -495,7 +495,7 @@ class AlbaranesCompras extends ClaseCompras {
                     $pedidos[$key]['Numpedpro'] = $d ['Numpedpro'];
                     $pedidos[$key]['estado'] = $d['estado'];
                     $pedidos[$key]['total']  = $d['total'];
-                    $pedidos[$key]['fecha'] = $d['FechaPedido'];               
+                    $pedidos[$key]['fecha'] = $d['Fecha'];               
                 }
             }
         }

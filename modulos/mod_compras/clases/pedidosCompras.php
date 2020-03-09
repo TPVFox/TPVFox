@@ -49,8 +49,8 @@ class PedidosCompras extends ClaseCompras{
 		$productos_json=json_encode($productos);
 		$UnicoCampoProductos 	=$productos_json;
 		$PrepProductos = $this->db->real_escape_string($UnicoCampoProductos);
-		$sql = 'INSERT INTO pedprotemporales ( idUsuario , idTienda , estadoPedPro , 
-		fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.' , '.$idTienda.' , "'
+		$sql = 'INSERT INTO pedprotemporales ( idUsuario ,fecha, idTienda , estadoPedPro , 
+		fechaInicio, idProveedor,  Productos ) VALUES ('.$idUsuario.', "'.$fecha.'", '.$idTienda.' , "'
 		.$estadoPedido.'" , "'.$fecha.'", '.$idProveedor.' , "'.$PrepProductos.'")';
 		$smt=parent::consulta($sql);
 		if (gettype($smt)==='array'){
@@ -97,7 +97,7 @@ class PedidosCompras extends ClaseCompras{
     public function buscarPedidoTemporal($idPedidoTemporal) {
         //@Objetivo:
         //Buscar los datos del un albarán temporal
-        $sql = 'SELECT * FROM pedproltemporales WHERE id=' . $idPedidoTemporal;
+        $sql = 'SELECT * FROM pedprotemporales WHERE id=' . $idPedidoTemporal;
         $smt = parent::consulta($sql);
         if (gettype($smt)==='array') {
            $respuesta = $smt;
@@ -180,11 +180,11 @@ class PedidosCompras extends ClaseCompras{
 		//pedprolinea->tabla que contiene las lineas de los productos
 		//pedproIva->tabla que contiene los registros de los distintos ivas de los productos
         $sql='INSERT INTO pedprot'
-            .' ( Numtemp_pedpro, FechaPedido, idTienda, idUsuario, idProveedor, estado, total_siniva, total, fechaCreacion)'
+            .' ( Numtemp_pedpro, Fecha, idTienda, idUsuario, idProveedor, estado, total_siniva, total, fechaCreacion)'
             .' VALUES ('.$datos['Numtemp_pedpro']
-            .', "'.$datos['FechaPedido'].'", '.$datos['idTienda'].' , '
+            .', "'.$datos['Fecha'].'", '.$datos['idTienda'].' , '
             .$datos['idUsuario'].', '.$datos['idProveedor'].', "'.$datos['estado']
-            .'", '.$datos['total_siniva'].'", "'.$datos['total'].', "'.$datos['fechaCreacion'].'")';
+            .'","'.$datos['total_siniva'].'", "'.$datos['total'].'", "'.$datos['fechaCreacion'].'")';
         $smt=parent::consulta($sql);
         if (gettype($smt)==='array'){
             $respuesta =$smt;
@@ -322,7 +322,7 @@ class PedidosCompras extends ClaseCompras{
         if (isset($datos['idPedpro']) && $datos['idPedpro'] >0){
             $id = $datos['idPedpro'];
             $sql='UPDATE pedprot SET Numtemp_pedpro='.$datos['Numtemp_pedpro']
-                .', FechaPedido ="'.$datos['FechaPedido'].'"'
+                .', Fecha ="'.$datos['Fecha'].'"'
                 .', estado ="'.$datos['estado'].'"'
                 .', total_siniva="'.$datos['total_siniva'].'"'
                 .', total="'.$datos['total'].'"'
@@ -408,7 +408,7 @@ class PedidosCompras extends ClaseCompras{
 	
 	public function TodosPedidosLimite($limite = ''){
 		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
-		$sql = 'SELECT a.id , a.Numpedpro , a.FechaPedido, b.nombrecomercial, 
+		$sql = 'SELECT a.id , a.Numpedpro , a.Fecha, b.nombrecomercial, 
 		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on 
 		a.idProveedor=b.idProveedor   '. $limite ;
 		$smt=parent::consulta($sql);
@@ -526,7 +526,7 @@ class PedidosCompras extends ClaseCompras{
 	public function buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado){
 		if ($numPedido>0){
             // Si buscamos un numero en concreto.
-			$sql='SELECT Numpedpro, FechaPedido, total_siniva,total, id FROM pedprot 
+			$sql='SELECT Numpedpro, Fecha, total_siniva,total, id FROM pedprot 
 			WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'"
 			.' and Numpedpro='.$numPedido;
 			$smt=parent::consulta($sql);
@@ -541,7 +541,7 @@ class PedidosCompras extends ClaseCompras{
 				$pedido['Nitem']=1; // No lo entiendo , y si la consulta obtiene mas.
 			}
 		}else{
-			$sql='SELECT Numpedpro, FechaPedido, total_siniva, total, id FROM pedprot
+			$sql='SELECT Numpedpro, Fecha, total_siniva, total, id FROM pedprot
 			 WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'";
 			$smt=parent::consulta($sql);
 			if (gettype($smt)==='array'){
@@ -559,7 +559,7 @@ class PedidosCompras extends ClaseCompras{
 	}
     
 	public function modFechaPedido($fecha, $idPedido){
-		$sql='UPDATE pedprot SET FechaPedido= "'.$fecha.'" where id='.$idPedido;
+		$sql='UPDATE pedprot SET Fecha= "'.$fecha.'" where id='.$idPedido;
 		$smt=parent::consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
@@ -635,7 +635,7 @@ class PedidosCompras extends ClaseCompras{
             // Creamos array con los datos del pedido para AÑADIR O MODIFICAR
             $datosPedido=array(
                         'Numtemp_pedpro'=>$_POST['idTemporal'],
-                        'FechaPedido'=>$fecha,
+                        'Fecha'=>$fecha,
                         'idTienda'=>$Tienda['idTienda'],
                         'idUsuario'=>$Usuario['id'],
                         'idProveedor'=>$pedidoTemporal['idProveedor'],

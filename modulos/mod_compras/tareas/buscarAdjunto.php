@@ -16,8 +16,8 @@
         if (isset($datosAdjunto['Nitem'])){
             // Hubo solo un resultado. ( aunque no tiene mucho sentido que exista Nitem.. :-)
             $respuesta['temporales']=1;
+            $fecha =$datosAdjunto['Fecha'];
             if ($dedonde=="albaran"){
-                $fecha =$datosAdjunto['FechaPedido'];
                 $respuesta['datos']['NumAdjunto']=$datosAdjunto['Numpedpro'];
                 $respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
                 $productosAdjunto=$CPed->ProductosPedidos($datosAdjunto['id']);
@@ -28,7 +28,6 @@
                     $respuesta['productos']=$productosAdjunto;
                 }
             }else{
-                $fecha =$datosAdjunto['Fecha'];
                 $respuesta['datos']['NumAdjunto']=$datosAdjunto['Numalbpro'];
                 $respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
                 $respuesta['datos']['totalSiva']=$datosAdjunto['totalSiva'];

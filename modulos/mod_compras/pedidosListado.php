@@ -204,7 +204,7 @@
                             ?>
                         </td>
                         <td><?php echo $pedido['Numpedpro'];?></td>
-                        <td><?php echo $pedido['FechaPedido'];?></td>
+                        <td><?php echo $pedido['Fecha'];?></td>
                         <td><?php echo $pedido['nombrecomercial'];?></td>
                         <td><?php echo $totaliva['totalbase'];?></td>
                         <td><?php echo $totaliva['importeIva'];?></td>

@@ -428,12 +428,11 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	}
 	$contad = 0;
 	foreach ($adjuntos as $adjunto){
-		if ($dedonde=="albaran"){
+        $fecha = date_create($adjunto['Fecha']);
+        if ($dedonde=="albaran"){
 			$numAdjunto=$adjunto['Numpedpro'];
-			$fecha = date_create($adjunto['FechaPedido']);
 		}else{
 			$numAdjunto=$adjunto['Numalbpro'];
-			$fecha = date_create($adjunto['Fecha']);
 		}
         $fecha=date_format($fecha, 'Y-m-d');
 		$respuesta['html'] 	.= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="buscarAdjunto('
@@ -547,10 +546,9 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
             $res['idAdjunto']=$adj['id'];
             $res['idPePro']=$adj['idProveedor'];
             $res['total']=$adj['total'];
-            if ($dedonde == "albaran"){
-                $res['fecha']=$adj['FechaPedido'];
-            }else{
-                $res['fecha']=$adj['Fecha'];
+            $res['fecha']=$adj['Fecha'];
+
+            if ($dedonde !== "albaran"){
                 $res['totalSiva']=$adj['totalSiva'];
                 $res['Su_numero']=$adj['Su_numero'];
             }
@@ -599,7 +597,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$alb_html=array_reverse($alb_html);
 		$texto="Factura Proveedor";
 		$numero=$datos['Numfacpro'];
-		$date=date_create($datos['Fecha']);
 	}
 	if ($dedonde=="albaran"){
 		$CAlb=new AlbaranesCompras($BDTpv);
@@ -607,7 +604,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAdjuntos=$CAlb->ProductosAlbaran($id);
 		$texto="Albarán Proveedor";
 		$numero=$datos['Numalbpro'];
-		$date=date_create($datos['Fecha']);
 	}
 	if ($dedonde=="pedido"){
 		$Cpedido=new PedidosCompras($BDTpv);
@@ -615,8 +611,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 		$productosAdjuntos=$Cpedido->ProductosPedidos($id);
 		$texto="Pedido Proveedor";
 		$numero=$datos['Numpedpro'];
-		$date=date_create($datos['FechaPedido']);
 	}
+    $date=date_create($datos['Fecha']);
 	$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
 	$productosDEF=modificarArrayProductos($productosAdjuntos);
 	$productos=json_decode(json_encode($productosDEF));

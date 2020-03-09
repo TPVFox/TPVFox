@@ -115,7 +115,7 @@
         } else {
             // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
             $datosPedido['Productos'] = json_decode($datosPedido['Productos'],true);
-            $idPedido = $datosAlbaran['Numpedpro'];
+            $idPedido = $datosPedido['idPedpro'];
             $estado=$datosPedido['estadoPedPro'];
         }
     }
@@ -218,7 +218,9 @@
                        'pro_readonly'   => '',
                        'pro_styleNo'    => '',
                        'btn_guardar'    => '',
-                       'btn_cancelar'   => ''
+                       'btn_cancelar'   => '',
+                       'input_factur'   => '',
+                       'select_factur'  => ''
                     );
     if (isset ($_GET['id']) || isset ($_GET['tActual'])){
         // Quiere decir que ya inicio , ya tuvo que meter proveedor.
@@ -232,6 +234,8 @@
     if ($accion === 'ver'){
         $estilos['readonly']   = ' readonly';
         $estilos['styleNo']     = ' style="display:none;"';
+        $estilos['input_factur'] = ' readonly';
+        $estilos['select_factur'] = 'disabled="true"';   
     }
     if ($idPedidoTemporal === 0){
         // Solo se muestra cuando el idPedidoTemporal es 0
@@ -251,8 +255,8 @@
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estado'] ='<?php echo $estado ;?>'; 
-		cabecera['idTemporal'] = <?php echo $idPedidoTemporal ;?>;
-		cabecera['idReal'] = <?php echo $idPedido ;?>;
+		cabecera['idTemporal'] = '<?php echo $idPedidoTemporal;?>';
+		cabecera['idReal'] = '<?php echo $idPedido ;?>';
 		cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
 		cabecera['fecha'] = '<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';
@@ -383,7 +387,13 @@
 	            <div class="col-md-12">
 			<div class="col-md-3">
 				<label>Fecha Pedido:</label>
-				<input type="text" name="fecha" id="fecha" data-obj= "cajaFecha"  value=<?php echo '"'.$fecha.'"'.' ';?> onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+                 <?php
+                    $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
+                    $title_fecha =' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
+                    echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
+                        . $estilos['input_factur'].' value="'.$fecha.'" '.$evento_cambio.' onkeydown="controlEventos(event)" '
+                        . $pattern_numerico.$title_fecha.'/>';
+                    ?>
 			</div>
 			<div class="col-md-3">
 				<label>Estado:</label>

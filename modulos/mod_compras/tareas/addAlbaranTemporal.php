@@ -82,7 +82,7 @@
 	}
     }
     if (isset($productos) && count($errores)===0){
-        $CalculoTotales = recalculoTotales($productos);
+        $CalculoTotales = $CAlb->recalculoTotales($productos);
         $respuesta['total']=round($CalculoTotales['total'],2);
         $respuesta['totales']=$CalculoTotales;
         $modTotal=$CAlb->modTotales($idAlbaranTemporal, $respuesta['total'], $CalculoTotales['subivas']);
