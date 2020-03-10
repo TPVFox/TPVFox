@@ -44,13 +44,11 @@ class ClasePermisos{
     public function InicializarPermisosUsuario(){
         //@Objetivo: Inicializar los permisos de un usuario, si es del grupo
         //9 quiere decir que es un administrador entonces modificamos los el xml para que el permiso sea siempre 1
-       
         $this->obtenerRutaProyecto();
         $this->ObtenerDir(); // Obtenemos los modulos que existen $this->modulos
         $modulos=$this->modulos;
         foreach($modulos as $modulo){
             //Recorrer todos los modulos
-           
             if(is_file($this->RutaModulos.'/'.$modulo.'/acces.xml')){//Si en  el modulo existe el archivo acces
                 $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');//lo cargamos
                 if(isset($this->usuario['group_id'])){
@@ -60,7 +58,6 @@ class ClasePermisos{
                         $xml=$this->ModificarPermisos($xml);
                     }
                 }
-               
                 $this->insertarPermisos($xml);//Cuando esté el xml listo insertamos los permisos
             }
             if (file_exists($this->RutaPlugin.'/'.$modulo)){
@@ -72,19 +69,15 @@ class ClasePermisos{
                         $xml=simplexml_load_file($this->RutaPlugin.'/'.$modulo.'/'.$plugin.'/acces.xml');//lo cargamos
                    
                          if(isset($this->usuario['group_id'])){
-                                if($this->usuario['group_id']==9){//Si el usuario es del grupo 9 moficamos el xml para que todos los permisos 
-                                                            //sean 1
-                                $xml=$this->ModificarPermisos($xml);
+                                if($this->usuario['group_id']==9){
+                                    //Si el usuario es del grupo 9 moficamos el xml para que todos los permisos sean 1
+                                    $xml=$this->ModificarPermisos($xml);
                                 }
                         }
-               
                         $this->insertarPermisos($xml);//Cuando esté el xml listo insertamos los permisos
                     }
                 }
-                
             }
-          
-           
         }
         return $xml;
         
@@ -111,31 +104,29 @@ class ClasePermisos{
         $BDTpv = $this->BDTpv;
         $sql='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista IS NULL and accion IS NULL';
         $res = $BDTpv->query($sql);  
-        if(!isset($res->num_rows) && $res->num_rows == 0){ 
+        if(!isset($res->num_rows) || $res->num_rows == 0){ 
             $insert[]='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'",'.$xml['permiso'].')';
         }
         foreach ($xml->vista as $vista){
             $sql2='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista ="'.$vista['nombre'].'" and accion IS NULL';
             $res = $BDTpv->query($sql2);
             // Si no existe , lo creamos...
-            if(!isset($res->num_rows) && $res->num_rows == 0){ 
+            if(!isset($res->num_rows) || $res->num_rows == 0){ 
                 $insert[]='INSERT INTO permisos(idUsuario, modulo, vista, permiso) VALUES ('.$this->usuario['id']
                     .', "'.$xml['nombre'].'", "'.$vista['nombre'].'", '.$vista['permiso'].')';                       
             }
              foreach($vista->accion as $accion){
                  $sql3='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'"  and vista ="'.$vista['nombre'].'" and accion ="'.$accion['nombre'].'"' ;
-                   if(!isset($res->num_rows) && $res->num_rows== 0){ 
+                   if(!isset($res->num_rows) || $res->num_rows== 0){ 
                            
                     $insert[]='INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'", "'.$vista['nombre'].'", "'.$accion['nombre'].'", '.$accion['permiso'].')';
                 }
              }
         }
         if (count($insert)>0){
-            $Sql_insert =  implode ( ';' , $insert ).';';
-            $res = $BDTpv->query($Sql_insert);  
-            echo '<pre>';
-            echo $Sql_insert;
-            echo '</pre>';
+            foreach ($insert as $i){
+                $res = $BDTpv->query($i);
+            }
         }
 
         return $sql;
@@ -149,7 +140,7 @@ class ClasePermisos{
 		
 		$this->RutaServidor 	= $_SERVER['DOCUMENT_ROOT']; // Sabemos donde esta el servidor.
 		$RutaProyectoCompleta 	= str_replace('clases','', __DIR__);
-		if(php_uname()=="WINDOWS NT"){
+		if(php_uname('s')=="WINDOWS NT"){
 			$this->ruta = str_replace('\\', '/', $this->ruta);
             $RutaProyectoCompleta 	=  str_replace('\\', '/',$RutaProyectoCompleta);
             //~ $this->HostNombre   =  $RutaProyectoCompleta;
@@ -168,7 +159,7 @@ class ClasePermisos{
 		// Objetivo scanear directorio y cuales son directorios
 		$respuesta = array();
         $ruta = $this->RutaModulos;
-        if(php_uname()=="WINDOWS NT"){
+        if(php_uname('s')=="WINDOWS NT"){
 			$ruta = str_replace('\\', '/', $ruta);
 		}
         $scans = scandir($ruta);

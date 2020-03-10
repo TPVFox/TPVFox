@@ -2,24 +2,43 @@
 <html>
     <head>
         <?php
-		// Reinicio variables
+        // Recuerda que la variable $Usuario es global, por decirlo de una forma.
+        // No debemos utilizarla para tomar los datos ficha del usuario.
 		include_once './../../inicial.php';
-		include_once $URLCom.'/head.php';
-       
+		include_once $URLCom.'/head.php';      
 		include_once $URLCom.'/modulos/mod_usuario/funciones.php';
 		include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
         include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
-        include_once $URLCom.'/clases/ClasePermisos.php';
+        //~ include_once $URLCom.'/clases/ClasePermisos.php';
         $admin=0;
-		$Cusuario=new ClaseUsuarios($BDTpv);
+        $id = (isset($_GET['id']) ? $_GET['id'] : 0); // Valor id es 0 o el get
+		$CUsuario=new ClaseUsuarios($BDTpv);
         $Cincidencias=new ClaseIncidencia($BDTpv);
-        $idTienda = $Tienda['idTienda'];
 		$tabla= 'usuarios'; // Tablas que voy utilizar.
 		$AtributoLogin = '';
         // Creo los estados de usuarios ( para select)
-		$estados = array(0 => array('valor' => 'inactivo'),
+		$estados = array(0 => array('valor' => 'inactivo',
+                                    'porDefecto' => "selected"),
                          1 => array('valor' => 'activo')
                         );
+        // La ClasePermisos ya obtiene en inicial.
+        if($ClasePermisos->getAccion("permiso")==1){
+            $admin=1;
+        }
+        // No hace falta todos los usuarios para poder copiar permisos.
+        $usuarios=$CUsuario->todosUsuarios();
+        // Valores por defecto de ficha cuando id = 0
+        $titulo = "Crear Usuario";
+        $UsuarioUnico = array(
+                            'fecha'     => date("Y-m-d"),
+                            'group_id'  => 0,
+                            'password'  => '',
+                            'username'  => '',
+                            'nombre'    => '',
+                            'id'        => ''
+                        );
+        $passwrd= '';
+
 		?>
 	</head>
 	
@@ -30,11 +49,9 @@
 		// ===========  datos usuario segun id enviado por url============= //
 		
 		if (isset($_GET['id'])) {
-            
 			// Modificar Ficha Usuario
-			$id=$_GET['id']; // Obtenemos id para modificar.
-            $Usuario=array('id'=>$id);
-            $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
+            $id_array=array('id'=>$id);
+            $permisosUsuario=$ClasePermisos->getPermisosUsuario($id_array);
             $permisosUsuario=$permisosUsuario['resultado'];
 			$UsuarioUnico = verSelec($BDTpv,$id,$tabla);
 			$titulo = "Modificar Usuario";
@@ -48,7 +65,6 @@
 				$AtributoLogin='readonly';
 				// Ahora ponemos el estado por defecto segun el dato obtenido en la BD .
 				if (count($_POST) ===0){
-				
 				$i = 0;
 					foreach ($estados as $estado){
 						if ($UsuarioUnico['estado'] == $estado['valor']){
@@ -57,44 +73,24 @@
 					$i++;
 					}
 				}
-				$configuracionesUsuario=$Cusuario->getConfiguracionModulo($id);
-                $usuarios=$Cusuario->todosUsuarios();
+				$configuracionesUsuario=$CUsuario->getConfiguracionModulo($id);
 				$incidenciasUsuario=$Cincidencias->incidenciasSinResolverUsuario($id);
-              
+                $datos=0;
                 if (isset($configuracionesUsuario['datos'])){
                     $datos=$configuracionesUsuario['datos'];
-                }else{
-                    $datos=0;
                 }
 				$htmlConfiguracion=htmlTablaGeneral($datos, $HostNombre, "configuracion");
                 $htmlInicidenciasDesplegable=htmlTablaIncidencias($incidenciasUsuario);
-              
-                if($ClasePermisos->getAccion("permiso")==1){
-                    $admin=1;
-                }
-                $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $usuarios);
 			}
-		} else {
-			// Creamos ficha Usuario.
-			$titulo = "Crear Usuario";
-			$UsuarioUnico = array();
-			$UsuarioUnico['fecha'] = date("Y-m-d");
-			$UsuarioUnico['group_id'] = 0;
-			$UsuarioUnico['password'] = '';
-			$UsuarioUnico['username'] = '';
-			$UsuarioUnico['nombre'] = '';
-			$estados[0]['porDefecto'] = "selected"; // Indicamos por defecto
-			$UsuarioUnico['id']= '';
-			$passwrd= '';
-		}
+		} 
 		
 		if (!isset($error)){
-			if(count($_POST)>0){
+			if(count($_POST)>0 && (!isset($_GET['id']))){
 				// Ya enviamos el formulario y gestionamos lo enviado.
 				$datos = $_POST;
 				if($titulo === "Crear Usuario"){
 					// Quiere decir que ya cubrimos los datos del usuario nuevo.
-					$resp = insertarUsuario($datos,$BDTpv,$idTienda,$tabla);
+					$resp = insertarUsuario($datos,$BDTpv,$Tienda['idTienda'],$tabla);
 					if (isset($resp['error'])){
 						$tipomensaje= "danger";
 						$mensaje = "Nombre de usuario ya existe!";
@@ -115,11 +111,6 @@
 						$mensaje = "Su registro de usuario fue editado.";
 					}
 				};
-                echo '<pre>';
-                print_r($datos);
-                print_r($mensaje);
-                print_r($resp);
-                echo '</pre>';
                 $i=0;
                 foreach($permisosUsuario as $permisos){
                     $permiso=0;
@@ -129,19 +120,14 @@
                     $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $permiso, $id);
                     $i++;
                 }
-                
-                $Usuario=array('id'=>$resp['id']);
-                $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
+                $id_array=array('id'=>$resp['id']);
+                $permisosUsuario=$ClasePermisos->getPermisosUsuario($id_array);
                 $permisosUsuario=$permisosUsuario['resultado'];
-                $UsuarioUnico = verSelec($BDTpv,$Usuario['id'],$tabla);
-
-                if($ClasePermisos->getAccion("permiso")==1){
-                    $admin=1;
-                }
-                 $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin,  $ClasePermisos, $usuarios);
+                $UsuarioUnico = verSelec($BDTpv,$id_array['id'],$tabla);
 			}
 		}
-		
+        $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $usuarios);
+
 		?>
      
 		<div class="container">
