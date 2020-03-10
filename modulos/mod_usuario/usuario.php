@@ -11,34 +11,23 @@
         include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
         include_once $URLCom.'/clases/ClasePermisos.php';
         $admin=0;
-       
 		$Cusuario=new ClaseUsuarios($BDTpv);
         $Cincidencias=new ClaseIncidencia($BDTpv);
-		//~ if ($Usuario['estado'] === "Incorrecto"){
-			//~ return;	
-		//~ }
-		
+        $idTienda = $Tienda['idTienda'];
+		$tabla= 'usuarios'; // Tablas que voy utilizar.
+		$AtributoLogin = '';
+        // Creo los estados de usuarios ( para select)
+		$estados = array(0 => array('valor' => 'inactivo'),
+                         1 => array('valor' => 'activo')
+                        );
 		?>
-		<!-- Cargamos libreria control de teclado -->
-		
-		
 	</head>
 	
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_usuario/funciones.js"></script>
 		<?php
-        //~ include './../../header.php';
          include_once $URLCom.'/modulos/mod_menu/menu.php';
 		// ===========  datos usuario segun id enviado por url============= //
-		$idTienda = $Tienda['idTienda'];
-		$tabla= 'usuarios'; // Tablas que voy utilizar.
-		$AtributoLogin = '';
-		$estados = array(); // Creo los estados de usuarios ( para select)
-		$estados[0]['valor'] = 'inactivo'; // Por defecto
-		$estados[1]['valor'] = 'activo';
-		// Obtenemos id
-		
-		
 		
 		if (isset($_GET['id'])) {
             
@@ -47,9 +36,6 @@
             $Usuario=array('id'=>$id);
             $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
             $permisosUsuario=$permisosUsuario['resultado'];
-           //~ echo '<pre>';
-           //~ print_r($permisosUsuario);
-           //~ echo '</pre>';
 			$UsuarioUnico = verSelec($BDTpv,$id,$tabla);
 			$titulo = "Modificar Usuario";
 			$passwrd= 'password'; // Para mostrar ***** en password
@@ -86,9 +72,7 @@
                 if($ClasePermisos->getAccion("permiso")==1){
                     $admin=1;
                 }
-                
                 $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $usuarios);
-               
 			}
 		} else {
 			// Creamos ficha Usuario.
@@ -121,7 +105,6 @@
 				} else {
 					// Quiere decir que ya modificamos los datos del ficha del usuario
 					$UsuarioUnico['nombre'] =$datos['nombreEmpleado'];
-					
 					$resp = modificarUsuario($datos,$BDTpv,$tabla);
 					if (isset($resp['error'])){
 						// Error de usuario repetido...
@@ -132,23 +115,27 @@
 						$mensaje = "Su registro de usuario fue editado.";
 					}
 				};
+                echo '<pre>';
+                print_r($datos);
+                print_r($mensaje);
+                print_r($resp);
+                echo '</pre>';
                 $i=0;
                 foreach($permisosUsuario as $permisos){
-                     
+                    $permiso=0;
                     if(isset($_POST['permiso_'.$i])){
                         $permiso=1;
-                    }else{
-                        $permiso=0;
                     }
                     $mod=$ClasePermisos->modificarPermisoUsuario($permisos, $permiso, $id);
                     $i++;
                 }
                 
-                $Usuario=array('id'=>$id);
+                $Usuario=array('id'=>$resp['id']);
                 $permisosUsuario=$ClasePermisos->getPermisosUsuario($Usuario);
-                
-                 $permisosUsuario=$permisosUsuario['resultado'];
-                  if($ClasePermisos->getAccion("permiso")==1){
+                $permisosUsuario=$permisosUsuario['resultado'];
+                $UsuarioUnico = verSelec($BDTpv,$Usuario['id'],$tabla);
+
+                if($ClasePermisos->getAccion("permiso")==1){
                     $admin=1;
                 }
                  $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin,  $ClasePermisos, $usuarios);
