@@ -425,7 +425,6 @@ function addTemporal(dedonde=""){
                     if (cabecera.idTemporal == 0) {
                         // En estado Nuevo de pedido, hay que quitar el style atributo btn-guardar.
                         $("#bGuardar").removeAttr("style") ;
-                        alert('Quite estilo a btn guardar');
                     }
                     cabecera.idTemporal=resultado.id;
                     if (cabecera.estado === "Guardado"){
