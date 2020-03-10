@@ -78,6 +78,7 @@ if($idCliente>0){
 
     $nombreTmp="FichaCliente.pdf";
     //~ require_once('../../lib/tcpdf/tcpdf.php');
+    $margen_top_caja_texto= 100;
     require_once ('../../clases/imprimir.php');
     include_once('../../controllers/planImprimir.php');
     $ficheroCompleto=$rutatmp.'/'.$nombreTmp;

@@ -190,7 +190,8 @@ switch ($pulsado) {
 			$cabecera=$htmlImprimir['cabecera'];
 			$html=$htmlImprimir['html'];
             //~ include_once $URLCom.'/lib/tcpdf/tcpdf.php';
-			include_once $URLCom.'/clases/imprimir.php';
+            $margen_top_caja_texto= 56;
+            include_once $URLCom.'/clases/imprimir.php';
 			include_once $URLCom.'/controllers/planImprimir.php';
 			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 			$respuesta=$ficheroCompleto;

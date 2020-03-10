@@ -32,6 +32,14 @@ label {
     display: block;
     margin-bottom: 5px;
 }
+input[type="checkbox"]{
+    padding: 10px;
+    line-height: 1.5em;
+}
+.label-text {
+    margin-left:10px;
+    vertical-align: text-bottom;
+}
 span.circulo {
 	padding: 5px;
     width: 100%;

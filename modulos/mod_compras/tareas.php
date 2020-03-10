@@ -128,6 +128,7 @@ switch ($pulsado) {
         $nombreTmp=$dedonde."compras.pdf";
         $htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
         $cabecera=$htmlImprimir['cabecera'];
+        $margen_top_caja_texto= 56;
         $html=$htmlImprimir['html'];
         include_once $URLCom.'/clases/imprimir.php';
         include_once $URLCom.'/controllers/planImprimir.php';

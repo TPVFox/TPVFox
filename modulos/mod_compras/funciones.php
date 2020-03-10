@@ -591,65 +591,81 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 			if(isset($adjunto['totalSiva'])){
 				$totalSiva=$adjunto['totalSiva'];
 			}
-			$alb_html[]='<tr><td><b><font size="9">Nun Alb:'.$adjunto['NumAdjunto'].'</font></b></td><td WIDTH="50%"><b><font size="9">'.$adjunto['fecha'].'</font></b></td>
-			<td colspan="2"><b><font size="9">Total con iva : '.$total.'</font></b></td><td colspan="2"><b><font size="9">Total Sin iva : '.$totalSiva.'</font></b></td></tr>';
+            $date_adjunto =date_create($adjunto['fecha']);
+            $fecha_adjunto=date_format($date_adjunto,'d-m-Y');
+			$alb_html[]='<tr><td colspan="2"><b><font size="9">Nun Alb:'.$adjunto['NumAdjunto'].'</font></b></td><td><b><font size="9">'
+                    .$fecha_adjunto.'</font></b></td>'
+                    .' <td colspan="2"><b><font size="9">Total sin iva : '.$totalSiva.'</font></b></td>'
+                    .'<td colspan="2"><b><font size="9">Total con iva : '.$total.'</font></b></td></tr>';
 		}
 		$alb_html=array_reverse($alb_html);
-		$texto="Factura Proveedor";
+		$texto="Factura de Proveedor";
 		$numero=$datos['Numfacpro'];
 	}
 	if ($dedonde=="albaran"){
 		$CAlb=new AlbaranesCompras($BDTpv);
 		$datos=$CAlb->datosAlbaran($id);
 		$productosAdjuntos=$CAlb->ProductosAlbaran($id);
-		$texto="Albarán Proveedor";
+		$texto="Albarán de Proveedor";
 		$numero=$datos['Numalbpro'];
 	}
 	if ($dedonde=="pedido"){
 		$Cpedido=new PedidosCompras($BDTpv);
 		$datos=$Cpedido->datosPedido($id);
 		$productosAdjuntos=$Cpedido->ProductosPedidos($id);
-		$texto="Pedido Proveedor";
+		$texto="Pedido a Proveedor";
 		$numero=$datos['Numpedpro'];
 	}
     $date=date_create($datos['Fecha']);
 	$datosProveedor=$CProv->buscarProveedorId($datos['idProveedor']);
 	$productosDEF=modificarArrayProductos($productosAdjuntos);
-	$productos=json_decode(json_encode($productosDEF));
-	$Datostotales = recalculoTotales($productos);
-	$productosDEF=array_reverse($productosDEF);
+	$Datostotales = recalculoTotales($productosDEF);  
 	$fecha="";
 	if (isset ($date)){
-		$fecha=date_format($date,'Y-m-d');
+		$fecha=date_format($date,'d-m-Y');
 	}
 	$imprimir=array('cabecera'=>'',
                     'html'=>''
             );
-	$imprimir['cabecera'].=<<<EOD
-<p></p><font size="20">Super Oliva </font><br>
-<font size="12">$datosTienda[razonsocial]</font><br>
-<font size="12">$datosTienda[direccion]</font><br>
+	$imprimir['cabecera']=<<<EOD
+<table><tr><td><font size="20">$texto</font></td><td><font size="9"><b>Número:</b>$numero<b><br>Fecha:</b>$fecha</font></td></tr></table>
+<hr>
+<table><tr><td>
+<font size="12">Super Oliva </font><br>
+<font size="9">$datosTienda[razonsocial]</font><br>
+<font size="9"><b>Direccion:</b>$datosTienda[direccion]</font><br>
 <font size="9"><b>NIF: </b>$datosTienda[nif]</font><br>
 <font size="9"><b>Teléfono: </b>$datosTienda[telefono]</font><br>
-<font size="17">$texto número $numero con Fecha $fecha</font><hr>
-<font size="20">$datosProveedor[nombrecomercial]</font><br>
-<table><tr><td><font size="12">$datosProveedor[razonsocial]</font></td>
-<td><font>Dirección de entrega :</font></td></tr>
-<tr><td><font size="9"><b>NIF: </b>$datosProveedor[nif]</font></td>
-<td><font>$datosProveedor[direccion]</font></td></tr>
-<tr><td><font size="9"><b>Teléfono: </b>$datosProveedor[telefono]</font></td>
-<td><font size="9">Código Postal: </font></td></tr>
-<tr><td><font size="9">email: $datosProveedor[email]</font></td><td></td></tr></table>
-<table WIDTH="80%" border="1px"><tr><td>Referencia</td><td WIDTH="50%">Descripción del producto</td>
-<td>Unid/Peso</td><td>Precio</td><td>Importe</td><td>IVA</td></tr></table>
+</td>
+<td>
+<font size="9"><b>Datos de Proveedor:</b></font><br>
+<font size="12">$datosProveedor[nombrecomercial]</font><br>
+<font size="9">$datosProveedor[razonsocial]</font><br>
+<font size="9"><b>Direccion:</b>$datosProveedor[direccion]</font><br>
+<font size="9"><b>NIF: </b>$datosProveedor[nif]</font><br>
+<font size="9"><b>Teléfono: </b>$datosProveedor[telefono]</font><br>
+</td></tr>
+</table>
+<table WIDTH="100%" border="1px" ALIGN="center">
+<tr>
+<td WIDTH="5%"><font size="9"><b>Linea</b></font></td>
+<td WIDTH="17%"><font size="9"><b>Su Referencia</b></font></td>
+<td WIDTH="50%"><font size="9"><b>Descripción del producto</b></font></td>
+<td WIDTH="7%"><b><font size="9">Cant.</font></b></td>
+<td WIDTH="8%"><b><font size="9">Precio</font></b></td>
+<td WIDTH="8%"><b><font size="9">Importe</font></b></td>
+<td WIDTH="5%"><b><font size="9">IVA</font></b></td>
+</tr>
+</table>
 EOD;
-	$imprimir['html'] .='<table WIDTH="80%">';
+	$imprimir['html'] .='<table WIDTH="100%" border="1px">';
 	$i=0;
 	$numAdjunto=0;
     $numAdjuntoProd=0;
+    $productosDEF= $productosAdjuntos;
 	foreach($productosDEF as $producto){
 		if($dedonde=="factura"){
-			$numAdjuntoProd=$producto['numAlbaran'];
+			$numAdjuntoProd=$producto['idalbpro'];
 		}
 		if($numAdjuntoProd<>$numAdjunto){
             if(isset($alb_html[$i])){
@@ -658,7 +674,7 @@ EOD;
         }
 			$i++;
 		}
-		if ($producto['estado']=='Activo'){
+		if ($producto['estadoLinea']=='Activo'){
 			$imprimir['html'] .='<tr>';
 			$bandera="";
 			if (isset($producto['idalbpro'])){
@@ -670,31 +686,36 @@ EOD;
             if ($producto['ref_prov']>0){
 				$refPro=$producto['ref_prov'];
 			}
-            $iva=$producto['iva']/100;
-			$imprimir['html'] .='<td><font size="8">('.$producto['idArticulo'].') '.$refPro.'</font></td>'
-			.'<td WIDTH="50%"><font size="8">'.$producto['cdetalle'].'</font></td>'
-			.'<td><font size="8">'.number_format($producto['nunidades'],2).'</font></td>'
-			.'<td><font size="8">'.number_format($producto['ultimoCoste'],2).'</font></td>'
-			.'<td><font size="8">'.number_format($producto['importe'],2).'</font></td>'
-			.'<td><font size="8">('.number_format($producto['iva'],0).')</font></td>'
+            $importe=$producto['ncant']*$producto['costeSiva'];
+        
+			$imprimir['html'] .='<td ALIGN="center" WIDTH="5%"><font size="8">'.$producto['nfila'].'</font></td>'
+            .'<td WIDTH="17%"><font size="8"> &nbsp;'.$refPro.'</font></td>'
+			.'<td WIDTH="50%"><font size="8"> &nbsp;'.$producto['cdetalle'].'</font></td>'
+			.'<td ALIGN="right" WIDTH="7%"><font size="8">'.number_format($producto['ncant'],2).'  &nbsp;&nbsp;</font></td>'
+			.'<td ALIGN="right" WIDTH="8%"><font size="8">'.number_format($producto['costeSiva'],2).'  &nbsp;&nbsp;</font></td>'
+			.'<td ALIGN="right" WIDTH="8%"><font size="8">'.number_format($importe,2).'  &nbsp;&nbsp;</font></td>'
+			.'<td ALIGN="right" WIDTH="5%"><font size="8">'.number_format($producto['iva'],0).'%  &nbsp;&nbsp;</font></td>'
 			.'</tr>';
 		}
 	}
     
 	$imprimir['html'] .=<<<EOD
-</table><br><br><hr/><hr/><table><tr><th>Tipo</th><th>Base</th><th>IVA</th></tr>
+</table><br><br><hr/><hr/>
+<table WIDTH="70%" border="1px"><tr><th>Tipo</th><th>Base</th><th>IVA</th></tr>
 EOD;
 	if (isset($Datostotales)){
 		// Montamos ivas y bases
 		foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-			$imprimir['html'].=<<<EOD
-<tr><td>$iva%</td><td>$basesYivas[base]</td><td>$basesYivas[iva]</td></tr>
+            $base= number_format($basesYivas['base'],2);
+            $importe_iva = number_format($basesYivas['iva'],2);
+            $imprimir['html'].=<<<EOD
+<tr><td ALIGN="right">$iva% &nbsp;</td><td ALIGN="right">$base &nbsp;</td><td ALIGN="right">$importe_iva &nbsp;</td></tr>
 EOD;
 		}
 	}
 	$imprimir['html'] .='</table>';
 	$imprimir['html'] .='<p align="right"> TOTAL: ';
-	$imprimir['html'] .=(isset($Datostotales['total']) ? $Datostotales['total'] : '');
+	$imprimir['html'] .=(isset($Datostotales['total']) ? '<font size="20">'.number_format($Datostotales['total'],2).'</font>' : '');
 	$imprimir['html'] .='</p>';
 	
 	return $imprimir;
@@ -729,8 +750,8 @@ function htmlTotales($Datostotales){
 		}
 		$htmlIvas['html'].='<tr>'
 		.'<td> Totales </td>'
-		.'<td>'.$totalBase.'</td>'
-		.'<td>'.$totaliva.'</td>'
+		.'<td>'.number_format($totalBase,2).'</td>'
+		.'<td>'.number_format($totaliva,2).'</td>'
 		.'</tr>';
 	}
 	return $htmlIvas;

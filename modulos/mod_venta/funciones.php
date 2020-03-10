@@ -592,7 +592,7 @@ function htmlImporteFactura($datos, $BDTpv){
 	return $respuesta;
 	
 }
-function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
+function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 	$Ccliente=new Cliente($BDTpv);
 	$imprimir=array(
 	'cabecera'=>"",
@@ -604,42 +604,26 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 	if ($dedonde=='pedido'){
 		$Cpedido=new PedidosVentas($BDTpv);
 		$datos=$Cpedido->datosPedidos($id);
-		$idCliente=$datos['idCliente'];
-		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
+		$datosCliente=$Ccliente->DatosClientePorId($datos['idCliente']);
 		$textoCabecera="Pedido de cliente";
 		$numero=$datos['Numpedcli'];
-		$date=date_create($datos['FechaPedido']);
 		$productos=$Cpedido->ProductosPedidos($id);
-		$productosMod=modificarArrayProductos($productos);
-		$productos1=json_decode(json_encode($productosMod));
-		$Datostotales = recalculoTotales($productos1);
-	}
+    }
 	if ($dedonde =='albaran'){
 		$Calbaran=new AlbaranesVentas($BDTpv);
 		$datos=$Calbaran->datosAlbaran($id);
-		$idCliente=$datos['idCliente'];
-		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
+		$datosCliente=$Ccliente->DatosClientePorId($datos['idCliente']);
 		$textoCabecera="Albarán de Cliente";
 		$numero=$datos['Numalbcli'];
-		$date=date_create($datos['Fecha']);
 		$productos=$Calbaran->ProductosAlbaran($id);
-		$productosMod=modificarArrayProductos($productos);
-		$productos1=json_decode(json_encode($productosMod));
-		$Datostotales = recalculoTotales($productos1);
-		
 	}
 	if ($dedonde=='factura'){
 		$Cfaccli=new FacturasVentas($BDTpv);
 		$datos=$Cfaccli->datosFactura($id);
-		$idCliente=$datos['idCliente'];
-		$datosCliente=$Ccliente->DatosClientePorId($idCliente);
+		$datosCliente=$Ccliente->DatosClientePorId($datos['idCliente']);
 		$textoCabecera="Factura de Cliente";
 		$numero=$datos['Numfaccli'];
-		$date=date_create($datos['Fecha']);
 		$productos=$Cfaccli->ProductosFactura($id);
-		$productosMod=modificarArrayProductos($productos);
-		$productos1=json_decode(json_encode($productosMod));
-		$Datostotales = recalculoTotales($productos1);
 		$albaranFactura=$Cfaccli->AlbaranesFactura($id);
 		$alb_html=[];
 		if ($albaranFactura){
@@ -656,41 +640,57 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 					$fecha1=date_create($adjunto['fecha']);
 					$fecha1=date_format($fecha1,'Y-m-d');
 				}
-				$alb_html[]='<tr><td><b><font size="9">Nun Alb:'.$adjunto['Numalbcli'].'</font></b></td><td WIDTH="50%"><b><font size="9">'.$fecha1.'</font></b></td>
-				<td colspan="4"><b><font size="9">Total  : '.$total.'€</font></b></td></tr>';
+				$alb_html[]='<tr><td colspan="2"><b><font size="9">Nun Alb:'.$adjunto['Numalbcli'].'</font></b></td><td><b><font size="9">'.$fecha1.'</font></b></td>
+				<td colspan="2"><b><font size="9">Total  : '.$total.'€</font></b></td></tr>';
 			}
 		}
 		$alb_html=array_reverse($alb_html);
 	}
+    // Valores comunes
+    $idCliente=$datos['idCliente'];
+    $productosMod=modificarArrayProductos($productos);
+	$prod_paraTotales=json_decode(json_encode($productosMod));
+	$Datostotales = recalculoTotales($prod_paraTotales);
+    $date=date_create($datos['Fecha']);
+
     $fecha="";
 	if (isset ($date)){
-		$fecha=date_format($date,'Y-m-d');
+		$fecha=date_format($date,'d-m-Y');
 	}
-    $productos=array_reverse($productos);
-	$imprimir['cabecera'].='<p></p><font size="20">Super Oliva </font><br>
-		<font size="12">'.$tienda['razonsocial'].'</font><br>'.
-		'<font size="12">'.$tienda['direccion'].'</font><br>'.
-		'<font size="9"><b>NIF: </b>'.$tienda['nif'].'</font><br>'.
-		'<font size="9"><b>Teléfono: </b>'.$tienda['telefono'].'</font><br>'.
-		'<font size="17">'.$textoCabecera.' número '.$numero.' con Fecha '.$fecha.'</font>'.
-		'<hr>'.
-		'<font size="20">'.$datosCliente['Nombre'].'</font><br>'.
-		'<table><tr><td><font size="12">'.$datosCliente['razonsocial'].'</font></td>
-		<td><font>Dirección de entrega :</font></td></tr>'.
-		'<tr><td><font size="9"><b>NIF: </b>'.$datosCliente['nif'].'</font></td>
-		<td><font size="9">'.$datosCliente['direccion'].'</font></td></tr>'.
-		'<tr><td><font size="9"><b>Teléfono: </b>'.$datosCliente['telefono'].'</font></td>
-		<td><font size="9">Código Postal: </font></td></tr>'.
-		'<tr><td><font size="9">email: '.$datosCliente['email'].'</font></td><td></td></tr></table>'.
-		'<table WIDTH="80%" border="1px"><tr>
-			<td>Referencia</td>
-			<td WIDTH="50%">Descripción del producto</td>
-			<td>Unid/Peso</td>
-			<td>Precio</td>
-			<td>Importe</td>
-			<td>IVA</td>
-			</tr></table>';
-		$imprimir['html'].='<table WIDTH="80%">';
+    //~ $productos=array_reverse($productos);
+    $direccion =  ucwords(strtolower($datosCliente['direccion']));
+    $imprimir['cabecera']=<<<EOD
+<table><tr><td><font size="20">$textoCabecera</font></td><td><font size="9"><b>Número:</b>$numero<b><br>Fecha:</b>$fecha</font></td></tr></table>
+<hr>
+<table><tr><td>
+<font size="12">Super Oliva </font><br>
+<font size="9">$datosTienda[razonsocial]</font><br>
+<font size="9"><b>Direccion:</b>$datosTienda[direccion]</font><br>
+<font size="9"><b>NIF: </b>$datosTienda[nif]</font><br>
+<font size="9"><b>Teléfono: </b>$datosTienda[telefono]</font><br>
+</td>
+<td>
+<font size="9"><b>Datos de Cliente:</b></font><br>
+<font size="12">$datosCliente[Nombre]</font><br>
+<font size="9">$datosCliente[razonsocial]</font><br>
+<font size="9"><b>Direccion:</b>$direccion</font><br>
+<font size="9"><b>NIF: </b>$datosCliente[nif]</font><br>
+<font size="9"><b>Teléfono: </b>$datosCliente[telefono]</font><br>
+</td></tr>
+</table>
+<table WIDTH="100%" border="1px" ALIGN="center">
+<tr>
+<td WIDTH="5%"><font size="9"><b>Linea</b></font></td>
+<td WIDTH="10%"><font size="9"><b>IdArticulo</b></font></td>
+<td WIDTH="56%"><font size="9"><b>Descripción del producto</b></font></td>
+<td WIDTH="8%"><b><font size="9">Cant.</font></b></td>
+<td WIDTH="8%"><b><font size="9">Precio</font></b></td>
+<td WIDTH="8%"><b><font size="9">Importe</font></b></td>
+<td WIDTH="5%"><b><font size="9">IVA</font></b></td>
+</tr>
+</table>
+EOD;
+		$imprimir['html'].='<table>';
 		$i=0;
 		$numAdjunto=0;
 		foreach ($productos as $producto){
@@ -702,96 +702,38 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $tienda){
 					$i++;
 				}
 			}
-			$imprimir['html'].='<tr>';
-			$imprimir['html'].='<td><font size="8">'.$producto['cref'].'</font></td>';
-			$imprimir['html'].='<td WIDTH="50%" ><font size="8">'.$producto['cdetalle'].'</font></td>';
-			$imprimir['html'].='<td><font size="8">'.number_format($producto['nunidades'],2).'</font></td>';
-			$imprimir['html'].='<td><font size="8">'.number_format($producto['pvpSiva'],2).'</font></td>';
-			$importe = $producto['pvpSiva']*$producto['nunidades'];
+            $importe = $producto['pvpSiva']*$producto['nunidades'];
 			$importe = number_format($importe,2);
-			$imprimir['html'].='<td><font size="8">'.$importe.'</font></td>';
-			$imprimir['html'].='<td><font size="8">'.number_format($producto['iva'],0).'%</font></td>';
-			$imprimir['html'].='</tr>';
+    		$imprimir['html']   .='<tr>'
+                                .'<td WIDTH="5%"><font size="8">'.$producto['nfila'].'</font></td>'
+                                .'<td WIDTH="10%"><font size="8">&nbsp;&nbsp;'.$producto['idArticulo'].'</font></td>'
+                                .'<td WIDTH="56%" ><font size="8">&nbsp;&nbsp;'.$producto['cdetalle'].'</font></td>'
+                                .'<td ALIGN="right" WIDTH="8%"><font size="8">'.number_format($producto['nunidades'],2).' &nbsp;&nbsp;</font></td>'
+                                .'<td ALIGN="right" WIDTH="8%"><font size="8">'.number_format($producto['pvpSiva'],2).' &nbsp;&nbsp;</font></td>'
+                                .'<td ALIGN="right" WIDTH="8%"><font size="8">'.$importe.'</font></td>'
+                                .'<td ALIGN="right" WIDTH="5%"><font size="8">'.number_format($producto['iva'],0).'% &nbsp;&nbsp;</font></td>'
+                                .'</tr>';
 		}
 		$imprimir['html'].='</table>';
-		$imprimir['html'].='<hr/><hr/>';
-        if (isset($Datostotales)){
-            foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-				switch ($iva){
-					case 4 :
-						$base4 = $basesYivas['base'];
-						$iva4 = $basesYivas['iva'];
-					break;
-					case 10 :
-						$base10 = $basesYivas['base'];
-						$iva10 = $basesYivas['iva'];
-					break;
-					case 21 :
-						$base21 = $basesYivas['base'];
-						$iva21 = $basesYivas['iva'];
-					break;
-				}
-			}
+		$imprimir['html'].='<hr><hr>';
+        $imprimir['html'] .=<<<EOD
+<table WIDTH="70%" border="1px"><tr><th ALIGN="center">Tipo</th><th ALIGN="center">Base</th><th ALIGN="center">Importe de IVA</th></tr>
+EOD;
+	if (isset($Datostotales)){
+		// Montamos ivas y bases
+		foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
+            $base= number_format($basesYivas['base'],2);
+            $importe_iva = number_format($basesYivas['iva'],2);
+            $imprimir['html'].=<<<EOD
+<tr><td ALIGN="right">$iva % &nbsp;</td><td ALIGN="right">$base &nbsp;</td><td ALIGN="right">$importe_iva &nbsp;</td></tr>
+EOD;
+		}
 	}
-	$imprimir['html'] .='<table>';
-	$imprimir['html'] .='
-			<tr>
-				<th>Tipo</th>
-				<th>Base</th>
-				<th>IVA</th>
-			</tr>
-		';
-		if (isset ($base4)){
-		$imprimir['html'].='<tr>';
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($base4) ? " 4%" : '');
-		$imprimir['html'].='</td>';
-		
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($base4) ? $base4 : '');
-		$imprimir['html'].='</td>';
-	
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($iva4) ? $iva4 : '');
-		$imprimir['html'].='</td>';
-		$imprimir['html'].='</tr>';
-	}
-	if (isset ($base10)){
-		
-		$imprimir['html'].='<tr>';
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($base10) ? "10%" : '');
-		$imprimir['html'].='</td>';
-		
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($base10) ? $base10 : '');
-		$imprimir['html'].='</td>';
-		
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($iva10) ? $iva10 : '');
-		$imprimir['html'].='</td>';
-		$imprimir['html'].='</tr>';
-	}
-	if (isset ($base21)){
-	
-		$imprimir['html'].='<tr>';
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($base21) ? "21%" : '');
-		$imprimir['html'].='</td>';
-		
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($base21) ? $base21 : '');
-		$imprimir['html'].='</td>';
-	
-		$imprimir['html'].='<td>';
-		$imprimir['html'].= (isset($iva21) ? $iva21 : '');
-		$imprimir['html'].='</td>';
-		$imprimir['html'].='</tr>';
-	}
-		$imprimir['html'] .='</table>';
+	$imprimir['html'] .='</table>';
 	$imprimir['html'] .='<p align="right"> TOTAL: ';
-	$imprimir['html'] .=(isset($Datostotales['total']) ? $Datostotales['total'] : '');
+	$imprimir['html'] .=(isset($Datostotales['total']) ? '<font size="20">'.number_format($Datostotales['total'],2).'</font>' : '');
 	$imprimir['html'] .='</p>';
+
 		return $imprimir;
 }
 function htmlTotales($Datostotales){

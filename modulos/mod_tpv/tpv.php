@@ -60,6 +60,10 @@
 								 'dato' => $configuracion['impresora_ticket']
 					);
 			array_push($Control_Error,$error);
+            // Ahora grabamos configuración con NO impresion para que no de errores.
+            $Controler->GrabarConfiguracionModulo('mod_tpv',$Usuario['id'],$configuracion);
+            $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+            $configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
 		};
 	} 
     $checkin[1] = 'name="impresion_ticket" '.$checkin_valor.' onchange="CambiarEstadoImpresion()"';
@@ -234,81 +238,88 @@ if (count($Control_Error)>0){
 }
 ?>
 <div class="col-md-2">
-		<div>
-			<h4 class="text-center"> Tickets</h4>
-			<h5>Opciones</h5>
-			<ul class="nav nav-pills nav-stacked">
-				<li><a href="tpv.php">Nuevo ticket</a></li>
-				<li><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></li>
-				<li><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></li>
-			</ul>
-		</div>
-		<div>
-			<h5>Este ticket</h5>
-			<ul class="nav nav-pills nav-stacked">
-				<li><a onclick="buscarClientes('tpv')">Cliente</a></li>
-				<li><a href="#section3">Abrir Cajon</a></li>
-				<li><a onclick="cobrarF1()">Cobrar</a></li>
-				<li><a  onclick="abrirModalIndicencia('ticket',configuracion.incidencias);">Incidencia</a></li>
-			</ul>
-		</div>
+        <div class="row">
+            <h4 class="text-center"> Tickets</h4>
+        
+            <div class="col-xs-3 col-md-12">
+                <h5>Opciones</h5>
+                <ul class="">
+                    <li class="btn"><a href="tpv.php">Nuevo ticket</a></li>
+                    <li class="btn"><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></li>
+                    <li class="btn"><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-3 col-md-12">
+                <h5>Este ticket</h5>
+                <ul class="">
+                    <li class="btn"><a onclick="buscarClientes('tpv')">Cliente</a></li>
+                    <li class="btn"><a href="#section3">Abrir Cajon</a></li>
+                    <li class="btn"><a onclick="cobrarF1()">Cobrar</a></li>
+                    <li class="btn"><a  onclick="abrirModalIndicencia('ticket',configuracion.incidencias);">Incidencia</a></li>
+                </ul>
+            </div>
 
-	<?php //===== TICKETS ABIERTOS LATERAL
-	if (isset($ticketsAbiertos['items'])){ ?>
-	<div>
-		<h4 class="text-center"> Tickets Abiertos</h4>
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>Nº</th>
-					<th>Cliente</th>
-					<th>Total</th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php 
-				$i=0;
-				//le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
-				$ordenInverso =array_reverse($ticketsAbiertos['items']); 
-				foreach ($ordenInverso as $item){
-					$i++;	?>
-					<tr>
-						<td>
-							<?php // Si es el mismo usuario tiene permitido modificarlo, ponemos link
-							if ($Usuario['id'] === $item['idUsuario'] || $Usuario['group_id']==9){
-								echo '<a class="btn" href="tpv.php?tAbierto='.$item['numticket'].'">'.$item['numticket'].'</a>';
-							} else {
-								echo $item['numticket'].' <span class="glyphicon glyphicon-info-sign" title="Este ticket abierto no es tuyo, es de '.$item['usuario'].'"></span>';
-							}
-							?>
-						</td>
-						<td>
-							<?php echo $item['Nombre']; ?><span class="glyphicon glyphicon-briefcase" title="<?php echo $item['razonsocial']; ?>"></span>
-						</td>
-						<td class="text-right">
-							<?php echo number_format ($item['total'],2); ?>
-						</td>
-					</tr>
-					<?php
-					// Solo mostramos 5 como maximo.
-					if ($i >5 ){
-						break;
-					}					
-				}// Cerramos foreach
-				
-				 ?>
-			</tbody>
-		</table>
-		</div>
-		<?php
-	}// Cerramos if de mostrar tickets abiertos o no.
-	?>
-	<div>
-		<h4 class="text-center">Configuracion</h4>
-		<input type="checkbox" <?php echo $checkin[1];?>>Imprimitr Tickets<br>
-        <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-        <?php echo $select_campos;?>
-	</div>
+        <?php //===== TICKETS ABIERTOS LATERAL
+        if (isset($ticketsAbiertos['items'])){ ?>
+        <div class="col-xs-3 col-md-12">
+            <h4 class="text-center"> Tickets Abiertos</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $i=0;
+                    //le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
+                    $ordenInverso =array_reverse($ticketsAbiertos['items']); 
+                    foreach ($ordenInverso as $item){
+                        $i++;	?>
+                        <tr>
+                            <td>
+                                <?php // Si es el mismo usuario tiene permitido modificarlo, ponemos link
+                                if ($Usuario['id'] === $item['idUsuario'] || $Usuario['group_id']==9){
+                                    echo '<a class="btn" href="tpv.php?tAbierto='.$item['numticket'].'">'.$item['numticket'].'</a>';
+                                } else {
+                                    echo $item['numticket'].' <span class="glyphicon glyphicon-info-sign" title="Este ticket abierto no es tuyo, es de '.$item['usuario'].'"></span>';
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php echo $item['Nombre']; ?><span class="glyphicon glyphicon-briefcase" title="<?php echo $item['razonsocial']; ?>"></span>
+                            </td>
+                            <td class="text-right">
+                                <?php echo number_format ($item['total'],2); ?>
+                            </td>
+                        </tr>
+                        <?php
+                        // Solo mostramos 5 como maximo.
+                        if ($i >5 ){
+                            break;
+                        }					
+                    }// Cerramos foreach
+                    
+                     ?>
+                </tbody>
+            </table>
+            </div>
+            <?php
+        }// Cerramos if de mostrar tickets abiertos o no.
+        ?>
+        <div class="col-xs-3 col-md-12">
+            <h4 class="text-center">Configuracion</h4>
+            <div class="form-check">
+                <label>
+                <input type="checkbox" <?php echo $checkin[1];?>><span class="label-text">Imprimir Tickets</span>
+                </label>
+            </div>
+            <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+            <?php echo $select_campos;?>
+        </div>
+    </div>
 </div>
 <div class="col-md-10" >
 	<div class="col-md-8">
