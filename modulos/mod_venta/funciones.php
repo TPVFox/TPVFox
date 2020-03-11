@@ -663,7 +663,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 <table><tr><td><font size="20">$textoCabecera</font></td><td><font size="9"><b>Número:</b>$numero<b><br>Fecha:</b>$fecha</font></td></tr></table>
 <hr>
 <table><tr><td>
-<font size="12">Super Oliva </font><br>
+<font size="12">$datosTienda[NombreComercial] </font><br>
 <font size="9">$datosTienda[razonsocial]</font><br>
 <font size="9"><b>Direccion:</b>$datosTienda[direccion]</font><br>
 <font size="9"><b>NIF: </b>$datosTienda[nif]</font><br>
