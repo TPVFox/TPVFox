@@ -892,15 +892,15 @@ function PrepararEnviarStockWeb(idTicket){
 	
 }
  
-function RegistrarRestarStockTicket(id_ticketst, estado){
+function RegistrarRestarStockTicket(id_ticketst, estado,datos){
       $("#DescontarStock").prop("disabled", true);
 	// Ejecutar en servidor local (tpv) registro de que ya se resto stock.
     console.log("entre en registrar restar stock ticket");
 	var parametros = {
 		"pulsado"    		: 'RegistrarRestaStock',
 		"id_ticketst"		: id_ticketst,
-        "estado"            :estado
-
+        "estado"            :estado,
+        "datos"     :datos
 	};
 	$.ajax({
 		data       : parametros,

@@ -791,17 +791,18 @@ function ObtenerEnvioIdTickets($BDTpv, $idTicketst) {
     } else {
         // Quiere decir que la consulta fue correcta.
         // Ahora comprobamos cuantos registros, ya que solo debería haber uno.
+        $resultado['respuesta_envio_rows'] = $Consulta_envio_stock->num_rows;
         if ($Consulta_envio_stock->num_rows === 1) {
             while ($fila_envio_stock = $Consulta_envio_stock->fetch_assoc()) {
-                $resultado['tickets']['enviado_stock'] = $fila_envio_stock['estado'];
-                $resultado['tickets']['respuesta_envio'] = $fila_envio_stock['Fecha'] . '(' . $Consulta_envio_stock->num_rows . ')';
-                $resultado['tickets']['respuesta_envio_rows'] = $Consulta_envio_stock->num_rows;
+                $resultado['enviado_stock'] = $fila_envio_stock['estado'];
+                $resultado['respuesta_envio'] = $fila_envio_stock['Fecha'] . '(' . $Consulta_envio_stock->num_rows . ')';
             }
         } else {
-            // Quiere decir que hubo 0 a mas 1 resultado.
-            $resultado['tickets']['enviado_stock'] = 'Erroneo';
-            $resultado['tickets']['respuesta_envio'] = '(' . $Consulta_envio_stock->num_rows . ')';
-            $resultado['tickets']['respuesta_envio_rows'] = $Consulta_envio_stock->num_rows;
+            if ($resultado['respuesta_envio_rows'] > 1){
+                // Quiere decir que hubo  mas 1 resultado.
+                $resultado['enviado_stock'] = 'Erroneo';
+                $resultado['respuesta_envio'] = 'Error ObtenerEnvioIdTickets.Hubo mas de un resultado.(' . $Consulta_envio_stock->num_rows . ')';
+            }
         }
     }
     return $resultado;
@@ -937,17 +938,18 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
     return $resultado;
 }
 
-function RegistrarRestaStock($BDTpv, $id, $estado) {
+function RegistrarRestaStock($BDTpv, $id, $estado,$datos) {
     // @ Objetivo:
     // Registrar aquellos tickets que hemos ya descontado stock en la web.
     $resultado = array();
-    $sql = 'INSERT INTO `importar_virtuemart_tickets`(`idTicketst`, `Fecha`, `estado`) VALUES (' . $id . ',now(),"' . $estado . '")';
+    $sql = 'INSERT INTO `importar_virtuemart_tickets`(idTicketst, Fecha, estado, respuesta) VALUES (' . $id . ',now(),"' . $estado
+            . '","Registros cambiados '.$datos['row_afectados'].'")';
 
     $BDTpv->query($sql);
     if (mysqli_error($BDTpv)) {
         $resultado['consulta'] = $sql;
         $resultado['error'] = $BDTpv->error_list;
-        error_log(' Rotura en funcion RegistrarRestaSoctk funcion.php de mod_tpv linea 1034');
+        error_log(' Rotura en funcion RegistrarRestaSoctk funcion.php de mod_tpv');
         error_log($BDTpv->error_list);
         // Rompemos programa..
     } else {

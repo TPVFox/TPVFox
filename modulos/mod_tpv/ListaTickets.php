@@ -182,8 +182,7 @@
 				foreach ($tickets as $ticket){ 
 					$checkUser = $checkUser + 1;
                     // obtenemos si fue enviado stock
-                    $envio_stock = ObtenerEnvioIdTickets($BDTpv,$ticket['id']);
-                    $envio = $envio_stock['tickets'];
+                    $envio = ObtenerEnvioIdTickets($BDTpv,$ticket['id']);
 				?>
 				<tr>
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" 
@@ -201,7 +200,7 @@
 					</td>
 					<td>
 						<?php
-							if (isset($envio['enviado_stock']) && $envio['enviado_stock']==='Correcto'){
+							if (isset($envio['enviado_stock'])){
 								// Quiere decir que se encontro registro
 								echo '<span title="'.$envio['respuesta_envio'].'">'.$envio['enviado_stock'].'</span>';
 							}  ;?>

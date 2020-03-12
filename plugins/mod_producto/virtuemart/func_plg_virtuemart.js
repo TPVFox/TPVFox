@@ -348,14 +348,15 @@ function enviarStockWeb(tienda_web,productos,idTicket){
             success    :  function (response) {
                     console.log('Respuesta de restar stock en la web ');
                     var resultado = $.parseJSON(response);
+                    console.log('Estoy resultado de RestarStock fung_plg_virtuemart');
                     console.log(resultado);
-                    if(resultado['productos']['Datos']['sql']['error']){
+                    if(resultado.Datos.error.length >0){
                         alert("Error al modificar el stock en la web");
-                        estado="";
+                        estado="Error";
                     }else{
                         estado="Correcto";
                     }
-                    RegistrarRestarStockTicket(idTicket, estado);
+                    RegistrarRestarStockTicket(idTicket, estado,resultado.Datos);
             }	
         });
     } else {

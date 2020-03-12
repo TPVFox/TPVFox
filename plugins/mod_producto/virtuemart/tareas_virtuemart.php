@@ -378,8 +378,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
         break;
        
         case 'RestarStock':
-            $productos=$ObjViruemart->modificarStock($_POST['productos']);
-            $respuesta['productos']=$productos;
+            $respuesta=$ObjViruemart->modificarStock($_POST['productos']);
         break;
     
     
