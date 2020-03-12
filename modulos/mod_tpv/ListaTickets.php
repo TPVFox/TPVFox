@@ -13,7 +13,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php
+    <?php
     include_once './../../inicial.php';
 	include_once $URLCom.'/head.php';
     include_once $URLCom.'/modulos/mod_tpv/funciones.php';
@@ -22,12 +22,10 @@
 	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
     include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
     $Tickets = new ClaseTickets();
-    //~ $link_volver ='<a class="text-ritght" href="./tpv.php">Volver Atrás</a>';
     $otrosParametros= '';
     if (isset($_GET['idCierre'])){
         include_once $URLCom.'/modulos/mod_cierres/clases/ClaseCierres.php';
         $CCierres = new ClaseCierres;
-        //~ $link_volver = '<a class="text-right" href="'.$HostNombre.'/modulos/mod_cierres/VistaCierre.php?id='.$_GET['idCierre'].'" > Volver a Cierre </a>';
         $otrosParametros = 'estado=Cerrado&idUsuario='.$_GET['idUsuario'].'&idCierre='. $_GET['idCierre'].'&';
     }
     
@@ -102,15 +100,7 @@
         $Obtenertickets = $Tickets->obtenerTickets('Cobrado',$fechas,$filtro , $NPaginado->GetLimitConsulta());
     }
     $tickets = $Obtenertickets['datos'];
-    
-	
-	
-	//~ echo '<pre>';
-    //~ print_r($Obtenertickets );
-    //~ echo '</pre>';
-	
 	?>
-	
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
@@ -121,10 +111,7 @@
      -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-	
- 
     </head>
-
 <body>
         <?php
          include_once $URLCom.'/modulos/mod_menu/menu.php';
@@ -190,13 +177,14 @@
 						<th>DESCONTAR WEB</th>
 					</tr>
 				</thead>
-	
 				<?php
 				$checkUser = 0;
 				foreach ($tickets as $ticket){ 
-					$checkUser = $checkUser + 1; 
+					$checkUser = $checkUser + 1;
+                    // obtenemos si fue enviado stock
+                    $envio_stock = ObtenerEnvioIdTickets($BDTpv,$ticket['id']);
+                    $envio = $envio_stock['tickets'];
 				?>
-
 				<tr>
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" 
 							value="<?php echo $ticket['id'];?>">
@@ -212,19 +200,17 @@
 						echo (isset($ticket['idCierre']) ? $ticket['idCierre']['idCierre']:''); ?>
 					</td>
 					<td>
-						<?php 
-							if (isset($ticket['respuesta_envio_rows'])){
+						<?php
+							if (isset($envio['enviado_stock']) && $envio['enviado_stock']==='Correcto'){
 								// Quiere decir que se encontro registro
-								echo '<span title="'.$ticket['respuesta_envio'].'">'.$ticket['enviado_stock'].'</span>';
+								echo '<span title="'.$envio['respuesta_envio'].'">'.$envio['enviado_stock'].'</span>';
 							}  ;?>
 					</td>
 					
 				</tr>
-
 				<?php 
 				}
 				?>
-				
 			</table>
 			</div>
 		</div>

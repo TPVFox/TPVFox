@@ -779,12 +779,12 @@ function ObtenerEnvioIdTickets($BDTpv, $idTicketst) {
     // @Objetivo :
     // Es obtener si se envio el stock de ese ticket
     $resultado = array();
-    $sql_envio_stock = 'SELECT * FROM `importar_virtuemart_tickets` WHERE `idTicketst`=' . $idTicketst;
-    $Consulta_envio_stock = $BDTpv->query($sql_envio_stock);
+    $sql = 'SELECT * FROM `importar_virtuemart_tickets` WHERE `idTicketst`=' . $idTicketst;
+    $Consulta_envio_stock = $BDTpv->query($sql);
     if (mysqli_error($BDTpv)) {
         $resultado['consulta'] = $sql;
         $resultado['error'] = $BDTpv->error_list;
-        error_log(' Rotura en funcion ObtenerTickets funcion.php de mod_tpv linea 720');
+        error_log(' Rotura en funcion ObtenerEnvioIdTickets funcion.php de mod_tpv linea 720');
         error_log($BDTpv->error_list);
         // Rompemos programa..
         //exit();
@@ -804,7 +804,6 @@ function ObtenerEnvioIdTickets($BDTpv, $idTicketst) {
             $resultado['tickets']['respuesta_envio_rows'] = $Consulta_envio_stock->num_rows;
         }
     }
-
     return $resultado;
 }
 
