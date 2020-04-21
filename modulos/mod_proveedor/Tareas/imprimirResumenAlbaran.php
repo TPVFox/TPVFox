@@ -53,7 +53,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 EOD;
 
 		$html=<<<EOD
-<table WIDTH="80%" border="1px"><tr><td WIDTH="50%">Descripción del producto</td><td>Cantidad</td>
+<table WIDTH="80%" border="1px"><tr><td WIDTH="60%">Descripción del producto</td><td>Cantidad</td>
 <td>Precio</td><td>Importe</td></tr></table><table  WIDTH="80%" border="1px">
 EOD;
 
@@ -62,7 +62,7 @@ EOD;
                 $unidades=number_format ($producto['totalUnidades'],2);
                 $costeiva=number_format ($producto['costeSiva'],2);
 				$html.=<<<EOD
-<tr><td WIDTH="50%"><font size="8">$producto[cdetalle].'</font></td>
+<tr><td WIDTH="60%"><font size="8">$producto[cdetalle] </font></td>
 <td style="text-align:center;"><font size="8"> $unidades </font></td>
 <td style="text-align:center;"><font size="8">$costeiva</font></td>
 <td style="text-align:center;"><font size="8">$precio</font></td></tr>
@@ -83,8 +83,8 @@ EOD;
 EOD;
 			}
 		$html .=<<<EOD
-<tr><td></td><td></td><td>TOTAL:</td><td><b>$totalDesglose</b></td></tr></table><h3>Facturas simplificadas (Albaranes)</h3>
-<table  WIDTH="75%" border="1px"><tr><td  WIDTH="50%">Fecha</td><td>Ticket</td><td>Base</td><td>Iva</td>
+<tr><td></td><td></td><td>TOTAL:</td><td><b>$totalDesglose</b></td></tr></table><h3>Listado de Albaranes</h3>
+<table  WIDTH="75%" border="1px"><tr><td  WIDTH="50%">Fecha</td><td>N_albaran</td><td>Base</td><td>Iva</td>
 <td>Total</td></tr>
 EOD;
 		$totalLinea=0;
@@ -102,6 +102,7 @@ EOD;
 		$html.='</table>';
 		$nombreTmp="Resumen.pdf";
 		//~ require_once($URLCom.'/lib/tcpdf/tcpdf.php');
+        $margen_top_caja_texto= 90;
 		require_once  ($URLCom.'/clases/imprimir.php');
 		require_once($URLCom.'/controllers/planImprimir.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
