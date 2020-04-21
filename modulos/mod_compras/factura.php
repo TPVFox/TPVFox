@@ -255,7 +255,8 @@
                        'btn_guardar'    => '',
                        'btn_cancelar'   => '',
                        'input_factur'   => '',
-                       'select_factur'  => ''
+                       'select_factur'  => '',
+                       'evento_cambio'  => ''
                     );
     if (isset ($_GET['id']) || isset ($_GET['tActual'])){
         // Quiere decir que ya inicio , ya tuvo que meter proveedor.
@@ -263,7 +264,7 @@
         $estilos['pro_readonly']   = ' readonly';
         $estilos['pro_styleNo']    = ' style="display:none;"';
         $estilos['styleNo']    = '';
-        $evento_cambio = 'onchange ="addTemporal('."'".$dedonde."'".')"'; // Lo utilizo para crear temporal cuando cambia valor.
+        $estilos['evento_cambio'] = 'onchange ="addTemporal('."'".$dedonde."'".')"'; // Lo utilizo para crear temporal cuando cambia valor.
 
     }
     if ($accion === 'ver'){
@@ -426,7 +427,7 @@
                         $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
                         $title_fecha =' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
                         echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
-                                . $estilos['input_factur'].' value="'.$fecha.'" '.$evento_cambio.' onkeydown="controlEventos(event)" '
+                        . $estilos['input_factur'].' value="'.$fecha.'" '.$estilos['evento_cambio'].' onkeydown="controlEventos(event)" '
                             . $pattern_numerico.$title_fecha.'/>';
                     ?>
 				</div>
