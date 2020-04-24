@@ -36,7 +36,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 		 'class'=>'alert alert-danger','mensaje' => 'Error de sql');
 	}else{
         $cabecera=<<<EOD
-<p></p><font size="20">Super Oliva </font><br>
+<p></p><font size="20">$Tienda[NombreComercial] </font><br>
 <font size="12">$Tienda[razonsocial]</font><br>
 <font size="12">$Tienda[direccion]</font><br>
 <font size="9"><b>NIF: </b>$Tienda[nif]</font><br>

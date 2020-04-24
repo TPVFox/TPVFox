@@ -447,7 +447,7 @@
                     <div class="col-md-3">
                         <label>Hora de entrega:</label>
                         <?php
-                            echo '<input type="time" id="hora" '.$estilos['input_factur'].' value="'.$hora.'" '
+                            echo '<input type="time" id="hora" '.$estilos['evento_cambio'].' value="'.$hora.'" '
                                 .' data-obj= "cajaHora" '.$evento_cambio.' onkeydown="controlEventos(event)"  name="hora" size="5"'
                                 .' max="24:00" min="00:00" '
                                 . $pattern_numerico.' placeholder="HH:MM" title=" Formato de entrada HH:MM">';
@@ -465,7 +465,7 @@
             <div class="col-md-12">
                 <div class="col-md-4">
                     <label>Su número:</label>
-                    <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" <?php echo $evento_cambio;?> onkeydown="controlEventos(event)" data-obj= "CajaSuNumero" <?php echo $estilos['input_factur'];?>>
+                    <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" <?php echo $estilos['evento_cambio'];?> onkeydown="controlEventos(event)" data-obj= "CajaSuNumero" <?php echo $estilos['input_factur'];?>>
                 </div>
                 <div class="col-md-4">
                         <label>Fecha vencimiento:</label>
