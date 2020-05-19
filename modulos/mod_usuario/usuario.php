@@ -85,7 +85,8 @@
 		} 
 		
 		if (!isset($error)){
-			if(count($_POST)>0 && (!isset($_GET['id']))){
+    
+			if(count($_POST)>0 ){
 				// Ya enviamos el formulario y gestionamos lo enviado.
 				$datos = $_POST;
 				if($titulo === "Crear Usuario"){
