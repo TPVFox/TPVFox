@@ -443,7 +443,7 @@
             <div class="col-md-12">
                 <div class="col-md-4">
 					<label>Su número:</label>
-                    <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" <?php echo $evento_cambio;?> onkeydown="controlEventos(event)" data-obj= "CajaSuNumero" <?php echo $estilos['input_factur'];?>>
+                    <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" <?php echo $estilos['evento_cambio'];?> onkeydown="controlEventos(event)" data-obj= "CajaSuNumero" <?php echo $estilos['input_factur'];?>>
                 </div>
                 <div class="col-md-4">
                         <label>Fecha vencimiento:</label>
