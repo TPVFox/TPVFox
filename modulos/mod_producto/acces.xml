@@ -8,21 +8,22 @@
         <accion nombre="imprimirEtiquetas" descripcion="Imprimir Etiquetas" permiso="1"></accion>
         <accion nombre="imprimirMayor" descripcion="Imprimir Mayor" permiso="1"></accion>
         <accion nombre="regularizar" descripcion="regularizar" permiso="0"></accion>
-	<accion nombre="subirProductosWeb" descripcion="Subir Productos Web" permiso="0"></accion>
-	<accion nombre="agregarProductosFamilia" descripcion="Agregar Productos Familias" permiso="0"></accion>
-	<accion nombre="eliminarProductos" descripcion="Eliminar Productos" permiso="0"></accion>
-	<accion nombre="cambiarEstado" descripcion="Modificar Estado Productos" permiso="0"></accion>
+        <accion nombre="subirProductosWeb" descripcion="Subir Productos Web" permiso="0"></accion>
+        <accion nombre="agregarProductosFamilia" descripcion="Agregar Productos Familias" permiso="0"></accion>
+        <accion nombre="eliminarProductos" descripcion="Eliminar Productos" permiso="0"></accion>
+        <accion nombre="cambiarEstado" descripcion="Modificar Estado Productos" permiso="0"></accion>
     </vista>
     <vista nombre="producto.php" descripcion="Producto" permiso="1">
         <accion nombre="Guardar" descripcion="Guardar Producto" permiso="1"></accion>
-	<accion nombre="Modificar" descripcion="Modificar Producto" permiso="1"></accion>
+        <accion nombre="Modificar" descripcion="Modificar Producto" permiso="1"></accion>
         <accion nombre="CrearProductoWeb" descripcion="Crear Producto Web" permiso="0"></accion>
-	<accion nombre="verCodBarras" descripcion="Ver Codigo De Barras" permiso="1"></accion>
-	<accion nombre="verProveedores" descripcion="Ver Proveedores" permiso="1"></accion>
-	<accion nombre="verFamilias" descripcion="Ver Familias Producto" permiso="0"></accion>
-	<accion nombre="verProductosTienda" descripcion="Ver Productos otras Tiendas" permiso="0"></accion>	
-	<accion nombre="verHistoricoPrecios" descripcion="Ver Historico Precios" permiso="0"></accion>
-	<accion nombre="modificarStock" descripcion="Modificar stock Productos" permiso="0"></accion>
+        <accion nombre="verCodBarras" descripcion="Ver Codigo De Barras" permiso="1"></accion>
+        <accion nombre="verProveedores" descripcion="Ver Proveedores" permiso="1"></accion>
+        <accion nombre="verFamilias" descripcion="Ver Familias Producto" permiso="0"></accion>
+        <accion nombre="verProductosTienda" descripcion="Ver Productos otras Tiendas" permiso="0"></accion>	
+        <accion nombre="verHistoricoPrecios" descripcion="Ver Historico Precios" permiso="0"></accion>
+        <accion nombre="modificarStock" descripcion="Modificar stock Productos" permiso="0"></accion>
+        <accion nombre="eliminarRefProveedores" descripcion="Eliminar Referencia Proveedores" permiso="0"></accion>
     </vista>
     <vista nombre="ListaArticulosRegularizacion.php" descripcion="Articulos con stock regularizable" permiso="1">
     </vista>	

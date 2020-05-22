@@ -113,7 +113,12 @@
 		// ==========		Montamos  html que mostramos. 			============ //
             $htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
             $htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
-            $htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores']);
+            // Obtenemos si tiene permisopara eliminar registros.
+            $borrar_ref_prov = 'Ok';
+            if($ClasePermisos->getAccion("eliminarRefProveedores") == 0){
+                $borrar_ref_prov = 'KO';
+            }
+            $htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores'],$borrar_ref_prov);
             $htmlFamilias =  htmlTablaFamilias($Producto['familias'], $id);
             $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
             $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
