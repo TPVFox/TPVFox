@@ -1040,7 +1040,13 @@ class ClaseProductos extends ClaseTablaArticulos{
         return $consulta;
 
     }
-	
+    
+    public function EliminarRefProveedor($idArticulo,$idProveedor){
+        $sql='DELETE FROM articulosProveedores WHERE idArticulo='.$idArticulo.' and idProveedor='.$idProveedor;
+        $consulta =$this->Consulta_insert_update($sql);
+        return $consulta;
+
+    }
 	public function precioCivaRecalculado(){
 		// @ Objetivo
 		//  Obtener el precio con iva que recomendamos vender con el beneficio.

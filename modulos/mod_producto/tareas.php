@@ -235,6 +235,12 @@ switch ($pulsado) {
         $eliminar_cruce_tienda=$NCArticulo->EliminarCruceTienda($idCruce);
         $respuesta=$eliminar_cruce_tienda;
     break;
+    case 'eliminarRefProveedor':
+        $idProveedor=$_POST['idProveedor'];
+        $idArticulo=$_POST['idArticulo'];
+        $eliminar_ref_proveedor=$NCArticulo->EliminarRefProveedor($idArticulo,$idProveedor);
+        $respuesta=$eliminar_ref_proveedor;
+    break;
     case 'eliminarProductos':
         $respuesta=array();
         $tiendaWeb=$_POST['idTiendaWeb'];

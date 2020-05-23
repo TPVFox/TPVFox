@@ -1323,6 +1323,42 @@ function EliminarHistorico(idHistorico, e){
         });
     }
 }
+function EliminarRefProveedor(e){
+    // Informamos de los que vamos hacer    
+    var opcion =confirm("Vas eliminar la referencia del proveedor "+e.id.substring(16)+" del producto con id:"+producto.idArticulo);
+    if (opcion == true) {
+        // Solo ejecutamos si el usuario pulsa aceptar
+        var parametros = {
+            pulsado: 'eliminarRefProveedor',
+            idProveedor:e.id.substring(16),
+            idArticulo:producto.idArticulo
+        }
+        $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* Eliminar referencia de un proveedor en la tabla articulosProveedores **************');
+            },
+            success    :  function (response) {
+               console.log('Respuesta de eliminar referencia proveedor de un articulo');
+               var resultado = $.parseJSON(response);
+               console.log (resultado);
+               //QUEDA ELIMINAR LINEA
+               if(resultado.error==0){
+                   alert("Error de sql: "+resultado.consulta);
+               }else{
+                    // Codigo repetido que es puede poner en una funcion
+                    var padre=e.parentNode; 
+                    var abuelo=padre.parentNode; 
+                    var bisa=abuelo.parentNode; 
+                    bisa.removeChild(abuelo);
+               }
+            }
+        });
+
+	} 
+}
 
 function EliminarReferenciaTienda(idCruce,e){
     var mensaje = confirm("¿Estás seguro que quieres eliminar este la relacion de este producto entre  esta tienda?");

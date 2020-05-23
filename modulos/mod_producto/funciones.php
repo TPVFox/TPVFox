@@ -27,7 +27,7 @@ function htmlLineaCodigoBarras($item,$codBarras=''){
 	return $nuevaFila;
 }
 
-function htmlLineaProveedorCoste($proveedor){
+function htmlLineaProveedorCoste($proveedor,$borrar_ref_prov){
 	// @ Objetivo:
 	// Montar linea de proveedores_coste, para añadir o para modificar.
 	// @ Parametros :
@@ -64,7 +64,7 @@ function htmlLineaProveedorCoste($proveedor){
 	$nuevaFila = '<tr>'
 				.'<td><input '.$atributos.' type="checkbox" id="check_pro_'
 				.$proveedor['idProveedor'].'" value="'.$proveedor['idProveedor'].'"></td>'
-				.'<td>'
+				.'<td width="45%">'
 				.'<small>'.$camposIdProveedor.$nom_proveedor.'</small>'
 				.'</td>'
 				.'<td>'
@@ -77,12 +77,15 @@ function htmlLineaProveedorCoste($proveedor){
 				.$proveedor['idProveedor'].'" value="'.$proveedor['coste'].'" readonly>'
 				.'</td>'
 				.'<td>'
-				.$proveedor['estado']
-				.'<span class="glyphicon glyphicon-calendar" title="Fecha Actualizacion:'
+				.'<span class="glyphicon glyphicon-calendar" title="'.$proveedor['estado'].' :'
 				.$proveedor['fechaActualizacion'].'" '.$style_color.'>'.'</span>'
-				.'</td>'
-				.'<td><a id="desActivarProv_'.$proveedor['idProveedor']
-				.'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a></td>'
+				.'<a style="padding:0 10px;"  id="desActivarProv_'.$proveedor['idProveedor']
+				.'" class="glyphicon glyphicon-cog" onclick="desActivarCajasProveedor(this)"></a>';
+    if ($borrar_ref_prov =='Ok'){
+            $nuevaFila .= '<a id="eliminarRefProv_'.$proveedor['idProveedor']
+                        .'" class="glyphicon glyphicon-trash" onclick="EliminarRefProveedor(this)"></a>';
+    }
+    $nuevaFila .= '</td>'
 				.'</tr>';
 					
 	return $nuevaFila;
@@ -164,7 +167,7 @@ function  htmlTablaFamilias($familias, $idProducto){
 
 
 
-function  htmlTablaProveedoresCostes($proveedores){
+function  htmlTablaProveedoresCostes($proveedores,$borrar_ref_prov){
 	// @ Objetivo
 	// Montar la tabla html de codbarras
 	// @ Parametros
@@ -176,7 +179,7 @@ function  htmlTablaProveedoresCostes($proveedores){
 			.'				<th>Proveedor</th>'
 			.'				<th>Ref_proveedor</th>'
 			.'				<th>Coste</th>'
-			.'				<th>Estado/Fecha</th>'
+			.'				<th>Fecha</th>'
 			.'				<th>'
 			.'				<a  title="Añade un posible proveedor para este producto"'
 			.'				id="agregar_proveedor" class="glyphicon glyphicon-plus" onclick="BuscarProveedor()"></a>'
@@ -188,7 +191,7 @@ function  htmlTablaProveedoresCostes($proveedores){
 		// ya que no hace falta para no añadirlo en la cja busqueda proveedores.
 		$JSproveedores = 'var proveedores ='.json_encode($proveedores).';';
 		foreach ($proveedores as $item=>$proveedor_coste){
-			$html .= htmlLineaProveedorCoste($proveedor_coste);
+			$html .= htmlLineaProveedorCoste($proveedor_coste,$borrar_ref_prov);
 		}
 	}
 	$html .= '</table>	';
