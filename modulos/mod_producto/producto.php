@@ -83,7 +83,7 @@
             }
           
 		}  
-		if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("VerProductoWeb") == 1){
+		if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("verWebEnProducto") == 1){
             // Sino tiene permisos ya no hacemos consulta a la web.
             $datosWebCompletos=array();
 			// Creo el objeto de plugin Virtuemart.
@@ -347,7 +347,7 @@
 			</div>
             </form>
             <?php 
-             if($ClasePermisos->getAccion("VerProductoWeb")==1){
+             if($ClasePermisos->getAccion("verWebEnProducto")==1){
                         if(isset($datosWebCompletos['htmlproducto']['html'])){
                                echo $datosWebCompletos['htmlproducto']['html']; 
                         }
