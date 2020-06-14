@@ -228,8 +228,9 @@ class ModeloP {
 
         if ($soloSQL) {
             $resultado = true;
-        } else
+        } else {
             $resultado = self::_consulta($sql);
+        }
         return $resultado;
     }
 
