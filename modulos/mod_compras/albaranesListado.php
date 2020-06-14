@@ -83,7 +83,7 @@ $albaranesDef=$a['Items'];
             <h4> Opción general</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                   echo '<a class="anhadir" onclick="metodoClick('."'".'AgregarAlbaran'."'".');";>Añadir</a>';
+                   echo '<a class="anhadir" onclick="metodoClick('."'".'AgregarAlbaran'."'".')">Añadir</a>';
                 }
             ?>
             <div class="col-md-12">
@@ -105,13 +105,27 @@ $albaranesDef=$a['Items'];
                                 $numTemporal=$temporal['Numalbpro'];
                             }
                             $url = 'albaran.php?tActual='.$temporal['id'];
+                            $tdl = '<td style="cursor:pointer" onclick="redireccionA('
+                                    ."'".$url."'".')" title="Albaran con numero temporal:'
+                                    .$temporal['id'].'">';
+                            $td_temporal = $tdl.$numTemporal.'</td>'
+                                                 .$tdl.$temporal['nombrecomercial'].'</td>'
+                                                 .$tdl.number_format($temporal['total'],2).'</td>';
                             ?>
-                            <tr style="cursor:pointer" onclick="redireccionA('<?php echo $url;?>')" title="Albaran temporal con numero <?php echo $temporal['id'];?>">
-                                <td><?php echo $numTemporal;?></td>
-                                <td><?php echo $temporal['nombrecomercial'];?></td>
-                                <td><?php echo number_format($temporal['total'],2);?></td>
+                            <tr>
+                            <?php echo $td_temporal;
+                                // Solo mostramos la opcion de eliminar temporal si tiene permisos.
+                                if($ClasePermisos->getAccion("EliminarAlbaran")==1){
+                                    ?>
+                                    <td>
+                                        <a onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoAlbaranes')">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </a>
+                                    </td>
+                                    <?php
+                                 }
+                                    ?>
                             </tr>
-                            
                             <?php
                         }
                     }

@@ -132,6 +132,24 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
+	public function eliminarTemporal($idTemporal, $idAlbaran =0){
+		//@Objetivo :
+        // Eliminar temporal, tanto si recibe idTemporal o idPedido
+		if ($idAlbaran>0){
+			$sql='DELETE FROM albproltemporales WHERE Numalbpro='.$idAlbaran;
+		}else{
+			$sql='DELETE FROM albproltemporales WHERE id='.$idTemporal;
+		}
+		$smt=parent::consulta($sql);
+		if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+		}else {
+            $respuesta['valores_insert'] = $this->affected_rows;
+        }
+        return $respuesta;
+	}
+
     public function eliminarAlbaranTablas($idAlbaran,$tabla = '') {
         //@ Objetivo:
         //Eliminamos todos los registros de un albarán determinado.

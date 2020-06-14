@@ -4,6 +4,8 @@
             <accion nombre="Crear" descripcion="Crear albarán" permiso="1"></accion>
             <accion nombre="Ver" descripcion="Ver albarán" permiso="1"></accion>
             <accion nombre="Modificar" descripcion="Modificar albarán" permiso="1"></accion>
+            <accion nombre="EliminarAlbaran" descripcion="Eliminar Albaran" permiso="0"></accion>
+
         </vista>
         <vista nombre="albaran.php" descripcion="Albarán" permiso="1"></vista>
         <vista nombre="facturasListado.php" descripcion="Listado facturas" permiso="1">

@@ -144,7 +144,13 @@ switch ($pulsado) {
         if ($dedonde === 'ListadoPedidos'){
             $respuesta = $CPed->eliminarTemporal($id);
         } else {
-            $respuesta['error'] = 'No se ejecuto.';
+            if ($dedonde === 'ListadoAlbaranes'){
+                $respuesta = $CAlb->eliminarTemporal($id);
+            } else {
+                // Si no entro en ninguna de la opciones.
+                $respuesta['error'] = 'No se ejecuto.';
+            }
+
         }
     break;
 

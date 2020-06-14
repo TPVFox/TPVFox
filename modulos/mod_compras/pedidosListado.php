@@ -3,46 +3,46 @@
 <html>
 <head>
 <?php
-	include_once './../../inicial.php';
-	include_once $URLCom.'/head.php';
-	include_once $URLCom.'/modulos/mod_compras/funciones.php';
-	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
-	include_once $URLCom.'/controllers/Controladores.php';
-	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
-	include_once $URLCom.'/clases/Proveedores.php';
-	// Creamos el objeto de controlador.
-	$Controler = new ControladorComun; 
-	// Creamos el objeto de pedido
-	$Cpedido=new PedidosCompras($BDTpv);
-	// Creamos el objeto de proveedor
-	$Cproveedor=new Proveedores($BDTpv);
-	//Obtenemos los registros temporarles
-	$todoTemporal=$Cpedido->TodosTemporal();
-	if (isset($todoTemporal['error'])){
-		$errores[0]=array ( 'tipo'=>'Danger!',
-								 'dato' => $todoTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-	}
-	$todoTemporal=array_reverse($todoTemporal);
-	// ===========    Paginacion  ====================== //
-	$NPaginado = new PluginClasePaginacion(__FILE__);
-	$campos = array( 'a.Numpedpro','b.nombrecomercial');
-	$NPaginado->SetOrderConsulta('a.Numpedpro');
-	$NPaginado->SetCamposControler($campos);
-	// --- Ahora contamos registro que hay para es filtro --- //
-	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
-	$CantidadRegistros=0;
-	// Obtenemos la cantidad registros 
-	$p= $Cpedido->TodosPedidosLimite($filtro);
-	$CantidadRegistros = count($p['Items']);
-	// --- Ahora envio a NPaginado la cantidad registros --- //
-	$NPaginado->SetCantidadRegistros($CantidadRegistros);
-	$htmlPG = $NPaginado->htmlPaginado();
-	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-	$p=$Cpedido->TodosPedidosLimite($filtro.$NPaginado->GetLimitConsulta());
-    $pedidosDef=$p['Items'];
+include_once './../../inicial.php';
+include_once $URLCom.'/head.php';
+include_once $URLCom.'/modulos/mod_compras/funciones.php';
+include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+include_once $URLCom.'/controllers/Controladores.php';
+include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
+include_once $URLCom.'/clases/Proveedores.php';
+// Creamos el objeto de controlador.
+$Controler = new ControladorComun; 
+// Creamos el objeto de pedido
+$Cpedido=new PedidosCompras($BDTpv);
+// Creamos el objeto de proveedor
+$Cproveedor=new Proveedores($BDTpv);
+//Obtenemos los registros temporarles
+$todoTemporal=$Cpedido->TodosTemporal();
+if (isset($todoTemporal['error'])){
+    $errores[0]=array ( 'tipo'=>'Danger!',
+                             'dato' => $todoTemporal['consulta'],
+                             'class'=>'alert alert-danger',
+                             'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+                             );
+}
+$todoTemporal=array_reverse($todoTemporal);
+// ===========    Paginacion  ====================== //
+$NPaginado = new PluginClasePaginacion(__FILE__);
+$campos = array( 'a.Numpedpro','b.nombrecomercial');
+$NPaginado->SetOrderConsulta('a.Numpedpro');
+$NPaginado->SetCamposControler($campos);
+// --- Ahora contamos registro que hay para es filtro --- //
+$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+$CantidadRegistros=0;
+// Obtenemos la cantidad registros 
+$p= $Cpedido->TodosPedidosLimite($filtro);
+$CantidadRegistros = count($p['Items']);
+// --- Ahora envio a NPaginado la cantidad registros --- //
+$NPaginado->SetCantidadRegistros($CantidadRegistros);
+$htmlPG = $NPaginado->htmlPaginado();
+//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
+$p=$Cpedido->TodosPedidosLimite($filtro.$NPaginado->GetLimitConsulta());
+$pedidosDef=$p['Items'];
 	if (isset($p['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $p['consulta'],
@@ -62,8 +62,8 @@
 <body>
 	<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
 <?php
     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
@@ -102,27 +102,26 @@
                     <tbody>
                         <?php 
                         if (isset ($todoTemporal)){
-                            foreach ($todoTemporal as $pedidoTemp){
-                                if ($pedidoTemp['idPedpro']){
-                                    $numPed=$pedidoTemp['Numpedpro'];
-                            }else{
-                                $numPed="";
-                            }
-                            $url = 'pedido.php?tActual='.$pedidoTemp['id'];
-                            $tdl = '<td style="cursor:pointer" onclick="redireccionA('
-                                    ."'".$url."'".')" title="Pedido con numero temporal:'
-                                    .$pedidoTemp['id'].'">';
-                            $td_Pedido_temporal = $tdl.$numPed.'</td>'
-                                                 .$tdl.$pedidoTemp['nombrecomercial'].'</td>'
-                                                 .$tdl.number_format($pedidoTemp['total'],2).'</td>';
-                            ?>
+                            foreach ($todoTemporal as $temporal){
+                                $numTemporal="";
+                                if ($temporal['idPedpro']){
+                                    $numTemporal=$temporal['Numpedpro'];
+                                 }
+                                $url = 'pedido.php?tActual='.$temporal['id'];
+                                $tdl = '<td style="cursor:pointer" onclick="redireccionA('
+                                        ."'".$url."'".')" title="Pedido con numero temporal:'
+                                        .$temporal['id'].'">';
+                                $td_temporal = $tdl.$numTemporal.'</td>'
+                                                     .$tdl.$temporal['nombrecomercial'].'</td>'
+                                                     .$tdl.number_format($temporal['total'],2).'</td>';
+                                ?>
                                 <tr>
-                                    <?php echo $td_Pedido_temporal;
+                                    <?php echo $td_temporal;
                                     // Solo mostramos la opcion de eliminar temporal si tiene permisos.
                                     if($ClasePermisos->getAccion("EliminarTemporal")==1){
                                     ?>
                                     <td>
-                                        <a onclick="eliminarTemporal(<?php echo $pedidoTemp['id']; ?>, 'ListadoPedidos')">
+                                        <a onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoPedidos')">
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </a>
                                     </td>
@@ -170,6 +169,7 @@
                         <th>ESTADO</th>
                     </tr>
                 </thead>
+                <tbody>
                 <?php
                 $checkUser = 0;
                 foreach($pedidosDef as $pedido){
@@ -216,6 +216,7 @@
                                     "onclick='imprimir(".$pedido['id'].
                                     ' , "pedido" , '.$Tienda['idTienda'].")'></a>";
                         } else {
+                            // Color danger cuando es Sin Guardar
                             $clas_estado = ' class="alert-danger"';
                             $linkImprimir= '';
                         }
@@ -225,6 +226,7 @@
                 <?php
                 }
                 ?>
+                </tbody>
             </table>
             </div>
         </div>

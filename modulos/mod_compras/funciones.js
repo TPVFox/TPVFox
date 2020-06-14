@@ -586,7 +586,7 @@ function eliminarTemporal(id_temporal,dedonde){
                 // Funcion para recargar pagina.
                 location.reload(true);
             } else {
-                alert('Ocurrio un error'+resultado);
+                alert('Ocurrio un error:'+response);
             }            
         }
     });
