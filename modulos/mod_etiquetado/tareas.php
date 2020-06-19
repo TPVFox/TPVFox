@@ -52,28 +52,22 @@ switch ($pulsado) {
 		$idTemporal=0;
 		$idReal=0;
 		$existe=0;
-		$productos=array();
-		if(isset($_POST['productos'])){
-			$productos=$_POST['productos'];
-		}
 		if(isset($_POST['idReal'])){
 			$idReal=$_POST['idReal'];
 		}
-		$productos=json_encode($productos, true);
-		$respuesta['productos']=$productos;
 		if(isset($_POST['idTemporal'])){
 			$idTemporal=$_POST['idTemporal'];
 		}
 		if($idTemporal>0){
 			//MOdificar temporal
-			$modif=$CEtiquetado->modificarTemporal($_POST, $productos, $idTemporal);
+			$modif=$CEtiquetado->modificarTemporal($_POST, $idTemporal);
 			if(isset($modif['error'])){
 				$respuesta['error']=$modif['error'];
 				$respuesta['consulta']=$modif['consulta'];
 			}
 		}else{
 			//crear temporal y devolver idTemporal
-			$nuevo=$CEtiquetado->addTemporal($_POST, $productos);
+			$nuevo=$CEtiquetado->addTemporal($_POST);
 			if(isset($nuevo['error'])){
 				$respuesta['error']=$nuevo['error'];
 				$respuesta['consulta']=$nuevo['consulta'];

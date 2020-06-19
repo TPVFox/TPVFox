@@ -25,13 +25,15 @@ class Modulo_etiquetado{
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
 	
-	public function addTemporal($datos, $productos){
+	public function addTemporal($datos){
 		//@Objetivo:
 		//Crear un albarán temporal
 		//@Retorna:
 		//O un error de sql o el id del temporal que se caba de crear
 		$respuesta=array();
 		$db = $this->db;
+        $UnicoCampoProductos=json_encode($datos['productos']);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		if($datos['NumAlb']>0){
 			$numAlb=$datos['NumAlb'];
 		}else{
@@ -41,7 +43,7 @@ class Modulo_etiquetado{
 		 `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
 		 `productos`, `idUsuario`) VALUES('.$datos['idReal'].', '.$datos['tipo'].', "'.$datos['fechaEnv'].'",
 		 "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$numAlb.', "'.$datos['estado'].'"
-		 ,'."'".$productos."'".', '.$datos['idUsuario'].')';
+		 ,'."'".$PrepProductos."'".', '.$datos['idUsuario'].')';
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -51,7 +53,7 @@ class Modulo_etiquetado{
 		}
 		return $respuesta;
 	}
-	public function modificarTemporal($datos, $productos, $idTemporal){
+	public function modificarTemporal($datos, $idTemporal){
 			//@Objetivo:
 			//Modificar el albarán temporal
 			//@Retorna:
@@ -62,10 +64,13 @@ class Modulo_etiquetado{
 			$numAlb=0;
 		}
 		$respuesta=array();
+        $db = $this->db;
+		$UnicoCampoProductos=json_encode($datos['productos']);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$sql='UPDATE `modulo_etiquetado_temporal` SET 
 		`num_lote`='.$datos['idReal'].',`tipo`='.$datos['tipo'].',`fecha_env`="'.$datos['fechaEnv'].'"
 		,`fecha_cad`="'.$datos['fechaCad'].'",`idArticulo`='.$datos['idProducto'].',`numAlb`='.$numAlb.'
-		,`estado`="'.$datos['estado'].'",`productos`='."'".$productos."'".'
+		,`estado`="'.$datos['estado'].'",`productos`='."'".$PrepProductos."'".'
 		,`idUsuario`='.$datos['idUsuario'].' WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
@@ -152,17 +157,19 @@ class Modulo_etiquetado{
 		//OBjetivo:
 		//GUardar un lote nuevo o modificarlo si ya existe
 		$db=$this->db;
+		$UnicoCampoProductos=json_encode($datos['productos']);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		if($datos['idReal']>0){
 			$sql='UPDATE `modulo_etiquetado` SET 
 			`tipo`="'.$datos['tipo'].'",`fecha_env`="'.$datos['fecha_env'].'",`fecha_cad`="'.$datos['fecha_cad'].'",
 			`idArticulo`='.$datos['idArticulo'].',`numAlb`='.$datos['numAlb'].',`estado`="'.$datos['estado'].'",
-			`productos`='."'".$datos['productos']."'".',`idUsuario`='.$datos['idUsuario'].' where id='.$datos['idReal'];
+			`productos`='."'".$PrepProductos."'".',`idUsuario`='.$datos['idUsuario'].' where id='.$datos['idReal'];
 		}else{
 			$sql='INSERT INTO `modulo_etiquetado`(`tipo`, 
 			`fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
 			`productos`, `idUsuario`) VALUES ("'.$datos['tipo'].'", "'.$datos['fecha_env'].'",
 			"'.$datos['fecha_cad'].'", '.$datos['idArticulo'].', '.$datos['numAlb'].',
-			"'.$datos['estado'].'", '."'".$datos['productos']."'".', '.$datos['idUsuario'].')';
+			"'.$datos['estado'].'", '."'".$PrepProductos."'".', '.$datos['idUsuario'].')';
 		}
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){

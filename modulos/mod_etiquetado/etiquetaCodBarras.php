@@ -123,7 +123,6 @@
 					$fechaCad=$_POST['fechaCad'];
 				}
 				if(isset($productos)){
-					
 					$i=0;
 					foreach($productos as $producto){
 						if($producto['estado']=='Eliminado'){
@@ -131,20 +130,6 @@
 							$i++;
 						}
 					}
-					
-					$cantidadProd=count($productos);
-					
-					if($cantidadProd>0){
-						$productos=json_encode($productos);
-					}else{
-						$errores[0]=array ( 'tipo'=>'Info!',
-								 'dato' =>'NO puedes eliminar todos los elementos',
-								 'class'=>'alert alert-info',
-								 'mensaje' => ''
-								 );
-					}
-					
-					
 				}
 				if(isset($datosTemporal['tipo'])){
 					$tipo=$datosTemporal['tipo'];
