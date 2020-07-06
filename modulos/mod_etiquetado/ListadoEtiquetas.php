@@ -134,12 +134,12 @@
 					foreach($etiquetasFiltro as $etiqueta){
 						$checkUser = $checkUser + 1;
 						if(isset($etiqueta['productos'])){
-							$productos=$etiqueta['productos'];
-							$productos=json_decode($productos, true);
-						}else{
-							$productos=array();
+							$p=$etiqueta['productos'];
+							$productos=json_decode($p, true);
 						}
-						
+                        if (!is_array($productos)){
+                            $productos= array();
+                        }
 							?>
 						<tr>
 					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $etiqueta['id'];?>"></td>

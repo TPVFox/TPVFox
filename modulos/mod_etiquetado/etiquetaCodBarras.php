@@ -224,24 +224,32 @@
 			var productos = [];
 			<?php 
 	if (isset($etiquetaReal)| isset($etiquetaTemporal)){ 
-	$i= 0;
 		if (isset($productos)){
-			foreach($productos as $product){
-?>	
-				datos=<?php echo json_encode($product); ?>;
-				productos.push(datos);
-	
-<?php 
-		// cambiamos estado y cantidad de producto creado si fuera necesario.
-			if ($product['estado'] !== 'Activo'){
-			?>	productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
-			<?php
-			}
-			$i++;
-			}
-	
-		}
-	}
+            ?>
+            datos = [];
+            <?php
+            foreach($productos as $product){
+            // Añadimos datos de productos a variable productos Javascript
+?>
+                
+                datos['nombre']     = <?php echo '"'.$product['nombre'].'"';?>;
+                datos['peso']       = <?php echo '"'.$product['peso'].'"';?>;
+                datos['precio']     = <?php echo '"'.$product['precio'].'"';?>;
+                datos['Fecha']		= <?php echo '"'.$product['Fecha'].'"';?>;
+                <?php if ($product['NumAlb'] !==""){
+                    $product['NumAlb']=0 ;
+                }?>
+                datos['NumAlb']     = <?php echo '"'.$product['NumAlb'].'"';?>;
+                datos['codBarras']		= <?php echo '"'.$product['codBarras'].'"';?>;
+                datos['estado']		= <?php echo '"'.$product['estado'].'"';?>;
+                datos['Nfila'] 	= <?php echo $product['Nfila'];?>;
+                datos['crefTienda'] 	= <?php echo '"'.$product['crefTienda'].'"';?>;
+                productos.push(datos);
+            <?php
+                
+            }
+        }
+    }
 		?>
 		</script>
      </head>
@@ -250,7 +258,7 @@
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 	<?php     
         //~ include './../../header.php';
-         include_once $URLCom.'/modulos/mod_menu/menu.php';
+        include_once $URLCom.'/modulos/mod_menu/menu.php';
         if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'
@@ -313,9 +321,18 @@
 				</div>
 				<div class="col-md-12">
 					<div class="col-md-6">
+                        <?php
+                        // Para convertir string con codigo html, lo curioso es que no obtiene ; final que deberia tener.
+                        // De momento resuelvo asi.
+                        $n =str_replace(
+                                         array("&aacute","&eacute","&iacute","&oacute","&uacute","&ntilde",
+                                                    "&Aacute","&Eacute","&Iacute","&Oacute","&Uacute","&Ntilde")
+                                                ,array("á","é","í","ó","ú","ñ","Á","É","Í","Ó","Ú","Ñ")
+                                                , $nomPro);
+                        ?>
 						<label>Producto:</label>
 						<input type="text" id="id_producto" name="id_producto" data-obj= "cajaIdProducto" value="<?php echo $idProducto;?>" size="4" onkeydown="controlEventos(event)" placeholder='id'>
-						<input type="text" id="producto" name="producto" value="<?php echo $nomPro;?>" size="50" data-obj="cajaNombreProducto" onkeydown="controlEventos(event)" placeholder='Nombre del producto'>
+						<input type="text" id="producto" name="producto" value='<?php echo $n;?>' size="50" data-obj="cajaNombreProducto" onkeydown="controlEventos(event)" placeholder='Nombre del producto'>
 						<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarProducto()"></a>
 					</div>
 					<div class="col-md-2">

@@ -242,7 +242,11 @@ function repetirProducto(unidades, tipo){
 					productosAdd=resultado['productos'];
 					for (i=0; i<productosAdd.length; i++){
 						var prod = new Object();
-						prod.nombre=productosAdd[i]['nombre'];
+                        // Tengo sustituir el nombre , ya que si tiene acento o caracteres extraños no lo pone
+                        var a =i+1;
+                        var nombre_producto= $('<textarea />').html(productosAdd[i]['nombre']).text();
+                        $('#nombre_'+a).val(nombre_producto);
+						prod.nombre=nombre_producto;
 						prod.peso=productosAdd[i]['peso'];
 						prod.precio=productosAdd[i]['precio'];
 						prod.Fecha=productosAdd[i]['Fecha'];
@@ -332,7 +336,9 @@ function buscarProducto(valor="", caja=""){
 						console.log("sólo hay un resultado");
 						cabecera.idProducto=resultado.datos['idArticulo'];
 						$('#id_producto').val(resultado.datos['idArticulo']);
-						$('#producto').val(resultado.datos['articulo_name']);
+                        var nombre_producto= $('<textarea />').html(resultado.datos['articulo_name']).text();
+                        console.log('combierto nombre que puede traer html a texto:'+nombre_producto);
+						$('#producto').val(nombre_producto);
 						$('#producto').prop('disabled', true);
 						$('#id_producto').prop('disabled', true);
 						$("#buscar").css("display", "none");

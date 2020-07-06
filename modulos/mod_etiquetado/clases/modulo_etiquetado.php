@@ -24,7 +24,7 @@ class Modulo_etiquetado{
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	
+
 	public function addTemporal($datos){
 		//@Objetivo:
 		//Crear un albarán temporal
@@ -32,25 +32,30 @@ class Modulo_etiquetado{
 		//O un error de sql o el id del temporal que se caba de crear
 		$respuesta=array();
 		$db = $this->db;
-        $UnicoCampoProductos=json_encode($datos['productos']);
-		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
-		if($datos['NumAlb']>0){
-			$numAlb=$datos['NumAlb'];
-		}else{
-			$numAlb=0;
-		}
-		$sql='INSERT INTO `modulo_etiquetado_temporal`(`num_lote`, `tipo`,
-		 `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
-		 `productos`, `idUsuario`) VALUES('.$datos['idReal'].', '.$datos['tipo'].', "'.$datos['fechaEnv'].'",
-		 "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$numAlb.', "'.$datos['estado'].'"
-		 ,'."'".$PrepProductos."'".', '.$datos['idUsuario'].')';
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-		}else{
-			$respuesta['id']=$db->insert_id;
-		}
+        // Controlamos posible error que no tenga productos el temporal
+        if (isset ($datos['productos'])){
+            $UnicoCampoProductos=json_encode($datos['productos']);
+            $PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+            $numAlb = 0; // Valor por defecto
+            if($datos['NumAlb']>0){
+                $numAlb=$datos['NumAlb'];
+            }
+            $sql='INSERT INTO `modulo_etiquetado_temporal`(`num_lote`, `tipo`,
+             `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`, 
+             `productos`, `idUsuario`) VALUES('.$datos['idReal'].', '.$datos['tipo'].', "'.$datos['fechaEnv'].'",
+             "'.$datos['fechaCad'].'", '.$datos['idProducto'].', '.$numAlb.', "'.$datos['estado'].'"
+             ,'."'".$PrepProductos."'".', '.$datos['idUsuario'].')';
+            $smt=$this->consulta($sql);
+            if (gettype($smt)==='array'){
+                    $respuesta['error']=$smt['error'];
+                    $respuesta['consulta']=$smt['consulta'];
+            }else{
+                $respuesta['id']=$db->insert_id;
+            }
+        } else {
+            $respuesta['error']='No hay productos de temporal';
+            $respuesta['consulta']='Error en metodo Addtemporal';
+        }
 		return $respuesta;
 	}
 	public function modificarTemporal($datos, $idTemporal){
