@@ -129,32 +129,7 @@ function controladorAcciones(caja,accion, tecla){
 			}
 			ponerFocus(d_focus);
 		break;
-        
-        case 'Saltar_desde_Hora':
-            cabecera.hora = dato; // Guardamos el dato, tanto tenga datos , como no.
-            var d_focus = "suNumero";
-            if (caja.tecla === '37'){
-                // Quiere volver a fecha
-                d_focus = 'fecha';
-            }
-            ponerFocus(d_focus);
-        break;
 
-        case 'Saltar_desde_SuNumero':
-            console.log('Estoy en Saltar desde SuNumero');
-            cabecera.suNumero=caja.darValor();
-            var d_focus = "id_proveedor";
-            // Comprobamos que si esta disabled o no .
-            if ($('#id_proveedor').prop("disabled") == true) {
-                // Ya ponemos focus a entrada productos ( campo por defecto)
-                  d_focus = ObtenerFocusDefectoEntradaLinea();
-            }
-            if ( caja.tecla === '9'){
-                // Quiere volver a fecha
-                d_focus = 'formaVenci';
-            }
-            ponerFocus(d_focus);
-        break;
         
         case 'Saltar_idProveedor':
             console.log('Voy a saltar a idProveedor');
@@ -190,14 +165,6 @@ function controladorAcciones(caja,accion, tecla){
 			ponerFocus(d_focus);
 		break;
 
-        case 'Saltar_Proveedor':
-            alert(caja.tecla);
-			var dato = caja.darValor();
-            if(dato==0){
-                var d_focus = 'Proveedor';
-                ponerFocus(d_focus);
-            }
-		break;
 
         case 'Saltar_idArticulo':
 			var dato = caja.darValor();
@@ -255,10 +222,10 @@ function controladorAcciones(caja,accion, tecla){
 function ObtenerFocus(caja){
     if (caja.darValor() !==""){
         // Si tiene valor entonces no saltamos directamente , comprobamos que tenemos hacer segun la caja.
-        alert(caja.darValor());
-        
+        SiTieneValorCajaCabecera(caja);        
     }
-    alert(caja.id_input+ ' ' +caja.darAccion(caja.tecla));
+   ponerFocus(ObtenerCajaSiguiente(caja.id_input));
+    
 }
 
 

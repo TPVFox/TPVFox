@@ -248,7 +248,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                 alert('Error de sql :'+resultado.consulta);
                 return;
             }
-            if (resultado.Nitems==1 && resultado.datos !==null){
+            if (resultado.Nitems==1 && resultado.html ==null ){
                     // Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
                     //Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
                     //Se oculta el botón del botón buscar
@@ -276,7 +276,11 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                     var titulo = 'Listado Proveedores ';
                     var HtmlProveedores=resultado.html['html']; 
                     abrirModal(titulo,HtmlProveedores);
-                    focusAlLanzarModal('cajaBusquedaproveedor');
+                    if (idcaja !=='cajaBusquedaproveedor'){
+                        focusAlLanzarModal('cajaBusquedaproveedor');
+                    } else {
+                        ponerFocus('cajaBusquedaproveedor');
+                    }
             }
         }
 	});
@@ -889,6 +893,17 @@ function mensajeCancelar(idTemporal, dedonde){
 	}
 }
 
+function SiTieneValorCajaCabecera(caja){
+            alert(caja.id_input);
+
+    switch(caja.id_input){
+        case 'id_proveedor':
+            buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
+        break;
+    }
+
+
+}
 function ObtenerCajaSiguiente(idCaja){
     // @ Objetivo
     //  Obtener cual es la caja siguiente salto 

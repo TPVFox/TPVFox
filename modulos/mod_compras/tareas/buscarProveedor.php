@@ -43,14 +43,19 @@
         $buscar['datos'] = $CProveedores->todosProveedores();
         $respuesta['Nitems'] = count( $buscar['datos']);
     } 
-    
-    if  ( $respuesta['Nitems'] !== 1 ){
-        // Ahoras si tenemos mas de un resultado O estamos en modal, cargamos el html para modal de busqueda
+    $obtener_html  = 0 ;
+    if  ( $respuesta['Nitems'] == 0 ){
+        // Sino obtuvo resultado mostramos html, para indicar que no fue correcto y que permitir buscar.
+        $obtener_html = 1 ;
+    }
+    if ( $_POST['idcaja'] == 'Proveedor' || $_POST['idcaja'] == 'cajaBusquedaproveedor' ){
+        // Si venimos de la caja proveedor o cajaBusquedaproveedor, siempre se muestra html
+        $obtener_html = 1 ;
+
+    }
+    if ( $obtener_html == 1){
         $respuesta['html']=htmlProveedores($_POST['busqueda'],$_POST['dedonde'], $_POST['idcaja'], $buscar['datos']);
     }
-
-
-
     
 //~ if (isset($_POST['idcaja']) && $_POST['idcaja'] =="id_proveedor"){
     
