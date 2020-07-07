@@ -37,25 +37,20 @@ class Proveedores {
 	public function buscarProveedorId($idProveedor){
 		$db = $this->db;
 		$sql='SELECT * from proveedores where idProveedor='.$idProveedor;
-		//~ $smt=$db->query('SELECT * from proveedores where idProveedor='.$idProveedor);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
-			return $respuesta;
 		}else{
 			if ($result = $smt->fetch_assoc () ){
-				$proveedor=$result;
-				return $proveedor;
+				$respuesta = $result;
 			}
 		}
-		
+		return $respuesta;
 	}
 	public function buscarProveedorNombre($nombre){
 		$db = $this->db;
 		$sql='SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"';
-		//~ $smt=$db->query('SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"');
-		//~ $sql='SELECT * from proveedores where nombrecomercial="%'.$nombre.'%"';
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];
@@ -68,7 +63,7 @@ class Proveedores {
 			$respuesta['datos']=$proveedorPrincipal;
 			//~ $respuesta['sql']=$sql;
 		}
-			return $respuesta;
+        return $respuesta;
 	}
 
 
@@ -79,7 +74,7 @@ class Proveedores {
         // Siempre devolvemos un array ...
         // Podemos devolver proveedores o error.
         $proveedores = array();
-        $sql='SELECT idProveedor, nombrecomercial FROM proveedores';
+        $sql='SELECT idProveedor, nombrecomercial, nif, razonsocial FROM proveedores';
         $smt=$this->consulta($sql);
 		if (gettype($smt) == 'object') {
             while ($fila = $smt->fetch_assoc()){
