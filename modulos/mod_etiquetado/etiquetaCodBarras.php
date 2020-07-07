@@ -226,24 +226,24 @@
 	if (isset($etiquetaReal)| isset($etiquetaTemporal)){ 
 		if (isset($productos)){
             ?>
-            datos = [];
+            datos = new Object();
             <?php
             foreach($productos as $product){
             // Añadimos datos de productos a variable productos Javascript
 ?>
                 
-                datos['nombre']     = <?php echo '"'.$product['nombre'].'"';?>;
-                datos['peso']       = <?php echo '"'.$product['peso'].'"';?>;
-                datos['precio']     = <?php echo '"'.$product['precio'].'"';?>;
-                datos['Fecha']		= <?php echo '"'.$product['Fecha'].'"';?>;
+                datos.nombre     = <?php echo '"'.$product['nombre'].'"';?>;
+                datos.peso       = <?php echo '"'.$product['peso'].'"';?>;
+                datos.precio     = <?php echo '"'.$product['precio'].'"';?>;
+                datos.Fecha		= <?php echo '"'.$product['Fecha'].'"';?>;
                 <?php if ($product['NumAlb'] !==""){
                     $product['NumAlb']=0 ;
                 }?>
-                datos['NumAlb']     = <?php echo '"'.$product['NumAlb'].'"';?>;
-                datos['codBarras']		= <?php echo '"'.$product['codBarras'].'"';?>;
-                datos['estado']		= <?php echo '"'.$product['estado'].'"';?>;
-                datos['Nfila'] 	= <?php echo $product['Nfila'];?>;
-                datos['crefTienda'] 	= <?php echo '"'.$product['crefTienda'].'"';?>;
+                datos.NumAlb     = <?php echo '"'.$product['NumAlb'].'"';?>;
+                datos.codBarras		= <?php echo '"'.$product['codBarras'].'"';?>;
+                datos.estado		= <?php echo '"'.$product['estado'].'"';?>;
+                datos.Nfila 	= <?php echo $product['Nfila'];?>;
+                datos.crefTienda 	= <?php echo '"'.$product['crefTienda'].'"';?>;
                 productos.push(datos);
             <?php
                 
