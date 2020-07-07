@@ -248,11 +248,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                 alert('Error de sql :'+resultado.consulta);
                 return;
             }
-            if (resultado.Nitems==2){
-                alert("El id del proveedor no existe");
-                document.getElementById(idcaja).value='';
-            }
-                if (resultado.Nitems==1){
+            if (resultado.Nitems==1 && resultado.datos !==null){
                     // Si es solo un resultado pone en la cabecera idProveedor ponemos el id devuelto
                     //Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
                     //Se oculta el botón del botón buscar
@@ -281,10 +277,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                     var HtmlProveedores=resultado.html['html']; 
                     abrirModal(titulo,HtmlProveedores);
                     focusAlLanzarModal('cajaBusquedaproveedor');
-                    if(resultado.html['encontrados']){
-                        ponerFocus('N_0');
-                    }
-                }
+            }
         }
 	});
 }

@@ -48,8 +48,7 @@ function controladorAcciones(caja,accion, tecla){
 		case 'buscarProveedor':
             if( caja.darValor()=="" && caja.id_input=="id_proveedor"){
 				// Cuando el valor no tiene datos y estamos id_input pasamos a cja Proveedor
-				var d_focus="Proveedor";
-                ponerFocus(d_focus);
+				ObtenerFocus(caja);
             }else{
 				buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			}
@@ -168,10 +167,10 @@ function controladorAcciones(caja,accion, tecla){
                 d_focus = ObtenerFocusDefectoEntradaLinea();
             }
             var controlSalto = 'Si' ; // variable que utilizo para indicar si salto o no, por defecto si.
-            
 			if (caja.id_input=="Proveedor"){
+                // No salto por que tiene valor caja Proveedor
 				if ( dato.length !== 0){
-					controlSalto = 'No'; // No salto
+					controlSalto = 'No'; 
 				}
 			}
 			ponerFocus(d_focus);
@@ -192,6 +191,7 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 
         case 'Saltar_Proveedor':
+            alert(caja.tecla);
 			var dato = caja.darValor();
             if(dato==0){
                 var d_focus = 'Proveedor';
@@ -245,8 +245,22 @@ function controladorAcciones(caja,accion, tecla){
 			}
 		break;
 
+        case 'Saltar_Siguiente':
+            ObtenerFocus(caja);
+        break;
+        
 	}
 }
+
+function ObtenerFocus(caja){
+    if (caja.darValor() !==""){
+        // Si tiene valor entonces no saltamos directamente , comprobamos que tenemos hacer segun la caja.
+        alert(caja.darValor());
+        
+    }
+    alert(caja.id_input+ ' ' +caja.darAccion(caja.tecla));
+}
+
 
 /*  =======================   Acciones Directas   ==================================  */
  

@@ -12,7 +12,6 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
 	//		$dedonde  -> Nos indica de donde viene. ()
 	$resultado = array();
-	$n_dedonde = 0 ; 
 	$resultado['encontrados'] = count($proveedores);
 	$idcaja;
 	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>'
@@ -44,7 +43,12 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 				break;
 			}
 		}
-	} 
+	} else {
+        // No se encontro nada con esa busqueda.
+        $resultado['html'] .= '<tr><td>'
+                            .' <div class="alert alert-warning">No se encontro ningun proveedor, para esa busqueda</div> '
+                            .'</td></tr>';
+    }
 	$resultado['html'] .='</tbody></table>';
 	// Ahora generamos objetos de filas.
 	// Objetos queremos controlar.

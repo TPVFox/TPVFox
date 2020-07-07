@@ -50,9 +50,9 @@
 			<nombre id_input="id_proveedor">cajaIdProveedor</nombre>
 			<teclas>
 				<action tecla="13">buscarProveedor</action>
-				<action tecla="39">Saltar_Proveedor</action>
+				<action tecla="39">Saltar_Siguiente</action>
 				<action tecla="38">Saltar_fecha</action>
-				<action tecla=" 9">Saltar_Proveedor</action>
+				<action tecla=" 9">Saltar_Siguiente</action>
 				<action tecla="40">Saltar_idArticulo</action>
 			</teclas>
 			<parametros>
