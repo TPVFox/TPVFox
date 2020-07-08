@@ -240,23 +240,20 @@ if (count($Control_Error)>0){
 <div class="col-md-2">
         <div class="row">
             <h4 class="text-center"> Tickets</h4>
-        
+            <button data-toggle="collapse" data-target="#opciones_ticket">Opciones</button>
+            <div id="opciones_ticket" class="collapse">
             <div class="col-xs-3 col-md-12">
-                <h5>Opciones</h5>
-                <ul class="">
-                    <li class="btn"><a href="tpv.php">Nuevo ticket</a></li>
-                    <li class="btn"><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></li>
-                    <li class="btn"><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></li>
-                </ul>
+                    <div class="btn"><a href="tpv.php">Nuevo ticket</a></div>
+                    <div class="btn"><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></div>
+                    <div class="btn"><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></div>
+            </div>
             </div>
             <div class="col-xs-3 col-md-12">
                 <h5>Este ticket</h5>
-                <ul class="">
-                    <li class="btn"><a onclick="buscarClientes('tpv')">Cliente</a></li>
-                    <li class="btn"><a href="#section3">Abrir Cajon</a></li>
-                    <li class="btn"><a onclick="cobrarF1()">Cobrar</a></li>
-                    <li class="btn"><a  onclick="abrirModalIndicencia('ticket',configuracion.incidencias);">Incidencia</a></li>
-                </ul>
+                    <div class="btn"><a onclick="buscarClientes('tpv')">Cliente</a></div>
+                    <div class="btn"><a href="#section3">Abrir Cajon</a></div>
+                    <div class="btn"><a onclick="cobrarF1()">Cobrar</a></div>
+                    <div class="btn"><a onclick="abrirModalIndicencia('ticket',configuracion.incidencias);">Incidencia</a></div>
             </div>
 
         <?php //===== TICKETS ABIERTOS LATERAL
@@ -309,8 +306,12 @@ if (count($Control_Error)>0){
             <?php
         }// Cerramos if de mostrar tickets abiertos o no.
         ?>
+        <button data-toggle="collapse" data-target="#opciones_configuracion">
+            <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+            Configuracion
+        </button>
+        <div id="opciones_configuracion" class="collapse">
         <div class="col-xs-3 col-md-12">
-            <h4 class="text-center">Configuracion</h4>
             <div class="form-check">
                 <label>
                 <input type="checkbox" <?php echo $checkin[1];?>><span class="label-text">Imprimir Tickets</span>
@@ -319,13 +320,14 @@ if (count($Control_Error)>0){
             <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
             <?php echo $select_campos;?>
         </div>
+        </div>
     </div>
 </div>
 <div class="col-md-10" >
-	<div class="col-md-8">
+	<div class="col-xs-8">
 		<div class="col-md-12">
-			<div class="col-md-7">
-				<div class="col-md-6">
+			<div class="col-xs-7">
+				<div class="col-xs-6">
 					<strong><span class="glyphicon glyphicon-calendar"></span>:</strong>
 					<span id="Fecha"><?php echo $fechaInicio;?></span><br/>
 					<?php // NO se muestra si es un ticket nuevo
@@ -339,7 +341,7 @@ if (count($Control_Error)>0){
 					}
 					?>
 				</div>
-				<div class="col-md-6">
+				<div class="col-xs-6">
 					<strong>Estado:</strong>
 					<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span><br/>
 					<strong>NºTemp:</strong>
@@ -358,7 +360,7 @@ if (count($Control_Error)>0){
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('tpv')"></a>
 		</div>
 	</div>
-	<div class="visor fondoNegro col-md-4">
+	<div class="visor fondoNegro col-xs-4">
 		<div class="col-md-4">
 		<h3>TOTAL</h3>
 		</div>
@@ -498,6 +500,8 @@ if (count($Control_Error)>0){
 			</div>
 		</div>
 	</div>
+</div>
+
 <?php
 // Montamos javascript para focus
 $string_focus='#'.$configuracion['input_pordefecto'];
@@ -513,7 +517,6 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 
 ?>
 
-</div>
 </body>
 
 </html>

@@ -410,7 +410,7 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
             . '<td class="referencia">' . $product->cref . '</td>'
             . '<td class="detalle">' . $product->cdetalle . '</td>'
             . '<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="Unidad_Fila_' . $product->nfila
-            . '" type="text" data-obj="Unidad_Fila" pattern="[.0-9]+" name="unidad" placeholder="unidad" size="4"  value="'
+            . '" type="text" data-obj="Unidad_Fila" name="unidad" placeholder="unidad" size="4"  value="'
             . $product->unidad . '"  ' . $estadoInput . ' onkeydown="controlEventos(event,'
             . "'Unidad_Fila_" . $product->nfila . "'" . ')" onBlur="controlEventos(event)"></td>';
     //si en config peso=si, mostramos columna peso
