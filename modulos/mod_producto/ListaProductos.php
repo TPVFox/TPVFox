@@ -195,7 +195,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
 
         <div class="container">
             <?php
-// Control de errores..
+            // Control de errores..
             $comprobaciones = $CTArticulos->GetComprobaciones();
             if (count($comprobaciones) > 0) {
                 foreach ($comprobaciones as $comprobacion) {
@@ -221,12 +221,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <?php
                           if($ClasePermisos->getAccion("crear")==1){
                                 ?>
-                                <li><a href="#section2" onclick="metodoClick('AgregarProducto');">Añadir</a></li>
+                                <li><a onclick="metodoClick('AgregarProducto');">Añadir</a></li>
                                 <?php
                            }
                             if($ClasePermisos->getAccion("modificar")==1){
                             ?>
-                            <li><a href="#section2" onclick="metodoClick('VerProducto', 'producto');">Modificar</a></li>
+                            <li><a onclick="metodoClick('VerProducto', 'producto');">Modificar</a></li>
                             <?php 
                             }
                             ?>
@@ -296,9 +296,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                       }
                       ?>  
                     </div>
-               
-                  
-					<div>
+                    <div>
                     <p>
                         -Productos encontrados BD local filtrados:
                         <?php echo $CantidadRegistros; ?>
@@ -353,7 +351,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                     <!-- TABLA DE PRODUCTOS -->
                     <div>
                         <?php
-                        // Generamos array con los productos de esta pagina para poder ejecutar ajax
+                        // Generamos Script con array de los productos de esta pagina para poder ejecutar ajax
                         // para comprobar el estado en la web.
                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart')==='Si'){
                             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
@@ -381,7 +379,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                     <th>PRODUCTO</th>
                                     <?php
                                     if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'codBarras') === 'Si') {
-                                        echo '<th>CODIGO BARRAS</th>';
+                                        echo '<th><span class="glyphicon glyphicon-barcode" title="CODIGO BARRAS"></span></th>';
                                     }
                                     if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.crefTienda') === 'Si') {
                                         echo '<th>REFERENCIA</th>';
@@ -393,8 +391,8 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                     <th>Precio<br/>Sin Iva</th>
                                     <th>IVA</th>
                                     <th>P.V.P</th>
+                                    <th>Stock</th>
                                     <th>Estado</th>
-                                    <th>Reg.Stock</th>
                                     <?php 
                                     if(isset($tiendaWeb)){
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
@@ -410,7 +408,8 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <?php
                             $checkUser = 0;
                             if (isset($productos)) {
-                                foreach ($productos as $producto) {
+                                foreach ($productos as $prod) {
+                                    $producto=$CTArticulos->GetProducto($prod['idArticulo']);
                                     // [RECUERDA]
                                     // Utilizo una funcion js, en global para controlar que item tengo seleccionados,... 
                                     // por eso el uno rowUsuario cuando es productos.
@@ -422,10 +421,11 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         }
                                     }
                                     $textoFamilia="";
-                                    $familia=$CFamilia->familiaDeProducto($producto['idArticulo']);
-                                    if(isset($familia['datos'])){
-                                        foreach ($familia['datos'] as $nombreFamilia){
-                                            $textoFamilia.=' '.$nombreFamilia['nombreFamilia'];
+                    
+                                    $familias=$producto['familias'];
+                                    if(count($familias)>0){
+                                        foreach ($familias as $familia){
+                                            $textoFamilia.=' '.$familia['familiaNombre'];
                                         }
                                     }
                                     ?>
@@ -439,11 +439,9 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         echo $htmltd . $producto['idArticulo'] . '</td>';
                                         echo $htmltd . $producto['articulo_name'] . '<br><SUB>'.$textoFamilia.'</SUB></td>';
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'codBarras') === 'Si') {
-                                            $CTArticulos->ObtenerCodbarrasProducto($producto['idArticulo']);
-                                            $codBarrasProd = $CTArticulos->GetCodbarras();
                                             echo '<td>';
-                                            if ($codBarrasProd) {
-                                                foreach ($codBarrasProd as $cod) {
+                                            if (count($producto['codBarras'])>0) {
+                                                foreach ($producto['codBarras'] as $cod) {
                                                     echo '<small>' . $cod . '</small><br>';
                                                 }
                                             }
@@ -452,12 +450,9 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         ?>
                                         <?php
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.crefTienda') === 'Si') {
-                                            $CTArticulos->ObtenerReferenciasTiendas($producto['idArticulo']);
-                                            //~ $refTiendas = $CTArticulos->GetReferenciasTiendas();
-                                            
                                             echo '<td>';
-                                            if ($CTArticulos->GetReferenciasTiendas()) {
-                                                foreach ($CTArticulos->GetReferenciasTiendas() as $ref) {
+                                            if (count($producto['ref_tiendas'])>0) {
+                                                foreach ($producto['ref_tiendas'] as $ref) {
                                                     if($ref['idTienda']==$id_tienda_principal){
                                                         echo $ref['crefTienda'];
                                                     }
@@ -473,16 +468,22 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         <td style="text-align:right;"><?= number_format($producto['pvpSiva'], 2)?><small>€</small></td>
                                         <td><?=$producto['iva']?></td>
                                         <td style="text-align:right;"><?php echo number_format($producto['pvpCiva'], 2); ?><small>€</small></td>
-                                        <td><?php echo $producto['estado']; ?></td>
                                         <td>
-                                            <?php 
-                                             if($ClasePermisos->getAccion("regularizar")==1){
+                                            <?php
+                                            $decimal = 0;
+                                            if ($producto['tipo'] == 'peso'){
+                                                $decimal = 3;
+                                            } 
+                                            echo number_format($producto['stocks']['stockOn'],$decimal);
+                                            if($ClasePermisos->getAccion("regularizar")==1){
                                             ?>
-                                            <button class="btn btn-sm boton-regularizar" data-idarticulo="<?php echo $producto['idArticulo']; ?>">regularizar</button>
+                                                <button class="btn btn-sm boton-regularizar" data-idarticulo="<?php echo $producto['idArticulo']; ?>"><span class="glyphicon glyphicon-pencil"></span></button>
                                             <?php 
-                                        }
+                                            }
                                             ?>
                                             </td>
+                                        <td><?php echo $producto['estado']; ?></td>
+
                                             <?php 
                                         if(isset($tiendaWeb)){
                                             if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){

@@ -59,50 +59,33 @@ class ClaseProductos extends ClaseTablaArticulos{
         if (isset($filtro_limite['limite'])){
             $limite = $filtro_limite['limite'];
         }
+        $consulta = "SELECT a.idArticulo,a.articulo_name FROM `articulos` AS a "
+                ."LEFT JOIN `articulosPrecios` AS p "
+                ."ON (p.`idArticulo` = a.`idArticulo`) ";
         switch ($campo) {
-			case 'articulo_name':
+            case 'articulo_name':
 				// Buscamos por nombre de articulo..
-				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
-				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
-				." FROM `articulos` AS a "
-				."LEFT JOIN `articulosPrecios` AS p "
-				."ON (p.`idArticulo` = a.`idArticulo`) AND  "
-                ."(p.idTienda =".$this->idTienda.") "
-                .$filtro.$limite;
+                $consulta .=" AND  (p.idTienda =".$this->idTienda.") ".$filtro." ORDER BY a.articulo_name ".$limite;
 				break;
-			case  't.crefTienda':
+            case  't.crefTienda':
 				// Buscamos por nombre de articulo..
-				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
-				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
-				." FROM `articulos` AS a "
-				."LEFT JOIN `articulosPrecios` AS p "
-				."ON (p.`idArticulo` = a.`idArticulo`) "
-                ."LEFT JOIN `articulosTiendas` AS t ON (t.idArticulo = a.idArticulo) AND "
-                ."(t.idTienda =".$this->idTienda.") "
-                .$filtro.$limite;
+                $consulta .= "LEFT JOIN `articulosTiendas` AS t ON (t.idArticulo = a.idArticulo) AND "
+                            ."(t.idTienda =".$this->idTienda.") ".$filtro." ORDER BY a.articulo_name ".$limite;
 				break;
-			case 'codBarras':
+            case 'codBarras':
 				// Buscamos por Codbarras.
-				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
-				." ,aCodBarras.codBarras as codBarras,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
-				." FROM `articulos` AS a "
-				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo` AND "
-                ."(p.idTienda =".$this->idTienda.") "
-				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
-				.$filtro.  ' GROUP BY a.idArticulo '.$limite;
+                // Pongo por orden  ORDER BY aCodBarras.idArticulo pero muestra primero los que no tienen codbarras, pero
+                // no ordena por codbarras ya que no tenemos el campo.
+                $consulta .= " AND (p.idTienda =".$this->idTienda.") "
+                            ."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
+                            .$filtro.  ' GROUP BY a.idArticulo ORDER BY aCodBarras.idArticulo '.$limite;
                 break;
 
             case 'a.idArticulo':
 				// Buscamos idArticulo.
-				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
-				." ,aCodBarras.codBarras as codBarras,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
-				." FROM `articulos` AS a "
-				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo` AND "
-                ."(p.idTienda =".$this->idTienda.") "
-				."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
-				.$filtro. ' GROUP BY a.idArticulo '.$limite;
+                $consulta .= " AND (p.idTienda =".$this->idTienda.") "
+                            ."LEFT JOIN `articulosCodigoBarras` AS aCodBarras ON (aCodBarras.idArticulo = a.idArticulo)"
+                            .$filtro. ' GROUP BY a.idArticulo '.$limite;
                 break;
                 
             case 't.idVirtuemart':
@@ -112,17 +95,10 @@ class ClaseProductos extends ClaseTablaArticulos{
                     $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
                     $idTiendaWeb = $tiendaWeb['idTienda'];
                 }
-
-				$consulta = "SELECT a.idArticulo,a.articulo_name as articulo_name"
-				." ,a.ultimoCoste,a.beneficio,a.iva,p.pvpSiva,p.pvpCiva,a.estado"
-				." FROM `articulos` AS a "
-				."LEFT JOIN `articulosPrecios` AS p "
-				."ON p.`idArticulo` = a.`idArticulo` AND "
-                ."(p.idTienda =".$this->idTienda.") "
-				."LEFT JOIN `articulosTiendas` AS t "
-                ."ON (t.idArticulo = a.idArticulo) AND "
-                ."(t.idTienda =". $idTiendaWeb.") "
-				.$filtro.$limite;
+                $consulta .= " AND (p.idTienda =".$this->idTienda.") "
+                            ."LEFT JOIN `articulosTiendas` AS t "
+                            ."ON (t.idArticulo = a.idArticulo) AND "
+                            ."(t.idTienda =". $idTiendaWeb.") ".$filtro." ORDER BY a.articulo_name ". $limite;
                 break;
 
             default :
@@ -132,6 +108,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 		}
 		if ($consulta !== 'KO'){
             // Obtenemos items de los productos.
+            error_log($consulta);
             $respuesta = parent::Consulta($consulta);
         } else {
             $respuesta['error'] = 'Error en campo';
