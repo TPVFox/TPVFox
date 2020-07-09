@@ -23,7 +23,7 @@ class ClaseProveedor extends TFModelo{
         //tener en cuenta el  paginado con parametros:  ,$filtro
         $sql = "Select * from proveedores ".$filtro; 
         $proveedores = $this->consulta($sql);
-        if (!isset($clientes['datos'])){
+        if (!isset($provedores['datos'])){
             $proveedores['datos']=array(); // mandamos array vacio.
         };
         return $proveedores['datos'];
