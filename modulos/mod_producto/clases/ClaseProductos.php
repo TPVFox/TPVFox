@@ -108,7 +108,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 		}
 		if ($consulta !== 'KO'){
             // Obtenemos items de los productos.
-            error_log($consulta);
             $respuesta = parent::Consulta($consulta);
         } else {
             $respuesta['error'] = 'Error en campo';
