@@ -21,9 +21,11 @@ class ClaseProveedor extends TFModelo{
     public function obtenerProveedores($filtro) {
         // Function para obtener proveedores y listarlos
         //tener en cuenta el  paginado con parametros:  ,$filtro
-        $proveedores = array();
         $sql = "Select * from proveedores ".$filtro; 
         $proveedores = $this->consulta($sql);
+        if (!isset($clientes['datos'])){
+            $proveedores['datos']=array(); // mandamos array vacio.
+        };
         return $proveedores['datos'];
     }
 
