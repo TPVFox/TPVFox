@@ -27,10 +27,11 @@ class ClaseCliente extends TFModelo{
     public function obtenerClientes($filtro='') {
         // Function para obtener clientes y listarlos
 
-        $clientes = array();
         $sql = "Select * from clientes ".$filtro; //.$filtroFinal.$rango; 
         $clientes = $this->consulta($sql);
-
+        if (!isset($clientes['datos'])){
+            $clientes['datos']=array(); // mandamos array vacio.
+        };
         //$clientes ['consulta'] = $consulta;
         return $clientes['datos'];
     }

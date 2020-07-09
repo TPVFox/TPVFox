@@ -160,7 +160,7 @@
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Direccion:</label>
-							<input type="text" id="direccion" name="direccion" value="<?php echo $ClienteUnico['direccion'];?>"   >
+							<textarea id="direccion" name="direccion"><?php echo $ClienteUnico['direccion'];?> </textarea>
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Telefono:</label>
