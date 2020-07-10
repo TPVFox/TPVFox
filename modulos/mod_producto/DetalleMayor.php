@@ -111,18 +111,22 @@
                                 $entradas += $movimiento['entrega'];
                                 $comprado += $movimiento['entrega']*$movimiento['precioentrada'];
                             } else {
+                                
+                                if ($movimiento['tipodoc']=== 'T'){
+                                    // Es un ticket
+                                    $tipo_doc = 'mod_tpv/ticketCobrado.php?id='.$movimiento['numid'];
+                                }
+                                if ($movimiento['tipodoc']=== 'V'){
+                                    // Es un albaran de venta
+                                    $tipo_doc = 'mod_venta/albaran.php?id='.$movimiento['numid'].'&estado=ver';
+                                    // Calculo el iva del albaran de ventas, ya que el precio es sin iva y tenemos poner con iva.
+                                    $movimiento['preciosalida'] += ($movimiento['preciosalida']*$producto['iva']/100);
+                                }
                                 $td_salida = '<td>'. number_format(round($movimiento['salida'],$e),$e).'</td>';
                                 $td_precio = '<td>'.number_format($movimiento['preciosalida'],2).' €'.'</td>';
                                 $salidas += $movimiento['salida'];
                                 $vendido += $movimiento['salida']*$movimiento['preciosalida'];
-                            }
-                            if ($movimiento['tipodoc']=== 'T'){
-                                // Es un ticket
-                               $tipo_doc = 'mod_tpv/ticketCobrado.php?id='.$movimiento['numid'];
-                            }
-                            if ($movimiento['tipodoc']=== 'V'){
-                                // Es un albaran de venta
-                                $tipo_doc = 'mod_venta/albaran.php?id='.$movimiento['numid'].'&estado=ver';
+                                
                             }
                             $url= $HostNombre.'/modulos/'.$tipo_doc;
                             echo '<tr>';
