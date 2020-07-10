@@ -139,9 +139,9 @@
                         }   
                     
                         // Calculo del beneficio.
-                        $beneficio = $vendido - $comprado +($comprado * $producto['iva']);
+                        $beneficio = $vendido - $comprado +($comprado * $producto['iva'])/100;
                         echo '<td><b>Total</b></td><td><b>'.$entradas.'</b></td>'.'<td><b>'.$salidas.'</b></td><td></td>'.'<td><b>'.$comprado.'</b></td>'
-                            .'<td><b>'.$vendido.'</b></td><td><b>Beneficio = </b>'.$beneficio.' €</td>';
+                            .'<td><b>'.$vendido.'</b></td><td><b>Beneficio = </b>'.number_format($beneficio,2).' €</td>';
                     }
                     ?>
                     </tbody>
