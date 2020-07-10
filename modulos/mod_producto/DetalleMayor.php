@@ -38,17 +38,15 @@
         $idTienda = $Tienda['idTienda'];
         $idUsuario = $Usuario['id'];
         $datos = compact("fecha_inicial","fecha_final","idArticulo","idTienda","idUsuario");
-        
         $movimientos  = $CArticulo->calculaMayor($datos);
-		
-		
 		?>
-		
-		
 	</head>
 	<body>
 	<?php
      include_once $URLCom.'/modulos/mod_menu/menu.php';
+     //~ echo '<pre>';
+     //~ print_r($producto);
+     //~ echo '</pre>';
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 	<script type="text/javascript">
@@ -77,10 +75,10 @@
 					<tr>
 						<th>Fecha</th>
 						<th>Entrada</th>
-						<th>Coste</th>
-						<th>Salida</th>
+                        <th>Salida</th>
+                        <th>Stock</th>
+						<th>Coste <br/>Sin Iva</th>
 						<th>PVP</th>
-						<th>Stock</th>
 						<th>doc</th>
 						<th>Nombre</th>
 						<th>Estado</th>
@@ -89,64 +87,66 @@
                     <tbody>
 				<?php
                     $stock = 0;
-                    foreach ($movimientos['datos'] as $movimiento){
-                        $stock = $stock+$movimiento['entrega'] - $movimiento['salida'];
-                        $e = 0;// variable bandera para indicar decimales
-                        if ($producto['tipo'] ==='peso'){   
-                            $e = 3;
-                        }
-                        echo '<tr>';
-                            echo '<td>'.$movimiento['fecha'].'</td>';
-                            if ($movimiento['tipodoc']=== 'C'){
-                                $entrada = $movimiento['entrega'];
-                                
-                                echo '<td>'.number_format(round($movimiento['entrega'],$e),$e).'</td>';
-                                echo '<td>'.number_format($movimiento['precioentrada'],2).' €'.'</td>';
-                            } else {
-                                echo '<td></td><td></td>';
+                    if (isset($movimientos['datos'])){
+                        $entradas = 0;
+                        $comprado = 0;
+                        $salidas = 0;
+                        $vendido = 0;
+                        foreach ($movimientos['datos'] as $movimiento){
+                            $stock = $stock+$movimiento['entrega'] - $movimiento['salida'];
+                            $e = 0;// variable bandera para indicar decimales
+                            if ($producto['tipo'] ==='peso'){   
+                                $e = 3;
                             }
-                            if ($movimiento['tipodoc'] !== 'C'){
-                                $entrada = $movimiento['salida'];
-                                echo '<td>'. number_format(round($movimiento['salida'],$e),$e).'</td>';
-                                echo '<td>'.number_format($movimiento['preciosalida'],2).' €'.'</td>';
-                            } else {
-                                echo '<td></td><td></td>';
-                            }
-                            echo '<td>'.$stock.'</td>';
-                            echo '<td>'.$movimiento['serie'].$movimiento['numdocu'].'</td>';
-                            echo '<td>'.$movimiento['nombre'].'</td>';
-                            echo '<td>'.$movimiento['estado'].'</td>';
                             $url = '';
+                            $td_entrada = '<td></td>';
+                            $td_salida = '<td></td>';
+                            $td_precio = '<td></td>';
+                            $td_coste = '<td></td>';
                             if ($movimiento['tipodoc']=== 'C'){
                                 // Entonces es una entrada
-                                $url= $HostNombre
-                                    .'/modulos/mod_compras/albaran.php?id='.$movimiento['numid']
-                                    .'&estado=ver';
+                                $tipo_doc   = 'mod_compras/albaran.php?id='.$movimiento['numid'].'&estado=ver';
+                                $td_entrada = '<td>'.number_format(round($movimiento['entrega'],$e),$e).'</td>';
+                                $td_coste  = '<td>'.number_format($movimiento['precioentrada'],2).' €'.'</td>';
+                                $entradas += $movimiento['entrega'];
+                                $comprado += $movimiento['entrega']*$movimiento['precioentrada'];
+                            } else {
+                                $td_salida = '<td>'. number_format(round($movimiento['salida'],$e),$e).'</td>';
+                                $td_precio = '<td>'.number_format($movimiento['preciosalida'],2).' €'.'</td>';
+                                $salidas += $movimiento['salida'];
+                                $vendido += $movimiento['salida']*$movimiento['preciosalida'];
                             }
                             if ($movimiento['tipodoc']=== 'T'){
                                 // Es un ticket
-                                $url= $HostNombre
-                                    .'/modulos/mod_tpv/ticketCobrado.php?id='.$movimiento['numid'];
+                               $tipo_doc = 'mod_tpv/ticketCobrado.php?id='.$movimiento['numid'];
                             }
                             if ($movimiento['tipodoc']=== 'V'){
                                 // Es un albaran de venta
-                                $url= $HostNombre
-                                    .'/modulos/mod_venta/albaran.php?id='.$movimiento['numid']
-                                    .'&estado=ver';
+                                $tipo_doc = 'mod_venta/albaran.php?id='.$movimiento['numid'].'&estado=ver';
                             }
-
-                            echo '<td>'.'<a target="_blank" href="'.$url.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
-
-                        echo '</tr>';
+                            $url= $HostNombre.'/modulos/'.$tipo_doc;
+                            echo '<tr>';
+                                echo '<td>'.$movimiento['fecha'].'</td>';
+                                echo $td_entrada.$td_salida;
+                                echo '<td>'.$stock.'</td>';
+                                echo $td_coste.$td_precio;
+                                echo '<td>'.$movimiento['serie'].$movimiento['numdocu'].'</td>';
+                                echo '<td>'.$movimiento['nombre'].'</td>';
+                                echo '<td>'.$movimiento['estado'].'</td>';
+                                
+                                echo '<td>'.'<a target="_blank" href="'.$url.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
+                            echo '</tr>';
+                        }   
+                    
+                        // Calculo del beneficio.
+                        $beneficio = $vendido - $comprado +($comprado * $producto['iva']);
+                        echo '<td><b>Total</b></td><td><b>'.$entradas.'</b></td>'.'<td><b>'.$salidas.'</b></td><td></td>'.'<td><b>'.$comprado.'</b></td>'
+                            .'<td><b>'.$vendido.'</b></td><td><b>Beneficio = </b>'.$beneficio.' €</td>';
                     }
-				
-				?>
-				
-				</tbody>
-						</table>
-					</div>
-				</form>
-		</div>
-		
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 	</body>	
 </html>
