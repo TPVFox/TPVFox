@@ -422,14 +422,15 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                     }
                                     $textoFamilia="";
                     
-                                    $familias=$producto['familias'];
-                                    if(count($familias)>0){
+                                   
+                                    if(is_array($producto['familias'])){
+                                        $familias=$producto['familias'];
                                         foreach ($familias as $familia){
                                             $textoFamilia.=' '.$familia['familiaNombre'];
                                         }
                                     }
                                     ?>
-
+                                    
                                     <tr>
 
                                         <td class="rowUsuario"><input type="checkbox" id="checkUsu<?php echo $checkUser; ?>" name="checkUsu<?php echo $checkUser; ?>" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>, 'listaProductos')" value="<?php echo $producto['idArticulo']; ?>" <?php echo $checked; ?>>

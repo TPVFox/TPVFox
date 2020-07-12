@@ -120,7 +120,10 @@
                                     // Es un albaran de venta
                                     $tipo_doc = 'mod_venta/albaran.php?id='.$movimiento['numid'].'&estado=ver';
                                     // Calculo el iva del albaran de ventas, ya que el precio es sin iva y tenemos poner con iva.
-                                    $movimiento['preciosalida'] += ($movimiento['preciosalida']*$producto['iva']/100);
+                                    // pero solo si el precio es distinto de 0
+                                    if ($movimiento['preciosalida'] !== 0) {
+                                        $movimiento['preciosalida'] += ($movimiento['preciosalida']*$producto['iva']/100);
+                                    }
                                 }
                                 $td_salida = '<td>'. number_format(round($movimiento['salida'],$e),$e).'</td>';
                                 $td_precio = '<td>'.number_format($movimiento['preciosalida'],2).' €'.'</td>';
