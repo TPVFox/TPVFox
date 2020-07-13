@@ -729,8 +729,14 @@ class ClaseProductos extends ClaseTablaArticulos{
 		if (serialize($datosgenerales_actual) !== serialize($datosgenerales_post) ){
 			// Montamos sql para guardar...
 			$d =$datosgenerales_post;
-			$sql =	'UPDATE `articulos` SET `iva`="'.$d['iva'].'",`idProveedor`="'
-					.$d['idProveedor'].'",`articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'.$d['estado'].'",`fecha_modificado`=NOW(),`ultimoCoste`="'.$d['ultimoCoste'].'", tipo="'.$d['tipo'].'" WHERE idArticulo = '.$d['idArticulo'];
+            $idp = '';
+            if( isset($d['idProveedor'])){
+                $idp = 'idProveedor="'.$d['idProveedor'].'"'; // Evitamos notice cuando no tiene proveedor principal.
+            }
+			$sql =	'UPDATE `articulos` SET `iva`="'.$d['iva'].'"'
+                    .$idp.',`articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'
+                    .$d['estado'].'",`fecha_modificado`=NOW(),`ultimoCoste`="'.$d['ultimoCoste'].'", tipo="'.$d['tipo'].'" WHERE idArticulo = '
+                    .$d['idArticulo'];
 			$comprobaciones['datos_generales']=$this->Consulta_insert_update($sql);
 		}
 		return $comprobaciones;
