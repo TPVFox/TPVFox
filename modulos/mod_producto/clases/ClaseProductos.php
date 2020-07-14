@@ -731,10 +731,10 @@ class ClaseProductos extends ClaseTablaArticulos{
 			$d =$datosgenerales_post;
             $idp = '';
             if( isset($d['idProveedor'])){
-                $idp = 'idProveedor="'.$d['idProveedor'].'"'; // Evitamos notice cuando no tiene proveedor principal.
+                $idp = 'idProveedor="'.$d['idProveedor'].'",'; // Evitamos notice cuando no tiene proveedor principal.
             }
-			$sql =	'UPDATE `articulos` SET `iva`="'.$d['iva'].'"'
-                    .$idp.',`articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'
+			$sql =	'UPDATE `articulos` SET `iva`="'.$d['iva'].'",'
+                    .$idp.' `articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'
                     .$d['estado'].'",`fecha_modificado`=NOW(),`ultimoCoste`="'.$d['ultimoCoste'].'", tipo="'.$d['tipo'].'" WHERE idArticulo = '
                     .$d['idArticulo'];
 			$comprobaciones['datos_generales']=$this->Consulta_insert_update($sql);
