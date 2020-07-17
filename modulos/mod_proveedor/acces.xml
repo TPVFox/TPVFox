@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<modulo nombre="mod_proveedor" descripcion="Proveedor" permiso="1">
-    <vista nombre="ListaProveedores.php" descripcion="Listado Proveedores" permiso="1">
+<modulo nombre="mod_proveedor" descripcion="Proveedor" permiso="0">
+    <vista nombre="ListaProveedores.php" descripcion="Listado Proveedores" permiso="0">
         <accion nombre="crear" descripcion="Añadir Proveedor" permiso="0"></accion>
         <accion nombre="modificar" descripcion="Modificar Proveedor" permiso="0"></accion>
-	<accion nombre="ver" descripcion="Ver Proveedor" permiso="0"></accion>
+        <accion nombre="ver" descripcion="Ver Proveedor" permiso="0"></accion>
     </vista>
     <vista nombre="proveedor.php" descripcion="Proveedor" permiso="0">
     </vista>
-
-
 </modulo>
