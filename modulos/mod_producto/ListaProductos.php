@@ -267,8 +267,13 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                             <?php 
                             }
                              if($ClasePermisos->getAccion("eliminarProductos")==1){
+                                $id_ti = 0;
+                                if( isset($tiendaWeb['idTienda'])){
+                                    // Si existe ponemos valor
+                                    $id_ti = $tiendaWeb['idTienda'];
+                                }
                              ?>     
-                                <li><a onclick="eliminarProductos(<?php echo $tiendaWeb['idTienda'];?>);">Eliminar Productos</a></li>        
+                                <li><a onclick="eliminarProductos(<?php echo $id_ti;?>);">Eliminar Productos</a></li>        
                             <?php 
                             }
                              if($ClasePermisos->getAccion("cambiarEstado")==1){
