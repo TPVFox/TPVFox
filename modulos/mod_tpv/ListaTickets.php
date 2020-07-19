@@ -67,6 +67,7 @@
                         );
         } else {
             $mensaje_error[] = 'No obtuvo fecha del Primer Ticket de este estado:'.$estado_ticket;
+            $fechas = array();
         }
     }
     if (isset($_GET['idCierre'])){
@@ -83,6 +84,7 @@
     } else {
         // hubo un error a la hora obtener el los tickets
         $mensaje_error[] = ' No se permite obtener tanto tickets.'.$filtro.'<br/>'. $Obtenertickets ['error'];
+        $CantidadRegistros= 0;
     }
     if (count($mensaje_error)>0){
         echo '<pre>';
@@ -99,7 +101,9 @@
     } else {
         $Obtenertickets = $Tickets->obtenerTickets('Cobrado',$fechas,$filtro , $NPaginado->GetLimitConsulta());
     }
-    $tickets = $Obtenertickets['datos'];
+    if (isset($Obtenertickets['datos'])){
+        $tickets = $Obtenertickets['datos'];
+    } 
 	?>
 	<script>
 	// Declaramos variables globales
@@ -140,7 +144,11 @@
 			</nav>
 			<div class="col-md-10">
                     <?php
-                    echo '<p><strong>'.$CantidadRegistros.' tickets '.$estado_ticket.'s </strong> encontrados entre fecha '.$fechas['inicio'].' a '.$fechas['final'].'.</p>'
+                    $texto_fechas = '';
+                    if (count($fechas)>0){
+                        $texto_fechas = $fechas['inicio'].' a '.$fechas['final'];
+                    }
+                    echo '<p><strong>'.$CantidadRegistros.' tickets '.$estado_ticket.'s </strong> encontrados entre fecha '.$texto_fechas.'.</p>'
                     ?>
 					<div>
 						<div>
@@ -179,37 +187,37 @@
 				</thead>
 				<?php
 				$checkUser = 0;
-				foreach ($tickets as $ticket){ 
-					$checkUser = $checkUser + 1;
-                    // obtenemos si fue enviado stock
-                    $envio = ObtenerEnvioIdTickets($BDTpv,$ticket['id']);
-				?>
-				<tr>
-					<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" 
-							value="<?php echo $ticket['id'];?>">
-					</td>
-					<td><?php echo $ticket['Fecha']; ?></td>
-					<td><?php echo $ticket['idTienda'].'-'.$ticket['idUsuario'].'-'.$ticket['Numticket']; ?></td>
-					<td><?php echo $ticket['idCliente']; ?></td>
-					<td><?php echo $ticket['Nombre']; ?></td>
-					<td><?php echo $ticket['estado']; ?></td>
-					<td><?php echo $ticket['formaPago']; ?></td>
-					<td><?php echo $ticket['total']; ?></td>
-					<td><?php 
-						echo (isset($ticket['idCierre']) ? $ticket['idCierre']['idCierre']:''); ?>
-					</td>
-					<td>
-						<?php
-							if (isset($envio['enviado_stock'])){
-								// Quiere decir que se encontro registro
-								echo '<span title="'.$envio['respuesta_envio'].'">'.$envio['enviado_stock'].'</span>';
-							}  ;?>
-					</td>
-					
-				</tr>
-				<?php 
-				}
-				?>
+                if (isset($tickets)){
+                    foreach ($tickets as $ticket){ 
+                        $checkUser = $checkUser + 1;
+                        // obtenemos si fue enviado stock
+                        $envio = ObtenerEnvioIdTickets($BDTpv,$ticket['id']);
+                        echo '<tr>'
+                            .'<td class="rowUsuario"><input type="checkbox" name="checkUsu'.$checkUser
+                            .'" value="'.$ticket['id'].'">'
+                            .'</td>'
+                            .'<td>'.$ticket['Fecha'].'</td>'
+                            .'<td>'.$ticket['idTienda'].'-'.$ticket['idUsuario'].'-'.$ticket['Numticket'].'</td>'
+                            .'<td>'.$ticket['idCliente'].'</td>'
+                            .'<td>'.$ticket['Nombre'].'</td>'
+                            .'<td>'.$ticket['estado'].'</td>'
+                            .'<td>'.$ticket['formaPago'].'</td>'
+                            .'<td>'.$ticket['total'].'</td>'
+                            .'<td>'.(isset($ticket['idCierre']) ? $ticket['idCierre']['idCierre']:''); ?>
+                            </td>
+                            <td>
+                                <?php
+                                    if (isset($envio['enviado_stock'])){
+                                        // Quiere decir que se encontro registro
+                                        echo '<span title="'.$envio['respuesta_envio'].'">'.$envio['enviado_stock'].'</span>';
+                                    }  ;?>
+                            </td>
+                            
+                        </tr>
+                    <?php 
+                    }
+                }
+                ?>
 			</table>
 			</div>
 		</div>

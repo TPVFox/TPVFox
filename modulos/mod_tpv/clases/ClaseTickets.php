@@ -232,7 +232,11 @@ class ClaseTickets extends ClaseSession {
             if (isset($consulta['NItems']) && $consulta['NItems'] > 0) {
                 $respuesta['datos'] = $consulta['Items'];
             } else {
-                $respuesta['error'] = $consulta['error'];
+                if (isset($consulta['error'])){
+                    $respuesta['error'] = $consulta['error'];
+                } else {
+                    $respuesta['error'] = 'No se encontro ningun registro en el metodo obtenerTickets';
+                }
                 $respuesta['consulta']=$sql;
 
             }
