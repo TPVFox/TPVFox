@@ -74,7 +74,7 @@
 			<teclas>
 				<action tecla="40">mover_down</action>
 				<action tecla="38">mover_up</action>
-				<action tecla="27">saltar_CodBarras_desde_fila</action>
+				<action tecla="27">saltar_esc</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">cerrados</parametro>
@@ -94,7 +94,7 @@
 				<action tecla="13">recalcular_ticket</action>
 				<action tecla="40">mover_up</action>
 				<action tecla="38">mover_down</action>
-				<action tecla="27">saltar_CodBarras_desde_fila</action>
+				<action tecla="27">saltar_esc</action>
 				<action tecla="112">cobrar</action>
 			</teclas>
 			<parametros>
@@ -114,7 +114,7 @@
 			<teclas>
 				<action tecla="13">poner_entrega</action>
 				<action tecla="40">poner_entrega</action>
-				<action tecla="27">saltar_CodBarras_desde_fila</action>
+				<action tecla="27">saltar_esc</action>
 
 			</teclas>
 			<parametros>
@@ -127,7 +127,7 @@
 				<action tecla="13">cerrar_ticket</action>
 				<action tecla="40">focus_entrega</action>
 				<action tecla="37">focus_modoPago</action>
-				<action tecla="27">saltar_CodBarras_desde_fila</action>
+				<action tecla="27">saltar_esc</action>
 
 			</teclas>
 			<parametros>
@@ -140,7 +140,7 @@
 				<action tecla=" 9">buscarClientes</action>
 				<action tecla="13">buscarClientes</action>
 				<action tecla="40">buscarClientes</action>
-				<action tecla="27">saltar_CodBarras_desde_fila</action>
+				<action tecla="27">saltar_esc</action>
 
 			</teclas>
 			<parametros>

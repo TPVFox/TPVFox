@@ -627,10 +627,9 @@ function controladorAcciones(caja,accion){
 			}
 		break;
 		
-		case 'saltar_CodBarras_desde_fila':
-			console.log('Saltar_Codbarras');
-				var d_focus = 'Codbarras';
-				ponerSelect(d_focus);
+		case 'saltar_esc':
+			console.log('Saltar_Esc');
+				$('#'+configuracion.input_pordefecto).focus(); 
 		break;
 		
 		case  'saltar_productos':
