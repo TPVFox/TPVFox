@@ -91,16 +91,26 @@
 			}
 			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
-			 
+            <?php
+              echo '<pre>';
+              print_r($Tienda);     
+              echo '</pre>'; 
+
+            ?>
 			<nav class="col-sm-2">
 				<?php echo $Controler->getHtmlLinkVolver();?>
 				<div class="col-md-12">
 				<h4> Opciones de Ticket</h4>
 				<ul class="nav nav-pills nav-stacked"> 
-				 <?php
-				 if ($permitir_envio === 'Si'){?>
-				 	<li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb(<?php echo $id;?>);" >Descontar Stock en Web</button>
-				 <?php } ?>
+				<?php
+                if($ClasePermisos->getAccion("verWebEnProducto")==1){
+                    // Solo mostramos btn de enviar a web si tiene permisos.
+                     if ($permitir_envio === 'Si'){?>
+                        <li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb(<?php echo $id;?>);" >Descontar Stock en Web</button>
+                     <?php }
+                }
+                ?>
+                     
 				 	<li><a onclick="imprimirTicketCerrado(<?php echo $id;?>);">Imprimir</a></li>
                     <li><a id="cambioCliente" onclick="cambioCliente(<?php echo $id;?>);" style="display:none;">Cambio Cliente</a></li>
 				</ul>

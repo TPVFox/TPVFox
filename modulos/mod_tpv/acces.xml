@@ -8,6 +8,6 @@
     </vista>
     <vista nombre="ticketCobrado.php" descripcion="Ticket Cobrado" permiso="1">
         <accion nombre="imprimir" descripcion="Imprimir" permiso="1"></accion>
-        <accion nombre="descontarStock" descripcion="Descontar Stock" permiso="1"></accion>
+        <accion nombre="descontarStock" descripcion="Descontar Stock" permiso="0"></accion>
     </vista>
 </modulo>
